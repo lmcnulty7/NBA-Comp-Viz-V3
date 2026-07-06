@@ -57,6 +57,22 @@ class ClipBackbone:
                 out.append(feats.cpu().numpy())
         return np.concatenate(out, 0).astype(np.float32) if out else np.zeros((0, self.embed_dim), np.float32)
 
+    def embed_images(self, images, batch_size: int = 64, progress: bool = False) -> np.ndarray:
+        """Embed in-memory RGB images (np arrays or PIL) — same L2-normed space as
+        embed_image_paths. Used by detect/reid.py for player torso crops."""
+        from PIL import Image
+
+        out = []
+        with self.torch.no_grad():
+            for i in range(0, len(images), batch_size):
+                batch = [im if isinstance(im, Image.Image) else Image.fromarray(im)
+                         for im in images[i : i + batch_size]]
+                inputs = self.processor(images=batch, return_tensors="pt").to(self.device)
+                feats = self.model.get_image_features(**inputs)
+                feats = feats / feats.norm(dim=-1, keepdim=True)
+                out.append(feats.cpu().numpy())
+        return np.concatenate(out, 0).astype(np.float32) if out else np.zeros((0, self.embed_dim), np.float32)
+
     def embed_texts(self, texts: list[str]) -> np.ndarray:
         with self.torch.no_grad():
             inputs = self.processor(text=texts, return_tensors="pt", padding=True).to(self.device)

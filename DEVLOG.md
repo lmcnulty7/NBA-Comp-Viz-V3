@@ -9,6 +9,145 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-05c — Component C1: team classification + linker team veto
+
+Next node on the dependency spine after Component B: which team is each track
+on. Unsupervised (k-means, k=2, per clip — team colors are constant within a
+game), zero labels, zero new models. Three consumers wired immediately: the
+fragment linker (hard cross-team veto), `"team"` on every trajectory, and
+team-colored review video. `--no-teams` is the A/B lever.
+
+### Three iterations, each measured (the whole story is the feature)
+1. **CLIP embeddings** (the re-ID crops' embeddings, hypothesis: "jersey color
+   dominates CLIP, the re-ID weakness is the team signal") — **WRONG at crop
+   scale**: split 25-vs-1 tracks, silhouette 0.247, contact sheet showed white
+   and navy jerseys mixed in one cluster. On 30–70 px broadcast crops CLIP is
+   dominated by scene statistics (floor, blur, lighting), not jersey. Jersey
+   color must be measured DIRECTLY; CLIP stays re-ID-only.
+2. **Per-crop median Lab** (+ maple-floor HSV masking, reusing the old gate's
+   band): silhouette jumped to ~0.55 and the split became real (white vs dark),
+   but balance broke (5-vs-12 tracks, 16 abstained) — single crops are up to
+   ~half floor/apron/occluder, so any per-crop color is a coin flip and
+   crop-level voting abstained half the tracks.
+3. **Track-pooled color** (shipped): ONE feature per track — [L p25/p50/p75,
+   a p50, b p50] over the pixels pooled from all 10–40 of the track's crops
+   (floor-masked). Pooling makes the track's own jersey the dominant pixel
+   mass. Nearest-centroid assignment; abstain when near/far centroid-distance
+   ratio > 0.75. Result: 16 / 10 / 7-abstained tracks, silhouette 0.50, frame
+   balance [4,2] (vs ideal 5v5), abstained crops 192 → 11. Contact sheet: clean
+   white vs navy at track level (per-crop impurities inside a group are
+   occlusion frames — the sheet groups by TRACK team now).
+
+### Identity impact (same window: 11520, 200 fr, stride 3, gate)
+| | B only (07-05b) | B + team veto |
+|---|---|---|
+| merges | 8 | **11** |
+| ambiguous refusals | 58 | **20** |
+| cross-team vetoes | — | 38 |
+| canonical tracks | 38 | **35** |
+| id churn | 5.43 | **5.00** |
+The veto does the disambiguation the appearance signal couldn't: removing
+other-team candidates BEFORE the ambiguity margin turns "two look-alike
+candidates → refuse" into "one candidate per team → merge". Physics metrics
+unchanged (14.3% impossible, p99 39.6 — teams don't touch geometry).
+
+### Caveats / next
+- Cluster ids are team A/B, not home/away; naming needs roster knowledge.
+- No labeled eval yet — checks are the contact sheet + 5v5-balance + silhouette.
+  Planned: label a few hundred crops for a real accuracy number.
+- Balance [4,2] ≠ [5,5]: abstentions + short tracks without homography frames.
+- Both-teams-dark matchups will compress the L-axis separation; silhouette is
+  logged per run as the canary.
+- Unlocked next: offense/defense assignment (needs possession direction),
+  ref/crowd filtering via abstention, matchup metrics (Component C2).
+
+---
+
+## 2026-07-05b — Component B: player identity (re-ID) + foot-point stability
+
+The 2026-07-05 A/B ended with "the bottleneck has moved to player tracking —
+BoT-SORT ID switches and bbox foot-point jitter." This session built that
+component. Three levers + one bug fix, all independently A/B-able.
+
+### Bug found first: track-ID collisions across camera cuts
+ultralytics' `BYTETracker.__init__` calls `reset_id()` — every `PlayerTracker.
+reset()` (camera cut, Kalman guard) restarted BoT-SORT ids at 1. Anything keyed
+by `track_id` downstream (i.e. `build_trajectories`' raw dict) was silently
+merging DIFFERENT players from different shots under one id. Fixed with a
+monotonic id offset across resets (`detect/tracker.py`). This was a prerequisite:
+fragment linking is meaningless if fragment ids alias.
+
+### What got built
+1. **Native BoT-SORT re-ID** (`botsort_reid.yaml`, `TRACKER_REID=0` to revert):
+   ultralytics ≥8.3 `with_reid: true, model: auto` reuses the detector's own
+   Detect-head features — appearance matching within a shot for ~free.
+   Honest result: on the A/B window (0 camera cuts) fragment count was 46
+   with AND without it — no measurable effect here; kept because it's free and
+   should help on cut-heavy footage. Needs a cut-heavy window to prove.
+2. **FootPointStabilizer** (`detect/footpoint.py`, `--no-stab`): pixel-space,
+   per track — (a) occlusion height-clip correction: box much shorter than the
+   track's running median height ⇒ bottom is clipped ⇒ re-extend foot to
+   top + median (median always fed raw heights, so short occlusions can't
+   poison it and real zoom changes still adapt); (b) EMA (α=0.6) to kill
+   ±2–4 px box-edge jitter that perspective amplifies to ~0.5+ ft.
+3. **Offline fragment linker** (`detect/reid.py`, `--no-reid`): torso crops
+   (inner upper box = jersey) → mean CLIP embedding per fragment (the gate's
+   frozen ViT-B/32, REUSED — no new model) + court-space motion gate
+   (endpoints in feet are comparable ACROSS shots — the payoff of the court
+   work) → conservative greedy chaining (≤1 successor/predecessor, ambiguity
+   margin refuses teammate-converging cases). Full audit trail per run →
+   `data/tracking/<clip>_identity.json` (every merge with sim/gap/dist/speed
+   evidence, every ambiguity refusal).
+
+### The calibration lesson (measured, not guessed)
+First linker pass made **0 merges — all 89 candidates refused as ambiguous**.
+Audit showed why: CLIP torso sims cluster 0.89–0.98 across ALL pairs (jersey
+color dominates; teammates are near-identical) ⇒ appearance cannot RANK
+candidates, only gate them. But 19/26 fragments had a spatially CLEAR best
+successor (>6 ft margin over the runner-up). Fix: score = sim − 0.3·dist/reach
+(motion dominates, appearance tiebreaks), ambiguity margin applied to the
+combined score. Result: 8 merges, all physically plausible (implied speeds
+4–23 ft/s, incl. one 3-fragment chain), 58 still refused. This mirrors the
+gate/court lessons: the cheap general-purpose embedding is a filter, the
+geometry is the signal.
+
+### A/B (build_trajectories, same window as 07-05: 11520, 200 fr, stride 3, gate)
+| | baseline (B off) | Component B |
+|---|---|---|
+| impossible steps (>3 ft/0.1 s) | 15.4% | **14.3%** |
+| step p50 | 1.23 ft | **1.15 ft** |
+| step p99 | 39.8 ft | 39.6 ft (~tie) |
+| fragments → canonical tracks | 46 → 46 | 46 → **38** (8 merges) |
+| id churn (tracks / median 7 players) | 6.57 | **5.43** |
+| foot clip-corrections fired | — | 68 |
+Baseline exactly reproduces the 07-05 numbers (15.4 / 39.8 / 16.5% corrected),
+so the new in-script physics report measures the same thing the old table did.
+
+### Honest reads / caveats
+- The p99 tail didn't move: steps are measured WITHIN a track id at stride
+  gaps, so ID churn never polluted that metric — the tail is homography
+  extrapolation on far-court/HELD frames, not identity. The stabilizer's win
+  is the body of the distribution (impossible-rate, p50), as expected.
+- Merge validation is plausibility-only (speeds, visual review video). There
+  are NO identity GT labels; a MOT-style labeled clip would quantify ID
+  precision/recall properly. Deferred until team classification exists —
+  team id will also become a hard veto gate for the linker (never merge
+  across teams), which should let the ambiguity margin relax.
+- Churn 5.43 ≈ still 5×: remaining fragments are short/no-crop (unlinkable by
+  design), gaps > 4 s, or ambiguity refusals. That's the conservative trade —
+  a false merge poisons two players' stats; a missed merge is recoverable.
+
+### Status / next
+Component B v1 shipped: `detect/footpoint.py`, `detect/reid.py`, tracker id fix,
+`botsort_reid.yaml`; wired into `build_trajectories.py` with `--no-stab/--no-reid`
+levers + always-on physics/identity reports. Next candidates: (a) team
+classification (jersey-color clustering on the same torso crops — they're already
+collected) → linker veto gate + ref filtering; (b) a cut-heavy A/B window to
+actually exercise cross-shot linking + native re-ID; (c) MOT-labeled mini-clip
+for real ID metrics.
+
+---
+
 ## 2026-07-05 — Grid+snap tracker INTEGRATED into the pipeline; label factory built
 
 ### Integration: `court/snap_track.py` (CourtTracker) behind CourtMapper

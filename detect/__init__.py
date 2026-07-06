@@ -7,7 +7,8 @@ Streaming interface, mirroring the gate so it drops into a larger pipeline:
         tracks = tracker.update(frame, idx, ts)   # -> list[Track]
 """
 from .camera_cut import CameraCutDetector
+from .footpoint import FootPointStabilizer
 from .tracker import PlayerTracker
 from .types import Track
 
-__all__ = ["PlayerTracker", "Track", "CameraCutDetector"]
+__all__ = ["PlayerTracker", "Track", "CameraCutDetector", "FootPointStabilizer"]

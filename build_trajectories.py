@@ -2,18 +2,28 @@
 """
 build_trajectories.py — Component A: per-player court trajectories + correction.
 
-Runs a clip through tracking (BoT-SORT) + homography (33-pt court), projects each
-tracked player's foot-point to court feet per frame, then cleans the per-player
+Runs a clip through tracking (BoT-SORT) + homography (grid court tracker), projects
+each tracked player's foot-point to court feet per frame, then cleans the per-player
 paths (jump rejection + smoothing — court/trajectories.py). This is the bridge from
 "perception" to "analytics": clean court-space trajectories per player.
 
-Outputs: data/tracking/<clip>_trajectories.json  and a top-down court image
-(raw | cleaned) for visual review.
+Component B (identity + foot-point stability) is wired in here:
+  • FootPointStabilizer (detect/footpoint.py) fixes occlusion-clipped box bottoms
+    and jitter in PIXEL space before projection.            A/B lever: --no-stab
+  • Offline fragment linking (detect/reid.py): CLIP torso embeddings + court-space
+    motion gating merge the many BoT-SORT fragments of one player into one
+    canonical identity, ACROSS occlusions / camera cuts / gate gaps.  --no-reid
+  • Native BoT-SORT re-ID (botsort_reid.yaml) is a config lever: TRACKER_REID=0.
+Physics metrics (impossible steps, p99 step, off-court %) are printed every run so
+A/Bs are self-serve — these are the label-free numbers the DEVLOG tables use.
+
+Outputs: data/tracking/<clip>_trajectories.json, <clip>_identity.json (merge log),
+and a synced review video (broadcast | top-down minimap).
 
 Examples
 ────────
-  python build_trajectories.py --source ".../curry_q1_clip.mp4" --start 6000 --max-frames 300
-  python build_trajectories.py --source ".../clip.mp4" --use-gate
+  python build_trajectories.py --source ".../curry_q1_clip.mp4" --start 11520 --max-frames 200 --use-gate
+  python build_trajectories.py --source ".../clip.mp4" --no-reid --no-stab   # Component-B off (baseline)
 """
 from __future__ import annotations
 
@@ -36,6 +46,34 @@ log = logging.getLogger("build_trajectories")
 # generous court bound (ft) — drop horizon blow-ups; clean_paths handles the rest
 X_LO, X_HI = -25.0, COURT_LENGTH_FT + 25
 Y_LO, Y_HI = -25.0, COURT_WIDTH_FT + 25
+
+IMPOSSIBLE_STEP_FT = 3.0   # per 0.1 s (≈30 ft/s) — the DEVLOG 2026-07-05 A/B metric
+
+
+def physics_report(series: dict, fps: float, stride: int) -> dict:
+    """Label-free physics metrics on RAW court positions.
+    series: {tid: [(frame, x, y), ...]}. Steps are only measured between
+    CONSECUTIVE processed frames (gap == stride), so merge gaps don't pollute it."""
+    step_dt = stride / fps
+    dists, n_pts, n_off = [], 0, 0
+    for pts in series.values():
+        for k, (f, x, y) in enumerate(pts):
+            n_pts += 1
+            if not (0 <= x <= COURT_LENGTH_FT and 0 <= y <= COURT_WIDTH_FT):
+                n_off += 1
+            if k and f - pts[k - 1][0] == stride:
+                dists.append(float(np.hypot(x - pts[k - 1][1], y - pts[k - 1][2])))
+    if not dists:
+        return {"steps": 0}
+    arr = np.asarray(dists)
+    lim = IMPOSSIBLE_STEP_FT * (step_dt / 0.1)
+    return {
+        "steps": len(arr),
+        "impossible_step_pct": round(100 * float((arr > lim).mean()), 1),
+        "step_p50_ft": round(float(np.percentile(arr, 50)), 2),
+        "step_p99_ft": round(float(np.percentile(arr, 99)), 1),
+        "off_court_pct": round(100 * n_off / max(n_pts, 1), 1),
+    }
 
 
 def id_color(tid):
@@ -64,6 +102,12 @@ def main():
     ap.add_argument("--max-frames", type=int, default=300)
     ap.add_argument("--stride", type=int, default=3)
     ap.add_argument("--use-gate", action="store_true", help="Skip non-court frames via the gate.")
+    # Component B levers (identity + foot-point stability)
+    ap.add_argument("--no-stab", action="store_true", help="Disable foot-point stabilization (A/B).")
+    ap.add_argument("--no-reid", action="store_true", help="Disable offline fragment linking (A/B).")
+    ap.add_argument("--no-teams", action="store_true", help="Disable team classification + linker veto (A/B).")
+    ap.add_argument("--reid-sim", type=float, default=None, help="Override REID_SIM_MIN.")
+    ap.add_argument("--reid-max-gap", type=float, default=None, help="Override REID_MAX_GAP_SEC.")
     # clean_paths params (defaults = the external project's basketball settings)
     ap.add_argument("--jump-sigma", type=float, default=3.5)
     ap.add_argument("--min-jump-dist", type=float, default=0.6)
@@ -76,18 +120,22 @@ def main():
     if not args.source.exists():
         raise SystemExit(f"Source not found: {args.source}")
 
-    from detect import PlayerTracker
+    from detect import FootPointStabilizer, PlayerTracker
+    from detect.reid import TorsoCropCollector, build_fragments, link_fragments, mean_embeddings
+    from detect.teams import TeamClassifier, team_contact_sheet
+    from gate.backbones import get_backbone
     from court import CourtMapper
 
     device = config.get_device()
     gate = None
     if args.use_gate:
-        from gate.backbones import get_backbone
         from gate.trained_head import TrainedHeadGate
         thr = json.loads(config.THRESHOLDS_PATH.read_text())["trained"]
         gate = TrainedHeadGate.load(config.HEAD_PATH, backbone=get_backbone("clip", device), threshold=thr)
     tracker = PlayerTracker(device=device)
     mapper = CourtMapper()
+    stab = None if args.no_stab else FootPointStabilizer()
+    collector = None if args.no_reid else TorsoCropCollector()
 
     cap = cv2.VideoCapture(str(args.source), cv2.CAP_FFMPEG)
     if not cap.isOpened():
@@ -113,6 +161,10 @@ def main():
             continue
         tracks = tracker.update(frame, idx, idx / fps)
         mapper.update(frame)
+        if collector is not None:
+            collector.add(frame, tracks)
+        feet = stab.stabilize(tracks) if stab is not None else \
+            {t.track_id: (t.foot_point, False) for t in tracks}
         frame_order.append(idx)
         boxes_by_frame[idx] = [(t.track_id, [int(v) for v in t.bbox]) for t in tracks]
         hull_by_frame[idx] = mapper.keypoint_hull
@@ -120,15 +172,92 @@ def main():
         if mapper.has_homography:
             n_H += 1
             for t in tracks:
-                c = mapper.court_pos(t.foot_point)
+                foot, _ = feet[t.track_id]
+                c = mapper.court_pos(foot)
                 if np.isfinite(c).all() and X_LO <= c[0] <= X_HI and Y_LO <= c[1] <= Y_HI:
                     raw[t.track_id][idx] = (float(c[0]), float(c[1]))
-                    extrap[(t.track_id, idx)] = mapper.is_extrapolated(t.foot_point)
+                    extrap[(t.track_id, idx)] = mapper.is_extrapolated(foot)
         idx += args.stride
         n += 1
     cap.release()
 
+    n_fragments = len(raw)
+
+    # ── Components B + C1: teams (veto) → offline fragment linking → canonical team ──
+    idmap, merges, skipped = {}, [], []
+    team_by_canon, team_cols = {}, {}
+    team_clf = TeamClassifier()
+    if collector is not None and raw:
+        backbone = gate.backbone if gate is not None else get_backbone("clip", device)
+        log.info("Embedding torso crops (re-ID + teams, %d tracks) …", len(collector.crops))
+        crop_embs = collector.embed(backbone)
+        # teams BEFORE linking: the linker uses them as a hard cross-team veto.
+        # Teams cluster on Lab jersey COLOR of the crops; CLIP embs are re-ID-only.
+        team_of = {}
+        if not args.no_teams and team_clf.fit(collector.crops):
+            team_of = {tid: t for tid, (t, _) in team_clf.assign(collector.crops).items()}
+        frags = build_fragments(raw, fps, mean_embeddings(crop_embs))
+        idmap, merges, skipped = link_fragments(
+            frags, sim_min=args.reid_sim, max_gap_sec=args.reid_max_gap,
+            team_of=team_of or None)
+        if any(idmap[t] != t for t in idmap):
+            merged = defaultdict(dict)
+            for tid, d in raw.items():
+                cid = idmap.get(tid, tid)
+                for f, xy in d.items():
+                    merged[cid].setdefault(f, xy)   # no-overlap gate ⇒ collisions shouldn't occur
+            raw = merged
+            extrap = {(idmap.get(tid, tid), f): v for (tid, f), v in extrap.items()}
+            boxes_by_frame = {f: [(idmap.get(tid, tid), bb) for tid, bb in lst]
+                              for f, lst in boxes_by_frame.items()}
+        # canonical team = one vote over ALL member fragments' crops combined
+        if team_of:
+            canon_crops = defaultdict(list)
+            for tid, lst in collector.crops.items():
+                canon_crops[idmap.get(tid, tid)].extend(lst)
+            team_by_canon = {cid: t for cid, (t, _) in team_clf.assign(canon_crops).items()}
+            team_cols = team_clf.team_colors_bgr(collector.crops, team_of)
+            config.VIZ_DIR.mkdir(parents=True, exist_ok=True)
+            sheet = config.VIZ_DIR / f"team_clusters_{args.source.stem}.png"
+            team_contact_sheet(collector.crops, team_of, sheet)
+            log.info("team contact sheet → %s", sheet)
+
     raw_series = {tid: [(f, x, y) for f, (x, y) in sorted(d.items())] for tid, d in raw.items()}
+
+    # ── physics + identity diagnostics (the A/B numbers) ─────────────────────────
+    phys = physics_report(raw_series, fps, args.stride)
+    ppf = [sum(1 for tid in raw if f in raw[tid]) for f in frame_order]
+    med_ppf = int(np.median([p for p in ppf if p])) if any(ppf) else 0
+    identity = {
+        "fragments": n_fragments,
+        "canonical_tracks": len(raw),
+        "merges": len(merges),
+        "ambiguous_refused": sum(1 for s in skipped if s["reason"] == "ambiguous"),
+        "team_vetoed": sum(1 for s in skipped if s["reason"] == "team_veto"),
+        "median_players_per_frame": med_ppf,
+        "id_churn_before": round(n_fragments / max(med_ppf, 1), 2),
+        "id_churn_after": round(len(raw) / max(med_ppf, 1), 2),
+        "footpoint_clip_fixes": stab.n_clip_fixes if stab is not None else None,
+        "camera_cut_resets": tracker.n_resets,
+    }
+    # team diagnostics: track counts per team + per-frame balance (expect ~5v5 live)
+    if team_by_canon:
+        balance = [(sum(1 for tid in raw if f in raw[tid] and team_by_canon.get(tid) == 0),
+                    sum(1 for tid in raw if f in raw[tid] and team_by_canon.get(tid) == 1))
+                   for f in frame_order]
+        balance = [b for b in balance if sum(b)]
+        teams_diag = {
+            "silhouette": team_clf.silhouette,
+            "tracks_team_A": sum(1 for t in team_by_canon.values() if t == 0),
+            "tracks_team_B": sum(1 for t in team_by_canon.values() if t == 1),
+            "tracks_abstained": sum(1 for t in team_by_canon.values() if t is None),
+            "frame_balance_median": [int(np.median([b[0] for b in balance])),
+                                     int(np.median([b[1] for b in balance]))] if balance else None,
+        }
+        identity["teams"] = teams_diag
+    log.info("── PHYSICS (raw, pre-clean) ──   %s", json.dumps(phys))
+    log.info("── IDENTITY ──                   %s", json.dumps(identity))
+
     cleaned = clean_trajectories(
         raw, frame_order, jump_sigma=args.jump_sigma, min_jump_dist=args.min_jump_dist,
         max_jump_run=args.max_jump_run, smooth_window=args.smooth_window, smooth_poly=args.smooth_poly)
@@ -141,14 +270,30 @@ def main():
     config.TRACKING_DIR.mkdir(parents=True, exist_ok=True)
     out_json = config.TRACKING_DIR / f"{args.source.stem}_trajectories.json"
     out_json.write_text(json.dumps({
-        str(tid): {"raw": raw_series.get(tid, []),
+        str(tid): {"team": team_by_canon.get(tid),
+                   "raw": raw_series.get(tid, []),
                    "cleaned": [[f, x, y, ed] for f, x, y, ed in pts]}
         for tid, pts in cleaned.items()}, indent=2))
+
+    # identity audit trail: every accepted merge with its evidence, every refusal
+    out_id = config.TRACKING_DIR / f"{args.source.stem}_identity.json"
+    out_id.write_text(json.dumps({
+        "physics_raw": phys, "identity": identity, "merges": merges,
+        "refused": skipped,
+        "idmap": {str(k): v for k, v in idmap.items() if k != v},
+        "team_by_track": {str(k): v for k, v in team_by_canon.items()},
+    }, indent=2))
+    log.info("identity audit → %s", out_id)
 
     # ── synced review video: broadcast (boxes+IDs) | top-down minimap (cleaned dots) ──
     lookup = {tid: {f: (x, y) for f, x, y, _ in pts} for tid, pts in cleaned.items()}
     pos = {f: i for i, f in enumerate(frame_order)}
     scale, margin, trail = 9.0, 15, 12
+
+    def track_color(tid):
+        """Team jersey color when the track's team is known, else the per-id color."""
+        t = team_by_canon.get(tid)
+        return team_cols.get(t, id_color(tid)) if t is not None else id_color(tid)
 
     def minimap(frame_idx):
         img, _, _ = draw_court_topdown(scale, margin)
@@ -163,11 +308,13 @@ def main():
             if len(tp) >= 2:
                 cv2.polylines(img, [court_ft_to_px(np.array(tp, np.float32), scale, margin)], False, col, 1, cv2.LINE_AA)
             cx, cy = (int(v) for v in court_ft_to_px(fmap[frame_idx], scale, margin)[0])
+            # dot = team jersey color (id color if team unknown);
             # solid = position constrained by nearby landmarks; hollow ring = extrapolated (unreliable)
+            dot = track_color(tid)
             if extrap.get((tid, frame_idx), True):
-                cv2.circle(img, (cx, cy), 6, col, 1, cv2.LINE_AA)
+                cv2.circle(img, (cx, cy), 6, dot, 1, cv2.LINE_AA)
             else:
-                cv2.circle(img, (cx, cy), 6, col, -1, cv2.LINE_AA)
+                cv2.circle(img, (cx, cy), 6, dot, -1, cv2.LINE_AA)
             cv2.putText(img, str(tid), (cx + 6, cy - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.4, col, 1)
         cv2.putText(img, f"frame {frame_idx}", (10, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (60, 255, 60), 1)
         cv2.putText(img, "solid=trusted  hollow=extrapolated", (10, h_mm - 8),
@@ -201,7 +348,7 @@ def main():
             cv2.polylines(frame, [hull.astype(np.int32)], True, (0, 220, 255), 1, cv2.LINE_AA)
         for tid, bbox in boxes_by_frame.get(f, []):
             x1, y1, x2, y2 = bbox
-            col = id_color(tid)
+            col = track_color(tid)
             cv2.rectangle(frame, (x1, y1), (x2, y2), col, 2)
             cv2.putText(frame, str(tid), (x1 + 2, y1 - 4), cv2.FONT_HERSHEY_SIMPLEX, 0.5, col, 2)
         mm = minimap(f)

@@ -5,6 +5,7 @@ data/visibility/truth/
 data/tracking/*.mp4
 data/tracking/*.json
 data/tracking/*.png
+data/tracking/ab_baseline/
 reports/tracking_metrics.json
 reports/tracking_metrics.txt
 data/court/kp_labels/

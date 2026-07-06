@@ -253,3 +253,73 @@ the proxy.
 - `PYTORCH_ENABLE_MPS_FALLBACK=1` is set in `config.py` (YOLO's `nms` op isn't on MPS).
 - Overlay videos use the `avc1` codec (the only one that writes readable .mp4 on this
   OpenCV build).
+
+---
+
+# Component B — Player identity (re-ID) + foot-point stability
+
+After the court fix, trajectory teleports are dominated by **BoT-SORT ID
+fragmentation** (one player = many track fragments across occlusions/cuts) and
+**bbox foot-point jitter** (the box bottom moves, not the player, and perspective
+amplifies it). Three independent levers, all wired into `build_trajectories.py`:
+
+```
+botsort_reid.yaml     native BoT-SORT appearance re-ID (detector features, ~free)
+                      → within-shot ID stability.       Lever: TRACKER_REID=0 env
+detect/footpoint.py   FootPointStabilizer — occlusion height-clip correction +
+                      EMA, in pixel space BEFORE the homography.  Lever: --no-stab
+detect/reid.py        offline fragment linker: CLIP torso embeddings (gate's
+                      frozen backbone, reused) + court-space motion feasibility
+                      (endpoints in FEET are comparable across camera cuts) +
+                      ambiguity margin (teammates → refuse).      Lever: --no-reid
+```
+
+Also fixed here: track-ID collisions — ultralytics restarts IDs at 1 on every
+tracker reset, so IDs from different shots used to alias different players in
+anything keyed by `track_id`. `PlayerTracker` now offsets IDs to be globally unique.
+
+### Run it / A-B it
+```bash
+PY=/opt/anaconda3/bin/python
+V=".../Basketball_Defensive_Vision/data/raw/curry_q1_clip.mp4"
+$PY build_trajectories.py --source "$V" --start 11520 --max-frames 200 --stride 3 --use-gate
+# baseline (Component B off):
+TRACKER_REID=0 $PY build_trajectories.py --source "$V" --start 11520 --max-frames 200 \
+    --stride 3 --use-gate --no-reid --no-stab
+```
+Every run prints the label-free **physics report** (impossible-step %, p50/p99
+step, off-court %) and the **identity report** (fragments → canonical tracks,
+merges, ambiguity refusals, id-churn before/after), and writes
+`data/tracking/<clip>_identity.json` — the audit trail with the evidence
+(similarity / gap / distance / implied speed) for every accepted merge and every
+refusal. A false merge poisons two players' stats, so the linker is conservative
+by design: motion gates first, appearance breaks ties, ambiguity refuses.
+
+---
+
+# Component C1 — Team classification (unsupervised)
+
+`detect/teams.py` — k-means (k=2) on **pooled Lab jersey color, one feature per
+track**, from the torso crops re-ID already collects. Two measured dead ends
+before this landed (see DEVLOG 2026-07-05c): CLIP embeddings cluster by scene
+statistics on tiny broadcast crops (not jersey), and per-crop color features are
+a coin flip because single crops are up to half floor/apron — pooling a track's
+10–40 crops makes its own jersey the dominant pixel mass. Floor pixels are
+masked with the old gate's maple-HSV band first. Fit is per clip;
+nearest-centroid assignment with an **abstention rule** (near/far
+centroid-distance ratio > 0.75 or <2 crops ⇒ team `None` — bench/crowd leakage
+stays out of both teams). Cluster ids are team **A/B**, not home/away.
+
+Wired into `build_trajectories.py` (lever: `--no-teams`):
+- **linker veto** — candidate merges across teams are refused outright
+  (`"reason": "team_veto"` in the audit json), which also shrinks candidate
+  sets so the ambiguity margin refuses less;
+- `"team"` on every track in `<clip>_trajectories.json`; team diagnostics
+  (silhouette, per-team track counts, per-frame balance — expect ~5v5) in the
+  identity report;
+- the review video colors boxes + minimap dots by **median jersey color**;
+- `reports/viz/team_clusters_<clip>.png` — contact sheet of crops grouped by
+  assigned team, for eyeball verification of the clustering.
+
+No labels needed to run; to *quantify* accuracy later, label a few hundred crops
+(planned mini-eval) — until then the contact sheet + 5v5 balance are the checks.

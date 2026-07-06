@@ -1,0 +1,25 @@
+# botsort_reid.yaml — project BoT-SORT config with native appearance re-ID ON.
+#
+# Identical to ultralytics' bundled botsort.yaml except `with_reid: true` with
+# `model: auto`: ultralytics ≥8.3 hooks the detector's own Detect-head features
+# as the re-ID embedding, so appearance matching costs ~nothing extra (no second
+# model). This improves WITHIN-shot ID stability at occlusions; identity across
+# camera cuts / gate gaps is handled offline by detect/reid.py.
+#
+# A/B lever: TRACKER_REID=0 env falls back to the bundled (motion-only) botsort.yaml.
+
+tracker_type: botsort
+track_high_thresh: 0.25
+track_low_thresh: 0.1
+new_track_thresh: 0.25
+track_buffer: 30
+match_thresh: 0.8
+fuse_score: True
+
+gmc_method: sparseOptFlow
+
+# ReID
+proximity_thresh: 0.5
+appearance_thresh: 0.8   # min appearance similarity; high = conservative (avoid teammate swaps)
+with_reid: True
+model: auto              # reuse the detector's features — no extra model/compute

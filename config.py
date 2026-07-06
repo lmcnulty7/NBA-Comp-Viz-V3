@@ -242,3 +242,56 @@ LINE_DATASET = COURT_DIR / "line_dataset"        # images/ + masks/ (train/val)
 LINE_SEG_WEIGHTS = MODELS_DIR / "court_line_seg.pt"
 LINE_MASK_THICKNESS = 3          # px width to rasterize projected court lines into the label mask
 LINE_SEG_IMGSZ = 512             # segmentation input size
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COMPONENT B — Player identity (re-ID) + foot-point stability
+# ══════════════════════════════════════════════════════════════════════════════
+# After the court fix (DEVLOG 2026-07-05) the remaining trajectory teleports are
+# player-tracking artifacts: BoT-SORT ID fragmentation and bbox foot-point jitter.
+# Three levers, each independently A/B-able:
+#   1. Native BoT-SORT appearance re-ID (within-shot) — botsort_reid.yaml.
+#      TRACKER_REID=0 env reverts to the bundled motion-only botsort.yaml.
+#   2. FootPointStabilizer (detect/footpoint.py) — pixel-space foot correction
+#      BEFORE the homography amplifies it. --no-stab in build_trajectories.
+#   3. Offline fragment linker (detect/reid.py) — CLIP torso embeddings + court-
+#      space motion gating merges the fragments of one player. --no-reid.
+TRACKER_REID_YAML = PROJECT_ROOT / "botsort_reid.yaml"
+TRACKER_NATIVE_REID = os.environ.get("TRACKER_REID", "1") != "0"
+if TRACKER_NATIVE_REID and TRACKER_REID_YAML.exists():
+    TRACKER_CONFIG = str(TRACKER_REID_YAML)      # overrides the Component-2 default above
+
+# Foot-point stabilizer. Units are PROCESSED frames (i.e. after stride), not video frames.
+FOOT_HEIGHT_WIN = 15        # bbox-height history per track; median ≈ standing height at current zoom
+FOOT_OCCLUSION_FRAC = 0.85  # box shorter than this × median ⇒ bottom clipped (occlusion) → re-extend.
+                            # 0.85 tolerates crouching (~10-15% shorter) but catches leg occlusion.
+FOOT_EMA_ALPHA = 0.6        # EMA weight of the CURRENT foot obs (1.0 = no smoothing).
+                            # Kills ±2-4 px box-edge jitter (≈0.5+ ft at the far court) with ~1-frame lag.
+FOOT_MAX_GAP = 10           # unseen longer than this ⇒ reset that track's filter state
+
+# Fragment linker (offline, after the streaming pass).
+REID_CROP_EVERY = 3         # collect a torso crop every Nth processed frame per track
+REID_MAX_CROPS = 40         # cap crops per fragment (memory + embed cost)
+REID_MIN_CROPS = 2          # fragments with fewer crops have no reliable appearance → never linked
+REID_MAX_GAP_SEC = 4.0      # max real-time gap between fragment end and candidate start
+REID_MAX_SPEED_FTS = 30.0   # NBA sprint ≈ 21 mph ≈ 30 ft/s — motion-feasibility gate (court space,
+                            # comparable ACROSS camera cuts thanks to the homography)
+REID_DIST_SLACK_FT = 6.0    # allowance for foot-point + homography noise at the endpoints
+REID_SIM_MIN = 0.82         # CLIP cosine floor. Measured on the A/B window: sims cluster 0.89-0.98
+                            # (jersey color dominates), so appearance is a FLOOR + TIEBREAK only.
+REID_DIST_WEIGHT = 0.3      # candidate score = sim − w · dist/(max_speed·gap + slack).
+                            # Measured: spatial margins are decisive (19/26 fragments had a >6 ft
+                            # clear winner) where sim margins (<0.02) never were — so the motion
+                            # term must dominate the ranking, appearance breaks ties.
+REID_AMBIG_MARGIN = 0.02    # top-two candidates within this COMBINED-score margin ⇒ DON'T merge.
+                            # A false merge poisons two players' stats; a missed merge is recoverable.
+
+# ── Component C1 — team classification (detect/teams.py, unsupervised per clip) ──
+# k-means over median-Lab jersey color of the re-ID torso crops. NOT CLIP embs —
+# measured: on 30-70px crops CLIP is dominated by scene stats, split 25v1 tracks
+# at silhouette 0.247 (Lab color: clean ~5v5, see DEVLOG 2026-07-05c).
+TEAM_N_CLUSTERS = 2         # team A / team B; refs are already excluded by the detector class
+TEAM_ABSTAIN_RATIO = 0.75   # near-centroid dist / far-centroid dist above this ⇒ abstain (None):
+                            # the track's pooled color sits between the kits — bench/crowd leakage
+                            # and hopelessly contaminated tracks stay out of BOTH teams
+TEAM_MIN_CROPS = 2          # tracks with fewer crops abstain (one crop is not evidence)
