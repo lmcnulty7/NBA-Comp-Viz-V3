@@ -1,0 +1,9 @@
+{
+  "trained": 0.7004546103892618,
+  "objective": "min FN s.t. FP-rate<= 0.1",
+  "zero_shot": 0.8688451945781708,
+  "hsv_band": {
+    "min": 0.12,
+    "max": 0.55
+  }
+}

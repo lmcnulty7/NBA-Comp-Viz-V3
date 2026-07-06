@@ -1,0 +1,244 @@
+"""
+config.py — central configuration for the court-visibility gate.
+
+Scope reminder: this project builds ONLY the per-frame "live game footage vs.
+dead ball" gate and its evaluation harness. Nothing downstream (player/ball/
+court/team/identity/events) lives here.
+
+Everything reproducible flows through here: the fixed random seed, all on-disk
+paths, the CLIP backbone name, and the zero-shot prompt sets.
+"""
+from __future__ import annotations
+
+import os
+import random
+from pathlib import Path
+
+# Apple MPS lacks a few torchvision ops (notably torchvision::nms used by YOLO).
+# Fall back to CPU for just those ops instead of crashing. MUST be set before torch
+# is imported anywhere — config.py is imported first by every entry point, so here.
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
+import numpy as np
+
+# ── Reproducibility ───────────────────────────────────────────────────────────
+SEED = 42
+
+# ── This project's root ───────────────────────────────────────────────────────
+PROJECT_ROOT = Path(__file__).resolve().parent
+
+# ── External READ-ONLY source recovered in Phase 0 ────────────────────────────
+# The previous project. We read from it (frames) but never write to it and never
+# copy its source files wholesale.
+OLD_PROJECT_PATH = Path(
+    "/Users/lucienmcnulty/Documents/Data Science projects/Basketball_Defensive_Vision"
+)
+# The only .mp4 clips on disk live in the old project's data/raw (7 clips).
+VIDEO_DIR = OLD_PROJECT_PATH / "data" / "raw"
+
+# ── Dataset layout ────────────────────────────────────────────────────────────
+DATA_DIR = PROJECT_ROOT / "data" / "visibility"
+UNSORTED_DIR = DATA_DIR / "_unsorted"                  # raw extractor output
+
+PREDICTED_DIR = DATA_DIR / "predicted"                 # CLIP's GUESSES — never labels
+PREDICTED_LIVE = PREDICTED_DIR / "live"
+PREDICTED_DEAD = PREDICTED_DIR / "dead"
+
+TRUTH_DIR = DATA_DIR / "truth"                          # human-verified — the ONLY labels
+TRUTH_LIVE = TRUTH_DIR / "live"
+TRUTH_DEAD = TRUTH_DIR / "dead"
+
+# ── Artifacts ─────────────────────────────────────────────────────────────────
+MODELS_DIR = PROJECT_ROOT / "models"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+VIZ_DIR = REPORTS_DIR / "viz"
+
+SPLIT_PATH = MODELS_DIR / "split.json"
+HEAD_PATH = MODELS_DIR / "trained_head.joblib"
+THRESHOLDS_PATH = MODELS_DIR / "thresholds.json"
+CONFIG_RECORD_PATH = MODELS_DIR / "config_record.json"
+METRICS_JSON = REPORTS_DIR / "metrics.json"
+METRICS_TXT = REPORTS_DIR / "metrics.txt"
+
+
+def emb_cache_path(backbone: str) -> Path:
+    """Per-backbone embedding cache (CLIP=512-d, DINOv2=768-d differ)."""
+    return MODELS_DIR / f"emb_cache_{backbone}.pkl"
+
+
+# ── Backbone ──────────────────────────────────────────────────────────────────
+# open_clip is not installed; we load the identical model via transformers.
+CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
+DINOV2_MODEL_NAME = "facebook/dinov2-base"  # optional, behind --backbone dinov2
+
+# ── Classes ───────────────────────────────────────────────────────────────────
+# Positive class for all metrics is "live". Index convention: 0=dead, 1=live.
+LIVE = "live"
+DEAD = "dead"
+CLASSES = [DEAD, LIVE]   # CLASSES[label_int]
+
+# ── Labeling-integrity thresholds ─────────────────────────────────────────────
+MIN_PER_CLASS_HARD = 10    # below this per class → hard error (can't split/train)
+MIN_PER_CLASS_WARN = 250   # below this per class → warn (test won't be meaningful)
+
+# ── Zero-shot prompts (Phase 0: NONE were recovered) ──────────────────────────
+# The shipped gate used HSV floor-color thresholding, not CLIP, so there are no
+# prior prompts to reuse. These are sensible defaults for the CLIP zero-shot
+# baseline (Approach A). The HSV rule is preserved separately as a baseline.
+LIVE_PROMPTS = [
+    "a wide broadcast shot of a basketball game in progress on the court",
+    "a basketball game seen from the side broadcast camera with players on the full court",
+    "live basketball game play with several players spread across the court",
+    "an elevated wide angle view of a basketball court during a game",
+    "professional basketball players running on the court during live play",
+    "a half court basketball possession with offense and defense visible",
+]
+DEAD_PROMPTS = [
+    "a close-up of a single basketball player's face",
+    "a slow motion instant replay of a basketball play",
+    "the crowd and spectators in the stands at a basketball arena",
+    "a television commercial advertisement",
+    "basketball coaches and players on the bench during a timeout",
+    "an on-screen scoreboard or broadcast graphic overlay",
+    "studio analysts talking on a sports broadcast desk",
+    "a tight close-up of two players near the basket",
+    "a referee or official shown in close-up",
+]
+
+# ── HSV gate (recovered verbatim from old runner.py:479) ──────────────────────
+HSV_LO = (8, 25, 90)
+HSV_HI = (38, 210, 245)
+HSV_MIN_FLOOR_FRACTION = 0.12
+HSV_MAX_FLOOR_FRACTION = 0.55
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def set_seed(seed: int = SEED) -> None:
+    """Seed every RNG we touch. Called at the top of each entry point."""
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    try:
+        import torch
+
+        torch.manual_seed(seed)
+        if torch.backends.mps.is_available():
+            torch.mps.manual_seed(seed)
+    except Exception:
+        pass
+
+
+def get_device() -> str:
+    """Apple-Silicon: prefer MPS, else CPU."""
+    try:
+        import torch
+
+        if torch.backends.mps.is_available():
+            return "mps"
+    except Exception:
+        pass
+    return "cpu"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COMPONENT 2 — Player detection + tracking
+# ══════════════════════════════════════════════════════════════════════════════
+# Detection + tracking in one ultralytics call (YOLO .track()). Person class only;
+# referee/player separation is a later (team-classification) concern.
+# Reuse the old project's YOLOv8m weights if present; else ultralytics auto-downloads.
+_OLD_YOLO = OLD_PROJECT_PATH / "yolov8m.pt"
+YOLO_WEIGHTS = str(_OLD_YOLO if _OLD_YOLO.exists() else "yolov8m.pt")
+PLAYER_CONF = 0.40
+PLAYER_IOU = 0.45
+PERSON_CLASS = 0
+
+# BoT-SORT: motion + appearance ReID + camera-motion compensation (GMC), which is
+# the key win for broadcast pans/zooms. "botsort.yaml" = ultralytics' bundled config.
+TRACKER_CONFIG = "botsort.yaml"
+
+# Camera-cut handling: ByteTrack/BoT-SORT keep IDs indefinitely, so a broadcast cut
+# would drag stale IDs onto new players. Flag a cut when > this fraction of active
+# tracks (>= min) vanish in one frame, then reset the tracker.
+CAMERA_CUT_VANISH_FRAC = 0.80
+CAMERA_CUT_MIN_TRACKS = 4
+
+# Basketball-specific detector (trained on player-detection-3 → replaces generic COCO person).
+# Classes: 0=player 1=referee 2=ball 3=rim 4=number. The tracker tracks PLAYER_CLASS_ID only,
+# which excludes referees AND fans (a basketball-trained model won't fire "player" on crowd).
+PLAYER_DETECTOR_WEIGHTS = MODELS_DIR / "player_detector.pt"
+PLAYER_DETECTOR_DATA = PROJECT_ROOT / "data" / "external" / "player_det3_remap" / "data.yaml"
+PLAYER_DETECTOR_BASE = "yolov8m.pt"
+PLAYER_CLASS_ID = 0
+REFEREE_CLASS_ID = 1
+
+# Outputs
+TRACKING_DIR = PROJECT_ROOT / "data" / "tracking"          # tracks JSON + overlay mp4
+TRACK_BOX_TRUTH = PROJECT_ROOT / "data" / "tracking" / "box_truth"  # hand-labeled boxes (eval)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COMPONENT 3 — Court keypoints + homography
+# ══════════════════════════════════════════════════════════════════════════════
+# The old project's homography MATH was complete; it failed only because the
+# keypoint dataset was never labeled. So this component is a keypoint-detection
+# problem: label court landmarks → train YOLOv8-pose → feed homography.
+COURT_DIR = PROJECT_ROOT / "data" / "court"
+COURT_KP_DATASET = COURT_DIR / "kp_dataset"          # YOLO-pose dataset (images/ labels/ train/ val/)
+COURT_KP_LABELS = COURT_DIR / "kp_labels"            # raw per-frame keypoint JSON from the labeler
+COURT_KP_WEIGHTS = MODELS_DIR / "court_kp_yolo.pt"   # trained pose weights (legacy 20-pt scheme)
+COURT_KP_BASE = "yolov8n-pose.pt"                    # base pose model to fine-tune
+# 33-point scheme (external court-detection-2 dataset, trained on Colab GPU) — court/court33.py.
+COURT_KP33_WEIGHTS = MODELS_DIR / "court_kp33.pt"
+COURT_KP_DATASET_YAML = COURT_DIR / "court_kp.yaml"
+
+# Snapped-label generation (July 2026): models trained on projection labels from the
+# human-verified + line-snapped homographies (see DEVLOG 2026-07-01→04). The grid
+# model + snap-tracker (court/snap_track.py) is the pipeline's court solver now.
+COURT_KP33_SNAPPED_WEIGHTS = MODELS_DIR / "court_kp33_snapped.pt"   # 33-pt retrain (benchmark)
+COURT_GRID_WEIGHTS = MODELS_DIR / "court_grid_snapped.pt"           # 13×7 grid model (deployed)
+COURT_USE_GRID_TRACKER = os.environ.get("COURT_TRACKER", "1") != "0"
+                                 # CourtMapper uses CourtTracker (grid+snap+temporal);
+                                 # set COURT_TRACKER=0 to A/B against the legacy 33-pt detector
+COURT_GRID_KP_CONF = 0.5         # grid model is well-calibrated; no need for the 0.05 crutch
+COURT_TRACK_MAX_HELD = 20        # consecutive unconfirmed (HELD) updates before LOST
+                                 # (at stride 3 / 30 fps ≈ 2 s of coasting)
+
+RANSAC_REPROJ_THRESHOLD = 2.0    # FEET (dst space), for cv2.findHomography RANSAC.
+                                 # Swept on val: 2.0 → median 0.30 ft reproj, 100% success
+                                 # (was 5.0 = too loose, let noisy paint-corner kps skew H).
+MIN_KEYPOINTS_FOR_H = 4          # ≥4 non-collinear correspondences → valid H
+COURT_KP_CONF = 0.05             # min confidence to accept a predicted keypoint.
+                                 # Swept on the 11445-13965 gameplay window: 0.30→0.05 nearly
+                                 # doubles landmarks (12→23/frame) and grows keypoint coverage
+                                 # 25%→42% of the frame, with reproj err ~unchanged (0.60→0.65 ft,
+                                 # RANSAC@2px rejects the noisy ones). Less extrapolation = the
+                                 # fix for off-court projections on the weak (far) side / in transition.
+
+# Court-masking: a detection is kept only if its foot-point projects to within the
+# court + this margin (ft). Margin keeps inbounders / near-out-of-bounds players while
+# dropping bench (~10+ ft off sideline) and crowd (way off). Court is 94×50 ft.
+COURT_MARGIN_FT = 5.0
+# Only trust a homography for MASKING when it's well-determined; otherwise a slightly
+# wrong H misplaces the court polygon and drops real players. On low-confidence frames
+# we keep all detections. (court_pos for stats is still computed regardless.)
+COURT_MASK_MIN_INLIERS = 6
+COURT_MASK_MAX_REPROJ_FT = 0.6
+
+# Line-based homography refinement: bootstrap H from keypoints, then snap the projected
+# court LINES onto detected court-line pixels and re-solve (points + lines).
+# ON: with the LEARNED line-segmentation mask it's net-positive (~+0.4 px residual, never
+# worse thanks to the monotonic guard). It sharpens a roughly-right H; it can't rescue a
+# wrong one (that needs better keypoints — #1). Falls back to top-hat if the seg model is absent.
+COURT_REFINE = True
+COURT_REFINE_ITERS = 3          # ICP-style: re-project → re-match → re-solve
+COURT_REFINE_SEARCH_PX = 20     # perpendicular search window for the nearest line pixel
+COURT_REFINE_STEP_FT = 2.0      # sampling interval along each court line
+COURT_LINE_TOPHAT_K = 9         # white top-hat kernel (> line width) to isolate thin court lines
+COURT_LINE_THRESH = 8           # top-hat brightness threshold (low: NBA lines are low-contrast on wood)
+
+# Learned court-line segmentation (replaces top-hat). Labels are bootstrapped for free by
+# projecting the court template through each keypoint-labeled frame's homography.
+LINE_DATASET = COURT_DIR / "line_dataset"        # images/ + masks/ (train/val)
+LINE_SEG_WEIGHTS = MODELS_DIR / "court_line_seg.pt"
+LINE_MASK_THICKNESS = 3          # px width to rasterize projected court lines into the label mask
+LINE_SEG_IMGSZ = 512             # segmentation input size

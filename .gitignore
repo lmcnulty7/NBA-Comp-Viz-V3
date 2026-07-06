@@ -1,0 +1,69 @@
+# Data frames and model artifacts are large / regenerable — keep them out of git.
+data/visibility/_unsorted/
+data/visibility/predicted/
+data/visibility/truth/
+data/tracking/*.mp4
+data/tracking/*.json
+data/tracking/*.png
+reports/tracking_metrics.json
+reports/tracking_metrics.txt
+data/court/kp_labels/
+data/court/kp_dataset/
+data/court/kp_split.json
+data/court/court_kp.yaml
+models/court_kp_yolo.pt
+models/court_kp_runs/
+reports/homography_metrics.json
+reports/homography_metrics.txt
+reports/viz/*.png
+models/*.joblib
+models/*.pkl
+models/emb_cache_*.pkl
+reports/viz/*.png
+reports/metrics.json
+reports/metrics.txt
+
+# Keep the folder structure (empty dirs) so the workflow paths exist on clone.
+!data/visibility/**/.gitkeep
+
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+
+# ── July 2026 court pipeline: keep code + trust-chain artifacts; drop regenerables ──
+# rendered review/overlay sets (regenerable from scripts + committed labels/H's)
+data/court_review/proj_review/
+data/court_review/snap_review/
+data/court_review/unseen_review/
+data/court_review/pure_download_viz/
+data/court_review/triage_viz/
+data/court_review/step2_fourpt/
+data/court_review/step2_sparse/
+data/court_review/swap_verify/
+data/court_review/benchmark_viz/
+data/court_review/label_preview/
+data/court_review/unseen_clips/
+# raw video + external datasets (huge; re-downloadable)
+data/unseen_videos/
+data/NewExternalDatasets*/
+data/external/
+data/ood/
+data/ood_test/
+data/harvest/*/video/
+data/court/line_dataset/
+data/court/_gameplay_window_11445_13965.mp4
+data/court/_compare_overlay/
+# derived training datasets + colab zips (regenerable: build_pose_datasets / label_factory build)
+data/court_pose33/
+data/court_pose_grid/
+data/court_pose33_v2/
+data/court_pose_grid_v2/
+*_colab.zip
+court_det2_colab*.zip
+# base / superseded intermediate weights (downloadable; provenance copies in ~/Downloads)
+yolov8*.pt
+models/court_kp33_merged*.pt
+models/court_kp33_boxfix.pt
+models/court_kp33_pre_merge.pt
+runs/

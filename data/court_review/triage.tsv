@@ -1,0 +1,2263 @@
+frame	n_orange	suspect_orange	suspect_total	median_reproj_ft	suspect_idx:err
+nbacourt_0632_frame_0003_png.rf.705285	11	11	11	0.13	24:67.8 18:64.9 21:59.6 22:56.2 19:54.3 23:53.9 15:38.7 16:36.0 13:9.3 7:7.3 10:5.8
+nbacourt_1827_frame_0012_png.rf.f22dda	20	10	12	0.58	1:89.6 12:84.8 7:84.6 2:80.1 0:79.2 9:74.3 6:72.4 10:70.2 3:70.1 13:67.5 11:64.5 21:38.7
+nbacourt_1865_frame_0014_png.rf.6bbe06	14	10	10	1.02	1:95.2 0:94.4 7:89.3 2:83.6 9:78.3 6:76.3 3:74.1 10:71.7 13:71.5 11:67.1
+nbacourt_0965_frame_0005_png.rf.1009da	13	9	9	0.86	0:82.0 1:81.4 7:77.3 2:74.6 6:67.9 9:67.9 10:64.1 13:62.1 11:60.1
+nbacourt_1871_frame_0014_png.rf.a131d6	13	9	9	0.65	1:95.8 0:94.6 7:89.5 2:83.8 9:78.3 6:76.3 3:74.1 10:71.6 11:67.1
+nbacourt_1153_frame_0005_png.rf.ecf0b1	14	8	10	0.50	1:93.3 2:93.0 0:92.7 7:88.8 9:78.7 6:76.0 3:73.7 10:73.6 13:73.0 11:68.7
+nbacourt_1066_frame_0005_png.rf.8d0c24	8	8	8	0.18	12:62.0 13:51.6 15:46.0 16:33.2 19:18.6 24:15.5 22:13.2 28:10.3
+nbacourt_1093_frame_0005_png.rf.b0e76a	12	8	8	0.80	0:88.7 1:88.6 7:82.6 2:80.3 9:72.5 6:72.3 10:68.1 11:63.7
+nbacourt_1698_frame_0010_png.rf.1af236	8	8	8	0.09	18:71.0 19:61.8 15:52.1 16:43.9 12:30.0 13:25.6 7:22.9 10:21.0
+nbacourt_1266_frame_0006_png.rf.9dd03f	12	7	8	0.27	0:94.6 1:94.5 2:93.8 7:89.5 9:79.1 6:76.6 10:73.7 11:68.7
+nbacourt_1611_frame_0009_png.rf.15b007	12	7	8	0.65	0:88.0 1:88.0 7:82.5 2:79.8 9:72.9 6:71.9 11:63.9 30:24.9
+nbacourt_1934_frame_0020_png.rf.55621c	8	7	7	0.36	31:11.5 25:9.5 26:8.5 19:7.7 16:7.2 22:6.7 28:4.6
+nbacourt_1162_frame_0005_png.rf.f6b0c1	12	6	8	0.46	1:93.9 2:93.4 0:93.2 7:88.6 9:78.5 6:76.0 10:73.3 11:68.4
+nbacourt_0887_frame_0004_png.rf.aa8e7a	10	6	7	0.87	18:56.9 19:48.9 15:26.5 16:18.8 3:11.4 13:7.0 1:5.7
+nbacourt_0541_frame_0003_png.rf.0ac979	6	6	6	0.12	12:26.4 13:21.2 16:17.5 19:15.5 24:15.0 22:11.4
+nbacourt_0604_frame_0003_png.rf.58156b	6	6	6	0.14	19:18.3 16:12.3 10:12.2 13:11.6 8:11.0 7:9.5
+nbacourt_1928_frame_0019_png.rf.b05908	8	6	6	0.51	31:12.1 25:10.7 16:10.4 19:8.7 26:8.2 22:7.3
+nbacourt_1940_frame_0020_png.rf.f51340	8	6	6	0.42	12:26.3 16:7.1 25:6.9 19:6.6 26:6.4 22:4.4
+nbacourt_2120_frame_0008_png.rf.923fd0	10	6	6	0.97	1:96.6 2:82.8 9:78.3 6:75.9 10:70.4 11:66.6
+nbacourt_0681_frame_0003_png.rf.b140ca	10	5	10	0.90	30:963.1 26:863.9 29:280.5 28:208.4 25:156.6 18:78.0 22:65.7 24:32.2 21:25.7 23:15.1
+nbacourt_1206_frame_0006_png.rf.38df5a	11	5	10	0.50	27:74.5 21:68.3 29:60.7 23:52.9 24:51.1 18:49.3 30:47.6 19:39.1 15:18.4 16:12.6
+nbacourt_1215_frame_0006_png.rf.4568c0	14	5	10	0.74	27:100.0 28:96.8 24:94.7 29:85.3 21:80.7 26:76.9 22:73.8 30:73.4 23:67.8 2:10.7
+nbacourt_1237_frame_0006_png.rf.65b78e	9	5	9	0.58	28:207.1 27:94.6 18:34.1 13:31.4 21:28.5 29:19.8 16:19.7 23:15.7 24:13.9
+nbacourt_1851_frame_0013_png.rf.e513fa	15	5	9	0.38	1:87.5 7:83.3 0:82.5 9:75.6 6:70.8 10:68.2 2:66.7 11:63.2 3:55.2
+nbacourt_2247_frame_0011_png.rf.166560	14	5	9	0.62	0:108.8 1:92.1 7:88.0 2:87.5 9:74.2 6:73.7 3:72.3 10:68.4 11:67.9
+nbacourt_0656_frame_0003_png.rf.957d8c	5	5	5	0.14	19:19.4 16:13.1 10:13.0 13:12.4 7:10.4
+nbacourt_0741_frame_0003_png.rf.fc6d29	5	5	5	0.14	19:18.5 10:13.2 16:12.6 13:12.5 7:11.7
+nbacourt_1983_frame_0000_png.rf.626491	5	5	5	0.28	10:10.3 13:10.0 7:9.6 16:7.5 19:6.6
+nbacourt_1729_frame_0010_png.rf.962f7a	15	4	9	1.40	9:84.1 0:82.2 11:67.2 2:64.6 3:54.4 12:44.4 15:29.5 16:17.4 28:7.5
+nbacourt_1743_frame_0010_png.rf.c5e7ab	13	4	9	0.78	0:77.5 9:69.7 2:64.0 11:58.4 3:53.1 12:43.4 13:34.5 15:23.4 16:11.8
+nbacourt_0167_frame_0001_png.rf.20e4ac	10	4	8	0.28	27:59.0 21:58.1 29:46.7 23:46.7 18:45.5 19:37.5 15:19.4 16:14.7
+nbacourt_0065_frame_0000_png.rf.7bd5a5	8	4	7	0.50	12:114.5 15:11.5 8:10.7 9:10.2 1:5.4 2:4.9 6:4.8
+nbacourt_1687_frame_0009_png.rf.f066da	7	4	7	0.52	18:773.6 12:298.3 15:166.9 7:53.0 0:48.5 9:26.2 10:6.1
+nbacourt_0480_frame_0002_png.rf.bf6e1d	8	4	6	0.74	16:36.5 15:28.6 12:19.7 9:7.9 1:7.7 8:6.6
+nbacourt_0057_frame_0000_png.rf.6cd9a4	7	4	4	0.57	7:17.7 11:17.0 19:13.6 9:8.0
+nbacourt_0655_frame_0003_png.rf.935a40	4	4	4	0.16	18:28.6 19:23.1 16:20.2 13:17.6
+nbacourt_0667_frame_0003_png.rf.a41384	8	4	4	0.59	15:36.6 16:16.7 19:5.8 24:4.3
+nbacourt_1788_frame_0011_png.rf.b8f7dd	7	4	4	0.47	16:8.4 1:6.6 7:5.5 6:4.1
+nbacourt_1807_frame_0012_png.rf.44b8ad	4	4	4	0.11	18:20.1 13:17.7 16:17.0 19:16.9
+nbacourt_1834_frame_0013_png.rf.3b2b9c	4	4	4	0.18	18:17.3 13:15.6 16:14.9 19:14.8
+nbacourt_0663_frame_0003_png.rf.9e06b9	14	3	9	0.74	18:91.6 27:81.9 28:75.3 24:74.6 21:72.1 29:71.0 30:62.2 23:61.3 19:61.0
+nbacourt_0407_frame_0002_png.rf.691dcd	9	3	8	0.66	18:34.7 27:24.5 21:23.6 23:15.2 29:12.3 13:7.5 24:6.3 25:6.1
+nbacourt_0913_frame_0004_png.rf.caf6fa	8	3	8	0.75	30:132.6 18:61.0 21:45.2 27:41.6 22:31.8 23:28.1 19:10.6 16:8.5
+nbacourt_1059_frame_0005_png.rf.864f1f	10	3	8	0.86	21:45.8 23:44.5 30:36.5 27:31.6 12:29.5 29:27.6 15:27.6 25:7.1
+nbacourt_1160_frame_0005_png.rf.f44733	11	3	8	0.59	0:98.5 1:93.1 7:88.0 2:84.3 9:77.7 3:72.5 10:68.7 11:65.8
+nbacourt_1867_frame_0014_png.rf.76f375	12	3	8	1.26	27:104.2 28:96.5 24:95.4 29:86.5 21:82.6 30:73.9 23:68.6 2:4.4
+nbacourt_0143_frame_0001_png.rf.025551	8	3	6	0.63	21:48.8 23:31.8 15:17.1 24:14.2 18:9.6 29:5.7
+nbacourt_1020_frame_0005_png.rf.517af4	7	3	6	0.71	12:21.7 9:10.6 11:9.5 7:8.6 10:8.2 13:4.8
+nbacourt_1609_frame_0009_png.rf.0f3b1b	8	3	6	1.41	15:28.3 8:21.0 11:13.4 16:12.4 3:11.9 9:5.1
+nbacourt_2260_frame_0027_png.rf.a0669e	13	3	6	0.85	12:56.7 30:41.0 15:37.1 29:34.8 27:29.2 16:11.9
+nbacourt_0650_frame_0003_png.rf.90a099	6	3	5	0.70	18:36.9 11:13.5 7:7.3 9:5.5 1:4.1
+nbacourt_1853_frame_0013_png.rf.edda8b	6	3	5	0.75	18:26.5 11:13.2 19:13.0 7:6.2 9:5.5
+nbacourt_1971_frame_0033_png.rf.08b7d5	7	3	5	0.71	18:26.9 13:18.2 12:15.1 21:7.8 22:5.1
+nbacourt_0341_frame_0002_png.rf.0ea98a	6	3	4	0.90	18:29.8 19:11.8 11:10.1 7:8.3
+nbacourt_0424_frame_0002_png.rf.83f728	7	3	4	0.53	12:29.5 13:12.5 23:10.3 24:4.2
+nbacourt_1133_frame_0005_png.rf.d77581	8	3	4	1.19	15:25.4 1:12.2 7:7.3 0:6.8
+nbacourt_1941_frame_0021_png.rf.2e6dc5	8	3	4	0.65	15:35.2 28:9.6 24:6.8 27:4.7
+nbacourt_0015_frame_0000_png.rf.1ea1ef	3	3	3	0.49	12:23.4 26:6.1 25:5.9
+nbacourt_0267_frame_0001_png.rf.ac1af8	7	3	3	0.50	7:15.8 9:8.1 10:4.3
+nbacourt_0410_frame_0002_png.rf.6df8f1	6	3	3	0.55	7:9.2 10:8.0 16:7.8
+nbacourt_0490_frame_0002_png.rf.ccf97c	5	3	3	0.27	19:9.1 16:4.2 7:4.1
+nbacourt_0561_frame_0003_png.rf.22e641	8	3	3	1.03	27:80.3 24:74.9 1:5.3
+nbacourt_0674_frame_0003_png.rf.ab7030	7	3	3	0.45	1:9.5 16:5.5 7:4.2
+nbacourt_0998_frame_0005_png.rf.341399	4	3	3	0.49	18:11.2 13:9.6 16:7.1
+nbacourt_1043_frame_0005_png.rf.763d08	9	3	3	0.84	1:98.6 2:88.5 6:79.0
+nbacourt_1338_frame_0007_png.rf.02ae21	9	2	8	0.83	12:46.4 9:21.4 11:21.1 3:15.1 2:12.8 18:11.6 0:11.4 15:7.3
+nbacourt_1471_frame_0007_png.rf.e809e0	9	2	8	0.84	12:49.0 9:20.4 11:20.1 3:14.0 18:13.6 2:11.8 0:10.9 15:8.3
+nbacourt_1581_frame_0008_png.rf.c96fb4	8	2	8	0.40	12:32.9 9:22.8 11:22.4 3:15.5 0:13.7 2:12.8 18:10.7 1:4.5
+nbacourt_1603_frame_0008_png.rf.fe88b4	8	2	8	0.56	12:34.4 9:22.8 11:22.5 3:16.9 2:14.8 0:12.6 18:8.6 8:4.1
+nbacourt_0843_frame_0004_png.rf.73ad50	12	2	7	0.60	27:96.4 28:89.2 24:88.1 29:82.7 21:81.1 30:71.3 23:68.5
+nbacourt_0858_frame_0004_png.rf.84760e	8	2	7	0.58	18:98.6 21:28.4 15:26.3 23:20.5 16:18.5 27:10.2 29:4.0
+nbacourt_0906_frame_0004_png.rf.c5a45c	7	2	7	1.03	18:30.4 23:24.9 21:24.1 30:21.7 24:15.2 29:14.5 15:13.8
+nbacourt_1303_frame_0006_png.rf.d5cd2a	14	2	7	0.56	0:89.1 9:84.9 7:79.4 2:71.5 11:70.1 13:62.6 3:56.6
+nbacourt_0063_frame_0000_png.rf.797712	7	2	5	0.44	15:21.5 16:19.4 12:17.7 9:7.5 11:5.1
+nbacourt_0242_frame_0001_png.rf.8edf1d	6	2	5	0.38	18:29.0 11:28.8 7:16.1 9:12.4 2:9.9
+nbacourt_0277_frame_0001_png.rf.b53c61	6	2	5	0.44	18:31.3 11:30.1 7:15.0 9:11.9 2:8.4
+nbacourt_0314_frame_0001_png.rf.f1a946	6	2	5	0.93	25:74.7 23:20.0 26:7.3 21:5.9 27:4.7
+nbacourt_0408_frame_0002_png.rf.6bb503	10	2	5	1.43	21:44.4 23:34.1 27:22.9 18:9.7 19:7.8
+nbacourt_0382_frame_0002_png.rf.494ea3	6	2	4	1.11	12:8.0 9:7.1 1:5.1 11:5.0
+nbacourt_1329_frame_0006_png.rf.f55710	6	2	4	0.90	18:35.1 11:33.8 7:12.2 9:10.8
+nbacourt_0055_frame_0000_png.rf.6bc683	7	2	3	0.37	12:16.9 25:11.2 23:4.8
+nbacourt_0245_frame_0001_png.rf.9113aa	6	2	3	0.89	13:10.1 15:9.4 16:6.7
+nbacourt_0669_frame_0003_png.rf.a5b02d	7	2	3	0.75	12:17.1 23:9.1 25:9.0
+nbacourt_1640_frame_0009_png.rf.7195cb	7	2	3	0.72	0:8.9 8:7.5 4:5.7
+nbacourt_1909_frame_0018_png.rf.1ff4d8	8	2	3	0.68	15:28.9 16:6.6 12:5.6
+nbacourt_2154_frame_0013_png.rf.694735	7	2	3	0.97	12:24.3 15:19.8 1:4.1
+nbacourt_0087_frame_0000_png.rf.aafe22	7	2	2	0.67	7:7.2 16:6.9
+nbacourt_0103_frame_0000_png.rf.c09147	8	2	2	0.61	15:21.5 16:5.4
+nbacourt_0133_frame_0000_png.rf.f7e9f7	9	2	2	0.50	15:21.4 8:4.9
+nbacourt_0146_frame_0001_png.rf.0553b0	8	2	2	0.93	16:14.2 13:4.4
+nbacourt_0148_frame_0001_png.rf.07c67a	9	2	2	1.00	15:29.4 16:6.1
+nbacourt_0216_frame_0001_png.rf.63d5b8	8	2	2	1.24	8:4.0 4:4.0
+nbacourt_0357_frame_0002_png.rf.2e7fca	5	2	2	0.63	7:6.4 10:4.8
+nbacourt_0390_frame_0002_png.rf.51598a	3	2	2	0.37	13:8.5 16:4.1
+nbacourt_0433_frame_0002_png.rf.882a80	8	2	2	1.08	15:29.6 16:10.6
+nbacourt_0436_frame_0002_png.rf.8b210a	7	2	2	0.39	7:11.1 9:6.0
+nbacourt_0445_frame_0002_png.rf.94ec2a	3	2	2	0.44	13:8.3 16:4.2
+nbacourt_0474_frame_0002_png.rf.b8bca8	6	2	2	0.60	7:9.5 9:4.5
+nbacourt_0489_frame_0002_png.rf.cc0bc6	8	2	2	1.24	8:4.5 4:4.4
+nbacourt_0494_frame_0002_png.rf.d14e3b	4	2	2	0.30	13:7.7 7:6.5
+nbacourt_0509_frame_0002_png.rf.e3dd09	7	2	2	0.32	7:10.3 9:5.6
+nbacourt_0902_frame_0004_png.rf.bc767b	7	2	2	0.77	16:13.7 8:4.6
+nbacourt_0930_frame_0004_png.rf.e70f1b	8	2	2	0.75	15:28.9 16:6.7
+nbacourt_0935_frame_0004_png.rf.ed1298	8	2	2	0.60	1:7.8 7:5.7
+nbacourt_1134_frame_0005_png.rf.d8fae1	9	2	2	0.96	15:30.7 16:9.5
+nbacourt_1344_frame_0007_png.rf.09b248	6	2	2	0.85	24:6.1 22:4.8
+nbacourt_1377_frame_0007_png.rf.38cbd3	3	2	2	0.74	13:5.9 16:4.2
+nbacourt_1444_frame_0007_png.rf.b46b7f	6	2	2	0.95	24:5.4 22:4.9
+nbacourt_1517_frame_0008_png.rf.302267	4	2	2	0.49	13:5.2 16:4.2
+nbacourt_1548_frame_0008_png.rf.73168b	4	2	2	0.44	13:5.7 16:4.6
+nbacourt_1713_frame_0010_png.rf.619718	6	2	2	0.79	1:4.6 7:4.5
+nbacourt_1858_frame_0014_png.rf.1c71ae	7	2	2	1.14	24:76.3 23:61.1
+nbacourt_1902_frame_0017_png.rf.85c8c1	9	2	2	0.78	15:33.1 16:7.0
+nbacourt_1907_frame_0017_png.rf.f66382	9	2	2	0.65	15:33.7 16:4.7
+nbacourt_1962_frame_0029_png.rf.8e1a88	7	2	2	0.70	24:74.6 1:4.4
+nbacourt_1993_frame_0001_png.rf.0494d5	6	2	2	0.45	13:9.4 16:5.5
+nbacourt_2141_frame_0010_png.rf.cb51e3	7	2	2	0.55	15:23.8 16:8.6
+nbacourt_2206_frame_0004_png.rf.3f79fa	8	2	2	1.00	12:23.0 25:4.0
+nbacourt_2229_frame_0007_png.rf.6a69f6	9	2	2	1.00	15:30.1 16:9.1
+nbacourt_2238_frame_0009_png.rf.d9ee29	7	2	2	0.35	15:23.6 16:7.7
+nbacourt_0155_frame_0001_png.rf.0f21c1	9	1	7	0.86	18:39.8 21:27.1 27:23.8 15:22.6 23:21.7 29:16.8 30:12.0
+nbacourt_0186_frame_0001_png.rf.3e5056	9	1	7	0.61	15:38.1 18:25.2 21:13.1 23:10.7 27:8.0 29:5.7 30:4.9
+nbacourt_0600_frame_0003_png.rf.55a893	8	1	7	0.40	15:23.4 18:9.7 21:7.2 23:7.2 30:6.6 29:5.9 27:5.2
+nbacourt_0772_frame_0004_png.rf.21840e	9	1	7	0.58	18:39.8 15:25.0 21:24.0 27:19.3 23:18.9 29:12.4 30:7.7
+nbacourt_0804_frame_0004_png.rf.497932	9	1	7	0.50	18:32.1 15:27.6 21:19.5 23:15.8 27:15.4 29:10.4 30:7.5
+nbacourt_1089_frame_0005_png.rf.adb5ba	9	1	7	0.30	15:29.8 18:13.0 21:9.8 23:9.4 27:8.9 30:8.5 29:8.1
+nbacourt_1185_frame_0006_png.rf.0fd33c	8	1	7	0.91	15:23.5 18:21.8 21:13.9 27:12.9 23:10.8 29:9.0 30:5.4
+nbacourt_1677_frame_0009_png.rf.cde0f7	9	1	7	1.01	12:31.8 11:28.1 9:24.1 3:15.6 2:13.2 0:12.4 18:5.5
+nbacourt_0130_frame_0000_png.rf.f29ceb	8	1	6	0.74	15:29.2 18:19.4 12:10.0 23:9.2 21:8.5 27:5.0
+nbacourt_2110_frame_0007_png.rf.8573f8	11	1	6	0.92	27:105.4 24:99.8 29:88.9 21:87.9 30:75.3 23:71.6
+nbacourt_0073_frame_0000_png.rf.87d428	10	1	5	0.78	27:78.2 21:68.3 29:64.6 23:56.8 12:5.0
+nbacourt_0112_frame_0000_png.rf.d093c1	10	1	5	0.76	27:67.6 21:63.1 29:52.9 23:52.3 12:6.0
+nbacourt_0282_frame_0001_png.rf.b787b2	6	1	5	1.09	11:15.0 6:9.7 0:7.2 9:7.2 12:4.4
+nbacourt_0295_frame_0001_png.rf.d05596	9	1	5	0.74	27:76.0 24:71.0 21:70.9 29:63.8 23:58.3
+nbacourt_0388_frame_0002_png.rf.4e20d2	8	1	5	0.78	15:29.5 18:25.4 21:9.6 27:8.3 23:7.2
+nbacourt_1463_frame_0007_png.rf.d582d7	6	1	5	0.72	3:14.0 11:12.7 9:12.6 0:8.7 6:5.7
+nbacourt_1973_frame_0033_png.rf.619944	7	1	5	0.65	18:27.1 21:15.7 23:12.1 27:5.7 12:4.6
+nbacourt_0067_frame_0000_png.rf.7f29e5	8	1	4	0.28	15:17.2 18:9.1 12:7.6 23:4.2
+nbacourt_0646_frame_0003_png.rf.84e6c7	6	1	4	0.82	15:15.8 24:11.1 23:7.0 21:5.0
+nbacourt_1307_frame_0006_png.rf.d732b1	4	1	4	0.60	18:33.8 11:32.4 9:14.8 15:5.4
+nbacourt_1374_frame_0007_png.rf.3823cd	7	1	4	0.38	9:9.0 0:8.6 11:8.3 6:4.5
+nbacourt_1797_frame_0011_png.rf.e5d8f0	7	1	4	0.41	9:20.7 0:9.4 3:8.8 6:4.2
+nbacourt_1939_frame_0020_png.rf.bb1237	8	1	4	0.84	9:21.2 0:11.9 3:11.2 6:5.3
+nbacourt_0085_frame_0000_png.rf.a3cab7	6	1	3	0.47	12:24.6 18:14.5 11:4.7
+nbacourt_0348_frame_0002_png.rf.1481b1	4	1	3	0.21	18:23.8 11:18.1 9:8.1
+nbacourt_0391_frame_0002_png.rf.5345e5	7	1	3	0.83	15:17.6 23:15.0 21:5.6
+nbacourt_0398_frame_0002_png.rf.5b025c	9	1	3	1.49	18:19.1 24:6.8 21:6.0
+nbacourt_0420_frame_0002_png.rf.77c153	9	1	3	0.60	18:18.9 21:6.1 24:5.0
+nbacourt_0666_frame_0003_png.rf.a3dd67	7	1	3	0.52	15:9.7 12:4.5 16:4.0
+nbacourt_0787_frame_0004_png.rf.31483f	5	1	3	0.66	15:11.7 19:4.6 12:4.6
+nbacourt_0910_frame_0004_png.rf.c85697	11	1	3	0.86	15:34.1 12:21.8 16:4.1
+nbacourt_0934_frame_0004_png.rf.ec670c	4	1	3	0.32	12:18.2 23:16.8 21:8.7
+nbacourt_1809_frame_0012_png.rf.48157b	7	1	3	0.49	11:8.8 13:5.5 9:4.7
+nbacourt_1847_frame_0013_png.rf.a5c0fe	5	1	3	0.53	23:9.3 21:5.6 22:4.6
+nbacourt_1903_frame_0017_png.rf.9163b7	8	1	3	0.96	16:9.9 30:4.6 23:4.0
+nbacourt_1946_frame_0023_png.rf.5d8308	6	1	3	0.97	12:9.9 23:5.7 21:4.3
+nbacourt_0054_frame_0000_png.rf.6bb03a	9	1	2	0.67	15:19.5 12:5.2
+nbacourt_0169_frame_0001_png.rf.264f71	6	1	2	0.44	18:10.0 11:6.8
+nbacourt_0198_frame_0001_png.rf.4bbb65	8	1	2	0.57	25:4.3 27:4.1
+nbacourt_0203_frame_0001_png.rf.54812f	6	1	2	0.56	15:4.9 24:4.6
+nbacourt_0322_frame_0001_png.rf.fbc142	4	1	2	0.48	24:6.8 21:5.7
+nbacourt_0340_frame_0002_png.rf.0cdc64	8	1	2	0.78	15:29.8 12:4.8
+nbacourt_0364_frame_0002_png.rf.3632bc	5	1	2	0.80	9:5.4 1:4.1
+nbacourt_0411_frame_0002_png.rf.6e9154	7	1	2	1.26	18:5.4 16:4.0
+nbacourt_0537_frame_0003_png.rf.01d924	9	1	2	0.98	15:29.9 18:4.0
+nbacourt_0543_frame_0003_png.rf.0e78f7	6	1	2	0.87	12:9.1 27:4.5
+nbacourt_0568_frame_0003_png.rf.2ef425	7	1	2	1.02	18:5.7 16:4.8
+nbacourt_0617_frame_0003_png.rf.62b951	5	1	2	0.42	23:7.9 27:4.5
+nbacourt_0635_frame_0003_png.rf.728424	6	1	2	0.62	12:20.2 23:19.8
+nbacourt_0729_frame_0003_png.rf.e0be30	7	1	2	1.04	18:5.3 16:4.8
+nbacourt_0774_frame_0004_png.rf.2367bc	7	1	2	0.78	19:7.0 27:6.0
+nbacourt_0849_frame_0004_png.rf.7908c9	8	1	2	0.85	15:28.4 12:6.4
+nbacourt_0861_frame_0004_png.rf.888cc4	5	1	2	0.58	24:5.7 21:4.2
+nbacourt_1159_frame_0005_png.rf.f3df79	5	1	2	0.59	7:6.1 11:4.5
+nbacourt_1281_frame_0006_png.rf.b7a2ee	6	1	2	0.71	24:5.9 15:4.4
+nbacourt_1285_frame_0006_png.rf.c24f5a	7	1	2	0.69	18:9.5 28:4.2
+nbacourt_1373_frame_0007_png.rf.352408	6	1	2	0.83	12:10.8 23:6.8
+nbacourt_1418_frame_0007_png.rf.8913b6	6	1	2	0.65	12:9.9 23:6.9
+nbacourt_1507_frame_0008_png.rf.1c0aa2	7	1	2	1.30	0:5.3 1:4.6
+nbacourt_1544_frame_0008_png.rf.6d63aa	6	1	2	0.88	12:7.0 1:5.0
+nbacourt_1573_frame_0008_png.rf.b967ef	6	1	2	0.97	13:5.2 3:4.5
+nbacourt_2010_frame_0002_png.rf.735c39	5	1	2	0.36	12:13.4 23:4.9
+nbacourt_2196_frame_0003_png.rf.b3689c	8	1	2	0.90	15:21.2 23:10.9
+nbacourt_2242_frame_0010_png.rf.9041f6	7	1	2	1.06	11:7.8 13:4.2
+nbacourt_0001_frame_0000_png.rf.066cbc	2	1	1	0.33	1:4.3
+nbacourt_0028_frame_0000_png.rf.2bc8e2	4	1	1	0.46	25:5.4
+nbacourt_0044_frame_0000_png.rf.4fbf67	8	1	1	0.55	15:32.6
+nbacourt_0061_frame_0000_png.rf.72768e	6	1	1	0.88	12:9.2
+nbacourt_0069_frame_0000_png.rf.82603c	7	1	1	0.48	15:22.3
+nbacourt_0075_frame_0000_png.rf.8ed2d0	8	1	1	1.14	15:34.0
+nbacourt_0078_frame_0000_png.rf.95c537	7	1	1	0.47	15:22.5
+nbacourt_0142_frame_0001_png.rf.0194b1	8	1	1	0.69	15:22.5
+nbacourt_0161_frame_0001_png.rf.181d3d	9	1	1	1.03	15:21.7
+nbacourt_0173_frame_0001_png.rf.3154a4	8	1	1	0.68	15:32.2
+nbacourt_0176_frame_0001_png.rf.36f0f7	8	1	1	0.73	15:29.3
+nbacourt_0181_frame_0001_png.rf.3a40ab	4	1	1	0.06	12:17.9
+nbacourt_0194_frame_0001_png.rf.48b8d5	8	1	1	0.90	16:7.0
+nbacourt_0196_frame_0001_png.rf.49aee8	8	1	1	0.86	15:22.7
+nbacourt_0205_frame_0001_png.rf.54eca0	8	1	1	0.38	15:32.6
+nbacourt_0207_frame_0001_png.rf.584ec8	8	1	1	0.67	15:21.6
+nbacourt_0210_frame_0001_png.rf.597f9c	8	1	1	0.80	15:23.7
+nbacourt_0221_frame_0001_png.rf.69b435	4	1	1	0.08	12:17.2
+nbacourt_0239_frame_0001_png.rf.85e5a7	8	1	1	0.53	15:31.8
+nbacourt_0246_frame_0001_png.rf.91dc33	8	1	1	0.59	16:6.7
+nbacourt_0255_frame_0001_png.rf.9d56a3	7	1	1	0.47	15:21.5
+nbacourt_0260_frame_0001_png.rf.a5670c	8	1	1	0.73	15:29.3
+nbacourt_0308_frame_0001_png.rf.e8a91b	5	1	1	0.58	7:6.1
+nbacourt_0309_frame_0001_png.rf.e9382c	8	1	1	0.53	15:31.8
+nbacourt_0319_frame_0001_png.rf.f99af4	8	1	1	0.80	15:29.6
+nbacourt_0338_frame_0002_png.rf.0b3a86	8	1	1	0.60	15:29.0
+nbacourt_0347_frame_0002_png.rf.12a6ee	8	1	1	1.25	16:8.6
+nbacourt_0354_frame_0002_png.rf.260540	6	1	1	0.66	1:6.5
+nbacourt_0427_frame_0002_png.rf.860913	6	1	1	0.31	28:4.0
+nbacourt_0438_frame_0002_png.rf.8ba69d	9	1	1	0.76	15:25.8
+nbacourt_0451_frame_0002_png.rf.9ff731	7	1	1	0.77	16:8.4
+nbacourt_0468_frame_0002_png.rf.b06885	8	1	1	0.56	15:29.0
+nbacourt_0481_frame_0002_png.rf.c0251c	8	1	1	0.56	15:29.3
+nbacourt_0499_frame_0002_png.rf.dc1fc4	8	1	1	0.67	16:5.0
+nbacourt_0500_frame_0002_png.rf.dd050d	5	1	1	0.55	7:6.1
+nbacourt_0512_frame_0002_png.rf.e53bfe	7	1	1	1.10	28:4.4
+nbacourt_0521_frame_0002_png.rf.ec3976	9	1	1	0.77	15:24.6
+nbacourt_0538_frame_0003_png.rf.04c724	9	1	1	0.75	15:31.5
+nbacourt_0545_frame_0003_png.rf.0f3c88	8	1	1	0.60	15:25.8
+nbacourt_0564_frame_0003_png.rf.2662a0	9	1	1	0.77	15:31.3
+nbacourt_0597_frame_0003_png.rf.4c88f1	9	1	1	0.46	15:25.9
+nbacourt_0602_frame_0003_png.rf.55c93e	9	1	1	0.87	15:27.6
+nbacourt_0618_frame_0003_png.rf.64ca02	8	1	1	0.46	8:4.9
+nbacourt_0644_frame_0003_png.rf.82eabc	7	1	1	0.52	25:4.1
+nbacourt_0664_frame_0003_png.rf.a01cf9	8	1	1	0.53	16:5.1
+nbacourt_0668_frame_0003_png.rf.a4263e	9	1	1	0.70	15:30.3
+nbacourt_0670_frame_0003_png.rf.a77737	7	1	1	0.37	4:5.3
+nbacourt_0686_frame_0003_png.rf.b830c2	8	1	1	0.68	15:13.9
+nbacourt_0691_frame_0003_png.rf.beb230	9	1	1	0.46	3:5.4
+nbacourt_0723_frame_0003_png.rf.dc9ba9	8	1	1	0.45	8:5.1
+nbacourt_0733_frame_0003_png.rf.ee4dd0	8	1	1	0.62	15:17.8
+nbacourt_0743_frame_0003_png.rf.ff0a08	8	1	1	0.59	15:17.6
+nbacourt_0840_frame_0004_png.rf.70e9f4	9	1	1	0.58	15:31.5
+nbacourt_0856_frame_0004_png.rf.81a8f1	7	1	1	0.96	13:4.5
+nbacourt_0869_frame_0004_png.rf.91646a	9	1	1	0.59	15:31.0
+nbacourt_0880_frame_0004_png.rf.a55c49	6	1	1	0.54	8:4.0
+nbacourt_0897_frame_0004_png.rf.b482ea	6	1	1	1.18	13:4.6
+nbacourt_0943_frame_0004_png.rf.f7faff	9	1	1	0.58	15:30.7
+nbacourt_0944_frame_0004_png.rf.f8da3e	7	1	1	0.75	8:4.4
+nbacourt_0980_frame_0005_png.rf.1f9b3f	8	1	1	0.70	25:10.6
+nbacourt_0984_frame_0005_png.rf.21450f	6	1	1	0.49	18:5.6
+nbacourt_0986_frame_0005_png.rf.24bc0a	6	1	1	0.56	8:4.0
+nbacourt_0992_frame_0005_png.rf.2dbf7d	5	1	1	0.64	7:4.4
+nbacourt_0996_frame_0005_png.rf.31af73	6	1	1	0.70	8:4.9
+nbacourt_1033_frame_0005_png.rf.6778a4	8	1	1	0.98	31:4.2
+nbacourt_1076_frame_0005_png.rf.a26781	7	1	1	1.01	16:8.8
+nbacourt_1141_frame_0005_png.rf.e44910	5	1	1	0.98	19:4.1
+nbacourt_1163_frame_0005_png.rf.f82184	9	1	1	0.70	16:7.3
+nbacourt_1212_frame_0006_png.rf.447d01	7	1	1	0.72	18:18.1
+nbacourt_1223_frame_0006_png.rf.4c8d85	8	1	1	0.43	3:4.9
+nbacourt_1226_frame_0006_png.rf.50d65a	6	1	1	0.98	1:4.1
+nbacourt_1246_frame_0006_png.rf.80317e	8	1	1	0.45	3:5.1
+nbacourt_1294_frame_0006_png.rf.cc778e	6	1	1	0.27	12:6.1
+nbacourt_1327_frame_0006_png.rf.f3a291	8	1	1	0.57	3:5.1
+nbacourt_1346_frame_0007_png.rf.0b4733	5	1	1	0.50	18:8.8
+nbacourt_1360_frame_0007_png.rf.235964	5	1	1	0.47	12:11.2
+nbacourt_1378_frame_0007_png.rf.3a3aa1	5	1	1	0.49	18:8.4
+nbacourt_1406_frame_0007_png.rf.72d504	5	1	1	0.94	13:5.1
+nbacourt_1447_frame_0007_png.rf.bcc5a1	5	1	1	0.38	24:4.5
+nbacourt_1559_frame_0008_png.rf.8c1f2c	8	1	1	0.69	15:28.3
+nbacourt_1575_frame_0008_png.rf.be276f	7	1	1	0.48	12:7.0
+nbacourt_1600_frame_0008_png.rf.fbd349	6	1	1	0.91	12:5.2
+nbacourt_1621_frame_0009_png.rf.36d2da	6	1	1	0.88	8:4.2
+nbacourt_1674_frame_0009_png.rf.c43ebf	6	1	1	0.58	24:77.9
+nbacourt_1690_frame_0009_png.rf.f793d2	9	1	1	0.65	15:36.2
+nbacourt_1728_frame_0010_png.rf.942daa	8	1	1	0.74	16:4.3
+nbacourt_1734_frame_0010_png.rf.a9040b	8	1	1	0.64	16:4.4
+nbacourt_1802_frame_0012_png.rf.113ec1	7	1	1	0.49	4:5.4
+nbacourt_1820_frame_0012_png.rf.c308a0	8	1	1	0.60	16:5.8
+nbacourt_1833_frame_0013_png.rf.375796	8	1	1	0.63	16:5.7
+nbacourt_1837_frame_0013_png.rf.4a8c53	8	1	1	0.45	15:30.6
+nbacourt_1838_frame_0013_png.rf.55a06a	8	1	1	0.39	15:30.7
+nbacourt_1839_frame_0013_png.rf.69e7e0	8	1	1	0.69	16:6.9
+nbacourt_1843_frame_0013_png.rf.876e43	8	1	1	0.68	16:7.8
+nbacourt_1849_frame_0013_png.rf.d43b06	8	1	1	0.51	15:30.9
+nbacourt_1864_frame_0014_png.rf.457ac2	8	1	1	0.56	16:5.3
+nbacourt_1869_frame_0014_png.rf.96275f	8	1	1	0.54	16:4.9
+nbacourt_1872_frame_0014_png.rf.a195a9	8	1	1	0.57	16:5.6
+nbacourt_1875_frame_0014_png.rf.ca2ae3	3	1	1	0.66	13:4.2
+nbacourt_1876_frame_0014_png.rf.d0af04	6	1	1	0.99	24:76.0
+nbacourt_1877_frame_0014_png.rf.f083a8	7	1	1	0.89	8:5.7
+nbacourt_1887_frame_0016_png.rf.4d77fd	8	1	1	0.76	16:4.3
+nbacourt_1891_frame_0016_png.rf.9f42f7	8	1	1	0.59	16:4.6
+nbacourt_1899_frame_0017_png.rf.5d3068	8	1	1	0.94	16:4.5
+nbacourt_1901_frame_0017_png.rf.7b6b9f	8	1	1	0.69	15:27.1
+nbacourt_1910_frame_0018_png.rf.2f5b4a	5	1	1	1.00	18:4.3
+nbacourt_1911_frame_0018_png.rf.3ab431	6	1	1	0.46	18:5.1
+nbacourt_1913_frame_0018_png.rf.5986b9	8	1	1	1.01	16:5.0
+nbacourt_1916_frame_0018_png.rf.cd618c	5	1	1	0.50	18:6.0
+nbacourt_1948_frame_0023_png.rf.635104	6	1	1	0.99	13:5.3
+nbacourt_1953_frame_0025_png.rf.7a2ea6	6	1	1	0.63	7:77.8
+nbacourt_1970_frame_0031_png.rf.93ca91	8	1	1	0.93	15:27.9
+nbacourt_1980_frame_0000_png.rf.1fc48a	8	1	1	0.36	16:6.7
+nbacourt_1986_frame_0000_png.rf.a09a25	8	1	1	0.57	15:30.7
+nbacourt_2006_frame_0001_png.rf.f5db19	9	1	1	0.75	3:6.8
+nbacourt_2037_frame_0003_png.rf.db0b33	6	1	1	0.63	18:6.9
+nbacourt_2038_frame_0003_png.rf.db9815	7	1	1	0.41	4:4.3
+nbacourt_2051_frame_0004_png.rf.9cde2b	9	1	1	0.71	15:34.3
+nbacourt_2059_frame_0004_png.rf.eb5bcb	8	1	1	0.43	3:5.0
+nbacourt_2109_frame_0007_png.rf.7b4c7a	8	1	1	0.49	15:21.7
+nbacourt_2116_frame_0008_png.rf.217ca0	7	1	1	1.36	4:5.1
+nbacourt_2146_frame_0011_png.rf.6ec901	5	1	1	0.61	18:12.3
+nbacourt_2169_frame_0000_png.rf.0aa399	8	1	1	0.38	15:32.0
+nbacourt_2178_frame_0001_png.rf.245ca3	7	1	1	0.50	18:6.3
+nbacourt_2243_frame_0010_png.rf.916441	5	1	1	0.69	18:17.1
+nbacourt_2211_frame_0004_png.rf.bc6495	7	0	7	0.38	15:39.0 12:16.1 9:6.5 11:6.1 3:5.8 2:5.3 0:4.5
+nbacourt_0736_frame_0003_png.rf.f52d0b	7	0	6	0.85	18:27.3 21:21.7 27:19.1 23:18.4 29:15.7 30:12.3
+nbacourt_1127_frame_0005_png.rf.cdf318	7	0	6	0.76	12:21.9 9:18.1 11:18.1 3:15.6 2:14.6 0:13.9
+nbacourt_0098_frame_0000_png.rf.b90323	7	0	5	0.58	18:17.1 15:12.1 12:7.0 11:5.6 9:4.9
+nbacourt_0261_frame_0001_png.rf.a6f45f	6	0	5	1.02	15:23.5 18:19.0 27:12.0 21:10.9 23:6.1
+nbacourt_0551_frame_0003_png.rf.1330af	5	0	5	0.13	18:33.3 27:29.3 21:25.1 29:22.4 23:20.0
+nbacourt_0694_frame_0003_png.rf.c0ff60	5	0	5	0.05	18:32.9 27:29.9 21:25.2 29:23.8 23:20.7
+nbacourt_1046_frame_0005_png.rf.7af2c9	11	0	5	0.52	0:82.2 2:72.6 9:70.5 3:63.8 11:61.4
+nbacourt_1110_frame_0005_png.rf.be0b94	8	0	5	0.44	27:33.4 21:32.8 29:29.1 23:28.7 30:26.4
+nbacourt_1122_frame_0005_png.rf.cb1a6c	8	0	5	0.45	27:34.5 21:32.8 29:31.4 30:30.3 23:29.9
+nbacourt_1508_frame_0008_png.rf.1d19ae	8	0	5	0.72	21:23.7 23:22.4 30:20.8 29:20.2 27:18.2
+nbacourt_1732_frame_0010_png.rf.a56c33	8	0	5	0.68	21:19.5 23:18.9 30:13.3 29:11.7 27:11.0
+nbacourt_1746_frame_0010_png.rf.d66f34	8	0	5	0.58	23:24.6 21:23.9 30:19.9 29:16.7 27:12.4
+nbacourt_1842_frame_0013_png.rf.830109	7	0	5	0.66	11:20.1 15:17.3 9:15.5 2:14.3 12:11.0
+nbacourt_1912_frame_0018_png.rf.4c5acc	8	0	5	0.79	21:12.4 23:12.0 30:7.7 27:6.9 29:4.6
+nbacourt_0077_frame_0000_png.rf.94df6a	6	0	4	0.50	12:48.5 0:32.8 9:27.4 11:22.1
+nbacourt_0206_frame_0001_png.rf.578463	5	0	4	0.63	23:10.2 21:4.8 29:4.4 27:4.1
+nbacourt_0776_frame_0004_png.rf.275a61	7	0	4	0.58	23:9.9 21:8.9 27:8.9 30:5.7
+nbacourt_1087_frame_0005_png.rf.aacd4d	6	0	4	1.08	15:21.4 18:14.2 21:9.0 23:8.2
+nbacourt_1182_frame_0006_png.rf.0876ea	8	0	4	0.77	18:20.1 21:7.6 27:5.6 23:4.2
+nbacourt_1233_frame_0006_png.rf.604ad6	7	0	4	0.79	0:10.5 11:9.2 3:8.7 9:7.4
+nbacourt_1624_frame_0009_png.rf.413dd8	12	0	4	0.49	0:95.9 2:78.5 11:70.9 3:65.2
+nbacourt_1634_frame_0009_png.rf.5f2aeb	13	0	4	0.50	0:97.5 2:78.7 11:72.5 3:64.3
+nbacourt_1675_frame_0009_png.rf.c90042	11	0	4	0.47	0:95.3 2:77.9 11:69.1 3:64.8
+nbacourt_1760_frame_0011_png.rf.286343	8	0	4	0.50	9:8.0 11:7.3 3:5.5 0:4.9
+nbacourt_1835_frame_0013_png.rf.3ec2e7	8	0	4	0.63	3:22.9 9:21.6 2:17.9 0:4.7
+nbacourt_1852_frame_0013_png.rf.eabab7	9	0	4	0.52	3:24.5 2:20.9 9:18.4 0:10.7
+nbacourt_1920_frame_0019_png.rf.084f1b	9	0	4	0.70	9:26.0 3:24.0 2:14.6 0:7.6
+nbacourt_1924_frame_0019_png.rf.613f64	9	0	4	0.69	9:23.4 3:22.2 2:12.8 0:7.1
+nbacourt_1929_frame_0019_png.rf.b89fb8	9	0	4	0.77	9:21.6 3:20.9 2:12.0 0:9.3
+nbacourt_1933_frame_0020_png.rf.520d79	9	0	4	0.72	9:23.2 3:18.2 0:15.6 2:6.6
+nbacourt_1936_frame_0020_png.rf.76f4ea	9	0	4	0.67	9:26.9 3:24.9 0:15.3 2:12.1
+nbacourt_1972_frame_0033_png.rf.3b5796	7	0	4	1.04	18:27.1 21:19.0 23:16.4 27:10.5
+nbacourt_0059_frame_0000_png.rf.716da6	7	0	3	0.46	12:11.7 11:9.1 9:6.2
+nbacourt_0243_frame_0001_png.rf.8f76ca	8	0	3	0.78	12:36.7 15:25.5 18:21.3
+nbacourt_0266_frame_0001_png.rf.aa13b0	6	0	3	0.84	9:6.8 11:6.4 0:5.4
+nbacourt_0376_frame_0002_png.rf.42e780	5	0	3	0.42	15:36.1 11:18.8 9:10.2
+nbacourt_0395_frame_0002_png.rf.57903b	7	0	3	0.30	23:12.4 21:9.2 29:5.8
+nbacourt_0485_frame_0002_png.rf.c5497a	4	0	3	0.88	12:14.3 15:10.3 23:8.3
+nbacourt_0529_frame_0002_png.rf.f8c9db	6	0	3	0.56	23:10.6 21:8.0 27:5.9
+nbacourt_1026_frame_0005_png.rf.6118b3	8	0	3	0.76	27:14.3 29:5.6 21:4.4
+nbacourt_1187_frame_0006_png.rf.12e8e5	7	0	3	0.67	2:4.5 0:4.4 3:4.4
+nbacourt_1512_frame_0008_png.rf.258c5f	8	0	3	0.68	27:7.7 30:4.8 29:4.6
+nbacourt_1752_frame_0011_png.rf.0a49de	7	0	3	0.28	9:13.8 3:6.0 0:5.9
+nbacourt_1956_frame_0026_png.rf.25a528	10	0	3	0.61	30:26.5 29:20.0 27:14.8
+nbacourt_1957_frame_0026_png.rf.59aaa1	10	0	3	0.59	30:24.2 29:17.1 27:13.5
+nbacourt_1958_frame_0026_png.rf.c92249	10	0	3	0.68	30:25.2 29:18.6 27:14.5
+nbacourt_2067_frame_0005_png.rf.936ff9	9	0	3	0.51	0:93.0 11:75.7 2:73.8
+nbacourt_0114_frame_0000_png.rf.d643a7	4	0	2	0.12	15:22.2 23:9.9
+nbacourt_0127_frame_0000_png.rf.ebb437	7	0	2	0.77	15:10.9 18:5.5
+nbacourt_0218_frame_0001_png.rf.65982b	9	0	2	0.43	15:13.9 18:7.0
+nbacourt_0241_frame_0001_png.rf.8db796	8	0	2	0.62	15:4.3 27:4.3
+nbacourt_0281_frame_0001_png.rf.b771f2	7	0	2	0.46	12:15.5 15:7.1
+nbacourt_0318_frame_0001_png.rf.f84a75	8	0	2	0.78	27:4.5 15:4.3
+nbacourt_0446_frame_0002_png.rf.9640e8	7	0	2	0.58	27:7.0 18:5.2
+nbacourt_0636_frame_0003_png.rf.752c7d	7	0	2	1.04	11:5.0 9:4.3
+nbacourt_0793_frame_0004_png.rf.3fd5b9	12	0	2	1.09	15:31.3 12:18.8
+nbacourt_1004_frame_0005_png.rf.4148b2	5	0	2	0.78	9:4.8 11:4.4
+nbacourt_1131_frame_0005_png.rf.d64f6d	6	0	2	0.76	15:8.4 12:6.0
+nbacourt_1147_frame_0005_png.rf.ea014f	7	0	2	0.35	2:93.6 0:93.6
+nbacourt_1305_frame_0006_png.rf.d63fc1	6	0	2	0.47	15:9.7 12:6.0
+nbacourt_1333_frame_0006_png.rf.fd79b7	6	0	2	1.14	15:8.1 18:4.4
+nbacourt_1762_frame_0011_png.rf.4686fa	7	0	2	0.97	9:6.8 11:5.8
+nbacourt_1825_frame_0012_png.rf.e7604d	12	0	2	0.62	0:78.6 21:36.3
+nbacourt_1860_frame_0014_png.rf.231390	3	0	2	0.62	11:7.9 9:5.2
+nbacourt_1873_frame_0014_png.rf.b2399e	3	0	2	0.49	11:8.4 9:5.0
+nbacourt_2124_frame_0008_png.rf.d94c73	8	0	2	0.92	18:11.5 15:6.5
+nbacourt_2259_frame_0022_png.rf.6957f5	4	0	2	0.66	15:24.2 9:9.6
+nbacourt_0025_frame_0000_png.rf.2ad52f	2	0	1	0.25	15:32.3
+nbacourt_0089_frame_0000_png.rf.ae15e3	7	0	1	0.72	18:5.0
+nbacourt_0096_frame_0000_png.rf.b443f4	4	0	1	0.59	21:14.9
+nbacourt_0122_frame_0000_png.rf.e64600	7	0	1	0.74	12:5.8
+nbacourt_0135_frame_0000_png.rf.f9d679	4	0	1	0.91	21:15.3
+nbacourt_0136_frame_0000_png.rf.fa1f9d	5	0	1	0.82	21:16.2
+nbacourt_0177_frame_0001_png.rf.375c03	6	0	1	0.57	15:4.9
+nbacourt_0191_frame_0001_png.rf.440f26	5	0	1	0.26	15:8.5
+nbacourt_0269_frame_0001_png.rf.ae4a92	5	0	1	1.07	21:4.2
+nbacourt_0327_frame_0002_png.rf.007972	7	0	1	0.62	2:16.2
+nbacourt_0328_frame_0002_png.rf.00aacc	7	0	1	0.46	0:94.4
+nbacourt_0335_frame_0002_png.rf.08f74d	7	0	1	0.55	2:16.4
+nbacourt_0389_frame_0002_png.rf.4f4846	8	0	1	0.44	0:93.9
+nbacourt_0403_frame_0002_png.rf.5f2089	7	0	1	0.45	0:94.3
+nbacourt_0415_frame_0002_png.rf.73b915	8	0	1	0.38	0:94.1
+nbacourt_0461_frame_0002_png.rf.acc81a	8	0	1	0.34	0:94.4
+nbacourt_0503_frame_0002_png.rf.df9e8b	7	0	1	0.59	2:16.3
+nbacourt_0516_frame_0002_png.rf.e96aa8	8	0	1	0.33	0:94.5
+nbacourt_0547_frame_0003_png.rf.115e63	8	0	1	0.56	11:6.5
+nbacourt_0575_frame_0003_png.rf.367d7b	7	0	1	0.48	2:94.6
+nbacourt_0590_frame_0003_png.rf.447152	7	0	1	0.64	2:93.7
+nbacourt_0615_frame_0003_png.rf.60f78d	7	0	1	1.12	23:4.1
+nbacourt_0662_frame_0003_png.rf.9dbc36	7	0	1	1.09	15:4.6
+nbacourt_0703_frame_0003_png.rf.c71b7f	7	0	1	0.92	0:4.4
+nbacourt_0730_frame_0003_png.rf.e642e8	8	0	1	0.76	27:5.9
+nbacourt_0737_frame_0003_png.rf.f78390	7	0	1	0.47	2:94.6
+nbacourt_0738_frame_0003_png.rf.f8000c	7	0	1	1.11	27:4.6
+nbacourt_0750_frame_0004_png.rf.0a04c4	8	0	1	0.35	0:93.8
+nbacourt_0789_frame_0004_png.rf.359496	7	0	1	0.81	0:5.0
+nbacourt_0835_frame_0004_png.rf.6c1465	3	0	1	0.13	9:4.7
+nbacourt_0865_frame_0004_png.rf.8bb0b5	8	0	1	0.37	0:93.8
+nbacourt_0866_frame_0004_png.rf.8d66e0	8	0	1	0.33	0:93.7
+nbacourt_0926_frame_0004_png.rf.e54608	3	0	1	0.11	21:4.6
+nbacourt_0957_frame_0005_png.rf.0765f0	9	0	1	0.56	18:5.9
+nbacourt_0967_frame_0005_png.rf.10bc92	8	0	1	0.59	0:95.6
+nbacourt_0972_frame_0005_png.rf.160c63	8	0	1	0.56	0:95.3
+nbacourt_1009_frame_0005_png.rf.484cbd	8	0	1	0.42	21:56.4
+nbacourt_1034_frame_0005_png.rf.6aac21	3	0	1	0.17	9:4.7
+nbacourt_1083_frame_0005_png.rf.a89051	8	0	1	0.99	15:4.3
+nbacourt_1096_frame_0005_png.rf.b39bb0	8	0	1	0.52	0:95.2
+nbacourt_1115_frame_0005_png.rf.c37e12	8	0	1	0.37	21:56.4
+nbacourt_1117_frame_0005_png.rf.c7ccbb	8	0	1	0.49	21:56.4
+nbacourt_1124_frame_0005_png.rf.cc75c1	3	0	1	0.15	9:4.7
+nbacourt_1128_frame_0005_png.rf.cec604	9	0	1	0.52	18:7.3
+nbacourt_1154_frame_0005_png.rf.eda80b	8	0	1	1.00	15:5.3
+nbacourt_1209_frame_0006_png.rf.40ac15	7	0	1	0.77	0:4.1
+nbacourt_1210_frame_0006_png.rf.42cb76	6	0	1	0.88	18:4.7
+nbacourt_1274_frame_0006_png.rf.ad9ce3	7	0	1	1.10	18:6.6
+nbacourt_1276_frame_0006_png.rf.b0d080	8	0	1	0.51	2:93.9
+nbacourt_1339_frame_0007_png.rf.033eaa	4	0	1	1.35	21:5.1
+nbacourt_1340_frame_0007_png.rf.078714	9	0	1	0.46	21:56.1
+nbacourt_1347_frame_0007_png.rf.0d2796	7	0	1	0.98	27:5.0
+nbacourt_1359_frame_0007_png.rf.21d5d2	8	0	1	0.32	27:94.1
+nbacourt_1383_frame_0007_png.rf.3ffc55	8	0	1	0.35	27:94.1
+nbacourt_1386_frame_0007_png.rf.428669	9	0	1	0.47	21:56.2
+nbacourt_1427_frame_0007_png.rf.9d559e	9	0	1	0.90	11:56.3
+nbacourt_1436_frame_0007_png.rf.a98cb9	9	0	1	0.45	21:56.1
+nbacourt_1441_frame_0007_png.rf.b02df9	7	0	1	0.29	27:94.0
+nbacourt_1449_frame_0007_png.rf.be21a0	8	0	1	1.10	27:5.9
+nbacourt_1462_frame_0007_png.rf.d529d5	9	0	1	0.64	11:56.3
+nbacourt_1489_frame_0007_png.rf.fd3854	9	0	1	0.83	11:56.4
+nbacourt_1493_frame_0008_png.rf.04cc93	5	0	1	0.70	0:4.2
+nbacourt_1606_frame_0009_png.rf.06fd6c	8	0	1	0.55	0:94.4
+nbacourt_1607_frame_0009_png.rf.0a1c91	5	0	1	0.53	15:5.4
+nbacourt_1612_frame_0009_png.rf.15ccfe	8	0	1	0.64	0:94.1
+nbacourt_1636_frame_0009_png.rf.66a7da	7	0	1	0.82	18:5.4
+nbacourt_1638_frame_0009_png.rf.6c24f2	7	0	1	0.93	18:7.5
+nbacourt_1639_frame_0009_png.rf.6d3774	8	0	1	0.89	0:93.2
+nbacourt_1665_frame_0009_png.rf.adf66e	6	0	1	0.34	30:25.1
+nbacourt_1669_frame_0009_png.rf.b8e8aa	8	0	1	0.82	15:4.1
+nbacourt_1672_frame_0009_png.rf.c1d017	5	0	1	0.47	15:5.3
+nbacourt_1684_frame_0009_png.rf.e7a262	6	0	1	0.21	30:24.8
+nbacourt_1696_frame_0010_png.rf.170808	7	0	1	0.42	21:20.3
+nbacourt_1739_frame_0010_png.rf.bf1b66	7	0	1	0.38	21:19.3
+nbacourt_1749_frame_0010_png.rf.df33f9	6	0	1	0.44	21:19.5
+nbacourt_1751_frame_0010_png.rf.fee5a5	7	0	1	1.08	27:4.0
+nbacourt_1763_frame_0011_png.rf.4fe201	7	0	1	1.09	15:5.0
+nbacourt_1772_frame_0011_png.rf.74ab86	9	0	1	0.38	30:75.2
+nbacourt_1781_frame_0011_png.rf.94b136	9	0	1	0.39	30:75.0
+nbacourt_1783_frame_0011_png.rf.a7b60a	5	0	1	0.54	0:6.7
+nbacourt_1790_frame_0011_png.rf.c44863	9	0	1	0.34	30:75.0
+nbacourt_1808_frame_0012_png.rf.477a29	6	0	1	0.78	0:94.4
+nbacourt_1818_frame_0012_png.rf.ba4f29	9	0	1	0.72	0:94.1
+nbacourt_1828_frame_0012_png.rf.f96ea7	9	0	1	0.39	0:94.3
+nbacourt_1855_frame_0014_png.rf.0d6141	7	0	1	0.88	11:5.2
+nbacourt_1856_frame_0014_png.rf.12198f	7	0	1	0.83	3:4.2
+nbacourt_1898_frame_0017_png.rf.5a11e0	9	0	1	0.73	21:4.7
+nbacourt_1925_frame_0019_png.rf.766d03	7	0	1	0.61	27:4.1
+nbacourt_1926_frame_0019_png.rf.79f64a	7	0	1	0.73	12:6.4
+nbacourt_1931_frame_0019_png.rf.e7e4b9	7	0	1	0.95	27:4.7
+nbacourt_1932_frame_0020_png.rf.51e6d5	7	0	1	0.66	27:5.6
+nbacourt_1991_frame_0000_png.rf.f7e8b1	7	0	1	0.76	15:4.1
+nbacourt_1997_frame_0001_png.rf.8cdfad	7	0	1	1.09	18:4.0
+nbacourt_2081_frame_0006_png.rf.6cd689	7	0	1	0.35	27:8.2
+nbacourt_2123_frame_0008_png.rf.c5680c	7	0	1	0.31	0:94.3
+nbacourt_2130_frame_0009_png.rf.8e43ba	7	0	1	0.40	21:26.0
+nbacourt_2136_frame_0009_png.rf.ef7527	8	0	1	0.74	0:93.2
+nbacourt_2166_frame_0021_png.rf.f3b5c0	7	0	1	0.71	27:4.0
+nbacourt_2173_frame_0000_png.rf.a7f34f	8	0	1	0.45	2:16.8
+nbacourt_2193_frame_0003_png.rf.399b1c	8	0	1	0.54	11:20.2
+nbacourt_2221_frame_0006_png.rf.33282a	8	0	1	0.75	15:6.6
+nbacourt_2244_frame_0010_png.rf.c1f507	5	0	1	0.30	29:16.2
+nbacourt_0000_frame_0000_png.rf.040ff5	0	0	0	0.33	
+nbacourt_0002_frame_0000_png.rf.0728a6	2	0	0	0.40	
+nbacourt_0003_frame_0000_png.rf.08d223	0	0	0	0.19	
+nbacourt_0004_frame_0000_png.rf.0ba2ed	0	0	0	0.33	
+nbacourt_0005_frame_0000_png.rf.0d16c8	0	0	0	0.44	
+nbacourt_0006_frame_0000_png.rf.0e3002	0	0	0	0.24	
+nbacourt_0007_frame_0000_png.rf.0ecfe3	0	0	0	0.45	
+nbacourt_0008_frame_0000_png.rf.10f56d	1	0	0	0.32	
+nbacourt_0009_frame_0000_png.rf.14c3b0	0	0	0	0.36	
+nbacourt_0010_frame_0000_png.rf.16392f	0	0	0	0.10	
+nbacourt_0011_frame_0000_png.rf.1a02b3	1	0	0	0.28	
+nbacourt_0012_frame_0000_png.rf.1a1498	0	0	0	0.33	
+nbacourt_0013_frame_0000_png.rf.1cad6e	0	0	0	0.36	
+nbacourt_0014_frame_0000_png.rf.1e07f8	2	0	0	0.49	
+nbacourt_0016_frame_0000_png.rf.1ebc90	0	0	0	0.47	
+nbacourt_0017_frame_0000_png.rf.1f030d	0	0	0	0.43	
+nbacourt_0020_frame_0000_png.rf.20dcc5	0	0	0	0.35	
+nbacourt_0021_frame_0000_png.rf.230b31	1	0	0	0.44	
+nbacourt_0022_frame_0000_png.rf.2475bc	1	0	0	0.46	
+nbacourt_0023_frame_0000_png.rf.26a463	0	0	0	0.34	
+nbacourt_0024_frame_0000_png.rf.27ee0b	0	0	0	0.31	
+nbacourt_0026_frame_0000_png.rf.2b1b89	0	0	0	0.28	
+nbacourt_0027_frame_0000_png.rf.2b3b39	0	0	0	0.19	
+nbacourt_0029_frame_0000_png.rf.2d4436	1	0	0	0.26	
+nbacourt_0030_frame_0000_png.rf.30332f	0	0	0	0.37	
+nbacourt_0031_frame_0000_png.rf.32d491	1	0	0	0.47	
+nbacourt_0032_frame_0000_png.rf.377ff9	0	0	0	0.23	
+nbacourt_0033_frame_0000_png.rf.381a8f	1	0	0	0.29	
+nbacourt_0034_frame_0000_png.rf.38e137	5	0	0	0.32	
+nbacourt_0035_frame_0000_png.rf.391db3	1	0	0	0.23	
+nbacourt_0036_frame_0000_png.rf.3a5a32	0	0	0	0.42	
+nbacourt_0038_frame_0000_png.rf.40d9dc	2	0	0	0.29	
+nbacourt_0039_frame_0000_png.rf.434c02	0	0	0	0.35	
+nbacourt_0040_frame_0000_png.rf.44195c	1	0	0	0.26	
+nbacourt_0041_frame_0000_png.rf.4a7f68	7	0	0	0.59	
+nbacourt_0042_frame_0000_png.rf.4aff0f	6	0	0	0.69	
+nbacourt_0043_frame_0000_png.rf.4ea0e3	7	0	0	0.43	
+nbacourt_0045_frame_0000_png.rf.53ee2c	7	0	0	0.46	
+nbacourt_0046_frame_0000_png.rf.56eba2	5	0	0	0.48	
+nbacourt_0047_frame_0000_png.rf.572ab5	6	0	0	0.63	
+nbacourt_0048_frame_0000_png.rf.5c7c2c	3	0	0	0.11	
+nbacourt_0049_frame_0000_png.rf.6009ae	6	0	0	0.50	
+nbacourt_0050_frame_0000_png.rf.6562ea	7	0	0	0.27	
+nbacourt_0051_frame_0000_png.rf.65bbca	8	0	0	0.58	
+nbacourt_0052_frame_0000_png.rf.687e6e	7	0	0	0.53	
+nbacourt_0053_frame_0000_png.rf.68a19a	8	0	0	0.76	
+nbacourt_0056_frame_0000_png.rf.6cc968	7	0	0	0.81	
+nbacourt_0058_frame_0000_png.rf.6e41c7	5	0	0	0.79	
+nbacourt_0060_frame_0000_png.rf.716ed0	7	0	0	0.89	
+nbacourt_0062_frame_0000_png.rf.777618	7	0	0	0.66	
+nbacourt_0064_frame_0000_png.rf.7ab71c	7	0	0	0.48	
+nbacourt_0066_frame_0000_png.rf.7e8016	7	0	0	0.38	
+nbacourt_0068_frame_0000_png.rf.80ecb6	6	0	0	0.63	
+nbacourt_0070_frame_0000_png.rf.8717c6	6	0	0	0.63	
+nbacourt_0071_frame_0000_png.rf.8734de	6	0	0	0.54	
+nbacourt_0072_frame_0000_png.rf.87b876	8	0	0	0.64	
+nbacourt_0074_frame_0000_png.rf.8b28d4	8	0	0	0.64	
+nbacourt_0076_frame_0000_png.rf.90e088	7	0	0	0.63	
+nbacourt_0079_frame_0000_png.rf.990f1e	6	0	0	0.37	
+nbacourt_0080_frame_0000_png.rf.9945d1	6	0	0	0.33	
+nbacourt_0081_frame_0000_png.rf.a20b5a	6	0	0	0.47	
+nbacourt_0082_frame_0000_png.rf.a20b71	6	0	0	0.60	
+nbacourt_0083_frame_0000_png.rf.a27f26	7	0	0	0.39	
+nbacourt_0084_frame_0000_png.rf.a3a77d	6	0	0	0.57	
+nbacourt_0086_frame_0000_png.rf.aa2c96	6	0	0	0.53	
+nbacourt_0088_frame_0000_png.rf.acd1b3	7	0	0	0.42	
+nbacourt_0090_frame_0000_png.rf.afbc11	7	0	0	0.60	
+nbacourt_0091_frame_0000_png.rf.b02003	7	0	0	0.65	
+nbacourt_0092_frame_0000_png.rf.b37d02	6	0	0	0.43	
+nbacourt_0093_frame_0000_png.rf.b38c93	7	0	0	0.55	
+nbacourt_0094_frame_0000_png.rf.b3bf6c	6	0	0	0.43	
+nbacourt_0095_frame_0000_png.rf.b3edc7	7	0	0	0.72	
+nbacourt_0097_frame_0000_png.rf.b5c5df	3	0	0	0.15	
+nbacourt_0099_frame_0000_png.rf.ba32d5	4	0	0	0.68	
+nbacourt_0100_frame_0000_png.rf.ba7038	6	0	0	0.70	
+nbacourt_0101_frame_0000_png.rf.bea62e	6	0	0	0.79	
+nbacourt_0102_frame_0000_png.rf.c08217	7	0	0	0.37	
+nbacourt_0104_frame_0000_png.rf.c1164c	7	0	0	0.56	
+nbacourt_0105_frame_0000_png.rf.c1e6f9	6	0	0	0.33	
+nbacourt_0106_frame_0000_png.rf.c2edf0	6	0	0	0.67	
+nbacourt_0107_frame_0000_png.rf.c40c1f	6	0	0	0.60	
+nbacourt_0108_frame_0000_png.rf.c4bef8	7	0	0	0.58	
+nbacourt_0109_frame_0000_png.rf.cb902a	7	0	0	0.55	
+nbacourt_0110_frame_0000_png.rf.cce59a	7	0	0	0.47	
+nbacourt_0111_frame_0000_png.rf.ceebf8	7	0	0	0.76	
+nbacourt_0113_frame_0000_png.rf.d3f34b	6	0	0	0.35	
+nbacourt_0115_frame_0000_png.rf.d76d77	7	0	0	0.68	
+nbacourt_0116_frame_0000_png.rf.dc2d38	7	0	0	1.05	
+nbacourt_0117_frame_0000_png.rf.dd179c	6	0	0	0.64	
+nbacourt_0118_frame_0000_png.rf.dd3f64	6	0	0	0.60	
+nbacourt_0119_frame_0000_png.rf.e0dcea	8	0	0	0.55	
+nbacourt_0120_frame_0000_png.rf.e37570	6	0	0	0.87	
+nbacourt_0121_frame_0000_png.rf.e43623	6	0	0	0.88	
+nbacourt_0123_frame_0000_png.rf.e68297	7	0	0	0.76	
+nbacourt_0124_frame_0000_png.rf.e6acf8	6	0	0	0.69	
+nbacourt_0125_frame_0000_png.rf.e7a6e4	7	0	0	0.62	
+nbacourt_0126_frame_0000_png.rf.e9071b	7	0	0	0.76	
+nbacourt_0128_frame_0000_png.rf.ed3242	6	0	0	0.62	
+nbacourt_0129_frame_0000_png.rf.eff2d6	6	0	0	0.88	
+nbacourt_0131_frame_0000_png.rf.f3d370	7	0	0	0.39	
+nbacourt_0132_frame_0000_png.rf.f73325	8	0	0	0.78	
+nbacourt_0134_frame_0000_png.rf.f92972	8	0	0	0.72	
+nbacourt_0137_frame_0000_png.rf.fb20a7	7	0	0	0.75	
+nbacourt_0138_frame_0000_png.rf.fd4079	6	0	0	0.86	
+nbacourt_0139_frame_0000_png.rf.ff1276	7	0	0	0.73	
+nbacourt_0140_frame_0000_png.rf.ff5506	7	0	0	0.27	
+nbacourt_0141_frame_0001_png.rf.00803a	5	0	0	0.36	
+nbacourt_0144_frame_0001_png.rf.041c17	8	0	0	0.50	
+nbacourt_0145_frame_0001_png.rf.044068	7	0	0	0.44	
+nbacourt_0147_frame_0001_png.rf.0719cf	7	0	0	0.84	
+nbacourt_0149_frame_0001_png.rf.09e7cd	7	0	0	0.33	
+nbacourt_0150_frame_0001_png.rf.0a37e2	6	0	0	0.54	
+nbacourt_0151_frame_0001_png.rf.0cdea2	7	0	0	0.70	
+nbacourt_0152_frame_0001_png.rf.0cfe0d	7	0	0	0.68	
+nbacourt_0153_frame_0001_png.rf.0d759a	7	0	0	0.34	
+nbacourt_0154_frame_0001_png.rf.0e0308	7	0	0	0.33	
+nbacourt_0156_frame_0001_png.rf.11d7b0	8	0	0	0.61	
+nbacourt_0157_frame_0001_png.rf.160d1c	7	0	0	0.50	
+nbacourt_0158_frame_0001_png.rf.169280	7	0	0	0.31	
+nbacourt_0159_frame_0001_png.rf.177d5f	6	0	0	0.40	
+nbacourt_0160_frame_0001_png.rf.17924e	7	0	0	0.74	
+nbacourt_0162_frame_0001_png.rf.189a75	3	0	0	0.27	
+nbacourt_0163_frame_0001_png.rf.1c0416	7	0	0	0.52	
+nbacourt_0164_frame_0001_png.rf.1ecd79	5	0	0	0.69	
+nbacourt_0165_frame_0001_png.rf.1ed5d7	8	0	0	0.57	
+nbacourt_0166_frame_0001_png.rf.1fab6c	7	0	0	0.35	
+nbacourt_0168_frame_0001_png.rf.25c0c5	6	0	0	0.45	
+nbacourt_0170_frame_0001_png.rf.282605	6	0	0	0.43	
+nbacourt_0171_frame_0001_png.rf.2afcec	7	0	0	0.38	
+nbacourt_0172_frame_0001_png.rf.2fbce0	7	0	0	0.51	
+nbacourt_0174_frame_0001_png.rf.332dc7	5	0	0	0.30	
+nbacourt_0175_frame_0001_png.rf.3533e3	7	0	0	0.42	
+nbacourt_0178_frame_0001_png.rf.37eee1	7	0	0	0.59	
+nbacourt_0179_frame_0001_png.rf.38bab7	7	0	0	0.51	
+nbacourt_0180_frame_0001_png.rf.3a2b8b	7	0	0	0.74	
+nbacourt_0182_frame_0001_png.rf.3b348b	8	0	0	0.37	
+nbacourt_0183_frame_0001_png.rf.3be754	6	0	0	0.54	
+nbacourt_0184_frame_0001_png.rf.3c3535	7	0	0	0.40	
+nbacourt_0185_frame_0001_png.rf.3dd537	5	0	0	0.29	
+nbacourt_0187_frame_0001_png.rf.405da2	7	0	0	0.38	
+nbacourt_0188_frame_0001_png.rf.410dcd	7	0	0	0.50	
+nbacourt_0189_frame_0001_png.rf.41d7ae	6	0	0	1.25	
+nbacourt_0190_frame_0001_png.rf.424efb	8	0	0	1.20	
+nbacourt_0192_frame_0001_png.rf.4542ee	7	0	0	0.32	
+nbacourt_0193_frame_0001_png.rf.45b7ea	7	0	0	0.41	
+nbacourt_0195_frame_0001_png.rf.492979	7	0	0	0.46	
+nbacourt_0197_frame_0001_png.rf.49c02e	7	0	0	0.54	
+nbacourt_0199_frame_0001_png.rf.4f3c08	6	0	0	0.51	
+nbacourt_0200_frame_0001_png.rf.516bf4	7	0	0	0.41	
+nbacourt_0201_frame_0001_png.rf.51d759	6	0	0	0.46	
+nbacourt_0202_frame_0001_png.rf.5388e7	6	0	0	0.45	
+nbacourt_0204_frame_0001_png.rf.54b766	8	0	0	0.32	
+nbacourt_0208_frame_0001_png.rf.58b4c4	7	0	0	0.40	
+nbacourt_0209_frame_0001_png.rf.58bb3a	6	0	0	0.52	
+nbacourt_0211_frame_0001_png.rf.5af967	7	0	0	0.62	
+nbacourt_0212_frame_0001_png.rf.5ce39e	7	0	0	0.80	
+nbacourt_0213_frame_0001_png.rf.5d200c	7	0	0	0.36	
+nbacourt_0214_frame_0001_png.rf.5ed64b	7	0	0	0.52	
+nbacourt_0215_frame_0001_png.rf.5fbd31	6	0	0	0.60	
+nbacourt_0217_frame_0001_png.rf.64440e	7	0	0	0.28	
+nbacourt_0219_frame_0001_png.rf.663397	7	0	0	0.55	
+nbacourt_0220_frame_0001_png.rf.671a1e	6	0	0	0.56	
+nbacourt_0222_frame_0001_png.rf.6ba500	6	0	0	0.81	
+nbacourt_0223_frame_0001_png.rf.6de64a	7	0	0	0.79	
+nbacourt_0224_frame_0001_png.rf.700d4a	4	0	0	0.46	
+nbacourt_0225_frame_0001_png.rf.711716	7	0	0	0.76	
+nbacourt_0226_frame_0001_png.rf.71796d	6	0	0	1.07	
+nbacourt_0227_frame_0001_png.rf.74de59	6	0	0	0.78	
+nbacourt_0228_frame_0001_png.rf.750c46	7	0	0	0.39	
+nbacourt_0229_frame_0001_png.rf.753eba	7	0	0	0.57	
+nbacourt_0230_frame_0001_png.rf.7851f6	7	0	0	0.45	
+nbacourt_0231_frame_0001_png.rf.785c4e	6	0	0	0.42	
+nbacourt_0232_frame_0001_png.rf.78e0d5	6	0	0	0.49	
+nbacourt_0233_frame_0001_png.rf.794eef	7	0	0	0.53	
+nbacourt_0234_frame_0001_png.rf.7aca52	6	0	0	0.39	
+nbacourt_0235_frame_0001_png.rf.7f1150	6	0	0	0.59	
+nbacourt_0236_frame_0001_png.rf.808ee5	7	0	0	0.26	
+nbacourt_0237_frame_0001_png.rf.831dc0	7	0	0	0.41	
+nbacourt_0238_frame_0001_png.rf.8381d4	8	0	0	0.72	
+nbacourt_0240_frame_0001_png.rf.88002b	6	0	0	0.40	
+nbacourt_0244_frame_0001_png.rf.8fba85	7	0	0	0.28	
+nbacourt_0247_frame_0001_png.rf.91ec9a	6	0	0	0.70	
+nbacourt_0248_frame_0001_png.rf.921fb4	7	0	0	0.61	
+nbacourt_0249_frame_0001_png.rf.92322e	6	0	0	0.64	
+nbacourt_0250_frame_0001_png.rf.95a9d6	5	0	0	0.30	
+nbacourt_0251_frame_0001_png.rf.9736f8	7	0	0	0.71	
+nbacourt_0252_frame_0001_png.rf.9918d5	6	0	0	0.37	
+nbacourt_0253_frame_0001_png.rf.99aa92	6	0	0	0.63	
+nbacourt_0254_frame_0001_png.rf.99f545	7	0	0	0.49	
+nbacourt_0256_frame_0001_png.rf.9e8e66	7	0	0	0.85	
+nbacourt_0257_frame_0001_png.rf.9f9a80	6	0	0	0.51	
+nbacourt_0258_frame_0001_png.rf.a277ef	7	0	0	0.37	
+nbacourt_0259_frame_0001_png.rf.a4174a	7	0	0	0.25	
+nbacourt_0262_frame_0001_png.rf.a77cec	7	0	0	0.38	
+nbacourt_0263_frame_0001_png.rf.a8ffb7	7	0	0	0.49	
+nbacourt_0264_frame_0001_png.rf.a9f084	7	0	0	0.83	
+nbacourt_0265_frame_0001_png.rf.aa0d8c	7	0	0	0.40	
+nbacourt_0268_frame_0001_png.rf.ac5dfd	8	0	0	1.07	
+nbacourt_0270_frame_0001_png.rf.af84cb	6	0	0	0.87	
+nbacourt_0271_frame_0001_png.rf.b04f44	7	0	0	0.36	
+nbacourt_0272_frame_0001_png.rf.b0d68f	7	0	0	0.54	
+nbacourt_0273_frame_0001_png.rf.b1f413	6	0	0	0.71	
+nbacourt_0274_frame_0001_png.rf.b29fa7	7	0	0	0.37	
+nbacourt_0275_frame_0001_png.rf.b41977	6	0	0	0.62	
+nbacourt_0276_frame_0001_png.rf.b5187b	8	0	0	0.69	
+nbacourt_0278_frame_0001_png.rf.b68af9	7	0	0	1.18	
+nbacourt_0279_frame_0001_png.rf.b6e21c	6	0	0	0.39	
+nbacourt_0280_frame_0001_png.rf.b719cb	6	0	0	0.47	
+nbacourt_0283_frame_0001_png.rf.b870b0	6	0	0	0.42	
+nbacourt_0284_frame_0001_png.rf.b9eee2	7	0	0	0.72	
+nbacourt_0285_frame_0001_png.rf.bc44c8	7	0	0	0.74	
+nbacourt_0286_frame_0001_png.rf.bddf75	6	0	0	0.37	
+nbacourt_0287_frame_0001_png.rf.bde390	7	0	0	0.41	
+nbacourt_0288_frame_0001_png.rf.bebb39	7	0	0	0.45	
+nbacourt_0289_frame_0001_png.rf.c6844c	6	0	0	0.55	
+nbacourt_0290_frame_0001_png.rf.c82980	7	0	0	0.78	
+nbacourt_0291_frame_0001_png.rf.c98a31	7	0	0	0.50	
+nbacourt_0292_frame_0001_png.rf.ca7cf9	7	0	0	0.45	
+nbacourt_0293_frame_0001_png.rf.cc82f9	7	0	0	0.45	
+nbacourt_0294_frame_0001_png.rf.cfd8d8	5	0	0	0.82	
+nbacourt_0296_frame_0001_png.rf.d09617	3	0	0	0.16	
+nbacourt_0297_frame_0001_png.rf.d31109	6	0	0	0.58	
+nbacourt_0298_frame_0001_png.rf.d5dbd1	3	0	0	0.90	
+nbacourt_0299_frame_0001_png.rf.d8f0f2	7	0	0	0.38	
+nbacourt_0300_frame_0001_png.rf.d9d6aa	6	0	0	0.64	
+nbacourt_0301_frame_0001_png.rf.db46f5	6	0	0	0.51	
+nbacourt_0302_frame_0001_png.rf.db4a15	6	0	0	0.64	
+nbacourt_0303_frame_0001_png.rf.e06f72	7	0	0	0.51	
+nbacourt_0304_frame_0001_png.rf.e0e661	6	0	0	0.40	
+nbacourt_0305_frame_0001_png.rf.e29942	6	0	0	0.33	
+nbacourt_0306_frame_0001_png.rf.e656db	6	0	0	0.63	
+nbacourt_0307_frame_0001_png.rf.e810d7	7	0	0	0.84	
+nbacourt_0310_frame_0001_png.rf.eb09a8	7	0	0	0.66	
+nbacourt_0311_frame_0001_png.rf.eb9951	6	0	0	0.61	
+nbacourt_0312_frame_0001_png.rf.edea81	7	0	0	0.39	
+nbacourt_0313_frame_0001_png.rf.ee15b4	7	0	0	0.46	
+nbacourt_0315_frame_0001_png.rf.f1c0be	3	0	0	0.09	
+nbacourt_0316_frame_0001_png.rf.f5c821	6	0	0	0.81	
+nbacourt_0317_frame_0001_png.rf.f76a90	7	0	0	0.52	
+nbacourt_0320_frame_0001_png.rf.fa6485	6	0	0	0.76	
+nbacourt_0321_frame_0001_png.rf.fa9a9d	8	0	0	0.40	
+nbacourt_0323_frame_0001_png.rf.fc11e1	7	0	0	0.43	
+nbacourt_0324_frame_0001_png.rf.fc7c19	6	0	0	0.45	
+nbacourt_0325_frame_0001_png.rf.fe1750	6	0	0	0.35	
+nbacourt_0326_frame_0001_png.rf.ff3705	6	0	0	0.44	
+nbacourt_0329_frame_0002_png.rf.0163d6	7	0	0	0.57	
+nbacourt_0330_frame_0002_png.rf.031be1	6	0	0	0.35	
+nbacourt_0331_frame_0002_png.rf.03fbec	9	0	0	0.41	
+nbacourt_0332_frame_0002_png.rf.06a3e0	6	0	0	0.39	
+nbacourt_0333_frame_0002_png.rf.07b3bd	7	0	0	0.45	
+nbacourt_0334_frame_0002_png.rf.0821d6	7	0	0	0.32	
+nbacourt_0336_frame_0002_png.rf.0a21c7	7	0	0	0.89	
+nbacourt_0337_frame_0002_png.rf.0aae8d	7	0	0	0.57	
+nbacourt_0339_frame_0002_png.rf.0cb004	7	0	0	0.64	
+nbacourt_0342_frame_0002_png.rf.0f124c	6	0	0	0.36	
+nbacourt_0343_frame_0002_png.rf.0fbe10	6	0	0	0.47	
+nbacourt_0344_frame_0002_png.rf.0ffeaf	6	0	0	0.43	
+nbacourt_0345_frame_0002_png.rf.115f3a	6	0	0	0.26	
+nbacourt_0346_frame_0002_png.rf.12388f	8	0	0	0.69	
+nbacourt_0349_frame_0002_png.rf.151fee	7	0	0	0.25	
+nbacourt_0350_frame_0002_png.rf.1c9ca5	8	0	0	0.73	
+nbacourt_0351_frame_0002_png.rf.211c40	6	0	0	0.54	
+nbacourt_0352_frame_0002_png.rf.21a655	7	0	0	0.73	
+nbacourt_0353_frame_0002_png.rf.23c1d6	7	0	0	0.69	
+nbacourt_0355_frame_0002_png.rf.26de4c	7	0	0	0.71	
+nbacourt_0356_frame_0002_png.rf.2b3f20	6	0	0	0.36	
+nbacourt_0358_frame_0002_png.rf.2e859e	6	0	0	0.69	
+nbacourt_0359_frame_0002_png.rf.2fed03	6	0	0	0.50	
+nbacourt_0360_frame_0002_png.rf.310a2a	6	0	0	0.71	
+nbacourt_0361_frame_0002_png.rf.3171c6	6	0	0	0.70	
+nbacourt_0362_frame_0002_png.rf.337564	7	0	0	0.57	
+nbacourt_0363_frame_0002_png.rf.34fb11	7	0	0	0.27	
+nbacourt_0365_frame_0002_png.rf.393939	6	0	0	0.41	
+nbacourt_0366_frame_0002_png.rf.3a691a	7	0	0	0.36	
+nbacourt_0367_frame_0002_png.rf.3a9474	7	0	0	0.40	
+nbacourt_0368_frame_0002_png.rf.3aa198	7	0	0	0.56	
+nbacourt_0369_frame_0002_png.rf.3ac07c	5	0	0	1.02	
+nbacourt_0370_frame_0002_png.rf.3ac3ae	6	0	0	0.78	
+nbacourt_0371_frame_0002_png.rf.3bea6b	6	0	0	0.52	
+nbacourt_0372_frame_0002_png.rf.3eba57	7	0	0	0.41	
+nbacourt_0373_frame_0002_png.rf.3f33ad	7	0	0	0.37	
+nbacourt_0374_frame_0002_png.rf.419ad5	6	0	0	0.32	
+nbacourt_0375_frame_0002_png.rf.42e605	8	0	0	0.44	
+nbacourt_0377_frame_0002_png.rf.438266	7	0	0	0.92	
+nbacourt_0378_frame_0002_png.rf.448698	7	0	0	0.48	
+nbacourt_0379_frame_0002_png.rf.477248	6	0	0	0.53	
+nbacourt_0380_frame_0002_png.rf.485c9e	6	0	0	0.36	
+nbacourt_0381_frame_0002_png.rf.4904cd	6	0	0	0.52	
+nbacourt_0383_frame_0002_png.rf.4a923c	6	0	0	0.49	
+nbacourt_0384_frame_0002_png.rf.4bed94	7	0	0	0.35	
+nbacourt_0385_frame_0002_png.rf.4d4eab	8	0	0	0.36	
+nbacourt_0386_frame_0002_png.rf.4db7f4	5	0	0	0.46	
+nbacourt_0387_frame_0002_png.rf.4dece8	6	0	0	0.58	
+nbacourt_0392_frame_0002_png.rf.53a05a	7	0	0	0.35	
+nbacourt_0393_frame_0002_png.rf.555a2d	7	0	0	0.77	
+nbacourt_0394_frame_0002_png.rf.5651ba	5	0	0	0.71	
+nbacourt_0396_frame_0002_png.rf.58bce3	7	0	0	0.75	
+nbacourt_0397_frame_0002_png.rf.5afdd6	7	0	0	0.42	
+nbacourt_0399_frame_0002_png.rf.5c164f	7	0	0	0.37	
+nbacourt_0400_frame_0002_png.rf.5c255d	6	0	0	0.55	
+nbacourt_0401_frame_0002_png.rf.5df3cd	6	0	0	0.34	
+nbacourt_0402_frame_0002_png.rf.5e2408	7	0	0	0.47	
+nbacourt_0404_frame_0002_png.rf.64e8cd	7	0	0	0.39	
+nbacourt_0405_frame_0002_png.rf.675ff4	7	0	0	0.36	
+nbacourt_0406_frame_0002_png.rf.68fa6a	6	0	0	0.37	
+nbacourt_0409_frame_0002_png.rf.6df609	6	0	0	0.61	
+nbacourt_0412_frame_0002_png.rf.6e9d7d	7	0	0	0.51	
+nbacourt_0413_frame_0002_png.rf.70604a	6	0	0	0.46	
+nbacourt_0414_frame_0002_png.rf.72004c	7	0	0	0.34	
+nbacourt_0416_frame_0002_png.rf.74c731	7	0	0	0.63	
+nbacourt_0417_frame_0002_png.rf.750ffb	6	0	0	0.75	
+nbacourt_0418_frame_0002_png.rf.753384	6	0	0	0.40	
+nbacourt_0419_frame_0002_png.rf.761741	5	0	0	0.60	
+nbacourt_0421_frame_0002_png.rf.78ac7f	7	0	0	0.46	
+nbacourt_0422_frame_0002_png.rf.7b8849	7	0	0	0.43	
+nbacourt_0423_frame_0002_png.rf.7c69bf	6	0	0	0.27	
+nbacourt_0425_frame_0002_png.rf.85b17d	7	0	0	0.43	
+nbacourt_0426_frame_0002_png.rf.85d29d	8	0	0	0.63	
+nbacourt_0428_frame_0002_png.rf.8639f8	7	0	0	0.67	
+nbacourt_0429_frame_0002_png.rf.864a5d	7	0	0	0.96	
+nbacourt_0430_frame_0002_png.rf.876e09	7	0	0	0.31	
+nbacourt_0431_frame_0002_png.rf.87fc6a	6	0	0	0.52	
+nbacourt_0432_frame_0002_png.rf.8802b7	6	0	0	0.50	
+nbacourt_0434_frame_0002_png.rf.89c19c	7	0	0	0.68	
+nbacourt_0435_frame_0002_png.rf.8b1a6d	8	0	0	0.46	
+nbacourt_0437_frame_0002_png.rf.8b4fda	6	0	0	0.50	
+nbacourt_0439_frame_0002_png.rf.8cd6ed	7	0	0	0.56	
+nbacourt_0440_frame_0002_png.rf.8d44fd	6	0	0	0.36	
+nbacourt_0441_frame_0002_png.rf.8f06e7	7	0	0	0.19	
+nbacourt_0442_frame_0002_png.rf.90db36	6	0	0	0.45	
+nbacourt_0443_frame_0002_png.rf.912f96	7	0	0	0.94	
+nbacourt_0444_frame_0002_png.rf.9255a8	6	0	0	0.56	
+nbacourt_0447_frame_0002_png.rf.9786ef	6	0	0	0.56	
+nbacourt_0448_frame_0002_png.rf.9b11a9	7	0	0	0.39	
+nbacourt_0449_frame_0002_png.rf.9c5065	6	0	0	0.49	
+nbacourt_0450_frame_0002_png.rf.9e5200	7	0	0	0.71	
+nbacourt_0452_frame_0002_png.rf.a3215c	6	0	0	0.47	
+nbacourt_0453_frame_0002_png.rf.a33285	7	0	0	0.85	
+nbacourt_0454_frame_0002_png.rf.a3b95e	7	0	0	0.45	
+nbacourt_0455_frame_0002_png.rf.a3f8b8	5	0	0	0.44	
+nbacourt_0456_frame_0002_png.rf.a6ce7c	5	0	0	0.78	
+nbacourt_0457_frame_0002_png.rf.a77dc3	7	0	0	0.68	
+nbacourt_0458_frame_0002_png.rf.a785c7	8	0	0	0.65	
+nbacourt_0459_frame_0002_png.rf.a85418	8	0	0	0.67	
+nbacourt_0460_frame_0002_png.rf.ac6ba4	8	0	0	1.00	
+nbacourt_0462_frame_0002_png.rf.ad9378	7	0	0	0.42	
+nbacourt_0463_frame_0002_png.rf.ade2fb	7	0	0	0.36	
+nbacourt_0464_frame_0002_png.rf.ae1b9c	7	0	0	0.64	
+nbacourt_0465_frame_0002_png.rf.ae5dcc	7	0	0	0.41	
+nbacourt_0466_frame_0002_png.rf.ae8b75	7	0	0	1.14	
+nbacourt_0467_frame_0002_png.rf.b01221	7	0	0	0.68	
+nbacourt_0469_frame_0002_png.rf.b3be6d	8	0	0	0.94	
+nbacourt_0470_frame_0002_png.rf.b3bff8	7	0	0	0.26	
+nbacourt_0471_frame_0002_png.rf.b519c5	7	0	0	0.75	
+nbacourt_0472_frame_0002_png.rf.b555c6	7	0	0	0.34	
+nbacourt_0473_frame_0002_png.rf.b7ba9d	6	0	0	0.39	
+nbacourt_0475_frame_0002_png.rf.bb069c	7	0	0	0.41	
+nbacourt_0476_frame_0002_png.rf.bb6dc7	6	0	0	0.30	
+nbacourt_0477_frame_0002_png.rf.bc6522	6	0	0	0.58	
+nbacourt_0478_frame_0002_png.rf.bd45d6	7	0	0	0.50	
+nbacourt_0479_frame_0002_png.rf.bde257	7	0	0	0.47	
+nbacourt_0482_frame_0002_png.rf.c105c2	7	0	0	0.46	
+nbacourt_0483_frame_0002_png.rf.c23f97	6	0	0	0.43	
+nbacourt_0484_frame_0002_png.rf.c2ded0	6	0	0	0.69	
+nbacourt_0486_frame_0002_png.rf.c621b0	7	0	0	0.68	
+nbacourt_0487_frame_0002_png.rf.c7fc15	8	0	0	0.84	
+nbacourt_0488_frame_0002_png.rf.c9ee34	6	0	0	0.75	
+nbacourt_0491_frame_0002_png.rf.cd175e	6	0	0	0.52	
+nbacourt_0492_frame_0002_png.rf.cf4f37	7	0	0	0.38	
+nbacourt_0493_frame_0002_png.rf.cfccb2	7	0	0	0.41	
+nbacourt_0495_frame_0002_png.rf.d30ae4	7	0	0	0.37	
+nbacourt_0496_frame_0002_png.rf.d7d7e8	7	0	0	0.31	
+nbacourt_0497_frame_0002_png.rf.d9e352	7	0	0	0.50	
+nbacourt_0498_frame_0002_png.rf.da18ef	7	0	0	0.40	
+nbacourt_0501_frame_0002_png.rf.dd2155	7	0	0	0.39	
+nbacourt_0502_frame_0002_png.rf.dee15a	6	0	0	0.49	
+nbacourt_0504_frame_0002_png.rf.dff698	7	0	0	0.71	
+nbacourt_0505_frame_0002_png.rf.e000b1	8	0	0	0.38	
+nbacourt_0506_frame_0002_png.rf.e02054	8	0	0	0.92	
+nbacourt_0507_frame_0002_png.rf.e29c3c	6	0	0	0.32	
+nbacourt_0508_frame_0002_png.rf.e2ddf3	6	0	0	0.65	
+nbacourt_0510_frame_0002_png.rf.e480f0	7	0	0	1.00	
+nbacourt_0511_frame_0002_png.rf.e48e10	7	0	0	0.39	
+nbacourt_0513_frame_0002_png.rf.e6e874	6	0	0	0.67	
+nbacourt_0514_frame_0002_png.rf.e73ecf	6	0	0	0.56	
+nbacourt_0515_frame_0002_png.rf.e95516	6	0	0	0.47	
+nbacourt_0517_frame_0002_png.rf.e9b748	7	0	0	0.63	
+nbacourt_0518_frame_0002_png.rf.e9f0ad	7	0	0	0.50	
+nbacourt_0519_frame_0002_png.rf.ea67ce	6	0	0	0.44	
+nbacourt_0520_frame_0002_png.rf.eb59ec	7	0	0	0.31	
+nbacourt_0522_frame_0002_png.rf.ed9f28	7	0	0	1.11	
+nbacourt_0523_frame_0002_png.rf.ef74cf	7	0	0	0.33	
+nbacourt_0524_frame_0002_png.rf.f419fb	7	0	0	0.31	
+nbacourt_0525_frame_0002_png.rf.f57c59	7	0	0	0.52	
+nbacourt_0526_frame_0002_png.rf.f6a34d	7	0	0	0.40	
+nbacourt_0527_frame_0002_png.rf.f7b0d9	3	0	0	0.63	
+nbacourt_0528_frame_0002_png.rf.f8ad84	7	0	0	0.55	
+nbacourt_0530_frame_0002_png.rf.f8d16b	7	0	0	0.73	
+nbacourt_0531_frame_0002_png.rf.f962c5	8	0	0	0.67	
+nbacourt_0532_frame_0002_png.rf.fcf467	5	0	0	0.79	
+nbacourt_0533_frame_0002_png.rf.fd6049	7	0	0	0.65	
+nbacourt_0534_frame_0003_png.rf.000bb3	6	0	0	0.37	
+nbacourt_0535_frame_0003_png.rf.01afe3	7	0	0	0.57	
+nbacourt_0536_frame_0003_png.rf.01d191	7	0	0	0.62	
+nbacourt_0539_frame_0003_png.rf.07b1ea	7	0	0	0.37	
+nbacourt_0540_frame_0003_png.rf.0a6068	7	0	0	0.33	
+nbacourt_0542_frame_0003_png.rf.0c46e4	6	0	0	0.69	
+nbacourt_0544_frame_0003_png.rf.0ecd9a	7	0	0	0.55	
+nbacourt_0546_frame_0003_png.rf.11089c	6	0	0	0.34	
+nbacourt_0548_frame_0003_png.rf.118d6a	6	0	0	0.63	
+nbacourt_0549_frame_0003_png.rf.11f39b	7	0	0	0.62	
+nbacourt_0550_frame_0003_png.rf.12946d	6	0	0	0.51	
+nbacourt_0552_frame_0003_png.rf.155ec1	7	0	0	0.60	
+nbacourt_0553_frame_0003_png.rf.15b616	7	0	0	0.55	
+nbacourt_0554_frame_0003_png.rf.18017e	8	0	0	0.73	
+nbacourt_0555_frame_0003_png.rf.198c6a	6	0	0	0.36	
+nbacourt_0556_frame_0003_png.rf.1d05bd	6	0	0	0.45	
+nbacourt_0557_frame_0003_png.rf.1da094	6	0	0	0.32	
+nbacourt_0558_frame_0003_png.rf.1fdf0c	7	0	0	0.34	
+nbacourt_0559_frame_0003_png.rf.20b4dd	7	0	0	0.49	
+nbacourt_0560_frame_0003_png.rf.21dd8c	7	0	0	0.34	
+nbacourt_0562_frame_0003_png.rf.249fe9	7	0	0	0.67	
+nbacourt_0563_frame_0003_png.rf.264dc6	6	0	0	0.67	
+nbacourt_0565_frame_0003_png.rf.26d8b5	7	0	0	0.39	
+nbacourt_0566_frame_0003_png.rf.2aef74	6	0	0	0.52	
+nbacourt_0567_frame_0003_png.rf.2d91b0	6	0	0	0.41	
+nbacourt_0569_frame_0003_png.rf.2f366a	7	0	0	0.51	
+nbacourt_0570_frame_0003_png.rf.30b387	6	0	0	0.75	
+nbacourt_0571_frame_0003_png.rf.3116ba	6	0	0	0.66	
+nbacourt_0573_frame_0003_png.rf.324041	7	0	0	0.54	
+nbacourt_0574_frame_0003_png.rf.32d963	8	0	0	0.44	
+nbacourt_0576_frame_0003_png.rf.3691f2	6	0	0	0.36	
+nbacourt_0577_frame_0003_png.rf.36bf36	6	0	0	0.88	
+nbacourt_0578_frame_0003_png.rf.387763	7	0	0	0.27	
+nbacourt_0579_frame_0003_png.rf.38b374	7	0	0	0.70	
+nbacourt_0580_frame_0003_png.rf.3a447b	7	0	0	0.45	
+nbacourt_0581_frame_0003_png.rf.3b8a13	6	0	0	0.57	
+nbacourt_0582_frame_0003_png.rf.3b8c1b	6	0	0	0.53	
+nbacourt_0583_frame_0003_png.rf.3bdcfd	6	0	0	0.31	
+nbacourt_0584_frame_0003_png.rf.3c8c32	6	0	0	0.81	
+nbacourt_0585_frame_0003_png.rf.3e3f44	7	0	0	0.62	
+nbacourt_0586_frame_0003_png.rf.413c64	7	0	0	0.58	
+nbacourt_0587_frame_0003_png.rf.41fb1f	6	0	0	0.46	
+nbacourt_0588_frame_0003_png.rf.432aef	7	0	0	0.51	
+nbacourt_0589_frame_0003_png.rf.4348d8	8	0	0	0.41	
+nbacourt_0591_frame_0003_png.rf.46456e	7	0	0	0.37	
+nbacourt_0592_frame_0003_png.rf.491c15	7	0	0	0.51	
+nbacourt_0593_frame_0003_png.rf.4a7dde	7	0	0	0.48	
+nbacourt_0594_frame_0003_png.rf.4abe5a	7	0	0	0.46	
+nbacourt_0595_frame_0003_png.rf.4b2514	8	0	0	0.70	
+nbacourt_0596_frame_0003_png.rf.4b4e51	7	0	0	0.35	
+nbacourt_0598_frame_0003_png.rf.4f242b	6	0	0	0.50	
+nbacourt_0599_frame_0003_png.rf.51ef17	7	0	0	0.97	
+nbacourt_0601_frame_0003_png.rf.55bf7b	7	0	0	0.35	
+nbacourt_0603_frame_0003_png.rf.57a22a	8	0	0	0.39	
+nbacourt_0605_frame_0003_png.rf.583b12	6	0	0	0.33	
+nbacourt_0606_frame_0003_png.rf.58e4bf	7	0	0	0.61	
+nbacourt_0607_frame_0003_png.rf.5a189b	7	0	0	0.38	
+nbacourt_0608_frame_0003_png.rf.5aeeb7	8	0	0	0.44	
+nbacourt_0610_frame_0003_png.rf.5bf17d	7	0	0	0.55	
+nbacourt_0611_frame_0003_png.rf.5dc782	8	0	0	0.95	
+nbacourt_0612_frame_0003_png.rf.5de893	7	0	0	0.54	
+nbacourt_0613_frame_0003_png.rf.5ef6c5	6	0	0	0.44	
+nbacourt_0614_frame_0003_png.rf.608848	7	0	0	0.68	
+nbacourt_0616_frame_0003_png.rf.624644	8	0	0	0.88	
+nbacourt_0620_frame_0003_png.rf.681456	7	0	0	0.53	
+nbacourt_0621_frame_0003_png.rf.682e8e	8	0	0	0.65	
+nbacourt_0622_frame_0003_png.rf.68302d	6	0	0	0.32	
+nbacourt_0623_frame_0003_png.rf.68d6a7	7	0	0	0.63	
+nbacourt_0624_frame_0003_png.rf.69c5fa	6	0	0	0.30	
+nbacourt_0625_frame_0003_png.rf.6b5229	6	0	0	0.50	
+nbacourt_0626_frame_0003_png.rf.6b8110	6	0	0	0.63	
+nbacourt_0627_frame_0003_png.rf.6c6266	8	0	0	0.84	
+nbacourt_0628_frame_0003_png.rf.6cfa8a	8	0	0	0.44	
+nbacourt_0629_frame_0003_png.rf.6d55ad	7	0	0	0.54	
+nbacourt_0630_frame_0003_png.rf.6f336b	6	0	0	0.48	
+nbacourt_0631_frame_0003_png.rf.6fc01d	7	0	0	0.38	
+nbacourt_0633_frame_0003_png.rf.719843	6	0	0	0.72	
+nbacourt_0634_frame_0003_png.rf.7236eb	6	0	0	0.42	
+nbacourt_0637_frame_0003_png.rf.777669	8	0	0	0.53	
+nbacourt_0638_frame_0003_png.rf.7b1e93	6	0	0	0.51	
+nbacourt_0639_frame_0003_png.rf.7f74ba	5	0	0	0.97	
+nbacourt_0640_frame_0003_png.rf.7fb988	7	0	0	0.62	
+nbacourt_0641_frame_0003_png.rf.7fbb93	7	0	0	0.47	
+nbacourt_0642_frame_0003_png.rf.7fd7c0	8	0	0	0.52	
+nbacourt_0643_frame_0003_png.rf.826795	7	0	0	0.44	
+nbacourt_0645_frame_0003_png.rf.833fd1	6	0	0	0.47	
+nbacourt_0647_frame_0003_png.rf.85a207	6	0	0	0.33	
+nbacourt_0648_frame_0003_png.rf.874fbe	7	0	0	0.47	
+nbacourt_0649_frame_0003_png.rf.8a5a43	7	0	0	0.64	
+nbacourt_0651_frame_0003_png.rf.91d730	6	0	0	0.38	
+nbacourt_0652_frame_0003_png.rf.926510	6	0	0	0.41	
+nbacourt_0653_frame_0003_png.rf.926e56	6	0	0	0.35	
+nbacourt_0654_frame_0003_png.rf.92d6d1	7	0	0	0.66	
+nbacourt_0657_frame_0003_png.rf.968ffa	6	0	0	0.42	
+nbacourt_0658_frame_0003_png.rf.985e66	7	0	0	0.91	
+nbacourt_0659_frame_0003_png.rf.9879db	7	0	0	0.88	
+nbacourt_0660_frame_0003_png.rf.992f2f	8	0	0	0.38	
+nbacourt_0661_frame_0003_png.rf.9a37db	6	0	0	0.38	
+nbacourt_0665_frame_0003_png.rf.a18c65	7	0	0	0.42	
+nbacourt_0671_frame_0003_png.rf.a78871	6	0	0	0.63	
+nbacourt_0672_frame_0003_png.rf.a86327	6	0	0	0.75	
+nbacourt_0673_frame_0003_png.rf.ab4b1c	8	0	0	0.40	
+nbacourt_0675_frame_0003_png.rf.ad75a9	7	0	0	0.30	
+nbacourt_0676_frame_0003_png.rf.ae2bba	7	0	0	0.40	
+nbacourt_0677_frame_0003_png.rf.ae64e5	7	0	0	0.72	
+nbacourt_0678_frame_0003_png.rf.af0c20	7	0	0	0.39	
+nbacourt_0679_frame_0003_png.rf.b07c91	6	0	0	0.86	
+nbacourt_0680_frame_0003_png.rf.b08e5a	6	0	0	0.31	
+nbacourt_0682_frame_0003_png.rf.b2a3b5	7	0	0	0.69	
+nbacourt_0683_frame_0003_png.rf.b372f3	6	0	0	0.50	
+nbacourt_0684_frame_0003_png.rf.b696e1	6	0	0	0.54	
+nbacourt_0685_frame_0003_png.rf.b6aa29	6	0	0	0.93	
+nbacourt_0687_frame_0003_png.rf.b96cc2	7	0	0	0.49	
+nbacourt_0688_frame_0003_png.rf.bb4791	7	0	0	0.40	
+nbacourt_0689_frame_0003_png.rf.bcfa31	8	0	0	0.46	
+nbacourt_0690_frame_0003_png.rf.be6cb8	7	0	0	0.57	
+nbacourt_0692_frame_0003_png.rf.c0bf7d	6	0	0	0.38	
+nbacourt_0693_frame_0003_png.rf.c0fd5b	8	0	0	0.44	
+nbacourt_0695_frame_0003_png.rf.c275da	6	0	0	0.41	
+nbacourt_0696_frame_0003_png.rf.c38015	7	0	0	0.55	
+nbacourt_0697_frame_0003_png.rf.c4a489	6	0	0	0.48	
+nbacourt_0698_frame_0003_png.rf.c4e9a3	7	0	0	0.35	
+nbacourt_0699_frame_0003_png.rf.c6c716	7	0	0	0.39	
+nbacourt_0700_frame_0003_png.rf.c6da64	6	0	0	0.60	
+nbacourt_0701_frame_0003_png.rf.c70028	7	0	0	0.49	
+nbacourt_0702_frame_0003_png.rf.c718c2	7	0	0	0.52	
+nbacourt_0704_frame_0003_png.rf.c7d636	7	0	0	0.27	
+nbacourt_0705_frame_0003_png.rf.c85590	7	0	0	0.38	
+nbacourt_0706_frame_0003_png.rf.c95ebe	6	0	0	0.54	
+nbacourt_0707_frame_0003_png.rf.cccb7e	7	0	0	1.07	
+nbacourt_0708_frame_0003_png.rf.cd4f7a	6	0	0	0.31	
+nbacourt_0709_frame_0003_png.rf.ce92ff	7	0	0	1.04	
+nbacourt_0710_frame_0003_png.rf.ceb907	7	0	0	0.35	
+nbacourt_0711_frame_0003_png.rf.cf839c	6	0	0	0.56	
+nbacourt_0712_frame_0003_png.rf.d22f49	6	0	0	0.45	
+nbacourt_0713_frame_0003_png.rf.d29903	7	0	0	0.48	
+nbacourt_0714_frame_0003_png.rf.d2a10d	6	0	0	0.34	
+nbacourt_0715_frame_0003_png.rf.d427cf	6	0	0	0.28	
+nbacourt_0716_frame_0003_png.rf.d4fbb0	7	0	0	0.71	
+nbacourt_0717_frame_0003_png.rf.d77228	7	0	0	0.70	
+nbacourt_0718_frame_0003_png.rf.d77aac	7	0	0	0.56	
+nbacourt_0719_frame_0003_png.rf.d7e05e	6	0	0	0.46	
+nbacourt_0720_frame_0003_png.rf.d8bcd3	7	0	0	0.70	
+nbacourt_0721_frame_0003_png.rf.d90a11	6	0	0	0.68	
+nbacourt_0722_frame_0003_png.rf.d965c5	6	0	0	0.70	
+nbacourt_0724_frame_0003_png.rf.dcdcb9	7	0	0	0.76	
+nbacourt_0725_frame_0003_png.rf.dda7b7	7	0	0	0.54	
+nbacourt_0726_frame_0003_png.rf.df82bd	8	0	0	0.44	
+nbacourt_0727_frame_0003_png.rf.dfb575	7	0	0	0.47	
+nbacourt_0728_frame_0003_png.rf.e038b7	7	0	0	0.67	
+nbacourt_0731_frame_0003_png.rf.e9c779	6	0	0	0.40	
+nbacourt_0732_frame_0003_png.rf.edff90	6	0	0	0.77	
+nbacourt_0734_frame_0003_png.rf.eea066	7	0	0	0.33	
+nbacourt_0735_frame_0003_png.rf.ef835a	7	0	0	0.45	
+nbacourt_0739_frame_0003_png.rf.f91351	6	0	0	0.62	
+nbacourt_0740_frame_0003_png.rf.fc1141	7	0	0	0.36	
+nbacourt_0742_frame_0003_png.rf.fde623	6	0	0	0.42	
+nbacourt_0744_frame_0004_png.rf.01b548	6	0	0	0.65	
+nbacourt_0745_frame_0004_png.rf.02304b	5	0	0	0.27	
+nbacourt_0746_frame_0004_png.rf.04b1be	7	0	0	0.43	
+nbacourt_0747_frame_0004_png.rf.05afc9	7	0	0	0.78	
+nbacourt_0748_frame_0004_png.rf.06fb05	7	0	0	0.32	
+nbacourt_0749_frame_0004_png.rf.093f0a	6	0	0	0.47	
+nbacourt_0751_frame_0004_png.rf.0a0adb	8	0	0	0.34	
+nbacourt_0752_frame_0004_png.rf.0b88c7	6	0	0	0.49	
+nbacourt_0753_frame_0004_png.rf.0c4f88	4	0	0	0.54	
+nbacourt_0754_frame_0004_png.rf.10e1f8	7	0	0	0.70	
+nbacourt_0755_frame_0004_png.rf.110fe3	6	0	0	0.42	
+nbacourt_0756_frame_0004_png.rf.11d4fc	7	0	0	0.85	
+nbacourt_0757_frame_0004_png.rf.11feaf	6	0	0	0.70	
+nbacourt_0758_frame_0004_png.rf.131e2b	6	0	0	0.78	
+nbacourt_0759_frame_0004_png.rf.14129c	8	0	0	0.38	
+nbacourt_0760_frame_0004_png.rf.14d9e1	7	0	0	0.53	
+nbacourt_0761_frame_0004_png.rf.16b4dc	6	0	0	0.47	
+nbacourt_0762_frame_0004_png.rf.16dfa2	7	0	0	0.67	
+nbacourt_0763_frame_0004_png.rf.177304	7	0	0	0.47	
+nbacourt_0764_frame_0004_png.rf.18410f	7	0	0	0.49	
+nbacourt_0765_frame_0004_png.rf.185d5a	6	0	0	0.37	
+nbacourt_0766_frame_0004_png.rf.1acdae	7	0	0	0.37	
+nbacourt_0767_frame_0004_png.rf.1b181c	7	0	0	0.32	
+nbacourt_0768_frame_0004_png.rf.1d31af	6	0	0	0.31	
+nbacourt_0769_frame_0004_png.rf.1e0c93	7	0	0	0.40	
+nbacourt_0770_frame_0004_png.rf.1f90bf	7	0	0	0.60	
+nbacourt_0771_frame_0004_png.rf.1fb205	8	0	0	0.52	
+nbacourt_0773_frame_0004_png.rf.220d82	7	0	0	0.64	
+nbacourt_0775_frame_0004_png.rf.26bfd1	6	0	0	0.42	
+nbacourt_0777_frame_0004_png.rf.278e4d	6	0	0	0.60	
+nbacourt_0778_frame_0004_png.rf.286beb	6	0	0	0.33	
+nbacourt_0779_frame_0004_png.rf.294a74	8	0	0	0.55	
+nbacourt_0780_frame_0004_png.rf.297067	6	0	0	0.48	
+nbacourt_0781_frame_0004_png.rf.2aec5f	6	0	0	0.67	
+nbacourt_0782_frame_0004_png.rf.2b62f3	6	0	0	0.59	
+nbacourt_0783_frame_0004_png.rf.2bcb00	6	0	0	0.56	
+nbacourt_0784_frame_0004_png.rf.2bd0d1	3	0	0	0.47	
+nbacourt_0785_frame_0004_png.rf.2c52e9	5	0	0	0.25	
+nbacourt_0786_frame_0004_png.rf.2f9775	7	0	0	0.30	
+nbacourt_0788_frame_0004_png.rf.320dab	6	0	0	0.35	
+nbacourt_0790_frame_0004_png.rf.3b608d	7	0	0	0.61	
+nbacourt_0791_frame_0004_png.rf.3bf1cc	6	0	0	0.44	
+nbacourt_0792_frame_0004_png.rf.3e951c	6	0	0	0.42	
+nbacourt_0794_frame_0004_png.rf.424936	7	0	0	0.64	
+nbacourt_0795_frame_0004_png.rf.425c04	7	0	0	0.45	
+nbacourt_0796_frame_0004_png.rf.4472cc	7	0	0	0.34	
+nbacourt_0797_frame_0004_png.rf.44797c	7	0	0	0.74	
+nbacourt_0798_frame_0004_png.rf.453d8b	7	0	0	0.91	
+nbacourt_0799_frame_0004_png.rf.471227	7	0	0	0.78	
+nbacourt_0800_frame_0004_png.rf.4750f4	7	0	0	0.54	
+nbacourt_0801_frame_0004_png.rf.4769be	7	0	0	0.44	
+nbacourt_0802_frame_0004_png.rf.48c439	6	0	0	0.32	
+nbacourt_0803_frame_0004_png.rf.490857	7	0	0	0.63	
+nbacourt_0805_frame_0004_png.rf.4a9d55	7	0	0	0.48	
+nbacourt_0806_frame_0004_png.rf.4abd82	7	0	0	0.64	
+nbacourt_0807_frame_0004_png.rf.4d093d	7	0	0	0.62	
+nbacourt_0808_frame_0004_png.rf.4e765b	6	0	0	0.30	
+nbacourt_0809_frame_0004_png.rf.4f2186	7	0	0	0.71	
+nbacourt_0810_frame_0004_png.rf.54bafe	8	0	0	0.40	
+nbacourt_0811_frame_0004_png.rf.551555	6	0	0	0.50	
+nbacourt_0812_frame_0004_png.rf.5543b2	7	0	0	0.58	
+nbacourt_0813_frame_0004_png.rf.556692	6	0	0	0.58	
+nbacourt_0814_frame_0004_png.rf.55b35f	7	0	0	0.58	
+nbacourt_0815_frame_0004_png.rf.577988	6	0	0	0.54	
+nbacourt_0816_frame_0004_png.rf.5861f1	6	0	0	0.28	
+nbacourt_0817_frame_0004_png.rf.5a2237	7	0	0	0.39	
+nbacourt_0818_frame_0004_png.rf.5b4a49	7	0	0	0.40	
+nbacourt_0819_frame_0004_png.rf.5b572c	8	0	0	0.49	
+nbacourt_0820_frame_0004_png.rf.5b6c4d	7	0	0	0.56	
+nbacourt_0821_frame_0004_png.rf.5b7f93	6	0	0	0.57	
+nbacourt_0822_frame_0004_png.rf.5b8f7f	7	0	0	0.71	
+nbacourt_0823_frame_0004_png.rf.5ce73c	7	0	0	0.45	
+nbacourt_0824_frame_0004_png.rf.5ef297	8	0	0	0.47	
+nbacourt_0825_frame_0004_png.rf.5f90ef	7	0	0	0.60	
+nbacourt_0826_frame_0004_png.rf.5fa1c5	7	0	0	0.91	
+nbacourt_0827_frame_0004_png.rf.6081e1	6	0	0	0.40	
+nbacourt_0828_frame_0004_png.rf.6333b4	6	0	0	0.47	
+nbacourt_0829_frame_0004_png.rf.641341	7	0	0	0.65	
+nbacourt_0830_frame_0004_png.rf.659807	7	0	0	0.44	
+nbacourt_0831_frame_0004_png.rf.66d04e	7	0	0	0.65	
+nbacourt_0832_frame_0004_png.rf.6a019b	7	0	0	0.45	
+nbacourt_0833_frame_0004_png.rf.6a855f	7	0	0	0.66	
+nbacourt_0834_frame_0004_png.rf.6bb0be	7	0	0	0.40	
+nbacourt_0836_frame_0004_png.rf.6cf3e8	7	0	0	0.39	
+nbacourt_0837_frame_0004_png.rf.6db27f	6	0	0	0.58	
+nbacourt_0838_frame_0004_png.rf.6de375	7	0	0	0.49	
+nbacourt_0839_frame_0004_png.rf.6fbdb3	6	0	0	0.35	
+nbacourt_0841_frame_0004_png.rf.717159	6	0	0	0.29	
+nbacourt_0842_frame_0004_png.rf.72a206	0	0	0	0.11	
+nbacourt_0844_frame_0004_png.rf.73b35c	6	0	0	1.08	
+nbacourt_0845_frame_0004_png.rf.73cdd2	8	0	0	0.34	
+nbacourt_0846_frame_0004_png.rf.7418cb	7	0	0	0.83	
+nbacourt_0847_frame_0004_png.rf.76c925	7	0	0	0.87	
+nbacourt_0848_frame_0004_png.rf.78d2b5	7	0	0	0.46	
+nbacourt_0850_frame_0004_png.rf.7952f7	7	0	0	0.45	
+nbacourt_0851_frame_0004_png.rf.7a9091	6	0	0	0.36	
+nbacourt_0852_frame_0004_png.rf.7afb45	6	0	0	0.46	
+nbacourt_0853_frame_0004_png.rf.7c7308	6	0	0	0.28	
+nbacourt_0854_frame_0004_png.rf.7edf85	7	0	0	0.56	
+nbacourt_0855_frame_0004_png.rf.7ef791	7	0	0	0.38	
+nbacourt_0857_frame_0004_png.rf.82601a	7	0	0	0.66	
+nbacourt_0859_frame_0004_png.rf.84cb26	6	0	0	0.33	
+nbacourt_0860_frame_0004_png.rf.871bb8	6	0	0	0.41	
+nbacourt_0862_frame_0004_png.rf.8a8f9c	6	0	0	0.63	
+nbacourt_0863_frame_0004_png.rf.8b043f	8	0	0	0.54	
+nbacourt_0864_frame_0004_png.rf.8b1e85	7	0	0	0.99	
+nbacourt_0867_frame_0004_png.rf.8f47e0	8	0	0	0.49	
+nbacourt_0868_frame_0004_png.rf.9000b8	7	0	0	0.57	
+nbacourt_0870_frame_0004_png.rf.92b4c5	6	0	0	0.43	
+nbacourt_0871_frame_0004_png.rf.95fe9f	7	0	0	0.46	
+nbacourt_0872_frame_0004_png.rf.96a797	7	0	0	0.42	
+nbacourt_0873_frame_0004_png.rf.98ca4a	7	0	0	0.70	
+nbacourt_0874_frame_0004_png.rf.9b1c36	6	0	0	0.37	
+nbacourt_0875_frame_0004_png.rf.9b9f31	7	0	0	0.38	
+nbacourt_0876_frame_0004_png.rf.9c176b	7	0	0	0.32	
+nbacourt_0877_frame_0004_png.rf.a010bd	8	0	0	0.34	
+nbacourt_0878_frame_0004_png.rf.a27480	6	0	0	0.63	
+nbacourt_0879_frame_0004_png.rf.a54be7	6	0	0	0.54	
+nbacourt_0881_frame_0004_png.rf.a5b9fb	7	0	0	0.70	
+nbacourt_0882_frame_0004_png.rf.a7e78c	7	0	0	0.37	
+nbacourt_0883_frame_0004_png.rf.a89714	7	0	0	0.67	
+nbacourt_0884_frame_0004_png.rf.a92f57	6	0	0	0.41	
+nbacourt_0885_frame_0004_png.rf.a99116	7	0	0	0.47	
+nbacourt_0886_frame_0004_png.rf.aa2884	7	0	0	0.43	
+nbacourt_0888_frame_0004_png.rf.ab6498	6	0	0	0.41	
+nbacourt_0889_frame_0004_png.rf.ab9ff4	5	0	0	0.58	
+nbacourt_0890_frame_0004_png.rf.ac05ec	6	0	0	0.37	
+nbacourt_0891_frame_0004_png.rf.ac2194	6	0	0	0.48	
+nbacourt_0892_frame_0004_png.rf.ae5f2a	6	0	0	0.44	
+nbacourt_0893_frame_0004_png.rf.aeb665	6	0	0	0.71	
+nbacourt_0894_frame_0004_png.rf.afc7d4	7	0	0	0.41	
+nbacourt_0895_frame_0004_png.rf.aff5e0	7	0	0	0.40	
+nbacourt_0896_frame_0004_png.rf.b185a7	6	0	0	0.37	
+nbacourt_0898_frame_0004_png.rf.b5fbe1	6	0	0	0.44	
+nbacourt_0899_frame_0004_png.rf.b796f4	3	0	0	0.31	
+nbacourt_0900_frame_0004_png.rf.b8bbf7	7	0	0	0.41	
+nbacourt_0901_frame_0004_png.rf.ba9a20	6	0	0	0.51	
+nbacourt_0903_frame_0004_png.rf.bdf01d	6	0	0	0.38	
+nbacourt_0904_frame_0004_png.rf.c336b0	6	0	0	0.55	
+nbacourt_0905_frame_0004_png.rf.c45178	6	0	0	0.39	
+nbacourt_0907_frame_0004_png.rf.c6a82e	6	0	0	0.88	
+nbacourt_0908_frame_0004_png.rf.c6e91f	7	0	0	0.44	
+nbacourt_0909_frame_0004_png.rf.c7fc74	7	0	0	0.53	
+nbacourt_0911_frame_0004_png.rf.c8e44b	7	0	0	0.44	
+nbacourt_0912_frame_0004_png.rf.ca22af	7	0	0	0.71	
+nbacourt_0914_frame_0004_png.rf.d33f44	7	0	0	0.50	
+nbacourt_0915_frame_0004_png.rf.d3cd7a	6	0	0	0.56	
+nbacourt_0916_frame_0004_png.rf.d5ee98	6	0	0	0.28	
+nbacourt_0917_frame_0004_png.rf.d64402	7	0	0	0.49	
+nbacourt_0918_frame_0004_png.rf.d81b43	7	0	0	0.89	
+nbacourt_0919_frame_0004_png.rf.d8d135	7	0	0	0.35	
+nbacourt_0920_frame_0004_png.rf.dad5bb	7	0	0	0.68	
+nbacourt_0921_frame_0004_png.rf.db9cd4	6	0	0	0.30	
+nbacourt_0922_frame_0004_png.rf.de28c9	6	0	0	0.57	
+nbacourt_0923_frame_0004_png.rf.de5fdf	3	0	0	0.46	
+nbacourt_0924_frame_0004_png.rf.e09be4	6	0	0	0.38	
+nbacourt_0925_frame_0004_png.rf.e45bbe	7	0	0	0.48	
+nbacourt_0927_frame_0004_png.rf.e6131c	7	0	0	0.41	
+nbacourt_0928_frame_0004_png.rf.e6d570	6	0	0	0.91	
+nbacourt_0929_frame_0004_png.rf.e708db	7	0	0	0.63	
+nbacourt_0931_frame_0004_png.rf.e95a32	7	0	0	0.50	
+nbacourt_0932_frame_0004_png.rf.eb4ad6	7	0	0	0.82	
+nbacourt_0933_frame_0004_png.rf.ec5231	5	0	0	0.19	
+nbacourt_0936_frame_0004_png.rf.eef0cc	7	0	0	0.36	
+nbacourt_0937_frame_0004_png.rf.f0aaed	6	0	0	0.57	
+nbacourt_0938_frame_0004_png.rf.f26274	7	0	0	0.81	
+nbacourt_0939_frame_0004_png.rf.f34345	7	0	0	0.51	
+nbacourt_0940_frame_0004_png.rf.f3e461	7	0	0	0.49	
+nbacourt_0941_frame_0004_png.rf.f67539	6	0	0	0.29	
+nbacourt_0942_frame_0004_png.rf.f68cba	7	0	0	0.74	
+nbacourt_0945_frame_0004_png.rf.fb14dc	4	0	0	0.60	
+nbacourt_0946_frame_0004_png.rf.fc8072	7	0	0	0.55	
+nbacourt_0947_frame_0004_png.rf.ffda48	7	0	0	0.30	
+nbacourt_0948_frame_0005_png.rf.005fc5	7	0	0	0.45	
+nbacourt_0949_frame_0005_png.rf.00ab37	6	0	0	0.50	
+nbacourt_0950_frame_0005_png.rf.01d465	7	0	0	0.50	
+nbacourt_0951_frame_0005_png.rf.01ddb8	3	0	0	0.46	
+nbacourt_0952_frame_0005_png.rf.021cbd	7	0	0	0.48	
+nbacourt_0953_frame_0005_png.rf.03e729	7	0	0	0.50	
+nbacourt_0954_frame_0005_png.rf.043da4	7	0	0	0.42	
+nbacourt_0955_frame_0005_png.rf.05783e	6	0	0	0.42	
+nbacourt_0956_frame_0005_png.rf.05a9a7	6	0	0	0.45	
+nbacourt_0958_frame_0005_png.rf.0a6650	6	0	0	0.54	
+nbacourt_0959_frame_0005_png.rf.0bb9fb	7	0	0	0.92	
+nbacourt_0960_frame_0005_png.rf.0bd799	7	0	0	0.46	
+nbacourt_0961_frame_0005_png.rf.0ce324	8	0	0	0.74	
+nbacourt_0962_frame_0005_png.rf.0d0ec3	7	0	0	0.50	
+nbacourt_0963_frame_0005_png.rf.0d92a9	7	0	0	0.66	
+nbacourt_0964_frame_0005_png.rf.0fb1b0	6	0	0	0.39	
+nbacourt_0966_frame_0005_png.rf.101e2b	7	0	0	0.75	
+nbacourt_0968_frame_0005_png.rf.10c2ca	4	0	0	0.18	
+nbacourt_0969_frame_0005_png.rf.112cae	8	0	0	0.57	
+nbacourt_0970_frame_0005_png.rf.1251f7	7	0	0	0.37	
+nbacourt_0971_frame_0005_png.rf.13c8c7	7	0	0	0.44	
+nbacourt_0973_frame_0005_png.rf.166d98	6	0	0	0.49	
+nbacourt_0974_frame_0005_png.rf.176404	7	0	0	0.67	
+nbacourt_0975_frame_0005_png.rf.1a3184	7	0	0	0.45	
+nbacourt_0976_frame_0005_png.rf.1ab246	8	0	0	1.06	
+nbacourt_0977_frame_0005_png.rf.1c7982	6	0	0	0.63	
+nbacourt_0978_frame_0005_png.rf.1d8e47	7	0	0	0.48	
+nbacourt_0979_frame_0005_png.rf.1e2c98	7	0	0	0.36	
+nbacourt_0981_frame_0005_png.rf.203893	6	0	0	0.49	
+nbacourt_0982_frame_0005_png.rf.207286	6	0	0	0.79	
+nbacourt_0983_frame_0005_png.rf.20c90f	7	0	0	0.36	
+nbacourt_0985_frame_0005_png.rf.227c6e	7	0	0	1.04	
+nbacourt_0987_frame_0005_png.rf.25e5f4	7	0	0	0.43	
+nbacourt_0988_frame_0005_png.rf.25ee3e	6	0	0	0.35	
+nbacourt_0989_frame_0005_png.rf.276b52	6	0	0	0.42	
+nbacourt_0990_frame_0005_png.rf.29f264	6	0	0	0.46	
+nbacourt_0991_frame_0005_png.rf.2d2dca	6	0	0	0.65	
+nbacourt_0993_frame_0005_png.rf.2e4f98	6	0	0	0.30	
+nbacourt_0994_frame_0005_png.rf.2e73cd	6	0	0	0.38	
+nbacourt_0995_frame_0005_png.rf.311023	7	0	0	0.58	
+nbacourt_0997_frame_0005_png.rf.32a4f5	6	0	0	0.46	
+nbacourt_0999_frame_0005_png.rf.3571e1	6	0	0	0.60	
+nbacourt_1000_frame_0005_png.rf.36121b	7	0	0	0.55	
+nbacourt_1001_frame_0005_png.rf.36f895	7	0	0	0.66	
+nbacourt_1002_frame_0005_png.rf.39a105	7	0	0	0.29	
+nbacourt_1003_frame_0005_png.rf.410350	6	0	0	0.52	
+nbacourt_1005_frame_0005_png.rf.448afb	8	0	0	0.44	
+nbacourt_1006_frame_0005_png.rf.449c56	7	0	0	0.45	
+nbacourt_1007_frame_0005_png.rf.45267f	6	0	0	0.31	
+nbacourt_1008_frame_0005_png.rf.461a0a	7	0	0	0.60	
+nbacourt_1010_frame_0005_png.rf.487d81	7	0	0	0.92	
+nbacourt_1011_frame_0005_png.rf.499dfc	6	0	0	0.77	
+nbacourt_1012_frame_0005_png.rf.4a243d	8	0	0	0.48	
+nbacourt_1013_frame_0005_png.rf.4af3d1	7	0	0	0.34	
+nbacourt_1014_frame_0005_png.rf.4c3435	5	0	0	0.69	
+nbacourt_1015_frame_0005_png.rf.4d8658	6	0	0	0.40	
+nbacourt_1016_frame_0005_png.rf.4df2c4	5	0	0	1.17	
+nbacourt_1017_frame_0005_png.rf.4e7127	3	0	0	0.53	
+nbacourt_1018_frame_0005_png.rf.4e7397	7	0	0	0.33	
+nbacourt_1019_frame_0005_png.rf.50ac4a	8	0	0	0.46	
+nbacourt_1021_frame_0005_png.rf.59c818	6	0	0	1.08	
+nbacourt_1022_frame_0005_png.rf.5a6743	7	0	0	0.33	
+nbacourt_1023_frame_0005_png.rf.5bf1fb	6	0	0	0.47	
+nbacourt_1024_frame_0005_png.rf.5c01b3	6	0	0	0.40	
+nbacourt_1025_frame_0005_png.rf.5fb9d6	6	0	0	0.42	
+nbacourt_1027_frame_0005_png.rf.617398	7	0	0	0.58	
+nbacourt_1028_frame_0005_png.rf.61b60b	6	0	0	0.87	
+nbacourt_1029_frame_0005_png.rf.63b7e0	7	0	0	0.49	
+nbacourt_1030_frame_0005_png.rf.63ff8d	7	0	0	0.54	
+nbacourt_1031_frame_0005_png.rf.6555b7	7	0	0	0.75	
+nbacourt_1032_frame_0005_png.rf.66fac9	8	0	0	0.81	
+nbacourt_1035_frame_0005_png.rf.6c98a0	5	0	0	0.32	
+nbacourt_1036_frame_0005_png.rf.6de5fb	6	0	0	0.55	
+nbacourt_1037_frame_0005_png.rf.6dfc1f	5	0	0	0.72	
+nbacourt_1038_frame_0005_png.rf.6e6018	7	0	0	0.50	
+nbacourt_1039_frame_0005_png.rf.7047cc	7	0	0	0.43	
+nbacourt_1040_frame_0005_png.rf.705a1e	7	0	0	0.50	
+nbacourt_1041_frame_0005_png.rf.728da0	5	0	0	0.51	
+nbacourt_1042_frame_0005_png.rf.72afb0	7	0	0	0.50	
+nbacourt_1044_frame_0005_png.rf.78a9b9	7	0	0	0.49	
+nbacourt_1045_frame_0005_png.rf.78ae41	6	0	0	0.28	
+nbacourt_1047_frame_0005_png.rf.7b5047	7	0	0	0.38	
+nbacourt_1048_frame_0005_png.rf.7b5a55	7	0	0	0.74	
+nbacourt_1049_frame_0005_png.rf.7b82ed	7	0	0	0.45	
+nbacourt_1050_frame_0005_png.rf.7e4813	7	0	0	0.78	
+nbacourt_1051_frame_0005_png.rf.7ecf99	7	0	0	0.26	
+nbacourt_1052_frame_0005_png.rf.7edb1b	6	0	0	0.36	
+nbacourt_1053_frame_0005_png.rf.80190c	6	0	0	0.58	
+nbacourt_1054_frame_0005_png.rf.8050d7	7	0	0	0.68	
+nbacourt_1055_frame_0005_png.rf.81cd0d	7	0	0	0.42	
+nbacourt_1056_frame_0005_png.rf.8424d7	6	0	0	0.35	
+nbacourt_1057_frame_0005_png.rf.852100	7	0	0	0.47	
+nbacourt_1058_frame_0005_png.rf.855dee	7	0	0	0.37	
+nbacourt_1060_frame_0005_png.rf.873675	7	0	0	0.68	
+nbacourt_1061_frame_0005_png.rf.87f1a8	6	0	0	0.52	
+nbacourt_1062_frame_0005_png.rf.8955f4	7	0	0	0.41	
+nbacourt_1063_frame_0005_png.rf.89dd80	7	0	0	0.78	
+nbacourt_1064_frame_0005_png.rf.8a6732	5	0	0	0.76	
+nbacourt_1065_frame_0005_png.rf.8b0c14	7	0	0	0.43	
+nbacourt_1067_frame_0005_png.rf.8d6006	6	0	0	0.50	
+nbacourt_1068_frame_0005_png.rf.8dcf73	6	0	0	0.66	
+nbacourt_1069_frame_0005_png.rf.91f5e2	7	0	0	0.59	
+nbacourt_1070_frame_0005_png.rf.959d61	6	0	0	0.54	
+nbacourt_1071_frame_0005_png.rf.960328	6	0	0	0.42	
+nbacourt_1072_frame_0005_png.rf.96363e	3	0	0	0.35	
+nbacourt_1073_frame_0005_png.rf.9968f5	6	0	0	0.36	
+nbacourt_1074_frame_0005_png.rf.9b125c	6	0	0	0.88	
+nbacourt_1075_frame_0005_png.rf.9bf5ee	7	0	0	0.66	
+nbacourt_1077_frame_0005_png.rf.a44844	7	0	0	0.37	
+nbacourt_1078_frame_0005_png.rf.a4d84a	5	0	0	0.71	
+nbacourt_1079_frame_0005_png.rf.a586aa	6	0	0	0.38	
+nbacourt_1080_frame_0005_png.rf.a5c205	7	0	0	0.57	
+nbacourt_1081_frame_0005_png.rf.a7a1a7	6	0	0	0.41	
+nbacourt_1082_frame_0005_png.rf.a81f16	6	0	0	0.49	
+nbacourt_1084_frame_0005_png.rf.a8fd64	6	0	0	0.44	
+nbacourt_1085_frame_0005_png.rf.a9021e	7	0	0	0.63	
+nbacourt_1086_frame_0005_png.rf.aa2b57	7	0	0	0.29	
+nbacourt_1088_frame_0005_png.rf.abd567	4	0	0	1.00	
+nbacourt_1090_frame_0005_png.rf.adf420	8	0	0	0.86	
+nbacourt_1091_frame_0005_png.rf.af0d4b	7	0	0	0.68	
+nbacourt_1092_frame_0005_png.rf.b03ef1	6	0	0	0.37	
+nbacourt_1094_frame_0005_png.rf.b1d06c	7	0	0	0.35	
+nbacourt_1095_frame_0005_png.rf.b28741	5	0	0	0.92	
+nbacourt_1097_frame_0005_png.rf.b42777	6	0	0	0.48	
+nbacourt_1098_frame_0005_png.rf.b4b714	7	0	0	0.60	
+nbacourt_1099_frame_0005_png.rf.b55893	6	0	0	0.78	
+nbacourt_1100_frame_0005_png.rf.b59cdc	7	0	0	0.40	
+nbacourt_1101_frame_0005_png.rf.b62948	7	0	0	0.53	
+nbacourt_1102_frame_0005_png.rf.b709c2	7	0	0	0.34	
+nbacourt_1103_frame_0005_png.rf.b88412	6	0	0	0.75	
+nbacourt_1104_frame_0005_png.rf.b8e372	6	0	0	0.28	
+nbacourt_1105_frame_0005_png.rf.b9574c	6	0	0	0.56	
+nbacourt_1106_frame_0005_png.rf.bb1a1f	6	0	0	0.45	
+nbacourt_1107_frame_0005_png.rf.bbb142	6	0	0	0.59	
+nbacourt_1108_frame_0005_png.rf.bcf2fa	6	0	0	0.35	
+nbacourt_1109_frame_0005_png.rf.be00a0	7	0	0	0.56	
+nbacourt_1111_frame_0005_png.rf.bf7638	3	0	0	0.27	
+nbacourt_1112_frame_0005_png.rf.bf80cc	6	0	0	0.39	
+nbacourt_1113_frame_0005_png.rf.c070e4	5	0	0	0.35	
+nbacourt_1114_frame_0005_png.rf.c375a2	8	0	0	0.50	
+nbacourt_1116_frame_0005_png.rf.c41015	6	0	0	0.45	
+nbacourt_1118_frame_0005_png.rf.c81ad4	7	0	0	0.45	
+nbacourt_1119_frame_0005_png.rf.c920ac	8	0	0	0.49	
+nbacourt_1120_frame_0005_png.rf.ca686f	6	0	0	0.41	
+nbacourt_1121_frame_0005_png.rf.cac9fd	7	0	0	0.48	
+nbacourt_1123_frame_0005_png.rf.cb63f1	8	0	0	0.61	
+nbacourt_1125_frame_0005_png.rf.cd1939	7	0	0	0.56	
+nbacourt_1126_frame_0005_png.rf.cd79bd	5	0	0	0.23	
+nbacourt_1129_frame_0005_png.rf.d31059	7	0	0	0.34	
+nbacourt_1130_frame_0005_png.rf.d36d3e	6	0	0	0.38	
+nbacourt_1132_frame_0005_png.rf.d72342	6	0	0	0.39	
+nbacourt_1135_frame_0005_png.rf.d9e3c9	6	0	0	0.70	
+nbacourt_1136_frame_0005_png.rf.dd7f70	6	0	0	0.39	
+nbacourt_1137_frame_0005_png.rf.de14d9	7	0	0	0.37	
+nbacourt_1138_frame_0005_png.rf.e15fbc	7	0	0	0.75	
+nbacourt_1139_frame_0005_png.rf.e37fba	7	0	0	1.06	
+nbacourt_1140_frame_0005_png.rf.e3f558	8	0	0	0.37	
+nbacourt_1142_frame_0005_png.rf.e5e109	6	0	0	0.29	
+nbacourt_1143_frame_0005_png.rf.e5e290	8	0	0	0.64	
+nbacourt_1144_frame_0005_png.rf.e75371	6	0	0	0.40	
+nbacourt_1145_frame_0005_png.rf.e900c0	6	0	0	0.72	
+nbacourt_1146_frame_0005_png.rf.e908b0	7	0	0	0.79	
+nbacourt_1148_frame_0005_png.rf.eaa329	5	0	0	0.43	
+nbacourt_1149_frame_0005_png.rf.ebe546	7	0	0	0.69	
+nbacourt_1150_frame_0005_png.rf.ec1492	6	0	0	0.36	
+nbacourt_1151_frame_0005_png.rf.ec1637	7	0	0	0.36	
+nbacourt_1152_frame_0005_png.rf.ecad5a	6	0	0	0.33	
+nbacourt_1155_frame_0005_png.rf.f0391a	6	0	0	0.62	
+nbacourt_1156_frame_0005_png.rf.f0e704	7	0	0	0.32	
+nbacourt_1157_frame_0005_png.rf.f34352	7	0	0	0.48	
+nbacourt_1158_frame_0005_png.rf.f3a016	8	0	0	0.62	
+nbacourt_1161_frame_0005_png.rf.f452f2	7	0	0	0.74	
+nbacourt_1164_frame_0005_png.rf.f82288	7	0	0	0.70	
+nbacourt_1165_frame_0005_png.rf.f856d7	8	0	0	0.79	
+nbacourt_1166_frame_0005_png.rf.fb73a4	7	0	0	0.68	
+nbacourt_1167_frame_0005_png.rf.fc9bad	8	0	0	0.85	
+nbacourt_1168_frame_0005_png.rf.fda310	5	0	0	1.14	
+nbacourt_1169_frame_0005_png.rf.fdcc07	8	0	0	0.56	
+nbacourt_1170_frame_0005_png.rf.fe227e	8	0	0	0.63	
+nbacourt_1171_frame_0005_png.rf.fe9256	7	0	0	0.52	
+nbacourt_1172_frame_0005_png.rf.feabe0	8	0	0	0.41	
+nbacourt_1173_frame_0005_png.rf.feeee7	7	0	0	0.54	
+nbacourt_1174_frame_0005_png.rf.ff59f5	7	0	0	0.47	
+nbacourt_1175_frame_0005_png.rf.ff86fe	7	0	0	0.49	
+nbacourt_1176_frame_0006_png.rf.00e6fa	7	0	0	0.43	
+nbacourt_1177_frame_0006_png.rf.01d413	6	0	0	0.36	
+nbacourt_1178_frame_0006_png.rf.030abe	6	0	0	0.66	
+nbacourt_1179_frame_0006_png.rf.041aac	7	0	0	0.46	
+nbacourt_1180_frame_0006_png.rf.0468be	7	0	0	0.52	
+nbacourt_1181_frame_0006_png.rf.084e1b	7	0	0	0.69	
+nbacourt_1183_frame_0006_png.rf.0aec08	7	0	0	0.64	
+nbacourt_1184_frame_0006_png.rf.0cb599	7	0	0	0.66	
+nbacourt_1186_frame_0006_png.rf.12753e	6	0	0	0.35	
+nbacourt_1188_frame_0006_png.rf.19787e	5	0	0	0.67	
+nbacourt_1189_frame_0006_png.rf.19d465	5	0	0	0.24	
+nbacourt_1190_frame_0006_png.rf.1de9e5	6	0	0	0.70	
+nbacourt_1191_frame_0006_png.rf.1e36a4	6	0	0	0.47	
+nbacourt_1192_frame_0006_png.rf.1efed9	6	0	0	0.35	
+nbacourt_1193_frame_0006_png.rf.1f3b3a	7	0	0	0.75	
+nbacourt_1194_frame_0006_png.rf.20afa7	5	0	0	0.31	
+nbacourt_1195_frame_0006_png.rf.2301af	6	0	0	0.57	
+nbacourt_1196_frame_0006_png.rf.25bd13	8	0	0	0.50	
+nbacourt_1197_frame_0006_png.rf.2bc9f8	6	0	0	0.86	
+nbacourt_1198_frame_0006_png.rf.2cb0cf	7	0	0	0.40	
+nbacourt_1199_frame_0006_png.rf.300a2f	6	0	0	0.35	
+nbacourt_1200_frame_0006_png.rf.3199f2	5	0	0	0.69	
+nbacourt_1201_frame_0006_png.rf.3293d7	5	0	0	0.33	
+nbacourt_1202_frame_0006_png.rf.35f2d0	6	0	0	0.58	
+nbacourt_1203_frame_0006_png.rf.35f910	7	0	0	0.68	
+nbacourt_1204_frame_0006_png.rf.369aff	6	0	0	0.50	
+nbacourt_1205_frame_0006_png.rf.36c3ce	8	0	0	0.45	
+nbacourt_1207_frame_0006_png.rf.3d79ff	7	0	0	0.64	
+nbacourt_1208_frame_0006_png.rf.402409	7	0	0	0.47	
+nbacourt_1211_frame_0006_png.rf.444597	8	0	0	0.39	
+nbacourt_1213_frame_0006_png.rf.44bbb8	7	0	0	0.48	
+nbacourt_1214_frame_0006_png.rf.4559cf	8	0	0	0.52	
+nbacourt_1216_frame_0006_png.rf.464072	6	0	0	0.54	
+nbacourt_1217_frame_0006_png.rf.4967a4	7	0	0	0.55	
+nbacourt_1218_frame_0006_png.rf.4a0851	7	0	0	0.39	
+nbacourt_1219_frame_0006_png.rf.4a9913	8	0	0	0.53	
+nbacourt_1220_frame_0006_png.rf.4aaa6c	6	0	0	0.49	
+nbacourt_1221_frame_0006_png.rf.4bad2c	6	0	0	0.65	
+nbacourt_1222_frame_0006_png.rf.4bb926	7	0	0	0.37	
+nbacourt_1224_frame_0006_png.rf.4f2656	8	0	0	0.45	
+nbacourt_1225_frame_0006_png.rf.4fd971	6	0	0	0.32	
+nbacourt_1227_frame_0006_png.rf.522e30	6	0	0	0.45	
+nbacourt_1228_frame_0006_png.rf.58e21b	6	0	0	0.30	
+nbacourt_1229_frame_0006_png.rf.5c34bc	6	0	0	0.61	
+nbacourt_1230_frame_0006_png.rf.5dda02	8	0	0	0.88	
+nbacourt_1231_frame_0006_png.rf.5e31a2	7	0	0	0.82	
+nbacourt_1232_frame_0006_png.rf.5e8642	6	0	0	1.06	
+nbacourt_1235_frame_0006_png.rf.653354	7	0	0	0.35	
+nbacourt_1236_frame_0006_png.rf.65a3b6	7	0	0	0.40	
+nbacourt_1238_frame_0006_png.rf.68470a	7	0	0	0.83	
+nbacourt_1239_frame_0006_png.rf.688db8	7	0	0	0.84	
+nbacourt_1240_frame_0006_png.rf.6c3bf1	5	0	0	1.08	
+nbacourt_1241_frame_0006_png.rf.6cea82	5	0	0	0.35	
+nbacourt_1242_frame_0006_png.rf.6e276f	7	0	0	0.54	
+nbacourt_1243_frame_0006_png.rf.75baa7	7	0	0	0.90	
+nbacourt_1244_frame_0006_png.rf.7d1021	8	0	0	0.41	
+nbacourt_1245_frame_0006_png.rf.7fb056	7	0	0	0.55	
+nbacourt_1247_frame_0006_png.rf.8122c2	8	0	0	0.38	
+nbacourt_1248_frame_0006_png.rf.8146c9	6	0	0	0.65	
+nbacourt_1249_frame_0006_png.rf.82441f	7	0	0	0.49	
+nbacourt_1250_frame_0006_png.rf.82ec66	7	0	0	0.30	
+nbacourt_1251_frame_0006_png.rf.833119	7	0	0	0.31	
+nbacourt_1252_frame_0006_png.rf.84f47e	8	0	0	0.78	
+nbacourt_1253_frame_0006_png.rf.85b5c3	8	0	0	0.37	
+nbacourt_1254_frame_0006_png.rf.85d497	6	0	0	0.49	
+nbacourt_1255_frame_0006_png.rf.89e8cb	6	0	0	0.50	
+nbacourt_1256_frame_0006_png.rf.8b0e95	7	0	0	0.60	
+nbacourt_1257_frame_0006_png.rf.8b11a1	6	0	0	0.49	
+nbacourt_1258_frame_0006_png.rf.8b6c4e	8	0	0	0.34	
+nbacourt_1259_frame_0006_png.rf.904a96	6	0	0	0.63	
+nbacourt_1260_frame_0006_png.rf.90951a	8	0	0	0.40	
+nbacourt_1261_frame_0006_png.rf.90eb3a	6	0	0	0.35	
+nbacourt_1262_frame_0006_png.rf.929684	7	0	0	0.63	
+nbacourt_1263_frame_0006_png.rf.978ff8	8	0	0	0.25	
+nbacourt_1264_frame_0006_png.rf.9ad78c	6	0	0	0.33	
+nbacourt_1265_frame_0006_png.rf.9adefa	8	0	0	0.40	
+nbacourt_1267_frame_0006_png.rf.9eeb33	6	0	0	0.45	
+nbacourt_1268_frame_0006_png.rf.a1983e	8	0	0	0.67	
+nbacourt_1269_frame_0006_png.rf.a1dbf4	7	0	0	0.77	
+nbacourt_1270_frame_0006_png.rf.a23ae1	6	0	0	0.65	
+nbacourt_1271_frame_0006_png.rf.a32706	6	0	0	0.28	
+nbacourt_1272_frame_0006_png.rf.a3aefc	6	0	0	0.33	
+nbacourt_1273_frame_0006_png.rf.a78c55	7	0	0	0.50	
+nbacourt_1275_frame_0006_png.rf.b002b5	7	0	0	0.27	
+nbacourt_1277_frame_0006_png.rf.b56ca5	7	0	0	0.44	
+nbacourt_1278_frame_0006_png.rf.b5f243	6	0	0	0.47	
+nbacourt_1279_frame_0006_png.rf.b6e710	7	0	0	1.00	
+nbacourt_1280_frame_0006_png.rf.b70486	8	0	0	0.50	
+nbacourt_1282_frame_0006_png.rf.b7ac5a	7	0	0	0.32	
+nbacourt_1283_frame_0006_png.rf.b7d28e	8	0	0	0.74	
+nbacourt_1284_frame_0006_png.rf.bcac80	8	0	0	0.45	
+nbacourt_1286_frame_0006_png.rf.c3f574	6	0	0	0.56	
+nbacourt_1287_frame_0006_png.rf.c495d6	6	0	0	0.60	
+nbacourt_1288_frame_0006_png.rf.c5b19a	6	0	0	0.71	
+nbacourt_1289_frame_0006_png.rf.c5b546	8	0	0	0.40	
+nbacourt_1290_frame_0006_png.rf.c63b46	6	0	0	0.34	
+nbacourt_1291_frame_0006_png.rf.c6855c	8	0	0	0.41	
+nbacourt_1292_frame_0006_png.rf.ca333e	6	0	0	1.01	
+nbacourt_1293_frame_0006_png.rf.cb9d15	6	0	0	0.38	
+nbacourt_1295_frame_0006_png.rf.d050aa	8	0	0	0.30	
+nbacourt_1296_frame_0006_png.rf.d0a9a8	6	0	0	0.38	
+nbacourt_1297_frame_0006_png.rf.d1bb5a	8	0	0	0.47	
+nbacourt_1298_frame_0006_png.rf.d1cb57	7	0	0	0.72	
+nbacourt_1299_frame_0006_png.rf.d24e5c	5	0	0	0.64	
+nbacourt_1300_frame_0006_png.rf.d25d50	7	0	0	0.61	
+nbacourt_1301_frame_0006_png.rf.d38bfa	8	0	0	0.39	
+nbacourt_1302_frame_0006_png.rf.d44dd0	7	0	0	0.51	
+nbacourt_1304_frame_0006_png.rf.d5fef0	7	0	0	0.48	
+nbacourt_1306_frame_0006_png.rf.d704bd	8	0	0	0.61	
+nbacourt_1308_frame_0006_png.rf.d9ce89	6	0	0	0.86	
+nbacourt_1309_frame_0006_png.rf.dad92a	7	0	0	0.45	
+nbacourt_1310_frame_0006_png.rf.dbce9c	7	0	0	0.81	
+nbacourt_1311_frame_0006_png.rf.dd4d77	5	0	0	0.72	
+nbacourt_1312_frame_0006_png.rf.e132a0	7	0	0	0.41	
+nbacourt_1313_frame_0006_png.rf.e14a24	6	0	0	0.25	
+nbacourt_1314_frame_0006_png.rf.e1cc4a	5	0	0	0.34	
+nbacourt_1315_frame_0006_png.rf.e509b0	6	0	0	0.45	
+nbacourt_1316_frame_0006_png.rf.e5ec00	6	0	0	0.49	
+nbacourt_1317_frame_0006_png.rf.e6673b	6	0	0	0.55	
+nbacourt_1318_frame_0006_png.rf.e69e07	7	0	0	0.92	
+nbacourt_1319_frame_0006_png.rf.e8a7f6	5	0	0	0.25	
+nbacourt_1320_frame_0006_png.rf.e93985	8	0	0	0.38	
+nbacourt_1321_frame_0006_png.rf.e9ebd5	8	0	0	0.46	
+nbacourt_1322_frame_0006_png.rf.edb95e	7	0	0	0.78	
+nbacourt_1323_frame_0006_png.rf.ee6ef5	7	0	0	0.65	
+nbacourt_1324_frame_0006_png.rf.eebc8c	7	0	0	0.34	
+nbacourt_1325_frame_0006_png.rf.f1243b	8	0	0	0.52	
+nbacourt_1326_frame_0006_png.rf.f2ad5e	7	0	0	0.34	
+nbacourt_1328_frame_0006_png.rf.f42588	6	0	0	0.54	
+nbacourt_1330_frame_0006_png.rf.f94f5c	6	0	0	0.73	
+nbacourt_1331_frame_0006_png.rf.f9fc9a	5	0	0	0.24	
+nbacourt_1332_frame_0006_png.rf.fc64ee	6	0	0	0.41	
+nbacourt_1334_frame_0006_png.rf.fe2953	7	0	0	0.38	
+nbacourt_1335_frame_0007_png.rf.014fa4	6	0	0	0.58	
+nbacourt_1336_frame_0007_png.rf.01654d	4	0	0	0.71	
+nbacourt_1337_frame_0007_png.rf.019a77	7	0	0	0.39	
+nbacourt_1341_frame_0007_png.rf.090380	5	0	0	0.41	
+nbacourt_1342_frame_0007_png.rf.091707	7	0	0	0.63	
+nbacourt_1343_frame_0007_png.rf.093555	6	0	0	0.77	
+nbacourt_1345_frame_0007_png.rf.0b0887	8	0	0	0.60	
+nbacourt_1348_frame_0007_png.rf.0d9146	6	0	0	0.53	
+nbacourt_1349_frame_0007_png.rf.0d97ca	6	0	0	0.51	
+nbacourt_1350_frame_0007_png.rf.107a06	6	0	0	0.76	
+nbacourt_1351_frame_0007_png.rf.120938	5	0	0	0.20	
+nbacourt_1352_frame_0007_png.rf.133999	7	0	0	0.24	
+nbacourt_1353_frame_0007_png.rf.152ba9	6	0	0	0.62	
+nbacourt_1354_frame_0007_png.rf.16b6ec	5	0	0	0.48	
+nbacourt_1355_frame_0007_png.rf.18f252	7	0	0	0.55	
+nbacourt_1356_frame_0007_png.rf.1ae7a8	8	0	0	0.51	
+nbacourt_1357_frame_0007_png.rf.1ba7c0	5	0	0	0.39	
+nbacourt_1358_frame_0007_png.rf.215655	7	0	0	0.44	
+nbacourt_1361_frame_0007_png.rf.23eca5	7	0	0	0.48	
+nbacourt_1362_frame_0007_png.rf.241fd3	7	0	0	0.44	
+nbacourt_1363_frame_0007_png.rf.267bc0	7	0	0	0.68	
+nbacourt_1364_frame_0007_png.rf.294954	8	0	0	0.26	
+nbacourt_1365_frame_0007_png.rf.297cec	7	0	0	0.47	
+nbacourt_1366_frame_0007_png.rf.29babb	6	0	0	0.61	
+nbacourt_1367_frame_0007_png.rf.2a8b03	8	0	0	0.27	
+nbacourt_1368_frame_0007_png.rf.2b9f95	7	0	0	0.94	
+nbacourt_1369_frame_0007_png.rf.30d294	7	0	0	0.38	
+nbacourt_1370_frame_0007_png.rf.32a49e	5	0	0	0.28	
+nbacourt_1371_frame_0007_png.rf.33c68f	6	0	0	0.36	
+nbacourt_1372_frame_0007_png.rf.346e5f	6	0	0	0.43	
+nbacourt_1375_frame_0007_png.rf.3891bf	5	0	0	0.34	
+nbacourt_1376_frame_0007_png.rf.38c40d	5	0	0	0.49	
+nbacourt_1379_frame_0007_png.rf.3a426f	5	0	0	0.45	
+nbacourt_1380_frame_0007_png.rf.3aefc1	8	0	0	0.45	
+nbacourt_1381_frame_0007_png.rf.3cdda8	7	0	0	1.25	
+nbacourt_1382_frame_0007_png.rf.3ea98b	7	0	0	0.89	
+nbacourt_1384_frame_0007_png.rf.412ea3	7	0	0	0.40	
+nbacourt_1385_frame_0007_png.rf.428460	7	0	0	0.39	
+nbacourt_1387_frame_0007_png.rf.44cc8f	6	0	0	0.45	
+nbacourt_1389_frame_0007_png.rf.477bbd	7	0	0	0.70	
+nbacourt_1390_frame_0007_png.rf.489d61	4	0	0	0.44	
+nbacourt_1391_frame_0007_png.rf.4cfae2	6	0	0	0.54	
+nbacourt_1392_frame_0007_png.rf.4ea6b8	6	0	0	0.51	
+nbacourt_1393_frame_0007_png.rf.4f06d2	7	0	0	0.50	
+nbacourt_1394_frame_0007_png.rf.532790	6	0	0	0.33	
+nbacourt_1395_frame_0007_png.rf.55095e	7	0	0	0.58	
+nbacourt_1396_frame_0007_png.rf.56f8d7	6	0	0	0.28	
+nbacourt_1397_frame_0007_png.rf.58b669	8	0	0	0.63	
+nbacourt_1398_frame_0007_png.rf.58d5e8	6	0	0	0.87	
+nbacourt_1399_frame_0007_png.rf.5b832c	7	0	0	0.87	
+nbacourt_1400_frame_0007_png.rf.5c43ea	7	0	0	0.44	
+nbacourt_1401_frame_0007_png.rf.5db518	7	0	0	0.29	
+nbacourt_1402_frame_0007_png.rf.644b7a	6	0	0	0.41	
+nbacourt_1403_frame_0007_png.rf.67faf8	8	0	0	0.43	
+nbacourt_1404_frame_0007_png.rf.6e96e9	5	0	0	0.97	
+nbacourt_1405_frame_0007_png.rf.6f89cc	7	0	0	0.38	
+nbacourt_1407_frame_0007_png.rf.747885	8	0	0	0.44	
+nbacourt_1408_frame_0007_png.rf.77042a	6	0	0	0.40	
+nbacourt_1409_frame_0007_png.rf.7a2d1a	5	0	0	0.54	
+nbacourt_1410_frame_0007_png.rf.7b2233	5	0	0	0.43	
+nbacourt_1411_frame_0007_png.rf.7c375f	7	0	0	0.32	
+nbacourt_1412_frame_0007_png.rf.7cc539	5	0	0	0.37	
+nbacourt_1413_frame_0007_png.rf.7ce1be	7	0	0	0.49	
+nbacourt_1414_frame_0007_png.rf.80b78b	6	0	0	0.44	
+nbacourt_1415_frame_0007_png.rf.863154	6	0	0	0.66	
+nbacourt_1416_frame_0007_png.rf.867917	7	0	0	0.62	
+nbacourt_1417_frame_0007_png.rf.86a95d	3	0	0	1.04	
+nbacourt_1419_frame_0007_png.rf.8a5ebc	6	0	0	0.70	
+nbacourt_1420_frame_0007_png.rf.90907e	6	0	0	0.56	
+nbacourt_1421_frame_0007_png.rf.90b75d	7	0	0	0.36	
+nbacourt_1422_frame_0007_png.rf.98cf85	7	0	0	0.57	
+nbacourt_1423_frame_0007_png.rf.9b33d9	8	0	0	0.79	
+nbacourt_1424_frame_0007_png.rf.9bed39	7	0	0	0.42	
+nbacourt_1425_frame_0007_png.rf.9c05ba	8	0	0	0.42	
+nbacourt_1426_frame_0007_png.rf.9d2d12	7	0	0	0.60	
+nbacourt_1428_frame_0007_png.rf.9de229	6	0	0	0.37	
+nbacourt_1429_frame_0007_png.rf.9f08a0	6	0	0	0.59	
+nbacourt_1430_frame_0007_png.rf.a02b38	7	0	0	0.28	
+nbacourt_1431_frame_0007_png.rf.a06fd8	7	0	0	0.36	
+nbacourt_1432_frame_0007_png.rf.a18190	6	0	0	0.49	
+nbacourt_1433_frame_0007_png.rf.a1e89b	7	0	0	0.45	
+nbacourt_1434_frame_0007_png.rf.a3980e	8	0	0	0.40	
+nbacourt_1435_frame_0007_png.rf.a8c635	6	0	0	0.59	
+nbacourt_1437_frame_0007_png.rf.aad2a4	6	0	0	0.57	
+nbacourt_1438_frame_0007_png.rf.aaf7ae	7	0	0	0.57	
+nbacourt_1439_frame_0007_png.rf.ab8b36	5	0	0	0.32	
+nbacourt_1440_frame_0007_png.rf.ac61b4	5	0	0	0.31	
+nbacourt_1442_frame_0007_png.rf.b092e7	6	0	0	0.41	
+nbacourt_1443_frame_0007_png.rf.b0e9dc	7	0	0	0.25	
+nbacourt_1445_frame_0007_png.rf.b50764	6	0	0	0.76	
+nbacourt_1446_frame_0007_png.rf.b6cd3b	6	0	0	0.68	
+nbacourt_1448_frame_0007_png.rf.bd80b0	4	0	0	0.36	
+nbacourt_1450_frame_0007_png.rf.beeda7	8	0	0	0.45	
+nbacourt_1451_frame_0007_png.rf.bf016d	6	0	0	0.35	
+nbacourt_1452_frame_0007_png.rf.bfcf77	7	0	0	0.54	
+nbacourt_1453_frame_0007_png.rf.c0e45b	6	0	0	0.49	
+nbacourt_1454_frame_0007_png.rf.c25f0a	5	0	0	0.24	
+nbacourt_1455_frame_0007_png.rf.c8b284	6	0	0	0.64	
+nbacourt_1456_frame_0007_png.rf.c8be8c	6	0	0	0.34	
+nbacourt_1457_frame_0007_png.rf.c94ecb	7	0	0	0.78	
+nbacourt_1458_frame_0007_png.rf.ca7146	7	0	0	0.62	
+nbacourt_1459_frame_0007_png.rf.cb9d1e	7	0	0	0.54	
+nbacourt_1460_frame_0007_png.rf.d05212	6	0	0	0.73	
+nbacourt_1461_frame_0007_png.rf.d25ba4	6	0	0	0.53	
+nbacourt_1464_frame_0007_png.rf.d5a040	7	0	0	0.50	
+nbacourt_1465_frame_0007_png.rf.daf386	5	0	0	0.36	
+nbacourt_1466_frame_0007_png.rf.db9940	6	0	0	0.71	
+nbacourt_1467_frame_0007_png.rf.e21869	6	0	0	0.25	
+nbacourt_1468_frame_0007_png.rf.e4374c	5	0	0	0.35	
+nbacourt_1469_frame_0007_png.rf.e45908	7	0	0	0.49	
+nbacourt_1470_frame_0007_png.rf.e51202	6	0	0	0.71	
+nbacourt_1472_frame_0007_png.rf.e8c3dd	4	0	0	0.48	
+nbacourt_1473_frame_0007_png.rf.e953d0	5	0	0	0.37	
+nbacourt_1474_frame_0007_png.rf.e9d502	7	0	0	0.56	
+nbacourt_1475_frame_0007_png.rf.eb5f57	7	0	0	0.44	
+nbacourt_1476_frame_0007_png.rf.ed2922	7	0	0	0.69	
+nbacourt_1477_frame_0007_png.rf.edd2b5	7	0	0	0.33	
+nbacourt_1478_frame_0007_png.rf.ee64e7	7	0	0	0.57	
+nbacourt_1479_frame_0007_png.rf.f07435	7	0	0	0.78	
+nbacourt_1480_frame_0007_png.rf.f1cf2a	5	0	0	0.61	
+nbacourt_1481_frame_0007_png.rf.f3a507	7	0	0	0.75	
+nbacourt_1482_frame_0007_png.rf.f630df	7	0	0	0.76	
+nbacourt_1483_frame_0007_png.rf.f754bf	7	0	0	0.35	
+nbacourt_1484_frame_0007_png.rf.f7d29d	6	0	0	0.68	
+nbacourt_1485_frame_0007_png.rf.f88061	6	0	0	0.49	
+nbacourt_1486_frame_0007_png.rf.f99c88	7	0	0	0.90	
+nbacourt_1487_frame_0007_png.rf.fa60a5	7	0	0	0.47	
+nbacourt_1488_frame_0007_png.rf.fb7464	6	0	0	0.33	
+nbacourt_1490_frame_0007_png.rf.ff9f3e	7	0	0	0.49	
+nbacourt_1491_frame_0008_png.rf.00b069	5	0	0	0.37	
+nbacourt_1492_frame_0008_png.rf.048cca	5	0	0	0.50	
+nbacourt_1494_frame_0008_png.rf.097566	6	0	0	0.31	
+nbacourt_1495_frame_0008_png.rf.0a6b6c	6	0	0	0.59	
+nbacourt_1496_frame_0008_png.rf.0b5b73	7	0	0	0.47	
+nbacourt_1497_frame_0008_png.rf.0c4ec2	8	0	0	0.66	
+nbacourt_1498_frame_0008_png.rf.0f8c88	7	0	0	0.49	
+nbacourt_1499_frame_0008_png.rf.10be9a	5	0	0	0.65	
+nbacourt_1500_frame_0008_png.rf.12826a	6	0	0	0.60	
+nbacourt_1501_frame_0008_png.rf.166d1c	7	0	0	0.28	
+nbacourt_1502_frame_0008_png.rf.178991	8	0	0	0.45	
+nbacourt_1503_frame_0008_png.rf.184a81	6	0	0	0.63	
+nbacourt_1504_frame_0008_png.rf.192a72	7	0	0	0.61	
+nbacourt_1505_frame_0008_png.rf.19e900	7	0	0	0.39	
+nbacourt_1506_frame_0008_png.rf.1a013d	5	0	0	0.35	
+nbacourt_1509_frame_0008_png.rf.1e4a6f	7	0	0	0.79	
+nbacourt_1510_frame_0008_png.rf.208c06	7	0	0	0.48	
+nbacourt_1511_frame_0008_png.rf.225c89	7	0	0	0.36	
+nbacourt_1513_frame_0008_png.rf.2773b7	6	0	0	0.19	
+nbacourt_1514_frame_0008_png.rf.2a1272	7	0	0	0.50	
+nbacourt_1515_frame_0008_png.rf.2aed71	7	0	0	0.42	
+nbacourt_1516_frame_0008_png.rf.30081b	6	0	0	0.50	
+nbacourt_1518_frame_0008_png.rf.3039c3	5	0	0	0.43	
+nbacourt_1519_frame_0008_png.rf.316fbf	5	0	0	0.38	
+nbacourt_1520_frame_0008_png.rf.33b0cd	7	0	0	0.71	
+nbacourt_1521_frame_0008_png.rf.39aa8d	5	0	0	0.50	
+nbacourt_1522_frame_0008_png.rf.3f47f9	7	0	0	0.84	
+nbacourt_1523_frame_0008_png.rf.3f6b85	6	0	0	0.34	
+nbacourt_1524_frame_0008_png.rf.408818	7	0	0	0.47	
+nbacourt_1525_frame_0008_png.rf.4310d7	4	0	0	0.59	
+nbacourt_1526_frame_0008_png.rf.44c111	7	0	0	0.85	
+nbacourt_1527_frame_0008_png.rf.457e6d	7	0	0	0.70	
+nbacourt_1528_frame_0008_png.rf.47e17d	5	0	0	0.54	
+nbacourt_1529_frame_0008_png.rf.483ca1	6	0	0	0.59	
+nbacourt_1530_frame_0008_png.rf.48f0dc	6	0	0	0.59	
+nbacourt_1531_frame_0008_png.rf.4ab45c	7	0	0	0.82	
+nbacourt_1532_frame_0008_png.rf.4bd183	8	0	0	0.54	
+nbacourt_1533_frame_0008_png.rf.527a74	6	0	0	0.42	
+nbacourt_1534_frame_0008_png.rf.57646e	7	0	0	0.65	
+nbacourt_1535_frame_0008_png.rf.5bdb38	6	0	0	0.53	
+nbacourt_1536_frame_0008_png.rf.5c444c	7	0	0	0.39	
+nbacourt_1537_frame_0008_png.rf.5ccebc	5	0	0	0.81	
+nbacourt_1538_frame_0008_png.rf.5d7224	6	0	0	0.58	
+nbacourt_1539_frame_0008_png.rf.5d8733	7	0	0	0.34	
+nbacourt_1540_frame_0008_png.rf.5f17ba	6	0	0	0.50	
+nbacourt_1541_frame_0008_png.rf.64ccec	7	0	0	0.71	
+nbacourt_1542_frame_0008_png.rf.6b9db4	8	0	0	0.58	
+nbacourt_1543_frame_0008_png.rf.6c0bc7	7	0	0	0.40	
+nbacourt_1545_frame_0008_png.rf.6e0878	7	0	0	0.47	
+nbacourt_1546_frame_0008_png.rf.711889	8	0	0	0.63	
+nbacourt_1547_frame_0008_png.rf.71e9b8	7	0	0	0.33	
+nbacourt_1549_frame_0008_png.rf.7577ea	6	0	0	0.40	
+nbacourt_1550_frame_0008_png.rf.75e953	6	0	0	0.49	
+nbacourt_1551_frame_0008_png.rf.7e221b	5	0	0	0.43	
+nbacourt_1552_frame_0008_png.rf.7ee4ec	8	0	0	0.58	
+nbacourt_1553_frame_0008_png.rf.824782	7	0	0	0.87	
+nbacourt_1554_frame_0008_png.rf.829438	7	0	0	0.53	
+nbacourt_1555_frame_0008_png.rf.83bed3	7	0	0	0.48	
+nbacourt_1556_frame_0008_png.rf.83e918	8	0	0	0.38	
+nbacourt_1557_frame_0008_png.rf.853645	7	0	0	0.49	
+nbacourt_1558_frame_0008_png.rf.8bbeb5	5	0	0	0.96	
+nbacourt_1560_frame_0008_png.rf.8d6bb1	7	0	0	0.46	
+nbacourt_1561_frame_0008_png.rf.98d990	3	0	0	0.16	
+nbacourt_1562_frame_0008_png.rf.9fea6e	9	0	0	0.68	
+nbacourt_1563_frame_0008_png.rf.a379a2	5	0	0	0.16	
+nbacourt_1564_frame_0008_png.rf.a50735	7	0	0	0.49	
+nbacourt_1565_frame_0008_png.rf.a7c4d1	5	0	0	0.35	
+nbacourt_1566_frame_0008_png.rf.a90351	5	0	0	0.36	
+nbacourt_1567_frame_0008_png.rf.a9b1b1	7	0	0	0.78	
+nbacourt_1568_frame_0008_png.rf.ae2e06	7	0	0	0.36	
+nbacourt_1569_frame_0008_png.rf.b01321	6	0	0	0.44	
+nbacourt_1570_frame_0008_png.rf.b6dfaa	6	0	0	0.63	
+nbacourt_1571_frame_0008_png.rf.b831f5	7	0	0	0.47	
+nbacourt_1572_frame_0008_png.rf.b8ce67	3	0	0	0.29	
+nbacourt_1574_frame_0008_png.rf.bb4be6	7	0	0	0.48	
+nbacourt_1576_frame_0008_png.rf.be792c	7	0	0	0.40	
+nbacourt_1577_frame_0008_png.rf.c237eb	5	0	0	0.37	
+nbacourt_1578_frame_0008_png.rf.c2b407	7	0	0	0.33	
+nbacourt_1579_frame_0008_png.rf.c66bed	6	0	0	0.48	
+nbacourt_1580_frame_0008_png.rf.c79586	8	0	0	0.64	
+nbacourt_1582_frame_0008_png.rf.cb885c	7	0	0	0.83	
+nbacourt_1583_frame_0008_png.rf.cd4184	7	0	0	0.37	
+nbacourt_1584_frame_0008_png.rf.d11b3b	7	0	0	0.90	
+nbacourt_1585_frame_0008_png.rf.d3a3be	7	0	0	0.34	
+nbacourt_1586_frame_0008_png.rf.d8983c	7	0	0	0.33	
+nbacourt_1587_frame_0008_png.rf.da4826	7	0	0	0.68	
+nbacourt_1588_frame_0008_png.rf.dadc67	7	0	0	0.49	
+nbacourt_1589_frame_0008_png.rf.dbcbd6	7	0	0	0.40	
+nbacourt_1590_frame_0008_png.rf.ddae99	7	0	0	0.78	
+nbacourt_1591_frame_0008_png.rf.df9ef8	7	0	0	0.63	
+nbacourt_1592_frame_0008_png.rf.e09f17	7	0	0	0.44	
+nbacourt_1593_frame_0008_png.rf.e44eed	6	0	0	0.63	
+nbacourt_1594_frame_0008_png.rf.e678d2	6	0	0	0.85	
+nbacourt_1595_frame_0008_png.rf.e91896	5	0	0	0.42	
+nbacourt_1596_frame_0008_png.rf.e95766	7	0	0	0.38	
+nbacourt_1597_frame_0008_png.rf.f9b826	7	0	0	0.64	
+nbacourt_1598_frame_0008_png.rf.fa5eb6	7	0	0	0.48	
+nbacourt_1599_frame_0008_png.rf.fb6d1f	8	0	0	0.67	
+nbacourt_1601_frame_0008_png.rf.fc2ed5	6	0	0	0.42	
+nbacourt_1602_frame_0008_png.rf.fdd571	5	0	0	0.80	
+nbacourt_1604_frame_0008_png.rf.fe8939	5	0	0	0.64	
+nbacourt_1605_frame_0009_png.rf.04383f	6	0	0	0.34	
+nbacourt_1608_frame_0009_png.rf.0e6688	7	0	0	0.64	
+nbacourt_1610_frame_0009_png.rf.12f11b	7	0	0	0.41	
+nbacourt_1613_frame_0009_png.rf.1a5f0d	7	0	0	0.36	
+nbacourt_1614_frame_0009_png.rf.1d4655	8	0	0	0.71	
+nbacourt_1615_frame_0009_png.rf.1e3969	6	0	0	0.40	
+nbacourt_1616_frame_0009_png.rf.2f0a33	7	0	0	0.56	
+nbacourt_1617_frame_0009_png.rf.2f71b5	7	0	0	0.65	
+nbacourt_1618_frame_0009_png.rf.32dfaa	7	0	0	0.35	
+nbacourt_1619_frame_0009_png.rf.3437b7	7	0	0	0.47	
+nbacourt_1620_frame_0009_png.rf.35fd02	7	0	0	0.44	
+nbacourt_1622_frame_0009_png.rf.36e4ca	6	0	0	0.55	
+nbacourt_1623_frame_0009_png.rf.384441	6	0	0	0.32	
+nbacourt_1625_frame_0009_png.rf.429dbd	7	0	0	0.34	
+nbacourt_1626_frame_0009_png.rf.4517da	6	0	0	0.42	
+nbacourt_1627_frame_0009_png.rf.456ac7	7	0	0	0.39	
+nbacourt_1628_frame_0009_png.rf.45f992	7	0	0	0.44	
+nbacourt_1629_frame_0009_png.rf.485931	8	0	0	0.49	
+nbacourt_1630_frame_0009_png.rf.4dd1e0	7	0	0	0.32	
+nbacourt_1631_frame_0009_png.rf.51cfeb	7	0	0	0.70	
+nbacourt_1632_frame_0009_png.rf.55e283	6	0	0	0.57	
+nbacourt_1633_frame_0009_png.rf.561385	6	0	0	0.38	
+nbacourt_1635_frame_0009_png.rf.5fe3ac	8	0	0	0.61	
+nbacourt_1637_frame_0009_png.rf.6909f9	7	0	0	0.50	
+nbacourt_1641_frame_0009_png.rf.734c2a	6	0	0	0.33	
+nbacourt_1642_frame_0009_png.rf.74bc4d	8	0	0	0.45	
+nbacourt_1643_frame_0009_png.rf.781af1	6	0	0	0.32	
+nbacourt_1644_frame_0009_png.rf.7a109c	5	0	0	0.42	
+nbacourt_1645_frame_0009_png.rf.7adb43	6	0	0	0.37	
+nbacourt_1646_frame_0009_png.rf.80cdb9	7	0	0	0.44	
+nbacourt_1647_frame_0009_png.rf.835d44	7	0	0	0.34	
+nbacourt_1648_frame_0009_png.rf.84541d	6	0	0	0.71	
+nbacourt_1649_frame_0009_png.rf.85e7cd	5	0	0	0.60	
+nbacourt_1650_frame_0009_png.rf.869aa2	6	0	0	0.45	
+nbacourt_1651_frame_0009_png.rf.86a964	6	0	0	0.31	
+nbacourt_1652_frame_0009_png.rf.88c82e	7	0	0	0.55	
+nbacourt_1653_frame_0009_png.rf.8a0f52	7	0	0	0.60	
+nbacourt_1654_frame_0009_png.rf.8a1d1f	7	0	0	0.42	
+nbacourt_1655_frame_0009_png.rf.8dd644	5	0	0	0.38	
+nbacourt_1656_frame_0009_png.rf.8f4715	7	0	0	0.44	
+nbacourt_1657_frame_0009_png.rf.9296c8	8	0	0	0.48	
+nbacourt_1658_frame_0009_png.rf.92d88f	5	0	0	0.40	
+nbacourt_1659_frame_0009_png.rf.99f109	6	0	0	0.53	
+nbacourt_1660_frame_0009_png.rf.9f7564	7	0	0	0.63	
+nbacourt_1661_frame_0009_png.rf.9f9448	8	0	0	0.41	
+nbacourt_1662_frame_0009_png.rf.a820bd	6	0	0	0.84	
+nbacourt_1663_frame_0009_png.rf.aac00e	5	0	0	0.36	
+nbacourt_1664_frame_0009_png.rf.ad7a87	7	0	0	0.33	
+nbacourt_1666_frame_0009_png.rf.b42414	7	0	0	0.88	
+nbacourt_1667_frame_0009_png.rf.b55a2e	7	0	0	0.60	
+nbacourt_1668_frame_0009_png.rf.b86c74	7	0	0	0.42	
+nbacourt_1670_frame_0009_png.rf.baae50	8	0	0	0.72	
+nbacourt_1671_frame_0009_png.rf.bd4234	7	0	0	0.42	
+nbacourt_1673_frame_0009_png.rf.c27f3e	7	0	0	0.32	
+nbacourt_1676_frame_0009_png.rf.ccaecd	5	0	0	0.38	
+nbacourt_1678_frame_0009_png.rf.d19199	6	0	0	0.69	
+nbacourt_1679_frame_0009_png.rf.e06801	7	0	0	0.34	
+nbacourt_1680_frame_0009_png.rf.e18851	5	0	0	0.44	
+nbacourt_1681_frame_0009_png.rf.e457e7	7	0	0	0.83	
+nbacourt_1682_frame_0009_png.rf.e50592	6	0	0	0.83	
+nbacourt_1683_frame_0009_png.rf.e5f602	7	0	0	0.62	
+nbacourt_1685_frame_0009_png.rf.ea0350	7	0	0	0.54	
+nbacourt_1686_frame_0009_png.rf.efac0a	7	0	0	0.51	
+nbacourt_1688_frame_0009_png.rf.f06b37	6	0	0	0.80	
+nbacourt_1689_frame_0009_png.rf.f41630	8	0	0	0.43	
+nbacourt_1691_frame_0009_png.rf.fe7bdc	8	0	0	0.59	
+nbacourt_1692_frame_0010_png.rf.0bf7bb	8	0	0	0.49	
+nbacourt_1693_frame_0010_png.rf.14ddb3	7	0	0	0.87	
+nbacourt_1694_frame_0010_png.rf.156311	7	0	0	0.65	
+nbacourt_1695_frame_0010_png.rf.157eb8	6	0	0	0.38	
+nbacourt_1697_frame_0010_png.rf.1804df	5	0	0	0.66	
+nbacourt_1699_frame_0010_png.rf.1be806	5	0	0	0.88	
+nbacourt_1700_frame_0010_png.rf.1dfaec	6	0	0	0.39	
+nbacourt_1701_frame_0010_png.rf.20af43	7	0	0	0.47	
+nbacourt_1702_frame_0010_png.rf.21800c	7	0	0	0.63	
+nbacourt_1703_frame_0010_png.rf.235e23	6	0	0	0.37	
+nbacourt_1704_frame_0010_png.rf.2cf310	7	0	0	0.69	
+nbacourt_1705_frame_0010_png.rf.2fb0db	7	0	0	0.48	
+nbacourt_1706_frame_0010_png.rf.3244b6	6	0	0	0.42	
+nbacourt_1707_frame_0010_png.rf.3b8aab	7	0	0	0.45	
+nbacourt_1708_frame_0010_png.rf.3e9544	6	0	0	0.52	
+nbacourt_1709_frame_0010_png.rf.4f30e0	7	0	0	0.56	
+nbacourt_1710_frame_0010_png.rf.563b27	6	0	0	0.38	
+nbacourt_1711_frame_0010_png.rf.5f94c7	7	0	0	0.35	
+nbacourt_1712_frame_0010_png.rf.60aee0	6	0	0	0.37	
+nbacourt_1714_frame_0010_png.rf.648b17	7	0	0	0.59	
+nbacourt_1715_frame_0010_png.rf.681aaa	7	0	0	0.31	
+nbacourt_1716_frame_0010_png.rf.697ea1	7	0	0	0.54	
+nbacourt_1717_frame_0010_png.rf.6fcfd8	6	0	0	0.46	
+nbacourt_1718_frame_0010_png.rf.719ba3	6	0	0	0.42	
+nbacourt_1719_frame_0010_png.rf.71da8b	7	0	0	0.72	
+nbacourt_1720_frame_0010_png.rf.71f6c7	6	0	0	0.39	
+nbacourt_1721_frame_0010_png.rf.7b85f0	6	0	0	0.40	
+nbacourt_1722_frame_0010_png.rf.7c7024	7	0	0	0.32	
+nbacourt_1723_frame_0010_png.rf.810b75	7	0	0	0.40	
+nbacourt_1724_frame_0010_png.rf.834bd6	7	0	0	1.06	
+nbacourt_1725_frame_0010_png.rf.8719f5	6	0	0	0.39	
+nbacourt_1726_frame_0010_png.rf.91e35d	6	0	0	0.37	
+nbacourt_1727_frame_0010_png.rf.94223a	7	0	0	0.67	
+nbacourt_1730_frame_0010_png.rf.9c1424	7	0	0	0.51	
+nbacourt_1731_frame_0010_png.rf.a2bccf	7	0	0	0.75	
+nbacourt_1733_frame_0010_png.rf.a6e78f	7	0	0	0.62	
+nbacourt_1735_frame_0010_png.rf.abe30d	7	0	0	0.45	
+nbacourt_1736_frame_0010_png.rf.b0bdc1	7	0	0	0.37	
+nbacourt_1737_frame_0010_png.rf.b13e71	7	0	0	0.37	
+nbacourt_1738_frame_0010_png.rf.b757a9	5	0	0	0.78	
+nbacourt_1740_frame_0010_png.rf.c1337f	7	0	0	0.48	
+nbacourt_1741_frame_0010_png.rf.c27bbf	8	0	0	0.80	
+nbacourt_1742_frame_0010_png.rf.c289d3	7	0	0	0.84	
+nbacourt_1744_frame_0010_png.rf.c86261	7	0	0	0.73	
+nbacourt_1745_frame_0010_png.rf.d08eff	6	0	0	0.44	
+nbacourt_1747_frame_0010_png.rf.d95b0c	6	0	0	0.35	
+nbacourt_1748_frame_0010_png.rf.de4d26	5	0	0	0.73	
+nbacourt_1750_frame_0010_png.rf.fecdee	8	0	0	0.58	
+nbacourt_1753_frame_0011_png.rf.0b269b	7	0	0	0.97	
+nbacourt_1754_frame_0011_png.rf.0c7a32	6	0	0	0.38	
+nbacourt_1755_frame_0011_png.rf.118575	7	0	0	0.88	
+nbacourt_1756_frame_0011_png.rf.13a298	7	0	0	0.42	
+nbacourt_1757_frame_0011_png.rf.18c0dd	7	0	0	0.80	
+nbacourt_1758_frame_0011_png.rf.1ea54a	7	0	0	0.75	
+nbacourt_1759_frame_0011_png.rf.1eccd5	6	0	0	0.56	
+nbacourt_1761_frame_0011_png.rf.2acf31	6	0	0	0.59	
+nbacourt_1764_frame_0011_png.rf.54b0ff	7	0	0	0.51	
+nbacourt_1765_frame_0011_png.rf.555a9b	7	0	0	0.43	
+nbacourt_1766_frame_0011_png.rf.59163e	7	0	0	0.64	
+nbacourt_1767_frame_0011_png.rf.5be797	7	0	0	0.62	
+nbacourt_1768_frame_0011_png.rf.5d7c4a	6	0	0	0.71	
+nbacourt_1769_frame_0011_png.rf.5f6991	8	0	0	0.52	
+nbacourt_1770_frame_0011_png.rf.5fbc03	6	0	0	0.41	
+nbacourt_1771_frame_0011_png.rf.6b0d92	5	0	0	0.99	
+nbacourt_1773_frame_0011_png.rf.770271	7	0	0	0.59	
+nbacourt_1774_frame_0011_png.rf.7bf6f2	6	0	0	0.45	
+nbacourt_1775_frame_0011_png.rf.82cc17	7	0	0	0.74	
+nbacourt_1776_frame_0011_png.rf.830792	8	0	0	0.43	
+nbacourt_1777_frame_0011_png.rf.842bc5	7	0	0	0.55	
+nbacourt_1778_frame_0011_png.rf.8d9f1d	7	0	0	1.00	
+nbacourt_1779_frame_0011_png.rf.8e1912	7	0	0	0.62	
+nbacourt_1782_frame_0011_png.rf.a2276f	7	0	0	0.43	
+nbacourt_1784_frame_0011_png.rf.ace84d	7	0	0	0.75	
+nbacourt_1785_frame_0011_png.rf.b5b10e	5	0	0	1.11	
+nbacourt_1786_frame_0011_png.rf.b63a2c	7	0	0	0.63	
+nbacourt_1787_frame_0011_png.rf.b792ea	7	0	0	0.53	
+nbacourt_1789_frame_0011_png.rf.c2ad41	7	0	0	0.59	
+nbacourt_1791_frame_0011_png.rf.d04fe8	7	0	0	0.63	
+nbacourt_1792_frame_0011_png.rf.d0b4eb	6	0	0	0.34	
+nbacourt_1793_frame_0011_png.rf.d19050	7	0	0	0.67	
+nbacourt_1794_frame_0011_png.rf.d53151	7	0	0	0.56	
+nbacourt_1795_frame_0011_png.rf.d5a9fc	7	0	0	0.52	
+nbacourt_1796_frame_0011_png.rf.e12f7e	7	0	0	0.61	
+nbacourt_1798_frame_0011_png.rf.eea78a	8	0	0	0.52	
+nbacourt_1799_frame_0011_png.rf.fde631	6	0	0	0.40	
+nbacourt_1800_frame_0012_png.rf.095cec	7	0	0	0.64	
+nbacourt_1801_frame_0012_png.rf.106e2b	7	0	0	0.79	
+nbacourt_1803_frame_0012_png.rf.15e8ba	8	0	0	0.60	
+nbacourt_1804_frame_0012_png.rf.1f5dc5	6	0	0	0.34	
+nbacourt_1805_frame_0012_png.rf.209107	8	0	0	0.32	
+nbacourt_1806_frame_0012_png.rf.26f975	6	0	0	0.76	
+nbacourt_1810_frame_0012_png.rf.6ca039	6	0	0	0.31	
+nbacourt_1812_frame_0012_png.rf.74dd34	6	0	0	0.28	
+nbacourt_1813_frame_0012_png.rf.78c2f9	6	0	0	0.26	
+nbacourt_1814_frame_0012_png.rf.80aa80	7	0	0	0.55	
+nbacourt_1815_frame_0012_png.rf.988c71	6	0	0	0.26	
+nbacourt_1816_frame_0012_png.rf.ac1c81	7	0	0	1.01	
+nbacourt_1817_frame_0012_png.rf.b037c9	5	0	0	0.74	
+nbacourt_1819_frame_0012_png.rf.be37f9	7	0	0	0.46	
+nbacourt_1821_frame_0012_png.rf.c9bf24	5	0	0	0.93	
+nbacourt_1822_frame_0012_png.rf.d0f4e2	7	0	0	0.95	
+nbacourt_1823_frame_0012_png.rf.d1e51a	4	0	0	1.03	
+nbacourt_1824_frame_0012_png.rf.d971c5	8	0	0	0.37	
+nbacourt_1826_frame_0012_png.rf.f08a28	6	0	0	0.74	
+nbacourt_1829_frame_0012_png.rf.fc94a2	7	0	0	0.61	
+nbacourt_1830_frame_0013_png.rf.12ce4f	5	0	0	0.90	
+nbacourt_1831_frame_0013_png.rf.15f98b	6	0	0	0.92	
+nbacourt_1832_frame_0013_png.rf.256bc5	6	0	0	0.81	
+nbacourt_1836_frame_0013_png.rf.43a9b2	6	0	0	0.27	
+nbacourt_1840_frame_0013_png.rf.704ec4	7	0	0	0.51	
+nbacourt_1841_frame_0013_png.rf.7d6661	5	0	0	0.65	
+nbacourt_1844_frame_0013_png.rf.88f004	5	0	0	0.82	
+nbacourt_1845_frame_0013_png.rf.8f42e7	6	0	0	0.28	
+nbacourt_1846_frame_0013_png.rf.91588b	7	0	0	0.85	
+nbacourt_1848_frame_0013_png.rf.bcbec9	6	0	0	0.29	
+nbacourt_1850_frame_0013_png.rf.e02a86	7	0	0	0.50	
+nbacourt_1854_frame_0014_png.rf.09e2a7	6	0	0	0.34	
+nbacourt_1857_frame_0014_png.rf.1345ef	7	0	0	0.98	
+nbacourt_1859_frame_0014_png.rf.2216b6	7	0	0	0.90	
+nbacourt_1861_frame_0014_png.rf.252659	5	0	0	0.30	
+nbacourt_1862_frame_0014_png.rf.34d5a0	6	0	0	0.35	
+nbacourt_1863_frame_0014_png.rf.412950	7	0	0	0.61	
+nbacourt_1866_frame_0014_png.rf.75aad1	7	0	0	0.49	
+nbacourt_1868_frame_0014_png.rf.8e9c79	7	0	0	0.58	
+nbacourt_1870_frame_0014_png.rf.9c98ef	7	0	0	0.95	
+nbacourt_1874_frame_0014_png.rf.c55905	6	0	0	0.35	
+nbacourt_1878_frame_0015_png.rf.0fe116	7	0	0	0.41	
+nbacourt_1879_frame_0015_png.rf.276375	7	0	0	0.62	
+nbacourt_1880_frame_0015_png.rf.3abea1	7	0	0	0.61	
+nbacourt_1881_frame_0015_png.rf.903d5c	7	0	0	0.46	
+nbacourt_1882_frame_0015_png.rf.90ff56	7	0	0	0.43	
+nbacourt_1883_frame_0015_png.rf.c1cdfb	7	0	0	0.49	
+nbacourt_1884_frame_0016_png.rf.04822e	8	0	0	0.73	
+nbacourt_1885_frame_0016_png.rf.15d6f7	7	0	0	0.56	
+nbacourt_1886_frame_0016_png.rf.3a7437	6	0	0	0.51	
+nbacourt_1888_frame_0016_png.rf.627af0	6	0	0	0.32	
+nbacourt_1889_frame_0016_png.rf.852b95	6	0	0	0.52	
+nbacourt_1890_frame_0016_png.rf.855851	7	0	0	0.61	
+nbacourt_1892_frame_0016_png.rf.c343c5	7	0	0	0.59	
+nbacourt_1893_frame_0016_png.rf.dec6ba	6	0	0	0.35	
+nbacourt_1894_frame_0016_png.rf.f3a272	6	0	0	0.34	
+nbacourt_1895_frame_0016_png.rf.f70373	6	0	0	0.42	
+nbacourt_1896_frame_0017_png.rf.112aee	8	0	0	1.19	
+nbacourt_1897_frame_0017_png.rf.188aa8	7	0	0	0.52	
+nbacourt_1900_frame_0017_png.rf.62b333	8	0	0	0.48	
+nbacourt_1904_frame_0017_png.rf.b047b9	7	0	0	0.73	
+nbacourt_1905_frame_0017_png.rf.c32b22	8	0	0	0.82	
+nbacourt_1906_frame_0017_png.rf.e6d442	7	0	0	0.56	
+nbacourt_1908_frame_0018_png.rf.160eda	7	0	0	0.66	
+nbacourt_1914_frame_0018_png.rf.7fed67	8	0	0	0.81	
+nbacourt_1915_frame_0018_png.rf.b7ef11	4	0	0	1.25	
+nbacourt_1917_frame_0018_png.rf.dab0ef	8	0	0	0.78	
+nbacourt_1918_frame_0018_png.rf.ef6e92	4	0	0	1.04	
+nbacourt_1919_frame_0018_png.rf.f6ad7d	7	0	0	0.54	
+nbacourt_1921_frame_0019_png.rf.0be75c	7	0	0	0.59	
+nbacourt_1922_frame_0019_png.rf.27bd88	7	0	0	0.55	
+nbacourt_1923_frame_0019_png.rf.3e216e	5	0	0	0.60	
+nbacourt_1927_frame_0019_png.rf.93adac	3	0	0	0.51	
+nbacourt_1930_frame_0019_png.rf.bb8a27	6	0	0	0.85	
+nbacourt_1935_frame_0020_png.rf.58c354	7	0	0	0.83	
+nbacourt_1937_frame_0020_png.rf.891585	7	0	0	0.72	
+nbacourt_1938_frame_0020_png.rf.a54b9b	7	0	0	0.52	
+nbacourt_1942_frame_0021_png.rf.d1dbe5	7	0	0	0.59	
+nbacourt_1943_frame_0021_png.rf.fbe460	6	0	0	0.31	
+nbacourt_1944_frame_0023_png.rf.04141f	8	0	0	0.32	
+nbacourt_1945_frame_0023_png.rf.2d47b9	8	0	0	0.58	
+nbacourt_1947_frame_0023_png.rf.5fe85b	8	0	0	0.58	
+nbacourt_1949_frame_0023_png.rf.e4fa18	6	0	0	0.91	
+nbacourt_1950_frame_0024_png.rf.09450c	6	0	0	0.60	
+nbacourt_1951_frame_0024_png.rf.0e6f62	6	0	0	0.41	
+nbacourt_1952_frame_0024_png.rf.d46c0a	7	0	0	0.33	
+nbacourt_1954_frame_0025_png.rf.d05135	4	0	0	0.52	
+nbacourt_1955_frame_0025_png.rf.e5bc1a	4	0	0	0.62	
+nbacourt_1959_frame_0028_png.rf.3dadca	6	0	0	0.55	
+nbacourt_1960_frame_0028_png.rf.777260	6	0	0	0.55	
+nbacourt_1961_frame_0028_png.rf.983dea	6	0	0	0.46	
+nbacourt_1963_frame_0029_png.rf.ddb41a	6	0	0	0.66	
+nbacourt_1964_frame_0029_png.rf.e7e8d7	6	0	0	0.44	
+nbacourt_1965_frame_0030_png.rf.c2e9aa	6	0	0	0.27	
+nbacourt_1966_frame_0030_png.rf.e95ffc	6	0	0	0.49	
+nbacourt_1967_frame_0030_png.rf.ed3eb7	6	0	0	0.23	
+nbacourt_1968_frame_0031_png.rf.578c6e	6	0	0	0.35	
+nbacourt_1969_frame_0031_png.rf.6bbbca	6	0	0	0.30	
+nbacourt_1974_frame_0035_png.rf.4baaac	5	0	0	0.36	
+nbacourt_1975_frame_0035_png.rf.65b646	6	0	0	0.53	
+nbacourt_1976_frame_0035_png.rf.fe0bd4	6	0	0	0.52	
+nbacourt_1977_frame_0036_png.rf.159ae8	6	0	0	0.58	
+nbacourt_1978_frame_0036_png.rf.be8ec8	5	0	0	0.54	
+nbacourt_1981_frame_0000_png.rf.2ae882	5	0	0	0.24	
+nbacourt_1982_frame_0000_png.rf.537247	5	0	0	0.40	
+nbacourt_1984_frame_0000_png.rf.909032	7	0	0	0.71	
+nbacourt_1985_frame_0000_png.rf.955e0c	8	0	0	0.48	
+nbacourt_1987_frame_0000_png.rf.a9145c	7	0	0	0.58	
+nbacourt_1988_frame_0000_png.rf.b18d88	6	0	0	0.25	
+nbacourt_1989_frame_0000_png.rf.bdced5	6	0	0	0.28	
+nbacourt_1990_frame_0000_png.rf.c9a81e	7	0	0	0.57	
+nbacourt_1992_frame_0001_png.rf.013a37	7	0	0	0.48	
+nbacourt_1994_frame_0001_png.rf.49f40d	6	0	0	0.50	
+nbacourt_1995_frame_0001_png.rf.4d733b	7	0	0	0.62	
+nbacourt_1996_frame_0001_png.rf.78ad44	7	0	0	0.53	
+nbacourt_1998_frame_0001_png.rf.b1af95	7	0	0	0.60	
+nbacourt_1999_frame_0001_png.rf.b8827a	6	0	0	0.69	
+nbacourt_2000_frame_0001_png.rf.b948be	6	0	0	0.27	
+nbacourt_2001_frame_0001_png.rf.ba44ef	7	0	0	0.60	
+nbacourt_2002_frame_0001_png.rf.c22e52	5	0	0	0.53	
+nbacourt_2003_frame_0001_png.rf.c43b94	7	0	0	0.38	
+nbacourt_2004_frame_0001_png.rf.c60147	7	0	0	0.62	
+nbacourt_2005_frame_0001_png.rf.ce6892	4	0	0	0.29	
+nbacourt_2007_frame_0002_png.rf.069a8f	6	0	0	0.54	
+nbacourt_2008_frame_0002_png.rf.136161	8	0	0	0.57	
+nbacourt_2009_frame_0002_png.rf.5e47a1	6	0	0	0.32	
+nbacourt_2011_frame_0002_png.rf.762091	6	0	0	0.74	
+nbacourt_2012_frame_0002_png.rf.7ac2da	6	0	0	0.35	
+nbacourt_2013_frame_0002_png.rf.8410b8	8	0	0	0.51	
+nbacourt_2014_frame_0002_png.rf.8828dc	7	0	0	0.53	
+nbacourt_2015_frame_0002_png.rf.9924bf	7	0	0	0.42	
+nbacourt_2016_frame_0002_png.rf.a6a8c1	6	0	0	0.30	
+nbacourt_2017_frame_0002_png.rf.acc5b0	7	0	0	0.39	
+nbacourt_2018_frame_0002_png.rf.bd9589	7	0	0	0.57	
+nbacourt_2019_frame_0002_png.rf.bff6b7	7	0	0	0.48	
+nbacourt_2020_frame_0002_png.rf.dd47d7	7	0	0	0.29	
+nbacourt_2021_frame_0003_png.rf.11e960	7	0	0	0.52	
+nbacourt_2022_frame_0003_png.rf.121270	7	0	0	0.50	
+nbacourt_2023_frame_0003_png.rf.134543	7	0	0	0.53	
+nbacourt_2024_frame_0003_png.rf.23a2ca	7	0	0	0.37	
+nbacourt_2025_frame_0003_png.rf.40520f	6	0	0	0.47	
+nbacourt_2026_frame_0003_png.rf.42c5a6	8	0	0	0.97	
+nbacourt_2027_frame_0003_png.rf.4ced6c	7	0	0	0.49	
+nbacourt_2028_frame_0003_png.rf.4de1a8	5	0	0	0.42	
+nbacourt_2029_frame_0003_png.rf.572950	8	0	0	0.38	
+nbacourt_2030_frame_0003_png.rf.834c3e	6	0	0	0.38	
+nbacourt_2031_frame_0003_png.rf.9d4a3a	6	0	0	0.55	
+nbacourt_2032_frame_0003_png.rf.b3f6ff	6	0	0	0.24	
+nbacourt_2033_frame_0003_png.rf.b80457	7	0	0	0.80	
+nbacourt_2034_frame_0003_png.rf.c78856	6	0	0	0.42	
+nbacourt_2035_frame_0003_png.rf.ced3f5	7	0	0	0.33	
+nbacourt_2036_frame_0003_png.rf.d46a6c	6	0	0	0.31	
+nbacourt_2039_frame_0003_png.rf.e72f4c	6	0	0	0.34	
+nbacourt_2040_frame_0003_png.rf.fef9f5	6	0	0	0.62	
+nbacourt_2041_frame_0004_png.rf.01c3ae	7	0	0	0.69	
+nbacourt_2042_frame_0004_png.rf.0cbd06	3	0	0	0.33	
+nbacourt_2043_frame_0004_png.rf.183b9d	6	0	0	0.27	
+nbacourt_2044_frame_0004_png.rf.3f198a	6	0	0	0.67	
+nbacourt_2045_frame_0004_png.rf.7d0fb9	8	0	0	0.37	
+nbacourt_2046_frame_0004_png.rf.8aeb5f	7	0	0	0.43	
+nbacourt_2047_frame_0004_png.rf.8caf25	6	0	0	0.40	
+nbacourt_2048_frame_0004_png.rf.8d7a36	7	0	0	0.37	
+nbacourt_2049_frame_0004_png.rf.93d03a	6	0	0	0.50	
+nbacourt_2050_frame_0004_png.rf.9763b4	7	0	0	0.29	
+nbacourt_2052_frame_0004_png.rf.a63d4a	7	0	0	0.90	
+nbacourt_2053_frame_0004_png.rf.aafff9	7	0	0	0.77	
+nbacourt_2054_frame_0004_png.rf.be1d64	7	0	0	0.47	
+nbacourt_2055_frame_0004_png.rf.c1a926	7	0	0	0.53	
+nbacourt_2056_frame_0004_png.rf.c870c8	6	0	0	0.59	
+nbacourt_2057_frame_0004_png.rf.e3ea04	8	0	0	0.44	
+nbacourt_2058_frame_0004_png.rf.e81c35	7	0	0	0.59	
+nbacourt_2060_frame_0005_png.rf.00c43a	8	0	0	0.31	
+nbacourt_2061_frame_0005_png.rf.029843	8	0	0	0.54	
+nbacourt_2062_frame_0005_png.rf.144373	7	0	0	0.51	
+nbacourt_2063_frame_0005_png.rf.16d8c2	6	0	0	0.31	
+nbacourt_2064_frame_0005_png.rf.38ec48	6	0	0	0.25	
+nbacourt_2065_frame_0005_png.rf.3bce46	7	0	0	0.42	
+nbacourt_2066_frame_0005_png.rf.8286ac	7	0	0	0.41	
+nbacourt_2068_frame_0005_png.rf.9ab20e	6	0	0	0.34	
+nbacourt_2069_frame_0005_png.rf.a1cc51	7	0	0	0.27	
+nbacourt_2070_frame_0005_png.rf.a4fd1c	7	0	0	0.76	
+nbacourt_2071_frame_0005_png.rf.ab76c8	7	0	0	0.63	
+nbacourt_2072_frame_0005_png.rf.d51900	7	0	0	0.67	
+nbacourt_2073_frame_0005_png.rf.db8685	7	0	0	0.51	
+nbacourt_2074_frame_0005_png.rf.f0f986	7	0	0	0.34	
+nbacourt_2075_frame_0006_png.rf.0db997	8	0	0	0.41	
+nbacourt_2076_frame_0006_png.rf.10d537	7	0	0	0.48	
+nbacourt_2077_frame_0006_png.rf.278320	8	0	0	0.49	
+nbacourt_2078_frame_0006_png.rf.2a04d0	5	0	0	0.30	
+nbacourt_2079_frame_0006_png.rf.48d107	6	0	0	0.58	
+nbacourt_2080_frame_0006_png.rf.5cbcea	6	0	0	0.43	
+nbacourt_2082_frame_0006_png.rf.80a599	4	0	0	0.80	
+nbacourt_2083_frame_0006_png.rf.88fe90	5	0	0	0.63	
+nbacourt_2084_frame_0006_png.rf.90210b	8	0	0	0.45	
+nbacourt_2085_frame_0006_png.rf.98b23b	7	0	0	0.54	
+nbacourt_2086_frame_0006_png.rf.a9f7ac	7	0	0	0.45	
+nbacourt_2087_frame_0006_png.rf.ac91cc	6	0	0	0.60	
+nbacourt_2088_frame_0006_png.rf.afe88a	7	0	0	0.88	
+nbacourt_2089_frame_0006_png.rf.b08cfd	6	0	0	0.73	
+nbacourt_2090_frame_0006_png.rf.b7eb38	7	0	0	0.72	
+nbacourt_2091_frame_0006_png.rf.c52745	6	0	0	0.34	
+nbacourt_2092_frame_0006_png.rf.cdefeb	7	0	0	0.52	
+nbacourt_2093_frame_0006_png.rf.d90e77	7	0	0	0.46	
+nbacourt_2094_frame_0006_png.rf.e53021	8	0	0	0.28	
+nbacourt_2095_frame_0006_png.rf.e5f2f1	6	0	0	0.34	
+nbacourt_2096_frame_0006_png.rf.e62406	6	0	0	0.36	
+nbacourt_2097_frame_0006_png.rf.e826f9	5	0	0	0.33	
+nbacourt_2098_frame_0006_png.rf.e9891c	6	0	0	0.31	
+nbacourt_2099_frame_0006_png.rf.ef60e1	7	0	0	0.35	
+nbacourt_2100_frame_0007_png.rf.04ed21	7	0	0	0.61	
+nbacourt_2101_frame_0007_png.rf.10dc89	7	0	0	0.62	
+nbacourt_2102_frame_0007_png.rf.1215d5	8	0	0	0.27	
+nbacourt_2103_frame_0007_png.rf.2f3a3b	6	0	0	0.75	
+nbacourt_2104_frame_0007_png.rf.3d7578	7	0	0	0.47	
+nbacourt_2105_frame_0007_png.rf.41b6ea	7	0	0	0.51	
+nbacourt_2106_frame_0007_png.rf.61504d	7	0	0	0.67	
+nbacourt_2107_frame_0007_png.rf.79ffca	7	0	0	0.53	
+nbacourt_2108_frame_0007_png.rf.7a800d	6	0	0	0.30	
+nbacourt_2111_frame_0007_png.rf.85b7df	6	0	0	0.52	
+nbacourt_2112_frame_0007_png.rf.d10ec6	7	0	0	0.38	
+nbacourt_2113_frame_0007_png.rf.dacd76	7	0	0	0.49	
+nbacourt_2114_frame_0007_png.rf.e6736a	6	0	0	0.46	
+nbacourt_2115_frame_0007_png.rf.edc11b	5	0	0	0.21	
+nbacourt_2117_frame_0008_png.rf.40e729	6	0	0	0.38	
+nbacourt_2118_frame_0008_png.rf.48fd74	5	0	0	0.35	
+nbacourt_2119_frame_0008_png.rf.4d5720	6	0	0	1.19	
+nbacourt_2121_frame_0008_png.rf.a745c9	6	0	0	0.39	
+nbacourt_2122_frame_0008_png.rf.b1a445	7	0	0	0.37	
+nbacourt_2125_frame_0008_png.rf.daff91	6	0	0	0.40	
+nbacourt_2126_frame_0008_png.rf.eb5147	6	0	0	0.41	
+nbacourt_2127_frame_0008_png.rf.fa4c58	7	0	0	0.40	
+nbacourt_2128_frame_0009_png.rf.796898	7	0	0	0.37	
+nbacourt_2129_frame_0009_png.rf.88b9b1	7	0	0	0.43	
+nbacourt_2131_frame_0009_png.rf.9dd74f	8	0	0	0.39	
+nbacourt_2132_frame_0009_png.rf.ae3b54	6	0	0	0.34	
+nbacourt_2133_frame_0009_png.rf.c9a035	6	0	0	0.42	
+nbacourt_2134_frame_0009_png.rf.da2825	7	0	0	0.39	
+nbacourt_2135_frame_0009_png.rf.eeb6a2	7	0	0	0.37	
+nbacourt_2137_frame_0010_png.rf.123aa8	7	0	0	0.44	
+nbacourt_2138_frame_0010_png.rf.630f3a	8	0	0	0.38	
+nbacourt_2139_frame_0010_png.rf.82f361	7	0	0	0.30	
+nbacourt_2140_frame_0010_png.rf.a94a1b	7	0	0	0.46	
+nbacourt_2142_frame_0010_png.rf.ccbecd	8	0	0	0.46	
+nbacourt_2143_frame_0010_png.rf.f39b3f	6	0	0	0.66	
+nbacourt_2144_frame_0010_png.rf.f6e033	7	0	0	0.55	
+nbacourt_2145_frame_0011_png.rf.25b133	7	0	0	0.55	
+nbacourt_2147_frame_0012_png.rf.227575	6	0	0	0.34	
+nbacourt_2148_frame_0012_png.rf.83e37d	5	0	0	0.46	
+nbacourt_2149_frame_0012_png.rf.9179ff	6	0	0	0.38	
+nbacourt_2150_frame_0012_png.rf.d1bd25	7	0	0	0.58	
+nbacourt_2151_frame_0012_png.rf.e4a22c	7	0	0	0.45	
+nbacourt_2152_frame_0012_png.rf.fadb42	7	0	0	0.41	
+nbacourt_2153_frame_0013_png.rf.48bd89	7	0	0	0.39	
+nbacourt_2155_frame_0013_png.rf.cd874d	7	0	0	0.75	
+nbacourt_2156_frame_0014_png.rf.85c8a0	5	0	0	0.51	
+nbacourt_2157_frame_0015_png.rf.1bff98	6	0	0	0.41	
+nbacourt_2158_frame_0015_png.rf.37123b	6	0	0	0.29	
+nbacourt_2159_frame_0015_png.rf.490970	7	0	0	0.73	
+nbacourt_2160_frame_0015_png.rf.6a4ec9	6	0	0	0.27	
+nbacourt_2161_frame_0016_png.rf.05e78b	8	0	0	0.52	
+nbacourt_2162_frame_0016_png.rf.103794	6	0	0	0.65	
+nbacourt_2163_frame_0017_png.rf.c7fac2	8	0	0	0.46	
+nbacourt_2164_frame_0020_png.rf.711aae	8	0	0	0.44	
+nbacourt_2165_frame_0021_png.rf.8a94d8	6	0	0	0.36	
+nbacourt_2167_frame_0024_png.rf.f46861	5	0	0	0.30	
+nbacourt_2168_frame_0032_png.rf.c6782d	5	0	0	0.49	
+nbacourt_2170_frame_0000_png.rf.3e2977	4	0	0	0.92	
+nbacourt_2171_frame_0000_png.rf.67a95c	6	0	0	0.68	
+nbacourt_2172_frame_0000_png.rf.950e67	6	0	0	0.33	
+nbacourt_2174_frame_0000_png.rf.aeb270	7	0	0	0.41	
+nbacourt_2175_frame_0000_png.rf.b2d6a1	3	0	0	0.55	
+nbacourt_2176_frame_0000_png.rf.c4f27f	5	0	0	0.25	
+nbacourt_2177_frame_0001_png.rf.235274	6	0	0	0.45	
+nbacourt_2179_frame_0001_png.rf.6888be	8	0	0	0.56	
+nbacourt_2180_frame_0001_png.rf.6cb9e0	8	0	0	0.52	
+nbacourt_2181_frame_0001_png.rf.81f902	6	0	0	0.35	
+nbacourt_2182_frame_0001_png.rf.c7b266	8	0	0	0.53	
+nbacourt_2183_frame_0001_png.rf.eb8a7b	7	0	0	0.42	
+nbacourt_2184_frame_0001_png.rf.f7b3f5	7	0	0	0.75	
+nbacourt_2185_frame_0002_png.rf.02bae1	7	0	0	0.72	
+nbacourt_2186_frame_0002_png.rf.205c4e	7	0	0	0.74	
+nbacourt_2187_frame_0002_png.rf.224f6d	7	0	0	0.46	
+nbacourt_2188_frame_0002_png.rf.683be1	8	0	0	1.04	
+nbacourt_2189_frame_0002_png.rf.773e07	8	0	0	0.41	
+nbacourt_2190_frame_0002_png.rf.a97c5a	7	0	0	0.59	
+nbacourt_2191_frame_0002_png.rf.fda55f	6	0	0	0.42	
+nbacourt_2192_frame_0003_png.rf.2782c8	7	0	0	0.74	
+nbacourt_2194_frame_0003_png.rf.6d64e8	6	0	0	0.31	
+nbacourt_2195_frame_0003_png.rf.81fea9	5	0	0	0.68	
+nbacourt_2197_frame_0003_png.rf.c9db0f	6	0	0	0.34	
+nbacourt_2198_frame_0003_png.rf.ca6d92	7	0	0	0.69	
+nbacourt_2199_frame_0003_png.rf.fd01b7	6	0	0	0.37	
+nbacourt_2200_frame_0004_png.rf.022853	5	0	0	0.82	
+nbacourt_2201_frame_0004_png.rf.03c7c7	5	0	0	0.26	
+nbacourt_2202_frame_0004_png.rf.0cd5ac	6	0	0	0.33	
+nbacourt_2203_frame_0004_png.rf.1e2f90	6	0	0	0.31	
+nbacourt_2204_frame_0004_png.rf.24b483	7	0	0	0.35	
+nbacourt_2205_frame_0004_png.rf.3ef6b4	6	0	0	0.36	
+nbacourt_2207_frame_0004_png.rf.52ccbc	7	0	0	0.56	
+nbacourt_2208_frame_0004_png.rf.5f8d21	8	0	0	0.61	
+nbacourt_2209_frame_0004_png.rf.7fb52a	7	0	0	0.28	
+nbacourt_2210_frame_0004_png.rf.8137e0	6	0	0	0.61	
+nbacourt_2212_frame_0005_png.rf.12541d	7	0	0	0.44	
+nbacourt_2213_frame_0005_png.rf.4b06dd	7	0	0	0.43	
+nbacourt_2214_frame_0005_png.rf.6044dc	7	0	0	0.38	
+nbacourt_2215_frame_0005_png.rf.a4ad0c	7	0	0	0.36	
+nbacourt_2216_frame_0005_png.rf.ace6df	5	0	0	0.48	
+nbacourt_2217_frame_0005_png.rf.f13e7d	5	0	0	0.47	
+nbacourt_2218_frame_0005_png.rf.fc25af	6	0	0	0.40	
+nbacourt_2219_frame_0006_png.rf.0942c7	5	0	0	0.27	
+nbacourt_2220_frame_0006_png.rf.13b0b0	7	0	0	0.70	
+nbacourt_2222_frame_0006_png.rf.384ec7	6	0	0	0.55	
+nbacourt_2223_frame_0006_png.rf.995354	7	0	0	0.70	
+nbacourt_2224_frame_0006_png.rf.bc0b03	5	0	0	0.38	
+nbacourt_2225_frame_0006_png.rf.c31ac2	6	0	0	0.36	
+nbacourt_2226_frame_0006_png.rf.ed8644	7	0	0	0.45	
+nbacourt_2227_frame_0007_png.rf.16c73f	6	0	0	0.24	
+nbacourt_2228_frame_0007_png.rf.173911	7	0	0	0.47	
+nbacourt_2230_frame_0007_png.rf.70110a	7	0	0	0.32	
+nbacourt_2231_frame_0007_png.rf.abbdbb	7	0	0	0.49	
+nbacourt_2232_frame_0007_png.rf.f9e0b6	5	0	0	0.65	
+nbacourt_2233_frame_0008_png.rf.3da4cb	7	0	0	0.63	
+nbacourt_2234_frame_0008_png.rf.4b5b55	7	0	0	0.41	
+nbacourt_2235_frame_0008_png.rf.b35723	6	0	0	0.81	
+nbacourt_2236_frame_0009_png.rf.9aea8d	5	0	0	0.64	
+nbacourt_2237_frame_0009_png.rf.a9b668	4	0	0	0.41	
+nbacourt_2239_frame_0009_png.rf.e778ec	5	0	0	0.31	
+nbacourt_2240_frame_0010_png.rf.18951d	7	0	0	0.45	
+nbacourt_2241_frame_0010_png.rf.2e7d67	6	0	0	0.41	
+nbacourt_2245_frame_0010_png.rf.e0d4c3	7	0	0	0.74	
+nbacourt_2246_frame_0010_png.rf.fa141b	6	0	0	0.42	
+nbacourt_2249_frame_0011_png.rf.1ea6ed	7	0	0	0.30	
+nbacourt_2250_frame_0011_png.rf.56e0b0	6	0	0	0.52	
+nbacourt_2251_frame_0011_png.rf.7e6c0a	7	0	0	0.42	
+nbacourt_2252_frame_0011_png.rf.81dfd1	6	0	0	0.36	
+nbacourt_2253_frame_0011_png.rf.d55bc8	6	0	0	0.31	
+nbacourt_2254_frame_0012_png.rf.eea7bd	7	0	0	0.73	
+nbacourt_2255_frame_0012_png.rf.ffb71c	5	0	0	0.99	
+nbacourt_2256_frame_0014_png.rf.7dffc9	7	0	0	0.68	
+nbacourt_2257_frame_0015_png.rf.2a91eb	7	0	0	0.86	
+nbacourt_2258_frame_0022_png.rf.269f0e	7	0	0	0.29	
+nbacourt_2261_frame_0034_png.rf.b68c10	6	0	0	0.49	
+nbacourt_0018_frame_0000_png.rf.1fa5d8	0	-1	-1	nan	
+nbacourt_0019_frame_0000_png.rf.20af22	0	-1	-1	nan	
+nbacourt_0037_frame_0000_png.rf.3bdd02	0	-1	-1	nan	
+nbacourt_0572_frame_0003_png.rf.316133	0	-1	-1	nan	
+nbacourt_0609_frame_0003_png.rf.5bd31b	0	-1	-1	nan	
+nbacourt_0619_frame_0003_png.rf.671b84	0	-1	-1	nan	
+nbacourt_1234_frame_0006_png.rf.61669a	0	-1	-1	nan	
+nbacourt_1388_frame_0007_png.rf.470bcc	0	-1	-1	nan	
+nbacourt_1780_frame_0011_png.rf.8fb0b7	0	-1	-1	nan	
+nbacourt_1811_frame_0012_png.rf.71f8ae	0	-1	-1	nan	
+nbacourt_1979_frame_0036_png.rf.ff6d71	0	-1	-1	nan	
+nbacourt_2248_frame_0011_png.rf.17c9a9	0	-1	-1	nan	

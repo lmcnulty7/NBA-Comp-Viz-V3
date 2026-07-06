@@ -1,0 +1,38 @@
+{
+  "frame": "clip_70m00_78m00__f000675.jpg",
+  "image_path": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/visibility/truth/live/clip_70m00_78m00__f000675.jpg",
+  "width": 1280,
+  "height": 720,
+  "boxes": [
+    [
+      441,
+      171,
+      515,
+      299
+    ],
+    [
+      709,
+      155,
+      791,
+      296
+    ],
+    [
+      884,
+      99,
+      970,
+      211
+    ],
+    [
+      736,
+      298,
+      800,
+      450
+    ],
+    [
+      1064,
+      323,
+      1129,
+      481
+    ]
+  ]
+}

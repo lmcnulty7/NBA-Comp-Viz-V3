@@ -1,0 +1,44 @@
+{
+  "created_utc": "2026-06-23T23:50:31.416305+00:00",
+  "seed": 42,
+  "backbone": "clip",
+  "clip_model": "openai/clip-vit-base-patch32",
+  "dinov2_model": null,
+  "head": "logreg",
+  "embed_dim": 512,
+  "max_fp_rate": 0.1,
+  "live_prompts": [
+    "a wide broadcast shot of a basketball game in progress on the court",
+    "a basketball game seen from the side broadcast camera with players on the full court",
+    "live basketball game play with several players spread across the court",
+    "an elevated wide angle view of a basketball court during a game",
+    "professional basketball players running on the court during live play",
+    "a half court basketball possession with offense and defense visible"
+  ],
+  "dead_prompts": [
+    "a close-up of a single basketball player's face",
+    "a slow motion instant replay of a basketball play",
+    "the crowd and spectators in the stands at a basketball arena",
+    "a television commercial advertisement",
+    "basketball coaches and players on the bench during a timeout",
+    "an on-screen scoreboard or broadcast graphic overlay",
+    "studio analysts talking on a sports broadcast desk",
+    "a tight close-up of two players near the basket",
+    "a referee or official shown in close-up"
+  ],
+  "counts": {
+    "live": 659,
+    "dead": 391
+  },
+  "split_sizes": {
+    "train": 734,
+    "val": 158,
+    "test": 158
+  },
+  "device": "mps",
+  "versions": {
+    "python": "3.12.2",
+    "numpy": "1.26.4",
+    "sklearn": "1.8.0"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "frame": "curry_q1_clip__f002520.jpg",
+  "image_path": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/visibility/truth/live/curry_q1_clip__f002520.jpg",
+  "width": 854,
+  "height": 480,
+  "boxes": [
+    [
+      89,
+      163,
+      127,
+      260
+    ],
+    [
+      323,
+      235,
+      399,
+      345
+    ],
+    [
+      304,
+      160,
+      353,
+      261
+    ],
+    [
+      381,
+      121,
+      421,
+      212
+    ],
+    [
+      435,
+      125,
+      472,
+      205
+    ],
+    [
+      530,
+      131,
+      574,
+      222
+    ],
+    [
+      516,
+      136,
+      558,
+      227
+    ],
+    [
+      491,
+      174,
+      531,
+      270
+    ],
+    [
+      453,
+      184,
+      499,
+      282
+    ],
+    [
+      392,
+      208,
+      448,
+      319
+    ]
+  ]
+}

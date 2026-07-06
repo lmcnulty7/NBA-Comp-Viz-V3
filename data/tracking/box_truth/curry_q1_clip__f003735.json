@@ -1,0 +1,32 @@
+{
+  "frame": "curry_q1_clip__f003735.jpg",
+  "image_path": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/visibility/truth/live/curry_q1_clip__f003735.jpg",
+  "width": 854,
+  "height": 480,
+  "boxes": [
+    [
+      386,
+      284,
+      422,
+      350
+    ],
+    [
+      445,
+      268,
+      472,
+      327
+    ],
+    [
+      559,
+      312,
+      604,
+      379
+    ],
+    [
+      740,
+      308,
+      784,
+      397
+    ]
+  ]
+}

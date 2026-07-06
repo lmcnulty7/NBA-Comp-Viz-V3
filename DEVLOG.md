@@ -1,0 +1,600 @@
+# Dev Log — NBA Comp Viz pipeline (started as the Court-Visibility Gate)
+
+Narrative history of decisions, rationale, dead ends, and open threads. This is
+**not** the how-to (see `README.md`) — it's the "why did we do it this way and
+where were we" record for when you come back to this cold.
+
+**How to maintain:** add a new dated entry at the TOP each working session. Keep
+the *reasoning*, not just the *what* — future-you can read the code for the what.
+
+---
+
+## 2026-07-05 — Grid+snap tracker INTEGRATED into the pipeline; label factory built
+
+### Integration: `court/snap_track.py` (CourtTracker) behind CourtMapper
+Per frame: grid model → RANSAC H → geometric sanity → guarded line-snap; when the
+model fails (pans/blur/closeups), the previous H is propagated by the camera's
+global shift (cv2.phaseCorrelate on downscaled grays) and re-locked onto visible
+lines (wider search radii, stricter accept: ≥50 matches, ≤2.5 px, sane). States
+TRACK / LINE_TRACK / HELD / LOST; HELD carries `quality=9.9` so the existing
+masking-confidence gate distrusts it with zero changes to consumers —
+`CourtHomography.from_matrix()` makes the tracker a drop-in. Hull for
+`is_extrapolated` = whatever evidence supports the H (model kps on TRACK, matched
+line points on LINE_TRACK). `COURT_TRACKER=0` env reverts to the legacy detector
+(kept as the A/B lever). Smoke-test lesson: the first test window (frame 6000+)
+was a TIMEOUT — the tracker correctly refused to invent a court; the gate scan
+found the real gameplay run at 11520–14040 (the same window config.py's old
+threshold sweeps reference).
+
+### The decisive A/B (build_trajectories, identical args: 11520, 200 fr, stride 3, gate)
+| | OLD (33-pt det) | NEW (grid+tracker) |
+|---|---|---|
+| frames with H | 200/200 | 174/200 + held |
+| points needing correction | 26.5% | **16.5%** |
+| impossible steps (>3 ft / 0.1 s) | 25.4% | **15.4%** |
+| p99 step | 69.6 ft | **39.8 ft** |
+| off-court projections | 1.1% | 0.7% |
+
+Old's "200/200 with H" is a vice: at conf 0.05 it always scrapes an H and is
+confidently wrong (its 70-ft teleports). Every physics metric improved ~40%.
+**The bottleneck has moved to player tracking** — remaining teleports are
+dominated by BoT-SORT ID switches and bbox foot-point jitter, which no court
+model can fix. Component B (identity) is the next frontier.
+
+### Label factory (`label_factory.py`) — self-training loop, operable without Claude
+`harvest <urls|files>`: 6×4-min sections per game → CLIP gate → grid model +
+ANCHORED line-snap → strict accept gate → image + labels (both formats, identical
+to generate_labels) + worst-first review overlays + per-game rank TSV
+(verify_projections-compatible). `build`: merge base + all harvests (minus user
+`no_lineup` verdicts) → `*_v2` datasets + Colab zips; harvest frames go to TRAIN
+ONLY and **val stays frozen at the 279 verified frames** so benchmarks remain
+comparable across retrains forever. Trial on 2 sections: 52 accepted (~150–250
+per full game expected), every rejection logged by reason.
+
+Three calibration lessons (each measured on real footage, not guessed):
+1. **The snap refit must keep anchor points.** Line matches alone (median 28 on
+   YouTube 720p vs 60–150 on the offline dataset) let findHomography fit the
+   sparse lines perfectly while warping the frame corners by 2,600 px — the
+   4-point "locally exact, globally garbage" failure mode reborn. Keeping the
+   model's grid kps in every refit pins the global solution (this is exactly what
+   the offline snap's code-2 anchors did; dropping them was the bug).
+2. **Residual thresholds must be resolution-normalized.** "Sub-pixel" was a
+   640-px-frame number; the same physical accuracy on a 1280-wide frame reads
+   ~2×. Gate: res ≤ 1.1 px × (width/640).
+3. **The pipeline gate threshold (0.70) is wrong for harvesting.** It was tuned
+   on our own clips; live frames of an unfamiliar 2024 broadcast score 0.47–0.66
+   (non-court ~0.03). Harvest runs at 0.35 — false-live costs nothing (the solve
+   gate rejects it), false-dead costs yield.
+
+Operating manual → README. Deferred, deliberately: the 404 no_lineup frames from
+court_review (the factory produces better frames more cheaply than rescuing
+those), and the 8 SKIP_ swap candidates in swap_verify/.
+
+---
+
+## 2026-07-03→04 — Retrained detectors on projection labels; benchmarks in-domain + UNSEEN; real-time clips
+
+### Label generation + training (the payoff of the verification pipeline)
+`generate_labels.py` projects labels straight from the snapped H's — every point is
+a projection, including the original download vertices (the snapped H, ~0.5 px, is
+now more accurate than the box-center anchors it came from, so pure projection
+beats mixing sources). TWO formats, same frames: 33-vertex (`data/court_labels_33/`,
+median 14 visible kp/frame) and a 13×7 = 91-pt court grid (`data/court_labels_grid/`,
+median 36). Rationale for the grid: the 33-pt scheme was forced by the downloaded
+dataset; with projection labels we can label ANY court point for free, and more,
+better-spread anchors = more redundant inference H fits. On-frame points get v=2
+(v=1/v=2 train identically in ultralytics); off-frame `0 0 0`; bbox = visible court
+region. `build_pose_datasets.py`: ONE shared split (1579/279, seed 42) for both
+formats. Split is random-by-frame — the source datasets don't expose video ids, so
+group-splitting wasn't possible; val metrics carry mild leakage optimism (noted below).
+
+Training: started locally on MPS, killed — user needs the Mac; **all training goes
+to Colab** (`train_pose_snapped_colab.ipynb` + `court_pose{33,_grid}_colab.zip`,
+352 MB each). Recipe copied verbatim from the old `court_aug` run (yolov8m-pose,
+300 ep, patience 30, heavy HSV, flip_idx) so old-vs-new isolates the labels.
+
+### In-domain benchmark (`benchmark_court_models.py`, 279 val frames, GT = snapped H)
+| model | valid H | H-err p50 | p90 | >10px | kp-err p50 | pts/frame |
+|---|---|---|---|---|---|---|
+| old-clean | 278/279 | 8.2px | 28.1px | 110 | 8.9px | 12 |
+| old-aug | 275/279 | 7.1px | 30.9px | 90 | 8.1px | 12 |
+| NEW-33 | 279/279 | 1.8px | 3.2px | 2 | 1.9px | 14 |
+| NEW-grid | 279/279 | **1.7px** | **2.8px** | **1** | 2.6px | 37 |
+
+Same architecture/recipe → the ~4× median gain and the collapsed tail (90 → 2
+frames >10px) is **pure label quality**. Grid ties the median, wins the tail:
+each grid point is individually WORSE (2.6 vs 1.9 px — featureless mid-paint
+points are hard) but 37 pts/frame out-votes noise in RANSAC. Caveats, both ways:
+old models trained on sources of these val frames (bias favors OLD → real gap is
+larger); GT shares its generation pipeline with the new labels (but was human-
+verified + snapped to actual image lines, so it's the best truth available).
+
+### Unseen-footage benchmark (`unseen_benchmark.py`) — the generalization question
+4 YouTube games (1998 CHI@UTA SD, 2013 SAS@MIA, 2019 TOR@PHI, 2024 DEN@MIN),
+12 × 5-min sections via yt-dlp, frames every 2 s, HSV-gate filtered → 1,291 frames.
+No GT → unsupervised scoring: sane-H rate (fold/collapse/explode checks), line
+residual vs image evidence, match count. Sane-H (old-aug → NEW-grid): 1998 44→66%,
+2013 39→69%, 2019 62→89%, 2024 72→71% (tie, but line matches 46→66 — new H's sit
+on the lines far more). New labels generalize; the gain was NOT in-domain memorization.
+NOTE denominators: HSV gate passes closeups/replays no model can solve, so absolute
+rates understate everything equally; comparisons are the signal. Black 3-pt line on
+1998's white floor is already handled — line evidence is a top-hat PAIR (bright+dark).
+
+### Real-time overlay clips (`render_overlay_video.py`) — per-frame % vs deployment %
+Longest gate-passing stretch per game, EVERY frame: grid model → sanity → line-snap
+(guarded) → draw; on failure reuse last H ≤ 2 s (yellow). mp4v is broken in this
+OpenCV/AVFoundation build (silently writes nothing) — use `avc1`. Results:
+TRACK 99% (2019) / 98% (2013) / 90% (1998) / 79% (2024), LOST ≤1% everywhere.
+This is the resolution of "aren't 66–71% pretty bad?": per-frame failures cluster
+in closeups/cuts, not mid-possession, so time-coverage on live play is 90–99%.
+User's viewing observations → next work items: (1) pans between half-courts fail
+under freeze-hold → upgrade HELD to a snap-TRACKER (seed from previous frame's H
++ global-shift estimate + line-snap; pose model re-anchors when confident);
+(2) closeups are a gate problem (swap crude HSV band for the trained CLIP head);
+(3) then the LABEL FACTORY: user feeds game list → auto-harvest snap-verified
+frames (strict quality gate) → projection labels → spot-check sample → retrain.
+
+---
+
+## 2026-07-01→03 — Court labels solved: triage → 2,262-frame human verification → line-snap
+
+Goal shifted from "review 2,262 densified court frames by hand" to "make the
+homography projection perfect for every frame from the original datasets."
+Dataset: `data/court_review/` — NBA Court v4 downloads (box-center → point
+conversions, code 2) + old-model fills (code 3).
+
+### Deterministic triage of the downloads (pure code-2)
+Seeded RANSAC H per frame. **Bug caught mid-way:** RANSAC threshold was divided
+by 50 (0.06 ft) → RANSAC fit minimal subsets → 662 frames over-flagged and a bogus
+"systematic index-0 mis-mapping" theory; fixed to 3.0 ft (dst units = feet) and the
+analysis was retracted. Key user insight (proved right): every flagged point sits ON
+a real intersection → all 41 gross (>20 ft) errors are **INDEX SWAPS**, zero position
+errors. `fix_index_swaps.py` auto-fixed 33 with a guarded refit (moved point <4 ft,
+median not worse); 8 ambiguous skipped for eyes. The downloaded dataset is
+positionally clean.
+
+### Dead end: fill-agreement scoring (internal consistency ≠ global correctness)
+For the 134 exactly-4-point frames, scored H's by agreement with the (independent)
+old-model fills → 24 "trustworthy". User's visual inspection overruled: most
+projections wrong. Measured cause: the 4 downloads cluster in a thin strip (median
+hull 7.3% of frame) → H locally exact, globally garbage, and the fills cluster in
+the same strip so "agreement" only tested locally. Lesson burned in: never certify
+an H from evidence that doesn't SPAN the frame.
+
+### Ranked human verification (the workflow that worked — user's design)
+`rank_projections.py` renders all 2,262 projection overlays worst-first. Scoring
+took 3 iterations: raw top-hat (crowd texture = universal false support) → density
+gate alone (salt-and-pepper speckle made 93% of pixels "dense", zeroing everything;
+fixed with medianBlur(5) first) → final primary signal is H-GEOMETRY SANITY
+(count of 33 court vertices landing on-frame via H⁻¹: collapsed ≥30, exploded ≤6;
+fold via Jacobian det sign at 4 corners), line evidence only as secondary. Overlays
+draw curves too (3-pt arcs fit through their dataset vertices, corner-3s, circles)
+— `court33_curves()`. `verify_projections.py`: one keystroke per frame, crash-safe,
+resumable. **User verdicted all 2,208 scored frames: 1,858 lineup / 350 no_lineup**
+(+54 NO-H). All 63 folded/collapsed flags were confirmed bad — 100% precision.
+Verdict bar: "if you can tell which painted feature each line is trying to be" —
+structural failure = reject; snap-fixable offsets = pass.
+
+### Line-snap (`snap_projections.py`) — verified H's polished to sub-pixel
+ICP-style: sample template every 1 ft → search ±R along each sample's NORMAL in
+density-gated top-hat ridge → sub-pixel parabola peak → RANSAC refit (+ anchors) ×4
+rounds. Occlusion handling is structural: crowd zones produce no evidence (gate),
+players are RANSAC outliers, and the always-occluded near sideline is positioned by
+H extrapolation from visible lines. **Accept-metric lesson:** global DT-median is
+occlusion-dominated and can't see improvement (first version "failed" on frames
+that were visibly improving); the working metric is matched-offset residual at
+fixed radius + match count must not drop >20% + anchor/corner guards.
+Result: 1,136 snapped / 722 kept (mostly already at the anchor noise floor);
+final residuals p50 0.67 px, p90 2.03 px, max 5.63 px. H's → `snapped_H.npz`.
+Open: 350 no_lineup + 54 NO-H (drop vs hand-anchor undecided); 8 skipped swaps.
+
+---
+
+## 2026-06-27→30 — (reconstructed from artifacts) 33-pt model iterations on Colab
+
+Per `train_court_colab.ipynb` + weights in `models/`: three external-dataset merge
+attempts failed (out-of-domain data hurt: `merged3307`, `merged_dense`, `boxfix`);
+the run that stuck was **clean original court_det2 (850 imgs) + heavy HSV
+appearance aug** (hsv_h .03 / s .9 / v .7) for cross-arena robustness →
+`court_kp33_aug.pt` (old-aug baseline above). `court_kp33.pt` = pre-merge clean run.
+
+---
+
+## 2026-06-26 — Component A: trajectory correction (analytics layer begins)
+
+After an architecture diff vs an external Roboflow "Basketball AI" project (ARCHITECTURE_DIFF.md;
+their stack: RF-DETR + SAM2 tracking + TeamClassifier + jersey-OCR VLM + ConsecutiveValueTracker
++ 33-pt ViewTransformer homography + clean_paths + shot events). Key borrowed insight: they fix
+bad per-frame homography DOWNSTREAM via trajectory cleaning, not at the source.
+
+Built Component A: `build_trajectories.py` runs a clip through BoT-SORT + 33-pt homography,
+projects each player's foot-point → court ft per frame, accumulates per-track series, and cleans
+them with `court/trajectories.py` `clean_paths` (vendored from roboflow/sports, Apache-2.0: robust
+jump rejection via median+σ·MAD AND absolute-dist, remove short teleport runs, linear-interp gaps,
+Savitzky-Golay smooth). Adapter `clean_trajectories` handles BoT-SORT's variable roster (per-track,
+over each track's presence span). Top-down court render (court33) of raw vs cleaned paths. Fixed a
+bug in the vendored savgol fallback (even-kernel off-by-one on short spans). First run (200 frames):
+114 w/ homography, 17 tracks, 149 points, 30% corrected. Observation: **homography quality is the
+bottleneck** — many frames project players off-court (dropped pre-correction), so trajectory density
+is gated upstream. Levers: restrict to confident-H frames; tune clean_paths params. Also have the
+jersey-OCR v7 dataset (3,615 crops, PaliGemma JSONL) staged for Component B (identity).
+
+## 2026-06-26 — Adopted external court dataset (33-keypoint homography)
+
+Integrated Roboflow **basketball-court-detection-2** (850 imgs, 33-keypoint pose). Found the
+exact 33-vertex→court-feet mapping by lifting it from `roboflow/sports` `CourtConfiguration`
+(NBA, FEET) — the lib that generated the dataset — and reproduced it exactly (`court/court33.py`,
+corner-origin: x 0→94, y 0→50 ft). Trained yolov8m-pose on Colab GPU (train_court_colab.ipynb;
+GPU avoids the MPS pose bug). Weights → `models/court_kp33.pt`. New detector `court/detector33.py`
+(index→vertex), `homography_from_indexed_keypoints`. Head-to-head vs the old 20-pt model: on hard
+gameplay frames H-success 60%→70%, ~12 vs 8 keypoints (better-conditioned), reproj 0.22→0.60 ft
+(looser per-point but the old low value still produced nonsensical frames — global alignment is
+what matters). **User reviewed side-by-side overlays and judged the 33-pt model the winner.**
+SWITCHED CourtMapper to the 33-pt scheme (corner-origin polygon/court_pos) + visualizer draws
+court33 edges. Pipeline runs end-to-end (gate → basketball detector → 33-pt homography → masking).
+Note: with the basketball detector excluding refs/crowd, court-masking now drops ~0 (redundant,
+as predicted). NOT YET PORTED to 33-pt: line refinement (refine.py still 20-pt) and
+evaluate_homography (still 20-pt labels). Old 20-pt model/path left intact.
+
+## 2026-06-26 — Basketball detector (external dataset) — big Component-2 win
+
+Integrated Roboflow **basketball-player-detection-3** (654 imgs, 10 classes) → remapped to
+5 (player/referee/ball/rim/number; `prepare_player_dataset.py`), trained yolov8m on a Colab
+T4 GPU (~0.5 hr; local MPS was ~22 hr so training moved to Colab — `train_player_colab.ipynb`,
+pulls from Roboflow API). Val mAP50: player 0.973, referee 0.994, rim 0.995, number 0.942,
+ball 0.841. Weights → `models/player_detector.pt`; tracker + eval auto-prefer it (track the
+`player` class only). **On our hand-labeled box_truth: precision 0.68→0.89, recall 0.74→0.87,
+F1 0.71→0.88, FP 158→50, FN 116→61** — beats generic COCO person on BOTH axes. Fixes the
+refs/fans-as-players problem and reduces the need for court-masking (detector excludes
+non-players itself). Strategic: Colab GPU is now the home for all heavy training (also fixes
+the keypoint-pose MPS bug). Next external dataset: **court-detection-2** (850 imgs, 33-kpt
+scheme) for the homography. Files: prepare_player_dataset.py, train_player_detector.py (local),
+train_player_colab.ipynb, colab_train_player.py; detect/tracker.py + detector.py auto-prefer
+PLAYER_DETECTOR_WEIGHTS.
+
+## 2026-06-25 — Line-based homography refinement + learned line-segmentation model
+
+Goal: fix the homography being wrong/nonsensical on many frames. Two prongs (#1 more
+keypoint data — user labeling; #2 learned court-line model — below).
+
+**Point+line refinement** (`court/refine.py`): bootstrap H from keypoints, project the
+court lines, snap to detected line pixels along the normal, re-solve (points+lines), ICP
+×3. MONOTONIC guard: accept only if it lowers the court-line residual AND keeps keypoint
+agreement → never degrades (worst case no-op). First built with a white top-hat line
+detector = ~no-op on low-contrast wood (+0.14px, 3/12).
+
+**Learned line segmentation** (the fix for the top-hat): labels generated FOR FREE by
+projecting the court template through each keypoint-labeled frame's homography
+(`make_line_dataset.py` → 117 image/mask pairs). Small U-Net (`court/line_seg.py`,
+`train_line_seg.py`) trains on MPS (conv+BCE/Dice fine on MPS, unlike the pose model) →
+**val Dice 0.587**. `refine.court_line_mask` auto-uses it when weights exist.
+Result: refinement with the learned mask = **+0.40px residual (3× top-hat), 5/14, never
+worse** → COURT_REFINE re-enabled (default True). Caveat: refinement only sharpens a
+roughly-right H; truly-wrong frames need better keypoints (#1). The keypoint→linelabel→
+linemodel loop compounds: more keypoints (#1) → better H → better auto line-labels → better
+line model → better refinement. Files: make_line_dataset.py, train_line_seg.py,
+court/line_seg.py; config LINE_DATASET/LINE_SEG_WEIGHTS/COURT_REFINE.
+
+## 2026-06-25 — Homography wired into pipeline; court-masking TESTED (honest negative)
+
+### Homography → pipeline (WORKS)
+`court/mapper.py` `CourtMapper` ties the trained court-kp model → homography → court
+coords + masking. `run_tracking.py --court` projects every tracked player's foot-point to
+court feet, stores in tracks.json, labels on overlay. Verified: 149/149 players got valid,
+sensible court positions (0 failures). This is the real homography payoff: spatial player
+positions for defensive metrics.
+
+### Court-masking (predicted to fix Component 2 precision) — TESTED, DOESN'T pan out
+Validated on the 50 hand-labeled box frames (evaluate_tracking.py --court-mask):
+- baseline: P 0.681 / R 0.744 / F1 0.711
+- court-mask (confident-gated): P 0.699 / R 0.706 / F1 0.703  ← F1 slightly DOWN
+The earlier prediction ("court-masking recovers precision") was TOO OPTIMISTIC — now disproven
+with data. Why: (1) pixel→court projection blows up near the homography horizon (max 1.2M ft!);
+fixed by masking in IMAGE space (project court boundary→pixels, point-in-polygon). (2) Even so,
+on ~30-40% of fresh single frames the H is slightly wrong → court polygon misplaced → drops REAL
+players. Confidence-gating (≥6 inliers, reproj ≤0.6 ft) limits damage but only ~20 of 158 FPs are
+confidently-removable; the rest are bench/courtside people NEAR the boundary where H error ≈ the
+margin. So masking removes ~as many real players as crowd → net wash.
+**Conclusion:** single-frame court-masking isn't reliable enough. Real fix = TEMPORAL homography
+smoothing in the video pipeline (stable averaged H over a window) + more kp data. Court-masking
+kept OFF by default; `--court-mask` available but caveated. The 0.30 ft val reproj was measured AT
+keypoints — projection accuracy AWAY from them (player positions) is worse; don't conflate them.
+
+### Per-frame masking visualizer (2026-06-25)
+`visualize_masking.py` — renders court-masking onto a clip for the USER to review (don't
+interpret it for them — see [[feedback-viz-for-user]]). Per frame it draws: projected court
+template (green=confident H / orange=low-conf), cyan mask-boundary polygon, red "off-court"
+boxes for dropped detections (drawn, not hidden), kept boxes with #id + court (x,y) ft,
+H-status (inliers + reproj), and a legend. Outputs a scrubable .mp4 + full-res PNGs in
+data/tracking/<clip>_masking_frames/. (run_tracking.py also has --court/--court-mask/--save-frames
+for the same overlay inside the tracking pipeline.)
+
+---
+
+## 2026-06-24 — Component 3: court keypoints + homography (foundation built; labeling pending)
+
+### Phase 0 (the smoking gun)
+The old project's homography MATH was complete and correct (`src/court/homography.py`:
+RANSAC `findHomography` + projection). It never worked for ONE reason: the
+court-keypoint dataset was **never labeled** — `data/court_kp_dataset` had 57+8
+images but **0 label files**. So no pose model was trained → no keypoints → `H=–`
+throughout. This component = fix exactly that (label → train → feed the existing math).
+
+### Decisions
+- **Learned keypoint model** (YOLOv8-pose), not classical/manual: the broadcast
+  camera pans/zooms continuously, so H changes every frame → need a per-frame
+  keypoint source. Classical Hough was the old fallback and was brittle.
+- **Keypoint scheme = 16 crisp points**, finalized AFTER a user labeler test:
+  - kept: 8 paint corners + 2 half-court∩sideline (half_bot/top).
+  - user feedback: the 4 three-point ARC-BREAK points are fuzzy (no sharp corner)
+    and half_bot is foreshortened → hard to label precisely.
+  - SWAPPED the 4 fuzzy arc-break points → 4 CRISP corner-3∩baseline points
+    (±47, ±22). ADDED 2 center-circle points (half line ∩ center circle, (0,±6),
+    user's idea — crisp + central, conditions H well).
+  - Rationale: keypoints demand PRECISION (a misplaced point bends H; unlike boxes
+    where IoU is forgiving) and we have redundancy (need only ≥4), so all-crisp set.
+  - flip_idx updated + verified (mirrors x, involution). Homography round-trip
+    re-verified exact (16/16 inliers, 0.00000 ft).
+
+### Built + verified
+`court/geometry.py` (16-kp scheme + court drawing), `court/homography.py` (RANSAC,
+exact round-trip verified), `court/detector.py` (YOLOv8-pose wrapper),
+`label_keypoints.py` (guided one-kp-at-a-time labeler with court-diagram inset;
+user-tested OK), `train_court_kp.py` (labels→YOLO-pose dataset→fine-tune; label
+conversion verified), `evaluate_homography.py` (keypoint px error + H success rate +
+reproj error + court-overlay visual proof). Apple-Silicon notes from Component 2
+(MPS nms fallback, avc1) carry over.
+
+### Keypoint set grew to 20; labeling done + QA'd (2026-06-24)
+- After more user feedback, ADDED 4 court corners (baseline∩sideline, ±47±25) — crispest
+  points, anchor the sidelines. Declined restricted-area arc points (curve-tangent fuzzy +
+  clustered under-hoop + occluded). Set LOCKED at 20.
+- User labeled 150 frames. Built `review_keypoints.py` — QAs labels via homography: fits H
+  from each frame's labels, flags high reprojection error, and isolates GENUINE mislabels
+  via leave-one-out refit (drop worst point; if rest snap clean, it was the culprit) vs
+  geometric degeneracy.
+- Result: **median reproj 0.087 ft (~1 inch), 0 mislabels** — excellent labeling. 112 clean,
+  31 "degenerate" (points correct but too collinear to anchor H alone — fine for training;
+  cause = frame's visible crisp points all on one line, e.g. baseline), 7 with <4 points
+  (excluded). 143 frames feed training. Lesson logged: each frame needs points spanning BOTH
+  axes (don't label only-baseline points).
+
+### Training debugging (2026-06-24) — TWO stacked bugs, both fixed
+First train run: "best at epoch 1", `train/pose_loss` FLAT ~11.4 all epochs, pose mAP=0,
+box mAP degraded 0.41→0.06. Two root causes:
+1. **Degenerate bounding boxes.** `to_yolo_line` set each court instance's box to the HULL
+   of its visible keypoints → on collinear frames (baseline-only points) the box is a thin
+   sliver → broken detection target → box loss can't learn → pose (conditioned on detection)
+   never trains. FIX: **full-frame box** (`0.5 0.5 1 1`) for every frame; court fills the
+   broadcast frame, detection becomes trivial, capacity goes to keypoints.
+2. **YOLOv8-pose keypoint loss does not train on Apple MPS.** After fix #1, box mAP recovered
+   but pose_loss STILL flat / pose mAP=0. Detection trains on MPS, the pose head's gradients
+   don't. CONFIRMED by a CPU run: pose_loss dropped 11.5→7.7 over 11 epochs, box mAP→0.9.
+   FIX: `train_court_kp.py` now defaults `device="cpu"` (this training only; inference + all
+   other components still use MPS). Also surfaced + fixed a homography crash on garbage
+   keypoints (0 RANSAC inliers → perspectiveTransform None) — now fails gracefully.
+
+### ✅ DONE — homography WORKS (2026-06-24)
+Trained 100 epochs on CPU: pose_loss 11.5→2.9, box mAP 0.99, **pose mAP50 0.96**. Eval on
+28 held-out frames: **100% homography success, median reproj 0.30 ft (~3.6 in), p90 0.51 ft**,
+green court template lands on the real court. THE milestone the old project never reached
+(it had H=– throughout). One more tuning win: RANSAC reproj threshold (in FEET) was 5.0 = too
+loose → let noisy paint-corner keypoints skew H; swept on val → **2.0 ft** (median 0.94→0.30 ft,
+still 100% success). Set as default in config. Known weak spot: the model mis-localizes the
+FT-line paint corners (br/tr) on some frames (200-300px) — RANSAC discards them as outliers,
+which is why H stays clean. Improve later with more data / higher-imgsz train / temporal
+smoothing in video. `--ransac-ft` and `--conf` flags added to evaluate_homography for tuning.
+
+### Status / next
+Components 1 (gate), 2 (player det+track), 3 (court homography) all DONE. Homography unlocks:
+(a) project player foot-points → court coords (real spatial defensive metrics — the research
+goal); (b) COURT-MASKING to drop off-court detections → should fix Component 2's precision.
+Next likely: wire homography into the pipeline + court-masking, or team classification.
+Originally: label ~150 frames with `label_keypoints.py --n 150` (resumable,
+seeded; the 5 test frames were on the old scheme and were cleared). Then
+`train_court_kp.py` → `evaluate_homography.py`. Success = reproj error < ~1.5 ft and
+the projected court template lands on the real court lines. This ALSO unlocks the
+court-masking that's predicted to fix Component 2's detection precision.
+
+---
+
+## 2026-06-23 (pm) — Component 2: player detection + tracking (built + verified)
+
+### What it is
+Second pipeline stage: detect players per frame and assign persistent IDs across
+frames, running on contiguous video (IDs propagate frame-to-frame — unlike the
+gate's 1.5s-spaced sampling). Person class only; ref/player split is a later
+(team-classification) concern.
+
+### Phase 0 recovery (from old repo)
+- Old approach = **one ultralytics call**: `model.track(frame, classes=[0],
+  persist=True, tracker=...)` does YOLO detection + association in a single pass.
+  Defaults: YOLOv8m, conf 0.40, iou 0.45. (`old src/tracking/multi_tracker.py`)
+- Carried over two robustness fixes: **camera-cut reset** (when >80% of ≥4 active
+  tracks vanish in a frame → reset IDs, else a broadcast cut drags stale IDs onto
+  new players) and the **MPS Kalman guard** (`np.linalg.LinAlgError` → reset, skip).
+- `yolov8m.pt` reused from the old repo (52 MB); ultralytics auto-downloads if absent.
+
+### Decisions
+- **Tracker = BoT-SORT** (not the old default ByteTrack): its camera-motion
+  compensation (GMC) is the key win for broadcast pans/zooms; ReID can be enabled
+  later via a custom yaml. `config.TRACKER_CONFIG = "botsort.yaml"`.
+- **Eval = lightweight**: hand-label boxes on ~50 live frames → detection P/R@IoU.
+  Deliberately NOT full MOT (no IDF1/MOTA) — that needs box+ID labels across clips.
+  ID stability is tracked via label-free proxies instead (see diagnostics).
+
+### Gotchas solved (Apple Silicon)
+- **`torchvision::nms` not implemented on MPS** → set
+  `PYTORCH_ENABLE_MPS_FALLBACK=1` at the top of `config.py` (before any torch
+  import). Falls back to CPU for just that op.
+- **Video codec**: this OpenCV build can't write `mp4v`/`XVID`; only **`avc1`**
+  (H.264/AVFoundation) produces a readable .mp4. `run_tracking.py` uses avc1.
+
+### What got built
+`detect/` package: `tracker.py` (PlayerTracker, streaming `update()->list[Track]`),
+`detector.py` (stateless single-frame PlayerDetector, for eval), `camera_cut.py`,
+`types.py` (Track with foot_point + downstream team_id/court_pos placeholders).
+Entry points: `run_tracking.py` (overlay mp4 + tracks.json + diagnostics),
+`label_boxes.py` (interactive box labeler), `evaluate_tracking.py` (detection P/R).
+
+### First run (curry_q1_clip, 120 frames @ stride 3 ≈ 12s, no gate)
+- avg **8.08 players/frame** (median 8, max 10) — plausible for wide shots, a bit
+  low (distant/occluded players missed at conf 0.40).
+- **id_churn_ratio 4.5** (36 unique IDs for ~8–10 players, 0 camera cuts) →
+  **ID stability is the weak spot** (switches through paint occlusion / similar
+  jerseys). Expected; BoT-SORT alone doesn't fully fix it.
+- Overlay renders correctly (boxes + #IDs on players). Detection eval verified in a
+  sandbox (synthetic GT) — plumbing good; real numbers await hand-labeling.
+
+### Detection eval results (2026-06-24) — 50 hand-labeled frames, 453 boxes (9.1/frame)
+yolov8m, conf 0.40, IoU 0.5: **precision 0.681, recall 0.744, F1 0.711**.
+Visual error analysis (reports/viz/detection_eval.png) was decisive — the two error
+types mean very different things:
+- **FP = crowd / bench / sideline people.** YOLO correctly detects them; we only
+  labeled on-court players, so they score as false positives. So precision (0.68) is
+  likely PESSIMISTIC. HYPOTHESIS (untested, no code yet): once homography exists we can
+  mask off-court detections, which SHOULD raise precision — but court-masking is NOT
+  built and this is unverified. Supporting evidence only: raising conf→0.55 cuts FP
+  158→86, precision→0.77, confirming the FPs are low-conf crowd.
+- **FN = players clustered/occluded in the paint** (e.g. a frame with 7/10 missed in
+  an under-basket scrum). The real signal.
+
+Lever sweeps (added --conf/--nms-iou/--weights to evaluate_tracking.py):
+- conf 0.25/0.40/0.55 → recall 0.764/0.744/0.651. Lowering conf barely lifts recall
+  (+2%) but doubles crowd FP ⇒ conf is the WRONG lever; keep 0.40.
+- NMS IoU 0.45→0.70: ~no change ⇒ occluded players aren't NMS-suppressed, they're
+  simply NOT DETECTED.
+- yolov8x (bigger model): recall DROPS to 0.695 (more conservative). Off-the-shelf
+  scaling doesn't fix occlusion.
+**Conclusion: recall ceiling ~0.74 is a model-capacity limit on occluded paint
+players, not tunable away.** Real fixes (later, if needed): a basketball-finetuned
+detector, and/or lean on BoT-SORT temporal continuity to carry tracks through brief
+per-frame misses (per-TRACK recall > per-frame recall). Verdict: good enough to
+proceed — finds ~3/4 of players/frame; misses are occlusion; precision is EXPECTED
+(not yet shown) to improve once court-masking is built.
+
+### Status / next
+Component 2 COMPLETE (built, eval'd, characterized). Default = yolov8m, conf 0.40,
+BoT-SORT. Open improvements if ever needed: basketball-finetuned detector, ReID,
+pixel-histogram scene-cut detection. Interface ready for downstream (Track carries
+team_id/court_pos slots). Next component likely court homography (which would ALSO
+let us build court-masking — predicted to lift the precision number, to be verified
+then) or team classification.
+
+---
+
+## 2026-06-23 — Component complete: gate built, labeled, trained, validated
+
+### What this project is (one paragraph)
+Fresh restart of the NBA broadcast-stats pipeline, rebuilt one component at a
+time. This repo is **only** the *court-visibility gate*: a per-frame classifier
+that decides "live game footage" vs "dead ball" (replay/closeup/ad/crowd/timeout)
+so the downstream stats pipeline only ever processes usable frames. Hard scope
+boundary — no player/ball/court/team/identity/event code here. The motivating
+bug: clips were returning all-empty output, i.e. the old gate was throwing away
+live frames (false negatives).
+
+### Environment / where things live (easy to forget)
+- Build dir: `NBA Comp Viz New Project Version 3/` (NOT the sibling `NBA Comp Viz s`).
+- Interpreter: **`/opt/anaconda3/bin/python`** (has torch 2.2.2 + MPS, cv2 4.13.0,
+  transformers, sklearn). Plain `python3` does NOT have torch/cv2.
+- Source video: old project `Basketball_Defensive_Vision/data/raw` (7 mp4 clips, 720p).
+- Seed = 42 everywhere.
+
+### Phase 0 — what we recovered from the old project (read-only)
+- The old shipped gate `_is_court_visible` (`Basketball_Defensive_Vision/src/pipeline/
+  runner.py:479`) was **HSV maple-floor-color thresholding** (accept a frame if
+  12–55% of pixels are floor-colored), **NOT CLIP**. So there were **no zero-shot
+  prompts or learned threshold to recover.** We said so explicitly instead of
+  inventing a training story, kept the HSV rule as a baseline, and wrote fresh
+  CLIP-based approaches.
+- `court_detector_yolov8n.pt` in the old repo is a *separate* court-bbox model,
+  never wired into the gate.
+- Frame extraction adapts the old `VideoReader` pattern, incl. the macOS quirk:
+  **force OpenCV's FFmpeg backend** (`cv2.CAP_FFMPEG`) to avoid a VideoToolbox/
+  Metal segfault once torch is loaded.
+
+### Key design decisions + rationale
+- **Frozen backbone + tiny head, not train-from-scratch.** With ~1k labels,
+  fine-tuning a vision net would overfit. We freeze CLIP ViT-B/32 (loaded via
+  `transformers`; `open_clip` wasn't installed) as a fixed image→ℝ⁵¹² encoder and
+  train only a logistic-regression head. Bet: "live vs dead" is already ~linearly
+  separable in CLIP space.
+- **Three gates, one interface** (`score()->P(live)`, `is_court_visible()`):
+  CLIP zero-shot (Approach A, no training), logistic head on CLIP embeddings
+  (Approach B, the real model), and the recovered HSV rule (baseline-to-beat).
+  Same interface so any one drops into the larger pipeline untouched.
+- **Labeling integrity is enforced in code, not by good intentions.**
+  `truth/{live,dead}` (human-verified) is the ONLY label source; `predicted/`
+  (CLIP's pre-sort guesses) is NEVER read by train/eval. Grading on CLIP's own
+  guesses would be circular target leakage. `gate/labels.py` and
+  `evaluate_gate.load_test_split` assert this and error out on empty/too-small truth.
+- **Threshold tuned on VAL, never TEST.** The decision threshold is a hyperparameter;
+  tuning it on test is back-door leakage. Objective: minimize false negatives
+  (the empty-clip bug) subject to an FP-rate cap.
+- **Errors reported by downstream cost, not just accuracy.**
+  FN = live→dead = frame skipped = empty clips (the bug). FP = dead→live = replay/
+  ad processed = garbage events in the box score.
+
+### Labeling rules we settled on (the edge cases — keep consistent for future frames)
+Decide every frame by ONE litmus: **"Can the tracker place these players on the
+court?"** — i.e. is this a usable full-frame broadcast court shot — NOT "is the
+game clock running."
+- **LIVE:** play in motion; **free throws**; **inbounds**; **foul-lulls where the
+  camera stays on the wide/standard court** with players visible.
+  - Why foul-lulls are live: a still frame of players standing during a foul is
+    visually indistinguishable from a live half-court set, so labeling them "dead"
+    would put contradictory labels on identical-looking frames and poison training.
+    Excluding dead-time-on-court is a job for a later game-state/possession filter
+    that has temporal context, not for this single-frame gate.
+- **DEAD:** replays; close-ups; **tight group shots of 3–4 players talking**
+  (court geometry lost → not processable); crowd; bench/timeout/huddle; ads;
+  studio desk; scoreboard/stat graphics; **split-screen / composited / squeezed-
+  game frames** (even though real action is present — the game is geometrically
+  distorted/boxed, so the pipeline can't use it).
+- **When genuinely unsure** (mid-zoom, the half-second as the camera pushes in):
+  hit `s` (skip). A skipped frame beats a noisy label.
+
+### What got built
+`config.py`; `gate/` (`backbones.py`, `zero_shot.py`, `trained_head.py`,
+`hsv_baseline.py`, `labels.py`, `common.py`); entry points `extract_frames.py`,
+`presort_frames.py`, `label_frames.py` (keypress labeler), `train_gate.py`,
+`evaluate_gate.py`; `README.md`, `requirements.txt`, `.gitignore`.
+
+### Dataset
+1050 frames extracted (7 clips, ~1 frame/1.5s) → CLIP pre-sorted into `predicted/`
+→ hand-labeled with `label_frames.py` into `truth/`: **659 live / 391 dead**.
+Deterministic stratified 70/15/15 split saved to `models/split.json`
+(train=734, val=158, test=158).
+
+### Results (held-out TEST, 158 frames: 99 live / 59 dead)
+| approach | acc | live R | dead R | FN | FP |
+|---|---|---|---|---|---|
+| **trained head** | **0.987** | 0.990 | 0.983 | **1** | **1** |
+| zero-shot CLIP | 0.886 | 0.848 | 0.949 | 15 | 3 |
+| HSV (old gate) | 0.873 | 1.000 | 0.661 | 0 | 20 |
+
+Trained head decisively wins. Baselines fail in opposite directions: zero-shot is
+too aggressive on "dead" (15 dropped live frames ≈ the empty-clip bug); the HSV
+gate is too permissive (20 dead frames let through) and its color band is brittle
+to arena/lighting. Threshold lever (TEST): `0.65 → FN=0/FP=2`, `0.70 → FN=1/FP=1`
+(saved default = VAL-tuned 0.70). Artifacts: `models/trained_head.joblib`,
+`models/thresholds.json`, `reports/metrics.{json,txt}`, `reports/viz/*.png`.
+
+### Residual errors (both = the hard cases we predicted)
+- **1 FN:** an unorthodox low/far, crowd-heavy angle (scored 0.65, just under
+  threshold). CLIP's "live game" prototype is the canonical sideline-elevated view,
+  so atypical angles score low. Fix: add more such angles to `truth/live`.
+- **1 FP:** a split-screen/composited frame (ESPN logo + boxed game, scored 0.80).
+  The live half dominates the pixels. A single-frame model can't cleanly know the
+  game is composited — the principled fix is a later context/score-bug signal,
+  not a better still-image classifier.
+
+### Open threads / next time
+1. Integrate: `TrainedHeadGate.load()` + threshold 0.70 → replace old `_is_court_visible`.
+2. Harden FN: label more unorthodox-angle live frames, retrain (cheap — embeddings cached).
+3. FP on split-screens/replays-without-graphics is a known ceiling of single-frame
+   models; defer to a temporal/score-bug-aware stage downstream.
+4. Possible: group-aware split (no two frames from the same clip across train/test)
+   to remove mild optimism in the scores. Current split is plain stratified.
+5. Then: move to the next pipeline component (still out of scope here).
