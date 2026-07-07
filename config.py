@@ -326,3 +326,20 @@ BASKET_RIGHT = (88.75, 25.0)
 # OFFENSE leads the defense downcourt, so the closer-team geometry inverts there.
 POSS_RETREAT_FTS = 4.0      # sustained occupancy speed toward midcourt ⇒ outbound
 POSS_RETREAT_SUSTAIN_S = 0.7  # velocity must be sustained this long (drives/kicks spike briefly)
+POSS_CORE_TRIM_S = 2.0      # metrics core = [set_start, end − this]: the human eval measured
+                            # 100% accuracy >2 s from a boundary, 84% inside — so the core is
+                            # the certified region and boundary-adjacent frames are excluded
+POSS_MIN_CORE_S = 4.0       # spans with a shorter core ⇒ metrics_eligible=false (flagged, kept)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COMPONENT C3 — Matchup metrics (matchup_metrics.py), Tier 1
+# ══════════════════════════════════════════════════════════════════════════════
+C3_MIN_SPAN_CONF = 0.60     # offense/defense call must clear this before computing matchups
+                            # (a wrong offense call corrupts every metric in the possession)
+C3_CLOSEOUT_SMOOTH_S = 0.7  # rolling-median on each matchup-distance series before any rate
+C3_CLOSEOUT_WIN_S = 1.0     # closing-rate = central difference over this window — heavily
+                            # smoothed and reported DIRECTIONALLY (closing/holding/retreating),
+                            # never as precise ft/s: it rides on frame-to-frame tracking noise
+C3_MIN_PAIR_RUN_S = 1.5     # a (defender, man) assignment run shorter than this contributes
+                            # distance stats but no closing-rate samples (too short to smooth)

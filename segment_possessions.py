@@ -185,9 +185,17 @@ def main() -> None:
                 agree.append(0 if m0 < m1 else 1)   # closer team this frame
                 dists[0].append(m0)
                 dists[1].append(m1)
+        # metrics core: set frames minus the boundary-uncertain tail (eval: 100%
+        # accuracy >2 s from a boundary). Too-short cores are FLAGGED, not dropped,
+        # so downstream attrition is visible instead of silent.
+        e_core = max(s, e_set - int(config.POSS_CORE_TRIM_S / dt))
+        core_s = (e_core - s + 1) * dt
         span = {"kind": "halfcourt",
                 "start_frame": order[a0], "set_start_frame": order[s],
                 "end_frame": order[e_set],
+                "core_start_frame": order[s], "core_end_frame": order[e_core],
+                "core_s": round(core_s, 1),
+                "metrics_eligible": bool(core_s >= config.POSS_MIN_CORE_S),
                 "duration_s": round((e_set - a0 + 1) * dt, 1),
                 "approach_s": round((s - a0) * dt, 1),
                 "set_s": round((e_set - s + 1) * dt, 1),
@@ -214,6 +222,11 @@ def main() -> None:
     out_json.write_text(json.dumps({
         "source": str(args.trajectories), "stride": stride, "fps": args.fps,
         "spans": spans}, indent=2))
+
+    for s in spans:   # unsegmented stretches are a coverage loss — surface them for review
+        if s["kind"] == "transition" and s["duration_s"] >= 5.0:
+            log.warning("unsegmented %.1fs stretch %d–%d — occupancy stayed near the band edge; "
+                        "review the timeline strip", s["duration_s"], s["start_frame"], s["end_frame"])
 
     n_half = sum(1 for s in spans if s["kind"] == "halfcourt")
     t_half = sum(s["duration_s"] for s in spans if s["kind"] == "halfcourt")

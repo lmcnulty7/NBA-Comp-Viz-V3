@@ -359,6 +359,28 @@ should treat boundary-adjacent frames as uncertain and lean on the set core.
 Known limits: no possession changes within one halfcourt occupancy (steal +
 re-set on the same end); free-throw clusters read as halfcourt sets.
 
+---
+
+# Component C3 — Matchup metrics (Tier 1)
+
+`matchup_metrics.py` — the first defensive stats, computed ONLY on span
+**cores** (`core_start/core_end` in the span schema: set minus the last 2 s,
+the region the C2 eval certified at 100%; cores <4 s are flagged
+`metrics_eligible=false`). Per eligible possession: Hungarian **matchup
+assignment** per frame, per-defender **matchup distance** (median/mean, primary
+man by pair-time), **spacing conceded** (offense hull area), and **closeout
+tendency** (directional closing/holding/retreating shares on smoothed ≥1.5 s
+pair runs — the noisiest metric; never read as precise ft/s).
+```bash
+$PY matchup_metrics.py --clip curry_q1_clip
+# → data/tracking/<clip>_matchups.json + <clip>_matchups.mp4 (review video:
+#   team dots, offense hull, matchup lines + distances — check before trusting)
+```
+Caveats: defender identity = track fragment (cross-possession player profiles
+need jersey OCR); coverage ~4–5 pairs/frame (abstained tracks unmatched).
+Deferred: help-position distance, off-ball attentiveness (needs ball), and
+Tier 2 outcome-adjusted defensive credit (needs outcome tagging/shot quality).
+
 **Human eval** (`evaluate_possessions.py`, same pattern as the teams eval —
 blind to predictions, resumable):
 ```bash

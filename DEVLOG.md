@@ -9,6 +9,56 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-07b — Component C3 Tier 1: matchup metrics on certified set-cores
+
+First component that computes an actual defensive stat. `matchup_metrics.py`
+consumes trajectories + possessions and works ONLY on span cores (`core_*`
+fields added to the span schema: set minus the last 2 s — the region the C2
+eval certified at 100%; cores < 4 s ⇒ `metrics_eligible=false`, flagged not
+dropped — 2/12 current spans). Additional gates, all visible in the output:
+offense confidence ≥ 0.60 (dropped 1 span at 0.57), team-labeled tracks only.
+
+Tier 1 metrics (per possession):
+- **Matchup assignment**: Hungarian offense↔defense on court distance per
+  core frame; per-defender aggregation by (defender, man) pair-time.
+- **Matchup distance**: median/mean to assigned man; primary man = most time.
+- **Spacing conceded**: offense convex-hull area, median + IQR.
+- **Closeout tendency**: DIRECTIONAL only (closing/holding/retreating shares,
+  median rate) on rolling-median-smoothed ≥1.5 s same-pair runs with a 1 s
+  central difference. Explicitly the shakiest metric — it differentiates
+  noisy positions; never read it as precise ft/s.
+
+Review harness (built first): `<clip>_matchups.mp4` — top-down per-possession
+animation with team-colored dots, offense hull, matchup lines + distances —
+for eyeballing assignments before trusting aggregates.
+
+First-run sanity (4 clips, 8 possessions): matchup distances basketball-
+plausible (on-ball 2.4–5.5 ft, sag/off-ball 10–15 ft); coverage 4.0–5.1
+pairs/frame (abstained tracks cap it below 5v5); one spacing outlier
+(1013 ft² on a 4.2 s core — early-clock spread or a stray track; visible in
+the review video).
+
+Known limitations, stated:
+1. **Defender identity = track fragment.** Churn splits one player across
+   fragments within/between possessions (q1's first possession lists 10
+   "defenders"). Per-possession attribution is sound; cross-possession player
+   PROFILES need jersey-number OCR / roster mapping (future).
+2. Coverage < 5v5 because abstained-team tracks can't be matched.
+3. Closeout tendency inherits foot-point + homography noise; smoothed and
+   bucketed, but still the first metric to distrust.
+
+Deferred by scope decision (user): help-position distance (encodes an
+unverifiable positioning assumption — no ground truth to check it against)
+and off-ball attentiveness (needs real ball position; a camera-pan proxy is
+not quantitatively trustworthy — deliberately NOT built).
+**Tier 2 (designed, not built): possession-outcome-adjusted defensive credit**
+— tag each core possession's outcome and attribute it to the primary defender
+via the matchup assignment ("did possessions this defender guarded run worse
+for the offense than average"). DEPENDS ON outcome tagging (scoreboard OCR or
+a shot-quality model) which does not exist yet — sequence that first.
+
+---
+
 ## 2026-07-07 — C2 human-eval verdict + boundary-semantics fix: 93%, and 100% away from boundaries
 
 User labeled the 73 frames → first result: 86.8% basket / 86.8% offense (n=53),
