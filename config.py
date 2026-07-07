@@ -303,3 +303,18 @@ TEAM_ABSTAIN_RATIO = 0.75   # near-centroid dist / far-centroid dist above this 
 TEAM_MIN_CROPS = 2          # tracks with fewer VALID (non-floor) crop features abstain
                             # (one crop is not evidence; mostly-floor crops carry none)
 TEAMS_EVAL_DIR = PROJECT_ROOT / "data" / "teams_eval"   # human-label eval (evaluate_teams.py)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COMPONENT C2 — Possession segmentation (segment_possessions.py)
+# ══════════════════════════════════════════════════════════════════════════════
+# Segments trajectories into halfcourt possession spans (which basket is attacked)
+# and assigns offense/defense per span. Ball-free v1: occupancy geometry only.
+POSS_HALF_MARGIN_FT = 8.0   # occupancy median must be this deep past midcourt (47 ft)
+                            # to call a halfcourt set; the band between = transition
+POSS_SMOOTH_SEC = 1.0       # rolling-median window on the occupancy signal
+POSS_MIN_SPAN_SEC = 3.0     # halfcourt runs shorter than this stay "transition"
+POSS_MAX_GAP_SEC = 3.0      # frame gaps (gate skips / lost H) longer than this break a span
+POSS_MIN_PLAYERS = 4        # frames with fewer positioned players don't vote on occupancy
+BASKET_LEFT = (5.25, 25.0)  # rim centers, corner-origin court feet (court/court33.py)
+BASKET_RIGHT = (88.75, 25.0)

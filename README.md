@@ -334,3 +334,21 @@ gate). Crop-level accuracy is a lower bound (occlusion crops show the opponent);
 the track-level majority number is the fairer read. Refs never reach the
 classifier (detector tracks class 0 = player only; refs are class 1) — anything
 that leaks through typically abstains, but by geometry, not by rule.
+
+---
+
+# Component C2 — Possession segmentation (ball-free v1)
+
+`segment_possessions.py` reads a clip's trajectories JSON and segments it into
+halfcourt possession spans — attacked basket from smoothed all-player
+occupancy (±8 ft transition band at midcourt), offense/defense from which team
+sits closer to the attacked basket (defenders position between man and basket),
+with per-frame-agreement confidence. Pure geometry on existing outputs; re-runs
+instantly with different thresholds.
+```bash
+$PY segment_possessions.py --trajectories data/tracking/<clip>_trajectories.json
+# → <clip>_possessions.json (spans + evidence) + <clip>_possessions.png (timeline strip)
+```
+Known v1 limits (DEVLOG 2026-07-06c): no possession changes within one
+halfcourt occupancy (steal + re-set on the same end); free-throw clusters read
+as halfcourt sets. Real eval = event labels on 2–3 games (planned).

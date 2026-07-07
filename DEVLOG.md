@@ -9,6 +9,30 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-06c — Component C2 v1: possession segmentation (ball-free)
+
+`segment_possessions.py` — consumes trajectories JSON (positions + teams), no
+new perception. Three geometric arguments replace the ball: (1) in a halfcourt
+set all ten players occupy one half → smoothed median-x of everyone says which
+basket is attacked (±8 ft transition band around midcourt); (2) spans = runs of
+one-sided occupancy ≥3 s, broken by frame gaps >3 s; (3) offense/defense = the
+DEFENSE's mean distance to the attacked basket is systematically smaller
+(defenders sit between man and basket), reported with per-frame-agreement
+confidence, offense=None when teams are unlabeled.
+
+First run (standard 20 s window): 10.9 s halfcourt @left (offense navy, conf
+0.67) → 1.1 s transition → 5.8 s @right (offense white, conf 1.00); 84% of the
+window classified, and the two spans are mutually consistent (offense flips
+with the basket — a change of possession). Validation is currently
+plausibility + the timeline strip (data/tracking/<clip>_possessions.png);
+event-level labels on 2–3 games are the planned real eval. Known limits:
+ball-free = no possession changes WITHIN one halfcourt occupancy (steal +
+re-set on the same end), and free-throw clusters read as halfcourt sets.
+Next: run on longer windows, consistency diagnostic (a team must attack the
+same basket all half), then matchup metrics (C3) on top of these spans.
+
+---
+
 ## 2026-07-06b — Team-contamination fixes: two shipped, two measured dead ends, veto defused
 
 Goal (user-directed): stop the misassigned-team tracks from poisoning the
