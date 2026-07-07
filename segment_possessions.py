@@ -17,6 +17,17 @@ Why this is possible without ball tracking:
     the fraction of span frames where that ordering holds; spans where the
     teams are unlabeled (abstained) get offense=None rather than a guess.
 
+Boundary semantics (v2 — driven by the human eval, DEVLOG 2026-07-06/07):
+every basket error in the eval was a LATE boundary, never a mid-set mistake —
+trailing players hold the all-player median past the margin after play turns.
+So a possession = APPROACH + SET, matching basketball semantics (transition
+offense belongs to the new possession): the span ends at RETREAT ONSET
+(sustained occupancy motion back toward midcourt), and the outbound frames +
+the following transition become the next span's approach. `set_start_frame`
+marks where the halfcourt set begins; offense/defense + confidence are
+computed on the SET portion only, because during the approach the offense
+LEADS the defense downcourt and the closer-team geometry legitimately inverts.
+
 This is deliberately a separate stage reading build_trajectories' output file
 (same stable-interface idiom as the rest of the pipeline) — perception runs
 once, segmentation can be re-run instantly with different thresholds.
@@ -116,21 +127,55 @@ def main() -> None:
                          int(config.POSS_SMOOTH_SEC / dt))
     runs = segment(order, occ, args.fps)
 
+    # occupancy velocity (ft/s), sustained (drives/kick-outs spike only briefly) —
+    # used to find RETREAT ONSET: the moment the floor starts flowing back toward
+    # midcourt, i.e. where this possession ends and the next one's approach begins
+    v = np.gradient(occ, dt)
+    v_sus = rolling_median(v, int(config.POSS_RETREAT_SUSTAIN_S / dt))
+
+    max_gap = config.POSS_MAX_GAP_SEC * args.fps
+
+    def gap_before(i: int) -> bool:
+        return i > 0 and order[i] - order[i - 1] > max_gap
+
     min_frames = config.POSS_MIN_SPAN_SEC / dt
     spans = []
+    carry_i0 = None   # start index of the accumulated approach (transition + prior outbound)
+
+    def flush_carry(upto: int):
+        nonlocal carry_i0
+        if carry_i0 is not None and upto >= carry_i0:
+            spans.append({"kind": "transition", "start_frame": order[carry_i0],
+                          "end_frame": order[upto],
+                          "duration_s": round((upto - carry_i0 + 1) * dt, 1)})
+        carry_i0 = None
+
     for lab, s, e in runs:
-        f0, f1 = order[s], order[e]
-        dur = (e - s + 1) * dt
-        if lab == "T" or (e - s + 1) < min_frames:
-            spans.append({"kind": "transition", "start_frame": f0, "end_frame": f1,
-                          "duration_s": round(dur, 1)})
+        if carry_i0 is not None and gap_before(s):   # gate gap ⇒ approach can't carry over
+            flush_carry(s - 1)
+        if lab == "T":
+            if carry_i0 is None:
+                carry_i0 = s
             continue
+        # trim the outbound tail: sustained occupancy motion toward midcourt
+        sign = 1.0 if lab == "L" else -1.0           # L-half retreats in +x
+        e_set = e
+        while e_set > s and np.isfinite(v_sus[e_set]) and sign * v_sus[e_set] > config.POSS_RETREAT_FTS:
+            e_set -= 1
+        if (e_set - s + 1) < min_frames:             # too short to be a real set
+            if carry_i0 is None:
+                carry_i0 = s
+            flush_carry(e_set)                        # carry + this blip → transition
+            carry_i0 = e_set + 1 if e_set < e else None
+            continue
+        a0 = carry_i0 if carry_i0 is not None else s
+        carry_i0 = None
         basket = config.BASKET_LEFT if lab == "L" else config.BASKET_RIGHT
-        # offense/defense: mean distance to the attacked basket per team, plus
-        # per-frame agreement as the confidence
+        # offense/defense over the SET frames only — during the approach the
+        # offense LEADS the defense downcourt, inverting the closer-team geometry
         dists = {0: [], 1: []}
         agree = []
-        for i in range(s, e + 1):
+        for i in range(s, e_set + 1):
             per = {0: [], 1: []}
             for team, x, y in frames[order[i]]:
                 if team in (0, 1):
@@ -140,9 +185,14 @@ def main() -> None:
                 agree.append(0 if m0 < m1 else 1)   # closer team this frame
                 dists[0].append(m0)
                 dists[1].append(m1)
-        span = {"kind": "halfcourt", "start_frame": f0, "end_frame": f1,
-                "duration_s": round(dur, 1), "attacked_basket": "left" if lab == "L" else "right",
-                "occupancy_x_med": round(float(np.nanmedian(occ[s:e + 1])), 1)}
+        span = {"kind": "halfcourt",
+                "start_frame": order[a0], "set_start_frame": order[s],
+                "end_frame": order[e_set],
+                "duration_s": round((e_set - a0 + 1) * dt, 1),
+                "approach_s": round((s - a0) * dt, 1),
+                "set_s": round((e_set - s + 1) * dt, 1),
+                "attacked_basket": "left" if lab == "L" else "right",
+                "occupancy_x_med": round(float(np.nanmedian(occ[s:e_set + 1])), 1)}
         if agree:
             closer = int(np.bincount(agree, minlength=2).argmax())
             span.update({
@@ -154,6 +204,9 @@ def main() -> None:
         else:
             span.update({"defense_team": None, "offense_team": None, "confidence": 0.0})
         spans.append(span)
+        if e_set < e:                                # outbound tail starts the next approach
+            carry_i0 = e_set + 1
+    flush_carry(len(order) - 1)
 
     # ── outputs ────────────────────────────────────────────────────────────────
     stem = args.trajectories.stem.replace("_trajectories", "")
@@ -168,9 +221,9 @@ def main() -> None:
     log.info("── POSSESSION SPANS ──")
     for s in spans:
         if s["kind"] == "halfcourt":
-            log.info("  %6d–%-6d %5.1fs  HALFCOURT @%s basket  offense=team %s (conf %.2f)",
-                     s["start_frame"], s["end_frame"], s["duration_s"], s["attacked_basket"],
-                     s.get("offense_team"), s.get("confidence", 0))
+            log.info("  %6d–%-6d %5.1fs (approach %.1fs + set %.1fs)  @%s basket  offense=team %s (conf %.2f)",
+                     s["start_frame"], s["end_frame"], s["duration_s"], s["approach_s"],
+                     s["set_s"], s["attacked_basket"], s.get("offense_team"), s.get("confidence", 0))
         else:
             log.info("  %6d–%-6d %5.1fs  transition/unknown",
                      s["start_frame"], s["end_frame"], s["duration_s"])
@@ -184,9 +237,13 @@ def main() -> None:
     fy = lambda x: int(H - 20 - (x / COURT_LENGTH_FT) * (H - 50))
     for s in spans:
         i0 = order.index(s["start_frame"]); i1 = order.index(s["end_frame"])
-        col = (45, 45, 45) if s["kind"] != "halfcourt" else \
-              ((90, 60, 30) if s["attacked_basket"] == "left" else (30, 60, 90))
-        img[30:H - 20, fx(i0):fx(i1) + 1] = col
+        if s["kind"] != "halfcourt":
+            img[30:H - 20, fx(i0):fx(i1) + 1] = (45, 45, 45)
+            continue
+        col = (90, 60, 30) if s["attacked_basket"] == "left" else (30, 60, 90)
+        iset = order.index(s["set_start_frame"])
+        img[30:H - 20, fx(i0):fx(iset) + 1] = tuple(c // 2 for c in col)   # approach = dim
+        img[30:H - 20, fx(iset):fx(i1) + 1] = col
     cv2.line(img, (0, fy(MID_X)), (W, fy(MID_X)), (90, 90, 90), 1)
     for lab, xv in (("mid", MID_X), ("L rim", config.BASKET_LEFT[0]), ("R rim", config.BASKET_RIGHT[0])):
         cv2.putText(img, lab, (4, fy(xv) - 3), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (140, 140, 140), 1)

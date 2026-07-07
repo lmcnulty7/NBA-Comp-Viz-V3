@@ -9,6 +9,47 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-07 — C2 human-eval verdict + boundary-semantics fix: 93%, and 100% away from boundaries
+
+User labeled the 73 frames → first result: 86.8% basket / 86.8% offense (n=53),
+pre_start 0%, 11/13 transition-preds hid a visible set. Diagnosis flipped every
+finding into ONE defect:
+- pre_start "0%" was n=2, both frames sitting inside the PREVIOUS span while
+  the human read the forming set — a boundary artifact, not a heuristic error.
+- 9/11 coverage misses were frames exactly 1 s before a span we DID find.
+- ALL 5 "wrong-basket" span_mid errors were 1.2–2.3 s before their span's end
+  (the sampled frame shows players streaming back after the possession ended —
+  e.g. curry_q1 frame 12378: shot clock freshly reset to 22, floor in motion).
+  The 4-vs-1 direction split is noise, not clip- or camera-specific.
+**Every error was a LATE BOUNDARY; zero mid-set mistakes.** Trailing players
+hold the all-player median past the ±8 ft band after play turns.
+
+Fix = boundary semantics v2 (segment_possessions.py), matching basketball:
+possession = APPROACH + SET. Span ends at RETREAT ONSET (sustained ≥4 ft/s
+occupancy motion toward midcourt for ≥0.7 s); the outbound frames + following
+transition become the NEXT possession's approach (`set_start_frame` recorded).
+Offense/defense + confidence computed on SET frames only — during the approach
+the offense LEADS, legitimately inverting the closer-team geometry. No new
+spans can be created (the band still gates span existence) ⇒ no new false
+positives, verified: span_start stayed 100%.
+
+Re-scored against the SAME 73 labels (new --repredict): **93.0% basket / 93.0%
+offense (n=57)**; pre_start 0→100%, transition-missed 11→7. Decomposition:
+- **>2 s from any boundary: 32/32 = 100% on BOTH metrics.**
+- ≤2 s from a boundary: 21/25 = 84% — the residual is ±1–2 s disagreement
+  about the exact instant possession flips, which is genuinely fuzzy even for
+  a human. C3 GUIDANCE: treat per-frame attributions within ±2 s of a span
+  boundary as uncertain (use the set core; `set_start_frame` is provided).
+- Remaining 7 coverage misses: 4 window-leading edges + 1 across a gate gap
+  (approach can't carry over a dead-ball cut, by design) + 2 in curry_q1's
+  13038–13236 tail — the ONE real segmentation loss (~7 s): occupancy hovers
+  at the band edge (p50=53 vs band 39–55) during a messy stretch. Documented,
+  not chased — it's 1 stretch in 150 s.
+
+C2 is validated to the C1 standard. Next: C3 (matchup metrics) on set cores.
+
+---
+
 ## 2026-07-06d — C2 validation prep: 4-clip diagnostics, failure-mode anatomy, human eval built
 
 User-directed: C2 gets the C1 treatment before C3 depends on it. Batch-ran the

@@ -1,0 +1,65 @@
+{
+  "n_labeled": 73,
+  "attacked_basket": {
+    "overall": {
+      "n": 57,
+      "accuracy": 0.93
+    },
+    "by_kind": {
+      "span_mid": {
+        "n": 38,
+        "accuracy": 0.895
+      },
+      "span_start": {
+        "n": 12,
+        "accuracy": 1.0
+      },
+      "pre_start": {
+        "n": 6,
+        "accuracy": 1.0
+      },
+      "transition_mid": {
+        "n": 1,
+        "accuracy": 1.0
+      }
+    },
+    "confusion": {
+      "left->left": 27,
+      "right->left": 4,
+      "right->right": 26
+    }
+  },
+  "offense": {
+    "overall": {
+      "n": 57,
+      "accuracy": 0.93
+    },
+    "by_kind": {
+      "span_mid": {
+        "n": 38,
+        "accuracy": 0.895
+      },
+      "span_start": {
+        "n": 12,
+        "accuracy": 1.0
+      },
+      "pre_start": {
+        "n": 6,
+        "accuracy": 1.0
+      },
+      "transition_mid": {
+        "n": 1,
+        "accuracy": 1.0
+      }
+    }
+  },
+  "transition_predictions": {
+    "n": 9,
+    "human_saw_halfcourt": 7,
+    "note": "missed coverage, scored separately from wrong-basket errors"
+  },
+  "unclear_rates": {
+    "basket": 0.123,
+    "offense": 0.123
+  }
+}

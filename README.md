@@ -349,9 +349,15 @@ instantly with different thresholds.
 $PY segment_possessions.py --trajectories data/tracking/<clip>_trajectories.json
 # → <clip>_possessions.json (spans + evidence) + <clip>_possessions.png (timeline strip)
 ```
-Known v1 limits (DEVLOG 2026-07-06c): no possession changes within one
-halfcourt occupancy (steal + re-set on the same end); free-throw clusters read
-as halfcourt sets.
+Boundary semantics (v2): a possession = **approach + set** — the span ends at
+retreat onset and the outbound flow belongs to the *next* possession
+(`set_start_frame` marks where the set begins; offense/defense is computed on
+set frames only). **Measured accuracy (73 labeled frames, 4 clips): 93% on
+attacked basket and offense; 100% on both for frames >2 s from a boundary** —
+all residual error is ±1–2 s boundary fuzziness, so downstream consumers
+should treat boundary-adjacent frames as uncertain and lean on the set core.
+Known limits: no possession changes within one halfcourt occupancy (steal +
+re-set on the same end); free-throw clusters read as halfcourt sets.
 
 **Human eval** (`evaluate_possessions.py`, same pattern as the teams eval —
 blind to predictions, resumable):

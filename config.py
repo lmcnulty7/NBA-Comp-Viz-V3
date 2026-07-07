@@ -318,3 +318,11 @@ POSS_MAX_GAP_SEC = 3.0      # frame gaps (gate skips / lost H) longer than this 
 POSS_MIN_PLAYERS = 4        # frames with fewer positioned players don't vote on occupancy
 BASKET_LEFT = (5.25, 25.0)  # rim centers, corner-origin court feet (court/court33.py)
 BASKET_RIGHT = (88.75, 25.0)
+# Boundary semantics (eval 2026-07-06: ALL basket errors were late boundaries, zero
+# mid-set errors): a possession = approach (transition) + halfcourt set. The span
+# ends at RETREAT ONSET (sustained occupancy motion back toward midcourt) and the
+# outbound frames + following transition belong to the NEXT possession's approach.
+# Offense/defense is computed on the SET portion only — during the approach the
+# OFFENSE leads the defense downcourt, so the closer-team geometry inverts there.
+POSS_RETREAT_FTS = 4.0      # sustained occupancy speed toward midcourt ⇒ outbound
+POSS_RETREAT_SUSTAIN_S = 0.7  # velocity must be sustained this long (drives/kicks spike briefly)

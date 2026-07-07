@@ -151,6 +151,34 @@ def do_export(args) -> None:
              dict(Counter(r["kind"] for r in rows)), out)
 
 
+# ── repredict ─────────────────────────────────────────────────────────────────
+def do_repredict(args) -> None:
+    """After changing segment_possessions: refresh every exported clip's pred
+    columns from the current <clip>_possessions.json (frames + your labels are
+    untouched, exactly like evaluate_teams --repredict). Re-run
+    segment_possessions per clip FIRST, then this, then --report."""
+    for d in sorted(POSS_EVAL_DIR.iterdir()):
+        if not d.is_dir():
+            continue
+        rows = read_rows(d / "index.csv")
+        if not rows:
+            continue
+        stem = d.name
+        poss = json.loads((config.TRACKING_DIR / f"{stem}_possessions.json").read_text())
+        id_path = config.TRACKING_DIR / f"{stem}_identity.json"
+        light = json.loads(id_path.read_text()).get("light_team") if id_path.exists() else None
+        changed = 0
+        for r in rows:
+            state, off, conf = pred_for(poss["spans"], int(r["frame"]), light)
+            if (state, off) != (r["pred_state"], r["pred_offense"]):
+                changed += 1
+            r.update({"pred_state": state, "pred_offense": off,
+                      "pred_confidence": round(conf, 2)})
+        write_rows(d / "index.csv", rows, INDEX_FIELDS)
+        log.info("%s: repredicted %d samples (%d changed)", stem, len(rows), changed)
+    log.info("next: python evaluate_possessions.py --report")
+
+
 # ── label ─────────────────────────────────────────────────────────────────────
 def do_label(args) -> None:
     index = []
@@ -287,6 +315,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Human-label eval for possession segmentation.")
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--export", action="store_true")
+    mode.add_argument("--repredict", action="store_true")
     mode.add_argument("--label", action="store_true")
     mode.add_argument("--report", action="store_true")
     ap.add_argument("--source", type=Path, default=config.VIDEO_DIR / "curry_q1_clip.mp4")
@@ -294,6 +323,8 @@ def main() -> None:
     args = ap.parse_args()
     if args.export:
         do_export(args)
+    elif args.repredict:
+        do_repredict(args)
     elif args.label:
         do_label(args)
     else:
