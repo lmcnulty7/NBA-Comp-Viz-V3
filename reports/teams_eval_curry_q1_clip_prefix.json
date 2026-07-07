@@ -6,41 +6,42 @@
   },
   "confusion_pred_x_human": {
     "A": {
-      "white": 57,
-      "none": 8,
+      "white": 59,
+      "none": 7,
       "navy": 14
     },
     "B": {
-      "navy": 42,
-      "white": 5,
+      "navy": 40,
+      "white": 3,
       "none": 28
     },
     "abstain": {
       "white": 2,
-      "none": 4
+      "none": 5,
+      "navy": 2
     }
   },
   "crop_level": {
-    "accuracy_identifiable": 0.839,
-    "n_identifiable": 118,
+    "accuracy_identifiable": 0.853,
+    "n_identifiable": 116,
     "per_cluster": {
       "A": {
         "maps_to": "white",
-        "precision": 0.803,
-        "recall_vs_other_cluster": 0.919,
-        "n_pred": 79
+        "precision": 0.808,
+        "recall_vs_other_cluster": 0.952,
+        "n_pred": 80
       },
       "B": {
         "maps_to": "navy",
-        "precision": 0.894,
-        "recall_vs_other_cluster": 0.75,
-        "n_pred": 75
+        "precision": 0.93,
+        "recall_vs_other_cluster": 0.741,
+        "n_pred": 71
       }
     },
     "note": "lower bound \u2014 occlusion crops count against the track's team"
   },
   "track_level": {
-    "accuracy": 0.871,
+    "accuracy": 0.839,
     "n_tracks": 31,
     "tracks": [
       {
@@ -136,10 +137,10 @@
       },
       {
         "track_id": "189",
-        "pred": "B",
+        "pred": "A",
         "human_majority": "navy",
         "n_labeled": 4,
-        "correct": true
+        "correct": false
       },
       {
         "track_id": "49",
@@ -227,7 +228,7 @@
       },
       {
         "track_id": "87",
-        "pred": "A",
+        "pred": "abstain",
         "human_majority": "navy",
         "n_labeled": 3,
         "correct": false
@@ -263,11 +264,12 @@
     ]
   },
   "abstained": {
-    "n": 6,
+    "n": 9,
     "human_says": {
       "white": 2,
-      "none": 4
+      "none": 5,
+      "navy": 2
     },
-    "identifiable_but_abstained_pct": 33.3
+    "identifiable_but_abstained_pct": 44.4
   }
 }

@@ -3,10 +3,10 @@ cluster mapping (by your labels): A → white, B → navy
 
 confusion (rows = predicted, cols = your label):
              white    navy    none
-         A      59      14       7
-         B       3      40      28
-   abstain       2       2       5
+         A      57      14       8
+         B       5      42      28
+   abstain       2       0       4
 
-crop-level accuracy (identifiable crops only): 85.3% on 116   [lower bound — occlusion crops penalized]
-track-level accuracy (majority vote, >=3 labels): 83.9% on 31 tracks
-abstained crops you could identify: 44.4% of 9 (missed coverage, not errors)
+crop-level accuracy (identifiable crops only): 83.9% on 118   [lower bound — occlusion crops penalized]
+track-level accuracy (majority vote, >=3 labels): 87.1% on 31 tracks
+abstained crops you could identify: 33.3% of 6 (missed coverage, not errors)

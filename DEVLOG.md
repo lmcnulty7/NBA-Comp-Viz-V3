@@ -9,6 +9,55 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-06b — Team-contamination fixes: two shipped, two measured dead ends, veto defused
+
+Goal (user-directed): stop the misassigned-team tracks from poisoning the
+linker's cross-team veto before starting possession segmentation. Every
+mechanism below was measured against the SAME 160 human labels via the new
+`evaluate_teams.py --repredict` (re-runs collection+clustering, updates only
+predictions, reuses labels — no relabeling).
+
+### Shipped
+1. **Median-of-per-crop-features** (was: raw pixel pooling). Caps each crop's
+   influence at one vote. Track-level accuracy 83.9% → **87.1%** (crop-level
+   85.3 → 83.9 — the old pooling was accidentally right on some noisy crops).
+2. **Floor-fallback dropped**: a mostly-floor crop is now excluded from the
+   pool (was: inject floor color, L≈135 — measured pushing washed navy white).
+3. **Veto continuity override**: a cross-team veto is skipped when the link
+   evidence is overwhelming (sim ≥ 0.97, gap ≤ 2 s, dist ≤ 8 ft) — the team
+   signal is ~87% accurate and must not outvote near-certain continuity.
+
+### Measured dead ends (tried, reverted/not shipped)
+- **Occlusion-aware crop skipping** (drop crops whose box overlaps another
+  track's >30%): track accuracy CRASHED 87→71% — in dense NBA play boxes
+  overlap constantly; starving tracks of crops costs more than the
+  contamination. Reverted.
+- **Vote-consistency abstention** (abstain tracks with mixed per-crop votes):
+  no separating threshold exists — correct tracks show minority-vote fractions
+  0.35–0.41, same as the broken ones (occlusion crops make mixed votes normal).
+  Never shipped.
+
+### The three broken tracks — final status (montage evidence, reports/viz/track_*_crops.png)
+- Track 80: 3/7 crops literally show its white OCCLUDER's jersey. Track 86:
+  7/11 crops are face/background (close framing) with no jersey at all. **No
+  color feature can classify crops that don't contain the jersey** — these two
+  stay misassigned, now a characterized limitation (2/31 tracks). Track 150
+  (washout) also stays.
+- **But the damage is gone.** Post-fix pipeline: the previously-blocked pairs
+  (150→225 sim 0.979 @1.4 ft, 4→80 sim 0.982 @6.5 ft) now pass the veto and
+  are refused ONLY by the ambiguity margin — and inspection shows that refusal
+  is correct: 3–4 navy fragments end simultaneously near each candidate (a
+  whistle cluster); merging the top pair would risk swapping two navy players.
+  Refusals now reflect genuine uncertainty, not a wrong team label. Canonical
+  teams for tracks 3 and 4 flipped to correct (navy) with the new features.
+
+### Where this leaves teams (eval, 160 labels): 83.9% crop / 87.1% track
+Known failure mode: tracks whose crops lack jersey evidence (close-ups,
+persistent occlusion) — the fix is upstream crop QUALITY (pose-guided torso
+crops), not a smarter color feature. Deferred; possession segmentation next.
+
+---
+
 ## 2026-07-06 — Human-label eval of team classification (evaluate_teams.py)
 
 Built the labeled eval (`evaluate_teams.py`: --export ~200 stratified crops →

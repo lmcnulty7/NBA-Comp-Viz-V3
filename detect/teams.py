@@ -21,8 +21,10 @@ embeddings remain the re-ID feature (detect/reid.py) — each signal does the jo
 it's actually good at.
 
 Fit is per-clip (team colors are constant within a game, not across games).
-One POOLED color feature per track (see _track_feature — per-crop features were
-measured too noisy), nearest-centroid assignment with an ABSTENTION rule: a
+One color feature per track — the MEDIAN of its per-crop features, mostly-floor
+crops dropped (see _track_feature/_crop_feature; both raw pixel pooling and the
+floor-color fallback were measured failures, 2026-07-06 eval) — then
+nearest-centroid assignment with an ABSTENTION rule: a
 track whose pooled color sits nearly equidistant between the two kits
 (TEAM_ABSTAIN_RATIO), or with too few crops, stays team=None — a non-player or
 a contaminated track should stay out of both teams rather than pollute one.
@@ -52,33 +54,42 @@ class TeamClassifier:
         self.silhouette = None
 
     @staticmethod
-    def _track_feature(crop_list: list[np.ndarray]) -> np.ndarray | None:
-        """One (5,) color feature per TRACK: [L p25, L p50, L p75, a p50, b p50]
-        over the pixels POOLED from all the track's crops.
-
-        Why track-pooled (measured, 3rd iteration): individual broadcast crops
-        are up to ~half floor/apron/occluding-opponent, so any per-crop color is
-        a coin flip and per-crop voting abstained half the tracks. Pooling
-        10–40 crops makes the track's own jersey the dominant pixel mass.
-        Patch = inner 50% width × upper 60% height of each crop; pixels inside
-        the maple-floor HSV band (config.HSV_LO/HI, the old gate's) are masked
-        out first (also catches most skin — same hue range). L quartiles carry
-        the light-vs-dark kit signal; a/b medians the hue."""
+    def _crop_feature(crop: np.ndarray) -> np.ndarray | None:
+        """(5,) [L p25, L p50, L p75, a p50, b p50] of ONE crop's floor-masked
+        jersey patch (inner 50% width × upper 60% height). Returns None when
+        <25% of the patch survives the maple-floor HSV mask — a mostly-floor
+        crop carries no jersey evidence and is DROPPED from the pool. (The old
+        fallback injected the floor color instead, L≈135, which the 2026-07-06
+        eval caught pushing a washed navy track into the white cluster.)"""
         import cv2
 
-        pool = []
-        for c in crop_list:
-            h, w = c.shape[:2]
-            patch = c[: max(1, int(0.6 * h)), w // 4: max(w // 4 + 1, 3 * w // 4)]
-            hsv = cv2.cvtColor(patch, cv2.COLOR_RGB2HSV)
-            keep = (cv2.inRange(hsv, config.HSV_LO, config.HSV_HI) == 0).reshape(-1)
-            lab = cv2.cvtColor(patch, cv2.COLOR_RGB2LAB).reshape(-1, 3)
-            pool.append(lab[keep] if keep.sum() >= 0.25 * len(lab) else lab)
-        if not pool:
+        h, w = crop.shape[:2]
+        patch = crop[: max(1, int(0.6 * h)), w // 4: max(w // 4 + 1, 3 * w // 4)]
+        hsv = cv2.cvtColor(patch, cv2.COLOR_RGB2HSV)
+        keep = (cv2.inRange(hsv, config.HSV_LO, config.HSV_HI) == 0).reshape(-1)
+        lab = cv2.cvtColor(patch, cv2.COLOR_RGB2LAB).reshape(-1, 3)
+        if keep.sum() < 0.25 * len(lab):
             return None
-        P = np.concatenate(pool, 0).astype(np.float32)
-        return np.concatenate([np.percentile(P[:, 0], [25, 50, 75]),
-                               np.median(P[:, 1:], axis=0)]).astype(np.float32)
+        kept = lab[keep].astype(np.float32)
+        return np.concatenate([np.percentile(kept[:, 0], [25, 50, 75]),
+                               np.median(kept[:, 1:], axis=0)]).astype(np.float32)
+
+    @classmethod
+    def _track_feature(cls, crop_list: list[np.ndarray]) -> np.ndarray | None:
+        """One (5,) feature per TRACK: the MEDIAN of its per-crop features.
+
+        Why median-of-crops, not raw pixel pooling (measured, 2026-07-06 eval):
+        pixel pooling let a minority of contaminated close-camera crops
+        (apron/stands backgrounds the floor mask can't touch) OUTVOTE the
+        jersey — two navy tracks whose sampled crops were correctly navy were
+        flipped white by their full-track pool. The median caps every crop's
+        influence at one vote, so ≤half-contaminated tracks stay right.
+        Needs ≥ TEAM_MIN_CROPS valid (non-floor) crop features, else None
+        (the caller abstains the track)."""
+        feats = [f for f in (cls._crop_feature(c) for c in crop_list) if f is not None]
+        if len(feats) < config.TEAM_MIN_CROPS:
+            return None
+        return np.median(np.stack(feats), axis=0).astype(np.float32)
 
     def fit(self, crops: dict[int, list[np.ndarray]]) -> bool:
         """crops: {track_id: [RGB torso crops]} (the re-ID collector's crops).

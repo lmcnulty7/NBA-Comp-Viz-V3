@@ -22,6 +22,12 @@ accuracy number. Three modes, run in order:
                 recall, crop- AND track-level accuracy, abstention analysis.
                 → reports/teams_eval_<clip>.{json,txt}
 
+After changing the classifier: --repredict re-runs collection + clustering on
+the SAME window and updates only index.csv's `pred` column (keyed by track_id,
+crops and truth.csv untouched) — so an existing labeling session evaluates the
+new code without relabeling. It prints every track whose prediction changed;
+then run --report for the updated numbers.
+
 Metric caveat (baked into the report): predictions are TRACK-level (pooled
 color) while you label each CROP's visible jersey — occlusion crops (an
 opponent's body filling the box) count against the metric even when the track
@@ -185,6 +191,71 @@ def do_export(args) -> None:
     log.info("Next: python evaluate_teams.py --label")
 
 
+# ── 1b) repredict ─────────────────────────────────────────────────────────────
+def do_repredict(args) -> None:
+    """Re-run tracking + clustering (same window) and update index.csv's pred
+    column in place. Depends on the tracker being deterministic for the window
+    (verified: track ids reproduce across runs); aborts if the track ids don't
+    line up rather than silently mispairing crops."""
+    from detect import PlayerTracker
+    from detect.reid import TorsoCropCollector
+    from detect.teams import TeamClassifier
+
+    out = eval_dir(args.source)
+    index = read_csv_rows(out / "index.csv")
+    if not index:
+        raise SystemExit(f"No export at {out} — run --export first.")
+
+    config.set_seed()
+    tracker = PlayerTracker(device=config.get_device())
+    collector = TorsoCropCollector()
+    cap = cv2.VideoCapture(str(args.source), cv2.CAP_FFMPEG)
+    if not cap.isOpened():
+        cap = cv2.VideoCapture(str(args.source))
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    idx, n = args.start, 0
+    log.info("Re-collecting crops (%s, start %d, %d frames) …", args.source.name, args.start, args.max_frames)
+    while idx < total and n < args.max_frames:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
+        ret, frame = cap.read()
+        if not ret:
+            break
+        collector.add(frame, tracker.update(frame, idx, idx / fps))
+        idx += args.stride
+        n += 1
+    cap.release()
+
+    old_tids = {int(r["track_id"]) for r in index}
+    missing = old_tids - set(collector.crops)
+    if missing:
+        raise SystemExit(f"Tracker didn't reproduce tracks {sorted(missing)} — "
+                         "window mismatch? Re-run --export (and relabel) instead.")
+
+    clf = TeamClassifier()
+    if not clf.fit(collector.crops):
+        raise SystemExit("Clustering failed on re-collected crops.")
+    team_of = {tid: t for tid, (t, _) in clf.assign(collector.crops).items()}
+
+    changed = 0
+    for r in index:
+        new = PRED_NAMES[team_of.get(int(r["track_id"]))]
+        if new != r["pred"]:
+            changed += 1
+        r["pred"] = new
+    per_track = {int(r["track_id"]): r["pred"] for r in index}
+    log.info("Repredicted %d tracks (silhouette %.3f) — %d/%d sampled crops changed prediction",
+             len(per_track), clf.silhouette, changed, len(index))
+    for tid in sorted(per_track):
+        log.info("  track %-4d → %s", tid, per_track[tid])
+    write_csv_rows(out / "index.csv", index, ["crop_id", "file", "track_id", "pred", "n_track_crops"])
+    meta = json.loads((out / "meta.json").read_text())
+    meta["silhouette"] = clf.silhouette
+    meta["repredicted"] = True
+    (out / "meta.json").write_text(json.dumps(meta, indent=2))
+    log.info("index.csv updated — next: python evaluate_teams.py --report")
+
+
 # ── 2) label ──────────────────────────────────────────────────────────────────
 def do_label(args) -> None:
     out = eval_dir(args.source)
@@ -334,6 +405,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Human-label eval for team classification.")
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--export", action="store_true")
+    mode.add_argument("--repredict", action="store_true")
     mode.add_argument("--label", action="store_true")
     mode.add_argument("--report", action="store_true")
     ap.add_argument("--source", type=Path, default=config.VIDEO_DIR / "curry_q1_clip.mp4")
@@ -344,6 +416,8 @@ def main() -> None:
     args = ap.parse_args()
     if args.export:
         do_export(args)
+    elif args.repredict:
+        do_repredict(args)
     elif args.label:
         do_label(args)
     else:

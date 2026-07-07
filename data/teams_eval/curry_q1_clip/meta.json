@@ -3,7 +3,7 @@
   "start": 11520,
   "stride": 3,
   "max_frames": 200,
-  "silhouette": 0.501,
+  "silhouette": 0.572,
   "cluster_colors_bgr": {
     "B": [
       66,
@@ -16,5 +16,6 @@
       149
     ]
   },
-  "light_cluster": "A"
+  "light_cluster": "A",
+  "repredicted": true
 }

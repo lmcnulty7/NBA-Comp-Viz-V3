@@ -285,6 +285,12 @@ REID_DIST_WEIGHT = 0.3      # candidate score = sim − w · dist/(max_speed·ga
                             # term must dominate the ranking, appearance breaks ties.
 REID_AMBIG_MARGIN = 0.02    # top-two candidates within this COMBINED-score margin ⇒ DON'T merge.
                             # A false merge poisons two players' stats; a missed merge is recoverable.
+# Team-veto continuity override: the team signal (~87% track accuracy) must not
+# outvote overwhelming continuity evidence. A cross-team candidate this close in
+# appearance, space, and time is the same player with a misassigned team.
+REID_VETO_OVERRIDE_SIM = 0.97
+REID_VETO_OVERRIDE_GAP_S = 2.0
+REID_VETO_OVERRIDE_DIST_FT = 8.0
 
 # ── Component C1 — team classification (detect/teams.py, unsupervised per clip) ──
 # k-means over median-Lab jersey color of the re-ID torso crops. NOT CLIP embs —
@@ -294,5 +300,6 @@ TEAM_N_CLUSTERS = 2         # team A / team B; refs are already excluded by the 
 TEAM_ABSTAIN_RATIO = 0.75   # near-centroid dist / far-centroid dist above this ⇒ abstain (None):
                             # the track's pooled color sits between the kits — bench/crowd leakage
                             # and hopelessly contaminated tracks stay out of BOTH teams
-TEAM_MIN_CROPS = 2          # tracks with fewer crops abstain (one crop is not evidence)
+TEAM_MIN_CROPS = 2          # tracks with fewer VALID (non-floor) crop features abstain
+                            # (one crop is not evidence; mostly-floor crops carry none)
 TEAMS_EVAL_DIR = PROJECT_ROOT / "data" / "teams_eval"   # human-label eval (evaluate_teams.py)

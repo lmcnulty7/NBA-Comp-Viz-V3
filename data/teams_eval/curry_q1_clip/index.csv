@@ -15,7 +15,7 @@ crop_id,file,track_id,pred,n_track_crops
 13,crop_0013.png,193,A,12
 14,crop_0014.png,193,A,12
 15,crop_0015.png,218,A,8
-16,crop_0016.png,189,A,13
+16,crop_0016.png,189,B,13
 17,crop_0017.png,171,A,5
 18,crop_0018.png,49,B,8
 19,crop_0019.png,13,A,16
@@ -43,9 +43,9 @@ crop_id,file,track_id,pred,n_track_crops
 41,crop_0041.png,2,B,9
 42,crop_0042.png,184,B,14
 43,crop_0043.png,52,abstain,1
-44,crop_0044.png,189,A,13
+44,crop_0044.png,189,B,13
 45,crop_0045.png,2,B,9
-46,crop_0046.png,87,abstain,5
+46,crop_0046.png,87,A,5
 47,crop_0047.png,3,B,34
 48,crop_0048.png,2,B,9
 49,crop_0049.png,117,A,5
@@ -59,7 +59,7 @@ crop_id,file,track_id,pred,n_track_crops
 57,crop_0057.png,116,A,5
 58,crop_0058.png,179,B,19
 59,crop_0059.png,179,B,19
-60,crop_0060.png,87,abstain,5
+60,crop_0060.png,87,A,5
 61,crop_0061.png,191,B,9
 62,crop_0062.png,218,A,8
 63,crop_0063.png,8,A,14
@@ -86,7 +86,7 @@ crop_id,file,track_id,pred,n_track_crops
 84,crop_0084.png,217,B,7
 85,crop_0085.png,179,B,19
 86,crop_0086.png,86,A,13
-87,crop_0087.png,189,A,13
+87,crop_0087.png,189,B,13
 88,crop_0088.png,13,A,16
 89,crop_0089.png,224,A,4
 90,crop_0090.png,201,B,13
@@ -131,12 +131,12 @@ crop_id,file,track_id,pred,n_track_crops
 129,crop_0129.png,39,A,37
 130,crop_0130.png,8,A,14
 131,crop_0131.png,39,A,37
-132,crop_0132.png,189,A,13
+132,crop_0132.png,189,B,13
 133,crop_0133.png,3,B,34
 134,crop_0134.png,2,B,9
 135,crop_0135.png,4,B,17
 136,crop_0136.png,5,A,40
-137,crop_0137.png,87,abstain,5
+137,crop_0137.png,87,A,5
 138,crop_0138.png,129,abstain,1
 139,crop_0139.png,171,A,5
 140,crop_0140.png,201,B,13

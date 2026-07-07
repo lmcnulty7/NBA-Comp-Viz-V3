@@ -58,7 +58,12 @@ class TorsoCropCollector:
         self._n = 0
 
     def add(self, frame_bgr: np.ndarray, tracks) -> None:
-        """Call once per PROCESSED frame (collects on every Nth call)."""
+        """Call once per PROCESSED frame (collects on every Nth call).
+
+        Note (measured, 2026-07-06): occlusion-aware crop skipping (drop crops
+        whose box overlaps another track's) was tried and REVERTED — in dense
+        NBA play boxes overlap constantly, and starving tracks of crops cost
+        more accuracy (track-level 87%→71%) than the contamination it removed."""
         self._n += 1
         if (self._n - 1) % self.every:
             return
@@ -179,10 +184,21 @@ def link_fragments(frags: list[Fragment],
             if team_of is not None:
                 ta, tb = team_of.get(a.tid), team_of.get(b.tid)
                 if ta is not None and tb is not None and ta != tb:
-                    vetoed.append({"a": a.tid, "b": b.tid, "sim": round(sim, 4),
-                                   "gap_s": round(gap, 2), "dist_ft": round(dist, 1),
-                                   "reason": "team_veto"})
-                    continue
+                    # Continuity override (eval 2026-07-06): team assignment is
+                    # ~87% accurate, so it must NOT outvote overwhelming
+                    # continuity evidence — a near-identical appearance a few
+                    # feet and a moment away is the same player regardless of
+                    # what the (noisier) team signal says. The eval found the
+                    # veto wrongly blocking sim 0.98 links at 1.4 ft / 1.6 s
+                    # because one side's team was misassigned.
+                    overwhelming = (sim >= config.REID_VETO_OVERRIDE_SIM
+                                    and gap <= config.REID_VETO_OVERRIDE_GAP_S
+                                    and dist <= config.REID_VETO_OVERRIDE_DIST_FT)
+                    if not overwhelming:
+                        vetoed.append({"a": a.tid, "b": b.tid, "sim": round(sim, 4),
+                                       "gap_s": round(gap, 2), "dist_ft": round(dist, 1),
+                                       "reason": "team_veto"})
+                        continue
             score = sim - config.REID_DIST_WEIGHT * dist / reach
             pairs.append((score, sim, gap, dist, a.tid, b.tid))
 
