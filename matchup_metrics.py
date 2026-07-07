@@ -193,6 +193,11 @@ def render_review(frames, poss_records, all_assignments, invalid_by_poss, cols, 
     Frames excluded by the validity gate are shown WITH a red banner (not hidden),
     so what was dropped — and why — stays reviewable."""
     scale, margin = 9.0, 15
+    out_path = Path(out_path)
+    if out_path.exists():
+        out_path.unlink()   # macOS AVFoundation can't overwrite in place: the writer fails
+                            # SILENTLY ("AVAssetWriter status: Cannot Save") and the stale
+                            # file survives — same quirk build_trajectories guards against
     writer = None
     for rec in poss_records:
         asg_map = all_assignments[rec["core_start_frame"]]
@@ -239,6 +244,8 @@ def render_review(frames, poss_records, all_assignments, invalid_by_poss, cols, 
                 h, w = img.shape[:2]
                 writer = cv2.VideoWriter(str(out_path), cv2.VideoWriter_fourcc(*"avc1"),
                                          fps_eff, (w, h))
+                if not writer.isOpened():
+                    raise RuntimeError(f"VideoWriter failed to open {out_path}")
             writer.write(img)
     if writer:
         writer.release()

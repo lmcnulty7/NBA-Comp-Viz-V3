@@ -9,6 +9,44 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-07d — Second-pass audit (user): "gate not holding" = STALE VIDEOS; mechanisms re-pinned
+
+User's second review found >5 same-team dots in 10m00 + 26m00 videos despite
+the gate. Diagnosis, in order:
+
+1. **The gate was working the whole time.** Recomputing per-frame counts from
+   the exact filtered data matched every clip's JSON exclusion counts (30+20
+   frames in 10m00, 18+42 in 26m00). Metrics and the 2.5–4.0 pairs/frame
+   coverage number were computed on valid frames and STAND.
+2. **The videos were stale.** macOS AVFoundation's writer CANNOT OVERWRITE an
+   existing file — it fails silently ("AVAssetWriter status: Cannot Save" once
+   on stderr, write() no-ops, old file survives with old mtime). The 07-07c
+   "re-rendered" videos were actually the 21:09 pre-fix renders — no ghost
+   filter, no gate, no banner. build_trajectories has an unlink-before-write
+   guard for exactly this quirk; matchup_metrics didn't. Fixed (unlink +
+   writer.isOpened() raise), and renders are now VERIFIED: a pixel scan of
+   each fresh mp4 counts banner frames == JSON exclusions (104/43/50/60 ✓).
+   Process lesson: verify the artifact, not the log line that claims it.
+3. **Mechanism re-pinned for these clips — candidate theories killed with
+   data:** bench leakage refuted (all over-count tracks on-court with raw
+   support in current data; the off-court dots were the stale render's old
+   interpolated positions); duplicate-track refuted (the 2.3 ft pair 1&3 is
+   transient — median 4.0 ft / p90 13.6 over 66 common frames = two real
+   people). What remains: **persistent team misassignment** — e.g. 26m00
+   frame 2885 has 6 "light" + 4 offense = exactly 10 on the floor, one dark
+   player mislabeled light. C1's measured ~13% track error expressing itself;
+   with 15–20 assigned tracks/clip, 2–3 such tracks are expected. The >5 gate
+   excluding those frames is the correct containment; the real fix remains
+   C1 crop quality / jersey OCR.
+4. **Not color-specific:** over-counts hit DARK in both clips' first
+   possessions and LIGHT in both second possessions (42 light frames in
+   26m00) — direction just tracks which team absorbed the mislabeled player.
+
+Audit remains OPEN pending user re-review of the (now genuinely fresh,
+banner-verified) videos. Tier 2 still held.
+
+---
+
 ## 2026-07-07c — Ghost-track audit: user caught >5 same-team dots; two mechanisms, both fixed/gated
 
 User review of the matchup video found >5 same-color dots simultaneously —
