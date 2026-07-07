@@ -70,8 +70,12 @@ def load(stem: str):
     frames = defaultdict(list)      # frame -> [(tid, team, x, y)]
     for tid, rec in traj.items():
         team = rec.get("team")
+        # raw-support filter: cleaned series interpolate a track's internal gaps
+        # unmarked — a cleaned point counts only where the track was OBSERVED
+        # (ghost audit: 20–30% of points were invented presence, DEVLOG 07-07c)
+        raw_f = {p[0] for p in rec.get("raw", [])}
         for f, x, y, _ in rec["cleaned"]:
-            if np.isfinite([x, y]).all():
+            if f in raw_f and np.isfinite([x, y]).all():
                 frames[f].append((int(tid), team, float(x), float(y)))
     cols = {int(k): tuple(v) for k, v in ident.get("team_colors_bgr", {}).items()}
     return frames, poss, cols
@@ -88,9 +92,18 @@ def possession_metrics(frames: dict, span: dict, dt: float):
     hull_areas, pairs_per_frame = [], []
     assignments_by_frame = {}                   # frame -> [(d_tid, o_tid, dist)]
 
+    invalid_frames = []                          # team count > 5 = basketball-impossible
+    count_dist = defaultdict(int)                # (|O|,|D|) -> n frames (coverage diagnostic)
     for f in core:
         O = [(tid, x, y) for tid, team, x, y in frames[f] if team == off_t]
         D = [(tid, x, y) for tid, team, x, y in frames[f] if team == def_t]
+        # hard validity gate: >5 tracks on one team means corrupted input for this
+        # frame (team misassignment or a residual duplicate) — exclude it from ALL
+        # metrics rather than let Hungarian match against phantoms
+        if len(O) > 5 or len(D) > 5:
+            invalid_frames.append(f)
+            continue
+        count_dist[(len(O), len(D))] += 1
         if len(O) >= 3:
             try:
                 hull_areas.append(ConvexHull(np.array([(x, y) for _, x, y in O])).volume)
@@ -157,25 +170,41 @@ def possession_metrics(frames: dict, span: dict, dt: float):
                                 "core_start_frame", "core_end_frame", "core_s",
                                 "attacked_basket", "offense_team", "defense_team", "confidence")},
         "coverage_pairs_per_frame": round(float(np.mean(pairs_per_frame)), 1) if pairs_per_frame else 0.0,
+        "frames_used": len(core) - len(invalid_frames),
+        "frames_excluded_team_gt5": len(invalid_frames),
+        "pct_excluded": round(100 * len(invalid_frames) / max(len(core), 1), 1),
+        # low-trust flag: most of the core failed validity, or too little survived —
+        # metrics exist but should be excluded from aggregates
+        "degraded": bool(len(invalid_frames) > 0.4 * max(len(core), 1)
+                         or (len(core) - len(invalid_frames)) < 30),
+        "team_count_distribution": {f"{o}v{d}": n for (o, d), n in
+                                    sorted(count_dist.items(), key=lambda kv: -kv[1])},
         "spacing_conceded_ft2": ({"median": round(float(np.median(hull_areas)), 0),
                                   "p25": round(float(np.percentile(hull_areas, 25)), 0),
                                   "p75": round(float(np.percentile(hull_areas, 75)), 0)}
                                  if hull_areas else None),
         "defenders": defenders,
     }
-    return record, assignments_by_frame
+    return record, assignments_by_frame, set(invalid_frames)
 
 
-def render_review(frames, poss_records, all_assignments, cols, out_path, fps_eff):
-    """Top-down review video: team dots, offense hull, matchup lines + distances."""
+def render_review(frames, poss_records, all_assignments, invalid_by_poss, cols, out_path, fps_eff):
+    """Top-down review video: team dots, offense hull, matchup lines + distances.
+    Frames excluded by the validity gate are shown WITH a red banner (not hidden),
+    so what was dropped — and why — stays reviewable."""
     scale, margin = 9.0, 15
     writer = None
     for rec in poss_records:
         asg_map = all_assignments[rec["core_start_frame"]]
+        invalid = invalid_by_poss[rec["core_start_frame"]]
         core = sorted(f for f in frames if rec["core_start_frame"] <= f <= rec["core_end_frame"])
         off_t, def_t = rec["offense_team"], rec["defense_team"]
         for f in core:
             img, _, _ = draw_court_topdown(scale, margin)
+            if f in invalid:
+                cv2.rectangle(img, (0, 0), (img.shape[1], 24), (0, 0, 120), -1)
+                cv2.putText(img, f"frame {f} EXCLUDED — a team has >5 tracks (corrupt input)",
+                            (8, 17), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
             pos = {tid: (x, y) for tid, team, x, y in frames[f]}
             O = [(tid, x, y) for tid, team, x, y in frames[f] if team == off_t]
             if len(O) >= 3:
@@ -226,7 +255,7 @@ def main() -> None:
     stride = poss.get("stride", 3)
     dt = stride / args.fps
 
-    records, all_asg = [], {}
+    records, all_asg, invalid_by_poss = [], {}, {}
     skipped = []
     for span in poss["spans"]:
         if span["kind"] != "halfcourt":
@@ -240,9 +269,10 @@ def main() -> None:
         if span.get("confidence", 0) < config.C3_MIN_SPAN_CONF:
             skipped.append((span["set_start_frame"], f"low_conf_{span['confidence']}"))
             continue
-        rec, asg = possession_metrics(frames, span, dt)
+        rec, asg, invalid = possession_metrics(frames, span, dt)
         records.append(rec)
         all_asg[rec["core_start_frame"]] = asg
+        invalid_by_poss[rec["core_start_frame"]] = invalid
 
     out = config.TRACKING_DIR / f"{args.clip}_matchups.json"
     out.write_text(json.dumps({"clip": args.clip, "possessions": records,
@@ -253,10 +283,13 @@ def main() -> None:
     for rec in records:
         sp = rec["spacing_conceded_ft2"]
         log.info(" possession @%s (core %.1fs, offense team %s, conf %.2f) — "
-                 "coverage %.1f pairs/frame, spacing median %s ft²",
+                 "coverage %.1f pairs/frame, spacing median %s ft² | "
+                 "frames: %d used, %d excluded (%.0f%%) [counts: %s]",
                  rec["attacked_basket"], rec["core_s"], rec["offense_team"],
                  rec["confidence"], rec["coverage_pairs_per_frame"],
-                 sp["median"] if sp else "n/a")
+                 sp["median"] if sp else "n/a",
+                 rec["frames_used"], rec["frames_excluded_team_gt5"], rec["pct_excluded"],
+                 dict(list(rec["team_count_distribution"].items())[:3]))
         for d in rec["defenders"]:
             co = d.get("closeout")
             co_s = (f"closing {co['pct_closing']:.0%}/holding {co['pct_holding']:.0%}/"
@@ -270,7 +303,7 @@ def main() -> None:
 
     if not args.no_video and records:
         out_mp4 = config.TRACKING_DIR / f"{args.clip}_matchups.mp4"
-        render_review(frames, records, all_asg, cols, out_mp4, args.fps / stride)
+        render_review(frames, records, all_asg, invalid_by_poss, cols, out_mp4, args.fps / stride)
         log.info("review video → %s", out_mp4)
 
 

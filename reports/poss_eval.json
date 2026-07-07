@@ -3,12 +3,12 @@
   "attacked_basket": {
     "overall": {
       "n": 57,
-      "accuracy": 0.93
+      "accuracy": 0.965
     },
     "by_kind": {
       "span_mid": {
-        "n": 38,
-        "accuracy": 0.895
+        "n": 39,
+        "accuracy": 0.949
       },
       "span_start": {
         "n": 12,
@@ -17,39 +17,31 @@
       "pre_start": {
         "n": 6,
         "accuracy": 1.0
-      },
-      "transition_mid": {
-        "n": 1,
-        "accuracy": 1.0
       }
     },
     "confusion": {
-      "left->left": 27,
-      "right->left": 4,
-      "right->right": 26
+      "left->left": 30,
+      "right->left": 2,
+      "right->right": 25
     }
   },
   "offense": {
     "overall": {
       "n": 57,
-      "accuracy": 0.93
+      "accuracy": 0.912
     },
     "by_kind": {
       "span_mid": {
-        "n": 38,
-        "accuracy": 0.895
+        "n": 39,
+        "accuracy": 0.923
       },
       "span_start": {
         "n": 12,
-        "accuracy": 1.0
+        "accuracy": 0.917
       },
       "pre_start": {
         "n": 6,
-        "accuracy": 1.0
-      },
-      "transition_mid": {
-        "n": 1,
-        "accuracy": 1.0
+        "accuracy": 0.833
       }
     }
   },

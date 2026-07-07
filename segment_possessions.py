@@ -62,13 +62,21 @@ MID_X = COURT_LENGTH_FT / 2.0
 
 
 def load_frames(traj_path: Path):
-    """trajectories.json → {frame: [(team|None, x, y)]}, sorted frame list."""
+    """trajectories.json → {frame: [(team|None, x, y)]}, sorted frame list.
+
+    RAW-SUPPORT FILTER (C3 ghost audit, DEVLOG 2026-07-07c): cleaned series
+    linearly interpolate a track's internal gaps WITHOUT marking those points,
+    so an occluded fragment keeps emitting a phantom position alongside its
+    re-detection (20–30% of points measured). A cleaned point is used only at
+    frames where the track was actually observed (present in its raw series);
+    the smoothed coordinates are kept, the invented presence is not."""
     data = json.loads(traj_path.read_text())
     frames = defaultdict(list)
     for rec in data.values():
         team = rec.get("team")
+        raw_f = {p[0] for p in rec.get("raw", [])}
         for f, x, y, _ in rec["cleaned"]:
-            if np.isfinite([x, y]).all():
+            if f in raw_f and np.isfinite([x, y]).all():
                 frames[f].append((team, float(x), float(y)))
     return dict(frames), sorted(frames)
 

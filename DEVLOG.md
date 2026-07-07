@@ -9,6 +9,47 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-07c — Ghost-track audit: user caught >5 same-team dots; two mechanisms, both fixed/gated
+
+User review of the matchup video found >5 same-color dots simultaneously —
+basketball-impossible, Hungarian was matching against corrupted input. Audit
+across all 4 clips: **all 10 eligible possessions affected** (25–100% of core
+frames had a team >5). Two mechanisms, each with direct evidence:
+
+1. **Interpolation ghosts (dominant, 20–30% of ALL points)**: clean_paths
+   linearly interpolates a track's internal observation gaps and NOTHING marks
+   those points — so an occluded fragment keeps emitting a gliding phantom
+   alongside its re-detection (e.g. q1 frame 12051: ghost of track 86 — one of
+   the known navy-as-white tracks — plus 6 real same-team tracks). FIX:
+   raw-support filter in BOTH consumers (segment_possessions + matchup_metrics)
+   — a cleaned point is used only at frames where the track appears in its RAW
+   series. Smoothing kept; invented presence dropped.
+2. **Team misassignment inflow (C1's measured ~13% track error)**: all-raw
+   6v4-signature frames — a mislabeled player inflates one team while the
+   other runs short. Can't be fixed per-frame; GATED: matchup engine now
+   hard-excludes any frame where either team has >5 tracks (>5, not ≠5 —
+   labeled coverage is legitimately 4v4-ish because abstained tracks can't
+   play). Excluded frames stay visible: red banner in the review video,
+   per-possession counts + team-count distribution in the JSON, and a
+   `degraded` flag when >40% of the core failed (or <30 frames survived).
+
+Downstream effects, re-validated end to end:
+- **C2 IMPROVED with the ghost filter** (ghosts polluted occupancy too):
+  attacked basket 93.0 → **96.5%** vs the same 73 labels; offense 91.2%
+  (within one-sample noise). No regression anywhere.
+- C3 rerun: 10 possessions, per-possession exclusion 7–62%; exactly 1 flagged
+  degraded (q1 @right, 62% excluded — the window with the known team-label
+  contamination). Coverage now honest at 2.5–4.0 pairs/frame — the previous
+  4–5 was inflated by phantom pairs, so pre-audit Tier-1 numbers were
+  optimistic and are superseded by this run.
+- Lesson recorded: any consumer of trajectories JSON must distinguish OBSERVED
+  from interpolated presence (use the raw series as the mask). The cleaned
+  series alone overstates who was on the floor.
+
+Tier 2 sequencing remains held per user until this audit is accepted.
+
+---
+
 ## 2026-07-07b — Component C3 Tier 1: matchup metrics on certified set-cores
 
 First component that computes an actual defensive stat. `matchup_metrics.py`

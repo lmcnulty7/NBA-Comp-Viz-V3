@@ -1,6 +1,6 @@
 POSSESSION EVAL — 73 labeled samples across 4 clips
-attacked basket: {'n': 57, 'accuracy': 0.93}   by kind: {'span_mid': 0.895, 'span_start': 1.0, 'pre_start': 1.0, 'transition_mid': 1.0}
-  confusion: {'left->left': 27, 'right->left': 4, 'right->right': 26}
-offense/defense: {'n': 57, 'accuracy': 0.93}   by kind: {'span_mid': 0.895, 'span_start': 1.0, 'pre_start': 1.0, 'transition_mid': 1.0}
+attacked basket: {'n': 57, 'accuracy': 0.965}   by kind: {'span_mid': 0.949, 'span_start': 1.0, 'pre_start': 1.0}
+  confusion: {'left->left': 30, 'right->left': 2, 'right->right': 25}
+offense/defense: {'n': 57, 'accuracy': 0.912}   by kind: {'span_mid': 0.923, 'span_start': 0.917, 'pre_start': 0.833}
 transition preds: 9, of which human saw a set: 7
 unclear rates: {'basket': 0.123, 'offense': 0.123}
