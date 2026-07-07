@@ -71,3 +71,4 @@ models/court_kp33_boxfix.pt
 models/court_kp33_pre_merge.pt
 runs/
 data/poss_eval/**/*.jpg
+data/clock_eval/*.png
