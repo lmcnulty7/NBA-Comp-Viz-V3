@@ -321,5 +321,16 @@ Wired into `build_trajectories.py` (lever: `--no-teams`):
 - `reports/viz/team_clusters_<clip>.png` — contact sheet of crops grouped by
   assigned team, for eyeball verification of the clustering.
 
-No labels needed to run; to *quantify* accuracy later, label a few hundred crops
-(planned mini-eval) — until then the contact sheet + 5v5 balance are the checks.
+No labels needed to run. To **quantify** accuracy, use the human-label eval
+(`evaluate_teams.py` — export ~200 stratified crops → keypress-label them
+w/n/a → report):
+```bash
+$PY evaluate_teams.py --export --start 11520 --max-frames 200   # data/teams_eval/<clip>/
+$PY evaluate_teams.py --label    # w=white n=navy a=no-team; u undo, s skip, q quit (resumable)
+$PY evaluate_teams.py --report   # confusion, per-team P/R, crop- + track-level accuracy
+```
+Predictions are never shown while labeling (truth/predicted separation, as in the
+gate). Crop-level accuracy is a lower bound (occlusion crops show the opponent);
+the track-level majority number is the fairer read. Refs never reach the
+classifier (detector tracks class 0 = player only; refs are class 1) — anything
+that leaks through typically abstains, but by geometry, not by rule.

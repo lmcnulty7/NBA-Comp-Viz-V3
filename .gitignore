@@ -6,6 +6,8 @@ data/tracking/*.mp4
 data/tracking/*.json
 data/tracking/*.png
 data/tracking/ab_baseline/
+# teams eval: crops are regenerable; the human labels + index pairing are precious
+data/teams_eval/**/*.png
 reports/tracking_metrics.json
 reports/tracking_metrics.txt
 data/court/kp_labels/

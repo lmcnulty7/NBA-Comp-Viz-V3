@@ -9,6 +9,57 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-06 — Human-label eval of team classification (evaluate_teams.py)
+
+Built the labeled eval (`evaluate_teams.py`: --export ~200 stratified crops →
+--label keypress w/n/a, predictions hidden → --report). User labeled 160 crops
+on the standard window. Headline: **85.3% crop-level / 83.9% track-level
+accuracy**, and the error analysis found a clean systematic story.
+
+### The asymmetry is real and directional — and it isn't label difficulty
+User flagged: cluster A (white) wrong on 14/73 identifiable crops vs B (navy)
+wrong on 3/43 — opposite of what human legibility would predict (navy was
+harder to read under blur). Diagnosis:
+- **10 of the 14 A-errors are just 3 tracks (150, 86, 80), 100% navy by human
+  label** — whole-track misassignments, not occlusion noise. The other 4 (and
+  all 3 B-errors) are scattered occlusion crops in mixed/correct tracks — the
+  expected crop-level artifact.
+- **All 3 misassignments are navy→white; zero white→navy.** Mechanism: every
+  contamination source in the crop pipeline is BRIGHT — the ≥75%-floor fallback
+  injects orange floor (L≈135) into the pool, close-camera crops have
+  crowd/stands/apron backgrounds the maple-floor mask can't touch, and washout
+  brightens navy itself (misassigned tracks: median L 90.5 vs 72 for correct
+  navy). Contamination monotonically pushes pooled features toward the LIGHT
+  cluster, so dark kits absorb ~all the risk. Misassigned tracks' crops are
+  BIGGER (median 1775 px² vs 1134) — close shots, where background ≠ floor.
+- Evidence the pooling (not the color space) is the weak link: on the SAMPLED
+  crops alone, tracks 86 and 80 compute NEARER NAVY — the full-track pixel pool
+  flipped them white, i.e. a minority of contaminated crops outvoted the jersey.
+  (Track 150 is nearer white even on samples — that one is true washout.)
+
+### Coverage gap (28/71 B-crops labeled "none" vs 7/80 A) — user's read confirmed
+B's none-labeled crops are smaller (median 1013 vs 1426 px²) and blurrier
+(Laplacian var 1549 vs 2255) but their color stats match navy (L 71 vs 70.5 for
+confirmed navy) — i.e. the human couldn't call them, while the machine's color
+evidence is navy-consistent. Coverage loss is largely HUMAN-side at this
+resolution; identified A vs B crops are the same size (1488 vs 1426), so no
+crop-quality asymmetry between clusters. True B coverage is likely better than
+the eval shows.
+
+### Implications / fix candidates (deferred until after possession segmentation)
+1. Misassigned teams poison the linker veto (the 3 navy-as-white tracks veto
+   their own true-navy merges — 86/150/80 all appear in the merge log).
+2. Fix directions, in order of likely payoff: (a) drop the floor-fallback
+   (abstain a mostly-floor crop instead of injecting floor color); (b) robust
+   pooling — median of per-crop features (or trimmed pixel pool) so a few
+   contaminated crops can't outvote the jersey; (c) exploit the directional
+   law — contamination only brightens, so weight the DARK quartile (L_p25).
+3. Artifacts: reports/teams_eval_curry_q1_clip.{json,txt},
+   reports/viz/team_errors_A_navy.png; labels committed in
+   data/teams_eval/curry_q1_clip/{index,truth}.csv (crops regenerable).
+
+---
+
 ## 2026-07-05c — Component C1: team classification + linker team veto
 
 Next node on the dependency spine after Component B: which team is each track

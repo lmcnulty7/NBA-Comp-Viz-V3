@@ -1,0 +1,20 @@
+{
+  "source": "/Users/lucienmcnulty/Documents/Data Science projects/Basketball_Defensive_Vision/data/raw/curry_q1_clip.mp4",
+  "start": 11520,
+  "stride": 3,
+  "max_frames": 200,
+  "silhouette": 0.501,
+  "cluster_colors_bgr": {
+    "B": [
+      66,
+      47,
+      64
+    ],
+    "A": [
+      135,
+      114,
+      149
+    ]
+  },
+  "light_cluster": "A"
+}

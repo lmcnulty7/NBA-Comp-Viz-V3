@@ -1,0 +1,275 @@
+{
+  "n_labeled": 160,
+  "cluster_mapping": {
+    "A": "white",
+    "B": "navy"
+  },
+  "confusion_pred_x_human": {
+    "A": {
+      "white": 59,
+      "none": 7,
+      "navy": 14
+    },
+    "B": {
+      "navy": 40,
+      "white": 3,
+      "none": 28
+    },
+    "abstain": {
+      "white": 2,
+      "none": 5,
+      "navy": 2
+    }
+  },
+  "crop_level": {
+    "accuracy_identifiable": 0.853,
+    "n_identifiable": 116,
+    "per_cluster": {
+      "A": {
+        "maps_to": "white",
+        "precision": 0.808,
+        "recall_vs_other_cluster": 0.952,
+        "n_pred": 80
+      },
+      "B": {
+        "maps_to": "navy",
+        "precision": 0.93,
+        "recall_vs_other_cluster": 0.741,
+        "n_pred": 71
+      }
+    },
+    "note": "lower bound \u2014 occlusion crops count against the track's team"
+  },
+  "track_level": {
+    "accuracy": 0.839,
+    "n_tracks": 31,
+    "tracks": [
+      {
+        "track_id": "25",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "192",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "4",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "7",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "117",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "171",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "80",
+        "pred": "A",
+        "human_majority": "navy",
+        "n_labeled": 4,
+        "correct": false
+      },
+      {
+        "track_id": "116",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 3,
+        "correct": true
+      },
+      {
+        "track_id": "206",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "218",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "180",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "5",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "193",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "189",
+        "pred": "A",
+        "human_majority": "navy",
+        "n_labeled": 4,
+        "correct": false
+      },
+      {
+        "track_id": "49",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "13",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "86",
+        "pred": "A",
+        "human_majority": "navy",
+        "n_labeled": 4,
+        "correct": false
+      },
+      {
+        "track_id": "6",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "1",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "201",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "179",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "191",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "215",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "39",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "2",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "184",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "87",
+        "pred": "abstain",
+        "human_majority": "navy",
+        "n_labeled": 3,
+        "correct": false
+      },
+      {
+        "track_id": "3",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 6,
+        "correct": true
+      },
+      {
+        "track_id": "150",
+        "pred": "A",
+        "human_majority": "navy",
+        "n_labeled": 4,
+        "correct": false
+      },
+      {
+        "track_id": "8",
+        "pred": "A",
+        "human_majority": "white",
+        "n_labeled": 4,
+        "correct": true
+      },
+      {
+        "track_id": "225",
+        "pred": "B",
+        "human_majority": "navy",
+        "n_labeled": 3,
+        "correct": true
+      }
+    ]
+  },
+  "abstained": {
+    "n": 9,
+    "human_says": {
+      "white": 2,
+      "none": 5,
+      "navy": 2
+    },
+    "identifiable_but_abstained_pct": 44.4
+  }
+}

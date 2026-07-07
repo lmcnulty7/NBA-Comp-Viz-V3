@@ -295,3 +295,4 @@ TEAM_ABSTAIN_RATIO = 0.75   # near-centroid dist / far-centroid dist above this 
                             # the track's pooled color sits between the kits — bench/crowd leakage
                             # and hopelessly contaminated tracks stay out of BOTH teams
 TEAM_MIN_CROPS = 2          # tracks with fewer crops abstain (one crop is not evidence)
+TEAMS_EVAL_DIR = PROJECT_ROOT / "data" / "teams_eval"   # human-label eval (evaluate_teams.py)
