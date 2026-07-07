@@ -1,0 +1,17 @@
+sample_id,clip,file,frame,kind,pred_state,pred_offense,pred_confidence
+clip_26m00_34m00:0,clip_26m00_34m00,frame_000.jpg,2030,span_start,left,light,0.94
+clip_26m00_34m00:1,clip_26m00_34m00,frame_001.jpg,2060,span_mid,left,light,0.94
+clip_26m00_34m00:2,clip_26m00_34m00,frame_002.jpg,2135,span_mid,left,light,0.94
+clip_26m00_34m00:3,clip_26m00_34m00,frame_003.jpg,2210,span_mid,left,light,0.94
+clip_26m00_34m00:4,clip_26m00_34m00,frame_004.jpg,1970,pre_start,transition,none,0.0
+clip_26m00_34m00:5,clip_26m00_34m00,frame_005.jpg,2762,span_start,right,dark,0.69
+clip_26m00_34m00:6,clip_26m00_34m00,frame_006.jpg,2792,span_mid,right,dark,0.69
+clip_26m00_34m00:7,clip_26m00_34m00,frame_007.jpg,2867,span_mid,right,dark,0.69
+clip_26m00_34m00:8,clip_26m00_34m00,frame_008.jpg,2942,span_mid,right,dark,0.69
+clip_26m00_34m00:9,clip_26m00_34m00,frame_009.jpg,3017,span_mid,right,dark,0.69
+clip_26m00_34m00:10,clip_26m00_34m00,frame_010.jpg,3092,span_mid,right,dark,0.69
+clip_26m00_34m00:11,clip_26m00_34m00,frame_011.jpg,3167,span_mid,right,dark,0.69
+clip_26m00_34m00:12,clip_26m00_34m00,frame_012.jpg,2702,pre_start,transition,none,0.0
+clip_26m00_34m00:13,clip_26m00_34m00,frame_013.jpg,3275,span_start,left,light,1.0
+clip_26m00_34m00:14,clip_26m00_34m00,frame_014.jpg,3305,span_mid,left,light,1.0
+clip_26m00_34m00:15,clip_26m00_34m00,frame_015.jpg,3215,pre_start,transition,none,0.0

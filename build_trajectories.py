@@ -106,6 +106,7 @@ def main():
     ap.add_argument("--no-stab", action="store_true", help="Disable foot-point stabilization (A/B).")
     ap.add_argument("--no-reid", action="store_true", help="Disable offline fragment linking (A/B).")
     ap.add_argument("--no-teams", action="store_true", help="Disable team classification + linker veto (A/B).")
+    ap.add_argument("--no-video", action="store_true", help="Skip the review-video render (batch runs).")
     ap.add_argument("--reid-sim", type=float, default=None, help="Override REID_SIM_MIN.")
     ap.add_argument("--reid-max-gap", type=float, default=None, help="Override REID_MAX_GAP_SEC.")
     # clean_paths params (defaults = the external project's basketball settings)
@@ -276,12 +277,19 @@ def main():
         for tid, pts in cleaned.items()}, indent=2))
 
     # identity audit trail: every accepted merge with its evidence, every refusal
+    # which team id is the light kit (for downstream evals that label light/dark)
+    light_team = None
+    if len(team_cols) == 2:
+        light_team = max(team_cols, key=lambda t: sum(w * c for w, c in
+                                                      zip((0.114, 0.587, 0.299), team_cols[t])))
     out_id = config.TRACKING_DIR / f"{args.source.stem}_identity.json"
     out_id.write_text(json.dumps({
         "physics_raw": phys, "identity": identity, "merges": merges,
         "refused": skipped,
         "idmap": {str(k): v for k, v in idmap.items() if k != v},
         "team_by_track": {str(k): v for k, v in team_by_canon.items()},
+        "team_colors_bgr": {str(t): [int(v) for v in c] for t, c in team_cols.items()},
+        "light_team": light_team,
     }, indent=2))
     log.info("identity audit → %s", out_id)
 
@@ -320,6 +328,10 @@ def main():
         cv2.putText(img, "solid=trusted  hollow=extrapolated", (10, h_mm - 8),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.4, (180, 180, 180), 1)
         return img
+
+    if args.no_video:
+        log.info("trajectories → %s (video render skipped)", out_json)
+        return
 
     out_mp4 = config.TRACKING_DIR / f"{args.source.stem}_trajectories.mp4"
     if out_mp4.exists():

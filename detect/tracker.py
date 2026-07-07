@@ -82,6 +82,15 @@ class PlayerTracker:
             logger.warning("Kalman LinAlgError at frame %d (MPS precision) — resetting tracker", frame_idx)
             self.reset()
             return []
+        except AttributeError as e:
+            # ultralytics 8.4 native-reID bug: bot_sort.py's feature lambda assumes
+            # tensors but intermittently gets numpy ('numpy.ndarray' has no 'cpu').
+            # Same treatment as the Kalman guard: reset, skip the frame, keep running.
+            if "cpu" not in str(e):
+                raise
+            logger.warning("ultralytics native-reID AttributeError at frame %d — resetting tracker", frame_idx)
+            self.reset()
+            return []
 
         # Camera-cut handling: if most tracks vanished, reset for the next frame.
         if self.cut.update({t.track_id for t in tracks}):

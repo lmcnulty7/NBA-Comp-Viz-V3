@@ -9,6 +9,41 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-06d — C2 validation prep: 4-clip diagnostics, failure-mode anatomy, human eval built
+
+User-directed: C2 gets the C1 treatment before C3 depends on it. Batch-ran the
+pipeline (new `--no-video` lever) on 4 clips / ~150 s of live footage → 12
+halfcourt spans. Label-free findings:
+
+- **Internal consistency 100%**: within every clip, each team always attacks
+  the same basket and offense flips with the end — exactly the structure real
+  halves have. Strongest label-free signal available.
+- **Shot-clock sanity**: all 12 span durations 3.2–19.4 s, none > 24 s.
+- **Coverage**: 76–98% of each window classified halfcourt; the rest is
+  genuine transition + one fragmented tail (curry_q1 13122+).
+- **Confidence anatomy** (all spans ≥ 0.68, majority never in doubt): the
+  sub-1.00 spans decompose into three situations — span-START disagreement
+  (fast-break lag: offense still ahead of the retreating defense), span-END
+  (shot + rebound scramble), and the dominant one, MID-SPAN FLICKER: frames
+  where the two teams' mean distances to the basket differ by ~2 ft (p90
+  ≤ 3.2 ft, full 8–10-player lineups — not a sampling artifact). That's the
+  heuristic at its decision boundary while the offense collapses toward the
+  rim; harmless to the span-level majority call.
+- **Found + guarded an ultralytics 8.4 bug**: native BoT-SORT re-ID
+  (`model: auto`) intermittently crashes with `'numpy.ndarray' has no 'cpu'`
+  in bot_sort.py's feature lambda — fires on frames right after a tracker
+  reset (mixed feature state). PlayerTracker now catches it like the Kalman
+  guard (reset + skip frame). This is what silently killed one batch clip.
+
+Human eval built: `evaluate_possessions.py` (--export per clip → --label
+blind, two keypresses per frame: attacked basket a/d/u + offense kit w/n/u →
+--report). 73 frames exported, stratified over span_mid (46) / span_start (12)
+/ pre_start (12) / transition_mid (3), shuffled label order. Report scores
+attacked-basket and offense/defense SEPARATELY (different mechanisms), plus
+missed-coverage on transition predictions. Awaiting labels → accuracy numbers.
+
+---
+
 ## 2026-07-06c — Component C2 v1: possession segmentation (ball-free)
 
 `segment_possessions.py` — consumes trajectories JSON (positions + teams), no

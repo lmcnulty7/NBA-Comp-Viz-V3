@@ -351,4 +351,15 @@ $PY segment_possessions.py --trajectories data/tracking/<clip>_trajectories.json
 ```
 Known v1 limits (DEVLOG 2026-07-06c): no possession changes within one
 halfcourt occupancy (steal + re-set on the same end); free-throw clusters read
-as halfcourt sets. Real eval = event labels on 2–3 games (planned).
+as halfcourt sets.
+
+**Human eval** (`evaluate_possessions.py`, same pattern as the teams eval —
+blind to predictions, resumable):
+```bash
+$PY evaluate_possessions.py --export --source ".../clip.mp4"  # per clip, after segmenting
+$PY evaluate_possessions.py --label    # per frame: basket a=left d=right u=unclear,
+                                       #            offense w=light n=dark u=unclear
+$PY evaluate_possessions.py --report   # basket + offense accuracy separately, by situation
+```
+"left/right" = as seen on the broadcast frame (sideline camera keeps court-x
+aligned with screen-x on these clips).
