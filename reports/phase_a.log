@@ -1,0 +1,786 @@
+=== CLIP START curry_q1_clip 18:25:36 ===
+INFO Note: NumExpr detected 10 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO NumExpr defaulting to 8 threads.
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:23: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+INFO PlayerTracker ready (weights=player_detector.pt, device=mps, tracker=botsort.yaml, conf=0.40)
+INFO Pre-gate: coarse scan (stride 15) …
+INFO Pre-gate: 11 live segments, 5.8 of 8.0 min (72%)
+INFO Tracking + projecting curry_q1_clip.mp4 from frame 0 …
+[W MPSFallback.mm:13] Warning: The operator 'torchvision::nms' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (function operator())
+INFO Camera cut at frame 2700 — resetting track IDs
+INFO Embedding torso crops (re-ID + teams, 203 tracks) …
+/opt/anaconda3/lib/python3.12/site-packages/threadpoolctl.py:1214: RuntimeWarning: 
+Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
+the same time. Both libraries are known to be incompatible and this
+can cause random crashes or deadlocks on Linux when loaded in the
+same Python program.
+Using threadpoolctl may cause crashes or deadlocks. For more
+information and possible workarounds, please see
+    https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
+
+  warnings.warn(msg, RuntimeWarning)
+INFO teams: k-means fit on 174 track color-features, silhouette=0.587
+INFO re-ID: linked 44 fragment pairs (271 refused as ambiguous)
+INFO team contact sheet → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/viz/team_clusters_curry_q1_clip.png
+INFO ── PHYSICS (raw, pre-clean) ──   {"steps": 11273, "impossible_step_pct": 18.8, "step_p50_ft": 1.28, "step_p99_ft": 38.1, "off_court_pct": 2.6}
+INFO ── IDENTITY ──                   {"fragments": 218, "canonical_tracks": 174, "merges": 44, "ambiguous_refused": 106, "team_vetoed": 165, "median_players_per_frame": 3, "id_churn_before": 72.67, "id_churn_after": 58.0, "footpoint_clip_fixes": 500, "camera_cut_resets": 1, "teams": {"silhouette": 0.587, "tracks_team_A": 65, "tracks_team_B": 55, "tracks_abstained": 39, "frame_balance_median": [1, 2]}}
+INFO 3151 frames (3039 with homography) · 174 tracks · 15165 trajectory points · 2789 corrected (18.4%)
+INFO identity audit → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_q1_clip_identity.json
+INFO trajectories → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_q1_clip_trajectories.json (video render skipped)
+WARNING unsegmented 5.6s stretch 1764–1998 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 22.1s stretch 3063–3723 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 5.6s stretch 3726–3894 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 9.5s stretch 5493–5802 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 13.8s stretch 6894–7374 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 5.9s stretch 8667–8841 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 21.0s stretch 9150–9777 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 23.3s stretch 10518–11214 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 14.4s stretch 11916–12345 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 24.2s stretch 12447–13170 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 12.5s stretch 13479–13875 — occupancy stayed near the band edge; review the timeline strip
+INFO ── POSSESSION SPANS ──
+INFO        0–441     14.8s (approach 0.0s + set 14.8s)  @right basket  offense=team 1 (conf 0.93)
+INFO      696–768      2.5s  transition/unknown
+INFO      912–1149     8.0s (approach 0.0s + set 8.0s)  @right basket  offense=team 1 (conf 0.82)
+INFO     1152–1761    19.5s (approach 2.8s + set 16.7s)  @left basket  offense=team 0 (conf 0.83)
+INFO     1764–1998     5.6s  transition/unknown
+INFO     2001–2088     3.0s  transition/unknown
+INFO     2091–2559    15.7s (approach 0.7s + set 15.0s)  @right basket  offense=team 1 (conf 0.99)
+INFO     2562–3060    12.4s (approach 0.8s + set 11.6s)  @left basket  offense=team 0 (conf 0.67)
+INFO     3063–3723    22.1s  transition/unknown
+INFO     3726–3894     5.6s  transition/unknown
+INFO     3897–3915     0.4s  transition/unknown
+INFO     5298–5298     0.1s  transition/unknown
+INFO     5331–5352     0.8s  transition/unknown
+INFO     5355–5490     4.6s (approach 1.5s + set 3.1s)  @left basket  offense=team 1 (conf 0.91)
+INFO     5493–5802     9.5s  transition/unknown
+INFO     5805–5814     0.4s  transition/unknown
+INFO     6657–6891     7.9s (approach 0.1s + set 7.8s)  @left basket  offense=team 0 (conf 0.94)
+INFO     6894–7374    13.8s  transition/unknown
+INFO     7821–8160    11.1s (approach 0.0s + set 11.1s)  @right basket  offense=team 1 (conf 0.95)
+INFO     8655–8664     0.4s  transition/unknown
+INFO     8667–8841     5.9s  transition/unknown
+INFO     9150–9777    21.0s  transition/unknown
+INFO    10359–10515    5.3s (approach 0.0s + set 5.3s)  @left basket  offense=team 0 (conf 1.00)
+INFO    10518–11214   23.3s  transition/unknown
+INFO    11217–11226    0.4s  transition/unknown
+INFO    11436–11436    0.1s  transition/unknown
+INFO    11439–11520    2.8s  transition/unknown
+INFO    11523–11571    1.7s  transition/unknown
+INFO    11574–11913    8.8s (approach 0.4s + set 8.4s)  @left basket  offense=team 1 (conf 0.74)
+INFO    11916–12345   14.4s  transition/unknown
+INFO    12348–12357    0.4s  transition/unknown
+INFO    12360–12444    2.9s  transition/unknown
+INFO    12447–13170   24.2s  transition/unknown
+INFO    13173–13236    2.2s  transition/unknown
+INFO    13239–13434    6.6s (approach 2.2s + set 4.4s)  @left basket  offense=team 0 (conf 0.95)
+INFO    13437–13476    1.4s  transition/unknown
+INFO    13479–13875   12.5s  transition/unknown
+INFO    13878–13965    3.0s  transition/unknown
+INFO    13968–13977    0.4s  transition/unknown
+INFO    14154–14154    0.1s  transition/unknown
+INFO    14157–14400    8.2s (approach 0.6s + set 7.6s)  @right basket  offense=team 1 (conf 0.79)
+INFO 12 halfcourt spans, 122.9s of 303.8s (40%) — rest transition/unknown
+INFO spans → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_q1_clip_possessions.json
+INFO timeline → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_q1_clip_possessions.png
+INFO ── C3 TIER-1 MATCHUP METRICS — curry_q1_clip ──
+INFO  possession @right (core 12.8s, offense team 1, conf 0.93) — coverage 3.6 pairs/frame, spacing median 394.0 ft² | frames: 92 used, 36 excluded (28%) [counts: {'3v5': 27, '4v5': 22, '4v4': 17}]
+INFO    def 3    on 4    (7.0s): dist median  9.6 ft | closing 65%/holding 6%/retreating 29%
+INFO    def 6    on 8    (9.2s): dist median  6.9 ft | closing 53%/holding 47%/retreating 0%
+INFO    def 7    on 10   (4.1s): dist median 12.6 ft | n/a (runs too short)
+INFO    def 9    on 1    (6.8s): dist median  5.1 ft | closing 48%/holding 44%/retreating 7%
+INFO    def 12   on 5    (4.5s): dist median  7.6 ft | n/a (runs too short)
+INFO    def 55   on 5    (0.8s): dist median 31.1 ft | n/a (runs too short)
+INFO    def 128  on 5    (0.5s): dist median  9.8 ft | n/a (runs too short)
+INFO  possession @right (core 6.0s, offense team 1, conf 0.82) — coverage 2.8 pairs/frame, spacing median 60.0 ft² | frames: 34 used, 26 excluded (43%) [counts: {'3v5': 10, '1v5': 5, '2v5': 5}]
+INFO    def 6    on 239  (2.2s): dist median 12.7 ft | n/a (runs too short)
+INFO    def 12   on 244  (0.4s): dist median 10.6 ft | n/a (runs too short)
+INFO    def 184  on 239  (0.1s): dist median 13.7 ft | n/a (runs too short)
+INFO    def 201  on 229  (2.9s): dist median  9.3 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 223  on 175  (0.8s): dist median  3.8 ft | n/a (runs too short)
+INFO    def 233  on 265  (0.8s): dist median 18.0 ft | n/a (runs too short)
+INFO    def 247  on 175  (1.4s): dist median  8.8 ft | n/a (runs too short)
+INFO    def 268  on 265  (0.5s): dist median 13.9 ft | n/a (runs too short)
+INFO  possession @left (core 14.7s, offense team 0, conf 0.83) — coverage 2.9 pairs/frame, spacing median 212.0 ft² | frames: 135 used, 12 excluded (8%) [counts: {'3v4': 21, '4v4': 17, '3v5': 15}]
+INFO    def 229  on 271  (6.6s): dist median  8.0 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 314  on 201  (9.3s): dist median  4.2 ft | closing 0%/holding 67%/retreating 33%
+INFO    def 319  on 272  (8.9s): dist median 11.9 ft | n/a (runs too short)
+INFO    def 325  on 436  (4.4s): dist median 13.0 ft | n/a (runs too short)
+INFO    def 350  on 343  (1.7s): dist median 10.0 ft | n/a (runs too short)
+INFO    def 369  on 424  (1.4s): dist median 12.5 ft | n/a (runs too short)
+INFO    def 396  on 201  (3.4s): dist median  6.0 ft | n/a (runs too short)
+INFO    def 422  on 233  (0.4s): dist median  6.8 ft | n/a (runs too short)
+INFO    def 429  on 436  (3.4s): dist median 10.1 ft | n/a (runs too short)
+INFO    def 532  on 460  (0.3s): dist median  6.4 ft | n/a (runs too short)
+INFO  possession @right (core 13.0s, offense team 1, conf 0.99) — coverage 3.8 pairs/frame, spacing median 583.0 ft² | frames: 128 used, 2 excluded (2%) [counts: {'4v5': 40, '4v4': 36, '4v3': 15}]
+INFO    def 643  on 645  (11.9s): dist median 12.0 ft | closing 39%/holding 11%/retreating 50%
+INFO    def 647  on 627  (8.2s): dist median  5.6 ft | closing 53%/holding 22%/retreating 24%
+INFO    def 656  on 628  (10.2s): dist median  7.0 ft | closing 7%/holding 38%/retreating 55%
+INFO    def 662  on 396  (10.1s): dist median  6.3 ft | closing 53%/holding 35%/retreating 12%
+INFO    def 666  on 672  (5.4s): dist median 17.9 ft | n/a (runs too short)
+INFO    def 774  on 628  (1.7s): dist median 18.0 ft | n/a (runs too short)
+INFO    def 781  on 627  (0.8s): dist median 13.9 ft | n/a (runs too short)
+INFO  possession @left (core 9.6s, offense team 0, conf 0.67) — coverage 1.6 pairs/frame, spacing median n/a ft² | frames: 96 used, 0 excluded (0%) [counts: {'2v2': 29, '2v3': 27, '1v2': 23}]
+INFO    def 396  on 643  (1.9s): dist median  5.4 ft | closing 12%/holding 38%/retreating 50%
+INFO    def 627  on 801  (6.8s): dist median 15.5 ft | closing 17%/holding 28%/retreating 56%
+INFO    def 628  on 647  (0.7s): dist median  8.3 ft | n/a (runs too short)
+INFO    def 645  on 643  (5.6s): dist median 15.9 ft | closing 65%/holding 5%/retreating 30%
+INFO  possession @left (core 5.8s, offense team 0, conf 0.94) — coverage 1.8 pairs/frame, spacing median 87.0 ft² | frames: 58 used, 0 excluded (0%) [counts: {'4v2': 27, '3v2': 16, '5v1': 9}]
+INFO    def 4218 on 4217 (5.5s): dist median  8.3 ft | closing 26%/holding 4%/retreating 70%
+INFO    def 4223 on 4222 (4.8s): dist median  5.2 ft | closing 0%/holding 0%/retreating 100%
+INFO  possession @right (core 9.1s, offense team 1, conf 0.95) — coverage 1.8 pairs/frame, spacing median 63.0 ft² | frames: 91 used, 0 excluded (0%) [counts: {'1v3': 25, '2v3': 23, '2v4': 14}]
+INFO    def 5376 on 5378 (8.7s): dist median  9.4 ft | closing 31%/holding 4%/retreating 65%
+INFO    def 5379 on 5378 (0.1s): dist median 14.3 ft | n/a (runs too short)
+INFO    def 5380 on 5377 (5.8s): dist median  8.9 ft | closing 46%/holding 14%/retreating 39%
+INFO    def 5381 on 5384 (0.1s): dist median 10.3 ft | n/a (runs too short)
+INFO    def 5382 on 5384 (1.5s): dist median 17.1 ft | n/a (runs too short)
+INFO  possession @left (core 6.4s, offense team 1, conf 0.74) — coverage 1.4 pairs/frame, spacing median 54.0 ft² | frames: 64 used, 0 excluded (0%) [counts: {'3v1': 24, '2v1': 15, '3v2': 9}]
+INFO    def 9478 on 9484 (5.8s): dist median 15.7 ft | closing 52%/holding 13%/retreating 35%
+INFO    def 9479 on 9484 (1.8s): dist median  5.5 ft | n/a (runs too short)
+INFO    def 9480 on 9484 (0.3s): dist median 20.5 ft | n/a (runs too short)
+INFO    def 9486 on 9481 (1.0s): dist median  2.5 ft | n/a (runs too short)
+INFO  possession @right (core 5.6s, offense team 1, conf 0.79) — coverage 2.4 pairs/frame, spacing median 42.0 ft² | frames: 56 used, 0 excluded (0%) [counts: {'3v2': 26, '3v3': 24, '2v3': 4}]
+INFO    def 14306 on 14307 (3.8s): dist median  6.8 ft | closing 77%/holding 19%/retreating 4%
+INFO    def 14308 on 14304 (5.2s): dist median 10.0 ft | closing 93%/holding 7%/retreating 0%
+INFO    def 14311 on 14312 (4.6s): dist median  7.5 ft | closing 41%/holding 24%/retreating 34%
+INFO  skipped span @5400: core_too_short
+INFO  skipped span @10359: core_too_short
+INFO  skipped span @13305: core_too_short
+INFO matchups → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_q1_clip_matchups.json
+=== CLIP DONE curry_q1_clip 18:33:38 ===
+=== CLIP START curry_classic_clip 18:33:38 ===
+INFO Note: NumExpr detected 10 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO NumExpr defaulting to 8 threads.
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:23: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+INFO PlayerTracker ready (weights=player_detector.pt, device=mps, tracker=botsort.yaml, conf=0.40)
+INFO Pre-gate: coarse scan (stride 15) …
+INFO Pre-gate: 12 live segments, 7.9 of 10.0 min (79%)
+INFO Tracking + projecting curry_classic_clip.mp4 from frame 0 …
+[W MPSFallback.mm:13] Warning: The operator 'torchvision::nms' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (function operator())
+INFO Camera cut at frame 4053 — resetting track IDs
+INFO Embedding torso crops (re-ID + teams, 296 tracks) …
+/opt/anaconda3/lib/python3.12/site-packages/threadpoolctl.py:1214: RuntimeWarning: 
+Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
+the same time. Both libraries are known to be incompatible and this
+can cause random crashes or deadlocks on Linux when loaded in the
+same Python program.
+Using threadpoolctl may cause crashes or deadlocks. For more
+information and possible workarounds, please see
+    https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
+
+  warnings.warn(msg, RuntimeWarning)
+INFO teams: k-means fit on 242 track color-features, silhouette=0.547
+INFO re-ID: linked 59 fragment pairs (410 refused as ambiguous)
+INFO team contact sheet → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/viz/team_clusters_curry_classic_clip.png
+INFO ── PHYSICS (raw, pre-clean) ──   {"steps": 16125, "impossible_step_pct": 24.0, "step_p50_ft": 1.38, "step_p99_ft": 38.7, "off_court_pct": 1.9}
+INFO ── IDENTITY ──                   {"fragments": 310, "canonical_tracks": 251, "merges": 59, "ambiguous_refused": 182, "team_vetoed": 228, "median_players_per_frame": 3, "id_churn_before": 103.33, "id_churn_after": 83.67, "footpoint_clip_fixes": 790, "camera_cut_resets": 1, "teams": {"silhouette": 0.547, "tracks_team_A": 87, "tracks_team_B": 82, "tracks_abstained": 68, "frame_balance_median": [1, 2]}}
+INFO 4383 frames (4254 with homography) · 251 tracks · 21885 trajectory points · 4444 corrected (20.3%)
+INFO identity audit → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_classic_clip_identity.json
+INFO trajectories → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_classic_clip_trajectories.json (video render skipped)
+WARNING unsegmented 8.6s stretch 4056–4311 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 19.7s stretch 4407–5004 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 8.7s stretch 5811–6069 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 7.8s stretch 6072–6303 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 21.1s stretch 8127–8763 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 36.9s stretch 8766–9933 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 18.6s stretch 12402–12957 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 14.2s stretch 13566–13989 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 6.4s stretch 15732–15921 — occupancy stayed near the band edge; review the timeline strip
+INFO ── POSSESSION SPANS ──
+INFO      189–459      9.1s (approach 0.0s + set 9.1s)  @right basket  offense=team 1 (conf 0.97)
+INFO      687–972      9.6s (approach 0.0s + set 9.6s)  @right basket  offense=team 0 (conf 0.53)
+INFO      975–1452    16.0s (approach 0.4s + set 15.6s)  @left basket  offense=team 0 (conf 0.60)
+INFO     1455–1674     7.4s (approach 0.6s + set 6.8s)  @right basket  offense=team 1 (conf 0.97)
+INFO     1677–1950     9.2s (approach 1.9s + set 7.3s)  @left basket  offense=team 0 (conf 0.98)
+INFO     1953–2523    18.4s (approach 1.1s + set 17.3s)  @right basket  offense=team 1 (conf 1.00)
+INFO     2526–2799     9.2s (approach 2.3s + set 6.9s)  @left basket  offense=team 0 (conf 0.96)
+INFO     2802–2865     2.2s  transition/unknown
+INFO     2868–3309    14.8s (approach 0.7s + set 14.1s)  @left basket  offense=team 0 (conf 0.82)
+INFO     3312–3756    14.8s (approach 2.1s + set 12.7s)  @right basket  offense=team 1 (conf 0.63)
+INFO     4056–4311     8.6s  transition/unknown
+INFO     4407–5004    19.7s  transition/unknown
+INFO     5229–5232     0.2s  transition/unknown
+INFO     5235–5808    19.2s (approach 1.4s + set 17.8s)  @right basket  offense=team 1 (conf 1.00)
+INFO     5811–6069     8.7s  transition/unknown
+INFO     6072–6303     7.8s  transition/unknown
+INFO     7029–7200     5.8s (approach 0.0s + set 5.8s)  @right basket  offense=team 1 (conf 0.67)
+INFO     7500–7512     0.5s  transition/unknown
+INFO     7515–8124    20.4s (approach 10.3s + set 10.1s)  @left basket  offense=team 0 (conf 0.84)
+INFO     8127–8763    21.1s  transition/unknown
+INFO     8766–9933    36.9s  transition/unknown
+INFO     9936–10089    4.6s  transition/unknown
+INFO    10092–10338    8.3s (approach 4.8s + set 3.5s)  @left basket  offense=team None (conf 0.00)
+INFO    10341–10410    2.4s  transition/unknown
+INFO    10545–10545    0.1s  transition/unknown
+INFO    11874–11952    2.7s  transition/unknown
+INFO    11955–12072    4.0s (approach 0.5s + set 3.5s)  @left basket  offense=team 0 (conf 1.00)
+INFO    12075–12129    1.9s  transition/unknown
+INFO    12132–12264    4.5s  transition/unknown
+INFO    12267–12399    4.5s  transition/unknown
+INFO    12402–12957   18.6s  transition/unknown
+INFO    12960–13023    2.2s  transition/unknown
+INFO    13026–13140    3.5s (approach 0.3s + set 3.2s)  @left basket  offense=team 1 (conf 0.63)
+INFO    13143–13170    1.0s  transition/unknown
+INFO    13173–13236    2.2s  transition/unknown
+INFO    13239–13392    4.2s  transition/unknown
+INFO    13551–13563    0.5s  transition/unknown
+INFO    13566–13989   14.2s  transition/unknown
+INFO    13992–14094    3.5s  transition/unknown
+INFO    14097–14166    2.4s  transition/unknown
+INFO    14169–14916   24.9s (approach 20.6s + set 4.3s)  @right basket  offense=team 1 (conf 0.88)
+INFO    14919–15729   27.1s (approach 23.1s + set 4.0s)  @right basket  offense=team None (conf 0.00)
+INFO    15732–15921    6.4s  transition/unknown
+INFO    16794–16854    1.5s  transition/unknown
+INFO    17280–17370    3.1s (approach 0.0s + set 3.1s)  @left basket  offense=team 0 (conf 0.87)
+INFO    17373–17391    0.6s  transition/unknown
+INFO    17505–17919   13.9s (approach 0.0s + set 13.9s)  @right basket  offense=team 1 (conf 1.00)
+INFO    17922–18000    2.7s  transition/unknown
+INFO 19 halfcourt spans, 238.7s of 425.1s (56%) — rest transition/unknown
+INFO spans → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_classic_clip_possessions.json
+INFO timeline → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_classic_clip_possessions.png
+INFO ── C3 TIER-1 MATCHUP METRICS — curry_classic_clip ──
+INFO  possession @right (core 7.1s, offense team 1, conf 0.97) — coverage 3.4 pairs/frame, spacing median 198.0 ft² | frames: 58 used, 13 excluded (18%) [counts: {'4v5': 18, '4v4': 16, '3v4': 7}]
+INFO    def 28   on 6    (3.7s): dist median  6.7 ft | closing 17%/holding 8%/retreating 75%
+INFO    def 39   on 99   (1.7s): dist median  5.3 ft | closing 0%/holding 20%/retreating 80%
+INFO    def 45   on 6    (1.9s): dist median  7.9 ft | n/a (runs too short)
+INFO    def 77   on 99   (1.0s): dist median  6.1 ft | n/a (runs too short)
+INFO    def 78   on 1    (5.8s): dist median  7.8 ft | closing 0%/holding 12%/retreating 88%
+INFO    def 82   on 10   (0.8s): dist median  3.4 ft | n/a (runs too short)
+INFO    def 98   on 104  (3.7s): dist median 10.9 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 113  on 1    (1.3s): dist median  6.3 ft | n/a (runs too short)
+INFO  possession @left (core 13.6s, offense team 0, conf 0.60) — coverage 2.8 pairs/frame, spacing median 344.0 ft² | frames: 124 used, 12 excluded (9%) [counts: {'3v3': 24, '4v3': 18, '5v3': 12}]
+INFO    def 6    on 113  (4.7s): dist median  9.3 ft | closing 15%/holding 5%/retreating 80%
+INFO    def 161  on 204  (7.6s): dist median 11.9 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 217  on 287  (8.5s): dist median  9.7 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 233  on 28   (10.3s): dist median  6.0 ft | closing 35%/holding 29%/retreating 35%
+INFO    def 307  on 280  (0.6s): dist median  3.6 ft | n/a (runs too short)
+INFO    def 343  on 28   (1.9s): dist median  7.0 ft | n/a (runs too short)
+INFO    def 376  on 236  (0.2s): dist median  8.2 ft | n/a (runs too short)
+INFO    def 377  on 327  (0.3s): dist median 35.6 ft | n/a (runs too short)
+INFO  possession @right (core 4.8s, offense team 1, conf 0.97) — coverage 3.1 pairs/frame, spacing median 292.0 ft² | frames: 47 used, 1 excluded (2%) [counts: {'3v5': 12, '4v3': 9, '4v4': 8}]
+INFO    def 39   on 233  (1.9s): dist median  7.7 ft | n/a (runs too short)
+INFO    def 236  on 161  (0.2s): dist median 13.4 ft | n/a (runs too short)
+INFO    def 287  on 343  (2.9s): dist median  9.0 ft | n/a (runs too short)
+INFO    def 354  on 376  (3.6s): dist median 10.2 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 382  on 376  (3.4s): dist median 10.0 ft | n/a (runs too short)
+INFO    def 476  on 233  (0.6s): dist median 10.4 ft | n/a (runs too short)
+INFO    def 502  on 377  (2.1s): dist median  6.4 ft | n/a (runs too short)
+INFO  possession @left (core 5.3s, offense team 0, conf 0.98) — coverage 1.7 pairs/frame, spacing median 350.0 ft² | frames: 53 used, 0 excluded (0%) [counts: {'2v5': 11, '1v4': 9, '1v5': 8}]
+INFO    def 377  on 382  (1.0s): dist median 18.3 ft | n/a (runs too short)
+INFO    def 525  on 287  (0.2s): dist median 25.1 ft | n/a (runs too short)
+INFO    def 529  on 39   (2.1s): dist median 15.8 ft | n/a (runs too short)
+INFO    def 554  on 287  (1.6s): dist median  8.1 ft | n/a (runs too short)
+INFO    def 563  on 587  (1.2s): dist median  4.1 ft | n/a (runs too short)
+INFO    def 602  on 39   (0.7s): dist median 28.9 ft | n/a (runs too short)
+INFO    def 609  on 39   (0.3s): dist median 14.8 ft | n/a (runs too short)
+INFO    def 614  on 587  (0.4s): dist median  6.7 ft | n/a (runs too short)
+INFO  possession @right (core 15.3s, offense team 1, conf 1.00) — coverage 3.5 pairs/frame, spacing median 364.0 ft² | frames: 122 used, 31 excluded (20%) [counts: {'4v4': 24, '3v5': 23, '4v5': 21}]
+INFO    def 287  on 642  (10.8s): dist median  6.1 ft | closing 52%/holding 15%/retreating 33%
+INFO    def 640  on 693  (5.2s): dist median  3.4 ft | n/a (runs too short)
+INFO    def 641  on 614  (4.5s): dist median  6.4 ft | closing 5%/holding 15%/retreating 80%
+INFO    def 666  on 748  (5.8s): dist median 11.5 ft | n/a (runs too short)
+INFO    def 677  on 529  (7.7s): dist median 16.4 ft | n/a (runs too short)
+INFO    def 714  on 554  (6.8s): dist median  8.9 ft | closing 50%/holding 50%/retreating 0%
+INFO    def 769  on 554  (1.7s): dist median 11.8 ft | n/a (runs too short)
+INFO    def 833  on 748  (0.1s): dist median 21.8 ft | n/a (runs too short)
+INFO  possession @left (core 4.9s, offense team 0, conf 0.96) — coverage 3.3 pairs/frame, spacing median 451.0 ft² | frames: 47 used, 2 excluded (4%) [counts: {'5v4': 10, '2v4': 6, '4v5': 6}]
+INFO    def 554  on 892  (1.4s): dist median 22.4 ft | n/a (runs too short)
+INFO    def 748  on 677  (2.6s): dist median  5.8 ft | n/a (runs too short)
+INFO    def 764  on 287  (2.6s): dist median  3.1 ft | closing 58%/holding 42%/retreating 0%
+INFO    def 840  on 833  (4.6s): dist median 10.2 ft | closing 55%/holding 26%/retreating 19%
+INFO    def 851  on 287  (0.8s): dist median 13.3 ft | n/a (runs too short)
+INFO    def 880  on 894  (2.6s): dist median  6.6 ft | n/a (runs too short)
+INFO    def 904  on 287  (1.1s): dist median  9.9 ft | n/a (runs too short)
+INFO  possession @left (core 12.1s, offense team 0, conf 0.82) — coverage 3.2 pairs/frame, spacing median 363.0 ft² | frames: 101 used, 20 excluded (16%) [counts: {'3v5': 16, '5v3': 11, '4v4': 11}]
+INFO    def 554  on 892  (7.7s): dist median  8.2 ft | closing 67%/holding 7%/retreating 27%
+INFO    def 764  on 961  (3.7s): dist median 10.5 ft | n/a (runs too short)
+INFO    def 840  on 993  (6.2s): dist median 11.6 ft | n/a (runs too short)
+INFO    def 880  on 833  (6.4s): dist median  7.3 ft | n/a (runs too short)
+INFO    def 1002 on 833  (3.1s): dist median 11.9 ft | n/a (runs too short)
+INFO    def 1020 on 892  (0.3s): dist median 20.2 ft | n/a (runs too short)
+INFO    def 1032 on 677  (2.9s): dist median 12.1 ft | n/a (runs too short)
+INFO    def 1088 on 993  (0.9s): dist median  8.5 ft | n/a (runs too short)
+INFO    def 1096 on 892  (0.8s): dist median 10.3 ft | n/a (runs too short)
+INFO  possession @right (core 10.7s, offense team 1, conf 0.63) — coverage 4.0 pairs/frame, spacing median 139.0 ft² | frames: 96 used, 11 excluded (10%) [counts: {'5v5': 23, '4v4': 20, '4v5': 19}]
+INFO    def 892  on 1088 (3.0s): dist median  4.0 ft | n/a (runs too short)
+INFO    def 961  on 1088 (7.3s): dist median  6.2 ft | n/a (runs too short)
+INFO    def 993  on 840  (8.7s): dist median 18.8 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 1124 on 1088 (4.3s): dist median  9.3 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 1147 on 1088 (8.6s): dist median 14.9 ft | n/a (runs too short)
+INFO    def 1153 on 554  (6.7s): dist median  4.4 ft | n/a (runs too short)
+INFO  possession @right (core 15.8s, offense team 1, conf 1.00) — coverage 1.0 pairs/frame, spacing median n/a ft² | frames: 158 used, 0 excluded (0%) [counts: {'1v3': 119, '1v4': 31, '1v2': 7}]
+INFO    def 2747 on 2745 (2.8s): dist median 24.2 ft | closing 56%/holding 6%/retreating 39%
+INFO    def 2748 on 2745 (13.0s): dist median 10.3 ft | closing 36%/holding 8%/retreating 56%
+INFO  possession @left (core 8.1s, offense team 0, conf 0.84) — coverage 2.4 pairs/frame, spacing median 204.0 ft² | frames: 81 used, 0 excluded (0%) [counts: {'3v2': 21, '3v3': 13, '2v4': 12}]
+INFO    def 5617 on 5623 (0.5s): dist median  6.4 ft | n/a (runs too short)
+INFO    def 5618 on 5622 (4.9s): dist median 12.9 ft | closing 36%/holding 45%/retreating 18%
+INFO    def 5619 on 5622 (5.4s): dist median 25.4 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 5620 on 5623 (5.3s): dist median 10.6 ft | closing 0%/holding 17%/retreating 83%
+INFO    def 5624 on 4653 (2.2s): dist median 10.5 ft | n/a (runs too short)
+INFO  possession @right (core 11.9s, offense team 1, conf 1.00) — coverage 2.3 pairs/frame, spacing median 84.0 ft² | frames: 119 used, 0 excluded (0%) [counts: {'3v3': 38, '2v2': 28, '3v2': 25}]
+INFO    def 18269 on 18544 (1.5s): dist median 26.9 ft | n/a (runs too short)
+INFO    def 18540 on 18545 (11.8s): dist median  7.8 ft | closing 76%/holding 12%/retreating 12%
+INFO    def 18541 on 18543 (10.9s): dist median 18.7 ft | closing 36%/holding 7%/retreating 57%
+INFO    def 18542 on 18544 (3.5s): dist median 34.3 ft | closing 71%/holding 14%/retreating 14%
+INFO  skipped span @687: low_conf_0.53
+INFO  skipped span @7029: core_too_short
+INFO  skipped span @10236: core_too_short
+INFO  skipped span @11970: core_too_short
+INFO  skipped span @13035: core_too_short
+INFO  skipped span @14790: core_too_short
+INFO  skipped span @15612: core_too_short
+INFO  skipped span @17280: core_too_short
+INFO matchups → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/curry_classic_clip_matchups.json
+=== CLIP DONE curry_classic_clip 18:44:31 ===
+=== CLIP START clip_40m00_48m00 18:44:31 ===
+INFO Note: NumExpr detected 10 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO NumExpr defaulting to 8 threads.
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:23: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+INFO PlayerTracker ready (weights=player_detector.pt, device=mps, tracker=botsort.yaml, conf=0.40)
+INFO Pre-gate: coarse scan (stride 15) …
+INFO Pre-gate: 11 live segments, 4.1 of 8.0 min (51%)
+INFO Tracking + projecting clip_40m00_48m00.mp4 from frame 0 …
+[W MPSFallback.mm:13] Warning: The operator 'torchvision::nms' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (function operator())
+INFO Camera cut at frame 3786 — resetting track IDs
+INFO Embedding torso crops (re-ID + teams, 136 tracks) …
+/opt/anaconda3/lib/python3.12/site-packages/threadpoolctl.py:1214: RuntimeWarning: 
+Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
+the same time. Both libraries are known to be incompatible and this
+can cause random crashes or deadlocks on Linux when loaded in the
+same Python program.
+Using threadpoolctl may cause crashes or deadlocks. For more
+information and possible workarounds, please see
+    https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
+
+  warnings.warn(msg, RuntimeWarning)
+INFO teams: k-means fit on 104 track color-features, silhouette=0.558
+INFO re-ID: linked 28 fragment pairs (142 refused as ambiguous)
+INFO team contact sheet → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/viz/team_clusters_clip_40m00_48m00.png
+INFO ── PHYSICS (raw, pre-clean) ──   {"steps": 9099, "impossible_step_pct": 3.6, "step_p50_ft": 0.59, "step_p99_ft": 6.0, "off_court_pct": 1.7}
+INFO ── IDENTITY ──                   {"fragments": 154, "canonical_tracks": 126, "merges": 28, "ambiguous_refused": 76, "team_vetoed": 66, "median_players_per_frame": 5, "id_churn_before": 30.8, "id_churn_after": 25.2, "footpoint_clip_fixes": 341, "camera_cut_resets": 1, "teams": {"silhouette": 0.558, "tracks_team_A": 35, "tracks_team_B": 36, "tracks_abstained": 37, "frame_balance_median": [2, 2]}}
+INFO 2154 frames (2124 with homography) · 126 tracks · 11409 trajectory points · 1373 corrected (12.0%)
+INFO identity audit → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_40m00_48m00_identity.json
+INFO trajectories → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_40m00_48m00_trajectories.json (video render skipped)
+WARNING unsegmented 7.2s stretch 4704–4917 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 7.0s stretch 4920–5127 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 42.6s stretch 5847–7200 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 5.4s stretch 8823–8982 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 17.4s stretch 12708–13227 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 7.0s stretch 13713–13920 — occupancy stayed near the band edge; review the timeline strip
+INFO ── POSSESSION SPANS ──
+INFO      444–537      3.2s (approach 0.0s + set 3.2s)  @left basket  offense=team 0 (conf 0.88)
+INFO      540–657      4.0s  transition/unknown
+INFO      660–1236    19.3s (approach 1.9s + set 17.4s)  @right basket  offense=team 1 (conf 0.76)
+INFO     1239–1716    15.9s (approach 2.4s + set 13.5s)  @left basket  offense=team 0 (conf 0.99)
+INFO     1719–2169    15.1s (approach 3.8s + set 11.3s)  @right basket  offense=team 1 (conf 0.99)
+INFO     2172–2172     0.1s  transition/unknown
+INFO     3786–3990     6.9s (approach 0.0s + set 6.9s)  @right basket  offense=team 1 (conf 0.99)
+INFO     4272–4449     6.0s (approach 0.0s + set 6.0s)  @right basket  offense=team 1 (conf 0.80)
+INFO     4452–4542     3.1s  transition/unknown
+INFO     4704–4917     7.2s  transition/unknown
+INFO     4920–5127     7.0s  transition/unknown
+INFO     5445–5631     6.3s (approach 0.8s + set 5.5s)  @right basket  offense=team 1 (conf 0.60)
+INFO     5634–5673     1.4s  transition/unknown
+INFO     5844–5844     0.1s  transition/unknown
+INFO     5847–7200    42.6s  transition/unknown
+INFO     8052–8100     1.7s  transition/unknown
+INFO     8103–8109     0.3s  transition/unknown
+INFO     8205–8439     7.5s (approach 0.0s + set 7.5s)  @right basket  offense=team 0 (conf 1.00)
+INFO     8808–8820     0.5s  transition/unknown
+INFO     8823–8982     5.4s  transition/unknown
+INFO     8985–9057     1.9s  transition/unknown
+INFO    11157–11589   14.5s (approach 8.2s + set 6.3s)  @left basket  offense=team 1 (conf 0.93)
+INFO    11592–12129   17.5s (approach 1.8s + set 15.7s)  @right basket  offense=team 0 (conf 1.00)
+INFO    12693–12705    0.5s  transition/unknown
+INFO    12708–13227   17.4s  transition/unknown
+INFO    13713–13920    7.0s  transition/unknown
+INFO 10 halfcourt spans, 112.2s of 212.4s (53%) — rest transition/unknown
+INFO spans → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_40m00_48m00_possessions.json
+INFO timeline → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_40m00_48m00_possessions.png
+INFO ── C3 TIER-1 MATCHUP METRICS — clip_40m00_48m00 ──
+INFO  possession @right (core 15.4s, offense team 1, conf 0.76) — coverage 3.6 pairs/frame, spacing median 308.0 ft² | frames: 150 used, 4 excluded (3%) [counts: {'4v4': 36, '4v5': 24, '5v4': 17}]
+INFO    def 3    on 181  (11.9s): dist median  6.1 ft | closing 36%/holding 15%/retreating 49%
+INFO    def 7    on 2    (6.3s): dist median  9.1 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 79   on 9    (0.3s): dist median 21.3 ft | n/a (runs too short)
+INFO    def 80   on 2    (9.4s): dist median 10.4 ft | closing 41%/holding 59%/retreating 0%
+INFO    def 82   on 9    (14.1s): dist median  7.9 ft | closing 71%/holding 26%/retreating 3%
+INFO    def 87   on 9    (11.7s): dist median  7.9 ft | closing 83%/holding 9%/retreating 7%
+INFO    def 292  on 2    (0.9s): dist median  3.9 ft | n/a (runs too short)
+INFO  possession @left (core 11.5s, offense team 0, conf 0.99) — coverage 3.6 pairs/frame, spacing median 353.0 ft² | frames: 100 used, 15 excluded (13%) [counts: {'4v4': 22, '4v5': 15, '5v5': 12}]
+INFO    def 2    on 3    (6.8s): dist median  7.5 ft | closing 29%/holding 5%/retreating 67%
+INFO    def 9    on 82   (6.6s): dist median 10.0 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 312  on 87   (2.7s): dist median 15.3 ft | n/a (runs too short)
+INFO    def 388  on 80   (8.3s): dist median  4.9 ft | closing 21%/holding 3%/retreating 76%
+INFO    def 396  on 402  (7.6s): dist median 12.3 ft | n/a (runs too short)
+INFO    def 410  on 87   (0.9s): dist median 15.8 ft | n/a (runs too short)
+INFO    def 490  on 461  (1.2s): dist median  2.5 ft | n/a (runs too short)
+INFO    def 507  on 80   (1.8s): dist median  4.6 ft | n/a (runs too short)
+INFO  possession @right (core 9.3s, offense team 1, conf 0.99) — coverage 4.1 pairs/frame, spacing median 666.0 ft² | frames: 93 used, 0 excluded (0%) [counts: {'4v5': 30, '5v5': 27, '4v4': 13}]
+INFO    def 3    on 628  (7.2s): dist median 11.5 ft | closing 0%/holding 31%/retreating 69%
+INFO    def 87   on 9    (6.8s): dist median  9.0 ft | closing 18%/holding 18%/retreating 64%
+INFO    def 563  on 490  (7.8s): dist median 17.7 ft | closing 89%/holding 5%/retreating 5%
+INFO    def 592  on 558  (8.8s): dist median  8.1 ft | closing 24%/holding 22%/retreating 54%
+INFO    def 593  on 507  (7.5s): dist median  7.7 ft | closing 78%/holding 22%/retreating 0%
+INFO    def 681  on 507  (0.1s): dist median  5.0 ft | n/a (runs too short)
+INFO  possession @right (core 4.9s, offense team 1, conf 0.99) — coverage 2.9 pairs/frame, spacing median 114.0 ft² | frames: 49 used, 0 excluded (0%) [counts: {'3v5': 35, '3v4': 12, '1v1': 1}]
+INFO    def 681  on 692  (4.6s): dist median  4.9 ft | closing 0%/holding 30%/retreating 70%
+INFO    def 695  on 699  (4.8s): dist median 10.7 ft | closing 47%/holding 53%/retreating 0%
+INFO    def 697  on 700  (4.7s): dist median  9.1 ft | closing 0%/holding 62%/retreating 38%
+INFO    def 698  on 699  (0.3s): dist median  9.2 ft | n/a (runs too short)
+INFO  possession @right (core 4.0s, offense team 1, conf 0.80) — coverage 1.0 pairs/frame, spacing median n/a ft² | frames: 40 used, 0 excluded (0%) [counts: {'1v5': 25, '1v4': 15}]
+INFO    def 695  on 699  (2.6s): dist median 10.2 ft | closing 31%/holding 69%/retreating 0%
+INFO    def 697  on 699  (1.3s): dist median  3.1 ft | n/a (runs too short)
+INFO    def 698  on 699  (0.1s): dist median  7.9 ft | n/a (runs too short)
+INFO  possession @right (core 5.5s, offense team 0, conf 1.00) — coverage 2.0 pairs/frame, spacing median n/a ft² | frames: 55 used, 0 excluded (0%) [counts: {'2v5': 46, '2v4': 9}]
+INFO    def 5417 on 5424 (0.2s): dist median 15.7 ft | n/a (runs too short)
+INFO    def 5418 on 5424 (5.4s): dist median  3.2 ft | closing 0%/holding 100%/retreating 0%
+INFO    def 5419 on 5416 (5.4s): dist median 11.8 ft | closing 53%/holding 47%/retreating 0%
+INFO  possession @left (core 4.3s, offense team 1, conf 0.93) — coverage 2.1 pairs/frame, spacing median 216.0 ft² | frames: 43 used, 0 excluded (0%) [counts: {'2v3': 28, '3v3': 6, '1v0': 5}]
+INFO    def 6455 on 6453 (1.9s): dist median 13.1 ft | n/a (runs too short)
+INFO    def 6456 on 6453 (3.5s): dist median 22.5 ft | closing 0%/holding 8%/retreating 92%
+INFO    def 6459 on 6457 (2.4s): dist median  3.4 ft | closing 57%/holding 36%/retreating 7%
+INFO  possession @right (core 13.7s, offense team 0, conf 1.00) — coverage 2.0 pairs/frame, spacing median 117.0 ft² | frames: 137 used, 0 excluded (0%) [counts: {'3v2': 125, '2v2': 7, '3v1': 5}]
+INFO    def 6453 on 6455 (13.3s): dist median  7.6 ft | closing 36%/holding 12%/retreating 52%
+INFO    def 6457 on 6456 (13.6s): dist median  9.0 ft | closing 17%/holding 15%/retreating 68%
+INFO  skipped span @444: core_too_short
+INFO  skipped span @5469: core_too_short
+INFO matchups → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_40m00_48m00_matchups.json
+=== CLIP DONE clip_40m00_48m00 18:52:01 ===
+=== CLIP START clip_55m00_63m00 18:52:01 ===
+INFO Note: NumExpr detected 10 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO NumExpr defaulting to 8 threads.
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:23: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+INFO PlayerTracker ready (weights=player_detector.pt, device=mps, tracker=botsort.yaml, conf=0.40)
+INFO Pre-gate: coarse scan (stride 15) …
+INFO Pre-gate: 13 live segments, 4.9 of 8.0 min (62%)
+INFO Tracking + projecting clip_55m00_63m00.mp4 from frame 0 …
+[W MPSFallback.mm:13] Warning: The operator 'torchvision::nms' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (function operator())
+INFO Camera cut at frame 1404 — resetting track IDs
+INFO Camera cut at frame 2241 — resetting track IDs
+INFO Camera cut at frame 5949 — resetting track IDs
+INFO Embedding torso crops (re-ID + teams, 140 tracks) …
+/opt/anaconda3/lib/python3.12/site-packages/threadpoolctl.py:1214: RuntimeWarning: 
+Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
+the same time. Both libraries are known to be incompatible and this
+can cause random crashes or deadlocks on Linux when loaded in the
+same Python program.
+Using threadpoolctl may cause crashes or deadlocks. For more
+information and possible workarounds, please see
+    https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
+
+  warnings.warn(msg, RuntimeWarning)
+INFO teams: k-means fit on 122 track color-features, silhouette=0.575
+INFO re-ID: linked 22 fragment pairs (131 refused as ambiguous)
+INFO team contact sheet → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/viz/team_clusters_clip_55m00_63m00.png
+INFO ── PHYSICS (raw, pre-clean) ──   {"steps": 9390, "impossible_step_pct": 4.1, "step_p50_ft": 0.63, "step_p99_ft": 5.5, "off_court_pct": 0.7}
+INFO ── IDENTITY ──                   {"fragments": 150, "canonical_tracks": 128, "merges": 22, "ambiguous_refused": 50, "team_vetoed": 81, "median_players_per_frame": 2, "id_churn_before": 75.0, "id_churn_after": 64.0, "footpoint_clip_fixes": 378, "camera_cut_resets": 3, "teams": {"silhouette": 0.575, "tracks_team_A": 52, "tracks_team_B": 43, "tracks_abstained": 23, "frame_balance_median": [1, 1]}}
+INFO 2584 frames (2557 with homography) · 128 tracks · 11247 trajectory points · 1393 corrected (12.4%)
+INFO identity audit → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_55m00_63m00_identity.json
+INFO trajectories → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_55m00_63m00_trajectories.json (video render skipped)
+WARNING unsegmented 8.2s stretch 1788–2034 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 22.3s stretch 2577–3243 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 39.5s stretch 6105–7293 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 21.0s stretch 8343–8970 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 13.2s stretch 11181–11574 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 13.2s stretch 13278–13671 — occupancy stayed near the band edge; review the timeline strip
+INFO ── POSSESSION SPANS ──
+INFO      570–903     11.2s (approach 0.0s + set 11.2s)  @left basket  offense=team 0 (conf 0.99)
+INFO      906–1161     8.6s (approach 2.8s + set 5.8s)  @right basket  offense=team 1 (conf 1.00)
+INFO     1164–1179     0.6s  transition/unknown
+INFO     1407–1611     6.9s (approach 0.0s + set 6.9s)  @left basket  offense=team 0 (conf 0.82)
+INFO     1614–1716     3.5s  transition/unknown
+INFO     1719–1785     1.9s  transition/unknown
+INFO     1788–2034     8.2s  transition/unknown
+INFO     2037–2049     0.5s  transition/unknown
+INFO     2241–2574    11.2s (approach 0.0s + set 11.2s)  @right basket  offense=team 1 (conf 1.00)
+INFO     2577–3243    22.3s  transition/unknown
+INFO     4452–5409    28.9s (approach 17.9s + set 11.0s)  @left basket  offense=team 0 (conf 0.87)
+INFO     5949–6099     5.1s (approach 0.0s + set 5.1s)  @left basket  offense=team 0 (conf 1.00)
+INFO     6105–7293    39.5s  transition/unknown
+INFO     7839–8235    13.3s (approach 3.6s + set 9.7s)  @left basket  offense=team 0 (conf 0.64)
+INFO     8328–8340     0.5s  transition/unknown
+INFO     8343–8970    21.0s  transition/unknown
+INFO     9228–9597    12.4s (approach 0.0s + set 12.4s)  @right basket  offense=team 1 (conf 0.55)
+INFO     9600–9732     4.4s  transition/unknown
+INFO    10563–10656    1.2s  transition/unknown
+INFO    10659–10659    0.1s  transition/unknown
+INFO    11181–11574   13.2s  transition/unknown
+INFO    12048–12090    1.5s  transition/unknown
+INFO    12093–12420   11.0s (approach 1.1s + set 9.9s)  @right basket  offense=team 1 (conf 0.96)
+INFO    12615–12672    2.0s  transition/unknown
+INFO    12756–13149   13.2s (approach 0.0s + set 13.2s)  @left basket  offense=team 0 (conf 1.00)
+INFO    13152–13152    0.1s  transition/unknown
+INFO    13275–13275    0.1s  transition/unknown
+INFO    13278–13671   13.2s  transition/unknown
+INFO 10 halfcourt spans, 121.8s of 255.6s (48%) — rest transition/unknown
+INFO spans → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_55m00_63m00_possessions.json
+INFO timeline → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_55m00_63m00_possessions.png
+INFO ── C3 TIER-1 MATCHUP METRICS — clip_55m00_63m00 ──
+INFO  possession @left (core 9.2s, offense team 0, conf 0.99) — coverage 3.0 pairs/frame, spacing median 255.0 ft² | frames: 81 used, 11 excluded (12%) [counts: {'3v4': 26, '5v4': 10, '2v4': 10}]
+INFO    def 2    on 7    (5.4s): dist median  4.7 ft | closing 45%/holding 55%/retreating 0%
+INFO    def 3    on 5    (7.0s): dist median  8.0 ft | closing 25%/holding 44%/retreating 31%
+INFO    def 4    on 9    (7.3s): dist median 11.8 ft | closing 43%/holding 26%/retreating 30%
+INFO    def 8    on 10   (2.7s): dist median 11.8 ft | n/a (runs too short)
+INFO    def 40   on 30   (1.3s): dist median  4.0 ft | n/a (runs too short)
+INFO    def 84   on 9    (0.7s): dist median  2.9 ft | n/a (runs too short)
+INFO  possession @left (core 4.9s, offense team 0, conf 0.82) — coverage 1.9 pairs/frame, spacing median n/a ft² | frames: 49 used, 0 excluded (0%) [counts: {'2v4': 28, '2v3': 12, '1v4': 6}]
+INFO    def 254  on 261  (4.9s): dist median  6.7 ft | closing 3%/holding 69%/retreating 28%
+INFO    def 257  on 259  (1.2s): dist median  5.3 ft | n/a (runs too short)
+INFO    def 260  on 259  (0.2s): dist median 17.0 ft | n/a (runs too short)
+INFO    def 262  on 259  (2.8s): dist median  9.5 ft | n/a (runs too short)
+INFO  possession @right (core 9.2s, offense team 1, conf 1.00) — coverage 3.5 pairs/frame, spacing median 164.0 ft² | frames: 92 used, 0 excluded (0%) [counts: {'4v4': 26, '4v3': 25, '5v5': 12}]
+INFO    def 1241 on 1243 (1.8s): dist median  6.9 ft | n/a (runs too short)
+INFO    def 1242 on 1247 (4.6s): dist median  9.9 ft | closing 18%/holding 9%/retreating 73%
+INFO    def 1245 on 1249 (8.3s): dist median 12.6 ft | closing 80%/holding 20%/retreating 0%
+INFO    def 1246 on 1240 (8.4s): dist median  7.3 ft | closing 14%/holding 18%/retreating 68%
+INFO    def 1248 on 1244 (8.6s): dist median  5.4 ft | closing 8%/holding 50%/retreating 42%
+INFO  possession @left (core 9.0s, offense team 0, conf 0.87) — coverage 3.5 pairs/frame, spacing median 315.0 ft² | frames: 90 used, 0 excluded (0%) [counts: {'4v4': 30, '4v5': 27, '3v4': 16}]
+INFO    def 1244 on 4574 (8.3s): dist median  5.0 ft | closing 56%/holding 3%/retreating 41%
+INFO    def 4575 on 4579 (7.8s): dist median  6.4 ft | closing 58%/holding 11%/retreating 31%
+INFO    def 4577 on 4580 (6.8s): dist median 10.2 ft | closing 44%/holding 7%/retreating 48%
+INFO    def 4578 on 4571 (8.5s): dist median 11.4 ft | closing 16%/holding 39%/retreating 45%
+INFO    def 4581 on 4579 (0.2s): dist median 17.7 ft | n/a (runs too short)
+INFO  possession @left (core 7.7s, offense team 0, conf 0.64) — coverage 2.5 pairs/frame, spacing median 44.0 ft² | frames: 77 used, 0 excluded (0%) [counts: {'3v3': 27, '3v4': 25, '1v4': 15}]
+INFO    def 4588 on 8068 (2.6s): dist median 28.9 ft | n/a (runs too short)
+INFO    def 8064 on 8063 (6.4s): dist median 12.6 ft | closing 60%/holding 2%/retreating 38%
+INFO    def 8066 on 8068 (3.1s): dist median 14.5 ft | n/a (runs too short)
+INFO    def 8067 on 8065 (5.9s): dist median  5.5 ft | closing 33%/holding 62%/retreating 4%
+INFO  possession @right (core 7.9s, offense team 1, conf 0.96) — coverage 2.7 pairs/frame, spacing median 115.0 ft² | frames: 79 used, 0 excluded (0%) [counts: {'3v3': 38, '3v4': 10, '2v3': 9}]
+INFO    def 11563 on 11567 (1.2s): dist median  8.7 ft | n/a (runs too short)
+INFO    def 11564 on 11565 (6.6s): dist median 12.0 ft | closing 16%/holding 16%/retreating 69%
+INFO    def 11566 on 11567 (4.2s): dist median 26.6 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 11568 on 11561 (6.7s): dist median  8.1 ft | closing 26%/holding 53%/retreating 21%
+INFO    def 11569 on 11567 (0.4s): dist median 32.3 ft | n/a (runs too short)
+INFO  possession @left (core 11.2s, offense team 0, conf 1.00) — coverage 2.8 pairs/frame, spacing median 70.0 ft² | frames: 112 used, 0 excluded (0%) [counts: {'3v3': 85, '3v2': 20, '2v3': 4}]
+INFO    def 11962 on 11960 (10.7s): dist median 10.9 ft | closing 12%/holding 13%/retreating 75%
+INFO    def 11964 on 11963 (10.9s): dist median 10.4 ft | closing 29%/holding 6%/retreating 66%
+INFO    def 11967 on 11965 (9.3s): dist median 16.2 ft | closing 10%/holding 2%/retreating 88%
+INFO  skipped span @990: core_too_short
+INFO  skipped span @5949: core_too_short
+INFO  skipped span @9228: low_conf_0.55
+INFO matchups → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_55m00_63m00_matchups.json
+=== CLIP DONE clip_55m00_63m00 19:01:35 ===
+=== CLIP START clip_70m00_78m00 19:01:35 ===
+INFO Note: NumExpr detected 10 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO NumExpr defaulting to 8 threads.
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:23: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+INFO PlayerTracker ready (weights=player_detector.pt, device=mps, tracker=botsort.yaml, conf=0.40)
+INFO Pre-gate: coarse scan (stride 15) …
+INFO Pre-gate: 12 live segments, 6.2 of 8.0 min (77%)
+INFO Tracking + projecting clip_70m00_78m00.mp4 from frame 0 …
+[W MPSFallback.mm:13] Warning: The operator 'torchvision::nms' is not currently supported on the MPS backend and will fall back to run on the CPU. This may have performance implications. (function operator())
+INFO Camera cut at frame 4893 — resetting track IDs
+INFO Camera cut at frame 7749 — resetting track IDs
+INFO Embedding torso crops (re-ID + teams, 200 tracks) …
+/opt/anaconda3/lib/python3.12/site-packages/threadpoolctl.py:1214: RuntimeWarning: 
+Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded at
+the same time. Both libraries are known to be incompatible and this
+can cause random crashes or deadlocks on Linux when loaded in the
+same Python program.
+Using threadpoolctl may cause crashes or deadlocks. For more
+information and possible workarounds, please see
+    https://github.com/joblib/threadpoolctl/blob/master/multiple_openmp.md
+
+  warnings.warn(msg, RuntimeWarning)
+INFO teams: k-means fit on 170 track color-features, silhouette=0.639
+INFO re-ID: linked 53 fragment pairs (299 refused as ambiguous)
+INFO team contact sheet → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/viz/team_clusters_clip_70m00_78m00.png
+INFO ── PHYSICS (raw, pre-clean) ──   {"steps": 15443, "impossible_step_pct": 3.6, "step_p50_ft": 0.64, "step_p99_ft": 5.6, "off_court_pct": 0.5}
+INFO ── IDENTITY ──                   {"fragments": 242, "canonical_tracks": 189, "merges": 53, "ambiguous_refused": 116, "team_vetoed": 183, "median_players_per_frame": 4, "id_churn_before": 60.5, "id_churn_after": 47.25, "footpoint_clip_fixes": 678, "camera_cut_resets": 2, "teams": {"silhouette": 0.639, "tracks_team_A": 62, "tracks_team_B": 55, "tracks_abstained": 30, "frame_balance_median": [2, 2]}}
+INFO 3383 frames (3383 with homography) · 189 tracks · 19175 trajectory points · 2102 corrected (11.0%)
+INFO identity audit → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_70m00_78m00_identity.json
+INFO trajectories → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_70m00_78m00_trajectories.json (video render skipped)
+WARNING unsegmented 8.7s stretch 5406–5664 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 11.9s stretch 5805–6159 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 8.0s stretch 6291–6543 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 6.2s stretch 9966–10149 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 18.0s stretch 11868–12405 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 5.0s stretch 12408–12555 — occupancy stayed near the band edge; review the timeline strip
+WARNING unsegmented 45.5s stretch 12558–13920 — occupancy stayed near the band edge; review the timeline strip
+INFO ── POSSESSION SPANS ──
+INFO        3–138      4.6s (approach 0.0s + set 4.6s)  @right basket  offense=team 1 (conf 1.00)
+INFO      492–672      6.1s (approach 0.0s + set 6.1s)  @right basket  offense=team 0 (conf 0.98)
+INFO      675–1125    15.1s (approach 2.0s + set 13.1s)  @left basket  offense=team 1 (conf 1.00)
+INFO     1128–1155     1.0s  transition/unknown
+INFO     1266–1266     0.1s  transition/unknown
+INFO     1269–1479     7.1s (approach 0.5s + set 6.6s)  @right basket  offense=team 0 (conf 1.00)
+INFO     1482–1926    14.9s (approach 2.6s + set 12.3s)  @left basket  offense=team 1 (conf 0.98)
+INFO     1929–1956     1.0s  transition/unknown
+INFO     2403–2574     5.8s (approach 0.0s + set 5.8s)  @right basket  offense=team 0 (conf 0.90)
+INFO     2577–3372    26.6s (approach 2.4s + set 24.2s)  @left basket  offense=team 1 (conf 0.92)
+INFO     3375–3918    18.1s (approach 2.5s + set 15.6s)  @right basket  offense=team 0 (conf 0.88)
+INFO     4893–5220    11.0s (approach 0.0s + set 11.0s)  @right basket  offense=team 0 (conf 0.99)
+INFO     5223–5403     6.1s (approach 3.1s + set 3.0s)  @left basket  offense=team 1 (conf 0.97)
+INFO     5406–5664     8.7s  transition/unknown
+INFO     5805–6159    11.9s  transition/unknown
+INFO     6162–6288     4.3s  transition/unknown
+INFO     6291–6543     8.0s  transition/unknown
+INFO     6867–6897     0.3s  transition/unknown
+INFO     6900–6900     0.1s  transition/unknown
+INFO     7092–7605    17.2s (approach 9.3s + set 7.9s)  @left basket  offense=team 1 (conf 0.68)
+INFO     7608–7635     1.0s  transition/unknown
+INFO     7749–8268    17.4s (approach 0.0s + set 17.4s)  @right basket  offense=team 0 (conf 0.90)
+INFO     8271–8292     0.8s  transition/unknown
+INFO     8787–9279    16.5s (approach 0.0s + set 16.5s)  @left basket  offense=team 1 (conf 0.82)
+INFO     9282–9963    22.8s (approach 18.2s + set 4.6s)  @right basket  offense=team 0 (conf 0.95)
+INFO     9966–10149    6.2s  transition/unknown
+INFO    10152–10773   20.8s (approach 13.9s + set 6.9s)  @right basket  offense=team 0 (conf 0.67)
+INFO    11097–11115    0.5s  transition/unknown
+INFO    11118–11223    3.6s  transition/unknown
+INFO    11502–11865   12.2s (approach 4.9s + set 7.3s)  @right basket  offense=team 0 (conf 0.59)
+INFO    11868–12405   18.0s  transition/unknown
+INFO    12408–12555    5.0s  transition/unknown
+INFO    12558–13920   45.5s  transition/unknown
+INFO 16 halfcourt spans, 222.3s of 338.3s (66%) — rest transition/unknown
+INFO spans → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_70m00_78m00_possessions.json
+INFO timeline → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_70m00_78m00_possessions.png
+INFO ── C3 TIER-1 MATCHUP METRICS — clip_70m00_78m00 ──
+INFO  possession @right (core 4.1s, offense team 0, conf 0.98) — coverage 3.3 pairs/frame, spacing median 138.0 ft² | frames: 41 used, 0 excluded (0%) [counts: {'4v4': 14, '4v5': 5, '3v5': 5}]
+INFO    def 3    on 6    (1.9s): dist median  4.8 ft | n/a (runs too short)
+INFO    def 8    on 27   (2.4s): dist median  5.0 ft | closing 20%/holding 20%/retreating 60%
+INFO    def 14   on 7    (4.0s): dist median  4.4 ft | closing 44%/holding 12%/retreating 44%
+INFO    def 26   on 7    (1.6s): dist median  5.1 ft | n/a (runs too short)
+INFO    def 28   on 5    (3.6s): dist median  5.5 ft | closing 20%/holding 40%/retreating 40%
+INFO  possession @left (core 11.1s, offense team 1, conf 1.00) — coverage 3.8 pairs/frame, spacing median 449.0 ft² | frames: 100 used, 11 excluded (10%) [counts: {'4v5': 26, '3v5': 21, '4v4': 17}]
+INFO    def 5    on 26   (6.6s): dist median  5.6 ft | closing 0%/holding 100%/retreating 0%
+INFO    def 6    on 28   (6.1s): dist median 11.8 ft | n/a (runs too short)
+INFO    def 78   on 113  (9.0s): dist median  9.0 ft | closing 56%/holding 11%/retreating 33%
+INFO    def 86   on 3    (8.1s): dist median  5.1 ft | closing 38%/holding 57%/retreating 5%
+INFO    def 88   on 8    (8.0s): dist median  6.6 ft | closing 57%/holding 42%/retreating 0%
+INFO    def 106  on 28   (0.3s): dist median 16.6 ft | n/a (runs too short)
+INFO  possession @right (core 4.6s, offense team 0, conf 1.00) — coverage 3.9 pairs/frame, spacing median 135.0 ft² | frames: 23 used, 23 excluded (50%) [counts: {'4v5': 18, '4v4': 3, '3v4': 1}]
+INFO    def 28   on 245  (1.6s): dist median 26.2 ft | n/a (runs too short)
+INFO    def 211  on 6    (2.3s): dist median 17.1 ft | n/a (runs too short)
+INFO    def 233  on 78   (2.3s): dist median 21.9 ft | n/a (runs too short)
+INFO    def 251  on 78   (1.7s): dist median 28.4 ft | n/a (runs too short)
+INFO    def 253  on 6    (1.1s): dist median 10.9 ft | n/a (runs too short)
+INFO  possession @left (core 10.3s, offense team 1, conf 0.98) — coverage 3.2 pairs/frame, spacing median 288.0 ft² | frames: 98 used, 5 excluded (5%) [counts: {'4v4': 27, '4v5': 12, '4v3': 10}]
+INFO    def 242  on 3    (8.5s): dist median 10.9 ft | closing 57%/holding 29%/retreating 14%
+INFO    def 245  on 251  (6.0s): dist median  7.4 ft | closing 33%/holding 31%/retreating 36%
+INFO    def 294  on 326  (8.1s): dist median  5.7 ft | closing 0%/holding 19%/retreating 81%
+INFO    def 344  on 342  (2.1s): dist median 13.2 ft | closing 0%/holding 90%/retreating 10%
+INFO    def 363  on 342  (6.1s): dist median 12.2 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 367  on 326  (0.3s): dist median  3.0 ft | n/a (runs too short)
+INFO    def 411  on 370  (0.7s): dist median  4.0 ft | n/a (runs too short)
+INFO  possession @left (core 22.2s, offense team 1, conf 0.92) — coverage 3.6 pairs/frame, spacing median 539.0 ft² | frames: 130 used, 92 excluded (41%) [counts: {'4v5': 40, '3v5': 33, '4v4': 16}]
+INFO    def 411  on 496  (6.1s): dist median 16.1 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 491  on 597  (12.7s): dist median  8.4 ft | closing 26%/holding 39%/retreating 35%
+INFO    def 492  on 326  (5.2s): dist median 13.9 ft | closing 43%/holding 0%/retreating 57%
+INFO    def 493  on 326  (5.6s): dist median 11.4 ft | closing 58%/holding 17%/retreating 25%
+INFO    def 494  on 501  (10.9s): dist median  8.7 ft | closing 40%/holding 8%/retreating 52%
+INFO    def 503  on 782  (2.5s): dist median  6.1 ft | n/a (runs too short)
+INFO    def 535  on 3    (3.7s): dist median  4.9 ft | closing 43%/holding 29%/retreating 29%
+INFO  possession @right (core 13.6s, offense team 0, conf 0.88) — coverage 3.6 pairs/frame, spacing median 277.0 ft² | frames: 129 used, 7 excluded (5%) [counts: {'4v4': 22, '4v5': 19, '5v3': 19}]
+INFO    def 326  on 503  (3.2s): dist median 13.3 ft | closing 43%/holding 29%/retreating 29%
+INFO    def 501  on 866  (1.7s): dist median  5.8 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 782  on 907  (11.7s): dist median  8.3 ft | closing 42%/holding 14%/retreating 44%
+INFO    def 805  on 943  (7.4s): dist median  8.7 ft | n/a (runs too short)
+INFO    def 835  on 503  (6.2s): dist median 10.3 ft | n/a (runs too short)
+INFO    def 858  on 866  (10.4s): dist median  7.1 ft | closing 0%/holding 0%/retreating 100%
+INFO    def 948  on 896  (5.5s): dist median  2.8 ft | closing 3%/holding 46%/retreating 51%
+INFO  possession @right (core 9.0s, offense team 0, conf 0.99) — coverage 3.4 pairs/frame, spacing median 33.0 ft² | frames: 90 used, 0 excluded (0%) [counts: {'4v4': 37, '4v3': 26, '3v3': 16}]
+INFO    def 805  on 1029 (9.0s): dist median  2.9 ft | closing 5%/holding 87%/retreating 8%
+INFO    def 1030 on 1031 (8.9s): dist median  4.1 ft | closing 60%/holding 27%/retreating 13%
+INFO    def 1033 on 1017 (7.9s): dist median  7.2 ft | closing 0%/holding 100%/retreating 0%
+INFO    def 1035 on 1034 (4.7s): dist median  2.4 ft | closing 54%/holding 25%/retreating 21%
+INFO  possession @left (core 5.9s, offense team 1, conf 0.68) — coverage 1.9 pairs/frame, spacing median n/a ft² | frames: 59 used, 0 excluded (0%) [counts: {'2v2': 25, '2v4': 12, '2v3': 11}]
+INFO    def 4604 on 4606 (4.8s): dist median 17.7 ft | n/a (runs too short)
+INFO    def 4605 on 4606 (1.6s): dist median 20.5 ft | n/a (runs too short)
+INFO    def 4609 on 4607 (3.8s): dist median 19.5 ft | n/a (runs too short)
+INFO  possession @right (core 15.4s, offense team 0, conf 0.90) — coverage 2.8 pairs/frame, spacing median 230.0 ft² | frames: 154 used, 0 excluded (0%) [counts: {'3v3': 85, '2v3': 18, '3v2': 15}]
+INFO    def 5031 on 5033 (12.0s): dist median  9.4 ft | closing 76%/holding 6%/retreating 18%
+INFO    def 5032 on 5035 (14.7s): dist median  9.8 ft | closing 45%/holding 19%/retreating 36%
+INFO    def 5034 on 5029 (2.5s): dist median  6.2 ft | closing 100%/holding 0%/retreating 0%
+INFO    def 5036 on 5030 (13.3s): dist median 13.3 ft | closing 75%/holding 23%/retreating 2%
+INFO  possession @left (core 14.5s, offense team 1, conf 0.82) — coverage 2.7 pairs/frame, spacing median 194.0 ft² | frames: 145 used, 0 excluded (0%) [counts: {'3v4': 73, '3v3': 28, '2v4': 23}]
+INFO    def 5666 on 5670 (11.8s): dist median  7.9 ft | closing 44%/holding 46%/retreating 10%
+INFO    def 5667 on 5670 (4.0s): dist median  9.1 ft | closing 82%/holding 9%/retreating 9%
+INFO    def 5669 on 5031 (12.7s): dist median  7.7 ft | closing 46%/holding 21%/retreating 33%
+INFO    def 5671 on 5668 (10.2s): dist median 17.1 ft | closing 13%/holding 25%/retreating 62%
+INFO    def 5672 on 5031 (1.0s): dist median 12.1 ft | n/a (runs too short)
+INFO  possession @right (core 4.9s, offense team 0, conf 0.67) — coverage 3.1 pairs/frame, spacing median 195.0 ft² | frames: 49 used, 0 excluded (0%) [counts: {'4v3': 17, '4v4': 15, '1v0': 5}]
+INFO    def 8666 on 8667 (3.9s): dist median  8.9 ft | n/a (runs too short)
+INFO    def 8669 on 8673 (1.7s): dist median  4.2 ft | n/a (runs too short)
+INFO    def 8670 on 5667 (4.3s): dist median 17.5 ft | n/a (runs too short)
+INFO    def 8672 on 8668 (3.9s): dist median  9.2 ft | closing 100%/holding 0%/retreating 0%
+INFO  skipped span @3: core_too_short
+INFO  skipped span @2403: core_too_short
+INFO  skipped span @5316: core_too_short
+INFO  skipped span @9828: core_too_short
+INFO  skipped span @11649: low_conf_0.59
+INFO matchups → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/tracking/clip_70m00_78m00_matchups.json
+=== CLIP DONE clip_70m00_78m00 19:12:53 ===
+=== ALIGNMENT ===
+[W NNPACK.cpp:64] Could not initialize NNPACK! Reason: Unsupported hardware.
+INFO ── curry_q1_clip ──
+INFO   poss @0 P1 [pbp 1:37→1:10, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: K. Durant makes 2-pt jump shot from 10 ft
+INFO   poss @912 P1 [pbp 1:37→1:10, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: K. Durant makes 2-pt jump shot from 10 ft
+INFO   poss @1236: anchor_inconsistent
+INFO   poss @2112: anchor_inconsistent
+INFO   poss @2676: anchor_failed
+INFO   poss @6660: anchor_failed
+INFO   poss @7821: anchor_failed
+INFO   poss @11586 P2 [pbp 10:21→10:06, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 2 pts | ends: L. Barbosa makes 2-pt layup from 1 ft
+INFO   poss @14175 P2 [pbp 8:59→8:42, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: D. Waiters misses 3-pt jump shot from 24 ft
+INFO ── curry_classic_clip ──
+INFO   poss @189: anchor_failed
+INFO   poss @687 P1 [pbp 12:00→11:46, ovl 67%]: offense GSW (pred) vs OKC (PBP) ✗ | 2 pts | ends: R. Westbrook makes 2-pt layup at rim
+INFO   poss @987 P1 [pbp 11:46→11:28, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: D. Green misses 2-pt layup at rim
+INFO   poss @1473 P1 [pbp 11:28→11:19, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 3 pts | ends: K. Durant makes 3-pt jump shot from 25 ft (assist by S. Adam
+INFO   poss @1734 P1 [pbp 11:19→11:13, ovl 60%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 3-pt jump shot from 24 ft
+INFO   poss @1986 P1 [pbp 11:13→10:51, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 3 pts | ends: A. Roberson makes 3-pt jump shot from 23 ft (assist by K. Du
+INFO   poss @2595 P1 [pbp 10:51→10:26, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: A. Bogut makes 2-pt layup from 1 ft (assist by D. Green )
+INFO   poss @2889 P1 [pbp 10:51→10:26, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: A. Bogut makes 2-pt layup from 1 ft (assist by D. Green )
+INFO   poss @3375 P1 [pbp 10:26→10:11, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: R. Westbrook misses 2-pt layup from 2 ft (block by A. Bogut 
+INFO   poss @5277 P1 [pbp 9:52→9:30, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: S. Adams makes 2-pt hook shot from 4 ft (assist by K. Durant
+INFO   poss @7824 P1 [pbp 9:15→8:57, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: A. Bogut misses 2-pt hook shot from 5 ft
+INFO   poss @17505 P1 [pbp 5:42→5:28, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: R. Westbrook misses 2-pt jump shot from 12 ft
+INFO ── clip_40m00_48m00 ──
+INFO   poss @717 P2 [pbp 1:48→1:27, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 2 pts | ends: L. James makes 2-pt dunk from 2 ft
+INFO   poss @1311 P2 [pbp 1:27→0:57, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: R. Rondo makes 2-pt jump shot from 9 ft
+INFO   poss @1833: anchor_failed
+INFO   poss @3786: anchor_failed
+INFO   poss @4272: anchor_failed
+INFO   poss @8205: no_pbp_overlap
+INFO   poss @11403 P3 [pbp 12:00→11:44, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 0 pts | ends: L. James misses 2-pt jump shot from 13 ft
+INFO   poss @11646 P3 [pbp 11:44→11:11, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: Turnover by K. Garnett (traveling)
+INFO ── clip_55m00_63m00 ──
+INFO   poss @570 P3 [pbp 6:51→6:33, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 0 pts | ends: D. Wade misses 2-pt layup from 2 ft
+INFO   poss @1407 P3 [pbp 6:24→6:08, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 0 pts | ends: Turnover by C. Bosh (bad pass; steal by P. Pierce )
+INFO   poss @2241 P3 [pbp 5:53→5:38, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: P. Pierce misses 2-pt layup from 2 ft
+INFO   poss @5028 P3 [pbp 5:18→4:50, ovl 100%]: offense MIA (pred) vs BOS (PBP) ✗ | 2 pts | ends: P. Pierce makes 2-pt jump shot from 9 ft
+INFO   poss @7947 P3 [pbp 4:15→3:53, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 2 pts | ends: L. James makes 2-pt jump shot from 14 ft
+INFO   poss @9228: anchor_inconsistent
+INFO   poss @12126 P3 [pbp 3:02→2:52, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: M. PiÃ©trus makes 2-pt tip-in at rim
+INFO   poss @12756 P3 [pbp 2:52→2:29, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 3 pts | ends: L. James makes 3-pt jump shot from 25 ft
+INFO ── clip_70m00_78m00 ──
+INFO   poss @492: no_pbp_overlap
+INFO   poss @735 P4 [pbp 10:03→9:46, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 2 pts | ends: L. James makes 2-pt jump shot from 16 ft
+INFO   poss @1284 P4 [pbp 9:46→9:32, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: Turnover by R. Rondo (lost ball; steal by D. Wade )
+INFO   poss @1560 P4 [pbp 9:32→9:21, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 0 pts | ends: Turnover by D. Wade (offensive foul)
+INFO   poss @2649 P4 [pbp 9:12→8:43, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 0 pts | ends: Turnover by L. James (bad pass; steal by K. Dooling )
+INFO   poss @3450 P4 [pbp 8:43→8:26, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: Turnover by P. Pierce (lost ball; steal by S. Battier )
+INFO   poss @4893: anchor_inconsistent
+INFO   poss @7371 P4 [pbp 7:28→7:15, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 2 pts | ends: L. James makes 2-pt layup from 1 ft (assist by D. Wade )
+INFO   poss @7749 P4 [pbp 7:15→6:55, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: R. Allen misses 3-pt jump shot from 24 ft
+INFO   poss @8787 P4 [pbp 6:55→6:35, ovl 100%]: offense MIA (pred) vs MIA (PBP) ✓ | 0 pts | ends: L. James misses 3-pt jump shot from 27 ft
+INFO   poss @10569 P4 [pbp 5:54→5:46, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: R. Allen makes free throw 2 of 2
+INFO   poss @11649 P4 [pbp 5:46→5:23, ovl 100%]: offense BOS (pred) vs MIA (PBP) ✗ | 0 pts | ends: D. Wade misses 2-pt jump shot from 20 ft
+INFO ── CROSS-VALIDATION ── {"agree": 32, "disagree": 4, "unknown": 0, "agreement_rate": 0.889}
+INFO report → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/tier2_crossval.json
+=== PHASE A COMPLETE 19:14:03 ===

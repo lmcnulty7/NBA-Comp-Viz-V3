@@ -1,0 +1,468 @@
+[
+ {
+  "set_start_frame": 492,
+  "core_end_frame": 612,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 735,
+  "core_end_frame": 1065,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 735,
+    "period": 4,
+    "clock_s": 599,
+    "raw": "4th|9:59"
+   },
+   {
+    "frame": 1065,
+    "period": 4,
+    "clock_s": 588,
+    "raw": "4th|9:48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    603.0,
+    586.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 586.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 1284,
+  "core_end_frame": 1419,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1284,
+    "period": 4,
+    "clock_s": 580,
+    "raw": "4th|9:40"
+   },
+   {
+    "frame": 1419,
+    "period": 4,
+    "clock_s": 576,
+    "raw": "4th|9:36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    586.0,
+    572.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 572.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by R. Rondo (lost ball; steal by D. Wade )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 1560,
+  "core_end_frame": 1866,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1560,
+    "period": 4,
+    "clock_s": 571,
+    "raw": "4th|9:31"
+   },
+   {
+    "frame": 1866,
+    "period": 4,
+    "clock_s": 561,
+    "raw": "4th|9:21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    572.0,
+    561.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 561.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by D. Wade (offensive foul)"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 2649,
+  "core_end_frame": 3312,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.92,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2649,
+    "period": 4,
+    "clock_s": 549,
+    "raw": "4th|9:09"
+   },
+   {
+    "frame": 3312,
+    "period": 4,
+    "clock_s": 526,
+    "raw": "4th|8:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    552.0,
+    523.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 523.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by L. James (bad pass; steal by K. Dooling )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 3450,
+  "core_end_frame": 3855,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 3450,
+    "period": 4,
+    "clock_s": 521,
+    "raw": "4th|8:41"
+   },
+   {
+    "frame": 3855,
+    "period": 4,
+    "clock_s": 507,
+    "raw": "4th|8:27"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    523.0,
+    506.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 506.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by P. Pierce (lost ball; steal by S. Battier )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 4893,
+  "core_end_frame": 5160,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 4893,
+    "period": 4,
+    "clock_s": 506,
+    "raw": "4th|8:26"
+   },
+   {
+    "frame": 5160,
+    "period": 4,
+    "clock_s": 506,
+    "raw": "4th|8:26"
+   }
+  ],
+  "d_video_s": 8.9,
+  "d_clock_s": 0
+ },
+ {
+  "set_start_frame": 7371,
+  "core_end_frame": 7545,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.68,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7371,
+    "period": 4,
+    "clock_s": 443,
+    "raw": "4th|7:23"
+   },
+   {
+    "frame": 7545,
+    "period": 4,
+    "clock_s": 437,
+    "raw": "4th|7:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    448.0,
+    435.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 435.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt layup from 1 ft (assist by D. Wade )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 7749,
+  "core_end_frame": 8208,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7749,
+    "period": 4,
+    "clock_s": 430,
+    "raw": "4th|7:10"
+   },
+   {
+    "frame": 8208,
+    "period": 4,
+    "clock_s": 415,
+    "raw": "4th|6:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    435.0,
+    415.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 415.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "R. Allen misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 8787,
+  "core_end_frame": 9219,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8787,
+    "period": 4,
+    "clock_s": 413,
+    "raw": "4th|6:53"
+   },
+   {
+    "frame": 9219,
+    "period": 4,
+    "clock_s": 398,
+    "raw": "4th|6:38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    415.0,
+    395.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 395.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. James misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 10569,
+  "core_end_frame": 10713,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.67,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10569,
+    "period": 4,
+    "clock_s": 352,
+    "raw": "4th|5:52"
+   },
+   {
+    "frame": 10713,
+    "period": 4,
+    "clock_s": 347,
+    "raw": "4th|5:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    354.0,
+    346.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 346.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "R. Allen makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 11649,
+  "core_end_frame": 11805,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11649,
+    "period": 4,
+    "clock_s": 346,
+    "raw": "4th|5:46"
+   },
+   {
+    "frame": 11805,
+    "period": 4,
+    "clock_s": 343,
+    "raw": "4th|5:43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    346.0,
+    323.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 323.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Wade misses 2-pt jump shot from 20 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": false
+ }
+]

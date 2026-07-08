@@ -1,0 +1,214 @@
+[
+ {
+  "set_start_frame": 717,
+  "core_end_frame": 1176,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 717,
+    "period": 2,
+    "clock_s": 105,
+    "raw": "2nd|1:45"
+   },
+   {
+    "frame": 1176,
+    "period": 2,
+    "clock_s": 89,
+    "raw": "2nd|1:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    108.0,
+    87.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 87.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt dunk from 2 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 1311,
+  "core_end_frame": 1656,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1311,
+    "period": 2,
+    "clock_s": 84,
+    "raw": "2nd|1:24"
+   },
+   {
+    "frame": 1656,
+    "period": 2,
+    "clock_s": 73,
+    "raw": "2nd|1:13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    87.0,
+    57.3
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 72.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "R. Rondo makes 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 1833,
+  "core_end_frame": 2109,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 3786,
+  "core_end_frame": 3930,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 4272,
+  "core_end_frame": 4389,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 8205,
+  "core_end_frame": 8376,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 11403,
+  "core_end_frame": 11529,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11403,
+    "period": 3,
+    "clock_s": 708,
+    "raw": "3rd|11:48"
+   },
+   {
+    "frame": 11529,
+    "period": 3,
+    "clock_s": 704,
+    "raw": "3rd|11:44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    720.0,
+    704.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 704.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. James misses 2-pt jump shot from 13 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 11646,
+  "core_end_frame": 12054,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11646,
+    "period": 3,
+    "clock_s": 700,
+    "raw": "3rd|11:40"
+   },
+   {
+    "frame": 12054,
+    "period": 3,
+    "clock_s": 687,
+    "raw": "3rd|11:27"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    704.0,
+    671.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 671.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by K. Garnett (traveling)"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ }
+]

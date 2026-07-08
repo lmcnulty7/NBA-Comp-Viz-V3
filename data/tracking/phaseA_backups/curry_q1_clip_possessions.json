@@ -1,0 +1,131 @@
+{
+  "source": "data/tracking/curry_q1_clip_trajectories.json",
+  "stride": 3,
+  "fps": 30.0,
+  "spans": [
+    {
+      "kind": "transition",
+      "start_frame": 11520,
+      "end_frame": 11520,
+      "duration_s": 0.1
+    },
+    {
+      "kind": "transition",
+      "start_frame": 11523,
+      "end_frame": 11571,
+      "duration_s": 1.7
+    },
+    {
+      "kind": "halfcourt",
+      "start_frame": 11574,
+      "set_start_frame": 11586,
+      "end_frame": 11907,
+      "core_start_frame": 11586,
+      "core_end_frame": 11769,
+      "core_s": 6.2,
+      "metrics_eligible": true,
+      "duration_s": 8.6,
+      "approach_s": 0.4,
+      "set_s": 8.2,
+      "attacked_basket": "left",
+      "occupancy_x_med": 27.9,
+      "defense_team": 1,
+      "offense_team": 0,
+      "confidence": 0.6,
+      "mean_dist_to_basket_ft": {
+        "0": 25.2,
+        "1": 23.6
+      }
+    },
+    {
+      "kind": "halfcourt",
+      "start_frame": 11910,
+      "set_start_frame": 11934,
+      "end_frame": 12333,
+      "core_start_frame": 11934,
+      "core_end_frame": 12273,
+      "core_s": 11.4,
+      "metrics_eligible": true,
+      "duration_s": 14.2,
+      "approach_s": 0.8,
+      "set_s": 13.4,
+      "attacked_basket": "right",
+      "occupancy_x_med": 78.9,
+      "defense_team": 0,
+      "offense_team": 1,
+      "confidence": 0.99,
+      "mean_dist_to_basket_ft": {
+        "0": 14.7,
+        "1": 24.7
+      }
+    },
+    {
+      "kind": "halfcourt",
+      "start_frame": 12336,
+      "set_start_frame": 12429,
+      "end_frame": 12750,
+      "core_start_frame": 12429,
+      "core_end_frame": 12690,
+      "core_s": 8.8,
+      "metrics_eligible": true,
+      "duration_s": 13.9,
+      "approach_s": 3.1,
+      "set_s": 10.8,
+      "attacked_basket": "left",
+      "occupancy_x_med": 23.7,
+      "defense_team": 1,
+      "offense_team": 0,
+      "confidence": 0.9,
+      "mean_dist_to_basket_ft": {
+        "0": 26.4,
+        "1": 19.7
+      }
+    },
+    {
+      "kind": "transition",
+      "start_frame": 12753,
+      "end_frame": 12819,
+      "duration_s": 2.3
+    },
+    {
+      "kind": "halfcourt",
+      "start_frame": 12822,
+      "set_start_frame": 12864,
+      "end_frame": 13128,
+      "core_start_frame": 12864,
+      "core_end_frame": 13068,
+      "core_s": 6.9,
+      "metrics_eligible": true,
+      "duration_s": 10.3,
+      "approach_s": 1.4,
+      "set_s": 8.9,
+      "attacked_basket": "right",
+      "occupancy_x_med": 71.8,
+      "defense_team": 0,
+      "offense_team": 1,
+      "confidence": 0.73,
+      "mean_dist_to_basket_ft": {
+        "0": 19.5,
+        "1": 24.3
+      }
+    },
+    {
+      "kind": "transition",
+      "start_frame": 13131,
+      "end_frame": 13233,
+      "duration_s": 3.5
+    },
+    {
+      "kind": "transition",
+      "start_frame": 13236,
+      "end_frame": 13290,
+      "duration_s": 1.9
+    },
+    {
+      "kind": "transition",
+      "start_frame": 13293,
+      "end_frame": 13317,
+      "duration_s": 0.9
+    }
+  ]
+}

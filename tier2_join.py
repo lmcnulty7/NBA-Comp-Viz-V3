@@ -73,11 +73,17 @@ def main() -> None:
                 excluded.append({"clip": clip, "set_start_frame": f, "reason": "matchup_degraded"})
                 continue
 
-            # check 3: team consistency between the two independent pipelines
+            # check 3: team consistency between the two independent pipelines.
+            # PBP is authoritative on offense — a disagreement means the matchup
+            # record's defender roles are INVERTED, so the possession is hard-
+            # excluded from credit joins (not just flagged).
             pbp_off = o["pbp_offense_real"]
-            teams = set(GAMES[game].values()) & {GAMES[game]["home"], GAMES[game]["away"]}
             pbp_def = ({GAMES[game]["home"], GAMES[game]["away"]} - {pbp_off}).pop()
             team_ok = (o["offense_real"] == pbp_off and o["defense_real"] == pbp_def)
+            if not team_ok:
+                excluded.append({"clip": clip, "set_start_frame": f,
+                                 "reason": "offense_disagrees_pbp"})
+                continue
 
             defenders = sorted(m["defenders"], key=lambda d: -d["time_assigned_s"])
             rec = {
