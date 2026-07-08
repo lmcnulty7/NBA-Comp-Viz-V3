@@ -44,12 +44,37 @@ log = logging.getLogger("harvest_driver")
 
 PY = sys.executable
 HARVEST_DIR = config.PROJECT_ROOT / "data" / "harvest"
+HARVEST_VIDEO = HARVEST_DIR / "video"
 STATUS_PATH = HARVEST_DIR / "status.json"
 STAGE_TIMEOUT_S = {"build": 45 * 60, "segment": 5 * 60, "matchups": 10 * 60}
 
 
+def resolve_src(clip: str) -> Path:
+    """Harvested games live in data/harvest/video/; legacy clips in the old raw dir."""
+    p = HARVEST_VIDEO / f"{clip}.mp4"
+    return p if p.exists() else config.VIDEO_DIR / f"{clip}.mp4"
+
+
+def split_sections(tag: str, section_s: int = 600) -> list[str]:
+    """Split a downloaded game into ~10-min section files (stream copy, no
+    re-encode) — the resume/timeout unit. Returns section clip names.
+    Idempotent: existing sections are kept."""
+    src = HARVEST_VIDEO / f"{tag}.mp4"
+    existing = sorted(HARVEST_VIDEO.glob(f"{tag}_s*.mp4"))
+    if existing:
+        return [p.stem for p in existing]
+    out_pattern = str(HARVEST_VIDEO / f"{tag}_s%02d.mp4")
+    r = subprocess.run(["ffmpeg", "-i", str(src), "-c", "copy", "-map", "0",
+                        "-segment_time", str(section_s), "-f", "segment",
+                        "-reset_timestamps", "1", out_pattern],
+                       capture_output=True, text=True, timeout=600)
+    if r.returncode != 0:
+        raise RuntimeError(f"ffmpeg split failed for {tag}: {r.stderr[-300:]}")
+    return [p.stem for p in sorted(HARVEST_VIDEO.glob(f"{tag}_s*.mp4"))]
+
+
 def stage_cmd(stage: str, clip: str) -> list[str]:
-    src = config.VIDEO_DIR / f"{clip}.mp4"
+    src = resolve_src(clip)
     return {
         "build": [PY, "build_trajectories.py", "--source", str(src), "--start", "0",
                   "--max-frames", "99999", "--stride", "3", "--pregate", "--no-video"],
@@ -106,15 +131,25 @@ def run_unit(clip: str, status: dict, force: set[str]) -> bool:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Resumable harvest batch driver.")
-    ap.add_argument("--clips", nargs="+", required=True)
+    ap.add_argument("--clips", nargs="*", default=[])
+    ap.add_argument("--games", nargs="*", default=[],
+                    help="Downloaded game tags — each is split into 10-min sections first.")
     ap.add_argument("--force", nargs="*", default=[], choices=["build", "segment", "matchups"],
                     help="Redo these stages even if marked done.")
     ap.add_argument("--no-align", action="store_true", help="Skip the alignment+join tail.")
     args = ap.parse_args()
 
+    clips = list(args.clips)
+    for tag in args.games:
+        secs = split_sections(tag)
+        log.info("%s: %d sections", tag, len(secs))
+        clips += secs
+    if not clips:
+        raise SystemExit("Nothing to do — pass --clips and/or --games.")
+
     status = load_status()
-    ok_clips = [c for c in args.clips if run_unit(c, status, set(args.force))]
-    log.info("units complete: %d/%d", len(ok_clips), len(args.clips))
+    ok_clips = [c for c in clips if run_unit(c, status, set(args.force))]
+    log.info("units complete: %d/%d", len(ok_clips), len(clips))
 
     if not args.no_align and ok_clips:
         for cmd, name in (([PY, "align_outcomes.py", "--clips"] + ok_clips, "align"),
