@@ -1,0 +1,499 @@
+{
+ "checks": {
+  "joined": 7,
+  "excluded": 3,
+  "every_join_has_outcome_and_defenders": true,
+  "no_shared_pbp_possession": true,
+  "team_consistency_all": true,
+  "note": "no defender aggregates computed \u2014 sample too small by design; scale via harvesting before credit numbers"
+ },
+ "joined": [
+  {
+   "clip": "curry_q1_clip",
+   "game": "201602270OKC",
+   "set_start_frame": 11586,
+   "period": 2,
+   "pbp_clock": [
+    621.0,
+    606.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "L. Barbosa makes 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 7,
+     "primary_man": 4,
+     "time_assigned_s": 3.3,
+     "matchup_dist_median_ft": 4.3
+    },
+    {
+     "fragment": 39,
+     "primary_man": 3,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 2.8
+    },
+    {
+     "fragment": 5,
+     "primary_man": 1,
+     "time_assigned_s": 2.9,
+     "matchup_dist_median_ft": 5.8
+    },
+    {
+     "fragment": 8,
+     "primary_man": 3,
+     "time_assigned_s": 2.0,
+     "matchup_dist_median_ft": 15.5
+    },
+    {
+     "fragment": 9,
+     "primary_man": 4,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 4.3
+    },
+    {
+     "fragment": 13,
+     "primary_man": 4,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 9.2
+    },
+    {
+     "fragment": 80,
+     "primary_man": 2,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 4.4
+    },
+    {
+     "fragment": 87,
+     "primary_man": 3,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 14.5
+    }
+   ],
+   "primary_defender_fragment": 7
+  },
+  {
+   "clip": "curry_q1_clip",
+   "game": "201602270OKC",
+   "set_start_frame": 12429,
+   "period": 2,
+   "pbp_clock": [
+    589.0,
+    575.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "H. Barnes misses 3-pt jump shot from 24 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 287,
+     "primary_man": 215,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 11.1
+    },
+    {
+     "fragment": 367,
+     "primary_man": 180,
+     "time_assigned_s": 4.9,
+     "matchup_dist_median_ft": 9.5
+    },
+    {
+     "fragment": 440,
+     "primary_man": 180,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 14.1
+    },
+    {
+     "fragment": 171,
+     "primary_man": 215,
+     "time_assigned_s": 2.3,
+     "matchup_dist_median_ft": 9.9
+    },
+    {
+     "fragment": 389,
+     "primary_man": 86,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 6.1
+    },
+    {
+     "fragment": 424,
+     "primary_man": 218,
+     "time_assigned_s": 1.5,
+     "matchup_dist_median_ft": 5.6
+    },
+    {
+     "fragment": 311,
+     "primary_man": 86,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 11.7
+    },
+    {
+     "fragment": 266,
+     "primary_man": 398,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 11.2
+    },
+    {
+     "fragment": 384,
+     "primary_man": 217,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 20.2
+    }
+   ],
+   "primary_defender_fragment": 287
+  },
+  {
+   "clip": "curry_q1_clip",
+   "game": "201602270OKC",
+   "set_start_frame": 12864,
+   "period": 2,
+   "pbp_clock": [
+    575.0,
+    565.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "E. Freedom makes 2-pt layup from 1 ft (assist by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 526,
+     "primary_man": 596,
+     "time_assigned_s": 4.2,
+     "matchup_dist_median_ft": 14.4
+    },
+    {
+     "fragment": 600,
+     "primary_man": 440,
+     "time_assigned_s": 4.2,
+     "matchup_dist_median_ft": 7.5
+    },
+    {
+     "fragment": 217,
+     "primary_man": 287,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 6.1
+    },
+    {
+     "fragment": 568,
+     "primary_man": 532,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 594,
+     "primary_man": 614,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 184,
+     "primary_man": 287,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 9.4
+    },
+    {
+     "fragment": 443,
+     "primary_man": 287,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 8.2
+    },
+    {
+     "fragment": 540,
+     "primary_man": 532,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 3.1
+    },
+    {
+     "fragment": 575,
+     "primary_man": 287,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 4.0
+    }
+   ],
+   "primary_defender_fragment": 526
+  },
+  {
+   "clip": "curry_classic_clip",
+   "game": "201602270OKC",
+   "set_start_frame": 2000,
+   "period": 1,
+   "pbp_clock": [
+    673.0,
+    651.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "A. Roberson makes 3-pt jump shot from 23 ft (assist by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 3,
+     "primary_man": 49,
+     "time_assigned_s": 11.3,
+     "matchup_dist_median_ft": 5.6
+    },
+    {
+     "fragment": 8,
+     "primary_man": 7,
+     "time_assigned_s": 9.1,
+     "matchup_dist_median_ft": 5.6
+    },
+    {
+     "fragment": 10,
+     "primary_man": 9,
+     "time_assigned_s": 8.9,
+     "matchup_dist_median_ft": 9.7
+    },
+    {
+     "fragment": 6,
+     "primary_man": 1,
+     "time_assigned_s": 5.9,
+     "matchup_dist_median_ft": 6.7
+    },
+    {
+     "fragment": 73,
+     "primary_man": 1,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 6.2
+    },
+    {
+     "fragment": 63,
+     "primary_man": 9,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 15.6
+    }
+   ],
+   "primary_defender_fragment": 3
+  },
+  {
+   "clip": "curry_classic_clip",
+   "game": "201602270OKC",
+   "set_start_frame": 2594,
+   "period": 1,
+   "pbp_clock": [
+    651.0,
+    626.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "A. Bogut makes 2-pt layup from 1 ft (assist by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 49,
+     "primary_man": 6,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 159,
+     "primary_man": 3,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 4.0
+    },
+    {
+     "fragment": 205,
+     "primary_man": 197,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 3.6
+    },
+    {
+     "fragment": 207,
+     "primary_man": 204,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 5.3
+    },
+    {
+     "fragment": 1,
+     "primary_man": 73,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 20.7
+    },
+    {
+     "fragment": 9,
+     "primary_man": 3,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 12.3
+    }
+   ],
+   "primary_defender_fragment": 49
+  },
+  {
+   "clip": "clip_10m00_18m00",
+   "game": "201206070BOS",
+   "set_start_frame": 2000,
+   "period": 1,
+   "pbp_clock": [
+    225.0,
+    197.0
+   ],
+   "offense_real": "BOS",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by P. Pierce (bad pass; steal by D. Wade )"
+   },
+   "defenders": [
+    {
+     "fragment": 4,
+     "primary_man": 6,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 2.9
+    },
+    {
+     "fragment": 5,
+     "primary_man": 26,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 6.3
+    },
+    {
+     "fragment": 9,
+     "primary_man": 6,
+     "time_assigned_s": 3.7,
+     "matchup_dist_median_ft": 6.3
+    },
+    {
+     "fragment": 1,
+     "primary_man": 26,
+     "time_assigned_s": 2.6,
+     "matchup_dist_median_ft": 5.7
+    },
+    {
+     "fragment": 10,
+     "primary_man": 12,
+     "time_assigned_s": 2.3,
+     "matchup_dist_median_ft": 10.9
+    },
+    {
+     "fragment": 3,
+     "primary_man": 26,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 5.3
+    },
+    {
+     "fragment": 82,
+     "primary_man": 8,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 18.3
+    },
+    {
+     "fragment": 75,
+     "primary_man": 65,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 3.4
+    },
+    {
+     "fragment": 137,
+     "primary_man": 119,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 8.1
+    }
+   ],
+   "primary_defender_fragment": 4
+  },
+  {
+   "clip": "clip_26m00_34m00",
+   "game": "201206070BOS",
+   "set_start_frame": 2000,
+   "period": 2,
+   "pbp_clock": [
+    469.0,
+    456.0
+   ],
+   "offense_real": "BOS",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by R. Rondo (bad pass)"
+   },
+   "defenders": [
+    {
+     "fragment": 2,
+     "primary_man": 7,
+     "time_assigned_s": 4.0,
+     "matchup_dist_median_ft": 3.1
+    },
+    {
+     "fragment": 4,
+     "primary_man": 8,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 5.3
+    },
+    {
+     "fragment": 10,
+     "primary_man": 5,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 25,
+     "primary_man": 8,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 5.4
+    },
+    {
+     "fragment": 61,
+     "primary_man": 5,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 7.0
+    },
+    {
+     "fragment": 70,
+     "primary_man": 3,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 2.6
+    },
+    {
+     "fragment": 52,
+     "primary_man": 3,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 5.8
+    },
+    {
+     "fragment": 23,
+     "primary_man": 3,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 21.5
+    }
+   ],
+   "primary_defender_fragment": 2
+  }
+ ],
+ "excluded": [
+  {
+   "clip": "curry_q1_clip",
+   "set_start_frame": 11934,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "clip_10m00_18m00",
+   "set_start_frame": 3095,
+   "reason": "duplicate_of_span:2000"
+  },
+  {
+   "clip": "clip_26m00_34m00",
+   "set_start_frame": 2729,
+   "reason": "anchor_failed"
+  }
+ ]
+}

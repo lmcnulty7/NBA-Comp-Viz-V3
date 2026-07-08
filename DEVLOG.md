@@ -9,6 +9,30 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-08b — Tier 2 join: correctness pass clean (7 joined, every exclusion accounted)
+
+`tier2_join.py` joins aligned outcomes to matchup records on set_start_frame.
+NO defender aggregates computed — by design (9 possessions / 2 games is a
+correctness sample, not a statistics sample; scale via harvesting first).
+
+Dedupe is a HARD FILTER + assertion, not metadata (user requirement, same
+semantics as the >5-track gate): `duplicate_of_span` records never enter the
+join, and the run asserts no two joined records share a PBP possession — the
+10m00 replay-split possession was excluded exactly this way in the live run.
+
+Result: 7 joined / 3 excluded, all three exclusions with correct reasons
+(matchup_degraded ×1 — the degraded gate composes with the join; duplicate ×1;
+anchor_failed ×1). All structural checks pass: outcome + defenders present on
+every join, zero shared PBP possessions, team consistency 7/7 between the two
+independent pipelines (matchup defense == PBP non-offense). Eyeball sanity
+holds (e.g. the Pierce-turnover possession's top defender sat at 2.9 ft median
+— tight on-ball pressure on a TO-forced possession).
+
+Next: scale possessions via the label-factory harvesting path, then the credit
+aggregation (possession outcomes vs defender baselines) becomes meaningful.
+
+---
+
 ## 2026-07-08 — Tier 2 unblocked: clock reader (100%), PBP fetched, alignment cross-validates 9/9
 
 ### Step 1 — clock reader ACCEPTED
