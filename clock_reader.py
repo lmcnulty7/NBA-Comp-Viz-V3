@@ -100,8 +100,10 @@ class ClockReader:
             clock = mm * 60 + ss
         return period, clock, raw
 
-    def anchor(self, cap, frame_idx: int, stride: int = 3, tries: int = 7):
-        """Robust read near frame_idx: walk outward until a sane reading."""
+    def anchor(self, cap, frame_idx: int, stride: int = 3, tries: int = 15):
+        """Robust read near frame_idx: walk outward until a sane reading.
+        Failures measured in Phase A were ABSTENTIONS (eval: 0 confident-wrong),
+        so wider retries recover them: 15 tries spans ±7 strides (~±0.7 s)."""
         for k in range(tries):
             off = (k + 1) // 2 * stride * (1 if k % 2 else -1)
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx + off)
@@ -112,6 +114,15 @@ class ClockReader:
             if period is not None and clock is not None:
                 return {"frame": frame_idx + off, "period": period,
                         "clock_s": clock, "raw": raw}
+        return None
+
+    def anchor_multi(self, cap, frame_idx: int, fallbacks: list[int], stride: int = 3):
+        """anchor() at frame_idx, else at each fallback frame (bug can be briefly
+        hidden by broadcast graphics right at the preferred moment)."""
+        for f in [frame_idx] + list(fallbacks):
+            a = self.anchor(cap, f, stride=stride)
+            if a:
+                return a
         return None
 
 

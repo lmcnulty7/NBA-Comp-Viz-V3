@@ -124,8 +124,10 @@ def align_clip(clip: str, fps: float = 30.0):
     for span in poss["spans"]:
         if span.get("kind") != "halfcourt" or not span.get("metrics_eligible"):
             continue
-        a1 = reader.anchor(cap, span["set_start_frame"])
-        a2 = reader.anchor(cap, span["core_end_frame"])
+        f1, f2 = span["set_start_frame"], span["core_end_frame"]
+        third = (f2 - f1) // 3
+        a1 = reader.anchor_multi(cap, f1, [f1 + third, f1 + 2 * third])
+        a2 = reader.anchor_multi(cap, f2, [f2 - third // 2])
         rec = {k: span[k] for k in ("set_start_frame", "core_end_frame", "attacked_basket",
                                     "offense_team", "confidence")}
         rec["offense_real"] = real(span.get("offense_team"))
@@ -136,14 +138,23 @@ def align_clip(clip: str, fps: float = 30.0):
             out.append(rec)
             continue
         # clock-rate sanity: video advanced Δf frames; clock should have dropped ≈ Δf/fps
-        dv = (a2["frame"] - a1["frame"]) / fps
-        dc = a1["clock_s"] - a2["clock_s"]
-        if dc < 0 or abs(dc - dv) > CLOCK_RATE_TOL:
-            rec.update({"status": "anchor_inconsistent",
-                        "anchors": [a1, a2], "d_video_s": round(dv, 1), "d_clock_s": round(dc, 1)})
-            n_anchor_fail += 1
-            out.append(rec)
-            continue
+        def consistent(x, y):
+            dv = (y["frame"] - x["frame"]) / fps
+            dc = x["clock_s"] - y["clock_s"]
+            return dc >= 0 and abs(dc - dv) <= CLOCK_RATE_TOL
+        if not consistent(a1, a2):
+            # one anchor is off (e.g. read during a graphic overlay) — a third
+            # anchor mid-core arbitrates which one to replace
+            mid = reader.anchor_multi(cap, (f1 + f2) // 2, [])
+            if mid and mid["period"] == a1["period"] and consistent(a1, mid):
+                a2 = mid
+            elif mid and mid["period"] == a2["period"] and consistent(mid, a2):
+                a1 = mid
+            else:
+                rec.update({"status": "anchor_inconsistent", "anchors": [a1, a2]})
+                n_anchor_fail += 1
+                out.append(rec)
+                continue
         period = a1["period"]
         # match the anchor range [a2.clock, a1.clock] to the PBP possession with
         # maximal clock overlap — no slack heuristics, possessions partition time

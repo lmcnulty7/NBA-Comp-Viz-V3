@@ -1,0 +1,72 @@
+{
+ "curry_q1_clip": {
+  "build": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "segment": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "matchups": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  }
+ },
+ "curry_classic_clip": {
+  "build": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "segment": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "matchups": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  }
+ },
+ "clip_40m00_48m00": {
+  "build": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "segment": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "matchups": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  }
+ },
+ "clip_55m00_63m00": {
+  "build": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "segment": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "matchups": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  }
+ },
+ "clip_70m00_78m00": {
+  "build": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "segment": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  },
+  "matchups": {
+   "state": "ok",
+   "at": "seeded-from-phaseA"
+  }
+ }
+}

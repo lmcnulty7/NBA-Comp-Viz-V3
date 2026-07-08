@@ -72,6 +72,11 @@ def main() -> None:
             if m.get("degraded"):
                 excluded.append({"clip": clip, "set_start_frame": f, "reason": "matchup_degraded"})
                 continue
+            # weak PBP match = the only path a role inversion could slip past the
+            # agreement check (wrong possession matched, coincidentally same team)
+            if o.get("overlap_frac_of_span", 0) < 0.8:
+                excluded.append({"clip": clip, "set_start_frame": f, "reason": "weak_pbp_match"})
+                continue
 
             # check 3: team consistency between the two independent pipelines.
             # PBP is authoritative on offense — a disagreement means the matchup

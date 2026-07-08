@@ -222,23 +222,7 @@
   "confidence": 0.55,
   "offense_real": "BOS",
   "defense_real": "MIA",
-  "status": "anchor_inconsistent",
-  "anchors": [
-   {
-    "frame": 9228,
-    "period": 3,
-    "clock_s": 208,
-    "raw": "3rd|3:28"
-   },
-   {
-    "frame": 9537,
-    "period": 3,
-    "clock_s": 204,
-    "raw": "3rd|3:24"
-   }
-  ],
-  "d_video_s": 10.3,
-  "d_clock_s": 4
+  "status": "no_pbp_overlap"
  },
  {
   "set_start_frame": 12126,

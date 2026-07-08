@@ -1121,74 +1121,6 @@
   {
    "clip": "curry_classic_clip",
    "game": "201602270OKC",
-   "set_start_frame": 1734,
-   "period": 1,
-   "pbp_clock": [
-    679.0,
-    673.0
-   ],
-   "offense_real": "GSW",
-   "defense_real": "OKC",
-   "team_consistency_ok": true,
-   "outcome": {
-    "points": 0,
-    "terminating": "K. Thompson misses 3-pt jump shot from 24 ft"
-   },
-   "defenders": [
-    {
-     "fragment": 529,
-     "primary_man": 39,
-     "time_assigned_s": 2.1,
-     "matchup_dist_median_ft": 15.8
-    },
-    {
-     "fragment": 554,
-     "primary_man": 287,
-     "time_assigned_s": 1.6,
-     "matchup_dist_median_ft": 8.1
-    },
-    {
-     "fragment": 563,
-     "primary_man": 587,
-     "time_assigned_s": 1.2,
-     "matchup_dist_median_ft": 4.1
-    },
-    {
-     "fragment": 377,
-     "primary_man": 382,
-     "time_assigned_s": 1.0,
-     "matchup_dist_median_ft": 18.3
-    },
-    {
-     "fragment": 602,
-     "primary_man": 39,
-     "time_assigned_s": 0.7,
-     "matchup_dist_median_ft": 28.9
-    },
-    {
-     "fragment": 614,
-     "primary_man": 587,
-     "time_assigned_s": 0.4,
-     "matchup_dist_median_ft": 6.7
-    },
-    {
-     "fragment": 609,
-     "primary_man": 39,
-     "time_assigned_s": 0.3,
-     "matchup_dist_median_ft": 14.8
-    },
-    {
-     "fragment": 525,
-     "primary_man": 287,
-     "time_assigned_s": 0.2,
-     "matchup_dist_median_ft": 25.1
-    }
-   ],
-   "primary_defender_fragment": 529
-  },
-  {
-   "clip": "curry_classic_clip",
-   "game": "201602270OKC",
    "set_start_frame": 1986,
    "period": 1,
    "pbp_clock": [
@@ -1563,6 +1495,86 @@
   {
    "clip": "curry_q1_clip",
    "game": "201602270OKC",
+   "set_start_frame": 1236,
+   "period": 1,
+   "pbp_clock": [
+    70.0,
+    50.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "A. Iguodala makes 2-pt jump shot from 18 ft (assist by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 314,
+     "primary_man": 201,
+     "time_assigned_s": 9.3,
+     "matchup_dist_median_ft": 4.2
+    },
+    {
+     "fragment": 319,
+     "primary_man": 272,
+     "time_assigned_s": 8.9,
+     "matchup_dist_median_ft": 11.9
+    },
+    {
+     "fragment": 229,
+     "primary_man": 271,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 8.0
+    },
+    {
+     "fragment": 325,
+     "primary_man": 436,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 13.0
+    },
+    {
+     "fragment": 396,
+     "primary_man": 201,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 6.0
+    },
+    {
+     "fragment": 429,
+     "primary_man": 436,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 10.1
+    },
+    {
+     "fragment": 350,
+     "primary_man": 343,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 369,
+     "primary_man": 424,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 12.5
+    },
+    {
+     "fragment": 422,
+     "primary_man": 233,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 532,
+     "primary_man": 460,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 6.4
+    }
+   ],
+   "primary_defender_fragment": 314
+  },
+  {
+   "clip": "curry_q1_clip",
+   "game": "201602270OKC",
    "set_start_frame": 14175,
    "period": 2,
    "pbp_clock": [
@@ -1638,7 +1650,7 @@
   {
    "clip": "clip_55m00_63m00",
    "set_start_frame": 9228,
-   "reason": "anchor_inconsistent"
+   "reason": "no_pbp_overlap"
   },
   {
    "clip": "clip_70m00_78m00",
@@ -1658,7 +1670,7 @@
   {
    "clip": "clip_70m00_78m00",
    "set_start_frame": 4893,
-   "reason": "anchor_inconsistent"
+   "reason": "no_pbp_overlap"
   },
   {
    "clip": "clip_70m00_78m00",
@@ -1668,12 +1680,17 @@
   {
    "clip": "curry_classic_clip",
    "set_start_frame": 189,
-   "reason": "anchor_failed"
+   "reason": "no_pbp_overlap"
   },
   {
    "clip": "curry_classic_clip",
    "set_start_frame": 687,
    "reason": "no_matchup_record"
+  },
+  {
+   "clip": "curry_classic_clip",
+   "set_start_frame": 1734,
+   "reason": "weak_pbp_match"
   },
   {
    "clip": "curry_classic_clip",
@@ -1684,11 +1701,6 @@
    "clip": "curry_q1_clip",
    "set_start_frame": 912,
    "reason": "duplicate_of_span:0"
-  },
-  {
-   "clip": "curry_q1_clip",
-   "set_start_frame": 1236,
-   "reason": "anchor_inconsistent"
   },
   {
    "clip": "curry_q1_clip",
@@ -1708,7 +1720,7 @@
   {
    "clip": "curry_q1_clip",
    "set_start_frame": 7821,
-   "reason": "anchor_failed"
+   "reason": "offense_disagrees_pbp"
   },
   {
    "clip": "curry_q1_clip",

@@ -7,7 +7,7 @@
   "confidence": 0.97,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_failed"
+  "status": "no_pbp_overlap"
  },
  {
   "set_start_frame": 687,

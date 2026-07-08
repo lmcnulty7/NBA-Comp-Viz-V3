@@ -94,7 +94,8 @@
   "confidence": 0.83,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 1,
   "anchors": [
    {
     "frame": 1236,
@@ -103,14 +104,30 @@
     "raw": "1st|1:07"
    },
    {
-    "frame": 1701,
+    "frame": 1447,
     "period": 1,
-    "clock_s": 315,
-    "raw": "1st|515"
+    "clock_s": 60,
+    "raw": "1st|1:00"
    }
   ],
-  "d_video_s": 15.5,
-  "d_clock_s": -248
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    70.0,
+    50.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 50.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 2-pt jump shot from 18 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true
  },
  {
   "set_start_frame": 2112,
@@ -134,9 +151,7 @@
     "clock_s": 203,
     "raw": "1st|323"
    }
-  ],
-  "d_video_s": 12.6,
-  "d_clock_s": 85
+  ]
  },
  {
   "set_start_frame": 2676,
@@ -166,7 +181,40 @@
   "confidence": 0.95,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_failed"
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7932,
+    "period": 2,
+    "clock_s": 666,
+    "raw": "2ho|11:06"
+   },
+   {
+    "frame": 8100,
+    "period": 2,
+    "clock_s": 662,
+    "raw": "2No|11:02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    699.0,
+    662.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 680.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "H. Barnes makes 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false
  },
  {
   "set_start_frame": 11586,
