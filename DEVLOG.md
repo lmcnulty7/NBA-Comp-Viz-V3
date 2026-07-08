@@ -9,6 +9,40 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-08c — Phase A: 30-possession join, layouts yield equally, anchors are the leak
+
+Free-footage scaling run (5 clips, 42 broadcast min) end-to-end in **49 min**
+(~1.1× realtime with the new `--pregate` — verified accuracy-neutral first:
+byte-identical spans on the validated window; 6× under the compute estimate).
+
+**Mid-run incident:** native BoT-SORT re-ID went from intermittent-guarded to a
+permanent crash-loop (zero tracks for whole stretches) — killed the first
+attempt, DISABLED BY DEFAULT (config verdict history; TRACKER_REID=1 to A/B).
+Motion-only reproduces validated boundaries within the ±2 s contract; one
+perennially-marginal span flips offense and is caught by PBP cross-val.
+
+**Funnel (67 halfcourt spans):** 49 eligible → 36 aligned → 32 offense-agree
+(**cross-val 88.9%**, canary 90%) → **30 joined** (PBP-disagreeing possessions
+now HARD-EXCLUDED from the join — their matchup defender roles are inverted;
+new gate, `offense_disagrees_pbp`).
+
+**Per-layout yield (the Phase B assumption test):** span rate is essentially
+IDENTICAL across broadcasts — GSW-layout 2.6 vs MIA/BOS 2.7 spans/live-min —
+so the assumed 0.7–0.85 "unfamiliar footage" degradation measures ≈ **1.0**
+for these two ESPN packages. The GSW clips' losses concentrate in **480p clock
+anchors** (curry_q1: 5/9 eligible spans lost to anchor failure/inconsistency),
+not perception. Anchor success overall 36/49 = **73% — below the 85% canary,
+and the biggest fixable lever**: eval showed 0 confident-wrong, so failures
+are abstentions → more/wider retries and multi-point anchoring should recover
+most (~90% plausible → ~50 usable possessions per full game).
+
+**Updated Phase B plan (measured, not assumed):** ~1.4 aligned/live-min ⇒
+~45–55 usable possessions/full game after anchor fixes; team-level buckets
+~22–27/defending team/game ⇒ **~12 games per focal team** for ~300/bucket;
+compute at measured rate ≈ 2.5–3 h per game.
+
+---
+
 ## 2026-07-08b — Tier 2 join: correctness pass clean (7 joined, every exclusion accounted)
 
 `tier2_join.py` joins aligned outcomes to matchup records on set_start_frame.
