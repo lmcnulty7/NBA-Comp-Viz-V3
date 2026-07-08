@@ -257,7 +257,12 @@ LINE_SEG_IMGSZ = 512             # segmentation input size
 #   3. Offline fragment linker (detect/reid.py) — CLIP torso embeddings + court-
 #      space motion gating merges the fragments of one player. --no-reid.
 TRACKER_REID_YAML = PROJECT_ROOT / "botsort_reid.yaml"
-TRACKER_NATIVE_REID = os.environ.get("TRACKER_REID", "1") != "0"
+# Native BoT-SORT re-ID: DEFAULT OFF (2026-07-08c). Verdict history: kept at first
+# because it was free with no measured fragment benefit (07-05b) — then it crash-
+# LOOPED at harvest scale (ultralytics numpy-no-cpu bug re-firing on every post-
+# reset frame, zero tracks for whole stretches). Identity value lives in the
+# offline fragment linker, not here. TRACKER_REID=1 re-enables for A/B only.
+TRACKER_NATIVE_REID = os.environ.get("TRACKER_REID", "0") == "1"
 if TRACKER_NATIVE_REID and TRACKER_REID_YAML.exists():
     TRACKER_CONFIG = str(TRACKER_REID_YAML)      # overrides the Component-2 default above
 
