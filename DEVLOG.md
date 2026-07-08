@@ -9,6 +9,51 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-08 — Tier 2 unblocked: clock reader (100%), PBP fetched, alignment cross-validates 9/9
+
+### Step 1 — clock reader ACCEPTED
+User eval: 55/56 exact, **0 confident-wrong**, 1 human-unreadable → 100% on
+readable crops. (Two OCR lessons en route: a shared digits-allowlist crop
+mangles "1ST"→"157", so period/clock get separate sub-boxes; the colon is
+unreadable at 480p, so the clock parses colon-optional digit groups.)
+
+### Step 2 — games identified deterministically; PBP fetched
+stats.nba.com times out for non-browser clients → Basketball-Reference static
+PBP pages. Game ID via scorebug fingerprints — all four (period, clock, score)
+anchors matched their candidate game's PBP exactly:
+  201602270OKC = GSW@OKC 2016-02-27 (the Saturday Primetime OT game),
+  201206070BOS = MIA@BOS 2012 ECF G6. `fetch_pbp.py` persists parsed events
+(period, clock, team, points, kind); CLIP_GAME registry maps clips→games;
+light kit = home team (pre-2017 rule) maps color-cluster ids to real teams.
+
+### Step 3 — alignment: two windowing bugs found by the cross-validation itself
+v1 (slack windows around anchors) scored 62.5% — but its disagreements were
+internally contradictory (a window whose own terminating event belonged to the
+"losing" vote side): consecutive possessions' windows OVERLAPPED (11 s combined
+slack straddles two real possessions and flips the majority vote). v2
+reconstructs PBP POSSESSIONS (turnover / defensive rebound / made-final-shot
+boundaries, and-one FTs attached) and matches each span by clock overlap —
+first attempt failed with zero-width possessions (PBP stamps events at the
+possession-ENDING moment), fixed by partitioning: each possession starts where
+the previous ended.
+
+### Result — ACCEPTANCE GATE PASSED
+**9/9 aligned possessions: predicted offense == PBP possession team, every
+match at 100% anchor-range overlap.** Outcomes joined with real events (e.g.
+Barbosa layup +2, Roberson corner 3 +3, Pierce and Rondo turnovers 0).
+This simultaneously validates: game IDs, the light=home team mapping, the
+clock anchors, AND C2's offense assignment against ground truth.
+Residuals, flagged in the outputs: 1/10 anchor failure (retryable, 26m00
+@2729); two 10m00 spans map to ONE PBP possession (a gate-skipped replay split
+it on video — PBP knows better) → `duplicate_of_span` flag so credit metrics
+never double-count.
+
+Tier 2 credit metric is now unblocked and sits on: per-possession outcome
+(points, terminating event) × primary defender (matchup engine) — the next
+build. Shot-quality modeling remains optional refinement, not a blocker.
+
+---
+
 ## 2026-07-07d — Second-pass audit (user): "gate not holding" = STALE VIDEOS; mechanisms re-pinned
 
 User's second review found >5 same-team dots in 10m00 + 26m00 videos despite

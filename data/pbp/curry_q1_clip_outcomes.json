@@ -1,0 +1,174 @@
+[
+ {
+  "set_start_frame": 11586,
+  "core_end_frame": 11769,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 11586,
+    "period": 2,
+    "clock_s": 614,
+    "raw": "2no|10:14"
+   },
+   {
+    "frame": 11769,
+    "period": 2,
+    "clock_s": 608,
+    "raw": "2nd|10:08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    621.0,
+    606.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 606.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. Barbosa makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 11934,
+  "core_end_frame": 12273,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 11934,
+    "period": 2,
+    "clock_s": 603,
+    "raw": "2no|10:03"
+   },
+   {
+    "frame": 12273,
+    "period": 2,
+    "clock_s": 591,
+    "raw": "2no|9:51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    606.0,
+    589.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 589.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Waiters misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 12429,
+  "core_end_frame": 12690,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12429,
+    "period": 2,
+    "clock_s": 586,
+    "raw": "2no|9:46"
+   },
+   {
+    "frame": 12690,
+    "period": 2,
+    "clock_s": 577,
+    "raw": "2No|9:37"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    589.0,
+    575.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 575.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 12864,
+  "core_end_frame": 13068,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.73,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12864,
+    "period": 2,
+    "clock_s": 572,
+    "raw": "2no|9:32"
+   },
+   {
+    "frame": 13068,
+    "period": 2,
+    "clock_s": 565,
+    "raw": "2no|9:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    575.0,
+    565.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 565.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "E. Freedom makes 2-pt layup from 1 ft (assist by K. Durant )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true
+ }
+]

@@ -1,0 +1,3663 @@
+{
+ "meta": {
+  "away": "MIA",
+  "home": "BOS",
+  "date": "2012-06-07"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 695.0,
+   "team": "home",
+   "desc": "R. Allen misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 694.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 677.0,
+   "team": "away",
+   "desc": "L. James misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 676.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Garnett",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 665.0,
+   "team": "home",
+   "desc": "R. Allen makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "0-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 639.0,
+   "team": "away",
+   "desc": "M. Chalmers makes 3-pt jump shot from 23 ft (assist by L. James )",
+   "points": 3,
+   "score": "3-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 619.0,
+   "team": "home",
+   "desc": "K. Garnett makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "3-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 593.0,
+   "team": "away",
+   "desc": "S. Battier misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "3-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 592.0,
+   "team": "home",
+   "desc": "Defensive rebound by P. Pierce",
+   "points": 0,
+   "score": "3-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (lost ball; steal by M. Chalmers )",
+   "points": 0,
+   "score": "3-4",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 569.0,
+   "team": "away",
+   "desc": "S. Battier makes 3-pt jump shot from 26 ft (assist by U. Haslem )",
+   "points": 3,
+   "score": "6-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 550.0,
+   "team": "home",
+   "desc": "P. Pierce misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "6-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 549.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "6-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 541.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt dunk from 1 ft",
+   "points": 2,
+   "score": "8-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Turnover by R. Allen (bad pass)",
+   "points": 0,
+   "score": "8-4",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 512.0,
+   "team": "away",
+   "desc": "U. Haslem misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "8-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 511.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Rondo",
+   "points": 0,
+   "score": "8-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 504.0,
+   "team": "home",
+   "desc": "B. Bass misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "8-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "8-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 495.0,
+   "team": "away",
+   "desc": "Turnover by L. James (bad pass; steal by R. Rondo )",
+   "points": 0,
+   "score": "8-4",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 489.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "8-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 472.0,
+   "team": "away",
+   "desc": "U. Haslem misses 2-pt layup from 3 ft (block by P. Pierce )",
+   "points": 0,
+   "score": "8-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 471.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Rondo",
+   "points": 0,
+   "score": "8-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 465.0,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt layup from 2 ft (block by S. Battier )",
+   "points": 0,
+   "score": "8-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 465.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Chalmers",
+   "points": 0,
+   "score": "8-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 455.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "8-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 453.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Bass",
+   "points": 0,
+   "score": "8-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 447.0,
+   "team": "home",
+   "desc": "K. Garnett makes 2-pt layup from 1 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "8-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 428.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "8-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 428.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Garnett",
+   "points": 0,
+   "score": "8-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 422.0,
+   "team": "home",
+   "desc": "Personal foul by S. Battier (drawn by K. Garnett )",
+   "points": 0,
+   "score": "8-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 406.0,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (lost ball; steal by S. Battier )",
+   "points": 0,
+   "score": "8-8",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 391.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 21 ft",
+   "points": 2,
+   "score": "10-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 378.0,
+   "team": "home",
+   "desc": "G. Stiemsma enters the game for K. Garnett",
+   "points": 0,
+   "score": "10-8",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 373.0,
+   "team": "home",
+   "desc": "P. Pierce misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "10-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 372.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "10-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 351.0,
+   "team": "away",
+   "desc": "S. Battier makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "12-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "Personal foul by M. Chalmers (drawn by R. Allen )",
+   "points": 0,
+   "score": "12-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "away",
+   "desc": "Technical foul by M. Chalmers",
+   "points": 0,
+   "score": "12-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "12-8",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "away",
+   "desc": "C. Bosh enters the game for U. Haslem",
+   "points": 0,
+   "score": "12-8",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "R. Allen misses technical free throw",
+   "points": 0,
+   "score": "12-8",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "12-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 318.0,
+   "team": "home",
+   "desc": "P. Pierce makes 2-pt jump shot from 14 ft",
+   "points": 2,
+   "score": "12-10",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 315.0,
+   "team": "away",
+   "desc": "Personal foul by P. Pierce (drawn by L. James )",
+   "points": 0,
+   "score": "12-10",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 307.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt layup from 2 ft (block by R. Allen )",
+   "points": 0,
+   "score": "12-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 306.0,
+   "team": "home",
+   "desc": "Defensive rebound by G. Stiemsma",
+   "points": 0,
+   "score": "12-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 300.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "12-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 273.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "14-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 250.0,
+   "team": "home",
+   "desc": "Personal foul by D. Wade (drawn by P. Pierce )",
+   "points": 0,
+   "score": "14-12",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 244.0,
+   "team": "home",
+   "desc": "P. Pierce misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "14-12",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 244.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Wade",
+   "points": 0,
+   "score": "14-12",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 225.0,
+   "team": "away",
+   "desc": "C. Bosh makes 2-pt layup from 2 ft (assist by D. Wade )",
+   "points": 2,
+   "score": "16-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 211.0,
+   "team": "home",
+   "desc": "R. Allen misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "16-12",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "16-12",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 209.0,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus enters the game for R. Allen",
+   "points": 0,
+   "score": "16-12",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 197.0,
+   "team": "home",
+   "desc": "Turnover by P. Pierce (bad pass; steal by D. Wade )",
+   "points": 0,
+   "score": "16-12",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 193.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "18-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 193.0,
+   "team": "away",
+   "desc": "Shooting foul by G. Stiemsma (drawn by L. James )",
+   "points": 0,
+   "score": "18-12",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 193.0,
+   "team": "away",
+   "desc": "M. Miller enters the game for D. Wade",
+   "points": 0,
+   "score": "18-12",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 193.0,
+   "team": "away",
+   "desc": "L. James makes free throw 1 of 1",
+   "points": 1,
+   "score": "19-12",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 175.0,
+   "team": "home",
+   "desc": "B. Bass misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "19-12",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 174.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Miller",
+   "points": 0,
+   "score": "19-12",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 163.0,
+   "team": "away",
+   "desc": "L. James makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "22-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "22-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Chalmers (drawn by R. Rondo )",
+   "points": 0,
+   "score": "22-14",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "22-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "away",
+   "desc": "N. Cole enters the game for M. Chalmers",
+   "points": 0,
+   "score": "22-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "K. Garnett enters the game for G. Stiemsma",
+   "points": 0,
+   "score": "22-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "K. Dooling enters the game for B. Bass",
+   "points": 0,
+   "score": "22-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "away",
+   "desc": "Violation by C. Bosh (lane)",
+   "points": 0,
+   "score": "22-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "R. Rondo misses free throw 1 of 1",
+   "points": 0,
+   "score": "22-14",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 147.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "22-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 128.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "24-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 114.0,
+   "team": "home",
+   "desc": "Turnover by M. Pi\u00c3\u00a9trus (step out of bounds)",
+   "points": 0,
+   "score": "24-14",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "U. Haslem enters the game for S. Battier",
+   "points": 0,
+   "score": "24-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 101.0,
+   "team": "away",
+   "desc": "Turnover by N. Cole (lost ball; steal by K. Dooling )",
+   "points": 0,
+   "score": "24-14",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 82.0,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "24-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. Bosh",
+   "points": 0,
+   "score": "24-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "C. Bosh makes 2-pt jump shot from 22 ft",
+   "points": 2,
+   "score": "26-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 44.9,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt jump shot from 21 ft",
+   "points": 0,
+   "score": "26-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 44.8,
+   "team": "away",
+   "desc": "Defensive rebound by C. Bosh",
+   "points": 0,
+   "score": "26-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.9,
+   "team": "away",
+   "desc": "Turnover by L. James (lost ball; steal by P. Pierce )",
+   "points": 0,
+   "score": "26-14",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 17.5,
+   "team": "home",
+   "desc": "Personal foul by N. Cole (drawn by R. Rondo )",
+   "points": 0,
+   "score": "26-14",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 17.5,
+   "team": "home",
+   "desc": "R. Rondo makes free throw 1 of 2",
+   "points": 1,
+   "score": "26-15",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 17.5,
+   "team": "home",
+   "desc": "M. Daniels enters the game for P. Pierce",
+   "points": 0,
+   "score": "26-15",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 17.5,
+   "team": "away",
+   "desc": "D. Wade enters the game for N. Cole",
+   "points": 0,
+   "score": "26-15",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 17.5,
+   "team": "away",
+   "desc": "J. Jones enters the game for U. Haslem",
+   "points": 0,
+   "score": "26-15",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 17.5,
+   "team": "home",
+   "desc": "R. Rondo makes free throw 2 of 2",
+   "points": 1,
+   "score": "26-16",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 2.1,
+   "team": "away",
+   "desc": "Personal take foul by M. Daniels (drawn by D. Wade )",
+   "points": 0,
+   "score": "26-16",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "26-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "26-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 702.0,
+   "team": "away",
+   "desc": "D. Wade makes 2-pt jump shot from 11 ft",
+   "points": 2,
+   "score": "28-16",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 691.0,
+   "team": "home",
+   "desc": "Personal foul by N. Cole (drawn by K. Garnett )",
+   "points": 0,
+   "score": "28-16",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 684.0,
+   "team": "home",
+   "desc": "K. Garnett makes 2-pt dunk from 1 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "28-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 667.0,
+   "team": "away",
+   "desc": "Shooting foul by M. Daniels (drawn by D. Wade )",
+   "points": 0,
+   "score": "28-18",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 667.0,
+   "team": "away",
+   "desc": "D. Wade makes free throw 1 of 2",
+   "points": 1,
+   "score": "29-18",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 667.0,
+   "team": "home",
+   "desc": "R. Allen enters the game for M. Daniels",
+   "points": 0,
+   "score": "29-18",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 667.0,
+   "team": "away",
+   "desc": "D. Wade makes free throw 2 of 2",
+   "points": 1,
+   "score": "30-18",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 657.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt jump shot from 20 ft",
+   "points": 2,
+   "score": "30-20",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 643.0,
+   "team": "away",
+   "desc": "Turnover by M. Miller (bad pass; steal by R. Rondo )",
+   "points": 0,
+   "score": "30-20",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "30-20",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 627.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "30-20",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 621.0,
+   "team": "away",
+   "desc": "N. Cole misses 3-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "30-20",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 620.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "30-20",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 606.0,
+   "team": "home",
+   "desc": "R. Rondo misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "30-20",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 605.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "30-20",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 597.0,
+   "team": "away",
+   "desc": "M. Miller misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "30-20",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 596.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Dooling",
+   "points": 0,
+   "score": "30-20",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "R. Allen makes 3-pt jump shot from 23 ft (assist by K. Dooling )",
+   "points": 3,
+   "score": "30-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "Miami full timeout",
+   "points": 0,
+   "score": "30-23",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "C. Bosh enters the game for N. Cole",
+   "points": 0,
+   "score": "30-23",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 564.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 9 ft (assist by D. Wade )",
+   "points": 2,
+   "score": "32-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 550.0,
+   "team": "home",
+   "desc": "R. Rondo misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "32-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 550.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "32-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 541.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "34-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 529.0,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "34-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 527.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "34-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 516.0,
+   "team": "away",
+   "desc": "U. Haslem misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "34-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 515.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. Bosh",
+   "points": 0,
+   "score": "34-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 511.0,
+   "team": "away",
+   "desc": "U. Haslem makes 2-pt jump shot from 17 ft (assist by C. Bosh )",
+   "points": 2,
+   "score": "36-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 504.0,
+   "team": "home",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "36-23",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 504.0,
+   "team": "home",
+   "desc": "P. Pierce enters the game for M. Pi\u00c3\u00a9trus",
+   "points": 0,
+   "score": "36-23",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 504.0,
+   "team": "home",
+   "desc": "B. Bass enters the game for K. Dooling",
+   "points": 0,
+   "score": "36-23",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "home",
+   "desc": "Shooting foul by L. James (drawn by B. Bass )",
+   "points": 0,
+   "score": "36-23",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "home",
+   "desc": "B. Bass makes free throw 1 of 2",
+   "points": 1,
+   "score": "36-24",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "home",
+   "desc": "B. Bass makes free throw 2 of 2",
+   "points": 1,
+   "score": "36-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 469.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 14 ft",
+   "points": 2,
+   "score": "38-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 456.0,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (bad pass)",
+   "points": 0,
+   "score": "38-25",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 436.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 16 ft",
+   "points": 2,
+   "score": "40-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 410.0,
+   "team": "home",
+   "desc": "K. Garnett makes 2-pt jump shot from 12 ft (assist by P. Pierce )",
+   "points": 2,
+   "score": "40-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 394.0,
+   "team": "away",
+   "desc": "Shooting foul by P. Pierce (drawn by L. James )",
+   "points": 0,
+   "score": "40-27",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 394.0,
+   "team": "away",
+   "desc": "L. James misses free throw 1 of 2",
+   "points": 0,
+   "score": "40-27",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 394.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "40-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 394.0,
+   "team": "away",
+   "desc": "L. James misses free throw 2 of 2",
+   "points": 0,
+   "score": "40-27",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 393.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Bass",
+   "points": 0,
+   "score": "40-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 378.0,
+   "team": "home",
+   "desc": "Turnover by P. Pierce (bad pass; steal by M. Miller )",
+   "points": 0,
+   "score": "40-27",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 365.0,
+   "team": "away",
+   "desc": "M. Miller misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "40-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 364.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Bass",
+   "points": 0,
+   "score": "40-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 356.0,
+   "team": "home",
+   "desc": "B. Bass makes 2-pt layup from 3 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "40-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 356.0,
+   "team": "home",
+   "desc": "Shooting foul by U. Haslem (drawn by B. Bass )",
+   "points": 0,
+   "score": "40-29",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 356.0,
+   "team": "away",
+   "desc": "M. Chalmers enters the game for M. Miller",
+   "points": 0,
+   "score": "40-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 356.0,
+   "team": "home",
+   "desc": "B. Bass misses free throw 1 of 1",
+   "points": 0,
+   "score": "40-29",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 355.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "40-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 340.0,
+   "team": "away",
+   "desc": "Shooting foul by P. Pierce (drawn by L. James )",
+   "points": 0,
+   "score": "40-29",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 340.0,
+   "team": "away",
+   "desc": "L. James makes free throw 1 of 2",
+   "points": 1,
+   "score": "41-29",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 340.0,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus enters the game for P. Pierce",
+   "points": 0,
+   "score": "41-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 340.0,
+   "team": "away",
+   "desc": "L. James makes free throw 2 of 2",
+   "points": 1,
+   "score": "42-29",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 320.0,
+   "team": "home",
+   "desc": "R. Allen misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "42-29",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 319.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "42-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "Shooting foul by R. Rondo (drawn by L. James )",
+   "points": 0,
+   "score": "42-29",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "L. James misses free throw 1 of 2",
+   "points": 0,
+   "score": "42-29",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "42-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "L. James makes free throw 2 of 2",
+   "points": 1,
+   "score": "43-29",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 302.0,
+   "team": "home",
+   "desc": "B. Bass makes 2-pt layup at rim (assist by R. Rondo )",
+   "points": 2,
+   "score": "43-31",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 280.0,
+   "team": "away",
+   "desc": "C. Bosh misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "43-31",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Garnett",
+   "points": 0,
+   "score": "43-31",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 271.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "43-33",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 255.0,
+   "team": "away",
+   "desc": "U. Haslem makes 2-pt jump shot from 15 ft (assist by M. Chalmers )",
+   "points": 2,
+   "score": "45-33",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 250.0,
+   "team": "away",
+   "desc": "S. Battier enters the game for U. Haslem",
+   "points": 0,
+   "score": "45-33",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 250.0,
+   "team": "home",
+   "desc": "Personal foul by U. Haslem (drawn by K. Garnett )",
+   "points": 0,
+   "score": "45-33",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 235.0,
+   "team": "home",
+   "desc": "B. Bass makes 2-pt jump shot from 17 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "45-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 214.0,
+   "team": "away",
+   "desc": "S. Battier misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "45-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 214.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Wade",
+   "points": 0,
+   "score": "45-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt layup at rim",
+   "points": 0,
+   "score": "45-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 209.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Pi\u00c3\u00a9trus",
+   "points": 0,
+   "score": "45-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 202.0,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (bad pass)",
+   "points": 0,
+   "score": "45-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 190.0,
+   "team": "away",
+   "desc": "M. Chalmers misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "45-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 189.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Garnett",
+   "points": 0,
+   "score": "45-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 178.0,
+   "team": "home",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "45-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "home",
+   "desc": "Personal foul by C. Bosh (drawn by R. Rondo )",
+   "points": 0,
+   "score": "45-35",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "home",
+   "desc": "R. Rondo makes free throw 1 of 2",
+   "points": 1,
+   "score": "45-36",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "home",
+   "desc": "R. Rondo makes free throw 2 of 2",
+   "points": 1,
+   "score": "45-37",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "M. Chalmers makes 3-pt jump shot from 25 ft (assist by L. James )",
+   "points": 3,
+   "score": "48-37",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 130.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "48-39",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 109.0,
+   "team": "away",
+   "desc": "Turnover by D. Wade (bad pass; steal by R. Rondo )",
+   "points": 0,
+   "score": "48-39",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 108.0,
+   "team": "home",
+   "desc": "Personal foul by M. Chalmers (drawn by R. Rondo )",
+   "points": 0,
+   "score": "48-39",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 108.0,
+   "team": "home",
+   "desc": "R. Rondo misses free throw 1 of 2",
+   "points": 0,
+   "score": "48-39",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 108.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "48-39",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 108.0,
+   "team": "away",
+   "desc": "M. Miller enters the game for M. Chalmers",
+   "points": 0,
+   "score": "48-39",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 108.0,
+   "team": "home",
+   "desc": "R. Rondo makes free throw 2 of 2",
+   "points": 1,
+   "score": "48-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 88.0,
+   "team": "away",
+   "desc": "C. Bosh misses 2-pt hook shot from 8 ft",
+   "points": 0,
+   "score": "48-40",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 87.0,
+   "team": "away",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "48-40",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 87.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt dunk from 2 ft",
+   "points": 2,
+   "score": "50-40",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 72.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt jump shot from 9 ft",
+   "points": 2,
+   "score": "50-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 57.3,
+   "team": "away",
+   "desc": "Shooting foul by K. Garnett (drawn by L. James )",
+   "points": 0,
+   "score": "50-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 57.3,
+   "team": "away",
+   "desc": "Miami 20 second timeout",
+   "points": 0,
+   "score": "50-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 57.3,
+   "team": "away",
+   "desc": "L. James misses free throw 1 of 2",
+   "points": 0,
+   "score": "50-42",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 57.3,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "50-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 57.3,
+   "team": "away",
+   "desc": "L. James makes free throw 2 of 2",
+   "points": 1,
+   "score": "51-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 48.9,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (bad pass; steal by D. Wade )",
+   "points": 0,
+   "score": "51-42",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 38.7,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "53-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 30.9,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "53-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 29.9,
+   "team": "away",
+   "desc": "Defensive rebound by C. Bosh",
+   "points": 0,
+   "score": "53-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 7.9,
+   "team": "away",
+   "desc": "L. James misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "53-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 6.9,
+   "team": "home",
+   "desc": "Defensive rebound by B. Bass",
+   "points": 0,
+   "score": "53-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.3,
+   "team": "home",
+   "desc": "R. Rondo misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "53-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.3,
+   "team": "away",
+   "desc": "Defensive rebound by D. Wade",
+   "points": 0,
+   "score": "53-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.3,
+   "team": "home",
+   "desc": "Loose ball foul by B. Bass (drawn by D. Wade )",
+   "points": 0,
+   "score": "53-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.3,
+   "team": "away",
+   "desc": "D. Wade makes free throw 1 of 2",
+   "points": 1,
+   "score": "54-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.3,
+   "team": "away",
+   "desc": "D. Wade makes free throw 2 of 2",
+   "points": 1,
+   "score": "55-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 704.0,
+   "team": "away",
+   "desc": "L. James misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "55-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Garnett",
+   "points": 0,
+   "score": "55-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 688.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "55-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 687.0,
+   "team": "home",
+   "desc": "Offensive rebound by B. Bass",
+   "points": 0,
+   "score": "55-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 687.0,
+   "team": "home",
+   "desc": "Personal foul by U. Haslem (drawn by B. Bass )",
+   "points": 0,
+   "score": "55-42",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 671.0,
+   "team": "home",
+   "desc": "Turnover by K. Garnett (traveling)",
+   "points": 0,
+   "score": "55-42",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 657.0,
+   "team": "away",
+   "desc": "D. Wade makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "57-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 630.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt jump shot from 21 ft",
+   "points": 0,
+   "score": "57-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 629.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "57-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 609.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "59-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 598.0,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (bad pass; steal by M. Chalmers )",
+   "points": 0,
+   "score": "59-42",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 594.0,
+   "team": "away",
+   "desc": "S. Battier misses 2-pt layup from 1 ft (block by K. Garnett )",
+   "points": 0,
+   "score": "59-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 593.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "59-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 581.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "59-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 580.0,
+   "team": "home",
+   "desc": "Defensive rebound by P. Pierce",
+   "points": 0,
+   "score": "59-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "home",
+   "desc": "K. Garnett makes 2-pt layup from 1 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "59-44",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "home",
+   "desc": "Technical foul by K. Garnett",
+   "points": 0,
+   "score": "59-44",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "away",
+   "desc": "D. Wade makes technical free throw",
+   "points": 1,
+   "score": "60-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 553.0,
+   "team": "away",
+   "desc": "Turnover by D. Wade (back court)",
+   "points": 0,
+   "score": "60-44",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 543.0,
+   "team": "home",
+   "desc": "K. Garnett makes 2-pt layup from 1 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "60-46",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 525.0,
+   "team": "away",
+   "desc": "U. Haslem misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "60-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 524.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Allen",
+   "points": 0,
+   "score": "60-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 517.0,
+   "team": "home",
+   "desc": "P. Pierce misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "60-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 516.0,
+   "team": "home",
+   "desc": "Offensive rebound by B. Bass",
+   "points": 0,
+   "score": "60-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 516.0,
+   "team": "home",
+   "desc": "B. Bass makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "60-48",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 516.0,
+   "team": "away",
+   "desc": "Miami full timeout",
+   "points": 0,
+   "score": "60-48",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 499.0,
+   "team": "away",
+   "desc": "L. James misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "60-48",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 498.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Rondo",
+   "points": 0,
+   "score": "60-48",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 492.0,
+   "team": "home",
+   "desc": "P. Pierce makes 2-pt layup from 1 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "60-50",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 468.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "60-50",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "Offensive rebound by U. Haslem",
+   "points": 0,
+   "score": "60-50",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "Shooting foul by R. Allen (drawn by U. Haslem )",
+   "points": 0,
+   "score": "60-50",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "U. Haslem makes free throw 1 of 2",
+   "points": 1,
+   "score": "61-50",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "C. Bosh enters the game for S. Battier",
+   "points": 0,
+   "score": "61-50",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "U. Haslem makes free throw 2 of 2",
+   "points": 1,
+   "score": "62-50",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 451.0,
+   "team": "home",
+   "desc": "R. Rondo misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "62-50",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 450.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. Bosh",
+   "points": 0,
+   "score": "62-50",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 428.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "64-50",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 411.0,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "64-50",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 409.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "64-50",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 405.0,
+   "team": "away",
+   "desc": "Personal foul by B. Bass (drawn by L. James )",
+   "points": 0,
+   "score": "64-50",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 405.0,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus enters the game for K. Garnett",
+   "points": 0,
+   "score": "64-50",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 393.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "64-50",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 392.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Allen",
+   "points": 0,
+   "score": "64-50",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 384.0,
+   "team": "home",
+   "desc": "B. Bass makes 2-pt dunk from 1 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "64-52",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 368.0,
+   "team": "away",
+   "desc": "Turnover by C. Bosh (bad pass; steal by P. Pierce )",
+   "points": 0,
+   "score": "64-52",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 362.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt layup from 1 ft (block by C. Bosh )",
+   "points": 0,
+   "score": "64-52",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 359.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "64-52",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 353.0,
+   "team": "away",
+   "desc": "M. Chalmers makes 3-pt jump shot from 23 ft (assist by L. James )",
+   "points": 3,
+   "score": "67-52",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 338.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "67-52",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 337.0,
+   "team": "away",
+   "desc": "Defensive rebound by U. Haslem",
+   "points": 0,
+   "score": "67-52",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 322.0,
+   "team": "away",
+   "desc": "L. James misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "67-52",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 321.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. Bosh",
+   "points": 0,
+   "score": "67-52",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 318.0,
+   "team": "away",
+   "desc": "M. Chalmers misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "67-52",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 317.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "67-52",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 317.0,
+   "team": "away",
+   "desc": "Loose ball foul by U. Haslem (drawn by M. Pi\u00c3\u00a9trus )",
+   "points": 0,
+   "score": "67-52",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 317.0,
+   "team": "away",
+   "desc": "S. Battier enters the game for D. Wade",
+   "points": 0,
+   "score": "67-52",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 317.0,
+   "team": "away",
+   "desc": "M. Miller enters the game for U. Haslem",
+   "points": 0,
+   "score": "67-52",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 301.0,
+   "team": "home",
+   "desc": "P. Pierce makes 2-pt jump shot from 9 ft",
+   "points": 2,
+   "score": "67-54",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 290.0,
+   "team": "away",
+   "desc": "Personal foul by M. Pi\u00c3\u00a9trus (drawn by C. Bosh )",
+   "points": 0,
+   "score": "67-54",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 281.0,
+   "team": "away",
+   "desc": "C. Bosh misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "67-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 280.0,
+   "team": "home",
+   "desc": "Defensive rebound by P. Pierce",
+   "points": 0,
+   "score": "67-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 263.0,
+   "team": "home",
+   "desc": "B. Bass misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "67-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 262.0,
+   "team": "home",
+   "desc": "Offensive rebound by M. Pi\u00c3\u00a9trus",
+   "points": 0,
+   "score": "67-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 255.0,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "67-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 254.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "67-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 245.0,
+   "team": "away",
+   "desc": "Personal foul by R. Rondo (drawn by L. James )",
+   "points": 0,
+   "score": "67-54",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 233.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 14 ft",
+   "points": 2,
+   "score": "69-54",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt jump shot from 9 ft (block by C. Bosh )",
+   "points": 0,
+   "score": "69-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 209.0,
+   "team": "home",
+   "desc": "Offensive rebound by P. Pierce",
+   "points": 0,
+   "score": "69-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 202.0,
+   "team": "home",
+   "desc": "P. Pierce misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "69-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 200.0,
+   "team": "home",
+   "desc": "Offensive rebound by R. Rondo",
+   "points": 0,
+   "score": "69-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 197.0,
+   "team": "home",
+   "desc": "R. Rondo makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "69-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 197.0,
+   "team": "away",
+   "desc": "Technical foul by L. James",
+   "points": 0,
+   "score": "69-56",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 197.0,
+   "team": "home",
+   "desc": "R. Allen makes technical free throw",
+   "points": 1,
+   "score": "69-57",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 182.0,
+   "team": "home",
+   "desc": "Offensive charge foul by S. Battier (drawn by M. Pi\u00c3\u00a9trus )",
+   "points": 0,
+   "score": "69-57",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 182.0,
+   "team": "away",
+   "desc": "Turnover by S. Battier (offensive foul)",
+   "points": 0,
+   "score": "69-57",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 175.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "69-57",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 174.0,
+   "team": "home",
+   "desc": "Offensive rebound by M. Pi\u00c3\u00a9trus",
+   "points": 0,
+   "score": "69-57",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 172.0,
+   "team": "home",
+   "desc": "M. Pi\u00c3\u00a9trus makes 2-pt tip-in at rim",
+   "points": 2,
+   "score": "69-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 149.0,
+   "team": "away",
+   "desc": "L. James makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "72-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 130.0,
+   "team": "home",
+   "desc": "R. Allen makes 2-pt jump shot from 20 ft (assist by R. Rondo )",
+   "points": 2,
+   "score": "72-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 129.0,
+   "team": "away",
+   "desc": "Miami 20 second timeout",
+   "points": 0,
+   "score": "72-61",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 129.0,
+   "team": "away",
+   "desc": "Miami full timeout",
+   "points": 0,
+   "score": "72-61",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 129.0,
+   "team": "away",
+   "desc": "D. Wade enters the game for M. Chalmers",
+   "points": 0,
+   "score": "72-61",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 129.0,
+   "team": "home",
+   "desc": "K. Garnett enters the game for B. Bass",
+   "points": 0,
+   "score": "72-61",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 107.0,
+   "team": "away",
+   "desc": "M. Miller misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "72-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 106.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Miller",
+   "points": 0,
+   "score": "72-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 105.0,
+   "team": "away",
+   "desc": "Turnover by M. Miller (bad pass; steal by R. Allen )",
+   "points": 0,
+   "score": "72-61",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 81.0,
+   "team": "home",
+   "desc": "P. Pierce misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "72-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "72-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 59.9,
+   "team": "away",
+   "desc": "Turnover by L. James (lost ball; steal by P. Pierce )",
+   "points": 0,
+   "score": "72-61",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 49.9,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "72-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 47.6,
+   "team": "away",
+   "desc": "Defensive rebound by S. Battier",
+   "points": 0,
+   "score": "72-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 30.3,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 16 ft (assist by S. Battier )",
+   "points": 2,
+   "score": "74-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 8.9,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "74-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.9,
+   "team": "home",
+   "desc": "Offensive rebound by P. Pierce",
+   "points": 0,
+   "score": "74-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 6.2,
+   "team": "home",
+   "desc": "Personal foul by M. Miller (drawn by R. Allen )",
+   "points": 0,
+   "score": "74-61",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 6.2,
+   "team": "away",
+   "desc": "M. Chalmers enters the game for M. Miller",
+   "points": 0,
+   "score": "74-61",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "74-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "74-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 710.0,
+   "team": "home",
+   "desc": "R. Rondo misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "74-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "74-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 699.0,
+   "team": "away",
+   "desc": "D. Wade makes 2-pt jump shot from 12 ft (assist by L. James )",
+   "points": 2,
+   "score": "76-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 681.0,
+   "team": "home",
+   "desc": "K. Garnett misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "76-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 680.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Battier",
+   "points": 0,
+   "score": "76-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 668.0,
+   "team": "away",
+   "desc": "D. Wade makes 2-pt layup from 1 ft (assist by S. Battier )",
+   "points": 2,
+   "score": "78-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 645.0,
+   "team": "home",
+   "desc": "P. Pierce makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "78-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 628.0,
+   "team": "away",
+   "desc": "Personal foul by K. Dooling (drawn by M. Chalmers )",
+   "points": 0,
+   "score": "78-63",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "B. Bass enters the game for M. Pi\u00c3\u00a9trus",
+   "points": 0,
+   "score": "78-63",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 618.0,
+   "team": "away",
+   "desc": "S. Battier makes 3-pt jump shot from 23 ft (assist by D. Wade )",
+   "points": 3,
+   "score": "81-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 618.0,
+   "team": "home",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "81-63",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 603.0,
+   "team": "home",
+   "desc": "Shooting foul by L. James (drawn by P. Pierce )",
+   "points": 0,
+   "score": "81-63",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 603.0,
+   "team": "home",
+   "desc": "P. Pierce misses free throw 1 of 2",
+   "points": 0,
+   "score": "81-63",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 603.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "81-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 603.0,
+   "team": "home",
+   "desc": "P. Pierce makes free throw 2 of 2",
+   "points": 1,
+   "score": "81-64",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 586.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt jump shot from 16 ft",
+   "points": 2,
+   "score": "83-64",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 572.0,
+   "team": "home",
+   "desc": "Turnover by R. Rondo (lost ball; steal by D. Wade )",
+   "points": 0,
+   "score": "83-64",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 561.0,
+   "team": "away",
+   "desc": "Offensive foul by D. Wade (drawn by K. Dooling )",
+   "points": 0,
+   "score": "83-64",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 561.0,
+   "team": "away",
+   "desc": "Turnover by D. Wade (offensive foul)",
+   "points": 0,
+   "score": "83-64",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 552.0,
+   "team": "home",
+   "desc": "P. Pierce misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "83-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 551.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "83-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 540.0,
+   "team": "away",
+   "desc": "L. James misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "83-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 539.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Wade",
+   "points": 0,
+   "score": "83-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 523.0,
+   "team": "away",
+   "desc": "Turnover by L. James (bad pass; steal by K. Dooling )",
+   "points": 0,
+   "score": "83-64",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 506.0,
+   "team": "away",
+   "desc": "C. Bosh enters the game for J. Anthony",
+   "points": 0,
+   "score": "83-64",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 506.0,
+   "team": "home",
+   "desc": "R. Allen enters the game for K. Garnett",
+   "points": 0,
+   "score": "83-64",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 506.0,
+   "team": "home",
+   "desc": "Turnover by P. Pierce (lost ball; steal by S. Battier )",
+   "points": 0,
+   "score": "83-64",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 492.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "83-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 491.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Wade",
+   "points": 0,
+   "score": "83-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 489.0,
+   "team": "away",
+   "desc": "D. Wade makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "85-64",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 471.0,
+   "team": "home",
+   "desc": "R. Rondo misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "85-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 470.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "85-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 464.0,
+   "team": "away",
+   "desc": "D. Wade makes 2-pt layup from 1 ft (assist by L. James )",
+   "points": 2,
+   "score": "87-64",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 463.0,
+   "team": "home",
+   "desc": "Boston 20 second timeout",
+   "points": 0,
+   "score": "87-64",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 463.0,
+   "team": "home",
+   "desc": "R. Hollins enters the game for P. Pierce",
+   "points": 0,
+   "score": "87-64",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "K. Dooling misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "87-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 447.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Wade",
+   "points": 0,
+   "score": "87-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 435.0,
+   "team": "away",
+   "desc": "L. James makes 2-pt layup from 1 ft (assist by D. Wade )",
+   "points": 2,
+   "score": "89-64",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 415.0,
+   "team": "home",
+   "desc": "R. Allen misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "89-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 415.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "89-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 415.0,
+   "team": "home",
+   "desc": "M. Daniels enters the game for R. Rondo",
+   "points": 0,
+   "score": "89-64",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 395.0,
+   "team": "away",
+   "desc": "L. James misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "89-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 394.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Dooling",
+   "points": 0,
+   "score": "89-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "R. Hollins makes 2-pt dunk from 1 ft (assist by R. Allen )",
+   "points": 2,
+   "score": "89-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 354.0,
+   "team": "away",
+   "desc": "C. Bosh misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "89-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 353.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Allen",
+   "points": 0,
+   "score": "89-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "home",
+   "desc": "Shooting foul by L. James (drawn by R. Allen )",
+   "points": 0,
+   "score": "89-66",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "home",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "89-66",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "home",
+   "desc": "R. Allen makes free throw 1 of 2",
+   "points": 1,
+   "score": "89-67",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "home",
+   "desc": "R. Allen makes free throw 2 of 2",
+   "points": 1,
+   "score": "89-68",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 323.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "89-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 322.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Bass",
+   "points": 0,
+   "score": "89-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 316.0,
+   "team": "home",
+   "desc": "M. Daniels makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "89-70",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "away",
+   "desc": "C. Bosh misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "89-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "away",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "89-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 266.0,
+   "team": "away",
+   "desc": "Shooting foul by R. Hollins (drawn by C. Bosh )",
+   "points": 0,
+   "score": "89-70",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 266.0,
+   "team": "away",
+   "desc": "C. Bosh makes free throw 1 of 2",
+   "points": 1,
+   "score": "90-70",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 266.0,
+   "team": "home",
+   "desc": "S. Pavlovi\u00c4\u0087 enters the game for R. Allen",
+   "points": 0,
+   "score": "90-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 266.0,
+   "team": "home",
+   "desc": "S. Williams enters the game for B. Bass",
+   "points": 0,
+   "score": "90-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 266.0,
+   "team": "away",
+   "desc": "C. Bosh misses free throw 2 of 2",
+   "points": 0,
+   "score": "90-70",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 265.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Daniels",
+   "points": 0,
+   "score": "90-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 250.0,
+   "team": "home",
+   "desc": "K. Dooling misses 2-pt layup from 3 ft (block by C. Bosh )",
+   "points": 0,
+   "score": "90-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 249.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Wade",
+   "points": 0,
+   "score": "90-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 230.0,
+   "team": "away",
+   "desc": "D. Wade misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "90-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Wade",
+   "points": 0,
+   "score": "90-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 207.0,
+   "team": "away",
+   "desc": "C. Bosh makes 2-pt jump shot from 13 ft (assist by M. Chalmers )",
+   "points": 2,
+   "score": "92-70",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 197.0,
+   "team": "home",
+   "desc": "M. Daniels misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "92-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 196.0,
+   "team": "away",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "92-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "away",
+   "desc": "Miami full timeout",
+   "points": 0,
+   "score": "92-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "home",
+   "desc": "E. Moore enters the game for K. Dooling",
+   "points": 0,
+   "score": "92-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "away",
+   "desc": "J. Jones enters the game for L. James",
+   "points": 0,
+   "score": "92-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "away",
+   "desc": "J. Howard enters the game for C. Bosh",
+   "points": 0,
+   "score": "92-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "away",
+   "desc": "N. Cole enters the game for D. Wade",
+   "points": 0,
+   "score": "92-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 174.0,
+   "team": "away",
+   "desc": "S. Battier misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "92-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 174.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Williams",
+   "points": 0,
+   "score": "92-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 158.0,
+   "team": "home",
+   "desc": "S. Pavlovi\u00c4\u0087 misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "92-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 158.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "92-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 158.0,
+   "team": "home",
+   "desc": "Personal foul by S. Battier (drawn by S. Williams )",
+   "points": 0,
+   "score": "92-70",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 158.0,
+   "team": "away",
+   "desc": "R. Turiaf enters the game for S. Battier",
+   "points": 0,
+   "score": "92-70",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 141.0,
+   "team": "home",
+   "desc": "E. Moore misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "92-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Howard",
+   "points": 0,
+   "score": "92-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 128.0,
+   "team": "away",
+   "desc": "Personal block foul by R. Hollins (drawn by M. Chalmers )",
+   "points": 0,
+   "score": "92-70",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 118.0,
+   "team": "away",
+   "desc": "Personal block foul by R. Hollins (drawn by N. Cole )",
+   "points": 0,
+   "score": "92-70",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 104.0,
+   "team": "away",
+   "desc": "M. Chalmers misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "92-70",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "Defensive rebound by E. Moore",
+   "points": 0,
+   "score": "92-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 96.0,
+   "team": "home",
+   "desc": "M. Daniels makes 2-pt layup from 1 ft (assist by E. Moore )",
+   "points": 2,
+   "score": "92-72",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 75.0,
+   "team": "away",
+   "desc": "J. Howard misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "92-72",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 73.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Pavlovi\u00c4\u0087",
+   "points": 0,
+   "score": "92-72",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 62.0,
+   "team": "home",
+   "desc": "Shooting foul by R. Turiaf (drawn by M. Daniels )",
+   "points": 0,
+   "score": "92-72",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 62.0,
+   "team": "home",
+   "desc": "M. Daniels makes free throw 1 of 2",
+   "points": 1,
+   "score": "92-73",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 62.0,
+   "team": "home",
+   "desc": "M. Daniels makes free throw 2 of 2",
+   "points": 1,
+   "score": "92-74",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 45.0,
+   "team": "away",
+   "desc": "N. Cole makes 2-pt jump shot from 1 ft",
+   "points": 2,
+   "score": "94-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 32.8,
+   "team": "home",
+   "desc": "E. Moore makes 2-pt jump shot from 22 ft",
+   "points": 2,
+   "score": "94-76",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 12.7,
+   "team": "away",
+   "desc": "Shooting foul by S. Williams (drawn by J. Howard )",
+   "points": 0,
+   "score": "94-76",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 12.7,
+   "team": "away",
+   "desc": "J. Howard makes free throw 1 of 2",
+   "points": 1,
+   "score": "95-76",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 12.7,
+   "team": "away",
+   "desc": "J. Howard makes free throw 2 of 2",
+   "points": 1,
+   "score": "96-76",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 9.2,
+   "team": "home",
+   "desc": "M. Daniels makes 2-pt dunk from 1 ft",
+   "points": 2,
+   "score": "96-78",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 6.9,
+   "team": "away",
+   "desc": "Personal foul by S. Pavlovi\u00c4\u0087 (drawn by J. Jones )",
+   "points": 0,
+   "score": "96-78",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 6.9,
+   "team": "away",
+   "desc": "J. Jones makes free throw 1 of 2",
+   "points": 1,
+   "score": "97-78",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 6.9,
+   "team": "away",
+   "desc": "J. Jones makes free throw 2 of 2",
+   "points": 1,
+   "score": "98-78",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 2.7,
+   "team": "home",
+   "desc": "Personal foul by R. Turiaf (drawn by E. Moore )",
+   "points": 0,
+   "score": "98-78",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 2.7,
+   "team": "home",
+   "desc": "E. Moore misses free throw 1 of 2",
+   "points": 0,
+   "score": "98-78",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 2.7,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "98-78",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 2.7,
+   "team": "home",
+   "desc": "E. Moore makes free throw 2 of 2",
+   "points": 1,
+   "score": "98-79",
+   "kind": "ft_made"
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+[
+ {
+  "set_start_frame": 2000,
+  "core_end_frame": 2342,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2000,
+    "period": 1,
+    "clock_s": 221,
+    "raw": "1st|3:41"
+   },
+   {
+    "frame": 2342,
+    "period": 1,
+    "clock_s": 209,
+    "raw": "1st|3:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    225.0,
+    197.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 197.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by P. Pierce (bad pass; steal by D. Wade )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 3095,
+  "core_end_frame": 3299,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3095,
+    "period": 1,
+    "clock_s": 207,
+    "raw": "1st|3:27"
+   },
+   {
+    "frame": 3299,
+    "period": 1,
+    "clock_s": 200,
+    "raw": "1st|3:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    225.0,
+    197.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 197.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by P. Pierce (bad pass; steal by D. Wade )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "duplicate_of_span": 2000
+ }
+]

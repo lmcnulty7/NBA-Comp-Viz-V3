@@ -1,0 +1,55 @@
+[
+ {
+  "set_start_frame": 2000,
+  "core_end_frame": 2201,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2000,
+    "period": 2,
+    "clock_s": 465,
+    "raw": "2nd|7:45"
+   },
+   {
+    "frame": 2201,
+    "period": 2,
+    "clock_s": 458,
+    "raw": "2nd|7:38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    469.0,
+    456.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 456.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by R. Rondo (bad pass)"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true
+ },
+ {
+  "set_start_frame": 2729,
+  "core_end_frame": 3050,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.67,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "status": "anchor_failed"
+ }
+]
