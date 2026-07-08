@@ -332,6 +332,15 @@ POSS_CORE_TRIM_S = 2.0      # metrics core = [set_start, end − this]: the huma
 POSS_MIN_CORE_S = 4.0       # spans with a shorter core ⇒ metrics_eligible=false (flagged, kept)
 
 
+# Harvest-scale pre-gate (build_trajectories --pregate): a coarse gate-only pass
+# finds live segments so the expensive chain never scans dead footage frame by
+# frame. Padding guarantees the fine pass sees everything near a coarse live hit;
+# accuracy-neutrality vs the fine-only path verified on curry_q1 (DEVLOG 07-08c).
+PREGATE_STRIDE = 15         # coarse sampling (0.5 s) — a live stretch shorter than
+                            # this is below POSS_MIN_SPAN_SEC anyway
+PREGATE_PAD_FRAMES = 45     # ±1.5 s around each coarse live hit
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # COMPONENT C3 — Matchup metrics (matchup_metrics.py), Tier 1
 # ══════════════════════════════════════════════════════════════════════════════

@@ -107,6 +107,9 @@ def main():
     ap.add_argument("--no-reid", action="store_true", help="Disable offline fragment linking (A/B).")
     ap.add_argument("--no-teams", action="store_true", help="Disable team classification + linker veto (A/B).")
     ap.add_argument("--no-video", action="store_true", help="Skip the review-video render (batch runs).")
+    ap.add_argument("--pregate", action="store_true",
+                    help="Coarse gate-only pass first; the full chain only runs inside "
+                         "live segments (harvest-scale speedup; implies --use-gate).")
     ap.add_argument("--reid-sim", type=float, default=None, help="Override REID_SIM_MIN.")
     ap.add_argument("--reid-max-gap", type=float, default=None, help="Override REID_MAX_GAP_SEC.")
     # clean_paths params (defaults = the external project's basketball settings)
@@ -129,7 +132,7 @@ def main():
 
     device = config.get_device()
     gate = None
-    if args.use_gate:
+    if args.use_gate or args.pregate:
         from gate.trained_head import TrainedHeadGate
         thr = json.loads(config.THRESHOLDS_PATH.read_text())["trained"]
         gate = TrainedHeadGate.load(config.HEAD_PATH, backbone=get_backbone("clip", device), threshold=thr)
@@ -144,6 +147,29 @@ def main():
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
+    # ── pre-gate: coarse live segments so the chain never scans dead footage ──
+    intervals = None
+    if args.pregate:
+        log.info("Pre-gate: coarse scan (stride %d) …", config.PREGATE_STRIDE)
+        hits, i = [], args.start
+        while i < total:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+            ret, frame = cap.read()
+            if ret and gate.is_court_visible(frame):
+                hits.append(i)
+            i += config.PREGATE_STRIDE
+        intervals = []
+        for h in hits:
+            a, b = h - config.PREGATE_PAD_FRAMES, h + config.PREGATE_PAD_FRAMES
+            if intervals and a <= intervals[-1][1]:
+                intervals[-1][1] = b
+            else:
+                intervals.append([a, b])
+        live_frames = sum(b - a for a, b in intervals)
+        log.info("Pre-gate: %d live segments, %.1f of %.1f min (%.0f%%)",
+                 len(intervals), live_frames / fps / 60, (total - args.start) / fps / 60,
+                 100 * live_frames / max(total - args.start, 1))
+
     raw = defaultdict(dict)       # {track_id: {frame_idx: (x, y)}}
     boxes_by_frame = {}           # {frame_idx: [(track_id, bbox)]}
     extrap = {}                   # {(track_id, frame_idx): bool}  — projection outside keypoint hull
@@ -151,8 +177,16 @@ def main():
     hom_by_frame = {}             # {frame_idx: CourtHomography}  — for reprojecting the court model
     frame_order = []
     idx, n, n_H = args.start, 0, 0
+    seg_i = 0   # pre-gate interval pointer
     log.info("Tracking + projecting %s from frame %d …", args.source.name, args.start)
     while idx < total and n < args.max_frames:
+        if intervals is not None:
+            while seg_i < len(intervals) and idx > intervals[seg_i][1]:
+                seg_i += 1
+            if seg_i >= len(intervals):
+                break
+            if idx < intervals[seg_i][0]:      # jump the dead gap entirely
+                idx = intervals[seg_i][0]
         cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
         ret, frame = cap.read()
         if not ret:

@@ -40,14 +40,17 @@ from fetch_pbp import CLIP_GAME, GAMES, PBP_DIR
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("tier2_join")
 
-CLIPS = ["curry_q1_clip", "curry_classic_clip", "clip_10m00_18m00", "clip_26m00_34m00"]
+def discover_clips() -> list[str]:
+    """Every clip with an aligned-outcomes file joins (Phase A adds clips freely)."""
+    return sorted(p.name.replace("_outcomes.json", "")
+                  for p in PBP_DIR.glob("*_outcomes.json"))
 
 
 def main() -> None:
     joined, excluded = [], []
     seen_pbp: dict[tuple, dict] = {}    # (game, period, clock range) -> joined record
 
-    for clip in CLIPS:
+    for clip in discover_clips():
         outcomes = json.loads((PBP_DIR / f"{clip}_outcomes.json").read_text())
         matchups = {p["set_start_frame"]: p for p in json.loads(
             (config.TRACKING_DIR / f"{clip}_matchups.json").read_text())["possessions"]}
