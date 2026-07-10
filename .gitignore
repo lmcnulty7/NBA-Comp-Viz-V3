@@ -73,3 +73,11 @@ runs/
 data/poss_eval/**/*.jpg
 data/clock_eval/*.png
 data/harvest/video/
+
+# ── Heavy regenerables relocated out of iCloud to ~/Developer/nba-comp-viz-data
+#    (symlinked back in place; ignore the symlink nodes too) ──
+/data/harvest/video
+/data/external
+/data/unseen_videos
+/data/visibility
+/data/NewExternalDatasets to train on Roboflow srcd
