@@ -1,0 +1,174 @@
+[
+ {
+  "set_start_frame": 1332,
+  "core_end_frame": 1629,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.61,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 1341,
+    "period": 1,
+    "clock_s": 11,
+    "raw": "1s|11."
+   },
+   {
+    "frame": 1629,
+    "period": 1,
+    "clock_s": 75,
+    "raw": "1st|115"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 1791,
+  "core_end_frame": 1980,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 12366,
+  "core_end_frame": 12513,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 12366,
+    "period": 1,
+    "clock_s": 451,
+    "raw": "1s|7.31"
+   },
+   {
+    "frame": 12513,
+    "period": 1,
+    "clock_s": 446,
+    "raw": "1st|7.26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    457.0,
+    443.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 443.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 12741,
+  "core_end_frame": 12966,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 12744,
+    "period": 1,
+    "clock_s": 438,
+    "raw": "1st|7.18"
+   },
+   {
+    "frame": 12969,
+    "period": 1,
+    "clock_s": 430,
+    "raw": "1st|7:10"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    443.0,
+    423.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 423.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. West makes 2-pt jump shot from 19 ft (assist by T. Parker )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 16701,
+  "core_end_frame": 16908,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.54,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 16704,
+    "period": 1,
+    "clock_s": 366,
+    "raw": "1s|6.06"
+   },
+   {
+    "frame": 16908,
+    "period": 1,
+    "clock_s": 359,
+    "raw": "1s|5.59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    370.0,
+    356.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 356.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by L. Aldridge (lost ball; steal by A. Bogut )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

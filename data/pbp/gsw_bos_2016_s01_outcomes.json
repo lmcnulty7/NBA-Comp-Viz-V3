@@ -1,0 +1,289 @@
+[
+ {
+  "set_start_frame": 705,
+  "core_end_frame": 855,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 705,
+    "period": 1,
+    "clock_s": 349,
+    "raw": "1st|5:49"
+   },
+   {
+    "frame": 855,
+    "period": 1,
+    "clock_s": 346,
+    "raw": "1st|5:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    349.0,
+    337.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 337.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (bad pass; steal by J. Sullinger )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 957,
+  "core_end_frame": 1122,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.57,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 957,
+    "period": 1,
+    "clock_s": 342,
+    "raw": "1st|5:42"
+   },
+   {
+    "frame": 1122,
+    "period": 1,
+    "clock_s": 337,
+    "raw": "1st|5:37"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    349.0,
+    337.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 337.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (bad pass; steal by J. Sullinger )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 705,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 3060,
+  "core_end_frame": 3777,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3060,
+    "period": 1,
+    "clock_s": 328,
+    "raw": "1st|5:28"
+   },
+   {
+    "frame": 3777,
+    "period": 1,
+    "clock_s": 304,
+    "raw": "1sT|5:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    331.0,
+    295.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 295.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Varej\u00c3\u00a3o makes 2-pt hook shot from 5 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 4785,
+  "core_end_frame": 4989,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 4785,
+    "period": 1,
+    "clock_s": 287,
+    "raw": "1sT|4:47"
+   },
+   {
+    "frame": 4989,
+    "period": 1,
+    "clock_s": 280,
+    "raw": "1st|4:40"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    295.0,
+    280.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 280.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Sullinger misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 5451,
+  "core_end_frame": 5598,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5451,
+    "period": 1,
+    "clock_s": 264,
+    "raw": "1st|4:24"
+   },
+   {
+    "frame": 5598,
+    "period": 1,
+    "clock_s": 259,
+    "raw": "1st|4:19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    269.0,
+    260.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 260.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "I. Thomas misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 6462,
+  "core_end_frame": 6597,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.76,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 7176,
+  "core_end_frame": 7383,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.75,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7176,
+    "period": 1,
+    "clock_s": 251,
+    "raw": "1st|4:11"
+   },
+   {
+    "frame": 7383,
+    "period": 1,
+    "clock_s": 244,
+    "raw": "1st|4:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    252.0,
+    230.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 235.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Bradley makes 2-pt jump shot from 17 ft (assist by I. Thomas )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ }
+]

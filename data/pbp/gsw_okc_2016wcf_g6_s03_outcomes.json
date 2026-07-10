@@ -1,0 +1,383 @@
+[
+ {
+  "set_start_frame": 366,
+  "core_end_frame": 609,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.68,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 366,
+    "period": 2,
+    "clock_s": 278,
+    "raw": "2ND|4.38"
+   },
+   {
+    "frame": 609,
+    "period": 2,
+    "clock_s": 270,
+    "raw": "2ND|4.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    295.0,
+    269.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 284.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt jump shot from 5 ft (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 1569,
+  "core_end_frame": 1986,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1569,
+    "period": 2,
+    "clock_s": 259,
+    "raw": "2ND|4:19"
+   },
+   {
+    "frame": 1986,
+    "period": 2,
+    "clock_s": 245,
+    "raw": "2ND|405"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    263.0,
+    242.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 242.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 2166,
+  "core_end_frame": 2448,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2166,
+    "period": 2,
+    "clock_s": 239,
+    "raw": "2ND|3.59"
+   },
+   {
+    "frame": 2448,
+    "period": 2,
+    "clock_s": 231,
+    "raw": "2ND|3.51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    242.0,
+    216.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 216.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 2946,
+  "core_end_frame": 3165,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2946,
+    "period": 2,
+    "clock_s": 231,
+    "raw": "2ND|3.51"
+   },
+   {
+    "frame": 3165,
+    "period": 2,
+    "clock_s": 227,
+    "raw": "2ND|3.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    242.0,
+    216.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 216.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 2166,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 3660,
+  "core_end_frame": 3870,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3660,
+    "period": 2,
+    "clock_s": 227,
+    "raw": "2ND|3.47"
+   },
+   {
+    "frame": 3870,
+    "period": 2,
+    "clock_s": 221,
+    "raw": "2ND|341"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    242.0,
+    216.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 216.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 2166,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 4191,
+  "core_end_frame": 4497,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4191,
+    "period": 2,
+    "clock_s": 210,
+    "raw": "2ND|3.30"
+   },
+   {
+    "frame": 4497,
+    "period": 2,
+    "clock_s": 199,
+    "raw": "2ND|3:19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    216.0,
+    172.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 193.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 6843,
+  "core_end_frame": 7068,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6843,
+    "period": 2,
+    "clock_s": 179,
+    "raw": "2ND|2.59"
+   },
+   {
+    "frame": 7068,
+    "period": 2,
+    "clock_s": 172,
+    "raw": "2ND|2.52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    216.0,
+    172.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 193.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": false,
+  "duplicate_of_span": 4191,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 12627,
+  "core_end_frame": 12870,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 16521,
+  "core_end_frame": 16653,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 16521,
+    "period": 2,
+    "clock_s": 102,
+    "raw": "2ND|142"
+   },
+   {
+    "frame": 16653,
+    "period": 2,
+    "clock_s": 98,
+    "raw": "2ND|1.38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    113.0,
+    93.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 93.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Ibaka makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

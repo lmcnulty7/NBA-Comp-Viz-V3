@@ -1,0 +1,603 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 312,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.52,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 3,
+    "clock_s": 12.2,
+    "raw": "3ro|12.2"
+   },
+   {
+    "frame": 312,
+    "period": 3,
+    "clock_s": 1.5,
+    "raw": "3ro|1.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    27.0,
+    4.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.77,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 4.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 2247,
+  "core_end_frame": 2541,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2247,
+    "period": 4,
+    "clock_s": 697,
+    "raw": "4th|11:37"
+   },
+   {
+    "frame": 2541,
+    "period": 4,
+    "clock_s": 687,
+    "raw": "4th|11:27"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    705.0,
+    679.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 679.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Olynyk makes 2-pt hook shot from 7 ft (assist by E. Turner )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 3174,
+  "core_end_frame": 3384,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 3174,
+    "period": 4,
+    "clock_s": 686,
+    "raw": "4th|11:26"
+   },
+   {
+    "frame": 3384,
+    "period": 4,
+    "clock_s": 680,
+    "raw": "4th|11:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    705.0,
+    679.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 679.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Olynyk makes 2-pt hook shot from 7 ft (assist by E. Turner )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "duplicate_of_span": 2247,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 3534,
+  "core_end_frame": 3948,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 3534,
+    "period": 4,
+    "clock_s": 674,
+    "raw": "4th|11:14"
+   },
+   {
+    "frame": 3948,
+    "period": 4,
+    "clock_s": 660,
+    "raw": "4th|11:00"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    679.0,
+    660.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 660.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 4119,
+  "core_end_frame": 4419,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4119,
+    "period": 4,
+    "clock_s": 654,
+    "raw": "4th|10:54"
+   },
+   {
+    "frame": 4419,
+    "period": 4,
+    "clock_s": 646,
+    "raw": "4th|10:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    660.0,
+    643.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 643.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jerebko makes 2-pt dunk at rim (assist by E. Turner )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 4692,
+  "core_end_frame": 4887,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4692,
+    "period": 4,
+    "clock_s": 646,
+    "raw": "4th|10:46"
+   },
+   {
+    "frame": 4887,
+    "period": 4,
+    "clock_s": 645,
+    "raw": "4th|10:45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    660.0,
+    643.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 643.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jerebko makes 2-pt dunk at rim (assist by E. Turner )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "duplicate_of_span": 4119,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 4980,
+  "core_end_frame": 5403,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4980,
+    "period": 4,
+    "clock_s": 642,
+    "raw": "4th|10:42"
+   },
+   {
+    "frame": 5403,
+    "period": 4,
+    "clock_s": 628,
+    "raw": "4th|10:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    643.0,
+    629.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.93,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 629.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 6060,
+  "core_end_frame": 6204,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6108,
+    "period": 4,
+    "clock_s": 612,
+    "raw": "4th|10:12"
+   },
+   {
+    "frame": 6204,
+    "period": 4,
+    "clock_s": 608,
+    "raw": "4th|10:08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    629.0,
+    606.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 606.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "E. Turner makes 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 7338,
+  "core_end_frame": 7725,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7338,
+    "period": 4,
+    "clock_s": 569,
+    "raw": "4th|9:29"
+   },
+   {
+    "frame": 7725,
+    "period": 4,
+    "clock_s": 558,
+    "raw": "4th|9:18"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    589.0,
+    558.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 571.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Smart makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 9168,
+  "core_end_frame": 9390,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 9242,
+    "period": 4,
+    "clock_s": 526,
+    "raw": "4th|8.46"
+   },
+   {
+    "frame": 9390,
+    "period": 4,
+    "clock_s": 521,
+    "raw": "4th|8.41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    545.0,
+    500.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 521.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Smart makes 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 9777,
+  "core_end_frame": 10005,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.64,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 9777,
+    "period": 4,
+    "clock_s": 508,
+    "raw": "4th|8:28"
+   },
+   {
+    "frame": 10005,
+    "period": 4,
+    "clock_s": 500,
+    "raw": "4th|8:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    545.0,
+    500.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 521.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Smart makes 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": false,
+  "duplicate_of_span": 9168,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 10506,
+  "core_end_frame": 10659,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10506,
+    "period": 4,
+    "clock_s": 500,
+    "raw": "4th|8:20"
+   },
+   {
+    "frame": 10659,
+    "period": 4,
+    "clock_s": 496,
+    "raw": "4th|8:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    500.0,
+    493.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 493.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "M. Speights makes 2-pt dunk at rim (assist by K. Thompson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 15030,
+  "core_end_frame": 15282,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 15198,
+    "period": 4,
+    "clock_s": 410,
+    "raw": "4th|6:50"
+   },
+   {
+    "frame": 15282,
+    "period": 4,
+    "clock_s": 407,
+    "raw": "4th|6:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    420.0,
+    406.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 406.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Olynyk misses 2-pt jump shot from 4 ft (block by I. Clark )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ }
+]

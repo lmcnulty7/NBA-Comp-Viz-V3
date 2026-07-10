@@ -1,0 +1,416 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 189,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 1,
+    "clock_s": 340,
+    "raw": "1s|5.40"
+   },
+   {
+    "frame": 189,
+    "period": 1,
+    "clock_s": 333,
+    "raw": "1s|5.33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    356.0,
+    333.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 350.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 2-pt dunk at rim (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 723,
+  "core_end_frame": 885,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 729,
+    "period": 1,
+    "clock_s": 333,
+    "raw": "1s|5.33"
+   },
+   {
+    "frame": 888,
+    "period": 1,
+    "clock_s": 329,
+    "raw": "1s|5.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    333.0,
+    330.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.75,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 330.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Parker misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 1506,
+  "core_end_frame": 1695,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1506,
+    "period": 1,
+    "clock_s": 308,
+    "raw": "1s|5.08"
+   },
+   {
+    "frame": 1695,
+    "period": 1,
+    "clock_s": 302,
+    "raw": "1s|5.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    311.0,
+    302.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 302.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by M. Gin\u00c3\u00b3bili (bad pass)"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 2487,
+  "core_end_frame": 2637,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2487,
+    "period": 1,
+    "clock_s": 295,
+    "raw": "1st|455"
+   },
+   {
+    "frame": 2637,
+    "period": 1,
+    "clock_s": 289,
+    "raw": "1st|4.49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    302.0,
+    287.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 287.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by A. Iguodala (traveling)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 3369,
+  "core_end_frame": 3525,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.58,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3369,
+    "period": 1,
+    "clock_s": 282,
+    "raw": "1s|442"
+   },
+   {
+    "frame": 3525,
+    "period": 1,
+    "clock_s": 277,
+    "raw": "1s|437"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    287.0,
+    276.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 276.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. Aldridge misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 3651,
+  "core_end_frame": 3783,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3651,
+    "period": 1,
+    "clock_s": 273,
+    "raw": "1s|4.33"
+   },
+   {
+    "frame": 3783,
+    "period": 1,
+    "clock_s": 268,
+    "raw": "1s|4.28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    276.0,
+    262.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 262.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by D. Green (bad pass; steal by K. Leonard )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 7350,
+  "core_end_frame": 7587,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7350,
+    "period": 1,
+    "clock_s": 204,
+    "raw": "1st|324"
+   },
+   {
+    "frame": 7587,
+    "period": 1,
+    "clock_s": 199,
+    "raw": "1st|319"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    204.0,
+    193.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 193.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. Aldridge misses 2-pt hook shot from 10 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 15135,
+  "core_end_frame": 15291,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 15135,
+    "period": 1,
+    "clock_s": 108,
+    "raw": "1st|1.48"
+   },
+   {
+    "frame": 15291,
+    "period": 1,
+    "clock_s": 103,
+    "raw": "1s|1.43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    111.0,
+    91.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 91.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 22 ft (assist by L. Barbosa )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 17199,
+  "core_end_frame": 17355,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 17199,
+    "period": 1,
+    "clock_s": 61,
+    "raw": "1s|1.01"
+   },
+   {
+    "frame": 17355,
+    "period": 1,
+    "clock_s": 56.3,
+    "raw": "1st|:56.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    65.0,
+    45.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 45.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. West makes 2-pt jump shot from 14 ft (assist by P. Mills )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

@@ -1,0 +1,394 @@
+[
+ {
+  "set_start_frame": 2367,
+  "core_end_frame": 2565,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.69,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2367,
+    "period": 3,
+    "clock_s": 59.8,
+    "raw": "3ro|:59.8"
+   },
+   {
+    "frame": 2565,
+    "period": 3,
+    "clock_s": 53.0,
+    "raw": "3r|553.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    66.0,
+    50.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 50.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "M. Speights makes 2-pt jump shot from 17 ft (assist by H. Barnes )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 2799,
+  "core_end_frame": 2931,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2799,
+    "period": 3,
+    "clock_s": 47.2,
+    "raw": "3ro|47.2"
+   },
+   {
+    "frame": 2931,
+    "period": 3,
+    "clock_s": 42.6,
+    "raw": "3r|:42.6"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    50.0,
+    38.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 38.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Simmons misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 3165,
+  "core_end_frame": 3399,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.57,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3165,
+    "period": 3,
+    "clock_s": 34.6,
+    "raw": "3ro|34.6"
+   },
+   {
+    "frame": 3399,
+    "period": 3,
+    "clock_s": 26.5,
+    "raw": "3ro|26.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    38.0,
+    7.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 25.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "M. Speights makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 8253,
+  "core_end_frame": 8403,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8253,
+    "period": 4,
+    "clock_s": 693,
+    "raw": "4th|1133"
+   },
+   {
+    "frame": 8403,
+    "period": 4,
+    "clock_s": 685,
+    "raw": "4t|11.25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    704.0,
+    688.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.62,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 688.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 20 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 8715,
+  "core_end_frame": 9075,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.58,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 8715,
+    "period": 4,
+    "clock_s": 78,
+    "raw": "4t1|11:8"
+   },
+   {
+    "frame": 9075,
+    "period": 4,
+    "clock_s": 11.6,
+    "raw": "4tD|11.6"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 10071,
+  "core_end_frame": 10206,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10071,
+    "period": 4,
+    "clock_s": 633,
+    "raw": "4th|10.33"
+   },
+   {
+    "frame": 10206,
+    "period": 4,
+    "clock_s": 627,
+    "raw": "4th|10.27"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    641.0,
+    624.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 624.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by A. Iguodala (lost ball; steal by B. Marjanovi\u00c4\u0087 )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 12816,
+  "core_end_frame": 13248,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12816,
+    "period": 4,
+    "clock_s": 586,
+    "raw": "4th|9.46"
+   },
+   {
+    "frame": 13248,
+    "period": 4,
+    "clock_s": 571,
+    "raw": "4th|9.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    591.0,
+    570.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 570.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Anderson misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.7
+ },
+ {
+  "set_start_frame": 16215,
+  "core_end_frame": 16446,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16215,
+    "period": 4,
+    "clock_s": 524,
+    "raw": "4t|8.44"
+   },
+   {
+    "frame": 16446,
+    "period": 4,
+    "clock_s": 516,
+    "raw": "4th|836"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    526.0,
+    513.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 513.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 16983,
+  "core_end_frame": 17148,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16983,
+    "period": 4,
+    "clock_s": 497,
+    "raw": "4th|817"
+   },
+   {
+    "frame": 17148,
+    "period": 4,
+    "clock_s": 491,
+    "raw": "4t|811"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    513.0,
+    488.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 488.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. McCallum makes 2-pt jump shot from 13 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.7
+ }
+]

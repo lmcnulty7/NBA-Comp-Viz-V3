@@ -1,0 +1,335 @@
+[
+ {
+  "set_start_frame": 60,
+  "core_end_frame": 198,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 60,
+    "period": 4,
+    "clock_s": 252,
+    "raw": "4TH|4:12"
+   },
+   {
+    "frame": 198,
+    "period": 4,
+    "clock_s": 248,
+    "raw": "4TH|4.08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    253.0,
+    222.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 238.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 2745,
+  "core_end_frame": 2961,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2745,
+    "period": 4,
+    "clock_s": 218,
+    "raw": "4TH|3:38"
+   },
+   {
+    "frame": 2967,
+    "period": 4,
+    "clock_s": 211,
+    "raw": "4TH|3.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    222.0,
+    200.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 200.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Iguodala misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 3123,
+  "core_end_frame": 3288,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 3123,
+    "period": 4,
+    "clock_s": 205,
+    "raw": "4TH|3.25"
+   },
+   {
+    "frame": 3288,
+    "period": 4,
+    "clock_s": 200,
+    "raw": "4TH|3.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    222.0,
+    200.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 200.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Iguodala misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 2745,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 4017,
+  "core_end_frame": 4146,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4017,
+    "period": 4,
+    "clock_s": 174,
+    "raw": "4TH|254"
+   },
+   {
+    "frame": 4146,
+    "period": 4,
+    "clock_s": 170,
+    "raw": "4TH|2.50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    175.0,
+    167.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 168.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by H. Barnes )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 6771,
+  "core_end_frame": 6954,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6771,
+    "period": 4,
+    "clock_s": 157,
+    "raw": "4TH|2.37"
+   },
+   {
+    "frame": 6954,
+    "period": 4,
+    "clock_s": 152,
+    "raw": "4TH|2.32"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    167.0,
+    142.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 142.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Roberson makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 9582,
+  "core_end_frame": 9780,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 10125,
+  "core_end_frame": 10452,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10125,
+    "period": 4,
+    "clock_s": 72,
+    "raw": "4TH|112"
+   },
+   {
+    "frame": 10452,
+    "period": 4,
+    "clock_s": 61,
+    "raw": "4TH|101"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    83.0,
+    61.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 61.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 14754,
+  "core_end_frame": 15150,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 14754,
+    "period": 4,
+    "clock_s": 32.6,
+    "raw": "4TH|32.6"
+   },
+   {
+    "frame": 15150,
+    "period": 4,
+    "clock_s": 18.9,
+    "raw": "4TH|18.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    36.0,
+    14.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 14.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 8 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ }
+]

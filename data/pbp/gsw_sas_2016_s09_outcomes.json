@@ -1,0 +1,94 @@
+[
+ {
+  "set_start_frame": 195,
+  "core_end_frame": 567,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.74,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 195,
+    "period": 4,
+    "clock_s": 136,
+    "raw": "4t|216"
+   },
+   {
+    "frame": 567,
+    "period": 4,
+    "clock_s": 123,
+    "raw": "4th|2.03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    139.0,
+    122.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 122.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by I. Clark (bad pass; steal by K. Anderson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 1767,
+  "core_end_frame": 1965,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1767,
+    "period": 4,
+    "clock_s": 84,
+    "raw": "4tD|1.24"
+   },
+   {
+    "frame": 1965,
+    "period": 4,
+    "clock_s": 77,
+    "raw": "4t|1:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    86.0,
+    74.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 74.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "M. Speights makes 3-pt jump shot from 24 ft (assist by I. Clark )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ }
+]

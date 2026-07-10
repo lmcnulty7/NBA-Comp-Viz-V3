@@ -1,0 +1,416 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 180,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.51,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 3,
+    "clock_s": 358,
+    "raw": "3r|5.58"
+   },
+   {
+    "frame": 180,
+    "period": 3,
+    "clock_s": 352,
+    "raw": "3ro|5.52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    379.0,
+    352.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 352.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by Team (shot clock)"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 867,
+  "core_end_frame": 1026,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 867,
+    "period": 3,
+    "clock_s": 350,
+    "raw": "3ro|5.50"
+   },
+   {
+    "frame": 1026,
+    "period": 3,
+    "clock_s": 345,
+    "raw": "3r|5.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    352.0,
+    339.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 339.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "B. Rush makes 3-pt jump shot from 23 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 6876,
+  "core_end_frame": 7149,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.66,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6876,
+    "period": 3,
+    "clock_s": 279,
+    "raw": "3ro|439"
+   },
+   {
+    "frame": 7149,
+    "period": 3,
+    "clock_s": 269,
+    "raw": "3ro|4.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    282.0,
+    265.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 265.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by B. Diaw (bad pass; steal by D. Green )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 10068,
+  "core_end_frame": 10320,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.69,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10068,
+    "period": 3,
+    "clock_s": 244,
+    "raw": "3r|404"
+   },
+   {
+    "frame": 10320,
+    "period": 3,
+    "clock_s": 235,
+    "raw": "3r|3.55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    246.0,
+    233.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 233.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "M. Gin\u00c3\u00b3bili misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 10470,
+  "core_end_frame": 10905,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10470,
+    "period": 3,
+    "clock_s": 230,
+    "raw": "3r|350"
+   },
+   {
+    "frame": 10905,
+    "period": 3,
+    "clock_s": 215,
+    "raw": "3ro|3.35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    233.0,
+    212.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 212.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "F. Ezeli makes 2-pt layup at rim (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 11577,
+  "core_end_frame": 11787,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11577,
+    "period": 3,
+    "clock_s": 192,
+    "raw": "3ro|312"
+   },
+   {
+    "frame": 11787,
+    "period": 3,
+    "clock_s": 185,
+    "raw": "3r|3.05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    193.0,
+    178.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 178.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by J. Simmons (lost ball; steal by S. Curry )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 14733,
+  "core_end_frame": 15015,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.54,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14733,
+    "period": 3,
+    "clock_s": 162,
+    "raw": "3r|2.42"
+   },
+   {
+    "frame": 15015,
+    "period": 3,
+    "clock_s": 152,
+    "raw": "3r|2.32"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    165.0,
+    147.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 147.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 15534,
+  "core_end_frame": 15723,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.64,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15534,
+    "period": 3,
+    "clock_s": 134,
+    "raw": "3r|2.14"
+   },
+   {
+    "frame": 15723,
+    "period": 3,
+    "clock_s": 127,
+    "raw": "3r|2.07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    142.0,
+    129.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.71,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 129.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 16425,
+  "core_end_frame": 16620,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16425,
+    "period": 3,
+    "clock_s": 103,
+    "raw": "3r|1.43"
+   },
+   {
+    "frame": 16620,
+    "period": 3,
+    "clock_s": 96,
+    "raw": "3r|1.36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    111.0,
+    94.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 94.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. West misses 2-pt hook shot from 4 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ }
+]

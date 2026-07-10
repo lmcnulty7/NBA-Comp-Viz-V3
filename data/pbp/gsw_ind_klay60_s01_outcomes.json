@@ -1,0 +1,325 @@
+[
+ {
+  "set_start_frame": 78,
+  "core_end_frame": 210,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 78,
+    "period": 1,
+    "clock_s": 454,
+    "raw": "1s|7.34"
+   },
+   {
+    "frame": 210,
+    "period": 1,
+    "clock_s": 450,
+    "raw": "1st|7.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    457.0,
+    445.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 445.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by Z. Pachulia )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 813,
+  "core_end_frame": 1035,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.52,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 813,
+    "period": 1,
+    "clock_s": 429,
+    "raw": "1st|7.09"
+   },
+   {
+    "frame": 1035,
+    "period": 1,
+    "clock_s": 422,
+    "raw": "1st|702"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    433.0,
+    417.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 417.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 10 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 2544,
+  "core_end_frame": 2784,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.54,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2544,
+    "period": 1,
+    "clock_s": 389,
+    "raw": "1s|6.29"
+   },
+   {
+    "frame": 2784,
+    "period": 1,
+    "clock_s": 381,
+    "raw": "1s|6.21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    394.0,
+    379.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 379.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by J. Teague (lost ball; steal by Z. Pachulia )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.57
+ },
+ {
+  "set_start_frame": 5388,
+  "core_end_frame": 5532,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.57,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5436,
+    "period": 1,
+    "clock_s": 358,
+    "raw": "1s|5.58"
+   },
+   {
+    "frame": 5532,
+    "period": 1,
+    "clock_s": 355,
+    "raw": "1s|5.55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    362.0,
+    339.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 346.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Turner makes 2-pt jump shot from 16 ft (assist by J. Teague )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.57
+ },
+ {
+  "set_start_frame": 5811,
+  "core_end_frame": 6060,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5811,
+    "period": 1,
+    "clock_s": 345,
+    "raw": "1s|5.45"
+   },
+   {
+    "frame": 6060,
+    "period": 1,
+    "clock_s": 339,
+    "raw": "1st|5.39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    362.0,
+    339.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 346.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Turner makes 2-pt jump shot from 16 ft (assist by J. Teague )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "duplicate_of_span": 5388,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 10623,
+  "core_end_frame": 10791,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.83,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 10623,
+    "period": 1,
+    "clock_s": 254,
+    "raw": "1st|4.14"
+   },
+   {
+    "frame": 10791,
+    "period": 1,
+    "clock_s": 249,
+    "raw": "1s|4.09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    261.0,
+    246.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 246.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "P. George misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.57
+ },
+ {
+  "set_start_frame": 11199,
+  "core_end_frame": 11538,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 11199,
+    "period": 1,
+    "clock_s": 235,
+    "raw": "1st|3.55"
+   },
+   {
+    "frame": 11538,
+    "period": 1,
+    "clock_s": 224,
+    "raw": "1s|344"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    240.0,
+    219.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 219.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Teague makes 2-pt jump shot from 6 ft (assist by P. George )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.57
+ }
+]

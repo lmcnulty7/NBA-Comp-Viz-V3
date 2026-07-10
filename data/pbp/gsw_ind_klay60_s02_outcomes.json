@@ -1,0 +1,417 @@
+[
+ {
+  "set_start_frame": 534,
+  "core_end_frame": 906,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 534,
+    "period": 1,
+    "clock_s": 82,
+    "raw": "1s|1.22"
+   },
+   {
+    "frame": 906,
+    "period": 1,
+    "clock_s": 70,
+    "raw": "1st|1:10"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    83.0,
+    66.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 66.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 1125,
+  "core_end_frame": 1314,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1125,
+    "period": 1,
+    "clock_s": 62,
+    "raw": "1st|1.02"
+   },
+   {
+    "frame": 1314,
+    "period": 1,
+    "clock_s": 56.5,
+    "raw": "1s|356.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    66.0,
+    49.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 49.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "C. Miles misses 3-pt jump shot from 26 ft (block by K. Durant )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.57
+ },
+ {
+  "set_start_frame": 2142,
+  "core_end_frame": 2268,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2142,
+    "period": 1,
+    "clock_s": 31.6,
+    "raw": "1s|31.6"
+   },
+   {
+    "frame": 2268,
+    "period": 1,
+    "clock_s": 27.4,
+    "raw": "1s|27.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    33.0,
+    26.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 26.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 2706,
+  "core_end_frame": 2862,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2784,
+    "period": 1,
+    "clock_s": 10.2,
+    "raw": "1st|:10.2"
+   },
+   {
+    "frame": 2862,
+    "period": 1,
+    "clock_s": 7.6,
+    "raw": "1st|:07.6"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    26.0,
+    4.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 4.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Jefferson misses 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.57
+ },
+ {
+  "set_start_frame": 4164,
+  "core_end_frame": 4419,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4334,
+    "period": 2,
+    "clock_s": 713,
+    "raw": "2n|11.53"
+   },
+   {
+    "frame": 4419,
+    "period": 2,
+    "clock_s": 710,
+    "raw": "2n|11.50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    704.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 704.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Durant makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 6462,
+  "core_end_frame": 6657,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6462,
+    "period": 2,
+    "clock_s": 683,
+    "raw": "2n|11.23"
+   },
+   {
+    "frame": 6559,
+    "period": 2,
+    "clock_s": 680,
+    "raw": "2n|11.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    684.0,
+    667.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 667.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. West makes 2-pt jump shot from 10 ft (assist by K. Durant )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 7974,
+  "core_end_frame": 8493,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7974,
+    "period": 2,
+    "clock_s": 633,
+    "raw": "2n|10.33"
+   },
+   {
+    "frame": 8493,
+    "period": 2,
+    "clock_s": 615,
+    "raw": "2n|10.15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    636.0,
+    588.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 611.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Stuckey makes 3-pt jump shot from 27 ft (assist by G. Robinson )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.62
+ },
+ {
+  "set_start_frame": 8922,
+  "core_end_frame": 9162,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9042,
+    "period": 2,
+    "clock_s": 597,
+    "raw": "2n|9.57"
+   },
+   {
+    "frame": 9162,
+    "period": 2,
+    "clock_s": 593,
+    "raw": "2n|9.53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    636.0,
+    588.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 611.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Stuckey makes 3-pt jump shot from 27 ft (assist by G. Robinson )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "duplicate_of_span": 7974,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 10785,
+  "core_end_frame": 11007,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 10785,
+    "period": 2,
+    "clock_s": 583,
+    "raw": "2n|9.43"
+   },
+   {
+    "frame": 11007,
+    "period": 2,
+    "clock_s": 576,
+    "raw": "2n|9.36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    588.0,
+    574.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 588.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. West makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.62
+ }
+]

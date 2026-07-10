@@ -1,0 +1,335 @@
+[
+ {
+  "set_start_frame": 171,
+  "core_end_frame": 471,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 3543,
+  "core_end_frame": 3720,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 3543,
+    "period": 4,
+    "clock_s": 580,
+    "raw": "4th|9.40"
+   },
+   {
+    "frame": 3720,
+    "period": 4,
+    "clock_s": 574,
+    "raw": "4th|9.34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    590.0,
+    560.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 560.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 13 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 5196,
+  "core_end_frame": 5496,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5196,
+    "period": 4,
+    "clock_s": 546,
+    "raw": "4th|9.06"
+   },
+   {
+    "frame": 5496,
+    "period": 4,
+    "clock_s": 536,
+    "raw": "4t|8.56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    560.0,
+    523.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 533.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "G. Robinson makes 2-pt jump shot from 21 ft (assist by L. Allen )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 5634,
+  "core_end_frame": 5757,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5634,
+    "period": 4,
+    "clock_s": 531,
+    "raw": "4th|8.51"
+   },
+   {
+    "frame": 5757,
+    "period": 4,
+    "clock_s": 527,
+    "raw": "4th|8.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    560.0,
+    523.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 533.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "G. Robinson makes 2-pt jump shot from 21 ft (assist by L. Allen )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "duplicate_of_span": 5196,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 7989,
+  "core_end_frame": 8175,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7989,
+    "period": 4,
+    "clock_s": 510,
+    "raw": "4t|8.30"
+   },
+   {
+    "frame": 8175,
+    "period": 4,
+    "clock_s": 504,
+    "raw": "4th|8.24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    513.0,
+    490.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 490.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Young makes 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 8823,
+  "core_end_frame": 8973,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8823,
+    "period": 4,
+    "clock_s": 482,
+    "raw": "4th|802"
+   },
+   {
+    "frame": 8973,
+    "period": 4,
+    "clock_s": 477,
+    "raw": "4th|7.57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    490.0,
+    465.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 465.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 15 ft (assist by I. Clark )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 13551,
+  "core_end_frame": 13677,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 13635,
+    "period": 4,
+    "clock_s": 429,
+    "raw": "4t1|7.09"
+   },
+   {
+    "frame": 13677,
+    "period": 4,
+    "clock_s": 427,
+    "raw": "4t|7.07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    435.0,
+    423.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 423.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by G. Robinson (lost ball; steal by P. McCaw )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 16146,
+  "core_end_frame": 16278,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16146,
+    "period": 4,
+    "clock_s": 394,
+    "raw": "4th|6.34"
+   },
+   {
+    "frame": 16278,
+    "period": 4,
+    "clock_s": 391,
+    "raw": "4th|6.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    410.0,
+    386.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 386.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "I. Clark makes 2-pt layup from 3 ft (assist by P. McCaw )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ }
+]

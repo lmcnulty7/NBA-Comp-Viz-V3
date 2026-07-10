@@ -1,0 +1,178 @@
+[
+ {
+  "set_start_frame": 8019,
+  "core_end_frame": 8244,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 8019,
+    "period": 3,
+    "clock_s": 406,
+    "raw": "3r|6.46"
+   },
+   {
+    "frame": 8244,
+    "period": 3,
+    "clock_s": 400,
+    "raw": "3r|6.40"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    411.0,
+    400.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 411.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "P. George makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 10188,
+  "core_end_frame": 10374,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10188,
+    "period": 3,
+    "clock_s": 383,
+    "raw": "3r|6.23"
+   },
+   {
+    "frame": 10374,
+    "period": 3,
+    "clock_s": 376,
+    "raw": "3r|6.16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    387.0,
+    364.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 364.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 10854,
+  "core_end_frame": 11049,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10854,
+    "period": 3,
+    "clock_s": 360,
+    "raw": "3r|6.00"
+   },
+   {
+    "frame": 11049,
+    "period": 3,
+    "clock_s": 354,
+    "raw": "3r|5.54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    364.0,
+    349.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 349.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Young misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 14625,
+  "core_end_frame": 14805,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14625,
+    "period": 3,
+    "clock_s": 293,
+    "raw": "3r|4.53"
+   },
+   {
+    "frame": 14805,
+    "period": 3,
+    "clock_s": 287,
+    "raw": "3r|4.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    297.0,
+    267.0
+   ],
+   "points": 4
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 4,
+  "terminating_event": {
+   "clock_s": 277.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by Z. Pachulia )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ }
+]

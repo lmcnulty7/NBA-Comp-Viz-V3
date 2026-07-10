@@ -1,0 +1,210 @@
+[
+ {
+  "set_start_frame": 177,
+  "core_end_frame": 435,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 177,
+    "period": 2,
+    "clock_s": 627,
+    "raw": "2ND|10.27"
+   },
+   {
+    "frame": 435,
+    "period": 2,
+    "clock_s": 618,
+    "raw": "2ND|10:18"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    631.0,
+    616.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 616.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 7179,
+  "core_end_frame": 7404,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7179,
+    "period": 2,
+    "clock_s": 522,
+    "raw": "2ND|8.42"
+   },
+   {
+    "frame": 7404,
+    "period": 2,
+    "clock_s": 514,
+    "raw": "2ND|8.34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    522.0,
+    504.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 504.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by S. Livingston (lost ball; steal by R. Westbrook )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 12573,
+  "core_end_frame": 12924,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 12579,
+    "period": 2,
+    "clock_s": 399,
+    "raw": "2ND|6.39"
+   },
+   {
+    "frame": 12924,
+    "period": 2,
+    "clock_s": 398,
+    "raw": "2ND|6.38"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 13179,
+  "core_end_frame": 13377,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13179,
+    "period": 2,
+    "clock_s": 390,
+    "raw": "2ND|6.30"
+   },
+   {
+    "frame": 13377,
+    "period": 2,
+    "clock_s": 383,
+    "raw": "2ND|6.23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    395.0,
+    380.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 380.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt layup at rim (block by K. Durant )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 15936,
+  "core_end_frame": 16182,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.68,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15936,
+    "period": 2,
+    "clock_s": 305,
+    "raw": "2ND|5.05"
+   },
+   {
+    "frame": 16182,
+    "period": 2,
+    "clock_s": 297,
+    "raw": "2ND|4.57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    313.0,
+    295.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 295.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by A. Iguodala (lost ball)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ }
+]

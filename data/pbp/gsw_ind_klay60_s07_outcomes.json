@@ -1,0 +1,134 @@
+[
+ {
+  "set_start_frame": 1212,
+  "core_end_frame": 1515,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.58,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1212,
+    "period": 3,
+    "clock_s": 263,
+    "raw": "3r|423"
+   },
+   {
+    "frame": 1515,
+    "period": 3,
+    "clock_s": 253,
+    "raw": "3r|4.13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    267.0,
+    248.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 248.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "J. McGee makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 10338,
+  "core_end_frame": 10542,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.64,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10338,
+    "period": 3,
+    "clock_s": 92,
+    "raw": "3r|1.32"
+   },
+   {
+    "frame": 10542,
+    "period": 3,
+    "clock_s": 85,
+    "raw": "3r|1.25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    114.0,
+    82.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 104.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Teague makes 2-pt hook shot from 2 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 12966,
+  "core_end_frame": 13185,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.54,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12966,
+    "period": 3,
+    "clock_s": 57.7,
+    "raw": "3r|557.7"
+   },
+   {
+    "frame": 13185,
+    "period": 3,
+    "clock_s": 50.4,
+    "raw": "3r|550.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    58.0,
+    43.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 43.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. S\u00c3\u00a9raphin makes 2-pt jump shot from 6 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ }
+]

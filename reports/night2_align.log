@@ -1,0 +1,330 @@
+[W NNPACK.cpp:64] Could not initialize NNPACK! Reason: Unsupported hardware.
+WARNING orientation contradiction for ('201612050GSW', 3) — left as per-span votes
+WARNING orientation contradiction for ('201605280OKC', 1) — left as per-span votes
+INFO ── gsw_bos_2016_s00 ──
+INFO   poss @2547 P1 [pbp 12:00→11:39, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: D. Green makes 3-pt jump shot from 25 ft
+INFO   poss @3120 P1 [pbp 11:39→11:14, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: J. Sullinger misses 2-pt jump shot from 18 ft
+INFO   poss @7257 P1 [pbp 9:24→9:13, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: I. Thomas misses 3-pt jump shot from 24 ft
+INFO   poss @8073 P1 [pbp 9:07→8:39, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: Turnover by E. Turner (bad pass; steal by D. Green )
+INFO   poss @10830 P1 [pbp 8:04→7:56, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Curry (lost ball)
+INFO   poss @11328 P1 [pbp 7:56→7:46, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Sullinger makes 2-pt jump shot from 14 ft (assist by A. B
+INFO   poss @13530 P1 [pbp 7:17→7:04, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 3-pt jump shot from 25 ft
+INFO   poss @13896 P1 [pbp 7:04→6:47, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: I. Thomas misses 2-pt jump shot from 7 ft
+INFO ── gsw_bos_2016_s01 ──
+INFO   poss @705 P1 [pbp 5:49→5:37, ovl 100%]: offense BOS (pred) vs GSW (PBP) ✗ | 0 pts | ends: Turnover by S. Curry (bad pass; steal by J. Sullinger )
+INFO   poss @957 P1 [pbp 5:49→5:37, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Curry (bad pass; steal by J. Sullinger )
+INFO   poss @3060 P1 [pbp 5:31→4:55, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: A. VarejÃ£o makes 2-pt hook shot from 5 ft (assist by D. Gre
+INFO   poss @4785 P1 [pbp 4:55→4:40, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: J. Sullinger misses 2-pt jump shot from 18 ft
+INFO   poss @5451 P1 [pbp 4:29→4:20, ovl 80%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: I. Thomas misses 3-pt jump shot from 26 ft
+INFO   poss @6462: no_pbp_overlap
+INFO   poss @7176 P1 [pbp 4:12→3:50, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: A. Bradley makes 2-pt jump shot from 17 ft (assist by I. Tho
+INFO ── gsw_bos_2016_s02 ──
+INFO   poss @318 P1 [pbp 2:41→2:26, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: J. Jerebko misses 2-pt jump shot from 13 ft
+INFO   poss @828 P1 [pbp 2:26→2:16, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 3-pt jump shot from 26 ft
+INFO   poss @1110 P1 [pbp 2:16→2:06, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Jerebko makes 2-pt jump shot from 15 ft (assist by K. Oly
+INFO   poss @1452 P1 [pbp 2:06→1:55, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Livingston (bad pass)
+INFO   poss @2286 P1 [pbp 1:55→1:36, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: A. Bradley misses 3-pt jump shot from 26 ft
+INFO   poss @5196 P1 [pbp 0:22→0:04, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 25 ft (assist by S. Livin
+INFO   poss @9543 P2 [pbp 11:04→10:40, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: T. Rozier misses 2-pt jump shot from 17 ft
+INFO   poss @11418 P2 [pbp 10:00→9:28, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Jerebko makes 2-pt layup from 2 ft (assist by M. Smart )
+INFO   poss @12942 P2 [pbp 10:00→9:28, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Jerebko makes 2-pt layup from 2 ft (assist by M. Smart )
+INFO   poss @13539 P2 [pbp 9:28→9:09, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: M. Speights misses 2-pt jump shot from 18 ft
+INFO ── gsw_bos_2016_s03 ──
+INFO   poss @0 P2 [pbp 7:34→7:21, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 2-pt jump shot from 13 ft
+INFO   poss @264 P2 [pbp 7:21→7:13, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: E. Turner makes free throw 2 of 2
+INFO   poss @1551: no_pbp_overlap
+INFO   poss @1824 P2 [pbp 7:13→6:57, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by I. Clark (bad pass; steal by E. Turner )
+INFO   poss @2631 P2 [pbp 7:13→6:57, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by I. Clark (bad pass; steal by E. Turner )
+INFO   poss @4626 P2 [pbp 6:29→6:12, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: T. Rozier misses 2-pt jump shot from 11 ft
+INFO   poss @8145 P2 [pbp 5:17→5:03, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 3 pts | ends: J. Jerebko makes 3-pt jump shot from 25 ft (assist by I. Tho
+INFO   poss @10365 P2 [pbp 4:07→3:55, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by D. Green (bad pass)
+INFO   poss @11421 P2 [pbp 3:55→3:36, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Sullinger makes 2-pt jump shot from 14 ft (assist by I. T
+INFO   poss @12264 P2 [pbp 3:23→3:01, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 3 pts | ends: E. Turner makes 3-pt jump shot from 23 ft (assist by I. Thom
+INFO   poss @15882 P2 [pbp 2:14→1:58, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Sullinger makes 2-pt layup at rim
+INFO   poss @16290 P2 [pbp 1:58→1:25, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: A. Bogut makes 2-pt layup from 1 ft
+INFO ── gsw_bos_2016_s04 ──
+INFO   poss @1581 P2 [pbp 1:25→1:09, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes free throw 1 of 1
+INFO   poss @2868 P2 [pbp 1:09→0:52, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: A. Bradley misses 3-pt jump shot from 24 ft
+INFO   poss @3399 P2 [pbp 0:52→0:45, ovl 93%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Curry (offensive foul)
+INFO   poss @4185 P2 [pbp 0:45→0:33, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: E. Turner makes 2-pt jump shot from 13 ft (assist by A. Brad
+INFO   poss @4800 P2 [pbp 0:33→0:19, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Curry (back court)
+INFO   poss @5625 P2 [pbp 0:19→0:04, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 3 pts | ends: A. Bradley makes 3-pt jump shot from 26 ft (assist by E. Tur
+INFO   poss @6909 P2 [pbp 0:19→0:04, ovl 67%]: offense BOS (pred) vs BOS (PBP) ✓ | 3 pts | ends: A. Bradley makes 3-pt jump shot from 26 ft (assist by E. Tur
+INFO   poss @12414 P3 [pbp 11:13→10:57, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 22 ft (assist by K. Thomp
+INFO   poss @13920 P3 [pbp 10:57→10:37, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: I. Thomas makes 2-pt layup from 2 ft (assist by A. Bradley )
+INFO   poss @14805 P3 [pbp 10:37→10:17, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 3-pt jump shot from 23 ft
+INFO   poss @16989: anchor_failed
+INFO ── gsw_bos_2016_s05 ──
+INFO   poss @246 P3 [pbp 9:31→9:21, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: K. Thompson makes 2-pt layup from 1 ft (assist by D. Green )
+INFO   poss @657 P3 [pbp 9:21→8:54, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: Turnover by E. Turner (lost ball; steal by D. Green )
+INFO   poss @1779 P3 [pbp 8:54→8:40, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: K. Thompson makes 2-pt jump shot from 11 ft (assist by D. Gr
+INFO   poss @2688 P3 [pbp 8:19→8:02, ovl 57%]: offense GSW (pred) vs BOS (PBP) ✗ | 2 pts | ends: I. Thomas makes 2-pt layup from 1 ft (assist by J. Sullinger
+INFO   poss @3393 P3 [pbp 8:02→7:53, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 2-pt jump shot from 7 ft (block by A. Bra
+INFO   poss @8682 P3 [pbp 7:49→7:13, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: A. Bogut makes 2-pt dunk at rim (assist by S. Curry )
+INFO   poss @9270 P3 [pbp 7:49→7:13, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: A. Bogut makes 2-pt dunk at rim (assist by S. Curry )
+INFO   poss @9879 P3 [pbp 7:49→7:13, ovl 100%]: offense BOS (pred) vs GSW (PBP) ✗ | 2 pts | ends: A. Bogut makes 2-pt dunk at rim (assist by S. Curry )
+INFO   poss @10779 P3 [pbp 7:06→6:57, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by D. Green (bad pass; steal by E. Turner )
+INFO   poss @12171 P3 [pbp 6:51→6:37, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 2-pt jump shot from 16 ft
+INFO   poss @12702 P3 [pbp 6:37→6:21, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: A. Bradley makes 2-pt layup from 1 ft
+INFO   poss @13341 P3 [pbp 6:21→6:04, ovl 50%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 3-pt jump shot from 25 ft
+INFO   poss @14220 P3 [pbp 5:46→5:32, ovl 80%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 3-pt jump shot from 25 ft
+INFO ── gsw_bos_2016_s06 ──
+INFO   poss @0 P3 [pbp 4:59→4:45, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 25 ft (assist by D. Green
+INFO   poss @678 P3 [pbp 4:45→4:21, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: A. Johnson misses free throw 2 of 2
+INFO   poss @1803: clock_stopped_span
+INFO   poss @6615 P3 [pbp 3:04→2:46, ovl 80%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 26 ft (assist by H. Barne
+INFO   poss @13290 P3 [pbp 1:14→0:47, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 23 ft (assist by S. Livin
+INFO   poss @13770 P3 [pbp 1:14→0:47, ovl 100%]: offense BOS (pred) vs GSW (PBP) ✗ | 3 pts | ends: S. Curry makes 3-pt jump shot from 23 ft (assist by S. Livin
+INFO   poss @15063 P3 [pbp 0:47→0:33, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Curry (lost ball; steal by A. Bradley )
+INFO ── gsw_bos_2016_s07 ──
+INFO   poss @0 P3 [pbp 0:27→0:04, ovl 77%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 3-pt jump shot from 25 ft
+INFO   poss @2247 P4 [pbp 11:45→11:19, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: K. Olynyk makes 2-pt hook shot from 7 ft (assist by E. Turne
+INFO   poss @3174 P4 [pbp 11:45→11:19, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: K. Olynyk makes 2-pt hook shot from 7 ft (assist by E. Turne
+INFO   poss @3534 P4 [pbp 11:19→11:00, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Livingston makes 2-pt jump shot from 11 ft
+INFO   poss @4119 P4 [pbp 11:00→10:43, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Jerebko makes 2-pt dunk at rim (assist by E. Turner )
+INFO   poss @4692 P4 [pbp 11:00→10:43, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: J. Jerebko makes 2-pt dunk at rim (assist by E. Turner )
+INFO   poss @4980 P4 [pbp 10:43→10:29, ovl 93%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: M. Speights misses 2-pt jump shot from 10 ft
+INFO   poss @6060 P4 [pbp 10:29→10:06, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: E. Turner makes 2-pt jump shot from 11 ft
+INFO   poss @7338 P4 [pbp 9:49→9:18, ovl 100%]: offense GSW (pred) vs BOS (PBP) ✗ | 2 pts | ends: M. Smart makes 2-pt layup from 2 ft
+INFO   poss @9168 P4 [pbp 9:05→8:20, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 3 pts | ends: M. Smart makes 3-pt jump shot from 24 ft
+INFO   poss @9777 P4 [pbp 9:05→8:20, ovl 100%]: offense GSW (pred) vs BOS (PBP) ✗ | 3 pts | ends: M. Smart makes 3-pt jump shot from 24 ft
+INFO   poss @10506 P4 [pbp 8:20→8:13, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: M. Speights makes 2-pt dunk at rim (assist by K. Thompson )
+INFO   poss @15030 P4 [pbp 7:00→6:46, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: K. Olynyk misses 2-pt jump shot from 4 ft (block by I. Clark
+INFO ── gsw_bos_2016_s08 ──
+INFO   poss @6447 P4 [pbp 5:07→4:54, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: D. Green makes 3-pt jump shot from 26 ft (assist by S. Curry
+INFO   poss @7698 P4 [pbp 4:28→4:08, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: E. Turner misses 2-pt jump shot from 8 ft (block by B. Rush 
+INFO   poss @8061 P4 [pbp 4:08→3:58, ovl 83%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: D. Green makes 2-pt layup from 1 ft
+INFO   poss @12480 P4 [pbp 2:42→2:33, ovl 71%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 3-pt jump shot from 25 ft
+INFO   poss @14880 P4 [pbp 1:56→1:36, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 0 pts | ends: J. Sullinger misses 2-pt jump shot from 4 ft
+INFO   poss @16488 P4 [pbp 1:29→1:16, ovl 100%]: offense BOS (pred) vs BOS (PBP) ✓ | 2 pts | ends: E. Turner makes 2-pt jump shot from 14 ft (assist by M. Smar
+INFO   poss @17067 P4 [pbp 1:16→0:47, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Livingston makes free throw 2 of 2
+INFO ── gsw_bos_2016_s09 ──
+INFO   poss @306 P4 [pbp 1:16→0:47, ovl 99%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Livingston makes free throw 2 of 2
+INFO   poss @1713: no_pbp_overlap
+INFO   poss @2253: no_pbp_overlap
+INFO ── gsw_ind_klay60_s00 ──
+INFO   poss @2712 P1 [pbp 12:00→11:42, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: Turnover by J. Teague (lost ball; steal by D. Green )
+INFO   poss @12840 P1 [pbp 9:25→9:10, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: K. Durant makes 2-pt jump shot from 17 ft (assist by Z. Pach
+INFO   poss @13383 P1 [pbp 9:10→8:51, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: P. George makes 2-pt jump shot from 19 ft (assist by J. Teag
+INFO   poss @16290 P1 [pbp 8:18→8:01, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: P. George makes 2-pt jump shot from 12 ft
+INFO ── gsw_ind_klay60_s01 ──
+INFO   poss @78 P1 [pbp 7:37→7:25, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 26 ft (assist by Z. Pachu
+INFO   poss @813 P1 [pbp 7:13→6:57, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: K. Thompson makes 2-pt jump shot from 10 ft (assist by D. Gr
+INFO   poss @2544 P1 [pbp 6:34→6:19, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: Turnover by J. Teague (lost ball; steal by Z. Pachulia )
+INFO   poss @5388 P1 [pbp 6:02→5:39, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: M. Turner makes 2-pt jump shot from 16 ft (assist by J. Teag
+INFO   poss @5811 P1 [pbp 6:02→5:39, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 2 pts | ends: M. Turner makes 2-pt jump shot from 16 ft (assist by J. Teag
+INFO   poss @10623 P1 [pbp 4:21→4:06, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: P. George misses 2-pt jump shot from 18 ft
+INFO   poss @11199 P1 [pbp 4:00→3:39, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: J. Teague makes 2-pt jump shot from 6 ft (assist by P. Georg
+INFO ── gsw_ind_klay60_s02 ──
+INFO   poss @534 P1 [pbp 1:23→1:06, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 3-pt jump shot from 26 ft
+INFO   poss @1125 P1 [pbp 1:06→0:49, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: C. Miles misses 3-pt jump shot from 26 ft (block by K. Duran
+INFO   poss @2142 P1 [pbp 0:33→0:26, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 3-pt jump shot from 26 ft
+INFO   poss @2706 P1 [pbp 0:26→0:04, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: A. Jefferson misses 2-pt jump shot from 11 ft
+INFO   poss @4164 P2 [pbp 12:00→11:44, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: K. Durant makes free throw 2 of 2
+INFO   poss @6462 P2 [pbp 11:24→11:07, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: D. West makes 2-pt jump shot from 10 ft (assist by K. Durant
+INFO   poss @7974 P2 [pbp 10:36→9:48, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 3 pts | ends: R. Stuckey makes 3-pt jump shot from 27 ft (assist by G. Rob
+INFO   poss @8922 P2 [pbp 10:36→9:48, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 3 pts | ends: R. Stuckey makes 3-pt jump shot from 27 ft (assist by G. Rob
+INFO   poss @10785 P2 [pbp 9:48→9:34, ovl 100%]: offense IND (pred) vs GSW (PBP) ✗ | 2 pts | ends: D. West makes free throw 2 of 2
+INFO ── gsw_ind_klay60_s03 ──
+INFO   poss @543 P2 [pbp 8:21→7:55, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 2 pts | ends: M. Ellis makes 2-pt layup from 1 ft
+INFO   poss @1875 P2 [pbp 7:50→7:32, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: M. Turner misses 2-pt jump shot from 13 ft (block by D. West
+INFO   poss @5865 P2 [pbp 6:47→6:38, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: Turnover by M. Ellis (lost ball; steal by D. Green )
+INFO   poss @6462 P2 [pbp 6:33→6:19, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: P. George misses 2-pt jump shot from 19 ft
+INFO   poss @7521 P2 [pbp 6:04→5:41, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: J. Teague misses 2-pt jump shot from 7 ft
+INFO   poss @9663 P2 [pbp 5:16→4:59, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 3-pt jump shot from 29 ft
+INFO ── gsw_ind_klay60_s04 ──
+INFO   poss @1287 P2 [pbp 3:29→3:02, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 1 pts | ends: M. Turner misses 2-pt jump shot from 9 ft
+INFO   poss @7314 P2 [pbp 2:10→1:43, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: K. Durant makes 2-pt layup from 2 ft (assist by S. Curry )
+INFO   poss @8079 P2 [pbp 1:43→1:24, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: M. Ellis makes 2-pt jump shot from 5 ft
+INFO   poss @13797 P2 [pbp 0:48→0:35, ovl 100%]: offense IND (pred) vs GSW (PBP) ✗ | 3 pts | ends: K. Thompson makes free throw 3 of 3
+INFO ── gsw_ind_klay60_s05 ──
+INFO   poss @3936 P3 [pbp 11:45→11:23, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 2 pts | ends: T. Young makes 2-pt layup from 2 ft (assist by P. George )
+INFO   poss @7944 P3 [pbp 10:51→10:19, ovl 100%]: offense IND (pred) vs GSW (PBP) ✗ | 2 pts | ends: K. Thompson makes 2-pt jump shot from 19 ft (assist by S. Cu
+INFO   poss @9822 P3 [pbp 9:57→9:44, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 2 pts | ends: T. Young makes 2-pt jump shot from 9 ft (assist by P. George
+INFO   poss @14604: no_pbp_overlap
+INFO   poss @15714 P3 [pbp 8:15→7:57, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: J. Teague makes 2-pt jump shot from 14 ft
+INFO ── gsw_ind_klay60_s06 ──
+INFO   poss @8019 P3 [pbp 6:51→6:40, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: P. George makes free throw 2 of 2
+INFO   poss @10188 P3 [pbp 6:27→6:04, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Thompson misses 3-pt jump shot from 26 ft
+INFO   poss @10854 P3 [pbp 6:04→5:49, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 0 pts | ends: T. Young misses 3-pt jump shot from 25 ft
+INFO   poss @14625 P3 [pbp 4:57→4:27, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 4 pts | ends: K. Thompson makes 3-pt jump shot from 24 ft (assist by Z. Pa
+INFO ── gsw_ind_klay60_s07 ──
+INFO   poss @1212 P3 [pbp 4:27→4:08, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: J. McGee makes 2-pt dunk at rim
+INFO   poss @10338 P3 [pbp 1:54→1:22, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: J. Teague makes 2-pt hook shot from 2 ft
+INFO   poss @12966 P3 [pbp 0:58→0:43, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 2 pts | ends: K. SÃ©raphin makes 2-pt jump shot from 6 ft
+INFO ── gsw_ind_klay60_s08 ──
+INFO   poss @171: no_pbp_overlap
+INFO   poss @3543 P4 [pbp 9:50→9:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Livingston makes 2-pt jump shot from 13 ft
+INFO   poss @5196 P4 [pbp 9:20→8:43, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: G. Robinson makes 2-pt jump shot from 21 ft (assist by L. Al
+INFO   poss @5634 P4 [pbp 9:20→8:43, ovl 100%]: offense GSW (pred) vs IND (PBP) ✗ | 2 pts | ends: G. Robinson makes 2-pt jump shot from 21 ft (assist by L. Al
+INFO   poss @7989 P4 [pbp 8:33→8:10, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 2 pts | ends: J. Young makes 2-pt jump shot from 18 ft
+INFO   poss @8823 P4 [pbp 8:10→7:45, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Livingston makes 2-pt jump shot from 15 ft (assist by I. 
+INFO   poss @13551 P4 [pbp 7:15→7:03, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: Turnover by G. Robinson (lost ball; steal by P. McCaw )
+INFO   poss @16146 P4 [pbp 6:50→6:26, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: I. Clark makes 2-pt layup from 3 ft (assist by P. McCaw )
+INFO ── gsw_ind_klay60_s09 ──
+INFO   poss @24 P4 [pbp 5:54→5:44, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: G. Robinson misses 2-pt jump shot from 21 ft
+INFO   poss @480 P4 [pbp 5:44→5:32, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: K. Looney misses 3-pt jump shot from 25 ft
+INFO   poss @1170 P4 [pbp 5:21→5:11, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by P. McCaw (bad pass; steal by J. Young )
+INFO   poss @1776 P4 [pbp 5:04→4:46, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by J. McAdoo (bad pass)
+INFO   poss @4647 P4 [pbp 4:06→3:37, ovl 100%]: offense IND (pred) vs GSW (PBP) ✗ | 2 pts | ends: I. Clark makes 2-pt hook shot from 15 ft (assist by P. McCaw
+INFO   poss @7098 P4 [pbp 3:37→3:15, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: J. McAdoo misses 3-pt jump shot from 25 ft
+INFO   poss @9354 P4 [pbp 2:13→1:55, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: I. Clark misses 2-pt jump shot from 19 ft
+INFO   poss @10542 P4 [pbp 1:36→1:26, ovl 100%]: offense IND (pred) vs IND (PBP) ✓ | 0 pts | ends: G. Robinson misses 2-pt jump shot from 19 ft
+INFO ── gsw_okc_2016wcf_g6_s00 ──
+INFO   poss @2568: anchor_inconsistent
+INFO   poss @3924 P1 [pbp 11:09→10:28, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Cu
+INFO   poss @8022 P1 [pbp 9:55→9:40, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 0 pts | ends: K. Thompson misses 2-pt jump shot from 22 ft
+INFO   poss @8514 P1 [pbp 9:40→9:26, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: S. Ibaka makes 2-pt hook shot from 8 ft
+INFO   poss @10161 P1 [pbp 8:44→8:33, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: R. Westbrook misses 2-pt jump shot from 15 ft
+INFO   poss @10920 P1 [pbp 8:33→8:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: D. Green makes 3-pt jump shot from 24 ft (assist by A. Bogut
+INFO   poss @13269 P1 [pbp 7:13→6:58, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 0 pts | ends: Turnover by S. Curry (traveling)
+INFO   poss @14304 P1 [pbp 6:58→6:44, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: R. Westbrook misses 2-pt layup from 2 ft
+INFO ── gsw_okc_2016wcf_g6_s01 ──
+INFO   poss @0 P1 [pbp 5:43→5:21, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: R. Westbrook makes 2-pt layup at rim
+INFO   poss @879 P1 [pbp 5:09→4:57, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 3 pts | ends: S. Ibaka makes 3-pt jump shot from 24 ft (assist by R. Westb
+INFO   poss @2532 P1 [pbp 4:41→4:17, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 0 pts | ends: K. Thompson misses 2-pt jump shot from 15 ft
+INFO   poss @5247 P1 [pbp 3:39→3:21, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 2 pts | ends: K. Thompson makes 2-pt layup from 2 ft
+INFO   poss @8196 P1 [pbp 2:29→2:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by H. Barnes (lost ball)
+INFO   poss @8823 P1 [pbp 2:20→1:54, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 3 pts | ends: D. Waiters makes 3-pt jump shot from 24 ft (assist by K. Dur
+INFO   poss @9450 P1 [pbp 1:54→1:34, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 0 pts | ends: S. Livingston misses 2-pt jump shot from 7 ft
+INFO   poss @10872 P1 [pbp 1:13→0:46, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: D. Waiters misses 2-pt layup from 1 ft
+INFO   poss @12168: no_pbp_overlap
+INFO   poss @12462 P1 [pbp 0:46→0:27, ovl 70%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Livingston misses 2-pt jump shot from 14 ft
+INFO   poss @13200 P1 [pbp 0:27→0:02, ovl 100%]: offense GSW (pred) vs OKC (PBP) ✗ | 0 pts | ends: Turnover by R. Foye (lost ball; steal by D. Green )
+INFO   poss @13851 P1 [pbp 0:27→0:02, ovl 100%]: offense GSW (pred) vs OKC (PBP) ✗ | 0 pts | ends: Turnover by R. Foye (lost ball; steal by D. Green )
+INFO   poss @17169 P2 [pbp 10:49→10:31, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 3-pt jump shot from 23 ft
+INFO ── gsw_okc_2016wcf_g6_s02 ──
+INFO   poss @177 P2 [pbp 10:31→10:16, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: K. Durant makes 2-pt layup from 2 ft
+INFO   poss @7179 P2 [pbp 8:42→8:24, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Livingston (lost ball; steal by R. Westbrook 
+INFO   poss @12573: clock_stopped_span
+INFO   poss @13179 P2 [pbp 6:35→6:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 2-pt layup at rim (block by K. Durant )
+INFO   poss @15936 P2 [pbp 5:13→4:55, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by A. Iguodala (lost ball)
+INFO ── gsw_okc_2016wcf_g6_s03 ──
+INFO   poss @366 P2 [pbp 4:55→4:29, ovl 100%]: offense GSW (pred) vs OKC (PBP) ✗ | 2 pts | ends: K. Durant makes 2-pt jump shot from 5 ft (assist by R. Westb
+INFO   poss @1569 P2 [pbp 4:23→4:02, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: R. Westbrook misses 3-pt jump shot from 24 ft
+INFO   poss @2166 P2 [pbp 4:02→3:36, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Cu
+INFO   poss @2946 P2 [pbp 4:02→3:36, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Cu
+INFO   poss @3660 P2 [pbp 4:02→3:36, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Cu
+INFO   poss @4191 P2 [pbp 3:36→2:52, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: K. Durant makes 2-pt dunk at rim (assist by R. Westbrook )
+INFO   poss @6843 P2 [pbp 3:36→2:52, ovl 100%]: offense GSW (pred) vs OKC (PBP) ✗ | 2 pts | ends: K. Durant makes 2-pt dunk at rim (assist by R. Westbrook )
+INFO   poss @12627: anchor_failed
+INFO   poss @16521 P2 [pbp 1:53→1:33, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 3 pts | ends: S. Ibaka makes free throw 1 of 1
+INFO ── gsw_okc_2016wcf_g6_s04 ──
+INFO   poss @588: no_pbp_overlap
+INFO   poss @990 P2 [pbp 1:33→1:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by H. Barnes (lost ball; steal by D. Waiters )
+INFO   poss @1290 P2 [pbp 1:20→1:12, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: K. Durant misses 2-pt layup from 3 ft
+INFO   poss @4080: no_pbp_overlap
+INFO   poss @9762 P2 [pbp 0:33→0:07, ovl 100%]: offense GSW (pred) vs OKC (PBP) ✗ | 2 pts | ends: R. Westbrook makes 2-pt layup from 2 ft
+INFO   poss @14112 P3 [pbp 11:23→11:00, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: R. Westbrook makes 2-pt layup at rim
+INFO   poss @16026 P3 [pbp 10:17→10:00, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: K. Durant misses 2-pt jump shot from 3 ft (block by A. Bogut
+INFO ── gsw_okc_2016wcf_g6_s05 ──
+INFO   poss @3201 P3 [pbp 8:57→8:43, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 3-pt jump shot from 25 ft
+INFO   poss @3681 P3 [pbp 8:32→8:07, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green
+INFO   poss @4623 P3 [pbp 8:32→8:07, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green
+INFO   poss @10878 P3 [pbp 6:37→6:17, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: Turnover by S. Adams (lost ball; steal by K. Thompson )
+INFO ── gsw_okc_2016wcf_g6_s06 ──
+INFO   poss @828 P3 [pbp 5:23→5:07, ovl 100%]: offense OKC (pred) vs GSW (PBP) ✗ | 2 pts | ends: S. Curry makes free throw 2 of 2
+INFO   poss @12075 P3 [pbp 2:42→2:32, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by D. Green (bad pass; steal by R. Westbrook )
+INFO ── gsw_okc_2016wcf_g6_s07 ──
+INFO   poss @126 P3 [pbp 2:16→1:55, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: E. Freedom makes 2-pt jump shot from 16 ft (assist by R. Wes
+INFO   poss @4803 P3 [pbp 1:12→0:47, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: E. Freedom makes 2-pt layup from 2 ft
+INFO   poss @5415 P3 [pbp 0:47→0:29, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Livingston misses 2-pt jump shot from 15 ft
+INFO   poss @13044 P4 [pbp 10:25→10:04, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: S. Adams misses 2-pt jump shot from 5 ft
+INFO ── gsw_okc_2016wcf_g6_s08 ──
+INFO   poss @3 P4 [pbp 9:04→8:28, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes 3-pt jump shot from 24 ft (assist by A. Bo
+INFO   poss @852 P4 [pbp 8:28→7:54, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: R. Westbrook misses 3-pt jump shot from 26 ft
+INFO   poss @2883 P4 [pbp 7:54→7:30, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: D. Green misses 2-pt layup from 1 ft
+INFO   poss @5001 P4 [pbp 7:30→7:09, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: S. Adams makes 2-pt layup at rim
+INFO   poss @13284: no_pbp_overlap
+INFO   poss @14619 P4 [pbp 4:48→4:31, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 1 pts | ends: D. Green makes free throw 2 of 2
+INFO   poss @15444 P4 [pbp 4:48→4:31, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 1 pts | ends: D. Green makes free throw 2 of 2
+INFO   poss @17007 P4 [pbp 4:31→4:13, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: K. Durant misses 2-pt jump shot from 16 ft
+INFO ── gsw_okc_2016wcf_g6_s09 ──
+INFO   poss @60 P4 [pbp 4:13→3:42, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 25 ft
+INFO   poss @2745 P4 [pbp 3:42→3:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: A. Iguodala misses 3-pt jump shot from 24 ft
+INFO   poss @3123 P4 [pbp 3:42→3:20, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: A. Iguodala misses 3-pt jump shot from 24 ft
+INFO   poss @4017 P4 [pbp 2:55→2:47, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 26 ft (assist by H. Barne
+INFO   poss @6771 P4 [pbp 2:47→2:22, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 2 pts | ends: A. Roberson makes 2-pt layup from 1 ft
+INFO   poss @9582: anchor_failed
+INFO   poss @10125 P4 [pbp 1:23→1:01, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 2-pt layup from 1 ft
+INFO   poss @14754 P4 [pbp 0:36→0:14, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Curry makes 2-pt jump shot from 8 ft
+INFO ── gsw_okc_2016wcf_g6_s10 ──
+INFO   poss @1437 P4 [pbp 0:09→0:08, ovl 100%]: offense OKC (pred) vs OKC (PBP) ✓ | 0 pts | ends: Turnover by K. Durant (lost ball; steal by H. Barnes )
+INFO ── gsw_sas_2016_s00 ──
+INFO   poss @1332: anchor_inconsistent
+INFO   poss @1791: no_pbp_overlap
+INFO   poss @12366 P1 [pbp 7:37→7:23, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 26 ft
+INFO   poss @12741 P1 [pbp 7:23→7:03, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: D. West makes 2-pt jump shot from 19 ft (assist by T. Parker
+INFO   poss @16701 P1 [pbp 6:10→5:56, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by L. Aldridge (lost ball; steal by A. Bogut )
+INFO ── gsw_sas_2016_s01 ──
+INFO   poss @0 P1 [pbp 5:56→5:33, ovl 100%]: offense SAS (pred) vs GSW (PBP) ✗ | 2 pts | ends: A. Iguodala makes 2-pt dunk at rim (assist by S. Curry )
+INFO   poss @723 P1 [pbp 5:33→5:30, ovl 75%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: T. Parker misses 2-pt jump shot from 15 ft
+INFO   poss @1506 P1 [pbp 5:11→5:02, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by M. GinÃ³bili (bad pass)
+INFO   poss @2487 P1 [pbp 5:02→4:47, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by A. Iguodala (traveling)
+INFO   poss @3369 P1 [pbp 4:47→4:36, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: L. Aldridge misses 2-pt jump shot from 18 ft
+INFO   poss @3651 P1 [pbp 4:36→4:22, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by D. Green (bad pass; steal by K. Leonard )
+INFO   poss @7350 P1 [pbp 3:24→3:13, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: L. Aldridge misses 2-pt hook shot from 10 ft
+INFO   poss @15135 P1 [pbp 1:51→1:31, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: S. Curry makes 3-pt jump shot from 22 ft (assist by L. Barbo
+INFO   poss @17199 P1 [pbp 1:05→0:45, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: D. West makes 2-pt jump shot from 14 ft (assist by P. Mills 
+INFO ── gsw_sas_2016_s02 ──
+INFO   poss @0 P1 [pbp 1:05→0:45, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: D. West makes 2-pt jump shot from 14 ft (assist by P. Mills 
+INFO   poss @3285 P1 [pbp 0:11→0:06, ovl 93%]: offense GSW (pred) vs SAS (PBP) ✗ | 3 pts | ends: B. Diaw makes free throw 3 of 3
+INFO   poss @4059 P1 [pbp 0:04→0:00, ovl 54%]: offense GSW (pred) vs SAS (PBP) ✗ | 0 pts | ends: P. Mills misses 3-pt jump shot from 40 ft
+INFO   poss @8154 P2 [pbp 11:05→10:43, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: L. Barbosa makes 2-pt layup from 2 ft
+INFO ── gsw_sas_2016_s03 ──
+INFO   poss @105 P2 [pbp 8:10→7:46, ovl 100%]: offense SAS (pred) vs GSW (PBP) ✗ | 2 pts | ends: S. Livingston makes 2-pt dunk at rim (assist by D. Green )
+INFO   poss @768 P2 [pbp 7:46→7:28, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: D. West makes 2-pt jump shot from 15 ft (assist by B. Diaw )
+INFO   poss @6243 P2 [pbp 6:44→6:30, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: K. Thompson makes free throw 1 of 1
+INFO   poss @12660 P2 [pbp 4:44→4:23, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: K. Anderson misses 2-pt jump shot from 3 ft (block by D. Gre
+INFO   poss @15072 P2 [pbp 4:12→3:48, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: L. Aldridge misses 2-pt hook shot from 8 ft
+INFO ── gsw_sas_2016_s04 ──
+INFO   poss @2721 P2 [pbp 2:49→2:35, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: J. Simmons makes 2-pt layup from 1 ft
+INFO   poss @9576 P2 [pbp 1:06→0:50, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: L. Aldridge misses 2-pt layup from 1 ft
+INFO   poss @15903 P3 [pbp 11:39→11:22, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: L. Aldridge makes 2-pt jump shot from 12 ft (assist by K. Le
+INFO ── gsw_sas_2016_s05 ──
+INFO   poss @249 P3 [pbp 10:41→10:25, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: D. Green makes 2-pt layup at rim
+INFO   poss @705: anchor_inconsistent
+INFO   poss @1719 P3 [pbp 10:12→9:35, ovl 100%]: offense SAS (pred) vs GSW (PBP) ✗ | 2 pts | ends: A. Bogut makes 2-pt dunk at rim (assist by D. Green )
+INFO   poss @3930 P3 [pbp 9:35→9:13, ovl 100%]: offense GSW (pred) vs SAS (PBP) ✗ | 2 pts | ends: K. Leonard makes free throw 2 of 2
+INFO   poss @5949 P3 [pbp 9:04→8:51, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: S. Curry makes 2-pt jump shot from 12 ft
+INFO   poss @6501 P3 [pbp 8:51→8:30, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by L. Aldridge (3 sec)
+INFO   poss @7929 P3 [pbp 8:30→8:06, ovl 100%]: offense SAS (pred) vs GSW (PBP) ✗ | 3 pts | ends: S. Curry makes 3-pt jump shot from 25 ft
+INFO   poss @11406 P3 [pbp 7:24→7:04, ovl 100%]: offense GSW (pred) vs SAS (PBP) ✗ | 2 pts | ends: K. Leonard makes 2-pt jump shot from 11 ft
+INFO   poss @12711 P3 [pbp 7:04→6:56, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: D. Green makes free throw 1 of 1
+INFO   poss @13800 P3 [pbp 6:56→6:40, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: J. Simmons makes 2-pt dunk at rim
+INFO ── gsw_sas_2016_s06 ──
+INFO   poss @0 P3 [pbp 6:19→5:52, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by Team (shot clock)
+INFO   poss @867 P3 [pbp 5:52→5:39, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: B. Rush makes 3-pt jump shot from 23 ft (assist by D. Green 
+INFO   poss @6876 P3 [pbp 4:42→4:25, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by B. Diaw (bad pass; steal by D. Green )
+INFO   poss @10068 P3 [pbp 4:06→3:53, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: M. GinÃ³bili misses 3-pt jump shot from 25 ft
+INFO   poss @10470 P3 [pbp 3:53→3:32, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: F. Ezeli makes 2-pt layup at rim (assist by A. Iguodala )
+INFO   poss @11577 P3 [pbp 3:13→2:58, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by J. Simmons (lost ball; steal by S. Curry )
+INFO   poss @14733 P3 [pbp 2:45→2:27, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 3-pt jump shot from 24 ft
+INFO   poss @15534 P3 [pbp 2:22→2:09, ovl 71%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: S. Curry misses 3-pt jump shot from 28 ft
+INFO   poss @16425 P3 [pbp 1:51→1:34, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: D. West misses 2-pt hook shot from 4 ft
+INFO ── gsw_sas_2016_s07 ──
+INFO   poss @2367 P3 [pbp 1:06→0:50, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 2 pts | ends: M. Speights makes 2-pt jump shot from 17 ft (assist by H. Ba
+INFO   poss @2799 P3 [pbp 0:50→0:38, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: J. Simmons misses 3-pt jump shot from 25 ft
+INFO   poss @3165 P3 [pbp 0:38→0:07, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 1 pts | ends: M. Speights makes free throw 2 of 2
+INFO   poss @8253 P4 [pbp 11:44→11:28, ovl 62%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: M. Speights misses 2-pt jump shot from 20 ft
+INFO   poss @8715: anchor_inconsistent
+INFO   poss @10071 P4 [pbp 10:41→10:24, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by A. Iguodala (lost ball; steal by B. MarjanoviÄ 
+INFO   poss @12816 P4 [pbp 9:51→9:30, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: K. Anderson misses 2-pt layup from 2 ft
+INFO   poss @16215 P4 [pbp 8:46→8:33, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: H. Barnes misses 3-pt jump shot from 27 ft
+INFO   poss @16983 P4 [pbp 8:33→8:08, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 2 pts | ends: R. McCallum makes 2-pt jump shot from 13 ft
+INFO ── gsw_sas_2016_s08 ──
+INFO   poss @0 P4 [pbp 8:08→7:51, ovl 86%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: M. Speights misses 2-pt jump shot from 18 ft
+INFO   poss @522 P4 [pbp 7:51→7:34, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: R. McCallum misses 2-pt jump shot from 5 ft
+INFO   poss @852 P4 [pbp 7:34→7:06, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by L. Barbosa (lost ball; steal by D. Green )
+INFO   poss @1200 P4 [pbp 7:34→7:06, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by L. Barbosa (lost ball; steal by D. Green )
+INFO   poss @2832 P4 [pbp 6:59→6:41, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by S. Livingston (lost ball; steal by D. Green )
+INFO   poss @4752 P4 [pbp 6:38→6:21, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: M. Speights makes free throw 1 of 1
+INFO   poss @7158 P4 [pbp 5:41→5:18, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by J. Thompson (lost ball)
+INFO   poss @8424 P4 [pbp 5:18→4:54, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: B. MarjanoviÄ misses 2-pt jump shot from 14 ft
+INFO   poss @9510 P4 [pbp 4:48→4:30, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: Turnover by R. McCallum (bad pass; steal by B. Rush )
+INFO   poss @17268 P4 [pbp 2:33→2:19, ovl 100%]: offense SAS (pred) vs SAS (PBP) ✓ | 0 pts | ends: K. Anderson misses 2-pt jump shot from 18 ft
+INFO ── gsw_sas_2016_s09 ──
+INFO   poss @195 P4 [pbp 2:19→2:02, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 0 pts | ends: Turnover by I. Clark (bad pass; steal by K. Anderson )
+INFO   poss @1767 P4 [pbp 1:26→1:14, ovl 100%]: offense GSW (pred) vs GSW (PBP) ✓ | 3 pts | ends: M. Speights makes 3-pt jump shot from 24 ft (assist by I. Cl
+INFO ── CROSS-VALIDATION ── {"agree": 227, "disagree": 37, "unknown": 0, "agreement_rate": 0.86}
+INFO report → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/tier2_crossval.json

@@ -1,0 +1,232 @@
+[
+ {
+  "set_start_frame": 105,
+  "core_end_frame": 303,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 105,
+    "period": 2,
+    "clock_s": 471,
+    "raw": "2n|7.51"
+   },
+   {
+    "frame": 303,
+    "period": 2,
+    "clock_s": 466,
+    "raw": "2n|7.46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    490.0,
+    466.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 478.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt dunk at rim (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 768,
+  "core_end_frame": 1191,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.77,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 768,
+    "period": 2,
+    "clock_s": 466,
+    "raw": "2n|7.46"
+   },
+   {
+    "frame": 1191,
+    "period": 2,
+    "clock_s": 453,
+    "raw": "2n|7.33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    466.0,
+    448.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 448.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. West makes 2-pt jump shot from 15 ft (assist by B. Diaw )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 6243,
+  "core_end_frame": 6489,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.67,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6243,
+    "period": 2,
+    "clock_s": 399,
+    "raw": "2n|6.39"
+   },
+   {
+    "frame": 6489,
+    "period": 2,
+    "clock_s": 390,
+    "raw": "2n|6.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    404.0,
+    390.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 390.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.6
+ },
+ {
+  "set_start_frame": 12660,
+  "core_end_frame": 12810,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12660,
+    "period": 2,
+    "clock_s": 276,
+    "raw": "2n|436"
+   },
+   {
+    "frame": 12810,
+    "period": 2,
+    "clock_s": 271,
+    "raw": "2n|431"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    284.0,
+    263.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 263.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Anderson misses 2-pt jump shot from 3 ft (block by D. Green )"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 15072,
+  "core_end_frame": 15282,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15072,
+    "period": 2,
+    "clock_s": 250,
+    "raw": "2n|410"
+   },
+   {
+    "frame": 15282,
+    "period": 2,
+    "clock_s": 242,
+    "raw": "2n|402"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    252.0,
+    228.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 228.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. Aldridge misses 2-pt hook shot from 8 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ }
+]

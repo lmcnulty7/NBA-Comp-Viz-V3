@@ -1,0 +1,187 @@
+[
+ {
+  "set_start_frame": 3201,
+  "core_end_frame": 3318,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3201,
+    "period": 3,
+    "clock_s": 528,
+    "raw": "3RD|8.48"
+   },
+   {
+    "frame": 3318,
+    "period": 3,
+    "clock_s": 524,
+    "raw": "3RD|8.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    537.0,
+    523.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 523.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 3681,
+  "core_end_frame": 4026,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.61,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3681,
+    "period": 3,
+    "clock_s": 512,
+    "raw": "3RD|8.32"
+   },
+   {
+    "frame": 4026,
+    "period": 3,
+    "clock_s": 500,
+    "raw": "3RD|8.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    512.0,
+    487.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 487.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 4623,
+  "core_end_frame": 5184,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 4623,
+    "period": 3,
+    "clock_s": 497,
+    "raw": "3RD|8:17"
+   },
+   {
+    "frame": 5184,
+    "period": 3,
+    "clock_s": 489,
+    "raw": "3RD|8.09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    512.0,
+    487.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 487.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 3681,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 10878,
+  "core_end_frame": 11016,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10878,
+    "period": 3,
+    "clock_s": 388,
+    "raw": "3RD|6.28"
+   },
+   {
+    "frame": 11016,
+    "period": 3,
+    "clock_s": 383,
+    "raw": "3RD|6.23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    397.0,
+    377.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 377.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Adams (lost ball; steal by K. Thompson )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

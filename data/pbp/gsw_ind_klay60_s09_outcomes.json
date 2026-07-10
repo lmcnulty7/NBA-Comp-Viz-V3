@@ -1,0 +1,370 @@
+[
+ {
+  "set_start_frame": 24,
+  "core_end_frame": 168,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 24,
+    "period": 4,
+    "clock_s": 354,
+    "raw": "4th|5.54"
+   },
+   {
+    "frame": 168,
+    "period": 4,
+    "clock_s": 351,
+    "raw": "4th|5.51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    354.0,
+    344.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 344.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "G. Robinson misses 2-pt jump shot from 21 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 480,
+  "core_end_frame": 663,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 480,
+    "period": 4,
+    "clock_s": 341,
+    "raw": "4th|5.41"
+   },
+   {
+    "frame": 663,
+    "period": 4,
+    "clock_s": 335,
+    "raw": "4th|5.35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    344.0,
+    332.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 332.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Looney misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 1170,
+  "core_end_frame": 1296,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1170,
+    "period": 4,
+    "clock_s": 318,
+    "raw": "4t|5.18"
+   },
+   {
+    "frame": 1296,
+    "period": 4,
+    "clock_s": 314,
+    "raw": "4t|5.14"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    321.0,
+    311.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 311.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by P. McCaw (bad pass; steal by J. Young )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 1776,
+  "core_end_frame": 1929,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1776,
+    "period": 4,
+    "clock_s": 298,
+    "raw": "4th|4.58"
+   },
+   {
+    "frame": 1929,
+    "period": 4,
+    "clock_s": 292,
+    "raw": "4th|452"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    304.0,
+    286.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 286.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by J. McAdoo (bad pass)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 4647,
+  "core_end_frame": 4959,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4647,
+    "period": 4,
+    "clock_s": 232,
+    "raw": "4t|3.52"
+   },
+   {
+    "frame": 4959,
+    "period": 4,
+    "clock_s": 222,
+    "raw": "4t|3.42"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    246.0,
+    217.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 232.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "I. Clark makes 2-pt hook shot from 15 ft (assist by P. McCaw )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 7098,
+  "core_end_frame": 7227,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7098,
+    "period": 4,
+    "clock_s": 203,
+    "raw": "4t|3.23"
+   },
+   {
+    "frame": 7227,
+    "period": 4,
+    "clock_s": 199,
+    "raw": "4t|319"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    217.0,
+    195.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 195.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "J. McAdoo misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 9354,
+  "core_end_frame": 9474,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 9354,
+    "period": 4,
+    "clock_s": 128,
+    "raw": "4t|2.08"
+   },
+   {
+    "frame": 9474,
+    "period": 4,
+    "clock_s": 124,
+    "raw": "4th|2.04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    133.0,
+    115.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 115.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "I. Clark misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 10542,
+  "core_end_frame": 10689,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10542,
+    "period": 4,
+    "clock_s": 96,
+    "raw": "4th|1.36"
+   },
+   {
+    "frame": 10689,
+    "period": 4,
+    "clock_s": 91,
+    "raw": "4th|131"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    96.0,
+    86.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 86.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "G. Robinson misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

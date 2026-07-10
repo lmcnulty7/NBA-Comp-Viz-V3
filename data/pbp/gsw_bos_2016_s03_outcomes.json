@@ -1,0 +1,519 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 144,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 2,
+    "clock_s": 447,
+    "raw": "2Nd|7:27"
+   },
+   {
+    "frame": 144,
+    "period": 2,
+    "clock_s": 442,
+    "raw": "2No|7:22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    454.0,
+    441.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 441.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 2-pt jump shot from 13 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 264,
+  "core_end_frame": 444,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.64,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 264,
+    "period": 2,
+    "clock_s": 438,
+    "raw": "2Nd|7:18"
+   },
+   {
+    "frame": 444,
+    "period": 2,
+    "clock_s": 433,
+    "raw": "2No|7:13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    441.0,
+    433.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 433.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "E. Turner makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 1551,
+  "core_end_frame": 1710,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.87,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 1824,
+  "core_end_frame": 2136,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1824,
+    "period": 2,
+    "clock_s": 430,
+    "raw": "2No|7:10"
+   },
+   {
+    "frame": 2136,
+    "period": 2,
+    "clock_s": 422,
+    "raw": "2No|7:02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    433.0,
+    417.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 417.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by I. Clark (bad pass; steal by E. Turner )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 2631,
+  "core_end_frame": 2790,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2631,
+    "period": 2,
+    "clock_s": 422,
+    "raw": "2Nd|7:02"
+   },
+   {
+    "frame": 2790,
+    "period": 2,
+    "clock_s": 419,
+    "raw": "2No|6:59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    433.0,
+    417.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 417.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by I. Clark (bad pass; steal by E. Turner )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 1824,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 4626,
+  "core_end_frame": 4854,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4626,
+    "period": 2,
+    "clock_s": 379,
+    "raw": "2Nd|6:19"
+   },
+   {
+    "frame": 4854,
+    "period": 2,
+    "clock_s": 372,
+    "raw": "2No|6:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    389.0,
+    372.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 372.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Rozier misses 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 8145,
+  "core_end_frame": 8364,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 8236,
+    "period": 2,
+    "clock_s": 315,
+    "raw": "2No|5:15"
+   },
+   {
+    "frame": 8364,
+    "period": 2,
+    "clock_s": 310,
+    "raw": "2Nd|5:10"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    317.0,
+    303.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 303.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jerebko makes 3-pt jump shot from 25 ft (assist by I. Thomas )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 10365,
+  "core_end_frame": 10491,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 10365,
+    "period": 2,
+    "clock_s": 241,
+    "raw": "2Nd|4:01"
+   },
+   {
+    "frame": 10491,
+    "period": 2,
+    "clock_s": 237,
+    "raw": "2Nd|3:57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    247.0,
+    235.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 235.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by D. Green (bad pass)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 11421,
+  "core_end_frame": 11715,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.79,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 11421,
+    "period": 2,
+    "clock_s": 229,
+    "raw": "2No|3.49"
+   },
+   {
+    "frame": 11715,
+    "period": 2,
+    "clock_s": 219,
+    "raw": "2No|3:39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    235.0,
+    216.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 216.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Sullinger makes 2-pt jump shot from 14 ft (assist by I. Thomas )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 12264,
+  "core_end_frame": 12621,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.92,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12264,
+    "period": 2,
+    "clock_s": 200,
+    "raw": "2No|3:20"
+   },
+   {
+    "frame": 12621,
+    "period": 2,
+    "clock_s": 188,
+    "raw": "2No|3:08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    203.0,
+    181.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 181.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "E. Turner makes 3-pt jump shot from 23 ft (assist by I. Thomas )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 15882,
+  "core_end_frame": 16113,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15882,
+    "period": 2,
+    "clock_s": 127,
+    "raw": "2Nd|2:07"
+   },
+   {
+    "frame": 16113,
+    "period": 2,
+    "clock_s": 119,
+    "raw": "2No|1:59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    134.0,
+    118.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 118.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Sullinger makes 2-pt layup at rim"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 16290,
+  "core_end_frame": 16857,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 16290,
+    "period": 2,
+    "clock_s": 116,
+    "raw": "2No|1:56"
+   },
+   {
+    "frame": 16857,
+    "period": 2,
+    "clock_s": 103,
+    "raw": "2No|1:43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    118.0,
+    85.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 98.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Bogut makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ }
+]

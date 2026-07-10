@@ -1,0 +1,473 @@
+[
+ {
+  "set_start_frame": 1581,
+  "core_end_frame": 1959,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1581,
+    "period": 2,
+    "clock_s": 82,
+    "raw": "2Nd|1:22"
+   },
+   {
+    "frame": 1959,
+    "period": 2,
+    "clock_s": 69,
+    "raw": "2Nd|1:09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    85.0,
+    69.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 69.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 2868,
+  "core_end_frame": 3255,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2868,
+    "period": 2,
+    "clock_s": 67,
+    "raw": "2Nd|1:07"
+   },
+   {
+    "frame": 3255,
+    "period": 2,
+    "clock_s": 54.0,
+    "raw": "2Nd|54.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    69.0,
+    52.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 52.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Bradley misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 3399,
+  "core_end_frame": 3540,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3399,
+    "period": 2,
+    "clock_s": 49.1,
+    "raw": "2Nd|49.1"
+   },
+   {
+    "frame": 3540,
+    "period": 2,
+    "clock_s": 44.7,
+    "raw": "2Nd|44.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    52.0,
+    45.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.93,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 45.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (offensive foul)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 4185,
+  "core_end_frame": 4431,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4185,
+    "period": 2,
+    "clock_s": 42.4,
+    "raw": "2No|42.4"
+   },
+   {
+    "frame": 4431,
+    "period": 2,
+    "clock_s": 33.9,
+    "raw": "2No|33.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    45.0,
+    33.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 33.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "E. Turner makes 2-pt jump shot from 13 ft (assist by A. Bradley )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 4800,
+  "core_end_frame": 4989,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4800,
+    "period": 2,
+    "clock_s": 24.8,
+    "raw": "2No|24.8"
+   },
+   {
+    "frame": 4989,
+    "period": 2,
+    "clock_s": 19.3,
+    "raw": "2No|19.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    33.0,
+    19.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 19.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (back court)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 5625,
+  "core_end_frame": 5847,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 5625,
+    "period": 2,
+    "clock_s": 15.3,
+    "raw": "2No|15.3"
+   },
+   {
+    "frame": 5847,
+    "period": 2,
+    "clock_s": 10.7,
+    "raw": "2Nd|10.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    19.0,
+    4.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 4.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Bradley makes 3-pt jump shot from 26 ft (assist by E. Turner )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 6909,
+  "core_end_frame": 7167,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6995,
+    "period": 2,
+    "clock_s": 7.4,
+    "raw": "2No|7.4"
+   },
+   {
+    "frame": 7167,
+    "period": 2,
+    "clock_s": 2.3,
+    "raw": "2No|2.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    19.0,
+    4.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 4.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Bradley makes 3-pt jump shot from 26 ft (assist by E. Turner )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "duplicate_of_span": 5625,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 12414,
+  "core_end_frame": 12546,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12414,
+    "period": 3,
+    "clock_s": 666,
+    "raw": "3rd|11:06"
+   },
+   {
+    "frame": 12546,
+    "period": 3,
+    "clock_s": 661,
+    "raw": "3rD|11:01"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    673.0,
+    657.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 658.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 22 ft (assist by K. Thompson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 13920,
+  "core_end_frame": 14364,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14068,
+    "period": 3,
+    "clock_s": 650,
+    "raw": "3ro|10:50"
+   },
+   {
+    "frame": 14364,
+    "period": 3,
+    "clock_s": 640,
+    "raw": "3rD|10:40"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    657.0,
+    637.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 637.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "I. Thomas makes 2-pt layup from 2 ft (assist by A. Bradley )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 14805,
+  "core_end_frame": 14979,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14805,
+    "period": 3,
+    "clock_s": 625,
+    "raw": "3Ro|10:25"
+   },
+   {
+    "frame": 14979,
+    "period": 3,
+    "clock_s": 619,
+    "raw": "3r1|10:19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    637.0,
+    617.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 617.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 16989,
+  "core_end_frame": 17163,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ }
+]

@@ -1,0 +1,334 @@
+[
+ {
+  "set_start_frame": 2568,
+  "core_end_frame": 3315,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.94,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 2568,
+    "period": 1,
+    "clock_s": 710,
+    "raw": "1ST|11.50"
+   },
+   {
+    "frame": 3315,
+    "period": 1,
+    "clock_s": 11.2,
+    "raw": "1ST|11.2"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 3924,
+  "core_end_frame": 4197,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3924,
+    "period": 1,
+    "clock_s": 663,
+    "raw": "1ST|1103"
+   },
+   {
+    "frame": 4197,
+    "period": 1,
+    "clock_s": 652,
+    "raw": "1ST|10.52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    669.0,
+    628.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 642.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 8022,
+  "core_end_frame": 8256,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.71,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 8022,
+    "period": 1,
+    "clock_s": 592,
+    "raw": "1ST|9.52"
+   },
+   {
+    "frame": 8256,
+    "period": 1,
+    "clock_s": 584,
+    "raw": "1ST|9.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    595.0,
+    580.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 580.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 2-pt jump shot from 22 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 8514,
+  "core_end_frame": 8712,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.73,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 8514,
+    "period": 1,
+    "clock_s": 575,
+    "raw": "1ST|9.35"
+   },
+   {
+    "frame": 8700,
+    "period": 1,
+    "clock_s": 569,
+    "raw": "1ST|9.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    580.0,
+    566.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 566.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Ibaka makes 2-pt hook shot from 8 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 10161,
+  "core_end_frame": 10308,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.94,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 10161,
+    "period": 1,
+    "clock_s": 518,
+    "raw": "1ST|8.38"
+   },
+   {
+    "frame": 10308,
+    "period": 1,
+    "clock_s": 513,
+    "raw": "1ST|8.33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    524.0,
+    513.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 513.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 10920,
+  "core_end_frame": 11058,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.75,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 10926,
+    "period": 1,
+    "clock_s": 506,
+    "raw": "1ST|8.26"
+   },
+   {
+    "frame": 11058,
+    "period": 1,
+    "clock_s": 503,
+    "raw": "1ST|8.23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    513.0,
+    500.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 500.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Green makes 3-pt jump shot from 24 ft (assist by A. Bogut )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 13269,
+  "core_end_frame": 13437,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 13269,
+    "period": 1,
+    "clock_s": 426,
+    "raw": "1ST|7.06"
+   },
+   {
+    "frame": 13437,
+    "period": 1,
+    "clock_s": 421,
+    "raw": "1ST|7.01"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    433.0,
+    418.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 418.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (traveling)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 14304,
+  "core_end_frame": 14424,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 14304,
+    "period": 1,
+    "clock_s": 408,
+    "raw": "1ST|6.48"
+   },
+   {
+    "frame": 14424,
+    "period": 1,
+    "clock_s": 404,
+    "raw": "1ST|6.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    418.0,
+    404.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 404.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ }
+]

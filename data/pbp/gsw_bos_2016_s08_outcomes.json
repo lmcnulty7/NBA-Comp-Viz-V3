@@ -1,0 +1,324 @@
+[
+ {
+  "set_start_frame": 6447,
+  "core_end_frame": 6594,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6447,
+    "period": 4,
+    "clock_s": 299,
+    "raw": "4th|4:59"
+   },
+   {
+    "frame": 6594,
+    "period": 4,
+    "clock_s": 294,
+    "raw": "4th|4:54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    307.0,
+    294.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 294.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 3-pt jump shot from 26 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 7698,
+  "core_end_frame": 7923,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7698,
+    "period": 4,
+    "clock_s": 256,
+    "raw": "4th|4:16"
+   },
+   {
+    "frame": 7923,
+    "period": 4,
+    "clock_s": 248,
+    "raw": "4th|4:08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    268.0,
+    248.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 248.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "E. Turner misses 2-pt jump shot from 8 ft (block by B. Rush )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 8061,
+  "core_end_frame": 8250,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8061,
+    "period": 4,
+    "clock_s": 243,
+    "raw": "4th|4:03"
+   },
+   {
+    "frame": 8250,
+    "period": 4,
+    "clock_s": 237,
+    "raw": "4th|3:57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    248.0,
+    238.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.83,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 238.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 12480,
+  "core_end_frame": 12666,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.58,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12480,
+    "period": 4,
+    "clock_s": 158,
+    "raw": "4th|2:38"
+   },
+   {
+    "frame": 12666,
+    "period": 4,
+    "clock_s": 151,
+    "raw": "4th|2:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    162.0,
+    153.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.71,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 153.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 14880,
+  "core_end_frame": 15018,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 14880,
+    "period": 4,
+    "clock_s": 101,
+    "raw": "4th|1:41"
+   },
+   {
+    "frame": 15018,
+    "period": 4,
+    "clock_s": 96,
+    "raw": "4th|1:36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    116.0,
+    96.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 96.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Sullinger misses 2-pt jump shot from 4 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 16488,
+  "core_end_frame": 16824,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16488,
+    "period": 4,
+    "clock_s": 86,
+    "raw": "4th|1:26"
+   },
+   {
+    "frame": 16824,
+    "period": 4,
+    "clock_s": 76,
+    "raw": "4th|1:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    89.0,
+    76.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 76.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "E. Turner makes 2-pt jump shot from 14 ft (assist by M. Smart )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 17067,
+  "core_end_frame": 17310,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 17067,
+    "period": 4,
+    "clock_s": 70,
+    "raw": "4th|1:10"
+   },
+   {
+    "frame": 17310,
+    "period": 4,
+    "clock_s": 61,
+    "raw": "4th|1:01"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    76.0,
+    47.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 47.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Livingston makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ }
+]

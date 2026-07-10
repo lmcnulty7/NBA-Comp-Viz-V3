@@ -1,0 +1,303 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 393,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 3,
+    "clock_s": 299,
+    "raw": "3rd|4:59"
+   },
+   {
+    "frame": 393,
+    "period": 3,
+    "clock_s": 286,
+    "raw": "3rD|4:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    299.0,
+    285.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 285.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 678,
+  "core_end_frame": 810,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.62,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 678,
+    "period": 3,
+    "clock_s": 276,
+    "raw": "3RD|4:36"
+   },
+   {
+    "frame": 810,
+    "period": 3,
+    "clock_s": 271,
+    "raw": "3rd|4:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    285.0,
+    261.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 261.0,
+   "team": "away",
+   "kind": "ft_missed",
+   "desc": "A. Johnson misses free throw 2 of 2"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 1803,
+  "core_end_frame": 2235,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 1803,
+    "period": 3,
+    "clock_s": 261,
+    "raw": "3rd|4:21"
+   },
+   {
+    "frame": 2235,
+    "period": 3,
+    "clock_s": 261,
+    "raw": "3rD|4:21"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 6615,
+  "core_end_frame": 6885,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6615,
+    "period": 3,
+    "clock_s": 174,
+    "raw": "3Ro|2:54"
+   },
+   {
+    "frame": 6885,
+    "period": 3,
+    "clock_s": 164,
+    "raw": "3Ro|2:44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    184.0,
+    166.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 166.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by H. Barnes )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 13290,
+  "core_end_frame": 13686,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.68,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13290,
+    "period": 3,
+    "clock_s": 65,
+    "raw": "3rd|1:05"
+   },
+   {
+    "frame": 13686,
+    "period": 3,
+    "clock_s": 51.4,
+    "raw": "3RD|51.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    74.0,
+    47.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 64.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 13770,
+  "core_end_frame": 13920,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13770,
+    "period": 3,
+    "clock_s": 48.5,
+    "raw": "3ro|48.5"
+   },
+   {
+    "frame": 13920,
+    "period": 3,
+    "clock_s": 47.4,
+    "raw": "3ro|47.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    74.0,
+    47.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 64.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 13290,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 15063,
+  "core_end_frame": 15366,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15063,
+    "period": 3,
+    "clock_s": 43.6,
+    "raw": "3RD|43.6"
+   },
+   {
+    "frame": 15366,
+    "period": 3,
+    "clock_s": 33.2,
+    "raw": "3rD|33.2"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    47.0,
+    33.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 33.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (lost ball; steal by A. Bradley )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ }
+]

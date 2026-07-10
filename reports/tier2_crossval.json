@@ -1,11 +1,11 @@
 {
-  "possessions_aligned": 177,
-  "anchor_failures": 59,
+  "possessions_aligned": 264,
+  "anchor_failures": 20,
   "offense_cross_validation": {
-    "agree": 164,
-    "disagree": 12,
-    "unknown": 1,
-    "agreement_rate": 0.932
+    "agree": 227,
+    "disagree": 37,
+    "unknown": 0,
+    "agreement_rate": 0.86
   },
   "acceptance_note": "Tier 2 credit metrics are gated on this cross-validation (C2 offense vs independent PBP actor team)."
 }

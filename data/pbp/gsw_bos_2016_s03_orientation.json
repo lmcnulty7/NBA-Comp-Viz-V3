@@ -1,0 +1,57 @@
+{
+ "0": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.67
+ },
+ "264": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.94
+ },
+ "1824": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.67
+ },
+ "2631": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.67
+ },
+ "4626": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.94
+ },
+ "8145": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.94
+ },
+ "10365": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.67
+ },
+ "11421": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.94
+ },
+ "12264": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.94
+ },
+ "15882": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.94
+ },
+ "16290": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.67
+ }
+}

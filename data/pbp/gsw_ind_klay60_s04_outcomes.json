@@ -1,0 +1,186 @@
+[
+ {
+  "set_start_frame": 1287,
+  "core_end_frame": 1617,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.65,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1287,
+    "period": 2,
+    "clock_s": 197,
+    "raw": "2n|317"
+   },
+   {
+    "frame": 1617,
+    "period": 2,
+    "clock_s": 187,
+    "raw": "2n|3.07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    209.0,
+    182.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 182.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "M. Turner misses 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.62
+ },
+ {
+  "set_start_frame": 7314,
+  "core_end_frame": 7563,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7314,
+    "period": 2,
+    "clock_s": 124,
+    "raw": "2n|2.04"
+   },
+   {
+    "frame": 7563,
+    "period": 2,
+    "clock_s": 115,
+    "raw": "2n|1.55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    130.0,
+    103.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 103.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt layup from 2 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 8079,
+  "core_end_frame": 8367,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.69,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 8079,
+    "period": 2,
+    "clock_s": 98,
+    "raw": "2n|1.38"
+   },
+   {
+    "frame": 8367,
+    "period": 2,
+    "clock_s": 89,
+    "raw": "2n|1.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    103.0,
+    84.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 84.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Ellis makes 2-pt jump shot from 5 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.62
+ },
+ {
+  "set_start_frame": 13797,
+  "core_end_frame": 13938,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13867,
+    "period": 2,
+    "clock_s": 39.8,
+    "raw": "2n|:39.8"
+   },
+   {
+    "frame": 13938,
+    "period": 2,
+    "clock_s": 37.4,
+    "raw": "2n|337.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    48.0,
+    35.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 48.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 3 of 3"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.62
+ }
+]

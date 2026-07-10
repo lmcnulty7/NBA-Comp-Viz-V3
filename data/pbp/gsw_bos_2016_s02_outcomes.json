@@ -1,0 +1,463 @@
+[
+ {
+  "set_start_frame": 318,
+  "core_end_frame": 660,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.62,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 318,
+    "period": 1,
+    "clock_s": 160,
+    "raw": "1st|2:40"
+   },
+   {
+    "frame": 660,
+    "period": 1,
+    "clock_s": 148,
+    "raw": "1st|2:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    161.0,
+    146.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 146.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Jerebko misses 2-pt jump shot from 13 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 828,
+  "core_end_frame": 987,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 828,
+    "period": 1,
+    "clock_s": 142,
+    "raw": "1st|2:22"
+   },
+   {
+    "frame": 967,
+    "period": 1,
+    "clock_s": 137,
+    "raw": "1st|2:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    146.0,
+    136.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 136.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 1110,
+  "core_end_frame": 1287,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1110,
+    "period": 1,
+    "clock_s": 133,
+    "raw": "1st|2:13"
+   },
+   {
+    "frame": 1287,
+    "period": 1,
+    "clock_s": 126,
+    "raw": "1st|2:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    136.0,
+    126.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 126.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jerebko makes 2-pt jump shot from 15 ft (assist by K. Olynyk )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 1452,
+  "core_end_frame": 1611,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.76,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1452,
+    "period": 1,
+    "clock_s": 121,
+    "raw": "1st|2:01"
+   },
+   {
+    "frame": 1611,
+    "period": 1,
+    "clock_s": 115,
+    "raw": "1st|1:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    126.0,
+    115.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 115.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Livingston (bad pass)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 2286,
+  "core_end_frame": 2733,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2286,
+    "period": 1,
+    "clock_s": 112,
+    "raw": "1st|1:52"
+   },
+   {
+    "frame": 2733,
+    "period": 1,
+    "clock_s": 97,
+    "raw": "1st|1:37"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    115.0,
+    96.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 96.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Bradley misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ },
+ {
+  "set_start_frame": 5196,
+  "core_end_frame": 5334,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5196,
+    "period": 1,
+    "clock_s": 14.5,
+    "raw": "1st|14.5"
+   },
+   {
+    "frame": 5334,
+    "period": 1,
+    "clock_s": 9.7,
+    "raw": "1st|9.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    22.0,
+    4.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 4.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 9543,
+  "core_end_frame": 9876,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9543,
+    "period": 2,
+    "clock_s": 658,
+    "raw": "2Nd|10:58"
+   },
+   {
+    "frame": 9876,
+    "period": 2,
+    "clock_s": 646,
+    "raw": "2No|10:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    664.0,
+    640.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 640.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Rozier misses 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 11418,
+  "core_end_frame": 11613,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 11418,
+    "period": 2,
+    "clock_s": 593,
+    "raw": "2No|9:53"
+   },
+   {
+    "frame": 11613,
+    "period": 2,
+    "clock_s": 587,
+    "raw": "2No|9:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    600.0,
+    568.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 568.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jerebko makes 2-pt layup from 2 ft (assist by M. Smart )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 12942,
+  "core_end_frame": 13230,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12942,
+    "period": 2,
+    "clock_s": 580,
+    "raw": "2Nd|9:40"
+   },
+   {
+    "frame": 13230,
+    "period": 2,
+    "clock_s": 570,
+    "raw": "2Nd|9:30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    600.0,
+    568.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 568.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jerebko makes 2-pt layup from 2 ft (assist by M. Smart )"
+  },
+  "pbp_offense_real": "BOS",
+  "offense_agrees": true,
+  "duplicate_of_span": 11418,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 13539,
+  "core_end_frame": 13767,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13539,
+    "period": 2,
+    "clock_s": 559,
+    "raw": "2No|9:19"
+   },
+   {
+    "frame": 13767,
+    "period": 2,
+    "clock_s": 552,
+    "raw": "2No|9:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    568.0,
+    549.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 549.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.67
+ }
+]

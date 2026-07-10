@@ -1,0 +1,188 @@
+[
+ {
+  "set_start_frame": 3936,
+  "core_end_frame": 4152,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.74,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3936,
+    "period": 3,
+    "clock_s": 703,
+    "raw": "3r|11.43"
+   },
+   {
+    "frame": 4044,
+    "period": 3,
+    "clock_s": 695,
+    "raw": "3r|11.35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    705.0,
+    683.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 691.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Young makes 2-pt layup from 2 ft (assist by P. George )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 7944,
+  "core_end_frame": 8124,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.63,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 7944,
+    "period": 3,
+    "clock_s": 626,
+    "raw": "3r|10.26"
+   },
+   {
+    "frame": 8124,
+    "period": 3,
+    "clock_s": 620,
+    "raw": "3r|10.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    651.0,
+    619.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 635.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 19 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 9822,
+  "core_end_frame": 9969,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9822,
+    "period": 3,
+    "clock_s": 591,
+    "raw": "3r|9.51"
+   },
+   {
+    "frame": 9969,
+    "period": 3,
+    "clock_s": 586,
+    "raw": "3r|9.46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    597.0,
+    584.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 584.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Young makes 2-pt jump shot from 9 ft (assist by P. George )"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 14604,
+  "core_end_frame": 14805,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 15714,
+  "core_end_frame": 15969,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15714,
+    "period": 3,
+    "clock_s": 495,
+    "raw": "3r|815"
+   },
+   {
+    "frame": 15969,
+    "period": 3,
+    "clock_s": 488,
+    "raw": "3r|808"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    495.0,
+    477.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 477.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Teague makes 2-pt jump shot from 14 ft"
+  },
+  "pbp_offense_real": "IND",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ }
+]

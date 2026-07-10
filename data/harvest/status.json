@@ -608,5 +608,728 @@
    "wall_s": 0.4,
    "at": "2026-07-08 03:18:45"
   }
+ },
+ "gsw_okc_2016wcf_g6_s00": {
+  "build": {
+   "state": "ok",
+   "wall_s": 712.6,
+   "at": "2026-07-09 23:27:40"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-09 23:27:41"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-09 23:27:41"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s01": {
+  "build": {
+   "state": "ok",
+   "wall_s": 781.6,
+   "at": "2026-07-09 23:40:43"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.6,
+   "at": "2026-07-09 23:40:43"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-09 23:40:44"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s02": {
+  "build": {
+   "state": "ok",
+   "wall_s": 642.7,
+   "at": "2026-07-09 23:51:27"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-09 23:51:27"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-09 23:51:28"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s03": {
+  "build": {
+   "state": "ok",
+   "wall_s": 494.8,
+   "at": "2026-07-09 23:59:42"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-09 23:59:43"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-09 23:59:43"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s04": {
+  "build": {
+   "state": "ok",
+   "wall_s": 532.0,
+   "at": "2026-07-10 00:08:35"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 00:08:36"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:08:36"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s05": {
+  "build": {
+   "state": "ok",
+   "wall_s": 578.6,
+   "at": "2026-07-10 00:18:15"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 00:18:15"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:18:16"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s06": {
+  "build": {
+   "state": "ok",
+   "wall_s": 406.5,
+   "at": "2026-07-10 00:25:02"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 00:25:03"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:25:03"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s07": {
+  "build": {
+   "state": "ok",
+   "wall_s": 612.5,
+   "at": "2026-07-10 00:35:16"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:35:16"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:35:17"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s08": {
+  "build": {
+   "state": "ok",
+   "wall_s": 539.1,
+   "at": "2026-07-10 00:44:16"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 00:44:16"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:44:17"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s09": {
+  "build": {
+   "state": "ok",
+   "wall_s": 493.2,
+   "at": "2026-07-10 00:52:30"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 00:52:30"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:52:31"
+  }
+ },
+ "gsw_okc_2016wcf_g6_s10": {
+  "build": {
+   "state": "ok",
+   "wall_s": 73.2,
+   "at": "2026-07-10 00:53:44"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:53:44"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 00:53:45"
+  }
+ },
+ "gsw_ind_klay60_s00": {
+  "build": {
+   "state": "ok",
+   "wall_s": 504.6,
+   "at": "2026-07-10 01:02:09"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:02:10"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:02:10"
+  }
+ },
+ "gsw_ind_klay60_s01": {
+  "build": {
+   "state": "ok",
+   "wall_s": 641.6,
+   "at": "2026-07-10 01:12:52"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:12:52"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:12:53"
+  }
+ },
+ "gsw_ind_klay60_s02": {
+  "build": {
+   "state": "ok",
+   "wall_s": 486.9,
+   "at": "2026-07-10 01:21:00"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:21:00"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:21:01"
+  }
+ },
+ "gsw_ind_klay60_s03": {
+  "build": {
+   "state": "ok",
+   "wall_s": 515.7,
+   "at": "2026-07-10 01:29:36"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:29:37"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:29:37"
+  }
+ },
+ "gsw_ind_klay60_s04": {
+  "build": {
+   "state": "ok",
+   "wall_s": 397.4,
+   "at": "2026-07-10 01:36:15"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:36:15"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:36:16"
+  }
+ },
+ "gsw_ind_klay60_s05": {
+  "build": {
+   "state": "ok",
+   "wall_s": 445.5,
+   "at": "2026-07-10 01:43:41"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:43:41"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:43:42"
+  }
+ },
+ "gsw_ind_klay60_s06": {
+  "build": {
+   "state": "ok",
+   "wall_s": 428.3,
+   "at": "2026-07-10 01:50:50"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:50:51"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:50:51"
+  }
+ },
+ "gsw_ind_klay60_s07": {
+  "build": {
+   "state": "ok",
+   "wall_s": 525.3,
+   "at": "2026-07-10 01:59:36"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 01:59:37"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 01:59:37"
+  }
+ },
+ "gsw_ind_klay60_s08": {
+  "build": {
+   "state": "ok",
+   "wall_s": 608.4,
+   "at": "2026-07-10 02:09:45"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 02:09:46"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 02:09:46"
+  }
+ },
+ "gsw_ind_klay60_s09": {
+  "build": {
+   "state": "ok",
+   "wall_s": 633.0,
+   "at": "2026-07-10 02:20:19"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 02:20:20"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 02:20:20"
+  }
+ },
+ "gsw_ind_klay60_s10": {
+  "build": {
+   "state": "ok",
+   "wall_s": 31.3,
+   "at": "2026-07-10 02:20:52"
+  },
+  "segment": {
+   "state": "failed",
+   "wall_s": 0.2,
+   "at": "2026-07-10 02:20:52",
+   "tail": "Too few frames in trajectories file.\n"
+  }
+ },
+ "gsw_sas_2016_s00": {
+  "build": {
+   "state": "ok",
+   "wall_s": 620.0,
+   "at": "2026-07-10 02:31:12"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 02:31:12"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 02:31:13"
+  }
+ },
+ "gsw_sas_2016_s01": {
+  "build": {
+   "state": "ok",
+   "wall_s": 531.5,
+   "at": "2026-07-10 02:40:04"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 02:40:05"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 02:40:05"
+  }
+ },
+ "gsw_sas_2016_s02": {
+  "build": {
+   "state": "ok",
+   "wall_s": 671.8,
+   "at": "2026-07-10 02:51:17"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 02:51:17"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 02:51:18"
+  }
+ },
+ "gsw_sas_2016_s03": {
+  "build": {
+   "state": "ok",
+   "wall_s": 521.8,
+   "at": "2026-07-10 03:00:00"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:00:00"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 03:00:01"
+  }
+ },
+ "gsw_sas_2016_s04": {
+  "build": {
+   "state": "ok",
+   "wall_s": 487.2,
+   "at": "2026-07-10 03:08:08"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:08:08"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:08:09"
+  }
+ },
+ "gsw_sas_2016_s05": {
+  "build": {
+   "state": "ok",
+   "wall_s": 533.3,
+   "at": "2026-07-10 03:17:02"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:17:03"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 03:17:03"
+  }
+ },
+ "gsw_sas_2016_s06": {
+  "build": {
+   "state": "ok",
+   "wall_s": 542.2,
+   "at": "2026-07-10 03:26:05"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:26:06"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 03:26:06"
+  }
+ },
+ "gsw_sas_2016_s07": {
+  "build": {
+   "state": "ok",
+   "wall_s": 587.6,
+   "at": "2026-07-10 03:35:54"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.6,
+   "at": "2026-07-10 03:35:54"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:35:55"
+  }
+ },
+ "gsw_sas_2016_s08": {
+  "build": {
+   "state": "ok",
+   "wall_s": 656.6,
+   "at": "2026-07-10 03:46:51"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 03:46:52"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 03:46:52"
+  }
+ },
+ "gsw_sas_2016_s09": {
+  "build": {
+   "state": "ok",
+   "wall_s": 235.0,
+   "at": "2026-07-10 03:50:47"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 03:50:48"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 03:50:48"
+  }
+ },
+ "gsw_bos_2016_s00": {
+  "build": {
+   "state": "ok",
+   "wall_s": 729.5,
+   "at": "2026-07-10 04:02:57"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 04:02:58"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 04:02:58"
+  }
+ },
+ "gsw_bos_2016_s01": {
+  "build": {
+   "state": "ok",
+   "wall_s": 444.6,
+   "at": "2026-07-10 04:10:23"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 04:10:24"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 04:10:24"
+  }
+ },
+ "gsw_bos_2016_s02": {
+  "build": {
+   "state": "ok",
+   "wall_s": 752.0,
+   "at": "2026-07-10 04:22:56"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 04:22:56"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 04:22:57"
+  }
+ },
+ "gsw_bos_2016_s03": {
+  "build": {
+   "state": "ok",
+   "wall_s": 655.0,
+   "at": "2026-07-10 04:33:52"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 04:33:52"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 04:33:53"
+  }
+ },
+ "gsw_bos_2016_s04": {
+  "build": {
+   "state": "ok",
+   "wall_s": 527.7,
+   "at": "2026-07-10 04:42:41"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 04:42:41"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 04:42:41"
+  }
+ },
+ "gsw_bos_2016_s05": {
+  "build": {
+   "state": "ok",
+   "wall_s": 540.2,
+   "at": "2026-07-10 04:51:42"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.6,
+   "at": "2026-07-10 04:51:42"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 04:51:43"
+  }
+ },
+ "gsw_bos_2016_s06": {
+  "build": {
+   "state": "ok",
+   "wall_s": 672.0,
+   "at": "2026-07-10 05:02:55"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 05:02:55"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 05:02:56"
+  }
+ },
+ "gsw_bos_2016_s07": {
+  "build": {
+   "state": "ok",
+   "wall_s": 620.8,
+   "at": "2026-07-10 05:13:16"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 05:13:17"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 05:13:17"
+  }
+ },
+ "gsw_bos_2016_s08": {
+  "build": {
+   "state": "ok",
+   "wall_s": 619.0,
+   "at": "2026-07-10 05:23:36"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 05:23:37"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 05:23:37"
+  }
+ },
+ "gsw_bos_2016_s09": {
+  "build": {
+   "state": "ok",
+   "wall_s": 325.6,
+   "at": "2026-07-10 05:29:03"
+  },
+  "segment": {
+   "state": "ok",
+   "wall_s": 0.5,
+   "at": "2026-07-10 05:29:04"
+  },
+  "matchups": {
+   "state": "ok",
+   "wall_s": 0.4,
+   "at": "2026-07-10 05:29:04"
+  }
+ },
+ "gsw_bos_2016_s10": {
+  "build": {
+   "state": "ok",
+   "wall_s": 24.5,
+   "at": "2026-07-10 05:29:28"
+  },
+  "segment": {
+   "state": "failed",
+   "wall_s": 0.2,
+   "at": "2026-07-10 05:29:29",
+   "tail": "Too few frames in trajectories file.\n"
+  }
  }
 }

@@ -1,0 +1,186 @@
+[
+ {
+  "set_start_frame": 126,
+  "core_end_frame": 279,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 126,
+    "period": 3,
+    "clock_s": 130,
+    "raw": "3RD|2.10"
+   },
+   {
+    "frame": 279,
+    "period": 3,
+    "clock_s": 124,
+    "raw": "3RD|2.04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    136.0,
+    115.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 116.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "E. Freedom makes 2-pt jump shot from 16 ft (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 4803,
+  "core_end_frame": 5118,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 4803,
+    "period": 3,
+    "clock_s": 61,
+    "raw": "3RD|101"
+   },
+   {
+    "frame": 5118,
+    "period": 3,
+    "clock_s": 52.0,
+    "raw": "3RD|52.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    72.0,
+    47.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 47.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "E. Freedom makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 5415,
+  "core_end_frame": 5769,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.54,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5415,
+    "period": 3,
+    "clock_s": 44.8,
+    "raw": "3RD|44.8"
+   },
+   {
+    "frame": 5769,
+    "period": 3,
+    "clock_s": 32.6,
+    "raw": "3RD|32.6"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    47.0,
+    29.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 29.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 13044,
+  "core_end_frame": 13161,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 13044,
+    "period": 4,
+    "clock_s": 612,
+    "raw": "4TH|10.12"
+   },
+   {
+    "frame": 13161,
+    "period": 4,
+    "clock_s": 608,
+    "raw": "4TH|10.08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    625.0,
+    604.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 604.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Adams misses 2-pt jump shot from 5 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

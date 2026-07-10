@@ -1,0 +1,440 @@
+[
+ {
+  "set_start_frame": 249,
+  "core_end_frame": 438,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 249,
+    "period": 3,
+    "clock_s": 636,
+    "raw": "3ro|10.36"
+   },
+   {
+    "frame": 438,
+    "period": 3,
+    "clock_s": 630,
+    "raw": "3r|10.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    641.0,
+    625.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 625.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup at rim"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 705,
+  "core_end_frame": 936,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 705,
+    "period": 3,
+    "clock_s": 10.2,
+    "raw": "3r|10.2"
+   },
+   {
+    "frame": 936,
+    "period": 3,
+    "clock_s": 10.1,
+    "raw": "3r|10.1"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 1719,
+  "core_end_frame": 2160,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.57,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1719,
+    "period": 3,
+    "clock_s": 586,
+    "raw": "3r|9.46"
+   },
+   {
+    "frame": 2160,
+    "period": 3,
+    "clock_s": 575,
+    "raw": "3ro|9.35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    612.0,
+    575.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 594.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 3930,
+  "core_end_frame": 4149,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3930,
+    "period": 3,
+    "clock_s": 563,
+    "raw": "3r|9.23"
+   },
+   {
+    "frame": 4149,
+    "period": 3,
+    "clock_s": 555,
+    "raw": "3ro|9:15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    575.0,
+    553.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 575.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "K. Leonard makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 5949,
+  "core_end_frame": 6159,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5949,
+    "period": 3,
+    "clock_s": 544,
+    "raw": "3r|9.04"
+   },
+   {
+    "frame": 6159,
+    "period": 3,
+    "clock_s": 539,
+    "raw": "3ro|8.59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    544.0,
+    531.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 531.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 6501,
+  "core_end_frame": 7005,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6501,
+    "period": 3,
+    "clock_s": 527,
+    "raw": "3r|847"
+   },
+   {
+    "frame": 7005,
+    "period": 3,
+    "clock_s": 510,
+    "raw": "3ro|830"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    531.0,
+    510.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 510.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by L. Aldridge (3 sec)"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 7929,
+  "core_end_frame": 8055,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 7929,
+    "period": 3,
+    "clock_s": 492,
+    "raw": "3ro|812"
+   },
+   {
+    "frame": 8055,
+    "period": 3,
+    "clock_s": 488,
+    "raw": "3ro|8.08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    510.0,
+    486.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 500.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 11406,
+  "core_end_frame": 11571,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11406,
+    "period": 3,
+    "clock_s": 428,
+    "raw": "3r|7.08"
+   },
+   {
+    "frame": 11571,
+    "period": 3,
+    "clock_s": 424,
+    "raw": "3r|7.04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    444.0,
+    424.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 434.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Leonard makes 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 12711,
+  "core_end_frame": 12879,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12711,
+    "period": 3,
+    "clock_s": 419,
+    "raw": "3ro|6.59"
+   },
+   {
+    "frame": 12879,
+    "period": 3,
+    "clock_s": 418,
+    "raw": "3ro|6.58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    424.0,
+    416.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 416.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. Green makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 13800,
+  "core_end_frame": 13965,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13800,
+    "period": 3,
+    "clock_s": 413,
+    "raw": "3ro|6.53"
+   },
+   {
+    "frame": 13965,
+    "period": 3,
+    "clock_s": 408,
+    "raw": "3r|6.48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    416.0,
+    400.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 400.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Simmons makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "SAS",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ }
+]
