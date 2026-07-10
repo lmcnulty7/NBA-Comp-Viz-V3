@@ -57,6 +57,12 @@ LAYOUTS = {
                           "clock_box": (608, 640, 665, 672)},
     "csn_ba16_720":      {"period_box": (1002, 622, 1052, 652),  # CSN Bay Area 2016
                           "clock_box": (1066, 622, 1132, 652)},
+    "espn17_720":        {"period_box": (542, 636, 585, 668),    # 2017 ESPN/ABC strip
+                          "clock_box": (588, 636, 648, 668)},
+    "csn_ba15_720":      {"period_box": (1092, 620, 1140, 652),  # CSN 2015: clock LEFT of period
+                          "clock_box": (1022, 620, 1080, 652)},
+    "espn13_720":        {"period_box": (770, 574, 826, 610),    # 2013 ESPN strip
+                          "clock_box": (838, 574, 908, 610)},
 }
 CLIP_LAYOUT = {
     "curry_q1_clip": "espn_saturday_480",

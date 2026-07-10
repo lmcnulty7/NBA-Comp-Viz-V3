@@ -1,0 +1,3753 @@
+{
+ "meta": {
+  "away": "HOU",
+  "home": "GSW",
+  "date": "2015-05-21"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 707.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 14 ft (assist by D. Howard )",
+   "points": 2,
+   "score": "2-0",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 707.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by J. Harden )",
+   "points": 0,
+   "score": "2-0",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 707.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 1 of 1",
+   "points": 1,
+   "score": "3-0",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 692.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "3-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 691.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "3-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 685.0,
+   "team": "away",
+   "desc": "T. Ariza misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "3-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 684.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "3-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 676.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 5 ft",
+   "points": 2,
+   "score": "3-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 661.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "3-2",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "3-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 655.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (lost ball; steal by J. Harden )",
+   "points": 0,
+   "score": "3-2",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 649.0,
+   "team": "away",
+   "desc": "J. Smith makes 2-pt layup from 2 ft (assist by T. Ariza )",
+   "points": 2,
+   "score": "5-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 631.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "5-2",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 630.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "5-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 624.0,
+   "team": "away",
+   "desc": "J. Harden misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "5-2",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 623.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "5-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 618.0,
+   "team": "home",
+   "desc": "Personal foul by J. Terry (drawn by H. Barnes )",
+   "points": 0,
+   "score": "5-2",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 609.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 24 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "5-5",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 589.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt jump shot from 6 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 588.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Howard",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 588.0,
+   "team": "away",
+   "desc": "D. Howard misses 2-pt tip-in from 4 ft",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 586.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 585.0,
+   "team": "home",
+   "desc": "Turnover by A. Bogut (bad pass; steal by J. Smith )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 577.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 576.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 566.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Ariza",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 558.0,
+   "team": "away",
+   "desc": "Turnover by J. Harden (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 553.0,
+   "team": "home",
+   "desc": "Personal foul by D. Howard (drawn by A. Bogut )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 549.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "5-7",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 538.0,
+   "team": "away",
+   "desc": "Offensive foul by T. Ariza (drawn by A. Bogut )",
+   "points": 0,
+   "score": "5-7",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 538.0,
+   "team": "away",
+   "desc": "Turnover by T. Ariza (offensive foul)",
+   "points": 0,
+   "score": "5-7",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 530.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass; steal by D. Howard )",
+   "points": 0,
+   "score": "5-7",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 520.0,
+   "team": "away",
+   "desc": "J. Smith makes 2-pt hook shot from 9 ft",
+   "points": 2,
+   "score": "7-7",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 501.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt layup from 3 ft (assist by D. Green )",
+   "points": 2,
+   "score": "7-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 486.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "7-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 485.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "7-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 474.0,
+   "team": "home",
+   "desc": "Turnover by A. Bogut (bad pass; steal by T. Ariza )",
+   "points": 0,
+   "score": "7-9",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 465.0,
+   "team": "away",
+   "desc": "J. Terry makes 3-pt jump shot from 25 ft (assist by J. Smith )",
+   "points": 3,
+   "score": "10-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 464.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "10-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by D. Green )",
+   "points": 2,
+   "score": "10-11",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 427.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "10-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 426.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "10-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 422.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "10-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 421.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Ariza",
+   "points": 0,
+   "score": "10-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 415.0,
+   "team": "away",
+   "desc": "C. Capela enters the game for D. Howard",
+   "points": 0,
+   "score": "10-11",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 401.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt hook shot from 10 ft",
+   "points": 0,
+   "score": "10-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 400.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "10-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 384.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 14 ft (assist by A. Bogut )",
+   "points": 2,
+   "score": "10-13",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 368.0,
+   "team": "away",
+   "desc": "J. Terry misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "10-13",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 367.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "10-13",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 354.0,
+   "team": "away",
+   "desc": "T. Jones enters the game for J. Smith",
+   "points": 0,
+   "score": "10-13",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 354.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for H. Barnes",
+   "points": 0,
+   "score": "10-13",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 349.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 18 ft (assist by A. Bogut )",
+   "points": 2,
+   "score": "10-15",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "T. Jones makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "12-15",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 320.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt hook shot from 8 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "12-17",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 304.0,
+   "team": "away",
+   "desc": "T. Jones makes 2-pt jump shot from 4 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "14-17",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 294.0,
+   "team": "home",
+   "desc": "Def 3 sec tech foul by C. Capela",
+   "points": 0,
+   "score": "14-17",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 294.0,
+   "team": "home",
+   "desc": "S. Curry makes technical free throw",
+   "points": 1,
+   "score": "14-18",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 294.0,
+   "team": "away",
+   "desc": "P. Prigioni enters the game for J. Terry",
+   "points": 0,
+   "score": "14-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 294.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for K. Thompson",
+   "points": 0,
+   "score": "14-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 282.0,
+   "team": "home",
+   "desc": "Turnover by A. Bogut (bad pass; steal by T. Ariza )",
+   "points": 0,
+   "score": "14-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 277.0,
+   "team": "away",
+   "desc": "J. Harden misses 2-pt layup from 3 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "14-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "Offensive rebound by T. Jones",
+   "points": 0,
+   "score": "14-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 274.0,
+   "team": "away",
+   "desc": "Turnover by T. Jones (lost ball; steal by A. Iguodala )",
+   "points": 0,
+   "score": "14-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 273.0,
+   "team": "home",
+   "desc": "Personal foul by P. Prigioni (drawn by S. Curry )",
+   "points": 0,
+   "score": "14-18",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 273.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for T. Ariza",
+   "points": 0,
+   "score": "14-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 273.0,
+   "team": "away",
+   "desc": "D. Howard enters the game for C. Capela",
+   "points": 0,
+   "score": "14-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 256.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by P. Prigioni )",
+   "points": 0,
+   "score": "14-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "C. Brewer misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "14-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 245.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Howard",
+   "points": 0,
+   "score": "14-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 245.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt tip-in from 1 ft",
+   "points": 2,
+   "score": "16-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 231.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 28 ft (assist by D. Green )",
+   "points": 3,
+   "score": "16-21",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by C. Brewer )",
+   "points": 0,
+   "score": "16-21",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "away",
+   "desc": "C. Brewer makes free throw 1 of 2",
+   "points": 1,
+   "score": "17-21",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "F. Ezeli enters the game for A. Bogut",
+   "points": 0,
+   "score": "17-21",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "away",
+   "desc": "C. Brewer misses free throw 2 of 2",
+   "points": 0,
+   "score": "17-21",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 218.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "17-21",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 209.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by T. Jones )",
+   "points": 0,
+   "score": "17-21",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 205.0,
+   "team": "away",
+   "desc": "C. Brewer makes 2-pt dunk at rim (assist by P. Prigioni )",
+   "points": 2,
+   "score": "19-21",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 181.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by A. Iguodala )",
+   "points": 3,
+   "score": "19-24",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 170.0,
+   "team": "away",
+   "desc": "Shooting foul by F. Ezeli (drawn by J. Harden )",
+   "points": 0,
+   "score": "19-24",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 170.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "19-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 170.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 1 of 2",
+   "points": 1,
+   "score": "20-24",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 170.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 2 of 2",
+   "points": 1,
+   "score": "21-24",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 151.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 24 ft (assist by A. Iguodala )",
+   "points": 3,
+   "score": "21-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 134.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt layup from 3 ft",
+   "points": 2,
+   "score": "23-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 134.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Curry (drawn by D. Howard )",
+   "points": 0,
+   "score": "23-27",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 134.0,
+   "team": "away",
+   "desc": "D. Howard makes free throw 1 of 1",
+   "points": 1,
+   "score": "24-27",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 121.0,
+   "team": "home",
+   "desc": "L. Barbosa misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "24-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 120.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "24-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "T. Jones makes 2-pt dunk at rim (assist by J. Harden )",
+   "points": 2,
+   "score": "26-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 94.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "26-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "Offensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "26-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "F. Ezeli makes 2-pt tip-in from 2 ft",
+   "points": 2,
+   "score": "26-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "T. Jones misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "26-29",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 80.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "26-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 70.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by D. Green )",
+   "points": 3,
+   "score": "26-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 55.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "28-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 48.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 46.0,
+   "team": "home",
+   "desc": "Offensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 46.0,
+   "team": "home",
+   "desc": "F. Ezeli misses 2-pt tip-in at rim (block by T. Jones )",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 44.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "Turnover by T. Jones (lost ball; steal by A. Iguodala )",
+   "points": 0,
+   "score": "28-32",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 28.0,
+   "team": "home",
+   "desc": "Shooting foul by C. Brewer (drawn by A. Iguodala )",
+   "points": 0,
+   "score": "28-32",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 28.0,
+   "team": "home",
+   "desc": "A. Iguodala makes free throw 1 of 2",
+   "points": 1,
+   "score": "28-33",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 28.0,
+   "team": "away",
+   "desc": "T. Ariza enters the game for T. Jones",
+   "points": 0,
+   "score": "28-33",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 28.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "28-33",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 28.0,
+   "team": "home",
+   "desc": "A. Iguodala makes free throw 2 of 2",
+   "points": 1,
+   "score": "28-34",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 8.0,
+   "team": "away",
+   "desc": "T. Ariza misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "28-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Howard",
+   "points": 0,
+   "score": "28-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "D. Howard misses 2-pt layup from 3 ft (block by D. Green )",
+   "points": 0,
+   "score": "28-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 4.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "28-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 1.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "28-36",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "P. Prigioni misses 3-pt jump shot from 41 ft",
+   "points": 0,
+   "score": "28-36",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "28-36",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 694.0,
+   "team": "home",
+   "desc": "L. Barbosa misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "28-36",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 693.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Ariza",
+   "points": 0,
+   "score": "28-36",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 677.0,
+   "team": "away",
+   "desc": "Personal foul by F. Ezeli (drawn by T. Ariza )",
+   "points": 0,
+   "score": "28-36",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 677.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for F. Ezeli",
+   "points": 0,
+   "score": "28-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 668.0,
+   "team": "away",
+   "desc": "Personal foul by A. Bogut (drawn by D. Howard )",
+   "points": 0,
+   "score": "28-36",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 660.0,
+   "team": "away",
+   "desc": "J. Smith misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "28-36",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 659.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "28-36",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 641.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 10 ft (assist by H. Barnes )",
+   "points": 2,
+   "score": "28-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 636.0,
+   "team": "away",
+   "desc": "Turnover by D. Howard (bad pass; steal by L. Barbosa )",
+   "points": 0,
+   "score": "28-38",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 632.0,
+   "team": "home",
+   "desc": "A. Iguodala makes 2-pt dunk at rim (assist by A. Bogut )",
+   "points": 2,
+   "score": "28-40",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 613.0,
+   "team": "away",
+   "desc": "Turnover by D. Howard (step out of bounds)",
+   "points": 0,
+   "score": "28-40",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 594.0,
+   "team": "home",
+   "desc": "L. Barbosa misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "28-40",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 593.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "28-40",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 583.0,
+   "team": "away",
+   "desc": "P. Prigioni misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "28-40",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "28-40",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 577.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 2-pt layup from 1 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "28-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 577.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "28-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 577.0,
+   "team": "away",
+   "desc": "C. Capela enters the game for D. Howard",
+   "points": 0,
+   "score": "28-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 577.0,
+   "team": "away",
+   "desc": "J. Terry enters the game for P. Prigioni",
+   "points": 0,
+   "score": "28-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 562.0,
+   "team": "away",
+   "desc": "C. Brewer misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "28-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 561.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. Capela",
+   "points": 0,
+   "score": "28-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "C. Brewer misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "28-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 554.0,
+   "team": "away",
+   "desc": "Offensive rebound by T. Ariza",
+   "points": 0,
+   "score": "28-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 547.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "28-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 546.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "28-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 540.0,
+   "team": "away",
+   "desc": "Violation by C. Capela (def goaltending)",
+   "points": 0,
+   "score": "28-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 540.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt jump shot from 3 ft (assist by L. Barbosa )",
+   "points": 2,
+   "score": "28-44",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 523.0,
+   "team": "away",
+   "desc": "J. Smith makes 2-pt layup from 1 ft (assist by J. Terry )",
+   "points": 2,
+   "score": "30-44",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 500.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt dunk at rim (assist by L. Barbosa )",
+   "points": 2,
+   "score": "30-46",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 483.0,
+   "team": "away",
+   "desc": "T. Ariza makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "32-46",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 463.0,
+   "team": "home",
+   "desc": "H. Barnes makes 3-pt jump shot from 26 ft (assist by A. Iguodala )",
+   "points": 3,
+   "score": "32-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "32-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "home",
+   "desc": "D. Green enters the game for A. Bogut",
+   "points": 0,
+   "score": "32-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for L. Barbosa",
+   "points": 0,
+   "score": "32-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "D. Howard enters the game for J. Smith",
+   "points": 0,
+   "score": "32-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "J. Harden enters the game for C. Capela",
+   "points": 0,
+   "score": "32-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "T. Jones enters the game for C. Brewer",
+   "points": 0,
+   "score": "32-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "T. Jones misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "32-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 432.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Howard",
+   "points": 0,
+   "score": "32-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 432.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "34-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 421.0,
+   "team": "home",
+   "desc": "Personal foul by T. Ariza (drawn by K. Thompson )",
+   "points": 0,
+   "score": "34-49",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 414.0,
+   "team": "home",
+   "desc": "Personal foul by J. Terry (drawn by S. Livingston )",
+   "points": 0,
+   "score": "34-49",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 405.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "34-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 403.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "34-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 388.0,
+   "team": "away",
+   "desc": "J. Terry makes 3-pt jump shot from 26 ft (assist by J. Harden )",
+   "points": 3,
+   "score": "37-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 369.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "37-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 369.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for A. Iguodala",
+   "points": 0,
+   "score": "37-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 358.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (back court)",
+   "points": 0,
+   "score": "37-49",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 343.0,
+   "team": "away",
+   "desc": "T. Jones makes 2-pt jump shot from 3 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "39-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "home",
+   "desc": "D. Green makes 2-pt layup from 3 ft (assist by K. Thompson )",
+   "points": 2,
+   "score": "39-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 305.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt hook shot from 4 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "41-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 295.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "41-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 293.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "41-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 283.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 13 ft",
+   "points": 2,
+   "score": "43-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft (block by T. Jones )",
+   "points": 0,
+   "score": "43-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "43-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 271.0,
+   "team": "away",
+   "desc": "J. Harden misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "43-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 270.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "43-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 259.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "43-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 258.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "43-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 236.0,
+   "team": "away",
+   "desc": "T. Ariza misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "43-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 235.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "43-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass)",
+   "points": 0,
+   "score": "43-51",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "43-51",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for H. Barnes",
+   "points": 0,
+   "score": "43-51",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 211.0,
+   "team": "away",
+   "desc": "T. Jones misses 2-pt jump shot from 4 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "43-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "43-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 187.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "43-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 186.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Ariza",
+   "points": 0,
+   "score": "43-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 177.0,
+   "team": "away",
+   "desc": "Def 3 sec tech foul by A. Bogut",
+   "points": 0,
+   "score": "43-51",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 177.0,
+   "team": "away",
+   "desc": "J. Harden makes technical free throw",
+   "points": 1,
+   "score": "44-51",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 177.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for S. Livingston",
+   "points": 0,
+   "score": "44-51",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 166.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "46-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 147.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass; steal by J. Harden )",
+   "points": 0,
+   "score": "46-51",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 141.0,
+   "team": "away",
+   "desc": "T. Ariza misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "46-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 140.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "46-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 132.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 22 ft (assist by D. Green )",
+   "points": 2,
+   "score": "46-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 116.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "48-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 99.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt layup from 1 ft (assist by D. Green )",
+   "points": 2,
+   "score": "48-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 75.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 17 ft",
+   "points": 2,
+   "score": "50-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 63.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass)",
+   "points": 0,
+   "score": "50-55",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 42.0,
+   "team": "away",
+   "desc": "J. Harden makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "53-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "53-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 32.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "53-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt dunk at rim (assist by T. Jones )",
+   "points": 2,
+   "score": "55-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 1.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 27 ft (block by J. Harden )",
+   "points": 0,
+   "score": "55-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "55-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (bad pass; steal by J. Harden )",
+   "points": 0,
+   "score": "55-55",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 685.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt hook shot from 8 ft",
+   "points": 0,
+   "score": "55-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 684.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "55-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 665.0,
+   "team": "home",
+   "desc": "Personal foul by J. Smith (drawn by A. Bogut )",
+   "points": 0,
+   "score": "55-55",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 651.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt hook shot from 9 ft",
+   "points": 0,
+   "score": "55-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 650.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "55-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 628.0,
+   "team": "away",
+   "desc": "J. Harden makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "58-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 608.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "58-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 606.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "58-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 583.0,
+   "team": "away",
+   "desc": "J. Harden misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "58-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "58-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 10 ft",
+   "points": 2,
+   "score": "58-57",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 552.0,
+   "team": "away",
+   "desc": "J. Terry makes 3-pt jump shot from 27 ft (assist by J. Smith )",
+   "points": 3,
+   "score": "61-57",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 542.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt layup at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "61-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by D. Howard )",
+   "points": 0,
+   "score": "61-59",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "D. Howard misses free throw 1 of 2",
+   "points": 0,
+   "score": "61-59",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "61-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "D. Howard makes free throw 2 of 2",
+   "points": 1,
+   "score": "62-59",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 509.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "62-59",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 508.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "62-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 496.0,
+   "team": "away",
+   "desc": "J. Terry misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "62-59",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 495.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Terry",
+   "points": 0,
+   "score": "62-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 493.0,
+   "team": "away",
+   "desc": "T. Ariza makes 3-pt jump shot from 26 ft (assist by J. Terry )",
+   "points": 3,
+   "score": "65-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 490.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "65-59",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 481.0,
+   "team": "home",
+   "desc": "Personal foul by T. Ariza (drawn by K. Thompson )",
+   "points": 0,
+   "score": "65-59",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 473.0,
+   "team": "home",
+   "desc": "Shooting foul by J. Smith (drawn by D. Green )",
+   "points": 0,
+   "score": "65-59",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 473.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "65-60",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 473.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "65-61",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 448.0,
+   "team": "away",
+   "desc": "J. Harden misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "65-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 447.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "65-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "65-64",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 426.0,
+   "team": "away",
+   "desc": "J. Smith misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "65-64",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 425.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "65-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 408.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "65-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 381.0,
+   "team": "away",
+   "desc": "J. Smith makes 2-pt jump shot from 10 ft",
+   "points": 2,
+   "score": "67-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 364.0,
+   "team": "away",
+   "desc": "T. Jones enters the game for J. Smith",
+   "points": 0,
+   "score": "67-66",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 360.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt dunk at rim (assist by H. Barnes )",
+   "points": 2,
+   "score": "67-68",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 345.0,
+   "team": "away",
+   "desc": "J. Terry misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "67-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 344.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "67-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 337.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass)",
+   "points": 0,
+   "score": "67-68",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 322.0,
+   "team": "away",
+   "desc": "T. Jones misses 2-pt jump shot from 8 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "67-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 320.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "67-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 306.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "67-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 305.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Bogut",
+   "points": 0,
+   "score": "67-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 305.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt tip-in from 2 ft",
+   "points": 0,
+   "score": "67-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Bogut",
+   "points": 0,
+   "score": "67-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt tip-in from 2 ft",
+   "points": 0,
+   "score": "67-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "67-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "Loose ball foul by A. Bogut (drawn by J. Harden )",
+   "points": 0,
+   "score": "67-68",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for T. Ariza",
+   "points": 0,
+   "score": "67-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for H. Barnes",
+   "points": 0,
+   "score": "67-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "F. Ezeli enters the game for A. Bogut",
+   "points": 0,
+   "score": "67-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 291.0,
+   "team": "away",
+   "desc": "J. Terry misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "67-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 290.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "67-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 281.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft",
+   "points": 3,
+   "score": "67-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 265.0,
+   "team": "away",
+   "desc": "T. Jones makes 2-pt layup from 1 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "69-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 242.0,
+   "team": "home",
+   "desc": "F. Ezeli misses 2-pt hook shot from 8 ft",
+   "points": 0,
+   "score": "69-71",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "69-71",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 226.0,
+   "team": "away",
+   "desc": "T. Jones makes 2-pt layup from 3 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "71-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "D. Green makes 2-pt layup from 2 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "71-73",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "Shooting foul by J. Terry (drawn by D. Green )",
+   "points": 0,
+   "score": "71-73",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "C. Capela enters the game for D. Howard",
+   "points": 0,
+   "score": "71-73",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for K. Thompson",
+   "points": 0,
+   "score": "71-73",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 1",
+   "points": 1,
+   "score": "71-74",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 189.0,
+   "team": "away",
+   "desc": "T. Jones misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "71-74",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 188.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "71-74",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 177.0,
+   "team": "home",
+   "desc": "Personal foul by T. Jones (drawn by S. Curry )",
+   "points": 0,
+   "score": "71-74",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 177.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "71-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 177.0,
+   "team": "away",
+   "desc": "N. Johnson enters the game for J. Terry",
+   "points": 0,
+   "score": "71-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 177.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "71-75",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 177.0,
+   "team": "home",
+   "desc": "S. Curry misses free throw 2 of 2",
+   "points": 0,
+   "score": "71-75",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 176.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "71-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 159.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt layup from 2 ft (assist by C. Brewer )",
+   "points": 2,
+   "score": "73-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 145.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "73-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 124.0,
+   "team": "away",
+   "desc": "C. Brewer misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "73-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 123.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "73-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 102.0,
+   "team": "home",
+   "desc": "Offensive foul by S. Curry (drawn by C. Brewer )",
+   "points": 0,
+   "score": "73-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 102.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (offensive foul)",
+   "points": 0,
+   "score": "73-77",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 16 ft",
+   "points": 2,
+   "score": "75-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 63.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 62.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 42.0,
+   "team": "away",
+   "desc": "J. Harden misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 41.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Harden",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 30.0,
+   "team": "away",
+   "desc": "N. Johnson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 29.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 10.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 9.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. Capela",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "Personal foul by D. Green (drawn by J. Harden )",
+   "points": 0,
+   "score": "75-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "T. Ariza enters the game for C. Capela",
+   "points": 0,
+   "score": "75-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "J. Terry enters the game for N. Johnson",
+   "points": 0,
+   "score": "75-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "75-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for F. Ezeli",
+   "points": 0,
+   "score": "75-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 1.0,
+   "team": "away",
+   "desc": "Offensive foul by J. Harden (drawn by L. Barbosa )",
+   "points": 0,
+   "score": "75-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 1.0,
+   "team": "away",
+   "desc": "Turnover by J. Harden (offensive foul)",
+   "points": 0,
+   "score": "75-77",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 699.0,
+   "team": "away",
+   "desc": "T. Jones misses 2-pt layup from 3 ft (block by F. Ezeli )",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 697.0,
+   "team": "away",
+   "desc": "Offensive rebound by T. Ariza",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 696.0,
+   "team": "away",
+   "desc": "T. Ariza misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 696.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 696.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "75-77",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 680.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 17 ft (block by T. Jones )",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 679.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Livingston",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 678.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 11 ft",
+   "points": 2,
+   "score": "75-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 657.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt layup from 1 ft (assist by J. Terry )",
+   "points": 2,
+   "score": "77-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 643.0,
+   "team": "home",
+   "desc": "L. Barbosa misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "77-79",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 642.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Jones",
+   "points": 0,
+   "score": "77-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 637.0,
+   "team": "away",
+   "desc": "Turnover by C. Brewer (lost ball; steal by H. Barnes )",
+   "points": 0,
+   "score": "77-79",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 624.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 12 ft (assist by L. Barbosa )",
+   "points": 2,
+   "score": "77-81",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 609.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston (drawn by C. Brewer )",
+   "points": 0,
+   "score": "77-81",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 609.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for L. Barbosa",
+   "points": 0,
+   "score": "77-81",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 596.0,
+   "team": "away",
+   "desc": "D. Howard misses 2-pt hook shot from 6 ft",
+   "points": 0,
+   "score": "77-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 595.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "77-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 584.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for F. Ezeli",
+   "points": 0,
+   "score": "77-81",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 577.0,
+   "team": "home",
+   "desc": "A. Iguodala makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "77-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by D. Howard )",
+   "points": 0,
+   "score": "77-83",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "D. Howard misses free throw 1 of 2",
+   "points": 0,
+   "score": "77-83",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "77-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "J. Harden enters the game for C. Brewer",
+   "points": 0,
+   "score": "77-83",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "J. Smith enters the game for T. Jones",
+   "points": 0,
+   "score": "77-83",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "D. Howard misses free throw 2 of 2",
+   "points": 0,
+   "score": "77-83",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 564.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "77-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 545.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "77-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 544.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "77-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Turnover by A. Bogut (bad pass)",
+   "points": 0,
+   "score": "77-83",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "77-83",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 520.0,
+   "team": "away",
+   "desc": "Personal foul by K. Thompson (drawn by J. Harden )",
+   "points": 0,
+   "score": "77-83",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 510.0,
+   "team": "away",
+   "desc": "J. Smith misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "77-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 509.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Howard",
+   "points": 0,
+   "score": "77-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 509.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "79-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 491.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 16 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "79-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 468.0,
+   "team": "away",
+   "desc": "J. Smith makes 2-pt layup from 1 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "81-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 447.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "81-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 446.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Smith",
+   "points": 0,
+   "score": "81-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 442.0,
+   "team": "away",
+   "desc": "Turnover by J. Smith (bad pass; steal by H. Barnes )",
+   "points": 0,
+   "score": "81-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 432.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "81-85",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 432.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for H. Barnes",
+   "points": 0,
+   "score": "81-85",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 432.0,
+   "team": "home",
+   "desc": "D. Green enters the game for S. Livingston",
+   "points": 0,
+   "score": "81-85",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 427.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt layup from 1 ft (assist by A. Bogut )",
+   "points": 2,
+   "score": "81-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 400.0,
+   "team": "away",
+   "desc": "J. Harden misses 2-pt layup from 3 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "81-87",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 398.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "81-87",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 383.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by D. Howard )",
+   "points": 0,
+   "score": "81-87",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 378.0,
+   "team": "away",
+   "desc": "T. Ariza makes 2-pt dunk at rim (assist by J. Terry )",
+   "points": 2,
+   "score": "83-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 358.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "83-87",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 356.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "83-87",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 332.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "85-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 310.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by D. Green )",
+   "points": 2,
+   "score": "85-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "away",
+   "desc": "J. Smith misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "85-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "85-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "away",
+   "desc": "Loose ball foul by D. Howard (drawn by A. Bogut )",
+   "points": 0,
+   "score": "85-89",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "away",
+   "desc": "T. Jones enters the game for J. Terry",
+   "points": 0,
+   "score": "85-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for J. Smith",
+   "points": 0,
+   "score": "85-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 270.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt jump shot from 4 ft (block by D. Howard )",
+   "points": 0,
+   "score": "85-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 269.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "85-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 267.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "85-91",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by D. Howard )",
+   "points": 0,
+   "score": "85-91",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "D. Howard misses free throw 1 of 2",
+   "points": 0,
+   "score": "85-91",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "85-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "D. Howard makes free throw 2 of 2",
+   "points": 1,
+   "score": "86-91",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 224.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "86-91",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 223.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "86-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 204.0,
+   "team": "away",
+   "desc": "J. Harden misses 2-pt jump shot from 5 ft (block by K. Thompson )",
+   "points": 0,
+   "score": "86-91",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "86-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "Shooting foul by T. Ariza (drawn by D. Green )",
+   "points": 0,
+   "score": "86-91",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "D. Green misses free throw 1 of 2",
+   "points": 0,
+   "score": "86-91",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "86-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 203.0,
+   "team": "away",
+   "desc": "J. Terry enters the game for C. Brewer",
+   "points": 0,
+   "score": "86-91",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "86-92",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "away",
+   "desc": "Turnover by T. Ariza (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "86-92",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 172.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 23 ft",
+   "points": 2,
+   "score": "86-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 161.0,
+   "team": "away",
+   "desc": "J. Harden makes 3-pt jump shot from 26 ft",
+   "points": 3,
+   "score": "89-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 145.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Howard (drawn by A. Bogut )",
+   "points": 0,
+   "score": "89-94",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 145.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt layup from 1 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "89-96",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 145.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "89-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 145.0,
+   "team": "home",
+   "desc": "A. Bogut misses free throw 1 of 1",
+   "points": 0,
+   "score": "89-96",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 144.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "89-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by J. Harden )",
+   "points": 0,
+   "score": "89-96",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "J. Harden misses free throw 1 of 2",
+   "points": 0,
+   "score": "89-96",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "89-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for A. Bogut",
+   "points": 0,
+   "score": "89-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 2 of 2",
+   "points": 1,
+   "score": "90-96",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 130.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "90-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 122.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "90-96",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 120.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "90-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 120.0,
+   "team": "home",
+   "desc": "Personal foul by J. Harden (drawn by H. Barnes )",
+   "points": 0,
+   "score": "90-96",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 120.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for J. Terry",
+   "points": 0,
+   "score": "90-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 120.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for H. Barnes",
+   "points": 0,
+   "score": "90-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 99.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 22 ft",
+   "points": 2,
+   "score": "90-98",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 99.0,
+   "team": "away",
+   "desc": "Houston full timeout",
+   "points": 0,
+   "score": "90-98",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 99.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for A. Bogut",
+   "points": 0,
+   "score": "90-98",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 99.0,
+   "team": "away",
+   "desc": "J. Terry enters the game for C. Brewer",
+   "points": 0,
+   "score": "90-98",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 92.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by J. Harden )",
+   "points": 0,
+   "score": "90-98",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 92.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 1 of 2",
+   "points": 1,
+   "score": "91-98",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 92.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for J. Terry",
+   "points": 0,
+   "score": "91-98",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 92.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 2 of 2",
+   "points": 1,
+   "score": "92-98",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 80.0,
+   "team": "home",
+   "desc": "Personal foul by C. Brewer (drawn by D. Green )",
+   "points": 0,
+   "score": "92-98",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 80.0,
+   "team": "home",
+   "desc": "D. Green misses free throw 1 of 2",
+   "points": 0,
+   "score": "92-98",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 80.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "92-98",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 80.0,
+   "team": "away",
+   "desc": "J. Terry enters the game for C. Brewer",
+   "points": 0,
+   "score": "92-98",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 80.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "92-99",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "J. Harden makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "94-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 60.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "94-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 58.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Howard",
+   "points": 0,
+   "score": "94-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 49.0,
+   "team": "away",
+   "desc": "Personal foul by D. Green (drawn by J. Harden )",
+   "points": 0,
+   "score": "94-99",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 49.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 1 of 2",
+   "points": 1,
+   "score": "95-99",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 49.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for J. Terry",
+   "points": 0,
+   "score": "95-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 49.0,
+   "team": "away",
+   "desc": "J. Harden makes free throw 2 of 2",
+   "points": 1,
+   "score": "96-99",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 41.0,
+   "team": "away",
+   "desc": "J. Terry enters the game for C. Brewer",
+   "points": 0,
+   "score": "96-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 41.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for H. Barnes",
+   "points": 0,
+   "score": "96-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "D. Howard makes 2-pt layup from 2 ft (assist by J. Harden )",
+   "points": 2,
+   "score": "98-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "98-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "C. Brewer enters the game for J. Terry",
+   "points": 0,
+   "score": "98-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for A. Bogut",
+   "points": 0,
+   "score": "98-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 8.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "98-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Harden",
+   "points": 0,
+   "score": "98-99",
+   "kind": "rebound"
+  }
+ ]
+}

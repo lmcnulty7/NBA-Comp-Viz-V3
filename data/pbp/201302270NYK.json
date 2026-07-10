@@ -1,0 +1,3924 @@
+{
+ "meta": {
+  "away": "GSW",
+  "home": "NYK",
+  "date": "2013-02-27"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 707.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 705.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt tip-in from 2 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 705.0,
+   "team": "away",
+   "desc": "Offensive rebound by K. Thompson",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 685.0,
+   "team": "home",
+   "desc": "C. Anthony misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 683.0,
+   "team": "away",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 669.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 667.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 652.0,
+   "team": "home",
+   "desc": "T. Chandler misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 651.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 650.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Biedri\u00c5\u0086\u00c5\u00a1 (drawn by T. Chandler )",
+   "points": 0,
+   "score": "0-0",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 650.0,
+   "team": "home",
+   "desc": "T. Chandler makes free throw 1 of 2",
+   "points": 1,
+   "score": "0-1",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 650.0,
+   "team": "home",
+   "desc": "T. Chandler misses free throw 2 of 2",
+   "points": 0,
+   "score": "0-1",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 649.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Biedri\u00c5\u0086\u00c5\u00a1",
+   "points": 0,
+   "score": "0-1",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 628.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "0-1",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 626.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "0-1",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 620.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "0-1",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 618.0,
+   "team": "home",
+   "desc": "T. Chandler makes 2-pt dunk from 1 ft",
+   "points": 2,
+   "score": "0-3",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 618.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "0-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 607.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "2-3",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 584.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "2-3",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 583.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "2-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "H. Barnes makes 3-pt jump shot from 23 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "5-3",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 557.0,
+   "team": "home",
+   "desc": "J. Kidd misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "5-3",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "5-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 545.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "5-3",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 544.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "5-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 535.0,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "5-5",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 532.0,
+   "team": "home",
+   "desc": "Violation by Team (delay of game)",
+   "points": 0,
+   "score": "5-5",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 517.0,
+   "team": "away",
+   "desc": "D. Green misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 515.0,
+   "team": "away",
+   "desc": "A. Biedri\u00c5\u0086\u00c5\u00a1 misses 2-pt tip-in from 1 ft",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 515.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Biedri\u00c5\u0086\u00c5\u00a1",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 510.0,
+   "team": "home",
+   "desc": "Turnover by I. Shumpert (lost ball; steal by S. Curry )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 506.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (bad pass; steal by I. Shumpert )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 491.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by C. Anthony )",
+   "points": 0,
+   "score": "5-5",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 491.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 2",
+   "points": 1,
+   "score": "5-6",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 491.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 2 of 2",
+   "points": 1,
+   "score": "5-7",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 477.0,
+   "team": "away",
+   "desc": "H. Barnes misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "5-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 475.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "5-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 468.0,
+   "team": "home",
+   "desc": "T. Chandler makes 2-pt dunk from 1 ft (assist by R. Felton )",
+   "points": 2,
+   "score": "5-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 448.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "5-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 446.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Kidd",
+   "points": 0,
+   "score": "5-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "C. Anthony misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "5-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 439.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Biedri\u00c5\u0086\u00c5\u00a1",
+   "points": 0,
+   "score": "5-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 424.0,
+   "team": "away",
+   "desc": "Turnover by H. Barnes (lost ball; steal by R. Felton )",
+   "points": 0,
+   "score": "5-9",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 407.0,
+   "team": "home",
+   "desc": "J. Kidd misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "5-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 405.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Biedri\u00c5\u0086\u00c5\u00a1",
+   "points": 0,
+   "score": "5-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 399.0,
+   "team": "away",
+   "desc": "Personal foul by R. Felton (drawn by S. Curry )",
+   "points": 0,
+   "score": "5-9",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 399.0,
+   "team": "away",
+   "desc": "J. Jack enters the game for D. Green",
+   "points": 0,
+   "score": "5-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 399.0,
+   "team": "away",
+   "desc": "C. Landry enters the game for A. Biedri\u00c5\u0086\u00c5\u00a1",
+   "points": 0,
+   "score": "5-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 399.0,
+   "team": "home",
+   "desc": "J. Smith enters the game for J. Kidd",
+   "points": 0,
+   "score": "5-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 387.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt jump shot from 18 ft (assist by C. Landry )",
+   "points": 2,
+   "score": "7-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 371.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Curry (drawn by R. Felton )",
+   "points": 0,
+   "score": "7-9",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 371.0,
+   "team": "home",
+   "desc": "R. Felton makes free throw 1 of 2",
+   "points": 1,
+   "score": "7-10",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 371.0,
+   "team": "home",
+   "desc": "R. Felton makes free throw 2 of 2",
+   "points": 1,
+   "score": "7-11",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 360.0,
+   "team": "away",
+   "desc": "Personal foul by T. Chandler (drawn by J. Jack )",
+   "points": 0,
+   "score": "7-11",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 353.0,
+   "team": "away",
+   "desc": "Turnover by C. Landry (lost ball; steal by T. Chandler )",
+   "points": 0,
+   "score": "7-11",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 343.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "7-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 342.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "7-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 341.0,
+   "team": "home",
+   "desc": "T. Chandler misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "7-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 339.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. Landry",
+   "points": 0,
+   "score": "7-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "away",
+   "desc": "J. Jack misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "7-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 327.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "7-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 312.0,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "7-13",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 312.0,
+   "team": "home",
+   "desc": "Shooting foul by H. Barnes (drawn by C. Anthony )",
+   "points": 0,
+   "score": "7-13",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 312.0,
+   "team": "home",
+   "desc": "New York full timeout",
+   "points": 0,
+   "score": "7-13",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 312.0,
+   "team": "away",
+   "desc": "D. Green enters the game for H. Barnes",
+   "points": 0,
+   "score": "7-13",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 312.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 1",
+   "points": 1,
+   "score": "7-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 293.0,
+   "team": "away",
+   "desc": "Shooting foul by C. Anthony (drawn by C. Landry )",
+   "points": 0,
+   "score": "7-14",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 293.0,
+   "team": "away",
+   "desc": "C. Landry makes free throw 1 of 2",
+   "points": 1,
+   "score": "8-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 293.0,
+   "team": "away",
+   "desc": "C. Landry makes free throw 2 of 2",
+   "points": 1,
+   "score": "9-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "J. Smith makes 2-pt jump shot from 21 ft",
+   "points": 2,
+   "score": "9-16",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "J. Jack misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "9-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 258.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "9-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 243.0,
+   "team": "home",
+   "desc": "T. Chandler makes 2-pt dunk from 1 ft (assist by C. Anthony )",
+   "points": 2,
+   "score": "9-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 221.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 3 ft",
+   "points": 2,
+   "score": "11-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "Turnover by I. Shumpert (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "11-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 199.0,
+   "team": "away",
+   "desc": "Turnover by J. Jack (lost ball; steal by I. Shumpert )",
+   "points": 0,
+   "score": "11-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 194.0,
+   "team": "home",
+   "desc": "J. Smith misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "11-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 192.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "11-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 179.0,
+   "team": "home",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by C. Anthony )",
+   "points": 3,
+   "score": "11-21",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 154.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "11-21",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 152.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "11-21",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 143.0,
+   "team": "home",
+   "desc": "R. Felton misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "11-21",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "11-21",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 133.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (lost ball; steal by I. Shumpert )",
+   "points": 0,
+   "score": "11-21",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 129.0,
+   "team": "home",
+   "desc": "J. Smith makes 2-pt dunk from 1 ft (assist by I. Shumpert )",
+   "points": 2,
+   "score": "11-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 120.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "11-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 120.0,
+   "team": "away",
+   "desc": "F. Ezeli enters the game for D. Green",
+   "points": 0,
+   "score": "11-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 120.0,
+   "team": "away",
+   "desc": "R. Jefferson enters the game for K. Thompson",
+   "points": 0,
+   "score": "11-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 120.0,
+   "team": "home",
+   "desc": "J. Kidd enters the game for I. Shumpert",
+   "points": 0,
+   "score": "11-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 120.0,
+   "team": "home",
+   "desc": "A. Stoudemire enters the game for T. Chandler",
+   "points": 0,
+   "score": "11-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 112.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 21 ft",
+   "points": 0,
+   "score": "11-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 110.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Felton",
+   "points": 0,
+   "score": "11-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 97.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes 2-pt dunk from 2 ft (assist by J. Kidd )",
+   "points": 2,
+   "score": "11-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 77.0,
+   "team": "away",
+   "desc": "J. Jack makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "14-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 61.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "14-25",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 59.6,
+   "team": "away",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "14-25",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 49.6,
+   "team": "away",
+   "desc": "Shooting foul by A. Stoudemire (drawn by C. Landry )",
+   "points": 0,
+   "score": "14-25",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 49.6,
+   "team": "away",
+   "desc": "C. Landry makes free throw 1 of 2",
+   "points": 1,
+   "score": "15-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 49.6,
+   "team": "away",
+   "desc": "H. Barnes enters the game for F. Ezeli",
+   "points": 0,
+   "score": "15-25",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 49.6,
+   "team": "away",
+   "desc": "C. Landry makes free throw 2 of 2",
+   "points": 1,
+   "score": "16-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 33.9,
+   "team": "home",
+   "desc": "Turnover by C. Anthony (bad pass; steal by R. Jefferson )",
+   "points": 0,
+   "score": "16-25",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 25.7,
+   "team": "away",
+   "desc": "Personal foul by A. Stoudemire (drawn by C. Landry )",
+   "points": 0,
+   "score": "16-25",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 25.7,
+   "team": "away",
+   "desc": "C. Landry makes free throw 1 of 2",
+   "points": 1,
+   "score": "17-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 25.7,
+   "team": "away",
+   "desc": "C. Landry makes free throw 2 of 2",
+   "points": 1,
+   "score": "18-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 7.8,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "18-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 1.1,
+   "team": "away",
+   "desc": "J. Jack misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "18-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "18-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 711.0,
+   "team": "home",
+   "desc": "Personal foul by C. Landry (drawn by J. Smith )",
+   "points": 0,
+   "score": "18-27",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 701.0,
+   "team": "home",
+   "desc": "S. Novak misses 2-pt jump shot from 21 ft",
+   "points": 0,
+   "score": "18-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 699.0,
+   "team": "home",
+   "desc": "Offensive rebound by P. Prigioni",
+   "points": 0,
+   "score": "18-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 697.0,
+   "team": "home",
+   "desc": "J. Smith makes 3-pt jump shot from 27 ft (assist by P. Prigioni )",
+   "points": 3,
+   "score": "18-30",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 680.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 4 ft (block by J. Kidd )",
+   "points": 0,
+   "score": "18-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 678.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Stoudemire",
+   "points": 0,
+   "score": "18-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 674.0,
+   "team": "home",
+   "desc": "J. Smith misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "18-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 673.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "18-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 669.0,
+   "team": "away",
+   "desc": "Shooting foul by J. Smith (drawn by R. Jefferson )",
+   "points": 0,
+   "score": "18-30",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 669.0,
+   "team": "away",
+   "desc": "R. Jefferson makes free throw 1 of 2",
+   "points": 1,
+   "score": "19-30",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 669.0,
+   "team": "away",
+   "desc": "R. Jefferson makes free throw 2 of 2",
+   "points": 1,
+   "score": "20-30",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 657.0,
+   "team": "home",
+   "desc": "S. Novak misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "20-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 655.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "20-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 645.0,
+   "team": "away",
+   "desc": "C. Landry makes 2-pt layup from 1 ft (assist by R. Jefferson )",
+   "points": 2,
+   "score": "22-30",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 627.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Curry (drawn by A. Stoudemire )",
+   "points": 0,
+   "score": "22-30",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 627.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes free throw 1 of 2",
+   "points": 1,
+   "score": "22-31",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 627.0,
+   "team": "home",
+   "desc": "K. Martin enters the game for J. Kidd",
+   "points": 0,
+   "score": "22-31",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 627.0,
+   "team": "away",
+   "desc": "K. Thompson enters the game for H. Barnes",
+   "points": 0,
+   "score": "22-31",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 627.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes free throw 2 of 2",
+   "points": 1,
+   "score": "22-32",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 601.0,
+   "team": "away",
+   "desc": "J. Jack misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "22-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 599.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Novak",
+   "points": 0,
+   "score": "22-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 578.0,
+   "team": "home",
+   "desc": "P. Prigioni misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "22-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 576.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Jefferson",
+   "points": 0,
+   "score": "22-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 570.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "24-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "home",
+   "desc": "Offensive foul by A. Stoudemire (drawn by C. Landry )",
+   "points": 0,
+   "score": "24-32",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "home",
+   "desc": "Turnover by A. Stoudemire (offensive foul)",
+   "points": 0,
+   "score": "24-32",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "home",
+   "desc": "T. Chandler enters the game for A. Stoudemire",
+   "points": 0,
+   "score": "24-32",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "home",
+   "desc": "Technical foul by A. Stoudemire",
+   "points": 0,
+   "score": "24-32",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "S. Curry makes technical free throw",
+   "points": 1,
+   "score": "25-32",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 540.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by C. Landry )",
+   "points": 3,
+   "score": "28-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 527.0,
+   "team": "home",
+   "desc": "J. Smith misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 525.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Thompson (drawn by S. Novak )",
+   "points": 0,
+   "score": "28-32",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "28-32",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "S. Novak makes free throw 1 of 3",
+   "points": 1,
+   "score": "28-33",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "S. Novak makes free throw 2 of 3",
+   "points": 1,
+   "score": "28-34",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "S. Novak makes free throw 3 of 3",
+   "points": 1,
+   "score": "28-35",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 497.0,
+   "team": "away",
+   "desc": "Turnover by C. Landry (bad pass)",
+   "points": 0,
+   "score": "28-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 481.0,
+   "team": "home",
+   "desc": "J. Smith misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "28-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 479.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "28-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 468.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 28 ft",
+   "points": 3,
+   "score": "31-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 443.0,
+   "team": "home",
+   "desc": "J. Smith misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "31-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 441.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jack",
+   "points": 0,
+   "score": "31-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 441.0,
+   "team": "away",
+   "desc": "Personal foul by P. Prigioni (drawn by J. Jack )",
+   "points": 0,
+   "score": "31-35",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "R. Felton enters the game for P. Prigioni",
+   "points": 0,
+   "score": "31-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "C. Anthony enters the game for S. Novak",
+   "points": 0,
+   "score": "31-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 426.0,
+   "team": "away",
+   "desc": "Turnover by C. Landry (out of bounds lost ball)",
+   "points": 0,
+   "score": "31-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 426.0,
+   "team": "home",
+   "desc": "New York full timeout",
+   "points": 0,
+   "score": "31-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 405.0,
+   "team": "home",
+   "desc": "Turnover by R. Felton (bad pass; steal by K. Thompson )",
+   "points": 0,
+   "score": "31-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 401.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "34-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 387.0,
+   "team": "home",
+   "desc": "J. Smith makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "34-37",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 357.0,
+   "team": "away",
+   "desc": "R. Jefferson makes 3-pt jump shot from 24 ft (assist by J. Jack )",
+   "points": 3,
+   "score": "37-37",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 339.0,
+   "team": "home",
+   "desc": "Personal foul by K. Thompson (drawn by C. Anthony )",
+   "points": 0,
+   "score": "37-37",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 339.0,
+   "team": "home",
+   "desc": "I. Shumpert enters the game for K. Martin",
+   "points": 0,
+   "score": "37-37",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 4 ft (block by K. Thompson )",
+   "points": 0,
+   "score": "37-37",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "37-37",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 324.0,
+   "team": "home",
+   "desc": "J. Smith misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "37-37",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 322.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Jefferson",
+   "points": 0,
+   "score": "37-37",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 314.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft (assist by J. Jack )",
+   "points": 3,
+   "score": "40-37",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "Personal foul by S. Curry (drawn by R. Felton )",
+   "points": 0,
+   "score": "40-37",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "R. Felton misses free throw 1 of 2",
+   "points": 0,
+   "score": "40-37",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "40-37",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "R. Felton misses free throw 2 of 2",
+   "points": 0,
+   "score": "40-37",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 303.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Jefferson",
+   "points": 0,
+   "score": "40-37",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 291.0,
+   "team": "away",
+   "desc": "Turnover by J. Jack (lost ball; steal by I. Shumpert )",
+   "points": 0,
+   "score": "40-37",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "T. Chandler makes 2-pt hook shot from 3 ft (assist by I. Shumpert )",
+   "points": 2,
+   "score": "40-39",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Thompson (drawn by T. Chandler )",
+   "points": 0,
+   "score": "40-39",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "T. Chandler makes free throw 1 of 1",
+   "points": 1,
+   "score": "40-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 267.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "40-40",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 265.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Felton",
+   "points": 0,
+   "score": "40-40",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "home",
+   "desc": "Personal foul by R. Jefferson (drawn by C. Anthony )",
+   "points": 0,
+   "score": "40-40",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 2",
+   "points": 1,
+   "score": "40-41",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "home",
+   "desc": "J. Kidd enters the game for J. Smith",
+   "points": 0,
+   "score": "40-41",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "away",
+   "desc": "H. Barnes enters the game for K. Thompson",
+   "points": 0,
+   "score": "40-41",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 2 of 2",
+   "points": 1,
+   "score": "40-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 243.0,
+   "team": "away",
+   "desc": "Personal foul by I. Shumpert (drawn by S. Curry )",
+   "points": 0,
+   "score": "40-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "away",
+   "desc": "Shooting foul by J. Kidd (drawn by C. Landry )",
+   "points": 0,
+   "score": "40-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "away",
+   "desc": "C. Landry misses free throw 1 of 2",
+   "points": 0,
+   "score": "40-42",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "40-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "away",
+   "desc": "C. Landry makes free throw 2 of 2",
+   "points": 1,
+   "score": "41-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 231.0,
+   "team": "home",
+   "desc": "J. Kidd misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "41-42",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 230.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "41-42",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "home",
+   "desc": "Personal foul by R. Jefferson (drawn by T. Chandler )",
+   "points": 0,
+   "score": "41-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "home",
+   "desc": "T. Chandler makes free throw 1 of 2",
+   "points": 1,
+   "score": "41-43",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "A. Biedri\u00c5\u0086\u00c5\u00a1 enters the game for R. Jefferson",
+   "points": 0,
+   "score": "41-43",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "home",
+   "desc": "T. Chandler makes free throw 2 of 2",
+   "points": 1,
+   "score": "41-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "43-44",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 190.0,
+   "team": "home",
+   "desc": "C. Anthony makes 3-pt jump shot from 25 ft (assist by R. Felton )",
+   "points": 3,
+   "score": "43-47",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "away",
+   "desc": "C. Landry makes 2-pt jump shot from 17 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "45-47",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 148.0,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "45-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 135.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "45-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 133.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "45-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 128.0,
+   "team": "home",
+   "desc": "R. Felton makes 3-pt jump shot from 25 ft (assist by C. Anthony )",
+   "points": 3,
+   "score": "45-52",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 109.0,
+   "team": "away",
+   "desc": "Turnover by H. Barnes (lost ball; steal by I. Shumpert )",
+   "points": 0,
+   "score": "45-52",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "I. Shumpert makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "45-54",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 95.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "47-54",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 81.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "47-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 79.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. Landry",
+   "points": 0,
+   "score": "47-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "Shooting foul by I. Shumpert (drawn by S. Curry )",
+   "points": 0,
+   "score": "47-54",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "47-54",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "D. Green enters the game for A. Biedri\u00c5\u0086\u00c5\u00a1",
+   "points": 0,
+   "score": "47-54",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "48-54",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "49-54",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 60.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "49-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 58.9,
+   "team": "home",
+   "desc": "T. Chandler misses 2-pt tip-in from 1 ft",
+   "points": 0,
+   "score": "49-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 58.9,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "49-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 57.3,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "49-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 51.1,
+   "team": "away",
+   "desc": "Personal foul by I. Shumpert (drawn by S. Curry )",
+   "points": 0,
+   "score": "49-54",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 51.1,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-54",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 51.1,
+   "team": "home",
+   "desc": "J. White enters the game for I. Shumpert",
+   "points": 0,
+   "score": "50-54",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 51.1,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "51-54",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 41.9,
+   "team": "home",
+   "desc": "R. Felton makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "51-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.7,
+   "team": "away",
+   "desc": "J. Jack makes 2-pt jump shot from 4 ft",
+   "points": 2,
+   "score": "53-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 19.3,
+   "team": "home",
+   "desc": "Personal foul by H. Barnes (drawn by C. Anthony )",
+   "points": 0,
+   "score": "53-56",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 19.3,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 2",
+   "points": 1,
+   "score": "53-57",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 19.3,
+   "team": "away",
+   "desc": "K. Thompson enters the game for H. Barnes",
+   "points": 0,
+   "score": "53-57",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 19.3,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 2 of 2",
+   "points": 1,
+   "score": "53-58",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.8,
+   "team": "away",
+   "desc": "J. Jack makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "55-58",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by C. Anthony )",
+   "points": 0,
+   "score": "55-58",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 2",
+   "points": 1,
+   "score": "55-59",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "C. Anthony misses free throw 2 of 2",
+   "points": 0,
+   "score": "55-59",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 701.0,
+   "team": "away",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "55-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 681.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "57-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 663.0,
+   "team": "home",
+   "desc": "Shooting foul by H. Barnes (drawn by T. Chandler )",
+   "points": 0,
+   "score": "57-59",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 663.0,
+   "team": "home",
+   "desc": "T. Chandler makes free throw 1 of 2",
+   "points": 1,
+   "score": "57-60",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 663.0,
+   "team": "home",
+   "desc": "T. Chandler makes free throw 2 of 2",
+   "points": 1,
+   "score": "57-61",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 645.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green )",
+   "points": 3,
+   "score": "60-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 623.0,
+   "team": "home",
+   "desc": "J. Kidd misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "60-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 621.0,
+   "team": "home",
+   "desc": "Offensive rebound by J. Kidd",
+   "points": 0,
+   "score": "60-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 611.0,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt jump shot from 10 ft",
+   "points": 2,
+   "score": "60-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "away",
+   "desc": "F. Ezeli makes 2-pt dunk from 1 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "62-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 589.0,
+   "team": "home",
+   "desc": "New York 20 second timeout",
+   "points": 0,
+   "score": "62-63",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 574.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "62-63",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 572.0,
+   "team": "away",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "62-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 564.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "65-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 551.0,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "65-65",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 539.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "67-65",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 532.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "67-65",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 530.0,
+   "team": "home",
+   "desc": "Offensive rebound by R. Felton",
+   "points": 0,
+   "score": "67-65",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Turnover by I. Shumpert (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "67-65",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 527.0,
+   "team": "away",
+   "desc": "Personal foul by I. Shumpert (drawn by S. Curry )",
+   "points": 0,
+   "score": "67-65",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 527.0,
+   "team": "home",
+   "desc": "J. Smith enters the game for I. Shumpert",
+   "points": 0,
+   "score": "67-65",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 514.0,
+   "team": "away",
+   "desc": "H. Barnes misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "67-65",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "67-65",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 498.0,
+   "team": "home",
+   "desc": "R. Felton misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "67-65",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 496.0,
+   "team": "home",
+   "desc": "T. Chandler makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "67-67",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 496.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "67-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 481.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt jump shot from 21 ft",
+   "points": 0,
+   "score": "67-67",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 479.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "67-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 472.0,
+   "team": "home",
+   "desc": "Offensive foul by C. Anthony (drawn by D. Green )",
+   "points": 0,
+   "score": "67-67",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 472.0,
+   "team": "home",
+   "desc": "Turnover by C. Anthony (offensive foul)",
+   "points": 0,
+   "score": "67-67",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 458.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "67-67",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 456.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Smith",
+   "points": 0,
+   "score": "67-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 449.0,
+   "team": "home",
+   "desc": "C. Anthony misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "67-67",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 447.0,
+   "team": "away",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "67-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 435.0,
+   "team": "away",
+   "desc": "H. Barnes misses 2-pt layup from 2 ft (block by T. Chandler )",
+   "points": 0,
+   "score": "67-67",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 434.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "67-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 423.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "67-67",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 416.0,
+   "team": "home",
+   "desc": "R. Felton misses 2-pt layup from 3 ft (block by F. Ezeli )",
+   "points": 0,
+   "score": "67-67",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 415.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "67-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 415.0,
+   "team": "home",
+   "desc": "Loose ball foul by R. Felton (drawn by K. Thompson )",
+   "points": 0,
+   "score": "67-67",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 407.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (lost ball; steal by R. Felton )",
+   "points": 0,
+   "score": "67-67",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 404.0,
+   "team": "home",
+   "desc": "Shooting foul by F. Ezeli (drawn by C. Anthony )",
+   "points": 0,
+   "score": "67-67",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 404.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 2",
+   "points": 1,
+   "score": "67-68",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 404.0,
+   "team": "away",
+   "desc": "J. Jack enters the game for D. Green",
+   "points": 0,
+   "score": "67-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 404.0,
+   "team": "home",
+   "desc": "A. Stoudemire enters the game for J. Kidd",
+   "points": 0,
+   "score": "67-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 404.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 2 of 2",
+   "points": 1,
+   "score": "67-69",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 387.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "67-69",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 385.0,
+   "team": "away",
+   "desc": "F. Ezeli makes 2-pt dunk from 1 ft",
+   "points": 2,
+   "score": "69-69",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 385.0,
+   "team": "away",
+   "desc": "Offensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "69-69",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 365.0,
+   "team": "home",
+   "desc": "J. Smith misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "69-69",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 363.0,
+   "team": "away",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "69-69",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 355.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "71-69",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "Personal foul by H. Barnes (drawn by C. Anthony )",
+   "points": 0,
+   "score": "71-69",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "New York full timeout",
+   "points": 0,
+   "score": "71-69",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 348.0,
+   "team": "away",
+   "desc": "C. Landry enters the game for H. Barnes",
+   "points": 0,
+   "score": "71-69",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 333.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes 2-pt hook shot from 3 ft",
+   "points": 2,
+   "score": "71-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 333.0,
+   "team": "away",
+   "desc": "Violation by F. Ezeli (def goaltending)",
+   "points": 0,
+   "score": "71-71",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 315.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "71-71",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 313.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. Landry",
+   "points": 0,
+   "score": "71-71",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 311.0,
+   "team": "away",
+   "desc": "Turnover by C. Landry (lost ball; steal by R. Felton )",
+   "points": 0,
+   "score": "71-71",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by C. Anthony )",
+   "points": 3,
+   "score": "71-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 281.0,
+   "team": "away",
+   "desc": "J. Jack makes 2-pt jump shot from 16 ft",
+   "points": 2,
+   "score": "73-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 267.0,
+   "team": "home",
+   "desc": "Turnover by R. Felton (bad pass)",
+   "points": 0,
+   "score": "73-74",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 251.0,
+   "team": "away",
+   "desc": "J. Jack misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "73-74",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 249.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Smith",
+   "points": 0,
+   "score": "73-74",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 241.0,
+   "team": "home",
+   "desc": "R. Felton makes 3-pt jump shot from 25 ft (assist by J. Smith )",
+   "points": 3,
+   "score": "73-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 221.0,
+   "team": "away",
+   "desc": "J. Jack makes 3-pt jump shot from 24 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "76-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "Violation by S. Curry (kicked ball)",
+   "points": 0,
+   "score": "76-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes 2-pt dunk from 2 ft (assist by C. Anthony )",
+   "points": 2,
+   "score": "76-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 189.0,
+   "team": "away",
+   "desc": "Shooting foul by J. Smith (drawn by C. Landry )",
+   "points": 0,
+   "score": "76-79",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 189.0,
+   "team": "away",
+   "desc": "C. Landry makes free throw 1 of 2",
+   "points": 1,
+   "score": "77-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 189.0,
+   "team": "away",
+   "desc": "C. Landry makes free throw 2 of 2",
+   "points": 1,
+   "score": "78-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 174.0,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "78-81",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 154.0,
+   "team": "away",
+   "desc": "C. Landry misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "78-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 152.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "78-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "R. Felton misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "78-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 141.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "78-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 141.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "78-81",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 131.0,
+   "team": "away",
+   "desc": "Turnover by J. Jack (bad pass; steal by T. Chandler )",
+   "points": 0,
+   "score": "78-81",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 108.0,
+   "team": "home",
+   "desc": "A. Stoudemire misses 2-pt layup from 3 ft (block by F. Ezeli )",
+   "points": 0,
+   "score": "78-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 106.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "78-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 101.0,
+   "team": "away",
+   "desc": "Personal foul by C. Anthony (drawn by F. Ezeli )",
+   "points": 0,
+   "score": "78-81",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 87.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "78-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 85.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Smith",
+   "points": 0,
+   "score": "78-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 77.0,
+   "team": "home",
+   "desc": "R. Felton misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "78-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 75.0,
+   "team": "away",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "78-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 68.0,
+   "team": "away",
+   "desc": "J. Jack misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "78-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 66.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "78-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 56.6,
+   "team": "home",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by R. Felton )",
+   "points": 3,
+   "score": "78-84",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 38.9,
+   "team": "away",
+   "desc": "J. Jack misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "78-84",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 36.9,
+   "team": "home",
+   "desc": "Defensive rebound by A. Stoudemire",
+   "points": 0,
+   "score": "78-84",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 27.9,
+   "team": "home",
+   "desc": "C. Anthony misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "78-84",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 26.7,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jack",
+   "points": 0,
+   "score": "78-84",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft",
+   "points": 3,
+   "score": "81-84",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.6,
+   "team": "home",
+   "desc": "C. Anthony misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "81-84",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "81-84",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "Personal foul by J. Smith (drawn by S. Curry )",
+   "points": 0,
+   "score": "81-84",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 702.0,
+   "team": "away",
+   "desc": "J. Jack misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "81-84",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 700.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "81-84",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 678.0,
+   "team": "home",
+   "desc": "P. Prigioni makes 3-pt jump shot from 25 ft (assist by S. Novak )",
+   "points": 3,
+   "score": "81-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 653.0,
+   "team": "away",
+   "desc": "J. Jack makes 2-pt jump shot from 14 ft",
+   "points": 2,
+   "score": "83-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 635.0,
+   "team": "home",
+   "desc": "Turnover by A. Stoudemire (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "83-87",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 630.0,
+   "team": "away",
+   "desc": "C. Landry makes 2-pt layup from 1 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "85-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 610.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes 2-pt hook shot from 3 ft",
+   "points": 2,
+   "score": "85-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 600.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "88-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 577.0,
+   "team": "home",
+   "desc": "S. Novak misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "88-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jack",
+   "points": 0,
+   "score": "88-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 567.0,
+   "team": "away",
+   "desc": "Turnover by C. Landry (out of bounds lost ball)",
+   "points": 0,
+   "score": "88-89",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 559.0,
+   "team": "home",
+   "desc": "J. Smith misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "88-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 557.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "88-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 550.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "88-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 548.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "88-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 533.0,
+   "team": "home",
+   "desc": "S. Novak misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "88-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 532.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Stoudemire",
+   "points": 0,
+   "score": "88-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 531.0,
+   "team": "home",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "88-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 531.0,
+   "team": "home",
+   "desc": "C. Anthony enters the game for T. Chandler",
+   "points": 0,
+   "score": "88-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 519.0,
+   "team": "home",
+   "desc": "Offensive foul by J. Smith (drawn by R. Jefferson )",
+   "points": 0,
+   "score": "88-89",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 519.0,
+   "team": "home",
+   "desc": "Turnover by J. Smith (offensive foul)",
+   "points": 0,
+   "score": "88-89",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 505.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "90-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 492.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes 2-pt dunk at rim (assist by C. Anthony )",
+   "points": 2,
+   "score": "90-91",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 482.0,
+   "team": "away",
+   "desc": "Personal foul by P. Prigioni (drawn by S. Curry )",
+   "points": 0,
+   "score": "90-91",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 482.0,
+   "team": "home",
+   "desc": "R. Felton enters the game for P. Prigioni",
+   "points": 0,
+   "score": "90-91",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 471.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Novak (drawn by R. Jefferson )",
+   "points": 0,
+   "score": "90-91",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 471.0,
+   "team": "away",
+   "desc": "R. Jefferson misses free throw 1 of 2",
+   "points": 0,
+   "score": "90-91",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 471.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "90-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 471.0,
+   "team": "home",
+   "desc": "T. Chandler enters the game for S. Novak",
+   "points": 0,
+   "score": "90-91",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 471.0,
+   "team": "away",
+   "desc": "R. Jefferson misses free throw 2 of 2",
+   "points": 0,
+   "score": "90-91",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 470.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Stoudemire",
+   "points": 0,
+   "score": "90-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 455.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "90-91",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 454.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "90-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 453.0,
+   "team": "away",
+   "desc": "K. Thompson enters the game for R. Jefferson",
+   "points": 0,
+   "score": "90-91",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 451.0,
+   "team": "home",
+   "desc": "T. Chandler misses 2-pt layup from 3 ft (block by D. Green )",
+   "points": 0,
+   "score": "90-91",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "Offensive rebound by C. Anthony",
+   "points": 0,
+   "score": "90-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 445.0,
+   "team": "home",
+   "desc": "J. Smith makes 3-pt jump shot from 26 ft (assist by C. Anthony )",
+   "points": 3,
+   "score": "90-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 432.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 24 ft",
+   "points": 3,
+   "score": "93-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 424.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Thompson (drawn by C. Anthony )",
+   "points": 0,
+   "score": "93-94",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 424.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 1 of 2",
+   "points": 1,
+   "score": "93-95",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 424.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 2 of 2",
+   "points": 1,
+   "score": "93-96",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 412.0,
+   "team": "away",
+   "desc": "D. Green misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "93-96",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 410.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "93-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 399.0,
+   "team": "home",
+   "desc": "A. Stoudemire makes 2-pt dunk from 1 ft (assist by C. Anthony )",
+   "points": 2,
+   "score": "93-98",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 381.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt jump shot from 19 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "95-98",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 364.0,
+   "team": "home",
+   "desc": "Personal foul by C. Landry (drawn by A. Stoudemire )",
+   "points": 0,
+   "score": "95-98",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by C. Anthony )",
+   "points": 0,
+   "score": "95-98",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "New York full timeout",
+   "points": 0,
+   "score": "95-98",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "C. Anthony misses free throw 1 of 2",
+   "points": 0,
+   "score": "95-98",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "95-98",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "C. Anthony makes free throw 2 of 2",
+   "points": 1,
+   "score": "95-99",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "away",
+   "desc": "Offensive foul by D. Green (drawn by C. Anthony )",
+   "points": 0,
+   "score": "95-99",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (offensive foul)",
+   "points": 0,
+   "score": "95-99",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 346.0,
+   "team": "away",
+   "desc": "F. Ezeli enters the game for C. Landry",
+   "points": 0,
+   "score": "95-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 328.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "95-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 327.0,
+   "team": "away",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "95-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 315.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "97-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 288.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "97-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 286.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "97-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 283.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "100-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 281.0,
+   "team": "home",
+   "desc": "New York full timeout",
+   "points": 0,
+   "score": "100-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 256.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "100-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 255.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "100-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 252.0,
+   "team": "home",
+   "desc": "J. Smith makes 3-pt jump shot from 25 ft (assist by R. Felton )",
+   "points": 3,
+   "score": "100-102",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 237.0,
+   "team": "away",
+   "desc": "Personal foul by J. Smith (drawn by J. Jack )",
+   "points": 0,
+   "score": "100-102",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 237.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "100-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 237.0,
+   "team": "home",
+   "desc": "I. Shumpert enters the game for A. Stoudemire",
+   "points": 0,
+   "score": "100-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 227.0,
+   "team": "away",
+   "desc": "Golden State 20 second timeout",
+   "points": 0,
+   "score": "100-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 227.0,
+   "team": "away",
+   "desc": "C. Landry enters the game for F. Ezeli",
+   "points": 0,
+   "score": "100-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 222.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft (assist by C. Landry )",
+   "points": 3,
+   "score": "103-102",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 201.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "103-102",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 199.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "103-102",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 193.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (bad pass; steal by I. Shumpert )",
+   "points": 0,
+   "score": "103-102",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 184.0,
+   "team": "home",
+   "desc": "J. Smith misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "103-102",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 182.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Chandler",
+   "points": 0,
+   "score": "103-102",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 180.0,
+   "team": "home",
+   "desc": "C. Anthony makes 3-pt jump shot from 25 ft (assist by T. Chandler )",
+   "points": 3,
+   "score": "103-105",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 159.0,
+   "team": "away",
+   "desc": "J. Jack misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "103-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 157.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Smith",
+   "points": 0,
+   "score": "103-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 143.0,
+   "team": "home",
+   "desc": "R. Felton misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "103-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 141.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "103-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 134.0,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "103-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 133.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "103-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "Shooting foul by R. Felton (drawn by S. Curry )",
+   "points": 0,
+   "score": "103-105",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "104-105",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "F. Ezeli enters the game for C. Landry",
+   "points": 0,
+   "score": "104-105",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "105-105",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 112.0,
+   "team": "home",
+   "desc": "Personal foul by D. Green (drawn by C. Anthony )",
+   "points": 0,
+   "score": "105-105",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "R. Felton misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "105-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 101.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "105-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 88.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 20 ft (block by R. Felton )",
+   "points": 0,
+   "score": "105-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 86.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Chandler",
+   "points": 0,
+   "score": "105-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 70.0,
+   "team": "home",
+   "desc": "J. Smith makes 2-pt jump shot from 7 ft",
+   "points": 2,
+   "score": "105-107",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 70.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "105-107",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 65.0,
+   "team": "away",
+   "desc": "Turnover by J. Jack (traveling)",
+   "points": 0,
+   "score": "105-107",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 45.6,
+   "team": "home",
+   "desc": "C. Anthony makes 2-pt jump shot from 9 ft",
+   "points": 2,
+   "score": "105-109",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 43.7,
+   "team": "away",
+   "desc": "Turnover by F. Ezeli (bad pass; steal by R. Felton )",
+   "points": 0,
+   "score": "105-109",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 34.3,
+   "team": "home",
+   "desc": "Personal foul by K. Thompson (drawn by R. Felton )",
+   "points": 0,
+   "score": "105-109",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 34.3,
+   "team": "home",
+   "desc": "R. Felton misses free throw 1 of 2",
+   "points": 0,
+   "score": "105-109",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 34.3,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "105-109",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 34.3,
+   "team": "home",
+   "desc": "R. Felton misses free throw 2 of 2",
+   "points": 0,
+   "score": "105-109",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 33.9,
+   "team": "home",
+   "desc": "Offensive rebound by R. Felton",
+   "points": 0,
+   "score": "105-109",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 19.9,
+   "team": "home",
+   "desc": "C. Anthony misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "105-109",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 17.7,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "105-109",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.9,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "105-109",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 9.7,
+   "team": "away",
+   "desc": "Offensive rebound by J. Jack",
+   "points": 0,
+   "score": "105-109",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 4.9,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "105-109",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 2.9,
+   "team": "home",
+   "desc": "Defensive rebound by J. Smith",
+   "points": 0,
+   "score": "105-109",
+   "kind": "rebound"
+  }
+ ]
+}

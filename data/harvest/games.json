@@ -66,5 +66,53 @@
  "gsw_phx_2016": {
   "video_id": "f8lAcHg6kk0",
   "note": "download corrupt twice \u2014 dropped; substitute in batch 3"
+ },
+ "gsw_cle_2017f_g5": {
+  "video_id": "OPPhDYSxozU",
+  "game_code": "201706120GSW",
+  "away": "CLE",
+  "home": "GSW",
+  "date": "2017-06-12",
+  "layout": "espn17_720"
+ },
+ "gsw_sac_klay37": {
+  "video_id": "vmbFUcXqy9I",
+  "game_code": "201501230GSW",
+  "away": "SAC",
+  "home": "GSW",
+  "date": "2015-01-23",
+  "layout": "csn_ba15_720"
+ },
+ "gsw_nyk_curry54": {
+  "video_id": "6sAFbDBBAZc",
+  "game_code": "201302270NYK",
+  "away": "GSW",
+  "home": "NYK",
+  "date": "2013-02-27",
+  "layout": "espn13_720"
+ },
+ "gsw_mia_2017": {
+  "video_id": "2j7kLB-vEEk",
+  "game_code": "201701100GSW",
+  "away": "MIA",
+  "home": "GSW",
+  "date": "2017-01-10",
+  "layout": "csn_ba16_720"
+ },
+ "gsw_splash62": {
+  "video_id": "EkYGl7OeDCM",
+  "game_code": "201605110GSW",
+  "away": "POR",
+  "home": "GSW",
+  "date": "2016-05-11",
+  "layout": "tnt_playoffs16_720"
+ },
+ "gsw_hou_duel": {
+  "video_id": "2nn-umdCxXo",
+  "game_code": "201505210GSW",
+  "away": "HOU",
+  "home": "GSW",
+  "date": "2015-05-21",
+  "layout": "abc_finals16_720"
  }
 }

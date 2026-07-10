@@ -1,0 +1,4446 @@
+{
+ "meta": {
+  "away": "POR",
+  "home": "GSW",
+  "date": "2016-05-11"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 705.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Aminu (drawn by D. Green )",
+   "points": 0,
+   "score": "0-0",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 705.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "0-1",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 705.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "0-2",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 686.0,
+   "team": "away",
+   "desc": "A. Aminu makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "2-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 669.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 17 ft (assist by A. Bogut )",
+   "points": 2,
+   "score": "2-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 643.0,
+   "team": "away",
+   "desc": "A. Aminu misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "2-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 642.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Plumlee",
+   "points": 0,
+   "score": "2-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 633.0,
+   "team": "away",
+   "desc": "C. McCollum makes 3-pt jump shot from 26 ft (assist by A. Aminu )",
+   "points": 3,
+   "score": "5-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 617.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "5-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 615.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. McCollum",
+   "points": 0,
+   "score": "5-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 613.0,
+   "team": "away",
+   "desc": "Personal foul by K. Thompson",
+   "points": 0,
+   "score": "5-4",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 600.0,
+   "team": "away",
+   "desc": "Turnover by D. Lillard (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "5-4",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 592.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "5-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 591.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Plumlee",
+   "points": 0,
+   "score": "5-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 581.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "5-4",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 581.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "5-4",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 572.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by D. Green )",
+   "points": 2,
+   "score": "5-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 558.0,
+   "team": "away",
+   "desc": "M. Harkless makes 3-pt jump shot from 23 ft (assist by M. Plumlee )",
+   "points": 3,
+   "score": "8-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 536.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "8-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 518.0,
+   "team": "away",
+   "desc": "Def 3 sec tech foul by A. Bogut",
+   "points": 0,
+   "score": "8-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 518.0,
+   "team": "away",
+   "desc": "D. Lillard makes technical free throw",
+   "points": 1,
+   "score": "9-8",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 510.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "9-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 510.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "9-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 510.0,
+   "team": "away",
+   "desc": "Personal foul by K. Thompson",
+   "points": 0,
+   "score": "9-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 505.0,
+   "team": "away",
+   "desc": "C. McCollum misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "9-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 504.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Lillard",
+   "points": 0,
+   "score": "9-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 491.0,
+   "team": "away",
+   "desc": "M. Harkless makes 3-pt jump shot from 26 ft (assist by M. Plumlee )",
+   "points": 3,
+   "score": "12-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 488.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "12-8",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 488.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for K. Thompson",
+   "points": 0,
+   "score": "12-8",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 470.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "12-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 469.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Bogut",
+   "points": 0,
+   "score": "12-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 469.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "12-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Lillard",
+   "points": 0,
+   "score": "12-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 459.0,
+   "team": "away",
+   "desc": "D. Lillard makes 3-pt jump shot from 27 ft",
+   "points": 3,
+   "score": "15-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "15-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "15-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "15-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 438.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Bogut",
+   "points": 0,
+   "score": "15-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 437.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt hook shot from 4 ft",
+   "points": 0,
+   "score": "15-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 435.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Plumlee",
+   "points": 0,
+   "score": "15-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 430.0,
+   "team": "away",
+   "desc": "D. Lillard makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "17-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 430.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by D. Lillard )",
+   "points": 0,
+   "score": "17-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 430.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 1 of 1",
+   "points": 1,
+   "score": "18-8",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 417.0,
+   "team": "home",
+   "desc": "Shooting foul by C. McCollum (drawn by D. Green )",
+   "points": 0,
+   "score": "18-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 417.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "18-9",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 417.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "18-10",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "M. Harkless makes 2-pt hook shot from 7 ft",
+   "points": 2,
+   "score": "20-10",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 376.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "20-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 375.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Lillard",
+   "points": 0,
+   "score": "20-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 365.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "20-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 365.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "20-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 356.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 29 ft",
+   "points": 0,
+   "score": "20-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 356.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. McCollum",
+   "points": 0,
+   "score": "20-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 347.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by C. McCollum )",
+   "points": 0,
+   "score": "20-10",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 347.0,
+   "team": "away",
+   "desc": "C. McCollum misses free throw 1 of 2",
+   "points": 0,
+   "score": "20-10",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 347.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "20-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 347.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for H. Barnes",
+   "points": 0,
+   "score": "20-10",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 347.0,
+   "team": "away",
+   "desc": "C. McCollum misses free throw 2 of 2",
+   "points": 0,
+   "score": "20-10",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 346.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "20-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 336.0,
+   "team": "home",
+   "desc": "Personal foul by M. Plumlee",
+   "points": 0,
+   "score": "20-10",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "20-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 311.0,
+   "team": "away",
+   "desc": "M. Harkless misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "20-12",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 310.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "20-12",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 304.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "20-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 290.0,
+   "team": "away",
+   "desc": "M. Harkless misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "20-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 289.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Aminu",
+   "points": 0,
+   "score": "20-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 289.0,
+   "team": "away",
+   "desc": "A. Aminu misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "20-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 287.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "20-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 280.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 33 ft",
+   "points": 0,
+   "score": "20-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 277.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. Barbosa",
+   "points": 0,
+   "score": "20-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 274.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "20-17",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 274.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "20-17",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 274.0,
+   "team": "away",
+   "desc": "G. Henderson enters the game for A. Aminu",
+   "points": 0,
+   "score": "20-17",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 274.0,
+   "team": "away",
+   "desc": "A. Crabbe enters the game for M. Harkless",
+   "points": 0,
+   "score": "20-17",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 257.0,
+   "team": "away",
+   "desc": "G. Henderson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "20-17",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 257.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "20-17",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 248.0,
+   "team": "home",
+   "desc": "Personal foul by A. Crabbe",
+   "points": 0,
+   "score": "20-17",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 242.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "20-19",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 225.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "20-19",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 225.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "20-19",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "Shooting foul by C. McCollum (drawn by A. Iguodala )",
+   "points": 0,
+   "score": "20-19",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "A. Iguodala makes free throw 1 of 2",
+   "points": 1,
+   "score": "20-20",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "away",
+   "desc": "E. Davis enters the game for M. Plumlee",
+   "points": 0,
+   "score": "20-20",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "away",
+   "desc": "B. Roberts enters the game for C. McCollum",
+   "points": 0,
+   "score": "20-20",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "F. Ezeli enters the game for A. Bogut",
+   "points": 0,
+   "score": "20-20",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "A. Iguodala makes free throw 2 of 2",
+   "points": 1,
+   "score": "20-21",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 205.0,
+   "team": "away",
+   "desc": "D. Lillard makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "23-21",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 196.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (back court)",
+   "points": 0,
+   "score": "23-21",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 185.0,
+   "team": "away",
+   "desc": "Turnover by D. Lillard (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "23-21",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 181.0,
+   "team": "home",
+   "desc": "Personal foul by B. Roberts",
+   "points": 0,
+   "score": "23-21",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 181.0,
+   "team": "home",
+   "desc": "L. Barbosa makes free throw 1 of 2",
+   "points": 1,
+   "score": "23-22",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 181.0,
+   "team": "home",
+   "desc": "L. Barbosa makes free throw 2 of 2",
+   "points": 1,
+   "score": "23-23",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 160.0,
+   "team": "away",
+   "desc": "G. Henderson misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "23-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 160.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "23-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 155.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "23-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 154.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Crabbe",
+   "points": 0,
+   "score": "23-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 137.0,
+   "team": "away",
+   "desc": "B. Roberts misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "23-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 137.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "23-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 128.0,
+   "team": "home",
+   "desc": "Turnover by F. Ezeli (offensive goaltending)",
+   "points": 0,
+   "score": "23-23",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 118.0,
+   "team": "away",
+   "desc": "D. Lillard misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "23-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 117.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "23-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 105.0,
+   "team": "home",
+   "desc": "F. Ezeli makes 2-pt jump shot from 7 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "23-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 88.0,
+   "team": "away",
+   "desc": "Shooting foul by L. Barbosa (drawn by B. Roberts )",
+   "points": 0,
+   "score": "23-25",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 88.0,
+   "team": "away",
+   "desc": "B. Roberts makes free throw 1 of 2",
+   "points": 1,
+   "score": "24-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 88.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "24-25",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 88.0,
+   "team": "away",
+   "desc": "B. Roberts makes free throw 2 of 2",
+   "points": 1,
+   "score": "25-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 72.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "25-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 58.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston",
+   "points": 0,
+   "score": "25-27",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 58.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 1 of 2",
+   "points": 1,
+   "score": "26-27",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 58.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 2 of 2",
+   "points": 1,
+   "score": "27-27",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 45.0,
+   "team": "home",
+   "desc": "S. Livingston misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "27-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 44.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Lillard",
+   "points": 0,
+   "score": "27-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 38.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 3-pt jump shot from 26 ft (assist by D. Lillard )",
+   "points": 3,
+   "score": "30-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 29.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "30-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 29.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Davis",
+   "points": 0,
+   "score": "30-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "G. Henderson misses 2-pt jump shot from 13 ft (block by A. Iguodala )",
+   "points": 0,
+   "score": "30-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 6.0,
+   "team": "away",
+   "desc": "Offensive rebound by B. Roberts",
+   "points": 0,
+   "score": "30-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "30-27",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for F. Ezeli",
+   "points": 0,
+   "score": "30-27",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "M. Harkless enters the game for D. Lillard",
+   "points": 0,
+   "score": "30-27",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for S. Livingston",
+   "points": 0,
+   "score": "30-27",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 2.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass; steal by M. Harkless )",
+   "points": 0,
+   "score": "30-27",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "E. Davis misses 3-pt jump shot from 50 ft",
+   "points": 0,
+   "score": "30-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "30-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 702.0,
+   "team": "away",
+   "desc": "B. Roberts misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "30-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 701.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "30-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 694.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "30-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 693.0,
+   "team": "away",
+   "desc": "Defensive rebound by G. Henderson",
+   "points": 0,
+   "score": "30-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 685.0,
+   "team": "away",
+   "desc": "Personal foul by M. Speights",
+   "points": 0,
+   "score": "30-27",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 685.0,
+   "team": "away",
+   "desc": "E. Davis makes free throw 1 of 2",
+   "points": 1,
+   "score": "31-27",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 685.0,
+   "team": "away",
+   "desc": "E. Davis makes free throw 2 of 2",
+   "points": 1,
+   "score": "32-27",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 671.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 7 ft (block by E. Davis )",
+   "points": 0,
+   "score": "32-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 670.0,
+   "team": "away",
+   "desc": "Defensive rebound by G. Henderson",
+   "points": 0,
+   "score": "32-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 665.0,
+   "team": "away",
+   "desc": "A. Crabbe misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "32-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 663.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "32-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 649.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "32-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 648.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Davis",
+   "points": 0,
+   "score": "32-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 631.0,
+   "team": "away",
+   "desc": "Shooting block foul by M. Speights (drawn by G. Henderson )",
+   "points": 0,
+   "score": "32-27",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 631.0,
+   "team": "away",
+   "desc": "G. Henderson misses free throw 1 of 2",
+   "points": 0,
+   "score": "32-27",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 631.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "32-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 631.0,
+   "team": "away",
+   "desc": "M. Harkless enters the game for B. Roberts",
+   "points": 0,
+   "score": "32-27",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 631.0,
+   "team": "away",
+   "desc": "G. Henderson makes free throw 2 of 2",
+   "points": 1,
+   "score": "33-27",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 616.0,
+   "team": "home",
+   "desc": "M. Speights misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "33-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 615.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Davis",
+   "points": 0,
+   "score": "33-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 605.0,
+   "team": "away",
+   "desc": "M. Harkless makes 2-pt layup from 1 ft (assist by C. McCollum )",
+   "points": 2,
+   "score": "35-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 605.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "35-27",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 592.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 17 ft",
+   "points": 2,
+   "score": "35-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "37-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 565.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "37-31",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "39-31",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 538.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "39-31",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 536.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "39-31",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 536.0,
+   "team": "home",
+   "desc": "D. Green enters the game for M. Speights",
+   "points": 0,
+   "score": "39-31",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 516.0,
+   "team": "away",
+   "desc": "M. Harkless misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "39-31",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 515.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "39-31",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 505.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt layup from 2 ft (assist by D. Green )",
+   "points": 2,
+   "score": "39-33",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 505.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Harkless (drawn by H. Barnes )",
+   "points": 0,
+   "score": "39-33",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 505.0,
+   "team": "home",
+   "desc": "H. Barnes misses free throw 1 of 1",
+   "points": 0,
+   "score": "39-33",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 504.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Davis",
+   "points": 0,
+   "score": "39-33",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 487.0,
+   "team": "away",
+   "desc": "E. Davis misses 2-pt jump shot from 7 ft (block by D. Green )",
+   "points": 0,
+   "score": "39-33",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 487.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "39-33",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 476.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (lost ball)",
+   "points": 0,
+   "score": "39-33",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 460.0,
+   "team": "away",
+   "desc": "Shooting foul by H. Barnes (drawn by E. Davis )",
+   "points": 0,
+   "score": "39-33",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 460.0,
+   "team": "away",
+   "desc": "E. Davis makes free throw 1 of 2",
+   "points": 1,
+   "score": "40-33",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 460.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for A. Iguodala",
+   "points": 0,
+   "score": "40-33",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 460.0,
+   "team": "away",
+   "desc": "E. Davis makes free throw 2 of 2",
+   "points": 1,
+   "score": "41-33",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 450.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt dunk at rim (assist by D. Green )",
+   "points": 2,
+   "score": "41-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 436.0,
+   "team": "away",
+   "desc": "M. Harkless misses 2-pt jump shot from 3 ft",
+   "points": 0,
+   "score": "41-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 435.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "41-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 421.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 29 ft (assist by D. Green )",
+   "points": 3,
+   "score": "41-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 421.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "41-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 421.0,
+   "team": "away",
+   "desc": "D. Lillard enters the game for A. Crabbe",
+   "points": 0,
+   "score": "41-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 421.0,
+   "team": "away",
+   "desc": "A. Aminu enters the game for G. Henderson",
+   "points": 0,
+   "score": "41-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 406.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "41-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 403.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Harkless",
+   "points": 0,
+   "score": "41-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 395.0,
+   "team": "away",
+   "desc": "A. Aminu makes 3-pt jump shot from 25 ft (assist by D. Lillard )",
+   "points": 3,
+   "score": "44-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 381.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "44-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 380.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. McCollum",
+   "points": 0,
+   "score": "44-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 369.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by A. Aminu )",
+   "points": 0,
+   "score": "44-38",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 369.0,
+   "team": "away",
+   "desc": "A. Aminu makes free throw 1 of 2",
+   "points": 1,
+   "score": "45-38",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 369.0,
+   "team": "away",
+   "desc": "A. Aminu makes free throw 2 of 2",
+   "points": 1,
+   "score": "46-38",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 358.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass)",
+   "points": 0,
+   "score": "46-38",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 335.0,
+   "team": "away",
+   "desc": "A. Aminu makes 3-pt jump shot from 28 ft (assist by C. McCollum )",
+   "points": 3,
+   "score": "49-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 325.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Harkless (drawn by D. Green )",
+   "points": 0,
+   "score": "49-38",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 325.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "49-39",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 325.0,
+   "team": "home",
+   "desc": "D. Green misses free throw 2 of 2",
+   "points": 0,
+   "score": "49-39",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 323.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Harkless",
+   "points": 0,
+   "score": "49-39",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 315.0,
+   "team": "away",
+   "desc": "Turnover by E. Davis (bad pass; steal by S. Livingston )",
+   "points": 0,
+   "score": "49-39",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 309.0,
+   "team": "home",
+   "desc": "S. Livingston misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "49-39",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "49-39",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 297.0,
+   "team": "away",
+   "desc": "Turnover by D. Lillard (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "49-39",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 294.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass; steal by M. Harkless )",
+   "points": 0,
+   "score": "49-39",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 282.0,
+   "team": "away",
+   "desc": "D. Lillard misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "49-39",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 282.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "49-39",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 274.0,
+   "team": "home",
+   "desc": "Shooting foul by E. Davis (drawn by D. Green )",
+   "points": 0,
+   "score": "49-39",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 274.0,
+   "team": "home",
+   "desc": "D. Green misses free throw 1 of 2",
+   "points": 0,
+   "score": "49-39",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 274.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "49-39",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 274.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for H. Barnes",
+   "points": 0,
+   "score": "49-39",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 274.0,
+   "team": "away",
+   "desc": "M. Plumlee enters the game for E. Davis",
+   "points": 0,
+   "score": "49-39",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 274.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "49-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 260.0,
+   "team": "away",
+   "desc": "M. Harkless misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "49-40",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 260.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "49-40",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 245.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt layup from 1 ft (assist by A. Bogut )",
+   "points": 2,
+   "score": "49-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 239.0,
+   "team": "away",
+   "desc": "Personal foul by A. Bogut",
+   "points": 0,
+   "score": "49-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 239.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 239.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for S. Livingston",
+   "points": 0,
+   "score": "50-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 239.0,
+   "team": "home",
+   "desc": "F. Ezeli enters the game for A. Bogut",
+   "points": 0,
+   "score": "50-42",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 239.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 2 of 2",
+   "points": 1,
+   "score": "51-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 228.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "51-45",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 222.0,
+   "team": "away",
+   "desc": "Offensive foul by M. Harkless (drawn by K. Thompson )",
+   "points": 0,
+   "score": "51-45",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 222.0,
+   "team": "away",
+   "desc": "Turnover by M. Harkless (offensive foul)",
+   "points": 0,
+   "score": "51-45",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 222.0,
+   "team": "away",
+   "desc": "A. Crabbe enters the game for M. Harkless",
+   "points": 0,
+   "score": "51-45",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 211.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 18 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "51-47",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 211.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "51-47",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 201.0,
+   "team": "away",
+   "desc": "D. Lillard makes 2-pt jump shot from 21 ft",
+   "points": 2,
+   "score": "53-47",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 188.0,
+   "team": "home",
+   "desc": "Offensive foul by D. Green (drawn by A. Crabbe )",
+   "points": 0,
+   "score": "53-47",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 188.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (offensive foul)",
+   "points": 0,
+   "score": "53-47",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 188.0,
+   "team": "home",
+   "desc": "Technical foul by D. Green",
+   "points": 0,
+   "score": "53-47",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 188.0,
+   "team": "away",
+   "desc": "D. Lillard makes technical free throw",
+   "points": 1,
+   "score": "54-47",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 188.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for D. Green",
+   "points": 0,
+   "score": "54-47",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 175.0,
+   "team": "away",
+   "desc": "D. Lillard makes 2-pt layup from 1 ft (assist by M. Plumlee )",
+   "points": 2,
+   "score": "56-47",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 164.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "56-47",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 164.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "56-47",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "56-47",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 151.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "56-47",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 151.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "56-47",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Plumlee (drawn by H. Barnes )",
+   "points": 0,
+   "score": "56-47",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "H. Barnes makes free throw 1 of 2",
+   "points": 1,
+   "score": "56-48",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "H. Barnes makes free throw 2 of 2",
+   "points": 1,
+   "score": "56-49",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 126.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 3-pt jump shot from 26 ft (assist by D. Lillard )",
+   "points": 3,
+   "score": "59-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 114.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 4 ft",
+   "points": 2,
+   "score": "59-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 107.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "59-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 106.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "59-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "59-54",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 71.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt hook shot from 11 ft",
+   "points": 0,
+   "score": "59-54",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 71.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "59-54",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "home",
+   "desc": "Personal foul by D. Lillard",
+   "points": 0,
+   "score": "59-54",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "home",
+   "desc": "F. Ezeli makes free throw 1 of 2",
+   "points": 1,
+   "score": "59-55",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "home",
+   "desc": "F. Ezeli makes free throw 2 of 2",
+   "points": 1,
+   "score": "59-56",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 40.0,
+   "team": "away",
+   "desc": "M. Plumlee makes 2-pt layup from 2 ft (assist by C. McCollum )",
+   "points": 2,
+   "score": "61-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 34.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Aminu (drawn by F. Ezeli )",
+   "points": 0,
+   "score": "61-56",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 34.0,
+   "team": "home",
+   "desc": "F. Ezeli makes free throw 1 of 2",
+   "points": 1,
+   "score": "61-57",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 34.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for K. Thompson",
+   "points": 0,
+   "score": "61-57",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 34.0,
+   "team": "home",
+   "desc": "F. Ezeli makes free throw 2 of 2",
+   "points": 1,
+   "score": "61-58",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "Shooting foul by H. Barnes (drawn by D. Lillard )",
+   "points": 0,
+   "score": "61-58",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 1 of 2",
+   "points": 1,
+   "score": "62-58",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "B. Roberts enters the game for C. McCollum",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "E. Davis enters the game for M. Plumlee",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for L. Barbosa",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 2 of 2",
+   "points": 1,
+   "score": "63-58",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 2.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (lost ball; steal by D. Lillard )",
+   "points": 0,
+   "score": "63-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 701.0,
+   "team": "away",
+   "desc": "Turnover by D. Lillard (bad pass)",
+   "points": 0,
+   "score": "63-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 693.0,
+   "team": "home",
+   "desc": "Personal foul by C. McCollum",
+   "points": 0,
+   "score": "63-58",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 678.0,
+   "team": "home",
+   "desc": "F. Ezeli misses 2-pt layup from 2 ft (block by M. Plumlee )",
+   "points": 0,
+   "score": "63-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 677.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "63-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 676.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "63-60",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 663.0,
+   "team": "away",
+   "desc": "M. Harkless makes 3-pt jump shot from 26 ft (assist by C. McCollum )",
+   "points": 3,
+   "score": "66-60",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 651.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "66-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 651.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "66-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 639.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "66-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 638.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "66-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 638.0,
+   "team": "away",
+   "desc": "Loose ball foul by M. Plumlee",
+   "points": 0,
+   "score": "66-60",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 625.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "66-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 624.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "66-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 613.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "66-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 612.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Plumlee",
+   "points": 0,
+   "score": "66-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 609.0,
+   "team": "away",
+   "desc": "M. Plumlee misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "66-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 607.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "66-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 603.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 22 ft",
+   "points": 2,
+   "score": "66-62",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 590.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "66-62",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 589.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. McCollum",
+   "points": 0,
+   "score": "66-62",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 586.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt jump shot from 16 ft",
+   "points": 2,
+   "score": "68-62",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 574.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "68-62",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 573.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "68-62",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 569.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "68-62",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 569.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Lillard",
+   "points": 0,
+   "score": "68-62",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 560.0,
+   "team": "away",
+   "desc": "M. Plumlee misses 2-pt jump shot from 4 ft (block by F. Ezeli )",
+   "points": 0,
+   "score": "68-62",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 558.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "68-62",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 553.0,
+   "team": "away",
+   "desc": "D. Lillard misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "68-62",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 552.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "68-62",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 542.0,
+   "team": "home",
+   "desc": "Turnover by F. Ezeli (lost ball; steal by C. McCollum )",
+   "points": 0,
+   "score": "68-62",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 536.0,
+   "team": "away",
+   "desc": "M. Plumlee makes 2-pt dunk at rim (assist by D. Lillard )",
+   "points": 2,
+   "score": "70-62",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 515.0,
+   "team": "home",
+   "desc": "F. Ezeli makes 2-pt hook shot from 6 ft (assist by D. Green )",
+   "points": 2,
+   "score": "70-64",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 515.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Aminu (drawn by F. Ezeli )",
+   "points": 0,
+   "score": "70-64",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 515.0,
+   "team": "home",
+   "desc": "F. Ezeli misses free throw 1 of 1",
+   "points": 0,
+   "score": "70-64",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "70-64",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 509.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 27 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "70-67",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 490.0,
+   "team": "away",
+   "desc": "Shooting foul by H. Barnes (drawn by A. Aminu )",
+   "points": 0,
+   "score": "70-67",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 490.0,
+   "team": "away",
+   "desc": "A. Aminu misses free throw 1 of 2",
+   "points": 0,
+   "score": "70-67",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 490.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "70-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 490.0,
+   "team": "away",
+   "desc": "A. Aminu makes free throw 2 of 2",
+   "points": 1,
+   "score": "71-67",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 476.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 9 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "71-69",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 466.0,
+   "team": "away",
+   "desc": "M. Plumlee misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "71-69",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 465.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. McCollum",
+   "points": 0,
+   "score": "71-69",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 459.0,
+   "team": "away",
+   "desc": "M. Harkless misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "71-69",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 459.0,
+   "team": "away",
+   "desc": "Offensive rebound by C. McCollum",
+   "points": 0,
+   "score": "71-69",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 456.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "73-69",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by D. Green )",
+   "points": 2,
+   "score": "73-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Harkless (drawn by K. Thompson )",
+   "points": 0,
+   "score": "73-71",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 436.0,
+   "team": "away",
+   "desc": "A. Crabbe enters the game for M. Harkless",
+   "points": 0,
+   "score": "73-71",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 1 of 1",
+   "points": 1,
+   "score": "73-72",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 427.0,
+   "team": "away",
+   "desc": "Turnover by D. Lillard (back court)",
+   "points": 0,
+   "score": "73-72",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 420.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "73-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 419.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "73-75",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "73-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 401.0,
+   "team": "home",
+   "desc": "Defensive rebound by F. Ezeli",
+   "points": 0,
+   "score": "73-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 381.0,
+   "team": "home",
+   "desc": "F. Ezeli misses 2-pt dunk at rim",
+   "points": 0,
+   "score": "73-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 381.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "73-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 366.0,
+   "team": "away",
+   "desc": "A. Aminu makes 2-pt jump shot from 22 ft (assist by D. Lillard )",
+   "points": 2,
+   "score": "75-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 359.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "75-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 357.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Plumlee",
+   "points": 0,
+   "score": "75-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 345.0,
+   "team": "away",
+   "desc": "D. Lillard misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "75-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 344.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "75-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 336.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "75-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 336.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Lillard",
+   "points": 0,
+   "score": "75-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 328.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 3-pt jump shot from 25 ft (assist by D. Lillard )",
+   "points": 3,
+   "score": "78-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 318.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "78-75",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 318.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for H. Barnes",
+   "points": 0,
+   "score": "78-75",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 318.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o enters the game for F. Ezeli",
+   "points": 0,
+   "score": "78-75",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 306.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 20 ft (assist by A. Varej\u00c3\u00a3o )",
+   "points": 2,
+   "score": "78-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 286.0,
+   "team": "away",
+   "desc": "A. Aminu makes 3-pt jump shot from 23 ft (assist by C. McCollum )",
+   "points": 3,
+   "score": "81-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 273.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "81-80",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "away",
+   "desc": "Turnover by M. Plumlee (bad pass; steal by A. Iguodala )",
+   "points": 0,
+   "score": "81-80",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 247.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 33 ft",
+   "points": 0,
+   "score": "81-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 246.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "81-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 232.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 3-pt jump shot from 26 ft (assist by M. Plumlee )",
+   "points": 3,
+   "score": "84-80",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Iguodala )",
+   "points": 3,
+   "score": "84-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 197.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "84-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 197.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "84-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 192.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by A. Crabbe )",
+   "points": 0,
+   "score": "84-83",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 186.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "86-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 159.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o makes 2-pt layup from 2 ft (assist by K. Thompson )",
+   "points": 2,
+   "score": "86-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 143.0,
+   "team": "away",
+   "desc": "A. Aminu misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "86-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Plumlee",
+   "points": 0,
+   "score": "86-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "Personal foul by A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "86-85",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "86-85",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "G. Henderson enters the game for A. Aminu",
+   "points": 0,
+   "score": "86-85",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "Offensive foul by C. McCollum (drawn by A. Varej\u00c3\u00a3o )",
+   "points": 0,
+   "score": "86-85",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "Turnover by C. McCollum (offensive foul)",
+   "points": 0,
+   "score": "86-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "B. Roberts enters the game for C. McCollum",
+   "points": 0,
+   "score": "86-85",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "E. Davis enters the game for M. Plumlee",
+   "points": 0,
+   "score": "86-85",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 134.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (bad pass)",
+   "points": 0,
+   "score": "86-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 128.0,
+   "team": "away",
+   "desc": "D. Lillard makes 2-pt jump shot from 4 ft",
+   "points": 2,
+   "score": "88-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 119.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Crabbe (drawn by D. Green )",
+   "points": 0,
+   "score": "88-85",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 119.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "88-86",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 119.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "88-87",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 99.0,
+   "team": "away",
+   "desc": "B. Roberts makes 2-pt jump shot from 13 ft (assist by E. Davis )",
+   "points": 2,
+   "score": "90-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 83.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Varej\u00c3\u00a3o )",
+   "points": 3,
+   "score": "90-90",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "90-90",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 60.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "90-90",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 55.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (bad pass; steal by A. Crabbe )",
+   "points": 0,
+   "score": "90-90",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "away",
+   "desc": "Turnover by A. Crabbe (bad pass)",
+   "points": 0,
+   "score": "90-90",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for D. Green",
+   "points": 0,
+   "score": "90-90",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 32.0,
+   "team": "home",
+   "desc": "A. Iguodala misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "90-90",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 32.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Crabbe",
+   "points": 0,
+   "score": "90-90",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 16.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Livingston (drawn by B. Roberts )",
+   "points": 0,
+   "score": "90-90",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 16.0,
+   "team": "away",
+   "desc": "B. Roberts misses free throw 1 of 2",
+   "points": 0,
+   "score": "90-90",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 16.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "90-90",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 16.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "90-90",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 16.0,
+   "team": "away",
+   "desc": "A. Aminu enters the game for D. Lillard",
+   "points": 0,
+   "score": "90-90",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 16.0,
+   "team": "away",
+   "desc": "B. Roberts makes free throw 2 of 2",
+   "points": 1,
+   "score": "91-90",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft",
+   "points": 3,
+   "score": "91-93",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 2.0,
+   "team": "away",
+   "desc": "A. Crabbe misses 3-pt jump shot from 56 ft",
+   "points": 0,
+   "score": "91-93",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "91-93",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 700.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "91-95",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 670.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 3-pt jump shot from 24 ft (assist by E. Davis )",
+   "points": 3,
+   "score": "94-95",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 661.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (bad pass; steal by A. Aminu )",
+   "points": 0,
+   "score": "94-95",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 661.0,
+   "team": "away",
+   "desc": "Personal foul by M. Speights",
+   "points": 0,
+   "score": "94-95",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 645.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "96-95",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 623.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "96-95",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 622.0,
+   "team": "away",
+   "desc": "Defensive rebound by G. Henderson",
+   "points": 0,
+   "score": "96-95",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 612.0,
+   "team": "away",
+   "desc": "E. Davis misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "96-95",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 612.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "96-95",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 606.0,
+   "team": "home",
+   "desc": "Shooting foul by G. Henderson (drawn by L. Barbosa )",
+   "points": 0,
+   "score": "96-95",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 606.0,
+   "team": "home",
+   "desc": "L. Barbosa makes free throw 1 of 2",
+   "points": 1,
+   "score": "96-96",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 606.0,
+   "team": "home",
+   "desc": "L. Barbosa makes free throw 2 of 2",
+   "points": 1,
+   "score": "96-97",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 598.0,
+   "team": "away",
+   "desc": "Personal foul by L. Barbosa",
+   "points": 0,
+   "score": "96-97",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 591.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "96-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 591.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "96-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 4 ft (block by E. Davis )",
+   "points": 0,
+   "score": "96-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 581.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Davis",
+   "points": 0,
+   "score": "96-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 569.0,
+   "team": "away",
+   "desc": "A. Aminu misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "96-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 568.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "96-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 562.0,
+   "team": "home",
+   "desc": "L. Barbosa misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "96-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 561.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. McCollum",
+   "points": 0,
+   "score": "96-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 544.0,
+   "team": "away",
+   "desc": "A. Aminu misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "96-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 544.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "96-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 536.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt layup from 2 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "96-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 512.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "98-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 499.0,
+   "team": "home",
+   "desc": "M. Speights makes 3-pt jump shot from 27 ft (assist by S. Livingston )",
+   "points": 3,
+   "score": "98-102",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 499.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "98-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 499.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for L. Barbosa",
+   "points": 0,
+   "score": "98-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 499.0,
+   "team": "away",
+   "desc": "D. Lillard enters the game for G. Henderson",
+   "points": 0,
+   "score": "98-102",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 484.0,
+   "team": "away",
+   "desc": "Shooting foul by M. Speights (drawn by E. Davis )",
+   "points": 0,
+   "score": "98-102",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 484.0,
+   "team": "away",
+   "desc": "E. Davis misses free throw 1 of 2",
+   "points": 0,
+   "score": "98-102",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 484.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "98-102",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 484.0,
+   "team": "away",
+   "desc": "E. Davis makes free throw 2 of 2",
+   "points": 1,
+   "score": "99-102",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 475.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (offensive goaltending)",
+   "points": 0,
+   "score": "99-102",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 461.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "99-102",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 461.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "99-102",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 449.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "99-104",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 424.0,
+   "team": "away",
+   "desc": "C. McCollum misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "99-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 424.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "99-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 3 ft (assist by H. Barnes )",
+   "points": 2,
+   "score": "99-106",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "99-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "away",
+   "desc": "M. Plumlee enters the game for E. Davis",
+   "points": 0,
+   "score": "99-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for S. Livingston",
+   "points": 0,
+   "score": "99-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "home",
+   "desc": "D. Green enters the game for A. Iguodala",
+   "points": 0,
+   "score": "99-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "D. Lillard makes 2-pt layup from 3 ft",
+   "points": 2,
+   "score": "101-106",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 383.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by D. Lillard )",
+   "points": 0,
+   "score": "101-106",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 375.0,
+   "team": "away",
+   "desc": "D. Lillard misses 3-pt jump shot from 27 ft (block by K. Thompson )",
+   "points": 0,
+   "score": "101-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 374.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "101-106",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 371.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "101-108",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 351.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by M. Plumlee )",
+   "points": 0,
+   "score": "101-108",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 351.0,
+   "team": "away",
+   "desc": "M. Plumlee misses free throw 1 of 2",
+   "points": 0,
+   "score": "101-108",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 351.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "101-108",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 351.0,
+   "team": "home",
+   "desc": "A. Iguodala enters the game for M. Speights",
+   "points": 0,
+   "score": "101-108",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 351.0,
+   "team": "away",
+   "desc": "M. Plumlee makes free throw 2 of 2",
+   "points": 1,
+   "score": "102-108",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt jump shot from 11 ft",
+   "points": 2,
+   "score": "102-110",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "Personal foul by D. Green",
+   "points": 0,
+   "score": "102-110",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "E. Davis enters the game for M. Plumlee",
+   "points": 0,
+   "score": "102-110",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "A. Crabbe makes free throw 1 of 2",
+   "points": 1,
+   "score": "103-110",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "A. Crabbe misses free throw 2 of 2",
+   "points": 0,
+   "score": "103-110",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "103-110",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 313.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "103-110",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 312.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Aminu",
+   "points": 0,
+   "score": "103-110",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 294.0,
+   "team": "away",
+   "desc": "C. McCollum makes 3-pt jump shot from 25 ft (assist by D. Lillard )",
+   "points": 3,
+   "score": "106-110",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 278.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "106-110",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 276.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "106-110",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 276.0,
+   "team": "home",
+   "desc": "A. Iguodala misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "106-110",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Lillard",
+   "points": 0,
+   "score": "106-110",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 258.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "106-110",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 258.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "106-110",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 247.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt jump shot from 4 ft (block by E. Davis )",
+   "points": 0,
+   "score": "106-110",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 246.0,
+   "team": "away",
+   "desc": "Defensive rebound by C. McCollum",
+   "points": 0,
+   "score": "106-110",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 242.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "108-110",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 242.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Curry (drawn by C. McCollum )",
+   "points": 0,
+   "score": "108-110",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 242.0,
+   "team": "away",
+   "desc": "C. McCollum makes free throw 1 of 1",
+   "points": 1,
+   "score": "109-110",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 223.0,
+   "team": "home",
+   "desc": "A. Iguodala makes 3-pt jump shot from 23 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "109-113",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 207.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "109-113",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 207.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "109-113",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 191.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 28 ft",
+   "points": 3,
+   "score": "109-116",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 180.0,
+   "team": "away",
+   "desc": "C. McCollum misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "109-116",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 180.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Aminu",
+   "points": 0,
+   "score": "109-116",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 176.0,
+   "team": "away",
+   "desc": "C. McCollum makes 3-pt jump shot from 23 ft (assist by A. Aminu )",
+   "points": 3,
+   "score": "112-116",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 153.0,
+   "team": "home",
+   "desc": "D. Green makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "112-118",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 144.0,
+   "team": "away",
+   "desc": "C. McCollum makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "114-118",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 130.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "114-118",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 125.0,
+   "team": "home",
+   "desc": "Turnover by A. Iguodala (bad pass; steal by A. Aminu )",
+   "points": 0,
+   "score": "114-118",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "114-118",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "Offensive rebound by E. Davis",
+   "points": 0,
+   "score": "114-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by E. Davis )",
+   "points": 0,
+   "score": "114-118",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "E. Davis misses free throw 1 of 2",
+   "points": 0,
+   "score": "114-118",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "114-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "away",
+   "desc": "E. Davis makes free throw 2 of 2",
+   "points": 1,
+   "score": "115-118",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 97.0,
+   "team": "home",
+   "desc": "A. Iguodala misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "115-118",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 96.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Davis",
+   "points": 0,
+   "score": "115-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Curry (drawn by C. McCollum )",
+   "points": 0,
+   "score": "115-118",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "C. McCollum misses free throw 1 of 2",
+   "points": 0,
+   "score": "115-118",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "115-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "C. McCollum makes free throw 2 of 2",
+   "points": 1,
+   "score": "116-118",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "Personal foul by E. Davis",
+   "points": 0,
+   "score": "116-118",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "116-118",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 69.0,
+   "team": "away",
+   "desc": "M. Harkless enters the game for E. Davis",
+   "points": 0,
+   "score": "116-118",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for H. Barnes",
+   "points": 0,
+   "score": "116-118",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 58.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "116-118",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 58.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Livingston",
+   "points": 0,
+   "score": "116-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 53.0,
+   "team": "home",
+   "desc": "S. Livingston misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "116-118",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 53.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Harkless",
+   "points": 0,
+   "score": "116-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 43.0,
+   "team": "away",
+   "desc": "D. Lillard misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "116-118",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 42.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "116-118",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 25.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft",
+   "points": 3,
+   "score": "116-121",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 25.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "116-121",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 25.0,
+   "team": "away",
+   "desc": "B. Roberts enters the game for M. Harkless",
+   "points": 0,
+   "score": "116-121",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 21.0,
+   "team": "away",
+   "desc": "B. Roberts misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "116-121",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Crabbe",
+   "points": 0,
+   "score": "116-121",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "A. Crabbe makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "118-121",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 18.0,
+   "team": "home",
+   "desc": "Personal foul by C. McCollum",
+   "points": 0,
+   "score": "118-121",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 18.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "118-122",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 18.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "118-123",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by D. Lillard )",
+   "points": 0,
+   "score": "118-123",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 1 of 3",
+   "points": 1,
+   "score": "119-123",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 2 of 3",
+   "points": 1,
+   "score": "120-123",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "M. Harkless enters the game for C. McCollum",
+   "points": 0,
+   "score": "120-123",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "D. Lillard makes free throw 3 of 3",
+   "points": 1,
+   "score": "121-123",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "home",
+   "desc": "Personal foul by M. Harkless",
+   "points": 0,
+   "score": "121-123",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "121-124",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "121-125",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "Portland full timeout",
+   "points": 0,
+   "score": "121-125",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "C. McCollum enters the game for M. Harkless",
+   "points": 0,
+   "score": "121-125",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 8.0,
+   "team": "away",
+   "desc": "D. Lillard misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "121-125",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 7.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "121-125",
+   "kind": "rebound"
+  }
+ ]
+}

@@ -1,0 +1,4248 @@
+{
+ "meta": {
+  "away": "SAC",
+  "home": "GSW",
+  "date": "2015-01-23"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 706.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 705.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Williams",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 692.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt jump shot from 14 ft (assist by D. Collison )",
+   "points": 2,
+   "score": "2-0",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 679.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt layup at rim (assist by A. Bogut )",
+   "points": 2,
+   "score": "2-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 664.0,
+   "team": "away",
+   "desc": "Turnover by D. Collison (bad pass; steal by H. Barnes )",
+   "points": 0,
+   "score": "2-2",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 661.0,
+   "team": "home",
+   "desc": "Turnover by H. Barnes (lost ball)",
+   "points": 0,
+   "score": "2-2",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 640.0,
+   "team": "away",
+   "desc": "D. Collison makes 2-pt layup at rim (assist by B. McLemore )",
+   "points": 2,
+   "score": "4-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "4-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 608.0,
+   "team": "away",
+   "desc": "D. Williams makes 2-pt layup from 1 ft (assist by R. Gay )",
+   "points": 2,
+   "score": "6-4",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 597.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "6-7",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 588.0,
+   "team": "away",
+   "desc": "B. McLemore misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "6-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 586.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "6-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 572.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "6-10",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "R. Gay misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "6-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 553.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "6-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 548.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "6-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 547.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "6-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 541.0,
+   "team": "away",
+   "desc": "Turnover by D. Cousins (bad pass)",
+   "points": 0,
+   "score": "6-10",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 532.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt hook shot from 8 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "6-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 524.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "6-12",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 517.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "6-12",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 516.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "6-12",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 516.0,
+   "team": "away",
+   "desc": "Loose ball foul by D. Williams (drawn by D. Green )",
+   "points": 0,
+   "score": "6-12",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 506.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "6-15",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 488.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "6-15",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 487.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "6-15",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 477.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt hook shot from 8 ft (assist by K. Thompson )",
+   "points": 2,
+   "score": "6-17",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 465.0,
+   "team": "away",
+   "desc": "Turnover by D. Collison (bad pass; steal by K. Thompson )",
+   "points": 0,
+   "score": "6-17",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 458.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "6-17",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 457.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Williams",
+   "points": 0,
+   "score": "6-17",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 452.0,
+   "team": "away",
+   "desc": "Turnover by D. Collison (lost ball)",
+   "points": 0,
+   "score": "6-17",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 25 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "6-20",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 425.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by D. Williams )",
+   "points": 0,
+   "score": "6-20",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 425.0,
+   "team": "away",
+   "desc": "D. Williams makes free throw 1 of 2",
+   "points": 1,
+   "score": "7-20",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 425.0,
+   "team": "away",
+   "desc": "D. Williams makes free throw 2 of 2",
+   "points": 1,
+   "score": "8-20",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 409.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt layup from 1 ft (assist by D. Green )",
+   "points": 2,
+   "score": "8-22",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 398.0,
+   "team": "away",
+   "desc": "B. McLemore misses 2-pt layup from 2 ft (block by K. Thompson )",
+   "points": 0,
+   "score": "8-22",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 396.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "8-22",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 392.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "8-22",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 390.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "8-22",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 390.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt tip-in at rim",
+   "points": 2,
+   "score": "8-24",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 385.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "8-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 385.0,
+   "team": "away",
+   "desc": "N. Stauskas enters the game for D. Williams",
+   "points": 0,
+   "score": "8-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 385.0,
+   "team": "away",
+   "desc": "Q. Miller enters the game for B. McLemore",
+   "points": 0,
+   "score": "8-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 375.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt layup at rim",
+   "points": 0,
+   "score": "8-24",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 373.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "8-24",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 367.0,
+   "team": "home",
+   "desc": "Shooting foul by N. Stauskas (drawn by K. Thompson )",
+   "points": 0,
+   "score": "8-24",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 367.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "8-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 367.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "8-26",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 343.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "8-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 342.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "8-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 339.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "8-26",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt hook shot from 1 ft",
+   "points": 0,
+   "score": "8-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Gay",
+   "points": 0,
+   "score": "8-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 321.0,
+   "team": "away",
+   "desc": "R. Gay misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "8-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 320.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "8-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 309.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "8-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 308.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "8-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 285.0,
+   "team": "away",
+   "desc": "D. Collison misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "8-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 283.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Collison",
+   "points": 0,
+   "score": "8-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 271.0,
+   "team": "away",
+   "desc": "N. Stauskas makes 3-pt jump shot from 25 ft (assist by R. Gay )",
+   "points": 3,
+   "score": "11-26",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 262.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "11-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 261.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "11-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 250.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (lost ball)",
+   "points": 0,
+   "score": "11-26",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 250.0,
+   "team": "home",
+   "desc": "B. Rush enters the game for H. Barnes",
+   "points": 0,
+   "score": "11-26",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by D. Cousins )",
+   "points": 0,
+   "score": "11-26",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 1 of 2",
+   "points": 1,
+   "score": "12-26",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "D. Cousins misses free throw 2 of 2",
+   "points": 0,
+   "score": "12-26",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 240.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "12-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 226.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt layup at rim",
+   "points": 0,
+   "score": "12-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 224.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "12-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (bad pass; steal by D. Collison )",
+   "points": 0,
+   "score": "12-26",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 217.0,
+   "team": "home",
+   "desc": "J. Holiday enters the game for K. Thompson",
+   "points": 0,
+   "score": "12-26",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 212.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt jump shot from 18 ft (assist by R. Gay )",
+   "points": 2,
+   "score": "14-26",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 185.0,
+   "team": "home",
+   "desc": "J. Holiday misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "14-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 184.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Gay",
+   "points": 0,
+   "score": "14-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 178.0,
+   "team": "away",
+   "desc": "Turnover by Q. Miller (lost ball)",
+   "points": 0,
+   "score": "14-26",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 178.0,
+   "team": "away",
+   "desc": "O. Casspi enters the game for R. Gay",
+   "points": 0,
+   "score": "14-26",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 178.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "14-26",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 178.0,
+   "team": "home",
+   "desc": "M. Speights enters the game for A. Bogut",
+   "points": 0,
+   "score": "14-26",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 164.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 24 ft (assist by J. Holiday )",
+   "points": 3,
+   "score": "14-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 144.0,
+   "team": "away",
+   "desc": "N. Stauskas makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "16-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 132.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt jump shot from 17 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "16-31",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 111.0,
+   "team": "away",
+   "desc": "Turnover by O. Casspi (lost ball)",
+   "points": 0,
+   "score": "16-31",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by Q. Miller )",
+   "points": 0,
+   "score": "16-31",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 99.0,
+   "team": "away",
+   "desc": "Q. Miller misses 2-pt layup from 1 ft (block by M. Speights )",
+   "points": 0,
+   "score": "16-31",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 97.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Collison",
+   "points": 0,
+   "score": "16-31",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 97.0,
+   "team": "away",
+   "desc": "D. Collison makes 2-pt tip-in from 1 ft",
+   "points": 2,
+   "score": "18-31",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 77.0,
+   "team": "home",
+   "desc": "Turnover by B. Rush (bad pass; steal by D. Collison )",
+   "points": 0,
+   "score": "18-31",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 72.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by O. Casspi )",
+   "points": 0,
+   "score": "18-31",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 72.0,
+   "team": "away",
+   "desc": "O. Casspi makes free throw 1 of 2",
+   "points": 1,
+   "score": "19-31",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 72.0,
+   "team": "away",
+   "desc": "O. Casspi makes free throw 2 of 2",
+   "points": 1,
+   "score": "20-31",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 61.0,
+   "team": "home",
+   "desc": "Turnover by M. Speights (bad pass)",
+   "points": 0,
+   "score": "20-31",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 57.0,
+   "team": "away",
+   "desc": "D. Collison makes 2-pt layup at rim",
+   "points": 2,
+   "score": "22-31",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 51.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft",
+   "points": 3,
+   "score": "22-34",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 32.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt layup from 2 ft (block by B. Rush )",
+   "points": 0,
+   "score": "22-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Cousins",
+   "points": 0,
+   "score": "22-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "24-34",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by D. Cousins )",
+   "points": 0,
+   "score": "24-34",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "home",
+   "desc": "D. Lee enters the game for D. Green",
+   "points": 0,
+   "score": "24-34",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 1 of 1",
+   "points": 1,
+   "score": "25-34",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 10.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "25-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 8.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Collison",
+   "points": 0,
+   "score": "25-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 2.0,
+   "team": "away",
+   "desc": "Q. Miller misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "25-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 1.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Rush",
+   "points": 0,
+   "score": "25-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 708.0,
+   "team": "away",
+   "desc": "D. Collison makes 2-pt jump shot from 13 ft",
+   "points": 2,
+   "score": "27-34",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 693.0,
+   "team": "home",
+   "desc": "S. Livingston misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "27-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 692.0,
+   "team": "away",
+   "desc": "Defensive rebound by N. Stauskas",
+   "points": 0,
+   "score": "27-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 682.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt jump shot from 18 ft (assist by R. Gay )",
+   "points": 2,
+   "score": "29-34",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 659.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt layup at rim",
+   "points": 0,
+   "score": "29-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 657.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Gay",
+   "points": 0,
+   "score": "29-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 651.0,
+   "team": "away",
+   "desc": "R. Gay misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "29-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 650.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "29-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 635.0,
+   "team": "home",
+   "desc": "D. Lee misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "29-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 633.0,
+   "team": "away",
+   "desc": "Defensive rebound by O. Casspi",
+   "points": 0,
+   "score": "29-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 629.0,
+   "team": "away",
+   "desc": "O. Casspi makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "31-34",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 602.0,
+   "team": "home",
+   "desc": "J. Holiday makes 2-pt jump shot from 21 ft",
+   "points": 2,
+   "score": "31-36",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 594.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "31-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 594.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for B. Rush",
+   "points": 0,
+   "score": "31-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 594.0,
+   "team": "away",
+   "desc": "J. Thompson enters the game for D. Cousins",
+   "points": 0,
+   "score": "31-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 592.0,
+   "team": "away",
+   "desc": "Personal foul by J. Holiday (drawn by R. Gay )",
+   "points": 0,
+   "score": "31-36",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 585.0,
+   "team": "away",
+   "desc": "R. Gay misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "31-36",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Lee",
+   "points": 0,
+   "score": "31-36",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 571.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 9 ft",
+   "points": 2,
+   "score": "31-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 548.0,
+   "team": "away",
+   "desc": "N. Stauskas misses 2-pt jump shot from 13 ft (block by S. Livingston )",
+   "points": 0,
+   "score": "31-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 545.0,
+   "team": "away",
+   "desc": "Offensive rebound by O. Casspi",
+   "points": 0,
+   "score": "31-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 544.0,
+   "team": "away",
+   "desc": "O. Casspi misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "31-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 544.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "31-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 544.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "31-38",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 532.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "31-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 531.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Lee",
+   "points": 0,
+   "score": "31-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 530.0,
+   "team": "home",
+   "desc": "D. Lee misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "31-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Lee",
+   "points": 0,
+   "score": "31-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "D. Lee makes 2-pt layup at rim",
+   "points": 2,
+   "score": "31-40",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Shooting foul by R. Gay (drawn by D. Lee )",
+   "points": 0,
+   "score": "31-40",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "31-40",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "R. Sessions enters the game for D. Collison",
+   "points": 0,
+   "score": "31-40",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "D. Cousins enters the game for N. Stauskas",
+   "points": 0,
+   "score": "31-40",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "B. McLemore enters the game for O. Casspi",
+   "points": 0,
+   "score": "31-40",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "D. Lee makes free throw 1 of 1",
+   "points": 1,
+   "score": "31-41",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 511.0,
+   "team": "away",
+   "desc": "R. Gay misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "31-41",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 509.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Lee",
+   "points": 0,
+   "score": "31-41",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 498.0,
+   "team": "home",
+   "desc": "Personal foul by R. Gay (drawn by M. Speights )",
+   "points": 0,
+   "score": "31-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "Shooting foul by B. McLemore (drawn by K. Thompson )",
+   "points": 0,
+   "score": "31-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "away",
+   "desc": "Technical foul by R. Gay",
+   "points": 0,
+   "score": "31-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "K. Thompson misses technical free throw",
+   "points": 0,
+   "score": "31-41",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "31-41",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "away",
+   "desc": "Technical foul by R. Gay",
+   "points": 0,
+   "score": "31-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "away",
+   "desc": "Q. Miller enters the game for R. Gay",
+   "points": 0,
+   "score": "31-41",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "K. Thompson makes technical free throw",
+   "points": 1,
+   "score": "31-42",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "31-43",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "31-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 482.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Lee (drawn by Q. Miller )",
+   "points": 0,
+   "score": "31-44",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 482.0,
+   "team": "away",
+   "desc": "Q. Miller makes free throw 1 of 2",
+   "points": 1,
+   "score": "32-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 482.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for M. Speights",
+   "points": 0,
+   "score": "32-44",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 482.0,
+   "team": "away",
+   "desc": "Q. Miller makes free throw 2 of 2",
+   "points": 1,
+   "score": "33-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 465.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (bad pass; steal by D. Cousins )",
+   "points": 0,
+   "score": "33-44",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 460.0,
+   "team": "away",
+   "desc": "R. Sessions misses 2-pt layup from 2 ft (block by K. Thompson )",
+   "points": 0,
+   "score": "33-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 459.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Lee",
+   "points": 0,
+   "score": "33-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (bad pass)",
+   "points": 0,
+   "score": "33-44",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 441.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "33-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 439.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "33-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 438.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for J. Holiday",
+   "points": 0,
+   "score": "33-44",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "B. McLemore misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "33-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 431.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "33-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "home",
+   "desc": "D. Lee misses 2-pt jump shot from 7 ft (block by J. Thompson )",
+   "points": 0,
+   "score": "33-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "33-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 407.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 9 ft (assist by A. Bogut )",
+   "points": 2,
+   "score": "33-46",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 389.0,
+   "team": "away",
+   "desc": "Turnover by D. Cousins (bad pass; steal by D. Lee )",
+   "points": 0,
+   "score": "33-46",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 381.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "33-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 379.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "33-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 364.0,
+   "team": "away",
+   "desc": "Shooting foul by H. Barnes (drawn by Q. Miller )",
+   "points": 0,
+   "score": "33-46",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 364.0,
+   "team": "away",
+   "desc": "Q. Miller makes free throw 1 of 2",
+   "points": 1,
+   "score": "34-46",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 364.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for S. Livingston",
+   "points": 0,
+   "score": "34-46",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 364.0,
+   "team": "away",
+   "desc": "Q. Miller makes free throw 2 of 2",
+   "points": 1,
+   "score": "35-46",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 347.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt hook shot from 6 ft (assist by K. Thompson )",
+   "points": 2,
+   "score": "35-48",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 329.0,
+   "team": "away",
+   "desc": "Offensive foul by D. Cousins (drawn by A. Bogut )",
+   "points": 0,
+   "score": "35-48",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 329.0,
+   "team": "away",
+   "desc": "Turnover by D. Cousins (offensive foul)",
+   "points": 0,
+   "score": "35-48",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 329.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "35-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 312.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by D. Cousins )",
+   "points": 0,
+   "score": "35-48",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 308.0,
+   "team": "away",
+   "desc": "B. McLemore makes 2-pt dunk at rim (assist by J. Thompson )",
+   "points": 2,
+   "score": "37-48",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 294.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (lost ball; steal by B. McLemore )",
+   "points": 0,
+   "score": "37-48",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 282.0,
+   "team": "away",
+   "desc": "J. Thompson misses 2-pt layup at rim (block by A. Bogut )",
+   "points": 0,
+   "score": "37-48",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 280.0,
+   "team": "away",
+   "desc": "Offensive rebound by R. Sessions",
+   "points": 0,
+   "score": "37-48",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Lee (drawn by D. Cousins )",
+   "points": 0,
+   "score": "37-48",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 1 of 2",
+   "points": 1,
+   "score": "38-48",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "38-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "home",
+   "desc": "D. Green enters the game for D. Lee",
+   "points": 0,
+   "score": "38-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "away",
+   "desc": "D. Collison enters the game for J. Thompson",
+   "points": 0,
+   "score": "38-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "away",
+   "desc": "D. Williams enters the game for R. Sessions",
+   "points": 0,
+   "score": "38-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 277.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 2 of 2",
+   "points": 1,
+   "score": "39-48",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 264.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "39-48",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 262.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "39-48",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 253.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt layup at rim (assist by D. Collison )",
+   "points": 2,
+   "score": "41-48",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 244.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft",
+   "points": 3,
+   "score": "41-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 228.0,
+   "team": "away",
+   "desc": "D. Williams misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "41-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 227.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "41-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 221.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "41-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 218.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "41-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 215.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "41-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 214.0,
+   "team": "away",
+   "desc": "Defensive rebound by B. McLemore",
+   "points": 0,
+   "score": "41-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 199.0,
+   "team": "away",
+   "desc": "Turnover by Q. Miller (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "41-51",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 189.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "41-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 188.0,
+   "team": "away",
+   "desc": "Defensive rebound by Q. Miller",
+   "points": 0,
+   "score": "41-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 171.0,
+   "team": "away",
+   "desc": "Q. Miller makes 3-pt jump shot from 23 ft (assist by D. Cousins )",
+   "points": 3,
+   "score": "44-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "44-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 162.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "44-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 155.0,
+   "team": "away",
+   "desc": "Turnover by D. Cousins (lost ball; steal by S. Curry )",
+   "points": 0,
+   "score": "44-51",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 138.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by K. Thompson )",
+   "points": 2,
+   "score": "44-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 119.0,
+   "team": "away",
+   "desc": "Personal foul by A. Bogut (drawn by D. Cousins )",
+   "points": 0,
+   "score": "44-53",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 119.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 1 of 2",
+   "points": 1,
+   "score": "45-53",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 119.0,
+   "team": "home",
+   "desc": "M. Speights enters the game for A. Bogut",
+   "points": 0,
+   "score": "45-53",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 119.0,
+   "team": "away",
+   "desc": "O. Casspi enters the game for Q. Miller",
+   "points": 0,
+   "score": "45-53",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 119.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 2 of 2",
+   "points": 1,
+   "score": "46-53",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 109.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "46-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 90.0,
+   "team": "away",
+   "desc": "Turnover by O. Casspi (traveling)",
+   "points": 0,
+   "score": "46-55",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 76.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "46-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 75.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Curry",
+   "points": 0,
+   "score": "46-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "46-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 68.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Williams",
+   "points": 0,
+   "score": "46-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "away",
+   "desc": "Personal foul by M. Speights (drawn by D. Cousins )",
+   "points": 0,
+   "score": "46-55",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 1 of 2",
+   "points": 1,
+   "score": "47-55",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "home",
+   "desc": "D. Lee enters the game for D. Green",
+   "points": 0,
+   "score": "47-55",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "away",
+   "desc": "Q. Miller enters the game for O. Casspi",
+   "points": 0,
+   "score": "47-55",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 56.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 2 of 2",
+   "points": 1,
+   "score": "48-55",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 43.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "48-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 42.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "48-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "Personal foul by D. Cousins (drawn by H. Barnes )",
+   "points": 0,
+   "score": "48-55",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "H. Barnes misses free throw 1 of 2",
+   "points": 0,
+   "score": "48-55",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "48-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "H. Barnes makes free throw 2 of 2",
+   "points": 1,
+   "score": "48-56",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 26.0,
+   "team": "away",
+   "desc": "B. McLemore makes 3-pt jump shot from 24 ft (assist by D. Cousins )",
+   "points": 3,
+   "score": "51-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 4.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "51-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 3.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Williams",
+   "points": 0,
+   "score": "51-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 1.0,
+   "team": "away",
+   "desc": "D. Collison misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "51-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "51-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "D. Collison makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "54-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 687.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "54-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 686.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Collison",
+   "points": 0,
+   "score": "54-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 683.0,
+   "team": "away",
+   "desc": "D. Williams makes 2-pt layup from 2 ft (assist by D. Collison )",
+   "points": 2,
+   "score": "56-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 670.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "56-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 669.0,
+   "team": "away",
+   "desc": "Defensive rebound by Q. Miller",
+   "points": 0,
+   "score": "56-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 658.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt jump shot from 10 ft (assist by D. Collison )",
+   "points": 2,
+   "score": "58-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 649.0,
+   "team": "home",
+   "desc": "Personal foul by D. Cousins (drawn by S. Curry )",
+   "points": 0,
+   "score": "58-56",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 649.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "58-57",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 649.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "58-58",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 636.0,
+   "team": "away",
+   "desc": "D. Collison misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "58-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 635.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "58-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 631.0,
+   "team": "home",
+   "desc": "Personal foul by B. McLemore (drawn by K. Thompson )",
+   "points": 0,
+   "score": "58-58",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 626.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (lost ball; steal by Q. Miller )",
+   "points": 0,
+   "score": "58-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 620.0,
+   "team": "away",
+   "desc": "Turnover by Q. Miller (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "58-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 617.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass)",
+   "points": 0,
+   "score": "58-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 602.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "58-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 601.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "58-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 584.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "58-60",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 568.0,
+   "team": "away",
+   "desc": "Q. Miller misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "58-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 567.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "58-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 559.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "58-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 558.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "58-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 543.0,
+   "team": "away",
+   "desc": "Personal foul by K. Thompson (drawn by D. Cousins )",
+   "points": 0,
+   "score": "58-60",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 543.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 1 of 2",
+   "points": 1,
+   "score": "59-60",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 543.0,
+   "team": "away",
+   "desc": "D. Cousins makes free throw 2 of 2",
+   "points": 1,
+   "score": "60-60",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 522.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "60-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "Defensive rebound by Q. Miller",
+   "points": 0,
+   "score": "60-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 506.0,
+   "team": "away",
+   "desc": "Turnover by D. Williams (bad pass; steal by K. Thompson )",
+   "points": 0,
+   "score": "60-60",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 501.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "60-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 480.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "62-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 471.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "62-63",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 465.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Collison",
+   "points": 0,
+   "score": "62-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 453.0,
+   "team": "away",
+   "desc": "B. McLemore makes 2-pt layup from 1 ft (assist by D. Williams )",
+   "points": 2,
+   "score": "64-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by B. McLemore )",
+   "points": 0,
+   "score": "64-63",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 441.0,
+   "team": "away",
+   "desc": "D. Williams misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "64-63",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 439.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "64-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 434.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "64-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 432.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "64-66",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 415.0,
+   "team": "away",
+   "desc": "Q. Miller misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "64-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 413.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "64-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 403.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "64-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "64-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 390.0,
+   "team": "away",
+   "desc": "B. McLemore misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "64-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 389.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "64-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 380.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by D. Cousins )",
+   "points": 0,
+   "score": "64-66",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 374.0,
+   "team": "away",
+   "desc": "B. McLemore misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "64-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 372.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Williams",
+   "points": 0,
+   "score": "64-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 368.0,
+   "team": "away",
+   "desc": "D. Williams misses 2-pt jump shot from 5 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "64-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 367.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "64-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 364.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "64-68",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 348.0,
+   "team": "away",
+   "desc": "N. Stauskas enters the game for B. McLemore",
+   "points": 0,
+   "score": "64-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 344.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt jump shot from 19 ft (assist by D. Williams )",
+   "points": 2,
+   "score": "66-68",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 332.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "66-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 310.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "66-71",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 309.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "66-71",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 297.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 28 ft (assist by D. Green )",
+   "points": 3,
+   "score": "66-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by Q. Miller )",
+   "points": 0,
+   "score": "66-74",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "Q. Miller makes free throw 1 of 2",
+   "points": 1,
+   "score": "67-74",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "R. McCallum enters the game for D. Williams",
+   "points": 0,
+   "score": "67-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 275.0,
+   "team": "away",
+   "desc": "Q. Miller makes free throw 2 of 2",
+   "points": 1,
+   "score": "68-74",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 268.0,
+   "team": "home",
+   "desc": "Personal foul by R. McCallum (drawn by K. Thompson )",
+   "points": 0,
+   "score": "68-74",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 268.0,
+   "team": "home",
+   "desc": "J. Holiday enters the game for H. Barnes",
+   "points": 0,
+   "score": "68-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 259.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by J. Holiday )",
+   "points": 3,
+   "score": "68-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 242.0,
+   "team": "away",
+   "desc": "Q. Miller misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "68-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 241.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "68-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 236.0,
+   "team": "home",
+   "desc": "Personal foul by D. Cousins (drawn by A. Bogut )",
+   "points": 0,
+   "score": "68-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 231.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by D. Collison )",
+   "points": 0,
+   "score": "68-77",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 223.0,
+   "team": "away",
+   "desc": "D. Collison misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "68-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 222.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "68-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 207.0,
+   "team": "home",
+   "desc": "D. Green makes 2-pt layup at rim (assist by K. Thompson )",
+   "points": 2,
+   "score": "68-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 204.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "68-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 204.0,
+   "team": "away",
+   "desc": "J. Thompson enters the game for D. Cousins",
+   "points": 0,
+   "score": "68-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 192.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by D. Collison )",
+   "points": 0,
+   "score": "68-79",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 192.0,
+   "team": "away",
+   "desc": "D. Collison makes free throw 1 of 2",
+   "points": 1,
+   "score": "69-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 192.0,
+   "team": "home",
+   "desc": "D. Lee enters the game for A. Bogut",
+   "points": 0,
+   "score": "69-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 192.0,
+   "team": "away",
+   "desc": "D. Collison makes free throw 2 of 2",
+   "points": 1,
+   "score": "70-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 183.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "70-82",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 158.0,
+   "team": "away",
+   "desc": "R. McCallum misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "70-82",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 157.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "70-82",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 150.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup at rim",
+   "points": 2,
+   "score": "70-84",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 132.0,
+   "team": "away",
+   "desc": "Turnover by N. Stauskas (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "70-84",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 126.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "70-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 107.0,
+   "team": "away",
+   "desc": "D. Collison misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "70-87",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 105.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Lee",
+   "points": 0,
+   "score": "70-87",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 97.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "70-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "D. Collison misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "70-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 80.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Thompson",
+   "points": 0,
+   "score": "70-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 80.0,
+   "team": "away",
+   "desc": "J. Thompson misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "70-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 78.0,
+   "team": "away",
+   "desc": "Offensive rebound by R. McCallum",
+   "points": 0,
+   "score": "70-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 75.0,
+   "team": "away",
+   "desc": "R. McCallum misses 2-pt layup at rim (block by J. Holiday )",
+   "points": 0,
+   "score": "70-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 72.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Lee",
+   "points": 0,
+   "score": "70-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 66.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "70-92",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "70-92",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "B. McLemore enters the game for D. Collison",
+   "points": 0,
+   "score": "70-92",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "R. Sessions enters the game for N. Stauskas",
+   "points": 0,
+   "score": "70-92",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "D. Williams enters the game for Q. Miller",
+   "points": 0,
+   "score": "70-92",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "70-92",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by D. Williams )",
+   "points": 0,
+   "score": "70-92",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "away",
+   "desc": "D. Williams misses free throw 1 of 2",
+   "points": 0,
+   "score": "70-92",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "70-92",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "away",
+   "desc": "D. Williams makes free throw 2 of 2",
+   "points": 1,
+   "score": "71-92",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 35.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Livingston )",
+   "points": 3,
+   "score": "71-95",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 29.0,
+   "team": "away",
+   "desc": "Turnover by R. Sessions (lost ball; steal by K. Thompson )",
+   "points": 0,
+   "score": "71-95",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 24.0,
+   "team": "home",
+   "desc": "Turnover by D. Lee (bad pass; steal by R. McCallum )",
+   "points": 0,
+   "score": "71-95",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 13.0,
+   "team": "away",
+   "desc": "J. Thompson makes 2-pt jump shot from 15 ft (assist by R. Sessions )",
+   "points": 2,
+   "score": "73-95",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "Personal foul by B. McLemore (drawn by K. Thompson )",
+   "points": 0,
+   "score": "73-95",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "73-96",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "73-97",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 705.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 21 ft",
+   "points": 0,
+   "score": "73-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 702.0,
+   "team": "home",
+   "desc": "Offensive rebound by J. Holiday",
+   "points": 0,
+   "score": "73-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 702.0,
+   "team": "home",
+   "desc": "J. Holiday misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "73-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 700.0,
+   "team": "home",
+   "desc": "Offensive rebound by J. Holiday",
+   "points": 0,
+   "score": "73-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 700.0,
+   "team": "home",
+   "desc": "J. Holiday misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "73-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 699.0,
+   "team": "home",
+   "desc": "Offensive rebound by M. Speights",
+   "points": 0,
+   "score": "73-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 698.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "73-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 680.0,
+   "team": "away",
+   "desc": "Turnover by D. Cousins (lost ball; steal by K. Thompson )",
+   "points": 0,
+   "score": "73-99",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 672.0,
+   "team": "home",
+   "desc": "J. Holiday misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "73-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 671.0,
+   "team": "away",
+   "desc": "Defensive rebound by Q. Miller",
+   "points": 0,
+   "score": "73-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 664.0,
+   "team": "away",
+   "desc": "D. Collison misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "73-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 663.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "73-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 654.0,
+   "team": "home",
+   "desc": "Personal foul by Q. Miller (drawn by K. Thompson )",
+   "points": 0,
+   "score": "73-99",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 654.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "73-100",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 654.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "73-101",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 641.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "73-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 639.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Holiday",
+   "points": 0,
+   "score": "73-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 629.0,
+   "team": "home",
+   "desc": "J. Holiday makes 3-pt jump shot from 22 ft (assist by K. Thompson )",
+   "points": 3,
+   "score": "73-104",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 601.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "73-104",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 592.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "73-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 592.0,
+   "team": "home",
+   "desc": "Offensive rebound by M. Speights",
+   "points": 0,
+   "score": "73-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 592.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt tip-in at rim",
+   "points": 0,
+   "score": "73-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 590.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "73-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 583.0,
+   "team": "away",
+   "desc": "D. Cousins misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "73-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 581.0,
+   "team": "home",
+   "desc": "Defensive rebound by J. Holiday",
+   "points": 0,
+   "score": "73-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 573.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "73-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 572.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Cousins",
+   "points": 0,
+   "score": "73-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 568.0,
+   "team": "away",
+   "desc": "Shooting block foul by M. Speights (drawn by D. Williams )",
+   "points": 0,
+   "score": "73-104",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 568.0,
+   "team": "away",
+   "desc": "D. Williams makes free throw 1 of 2",
+   "points": 1,
+   "score": "74-104",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 568.0,
+   "team": "home",
+   "desc": "B. Rush enters the game for K. Thompson",
+   "points": 0,
+   "score": "74-104",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 568.0,
+   "team": "away",
+   "desc": "D. Williams makes free throw 2 of 2",
+   "points": 1,
+   "score": "75-104",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 561.0,
+   "team": "home",
+   "desc": "D. Lee misses 2-pt jump shot from 4 ft (block by Q. Miller )",
+   "points": 0,
+   "score": "75-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 561.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "75-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "J. Holiday misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "75-104",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 556.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Collison",
+   "points": 0,
+   "score": "75-104",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 548.0,
+   "team": "away",
+   "desc": "D. Collison makes 2-pt jump shot from 17 ft",
+   "points": 2,
+   "score": "77-104",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 535.0,
+   "team": "home",
+   "desc": "D. Lee makes 2-pt layup at rim (assist by S. Livingston )",
+   "points": 2,
+   "score": "77-106",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 520.0,
+   "team": "away",
+   "desc": "B. McLemore misses 2-pt jump shot from 3 ft",
+   "points": 0,
+   "score": "77-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 518.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Cousins",
+   "points": 0,
+   "score": "77-106",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 518.0,
+   "team": "away",
+   "desc": "D. Cousins makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "79-106",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 504.0,
+   "team": "home",
+   "desc": "B. Rush misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "79-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "79-106",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "home",
+   "desc": "Loose ball foul by M. Speights (drawn by Q. Miller )",
+   "points": 0,
+   "score": "79-106",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "79-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "R. McCallum enters the game for D. Williams",
+   "points": 0,
+   "score": "79-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "R. Sessions enters the game for D. Cousins",
+   "points": 0,
+   "score": "79-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "N. Stauskas enters the game for B. McLemore",
+   "points": 0,
+   "score": "79-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "R. Hollins enters the game for D. Collison",
+   "points": 0,
+   "score": "79-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 503.0,
+   "team": "away",
+   "desc": "J. Thompson enters the game for Q. Miller",
+   "points": 0,
+   "score": "79-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 492.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston (drawn by R. Hollins )",
+   "points": 0,
+   "score": "79-106",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 483.0,
+   "team": "away",
+   "desc": "Turnover by R. Hollins (bad pass; steal by D. Lee )",
+   "points": 0,
+   "score": "79-106",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 467.0,
+   "team": "home",
+   "desc": "D. Lee misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "79-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 466.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. Sessions",
+   "points": 0,
+   "score": "79-106",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 451.0,
+   "team": "away",
+   "desc": "R. Sessions misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "79-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 449.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "79-106",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt jump shot from 17 ft",
+   "points": 2,
+   "score": "79-108",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "Shooting foul by J. Thompson (drawn by M. Speights )",
+   "points": 0,
+   "score": "79-108",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "M. Speights makes free throw 1 of 1",
+   "points": 1,
+   "score": "79-109",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 424.0,
+   "team": "away",
+   "desc": "Personal foul by D. Lee (drawn by R. Hollins )",
+   "points": 0,
+   "score": "79-109",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "away",
+   "desc": "N. Stauskas makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "81-109",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 393.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt jump shot from 17 ft (assist by S. Livingston )",
+   "points": 2,
+   "score": "81-111",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 382.0,
+   "team": "away",
+   "desc": "Turnover by R. Sessions (bad pass; steal by S. Livingston )",
+   "points": 0,
+   "score": "81-111",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 375.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt jump shot from 18 ft (assist by S. Livingston )",
+   "points": 2,
+   "score": "81-113",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 356.0,
+   "team": "away",
+   "desc": "R. Sessions misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "81-113",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Lee",
+   "points": 0,
+   "score": "81-113",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "B. Rush misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "81-113",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 347.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Lee",
+   "points": 0,
+   "score": "81-113",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "home",
+   "desc": "Shooting foul by R. Sessions (drawn by S. Livingston )",
+   "points": 0,
+   "score": "81-113",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "81-113",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "home",
+   "desc": "J. McAdoo enters the game for D. Lee",
+   "points": 0,
+   "score": "81-113",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "away",
+   "desc": "Q. Miller enters the game for J. Thompson",
+   "points": 0,
+   "score": "81-113",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "home",
+   "desc": "S. Livingston makes free throw 1 of 2",
+   "points": 1,
+   "score": "81-114",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 335.0,
+   "team": "home",
+   "desc": "S. Livingston makes free throw 2 of 2",
+   "points": 1,
+   "score": "81-115",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 321.0,
+   "team": "away",
+   "desc": "R. McCallum makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "83-115",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 306.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt dunk at rim (assist by M. Speights )",
+   "points": 2,
+   "score": "83-117",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 295.0,
+   "team": "away",
+   "desc": "R. McCallum misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "83-117",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 293.0,
+   "team": "away",
+   "desc": "Offensive rebound by Q. Miller",
+   "points": 0,
+   "score": "83-117",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 293.0,
+   "team": "away",
+   "desc": "Q. Miller makes 2-pt tip-in at rim",
+   "points": 2,
+   "score": "85-117",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 284.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt jump shot from 19 ft (assist by S. Livingston )",
+   "points": 2,
+   "score": "85-119",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 268.0,
+   "team": "away",
+   "desc": "Q. Miller makes 2-pt jump shot from 7 ft (assist by R. Sessions )",
+   "points": 2,
+   "score": "87-119",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 268.0,
+   "team": "away",
+   "desc": "Shooting foul by J. McAdoo (drawn by Q. Miller )",
+   "points": 0,
+   "score": "87-119",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 268.0,
+   "team": "away",
+   "desc": "Q. Miller misses free throw 1 of 1",
+   "points": 0,
+   "score": "87-119",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 267.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "87-119",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 257.0,
+   "team": "home",
+   "desc": "Shooting foul by R. Hollins (drawn by M. Speights )",
+   "points": 0,
+   "score": "87-119",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 257.0,
+   "team": "home",
+   "desc": "M. Speights makes free throw 1 of 2",
+   "points": 1,
+   "score": "87-120",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 257.0,
+   "team": "home",
+   "desc": "M. Speights makes free throw 2 of 2",
+   "points": 1,
+   "score": "87-121",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "R. Hollins makes 2-pt jump shot from 11 ft (assist by N. Stauskas )",
+   "points": 2,
+   "score": "89-121",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 219.0,
+   "team": "home",
+   "desc": "S. Livingston misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "89-121",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 218.0,
+   "team": "away",
+   "desc": "Defensive rebound by N. Stauskas",
+   "points": 0,
+   "score": "89-121",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 213.0,
+   "team": "away",
+   "desc": "R. Hollins makes 2-pt dunk at rim (assist by N. Stauskas )",
+   "points": 2,
+   "score": "91-121",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 189.0,
+   "team": "home",
+   "desc": "J. McAdoo misses 2-pt jump shot from 3 ft (block by Q. Miller )",
+   "points": 0,
+   "score": "91-121",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 188.0,
+   "team": "home",
+   "desc": "Offensive rebound by B. Rush",
+   "points": 0,
+   "score": "91-121",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 185.0,
+   "team": "home",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "91-121",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 174.0,
+   "team": "away",
+   "desc": "N. Stauskas makes 2-pt jump shot from 21 ft (assist by R. Sessions )",
+   "points": 2,
+   "score": "93-121",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 164.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt jump shot from 19 ft (assist by S. Livingston )",
+   "points": 2,
+   "score": "93-123",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston (drawn by R. McCallum )",
+   "points": 0,
+   "score": "93-123",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "Sacramento full timeout",
+   "points": 0,
+   "score": "93-123",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "R. McCallum misses free throw 1 of 2",
+   "points": 0,
+   "score": "93-123",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "93-123",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "R. McCallum makes free throw 2 of 2",
+   "points": 1,
+   "score": "94-123",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 141.0,
+   "team": "home",
+   "desc": "B. Rush misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "94-123",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "94-123",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "R. McCallum misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "94-123",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 123.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Rush",
+   "points": 0,
+   "score": "94-123",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 113.0,
+   "team": "home",
+   "desc": "Shooting foul by Q. Miller (drawn by J. McAdoo )",
+   "points": 0,
+   "score": "94-123",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 113.0,
+   "team": "home",
+   "desc": "J. McAdoo makes free throw 1 of 2",
+   "points": 1,
+   "score": "94-124",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 113.0,
+   "team": "home",
+   "desc": "J. McAdoo misses free throw 2 of 2",
+   "points": 0,
+   "score": "94-124",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 113.0,
+   "team": "away",
+   "desc": "Defensive rebound by Q. Miller",
+   "points": 0,
+   "score": "94-124",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 96.0,
+   "team": "away",
+   "desc": "R. McCallum makes 2-pt layup at rim",
+   "points": 2,
+   "score": "96-124",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 80.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "96-124",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 78.0,
+   "team": "away",
+   "desc": "Defensive rebound by R. McCallum",
+   "points": 0,
+   "score": "96-124",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 68.0,
+   "team": "away",
+   "desc": "R. Hollins misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "96-124",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 66.0,
+   "team": "away",
+   "desc": "Offensive rebound by R. McCallum",
+   "points": 0,
+   "score": "96-124",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 66.0,
+   "team": "away",
+   "desc": "R. McCallum makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "98-124",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 59.0,
+   "team": "home",
+   "desc": "J. McAdoo makes 2-pt dunk at rim (assist by S. Livingston )",
+   "points": 2,
+   "score": "98-126",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 52.0,
+   "team": "away",
+   "desc": "Shooting foul by M. Speights (drawn by R. Hollins )",
+   "points": 0,
+   "score": "98-126",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 52.0,
+   "team": "away",
+   "desc": "R. Hollins makes free throw 1 of 2",
+   "points": 1,
+   "score": "99-126",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 52.0,
+   "team": "away",
+   "desc": "R. Hollins misses free throw 2 of 2",
+   "points": 0,
+   "score": "99-126",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 51.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "99-126",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 44.0,
+   "team": "home",
+   "desc": "J. Holiday misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "99-126",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 42.0,
+   "team": "away",
+   "desc": "Defensive rebound by N. Stauskas",
+   "points": 0,
+   "score": "99-126",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 34.0,
+   "team": "away",
+   "desc": "Turnover by N. Stauskas (lost ball; steal by J. McAdoo )",
+   "points": 0,
+   "score": "99-126",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 16.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (bad pass; steal by N. Stauskas )",
+   "points": 0,
+   "score": "99-126",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "away",
+   "desc": "Personal foul by M. Speights (drawn by N. Stauskas )",
+   "points": 0,
+   "score": "99-126",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "away",
+   "desc": "N. Stauskas makes free throw 1 of 2",
+   "points": 1,
+   "score": "100-126",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "away",
+   "desc": "N. Stauskas makes free throw 2 of 2",
+   "points": 1,
+   "score": "101-126",
+   "kind": "ft_made"
+  }
+ ]
+}

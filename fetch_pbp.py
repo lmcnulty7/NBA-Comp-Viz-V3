@@ -45,6 +45,12 @@ GAMES = {
     "201612050GSW": {"away": "IND", "home": "GSW", "date": "2016-12-05"},
     "201601250GSW": {"away": "SAS", "home": "GSW", "date": "2016-01-25"},
     "201604010GSW": {"away": "BOS", "home": "GSW", "date": "2016-04-01"},
+    "201706120GSW": {"away": "CLE", "home": "GSW", "date": "2017-06-12"},
+    "201501230GSW": {"away": "SAC", "home": "GSW", "date": "2015-01-23"},
+    "201302270NYK": {"away": "GSW", "home": "NYK", "date": "2013-02-27"},
+    "201701100GSW": {"away": "MIA", "home": "GSW", "date": "2017-01-10"},
+    "201605110GSW": {"away": "POR", "home": "GSW", "date": "2016-05-11"},
+    "201505210GSW": {"away": "HOU", "home": "GSW", "date": "2015-05-21"},
     "201612250CLE": {"away": "GSW", "home": "CLE", "date": "2016-12-25",
                      # 2016 Christmas special uniforms: home CLE is DARK —
                      # the pre-2017 light=home rule inverts for this game
