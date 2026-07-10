@@ -97,7 +97,7 @@ class ClockReader:
     def read(self, frame_bgr: np.ndarray):
         """→ (period 1–5 | None, clock_seconds int | None, raw string)."""
         ptxt = self._ocr(frame_bgr, self.period_box, "1234stndrhSTNDRHoO")
-        ctxt = self._ocr(frame_bgr, self.clock_box, "0123456789:")
+        ctxt = self._ocr(frame_bgr, self.clock_box, "0123456789:.")
         raw = f"{ptxt}|{ctxt}"
         period = None
         if "ot" in ptxt.lower() or ptxt.lower().startswith("o"):
@@ -106,11 +106,23 @@ class ClockReader:
             m = PERIOD_RE.search(ptxt)
             if m:
                 period = int(m.group(1))
-        # clock: colon-optional — digit groups, last two = seconds ("1101" → 11:01)
+        # clock formats (hand-verification 2026-07-09 caught two traps: the old
+        # parser turned sub-minute "43.3" into 4:33, inventing fake splices; and
+        # easyocr reads colons as dots, so the SEPARATOR GLYPH is unreliable —
+        # the digit count after it is the discriminator):
+        #   two digits after separator → M:SS  ("9:13", "11.46" ≡ 11:46)
+        #   one digit after a dot      → SS.T  ("43.3" = 43.3 s, tenths shown <1:00)
+        #   bare digit group           → M:SS fallback ("1101" → 11:01)
         clock = None
-        if ":" in ctxt:
-            a, _, b = ctxt.partition(":")
-            mm, ss = (int(a), int(b[:2])) if a.isdigit() and b[:2].isdigit() else (None, None)
+        mm = ss = None
+        m_mss = re.search(r"(\d{1,2})[.:](\d{2})(?!\d)", ctxt)
+        m_sst = re.search(r"(\d{1,2})\.(\d)(?!\d)", ctxt)
+        if m_mss:
+            mm, ss = int(m_mss.group(1)), int(m_mss.group(2))
+        elif m_sst:
+            sec = float(f"{m_sst.group(1)}.{m_sst.group(2)}")
+            if sec < 60:
+                return period, sec, raw
         else:
             d = re.sub(r"\D", "", ctxt)
             mm, ss = (int(d[:-2]), int(d[-2:])) if 3 <= len(d) <= 4 else \

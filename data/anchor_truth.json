@@ -1,0 +1,13 @@
+{"note": "hand-read from reports/viz/anchor_truth_sheet.png (2026-07-09); clock in seconds",
+ "cases": [
+  {"clip": "gsw_cle_2016f_g7_s04",   "frames": [3514, 3681, 3849],   "truth": [[2,43.3],[2,37.6],[2,31.8]], "expect": "accept"},
+  {"clip": "gsw_okc_2016wcf_g1_s02", "frames": [13254, 13336, 13419],"truth": [[1,54.1],[1,52.7],[1,51.3]], "expect": "accept"},
+  {"clip": "gsw_okc_2016wcf_g1_s05", "frames": [1179, 1311, 1443],   "truth": [[2,4.3],[2,2.1],[2,0.0]],    "expect": "accept"},
+  {"clip": "gsw_okc_2016wcf_g1_s10", "frames": [17161, 17432, 17703],"truth": [[4,9.0],[4,5.5],[4,1.0]],    "expect": "accept"},
+  {"clip": "gsw_okc_2016wcf_g1_s03", "frames": [4407, 5016, 5625],   "truth": [[2,558],[2,557],[2,547]],    "expect": "accept"},
+  {"clip": "gsw_okc_2016wcf_g1_s05", "frames": [14127, 14331, 14535],"truth": [[3,678],[3,678],[3,678]],    "expect": "clock_stopped"},
+  {"clip": "gsw_cle_2016f_g7_s07",   "frames": [8859, 9016, 9174],   "truth": [[4,460],null,[4,459]],       "expect": "clock_stopped"},
+  {"clip": "gsw_okc_2016wcf_g1_s08", "frames": [24645, 25050, 25455],"truth": [[4,424],[4,417],[4,410]],    "expect": "accept"},
+  {"clip": "gsw_cle_2016f_g7_s02",   "frames": [933, 972, 1011],     "truth": [[2,706],[2,705],[2,703]],    "expect": "accept"},
+  {"clip": "gsw_okc_2016wcf_g1_s08", "frames": [1494, 1688, 1882],   "truth": [[4,675],[4,672],[4,669]],    "expect": "accept"}
+]}

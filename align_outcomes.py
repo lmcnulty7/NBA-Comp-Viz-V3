@@ -144,20 +144,46 @@ def align_clip(clip: str, fps: float = 30.0, anchor_cache: dict | None = None):
             n_anchor_fail += 1
             out.append(rec)
             continue
-        # clock-rate sanity: video advanced Δf frames; clock should have dropped ≈ Δf/fps
-        def consistent(x, y):
+        # Direction-aware clock sanity (hand-verified 2026-07-09, anchor_truth):
+        #   live   — clock dropped ≈ video time (continuous play)
+        #   paused — clock dropped LESS than video (a stoppage inside the span;
+        #            reads are honest, but accept only with a monotone third
+        #            anchor so a misread can't masquerade as a pause)
+        #   bad    — clock went UP or dropped FASTER than video (misread or a
+        #            condensed-upload splice) — never accepted into a match
+        def pair_class(x, y):
             dv = (y["frame"] - x["frame"]) / fps
             dc = x["clock_s"] - y["clock_s"]
-            return dc >= 0 and abs(dc - dv) <= CLOCK_RATE_TOL
-        if not consistent(a1, a2):
-            # one anchor is off (e.g. read during a graphic overlay) — a third
-            # anchor mid-core arbitrates which one to replace
+            if dc < -2 or dc > dv + CLOCK_RATE_TOL:
+                return "bad"
+            return "live" if dc >= dv - CLOCK_RATE_TOL else "paused"
+
+        dv = (a2["frame"] - a1["frame"]) / fps
+        dc = a1["clock_s"] - a2["clock_s"]
+        cls = pair_class(a1, a2)
+        if -2 <= dc < 3 and dv > 8:
+            # frozen clock over a long stretch = dead-ball/FT cluster read as a
+            # span (known C2 limit) — honest reads, not a creditable possession.
+            # (dc < -2 is NOT frozen — it's a bad read; fall through to
+            # arbitration, which can rescue it with the mid anchor)
+            rec.update({"status": "clock_stopped_span", "anchors": [a1, a2]})
+            n_anchor_fail += 1
+            out.append(rec)
+            continue
+        if cls != "live":
             mid = reader.anchor_multi(cap, (f1 + f2) // 2, [])
-            if mid and mid["period"] == a1["period"] and consistent(a1, mid):
-                a2 = mid
-            elif mid and mid["period"] == a2["period"] and consistent(mid, a2):
-                a1 = mid
-            else:
+            ok = False
+            if mid and mid["period"] == a1["period"]:
+                monotone = a1["clock_s"] + 2 >= mid["clock_s"] >= a2["clock_s"] - 2
+                if cls == "paused":
+                    # 3-point confirmation: both sub-pairs sane ⇒ pause is real
+                    ok = monotone and pair_class(a1, mid) != "bad" and pair_class(mid, a2) != "bad"
+                else:  # bad pair — arbitration: mid replaces whichever end is off
+                    if pair_class(a1, mid) == "live":
+                        a2, ok = mid, True
+                    elif pair_class(mid, a2) == "live":
+                        a1, ok = mid, True
+            if not ok:
                 rec.update({"status": "anchor_inconsistent", "anchors": [a1, a2]})
                 n_anchor_fail += 1
                 out.append(rec)
