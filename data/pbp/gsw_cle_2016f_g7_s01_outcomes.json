@@ -1,0 +1,72 @@
+[
+ {
+  "set_start_frame": 297,
+  "core_end_frame": 567,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 1209,
+  "core_end_frame": 1569,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 1857,
+  "core_end_frame": 2160,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.96,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 6297,
+  "core_end_frame": 6453,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.96,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 7356,
+  "core_end_frame": 7539,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 7977,
+  "core_end_frame": 8229,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.56,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 11142,
+  "core_end_frame": 11295,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ }
+]

@@ -1,0 +1,400 @@
+[
+ {
+  "set_start_frame": 1344,
+  "core_end_frame": 2076,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1594,
+    "period": 3,
+    "clock_s": 494,
+    "raw": "3RD|8:14"
+   },
+   {
+    "frame": 1707,
+    "period": 3,
+    "clock_s": 492,
+    "raw": "3RD|8:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    505.0,
+    486.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 486.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (bad pass; steal by K. Durant )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.7
+ },
+ {
+  "set_start_frame": 2286,
+  "core_end_frame": 3042,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 2286,
+    "period": 3,
+    "clock_s": 483,
+    "raw": "3RD|8:03"
+   },
+   {
+    "frame": 3042,
+    "period": 3,
+    "clock_s": 470,
+    "raw": "3RD|7:50"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 4863,
+  "core_end_frame": 5859,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.61,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 4863,
+    "period": 3,
+    "clock_s": 439,
+    "raw": "3RD|7:19"
+   },
+   {
+    "frame": 5865,
+    "period": 3,
+    "clock_s": 422,
+    "raw": "3RD|7:02"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 6438,
+  "core_end_frame": 6837,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6438,
+    "period": 3,
+    "clock_s": 412,
+    "raw": "3RD|6:52"
+   },
+   {
+    "frame": 6637,
+    "period": 3,
+    "clock_s": 409,
+    "raw": "3RD|6:49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    422.0,
+    402.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 402.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.7
+ },
+ {
+  "set_start_frame": 10245,
+  "core_end_frame": 10464,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.56,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 13992,
+  "core_end_frame": 14769,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.6,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14380,
+    "period": 3,
+    "clock_s": 370,
+    "raw": "3RD|6:10"
+   },
+   {
+    "frame": 14769,
+    "period": 3,
+    "clock_s": 363,
+    "raw": "3RD|6:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    383.0,
+    362.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 362.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Westbrook makes 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.51
+ },
+ {
+  "set_start_frame": 16221,
+  "core_end_frame": 16446,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.83,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16221,
+    "period": 3,
+    "clock_s": 338,
+    "raw": "3RD|5:38"
+   },
+   {
+    "frame": 16446,
+    "period": 3,
+    "clock_s": 335,
+    "raw": "3RD|5:35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    348.0,
+    332.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 332.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.51
+ },
+ {
+  "set_start_frame": 16758,
+  "core_end_frame": 17010,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16758,
+    "period": 3,
+    "clock_s": 329,
+    "raw": "3RD|5:29"
+   },
+   {
+    "frame": 17010,
+    "period": 3,
+    "clock_s": 326,
+    "raw": "3RD|5:26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    332.0,
+    326.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 326.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. Green makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.7
+ },
+ {
+  "set_start_frame": 18405,
+  "core_end_frame": 18618,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 18405,
+    "period": 3,
+    "clock_s": 326,
+    "raw": "3RD|5:26"
+   },
+   {
+    "frame": 18606,
+    "period": 3,
+    "clock_s": 326,
+    "raw": "3RD|5:26"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 21345,
+  "core_end_frame": 21525,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 21345,
+    "period": 3,
+    "clock_s": 283,
+    "raw": "3RD|4:43"
+   },
+   {
+    "frame": 21525,
+    "period": 3,
+    "clock_s": 280,
+    "raw": "3RD|4:40"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    285.0,
+    275.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 275.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by K. Durant (bad pass; steal by D. Green )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.51
+ },
+ {
+  "set_start_frame": 25665,
+  "core_end_frame": 25872,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 28608,
+  "core_end_frame": 28788,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.83,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 29277,
+  "core_end_frame": 29472,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 30612,
+  "core_end_frame": 30810,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ }
+]

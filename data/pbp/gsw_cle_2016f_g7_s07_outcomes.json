@@ -1,0 +1,348 @@
+[
+ {
+  "set_start_frame": 612,
+  "core_end_frame": 1044,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 612,
+    "period": 4,
+    "clock_s": 649,
+    "raw": "4TH|10:49"
+   },
+   {
+    "frame": 1044,
+    "period": 4,
+    "clock_s": 634,
+    "raw": "4tH|10:34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    674.0,
+    635.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.93,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 635.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Love makes 2-pt hook shot from 7 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 1278,
+  "core_end_frame": 1404,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.57,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1278,
+    "period": 4,
+    "clock_s": 626,
+    "raw": "4th|10:26"
+   },
+   {
+    "frame": 1404,
+    "period": 4,
+    "clock_s": 622,
+    "raw": "4tH|10:22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    635.0,
+    616.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 616.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 1662,
+  "core_end_frame": 1902,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1662,
+    "period": 4,
+    "clock_s": 613,
+    "raw": "4h|10:13"
+   },
+   {
+    "frame": 1902,
+    "period": 4,
+    "clock_s": 604,
+    "raw": "4tH|10:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    616.0,
+    606.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.78,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 606.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by K. Love (bad pass; steal by K. Thompson )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 2004,
+  "core_end_frame": 2133,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.52,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2004,
+    "period": 4,
+    "clock_s": 601,
+    "raw": "4tH|10:01"
+   },
+   {
+    "frame": 2133,
+    "period": 4,
+    "clock_s": 596,
+    "raw": "4h|9:56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    606.0,
+    596.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 596.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Livingston makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 4020,
+  "core_end_frame": 4413,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.52,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4020,
+    "period": 4,
+    "clock_s": 592,
+    "raw": "4tH|9:52"
+   },
+   {
+    "frame": 4413,
+    "period": 4,
+    "clock_s": 578,
+    "raw": "4TH|9:38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    596.0,
+    577.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 577.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by L. James (bad pass; steal by H. Barnes )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 5946,
+  "core_end_frame": 6063,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5946,
+    "period": 4,
+    "clock_s": 531,
+    "raw": "4th|8:51"
+   },
+   {
+    "frame": 6063,
+    "period": 4,
+    "clock_s": 527,
+    "raw": "4tH|8:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    545.0,
+    523.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 523.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 6498,
+  "core_end_frame": 6867,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6498,
+    "period": 4,
+    "clock_s": 512,
+    "raw": "4TH|8:32"
+   },
+   {
+    "frame": 6867,
+    "period": 4,
+    "clock_s": 500,
+    "raw": "4TH|8:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    523.0,
+    496.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 496.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Love misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 8859,
+  "core_end_frame": 9174,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.78,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 8859,
+    "period": 4,
+    "clock_s": 460,
+    "raw": "4th|7:40"
+   },
+   {
+    "frame": 9174,
+    "period": 4,
+    "clock_s": 459,
+    "raw": "4TH|7:39"
+   }
+  ]
+ }
+]

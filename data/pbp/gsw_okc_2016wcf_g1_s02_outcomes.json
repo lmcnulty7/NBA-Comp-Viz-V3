@@ -1,0 +1,530 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 267,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 1,
+    "clock_s": 178,
+    "raw": "1ST|2:58"
+   },
+   {
+    "frame": 267,
+    "period": 1,
+    "clock_s": 173,
+    "raw": "1ST|2:53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    187.0,
+    174.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 174.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "A. Iguodala misses 2-pt hook shot from 6 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 453,
+  "core_end_frame": 660,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.95,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 453,
+    "period": 1,
+    "clock_s": 170,
+    "raw": "1ST|2:50"
+   },
+   {
+    "frame": 660,
+    "period": 1,
+    "clock_s": 166,
+    "raw": "1ST|2:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    174.0,
+    165.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 165.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Westbrook makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 1101,
+  "core_end_frame": 1266,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1101,
+    "period": 1,
+    "clock_s": 159,
+    "raw": "1ST|2:39"
+   },
+   {
+    "frame": 1266,
+    "period": 1,
+    "clock_s": 156,
+    "raw": "1ST|2:36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    165.0,
+    155.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 155.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "H. Barnes makes 3-pt jump shot from 23 ft (assist by K. Thompson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 2634,
+  "core_end_frame": 2988,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2634,
+    "period": 1,
+    "clock_s": 133,
+    "raw": "1ST|2:13"
+   },
+   {
+    "frame": 2988,
+    "period": 1,
+    "clock_s": 127,
+    "raw": "1ST|2:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    137.0,
+    129.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 129.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by K. Thompson (lost ball; steal by R. Westbrook )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 3783,
+  "core_end_frame": 4002,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 7089,
+  "core_end_frame": 7599,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7429,
+    "period": 1,
+    "clock_s": 106,
+    "raw": "1ST|1:46"
+   },
+   {
+    "frame": 7599,
+    "period": 1,
+    "clock_s": 103,
+    "raw": "1ST|143"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    112.0,
+    81.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 94.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 12438,
+  "core_end_frame": 12966,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 12438,
+    "period": 1,
+    "clock_s": 67,
+    "raw": "1ST|1:07"
+   },
+   {
+    "frame": 12702,
+    "period": 1,
+    "clock_s": 63,
+    "raw": "1ST|1:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    81.0,
+    60.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 60.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 13254,
+  "core_end_frame": 13452,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 13254,
+    "period": 1,
+    "clock_s": 341,
+    "raw": "1ST|541"
+   },
+   {
+    "frame": 13419,
+    "period": 1,
+    "clock_s": 313,
+    "raw": "1ST|513"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 13848,
+  "core_end_frame": 14277,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 13991,
+    "period": 1,
+    "clock_s": 297,
+    "raw": "1ST|457"
+   },
+   {
+    "frame": 14277,
+    "period": 1,
+    "clock_s": 256,
+    "raw": "1ST|416"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 23073,
+  "core_end_frame": 23250,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 23424,
+  "core_end_frame": 23550,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 23427,
+    "period": 2,
+    "clock_s": 691,
+    "raw": "2ND|1131"
+   },
+   {
+    "frame": 23553,
+    "period": 2,
+    "clock_s": 689,
+    "raw": "2ND|11:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    704.0,
+    680.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 680.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Foye makes 3-pt jump shot from 23 ft (assist by D. Waiters )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 24648,
+  "core_end_frame": 24975,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 24648,
+    "period": 2,
+    "clock_s": 670,
+    "raw": "2ND|11:10"
+   },
+   {
+    "frame": 24975,
+    "period": 2,
+    "clock_s": 665,
+    "raw": "2ND|11:05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    680.0,
+    665.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 665.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt dunk at rim (assist by H. Barnes )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 26079,
+  "core_end_frame": 26298,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 26079,
+    "period": 2,
+    "clock_s": 648,
+    "raw": "2ND|10:48"
+   },
+   {
+    "frame": 26298,
+    "period": 2,
+    "clock_s": 645,
+    "raw": "2ND|10:45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    650.0,
+    645.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 645.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "A. Iguodala makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 31950,
+  "core_end_frame": 32304,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 31950,
+    "period": 2,
+    "clock_s": 607,
+    "raw": "2ND|10:07"
+   },
+   {
+    "frame": 32304,
+    "period": 2,
+    "clock_s": 601,
+    "raw": "2ND|10:01"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    611.0,
+    598.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 598.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ }
+]

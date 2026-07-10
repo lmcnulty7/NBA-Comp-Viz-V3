@@ -1,0 +1,124 @@
+[
+ {
+  "set_start_frame": 1851,
+  "core_end_frame": 1980,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 10596,
+  "core_end_frame": 10776,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 13008,
+  "core_end_frame": 13230,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 15936,
+  "core_end_frame": 16164,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15936,
+    "period": 2,
+    "clock_s": 574,
+    "raw": "2nd|9:34"
+   },
+   {
+    "frame": 16164,
+    "period": 2,
+    "clock_s": 566,
+    "raw": "2nd|9:26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    575.0,
+    557.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 557.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "C. Frye makes 2-pt dunk at rim (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 16617,
+  "core_end_frame": 16818,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 16617,
+    "period": 2,
+    "clock_s": 550,
+    "raw": "2nd|9:10"
+   },
+   {
+    "frame": 16818,
+    "period": 2,
+    "clock_s": 543,
+    "raw": "2nd|9:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    557.0,
+    528.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 528.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

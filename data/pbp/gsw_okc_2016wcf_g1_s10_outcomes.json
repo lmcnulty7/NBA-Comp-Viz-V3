@@ -1,0 +1,116 @@
+[
+ {
+  "set_start_frame": 2310,
+  "core_end_frame": 2532,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 4566,
+  "core_end_frame": 4776,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.96,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 5682,
+  "core_end_frame": 6030,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.69,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5795,
+    "period": 4,
+    "clock_s": 112,
+    "raw": "4TH|152"
+   },
+   {
+    "frame": 6036,
+    "period": 4,
+    "clock_s": 105,
+    "raw": "4TH|145"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    121.0,
+    100.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 100.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 11658,
+  "core_end_frame": 12048,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 11658,
+    "period": 4,
+    "clock_s": 114,
+    "raw": "4TH|154"
+   },
+   {
+    "frame": 12048,
+    "period": 4,
+    "clock_s": 555,
+    "raw": "4TH|0915"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 16890,
+  "core_end_frame": 17703,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 17161,
+    "period": 4,
+    "clock_s": 560,
+    "raw": "4TH|0920"
+   },
+   {
+    "frame": 17703,
+    "period": 4,
+    "clock_s": 80,
+    "raw": "4TH|0120"
+   }
+  ]
+ }
+]

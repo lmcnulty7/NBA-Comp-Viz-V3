@@ -1,0 +1,368 @@
+[
+ {
+  "set_start_frame": 2136,
+  "core_end_frame": 2382,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2136,
+    "period": 2,
+    "clock_s": 263,
+    "raw": "2ND|4:23"
+   },
+   {
+    "frame": 2382,
+    "period": 2,
+    "clock_s": 259,
+    "raw": "2ND|4:19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    277.0,
+    257.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 257.0,
+   "team": "home",
+   "kind": "ft_missed",
+   "desc": "D. Green misses free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 4014,
+  "core_end_frame": 4296,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 5160,
+  "core_end_frame": 5289,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 9006,
+  "core_end_frame": 9726,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.7,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9006,
+    "period": 2,
+    "clock_s": 239,
+    "raw": "2ND|3:59"
+   },
+   {
+    "frame": 9366,
+    "period": 2,
+    "clock_s": 233,
+    "raw": "2ND|3:53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    245.0,
+    226.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 226.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 2-pt layup from 5 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 10470,
+  "core_end_frame": 10659,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.77,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 10470,
+    "period": 2,
+    "clock_s": 214,
+    "raw": "2ND|3:34"
+   },
+   {
+    "frame": 10625,
+    "period": 2,
+    "clock_s": 212,
+    "raw": "2ND|3:32"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    226.0,
+    213.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 213.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Ibaka misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 14019,
+  "core_end_frame": 14562,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.64,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14019,
+    "period": 2,
+    "clock_s": 154,
+    "raw": "2ND|2:34"
+   },
+   {
+    "frame": 14290,
+    "period": 2,
+    "clock_s": 149,
+    "raw": "2ND|2:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    158.0,
+    142.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 142.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 2-pt jump shot from 7 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 14847,
+  "core_end_frame": 15147,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14847,
+    "period": 2,
+    "clock_s": 140,
+    "raw": "2ND|2:20"
+   },
+   {
+    "frame": 15147,
+    "period": 2,
+    "clock_s": 135,
+    "raw": "2ND|2:15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    142.0,
+    135.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 135.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 15396,
+  "core_end_frame": 15801,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15396,
+    "period": 2,
+    "clock_s": 131,
+    "raw": "2ND|2:11"
+   },
+   {
+    "frame": 15598,
+    "period": 2,
+    "clock_s": 127,
+    "raw": "2ND|2:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    135.0,
+    122.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 122.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 22071,
+  "core_end_frame": 22590,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.6,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 22071,
+    "period": 2,
+    "clock_s": 71,
+    "raw": "2ND|1:11"
+   },
+   {
+    "frame": 22330,
+    "period": 2,
+    "clock_s": 66,
+    "raw": "2ND|1:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    72.0,
+    58.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 58.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Waiters makes 3-pt jump shot from 23 ft (assist by A. Roberson )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 23574,
+  "core_end_frame": 23982,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 23716,
+    "period": 2,
+    "clock_s": 254,
+    "raw": "2ND|414"
+   },
+   {
+    "frame": 23982,
+    "period": 2,
+    "clock_s": 269,
+    "raw": "2ND|429"
+   }
+  ]
+ }
+]

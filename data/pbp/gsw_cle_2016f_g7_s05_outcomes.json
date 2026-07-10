@@ -1,0 +1,216 @@
+[
+ {
+  "set_start_frame": 639,
+  "core_end_frame": 1146,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 892,
+    "period": 3,
+    "clock_s": 445,
+    "raw": "3rn|725"
+   },
+   {
+    "frame": 1146,
+    "period": 3,
+    "clock_s": 436,
+    "raw": "3ro|7:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    458.0,
+    434.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 434.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Love makes 2-pt layup from 3 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 1410,
+  "core_end_frame": 1827,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1410,
+    "period": 3,
+    "clock_s": 427,
+    "raw": "3ro|7:07"
+   },
+   {
+    "frame": 1827,
+    "period": 3,
+    "clock_s": 412,
+    "raw": "3ro|652"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    434.0,
+    410.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 410.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "A. Varej\u00c3\u00a3o misses 2-pt jump shot from 3 ft (block by K. Irving )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.78
+ },
+ {
+  "set_start_frame": 2841,
+  "core_end_frame": 3054,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 3351,
+  "core_end_frame": 3495,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 5133,
+  "core_end_frame": 5268,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 6339,
+  "core_end_frame": 6717,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6339,
+    "period": 3,
+    "clock_s": 346,
+    "raw": "3Ro|5:46"
+   },
+   {
+    "frame": 6717,
+    "period": 3,
+    "clock_s": 333,
+    "raw": "3rn|5:33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    355.0,
+    321.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 321.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Smith misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 15138,
+  "core_end_frame": 15339,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15138,
+    "period": 3,
+    "clock_s": 248,
+    "raw": "3ro|4:08"
+   },
+   {
+    "frame": 15339,
+    "period": 3,
+    "clock_s": 240,
+    "raw": "3ro|4:00"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    262.0,
+    217.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 240.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Irving makes 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ }
+]

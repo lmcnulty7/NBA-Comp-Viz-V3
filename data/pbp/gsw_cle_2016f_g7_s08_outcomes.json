@@ -1,0 +1,165 @@
+[
+ {
+  "set_start_frame": 675,
+  "core_end_frame": 906,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 675,
+    "period": 4,
+    "clock_s": 311,
+    "raw": "4tH|5:11"
+   },
+   {
+    "frame": 906,
+    "period": 4,
+    "clock_s": 303,
+    "raw": "4th|5:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    316.0,
+    293.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 293.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 975,
+  "core_end_frame": 1290,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 975,
+    "period": 4,
+    "clock_s": 301,
+    "raw": "4TH|5:01"
+   },
+   {
+    "frame": 1290,
+    "period": 4,
+    "clock_s": 290,
+    "raw": "4tH|450"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    316.0,
+    293.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.73,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 293.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "duplicate_of_span": 675,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 7650,
+  "core_end_frame": 7824,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7650,
+    "period": 4,
+    "clock_s": 164,
+    "raw": "4tH|2:44"
+   },
+   {
+    "frame": 7824,
+    "period": 4,
+    "clock_s": 158,
+    "raw": "4tH|2:38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    170.0,
+    152.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 152.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Love misses 2-pt hook shot from 10 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.77
+ },
+ {
+  "set_start_frame": 13902,
+  "core_end_frame": 14034,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 13902,
+    "period": 4,
+    "clock_s": 172,
+    "raw": "4tH|252"
+   },
+   {
+    "frame": 14034,
+    "period": 4,
+    "clock_s": 127,
+    "raw": "4th|207"
+   }
+  ]
+ }
+]

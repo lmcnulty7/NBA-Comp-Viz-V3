@@ -1,0 +1,467 @@
+[
+ {
+  "set_start_frame": 327,
+  "core_end_frame": 672,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 327,
+    "period": 4,
+    "clock_s": 318,
+    "raw": "4TH|5:18"
+   },
+   {
+    "frame": 672,
+    "period": 4,
+    "clock_s": 312,
+    "raw": "4TH|5:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    325.0,
+    302.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 302.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 786,
+  "core_end_frame": 1356,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 786,
+    "period": 4,
+    "clock_s": 310,
+    "raw": "4TH|5:10"
+   },
+   {
+    "frame": 1071,
+    "period": 4,
+    "clock_s": 306,
+    "raw": "4tH|5:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    325.0,
+    302.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 302.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 327,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1767,
+  "core_end_frame": 2379,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.58,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1767,
+    "period": 4,
+    "clock_s": 294,
+    "raw": "4TH|4:54"
+   },
+   {
+    "frame": 2073,
+    "period": 4,
+    "clock_s": 288,
+    "raw": "4TH|4:48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    302.0,
+    281.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 281.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Adams makes 2-pt hook shot from 8 ft (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 2898,
+  "core_end_frame": 3339,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 2898,
+    "period": 4,
+    "clock_s": 275,
+    "raw": "4TH|4:35"
+   },
+   {
+    "frame": 3339,
+    "period": 4,
+    "clock_s": 267,
+    "raw": "4TH|4:27"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 6678,
+  "core_end_frame": 7290,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.5,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6678,
+    "period": 4,
+    "clock_s": 219,
+    "raw": "4TH|3:39"
+   },
+   {
+    "frame": 6984,
+    "period": 4,
+    "clock_s": 213,
+    "raw": "4TH|3:33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    227.0,
+    203.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 203.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Durant misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 8757,
+  "core_end_frame": 9129,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.56,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8757,
+    "period": 4,
+    "clock_s": 199,
+    "raw": "4TH|3:19"
+   },
+   {
+    "frame": 8943,
+    "period": 4,
+    "clock_s": 196,
+    "raw": "4TH|3:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    203.0,
+    174.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 174.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt layup from 2 ft (block by K. Durant )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 11070,
+  "core_end_frame": 11925,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 11070,
+    "period": 4,
+    "clock_s": 186,
+    "raw": "4TH|3:06"
+   },
+   {
+    "frame": 11934,
+    "period": 4,
+    "clock_s": 174,
+    "raw": "4TH|254"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 18183,
+  "core_end_frame": 18801,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 18183,
+    "period": 4,
+    "clock_s": 134,
+    "raw": "4tH|2:14"
+   },
+   {
+    "frame": 18492,
+    "period": 4,
+    "clock_s": 129,
+    "raw": "4TH|2:09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    139.0,
+    121.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 121.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "H. Barnes makes 2-pt jump shot from 8 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 19569,
+  "core_end_frame": 19845,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 19682,
+    "period": 4,
+    "clock_s": 109,
+    "raw": "4TH|149"
+   },
+   {
+    "frame": 19845,
+    "period": 4,
+    "clock_s": 107,
+    "raw": "4TH|147"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    121.0,
+    100.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 100.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 25317,
+  "core_end_frame": 25821,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 25569,
+    "period": 4,
+    "clock_s": 70,
+    "raw": "4TH|1:10"
+   },
+   {
+    "frame": 25821,
+    "period": 4,
+    "clock_s": 66,
+    "raw": "4TH|1:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    91.0,
+    61.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 61.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "S. Adams makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 29979,
+  "core_end_frame": 30507,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.92,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 29979,
+    "period": 4,
+    "clock_s": 277,
+    "raw": "4TH|437"
+   },
+   {
+    "frame": 30510,
+    "period": 4,
+    "clock_s": 227,
+    "raw": "4TH|347"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 34863,
+  "core_end_frame": 35061,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 34854,
+    "period": 4,
+    "clock_s": 176,
+    "raw": "4TH|256"
+   },
+   {
+    "frame": 35061,
+    "period": 4,
+    "clock_s": 146,
+    "raw": "4tH|226"
+   }
+  ]
+ }
+]

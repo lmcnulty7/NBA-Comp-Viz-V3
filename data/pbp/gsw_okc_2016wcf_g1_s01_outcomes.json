@@ -1,0 +1,442 @@
+[
+ {
+  "set_start_frame": 1347,
+  "core_end_frame": 2247,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 1659,
+    "period": 1,
+    "clock_s": 432,
+    "raw": "1ST|7:12"
+   },
+   {
+    "frame": 2097,
+    "period": 1,
+    "clock_s": 424,
+    "raw": "1ST|7:04"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 7125,
+  "core_end_frame": 7293,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7125,
+    "period": 1,
+    "clock_s": 339,
+    "raw": "1ST|5:39"
+   },
+   {
+    "frame": 7293,
+    "period": 1,
+    "clock_s": 337,
+    "raw": "1ST|5:37"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    355.0,
+    338.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 338.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 19338,
+  "core_end_frame": 19542,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.57,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 19338,
+    "period": 1,
+    "clock_s": 329,
+    "raw": "1ST|5:29"
+   },
+   {
+    "frame": 19542,
+    "period": 1,
+    "clock_s": 325,
+    "raw": "1ST|5:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    332.0,
+    326.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.75,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 326.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 22 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 20742,
+  "core_end_frame": 21240,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 20742,
+    "period": 1,
+    "clock_s": 305,
+    "raw": "1ST|5:05"
+   },
+   {
+    "frame": 20991,
+    "period": 1,
+    "clock_s": 301,
+    "raw": "1ST|5:01"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    310.0,
+    298.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 298.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 6 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 21399,
+  "core_end_frame": 21528,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 21399,
+    "period": 1,
+    "clock_s": 294,
+    "raw": "1ST|4:54"
+   },
+   {
+    "frame": 21528,
+    "period": 1,
+    "clock_s": 292,
+    "raw": "1ST|4:52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    298.0,
+    273.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 273.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Waiters makes 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 24597,
+  "core_end_frame": 24804,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 24600,
+    "period": 1,
+    "clock_s": 268,
+    "raw": "1ST|4:28"
+   },
+   {
+    "frame": 24804,
+    "period": 1,
+    "clock_s": 264,
+    "raw": "1ST|4:24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    273.0,
+    265.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.75,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 265.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 29250,
+  "core_end_frame": 29397,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 29250,
+    "period": 1,
+    "clock_s": 236,
+    "raw": "1ST|3:56"
+   },
+   {
+    "frame": 29388,
+    "period": 1,
+    "clock_s": 234,
+    "raw": "1ST|3:54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    243.0,
+    228.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 228.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by E. Freedom (lost ball; steal by S. Curry )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 29481,
+  "core_end_frame": 29697,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 29481,
+    "period": 1,
+    "clock_s": 232,
+    "raw": "1ST|3:52"
+   },
+   {
+    "frame": 29697,
+    "period": 1,
+    "clock_s": 228,
+    "raw": "1ST|3:48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    243.0,
+    228.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 228.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by E. Freedom (lost ball; steal by S. Curry )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "duplicate_of_span": 29250,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 29955,
+  "core_end_frame": 30246,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 29955,
+    "period": 1,
+    "clock_s": 224,
+    "raw": "1ST|3:44"
+   },
+   {
+    "frame": 30246,
+    "period": 1,
+    "clock_s": 219,
+    "raw": "1ST|3:39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    228.0,
+    205.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 215.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "H. Barnes makes 3-pt jump shot from 26 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 30933,
+  "core_end_frame": 31167,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 30921,
+    "period": 1,
+    "clock_s": 208,
+    "raw": "1ST|3:28"
+   },
+   {
+    "frame": 31167,
+    "period": 1,
+    "clock_s": 205,
+    "raw": "1ST|3:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    228.0,
+    205.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 215.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "H. Barnes makes 3-pt jump shot from 26 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 29955,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ }
+]

@@ -262,6 +262,12 @@ def main() -> None:
     stride = poss.get("stride", 3)
     dt = stride / args.fps
 
+    # orientation corrections from alignment (align_outcomes.apply_orientation):
+    # period-level basket↔team orientation overrides the per-span defense-closer
+    # vote, so offense/defense roles here must match or the join drops the span
+    corr_path = config.PROJECT_ROOT / "data" / "pbp" / f"{args.clip}_orientation.json"
+    corrections = json.loads(corr_path.read_text()) if corr_path.exists() else {}
+
     records, all_asg, invalid_by_poss = [], {}, {}
     skipped = []
     for span in poss["spans"]:
@@ -270,6 +276,11 @@ def main() -> None:
         if not span.get("metrics_eligible"):
             skipped.append((span["set_start_frame"], "core_too_short"))
             continue
+        corr = corrections.get(str(span["set_start_frame"]))
+        if corr:   # orientation-corrected roles supersede the per-span vote
+            span["offense_team"] = corr["offense_team"]
+            span["defense_team"] = corr["defense_team"]
+            span["confidence"] = max(span.get("confidence") or 0, corr["orientation_conf"])
         if span.get("offense_team") is None:
             skipped.append((span["set_start_frame"], "offense_unknown"))
             continue

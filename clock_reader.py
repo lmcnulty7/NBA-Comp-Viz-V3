@@ -48,6 +48,13 @@ LAYOUTS = {
                           "clock_box": (584, 378, 634, 408)},
     "espn_ecf_720":      {"period_box": (712, 575, 782, 615),    # MIA@BOS 2012, 1280x720
                           "clock_box": (783, 575, 860, 615)},
+    # Phase B calibrations (reports/viz/clockcal_*.png)
+    "abc_finals16_720":  {"period_box": (830, 575, 880, 610),    # 2016 Finals, ABC
+                          "clock_box": (883, 575, 950, 610)},
+    "tnt_playoffs16_720": {"period_box": (855, 606, 912, 640),   # 2016 WCF, TNT
+                           "clock_box": (955, 606, 1010, 640)},
+    "espn_strip16_720":  {"period_box": (562, 640, 606, 672),    # Xmas 2016, ESPN strip
+                          "clock_box": (608, 640, 665, 672)},
 }
 CLIP_LAYOUT = {
     "curry_q1_clip": "espn_saturday_480",
@@ -60,6 +67,18 @@ CLIP_LAYOUT = {
 }
 PERIOD_RE = re.compile(r"([1-4])\s*(?:st|nd|rd|th)?", re.I)
 CLOCK_EVAL_DIR = config.PROJECT_ROOT / "data" / "clock_eval"
+
+
+def layout_for_clip(stem: str) -> str:
+    """Layout for a clip stem: static registry first, then the harvest games
+    registry (Phase B sections are named <tag>_sNN)."""
+    if stem in CLIP_LAYOUT:
+        return CLIP_LAYOUT[stem]
+    tag = re.sub(r"_s\d+$", "", stem)
+    reg = json.loads((config.PROJECT_ROOT / "data" / "harvest" / "games.json").read_text())
+    if tag in reg and "layout" in reg[tag]:
+        return reg[tag]["layout"]
+    raise KeyError(f"no layout registered for {stem!r} (tag {tag!r})")
 
 
 class ClockReader:

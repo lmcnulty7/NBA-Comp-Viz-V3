@@ -38,6 +38,13 @@ UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit
 GAMES = {
     "201602270OKC": {"away": "GSW", "home": "OKC", "date": "2016-02-27"},
     "201206070BOS": {"away": "MIA", "home": "BOS", "date": "2012-06-07"},
+    # Phase B (from data/harvest/games.json; fingerprint-verified on fetch)
+    "201606190GSW": {"away": "CLE", "home": "GSW", "date": "2016-06-19"},
+    "201605160GSW": {"away": "OKC", "home": "GSW", "date": "2016-05-16"},
+    "201612250CLE": {"away": "GSW", "home": "CLE", "date": "2016-12-25",
+                     # 2016 Christmas special uniforms: home CLE is DARK —
+                     # the pre-2017 light=home rule inverts for this game
+                     "light_team_name": "GSW"},
 }
 CLIP_GAME = {
     "curry_q1_clip": "201602270OKC",
@@ -48,7 +55,33 @@ CLIP_GAME = {
     "clip_55m00_63m00": "201206070BOS",
     "clip_70m00_78m00": "201206070BOS",
 }
-LIGHT_IS_HOME = True   # pre-2017 NBA: home team wears the light kit (holds for both games)
+LIGHT_IS_HOME = True   # pre-2017 NBA default: home wears the light kit.
+                       # Per-game override: GAMES[code]["light_team_name"] (e.g. special
+                       # Christmas uniforms where the home kit is dark).
+
+
+def game_for_clip(stem: str) -> str:
+    """Game code for a clip stem: static registry first, then the harvest games
+    registry (Phase B sections are named <tag>_sNN)."""
+    if stem in CLIP_GAME:
+        return CLIP_GAME[stem]
+    import re
+    tag = re.sub(r"_s\d+$", "", stem)
+    reg = json.loads((config.PROJECT_ROOT / "data" / "harvest" / "games.json").read_text())
+    if tag in reg and "game_code" in reg[tag]:
+        return reg[tag]["game_code"]
+    raise KeyError(f"no game registered for {stem!r} (tag {tag!r})")
+
+
+def light_team_name(game: dict) -> str:
+    """Which REAL team wears the light kit in this game."""
+    return game.get("light_team_name") or (game["home"] if LIGHT_IS_HOME else game["away"])
+
+
+def video_path(stem: str):
+    """Resolve a clip stem to its video file (harvest downloads first)."""
+    h = config.PROJECT_ROOT / "data" / "harvest" / "video" / f"{stem}.mp4"
+    return h if h.exists() else config.VIDEO_DIR / f"{stem}.mp4"
 
 
 def classify(desc: str) -> str:

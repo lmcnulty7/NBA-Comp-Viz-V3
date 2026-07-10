@@ -1,0 +1,380 @@
+INFO ── TIER 2 JOIN (correctness pass — NO aggregates by design) ──
+INFO  clip_10m00_18m00 @2000 P1: BOS offense, 0 pts — Turnover by P. Pierce (bad pass; steal by D. Wade )
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 4→6 (6.6s, 2.9ft), 5→26 (5.3s, 6.3ft), 9→6 (3.7s, 6.3ft)
+INFO  clip_26m00_34m00 @2000 P2: BOS offense, 0 pts — Turnover by R. Rondo (bad pass)
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 2→7 (4.0s, 3.1ft), 4→8 (3.8s, 5.3ft), 10→5 (2.2s, 11.4ft)
+INFO  clip_40m00_48m00 @717 P2: MIA offense, 2 pts — L. James makes 2-pt dunk from 2 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 82→9 (14.1s, 7.9ft), 3→181 (11.9s, 6.1ft), 87→9 (11.7s, 7.9ft)
+INFO  clip_40m00_48m00 @1311 P2: BOS offense, 2 pts — R. Rondo makes 2-pt jump shot from 9 ft
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 388→80 (8.3s, 4.9ft), 396→402 (7.6s, 12.3ft), 2→3 (6.8s, 7.5ft)
+INFO  clip_40m00_48m00 @11403 P3: MIA offense, 0 pts — L. James misses 2-pt jump shot from 13 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 6456→6453 (3.5s, 22.5ft), 6459→6457 (2.4s, 3.4ft), 6455→6453 (1.9s, 13.1ft)
+INFO  clip_40m00_48m00 @11646 P3: BOS offense, 0 pts — Turnover by K. Garnett (traveling)
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 6457→6456 (13.6s, 9.0ft), 6453→6455 (13.3s, 7.6ft)
+INFO  clip_55m00_63m00 @570 P3: MIA offense, 0 pts — D. Wade misses 2-pt layup from 2 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 4→9 (7.3s, 11.8ft), 3→5 (7.0s, 8.0ft), 2→7 (5.4s, 4.7ft)
+INFO  clip_55m00_63m00 @1407 P3: MIA offense, 0 pts — Turnover by C. Bosh (bad pass; steal by P. Pierce )
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 254→261 (4.9s, 6.7ft), 262→259 (2.8s, 9.5ft), 257→259 (1.2s, 5.3ft)
+INFO  clip_55m00_63m00 @2241 P3: BOS offense, 0 pts — P. Pierce misses 2-pt layup from 2 ft
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 1248→1244 (8.6s, 5.4ft), 1246→1240 (8.4s, 7.3ft), 1245→1249 (8.3s, 12.6ft)
+INFO  clip_55m00_63m00 @7947 P3: MIA offense, 2 pts — L. James makes 2-pt jump shot from 14 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 8064→8063 (6.4s, 12.6ft), 8067→8065 (5.9s, 5.5ft), 8066→8068 (3.1s, 14.5ft)
+INFO  clip_55m00_63m00 @12126 P3: BOS offense, 2 pts — M. PiÃ©trus makes 2-pt tip-in at rim
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 11568→11561 (6.7s, 8.1ft), 11564→11565 (6.6s, 12.0ft), 11566→11567 (4.2s, 26.6ft)
+INFO  clip_55m00_63m00 @12756 P3: MIA offense, 3 pts — L. James makes 3-pt jump shot from 25 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 11964→11963 (10.9s, 10.4ft), 11962→11960 (10.7s, 10.9ft), 11967→11965 (9.3s, 16.2ft)
+INFO  clip_70m00_78m00 @735 P4: MIA offense, 2 pts — L. James makes 2-pt jump shot from 16 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 78→113 (9.0s, 9.0ft), 86→3 (8.1s, 5.1ft), 88→8 (8.0s, 6.6ft)
+INFO  clip_70m00_78m00 @1560 P4: MIA offense, 0 pts — Turnover by D. Wade (offensive foul)
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 242→3 (8.5s, 10.9ft), 294→326 (8.1s, 5.7ft), 363→342 (6.1s, 12.2ft)
+INFO  clip_70m00_78m00 @3450 P4: BOS offense, 0 pts — Turnover by P. Pierce (lost ball; steal by S. Battier )
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 782→907 (11.7s, 8.3ft), 858→866 (10.4s, 7.1ft), 805→943 (7.4s, 8.7ft)
+INFO  clip_70m00_78m00 @7371 P4: MIA offense, 2 pts — L. James makes 2-pt layup from 1 ft (assist by D. Wade 
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 4604→4606 (4.8s, 17.7ft), 4609→4607 (3.8s, 19.5ft), 4605→4606 (1.6s, 20.5ft)
+INFO  clip_70m00_78m00 @7749 P4: BOS offense, 0 pts — R. Allen misses 3-pt jump shot from 24 ft
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 5032→5035 (14.7s, 9.8ft), 5036→5030 (13.3s, 13.3ft), 5031→5033 (12.0s, 9.4ft)
+INFO  clip_70m00_78m00 @8787 P4: MIA offense, 0 pts — L. James misses 3-pt jump shot from 27 ft
+INFO    defense=BOS (consistent: True) | top defenders (frag→man): 5669→5031 (12.7s, 7.7ft), 5666→5670 (11.8s, 7.9ft), 5671→5668 (10.2s, 17.1ft)
+INFO  clip_70m00_78m00 @10569 P4: BOS offense, 2 pts — R. Allen makes free throw 2 of 2
+INFO    defense=MIA (consistent: True) | top defenders (frag→man): 8670→5667 (4.3s, 17.5ft), 8666→8667 (3.9s, 8.9ft), 8672→8668 (3.9s, 9.2ft)
+INFO  curry_classic_clip @987 P1: GSW offense, 0 pts — D. Green misses 2-pt layup at rim
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 233→28 (10.3s, 6.0ft), 217→287 (8.5s, 9.7ft), 161→204 (7.6s, 11.9ft)
+INFO  curry_classic_clip @1473 P1: OKC offense, 3 pts — K. Durant makes 3-pt jump shot from 25 ft (assist by S.
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 354→376 (3.6s, 10.2ft), 382→376 (3.4s, 10.0ft), 287→343 (2.9s, 9.0ft)
+INFO  curry_classic_clip @1986 P1: OKC offense, 3 pts — A. Roberson makes 3-pt jump shot from 23 ft (assist by 
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 287→642 (10.8s, 6.1ft), 677→529 (7.7s, 16.4ft), 714→554 (6.8s, 8.9ft)
+INFO  curry_classic_clip @2595 P1: GSW offense, 2 pts — A. Bogut makes 2-pt layup from 1 ft (assist by D. Green
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 840→833 (4.6s, 10.2ft), 748→677 (2.6s, 5.8ft), 764→287 (2.6s, 3.1ft)
+INFO  curry_classic_clip @3375 P1: OKC offense, 0 pts — R. Westbrook misses 2-pt layup from 2 ft (block by A. B
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 993→840 (8.7s, 18.8ft), 1147→1088 (8.6s, 14.9ft), 961→1088 (7.3s, 6.2ft)
+INFO  curry_classic_clip @5277 P1: OKC offense, 2 pts — S. Adams makes 2-pt hook shot from 4 ft (assist by K. D
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 2748→2745 (13.0s, 10.3ft), 2747→2745 (2.8s, 24.2ft)
+INFO  curry_classic_clip @7824 P1: GSW offense, 0 pts — A. Bogut misses 2-pt hook shot from 5 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 5619→5622 (5.4s, 25.4ft), 5620→5623 (5.3s, 10.6ft), 5618→5622 (4.9s, 12.9ft)
+INFO  curry_classic_clip @17505 P1: OKC offense, 0 pts — R. Westbrook misses 2-pt jump shot from 12 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 18540→18545 (11.8s, 7.8ft), 18541→18543 (10.9s, 18.7ft), 18542→18544 (3.5s, 34.3ft)
+INFO  curry_q1_clip @0 P1: OKC offense, 2 pts — K. Durant makes 2-pt jump shot from 10 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 6→8 (9.2s, 6.9ft), 3→4 (7.0s, 9.6ft), 9→1 (6.8s, 5.1ft)
+INFO  curry_q1_clip @1236 P1: GSW offense, 2 pts — A. Iguodala makes 2-pt jump shot from 18 ft (assist by 
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 314→201 (9.3s, 4.2ft), 319→272 (8.9s, 11.9ft), 229→271 (6.6s, 8.0ft)
+INFO  curry_q1_clip @14175 P2: OKC offense, 0 pts — D. Waiters misses 3-pt jump shot from 24 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 14308→14304 (5.2s, 10.0ft), 14311→14312 (4.6s, 7.5ft), 14306→14307 (3.8s, 6.8ft)
+INFO  gsw_cle_2016f_g7_s02 @777 P2: GSW offense, 2 pts — S. Livingston makes 2-pt jump shot from 16 ft (assist b
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 8→10 (4.7s, 3.7ft), 7→6 (3.8s, 10.0ft), 5→2 (3.0s, 4.9ft)
+INFO  gsw_cle_2016f_g7_s02 @1770 P2: GSW offense, 0 pts — Turnover by K. Thompson (offensive foul)
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 61→243 (3.3s, 7.8ft), 144→466 (1.9s, 7.3ft), 461→194 (1.7s, 5.7ft)
+INFO  gsw_cle_2016f_g7_s02 @2955 P2: CLE offense, 0 pts — M. Williams misses 3-pt jump shot from 26 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 526→535 (4.5s, 12.9ft), 610→609 (4.5s, 8.6ft), 614→609 (1.3s, 9.9ft)
+INFO  gsw_cle_2016f_g7_s02 @3249 P2: GSW offense, 0 pts — S. Livingston misses 2-pt jump shot from 15 ft
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 945→610 (3.1s, 16.9ft), 943→610 (1.7s, 14.8ft)
+INFO  gsw_cle_2016f_g7_s02 @13350 P2: CLE offense, 4 pts — I. Shumpert makes free throw 1 of 1
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 12206→12207 (5.3s, 3.8ft), 12209→12208 (2.8s, 1.9ft), 12212→12207 (0.6s, 5.0ft)
+INFO  gsw_cle_2016f_g7_s02 @15996 P2: GSW offense, 3 pts — S. Curry makes free throw 1 of 1
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 14541→14542 (3.9s, 13.6ft), 14538→13456 (3.5s, 5.0ft), 14539→14542 (1.3s, 23.0ft)
+INFO  gsw_cle_2016f_g7_s03 @1722 P2: GSW offense, 3 pts — D. Green makes 3-pt jump shot from 27 ft (assist by K. 
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 381→437 (6.3s, 4.5ft), 470→463 (6.3s, 9.7ft), 390→318 (4.3s, 10.3ft)
+INFO  gsw_cle_2016f_g7_s03 @3639 P2: GSW offense, 0 pts — K. Thompson misses 2-pt jump shot from 20 ft
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 978→976 (6.6s, 5.7ft), 974→981 (3.0s, 13.3ft), 979→981 (2.6s, 9.2ft)
+INFO  gsw_cle_2016f_g7_s03 @16197 P2: CLE offense, 0 pts — Turnover by K. Irving (lost ball; steal by D. Green )
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 13253→13252 (6.8s, 13.9ft), 13255→13256 (3.5s, 7.1ft), 13257→13256 (1.6s, 19.2ft)
+INFO  gsw_cle_2016f_g7_s04 @0 P2: GSW offense, 0 pts — S. Curry misses 3-pt jump shot from 27 ft
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 2→6 (6.5s, 6.6ft), 5→4 (4.8s, 7.5ft), 25→11 (4.5s, 3.1ft)
+INFO  gsw_cle_2016f_g7_s04 @414 P2: CLE offense, 2 pts — I. Shumpert makes free throw 2 of 2
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 177→190 (4.8s, 9.5ft), 4→21 (4.4s, 13.5ft), 6→190 (1.3s, 9.8ft)
+INFO  gsw_cle_2016f_g7_s04 @2715 P2: GSW offense, 2 pts — A. Iguodala makes 2-pt jump shot from 11 ft
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 339→265 (8.1s, 8.2ft), 221→435 (6.6s, 6.0ft), 256→312 (6.3s, 5.1ft)
+INFO  gsw_cle_2016f_g7_s04 @9537 P3: CLE offense, 3 pts — J. Smith makes 3-pt jump shot from 25 ft (assist by L. 
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 6731→6727 (3.9s, 6.0ft), 6732→6736 (2.4s, 12.9ft), 6734→6738 (2.4s, 5.7ft)
+INFO  gsw_cle_2016f_g7_s04 @16779 P3: GSW offense, 3 pts — S. Curry makes 3-pt jump shot from 26 ft (assist by A. 
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 14062→14058 (4.5s, 9.3ft), 14060→14064 (4.4s, 8.9ft), 14063→14059 (2.5s, 6.8ft)
+INFO  gsw_cle_2016f_g7_s05 @639 P3: CLE offense, 2 pts — K. Love makes 2-pt layup from 3 ft (assist by L. James 
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 6→11 (11.5s, 7.2ft), 63→52 (6.8s, 4.4ft), 4→32 (5.8s, 8.1ft)
+INFO  gsw_cle_2016f_g7_s05 @1410 P3: GSW offense, 0 pts — A. VarejÃ£o misses 2-pt jump shot from 3 ft (block by K
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 106→6 (8.1s, 5.9ft), 301→313 (4.9s, 6.9ft), 32→307 (4.5s, 6.4ft)
+INFO  gsw_cle_2016f_g7_s05 @6339 P3: CLE offense, 0 pts — J. Smith misses 3-pt jump shot from 23 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 4137→4141 (11.9s, 10.5ft), 4139→4143 (11.1s, 17.9ft), 4138→4143 (3.6s, 3.0ft)
+INFO  gsw_cle_2016f_g7_s06 @4710 P3: CLE offense, 1 pts — T. Thompson misses free throw 2 of 2
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 911→2429 (1.5s, 18.8ft), 2427→2429 (0.3s, 33.0ft), 2426→2429 (0.2s, 17.7ft)
+INFO  gsw_cle_2016f_g7_s06 @10407 P3: CLE offense, 2 pts — L. James makes 2-pt jump shot from 12 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 6069→5897 (2.0s, 11.4ft), 6433→5897 (1.9s, 11.5ft), 6428→6430 (0.8s, 6.2ft)
+INFO  gsw_cle_2016f_g7_s07 @612 P4: CLE offense, 2 pts — K. Love makes 2-pt hook shot from 7 ft (assist by L. Ja
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 2→5 (6.9s, 6.9ft), 4→12 (5.2s, 10.7ft), 6→59 (5.0s, 9.4ft)
+INFO  gsw_cle_2016f_g7_s07 @5946 P4: GSW offense, 2 pts — D. Green makes 2-pt layup from 2 ft
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 4219→4218 (3.5s, 23.2ft), 4220→4216 (3.2s, 4.3ft), 4222→4217 (2.1s, 22.5ft)
+INFO  gsw_cle_xmas16_s02 @16617 P2: GSW offense, 2 pts — D. Green makes 2-pt layup from 1 ft (assist by A. Iguod
+INFO    defense=CLE (consistent: True) | top defenders (frag→man): 8323→8322 (5.5s, 12.6ft)
+INFO  gsw_cle_xmas16_s03 @6450 P2: CLE offense, 0 pts — R. Jefferson misses 2-pt jump shot from 12 ft (block by
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 2805→2691 (5.0s, 7.4ft)
+INFO  gsw_cle_xmas16_s05 @16416 P3: CLE offense, 3 pts — L. James makes 3-pt jump shot from 26 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 7765→7766 (2.7s, 8.4ft)
+INFO  gsw_okc_2016wcf_g1_s00 @16149 P1: OKC offense, 0 pts — S. Ibaka misses 3-pt jump shot from 25 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 3750→569 (16.6s, 11.7ft), 3753→3756 (16.3s, 16.6ft)
+INFO  gsw_okc_2016wcf_g1_s00 @22059 P1: OKC offense, 2 pts — K. Durant makes 2-pt jump shot from 17 ft (assist by R.
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 10530→10528 (9.8s, 10.6ft), 10531→7017 (8.6s, 7.8ft)
+INFO  gsw_okc_2016wcf_g1_s01 @20742 P1: GSW offense, 2 pts — S. Curry makes 2-pt jump shot from 6 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 11775→11779 (9.0s, 16.2ft), 9001→11776 (5.5s, 10.1ft), 11777→11779 (5.5s, 11.0ft)
+INFO  gsw_okc_2016wcf_g1_s01 @21399 P1: OKC offense, 2 pts — D. Waiters makes 2-pt jump shot from 19 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 12132→9001 (4.4s, 14.2ft), 11779→12130 (4.1s, 22.3ft), 11776→12130 (0.1s, 31.6ft)
+INFO  gsw_okc_2016wcf_g1_s01 @29250 P1: OKC offense, 0 pts — Turnover by E. Freedom (lost ball; steal by S. Curry )
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 19718→19719 (3.9s, 13.0ft), 19721→19719 (0.9s, 14.1ft)
+INFO  gsw_okc_2016wcf_g1_s01 @29955 P1: GSW offense, 3 pts — H. Barnes makes 3-pt jump shot from 26 ft (assist by A.
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 20872→20876 (8.3s, 10.3ft), 20875→20873 (7.7s, 9.7ft)
+INFO  gsw_okc_2016wcf_g1_s02 @453 P1: OKC offense, 2 pts — R. Westbrook makes 2-pt layup from 1 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 95→102 (5.5s, 20.3ft), 107→108 (4.0s, 8.3ft), 106→9 (3.1s, 15.4ft)
+INFO  gsw_okc_2016wcf_g1_s02 @23424 P2: OKC offense, 3 pts — R. Foye makes 3-pt jump shot from 23 ft (assist by D. W
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 17890→18166 (4.3s, 6.8ft), 18165→18162 (4.0s, 25.5ft)
+INFO  gsw_okc_2016wcf_g1_s02 @31950 P2: GSW offense, 2 pts — L. Barbosa makes 2-pt layup from 2 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 26106→26105 (0.7s, 11.7ft)
+INFO  gsw_okc_2016wcf_g1_s03 @2274 P2: OKC offense, 0 pts — S. Ibaka misses 2-pt jump shot from 18 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 223→376 (12.2s, 11.8ft), 189→11 (7.8s, 10.2ft), 44→27 (6.9s, 8.9ft)
+INFO  gsw_okc_2016wcf_g1_s03 @6858 P2: GSW offense, 0 pts — L. Barbosa misses 2-pt layup from 1 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 3256→3255 (15.2s, 4.8ft), 3253→499 (15.1s, 6.5ft), 3258→3255 (6.5s, 7.2ft)
+INFO  gsw_okc_2016wcf_g1_s03 @18276 P2: OKC offense, 0 pts — S. Ibaka misses 2-pt jump shot from 17 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 10866→10870 (11.2s, 15.6ft), 10869→10867 (11.1s, 22.8ft), 10864→10868 (6.8s, 9.7ft)
+INFO  gsw_okc_2016wcf_g1_s03 @19719 P2: OKC offense, 0 pts — K. Durant misses 2-pt jump shot from 15 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 10866→12161 (19.9s, 11.5ft), 12166→12167 (17.3s, 9.8ft), 12162→12165 (10.5s, 5.3ft)
+INFO  gsw_okc_2016wcf_g1_s03 @30507 P2: OKC offense, 2 pts — S. Ibaka makes 2-pt jump shot from 14 ft (assist by K. 
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 22088→22091 (11.4s, 26.5ft), 22089→22092 (11.2s, 10.5ft), 22086→22091 (4.0s, 19.6ft)
+INFO  gsw_okc_2016wcf_g1_s04 @9006 P2: GSW offense, 0 pts — D. Green misses 2-pt layup from 5 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 2928→2929 (21.4s, 8.0ft), 2932→2934 (13.9s, 5.9ft), 2470→2930 (11.9s, 16.2ft)
+INFO  gsw_okc_2016wcf_g1_s04 @14019 P2: GSW offense, 0 pts — K. Thompson misses 2-pt jump shot from 7 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 10317→10316 (12.2s, 9.1ft), 10319→10314 (11.7s, 13.6ft), 10318→10314 (3.0s, 15.1ft)
+INFO  gsw_okc_2016wcf_g1_s04 @15396 P2: GSW offense, 3 pts — K. Thompson makes 3-pt jump shot from 23 ft (assist by 
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 11827→11831 (13.6s, 6.1ft), 10312→11829 (9.6s, 20.0ft), 11828→11829 (7.1s, 25.9ft)
+INFO  gsw_okc_2016wcf_g1_s04 @22071 P2: OKC offense, 3 pts — D. Waiters makes 3-pt jump shot from 23 ft (assist by A
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 15582→15585 (16.4s, 14.2ft), 11833→15585 (0.4s, 37.7ft)
+INFO  gsw_okc_2016wcf_g1_s05 @26412 P3: GSW offense, 3 pts — S. Curry makes 3-pt jump shot from 28 ft (assist by A. 
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 15187→15185 (21.3s, 10.8ft), 15188→15183 (19.1s, 22.5ft), 15184→15189 (6.9s, 4.8ft)
+INFO  gsw_okc_2016wcf_g1_s05 @27711 P3: OKC offense, 0 pts — R. Westbrook misses 2-pt jump shot from 12 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 16537→16532 (10.9s, 8.8ft), 16534→16533 (8.7s, 11.6ft), 16536→16535 (4.8s, 6.1ft)
+INFO  gsw_okc_2016wcf_g1_s06 @1344 P3: GSW offense, 0 pts — Turnover by S. Curry (bad pass; steal by K. Durant )
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 3→2 (14.9s, 8.3ft), 7→4 (7.5s, 6.8ft), 18→8 (6.0s, 6.1ft)
+INFO  gsw_okc_2016wcf_g1_s06 @16221 P3: OKC offense, 0 pts — R. Westbrook misses 2-pt layup from 1 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 12326→12324 (7.0s, 9.6ft), 12329→12328 (6.7s, 8.9ft), 9264→12325 (0.6s, 23.7ft)
+INFO  gsw_okc_2016wcf_g1_s06 @16758 P3: GSW offense, 3 pts — D. Green makes free throw 1 of 1
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 12781→12329 (7.9s, 11.3ft), 12779→12783 (5.2s, 27.8ft), 12778→12783 (3.5s, 14.2ft)
+INFO  gsw_okc_2016wcf_g1_s07 @9876 P3: GSW offense, 0 pts — Turnover by S. Curry (bad pass; steal by R. Westbrook )
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 3229→3230 (8.7s, 9.3ft), 3233→3230 (5.8s, 12.7ft), 3235→3230 (3.9s, 14.8ft)
+INFO  gsw_okc_2016wcf_g1_s07 @22833 P3: OKC offense, 2 pts — R. Westbrook makes 2-pt layup from 1 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 14101→14106 (9.3s, 14.0ft), 14105→13727 (6.9s, 12.0ft), 14104→14106 (2.1s, 15.4ft)
+INFO  gsw_okc_2016wcf_g1_s08 @2946 P4: GSW offense, 0 pts — Turnover by K. Thompson (bad pass; steal by K. Durant )
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 405→595 (7.3s, 11.3ft), 241→130 (6.5s, 13.6ft), 492→3 (6.2s, 8.6ft)
+INFO  gsw_okc_2016wcf_g1_s08 @4959 P4: OKC offense, 2 pts — D. Waiters makes 2-pt layup from 3 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 697→893 (12.1s, 11.4ft), 845→849 (11.7s, 10.0ft), 130→846 (10.8s, 7.9ft)
+INFO  gsw_okc_2016wcf_g1_s08 @13536 P4: OKC offense, 2 pts — K. Durant makes 2-pt jump shot from 11 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 6181→6183 (3.4s, 14.3ft), 6182→6180 (1.9s, 10.0ft)
+INFO  gsw_okc_2016wcf_g1_s08 @14826 P4: GSW offense, 0 pts — S. Livingston misses 2-pt hook shot from 8 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 7879→7878 (19.4s, 15.2ft)
+INFO  gsw_okc_2016wcf_g1_s08 @16713 P4: OKC offense, 0 pts — Turnover by Team (shot clock)
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 11883→11881 (9.5s, 3.7ft), 11880→11882 (8.9s, 4.4ft), 11878→11876 (7.0s, 27.9ft)
+INFO  gsw_okc_2016wcf_g1_s08 @21330 P4: GSW offense, 0 pts — S. Curry misses 2-pt jump shot from 6 ft
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 12429→12403 (9.9s, 10.0ft), 12431→12404 (8.3s, 12.0ft)
+INFO  gsw_okc_2016wcf_g1_s08 @29817 P4: OKC offense, 0 pts — K. Durant misses 2-pt jump shot from 13 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 23432→23434 (0.6s, 9.9ft)
+INFO  gsw_okc_2016wcf_g1_s09 @18183 P4: GSW offense, 2 pts — H. Barnes makes 2-pt jump shot from 8 ft (assist by D. 
+INFO    defense=OKC (consistent: True) | top defenders (frag→man): 12415→13613 (20.3s, 9.5ft), 13614→13612 (18.4s, 16.5ft)
+INFO  gsw_okc_2016wcf_g1_s10 @5682 P4: OKC offense, 0 pts — R. Westbrook misses 2-pt layup from 2 ft
+INFO    defense=GSW (consistent: True) | top defenders (frag→man): 699→694 (3.8s, 9.9ft), 701→694 (2.7s, 4.6ft), 700→694 (1.0s, 6.3ft)
+INFO  excluded clip_10m00_18m00 @3095: duplicate_of_span:2000
+INFO  excluded clip_26m00_34m00 @2729: anchor_failed
+INFO  excluded clip_40m00_48m00 @1833: anchor_failed
+INFO  excluded clip_40m00_48m00 @3786: anchor_failed
+INFO  excluded clip_40m00_48m00 @4272: anchor_failed
+INFO  excluded clip_40m00_48m00 @8205: no_pbp_overlap
+INFO  excluded clip_55m00_63m00 @5028: offense_disagrees_pbp
+INFO  excluded clip_55m00_63m00 @9228: no_pbp_overlap
+INFO  excluded clip_70m00_78m00 @492: no_pbp_overlap
+INFO  excluded clip_70m00_78m00 @1284: matchup_degraded
+INFO  excluded clip_70m00_78m00 @2649: matchup_degraded
+INFO  excluded clip_70m00_78m00 @4893: no_pbp_overlap
+INFO  excluded clip_70m00_78m00 @11649: no_matchup_record
+INFO  excluded curry_classic_clip @189: no_pbp_overlap
+INFO  excluded curry_classic_clip @687: no_matchup_record
+INFO  excluded curry_classic_clip @1734: weak_pbp_match
+INFO  excluded curry_classic_clip @2889: duplicate_of_span:2595
+INFO  excluded curry_q1_clip @912: duplicate_of_span:0
+INFO  excluded curry_q1_clip @2112: anchor_inconsistent
+INFO  excluded curry_q1_clip @2676: anchor_failed
+INFO  excluded curry_q1_clip @6660: anchor_failed
+INFO  excluded curry_q1_clip @7821: offense_disagrees_pbp
+INFO  excluded curry_q1_clip @11586: offense_disagrees_pbp
+INFO  excluded gsw_cle_2016f_g7_s00 @2130: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @2760: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @3294: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @3753: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @5256: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @6744: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @9990: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @10875: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @12708: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @14142: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @14493: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s00 @14916: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @297: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @1209: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @1857: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @6297: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @7356: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @7977: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s01 @11142: anchor_failed
+INFO  excluded gsw_cle_2016f_g7_s02 @1230: matchup_degraded
+INFO  excluded gsw_cle_2016f_g7_s02 @2454: duplicate_of_span:1770
+INFO  excluded gsw_cle_2016f_g7_s02 @4626: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s02 @10206: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s02 @14718: duplicate_of_span:13350
+INFO  excluded gsw_cle_2016f_g7_s03 @27: offense_disagrees_pbp
+INFO  excluded gsw_cle_2016f_g7_s03 @1110: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s03 @2271: duplicate_of_span:1722
+INFO  excluded gsw_cle_2016f_g7_s04 @3348: anchor_inconsistent
+INFO  excluded gsw_cle_2016f_g7_s04 @11160: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s04 @11610: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s05 @2841: no_pbp_overlap
+INFO  excluded gsw_cle_2016f_g7_s05 @3351: no_pbp_overlap
+INFO  excluded gsw_cle_2016f_g7_s05 @5133: no_pbp_overlap
+INFO  excluded gsw_cle_2016f_g7_s05 @15138: offense_disagrees_pbp
+INFO  excluded gsw_cle_2016f_g7_s06 @0: offense_disagrees_pbp
+INFO  excluded gsw_cle_2016f_g7_s06 @3684: no_pbp_overlap
+INFO  excluded gsw_cle_2016f_g7_s06 @11556: offense_disagrees_pbp
+INFO  excluded gsw_cle_2016f_g7_s06 @13053: anchor_inconsistent
+INFO  excluded gsw_cle_2016f_g7_s06 @16458: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s07 @1278: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s07 @1662: weak_pbp_match
+INFO  excluded gsw_cle_2016f_g7_s07 @2004: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s07 @4020: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s07 @6498: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s07 @8859: anchor_inconsistent
+INFO  excluded gsw_cle_2016f_g7_s08 @675: no_matchup_record
+INFO  excluded gsw_cle_2016f_g7_s08 @975: duplicate_of_span:675
+INFO  excluded gsw_cle_2016f_g7_s08 @7650: offense_disagrees_pbp
+INFO  excluded gsw_cle_2016f_g7_s08 @13902: anchor_inconsistent
+INFO  excluded gsw_cle_2016f_g7_s09 @1932: no_pbp_overlap
+INFO  excluded gsw_cle_xmas16_s00 @2154: anchor_failed
+INFO  excluded gsw_cle_xmas16_s00 @4983: anchor_failed
+INFO  excluded gsw_cle_xmas16_s00 @16374: anchor_failed
+INFO  excluded gsw_cle_xmas16_s01 @480: anchor_failed
+INFO  excluded gsw_cle_xmas16_s01 @16533: anchor_failed
+INFO  excluded gsw_cle_xmas16_s02 @1851: anchor_failed
+INFO  excluded gsw_cle_xmas16_s02 @10596: no_pbp_overlap
+INFO  excluded gsw_cle_xmas16_s02 @13008: no_pbp_overlap
+INFO  excluded gsw_cle_xmas16_s02 @15936: no_matchup_record
+INFO  excluded gsw_cle_xmas16_s03 @0: no_matchup_record
+INFO  excluded gsw_cle_xmas16_s03 @423: weak_pbp_match
+INFO  excluded gsw_cle_xmas16_s04 @807: no_matchup_record
+INFO  excluded gsw_cle_xmas16_s05 @3597: no_pbp_overlap
+INFO  excluded gsw_cle_xmas16_s06 @2583: offense_disagrees_pbp
+INFO  excluded gsw_cle_xmas16_s07 @3117: matchup_degraded
+INFO  excluded gsw_cle_xmas16_s07 @14739: no_matchup_record
+INFO  excluded gsw_cle_xmas16_s07 @16530: no_matchup_record
+INFO  excluded gsw_cle_xmas16_s08 @0: matchup_degraded
+INFO  excluded gsw_cle_xmas16_s08 @12297: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s00 @11619: weak_pbp_match
+INFO  excluded gsw_okc_2016wcf_g1_s00 @13344: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s00 @20295: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s00 @20664: duplicate_of_span:20295
+INFO  excluded gsw_okc_2016wcf_g1_s00 @22686: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s00 @23415: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s00 @30597: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s00 @32871: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s00 @33936: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s01 @1347: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s01 @7125: weak_pbp_match
+INFO  excluded gsw_okc_2016wcf_g1_s01 @19338: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s01 @24597: weak_pbp_match
+INFO  excluded gsw_okc_2016wcf_g1_s01 @29481: duplicate_of_span:29250
+INFO  excluded gsw_okc_2016wcf_g1_s01 @30933: duplicate_of_span:29955
+INFO  excluded gsw_okc_2016wcf_g1_s02 @0: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s02 @1101: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s02 @2634: weak_pbp_match
+INFO  excluded gsw_okc_2016wcf_g1_s02 @3783: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s02 @7089: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s02 @12438: matchup_degraded
+INFO  excluded gsw_okc_2016wcf_g1_s02 @13254: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s02 @13848: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s02 @23073: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s02 @24648: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s02 @26079: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s03 @522: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s03 @1641: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s03 @4407: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s03 @7632: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s03 @15537: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s03 @15954: duplicate_of_span:15537
+INFO  excluded gsw_okc_2016wcf_g1_s03 @17367: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s03 @20997: weak_pbp_match
+INFO  excluded gsw_okc_2016wcf_g1_s03 @25692: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s03 @26172: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s03 @27627: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s04 @2136: matchup_degraded
+INFO  excluded gsw_okc_2016wcf_g1_s04 @4014: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s04 @5160: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s04 @10470: weak_pbp_match
+INFO  excluded gsw_okc_2016wcf_g1_s04 @14847: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s04 @23574: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s05 @0: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s05 @969: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s05 @1179: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s05 @11133: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s05 @11649: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s05 @12078: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s05 @14127: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s05 @15780: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s05 @17676: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s05 @20712: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s05 @21315: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s05 @22479: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s05 @23823: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s05 @32118: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s06 @2286: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s06 @4863: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s06 @6438: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s06 @10245: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s06 @13992: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s06 @18405: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s06 @21345: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s06 @25665: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s06 @28608: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s06 @29277: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s06 @30612: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s07 @969: matchup_degraded
+INFO  excluded gsw_okc_2016wcf_g1_s07 @1587: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s07 @5640: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s07 @6585: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s07 @8691: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s07 @9282: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s07 @10608: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s07 @23673: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s07 @24735: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s07 @29484: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s07 @30156: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s08 @105: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s08 @1494: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s08 @2391: duplicate_of_span:1494
+INFO  excluded gsw_okc_2016wcf_g1_s08 @3333: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s08 @5943: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s08 @7335: no_pbp_overlap
+INFO  excluded gsw_okc_2016wcf_g1_s08 @8055: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s08 @9084: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s08 @9543: duplicate_of_span:9084
+INFO  excluded gsw_okc_2016wcf_g1_s08 @10110: duplicate_of_span:9084
+INFO  excluded gsw_okc_2016wcf_g1_s08 @22335: matchup_degraded
+INFO  excluded gsw_okc_2016wcf_g1_s08 @23079: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s08 @24630: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s08 @26091: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s08 @34830: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s09 @327: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s09 @786: duplicate_of_span:327
+INFO  excluded gsw_okc_2016wcf_g1_s09 @1767: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s09 @2898: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s09 @6678: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s09 @8757: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s09 @11070: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s09 @19569: offense_disagrees_pbp
+INFO  excluded gsw_okc_2016wcf_g1_s09 @25317: no_matchup_record
+INFO  excluded gsw_okc_2016wcf_g1_s09 @29979: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s09 @34863: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s10 @2310: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s10 @4566: anchor_failed
+INFO  excluded gsw_okc_2016wcf_g1_s10 @11658: anchor_inconsistent
+INFO  excluded gsw_okc_2016wcf_g1_s10 @16890: anchor_inconsistent
+INFO ── CHECKS ── {"joined": 88, "excluded": 201, "every_join_has_outcome_and_defenders": true, "no_shared_pbp_possession": true, "team_consistency_all": true, "note": "no defender aggregates computed \u2014 sample too small by design; scale via harvesting before credit numbers"}
+INFO join → /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/pbp/tier2_join.json

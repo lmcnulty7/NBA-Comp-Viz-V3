@@ -1,0 +1,22 @@
+[
+ {
+  "set_start_frame": 480,
+  "core_end_frame": 648,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 16533,
+  "core_end_frame": 16656,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ }
+]

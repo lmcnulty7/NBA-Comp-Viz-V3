@@ -1,0 +1,510 @@
+[
+ {
+  "set_start_frame": 777,
+  "core_end_frame": 1011,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.75,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 933,
+    "period": 2,
+    "clock_s": 706,
+    "raw": "2Nd|11:46"
+   },
+   {
+    "frame": 1011,
+    "period": 2,
+    "clock_s": 703,
+    "raw": "2Nd|11:43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    702.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 702.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 16 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 1230,
+  "core_end_frame": 1683,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.78,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1230,
+    "period": 2,
+    "clock_s": 696,
+    "raw": "2Nd|11:36"
+   },
+   {
+    "frame": 1456,
+    "period": 2,
+    "clock_s": 688,
+    "raw": "2Nd|11:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    702.0,
+    680.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 680.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "I. Shumpert misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 1770,
+  "core_end_frame": 1932,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.66,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1770,
+    "period": 2,
+    "clock_s": 677,
+    "raw": "2Nd|11:17"
+   },
+   {
+    "frame": 1932,
+    "period": 2,
+    "clock_s": 672,
+    "raw": "2Nd|11:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    680.0,
+    671.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 671.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by K. Thompson (offensive foul)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 2454,
+  "core_end_frame": 2616,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2454,
+    "period": 2,
+    "clock_s": 672,
+    "raw": "2Nd|11:12"
+   },
+   {
+    "frame": 2616,
+    "period": 2,
+    "clock_s": 671,
+    "raw": "2Nd|11:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    680.0,
+    671.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 671.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by K. Thompson (offensive foul)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 1770,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 2955,
+  "core_end_frame": 3117,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2955,
+    "period": 2,
+    "clock_s": 660,
+    "raw": "2Nd|11:00"
+   },
+   {
+    "frame": 3117,
+    "period": 2,
+    "clock_s": 654,
+    "raw": "2Nd|10:54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    671.0,
+    653.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 653.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "M. Williams misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 3249,
+  "core_end_frame": 3402,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3249,
+    "period": 2,
+    "clock_s": 650,
+    "raw": "2No|10:50"
+   },
+   {
+    "frame": 3402,
+    "period": 2,
+    "clock_s": 645,
+    "raw": "2Nd|10:45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    653.0,
+    643.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 643.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 4626,
+  "core_end_frame": 4905,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.56,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4626,
+    "period": 2,
+    "clock_s": 616,
+    "raw": "2Nd|10:16"
+   },
+   {
+    "frame": 4905,
+    "period": 2,
+    "clock_s": 607,
+    "raw": "2Nd|10:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    618.0,
+    607.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 607.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 10206,
+  "core_end_frame": 10461,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.52,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 10206,
+    "period": 2,
+    "clock_s": 501,
+    "raw": "2Nd|8:21"
+   },
+   {
+    "frame": 10461,
+    "period": 2,
+    "clock_s": 492,
+    "raw": "2Nd|8:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    504.0,
+    488.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 488.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ },
+ {
+  "set_start_frame": 13350,
+  "core_end_frame": 13545,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13447,
+    "period": 2,
+    "clock_s": 428,
+    "raw": "2Nd|7:8"
+   },
+   {
+    "frame": 13545,
+    "period": 2,
+    "clock_s": 425,
+    "raw": "2nd|7:5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    458.0,
+    422.0
+   ],
+   "points": 4
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 4,
+  "terminating_event": {
+   "clock_s": 422.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "I. Shumpert makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 14718,
+  "core_end_frame": 15057,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14718,
+    "period": 2,
+    "clock_s": 433,
+    "raw": "2Nd|7:13"
+   },
+   {
+    "frame": 15057,
+    "period": 2,
+    "clock_s": 422,
+    "raw": "2No|7:02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    458.0,
+    422.0
+   ],
+   "points": 4
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 4,
+  "terminating_event": {
+   "clock_s": 422.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "I. Shumpert makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "duplicate_of_span": 13350,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 15996,
+  "core_end_frame": 16158,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.9,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15996,
+    "period": 2,
+    "clock_s": 420,
+    "raw": "2Nd|7:00"
+   },
+   {
+    "frame": 16158,
+    "period": 2,
+    "clock_s": 414,
+    "raw": "2Nd|6:54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    422.0,
+    396.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 412.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Curry makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.94
+ }
+]

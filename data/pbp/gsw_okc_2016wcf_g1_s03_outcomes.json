@@ -1,0 +1,565 @@
+[
+ {
+  "set_start_frame": 522,
+  "core_end_frame": 1242,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 513,
+    "period": 2,
+    "clock_s": 597,
+    "raw": "2ND|9:57"
+   },
+   {
+    "frame": 1242,
+    "period": 2,
+    "clock_s": 584,
+    "raw": "2ND|9:44"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 1641,
+  "core_end_frame": 2160,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 1641,
+    "period": 2,
+    "clock_s": 577,
+    "raw": "2ND|9:37"
+   },
+   {
+    "frame": 2163,
+    "period": 2,
+    "clock_s": 569,
+    "raw": "2ND|9:29"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 2274,
+  "core_end_frame": 2739,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.68,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2274,
+    "period": 2,
+    "clock_s": 567,
+    "raw": "2ND|9:27"
+   },
+   {
+    "frame": 2521,
+    "period": 2,
+    "clock_s": 562,
+    "raw": "2ND|9:22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    569.0,
+    547.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 547.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Ibaka misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 4407,
+  "core_end_frame": 5625,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 4407,
+    "period": 2,
+    "clock_s": 558,
+    "raw": "2ND|9:18"
+   },
+   {
+    "frame": 5625,
+    "period": 2,
+    "clock_s": 547,
+    "raw": "2ND|9:07"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 6858,
+  "core_end_frame": 7464,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.68,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6858,
+    "period": 2,
+    "clock_s": 526,
+    "raw": "2ND|8:46"
+   },
+   {
+    "frame": 7161,
+    "period": 2,
+    "clock_s": 521,
+    "raw": "2ND|8:41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    534.0,
+    516.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 516.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "L. Barbosa misses 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 7632,
+  "core_end_frame": 7887,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7632,
+    "period": 2,
+    "clock_s": 513,
+    "raw": "2ND|8:33"
+   },
+   {
+    "frame": 7884,
+    "period": 2,
+    "clock_s": 509,
+    "raw": "2ND|8:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    516.0,
+    506.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 506.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Ibaka makes 3-pt jump shot from 25 ft (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 15537,
+  "core_end_frame": 15660,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.71,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15537,
+    "period": 2,
+    "clock_s": 485,
+    "raw": "2ND|8:05"
+   },
+   {
+    "frame": 15660,
+    "period": 2,
+    "clock_s": 483,
+    "raw": "2ND|8:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    491.0,
+    472.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 472.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 15954,
+  "core_end_frame": 16116,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15954,
+    "period": 2,
+    "clock_s": 478,
+    "raw": "2ND|7:58"
+   },
+   {
+    "frame": 16116,
+    "period": 2,
+    "clock_s": 475,
+    "raw": "2ND|7:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    491.0,
+    472.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 472.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 15537,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 17367,
+  "core_end_frame": 17709,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 18276,
+  "core_end_frame": 18708,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 18276,
+    "period": 2,
+    "clock_s": 439,
+    "raw": "2ND|7:19"
+   },
+   {
+    "frame": 18495,
+    "period": 2,
+    "clock_s": 435,
+    "raw": "2ND|7:15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    445.0,
+    432.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 432.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Ibaka misses 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 19719,
+  "core_end_frame": 20394,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.92,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 20062,
+    "period": 2,
+    "clock_s": 409,
+    "raw": "2ND|6:49"
+   },
+   {
+    "frame": 20394,
+    "period": 2,
+    "clock_s": 403,
+    "raw": "2ND|6:43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    424.0,
+    404.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.83,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 404.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Durant misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 20997,
+  "core_end_frame": 21297,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 20997,
+    "period": 2,
+    "clock_s": 393,
+    "raw": "2ND|6:33"
+   },
+   {
+    "frame": 21303,
+    "period": 2,
+    "clock_s": 388,
+    "raw": "2ND|6:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    391.0,
+    381.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.6,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 381.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "K. Durant makes free throw 3 of 3"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 25692,
+  "core_end_frame": 25848,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 26172,
+  "core_end_frame": 26676,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 27627,
+  "core_end_frame": 27903,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.56,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 27627,
+    "period": 2,
+    "clock_s": 363,
+    "raw": "2ND|6:03"
+   },
+   {
+    "frame": 27903,
+    "period": 2,
+    "clock_s": 359,
+    "raw": "2ND|5:59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    366.0,
+    350.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 350.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.56
+ },
+ {
+  "set_start_frame": 30507,
+  "core_end_frame": 30945,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 30528,
+    "period": 2,
+    "clock_s": 341,
+    "raw": "2ND|5:41"
+   },
+   {
+    "frame": 30726,
+    "period": 2,
+    "clock_s": 338,
+    "raw": "2ND|5:38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    350.0,
+    333.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 333.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Ibaka makes 2-pt jump shot from 14 ft (assist by K. Durant )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ }
+]

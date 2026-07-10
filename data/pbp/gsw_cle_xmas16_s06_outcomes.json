@@ -1,0 +1,46 @@
+[
+ {
+  "set_start_frame": 2583,
+  "core_end_frame": 2814,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2583,
+    "period": 3,
+    "clock_s": 243,
+    "raw": "3rd|403"
+   },
+   {
+    "frame": 2814,
+    "period": 3,
+    "clock_s": 235,
+    "raw": "3rd|3:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    244.0,
+    226.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 226.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ }
+]

@@ -1,0 +1,32 @@
+[
+ {
+  "set_start_frame": 2154,
+  "core_end_frame": 2295,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 4983,
+  "core_end_frame": 5172,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 16374,
+  "core_end_frame": 16542,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "anchor_failed"
+ }
+]

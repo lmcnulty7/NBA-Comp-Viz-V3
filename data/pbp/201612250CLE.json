@@ -1,0 +1,4330 @@
+{
+ "meta": {
+  "away": "GSW",
+  "home": "CLE",
+  "date": "2016-12-25",
+  "light_team_name": "GSW"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 702.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (bad pass)",
+   "points": 0,
+   "score": "0-0",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 682.0,
+   "team": "home",
+   "desc": "Turnover by L. James (bad pass; steal by K. Durant )",
+   "points": 0,
+   "score": "0-0",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 677.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "2-0",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 659.0,
+   "team": "home",
+   "desc": "L. James misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "2-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 658.0,
+   "team": "away",
+   "desc": "Defensive rebound by Z. Pachulia",
+   "points": 0,
+   "score": "2-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 651.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "2-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 650.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Love",
+   "points": 0,
+   "score": "2-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 642.0,
+   "team": "home",
+   "desc": "K. Love misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "2-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 642.0,
+   "team": "away",
+   "desc": "Defensive rebound by Z. Pachulia",
+   "points": 0,
+   "score": "2-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 630.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by K. Love )",
+   "points": 0,
+   "score": "2-0",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 624.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "2-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 624.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "2-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 608.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by K. Love )",
+   "points": 0,
+   "score": "2-0",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 608.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 1 of 2",
+   "points": 1,
+   "score": "2-1",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 608.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 2 of 2",
+   "points": 1,
+   "score": "2-2",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 597.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by Z. Pachulia )",
+   "points": 2,
+   "score": "4-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 578.0,
+   "team": "home",
+   "desc": "T. Thompson misses 2-pt hook shot from 6 ft",
+   "points": 0,
+   "score": "4-2",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 578.0,
+   "team": "away",
+   "desc": "Defensive rebound by Z. Pachulia",
+   "points": 0,
+   "score": "4-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 571.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "4-2",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 571.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Liggins",
+   "points": 0,
+   "score": "4-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by D. Liggins )",
+   "points": 0,
+   "score": "4-2",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "Technical foul by D. Green",
+   "points": 0,
+   "score": "4-2",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "home",
+   "desc": "K. Irving makes technical free throw",
+   "points": 1,
+   "score": "4-3",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "home",
+   "desc": "D. Liggins misses free throw 1 of 2",
+   "points": 0,
+   "score": "4-3",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "4-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "home",
+   "desc": "D. Liggins misses free throw 2 of 2",
+   "points": 0,
+   "score": "4-3",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 565.0,
+   "team": "away",
+   "desc": "K. Looney enters the game for D. Green",
+   "points": 0,
+   "score": "4-3",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 564.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "4-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 560.0,
+   "team": "away",
+   "desc": "Shooting foul by T. Thompson (drawn by K. Durant )",
+   "points": 0,
+   "score": "4-3",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 560.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "5-3",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 560.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "6-3",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 546.0,
+   "team": "home",
+   "desc": "K. Love makes 3-pt jump shot from 25 ft (assist by K. Irving )",
+   "points": 3,
+   "score": "6-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 525.0,
+   "team": "away",
+   "desc": "Turnover by Z. Pachulia (lost ball; steal by K. Irving )",
+   "points": 0,
+   "score": "6-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 517.0,
+   "team": "home",
+   "desc": "L. James misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "6-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 517.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Thompson",
+   "points": 0,
+   "score": "6-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "Turnover by L. James (bad pass)",
+   "points": 0,
+   "score": "6-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 490.0,
+   "team": "away",
+   "desc": "K. Durant misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "6-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 489.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "6-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 479.0,
+   "team": "home",
+   "desc": "K. Love misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "6-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 478.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "6-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 469.0,
+   "team": "away",
+   "desc": "Z. Pachulia makes 2-pt layup from 1 ft (assist by K. Durant )",
+   "points": 2,
+   "score": "8-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 455.0,
+   "team": "home",
+   "desc": "K. Love misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "8-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 454.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "8-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "Loose ball foul by Z. Pachulia (drawn by T. Thompson )",
+   "points": 0,
+   "score": "8-6",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "J. McGee enters the game for Z. Pachulia",
+   "points": 0,
+   "score": "8-6",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 443.0,
+   "team": "home",
+   "desc": "K. Love misses 2-pt hook shot from 3 ft",
+   "points": 0,
+   "score": "8-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 441.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "8-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 436.0,
+   "team": "away",
+   "desc": "Turnover by K. Thompson (bad pass; steal by D. Liggins )",
+   "points": 0,
+   "score": "8-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 425.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt jump shot from 14 ft",
+   "points": 2,
+   "score": "8-8",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 415.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "8-8",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 404.0,
+   "team": "away",
+   "desc": "K. Durant misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "8-8",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 403.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Liggins",
+   "points": 0,
+   "score": "8-8",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 401.0,
+   "team": "home",
+   "desc": "Personal foul by K. Looney (drawn by D. Liggins )",
+   "points": 0,
+   "score": "8-8",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 386.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt jump shot from 14 ft (assist by K. Love )",
+   "points": 2,
+   "score": "8-10",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 362.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "8-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 359.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. McGee",
+   "points": 0,
+   "score": "8-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 359.0,
+   "team": "away",
+   "desc": "J. McGee makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "10-10",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 341.0,
+   "team": "home",
+   "desc": "D. Liggins misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "10-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 341.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. McGee",
+   "points": 0,
+   "score": "10-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Liggins (drawn by K. Durant )",
+   "points": 0,
+   "score": "10-10",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "11-10",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "I. Shumpert enters the game for D. Liggins",
+   "points": 0,
+   "score": "11-10",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "12-10",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 313.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "12-10",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 313.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Looney",
+   "points": 0,
+   "score": "12-10",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 304.0,
+   "team": "away",
+   "desc": "Turnover by K. Thompson (bad pass; steal by L. James )",
+   "points": 0,
+   "score": "12-10",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 299.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "12-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 292.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "14-12",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 286.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt dunk at rim (assist by K. Love )",
+   "points": 2,
+   "score": "14-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 276.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "14-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 276.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Irving",
+   "points": 0,
+   "score": "14-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 267.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "14-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 267.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "14-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 256.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "14-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 255.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "14-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 238.0,
+   "team": "away",
+   "desc": "Shooting block foul by K. Love (drawn by K. Durant )",
+   "points": 0,
+   "score": "14-14",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 238.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "15-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 238.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for K. Looney",
+   "points": 0,
+   "score": "15-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 238.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "16-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 227.0,
+   "team": "home",
+   "desc": "L. James misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "16-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 226.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "16-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 218.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt jump shot from 10 ft",
+   "points": 2,
+   "score": "18-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 200.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "18-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 199.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "18-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 199.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "18-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 199.0,
+   "team": "away",
+   "desc": "I. Clark enters the game for K. Thompson",
+   "points": 0,
+   "score": "18-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 199.0,
+   "team": "home",
+   "desc": "R. Jefferson enters the game for T. Thompson",
+   "points": 0,
+   "score": "18-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 199.0,
+   "team": "home",
+   "desc": "C. Frye enters the game for K. Irving",
+   "points": 0,
+   "score": "18-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 179.0,
+   "team": "away",
+   "desc": "I. Clark misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "18-14",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 178.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Love",
+   "points": 0,
+   "score": "18-14",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 167.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "18-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 167.0,
+   "team": "away",
+   "desc": "D. West enters the game for J. McGee",
+   "points": 0,
+   "score": "18-14",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 161.0,
+   "team": "home",
+   "desc": "Turnover by C. Frye (bad pass)",
+   "points": 0,
+   "score": "18-14",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 150.0,
+   "team": "away",
+   "desc": "Shooting foul by C. Frye (drawn by D. West )",
+   "points": 0,
+   "score": "18-14",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 150.0,
+   "team": "away",
+   "desc": "D. West makes free throw 1 of 2",
+   "points": 1,
+   "score": "19-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 150.0,
+   "team": "away",
+   "desc": "D. West makes free throw 2 of 2",
+   "points": 1,
+   "score": "20-14",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "20-16",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 127.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "20-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 127.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "20-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 111.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "20-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 109.0,
+   "team": "home",
+   "desc": "Offensive rebound by I. Shumpert",
+   "points": 0,
+   "score": "20-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 107.0,
+   "team": "home",
+   "desc": "C. Frye misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "20-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 107.0,
+   "team": "home",
+   "desc": "Offensive rebound by K. Love",
+   "points": 0,
+   "score": "20-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 105.0,
+   "team": "home",
+   "desc": "K. Love makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "20-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 78.0,
+   "team": "away",
+   "desc": "Shooting foul by L. James (drawn by S. Curry )",
+   "points": 0,
+   "score": "20-18",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 78.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "21-18",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 78.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "22-18",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Curry (drawn by R. Jefferson )",
+   "points": 0,
+   "score": "22-18",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "R. Jefferson makes free throw 1 of 2",
+   "points": 1,
+   "score": "22-19",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 69.0,
+   "team": "away",
+   "desc": "K. Thompson enters the game for S. Curry",
+   "points": 0,
+   "score": "22-19",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "K. Irving enters the game for L. James",
+   "points": 0,
+   "score": "22-19",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "R. Jefferson makes free throw 2 of 2",
+   "points": 1,
+   "score": "22-20",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 56.0,
+   "team": "away",
+   "desc": "I. Clark makes 2-pt layup from 2 ft (assist by D. West )",
+   "points": 2,
+   "score": "24-20",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 44.0,
+   "team": "home",
+   "desc": "C. Frye makes 3-pt jump shot from 24 ft (assist by K. Irving )",
+   "points": 3,
+   "score": "24-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "Personal foul by I. Shumpert (drawn by K. Thompson )",
+   "points": 0,
+   "score": "24-23",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "K. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "25-23",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "K. Thompson misses free throw 2 of 2",
+   "points": 0,
+   "score": "25-23",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 30.0,
+   "team": "home",
+   "desc": "Defensive rebound by C. Frye",
+   "points": 0,
+   "score": "25-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "Shooting foul by D. West (drawn by I. Shumpert )",
+   "points": 0,
+   "score": "25-23",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "I. Shumpert makes free throw 1 of 2",
+   "points": 1,
+   "score": "25-24",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.0,
+   "team": "away",
+   "desc": "S. Curry enters the game for A. Iguodala",
+   "points": 0,
+   "score": "25-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "T. Thompson enters the game for K. Love",
+   "points": 0,
+   "score": "25-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "D. Liggins enters the game for C. Frye",
+   "points": 0,
+   "score": "25-24",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 20.0,
+   "team": "home",
+   "desc": "I. Shumpert makes free throw 2 of 2",
+   "points": 1,
+   "score": "25-25",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 1.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by D. West )",
+   "points": 2,
+   "score": "27-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 709.0,
+   "team": "home",
+   "desc": "Personal foul by A. Iguodala (drawn by L. James )",
+   "points": 0,
+   "score": "27-25",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 696.0,
+   "team": "home",
+   "desc": "L. James misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "27-25",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 695.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "27-25",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 681.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Livingston )",
+   "points": 3,
+   "score": "30-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 669.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "30-25",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 669.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "30-25",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 658.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "30-25",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 658.0,
+   "team": "home",
+   "desc": "Offensive rebound by I. Shumpert",
+   "points": 0,
+   "score": "30-25",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 651.0,
+   "team": "home",
+   "desc": "C. Frye makes 2-pt dunk at rim (assist by K. Irving )",
+   "points": 2,
+   "score": "30-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 634.0,
+   "team": "away",
+   "desc": "D. West misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "30-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 633.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. West",
+   "points": 0,
+   "score": "30-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 628.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt jump shot from 19 ft (assist by D. West )",
+   "points": 2,
+   "score": "32-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 615.0,
+   "team": "home",
+   "desc": "K. Irving misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "32-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 615.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "32-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 605.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "32-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 605.0,
+   "team": "home",
+   "desc": "Defensive rebound by I. Shumpert",
+   "points": 0,
+   "score": "32-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 589.0,
+   "team": "home",
+   "desc": "C. Frye makes 3-pt jump shot from 24 ft (assist by L. James )",
+   "points": 3,
+   "score": "32-30",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "32-30",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "D. West makes 2-pt hook shot from 6 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "34-30",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "Shooting foul by I. Shumpert (drawn by D. West )",
+   "points": 0,
+   "score": "34-30",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "D. West makes free throw 1 of 1",
+   "points": 1,
+   "score": "35-30",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 557.0,
+   "team": "home",
+   "desc": "C. Frye makes 2-pt dunk at rim (assist by L. James )",
+   "points": 2,
+   "score": "35-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 539.0,
+   "team": "away",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "35-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 539.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "35-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by A. Iguodala )",
+   "points": 2,
+   "score": "37-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 516.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 2-pt layup from 2 ft (block by S. Livingston )",
+   "points": 0,
+   "score": "37-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 516.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "37-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 507.0,
+   "team": "away",
+   "desc": "S. Livingston misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "37-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 505.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "37-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 496.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "37-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 496.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "37-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "home",
+   "desc": "L. James misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "37-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 491.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "37-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 484.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by D. West )",
+   "points": 3,
+   "score": "40-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 484.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "40-32",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 471.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt jump shot from 4 ft",
+   "points": 2,
+   "score": "40-34",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 446.0,
+   "team": "away",
+   "desc": "D. West misses 2-pt hook shot from 2 ft",
+   "points": 0,
+   "score": "40-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 446.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Jefferson",
+   "points": 0,
+   "score": "40-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 436.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "40-34",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 435.0,
+   "team": "home",
+   "desc": "Offensive rebound by K. Irving",
+   "points": 0,
+   "score": "40-34",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 435.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "40-36",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 419.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by K. Irving )",
+   "points": 0,
+   "score": "40-36",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 415.0,
+   "team": "home",
+   "desc": "Turnover by R. Jefferson (bad pass; steal by K. Thompson )",
+   "points": 0,
+   "score": "40-36",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "Shooting foul by R. Jefferson (drawn by S. Livingston )",
+   "points": 0,
+   "score": "40-36",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "S. Livingston makes free throw 1 of 2",
+   "points": 1,
+   "score": "41-36",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "K. Durant enters the game for D. West",
+   "points": 0,
+   "score": "41-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "S. Curry enters the game for A. Iguodala",
+   "points": 0,
+   "score": "41-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "home",
+   "desc": "T. Thompson enters the game for C. Frye",
+   "points": 0,
+   "score": "41-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "home",
+   "desc": "D. Liggins enters the game for L. James",
+   "points": 0,
+   "score": "41-36",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "S. Livingston makes free throw 2 of 2",
+   "points": 1,
+   "score": "42-36",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 390.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 2-pt jump shot from 12 ft (block by K. Durant )",
+   "points": 0,
+   "score": "42-36",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 389.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "42-36",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 376.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt layup from 2 ft (assist by S. Livingston )",
+   "points": 2,
+   "score": "44-36",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 357.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "44-36",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 354.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Thompson",
+   "points": 0,
+   "score": "44-36",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 354.0,
+   "team": "home",
+   "desc": "T. Thompson makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "44-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 343.0,
+   "team": "away",
+   "desc": "Offensive foul by S. Curry (drawn by I. Shumpert )",
+   "points": 0,
+   "score": "44-38",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 343.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (offensive foul)",
+   "points": 0,
+   "score": "44-38",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 327.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "44-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 325.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "44-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 315.0,
+   "team": "away",
+   "desc": "Turnover by S. Livingston (bad pass; steal by I. Shumpert )",
+   "points": 0,
+   "score": "44-38",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 310.0,
+   "team": "home",
+   "desc": "Turnover by I. Shumpert (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "44-38",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 306.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by S. Livingston )",
+   "points": 2,
+   "score": "46-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 306.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "46-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 289.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "46-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 288.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Thompson",
+   "points": 0,
+   "score": "46-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 278.0,
+   "team": "home",
+   "desc": "Personal foul by D. Green (drawn by K. Irving )",
+   "points": 0,
+   "score": "46-38",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 278.0,
+   "team": "away",
+   "desc": "I. Clark enters the game for K. Thompson",
+   "points": 0,
+   "score": "46-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 278.0,
+   "team": "home",
+   "desc": "L. James enters the game for R. Jefferson",
+   "points": 0,
+   "score": "46-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 278.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "46-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 278.0,
+   "team": "home",
+   "desc": "K. Love enters the game for D. Liggins",
+   "points": 0,
+   "score": "46-38",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "home",
+   "desc": "K. Irving misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "46-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "46-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 255.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 24 ft (assist by I. Clark )",
+   "points": 3,
+   "score": "49-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Durant (drawn by K. Love )",
+   "points": 0,
+   "score": "49-38",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 1 of 2",
+   "points": 1,
+   "score": "49-39",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 240.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 2 of 2",
+   "points": 1,
+   "score": "49-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "Shooting foul by I. Shumpert (drawn by S. Curry )",
+   "points": 0,
+   "score": "49-40",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "S. Curry misses free throw 2 of 2",
+   "points": 0,
+   "score": "50-40",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 229.0,
+   "team": "home",
+   "desc": "R. Jefferson enters the game for I. Shumpert",
+   "points": 0,
+   "score": "50-40",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 227.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "50-40",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 209.0,
+   "team": "home",
+   "desc": "K. Love makes 3-pt jump shot from 25 ft (assist by K. Irving )",
+   "points": 3,
+   "score": "50-43",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 191.0,
+   "team": "away",
+   "desc": "S. Livingston misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "50-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 191.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "50-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 184.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "50-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 183.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Thompson",
+   "points": 0,
+   "score": "50-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 180.0,
+   "team": "home",
+   "desc": "T. Thompson misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "50-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 179.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "50-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 178.0,
+   "team": "home",
+   "desc": "L. James misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "50-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 177.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "50-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 175.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Livingston (drawn by L. James )",
+   "points": 0,
+   "score": "50-43",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 175.0,
+   "team": "home",
+   "desc": "L. James makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 175.0,
+   "team": "home",
+   "desc": "L. James misses free throw 2 of 2",
+   "points": 0,
+   "score": "50-44",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 175.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for I. Clark",
+   "points": 0,
+   "score": "50-44",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 175.0,
+   "team": "away",
+   "desc": "K. Thompson enters the game for S. Livingston",
+   "points": 0,
+   "score": "50-44",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 174.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "50-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 167.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "50-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 167.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "50-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 167.0,
+   "team": "away",
+   "desc": "Personal foul by K. Love (drawn by D. Green )",
+   "points": 0,
+   "score": "50-44",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 158.0,
+   "team": "away",
+   "desc": "K. Durant misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "50-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 156.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "50-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 137.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Iguodala (drawn by K. Love )",
+   "points": 0,
+   "score": "50-44",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 137.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-45",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 137.0,
+   "team": "away",
+   "desc": "Z. Pachulia enters the game for D. Green",
+   "points": 0,
+   "score": "50-45",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 137.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 2 of 2",
+   "points": 1,
+   "score": "50-46",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 115.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "50-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 115.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "50-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "50-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 102.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Thompson",
+   "points": 0,
+   "score": "50-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 102.0,
+   "team": "home",
+   "desc": "Personal foul by A. Iguodala (drawn by T. Thompson )",
+   "points": 0,
+   "score": "50-46",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 102.0,
+   "team": "home",
+   "desc": "T. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-47",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 102.0,
+   "team": "home",
+   "desc": "T. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "50-48",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 82.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "50-48",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 82.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Thompson",
+   "points": 0,
+   "score": "50-48",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt layup at rim (assist by K. Irving )",
+   "points": 2,
+   "score": "50-50",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 47.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "50-50",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 45.0,
+   "team": "away",
+   "desc": "Offensive rebound by Z. Pachulia",
+   "points": 0,
+   "score": "50-50",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 45.0,
+   "team": "away",
+   "desc": "Z. Pachulia makes 2-pt layup at rim",
+   "points": 2,
+   "score": "52-50",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 36.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 8 ft",
+   "points": 0,
+   "score": "52-50",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 34.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "52-50",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 29.0,
+   "team": "away",
+   "desc": "K. Durant makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "55-50",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 9.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt layup at rim",
+   "points": 2,
+   "score": "55-52",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 2.0,
+   "team": "away",
+   "desc": "Z. Pachulia misses 2-pt layup from 2 ft (block by L. James )",
+   "points": 0,
+   "score": "55-52",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 2.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "55-52",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 2.0,
+   "team": "home",
+   "desc": "C. Frye enters the game for K. Love",
+   "points": 0,
+   "score": "55-52",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "55-52",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "55-52",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 710.0,
+   "team": "home",
+   "desc": "K. Love makes 3-pt jump shot from 24 ft (assist by L. James )",
+   "points": 3,
+   "score": "55-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 693.0,
+   "team": "away",
+   "desc": "K. Durant makes 3-pt jump shot from 27 ft (assist by D. Green )",
+   "points": 3,
+   "score": "58-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 670.0,
+   "team": "home",
+   "desc": "K. Love misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "58-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 670.0,
+   "team": "away",
+   "desc": "Defensive rebound by Z. Pachulia",
+   "points": 0,
+   "score": "58-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 664.0,
+   "team": "away",
+   "desc": "K. Durant misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "58-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 662.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "58-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "Shooting foul by Z. Pachulia (drawn by K. Love )",
+   "points": 0,
+   "score": "58-55",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "K. Love misses free throw 1 of 2",
+   "points": 0,
+   "score": "58-55",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "58-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "K. Love makes free throw 2 of 2",
+   "points": 1,
+   "score": "58-56",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 641.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "58-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 640.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "58-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 633.0,
+   "team": "away",
+   "desc": "Turnover by Z. Pachulia (lost ball; steal by D. Liggins )",
+   "points": 0,
+   "score": "58-56",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 626.0,
+   "team": "home",
+   "desc": "Turnover by L. James (bad pass)",
+   "points": 0,
+   "score": "58-56",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 613.0,
+   "team": "away",
+   "desc": "Personal foul by L. James (drawn by S. Curry )",
+   "points": 0,
+   "score": "58-56",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 610.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Love (drawn by K. Durant )",
+   "points": 0,
+   "score": "58-56",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 610.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "59-56",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 610.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "60-56",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 599.0,
+   "team": "home",
+   "desc": "L. James misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "60-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 598.0,
+   "team": "home",
+   "desc": "Offensive rebound by T. Thompson",
+   "points": 0,
+   "score": "60-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 598.0,
+   "team": "home",
+   "desc": "T. Thompson misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "60-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 598.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "60-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 588.0,
+   "team": "home",
+   "desc": "Turnover by L. James (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "60-56",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 576.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 5 ft (assist by K. Durant )",
+   "points": 2,
+   "score": "62-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 551.0,
+   "team": "home",
+   "desc": "L. James makes 3-pt jump shot from 26 ft (assist by K. Irving )",
+   "points": 3,
+   "score": "62-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 535.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt jump shot from 7 ft (assist by D. Green )",
+   "points": 2,
+   "score": "64-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Shooting foul by Z. Pachulia (drawn by T. Thompson )",
+   "points": 0,
+   "score": "64-59",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "T. Thompson misses free throw 1 of 2",
+   "points": 0,
+   "score": "64-59",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "64-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "J. McGee enters the game for Z. Pachulia",
+   "points": 0,
+   "score": "64-59",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 528.0,
+   "team": "home",
+   "desc": "T. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "64-60",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 523.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "64-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. McGee",
+   "points": 0,
+   "score": "64-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "Turnover by J. McGee (bad pass; steal by T. Thompson )",
+   "points": 0,
+   "score": "64-60",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 508.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "64-60",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 508.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "64-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 501.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Love (drawn by J. McGee )",
+   "points": 0,
+   "score": "64-60",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 501.0,
+   "team": "away",
+   "desc": "J. McGee misses free throw 1 of 2",
+   "points": 0,
+   "score": "64-60",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 501.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "64-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 501.0,
+   "team": "away",
+   "desc": "J. McGee misses free throw 2 of 2",
+   "points": 0,
+   "score": "64-60",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 501.0,
+   "team": "home",
+   "desc": "C. Frye enters the game for K. Love",
+   "points": 0,
+   "score": "64-60",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 500.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. James",
+   "points": 0,
+   "score": "64-60",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 490.0,
+   "team": "home",
+   "desc": "L. James makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "64-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 472.0,
+   "team": "away",
+   "desc": "J. McGee misses 2-pt layup at rim",
+   "points": 0,
+   "score": "64-63",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 469.0,
+   "team": "home",
+   "desc": "Defensive rebound by C. Frye",
+   "points": 0,
+   "score": "64-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 464.0,
+   "team": "home",
+   "desc": "L. James misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "64-63",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 463.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "64-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 22 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "67-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 428.0,
+   "team": "home",
+   "desc": "L. James makes 3-pt jump shot from 26 ft",
+   "points": 3,
+   "score": "67-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 414.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "67-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 412.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Irving",
+   "points": 0,
+   "score": "67-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 399.0,
+   "team": "home",
+   "desc": "C. Frye misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "67-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 399.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "67-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 389.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "69-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 388.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "69-66",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "Shooting block foul by J. McGee (drawn by L. James )",
+   "points": 0,
+   "score": "69-66",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "L. James misses free throw 1 of 2",
+   "points": 0,
+   "score": "69-66",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "69-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "L. James makes free throw 2 of 2",
+   "points": 1,
+   "score": "69-67",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 367.0,
+   "team": "away",
+   "desc": "K. Durant misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "69-67",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 363.0,
+   "team": "home",
+   "desc": "Defensive rebound by T. Thompson",
+   "points": 0,
+   "score": "69-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 357.0,
+   "team": "home",
+   "desc": "Shooting foul by J. McGee (drawn by T. Thompson )",
+   "points": 0,
+   "score": "69-67",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 357.0,
+   "team": "home",
+   "desc": "T. Thompson misses free throw 1 of 2",
+   "points": 0,
+   "score": "69-67",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 357.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "69-67",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 357.0,
+   "team": "home",
+   "desc": "T. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "69-68",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 337.0,
+   "team": "away",
+   "desc": "J. McGee misses 2-pt dunk at rim",
+   "points": 0,
+   "score": "69-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 337.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "69-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 318.0,
+   "team": "home",
+   "desc": "C. Frye misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "69-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 317.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "69-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 310.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "72-68",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 298.0,
+   "team": "home",
+   "desc": "T. Thompson makes 2-pt dunk at rim (assist by K. Irving )",
+   "points": 2,
+   "score": "72-70",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 298.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "72-70",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 298.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for K. Durant",
+   "points": 0,
+   "score": "72-70",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 298.0,
+   "team": "away",
+   "desc": "Z. Pachulia enters the game for J. McGee",
+   "points": 0,
+   "score": "72-70",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 286.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by A. Iguodala )",
+   "points": 3,
+   "score": "75-70",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 269.0,
+   "team": "home",
+   "desc": "Turnover by C. Frye (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "75-70",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 263.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (bad pass; steal by K. Irving )",
+   "points": 0,
+   "score": "75-70",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 244.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "75-72",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 226.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "75-72",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 226.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "75-72",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 216.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "75-72",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 215.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "75-72",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "Shooting foul by C. Frye (drawn by S. Curry )",
+   "points": 0,
+   "score": "75-72",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "76-72",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "home",
+   "desc": "I. Shumpert enters the game for D. Liggins",
+   "points": 0,
+   "score": "76-72",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "I. Clark enters the game for K. Thompson",
+   "points": 0,
+   "score": "76-72",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "77-72",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 190.0,
+   "team": "home",
+   "desc": "L. James makes 3-pt jump shot from 24 ft (assist by K. Irving )",
+   "points": 3,
+   "score": "77-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 179.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "79-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 152.0,
+   "team": "home",
+   "desc": "Turnover by C. Frye (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "79-75",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 138.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by K. Irving )",
+   "points": 0,
+   "score": "79-75",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 135.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "79-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 134.0,
+   "team": "home",
+   "desc": "Offensive rebound by K. Irving",
+   "points": 0,
+   "score": "79-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 133.0,
+   "team": "home",
+   "desc": "L. James misses 2-pt layup from 2 ft (block by A. Iguodala )",
+   "points": 0,
+   "score": "79-75",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 133.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. James",
+   "points": 0,
+   "score": "79-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 131.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "79-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 122.0,
+   "team": "away",
+   "desc": "Offensive foul by Z. Pachulia (drawn by L. James )",
+   "points": 0,
+   "score": "79-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 122.0,
+   "team": "away",
+   "desc": "Turnover by Z. Pachulia (offensive foul)",
+   "points": 0,
+   "score": "79-77",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 122.0,
+   "team": "home",
+   "desc": "R. Jefferson enters the game for K. Irving",
+   "points": 0,
+   "score": "79-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 122.0,
+   "team": "away",
+   "desc": "K. Durant enters the game for Z. Pachulia",
+   "points": 0,
+   "score": "79-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "L. James misses 3-pt jump shot from 29 ft",
+   "points": 0,
+   "score": "79-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 102.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "79-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 85.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt jump shot from 15 ft",
+   "points": 2,
+   "score": "81-77",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 74.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "81-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 74.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "81-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 74.0,
+   "team": "home",
+   "desc": "Loose ball foul by T. Thompson (drawn by D. Green )",
+   "points": 0,
+   "score": "81-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 74.0,
+   "team": "away",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "82-77",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 74.0,
+   "team": "away",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "83-77",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "home",
+   "desc": "Personal foul by S. Curry (drawn by I. Shumpert )",
+   "points": 0,
+   "score": "83-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "home",
+   "desc": "I. Shumpert makes free throw 1 of 2",
+   "points": 1,
+   "score": "83-78",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 61.0,
+   "team": "home",
+   "desc": "I. Shumpert makes free throw 2 of 2",
+   "points": 1,
+   "score": "83-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 51.0,
+   "team": "away",
+   "desc": "I. Clark makes 2-pt jump shot from 4 ft (assist by D. Green )",
+   "points": 2,
+   "score": "85-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 37.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "85-79",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 36.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "85-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 28.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "87-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 7.0,
+   "team": "home",
+   "desc": "Turnover by L. James (bad pass; steal by I. Clark )",
+   "points": 0,
+   "score": "87-79",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "Turnover by A. Iguodala (bad pass)",
+   "points": 0,
+   "score": "87-79",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "K. Irving enters the game for T. Thompson",
+   "points": 0,
+   "score": "87-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "87-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 5.0,
+   "team": "away",
+   "desc": "P. McCaw enters the game for D. Green",
+   "points": 0,
+   "score": "87-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Durant (drawn by L. James )",
+   "points": 0,
+   "score": "87-79",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "L. James misses free throw 1 of 2",
+   "points": 0,
+   "score": "87-79",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "87-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "L. James makes free throw 2 of 2",
+   "points": 1,
+   "score": "87-80",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 704.0,
+   "team": "away",
+   "desc": "K. Durant misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "87-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 704.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Love",
+   "points": 0,
+   "score": "87-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 696.0,
+   "team": "home",
+   "desc": "Turnover by K. Irving (lost ball)",
+   "points": 0,
+   "score": "87-80",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 686.0,
+   "team": "away",
+   "desc": "Personal foul by R. Jefferson (drawn by K. Durant )",
+   "points": 0,
+   "score": "87-80",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 682.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup at rim (assist by A. Iguodala )",
+   "points": 2,
+   "score": "89-80",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 662.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "89-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 660.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "89-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 652.0,
+   "team": "away",
+   "desc": "K. Durant misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "89-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 650.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Love",
+   "points": 0,
+   "score": "89-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 638.0,
+   "team": "home",
+   "desc": "Turnover by K. Irving (bad pass; steal by D. West )",
+   "points": 0,
+   "score": "89-80",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 634.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 2-pt layup from 1 ft (block by I. Shumpert )",
+   "points": 0,
+   "score": "89-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 634.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "89-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 613.0,
+   "team": "home",
+   "desc": "K. Love misses 2-pt hook shot from 8 ft",
+   "points": 0,
+   "score": "89-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 611.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. West",
+   "points": 0,
+   "score": "89-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 605.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "91-80",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 605.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Liggins (drawn by K. Durant )",
+   "points": 0,
+   "score": "91-80",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 605.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 1 of 1",
+   "points": 1,
+   "score": "92-80",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 583.0,
+   "team": "home",
+   "desc": "K. Love misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "92-80",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 582.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "92-80",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 575.0,
+   "team": "away",
+   "desc": "K. Durant makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "94-80",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 575.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "94-80",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 561.0,
+   "team": "home",
+   "desc": "R. Jefferson makes 2-pt dunk at rim (assist by K. Irving )",
+   "points": 2,
+   "score": "94-82",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 560.0,
+   "team": "home",
+   "desc": "Technical foul by R. Jefferson",
+   "points": 0,
+   "score": "94-82",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 560.0,
+   "team": "away",
+   "desc": "K. Durant makes technical free throw",
+   "points": 1,
+   "score": "95-82",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 545.0,
+   "team": "away",
+   "desc": "K. Durant misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "95-82",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 545.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "95-82",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 523.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "95-82",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 522.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "95-82",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 516.0,
+   "team": "away",
+   "desc": "Personal foul by R. Jefferson (drawn by D. West )",
+   "points": 0,
+   "score": "95-82",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 509.0,
+   "team": "away",
+   "desc": "Turnover by D. West (bad pass)",
+   "points": 0,
+   "score": "95-82",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 497.0,
+   "team": "home",
+   "desc": "K. Irving misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "95-82",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 497.0,
+   "team": "home",
+   "desc": "Offensive rebound by I. Shumpert",
+   "points": 0,
+   "score": "95-82",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 494.0,
+   "team": "home",
+   "desc": "K. Love makes 2-pt dunk at rim (assist by I. Shumpert )",
+   "points": 2,
+   "score": "95-84",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 477.0,
+   "team": "away",
+   "desc": "K. Durant misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "95-84",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 475.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Jefferson",
+   "points": 0,
+   "score": "95-84",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 454.0,
+   "team": "home",
+   "desc": "K. Irving makes 3-pt jump shot from 25 ft (assist by D. Liggins )",
+   "points": 3,
+   "score": "95-87",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 453.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "95-87",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 453.0,
+   "team": "away",
+   "desc": "S. Curry enters the game for K. Durant",
+   "points": 0,
+   "score": "95-87",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 453.0,
+   "team": "away",
+   "desc": "D. Green enters the game for A. Iguodala",
+   "points": 0,
+   "score": "95-87",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 453.0,
+   "team": "home",
+   "desc": "L. James enters the game for D. Liggins",
+   "points": 0,
+   "score": "95-87",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 440.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "95-87",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Love",
+   "points": 0,
+   "score": "95-87",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 433.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "95-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by L. James )",
+   "points": 0,
+   "score": "95-89",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 405.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Curry (drawn by R. Jefferson )",
+   "points": 0,
+   "score": "95-89",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 405.0,
+   "team": "home",
+   "desc": "R. Jefferson makes free throw 1 of 2",
+   "points": 1,
+   "score": "95-90",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 405.0,
+   "team": "home",
+   "desc": "R. Jefferson makes free throw 2 of 2",
+   "points": 1,
+   "score": "95-91",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 391.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt dunk at rim (assist by D. West )",
+   "points": 2,
+   "score": "97-91",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 372.0,
+   "team": "home",
+   "desc": "K. Irving makes 3-pt jump shot from 24 ft",
+   "points": 3,
+   "score": "97-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by K. Irving )",
+   "points": 0,
+   "score": "97-94",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "Personal foul by D. Green (drawn by K. Irving )",
+   "points": 0,
+   "score": "97-94",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "away",
+   "desc": "K. Durant enters the game for D. West",
+   "points": 0,
+   "score": "97-94",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 337.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "97-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 336.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "97-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "97-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 330.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "97-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 320.0,
+   "team": "away",
+   "desc": "K. Durant misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "97-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 319.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Irving",
+   "points": 0,
+   "score": "97-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 312.0,
+   "team": "home",
+   "desc": "K. Love misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "97-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 311.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "97-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 307.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Love (drawn by K. Durant )",
+   "points": 0,
+   "score": "97-94",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 307.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "98-94",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 307.0,
+   "team": "away",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "99-94",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 295.0,
+   "team": "home",
+   "desc": "Personal foul by K. Thompson (drawn by I. Shumpert )",
+   "points": 0,
+   "score": "99-94",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 281.0,
+   "team": "home",
+   "desc": "I. Shumpert makes 3-pt jump shot from 24 ft (assist by L. James )",
+   "points": 3,
+   "score": "99-97",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 268.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt layup from 1 ft (assist by D. Green )",
+   "points": 2,
+   "score": "101-97",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 250.0,
+   "team": "home",
+   "desc": "R. Jefferson makes 2-pt dunk at rim (assist by K. Love )",
+   "points": 2,
+   "score": "101-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt jump shot from 7 ft",
+   "points": 2,
+   "score": "103-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 226.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "103-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 226.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for S. Livingston",
+   "points": 0,
+   "score": "103-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 216.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt dunk at rim (assist by K. Irving )",
+   "points": 2,
+   "score": "103-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 197.0,
+   "team": "away",
+   "desc": "D. Green misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "103-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 197.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "103-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 168.0,
+   "team": "home",
+   "desc": "I. Shumpert misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "103-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 168.0,
+   "team": "home",
+   "desc": "Offensive rebound by K. Irving",
+   "points": 0,
+   "score": "103-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 164.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "103-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 162.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "103-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 153.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by K. Irving )",
+   "points": 0,
+   "score": "103-101",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 138.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt layup at rim (assist by I. Shumpert )",
+   "points": 2,
+   "score": "103-103",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 115.0,
+   "team": "away",
+   "desc": "K. Durant misses 2-pt jump shot from 20 ft",
+   "points": 0,
+   "score": "103-103",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 114.0,
+   "team": "home",
+   "desc": "Defensive rebound by I. Shumpert",
+   "points": 0,
+   "score": "103-103",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "L. James makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "103-105",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by L. James )",
+   "points": 0,
+   "score": "103-105",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "103-105",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "home",
+   "desc": "L. James misses free throw 1 of 1",
+   "points": 0,
+   "score": "103-105",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 103.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "103-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 91.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt dunk at rim (assist by K. Thompson )",
+   "points": 2,
+   "score": "105-105",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 79.0,
+   "team": "home",
+   "desc": "K. Irving misses 2-pt layup from 2 ft (block by K. Thompson )",
+   "points": 0,
+   "score": "105-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 75.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "105-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 74.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by K. Durant )",
+   "points": 3,
+   "score": "108-105",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 74.0,
+   "team": "home",
+   "desc": "Cleveland full timeout",
+   "points": 0,
+   "score": "108-105",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 47.0,
+   "team": "home",
+   "desc": "R. Jefferson misses 3-pt jump shot from 29 ft",
+   "points": 0,
+   "score": "108-105",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 47.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "108-105",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 43.0,
+   "team": "away",
+   "desc": "Turnover by A. Iguodala (bad pass; steal by K. Irving )",
+   "points": 0,
+   "score": "108-105",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "108-107",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "108-107",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "away",
+   "desc": "S. Livingston enters the game for S. Curry",
+   "points": 0,
+   "score": "108-107",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 3.0,
+   "team": "home",
+   "desc": "K. Irving makes 2-pt jump shot from 13 ft",
+   "points": 2,
+   "score": "108-109",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 3.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "108-109",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 3.0,
+   "team": "away",
+   "desc": "S. Curry enters the game for S. Livingston",
+   "points": 0,
+   "score": "108-109",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 3.0,
+   "team": "home",
+   "desc": "D. Liggins enters the game for K. Love",
+   "points": 0,
+   "score": "108-109",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "K. Durant misses 3-pt jump shot from 34 ft",
+   "points": 0,
+   "score": "108-109",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "108-109",
+   "kind": "rebound"
+  }
+ ]
+}

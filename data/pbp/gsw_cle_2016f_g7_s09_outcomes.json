@@ -1,0 +1,12 @@
+[
+ {
+  "set_start_frame": 1932,
+  "core_end_frame": 2118,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.67,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ }
+]

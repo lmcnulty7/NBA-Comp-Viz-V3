@@ -1,7 +1,7 @@
 {
  "checks": {
-  "joined": 30,
-  "excluded": 23,
+  "joined": 126,
+  "excluded": 163,
   "every_join_has_outcome_and_defenders": true,
   "no_shared_pbp_possession": true,
   "team_consistency_all": true,
@@ -80,7 +80,8 @@
      "matchup_dist_median_ft": 8.1
     }
    ],
-   "primary_defender_fragment": 4
+   "primary_defender_fragment": 4,
+   "_span_len": 342
   },
   {
    "clip": "clip_26m00_34m00",
@@ -148,7 +149,8 @@
      "matchup_dist_median_ft": 21.5
     }
    ],
-   "primary_defender_fragment": 2
+   "primary_defender_fragment": 2,
+   "_span_len": 201
   },
   {
    "clip": "clip_40m00_48m00",
@@ -210,7 +212,8 @@
      "matchup_dist_median_ft": 21.3
     }
    ],
-   "primary_defender_fragment": 82
+   "primary_defender_fragment": 82,
+   "_span_len": 459
   },
   {
    "clip": "clip_40m00_48m00",
@@ -278,7 +281,8 @@
      "matchup_dist_median_ft": 15.8
     }
    ],
-   "primary_defender_fragment": 388
+   "primary_defender_fragment": 388,
+   "_span_len": 345
   },
   {
    "clip": "clip_40m00_48m00",
@@ -316,7 +320,8 @@
      "matchup_dist_median_ft": 13.1
     }
    ],
-   "primary_defender_fragment": 6456
+   "primary_defender_fragment": 6456,
+   "_span_len": 126
   },
   {
    "clip": "clip_40m00_48m00",
@@ -348,7 +353,8 @@
      "matchup_dist_median_ft": 7.6
     }
    ],
-   "primary_defender_fragment": 6457
+   "primary_defender_fragment": 6457,
+   "_span_len": 408
   },
   {
    "clip": "clip_55m00_63m00",
@@ -404,7 +410,8 @@
      "matchup_dist_median_ft": 2.9
     }
    ],
-   "primary_defender_fragment": 4
+   "primary_defender_fragment": 4,
+   "_span_len": 273
   },
   {
    "clip": "clip_55m00_63m00",
@@ -448,7 +455,8 @@
      "matchup_dist_median_ft": 17.0
     }
    ],
-   "primary_defender_fragment": 254
+   "primary_defender_fragment": 254,
+   "_span_len": 144
   },
   {
    "clip": "clip_55m00_63m00",
@@ -498,7 +506,8 @@
      "matchup_dist_median_ft": 6.9
     }
    ],
-   "primary_defender_fragment": 1248
+   "primary_defender_fragment": 1248,
+   "_span_len": 273
   },
   {
    "clip": "clip_55m00_63m00",
@@ -542,7 +551,8 @@
      "matchup_dist_median_ft": 28.9
     }
    ],
-   "primary_defender_fragment": 8064
+   "primary_defender_fragment": 8064,
+   "_span_len": 228
   },
   {
    "clip": "clip_55m00_63m00",
@@ -592,7 +602,8 @@
      "matchup_dist_median_ft": 32.3
     }
    ],
-   "primary_defender_fragment": 11568
+   "primary_defender_fragment": 11568,
+   "_span_len": 234
   },
   {
    "clip": "clip_55m00_63m00",
@@ -630,7 +641,8 @@
      "matchup_dist_median_ft": 16.2
     }
    ],
-   "primary_defender_fragment": 11964
+   "primary_defender_fragment": 11964,
+   "_span_len": 333
   },
   {
    "clip": "clip_70m00_78m00",
@@ -686,7 +698,8 @@
      "matchup_dist_median_ft": 16.6
     }
    ],
-   "primary_defender_fragment": 78
+   "primary_defender_fragment": 78,
+   "_span_len": 330
   },
   {
    "clip": "clip_70m00_78m00",
@@ -748,7 +761,8 @@
      "matchup_dist_median_ft": 3.0
     }
    ],
-   "primary_defender_fragment": 242
+   "primary_defender_fragment": 242,
+   "_span_len": 306
   },
   {
    "clip": "clip_70m00_78m00",
@@ -810,7 +824,8 @@
      "matchup_dist_median_ft": 5.8
     }
    ],
-   "primary_defender_fragment": 782
+   "primary_defender_fragment": 782,
+   "_span_len": 405
   },
   {
    "clip": "clip_70m00_78m00",
@@ -848,7 +863,8 @@
      "matchup_dist_median_ft": 20.5
     }
    ],
-   "primary_defender_fragment": 4604
+   "primary_defender_fragment": 4604,
+   "_span_len": 174
   },
   {
    "clip": "clip_70m00_78m00",
@@ -892,7 +908,8 @@
      "matchup_dist_median_ft": 6.2
     }
    ],
-   "primary_defender_fragment": 5032
+   "primary_defender_fragment": 5032,
+   "_span_len": 459
   },
   {
    "clip": "clip_70m00_78m00",
@@ -942,7 +959,8 @@
      "matchup_dist_median_ft": 12.1
     }
    ],
-   "primary_defender_fragment": 5669
+   "primary_defender_fragment": 5669,
+   "_span_len": 432
   },
   {
    "clip": "clip_70m00_78m00",
@@ -986,7 +1004,8 @@
      "matchup_dist_median_ft": 4.2
     }
    ],
-   "primary_defender_fragment": 8670
+   "primary_defender_fragment": 8670,
+   "_span_len": 144
   },
   {
    "clip": "curry_classic_clip",
@@ -1054,7 +1073,8 @@
      "matchup_dist_median_ft": 8.2
     }
    ],
-   "primary_defender_fragment": 233
+   "primary_defender_fragment": 233,
+   "_span_len": 405
   },
   {
    "clip": "curry_classic_clip",
@@ -1116,7 +1136,8 @@
      "matchup_dist_median_ft": 13.4
     }
    ],
-   "primary_defender_fragment": 354
+   "primary_defender_fragment": 354,
+   "_span_len": 141
   },
   {
    "clip": "curry_classic_clip",
@@ -1184,7 +1205,8 @@
      "matchup_dist_median_ft": 21.8
     }
    ],
-   "primary_defender_fragment": 287
+   "primary_defender_fragment": 287,
+   "_span_len": 477
   },
   {
    "clip": "curry_classic_clip",
@@ -1246,7 +1268,8 @@
      "matchup_dist_median_ft": 13.3
     }
    ],
-   "primary_defender_fragment": 840
+   "primary_defender_fragment": 840,
+   "_span_len": 144
   },
   {
    "clip": "curry_classic_clip",
@@ -1302,7 +1325,8 @@
      "matchup_dist_median_ft": 4.0
     }
    ],
-   "primary_defender_fragment": 993
+   "primary_defender_fragment": 993,
+   "_span_len": 321
   },
   {
    "clip": "curry_classic_clip",
@@ -1334,7 +1358,8 @@
      "matchup_dist_median_ft": 24.2
     }
    ],
-   "primary_defender_fragment": 2748
+   "primary_defender_fragment": 2748,
+   "_span_len": 471
   },
   {
    "clip": "curry_classic_clip",
@@ -1384,7 +1409,8 @@
      "matchup_dist_median_ft": 6.4
     }
    ],
-   "primary_defender_fragment": 5619
+   "primary_defender_fragment": 5619,
+   "_span_len": 240
   },
   {
    "clip": "curry_classic_clip",
@@ -1428,7 +1454,8 @@
      "matchup_dist_median_ft": 26.9
     }
    ],
-   "primary_defender_fragment": 18540
+   "primary_defender_fragment": 18540,
+   "_span_len": 354
   },
   {
    "clip": "curry_q1_clip",
@@ -1490,7 +1517,8 @@
      "matchup_dist_median_ft": 9.8
     }
    ],
-   "primary_defender_fragment": 6
+   "primary_defender_fragment": 6,
+   "_span_len": 381
   },
   {
    "clip": "curry_q1_clip",
@@ -1570,7 +1598,8 @@
      "matchup_dist_median_ft": 6.4
     }
    ],
-   "primary_defender_fragment": 314
+   "primary_defender_fragment": 314,
+   "_span_len": 465
   },
   {
    "clip": "curry_q1_clip",
@@ -1608,7 +1637,4280 @@
      "matchup_dist_median_ft": 6.8
     }
    ],
-   "primary_defender_fragment": 14308
+   "primary_defender_fragment": 14308,
+   "_span_len": 165
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 777,
+   "period": 2,
+   "pbp_clock": [
+    720.0,
+    702.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Livingston makes 2-pt jump shot from 16 ft (assist by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 8,
+     "primary_man": 10,
+     "time_assigned_s": 4.7,
+     "matchup_dist_median_ft": 3.7
+    },
+    {
+     "fragment": 7,
+     "primary_man": 6,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 5,
+     "primary_man": 2,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 4.9
+    },
+    {
+     "fragment": 12,
+     "primary_man": 23,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 7.5
+    },
+    {
+     "fragment": 19,
+     "primary_man": 2,
+     "time_assigned_s": 2.8,
+     "matchup_dist_median_ft": 14.8
+    },
+    {
+     "fragment": 77,
+     "primary_man": 2,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 12.8
+    },
+    {
+     "fragment": 62,
+     "primary_man": 68,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 5.2
+    },
+    {
+     "fragment": 61,
+     "primary_man": 6,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 13.9
+    }
+   ],
+   "primary_defender_fragment": 8,
+   "_span_len": 234
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 1770,
+   "period": 2,
+   "pbp_clock": [
+    680.0,
+    671.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by K. Thompson (offensive foul)"
+   },
+   "defenders": [
+    {
+     "fragment": 61,
+     "primary_man": 243,
+     "time_assigned_s": 3.3,
+     "matchup_dist_median_ft": 7.8
+    },
+    {
+     "fragment": 144,
+     "primary_man": 466,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 7.3
+    },
+    {
+     "fragment": 461,
+     "primary_man": 194,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 5.7
+    },
+    {
+     "fragment": 342,
+     "primary_man": 466,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 11.3
+    },
+    {
+     "fragment": 365,
+     "primary_man": 194,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 12.6
+    },
+    {
+     "fragment": 446,
+     "primary_man": 194,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 15.7
+    },
+    {
+     "fragment": 444,
+     "primary_man": 463,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 13.4
+    }
+   ],
+   "primary_defender_fragment": 61,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 2955,
+   "period": 2,
+   "pbp_clock": [
+    671.0,
+    653.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "M. Williams misses 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 526,
+     "primary_man": 535,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 12.9
+    },
+    {
+     "fragment": 610,
+     "primary_man": 609,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 8.6
+    },
+    {
+     "fragment": 614,
+     "primary_man": 609,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 9.9
+    }
+   ],
+   "primary_defender_fragment": 526,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 3249,
+   "period": 2,
+   "pbp_clock": [
+    653.0,
+    643.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Livingston misses 2-pt jump shot from 15 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 945,
+     "primary_man": 610,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 16.9
+    },
+    {
+     "fragment": 943,
+     "primary_man": 610,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 14.8
+    }
+   ],
+   "primary_defender_fragment": 945,
+   "_span_len": 153
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 4626,
+   "period": 2,
+   "pbp_clock": [
+    618.0,
+    607.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "M. Speights misses 2-pt layup from 2 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2979,
+     "primary_man": 2981,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 9.2
+    },
+    {
+     "fragment": 2976,
+     "primary_man": 2981,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 4.8
+    },
+    {
+     "fragment": 2980,
+     "primary_man": 2981,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 18.1
+    }
+   ],
+   "primary_defender_fragment": 2979,
+   "_span_len": 279
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 10206,
+   "period": 2,
+   "pbp_clock": [
+    504.0,
+    488.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Green misses 2-pt jump shot from 17 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 8315,
+     "primary_man": 8311,
+     "time_assigned_s": 7.4,
+     "matchup_dist_median_ft": 7.1
+    },
+    {
+     "fragment": 8312,
+     "primary_man": 8314,
+     "time_assigned_s": 7.3,
+     "matchup_dist_median_ft": 7.9
+    },
+    {
+     "fragment": 8309,
+     "primary_man": 8313,
+     "time_assigned_s": 4.9,
+     "matchup_dist_median_ft": 8.6
+    }
+   ],
+   "primary_defender_fragment": 8315,
+   "_span_len": 255
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 13350,
+   "period": 2,
+   "pbp_clock": [
+    458.0,
+    422.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 4,
+    "terminating": "I. Shumpert makes free throw 1 of 1"
+   },
+   "defenders": [
+    {
+     "fragment": 12206,
+     "primary_man": 12207,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 3.8
+    },
+    {
+     "fragment": 12209,
+     "primary_man": 12208,
+     "time_assigned_s": 2.8,
+     "matchup_dist_median_ft": 1.9
+    },
+    {
+     "fragment": 12212,
+     "primary_man": 12207,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 5.0
+    },
+    {
+     "fragment": 12210,
+     "primary_man": 12207,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 10.7
+    }
+   ],
+   "primary_defender_fragment": 12206,
+   "_span_len": 195
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "game": "201606190GSW",
+   "set_start_frame": 15996,
+   "period": 2,
+   "pbp_clock": [
+    422.0,
+    396.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "S. Curry makes free throw 1 of 1"
+   },
+   "defenders": [
+    {
+     "fragment": 14541,
+     "primary_man": 14542,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 13.6
+    },
+    {
+     "fragment": 14538,
+     "primary_man": 13456,
+     "time_assigned_s": 3.5,
+     "matchup_dist_median_ft": 5.0
+    },
+    {
+     "fragment": 14539,
+     "primary_man": 14542,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 23.0
+    },
+    {
+     "fragment": 14544,
+     "primary_man": 14546,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 24.5
+    },
+    {
+     "fragment": 14536,
+     "primary_man": 14546,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 18.7
+    }
+   ],
+   "primary_defender_fragment": 14541,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s03",
+   "game": "201606190GSW",
+   "set_start_frame": 1722,
+   "period": 2,
+   "pbp_clock": [
+    370.0,
+    343.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "D. Green makes 3-pt jump shot from 27 ft (assist by K. Thompson )"
+   },
+   "defenders": [
+    {
+     "fragment": 381,
+     "primary_man": 437,
+     "time_assigned_s": 6.3,
+     "matchup_dist_median_ft": 4.5
+    },
+    {
+     "fragment": 470,
+     "primary_man": 463,
+     "time_assigned_s": 6.3,
+     "matchup_dist_median_ft": 9.7
+    },
+    {
+     "fragment": 390,
+     "primary_man": 318,
+     "time_assigned_s": 4.3,
+     "matchup_dist_median_ft": 10.3
+    },
+    {
+     "fragment": 452,
+     "primary_man": 446,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 9.9
+    },
+    {
+     "fragment": 483,
+     "primary_man": 89,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 8.0
+    },
+    {
+     "fragment": 374,
+     "primary_man": 437,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 10.3
+    },
+    {
+     "fragment": 547,
+     "primary_man": 89,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 3.8
+    }
+   ],
+   "primary_defender_fragment": 381,
+   "_span_len": 342
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s03",
+   "game": "201606190GSW",
+   "set_start_frame": 3639,
+   "period": 2,
+   "pbp_clock": [
+    343.0,
+    333.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Thompson misses 2-pt jump shot from 20 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 978,
+     "primary_man": 976,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 5.7
+    },
+    {
+     "fragment": 974,
+     "primary_man": 981,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 13.3
+    },
+    {
+     "fragment": 979,
+     "primary_man": 981,
+     "time_assigned_s": 2.6,
+     "matchup_dist_median_ft": 9.2
+    }
+   ],
+   "primary_defender_fragment": 978,
+   "_span_len": 219
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s03",
+   "game": "201606190GSW",
+   "set_start_frame": 16197,
+   "period": 2,
+   "pbp_clock": [
+    128.0,
+    95.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by K. Irving (lost ball; steal by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 13253,
+     "primary_man": 13252,
+     "time_assigned_s": 6.8,
+     "matchup_dist_median_ft": 13.9
+    },
+    {
+     "fragment": 13255,
+     "primary_man": 13256,
+     "time_assigned_s": 3.5,
+     "matchup_dist_median_ft": 7.1
+    },
+    {
+     "fragment": 13257,
+     "primary_man": 13256,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 19.2
+    },
+    {
+     "fragment": 13258,
+     "primary_man": 13256,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 31.7
+    }
+   ],
+   "primary_defender_fragment": 13253,
+   "_span_len": 201
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 0,
+   "period": 2,
+   "pbp_clock": [
+    95.0,
+    78.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Curry misses 3-pt jump shot from 27 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2,
+     "primary_man": 6,
+     "time_assigned_s": 6.5,
+     "matchup_dist_median_ft": 6.6
+    },
+    {
+     "fragment": 5,
+     "primary_man": 4,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 7.5
+    },
+    {
+     "fragment": 25,
+     "primary_man": 11,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 3.1
+    },
+    {
+     "fragment": 12,
+     "primary_man": 15,
+     "time_assigned_s": 2.9,
+     "matchup_dist_median_ft": 8.0
+    },
+    {
+     "fragment": 21,
+     "primary_man": 11,
+     "time_assigned_s": 2.5,
+     "matchup_dist_median_ft": 10.4
+    },
+    {
+     "fragment": 62,
+     "primary_man": 7,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 9.7
+    }
+   ],
+   "primary_defender_fragment": 2,
+   "_span_len": 252
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 414,
+   "period": 2,
+   "pbp_clock": [
+    78.0,
+    69.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "I. Shumpert makes free throw 2 of 2"
+   },
+   "defenders": [
+    {
+     "fragment": 177,
+     "primary_man": 190,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 9.5
+    },
+    {
+     "fragment": 4,
+     "primary_man": 21,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 13.5
+    },
+    {
+     "fragment": 6,
+     "primary_man": 190,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 9.8
+    },
+    {
+     "fragment": 7,
+     "primary_man": 25,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 23.7
+    },
+    {
+     "fragment": 11,
+     "primary_man": 12,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 22.6
+    },
+    {
+     "fragment": 220,
+     "primary_man": 21,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 9.0
+    },
+    {
+     "fragment": 131,
+     "primary_man": 12,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 12.5
+    }
+   ],
+   "primary_defender_fragment": 177,
+   "_span_len": 171
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 2715,
+   "period": 2,
+   "pbp_clock": [
+    69.0,
+    51.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "A. Iguodala makes 2-pt jump shot from 11 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 339,
+     "primary_man": 265,
+     "time_assigned_s": 8.1,
+     "matchup_dist_median_ft": 8.2
+    },
+    {
+     "fragment": 221,
+     "primary_man": 435,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 6.0
+    },
+    {
+     "fragment": 256,
+     "primary_man": 312,
+     "time_assigned_s": 6.3,
+     "matchup_dist_median_ft": 5.1
+    },
+    {
+     "fragment": 275,
+     "primary_man": 326,
+     "time_assigned_s": 4.0,
+     "matchup_dist_median_ft": 4.7
+    },
+    {
+     "fragment": 411,
+     "primary_man": 434,
+     "time_assigned_s": 3.6,
+     "matchup_dist_median_ft": 24.8
+    },
+    {
+     "fragment": 402,
+     "primary_man": 434,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 15.9
+    },
+    {
+     "fragment": 330,
+     "primary_man": 353,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 10.8
+    },
+    {
+     "fragment": 377,
+     "primary_man": 353,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 26.0
+    },
+    {
+     "fragment": 426,
+     "primary_man": 434,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 23.2
+    }
+   ],
+   "primary_defender_fragment": 339,
+   "_span_len": 360
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 9537,
+   "period": 3,
+   "pbp_clock": [
+    633.0,
+    608.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "J. Smith makes 3-pt jump shot from 25 ft (assist by L. James )"
+   },
+   "defenders": [
+    {
+     "fragment": 6731,
+     "primary_man": 6727,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 6.0
+    },
+    {
+     "fragment": 6732,
+     "primary_man": 6736,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 12.9
+    },
+    {
+     "fragment": 6734,
+     "primary_man": 6738,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 5.7
+    },
+    {
+     "fragment": 6735,
+     "primary_man": 6727,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 4.7
+    }
+   ],
+   "primary_defender_fragment": 6731,
+   "_span_len": 210
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 11160,
+   "period": 3,
+   "pbp_clock": [
+    596.0,
+    574.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "J. Smith makes 3-pt jump shot from 26 ft (assist by L. James )"
+   },
+   "defenders": [
+    {
+     "fragment": 6730,
+     "primary_man": 8502,
+     "time_assigned_s": 6.2,
+     "matchup_dist_median_ft": 4.2
+    },
+    {
+     "fragment": 8501,
+     "primary_man": 8504,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 8506,
+     "primary_man": 8504,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 16.8
+    }
+   ],
+   "primary_defender_fragment": 6730,
+   "_span_len": 228
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 11610,
+   "period": 3,
+   "pbp_clock": [
+    574.0,
+    551.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by K. Thompson (bad pass; steal by J. Smith )"
+   },
+   "defenders": [
+    {
+     "fragment": 9100,
+     "primary_man": 9098,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 9.2
+    },
+    {
+     "fragment": 9103,
+     "primary_man": 9098,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 11.3
+    },
+    {
+     "fragment": 9101,
+     "primary_man": 9098,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 10.4
+    }
+   ],
+   "primary_defender_fragment": 9100,
+   "_span_len": 294
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "game": "201606190GSW",
+   "set_start_frame": 16779,
+   "period": 3,
+   "pbp_clock": [
+    470.0,
+    458.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "S. Curry makes 3-pt jump shot from 26 ft (assist by A. Iguodala )"
+   },
+   "defenders": [
+    {
+     "fragment": 14062,
+     "primary_man": 14058,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 9.3
+    },
+    {
+     "fragment": 14060,
+     "primary_man": 14064,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 14063,
+     "primary_man": 14059,
+     "time_assigned_s": 2.5,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 14061,
+     "primary_man": 14059,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 13.9
+    }
+   ],
+   "primary_defender_fragment": 14062,
+   "_span_len": 135
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "game": "201606190GSW",
+   "set_start_frame": 639,
+   "period": 3,
+   "pbp_clock": [
+    458.0,
+    434.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "K. Love makes 2-pt layup from 3 ft (assist by L. James )"
+   },
+   "defenders": [
+    {
+     "fragment": 6,
+     "primary_man": 11,
+     "time_assigned_s": 11.5,
+     "matchup_dist_median_ft": 7.2
+    },
+    {
+     "fragment": 63,
+     "primary_man": 52,
+     "time_assigned_s": 6.8,
+     "matchup_dist_median_ft": 4.4
+    },
+    {
+     "fragment": 4,
+     "primary_man": 32,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 8.1
+    },
+    {
+     "fragment": 17,
+     "primary_man": 28,
+     "time_assigned_s": 4.0,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 3,
+     "primary_man": 28,
+     "time_assigned_s": 3.3,
+     "matchup_dist_median_ft": 8.1
+    },
+    {
+     "fragment": 130,
+     "primary_man": 106,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 5.6
+    },
+    {
+     "fragment": 62,
+     "primary_man": 32,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 12.9
+    },
+    {
+     "fragment": 45,
+     "primary_man": 28,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 9.4
+    },
+    {
+     "fragment": 16,
+     "primary_man": 28,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 9.4
+    },
+    {
+     "fragment": 84,
+     "primary_man": 91,
+     "time_assigned_s": 0.7,
+     "matchup_dist_median_ft": 9.2
+    },
+    {
+     "fragment": 2,
+     "primary_man": 15,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 26.2
+    },
+    {
+     "fragment": 48,
+     "primary_man": 32,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 7.9
+    }
+   ],
+   "primary_defender_fragment": 6,
+   "_span_len": 507
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "game": "201606190GSW",
+   "set_start_frame": 1410,
+   "period": 3,
+   "pbp_clock": [
+    434.0,
+    410.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "A. Varej\u00c3\u00a3o misses 2-pt jump shot from 3 ft (block by K. Irving )"
+   },
+   "defenders": [
+    {
+     "fragment": 106,
+     "primary_man": 6,
+     "time_assigned_s": 8.1,
+     "matchup_dist_median_ft": 5.9
+    },
+    {
+     "fragment": 301,
+     "primary_man": 313,
+     "time_assigned_s": 4.9,
+     "matchup_dist_median_ft": 6.9
+    },
+    {
+     "fragment": 32,
+     "primary_man": 307,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 6.4
+    },
+    {
+     "fragment": 202,
+     "primary_man": 194,
+     "time_assigned_s": 2.6,
+     "matchup_dist_median_ft": 11.0
+    },
+    {
+     "fragment": 306,
+     "primary_man": 313,
+     "time_assigned_s": 2.5,
+     "matchup_dist_median_ft": 6.9
+    },
+    {
+     "fragment": 309,
+     "primary_man": 311,
+     "time_assigned_s": 2.3,
+     "matchup_dist_median_ft": 10.7
+    },
+    {
+     "fragment": 220,
+     "primary_man": 311,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 13.8
+    },
+    {
+     "fragment": 224,
+     "primary_man": 194,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 9.7
+    },
+    {
+     "fragment": 319,
+     "primary_man": 307,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 10.3
+    },
+    {
+     "fragment": 252,
+     "primary_man": 63,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 91,
+     "primary_man": 292,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 8.2
+    },
+    {
+     "fragment": 341,
+     "primary_man": 313,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 12.4
+    },
+    {
+     "fragment": 343,
+     "primary_man": 311,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 15.5
+    }
+   ],
+   "primary_defender_fragment": 106,
+   "_span_len": 417
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "game": "201606190GSW",
+   "set_start_frame": 6339,
+   "period": 3,
+   "pbp_clock": [
+    355.0,
+    321.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "J. Smith misses 3-pt jump shot from 23 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 4137,
+     "primary_man": 4141,
+     "time_assigned_s": 11.9,
+     "matchup_dist_median_ft": 10.5
+    },
+    {
+     "fragment": 4139,
+     "primary_man": 4143,
+     "time_assigned_s": 11.1,
+     "matchup_dist_median_ft": 17.9
+    },
+    {
+     "fragment": 4138,
+     "primary_man": 4143,
+     "time_assigned_s": 3.6,
+     "matchup_dist_median_ft": 3.0
+    },
+    {
+     "fragment": 4140,
+     "primary_man": 4142,
+     "time_assigned_s": 2.8,
+     "matchup_dist_median_ft": 4.5
+    }
+   ],
+   "primary_defender_fragment": 4137,
+   "_span_len": 378
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "game": "201606190GSW",
+   "set_start_frame": 15138,
+   "period": 3,
+   "pbp_clock": [
+    262.0,
+    217.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "K. Irving makes 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 11148,
+     "primary_man": 10660,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 22.8
+    },
+    {
+     "fragment": 11147,
+     "primary_man": 10657,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 10.5
+    },
+    {
+     "fragment": 11152,
+     "primary_man": 10657,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 13.0
+    }
+   ],
+   "primary_defender_fragment": 11148,
+   "_span_len": 201
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "game": "201606190GSW",
+   "set_start_frame": 4710,
+   "period": 3,
+   "pbp_clock": [
+    183.0,
+    162.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 1,
+    "terminating": "T. Thompson misses free throw 2 of 2"
+   },
+   "defenders": [
+    {
+     "fragment": 911,
+     "primary_man": 2429,
+     "time_assigned_s": 1.5,
+     "matchup_dist_median_ft": 18.8
+    },
+    {
+     "fragment": 2427,
+     "primary_man": 2429,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 33.0
+    },
+    {
+     "fragment": 2426,
+     "primary_man": 2429,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 17.7
+    }
+   ],
+   "primary_defender_fragment": 911,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "game": "201606190GSW",
+   "set_start_frame": 10407,
+   "period": 3,
+   "pbp_clock": [
+    116.0,
+    96.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "L. James makes 2-pt jump shot from 12 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 6069,
+     "primary_man": 5897,
+     "time_assigned_s": 2.0,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 6433,
+     "primary_man": 5897,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 11.5
+    },
+    {
+     "fragment": 6428,
+     "primary_man": 6430,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 6.2
+    },
+    {
+     "fragment": 6432,
+     "primary_man": 6431,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 5.6
+    },
+    {
+     "fragment": 6429,
+     "primary_man": 6431,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 11.2
+    }
+   ],
+   "primary_defender_fragment": 6069,
+   "_span_len": 261
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "game": "201606190GSW",
+   "set_start_frame": 11556,
+   "period": 3,
+   "pbp_clock": [
+    79.0,
+    54.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "T. Thompson makes 2-pt hook shot from 5 ft (assist by L. James )"
+   },
+   "defenders": [
+    {
+     "fragment": 8093,
+     "primary_man": 8096,
+     "time_assigned_s": 8.7,
+     "matchup_dist_median_ft": 7.7
+    },
+    {
+     "fragment": 7931,
+     "primary_man": 8096,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 9.0
+    },
+    {
+     "fragment": 8092,
+     "primary_man": 8096,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 5.6
+    },
+    {
+     "fragment": 8091,
+     "primary_man": 8096,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 4.0
+    },
+    {
+     "fragment": 8094,
+     "primary_man": 8096,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 9.7
+    },
+    {
+     "fragment": 8095,
+     "primary_man": 8096,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 16.5
+    }
+   ],
+   "primary_defender_fragment": 8093,
+   "_span_len": 363
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "game": "201606190GSW",
+   "set_start_frame": 16458,
+   "period": 4,
+   "pbp_clock": [
+    694.0,
+    674.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Livingston misses 2-pt jump shot from 13 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 14189,
+     "primary_man": 14187,
+     "time_assigned_s": 3.6,
+     "matchup_dist_median_ft": 21.0
+    },
+    {
+     "fragment": 14186,
+     "primary_man": 12032,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 15.1
+    },
+    {
+     "fragment": 14184,
+     "primary_man": 14188,
+     "time_assigned_s": 2.6,
+     "matchup_dist_median_ft": 24.5
+    }
+   ],
+   "primary_defender_fragment": 14189,
+   "_span_len": 120
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "game": "201606190GSW",
+   "set_start_frame": 612,
+   "period": 4,
+   "pbp_clock": [
+    674.0,
+    635.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "K. Love makes 2-pt hook shot from 7 ft (assist by L. James )"
+   },
+   "defenders": [
+    {
+     "fragment": 2,
+     "primary_man": 5,
+     "time_assigned_s": 6.9,
+     "matchup_dist_median_ft": 6.9
+    },
+    {
+     "fragment": 4,
+     "primary_man": 12,
+     "time_assigned_s": 5.2,
+     "matchup_dist_median_ft": 10.7
+    },
+    {
+     "fragment": 6,
+     "primary_man": 59,
+     "time_assigned_s": 5.0,
+     "matchup_dist_median_ft": 9.4
+    },
+    {
+     "fragment": 1,
+     "primary_man": 38,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 15.7
+    },
+    {
+     "fragment": 64,
+     "primary_man": 20,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 10.2
+    },
+    {
+     "fragment": 83,
+     "primary_man": 59,
+     "time_assigned_s": 1.5,
+     "matchup_dist_median_ft": 16.5
+    },
+    {
+     "fragment": 3,
+     "primary_man": 7,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 5.0
+    },
+    {
+     "fragment": 8,
+     "primary_man": 29,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 5.7
+    }
+   ],
+   "primary_defender_fragment": 2,
+   "_span_len": 432
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "game": "201606190GSW",
+   "set_start_frame": 1278,
+   "period": 4,
+   "pbp_clock": [
+    635.0,
+    616.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "H. Barnes misses 2-pt jump shot from 16 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 145,
+     "primary_man": 6,
+     "time_assigned_s": 4.3,
+     "matchup_dist_median_ft": 8.2
+    },
+    {
+     "fragment": 215,
+     "primary_man": 162,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 7.9
+    },
+    {
+     "fragment": 292,
+     "primary_man": 256,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 2.6
+    },
+    {
+     "fragment": 185,
+     "primary_man": 2,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 4.4
+    },
+    {
+     "fragment": 250,
+     "primary_man": 256,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 3.8
+    },
+    {
+     "fragment": 159,
+     "primary_man": 83,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 4.7
+    }
+   ],
+   "primary_defender_fragment": 145,
+   "_span_len": 126
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "game": "201606190GSW",
+   "set_start_frame": 2004,
+   "period": 4,
+   "pbp_clock": [
+    606.0,
+    596.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Livingston makes free throw 2 of 2"
+   },
+   "defenders": [
+    {
+     "fragment": 308,
+     "primary_man": 410,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 10.7
+    },
+    {
+     "fragment": 427,
+     "primary_man": 410,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 13.4
+    },
+    {
+     "fragment": 394,
+     "primary_man": 407,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 7.4
+    },
+    {
+     "fragment": 389,
+     "primary_man": 432,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 11.9
+    },
+    {
+     "fragment": 463,
+     "primary_man": 480,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 9.3
+    },
+    {
+     "fragment": 520,
+     "primary_man": 505,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 3.7
+    },
+    {
+     "fragment": 145,
+     "primary_man": 505,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 7.0
+    },
+    {
+     "fragment": 525,
+     "primary_man": 382,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 41.1
+    }
+   ],
+   "primary_defender_fragment": 308,
+   "_span_len": 129
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "game": "201606190GSW",
+   "set_start_frame": 4020,
+   "period": 4,
+   "pbp_clock": [
+    596.0,
+    577.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by L. James (bad pass; steal by H. Barnes )"
+   },
+   "defenders": [
+    {
+     "fragment": 1097,
+     "primary_man": 1104,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 8.3
+    },
+    {
+     "fragment": 1101,
+     "primary_man": 1100,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 10.2
+    },
+    {
+     "fragment": 1098,
+     "primary_man": 551,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 12.3
+    },
+    {
+     "fragment": 1102,
+     "primary_man": 551,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 14.5
+    }
+   ],
+   "primary_defender_fragment": 1097,
+   "_span_len": 393
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "game": "201606190GSW",
+   "set_start_frame": 5946,
+   "period": 4,
+   "pbp_clock": [
+    545.0,
+    523.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Green makes 2-pt layup from 2 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 4219,
+     "primary_man": 4218,
+     "time_assigned_s": 3.5,
+     "matchup_dist_median_ft": 23.2
+    },
+    {
+     "fragment": 4220,
+     "primary_man": 4216,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 4.3
+    },
+    {
+     "fragment": 4222,
+     "primary_man": 4217,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 22.5
+    },
+    {
+     "fragment": 4215,
+     "primary_man": 4217,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 21.8
+    }
+   ],
+   "primary_defender_fragment": 4219,
+   "_span_len": 117
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "game": "201606190GSW",
+   "set_start_frame": 6498,
+   "period": 4,
+   "pbp_clock": [
+    523.0,
+    496.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Love misses 3-pt jump shot from 23 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 4221,
+     "primary_man": 4916,
+     "time_assigned_s": 4.7,
+     "matchup_dist_median_ft": 6.5
+    },
+    {
+     "fragment": 4913,
+     "primary_man": 4916,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 5.2
+    },
+    {
+     "fragment": 4914,
+     "primary_man": 4916,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 18.2
+    }
+   ],
+   "primary_defender_fragment": 4221,
+   "_span_len": 369
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s08",
+   "game": "201606190GSW",
+   "set_start_frame": 7650,
+   "period": 4,
+   "pbp_clock": [
+    170.0,
+    152.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Love misses 2-pt hook shot from 10 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 6987,
+     "primary_man": 6984,
+     "time_assigned_s": 5.5,
+     "matchup_dist_median_ft": 14.4
+    },
+    {
+     "fragment": 6978,
+     "primary_man": 6985,
+     "time_assigned_s": 3.6,
+     "matchup_dist_median_ft": 19.4
+    }
+   ],
+   "primary_defender_fragment": 6987,
+   "_span_len": 174
+  },
+  {
+   "clip": "gsw_cle_xmas16_s02",
+   "game": "201612250CLE",
+   "set_start_frame": 16617,
+   "period": 2,
+   "pbp_clock": [
+    557.0,
+    528.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "CLE",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Green makes 2-pt layup from 1 ft (assist by A. Iguodala )"
+   },
+   "defenders": [
+    {
+     "fragment": 8323,
+     "primary_man": 8322,
+     "time_assigned_s": 5.5,
+     "matchup_dist_median_ft": 12.6
+    }
+   ],
+   "primary_defender_fragment": 8323,
+   "_span_len": 201
+  },
+  {
+   "clip": "gsw_cle_xmas16_s03",
+   "game": "201612250CLE",
+   "set_start_frame": 6450,
+   "period": 2,
+   "pbp_clock": [
+    411.0,
+    390.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "R. Jefferson misses 2-pt jump shot from 12 ft (block by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 2805,
+     "primary_man": 2691,
+     "time_assigned_s": 5.0,
+     "matchup_dist_median_ft": 7.4
+    }
+   ],
+   "primary_defender_fragment": 2805,
+   "_span_len": 189
+  },
+  {
+   "clip": "gsw_cle_xmas16_s05",
+   "game": "201612250CLE",
+   "set_start_frame": 16416,
+   "period": 3,
+   "pbp_clock": [
+    454.0,
+    428.0
+   ],
+   "offense_real": "CLE",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "L. James makes 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 7765,
+     "primary_man": 7766,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 8.4
+    }
+   ],
+   "primary_defender_fragment": 7765,
+   "_span_len": 264
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "game": "201605160GSW",
+   "set_start_frame": 16149,
+   "period": 1,
+   "pbp_clock": [
+    657.0,
+    642.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Ibaka misses 3-pt jump shot from 25 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 3750,
+     "primary_man": 569,
+     "time_assigned_s": 16.6,
+     "matchup_dist_median_ft": 11.7
+    },
+    {
+     "fragment": 3753,
+     "primary_man": 3756,
+     "time_assigned_s": 16.3,
+     "matchup_dist_median_ft": 16.6
+    }
+   ],
+   "primary_defender_fragment": 3750,
+   "_span_len": 504
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "game": "201605160GSW",
+   "set_start_frame": 20295,
+   "period": 1,
+   "pbp_clock": [
+    638.0,
+    612.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Ibaka makes 2-pt hook shot from 7 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 8552,
+     "primary_man": 8553,
+     "time_assigned_s": 8.4,
+     "matchup_dist_median_ft": 6.3
+    },
+    {
+     "fragment": 8554,
+     "primary_man": 7017,
+     "time_assigned_s": 6.4,
+     "matchup_dist_median_ft": 13.4
+    }
+   ],
+   "primary_defender_fragment": 8552,
+   "_span_len": 270
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "game": "201605160GSW",
+   "set_start_frame": 22059,
+   "period": 1,
+   "pbp_clock": [
+    601.0,
+    589.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "K. Durant makes 2-pt jump shot from 17 ft (assist by R. Westbrook )"
+   },
+   "defenders": [
+    {
+     "fragment": 10530,
+     "primary_man": 10528,
+     "time_assigned_s": 9.8,
+     "matchup_dist_median_ft": 10.6
+    },
+    {
+     "fragment": 10531,
+     "primary_man": 7017,
+     "time_assigned_s": 8.6,
+     "matchup_dist_median_ft": 7.8
+    }
+   ],
+   "primary_defender_fragment": 10530,
+   "_span_len": 291
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "game": "201605160GSW",
+   "set_start_frame": 22686,
+   "period": 1,
+   "pbp_clock": [
+    589.0,
+    575.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Curry misses 3-pt jump shot from 25 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 10528,
+     "primary_man": 10531,
+     "time_assigned_s": 10.5,
+     "matchup_dist_median_ft": 7.6
+    },
+    {
+     "fragment": 7017,
+     "primary_man": 10530,
+     "time_assigned_s": 10.0,
+     "matchup_dist_median_ft": 14.4
+    }
+   ],
+   "primary_defender_fragment": 10528,
+   "_span_len": 336
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "game": "201605160GSW",
+   "set_start_frame": 30597,
+   "period": 1,
+   "pbp_clock": [
+    507.0,
+    496.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "R. Westbrook misses 2-pt jump shot from 16 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 18558,
+     "primary_man": 14178,
+     "time_assigned_s": 7.5,
+     "matchup_dist_median_ft": 19.6
+    }
+   ],
+   "primary_defender_fragment": 18558,
+   "_span_len": 222
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "game": "201605160GSW",
+   "set_start_frame": 33936,
+   "period": 1,
+   "pbp_clock": [
+    451.0,
+    440.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Green misses 3-pt jump shot from 30 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 24352,
+     "primary_man": 24353,
+     "time_assigned_s": 3.7,
+     "matchup_dist_median_ft": 11.3
+    },
+    {
+     "fragment": 24351,
+     "primary_man": 24353,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 3.2
+    },
+    {
+     "fragment": 24354,
+     "primary_man": 24353,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 8.0
+    }
+   ],
+   "primary_defender_fragment": 24352,
+   "_span_len": 168
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "game": "201605160GSW",
+   "set_start_frame": 20742,
+   "period": 1,
+   "pbp_clock": [
+    310.0,
+    298.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Curry makes 2-pt jump shot from 6 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 11775,
+     "primary_man": 11779,
+     "time_assigned_s": 9.0,
+     "matchup_dist_median_ft": 16.2
+    },
+    {
+     "fragment": 9001,
+     "primary_man": 11776,
+     "time_assigned_s": 5.5,
+     "matchup_dist_median_ft": 10.1
+    },
+    {
+     "fragment": 11777,
+     "primary_man": 11779,
+     "time_assigned_s": 5.5,
+     "matchup_dist_median_ft": 11.0
+    },
+    {
+     "fragment": 11782,
+     "primary_man": 11781,
+     "time_assigned_s": 4.7,
+     "matchup_dist_median_ft": 14.3
+    },
+    {
+     "fragment": 12130,
+     "primary_man": 11776,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 4.1
+    }
+   ],
+   "primary_defender_fragment": 11775,
+   "_span_len": 498
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "game": "201605160GSW",
+   "set_start_frame": 21399,
+   "period": 1,
+   "pbp_clock": [
+    298.0,
+    273.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Waiters makes 2-pt jump shot from 19 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 12132,
+     "primary_man": 9001,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 14.2
+    },
+    {
+     "fragment": 11779,
+     "primary_man": 12130,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 22.3
+    },
+    {
+     "fragment": 11776,
+     "primary_man": 12130,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 31.6
+    }
+   ],
+   "primary_defender_fragment": 12132,
+   "_span_len": 129
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "game": "201605160GSW",
+   "set_start_frame": 29250,
+   "period": 1,
+   "pbp_clock": [
+    243.0,
+    228.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by E. Freedom (lost ball; steal by S. Curry )"
+   },
+   "defenders": [
+    {
+     "fragment": 19718,
+     "primary_man": 19719,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 13.0
+    },
+    {
+     "fragment": 19721,
+     "primary_man": 19719,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 14.1
+    }
+   ],
+   "primary_defender_fragment": 19718,
+   "_span_len": 147
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "game": "201605160GSW",
+   "set_start_frame": 29955,
+   "period": 1,
+   "pbp_clock": [
+    228.0,
+    205.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "H. Barnes makes 3-pt jump shot from 26 ft (assist by A. Iguodala )"
+   },
+   "defenders": [
+    {
+     "fragment": 20872,
+     "primary_man": 20876,
+     "time_assigned_s": 8.3,
+     "matchup_dist_median_ft": 10.3
+    },
+    {
+     "fragment": 20875,
+     "primary_man": 20873,
+     "time_assigned_s": 7.7,
+     "matchup_dist_median_ft": 9.7
+    }
+   ],
+   "primary_defender_fragment": 20872,
+   "_span_len": 291
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 0,
+   "period": 1,
+   "pbp_clock": [
+    187.0,
+    174.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "A. Iguodala misses 2-pt hook shot from 6 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2,
+     "primary_man": 1,
+     "time_assigned_s": 6.0,
+     "matchup_dist_median_ft": 6.1
+    },
+    {
+     "fragment": 10,
+     "primary_man": 4,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 3.3
+    },
+    {
+     "fragment": 12,
+     "primary_man": 4,
+     "time_assigned_s": 5.1,
+     "matchup_dist_median_ft": 5.3
+    },
+    {
+     "fragment": 6,
+     "primary_man": 5,
+     "time_assigned_s": 2.8,
+     "matchup_dist_median_ft": 13.1
+    },
+    {
+     "fragment": 38,
+     "primary_man": 5,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 20.1
+    },
+    {
+     "fragment": 8,
+     "primary_man": 7,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 22.8
+    },
+    {
+     "fragment": 9,
+     "primary_man": 5,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 3,
+     "primary_man": 7,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 15.6
+    }
+   ],
+   "primary_defender_fragment": 2,
+   "_span_len": 267
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 453,
+   "period": 1,
+   "pbp_clock": [
+    174.0,
+    165.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "R. Westbrook makes 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 95,
+     "primary_man": 102,
+     "time_assigned_s": 5.5,
+     "matchup_dist_median_ft": 20.3
+    },
+    {
+     "fragment": 107,
+     "primary_man": 108,
+     "time_assigned_s": 4.0,
+     "matchup_dist_median_ft": 8.3
+    },
+    {
+     "fragment": 106,
+     "primary_man": 9,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 15.4
+    },
+    {
+     "fragment": 1,
+     "primary_man": 102,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 19.8
+    }
+   ],
+   "primary_defender_fragment": 95,
+   "_span_len": 207
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 1101,
+   "period": 1,
+   "pbp_clock": [
+    165.0,
+    155.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "H. Barnes makes 3-pt jump shot from 23 ft (assist by K. Thompson )"
+   },
+   "defenders": [
+    {
+     "fragment": 950,
+     "primary_man": 952,
+     "time_assigned_s": 5.1,
+     "matchup_dist_median_ft": 19.3
+    },
+    {
+     "fragment": 954,
+     "primary_man": 107,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 32.8
+    },
+    {
+     "fragment": 956,
+     "primary_man": 107,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 27.5
+    },
+    {
+     "fragment": 955,
+     "primary_man": 107,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 41.3
+    },
+    {
+     "fragment": 9,
+     "primary_man": 1,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 12.7
+    }
+   ],
+   "primary_defender_fragment": 950,
+   "_span_len": 165
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 7089,
+   "period": 1,
+   "pbp_clock": [
+    112.0,
+    81.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Green makes 2-pt layup from 1 ft (assist by S. Livingston )"
+   },
+   "defenders": [
+    {
+     "fragment": 4764,
+     "primary_man": 4762,
+     "time_assigned_s": 13.4,
+     "matchup_dist_median_ft": 19.0
+    },
+    {
+     "fragment": 4765,
+     "primary_man": 4768,
+     "time_assigned_s": 13.4,
+     "matchup_dist_median_ft": 8.6
+    },
+    {
+     "fragment": 4766,
+     "primary_man": 4762,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 4.7
+    },
+    {
+     "fragment": 4332,
+     "primary_man": 4762,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 17.2
+    }
+   ],
+   "primary_defender_fragment": 4764,
+   "_span_len": 510
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 23424,
+   "period": 2,
+   "pbp_clock": [
+    704.0,
+    680.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "R. Foye makes 3-pt jump shot from 23 ft (assist by D. Waiters )"
+   },
+   "defenders": [
+    {
+     "fragment": 17890,
+     "primary_man": 18166,
+     "time_assigned_s": 4.3,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 18165,
+     "primary_man": 18162,
+     "time_assigned_s": 4.0,
+     "matchup_dist_median_ft": 25.5
+    }
+   ],
+   "primary_defender_fragment": 17890,
+   "_span_len": 126
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 24648,
+   "period": 2,
+   "pbp_clock": [
+    680.0,
+    665.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Livingston makes 2-pt dunk at rim (assist by H. Barnes )"
+   },
+   "defenders": [
+    {
+     "fragment": 21047,
+     "primary_man": 21045,
+     "time_assigned_s": 10.0,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 21050,
+     "primary_man": 21045,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 2.8
+    },
+    {
+     "fragment": 21051,
+     "primary_man": 21045,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 15.0
+    },
+    {
+     "fragment": 21046,
+     "primary_man": 21045,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 17.2
+    }
+   ],
+   "primary_defender_fragment": 21047,
+   "_span_len": 327
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 26079,
+   "period": 2,
+   "pbp_clock": [
+    650.0,
+    645.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "A. Iguodala makes free throw 2 of 2"
+   },
+   "defenders": [
+    {
+     "fragment": 22625,
+     "primary_man": 22623,
+     "time_assigned_s": 5.6,
+     "matchup_dist_median_ft": 17.7
+    }
+   ],
+   "primary_defender_fragment": 22625,
+   "_span_len": 219
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "game": "201605160GSW",
+   "set_start_frame": 31950,
+   "period": 2,
+   "pbp_clock": [
+    611.0,
+    598.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "L. Barbosa makes 2-pt layup from 2 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 26106,
+     "primary_man": 26105,
+     "time_assigned_s": 0.7,
+     "matchup_dist_median_ft": 11.7
+    }
+   ],
+   "primary_defender_fragment": 26106,
+   "_span_len": 354
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "game": "201605160GSW",
+   "set_start_frame": 2274,
+   "period": 2,
+   "pbp_clock": [
+    569.0,
+    547.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Ibaka misses 2-pt jump shot from 18 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 223,
+     "primary_man": 376,
+     "time_assigned_s": 12.2,
+     "matchup_dist_median_ft": 11.8
+    },
+    {
+     "fragment": 189,
+     "primary_man": 11,
+     "time_assigned_s": 7.8,
+     "matchup_dist_median_ft": 10.2
+    },
+    {
+     "fragment": 44,
+     "primary_man": 27,
+     "time_assigned_s": 6.9,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 359,
+     "primary_man": 2,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 16.8
+    },
+    {
+     "fragment": 453,
+     "primary_man": 376,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 18.6
+    },
+    {
+     "fragment": 424,
+     "primary_man": 2,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 9.1
+    },
+    {
+     "fragment": 191,
+     "primary_man": 248,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 6.4
+    }
+   ],
+   "primary_defender_fragment": 223,
+   "_span_len": 465
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "game": "201605160GSW",
+   "set_start_frame": 6858,
+   "period": 2,
+   "pbp_clock": [
+    534.0,
+    516.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "L. Barbosa misses 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 3256,
+     "primary_man": 3255,
+     "time_assigned_s": 15.2,
+     "matchup_dist_median_ft": 4.8
+    },
+    {
+     "fragment": 3253,
+     "primary_man": 499,
+     "time_assigned_s": 15.1,
+     "matchup_dist_median_ft": 6.5
+    },
+    {
+     "fragment": 3258,
+     "primary_man": 3255,
+     "time_assigned_s": 6.5,
+     "matchup_dist_median_ft": 7.2
+    },
+    {
+     "fragment": 3254,
+     "primary_man": 3259,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 19.0
+    },
+    {
+     "fragment": 3257,
+     "primary_man": 499,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 26.7
+    }
+   ],
+   "primary_defender_fragment": 3256,
+   "_span_len": 606
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "game": "201605160GSW",
+   "set_start_frame": 15537,
+   "period": 2,
+   "pbp_clock": [
+    491.0,
+    472.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "K. Thompson makes 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 7272,
+     "primary_man": 7275,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 2.7
+    },
+    {
+     "fragment": 6341,
+     "primary_man": 7273,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 10.8
+    },
+    {
+     "fragment": 3253,
+     "primary_man": 7273,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 4.7
+    }
+   ],
+   "primary_defender_fragment": 7272,
+   "_span_len": 123
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "game": "201605160GSW",
+   "set_start_frame": 18276,
+   "period": 2,
+   "pbp_clock": [
+    445.0,
+    432.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Ibaka misses 2-pt jump shot from 17 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 10866,
+     "primary_man": 10870,
+     "time_assigned_s": 11.2,
+     "matchup_dist_median_ft": 15.6
+    },
+    {
+     "fragment": 10869,
+     "primary_man": 10867,
+     "time_assigned_s": 11.1,
+     "matchup_dist_median_ft": 22.8
+    },
+    {
+     "fragment": 10864,
+     "primary_man": 10868,
+     "time_assigned_s": 6.8,
+     "matchup_dist_median_ft": 9.7
+    }
+   ],
+   "primary_defender_fragment": 10866,
+   "_span_len": 432
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "game": "201605160GSW",
+   "set_start_frame": 19719,
+   "period": 2,
+   "pbp_clock": [
+    424.0,
+    404.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Durant misses 2-pt jump shot from 15 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 10866,
+     "primary_man": 12161,
+     "time_assigned_s": 19.9,
+     "matchup_dist_median_ft": 11.5
+    },
+    {
+     "fragment": 12166,
+     "primary_man": 12167,
+     "time_assigned_s": 17.3,
+     "matchup_dist_median_ft": 9.8
+    },
+    {
+     "fragment": 12162,
+     "primary_man": 12165,
+     "time_assigned_s": 10.5,
+     "matchup_dist_median_ft": 5.3
+    }
+   ],
+   "primary_defender_fragment": 10866,
+   "_span_len": 675
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "game": "201605160GSW",
+   "set_start_frame": 30507,
+   "period": 2,
+   "pbp_clock": [
+    350.0,
+    333.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Ibaka makes 2-pt jump shot from 14 ft (assist by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 22088,
+     "primary_man": 22091,
+     "time_assigned_s": 11.4,
+     "matchup_dist_median_ft": 26.5
+    },
+    {
+     "fragment": 22089,
+     "primary_man": 22092,
+     "time_assigned_s": 11.2,
+     "matchup_dist_median_ft": 10.5
+    },
+    {
+     "fragment": 22086,
+     "primary_man": 22091,
+     "time_assigned_s": 4.0,
+     "matchup_dist_median_ft": 19.6
+    }
+   ],
+   "primary_defender_fragment": 22088,
+   "_span_len": 438
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "game": "201605160GSW",
+   "set_start_frame": 9006,
+   "period": 2,
+   "pbp_clock": [
+    245.0,
+    226.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Green misses 2-pt layup from 5 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2928,
+     "primary_man": 2929,
+     "time_assigned_s": 21.4,
+     "matchup_dist_median_ft": 8.0
+    },
+    {
+     "fragment": 2932,
+     "primary_man": 2934,
+     "time_assigned_s": 13.9,
+     "matchup_dist_median_ft": 5.9
+    },
+    {
+     "fragment": 2470,
+     "primary_man": 2930,
+     "time_assigned_s": 11.9,
+     "matchup_dist_median_ft": 16.2
+    },
+    {
+     "fragment": 2925,
+     "primary_man": 2930,
+     "time_assigned_s": 9.0,
+     "matchup_dist_median_ft": 2.8
+    },
+    {
+     "fragment": 2927,
+     "primary_man": 2929,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 21.7
+    }
+   ],
+   "primary_defender_fragment": 2928,
+   "_span_len": 720
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "game": "201605160GSW",
+   "set_start_frame": 14019,
+   "period": 2,
+   "pbp_clock": [
+    158.0,
+    142.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Thompson misses 2-pt jump shot from 7 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 10317,
+     "primary_man": 10316,
+     "time_assigned_s": 12.2,
+     "matchup_dist_median_ft": 9.1
+    },
+    {
+     "fragment": 10319,
+     "primary_man": 10314,
+     "time_assigned_s": 11.7,
+     "matchup_dist_median_ft": 13.6
+    },
+    {
+     "fragment": 10318,
+     "primary_man": 10314,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 15.1
+    },
+    {
+     "fragment": 10312,
+     "primary_man": 10320,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 11.2
+    }
+   ],
+   "primary_defender_fragment": 10317,
+   "_span_len": 543
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "game": "201605160GSW",
+   "set_start_frame": 14847,
+   "period": 2,
+   "pbp_clock": [
+    142.0,
+    135.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "R. Westbrook misses 2-pt jump shot from 15 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 11233,
+     "primary_man": 10312,
+     "time_assigned_s": 9.8,
+     "matchup_dist_median_ft": 8.4
+    },
+    {
+     "fragment": 10314,
+     "primary_man": 10319,
+     "time_assigned_s": 7.0,
+     "matchup_dist_median_ft": 14.1
+    },
+    {
+     "fragment": 11234,
+     "primary_man": 10319,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 15.3
+    }
+   ],
+   "primary_defender_fragment": 11233,
+   "_span_len": 300
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "game": "201605160GSW",
+   "set_start_frame": 15396,
+   "period": 2,
+   "pbp_clock": [
+    135.0,
+    122.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )"
+   },
+   "defenders": [
+    {
+     "fragment": 11827,
+     "primary_man": 11831,
+     "time_assigned_s": 13.6,
+     "matchup_dist_median_ft": 6.1
+    },
+    {
+     "fragment": 10312,
+     "primary_man": 11829,
+     "time_assigned_s": 9.6,
+     "matchup_dist_median_ft": 20.0
+    },
+    {
+     "fragment": 11828,
+     "primary_man": 11829,
+     "time_assigned_s": 7.1,
+     "matchup_dist_median_ft": 25.9
+    }
+   ],
+   "primary_defender_fragment": 11827,
+   "_span_len": 405
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "game": "201605160GSW",
+   "set_start_frame": 22071,
+   "period": 2,
+   "pbp_clock": [
+    72.0,
+    58.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "D. Waiters makes 3-pt jump shot from 23 ft (assist by A. Roberson )"
+   },
+   "defenders": [
+    {
+     "fragment": 15582,
+     "primary_man": 15585,
+     "time_assigned_s": 16.4,
+     "matchup_dist_median_ft": 14.2
+    },
+    {
+     "fragment": 11833,
+     "primary_man": 15585,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 37.7
+    }
+   ],
+   "primary_defender_fragment": 15582,
+   "_span_len": 519
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "game": "201605160GSW",
+   "set_start_frame": 17676,
+   "period": 3,
+   "pbp_clock": [
+    664.0,
+    646.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by H. Barnes (lost ball; steal by R. Westbrook )"
+   },
+   "defenders": [
+    {
+     "fragment": 7366,
+     "primary_man": 7363,
+     "time_assigned_s": 6.1,
+     "matchup_dist_median_ft": 6.0
+    }
+   ],
+   "primary_defender_fragment": 7366,
+   "_span_len": 180
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "game": "201605160GSW",
+   "set_start_frame": 21315,
+   "period": 3,
+   "pbp_clock": [
+    643.0,
+    627.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Thompson misses 2-pt jump shot from 4 ft (block by S. Adams )"
+   },
+   "defenders": [
+    {
+     "fragment": 9436,
+     "primary_man": 9585,
+     "time_assigned_s": 7.5,
+     "matchup_dist_median_ft": 10.2
+    },
+    {
+     "fragment": 9583,
+     "primary_man": 9584,
+     "time_assigned_s": 7.2,
+     "matchup_dist_median_ft": 15.1
+    },
+    {
+     "fragment": 9582,
+     "primary_man": 9584,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 18.1
+    }
+   ],
+   "primary_defender_fragment": 9436,
+   "_span_len": 246
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "game": "201605160GSW",
+   "set_start_frame": 26412,
+   "period": 3,
+   "pbp_clock": [
+    595.0,
+    587.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "S. Curry makes 3-pt jump shot from 28 ft (assist by A. Bogut )"
+   },
+   "defenders": [
+    {
+     "fragment": 15187,
+     "primary_man": 15185,
+     "time_assigned_s": 21.3,
+     "matchup_dist_median_ft": 10.8
+    },
+    {
+     "fragment": 15188,
+     "primary_man": 15183,
+     "time_assigned_s": 19.1,
+     "matchup_dist_median_ft": 22.5
+    },
+    {
+     "fragment": 15184,
+     "primary_man": 15189,
+     "time_assigned_s": 6.9,
+     "matchup_dist_median_ft": 4.8
+    },
+    {
+     "fragment": 15190,
+     "primary_man": 15186,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 2.8
+    }
+   ],
+   "primary_defender_fragment": 15187,
+   "_span_len": 690
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "game": "201605160GSW",
+   "set_start_frame": 27711,
+   "period": 3,
+   "pbp_clock": [
+    587.0,
+    572.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "R. Westbrook misses 2-pt jump shot from 12 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 16537,
+     "primary_man": 16532,
+     "time_assigned_s": 10.9,
+     "matchup_dist_median_ft": 8.8
+    },
+    {
+     "fragment": 16534,
+     "primary_man": 16533,
+     "time_assigned_s": 8.7,
+     "matchup_dist_median_ft": 11.6
+    },
+    {
+     "fragment": 16536,
+     "primary_man": 16535,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 6.1
+    }
+   ],
+   "primary_defender_fragment": 16537,
+   "_span_len": 339
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "game": "201605160GSW",
+   "set_start_frame": 32118,
+   "period": 3,
+   "pbp_clock": [
+    552.0,
+    520.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Adams makes 2-pt dunk at rim"
+   },
+   "defenders": [
+    {
+     "fragment": 21806,
+     "primary_man": 21808,
+     "time_assigned_s": 7.2,
+     "matchup_dist_median_ft": 20.5
+    },
+    {
+     "fragment": 20104,
+     "primary_man": 21803,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 18.1
+    }
+   ],
+   "primary_defender_fragment": 21806,
+   "_span_len": 234
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "game": "201605160GSW",
+   "set_start_frame": 1344,
+   "period": 3,
+   "pbp_clock": [
+    505.0,
+    486.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by S. Curry (bad pass; steal by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 3,
+     "primary_man": 2,
+     "time_assigned_s": 14.9,
+     "matchup_dist_median_ft": 8.3
+    },
+    {
+     "fragment": 7,
+     "primary_man": 4,
+     "time_assigned_s": 7.5,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 18,
+     "primary_man": 8,
+     "time_assigned_s": 6.0,
+     "matchup_dist_median_ft": 6.1
+    },
+    {
+     "fragment": 35,
+     "primary_man": 8,
+     "time_assigned_s": 6.0,
+     "matchup_dist_median_ft": 4.0
+    },
+    {
+     "fragment": 9,
+     "primary_man": 4,
+     "time_assigned_s": 5.1,
+     "matchup_dist_median_ft": 6.1
+    },
+    {
+     "fragment": 11,
+     "primary_man": 4,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 10.2
+    },
+    {
+     "fragment": 151,
+     "primary_man": 4,
+     "time_assigned_s": 1.5,
+     "matchup_dist_median_ft": 23.3
+    },
+    {
+     "fragment": 184,
+     "primary_man": 2,
+     "time_assigned_s": 1.3,
+     "matchup_dist_median_ft": 6.5
+    },
+    {
+     "fragment": 6,
+     "primary_man": 4,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 17.7
+    }
+   ],
+   "primary_defender_fragment": 3,
+   "_span_len": 732
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "game": "201605160GSW",
+   "set_start_frame": 6438,
+   "period": 3,
+   "pbp_clock": [
+    422.0,
+    402.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Green misses 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 4334,
+     "primary_man": 4336,
+     "time_assigned_s": 7.4,
+     "matchup_dist_median_ft": 5.4
+    },
+    {
+     "fragment": 4335,
+     "primary_man": 4336,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 6.7
+    },
+    {
+     "fragment": 4338,
+     "primary_man": 4337,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 18.9
+    },
+    {
+     "fragment": 4340,
+     "primary_man": 4336,
+     "time_assigned_s": 1.5,
+     "matchup_dist_median_ft": 3.9
+    },
+    {
+     "fragment": 4339,
+     "primary_man": 4336,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 6.6
+    }
+   ],
+   "primary_defender_fragment": 4334,
+   "_span_len": 399
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "game": "201605160GSW",
+   "set_start_frame": 13992,
+   "period": 3,
+   "pbp_clock": [
+    383.0,
+    362.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "R. Westbrook makes 3-pt jump shot from 25 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 9264,
+     "primary_man": 9265,
+     "time_assigned_s": 19.7,
+     "matchup_dist_median_ft": 11.5
+    },
+    {
+     "fragment": 9271,
+     "primary_man": 9265,
+     "time_assigned_s": 19.6,
+     "matchup_dist_median_ft": 14.2
+    }
+   ],
+   "primary_defender_fragment": 9264,
+   "_span_len": 777
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "game": "201605160GSW",
+   "set_start_frame": 16221,
+   "period": 3,
+   "pbp_clock": [
+    348.0,
+    332.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "R. Westbrook misses 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 12326,
+     "primary_man": 12324,
+     "time_assigned_s": 7.0,
+     "matchup_dist_median_ft": 9.6
+    },
+    {
+     "fragment": 12329,
+     "primary_man": 12328,
+     "time_assigned_s": 6.7,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 9264,
+     "primary_man": 12325,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 23.7
+    }
+   ],
+   "primary_defender_fragment": 12326,
+   "_span_len": 225
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "game": "201605160GSW",
+   "set_start_frame": 16758,
+   "period": 3,
+   "pbp_clock": [
+    332.0,
+    326.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "D. Green makes free throw 1 of 1"
+   },
+   "defenders": [
+    {
+     "fragment": 12781,
+     "primary_man": 12329,
+     "time_assigned_s": 7.9,
+     "matchup_dist_median_ft": 11.3
+    },
+    {
+     "fragment": 12779,
+     "primary_man": 12783,
+     "time_assigned_s": 5.2,
+     "matchup_dist_median_ft": 27.8
+    },
+    {
+     "fragment": 12778,
+     "primary_man": 12783,
+     "time_assigned_s": 3.5,
+     "matchup_dist_median_ft": 14.2
+    }
+   ],
+   "primary_defender_fragment": 12781,
+   "_span_len": 252
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "game": "201605160GSW",
+   "set_start_frame": 21345,
+   "period": 3,
+   "pbp_clock": [
+    285.0,
+    275.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by K. Durant (bad pass; steal by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 18333,
+     "primary_man": 16667,
+     "time_assigned_s": 4.7,
+     "matchup_dist_median_ft": 26.8
+    },
+    {
+     "fragment": 18337,
+     "primary_man": 16665,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 15.2
+    }
+   ],
+   "primary_defender_fragment": 18333,
+   "_span_len": 180
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "game": "201605160GSW",
+   "set_start_frame": 8691,
+   "period": 3,
+   "pbp_clock": [
+    152.0,
+    143.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "F. Ezeli misses 2-pt jump shot from 5 ft (block by E. Freedom )"
+   },
+   "defenders": [
+    {
+     "fragment": 2020,
+     "primary_man": 188,
+     "time_assigned_s": 8.6,
+     "matchup_dist_median_ft": 12.0
+    },
+    {
+     "fragment": 2017,
+     "primary_man": 2018,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 12.4
+    },
+    {
+     "fragment": 2019,
+     "primary_man": 2018,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 9.8
+    }
+   ],
+   "primary_defender_fragment": 2020,
+   "_span_len": 258
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "game": "201605160GSW",
+   "set_start_frame": 9282,
+   "period": 3,
+   "pbp_clock": [
+    143.0,
+    136.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "E. Freedom makes 2-pt layup from 2 ft (assist by R. Westbrook )"
+   },
+   "defenders": [
+    {
+     "fragment": 188,
+     "primary_man": 2017,
+     "time_assigned_s": 6.0,
+     "matchup_dist_median_ft": 8.5
+    },
+    {
+     "fragment": 2018,
+     "primary_man": 2020,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 9.4
+    }
+   ],
+   "primary_defender_fragment": 188,
+   "_span_len": 195
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "game": "201605160GSW",
+   "set_start_frame": 9876,
+   "period": 3,
+   "pbp_clock": [
+    136.0,
+    104.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by S. Curry (bad pass; steal by R. Westbrook )"
+   },
+   "defenders": [
+    {
+     "fragment": 3229,
+     "primary_man": 3230,
+     "time_assigned_s": 8.7,
+     "matchup_dist_median_ft": 9.3
+    },
+    {
+     "fragment": 3233,
+     "primary_man": 3230,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 12.7
+    },
+    {
+     "fragment": 3235,
+     "primary_man": 3230,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 14.8
+    },
+    {
+     "fragment": 3231,
+     "primary_man": 3230,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 30.3
+    }
+   ],
+   "primary_defender_fragment": 3229,
+   "_span_len": 621
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "game": "201605160GSW",
+   "set_start_frame": 22833,
+   "period": 3,
+   "pbp_clock": [
+    85.0,
+    69.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "R. Westbrook makes 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 14101,
+     "primary_man": 14106,
+     "time_assigned_s": 9.3,
+     "matchup_dist_median_ft": 14.0
+    },
+    {
+     "fragment": 14105,
+     "primary_man": 13727,
+     "time_assigned_s": 6.9,
+     "matchup_dist_median_ft": 12.0
+    },
+    {
+     "fragment": 14104,
+     "primary_man": 14106,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 15.4
+    },
+    {
+     "fragment": 12080,
+     "primary_man": 14098,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 10.2
+    }
+   ],
+   "primary_defender_fragment": 14101,
+   "_span_len": 303
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 1494,
+   "period": 4,
+   "pbp_clock": [
+    678.0,
+    655.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Adams misses 2-pt jump shot from 11 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 3,
+     "primary_man": 241,
+     "time_assigned_s": 8.5,
+     "matchup_dist_median_ft": 12.1
+    },
+    {
+     "fragment": 247,
+     "primary_man": 241,
+     "time_assigned_s": 8.4,
+     "matchup_dist_median_ft": 13.2
+    },
+    {
+     "fragment": 4,
+     "primary_man": 13,
+     "time_assigned_s": 7.9,
+     "matchup_dist_median_ft": 8.2
+    },
+    {
+     "fragment": 252,
+     "primary_man": 241,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 9.5
+    },
+    {
+     "fragment": 245,
+     "primary_man": 210,
+     "time_assigned_s": 4.3,
+     "matchup_dist_median_ft": 5.4
+    },
+    {
+     "fragment": 130,
+     "primary_man": 210,
+     "time_assigned_s": 3.3,
+     "matchup_dist_median_ft": 19.7
+    },
+    {
+     "fragment": 37,
+     "primary_man": 210,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 230,
+     "primary_man": 405,
+     "time_assigned_s": 2.3,
+     "matchup_dist_median_ft": 27.3
+    }
+   ],
+   "primary_defender_fragment": 3,
+   "_span_len": 777
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 2946,
+   "period": 4,
+   "pbp_clock": [
+    655.0,
+    646.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by K. Thompson (bad pass; steal by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 405,
+     "primary_man": 595,
+     "time_assigned_s": 7.3,
+     "matchup_dist_median_ft": 11.3
+    },
+    {
+     "fragment": 241,
+     "primary_man": 130,
+     "time_assigned_s": 6.5,
+     "matchup_dist_median_ft": 13.6
+    },
+    {
+     "fragment": 492,
+     "primary_man": 3,
+     "time_assigned_s": 6.2,
+     "matchup_dist_median_ft": 8.6
+    },
+    {
+     "fragment": 653,
+     "primary_man": 657,
+     "time_assigned_s": 5.7,
+     "matchup_dist_median_ft": 14.6
+    },
+    {
+     "fragment": 210,
+     "primary_man": 252,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 21.3
+    }
+   ],
+   "primary_defender_fragment": 405,
+   "_span_len": 291
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 4959,
+   "period": 4,
+   "pbp_clock": [
+    646.0,
+    617.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Waiters makes 2-pt layup from 3 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 697,
+     "primary_man": 893,
+     "time_assigned_s": 12.1,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 845,
+     "primary_man": 849,
+     "time_assigned_s": 11.7,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 130,
+     "primary_man": 846,
+     "time_assigned_s": 10.8,
+     "matchup_dist_median_ft": 7.9
+    },
+    {
+     "fragment": 247,
+     "primary_man": 890,
+     "time_assigned_s": 7.7,
+     "matchup_dist_median_ft": 5.8
+    },
+    {
+     "fragment": 595,
+     "primary_man": 210,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 16.8
+    },
+    {
+     "fragment": 874,
+     "primary_man": 210,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 12.6
+    }
+   ],
+   "primary_defender_fragment": 697,
+   "_span_len": 594
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 13536,
+   "period": 4,
+   "pbp_clock": [
+    552.0,
+    533.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "K. Durant makes 2-pt jump shot from 11 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 6181,
+     "primary_man": 6183,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 14.3
+    },
+    {
+     "fragment": 6182,
+     "primary_man": 6180,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 10.0
+    }
+   ],
+   "primary_defender_fragment": 6181,
+   "_span_len": 141
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 14826,
+   "period": 4,
+   "pbp_clock": [
+    533.0,
+    510.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Livingston misses 2-pt hook shot from 8 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 7879,
+     "primary_man": 7878,
+     "time_assigned_s": 19.4,
+     "matchup_dist_median_ft": 15.2
+    }
+   ],
+   "primary_defender_fragment": 7879,
+   "_span_len": 672
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 16713,
+   "period": 4,
+   "pbp_clock": [
+    510.0,
+    485.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by Team (shot clock)"
+   },
+   "defenders": [
+    {
+     "fragment": 11883,
+     "primary_man": 11881,
+     "time_assigned_s": 9.5,
+     "matchup_dist_median_ft": 3.7
+    },
+    {
+     "fragment": 11880,
+     "primary_man": 11882,
+     "time_assigned_s": 8.9,
+     "matchup_dist_median_ft": 4.4
+    },
+    {
+     "fragment": 11878,
+     "primary_man": 11876,
+     "time_assigned_s": 7.0,
+     "matchup_dist_median_ft": 27.9
+    },
+    {
+     "fragment": 11879,
+     "primary_man": 11877,
+     "time_assigned_s": 6.9,
+     "matchup_dist_median_ft": 16.6
+    },
+    {
+     "fragment": 11874,
+     "primary_man": 11876,
+     "time_assigned_s": 2.9,
+     "matchup_dist_median_ft": 26.8
+    }
+   ],
+   "primary_defender_fragment": 11883,
+   "_span_len": 387
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 21330,
+   "period": 4,
+   "pbp_clock": [
+    485.0,
+    472.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Curry misses 2-pt jump shot from 6 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 12429,
+     "primary_man": 12403,
+     "time_assigned_s": 9.9,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 12431,
+     "primary_man": 12404,
+     "time_assigned_s": 8.3,
+     "matchup_dist_median_ft": 12.0
+    }
+   ],
+   "primary_defender_fragment": 12429,
+   "_span_len": 297
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 29817,
+   "period": 4,
+   "pbp_clock": [
+    370.0,
+    350.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Durant misses 2-pt jump shot from 13 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 23432,
+     "primary_man": 23434,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 9.9
+    }
+   ],
+   "primary_defender_fragment": 23432,
+   "_span_len": 417
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "game": "201605160GSW",
+   "set_start_frame": 34830,
+   "period": 4,
+   "pbp_clock": [
+    341.0,
+    325.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "R. Westbrook makes 2-pt jump shot from 17 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 27218,
+     "primary_man": 27219,
+     "time_assigned_s": 14.5,
+     "matchup_dist_median_ft": 17.7
+    },
+    {
+     "fragment": 27215,
+     "primary_man": 27213,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 10.4
+    }
+   ],
+   "primary_defender_fragment": 27218,
+   "_span_len": 501
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "game": "201605160GSW",
+   "set_start_frame": 327,
+   "period": 4,
+   "pbp_clock": [
+    325.0,
+    302.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "H. Barnes misses 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2,
+     "primary_man": 3,
+     "time_assigned_s": 10.3,
+     "matchup_dist_median_ft": 6.9
+    },
+    {
+     "fragment": 7,
+     "primary_man": 1,
+     "time_assigned_s": 7.8,
+     "matchup_dist_median_ft": 9.8
+    },
+    {
+     "fragment": 5,
+     "primary_man": 6,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 5.9
+    },
+    {
+     "fragment": 22,
+     "primary_man": 6,
+     "time_assigned_s": 3.5,
+     "matchup_dist_median_ft": 19.5
+    },
+    {
+     "fragment": 4,
+     "primary_man": 6,
+     "time_assigned_s": 2.0,
+     "matchup_dist_median_ft": 24.4
+    },
+    {
+     "fragment": 8,
+     "primary_man": 6,
+     "time_assigned_s": 1.9,
+     "matchup_dist_median_ft": 10.8
+    }
+   ],
+   "primary_defender_fragment": 2,
+   "_span_len": 345
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "game": "201605160GSW",
+   "set_start_frame": 1767,
+   "period": 4,
+   "pbp_clock": [
+    302.0,
+    281.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Adams makes 2-pt hook shot from 8 ft (assist by R. Westbrook )"
+   },
+   "defenders": [
+    {
+     "fragment": 210,
+     "primary_man": 268,
+     "time_assigned_s": 17.2,
+     "matchup_dist_median_ft": 8.0
+    },
+    {
+     "fragment": 259,
+     "primary_man": 22,
+     "time_assigned_s": 13.3,
+     "matchup_dist_median_ft": 9.6
+    },
+    {
+     "fragment": 302,
+     "primary_man": 2,
+     "time_assigned_s": 10.4,
+     "matchup_dist_median_ft": 6.5
+    },
+    {
+     "fragment": 6,
+     "primary_man": 2,
+     "time_assigned_s": 9.9,
+     "matchup_dist_median_ft": 16.5
+    },
+    {
+     "fragment": 1,
+     "primary_man": 268,
+     "time_assigned_s": 5.1,
+     "matchup_dist_median_ft": 13.9
+    },
+    {
+     "fragment": 95,
+     "primary_man": 2,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 22.4
+    },
+    {
+     "fragment": 273,
+     "primary_man": 8,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 24.0
+    }
+   ],
+   "primary_defender_fragment": 210,
+   "_span_len": 612
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "game": "201605160GSW",
+   "set_start_frame": 6678,
+   "period": 4,
+   "pbp_clock": [
+    227.0,
+    203.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "K. Durant misses 2-pt jump shot from 16 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 5696,
+     "primary_man": 5691,
+     "time_assigned_s": 13.6,
+     "matchup_dist_median_ft": 4.7
+    },
+    {
+     "fragment": 5699,
+     "primary_man": 5692,
+     "time_assigned_s": 10.9,
+     "matchup_dist_median_ft": 19.5
+    },
+    {
+     "fragment": 5690,
+     "primary_man": 5692,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 9.1
+    },
+    {
+     "fragment": 5682,
+     "primary_man": 1311,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 15.2
+    }
+   ],
+   "primary_defender_fragment": 5696,
+   "_span_len": 612
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "game": "201605160GSW",
+   "set_start_frame": 8757,
+   "period": 4,
+   "pbp_clock": [
+    203.0,
+    174.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Curry misses 2-pt layup from 2 ft (block by K. Durant )"
+   },
+   "defenders": [
+    {
+     "fragment": 7268,
+     "primary_man": 7270,
+     "time_assigned_s": 9.9,
+     "matchup_dist_median_ft": 10.4
+    },
+    {
+     "fragment": 5692,
+     "primary_man": 7270,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 7221,
+     "primary_man": 7270,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 15.9
+    }
+   ],
+   "primary_defender_fragment": 7268,
+   "_span_len": 372
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "game": "201605160GSW",
+   "set_start_frame": 18183,
+   "period": 4,
+   "pbp_clock": [
+    139.0,
+    121.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "OKC",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "H. Barnes makes 2-pt jump shot from 8 ft (assist by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 12415,
+     "primary_man": 13613,
+     "time_assigned_s": 20.3,
+     "matchup_dist_median_ft": 9.5
+    },
+    {
+     "fragment": 13614,
+     "primary_man": 13612,
+     "time_assigned_s": 18.4,
+     "matchup_dist_median_ft": 16.5
+    }
+   ],
+   "primary_defender_fragment": 12415,
+   "_span_len": 618
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "game": "201605160GSW",
+   "set_start_frame": 25317,
+   "period": 4,
+   "pbp_clock": [
+    91.0,
+    61.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Adams makes free throw 2 of 2"
+   },
+   "defenders": [
+    {
+     "fragment": 19741,
+     "primary_man": 19736,
+     "time_assigned_s": 16.7,
+     "matchup_dist_median_ft": 4.5
+    },
+    {
+     "fragment": 19737,
+     "primary_man": 19740,
+     "time_assigned_s": 13.2,
+     "matchup_dist_median_ft": 7.0
+    },
+    {
+     "fragment": 19742,
+     "primary_man": 19743,
+     "time_assigned_s": 2.5,
+     "matchup_dist_median_ft": 5.5
+    }
+   ],
+   "primary_defender_fragment": 19741,
+   "_span_len": 504
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s10",
+   "game": "201605160GSW",
+   "set_start_frame": 5682,
+   "period": 4,
+   "pbp_clock": [
+    121.0,
+    100.0
+   ],
+   "offense_real": "OKC",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "R. Westbrook misses 2-pt layup from 2 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 699,
+     "primary_man": 694,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 9.9
+    },
+    {
+     "fragment": 701,
+     "primary_man": 694,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 4.6
+    },
+    {
+     "fragment": 700,
+     "primary_man": 694,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 6.3
+    }
+   ],
+   "primary_defender_fragment": 699,
+   "_span_len": 348
   }
  ],
  "excluded": [
@@ -1726,6 +6028,706 @@
    "clip": "curry_q1_clip",
    "set_start_frame": 11586,
    "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 2130,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 2760,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 3294,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 3753,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 5256,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 6744,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 9990,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 10875,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 12708,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 14142,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 14493,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s00",
+   "set_start_frame": 14916,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 297,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 1209,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 1857,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 6297,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 7356,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 7977,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s01",
+   "set_start_frame": 11142,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "set_start_frame": 1230,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "set_start_frame": 2454,
+   "reason": "duplicate_of_span:1770"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s02",
+   "set_start_frame": 14718,
+   "reason": "duplicate_of_span:13350"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s03",
+   "set_start_frame": 27,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s03",
+   "set_start_frame": 1110,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s03",
+   "set_start_frame": 2271,
+   "reason": "duplicate_of_span:1722"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s04",
+   "set_start_frame": 3348,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "set_start_frame": 2841,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "set_start_frame": 3351,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s05",
+   "set_start_frame": 5133,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "set_start_frame": 0,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "set_start_frame": 3684,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s06",
+   "set_start_frame": 13053,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "set_start_frame": 1662,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s07",
+   "set_start_frame": 8859,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s08",
+   "set_start_frame": 675,
+   "reason": "no_defenders"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s08",
+   "set_start_frame": 975,
+   "reason": "duplicate_of_span:675"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s08",
+   "set_start_frame": 13902,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_cle_2016f_g7_s09",
+   "set_start_frame": 1932,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s00",
+   "set_start_frame": 2154,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s00",
+   "set_start_frame": 4983,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s00",
+   "set_start_frame": 16374,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s01",
+   "set_start_frame": 480,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s01",
+   "set_start_frame": 16533,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s02",
+   "set_start_frame": 1851,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s02",
+   "set_start_frame": 10596,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s02",
+   "set_start_frame": 13008,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s02",
+   "set_start_frame": 15936,
+   "reason": "no_defenders"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s03",
+   "set_start_frame": 0,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s03",
+   "set_start_frame": 423,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s04",
+   "set_start_frame": 807,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s05",
+   "set_start_frame": 3597,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s06",
+   "set_start_frame": 2583,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s07",
+   "set_start_frame": 3117,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s07",
+   "set_start_frame": 14739,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s07",
+   "set_start_frame": 16530,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s08",
+   "set_start_frame": 0,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_cle_xmas16_s08",
+   "set_start_frame": 12297,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "set_start_frame": 11619,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "set_start_frame": 13344,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "set_start_frame": 20664,
+   "reason": "duplicate_of_span:20295"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "set_start_frame": 23415,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s00",
+   "set_start_frame": 32871,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "set_start_frame": 1347,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "set_start_frame": 7125,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "set_start_frame": 19338,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "set_start_frame": 24597,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "set_start_frame": 29481,
+   "reason": "duplicate_of_span:29250"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s01",
+   "set_start_frame": 30933,
+   "reason": "duplicate_of_span:29955"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "set_start_frame": 2634,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "set_start_frame": 3783,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "set_start_frame": 12438,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "set_start_frame": 13254,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "set_start_frame": 13848,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s02",
+   "set_start_frame": 23073,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 522,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 1641,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 4407,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 7632,
+   "reason": "no_defenders"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 15954,
+   "reason": "duplicate_of_span:15537"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 17367,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 20997,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 25692,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 26172,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s03",
+   "set_start_frame": 27627,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "set_start_frame": 2136,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "set_start_frame": 4014,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "set_start_frame": 5160,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "set_start_frame": 10470,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s04",
+   "set_start_frame": 23574,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 0,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 969,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 1179,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 11133,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 11649,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 12078,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 14127,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 15780,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 20712,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 22479,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s05",
+   "set_start_frame": 23823,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 2286,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 4863,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 10245,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 18405,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 25665,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 28608,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 29277,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s06",
+   "set_start_frame": 30612,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 969,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 1587,
+   "reason": "no_matchup_record"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 5640,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 6585,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 10608,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 23673,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 24735,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 29484,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s07",
+   "set_start_frame": 30156,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 105,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 2391,
+   "reason": "duplicate_of_span:1494"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 3333,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 5943,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 7335,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 8055,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 9084,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 9543,
+   "reason": "duplicate_of_span:9084"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 10110,
+   "reason": "duplicate_of_span:9084"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 22335,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 23079,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 24630,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s08",
+   "set_start_frame": 26091,
+   "reason": "no_defenders"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "set_start_frame": 786,
+   "reason": "duplicate_of_span:327"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "set_start_frame": 2898,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "set_start_frame": 11070,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "set_start_frame": 29979,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "set_start_frame": 34863,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s10",
+   "set_start_frame": 2310,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s10",
+   "set_start_frame": 4566,
+   "reason": "anchor_failed"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s09",
+   "set_start_frame": 19569,
+   "reason": "duplicate_cross_section:gsw_okc_2016wcf_g1_s10@5682"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s10",
+   "set_start_frame": 11658,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_okc_2016wcf_g1_s10",
+   "set_start_frame": 16890,
+   "reason": "anchor_inconsistent"
   }
  ]
 }

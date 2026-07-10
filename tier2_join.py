@@ -35,7 +35,7 @@ import json
 import logging
 
 import config
-from fetch_pbp import CLIP_GAME, GAMES, PBP_DIR
+from fetch_pbp import GAMES, PBP_DIR, game_for_clip
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("tier2_join")
@@ -54,7 +54,7 @@ def main() -> None:
         outcomes = json.loads((PBP_DIR / f"{clip}_outcomes.json").read_text())
         matchups = {p["set_start_frame"]: p for p in json.loads(
             (config.TRACKING_DIR / f"{clip}_matchups.json").read_text())["possessions"]}
-        game = CLIP_GAME[clip]
+        game = game_for_clip(clip)
 
         for o in outcomes:
             f = o["set_start_frame"]
@@ -91,6 +91,9 @@ def main() -> None:
                 continue
 
             defenders = sorted(m["defenders"], key=lambda d: -d["time_assigned_s"])
+            if not defenders:      # nothing to credit (all frames gated / no labeled pairs)
+                excluded.append({"clip": clip, "set_start_frame": f, "reason": "no_defenders"})
+                continue
             rec = {
                 "clip": clip, "game": game, "set_start_frame": f,
                 "period": o["period"],
@@ -106,10 +109,23 @@ def main() -> None:
                               for d in defenders],
                 "primary_defender_fragment": defenders[0]["defender"] if defenders else None,
             }
+            rec["_span_len"] = o["core_end_frame"] - o["set_start_frame"]
             key = (game, o["period"], tuple(o["pbp_possession"]["clock"]))
-            assert key not in seen_pbp, (
-                f"DOUBLE-COUNT: {clip} @{f} shares PBP possession {key} with "
-                f"{seen_pbp[key]['clip']} @{seen_pbp[key]['set_start_frame']} — dedupe failed")
+            prev = seen_pbp.get(key)
+            if prev is not None:
+                # a possession straddling a SECTION boundary appears in both
+                # sections (per-clip dedupe can't see this) — keep the record
+                # with more core time on the possession, exclude the fragment
+                if rec["_span_len"] > prev["_span_len"]:
+                    joined.remove(prev)
+                    excluded.append({"clip": prev["clip"], "set_start_frame": prev["set_start_frame"],
+                                     "reason": f"duplicate_cross_section:{clip}@{f}"})
+                    seen_pbp[key] = rec
+                    joined.append(rec)
+                else:
+                    excluded.append({"clip": clip, "set_start_frame": f,
+                                     "reason": f"duplicate_cross_section:{prev['clip']}@{prev['set_start_frame']}"})
+                continue
             seen_pbp[key] = rec
             joined.append(rec)
 

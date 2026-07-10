@@ -1,0 +1,415 @@
+[
+ {
+  "set_start_frame": 11619,
+  "core_end_frame": 12468,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 12176,
+    "period": 1,
+    "clock_s": 708,
+    "raw": "1ST|11:48"
+   },
+   {
+    "frame": 12468,
+    "period": 1,
+    "clock_s": 703,
+    "raw": "1ST|11:43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    720.0,
+    705.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.6,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 705.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Adams misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 13344,
+  "core_end_frame": 14169,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 13613,
+    "period": 1,
+    "clock_s": 695,
+    "raw": "1ST|11:35"
+   },
+   {
+    "frame": 14160,
+    "period": 1,
+    "clock_s": 685,
+    "raw": "1ST|11:25"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 16149,
+  "core_end_frame": 16653,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 16149,
+    "period": 1,
+    "clock_s": 652,
+    "raw": "1ST|10:52"
+   },
+   {
+    "frame": 16401,
+    "period": 1,
+    "clock_s": 647,
+    "raw": "1ST|10:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    657.0,
+    642.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 642.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Ibaka misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 20295,
+  "core_end_frame": 20565,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.68,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 20295,
+    "period": 1,
+    "clock_s": 625,
+    "raw": "1ST|10:25"
+   },
+   {
+    "frame": 20565,
+    "period": 1,
+    "clock_s": 620,
+    "raw": "1ST|10:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    638.0,
+    612.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 612.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Ibaka makes 2-pt hook shot from 7 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 20664,
+  "core_end_frame": 20862,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.67,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 20664,
+    "period": 1,
+    "clock_s": 619,
+    "raw": "1ST|10:19"
+   },
+   {
+    "frame": 20862,
+    "period": 1,
+    "clock_s": 616,
+    "raw": "1ST|10:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    638.0,
+    612.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 612.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Ibaka makes 2-pt hook shot from 7 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "duplicate_of_span": 20295,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 22059,
+  "core_end_frame": 22350,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.64,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 22059,
+    "period": 1,
+    "clock_s": 595,
+    "raw": "1ST|9:55"
+   },
+   {
+    "frame": 22350,
+    "period": 1,
+    "clock_s": 590,
+    "raw": "1ST|9:50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    601.0,
+    589.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 589.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt jump shot from 17 ft (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 22686,
+  "core_end_frame": 23022,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.66,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 22789,
+    "period": 1,
+    "clock_s": 583,
+    "raw": "1ST|9:43"
+   },
+   {
+    "frame": 23022,
+    "period": 1,
+    "clock_s": 579,
+    "raw": "1ST|9:39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    589.0,
+    575.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 575.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ },
+ {
+  "set_start_frame": 23415,
+  "core_end_frame": 23958,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 30597,
+  "core_end_frame": 30819,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.57,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 30597,
+    "period": 1,
+    "clock_s": 504,
+    "raw": "1ST|8:24"
+   },
+   {
+    "frame": 30819,
+    "period": 1,
+    "clock_s": 500,
+    "raw": "1ST|8:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    507.0,
+    496.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 496.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Westbrook misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 32871,
+  "core_end_frame": 33066,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 33936,
+  "core_end_frame": 34104,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 34004,
+    "period": 1,
+    "clock_s": 446,
+    "raw": "1ST|7:26"
+   },
+   {
+    "frame": 34110,
+    "period": 1,
+    "clock_s": 444,
+    "raw": "1ST|7:24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    451.0,
+    440.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 440.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 3-pt jump shot from 30 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.66
+ }
+]

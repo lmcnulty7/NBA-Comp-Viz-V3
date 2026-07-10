@@ -31,8 +31,8 @@ import logging
 import cv2
 
 import config
-from clock_reader import CLIP_LAYOUT, ClockReader
-from fetch_pbp import CLIP_GAME, GAMES, LIGHT_IS_HOME, PBP_DIR
+from clock_reader import ClockReader, layout_for_clip
+from fetch_pbp import GAMES, PBP_DIR, game_for_clip, light_team_name, video_path
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("align_outcomes")
@@ -101,21 +101,25 @@ def reconstruct_possessions(events: list[dict]) -> list[dict]:
     return poss
 
 
-def align_clip(clip: str, fps: float = 30.0):
+def align_clip(clip: str, fps: float = 30.0, anchor_cache: dict | None = None):
     poss = json.loads((config.TRACKING_DIR / f"{clip}_possessions.json").read_text())
     ident = json.loads((config.TRACKING_DIR / f"{clip}_identity.json").read_text())
-    game = GAMES[CLIP_GAME[clip]]
-    pbp = json.loads((PBP_DIR / f"{CLIP_GAME[clip]}.json").read_text())["events"]
+    code = game_for_clip(clip)
+    game = GAMES[code]
+    pbp = json.loads((PBP_DIR / f"{code}.json").read_text())["events"]
     pbp_poss = reconstruct_possessions(pbp)
     light = ident.get("light_team")
-    # team id → real team name: light kit = home (pre-2017)
+    # team id → real team name via which REAL team wears the light kit
+    # (pre-2017 home default, per-game override for special uniforms)
+    light_name = light_team_name(game)
+    dark_name = ({game["home"], game["away"]} - {light_name}).pop()
     def real(team_id):
         if team_id is None or light is None:
             return None
-        return game["home"] if ((team_id == light) == LIGHT_IS_HOME) else game["away"]
+        return light_name if team_id == light else dark_name
 
-    reader = ClockReader(CLIP_LAYOUT[clip])
-    src = config.VIDEO_DIR / f"{clip}.mp4"
+    reader = ClockReader(layout_for_clip(clip))
+    src = video_path(clip)
     cap = cv2.VideoCapture(str(src), cv2.CAP_FFMPEG)
     if not cap.isOpened():
         cap = cv2.VideoCapture(str(src))
@@ -125,9 +129,12 @@ def align_clip(clip: str, fps: float = 30.0):
         if span.get("kind") != "halfcourt" or not span.get("metrics_eligible"):
             continue
         f1, f2 = span["set_start_frame"], span["core_end_frame"]
-        third = (f2 - f1) // 3
-        a1 = reader.anchor_multi(cap, f1, [f1 + third, f1 + 2 * third])
-        a2 = reader.anchor_multi(cap, f2, [f2 - third // 2])
+        if anchor_cache and f1 in anchor_cache:
+            a1, a2 = anchor_cache[f1]
+        else:
+            third = (f2 - f1) // 3
+            a1 = reader.anchor_multi(cap, f1, [f1 + third, f1 + 2 * third])
+            a2 = reader.anchor_multi(cap, f2, [f2 - third // 2])
         rec = {k: span[k] for k in ("set_start_frame", "core_end_frame", "attacked_basket",
                                     "offense_team", "confidence")}
         rec["offense_real"] = real(span.get("offense_team"))
@@ -198,18 +205,93 @@ def align_clip(clip: str, fps: float = 30.0):
                 r["duplicate_of_span"] = seen[key]
             else:
                 seen[key] = r["set_start_frame"]
-    return out, n_anchor_fail
+    return out, n_anchor_fail, {"light": light, "light_name": light_name, "dark_name": dark_name}
+
+
+def apply_orientation(all_recs: dict, mappings: dict) -> None:
+    """Period-orientation correction (measured 2026-07-09: the per-possession
+    defense-closer vote is only ~65–75% right on playoff footage, but within a
+    (game, period) the attacked basket DETERMINES the offense. A conf-weighted
+    majority of C2's own votes per (game, period, basket) — no PBP involved, so
+    the cross-validation stays independent — overrides each span's call. This
+    promotes the 'same basket all period' canary into the assignment mechanism.)
+
+    Mutates aligned recs in place: offense/defense fields, cluster ids (so the
+    matchup engine can correct roles via the per-clip corrections file), and
+    recomputed offense_agrees. Orientation can also FILL spans whose team vote
+    was unknown. Contradictory periods (same team majority at both baskets)
+    are left untouched."""
+    from collections import Counter, defaultdict
+
+    votes = defaultdict(Counter)   # (game, period, basket) -> Counter[team_real]
+    for clip, (recs, _) in all_recs.items():
+        game = game_for_clip(clip)
+        for r in recs:
+            if r.get("status") == "aligned" and r.get("offense_real"):
+                votes[(game, r["period"], r["attacked_basket"])][r["offense_real"]] += r.get("confidence", 0.5)
+
+    orient = {}                    # (game, period) -> {basket: team_real}
+    strength = {}
+    for (game, period, basket), c in votes.items():
+        orient.setdefault((game, period), {})[basket] = c.most_common(1)[0][0]
+        strength[(game, period, basket)] = round(c.most_common(1)[0][1] / max(sum(c.values()), 1e-6), 2)
+    for key, m in list(orient.items()):
+        if len(set(m.values())) < len(m):      # same team both baskets ⇒ unusable
+            log.warning("orientation contradiction for %s — left as per-span votes", key)
+            orient.pop(key)
+
+    for clip, (recs, _) in all_recs.items():
+        game = game_for_clip(clip)
+        mp = mappings[clip]
+        corrections = {}
+        for r in recs:
+            if r.get("status") != "aligned":
+                continue
+            m = orient.get((game, r["period"]), {})
+            expected = m.get(r["attacked_basket"])
+            if expected is None:
+                r["offense_source"] = "span_vote"
+                continue
+            other = ({GAMES[game]["home"], GAMES[game]["away"]} - {expected}).pop()
+            r["orientation_flipped"] = (r["offense_real"] is not None and r["offense_real"] != expected)
+            r["offense_source"] = "orientation"
+            r["orientation_conf"] = strength[(game, r["period"], r["attacked_basket"])]
+            r["offense_real"], r["defense_real"] = expected, other
+            if mp["light"] is not None:        # cluster ids for the matchup engine
+                off_cid = mp["light"] if expected == mp["light_name"] else 1 - mp["light"]
+                r["offense_team"] = off_cid
+                corrections[str(r["set_start_frame"])] = {
+                    "offense_team": off_cid, "defense_team": 1 - off_cid,
+                    "orientation_conf": r["orientation_conf"]}
+            r["offense_agrees"] = (r["pbp_offense_real"] == expected
+                                   if r.get("pbp_offense_real") else None)
+        if corrections:
+            (PBP_DIR / f"{clip}_orientation.json").write_text(json.dumps(corrections, indent=1))
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Anchor-per-possession PBP alignment.")
     ap.add_argument("--clips", nargs="*", default=["curry_q1_clip", "curry_classic_clip",
                                                    "clip_10m00_18m00", "clip_26m00_34m00"])
+    ap.add_argument("--reuse-anchors", action="store_true",
+                    help="Reuse anchors from existing outcomes files (skip OCR).")
     args = ap.parse_args()
+
+    all_recs, mappings = {}, {}
+    for clip in args.clips:
+        cache = {}
+        if args.reuse_anchors and (PBP_DIR / f"{clip}_outcomes.json").exists():
+            for old in json.loads((PBP_DIR / f"{clip}_outcomes.json").read_text()):
+                if old.get("anchors"):
+                    cache[old["set_start_frame"]] = old["anchors"]
+        recs, n_fail, mp = align_clip(clip, anchor_cache=cache)
+        all_recs[clip] = (recs, n_fail)
+        mappings[clip] = mp
+    apply_orientation(all_recs, mappings)
 
     agree = disagree = unknown = aligned = failed = 0
     for clip in args.clips:
-        recs, n_fail = align_clip(clip)
+        recs, n_fail = all_recs[clip]
         (PBP_DIR / f"{clip}_outcomes.json").write_text(json.dumps(recs, indent=1))
         log.info("── %s ──", clip)
         for r in recs:
