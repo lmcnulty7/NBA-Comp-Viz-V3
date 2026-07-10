@@ -9,6 +9,40 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-09 — Phase B night 1: orientation assignment (69→94% cross-val), 126 joined
+
+Night-1 batch (3 GSW games, 31 sections) aligned at first with a shocking 69.4%
+cross-val. Diagnosis chain worth remembering:
+1. Confidence did NOT separate (conf≥0.95 spans still 26% wrong) — so not a
+   marginal-vote story.
+2. Adjacency test ("would a neighboring PBP possession agree?") hit 41/41 —
+   but that's UNINFORMATIVE under alternation (any wrong call matches a
+   neighbor). Nearly fooled us.
+3. The decisive test: per-period ORIENTATION from agreed spans (each team
+   attacks one basket per period). 34/41 disagreements VIOLATED their own
+   game's orientation ⇒ genuine per-span vote errors; only 6 alignment-suspect.
+   The defense-closer vote is just ~65–75% per-possession on playoff footage.
+
+**Fix — orientation IS the mechanism** (promoted from PIPELINE.md canary):
+conf-weighted majority of C2's own votes per (game, period, basket) — PBP
+never consulted, so cross-val stays independent — overrides every span's
+offense and FILLS unknown-offense spans. Contradictory periods (1: xmas P3)
+fall back to span votes. Corrections flow to the matchup engine (roles fixed
+pre-Hungarian) via per-clip orientation.json. `--reuse-anchors` makes
+realignment seconds (anchors cached from prior outcomes).
+
+**Result: 93.7% cross-val (134/143), unknowns 10→1, 126 joined possessions,
+all join checks green.** The double-count assert caught a REAL cross-section
+duplicate (possession straddling s09/s10) — converted to keep-longer-span
+exclusion. Empty-defender joins gated (4). Xmas special-uniform override was
+correct (that game was the BEST pre-fix at 86%).
+
+Remaining funnel leak: anchors (79/289 = 27% failed/inconsistent) — condensed
+NBA-channel uploads splice out dead time, breaking Δclock≈Δvideo consistency.
+Next lever for yield; batch 2 (5 more GSW games incl. klay60 retry) downloaded.
+
+---
+
 ## 2026-07-08c — Phase A: 30-possession join, layouts yield equally, anchors are the leak
 
 Free-footage scaling run (5 clips, 42 broadcast min) end-to-end in **49 min**
