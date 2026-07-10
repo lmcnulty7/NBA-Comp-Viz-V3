@@ -1,0 +1,71 @@
+{
+ "rows": [
+  {
+   "defense": "GSW",
+   "n_possessions": 167,
+   "n_games": 8,
+   "ppp_allowed": 1.096,
+   "baseline_ppp": 1.028,
+   "credit_per_100": -6.8,
+   "meaningful": false
+  },
+  {
+   "defense": "OKC",
+   "n_possessions": 60,
+   "n_games": 3,
+   "ppp_allowed": 1.117,
+   "baseline_ppp": 1.039,
+   "credit_per_100": -7.7,
+   "meaningful": false
+  },
+  {
+   "defense": "BOS",
+   "n_possessions": 40,
+   "n_games": 2,
+   "ppp_allowed": 1.275,
+   "baseline_ppp": 1.069,
+   "credit_per_100": -20.6,
+   "meaningful": false
+  },
+  {
+   "defense": "SAS",
+   "n_possessions": 23,
+   "n_games": 1,
+   "ppp_allowed": 1.391,
+   "baseline_ppp": 1.165,
+   "credit_per_100": -22.6,
+   "meaningful": false
+  },
+  {
+   "defense": "CLE",
+   "n_possessions": 18,
+   "n_games": 2,
+   "ppp_allowed": 1.056,
+   "baseline_ppp": 1.015,
+   "credit_per_100": -4.1,
+   "meaningful": false
+  },
+  {
+   "defense": "IND",
+   "n_possessions": 15,
+   "n_games": 1,
+   "ppp_allowed": 1.067,
+   "baseline_ppp": 1.352,
+   "credit_per_100": 28.6,
+   "meaningful": false
+  },
+  {
+   "defense": "MIA",
+   "n_possessions": 9,
+   "n_games": 1,
+   "ppp_allowed": 0.667,
+   "baseline_ppp": 0.908,
+   "credit_per_100": 24.1,
+   "meaningful": false
+  }
+ ],
+ "min_bucket": 300,
+ "joined_total": 332,
+ "note": "PLACEHOLDER until buckets reach min_bucket \u2014 do not report",
+ "baseline": "offense's own full-game PPP (PBP), possession-weighted"
+}
