@@ -11,16 +11,16 @@
   "period": 3,
   "anchors": [
    {
-    "frame": 1594,
+    "frame": 1588,
     "period": 3,
     "clock_s": 494,
-    "raw": "3RD|8:14"
+    "raw": "3RD|8.14"
    },
    {
-    "frame": 1707,
+    "frame": 2076,
     "period": 3,
-    "clock_s": 492,
-    "raw": "3RD|8:12"
+    "clock_s": 486,
+    "raw": "3RD|8.06"
    }
   ],
   "pbp_possession": {
@@ -43,7 +43,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.7
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 2286,
@@ -53,21 +53,43 @@
   "confidence": 0.88,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 3,
   "anchors": [
    {
     "frame": 2286,
     "period": 3,
     "clock_s": 483,
-    "raw": "3RD|8:03"
+    "raw": "3RD|8.03"
    },
    {
     "frame": 3042,
     "period": 3,
     "clock_s": 470,
-    "raw": "3RD|7:50"
+    "raw": "3RD|7.50"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    486.0,
+    468.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 468.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 4863,
@@ -77,7 +99,8 @@
   "confidence": 0.61,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 3,
   "anchors": [
    {
     "frame": 4863,
@@ -86,12 +109,33 @@
     "raw": "3RD|7:19"
    },
    {
-    "frame": 5865,
+    "frame": 5859,
     "period": 3,
     "clock_s": 422,
-    "raw": "3RD|7:02"
+    "raw": "3RD|7.02"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    448.0,
+    422.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 422.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Westbrook makes 3-pt jump shot from 26 ft (assist by S. Ibaka )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 6438,
@@ -108,13 +152,13 @@
     "frame": 6438,
     "period": 3,
     "clock_s": 412,
-    "raw": "3RD|6:52"
+    "raw": "3RD|6.52"
    },
    {
-    "frame": 6637,
+    "frame": 6837,
     "period": 3,
-    "clock_s": 409,
-    "raw": "3RD|6:49"
+    "clock_s": 405,
+    "raw": "3RD|6.45"
    }
   ],
   "pbp_possession": {
@@ -137,7 +181,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.7
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 10245,
@@ -161,16 +205,16 @@
   "period": 3,
   "anchors": [
    {
-    "frame": 14380,
+    "frame": 13992,
     "period": 3,
-    "clock_s": 370,
-    "raw": "3RD|6:10"
+    "clock_s": 374,
+    "raw": "3RD|6.14"
    },
    {
     "frame": 14769,
     "period": 3,
     "clock_s": 363,
-    "raw": "3RD|6:03"
+    "raw": "3RD|6.03"
    }
   ],
   "pbp_possession": {
@@ -193,7 +237,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 16221,
@@ -210,13 +254,13 @@
     "frame": 16221,
     "period": 3,
     "clock_s": 338,
-    "raw": "3RD|5:38"
+    "raw": "3RD|5.38"
    },
    {
     "frame": 16446,
     "period": 3,
     "clock_s": 335,
-    "raw": "3RD|5:35"
+    "raw": "3RD|5.35"
    }
   ],
   "pbp_possession": {
@@ -239,7 +283,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 16758,
@@ -256,13 +300,13 @@
     "frame": 16758,
     "period": 3,
     "clock_s": 329,
-    "raw": "3RD|5:29"
+    "raw": "3RD|5.29"
    },
    {
     "frame": 17010,
     "period": 3,
     "clock_s": 326,
-    "raw": "3RD|5:26"
+    "raw": "3RD|5.26"
    }
   ],
   "pbp_possession": {
@@ -285,7 +329,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.7
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 18405,
@@ -295,21 +339,7 @@
   "confidence": 0.97,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
-  "anchors": [
-   {
-    "frame": 18405,
-    "period": 3,
-    "clock_s": 326,
-    "raw": "3RD|5:26"
-   },
-   {
-    "frame": 18606,
-    "period": 3,
-    "clock_s": 326,
-    "raw": "3RD|5:26"
-   }
-  ]
+  "status": "no_pbp_overlap"
  },
  {
   "set_start_frame": 21345,
@@ -326,13 +356,13 @@
     "frame": 21345,
     "period": 3,
     "clock_s": 283,
-    "raw": "3RD|4:43"
+    "raw": "3RD|4.43"
    },
    {
     "frame": 21525,
     "period": 3,
     "clock_s": 280,
-    "raw": "3RD|4:40"
+    "raw": "3RD|4.40"
    }
   ],
   "pbp_possession": {
@@ -355,7 +385,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 25665,

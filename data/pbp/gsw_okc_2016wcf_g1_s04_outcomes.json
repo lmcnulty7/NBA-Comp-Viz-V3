@@ -14,7 +14,7 @@
     "frame": 2136,
     "period": 2,
     "clock_s": 263,
-    "raw": "2ND|4:23"
+    "raw": "2ND|4.23"
    },
    {
     "frame": 2382,
@@ -43,7 +43,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 4014,
@@ -53,7 +53,21 @@
   "confidence": 0.85,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "no_pbp_overlap"
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 4014,
+    "period": 2,
+    "clock_s": 257,
+    "raw": "2ND|4.17"
+   },
+   {
+    "frame": 4296,
+    "period": 2,
+    "clock_s": 257,
+    "raw": "2ND|4.17"
+   }
+  ]
  },
  {
   "set_start_frame": 5160,
@@ -80,13 +94,13 @@
     "frame": 9006,
     "period": 2,
     "clock_s": 239,
-    "raw": "2ND|3:59"
+    "raw": "2ND|3.59"
    },
    {
-    "frame": 9366,
+    "frame": 9726,
     "period": 2,
-    "clock_s": 233,
-    "raw": "2ND|3:53"
+    "clock_s": 227,
+    "raw": "2ND|3.47"
    }
   ],
   "pbp_possession": {
@@ -109,7 +123,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 10470,
@@ -126,36 +140,36 @@
     "frame": 10470,
     "period": 2,
     "clock_s": 214,
-    "raw": "2ND|3:34"
+    "raw": "2ND|3.34"
    },
    {
-    "frame": 10625,
+    "frame": 10659,
     "period": 2,
-    "clock_s": 212,
-    "raw": "2ND|3:32"
+    "clock_s": 211,
+    "raw": "2ND|3.31"
    }
   ],
   "pbp_possession": {
-   "team": "away",
+   "team": "home",
    "clock": [
-    226.0,
-    213.0
+    213.0,
+    198.0
    ],
    "points": 0
   },
-  "overlap_frac_of_span": 0.5,
+  "overlap_frac_of_span": 0.67,
   "offense_points": 0,
   "terminating_event": {
-   "clock_s": 213.0,
-   "team": "away",
-   "kind": "shot_missed",
-   "desc": "S. Ibaka misses 2-pt jump shot from 19 ft"
+   "clock_s": 198.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by A. Iguodala (bad pass; steal by A. Roberson )"
   },
-  "pbp_offense_real": "OKC",
-  "offense_agrees": true,
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 14019,
@@ -172,13 +186,13 @@
     "frame": 14019,
     "period": 2,
     "clock_s": 154,
-    "raw": "2ND|2:34"
+    "raw": "2ND|2.34"
    },
    {
-    "frame": 14290,
+    "frame": 14562,
     "period": 2,
-    "clock_s": 149,
-    "raw": "2ND|2:29"
+    "clock_s": 145,
+    "raw": "2ND|2.25"
    }
   ],
   "pbp_possession": {
@@ -201,7 +215,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 14847,
@@ -218,13 +232,13 @@
     "frame": 14847,
     "period": 2,
     "clock_s": 140,
-    "raw": "2ND|2:20"
+    "raw": "2ND|2.20"
    },
    {
     "frame": 15147,
     "period": 2,
     "clock_s": 135,
-    "raw": "2ND|2:15"
+    "raw": "2ND|2.15"
    }
   ],
   "pbp_possession": {
@@ -247,7 +261,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 15396,
@@ -264,13 +278,13 @@
     "frame": 15396,
     "period": 2,
     "clock_s": 131,
-    "raw": "2ND|2:11"
+    "raw": "2ND|2.11"
    },
    {
-    "frame": 15598,
+    "frame": 15801,
     "period": 2,
-    "clock_s": 127,
-    "raw": "2ND|2:07"
+    "clock_s": 124,
+    "raw": "2ND|2.04"
    }
   ],
   "pbp_possession": {
@@ -293,7 +307,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 22071,
@@ -313,10 +327,10 @@
     "raw": "2ND|1:11"
    },
    {
-    "frame": 22330,
+    "frame": 22590,
     "period": 2,
-    "clock_s": 66,
-    "raw": "2ND|1:06"
+    "clock_s": 62,
+    "raw": "2ND|1.02"
    }
   ],
   "pbp_possession": {
@@ -339,30 +353,52 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 23574,
   "core_end_frame": 23982,
   "attacked_basket": "left",
-  "offense_team": 1,
+  "offense_team": 0,
   "confidence": 0.53,
-  "offense_real": "OKC",
-  "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
-    "frame": 23716,
+    "frame": 23574,
     "period": 2,
-    "clock_s": 254,
-    "raw": "2ND|414"
+    "clock_s": 49.8,
+    "raw": "2ND|49.8"
    },
    {
     "frame": 23982,
     "period": 2,
-    "clock_s": 269,
-    "raw": "2ND|429"
+    "clock_s": 42.9,
+    "raw": "2ND|42.9"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    58.0,
+    42.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 42.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  }
 ]

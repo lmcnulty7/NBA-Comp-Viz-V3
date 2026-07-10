@@ -14,13 +14,13 @@
     "frame": 0,
     "period": 2,
     "clock_s": 525,
-    "raw": "2nd|845"
+    "raw": "2nd|8.45"
    },
    {
     "frame": 156,
     "period": 2,
     "clock_s": 519,
-    "raw": "2nd|8:39"
+    "raw": "2nd|8.39"
    }
   ],
   "pbp_possession": {
@@ -60,13 +60,13 @@
     "frame": 423,
     "period": 2,
     "clock_s": 510,
-    "raw": "2nd|8:30"
+    "raw": "2nd|8.30"
    },
    {
     "frame": 681,
     "period": 2,
     "clock_s": 501,
-    "raw": "2nd|8:21"
+    "raw": "2nd|8.21"
    }
   ],
   "pbp_possession": {
@@ -106,13 +106,13 @@
     "frame": 6450,
     "period": 2,
     "clock_s": 407,
-    "raw": "2nd|6:47"
+    "raw": "2nd|6.47"
    },
    {
     "frame": 6639,
     "period": 2,
     "clock_s": 400,
-    "raw": "2nd|640"
+    "raw": "2nd|6.40"
    }
   ],
   "pbp_possession": {

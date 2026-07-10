@@ -7,22 +7,27 @@
  "414": {
   "offense_team": 1,
   "defense_team": 0,
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  "2715": {
   "offense_team": 0,
   "defense_team": 1,
   "orientation_conf": 0.94
  },
+ "3348": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 0.93
+ },
  "9537": {
   "offense_team": 1,
   "defense_team": 0,
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  },
  "11160": {
   "offense_team": 1,
   "defense_team": 0,
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  },
  "11610": {
   "offense_team": 0,

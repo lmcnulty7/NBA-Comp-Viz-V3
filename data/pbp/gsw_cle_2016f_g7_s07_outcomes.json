@@ -20,7 +20,7 @@
     "frame": 1044,
     "period": 4,
     "clock_s": 634,
-    "raw": "4tH|10:34"
+    "raw": "4tH|10.34"
    }
   ],
   "pbp_possession": {
@@ -60,7 +60,7 @@
     "frame": 1278,
     "period": 4,
     "clock_s": 626,
-    "raw": "4th|10:26"
+    "raw": "4th|10.26"
    },
    {
     "frame": 1404,
@@ -112,7 +112,7 @@
     "frame": 1902,
     "period": 4,
     "clock_s": 604,
-    "raw": "4tH|10:04"
+    "raw": "4tH|10.04"
    }
   ],
   "pbp_possession": {
@@ -152,13 +152,13 @@
     "frame": 2004,
     "period": 4,
     "clock_s": 601,
-    "raw": "4tH|10:01"
+    "raw": "4tH|10.01"
    },
    {
     "frame": 2133,
     "period": 4,
     "clock_s": 596,
-    "raw": "4h|9:56"
+    "raw": "4h|9.56"
    }
   ],
   "pbp_possession": {
@@ -198,13 +198,13 @@
     "frame": 4020,
     "period": 4,
     "clock_s": 592,
-    "raw": "4tH|9:52"
+    "raw": "4tH|9.52"
    },
    {
     "frame": 4413,
     "period": 4,
     "clock_s": 578,
-    "raw": "4TH|9:38"
+    "raw": "4TH|9.38"
    }
   ],
   "pbp_possession": {
@@ -244,13 +244,13 @@
     "frame": 5946,
     "period": 4,
     "clock_s": 531,
-    "raw": "4th|8:51"
+    "raw": "4th|8.51"
    },
    {
     "frame": 6063,
     "period": 4,
     "clock_s": 527,
-    "raw": "4tH|8:47"
+    "raw": "4tH|8.47"
    }
   ],
   "pbp_possession": {
@@ -290,13 +290,13 @@
     "frame": 6498,
     "period": 4,
     "clock_s": 512,
-    "raw": "4TH|8:32"
+    "raw": "4TH|8.32"
    },
    {
     "frame": 6867,
     "period": 4,
     "clock_s": 500,
-    "raw": "4TH|8:20"
+    "raw": "4TH|8.20"
    }
   ],
   "pbp_possession": {
@@ -329,19 +329,19 @@
   "confidence": 0.78,
   "offense_real": "GSW",
   "defense_real": "CLE",
-  "status": "anchor_inconsistent",
+  "status": "clock_stopped_span",
   "anchors": [
    {
     "frame": 8859,
     "period": 4,
     "clock_s": 460,
-    "raw": "4th|7:40"
+    "raw": "4th|7.40"
    },
    {
     "frame": 9174,
     "period": 4,
     "clock_s": 459,
-    "raw": "4TH|7:39"
+    "raw": "4TH|7.39"
    }
   ]
  }

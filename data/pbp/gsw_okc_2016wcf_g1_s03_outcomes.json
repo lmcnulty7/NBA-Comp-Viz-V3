@@ -10,16 +10,16 @@
   "status": "anchor_inconsistent",
   "anchors": [
    {
-    "frame": 513,
+    "frame": 522,
     "period": 2,
-    "clock_s": 597,
-    "raw": "2ND|9:57"
+    "clock_s": 596,
+    "raw": "2ND|9.56"
    },
    {
     "frame": 1242,
     "period": 2,
     "clock_s": 584,
-    "raw": "2ND|9:44"
+    "raw": "2ND|9.44"
    }
   ]
  },
@@ -31,21 +31,43 @@
   "confidence": 0.97,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
     "frame": 1641,
     "period": 2,
     "clock_s": 577,
-    "raw": "2ND|9:37"
+    "raw": "2ND|9.37"
    },
    {
-    "frame": 2163,
+    "frame": 2160,
     "period": 2,
     "clock_s": 569,
-    "raw": "2ND|9:29"
+    "raw": "2ND|9.29"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    583.0,
+    569.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 569.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt layup from 3 ft (block by S. Adams )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 2274,
@@ -62,13 +84,13 @@
     "frame": 2274,
     "period": 2,
     "clock_s": 567,
-    "raw": "2ND|9:27"
+    "raw": "2ND|9.27"
    },
    {
-    "frame": 2521,
+    "frame": 2739,
     "period": 2,
-    "clock_s": 562,
-    "raw": "2ND|9:22"
+    "clock_s": 559,
+    "raw": "2ND|9:19"
    }
   ],
   "pbp_possession": {
@@ -91,7 +113,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 4407,
@@ -101,7 +123,8 @@
   "confidence": 0.84,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
     "frame": 4407,
@@ -113,9 +136,31 @@
     "frame": 5625,
     "period": 2,
     "clock_s": 547,
-    "raw": "2ND|9:07"
+    "raw": "2ND|9.07"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    569.0,
+    547.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 547.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Ibaka misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "duplicate_of_span": 2274,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 6858,
@@ -132,13 +177,13 @@
     "frame": 6858,
     "period": 2,
     "clock_s": 526,
-    "raw": "2ND|8:46"
+    "raw": "2ND|8.46"
    },
    {
-    "frame": 7161,
+    "frame": 7464,
     "period": 2,
-    "clock_s": 521,
-    "raw": "2ND|8:41"
+    "clock_s": 516,
+    "raw": "2ND|836"
    }
   ],
   "pbp_possession": {
@@ -161,7 +206,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 7632,
@@ -178,13 +223,13 @@
     "frame": 7632,
     "period": 2,
     "clock_s": 513,
-    "raw": "2ND|8:33"
+    "raw": "2ND|8.33"
    },
    {
-    "frame": 7884,
+    "frame": 7887,
     "period": 2,
     "clock_s": 509,
-    "raw": "2ND|8:29"
+    "raw": "2ND|8.29"
    }
   ],
   "pbp_possession": {
@@ -207,7 +252,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 15537,
@@ -224,13 +269,13 @@
     "frame": 15537,
     "period": 2,
     "clock_s": 485,
-    "raw": "2ND|8:05"
+    "raw": "2ND|8.05"
    },
    {
     "frame": 15660,
     "period": 2,
     "clock_s": 483,
-    "raw": "2ND|8:03"
+    "raw": "2ND|8.03"
    }
   ],
   "pbp_possession": {
@@ -253,7 +298,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 15954,
@@ -270,13 +315,13 @@
     "frame": 15954,
     "period": 2,
     "clock_s": 478,
-    "raw": "2ND|7:58"
+    "raw": "2ND|7.58"
    },
    {
     "frame": 16116,
     "period": 2,
     "clock_s": 475,
-    "raw": "2ND|7:55"
+    "raw": "2ND|7.55"
    }
   ],
   "pbp_possession": {
@@ -300,17 +345,53 @@
   "duplicate_of_span": 15537,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 17367,
   "core_end_frame": 17709,
   "attacked_basket": "left",
-  "offense_team": 1,
+  "offense_team": 0,
   "confidence": 0.97,
-  "offense_real": "OKC",
-  "defense_real": "GSW",
-  "status": "anchor_failed"
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17367,
+    "period": 2,
+    "clock_s": 454,
+    "raw": "2ND|7.34"
+   },
+   {
+    "frame": 17709,
+    "period": 2,
+    "clock_s": 448,
+    "raw": "2ND|7.28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    458.0,
+    445.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 445.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by A. Bogut )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 18276,
@@ -327,13 +408,13 @@
     "frame": 18276,
     "period": 2,
     "clock_s": 439,
-    "raw": "2ND|7:19"
+    "raw": "2ND|7.19"
    },
    {
-    "frame": 18495,
+    "frame": 18708,
     "period": 2,
-    "clock_s": 435,
-    "raw": "2ND|7:15"
+    "clock_s": 431,
+    "raw": "2ND|7.11"
    }
   ],
   "pbp_possession": {
@@ -344,7 +425,7 @@
    ],
    "points": 0
   },
-  "overlap_frac_of_span": 1.0,
+  "overlap_frac_of_span": 0.88,
   "offense_points": 0,
   "terminating_event": {
    "clock_s": 432.0,
@@ -356,7 +437,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 19719,
@@ -370,16 +451,16 @@
   "period": 2,
   "anchors": [
    {
-    "frame": 20062,
+    "frame": 19719,
     "period": 2,
-    "clock_s": 409,
-    "raw": "2ND|6:49"
+    "clock_s": 414,
+    "raw": "2ND|6.54"
    },
    {
     "frame": 20394,
     "period": 2,
     "clock_s": 403,
-    "raw": "2ND|6:43"
+    "raw": "2ND|6.43"
    }
   ],
   "pbp_possession": {
@@ -390,7 +471,7 @@
    ],
    "points": 0
   },
-  "overlap_frac_of_span": 0.83,
+  "overlap_frac_of_span": 0.91,
   "offense_points": 0,
   "terminating_event": {
    "clock_s": 404.0,
@@ -402,7 +483,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 20997,
@@ -419,13 +500,13 @@
     "frame": 20997,
     "period": 2,
     "clock_s": 393,
-    "raw": "2ND|6:33"
+    "raw": "2ND|6.33"
    },
    {
-    "frame": 21303,
+    "frame": 21297,
     "period": 2,
     "clock_s": 388,
-    "raw": "2ND|6:28"
+    "raw": "2ND|6.28"
    }
   ],
   "pbp_possession": {
@@ -448,7 +529,7 @@
   "offense_agrees": false,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 25692,
@@ -485,13 +566,13 @@
     "frame": 27627,
     "period": 2,
     "clock_s": 363,
-    "raw": "2ND|6:03"
+    "raw": "2ND|6.03"
    },
    {
     "frame": 27903,
     "period": 2,
     "clock_s": 359,
-    "raw": "2ND|5:59"
+    "raw": "2ND|5.59"
    }
   ],
   "pbp_possession": {
@@ -514,7 +595,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.56
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 30507,
@@ -528,16 +609,16 @@
   "period": 2,
   "anchors": [
    {
-    "frame": 30528,
+    "frame": 30507,
     "period": 2,
-    "clock_s": 341,
-    "raw": "2ND|5:41"
+    "clock_s": 342,
+    "raw": "2ND|5.42"
    },
    {
     "frame": 30726,
     "period": 2,
     "clock_s": 338,
-    "raw": "2ND|5:38"
+    "raw": "2ND|5.38"
    }
   ],
   "pbp_possession": {
@@ -560,6 +641,6 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.75
+  "orientation_conf": 0.82
  }
 ]

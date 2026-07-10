@@ -1,0 +1,4032 @@
+{
+ "meta": {
+  "away": "BOS",
+  "home": "GSW",
+  "date": "2016-04-01"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 699.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "0-3",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 674.0,
+   "team": "away",
+   "desc": "J. Sullinger misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "0-3",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 673.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "0-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 669.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass)",
+   "points": 0,
+   "score": "0-3",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 660.0,
+   "team": "away",
+   "desc": "A. Bradley misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "0-3",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 659.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "0-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 648.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 23 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "0-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 635.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 18 ft (assist by J. Sullinger )",
+   "points": 2,
+   "score": "2-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 625.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "2-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 624.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "2-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "A. Bradley misses 2-pt jump shot from 6 ft (block by D. Green )",
+   "points": 0,
+   "score": "2-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 615.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Bradley",
+   "points": 0,
+   "score": "2-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 610.0,
+   "team": "away",
+   "desc": "E. Turner misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "2-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 609.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "2-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 607.0,
+   "team": "away",
+   "desc": "Turnover by J. Sullinger (lost ball; steal by K. Thompson )",
+   "points": 0,
+   "score": "2-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 594.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by E. Turner )",
+   "points": 0,
+   "score": "2-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 588.0,
+   "team": "away",
+   "desc": "A. Johnson makes 2-pt layup from 1 ft (assist by E. Turner )",
+   "points": 2,
+   "score": "4-6",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 564.0,
+   "team": "home",
+   "desc": "A. Bogut misses 2-pt hook shot from 12 ft",
+   "points": 0,
+   "score": "4-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 560.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "4-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 553.0,
+   "team": "away",
+   "desc": "I. Thomas misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "4-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 552.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "4-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 547.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass)",
+   "points": 0,
+   "score": "4-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "A. Johnson misses 2-pt hook shot from 9 ft",
+   "points": 0,
+   "score": "4-6",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 526.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "4-6",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 519.0,
+   "team": "away",
+   "desc": "Turnover by E. Turner (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "4-6",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 507.0,
+   "team": "home",
+   "desc": "H. Barnes makes 3-pt jump shot from 23 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "4-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 484.0,
+   "team": "away",
+   "desc": "I. Thomas misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "4-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 483.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "4-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 476.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (lost ball)",
+   "points": 0,
+   "score": "4-9",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 466.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 2-pt jump shot from 14 ft (assist by A. Bradley )",
+   "points": 2,
+   "score": "6-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 453.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "6-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 452.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Bradley",
+   "points": 0,
+   "score": "6-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 438.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 3-pt jump shot from 25 ft (assist by A. Johnson )",
+   "points": 3,
+   "score": "9-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 437.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "9-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 424.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "9-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 424.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "9-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 407.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "9-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 406.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "9-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 387.0,
+   "team": "home",
+   "desc": "Turnover by A. Bogut (bad pass; steal by I. Thomas )",
+   "points": 0,
+   "score": "9-9",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 377.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 9 ft",
+   "points": 2,
+   "score": "11-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 364.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "11-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 364.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "11-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 349.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by J. Sullinger )",
+   "points": 0,
+   "score": "11-9",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 349.0,
+   "team": "away",
+   "desc": "J. Sullinger misses free throw 1 of 2",
+   "points": 0,
+   "score": "11-9",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 349.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "11-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 349.0,
+   "team": "away",
+   "desc": "J. Sullinger misses free throw 2 of 2",
+   "points": 0,
+   "score": "11-9",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "11-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 337.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (bad pass; steal by J. Sullinger )",
+   "points": 0,
+   "score": "11-9",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by A. Johnson )",
+   "points": 0,
+   "score": "11-9",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "A. Johnson makes free throw 1 of 2",
+   "points": 1,
+   "score": "12-9",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o enters the game for A. Bogut",
+   "points": 0,
+   "score": "12-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "M. Smart enters the game for E. Turner",
+   "points": 0,
+   "score": "12-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for K. Thompson",
+   "points": 0,
+   "score": "12-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "A. Johnson misses free throw 2 of 2",
+   "points": 0,
+   "score": "12-9",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 327.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "12-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 311.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "12-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 309.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "12-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 303.0,
+   "team": "home",
+   "desc": "Personal block foul by A. Johnson",
+   "points": 0,
+   "score": "12-9",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 295.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o makes 2-pt hook shot from 5 ft (assist by D. Green )",
+   "points": 2,
+   "score": "12-11",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 280.0,
+   "team": "away",
+   "desc": "J. Sullinger misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "12-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "12-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 269.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "12-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 267.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "12-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 260.0,
+   "team": "away",
+   "desc": "I. Thomas misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "12-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 260.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "12-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 252.0,
+   "team": "home",
+   "desc": "Shooting foul by J. Sullinger (drawn by D. Green )",
+   "points": 0,
+   "score": "12-11",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 252.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 2",
+   "points": 1,
+   "score": "12-12",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 252.0,
+   "team": "away",
+   "desc": "K. Olynyk enters the game for A. Johnson",
+   "points": 0,
+   "score": "12-12",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 252.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "12-13",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 235.0,
+   "team": "away",
+   "desc": "A. Bradley makes 2-pt jump shot from 17 ft (assist by I. Thomas )",
+   "points": 2,
+   "score": "14-13",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 230.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Olynyk (drawn by A. Varej\u00c3\u00a3o )",
+   "points": 0,
+   "score": "14-13",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 230.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o misses free throw 1 of 2",
+   "points": 0,
+   "score": "14-13",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 230.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "14-13",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 230.0,
+   "team": "away",
+   "desc": "J. Jerebko enters the game for J. Sullinger",
+   "points": 0,
+   "score": "14-13",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 230.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o misses free throw 2 of 2",
+   "points": 0,
+   "score": "14-13",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 229.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Smart",
+   "points": 0,
+   "score": "14-13",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 214.0,
+   "team": "away",
+   "desc": "A. Bradley makes 2-pt jump shot from 15 ft (assist by M. Smart )",
+   "points": 2,
+   "score": "16-13",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft (assist by D. Green )",
+   "points": 2,
+   "score": "16-15",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 188.0,
+   "team": "away",
+   "desc": "A. Bradley makes 2-pt jump shot from 18 ft (assist by K. Olynyk )",
+   "points": 2,
+   "score": "18-15",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 181.0,
+   "team": "home",
+   "desc": "H. Barnes makes 3-pt jump shot from 26 ft (assist by A. Varej\u00c3\u00a3o )",
+   "points": 3,
+   "score": "18-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 180.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "18-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 180.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for H. Barnes",
+   "points": 0,
+   "score": "18-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 171.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Varej\u00c3\u00a3o (drawn by A. Bradley )",
+   "points": 0,
+   "score": "18-18",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 171.0,
+   "team": "away",
+   "desc": "A. Bradley misses free throw 1 of 2",
+   "points": 0,
+   "score": "18-18",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 171.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "18-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 171.0,
+   "team": "away",
+   "desc": "A. Bradley makes free throw 2 of 2",
+   "points": 1,
+   "score": "19-18",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 161.0,
+   "team": "home",
+   "desc": "Offensive foul by S. Livingston (drawn by M. Smart )",
+   "points": 0,
+   "score": "19-18",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 161.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (offensive foul)",
+   "points": 0,
+   "score": "19-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 146.0,
+   "team": "away",
+   "desc": "J. Jerebko misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "19-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 146.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "19-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 136.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "19-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 136.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jerebko",
+   "points": 0,
+   "score": "19-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 126.0,
+   "team": "away",
+   "desc": "J. Jerebko makes 2-pt jump shot from 15 ft (assist by K. Olynyk )",
+   "points": 2,
+   "score": "21-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 115.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (bad pass)",
+   "points": 0,
+   "score": "21-18",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 115.0,
+   "team": "away",
+   "desc": "T. Rozier enters the game for I. Thomas",
+   "points": 0,
+   "score": "21-18",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 101.0,
+   "team": "away",
+   "desc": "M. Smart misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "21-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 100.0,
+   "team": "away",
+   "desc": "Offensive rebound by T. Rozier",
+   "points": 0,
+   "score": "21-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 96.0,
+   "team": "away",
+   "desc": "A. Bradley misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "21-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 94.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "21-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 81.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "21-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 79.0,
+   "team": "home",
+   "desc": "Offensive rebound by L. Barbosa",
+   "points": 0,
+   "score": "21-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 62.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "21-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jerebko",
+   "points": 0,
+   "score": "21-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 39.0,
+   "team": "away",
+   "desc": "K. Olynyk misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "21-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "Defensive rebound by L. Barbosa",
+   "points": 0,
+   "score": "21-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 27.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o makes 2-pt layup from 2 ft (assist by S. Curry )",
+   "points": 2,
+   "score": "21-20",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 22.0,
+   "team": "away",
+   "desc": "M. Smart misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "21-20",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 21.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "21-20",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 4.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft (assist by S. Livingston )",
+   "points": 3,
+   "score": "21-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "Shooting foul by M. Speights (drawn by T. Rozier )",
+   "points": 0,
+   "score": "21-23",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "T. Rozier misses free throw 1 of 2",
+   "points": 0,
+   "score": "21-23",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "21-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 709.0,
+   "team": "home",
+   "desc": "K. Thompson enters the game for L. Barbosa",
+   "points": 0,
+   "score": "21-23",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "T. Rozier makes free throw 2 of 2",
+   "points": 1,
+   "score": "22-23",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 691.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "22-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 690.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jerebko",
+   "points": 0,
+   "score": "22-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 681.0,
+   "team": "away",
+   "desc": "E. Turner misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "22-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 680.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "22-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 664.0,
+   "team": "home",
+   "desc": "H. Barnes makes 3-pt jump shot from 27 ft (assist by K. Thompson )",
+   "points": 3,
+   "score": "22-26",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 640.0,
+   "team": "away",
+   "desc": "T. Rozier misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "22-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 639.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "22-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 625.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "22-26",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 625.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Olynyk",
+   "points": 0,
+   "score": "22-26",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 615.0,
+   "team": "away",
+   "desc": "Turnover by M. Smart (bad pass; steal by M. Speights )",
+   "points": 0,
+   "score": "22-26",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 600.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 17 ft",
+   "points": 2,
+   "score": "22-28",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 587.0,
+   "team": "away",
+   "desc": "K. Olynyk misses 3-pt jump shot from 29 ft",
+   "points": 0,
+   "score": "22-28",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 586.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "22-28",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 586.0,
+   "team": "home",
+   "desc": "Loose ball foul by I. Clark",
+   "points": 0,
+   "score": "22-28",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 568.0,
+   "team": "away",
+   "desc": "J. Jerebko makes 2-pt layup from 2 ft (assist by M. Smart )",
+   "points": 2,
+   "score": "24-28",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 549.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "24-28",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 548.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Rozier",
+   "points": 0,
+   "score": "24-28",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 540.0,
+   "team": "away",
+   "desc": "J. Jerebko misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "24-28",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 540.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "24-28",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 529.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "24-28",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 528.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Rozier",
+   "points": 0,
+   "score": "24-28",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 522.0,
+   "team": "away",
+   "desc": "Turnover by E. Turner (lost ball; steal by M. Speights )",
+   "points": 0,
+   "score": "24-28",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft (assist by H. Barnes )",
+   "points": 2,
+   "score": "24-30",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 494.0,
+   "team": "away",
+   "desc": "E. Turner misses 2-pt jump shot from 14 ft (block by S. Livingston )",
+   "points": 0,
+   "score": "24-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "away",
+   "desc": "Offensive rebound by E. Turner",
+   "points": 0,
+   "score": "24-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "away",
+   "desc": "Turnover by E. Turner (lost ball)",
+   "points": 0,
+   "score": "24-30",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "24-30",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 492.0,
+   "team": "away",
+   "desc": "A. Johnson enters the game for K. Olynyk",
+   "points": 0,
+   "score": "24-30",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 478.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "24-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 477.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Jerebko",
+   "points": 0,
+   "score": "24-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "M. Smart misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "24-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 453.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "24-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "H. Barnes misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "24-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 440.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Turner",
+   "points": 0,
+   "score": "24-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "Shooting block foul by M. Speights (drawn by E. Turner )",
+   "points": 0,
+   "score": "24-30",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "E. Turner makes free throw 1 of 2",
+   "points": 1,
+   "score": "25-30",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "I. Thomas enters the game for M. Smart",
+   "points": 0,
+   "score": "25-30",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "E. Turner makes free throw 2 of 2",
+   "points": 1,
+   "score": "26-30",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 422.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "26-30",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 422.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "26-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 422.0,
+   "team": "home",
+   "desc": "Personal foul by E. Turner",
+   "points": 0,
+   "score": "26-30",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 417.0,
+   "team": "home",
+   "desc": "Turnover by I. Clark (bad pass; steal by E. Turner )",
+   "points": 0,
+   "score": "26-30",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "A. Johnson makes 2-pt jump shot from 1 ft (assist by I. Thomas )",
+   "points": 2,
+   "score": "28-30",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Thompson (drawn by A. Johnson )",
+   "points": 0,
+   "score": "28-30",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 402.0,
+   "team": "away",
+   "desc": "A. Johnson misses free throw 1 of 1",
+   "points": 0,
+   "score": "28-30",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 402.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "28-30",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 389.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 16 ft",
+   "points": 2,
+   "score": "28-32",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 372.0,
+   "team": "away",
+   "desc": "T. Rozier misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 371.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 363.0,
+   "team": "home",
+   "desc": "S. Livingston misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 360.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 348.0,
+   "team": "away",
+   "desc": "A. Johnson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 347.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 342.0,
+   "team": "home",
+   "desc": "I. Clark misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 341.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "28-32",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 331.0,
+   "team": "home",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "28-32",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 319.0,
+   "team": "home",
+   "desc": "M. Speights makes 3-pt jump shot from 25 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "28-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "28-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "away",
+   "desc": "A. Bradley enters the game for T. Rozier",
+   "points": 0,
+   "score": "28-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "home",
+   "desc": "B. Rush enters the game for H. Barnes",
+   "points": 0,
+   "score": "28-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "home",
+   "desc": "A. Bogut enters the game for S. Livingston",
+   "points": 0,
+   "score": "28-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "home",
+   "desc": "D. Green enters the game for I. Clark",
+   "points": 0,
+   "score": "28-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 317.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for M. Speights",
+   "points": 0,
+   "score": "28-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 303.0,
+   "team": "away",
+   "desc": "J. Jerebko makes 3-pt jump shot from 25 ft (assist by I. Thomas )",
+   "points": 3,
+   "score": "31-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 283.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "31-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 281.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Bradley",
+   "points": 0,
+   "score": "31-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 262.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt jump shot from 3 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "31-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 260.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Rush",
+   "points": 0,
+   "score": "31-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 255.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "31-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 254.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "31-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "Turnover by A. Johnson (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "31-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 235.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass)",
+   "points": 0,
+   "score": "31-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 235.0,
+   "team": "away",
+   "desc": "J. Sullinger enters the game for J. Jerebko",
+   "points": 0,
+   "score": "31-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 216.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 2-pt jump shot from 14 ft (assist by I. Thomas )",
+   "points": 2,
+   "score": "33-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 203.0,
+   "team": "home",
+   "desc": "B. Rush misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "33-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 201.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "33-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 181.0,
+   "team": "away",
+   "desc": "E. Turner makes 3-pt jump shot from 23 ft (assist by I. Thomas )",
+   "points": 3,
+   "score": "36-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "home",
+   "desc": "Turnover by K. Thompson (bad pass)",
+   "points": 0,
+   "score": "36-35",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "36-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 163.0,
+   "team": "away",
+   "desc": "K. Olynyk enters the game for A. Johnson",
+   "points": 0,
+   "score": "36-35",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 145.0,
+   "team": "away",
+   "desc": "J. Sullinger misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "36-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "Defensive rebound by B. Rush",
+   "points": 0,
+   "score": "36-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 134.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft",
+   "points": 3,
+   "score": "36-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 119.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "36-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 118.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "36-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 118.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 2-pt layup at rim",
+   "points": 2,
+   "score": "38-38",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 99.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "38-38",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 98.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Bogut",
+   "points": 0,
+   "score": "38-38",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 98.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "38-40",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 85.0,
+   "team": "away",
+   "desc": "Personal foul by D. Green",
+   "points": 0,
+   "score": "38-40",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 85.0,
+   "team": "away",
+   "desc": "J. Sullinger makes free throw 1 of 2",
+   "points": 1,
+   "score": "39-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 85.0,
+   "team": "away",
+   "desc": "A. Johnson enters the game for K. Olynyk",
+   "points": 0,
+   "score": "39-40",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 85.0,
+   "team": "away",
+   "desc": "J. Sullinger makes free throw 2 of 2",
+   "points": 1,
+   "score": "40-40",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "40-42",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "Shooting foul by J. Sullinger (drawn by K. Thompson )",
+   "points": 0,
+   "score": "40-42",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 69.0,
+   "team": "home",
+   "desc": "K. Thompson makes free throw 1 of 1",
+   "points": 1,
+   "score": "40-43",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 52.0,
+   "team": "away",
+   "desc": "A. Bradley misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "40-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 52.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "40-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 45.0,
+   "team": "home",
+   "desc": "Offensive foul by S. Curry (drawn by I. Thomas )",
+   "points": 0,
+   "score": "40-43",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 45.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (offensive foul)",
+   "points": 0,
+   "score": "40-43",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 13 ft (assist by A. Bradley )",
+   "points": 2,
+   "score": "42-43",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 19.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (back court)",
+   "points": 0,
+   "score": "42-43",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "42-43",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 11.0,
+   "team": "away",
+   "desc": "M. Smart enters the game for A. Johnson",
+   "points": 0,
+   "score": "42-43",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 11.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for A. Bogut",
+   "points": 0,
+   "score": "42-43",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 4.0,
+   "team": "away",
+   "desc": "A. Bradley makes 3-pt jump shot from 26 ft (assist by E. Turner )",
+   "points": 3,
+   "score": "45-43",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 60 ft",
+   "points": 0,
+   "score": "45-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "45-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 704.0,
+   "team": "away",
+   "desc": "Turnover by I. Thomas (bad pass; steal by H. Barnes )",
+   "points": 0,
+   "score": "45-43",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 690.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "45-46",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 673.0,
+   "team": "away",
+   "desc": "A. Bradley misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "45-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 673.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "45-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 658.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 22 ft (assist by K. Thompson )",
+   "points": 3,
+   "score": "45-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 657.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "45-49",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 637.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup from 2 ft (assist by A. Bradley )",
+   "points": 2,
+   "score": "47-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 617.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "47-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "47-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 603.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt hook shot from 7 ft",
+   "points": 2,
+   "score": "49-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 584.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "49-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 583.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Turner",
+   "points": 0,
+   "score": "49-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Bogut (drawn by I. Thomas )",
+   "points": 0,
+   "score": "49-49",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "away",
+   "desc": "I. Thomas makes free throw 1 of 2",
+   "points": 1,
+   "score": "50-49",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 571.0,
+   "team": "away",
+   "desc": "I. Thomas makes free throw 2 of 2",
+   "points": 1,
+   "score": "51-49",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 561.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft (assist by D. Green )",
+   "points": 2,
+   "score": "51-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 543.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "51-51",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 542.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Johnson",
+   "points": 0,
+   "score": "51-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 534.0,
+   "team": "away",
+   "desc": "Turnover by E. Turner (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "51-51",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 534.0,
+   "team": "home",
+   "desc": "Personal foul by E. Turner",
+   "points": 0,
+   "score": "51-51",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 520.0,
+   "team": "home",
+   "desc": "K. Thompson makes 2-pt jump shot from 11 ft (assist by D. Green )",
+   "points": 2,
+   "score": "51-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 505.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 2-pt jump shot from 20 ft (assist by A. Johnson )",
+   "points": 2,
+   "score": "53-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 499.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 27 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "53-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 482.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup from 1 ft (assist by J. Sullinger )",
+   "points": 2,
+   "score": "55-56",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 473.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 7 ft (block by A. Bradley )",
+   "points": 0,
+   "score": "55-56",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 471.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Turner",
+   "points": 0,
+   "score": "55-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 469.0,
+   "team": "away",
+   "desc": "Shooting foul by D. Green (drawn by I. Thomas )",
+   "points": 0,
+   "score": "55-56",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 469.0,
+   "team": "away",
+   "desc": "I. Thomas misses free throw 1 of 2",
+   "points": 0,
+   "score": "55-56",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 469.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "55-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 469.0,
+   "team": "away",
+   "desc": "I. Thomas misses free throw 2 of 2",
+   "points": 0,
+   "score": "55-56",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 468.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "55-56",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 451.0,
+   "team": "home",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "55-58",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 433.0,
+   "team": "away",
+   "desc": "Personal foul by S. Curry",
+   "points": 0,
+   "score": "55-58",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 426.0,
+   "team": "away",
+   "desc": "I. Thomas makes 3-pt jump shot from 24 ft (assist by J. Sullinger )",
+   "points": 3,
+   "score": "58-58",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 417.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass; steal by E. Turner )",
+   "points": 0,
+   "score": "58-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup from 1 ft (assist by E. Turner )",
+   "points": 2,
+   "score": "60-58",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 411.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "60-58",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 397.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "60-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 396.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "60-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 381.0,
+   "team": "away",
+   "desc": "A. Bradley makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "62-58",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 364.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "62-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 363.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "62-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 346.0,
+   "team": "away",
+   "desc": "J. Sullinger misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "62-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 345.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "62-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 332.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "62-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 331.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Johnson",
+   "points": 0,
+   "score": "62-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 322.0,
+   "team": "away",
+   "desc": "A. Bradley misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "62-58",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 322.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "62-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 315.0,
+   "team": "home",
+   "desc": "Offensive foul by A. Bogut (drawn by A. Bradley )",
+   "points": 0,
+   "score": "62-58",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 315.0,
+   "team": "home",
+   "desc": "Turnover by A. Bogut (offensive foul)",
+   "points": 0,
+   "score": "62-58",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 315.0,
+   "team": "away",
+   "desc": "M. Smart enters the game for E. Turner",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 315.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for K. Thompson",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 315.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o enters the game for A. Bogut",
+   "points": 0,
+   "score": "62-58",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 299.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Varej\u00c3\u00a3o (drawn by A. Bradley )",
+   "points": 0,
+   "score": "62-58",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 299.0,
+   "team": "away",
+   "desc": "A. Bradley misses free throw 1 of 2",
+   "points": 0,
+   "score": "62-58",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 299.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "62-58",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 299.0,
+   "team": "away",
+   "desc": "A. Bradley makes free throw 2 of 2",
+   "points": 1,
+   "score": "63-58",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 285.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft (assist by D. Green )",
+   "points": 3,
+   "score": "63-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 267.0,
+   "team": "away",
+   "desc": "I. Thomas misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "63-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 266.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Johnson",
+   "points": 0,
+   "score": "63-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "Personal foul by H. Barnes",
+   "points": 0,
+   "score": "63-61",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "A. Johnson misses free throw 1 of 2",
+   "points": 0,
+   "score": "63-61",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "63-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "A. Johnson misses free throw 2 of 2",
+   "points": 0,
+   "score": "63-61",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 260.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "63-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 254.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (lost ball; steal by M. Smart )",
+   "points": 0,
+   "score": "63-61",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 247.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup at rim (assist by M. Smart )",
+   "points": 2,
+   "score": "65-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 235.0,
+   "team": "home",
+   "desc": "Personal foul by A. Bradley",
+   "points": 0,
+   "score": "65-61",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 224.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 2-pt jump shot from 20 ft",
+   "points": 2,
+   "score": "65-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 218.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "67-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 218.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Varej\u00c3\u00a3o (drawn by I. Thomas )",
+   "points": 0,
+   "score": "67-63",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 218.0,
+   "team": "away",
+   "desc": "I. Thomas makes free throw 1 of 1",
+   "points": 1,
+   "score": "68-63",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 207.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 3-pt jump shot from 26 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "68-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 184.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 3-pt jump shot from 25 ft (assist by M. Smart )",
+   "points": 3,
+   "score": "71-66",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 171.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "71-66",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 170.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "71-66",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 166.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "71-69",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 150.0,
+   "team": "away",
+   "desc": "A. Johnson makes 2-pt layup from 2 ft (assist by I. Thomas )",
+   "points": 2,
+   "score": "73-69",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Bradley (drawn by S. Curry )",
+   "points": 0,
+   "score": "73-69",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 1 of 3",
+   "points": 1,
+   "score": "73-70",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 2 of 3",
+   "points": 1,
+   "score": "73-71",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "away",
+   "desc": "T. Rozier enters the game for I. Thomas",
+   "points": 0,
+   "score": "73-71",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "away",
+   "desc": "K. Olynyk enters the game for J. Sullinger",
+   "points": 0,
+   "score": "73-71",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for H. Barnes",
+   "points": 0,
+   "score": "73-71",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 139.0,
+   "team": "home",
+   "desc": "S. Curry makes free throw 3 of 3",
+   "points": 1,
+   "score": "73-72",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 129.0,
+   "team": "away",
+   "desc": "A. Bradley misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "73-72",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Smart",
+   "points": 0,
+   "score": "73-72",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 125.0,
+   "team": "away",
+   "desc": "M. Smart makes 2-pt layup at rim",
+   "points": 2,
+   "score": "75-72",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 112.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 34 ft",
+   "points": 3,
+   "score": "75-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 101.0,
+   "team": "away",
+   "desc": "K. Olynyk makes 3-pt jump shot from 26 ft (assist by M. Smart )",
+   "points": 3,
+   "score": "78-75",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 88.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Bradley (drawn by A. Varej\u00c3\u00a3o )",
+   "points": 0,
+   "score": "78-75",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 88.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o misses free throw 1 of 2",
+   "points": 0,
+   "score": "78-75",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 88.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "78-75",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 88.0,
+   "team": "away",
+   "desc": "J. Jerebko enters the game for A. Johnson",
+   "points": 0,
+   "score": "78-75",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 88.0,
+   "team": "home",
+   "desc": "A. Varej\u00c3\u00a3o makes free throw 2 of 2",
+   "points": 1,
+   "score": "78-76",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 74.0,
+   "team": "away",
+   "desc": "Turnover by K. Olynyk (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "78-76",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 64.0,
+   "team": "home",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by S. Livingston )",
+   "points": 3,
+   "score": "78-79",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 47.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston",
+   "points": 0,
+   "score": "78-79",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 47.0,
+   "team": "away",
+   "desc": "K. Olynyk makes free throw 1 of 2",
+   "points": 1,
+   "score": "79-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 47.0,
+   "team": "away",
+   "desc": "K. Olynyk makes free throw 2 of 2",
+   "points": 1,
+   "score": "80-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "Turnover by S. Curry (lost ball; steal by A. Bradley )",
+   "points": 0,
+   "score": "80-79",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 27.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Varej\u00c3\u00a3o (drawn by A. Bradley )",
+   "points": 0,
+   "score": "80-79",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 27.0,
+   "team": "away",
+   "desc": "A. Bradley makes free throw 1 of 2",
+   "points": 1,
+   "score": "81-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 27.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "81-79",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 27.0,
+   "team": "away",
+   "desc": "A. Bradley makes free throw 2 of 2",
+   "points": 1,
+   "score": "82-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 4.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "82-79",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 3.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Smart",
+   "points": 0,
+   "score": "82-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "M. Smart misses 3-pt jump shot from 55 ft",
+   "points": 0,
+   "score": "82-79",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "82-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 705.0,
+   "team": "home",
+   "desc": "H. Barnes makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "82-81",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 686.0,
+   "team": "away",
+   "desc": "T. Rozier misses 2-pt jump shot from 6 ft (block by M. Speights )",
+   "points": 0,
+   "score": "82-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 686.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "82-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 679.0,
+   "team": "away",
+   "desc": "K. Olynyk makes 2-pt hook shot from 7 ft (assist by E. Turner )",
+   "points": 2,
+   "score": "84-81",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "S. Livingston makes 2-pt jump shot from 11 ft",
+   "points": 2,
+   "score": "84-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 646.0,
+   "team": "away",
+   "desc": "E. Turner misses 2-pt jump shot from 18 ft",
+   "points": 0,
+   "score": "84-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 646.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "84-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 643.0,
+   "team": "away",
+   "desc": "J. Jerebko makes 2-pt dunk at rim (assist by E. Turner )",
+   "points": 2,
+   "score": "86-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 629.0,
+   "team": "home",
+   "desc": "M. Speights misses 2-pt jump shot from 10 ft",
+   "points": 0,
+   "score": "86-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 628.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "86-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 606.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 11 ft",
+   "points": 2,
+   "score": "88-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 589.0,
+   "team": "home",
+   "desc": "L. Barbosa misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "88-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 588.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Smart",
+   "points": 0,
+   "score": "88-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 571.0,
+   "team": "away",
+   "desc": "M. Smart makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "90-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "90-83",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "I. Clark enters the game for L. Barbosa",
+   "points": 0,
+   "score": "90-83",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 545.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "90-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 544.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Rozier",
+   "points": 0,
+   "score": "90-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 521.0,
+   "team": "away",
+   "desc": "M. Smart makes 3-pt jump shot from 24 ft",
+   "points": 3,
+   "score": "93-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 500.0,
+   "team": "home",
+   "desc": "Personal block foul by K. Olynyk",
+   "points": 0,
+   "score": "93-83",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 493.0,
+   "team": "home",
+   "desc": "M. Speights makes 2-pt dunk at rim (assist by K. Thompson )",
+   "points": 2,
+   "score": "93-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 472.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "95-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 464.0,
+   "team": "home",
+   "desc": "Turnover by S. Livingston (lost ball; steal by K. Olynyk )",
+   "points": 0,
+   "score": "95-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "K. Olynyk misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "95-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 452.0,
+   "team": "away",
+   "desc": "Offensive rebound by K. Olynyk",
+   "points": 0,
+   "score": "95-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 452.0,
+   "team": "away",
+   "desc": "K. Olynyk misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "95-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 450.0,
+   "team": "home",
+   "desc": "Defensive rebound by H. Barnes",
+   "points": 0,
+   "score": "95-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 449.0,
+   "team": "home",
+   "desc": "Offensive foul by H. Barnes (drawn by M. Smart )",
+   "points": 0,
+   "score": "95-85",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 449.0,
+   "team": "home",
+   "desc": "Turnover by H. Barnes (offensive foul)",
+   "points": 0,
+   "score": "95-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 440.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston",
+   "points": 0,
+   "score": "95-85",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "D. Green enters the game for M. Speights",
+   "points": 0,
+   "score": "95-85",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 440.0,
+   "team": "home",
+   "desc": "S. Curry enters the game for S. Livingston",
+   "points": 0,
+   "score": "95-85",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 428.0,
+   "team": "away",
+   "desc": "Turnover by E. Turner (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "95-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 420.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (bad pass)",
+   "points": 0,
+   "score": "95-85",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 406.0,
+   "team": "away",
+   "desc": "K. Olynyk misses 2-pt jump shot from 4 ft (block by I. Clark )",
+   "points": 0,
+   "score": "95-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 406.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "95-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 406.0,
+   "team": "home",
+   "desc": "L. Barbosa enters the game for I. Clark",
+   "points": 0,
+   "score": "95-85",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 398.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 29 ft",
+   "points": 0,
+   "score": "95-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 397.0,
+   "team": "away",
+   "desc": "Defensive rebound by T. Rozier",
+   "points": 0,
+   "score": "95-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 390.0,
+   "team": "away",
+   "desc": "K. Olynyk misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "95-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 389.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "95-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 389.0,
+   "team": "away",
+   "desc": "Loose ball foul by J. Jerebko",
+   "points": 0,
+   "score": "95-85",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "L. Barbosa makes 3-pt jump shot from 24 ft (assist by D. Green )",
+   "points": 3,
+   "score": "95-88",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 378.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "95-88",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 378.0,
+   "team": "home",
+   "desc": "B. Rush enters the game for H. Barnes",
+   "points": 0,
+   "score": "95-88",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 378.0,
+   "team": "away",
+   "desc": "I. Thomas enters the game for K. Olynyk",
+   "points": 0,
+   "score": "95-88",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 378.0,
+   "team": "away",
+   "desc": "J. Sullinger enters the game for T. Rozier",
+   "points": 0,
+   "score": "95-88",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 367.0,
+   "team": "away",
+   "desc": "Turnover by M. Smart (bad pass)",
+   "points": 0,
+   "score": "95-88",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 355.0,
+   "team": "home",
+   "desc": "K. Thompson misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "95-88",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 354.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "95-88",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 339.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt jump shot from 18 ft (block by D. Green )",
+   "points": 0,
+   "score": "95-88",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 338.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "95-88",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 337.0,
+   "team": "away",
+   "desc": "Shooting foul by B. Rush (drawn by J. Sullinger )",
+   "points": 0,
+   "score": "95-88",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 337.0,
+   "team": "away",
+   "desc": "J. Sullinger makes free throw 1 of 2",
+   "points": 1,
+   "score": "96-88",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 337.0,
+   "team": "away",
+   "desc": "A. Bradley enters the game for J. Jerebko",
+   "points": 0,
+   "score": "96-88",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 337.0,
+   "team": "away",
+   "desc": "J. Sullinger makes free throw 2 of 2",
+   "points": 1,
+   "score": "97-88",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 326.0,
+   "team": "home",
+   "desc": "D. Green makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "97-90",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 326.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Smart (drawn by D. Green )",
+   "points": 0,
+   "score": "97-90",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 326.0,
+   "team": "home",
+   "desc": "D. Green makes free throw 1 of 1",
+   "points": 1,
+   "score": "97-91",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "J. Sullinger misses 2-pt hook shot from 4 ft",
+   "points": 0,
+   "score": "97-91",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 307.0,
+   "team": "away",
+   "desc": "Offensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "97-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 307.0,
+   "team": "away",
+   "desc": "J. Sullinger makes 2-pt layup at rim",
+   "points": 2,
+   "score": "99-91",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 294.0,
+   "team": "home",
+   "desc": "D. Green makes 3-pt jump shot from 26 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "99-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 276.0,
+   "team": "away",
+   "desc": "Turnover by I. Thomas (lost ball; steal by S. Curry )",
+   "points": 0,
+   "score": "99-94",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 268.0,
+   "team": "home",
+   "desc": "D. Green misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "99-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 267.0,
+   "team": "away",
+   "desc": "Defensive rebound by E. Turner",
+   "points": 0,
+   "score": "99-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 248.0,
+   "team": "away",
+   "desc": "E. Turner misses 2-pt jump shot from 8 ft (block by B. Rush )",
+   "points": 0,
+   "score": "99-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 247.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "99-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 239.0,
+   "team": "home",
+   "desc": "B. Rush misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "99-94",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 238.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "99-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 238.0,
+   "team": "home",
+   "desc": "D. Green makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "99-96",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 210.0,
+   "team": "away",
+   "desc": "Turnover by I. Thomas (lost ball; steal by L. Barbosa )",
+   "points": 0,
+   "score": "99-96",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 206.0,
+   "team": "home",
+   "desc": "Turnover by B. Rush (lost ball; steal by A. Bradley )",
+   "points": 0,
+   "score": "99-96",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 202.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup at rim (assist by A. Bradley )",
+   "points": 2,
+   "score": "101-96",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 194.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "101-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 194.0,
+   "team": "home",
+   "desc": "S. Livingston enters the game for L. Barbosa",
+   "points": 0,
+   "score": "101-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 194.0,
+   "team": "home",
+   "desc": "H. Barnes enters the game for B. Rush",
+   "points": 0,
+   "score": "101-96",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 180.0,
+   "team": "home",
+   "desc": "S. Curry misses 2-pt jump shot from 12 ft",
+   "points": 0,
+   "score": "101-96",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 179.0,
+   "team": "home",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "101-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 179.0,
+   "team": "home",
+   "desc": "D. Green misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "101-96",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 177.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "101-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 162.0,
+   "team": "away",
+   "desc": "I. Thomas misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "101-96",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 161.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "101-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 153.0,
+   "team": "home",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "101-96",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "Defensive rebound by J. Sullinger",
+   "points": 0,
+   "score": "101-96",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 130.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "103-96",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 122.0,
+   "team": "home",
+   "desc": "Personal foul by I. Thomas",
+   "points": 0,
+   "score": "103-96",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 116.0,
+   "team": "home",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by D. Green )",
+   "points": 3,
+   "score": "103-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 96.0,
+   "team": "away",
+   "desc": "J. Sullinger misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "103-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 95.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "103-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 89.0,
+   "team": "home",
+   "desc": "S. Curry makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "103-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 89.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "103-101",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 89.0,
+   "team": "away",
+   "desc": "A. Johnson enters the game for J. Sullinger",
+   "points": 0,
+   "score": "103-101",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 76.0,
+   "team": "away",
+   "desc": "E. Turner makes 2-pt jump shot from 14 ft (assist by M. Smart )",
+   "points": 2,
+   "score": "105-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 55.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "105-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 54.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "105-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 47.0,
+   "team": "home",
+   "desc": "Shooting foul by E. Turner (drawn by S. Livingston )",
+   "points": 0,
+   "score": "105-101",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 47.0,
+   "team": "home",
+   "desc": "S. Livingston makes free throw 1 of 2",
+   "points": 1,
+   "score": "105-102",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 47.0,
+   "team": "home",
+   "desc": "S. Livingston makes free throw 2 of 2",
+   "points": 1,
+   "score": "105-103",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 31.0,
+   "team": "away",
+   "desc": "Turnover by A. Johnson (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "105-103",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 30.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "105-103",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 24.0,
+   "team": "home",
+   "desc": "Turnover by D. Green (lost ball; steal by A. Johnson )",
+   "points": 0,
+   "score": "105-103",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 23.0,
+   "team": "away",
+   "desc": "Personal foul by D. Green",
+   "points": 0,
+   "score": "105-103",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 18.0,
+   "team": "away",
+   "desc": "Personal foul by S. Livingston",
+   "points": 0,
+   "score": "105-103",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 18.0,
+   "team": "away",
+   "desc": "E. Turner makes free throw 1 of 2",
+   "points": 1,
+   "score": "106-103",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 18.0,
+   "team": "away",
+   "desc": "E. Turner makes free throw 2 of 2",
+   "points": 1,
+   "score": "107-103",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 10.0,
+   "team": "home",
+   "desc": "H. Barnes makes 3-pt jump shot from 23 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "107-106",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 10.0,
+   "team": "away",
+   "desc": "Boston full timeout",
+   "points": 0,
+   "score": "107-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 10.0,
+   "team": "away",
+   "desc": "J. Jerebko enters the game for A. Johnson",
+   "points": 0,
+   "score": "107-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 8.0,
+   "team": "away",
+   "desc": "I. Thomas makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "109-106",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 8.0,
+   "team": "home",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "109-106",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "S. Curry misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "109-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 2.0,
+   "team": "home",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "109-106",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "H. Barnes misses 3-pt jump shot from 30 ft",
+   "points": 0,
+   "score": "109-106",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 0.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "109-106",
+   "kind": "rebound"
+  }
+ ]
+}

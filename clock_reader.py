@@ -55,6 +55,8 @@ LAYOUTS = {
                            "clock_box": (955, 606, 1010, 640)},
     "espn_strip16_720":  {"period_box": (562, 640, 606, 672),    # Xmas 2016, ESPN strip
                           "clock_box": (608, 640, 665, 672)},
+    "csn_ba16_720":      {"period_box": (1002, 622, 1052, 652),  # CSN Bay Area 2016
+                          "clock_box": (1066, 622, 1132, 652)},
 }
 CLIP_LAYOUT = {
     "curry_q1_clip": "espn_saturday_480",

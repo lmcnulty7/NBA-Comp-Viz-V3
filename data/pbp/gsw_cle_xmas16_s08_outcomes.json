@@ -14,13 +14,13 @@
     "frame": 0,
     "period": 4,
     "clock_s": 424,
-    "raw": "4th|7:04"
+    "raw": "4th|7.04"
    },
    {
     "frame": 309,
     "period": 4,
     "clock_s": 414,
-    "raw": "4th|6:54"
+    "raw": "4th|6.54"
    }
   ],
   "pbp_possession": {
@@ -60,13 +60,13 @@
     "frame": 12297,
     "period": 4,
     "clock_s": 186,
-    "raw": "4th|306"
+    "raw": "4th|3.06"
    },
    {
     "frame": 12486,
     "period": 4,
     "clock_s": 179,
-    "raw": "4th|2:59"
+    "raw": "4th|2.59"
    }
   ],
   "pbp_possession": {

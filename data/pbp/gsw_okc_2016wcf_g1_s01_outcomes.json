@@ -7,21 +7,43 @@
   "confidence": 1.0,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 1,
   "anchors": [
    {
     "frame": 1659,
     "period": 1,
     "clock_s": 432,
-    "raw": "1ST|7:12"
+    "raw": "1ST|7.12"
    },
    {
-    "frame": 2097,
+    "frame": 2247,
     "period": 1,
-    "clock_s": 424,
-    "raw": "1ST|7:04"
+    "clock_s": 422,
+    "raw": "1ST|7.02"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    440.0,
+    423.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 423.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 7125,
@@ -38,13 +60,13 @@
     "frame": 7125,
     "period": 1,
     "clock_s": 339,
-    "raw": "1ST|5:39"
+    "raw": "1ST|5.39"
    },
    {
     "frame": 7293,
     "period": 1,
     "clock_s": 337,
-    "raw": "1ST|5:37"
+    "raw": "1ST|5.37"
    }
   ],
   "pbp_possession": {
@@ -67,7 +89,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 19338,
@@ -84,13 +106,13 @@
     "frame": 19338,
     "period": 1,
     "clock_s": 329,
-    "raw": "1ST|5:29"
+    "raw": "1ST|5.29"
    },
    {
     "frame": 19542,
     "period": 1,
     "clock_s": 325,
-    "raw": "1ST|5:25"
+    "raw": "1ST|5.25"
    }
   ],
   "pbp_possession": {
@@ -113,7 +135,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 20742,
@@ -130,13 +152,13 @@
     "frame": 20742,
     "period": 1,
     "clock_s": 305,
-    "raw": "1ST|5:05"
+    "raw": "1ST|5.05"
    },
    {
-    "frame": 20991,
+    "frame": 21240,
     "period": 1,
-    "clock_s": 301,
-    "raw": "1ST|5:01"
+    "clock_s": 296,
+    "raw": "1ST|4.56"
    }
   ],
   "pbp_possession": {
@@ -147,7 +169,7 @@
    ],
    "points": 2
   },
-  "overlap_frac_of_span": 1.0,
+  "overlap_frac_of_span": 0.78,
   "offense_points": 2,
   "terminating_event": {
    "clock_s": 298.0,
@@ -159,7 +181,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 21399,
@@ -176,13 +198,13 @@
     "frame": 21399,
     "period": 1,
     "clock_s": 294,
-    "raw": "1ST|4:54"
+    "raw": "1ST|4.54"
    },
    {
     "frame": 21528,
     "period": 1,
     "clock_s": 292,
-    "raw": "1ST|4:52"
+    "raw": "1ST|4.52"
    }
   ],
   "pbp_possession": {
@@ -205,7 +227,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 24597,
@@ -219,16 +241,16 @@
   "period": 1,
   "anchors": [
    {
-    "frame": 24600,
+    "frame": 24597,
     "period": 1,
     "clock_s": 268,
-    "raw": "1ST|4:28"
+    "raw": "1ST|4.28"
    },
    {
     "frame": 24804,
     "period": 1,
     "clock_s": 264,
-    "raw": "1ST|4:24"
+    "raw": "1ST|4.24"
    }
   ],
   "pbp_possession": {
@@ -251,7 +273,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 29250,
@@ -268,13 +290,13 @@
     "frame": 29250,
     "period": 1,
     "clock_s": 236,
-    "raw": "1ST|3:56"
+    "raw": "1ST|3.56"
    },
    {
-    "frame": 29388,
+    "frame": 29397,
     "period": 1,
-    "clock_s": 234,
-    "raw": "1ST|3:54"
+    "clock_s": 233,
+    "raw": "1ST|3.53"
    }
   ],
   "pbp_possession": {
@@ -297,7 +319,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 29481,
@@ -314,13 +336,13 @@
     "frame": 29481,
     "period": 1,
     "clock_s": 232,
-    "raw": "1ST|3:52"
+    "raw": "1ST|3.52"
    },
    {
     "frame": 29697,
     "period": 1,
     "clock_s": 228,
-    "raw": "1ST|3:48"
+    "raw": "1ST|3.48"
    }
   ],
   "pbp_possession": {
@@ -344,7 +366,7 @@
   "duplicate_of_span": 29250,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 29955,
@@ -361,13 +383,13 @@
     "frame": 29955,
     "period": 1,
     "clock_s": 224,
-    "raw": "1ST|3:44"
+    "raw": "1ST|3.44"
    },
    {
     "frame": 30246,
     "period": 1,
     "clock_s": 219,
-    "raw": "1ST|3:39"
+    "raw": "1ST|3.39"
    }
   ],
   "pbp_possession": {
@@ -390,7 +412,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 30933,
@@ -404,16 +426,16 @@
   "period": 1,
   "anchors": [
    {
-    "frame": 30921,
+    "frame": 30933,
     "period": 1,
-    "clock_s": 208,
-    "raw": "1ST|3:28"
+    "clock_s": 207,
+    "raw": "1ST|3.27"
    },
    {
     "frame": 31167,
     "period": 1,
     "clock_s": 205,
-    "raw": "1ST|3:25"
+    "raw": "1ST|3.25"
    }
   ],
   "pbp_possession": {
@@ -437,6 +459,6 @@
   "duplicate_of_span": 29955,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  }
 ]

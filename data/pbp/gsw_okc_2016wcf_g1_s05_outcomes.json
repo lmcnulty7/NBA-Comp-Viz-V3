@@ -7,21 +7,43 @@
   "confidence": 0.93,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
     "frame": 0,
     "period": 2,
-    "clock_s": 134,
-    "raw": "2ND|214"
+    "clock_s": 21.4,
+    "raw": "2ND|21.4"
    },
    {
-    "frame": 834,
+    "frame": 831,
     "period": 2,
-    "clock_s": 573,
-    "raw": "2ND|0933"
+    "clock_s": 9.3,
+    "raw": "2ND|09.3"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    28.0,
+    9.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 9.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt jump shot from 18 ft (assist by R. Westbrook )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
  },
  {
   "set_start_frame": 969,
@@ -31,21 +53,43 @@
   "confidence": 1.0,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
     "frame": 969,
     "period": 2,
-    "clock_s": 429,
-    "raw": "2ND|07:9"
+    "clock_s": 7.9,
+    "raw": "2ND|07.9"
    },
    {
     "frame": 1089,
     "period": 2,
-    "clock_s": 309,
-    "raw": "2ND|05:9"
+    "clock_s": 5.9,
+    "raw": "2ND|05.9"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    9.0,
+    2.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 2.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 30 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 1179,
@@ -55,31 +99,90 @@
   "confidence": 0.94,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
     "frame": 1179,
     "period": 2,
-    "clock_s": 243,
-    "raw": "2ND|04:3"
+    "clock_s": 4.3,
+    "raw": "2ND|04.3"
    },
    {
-    "frame": 1443,
+    "frame": 1311,
     "period": 2,
-    "clock_s": 40,
-    "raw": "2ND|0040"
+    "clock_s": 2.1,
+    "raw": "2ND|02.1"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    9.0,
+    2.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 2.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 30 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 969,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 11133,
   "core_end_frame": 11418,
   "attacked_basket": "right",
-  "offense_team": 1,
+  "offense_team": 0,
   "confidence": 0.61,
-  "offense_real": "OKC",
-  "defense_real": "GSW",
-  "status": "anchor_failed"
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11338,
+    "period": 3,
+    "clock_s": 711,
+    "raw": "3RD|1151"
+   },
+   {
+    "frame": 11418,
+    "period": 3,
+    "clock_s": 710,
+    "raw": "3RD|11.50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    710.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 710.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 11649,
@@ -96,13 +199,13 @@
     "frame": 11649,
     "period": 3,
     "clock_s": 706,
-    "raw": "3RD|11:46"
+    "raw": "3RD|11.46"
    },
    {
-    "frame": 12006,
+    "frame": 12009,
     "period": 3,
-    "clock_s": 700,
-    "raw": "3RD|11:40"
+    "clock_s": 699,
+    "raw": "3RD|11.39"
    }
   ],
   "pbp_possession": {
@@ -125,17 +228,54 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 12078,
   "core_end_frame": 12429,
   "attacked_basket": "left",
-  "offense_team": 0,
+  "offense_team": 1,
   "confidence": 0.99,
-  "offense_real": "GSW",
-  "defense_real": "OKC",
-  "status": "anchor_failed"
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12078,
+    "period": 3,
+    "clock_s": 698,
+    "raw": "3RD|11.38"
+   },
+   {
+    "frame": 12362,
+    "period": 3,
+    "clock_s": 694,
+    "raw": "3RD|11.34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    710.0,
+    686.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 686.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Ibaka misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "duplicate_of_span": 11649,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 14127,
@@ -145,19 +285,19 @@
   "confidence": 0.98,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "clock_stopped_span",
   "anchors": [
    {
     "frame": 14127,
     "period": 3,
     "clock_s": 678,
-    "raw": "3RD|11:18"
+    "raw": "3RD|11.18"
    },
    {
     "frame": 14535,
     "period": 3,
     "clock_s": 678,
-    "raw": "3RD|11:18"
+    "raw": "3RD|11.18"
    }
   ]
  },
@@ -176,13 +316,13 @@
     "frame": 15780,
     "period": 3,
     "clock_s": 674,
-    "raw": "3RD|11:14"
+    "raw": "3RD|11.14"
    },
    {
-    "frame": 15991,
+    "frame": 16221,
     "period": 3,
-    "clock_s": 670,
-    "raw": "3RD|11:10"
+    "clock_s": 666,
+    "raw": "3RD|11.06"
    }
   ],
   "pbp_possession": {
@@ -205,7 +345,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 17676,
@@ -225,10 +365,10 @@
     "raw": "3RD|10:57"
    },
    {
-    "frame": 17856,
+    "frame": 17859,
     "period": 3,
     "clock_s": 652,
-    "raw": "3RD|10:525"
+    "raw": "3RD|10.52"
    }
   ],
   "pbp_possession": {
@@ -251,7 +391,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.7
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 20712,
@@ -261,7 +401,21 @@
   "confidence": 0.65,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "no_pbp_overlap"
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 20712,
+    "period": 3,
+    "clock_s": 643,
+    "raw": "3RD|10.43"
+   },
+   {
+    "frame": 20958,
+    "period": 3,
+    "clock_s": 643,
+    "raw": "3RD|10.43"
+   }
+  ]
  },
  {
   "set_start_frame": 21315,
@@ -278,13 +432,13 @@
     "frame": 21315,
     "period": 3,
     "clock_s": 641,
-    "raw": "3RD|10:41"
+    "raw": "3RD|10.41"
    },
    {
-    "frame": 21576,
+    "frame": 21561,
     "period": 3,
-    "clock_s": 636,
-    "raw": "3RD|10:36"
+    "clock_s": 637,
+    "raw": "3RD|10.37"
    }
   ],
   "pbp_possession": {
@@ -307,7 +461,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.7
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 22479,
@@ -317,19 +471,19 @@
   "confidence": 0.98,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "clock_stopped_span",
   "anchors": [
    {
     "frame": 22479,
     "period": 3,
     "clock_s": 621,
-    "raw": "3RD|10:21"
+    "raw": "3RD|10.21"
    },
    {
     "frame": 22986,
     "period": 3,
     "clock_s": 621,
-    "raw": "3RD|10:21"
+    "raw": "3RD|10.21"
    }
   ]
  },
@@ -348,13 +502,13 @@
     "frame": 23835,
     "period": 3,
     "clock_s": 620,
-    "raw": "3RD|10:20"
+    "raw": "3RD|10.20"
    },
    {
     "frame": 23991,
     "period": 3,
     "clock_s": 617,
-    "raw": "3RD|10:17"
+    "raw": "3RD|10.17"
    }
   ],
   "pbp_possession": {
@@ -377,7 +531,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 26412,
@@ -391,16 +545,16 @@
   "period": 3,
   "anchors": [
    {
-    "frame": 26757,
+    "frame": 26412,
     "period": 3,
-    "clock_s": 594,
-    "raw": "3RD|9:54"
+    "clock_s": 595,
+    "raw": "3RD|9:55"
    },
    {
     "frame": 27102,
     "period": 3,
     "clock_s": 588,
-    "raw": "3RD|9:48"
+    "raw": "3RD|9.48"
    }
   ],
   "pbp_possession": {
@@ -423,7 +577,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.7
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 27711,
@@ -446,7 +600,7 @@
     "frame": 28038,
     "period": 3,
     "clock_s": 572,
-    "raw": "3RD|9:32"
+    "raw": "3RD|9.32"
    }
   ],
   "pbp_possession": {
@@ -469,7 +623,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  },
  {
   "set_start_frame": 32118,
@@ -486,13 +640,13 @@
     "frame": 32118,
     "period": 3,
     "clock_s": 528,
-    "raw": "3RD|8:48"
+    "raw": "3RD|8.48"
    },
    {
     "frame": 32352,
     "period": 3,
     "clock_s": 524,
-    "raw": "3RD|8:44"
+    "raw": "3RD|8.44"
    }
   ],
   "pbp_possession": {
@@ -515,6 +669,6 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.51
+  "orientation_conf": 0.59
  }
 ]

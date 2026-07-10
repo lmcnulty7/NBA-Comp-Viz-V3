@@ -14,13 +14,13 @@
     "frame": 933,
     "period": 2,
     "clock_s": 706,
-    "raw": "2Nd|11:46"
+    "raw": "2Nd|11.46"
    },
    {
     "frame": 1011,
     "period": 2,
     "clock_s": 703,
-    "raw": "2Nd|11:43"
+    "raw": "2Nd|11.43"
    }
   ],
   "pbp_possession": {
@@ -60,13 +60,13 @@
     "frame": 1230,
     "period": 2,
     "clock_s": 696,
-    "raw": "2Nd|11:36"
+    "raw": "2Nd|11.36"
    },
    {
     "frame": 1456,
     "period": 2,
     "clock_s": 688,
-    "raw": "2Nd|11:28"
+    "raw": "2Nd|11.28"
    }
   ],
   "pbp_possession": {
@@ -89,7 +89,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 1770,
@@ -199,13 +199,13 @@
     "frame": 2955,
     "period": 2,
     "clock_s": 660,
-    "raw": "2Nd|11:00"
+    "raw": "2Nd|11.00"
    },
    {
     "frame": 3117,
     "period": 2,
     "clock_s": 654,
-    "raw": "2Nd|10:54"
+    "raw": "2Nd|10.54"
    }
   ],
   "pbp_possession": {
@@ -228,7 +228,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 3249,
@@ -245,13 +245,13 @@
     "frame": 3249,
     "period": 2,
     "clock_s": 650,
-    "raw": "2No|10:50"
+    "raw": "2No|10.50"
    },
    {
     "frame": 3402,
     "period": 2,
     "clock_s": 645,
-    "raw": "2Nd|10:45"
+    "raw": "2Nd|10.45"
    }
   ],
   "pbp_possession": {
@@ -297,7 +297,7 @@
     "frame": 4905,
     "period": 2,
     "clock_s": 607,
-    "raw": "2Nd|10:07"
+    "raw": "2Nd|10.07"
    }
   ],
   "pbp_possession": {
@@ -337,7 +337,7 @@
     "frame": 10206,
     "period": 2,
     "clock_s": 501,
-    "raw": "2Nd|8:21"
+    "raw": "2Nd|8.21"
    },
    {
     "frame": 10461,
@@ -382,37 +382,37 @@
    {
     "frame": 13447,
     "period": 2,
-    "clock_s": 428,
-    "raw": "2Nd|7:8"
+    "clock_s": 7.8,
+    "raw": "2Nd|7.8"
    },
    {
     "frame": 13545,
     "period": 2,
-    "clock_s": 425,
-    "raw": "2nd|7:5"
+    "clock_s": 7.5,
+    "raw": "2nd|7.5"
    }
   ],
   "pbp_possession": {
-   "team": "away",
+   "team": "home",
    "clock": [
-    458.0,
-    422.0
+    30.0,
+    4.0
    ],
-   "points": 4
+   "points": 0
   },
   "overlap_frac_of_span": 1.0,
-  "offense_points": 4,
+  "offense_points": 0,
   "terminating_event": {
-   "clock_s": 422.0,
-   "team": "away",
-   "kind": "ft_made",
-   "desc": "I. Shumpert makes free throw 1 of 1"
+   "clock_s": 4.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt jump shot from 18 ft"
   },
-  "pbp_offense_real": "CLE",
-  "offense_agrees": true,
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 14718,
@@ -435,7 +435,7 @@
     "frame": 15057,
     "period": 2,
     "clock_s": 422,
-    "raw": "2No|7:02"
+    "raw": "2No|7.02"
    }
   ],
   "pbp_possession": {
@@ -456,10 +456,9 @@
   },
   "pbp_offense_real": "CLE",
   "offense_agrees": true,
-  "duplicate_of_span": 13350,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 15996,
@@ -476,13 +475,13 @@
     "frame": 15996,
     "period": 2,
     "clock_s": 420,
-    "raw": "2Nd|7:00"
+    "raw": "2Nd|7.00"
    },
    {
     "frame": 16158,
     "period": 2,
     "clock_s": 414,
-    "raw": "2Nd|6:54"
+    "raw": "2Nd|6.54"
    }
   ],
   "pbp_possession": {

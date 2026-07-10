@@ -1,25 +1,70 @@
 {
-  "gsw_cle_2016f_g7": {
-    "video_id": "EoVTttvKfRs", "game_code": "201606190GSW",
-    "away": "CLE", "home": "GSW", "date": "2016-06-19",
-    "layout": "abc_finals16_720",
-    "note": "2016 Finals G7, ABC. GSW home whites."
-  },
-  "gsw_okc_2016wcf_g1": {
-    "video_id": "ZRZW7zYnb4g", "game_code": "201605160GSW",
-    "away": "OKC", "home": "GSW", "date": "2016-05-16",
-    "layout": "tnt_playoffs16_720",
-    "note": "2016 WCF G1, TNT. GSW home whites."
-  },
-  "gsw_cle_xmas16": {
-    "video_id": "h5pTl8fOM2U", "game_code": "201612250CLE",
-    "away": "GSW", "home": "CLE", "date": "2016-12-25",
-    "layout": "espn_strip16_720",
-    "light_team_name": "GSW",
-    "note": "GSW@CLE Xmas 2016, ESPN. SPECIAL UNIFORMS: home CLE wears DARK wine, away GSW slate-blue (lighter) — light-kit=home rule inverted, hence the explicit override. Cross-val verifies."
-  },
-  "gsw_ind_klay60": {
-    "video_id": "vci_9DF3VDU",
-    "note": "download failed night 1 — retry with different format flags"
-  }
+ "gsw_cle_2016f_g7": {
+  "video_id": "EoVTttvKfRs",
+  "game_code": "201606190GSW",
+  "away": "CLE",
+  "home": "GSW",
+  "date": "2016-06-19",
+  "layout": "abc_finals16_720",
+  "note": "2016 Finals G7, ABC. GSW home whites."
+ },
+ "gsw_okc_2016wcf_g1": {
+  "video_id": "ZRZW7zYnb4g",
+  "game_code": "201605160GSW",
+  "away": "OKC",
+  "home": "GSW",
+  "date": "2016-05-16",
+  "layout": "tnt_playoffs16_720",
+  "note": "2016 WCF G1, TNT. GSW home whites."
+ },
+ "gsw_cle_xmas16": {
+  "video_id": "h5pTl8fOM2U",
+  "game_code": "201612250CLE",
+  "away": "GSW",
+  "home": "CLE",
+  "date": "2016-12-25",
+  "layout": "espn_strip16_720",
+  "light_team_name": "GSW",
+  "note": "GSW@CLE Xmas 2016, ESPN. SPECIAL UNIFORMS: home CLE wears DARK wine, away GSW slate-blue (lighter) \u2014 light-kit=home rule inverted, hence the explicit override. Cross-val verifies."
+ },
+ "gsw_ind_klay60": {
+  "video_id": "vci_9DF3VDU",
+  "game_code": "201612050GSW",
+  "away": "IND",
+  "home": "GSW",
+  "date": "2016-12-05",
+  "layout": "csn_ba16_720",
+  "note": "Klay 60, CSN Bay Area"
+ },
+ "gsw_okc_2016wcf_g6": {
+  "video_id": "Em-MnvQAR2I",
+  "game_code": "201605280OKC",
+  "away": "GSW",
+  "home": "OKC",
+  "date": "2016-05-28",
+  "layout": "tnt_playoffs16_720",
+  "note": "2016 WCF G6 (Klay 11 threes), TNT \u2014 same layout as G1"
+ },
+ "gsw_sas_2016": {
+  "video_id": "vPjxsNMMgXA",
+  "game_code": "201601250GSW",
+  "away": "SAS",
+  "home": "GSW",
+  "date": "2016-01-25",
+  "layout": "csn_ba16_720",
+  "note": "CSN Bay Area, same layout as klay60"
+ },
+ "gsw_bos_2016": {
+  "video_id": "rsx4QO8T5sA",
+  "game_code": "201604010GSW",
+  "away": "BOS",
+  "home": "GSW",
+  "date": "2016-04-01",
+  "layout": "abc_finals16_720",
+  "note": "ESPN NBA Friday \u2014 same bug design as ABC Finals layout"
+ },
+ "gsw_phx_2016": {
+  "video_id": "f8lAcHg6kk0",
+  "note": "download corrupt twice \u2014 dropped; substitute in batch 3"
+ }
 }

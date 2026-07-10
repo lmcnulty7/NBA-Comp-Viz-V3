@@ -1,4 +1,9 @@
 {
+ "13008": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 1.0
+ },
  "15936": {
   "offense_team": 0,
   "defense_team": 1,

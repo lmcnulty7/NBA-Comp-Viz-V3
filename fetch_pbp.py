@@ -41,6 +41,10 @@ GAMES = {
     # Phase B (from data/harvest/games.json; fingerprint-verified on fetch)
     "201606190GSW": {"away": "CLE", "home": "GSW", "date": "2016-06-19"},
     "201605160GSW": {"away": "OKC", "home": "GSW", "date": "2016-05-16"},
+    "201605280OKC": {"away": "GSW", "home": "OKC", "date": "2016-05-28"},
+    "201612050GSW": {"away": "IND", "home": "GSW", "date": "2016-12-05"},
+    "201601250GSW": {"away": "SAS", "home": "GSW", "date": "2016-01-25"},
+    "201604010GSW": {"away": "BOS", "home": "GSW", "date": "2016-04-01"},
     "201612250CLE": {"away": "GSW", "home": "CLE", "date": "2016-12-25",
                      # 2016 Christmas special uniforms: home CLE is DARK —
                      # the pre-2017 light=home rule inverts for this game

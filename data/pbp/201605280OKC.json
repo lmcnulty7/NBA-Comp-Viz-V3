@@ -1,0 +1,4509 @@
+{
+ "meta": {
+  "away": "GSW",
+  "home": "OKC",
+  "date": "2016-05-28"
+ },
+ "events": [
+  {
+   "period": 1,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 703.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Roberson",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 687.0,
+   "team": "home",
+   "desc": "S. Ibaka misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 687.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Adams",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 682.0,
+   "team": "home",
+   "desc": "Turnover by S. Adams (lost ball; steal by S. Curry )",
+   "points": 0,
+   "score": "0-0",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 679.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (lost ball; steal by S. Adams )",
+   "points": 0,
+   "score": "0-0",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 672.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 9 ft",
+   "points": 0,
+   "score": "0-0",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 671.0,
+   "team": "home",
+   "desc": "Offensive rebound by K. Durant",
+   "points": 0,
+   "score": "0-0",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 669.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "0-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 647.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "0-2",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 646.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "0-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 642.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "3-2",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by S. Adams )",
+   "points": 0,
+   "score": "3-2",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "S. Adams misses free throw 1 of 2",
+   "points": 0,
+   "score": "3-2",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "3-2",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 628.0,
+   "team": "home",
+   "desc": "S. Adams makes free throw 2 of 2",
+   "points": 1,
+   "score": "3-3",
+   "kind": "ft_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "3-3",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 614.0,
+   "team": "away",
+   "desc": "Offensive rebound by K. Thompson",
+   "points": 0,
+   "score": "3-3",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 613.0,
+   "team": "away",
+   "desc": "A. Bogut makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "5-3",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 595.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by R. Westbrook )",
+   "points": 2,
+   "score": "5-5",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 580.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "5-5",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 579.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "5-5",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 566.0,
+   "team": "home",
+   "desc": "S. Ibaka makes 2-pt hook shot from 8 ft",
+   "points": 2,
+   "score": "5-7",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 551.0,
+   "team": "away",
+   "desc": "H. Barnes misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "5-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 550.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "5-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 539.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "5-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 538.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "5-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 524.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "5-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 523.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Adams",
+   "points": 0,
+   "score": "5-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 513.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "5-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 512.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "5-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 506.0,
+   "team": "away",
+   "desc": "H. Barnes misses 2-pt layup from 2 ft (block by S. Ibaka )",
+   "points": 0,
+   "score": "5-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 506.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "5-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 500.0,
+   "team": "away",
+   "desc": "D. Green makes 3-pt jump shot from 24 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "8-7",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 475.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "8-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 474.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "8-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 471.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by R. Westbrook )",
+   "points": 0,
+   "score": "8-7",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 468.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "8-7",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "8-7",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 452.0,
+   "team": "away",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by D. Green )",
+   "points": 2,
+   "score": "10-7",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 433.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt jump shot from 17 ft",
+   "points": 2,
+   "score": "10-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 418.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (traveling)",
+   "points": 0,
+   "score": "10-9",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 418.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for H. Barnes",
+   "points": 0,
+   "score": "10-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 404.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "10-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 403.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "10-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 398.0,
+   "team": "away",
+   "desc": "Personal foul by S. Adams",
+   "points": 0,
+   "score": "10-9",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 398.0,
+   "team": "home",
+   "desc": "E. Freedom enters the game for S. Adams",
+   "points": 0,
+   "score": "10-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 394.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft (block by A. Roberson )",
+   "points": 0,
+   "score": "10-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 392.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "10-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 381.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "10-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 381.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "10-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 375.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft (assist by D. Green )",
+   "points": 2,
+   "score": "12-9",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 375.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "12-9",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 361.0,
+   "team": "home",
+   "desc": "S. Ibaka misses 3-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "12-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 361.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "12-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 343.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "12-9",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 342.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "12-9",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 321.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt layup at rim",
+   "points": 2,
+   "score": "12-11",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 309.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "12-11",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 308.0,
+   "team": "home",
+   "desc": "Defensive rebound by E. Freedom",
+   "points": 0,
+   "score": "12-11",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 297.0,
+   "team": "home",
+   "desc": "S. Ibaka makes 3-pt jump shot from 24 ft (assist by R. Westbrook )",
+   "points": 3,
+   "score": "12-14",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 289.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by A. Roberson )",
+   "points": 0,
+   "score": "12-14",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 283.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt jump shot from 19 ft",
+   "points": 2,
+   "score": "12-16",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 281.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "12-16",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 281.0,
+   "team": "home",
+   "desc": "D. Waiters enters the game for K. Durant",
+   "points": 0,
+   "score": "12-16",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 281.0,
+   "team": "away",
+   "desc": "H. Barnes enters the game for A. Bogut",
+   "points": 0,
+   "score": "12-16",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 281.0,
+   "team": "home",
+   "desc": "R. Foye enters the game for E. Freedom",
+   "points": 0,
+   "score": "12-16",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 264.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft (block by A. Roberson )",
+   "points": 0,
+   "score": "12-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 264.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "12-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 257.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "12-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 257.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "12-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 248.0,
+   "team": "home",
+   "desc": "Turnover by A. Roberson (lost ball)",
+   "points": 0,
+   "score": "12-16",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "12-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 241.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "12-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 235.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 1 ft (block by S. Ibaka )",
+   "points": 0,
+   "score": "12-16",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 235.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Waiters",
+   "points": 0,
+   "score": "12-16",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 219.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "12-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 201.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "14-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 185.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "14-18",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 183.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "14-18",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 176.0,
+   "team": "away",
+   "desc": "D. Green makes 3-pt jump shot from 22 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "17-18",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 156.0,
+   "team": "home",
+   "desc": "S. Ibaka makes 2-pt jump shot from 16 ft (assist by D. Waiters )",
+   "points": 2,
+   "score": "17-20",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 149.0,
+   "team": "away",
+   "desc": "Personal foul by S. Ibaka",
+   "points": 0,
+   "score": "17-20",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 149.0,
+   "team": "home",
+   "desc": "K. Durant enters the game for S. Ibaka",
+   "points": 0,
+   "score": "17-20",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 149.0,
+   "team": "home",
+   "desc": "S. Adams enters the game for A. Roberson",
+   "points": 0,
+   "score": "17-20",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 149.0,
+   "team": "away",
+   "desc": "S. Livingston enters the game for K. Thompson",
+   "points": 0,
+   "score": "17-20",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 140.0,
+   "team": "away",
+   "desc": "Turnover by H. Barnes (lost ball)",
+   "points": 0,
+   "score": "17-20",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 123.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "17-20",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 121.0,
+   "team": "home",
+   "desc": "Offensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "17-20",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 114.0,
+   "team": "home",
+   "desc": "D. Waiters makes 3-pt jump shot from 24 ft (assist by K. Durant )",
+   "points": 3,
+   "score": "17-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 94.0,
+   "team": "away",
+   "desc": "S. Livingston misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "17-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Waiters",
+   "points": 0,
+   "score": "17-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 82.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "17-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 81.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Livingston",
+   "points": 0,
+   "score": "17-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 73.0,
+   "team": "away",
+   "desc": "H. Barnes makes 3-pt jump shot from 23 ft (assist by S. Livingston )",
+   "points": 3,
+   "score": "20-23",
+   "kind": "shot_made"
+  },
+  {
+   "period": 1,
+   "clock_s": 46.0,
+   "team": "home",
+   "desc": "D. Waiters misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "20-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 46.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "20-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 41.0,
+   "team": "away",
+   "desc": "Personal foul by S. Adams",
+   "points": 0,
+   "score": "20-23",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 41.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for S. Adams",
+   "points": 0,
+   "score": "20-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 41.0,
+   "team": "home",
+   "desc": "S. Ibaka enters the game for R. Westbrook",
+   "points": 0,
+   "score": "20-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 41.0,
+   "team": "away",
+   "desc": "M. Speights enters the game for H. Barnes",
+   "points": 0,
+   "score": "20-23",
+   "kind": "other"
+  },
+  {
+   "period": 1,
+   "clock_s": 27.0,
+   "team": "away",
+   "desc": "S. Livingston misses 2-pt jump shot from 14 ft",
+   "points": 0,
+   "score": "20-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 27.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "20-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 1,
+   "clock_s": 5.0,
+   "team": "home",
+   "desc": "Personal foul by A. Iguodala",
+   "points": 0,
+   "score": "20-23",
+   "kind": "foul"
+  },
+  {
+   "period": 1,
+   "clock_s": 2.0,
+   "team": "home",
+   "desc": "Turnover by R. Foye (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "20-23",
+   "kind": "turnover"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "M. Speights misses 3-pt jump shot from 56 ft",
+   "points": 0,
+   "score": "20-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 1,
+   "clock_s": 0.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "20-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 701.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 3-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "20-23",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 701.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "20-23",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 684.0,
+   "team": "home",
+   "desc": "E. Freedom makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "20-25",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 663.0,
+   "team": "away",
+   "desc": "M. Speights misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "20-25",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 663.0,
+   "team": "away",
+   "desc": "Offensive rebound by M. Speights",
+   "points": 0,
+   "score": "20-25",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 663.0,
+   "team": "away",
+   "desc": "M. Speights misses 2-pt layup from 5 ft",
+   "points": 0,
+   "score": "20-25",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 663.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "20-25",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 649.0,
+   "team": "home",
+   "desc": "E. Freedom makes 2-pt jump shot from 5 ft (assist by K. Durant )",
+   "points": 2,
+   "score": "20-27",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 631.0,
+   "team": "away",
+   "desc": "H. Barnes misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "20-27",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 630.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Roberson",
+   "points": 0,
+   "score": "20-27",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 616.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "20-29",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "20-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "K. Thompson enters the game for H. Barnes",
+   "points": 0,
+   "score": "20-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "D. Green enters the game for M. Speights",
+   "points": 0,
+   "score": "20-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 616.0,
+   "team": "away",
+   "desc": "A. Bogut enters the game for L. Barbosa",
+   "points": 0,
+   "score": "20-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 599.0,
+   "team": "away",
+   "desc": "S. Livingston misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "20-29",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 598.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "20-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Ibaka (drawn by D. Green )",
+   "points": 0,
+   "score": "20-29",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "away",
+   "desc": "D. Green misses free throw 1 of 2",
+   "points": 0,
+   "score": "20-29",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "20-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "home",
+   "desc": "R. Westbrook enters the game for D. Waiters",
+   "points": 0,
+   "score": "20-29",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 582.0,
+   "team": "away",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "21-29",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 570.0,
+   "team": "home",
+   "desc": "E. Freedom misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "21-29",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 569.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "21-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 563.0,
+   "team": "away",
+   "desc": "D. Green misses 2-pt layup from 2 ft (block by E. Freedom )",
+   "points": 0,
+   "score": "21-29",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 562.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Roberson",
+   "points": 0,
+   "score": "21-29",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Thompson (drawn by K. Durant )",
+   "points": 0,
+   "score": "21-29",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "21-30",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "D. Waiters enters the game for S. Ibaka",
+   "points": 0,
+   "score": "21-30",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 558.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "21-31",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 533.0,
+   "team": "away",
+   "desc": "D. Green misses 3-pt jump shot from 28 ft",
+   "points": 0,
+   "score": "21-31",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 532.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "21-31",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 532.0,
+   "team": "away",
+   "desc": "Turnover by Team (shot clock)",
+   "points": 0,
+   "score": "21-31",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 522.0,
+   "team": "home",
+   "desc": "A. Roberson makes 2-pt dunk at rim (assist by R. Westbrook )",
+   "points": 2,
+   "score": "21-33",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 504.0,
+   "team": "away",
+   "desc": "Turnover by S. Livingston (lost ball; steal by R. Westbrook )",
+   "points": 0,
+   "score": "21-33",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 498.0,
+   "team": "home",
+   "desc": "D. Waiters misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "21-33",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 497.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "21-33",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 489.0,
+   "team": "away",
+   "desc": "A. Iguodala makes 2-pt layup from 2 ft (assist by D. Green )",
+   "points": 2,
+   "score": "23-33",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 471.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "23-33",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 467.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "23-33",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 454.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "23-33",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 453.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "23-33",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 448.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "23-33",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "S. Adams enters the game for E. Freedom",
+   "points": 0,
+   "score": "23-33",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 448.0,
+   "team": "away",
+   "desc": "S. Curry enters the game for S. Livingston",
+   "points": 0,
+   "score": "23-33",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 440.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "26-33",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 425.0,
+   "team": "home",
+   "desc": "A. Roberson makes 2-pt dunk at rim (assist by R. Westbrook )",
+   "points": 2,
+   "score": "26-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 411.0,
+   "team": "away",
+   "desc": "D. Green misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "26-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 410.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Roberson",
+   "points": 0,
+   "score": "26-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 399.0,
+   "team": "home",
+   "desc": "Personal foul by K. Thompson",
+   "points": 0,
+   "score": "26-35",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 395.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt layup at rim",
+   "points": 0,
+   "score": "26-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 395.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "26-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 380.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt layup at rim (block by K. Durant )",
+   "points": 0,
+   "score": "26-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 379.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Waiters",
+   "points": 0,
+   "score": "26-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 367.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 27 ft",
+   "points": 0,
+   "score": "26-35",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 365.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "26-35",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 349.0,
+   "team": "away",
+   "desc": "A. Iguodala makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "28-35",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 334.0,
+   "team": "home",
+   "desc": "S. Adams makes 2-pt dunk at rim (assist by K. Durant )",
+   "points": 2,
+   "score": "28-37",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 319.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "28-37",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 319.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Roberson",
+   "points": 0,
+   "score": "28-37",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 313.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt jump shot from 16 ft (assist by R. Westbrook )",
+   "points": 2,
+   "score": "28-39",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 295.0,
+   "team": "away",
+   "desc": "Turnover by A. Iguodala (lost ball)",
+   "points": 0,
+   "score": "28-39",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 295.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "28-39",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 295.0,
+   "team": "away",
+   "desc": "H. Barnes enters the game for A. Iguodala",
+   "points": 0,
+   "score": "28-39",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 284.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt jump shot from 5 ft (assist by R. Westbrook )",
+   "points": 2,
+   "score": "28-41",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 269.0,
+   "team": "away",
+   "desc": "Personal foul by K. Durant",
+   "points": 0,
+   "score": "28-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 263.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "31-41",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 242.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "31-41",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 242.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "31-41",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 231.0,
+   "team": "home",
+   "desc": "S. Ibaka enters the game for A. Roberson",
+   "points": 0,
+   "score": "31-41",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 227.0,
+   "team": "away",
+   "desc": "Personal foul by K. Durant",
+   "points": 0,
+   "score": "31-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 216.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "34-41",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 198.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt jump shot from 19 ft",
+   "points": 0,
+   "score": "34-41",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 198.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "34-41",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 198.0,
+   "team": "away",
+   "desc": "Loose ball foul by A. Bogut",
+   "points": 0,
+   "score": "34-41",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 198.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "34-41",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 193.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by R. Westbrook )",
+   "points": 2,
+   "score": "34-43",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "away",
+   "desc": "Shooting foul by R. Westbrook (drawn by S. Curry )",
+   "points": 0,
+   "score": "34-43",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 3",
+   "points": 1,
+   "score": "35-43",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 3",
+   "points": 1,
+   "score": "36-43",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for D. Waiters",
+   "points": 0,
+   "score": "36-43",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for H. Barnes",
+   "points": 0,
+   "score": "36-43",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 172.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 3 of 3",
+   "points": 1,
+   "score": "37-43",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 158.0,
+   "team": "home",
+   "desc": "S. Adams misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "37-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 157.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "37-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "37-43",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "Offensive rebound by S. Curry",
+   "points": 0,
+   "score": "37-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 146.0,
+   "team": "away",
+   "desc": "Turnover by S. Curry (bad pass; steal by K. Durant )",
+   "points": 0,
+   "score": "37-43",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Bogut (drawn by R. Westbrook )",
+   "points": 0,
+   "score": "37-43",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "R. Westbrook misses free throw 1 of 3",
+   "points": 0,
+   "score": "37-43",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "37-43",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 2 of 3",
+   "points": 1,
+   "score": "37-44",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "R. Westbrook misses free throw 3 of 3",
+   "points": 0,
+   "score": "37-44",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Adams",
+   "points": 0,
+   "score": "37-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 136.0,
+   "team": "home",
+   "desc": "S. Ibaka misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "37-44",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 135.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "37-44",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 129.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "40-44",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 117.0,
+   "team": "home",
+   "desc": "Personal foul by A. Iguodala",
+   "points": 0,
+   "score": "40-44",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 117.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "40-45",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 117.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "40-46",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 113.0,
+   "team": "away",
+   "desc": "Personal take foul by A. Roberson",
+   "points": 0,
+   "score": "40-46",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 113.0,
+   "team": "away",
+   "desc": "A. Bogut misses free throw 1 of 2",
+   "points": 0,
+   "score": "40-46",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 113.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "40-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 113.0,
+   "team": "home",
+   "desc": "D. Waiters enters the game for A. Roberson",
+   "points": 0,
+   "score": "40-46",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 113.0,
+   "team": "away",
+   "desc": "A. Bogut makes free throw 2 of 2",
+   "points": 1,
+   "score": "41-46",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 95.0,
+   "team": "home",
+   "desc": "S. Adams misses 2-pt layup from 1 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "41-46",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 94.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Adams",
+   "points": 0,
+   "score": "41-46",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "S. Ibaka makes 2-pt layup from 1 ft (assist by S. Adams )",
+   "points": 2,
+   "score": "41-48",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by S. Ibaka )",
+   "points": 0,
+   "score": "41-48",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for S. Adams",
+   "points": 0,
+   "score": "41-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 93.0,
+   "team": "away",
+   "desc": "H. Barnes enters the game for A. Bogut",
+   "points": 0,
+   "score": "41-48",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 93.0,
+   "team": "home",
+   "desc": "S. Ibaka makes free throw 1 of 1",
+   "points": 1,
+   "score": "41-49",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 80.0,
+   "team": "away",
+   "desc": "Turnover by H. Barnes (lost ball; steal by D. Waiters )",
+   "points": 0,
+   "score": "41-49",
+   "kind": "turnover"
+  },
+  {
+   "period": 2,
+   "clock_s": 73.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "41-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 72.0,
+   "team": "home",
+   "desc": "Offensive rebound by K. Durant",
+   "points": 0,
+   "score": "41-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 72.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt layup from 3 ft",
+   "points": 0,
+   "score": "41-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 71.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "41-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "away",
+   "desc": "Personal foul by A. Roberson",
+   "points": 0,
+   "score": "41-49",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "away",
+   "desc": "A. Iguodala makes free throw 1 of 2",
+   "points": 1,
+   "score": "42-49",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "away",
+   "desc": "A. Iguodala misses free throw 2 of 2",
+   "points": 0,
+   "score": "42-49",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "42-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "away",
+   "desc": "Loose ball foul by D. Green",
+   "points": 0,
+   "score": "42-49",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "home",
+   "desc": "S. Ibaka misses free throw 1 of 2",
+   "points": 0,
+   "score": "42-49",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "42-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "away",
+   "desc": "A. Varej\u00c3\u00a3o enters the game for D. Green",
+   "points": 0,
+   "score": "42-49",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "home",
+   "desc": "S. Ibaka misses free throw 2 of 2",
+   "points": 0,
+   "score": "42-49",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 67.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Varej\u00c3\u00a3o",
+   "points": 0,
+   "score": "42-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 55.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft",
+   "points": 3,
+   "score": "45-49",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 41.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "45-49",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 40.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "45-49",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 40.0,
+   "team": "home",
+   "desc": "S. Ibaka makes 2-pt dunk at rim",
+   "points": 2,
+   "score": "45-51",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Ibaka (drawn by S. Curry )",
+   "points": 0,
+   "score": "45-51",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "S. Curry misses free throw 1 of 2",
+   "points": 0,
+   "score": "45-51",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "45-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "E. Freedom enters the game for S. Ibaka",
+   "points": 0,
+   "score": "45-51",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "45-51",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "home",
+   "desc": "A. Morrow enters the game for A. Roberson",
+   "points": 0,
+   "score": "45-51",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 33.0,
+   "team": "away",
+   "desc": "S. Curry misses free throw 2 of 2",
+   "points": 0,
+   "score": "45-51",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 31.0,
+   "team": "home",
+   "desc": "Defensive rebound by D. Waiters",
+   "points": 0,
+   "score": "45-51",
+   "kind": "rebound"
+  },
+  {
+   "period": 2,
+   "clock_s": 27.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "45-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "Shooting foul by E. Freedom (drawn by H. Barnes )",
+   "points": 0,
+   "score": "45-53",
+   "kind": "foul"
+  },
+  {
+   "period": 2,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "H. Barnes makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "47-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "S. Livingston enters the game for A. Iguodala",
+   "points": 0,
+   "score": "47-53",
+   "kind": "other"
+  },
+  {
+   "period": 2,
+   "clock_s": 7.0,
+   "team": "away",
+   "desc": "H. Barnes makes free throw 1 of 1",
+   "points": 1,
+   "score": "48-53",
+   "kind": "ft_made"
+  },
+  {
+   "period": 2,
+   "clock_s": 2.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt layup at rim",
+   "points": 0,
+   "score": "48-53",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 2,
+   "clock_s": 1.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "48-53",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 709.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "51-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 696.0,
+   "team": "away",
+   "desc": "Offensive charge foul by A. Roberson (drawn by S. Curry )",
+   "points": 0,
+   "score": "51-53",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 696.0,
+   "team": "home",
+   "desc": "Turnover by A. Roberson (offensive foul)",
+   "points": 0,
+   "score": "51-53",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 683.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "54-53",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 660.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt layup at rim",
+   "points": 2,
+   "score": "54-55",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 644.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "54-55",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 642.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "54-55",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 638.0,
+   "team": "home",
+   "desc": "A. Roberson makes 2-pt layup at rim (assist by R. Westbrook )",
+   "points": 2,
+   "score": "54-57",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 627.0,
+   "team": "away",
+   "desc": "A. Bogut misses 2-pt layup from 1 ft (block by S. Ibaka )",
+   "points": 0,
+   "score": "54-57",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 626.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "54-57",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 623.0,
+   "team": "home",
+   "desc": "Turnover by K. Durant (lost ball; steal by D. Green )",
+   "points": 0,
+   "score": "54-57",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 617.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "56-57",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 600.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 3 ft (block by A. Bogut )",
+   "points": 0,
+   "score": "56-57",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 599.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "56-57",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "away",
+   "desc": "Shooting foul by A. Roberson (drawn by A. Iguodala )",
+   "points": 0,
+   "score": "56-57",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "away",
+   "desc": "A. Iguodala makes free throw 1 of 2",
+   "points": 1,
+   "score": "57-57",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "57-57",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "home",
+   "desc": "D. Waiters enters the game for A. Roberson",
+   "points": 0,
+   "score": "57-57",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "away",
+   "desc": "A. Iguodala misses free throw 2 of 2",
+   "points": 0,
+   "score": "57-57",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 597.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "57-57",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 577.0,
+   "team": "home",
+   "desc": "D. Waiters misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "57-57",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 577.0,
+   "team": "home",
+   "desc": "Offensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "57-57",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 555.0,
+   "team": "home",
+   "desc": "S. Ibaka misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "57-57",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "57-57",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 552.0,
+   "team": "away",
+   "desc": "D. Green makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "59-57",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 537.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt jump shot from 19 ft (assist by R. Westbrook )",
+   "points": 2,
+   "score": "59-59",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 523.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "59-59",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 521.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "59-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 515.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "59-59",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 512.0,
+   "team": "home",
+   "desc": "Offensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "59-59",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 512.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "59-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 498.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt jump shot from 13 ft",
+   "points": 0,
+   "score": "59-61",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 497.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "59-61",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 497.0,
+   "team": "home",
+   "desc": "Loose ball foul by S. Adams",
+   "points": 0,
+   "score": "59-61",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 487.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green )",
+   "points": 3,
+   "score": "62-61",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 462.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt jump shot from 6 ft",
+   "points": 2,
+   "score": "62-63",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 442.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "62-63",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 441.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Adams",
+   "points": 0,
+   "score": "62-63",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 438.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Curry (drawn by R. Westbrook )",
+   "points": 0,
+   "score": "62-63",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 438.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 1 of 2",
+   "points": 1,
+   "score": "62-64",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 438.0,
+   "team": "away",
+   "desc": "F. Ezeli enters the game for A. Bogut",
+   "points": 0,
+   "score": "62-64",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 438.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 2 of 2",
+   "points": 1,
+   "score": "62-65",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 423.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "62-65",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 423.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Adams",
+   "points": 0,
+   "score": "62-65",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 408.0,
+   "team": "home",
+   "desc": "S. Adams makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "62-67",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 408.0,
+   "team": "home",
+   "desc": "Shooting foul by F. Ezeli (drawn by S. Adams )",
+   "points": 0,
+   "score": "62-67",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 408.0,
+   "team": "home",
+   "desc": "S. Adams makes free throw 1 of 1",
+   "points": 1,
+   "score": "62-68",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 397.0,
+   "team": "away",
+   "desc": "F. Ezeli makes 2-pt dunk at rim (assist by S. Curry )",
+   "points": 2,
+   "score": "64-68",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 380.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt jump shot from 17 ft",
+   "points": 0,
+   "score": "64-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 380.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Adams",
+   "points": 0,
+   "score": "64-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 377.0,
+   "team": "home",
+   "desc": "Turnover by S. Adams (lost ball; steal by K. Thompson )",
+   "points": 0,
+   "score": "64-68",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 373.0,
+   "team": "away",
+   "desc": "Offensive foul by F. Ezeli (drawn by S. Adams )",
+   "points": 0,
+   "score": "64-68",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 373.0,
+   "team": "away",
+   "desc": "Turnover by F. Ezeli (offensive foul)",
+   "points": 0,
+   "score": "64-68",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 373.0,
+   "team": "away",
+   "desc": "H. Barnes enters the game for F. Ezeli",
+   "points": 0,
+   "score": "64-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 373.0,
+   "team": "home",
+   "desc": "E. Freedom enters the game for S. Adams",
+   "points": 0,
+   "score": "64-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 356.0,
+   "team": "home",
+   "desc": "Turnover by E. Freedom (bad pass; steal by H. Barnes )",
+   "points": 0,
+   "score": "64-68",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 351.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "64-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 350.0,
+   "team": "home",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "64-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 350.0,
+   "team": "away",
+   "desc": "Loose ball foul by S. Curry",
+   "points": 0,
+   "score": "64-68",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 350.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for E. Freedom",
+   "points": 0,
+   "score": "64-68",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 337.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "64-68",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 337.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Roberson",
+   "points": 0,
+   "score": "64-68",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 336.0,
+   "team": "home",
+   "desc": "A. Roberson makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "64-70",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 323.0,
+   "team": "away",
+   "desc": "Shooting foul by K. Durant (drawn by S. Curry )",
+   "points": 0,
+   "score": "64-70",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 323.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "65-70",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 323.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "66-70",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 307.0,
+   "team": "home",
+   "desc": "Shooting foul by A. Iguodala (drawn by K. Durant )",
+   "points": 0,
+   "score": "66-70",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 307.0,
+   "team": "home",
+   "desc": "K. Durant misses free throw 1 of 2",
+   "points": 0,
+   "score": "66-70",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 307.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "66-70",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 307.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "66-71",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 298.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft",
+   "points": 3,
+   "score": "69-71",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 279.0,
+   "team": "home",
+   "desc": "K. Durant makes 3-pt jump shot from 23 ft (assist by R. Westbrook )",
+   "points": 3,
+   "score": "69-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "69-74",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 261.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "69-74",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 257.0,
+   "team": "away",
+   "desc": "Turnover by K. Thompson (bad pass; steal by K. Durant )",
+   "points": 0,
+   "score": "69-74",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "away",
+   "desc": "Offensive charge foul by A. Roberson (drawn by D. Green )",
+   "points": 0,
+   "score": "69-74",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "home",
+   "desc": "Turnover by A. Roberson (offensive foul)",
+   "points": 0,
+   "score": "69-74",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "69-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "home",
+   "desc": "A. Morrow enters the game for A. Roberson",
+   "points": 0,
+   "score": "69-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "away",
+   "desc": "S. Livingston enters the game for K. Thompson",
+   "points": 0,
+   "score": "69-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 252.0,
+   "team": "away",
+   "desc": "A. Bogut enters the game for A. Iguodala",
+   "points": 0,
+   "score": "69-74",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 233.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 20 ft",
+   "points": 2,
+   "score": "71-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 220.0,
+   "team": "home",
+   "desc": "Turnover by R. Westbrook (bad pass; steal by D. Green )",
+   "points": 0,
+   "score": "71-74",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 207.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt layup from 1 ft (assist by S. Livingston )",
+   "points": 2,
+   "score": "73-74",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 193.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt jump shot from 12 ft",
+   "points": 2,
+   "score": "73-76",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 193.0,
+   "team": "home",
+   "desc": "Shooting foul by S. Livingston (drawn by R. Westbrook )",
+   "points": 0,
+   "score": "73-76",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 193.0,
+   "team": "home",
+   "desc": "E. Freedom enters the game for A. Morrow",
+   "points": 0,
+   "score": "73-76",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 193.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 1 of 1",
+   "points": 1,
+   "score": "73-77",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 183.0,
+   "team": "away",
+   "desc": "Shooting foul by E. Freedom (drawn by S. Curry )",
+   "points": 0,
+   "score": "73-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 183.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 1 of 2",
+   "points": 1,
+   "score": "74-77",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 183.0,
+   "team": "away",
+   "desc": "S. Curry makes free throw 2 of 2",
+   "points": 1,
+   "score": "75-77",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 162.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "75-77",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 161.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Bogut",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 152.0,
+   "team": "away",
+   "desc": "Turnover by D. Green (bad pass; steal by R. Westbrook )",
+   "points": 0,
+   "score": "75-77",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 149.0,
+   "team": "home",
+   "desc": "Shooting foul by D. Green (drawn by K. Durant )",
+   "points": 0,
+   "score": "75-77",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 149.0,
+   "team": "home",
+   "desc": "K. Durant misses free throw 1 of 2",
+   "points": 0,
+   "score": "75-77",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 149.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "75-77",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 149.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for D. Green",
+   "points": 0,
+   "score": "75-77",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 149.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "75-78",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 142.0,
+   "team": "away",
+   "desc": "Turnover by A. Bogut (lost ball; steal by R. Westbrook )",
+   "points": 0,
+   "score": "75-78",
+   "kind": "turnover"
+  },
+  {
+   "period": 3,
+   "clock_s": 138.0,
+   "team": "home",
+   "desc": "Shooting foul by H. Barnes (drawn by S. Ibaka )",
+   "points": 0,
+   "score": "75-78",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 138.0,
+   "team": "home",
+   "desc": "S. Ibaka makes free throw 1 of 2",
+   "points": 1,
+   "score": "75-79",
+   "kind": "ft_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 138.0,
+   "team": "home",
+   "desc": "S. Ibaka misses free throw 2 of 2",
+   "points": 0,
+   "score": "75-79",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 138.0,
+   "team": "away",
+   "desc": "Defensive rebound by A. Iguodala",
+   "points": 0,
+   "score": "75-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 136.0,
+   "team": "away",
+   "desc": "Personal take foul by E. Freedom",
+   "points": 0,
+   "score": "75-79",
+   "kind": "foul"
+  },
+  {
+   "period": 3,
+   "clock_s": 136.0,
+   "team": "away",
+   "desc": "A. Bogut misses free throw 1 of 2",
+   "points": 0,
+   "score": "75-79",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 136.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "75-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 136.0,
+   "team": "away",
+   "desc": "A. Bogut misses free throw 2 of 2",
+   "points": 0,
+   "score": "75-79",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 135.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "75-79",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 116.0,
+   "team": "home",
+   "desc": "E. Freedom makes 2-pt jump shot from 16 ft (assist by R. Westbrook )",
+   "points": 2,
+   "score": "75-81",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 115.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "75-81",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 115.0,
+   "team": "home",
+   "desc": "A. Morrow enters the game for S. Ibaka",
+   "points": 0,
+   "score": "75-81",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 115.0,
+   "team": "away",
+   "desc": "M. Speights enters the game for A. Bogut",
+   "points": 0,
+   "score": "75-81",
+   "kind": "other"
+  },
+  {
+   "period": 3,
+   "clock_s": 93.0,
+   "team": "away",
+   "desc": "M. Speights misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "75-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 91.0,
+   "team": "away",
+   "desc": "Offensive rebound by S. Curry",
+   "points": 0,
+   "score": "75-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 85.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt jump shot from 22 ft",
+   "points": 0,
+   "score": "75-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 84.0,
+   "team": "away",
+   "desc": "Offensive rebound by H. Barnes",
+   "points": 0,
+   "score": "75-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 72.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "75-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 71.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "75-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 63.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "75-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 62.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "75-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 48.0,
+   "team": "home",
+   "desc": "A. Morrow misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "75-81",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 47.0,
+   "team": "home",
+   "desc": "Offensive rebound by E. Freedom",
+   "points": 0,
+   "score": "75-81",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 47.0,
+   "team": "home",
+   "desc": "E. Freedom makes 2-pt layup from 2 ft",
+   "points": 2,
+   "score": "75-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 3,
+   "clock_s": 29.0,
+   "team": "away",
+   "desc": "S. Livingston misses 2-pt jump shot from 15 ft",
+   "points": 0,
+   "score": "75-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 28.0,
+   "team": "home",
+   "desc": "Defensive rebound by E. Freedom",
+   "points": 0,
+   "score": "75-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 3,
+   "clock_s": 4.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "75-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 3,
+   "clock_s": 3.0,
+   "team": "away",
+   "desc": "Defensive rebound by M. Speights",
+   "points": 0,
+   "score": "75-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 705.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "75-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 705.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "75-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 686.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by D. Green )",
+   "points": 3,
+   "score": "78-83",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 667.0,
+   "team": "home",
+   "desc": "D. Waiters misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "78-83",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 666.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "78-83",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 656.0,
+   "team": "away",
+   "desc": "Offensive foul by M. Speights (drawn by A. Morrow )",
+   "points": 0,
+   "score": "78-83",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 656.0,
+   "team": "away",
+   "desc": "Turnover by M. Speights (offensive foul)",
+   "points": 0,
+   "score": "78-83",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 648.0,
+   "team": "home",
+   "desc": "Shooting foul by M. Speights (drawn by K. Durant )",
+   "points": 0,
+   "score": "78-83",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 648.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 1 of 2",
+   "points": 1,
+   "score": "78-84",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 648.0,
+   "team": "away",
+   "desc": "A. Bogut enters the game for M. Speights",
+   "points": 0,
+   "score": "78-84",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 648.0,
+   "team": "home",
+   "desc": "R. Westbrook enters the game for A. Morrow",
+   "points": 0,
+   "score": "78-84",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 648.0,
+   "team": "home",
+   "desc": "K. Durant makes free throw 2 of 2",
+   "points": 1,
+   "score": "78-85",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 625.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 1 ft (block by K. Durant )",
+   "points": 0,
+   "score": "78-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 624.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "78-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 618.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "78-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 617.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "78-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 604.0,
+   "team": "home",
+   "desc": "S. Adams misses 2-pt jump shot from 5 ft",
+   "points": 0,
+   "score": "78-85",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 603.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "78-85",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 594.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by D. Green )",
+   "points": 3,
+   "score": "81-85",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 573.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Thompson (drawn by R. Westbrook )",
+   "points": 0,
+   "score": "81-85",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 573.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 1 of 2",
+   "points": 1,
+   "score": "81-86",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 573.0,
+   "team": "away",
+   "desc": "S. Curry enters the game for S. Livingston",
+   "points": 0,
+   "score": "81-86",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 573.0,
+   "team": "home",
+   "desc": "S. Ibaka enters the game for R. Foye",
+   "points": 0,
+   "score": "81-86",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 573.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 2 of 2",
+   "points": 1,
+   "score": "81-87",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 555.0,
+   "team": "away",
+   "desc": "D. Green misses 3-pt jump shot from 23 ft (block by K. Durant )",
+   "points": 0,
+   "score": "81-87",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 554.0,
+   "team": "home",
+   "desc": "Defensive rebound by R. Westbrook",
+   "points": 0,
+   "score": "81-87",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 544.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt jump shot from 18 ft",
+   "points": 2,
+   "score": "81-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 523.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 23 ft",
+   "points": 0,
+   "score": "81-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 522.0,
+   "team": "away",
+   "desc": "Offensive rebound by A. Bogut",
+   "points": 0,
+   "score": "81-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 517.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 24 ft (assist by A. Bogut )",
+   "points": 3,
+   "score": "84-89",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 509.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "84-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 508.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for K. Durant",
+   "points": 0,
+   "score": "84-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 496.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "84-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 495.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Adams",
+   "points": 0,
+   "score": "84-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 486.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt layup at rim (block by K. Thompson )",
+   "points": 0,
+   "score": "84-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 486.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "84-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 474.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 3-pt jump shot from 26 ft",
+   "points": 0,
+   "score": "84-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 473.0,
+   "team": "away",
+   "desc": "Defensive rebound by S. Curry",
+   "points": 0,
+   "score": "84-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 452.0,
+   "team": "away",
+   "desc": "A. Bogut misses 2-pt jump shot from 4 ft",
+   "points": 0,
+   "score": "84-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 451.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "84-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 450.0,
+   "team": "away",
+   "desc": "D. Green misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "84-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "84-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "Personal foul by A. Bogut",
+   "points": 0,
+   "score": "84-89",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 448.0,
+   "team": "home",
+   "desc": "K. Durant enters the game for A. Roberson",
+   "points": 0,
+   "score": "84-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 448.0,
+   "team": "away",
+   "desc": "H. Barnes enters the game for A. Iguodala",
+   "points": 0,
+   "score": "84-89",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 439.0,
+   "team": "home",
+   "desc": "Personal foul by H. Barnes",
+   "points": 0,
+   "score": "84-89",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 431.0,
+   "team": "home",
+   "desc": "S. Ibaka misses 3-pt jump shot from 24 ft (block by D. Green )",
+   "points": 0,
+   "score": "84-89",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 430.0,
+   "team": "home",
+   "desc": "Offensive rebound by S. Adams",
+   "points": 0,
+   "score": "84-89",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 429.0,
+   "team": "home",
+   "desc": "S. Adams makes 2-pt layup at rim",
+   "points": 2,
+   "score": "84-91",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 414.0,
+   "team": "away",
+   "desc": "H. Barnes makes 3-pt jump shot from 22 ft (assist by S. Curry )",
+   "points": 3,
+   "score": "87-91",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 395.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 7 ft",
+   "points": 0,
+   "score": "87-91",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 394.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "87-91",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 393.0,
+   "team": "away",
+   "desc": "A. Iguodala enters the game for A. Bogut",
+   "points": 0,
+   "score": "87-91",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 382.0,
+   "team": "home",
+   "desc": "R. Westbrook makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "87-93",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 365.0,
+   "team": "away",
+   "desc": "S. Curry misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "87-93",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 364.0,
+   "team": "away",
+   "desc": "Offensive rebound by D. Green",
+   "points": 0,
+   "score": "87-93",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 361.0,
+   "team": "away",
+   "desc": "D. Green misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "87-93",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 361.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "87-93",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt jump shot from 6 ft",
+   "points": 0,
+   "score": "87-93",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "87-93",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "away",
+   "desc": "Loose ball foul by D. Green",
+   "points": 0,
+   "score": "87-93",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "away",
+   "desc": "Official timeout",
+   "points": 0,
+   "score": "87-93",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for D. Waiters",
+   "points": 0,
+   "score": "87-93",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "S. Adams makes free throw 1 of 2",
+   "points": 1,
+   "score": "87-94",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 348.0,
+   "team": "home",
+   "desc": "S. Adams misses free throw 2 of 2",
+   "points": 0,
+   "score": "87-94",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 347.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "87-94",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 347.0,
+   "team": "home",
+   "desc": "Loose ball foul by S. Ibaka",
+   "points": 0,
+   "score": "87-94",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 333.0,
+   "team": "away",
+   "desc": "K. Thompson makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "89-94",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 309.0,
+   "team": "home",
+   "desc": "K. Durant makes 2-pt jump shot from 14 ft",
+   "points": 2,
+   "score": "89-96",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 297.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 28 ft",
+   "points": 3,
+   "score": "92-96",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 288.0,
+   "team": "home",
+   "desc": "Personal take foul by S. Curry",
+   "points": 0,
+   "score": "92-96",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 288.0,
+   "team": "home",
+   "desc": "A. Roberson makes free throw 1 of 2",
+   "points": 1,
+   "score": "92-97",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 288.0,
+   "team": "home",
+   "desc": "A. Roberson misses free throw 2 of 2",
+   "points": 0,
+   "score": "92-97",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 287.0,
+   "team": "away",
+   "desc": "Defensive rebound by D. Green",
+   "points": 0,
+   "score": "92-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 272.0,
+   "team": "away",
+   "desc": "K. Thompson misses 2-pt layup from 3 ft (block by A. Roberson )",
+   "points": 0,
+   "score": "92-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 272.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "92-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 272.0,
+   "team": "away",
+   "desc": "Golden State full timeout",
+   "points": 0,
+   "score": "92-97",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 272.0,
+   "team": "home",
+   "desc": "D. Waiters enters the game for A. Roberson",
+   "points": 0,
+   "score": "92-97",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 271.0,
+   "team": "away",
+   "desc": "Shooting foul by S. Adams (drawn by D. Green )",
+   "points": 0,
+   "score": "92-97",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 271.0,
+   "team": "away",
+   "desc": "D. Green misses free throw 1 of 2",
+   "points": 0,
+   "score": "92-97",
+   "kind": "ft_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 271.0,
+   "team": "away",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "92-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 271.0,
+   "team": "away",
+   "desc": "D. Green makes free throw 2 of 2",
+   "points": 1,
+   "score": "93-97",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 253.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 16 ft",
+   "points": 0,
+   "score": "93-97",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 253.0,
+   "team": "away",
+   "desc": "Defensive rebound by Team",
+   "points": 0,
+   "score": "93-97",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 238.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft",
+   "points": 3,
+   "score": "96-97",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 222.0,
+   "team": "home",
+   "desc": "Shooting foul by K. Thompson (drawn by R. Westbrook )",
+   "points": 0,
+   "score": "96-97",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 222.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 1 of 2",
+   "points": 1,
+   "score": "96-98",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 222.0,
+   "team": "home",
+   "desc": "R. Westbrook makes free throw 2 of 2",
+   "points": 1,
+   "score": "96-99",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 200.0,
+   "team": "away",
+   "desc": "A. Iguodala misses 3-pt jump shot from 24 ft",
+   "points": 0,
+   "score": "96-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 199.0,
+   "team": "home",
+   "desc": "Defensive rebound by S. Ibaka",
+   "points": 0,
+   "score": "96-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 175.0,
+   "team": "home",
+   "desc": "Turnover by K. Durant (bad pass; steal by A. Iguodala )",
+   "points": 0,
+   "score": "96-99",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 168.0,
+   "team": "away",
+   "desc": "S. Curry makes 3-pt jump shot from 26 ft (assist by H. Barnes )",
+   "points": 3,
+   "score": "99-99",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 167.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "99-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 167.0,
+   "team": "home",
+   "desc": "A. Roberson enters the game for S. Adams",
+   "points": 0,
+   "score": "99-99",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 157.0,
+   "team": "home",
+   "desc": "R. Westbrook misses 2-pt layup from 2 ft",
+   "points": 0,
+   "score": "99-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 157.0,
+   "team": "home",
+   "desc": "Offensive rebound by Team",
+   "points": 0,
+   "score": "99-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 145.0,
+   "team": "home",
+   "desc": "K. Durant misses 2-pt jump shot from 11 ft",
+   "points": 0,
+   "score": "99-99",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 144.0,
+   "team": "home",
+   "desc": "Offensive rebound by A. Roberson",
+   "points": 0,
+   "score": "99-99",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 142.0,
+   "team": "home",
+   "desc": "A. Roberson makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "99-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 126.0,
+   "team": "away",
+   "desc": "A. Iguodala makes 2-pt layup from 1 ft",
+   "points": 2,
+   "score": "101-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 100.0,
+   "team": "home",
+   "desc": "Turnover by R. Westbrook (lost ball; steal by A. Iguodala )",
+   "points": 0,
+   "score": "101-101",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 95.0,
+   "team": "away",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Iguodala )",
+   "points": 3,
+   "score": "104-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 83.0,
+   "team": "home",
+   "desc": "K. Durant misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "104-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 82.0,
+   "team": "away",
+   "desc": "Defensive rebound by K. Thompson",
+   "points": 0,
+   "score": "104-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 61.0,
+   "team": "away",
+   "desc": "S. Curry misses 2-pt layup from 1 ft",
+   "points": 0,
+   "score": "104-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 60.0,
+   "team": "home",
+   "desc": "Defensive rebound by A. Roberson",
+   "points": 0,
+   "score": "104-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 55.0,
+   "team": "home",
+   "desc": "Turnover by R. Westbrook (lost ball)",
+   "points": 0,
+   "score": "104-101",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 39.0,
+   "team": "away",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft",
+   "points": 0,
+   "score": "104-101",
+   "kind": "shot_missed"
+  },
+  {
+   "period": 4,
+   "clock_s": 38.0,
+   "team": "home",
+   "desc": "Defensive rebound by K. Durant",
+   "points": 0,
+   "score": "104-101",
+   "kind": "rebound"
+  },
+  {
+   "period": 4,
+   "clock_s": 36.0,
+   "team": "home",
+   "desc": "Turnover by R. Westbrook (bad pass; steal by A. Iguodala )",
+   "points": 0,
+   "score": "104-101",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "away",
+   "desc": "S. Curry makes 2-pt jump shot from 8 ft",
+   "points": 2,
+   "score": "106-101",
+   "kind": "shot_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 14.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "106-101",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 13.0,
+   "team": "home",
+   "desc": "Turnover by R. Westbrook (bad pass; steal by S. Curry )",
+   "points": 0,
+   "score": "106-101",
+   "kind": "turnover"
+  },
+  {
+   "period": 4,
+   "clock_s": 10.0,
+   "team": "away",
+   "desc": "Personal take foul by R. Westbrook",
+   "points": 0,
+   "score": "106-101",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 9.0,
+   "team": "away",
+   "desc": "Personal take foul by K. Durant",
+   "points": 0,
+   "score": "106-101",
+   "kind": "foul"
+  },
+  {
+   "period": 4,
+   "clock_s": 9.0,
+   "team": "away",
+   "desc": "K. Thompson makes free throw 1 of 2",
+   "points": 1,
+   "score": "107-101",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 9.0,
+   "team": "away",
+   "desc": "K. Thompson makes free throw 2 of 2",
+   "points": 1,
+   "score": "108-101",
+   "kind": "ft_made"
+  },
+  {
+   "period": 4,
+   "clock_s": 9.0,
+   "team": "home",
+   "desc": "Oklahoma City full timeout",
+   "points": 0,
+   "score": "108-101",
+   "kind": "other"
+  },
+  {
+   "period": 4,
+   "clock_s": 8.0,
+   "team": "home",
+   "desc": "Turnover by K. Durant (lost ball; steal by H. Barnes )",
+   "points": 0,
+   "score": "108-101",
+   "kind": "turnover"
+  }
+ ]
+}

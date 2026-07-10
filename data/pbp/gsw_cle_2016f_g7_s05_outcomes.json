@@ -11,39 +11,39 @@
   "period": 3,
   "anchors": [
    {
-    "frame": 892,
+    "frame": 808,
     "period": 3,
-    "clock_s": 445,
-    "raw": "3rn|725"
+    "clock_s": 7.8,
+    "raw": "3rn|7.8"
    },
    {
-    "frame": 1146,
+    "frame": 892,
     "period": 3,
-    "clock_s": 436,
-    "raw": "3ro|7:16"
+    "clock_s": 7.5,
+    "raw": "3rn|7.5"
    }
   ],
   "pbp_possession": {
-   "team": "away",
+   "team": "home",
    "clock": [
-    458.0,
-    434.0
+    16.0,
+    4.0
    ],
    "points": 2
   },
   "overlap_frac_of_span": 1.0,
   "offense_points": 2,
   "terminating_event": {
-   "clock_s": 434.0,
-   "team": "away",
+   "clock_s": 4.0,
+   "team": "home",
    "kind": "shot_made",
-   "desc": "K. Love makes 2-pt layup from 3 ft (assist by L. James )"
+   "desc": "A. Iguodala makes 2-pt hook shot from 2 ft (assist by S. Livingston )"
   },
-  "pbp_offense_real": "CLE",
-  "offense_agrees": true,
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  },
  {
   "set_start_frame": 1410,
@@ -60,13 +60,13 @@
     "frame": 1410,
     "period": 3,
     "clock_s": 427,
-    "raw": "3ro|7:07"
+    "raw": "3ro|7.07"
    },
    {
     "frame": 1827,
     "period": 3,
     "clock_s": 412,
-    "raw": "3ro|652"
+    "raw": "3ro|6.52"
    }
   ],
   "pbp_possession": {
@@ -136,13 +136,13 @@
     "frame": 6339,
     "period": 3,
     "clock_s": 346,
-    "raw": "3Ro|5:46"
+    "raw": "3Ro|5.46"
    },
    {
     "frame": 6717,
     "period": 3,
     "clock_s": 333,
-    "raw": "3rn|5:33"
+    "raw": "3rn|5.33"
    }
   ],
   "pbp_possession": {
@@ -165,7 +165,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  },
  {
   "set_start_frame": 15138,
@@ -182,13 +182,13 @@
     "frame": 15138,
     "period": 3,
     "clock_s": 248,
-    "raw": "3ro|4:08"
+    "raw": "3ro|4.08"
    },
    {
     "frame": 15339,
     "period": 3,
     "clock_s": 240,
-    "raw": "3ro|4:00"
+    "raw": "3ro|4.00"
    }
   ],
   "pbp_possession": {
@@ -211,6 +211,6 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  }
 ]

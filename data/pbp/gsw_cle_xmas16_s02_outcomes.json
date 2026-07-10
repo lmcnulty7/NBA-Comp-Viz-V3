@@ -23,11 +23,47 @@
   "set_start_frame": 13008,
   "core_end_frame": 13230,
   "attacked_basket": "left",
-  "offense_team": null,
+  "offense_team": 0,
   "confidence": 0.0,
-  "offense_real": null,
-  "defense_real": null,
-  "status": "no_pbp_overlap"
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13008,
+    "period": 2,
+    "clock_s": 10.2,
+    "raw": "2nd|10.2"
+   },
+   {
+    "frame": 13230,
+    "period": 2,
+    "clock_s": 10.1,
+    "raw": "2nd|10.1"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    29.0,
+    9.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 9.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt layup at rim"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
  },
  {
   "set_start_frame": 15936,
@@ -44,13 +80,13 @@
     "frame": 15936,
     "period": 2,
     "clock_s": 574,
-    "raw": "2nd|9:34"
+    "raw": "2nd|9.34"
    },
    {
     "frame": 16164,
     "period": 2,
     "clock_s": 566,
-    "raw": "2nd|9:26"
+    "raw": "2nd|9.26"
    }
   ],
   "pbp_possession": {
@@ -96,7 +132,7 @@
     "frame": 16818,
     "period": 2,
     "clock_s": 543,
-    "raw": "2nd|9:03"
+    "raw": "2nd|9.03"
    }
   ],
   "pbp_possession": {

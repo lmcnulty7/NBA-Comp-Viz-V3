@@ -13,31 +13,31 @@
    {
     "frame": 3117,
     "period": 4,
-    "clock_s": 663,
-    "raw": "4th|11:3"
+    "clock_s": 11.3,
+    "raw": "4th|11.3"
    },
    {
     "frame": 3327,
     "period": 4,
-    "clock_s": 662,
-    "raw": "4th|11:2"
+    "clock_s": 11.2,
+    "raw": "4th|11.2"
    }
   ],
   "pbp_possession": {
    "team": "home",
    "clock": [
-    682.0,
-    662.0
+    14.0,
+    3.0
    ],
-   "points": 0
+   "points": 2
   },
   "overlap_frac_of_span": 1.0,
-  "offense_points": 0,
+  "offense_points": 2,
   "terminating_event": {
-   "clock_s": 662.0,
+   "clock_s": 3.0,
    "team": "home",
-   "kind": "shot_missed",
-   "desc": "K. Irving misses 2-pt jump shot from 7 ft"
+   "kind": "shot_made",
+   "desc": "K. Irving makes 2-pt jump shot from 13 ft"
   },
   "pbp_offense_real": "CLE",
   "offense_agrees": false,
@@ -60,13 +60,13 @@
     "frame": 14739,
     "period": 4,
     "clock_s": 471,
-    "raw": "4th|7:51"
+    "raw": "4th|7.51"
    },
    {
     "frame": 15069,
     "period": 4,
     "clock_s": 459,
-    "raw": "4th|7:39"
+    "raw": "4th|7.39"
    }
   ],
   "pbp_possession": {
@@ -104,13 +104,13 @@
     "frame": 16530,
     "period": 4,
     "clock_s": 451,
-    "raw": "4th|7:31"
+    "raw": "4th|7.31"
    },
    {
     "frame": 16737,
     "period": 4,
     "clock_s": 444,
-    "raw": "4th|7:24"
+    "raw": "4th|7.24"
    }
   ],
   "pbp_possession": {

@@ -14,13 +14,13 @@
     "frame": 27,
     "period": 2,
     "clock_s": 408,
-    "raw": "2Nd|6:48"
+    "raw": "2Nd|6.48"
    },
    {
     "frame": 408,
     "period": 2,
     "clock_s": 396,
-    "raw": "2Nd|6:36"
+    "raw": "2Nd|6.36"
    }
   ],
   "pbp_possession": {
@@ -43,7 +43,7 @@
   "offense_agrees": false,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 1110,
@@ -60,13 +60,13 @@
     "frame": 1110,
     "period": 2,
     "clock_s": 389,
-    "raw": "2Nd|6:29"
+    "raw": "2Nd|6.29"
    },
    {
     "frame": 1239,
     "period": 2,
     "clock_s": 385,
-    "raw": "2Nd|6:25"
+    "raw": "2Nd|6.25"
    }
   ],
   "pbp_possession": {
@@ -89,7 +89,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 1722,
@@ -106,13 +106,13 @@
     "frame": 1722,
     "period": 2,
     "clock_s": 368,
-    "raw": "2Nd|6:08"
+    "raw": "2Nd|6.08"
    },
    {
     "frame": 2064,
     "period": 2,
     "clock_s": 356,
-    "raw": "2No|5:56"
+    "raw": "2No|5.56"
    }
   ],
   "pbp_possession": {
@@ -152,13 +152,13 @@
     "frame": 2271,
     "period": 2,
     "clock_s": 349,
-    "raw": "2Nd|5:49"
+    "raw": "2Nd|5.49"
    },
    {
     "frame": 2388,
     "period": 2,
     "clock_s": 345,
-    "raw": "2Nd|5:45"
+    "raw": "2Nd|5.45"
    }
   ],
   "pbp_possession": {
@@ -182,7 +182,7 @@
   "duplicate_of_span": 1722,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 3639,
@@ -199,13 +199,13 @@
     "frame": 3639,
     "period": 2,
     "clock_s": 340,
-    "raw": "2Nd|5:40"
+    "raw": "2Nd|5.40"
    },
    {
     "frame": 3858,
     "period": 2,
     "clock_s": 332,
-    "raw": "2Nd|5:32"
+    "raw": "2Nd|5.32"
    }
   ],
   "pbp_possession": {
@@ -245,13 +245,13 @@
     "frame": 16197,
     "period": 2,
     "clock_s": 103,
-    "raw": "2Nd|1:43"
+    "raw": "2Nd|1.43"
    },
    {
     "frame": 16398,
     "period": 2,
     "clock_s": 98,
-    "raw": "2Nd|1:38"
+    "raw": "2Nd|1.38"
    }
   ],
   "pbp_possession": {
@@ -274,6 +274,6 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  }
 ]

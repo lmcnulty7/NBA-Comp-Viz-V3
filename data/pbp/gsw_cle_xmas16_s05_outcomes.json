@@ -7,7 +7,41 @@
   "confidence": 0.69,
   "offense_real": "CLE",
   "defense_real": "GSW",
-  "status": "no_pbp_overlap"
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3597,
+    "period": 3,
+    "clock_s": 10.5,
+    "raw": "3rd|10.5"
+   },
+   {
+    "frame": 3816,
+    "period": 3,
+    "clock_s": 10.4,
+    "raw": "3rd|10.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    28.0,
+    7.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 7.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by L. James (bad pass; steal by I. Clark )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
  },
  {
   "set_start_frame": 16416,
@@ -24,13 +58,13 @@
     "frame": 16416,
     "period": 3,
     "clock_s": 449,
-    "raw": "3rd|7:29"
+    "raw": "3rd|7.29"
    },
    {
     "frame": 16680,
     "period": 3,
     "clock_s": 440,
-    "raw": "3rd|7:20"
+    "raw": "3rd|7.20"
    }
   ],
   "pbp_possession": {

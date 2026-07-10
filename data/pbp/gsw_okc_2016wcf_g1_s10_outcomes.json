@@ -7,7 +7,7 @@
   "confidence": 0.99,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_failed"
+  "status": "no_pbp_overlap"
  },
  {
   "set_start_frame": 4566,
@@ -17,7 +17,7 @@
   "confidence": 0.96,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_failed"
+  "status": "no_pbp_overlap"
  },
  {
   "set_start_frame": 5682,
@@ -27,43 +27,21 @@
   "confidence": 0.69,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "aligned",
-  "period": 4,
+  "status": "clock_stopped_span",
   "anchors": [
    {
-    "frame": 5795,
+    "frame": 5682,
     "period": 4,
-    "clock_s": 112,
-    "raw": "4TH|152"
+    "clock_s": 15.4,
+    "raw": "4TH|15.4"
    },
    {
-    "frame": 6036,
+    "frame": 6030,
     "period": 4,
-    "clock_s": 105,
-    "raw": "4TH|145"
+    "clock_s": 14.5,
+    "raw": "4tH|14.5"
    }
-  ],
-  "pbp_possession": {
-   "team": "away",
-   "clock": [
-    121.0,
-    100.0
-   ],
-   "points": 0
-  },
-  "overlap_frac_of_span": 1.0,
-  "offense_points": 0,
-  "terminating_event": {
-   "clock_s": 100.0,
-   "team": "away",
-   "kind": "shot_missed",
-   "desc": "R. Westbrook misses 2-pt layup from 2 ft"
-  },
-  "pbp_offense_real": "OKC",
-  "offense_agrees": true,
-  "orientation_flipped": false,
-  "offense_source": "orientation",
-  "orientation_conf": 0.66
+  ]
  },
  {
   "set_start_frame": 11658,
@@ -73,21 +51,43 @@
   "confidence": 1.0,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 4,
   "anchors": [
    {
     "frame": 11658,
     "period": 4,
-    "clock_s": 114,
-    "raw": "4TH|154"
+    "clock_s": 15.4,
+    "raw": "4TH|15.4"
    },
    {
     "frame": 12048,
     "period": 4,
-    "clock_s": 555,
-    "raw": "4TH|0915"
+    "clock_s": 9.5,
+    "raw": "4TH|09.5"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    15.0,
+    11.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.68,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 11.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
  },
  {
   "set_start_frame": 16890,
@@ -102,14 +102,14 @@
    {
     "frame": 17161,
     "period": 4,
-    "clock_s": 560,
-    "raw": "4TH|0920"
+    "clock_s": 9.0,
+    "raw": "4TH|09.0"
    },
    {
     "frame": 17703,
     "period": 4,
-    "clock_s": 80,
-    "raw": "4TH|0120"
+    "clock_s": 1.0,
+    "raw": "4TH|01.0"
    }
   ]
  }

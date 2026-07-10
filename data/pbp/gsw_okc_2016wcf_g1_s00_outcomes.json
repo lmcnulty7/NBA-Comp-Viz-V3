@@ -11,16 +11,16 @@
   "period": 1,
   "anchors": [
    {
-    "frame": 12176,
+    "frame": 11896,
     "period": 1,
-    "clock_s": 708,
-    "raw": "1ST|11:48"
+    "clock_s": 711,
+    "raw": "1ST|11.51"
    },
    {
     "frame": 12468,
     "period": 1,
     "clock_s": 703,
-    "raw": "1ST|11:43"
+    "raw": "1ST|11.43"
    }
   ],
   "pbp_possession": {
@@ -31,7 +31,7 @@
    ],
    "points": 0
   },
-  "overlap_frac_of_span": 0.6,
+  "overlap_frac_of_span": 0.75,
   "offense_points": 0,
   "terminating_event": {
    "clock_s": 705.0,
@@ -43,7 +43,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 13344,
@@ -53,21 +53,43 @@
   "confidence": 0.88,
   "offense_real": "GSW",
   "defense_real": "OKC",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 1,
   "anchors": [
    {
-    "frame": 13613,
+    "frame": 13344,
     "period": 1,
-    "clock_s": 695,
-    "raw": "1ST|11:35"
+    "clock_s": 699,
+    "raw": "1ST|11.39"
    },
    {
-    "frame": 14160,
+    "frame": 14169,
     "period": 1,
     "clock_s": 685,
-    "raw": "1ST|11:25"
+    "raw": "1ST|11.25"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    705.0,
+    685.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 685.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 5 ft (assist by A. Bogut )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 16149,
@@ -87,10 +109,10 @@
     "raw": "1ST|10:52"
    },
    {
-    "frame": 16401,
+    "frame": 16653,
     "period": 1,
-    "clock_s": 647,
-    "raw": "1ST|10:47"
+    "clock_s": 643,
+    "raw": "1ST|10.43"
    }
   ],
   "pbp_possession": {
@@ -113,7 +135,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 20295,
@@ -130,13 +152,13 @@
     "frame": 20295,
     "period": 1,
     "clock_s": 625,
-    "raw": "1ST|10:25"
+    "raw": "1ST|10.25"
    },
    {
     "frame": 20565,
     "period": 1,
     "clock_s": 620,
-    "raw": "1ST|10:20"
+    "raw": "1ST|10.20"
    }
   ],
   "pbp_possession": {
@@ -159,7 +181,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 20664,
@@ -206,7 +228,7 @@
   "duplicate_of_span": 20295,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 22059,
@@ -223,13 +245,13 @@
     "frame": 22059,
     "period": 1,
     "clock_s": 595,
-    "raw": "1ST|9:55"
+    "raw": "1ST|9.55"
    },
    {
     "frame": 22350,
     "period": 1,
     "clock_s": 590,
-    "raw": "1ST|9:50"
+    "raw": "1ST|9.50"
    }
   ],
   "pbp_possession": {
@@ -252,7 +274,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 22686,
@@ -266,16 +288,16 @@
   "period": 1,
   "anchors": [
    {
-    "frame": 22789,
+    "frame": 22686,
     "period": 1,
-    "clock_s": 583,
-    "raw": "1ST|9:43"
+    "clock_s": 584,
+    "raw": "1ST|9.44"
    },
    {
     "frame": 23022,
     "period": 1,
     "clock_s": 579,
-    "raw": "1ST|9:39"
+    "raw": "1ST|9.39"
    }
   ],
   "pbp_possession": {
@@ -298,7 +320,7 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 23415,
@@ -308,7 +330,43 @@
   "confidence": 0.8,
   "offense_real": "OKC",
   "defense_real": "GSW",
-  "status": "anchor_failed"
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 23415,
+    "period": 1,
+    "clock_s": 572,
+    "raw": "1ST|9.32"
+   },
+   {
+    "frame": 23958,
+    "period": 1,
+    "clock_s": 563,
+    "raw": "1ST|9.23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    575.0,
+    562.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 562.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by R. Westbrook (bad pass; steal by S. Curry )"
+  },
+  "pbp_offense_real": "OKC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 30597,
@@ -325,13 +383,13 @@
     "frame": 30597,
     "period": 1,
     "clock_s": 504,
-    "raw": "1ST|8:24"
+    "raw": "1ST|8.24"
    },
    {
     "frame": 30819,
     "period": 1,
     "clock_s": 500,
-    "raw": "1ST|8:20"
+    "raw": "1ST|8.20"
    }
   ],
   "pbp_possession": {
@@ -354,17 +412,53 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.85
+  "orientation_conf": 0.88
  },
  {
   "set_start_frame": 32871,
   "core_end_frame": 33066,
   "attacked_basket": "left",
-  "offense_team": 1,
+  "offense_team": 0,
   "confidence": 0.55,
-  "offense_real": "OKC",
-  "defense_real": "GSW",
-  "status": "anchor_failed"
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 32871,
+    "period": 1,
+    "clock_s": 465,
+    "raw": "1ST|7.45"
+   },
+   {
+    "frame": 33066,
+    "period": 1,
+    "clock_s": 462,
+    "raw": "1ST|7.42"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    469.0,
+    463.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 463.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
  },
  {
   "set_start_frame": 33936,
@@ -378,16 +472,16 @@
   "period": 1,
   "anchors": [
    {
-    "frame": 34004,
+    "frame": 33936,
     "period": 1,
-    "clock_s": 446,
-    "raw": "1ST|7:26"
+    "clock_s": 447,
+    "raw": "1ST|7.27"
    },
    {
-    "frame": 34110,
+    "frame": 34104,
     "period": 1,
     "clock_s": 444,
-    "raw": "1ST|7:24"
+    "raw": "1ST|7.24"
    }
   ],
   "pbp_possession": {
@@ -410,6 +504,6 @@
   "offense_agrees": true,
   "orientation_flipped": true,
   "offense_source": "orientation",
-  "orientation_conf": 0.66
+  "orientation_conf": 0.69
  }
 ]

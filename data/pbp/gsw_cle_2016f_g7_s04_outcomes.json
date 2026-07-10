@@ -14,13 +14,13 @@
     "frame": 0,
     "period": 2,
     "clock_s": 89,
-    "raw": "2Nd|1:29"
+    "raw": "2Nd|1.29"
    },
    {
     "frame": 126,
     "period": 2,
     "clock_s": 85,
-    "raw": "2Nd|1:25"
+    "raw": "2Nd|1.25"
    }
   ],
   "pbp_possession": {
@@ -89,7 +89,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.92
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 2715,
@@ -106,13 +106,13 @@
     "frame": 2715,
     "period": 2,
     "clock_s": 65,
-    "raw": "2Nd|1:05"
+    "raw": "2Nd|1.05"
    },
    {
-    "frame": 2883,
+    "frame": 3075,
     "period": 2,
-    "clock_s": 60,
-    "raw": "2Nd|1:00"
+    "clock_s": 53.4,
+    "raw": "2Nd|53.4"
    }
   ],
   "pbp_possession": {
@@ -145,21 +145,43 @@
   "confidence": 0.88,
   "offense_real": "CLE",
   "defense_real": "GSW",
-  "status": "anchor_inconsistent",
+  "status": "aligned",
+  "period": 2,
   "anchors": [
    {
-    "frame": 3514,
+    "frame": 3348,
     "period": 2,
-    "clock_s": 273,
-    "raw": "2Nd|433"
+    "clock_s": 49.1,
+    "raw": "2Nd|49.1"
    },
    {
-    "frame": 3849,
+    "frame": 3846,
     "period": 2,
-    "clock_s": 198,
-    "raw": "2Nd|318"
+    "clock_s": 31.9,
+    "raw": "2Nd|31.9"
    }
-  ]
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    51.0,
+    30.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 30.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. James misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
  },
  {
   "set_start_frame": 9537,
@@ -176,7 +198,7 @@
     "frame": 9537,
     "period": 3,
     "clock_s": 626,
-    "raw": "3ro|10:26"
+    "raw": "3ro|10.26"
    },
    {
     "frame": 9747,
@@ -205,7 +227,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  },
  {
   "set_start_frame": 11160,
@@ -222,13 +244,13 @@
     "frame": 11160,
     "period": 3,
     "clock_s": 585,
-    "raw": "3ro|9:45"
+    "raw": "3ro|9.45"
    },
    {
     "frame": 11388,
     "period": 3,
     "clock_s": 577,
-    "raw": "3ro|9:37"
+    "raw": "3ro|9.37"
    }
   ],
   "pbp_possession": {
@@ -251,7 +273,7 @@
   "offense_agrees": true,
   "orientation_flipped": false,
   "offense_source": "orientation",
-  "orientation_conf": 0.79
+  "orientation_conf": 0.8
  },
  {
   "set_start_frame": 11610,
@@ -268,7 +290,7 @@
     "frame": 11610,
     "period": 3,
     "clock_s": 570,
-    "raw": "3Ro|9:30"
+    "raw": "3Ro|9.30"
    },
    {
     "frame": 11904,
@@ -314,7 +336,7 @@
     "frame": 16779,
     "period": 3,
     "clock_s": 466,
-    "raw": "3ro|7:46"
+    "raw": "3ro|7.46"
    },
    {
     "frame": 16914,
