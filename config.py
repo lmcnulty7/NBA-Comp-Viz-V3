@@ -129,10 +129,12 @@ def set_seed(seed: int = SEED) -> None:
 
 
 def get_device() -> str:
-    """Apple-Silicon: prefer MPS, else CPU."""
+    """CUDA (Colab harvest) > MPS (this Mac) > CPU."""
     try:
         import torch
 
+        if torch.cuda.is_available():
+            return "cuda"
         if torch.backends.mps.is_available():
             return "mps"
     except Exception:

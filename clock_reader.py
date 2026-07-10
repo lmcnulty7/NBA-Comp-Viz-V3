@@ -94,7 +94,12 @@ class ClockReader:
         import easyocr
         self.period_box = LAYOUTS[layout]["period_box"]
         self.clock_box = LAYOUTS[layout]["clock_box"]
-        self.reader = easyocr.Reader(["en"], gpu=False, verbose=False)
+        try:
+            import torch
+            gpu = torch.cuda.is_available()   # CUDA yes; MPS stays CPU (safer)
+        except Exception:
+            gpu = False
+        self.reader = easyocr.Reader(["en"], gpu=gpu, verbose=False)
 
     def _ocr(self, frame_bgr, box, allowlist):
         x1, y1, x2, y2 = box
