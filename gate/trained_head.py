@@ -90,6 +90,22 @@ class TrainedHeadGate:
 
     @classmethod
     def load(cls, path: Path, backbone=None, threshold: float | None = None) -> "TrainedHeadGate":
+        # Prefer the version-independent coefficient export: sklearn pickles
+        # break across versions (Colab run-4 preflight: 1.8.0 pickle on 1.6.1
+        # → no attribute 'multi_class'). The head is a logistic regression, so
+        # raw coefficients + a sigmoid are exactly equivalent and depend on
+        # nothing but numpy. Falls back to the joblib for old checkouts.
+        coefs = Path(path).parent / "trained_head_coefs.npz"
+        if coefs.exists():
+            import json as _json
+
+            import config
+            z = np.load(coefs)
+            clf = _NpzLogit(z["coef"], z["intercept"], z["classes"])
+            thr = threshold
+            if thr is None:
+                thr = _json.loads(config.THRESHOLDS_PATH.read_text())["trained"]
+            return cls(clf=clf, backbone=backbone, threshold=thr, meta={"src": "npz"})
         import joblib
 
         blob = joblib.load(path)
@@ -99,3 +115,18 @@ class TrainedHeadGate:
             threshold=blob["threshold"] if threshold is None else threshold,
             meta=blob.get("meta", {}),
         )
+
+
+class _NpzLogit:
+    """Dependency-free logistic head, predict_proba-compatible with the sklearn
+    LogisticRegression it was exported from (binary, class order preserved)."""
+
+    def __init__(self, coef, intercept, classes):
+        self.coef_ = coef
+        self.intercept_ = intercept
+        self.classes_ = list(classes)
+
+    def predict_proba(self, X):
+        z = np.asarray(X) @ self.coef_.T + self.intercept_
+        p1 = 1.0 / (1.0 + np.exp(-z[:, 0]))
+        return np.stack([1.0 - p1, p1], axis=1)
