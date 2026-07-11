@@ -1,0 +1,325 @@
+[
+ {
+  "set_start_frame": 1044,
+  "core_end_frame": 1233,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1044,
+    "period": 1,
+    "clock_s": 447,
+    "raw": "1st|7.27"
+   },
+   {
+    "frame": 1233,
+    "period": 1,
+    "clock_s": 442,
+    "raw": "1st|7.22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    453.0,
+    431.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 431.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by Z. Pachulia (bad pass; steal by D. Waiters )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 2262,
+  "core_end_frame": 2544,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2262,
+    "period": 1,
+    "clock_s": 442,
+    "raw": "1st|7.22"
+   },
+   {
+    "frame": 2544,
+    "period": 1,
+    "clock_s": 434,
+    "raw": "1st|7.14"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    453.0,
+    431.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 431.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by Z. Pachulia (bad pass; steal by D. Waiters )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 1044,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 3675,
+  "core_end_frame": 3837,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3675,
+    "period": 1,
+    "clock_s": 396,
+    "raw": "1s|6.36"
+   },
+   {
+    "frame": 3837,
+    "period": 1,
+    "clock_s": 390,
+    "raw": "1st|6.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    401.0,
+    389.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 389.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "P. McCaw misses 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 8127,
+  "core_end_frame": 8373,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 8127,
+    "period": 1,
+    "clock_s": 316,
+    "raw": "1s|5.16"
+   },
+   {
+    "frame": 8373,
+    "period": 1,
+    "clock_s": 308,
+    "raw": "1st|5.08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    319.0,
+    303.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 303.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Waiters misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 13056,
+  "core_end_frame": 13404,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 13172,
+    "period": 1,
+    "clock_s": 220,
+    "raw": "1s|3.40"
+   },
+   {
+    "frame": 13404,
+    "period": 1,
+    "clock_s": 213,
+    "raw": "1s|333"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    253.0,
+    216.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.57,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 229.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by Z. Pachulia )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 14217,
+  "core_end_frame": 14493,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.64,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 14217,
+    "period": 1,
+    "clock_s": 186,
+    "raw": "1s|306"
+   },
+   {
+    "frame": 14493,
+    "period": 1,
+    "clock_s": 177,
+    "raw": "1st|2.57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    196.0,
+    172.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 172.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Johnson makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 14736,
+  "core_end_frame": 14916,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 14736,
+    "period": 1,
+    "clock_s": 169,
+    "raw": "1s|2.49"
+   },
+   {
+    "frame": 14916,
+    "period": 1,
+    "clock_s": 163,
+    "raw": "1s|2.43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    172.0,
+    155.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 155.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "I. Clark makes 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ }
+]

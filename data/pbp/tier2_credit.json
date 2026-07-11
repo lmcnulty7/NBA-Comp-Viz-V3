@@ -2,11 +2,11 @@
  "rows": [
   {
    "defense": "GSW",
-   "n_possessions": 167,
-   "n_games": 8,
-   "ppp_allowed": 1.096,
-   "baseline_ppp": 1.028,
-   "credit_per_100": -6.8,
+   "n_possessions": 191,
+   "n_games": 9,
+   "ppp_allowed": 1.073,
+   "baseline_ppp": 1.018,
+   "credit_per_100": -5.5,
    "meaningful": false
   },
   {
@@ -25,6 +25,15 @@
    "ppp_allowed": 1.275,
    "baseline_ppp": 1.069,
    "credit_per_100": -20.6,
+   "meaningful": false
+  },
+  {
+   "defense": "MIA",
+   "n_possessions": 26,
+   "n_games": 2,
+   "ppp_allowed": 0.846,
+   "baseline_ppp": 1.014,
+   "credit_per_100": 16.8,
    "meaningful": false
   },
   {
@@ -53,19 +62,10 @@
    "baseline_ppp": 1.352,
    "credit_per_100": 28.6,
    "meaningful": false
-  },
-  {
-   "defense": "MIA",
-   "n_possessions": 9,
-   "n_games": 1,
-   "ppp_allowed": 0.667,
-   "baseline_ppp": 0.908,
-   "credit_per_100": 24.1,
-   "meaningful": false
   }
  ],
  "min_bucket": 300,
- "joined_total": 332,
+ "joined_total": 373,
  "note": "PLACEHOLDER until buckets reach min_bucket \u2014 do not report",
  "baseline": "offense's own full-game PPP (PBP), possession-weighted"
 }

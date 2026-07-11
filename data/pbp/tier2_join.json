@@ -1,7 +1,7 @@
 {
  "checks": {
-  "joined": 332,
-  "excluded": 241,
+  "joined": 373,
+  "excluded": 263,
   "every_join_has_outcome_and_defenders": true,
   "no_shared_pbp_possession": true,
   "team_consistency_all": true,
@@ -7819,6 +7819,1869 @@
    ],
    "primary_defender_fragment": 9794,
    "_span_len": 147
+  },
+  {
+   "clip": "gsw_mia_2017_s00",
+   "game": "201701100GSW",
+   "set_start_frame": 9444,
+   "period": 1,
+   "pbp_clock": [
+    677.0,
+    652.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Curry misses 3-pt jump shot from 23 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 1557,
+     "primary_man": 1558,
+     "time_assigned_s": 11.9,
+     "matchup_dist_median_ft": 14.4
+    },
+    {
+     "fragment": 1563,
+     "primary_man": 1561,
+     "time_assigned_s": 11.0,
+     "matchup_dist_median_ft": 11.6
+    },
+    {
+     "fragment": 1562,
+     "primary_man": 1558,
+     "time_assigned_s": 5.2,
+     "matchup_dist_median_ft": 17.0
+    },
+    {
+     "fragment": 638,
+     "primary_man": 641,
+     "time_assigned_s": 3.5,
+     "matchup_dist_median_ft": 4.9
+    },
+    {
+     "fragment": 1556,
+     "primary_man": 1561,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 18.3
+    }
+   ],
+   "primary_defender_fragment": 1557,
+   "_span_len": 378
+  },
+  {
+   "clip": "gsw_mia_2017_s00",
+   "game": "201701100GSW",
+   "set_start_frame": 16272,
+   "period": 1,
+   "pbp_clock": [
+    544.0,
+    528.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Waiters misses 2-pt layup from 2 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 7108,
+     "primary_man": 7110,
+     "time_assigned_s": 7.0,
+     "matchup_dist_median_ft": 8.3
+    },
+    {
+     "fragment": 5757,
+     "primary_man": 6229,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 11.1
+    },
+    {
+     "fragment": 7111,
+     "primary_man": 6229,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 7.9
+    },
+    {
+     "fragment": 7109,
+     "primary_man": 6229,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 19.1
+    }
+   ],
+   "primary_defender_fragment": 7108,
+   "_span_len": 303
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "game": "201701100GSW",
+   "set_start_frame": 1044,
+   "period": 1,
+   "pbp_clock": [
+    453.0,
+    431.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by Z. Pachulia (bad pass; steal by D. Waiters )"
+   },
+   "defenders": [
+    {
+     "fragment": 855,
+     "primary_man": 131,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 23.1
+    },
+    {
+     "fragment": 853,
+     "primary_man": 854,
+     "time_assigned_s": 4.5,
+     "matchup_dist_median_ft": 4.5
+    },
+    {
+     "fragment": 856,
+     "primary_man": 131,
+     "time_assigned_s": 1.7,
+     "matchup_dist_median_ft": 20.8
+    }
+   ],
+   "primary_defender_fragment": 855,
+   "_span_len": 189
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "game": "201701100GSW",
+   "set_start_frame": 3675,
+   "period": 1,
+   "pbp_clock": [
+    401.0,
+    389.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "P. McCaw misses 2-pt jump shot from 17 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2582,
+     "primary_man": 2577,
+     "time_assigned_s": 5.0,
+     "matchup_dist_median_ft": 16.3
+    },
+    {
+     "fragment": 2681,
+     "primary_man": 1933,
+     "time_assigned_s": 4.9,
+     "matchup_dist_median_ft": 3.9
+    },
+    {
+     "fragment": 2687,
+     "primary_man": 2577,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 10.7
+    },
+    {
+     "fragment": 2682,
+     "primary_man": 1933,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 6.4
+    }
+   ],
+   "primary_defender_fragment": 2582,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "game": "201701100GSW",
+   "set_start_frame": 8127,
+   "period": 1,
+   "pbp_clock": [
+    319.0,
+    303.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Waiters misses 2-pt jump shot from 18 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 6252,
+     "primary_man": 5543,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 13.7
+    },
+    {
+     "fragment": 6248,
+     "primary_man": 5543,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 10.8
+    }
+   ],
+   "primary_defender_fragment": 6252,
+   "_span_len": 246
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "game": "201701100GSW",
+   "set_start_frame": 14217,
+   "period": 1,
+   "pbp_clock": [
+    196.0,
+    172.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "J. Johnson makes 2-pt dunk at rim"
+   },
+   "defenders": [
+    {
+     "fragment": 11664,
+     "primary_man": 11663,
+     "time_assigned_s": 8.0,
+     "matchup_dist_median_ft": 12.1
+    },
+    {
+     "fragment": 11661,
+     "primary_man": 11666,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 28.1
+    },
+    {
+     "fragment": 11665,
+     "primary_man": 11663,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 34.4
+    }
+   ],
+   "primary_defender_fragment": 11664,
+   "_span_len": 276
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "game": "201701100GSW",
+   "set_start_frame": 14736,
+   "period": 1,
+   "pbp_clock": [
+    172.0,
+    155.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "I. Clark makes 2-pt jump shot from 12 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 12149,
+     "primary_man": 11661,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 7.8
+    },
+    {
+     "fragment": 12152,
+     "primary_man": 11661,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 15.6
+    },
+    {
+     "fragment": 12154,
+     "primary_man": 11661,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 1.3
+    }
+   ],
+   "primary_defender_fragment": 12149,
+   "_span_len": 180
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "game": "201701100GSW",
+   "set_start_frame": 726,
+   "period": 1,
+   "pbp_clock": [
+    99.0,
+    82.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Waiters makes 2-pt jump shot from 5 ft (assist by T. Johnson )"
+   },
+   "defenders": [
+    {
+     "fragment": 9,
+     "primary_man": 38,
+     "time_assigned_s": 5.4,
+     "matchup_dist_median_ft": 10.8
+    },
+    {
+     "fragment": 5,
+     "primary_man": 20,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 9.9
+    },
+    {
+     "fragment": 13,
+     "primary_man": 10,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 10.9
+    },
+    {
+     "fragment": 40,
+     "primary_man": 18,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 19.0
+    },
+    {
+     "fragment": 42,
+     "primary_man": 31,
+     "time_assigned_s": 2.5,
+     "matchup_dist_median_ft": 4.8
+    },
+    {
+     "fragment": 30,
+     "primary_man": 18,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 23.7
+    },
+    {
+     "fragment": 39,
+     "primary_man": 10,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 7.1
+    },
+    {
+     "fragment": 48,
+     "primary_man": 18,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 10.6
+    }
+   ],
+   "primary_defender_fragment": 9,
+   "_span_len": 300
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "game": "201701100GSW",
+   "set_start_frame": 1212,
+   "period": 1,
+   "pbp_clock": [
+    82.0,
+    73.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "I. Clark misses 2-pt layup from 3 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 38,
+     "primary_man": 5,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 16.9
+    },
+    {
+     "fragment": 18,
+     "primary_man": 42,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 10.6
+    },
+    {
+     "fragment": 51,
+     "primary_man": 30,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 21.6
+    },
+    {
+     "fragment": 81,
+     "primary_man": 40,
+     "time_assigned_s": 3.2,
+     "matchup_dist_median_ft": 8.8
+    },
+    {
+     "fragment": 77,
+     "primary_man": 40,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 27.9
+    },
+    {
+     "fragment": 109,
+     "primary_man": 5,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 8.6
+    }
+   ],
+   "primary_defender_fragment": 38,
+   "_span_len": 123
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "game": "201701100GSW",
+   "set_start_frame": 1440,
+   "period": 1,
+   "pbp_clock": [
+    73.0,
+    66.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by D. Waiters (offensive foul)"
+   },
+   "defenders": [
+    {
+     "fragment": 157,
+     "primary_man": 77,
+     "time_assigned_s": 5.0,
+     "matchup_dist_median_ft": 7.4
+    },
+    {
+     "fragment": 156,
+     "primary_man": 77,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 10.1
+    }
+   ],
+   "primary_defender_fragment": 157,
+   "_span_len": 246
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "game": "201701100GSW",
+   "set_start_frame": 8442,
+   "period": 2,
+   "pbp_clock": [
+    720.0,
+    698.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. West misses 2-pt jump shot from 8 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 5528,
+     "primary_man": 5526,
+     "time_assigned_s": 8.6,
+     "matchup_dist_median_ft": 23.7
+    },
+    {
+     "fragment": 5527,
+     "primary_man": 5531,
+     "time_assigned_s": 7.9,
+     "matchup_dist_median_ft": 4.5
+    },
+    {
+     "fragment": 5525,
+     "primary_man": 5526,
+     "time_assigned_s": 2.9,
+     "matchup_dist_median_ft": 5.3
+    }
+   ],
+   "primary_defender_fragment": 5528,
+   "_span_len": 270
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "game": "201701100GSW",
+   "set_start_frame": 10410,
+   "period": 2,
+   "pbp_clock": [
+    678.0,
+    665.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Livingston makes 2-pt jump shot from 15 ft (assist by I. Clark )"
+   },
+   "defenders": [
+    {
+     "fragment": 7521,
+     "primary_man": 7524,
+     "time_assigned_s": 9.7,
+     "matchup_dist_median_ft": 9.7
+    },
+    {
+     "fragment": 7527,
+     "primary_man": 7526,
+     "time_assigned_s": 9.4,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 7522,
+     "primary_man": 7525,
+     "time_assigned_s": 8.1,
+     "matchup_dist_median_ft": 6.2
+    }
+   ],
+   "primary_defender_fragment": 7521,
+   "_span_len": 288
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "game": "201701100GSW",
+   "set_start_frame": 13023,
+   "period": 2,
+   "pbp_clock": [
+    599.0,
+    578.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "G. Dragi\u00c4\u0087 misses 2-pt jump shot from 11 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 10246,
+     "primary_man": 10250,
+     "time_assigned_s": 6.5,
+     "matchup_dist_median_ft": 9.7
+    },
+    {
+     "fragment": 10249,
+     "primary_man": 10245,
+     "time_assigned_s": 3.7,
+     "matchup_dist_median_ft": 4.1
+    },
+    {
+     "fragment": 10244,
+     "primary_man": 9640,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 5.4
+    }
+   ],
+   "primary_defender_fragment": 10246,
+   "_span_len": 207
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "game": "201701100GSW",
+   "set_start_frame": 987,
+   "period": 2,
+   "pbp_clock": [
+    496.0,
+    455.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "S. Livingston makes 2-pt jump shot from 16 ft (assist by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 72,
+     "primary_man": 3,
+     "time_assigned_s": 7.1,
+     "matchup_dist_median_ft": 11.7
+    },
+    {
+     "fragment": 78,
+     "primary_man": 76,
+     "time_assigned_s": 7.1,
+     "matchup_dist_median_ft": 7.4
+    },
+    {
+     "fragment": 93,
+     "primary_man": 62,
+     "time_assigned_s": 5.7,
+     "matchup_dist_median_ft": 4.9
+    },
+    {
+     "fragment": 56,
+     "primary_man": 3,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 5.8
+    },
+    {
+     "fragment": 80,
+     "primary_man": 94,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 16.2
+    },
+    {
+     "fragment": 64,
+     "primary_man": 94,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 26.0
+    },
+    {
+     "fragment": 83,
+     "primary_man": 62,
+     "time_assigned_s": 0.4,
+     "matchup_dist_median_ft": 20.3
+    },
+    {
+     "fragment": 63,
+     "primary_man": 76,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 15,
+     "primary_man": 76,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 2.3
+    },
+    {
+     "fragment": 105,
+     "primary_man": 3,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 15.7
+    }
+   ],
+   "primary_defender_fragment": 72,
+   "_span_len": 306
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "game": "201701100GSW",
+   "set_start_frame": 3597,
+   "period": 2,
+   "pbp_clock": [
+    455.0,
+    437.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "A. Iguodala makes 2-pt jump shot from 18 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 894,
+     "primary_man": 129,
+     "time_assigned_s": 6.2,
+     "matchup_dist_median_ft": 13.5
+    },
+    {
+     "fragment": 900,
+     "primary_man": 129,
+     "time_assigned_s": 0.3,
+     "matchup_dist_median_ft": 16.0
+    }
+   ],
+   "primary_defender_fragment": 894,
+   "_span_len": 195
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "game": "201701100GSW",
+   "set_start_frame": 6942,
+   "period": 2,
+   "pbp_clock": [
+    382.0,
+    362.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by I. Clark (step out of bounds)"
+   },
+   "defenders": [
+    {
+     "fragment": 4821,
+     "primary_man": 4822,
+     "time_assigned_s": 11.5,
+     "matchup_dist_median_ft": 13.4
+    },
+    {
+     "fragment": 4820,
+     "primary_man": 4817,
+     "time_assigned_s": 11.0,
+     "matchup_dist_median_ft": 6.6
+    },
+    {
+     "fragment": 4819,
+     "primary_man": 4823,
+     "time_assigned_s": 2.9,
+     "matchup_dist_median_ft": 5.7
+    }
+   ],
+   "primary_defender_fragment": 4821,
+   "_span_len": 342
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "game": "201701100GSW",
+   "set_start_frame": 10926,
+   "period": 2,
+   "pbp_clock": [
+    322.0,
+    302.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Curry misses 2-pt layup from 2 ft (block by H. Whiteside )"
+   },
+   "defenders": [
+    {
+     "fragment": 7468,
+     "primary_man": 7467,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 10.6
+    },
+    {
+     "fragment": 7564,
+     "primary_man": 7560,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 15.4
+    }
+   ],
+   "primary_defender_fragment": 7468,
+   "_span_len": 126
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "game": "201701100GSW",
+   "set_start_frame": 14400,
+   "period": 2,
+   "pbp_clock": [
+    279.0,
+    250.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "H. Whiteside makes 2-pt jump shot from 12 ft (assist by D. Waiters )"
+   },
+   "defenders": [
+    {
+     "fragment": 9055,
+     "primary_man": 9526,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 8.8
+    },
+    {
+     "fragment": 9524,
+     "primary_man": 9525,
+     "time_assigned_s": 2.1,
+     "matchup_dist_median_ft": 15.4
+    },
+    {
+     "fragment": 9527,
+     "primary_man": 9526,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 17.9
+    }
+   ],
+   "primary_defender_fragment": 9055,
+   "_span_len": 132
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "game": "201701100GSW",
+   "set_start_frame": 3546,
+   "period": 2,
+   "pbp_clock": [
+    145.0,
+    130.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by J. Johnson (bad pass; steal by D. Green )"
+   },
+   "defenders": [
+    {
+     "fragment": 139,
+     "primary_man": 51,
+     "time_assigned_s": 5.2,
+     "matchup_dist_median_ft": 8.8
+    },
+    {
+     "fragment": 22,
+     "primary_man": 47,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 12.0
+    },
+    {
+     "fragment": 146,
+     "primary_man": 106,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 11.3
+    },
+    {
+     "fragment": 136,
+     "primary_man": 154,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 8.3
+    },
+    {
+     "fragment": 134,
+     "primary_man": 78,
+     "time_assigned_s": 3.0,
+     "matchup_dist_median_ft": 10.4
+    },
+    {
+     "fragment": 132,
+     "primary_man": 106,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 13.0
+    }
+   ],
+   "primary_defender_fragment": 139,
+   "_span_len": 210
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "game": "201701100GSW",
+   "set_start_frame": 6093,
+   "period": 2,
+   "pbp_clock": [
+    97.0,
+    86.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "T. Johnson makes 3-pt jump shot from 24 ft (assist by J. Johnson )"
+   },
+   "defenders": [
+    {
+     "fragment": 1621,
+     "primary_man": 1620,
+     "time_assigned_s": 4.9,
+     "matchup_dist_median_ft": 13.5
+    },
+    {
+     "fragment": 1618,
+     "primary_man": 1619,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 10.0
+    }
+   ],
+   "primary_defender_fragment": 1621,
+   "_span_len": 144
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "game": "201701100GSW",
+   "set_start_frame": 9144,
+   "period": 2,
+   "pbp_clock": [
+    56.0,
+    46.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "H. Whiteside makes 2-pt dunk at rim (assist by G. Dragi\u00c4\u0087 )"
+   },
+   "defenders": [
+    {
+     "fragment": 3806,
+     "primary_man": 3662,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 10.2
+    },
+    {
+     "fragment": 3802,
+     "primary_man": 3662,
+     "time_assigned_s": 5.0,
+     "matchup_dist_median_ft": 13.8
+    },
+    {
+     "fragment": 3805,
+     "primary_man": 3804,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 17.9
+    },
+    {
+     "fragment": 3665,
+     "primary_man": 3662,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 3.4
+    }
+   ],
+   "primary_defender_fragment": 3806,
+   "_span_len": 291
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "game": "201701100GSW",
+   "set_start_frame": 9996,
+   "period": 2,
+   "pbp_clock": [
+    39.0,
+    0.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "W. Ellington makes free throw 3 of 3"
+   },
+   "defenders": [
+    {
+     "fragment": 4803,
+     "primary_man": 4806,
+     "time_assigned_s": 7.0,
+     "matchup_dist_median_ft": 15.5
+    },
+    {
+     "fragment": 4802,
+     "primary_man": 4804,
+     "time_assigned_s": 6.3,
+     "matchup_dist_median_ft": 3.8
+    },
+    {
+     "fragment": 4801,
+     "primary_man": 4806,
+     "time_assigned_s": 3.8,
+     "matchup_dist_median_ft": 9.0
+    },
+    {
+     "fragment": 4800,
+     "primary_man": 4804,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 15.3
+    }
+   ],
+   "primary_defender_fragment": 4803,
+   "_span_len": 273
+  },
+  {
+   "clip": "gsw_mia_2017_s05",
+   "game": "201701100GSW",
+   "set_start_frame": 7341,
+   "period": 3,
+   "pbp_clock": [
+    720.0,
+    697.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "K. Durant makes 3-pt jump shot from 26 ft (assist by S. Curry )"
+   },
+   "defenders": [
+    {
+     "fragment": 525,
+     "primary_man": 527,
+     "time_assigned_s": 6.1,
+     "matchup_dist_median_ft": 5.0
+    },
+    {
+     "fragment": 528,
+     "primary_man": 524,
+     "time_assigned_s": 5.7,
+     "matchup_dist_median_ft": 12.3
+    },
+    {
+     "fragment": 531,
+     "primary_man": 529,
+     "time_assigned_s": 1.8,
+     "matchup_dist_median_ft": 2.7
+    }
+   ],
+   "primary_defender_fragment": 525,
+   "_span_len": 201
+  },
+  {
+   "clip": "gsw_mia_2017_s05",
+   "game": "201701100GSW",
+   "set_start_frame": 15177,
+   "period": 3,
+   "pbp_clock": [
+    556.0,
+    542.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by H. Whiteside (lost ball; steal by Z. Pachulia )"
+   },
+   "defenders": [
+    {
+     "fragment": 10006,
+     "primary_man": 10013,
+     "time_assigned_s": 7.3,
+     "matchup_dist_median_ft": 6.4
+    },
+    {
+     "fragment": 10009,
+     "primary_man": 10013,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 10011,
+     "primary_man": 10013,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 19.6
+    },
+    {
+     "fragment": 10012,
+     "primary_man": 10013,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 11.8
+    }
+   ],
+   "primary_defender_fragment": 10006,
+   "_span_len": 264
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "game": "201701100GSW",
+   "set_start_frame": 336,
+   "period": 3,
+   "pbp_clock": [
+    483.0,
+    465.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Waiters makes 2-pt jump shot from 10 ft (assist by G. Dragi\u00c4\u0087 )"
+   },
+   "defenders": [
+    {
+     "fragment": 5,
+     "primary_man": 9,
+     "time_assigned_s": 5.1,
+     "matchup_dist_median_ft": 6.4
+    },
+    {
+     "fragment": 6,
+     "primary_man": 8,
+     "time_assigned_s": 4.9,
+     "matchup_dist_median_ft": 12.5
+    },
+    {
+     "fragment": 2,
+     "primary_man": 7,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 14.1
+    },
+    {
+     "fragment": 4,
+     "primary_man": 3,
+     "time_assigned_s": 4.8,
+     "matchup_dist_median_ft": 11.2
+    }
+   ],
+   "primary_defender_fragment": 5,
+   "_span_len": 150
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "game": "201701100GSW",
+   "set_start_frame": 1914,
+   "period": 3,
+   "pbp_clock": [
+    453.0,
+    427.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "G. Dragi\u00c4\u0087 misses 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 116,
+     "primary_man": 101,
+     "time_assigned_s": 5.9,
+     "matchup_dist_median_ft": 9.6
+    },
+    {
+     "fragment": 105,
+     "primary_man": 7,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 9.9
+    },
+    {
+     "fragment": 120,
+     "primary_man": 107,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 13.7
+    },
+    {
+     "fragment": 130,
+     "primary_man": 163,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 13.1
+    },
+    {
+     "fragment": 102,
+     "primary_man": 107,
+     "time_assigned_s": 0.7,
+     "matchup_dist_median_ft": 6.6
+    },
+    {
+     "fragment": 119,
+     "primary_man": 7,
+     "time_assigned_s": 0.6,
+     "matchup_dist_median_ft": 13.8
+    },
+    {
+     "fragment": 126,
+     "primary_man": 7,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 45.4
+    }
+   ],
+   "primary_defender_fragment": 116,
+   "_span_len": 231
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "game": "201701100GSW",
+   "set_start_frame": 3963,
+   "period": 3,
+   "pbp_clock": [
+    385.0,
+    372.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. Waiters makes 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 415,
+     "primary_man": 282,
+     "time_assigned_s": 3.1,
+     "matchup_dist_median_ft": 12.2
+    },
+    {
+     "fragment": 414,
+     "primary_man": 282,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 9.3
+    }
+   ],
+   "primary_defender_fragment": 415,
+   "_span_len": 138
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "game": "201701100GSW",
+   "set_start_frame": 5388,
+   "period": 3,
+   "pbp_clock": [
+    339.0,
+    319.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "H. Whiteside misses 2-pt jump shot from 16 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 2688,
+     "primary_man": 2298,
+     "time_assigned_s": 12.3,
+     "matchup_dist_median_ft": 12.6
+    },
+    {
+     "fragment": 2691,
+     "primary_man": 2298,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 21.0
+    },
+    {
+     "fragment": 414,
+     "primary_man": 2298,
+     "time_assigned_s": 0.2,
+     "matchup_dist_median_ft": 5.4
+    }
+   ],
+   "primary_defender_fragment": 2688,
+   "_span_len": 411
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "game": "201701100GSW",
+   "set_start_frame": 16821,
+   "period": 3,
+   "pbp_clock": [
+    185.0,
+    167.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Green misses 2-pt jump shot from 8 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 10687,
+     "primary_man": 10682,
+     "time_assigned_s": 2.7,
+     "matchup_dist_median_ft": 3.9
+    },
+    {
+     "fragment": 10683,
+     "primary_man": 9586,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 6.7
+    },
+    {
+     "fragment": 10690,
+     "primary_man": 9586,
+     "time_assigned_s": 1.1,
+     "matchup_dist_median_ft": 10.8
+    },
+    {
+     "fragment": 10686,
+     "primary_man": 10682,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 6.9
+    }
+   ],
+   "primary_defender_fragment": 10687,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "game": "201701100GSW",
+   "set_start_frame": 1167,
+   "period": 3,
+   "pbp_clock": [
+    132.0,
+    119.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "W. Reed makes 2-pt hook shot from 5 ft (assist by D. Waiters )"
+   },
+   "defenders": [
+    {
+     "fragment": 63,
+     "primary_man": 5,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 12.2
+    },
+    {
+     "fragment": 11,
+     "primary_man": 6,
+     "time_assigned_s": 3.9,
+     "matchup_dist_median_ft": 20.4
+    },
+    {
+     "fragment": 29,
+     "primary_man": 2,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 13.9
+    },
+    {
+     "fragment": 69,
+     "primary_man": 1,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 13.9
+    },
+    {
+     "fragment": 62,
+     "primary_man": 78,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 7.6
+    },
+    {
+     "fragment": 93,
+     "primary_man": 92,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 7.0
+    },
+    {
+     "fragment": 15,
+     "primary_man": 5,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 16.5
+    }
+   ],
+   "primary_defender_fragment": 63,
+   "_span_len": 162
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "game": "201701100GSW",
+   "set_start_frame": 1590,
+   "period": 3,
+   "pbp_clock": [
+    119.0,
+    104.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 3,
+    "terminating": "K. Durant makes 3-pt jump shot from 26 ft (assist by I. Clark )"
+   },
+   "defenders": [
+    {
+     "fragment": 1,
+     "primary_man": 97,
+     "time_assigned_s": 7.3,
+     "matchup_dist_median_ft": 9.9
+    },
+    {
+     "fragment": 122,
+     "primary_man": 93,
+     "time_assigned_s": 5.8,
+     "matchup_dist_median_ft": 8.9
+    },
+    {
+     "fragment": 92,
+     "primary_man": 62,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 16.8
+    },
+    {
+     "fragment": 117,
+     "primary_man": 62,
+     "time_assigned_s": 3.3,
+     "matchup_dist_median_ft": 28.5
+    },
+    {
+     "fragment": 131,
+     "primary_man": 143,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 4.0
+    },
+    {
+     "fragment": 141,
+     "primary_man": 93,
+     "time_assigned_s": 0.9,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 134,
+     "primary_man": 93,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 31.3
+    },
+    {
+     "fragment": 148,
+     "primary_man": 11,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 17.0
+    }
+   ],
+   "primary_defender_fragment": 1,
+   "_span_len": 234
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "game": "201701100GSW",
+   "set_start_frame": 2256,
+   "period": 3,
+   "pbp_clock": [
+    104.0,
+    77.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "T. Johnson misses 3-pt jump shot from 26 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 159,
+     "primary_man": 160,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 11.5
+    },
+    {
+     "fragment": 163,
+     "primary_man": 160,
+     "time_assigned_s": 4.1,
+     "matchup_dist_median_ft": 5.3
+    },
+    {
+     "fragment": 158,
+     "primary_man": 160,
+     "time_assigned_s": 2.3,
+     "matchup_dist_median_ft": 10.4
+    },
+    {
+     "fragment": 157,
+     "primary_man": 148,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 11.9
+    },
+    {
+     "fragment": 156,
+     "primary_man": 160,
+     "time_assigned_s": 0.5,
+     "matchup_dist_median_ft": 16.7
+    }
+   ],
+   "primary_defender_fragment": 159,
+   "_span_len": 336
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "game": "201701100GSW",
+   "set_start_frame": 3087,
+   "period": 3,
+   "pbp_clock": [
+    72.0,
+    53.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Waiters misses 3-pt jump shot from 25 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 1314,
+     "primary_man": 735,
+     "time_assigned_s": 7.4,
+     "matchup_dist_median_ft": 7.8
+    },
+    {
+     "fragment": 1309,
+     "primary_man": 713,
+     "time_assigned_s": 6.6,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 1315,
+     "primary_man": 1317,
+     "time_assigned_s": 6.3,
+     "matchup_dist_median_ft": 5.3
+    },
+    {
+     "fragment": 1311,
+     "primary_man": 1313,
+     "time_assigned_s": 5.4,
+     "matchup_dist_median_ft": 12.3
+    },
+    {
+     "fragment": 1310,
+     "primary_man": 1316,
+     "time_assigned_s": 2.5,
+     "matchup_dist_median_ft": 6.6
+    }
+   ],
+   "primary_defender_fragment": 1314,
+   "_span_len": 246
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "game": "201701100GSW",
+   "set_start_frame": 10128,
+   "period": 4,
+   "pbp_clock": [
+    701.0,
+    683.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "D. West makes 2-pt jump shot from 18 ft (assist by A. Iguodala )"
+   },
+   "defenders": [
+    {
+     "fragment": 6243,
+     "primary_man": 6239,
+     "time_assigned_s": 10.4,
+     "matchup_dist_median_ft": 10.7
+    },
+    {
+     "fragment": 6240,
+     "primary_man": 6241,
+     "time_assigned_s": 10.2,
+     "matchup_dist_median_ft": 11.2
+    }
+   ],
+   "primary_defender_fragment": 6243,
+   "_span_len": 342
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "game": "201701100GSW",
+   "set_start_frame": 15513,
+   "period": 4,
+   "pbp_clock": [
+    569.0,
+    548.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Livingston misses 2-pt jump shot from 15 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 11249,
+     "primary_man": 11206,
+     "time_assigned_s": 11.5,
+     "matchup_dist_median_ft": 7.9
+    },
+    {
+     "fragment": 11245,
+     "primary_man": 11248,
+     "time_assigned_s": 4.2,
+     "matchup_dist_median_ft": 4.5
+    },
+    {
+     "fragment": 10441,
+     "primary_man": 11206,
+     "time_assigned_s": 1.0,
+     "matchup_dist_median_ft": 24.1
+    }
+   ],
+   "primary_defender_fragment": 11249,
+   "_span_len": 420
+  },
+  {
+   "clip": "gsw_mia_2017_s08",
+   "game": "201701100GSW",
+   "set_start_frame": 5415,
+   "period": 4,
+   "pbp_clock": [
+    435.0,
+    412.0
+   ],
+   "offense_real": "GSW",
+   "defense_real": "MIA",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "S. Livingston misses 2-pt jump shot from 17 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 4026,
+     "primary_man": 4023,
+     "time_assigned_s": 12.2,
+     "matchup_dist_median_ft": 8.1
+    },
+    {
+     "fragment": 4022,
+     "primary_man": 4024,
+     "time_assigned_s": 5.4,
+     "matchup_dist_median_ft": 11.4
+    },
+    {
+     "fragment": 4027,
+     "primary_man": 4020,
+     "time_assigned_s": 2.8,
+     "matchup_dist_median_ft": 6.9
+    },
+    {
+     "fragment": 4025,
+     "primary_man": 4023,
+     "time_assigned_s": 0.8,
+     "matchup_dist_median_ft": 16.0
+    }
+   ],
+   "primary_defender_fragment": 4026,
+   "_span_len": 435
+  },
+  {
+   "clip": "gsw_mia_2017_s08",
+   "game": "201701100GSW",
+   "set_start_frame": 11250,
+   "period": 4,
+   "pbp_clock": [
+    375.0,
+    354.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "T. Johnson misses 3-pt jump shot from 24 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 6125,
+     "primary_man": 6128,
+     "time_assigned_s": 9.3,
+     "matchup_dist_median_ft": 12.1
+    },
+    {
+     "fragment": 6124,
+     "primary_man": 6129,
+     "time_assigned_s": 7.8,
+     "matchup_dist_median_ft": 9.2
+    },
+    {
+     "fragment": 6126,
+     "primary_man": 6129,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 16.2
+    }
+   ],
+   "primary_defender_fragment": 6125,
+   "_span_len": 276
+  },
+  {
+   "clip": "gsw_mia_2017_s09",
+   "game": "201701100GSW",
+   "set_start_frame": 264,
+   "period": 4,
+   "pbp_clock": [
+    267.0,
+    253.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 2,
+    "terminating": "H. Whiteside makes 2-pt dunk at rim (assist by D. Waiters )"
+   },
+   "defenders": [
+    {
+     "fragment": 22,
+     "primary_man": 10,
+     "time_assigned_s": 9.4,
+     "matchup_dist_median_ft": 8.2
+    },
+    {
+     "fragment": 2,
+     "primary_man": 1,
+     "time_assigned_s": 7.7,
+     "matchup_dist_median_ft": 7.2
+    },
+    {
+     "fragment": 8,
+     "primary_man": 4,
+     "time_assigned_s": 7.2,
+     "matchup_dist_median_ft": 5.1
+    },
+    {
+     "fragment": 20,
+     "primary_man": 46,
+     "time_assigned_s": 6.5,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 6,
+     "primary_man": 3,
+     "time_assigned_s": 5.3,
+     "matchup_dist_median_ft": 6.8
+    },
+    {
+     "fragment": 50,
+     "primary_man": 7,
+     "time_assigned_s": 3.4,
+     "matchup_dist_median_ft": 17.9
+    },
+    {
+     "fragment": 36,
+     "primary_man": 51,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 15.0
+    },
+    {
+     "fragment": 30,
+     "primary_man": 3,
+     "time_assigned_s": 2.3,
+     "matchup_dist_median_ft": 8.3
+    },
+    {
+     "fragment": 59,
+     "primary_man": 10,
+     "time_assigned_s": 2.2,
+     "matchup_dist_median_ft": 13.1
+    },
+    {
+     "fragment": 5,
+     "primary_man": 7,
+     "time_assigned_s": 1.2,
+     "matchup_dist_median_ft": 12.3
+    }
+   ],
+   "primary_defender_fragment": 22,
+   "_span_len": 471
+  },
+  {
+   "clip": "gsw_mia_2017_s09",
+   "game": "201701100GSW",
+   "set_start_frame": 2886,
+   "period": 4,
+   "pbp_clock": [
+    217.0,
+    203.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "D. Waiters misses 2-pt layup from 1 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 1424,
+     "primary_man": 1412,
+     "time_assigned_s": 2.4,
+     "matchup_dist_median_ft": 3.1
+    },
+    {
+     "fragment": 1417,
+     "primary_man": 1412,
+     "time_assigned_s": 1.6,
+     "matchup_dist_median_ft": 6.9
+    },
+    {
+     "fragment": 1418,
+     "primary_man": 1412,
+     "time_assigned_s": 1.4,
+     "matchup_dist_median_ft": 5.1
+    },
+    {
+     "fragment": 1420,
+     "primary_man": 1412,
+     "time_assigned_s": 0.7,
+     "matchup_dist_median_ft": 4.3
+    }
+   ],
+   "primary_defender_fragment": 1424,
+   "_span_len": 183
+  },
+  {
+   "clip": "gsw_mia_2017_s09",
+   "game": "201701100GSW",
+   "set_start_frame": 10443,
+   "period": 4,
+   "pbp_clock": [
+    112.0,
+    97.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "H. Whiteside misses 2-pt jump shot from 5 ft"
+   },
+   "defenders": [
+    {
+     "fragment": 5701,
+     "primary_man": 5703,
+     "time_assigned_s": 4.6,
+     "matchup_dist_median_ft": 10.0
+    },
+    {
+     "fragment": 5705,
+     "primary_man": 5706,
+     "time_assigned_s": 4.4,
+     "matchup_dist_median_ft": 5.6
+    }
+   ],
+   "primary_defender_fragment": 5701,
+   "_span_len": 138
+  },
+  {
+   "clip": "gsw_mia_2017_s09",
+   "game": "201701100GSW",
+   "set_start_frame": 11520,
+   "period": 4,
+   "pbp_clock": [
+    78.0,
+    60.0
+   ],
+   "offense_real": "MIA",
+   "defense_real": "GSW",
+   "team_consistency_ok": true,
+   "outcome": {
+    "points": 0,
+    "terminating": "Turnover by H. Whiteside (lost ball; steal by S. Curry )"
+   },
+   "defenders": [
+    {
+     "fragment": 6863,
+     "primary_man": 6861,
+     "time_assigned_s": 6.9,
+     "matchup_dist_median_ft": 8.8
+    },
+    {
+     "fragment": 6865,
+     "primary_man": 6861,
+     "time_assigned_s": 0.1,
+     "matchup_dist_median_ft": 11.7
+    }
+   ],
+   "primary_defender_fragment": 6863,
+   "_span_len": 222
   },
   {
    "clip": "gsw_okc_2016wcf_g1_s00",
@@ -15881,6 +17744,116 @@
   {
    "clip": "gsw_ind_klay60_s09",
    "set_start_frame": 4647,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s00",
+   "set_start_frame": 8064,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "set_start_frame": 2262,
+   "reason": "duplicate_of_span:1044"
+  },
+  {
+   "clip": "gsw_mia_2017_s01",
+   "set_start_frame": 13056,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_mia_2017_s02",
+   "set_start_frame": 2790,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "set_start_frame": 0,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "set_start_frame": 4377,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "set_start_frame": 8874,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s03",
+   "set_start_frame": 11592,
+   "reason": "duplicate_of_span:10926"
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "set_start_frame": 2796,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "set_start_frame": 3897,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_mia_2017_s04",
+   "set_start_frame": 13485,
+   "reason": "duplicate_of_span:9996"
+  },
+  {
+   "clip": "gsw_mia_2017_s05",
+   "set_start_frame": 9831,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "set_start_frame": 1224,
+   "reason": "duplicate_of_span:336"
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "set_start_frame": 2268,
+   "reason": "duplicate_of_span:1914"
+  },
+  {
+   "clip": "gsw_mia_2017_s06",
+   "set_start_frame": 6438,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "set_start_frame": 660,
+   "reason": "matchup_degraded"
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "set_start_frame": 5238,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "set_start_frame": 11310,
+   "reason": "weak_pbp_match"
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "set_start_frame": 12126,
+   "reason": "anchor_inconsistent"
+  },
+  {
+   "clip": "gsw_mia_2017_s07",
+   "set_start_frame": 12594,
+   "reason": "no_pbp_overlap"
+  },
+  {
+   "clip": "gsw_mia_2017_s08",
+   "set_start_frame": 2916,
+   "reason": "offense_disagrees_pbp"
+  },
+  {
+   "clip": "gsw_mia_2017_s08",
+   "set_start_frame": 9126,
    "reason": "offense_disagrees_pbp"
   },
   {

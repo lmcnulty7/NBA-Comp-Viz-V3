@@ -1,0 +1,325 @@
+[
+ {
+  "set_start_frame": 2796,
+  "core_end_frame": 3378,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.96,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2796,
+    "period": 2,
+    "clock_s": 165,
+    "raw": "2n|2.45"
+   },
+   {
+    "frame": 3378,
+    "period": 2,
+    "clock_s": 146,
+    "raw": "2n|2.26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    170.0,
+    145.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 145.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "I. Clark misses 3-pt jump shot from 29 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 3546,
+  "core_end_frame": 3756,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3546,
+    "period": 2,
+    "clock_s": 140,
+    "raw": "2n|2.20"
+   },
+   {
+    "frame": 3756,
+    "period": 2,
+    "clock_s": 133,
+    "raw": "2n|2.13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    145.0,
+    130.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 130.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by J. Johnson (bad pass; steal by D. Green )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.65
+ },
+ {
+  "set_start_frame": 3897,
+  "core_end_frame": 4020,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.69,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3897,
+    "period": 2,
+    "clock_s": 129,
+    "raw": "2n|2.09"
+   },
+   {
+    "frame": 4020,
+    "period": 2,
+    "clock_s": 125,
+    "raw": "2n|2.05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    130.0,
+    122.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 122.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (bad pass; steal by J. Johnson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.92
+ },
+ {
+  "set_start_frame": 6093,
+  "core_end_frame": 6237,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.94,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6093,
+    "period": 2,
+    "clock_s": 94,
+    "raw": "2n|1.34"
+   },
+   {
+    "frame": 6237,
+    "period": 2,
+    "clock_s": 89,
+    "raw": "2n|1.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    97.0,
+    86.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 86.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Johnson makes 3-pt jump shot from 24 ft (assist by J. Johnson )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.65
+ },
+ {
+  "set_start_frame": 9144,
+  "core_end_frame": 9435,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9144,
+    "period": 2,
+    "clock_s": 53.3,
+    "raw": "2n|:53.3"
+   },
+   {
+    "frame": 9435,
+    "period": 2,
+    "clock_s": 45.5,
+    "raw": "2n|:45.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    56.0,
+    46.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.94,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 46.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "H. Whiteside makes 2-pt dunk at rim (assist by G. Dragi\u00c4\u0087 )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.65
+ },
+ {
+  "set_start_frame": 9996,
+  "core_end_frame": 10269,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9996,
+    "period": 2,
+    "clock_s": 33.8,
+    "raw": "2n|333.8"
+   },
+   {
+    "frame": 10269,
+    "period": 2,
+    "clock_s": 24.7,
+    "raw": "2n|24.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    39.0,
+    0.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 1.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "W. Ellington makes free throw 3 of 3"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.65
+ },
+ {
+  "set_start_frame": 13485,
+  "core_end_frame": 13890,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13485,
+    "period": 2,
+    "clock_s": 18.5,
+    "raw": "2n|:18.5"
+   },
+   {
+    "frame": 13890,
+    "period": 2,
+    "clock_s": 5.0,
+    "raw": "2n|:05.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    39.0,
+    0.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 1.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "W. Ellington makes free throw 3 of 3"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "duplicate_of_span": 9996,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.65
+ }
+]

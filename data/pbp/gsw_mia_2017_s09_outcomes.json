@@ -1,0 +1,186 @@
+[
+ {
+  "set_start_frame": 264,
+  "core_end_frame": 735,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.75,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 264,
+    "period": 4,
+    "clock_s": 267,
+    "raw": "4th|427"
+   },
+   {
+    "frame": 735,
+    "period": 4,
+    "clock_s": 254,
+    "raw": "4th|4.14"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    267.0,
+    253.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 253.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "H. Whiteside makes 2-pt dunk at rim (assist by D. Waiters )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 2886,
+  "core_end_frame": 3069,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2886,
+    "period": 4,
+    "clock_s": 213,
+    "raw": "4th|3.33"
+   },
+   {
+    "frame": 3069,
+    "period": 4,
+    "clock_s": 206,
+    "raw": "4th|326"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    217.0,
+    203.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 203.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Waiters misses 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 10443,
+  "core_end_frame": 10581,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10443,
+    "period": 4,
+    "clock_s": 106,
+    "raw": "44|1.46"
+   },
+   {
+    "frame": 10581,
+    "period": 4,
+    "clock_s": 102,
+    "raw": "4t|1.42"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    112.0,
+    97.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 97.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "H. Whiteside misses 2-pt jump shot from 5 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 11520,
+  "core_end_frame": 11742,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.93,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11520,
+    "period": 4,
+    "clock_s": 74,
+    "raw": "4th|1:14"
+   },
+   {
+    "frame": 11742,
+    "period": 4,
+    "clock_s": 67,
+    "raw": "4th|1:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    78.0,
+    60.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 60.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by H. Whiteside (lost ball; steal by S. Curry )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ }
+]

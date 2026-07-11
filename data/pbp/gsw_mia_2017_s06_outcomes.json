@@ -1,0 +1,372 @@
+[
+ {
+  "set_start_frame": 336,
+  "core_end_frame": 486,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 336,
+    "period": 3,
+    "clock_s": 478,
+    "raw": "3r3|7.58"
+   },
+   {
+    "frame": 486,
+    "period": 3,
+    "clock_s": 473,
+    "raw": "3r|7.53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    483.0,
+    465.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 465.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Waiters makes 2-pt jump shot from 10 ft (assist by G. Dragi\u00c4\u0087 )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 1224,
+  "core_end_frame": 1515,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1224,
+    "period": 3,
+    "clock_s": 470,
+    "raw": "3r|7.50"
+   },
+   {
+    "frame": 1515,
+    "period": 3,
+    "clock_s": 463,
+    "raw": "3r|7.43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    483.0,
+    465.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.71,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 465.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Waiters makes 2-pt jump shot from 10 ft (assist by G. Dragi\u00c4\u0087 )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "duplicate_of_span": 336,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 1914,
+  "core_end_frame": 2145,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1914,
+    "period": 3,
+    "clock_s": 450,
+    "raw": "3r|7.30"
+   },
+   {
+    "frame": 2145,
+    "period": 3,
+    "clock_s": 442,
+    "raw": "3r|7.22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    453.0,
+    427.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 427.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "G. Dragi\u00c4\u0087 misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 2268,
+  "core_end_frame": 2538,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2268,
+    "period": 3,
+    "clock_s": 438,
+    "raw": "3r|7:18"
+   },
+   {
+    "frame": 2538,
+    "period": 3,
+    "clock_s": 429,
+    "raw": "3r|7.09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    453.0,
+    427.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 427.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "G. Dragi\u00c4\u0087 misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "duplicate_of_span": 1914,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 3963,
+  "core_end_frame": 4101,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3963,
+    "period": 3,
+    "clock_s": 382,
+    "raw": "3r|6.22"
+   },
+   {
+    "frame": 4101,
+    "period": 3,
+    "clock_s": 377,
+    "raw": "3r|6.17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    385.0,
+    372.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 372.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Waiters makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 5388,
+  "core_end_frame": 5799,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.57,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5388,
+    "period": 3,
+    "clock_s": 334,
+    "raw": "3r|5.34"
+   },
+   {
+    "frame": 5799,
+    "period": 3,
+    "clock_s": 320,
+    "raw": "3r|5.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    339.0,
+    319.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 319.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "H. Whiteside misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 6438,
+  "core_end_frame": 6561,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6438,
+    "period": 3,
+    "clock_s": 299,
+    "raw": "3r|4.59"
+   },
+   {
+    "frame": 6561,
+    "period": 3,
+    "clock_s": 295,
+    "raw": "3r|4.55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    319.0,
+    293.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 310.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "P. McCaw makes 3-pt jump shot from 27 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 16821,
+  "core_end_frame": 16983,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16821,
+    "period": 3,
+    "clock_s": 173,
+    "raw": "3r|2.53"
+   },
+   {
+    "frame": 16983,
+    "period": 3,
+    "clock_s": 167,
+    "raw": "3r|2.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    185.0,
+    167.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 167.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 2-pt jump shot from 8 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

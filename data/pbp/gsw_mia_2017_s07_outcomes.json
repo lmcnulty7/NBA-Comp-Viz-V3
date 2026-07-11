@@ -1,0 +1,450 @@
+[
+ {
+  "set_start_frame": 660,
+  "core_end_frame": 885,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 660,
+    "period": 3,
+    "clock_s": 144,
+    "raw": "3r|2.24"
+   },
+   {
+    "frame": 885,
+    "period": 3,
+    "clock_s": 137,
+    "raw": "3r|2.17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    152.0,
+    132.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 132.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1167,
+  "core_end_frame": 1329,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1167,
+    "period": 3,
+    "clock_s": 128,
+    "raw": "3r|2.08"
+   },
+   {
+    "frame": 1329,
+    "period": 3,
+    "clock_s": 122,
+    "raw": "3r|2.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    132.0,
+    119.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 119.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "W. Reed makes 2-pt hook shot from 5 ft (assist by D. Waiters )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 1590,
+  "core_end_frame": 1824,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1590,
+    "period": 3,
+    "clock_s": 114,
+    "raw": "3r|1.54"
+   },
+   {
+    "frame": 1824,
+    "period": 3,
+    "clock_s": 106,
+    "raw": "3r|1.46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    119.0,
+    104.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 104.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 3-pt jump shot from 26 ft (assist by I. Clark )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 2256,
+  "core_end_frame": 2592,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2256,
+    "period": 3,
+    "clock_s": 91,
+    "raw": "3r|131"
+   },
+   {
+    "frame": 2592,
+    "period": 3,
+    "clock_s": 80,
+    "raw": "3r|1.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    104.0,
+    77.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 77.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Johnson misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 3087,
+  "core_end_frame": 3333,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3087,
+    "period": 3,
+    "clock_s": 64,
+    "raw": "3r|1.04"
+   },
+   {
+    "frame": 3333,
+    "period": 3,
+    "clock_s": 56.0,
+    "raw": "3r|356.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    72.0,
+    53.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 53.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Waiters misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 5238,
+  "core_end_frame": 5439,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5238,
+    "period": 3,
+    "clock_s": 44.0,
+    "raw": "3r|:44.0"
+   },
+   {
+    "frame": 5439,
+    "period": 3,
+    "clock_s": 37.3,
+    "raw": "3r|337.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    53.0,
+    31.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 46.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Curry makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.8
+ },
+ {
+  "set_start_frame": 10128,
+  "core_end_frame": 10470,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10128,
+    "period": 4,
+    "clock_s": 696,
+    "raw": "4tN|1136"
+   },
+   {
+    "frame": 10470,
+    "period": 4,
+    "clock_s": 686,
+    "raw": "4th|11.26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    701.0,
+    683.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 683.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. West makes 2-pt jump shot from 18 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 11310,
+  "core_end_frame": 11580,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.75,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11310,
+    "period": 4,
+    "clock_s": 658,
+    "raw": "4th|1058"
+   },
+   {
+    "frame": 11580,
+    "period": 4,
+    "clock_s": 645,
+    "raw": "4th|10.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    665.0,
+    648.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.77,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 648.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Durant misses 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 12126,
+  "core_end_frame": 12366,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 12126,
+    "period": 4,
+    "clock_s": 10.3,
+    "raw": "4t|10.3"
+   },
+   {
+    "frame": 12366,
+    "period": 4,
+    "clock_s": 10.2,
+    "raw": "4th|10.2"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 12594,
+  "core_end_frame": 12732,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 15513,
+  "core_end_frame": 15933,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 15513,
+    "period": 4,
+    "clock_s": 565,
+    "raw": "4th|9.25"
+   },
+   {
+    "frame": 15933,
+    "period": 4,
+    "clock_s": 551,
+    "raw": "4th|9:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    569.0,
+    548.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 548.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ }
+]

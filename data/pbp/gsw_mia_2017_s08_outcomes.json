@@ -1,0 +1,186 @@
+[
+ {
+  "set_start_frame": 2916,
+  "core_end_frame": 3261,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2916,
+    "period": 4,
+    "clock_s": 469,
+    "raw": "4th|7.49"
+   },
+   {
+    "frame": 3261,
+    "period": 4,
+    "clock_s": 458,
+    "raw": "4t|7.38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    495.0,
+    458.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 478.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "H. Whiteside makes 2-pt dunk at rim (assist by J. Johnson )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 5415,
+  "core_end_frame": 5850,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5415,
+    "period": 4,
+    "clock_s": 431,
+    "raw": "4t|7.11"
+   },
+   {
+    "frame": 5850,
+    "period": 4,
+    "clock_s": 417,
+    "raw": "4th|6.57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    435.0,
+    412.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 412.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 9126,
+  "core_end_frame": 9339,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.73,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 9126,
+    "period": 4,
+    "clock_s": 384,
+    "raw": "4th|6.24"
+   },
+   {
+    "frame": 9339,
+    "period": 4,
+    "clock_s": 377,
+    "raw": "4t|6.17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    412.0,
+    375.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 396.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Johnson makes 2-pt dunk at rim (assist by J. Johnson )"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 11250,
+  "core_end_frame": 11526,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.67,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11250,
+    "period": 4,
+    "clock_s": 366,
+    "raw": "4t|6.06"
+   },
+   {
+    "frame": 11526,
+    "period": 4,
+    "clock_s": 357,
+    "raw": "4th|5.57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    375.0,
+    354.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 354.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Johnson misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "MIA",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ }
+]
