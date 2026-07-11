@@ -177,6 +177,7 @@ def main():
     hom_by_frame = {}             # {frame_idx: CourtHomography}  — for reprojecting the court model
     frame_order = []
     idx, n, n_H = args.start, 0, 0
+    n_reads = 0   # successful frame reads — distinguishes I/O failure from gate rejection
     seg_i = 0   # pre-gate interval pointer
     log.info("Tracking + projecting %s from frame %d …", args.source.name, args.start)
     while idx < total and n < args.max_frames:
@@ -191,6 +192,7 @@ def main():
         ret, frame = cap.read()
         if not ret:
             break
+        n_reads += 1
         if gate is not None and not gate.is_court_visible(frame):
             idx += args.stride
             continue
@@ -215,6 +217,16 @@ def main():
         idx += args.stride
         n += 1
     cap.release()
+
+    # A build that processed nothing must FAIL LOUDLY, never write "{}" and exit 0
+    # (Colab run 2 did exactly that, silently — reads distinguish the cause).
+    if n == 0:
+        raise SystemExit(
+            f"build processed 0 frames (successful reads: {n_reads}, total frames: {total}). "
+            + ("Video unreadable: cv2 open/seek failure — FUSE/network-mounted storage? "
+               "Copy the video to local disk first." if n_reads == 0 else
+               "All read frames were gate-rejected or outside pre-gate intervals — "
+               "gate threshold/domain issue, or the section is genuinely dead footage."))
 
     n_fragments = len(raw)
 

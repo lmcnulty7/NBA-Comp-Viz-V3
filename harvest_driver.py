@@ -114,7 +114,10 @@ def run_unit(clip: str, status: dict, force: set[str]) -> bool:
         try:
             r = subprocess.run(stage_cmd(stage, clip), capture_output=True, text=True,
                                timeout=STAGE_TIMEOUT_S[stage])
-            state = "ok" if r.returncode == 0 and out.exists() else "failed"
+            # content sanity, not just existence: an empty "{}" output is a failure
+            # (Colab run 2 wrote exactly that with rc=0 — verify artifacts, not exits)
+            state = ("ok" if r.returncode == 0 and out.exists()
+                     and out.stat().st_size > 50 else "failed")
             tail = (r.stderr or r.stdout or "")[-400:]
         except subprocess.TimeoutExpired:
             state, tail = "timeout", ""
