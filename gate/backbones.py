@@ -18,6 +18,20 @@ from typing import Sequence
 import numpy as np
 
 
+
+def as_tensor(feats):
+    """transformers version-proofing: newer releases return ModelOutput objects
+    where older ones returned tensors (Colab run-3 postmortem: get_image_features
+    → BaseModelOutputWithPooling with no .norm). Unwrap in preference order."""
+    import torch
+    if torch.is_tensor(feats):
+        return feats
+    for attr in ("image_embeds", "pooler_output"):
+        v = getattr(feats, attr, None)
+        if v is not None:
+            return v
+    return feats.last_hidden_state[:, 0]
+
 class ClipBackbone:
     """CLIP ViT-B/32 image + text encoder (transformers)."""
 
@@ -52,7 +66,7 @@ class ClipBackbone:
             for i in bar:
                 batch = [Image.open(p).convert("RGB") for p in paths[i : i + batch_size]]
                 inputs = self.processor(images=batch, return_tensors="pt").to(self.device)
-                feats = self.model.get_image_features(**inputs)
+                feats = as_tensor(self.model.get_image_features(**inputs))
                 feats = feats / feats.norm(dim=-1, keepdim=True)
                 out.append(feats.cpu().numpy())
         return np.concatenate(out, 0).astype(np.float32) if out else np.zeros((0, self.embed_dim), np.float32)
@@ -68,7 +82,7 @@ class ClipBackbone:
                 batch = [im if isinstance(im, Image.Image) else Image.fromarray(im)
                          for im in images[i : i + batch_size]]
                 inputs = self.processor(images=batch, return_tensors="pt").to(self.device)
-                feats = self.model.get_image_features(**inputs)
+                feats = as_tensor(self.model.get_image_features(**inputs))
                 feats = feats / feats.norm(dim=-1, keepdim=True)
                 out.append(feats.cpu().numpy())
         return np.concatenate(out, 0).astype(np.float32) if out else np.zeros((0, self.embed_dim), np.float32)
@@ -115,7 +129,7 @@ class DinoBackbone:
             for i in bar:
                 batch = [Image.open(p).convert("RGB") for p in paths[i : i + batch_size]]
                 inputs = self.processor(images=batch, return_tensors="pt").to(self.device)
-                out_hs = self.model(**inputs).last_hidden_state[:, 0]  # CLS token
+                out_hs = as_tensor(self.model(**inputs))  # CLS token (version-proof)
                 feats = out_hs / out_hs.norm(dim=-1, keepdim=True)
                 out.append(feats.cpu().numpy())
         return np.concatenate(out, 0).astype(np.float32) if out else np.zeros((0, self.embed_dim), np.float32)

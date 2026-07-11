@@ -64,9 +64,11 @@ class TrainedHeadGate:
         with bb.torch.no_grad():
             inputs = bb.processor(images=[Image.fromarray(rgb)], return_tensors="pt").to(bb.device)
             if hasattr(bb.model, "get_image_features"):
-                feats = bb.model.get_image_features(**inputs)
+                from gate.backbones import as_tensor
+                feats = as_tensor(bb.model.get_image_features(**inputs))
             else:  # DINOv2
-                feats = bb.model(**inputs).last_hidden_state[:, 0]
+                from gate.backbones import as_tensor
+                feats = as_tensor(bb.model(**inputs))
             feats = feats / feats.norm(dim=-1, keepdim=True)
         return feats.cpu().numpy().astype(np.float32)
 
