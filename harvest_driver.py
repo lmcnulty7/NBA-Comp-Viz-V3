@@ -106,7 +106,9 @@ def run_unit(clip: str, status: dict, force: set[str]) -> bool:
     for stage in ("build", "segment", "matchups"):
         rec = unit.get(stage, {})
         out = stage_output(stage, clip)
-        if stage not in force and rec.get("state") == "ok" and out.exists():
+        if (stage not in force and rec.get("state") == "ok" and out.exists()
+                and out.stat().st_size > 50):   # content check HERE too — run-5 hole:
+            # the post-run state check alone let 2-byte run-2 relics skip rebuilds
             log.info("[%s] %s: done (skip)", clip, stage)
             continue
         log.info("[%s] %s: running (timeout %ds) …", clip, stage, STAGE_TIMEOUT_S[stage])
