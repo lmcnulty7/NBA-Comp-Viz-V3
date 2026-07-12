@@ -39,6 +39,7 @@ import numpy as np
 import config
 from court.court33 import COURT_LENGTH_FT, COURT_WIDTH_FT, court33_segments, court_ft_to_px, draw_court_topdown
 from court.trajectories import clean_trajectories
+from videoseq import SeqReader
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("build_trajectories")
@@ -146,21 +147,24 @@ def main():
         cap = cv2.VideoCapture(str(args.source))
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    reader = SeqReader(cap)   # sequential grab(), never per-frame keyframe seeks
 
     # ── pre-gate: coarse live segments so the chain never scans dead footage ──
     intervals = None
     if args.pregate:
-        log.info("Pre-gate: coarse scan (stride %d) …", config.PREGATE_STRIDE)
+        pg_stride, pg_pad = config.pregate_params(fps)
+        log.info("Pre-gate: coarse scan (stride %d @ %.2f fps) …", pg_stride, fps)
         hits, i = [], args.start
         while i < total:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, i)
-            ret, frame = cap.read()
-            if ret and gate.is_court_visible(frame):
+            ret, frame = reader.read(i)
+            if not ret:
+                break             # sequential decode hit EOF/corruption — later reads can't succeed
+            if gate.is_court_visible(frame):
                 hits.append(i)
-            i += config.PREGATE_STRIDE
+            i += pg_stride
         intervals = []
         for h in hits:
-            a, b = h - config.PREGATE_PAD_FRAMES, h + config.PREGATE_PAD_FRAMES
+            a, b = h - pg_pad, h + pg_pad
             if intervals and a <= intervals[-1][1]:
                 intervals[-1][1] = b
             else:
@@ -188,8 +192,7 @@ def main():
                 break
             if idx < intervals[seg_i][0]:      # jump the dead gap entirely
                 idx = intervals[seg_i][0]
-        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
-        ret, frame = cap.read()
+        ret, frame = reader.read(idx)
         if not ret:
             break
         n_reads += 1
@@ -386,11 +389,11 @@ def main():
     cap = cv2.VideoCapture(str(args.source), cv2.CAP_FFMPEG)
     if not cap.isOpened():
         cap = cv2.VideoCapture(str(args.source))
+    render_reader = SeqReader(cap)
     writer = None
     log.info("Rendering synced review video (broadcast | court minimap) …")
     for f in frame_order:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, f)
-        ret, frame = cap.read()
+        ret, frame = render_reader.read(f)
         if not ret:
             continue
         # reproject the court model (court→pixel) so the homography fit is visible:

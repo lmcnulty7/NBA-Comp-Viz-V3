@@ -343,9 +343,17 @@ POSS_MIN_CORE_S = 4.0       # spans with a shorter core ⇒ metrics_eligible=fal
 # finds live segments so the expensive chain never scans dead footage frame by
 # frame. Padding guarantees the fine pass sees everything near a coarse live hit;
 # accuracy-neutrality vs the fine-only path verified on curry_q1 (DEVLOG 07-08c).
-PREGATE_STRIDE = 15         # coarse sampling (0.5 s) — a live stretch shorter than
+PREGATE_STRIDE_SEC = 0.5    # coarse sampling — a live stretch shorter than
                             # this is below POSS_MIN_SPAN_SEC anyway
-PREGATE_PAD_FRAMES = 45     # ±1.5 s around each coarse live hit
+PREGATE_PAD_SEC = 1.5       # ± padding around each coarse live hit
+
+
+def pregate_params(fps: float) -> tuple[int, int]:
+    """(stride_frames, pad_frames) at this fps. Time-based, not frame-based —
+    the validated 30fps values were 15/45; a 720p60 game at those FRAME counts
+    scanned twice as often and padded half as much in time (run-9 postmortem)."""
+    return (max(1, round(PREGATE_STRIDE_SEC * fps)),
+            max(1, round(PREGATE_PAD_SEC * fps)))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
