@@ -46,7 +46,26 @@ PY = sys.executable
 HARVEST_DIR = config.PROJECT_ROOT / "data" / "harvest"
 HARVEST_VIDEO = HARVEST_DIR / "video"
 STATUS_PATH = HARVEST_DIR / "status.json"
-STAGE_TIMEOUT_S = {"build": 45 * 60, "segment": 5 * 60, "matchups": 10 * 60}
+STAGE_TIMEOUT_S = {"build": 60 * 60, "segment": 5 * 60, "matchups": 10 * 60}
+
+
+def video_fps(path: Path) -> float:
+    r = subprocess.run(["ffprobe", "-v", "quiet", "-select_streams", "v:0",
+                        "-show_entries", "stream=r_frame_rate", "-of", "csv=p=0",
+                        str(path)], capture_output=True, text=True)
+    try:
+        num, den = (r.stdout.strip().split("/") + ["1"])[:2]
+        return float(num) / float(den)
+    except (ValueError, ZeroDivisionError):
+        return 30.0
+
+
+def build_stride(fps: float) -> int:
+    """The pipeline's validated temporal rate is 10 Hz (stride 3 @ 30fps).
+    Keep that rate for any fps — run-8 postmortem: a 720p60 game (only avc1
+    the video offers) at hardcoded stride 3 doubled per-section compute and
+    every build hit the wall-clock timeout, burning 45 min each for nothing."""
+    return max(3, round(fps / 10))
 
 
 def resolve_src(clip: str) -> Path:
@@ -139,7 +158,8 @@ def stage_cmd(stage: str, clip: str) -> list[str]:
     src = resolve_src(clip)
     return {
         "build": [PY, "build_trajectories.py", "--source", str(src), "--start", "0",
-                  "--max-frames", "99999", "--stride", "3", "--pregate", "--no-video"],
+                  "--max-frames", "99999", "--stride", str(build_stride(video_fps(src))),
+                  "--pregate", "--no-video"],
         "segment": [PY, "segment_possessions.py", "--trajectories",
                     str(config.TRACKING_DIR / f"{clip}_trajectories.json")],
         "matchups": [PY, "matchup_metrics.py", "--clip", clip, "--no-video"],
