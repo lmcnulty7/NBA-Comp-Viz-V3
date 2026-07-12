@@ -223,8 +223,9 @@ def main():
     if n == 0:
         raise SystemExit(
             f"build processed 0 frames (successful reads: {n_reads}, total frames: {total}). "
-            + ("Video unreadable: cv2 open/seek failure — FUSE/network-mounted storage? "
-               "Copy the video to local disk first." if n_reads == 0 else
+            + ("Video unreadable by cv2 — unsupported codec (AV1 on Colab, run-7"
+               " postmortem: ffprobe the file), FUSE/network-mounted storage, or"
+               " corruption. Fix the file; do not rerun as-is." if n_reads == 0 else
                "All read frames were gate-rejected or outside pre-gate intervals — "
                "gate threshold/domain issue, or the section is genuinely dead footage."))
 

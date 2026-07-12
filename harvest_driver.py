@@ -55,6 +55,63 @@ def resolve_src(clip: str) -> Path:
     return p if p.exists() else config.VIDEO_DIR / f"{clip}.mp4"
 
 
+def decodable(path: Path) -> bool:
+    """Artifact truth: can THIS cv2 read frames from THIS file? Catches
+    unsupported codecs (AV1 on Colab — run-7 postmortem), FUSE seek failures
+    and corruption with one test. macOS decodes AV1 via VideoToolbox, so this
+    stays a no-op locally."""
+    import cv2
+    cap = cv2.VideoCapture(str(path))
+    ok = cap.isOpened() and cap.read()[0]
+    if ok:
+        n = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        if n > 100:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(n // 2))
+            ok = cap.read()[0]
+    cap.release()
+    return bool(ok)
+
+
+YTDLP_FMT = ("bv*[vcodec^=avc1][height<=720][height>=480]+ba/"
+             "b[vcodec^=avc1][height<=720]")
+DRIVE_CACHE = Path("/content/drive/MyDrive/nba_harvest/video")
+
+
+def ensure_decodable(tag: str) -> None:
+    """Self-heal a game video that this machine's cv2 cannot read (or that is
+    missing): re-fetch as avc1, verify by decode probe, atomically swap in,
+    drop sections split from the old file, and write through to the Drive
+    cache so the next VM doesn't repeat the download. Makes even stale
+    notebook copies converge — the repo (this code) is always git-reset."""
+    src = HARVEST_VIDEO / f"{tag}.mp4"
+    if src.exists() and decodable(src):
+        return
+    reg = json.loads((HARVEST_DIR / "games.json").read_text())
+    if tag not in reg:
+        raise RuntimeError(f"{tag}: video unreadable/missing and not in games.json")
+    log.warning("%s: video %s — re-fetching as avc1 …", tag,
+                "unreadable by this cv2" if src.exists() else "missing")
+    tmp = src.with_suffix(".part.mp4")
+    tmp.unlink(missing_ok=True)
+    r = subprocess.run(["yt-dlp", "-f", YTDLP_FMT, "--merge-output-format", "mp4",
+                        "-o", str(tmp), "-q", "--no-warnings",
+                        f"https://www.youtube.com/watch?v={reg[tag]['video_id']}"],
+                       capture_output=True, text=True, timeout=1800)
+    if r.returncode != 0 or not tmp.exists() or not decodable(tmp):
+        tmp.unlink(missing_ok=True)
+        raise RuntimeError(f"{tag}: avc1 re-fetch failed or still unreadable: "
+                           f"{(r.stderr or '')[-200:]}")
+    tmp.replace(src)                          # atomic: verify THEN swap
+    for s in HARVEST_VIDEO.glob(f"{tag}_s*.mp4"):
+        s.unlink()                            # sections inherit the old codec
+    if DRIVE_CACHE.is_dir() and DRIVE_CACHE.resolve() != HARVEST_VIDEO.resolve():
+        import shutil
+        shutil.copy(src, DRIVE_CACHE / src.name)
+        for s in DRIVE_CACHE.glob(f"{tag}_s*.mp4"):
+            s.unlink()
+        log.info("%s: h264 copy written through to Drive cache", tag)
+
+
 def split_sections(tag: str, section_s: int = 600) -> list[str]:
     """Split a downloaded game into ~10-min section files (stream copy, no
     re-encode) — the resume/timeout unit. Returns section clip names.
@@ -62,7 +119,12 @@ def split_sections(tag: str, section_s: int = 600) -> list[str]:
     src = HARVEST_VIDEO / f"{tag}.mp4"
     existing = sorted(HARVEST_VIDEO.glob(f"{tag}_s*.mp4"))
     if existing:
-        return [p.stem for p in existing]
+        if decodable(existing[0]):
+            return [p.stem for p in existing]
+        log.warning("%s: existing sections unreadable by this cv2 (stale codec"
+                    " relics) — deleting %d and re-splitting", tag, len(existing))
+        for p in existing:
+            p.unlink()
     out_pattern = str(HARVEST_VIDEO / f"{tag}_s%02d.mp4")
     r = subprocess.run(["ffmpeg", "-i", str(src), "-c", "copy", "-map", "0",
                         "-segment_time", str(section_s), "-f", "segment",
@@ -146,6 +208,11 @@ def main() -> None:
 
     clips = list(args.clips)
     for tag in args.games:
+        try:
+            ensure_decodable(tag)
+        except Exception as e:
+            log.warning("%s: game skipped — %s", tag, e)
+            continue
         secs = split_sections(tag)
         log.info("%s: %d sections", tag, len(secs))
         clips += secs
