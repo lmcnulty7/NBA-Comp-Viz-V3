@@ -1,0 +1,232 @@
+[
+ {
+  "set_start_frame": 1404,
+  "core_end_frame": 1824,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1404,
+    "period": 3,
+    "clock_s": 115,
+    "raw": "3RD|1.55"
+   },
+   {
+    "frame": 1824,
+    "period": 3,
+    "clock_s": 101,
+    "raw": "3RD|1.41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    119.0,
+    99.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 99.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "B. Roberts makes 2-pt jump shot from 13 ft (assist by E. Davis )"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 1977,
+  "core_end_frame": 2286,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1977,
+    "period": 3,
+    "clock_s": 96,
+    "raw": "3RD|1.36"
+   },
+   {
+    "frame": 2286,
+    "period": 3,
+    "clock_s": 85,
+    "raw": "3RD|1.25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    99.0,
+    83.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 83.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Varej\u00c3\u00a3o )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 2739,
+  "core_end_frame": 2973,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2739,
+    "period": 3,
+    "clock_s": 70,
+    "raw": "3RD|1:10"
+   },
+   {
+    "frame": 2973,
+    "period": 3,
+    "clock_s": 62,
+    "raw": "3RD|1.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    83.0,
+    61.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 61.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Lillard misses 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 11709,
+  "core_end_frame": 11910,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11709,
+    "period": 4,
+    "clock_s": 657,
+    "raw": "4tH|10:57"
+   },
+   {
+    "frame": 11910,
+    "period": 4,
+    "clock_s": 650,
+    "raw": "4tH|10.50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    661.0,
+    645.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 645.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. McCollum makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 17355,
+  "core_end_frame": 17511,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 17355,
+    "period": 4,
+    "clock_s": 567,
+    "raw": "4tH|9.27"
+   },
+   {
+    "frame": 17511,
+    "period": 4,
+    "clock_s": 561,
+    "raw": "4TH|9.21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    569.0,
+    562.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.83,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 562.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "L. Barbosa misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

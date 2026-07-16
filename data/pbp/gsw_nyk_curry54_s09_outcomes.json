@@ -1,0 +1,140 @@
+[
+ {
+  "set_start_frame": 1206,
+  "core_end_frame": 1413,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1206,
+    "period": 4,
+    "clock_s": 70,
+    "raw": "4th|1:10"
+   },
+   {
+    "frame": 1413,
+    "period": 4,
+    "clock_s": 67,
+    "raw": "4th|1:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    70.0,
+    65.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 65.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by J. Jack (traveling)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 1980,
+  "core_end_frame": 3186,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1980,
+    "period": 4,
+    "clock_s": 64,
+    "raw": "4th|1:04"
+   },
+   {
+    "frame": 3186,
+    "period": 4,
+    "clock_s": 34.3,
+    "raw": "4th|34.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    65.0,
+    45.6
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.62,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 45.6,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "C. Anthony makes 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 4953,
+  "core_end_frame": 5397,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4953,
+    "period": 4,
+    "clock_s": 15.2,
+    "raw": "4th|15.2"
+   },
+   {
+    "frame": 5397,
+    "period": 4,
+    "clock_s": 0.2,
+    "raw": "4th|0.2"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    19.9,
+    4.9
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.69,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 4.9,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

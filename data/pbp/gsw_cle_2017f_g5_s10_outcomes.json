@@ -1,0 +1,335 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 684,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.74,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 4,
+    "clock_s": 138,
+    "raw": "4th|2.18"
+   },
+   {
+    "frame": 684,
+    "period": 4,
+    "clock_s": 127,
+    "raw": "4th|2.07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    150.0,
+    127.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 127.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "A. Iguodala misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 876,
+  "core_end_frame": 1350,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 876,
+    "period": 4,
+    "clock_s": 124,
+    "raw": "4th|2.04"
+   },
+   {
+    "frame": 1350,
+    "period": 4,
+    "clock_s": 116,
+    "raw": "4th|1.56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    127.0,
+    112.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 112.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Thompson misses 2-pt layup from 3 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 1518,
+  "core_end_frame": 1992,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1518,
+    "period": 4,
+    "clock_s": 113,
+    "raw": "4th|1.53"
+   },
+   {
+    "frame": 1992,
+    "period": 4,
+    "clock_s": 105,
+    "raw": "4th|1.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    112.0,
+    97.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.88,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 97.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 2316,
+  "core_end_frame": 2496,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2316,
+    "period": 4,
+    "clock_s": 100,
+    "raw": "4th|1.40"
+   },
+   {
+    "frame": 2496,
+    "period": 4,
+    "clock_s": 97,
+    "raw": "4th|1.37"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    112.0,
+    97.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 97.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 1518,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 2616,
+  "core_end_frame": 3000,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2616,
+    "period": 4,
+    "clock_s": 95,
+    "raw": "4th|1.35"
+   },
+   {
+    "frame": 3000,
+    "period": 4,
+    "clock_s": 91,
+    "raw": "4th|1.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    97.0,
+    91.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 91.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by K. Irving (lost ball)"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 3378,
+  "core_end_frame": 3504,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 7098,
+  "core_end_frame": 7446,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7098,
+    "period": 4,
+    "clock_s": 40.8,
+    "raw": "4th|40.8"
+   },
+   {
+    "frame": 7388,
+    "period": 4,
+    "clock_s": 35.9,
+    "raw": "4th|35.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    42.0,
+    37.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.78,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 37.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 7596,
+  "core_end_frame": 7842,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7596,
+    "period": 4,
+    "clock_s": 34.2,
+    "raw": "4th|34.2"
+   },
+   {
+    "frame": 7842,
+    "period": 4,
+    "clock_s": 30.1,
+    "raw": "4th|30.1"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    37.0,
+    21.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 21.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ }
+]

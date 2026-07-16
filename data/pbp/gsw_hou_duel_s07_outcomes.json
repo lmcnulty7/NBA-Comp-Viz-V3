@@ -1,0 +1,310 @@
+[
+ {
+  "set_start_frame": 744,
+  "core_end_frame": 1224,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 744,
+    "period": 4,
+    "clock_s": 280,
+    "raw": "4th|4:40"
+   },
+   {
+    "frame": 1224,
+    "period": 4,
+    "clock_s": 269,
+    "raw": "4th|4:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    284.0,
+    247.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 267.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 1884,
+  "core_end_frame": 2253,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1884,
+    "period": 4,
+    "clock_s": 260,
+    "raw": "4th|4:20"
+   },
+   {
+    "frame": 2253,
+    "period": 4,
+    "clock_s": 248,
+    "raw": "4th|4:08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    284.0,
+    247.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 267.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt layup from 2 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 744,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.73
+ },
+ {
+  "set_start_frame": 3645,
+  "core_end_frame": 3861,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 4053,
+  "core_end_frame": 4503,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4053,
+    "period": 4,
+    "clock_s": 243,
+    "raw": "4th|4:03"
+   },
+   {
+    "frame": 4503,
+    "period": 4,
+    "clock_s": 228,
+    "raw": "4th|3:48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    247.0,
+    224.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 224.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 6429,
+  "core_end_frame": 6651,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 11052,
+  "core_end_frame": 11196,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 13782,
+  "core_end_frame": 13923,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.78,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 13782,
+    "period": 4,
+    "clock_s": 134,
+    "raw": "4th|2:14"
+   },
+   {
+    "frame": 13923,
+    "period": 4,
+    "clock_s": 130,
+    "raw": "4th|2:10"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    145.0,
+    130.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 140.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "J. Harden makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 14028,
+  "core_end_frame": 14241,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 14028,
+    "period": 4,
+    "clock_s": 130,
+    "raw": "4th|2:10"
+   },
+   {
+    "frame": 14241,
+    "period": 4,
+    "clock_s": 124,
+    "raw": "4th|2:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    130.0,
+    92.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 99.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 22 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 15936,
+  "core_end_frame": 16674,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 15936,
+    "period": 4,
+    "clock_s": 120,
+    "raw": "4th|2:00"
+   },
+   {
+    "frame": 16674,
+    "period": 4,
+    "clock_s": 104,
+    "raw": "4th|1:44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    130.0,
+    92.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 99.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 22 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 14028,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ }
+]

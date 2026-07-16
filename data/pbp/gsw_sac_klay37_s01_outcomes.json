@@ -1,0 +1,180 @@
+[
+ {
+  "set_start_frame": 681,
+  "core_end_frame": 846,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.61,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 681,
+    "period": 1,
+    "clock_s": 329,
+    "raw": "1st|5.29"
+   },
+   {
+    "frame": 855,
+    "period": 1,
+    "clock_s": 322,
+    "raw": "1st|5.22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    331.0,
+    321.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 321.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Gay misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1026,
+  "core_end_frame": 1185,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 1398,
+  "core_end_frame": 2397,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 2586,
+  "core_end_frame": 2844,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 5070,
+  "core_end_frame": 5391,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5195,
+    "period": 1,
+    "clock_s": 232,
+    "raw": "1st|3.52"
+   },
+   {
+    "frame": 5391,
+    "period": 1,
+    "clock_s": 226,
+    "raw": "1st|3.46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    241.0,
+    220.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 220.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by K. Thompson (bad pass; steal by D. Collison )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 7377,
+  "core_end_frame": 7869,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7550,
+    "period": 1,
+    "clock_s": 198,
+    "raw": "1st|3:18"
+   },
+   {
+    "frame": 7869,
+    "period": 1,
+    "clock_s": 188,
+    "raw": "1st|3.08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    212.0,
+    185.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 185.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "J. Holiday misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 10437,
+  "core_end_frame": 10782,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ }
+]

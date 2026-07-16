@@ -1,0 +1,482 @@
+[
+ {
+  "set_start_frame": 72,
+  "core_end_frame": 354,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 537,
+  "core_end_frame": 891,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 537,
+    "period": 3,
+    "clock_s": 599,
+    "raw": "3rd|9.59"
+   },
+   {
+    "frame": 891,
+    "period": 3,
+    "clock_s": 587,
+    "raw": "3rd|9.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    602.0,
+    584.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 584.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1146,
+  "core_end_frame": 1458,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.64,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1146,
+    "period": 3,
+    "clock_s": 579,
+    "raw": "3rd|9.39"
+   },
+   {
+    "frame": 1458,
+    "period": 3,
+    "clock_s": 568,
+    "raw": "3rd|9.28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    584.0,
+    568.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 568.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "Q. Miller misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 1971,
+  "core_end_frame": 2208,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1965,
+    "period": 3,
+    "clock_s": 552,
+    "raw": "3rd|9:12"
+   },
+   {
+    "frame": 2208,
+    "period": 3,
+    "clock_s": 542,
+    "raw": "3rd|9.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    559.0,
+    543.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 543.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "D. Cousins makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 5436,
+  "core_end_frame": 5823,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5629,
+    "period": 3,
+    "clock_s": 487,
+    "raw": "3rd|807"
+   },
+   {
+    "frame": 5829,
+    "period": 3,
+    "clock_s": 480,
+    "raw": "3rd|800"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    501.0,
+    480.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 480.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Cousins makes 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 7638,
+  "core_end_frame": 7860,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.77,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 8511,
+  "core_end_frame": 8658,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 8511,
+    "period": 3,
+    "clock_s": 410,
+    "raw": "3rd|6.50"
+   },
+   {
+    "frame": 8658,
+    "period": 3,
+    "clock_s": 405,
+    "raw": "3rd|6.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    415.0,
+    403.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 403.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 9162,
+  "core_end_frame": 9384,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9162,
+    "period": 3,
+    "clock_s": 389,
+    "raw": "3rd|6.29"
+   },
+   {
+    "frame": 9273,
+    "period": 3,
+    "clock_s": 385,
+    "raw": "3rd|6.25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    390.0,
+    380.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 380.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Curry (bad pass; steal by D. Cousins )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 10047,
+  "core_end_frame": 10446,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.5,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10047,
+    "period": 3,
+    "clock_s": 359,
+    "raw": "3rd|5.59"
+   },
+   {
+    "frame": 10446,
+    "period": 3,
+    "clock_s": 348,
+    "raw": "3rd|5.48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    368.0,
+    348.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 364.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt dunk at rim (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 12483,
+  "core_end_frame": 12720,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12483,
+    "period": 3,
+    "clock_s": 308,
+    "raw": "3rd|5.08"
+   },
+   {
+    "frame": 12720,
+    "period": 3,
+    "clock_s": 300,
+    "raw": "3rd|5.00"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    310.0,
+    275.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 297.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 28 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 15936,
+  "core_end_frame": 16311,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.96,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15936,
+    "period": 3,
+    "clock_s": 268,
+    "raw": "3rd|428"
+   },
+   {
+    "frame": 16123,
+    "period": 3,
+    "clock_s": 267,
+    "raw": "3rd|427"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    268.0,
+    259.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 259.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by J. Holiday )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 17781,
+  "core_end_frame": 17943,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 17781,
+    "period": 3,
+    "clock_s": 230,
+    "raw": "3rd|350"
+   },
+   {
+    "frame": 17943,
+    "period": 3,
+    "clock_s": 225,
+    "raw": "3rd|3.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    231.0,
+    223.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 223.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Collison misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ }
+]

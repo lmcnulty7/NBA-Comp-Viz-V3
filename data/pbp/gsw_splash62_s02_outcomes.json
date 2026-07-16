@@ -1,0 +1,508 @@
+[
+ {
+  "set_start_frame": 3,
+  "core_end_frame": 144,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.79,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3,
+    "period": 1,
+    "clock_s": 142,
+    "raw": "1ST|2.22"
+   },
+   {
+    "frame": 144,
+    "period": 1,
+    "clock_s": 137,
+    "raw": "1ST|2.17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    155.0,
+    137.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 137.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "B. Roberts misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 273,
+  "core_end_frame": 417,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 273,
+    "period": 1,
+    "clock_s": 133,
+    "raw": "1ST|2.13"
+   },
+   {
+    "frame": 417,
+    "period": 1,
+    "clock_s": 128,
+    "raw": "1ST|2.08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    137.0,
+    128.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 128.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by F. Ezeli (offensive goaltending)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1053,
+  "core_end_frame": 1239,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1053,
+    "period": 1,
+    "clock_s": 124,
+    "raw": "1ST|2.04"
+   },
+   {
+    "frame": 1239,
+    "period": 1,
+    "clock_s": 118,
+    "raw": "1ST|1.58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    128.0,
+    118.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 118.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Lillard misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 3942,
+  "core_end_frame": 4206,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.74,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3942,
+    "period": 1,
+    "clock_s": 82,
+    "raw": "1ST|1.22"
+   },
+   {
+    "frame": 4206,
+    "period": 1,
+    "clock_s": 73,
+    "raw": "1ST|1.13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    88.0,
+    58.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 72.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 6099,
+  "core_end_frame": 6408,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.77,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 6099,
+    "period": 1,
+    "clock_s": 55.8,
+    "raw": "1ST|55.8"
+   },
+   {
+    "frame": 6408,
+    "period": 1,
+    "clock_s": 45.5,
+    "raw": "1ST|45.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    58.0,
+    45.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 45.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Livingston misses 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 10236,
+  "core_end_frame": 10389,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 10236,
+    "period": 2,
+    "clock_s": 690,
+    "raw": "2ND|11.30"
+   },
+   {
+    "frame": 10389,
+    "period": 2,
+    "clock_s": 685,
+    "raw": "2ND|1125"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    694.0,
+    685.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 685.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "E. Davis makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 12003,
+  "core_end_frame": 12177,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12003,
+    "period": 2,
+    "clock_s": 680,
+    "raw": "2ND|11.20"
+   },
+   {
+    "frame": 12177,
+    "period": 2,
+    "clock_s": 672,
+    "raw": "2ND|11.12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    685.0,
+    671.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 671.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 7 ft (block by E. Davis )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 13167,
+  "core_end_frame": 13464,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13167,
+    "period": 2,
+    "clock_s": 641,
+    "raw": "2ND|10.41"
+   },
+   {
+    "frame": 13464,
+    "period": 2,
+    "clock_s": 631,
+    "raw": "2ND|10.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    649.0,
+    631.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 631.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "G. Henderson makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 15369,
+  "core_end_frame": 15678,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15369,
+    "period": 2,
+    "clock_s": 626,
+    "raw": "2ND|10.26"
+   },
+   {
+    "frame": 15678,
+    "period": 2,
+    "clock_s": 616,
+    "raw": "2ND|10:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    631.0,
+    616.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 616.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 16140,
+  "core_end_frame": 16356,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 16140,
+    "period": 2,
+    "clock_s": 601,
+    "raw": "2ND|10:01"
+   },
+   {
+    "frame": 16356,
+    "period": 2,
+    "clock_s": 593,
+    "raw": "2ND|9.53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    605.0,
+    592.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 592.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 17013,
+  "core_end_frame": 17157,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17013,
+    "period": 2,
+    "clock_s": 571,
+    "raw": "2ND|9.31"
+   },
+   {
+    "frame": 17157,
+    "period": 2,
+    "clock_s": 567,
+    "raw": "2ND|9.27"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    575.0,
+    565.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 565.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 8 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ }
+]

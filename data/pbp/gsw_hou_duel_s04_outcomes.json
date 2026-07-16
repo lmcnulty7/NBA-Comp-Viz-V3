@@ -1,0 +1,419 @@
+[
+ {
+  "set_start_frame": 87,
+  "core_end_frame": 498,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.9,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 87,
+    "period": 3,
+    "clock_s": 701,
+    "raw": "3rd|11:41"
+   },
+   {
+    "frame": 498,
+    "period": 3,
+    "clock_s": 687,
+    "raw": "3ro|11:27"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    703.0,
+    685.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 685.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Smith misses 2-pt hook shot from 8 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 669,
+  "core_end_frame": 1242,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.75,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 669,
+    "period": 3,
+    "clock_s": 682,
+    "raw": "3ro|11:22"
+   },
+   {
+    "frame": 1147,
+    "period": 3,
+    "clock_s": 666,
+    "raw": "3rd|11:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    685.0,
+    651.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 651.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 2-pt hook shot from 9 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 2832,
+  "core_end_frame": 3228,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.7,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2832,
+    "period": 3,
+    "clock_s": 624,
+    "raw": "3rd|10:24"
+   },
+   {
+    "frame": 3228,
+    "period": 3,
+    "clock_s": 611,
+    "raw": "3ro|10:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    628.0,
+    608.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 608.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 5349,
+  "core_end_frame": 5685,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.79,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5349,
+    "period": 3,
+    "clock_s": 540,
+    "raw": "3rd|9:00"
+   },
+   {
+    "frame": 5685,
+    "period": 3,
+    "clock_s": 529,
+    "raw": "3rn|8:49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    552.0,
+    521.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 542.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "H. Barnes makes 2-pt layup at rim (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 7224,
+  "core_end_frame": 7383,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 7872,
+  "core_end_frame": 7998,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 13071,
+  "core_end_frame": 13311,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13071,
+    "period": 3,
+    "clock_s": 421,
+    "raw": "3ro|701"
+   },
+   {
+    "frame": 13311,
+    "period": 3,
+    "clock_s": 413,
+    "raw": "3ro|6:53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    426.0,
+    408.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 408.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 13794,
+  "core_end_frame": 13959,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13794,
+    "period": 3,
+    "clock_s": 396,
+    "raw": "3ro|6:36"
+   },
+   {
+    "frame": 13959,
+    "period": 3,
+    "clock_s": 391,
+    "raw": "3ro|6:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    408.0,
+    364.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 381.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 14466,
+  "core_end_frame": 14763,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14466,
+    "period": 3,
+    "clock_s": 374,
+    "raw": "3ro|6:14"
+   },
+   {
+    "frame": 14763,
+    "period": 3,
+    "clock_s": 364,
+    "raw": "3rd|6:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    408.0,
+    364.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 381.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "duplicate_of_span": 13794,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 15306,
+  "core_end_frame": 15444,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15306,
+    "period": 3,
+    "clock_s": 364,
+    "raw": "3ro|6:04"
+   },
+   {
+    "frame": 15444,
+    "period": 3,
+    "clock_s": 360,
+    "raw": "3rd|6:00"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    364.0,
+    360.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 360.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt dunk at rim (assist by H. Barnes )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 15681,
+  "core_end_frame": 15843,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15681,
+    "period": 3,
+    "clock_s": 352,
+    "raw": "3rd|5:52"
+   },
+   {
+    "frame": 15843,
+    "period": 3,
+    "clock_s": 347,
+    "raw": "3rd|5:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    360.0,
+    345.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 345.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Terry misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ }
+]

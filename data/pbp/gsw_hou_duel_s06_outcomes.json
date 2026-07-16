@@ -1,0 +1,418 @@
+[
+ {
+  "set_start_frame": 408,
+  "core_end_frame": 1197,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 408,
+    "period": 4,
+    "clock_s": 619,
+    "raw": "4th|10:19"
+   },
+   {
+    "frame": 1197,
+    "period": 4,
+    "clock_s": 597,
+    "raw": "4th|9:57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    609.0,
+    596.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.55,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 596.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Howard misses 2-pt hook shot from 6 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.73
+ },
+ {
+  "set_start_frame": 1311,
+  "core_end_frame": 1605,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1311,
+    "period": 4,
+    "clock_s": 593,
+    "raw": "4th|9:53"
+   },
+   {
+    "frame": 1605,
+    "period": 4,
+    "clock_s": 584,
+    "raw": "4th|9:44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    596.0,
+    565.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 577.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 2118,
+  "core_end_frame": 2385,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2118,
+    "period": 4,
+    "clock_s": 584,
+    "raw": "4th|9:44"
+   },
+   {
+    "frame": 2385,
+    "period": 4,
+    "clock_s": 576,
+    "raw": "4th|9:36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    596.0,
+    565.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 577.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 1311,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 2544,
+  "core_end_frame": 2727,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.67,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2544,
+    "period": 4,
+    "clock_s": 570,
+    "raw": "4th|9:30"
+   },
+   {
+    "frame": 2727,
+    "period": 4,
+    "clock_s": 565,
+    "raw": "4th|9:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    596.0,
+    565.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 577.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 1311,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.73
+ },
+ {
+  "set_start_frame": 4626,
+  "core_end_frame": 4890,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4626,
+    "period": 4,
+    "clock_s": 555,
+    "raw": "4th|9:15"
+   },
+   {
+    "frame": 4890,
+    "period": 4,
+    "clock_s": 546,
+    "raw": "4th|9:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    565.0,
+    528.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 528.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by A. Bogut (bad pass)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 6771,
+  "core_end_frame": 7056,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.9,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6771,
+    "period": 4,
+    "clock_s": 520,
+    "raw": "4th|8:40"
+   },
+   {
+    "frame": 7056,
+    "period": 4,
+    "clock_s": 511,
+    "raw": "4th|8:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    528.0,
+    509.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 509.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Howard makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.73
+ },
+ {
+  "set_start_frame": 8355,
+  "core_end_frame": 8862,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8355,
+    "period": 4,
+    "clock_s": 468,
+    "raw": "4th|7:48"
+   },
+   {
+    "frame": 8862,
+    "period": 4,
+    "clock_s": 451,
+    "raw": "4th|7:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    468.0,
+    447.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 447.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 12489,
+  "core_end_frame": 12762,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12489,
+    "period": 4,
+    "clock_s": 373,
+    "raw": "4th|6:13"
+   },
+   {
+    "frame": 12762,
+    "period": 4,
+    "clock_s": 364,
+    "raw": "4th|6:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    378.0,
+    358.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 358.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 13857,
+  "core_end_frame": 14193,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 13857,
+    "period": 4,
+    "clock_s": 327,
+    "raw": "4th|5:27"
+   },
+   {
+    "frame": 14193,
+    "period": 4,
+    "clock_s": 316,
+    "raw": "4th|5:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    332.0,
+    310.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 310.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ }
+]

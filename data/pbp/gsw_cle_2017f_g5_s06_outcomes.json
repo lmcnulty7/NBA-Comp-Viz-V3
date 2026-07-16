@@ -1,0 +1,487 @@
+[
+ {
+  "set_start_frame": 270,
+  "core_end_frame": 1002,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 270,
+    "period": 3,
+    "clock_s": 544,
+    "raw": "3rd|9.04"
+   },
+   {
+    "frame": 1002,
+    "period": 3,
+    "clock_s": 536,
+    "raw": "3rd|8.56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    544.0,
+    498.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 510.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 1884,
+  "core_end_frame": 2706,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.57,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1887,
+    "period": 3,
+    "clock_s": 535,
+    "raw": "3rd|8.55"
+   },
+   {
+    "frame": 2706,
+    "period": 3,
+    "clock_s": 526,
+    "raw": "3rd|8.46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    544.0,
+    498.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 510.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "duplicate_of_span": 270,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 3456,
+  "core_end_frame": 4422,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3456,
+    "period": 3,
+    "clock_s": 526,
+    "raw": "3rd|8.46"
+   },
+   {
+    "frame": 4422,
+    "period": 3,
+    "clock_s": 510,
+    "raw": "3rd|8.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    544.0,
+    498.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 510.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "duplicate_of_span": 270,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 4866,
+  "core_end_frame": 5076,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 4866,
+    "period": 3,
+    "clock_s": 502,
+    "raw": "3rd|8.22"
+   },
+   {
+    "frame": 5076,
+    "period": 3,
+    "clock_s": 499,
+    "raw": "3rd|8.19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    544.0,
+    498.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 510.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 24 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": false,
+  "duplicate_of_span": 270,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 6678,
+  "core_end_frame": 7194,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6678,
+    "period": 3,
+    "clock_s": 494,
+    "raw": "3rd|8.14"
+   },
+   {
+    "frame": 7194,
+    "period": 3,
+    "clock_s": 485,
+    "raw": "3rd|8.05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    498.0,
+    473.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 473.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt layup from 3 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 11580,
+  "core_end_frame": 12228,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11796,
+    "period": 3,
+    "clock_s": 464,
+    "raw": "3rd|7.44"
+   },
+   {
+    "frame": 12228,
+    "period": 3,
+    "clock_s": 456,
+    "raw": "3rd|7.36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    473.0,
+    457.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.88,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 457.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 3-pt jump shot from 25 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 13956,
+  "core_end_frame": 14358,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.69,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13956,
+    "period": 3,
+    "clock_s": 427,
+    "raw": "3rd|7.07"
+   },
+   {
+    "frame": 14358,
+    "period": 3,
+    "clock_s": 421,
+    "raw": "3rd|7.01"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    429.0,
+    422.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.83,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 422.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Irving makes 2-pt jump shot from 14 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 18210,
+  "core_end_frame": 18684,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 18210,
+    "period": 3,
+    "clock_s": 356,
+    "raw": "3rd|5.56"
+   },
+   {
+    "frame": 18684,
+    "period": 3,
+    "clock_s": 349,
+    "raw": "3rd|5.49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    360.0,
+    348.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 348.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. James misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 20448,
+  "core_end_frame": 20574,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 23136,
+  "core_end_frame": 23406,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.52,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 23136,
+    "period": 3,
+    "clock_s": 330,
+    "raw": "3rd|5.30"
+   },
+   {
+    "frame": 23406,
+    "period": 3,
+    "clock_s": 330,
+    "raw": "3rd|5.30"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 24168,
+  "core_end_frame": 24330,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 30672,
+  "core_end_frame": 30906,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 30672,
+    "period": 3,
+    "clock_s": 292,
+    "raw": "3rd|4.52"
+   },
+   {
+    "frame": 30906,
+    "period": 3,
+    "clock_s": 288,
+    "raw": "3rd|4.48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    306.0,
+    274.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 281.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "T. Thompson makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 32442,
+  "core_end_frame": 32856,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.71,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 32442,
+    "period": 3,
+    "clock_s": 286,
+    "raw": "3rd|446"
+   },
+   {
+    "frame": 32856,
+    "period": 3,
+    "clock_s": 284,
+    "raw": "3rd|4.44"
+   }
+  ]
+ }
+]

@@ -9,6 +9,45 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-13 — Run 10 (night 3): seek fix VERIFIED on Colab; 584 joined, GSW bucket 295/300
+
+The run that timed out on every 720p60 section for two nights straight
+completed on the first post-ded56b6 attempt: **gsw_cle_2017f_g5 built 11/12
+sections at 10–22 min each** (was >60-min timeout per section). T4 runtime,
+commit ded56b6, 52 new sections packaged across 5 new games + the g5 backlog,
+798 min wall. The SeqReader diagnosis was the whole story — no residual
+mystery.
+
+Failed units (3 reported, 2 identifiable, both tails): g5_s11 (still the
+2-byte placeholder) and hou_duel_s09 (built tiny — 17 tracks of garbage time —
+then segment produced nothing). Nothing mid-game failed. Drive's live
+status.json isn't visible to the local Drive connector (different account),
+so the third count stays unattributed; likely a retry of one of these.
+
+**Ingest gotcha worth remembering: the packaged tier2_join.json was STALE** —
+timestamped before the run even started. colab_run.py is build→align→package
+and never re-runs the join, so the zip carried night-2's 373-possession join
+while ~344 freshly aligned spans sat in the outcomes files. Verify-the-
+artifact lesson again, date edition. Re-ran tier2_join + tier2_credit locally
+over the full outcome set:
+
+- **584 joined / 516 excluded, all structural checks green** (126 → 584 in
+  two nights). Cross-val 91.0% overall (584/642 offense votes agree with PBP),
+  above the 90% canary. New games: sac_klay37 95%, splash62 98%, nyk_curry54
+  91%, hou_duel 88%, cle_2017f_g5 82% (the 720p60 ESPN layout — worst of the
+  batch but usable; 28 joins).
+- **Tier-2 credit: GSW defense bucket at 295/300** — five possessions short
+  of the first meaningful number. One more harvested GSW game tips it.
+  Current placeholder read (do not report): GSW −4.1 credit/100 over 14 games.
+
+Next levers, in order: (1) any one more GSW game → first n≥300 bucket;
+(2) anchors are still the funnel leak (anchor_failed 38 on g5 alone —
+condensed-upload Δclock inconsistency, known); (3) consider colab_run.py
+either running the join or excluding join/credit files from the package so a
+stale one can't ride along again.
+
+---
+
 ## 2026-07-12 — Jersey-OCR resolution A/B: 1080p buys tracking + team calls, NOT raw read-rate
 
 Tested the f8d03f1 lever ("1080p re-fetch of same video ids"). First finding is

@@ -1,0 +1,256 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 129,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 2,
+    "clock_s": 427,
+    "raw": "2nd|7:07"
+   },
+   {
+    "frame": 129,
+    "period": 2,
+    "clock_s": 426,
+    "raw": "2nd|7:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    443.0,
+    426.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 426.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by C. Landry (out of bounds lost ball)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 3096,
+  "core_end_frame": 3345,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3096,
+    "period": 2,
+    "clock_s": 348,
+    "raw": "2nd|5.48"
+   },
+   {
+    "frame": 3345,
+    "period": 2,
+    "clock_s": 339,
+    "raw": "2nd|5.39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    387.0,
+    339.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 357.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Jefferson makes 3-pt jump shot from 24 ft (assist by J. Jack )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 7455,
+  "core_end_frame": 7695,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.56,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7455,
+    "period": 2,
+    "clock_s": 300,
+    "raw": "2nd|5:00"
+   },
+   {
+    "frame": 7695,
+    "period": 2,
+    "clock_s": 292,
+    "raw": "2nd|452"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    304.0,
+    291.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 291.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by J. Jack (lost ball; steal by I. Shumpert )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 14334,
+  "core_end_frame": 14592,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.64,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 14334,
+    "period": 2,
+    "clock_s": 240,
+    "raw": "2nd|4.00"
+   },
+   {
+    "frame": 14592,
+    "period": 2,
+    "clock_s": 240,
+    "raw": "2nd|400"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 14730,
+  "core_end_frame": 14979,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14730,
+    "period": 2,
+    "clock_s": 239,
+    "raw": "2nd|3:59"
+   },
+   {
+    "frame": 14979,
+    "period": 2,
+    "clock_s": 231,
+    "raw": "2nd|3:51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    240.0,
+    229.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 229.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "T. Chandler makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 17349,
+  "core_end_frame": 17757,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17349,
+    "period": 2,
+    "clock_s": 205,
+    "raw": "2nd|3:25"
+   },
+   {
+    "frame": 17757,
+    "period": 2,
+    "clock_s": 191,
+    "raw": "2nd|3:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    210.0,
+    190.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 190.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "C. Anthony makes 3-pt jump shot from 25 ft (assist by R. Felton )"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ }
+]

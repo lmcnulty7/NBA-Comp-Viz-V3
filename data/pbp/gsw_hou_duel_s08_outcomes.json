@@ -1,0 +1,160 @@
+[
+ {
+  "set_start_frame": 1056,
+  "core_end_frame": 1212,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 8115,
+  "core_end_frame": 8538,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8115,
+    "period": 4,
+    "clock_s": 71,
+    "raw": "4th|1:11"
+   },
+   {
+    "frame": 8538,
+    "period": 4,
+    "clock_s": 56.9,
+    "raw": "4th|56.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    73.0,
+    60.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.78,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 60.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ },
+ {
+  "set_start_frame": 10782,
+  "core_end_frame": 10902,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 12093,
+  "core_end_frame": 12444,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.87,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12093,
+    "period": 4,
+    "clock_s": 40.6,
+    "raw": "4th|40.6"
+   },
+   {
+    "frame": 12444,
+    "period": 4,
+    "clock_s": 33.0,
+    "raw": "4th|33.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    60.0,
+    33.0
+   ],
+   "points": 4
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 4,
+  "terminating_event": {
+   "clock_s": 33.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Howard makes 2-pt layup from 2 ft (assist by J. Harden )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.73
+ },
+ {
+  "set_start_frame": 16431,
+  "core_end_frame": 17085,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16431,
+    "period": 4,
+    "clock_s": 33.0,
+    "raw": "4th|33.0"
+   },
+   {
+    "frame": 17085,
+    "period": 4,
+    "clock_s": 22.7,
+    "raw": "4th|22.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    33.0,
+    8.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 8.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ }
+]

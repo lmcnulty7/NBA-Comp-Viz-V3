@@ -1,0 +1,374 @@
+[
+ {
+  "set_start_frame": 222,
+  "core_end_frame": 396,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 519,
+  "core_end_frame": 729,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 513,
+    "period": 1,
+    "clock_s": 351,
+    "raw": "1st|5.51"
+   },
+   {
+    "frame": 729,
+    "period": 1,
+    "clock_s": 344,
+    "raw": "1st|5.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    353.0,
+    341.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 341.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "T. Chandler misses 2-pt layup from 3 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 903,
+  "core_end_frame": 1110,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 1278,
+  "core_end_frame": 1662,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1534,
+    "period": 1,
+    "clock_s": 317,
+    "raw": "1st|5.17"
+   },
+   {
+    "frame": 1668,
+    "period": 1,
+    "clock_s": 312,
+    "raw": "1st|5.12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    329.0,
+    293.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 312.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "C. Anthony makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 6501,
+  "core_end_frame": 6798,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 6597,
+    "period": 1,
+    "clock_s": 271,
+    "raw": "1st|431"
+   },
+   {
+    "frame": 6777,
+    "period": 1,
+    "clock_s": 265,
+    "raw": "1st|4:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    279.0,
+    261.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 261.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Jack misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.91
+ },
+ {
+  "set_start_frame": 7623,
+  "core_end_frame": 8097,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7620,
+    "period": 1,
+    "clock_s": 237,
+    "raw": "1st|3:57"
+   },
+   {
+    "frame": 8012,
+    "period": 1,
+    "clock_s": 224,
+    "raw": "1st|3.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    243.0,
+    221.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 221.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 3 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.91
+ },
+ {
+  "set_start_frame": 8310,
+  "core_end_frame": 8538,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.52,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 10164,
+  "core_end_frame": 10371,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 10164,
+    "period": 1,
+    "clock_s": 152,
+    "raw": "1st|2.32"
+   },
+   {
+    "frame": 10371,
+    "period": 1,
+    "clock_s": 145,
+    "raw": "1st|2:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    154.0,
+    143.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 143.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "R. Felton misses 2-pt jump shot from 5 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 11400,
+  "core_end_frame": 11643,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 11403,
+    "period": 1,
+    "clock_s": 120,
+    "raw": "1st|2:00"
+   },
+   {
+    "frame": 11643,
+    "period": 1,
+    "clock_s": 115,
+    "raw": "1st|1:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    120.0,
+    112.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 112.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt jump shot from 21 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.91
+ },
+ {
+  "set_start_frame": 13116,
+  "core_end_frame": 13257,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 13377,
+  "core_end_frame": 13641,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 16143,
+  "core_end_frame": 16359,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 16299,
+    "period": 1,
+    "clock_s": 26.5,
+    "raw": "1st|26.5"
+   },
+   {
+    "frame": 16350,
+    "period": 1,
+    "clock_s": 25.7,
+    "raw": "1st|25.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    33.9,
+    25.7
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 25.7,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "C. Landry makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.91
+ }
+]

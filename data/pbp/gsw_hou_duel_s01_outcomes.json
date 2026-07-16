@@ -1,0 +1,510 @@
+[
+ {
+  "set_start_frame": 447,
+  "core_end_frame": 636,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 459,
+    "period": 1,
+    "clock_s": 354,
+    "raw": "1st|5:54"
+   },
+   {
+    "frame": 630,
+    "period": 1,
+    "clock_s": 349,
+    "raw": "1st|5:49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    368.0,
+    349.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 349.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 18 ft (assist by A. Bogut )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 729,
+  "core_end_frame": 1062,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 717,
+    "period": 1,
+    "clock_s": 346,
+    "raw": "1st|5:46"
+   },
+   {
+    "frame": 1056,
+    "period": 1,
+    "clock_s": 334,
+    "raw": "1st|5:34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    349.0,
+    330.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 330.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Jones makes 2-pt jump shot from 8 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 1365,
+  "core_end_frame": 1521,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1365,
+    "period": 1,
+    "clock_s": 324,
+    "raw": "1st|5:24"
+   },
+   {
+    "frame": 1521,
+    "period": 1,
+    "clock_s": 319,
+    "raw": "1st|5:19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    330.0,
+    320.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 320.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Bogut makes 2-pt hook shot from 8 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 1731,
+  "core_end_frame": 1983,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1740,
+    "period": 1,
+    "clock_s": 312,
+    "raw": "1st|5:12"
+   },
+   {
+    "frame": 1983,
+    "period": 1,
+    "clock_s": 303,
+    "raw": "1st|5:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    320.0,
+    294.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 304.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Jones makes 2-pt jump shot from 4 ft (assist by J. Harden )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 2124,
+  "core_end_frame": 2301,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2124,
+    "period": 1,
+    "clock_s": 299,
+    "raw": "1st|4:59"
+   },
+   {
+    "frame": 2301,
+    "period": 1,
+    "clock_s": 294,
+    "raw": "1st|4:54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    320.0,
+    294.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 304.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Jones makes 2-pt jump shot from 4 ft (assist by J. Harden )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "duplicate_of_span": 1731,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 3600,
+  "core_end_frame": 3792,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3606,
+    "period": 1,
+    "clock_s": 292,
+    "raw": "1stT|4:52"
+   },
+   {
+    "frame": 3757,
+    "period": 1,
+    "clock_s": 287,
+    "raw": "1st|4:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    294.0,
+    282.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 282.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by A. Bogut (bad pass; steal by T. Ariza )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 6528,
+  "core_end_frame": 6705,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.61,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 6531,
+    "period": 1,
+    "clock_s": 226,
+    "raw": "1sT|3:46"
+   },
+   {
+    "frame": 6705,
+    "period": 1,
+    "clock_s": 220,
+    "raw": "1sT|3:40"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    245.0,
+    220.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 231.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 28 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 8865,
+  "core_end_frame": 9006,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.96,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 8865,
+    "period": 1,
+    "clock_s": 198,
+    "raw": "1st|3:18"
+   },
+   {
+    "frame": 9015,
+    "period": 1,
+    "clock_s": 194,
+    "raw": "1st|3:14"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    205.0,
+    170.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 181.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 9630,
+  "core_end_frame": 9846,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 9630,
+    "period": 1,
+    "clock_s": 174,
+    "raw": "1st|2:54"
+   },
+   {
+    "frame": 9846,
+    "period": 1,
+    "clock_s": 170,
+    "raw": "1st|2:50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    205.0,
+    170.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 181.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 8865,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 14322,
+  "core_end_frame": 14577,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 14322,
+    "period": 1,
+    "clock_s": 133,
+    "raw": "1st|2:13"
+   },
+   {
+    "frame": 14544,
+    "period": 1,
+    "clock_s": 125,
+    "raw": "1st|2:05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    134.0,
+    121.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 121.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "L. Barbosa misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 16521,
+  "core_end_frame": 16698,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 16521,
+    "period": 1,
+    "clock_s": 59.8,
+    "raw": "1sT|59.8"
+   },
+   {
+    "frame": 16698,
+    "period": 1,
+    "clock_s": 54.6,
+    "raw": "1st|54.6"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    70.0,
+    55.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.92,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 55.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Harden makes 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ }
+]

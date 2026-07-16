@@ -1,0 +1,94 @@
+[
+ {
+  "set_start_frame": 2472,
+  "core_end_frame": 2826,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.58,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2472,
+    "period": 4,
+    "clock_s": 24.9,
+    "raw": "4TH|24.9"
+   },
+   {
+    "frame": 2826,
+    "period": 4,
+    "clock_s": 19.5,
+    "raw": "4tH|19.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    25.0,
+    18.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 20.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Crabbe makes 2-pt jump shot from 8 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 4725,
+  "core_end_frame": 4929,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4725,
+    "period": 4,
+    "clock_s": 16.0,
+    "raw": "4tH|16.0"
+   },
+   {
+    "frame": 4929,
+    "period": 4,
+    "clock_s": 10.9,
+    "raw": "4tH|10.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    18.0,
+    11.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.98,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 18.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Curry makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

@@ -1,0 +1,462 @@
+[
+ {
+  "set_start_frame": 117,
+  "core_end_frame": 306,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.71,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 117,
+    "period": 2,
+    "clock_s": 374,
+    "raw": "2Nd|6:14"
+   },
+   {
+    "frame": 306,
+    "period": 2,
+    "clock_s": 369,
+    "raw": "2Nd|6:09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    405.0,
+    369.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 388.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Terry makes 3-pt jump shot from 26 ft (assist by J. Harden )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 780,
+  "core_end_frame": 1065,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 780,
+    "period": 2,
+    "clock_s": 366,
+    "raw": "2nd|6:06"
+   },
+   {
+    "frame": 1065,
+    "period": 2,
+    "clock_s": 358,
+    "raw": "2Nd|5:58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    369.0,
+    358.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 358.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by D. Green (back court)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 2418,
+  "core_end_frame": 2646,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.64,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2418,
+    "period": 2,
+    "clock_s": 331,
+    "raw": "2Nd|5:31"
+   },
+   {
+    "frame": 2646,
+    "period": 2,
+    "clock_s": 323,
+    "raw": "2Nd|5:23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    343.0,
+    317.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 317.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 3 ft (assist by K. Thompson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 3330,
+  "core_end_frame": 3495,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3330,
+    "period": 2,
+    "clock_s": 301,
+    "raw": "2Nd|5:01"
+   },
+   {
+    "frame": 3495,
+    "period": 2,
+    "clock_s": 295,
+    "raw": "2Nd|4:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    305.0,
+    295.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 295.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 4641,
+  "core_end_frame": 5208,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4641,
+    "period": 2,
+    "clock_s": 257,
+    "raw": "2Nd|4:17"
+   },
+   {
+    "frame": 5208,
+    "period": 2,
+    "clock_s": 238,
+    "raw": "2Nd|3:58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    259.0,
+    236.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 236.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Ariza misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.78
+ },
+ {
+  "set_start_frame": 7500,
+  "core_end_frame": 7956,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.75,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7652,
+    "period": 2,
+    "clock_s": 221,
+    "raw": "2Nd|3:41"
+   },
+   {
+    "frame": 7956,
+    "period": 2,
+    "clock_s": 211,
+    "raw": "2Nd|3:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    229.0,
+    211.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 211.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Jones misses 2-pt jump shot from 4 ft (block by A. Bogut )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.78
+ },
+ {
+  "set_start_frame": 11958,
+  "core_end_frame": 12156,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 11958,
+    "period": 2,
+    "clock_s": 124,
+    "raw": "2Nd|2:04"
+   },
+   {
+    "frame": 12156,
+    "period": 2,
+    "clock_s": 117,
+    "raw": "2No|1:57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    132.0,
+    116.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 116.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Harden makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.78
+ },
+ {
+  "set_start_frame": 12483,
+  "core_end_frame": 12696,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12483,
+    "period": 2,
+    "clock_s": 106,
+    "raw": "2Nd|1:46"
+   },
+   {
+    "frame": 12696,
+    "period": 2,
+    "clock_s": 99,
+    "raw": "2Nd|1:39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    116.0,
+    99.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 99.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Bogut makes 2-pt layup from 1 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 12906,
+  "core_end_frame": 13362,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12906,
+    "period": 2,
+    "clock_s": 92,
+    "raw": "2Nd|1:32"
+   },
+   {
+    "frame": 13362,
+    "period": 2,
+    "clock_s": 77,
+    "raw": "2Nd|1:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    99.0,
+    75.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 75.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Harden makes 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.78
+ },
+ {
+  "set_start_frame": 15318,
+  "core_end_frame": 15849,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15318,
+    "period": 2,
+    "clock_s": 28.6,
+    "raw": "2Nd|28.6"
+   },
+   {
+    "frame": 15849,
+    "period": 2,
+    "clock_s": 11.4,
+    "raw": "2Nd|11.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    33.0,
+    11.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 11.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Howard makes 2-pt dunk at rim (assist by T. Jones )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.78
+ }
+]

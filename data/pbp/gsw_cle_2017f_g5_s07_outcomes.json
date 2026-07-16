@@ -1,0 +1,751 @@
+[
+ {
+  "set_start_frame": 162,
+  "core_end_frame": 522,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 162,
+    "period": 3,
+    "clock_s": 281,
+    "raw": "3rd|441"
+   },
+   {
+    "frame": 522,
+    "period": 3,
+    "clock_s": 280,
+    "raw": "3rd|4.40"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 786,
+  "core_end_frame": 1014,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.73,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 786,
+    "period": 3,
+    "clock_s": 276,
+    "raw": "3rd|4.36"
+   },
+   {
+    "frame": 1014,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3rd|4.34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    306.0,
+    274.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 281.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "T. Thompson makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 2412,
+  "core_end_frame": 2790,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 2412,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3rd|4.34"
+   },
+   {
+    "frame": 2790,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3rd|4.34"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 3408,
+  "core_end_frame": 3648,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.67,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 3816,
+  "core_end_frame": 5082,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3816,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3rd|4.34"
+   },
+   {
+    "frame": 5082,
+    "period": 3,
+    "clock_s": 253,
+    "raw": "3rd|4.13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    274.0,
+    256.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.86,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 256.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Irving makes 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 5340,
+  "core_end_frame": 5592,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5340,
+    "period": 3,
+    "clock_s": 249,
+    "raw": "3rd|4.09"
+   },
+   {
+    "frame": 5592,
+    "period": 3,
+    "clock_s": 244,
+    "raw": "3rd|4.04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    256.0,
+    244.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 244.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Durant misses 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 5712,
+  "core_end_frame": 6072,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5712,
+    "period": 3,
+    "clock_s": 242,
+    "raw": "3rd|4.02"
+   },
+   {
+    "frame": 6072,
+    "period": 3,
+    "clock_s": 238,
+    "raw": "3rd|3.58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    244.0,
+    238.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 238.0,
+   "team": "away",
+   "kind": "ft_missed",
+   "desc": "L. James misses free throw 1 of 1"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 7650,
+  "core_end_frame": 7932,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 7650,
+    "period": 3,
+    "clock_s": 238,
+    "raw": "3rd|3.58"
+   },
+   {
+    "frame": 7932,
+    "period": 3,
+    "clock_s": 235,
+    "raw": "3rd|3.55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    238.0,
+    225.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 225.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 29 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 8166,
+  "core_end_frame": 8526,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 8166,
+    "period": 3,
+    "clock_s": 232,
+    "raw": "3rd|3.52"
+   },
+   {
+    "frame": 8526,
+    "period": 3,
+    "clock_s": 226,
+    "raw": "3rd|3.46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    238.0,
+    225.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 225.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 29 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 7650,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 8664,
+  "core_end_frame": 8802,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 8664,
+    "period": 3,
+    "clock_s": 223,
+    "raw": "3rd|3.43"
+   },
+   {
+    "frame": 8802,
+    "period": 3,
+    "clock_s": 221,
+    "raw": "3rd|3.41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    225.0,
+    214.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 214.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Thompson makes 2-pt dunk at rim (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 18840,
+  "core_end_frame": 18978,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 19134,
+  "core_end_frame": 19410,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.5,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 19134,
+    "period": 3,
+    "clock_s": 160,
+    "raw": "3rd|2.40"
+   },
+   {
+    "frame": 19410,
+    "period": 3,
+    "clock_s": 156,
+    "raw": "3rd|2.36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    163.0,
+    154.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 154.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "A. Iguodala misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 21744,
+  "core_end_frame": 22302,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 21744,
+    "period": 3,
+    "clock_s": 131,
+    "raw": "3rd|2.11"
+   },
+   {
+    "frame": 22302,
+    "period": 3,
+    "clock_s": 122,
+    "raw": "3rd|2.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    133.0,
+    110.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 110.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by D. Williams (bad pass; steal by S. Curry )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 22500,
+  "core_end_frame": 22944,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 22500,
+    "period": 3,
+    "clock_s": 118,
+    "raw": "3rd|1.58"
+   },
+   {
+    "frame": 22944,
+    "period": 3,
+    "clock_s": 111,
+    "raw": "3rd|1.51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    133.0,
+    110.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 110.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by D. Williams (bad pass; steal by S. Curry )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "duplicate_of_span": 21744,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 28506,
+  "core_end_frame": 28860,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 28506,
+    "period": 3,
+    "clock_s": 92,
+    "raw": "3rd|1.32"
+   },
+   {
+    "frame": 28860,
+    "period": 3,
+    "clock_s": 86,
+    "raw": "3rd|1.26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    108.0,
+    84.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 84.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by Team (shot clock)"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 31056,
+  "core_end_frame": 31482,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 31056,
+    "period": 3,
+    "clock_s": 74,
+    "raw": "3rd|1.14"
+   },
+   {
+    "frame": 31482,
+    "period": 3,
+    "clock_s": 67,
+    "raw": "3rd|1.07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    84.0,
+    59.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 64.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "P. McCaw makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 33480,
+  "core_end_frame": 33720,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 34362,
+  "core_end_frame": 34962,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 34362,
+    "period": 3,
+    "clock_s": 58.8,
+    "raw": "3rd|58.8"
+   },
+   {
+    "frame": 34962,
+    "period": 3,
+    "clock_s": 353,
+    "raw": "3rd|553"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 35358,
+  "core_end_frame": 35724,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 35358,
+    "period": 3,
+    "clock_s": 48.7,
+    "raw": "3rd|48.7"
+   },
+   {
+    "frame": 35724,
+    "period": 3,
+    "clock_s": 42.6,
+    "raw": "3rd|42.6"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    59.0,
+    39.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 39.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "P. McCaw makes 2-pt layup from 2 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 35844,
+  "core_end_frame": 35964,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 35844,
+    "period": 3,
+    "clock_s": 40.6,
+    "raw": "3rd|40.6"
+   },
+   {
+    "frame": 35946,
+    "period": 3,
+    "clock_s": 38.9,
+    "raw": "3rd|38.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    59.0,
+    39.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.94,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 39.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "P. McCaw makes 2-pt layup from 2 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 35358,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ }
+]

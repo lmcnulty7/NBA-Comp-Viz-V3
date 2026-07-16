@@ -1,0 +1,27 @@
+{
+ "300": {
+  "offense_team": 1,
+  "defense_team": 0,
+  "orientation_conf": 1.0
+ },
+ "849": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.84
+ },
+ "1830": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.84
+ },
+ "4470": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.84
+ },
+ "6552": {
+  "offense_team": 0,
+  "defense_team": 1,
+  "orientation_conf": 0.84
+ }
+}

@@ -1,0 +1,452 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 660,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.71,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 2,
+    "clock_s": 343,
+    "raw": "2nd|5.43"
+   },
+   {
+    "frame": 660,
+    "period": 2,
+    "clock_s": 333,
+    "raw": "2nd|5.33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    345.0,
+    314.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 333.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Durant makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 2112,
+  "core_end_frame": 2226,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 3228,
+  "core_end_frame": 3504,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 3228,
+    "period": 2,
+    "clock_s": 333,
+    "raw": "2nd|5.33"
+   },
+   {
+    "frame": 3504,
+    "period": 2,
+    "clock_s": 333,
+    "raw": "2nd|5.33"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 3744,
+  "core_end_frame": 3978,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3744,
+    "period": 2,
+    "clock_s": 330,
+    "raw": "2nd|5.30"
+   },
+   {
+    "frame": 3978,
+    "period": 2,
+    "clock_s": 326,
+    "raw": "2nd|5.26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    345.0,
+    314.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 333.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Durant makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 0,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 4128,
+  "core_end_frame": 4836,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4128,
+    "period": 2,
+    "clock_s": 323,
+    "raw": "2nd|5.23"
+   },
+   {
+    "frame": 4836,
+    "period": 2,
+    "clock_s": 314,
+    "raw": "2nd|5.14"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    345.0,
+    314.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 333.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Durant makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 0,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 5988,
+  "core_end_frame": 6276,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.61,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 5988,
+    "period": 2,
+    "clock_s": 311,
+    "raw": "2nd|5.11"
+   },
+   {
+    "frame": 6276,
+    "period": 2,
+    "clock_s": 306,
+    "raw": "2nd|5.06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    314.0,
+    307.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 307.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Irving misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 6384,
+  "core_end_frame": 6684,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6384,
+    "period": 2,
+    "clock_s": 304,
+    "raw": "2nd|5.04"
+   },
+   {
+    "frame": 6684,
+    "period": 2,
+    "clock_s": 299,
+    "raw": "2nd|4.59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    307.0,
+    300.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 300.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt dunk at rim (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 7428,
+  "core_end_frame": 7980,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.71,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7428,
+    "period": 2,
+    "clock_s": 287,
+    "raw": "2nd|4.47"
+   },
+   {
+    "frame": 7980,
+    "period": 2,
+    "clock_s": 281,
+    "raw": "2nd|4.41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    287.0,
+    280.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 280.0,
+   "team": "home",
+   "kind": "ft_missed",
+   "desc": "S. Curry misses free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 12918,
+  "core_end_frame": 13038,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12918,
+    "period": 2,
+    "clock_s": 265,
+    "raw": "2nd|4.25"
+   },
+   {
+    "frame": 13038,
+    "period": 2,
+    "clock_s": 263,
+    "raw": "2nd|4.23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    266.0,
+    253.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 253.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 3-pt jump shot from 24 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 15372,
+  "core_end_frame": 16242,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15372,
+    "period": 2,
+    "clock_s": 224,
+    "raw": "2nd|3.44"
+   },
+   {
+    "frame": 16242,
+    "period": 2,
+    "clock_s": 209,
+    "raw": "2nd|3.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    226.0,
+    205.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 205.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 3-pt jump shot from 26 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 16980,
+  "core_end_frame": 17328,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.69,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 16980,
+    "period": 2,
+    "clock_s": 197,
+    "raw": "2nd|3.17"
+   },
+   {
+    "frame": 17328,
+    "period": 2,
+    "clock_s": 191,
+    "raw": "2nd|3.11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    205.0,
+    188.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 188.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Irving misses 2-pt layup from 3 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ }
+]

@@ -1,0 +1,287 @@
+[
+ {
+  "set_start_frame": 288,
+  "core_end_frame": 1890,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 288,
+    "period": 3,
+    "clock_s": 37.3,
+    "raw": "3rd|37.3"
+   },
+   {
+    "frame": 1890,
+    "period": 3,
+    "clock_s": 14.9,
+    "raw": "3rd|14.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    39.0,
+    19.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.82,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 19.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 29 ft (assist by L. James )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 2064,
+  "core_end_frame": 2442,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 5760,
+  "core_end_frame": 6330,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 9342,
+  "core_end_frame": 9930,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 9342,
+    "period": 4,
+    "clock_s": 672,
+    "raw": "4th|11:12"
+   },
+   {
+    "frame": 9930,
+    "period": 4,
+    "clock_s": 70,
+    "raw": "4th|110"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 18132,
+  "core_end_frame": 18342,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.61,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 18132,
+    "period": 4,
+    "clock_s": 579,
+    "raw": "4th|9.39"
+   },
+   {
+    "frame": 18342,
+    "period": 4,
+    "clock_s": 575,
+    "raw": "4th|9.35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    582.0,
+    557.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 557.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. Green makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 18450,
+  "core_end_frame": 18678,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 18450,
+    "period": 4,
+    "clock_s": 574,
+    "raw": "4th|9.34"
+   },
+   {
+    "frame": 18678,
+    "period": 4,
+    "clock_s": 570,
+    "raw": "4th|9.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    582.0,
+    557.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 557.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. Green makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 18132,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 21186,
+  "core_end_frame": 21360,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 31428,
+  "core_end_frame": 32076,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.72,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 31428,
+    "period": 4,
+    "clock_s": 506,
+    "raw": "4th|8.26"
+   },
+   {
+    "frame": 32076,
+    "period": 4,
+    "clock_s": 496,
+    "raw": "4th|8.16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    508.0,
+    494.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 494.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 32532,
+  "core_end_frame": 33636,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 32532,
+    "period": 4,
+    "clock_s": 488,
+    "raw": "4th|8.08"
+   },
+   {
+    "frame": 33636,
+    "period": 4,
+    "clock_s": 470,
+    "raw": "4th|7.50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    494.0,
+    470.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 470.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. James misses 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ }
+]

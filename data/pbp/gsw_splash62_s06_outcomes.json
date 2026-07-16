@@ -1,0 +1,416 @@
+[
+ {
+  "set_start_frame": 201,
+  "core_end_frame": 477,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 201,
+    "period": 3,
+    "clock_s": 486,
+    "raw": "3RD|8.06"
+   },
+   {
+    "frame": 477,
+    "period": 3,
+    "clock_s": 476,
+    "raw": "3RD|7.56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    490.0,
+    476.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 476.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 9 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 588,
+  "core_end_frame": 1035,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 588,
+    "period": 3,
+    "clock_s": 473,
+    "raw": "3RD|7.53"
+   },
+   {
+    "frame": 1035,
+    "period": 3,
+    "clock_s": 458,
+    "raw": "3RD|7.38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    476.0,
+    456.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 456.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. McCollum makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 1422,
+  "core_end_frame": 1650,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1422,
+    "period": 3,
+    "clock_s": 445,
+    "raw": "3RD|7.25"
+   },
+   {
+    "frame": 1650,
+    "period": 3,
+    "clock_s": 437,
+    "raw": "3RD|7.17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    456.0,
+    436.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 436.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 3846,
+  "core_end_frame": 3984,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3846,
+    "period": 3,
+    "clock_s": 426,
+    "raw": "3RD|7.06"
+   },
+   {
+    "frame": 3984,
+    "period": 3,
+    "clock_s": 422,
+    "raw": "3RD|7.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    427.0,
+    419.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 420.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 5931,
+  "core_end_frame": 6147,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.73,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5931,
+    "period": 3,
+    "clock_s": 409,
+    "raw": "3RD|6.49"
+   },
+   {
+    "frame": 6147,
+    "period": 3,
+    "clock_s": 402,
+    "raw": "3RD|6.42"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    419.0,
+    402.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 402.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "C. McCollum misses 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 7602,
+  "core_end_frame": 7773,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 7602,
+    "period": 3,
+    "clock_s": 353,
+    "raw": "3RD|5.53"
+   },
+   {
+    "frame": 7773,
+    "period": 3,
+    "clock_s": 347,
+    "raw": "3RD|5.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    359.0,
+    345.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 345.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Lillard misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 9723,
+  "core_end_frame": 10062,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9836,
+    "period": 3,
+    "clock_s": 313,
+    "raw": "3RD|5.13"
+   },
+   {
+    "frame": 10062,
+    "period": 3,
+    "clock_s": 306,
+    "raw": "3RD|5.06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    318.0,
+    306.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 306.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 20 ft (assist by A. Varej\u00c3\u00a3o )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 10395,
+  "core_end_frame": 10623,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10395,
+    "period": 3,
+    "clock_s": 295,
+    "raw": "3RD|4.55"
+   },
+   {
+    "frame": 10623,
+    "period": 3,
+    "clock_s": 287,
+    "raw": "3RD|4.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    306.0,
+    286.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 286.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Aminu makes 3-pt jump shot from 23 ft (assist by C. McCollum )"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.72
+ },
+ {
+  "set_start_frame": 12441,
+  "core_end_frame": 12594,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12441,
+    "period": 3,
+    "clock_s": 227,
+    "raw": "3RD|3.47"
+   },
+   {
+    "frame": 12594,
+    "period": 3,
+    "clock_s": 221,
+    "raw": "3RD|3.41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    232.0,
+    220.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 220.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by A. Iguodala )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

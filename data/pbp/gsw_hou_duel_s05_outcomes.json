@@ -1,0 +1,633 @@
+[
+ {
+  "set_start_frame": 471,
+  "core_end_frame": 723,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 471,
+    "period": 3,
+    "clock_s": 300,
+    "raw": "3ro|5:00"
+   },
+   {
+    "frame": 723,
+    "period": 3,
+    "clock_s": 292,
+    "raw": "3ro|4:52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    304.0,
+    291.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 291.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Terry misses 3-pt jump shot from 27 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 1254,
+  "core_end_frame": 1560,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1254,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3ro|4:34"
+   },
+   {
+    "frame": 1560,
+    "period": 3,
+    "clock_s": 264,
+    "raw": "3rd|4:24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    281.0,
+    265.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 265.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Jones makes 2-pt layup from 1 ft (assist by J. Harden )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 1770,
+  "core_end_frame": 2049,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1770,
+    "period": 3,
+    "clock_s": 257,
+    "raw": "3ro|4:17"
+   },
+   {
+    "frame": 2049,
+    "period": 3,
+    "clock_s": 247,
+    "raw": "3rn|4:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    265.0,
+    242.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 242.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "F. Ezeli misses 2-pt hook shot from 8 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 2286,
+  "core_end_frame": 2646,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.7,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2286,
+    "period": 3,
+    "clock_s": 239,
+    "raw": "3rd|3:59"
+   },
+   {
+    "frame": 2646,
+    "period": 3,
+    "clock_s": 227,
+    "raw": "3ro|3:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    242.0,
+    226.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 226.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Jones makes 2-pt layup from 3 ft (assist by J. Harden )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 2910,
+  "core_end_frame": 3231,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2910,
+    "period": 3,
+    "clock_s": 219,
+    "raw": "3rd|3:39"
+   },
+   {
+    "frame": 3231,
+    "period": 3,
+    "clock_s": 210,
+    "raw": "3ro|3.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    226.0,
+    210.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 210.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. Green makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 4482,
+  "core_end_frame": 5067,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 4482,
+    "period": 3,
+    "clock_s": 207,
+    "raw": "3rd|3:27"
+   },
+   {
+    "frame": 5067,
+    "period": 3,
+    "clock_s": 187,
+    "raw": "3rd|3:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    210.0,
+    189.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 189.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "T. Jones misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 5190,
+  "core_end_frame": 5331,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5190,
+    "period": 3,
+    "clock_s": 183,
+    "raw": "3rn|3:03"
+   },
+   {
+    "frame": 5331,
+    "period": 3,
+    "clock_s": 178,
+    "raw": "3rn|2:58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    189.0,
+    177.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 177.0,
+   "team": "home",
+   "kind": "ft_missed",
+   "desc": "S. Curry misses free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 6300,
+  "core_end_frame": 6591,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6300,
+    "period": 3,
+    "clock_s": 174,
+    "raw": "3ro|2:54"
+   },
+   {
+    "frame": 6591,
+    "period": 3,
+    "clock_s": 165,
+    "raw": "3rd|2:45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    177.0,
+    159.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 159.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Harden makes 2-pt layup from 2 ft (assist by C. Brewer )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 6855,
+  "core_end_frame": 7236,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6855,
+    "period": 3,
+    "clock_s": 156,
+    "raw": "3rn|2:36"
+   },
+   {
+    "frame": 7236,
+    "period": 3,
+    "clock_s": 143,
+    "raw": "3rn|2:23"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    159.0,
+    145.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.85,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 145.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 7968,
+  "core_end_frame": 8190,
+  "attacked_basket": "right",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 9252,
+  "core_end_frame": 9528,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9252,
+    "period": 3,
+    "clock_s": 99,
+    "raw": "3ro|1:39"
+   },
+   {
+    "frame": 9528,
+    "period": 3,
+    "clock_s": 90,
+    "raw": "3rD|1:30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    102.0,
+    81.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 81.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Harden makes 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 9945,
+  "core_end_frame": 10068,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.66,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9945,
+    "period": 3,
+    "clock_s": 85,
+    "raw": "3ro|1:25"
+   },
+   {
+    "frame": 10068,
+    "period": 3,
+    "clock_s": 81,
+    "raw": "3ro|1:21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    102.0,
+    81.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 81.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Harden makes 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": false,
+  "duplicate_of_span": 9252,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 10200,
+  "core_end_frame": 10449,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10200,
+    "period": 3,
+    "clock_s": 77,
+    "raw": "3ro|1:17"
+   },
+   {
+    "frame": 10449,
+    "period": 3,
+    "clock_s": 69,
+    "raw": "3rn|1:09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    81.0,
+    63.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 63.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "offense_source": "span_vote"
+ },
+ {
+  "set_start_frame": 16410,
+  "core_end_frame": 16629,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16410,
+    "period": 4,
+    "clock_s": 670,
+    "raw": "4th|11:10"
+   },
+   {
+    "frame": 16626,
+    "period": 4,
+    "clock_s": 663,
+    "raw": "4th|11:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    678.0,
+    657.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 657.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Howard makes 2-pt layup from 1 ft (assist by J. Terry )"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.73
+ },
+ {
+  "set_start_frame": 17016,
+  "core_end_frame": 17172,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 17016,
+    "period": 4,
+    "clock_s": 650,
+    "raw": "4th|10:50"
+   },
+   {
+    "frame": 17172,
+    "period": 4,
+    "clock_s": 645,
+    "raw": "4th|10:45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    657.0,
+    643.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 643.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "L. Barbosa misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.68
+ }
+]

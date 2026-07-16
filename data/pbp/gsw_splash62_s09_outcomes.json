@@ -1,0 +1,232 @@
+[
+ {
+  "set_start_frame": 300,
+  "core_end_frame": 684,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.96,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 300,
+    "period": 4,
+    "clock_s": 326,
+    "raw": "4tH|5.26"
+   },
+   {
+    "frame": 684,
+    "period": 4,
+    "clock_s": 313,
+    "raw": "4TH|5.13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    330.0,
+    313.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 313.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 849,
+  "core_end_frame": 1194,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 849,
+    "period": 4,
+    "clock_s": 308,
+    "raw": "4tH|5.08"
+   },
+   {
+    "frame": 1194,
+    "period": 4,
+    "clock_s": 296,
+    "raw": "4TH|4.56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    313.0,
+    294.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 294.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. McCollum makes 3-pt jump shot from 25 ft (assist by D. Lillard )"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 1830,
+  "core_end_frame": 2244,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.91,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1830,
+    "period": 4,
+    "clock_s": 275,
+    "raw": "4TH|4.35"
+   },
+   {
+    "frame": 2244,
+    "period": 4,
+    "clock_s": 261,
+    "raw": "4tH|4.21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    276.0,
+    258.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 258.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Lillard misses 2-pt layup from 3 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 4470,
+  "core_end_frame": 4770,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4470,
+    "period": 4,
+    "clock_s": 218,
+    "raw": "4TH|3.38"
+   },
+   {
+    "frame": 4770,
+    "period": 4,
+    "clock_s": 208,
+    "raw": "4TH|3.28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    223.0,
+    207.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 207.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Lillard misses 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 6552,
+  "core_end_frame": 6675,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.65,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6552,
+    "period": 4,
+    "clock_s": 148,
+    "raw": "4tH|2.28"
+   },
+   {
+    "frame": 6675,
+    "period": 4,
+    "clock_s": 144,
+    "raw": "4tH|2.24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    153.0,
+    130.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 144.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. McCollum makes 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

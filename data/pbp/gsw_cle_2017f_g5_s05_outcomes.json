@@ -1,0 +1,455 @@
+[
+ {
+  "set_start_frame": 1062,
+  "core_end_frame": 1764,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.71,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1296,
+    "period": 2,
+    "clock_s": 171,
+    "raw": "2nd|2.51"
+   },
+   {
+    "frame": 1764,
+    "period": 2,
+    "clock_s": 163,
+    "raw": "2nd|2.43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    175.0,
+    151.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 165.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Iguodala makes 2-pt hook shot from 5 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 2490,
+  "core_end_frame": 2844,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.77,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 2490,
+    "period": 2,
+    "clock_s": 151,
+    "raw": "2nd|2.31"
+   },
+   {
+    "frame": 2844,
+    "period": 2,
+    "clock_s": 151,
+    "raw": "2nd|2.31"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 7590,
+  "core_end_frame": 8058,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7590,
+    "period": 2,
+    "clock_s": 95,
+    "raw": "2nd|1.35"
+   },
+   {
+    "frame": 8058,
+    "period": 2,
+    "clock_s": 90,
+    "raw": "2nd|1.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    110.0,
+    90.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 105.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt dunk at rim (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 11928,
+  "core_end_frame": 12282,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.92,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 11928,
+    "period": 2,
+    "clock_s": 70,
+    "raw": "2nd|1:10"
+   },
+   {
+    "frame": 12282,
+    "period": 2,
+    "clock_s": 70,
+    "raw": "2nd|1:10"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 13662,
+  "core_end_frame": 13938,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 13662,
+    "period": 2,
+    "clock_s": 70,
+    "raw": "2nd|1.10"
+   },
+   {
+    "frame": 13938,
+    "period": 2,
+    "clock_s": 70,
+    "raw": "2nd|1.10"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 15690,
+  "core_end_frame": 15846,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.65,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15690,
+    "period": 2,
+    "clock_s": 59.9,
+    "raw": "2nd|59.9"
+   },
+   {
+    "frame": 15849,
+    "period": 2,
+    "clock_s": 58.0,
+    "raw": "2nd|58.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    70.0,
+    40.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 40.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 26 ft (assist by K. Irving )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 15960,
+  "core_end_frame": 16548,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 15960,
+    "period": 2,
+    "clock_s": 56.2,
+    "raw": "2nd|56.2"
+   },
+   {
+    "frame": 16548,
+    "period": 2,
+    "clock_s": 46.4,
+    "raw": "2nd|46.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    70.0,
+    40.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 40.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 26 ft (assist by K. Irving )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "duplicate_of_span": 15690,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 17334,
+  "core_end_frame": 17658,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17334,
+    "period": 2,
+    "clock_s": 36.5,
+    "raw": "2nd|36.5"
+   },
+   {
+    "frame": 17658,
+    "period": 2,
+    "clock_s": 31.2,
+    "raw": "2nd|31.2"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    40.0,
+    33.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.66,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 33.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.74
+ },
+ {
+  "set_start_frame": 27522,
+  "core_end_frame": 27648,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.73,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 27522,
+    "period": 3,
+    "clock_s": 665,
+    "raw": "3rd|11.05"
+   },
+   {
+    "frame": 27648,
+    "period": 3,
+    "clock_s": 70,
+    "raw": "3rd|110"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 28830,
+  "core_end_frame": 29148,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.76,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 28830,
+    "period": 3,
+    "clock_s": 10.4,
+    "raw": "3rd|10.4"
+   },
+   {
+    "frame": 29148,
+    "period": 3,
+    "clock_s": 10.4,
+    "raw": "3rd|10.4"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 29664,
+  "core_end_frame": 29928,
+  "attacked_basket": "left",
+  "offense_team": null,
+  "confidence": 0.0,
+  "offense_real": null,
+  "defense_real": null,
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 32928,
+  "core_end_frame": 33942,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 32928,
+    "period": 3,
+    "clock_s": 592,
+    "raw": "3rd|9.52"
+   },
+   {
+    "frame": 33942,
+    "period": 3,
+    "clock_s": 575,
+    "raw": "3rd|9.35"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    594.0,
+    567.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 567.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.79
+ },
+ {
+  "set_start_frame": 34548,
+  "core_end_frame": 35370,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 34548,
+    "period": 3,
+    "clock_s": 565,
+    "raw": "3rd|9.25"
+   },
+   {
+    "frame": 35370,
+    "period": 3,
+    "clock_s": 551,
+    "raw": "3rd|9:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    567.0,
+    552.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.93,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 552.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "K. Irving misses 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ }
+]

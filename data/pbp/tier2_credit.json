@@ -2,11 +2,11 @@
  "rows": [
   {
    "defense": "GSW",
-   "n_possessions": 191,
-   "n_games": 9,
-   "ppp_allowed": 1.073,
-   "baseline_ppp": 1.018,
-   "credit_per_100": -5.5,
+   "n_possessions": 295,
+   "n_games": 14,
+   "ppp_allowed": 1.092,
+   "baseline_ppp": 1.05,
+   "credit_per_100": -4.1,
    "meaningful": false
   },
   {
@@ -28,12 +28,39 @@
    "meaningful": false
   },
   {
+   "defense": "CLE",
+   "n_possessions": 32,
+   "n_games": 3,
+   "ppp_allowed": 1.312,
+   "baseline_ppp": 1.147,
+   "credit_per_100": -16.6,
+   "meaningful": false
+  },
+  {
+   "defense": "NYK",
+   "n_possessions": 28,
+   "n_games": 1,
+   "ppp_allowed": 1.357,
+   "baseline_ppp": 1.117,
+   "credit_per_100": -24.0,
+   "meaningful": false
+  },
+  {
    "defense": "MIA",
    "n_possessions": 26,
    "n_games": 2,
    "ppp_allowed": 0.846,
    "baseline_ppp": 1.014,
    "credit_per_100": 16.8,
+   "meaningful": false
+  },
+  {
+   "defense": "HOU",
+   "n_possessions": 26,
+   "n_games": 1,
+   "ppp_allowed": 1.038,
+   "baseline_ppp": 1.1,
+   "credit_per_100": 6.2,
    "meaningful": false
   },
   {
@@ -46,12 +73,21 @@
    "meaningful": false
   },
   {
-   "defense": "CLE",
-   "n_possessions": 18,
-   "n_games": 2,
-   "ppp_allowed": 1.056,
-   "baseline_ppp": 1.015,
-   "credit_per_100": -4.1,
+   "defense": "POR",
+   "n_possessions": 22,
+   "n_games": 1,
+   "ppp_allowed": 1.636,
+   "baseline_ppp": 1.202,
+   "credit_per_100": -43.4,
+   "meaningful": false
+  },
+  {
+   "defense": "SAC",
+   "n_possessions": 17,
+   "n_games": 1,
+   "ppp_allowed": 1.588,
+   "baseline_ppp": 1.2,
+   "credit_per_100": -38.8,
    "meaningful": false
   },
   {
@@ -65,7 +101,7 @@
   }
  ],
  "min_bucket": 300,
- "joined_total": 373,
+ "joined_total": 584,
  "note": "PLACEHOLDER until buckets reach min_bucket \u2014 do not report",
  "baseline": "offense's own full-game PPP (PBP), possession-weighted"
 }

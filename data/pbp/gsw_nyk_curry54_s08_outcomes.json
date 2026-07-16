@@ -1,0 +1,370 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 294,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 4,
+    "clock_s": 326,
+    "raw": "4th|5.26"
+   },
+   {
+    "frame": 294,
+    "period": 4,
+    "clock_s": 316,
+    "raw": "4th|5:16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    328.0,
+    315.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 315.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 540,
+  "core_end_frame": 1128,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 540,
+    "period": 4,
+    "clock_s": 308,
+    "raw": "4th|5:08"
+   },
+   {
+    "frame": 1128,
+    "period": 4,
+    "clock_s": 288,
+    "raw": "4th|448"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    315.0,
+    288.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 288.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "C. Anthony misses 2-pt jump shot from 5 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 3159,
+  "core_end_frame": 3540,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 3159,
+    "period": 4,
+    "clock_s": 276,
+    "raw": "4th|4.36"
+   },
+   {
+    "frame": 3540,
+    "period": 4,
+    "clock_s": 264,
+    "raw": "4th|424"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    281.0,
+    227.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 252.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 25 ft (assist by R. Felton )"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 8154,
+  "core_end_frame": 8622,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.65,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8154,
+    "period": 4,
+    "clock_s": 217,
+    "raw": "4th|3.37"
+   },
+   {
+    "frame": 8622,
+    "period": 4,
+    "clock_s": 201,
+    "raw": "4th|3:21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    222.0,
+    201.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 201.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "I. Shumpert misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 9453,
+  "core_end_frame": 9651,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 9453,
+    "period": 4,
+    "clock_s": 173,
+    "raw": "4th|2.53"
+   },
+   {
+    "frame": 9651,
+    "period": 4,
+    "clock_s": 167,
+    "raw": "4th|2.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    180.0,
+    159.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 159.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Jack misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 12072,
+  "core_end_frame": 12246,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12072,
+    "period": 4,
+    "clock_s": 140,
+    "raw": "4th|2:20"
+   },
+   {
+    "frame": 12246,
+    "period": 4,
+    "clock_s": 134,
+    "raw": "4th|2:14"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    159.0,
+    134.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 134.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "C. Anthony misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 15141,
+  "core_end_frame": 15453,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.53,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 15141,
+    "period": 4,
+    "clock_s": 112,
+    "raw": "4th|1:52"
+   },
+   {
+    "frame": 15453,
+    "period": 4,
+    "clock_s": 105,
+    "raw": "4th|1.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    112.0,
+    103.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 103.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "R. Felton misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.85
+ },
+ {
+  "set_start_frame": 15663,
+  "core_end_frame": 15888,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 15663,
+    "period": 4,
+    "clock_s": 98,
+    "raw": "4th|1:38"
+   },
+   {
+    "frame": 15888,
+    "period": 4,
+    "clock_s": 90,
+    "raw": "4th|1:30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    103.0,
+    88.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 88.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt jump shot from 20 ft (block by R. Felton )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

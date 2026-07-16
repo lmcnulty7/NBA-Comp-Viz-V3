@@ -1,0 +1,344 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 333,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.71,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 483,
+  "core_end_frame": 903,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.71,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 477,
+    "period": 1,
+    "clock_s": 23.6,
+    "raw": "1st|23.6"
+   },
+   {
+    "frame": 903,
+    "period": 1,
+    "clock_s": 9.4,
+    "raw": "1st|9.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    25.7,
+    7.8
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 7.8,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "C. Anthony makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1089,
+  "core_end_frame": 1272,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 2634,
+  "core_end_frame": 2808,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.69,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2692,
+    "period": 2,
+    "clock_s": 709,
+    "raw": "2nd|11.49"
+   },
+   {
+    "frame": 2811,
+    "period": 2,
+    "clock_s": 705,
+    "raw": "2nd|11.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    697.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 697.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "J. Smith makes 3-pt jump shot from 27 ft (assist by P. Prigioni )"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 6096,
+  "core_end_frame": 6456,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6096,
+    "period": 2,
+    "clock_s": 640,
+    "raw": "2nd|10.40"
+   },
+   {
+    "frame": 6456,
+    "period": 2,
+    "clock_s": 628,
+    "raw": "2nd|10:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    657.0,
+    627.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 645.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. Landry makes 2-pt layup from 1 ft (assist by R. Jefferson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 10131,
+  "core_end_frame": 10497,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 10131,
+    "period": 2,
+    "clock_s": 564,
+    "raw": "2nd|9:24"
+   },
+   {
+    "frame": 10497,
+    "period": 2,
+    "clock_s": 555,
+    "raw": "2nd|9:15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    578.0,
+    555.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 570.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 12555,
+  "core_end_frame": 13113,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12555,
+    "period": 2,
+    "clock_s": 535,
+    "raw": "2nd|8.55"
+   },
+   {
+    "frame": 13113,
+    "period": 2,
+    "clock_s": 516,
+    "raw": "2nd|8.36"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    540.0,
+    513.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 513.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "S. Novak makes free throw 3 of 3"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 14823,
+  "core_end_frame": 15015,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14823,
+    "period": 2,
+    "clock_s": 511,
+    "raw": "2nd|8.31"
+   },
+   {
+    "frame": 15015,
+    "period": 2,
+    "clock_s": 504,
+    "raw": "2nd|8.24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    513.0,
+    497.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 497.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by C. Landry (bad pass)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 17853,
+  "core_end_frame": 18066,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17853,
+    "period": 2,
+    "clock_s": 437,
+    "raw": "2nd|7:17"
+   },
+   {
+    "frame": 18066,
+    "period": 2,
+    "clock_s": 430,
+    "raw": "2nd|7:10"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    443.0,
+    426.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 426.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by C. Landry (out of bounds lost ball)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ }
+]

@@ -1,0 +1,114 @@
+[
+ {
+  "set_start_frame": 978,
+  "core_end_frame": 1149,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.7,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1092,
+    "period": 1,
+    "clock_s": 11.5,
+    "raw": "1st|11.5"
+   },
+   {
+    "frame": 1149,
+    "period": 1,
+    "clock_s": 11.4,
+    "raw": "1st|11.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    31.0,
+    10.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 10.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 3030,
+  "core_end_frame": 3405,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.64,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 9210,
+  "core_end_frame": 9483,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 15624,
+  "core_end_frame": 15807,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 15743,
+    "period": 1,
+    "clock_s": 380,
+    "raw": "1st|6.20"
+   },
+   {
+    "frame": 15795,
+    "period": 1,
+    "clock_s": 378,
+    "raw": "1st|6:18"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    385.0,
+    375.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 375.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Cousins misses 2-pt layup at rim"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

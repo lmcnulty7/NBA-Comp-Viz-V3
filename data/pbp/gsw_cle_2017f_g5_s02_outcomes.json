@@ -1,0 +1,106 @@
+[
+ {
+  "set_start_frame": 168,
+  "core_end_frame": 570,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 684,
+  "core_end_frame": 894,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 2178,
+  "core_end_frame": 2778,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 4590,
+  "core_end_frame": 5844,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 12774,
+  "core_end_frame": 12924,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.69,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 21828,
+  "core_end_frame": 22758,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 26544,
+  "core_end_frame": 26706,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.71,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 26856,
+  "core_end_frame": 27576,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 35070,
+  "core_end_frame": 35958,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.56,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 35070,
+    "period": 2,
+    "clock_s": 71,
+    "raw": "2nd|11:1"
+   },
+   {
+    "frame": 35958,
+    "period": 2,
+    "clock_s": 663,
+    "raw": "2nd|1103"
+   }
+  ]
+ }
+]

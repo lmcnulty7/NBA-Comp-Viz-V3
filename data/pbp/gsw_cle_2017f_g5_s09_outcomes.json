@@ -1,0 +1,417 @@
+[
+ {
+  "set_start_frame": 936,
+  "core_end_frame": 2286,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.75,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1386,
+    "period": 4,
+    "clock_s": 450,
+    "raw": "4th|7.30"
+   },
+   {
+    "frame": 2286,
+    "period": 4,
+    "clock_s": 435,
+    "raw": "4th|7.15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    462.0,
+    423.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 438.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 2616,
+  "core_end_frame": 3072,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2616,
+    "period": 4,
+    "clock_s": 429,
+    "raw": "4th|7.09"
+   },
+   {
+    "frame": 3072,
+    "period": 4,
+    "clock_s": 423,
+    "raw": "4th|7.03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    462.0,
+    423.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 438.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": false,
+  "duplicate_of_span": 936,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 4056,
+  "core_end_frame": 5538,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4056,
+    "period": 4,
+    "clock_s": 422,
+    "raw": "4th|7.02"
+   },
+   {
+    "frame": 5538,
+    "period": 4,
+    "clock_s": 401,
+    "raw": "4th|6.41"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    423.0,
+    403.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 403.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "L. James misses 3-pt jump shot from 29 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 6450,
+  "core_end_frame": 7344,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.84,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6450,
+    "period": 4,
+    "clock_s": 386,
+    "raw": "4th|6.26"
+   },
+   {
+    "frame": 7344,
+    "period": 4,
+    "clock_s": 372,
+    "raw": "4th|6.12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    389.0,
+    373.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.93,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 373.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt dunk at rim (assist by K. Love )"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 8028,
+  "core_end_frame": 8280,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 8028,
+    "period": 4,
+    "clock_s": 360,
+    "raw": "4th|6.00"
+   },
+   {
+    "frame": 8280,
+    "period": 4,
+    "clock_s": 356,
+    "raw": "4th|5.56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    373.0,
+    355.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 355.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 2-pt jump shot from 15 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 11724,
+  "core_end_frame": 12024,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11724,
+    "period": 4,
+    "clock_s": 318,
+    "raw": "4th|5.18"
+   },
+   {
+    "frame": 12024,
+    "period": 4,
+    "clock_s": 313,
+    "raw": "4th|5.13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    324.0,
+    314.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 314.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Smith misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 16578,
+  "core_end_frame": 17298,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16578,
+    "period": 4,
+    "clock_s": 297,
+    "raw": "4th|4.57"
+   },
+   {
+    "frame": 17298,
+    "period": 4,
+    "clock_s": 285,
+    "raw": "4th|4.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    301.0,
+    289.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 289.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "L. James makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ },
+ {
+  "set_start_frame": 17928,
+  "core_end_frame": 18102,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 17928,
+    "period": 4,
+    "clock_s": 274,
+    "raw": "4th|4.34"
+   },
+   {
+    "frame": 18102,
+    "period": 4,
+    "clock_s": 271,
+    "raw": "4th|4.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    289.0,
+    272.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 272.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 28446,
+  "core_end_frame": 28728,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 28446,
+    "period": 4,
+    "clock_s": 194,
+    "raw": "4th|3.14"
+   },
+   {
+    "frame": 28728,
+    "period": 4,
+    "clock_s": 189,
+    "raw": "4th|3.09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    194.0,
+    179.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 179.0,
+   "team": "away",
+   "kind": "ft_missed",
+   "desc": "J. Smith misses free throw 1 of 1"
+  },
+  "pbp_offense_real": "CLE",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.81
+ }
+]

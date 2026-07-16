@@ -1,0 +1,426 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 174,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.96,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 3,
+    "clock_s": 618,
+    "raw": "3rd|10:18"
+   },
+   {
+    "frame": 174,
+    "period": 3,
+    "clock_s": 612,
+    "raw": "3rd|10:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    645.0,
+    611.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 611.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "C. Anthony makes 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 429,
+  "core_end_frame": 594,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 429,
+    "period": 3,
+    "clock_s": 603,
+    "raw": "3rd|10:03"
+   },
+   {
+    "frame": 594,
+    "period": 3,
+    "clock_s": 598,
+    "raw": "3rd|9.58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    611.0,
+    589.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 597.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "F. Ezeli makes 2-pt dunk from 1 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1227,
+  "core_end_frame": 1803,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1419,
+    "period": 3,
+    "clock_s": 584,
+    "raw": "3rd|9.44"
+   },
+   {
+    "frame": 1803,
+    "period": 3,
+    "clock_s": 571,
+    "raw": "3rd|9.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    589.0,
+    574.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.77,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 574.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "I. Shumpert misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 5418,
+  "core_end_frame": 5640,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5418,
+    "period": 3,
+    "clock_s": 478,
+    "raw": "3rd|7:58"
+   },
+   {
+    "frame": 5640,
+    "period": 3,
+    "clock_s": 471,
+    "raw": "3rd|7:51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    481.0,
+    472.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.86,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 472.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by C. Anthony (offensive foul)"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 8739,
+  "core_end_frame": 9210,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 8739,
+    "period": 3,
+    "clock_s": 433,
+    "raw": "3rd|7:13"
+   },
+   {
+    "frame": 9210,
+    "period": 3,
+    "clock_s": 425,
+    "raw": "3rd|7:05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    449.0,
+    423.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 423.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by Team (shot clock)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 12264,
+  "core_end_frame": 12387,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 12567,
+  "core_end_frame": 12909,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.65,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12567,
+    "period": 3,
+    "clock_s": 400,
+    "raw": "3rd|6.40"
+   },
+   {
+    "frame": 12909,
+    "period": 3,
+    "clock_s": 389,
+    "raw": "3rd|6.29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    404.0,
+    385.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 385.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "F. Ezeli makes 2-pt dunk from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 14235,
+  "core_end_frame": 14637,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14235,
+    "period": 3,
+    "clock_s": 348,
+    "raw": "3rd|5.48"
+   },
+   {
+    "frame": 14637,
+    "period": 3,
+    "clock_s": 333,
+    "raw": "3rd|5.33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    348.0,
+    333.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 333.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Stoudemire makes 2-pt hook shot from 3 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ },
+ {
+  "set_start_frame": 16221,
+  "core_end_frame": 16569,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.75,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16221,
+    "period": 3,
+    "clock_s": 294,
+    "raw": "3rd|454"
+   },
+   {
+    "frame": 16569,
+    "period": 3,
+    "clock_s": 282,
+    "raw": "3rd|442"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    304.0,
+    281.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 281.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jack makes 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 16803,
+  "core_end_frame": 16956,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16803,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3rd|434"
+   },
+   {
+    "frame": 16956,
+    "period": 3,
+    "clock_s": 269,
+    "raw": "3rd|429"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    281.0,
+    267.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 267.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by R. Felton (bad pass)"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.87
+ }
+]

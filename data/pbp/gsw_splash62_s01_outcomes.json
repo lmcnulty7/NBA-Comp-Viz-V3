@@ -1,0 +1,324 @@
+[
+ {
+  "set_start_frame": 321,
+  "core_end_frame": 699,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 321,
+    "period": 1,
+    "clock_s": 429,
+    "raw": "1ST|7.09"
+   },
+   {
+    "frame": 699,
+    "period": 1,
+    "clock_s": 417,
+    "raw": "1ST|6.57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    437.0,
+    417.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 430.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "D. Lillard makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 2964,
+  "core_end_frame": 3168,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2964,
+    "period": 1,
+    "clock_s": 384,
+    "raw": "1ST|6.24"
+   },
+   {
+    "frame": 3168,
+    "period": 1,
+    "clock_s": 378,
+    "raw": "1ST|6.18"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    402.0,
+    376.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 376.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "H. Barnes misses 2-pt jump shot from 11 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 3951,
+  "core_end_frame": 4095,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3951,
+    "period": 1,
+    "clock_s": 351,
+    "raw": "1ST|5.51"
+   },
+   {
+    "frame": 4095,
+    "period": 1,
+    "clock_s": 347,
+    "raw": "1ST|5.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    356.0,
+    347.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 347.0,
+   "team": "away",
+   "kind": "ft_missed",
+   "desc": "C. McCollum misses free throw 2 of 2"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 7584,
+  "core_end_frame": 7764,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.92,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7584,
+    "period": 1,
+    "clock_s": 297,
+    "raw": "1ST|4.57"
+   },
+   {
+    "frame": 7764,
+    "period": 1,
+    "clock_s": 291,
+    "raw": "1ST|4.51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    304.0,
+    289.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 289.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Aminu misses 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 7941,
+  "core_end_frame": 8097,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7941,
+    "period": 1,
+    "clock_s": 285,
+    "raw": "1ST|4.45"
+   },
+   {
+    "frame": 8097,
+    "period": 1,
+    "clock_s": 280,
+    "raw": "1ST|440"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    289.0,
+    274.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 274.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by A. Bogut )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 10329,
+  "core_end_frame": 10665,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.67,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 10329,
+    "period": 1,
+    "clock_s": 248,
+    "raw": "1ST|4.08"
+   },
+   {
+    "frame": 10665,
+    "period": 1,
+    "clock_s": 243,
+    "raw": "1ST|4.03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    257.0,
+    242.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 242.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "A. Bogut makes 2-pt dunk at rim (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 17592,
+  "core_end_frame": 17724,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 17592,
+    "period": 1,
+    "clock_s": 158,
+    "raw": "1ST|2.38"
+   },
+   {
+    "frame": 17724,
+    "period": 1,
+    "clock_s": 153,
+    "raw": "1ST|2.33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    160.0,
+    155.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.6,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 155.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]

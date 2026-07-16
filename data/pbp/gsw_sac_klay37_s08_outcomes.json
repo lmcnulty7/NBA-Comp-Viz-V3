@@ -1,0 +1,542 @@
+[
+ {
+  "set_start_frame": 246,
+  "core_end_frame": 534,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 390,
+    "period": 4,
+    "clock_s": 328,
+    "raw": "4th|5.28"
+   },
+   {
+    "frame": 534,
+    "period": 4,
+    "clock_s": 322,
+    "raw": "4th|5.22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    335.0,
+    321.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 321.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. McCallum makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 735,
+  "core_end_frame": 1017,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 735,
+    "period": 4,
+    "clock_s": 51,
+    "raw": "4th|5:1"
+   },
+   {
+    "frame": 1017,
+    "period": 4,
+    "clock_s": 5.0,
+    "raw": "4th|5.0"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 1167,
+  "core_end_frame": 1419,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.87,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1167,
+    "period": 4,
+    "clock_s": 302,
+    "raw": "4th|5.02"
+   },
+   {
+    "frame": 1419,
+    "period": 4,
+    "clock_s": 292,
+    "raw": "4th|4.52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    306.0,
+    293.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 293.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "Q. Miller makes 2-pt tip-in at rim"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 1968,
+  "core_end_frame": 2232,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 1968,
+    "period": 4,
+    "clock_s": 275,
+    "raw": "4th|4.35"
+   },
+   {
+    "frame": 2232,
+    "period": 4,
+    "clock_s": 268,
+    "raw": "4th|4.28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    284.0,
+    268.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 268.0,
+   "team": "away",
+   "kind": "ft_missed",
+   "desc": "Q. Miller misses free throw 1 of 1"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 4272,
+  "core_end_frame": 4551,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.81,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 4272,
+    "period": 4,
+    "clock_s": 252,
+    "raw": "4th|4:12"
+   },
+   {
+    "frame": 4551,
+    "period": 4,
+    "clock_s": 242,
+    "raw": "4th|4.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    257.0,
+    241.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 241.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. Hollins makes 2-pt jump shot from 11 ft (assist by N. Stauskas )"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 5679,
+  "core_end_frame": 5796,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5679,
+    "period": 4,
+    "clock_s": 205,
+    "raw": "4th|3.25"
+   },
+   {
+    "frame": 5787,
+    "period": 4,
+    "clock_s": 202,
+    "raw": "4th|3.22"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    213.0,
+    185.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 185.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by Team (shot clock)"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 6741,
+  "core_end_frame": 7053,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6741,
+    "period": 4,
+    "clock_s": 184,
+    "raw": "4th|304"
+   },
+   {
+    "frame": 7053,
+    "period": 4,
+    "clock_s": 174,
+    "raw": "4th|2.54"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    185.0,
+    174.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 174.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "N. Stauskas makes 2-pt jump shot from 21 ft (assist by R. Sessions )"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 9297,
+  "core_end_frame": 9648,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.51,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 9472,
+    "period": 4,
+    "clock_s": 145,
+    "raw": "4th|2.25"
+   },
+   {
+    "frame": 9648,
+    "period": 4,
+    "clock_s": 140,
+    "raw": "4th|2.20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    152.0,
+    141.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 141.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "B. Rush misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 10113,
+  "core_end_frame": 10443,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.59,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10278,
+    "period": 4,
+    "clock_s": 128,
+    "raw": "4th|2.08"
+   },
+   {
+    "frame": 10443,
+    "period": 4,
+    "clock_s": 122,
+    "raw": "4th|2.02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    141.0,
+    125.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 125.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. McCallum misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 12180,
+  "core_end_frame": 12846,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12180,
+    "period": 4,
+    "clock_s": 109,
+    "raw": "4th|1.49"
+   },
+   {
+    "frame": 12846,
+    "period": 4,
+    "clock_s": 99,
+    "raw": "4th|1.39"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    113.0,
+    96.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 96.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. McCallum makes 2-pt layup at rim"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 13704,
+  "core_end_frame": 13890,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 13704,
+    "period": 4,
+    "clock_s": 72,
+    "raw": "4th|1:12:"
+   },
+   {
+    "frame": 13890,
+    "period": 4,
+    "clock_s": 67,
+    "raw": "4th|1:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    80.0,
+    66.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 66.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "R. McCallum makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 14502,
+  "core_end_frame": 14859,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 14502,
+    "period": 4,
+    "clock_s": 54,
+    "raw": "4th|:54."
+   },
+   {
+    "frame": 14680,
+    "period": 4,
+    "clock_s": 51,
+    "raw": "4th|:51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    66.0,
+    52.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 59.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "J. McAdoo makes 2-pt dunk at rim (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.88
+ },
+ {
+  "set_start_frame": 16911,
+  "core_end_frame": 17082,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.93,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "no_pbp_overlap"
+ }
+]

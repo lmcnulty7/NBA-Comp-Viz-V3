@@ -1,0 +1,94 @@
+[
+ {
+  "set_start_frame": 510,
+  "core_end_frame": 1011,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.95,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 510,
+    "period": 4,
+    "clock_s": 531,
+    "raw": "4tH|8.51"
+   },
+   {
+    "frame": 1011,
+    "period": 4,
+    "clock_s": 514,
+    "raw": "4tH|8.34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    536.0,
+    512.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 512.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. McCollum makes 2-pt jump shot from 15 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ },
+ {
+  "set_start_frame": 6819,
+  "core_end_frame": 7080,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.83,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6819,
+    "period": 4,
+    "clock_s": 445,
+    "raw": "4TH|7.25"
+   },
+   {
+    "frame": 7080,
+    "period": 4,
+    "clock_s": 436,
+    "raw": "4tH|7.16"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    449.0,
+    424.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 424.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "C. McCollum misses 2-pt jump shot from 22 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.84
+ }
+]

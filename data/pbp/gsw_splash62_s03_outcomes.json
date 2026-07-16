@@ -1,0 +1,140 @@
+[
+ {
+  "set_start_frame": 753,
+  "core_end_frame": 930,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 753,
+    "period": 2,
+    "clock_s": 530,
+    "raw": "2ND|8.50"
+   },
+   {
+    "frame": 930,
+    "period": 2,
+    "clock_s": 524,
+    "raw": "2ND|8.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    538.0,
+    516.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 516.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "M. Harkless misses 2-pt layup from 3 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 6300,
+  "core_end_frame": 6576,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.6,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6300,
+    "period": 2,
+    "clock_s": 444,
+    "raw": "2ND|7.24"
+   },
+   {
+    "frame": 6576,
+    "period": 2,
+    "clock_s": 435,
+    "raw": "2ND|7:15"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    450.0,
+    436.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.89,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 436.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "M. Harkless misses 2-pt jump shot from 3 ft"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 12570,
+  "core_end_frame": 12867,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 12570,
+    "period": 2,
+    "clock_s": 357,
+    "raw": "2ND|5.57"
+   },
+   {
+    "frame": 12867,
+    "period": 2,
+    "clock_s": 347,
+    "raw": "2ND|5.47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    358.0,
+    325.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 335.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Aminu makes 3-pt jump shot from 28 ft (assist by C. McCollum )"
+  },
+  "pbp_offense_real": "POR",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ }
+]

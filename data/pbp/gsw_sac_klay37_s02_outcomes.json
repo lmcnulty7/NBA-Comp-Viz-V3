@@ -1,0 +1,254 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 285,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 1,
+    "clock_s": 20,
+    "raw": "1st|:20."
+   },
+   {
+    "frame": 229,
+    "period": 1,
+    "clock_s": 12,
+    "raw": "1st|:12."
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    31.0,
+    10.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 10.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 441,
+  "core_end_frame": 624,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 429,
+    "period": 1,
+    "clock_s": 6,
+    "raw": "1st|:06."
+   },
+   {
+    "frame": 624,
+    "period": 1,
+    "clock_s": 0,
+    "raw": "1st|:00."
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    10.0,
+    2.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 2.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "Q. Miller misses 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 2280,
+  "core_end_frame": 2724,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.75,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 2280,
+    "period": 2,
+    "clock_s": 71,
+    "raw": "2nd|11:1"
+   },
+   {
+    "frame": 2724,
+    "period": 2,
+    "clock_s": 70,
+    "raw": "2nd|11:0"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 2952,
+  "core_end_frame": 3075,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 6939,
+  "core_end_frame": 7278,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.94,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 7968,
+  "core_end_frame": 8220,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 7968,
+    "period": 2,
+    "clock_s": 580,
+    "raw": "2nd|9.40"
+   },
+   {
+    "frame": 8220,
+    "period": 2,
+    "clock_s": 572,
+    "raw": "2nd|9.32"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    585.0,
+    571.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 571.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Livingston makes 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 9798,
+  "core_end_frame": 10050,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9798,
+    "period": 2,
+    "clock_s": 542,
+    "raw": "2nd|902"
+   },
+   {
+    "frame": 10050,
+    "period": 2,
+    "clock_s": 532,
+    "raw": "2nd|8.52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    544.0,
+    528.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 528.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "D. Lee makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 12309,
+  "core_end_frame": 12672,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 12309,
+    "period": 2,
+    "clock_s": 8.4,
+    "raw": "2nd|8.4:"
+   },
+   {
+    "frame": 12672,
+    "period": 2,
+    "clock_s": 8.3,
+    "raw": "2nd|8.3"
+   }
+  ]
+ }
+]

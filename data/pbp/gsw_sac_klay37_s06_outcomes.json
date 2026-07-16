@@ -1,0 +1,405 @@
+[
+ {
+  "set_start_frame": 153,
+  "core_end_frame": 372,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 153,
+    "period": 3,
+    "clock_s": 218,
+    "raw": "3rd|3.38"
+   },
+   {
+    "frame": 372,
+    "period": 3,
+    "clock_s": 210,
+    "raw": "3rd|3.30"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    223.0,
+    192.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 207.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup at rim (assist by K. Thompson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 1485,
+  "core_end_frame": 1821,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 1597,
+    "period": 3,
+    "clock_s": 197,
+    "raw": "3rd|3:17"
+   },
+   {
+    "frame": 1821,
+    "period": 3,
+    "clock_s": 192,
+    "raw": "3rd|3:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    223.0,
+    192.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 207.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup at rim (assist by K. Thompson )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 153,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 2352,
+  "core_end_frame": 2499,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 4035,
+  "core_end_frame": 4290,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.79,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 4035,
+    "period": 3,
+    "clock_s": 169,
+    "raw": "3rd|2.49"
+   },
+   {
+    "frame": 4162,
+    "period": 3,
+    "clock_s": 165,
+    "raw": "3rd|2.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    183.0,
+    158.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 158.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. McCallum misses 2-pt jump shot from 19 ft"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 4998,
+  "core_end_frame": 5130,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5064,
+    "period": 3,
+    "clock_s": 135,
+    "raw": "3rd|2:15"
+   },
+   {
+    "frame": 5130,
+    "period": 3,
+    "clock_s": 132,
+    "raw": "3rd|2:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    150.0,
+    132.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 132.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by N. Stauskas (bad pass; steal by S. Curry )"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 6552,
+  "core_end_frame": 6807,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.76,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6552,
+    "period": 3,
+    "clock_s": 80,
+    "raw": "3rd|1.20"
+   },
+   {
+    "frame": 6807,
+    "period": 3,
+    "clock_s": 77,
+    "raw": "3rd|1:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    97.0,
+    75.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 75.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. McCallum misses 2-pt layup at rim (block by J. Holiday )"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 10326,
+  "core_end_frame": 10539,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.0,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10326,
+    "period": 3,
+    "clock_s": 59,
+    "raw": "3rd|:59."
+   },
+   {
+    "frame": 10539,
+    "period": 3,
+    "clock_s": 52,
+    "raw": "3rd|:52:"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    75.0,
+    51.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 66.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 23 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 11805,
+  "core_end_frame": 11973,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11805,
+    "period": 3,
+    "clock_s": 48,
+    "raw": "3rd|:48."
+   },
+   {
+    "frame": 11973,
+    "period": 3,
+    "clock_s": 43,
+    "raw": "3rd|:43."
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    51.0,
+    35.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 35.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 13338,
+  "core_end_frame": 13473,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.51,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13338,
+    "period": 3,
+    "clock_s": 18,
+    "raw": "3rd|:18."
+   },
+   {
+    "frame": 13473,
+    "period": 3,
+    "clock_s": 13,
+    "raw": "3rd|:13."
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    24.0,
+    5.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 13.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Thompson makes 2-pt jump shot from 15 ft (assist by R. Sessions )"
+  },
+  "pbp_offense_real": "SAC",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 17016,
+  "core_end_frame": 17196,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.73,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 17028,
+    "period": 4,
+    "clock_s": 75,
+    "raw": "4th|115"
+   },
+   {
+    "frame": 17196,
+    "period": 4,
+    "clock_s": 11.4,
+    "raw": "4th|11.4"
+   }
+  ]
+ }
+]

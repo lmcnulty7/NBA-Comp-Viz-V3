@@ -1,0 +1,394 @@
+[
+ {
+  "set_start_frame": 2445,
+  "core_end_frame": 2712,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 2445,
+    "period": 1,
+    "clock_s": 716,
+    "raw": "1st|11:56"
+   },
+   {
+    "frame": 2694,
+    "period": 1,
+    "clock_s": 707,
+    "raw": "1sT|11:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    720.0,
+    707.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 707.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "J. Harden makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 3300,
+  "core_end_frame": 3558,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 3303,
+    "period": 1,
+    "clock_s": 707,
+    "raw": "1st|11:47"
+   },
+   {
+    "frame": 3555,
+    "period": 1,
+    "clock_s": 707,
+    "raw": "1st|11:47"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 3720,
+  "core_end_frame": 4002,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.79,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3723,
+    "period": 1,
+    "clock_s": 702,
+    "raw": "1st|11:42"
+   },
+   {
+    "frame": 4002,
+    "period": 1,
+    "clock_s": 693,
+    "raw": "1st|11:33"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    707.0,
+    692.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 692.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 5427,
+  "core_end_frame": 5850,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.5,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5427,
+    "period": 1,
+    "clock_s": 645,
+    "raw": "1st|10:45"
+   },
+   {
+    "frame": 5850,
+    "period": 1,
+    "clock_s": 631,
+    "raw": "1sT|10:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    649.0,
+    631.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 631.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 6102,
+  "core_end_frame": 6345,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 6102,
+    "period": 1,
+    "clock_s": 623,
+    "raw": "1sT|10:23"
+   },
+   {
+    "frame": 6342,
+    "period": 1,
+    "clock_s": 618,
+    "raw": "1st|10:18"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    624.0,
+    609.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 609.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 3-pt jump shot from 24 ft (assist by H. Barnes )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 7851,
+  "core_end_frame": 8127,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7851,
+    "period": 1,
+    "clock_s": 587,
+    "raw": "1sT|9:47"
+   },
+   {
+    "frame": 8127,
+    "period": 1,
+    "clock_s": 578,
+    "raw": "1st|9:38"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    585.0,
+    577.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.78,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 577.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Smith misses 2-pt jump shot from 5 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 11856,
+  "core_end_frame": 12093,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 11856,
+    "period": 1,
+    "clock_s": 493,
+    "raw": "1st|8:13"
+   },
+   {
+    "frame": 12093,
+    "period": 1,
+    "clock_s": 485,
+    "raw": "1st|8:05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    501.0,
+    486.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.88,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 486.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Smith misses 2-pt jump shot from 10 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 12204,
+  "core_end_frame": 12378,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 12219,
+    "period": 1,
+    "clock_s": 481,
+    "raw": "1st|8:01"
+   },
+   {
+    "frame": 12381,
+    "period": 1,
+    "clock_s": 476,
+    "raw": "1sT|7:56"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    486.0,
+    474.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 474.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by A. Bogut (bad pass; steal by T. Ariza )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 15834,
+  "core_end_frame": 16119,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.69,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 15834,
+    "period": 1,
+    "clock_s": 414,
+    "raw": "1st|6:54"
+   },
+   {
+    "frame": 16072,
+    "period": 1,
+    "clock_s": 406,
+    "raw": "1st|6:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    422.0,
+    401.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 401.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "J. Smith misses 2-pt hook shot from 10 ft"
+  },
+  "pbp_offense_real": "HOU",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ }
+]

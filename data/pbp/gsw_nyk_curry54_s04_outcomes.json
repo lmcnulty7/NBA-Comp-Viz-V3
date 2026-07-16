@@ -1,0 +1,508 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 387,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 2,
+    "clock_s": 185,
+    "raw": "2nd|3:05"
+   },
+   {
+    "frame": 387,
+    "period": 2,
+    "clock_s": 172,
+    "raw": "2nd|2.52"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    190.0,
+    172.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 172.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "C. Landry makes 2-pt jump shot from 17 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 639,
+  "core_end_frame": 1170,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 639,
+    "period": 2,
+    "clock_s": 163,
+    "raw": "2nd|2.43"
+   },
+   {
+    "frame": 1170,
+    "period": 2,
+    "clock_s": 145,
+    "raw": "2nd|2:25"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    172.0,
+    148.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.83,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 148.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "C. Anthony makes 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 1272,
+  "core_end_frame": 1422,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1272,
+    "period": 2,
+    "clock_s": 142,
+    "raw": "2nd|2:22"
+   },
+   {
+    "frame": 1422,
+    "period": 2,
+    "clock_s": 137,
+    "raw": "2nd|2:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    148.0,
+    135.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 135.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 2-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 1566,
+  "core_end_frame": 1773,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1566,
+    "period": 2,
+    "clock_s": 132,
+    "raw": "2nd|2:12"
+   },
+   {
+    "frame": 1773,
+    "period": 2,
+    "clock_s": 125,
+    "raw": "2nd|2:05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    135.0,
+    128.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.57,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 128.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "R. Felton makes 3-pt jump shot from 25 ft (assist by C. Anthony )"
+  },
+  "pbp_offense_real": "NYK",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.93
+ },
+ {
+  "set_start_frame": 1986,
+  "core_end_frame": 2241,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.62,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1986,
+    "period": 2,
+    "clock_s": 118,
+    "raw": "2nd|1:58"
+   },
+   {
+    "frame": 2241,
+    "period": 2,
+    "clock_s": 110,
+    "raw": "2nd|1:50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    128.0,
+    109.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 109.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by H. Barnes (lost ball; steal by I. Shumpert )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 2568,
+  "core_end_frame": 2712,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2568,
+    "period": 2,
+    "clock_s": 99,
+    "raw": "2nd|1:39"
+   },
+   {
+    "frame": 2712,
+    "period": 2,
+    "clock_s": 94,
+    "raw": "2nd|1:34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    103.0,
+    95.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.8,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 95.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 3228,
+  "core_end_frame": 3363,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 3228,
+    "period": 2,
+    "clock_s": 77,
+    "raw": "2nd|1:17"
+   },
+   {
+    "frame": 3363,
+    "period": 2,
+    "clock_s": 73,
+    "raw": "2nd|1:13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    81.0,
+    73.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 73.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "S. Curry makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 6714,
+  "core_end_frame": 6837,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6714,
+    "period": 2,
+    "clock_s": 40.3,
+    "raw": "2nd|40.3"
+   },
+   {
+    "frame": 6837,
+    "period": 2,
+    "clock_s": 36.2,
+    "raw": "2nd|36.2"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    41.9,
+    19.3
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 33.7,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jack makes 2-pt jump shot from 4 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 9135,
+  "core_end_frame": 9663,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9135,
+    "period": 2,
+    "clock_s": 15,
+    "raw": "2nd|15."
+   },
+   {
+    "frame": 9663,
+    "period": 2,
+    "clock_s": 0.8,
+    "raw": "2nd|0.8"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    19.3,
+    0.8
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 0.8,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Jack makes 2-pt jump shot from 6 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 14040,
+  "core_end_frame": 14370,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14040,
+    "period": 3,
+    "clock_s": 697,
+    "raw": "3rd|11.37"
+   },
+   {
+    "frame": 14370,
+    "period": 3,
+    "clock_s": 686,
+    "raw": "3rd|11:26"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    703.0,
+    663.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 681.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 12 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ },
+ {
+  "set_start_frame": 16572,
+  "core_end_frame": 16872,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16572,
+    "period": 3,
+    "clock_s": 661,
+    "raw": "3rd|11:01"
+   },
+   {
+    "frame": 16872,
+    "period": 3,
+    "clock_s": 651,
+    "raw": "3rd|10.51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    663.0,
+    645.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 645.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 23 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 1.0
+ }
+]
