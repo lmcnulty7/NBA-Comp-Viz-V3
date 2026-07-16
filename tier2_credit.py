@@ -31,14 +31,49 @@ from __future__ import annotations
 import json
 import logging
 from collections import defaultdict
+from pathlib import Path
 
 from align_outcomes import reconstruct_possessions
 from fetch_pbp import GAMES, PBP_DIR
+from tier2_join import sources_fingerprint
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("tier2_credit")
 
 MIN_BUCKET = 300   # possessions per defense bucket before numbers mean anything
+
+
+def check_join_fresh(join: dict, pbp_dir: Path) -> list[str]:
+    """The join must have been built from EXACTLY the outcomes files on disk —
+    otherwise credit silently aggregates a stale join (run 10: the packaged
+    join predated the run; credit consumed it without complaint). Returns the
+    discrepancies; caller refuses to aggregate on any."""
+    recorded = join.get("sources")
+    if recorded is None:
+        return ["join has no sources fingerprint (predates the guard) — re-run tier2_join.py"]
+    current = sources_fingerprint(pbp_dir)
+    problems = [f"outcomes NOT in join: {c}" for c in sorted(current.keys() - recorded.keys())]
+    problems += [f"join references missing outcomes: {c}" for c in sorted(recorded.keys() - current.keys())]
+    problems += [f"outcomes changed since join: {c}"
+                 for c in sorted(k for k in current.keys() & recorded.keys()
+                                 if current[k] != recorded[k])]
+    return problems
+
+
+def credit_rows(buckets: dict) -> list[dict]:
+    """Defense buckets → report rows; the n≥MIN_BUCKET gate lives HERE so it
+    lifts automatically the moment a bucket crosses — never a manual edit."""
+    rows = []
+    for team, b in sorted(buckets.items(), key=lambda kv: -kv[1]["n"]):
+        ppp = b["pts"] / b["n"]
+        base = b["exp"] / b["n"]
+        rows.append({
+            "defense": team, "n_possessions": b["n"], "n_games": len(b["games"]),
+            "ppp_allowed": round(ppp, 3), "baseline_ppp": round(base, 3),
+            "credit_per_100": round((base - ppp) * 100, 1),
+            "meaningful": b["n"] >= MIN_BUCKET,
+        })
+    return rows
 
 
 def game_ppp_baselines() -> dict:
@@ -63,6 +98,12 @@ def game_ppp_baselines() -> dict:
 
 def main() -> None:
     join = json.loads((PBP_DIR / "tier2_join.json").read_text())
+    stale = check_join_fresh(join, PBP_DIR)
+    if stale:
+        for p in stale:
+            log.error(" STALE JOIN: %s", p)
+        raise SystemExit("tier2_join.json does not match the outcomes on disk — "
+                         "run tier2_join.py first, then re-run tier2_credit.py")
     baselines = game_ppp_baselines()
 
     buckets = defaultdict(lambda: {"n": 0, "pts": 0, "exp": 0.0, "games": set()})
@@ -78,24 +119,17 @@ def main() -> None:
         b["exp"] += baselines[key]
         b["games"].add(r["game"])
 
-    rows = []
-    for team, b in sorted(buckets.items(), key=lambda kv: -kv[1]["n"]):
-        ppp = b["pts"] / b["n"]
-        base = b["exp"] / b["n"]
-        rows.append({
-            "defense": team, "n_possessions": b["n"], "n_games": len(b["games"]),
-            "ppp_allowed": round(ppp, 3), "baseline_ppp": round(base, 3),
-            "credit_per_100": round((base - ppp) * 100, 1),
-            "meaningful": b["n"] >= MIN_BUCKET,
-        })
+    rows = credit_rows(buckets)
+    any_meaningful = any(r["meaningful"] for r in rows)
 
     out = {"rows": rows, "min_bucket": MIN_BUCKET,
            "joined_total": len(join["joined"]),
-           "note": "PLACEHOLDER until buckets reach min_bucket — do not report",
+           "note": ("rows with meaningful=true are reportable; the rest remain placeholders"
+                    if any_meaningful else
+                    "PLACEHOLDER until buckets reach min_bucket — do not report"),
            "baseline": "offense's own full-game PPP (PBP), possession-weighted"}
     (PBP_DIR / "tier2_credit.json").write_text(json.dumps(out, indent=1))
 
-    any_meaningful = any(r["meaningful"] for r in rows)
     log.info("── TIER 2 TEAM-LEVEL DEFENSIVE CREDIT %s ──",
              "" if any_meaningful else "(PLACEHOLDER — no bucket at n≥%d yet)" % MIN_BUCKET)
     log.info(" %-8s %5s %6s %12s %13s %11s", "defense", "n", "games", "ppp_allowed",

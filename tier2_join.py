@@ -31,8 +31,10 @@ Output: data/pbp/tier2_join.json + console table for eyeball review.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
+from pathlib import Path
 
 import config
 from fetch_pbp import GAMES, PBP_DIR, game_for_clip
@@ -46,20 +48,38 @@ def discover_clips() -> list[str]:
                   for p in PBP_DIR.glob("*_outcomes.json"))
 
 
+def sources_fingerprint(pbp_dir: Path) -> dict[str, str]:
+    """{clip: content hash} over every *_outcomes.json — recorded into the join
+    so tier2_credit can PROVE the join saw exactly the outcomes it aggregates.
+    Content, not mtime: mtimes don't survive zip/Drive/cp round-trips. (Run-10
+    lesson: a crashed join left a stale file that credit consumed silently.)"""
+    return {p.name.replace("_outcomes.json", ""):
+            hashlib.sha1(p.read_bytes()).hexdigest()[:12]
+            for p in pbp_dir.glob("*_outcomes.json")}
+
+
 def main() -> None:
     joined, excluded = [], []
     seen_pbp: dict[tuple, dict] = {}    # (game, period, clock range) -> joined record
 
     for clip in discover_clips():
         outcomes = json.loads((PBP_DIR / f"{clip}_outcomes.json").read_text())
-        matchups = {p["set_start_frame"]: p for p in json.loads(
-            (config.TRACKING_DIR / f"{clip}_matchups.json").read_text())["possessions"]}
+        mpath = config.TRACKING_DIR / f"{clip}_matchups.json"
+        # a clip whose matchup_metrics run failed must not crash the WHOLE join
+        # (run 10: one missing file → stale join shipped); its outcomes land in
+        # the exclusion accounting instead, where the eyeball pass sees them
+        matchups = ({p["set_start_frame"]: p
+                     for p in json.loads(mpath.read_text())["possessions"]}
+                    if mpath.exists() else None)
         game = game_for_clip(clip)
 
         for o in outcomes:
             f = o["set_start_frame"]
             if o.get("status") != "aligned":
                 excluded.append({"clip": clip, "set_start_frame": f, "reason": o.get("status")})
+                continue
+            if matchups is None:
+                excluded.append({"clip": clip, "set_start_frame": f, "reason": "no_matchups_file"})
                 continue
             if "duplicate_of_span" in o:      # HARD dedupe — never enters the join
                 excluded.append({"clip": clip, "set_start_frame": f,
@@ -156,7 +176,8 @@ def main() -> None:
                 "scale via harvesting before credit numbers",
     }
     out = PBP_DIR / "tier2_join.json"
-    out.write_text(json.dumps({"checks": checks, "joined": joined, "excluded": excluded}, indent=1))
+    out.write_text(json.dumps({"checks": checks, "sources": sources_fingerprint(PBP_DIR),
+                               "joined": joined, "excluded": excluded}, indent=1))
     log.info("── CHECKS ── %s", json.dumps(checks))
     log.info("join → %s", out)
 

@@ -21,10 +21,14 @@ Steps — each timed, each recorded in results/run_report.json:
             one with cv2 (reads a first + mid-file frame — artifact truth
             that catches AV1, FUSE and corruption identically)
   build     harvest_driver over READY games only (per-stage timeout/resume)
-  align     align_outcomes + matchup_metrics + tier2_join + tier2_credit
+  align     align_outcomes + matchup_metrics + tier2_join + tier2_credit;
+            any sub-step's nonzero exit marks the step FAILED in the report
+            (run 10: a crashed join went unnoticed and a stale file shipped)
   package   zips + honesty report: how many section artifacts were NEWLY
             built THIS run — loud warning if zero (never again download a
-            re-zip of last run's output thinking it's new)
+            re-zip of last run's output thinking it's new). tier2_join/credit
+            are EXCLUDED from the pbp zip: the local repo re-runs both after
+            ingest, and tier2_credit's fingerprint guard refuses stale joins
 """
 from __future__ import annotations
 
@@ -268,20 +272,35 @@ def step_align() -> None:
                   if "_s" in c and u.get("segment", {}).get("state") == "ok"
                   and any(c.startswith(t) for t in GAMES))
     print(len(secs), "sections to align")
-    sh([sys.executable, "align_outcomes.py", "--clips"] + secs)
+    failed = []
+    if sh([sys.executable, "align_outcomes.py", "--clips"] + secs).returncode:
+        failed.append("align_outcomes")
+    m_fail = 0
     for c in secs:
-        subprocess.run([sys.executable, "matchup_metrics.py", "--clip", c,
-                        "--no-video"], capture_output=True)
-    sh([sys.executable, "tier2_join.py"])
-    sh([sys.executable, "tier2_credit.py"])
-    record("align", "ok", sections=len(secs))
+        r = subprocess.run([sys.executable, "matchup_metrics.py", "--clip", c,
+                            "--no-video"], capture_output=True, text=True)
+        if r.returncode:
+            m_fail += 1
+            print(f"!! matchup_metrics FAILED {c}: {(r.stderr or '')[-140:]}")
+    # run-10 lesson: a crashed join left a stale tier2_join.json that credit
+    # aggregated SILENTLY and the package shipped — every sub-step's exit code
+    # must surface, and 'align: ok' must mean all of them succeeded
+    for tool in ("tier2_join.py", "tier2_credit.py"):
+        if sh([sys.executable, tool]).returncode:
+            failed.append(tool)
+    record("align", "FAILED" if failed else "ok", sections=len(secs),
+           matchup_failures=m_fail, **({"failed": failed} if failed else {}))
 
 
 def step_package(persist: str) -> None:
     banner("package + honesty report")
     os.system(f'cd {persist} && zip -qr results/night3_tracking.zip tracking '
               f'-i "tracking/gsw_*"')
-    os.system(f"zip -qr {persist}/results/night3_pbp.zip data/pbp")
+    # join/credit are NEVER packaged: the local repo re-runs both after every
+    # ingest (tier2_credit's fingerprint guard enforces it), so a stale pair
+    # can't ride along as if it covered this run's outcomes (run-10 incident)
+    os.system(f"zip -qr {persist}/results/night3_pbp.zip data/pbp "
+              f'-x "data/pbp/tier2_join.json" "data/pbp/tier2_credit.json"')
     new_total = 0
     print(f"{'game':24s} {'built/total':>12s} {'NEW this run':>13s}")
     for t in GAMES:
