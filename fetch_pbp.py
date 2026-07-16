@@ -51,6 +51,7 @@ GAMES = {
     "201701100GSW": {"away": "MIA", "home": "GSW", "date": "2017-01-10"},
     "201605110GSW": {"away": "POR", "home": "GSW", "date": "2016-05-11"},
     "201505210GSW": {"away": "HOU", "home": "GSW", "date": "2015-05-21"},
+    "201512160GSW": {"away": "PHX", "home": "GSW", "date": "2015-12-16"},
     "201612250CLE": {"away": "GSW", "home": "CLE", "date": "2016-12-25",
                      # 2016 Christmas special uniforms: home CLE is DARK —
                      # the pre-2017 light=home rule inverts for this game

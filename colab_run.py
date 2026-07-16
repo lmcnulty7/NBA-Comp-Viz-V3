@@ -42,7 +42,12 @@ import time
 
 T0 = time.time()
 GAMES = ["gsw_cle_2017f_g5", "gsw_sac_klay37", "gsw_nyk_curry54",
-         "gsw_mia_2017", "gsw_splash62", "gsw_hou_duel"]
+         "gsw_mia_2017", "gsw_splash62", "gsw_hou_duel",
+         # night 4: one more GSW game tips the GSW defense bucket past
+         # MIN_BUCKET=300 (at 295 after run 10). Corrupt-download history
+         # in games.json — fetch now ffprobe-verifies, so a bad fetch just
+         # marks the game not-ready instead of poisoning the run
+         "gsw_phx_2016"]
 LOCAL_V = "/content/video_local"
 REPORT: dict = {"started": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "commit": "", "steps": {}, "games": {}}

@@ -65,7 +65,12 @@
  },
  "gsw_phx_2016": {
   "video_id": "f8lAcHg6kk0",
-  "note": "download corrupt twice \u2014 dropped; substitute in batch 3"
+  "game_code": "201512160GSW",
+  "away": "PHX",
+  "home": "GSW",
+  "date": "2015-12-16",
+  "layout": "espn_wed15_720",
+  "note": "PHX@GSW 2015-12-16, ESPN NBA Wednesday strip. Identified from scorebug: NBA WEDNESDAY banner (12/16/15 was the season's only Wednesday PHX@GSW) + PHX 9 GS 11 @1st 8:38 / PHX 51 GS 70 @3rd 8:30. Fingerprint-verified on fetch. HISTORY: download was corrupt twice pre-avc1-pinning and the game was dropped; re-queued 2026-07-16 after probe sections fetched+decoded clean (fetch now ffprobe-verifies)."
  },
  "gsw_cle_2017f_g5": {
   "video_id": "OPPhDYSxozU",

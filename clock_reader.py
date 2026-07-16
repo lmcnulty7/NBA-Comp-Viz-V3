@@ -63,6 +63,8 @@ LAYOUTS = {
                           "clock_box": (1022, 620, 1080, 652)},
     "espn13_720":        {"period_box": (770, 574, 826, 610),    # 2013 ESPN strip
                           "clock_box": (838, 574, 908, 610)},
+    "espn_wed15_720":    {"period_box": (818, 576, 866, 610),    # 2015 ESPN NBA Wednesday
+                          "clock_box": (868, 576, 950, 610)},    # strip (PHX@GSW 12/16/15)
 }
 CLIP_LAYOUT = {
     "curry_q1_clip": "espn_saturday_480",
