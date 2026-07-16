@@ -9,6 +9,37 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-16 — Stale-join made impossible; night 4 queued (gsw_phx_2016, verified from pixels)
+
+**Run-10 stale join, root-caused then closed structurally.** Zip mtimes told
+the story: fresh outcomes 00:10, fresh credit 00:11, join still stamped the
+previous morning ⇒ tier2_join CRASHED on Colab (likely a missing matchups
+file — matchup_metrics failures were swallowed by capture_output), sh() never
+checks exit codes, "align: ok" recorded anyway, credit aggregated the stale
+join without complaint. Fix (commit 1fff4c1), enforcement not reminder:
+- tier2_join records a CONTENT hash of every outcomes file it consumed
+  ("sources"); tier2_credit diffs that against disk and hard-exits on any
+  added/changed/missing file. Content, not mtime — zip/Drive/cp round-trips
+  can't fake freshness in either direction.
+- tier2_join survives a missing matchups file (exclusion accounting:
+  "no_matchups_file") instead of zeroing the whole join.
+- colab_run: align sub-step exit codes surface (step records FAILED + which);
+  tier2_join/credit EXCLUDED from the pbp package — the local re-run after
+  ingest is canonical and the guard makes skipping it impossible.
+- credit's n≥300 gate confirmed automatic (tests: flips exactly at 300,
+  per-bucket; JSON note flips with it). 9 new tests, 30 passing.
+
+**Night 4 queued: gsw_phx_2016** (the corrupt-twice-dropped video, re-tried
+now that fetch ffprobe-verifies). Game identified WITHOUT trusting the title:
+ESPN "NBA WEDNESDAY" strip ⇒ 12/16/15, the season's only Wednesday PHX@GSW;
+then both scorebug anchors matched fetched PBP exactly — P1 8:38 = 9-11, and
+P3 8:30 = 51-70, the frame catching the beat before Klay's 8:29 three makes
+it 51-73. New clock layout espn_wed15_720 calibrated from probe frames.
+PBP committed. Expected: GSW defense bucket 295 → ~315-320, first meaningful
+credit row lifts on its own at ingest → tier2_join → tier2_credit.
+
+---
+
 ## 2026-07-13 — Run 10 (night 3): seek fix VERIFIED on Colab; 584 joined, GSW bucket 295/300
 
 The run that timed out on every 720p60 section for two nights straight
