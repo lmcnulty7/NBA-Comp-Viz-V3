@@ -9,6 +9,55 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-12 — Jersey-OCR resolution A/B: 1080p buys tracking + team calls, NOT raw read-rate
+
+Tested the f8d03f1 lever ("1080p re-fetch of same video ids"). First finding is
+about availability: of all 14 harvest uploads, only **gsw_sac_klay37 and
+gsw_cle_xmas16 have native 1080p** (avc1 format 137); gsw_okc_2016wcf_g1's
+"1080p60" is YouTube **AI-upscale** (`-sr` formats — not capture resolution);
+everything else caps at 720p. Also corrected the baseline's label: curry_q1_clip
+is actually **854×480**, so the prototype's 7.5% read-rate was a 480p number.
+
+**A/B protocol** (controls everything but resolution): same video id
+(vmbFUcXqy9I), same clock-verified 20 s live window (abs 1485–1505 s, Q2
+9:22→9:07, two halfcourt possessions), same probe defaults. A = local 720p
+harvest file; B = native-1080p section fetch (`yt-dlp -f 137
+--download-sections "*1470-1530"`, cut confirmed to start at abs 1470 by
+matching the scorebug clock). `jersey_ocr.py` gained `--video`/`--label` for
+exactly this, and its collect loop moved to `SeqReader` (repo rule).
+
+**Result — the headline metric didn't move; everything upstream of it did:**
+| | 720p | 1080p |
+|---|---|---|
+| digit reads / OCR'd crops | 105/341 = **30.8%** | 163/525 = **31.0%** |
+| fragments (20 s) | 64 | 45 |
+| crops per fragment | 10.0 | 27.7 |
+| team_unknown abstentions | 34/64 = 53% | 5/45 = **11%** |
+| fragments named | 7 (5 players) | 8 (6 players) |
+
+Read-rate per crop is FLAT at 1080p — easyocr + 5× upscale already saturates
+at 720p digit sizes. The real gains: tracks live ~3× longer (fewer, longer
+fragments), and the team classifier's abstention rate collapses 53→11% —
+which is C1's known ~13% team-error lever, not just an OCR lever. Resolution
+arc for read-rate: 7.5% @480p (curry_q1 — different broadcast, so confounded)
+→ ~31% @720p ≈ @1080p (controlled). The 480→720 jump is where OCR wins live.
+
+**New failure mode, caught by the montage:** 1080p frag 1 named "Livingston
+#34 GSW" on visibly PURPLE crops — that's Jason Thompson (SAC #34). When a
+number is legal on BOTH rosters, the dual-roster guard is structurally blind,
+and a team-misassigned fragment names the wrong player at high weight (10.5).
+Fix candidates: consult crop color at vote time, or a cross-team simultaneity
+check keyed on shared numbers. Separately, both runs' weak tail (weight ≈1,
+≤3 reads) held the other suspect namings (720p "#4 Rush" over crops that look
+like Lee's #10; 1080p "#5 Hollins" ×2) — a min-reads floor (≥4) would have
+dropped all of them while keeping every solid call.
+
+Artifacts: `reports/viz/jersey_probe_gsw_sac_klay37_{720p,1080p}.png`,
+`data/rosters/probe_gsw_sac_klay37_{720p,1080p}.json`, rosters GSW/SAC 2015
+cached. The 1080p cut itself lives in session scratch (29 MB, not committed).
+
+---
+
 ## 2026-07-09 — Phase B night 1: orientation assignment (69→94% cross-val), 126 joined
 
 Night-1 batch (3 GSW games, 31 sections) aligned at first with a shocking 69.4%

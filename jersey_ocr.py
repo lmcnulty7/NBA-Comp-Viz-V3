@@ -45,6 +45,7 @@ import numpy as np
 
 import config
 from fetch_pbp import GAMES, game_for_clip, light_team_name, video_path
+from videoseq import SeqReader
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("jersey_ocr")
@@ -175,17 +176,18 @@ def probe(args) -> None:
     tracker = PlayerTracker(device=config.get_device())
     collector = TorsoCropCollector(every=1, max_per_track=args.max_crops)
     ocr_pool = defaultdict(list)          # tid -> [(sharpness, bbox-crop BGR)]
-    src = video_path(args.clip)
+    src = Path(args.video) if args.video else video_path(args.clip)
     cap = cv2.VideoCapture(str(src), cv2.CAP_FFMPEG)
     if not cap.isOpened():
         cap = cv2.VideoCapture(str(src))
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    reader = SeqReader(cap)
     first_seen, last_seen = {}, {}
     idx, n = args.start, 0
-    log.info("collecting crops: %s frames %d.. (%d live frames)", args.clip, args.start, args.max_frames)
+    log.info("collecting crops: %s (%s) frames %d.. (%d live frames)",
+             args.clip, src.name, args.start, args.max_frames)
     while n < args.max_frames:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
-        ret, frame = cap.read()
+        ret, frame = reader.read(idx)
         if not ret:
             break
         tracks = tracker.update(frame, idx, idx / fps)
@@ -309,12 +311,12 @@ def probe(args) -> None:
                     (4, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 255), 1)
         rows += [label, strip]
     if rows:
-        out = config.VIZ_DIR / f"jersey_probe_{args.clip}.png"
+        out = config.VIZ_DIR / f"jersey_probe_{args.label or args.clip}.png"
         config.VIZ_DIR.mkdir(parents=True, exist_ok=True)
         cv2.imwrite(str(out), np.vstack(rows))
         log.info(" review montage → %s", out)
 
-    (config.PROJECT_ROOT / "data" / "rosters" / f"probe_{args.clip}.json").write_text(json.dumps(
+    (config.PROJECT_ROOT / "data" / "rosters" / f"probe_{args.label or args.clip}.json").write_text(json.dumps(
         {"named": {str(k): v for k, v in named.items()},
          "abstained": {str(k): v for k, v in abstained.items()},
          "thresholds": {"read_min_conf": READ_MIN_CONF, "name_min_weight": NAME_MIN_WEIGHT,
@@ -330,6 +332,12 @@ def main() -> None:
     ap.add_argument("--stride", type=int, default=3)
     ap.add_argument("--max-crops", type=int, default=60)
     ap.add_argument("--top-k", type=int, default=15, help="sharpest bbox-crops OCR'd per fragment")
+    ap.add_argument("--video", default=None,
+                    help="explicit video file (e.g. a 1080p re-fetch of the clip's game); "
+                         "clip still resolves rosters/teams")
+    ap.add_argument("--label", default=None,
+                    help="output artifact suffix (default: clip name) — keeps A/B runs "
+                         "on the same clip from overwriting each other")
     args = ap.parse_args()
     if args.probe:
         probe(args)

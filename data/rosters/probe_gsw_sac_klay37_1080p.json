@@ -1,0 +1,268 @@
+{
+ "named": {
+  "1": {
+   "number": "34",
+   "weight": 10.49,
+   "share": 1.0,
+   "n_reads": 11,
+   "team": "GSW",
+   "player": "Shaun Livingston",
+   "ambiguous_roster": false
+  },
+  "4": {
+   "number": "18",
+   "weight": 5.76,
+   "share": 0.91,
+   "n_reads": 9,
+   "team": "SAC",
+   "player": "Omri Casspi",
+   "ambiguous_roster": false
+  },
+  "8": {
+   "number": "10",
+   "weight": 1.49,
+   "share": 1.0,
+   "n_reads": 4,
+   "team": "GSW",
+   "player": "David Lee",
+   "ambiguous_roster": false
+  },
+  "15": {
+   "number": "34",
+   "weight": 11.7,
+   "share": 1.0,
+   "n_reads": 14,
+   "team": "SAC",
+   "player": "Jason Thompson",
+   "ambiguous_roster": false
+  },
+  "76": {
+   "number": "7",
+   "weight": 4.39,
+   "share": 1.0,
+   "n_reads": 6,
+   "team": "SAC",
+   "player": "Darren Collison",
+   "ambiguous_roster": false
+  },
+  "102": {
+   "number": "5",
+   "weight": 1.0,
+   "share": 1.0,
+   "n_reads": 1,
+   "team": "SAC",
+   "player": "Ryan Hollins",
+   "ambiguous_roster": false
+  },
+  "114": {
+   "number": "5",
+   "weight": 0.99,
+   "share": 1.0,
+   "n_reads": 3,
+   "team": "SAC",
+   "player": "Ryan Hollins",
+   "ambiguous_roster": false
+  },
+  "120": {
+   "number": "34",
+   "weight": 4.23,
+   "share": 0.9,
+   "n_reads": 6,
+   "team": "SAC",
+   "player": "Jason Thompson",
+   "ambiguous_roster": false
+  }
+ },
+ "abstained": {
+  "2": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "5": {
+   "number": null,
+   "reason": "weak_evidence(34:0.60)",
+   "n_reads": 1
+  },
+  "6": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 1
+  },
+  "7": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "9": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 13
+  },
+  "10": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "11": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "13": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "22": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "23": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "31": {
+   "number": null,
+   "reason": "contested({'7': 0.57, '34': 0.96})",
+   "n_reads": 3
+  },
+  "44": {
+   "number": null,
+   "reason": "weak_evidence(7:0.67)",
+   "n_reads": 1
+  },
+  "45": {
+   "number": null,
+   "reason": "weak_evidence(18:0.50)",
+   "n_reads": 1
+  },
+  "47": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 5
+  },
+  "60": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "69": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 10
+  },
+  "70": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "72": {
+   "number": null,
+   "reason": "weak_evidence(4:0.61)",
+   "n_reads": 2
+  },
+  "73": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 1
+  },
+  "91": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 5
+  },
+  "93": {
+   "reason": "team_unknown",
+   "n_reads": 4
+  },
+  "94": {
+   "reason": "team_unknown",
+   "n_reads": 14
+  },
+  "95": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 1
+  },
+  "107": {
+   "number": null,
+   "reason": "contested({'5': 4.84, '34': 6.44, '3': 2.49, '31': 0.9})",
+   "n_reads": 16
+  },
+  "111": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "122": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 3
+  },
+  "134": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "135": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 1
+  },
+  "137": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "139": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "142": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "143": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "3": {
+   "reason": "simultaneity_conflict_with_1",
+   "number": "34",
+   "weight": 6.65,
+   "share": 0.69
+  },
+  "48": {
+   "reason": "simultaneity_conflict_with_1",
+   "number": "34",
+   "weight": 2.88,
+   "share": 1.0
+  },
+  "21": {
+   "reason": "simultaneity_conflict_with_4",
+   "number": "18",
+   "weight": 2.3,
+   "share": 1.0
+  },
+  "125": {
+   "reason": "simultaneity_conflict_with_120",
+   "number": "34",
+   "weight": 2.86,
+   "share": 1.0
+  },
+  "116": {
+   "reason": "simultaneity_conflict_with_114",
+   "number": "5",
+   "weight": 0.99,
+   "share": 1.0
+  }
+ },
+ "thresholds": {
+  "read_min_conf": 0.3,
+  "name_min_weight": 0.8,
+  "name_min_share": 0.65
+ }
+}

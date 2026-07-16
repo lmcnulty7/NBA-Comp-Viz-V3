@@ -1,0 +1,329 @@
+{
+ "named": {
+  "1": {
+   "number": "5",
+   "weight": 3.0,
+   "share": 1.0,
+   "n_reads": 11,
+   "team": "GSW",
+   "player": "Marreese Speights",
+   "ambiguous_roster": false
+  },
+  "7": {
+   "number": "4",
+   "weight": 1.06,
+   "share": 1.0,
+   "n_reads": 2,
+   "team": "GSW",
+   "player": "Brandon Rush",
+   "ambiguous_roster": false
+  },
+  "37": {
+   "number": "7",
+   "weight": 3.99,
+   "share": 1.0,
+   "n_reads": 6,
+   "team": "SAC",
+   "player": "Darren Collison",
+   "ambiguous_roster": false
+  },
+  "38": {
+   "number": "18",
+   "weight": 5.45,
+   "share": 1.0,
+   "n_reads": 6,
+   "team": "SAC",
+   "player": "Omri Casspi",
+   "ambiguous_roster": false
+  },
+  "68": {
+   "number": "5",
+   "weight": 5.8,
+   "share": 1.0,
+   "n_reads": 6,
+   "team": "GSW",
+   "player": "Marreese Speights",
+   "ambiguous_roster": false
+  },
+  "77": {
+   "number": "8",
+   "weight": 9.77,
+   "share": 0.91,
+   "n_reads": 12,
+   "team": "SAC",
+   "player": "Rudy Gay",
+   "ambiguous_roster": false
+  },
+  "89": {
+   "number": "5",
+   "weight": 4.59,
+   "share": 1.0,
+   "n_reads": 8,
+   "team": "GSW",
+   "player": "Marreese Speights",
+   "ambiguous_roster": false
+  }
+ },
+ "abstained": {
+  "2": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "3": {
+   "number": null,
+   "reason": "contested({'31': 1.0, '5': 0.53, '8': 2.0, '7': 0.58})",
+   "n_reads": 9
+  },
+  "5": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "8": {
+   "reason": "team_unknown",
+   "n_reads": 3
+  },
+  "10": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "20": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "24": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 15
+  },
+  "30": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "34": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "39": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "44": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 1
+  },
+  "51": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "70": {
+   "reason": "team_unknown",
+   "n_reads": 1
+  },
+  "80": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "81": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "86": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "93": {
+   "number": null,
+   "reason": "weak_evidence(7:0.69)",
+   "n_reads": 1
+  },
+  "94": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "96": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "101": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "106": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "110": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "111": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "115": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "120": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "121": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "122": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "123": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "126": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "127": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "128": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "131": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "134": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "135": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "136": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "137": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "138": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "139": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "140": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "141": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "142": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "143": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "147": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "148": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "149": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "152": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "153": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "154": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "156": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "157": {
+   "number": null,
+   "reason": "no_legal_reads",
+   "n_reads": 0
+  },
+  "162": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "163": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "164": {
+   "reason": "team_unknown",
+   "n_reads": 0
+  },
+  "4": {
+   "reason": "simultaneity_conflict_with_77",
+   "number": "8",
+   "weight": 8.88,
+   "share": 0.82
+  },
+  "9": {
+   "reason": "simultaneity_conflict_with_77",
+   "number": "8",
+   "weight": 2.7,
+   "share": 0.73
+  },
+  "59": {
+   "reason": "simultaneity_conflict_with_4",
+   "number": "8",
+   "weight": 2.79,
+   "share": 1.0
+  },
+  "6": {
+   "reason": "simultaneity_conflict_with_38",
+   "number": "18",
+   "weight": 0.94,
+   "share": 1.0
+  }
+ },
+ "thresholds": {
+  "read_min_conf": 0.3,
+  "name_min_weight": 0.8,
+  "name_min_share": 0.65
+ }
+}
