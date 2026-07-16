@@ -1,0 +1,389 @@
+[
+ {
+  "set_start_frame": 216,
+  "core_end_frame": 474,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.63,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 216,
+    "period": 3,
+    "clock_s": 125,
+    "raw": "3RD|2:05"
+   },
+   {
+    "frame": 474,
+    "period": 3,
+    "clock_s": 125,
+    "raw": "3rd|2:05"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 3588,
+  "core_end_frame": 3726,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 4350,
+  "core_end_frame": 4572,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.8,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 4884,
+  "core_end_frame": 5070,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.55,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 5412,
+  "core_end_frame": 5574,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.63,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 5694,
+  "core_end_frame": 6504,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5694,
+    "period": 3,
+    "clock_s": 124,
+    "raw": "3rd|2:04"
+   },
+   {
+    "frame": 6504,
+    "period": 3,
+    "clock_s": 110,
+    "raw": "3RD|1:50"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    125.0,
+    107.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 107.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 9108,
+  "core_end_frame": 9270,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9108,
+    "period": 3,
+    "clock_s": 67,
+    "raw": "3rD|1:07"
+   },
+   {
+    "frame": 9270,
+    "period": 3,
+    "clock_s": 64,
+    "raw": "3rd|1:04"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    68.0,
+    54.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 54.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by A. Len (bad pass; steal by D. Green )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 9408,
+  "core_end_frame": 9840,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.57,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9408,
+    "period": 3,
+    "clock_s": 62,
+    "raw": "3rd|1:02"
+   },
+   {
+    "frame": 9840,
+    "period": 3,
+    "clock_s": 54.8,
+    "raw": "3r1|54.8"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    68.0,
+    54.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 54.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by A. Len (bad pass; steal by D. Green )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "duplicate_of_span": 9108,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 10752,
+  "core_end_frame": 11850,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10752,
+    "period": 3,
+    "clock_s": 44.3,
+    "raw": "3rd|44.3"
+   },
+   {
+    "frame": 11850,
+    "period": 3,
+    "clock_s": 26.0,
+    "raw": "3r1|26.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    49.0,
+    25.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 25.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Booker misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 12258,
+  "core_end_frame": 12444,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 12258,
+    "period": 3,
+    "clock_s": 19.1,
+    "raw": "3r1|19.1"
+   },
+   {
+    "frame": 12444,
+    "period": 3,
+    "clock_s": 16.0,
+    "raw": "3ro|16.0"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    25.0,
+    15.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 15.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "F. Ezeli makes 2-pt dunk from 1 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 13194,
+  "core_end_frame": 13944,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.82,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13194,
+    "period": 3,
+    "clock_s": 12.6,
+    "raw": "3RD|12.6"
+   },
+   {
+    "frame": 13944,
+    "period": 3,
+    "clock_s": 0.1,
+    "raw": "3rD|0.1"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    15.0,
+    2.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.85,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 2.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Price misses 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 23154,
+  "core_end_frame": 23268,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.58,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 23154,
+    "period": 4,
+    "clock_s": 660,
+    "raw": "4th|11:00"
+   },
+   {
+    "frame": 23268,
+    "period": 4,
+    "clock_s": 658,
+    "raw": "4th|10:58"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    673.0,
+    659.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 659.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 3 ft (block by T. Warren )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ }
+]

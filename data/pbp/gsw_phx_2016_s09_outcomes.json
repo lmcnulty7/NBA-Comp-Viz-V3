@@ -1,0 +1,572 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 258,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 2646,
+  "core_end_frame": 2964,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2646,
+    "period": 4,
+    "clock_s": 195,
+    "raw": "4th|3:15"
+   },
+   {
+    "frame": 2964,
+    "period": 4,
+    "clock_s": 189,
+    "raw": "4th|3:09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    214.0,
+    176.0
+   ],
+   "points": 4
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 4,
+  "terminating_event": {
+   "clock_s": 188.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "R. Price makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 3126,
+  "core_end_frame": 3378,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 3126,
+    "period": 4,
+    "clock_s": 188,
+    "raw": "4th|3:08"
+   },
+   {
+    "frame": 3378,
+    "period": 4,
+    "clock_s": 188,
+    "raw": "4th|3:08"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 6702,
+  "core_end_frame": 6822,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.81,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 6924,
+  "core_end_frame": 7254,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 6924,
+    "period": 4,
+    "clock_s": 174,
+    "raw": "4th|2:54"
+   },
+   {
+    "frame": 7254,
+    "period": 4,
+    "clock_s": 169,
+    "raw": "4th|2:49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    176.0,
+    168.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 168.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "M. Speights misses 2-pt jump shot from 18 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 10542,
+  "core_end_frame": 11130,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.66,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 10542,
+    "period": 4,
+    "clock_s": 147,
+    "raw": "4th|2:27"
+   },
+   {
+    "frame": 11130,
+    "period": 4,
+    "clock_s": 144,
+    "raw": "4th|2:24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    149.0,
+    141.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 141.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Goodwin makes 2-pt jump shot from 16 ft (assist by S. Weems )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 11526,
+  "core_end_frame": 12126,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.94,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11526,
+    "period": 4,
+    "clock_s": 144,
+    "raw": "4th|2:24"
+   },
+   {
+    "frame": 12126,
+    "period": 4,
+    "clock_s": 137,
+    "raw": "4th|2:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    141.0,
+    125.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.57,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 125.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by M. Speights (bad pass; steal by T. Warren )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 12264,
+  "core_end_frame": 12528,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12264,
+    "period": 4,
+    "clock_s": 135,
+    "raw": "4th|2:15"
+   },
+   {
+    "frame": 12528,
+    "period": 4,
+    "clock_s": 131,
+    "raw": "4th|2:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    141.0,
+    125.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 125.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by M. Speights (bad pass; steal by T. Warren )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 11526,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 12654,
+  "core_end_frame": 12774,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12654,
+    "period": 4,
+    "clock_s": 128,
+    "raw": "4th|2:08"
+   },
+   {
+    "frame": 12774,
+    "period": 4,
+    "clock_s": 126,
+    "raw": "4th|2:06"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    141.0,
+    125.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 125.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by M. Speights (bad pass; steal by T. Warren )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "duplicate_of_span": 11526,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 12960,
+  "core_end_frame": 13236,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.67,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12960,
+    "period": 4,
+    "clock_s": 123,
+    "raw": "4th|2:03"
+   },
+   {
+    "frame": 13236,
+    "period": 4,
+    "clock_s": 119,
+    "raw": "4th|1:59"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    125.0,
+    117.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 117.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "A. Len makes 2-pt dunk at rim (assist by A. Goodwin )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 14892,
+  "core_end_frame": 15048,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 16296,
+  "core_end_frame": 17016,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.86,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16296,
+    "period": 4,
+    "clock_s": 74,
+    "raw": "4th|1:14"
+   },
+   {
+    "frame": 17016,
+    "period": 4,
+    "clock_s": 62,
+    "raw": "4th|1:02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    82.0,
+    63.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.92,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 63.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "B. Rush misses 2-pt jump shot from 20 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 20358,
+  "core_end_frame": 20520,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.55,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 21708,
+  "core_end_frame": 21840,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.67,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 24282,
+  "core_end_frame": 24690,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 24282,
+    "period": 4,
+    "clock_s": 23.0,
+    "raw": "4th|23.0"
+   },
+   {
+    "frame": 24690,
+    "period": 4,
+    "clock_s": 19.7,
+    "raw": "4th|19.7"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    33.0,
+    20.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.91,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 29.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Warren makes 2-pt dunk at rim (assist by R. Price )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.71
+ },
+ {
+  "set_start_frame": 26304,
+  "core_end_frame": 27042,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.73,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 26307,
+    "period": 4,
+    "clock_s": 19.7,
+    "raw": "4th|19.7"
+   },
+   {
+    "frame": 27042,
+    "period": 4,
+    "clock_s": 19.7,
+    "raw": "4th|19.7"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 27618,
+  "core_end_frame": 28092,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 27618,
+    "period": 4,
+    "clock_s": 15.7,
+    "raw": "4th|15.7"
+   },
+   {
+    "frame": 28092,
+    "period": 4,
+    "clock_s": 7.5,
+    "raw": "4th|7.5"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    20.0,
+    10.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.7,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 10.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Goodwin misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.75
+ },
+ {
+  "set_start_frame": 28236,
+  "core_end_frame": 28578,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.95,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ }
+]

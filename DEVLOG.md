@@ -9,6 +9,30 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-16b — Run 11 (night 4): GATE LIFTED — first reportable Tier-2 row (GSW, n=330)
+
+gsw_phx_2016 (the corrupt-twice game) fetched clean, built 10/10, and its
+espn_wed15_720 clock layout worked first try: **57 joined at 92% cross-val**.
+Totals: **641 joined, 91.1% cross-val**, all checks green. The n≥300 gate
+lifted with no manual touch, exactly as tested: **GSW defense n=330 across 15
+games → meaningful:true, ppp_allowed 1.085 vs baseline 1.040 = −4.5
+credit/100** (offenses did ~4.5 pts/100 BETTER than their norm against GSW in
+our halfcourt-set sample — a sample-composition question to sit with, not a
+bug: set-cores only, no transition, no early offense).
+
+Run health (new accounting's first outing): align ok with matchup_failures=0
+and no failed sub-steps; build failed_units still the 2 known tails.
+
+**One more staleness channel found and closed:** the pbp zip STILL contained
+run-10's tier2 files — zip -r into an existing Drive-persisted archive only
+adds/updates, so exclusions don't remove pre-existing entries and the zips
+accrete forever. The fingerprint guard made it harmless (a pre-guard join
+gets refused), which is exactly the defense-in-depth working. step_package
+now rm -f's both zips before repacking, so each zip is exactly this run's
+persist state.
+
+---
+
 ## 2026-07-16 — Stale-join made impossible; night 4 queued (gsw_phx_2016, verified from pixels)
 
 **Run-10 stale join, root-caused then closed structurally.** Zip mtimes told

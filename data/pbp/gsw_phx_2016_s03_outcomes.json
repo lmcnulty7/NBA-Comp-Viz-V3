@@ -1,0 +1,323 @@
+[
+ {
+  "set_start_frame": 276,
+  "core_end_frame": 594,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 276,
+    "period": 2,
+    "clock_s": 432,
+    "raw": "2Nd|7:12"
+   },
+   {
+    "frame": 594,
+    "period": 2,
+    "clock_s": 427,
+    "raw": "2No|7:07"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    435.0,
+    402.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 422.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Warren makes 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 690,
+  "core_end_frame": 1098,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 690,
+    "period": 2,
+    "clock_s": 425,
+    "raw": "2Nd|7:05"
+   },
+   {
+    "frame": 1098,
+    "period": 2,
+    "clock_s": 422,
+    "raw": "2No|7:02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    435.0,
+    402.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 422.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Warren makes 2-pt jump shot from 17 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "duplicate_of_span": 276,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 20472,
+  "core_end_frame": 20688,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.74,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 20472,
+    "period": 2,
+    "clock_s": 325,
+    "raw": "2Nd|5:25"
+   },
+   {
+    "frame": 20688,
+    "period": 2,
+    "clock_s": 321,
+    "raw": "2Nd|5:21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    327.0,
+    320.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 320.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by E. Bledsoe (bad pass; steal by D. Green )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 21906,
+  "core_end_frame": 22440,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 21906,
+    "period": 2,
+    "clock_s": 317,
+    "raw": "2No|5:17"
+   },
+   {
+    "frame": 22440,
+    "period": 2,
+    "clock_s": 317,
+    "raw": "2Nd|5:17"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 22902,
+  "core_end_frame": 23064,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 23388,
+  "core_end_frame": 24468,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 23388,
+    "period": 2,
+    "clock_s": 315,
+    "raw": "2no|5:15"
+   },
+   {
+    "frame": 24468,
+    "period": 2,
+    "clock_s": 297,
+    "raw": "2Nd|4:57"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    317.0,
+    300.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.83,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 300.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "B. Knight makes 2-pt jump shot from 20 ft (assist by P. Tucker )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 29358,
+  "core_end_frame": 29784,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 31488,
+  "core_end_frame": 31884,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.87,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 31497,
+    "period": 2,
+    "clock_s": 232,
+    "raw": "2No|3:52"
+   },
+   {
+    "frame": 31884,
+    "period": 2,
+    "clock_s": 226,
+    "raw": "2No|3:46"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    239.0,
+    226.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 226.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Chandler makes 2-pt jump shot from 16 ft (assist by J. Leuer )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 34638,
+  "core_end_frame": 35538,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.53,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 34638,
+    "period": 2,
+    "clock_s": 180,
+    "raw": "2Nd|3:00"
+   },
+   {
+    "frame": 35538,
+    "period": 2,
+    "clock_s": 165,
+    "raw": "2No|2:45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    187.0,
+    170.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.67,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 170.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "J. Leuer makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ }
+]

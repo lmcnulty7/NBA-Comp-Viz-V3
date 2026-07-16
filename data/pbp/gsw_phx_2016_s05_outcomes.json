@@ -1,0 +1,483 @@
+[
+ {
+  "set_start_frame": 894,
+  "core_end_frame": 1524,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.78,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 894,
+    "period": 3,
+    "clock_s": 718,
+    "raw": "3ro|11:58"
+   },
+   {
+    "frame": 1524,
+    "period": 3,
+    "clock_s": 709,
+    "raw": "3rD|11.49"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    694.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 710.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 1890,
+  "core_end_frame": 2136,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 1890,
+    "period": 3,
+    "clock_s": 709,
+    "raw": "3rD|11:49"
+   },
+   {
+    "frame": 2136,
+    "period": 3,
+    "clock_s": 709,
+    "raw": "3rd|1149"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 2598,
+  "core_end_frame": 2772,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 3576,
+  "core_end_frame": 4560,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3576,
+    "period": 3,
+    "clock_s": 708,
+    "raw": "3rD|11:48"
+   },
+   {
+    "frame": 4560,
+    "period": 3,
+    "clock_s": 694,
+    "raw": "3rD|11:34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    694.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 710.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "duplicate_of_span": 894,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 5148,
+  "core_end_frame": 6018,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.85,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5148,
+    "period": 3,
+    "clock_s": 694,
+    "raw": "3rd|11:34"
+   },
+   {
+    "frame": 6018,
+    "period": 3,
+    "clock_s": 680,
+    "raw": "3RD|11:20"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    694.0,
+    682.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.86,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 682.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "E. Bledsoe misses 2-pt jump shot from 13 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 6174,
+  "core_end_frame": 6672,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.83,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 6174,
+    "period": 3,
+    "clock_s": 678,
+    "raw": "3ro|11:18"
+   },
+   {
+    "frame": 6672,
+    "period": 3,
+    "clock_s": 673,
+    "raw": "3rd|11:13"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    682.0,
+    665.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 665.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "K. Thompson misses 3-pt jump shot from 23 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 7566,
+  "core_end_frame": 7734,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 8184,
+  "core_end_frame": 8484,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 8184,
+    "period": 3,
+    "clock_s": 673,
+    "raw": "3r1|11:13"
+   },
+   {
+    "frame": 8484,
+    "period": 3,
+    "clock_s": 671,
+    "raw": "3RD|11:11"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 9390,
+  "core_end_frame": 9558,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.97,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9390,
+    "period": 3,
+    "clock_s": 656,
+    "raw": "3rd|10:56"
+   },
+   {
+    "frame": 9558,
+    "period": 3,
+    "clock_s": 653,
+    "raw": "3ro|10:53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    656.0,
+    651.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 651.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by K. Thompson (bad pass; steal by E. Bledsoe )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 9732,
+  "core_end_frame": 10020,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.74,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9732,
+    "period": 3,
+    "clock_s": 650,
+    "raw": "3rd|10:50"
+   },
+   {
+    "frame": 10020,
+    "period": 3,
+    "clock_s": 647,
+    "raw": "3RD|10:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    651.0,
+    647.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 647.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "B. Knight makes free throw 1 of 1"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 18348,
+  "core_end_frame": 18618,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 18348,
+    "period": 3,
+    "clock_s": 604,
+    "raw": "3rD|10:04"
+   },
+   {
+    "frame": 18618,
+    "period": 3,
+    "clock_s": 602,
+    "raw": "3Rd|10:02"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 18708,
+  "core_end_frame": 19158,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 18708,
+    "period": 3,
+    "clock_s": 600,
+    "raw": "3Rd|10:00"
+   },
+   {
+    "frame": 19158,
+    "period": 3,
+    "clock_s": 593,
+    "raw": "3RD|9:53"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    615.0,
+    591.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 591.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by Team (shot clock)"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 20118,
+  "core_end_frame": 20622,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.57,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 20118,
+    "period": 3,
+    "clock_s": 588,
+    "raw": "3ro|9:48"
+   },
+   {
+    "frame": 20622,
+    "period": 3,
+    "clock_s": 580,
+    "raw": "3RD|9:40"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    591.0,
+    579.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 579.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt jump shot from 10 ft (assist by A. Bogut )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 31584,
+  "core_end_frame": 31842,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 33324,
+  "core_end_frame": 33450,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.59,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ }
+]

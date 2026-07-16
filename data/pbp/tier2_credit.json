@@ -2,12 +2,12 @@
  "rows": [
   {
    "defense": "GSW",
-   "n_possessions": 295,
-   "n_games": 14,
-   "ppp_allowed": 1.092,
-   "baseline_ppp": 1.05,
-   "credit_per_100": -4.1,
-   "meaningful": false
+   "n_possessions": 330,
+   "n_games": 15,
+   "ppp_allowed": 1.085,
+   "baseline_ppp": 1.04,
+   "credit_per_100": -4.5,
+   "meaningful": true
   },
   {
    "defense": "OKC",
@@ -73,6 +73,15 @@
    "meaningful": false
   },
   {
+   "defense": "PHX",
+   "n_possessions": 22,
+   "n_games": 1,
+   "ppp_allowed": 1.455,
+   "baseline_ppp": 1.185,
+   "credit_per_100": -26.9,
+   "meaningful": false
+  },
+  {
    "defense": "POR",
    "n_possessions": 22,
    "n_games": 1,
@@ -101,7 +110,7 @@
   }
  ],
  "min_bucket": 300,
- "joined_total": 584,
- "note": "PLACEHOLDER until buckets reach min_bucket \u2014 do not report",
+ "joined_total": 641,
+ "note": "rows with meaningful=true are reportable; the rest remain placeholders",
  "baseline": "offense's own full-game PPP (PBP), possession-weighted"
 }

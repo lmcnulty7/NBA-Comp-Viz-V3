@@ -1,0 +1,101 @@
+{
+ "started": "2026-07-16 19:18:22",
+ "commit": "b751d18",
+ "steps": {
+  "env": {
+   "state": "ok",
+   "t_s": 11,
+   "persist": "/content/drive/MyDrive/nba_harvest",
+   "gpu": "Tesla T4"
+  },
+  "deps": {
+   "state": "ok",
+   "t_s": 21,
+   "tail": ""
+  },
+  "preflight": {
+   "state": "ok",
+   "t_s": 48,
+   "tail": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n\nLoading weights:   0%|          | 0/398 [00:00<?, ?it/s]\nLoading weights: 100%|\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588| 398/398 [00:00<00:00, 36220.56it/s]\n"
+  },
+  "fetch": {
+   "state": "ok",
+   "t_s": 175
+  },
+  "localize": {
+   "state": "ok",
+   "t_s": 408,
+   "ready": [
+    "gsw_cle_2017f_g5",
+    "gsw_sac_klay37",
+    "gsw_nyk_curry54",
+    "gsw_mia_2017",
+    "gsw_splash62",
+    "gsw_hou_duel",
+    "gsw_phx_2016"
+   ]
+  },
+  "build": {
+   "state": "ok",
+   "t_s": 10377,
+   "failed_units": 3
+  },
+  "align": {
+   "state": "ok",
+   "t_s": 14347,
+   "sections": 72,
+   "matchup_failures": 0
+  },
+  "package": {
+   "state": "ok",
+   "t_s": 14374,
+   "new_sections": 10
+  }
+ },
+ "games": {
+  "gsw_cle_2017f_g5": {
+   "fetch": "cached h264,720",
+   "probe": "decodable",
+   "sections": "11/12",
+   "new_this_run": 0
+  },
+  "gsw_sac_klay37": {
+   "fetch": "cached h264,720",
+   "probe": "decodable",
+   "sections": "10/10",
+   "new_this_run": 0
+  },
+  "gsw_nyk_curry54": {
+   "fetch": "cached h264,720",
+   "probe": "decodable",
+   "sections": "10/10",
+   "new_this_run": 0
+  },
+  "gsw_mia_2017": {
+   "fetch": "cached h264,720",
+   "probe": "decodable",
+   "sections": "11/11",
+   "new_this_run": 0
+  },
+  "gsw_splash62": {
+   "fetch": "cached h264,720",
+   "probe": "decodable",
+   "sections": "11/11",
+   "new_this_run": 0
+  },
+  "gsw_hou_duel": {
+   "fetch": "cached h264,720",
+   "probe": "decodable",
+   "sections": "10/10",
+   "new_this_run": 0
+  },
+  "gsw_phx_2016": {
+   "fetch": "downloaded h264,720",
+   "probe": "decodable",
+   "sections": "10/10",
+   "new_this_run": 10
+  }
+ },
+ "finished": "2026-07-16 23:17:55",
+ "wall_min": 239.6
+}

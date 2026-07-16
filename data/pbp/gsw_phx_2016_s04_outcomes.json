@@ -1,0 +1,242 @@
+[
+ {
+  "set_start_frame": 306,
+  "core_end_frame": 924,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.98,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 306,
+    "period": 2,
+    "clock_s": 149,
+    "raw": "2No|2:29"
+   },
+   {
+    "frame": 924,
+    "period": 2,
+    "clock_s": 139,
+    "raw": "2Nd|2:19"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    156.0,
+    139.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 139.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by T. Chandler (bad pass; steal by A. Bogut )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 1170,
+  "core_end_frame": 1308,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1170,
+    "period": 2,
+    "clock_s": 135,
+    "raw": "2Nd|2:15"
+   },
+   {
+    "frame": 1308,
+    "period": 2,
+    "clock_s": 132,
+    "raw": "2No|2:12"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    139.0,
+    132.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 132.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt layup from 1 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 12822,
+  "core_end_frame": 13014,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.84,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 13284,
+  "core_end_frame": 14010,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.97,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13284,
+    "period": 2,
+    "clock_s": 88,
+    "raw": "2No|1:28"
+   },
+   {
+    "frame": 14010,
+    "period": 2,
+    "clock_s": 77,
+    "raw": "2No|1:17"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    110.0,
+    77.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 101.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 24348,
+  "core_end_frame": 24894,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.73,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 24348,
+    "period": 2,
+    "clock_s": 20.0,
+    "raw": "2No|20.0"
+   },
+   {
+    "frame": 24894,
+    "period": 2,
+    "clock_s": 10.9,
+    "raw": "2No|10.9"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    58.0,
+    11.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.99,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 11.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "B. Knight misses 3-pt jump shot from 28 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 25218,
+  "core_end_frame": 25470,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 25218,
+    "period": 2,
+    "clock_s": 5.5,
+    "raw": "2No|5.5"
+   },
+   {
+    "frame": 25470,
+    "period": 2,
+    "clock_s": 1.3,
+    "raw": "2Nd|1.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    11.0,
+    0.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 0.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "D. Green misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ }
+]

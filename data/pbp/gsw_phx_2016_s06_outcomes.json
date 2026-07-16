@@ -1,0 +1,429 @@
+[
+ {
+  "set_start_frame": 30,
+  "core_end_frame": 156,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.91,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 30,
+    "period": 3,
+    "clock_s": 453,
+    "raw": "3ro|7:33"
+   },
+   {
+    "frame": 156,
+    "period": 3,
+    "clock_s": 451,
+    "raw": "3ro|7:31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    456.0,
+    449.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 449.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Teletovi\u00c4\u0087 makes 2-pt dunk at rim"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 684,
+  "core_end_frame": 798,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 684,
+    "period": 3,
+    "clock_s": 442,
+    "raw": "3ro|7:22"
+   },
+   {
+    "frame": 798,
+    "period": 3,
+    "clock_s": 441,
+    "raw": "3ro|7:21"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    449.0,
+    435.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 435.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 2-pt layup from 1 ft (assist by D. Green )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 11778,
+  "core_end_frame": 11904,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.83,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11778,
+    "period": 3,
+    "clock_s": 310,
+    "raw": "3ro|5:10"
+   },
+   {
+    "frame": 11904,
+    "period": 3,
+    "clock_s": 308,
+    "raw": "3RD|5:08"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    321.0,
+    309.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 309.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 3-pt jump shot from 25 ft (assist by S. Curry )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 14796,
+  "core_end_frame": 14940,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 14796,
+    "period": 3,
+    "clock_s": 277,
+    "raw": "3ro|437"
+   },
+   {
+    "frame": 14940,
+    "period": 3,
+    "clock_s": 274,
+    "raw": "3ro|4:34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    280.0,
+    256.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 267.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Teletovi\u00c4\u0087 makes 2-pt jump shot from 16 ft (assist by A. Len )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 15126,
+  "core_end_frame": 15252,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15126,
+    "period": 3,
+    "clock_s": 271,
+    "raw": "3r1|4:31"
+   },
+   {
+    "frame": 15252,
+    "period": 3,
+    "clock_s": 269,
+    "raw": "3rD|4:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    280.0,
+    256.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 267.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Teletovi\u00c4\u0087 makes 2-pt jump shot from 16 ft (assist by A. Len )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "duplicate_of_span": 14796,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 18648,
+  "core_end_frame": 19386,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 18648,
+    "period": 3,
+    "clock_s": 236,
+    "raw": "3ro|3:56"
+   },
+   {
+    "frame": 19386,
+    "period": 3,
+    "clock_s": 225,
+    "raw": "3r1|3.45"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    239.0,
+    225.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 225.0,
+   "team": "home",
+   "kind": "ft_made",
+   "desc": "K. Thompson makes free throw 3 of 3"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.89
+ },
+ {
+  "set_start_frame": 23382,
+  "core_end_frame": 23520,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 23382,
+    "period": 3,
+    "clock_s": 213,
+    "raw": "3RD|3:33"
+   },
+   {
+    "frame": 23520,
+    "period": 3,
+    "clock_s": 211,
+    "raw": "3rD|3.31"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    225.0,
+    208.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 208.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "A. Len misses 2-pt jump shot from 16 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 28842,
+  "core_end_frame": 29094,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "anchor_failed"
+ },
+ {
+  "set_start_frame": 29238,
+  "core_end_frame": 29640,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 29238,
+    "period": 3,
+    "clock_s": 174,
+    "raw": "3rd|2:54"
+   },
+   {
+    "frame": 29640,
+    "period": 3,
+    "clock_s": 167,
+    "raw": "3RD|2:47"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    179.0,
+    170.0
+   ],
+   "points": 1
+  },
+  "overlap_frac_of_span": 0.57,
+  "offense_points": 1,
+  "terminating_event": {
+   "clock_s": 170.0,
+   "team": "away",
+   "kind": "ft_made",
+   "desc": "T. Warren makes free throw 2 of 2"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.69
+ },
+ {
+  "set_start_frame": 31020,
+  "core_end_frame": 31584,
+  "attacked_basket": "left",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "anchor_inconsistent",
+  "anchors": [
+   {
+    "frame": 31020,
+    "period": 3,
+    "clock_s": 165,
+    "raw": "3rD|2:45"
+   },
+   {
+    "frame": 31584,
+    "period": 3,
+    "clock_s": 170,
+    "raw": "3r1|2:50"
+   }
+  ]
+ },
+ {
+  "set_start_frame": 31686,
+  "core_end_frame": 32850,
+  "attacked_basket": "right",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "clock_stopped_span",
+  "anchors": [
+   {
+    "frame": 31686,
+    "period": 3,
+    "clock_s": 170,
+    "raw": "3RD|2:50"
+   },
+   {
+    "frame": 32850,
+    "period": 3,
+    "clock_s": 170,
+    "raw": "3RD|2:50"
+   }
+  ]
+ }
+]

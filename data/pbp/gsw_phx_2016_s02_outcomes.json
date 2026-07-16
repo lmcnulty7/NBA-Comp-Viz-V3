@@ -1,0 +1,999 @@
+[
+ {
+  "set_start_frame": 0,
+  "core_end_frame": 138,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 1,
+    "clock_s": 124,
+    "raw": "1st|2:04"
+   },
+   {
+    "frame": 138,
+    "period": 1,
+    "clock_s": 122,
+    "raw": "1st|2:02"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    131.0,
+    123.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 123.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "S. Curry misses 3-pt jump shot from 24 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.9
+ },
+ {
+  "set_start_frame": 282,
+  "core_end_frame": 768,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.6,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 282,
+    "period": 1,
+    "clock_s": 119,
+    "raw": "1st|1:59"
+   },
+   {
+    "frame": 768,
+    "period": 1,
+    "clock_s": 111,
+    "raw": "1st|1:51"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    123.0,
+    113.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.75,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 113.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Teletovi\u00c4\u0087 makes 2-pt layup from 1 ft (assist by B. Knight )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 1524,
+  "core_end_frame": 2106,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 1524,
+    "period": 1,
+    "clock_s": 99,
+    "raw": "1st|1:39"
+   },
+   {
+    "frame": 2106,
+    "period": 1,
+    "clock_s": 89,
+    "raw": "1st|1:29"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    105.0,
+    87.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 87.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by E. Bledsoe (lost ball)"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 2190,
+  "core_end_frame": 2406,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 4614,
+  "core_end_frame": 5208,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.94,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 4614,
+    "period": 1,
+    "clock_s": 84,
+    "raw": "1st|1:24"
+   },
+   {
+    "frame": 5208,
+    "period": 1,
+    "clock_s": 74,
+    "raw": "1st|114"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    87.0,
+    75.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.9,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 75.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Thompson makes 2-pt jump shot from 11 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.9
+ },
+ {
+  "set_start_frame": 5688,
+  "core_end_frame": 7686,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.82,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 5691,
+    "period": 1,
+    "clock_s": 66,
+    "raw": "1st|1:06"
+   },
+   {
+    "frame": 7686,
+    "period": 1,
+    "clock_s": 45.4,
+    "raw": "1st|45.4"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    75.0,
+    43.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 43.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Price misses 2-pt jump shot from 22 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 7770,
+  "core_end_frame": 8418,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.99,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7770,
+    "period": 1,
+    "clock_s": 43.9,
+    "raw": "1st|43.9"
+   },
+   {
+    "frame": 8418,
+    "period": 1,
+    "clock_s": 33.2,
+    "raw": "1st|33.2"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    43.0,
+    34.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.84,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 34.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "F. Ezeli misses 2-pt layup from 2 ft (block by A. Len )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.9
+ },
+ {
+  "set_start_frame": 8514,
+  "core_end_frame": 9828,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 8514,
+    "period": 1,
+    "clock_s": 31.5,
+    "raw": "1st|31.5"
+   },
+   {
+    "frame": 9828,
+    "period": 1,
+    "clock_s": 10.2,
+    "raw": "1st|10.2"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    34.0,
+    9.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 9.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Warren makes 2-pt jump shot from 17 ft (assist by D. Booker )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.83
+ },
+ {
+  "set_start_frame": 9984,
+  "core_end_frame": 10710,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 9984,
+    "period": 1,
+    "clock_s": 10.2,
+    "raw": "1st|10.2"
+   },
+   {
+    "frame": 10710,
+    "period": 1,
+    "clock_s": 1.3,
+    "raw": "1st|1.3"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    9.0,
+    1.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 0.87,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 1.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "D. Green makes 2-pt layup from 1 ft (assist by S. Livingston )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.9
+ },
+ {
+  "set_start_frame": 13656,
+  "core_end_frame": 13980,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.89,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 13872,
+    "period": 2,
+    "clock_s": 710,
+    "raw": "2No|11:50"
+   },
+   {
+    "frame": 13980,
+    "period": 2,
+    "clock_s": 708,
+    "raw": "2No|11:48"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    720.0,
+    709.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 0.5,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 709.0,
+   "team": "home",
+   "kind": "turnover",
+   "desc": "Turnover by S. Livingston (bad pass; steal by A. Len )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ },
+ {
+  "set_start_frame": 14088,
+  "core_end_frame": 14280,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.63,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14088,
+    "period": 2,
+    "clock_s": 706,
+    "raw": "2Nd|11:46"
+   },
+   {
+    "frame": 14280,
+    "period": 2,
+    "clock_s": 703,
+    "raw": "2Nd|11:43"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    709.0,
+    703.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 703.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "D. Booker misses 2-pt jump shot from 18 ft (block by L. Barbosa )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 14796,
+  "core_end_frame": 15000,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 15744,
+  "core_end_frame": 15936,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.88,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "no_pbp_overlap"
+ },
+ {
+  "set_start_frame": 17112,
+  "core_end_frame": 17244,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.85,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17112,
+    "period": 2,
+    "clock_s": 690,
+    "raw": "2No|11:30"
+   },
+   {
+    "frame": 17244,
+    "period": 2,
+    "clock_s": 688,
+    "raw": "2No|11:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    703.0,
+    688.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 688.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "F. Ezeli makes 2-pt dunk at rim (assist by L. Barbosa )"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ },
+ {
+  "set_start_frame": 17352,
+  "core_end_frame": 18234,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 17352,
+    "period": 2,
+    "clock_s": 686,
+    "raw": "2Nd|11:26"
+   },
+   {
+    "frame": 18234,
+    "period": 2,
+    "clock_s": 671,
+    "raw": "2Nd|11:11"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    688.0,
+    670.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 670.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "M. Teletovi\u00c4\u0087 misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 18438,
+  "core_end_frame": 18624,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.9,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 18531,
+    "period": 2,
+    "clock_s": 666,
+    "raw": "2Nd|11:06"
+   },
+   {
+    "frame": 18624,
+    "period": 2,
+    "clock_s": 665,
+    "raw": "2No|11:05"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    670.0,
+    658.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 658.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "B. Rush misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ },
+ {
+  "set_start_frame": 19116,
+  "core_end_frame": 20304,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.99,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 19116,
+    "period": 2,
+    "clock_s": 656,
+    "raw": "2Nd|10:56"
+   },
+   {
+    "frame": 20304,
+    "period": 2,
+    "clock_s": 637,
+    "raw": "2Nd|10:37"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    658.0,
+    637.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 637.0,
+   "team": "away",
+   "kind": "shot_missed",
+   "desc": "R. Price misses 3-pt jump shot from 26 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 20502,
+  "core_end_frame": 21078,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 0.98,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 20502,
+    "period": 2,
+    "clock_s": 633,
+    "raw": "2Nd|10:33"
+   },
+   {
+    "frame": 21078,
+    "period": 2,
+    "clock_s": 624,
+    "raw": "2Nd|10:24"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    637.0,
+    624.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 624.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "F. Ezeli makes 2-pt jump shot from 7 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ },
+ {
+  "set_start_frame": 21396,
+  "core_end_frame": 21936,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 1.0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 21396,
+    "period": 2,
+    "clock_s": 618,
+    "raw": "2No|10:18"
+   },
+   {
+    "frame": 21936,
+    "period": 2,
+    "clock_s": 609,
+    "raw": "2No|10:09"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    624.0,
+    608.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 608.0,
+   "team": "away",
+   "kind": "turnover",
+   "desc": "Turnover by D. Booker (lost ball; steal by L. Barbosa )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 22206,
+  "core_end_frame": 22338,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.88,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 22206,
+    "period": 2,
+    "clock_s": 605,
+    "raw": "2No|10:05"
+   },
+   {
+    "frame": 22338,
+    "period": 2,
+    "clock_s": 603,
+    "raw": "2No|10:03"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    608.0,
+    603.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 603.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "L. Barbosa makes 2-pt layup from 2 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 25500,
+  "core_end_frame": 26460,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 25500,
+    "period": 2,
+    "clock_s": 580,
+    "raw": "2No|9:40"
+   },
+   {
+    "frame": 26460,
+    "period": 2,
+    "clock_s": 568,
+    "raw": "2Nd|9:28"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    603.0,
+    568.0
+   ],
+   "points": 2
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 2,
+  "terminating_event": {
+   "clock_s": 582.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "T. Warren makes 2-pt jump shot from 9 ft"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": false,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ },
+ {
+  "set_start_frame": 32778,
+  "core_end_frame": 33588,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "confidence": 1.0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 32778,
+    "period": 2,
+    "clock_s": 489,
+    "raw": "2No|8:09"
+   },
+   {
+    "frame": 33588,
+    "period": 2,
+    "clock_s": 475,
+    "raw": "2Nd|7:55"
+   }
+  ],
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    492.0,
+    472.0
+   ],
+   "points": 0
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 0,
+  "terminating_event": {
+   "clock_s": 472.0,
+   "team": "home",
+   "kind": "shot_missed",
+   "desc": "B. Rush misses 3-pt jump shot from 25 ft"
+  },
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "orientation_flipped": false,
+  "offense_source": "orientation",
+  "orientation_conf": 0.86
+ },
+ {
+  "set_start_frame": 34110,
+  "core_end_frame": 34266,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.89,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 34110,
+    "period": 2,
+    "clock_s": 466,
+    "raw": "2No|7:46"
+   },
+   {
+    "frame": 34266,
+    "period": 2,
+    "clock_s": 464,
+    "raw": "2Nd|7.44"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    472.0,
+    454.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 454.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Teletovi\u00c4\u0087 makes 3-pt jump shot from 25 ft (assist by E. Bledsoe )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ },
+ {
+  "set_start_frame": 34368,
+  "core_end_frame": 34872,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "confidence": 0.73,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "status": "aligned",
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 34368,
+    "period": 2,
+    "clock_s": 462,
+    "raw": "2Nd|7:42"
+   },
+   {
+    "frame": 34872,
+    "period": 2,
+    "clock_s": 454,
+    "raw": "2No|7:34"
+   }
+  ],
+  "pbp_possession": {
+   "team": "away",
+   "clock": [
+    472.0,
+    454.0
+   ],
+   "points": 3
+  },
+  "overlap_frac_of_span": 1.0,
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 454.0,
+   "team": "away",
+   "kind": "shot_made",
+   "desc": "M. Teletovi\u00c4\u0087 makes 3-pt jump shot from 25 ft (assist by E. Bledsoe )"
+  },
+  "pbp_offense_real": "PHX",
+  "offense_agrees": true,
+  "duplicate_of_span": 34110,
+  "orientation_flipped": true,
+  "offense_source": "orientation",
+  "orientation_conf": 0.82
+ }
+]

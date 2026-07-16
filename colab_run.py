@@ -299,6 +299,11 @@ def step_align() -> None:
 
 def step_package(persist: str) -> None:
     banner("package + honesty report")
+    # rebuild the zips from scratch: zip -r into an EXISTING archive only
+    # adds/updates entries, so the Drive-persisted zips ACCRETE — run 11's
+    # pbp zip still carried run-10's excluded tier2 files as stale entries
+    os.system(f"rm -f {persist}/results/night3_tracking.zip "
+              f"{persist}/results/night3_pbp.zip")
     os.system(f'cd {persist} && zip -qr results/night3_tracking.zip tracking '
               f'-i "tracking/gsw_*"')
     # join/credit are NEVER packaged: the local repo re-runs both after every
