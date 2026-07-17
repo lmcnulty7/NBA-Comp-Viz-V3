@@ -81,3 +81,5 @@ data/harvest/video/
 /data/unseen_videos
 /data/visibility
 /data/NewExternalDatasets to train on Roboflow srcd
+# torso-crop archives: Drive-persisted on Colab, regenerable from video
+data/tracking/crops/

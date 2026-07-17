@@ -9,6 +9,42 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-16c — Phase 0 (CLAIMS.md) + Phase 1: the credit number was two biases canceling
+
+**Phase 0:** CLAIMS.md is now the definition of done — three claim tiers
+(A: system/validation, B: team measurement, C: player capability demo), a
+kill list, and the standing caveats (incl. the gate's 0.35 harvest threshold
+vs the validated 0.70). Every remaining task must serve a claim.
+
+**Phase 1 (statistical hardening) landed, and it changed the story.** The old
+−4.5/100 for GSW was TWO biases canceling: (a) sample-in baseline — credited
+possessions sat inside their own norm, shrinking credit toward zero; (b) a
+funnel selection effect ENRICHING the sample for scoring possessions. Fixes:
+- Leave-sample-out + start-type-matched baselines (each possession vs its own
+  halfcourt/live norm from that game's PBP — the audit showed **35% of joined
+  possessions are live-start**, so a blanket halfcourt baseline was wrong too).
+- Cluster-bootstrap 95% CIs by game (possessions within a game correlate).
+- **tier2_bias_audit.py**: joined vs population — period/clock distributions
+  CLEAN (no garbage-time skew); the selection channels are FT-trip exclusion
+  (1-pt share 1.1% vs 4.1% population) and made-shot enrichment (3+ share
+  15.0% vs 12.3%); residual offset **+8.8/100** after start-type matching.
+- Because every bucket passes the SAME funnel, that offset is common-mode:
+  **credit_rel** (leave-bucket-out relative credit) differences it out and is
+  the only cross-team comparison the sample supports (CLAIMS B4).
+
+Current honest read: GSW −7.4 [−21.6, +6.3] absolute (CI spans zero — as the
+review predicted at n=330), **credit_rel +11.3/100** (GSW's halfcourt-set
+defense ran ~11/100 better than the rest of the sample's defenses through the
+identical funnel). No bucket's CI excludes zero except BOS/MIA (2 games — CI
+too narrow to trust at that cluster count; do not report). 7 new tests (37).
+
+Also this session: 2 TB Drive capitalization — per-run results dirs (kills
+zip accretion), step_clips (aligned possessions → Drive, feeds Phase-2
+labeling + Phase-3 OCR), --save-crops archives (experiments become re-votes,
+not re-tracks), video/ declared permanent, labels backed up (5,472 files).
+
+---
+
 ## 2026-07-16b — Run 11 (night 4): GATE LIFTED — first reportable Tier-2 row (GSW, n=330)
 
 gsw_phx_2016 (the corrupt-twice game) fetched clean, built 10/10, and its

@@ -5,112 +5,177 @@
    "n_possessions": 330,
    "n_games": 15,
    "ppp_allowed": 1.085,
-   "baseline_ppp": 1.04,
-   "credit_per_100": -4.5,
-   "meaningful": true
+   "baseline_ppp": 1.011,
+   "credit_per_100": -7.4,
+   "meaningful": true,
+   "ci95": [
+    -21.6,
+    6.3
+   ],
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.04,
+   "credit_rel_per_100": 11.3
   },
   {
    "defense": "OKC",
    "n_possessions": 60,
    "n_games": 3,
    "ppp_allowed": 1.117,
-   "baseline_ppp": 1.039,
-   "credit_per_100": -7.7,
-   "meaningful": false
+   "baseline_ppp": 1.006,
+   "credit_per_100": -11.1,
+   "meaningful": false,
+   "ci95": [
+    -16.9,
+    9.5
+   ],
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.039,
+   "credit_rel_per_100": 2.0
   },
   {
    "defense": "BOS",
    "n_possessions": 40,
    "n_games": 2,
    "ppp_allowed": 1.275,
-   "baseline_ppp": 1.069,
-   "credit_per_100": -20.6,
-   "meaningful": false
+   "baseline_ppp": 0.971,
+   "credit_per_100": -30.4,
+   "meaningful": false,
+   "ci95": [
+    -41.6,
+    3.3
+   ],
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.069,
+   "credit_rel_per_100": -18.7
   },
   {
    "defense": "CLE",
    "n_possessions": 32,
    "n_games": 3,
    "ppp_allowed": 1.312,
-   "baseline_ppp": 1.147,
-   "credit_per_100": -16.6,
-   "meaningful": false
+   "baseline_ppp": 1.13,
+   "credit_per_100": -18.2,
+   "meaningful": false,
+   "ci95": [
+    -112.7,
+    7.6
+   ],
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.147,
+   "credit_rel_per_100": -5.6
   },
   {
    "defense": "NYK",
    "n_possessions": 28,
    "n_games": 1,
    "ppp_allowed": 1.357,
-   "baseline_ppp": 1.117,
-   "credit_per_100": -24.0,
-   "meaningful": false
+   "baseline_ppp": 1.016,
+   "credit_per_100": -34.1,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.117,
+   "credit_rel_per_100": -22.2
   },
   {
    "defense": "MIA",
    "n_possessions": 26,
    "n_games": 2,
    "ppp_allowed": 0.846,
-   "baseline_ppp": 1.014,
-   "credit_per_100": 16.8,
-   "meaningful": false
+   "baseline_ppp": 1.003,
+   "credit_per_100": 15.7,
+   "meaningful": false,
+   "ci95": [
+    11.4,
+    23.8
+   ],
+   "ci_excludes_zero": true,
+   "baseline_naive_ppp": 1.014,
+   "credit_rel_per_100": 29.8
   },
   {
    "defense": "HOU",
    "n_possessions": 26,
    "n_games": 1,
    "ppp_allowed": 1.038,
-   "baseline_ppp": 1.1,
-   "credit_per_100": 6.2,
-   "meaningful": false
+   "baseline_ppp": 1.063,
+   "credit_per_100": 2.5,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.1,
+   "credit_rel_per_100": 16.0
   },
   {
    "defense": "SAS",
    "n_possessions": 23,
    "n_games": 1,
    "ppp_allowed": 1.391,
-   "baseline_ppp": 1.165,
-   "credit_per_100": -22.6,
-   "meaningful": false
+   "baseline_ppp": 1.155,
+   "credit_per_100": -23.6,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.165,
+   "credit_rel_per_100": -11.1
   },
   {
    "defense": "PHX",
    "n_possessions": 22,
    "n_games": 1,
    "ppp_allowed": 1.455,
-   "baseline_ppp": 1.185,
-   "credit_per_100": -26.9,
-   "meaningful": false
+   "baseline_ppp": 1.128,
+   "credit_per_100": -32.6,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.185,
+   "credit_rel_per_100": -20.4
   },
   {
    "defense": "POR",
    "n_possessions": 22,
    "n_games": 1,
    "ppp_allowed": 1.636,
-   "baseline_ppp": 1.202,
-   "credit_per_100": -43.4,
-   "meaningful": false
+   "baseline_ppp": 1.042,
+   "credit_per_100": -59.4,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.202,
+   "credit_rel_per_100": -48.2
   },
   {
    "defense": "SAC",
    "n_possessions": 17,
    "n_games": 1,
    "ppp_allowed": 1.588,
-   "baseline_ppp": 1.2,
-   "credit_per_100": -38.8,
-   "meaningful": false
+   "baseline_ppp": 1.123,
+   "credit_per_100": -46.5,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.2,
+   "credit_rel_per_100": -34.5
   },
   {
    "defense": "IND",
    "n_possessions": 15,
    "n_games": 1,
    "ppp_allowed": 1.067,
-   "baseline_ppp": 1.352,
-   "credit_per_100": 28.6,
-   "meaningful": false
+   "baseline_ppp": 1.385,
+   "credit_per_100": 31.9,
+   "meaningful": false,
+   "ci95": null,
+   "ci_excludes_zero": false,
+   "baseline_naive_ppp": 1.352,
+   "credit_rel_per_100": 45.9
   }
  ],
  "min_bucket": 300,
  "joined_total": 641,
  "note": "rows with meaningful=true are reportable; the rest remain placeholders",
- "baseline": "offense's own full-game PPP (PBP), possession-weighted"
+ "baseline": "offense's own START-TYPE-MATCHED PPP from that game's PBP (each possession vs its halfcourt/live norm), leave-sample-out, possession-weighted (baseline_naive_ppp = old all-context sample-in baseline, for comparison)",
+ "ci": "cluster bootstrap by game, 2000 resamples, 95% percentile",
+ "credit_rel": "credit_per_100 minus leave-bucket-out pooled credit \u2014 the funnel's common-mode selection offset differenced out; the only cross-team comparison this sample supports"
 }

@@ -1,0 +1,23 @@
+TIER 2 FUNNEL SELECTION AUDIT — 16 games
+                  pop(all) pop(halfcourt)    JOINED
+n                     3191           1768       641
+ppp                  1.088          1.043     1.167
+-- period
+  1                  0.259          0.250     0.229
+  2                  0.249          0.253     0.253
+  3                  0.251          0.261     0.261
+  4                  0.233          0.227     0.257
+  5                  0.007          0.008     0.000
+-- start_type
+  halfcourt          0.554          1.000     0.649
+  live               0.446          0.000     0.351
+-- clock_phase
+  early              0.327          0.328     0.326
+  late               0.343          0.357     0.332
+  mid                0.330          0.314     0.342
+-- points_mix
+  0                  0.501          0.521     0.490
+  1                  0.037          0.041     0.011
+  2                  0.338          0.316     0.349
+  3+                 0.124          0.123     0.150
+selection offset (sampled − halfcourt pop): +8.8 pts/100
