@@ -1,0 +1,3802 @@
+[
+ {
+  "key": "gsw_splash62_s02@3942",
+  "clip": "gsw_splash62_s02",
+  "game": "201605110GSW",
+  "set_start_frame": 3942,
+  "core_start_frame": 3942,
+  "core_end_frame": 4206,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 1758,
+   "primary_man": 1757,
+   "time_assigned_s": 7.4,
+   "time_share": 0.84,
+   "dist_median_ft": 19.1
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s09@10125",
+  "clip": "gsw_okc_2016wcf_g6_s09",
+  "game": "201605280OKC",
+  "set_start_frame": 10125,
+  "core_start_frame": 10125,
+  "core_end_frame": 10452,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 8449,
+   "primary_man": 8452,
+   "time_assigned_s": 10.0,
+   "time_share": 0.55,
+   "dist_median_ft": 18.7
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s08@24630",
+  "clip": "gsw_okc_2016wcf_g1_s08",
+  "game": "201605160GSW",
+  "set_start_frame": 24630,
+  "core_start_frame": 24630,
+  "core_end_frame": 25455,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 18443,
+   "primary_man": 18442,
+   "time_assigned_s": 1.9,
+   "time_share": 0.73,
+   "dist_median_ft": 20.3
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s02@8442",
+  "clip": "gsw_mia_2017_s02",
+  "game": "201701100GSW",
+  "set_start_frame": 8442,
+  "core_start_frame": 8442,
+  "core_end_frame": 8712,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 5528,
+   "primary_man": 5526,
+   "time_assigned_s": 8.6,
+   "time_share": 0.44,
+   "dist_median_ft": 23.7
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s04@12414",
+  "clip": "gsw_bos_2016_s04",
+  "game": "201604010GSW",
+  "set_start_frame": 12414,
+  "core_start_frame": 12414,
+  "core_end_frame": 12546,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 5308,
+   "primary_man": 5313,
+   "time_assigned_s": 4.0,
+   "time_share": 0.51,
+   "dist_median_ft": 8.1
+  }
+ },
+ {
+  "key": "clip_40m00_48m00@11403",
+  "clip": "clip_40m00_48m00",
+  "game": "201206070BOS",
+  "set_start_frame": 11403,
+  "core_start_frame": 11403,
+  "core_end_frame": 11529,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 6456,
+   "primary_man": 6453,
+   "time_assigned_s": 3.5,
+   "time_share": 0.45,
+   "dist_median_ft": 22.5
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s02@23073",
+  "clip": "gsw_okc_2016wcf_g1_s02",
+  "game": "201605160GSW",
+  "set_start_frame": 23073,
+  "core_start_frame": 23073,
+  "core_end_frame": 23250,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 18165,
+   "primary_man": 18166,
+   "time_assigned_s": 5.9,
+   "time_share": 0.5,
+   "dist_median_ft": 27.0
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s08@17268",
+  "clip": "gsw_sas_2016_s08",
+  "game": "201601250GSW",
+  "set_start_frame": 17268,
+  "core_start_frame": 17268,
+  "core_end_frame": 17430,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 15551,
+   "primary_man": 15287,
+   "time_assigned_s": 4.9,
+   "time_share": 0.35,
+   "dist_median_ft": 3.7
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s00@10920",
+  "clip": "gsw_okc_2016wcf_g6_s00",
+  "game": "201605280OKC",
+  "set_start_frame": 10920,
+  "core_start_frame": 10920,
+  "core_end_frame": 11058,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 8810,
+   "primary_man": 8809,
+   "time_assigned_s": 4.7,
+   "time_share": 0.34,
+   "dist_median_ft": 7.4
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s07@12258",
+  "clip": "gsw_phx_2016_s07",
+  "game": "201512160GSW",
+  "set_start_frame": 12258,
+  "core_start_frame": 12258,
+  "core_end_frame": 12444,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 2980,
+   "primary_man": 2981,
+   "time_assigned_s": 6.4,
+   "time_share": 1.0,
+   "dist_median_ft": 5.6
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s02@5688",
+  "clip": "gsw_phx_2016_s02",
+  "game": "201512160GSW",
+  "set_start_frame": 5688,
+  "core_start_frame": 5688,
+  "core_end_frame": 7686,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 253,
+   "primary_man": 249,
+   "time_assigned_s": 39.4,
+   "time_share": 0.23,
+   "dist_median_ft": 8.0
+  }
+ },
+ {
+  "key": "gsw_splash62_s06@9723",
+  "clip": "gsw_splash62_s06",
+  "game": "201605110GSW",
+  "set_start_frame": 9723,
+  "core_start_frame": 9723,
+  "core_end_frame": 10062,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 6274,
+   "primary_man": 6275,
+   "time_assigned_s": 3.9,
+   "time_share": 0.52,
+   "dist_median_ft": 13.7
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s02@7089",
+  "clip": "gsw_okc_2016wcf_g1_s02",
+  "game": "201605160GSW",
+  "set_start_frame": 7089,
+  "core_start_frame": 7089,
+  "core_end_frame": 7599,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 4764,
+   "primary_man": 4762,
+   "time_assigned_s": 13.4,
+   "time_share": 0.43,
+   "dist_median_ft": 19.0
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s06@4998",
+  "clip": "gsw_sac_klay37_s06",
+  "game": "201501230GSW",
+  "set_start_frame": 4998,
+  "core_start_frame": 4998,
+  "core_end_frame": 5130,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2826,
+   "primary_man": 2825,
+   "time_assigned_s": 4.5,
+   "time_share": 0.5,
+   "dist_median_ft": 14.3
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s03@16290",
+  "clip": "gsw_bos_2016_s03",
+  "game": "201604010GSW",
+  "set_start_frame": 16290,
+  "core_start_frame": 16290,
+  "core_end_frame": 16857,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 16096,
+   "primary_man": 16083,
+   "time_assigned_s": 8.3,
+   "time_share": 0.37,
+   "dist_median_ft": 23.9
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s02@177",
+  "clip": "gsw_okc_2016wcf_g6_s02",
+  "game": "201605280OKC",
+  "set_start_frame": 177,
+  "core_start_frame": 177,
+  "core_end_frame": 435,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2,
+   "primary_man": 4,
+   "time_assigned_s": 6.1,
+   "time_share": 0.25,
+   "dist_median_ft": 10.5
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s05@1062",
+  "clip": "gsw_cle_2017f_g5_s05",
+  "game": "201706120GSW",
+  "set_start_frame": 1062,
+  "core_start_frame": 1062,
+  "core_end_frame": 1764,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 11,
+   "primary_man": 2,
+   "time_assigned_s": 14.6,
+   "time_share": 0.26,
+   "dist_median_ft": 8.6
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s03@987",
+  "clip": "gsw_mia_2017_s03",
+  "game": "201701100GSW",
+  "set_start_frame": 987,
+  "core_start_frame": 987,
+  "core_end_frame": 1293,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 72,
+   "primary_man": 3,
+   "time_assigned_s": 7.1,
+   "time_share": 0.26,
+   "dist_median_ft": 11.7
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s04@2721",
+  "clip": "gsw_sas_2016_s04",
+  "game": "201601250GSW",
+  "set_start_frame": 2721,
+  "core_start_frame": 2721,
+  "core_end_frame": 2880,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 92,
+   "primary_man": 990,
+   "time_assigned_s": 5.3,
+   "time_share": 0.56,
+   "dist_median_ft": 9.3
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s05@657",
+  "clip": "gsw_bos_2016_s05",
+  "game": "201604010GSW",
+  "set_start_frame": 657,
+  "core_start_frame": 657,
+  "core_end_frame": 1242,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 179,
+   "primary_man": 103,
+   "time_assigned_s": 11.6,
+   "time_share": 0.19,
+   "dist_median_ft": 11.3
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s06@11580",
+  "clip": "gsw_cle_2017f_g5_s06",
+  "game": "201706120GSW",
+  "set_start_frame": 11580,
+  "core_start_frame": 11580,
+  "core_end_frame": 12228,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 1671,
+   "primary_man": 1668,
+   "time_assigned_s": 19.8,
+   "time_share": 0.35,
+   "dist_median_ft": 21.4
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s07@8691",
+  "clip": "gsw_okc_2016wcf_g1_s07",
+  "game": "201605160GSW",
+  "set_start_frame": 8691,
+  "core_start_frame": 8691,
+  "core_end_frame": 8949,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 2020,
+   "primary_man": 188,
+   "time_assigned_s": 8.6,
+   "time_share": 0.52,
+   "dist_median_ft": 12.0
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s04@13071",
+  "clip": "gsw_hou_duel_s04",
+  "game": "201505210GSW",
+  "set_start_frame": 13071,
+  "core_start_frame": 13071,
+  "core_end_frame": 13311,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 15303,
+   "primary_man": 15296,
+   "time_assigned_s": 8.1,
+   "time_share": 1.0,
+   "dist_median_ft": 30.5
+  }
+ },
+ {
+  "key": "curry_q1_clip@14175",
+  "clip": "curry_q1_clip",
+  "game": "201602270OKC",
+  "set_start_frame": 14175,
+  "core_start_frame": 14175,
+  "core_end_frame": 14340,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 14308,
+   "primary_man": 14304,
+   "time_assigned_s": 5.2,
+   "time_share": 0.38,
+   "dist_median_ft": 10.0
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s09@4017",
+  "clip": "gsw_okc_2016wcf_g6_s09",
+  "game": "201605280OKC",
+  "set_start_frame": 4017,
+  "core_start_frame": 4017,
+  "core_end_frame": 4146,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 1090,
+   "primary_man": 3293,
+   "time_assigned_s": 2.8,
+   "time_share": 0.38,
+   "dist_median_ft": 10.7
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s09@28446",
+  "clip": "gsw_cle_2017f_g5_s09",
+  "game": "201706120GSW",
+  "set_start_frame": 28446,
+  "core_start_frame": 28446,
+  "core_end_frame": 28728,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10696,
+   "primary_man": 10686,
+   "time_assigned_s": 5.8,
+   "time_share": 1.0,
+   "dist_median_ft": 17.6
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s02@8154",
+  "clip": "gsw_sas_2016_s02",
+  "game": "201601250GSW",
+  "set_start_frame": 8154,
+  "core_start_frame": 8154,
+  "core_end_frame": 8601,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 7276,
+   "primary_man": 7279,
+   "time_assigned_s": 1.1,
+   "time_share": 0.44,
+   "dist_median_ft": 9.0
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s04@15372",
+  "clip": "gsw_cle_2017f_g5_s04",
+  "game": "201706120GSW",
+  "set_start_frame": 15372,
+  "core_start_frame": 15372,
+  "core_end_frame": 16242,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 4483,
+   "primary_man": 4480,
+   "time_assigned_s": 18.4,
+   "time_share": 0.8,
+   "dist_median_ft": 11.0
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s07@9282",
+  "clip": "gsw_okc_2016wcf_g1_s07",
+  "game": "201605160GSW",
+  "set_start_frame": 9282,
+  "core_start_frame": 9282,
+  "core_end_frame": 9477,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 188,
+   "primary_man": 2017,
+   "time_assigned_s": 6.0,
+   "time_share": 0.57,
+   "dist_median_ft": 8.5
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s01@11199",
+  "clip": "gsw_ind_klay60_s01",
+  "game": "201612050GSW",
+  "set_start_frame": 11199,
+  "core_start_frame": 11199,
+  "core_end_frame": 11538,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 7574,
+   "primary_man": 7576,
+   "time_assigned_s": 8.3,
+   "time_share": 0.5,
+   "dist_median_ft": 14.7
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s03@276",
+  "clip": "gsw_phx_2016_s03",
+  "game": "201512160GSW",
+  "set_start_frame": 276,
+  "core_start_frame": 276,
+  "core_end_frame": 594,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1,
+   "primary_man": 19,
+   "time_assigned_s": 9.6,
+   "time_share": 0.27,
+   "dist_median_ft": 8.6
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s03@16521",
+  "clip": "gsw_okc_2016wcf_g6_s03",
+  "game": "201605280OKC",
+  "set_start_frame": 16521,
+  "core_start_frame": 16521,
+  "core_end_frame": 16653,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 6975,
+   "primary_man": 6433,
+   "time_assigned_s": 0.2,
+   "time_share": 0.5,
+   "dist_median_ft": 11.1
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s04@5988",
+  "clip": "gsw_cle_2017f_g5_s04",
+  "game": "201706120GSW",
+  "set_start_frame": 5988,
+  "core_start_frame": 5988,
+  "core_end_frame": 6276,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 62,
+   "primary_man": 225,
+   "time_assigned_s": 4.2,
+   "time_share": 0.23,
+   "dist_median_ft": 9.0
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s07@1167",
+  "clip": "gsw_mia_2017_s07",
+  "game": "201701100GSW",
+  "set_start_frame": 1167,
+  "core_start_frame": 1167,
+  "core_end_frame": 1329,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 63,
+   "primary_man": 5,
+   "time_assigned_s": 4.1,
+   "time_share": 0.27,
+   "dist_median_ft": 12.2
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s08@13392",
+  "clip": "gsw_phx_2016_s08",
+  "game": "201512160GSW",
+  "set_start_frame": 13392,
+  "core_start_frame": 13392,
+  "core_end_frame": 13632,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 3297,
+   "primary_man": 3293,
+   "time_assigned_s": 6.6,
+   "time_share": 0.87,
+   "dist_median_ft": 27.5
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s08@4752",
+  "clip": "gsw_sas_2016_s08",
+  "game": "201601250GSW",
+  "set_start_frame": 4752,
+  "core_start_frame": 4752,
+  "core_end_frame": 4992,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 1411,
+   "primary_man": 2481,
+   "time_assigned_s": 3.6,
+   "time_share": 0.38,
+   "dist_median_ft": 14.7
+  }
+ },
+ {
+  "key": "gsw_splash62_s02@12003",
+  "clip": "gsw_splash62_s02",
+  "game": "201605110GSW",
+  "set_start_frame": 12003,
+  "core_start_frame": 12003,
+  "core_end_frame": 12177,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 7170,
+   "primary_man": 7163,
+   "time_assigned_s": 5.6,
+   "time_share": 0.5,
+   "dist_median_ft": 5.8
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s03@1875",
+  "clip": "gsw_ind_klay60_s03",
+  "game": "201612050GSW",
+  "set_start_frame": 1875,
+  "core_start_frame": 1875,
+  "core_end_frame": 2121,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 440,
+   "primary_man": 411,
+   "time_assigned_s": 8.2,
+   "time_share": 0.53,
+   "dist_median_ft": 7.5
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s02@24648",
+  "clip": "gsw_okc_2016wcf_g1_s02",
+  "game": "201605160GSW",
+  "set_start_frame": 24648,
+  "core_start_frame": 24648,
+  "core_end_frame": 24975,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 21047,
+   "primary_man": 21045,
+   "time_assigned_s": 10.0,
+   "time_share": 0.78,
+   "dist_median_ft": 11.4
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s09@2886",
+  "clip": "gsw_mia_2017_s09",
+  "game": "201701100GSW",
+  "set_start_frame": 2886,
+  "core_start_frame": 2886,
+  "core_end_frame": 3069,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1424,
+   "primary_man": 1412,
+   "time_assigned_s": 2.4,
+   "time_share": 0.39,
+   "dist_median_ft": 3.1
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s08@16488",
+  "clip": "gsw_bos_2016_s08",
+  "game": "201604010GSW",
+  "set_start_frame": 16488,
+  "core_start_frame": 16488,
+  "core_end_frame": 16824,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 16658,
+   "primary_man": 16657,
+   "time_assigned_s": 9.9,
+   "time_share": 0.46,
+   "dist_median_ft": 5.1
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s09@10443",
+  "clip": "gsw_mia_2017_s09",
+  "game": "201701100GSW",
+  "set_start_frame": 10443,
+  "core_start_frame": 10443,
+  "core_end_frame": 10581,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 5701,
+   "primary_man": 5703,
+   "time_assigned_s": 4.6,
+   "time_share": 0.51,
+   "dist_median_ft": 10.0
+  }
+ },
+ {
+  "key": "gsw_splash62_s05@11232",
+  "clip": "gsw_splash62_s05",
+  "game": "201605110GSW",
+  "set_start_frame": 11232,
+  "core_start_frame": 11232,
+  "core_end_frame": 11373,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 5512,
+   "primary_man": 5513,
+   "time_assigned_s": 3.8,
+   "time_share": 1.0,
+   "dist_median_ft": 6.5
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s03@17349",
+  "clip": "gsw_nyk_curry54_s03",
+  "game": "201302270NYK",
+  "set_start_frame": 17349,
+  "core_start_frame": 17349,
+  "core_end_frame": 17757,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 13307,
+   "primary_man": 13312,
+   "time_assigned_s": 13.3,
+   "time_share": 0.32,
+   "dist_median_ft": 13.1
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s01@8127",
+  "clip": "gsw_mia_2017_s01",
+  "game": "201701100GSW",
+  "set_start_frame": 8127,
+  "core_start_frame": 8127,
+  "core_end_frame": 8373,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 6252,
+   "primary_man": 5543,
+   "time_assigned_s": 5.8,
+   "time_share": 0.71,
+   "dist_median_ft": 13.7
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s06@6771",
+  "clip": "gsw_hou_duel_s06",
+  "game": "201505210GSW",
+  "set_start_frame": 6771,
+  "core_start_frame": 6771,
+  "core_end_frame": 7056,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 3596,
+   "primary_man": 3600,
+   "time_assigned_s": 8.9,
+   "time_share": 0.44,
+   "dist_median_ft": 12.1
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s07@15030",
+  "clip": "gsw_bos_2016_s07",
+  "game": "201604010GSW",
+  "set_start_frame": 15030,
+  "core_start_frame": 15030,
+  "core_end_frame": 15282,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12963,
+   "primary_man": 12962,
+   "time_assigned_s": 4.2,
+   "time_share": 0.82,
+   "dist_median_ft": 5.7
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s01@14217",
+  "clip": "gsw_mia_2017_s01",
+  "game": "201701100GSW",
+  "set_start_frame": 14217,
+  "core_start_frame": 14217,
+  "core_end_frame": 14493,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 11664,
+   "primary_man": 11663,
+   "time_assigned_s": 8.0,
+   "time_share": 0.46,
+   "dist_median_ft": 12.1
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s01@6258",
+  "clip": "gsw_phx_2016_s01",
+  "game": "201512160GSW",
+  "set_start_frame": 6258,
+  "core_start_frame": 6258,
+  "core_end_frame": 6684,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 174,
+   "primary_man": 117,
+   "time_assigned_s": 9.4,
+   "time_share": 0.26,
+   "dist_median_ft": 10.0
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s04@16779",
+  "clip": "gsw_cle_2016f_g7_s04",
+  "game": "201606190GSW",
+  "set_start_frame": 16779,
+  "core_start_frame": 16779,
+  "core_end_frame": 16914,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 14062,
+   "primary_man": 14058,
+   "time_assigned_s": 4.5,
+   "time_share": 0.36,
+   "dist_median_ft": 9.3
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s05@12483",
+  "clip": "gsw_sac_klay37_s05",
+  "game": "201501230GSW",
+  "set_start_frame": 12483,
+  "core_start_frame": 12483,
+  "core_end_frame": 12720,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "pred": {
+   "defender": 14105,
+   "primary_man": 15180,
+   "time_assigned_s": 3.7,
+   "time_share": 0.62,
+   "dist_median_ft": 4.2
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s06@13053",
+  "clip": "gsw_cle_2016f_g7_s06",
+  "game": "201606190GSW",
+  "set_start_frame": 13053,
+  "core_start_frame": 13053,
+  "core_end_frame": 13224,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10879,
+   "primary_man": 8940,
+   "time_assigned_s": 2.6,
+   "time_share": 0.65,
+   "dist_median_ft": 11.7
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s08@1167",
+  "clip": "gsw_sac_klay37_s08",
+  "game": "201501230GSW",
+  "set_start_frame": 1167,
+  "core_start_frame": 1167,
+  "core_end_frame": 1419,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 5,
+   "primary_man": 101,
+   "time_assigned_s": 7.2,
+   "time_share": 0.33,
+   "dist_median_ft": 4.9
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s00@12897",
+  "clip": "gsw_nyk_curry54_s00",
+  "game": "201302270NYK",
+  "set_start_frame": 12897,
+  "core_start_frame": 12897,
+  "core_end_frame": 13080,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12304,
+   "primary_man": 12371,
+   "time_assigned_s": 4.0,
+   "time_share": 0.42,
+   "dist_median_ft": 14.0
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s06@16758",
+  "clip": "gsw_okc_2016wcf_g1_s06",
+  "game": "201605160GSW",
+  "set_start_frame": 16758,
+  "core_start_frame": 16758,
+  "core_end_frame": 17010,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 12781,
+   "primary_man": 12329,
+   "time_assigned_s": 7.9,
+   "time_share": 0.48,
+   "dist_median_ft": 11.3
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s06@4710",
+  "clip": "gsw_cle_2016f_g7_s06",
+  "game": "201606190GSW",
+  "set_start_frame": 4710,
+  "core_start_frame": 4710,
+  "core_end_frame": 4872,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 911,
+   "primary_man": 2429,
+   "time_assigned_s": 1.5,
+   "time_share": 0.75,
+   "dist_median_ft": 18.8
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s03@17706",
+  "clip": "gsw_sac_klay37_s03",
+  "game": "201501230GSW",
+  "set_start_frame": 17706,
+  "core_start_frame": 17706,
+  "core_end_frame": 17856,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "pred": {
+   "defender": 17834,
+   "primary_man": 16752,
+   "time_assigned_s": 3.9,
+   "time_share": 0.76,
+   "dist_median_ft": 5.9
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s01@29250",
+  "clip": "gsw_okc_2016wcf_g1_s01",
+  "game": "201605160GSW",
+  "set_start_frame": 29250,
+  "core_start_frame": 29250,
+  "core_end_frame": 29397,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 19718,
+   "primary_man": 19719,
+   "time_assigned_s": 3.9,
+   "time_share": 0.81,
+   "dist_median_ft": 13.0
+  }
+ },
+ {
+  "key": "clip_55m00_63m00@12756",
+  "clip": "clip_55m00_63m00",
+  "game": "201206070BOS",
+  "set_start_frame": 12756,
+  "core_start_frame": 12756,
+  "core_end_frame": 13089,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 11964,
+   "primary_man": 11963,
+   "time_assigned_s": 10.9,
+   "time_share": 0.35,
+   "dist_median_ft": 10.4
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s09@29979",
+  "clip": "gsw_okc_2016wcf_g1_s09",
+  "game": "201605160GSW",
+  "set_start_frame": 29979,
+  "core_start_frame": 29979,
+  "core_end_frame": 30507,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 24330,
+   "primary_man": 19736,
+   "time_assigned_s": 17.1,
+   "time_share": 1.0,
+   "dist_median_ft": 20.8
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s00@12204",
+  "clip": "gsw_hou_duel_s00",
+  "game": "201505210GSW",
+  "set_start_frame": 12204,
+  "core_start_frame": 12204,
+  "core_end_frame": 12378,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 10820,
+   "primary_man": 10823,
+   "time_assigned_s": 5.9,
+   "time_share": 0.51,
+   "dist_median_ft": 19.3
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s02@17853",
+  "clip": "gsw_nyk_curry54_s02",
+  "game": "201302270NYK",
+  "set_start_frame": 17853,
+  "core_start_frame": 17853,
+  "core_end_frame": 18066,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 17091,
+   "primary_man": 17084,
+   "time_assigned_s": 6.5,
+   "time_share": 0.31,
+   "dist_median_ft": 5.8
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s06@16458",
+  "clip": "gsw_cle_2016f_g7_s06",
+  "game": "201606190GSW",
+  "set_start_frame": 16458,
+  "core_start_frame": 16458,
+  "core_end_frame": 16578,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 14189,
+   "primary_man": 14187,
+   "time_assigned_s": 3.6,
+   "time_share": 0.39,
+   "dist_median_ft": 21.0
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s02@10206",
+  "clip": "gsw_cle_2016f_g7_s02",
+  "game": "201606190GSW",
+  "set_start_frame": 10206,
+  "core_start_frame": 10206,
+  "core_end_frame": 10461,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 8315,
+   "primary_man": 8311,
+   "time_assigned_s": 7.4,
+   "time_share": 0.38,
+   "dist_median_ft": 7.1
+  }
+ },
+ {
+  "key": "gsw_splash62_s01@7584",
+  "clip": "gsw_splash62_s01",
+  "game": "201605110GSW",
+  "set_start_frame": 7584,
+  "core_start_frame": 7584,
+  "core_end_frame": 7764,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 6801,
+   "primary_man": 6795,
+   "time_assigned_s": 5.3,
+   "time_share": 0.53,
+   "dist_median_ft": 10.0
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s03@7500",
+  "clip": "gsw_hou_duel_s03",
+  "game": "201505210GSW",
+  "set_start_frame": 7500,
+  "core_start_frame": 7500,
+  "core_end_frame": 7956,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 8012,
+   "primary_man": 8016,
+   "time_assigned_s": 14.8,
+   "time_share": 0.51,
+   "dist_median_ft": 16.2
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s02@2142",
+  "clip": "gsw_ind_klay60_s02",
+  "game": "201612050GSW",
+  "set_start_frame": 2142,
+  "core_start_frame": 2142,
+  "core_end_frame": 2268,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "pred": {
+   "defender": 1542,
+   "primary_man": 1543,
+   "time_assigned_s": 1.5,
+   "time_share": 0.42,
+   "dist_median_ft": 15.4
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s04@14847",
+  "clip": "gsw_okc_2016wcf_g1_s04",
+  "game": "201605160GSW",
+  "set_start_frame": 14847,
+  "core_start_frame": 14847,
+  "core_end_frame": 15147,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 11233,
+   "primary_man": 10312,
+   "time_assigned_s": 9.8,
+   "time_share": 0.52,
+   "dist_median_ft": 8.4
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s08@2634",
+  "clip": "gsw_phx_2016_s08",
+  "game": "201512160GSW",
+  "set_start_frame": 2634,
+  "core_start_frame": 2634,
+  "core_end_frame": 3708,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 47,
+   "primary_man": 119,
+   "time_assigned_s": 15.8,
+   "time_share": 0.18,
+   "dist_median_ft": 11.1
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s05@12171",
+  "clip": "gsw_bos_2016_s05",
+  "game": "201604010GSW",
+  "set_start_frame": 12171,
+  "core_start_frame": 12171,
+  "core_end_frame": 12420,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 2273,
+   "primary_man": 3201,
+   "time_assigned_s": 8.2,
+   "time_share": 0.71,
+   "dist_median_ft": 14.7
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s07@10071",
+  "clip": "gsw_sas_2016_s07",
+  "game": "201601250GSW",
+  "set_start_frame": 10071,
+  "core_start_frame": 10071,
+  "core_end_frame": 10206,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 5021,
+   "primary_man": 4489,
+   "time_assigned_s": 4.5,
+   "time_share": 0.57,
+   "dist_median_ft": 18.5
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s04@16572",
+  "clip": "gsw_nyk_curry54_s04",
+  "game": "201302270NYK",
+  "set_start_frame": 16572,
+  "core_start_frame": 16572,
+  "core_end_frame": 16872,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 10188,
+   "primary_man": 9728,
+   "time_assigned_s": 4.2,
+   "time_share": 0.53,
+   "dist_median_ft": 6.9
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s03@6462",
+  "clip": "gsw_ind_klay60_s03",
+  "game": "201612050GSW",
+  "set_start_frame": 6462,
+  "core_start_frame": 6462,
+  "core_end_frame": 6633,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 3187,
+   "primary_man": 2517,
+   "time_assigned_s": 4.1,
+   "time_share": 0.52,
+   "dist_median_ft": 12.8
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s03@14400",
+  "clip": "gsw_mia_2017_s03",
+  "game": "201701100GSW",
+  "set_start_frame": 14400,
+  "core_start_frame": 14400,
+  "core_end_frame": 14532,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 9055,
+   "primary_man": 9526,
+   "time_assigned_s": 2.7,
+   "time_share": 0.54,
+   "dist_median_ft": 8.8
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s05@7341",
+  "clip": "gsw_mia_2017_s05",
+  "game": "201701100GSW",
+  "set_start_frame": 7341,
+  "core_start_frame": 7341,
+  "core_end_frame": 7542,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 525,
+   "primary_man": 527,
+   "time_assigned_s": 6.1,
+   "time_share": 0.45,
+   "dist_median_ft": 5.0
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s02@12246",
+  "clip": "gsw_hou_duel_s02",
+  "game": "201505210GSW",
+  "set_start_frame": 12246,
+  "core_start_frame": 12246,
+  "core_end_frame": 12579,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 13031,
+   "primary_man": 13030,
+   "time_assigned_s": 8.3,
+   "time_share": 0.51,
+   "dist_median_ft": 8.7
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s03@6858",
+  "clip": "gsw_okc_2016wcf_g1_s03",
+  "game": "201605160GSW",
+  "set_start_frame": 6858,
+  "core_start_frame": 6858,
+  "core_end_frame": 7464,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 3256,
+   "primary_man": 3255,
+   "time_assigned_s": 15.2,
+   "time_share": 0.4,
+   "dist_median_ft": 4.8
+  }
+ },
+ {
+  "key": "gsw_splash62_s09@6552",
+  "clip": "gsw_splash62_s09",
+  "game": "201605110GSW",
+  "set_start_frame": 6552,
+  "core_start_frame": 6552,
+  "core_end_frame": 6675,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 3872,
+   "primary_man": 3870,
+   "time_assigned_s": 4.0,
+   "time_share": 0.35,
+   "dist_median_ft": 11.0
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s04@24348",
+  "clip": "gsw_phx_2016_s04",
+  "game": "201512160GSW",
+  "set_start_frame": 24348,
+  "core_start_frame": 24348,
+  "core_end_frame": 24894,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 11104,
+   "primary_man": 11102,
+   "time_assigned_s": 18.0,
+   "time_share": 0.38,
+   "dist_median_ft": 14.7
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s08@8154",
+  "clip": "gsw_nyk_curry54_s08",
+  "game": "201302270NYK",
+  "set_start_frame": 8154,
+  "core_start_frame": 8154,
+  "core_end_frame": 8622,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 4387,
+   "primary_man": 4385,
+   "time_assigned_s": 13.4,
+   "time_share": 0.46,
+   "dist_median_ft": 8.8
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s07@1278",
+  "clip": "gsw_cle_2016f_g7_s07",
+  "game": "201606190GSW",
+  "set_start_frame": 1278,
+  "core_start_frame": 1278,
+  "core_end_frame": 1404,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 145,
+   "primary_man": 6,
+   "time_assigned_s": 4.3,
+   "time_share": 0.33,
+   "dist_median_ft": 8.2
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s01@813",
+  "clip": "gsw_ind_klay60_s01",
+  "game": "201612050GSW",
+  "set_start_frame": 813,
+  "core_start_frame": 813,
+  "core_end_frame": 1035,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "pred": {
+   "defender": 137,
+   "primary_man": 216,
+   "time_assigned_s": 4.6,
+   "time_share": 0.74,
+   "dist_median_ft": 19.6
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s07@13044",
+  "clip": "gsw_okc_2016wcf_g6_s07",
+  "game": "201605280OKC",
+  "set_start_frame": 13044,
+  "core_start_frame": 13044,
+  "core_end_frame": 13161,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 11078,
+   "primary_man": 11080,
+   "time_assigned_s": 2.1,
+   "time_share": 0.31,
+   "dist_median_ft": 5.3
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s08@16431",
+  "clip": "gsw_hou_duel_s08",
+  "game": "201505210GSW",
+  "set_start_frame": 16431,
+  "core_start_frame": 16431,
+  "core_end_frame": 17085,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 6109,
+   "primary_man": 6110,
+   "time_assigned_s": 16.2,
+   "time_share": 0.42,
+   "dist_median_ft": 19.4
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s04@3348",
+  "clip": "gsw_cle_2016f_g7_s04",
+  "game": "201606190GSW",
+  "set_start_frame": 3348,
+  "core_start_frame": 3348,
+  "core_end_frame": 3846,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 585,
+   "primary_man": 426,
+   "time_assigned_s": 9.0,
+   "time_share": 0.24,
+   "dist_median_ft": 4.4
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s02@13023",
+  "clip": "gsw_mia_2017_s02",
+  "game": "201701100GSW",
+  "set_start_frame": 13023,
+  "core_start_frame": 13023,
+  "core_end_frame": 13230,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10246,
+   "primary_man": 10250,
+   "time_assigned_s": 6.5,
+   "time_share": 0.49,
+   "dist_median_ft": 9.7
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s05@15177",
+  "clip": "gsw_mia_2017_s05",
+  "game": "201701100GSW",
+  "set_start_frame": 15177,
+  "core_start_frame": 15177,
+  "core_end_frame": 15441,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "MIA",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10006,
+   "primary_man": 10013,
+   "time_assigned_s": 7.3,
+   "time_share": 0.89,
+   "dist_median_ft": 6.4
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s06@16425",
+  "clip": "gsw_sas_2016_s06",
+  "game": "201601250GSW",
+  "set_start_frame": 16425,
+  "core_start_frame": 16425,
+  "core_end_frame": 16620,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12416,
+   "primary_man": 11883,
+   "time_assigned_s": 6.3,
+   "time_share": 0.98,
+   "dist_median_ft": 11.5
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s00@3924",
+  "clip": "gsw_okc_2016wcf_g6_s00",
+  "game": "201605280OKC",
+  "set_start_frame": 3924,
+  "core_start_frame": 3924,
+  "core_end_frame": 4197,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 1144,
+   "primary_man": 1137,
+   "time_assigned_s": 1.9,
+   "time_share": 0.63,
+   "dist_median_ft": 12.7
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s08@7698",
+  "clip": "gsw_bos_2016_s08",
+  "game": "201604010GSW",
+  "set_start_frame": 7698,
+  "core_start_frame": 7698,
+  "core_end_frame": 7923,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 6215,
+   "primary_man": 4820,
+   "time_assigned_s": 7.4,
+   "time_share": 1.0,
+   "dist_median_ft": 7.3
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s00@16290",
+  "clip": "gsw_ind_klay60_s00",
+  "game": "201612050GSW",
+  "set_start_frame": 16290,
+  "core_start_frame": 16290,
+  "core_end_frame": 16521,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 9870,
+   "primary_man": 9872,
+   "time_assigned_s": 7.0,
+   "time_share": 0.55,
+   "dist_median_ft": 8.3
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s07@10875",
+  "clip": "gsw_nyk_curry54_s07",
+  "game": "201302270NYK",
+  "set_start_frame": 10875,
+  "core_start_frame": 10875,
+  "core_end_frame": 11052,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 10798,
+   "primary_man": 10799,
+   "time_assigned_s": 3.9,
+   "time_share": 0.32,
+   "dist_median_ft": 9.3
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s04@4800",
+  "clip": "gsw_bos_2016_s04",
+  "game": "201604010GSW",
+  "set_start_frame": 4800,
+  "core_start_frame": 4800,
+  "core_end_frame": 4989,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 1580,
+   "primary_man": 1581,
+   "time_assigned_s": 5.9,
+   "time_share": 0.31,
+   "dist_median_ft": 7.2
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s04@7314",
+  "clip": "gsw_ind_klay60_s04",
+  "game": "201612050GSW",
+  "set_start_frame": 7314,
+  "core_start_frame": 7314,
+  "core_end_frame": 7563,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "pred": {
+   "defender": 3667,
+   "primary_man": 3661,
+   "time_assigned_s": 2.8,
+   "time_share": 0.82,
+   "dist_median_ft": 7.1
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s01@10623",
+  "clip": "gsw_ind_klay60_s01",
+  "game": "201612050GSW",
+  "set_start_frame": 10623,
+  "core_start_frame": 10623,
+  "core_end_frame": 10791,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 6994,
+   "primary_man": 6999,
+   "time_assigned_s": 5.1,
+   "time_share": 0.4,
+   "dist_median_ft": 16.7
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s02@14166",
+  "clip": "gsw_hou_duel_s02",
+  "game": "201505210GSW",
+  "set_start_frame": 14166,
+  "core_start_frame": 14166,
+  "core_end_frame": 14667,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 14409,
+   "primary_man": 14405,
+   "time_assigned_s": 16.0,
+   "time_share": 0.81,
+   "dist_median_ft": 17.6
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s08@852",
+  "clip": "gsw_okc_2016wcf_g6_s08",
+  "game": "201605280OKC",
+  "set_start_frame": 852,
+  "core_start_frame": 852,
+  "core_end_frame": 1206,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 136,
+   "primary_man": 133,
+   "time_assigned_s": 11.2,
+   "time_share": 0.46,
+   "dist_median_ft": 7.8
+  }
+ },
+ {
+  "key": "clip_70m00_78m00@8787",
+  "clip": "clip_70m00_78m00",
+  "game": "201206070BOS",
+  "set_start_frame": 8787,
+  "core_start_frame": 8787,
+  "core_end_frame": 9219,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 5669,
+   "primary_man": 5031,
+   "time_assigned_s": 12.7,
+   "time_share": 0.32,
+   "dist_median_ft": 7.7
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s00@14151",
+  "clip": "gsw_nyk_curry54_s00",
+  "game": "201302270NYK",
+  "set_start_frame": 14151,
+  "core_start_frame": 14151,
+  "core_end_frame": 14346,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 14272,
+   "primary_man": 14268,
+   "time_assigned_s": 4.7,
+   "time_share": 0.36,
+   "dist_median_ft": 7.4
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s07@3816",
+  "clip": "gsw_cle_2017f_g5_s07",
+  "game": "201706120GSW",
+  "set_start_frame": 3816,
+  "core_start_frame": 3816,
+  "core_end_frame": 5082,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1,
+   "primary_man": 53,
+   "time_assigned_s": 13.0,
+   "time_share": 0.24,
+   "dist_median_ft": 8.4
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s00@13710",
+  "clip": "gsw_nyk_curry54_s00",
+  "game": "201302270NYK",
+  "set_start_frame": 13710,
+  "core_start_frame": 13710,
+  "core_end_frame": 14010,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 13941,
+   "primary_man": 13945,
+   "time_assigned_s": 7.7,
+   "time_share": 0.33,
+   "dist_median_ft": 10.7
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s04@3426",
+  "clip": "gsw_sac_klay37_s04",
+  "game": "201501230GSW",
+  "set_start_frame": 3426,
+  "core_start_frame": 3426,
+  "core_end_frame": 3681,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "pred": {
+   "defender": 2272,
+   "primary_man": 2275,
+   "time_assigned_s": 5.1,
+   "time_share": 0.5,
+   "dist_median_ft": 6.9
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s08@13551",
+  "clip": "gsw_ind_klay60_s08",
+  "game": "201612050GSW",
+  "set_start_frame": 13551,
+  "core_start_frame": 13551,
+  "core_end_frame": 13677,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 13441,
+   "primary_man": 13444,
+   "time_assigned_s": 4.3,
+   "time_share": 0.5,
+   "dist_median_ft": 12.8
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s04@2568",
+  "clip": "gsw_nyk_curry54_s04",
+  "game": "201302270NYK",
+  "set_start_frame": 2568,
+  "core_start_frame": 2568,
+  "core_end_frame": 2712,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 1063,
+   "primary_man": 1060,
+   "time_assigned_s": 2.7,
+   "time_share": 0.37,
+   "dist_median_ft": 12.9
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s02@2706",
+  "clip": "gsw_ind_klay60_s02",
+  "game": "201612050GSW",
+  "set_start_frame": 2706,
+  "core_start_frame": 2706,
+  "core_end_frame": 2862,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "IND",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2061,
+   "primary_man": 1782,
+   "time_assigned_s": 4.7,
+   "time_share": 0.52,
+   "dist_median_ft": 16.5
+  }
+ },
+ {
+  "key": "curry_classic_clip@1473",
+  "clip": "curry_classic_clip",
+  "game": "201602270OKC",
+  "set_start_frame": 1473,
+  "core_start_frame": 1473,
+  "core_end_frame": 1614,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 354,
+   "primary_man": 376,
+   "time_assigned_s": 3.6,
+   "time_share": 0.24,
+   "dist_median_ft": 10.2
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s02@1524",
+  "clip": "gsw_phx_2016_s02",
+  "game": "201512160GSW",
+  "set_start_frame": 1524,
+  "core_start_frame": 1524,
+  "core_end_frame": 2106,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 131,
+   "primary_man": 72,
+   "time_assigned_s": 15.2,
+   "time_share": 0.27,
+   "dist_median_ft": 12.5
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s06@11556",
+  "clip": "gsw_cle_2016f_g7_s06",
+  "game": "201606190GSW",
+  "set_start_frame": 11556,
+  "core_start_frame": 11556,
+  "core_end_frame": 11919,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 8093,
+   "primary_man": 8096,
+   "time_assigned_s": 8.7,
+   "time_share": 0.78,
+   "dist_median_ft": 7.7
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s08@1968",
+  "clip": "gsw_sac_klay37_s08",
+  "game": "201501230GSW",
+  "set_start_frame": 1968,
+  "core_start_frame": 1968,
+  "core_end_frame": 2232,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1019,
+   "primary_man": 118,
+   "time_assigned_s": 8.8,
+   "time_share": 1.0,
+   "dist_median_ft": 11.9
+  }
+ },
+ {
+  "key": "gsw_splash62_s04@8772",
+  "clip": "gsw_splash62_s04",
+  "game": "201605110GSW",
+  "set_start_frame": 8772,
+  "core_start_frame": 8772,
+  "core_end_frame": 9024,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 3320,
+   "primary_man": 3325,
+   "time_assigned_s": 4.4,
+   "time_share": 0.56,
+   "dist_median_ft": 11.7
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s02@7968",
+  "clip": "gsw_sac_klay37_s02",
+  "game": "201501230GSW",
+  "set_start_frame": 7968,
+  "core_start_frame": 7968,
+  "core_end_frame": 8220,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "pred": {
+   "defender": 6641,
+   "primary_man": 7635,
+   "time_assigned_s": 1.6,
+   "time_share": 1.0,
+   "dist_median_ft": 7.5
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s06@6870",
+  "clip": "gsw_nyk_curry54_s06",
+  "game": "201302270NYK",
+  "set_start_frame": 6870,
+  "core_start_frame": 6870,
+  "core_end_frame": 7332,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 4274,
+   "primary_man": 5935,
+   "time_assigned_s": 15.3,
+   "time_share": 0.5,
+   "dist_median_ft": 16.3
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s07@16983",
+  "clip": "gsw_sas_2016_s07",
+  "game": "201601250GSW",
+  "set_start_frame": 16983,
+  "core_start_frame": 16983,
+  "core_end_frame": 17148,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12592,
+   "primary_man": 12597,
+   "time_assigned_s": 4.9,
+   "time_share": 0.51,
+   "dist_median_ft": 11.6
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s08@16860",
+  "clip": "gsw_phx_2016_s08",
+  "game": "201512160GSW",
+  "set_start_frame": 16860,
+  "core_start_frame": 16860,
+  "core_end_frame": 17178,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 3411,
+   "primary_man": 3297,
+   "time_assigned_s": 10.8,
+   "time_share": 0.57,
+   "dist_median_ft": 7.3
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s09@327",
+  "clip": "gsw_okc_2016wcf_g1_s09",
+  "game": "201605160GSW",
+  "set_start_frame": 327,
+  "core_start_frame": 327,
+  "core_end_frame": 672,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 2,
+   "primary_man": 3,
+   "time_assigned_s": 10.3,
+   "time_share": 0.35,
+   "dist_median_ft": 6.9
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s08@0",
+  "clip": "gsw_nyk_curry54_s08",
+  "game": "201302270NYK",
+  "set_start_frame": 0,
+  "core_start_frame": 0,
+  "core_end_frame": 294,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 8,
+   "primary_man": 1,
+   "time_assigned_s": 8.4,
+   "time_share": 0.27,
+   "dist_median_ft": 8.8
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s06@17685",
+  "clip": "gsw_nyk_curry54_s06",
+  "game": "201302270NYK",
+  "set_start_frame": 17685,
+  "core_start_frame": 17685,
+  "core_end_frame": 17832,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 20300,
+   "primary_man": 20302,
+   "time_assigned_s": 4.7,
+   "time_share": 0.53,
+   "dist_median_ft": 12.0
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s01@0",
+  "clip": "gsw_okc_2016wcf_g6_s01",
+  "game": "201605280OKC",
+  "set_start_frame": 0,
+  "core_start_frame": 0,
+  "core_end_frame": 405,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 7,
+   "primary_man": 3,
+   "time_assigned_s": 8.5,
+   "time_share": 0.34,
+   "dist_median_ft": 14.2
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s02@777",
+  "clip": "gsw_cle_2016f_g7_s02",
+  "game": "201606190GSW",
+  "set_start_frame": 777,
+  "core_start_frame": 777,
+  "core_end_frame": 1011,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 8,
+   "primary_man": 10,
+   "time_assigned_s": 4.7,
+   "time_share": 0.22,
+   "dist_median_ft": 3.7
+  }
+ },
+ {
+  "key": "gsw_splash62_s02@13167",
+  "clip": "gsw_splash62_s02",
+  "game": "201605110GSW",
+  "set_start_frame": 13167,
+  "core_start_frame": 13167,
+  "core_end_frame": 13464,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 9032,
+   "primary_man": 8971,
+   "time_assigned_s": 9.6,
+   "time_share": 0.5,
+   "dist_median_ft": 16.7
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s08@12180",
+  "clip": "gsw_sac_klay37_s08",
+  "game": "201501230GSW",
+  "set_start_frame": 12180,
+  "core_start_frame": 12180,
+  "core_end_frame": 12846,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12390,
+   "primary_man": 12387,
+   "time_assigned_s": 20.5,
+   "time_share": 0.4,
+   "dist_median_ft": 10.6
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s08@15663",
+  "clip": "gsw_nyk_curry54_s08",
+  "game": "201302270NYK",
+  "set_start_frame": 15663,
+  "core_start_frame": 15663,
+  "core_end_frame": 15888,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 8990,
+   "primary_man": 11152,
+   "time_assigned_s": 6.5,
+   "time_share": 1.0,
+   "dist_median_ft": 7.6
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s02@4614",
+  "clip": "gsw_phx_2016_s02",
+  "game": "201512160GSW",
+  "set_start_frame": 4614,
+  "core_start_frame": 4614,
+  "core_end_frame": 5208,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 5,
+   "primary_man": 180,
+   "time_assigned_s": 13.2,
+   "time_share": 0.27,
+   "dist_median_ft": 7.0
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s01@1506",
+  "clip": "gsw_sas_2016_s01",
+  "game": "201601250GSW",
+  "set_start_frame": 1506,
+  "core_start_frame": 1506,
+  "core_end_frame": 1695,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1226,
+   "primary_man": 187,
+   "time_assigned_s": 5.6,
+   "time_share": 0.57,
+   "dist_median_ft": 16.0
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s03@23388",
+  "clip": "gsw_phx_2016_s03",
+  "game": "201512160GSW",
+  "set_start_frame": 23388,
+  "core_start_frame": 23388,
+  "core_end_frame": 24468,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10283,
+   "primary_man": 10285,
+   "time_assigned_s": 32.6,
+   "time_share": 0.39,
+   "dist_median_ft": 7.7
+  }
+ },
+ {
+  "key": "clip_10m00_18m00@2000",
+  "clip": "clip_10m00_18m00",
+  "game": "201206070BOS",
+  "set_start_frame": 2000,
+  "core_start_frame": 2000,
+  "core_end_frame": 2342,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 4,
+   "primary_man": 6,
+   "time_assigned_s": 6.6,
+   "time_share": 0.27,
+   "dist_median_ft": 2.9
+  }
+ },
+ {
+  "key": "gsw_splash62_s02@17013",
+  "clip": "gsw_splash62_s02",
+  "game": "201605110GSW",
+  "set_start_frame": 17013,
+  "core_start_frame": 17013,
+  "core_end_frame": 17157,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 11499,
+   "primary_man": 11502,
+   "time_assigned_s": 4.9,
+   "time_share": 0.68,
+   "dist_median_ft": 8.6
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s08@17007",
+  "clip": "gsw_okc_2016wcf_g6_s08",
+  "game": "201605280OKC",
+  "set_start_frame": 17007,
+  "core_start_frame": 17007,
+  "core_end_frame": 17169,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12984,
+   "primary_man": 12986,
+   "time_assigned_s": 5.5,
+   "time_share": 1.0,
+   "dist_median_ft": 10.5
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s07@13194",
+  "clip": "gsw_phx_2016_s07",
+  "game": "201512160GSW",
+  "set_start_frame": 13194,
+  "core_start_frame": 13194,
+  "core_end_frame": 13944,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 4443,
+   "primary_man": 4448,
+   "time_assigned_s": 25.2,
+   "time_share": 0.42,
+   "dist_median_ft": 18.4
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s02@14823",
+  "clip": "gsw_nyk_curry54_s02",
+  "game": "201302270NYK",
+  "set_start_frame": 14823,
+  "core_start_frame": 14823,
+  "core_end_frame": 15015,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "NYK",
+  "pred": {
+   "defender": 12953,
+   "primary_man": 11705,
+   "time_assigned_s": 5.5,
+   "time_share": 0.5,
+   "dist_median_ft": 4.9
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s07@16215",
+  "clip": "gsw_sas_2016_s07",
+  "game": "201601250GSW",
+  "set_start_frame": 16215,
+  "core_start_frame": 16215,
+  "core_end_frame": 16446,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 9479,
+   "primary_man": 10835,
+   "time_assigned_s": 7.1,
+   "time_share": 0.97,
+   "dist_median_ft": 12.0
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s00@22686",
+  "clip": "gsw_okc_2016wcf_g1_s00",
+  "game": "201605160GSW",
+  "set_start_frame": 22686,
+  "core_start_frame": 22686,
+  "core_end_frame": 23022,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 10528,
+   "primary_man": 10531,
+   "time_assigned_s": 10.5,
+   "time_share": 0.51,
+   "dist_median_ft": 7.6
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s01@3369",
+  "clip": "gsw_sas_2016_s01",
+  "game": "201601250GSW",
+  "set_start_frame": 3369,
+  "core_start_frame": 3369,
+  "core_end_frame": 3525,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2351,
+   "primary_man": 2352,
+   "time_assigned_s": 4.4,
+   "time_share": 0.33,
+   "dist_median_ft": 5.0
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s05@1146",
+  "clip": "gsw_sac_klay37_s05",
+  "game": "201501230GSW",
+  "set_start_frame": 1146,
+  "core_start_frame": 1146,
+  "core_end_frame": 1458,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 124,
+   "primary_man": 120,
+   "time_assigned_s": 5.3,
+   "time_share": 0.52,
+   "dist_median_ft": 11.8
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s05@34548",
+  "clip": "gsw_cle_2017f_g5_s05",
+  "game": "201706120GSW",
+  "set_start_frame": 34548,
+  "core_start_frame": 34548,
+  "core_end_frame": 35370,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 18901,
+   "primary_man": 17850,
+   "time_assigned_s": 18.8,
+   "time_share": 0.87,
+   "dist_median_ft": 14.8
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s01@2487",
+  "clip": "gsw_sas_2016_s01",
+  "game": "201601250GSW",
+  "set_start_frame": 2487,
+  "core_start_frame": 2487,
+  "core_end_frame": 2637,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 1902,
+   "primary_man": 1897,
+   "time_assigned_s": 4.1,
+   "time_share": 0.56,
+   "dist_median_ft": 16.0
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s04@13920",
+  "clip": "gsw_bos_2016_s04",
+  "game": "201604010GSW",
+  "set_start_frame": 13920,
+  "core_start_frame": 13920,
+  "core_end_frame": 14364,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 5680,
+   "primary_man": 3524,
+   "time_assigned_s": 12.4,
+   "time_share": 1.0,
+   "dist_median_ft": 8.6
+  }
+ },
+ {
+  "key": "clip_55m00_63m00@1407",
+  "clip": "clip_55m00_63m00",
+  "game": "201206070BOS",
+  "set_start_frame": 1407,
+  "core_start_frame": 1407,
+  "core_end_frame": 1551,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 254,
+   "primary_man": 261,
+   "time_assigned_s": 4.9,
+   "time_share": 0.54,
+   "dist_median_ft": 6.7
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s00@11328",
+  "clip": "gsw_bos_2016_s00",
+  "game": "201604010GSW",
+  "set_start_frame": 11328,
+  "core_start_frame": 11328,
+  "core_end_frame": 11520,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 13758,
+   "primary_man": 14357,
+   "time_assigned_s": 5.9,
+   "time_share": 0.35,
+   "dist_median_ft": 10.5
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s00@23556",
+  "clip": "gsw_phx_2016_s00",
+  "game": "201512160GSW",
+  "set_start_frame": 23556,
+  "core_start_frame": 23556,
+  "core_end_frame": 24120,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 486,
+   "primary_man": 488,
+   "time_assigned_s": 18.8,
+   "time_share": 0.36,
+   "dist_median_ft": 9.9
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s09@2898",
+  "clip": "gsw_okc_2016wcf_g1_s09",
+  "game": "201605160GSW",
+  "set_start_frame": 2898,
+  "core_start_frame": 2898,
+  "core_end_frame": 3339,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 509,
+   "primary_man": 302,
+   "time_assigned_s": 14.8,
+   "time_share": 0.51,
+   "dist_median_ft": 9.8
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s02@2286",
+  "clip": "gsw_bos_2016_s02",
+  "game": "201604010GSW",
+  "set_start_frame": 2286,
+  "core_start_frame": 2286,
+  "core_end_frame": 2733,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 678,
+   "primary_man": 82,
+   "time_assigned_s": 4.1,
+   "time_share": 0.98,
+   "dist_median_ft": 13.5
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s00@16980",
+  "clip": "gsw_phx_2016_s00",
+  "game": "201512160GSW",
+  "set_start_frame": 16980,
+  "core_start_frame": 16980,
+  "core_end_frame": 17784,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1,
+   "primary_man": 6,
+   "time_assigned_s": 18.4,
+   "time_share": 0.27,
+   "dist_median_ft": 11.3
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s01@21399",
+  "clip": "gsw_okc_2016wcf_g1_s01",
+  "game": "201605160GSW",
+  "set_start_frame": 21399,
+  "core_start_frame": 21399,
+  "core_end_frame": 21528,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 12132,
+   "primary_man": 9001,
+   "time_assigned_s": 4.4,
+   "time_share": 0.51,
+   "dist_median_ft": 14.2
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s07@2367",
+  "clip": "gsw_sas_2016_s07",
+  "game": "201601250GSW",
+  "set_start_frame": 2367,
+  "core_start_frame": 2367,
+  "core_end_frame": 2565,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 52,
+   "primary_man": 7,
+   "time_assigned_s": 4.5,
+   "time_share": 0.23,
+   "dist_median_ft": 8.0
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s04@7428",
+  "clip": "gsw_cle_2017f_g5_s04",
+  "game": "201706120GSW",
+  "set_start_frame": 7428,
+  "core_start_frame": 7428,
+  "core_end_frame": 7980,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 334,
+   "primary_man": 333,
+   "time_assigned_s": 17.8,
+   "time_share": 1.0,
+   "dist_median_ft": 10.7
+  }
+ },
+ {
+  "key": "gsw_splash62_s07@1977",
+  "clip": "gsw_splash62_s07",
+  "game": "201605110GSW",
+  "set_start_frame": 1977,
+  "core_start_frame": 1977,
+  "core_end_frame": 2286,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 120,
+   "primary_man": 133,
+   "time_assigned_s": 10.3,
+   "time_share": 0.36,
+   "dist_median_ft": 9.3
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s07@612",
+  "clip": "gsw_cle_2016f_g7_s07",
+  "game": "201606190GSW",
+  "set_start_frame": 612,
+  "core_start_frame": 612,
+  "core_end_frame": 1044,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2,
+   "primary_man": 5,
+   "time_assigned_s": 6.9,
+   "time_share": 0.25,
+   "dist_median_ft": 6.9
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s07@29484",
+  "clip": "gsw_okc_2016wcf_g1_s07",
+  "game": "201605160GSW",
+  "set_start_frame": 29484,
+  "core_start_frame": 29484,
+  "core_end_frame": 29796,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 19854,
+   "primary_man": 19860,
+   "time_assigned_s": 8.3,
+   "time_share": 0.45,
+   "dist_median_ft": 15.6
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s05@3681",
+  "clip": "gsw_okc_2016wcf_g6_s05",
+  "game": "201605280OKC",
+  "set_start_frame": 3681,
+  "core_start_frame": 3681,
+  "core_end_frame": 4026,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 3783,
+   "primary_man": 3777,
+   "time_assigned_s": 8.7,
+   "time_share": 0.41,
+   "dist_median_ft": 18.0
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s05@15936",
+  "clip": "gsw_sac_klay37_s05",
+  "game": "201501230GSW",
+  "set_start_frame": 15936,
+  "core_start_frame": 15936,
+  "core_end_frame": 16311,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "pred": {
+   "defender": 17854,
+   "primary_man": 17857,
+   "time_assigned_s": 7.0,
+   "time_share": 0.43,
+   "dist_median_ft": 8.4
+  }
+ },
+ {
+  "key": "gsw_cle_xmas16_s02@16617",
+  "clip": "gsw_cle_xmas16_s02",
+  "game": "201612250CLE",
+  "set_start_frame": 16617,
+  "core_start_frame": 16617,
+  "core_end_frame": 16818,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 8323,
+   "primary_man": 8322,
+   "time_assigned_s": 5.5,
+   "time_share": 1.0,
+   "dist_median_ft": 12.6
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s01@8865",
+  "clip": "gsw_hou_duel_s01",
+  "game": "201505210GSW",
+  "set_start_frame": 8865,
+  "core_start_frame": 8865,
+  "core_end_frame": 9006,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 6512,
+   "primary_man": 6513,
+   "time_assigned_s": 4.8,
+   "time_share": 1.0,
+   "dist_median_ft": 5.4
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s06@0",
+  "clip": "gsw_bos_2016_s06",
+  "game": "201604010GSW",
+  "set_start_frame": 0,
+  "core_start_frame": 0,
+  "core_end_frame": 393,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 51,
+   "primary_man": 11,
+   "time_assigned_s": 5.1,
+   "time_share": 0.16,
+   "dist_median_ft": 4.6
+  }
+ },
+ {
+  "key": "gsw_splash62_s07@1404",
+  "clip": "gsw_splash62_s07",
+  "game": "201605110GSW",
+  "set_start_frame": 1404,
+  "core_start_frame": 1404,
+  "core_end_frame": 1824,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 91,
+   "primary_man": 76,
+   "time_assigned_s": 7.5,
+   "time_share": 0.22,
+   "dist_median_ft": 7.8
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s09@19569",
+  "clip": "gsw_okc_2016wcf_g1_s09",
+  "game": "201605160GSW",
+  "set_start_frame": 19569,
+  "core_start_frame": 19569,
+  "core_end_frame": 19845,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 13612,
+   "primary_man": 13614,
+   "time_assigned_s": 5.2,
+   "time_share": 1.0,
+   "dist_median_ft": 10.5
+  }
+ },
+ {
+  "key": "gsw_splash62_s06@5931",
+  "clip": "gsw_splash62_s06",
+  "game": "201605110GSW",
+  "set_start_frame": 5931,
+  "core_start_frame": 5931,
+  "core_end_frame": 6147,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2470,
+   "primary_man": 2471,
+   "time_assigned_s": 3.4,
+   "time_share": 1.0,
+   "dist_median_ft": 7.7
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s06@678",
+  "clip": "gsw_bos_2016_s06",
+  "game": "201604010GSW",
+  "set_start_frame": 678,
+  "core_start_frame": 678,
+  "core_end_frame": 810,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 210,
+   "primary_man": 211,
+   "time_assigned_s": 3.9,
+   "time_share": 0.46,
+   "dist_median_ft": 6.7
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s05@246",
+  "clip": "gsw_bos_2016_s05",
+  "game": "201604010GSW",
+  "set_start_frame": 246,
+  "core_start_frame": 246,
+  "core_end_frame": 429,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 58,
+   "primary_man": 4,
+   "time_assigned_s": 3.5,
+   "time_share": 0.25,
+   "dist_median_ft": 10.2
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s04@15396",
+  "clip": "gsw_okc_2016wcf_g1_s04",
+  "game": "201605160GSW",
+  "set_start_frame": 15396,
+  "core_start_frame": 15396,
+  "core_end_frame": 15801,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 11827,
+   "primary_man": 11831,
+   "time_assigned_s": 13.6,
+   "time_share": 0.45,
+   "dist_median_ft": 6.1
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s03@19719",
+  "clip": "gsw_okc_2016wcf_g1_s03",
+  "game": "201605160GSW",
+  "set_start_frame": 19719,
+  "core_start_frame": 19719,
+  "core_end_frame": 20394,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10866,
+   "primary_man": 12161,
+   "time_assigned_s": 19.9,
+   "time_share": 0.42,
+   "dist_median_ft": 11.5
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s08@9543",
+  "clip": "gsw_okc_2016wcf_g1_s08",
+  "game": "201605160GSW",
+  "set_start_frame": 9543,
+  "core_start_frame": 9543,
+  "core_end_frame": 10005,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1151,
+   "primary_man": 1325,
+   "time_assigned_s": 12.4,
+   "time_share": 0.27,
+   "dist_median_ft": 7.3
+  }
+ },
+ {
+  "key": "gsw_nyk_curry54_s08@540",
+  "clip": "gsw_nyk_curry54_s08",
+  "game": "201302270NYK",
+  "set_start_frame": 540,
+  "core_start_frame": 540,
+  "core_end_frame": 1128,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "NYK",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 60,
+   "primary_man": 65,
+   "time_assigned_s": 19.0,
+   "time_share": 0.38,
+   "dist_median_ft": 8.4
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s04@22071",
+  "clip": "gsw_okc_2016wcf_g1_s04",
+  "game": "201605160GSW",
+  "set_start_frame": 22071,
+  "core_start_frame": 22071,
+  "core_end_frame": 22590,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 15582,
+   "primary_man": 15585,
+   "time_assigned_s": 16.4,
+   "time_share": 0.98,
+   "dist_median_ft": 14.2
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s00@978",
+  "clip": "gsw_sac_klay37_s00",
+  "game": "201501230GSW",
+  "set_start_frame": 978,
+  "core_start_frame": 978,
+  "core_end_frame": 1149,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAC",
+  "pred": {
+   "defender": 17,
+   "primary_man": 18,
+   "time_assigned_s": 3.1,
+   "time_share": 0.55,
+   "dist_median_ft": 21.6
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s02@318",
+  "clip": "gsw_bos_2016_s02",
+  "game": "201604010GSW",
+  "set_start_frame": 318,
+  "core_start_frame": 318,
+  "core_end_frame": 660,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1,
+   "primary_man": 62,
+   "time_assigned_s": 8.2,
+   "time_share": 0.28,
+   "dist_median_ft": 11.8
+  }
+ },
+ {
+  "key": "gsw_cle_2017f_g5_s06@18210",
+  "clip": "gsw_cle_2017f_g5_s06",
+  "game": "201706120GSW",
+  "set_start_frame": 18210,
+  "core_start_frame": 18210,
+  "core_end_frame": 18684,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 8732,
+   "primary_man": 8730,
+   "time_assigned_s": 14.0,
+   "time_share": 0.38,
+   "dist_median_ft": 9.6
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s05@27711",
+  "clip": "gsw_okc_2016wcf_g1_s05",
+  "game": "201605160GSW",
+  "set_start_frame": 27711,
+  "core_start_frame": 27711,
+  "core_end_frame": 28050,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 16537,
+   "primary_man": 16532,
+   "time_assigned_s": 10.9,
+   "time_share": 0.45,
+   "dist_median_ft": 8.8
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s06@0",
+  "clip": "gsw_sas_2016_s06",
+  "game": "201601250GSW",
+  "set_start_frame": 0,
+  "core_start_frame": 0,
+  "core_end_frame": 180,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 1,
+   "primary_man": 6,
+   "time_assigned_s": 5.1,
+   "time_share": 0.31,
+   "dist_median_ft": 9.3
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s03@11958",
+  "clip": "gsw_hou_duel_s03",
+  "game": "201505210GSW",
+  "set_start_frame": 11958,
+  "core_start_frame": 11958,
+  "core_end_frame": 12156,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 14579,
+   "primary_man": 14578,
+   "time_assigned_s": 6.3,
+   "time_share": 0.36,
+   "dist_median_ft": 5.8
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s00@30597",
+  "clip": "gsw_okc_2016wcf_g1_s00",
+  "game": "201605160GSW",
+  "set_start_frame": 30597,
+  "core_start_frame": 30597,
+  "core_end_frame": 30819,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 18558,
+   "primary_man": 14178,
+   "time_assigned_s": 7.5,
+   "time_share": 1.0,
+   "dist_median_ft": 19.6
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s00@24426",
+  "clip": "gsw_phx_2016_s00",
+  "game": "201512160GSW",
+  "set_start_frame": 24426,
+  "core_start_frame": 24426,
+  "core_end_frame": 24630,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 487,
+   "primary_man": 490,
+   "time_assigned_s": 7.0,
+   "time_share": 0.5,
+   "dist_median_ft": 12.6
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s02@9984",
+  "clip": "gsw_phx_2016_s02",
+  "game": "201512160GSW",
+  "set_start_frame": 9984,
+  "core_start_frame": 9984,
+  "core_end_frame": 10710,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 486,
+   "primary_man": 508,
+   "time_assigned_s": 21.4,
+   "time_share": 0.29,
+   "dist_median_ft": 14.9
+  }
+ },
+ {
+  "key": "gsw_cle_2016f_g7_s03@1722",
+  "clip": "gsw_cle_2016f_g7_s03",
+  "game": "201606190GSW",
+  "set_start_frame": 1722,
+  "core_start_frame": 1722,
+  "core_end_frame": 2064,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pred": {
+   "defender": 381,
+   "primary_man": 437,
+   "time_assigned_s": 6.3,
+   "time_share": 0.21,
+   "dist_median_ft": 4.5
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s06@12075",
+  "clip": "gsw_okc_2016wcf_g6_s06",
+  "game": "201605280OKC",
+  "set_start_frame": 12075,
+  "core_start_frame": 12075,
+  "core_end_frame": 12210,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "OKC",
+  "pred": {
+   "defender": 7013,
+   "primary_man": 7014,
+   "time_assigned_s": 3.3,
+   "time_share": 0.77,
+   "dist_median_ft": 20.0
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s00@5427",
+  "clip": "gsw_hou_duel_s00",
+  "game": "201505210GSW",
+  "set_start_frame": 5427,
+  "core_start_frame": 5427,
+  "core_end_frame": 5850,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 2678,
+   "primary_man": 2682,
+   "time_assigned_s": 9.8,
+   "time_share": 0.32,
+   "dist_median_ft": 11.7
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g1_s01@1347",
+  "clip": "gsw_okc_2016wcf_g1_s01",
+  "game": "201605160GSW",
+  "set_start_frame": 1347,
+  "core_start_frame": 1347,
+  "core_end_frame": 2247,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 7,
+   "primary_man": 12,
+   "time_assigned_s": 16.3,
+   "time_share": 0.27,
+   "dist_median_ft": 7.7
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s05@5949",
+  "clip": "gsw_sas_2016_s05",
+  "game": "201601250GSW",
+  "set_start_frame": 5949,
+  "core_start_frame": 5949,
+  "core_end_frame": 6159,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 3815,
+   "primary_man": 3817,
+   "time_assigned_s": 3.7,
+   "time_share": 0.52,
+   "dist_median_ft": 7.9
+  }
+ },
+ {
+  "key": "gsw_ind_klay60_s09@480",
+  "clip": "gsw_ind_klay60_s09",
+  "game": "201612050GSW",
+  "set_start_frame": 480,
+  "core_start_frame": 480,
+  "core_end_frame": 663,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "IND",
+  "pred": {
+   "defender": 37,
+   "primary_man": 2,
+   "time_assigned_s": 6.1,
+   "time_share": 0.46,
+   "dist_median_ft": 10.4
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s05@16410",
+  "clip": "gsw_hou_duel_s05",
+  "game": "201505210GSW",
+  "set_start_frame": 16410,
+  "core_start_frame": 16410,
+  "core_end_frame": 16629,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "HOU",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10863,
+   "primary_man": 10861,
+   "time_assigned_s": 7.4,
+   "time_share": 0.51,
+   "dist_median_ft": 6.8
+  }
+ },
+ {
+  "key": "gsw_okc_2016wcf_g6_s07@126",
+  "clip": "gsw_okc_2016wcf_g6_s07",
+  "game": "201605280OKC",
+  "set_start_frame": 126,
+  "core_start_frame": 126,
+  "core_end_frame": 279,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 6,
+   "primary_man": 7,
+   "time_assigned_s": 4.7,
+   "time_share": 0.27,
+   "dist_median_ft": 11.7
+  }
+ },
+ {
+  "key": "gsw_splash62_s02@6099",
+  "clip": "gsw_splash62_s02",
+  "game": "201605110GSW",
+  "set_start_frame": 6099,
+  "core_start_frame": 6099,
+  "core_end_frame": 6408,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 3227,
+   "primary_man": 3222,
+   "time_assigned_s": 5.1,
+   "time_share": 0.57,
+   "dist_median_ft": 6.5
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s03@6942",
+  "clip": "gsw_mia_2017_s03",
+  "game": "201701100GSW",
+  "set_start_frame": 6942,
+  "core_start_frame": 6942,
+  "core_end_frame": 7284,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 4821,
+   "primary_man": 4822,
+   "time_assigned_s": 11.5,
+   "time_share": 0.45,
+   "dist_median_ft": 13.4
+  }
+ },
+ {
+  "key": "curry_classic_clip@5277",
+  "clip": "curry_classic_clip",
+  "game": "201602270OKC",
+  "set_start_frame": 5277,
+  "core_start_frame": 5277,
+  "core_end_frame": 5748,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "OKC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 2748,
+   "primary_man": 2745,
+   "time_assigned_s": 13.0,
+   "time_share": 0.82,
+   "dist_median_ft": 10.3
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s08@14880",
+  "clip": "gsw_bos_2016_s08",
+  "game": "201604010GSW",
+  "set_start_frame": 14880,
+  "core_start_frame": 14880,
+  "core_end_frame": 15018,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 15594,
+   "primary_man": 13378,
+   "time_assigned_s": 4.6,
+   "time_share": 0.51,
+   "dist_median_ft": 8.4
+  }
+ },
+ {
+  "key": "gsw_splash62_s05@7830",
+  "clip": "gsw_splash62_s05",
+  "game": "201605110GSW",
+  "set_start_frame": 7830,
+  "core_start_frame": 7830,
+  "core_end_frame": 8049,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "POR",
+  "pred": {
+   "defender": 2224,
+   "primary_man": 2220,
+   "time_assigned_s": 6.1,
+   "time_share": 0.31,
+   "dist_median_ft": 5.6
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s00@7257",
+  "clip": "gsw_bos_2016_s00",
+  "game": "201604010GSW",
+  "set_start_frame": 7257,
+  "core_start_frame": 7257,
+  "core_end_frame": 7482,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 8507,
+   "primary_man": 8508,
+   "time_assigned_s": 5.5,
+   "time_share": 0.89,
+   "dist_median_ft": 11.5
+  }
+ },
+ {
+  "key": "gsw_sac_klay37_s03@16932",
+  "clip": "gsw_sac_klay37_s03",
+  "game": "201501230GSW",
+  "set_start_frame": 16932,
+  "core_start_frame": 16932,
+  "core_end_frame": 17088,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "SAC",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 16752,
+   "primary_man": 16759,
+   "time_assigned_s": 3.9,
+   "time_share": 0.47,
+   "dist_median_ft": 9.0
+  }
+ },
+ {
+  "key": "gsw_sas_2016_s01@15135",
+  "clip": "gsw_sas_2016_s01",
+  "game": "201601250GSW",
+  "set_start_frame": 15135,
+  "core_start_frame": 15135,
+  "core_end_frame": 15291,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "SAS",
+  "pred": {
+   "defender": 10354,
+   "primary_man": 10368,
+   "time_assigned_s": 4.3,
+   "time_share": 0.51,
+   "dist_median_ft": 13.1
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s02@1110",
+  "clip": "gsw_bos_2016_s02",
+  "game": "201604010GSW",
+  "set_start_frame": 1110,
+  "core_start_frame": 1110,
+  "core_end_frame": 1287,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 431,
+   "primary_man": 469,
+   "time_assigned_s": 4.7,
+   "time_share": 0.32,
+   "dist_median_ft": 7.1
+  }
+ },
+ {
+  "key": "clip_26m00_34m00@2000",
+  "clip": "clip_26m00_34m00",
+  "game": "201206070BOS",
+  "set_start_frame": 2000,
+  "core_start_frame": 2000,
+  "core_end_frame": 2201,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 2,
+   "primary_man": 7,
+   "time_assigned_s": 4.0,
+   "time_share": 0.25,
+   "dist_median_ft": 3.1
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s05@10200",
+  "clip": "gsw_hou_duel_s05",
+  "game": "201505210GSW",
+  "set_start_frame": 10200,
+  "core_start_frame": 10200,
+  "core_end_frame": 10449,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 3265,
+   "primary_man": 3267,
+   "time_assigned_s": 3.8,
+   "time_share": 0.67,
+   "dist_median_ft": 10.9
+  }
+ },
+ {
+  "key": "gsw_splash62_s05@13587",
+  "clip": "gsw_splash62_s05",
+  "game": "201605110GSW",
+  "set_start_frame": 13587,
+  "core_start_frame": 13587,
+  "core_end_frame": 13767,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "POR",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 8770,
+   "primary_man": 8771,
+   "time_assigned_s": 5.0,
+   "time_share": 0.31,
+   "dist_median_ft": 5.8
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s03@12483",
+  "clip": "gsw_hou_duel_s03",
+  "game": "201505210GSW",
+  "set_start_frame": 12483,
+  "core_start_frame": 12483,
+  "core_end_frame": 12696,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 14779,
+   "primary_man": 14782,
+   "time_assigned_s": 3.2,
+   "time_share": 0.33,
+   "dist_median_ft": 6.2
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s05@894",
+  "clip": "gsw_phx_2016_s05",
+  "game": "201512160GSW",
+  "set_start_frame": 894,
+  "core_start_frame": 894,
+  "core_end_frame": 1524,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "PHX",
+  "pred": {
+   "defender": 12,
+   "primary_man": 3,
+   "time_assigned_s": 14.0,
+   "time_share": 0.25,
+   "dist_median_ft": 14.5
+  }
+ },
+ {
+  "key": "gsw_phx_2016_s00@34290",
+  "clip": "gsw_phx_2016_s00",
+  "game": "201512160GSW",
+  "set_start_frame": 34290,
+  "core_start_frame": 34290,
+  "core_end_frame": 34992,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "PHX",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 8284,
+   "primary_man": 8285,
+   "time_assigned_s": 11.8,
+   "time_share": 0.51,
+   "dist_median_ft": 6.0
+  }
+ },
+ {
+  "key": "clip_70m00_78m00@1560",
+  "clip": "clip_70m00_78m00",
+  "game": "201206070BOS",
+  "set_start_frame": 1560,
+  "core_start_frame": 1560,
+  "core_end_frame": 1866,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "MIA",
+  "defense_real": "BOS",
+  "pred": {
+   "defender": 242,
+   "primary_man": 3,
+   "time_assigned_s": 8.5,
+   "time_share": 0.27,
+   "dist_median_ft": 10.9
+  }
+ },
+ {
+  "key": "gsw_mia_2017_s03@3597",
+  "clip": "gsw_mia_2017_s03",
+  "game": "201701100GSW",
+  "set_start_frame": 3597,
+  "core_start_frame": 3597,
+  "core_end_frame": 3792,
+  "offense_team": 1,
+  "defense_team": 0,
+  "offense_real": "GSW",
+  "defense_real": "MIA",
+  "pred": {
+   "defender": 894,
+   "primary_man": 129,
+   "time_assigned_s": 6.2,
+   "time_share": 0.95,
+   "dist_median_ft": 13.5
+  }
+ },
+ {
+  "key": "gsw_bos_2016_s00@3120",
+  "clip": "gsw_bos_2016_s00",
+  "game": "201604010GSW",
+  "set_start_frame": 3120,
+  "core_start_frame": 3120,
+  "core_end_frame": 3570,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "BOS",
+  "defense_real": "GSW",
+  "pred": {
+   "defender": 10,
+   "primary_man": 1240,
+   "time_assigned_s": 11.4,
+   "time_share": 0.67,
+   "dist_median_ft": 14.0
+  }
+ },
+ {
+  "key": "gsw_hou_duel_s01@447",
+  "clip": "gsw_hou_duel_s01",
+  "game": "201505210GSW",
+  "set_start_frame": 447,
+  "core_start_frame": 447,
+  "core_end_frame": 636,
+  "offense_team": 0,
+  "defense_team": 1,
+  "offense_real": "GSW",
+  "defense_real": "HOU",
+  "pred": {
+   "defender": 5,
+   "primary_man": 6,
+   "time_assigned_s": 3.8,
+   "time_share": 0.25,
+   "dist_median_ft": 7.2
+  }
+ }
+]
