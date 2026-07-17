@@ -9,6 +9,25 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-17 — Run 13 clean: easyocr-cache fix verified; alignment REPRODUCED byte-identically
+
+Run 13 (82c2290, T4, 84.5 min): preflight initialized easyocr from the Drive
+cache at t+70s (no CDN), align ok over 72 sections with matchup_failures=0,
+clips complete (run 12 had already cut all 509 — its clips step only needs
+committed outcomes, so it survived that run's align crash). Best artifact of
+the run: a fresh VM re-derived **all 151 outcomes files byte-identical** to
+the locally committed state (sources_fingerprint match 151/151) — the
+alignment chain is deterministic end-to-end given cached anchors. Cite this
+under reproducibility in the report.
+
+Honesty banner made regime-aware: "BUILT NOTHING NEW" now screams only when
+a QUEUED game has zero built sections (the run-5 silent-re-pack case); an
+align/clips-only run prints a calm one-liner instead. Clips count note:
+509 = aligned spans of the 7 games localized on these runs; batch-1/2 games
+get theirs cut when they are next localized.
+
+---
+
 ## 2026-07-16d — Run 12 postmortem: easyocr download flake; align-FAILED accounting earned its keep
 
 Fresh VM → easyocr tried its ~80 MB detector download mid-align →

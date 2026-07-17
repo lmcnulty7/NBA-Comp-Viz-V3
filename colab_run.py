@@ -406,11 +406,21 @@ def step_package(persist: str) -> None:
         print(f"{t:24s} {len(real):>5d}/{len(trajs):<6d} {len(new):>13d}")
     record("package", "ok", new_sections=new_total)
     if new_total == 0:
-        print("\n" + "!" * 62)
-        print("!! THIS RUN BUILT NOTHING NEW — the zips are re-packs of old")
-        print("!! output. Do NOT download them expecting new data. Check the")
-        print("!! fetch/probe lines above for the per-game reason.")
-        print("!" * 62)
+        # zero new builds is EXPECTED for align/clips-only runs (every queued
+        # game already built) — the alarm's job is the OTHER case: a game you
+        # queued for building yielded nothing (run-5 era: silent re-packs)
+        never_built = [t for t in GAMES
+                       if not glob.glob(f"{persist}/tracking/{t}_s*_trajectories.json")]
+        if never_built:
+            print("\n" + "!" * 62)
+            print(f"!! QUEUED GAME(S) BUILT NOTHING: {never_built}")
+            print("!! tracking.zip is a re-pack of old output. Check the")
+            print("!! fetch/probe lines above for the per-game reason.")
+            print("!" * 62)
+        else:
+            print("\nno new section builds (all queued games already built) — "
+                  "expected for align/clips runs; this run's product is the "
+                  "align/clips/report output, tracking.zip is a re-pack")
 
 
 def finish(persist: str) -> None:
