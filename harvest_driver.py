@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import subprocess
 import sys
 import time
@@ -159,7 +160,10 @@ def stage_cmd(stage: str, clip: str) -> list[str]:
     return {
         "build": [PY, "build_trajectories.py", "--source", str(src), "--start", "0",
                   "--max-frames", "99999", "--stride", str(build_stride(video_fps(src))),
-                  "--pregate", "--no-video"],
+                  "--pregate", "--no-video"]
+                 # crop archives: colab_run sets HARVEST_SAVE_CROPS=1 (tracking/ is
+                 # Drive-persisted there); local one-off rebuilds skip the disk cost
+                 + (["--save-crops"] if os.environ.get("HARVEST_SAVE_CROPS") == "1" else []),
         "segment": [PY, "segment_possessions.py", "--trajectories",
                     str(config.TRACKING_DIR / f"{clip}_trajectories.json")],
         "matchups": [PY, "matchup_metrics.py", "--clip", clip, "--no-video"],

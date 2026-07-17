@@ -24,11 +24,16 @@ Steps — each timed, each recorded in results/run_report.json:
   align     align_outcomes + matchup_metrics + tier2_join + tier2_credit;
             any sub-step's nonzero exit marks the step FAILED in the report
             (run 10: a crashed join went unnoticed and a stale file shipped)
-  package   zips + honesty report: how many section artifacts were NEWLY
-            built THIS run — loud warning if zero (never again download a
-            re-zip of last run's output thinking it's new). tier2_join/credit
+  clips     stream-copy every aligned possession span to Drive clips/
+            (±2 s pad; feeds matchup labeling, jersey-OCR batches, demos)
+  package   FRESH results/run_<stamp>/ dir per run (fixed-name zips accreted
+            stale entries) + honesty report: how many section artifacts were
+            NEWLY built THIS run — loud warning if zero. tier2_join/credit
             are EXCLUDED from the pbp zip: the local repo re-runs both after
             ingest, and tier2_credit's fingerprint guard refuses stale joins
+
+Storage policy (2 TB Drive): video/ and crops archives are permanent —
+fetch/build once, never prune; sources vanish from YouTube.
 """
 from __future__ import annotations
 
@@ -41,6 +46,9 @@ import sys
 import time
 
 T0 = time.time()
+RUN_STAMP = time.strftime("%Y%m%d_%H%M")   # results/run_<stamp>/ — one dir per
+                                           # run, never overwritten (2 TB Drive;
+                                           # fixed-name zips caused accretion bugs)
 GAMES = ["gsw_cle_2017f_g5", "gsw_sac_klay37", "gsw_nyk_curry54",
          "gsw_mia_2017", "gsw_splash62", "gsw_hou_duel",
          # night 4: one more GSW game tips the GSW defense bucket past
@@ -105,8 +113,13 @@ def step_env() -> str:
     else:
         persist = "/content/nba_harvest"
         print("NO DRIVE MOUNT → VM-local only: a disconnect loses progress.")
-    for d in ("video", "tracking", "results"):
+    # video/ is a PERMANENT archive (2 TB Drive): fetch once, never prune —
+    # YouTube uploads get taken down, and a lost source video makes its game
+    # unreproducible forever. clips/ = per-possession cuts; crops/ lives under
+    # tracking/ (Drive-persisted via the symlink below).
+    for d in ("video", "tracking", "clips", f"results/run_{RUN_STAMP}"):
         os.makedirs(f"{persist}/{d}", exist_ok=True)
+    os.environ["HARVEST_SAVE_CROPS"] = "1"   # build persists torso-crop tars
     os.makedirs("data/harvest", exist_ok=True)
     # live persistence: videos, per-stage status and outputs write straight to
     # Drive — a disconnect mid-run costs at most one in-flight stage
@@ -297,19 +310,66 @@ def step_align() -> None:
            matchup_failures=m_fail, **({"failed": failed} if failed else {}))
 
 
+def step_clips(persist: str) -> None:
+    """Cut every ALIGNED possession span to a small mp4 on Drive (stream copy,
+    ±2 s pad, keyframe-snapped — context video for labeling/OCR/demos, NOT a
+    frame-indexed source). Idempotent: existing non-empty clips are kept."""
+    banner("possession clips → Drive")
+    fps_cache: dict[str, float] = {}
+
+    def fps_of(path: str) -> float:
+        if path not in fps_cache:
+            r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
+                                "-show_entries", "stream=r_frame_rate",
+                                "-of", "csv=p=0", path], capture_output=True, text=True)
+            num, den = ((r.stdout.strip() or "30/1").split("/") + ["1"])[:2]
+            fps_cache[path] = (float(num) / float(den)) if float(den) else 30.0
+        return fps_cache[path]
+
+    new = kept = failed = 0
+    for opath in sorted(glob.glob("data/pbp/*_outcomes.json")):
+        clip = os.path.basename(opath).replace("_outcomes.json", "")
+        src = f"{LOCAL_V}/{clip}.mp4"
+        if not os.path.exists(src):        # only games localized this run
+            continue
+        for o in json.load(open(opath)):
+            if o.get("status") != "aligned":
+                continue
+            f0 = o["set_start_frame"]
+            dst = f"{persist}/clips/{clip}_f{f0}.mp4"
+            if os.path.exists(dst) and os.path.getsize(dst) > 50_000:
+                kept += 1
+                continue
+            fps = fps_of(src)
+            t0 = max(0.0, f0 / fps - 2.0)
+            t1 = o["core_end_frame"] / fps + 2.0
+            r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{t0:.2f}",
+                                "-to", f"{t1:.2f}", "-i", src, "-c", "copy",
+                                "-avoid_negative_ts", "make_zero", dst],
+                               capture_output=True, text=True, timeout=120)
+            if r.returncode == 0 and os.path.getsize(dst) > 50_000:
+                new += 1
+            else:
+                failed += 1
+                if os.path.exists(dst):
+                    os.remove(dst)         # never leave a truncated clip behind
+    print(f"clips: {new} new, {kept} existing, {failed} failed")
+    record("clips", "ok" if not failed else "PARTIAL",
+           new=new, existing=kept, failed=failed)
+
+
 def step_package(persist: str) -> None:
     banner("package + honesty report")
-    # rebuild the zips from scratch: zip -r into an EXISTING archive only
-    # adds/updates entries, so the Drive-persisted zips ACCRETE — run 11's
-    # pbp zip still carried run-10's excluded tier2 files as stale entries
-    os.system(f"rm -f {persist}/results/night3_tracking.zip "
-              f"{persist}/results/night3_pbp.zip")
-    os.system(f'cd {persist} && zip -qr results/night3_tracking.zip tracking '
+    # one FRESH results dir per run (results/run_<stamp>/) — fixed-name zips
+    # on Drive accreted stale entries across runs (zip -r never removes);
+    # per-run dirs kill that bug class and give run-over-run history free
+    rdir = f"{persist}/results/run_{RUN_STAMP}"
+    os.system(f'cd {persist} && zip -qr {rdir}/tracking.zip tracking '
               f'-i "tracking/gsw_*"')
     # join/credit are NEVER packaged: the local repo re-runs both after every
     # ingest (tier2_credit's fingerprint guard enforces it), so a stale pair
     # can't ride along as if it covered this run's outcomes (run-10 incident)
-    os.system(f"zip -qr {persist}/results/night3_pbp.zip data/pbp "
+    os.system(f"zip -qr {rdir}/pbp.zip data/pbp "
               f'-x "data/pbp/tier2_join.json" "data/pbp/tier2_credit.json"')
     new_total = 0
     print(f"{'game':24s} {'built/total':>12s} {'NEW this run':>13s}")
@@ -333,7 +393,8 @@ def step_package(persist: str) -> None:
 def finish(persist: str) -> None:
     REPORT["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
     REPORT["wall_min"] = round((time.time() - T0) / 60, 1)
-    path = f"{persist}/results/run_report.json"
+    path = f"{persist}/results/run_{RUN_STAMP}/run_report.json"
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(REPORT, f, indent=1)
     print(f"\nrun report → {path}  (send this file if anything looks wrong)")
@@ -347,10 +408,11 @@ def main() -> None:
     ready = step_localize(persist)
     step_build(ready)
     step_align()
+    step_clips(persist)
     step_package(persist)
     finish(persist)
     print(f"\nDONE in {REPORT['wall_min']} min — download from Drive: "
-          "nba_harvest/results/ (night3_tracking.zip, night3_pbp.zip, "
+          f"nba_harvest/results/run_{RUN_STAMP}/ (tracking.zip, pbp.zip, "
           "run_report.json + the live status.json in nba_harvest/)")
 
 

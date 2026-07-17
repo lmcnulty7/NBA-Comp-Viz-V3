@@ -108,6 +108,10 @@ def main():
     ap.add_argument("--no-reid", action="store_true", help="Disable offline fragment linking (A/B).")
     ap.add_argument("--no-teams", action="store_true", help="Disable team classification + linker veto (A/B).")
     ap.add_argument("--no-video", action="store_true", help="Skip the review-video render (batch runs).")
+    ap.add_argument("--save-crops", action="store_true",
+                    help="Persist the torso-crop pool to tracking/crops/<clip>_crops.tar "
+                         "(one jpeg per crop, named <tid>_<seq>.jpg) — every later OCR/"
+                         "team/re-ID experiment becomes a re-vote, not a re-track.")
     ap.add_argument("--pregate", action="store_true",
                     help="Coarse gate-only pass first; the full chain only runs inside "
                          "live segments (harvest-scale speedup; implies --use-gate).")
@@ -272,6 +276,30 @@ def main():
             sheet = config.VIZ_DIR / f"team_clusters_{args.source.stem}.png"
             team_contact_sheet(collector.crops, team_of, sheet)
             log.info("team contact sheet → %s", sheet)
+
+    if args.save_crops and collector is not None and collector.crops:
+        # jpeg tar, one member per crop, <fragment_tid>_<seq>.jpg — fragment ids
+        # (pre-link) so consumers can re-vote teams/OCR and re-link independently
+        import tarfile, io, time as _time
+        crops_dir = config.TRACKING_DIR / "crops"
+        crops_dir.mkdir(parents=True, exist_ok=True)
+        tar_path = crops_dir / f"{args.source.stem}_crops.tar"
+        n_saved = 0
+        with tarfile.open(tar_path, "w") as tf:
+            for tid, lst in sorted(collector.crops.items()):
+                for i, crop in enumerate(lst):
+                    ok, enc = cv2.imencode(".jpg", crop[:, :, ::-1],
+                                           [cv2.IMWRITE_JPEG_QUALITY, 92])
+                    if not ok:
+                        continue
+                    info = tarfile.TarInfo(f"{tid}_{i:03d}.jpg")
+                    info.size = len(enc)
+                    info.mtime = int(_time.time())
+                    tf.addfile(info, io.BytesIO(enc.tobytes()))
+                    n_saved += 1
+        log.info("crop archive: %d crops (%d fragments) → %s (%.1f MB)",
+                 n_saved, len(collector.crops), tar_path,
+                 tar_path.stat().st_size / 1e6)
 
     raw_series = {tid: [(f, x, y) for f, (x, y) in sorted(d.items())] for tid, d in raw.items()}
 
