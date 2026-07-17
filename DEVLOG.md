@@ -9,6 +9,28 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-16d — Run 12 postmortem: easyocr download flake; align-FAILED accounting earned its keep
+
+Fresh VM → easyocr tried its ~80 MB detector download mid-align →
+ContentTooShortError at t+680s. The NEW accounting marked align FAILED loudly
+(the old sh() would have said "ok"), but join+credit still ran on partial
+state and printed a plausible-looking GSW n=163 table — a broken-run
+artifact, never data. Verified untouched: local repo 641 joined / GSW n=330
+−7.4 [−21.6, +6.3] rel +11.3; the broken join/credit died with the VM
+(package excludes them; per-run results dir).
+
+Structural fixes (all three, not a retry):
+1. **easyocr weights now live on Drive** (nba_harvest/easyocr/model, seeded
+   from the local Mac's ~/.EasyOCR — craft_mlt_25k + english_g2, 98 MB);
+   EASYOCR_MODULE_PATH set in step_env, inherited by subprocesses. A fresh
+   VM never depends on easyocr's CDN again.
+2. **Preflight now initializes easyocr** — any download happens at t+2 min,
+   visibly, and failure aborts before hours of work.
+3. **align_outcomes failure now SKIPS join+credit** — no tables from partial
+   state; a broken run can no longer print numbers that invite misreading.
+
+---
+
 ## 2026-07-16c — Phase 0 (CLAIMS.md) + Phase 1: the credit number was two biases canceling
 
 **Phase 0:** CLAIMS.md is now the definition of done — three claim tiers

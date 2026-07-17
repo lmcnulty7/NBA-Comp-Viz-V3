@@ -117,9 +117,14 @@ def step_env() -> str:
     # YouTube uploads get taken down, and a lost source video makes its game
     # unreproducible forever. clips/ = per-possession cuts; crops/ lives under
     # tracking/ (Drive-persisted via the symlink below).
-    for d in ("video", "tracking", "clips", f"results/run_{RUN_STAMP}"):
+    for d in ("video", "tracking", "clips", "easyocr/model", f"results/run_{RUN_STAMP}"):
         os.makedirs(f"{persist}/{d}", exist_ok=True)
     os.environ["HARVEST_SAVE_CROPS"] = "1"   # build persists torso-crop tars
+    # easyocr weights live on Drive: a fresh VM must NEVER depend on easyocr's
+    # ~80 MB detector download completing (run 12: ContentTooShortError killed
+    # align at t+680s). Cache seeded from the local Mac's ~/.EasyOCR (07-16);
+    # subprocesses inherit the env var.
+    os.environ["EASYOCR_MODULE_PATH"] = f"{persist}/easyocr"
     os.makedirs("data/harvest", exist_ok=True)
     # live persistence: videos, per-stage status and outputs write straight to
     # Drive — a disconnect mid-run costs at most one in-flight stage
@@ -173,10 +178,21 @@ def step_preflight() -> None:
              "g.score(np.random.randint(0,255,(720,1280,3),np.uint8)))")
     r = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True)
     print((r.stdout or r.stderr).strip()[-500:])
-    record("preflight", "ok" if r.returncode == 0 else "FAILED",
-           tail=(r.stderr or "")[-400:])
-    if r.returncode != 0:
-        sys.exit("preflight gate-scoring failed — aborting before any download.")
+    # easyocr must initialize HERE, at t+~2 min, not at t+680 s inside align:
+    # with the Drive cache seeded this is instant; if the cache is somehow
+    # empty the download happens now, visibly, and a failure aborts the run
+    # before any long work (run-12 lesson)
+    r2 = subprocess.run([sys.executable, "-c",
+                         "import easyocr; easyocr.Reader(['en'], gpu=False, verbose=False); "
+                         "print('easyocr OK (models from', __import__('os').environ"
+                         "['EASYOCR_MODULE_PATH'] + ')')"],
+                        capture_output=True, text=True)
+    print((r2.stdout or r2.stderr).strip()[-300:])
+    ok = r.returncode == 0 and r2.returncode == 0
+    record("preflight", "ok" if ok else "FAILED",
+           tail=((r.stderr or "") + (r2.stderr or ""))[-400:])
+    if not ok:
+        sys.exit("preflight failed (gate or easyocr) — aborting before any long work.")
 
 
 # ── fetch ────────────────────────────────────────────────────────────────────
@@ -302,10 +318,17 @@ def step_align() -> None:
             print(f"!! matchup_metrics FAILED {c}: {(r.stderr or '')[-140:]}")
     # run-10 lesson: a crashed join left a stale tier2_join.json that credit
     # aggregated SILENTLY and the package shipped — every sub-step's exit code
-    # must surface, and 'align: ok' must mean all of them succeeded
-    for tool in ("tier2_join.py", "tier2_credit.py"):
-        if sh([sys.executable, tool]).returncode:
-            failed.append(tool)
+    # must surface, and 'align: ok' must mean all of them succeeded.
+    # run-12 lesson: when align_outcomes ITSELF failed, do not join/credit at
+    # all — a table computed from partial state looks plausible (GSW n=163)
+    # and invites reading a broken run as data
+    if failed:
+        print("!! align_outcomes failed — SKIPPING join+credit (no tables from "
+              "partial state); nothing here supersedes the repo's committed join")
+    else:
+        for tool in ("tier2_join.py", "tier2_credit.py"):
+            if sh([sys.executable, tool]).returncode:
+                failed.append(tool)
     record("align", "FAILED" if failed else "ok", sections=len(secs),
            matchup_failures=m_fail, **({"failed": failed} if failed else {}))
 
