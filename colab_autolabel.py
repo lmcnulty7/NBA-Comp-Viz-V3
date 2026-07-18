@@ -227,8 +227,32 @@ def main() -> None:
             return None
 
         agg_t, agg_p, agg_u = defaultdict(int), defaultdict(int), defaultdict(int)
+        agg_t75, agg_p75 = defaultdict(int), defaultdict(int)
         n_eval = 0
         preds_out = open(out_dir / "qualification_preds.jsonl", "w")
+        viz_dir = out_dir / "qualification_viz"
+        viz_dir.mkdir(exist_ok=True)
+
+        def render_audit(img, gts, boxes, thr=0.5):
+            """GT green; matched preds solid white; unmatched preds red —
+            'was the right player boxed' becomes eyeballable, not statistical."""
+            out = img.copy()
+            unmatched_gt = list(range(len(gts)))
+            for g in gts:
+                cv2.rectangle(out, (int(g[0]), int(g[1])), (int(g[2]), int(g[3])),
+                              (0, 200, 0), 2)
+            for b in boxes:
+                best, bi = 0.0, None
+                for gi in unmatched_gt:
+                    v = iou(b, gts[gi])
+                    if v > best:
+                        best, bi = v, gi
+                col = (255, 255, 255) if best >= thr else (0, 0, 255)
+                if best >= thr:
+                    unmatched_gt.remove(bi)
+                cv2.rectangle(out, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), col, 1)
+            return out
+
         for gf in gt_files:
             rec = json.loads(gf.read_text())
             img = load_gt_image(rec)
@@ -249,6 +273,16 @@ def main() -> None:
                 m = pr_vs_gt(boxes, gts)
                 for k in ("tp", "fp", "fn"):
                     agg[k] += m[k]
+            # tight-box row: sloppy detections that barely graze GT fall out here
+            for agg, boxes in ((agg_t75, t_boxes), (agg_p75, p_boxes)):
+                m = pr_vs_gt(boxes, gts, thr=0.75)
+                for k in ("tp", "fp", "fn"):
+                    agg[k] += m[k]
+            import numpy as np
+            stem = Path(rec["frame"]).stem
+            cv2.imwrite(str(viz_dir / f"{stem}_audit.jpg"),
+                        np.vstack([render_audit(img, gts, t_boxes),
+                                   render_audit(img, gts, p_boxes)]))
             preds_out.write(json.dumps({"frame": rec["frame"], "gt": gts,
                                         "teacher": t_boxes, "pipeline": p_boxes}) + "\n")
         preds_out.close()
@@ -266,6 +300,10 @@ def main() -> None:
                   "teacher_grounding_dino": finish(agg_t),
                   "pipeline_current": finish(agg_p),
                   "union_candidates": finish(agg_u),
+                  "iou75_teacher": finish(agg_t75),
+                  "iou75_pipeline": finish(agg_p75),
+                  "audit_images": "autolabels/qualification_viz/ (top=teacher, "
+                                  "bottom=pipeline; GT green, matched white, unmatched red)",
                   "note": "player class vs human box_truth. Teacher labels are "
                           "trusted only if teacher wins (LABEL_SCHEMA rule 1). "
                           "union_candidates = pipeline + non-duplicate teacher "
