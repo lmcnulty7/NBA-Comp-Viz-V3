@@ -45,26 +45,108 @@ AGREE_IOU = 0.5
 
 BOX_SYSTEM = """You are auditing auto-generated labels on an NBA broadcast frame.
 The image shows numbered candidate boxes. For EACH index return a JSON object:
- keep: true/false (is there really an object of this kind here)
- cls: player|referee|rim|backboard|scorebug|ball (correct class, may differ from proposal)
+ keep: true/false. keep=false for: spectators/fans, coaches and staff in street
+   clothes, photographers, broadcasters, ball kids — these are NOT players or
+   referees. Also keep=false for DUPLICATES: when several boxes cover the same
+   object, keep=true ONLY for the tightest box, false for every other copy.
+ cls: player|referee|rim|backboard|scorebug|ball
+   player = anyone in a team uniform or team warmups, INCLUDING bench players.
+   referee = game officials only. Street clothes = keep=false, never player.
  tight: true/false (box edges within ~5% of the object's true extent)
  occlusion: visible|partial|heavy (players only)
- team_kit: light|dark|other (players only — jersey lightness, not team identity)
- on_court: true/false (players only — standing on the playing floor vs bench/sideline)
+ team_kit: light|dark|other (players only — uniform lightness, not team identity)
+ on_court: players only. true ONLY if the player is ON the playing floor as part
+   of live play or a free-throw formation. Bench players, players at the scorer's
+   table, and anyone outside the sidelines/baseline: false.
  number: jersey number 0-99 if clearly readable, else null
 Also return shot_type for the WHOLE frame: wide_broadcast|closeup|replay|graphic|split_screen.
 Reply with ONLY JSON: {"shot_type": ..., "boxes": {"<idx>": {...}, ...}}"""
 
-COURT_SYSTEM = """This is a wide NBA broadcast frame. Identify visible court landmarks and
-return pixel coordinates as JSON: {"landmarks": [{"name": ..., "x": ..., "y": ...}]}.
-Use only these names: baseline_sideline_near_left, baseline_sideline_far_left,
-baseline_sideline_near_right, baseline_sideline_far_right, paint_corner_near_left,
-paint_corner_far_left, paint_corner_near_right, paint_corner_far_right,
-free_throw_center_left, free_throw_center_right, center_circle_top,
-center_circle_bottom, halfcourt_sideline_near, halfcourt_sideline_far,
-corner3_baseline_near_left, corner3_baseline_far_left, corner3_baseline_near_right,
-corner3_baseline_far_right. Only include landmarks whose exact line intersection is
-clearly visible; precision matters more than count. ONLY JSON."""
+# court path: geometry proposes, the VLM only NAMES. Pilot 1 showed Claude
+# placing coordinates tens of px off and hallucinating out-of-frame features —
+# so precise candidate points come from classical Hough line intersections
+# (no learned model → no inbreeding) and Claude's job shrinks to semantics.
+COURT_NAMES = [
+    "baseline_sideline_near_left", "baseline_sideline_far_left",
+    "baseline_sideline_near_right", "baseline_sideline_far_right",
+    "paint_corner_near_left", "paint_corner_far_left",
+    "paint_corner_near_right", "paint_corner_far_right",
+    "paint_baseline_near_left", "paint_baseline_far_left",
+    "paint_baseline_near_right", "paint_baseline_far_right",
+    "free_throw_line_left_end", "free_throw_line_right_end",
+    "halfcourt_sideline_near", "halfcourt_sideline_far",
+    "corner3_baseline_near_left", "corner3_baseline_far_left",
+    "corner3_baseline_near_right", "corner3_baseline_far_right",
+]
+COURT_SYSTEM = f"""The image is an NBA broadcast frame with numbered red markers placed at
+DETECTED line intersections. For each marker index, say which court landmark the marker
+sits exactly on, or "none" if it is not precisely at a named court-line intersection
+(floor logos, paint texture edges, shadows, players, ads = "none").
+Names (the only allowed values besides "none"): {", ".join(COURT_NAMES)}.
+Be conservative: a wrong name poisons a homography; "none" is always safe.
+Reply with ONLY JSON: {{"points": {{"<idx>": "<name-or-none>", ...}}}}"""
+
+
+def line_intersections(segs, w, h, min_angle_deg=15.0, extend=0.35):
+    """Pairwise intersections of line segments (as x1,y1,x2,y2), kept when the
+    crossing point lies within each segment's span extended by `extend` of its
+    length (court lines are partially occluded) and the lines cross at a real
+    angle (near-parallel intersections are numerically garbage)."""
+    import math
+    pts = []
+    for i in range(len(segs)):
+        x1, y1, x2, y2 = segs[i]
+        for j in range(i + 1, len(segs)):
+            x3, y3, x4, y4 = segs[j]
+            d = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+            if abs(d) < 1e-9:
+                continue
+            a1 = math.atan2(y2 - y1, x2 - x1)
+            a2 = math.atan2(y4 - y3, x4 - x3)
+            ang = abs(a1 - a2) % math.pi
+            if min(ang, math.pi - ang) < math.radians(min_angle_deg):
+                continue
+            t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / d
+            u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / d
+            if not (-extend <= t <= 1 + extend and -extend <= u <= 1 + extend):
+                continue
+            px, py = x1 + t * (x2 - x1), y1 + t * (y2 - y1)
+            if 0 <= px < w and 0 <= py < h:
+                pts.append((px, py))
+    return pts
+
+
+def cluster_points(pts, radius=12.0):
+    """Greedy merge; returns cluster centers sorted by support (biggest first) —
+    real court intersections attract many segment pairs, noise attracts few."""
+    clusters: list[list] = []
+    for x, y in pts:
+        for c in clusters:
+            cx, cy = c[0] / c[2], c[1] / c[2]
+            if (x - cx) ** 2 + (y - cy) ** 2 <= radius ** 2:
+                c[0] += x; c[1] += y; c[2] += 1
+                break
+        else:
+            clusters.append([x, y, 1])
+    clusters.sort(key=lambda c: -c[2])
+    return [(round(c[0] / c[2], 1), round(c[1] / c[2], 1)) for c in clusters]
+
+
+def court_candidates(img, max_pts=20):
+    """Classical intersection proposals: Canny + probabilistic Hough on the
+    lower 2/3 of the frame (court region), long segments only."""
+    import cv2
+    import numpy as np
+    h, w = img.shape[:2]
+    y0 = int(h * 0.30)
+    gray = cv2.cvtColor(img[y0:], cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 60, 160)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=90,
+                            minLineLength=int(w * 0.12), maxLineGap=14)
+    if lines is None:
+        return []
+    pts = line_intersections([l[0] for l in lines], w, h - y0)
+    return [(x, y + y0) for x, y in cluster_points(pts)[:max_pts]]
 
 
 def b64_image(img, max_w=1092):
@@ -173,11 +255,24 @@ def main() -> None:
                        "shot_type": verdict.get("shot_type")}
                 fh.write(json.dumps(out) + "\n")
                 if verdict.get("shot_type") == "wide_broadcast" and k % args.court_every == 0:
-                    lm = call_claude(client, COURT_MODEL, COURT_SYSTEM,
-                                     b64_image(img), "Locate the court landmarks.", costs)
-                    if lm:
-                        ch.write(json.dumps({"tag": tag, "frame": rec["frame"],
-                                             **lm}) + "\n")
+                    cands = court_candidates(img)
+                    if len(cands) >= 4:
+                        marked = img.copy()
+                        for ci, (cx, cy) in enumerate(cands):
+                            cv2.drawMarker(marked, (int(cx), int(cy)), (0, 0, 255),
+                                           cv2.MARKER_CROSS, 22, 2)
+                            cv2.putText(marked, str(ci), (int(cx) + 6, int(cy) - 6),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                        lm = call_claude(client, COURT_MODEL, COURT_SYSTEM,
+                                         b64_image(marked),
+                                         f"{len(cands)} markers (indices 0..{len(cands) - 1}).",
+                                         costs)
+                        named = [{"x": cands[int(i)][0], "y": cands[int(i)][1], "name": n}
+                                 for i, n in (lm or {}).get("points", {}).items()
+                                 if n != "none" and str(i).isdigit() and int(i) < len(cands)]
+                        if named:
+                            ch.write(json.dumps({"tag": tag, "frame": rec["frame"],
+                                                 "landmarks": named}) + "\n")
                 if (k + 1) % 25 == 0:
                     log.info("  %s %d/%d (t+%.0fs)", tag, k + 1, len(recs), time.time() - t0)
         log.info("%s adjudicated", tag)

@@ -50,3 +50,29 @@ def test_disagreement_band_triage():
     assert ("rim", "teacher") in kinds                  # non-player classes always judged
     assert ("player", "pipeline_only") in kinds         # pipeline-only kept too
     assert len(adj) == 3                                # nothing contested is dropped
+
+
+# ── court candidates: geometry proposes, VLM only names ───────────────────────
+def test_line_intersections_cross_and_parallel():
+    from adjudicate_labels import line_intersections
+    cross = [(0, 50, 100, 50), (50, 0, 50, 100)]        # + shape → one point
+    pts = line_intersections(cross, 200, 200)
+    assert len(pts) == 1 and pts[0] == (50.0, 50.0)
+    parallel = [(0, 10, 100, 10), (0, 60, 100, 60)]
+    assert line_intersections(parallel, 200, 200) == []
+
+
+def test_line_intersections_rejects_far_extrapolation():
+    from adjudicate_labels import line_intersections
+    # segments whose infinite lines cross far beyond both spans → rejected
+    segs = [(0, 0, 10, 0), (200, 100, 210, 90)]
+    assert line_intersections(segs, 1000, 1000) == []
+
+
+def test_cluster_points_merges_and_ranks_by_support():
+    from adjudicate_labels import cluster_points
+    pts = [(10, 10), (12, 11), (11, 9), (500, 500)]
+    out = cluster_points(pts)
+    assert len(out) == 2
+    assert abs(out[0][0] - 11) < 1.5 and abs(out[0][1] - 10) < 1.5  # 3-support first
+    assert out[1] == (500.0, 500.0)
