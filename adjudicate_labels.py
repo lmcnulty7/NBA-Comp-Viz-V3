@@ -171,14 +171,20 @@ def render_candidates(img, cands):
 
 def call_claude(client, model, system, img_b64, user_text, costs) -> dict | None:
     msg = client.messages.create(
-        model=model, max_tokens=2000, system=system,
+        model=model, max_tokens=6000, system=system,
         messages=[{"role": "user", "content": [
             {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
                                          "data": img_b64}},
             {"type": "text", "text": user_text}]}])
     costs[model]["in"] += msg.usage.input_tokens
     costs[model]["out"] += msg.usage.output_tokens
-    text = msg.content[0].text.strip()
+    # models with extended thinking prepend a ThinkingBlock — take the text
+    # block; a response that is ALL thinking (max_tokens exhausted) has none
+    text = next((b.text for b in msg.content if getattr(b, "type", "") == "text"), None)
+    if text is None:
+        log.warning("no text block (stop=%s) — skipped", msg.stop_reason)
+        return None
+    text = text.strip()
     if text.startswith("```"):
         text = text.strip("`").lstrip("json").strip()
     try:
@@ -211,6 +217,8 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=0, help="frames per tag (0 = all)")
     ap.add_argument("--court-every", type=int, default=4,
                     help="court-landmark call on every Nth wide frame")
+    ap.add_argument("--box-model", default=BOX_MODEL,
+                    help="judge model for box verdicts (A/B: haiku vs sonnet)")
     args = ap.parse_args()
 
     import cv2
@@ -244,7 +252,7 @@ def main() -> None:
                     continue
                 pre, adj = disagreement_band(rec)
                 verdict = call_claude(
-                    client, BOX_MODEL, BOX_SYSTEM,
+                    client, args.box_model, BOX_SYSTEM,
                     b64_image(render_candidates(img, adj)),
                     f"{len(adj)} candidate boxes (indices 0..{len(adj) - 1}).", costs)
                 if verdict is None:
