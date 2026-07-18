@@ -9,6 +9,37 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-17b — Foundation Refresh: matchup eval paused (honest finding), external-teacher pipeline built
+
+**Matchup labeling paused as a FINDING, not a failure**: the user could not
+reliably correlate the engine's dots with footage (homography off on several
+arenas, raw-masked dots blipping through occlusions) — 38 labels discarded
+(37n/1y, mostly the ball-following misread, but the data-quality judgment
+stands). Recorded implication: C1 is not verifiable at current positional
+fidelity; fix the foundation first, redo the eval on rebuilt artifacts with
+an on-video overlay tool.
+
+**Strategy settled after real debate — external teachers, NO self-training.**
+The user's argument won on the merits: a model's systematic false negatives
+never surface as candidates for verification, so pipeline-generated labels
+inbreed exactly the scrum-recall failures we're fixing. In-house models are
+comparators only (qualification gate + disagreement triage), never label
+sources. Full schema + anti-inbreeding rules: LABEL_SCHEMA.md (new per-frame
+classes the pipeline is NOT equipped for: backboard, scorebug, team_kit,
+on_court, occlusion, number-region, person pose, shot_type).
+
+**Built tonight:** build_label_corpus.py (6,197 time-stratified frames from
+all 21 sources → Drive, no model touches sampling); colab_autolabel.py +
+bootstrap notebook (Grounding DINO over-proposing at 0.18 + YOLO-pose +
+in-house detector side-by-side; --qualify mode = teacher vs pipeline vs human
+box_truth, the trust gate); adjudicate_labels.py (Claude API judge — Haiku
+box verdicts on the disagreement band only, Sonnet court landmarks on wide
+frames → RANSAC/template step next; pilot via --limit, est. $20-40 full).
+4 new tests (45). Roadmap: this is Phase 1.5, inserted before the matchup
+eval redo.
+
+---
+
 ## 2026-07-17 — Run 13 clean: easyocr-cache fix verified; alignment REPRODUCED byte-identically
 
 Run 13 (82c2290, T4, 84.5 min): preflight initialized easyocr from the Drive
