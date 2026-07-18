@@ -115,6 +115,20 @@ def load_teacher(device):
     return proc, model
 
 
+def map_prompt_label(label: str) -> str:
+    """Grounding DINO returns matched prompt text (possibly a fragment) —
+    map it back to a schema class by containment either way."""
+    s = str(label).lower().strip()
+    for prompt, cls in PROMPTS.items():
+        if s == prompt or s in prompt or prompt in s:
+            return cls
+    # fragments like "basketball" alone: prefer the most specific word match
+    for prompt, cls in PROMPTS.items():
+        if any(w in prompt.split() for w in s.split()):
+            return cls
+    return s
+
+
 def teacher_detect(proc, model, device, image_bgr) -> list[dict]:
     import torch
     from PIL import Image
@@ -123,14 +137,20 @@ def teacher_detect(proc, model, device, image_bgr) -> list[dict]:
     inputs = proc(images=img, text=text, return_tensors="pt").to(device)
     with torch.no_grad():
         out = model(**inputs)
-    res = proc.post_process_grounded_object_detection(
-        out, inputs.input_ids, box_threshold=TEACHER_THRESHOLD,
-        text_threshold=0.15, target_sizes=[img.size[::-1]])[0]
+    # transformers renamed box_threshold→threshold across versions — accept both
+    try:
+        res = proc.post_process_grounded_object_detection(
+            out, inputs.input_ids, threshold=TEACHER_THRESHOLD,
+            text_threshold=0.15, target_sizes=[img.size[::-1]])[0]
+    except TypeError:
+        res = proc.post_process_grounded_object_detection(
+            out, inputs.input_ids, box_threshold=TEACHER_THRESHOLD,
+            text_threshold=0.15, target_sizes=[img.size[::-1]])[0]
+    labels = res.get("text_labels", res.get("labels"))
     dets = []
-    for box, score, label in zip(res["boxes"], res["scores"], res["labels"]):
-        cls = next((c for p, c in PROMPTS.items() if p.startswith(str(label)[:12])
-                    or str(label) in p or p in str(label)), None)
-        dets.append({"cls": cls or str(label), "box": [round(float(v), 1) for v in box],
+    for box, score, label in zip(res["boxes"], res["scores"], labels):
+        dets.append({"cls": map_prompt_label(label),
+                     "box": [round(float(v), 1) for v in box],
                      "score": round(float(score), 3)})
     return dets
 
@@ -146,6 +166,8 @@ def main() -> None:
     import torch
     from ultralytics import YOLO
 
+    for noisy in ("httpx", "httpcore", "urllib3", "huggingface_hub"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
     on_colab = os.path.isdir("/content")
     root = Path("/content/drive/MyDrive/nba_harvest") if on_colab else (
         Path.home() / "Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com"
@@ -154,6 +176,10 @@ def main() -> None:
     out_dir = root / "autolabels"
     (out_dir / "proposals").mkdir(parents=True, exist_ok=True)
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    if device == "cpu" and not os.environ.get("AUTOLABEL_CPU_OK"):
+        raise SystemExit("NO GPU: this pass is ~9 h on CPU vs ~1.5 h on T4. "
+                         "Runtime → Change runtime type → T4 GPU, then rerun. "
+                         "(Set AUTOLABEL_CPU_OK=1 to force CPU.)")
     log.info("device=%s corpus=%s", device, corpus)
 
     proc, teacher = load_teacher(device)
@@ -180,12 +206,34 @@ def main() -> None:
     if args.qualify:
         import config
         gt_files = sorted(config.TRACK_BOX_TRUTH.glob("*.json"))
+
+        # GT images are gitignored Mac-local files; on Colab they only exist
+        # inside the labels backup zip on Drive — index it by basename
+        zip_index, zf = {}, None
+        backups = sorted((root / "labels_backup").glob("labels_*.zip"))
+        if backups:
+            import zipfile
+            zf = zipfile.ZipFile(backups[-1])
+            zip_index = {Path(n).name: n for n in zf.namelist() if n.endswith(".jpg")}
+
+        def load_gt_image(rec):
+            import numpy as np
+            if os.path.exists(rec["image_path"]):
+                return cv2.imread(rec["image_path"])
+            name = Path(rec["image_path"]).name
+            if name in zip_index:
+                buf = np.frombuffer(zf.read(zip_index[name]), np.uint8)
+                return cv2.imdecode(buf, cv2.IMREAD_COLOR)
+            return None
+
         agg_t, agg_p = defaultdict(int), defaultdict(int)
+        n_eval = 0
         for gf in gt_files:
             rec = json.loads(gf.read_text())
-            img = cv2.imread(rec["image_path"]) if os.path.exists(rec["image_path"]) else None
+            img = load_gt_image(rec)
             if img is None:
                 continue
+            n_eval += 1
             gts = rec["boxes"]
             t_boxes = [d["box"] for d in teacher_detect(proc, teacher, device, img)
                        if d["cls"] == "player"]
@@ -194,12 +242,17 @@ def main() -> None:
                 m = pr_vs_gt(boxes, gts)
                 for k in ("tp", "fp", "fn"):
                     agg[k] += m[k]
+        if n_eval == 0:
+            raise SystemExit(
+                "qualification evaluated ZERO frames — GT images not found "
+                "locally or in the Drive labels_backup zip. Refusing to print "
+                "a 0/0/0 table that looks like a result (run-14 lesson).")
         def finish(a):
             p = a["tp"] / (a["tp"] + a["fp"]) if a["tp"] + a["fp"] else 0
             r = a["tp"] / (a["tp"] + a["fn"]) if a["tp"] + a["fn"] else 0
             return {**a, "precision": round(p, 3), "recall": round(r, 3),
                     "f1": round(2 * p * r / (p + r), 3) if p + r else 0}
-        result = {"frames": len(gt_files), "iou": 0.5,
+        result = {"frames": n_eval, "iou": 0.5,
                   "teacher_grounding_dino": finish(agg_t),
                   "pipeline_current": finish(agg_p),
                   "note": "player class vs human box_truth; teacher must WIN "
