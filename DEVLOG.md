@@ -9,6 +9,33 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-18 — Teacher pass ran; QUALIFICATION GATE FAILED THE TEACHER (working as designed)
+
+Run 15 (T4, 197 min): full corpus pass complete — 6,197 frames of proposals
+(GDINO @0.18 + yolov8x-pose + current detector side-by-side) on Drive under
+autolabels/, comparison report included. But the headline is the gate:
+
+**Grounding DINO-base LOST to the current detector on the human box_truth
+eval — P 0.70/R 0.94 vs P 0.956/R 0.967** (same scorer, same 50 frames).
+Even over-proposing, the teacher missed MORE real players (27 vs 15 FN).
+Rule 1 verdict: GDINO player boxes are NOT trusted as labels. The gate
+existed precisely to catch this before a $30 adjudication and a retrain on
+labels worse than the pipeline's own output.
+
+What survives untouched: rim/backboard/scorebug/pose + Claude attributes —
+classes where the pipeline scores zero, so "beat the pipeline" is vacuous.
+Open question for player boxes: the UNION (pipeline + non-duplicate teacher
+proposals) — recall bounded [.967, .997] from the FN counts; qualify now
+scores it explicitly and saves per-frame preds. If union ≈ pipeline, next
+candidates: OWLv2 / YOLO-World / high-recall COCO-person + Claude class
+separation (each a 5-min qualify run).
+
+Note on absolute numbers: this scorer's greedy matching reads the current
+detector at .956/.967 vs the recorded .887/.865 — different matcher, same
+weights; the head-to-head is internally fair, cross-eval comparisons aren't.
+
+---
+
 ## 2026-07-17b — Foundation Refresh: matchup eval paused (honest finding), external-teacher pipeline built
 
 **Matchup labeling paused as a FINDING, not a failure**: the user could not

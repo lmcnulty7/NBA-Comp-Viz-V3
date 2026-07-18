@@ -226,8 +226,9 @@ def main() -> None:
                 return cv2.imdecode(buf, cv2.IMREAD_COLOR)
             return None
 
-        agg_t, agg_p = defaultdict(int), defaultdict(int)
+        agg_t, agg_p, agg_u = defaultdict(int), defaultdict(int), defaultdict(int)
         n_eval = 0
+        preds_out = open(out_dir / "qualification_preds.jsonl", "w")
         for gf in gt_files:
             rec = json.loads(gf.read_text())
             img = load_gt_image(rec)
@@ -238,10 +239,19 @@ def main() -> None:
             t_boxes = [d["box"] for d in teacher_detect(proc, teacher, device, img)
                        if d["cls"] == "player"]
             p_boxes = [d["box"] for d in pipeline_detect(img) if d["cls"] == "player"]
-            for agg, boxes in ((agg_t, t_boxes), (agg_p, p_boxes)):
+            # union: pipeline boxes (higher precision) + teacher boxes that
+            # don't duplicate one — the candidate-set recall adjudication
+            # would work from. This is the number that decides whether the
+            # teacher adds ANY player the pipeline can't see.
+            u_boxes = p_boxes + [t for t in t_boxes
+                                 if max((iou(t, p) for p in p_boxes), default=0) < 0.5]
+            for agg, boxes in ((agg_t, t_boxes), (agg_p, p_boxes), (agg_u, u_boxes)):
                 m = pr_vs_gt(boxes, gts)
                 for k in ("tp", "fp", "fn"):
                     agg[k] += m[k]
+            preds_out.write(json.dumps({"frame": rec["frame"], "gt": gts,
+                                        "teacher": t_boxes, "pipeline": p_boxes}) + "\n")
+        preds_out.close()
         if n_eval == 0:
             raise SystemExit(
                 "qualification evaluated ZERO frames — GT images not found "
@@ -255,8 +265,13 @@ def main() -> None:
         result = {"frames": n_eval, "iou": 0.5,
                   "teacher_grounding_dino": finish(agg_t),
                   "pipeline_current": finish(agg_p),
-                  "note": "player class vs human box_truth; teacher must WIN "
-                          "(esp. recall) or its labels are not trusted (LABEL_SCHEMA rule 1)"}
+                  "union_candidates": finish(agg_u),
+                  "note": "player class vs human box_truth. Teacher labels are "
+                          "trusted only if teacher wins (LABEL_SCHEMA rule 1). "
+                          "union_candidates = pipeline + non-duplicate teacher "
+                          "boxes: the recall ceiling adjudication works from — "
+                          "if union recall ≈ pipeline recall, the teacher adds "
+                          "no players and a stronger teacher is needed."}
         (out_dir / "qualification.json").write_text(json.dumps(result, indent=1))
         log.info("QUALIFICATION: %s", json.dumps(result, indent=1))
         return
