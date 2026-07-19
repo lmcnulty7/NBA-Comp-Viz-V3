@@ -52,12 +52,18 @@ The image shows numbered candidate boxes. For EACH index return a JSON object:
  cls: player|referee|rim|backboard|scorebug|ball
    player = anyone in a team uniform or team warmups, INCLUDING bench players.
    referee = game officials only. Street clothes = keep=false, never player.
+   rim/backboard/ball/scorebug NEVER apply to a box containing a person — if a
+   box shows a person, cls must be player or referee, or keep=false.
+   scorebug = the broadcast GRAPHICS panel with team scores and game clock
+   (usually a rectangle near a frame edge). Arena scoreboards, shot clocks and
+   ad boards are NOT scorebug → keep=false.
  tight: true/false (box edges within ~5% of the object's true extent)
  occlusion: visible|partial|heavy (players only)
  team_kit: light|dark|other (players only — uniform lightness, not team identity)
- on_court: players only. true ONLY if the player is ON the playing floor as part
-   of live play or a free-throw formation. Bench players, players at the scorer's
-   table, and anyone outside the sidelines/baseline: false.
+ on_court: REQUIRED for every kept player, never omit it. true ONLY if the
+   player is ON the playing floor as part of live play or a free-throw
+   formation. Bench players (seated OR standing in the bench row), players at
+   the scorer's table, and anyone outside the sidelines/baseline: false.
  number: jersey number 0-99 if clearly readable, else null
 Also return shot_type for the WHOLE frame: wide_broadcast|closeup|replay|graphic|split_screen.
 Reply with ONLY JSON: {"shot_type": ..., "boxes": {"<idx>": {...}, ...}}"""
@@ -194,6 +200,93 @@ def call_claude(client, model, system, img_b64, user_text, costs) -> dict | None
         return None
 
 
+def ioa(a, b) -> float:
+    """Intersection over a's own area — how much of box a lies inside box b."""
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    aa = (a[2] - a[0]) * (a[3] - a[1])
+    return (ix * iy) / aa if aa > 0 else 0.0
+
+
+def prefilter(cands: list[dict], containers: list[dict] | None = None
+              ) -> tuple[list[dict], list[dict]]:
+    """Free geometric rejections BEFORE any API call (pilot-3 lesson: both
+    judges fail on tiny fragment boxes — so don't show them fragments):
+      · a small person-class box ≥85% contained in a much bigger person-class
+        box is a torso/number FRAGMENT of that player, not a second person.
+        `containers` must include the PRE-ACCEPTED boxes too — pilot 4: the
+        full-body boxes fragments live inside are usually agreements, so
+        checking only the disagreement band missed every chest box;
+      · person-class boxes under a minimum area are unjudgeable at 1092 px.
+    Ball is exempt (legitimately tiny). Rejections returned for accounting."""
+    person = ("player", "referee")
+    pool = cands + (containers or [])
+    kept, rejected = [], []
+    for c in cands:
+        b = c["box"]
+        area = (b[2] - b[0]) * (b[3] - b[1])
+        reason = None
+        if c["cls"] in person:
+            if area < 900:
+                reason = "prefilter_min_area"
+            else:
+                for o in pool:
+                    if o is c or o["cls"] not in person:
+                        continue
+                    ob = o["box"]
+                    oarea = (ob[2] - ob[0]) * (ob[3] - ob[1])
+                    if oarea > 0 and area / oarea < 0.35 and ioa(b, ob) >= 0.85:
+                        reason = "prefilter_fragment"
+                        break
+        if reason:
+            rejected.append(dict(c, reject=reason))
+        else:
+            kept.append(c)
+    return kept, rejected
+
+
+def sanity_filter(box, verdict) -> dict:
+    """Deterministic class-sanity AFTER the verdict (both judges hand object
+    classes to people): a clearly person-shaped box cannot be rim/backboard/
+    scorebug/ball — flip to keep=false rather than trust the class."""
+    w, h = box[2] - box[0], box[3] - box[1]
+    person_shaped = h > 1.3 * w and h > 60
+    if verdict.get("keep") and person_shaped and \
+            verdict.get("cls") in ("rim", "backboard", "scorebug", "ball"):
+        return {**verdict, "keep": False, "sanity": "object_class_on_person_shape"}
+    # inverse (pilot 4: the scorebug kept as 'player'): standing humans are
+    # never much wider than tall — person classes on flat-wide boxes are junk
+    if verdict.get("keep") and w > 1.8 * h and \
+            verdict.get("cls") in ("player", "referee"):
+        return {**verdict, "keep": False, "sanity": "person_class_on_wide_shape"}
+    return verdict
+
+
+def containment_pass(adj: list[dict], verdicts: dict, pre: list[dict]) -> dict:
+    """Post-verdict fragment sweep (pilot 5): ball-class PROPOSALS bypass the
+    prefilter (balls are legitimately small and held by players), but when the
+    JUDGE relabels such a box to player/backboard/etc. while it sits ≥85%
+    inside a kept person box at <35% of its area, it's a chest/number fragment
+    after all — flip it. A kept `ball` inside a player box stays (held ball)."""
+    person_boxes = [c["box"] for c in pre]
+    person_boxes += [adj[int(i)]["box"] for i, v in verdicts.items()
+                     if v.get("keep") and v.get("cls") in ("player", "referee")]
+    out = {}
+    for i, v in verdicts.items():
+        b = adj[int(i)]["box"]
+        area = (b[2] - b[0]) * (b[3] - b[1])
+        if v.get("keep") and v.get("cls") != "ball":
+            for pb in person_boxes:
+                if pb == b:
+                    continue
+                parea = (pb[2] - pb[0]) * (pb[3] - pb[1])
+                if parea > 0 and area / parea < 0.35 and ioa(b, pb) >= 0.85:
+                    v = {**v, "keep": False, "sanity": "contained_fragment"}
+                    break
+        out[i] = v
+    return out
+
+
 def disagreement_band(rec) -> tuple[list, list]:
     """(pre_accepted, needs_adjudication): teacher∩pipeline agreements are
     pre-accepted; teacher-only + pipeline-only + all non-overlap classes go to
@@ -251,15 +344,21 @@ def main() -> None:
                 if img is None:
                     continue
                 pre, adj = disagreement_band(rec)
+                adj, auto_rejected = prefilter(adj, containers=pre)
                 verdict = call_claude(
                     client, args.box_model, BOX_SYSTEM,
                     b64_image(render_candidates(img, adj)),
                     f"{len(adj)} candidate boxes (indices 0..{len(adj) - 1}).", costs)
                 if verdict is None:
                     continue
+                verdicts = {i: sanity_filter(adj[int(i)]["box"], v)
+                            for i, v in verdict.get("boxes", {}).items()
+                            if str(i).isdigit() and int(i) < len(adj)}
+                verdicts = containment_pass(adj, verdicts, pre)
                 out = {"tag": tag, "frame": rec["frame"],
                        "pre_accepted": pre, "adjudicated": adj,
-                       "verdicts": verdict.get("boxes", {}),
+                       "auto_rejected": auto_rejected,
+                       "verdicts": verdicts,
                        "shot_type": verdict.get("shot_type")}
                 fh.write(json.dumps(out) + "\n")
                 if verdict.get("shot_type") == "wide_broadcast" and k % args.court_every == 0:

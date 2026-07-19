@@ -76,3 +76,41 @@ def test_cluster_points_merges_and_ranks_by_support():
     assert len(out) == 2
     assert abs(out[0][0] - 11) < 1.5 and abs(out[0][1] - 10) < 1.5  # 3-support first
     assert out[1] == (500.0, 500.0)
+
+
+# ── v3 free filters: fragments die before the API, absurd classes die after ──
+def test_prefilter_drops_contained_fragment_keeps_real_overlap():
+    from adjudicate_labels import prefilter
+    big = {"cls": "player", "box": [100, 100, 180, 300]}          # full player
+    frag = {"cls": "player", "box": [125, 140, 155, 175]}         # chest number
+    partial = {"cls": "player", "box": [160, 120, 240, 310]}      # occluding player
+    tiny = {"cls": "player", "box": [0, 0, 12, 20]}               # sub-min-area
+    ball = {"cls": "ball", "box": [300, 300, 318, 318]}           # small is fine
+    kept, rej = prefilter([big, frag, partial, tiny, ball])
+    assert big in kept and partial in kept and ball in kept
+    reasons = {r["reject"] for r in rej}
+    assert reasons == {"prefilter_fragment", "prefilter_min_area"}
+
+
+def test_sanity_filter_flips_object_class_on_person_shape():
+    from adjudicate_labels import sanity_filter
+    person_box = [100, 100, 160, 300]                             # tall
+    v = sanity_filter(person_box, {"keep": True, "cls": "rim"})
+    assert v["keep"] is False and v["sanity"]
+    ok = sanity_filter(person_box, {"keep": True, "cls": "player"})
+    assert ok["keep"] is True
+    wide_box = [100, 100, 300, 160]                               # backboard-ish
+    bb = sanity_filter(wide_box, {"keep": True, "cls": "backboard"})
+    assert bb["keep"] is True
+
+
+def test_containment_pass_flips_relabeled_fragment_keeps_held_ball():
+    from adjudicate_labels import containment_pass
+    pre = [{"cls": "player", "box": [100, 100, 180, 300]}]
+    adj = [{"cls": "ball", "box": [125, 140, 155, 172]},   # chest box GDINO called ball
+           {"cls": "ball", "box": [130, 200, 158, 228]}]   # actual held ball
+    verdicts = {"0": {"keep": True, "cls": "player"},      # judge relabeled → fragment
+                "1": {"keep": True, "cls": "ball"}}        # judge kept as ball → stays
+    out = containment_pass(adj, verdicts, pre)
+    assert out["0"]["keep"] is False and out["0"]["sanity"] == "contained_fragment"
+    assert out["1"]["keep"] is True
