@@ -30,6 +30,8 @@ LABEL_DIRS = [
     "data/clock_eval",
     "data/poss_eval",
     "data/anchor_truth.json",
+    "data/matchup_eval",
+    "data/label_audit",
 ]
 DRIVE = Path.home() / ("Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com"
                        "/My Drive/nba_harvest/labels_backup")

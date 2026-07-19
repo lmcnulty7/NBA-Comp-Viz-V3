@@ -114,3 +114,20 @@ def test_containment_pass_flips_relabeled_fragment_keeps_held_ball():
     out = containment_pass(adj, verdicts, pre)
     assert out["0"]["keep"] is False and out["0"]["sanity"] == "contained_fragment"
     assert out["1"]["keep"] is True
+
+
+# ── audit tool: report math (labeling itself is human-driven) ────────────────
+def test_audit_report_math():
+    from label_audit import make_report
+    sample = [{"key": k, "stratum": st} for k, st in
+              [("a", "rim"), ("b", "rim"), ("c", "adj_player"),
+               ("d", "adj_player"), ("e", "adj_player"), ("f", "scorebug")]]
+    labels = {"a": {"verdict": "y"}, "b": {"verdict": "b"},
+              "c": {"verdict": "y"}, "d": {"verdict": "a"},
+              "e": {"verdict": "u"}}                     # f unaudited
+    rep = make_report(sample, labels)
+    assert rep["audited"] == 5 and rep["sampled"] == 6
+    ov = rep["overall"]
+    assert (ov["n_judged"], ov["correct"], ov["attribute_wrong"], ov["unsure"]) == (4, 2, 1, 1)
+    assert rep["by_stratum"]["rim"]["accuracy"] == 0.5
+    assert rep["by_stratum"]["adj_player"]["attribute_wrong"] == 1

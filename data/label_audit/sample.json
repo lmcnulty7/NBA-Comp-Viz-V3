@@ -1,0 +1,4847 @@
+[
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 2947,
+  "box": [
+   256.4,
+   568.2,
+   1014.8,
+   661.7
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_55m00_63m00@2947#0",
+  "crop": "crops/0000.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 381088,
+  "box": [
+   0.1,
+   211.7,
+   1280.0,
+   714.7
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_cle_2017f_g5@381088#1",
+  "crop": "crops/0001.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 98981,
+  "box": [
+   758.8,
+   208.2,
+   812.0,
+   316.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sac_klay37@98981#2",
+  "crop": "crops/0002.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 127009,
+  "box": [
+   0.6,
+   164.8,
+   54.0,
+   381.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_splash62@127009#3",
+  "crop": "crops/0003.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 7839,
+  "box": [
+   664.1,
+   183.9,
+   708.9,
+   273.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@7839#4",
+  "crop": "crops/0004.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 76471,
+  "box": [
+   1076.3,
+   140.7,
+   1169.8,
+   283.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@76471#5",
+  "crop": "crops/0005.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 12555,
+  "box": [
+   730.3,
+   113.4,
+   785.3,
+   224.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_55m00_63m00@12555#6",
+  "crop": "crops/0006.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 56410,
+  "box": [
+   851.5,
+   178.7,
+   917.7,
+   310.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_hou_duel@56410#7",
+  "crop": "crops/0007.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 10198,
+  "box": [
+   760.5,
+   165.4,
+   827.2,
+   231.1
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_splash62@10198#8",
+  "crop": "crops/0008.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 84497,
+  "box": [
+   978.2,
+   153.3,
+   1016.8,
+   190.1
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_2016f_g7@84497#9",
+  "crop": "crops/0009.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 3389,
+  "box": [
+   344.3,
+   347.8,
+   437.3,
+   487.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_10m00_18m00@3389#10",
+  "crop": "crops/0010.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 4536,
+  "box": [
+   1060.3,
+   14.4,
+   1104.9,
+   64.9
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_26m00_34m00@4536#11",
+  "crop": "crops/0011.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 83179,
+  "box": [
+   1109.8,
+   41.0,
+   1165.2,
+   94.3
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_mia_2017@83179#12",
+  "crop": "crops/0012.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 76806,
+  "box": [
+   354.7,
+   240.1,
+   416.1,
+   402.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_hou_duel@76806#13",
+  "crop": "crops/0013.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 109995,
+  "box": [
+   670.6,
+   31.1,
+   696.5,
+   58.4
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_phx_2016@109995#14",
+  "crop": "crops/0014.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 159818,
+  "box": [
+   883.8,
+   390.6,
+   1055.8,
+   554.6
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_splash62@159818#15",
+  "crop": "crops/0015.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 120056,
+  "box": [
+   645.9,
+   218.1,
+   696.9,
+   298.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g1@120056#16",
+  "crop": "crops/0016.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 8205,
+  "box": [
+   75.6,
+   504.4,
+   159.3,
+   600.6
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_40m00_48m00@8205#17",
+  "crop": "crops/0017.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 10282,
+  "box": [
+   2.3,
+   312.8,
+   222.3,
+   421.9
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_70m00_78m00@10282#18",
+  "crop": "crops/0018.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 32082,
+  "box": [
+   896.9,
+   405.8,
+   919.2,
+   426.7
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_cle_2017f_g5@32082#19",
+  "crop": "crops/0019.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 78451,
+  "box": [
+   916.8,
+   206.4,
+   1018.0,
+   412.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_mia_2017@78451#20",
+  "crop": "crops/0020.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 7104,
+  "box": [
+   169.7,
+   95.6,
+   225.6,
+   157.1
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_26m00_34m00@7104#21",
+  "crop": "crops/0021.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 8693,
+  "box": [
+   796.2,
+   126.2,
+   846.7,
+   188.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_40m00_48m00@8693#22",
+  "crop": "crops/0022.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 38283,
+  "box": [
+   256.7,
+   1.0,
+   291.5,
+   60.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_2016f_g7@38283#23",
+  "crop": "crops/0023.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 113040,
+  "box": [
+   662.9,
+   250.6,
+   730.4,
+   417.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_splash62@113040#24",
+  "crop": "crops/0024.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 7727,
+  "box": [
+   714.7,
+   91.0,
+   757.7,
+   173.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_70m00_78m00@7727#25",
+  "crop": "crops/0025.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 112132,
+  "box": [
+   1031.0,
+   59.6,
+   1107.0,
+   166.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sas_2016@112132#26",
+  "crop": "crops/0026.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 3792,
+  "box": [
+   1157.6,
+   332.2,
+   1222.8,
+   485.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_70m00_78m00@3792#27",
+  "crop": "crops/0027.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 1317,
+  "box": [
+   1221.6,
+   124.1,
+   1266.7,
+   144.3
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_40m00_48m00@1317#28",
+  "crop": "crops/0028.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 875,
+  "box": [
+   704.1,
+   174.6,
+   767.7,
+   364.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sac_klay37@875#29",
+  "crop": "crops/0029.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 137090,
+  "box": [
+   822.3,
+   318.8,
+   887.8,
+   522.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@137090#30",
+  "crop": "crops/0030.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 2070,
+  "box": [
+   495.1,
+   199.9,
+   517.6,
+   223.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_55m00_63m00@2070#31",
+  "crop": "crops/0031.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 97351,
+  "box": [
+   649.9,
+   185.2,
+   705.7,
+   301.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_2016f_g7@97351#32",
+  "crop": "crops/0032.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 112302,
+  "box": [
+   762.1,
+   324.3,
+   879.0,
+   511.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@112302#33",
+  "crop": "crops/0033.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 127817,
+  "box": [
+   933.4,
+   399.8,
+   1004.9,
+   591.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_ind_klay60@127817#34",
+  "crop": "crops/0034.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 3959,
+  "box": [
+   737.5,
+   1.0,
+   806.5,
+   60.6
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_10m00_18m00@3959#35",
+  "crop": "crops/0035.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 9715,
+  "box": [
+   493.9,
+   305.4,
+   555.9,
+   378.6
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "curry_q1_clip@9715#36",
+  "crop": "crops/0036.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 81487,
+  "box": [
+   373.7,
+   299.2,
+   410.2,
+   370.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@81487#37",
+  "crop": "crops/0037.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 11212,
+  "box": [
+   498.0,
+   -0.6,
+   1108.2,
+   105.1
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_55m00_63m00@11212#38",
+  "crop": "crops/0038.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 74088,
+  "box": [
+   914.7,
+   335.0,
+   968.0,
+   432.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@74088#39",
+  "crop": "crops/0039.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 4875,
+  "box": [
+   822.7,
+   134.2,
+   848.8,
+   157.3
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_10m00_18m00@4875#40",
+  "crop": "crops/0040.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 106313,
+  "box": [
+   832.6,
+   331.0,
+   914.4,
+   513.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_bos_2016@106313#41",
+  "crop": "crops/0041.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 79524,
+  "box": [
+   57.9,
+   353.4,
+   133.9,
+   568.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g6@79524#42",
+  "crop": "crops/0042.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 7320,
+  "box": [
+   152.0,
+   39.3,
+   204.1,
+   93.9
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_40m00_48m00@7320#43",
+  "crop": "crops/0043.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 6965,
+  "box": [
+   566.1,
+   147.6,
+   624.8,
+   237.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_40m00_48m00@6965#44",
+  "crop": "crops/0044.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 7243,
+  "box": [
+   181.5,
+   621.0,
+   234.3,
+   718.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@7243#45",
+  "crop": "crops/0045.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 194413,
+  "box": [
+   566.6,
+   170.8,
+   613.4,
+   221.5
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_phx_2016@194413#46",
+  "crop": "crops/0046.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 64120,
+  "box": [
+   503.6,
+   154.9,
+   740.8,
+   501.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@64120#47",
+  "crop": "crops/0047.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 103430,
+  "box": [
+   64.6,
+   430.1,
+   179.0,
+   640.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_mia_2017@103430#48",
+  "crop": "crops/0048.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 5852,
+  "box": [
+   187.1,
+   380.8,
+   659.1,
+   429.3
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "curry_classic_clip@5852#49",
+  "crop": "crops/0049.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 8316,
+  "box": [
+   153.2,
+   222.0,
+   279.8,
+   477.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_q1_clip@8316#50",
+  "crop": "crops/0050.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 138891,
+  "box": [
+   685.7,
+   227.1,
+   762.0,
+   368.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sac_klay37@138891#51",
+  "crop": "crops/0051.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 131935,
+  "box": [
+   693.7,
+   252.4,
+   755.7,
+   403.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sas_2016@131935#52",
+  "crop": "crops/0052.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 270882,
+  "box": [
+   36.2,
+   76.1,
+   109.7,
+   136.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_phx_2016@270882#53",
+  "crop": "crops/0053.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 110278,
+  "box": [
+   826.3,
+   499.6,
+   915.1,
+   687.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "number": 8,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sac_klay37@110278#54",
+  "crop": "crops/0054.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 46406,
+  "box": [
+   229.9,
+   166.1,
+   284.4,
+   232.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "number": 9,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@46406#55",
+  "crop": "crops/0055.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 353057,
+  "box": [
+   523.6,
+   209.8,
+   814.5,
+   492.0
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_okc_2016wcf_g1@353057#56",
+  "crop": "crops/0056.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 4651,
+  "box": [
+   379.5,
+   347.8,
+   963.3,
+   712.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_26m00_34m00@4651#57",
+  "crop": "crops/0057.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 352970,
+  "box": [
+   408.9,
+   421.9,
+   468.9,
+   494.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_2017f_g5@352970#58",
+  "crop": "crops/0058.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 176210,
+  "box": [
+   1177.9,
+   540.1,
+   1267.6,
+   716.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_splash62@176210#59",
+  "crop": "crops/0059.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 1456,
+  "box": [
+   156.3,
+   170.5,
+   217.3,
+   297.6
+  ],
+  "cls": "referee",
+  "attrs": {
+   "occlusion": "visible"
+  },
+  "stratum": "referee",
+  "key": "clip_26m00_34m00@1456#60",
+  "crop": "crops/0060.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 7195,
+  "box": [
+   304.5,
+   221.2,
+   385.3,
+   393.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_40m00_48m00@7195#61",
+  "crop": "crops/0061.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 111731,
+  "box": [
+   885.7,
+   417.9,
+   958.4,
+   632.4
+  ],
+  "cls": "referee",
+  "attrs": {
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "referee",
+  "key": "gsw_cle_xmas16@111731#62",
+  "crop": "crops/0062.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 1724,
+  "box": [
+   701.6,
+   420.9,
+   763.2,
+   566.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "number": 42,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_10m00_18m00@1724#63",
+  "crop": "crops/0063.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 35722,
+  "box": [
+   583.2,
+   591.4,
+   687.9,
+   718.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_ind_klay60@35722#64",
+  "crop": "crops/0064.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 261477,
+  "box": [
+   810.4,
+   547.8,
+   1199.1,
+   638.2
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_okc_2016wcf_g1@261477#65",
+  "crop": "crops/0065.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 2989,
+  "box": [
+   211.5,
+   19.6,
+   266.1,
+   79.6
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_70m00_78m00@2989#66",
+  "crop": "crops/0066.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 39899,
+  "box": [
+   333.2,
+   554.4,
+   937.4,
+   645.2
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_sas_2016@39899#67",
+  "crop": "crops/0067.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 7424,
+  "box": [
+   243.4,
+   61.5,
+   287.3,
+   110.0
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_55m00_63m00@7424#68",
+  "crop": "crops/0068.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 351716,
+  "box": [
+   246.6,
+   175.0,
+   323.0,
+   240.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_2017f_g5@351716#69",
+  "crop": "crops/0069.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 39489,
+  "box": [
+   1123.7,
+   31.4,
+   1167.7,
+   77.5
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_hou_duel@39489#70",
+  "crop": "crops/0070.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 26300,
+  "box": [
+   983.2,
+   70.3,
+   1068.1,
+   111.4
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_mia_2017@26300#71",
+  "crop": "crops/0071.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 145326,
+  "box": [
+   935.3,
+   211.4,
+   1017.8,
+   251.0
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_cle_xmas16@145326#72",
+  "crop": "crops/0072.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 68262,
+  "box": [
+   798.3,
+   138.4,
+   873.6,
+   269.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_mia_2017@68262#73",
+  "crop": "crops/0073.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 1428,
+  "box": [
+   352.8,
+   184.1,
+   404.3,
+   271.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@1428#74",
+  "crop": "crops/0074.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 43080,
+  "box": [
+   984.2,
+   374.0,
+   1038.8,
+   550.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2017f_g5@43080#75",
+  "crop": "crops/0075.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 64480,
+  "box": [
+   432.7,
+   384.7,
+   494.3,
+   546.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@64480#76",
+  "crop": "crops/0076.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 35083,
+  "box": [
+   401.9,
+   257.1,
+   489.2,
+   400.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@35083#77",
+  "crop": "crops/0077.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 8328,
+  "box": [
+   492.4,
+   150.2,
+   535.7,
+   197.1
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_55m00_63m00@8328#78",
+  "crop": "crops/0078.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 13567,
+  "box": [
+   905.7,
+   63.3,
+   942.8,
+   94.6
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_26m00_34m00@13567#79",
+  "crop": "crops/0079.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 7211,
+  "box": [
+   740.9,
+   348.2,
+   807.9,
+   493.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@7211#80",
+  "crop": "crops/0080.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 112204,
+  "box": [
+   610.8,
+   451.4,
+   651.9,
+   564.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@112204#81",
+  "crop": "crops/0081.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 166904,
+  "box": [
+   749.4,
+   249.2,
+   801.2,
+   384.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@166904#82",
+  "crop": "crops/0082.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 95617,
+  "box": [
+   944.6,
+   38.7,
+   1051.2,
+   205.1
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_bos_2016@95617#83",
+  "crop": "crops/0083.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 156623,
+  "box": [
+   90.7,
+   261.6,
+   206.5,
+   459.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g1@156623#84",
+  "crop": "crops/0084.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 74633,
+  "box": [
+   34.7,
+   -0.2,
+   117.8,
+   100.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_ind_klay60@74633#85",
+  "crop": "crops/0085.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 14350,
+  "box": [
+   644.5,
+   126.9,
+   685.2,
+   237.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@14350#86",
+  "crop": "crops/0086.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 38691,
+  "box": [
+   995.1,
+   88.5,
+   1022.6,
+   143.1
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_sas_2016@38691#87",
+  "crop": "crops/0087.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 57686,
+  "box": [
+   286.9,
+   564.0,
+   983.2,
+   645.9
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_phx_2016@57686#88",
+  "crop": "crops/0088.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 3459,
+  "box": [
+   675.0,
+   465.0,
+   738.6,
+   609.0
+  ],
+  "cls": "referee",
+  "attrs": {
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "referee",
+  "key": "clip_70m00_78m00@3459#89",
+  "crop": "crops/0089.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 4830,
+  "box": [
+   661.7,
+   248.1,
+   757.5,
+   388.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_10m00_18m00@4830#90",
+  "crop": "crops/0090.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 79862,
+  "box": [
+   268.8,
+   234.5,
+   512.8,
+   531.9
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_cle_2017f_g5@79862#91",
+  "crop": "crops/0091.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 223126,
+  "box": [
+   808.7,
+   543.9,
+   1198.3,
+   637.4
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "gsw_okc_2016wcf_g1@223126#92",
+  "crop": "crops/0092.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 5292,
+  "box": [
+   444.4,
+   343.9,
+   470.1,
+   404.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_26m00_34m00@5292#93",
+  "crop": "crops/0093.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 106694,
+  "box": [
+   0.5,
+   319.3,
+   106.1,
+   510.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@106694#94",
+  "crop": "crops/0094.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 12199,
+  "box": [
+   1016.0,
+   555.2,
+   1118.3,
+   718.1
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@12199#95",
+  "crop": "crops/0095.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 52484,
+  "box": [
+   230.7,
+   57.2,
+   273.8,
+   103.7
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_hou_duel@52484#96",
+  "crop": "crops/0096.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 63666,
+  "box": [
+   999.0,
+   42.4,
+   1118.2,
+   99.1
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_ind_klay60@63666#97",
+  "crop": "crops/0097.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 35730,
+  "box": [
+   208.8,
+   151.2,
+   247.0,
+   189.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_splash62@35730#98",
+  "crop": "crops/0098.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 8020,
+  "box": [
+   312.1,
+   212.1,
+   360.3,
+   342.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@8020#99",
+  "crop": "crops/0099.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 61702,
+  "box": [
+   553.7,
+   358.8,
+   655.9,
+   507.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_bos_2016@61702#100",
+  "crop": "crops/0100.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 358745,
+  "box": [
+   323.3,
+   299.7,
+   415.0,
+   526.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g1@358745#101",
+  "crop": "crops/0101.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 98981,
+  "box": [
+   394.4,
+   0.1,
+   431.3,
+   32.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sac_klay37@98981#102",
+  "crop": "crops/0102.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 16604,
+  "box": [
+   682.0,
+   212.5,
+   707.8,
+   281.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@16604#103",
+  "crop": "crops/0103.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 2653,
+  "box": [
+   480.6,
+   61.2,
+   683.8,
+   120.8
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_10m00_18m00@2653#104",
+  "crop": "crops/0104.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 1016,
+  "box": [
+   584.4,
+   210.4,
+   664.8,
+   372.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@1016#105",
+  "crop": "crops/0105.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 96562,
+  "box": [
+   48.8,
+   293.5,
+   558.7,
+   432.7
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_nyk_curry54@96562#106",
+  "crop": "crops/0106.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 6595,
+  "box": [
+   430.3,
+   129.5,
+   498.7,
+   238.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_70m00_78m00@6595#107",
+  "crop": "crops/0107.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 132297,
+  "box": [
+   306.0,
+   250.8,
+   776.0,
+   573.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "number": 35,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g6@132297#108",
+  "crop": "crops/0108.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 86449,
+  "box": [
+   236.7,
+   15.5,
+   438.5,
+   160.9
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "gsw_cle_2016f_g7@86449#109",
+  "crop": "crops/0109.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 2255,
+  "box": [
+   1000.1,
+   351.9,
+   1021.4,
+   373.7
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "clip_26m00_34m00@2255#110",
+  "crop": "crops/0110.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 274874,
+  "box": [
+   810.7,
+   547.2,
+   1199.6,
+   638.3
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_okc_2016wcf_g1@274874#111",
+  "crop": "crops/0111.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 4446,
+  "box": [
+   181.3,
+   198.3,
+   236.9,
+   337.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@4446#112",
+  "crop": "crops/0112.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 11852,
+  "box": [
+   226.2,
+   33.1,
+   296.1,
+   66.4
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "curry_q1_clip@11852#113",
+  "crop": "crops/0113.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 17892,
+  "box": [
+   326.2,
+   97.0,
+   360.8,
+   176.1
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@17892#114",
+  "crop": "crops/0114.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 8192,
+  "box": [
+   794.6,
+   270.3,
+   858.8,
+   425.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@8192#115",
+  "crop": "crops/0115.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 2452,
+  "box": [
+   539.1,
+   292.7,
+   684.5,
+   482.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2017f_g5@2452#116",
+  "crop": "crops/0116.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 7984,
+  "box": [
+   481.1,
+   2.4,
+   644.4,
+   129.2
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_26m00_34m00@7984#117",
+  "crop": "crops/0117.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 3584,
+  "box": [
+   588.0,
+   114.3,
+   614.1,
+   124.1
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "curry_q1_clip@3584#118",
+  "crop": "crops/0118.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 3726,
+  "box": [
+   880.9,
+   135.2,
+   923.2,
+   151.5
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_70m00_78m00@3726#119",
+  "crop": "crops/0119.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 123476,
+  "box": [
+   601.8,
+   430.2,
+   687.2,
+   592.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_mia_2017@123476#120",
+  "crop": "crops/0120.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 153850,
+  "box": [
+   461.3,
+   380.2,
+   529.5,
+   481.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_bos_2016@153850#121",
+  "crop": "crops/0121.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 46854,
+  "box": [
+   316.7,
+   569.1,
+   958.7,
+   631.5
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_nyk_curry54@46854#122",
+  "crop": "crops/0122.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 62880,
+  "box": [
+   692.5,
+   72.9,
+   726.7,
+   102.7
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_cle_2016f_g7@62880#123",
+  "crop": "crops/0123.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 115976,
+  "box": [
+   425.2,
+   322.3,
+   479.9,
+   565.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_mia_2017@115976#124",
+  "crop": "crops/0124.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 37425,
+  "box": [
+   95.3,
+   237.6,
+   159.2,
+   370.0
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_okc_2016wcf_g6@37425#125",
+  "crop": "crops/0125.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 4889,
+  "box": [
+   272.4,
+   563.7,
+   1019.0,
+   649.8
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_70m00_78m00@4889#126",
+  "crop": "crops/0126.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 14202,
+  "box": [
+   257.0,
+   297.9,
+   279.4,
+   317.2
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_26m00_34m00@14202#127",
+  "crop": "crops/0127.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 147234,
+  "box": [
+   994.3,
+   543.2,
+   1223.0,
+   647.4
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_ind_klay60@147234#128",
+  "crop": "crops/0128.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 157089,
+  "box": [
+   133.2,
+   -0.6,
+   196.8,
+   78.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_mia_2017@157089#129",
+  "crop": "crops/0129.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 14325,
+  "box": [
+   892.0,
+   184.1,
+   948.4,
+   310.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_40m00_48m00@14325#130",
+  "crop": "crops/0130.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 110337,
+  "box": [
+   881.3,
+   327.0,
+   969.9,
+   469.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@110337#131",
+  "crop": "crops/0131.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 3302,
+  "box": [
+   566.7,
+   83.9,
+   592.5,
+   92.6
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "curry_q1_clip@3302#132",
+  "crop": "crops/0132.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 14057,
+  "box": [
+   746.7,
+   379.9,
+   767.8,
+   398.3
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "clip_26m00_34m00@14057#133",
+  "crop": "crops/0133.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 10711,
+  "box": [
+   90.0,
+   418.3,
+   153.8,
+   500.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": true,
+   "number": 2,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_70m00_78m00@10711#134",
+  "crop": "crops/0134.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 110089,
+  "box": [
+   1140.4,
+   0.3,
+   1191.8,
+   39.4
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_phx_2016@110089#135",
+  "crop": "crops/0135.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 13139,
+  "box": [
+   997.8,
+   416.0,
+   1173.3,
+   481.7
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_55m00_63m00@13139#136",
+  "crop": "crops/0136.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 7983,
+  "box": [
+   410.2,
+   203.2,
+   625.4,
+   532.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@7983#137",
+  "crop": "crops/0137.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 11648,
+  "box": [
+   604.9,
+   276.1,
+   620.7,
+   291.5
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "curry_q1_clip@11648#138",
+  "crop": "crops/0138.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 375941,
+  "box": [
+   506.9,
+   16.5,
+   717.1,
+   99.3
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "gsw_okc_2016wcf_g1@375941#139",
+  "crop": "crops/0139.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 27225,
+  "box": [
+   269.2,
+   565.8,
+   999.6,
+   653.6
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_cle_2016f_g7@27225#140",
+  "crop": "crops/0140.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 1034,
+  "box": [
+   885.3,
+   15.1,
+   998.6,
+   282.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_40m00_48m00@1034#141",
+  "crop": "crops/0141.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 13513,
+  "box": [
+   1153.1,
+   47.5,
+   1241.4,
+   130.1
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_40m00_48m00@13513#142",
+  "crop": "crops/0142.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 124622,
+  "box": [
+   150.3,
+   254.1,
+   246.5,
+   419.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sac_klay37@124622#143",
+  "crop": "crops/0143.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 964,
+  "box": [
+   1050.8,
+   510.9,
+   1198.6,
+   687.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@964#144",
+  "crop": "crops/0144.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 15712,
+  "box": [
+   553.2,
+   148.3,
+   599.5,
+   275.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@15712#145",
+  "crop": "crops/0145.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 98959,
+  "box": [
+   457.2,
+   102.6,
+   499.1,
+   153.1
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_nyk_curry54@98959#146",
+  "crop": "crops/0146.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 199345,
+  "box": [
+   807.8,
+   543.9,
+   1196.6,
+   638.6
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_okc_2016wcf_g1@199345#147",
+  "crop": "crops/0147.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 155699,
+  "box": [
+   148.6,
+   183.9,
+   189.3,
+   301.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_bos_2016@155699#148",
+  "crop": "crops/0148.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 5386,
+  "box": [
+   737.5,
+   89.7,
+   758.8,
+   114.7
+  ],
+  "cls": "referee",
+  "attrs": {
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "referee",
+  "key": "curry_q1_clip@5386#149",
+  "crop": "crops/0149.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 10581,
+  "box": [
+   752.1,
+   501.9,
+   849.8,
+   714.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g6@10581#150",
+  "crop": "crops/0150.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 4234,
+  "box": [
+   293.8,
+   229.2,
+   338.9,
+   291.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": true,
+   "number": 30,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_10m00_18m00@4234#151",
+  "crop": "crops/0151.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 23417,
+  "box": [
+   821.0,
+   550.5,
+   1134.4,
+   637.6
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_splash62@23417#152",
+  "crop": "crops/0152.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 127970,
+  "box": [
+   645.2,
+   468.1,
+   668.7,
+   488.1
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_bos_2016@127970#153",
+  "crop": "crops/0153.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 8286,
+  "box": [
+   803.8,
+   30.2,
+   891.4,
+   130.9
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_70m00_78m00@8286#154",
+  "crop": "crops/0154.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 11788,
+  "box": [
+   398.4,
+   212.4,
+   456.1,
+   283.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_55m00_63m00@11788#155",
+  "crop": "crops/0155.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 145407,
+  "box": [
+   947.8,
+   190.2,
+   1192.4,
+   396.9
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_mia_2017@145407#156",
+  "crop": "crops/0156.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 121707,
+  "box": [
+   795.3,
+   202.4,
+   918.5,
+   370.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@121707#157",
+  "crop": "crops/0157.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 2673,
+  "box": [
+   194.5,
+   98.1,
+   272.2,
+   244.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@2673#158",
+  "crop": "crops/0158.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 5345,
+  "box": [
+   603.0,
+   166.5,
+   633.5,
+   232.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@5345#159",
+  "crop": "crops/0159.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 185261,
+  "box": [
+   96.4,
+   60.7,
+   193.4,
+   107.1
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_phx_2016@185261#160",
+  "crop": "crops/0160.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 9935,
+  "box": [
+   397.5,
+   107.4,
+   431.1,
+   199.1
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "curry_classic_clip@9935#161",
+  "crop": "crops/0161.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 90279,
+  "box": [
+   43.9,
+   29.8,
+   138.3,
+   160.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g6@90279#162",
+  "crop": "crops/0162.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 8409,
+  "box": [
+   525.4,
+   67.0,
+   552.2,
+   106.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "curry_classic_clip@8409#163",
+  "crop": "crops/0163.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 197354,
+  "box": [
+   50.3,
+   43.7,
+   105.7,
+   96.6
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_phx_2016@197354#164",
+  "crop": "crops/0164.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 45554,
+  "box": [
+   211.6,
+   104.5,
+   279.8,
+   217.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_bos_2016@45554#165",
+  "crop": "crops/0165.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 30742,
+  "box": [
+   1008.9,
+   352.4,
+   1068.1,
+   493.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g6@30742#166",
+  "crop": "crops/0166.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 131838,
+  "box": [
+   702.8,
+   342.6,
+   844.4,
+   480.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@131838#167",
+  "crop": "crops/0167.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 84543,
+  "box": [
+   539.1,
+   318.3,
+   610.6,
+   499.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@84543#168",
+  "crop": "crops/0168.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 151133,
+  "box": [
+   182.6,
+   4.0,
+   225.9,
+   52.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g6@151133#169",
+  "crop": "crops/0169.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 126278,
+  "box": [
+   631.4,
+   265.4,
+   699.5,
+   477.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@126278#170",
+  "crop": "crops/0170.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 31738,
+  "box": [
+   860.1,
+   131.2,
+   905.8,
+   189.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@31738#171",
+  "crop": "crops/0171.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 182737,
+  "box": [
+   767.7,
+   73.9,
+   1051.9,
+   336.4
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_ind_klay60@182737#172",
+  "crop": "crops/0172.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 8766,
+  "box": [
+   528.5,
+   196.6,
+   617.0,
+   470.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_mia_2017@8766#173",
+  "crop": "crops/0173.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 145705,
+  "box": [
+   608.5,
+   225.3,
+   683.4,
+   351.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_bos_2016@145705#174",
+  "crop": "crops/0174.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 7819,
+  "box": [
+   415.7,
+   9.1,
+   557.3,
+   154.2
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "clip_70m00_78m00@7819#175",
+  "crop": "crops/0175.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 23613,
+  "box": [
+   974.7,
+   252.5,
+   1038.3,
+   460.8
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g1@23613#176",
+  "crop": "crops/0176.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 143980,
+  "box": [
+   1059.8,
+   256.6,
+   1119.2,
+   396.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_bos_2016@143980#177",
+  "crop": "crops/0177.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 119842,
+  "box": [
+   775.3,
+   146.2,
+   866.0,
+   293.1
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_okc_2016wcf_g6@119842#178",
+  "crop": "crops/0178.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 156068,
+  "box": [
+   985.3,
+   399.5,
+   1114.7,
+   616.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@156068#179",
+  "crop": "crops/0179.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 1546,
+  "box": [
+   388.4,
+   72.4,
+   495.1,
+   200.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_55m00_63m00@1546#180",
+  "crop": "crops/0180.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 228800,
+  "box": [
+   411.1,
+   151.3,
+   460.0,
+   208.4
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_okc_2016wcf_g1@228800#181",
+  "crop": "crops/0181.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 7235,
+  "box": [
+   521.0,
+   146.1,
+   570.2,
+   243.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_70m00_78m00@7235#182",
+  "crop": "crops/0182.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 114395,
+  "box": [
+   486.0,
+   301.2,
+   517.6,
+   366.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@114395#183",
+  "crop": "crops/0183.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 86389,
+  "box": [
+   1152.3,
+   479.4,
+   1201.6,
+   539.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sac_klay37@86389#184",
+  "crop": "crops/0184.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 8909,
+  "box": [
+   107.9,
+   256.1,
+   173.1,
+   409.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@8909#185",
+  "crop": "crops/0185.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 19633,
+  "box": [
+   270.0,
+   137.2,
+   319.5,
+   194.6
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_nyk_curry54@19633#186",
+  "crop": "crops/0186.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 11585,
+  "box": [
+   315.3,
+   42.6,
+   330.5,
+   60.0
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "curry_q1_clip@11585#187",
+  "crop": "crops/0187.jpg"
+ },
+ {
+  "tag": "curry_q1_clip",
+  "frame": 3940,
+  "box": [
+   281.1,
+   110.7,
+   367.8,
+   288.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "curry_q1_clip@3940#188",
+  "crop": "crops/0188.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 4531,
+  "box": [
+   468.1,
+   0.9,
+   1274.8,
+   714.4
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_70m00_78m00@4531#189",
+  "crop": "crops/0189.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 52707,
+  "box": [
+   314.5,
+   569.5,
+   962.3,
+   628.2
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_nyk_curry54@52707#190",
+  "crop": "crops/0190.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 13338,
+  "box": [
+   903.2,
+   335.4,
+   1129.0,
+   421.5
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_70m00_78m00@13338#191",
+  "crop": "crops/0191.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 149882,
+  "box": [
+   26.7,
+   11.2,
+   803.5,
+   548.6
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_mia_2017@149882#192",
+  "crop": "crops/0192.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 10843,
+  "box": [
+   495.8,
+   258.6,
+   615.3,
+   454.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_70m00_78m00@10843#193",
+  "crop": "crops/0193.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 103061,
+  "box": [
+   395.3,
+   535.0,
+   485.8,
+   715.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_xmas16@103061#194",
+  "crop": "crops/0194.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 5938,
+  "box": [
+   575.3,
+   199.9,
+   624.8,
+   356.8
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@5938#195",
+  "crop": "crops/0195.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 156345,
+  "box": [
+   1114.6,
+   125.3,
+   1195.9,
+   157.1
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_okc_2016wcf_g6@156345#196",
+  "crop": "crops/0196.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 5738,
+  "box": [
+   701.2,
+   208.4,
+   764.5,
+   343.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_40m00_48m00@5738#197",
+  "crop": "crops/0197.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 58533,
+  "box": [
+   704.7,
+   282.8,
+   803.1,
+   497.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@58533#198",
+  "crop": "crops/0198.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 543,
+  "box": [
+   232.7,
+   575.2,
+   1041.1,
+   612.6
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_10m00_18m00@543#199",
+  "crop": "crops/0199.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 173501,
+  "box": [
+   740.7,
+   201.6,
+   802.3,
+   333.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_mia_2017@173501#200",
+  "crop": "crops/0200.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 120056,
+  "box": [
+   601.5,
+   178.2,
+   749.2,
+   271.9
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_okc_2016wcf_g1@120056#201",
+  "crop": "crops/0201.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 95246,
+  "box": [
+   1022.2,
+   186.7,
+   1079.4,
+   231.7
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_cle_2016f_g7@95246#202",
+  "crop": "crops/0202.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 181840,
+  "box": [
+   0.5,
+   2.5,
+   1278.2,
+   714.7
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_okc_2016wcf_g1@181840#203",
+  "crop": "crops/0203.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 115866,
+  "box": [
+   697.4,
+   410.7,
+   779.2,
+   573.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@115866#204",
+  "crop": "crops/0204.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 13138,
+  "box": [
+   350.5,
+   118.7,
+   382.6,
+   218.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@13138#205",
+  "crop": "crops/0205.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 88942,
+  "box": [
+   1103.6,
+   4.8,
+   1134.2,
+   73.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "number": 1,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_hou_duel@88942#206",
+  "crop": "crops/0206.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 322911,
+  "box": [
+   1078.6,
+   337.7,
+   1162.7,
+   499.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2017f_g5@322911#207",
+  "crop": "crops/0207.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 8079,
+  "box": [
+   1006.4,
+   581.2,
+   1045.2,
+   617.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sas_2016@8079#208",
+  "crop": "crops/0208.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 224151,
+  "box": [
+   1027.5,
+   165.1,
+   1115.0,
+   192.8
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_cle_2017f_g5@224151#209",
+  "crop": "crops/0209.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 109045,
+  "box": [
+   771.4,
+   314.9,
+   825.8,
+   469.8
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@109045#210",
+  "crop": "crops/0210.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 177764,
+  "box": [
+   830.2,
+   550.7,
+   1126.8,
+   633.5
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_splash62@177764#211",
+  "crop": "crops/0211.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 2978,
+  "box": [
+   806.1,
+   143.2,
+   849.7,
+   159.4
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_26m00_34m00@2978#212",
+  "crop": "crops/0212.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 36946,
+  "box": [
+   910.3,
+   234.8,
+   995.5,
+   528.8
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sas_2016@36946#213",
+  "crop": "crops/0213.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 43408,
+  "box": [
+   231.5,
+   187.9,
+   293.1,
+   339.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_ind_klay60@43408#214",
+  "crop": "crops/0214.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 10936,
+  "box": [
+   417.4,
+   284.2,
+   475.1,
+   433.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@10936#215",
+  "crop": "crops/0215.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 9656,
+  "box": [
+   1055.8,
+   495.2,
+   1141.3,
+   693.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@9656#216",
+  "crop": "crops/0216.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 100583,
+  "box": [
+   0.0,
+   193.4,
+   34.2,
+   375.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g1@100583#217",
+  "crop": "crops/0217.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 261477,
+  "box": [
+   441.0,
+   172.4,
+   500.5,
+   283.0
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_okc_2016wcf_g1@261477#218",
+  "crop": "crops/0218.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 12449,
+  "box": [
+   1042.6,
+   140.1,
+   1086.3,
+   270.0
+  ],
+  "cls": "referee",
+  "attrs": {
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "referee",
+  "key": "clip_70m00_78m00@12449#219",
+  "crop": "crops/0219.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 109706,
+  "box": [
+   166.0,
+   405.0,
+   481.1,
+   718.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "number": 30,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_xmas16@109706#220",
+  "crop": "crops/0220.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 135010,
+  "box": [
+   587.3,
+   160.0,
+   676.6,
+   440.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sas_2016@135010#221",
+  "crop": "crops/0221.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 31364,
+  "box": [
+   77.8,
+   0.5,
+   136.7,
+   55.4
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_sas_2016@31364#222",
+  "crop": "crops/0222.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 10750,
+  "box": [
+   640.0,
+   310.0,
+   696.5,
+   441.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_26m00_34m00@10750#223",
+  "crop": "crops/0223.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 9524,
+  "box": [
+   448.5,
+   20.3,
+   569.9,
+   168.2
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "clip_70m00_78m00@9524#224",
+  "crop": "crops/0224.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 6120,
+  "box": [
+   252.5,
+   176.0,
+   296.8,
+   320.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_70m00_78m00@6120#225",
+  "crop": "crops/0225.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 106138,
+  "box": [
+   843.8,
+   109.1,
+   894.3,
+   161.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sas_2016@106138#226",
+  "crop": "crops/0226.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 2313,
+  "box": [
+   202.6,
+   193.4,
+   250.8,
+   248.9
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_nyk_curry54@2313#227",
+  "crop": "crops/0227.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 109995,
+  "box": [
+   547.3,
+   296.2,
+   619.0,
+   491.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_phx_2016@109995#228",
+  "crop": "crops/0228.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 39705,
+  "box": [
+   524.2,
+   228.0,
+   604.0,
+   438.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_mia_2017@39705#229",
+  "crop": "crops/0229.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 98462,
+  "box": [
+   198.6,
+   153.3,
+   326.1,
+   372.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@98462#230",
+  "crop": "crops/0230.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 368,
+  "box": [
+   835.1,
+   225.5,
+   883.8,
+   363.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_10m00_18m00@368#231",
+  "crop": "crops/0231.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 272118,
+  "box": [
+   34.7,
+   0.8,
+   87.7,
+   32.8
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_phx_2016@272118#232",
+  "crop": "crops/0232.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 112204,
+  "box": [
+   382.0,
+   0.8,
+   505.5,
+   97.2
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "gsw_nyk_curry54@112204#233",
+  "crop": "crops/0233.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 46406,
+  "box": [
+   208.3,
+   34.5,
+   307.4,
+   216.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@46406#234",
+  "crop": "crops/0234.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 155049,
+  "box": [
+   900.8,
+   113.7,
+   957.1,
+   174.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sas_2016@155049#235",
+  "crop": "crops/0235.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 105747,
+  "box": [
+   388.2,
+   2.8,
+   1120.5,
+   717.7
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_okc_2016wcf_g1@105747#236",
+  "crop": "crops/0236.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 141715,
+  "box": [
+   913.8,
+   247.5,
+   970.8,
+   384.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_hou_duel@141715#237",
+  "crop": "crops/0237.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 9596,
+  "box": [
+   752.0,
+   161.8,
+   794.6,
+   215.0
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "clip_26m00_34m00@9596#238",
+  "crop": "crops/0238.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 147985,
+  "box": [
+   643.7,
+   3.0,
+   1047.0,
+   493.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_sac_klay37@147985#239",
+  "crop": "crops/0239.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 53515,
+  "box": [
+   1061.0,
+   208.7,
+   1199.5,
+   376.1
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_mia_2017@53515#240",
+  "crop": "crops/0240.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 7193,
+  "box": [
+   139.1,
+   43.7,
+   182.9,
+   93.4
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_10m00_18m00@7193#241",
+  "crop": "crops/0241.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 1428,
+  "box": [
+   476.2,
+   156.1,
+   506.3,
+   239.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@1428#242",
+  "crop": "crops/0242.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 13804,
+  "box": [
+   702.8,
+   233.1,
+   751.1,
+   379.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_70m00_78m00@13804#243",
+  "crop": "crops/0243.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 6661,
+  "box": [
+   799.0,
+   330.2,
+   863.7,
+   501.1
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_55m00_63m00@6661#244",
+  "crop": "crops/0244.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 4977,
+  "box": [
+   518.1,
+   314.4,
+   570.7,
+   474.4
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "clip_40m00_48m00@4977#245",
+  "crop": "crops/0245.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 106552,
+  "box": [
+   1000.1,
+   0.4,
+   1032.0,
+   58.9
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_bos_2016@106552#246",
+  "crop": "crops/0246.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 26170,
+  "box": [
+   770.8,
+   147.1,
+   826.3,
+   249.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@26170#247",
+  "crop": "crops/0247.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 13577,
+  "box": [
+   167.8,
+   75.5,
+   225.8,
+   135.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_55m00_63m00@13577#248",
+  "crop": "crops/0248.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 27342,
+  "box": [
+   656.4,
+   439.6,
+   768.7,
+   658.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_okc_2016wcf_g6@27342#249",
+  "crop": "crops/0249.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 156362,
+  "box": [
+   1014.4,
+   375.4,
+   1117.0,
+   649.8
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@156362#250",
+  "crop": "crops/0250.jpg"
+ },
+ {
+  "tag": "gsw_splash62",
+  "frame": 174891,
+  "box": [
+   433.5,
+   331.7,
+   486.2,
+   395.8
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_splash62@174891#251",
+  "crop": "crops/0251.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 4997,
+  "box": [
+   994.5,
+   541.7,
+   1227.7,
+   650.8
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_ind_klay60@4997#252",
+  "crop": "crops/0252.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 127839,
+  "box": [
+   253.9,
+   261.9,
+   313.0,
+   315.2
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_nyk_curry54@127839#253",
+  "crop": "crops/0253.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 1527,
+  "box": [
+   228.8,
+   169.5,
+   276.2,
+   274.7
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "curry_classic_clip@1527#254",
+  "crop": "crops/0254.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 197354,
+  "box": [
+   274.4,
+   561.8,
+   992.7,
+   658.7
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_phx_2016@197354#255",
+  "crop": "crops/0255.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 60232,
+  "box": [
+   63.6,
+   0.1,
+   408.2,
+   83.6
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_cle_2016f_g7@60232#256",
+  "crop": "crops/0256.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 2967,
+  "box": [
+   168.3,
+   -1.7,
+   1160.9,
+   504.1
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "clip_40m00_48m00@2967#257",
+  "crop": "crops/0257.jpg"
+ },
+ {
+  "tag": "curry_classic_clip",
+  "frame": 12872,
+  "box": [
+   476.6,
+   64.4,
+   509.2,
+   141.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": true,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "curry_classic_clip@12872#258",
+  "crop": "crops/0258.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 139712,
+  "box": [
+   140.0,
+   217.6,
+   200.4,
+   360.5
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_ind_klay60@139712#259",
+  "crop": "crops/0259.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g6",
+  "frame": 48829,
+  "box": [
+   1050.3,
+   148.1,
+   1126.0,
+   300.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g6@48829#260",
+  "crop": "crops/0260.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 98830,
+  "box": [
+   1079.9,
+   3.6,
+   1130.9,
+   58.1
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_xmas16@98830#261",
+  "crop": "crops/0261.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 16546,
+  "box": [
+   1174.2,
+   251.5,
+   1275.9,
+   432.8
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_bos_2016@16546#262",
+  "crop": "crops/0262.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 61595,
+  "box": [
+   509.0,
+   243.3,
+   602.6,
+   414.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@61595#263",
+  "crop": "crops/0263.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 59033,
+  "box": [
+   809.9,
+   284.9,
+   910.1,
+   467.1
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@59033#264",
+  "crop": "crops/0264.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 1441,
+  "box": [
+   890.8,
+   126.7,
+   964.7,
+   206.0
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_cle_xmas16@1441#265",
+  "crop": "crops/0265.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 58096,
+  "box": [
+   711.0,
+   357.0,
+   770.8,
+   475.5
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@58096#266",
+  "crop": "crops/0266.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 57686,
+  "box": [
+   891.7,
+   352.3,
+   966.9,
+   519.6
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_phx_2016@57686#267",
+  "crop": "crops/0267.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 25041,
+  "box": [
+   435.3,
+   243.7,
+   447.2,
+   261.8
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "gsw_sas_2016@25041#268",
+  "crop": "crops/0268.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 189399,
+  "box": [
+   271.4,
+   117.6,
+   317.9,
+   218.1
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_okc_2016wcf_g1@189399#269",
+  "crop": "crops/0269.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 136280,
+  "box": [
+   484.8,
+   160.0,
+   543.3,
+   284.6
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_sas_2016@136280#270",
+  "crop": "crops/0270.jpg"
+ },
+ {
+  "tag": "gsw_okc_2016wcf_g1",
+  "frame": 287456,
+  "box": [
+   707.8,
+   306.8,
+   873.7,
+   582.8
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "partial"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_okc_2016wcf_g1@287456#271",
+  "crop": "crops/0271.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 74358,
+  "box": [
+   1109.0,
+   96.3,
+   1234.9,
+   152.1
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_ind_klay60@74358#272",
+  "crop": "crops/0272.jpg"
+ },
+ {
+  "tag": "gsw_sas_2016",
+  "frame": 51634,
+  "box": [
+   463.1,
+   338.2,
+   526.3,
+   520.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sas_2016@51634#273",
+  "crop": "crops/0273.jpg"
+ },
+ {
+  "tag": "gsw_cle_2017f_g5",
+  "frame": 162374,
+  "box": [
+   789.2,
+   43.2,
+   902.1,
+   510.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "number": 5,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_2017f_g5@162374#274",
+  "crop": "crops/0274.jpg"
+ },
+ {
+  "tag": "clip_26m00_34m00",
+  "frame": 2144,
+  "box": [
+   260.5,
+   572.6,
+   1014.5,
+   641.0
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_26m00_34m00@2144#275",
+  "crop": "crops/0275.jpg"
+ },
+ {
+  "tag": "clip_10m00_18m00",
+  "frame": 2232,
+  "box": [
+   343.6,
+   504.1,
+   401.0,
+   574.6
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_10m00_18m00@2232#276",
+  "crop": "crops/0276.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 47601,
+  "box": [
+   617.4,
+   196.6,
+   759.8,
+   444.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@47601#277",
+  "crop": "crops/0277.jpg"
+ },
+ {
+  "tag": "gsw_hou_duel",
+  "frame": 158109,
+  "box": [
+   615.3,
+   282.9,
+   945.2,
+   577.1
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_hou_duel@158109#278",
+  "crop": "crops/0278.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 87352,
+  "box": [
+   705.6,
+   274.0,
+   945.3,
+   561.4
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "gsw_cle_2016f_g7@87352#279",
+  "crop": "crops/0279.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 12333,
+  "box": [
+   150.9,
+   10.3,
+   257.7,
+   94.2
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "clip_55m00_63m00@12333#280",
+  "crop": "crops/0280.jpg"
+ },
+ {
+  "tag": "gsw_mia_2017",
+  "frame": 176117,
+  "box": [
+   1008.2,
+   581.8,
+   1045.2,
+   617.7
+  ],
+  "cls": "backboard",
+  "attrs": {},
+  "stratum": "backboard",
+  "key": "gsw_mia_2017@176117#281",
+  "crop": "crops/0281.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 141033,
+  "box": [
+   575.3,
+   21.7,
+   1206.2,
+   718.9
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_bos_2016@141033#282",
+  "crop": "crops/0282.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 84366,
+  "box": [
+   110.0,
+   211.8,
+   165.0,
+   342.3
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "gsw_bos_2016@84366#283",
+  "crop": "crops/0283.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 11587,
+  "box": [
+   555.5,
+   502.0,
+   597.3,
+   570.9
+  ],
+  "cls": "referee",
+  "attrs": {},
+  "stratum": "referee",
+  "key": "clip_40m00_48m00@11587#284",
+  "crop": "crops/0284.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 107101,
+  "box": [
+   762.1,
+   217.7,
+   839.0,
+   385.2
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_nyk_curry54@107101#285",
+  "crop": "crops/0285.jpg"
+ },
+ {
+  "tag": "clip_40m00_48m00",
+  "frame": 2902,
+  "box": [
+   666.2,
+   76.4,
+   787.1,
+   206.1
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "clip_40m00_48m00@2902#286",
+  "crop": "crops/0286.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 48610,
+  "box": [
+   977.6,
+   218.2,
+   1042.6,
+   439.9
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_2016f_g7@48610#287",
+  "crop": "crops/0287.jpg"
+ },
+ {
+  "tag": "gsw_sac_klay37",
+  "frame": 47178,
+  "box": [
+   972.1,
+   301.9,
+   1073.0,
+   481.3
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_sac_klay37@47178#288",
+  "crop": "crops/0288.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 193791,
+  "box": [
+   273.2,
+   560.7,
+   999.4,
+   651.4
+  ],
+  "cls": "ball",
+  "attrs": {},
+  "stratum": "ball",
+  "key": "gsw_phx_2016@193791#289",
+  "crop": "crops/0289.jpg"
+ },
+ {
+  "tag": "gsw_cle_2016f_g7",
+  "frame": 139620,
+  "box": [
+   927.3,
+   131.4,
+   969.5,
+   173.6
+  ],
+  "cls": "rim",
+  "attrs": {},
+  "stratum": "rim",
+  "key": "gsw_cle_2016f_g7@139620#290",
+  "crop": "crops/0290.jpg"
+ },
+ {
+  "tag": "gsw_bos_2016",
+  "frame": 150629,
+  "box": [
+   347.0,
+   142.2,
+   384.1,
+   189.1
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_bos_2016@150629#291",
+  "crop": "crops/0291.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 134069,
+  "box": [
+   476.8,
+   331.6,
+   532.5,
+   518.0
+  ],
+  "cls": "player",
+  "attrs": {},
+  "stratum": "agreement_player",
+  "key": "gsw_cle_xmas16@134069#292",
+  "crop": "crops/0292.jpg"
+ },
+ {
+  "tag": "clip_70m00_78m00",
+  "frame": 5470,
+  "box": [
+   115.8,
+   428.6,
+   201.0,
+   484.7
+  ],
+  "cls": "scorebug",
+  "attrs": {},
+  "stratum": "scorebug",
+  "key": "clip_70m00_78m00@5470#293",
+  "crop": "crops/0293.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 237363,
+  "box": [
+   2.4,
+   291.3,
+   242.2,
+   554.3
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "number": 42,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_phx_2016@237363#294",
+  "crop": "crops/0294.jpg"
+ },
+ {
+  "tag": "gsw_ind_klay60",
+  "frame": 87869,
+  "box": [
+   1116.8,
+   229.4,
+   1179.9,
+   364.0
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "number": 22,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_ind_klay60@87869#295",
+  "crop": "crops/0295.jpg"
+ },
+ {
+  "tag": "gsw_nyk_curry54",
+  "frame": 56012,
+  "box": [
+   295.9,
+   71.1,
+   395.7,
+   253.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_nyk_curry54@56012#296",
+  "crop": "crops/0296.jpg"
+ },
+ {
+  "tag": "gsw_cle_xmas16",
+  "frame": 139224,
+  "box": [
+   -0.4,
+   112.2,
+   61.4,
+   218.4
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_cle_xmas16@139224#297",
+  "crop": "crops/0297.jpg"
+ },
+ {
+  "tag": "gsw_phx_2016",
+  "frame": 279731,
+  "box": [
+   1116.6,
+   83.4,
+   1165.7,
+   134.2
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "light",
+   "on_court": false,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "gsw_phx_2016@279731#298",
+  "crop": "crops/0298.jpg"
+ },
+ {
+  "tag": "clip_55m00_63m00",
+  "frame": 6856,
+  "box": [
+   920.9,
+   9.7,
+   960.9,
+   88.7
+  ],
+  "cls": "player",
+  "attrs": {
+   "team_kit": "dark",
+   "on_court": true,
+   "occlusion": "visible"
+  },
+  "stratum": "adj_player",
+  "key": "clip_55m00_63m00@6856#299",
+  "crop": "crops/0299.jpg"
+ }
+]
