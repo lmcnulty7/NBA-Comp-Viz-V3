@@ -9,6 +9,40 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-07-18b — Full adjudication pass COMPLETE: 6,159 frames judged for $10.80
+
+Five pilot iterations (~$1 total), then the full corpus through Haiku via the
+Batches API with the compact verdict schema: **21/21 games, 6,159 frames,
+41 failures (0.7%), $10.80** (est was $12; budget guard $14; user had $19).
+
+The dataset now on Drive (autolabels/adjudicated/):
+- **37,916 agreement boxes** (teacher∩pipeline players/refs) — high-precision,
+  NO attributes (never reached Claude by design — cost triage).
+- **Adjudicated keeps**: 24,575 players + 1,897 scorebug + 1,194 rim +
+  689 backboard + 366 referee + 76 ball. 58k proposals rejected; the free
+  filters did real work at scale: 8.4k wide-shape flips, 6.9k contained-
+  fragment flips, 2.9k object-on-person flips.
+- Attributes on adjudicated players: kit 12,954 dark / 11,605 light;
+  **4,694 jersey numbers read** (identity-layer asset); shot_type on every
+  frame (5,454 wide / 399 closeup / 259 graphic / 44 split-screen — gate-v2
+  training data as a side effect).
+- on_court 95% false is CORRECT, not a bug: the disagreement band is
+  bench-dominated (on-court players are agreement cases; verified on frame
+  1514 — every adjudicated keep sits in the bench-row y-band). The pilot-era
+  true-heavy numbers were the ERROR state the prompt fixes cured.
+
+**Schema gap found by the aggregate:** kit/number/on_court attributes exist
+only for the adjudicated (bench-heavy) band; the 37,916 agreement boxes —
+the on-court players the team-kit classifier most needs — carry no
+attributes. Options: a second attributes-only pass over agreement boxes
+(~$5-8, fits remaining budget) or defer to after the audit. NOT spent
+without a go.
+
+Next: human audit (~300 stratified accepted labels) → the measured
+auto-label error rate that makes the dataset citable; then retrain gates.
+
+---
+
 ## 2026-07-18 — Teacher pass ran; QUALIFICATION GATE FAILED THE TEACHER (working as designed)
 
 Run 15 (T4, 197 min): full corpus pass complete — 6,197 frames of proposals
