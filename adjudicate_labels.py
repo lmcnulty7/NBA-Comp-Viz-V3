@@ -66,7 +66,31 @@ The image shows numbered candidate boxes. For EACH index return a JSON object:
    the scorer's table, and anyone outside the sidelines/baseline: false.
  number: jersey number 0-99 if clearly readable, else null
 Also return shot_type for the WHOLE frame: wide_broadcast|closeup|replay|graphic|split_screen.
-Reply with ONLY JSON: {"shot_type": ..., "boxes": {"<idx>": {...}, ...}}"""
+
+ANSWER FORMAT — compact JSON only (short keys keep costs down):
+{"s": "<shot_type>", "b": {"<idx>": {"k": true/false, "c": "<cls>", "t": true/false,
+"o": "v|p|h", "q": "l|d|o", "oc": true/false, "n": <number-or-null>}, ...}}
+where o = occlusion (visible|partial|heavy), q = team_kit (light|dark|other).
+Omit o/q/oc/n for non-player boxes. No prose, no markdown fences."""
+
+# compact→long verdict expansion (the wire format is abbreviated to cut output
+# tokens ~50%; everything downstream keeps the readable long form)
+_O = {"v": "visible", "p": "partial", "h": "heavy"}
+_Q = {"l": "light", "d": "dark", "o": "other"}
+
+
+def expand_verdict(v: dict) -> dict:
+    out = {"keep": bool(v.get("k")), "cls": v.get("c"),
+           "tight": v.get("t")}
+    if "o" in v:
+        out["occlusion"] = _O.get(v["o"], v["o"])
+    if "q" in v:
+        out["team_kit"] = _Q.get(v["q"], v["q"])
+    if "oc" in v:
+        out["on_court"] = bool(v["oc"])
+    if "n" in v:
+        out["number"] = v["n"]
+    return out
 
 # court path: geometry proposes, the VLM only NAMES. Pilot 1 showed Claude
 # placing coordinates tens of px off and hallucinating out-of-frame features —
@@ -304,6 +328,119 @@ def disagreement_band(rec) -> tuple[list, list]:
     return pre, adj
 
 
+def run_batches(client, tags, args, costs) -> None:
+    """Full-corpus mode via the Batches API (50% price): one batch per tag,
+    state file per tag for resume, results written through the same sanity/
+    containment path as sequential mode. Cost guard aborts new submissions if
+    the running projection exceeds --budget."""
+    import cv2
+    state_dir = ROOT / "autolabels" / "batch_state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    adj_dir = ROOT / "autolabels" / "adjudicated"
+
+    def submit(tag) -> bool:
+        outp = adj_dir / f"{tag}.jsonl"
+        done = {json.loads(l)["frame"] for l in outp.read_text().splitlines()} \
+            if outp.exists() else set()
+        recs = [json.loads(l) for l in
+                (ROOT / "autolabels" / "proposals" / f"{tag}.jsonl").read_text().splitlines()
+                if json.loads(l)["frame"] not in done]
+        if not recs:
+            return False
+        requests, contexts = [], {}
+        for rec in recs:
+            img = cv2.imread(str(ROOT / "label_corpus" / tag / f"f{rec['frame']:07d}.jpg"))
+            if img is None:
+                continue
+            pre, adj = disagreement_band(rec)
+            adj, auto_rejected = prefilter(adj, containers=pre)
+            cid = f"{tag}--{rec['frame']}"
+            contexts[cid] = {"frame": rec["frame"], "pre": pre, "adj": adj,
+                             "auto_rejected": auto_rejected}
+            requests.append({
+                "custom_id": cid,
+                "params": {"model": args.box_model, "max_tokens": 6000,
+                           "system": BOX_SYSTEM,
+                           "messages": [{"role": "user", "content": [
+                               {"type": "image", "source": {
+                                   "type": "base64", "media_type": "image/jpeg",
+                                   "data": b64_image(render_candidates(img, adj))}},
+                               {"type": "text",
+                                "text": f"{len(adj)} candidate boxes "
+                                        f"(indices 0..{len(adj) - 1})."}]}]}})
+        batch = client.messages.batches.create(requests=requests)
+        (state_dir / f"{tag}.json").write_text(json.dumps(
+            {"batch_id": batch.id, "contexts": contexts}))
+        log.info("submitted %s: %d requests (batch %s)", tag, len(requests), batch.id)
+        return True
+
+    def collect(tag) -> bool:
+        st = json.loads((state_dir / f"{tag}.json").read_text())
+        batch = client.messages.batches.retrieve(st["batch_id"])
+        if batch.processing_status != "ended":
+            return False
+        n_ok = n_fail = 0
+        with open(adj_dir / f"{tag}.jsonl", "a") as fh:
+            for entry in client.messages.batches.results(st["batch_id"]):
+                ctx = st["contexts"].get(entry.custom_id)
+                if ctx is None or entry.result.type != "succeeded":
+                    n_fail += 1
+                    continue
+                msg = entry.result.message
+                costs[args.box_model]["in"] += msg.usage.input_tokens
+                costs[args.box_model]["out"] += msg.usage.output_tokens
+                text = next((b.text for b in msg.content
+                             if getattr(b, "type", "") == "text"), "").strip()
+                if text.startswith("```"):
+                    text = text.strip("`").lstrip("json").strip()
+                try:
+                    verdict = json.loads(text)
+                except json.JSONDecodeError:
+                    n_fail += 1
+                    continue
+                adj = ctx["adj"]
+                raw_boxes = verdict.get("b", verdict.get("boxes", {}))
+                verdicts = {i: sanity_filter(adj[int(i)]["box"],
+                                             expand_verdict(v) if "k" in v else v)
+                            for i, v in raw_boxes.items()
+                            if str(i).isdigit() and int(i) < len(adj)}
+                verdicts = containment_pass(adj, verdicts, ctx["pre"])
+                fh.write(json.dumps({"tag": tag, "frame": ctx["frame"],
+                                     "pre_accepted": ctx["pre"], "adjudicated": adj,
+                                     "auto_rejected": ctx["auto_rejected"],
+                                     "verdicts": verdicts,
+                                     "shot_type": verdict.get("s", verdict.get("shot_type"))
+                                     }) + "\n")
+                n_ok += 1
+        (state_dir / f"{tag}.json").unlink()
+        log.info("collected %s: %d ok, %d failed", tag, n_ok, n_fail)
+        return True
+
+    def spent() -> float:
+        c = costs[args.box_model]     # Haiku batch pricing: $0.50/M in, $2.50/M out
+        return c["in"] / 1e6 * 0.50 + c["out"] / 1e6 * 2.50
+
+    for tag in tags:
+        if (state_dir / f"{tag}.json").exists():
+            continue                   # already in flight from a previous run
+        if spent() > args.budget:
+            log.warning("budget guard: $%.2f spent ≥ $%.2f — not submitting %s",
+                        spent(), args.budget, tag)
+            break
+        submit(tag)
+    pending = [t for t in tags if (state_dir / f"{t}.json").exists()]
+    while pending:
+        time.sleep(120)
+        for tag in list(pending):
+            if collect(tag):
+                pending.remove(tag)
+        (ROOT / "autolabels" / "adjudication_costs.json").write_text(
+            json.dumps({**{m: dict(c) for m, c in costs.items()},
+                        "est_usd": round(spent(), 2)}, indent=1))
+        log.info("pending: %d tags | est cost so far $%.2f", len(pending), spent())
+    log.info("batch pass complete — est cost $%.2f", spent())
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Claude adjudication of teacher proposals.")
     ap.add_argument("--tags", nargs="*", default=None)
@@ -312,6 +449,11 @@ def main() -> None:
                     help="court-landmark call on every Nth wide frame")
     ap.add_argument("--box-model", default=BOX_MODEL,
                     help="judge model for box verdicts (A/B: haiku vs sonnet)")
+    ap.add_argument("--batch", action="store_true",
+                    help="full-corpus mode via the Batches API (50%% price); "
+                         "boxes only, court path excluded")
+    ap.add_argument("--budget", type=float, default=14.0,
+                    help="USD cap for --batch: stop submitting new tags beyond this")
     args = ap.parse_args()
 
     import cv2
@@ -328,6 +470,9 @@ def main() -> None:
     costs = defaultdict(lambda: {"in": 0, "out": 0})
 
     tags = args.tags or sorted(p.stem for p in prop_dir.glob("*.jsonl"))
+    if args.batch:
+        run_batches(client, tags, args, costs)
+        return
     t0 = time.time()
     for tag in tags:
         recs = [json.loads(l) for l in (prop_dir / f"{tag}.jsonl").read_text().splitlines()]
@@ -351,15 +496,17 @@ def main() -> None:
                     f"{len(adj)} candidate boxes (indices 0..{len(adj) - 1}).", costs)
                 if verdict is None:
                     continue
-                verdicts = {i: sanity_filter(adj[int(i)]["box"], v)
-                            for i, v in verdict.get("boxes", {}).items()
+                raw_boxes = verdict.get("b", verdict.get("boxes", {}))
+                verdicts = {i: sanity_filter(adj[int(i)]["box"],
+                                             expand_verdict(v) if "k" in v else v)
+                            for i, v in raw_boxes.items()
                             if str(i).isdigit() and int(i) < len(adj)}
                 verdicts = containment_pass(adj, verdicts, pre)
                 out = {"tag": tag, "frame": rec["frame"],
                        "pre_accepted": pre, "adjudicated": adj,
                        "auto_rejected": auto_rejected,
                        "verdicts": verdicts,
-                       "shot_type": verdict.get("shot_type")}
+                       "shot_type": verdict.get("s", verdict.get("shot_type"))}
                 fh.write(json.dumps(out) + "\n")
                 if verdict.get("shot_type") == "wide_broadcast" and k % args.court_every == 0:
                     cands = court_candidates(img)
