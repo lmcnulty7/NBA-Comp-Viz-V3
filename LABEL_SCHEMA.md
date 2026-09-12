@@ -58,4 +58,4 @@ cross-frame identity (jersey-OCR route), temporal events (kill list).
 3. Human audit of ~300 random ACCEPTED labels → measured auto-label error rate
    (goes in the report; makes the dataset citable).
 4. Retrained models adopted only if they beat the existing human-labeled
-   held-out evals; end-to-end arbiter = PBP cross-val canary (91.1%).
+   held-out evals; end-to-end arbiter = PBP cross-val canary (87.8%, corpus-wide).

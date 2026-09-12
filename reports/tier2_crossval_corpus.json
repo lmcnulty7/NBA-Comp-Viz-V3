@@ -1,0 +1,34 @@
+{
+ "scope": "corpus-wide: all 151 *_outcomes.json on disk",
+ "clips": 151,
+ "possessions_aligned": 991,
+ "anchor_failures": 248,
+ "failure_reasons": {
+  "anchor_failed": 103,
+  "no_pbp_overlap": 89,
+  "anchor_inconsistent": 19,
+  "clock_stopped_span": 37
+ },
+ "offense_cross_validation": {
+  "agree": 869,
+  "disagree": 121,
+  "unknown": 1,
+  "n_checked": 990,
+  "agreement_rate": 0.878
+ },
+ "non_duplicate": {
+  "agree": 810,
+  "disagree": 94,
+  "unknown": 1,
+  "n_checked": 904,
+  "agreement_rate": 0.896
+ },
+ "overlap_ge_080": {
+  "agree": 821,
+  "disagree": 112,
+  "unknown": 1,
+  "n_checked": 933,
+  "agreement_rate": 0.88
+ },
+ "note": "Same definition as align_outcomes.py, over every clip rather than one invocation's. reports/tier2_crossval.json is the PER-RUN artifact and is scoped to whichever clips that run processed \u2014 do not cite it as a corpus figure."
+}

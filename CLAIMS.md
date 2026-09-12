@@ -9,7 +9,7 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 
 | # | Claim | Evidence | Status |
 |---|---|---|---|
-| A1 | Vision-derived possession attributions agree with independent play-by-play ground truth **91.1% (n=642)**, with disagreements hard-excluded from all downstream stats by construction | tier2_join checks; PIPELINE.md stage 8 | SHIPPED |
+| A1 | Vision-derived possession attributions agree with independent play-by-play ground truth **87.8% (n=990)**, with disagreements hard-excluded from all downstream stats by construction | reports/tier2_crossval_corpus.*; tier2_join checks | SHIPPED — **corrected 2026-09-11**: the prior 91.1% (n=642) was run-11's PER-RUN align report promoted to a corpus claim; recomputed corpus-wide it is 87.8% (869/990). Non-duplicate 89.6% (n=904); overlap≥0.80 88.0% (n=933) |
 | A2 | Every pipeline stage carries a held-out or human-labeled validation number (gate 98.7%; detection P.89/R.87; homography 0.30 ft median; teams 87.1%; possessions 96.5/91.2%; clock 100%-on-readable) | PIPELINE.md table + eval artifacts | SHIPPED (one gap: A2a) |
 | A2a | …except **matchup assignment**, which has structural checks only | — | OPEN → Phase 2 closes it |
 | A3 | Stale-artifact consumption is structurally impossible in the credit chain (content-fingerprint guard; refused a real stale join on first deployment) | tier2_credit guard + tests; DEVLOG 07-16 | SHIPPED |

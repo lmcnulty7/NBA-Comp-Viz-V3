@@ -1,0 +1,8 @@
+TIER 2 C2 CROSS-VALIDATION — corpus-wide (151 clips)
+  possessions aligned   991
+  anchor failures       248  {'anchor_failed': 103, 'no_pbp_overlap': 89, 'anchor_inconsistent': 19, 'clock_stopped_span': 37}
+  agree / disagree      869 / 121  (unknown 1)
+  AGREEMENT RATE        0.878  (n=990)
+
+  non-duplicate only    0.896 (n=904)
+  overlap >= 0.80       0.88 (n=933)

@@ -9,6 +9,53 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-09-11 — Report drafting; the cross-val canary was a PER-RUN number (91.1% → 87.8%)
+
+Started the public report (`paper/`, two-column LaTeX, arXiv register). Spine
+drafted: §3 system overview + the terminology contract (fragment != player,
+credit != defensive value, set core != possession, A/B != home/away), §4 all
+eight stages + join, §9 threats, §10 negative results. Outline and gap register
+in `paper/OUTLINE.md`; build notes in `paper/NOTES.md`.
+
+**The finding that cost the session: A1's 91.1% (n=642) was never a corpus
+number.** `align_outcomes.py` writes `reports/tier2_crossval.json` scoped to the
+clips of ONE invocation. Run 11's report was recorded here as a total and
+promoted into CLAIMS.md as the project-wide claim. Recomputed over all 151
+outcomes files with the same definition: **87.8% (869/990)**, 991 aligned, 248
+anchor failures. Non-duplicate 89.6% (n=904); overlap>=0.80 88.0% (n=933). The
+committed artifact said 86.0% (n=264) — a different, even older run. Three
+numbers, none of them the claim. New `tier2_crossval_corpus.py` computes the
+corpus figure from committed alignment output in ~1 s and re-derives nothing, so
+the number and its artifact are the same object. CLAIMS.md A1, LABEL_SCHEMA,
+PROJECT_SUMMARY and the paper all updated to 87.8%.
+
+**Determinism is ENVIRONMENT-CONDITIONAL — do not restate run-13's claim
+flatly.** Tried to regenerate properly by re-running align over all 151 clips
+with `--reuse-anchors` (92 min local, ~8 cores, it decodes video — the flag
+skips OCR only where an anchor is already cached). Result: 51 of 151 outcomes
+files changed, and NOT cosmetically — 75 status transitions (20 anchor_failed →
+aligned, 18 no_pbp_overlap → aligned, 18 aligned → anchor_inconsistent), 49
+changed anchor sets, 13 records with offense_real/defense_real flipped. Records
+that previously FAILED had no cached anchor, so they got fresh local OCR, and
+local decode/easyocr diverges from Colab. Corpus agreement came out 86.6%
+(878/1016) instead of 87.8%. Restored from git (151/151 verified against a
+pre-run backup, 7 stray `_orientation.json` side-effects removed, join guard
+re-verified, credit reproduces). Run-13's "151/151 byte-identical" stands for a
+fresh COLAB VM with cached anchors; it does not survive an environment change,
+and §6 now says so.
+
+**Regenerated and confirmed:** `tier2_credit.py` reproduces GSW n=330 / 15 games
+/ ppp 1.085 vs baseline 1.011 / **-7.4 [-21.6, +6.3]** / rel **+11.3**, guard not
+firing (join is fresh against the outcomes on disk). `tier2_bias_audit.py`
+regenerates BYTE-IDENTICAL — the +8.8/100 offset and every distribution in the
+paper's §9 table are confirmed against a current run.
+
+Open from this session: G1 (300-label audit still has no verdicts), G2 (C1 still
+unmeasured), G3 (refs.bib written from memory, unverified), G5 (figures need one
+visual system). §5-§8, §11-§12 and the appendices remain stubs.
+
+---
+
 ## 2026-07-18b — Full adjudication pass COMPLETE: 6,159 frames judged for $10.80
 
 Five pilot iterations (~$1 total), then the full corpus through Haiku via the

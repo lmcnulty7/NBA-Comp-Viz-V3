@@ -7,7 +7,7 @@ independent ML/CV research project on Apple Silicon, with cloud-GPU (Colab) trai
 harvesting for the heavy stages.
 
 The chain runs end to end today: **641 joined possessions across 16 games**, with possession
-attributions agreeing with independent play-by-play ground truth at **91.1% (n=642)**.
+attributions agreeing with independent play-by-play ground truth at **87.8% (n=990)**.
 
 > This document describes what was designed, built, trained, evaluated, and measured.
 > Current-state references: `PIPELINE.md` (stage table + residuals), `CLAIMS.md` (what the
@@ -201,7 +201,7 @@ pipelines**; scaled to **641 joined possessions / 16 games**. Composite funnel y
 
 ## Validation and reproducibility
 - **Independent end-to-end arbiter:** possession attributions vs. play-by-play the pipeline
-  never sees — **91.1% (n=642)**, with disagreements hard-excluded by construction. This
+  never sees — **87.8% (n=990)**, with disagreements hard-excluded by construction. This
   doubles as the health canary: a drop means an upstream stage broke.
 - **Stale-artifact consumption is structurally impossible** — content-fingerprint guards
   refused a real stale join on first deployment.
@@ -251,8 +251,9 @@ Kept deliberately, because they are evidence the instrument works:
   open-source library that produced it.
 
 ## Quantified highlights
-- **End-to-end:** 641 joined possessions / 16 games; **91.1% agreement with independent
-  play-by-play (n=642)**; 151/151 byte-identical re-derivation.
+- **End-to-end:** 641 joined possessions / 16 games; **87.8% agreement with independent
+  play-by-play (n=990)**; 151/151 byte-identical re-derivation on a fresh Colab VM
+  (environment-conditional — a local re-derivation diverges; see DEVLOG 09-11).
 - **Gate:** 98.7% accuracy (macro-F1 0.986) on 158 held-out frames; beat two baselines.
 - **Detection:** F1 0.71 → 0.88 (precision 0.68 → 0.89); player/referee mAP@50 0.97 / 0.99.
 - **Homography:** median 0.30 ft reprojection error, 100% success on held-out frames.
@@ -271,8 +272,8 @@ the system bullet is the anchor for any of them.
 
 **System (anchor)**
 - Built an end-to-end computer-vision pipeline converting raw NBA broadcast video into
-  per-possession defensive matchup records, **validated at 91.1% agreement with independent
-  play-by-play ground truth (n=642)** across 641 joined possessions, by chaining eight
+  per-possession defensive matchup records, **validated at 87.8% agreement with independent
+  play-by-play ground truth (n=990)** across 641 joined possessions, by chaining eight
   independently-evaluated stages — live-frame gating, detection/tracking, court homography,
   team assignment, possession segmentation, matchup pairing, scorebug OCR, and play-by-play
   alignment.
