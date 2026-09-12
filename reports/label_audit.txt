@@ -1,0 +1,9 @@
+AUTO-LABEL AUDIT — 300/300 audited
+overall: {'n_judged': 300, 'correct': 121, 'box_or_class_wrong': 162, 'attribute_wrong': 17, 'unsure': 0, 'accuracy': 0.403, 'wilson95': [0.349, 0.46]}
+  adj_player         {'n_judged': 80, 'correct': 9, 'box_or_class_wrong': 61, 'attribute_wrong': 10, 'unsure': 0, 'accuracy': 0.113, 'wilson95': [0.06, 0.2]}
+  agreement_player   {'n_judged': 100, 'correct': 95, 'box_or_class_wrong': 5, 'attribute_wrong': 0, 'unsure': 0, 'accuracy': 0.95, 'wilson95': [0.888, 0.978]}
+  backboard          {'n_judged': 30, 'correct': 2, 'box_or_class_wrong': 27, 'attribute_wrong': 1, 'unsure': 0, 'accuracy': 0.067, 'wilson95': [0.018, 0.213]}
+  ball               {'n_judged': 10, 'correct': 1, 'box_or_class_wrong': 9, 'attribute_wrong': 0, 'unsure': 0, 'accuracy': 0.1, 'wilson95': [0.018, 0.404]}
+  referee            {'n_judged': 20, 'correct': 4, 'box_or_class_wrong': 11, 'attribute_wrong': 5, 'unsure': 0, 'accuracy': 0.2, 'wilson95': [0.081, 0.416]}
+  rim                {'n_judged': 30, 'correct': 5, 'box_or_class_wrong': 24, 'attribute_wrong': 1, 'unsure': 0, 'accuracy': 0.167, 'wilson95': [0.073, 0.336]}
+  scorebug           {'n_judged': 30, 'correct': 5, 'box_or_class_wrong': 25, 'attribute_wrong': 0, 'unsure': 0, 'accuracy': 0.167, 'wilson95': [0.073, 0.336]}

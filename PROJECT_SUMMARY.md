@@ -177,15 +177,15 @@ pipelines**; scaled to **641 joined possessions / 16 games**. Composite funnel y
   proposes court landmarks; geometry supplies precision via RANSAC through the court template.
   **In-house models are comparators only, never label sources** — self-training inbreeds
   exactly the scrum false negatives the retrain is meant to fix.
-- **Delivered dataset:** **6,159 frames judged, 21 games, 41 failures (0.7%), $10.80** via the
-  Batches API — 37,916 agreement boxes plus adjudicated keeps of 24,575 players, 1,897
-  scorebug, 1,194 rim, 689 backboard, 366 referee, 76 ball; 58k proposals rejected (8.4k
-  wide-shape, 6.9k contained-fragment, 2.9k object-on-person flips); attributes including
-  **4,694 jersey numbers** and kit labels (12,954 dark / 11,605 light); frame-level shot_type
-  on every frame (5,454 wide / 399 closeup / 259 graphic / 44 split-screen) as gate-v2
-  training data.
-- **Open:** a 300-label stratified human audit of accepted auto-labels is sampled but not yet
-  adjudicated — that measured error rate is what makes the dataset citable.
+- **Delivered dataset (after audit):** 6,159 frames judged, 21 games, 41 failures (0.7%),
+  $10.80 via the Batches API. The **300-label human audit (2026-09-12) split the output in
+  two**: the **37,916-box agreement band measures 95.0% [88.8, 97.8]** and is the usable
+  dataset; every **judge-adjudicated band measures 6.7–20.0%** (adj_player 11.3%, referee
+  20.0%, rim 16.7%, scorebug 16.7%, ball 10.0%, backboard 6.7%) and is **NOT training data**,
+  along with the attributes riding on it (kit, on_court, occlusion, 4,694 jersey numbers).
+  Frame-level shot_type came from the same judge and was not audited — untested, not validated.
+- **What the protocol bought:** knowing which half to keep BEFORE a retrain consumed the
+  other half. That is what the audit rule exists for.
 
 ## Measurement layer (statistics)
 - Team-defense credit reported **per 100 possessions with cluster-bootstrapped 95% CIs by
@@ -259,7 +259,8 @@ Kept deliberately, because they are evidence the instrument works:
 - **Homography:** median 0.30 ft reprojection error, 100% success on held-out frames.
 - **Teams / possessions / clock:** 87.1% / 96.5%–91.2% / 100%-on-readable.
 - **Data:** ~1,500 frames hand-labeled with custom tooling; 2 external datasets integrated;
-  **6,159 frames auto-labeled for $10.80** at 0.7% failure; 4,694 jersey numbers extracted.
+  6,159 frames auto-labeled for $10.80, audited at n=300 → a **37,916-box corpus measured at
+  95.0% [88.8, 97.8]**; the adjudicated remainder measured 6.7–20.0% and was discarded.
 - **Statistics:** +8.8/100 selection bias quantified; all estimates reported with
   cluster-bootstrapped 95% CIs.
 - **Models trained:** 7+ (CLIP head, 2× YOLOv8 detection, YOLOv8-pose court keypoints ×2
@@ -299,11 +300,11 @@ the system bullet is the anchor for any of them.
   refinement guarded to accept only improvements.
 
 **Data engineering / LLM systems**
-- Produced a **6,159-frame multi-task annotated dataset (37,916 agreement boxes, 24,575
-  adjudicated player boxes with kit/occlusion/jersey attributes, 4,694 jersey numbers) for
-  $10.80 at a 0.7% failure rate**, by building a two-teacher auto-labeling pipeline
-  (Grounding DINO + YOLO-pose proposals, Claude adjudication via the Batches API) governed
-  by anti-inbreeding rules barring in-house models from labeling their own training data.
+- Built a two-teacher auto-labeling pipeline (Grounding DINO + YOLO-pose proposals, Claude
+  adjudication via the Batches API) that labeled 6,159 frames for $10.80, and **caught its own
+  failure before it reached a model**: a 300-label stratified human audit measured the
+  unjudged agreement band at **95.0% [88.8, 97.8] (n=100)** and every judge-adjudicated band at
+  **6.7–20.0% (n=200)**, retaining a 37,916-box corpus and discarding the rest.
 
 **Judgment / rigor**
 - Prevented a corrupted model retrain by building a qualification gate that **rejected the

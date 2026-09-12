@@ -9,6 +9,65 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-09-12 — Rule-4 audit EXECUTED: the judge's output is unusable, the unjudged band is 95%
+
+300 stratified accepted labels, human-judged (`label_audit.py --label`). The
+number rule 4 exists for, and it did its job — before a retrain, not after.
+
+| stratum | correct | n | accuracy (Wilson 95%) |
+|---|---|---|---|
+| **agreement_player** (NO judge) | 95 | 100 | **0.950 [0.888, 0.978]** |
+| referee | 4 | 20 | 0.200 [0.081, 0.416] |
+| rim | 5 | 30 | 0.167 [0.073, 0.336] |
+| scorebug | 5 | 30 | 0.167 [0.073, 0.336] |
+| adj_player | 9 | 80 | 0.113 [0.060, 0.200] |
+| ball | 1 | 10 | 0.100 [0.018, 0.404] |
+| backboard | 2 | 30 | 0.067 [0.018, 0.213] |
+| (aggregate — NOT a meaningful number) | 121 | 300 | 0.403 |
+
+162 of 300 were box/class wrong, 17 attribute-wrong, 0 unsure. The errors are
+not near-misses: a **ball** label on the TNT scorebug (crops/0092), a **player**
+label on a backboard stanchion (crops/0006). Spot-checked three crops against
+their stored boxes — the audit renders what the data says, and the verdicts are
+right.
+
+**Four artifact explanations ruled out** before accepting this: coordinates are
+in-frame in both bands (no normalization mismatch); `label_audit.collect_pool`
+indexes `adjudicated[i]` exactly as `adjudicate_labels` wrote it (no
+misalignment); `b64_image(render_candidates(...))` draws BEFORE downscaling (the
+numbering the judge saw matches the geometry); and accuracy is flat 0–20% across
+proposal densities 2→38 per frame, median 14 (the judge was not losing track in
+crowded numbering). Leading hypothesis, NOT proven to this project's standard:
+the adjudicated band IS the disagreement band — proposals the pipeline declined,
+from a teacher that already failed qualification (GDINO P 0.70), over-proposing
+at 0.18. Mostly false positives; the judge failed to filter them.
+
+**The design defect this exposes** (now CLAIMS A6, paper §10.2): the
+qualification gate only guards classes that HAVE an in-house baseline. Rim /
+backboard / scorebug / ball / attributes were exempted because "beat the
+pipeline" is vacuous where the pipeline scores zero — and those are exactly the
+classes that failed. A gate that can only fire where a baseline exists gives no
+protection where protection matters most; absence of a comparator got read as
+permission rather than as unmeasured risk. A class with no baseline needs a
+direct human check BEFORE labels are accepted at scale.
+
+**Consequences.** Usable dataset = the **37,916-box agreement corpus** at 95.0%.
+NOT training data: 24,575 adjudicated players, 1,897 scorebug, 1,194 rim, 689
+backboard, 366 referee, 76 ball, and every attribute riding on them (kit,
+on_court, occlusion, the 4,694 jersey numbers). Frame-level shot_type came from
+the same judge and was NOT audited — untested, not validated; do not use for
+gate-v2 until it is. The $10.80 and 6,159 frames were spent and most of the
+yield was not recovered; what the protocol bought is knowing which half to keep.
+
+Note: 6 verdicts used `a` on non-player strata where the rubric reserves it for
+players (5 referee, 1 rim, 1 backboard). The report counts them as errors — the
+conservative reading; changes no conclusion.
+
+Written up in paper §5 (now drafted, G1 closed) and §10.2. CLAIMS A5/A6 added,
+LABEL_SCHEMA rule 3/4 outcome recorded, PROJECT_SUMMARY corrected.
+
+---
+
 ## 2026-09-11 — Report drafting; the cross-val canary was a PER-RUN number (91.1% → 87.8%)
 
 Started the public report (`paper/`, two-column LaTeX, arXiv register). Spine

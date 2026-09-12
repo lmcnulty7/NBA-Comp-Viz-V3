@@ -57,5 +57,13 @@ cross-frame identity (jersey-OCR route), temporal events (kill list).
    Disagreements: adjudicated and INCLUDED — never dropped for being contested.
 3. Human audit of ~300 random ACCEPTED labels → measured auto-label error rate
    (goes in the report; makes the dataset citable).
+   **EXECUTED 2026-09-12 (n=300). Result: agreement band 95.0% [88.8, 97.8];
+   every judge-adjudicated band 6.7–20.0%.** The adjudicated band and its
+   attributes (kit/on_court/occlusion/number) are NOT training data. Frame-level
+   shot_type came from the same judge and was NOT audited — treat as untested,
+   not validated. The usable dataset is the 37,916-box agreement corpus.
+   Consequence for rule 1: the gate only guards classes that HAVE an in-house
+   baseline; a class with no comparator needs a direct human check BEFORE its
+   labels are accepted at scale, not after.
 4. Retrained models adopted only if they beat the existing human-labeled
    held-out evals; end-to-end arbiter = PBP cross-val canary (87.8%, corpus-wide).
