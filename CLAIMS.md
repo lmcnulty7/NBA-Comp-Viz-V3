@@ -40,7 +40,7 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 - Help-position / off-ball attentiveness metrics (unverifiable assumptions; no ball tracking — DEVLOG 07-07 scope decision)
 - Ball tracking, shot-quality models
 - Closeout tendency as a headline metric (directional only; inherits far-court homography tail)
-- League-wide or era-normalized conclusions (2013–2017 pooled, GSW-centric sample)
+- League-wide or era-normalized conclusions (2012–2017 pooled, GSW-centric sample)
 
 ## Standing caveats that ship with the report
 

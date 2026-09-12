@@ -18,7 +18,7 @@ attributions agreeing with independent play-by-play ground truth at **87.8% (n=9
 
 ## Tech stack
 **Languages/Libs:** Python, PyTorch, Ultralytics YOLOv8, OpenCV, CLIP (HuggingFace
-`transformers`), scikit-learn, SciPy, easyocr, NumPy, Matplotlib, pytest (45 tests).
+`transformers`), scikit-learn, SciPy, easyocr, NumPy, Matplotlib, pytest (52 tests).
 **Models:** CLIP ViT-B/32 (frozen + linear probe), YOLOv8m (detection), YOLOv8m-pose
 (court keypoints), YOLOv8x-pose (person keypoints, teacher), BoT-SORT (tracking), a custom
 U-Net (court-line segmentation), Grounding DINO (open-vocab teacher), Claude Haiku/Sonnet
@@ -133,7 +133,7 @@ hard-excluded there; A/B is not home/away by itself.
 
 ## Stage 6 — Possession segmentation
 Trajectories → approach/set spans with basket and offense/defense assignment. **96.5% basket
-/ 91.2% offense** on 73 hand labels, rising to **100% / 100% more than 2 s from span
+/ 91.2% offense** on 57 scorable of 73 hand-labeled spans (16 unclear excluded), rising to **100% / 100% more than 2 s from span
 boundaries** — which is why downstream metrics are computed on **set cores** rather than full
 spans. **Residual:** ±1–2 s boundary fuzz; no within-occupancy possession change; free-throw
 clusters read as sets.
@@ -235,7 +235,7 @@ Kept deliberately, because they are evidence the instrument works:
 
 ## Cross-cutting engineering practices
 - **Reproducibility:** fixed seeds, saved splits, model + threshold artifacts, content
-  fingerprints, separable training vs. evaluation entry points, 45 tests.
+  fingerprints, separable training vs. evaluation entry points, 52 tests.
 - **Custom annotation tooling:** keypress classifiers, interactive box and guided keypoint
   labelers, automated label QA, weak-supervision pre-labeling, VLM adjudication.
 - **Honest, cost-aware evaluation:** held-out test sets, downstream-cost error framing, PR
@@ -256,7 +256,7 @@ Kept deliberately, because they are evidence the instrument works:
   (environment-conditional — a local re-derivation diverges; see DEVLOG 09-11).
 - **Gate:** 98.7% accuracy (macro-F1 0.986) on 158 held-out frames; beat two baselines.
 - **Detection:** F1 0.71 → 0.88 (precision 0.68 → 0.89); player/referee mAP@50 0.97 / 0.99.
-- **Homography:** median 0.30 ft reprojection error, 100% success on held-out frames.
+- **Homography:** median 0.30 ft reprojection error, 100% success on 28 held-out frames.
 - **Teams / possessions / clock:** 87.1% / 96.5%–91.2% / 100%-on-readable.
 - **Data:** ~1,500 frames hand-labeled with custom tooling; 2 external datasets integrated;
   6,159 frames auto-labeled for $10.80, audited at n=300 → a **37,916-box corpus measured at
@@ -294,7 +294,7 @@ the system bullet is the anchor for any of them.
 
 **Geometry**
 - Achieved pixel-to-court coordinate mapping at **0.30 ft (~3.6 in) median reprojection
-  error with 100% homography success on held-out frames** — a capability the project's prior
+  error with 100% homography success on 28 held-out frames** — a capability the project's prior
   version never reached — by hand-labeling 400 frames on a 20-point scheme, training a
   YOLOv8m-pose keypoint model, and solving with RANSAC plus ICP-style line-snapping
   refinement guarded to accept only improvements.
@@ -332,6 +332,6 @@ the system bullet is the anchor for any of them.
 - **The team-level estimate is not yet conclusive** — the GSW credit/100 confidence interval
   straddles zero.
 - **No league-wide or era-normalized claims at any n.** The sample is halfcourt set-cores from
-  a nonrandom, GSW-centric slice of 2013–2017 games.
+  a nonrandom, GSW-centric slice of 2012–2017 games.
 
 Full ledger with evidence artifacts and standing caveats: `CLAIMS.md`.
