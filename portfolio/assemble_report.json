@@ -1,0 +1,134 @@
+{
+ "clips": {
+  "c1_court_lock": {
+   "raw_bytes": 678628,
+   "base64_bytes": 904840,
+   "frames": 96,
+   "w": 854,
+   "h": 480,
+   "dur": 4.0,
+   "poster_bytes": 68456,
+   "still_bytes": 68456
+  },
+  "c2_gate_deadball": {
+   "raw_bytes": 397898,
+   "base64_bytes": 530532,
+   "frames": 96,
+   "w": 854,
+   "h": 480,
+   "dur": 4.0,
+   "poster_bytes": 33504,
+   "still_bytes": 84928
+  },
+  "c3_possession_sidebyside": {
+   "raw_bytes": 495793,
+   "base64_bytes": 661060,
+   "frames": 139,
+   "w": 1024,
+   "h": 284,
+   "dur": 5.792,
+   "poster_bytes": 40678,
+   "still_bytes": 40678
+  },
+  "c4_pixels_to_feet_curry3": {
+   "raw_bytes": 694377,
+   "base64_bytes": 925836,
+   "frames": 96,
+   "w": 854,
+   "h": 480,
+   "dur": 4.0,
+   "poster_bytes": 31700,
+   "still_bytes": 80380
+  },
+  "c5_matchup_topdown": {
+   "raw_bytes": 75464,
+   "base64_bytes": 100620,
+   "frames": 144,
+   "w": 876,
+   "h": 480,
+   "dur": 6.0,
+   "poster_bytes": 5360,
+   "still_bytes": 13668
+  },
+  "c6_excluded_banner": {
+   "raw_bytes": 40651,
+   "base64_bytes": 54204,
+   "frames": 96,
+   "w": 658,
+   "h": 360,
+   "dur": 4.0,
+   "poster_bytes": 5422,
+   "still_bytes": 9500
+  },
+  "c7_held_1998": {
+   "raw_bytes": 387072,
+   "base64_bytes": 516096,
+   "frames": 96,
+   "w": 640,
+   "h": 360,
+   "dur": 4.0,
+   "poster_bytes": 23336,
+   "still_bytes": 37940
+  }
+ },
+ "stills": {
+  "S1": {
+   "bytes": 179088,
+   "base64_bytes": 238784
+  },
+  "S2": {
+   "bytes": 249000,
+   "base64_bytes": 332000
+  },
+  "S3": {
+   "bytes": 93140,
+   "base64_bytes": 124188
+  },
+  "S4": {
+   "bytes": 14102,
+   "base64_bytes": 18804
+  },
+  "S5a": {
+   "bytes": 68584,
+   "base64_bytes": 91448
+  },
+  "S5b": {
+   "bytes": 3404,
+   "base64_bytes": 4540
+  },
+  "S6": {
+   "bytes": 27456,
+   "base64_bytes": 36608
+  },
+  "S7": {
+   "bytes": 14204,
+   "base64_bytes": 18940
+  },
+  "S8": {
+   "bytes": 260194,
+   "base64_bytes": 346928
+  },
+  "S9": {
+   "bytes": 17232,
+   "base64_bytes": 22976
+  },
+  "S10": {
+   "bytes": 8818,
+   "base64_bytes": 11760
+  }
+ },
+ "out": {
+  "full": {
+   "path": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/portfolio/build/court-ledger.html",
+   "bytes": 5313287
+  },
+  "stills": {
+   "path": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/portfolio/build/court-ledger-stills.html",
+   "bytes": 1878510
+  }
+ },
+ "size_gate": {
+  "total_le_12MB": true,
+  "each_clip_le_1MB_b64": true
+ }
+}

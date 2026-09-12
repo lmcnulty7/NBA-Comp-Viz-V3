@@ -1,0 +1,963 @@
+<title>Court Ledger</title>
+<style>
+:root{
+  --ground:#F1F3F0; --surface:#FAFBF9; --ink:#171A1C; --muted:#626A6C; --rule:#CDD3CF;
+  --template:#BE2490; --measured:#1B7A52; --held:#B77A1E; --excluded:#B0302A;
+  --teamA:#E8801F; --teamB:#3A7BD5;
+  --held-text:#8D5C10; --measured-text:#1B7A52;
+  --invert-ground:#171A1C; --invert-ink:#F1F3F0; --held-on-invert:#E2A648;
+  --scrim:#0E1113; --scrim-ink:#F1F3F0; --bracket-ink:#F1F3F0; --nav-h:48px;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --disp:"Barlow Semi Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  interpolate-size:allow-keywords;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1113; --surface:#171B1F; --ink:#E6E4DC; --muted:#98A0A3; --rule:#2A3136;
+    --template:#D858C2; --measured:#42A878; --held:#A66B29; --excluded:#F44F5D;
+    --held-text:#E2A648; --measured-text:#42A878;
+    --invert-ground:#E6E4DC; --invert-ink:#0E1113; --held-on-invert:#8D5C10; --bracket-ink:#0E1113;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1113; --surface:#171B1F; --ink:#E6E4DC; --muted:#98A0A3; --rule:#2A3136;
+  --template:#D858C2; --measured:#42A878; --held:#A66B29; --excluded:#F44F5D;
+  --held-text:#E2A648; --measured-text:#42A878;
+  --invert-ground:#E6E4DC; --invert-ink:#0E1113; --held-on-invert:#8D5C10; --bracket-ink:#0E1113;
+}
+html{scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;
+  padding-inline:16px;padding-block:0 64px;font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+@media (min-width:640px){body{padding-inline:20px;font-size:17px}}
+a{color:var(--template);text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible,button:focus-visible,summary:focus-visible,video:focus-visible{outline:2px solid var(--template);outline-offset:2px}
+img,video{max-width:100%;height:auto;display:block}
+p{margin:0}
+h1,h2,h3{margin:0;font-family:var(--disp);font-weight:600;line-height:1.05;text-wrap:balance;letter-spacing:-.005em}
+h1{font-size:clamp(34px,6vw,64px)}
+h2{font-size:clamp(28px,4vw,42px)}
+h3{font-family:var(--sans);font-weight:500;font-size:1em}
+.mono,.hud,.eyebrow,.badge,.tile,.chip,.card,.ledger,.nav,.rc,.legend,.note,.small{font-family:var(--mono)}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:.6em;align-items:center;flex-wrap:wrap}
+.small{font-size:12.5px;color:var(--muted)}
+.page{max-width:1120px;margin:0}
+.section{padding-block:56px 0;display:grid;gap:24px}
+.section,.band,.figure,.monitor{scroll-margin-top:var(--nav-h)}
+@media (min-width:900px){.section{padding-block:96px 0;gap:28px}}
+.section>header{display:grid;gap:10px;max-width:62ch}
+.lede{max-width:62ch}
+.lede em,.cap em{font-style:italic}
+.two{display:grid;gap:20px;grid-template-columns:1fr}
+@media (min-width:701px){.two{grid-template-columns:1fr 1fr}}
+.two{align-items:start}
+.two>*{min-width:0}
+.two .hud{grid-template-columns:1fr}
+.hud,.tile,.card,.figure figcaption,.lede,.rc,.callout{overflow-wrap:break-word}
+.stack{display:grid;gap:20px}
+
+/* glyph vocabulary */
+.g{display:inline-block;width:.62em;height:.62em;border:1.5px solid var(--ink);vertical-align:-.02em;flex:none}
+.g-m{background:var(--measured);border-color:var(--measured)}
+.g-h{border-color:var(--held);background:linear-gradient(135deg,var(--held) 50%,transparent 50%)}
+.g-u{border-style:dashed;border-color:var(--excluded);background:transparent}
+
+/* sticky nav */
+.nav{position:sticky;top:0;z-index:5;background:var(--ground);border-bottom:1px solid var(--rule);min-height:40px;
+  display:flex;flex-wrap:wrap;gap:0 14px;align-items:center;font-size:12px;letter-spacing:.01em;margin-inline:-16px;padding-inline:16px}
+@media (min-width:640px){.nav{margin-inline:-20px;padding-inline:20px}}
+.nav a{color:var(--muted);text-decoration:none;padding-block:12px;font-size:11.5px;border-bottom:2px solid transparent;display:inline-flex;gap:.45em;align-items:center;white-space:nowrap}
+.nav a[aria-current="true"]{color:var(--ink);border-bottom-color:var(--template)}
+.nav a:hover{color:var(--ink)}
+@media (max-width:1160px){.nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nav::-webkit-scrollbar{display:none}}
+
+/* monitor chrome */
+.monitor{margin:0;border:1px solid var(--rule);background:var(--surface);display:grid;align-content:start;min-width:0}
+.stage{position:relative}
+.screen{position:relative;background:var(--scrim);min-width:0}
+.screen video,.screen img.still{width:100%;height:auto;display:block}
+.badge{position:absolute;top:8px;left:8px;pointer-events:none;font-size:11px;letter-spacing:.04em;background:var(--scrim);color:var(--scrim-ink);padding:2px 6px;opacity:.92;z-index:2;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{position:absolute;left:0;right:0;bottom:0;height:2px;pointer-events:none;background:var(--rule);z-index:2}
+.prog i{display:block;height:100%;width:0;background:var(--template)}
+.hud{display:grid;gap:6px 24px;padding:10px 12px;border-top:1px solid var(--rule);font-size:12.5px;line-height:1.5}
+@media (min-width:701px){.hud{grid-template-columns:1fr 1fr}.hud .hud-s,.hud .hud-p{grid-column:1/-1}}
+.hud-l{color:var(--ink)}
+.hud-r{color:var(--ink)}
+.hud-s{color:var(--muted)}
+.hud-s.warn{color:var(--held-text)}
+.hud-p{color:var(--muted);font-size:11px;letter-spacing:.02em;border-top:1px dashed var(--rule);padding-top:6px}
+.hud-cap{color:var(--muted);font-size:11px}
+.callout p,.hud-s,.hud-p{max-width:72ch}
+.chip{display:inline-block;font-size:11px;letter-spacing:.02em;color:var(--muted);border:1px solid var(--rule);padding:1px 6px;background:var(--surface);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;align-content:flex-start}
+
+/* number spans */
+.num{white-space:normal}
+.tile .big .num small{display:block;font-size:.8em;margin-top:2px}
+.num small{color:var(--muted);font-size:.85em;font-weight:400}
+.n{font-family:var(--mono)}
+
+/* hero */
+.hero{padding-block:28px 0;display:grid;gap:22px}
+.hero-monitor .screen{aspect-ratio:854/480;max-width:100%}
+.hero-title{display:grid;gap:10px;max-width:62ch}
+.hero-title p{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.byline{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+/* docket triad */
+.triad{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:701px){.triad{grid-template-columns:repeat(3,1fr)}}
+.tile{border:1px solid var(--rule);background:var(--surface);padding:16px 16px 14px;display:grid;gap:8px;align-content:start;min-width:0}
+.tile .state{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:.5em;align-items:center}
+.tile .big{font-size:clamp(24px,2.5vw,28px);line-height:1.1;font-weight:500;letter-spacing:-.01em}
+.tile .what{font-family:var(--sans);font-size:15px;line-height:1.4}
+.tile .n{font-size:12.5px;color:var(--muted);line-height:1.45}
+.sample{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+
+/* diagram */
+.diagram{border:1px solid var(--rule);background:var(--surface);overflow-x:auto;padding:12px 8px}
+.diagram svg{display:block;min-width:960px;width:100%;height:auto;font-family:var(--mono)}
+.diagram .node rect{fill:var(--surface);stroke:var(--measured);stroke-width:1.5}
+.diagram .node.h rect{stroke:var(--held)}
+.diagram .node.u rect{stroke:var(--excluded);stroke-dasharray:4 3;fill:none}
+.diagram .node.j rect{stroke:var(--ink)}
+.diagram text{fill:var(--ink);font-size:12.5px}
+.diagram .idx{font-size:13px;font-weight:500}
+.diagram .ro{fill:var(--muted);font-size:11px}
+.diagram .u .idx,.diagram .u .lab{fill:var(--excluded)}
+.diagram .tag{fill:var(--held-text);font-size:11px;letter-spacing:.06em}
+.diagram .rail{stroke:var(--ink);stroke-width:1.5;fill:none}
+.diagram .pbp{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:5 4}
+.diagram .pbp-lab{fill:var(--muted);font-size:10.5px;letter-spacing:.04em}
+.diagram .gl-m{fill:var(--measured)}
+.diagram .gl-h{fill:var(--held)}
+.diagram .gl-u{fill:none;stroke:var(--excluded);stroke-dasharray:2 1.5}
+.diagram a{cursor:pointer}
+.diagram a:focus-visible rect{outline:2px solid var(--template)}
+.diagram .rail.draw{stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 600ms ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* cards, callouts, record card */
+.card{border:1px solid var(--rule);background:var(--surface);padding:14px 16px;display:grid;gap:8px;font-size:13px;line-height:1.5;min-width:0}
+.card .state{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:.5em;align-items:center}
+.card .big{font-size:26px;line-height:1.15;font-weight:500}
+.card p{font-family:var(--sans);font-size:15px}
+.callout{border:1px solid var(--excluded);padding:16px 18px;display:grid;gap:10px;background:var(--surface);max-width:none}
+.callout p{font-size:1em}
+.rc{border:1px solid var(--rule);background:var(--surface);padding:12px 14px;font-size:12.5px;line-height:1.6;overflow-x:auto}
+.rc table{border-collapse:collapse;white-space:normal;width:100%}
+.rc td{padding:1px 14px 1px 0;vertical-align:top}
+.rc td:first-child{color:var(--muted);white-space:nowrap}
+.rc.live tr{color:var(--muted)}
+.rc.live tr.lit{color:var(--ink)}
+.rc .ok{color:var(--measured-text)}
+.rc .bad{color:var(--excluded)}
+.rc .foot{color:var(--muted);border-top:1px dashed var(--rule);margin-top:8px;padding-top:6px;white-space:normal;font-size:11.5px}
+.figure{margin:0;border:1px solid var(--rule);background:var(--surface);display:grid;align-content:start}
+.figure img{width:100%}
+.figure .scroll{max-height:320px;overflow-y:auto}
+.figure figcaption{padding:10px 12px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:12.5px;line-height:1.5;display:grid;gap:4px;align-content:start}
+.figure figcaption .what{color:var(--ink)}
+.figure figcaption .no{color:var(--muted)}
+.bracket{position:relative}
+.bracket .mark{position:absolute;top:0;bottom:0;border-left:2px solid var(--template);border-right:2px solid var(--template);pointer-events:none}
+.bracket .mark span{position:absolute;top:-1px;left:calc(100% + 6px);transform:translateX(-100%);font-family:var(--mono);font-size:10.5px;background:var(--template);color:var(--bracket-ink);padding:0 5px;white-space:nowrap}
+@media (max-width:700px){.bracket .mark span{left:auto;right:calc(100% + 4px);transform:none}}
+
+/* charts */
+.chart{border:1px solid var(--rule);background:var(--surface);padding:12px 12px 6px;display:grid;gap:8px;min-width:0}
+.chart svg{width:100%;display:block;font-family:var(--mono);font-size:11.5px;overflow:visible}
+.chart .sub{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.chart .grid{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-family:var(--mono);font-size:12px}
+.chart .grid .lab{color:var(--ink);display:flex;gap:.4em;align-items:center;min-width:0;overflow-wrap:anywhere}
+.chart .grid .val{color:var(--muted);font-size:11px;white-space:nowrap}
+.chart .grid svg{height:22px}
+.chart .ticks{position:relative;height:16px;font-size:11px;color:var(--muted)}
+.chart .ticks span{position:absolute;top:0;transform:translateX(-50%)}
+.chart .ax{stroke:var(--rule);stroke-width:1}
+.chart .zero{stroke:var(--ink);stroke-width:1.5}
+.chart text{fill:var(--ink)}
+.chart .mu{fill:var(--muted)}
+.chart .bar-h{stroke:var(--held);stroke-width:3;stroke-linecap:butt}
+.chart .dot-h{fill:var(--held);stroke:var(--surface);stroke-width:2}
+.chart .bar-m{stroke:var(--measured);stroke-width:3}
+.chart .dot-m{fill:var(--measured);stroke:var(--surface);stroke-width:2}
+.chart .bar-x{stroke:var(--excluded);stroke-width:3;opacity:.7}
+.chart .dot-x{fill:var(--excluded);stroke:var(--surface);stroke-width:2;opacity:.7}
+.chart .ref{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 3}
+.chart .fun{fill:var(--measured);opacity:.85}
+.chart .fun-o{fill:var(--muted);opacity:.35}
+.chart .gl-m{fill:var(--measured)}
+.chart .gl-u{fill:none;stroke:var(--excluded);stroke-width:1;stroke-dasharray:2 1.5}
+.chart .title{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+.chart .cap{font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* ledger */
+.ledger{border:1px solid var(--rule);background:var(--surface);overflow-x:auto}
+.ledger table{border-collapse:collapse;font-size:12px;line-height:1.45;min-width:720px;width:100%}
+.ledger th,.ledger td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+.ledger th{color:var(--muted);font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+.ledger tr:last-child td{border-bottom:0}
+.ledger td:first-child{white-space:nowrap}
+.ledger s{color:var(--muted)}
+.ledger .src{color:var(--muted)}
+.ledger-wrap{border:1px solid var(--rule);background:var(--surface)}
+.ledger-wrap summary{cursor:pointer;list-style:none;padding:12px 16px;font-family:var(--mono);font-size:13px;display:flex;gap:10px;align-items:baseline}
+.ledger-wrap summary::-webkit-details-marker{display:none}
+.ledger-wrap summary::before{content:"+";color:var(--muted);width:1em;flex:none}
+.ledger-wrap[open] summary::before{content:"−"}
+.ledger-wrap .ledger{border:0;border-top:1px solid var(--rule)}
+.ledger-wrap::details-content{height:0;overflow:hidden;transition:height 200ms ease,content-visibility 200ms allow-discrete}
+.ledger-wrap[open]::details-content{height:auto}
+
+/* how-the-number-changed */
+.steps{display:grid;gap:0;font-family:var(--mono);font-size:13px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:10px 0;border-top:1px solid var(--rule);align-items:start}
+.step:last-child{border-bottom:1px solid var(--rule)}
+.step .v{font-size:20px;font-weight:500;white-space:nowrap}
+.step .v s{color:var(--muted);text-decoration-color:var(--excluded)}
+.step .why{color:var(--muted);font-size:12.5px}
+.step .why b{color:var(--ink);font-weight:500}
+
+/* incident register */
+.reg{display:grid;gap:10px}
+.reg details{border:1px solid var(--rule);background:var(--surface)}
+.reg summary{cursor:pointer;list-style:none;padding:12px 16px;display:grid;grid-template-columns:auto auto 1fr;gap:6px 16px;font-family:var(--mono);font-size:13px;align-items:baseline}
+.reg summary::-webkit-details-marker{display:none}
+.reg summary::before{content:"+";color:var(--muted);width:1em}
+.reg details[open] summary::before{content:"−"}
+.reg summary .case{color:var(--muted);letter-spacing:.06em}
+.reg summary .verdict{font-family:var(--sans);font-size:15px;font-weight:500}
+@media (max-width:700px){.reg summary{grid-template-columns:auto 1fr}.reg summary .verdict{grid-column:1/-1}}
+.reg details::details-content{height:0;overflow:hidden;transition:height 200ms ease,content-visibility 200ms allow-discrete}
+.reg details[open]::details-content{height:auto}
+.reg .cols{display:grid;gap:14px;padding:4px 16px 16px;grid-template-columns:1fr}
+@media (min-width:701px){.reg .cols{grid-template-columns:repeat(3,1fr)}}
+.reg .col{display:grid;gap:6px;font-size:14.5px;line-height:1.5;align-content:start}
+.reg .col h4{margin:0;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:4px}
+.reg .judg{padding:0 16px 16px;font-style:italic;color:var(--muted);font-size:14px}
+.reg .assets{padding:0 16px 16px;display:grid;gap:14px}
+.reg .fine{padding:0 16px 14px;font-family:var(--mono);font-size:12px;color:var(--held-text)}
+
+/* §7 band */
+.band{background:var(--invert-ground);color:var(--invert-ink);margin-inline:-16px;padding-inline:16px;padding-block:64px;margin-top:64px}
+@media (min-width:640px){.band{margin-inline:-20px;padding-inline:20px}}
+@media (min-width:900px){.band{padding-block:96px;margin-top:96px}}
+.band .in{max-width:1120px;display:grid;gap:28px}
+.band h2{color:var(--invert-ink)}
+.band ol{margin:0;padding:0;list-style:none;display:grid;gap:22px;max-width:62ch}
+.band li{display:grid;grid-template-columns:auto 1fr;gap:16px;font-size:clamp(18px,2.2vw,22px);line-height:1.4}
+.band li .m{font-family:var(--mono);font-size:13px;color:var(--invert-ink);opacity:.7;padding-top:.45em}
+.band .numline{margin-top:10px;max-width:360px}
+.band .numline svg{width:100%;height:auto;display:block;font-family:var(--mono);font-size:10.5px}
+.band .numline text{fill:var(--invert-ink)}
+.band .numline .ax{stroke:var(--invert-ink);opacity:.45;stroke-width:1}
+.band .numline .zero{stroke:var(--invert-ink);stroke-width:1.5}
+.band .numline .bar{stroke:var(--held-on-invert);stroke-width:3}
+.band .numline .dot{fill:var(--held-on-invert);stroke:var(--invert-ground);stroke-width:2}
+.band .contract{font-family:var(--mono);font-size:12.5px;line-height:1.7;opacity:.85;display:flex;flex-wrap:wrap;gap:0 .6em}
+.band .kill{display:flex;flex-wrap:wrap;gap:8px}
+.band .kill s{font-family:var(--mono);font-size:12px;border:1px solid var(--invert-ink);padding:2px 8px;opacity:.6;text-decoration-color:var(--excluded)}
+.band .prov{font-family:var(--mono);font-size:12px;opacity:.75;max-width:70ch;line-height:1.6}
+.band .eyebrow{color:var(--invert-ink);opacity:.7}
+
+/* §8 */
+.skills{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:701px){.skills{grid-template-columns:1fr 1fr}}
+.skill{border:1px solid var(--rule);background:var(--surface);padding:10px 12px;display:grid;gap:4px;font-size:14px;min-width:0}
+.skill b{font-weight:500}
+.skill .chips{font-size:11px}
+.xyz{display:grid;gap:12px;max-width:70ch;padding-left:1.2em;margin:0}
+.xyz li{line-height:1.5}
+.neg{font-family:var(--mono);font-size:12.5px;border:1px solid var(--rule);background:var(--surface)}
+.neg table{border-collapse:collapse;width:100%}
+.neg td{padding:6px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+.neg tr:last-child td{border-bottom:0}
+.neg td:first-child{color:var(--muted);white-space:nowrap}
+.links{font-family:var(--mono);font-size:13px;display:flex;flex-wrap:wrap;gap:0 .6em}
+.foot{font-family:var(--mono);font-size:11.5px;color:var(--muted);border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:4px}
+.legend{font-size:11.5px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+.legend i{display:inline-block;width:.6em;height:.6em;vertical-align:-.02em;margin-right:.35em}
+.legend .a{background:var(--teamA)}.legend .b{background:var(--teamB)}
+.hint{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.unm{color:var(--excluded)}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .diagram .rail.draw{animation:none;stroke-dasharray:none;stroke-dashoffset:0}
+  .reg details::details-content,.ledger-wrap::details-content{transition:none}
+}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+
+<nav class="nav" id="nav" aria-label="Sections">
+  <a href="#s0" id="nav-s0"><i class="g g-m"></i>§0 Court lock</a>
+  <a href="#s1" id="nav-s1"><i class="g g-m"></i>§1 Gate</a>
+  <a href="#s2" id="nav-s2"><i class="g g-h"></i>§2 Find/follow</a>
+  <a href="#s3" id="nav-s3"><i class="g g-m"></i>§3 One possession</a>
+  <a href="#s4" id="nav-s4"><i class="g g-u"></i>§4 UNMEASURED</a>
+  <a href="#s5" id="nav-s5"><i class="g g-h"></i>§5 Straddles zero</a>
+  <a href="#s6" id="nav-s6">§6 What it caught</a>
+  <a href="#s7" id="nav-s7">§7 Not claimed</a>
+  <a href="#s8" id="nav-s8">§8 Reviewer</a>
+</nav>
+
+<main class="page">
+
+<!-- ============ §0 HERO ============ -->
+<header class="hero section" id="s0">
+  <p class="byline">Lucien McNulty · a broadcast-video computer-vision pipeline, read as a ledger: every number carries its n, its interval and the file it came from.</p>
+  <p class="eyebrow"><i class="g g-m"></i>Computer vision · NBA broadcast footage · {{N:bias_audit.games}} games, {{N:corpus_years.min}}–{{N:corpus_years.max}}</p>
+  <div class="hero-title">
+    <h1>Broadcast video in.<br>Per-possession defensive records out.</h1>
+    <p>A 2019 TOR@PHI clip the model never trained on. The pixel-to-court mapping is re-solved on every frame; the magenta template is the solve. The same footage becomes a top-down court in §3.</p>
+  </div>
+
+  <figure class="monitor hero-monitor" id="m-c1">
+    <div class="screen" style="aspect-ratio:854/480">
+      <span class="badge">2019 TOR@PHI · unseen · stage 3 · TRACK</span>
+      <!--clip:c1_court_lock--><video id="v-c1" aria-label="2019 TOR@PHI, unseen clip, stage 3 court lock" muted playsinline loop preload="metadata" controls width="854" height="480" poster="{{POSTER:c1_court_lock}}" src="{{VIDEO:c1_court_lock}}" data-b64="c1_court_lock"></video><!--/clip-->
+      <div class="prog" aria-hidden="true"><i id="p-c1"></i></div>
+    </div>
+    <figcaption class="hud">
+      <div class="hud-l"><i class="g g-m"></i> Stage 3 · court homography <span class="hud-cap">(the math that maps a TV pixel to a spot on the real court, in feet)</span></div>
+      <div class="hud-r"><span class="num">{{N:homography.median_ft_str}} ft (~{{N:homography.median_in}} in) median reprojection residual on {{N:homography.val_frames}} hand-labeled frames held out of training <small>— the RANSAC inliers' fit against the court template, not an error vs those labels · {{N:homography.homography_success_rate|pct0}}% solve success · detector keypoint error vs the hand labels: median {{N:homography.keypoint_pixel_error.median|f1}} px (mean {{N:homography.keypoint_pixel_error.mean|int}} px)</small></span></div>
+      <div class="hud-s">Unseen games hold a sane mapping 66–89% of the time — a miss (the yellow HELD stretch) and the separate pixel benchmark are in §2.</div>
+      <div class="hud-p">derived overlay render · 4 s · research/fair use · <span class="chip">⌗ reports/homography_metrics.json</span></div>
+    </figcaption>
+  </figure>
+
+  <div class="triad" id="docket">
+    <div class="tile" id="tile-measured">
+      <div class="state"><i class="g g-m"></i>measured</div>
+      <div class="big"><span class="num">{{N:crossval.rate_pct}}%</span></div>
+      <div class="what">possession attributions agreeing with independent play-by-play</div>
+      <div class="n"><span class="num">n = {{N:crossval.n}} ({{N:crossval.agree}} agree / {{N:crossval.disagree}} disagree)</span> · {{N:credit.joined_total}} joined possessions · {{N:bias_audit.games}} games</div>
+      <div class="chips"><span class="chip">⌗ reports/tier2_crossval_corpus.json</span></div>
+    </div>
+    <div class="tile" id="tile-held">
+      <div class="state"><i class="g g-h"></i>inconclusive</div>
+      <div class="big"><span class="num">{{N:credit.gsw.credit_per_100|f1}} <small>[{{N:credit.gsw.ci95.0|signed1}}, {{N:credit.gsw.ci95.1|signed1}}]</small></span></div>
+      <div class="what">GSW team credit per 100 possessions — the interval straddles zero</div>
+      <div class="n"><span class="num">n = {{N:credit.gsw.n_possessions}} possessions, {{N:credit.gsw.n_games}} games</span> · 95% CI by cluster bootstrap (whole games resampled 2,000 times, so within-game correlation cannot narrow the interval)</div>
+      <div class="chips"><span class="chip">⌗ paper §7 · tier2_credit.py</span></div>
+    </div>
+    <div class="tile" id="tile-unmeasured">
+      <div class="state"><i class="g g-u"></i>unmeasured</div>
+      <div class="big"><span class="num unm">Unmeasured</span></div>
+      <div class="what">matchup (who-guards-whom) accuracy</div>
+      <div class="n">two labeling attempts paused ({{N:matchup_labeling.attempt_1_discarded_n}} labels discarded, then {{N:matchup_labeling.attempt_2_n}}) · no player-level conclusions</div>
+      <div class="chips"><span class="chip">⌗ CLAIMS.md C1 — OPEN</span></div>
+    </div>
+  </div>
+  <p class="sample">Sample: halfcourt set-cores (the settled middle of a possession, boundaries trimmed) from a nonrandom, GSW-centric slice of {{N:corpus_years.min}}–{{N:corpus_years.max}} games. No league-wide claims.</p>
+
+  <div class="diagram" id="diagram" role="region" aria-label="System diagram: eight stages and a join, with an independent play-by-play rail">
+    <svg viewBox="0 0 1120 176" role="group" aria-labelledby="diag-title">
+      <title id="diag-title">Eight pipeline stages on one rail; play-by-play enters only at stage 8 and the join</title>
+      <text class="pbp-lab" x="8" y="20">independent play-by-play (never seen by stages 1–7)</text>
+      <path class="pbp" d="M8 28 H1008 M876 28 V80 M1008 28 V80"/>
+      <path d="M871 74 L876 82 L881 74 Z" style="fill:var(--muted)"/>
+      <path d="M1003 74 L1008 82 L1013 74 Z" style="fill:var(--muted)"/>
+      <path class="rail draw" d="M8 116 H1112"/>
+      <g class="node m"><a href="#s1" id="dn1" aria-label="Stage 1 GATE, {{N:gate.accuracy_pct}}% on {{N:gate.n_test}} held-out frames — jump to §1"><rect x="8" y="84" width="112" height="64"/><rect class="gl-m" x="16" y="92" width="7" height="7"/><text class="idx" x="28" y="100">1</text><text class="lab" x="16" y="116">GATE</text><text class="ro" x="16" y="131">{{N:gate.accuracy_pct}}%</text><text class="ro" x="16" y="143">{{N:gate.n_test}} held-out</text></a></g>
+      <g class="node m"><a href="#s2" id="dn2" aria-label="Stage 2 DETECT+TRACK, F1 {{N:detection.f1_str}} on {{N:detection.total_gt_boxes}} boxes — jump to §2"><rect x="132" y="84" width="112" height="64"/><rect class="gl-m" x="140" y="92" width="7" height="7"/><text class="idx" x="152" y="100">2</text><text class="lab" x="140" y="116">DETECT+TRACK</text><text class="ro" x="140" y="131">F1 {{N:detection.f1_str}}</text><text class="ro" x="140" y="143">{{N:detection.total_gt_boxes}} boxes</text></a></g>
+      <g class="node m"><a href="#f-s2" id="dn3" aria-label="Stage 3 COURT, {{N:homography.median_ft_str}} ft on {{N:homography.val_frames}} frames — jump to the §2 homography figure"><rect x="256" y="84" width="112" height="64"/><rect class="gl-m" x="264" y="92" width="7" height="7"/><text class="idx" x="276" y="100">3</text><text class="lab" x="264" y="116">COURT</text><text class="ro" x="264" y="131">{{N:homography.median_ft_str}} ft</text><text class="ro" x="264" y="143">{{N:homography.val_frames}} frames</text></a></g>
+      <g class="node h"><a href="#s2" id="dn4" aria-label="Stage 4 IDENTITY, label-free, churn 6.57 to 5.0 — jump to §2"><rect x="380" y="84" width="112" height="64"/><path class="gl-h" d="M388 92 h7 v7 Z"/><path d="M388 92 h7 v7 h-7 Z" style="fill:none;stroke:var(--held);stroke-width:1"/><text class="idx" x="400" y="100">4</text><text class="lab" x="388" y="116">IDENTITY</text><text class="ro" x="388" y="131">churn 6.57→5.0</text><text class="tag" x="388" y="143">LABEL-FREE</text></a></g>
+      <g class="node m"><a href="#s3" id="dn5" aria-label="Stage 5 TEAMS, {{N:teams.track_level_accuracy_pct}}% on {{N:teams.n_labeled}} labels — jump to §3"><rect x="504" y="84" width="112" height="64"/><rect class="gl-m" x="512" y="92" width="7" height="7"/><text class="idx" x="524" y="100">5</text><text class="lab" x="512" y="116">TEAMS</text><text class="ro" x="512" y="131">{{N:teams.track_level_accuracy_pct}}%</text><text class="ro" x="512" y="143">{{N:teams.n_labeled}} labels</text></a></g>
+      <g class="node m"><a href="#s3" id="dn6" aria-label="Stage 6 POSSESSIONS, {{N:possessions.basket_accuracy_pct}} / {{N:possessions.offense_accuracy_pct}}% on {{N:possessions.basket_n}} of {{N:possessions.n_labeled}} labels — jump to §3"><rect x="628" y="84" width="112" height="64"/><rect class="gl-m" x="636" y="92" width="7" height="7"/><text class="idx" x="648" y="100">6</text><text class="lab" x="636" y="116">POSSESSIONS</text><text class="ro" x="636" y="131">{{N:possessions.basket_accuracy_pct}} / {{N:possessions.offense_accuracy_pct}}%</text><text class="ro" x="636" y="143">{{N:possessions.basket_n}} of {{N:possessions.n_labeled}} labels</text></a></g>
+      <g class="node u"><a href="#s4" id="dn7" aria-label="Stage 7 MATCHUPS, unmeasured, no accuracy number — jump to §4"><rect x="752" y="84" width="112" height="64"/><rect class="gl-u" x="760" y="92" width="7" height="7"/><text class="idx" x="772" y="100">7</text><text class="lab" x="760" y="116">MATCHUPS</text><text class="lab" x="760" y="131">UNMEASURED</text><text class="ro" x="760" y="143">no accuracy number</text></a></g>
+      <g class="node m"><a href="#s3" id="dn8" aria-label="Stage 8 CLOCK+PBP, {{N:clock.accuracy_on_readable_pct|int}}% on readable, {{N:clock.n}} labels — jump to §3"><rect x="876" y="84" width="112" height="64"/><rect class="gl-m" x="884" y="92" width="7" height="7"/><text class="idx" x="896" y="100">8</text><text class="lab" x="884" y="116">CLOCK+PBP</text><text class="ro" x="880" y="131">{{N:clock.accuracy_on_readable_pct|int}}% on readable</text><text class="ro" x="880" y="143">{{N:clock.n}} labels</text></a></g>
+      <g class="node j"><a href="#s5" id="dn9" aria-label="JOIN → CREDIT, {{N:credit.joined_total}} possessions, an interval — jump to §5"><rect x="1000" y="84" width="112" height="64"/><text class="idx" x="1008" y="100">→</text><text class="lab" x="1008" y="116">JOIN → CREDIT</text><text class="ro" x="1008" y="131">{{N:credit.joined_total}} possessions</text><text class="ro" x="1008" y="143">interval, §5</text></a></g>
+      <text class="ro" x="8" y="168">■ measured (held-out number) · ◪ label-free or inconclusive (diagnostics only / interval straddles zero) · □ unmeasured (no number) · click a node to jump</text>
+    </svg>
+  </div>
+</header>
+
+<!-- ============ §1 GATE ============ -->
+<section class="section" id="s1">
+  <header>
+    <p class="eyebrow"><i class="g g-m"></i>Stage 1 · live or not</p>
+    <h2>Live or not — the gate</h2>
+    <p class="lede">The first decision the system makes on every frame: is this live play, or a bench close-up, replay, crowd shot? Frames that fail are skipped, not tracked. The number below is its <em>held-out</em> score (frames the model never saw during training); the operating-point caveat sits in the same caption bar.</p>
+  </header>
+  <div class="two">
+    <figure class="monitor" id="m-c2">
+      <div class="screen" style="aspect-ratio:854/480">
+        <span class="badge">2017 Finals G5 · f13026 · stage 1</span>
+        <!--clip:c2_gate_deadball--><video id="v-c2" aria-label="2017 Finals G5, frame 13026, stage 1 gate: dead-ball banner, then live boxes" muted playsinline loop preload="metadata" controls width="854" height="480" poster="{{POSTER:c2_gate_deadball}}" src="{{VIDEO:c2_gate_deadball}}" data-b64="c2_gate_deadball"></video><!--/clip-->
+        <div class="prog" aria-hidden="true"><i id="p-c2"></i></div>
+      </div>
+      <figcaption class="hud">
+        <div class="hud-l"><i class="g g-m"></i> Stage 1 · frozen CLIP ViT-B/32 + logistic-regression probe. The red banner reads DEAD BALL: gate skipped (not tracked) (the banner's em dash shows as "???" — OpenCV's built-in font lacks the glyph); boxes with #id labels appear once play is live.</div>
+        <div class="hud-r"><span class="num">{{N:gate.accuracy_pct}}% <small>on {{N:gate.n_test}} held-out frames (macro-F1 {{N:gate.macro_f1_str}}; {{N:gate.fn}} FN / {{N:gate.fp}} FP)</small></span> · beat CLIP zero-shot <span class="num">{{N:gate.zero_shot_clip_accuracy_pct}}%</span> and an HSV floor-color heuristic <span class="num">{{N:gate.hsv_baseline_accuracy_pct}}%</span> · <span class="num">{{N:gate.labeled_total|comma}} hand-labeled frames <small>({{N:gate.labeled_live}} live / {{N:gate.labeled_dead}} dead)</small></span></div>
+        <div class="hud-s warn">Harvesting runs at threshold 0.35, not the validated {{N:gate.threshold_validated_str}} — unfamiliar broadcasts score lower. That operating point is protected by downstream possession structure and the play-by-play cross-check, not by a frame-level eval of its own.</div>
+        <div class="hud-p">run_tracking.py --use-gate render · 4 s · <span class="chip">⌗ evaluate_gate.py · reports/metrics.json · reports/viz/pr_curve.png</span></div>
+      </figcaption>
+    </figure>
+    <figure class="figure" id="f-s4">
+      <img src="{{IMG:S4}}" width="1584" height="264" alt="Evaluation sheet: the single live frame the gate classified as dead, with its probability">
+      <figcaption>
+        <div class="what">The one live frame the gate skipped (P(live) = 0.65). Shown because it exists.</div>
+        <div class="no"><span class="num">{{N:gate.fn}} false negative in {{N:gate.n_test}} held-out frames</span> · test split {{N:gate.test_live}} live / {{N:gate.test_dead}} dead · backbone {{N:gate.backbone}}</div>
+        <div class="chips"><span class="chip">⌗ reports/viz/false_negatives.png</span><span class="chip">⌗ reports/metrics.json</span></div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ §2 FIND, FOLLOW, PLACE ============ -->
+<section class="section" id="s2">
+  <header>
+    <p class="eyebrow"><i class="g g-m"></i><i class="g g-m"></i><i class="g g-h"></i>Stages 2–4 · detection, tracking, identity, pixels-to-feet</p>
+    <h2>Find, follow, place</h2>
+    <p class="lede">Three stages as one argument: boxes, then track <em>fragments</em> (a run of boxes the tracker believes is one body — not a player), then court coordinates in feet. Each carries its number and the failure the number does not cover.</p>
+  </header>
+  <div class="two">
+    <figure class="figure" id="f-s1">
+      <img src="{{IMG:S1}}" width="1440" height="624" alt="Detection evaluation sheet: correct boxes in green, missed players in yellow, false positives in red, per-frame counts">
+      <figcaption>
+        <div class="what"><i class="g g-m"></i> Green = correct box, yellow = missed player, red = false positive; per-frame counts.</div>
+        <div class="no"><span class="num">F1 0.71 → {{N:detection.f1_str}} <small>(P 0.68 → {{N:detection.precision_str}}, R 0.74 → {{N:detection.recall_str}}) on {{N:detection.frames_evaluated}} frames / {{N:detection.total_gt_boxes}} hand-labeled boxes</small></span> · YOLOv8m fine-tuned on a 654-image external dataset (10 → 5 classes), ~30 min on a Colab T4 vs ~22 h locally</div>
+        <div class="no">Recall ceiling ~0.74 in paint scrums — model capacity, not tuning: three tuning attempts are in the §8 negative-results table. Detection only: no ID-switch or IDF1 figure exists.</div>
+        <div class="chips"><span class="chip">⌗ reports/tracking_metrics.json (IoU 0.5)</span><span class="chip">⌗ paper §4, §10</span></div>
+      </figcaption>
+    </figure>
+    <figure class="figure" id="f-s6">
+      <img src="{{IMG:S6}}" width="600" height="360" alt="Crops of one track fragment over time: a white jersey at the start, navy number 40 at the end">
+      <figcaption>
+        <div class="what"><i class="g g-h"></i> One track fragment's crops over time: it starts in a white jersey and ends in navy #40.</div>
+        <div class="no">Identity is a track FRAGMENT, not a player. Label-free diagnostics: physically impossible steps 15.4% → 14.3%; id churn 6.57 → 5.0 (BoT-SORT + camera-cut reset + conservative re-linking that refuses uncertain merges).</div>
+        <div class="no">No tracking accuracy number exists; fragments become players only after jersey OCR (CLAIMS C2, open).</div>
+        <div class="chips"><span class="chip">⌗ reports/viz/track_3_crops.png</span><span class="chip">⌗ DEVLOG (label-free diagnostics)</span></div>
+      </figcaption>
+    </figure>
+    <figure class="figure" id="f-s2">
+      <img src="{{IMG:S2}}" width="1200" height="1080" alt="Six MIA at BOS frames with the projected court template, including two degenerate failures">
+      <figcaption>
+        <div class="what"><i class="g g-m"></i> Six MIA@BOS frames with the projected court template — including the two visibly failed, degenerate frames. Left in.</div>
+        <div class="no"><span class="num">{{N:homography.median_ft_str}} ft (~{{N:homography.median_in}} in) median reprojection residual on {{N:homography.val_frames}} held-out hand-labeled frames <small>— the RANSAC inliers' fit against the court template, not an error vs those labels — p90 {{N:homography.p90_ft_str}} ft, {{N:homography.homography_success_rate|pct0}}% solve success · detector keypoint error vs the hand labels: median {{N:homography.keypoint_pixel_error.median|f1}} px (mean {{N:homography.keypoint_pixel_error.mean|int}} px)</small></span> · 400 frames hand-labeled on a 20-point scheme · keypoints → RANSAC <em>(a fit that votes out mis-detected points)</em> → line-snapping refinement guarded to accept only improvements. <em>Homography</em>: the 3×3 matrix that maps TV pixels onto the court plane.</div>
+        <div class="no">Pixel benchmark, separately: p50 1.7 px on 279 validation frames whose targets are the snapped mapping, not human labels — both benchmarks score fit consistency; neither is an error vs human court labels. Unseen games: 66–89% sane mapping; far-court tail.</div>
+        <div class="chips"><span class="chip">⌗ reports/homography_metrics.json (val_frames {{N:homography.val_frames}})</span><span class="chip">⌗ paper §4</span></div>
+      </figcaption>
+    </figure>
+    <figure class="monitor" id="m-c7">
+      <div class="screen" style="aspect-ratio:640/360">
+        <span class="badge">1998 CHI@UTA · unseen · stage 3 · TRACK → HELD → TRACK</span>
+        <!--clip:c7_held_1998--><video id="v-c7" aria-label="1998 CHI@UTA, unseen clip, stage 3: TRACK, then HELD, then TRACK" muted playsinline loop preload="metadata" controls width="640" height="360" poster="{{POSTER:c7_held_1998}}" src="{{VIDEO:c7_held_1998}}" data-b64="c7_held_1998"></video><!--/clip-->
+        <div class="prog" aria-hidden="true"><i id="p-c7"></i></div>
+      </div>
+      <figcaption class="hud">
+        <div class="hud-l"><i class="g g-h"></i> What a miss looks like on a game from 1998: the template turns yellow (HELD) — the solver is holding the last good mapping for at most {{N:constants.HOLD_S|int}} s while this frame's solve fails — then re-acquires (magenta, TRACK).</div>
+        <div class="hud-r">Unseen games 66–89% sane mapping · this 4 s window: TRACK on 12 of 20 sampled frames (60%); the sampled TRACK frame's HUD reads line-res 2.3 px (8 matches)</div>
+        <div class="hud-s">No sustained HELD segment can exist by construction (HOLD_S = {{N:constants.HOLD_S|int}} s, then LOST); this is a TRACK → HELD → TRACK window, cut as such.</div>
+        <div class="hud-p">render_overlay_video.py output, ffmpeg trim t = 4.8–8.8 s · 4 s · 360p · <span class="chip">⌗ data/court_review/unseen_clips/1998_CHIatUTA.mp4</span> <span class="chip">⌗ HUD-color scan of the cut</span></div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ §3 ONE POSSESSION ============ -->
+<section class="section" id="s3">
+  <header>
+    <p class="eyebrow"><i class="g g-m"></i>Stages 5, 6, 8 (with 2–4 in frame) · one possession</p>
+    <h2>One possession, end to end</h2>
+    <p class="lede">One real possession — 2017 Finals G5, second period, the GSW possession ending in a 27-ft three (frame {{N:record_card_f33816.set_start_frame}}) — followed through the back stages of the chain, so a video timestamp becomes a named, scored record. Both clips and the record card below are this possession.</p>
+  </header>
+  <figure class="monitor" id="m-c3">
+    <div class="screen" style="aspect-ratio:1024/284">
+      <span class="badge">2017 Finals G5 · f33816 · stages 2, 4, 5, 6</span>
+      <!--clip:c3_possession_sidebyside--><video id="v-c3" aria-label="2017 Finals G5, frame 33816, stages 2, 4, 5, 6: broadcast beside a top-down minimap" muted playsinline loop preload="metadata" controls width="1024" height="284" poster="{{POSTER:c3_possession_sidebyside}}" src="{{VIDEO:c3_possession_sidebyside}}" data-b64="c3_possession_sidebyside"></video><!--/clip-->
+      <div class="prog" aria-hidden="true"><i id="p-c3"></i></div>
+    </div>
+    <figcaption class="hud">
+      <div class="hud-l"><i class="g g-m"></i> Stages 2, 4, 5, 6 on the real corpus: broadcast with boxes, team-colored fragment ids and green court lines ‖ top-down minimap with team-colored dots and trails (solid = observed, hollow = extrapolated). Kit colors, not home/away: team A/B.</div>
+      <div class="hud-r"><span class="num">Team assignment {{N:teams.track_level_accuracy_pct}}% <small>({{N:teams.n_labeled}} hand labels)</small></span> · <span class="num">possession segmentation {{N:possessions.basket_accuracy_pct}}% basket / {{N:possessions.offense_accuracy_pct}}% offense <small>({{N:possessions.basket_n}} scorable of {{N:possessions.n_labeled}} labels; {{N:possessions.n_unclear}} unclear excluded)</small></span></div>
+      <div class="hud-s">~13% team misassignment, so any frame with more than 5 on one team is hard-excluded. Boundaries are ±1–2 s fuzzy but 100% correct beyond 2 s — which is why every metric uses set cores only. Hollow dots are extrapolated and never counted. The gate rejected 12 of 180 sampled frames, so the render is 5.8 s.</div>
+      <div class="hud-p">build_trajectories.py render, frames 480–840 stride 2 · 5.8 s · <span class="chip">⌗ reports/poss_eval.json (overall n {{N:possessions.basket_n}})</span> <span class="chip">⌗ reports/teams_eval_curry_q1_clip.json</span> <span class="chip">⌗ reports/viz/team_clusters_gsw_cle_2017f_g5_s03.png</span></div>
+    </figcaption>
+  </figure>
+  <div class="two">
+    <figure class="monitor" id="m-c4">
+      <div class="screen" style="aspect-ratio:854/480">
+        <span class="badge">2017 Finals G5 · f33816 · stage 3 · H CONFIDENT</span>
+        <!--clip:c4_pixels_to_feet_curry3--><video id="v-c4" aria-label="2017 Finals G5, frame 33816, stage 3: pixels to feet" muted playsinline loop preload="metadata" controls width="854" height="480" poster="{{POSTER:c4_pixels_to_feet_curry3}}" src="{{VIDEO:c4_pixels_to_feet_curry3}}" data-b64="c4_pixels_to_feet_curry3"></video><!--/clip-->
+        <div class="prog" aria-hidden="true"><i id="p-c4"></i></div>
+      </div>
+      <figcaption class="hud">
+        <div class="hud-l"><i class="g g-m"></i> Stage 3 on 4 s of the same possession: every kept box gets a court position (x, y) in feet under its id; the amber polygon is the court mask; anything landing off-court is dropped and drawn red (the full 5.7 s render behind this cut: 2 drops in 166 frames).</div>
+        <div class="hud-r"><span class="num">{{N:homography.median_ft_str}} ft median fit residual <small>({{N:homography.val_frames}} held-out frames)</small></span> · status bar per frame: H CONFIDENT, inliers, reprojection residual, kept / dropped counts</div>
+        <div class="hud-s">Orange template = low-confidence mapping on that frame, if it appears. The mask polygon renders amber, not the cyan the script's docstring names.</div>
+        <div class="hud-p">visualize_masking.py render, raw t = 1–5 s of frames 480–840 stride 2 · 4 s · <span class="chip">⌗ reports/homography_metrics.json</span></div>
+      </figcaption>
+    </figure>
+    <div class="rc" id="rc" aria-label="Record card for set_start_frame 33816">
+      <table>
+        <tr class="rc-row"><td>set_start_frame</td><td>{{N:record_card_f33816.set_start_frame}} → core_end_frame {{N:record_card_f33816.core_end_frame}} · period {{N:record_card_f33816.period}}</td></tr>
+        <tr class="rc-row"><td>anchors (scorebug OCR)</td><td>{{N:record_card_f33816.anchors_str}} · clock_s {{N:record_card_f33816.clock_s_str}}</td></tr>
+        <tr class="rc-row"><td>vision</td><td>offense {{N:record_card_f33816.offense_real}} · defense {{N:record_card_f33816.defense_real}} · segmentation conf {{N:record_card_f33816.confidence}} · play-by-play: offense {{N:record_card_f33816.pbp_offense_real}} <span class="ok">✔ agree</span></td></tr>
+        <tr class="rc-row"><td>pbp possession</td><td>{{N:record_card_f33816.pbp_possession.team}} · clock [{{N:record_card_f33816.pbp_possession.clock.0|int}}, {{N:record_card_f33816.pbp_possession.clock.1|int}}] · points {{N:record_card_f33816.pbp_possession.points}}</td></tr>
+        <tr class="rc-row"><td>terminating event</td><td colspan="2">{{N:record_card_f33816.terminating_event.kind}} · "{{N:record_card_f33816.terminating_event.desc}}"</td></tr>
+        <tr class="rc-row"><td>status</td><td>{{N:record_card_f33816.status}} · joined · overlap {{N:record_card_f33816.overlap_frac_of_span}} · basket {{N:record_card_f33816.attacked_basket}}</td></tr>
+      </table>
+      <div class="foot">Values copied from the outcomes JSON at build time; nothing on this card is typed by hand. Team A/B is kit color, not home/away. "home" here is the play-by-play's field, not the pipeline's. <span class="rc-live-note">Rows brighten as the clip plays.</span> <span class="chip">⌗ data/pbp/gsw_cle_2017f_g5_s03_outcomes.json</span></div>
+    </div>
+  </div>
+  <figure class="figure" id="f-s7">
+    <div class="bracket"><img src="{{IMG:S7}}" width="1000" height="220" alt="Occupancy median-x timeline for the whole 10-minute section with shaded possession spans"><div class="mark" style="left:89.0%;width:2.1%"><span>this possession</span></div></div>
+    <figcaption>
+      <div class="what"><i class="g g-m"></i> Possession segmentation for the full 10-minute section (occupancy median-x in green, halfcourt spans shaded by attacked basket, transitions grey); the bracketed span at the right is the possession above, frames {{N:record_card_f33816.set_start_frame}}–{{N:record_card_f33816.end_frame}} (set core ends at {{N:record_card_f33816.core_end_frame}}).</div>
+      <div class="no">x-axis is the index of frames that carry positioned tracks (3,416 of the section), so gate-skipped stretches are absent, not blank. Bracket placed by re-running the renderer's own index arithmetic.</div>
+      <div class="chips"><span class="chip">⌗ data/tracking/gsw_cle_2017f_g5_s03_possessions.png</span><span class="chip">⌗ segment_possessions.py</span></div>
+    </figcaption>
+  </figure>
+  <div class="two">
+    <figure class="figure" id="f-s3">
+      <div class="scroll"><img src="{{IMG:S3}}" width="576" height="930" alt="Crop grids produced by the team classifier for this section: team A, team B, abstained"></div>
+      <figcaption>
+        <div class="what"><i class="g g-m"></i> Crop grids the team classifier produced for this section: team A 1,596 crops · team B 1,979 · abstained 84. Scrolls.</div>
+        <div class="no"><span class="num">{{N:teams.track_level_accuracy_pct}}% track-level <small>({{N:teams.track_level_n_tracks}} tracks)</small></span> · <span class="num">{{N:teams.crop_level_accuracy_pct}}% crop-level <small>({{N:teams.crop_level_n_identifiable}} identifiable crops, {{N:teams.abstained_n}} abstained)</small></span> — k-means on kit color with abstention.</div>
+        <div class="chips"><span class="chip">⌗ reports/viz/team_clusters_gsw_cle_2017f_g5_s03.png</span><span class="chip">⌗ reports/teams_eval_curry_q1_clip.json</span></div>
+      </figcaption>
+    </figure>
+    <figure class="figure" id="f-s5">
+      <img src="{{IMG:S5a}}" width="900" height="600" alt="Truth sheet: 27 scorebug clock crops across seven broadcast layouts">
+      <img src="{{IMG:S5b}}" width="680" height="180" alt="Calibration box for the ESPN 2017 scorebug layout">
+      <figcaption>
+        <div class="what"><i class="g g-m"></i> 27 scorebug clock crops across 7 broadcast layouts; one calibration box per layout, then easyocr.</div>
+        <div class="no"><span class="num">Clock OCR {{N:clock.accuracy_on_readable_pct|int}}% on readable crops, {{N:clock.confident_wrong}} confident-wrong <small>({{N:clock.n}} labels; {{N:clock.human_unreadable}} human-unreadable)</small></span>. Alignment: 9/9 offense cross-validation; period-orientation assignment lifted cross-val 69.4% → 93.7%.</div>
+        <div class="no">~10% of possessions fail anchoring and are retried: <span class="num">{{N:crossval.anchor_failures}} across the corpus</span>, four failure types itemised in the §8 ledger.</div>
+        <div class="chips"><span class="chip">⌗ reports/clock_eval.json</span><span class="chip">⌗ reports/tier2_crossval_corpus.json</span><span class="chip">⌗ reports/viz/anchor_truth_sheet.png</span></div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ §4 UNMEASURED ============ -->
+<section class="section" id="s4">
+  <header>
+    <p class="eyebrow"><i class="g g-u"></i>Stage 7 · matchups</p>
+    <h2>Stage 7 · Who is guarding whom — <span class="unm">UNMEASURED</span></h2>
+    <p class="lede">The stage the whole page exists for is the one without a number. The engine draws defender–attacker pairs on every frame of a set core; what it cannot yet say is how often those pairs are right.</p>
+  </header>
+  <div class="two">
+    <figure class="monitor" id="m-c5">
+      <div class="screen" style="aspect-ratio:876/480">
+        <span class="badge">gsw_hou_duel_s01 · span f729–1062 · stage 7 · JSON only</span>
+        <!--clip:c5_matchup_topdown--><video id="v-c5" aria-label="gsw_hou_duel_s01, span 729 to 1062, stage 7 top-down pairing, rendered from JSON only" muted playsinline loop preload="metadata" controls width="876" height="480" poster="{{POSTER:c5_matchup_topdown}}" src="{{VIDEO:c5_matchup_topdown}}" data-b64="c5_matchup_topdown"></video><!--/clip-->
+        <div class="prog" aria-hidden="true"><i id="p-c5"></i></div>
+      </div>
+      <figcaption class="hud">
+        <div class="hud-l"><i class="g g-u"></i> Hungarian one-to-one pairing of defenders to attackers by court-space distance, on the set core only. Offense dots are ringed white with a convex hull; grey lines carry the pair distance in feet.</div>
+        <div class="hud-r"><span class="num">This possession: {{N:matchup_span_729.coverage_pairs_per_frame}} pairs per frame, {{N:matchup_span_729.pct_excluded|int}}% of frames excluded <small>({{N:matchup_span_729.frames_used}} frames used, conf {{N:matchup_span_729.confidence}})</small></span>. Corpus after the ghost-track audit: <span class="num">median {{N:matchup_coverage_corpus.non_degraded_median}} pairs/frame, p10–p90 {{N:matchup_coverage_corpus.non_degraded_p10}}–{{N:matchup_coverage_corpus.non_degraded_p90}} <small>(n = {{N:matchup_coverage_corpus.n_non_degraded|comma}} non-degraded possessions, recomputed from the committed JSON)</small></span> — structural checks only.</div>
+        <div class="hud-s">Positions are 10 samples per second (stride 3 at 30 fps), played at real time; nothing is interpolated for display.</div>
+        <div class="hud-p">matchup_metrics.render_review from the committed JSON · 6 s · no broadcast pixels · <span class="chip">⌗ data/tracking/gsw_hou_duel_s01_matchups.json</span></div>
+      </figcaption>
+    </figure>
+    <figure class="monitor" id="m-c6">
+      <div class="screen" style="aspect-ratio:658/360">
+        <span class="badge">curry_q1_clip · core 0–381 · stage 7 · EXCLUDED frames</span>
+        <!--clip:c6_excluded_banner--><video id="v-c6" aria-label="curry_q1_clip, core 0 to 381, stage 7: excluded-frames banner" muted playsinline loop preload="metadata" controls width="658" height="360" poster="{{POSTER:c6_excluded_banner}}" src="{{VIDEO:c6_excluded_banner}}" data-b64="c6_excluded_banner"></video><!--/clip-->
+        <div class="prog" aria-hidden="true"><i id="p-c6"></i></div>
+      </div>
+      <figcaption class="hud">
+        <div class="hud-l"><i class="g g-u"></i> Ghost audit, in the artifact: 20–30% of trajectory points had been interpolated phantoms. Fix: raw-observation masking plus a hard exclusion of any frame showing more than 5 on one team, drawn into the review video as the bottom banner so a reviewer can count it.</div>
+        <div class="hud-r">Coverage fell from an inflated 4–5 to a corpus median of {{N:matchup_coverage_corpus.non_degraded_median}} pairs/frame <small>(p10–p90 {{N:matchup_coverage_corpus.non_degraded_p10}}–{{N:matchup_coverage_corpus.non_degraded_p90}}, n = {{N:matchup_coverage_corpus.n_non_degraded|comma}}; DEVLOG 2026-07-07's typical band on the audited clips: 2.5–4.0)</small>; possession basket accuracy rose 93.0 → {{N:possessions.basket_accuracy_pct}}% once ghosts stopped polluting occupancy. <span class="num">This possession: {{N:matchup_curry_q1_span_0.frames_excluded_team_gt5}} of {{N:matchup_curry_q1_span_0.frames_sampled}} sampled frames excluded ({{N:matchup_curry_q1_span_0.pct_excluded}}%)</span>.</div>
+        <div class="hud-s">Re-rendered from the same JSON for legibility (banner moved off the title line); banner-frame count in the render verified equal to the JSON's {{N:matchup_curry_q1_span_0.frames_excluded_team_gt5}} excluded frames for this possession.</div>
+        <div class="hud-p">t = 8.5–12.5 s of the 10 fps review render · 4 s · 360p · no broadcast pixels · <span class="chip">⌗ data/tracking/curry_q1_clip_matchups.json</span> <span class="chip">⌗ DEVLOG 2026-07-07</span></div>
+      </figcaption>
+    </figure>
+  </div>
+  <div class="callout" id="no-number">
+    <p class="eyebrow"><i class="g g-u"></i>Unmeasured · CLAIMS.md C1, open</p>
+    <p>There is no matchup accuracy number. Two human-labeling attempts were paused because the annotator could not reliably match the engine's dots to the footage (<span class="num">{{N:matchup_labeling.attempt_1_discarded_n}} labels discarded</span>; a second attempt reaching <span class="num">{{N:matchup_labeling.attempt_2_str}}</span>). Random defender assignment would score the same <span class="num">{{N:crossval.rate_pct}}% <small>(n = {{N:crossval.n}})</small></span> on the play-by-play check, because that check validates possession attribution, not who guarded whom. This gap blocks every player-level claim.</p>
+    <div class="chips"><span class="chip">⌗ DEVLOG 2026-07-17b · paper §10.4</span><span class="chip">⌗ data/matchup_eval/labels*.json</span></div>
+  </div>
+</section>
+
+<!-- ============ §5 STRADDLES ZERO ============ -->
+<section class="section" id="s5">
+  <header>
+    <p class="eyebrow"><i class="g g-h"></i>Join → credit · the end-to-end result</p>
+    <h2>The number that straddles zero</h2>
+    <p class="lede">The end-to-end result is an interval, shown with the funnel that produced its sample and the selection bias measured on that sample. The statistics here restrain a claim rather than make one.</p>
+  </header>
+  <div class="two">
+    <div class="chart" id="f1">
+      <div class="title">Fig. 1 · team credit per 100 possessions — the one bucket that clears the reporting gate</div>
+      {{CHART:F1}}
+      <div class="cap">x-axis: credit per 100 possessions · cluster-bootstrapped 95% CI by game (2,000 resamples); leave-sample-out, start-type-matched baselines. Pre-registered n ≥ {{N:credit.min_bucket}} reporting gate — exactly one bucket clears it. Sub-gate buckets are not plotted.</div>
+      <div class="cap">Read as: vs. these opponents' own context-matched norms, on the surviving sample, with this CI. Credit is an accounting attribution of points, not a measure of defensive skill.</div>
+      <div class="chips"><span class="chip">⌗ paper §7 · tier2_credit.py</span><span class="chip">⌗ data/pbp/tier2_credit.json</span></div>
+    </div>
+    <div class="chart" id="f2">
+      <div class="title">Fig. 2 · the join funnel, audited sample</div>
+      <div class="grid" role="img" aria-label="Funnel: 12 spans, 10 eligible, 9 aligned, 7 joined">
+        <span class="lab">spans</span><svg height="16" aria-hidden="true"><rect class="fun-o" x="0" y="0" width="100%" height="16"/></svg><span class="val">12</span>
+        <span class="lab">eligible</span><svg height="16" aria-hidden="true"><rect class="fun-o" x="0" y="0" width="83.3%" height="16"/></svg><span class="val">10</span>
+        <span class="lab">aligned</span><svg height="16" aria-hidden="true"><rect class="fun-o" x="0" y="0" width="75%" height="16"/></svg><span class="val">9</span>
+        <span class="lab">joined</span><svg height="16" aria-hidden="true"><rect class="fun" x="0" y="0" width="58.3%" height="16"/></svg><span class="val">7</span>
+      </div>
+      <div class="cap">10/12 → 9/10 → 7/9 · ~58% span→join yield</div>
+      <div class="cap"><span class="num">{{N:credit.joined_total}} joined possessions across {{N:bias_audit.games}} games</span>; 7/7 team-consistency on the correctness sample. Free-throw trips are structurally excluded: a foul interrupts the set.</div>
+      <div class="chips"><span class="chip">⌗ paper §6 (audited sample)</span><span class="chip">⌗ data/pbp/tier2_credit.json (joined_total)</span></div>
+    </div>
+  </div>
+  <div class="two">
+    <div class="card" id="bias">
+      <div class="state"><i class="g g-m"></i>selection bias, measured</div>
+      <div class="big"><span class="num">+{{N:bias_audit.selection_offset_per_100}} points per 100</span></div>
+      <div>joined-sample points per possession {{N:bias_audit.sampled_joined.ppp}} vs halfcourt population {{N:bias_audit.population_halfcourt.ppp}} · 3+ share {{N:bias_audit.derived.three_plus_share_joined_vs_halfcourt_pct.0}}% vs {{N:bias_audit.derived.three_plus_share_joined_vs_halfcourt_pct.1}}% · 1-pt share {{N:bias_audit.derived.one_pt_share_joined_vs_halfcourt_pct.0}}% vs {{N:bias_audit.derived.one_pt_share_joined_vs_halfcourt_pct.1}}% · {{N:bias_audit.derived.joined_live_start_share_pct}}% of the joined sample is live-start, not halfcourt</div>
+      <div class="small">offset = points per possession in the joined sample minus a start-type-matched population ({{N:bias_audit.sampled_joined.n}} vs {{N:bias_audit.population_all.n|comma}} possessions) — a common-mode bias shared by every team's row, so it cancels in the cross-team comparison (relative credit) instead of inflating one team</div>
+      <div class="chips"><span class="chip">⌗ reports/tier2_bias_audit.json</span></div>
+    </div>
+    <div class="card" id="case09">
+      <div class="state"><i class="g g-h"></i>case 09 · how the first figure was wrong</div>
+      <p>The first reportable figure (GSW −4.5 per 100) was two biases canceling: the baseline included the possessions being scored, and the funnel enriched scoring possessions, because free-throw trips are structurally excluded when a foul interrupts the set. Leave-sample-out, start-type-matched baselines and a cluster bootstrap by game turned it into <span class="num">{{N:credit.gsw_str}}</span>: less flattering, more defensible.</p>
+      <div class="chips"><span class="chip">⌗ DEVLOG 2026-07-16c</span></div>
+    </div>
+  </div>
+  <div class="two">
+    <div class="card" id="xval">
+      <div class="state"><i class="g g-m"></i>cross-validation against play-by-play</div>
+      <div class="big"><span class="num">{{N:crossval.rate_pct}}% <small>({{N:crossval.agree}}/{{N:crossval.n}})</small></span></div>
+      <div>per-game range {{N:crossval_per_game.range_str}} ({{N:crossval_per_game.n_games}} games) · non-duplicate slice <span class="num">{{N:crossval.non_duplicate.agreement_rate|pct}}% <small>(n = {{N:crossval.non_duplicate.n_checked}})</small></span> · overlap ≥ 0.80 slice <span class="num">{{N:crossval.overlap_ge_080.agreement_rate|pct}}% <small>(n = {{N:crossval.overlap_ge_080.n_checked}})</small></span></div>
+      <div class="small">validates possession attribution, not who guarded whom</div>
+      <div class="chips"><span class="chip">⌗ reports/tier2_crossval_corpus.json</span></div>
+    </div>
+    <div class="rc" id="rc-dis" aria-label="Disagreement card for set_start_frame 21990">
+      <table>
+        <tr><td>clip</td><td>{{N:disagreement_card_f21990.clip}} · set_start_frame {{N:disagreement_card_f21990.set_start_frame}}</td></tr>
+        <tr><td>period</td><td>{{N:disagreement_card_f21990.period}} · anchors {{N:disagreement_card_f21990.anchors_str}}</td></tr>
+        <tr><td>vision</td><td>offense {{N:disagreement_card_f21990.offense_real}} · play-by-play: offense {{N:disagreement_card_f21990.pbp_offense_real}}</td></tr>
+        <tr><td>pbp event</td><td colspan="2">"{{N:disagreement_card_f21990.terminating_event.desc}}"</td></tr>
+        <tr><td>result</td><td colspan="2"><span class="bad">→ DISAGREE</span> → hard-excluded from every downstream number</td></tr>
+      </table>
+      <div class="foot">{{N:crossval.disagree}} of {{N:crossval.n}} checked possessions end here. <span class="chip">⌗ data/pbp/gsw_cle_2017f_g5_s03_outcomes.json</span></div>
+    </div>
+  </div>
+  <div class="two">
+    <div class="stack">
+      <div class="title mono" style="font-size:12.5px">How the headline number changed</div>
+      <div class="steps" id="ledger-steps">
+        <div class="step"><div class="v"><s>91.1% (n = 642)</s></div><div class="why"><b>retracted 2026-09-11.</b> One run's alignment report, promoted to a corpus claim by mistake. <span class="chip">⌗ CLAIMS.md A1 history · DEVLOG 2026-09-11</span></div></div>
+        <div class="step"><div class="v">{{N:crossval_per_run_artifact.rate_pct}}% (n = {{N:crossval_per_run_artifact.n}})</div><div class="why"><b>the committed artifact</b> — a third, older run. <span class="chip">⌗ reports/tier2_crossval.json</span></div></div>
+        <div class="step"><div class="v">{{N:crossval.rate_pct}}% ({{N:crossval.agree}}/{{N:crossval.n}})</div><div class="why"><b>corpus-wide</b>, recomputed from committed alignment output by tier2_crossval_corpus.py in ~1 s, so the number and its artifact are the same object. <span class="chip">⌗ reports/tier2_crossval_corpus.json</span></div></div>
+      </div>
+    </div>
+    <div class="card" id="repro">
+      <div class="state"><i class="g g-h"></i>reproducibility · environment-conditional</div>
+      <p>151/151 outcome files re-derived byte-identically on a fresh Colab VM with cached anchors.</p>
+      <p>A 92-minute local re-run changed 51 of 151 files (75 status transitions, 49 anchor sets, 13 offense/defense flips; 86.6% (878/1016) instead of {{N:crossval.rate_pct}}% ({{N:crossval.agree}}/{{N:crossval.n}})). Restored from git; claim narrowed to: deterministic given the same environment and cached anchors — not environment-portable.</p>
+      <div class="chips"><span class="chip">⌗ DEVLOG 2026-07-17, 2026-09-11</span><span class="chip">⌗ paper §6.4</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §6 WHAT THE INSTRUMENT CAUGHT ============ -->
+<section class="section" id="s6">
+  <header>
+    <p class="eyebrow">Incident register · negative results as exhibits</p>
+    <h2>What the instrument caught</h2>
+    <p class="lede">Six incidents, each in three columns: what the log said, what was true, what changed. These are the product. I built the checks; the checks found these.</p>
+    <p class="hint">Short on time? Read 01 and 02.</p>
+  </header>
+  <div class="reg">
+    <details id="inc-01" open>
+      <summary id="sum-inc-01"><span class="case">01 · 2026-09-12</span><span class="verdict">A 300-label hand audit found the LLM judge's labels {{N:label_audit.judge_adjudicated_bands.range_pct_str}} right; discarded before any model trained on them.</span></summary>
+      <div class="cols">
+        <div class="col"><h4>The log said</h4><p>6,159 of 6,197 stratified frames judged by Claude Haiku through the Batches API for $10.80 (41 failures, 0.7%): labels ready to train on.</p></div>
+        <div class="col"><h4>What was true</h4><p>Rule 4 of the label protocol — a human audits 300 stratified accepted labels before anything trains — found the unjudged agreement band at <span class="num">{{N:label_audit.agreement_band.accuracy|pct}}% [{{N:label_audit.agreement_band.wilson95.0|pct}}, {{N:label_audit.agreement_band.wilson95.1|pct}}] <small>(n = {{N:label_audit.agreement_band.n_judged}})</small></span> and every judge-adjudicated band at <span class="num">{{N:label_audit.judge_adjudicated_bands.range_pct_str}} <small>(n = {{N:label_audit.judge_adjudicated_bands.n_total}})</small></span>. Errors were not near-misses.</p></div>
+        <div class="col"><h4>What changed</h4><p>Kept the 37,916-box agreement corpus (teacher and pipeline agreed, no judge involved); discarded every judge-adjudicated band and the 4,694 jersey-number reads riding on it — before any retrain consumed them. Recorded design defect (CLAIMS A6): the qualification gate could only fire on classes with an in-house comparator, and the exempted classes are exactly the ones that failed — absence of a comparator had been read as permission.</p></div>
+      </div>
+      <p class="judg">Why this is judgment: the cheap signal (a judge's verdicts) looked like data until a human sample said otherwise; the sample was pre-committed, so the answer could not be argued with.</p>
+      <div class="assets">
+        <div class="chart" id="f5">
+          <div class="title">Fig. 5 · rule-4 audit accuracy by stratum, Wilson 95% intervals <em>(a binomial CI that stays honest at n = 10)</em> · <i class="g g-m"></i> agreement band · <i class="g g-u"></i> judge-adjudicated (discarded)</div>
+          {{CHART:F5}}
+          <div class="cap">{{N:label_audit.sampled}} stratified labels audited by hand. The dashed line is the aggregate {{N:label_audit.overall.accuracy|pct}}% — not a meaningful number (mixes bands).</div>
+          <div class="chips"><span class="chip">⌗ reports/label_audit.json</span></div>
+        </div>
+        <div class="two">
+          <figure class="figure" id="f-s9">
+            <img src="{{IMG:S9}}" width="862" height="188" alt="Audit crop 0092: a box labeled ball drawn over the TNT scorebug">
+            <figcaption><div class="what">a "ball" label — on the TNT scorebug</div><div class="no">crop 0092 · stratum {{N:label_audit.crops.0092.jpg.stratum}} · verdict {{N:label_audit.crops.0092.jpg.verdict}} = box_or_class_wrong · {{N:label_audit.crops.0092.jpg.tag}} frame {{N:label_audit.crops.0092.jpg.frame}}</div><div class="chips"><span class="chip">⌗ data/label_audit/labels.json</span></div></figcaption>
+          </figure>
+          <figure class="figure" id="f-s10">
+            <img src="{{IMG:S10}}" width="175" height="221" alt="Audit crop 0006: a box labeled player drawn over the backboard stanchion" style="width:auto;max-height:221px">
+            <figcaption><div class="what">a "player" label — on the backboard stanchion</div><div class="no">crop 0006 · stratum {{N:label_audit.crops.0006.jpg.stratum}} · verdict {{N:label_audit.crops.0006.jpg.verdict}} = box_or_class_wrong · {{N:label_audit.crops.0006.jpg.tag}} frame {{N:label_audit.crops.0006.jpg.frame}}</div><div class="chips"><span class="chip">⌗ data/label_audit/labels.json</span></div></figcaption>
+          </figure>
+        </div>
+      </div>
+    </details>
+    <details id="inc-02">
+      <summary id="sum-inc-02"><span class="case">02 · 2026-07-18</span><span class="verdict">A 197-minute Grounding DINO pass missed more real players than the in-house detector; the retrain never happened.</span></summary>
+      <div class="cols">
+        <div class="col"><h4>The log said</h4><p>Grounding DINO, after a 197-minute GPU pass over 6,197 frames, was ready to label.</p></div>
+        <div class="col"><h4>What was true</h4><p>On identical human-labeled frames it scored P 0.70 / R 0.94 vs the in-house detector's P 0.956 / R 0.967 — 27 vs 15 false negatives; even while over-proposing, it missed more real players.</p></div>
+        <div class="col"><h4>What changed</h4><p>The retrain never happened; four artifact explanations (coordinate normalization, index misalignment, draw-before-downscale, crowded numbering) were ruled out before accepting the result.</p></div>
+      </div>
+      <p class="fine">These P/R figures come from a different matcher than the F1 {{N:detection.f1_str}} headline in §2; do not cross-compare.</p>
+      <p class="judg">Why this is judgment: a bigger model with a longer log is not a better teacher; the comparison was run on the same frames before a single label was accepted. <span class="chip">⌗ DEVLOG 2026-07-18</span></p>
+    </details>
+    <details id="inc-03">
+      <summary id="sum-inc-03"><span class="case">03 · 2026-06-24</span><span class="verdict">Every epoch "completed" on Apple MPS; the keypoint head had learned nothing (mAP 0).</span></summary>
+      <div class="cols">
+        <div class="col"><h4>The log said</h4><p>Every epoch of the court-keypoint model completed on Apple MPS; box metrics improved.</p></div>
+        <div class="col"><h4>What was true</h4><p>Keypoint loss flat at ~11.4 and keypoint mAP exactly 0 — the head that mattered learned nothing; a CPU run dropped it 11.5 → 7.7 in 11 epochs. Two stacked root causes: an MPS gradient bug, and degenerate box targets from collinear keypoints.</p></div>
+        <div class="col"><h4>What changed</h4><p>That model trains on CPU; rule born — verify artifacts by content, never by log line. Every clip on this page was verified the same way (frame count by ffprobe, a mid-frame extracted and looked at).</p></div>
+      </div>
+      <p class="judg">Why this is judgment: "completed" and "learned" are different claims; the second needs an artifact. <span class="chip">⌗ DEVLOG 2026-06-24</span></p>
+      <div class="assets">
+        <figure class="figure" id="f-s8">
+          <img src="{{IMG:S8}}" width="1200" height="996" alt="Review sheet: the 12 worst keypoint frames, annotated points collinear, error 7.28 ft">
+          <figcaption><div class="what">12 worst keypoint frames: "points collinear", error 7.28 ft.</div><div class="no">Detector keypoint pixel error vs hand labels: mean {{N:homography.keypoint_pixel_error.mean}} px, median {{N:homography.keypoint_pixel_error.median}} px — the mean is carried by frames like these.</div><div class="chips"><span class="chip">⌗ reports/viz/kp_review_worst.png</span><span class="chip">⌗ reports/homography_metrics.json (keypoint_pixel_error)</span></div></figcaption>
+        </figure>
+      </div>
+    </details>
+    <details id="inc-04">
+      <summary id="sum-inc-04"><span class="case">04 · 2026-07-16</span><span class="verdict">A content-hash guard refused a stale join on its first deployment.</span></summary>
+      <div class="cols">
+        <div class="col"><h4>The log said</h4><p>Fresh timestamps on the possession join (00:10) and the credit table built from it (00:11), and the table looked plausible.</p></div>
+        <div class="col"><h4>What was true</h4><p>The join was stamped the previous morning — it had crashed on Colab, the wrapper never checked exit codes, and credit aggregated stale data.</p></div>
+        <div class="col"><h4>What changed</h4><p>The join records a content hash of every outcomes file it consumed; credit hard-exits on mismatch (content, not mtime). On the very next run a zip that accreted old files tripped it — the guard refused a real stale join on first deployment. A failed alignment now skips join and credit entirely.</p></div>
+      </div>
+      <p class="judg">Why this is judgment: a plausible table is the most dangerous output a pipeline can produce; the fix checks content, not timestamps. <span class="chip">⌗ DEVLOG 2026-07-16</span></p>
+    </details>
+    <details id="inc-05">
+      <summary id="sum-inc-05"><span class="case">05 · 2026-07-07</span><span class="verdict">macOS silently kept the old mp4s; the "fixed" renders had never been written.</span></summary>
+      <div class="cols">
+        <div class="col"><h4>The log said</h4><p>Ghost-free videos re-rendered.</p></div>
+        <div class="col"><h4>What was true</h4><p>macOS AVFoundation silently refuses to overwrite an mp4 — the "fixed" renders were the old files.</p></div>
+        <div class="col"><h4>What changed</h4><p>Unlink first, assert the writer opened, then pixel-scan every fresh mp4 and count banner frames against the JSON exclusion counts (104 / 43 / 50 / 60 matched). The same ritual produced every clip on this page.</p></div>
+      </div>
+      <p class="judg">Why this is judgment: the writer returned success; the file on disk was the test. <span class="chip">⌗ DEVLOG 2026-07-07</span></p>
+    </details>
+    <details id="inc-06">
+      <summary id="sum-inc-06"><span class="case">06 · 2026-07-12</span><span class="verdict">1080p moved jersey OCR 30.8% → 31.0%; the extra pixels bought longer tracks instead.</span></summary>
+      <div class="cols">
+        <div class="col"><h4>The log said</h4><p>Jersey-number OCR is limited by 720p.</p></div>
+        <div class="col"><h4>What was true</h4><p>A controlled 1080p A/B moved read rate 30.8% → 31.0% — saturation; the extra pixels bought ~3× longer tracks and team-call abstention 53% → 11% instead.</p></div>
+        <div class="col"><h4>What changed</h4><p>Effort moved to targeted crops and multi-read aggregation; a fragment named "#34 GSW" on visibly purple crops was actually the opposing #34 — a number legal on both rosters — which spawned a crop-color veto.</p></div>
+      </div>
+      <p class="judg">Why this is judgment: the obvious lever was measured before it was pulled, and the measurement redirected the work. <span class="chip">⌗ DEVLOG 2026-07-12</span></p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ §7 NOT CLAIMED (inverted band) ============ -->
+<section class="band" id="s7">
+  <div class="in">
+    <p class="eyebrow">Non-claims · from PROJECT_SUMMARY.md (year span corrected here; see the §8 ledger)</p>
+    <h2>What this project does NOT claim</h2>
+    <ol>
+      <li><span class="m">01</span><div>Matchup assignment has no validated accuracy number. The labeling attempt was halted when positional fidelity proved too low to annotate reliably ({{N:matchup_labeling.attempt_1_discarded_n}} labels discarded, a second attempt reaching {{N:matchup_labeling.attempt_2_n}}). No player-level conclusions follow from it. (CLAIMS.md C1, OPEN.)</div></li>
+      <li><span class="m">02</span><div>The team-level estimate is not yet conclusive — the GSW credit/100 confidence interval straddles zero.
+        <div class="numline">{{CHART:NUMLINE}}</div></div></li>
+      <li><span class="m">03</span><div>No league-wide or era-normalized claims at any n. The sample is halfcourt set-cores from a nonrandom, GSW-centric slice of {{N:corpus_years.min}}–{{N:corpus_years.max}} games.</div></li>
+    </ol>
+    <div class="contract" id="contract">
+      <span>identity = track fragment, not player ·</span>
+      <span>team A/B ≠ home/away ·</span>
+      <span>set core ≠ full possession ·</span>
+      <span>credit = accounting attribution, not defensive skill ·</span>
+      <span>the gate's {{N:gate.accuracy_pct}}% belongs to the {{N:gate.threshold_validated_str}} in-domain eval; harvesting runs at 0.35 ·</span>
+      <span>151/151 reproducibility is environment-conditional ·</span>
+      <span>the auto-label {{N:label_audit.agreement_band.accuracy|pct0}}% is the agreement band only (n = {{N:label_audit.agreement_band.n_judged}})</span>
+    </div>
+    <div class="kill" id="kill" aria-label="Kill list: claims this project does not make">
+      <s>transition defense</s><s>help defense</s><s>off-ball</s><s>ball tracking</s><s>shot quality</s><s>closeout rating</s><s>league-wide</s><s>era-normalized</s><s>per-player ratings</s>
+    </div>
+    <p class="prov">Broadcast video was fetched from public uploads for research and education and is not redistributed. Every moving image on this page is a pipeline-derived overlay render of 6 s or less; the matchup clip contains no broadcast pixels at all; every still is a derived evaluation sheet or an overlaid frame.</p>
+  </div>
+</section>
+
+<!-- ============ §8 FOR THE REVIEWER ============ -->
+<section class="section" id="s8">
+  <header>
+    <p class="eyebrow">For the reviewer · what you can verify, and what I did</p>
+    <h2>For the reviewer</h2>
+    <p class="lede">Each skill names the file that carries it. The evidence ledger at the end maps every number on this page to an artifact path or a dated log entry.</p>
+  </header>
+  <div class="skills" id="skills">
+    <div class="skill"><b>Transfer learning</b><span>frozen CLIP + logistic probe, <span class="num">{{N:gate.accuracy_pct}}% <small>/ {{N:gate.n_test}}</small></span></span><div class="chips"><span class="chip">⌗ train_gate.py</span></div></div>
+    <div class="skill"><b>Detection fine-tuning</b><span>YOLOv8m, F1 0.71 → {{N:detection.f1_str}}</span><div class="chips"><span class="chip">⌗ train_player_detector.py</span></div></div>
+    <div class="skill"><b>Multi-object tracking</b><span>BoT-SORT + camera-cut reset, label-free churn diagnostics</span><div class="chips"><span class="chip">⌗ run_tracking.py</span></div></div>
+    <div class="skill"><b>Geometry</b><span>20-point keypoints + RANSAC + guarded line snapping, <span class="num">{{N:homography.median_ft_str}} ft fit residual <small>on {{N:homography.val_frames}} held-out frames</small></span></span><div class="chips"><span class="chip">⌗ snap_projections.py</span><span class="chip">⌗ evaluate_homography.py</span></div></div>
+    <div class="skill"><b>Auto-labeled segmentation</b><span>labels projected from the homography; U-Net court lines, Dice 0.587 — the line-snapping signal, not a headline</span><div class="chips"><span class="chip">⌗ train_line_seg.py</span></div></div>
+    <div class="skill"><b>Assignment algorithms</b><span>Hungarian pairing on court-space distance (unmeasured, §4)</span><div class="chips"><span class="chip">⌗ matchup_metrics.py</span></div></div>
+    <div class="skill"><b>OCR + alignment</b><span>easyocr + play-by-play anchors, <span class="num">{{N:clock.accuracy_on_readable_pct|int}}% on readable <small>({{N:clock.n}})</small></span></span><div class="chips"><span class="chip">⌗ clock_reader.py</span><span class="chip">⌗ align_outcomes.py</span></div></div>
+    <div class="skill"><b>LLM systems</b><span>Batches API adjudication, 6,159 frames / $10.80 — and the audit that discarded its adjudicated bands</span><div class="chips"><span class="chip">⌗ adjudicate_labels.py</span></div></div>
+    <div class="skill"><b>Statistics</b><span>cluster bootstrap, Wilson CIs, pre-registered n ≥ {{N:credit.min_bucket}} gate, +{{N:bias_audit.selection_offset_per_100}}/100 bias audit</span><div class="chips"><span class="chip">⌗ tier2_credit.py</span><span class="chip">⌗ tier2_bias_audit.py</span></div></div>
+    <div class="skill"><b>MLOps</b><span>content-fingerprint guards, 52 tests (pytest --collect-only, 2026-09-12), ~15 resumable Colab runs</span><div class="chips"><span class="chip">⌗ tier2_join.py</span><span class="chip">⌗ colab_run.py</span></div></div>
+    <div class="skill"><b>Hardware debugging</b><span>MPS gradient bug, AVFoundation overwrite quirk, AV1 pinning</span><div class="chips"><span class="chip">⌗ DEVLOG 2026-06-24, 2026-07-07</span></div></div>
+    <div class="skill"><b>Technical writing</b><span>{{N:paper_pages}}-page LaTeX paper with a claims ledger and a negative-results section</span><div class="chips"><span class="chip">⌗ paper · CLAIMS.md</span></div></div>
+  </div>
+
+  <ul class="xyz" id="xyz">
+    <li>Built an eight-stage broadcast-video pipeline whose possession attributions agree with independent play-by-play at <span class="num">{{N:crossval.rate_pct}}% <small>(n = {{N:crossval.n}})</small></span> across {{N:credit.joined_total}} joined possessions, by validating each stage on its own held-out labels and the chain on a source no stage sees; that check validates possession attribution, not who guarded whom.</li>
+    <li>Ran a 6,159-frame LLM adjudication for $10.80 through the Batches API, then audited it by hand before training on it: the agreement band scored <span class="num">{{N:label_audit.agreement_band.accuracy|pct}}% [{{N:label_audit.agreement_band.wilson95.0|pct}}, {{N:label_audit.agreement_band.wilson95.1|pct}}] <small>(n = {{N:label_audit.agreement_band.n_judged}})</small></span>, every judge-adjudicated band <span class="num">{{N:label_audit.judge_adjudicated_bands.range_pct_str}} <small>(n = {{N:label_audit.judge_adjudicated_bands.n_total}})</small></span>; kept the 37,916-box agreement corpus, discarded the rest.</li>
+    <li>Reported the team-level result as an interval that straddles zero after measuring the sample's own selection bias (+{{N:bias_audit.selection_offset_per_100}} points per 100) and bootstrapping by game, at a ~58% span-to-join yield.</li>
+    <li>Achieved pixel-to-court mapping at <span class="num">{{N:homography.median_ft_str}} ft (~{{N:homography.median_in}} in) median reprojection residual (the RANSAC inliers' fit against the court template) with {{N:homography.homography_success_rate|pct0}}% solve success <small>on {{N:homography.val_frames}} hand-labeled frames held out of training; detector keypoint error vs those labels: median {{N:homography.keypoint_pixel_error.median|f1}} px</small></span> (and p50 1.7 px on a separate 279-frame pixel benchmark, also a fit-consistency score), by hand-labeling 400 frames on a 20-point scheme, training a YOLOv8m-pose keypoint model, and solving with RANSAC plus ICP-style line-snapping refinement guarded to accept only improvements.</li>
+  </ul>
+
+  <div class="neg" id="neg">
+    <table>
+      <tr><td>detector conf 0.40 → 0.25</td><td>recall 0.744 → 0.764 at 2× crowd false positives</td></tr>
+      <tr><td>NMS 0.45–0.70</td><td>no change</td></tr>
+      <tr><td>yolov8x</td><td>recall 0.695 (worse than v8m)</td></tr>
+      <tr><td>1080p OCR</td><td>read rate 30.8% → 31.0%</td></tr>
+      <tr><td>Grounding DINO teacher</td><td>rejected (P 0.70 / R 0.94 vs 0.956 / 0.967, different matcher)</td></tr>
+      <tr><td>matchup labeling</td><td>paused twice ({{N:matchup_labeling.attempt_1_discarded_n}}, then {{N:matchup_labeling.attempt_2_n}})</td></tr>
+    </table>
+  </div>
+
+  <details class="ledger-wrap" id="ledger-wrap">
+  <summary id="sum-ledger">Evidence ledger — every number on this page → the artifact it came from ({{LEDGER_ROWS}} rows)</summary>
+  <div class="ledger" id="ledger">
+    <table>
+      <thead><tr><th>number</th><th>where on the page</th><th>artifact / source</th></tr></thead>
+      <tbody>
+        <tr><td>{{N:crossval.rate_pct}}% (869/990), 151 clips, 991 aligned</td><td>hero, §4, §5, §8</td><td class="src">reports/tier2_crossval_corpus.json</td></tr>
+        <tr><td>per-game {{N:crossval_per_game.range_str}}; 89.6% (n = 904); 88.0% (n = 933)</td><td>§5 cross-val tile</td><td class="src">reports/tier2_crossval_corpus.json (slices; per-game recomputed from data/pbp/*_outcomes.json)</td></tr>
+        <tr><td>{{N:crossval.anchor_failures}} anchor failures ({{N:crossval.failure_reasons.anchor_failed}} anchor_failed / {{N:crossval.failure_reasons.no_pbp_overlap}} no_pbp_overlap / {{N:crossval.failure_reasons.clock_stopped_span}} clock_stopped_span / {{N:crossval.failure_reasons.anchor_inconsistent}} anchor_inconsistent)</td><td>§3</td><td class="src">reports/tier2_crossval_corpus.json</td></tr>
+        <tr><td>{{N:crossval_per_run_artifact.rate_pct}}% (n = {{N:crossval_per_run_artifact.n}})</td><td>§5 ledger step 2</td><td class="src">reports/tier2_crossval.json (per-run artifact, never a corpus figure)</td></tr>
+        <tr><td>the retracted headline (n = 642) — retracted 2026-09-11</td><td>§5 ledger step 1, struck through; appears once on the page</td><td class="src">CLAIMS.md A1 history · DEVLOG 2026-09-11 (run-11 alignment report)</td></tr>
+        <tr><td>{{N:credit.gsw_str}} per 100, n = 330, 15 games</td><td>hero, §5, §7</td><td class="src">data/pbp/tier2_credit.json · paper §7 · tier2_credit.py (cluster bootstrap by game, 2,000 resamples)</td></tr>
+        <tr><td>−4.5 per 100 (first figure)</td><td>§5 case 09</td><td class="src">DEVLOG 2026-07-16c</td></tr>
+        <tr><td>641 joined · 16 games · n ≥ 300 gate</td><td>hero, §5</td><td class="src">data/pbp/tier2_credit.json · reports/tier2_bias_audit.json</td></tr>
+        <tr><td>+8.8 per 100; 1.167 vs 1.043; 15.0 vs 12.3%; 1.1 vs 4.1%; 35.1%</td><td>§5 bias tile</td><td class="src">reports/tier2_bias_audit.json</td></tr>
+        <tr><td>10/12 → 9/10 → 7/9, ~58% yield, 7/7</td><td>§5 funnel</td><td class="src">paper §6 (audited sample)</td></tr>
+        <tr><td>95.0% [88.8, 97.8] n = 100; 6.7–20.0% n = 200; aggregate 40.3% — not a meaningful number (mixes bands); 7 strata</td><td>§6 incident 01, Fig. 5</td><td class="src">reports/label_audit.json</td></tr>
+        <tr><td>6,197 frames / 21 sources; 6,159 judged / $10.80 / 41 failures; 37,916 boxes; 4,694 jersey reads; rule 4, 300 labels</td><td>§6 incident 01, §8</td><td class="src">DEVLOG 2026-09-12 · CLAIMS A6 · LABEL_SCHEMA.md</td></tr>
+        <tr><td>crops 0092 (ball) and 0006 (adj_player), verdict b</td><td>§6 incident 01</td><td class="src">data/label_audit/sample.json · data/label_audit/labels.json</td></tr>
+        <tr><td>{{N:homography.median_ft_str}} ft median ({{N:homography.median_in}} in), p90 {{N:homography.p90_ft_str}}, {{N:homography.homography_success_rate|pct0}}%, {{N:homography.val_frames}} frames; keypoint px error {{N:homography.keypoint_pixel_error.mean}} / {{N:homography.keypoint_pixel_error.median}}</td><td>hero, §2, §3, §6, §8</td><td class="src">reports/homography_metrics.json — its note, verbatim: "{{N:homography.note}}"</td></tr>
+        <tr><td>p50 1.7 px, 279 validation frames (snapped-mapping targets)</td><td>hero small print, §2, §8</td><td class="src">paper §4 — separate benchmark, separate sentence</td></tr>
+        <tr><td>400 hand-labeled frames, 20-point scheme; 66–89% sane mapping on unseen games; Dice 0.587</td><td>§2, §8</td><td class="src">paper §4 · data/court_review · DEVLOG · train_line_seg.py</td></tr>
+        <tr><td>TRACK on 12/20 sampled frames; line-res 2.3 px (8 matches); HOLD_S = 2 s</td><td>§2 C7 caption</td><td class="src">HUD-color scan of the cut (scout scan, 20 samples at 5 fps) · render_overlay_video.py HOLD_S</td></tr>
+        <tr><td>98.7%, 158 held-out, macro-F1 0.986, 1 FN / 1 FP, 88.6%, 87.3%, 1,050 (659 / 391), 0.70</td><td>hero diagram, §1, §7, §8</td><td class="src">reports/metrics.json</td></tr>
+        <tr><td>harvest threshold 0.35; P(live) = 0.65 on the false negative</td><td>§1</td><td class="src">paper §4 · DEVLOG · reports/viz/false_negatives.png</td></tr>
+        <tr><td>F1 0.88 (P 0.89 / R 0.87), 50 frames / 453 boxes</td><td>hero diagram, §2, §8</td><td class="src">reports/tracking_metrics.json (IoU 0.5)</td></tr>
+        <tr><td>baseline F1 0.71 (P 0.68 / R 0.74); 654 images, 10 → 5 classes; ~30 min T4 vs ~22 h</td><td>§2, §8</td><td class="src">paper §4 · DEVLOG</td></tr>
+        <tr><td>conf 0.40 → 0.25: 0.744 → 0.764; NMS no change; yolov8x 0.695</td><td>§2, §8 negative results</td><td class="src">paper §10 · DEVLOG</td></tr>
+        <tr><td>impossible steps 15.4 → 14.3%; churn 6.57 → 5.0</td><td>hero diagram, §2</td><td class="src">DEVLOG (label-free diagnostics)</td></tr>
+        <tr><td>87.1% track-level (31 tracks), 83.9% crop-level (118), 160 labels, 6 abstained; ~13% misassignment</td><td>hero diagram, §3</td><td class="src">reports/teams_eval_curry_q1_clip.json · paper §5</td></tr>
+        <tr><td>team A 1,596 · team B 1,979 · abstained 84</td><td>§3</td><td class="src">reports/viz/team_clusters_gsw_cle_2017f_g5_s03.png title</td></tr>
+        <tr><td>{{N:possessions.basket_accuracy_pct}}% basket / {{N:possessions.offense_accuracy_pct}}% offense on {{N:possessions.basket_n}} scorable labels ({{N:possessions.n_labeled}} labeled, {{N:possessions.n_unclear}} unclear excluded); 100% / 100% beyond 2 s; ±1–2 s fuzz; 93.0% before the ghost fix</td><td>hero diagram, §3, §4</td><td class="src">reports/poss_eval.json (overall n {{N:possessions.basket_n}}) · paper §5 · DEVLOG 2026-07-07</td></tr>
+        <tr><td>clock 100% on readable, 0 confident-wrong, 56 labels (55 readable); 27 crops / 7 layouts; 9/9; 69.4 → 93.7%; ~10% anchor failure</td><td>hero diagram, §3, §8</td><td class="src">reports/clock_eval.json · reports/viz/anchor_truth_sheet.png · DEVLOG · paper §6</td></tr>
+        <tr><td>record card f33816 (anchors 2nd|6.22 → 2nd|6.16, conf 0.62, points 3)</td><td>§3</td><td class="src">data/pbp/gsw_cle_2017f_g5_s03_outcomes.json</td></tr>
+        <tr><td>disagreement card f21990 (anchors 2nd|7.14 → 2nd|7.11)</td><td>§5</td><td class="src">data/pbp/gsw_cle_2017f_g5_s03_outcomes.json</td></tr>
+        <tr><td>timeline bracket at columns 890–911 of 1000 (frames 33816–34290; 3,416 indexed frames)</td><td>§3 S7</td><td class="src">data/tracking/gsw_cle_2017f_g5_s03_possessions.json + _trajectories.json via segment_possessions.py index arithmetic</td></tr>
+        <tr><td>3.9 pairs/frame, 0% excluded, 112 frames, conf 0.95, span 729–1062</td><td>§4 C5</td><td class="src">data/tracking/gsw_hou_duel_s01_matchups.json</td></tr>
+        <tr><td>36 excluded of 128 sampled (28.1%), core 0–381</td><td>§4 C6, §6 incident 05</td><td class="src">data/tracking/curry_q1_clip_matchups.json</td></tr>
+        <tr><td>2.5–4.0 pairs/frame; inflated 4–5; 20–30% ghost points; banner counts 104 / 43 / 50 / 60</td><td>§4, §6 incident 05</td><td class="src">DEVLOG 2026-07-07 (typical band; raw corpus p10–p90 1.0–3.4, median 2.0, n = 1,015 non-degraded, recomputed from data/tracking/*_matchups.json)</td></tr>
+        <tr><td>38 labels discarded; 33: 23 negative / 6 positive / 4 unsure</td><td>hero, §4, §7, §8</td><td class="src">data/matchup_eval/labels_discarded_20260716_2343.json · labels.json · DEVLOG 2026-07-17b · paper §10.4</td></tr>
+        <tr><td>Grounding DINO P 0.70 / R 0.94 vs 0.956 / 0.967; 27 vs 15 FN; 197 min</td><td>§6 incident 02, §8</td><td class="src">DEVLOG 2026-07-18 (different matcher than tracking_metrics.json)</td></tr>
+        <tr><td>keypoint loss ~11.4 flat; 11.5 → 7.7 in 11 epochs; 7.28 ft worst frame</td><td>§6 incident 03</td><td class="src">DEVLOG 2026-06-24 · reports/viz/kp_review_worst.png title</td></tr>
+        <tr><td>stale-join guard fired on day one</td><td>§6 incident 04</td><td class="src">DEVLOG 2026-07-16</td></tr>
+        <tr><td>1080p OCR 30.8 → 31.0%; abstention 53 → 11%; ~3× longer tracks</td><td>§6 incident 06, §8</td><td class="src">DEVLOG 2026-07-12</td></tr>
+        <tr><td>151/151 byte-identical on Colab with cached anchors; 51/151 changed locally (75 / 49 / 13), 86.6% (878/1016), 92 min</td><td>§5, §7</td><td class="src">DEVLOG 2026-07-17 · DEVLOG 2026-09-11 · paper §6.4</td></tr>
+        <tr><td>52 tests, ~15 Colab runs, {{N:paper_pages}}-page paper, {{N:bias_audit.games}} games {{N:corpus_years.min}}–{{N:corpus_years.max}}</td><td>hero, §7, §8</td><td class="src">tests/ (pytest --collect-only, 2026-09-12) · DEVLOG · paper/main.pdf (page count read at build time) · fetch_pbp.py GAMES (earliest 201206070BOS, 2012-06-07; PROJECT_SUMMARY.md and the paper still say 2013–2017 — flagged) · reports/tier2_bias_audit.json (games: 16)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </details>
+
+  <p class="links" id="links"><span>Paper ({{N:paper_pages}} pp.) — available on request ·</span> <span>Repository — private, access on request; paths cited ·</span> <span>CLAIMS.md (per-claim status ledger, in the repo) ·</span> <span>DEVLOG (dated engineering log, in the repo)</span></p>
+
+  <div class="foot" id="foot">
+    <div>Court Ledger · built {{BUILD_DATE}} · Lucien McNulty</div>
+    <div>every number on this page is traceable to a named artifact; the ⌗ chips name it</div>
+    <div>numbers extracted from the JSON artifacts at build time by build_numbers.py (generated {{N:_meta.generated_utc}}); the record and disagreement cards are copied, not typed</div>
+    <div>video: H.264 480p/360p 24 fps CRF 30, ≤ 6 s each, embedded as data URIs · stills: WebP · fonts: Google Fonts · no other external asset</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+  var vids = Array.prototype.slice.call(document.querySelectorAll('video'));
+
+  // base64 -> Blob fallback (kept per the brief; blob: may be CSP-blocked in the sandbox)
+  function blobFallback(v){
+    try{
+      var src = v.getAttribute('src') || '';
+      if (src.indexOf('data:video/mp4;base64,') !== 0 || v.dataset.blobbed) return;
+      v.dataset.blobbed = '1';
+      var b64 = src.slice('data:video/mp4;base64,'.length);
+      var bin = atob(b64), n = bin.length, u8 = new Uint8Array(n);
+      for (var i=0;i<n;i++) u8[i] = bin.charCodeAt(i);
+      var url = URL.createObjectURL(new Blob([u8], {type:'video/mp4'}));
+      v.src = url; v.load();
+    }catch(e){}
+  }
+
+  // progress lines + record-card rows
+  var rc = document.getElementById('rc');
+  var rows = rc ? Array.prototype.slice.call(rc.querySelectorAll('tr.rc-row')) : [];
+  var v4 = document.getElementById('v-c4');
+  if (!reduce && rc && rows.length && v4 && v4.tagName === 'VIDEO') rc.classList.add('live');
+  vids.forEach(function(v){
+    var id = v.id.replace(/^v-/, '');
+    var bar = document.getElementById('p-' + id);
+    v.addEventListener('timeupdate', function(){
+      if (bar && v.duration) bar.style.width = (100 * v.currentTime / v.duration).toFixed(1) + '%';
+      if (id === 'c4' && rows.length && v.duration){
+        var k = Math.min(rows.length, Math.floor(rows.length * v.currentTime / v.duration) + 1);
+        rows.forEach(function(r, i){ r.classList.toggle('lit', i < k); });
+      }
+    });
+    v.addEventListener('ended', function(){ if (bar) bar.style.width = '100%'; });
+    v.addEventListener('error', function(){ blobFallback(v); });
+  });
+
+  // play at >= 60% visibility, pause otherwise; never under reduced motion
+  if (!reduce && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var v = en.target;
+        if (en.isIntersecting && en.intersectionRatio >= 0.6){
+          var p = v.play(); if (p && p.catch) p.catch(function(){});
+        } else if (!v.paused){ v.pause(); }
+      });
+    }, {threshold:[0, 0.6, 1]});
+    vids.forEach(function(v){ io.observe(v); });
+  }
+
+  // sticky nav: current section
+  var secs = Array.prototype.slice.call(document.querySelectorAll('[id^="s"]')).filter(function(s){ return /^s[0-8]$/.test(s.id); });
+  var links = {};
+  secs.forEach(function(s){ links[s.id] = document.getElementById('nav-' + s.id); });
+  function setCurrent(id){
+    secs.forEach(function(s){ var a = links[s.id]; if (a){ if (s.id === id) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current'); } });
+  }
+  if ('IntersectionObserver' in window){
+    var visible = {};
+    var so = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ visible[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
+      var best = null, bv = 0;
+      secs.forEach(function(s){ if ((visible[s.id]||0) > bv){ bv = visible[s.id]; best = s.id; } });
+      if (best) setCurrent(best);
+    }, {threshold:[0, .1, .25, .5, .75, 1], rootMargin:'-40px 0px 0px 0px'});
+    secs.forEach(function(s){ so.observe(s); });
+  }
+  setCurrent('s0');
+
+  // diagram nodes: smooth scroll (CSS handles it; JS keeps hash clean on reduced motion)
+  Array.prototype.slice.call(document.querySelectorAll('.diagram a, .nav a')).forEach(function(a){
+    a.addEventListener('click', function(ev){
+      var href = a.getAttribute('href') || '';
+      if (href.charAt(0) !== '#') return;
+      var t = document.getElementById(href.slice(1));
+      if (!t) return;
+      ev.preventDefault();
+      t.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
+      try { history.replaceState(null, '', href); } catch(e){}
+    });
+  });
+})();
+</script>

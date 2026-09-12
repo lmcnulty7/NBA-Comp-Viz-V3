@@ -1,0 +1,847 @@
+{
+ "_meta": {
+  "generated_utc": "2026-09-12T22:03:07+00:00",
+  "generator": "portfolio/build_numbers.py",
+  "repo_root": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3",
+  "rule": "every value under a top-level key other than hand_typed_sources was read from the named artifact at build time; nothing here is typed by hand"
+ },
+ "crossval": {
+  "source": "reports/tier2_crossval_corpus.json",
+  "scope": "corpus-wide: all 151 *_outcomes.json on disk",
+  "clips": 151,
+  "possessions_aligned": 991,
+  "agree": 869,
+  "disagree": 121,
+  "unknown": 1,
+  "n": 990,
+  "rate": 0.878,
+  "rate_pct": 87.8,
+  "non_duplicate": {
+   "agree": 810,
+   "disagree": 94,
+   "unknown": 1,
+   "n_checked": 904,
+   "agreement_rate": 0.896
+  },
+  "overlap_ge_080": {
+   "agree": 821,
+   "disagree": 112,
+   "unknown": 1,
+   "n_checked": 933,
+   "agreement_rate": 0.88
+  },
+  "anchor_failures": 248,
+  "failure_reasons": {
+   "anchor_failed": 103,
+   "no_pbp_overlap": 89,
+   "anchor_inconsistent": 19,
+   "clock_stopped_span": 37
+  }
+ },
+ "crossval_per_run_artifact": {
+  "source": "reports/tier2_crossval.json (PER-RUN; ledger step 2 only — never a corpus figure)",
+  "possessions_aligned": 264,
+  "agree": 227,
+  "disagree": 37,
+  "n": 264,
+  "rate": 0.86,
+  "rate_pct": 86.0
+ },
+ "crossval_per_game": {
+  "source": "recomputed from data/pbp/*_outcomes.json (151 files) grouped by fetch_pbp.game_for_clip; same rate() definition as tier2_crossval_corpus.py; corpus total re-derived and asserted equal",
+  "n_games": 16,
+  "min": {
+   "game": "201706120GSW",
+   "agree": 53,
+   "disagree": 16,
+   "unknown": 0,
+   "n_checked": 69,
+   "agreement_rate": 0.768
+  },
+  "max": {
+   "game": "201605110GSW",
+   "agree": 59,
+   "disagree": 2,
+   "unknown": 0,
+   "n_checked": 61,
+   "agreement_rate": 0.967
+  },
+  "range_str": "0.768–0.967",
+  "per_game": {
+   "201206070BOS": {
+    "agree": 22,
+    "disagree": 2,
+    "unknown": 0,
+    "n_checked": 24,
+    "agreement_rate": 0.917
+   },
+   "201302270NYK": {
+    "agree": 72,
+    "disagree": 5,
+    "unknown": 0,
+    "n_checked": 77,
+    "agreement_rate": 0.935
+   },
+   "201501230GSW": {
+    "agree": 53,
+    "disagree": 7,
+    "unknown": 0,
+    "n_checked": 60,
+    "agreement_rate": 0.883
+   },
+   "201505210GSW": {
+    "agree": 61,
+    "disagree": 16,
+    "unknown": 0,
+    "n_checked": 77,
+    "agreement_rate": 0.792
+   },
+   "201512160GSW": {
+    "agree": 93,
+    "disagree": 13,
+    "unknown": 0,
+    "n_checked": 106,
+    "agreement_rate": 0.877
+   },
+   "201601250GSW": {
+    "agree": 54,
+    "disagree": 8,
+    "unknown": 0,
+    "n_checked": 62,
+    "agreement_rate": 0.871
+   },
+   "201602270OKC": {
+    "agree": 14,
+    "disagree": 3,
+    "unknown": 0,
+    "n_checked": 17,
+    "agreement_rate": 0.824
+   },
+   "201604010GSW": {
+    "agree": 79,
+    "disagree": 6,
+    "unknown": 0,
+    "n_checked": 85,
+    "agreement_rate": 0.929
+   },
+   "201605110GSW": {
+    "agree": 59,
+    "disagree": 2,
+    "unknown": 0,
+    "n_checked": 61,
+    "agreement_rate": 0.967
+   },
+   "201605160GSW": {
+    "agree": 112,
+    "disagree": 4,
+    "unknown": 0,
+    "n_checked": 116,
+    "agreement_rate": 0.966
+   },
+   "201605280OKC": {
+    "agree": 50,
+    "disagree": 11,
+    "unknown": 0,
+    "n_checked": 61,
+    "agreement_rate": 0.82
+   },
+   "201606190GSW": {
+    "agree": 41,
+    "disagree": 5,
+    "unknown": 0,
+    "n_checked": 46,
+    "agreement_rate": 0.891
+   },
+   "201612050GSW": {
+    "agree": 44,
+    "disagree": 12,
+    "unknown": 0,
+    "n_checked": 56,
+    "agreement_rate": 0.786
+   },
+   "201612250CLE": {
+    "agree": 11,
+    "disagree": 3,
+    "unknown": 1,
+    "n_checked": 14,
+    "agreement_rate": 0.786
+   },
+   "201701100GSW": {
+    "agree": 51,
+    "disagree": 8,
+    "unknown": 0,
+    "n_checked": 59,
+    "agreement_rate": 0.864
+   },
+   "201706120GSW": {
+    "agree": 53,
+    "disagree": 16,
+    "unknown": 0,
+    "n_checked": 69,
+    "agreement_rate": 0.768
+   }
+  }
+ },
+ "bias_audit": {
+  "source": "reports/tier2_bias_audit.json",
+  "games": 16,
+  "population_all": {
+   "n": 3191,
+   "ppp": 1.088,
+   "points_mix": {
+    "0": 0.501,
+    "1": 0.037,
+    "2": 0.338,
+    "3+": 0.124
+   },
+   "start_type": {
+    "halfcourt": 0.554,
+    "live": 0.446
+   }
+  },
+  "population_halfcourt": {
+   "n": 1768,
+   "ppp": 1.043,
+   "points_mix": {
+    "0": 0.521,
+    "1": 0.041,
+    "2": 0.316,
+    "3+": 0.123
+   },
+   "start_type": {
+    "halfcourt": 1.0
+   }
+  },
+  "population_live": {
+   "n": 1423,
+   "ppp": 1.145,
+   "points_mix": {
+    "0": 0.476,
+    "1": 0.032,
+    "2": 0.365,
+    "3+": 0.126
+   },
+   "start_type": {
+    "live": 1.0
+   }
+  },
+  "sampled_joined": {
+   "n": 641,
+   "ppp": 1.167,
+   "points_mix": {
+    "0": 0.49,
+    "1": 0.011,
+    "2": 0.349,
+    "3+": 0.15
+   },
+   "start_type": {
+    "halfcourt": 0.649,
+    "live": 0.351
+   }
+  },
+  "selection_offset_per_100": 8.8,
+  "derived": {
+   "joined_ppp_vs_halfcourt_ppp": "1.167 vs 1.043",
+   "three_plus_share_joined_vs_halfcourt_pct": [
+    15.0,
+    12.3
+   ],
+   "one_pt_share_joined_vs_halfcourt_pct": [
+    1.1,
+    4.1
+   ],
+   "joined_live_start_share_pct": 35.1
+  },
+  "note": "sampled = joined possessions matched back to reconstructed PBP; offset = sampled PPP minus start-mix-matched population PPP — the common-mode bias that credit_rel differences out"
+ },
+ "label_audit": {
+  "source": "reports/label_audit.json",
+  "sampled": 300,
+  "audited": 300,
+  "overall": {
+   "n_judged": 300,
+   "correct": 121,
+   "accuracy": 0.403,
+   "wilson95": [
+    0.349,
+    0.46
+   ]
+  },
+  "overall_note": "aggregate mixes bands — not a meaningful number",
+  "agreement_band": {
+   "stratum": "agreement_player",
+   "n_judged": 100,
+   "correct": 95,
+   "accuracy": 0.95,
+   "wilson95": [
+    0.888,
+    0.978
+   ],
+   "band": "agreement"
+  },
+  "judge_adjudicated_bands": {
+   "n_total": 200,
+   "accuracy_min": 0.067,
+   "accuracy_max": 0.2,
+   "range_pct_str": "6.7–20.0%"
+  },
+  "f5_chart_rows": [
+   {
+    "stratum": "agreement_player",
+    "n_judged": 100,
+    "correct": 95,
+    "accuracy": 0.95,
+    "wilson95": [
+     0.888,
+     0.978
+    ],
+    "band": "agreement"
+   },
+   {
+    "stratum": "referee",
+    "n_judged": 20,
+    "correct": 4,
+    "accuracy": 0.2,
+    "wilson95": [
+     0.081,
+     0.416
+    ],
+    "band": "judge_adjudicated"
+   },
+   {
+    "stratum": "rim",
+    "n_judged": 30,
+    "correct": 5,
+    "accuracy": 0.167,
+    "wilson95": [
+     0.073,
+     0.336
+    ],
+    "band": "judge_adjudicated"
+   },
+   {
+    "stratum": "scorebug",
+    "n_judged": 30,
+    "correct": 5,
+    "accuracy": 0.167,
+    "wilson95": [
+     0.073,
+     0.336
+    ],
+    "band": "judge_adjudicated"
+   },
+   {
+    "stratum": "adj_player",
+    "n_judged": 80,
+    "correct": 9,
+    "accuracy": 0.113,
+    "wilson95": [
+     0.06,
+     0.2
+    ],
+    "band": "judge_adjudicated"
+   },
+   {
+    "stratum": "ball",
+    "n_judged": 10,
+    "correct": 1,
+    "accuracy": 0.1,
+    "wilson95": [
+     0.018,
+     0.404
+    ],
+    "band": "judge_adjudicated"
+   },
+   {
+    "stratum": "backboard",
+    "n_judged": 30,
+    "correct": 2,
+    "accuracy": 0.067,
+    "wilson95": [
+     0.018,
+     0.213
+    ],
+    "band": "judge_adjudicated"
+   }
+  ],
+  "crops": {
+   "source": "data/label_audit/sample.json + labels.json (untracked, read-only)",
+   "0092.jpg": {
+    "key": "gsw_okc_2016wcf_g1@223126#92",
+    "cls": "ball",
+    "stratum": "ball",
+    "tag": "gsw_okc_2016wcf_g1",
+    "frame": 223126,
+    "verdict": "b",
+    "verdict_gloss": {
+     "b": "box_or_class_wrong",
+     "a": "attribute_wrong",
+     "c": "correct",
+     "u": "unsure"
+    }
+   },
+   "0006.jpg": {
+    "key": "clip_55m00_63m00@12555#6",
+    "cls": "player",
+    "stratum": "adj_player",
+    "tag": "clip_55m00_63m00",
+    "frame": 12555,
+    "verdict": "b",
+    "verdict_gloss": {
+     "b": "box_or_class_wrong",
+     "a": "attribute_wrong",
+     "c": "correct",
+     "u": "unsure"
+    }
+   }
+  }
+ },
+ "homography": {
+  "source": "reports/homography_metrics.json",
+  "field_names": [
+   "val_frames",
+   "homography_success_rate",
+   "reproj_error_ft.{mean,median,p90}",
+   "keypoint_pixel_error.{mean,median}",
+   "per_keypoint.<name>.{gt_count,detected_count,mean_px_err}",
+   "note"
+  ],
+  "val_frames": 28,
+  "homography_success_rate": 1.0,
+  "reproj_error_ft": {
+   "mean": 0.303,
+   "median": 0.302,
+   "p90": 0.511
+  },
+  "median_ft_str": "0.30",
+  "median_in": 3.6,
+  "p90_ft_str": "0.51",
+  "keypoint_pixel_error": {
+   "mean": 71.15,
+   "median": 12.46
+  },
+  "note": "reproj_error = RANSAC fit consistency (ft); keypoint_pixel_error = detector accuracy vs hand labels (px). Visual proof in reports/viz/homography_overlay.png.",
+  "warning": "the 'p50 1.7 px on 279 validation frames' benchmark is NOT in this file — see hand_typed_sources"
+ },
+ "gate": {
+  "source": "reports/metrics.json",
+  "field_names": [
+   "test_size",
+   "test_live",
+   "test_dead",
+   "operating_points.{trained_head,zero_shot_clip,hsv_baseline}.{n,accuracy,macro_f1,confusion.{tp,tn,fp,fn},false_negatives_live_skipped,false_positives_deadball_processed,threshold}",
+   "config_record.counts.{live,dead}",
+   "config_record.split_sizes",
+   "config_record.clip_model"
+  ],
+  "n_test": 158,
+  "test_live": 99,
+  "test_dead": 59,
+  "accuracy": 0.9873417721518988,
+  "accuracy_pct": 98.7,
+  "macro_f1": 0.9864749186783086,
+  "macro_f1_str": "0.986",
+  "fn": 1,
+  "fp": 1,
+  "threshold_validated": 0.7004546103892618,
+  "threshold_validated_str": "0.70",
+  "zero_shot_clip_accuracy_pct": 88.6,
+  "hsv_baseline_accuracy_pct": 87.3,
+  "labeled_total": 1050,
+  "labeled_live": 659,
+  "labeled_dead": 391,
+  "split_sizes": {
+   "train": 734,
+   "val": 158,
+   "test": 158
+  },
+  "backbone": "openai/clip-vit-base-patch32",
+  "head": "logreg",
+  "warning": "the harvest operating point 0.35 is NOT in this file — see hand_typed_sources"
+ },
+ "possessions": {
+  "source": "reports/poss_eval.json",
+  "field_names": [
+   "n_labeled",
+   "attacked_basket.overall.{n,accuracy}",
+   "attacked_basket.by_kind.{span_mid,span_start,pre_start}",
+   "offense.overall.{n,accuracy}",
+   "offense.by_kind",
+   "transition_predictions",
+   "unclear_rates"
+  ],
+  "n_labeled": 73,
+  "basket_accuracy": 0.965,
+  "basket_accuracy_pct": 96.5,
+  "basket_n": 57,
+  "offense_accuracy": 0.912,
+  "offense_accuracy_pct": 91.2,
+  "offense_n": 57,
+  "basket_by_kind": {
+   "span_mid": {
+    "n": 39,
+    "accuracy": 0.949
+   },
+   "span_start": {
+    "n": 12,
+    "accuracy": 1.0
+   },
+   "pre_start": {
+    "n": 6,
+    "accuracy": 1.0
+   }
+  },
+  "offense_by_kind": {
+   "span_mid": {
+    "n": 39,
+    "accuracy": 0.923
+   },
+   "span_start": {
+    "n": 12,
+    "accuracy": 0.917
+   },
+   "pre_start": {
+    "n": 6,
+    "accuracy": 0.833
+   }
+  },
+  "unclear_rates": {
+   "basket": 0.123,
+   "offense": 0.123
+  },
+  "warning": "brief's '100% / 100% more than 2 s from span boundaries' is not a field here: by_kind span_start/pre_start are 1.0/1.0 for basket but 0.917/0.833 for offense — the '2 s from boundary' slice comes from the paper; see hand_typed_sources"
+ },
+ "clock": {
+  "source": "reports/clock_eval.json",
+  "field_names": [
+   "n",
+   "exact_correct",
+   "abstained_readable",
+   "confident_wrong",
+   "human_unreadable",
+   "accuracy_on_readable"
+  ],
+  "n": 56,
+  "exact_correct": 55,
+  "abstained_readable": 0,
+  "confident_wrong": 0,
+  "human_unreadable": 1,
+  "accuracy_on_readable": 1.0,
+  "accuracy_on_readable_pct": 100.0,
+  "n_readable": 55
+ },
+ "detection": {
+  "source": "reports/tracking_metrics.json",
+  "field_names": [
+   "frames_evaluated",
+   "total_gt_boxes",
+   "total_pred_boxes",
+   "detector.{weights,conf,iou_nms}",
+   "metrics_by_iou.iou_{0.3,0.5,0.7}.{precision,recall,f1,tp,fp,fn}",
+   "note"
+  ],
+  "frames_evaluated": 50,
+  "total_gt_boxes": 453,
+  "iou_0.5": {
+   "precision": 0.8869,
+   "recall": 0.8653,
+   "f1": 0.876,
+   "tp": 392,
+   "fp": 50,
+   "fn": 61
+  },
+  "f1_str": "0.88",
+  "precision_str": "0.89",
+  "recall_str": "0.87",
+  "detector_conf": 0.4,
+  "detector_iou_nms": 0.45,
+  "note": "Detection only. ID-switch/IDF1 not measured (needs MOT labels). See run_tracking.py diagnostics for ID-stability proxies.",
+  "warning": "the pre-fine-tune baseline (F1 0.71, P 0.68, R 0.74) is NOT in this file — see hand_typed_sources"
+ },
+ "teams": {
+  "source": "reports/teams_eval_curry_q1_clip.json",
+  "field_names": [
+   "n_labeled",
+   "track_level.{accuracy,n_tracks}",
+   "crop_level.{accuracy_identifiable,n_identifiable}",
+   "abstained.n"
+  ],
+  "n_labeled": 160,
+  "track_level_accuracy": 0.871,
+  "track_level_accuracy_pct": 87.1,
+  "track_level_n_tracks": 31,
+  "crop_level_accuracy": 0.839,
+  "crop_level_accuracy_pct": 83.9,
+  "crop_level_n_identifiable": 118,
+  "abstained_n": 6
+ },
+ "credit": {
+  "source": "data/pbp/tier2_credit.json",
+  "min_bucket": 300,
+  "joined_total": 641,
+  "n_rows": 12,
+  "n_meaningful_rows": 1,
+  "gsw": {
+   "defense": "GSW",
+   "n_possessions": 330,
+   "n_games": 15,
+   "ppp_allowed": 1.085,
+   "baseline_ppp": 1.011,
+   "credit_per_100": -7.4,
+   "ci95": [
+    -21.6,
+    6.3
+   ],
+   "ci_excludes_zero": false,
+   "credit_rel_per_100": 11.3,
+   "baseline_naive_ppp": 1.04,
+   "meaningful": true
+  },
+  "gsw_str": "−7.4 [−21.6, +6.3]",
+  "baseline_def": "offense's own START-TYPE-MATCHED PPP from that game's PBP (each possession vs its halfcourt/live norm), leave-sample-out, possession-weighted (baseline_naive_ppp = old all-context sample-in baseline, for comparison)",
+  "ci_def": "cluster bootstrap by game, 2000 resamples, 95% percentile",
+  "credit_rel_def": "credit_per_100 minus leave-bucket-out pooled credit — the funnel's common-mode selection offset differenced out; the only cross-team comparison this sample supports",
+  "note": "rows with meaningful=true are reportable; the rest remain placeholders",
+  "policy": "only the meaningful=true row is drawn; sub-gate rows are never rendered (brief §H.5)"
+ },
+ "record_card_f33816": {
+  "source": "data/pbp/gsw_cle_2017f_g5_s03_outcomes.json",
+  "clip": "gsw_cle_2017f_g5_s03",
+  "set_start_frame": 33816,
+  "core_end_frame": 34224,
+  "period": 2,
+  "anchors_raw": [
+   "2nd|6.22",
+   "2nd|6.16"
+  ],
+  "anchors_frame": [
+   33816,
+   34224
+  ],
+  "anchors_clock_s": [
+   382,
+   376
+  ],
+  "anchors_str": "2nd|6.22 → 2nd|6.16",
+  "clock_s_str": "382 → 376",
+  "offense_real": "GSW",
+  "defense_real": "CLE",
+  "pbp_offense_real": "GSW",
+  "offense_agrees": true,
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    382.0,
+    377.0
+   ],
+   "points": 3
+  },
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 377.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "S. Curry makes 3-pt jump shot from 27 ft"
+  },
+  "status": "aligned",
+  "confidence": 0.62,
+  "overlap_frac_of_span": 0.83,
+  "attacked_basket": "left",
+  "offense_team": 0,
+  "orientation_flipped": true,
+  "orientation_conf": 0.74
+ },
+ "disagreement_card_f21990": {
+  "source": "data/pbp/gsw_cle_2017f_g5_s03_outcomes.json",
+  "clip": "gsw_cle_2017f_g5_s03",
+  "set_start_frame": 21990,
+  "core_end_frame": 22152,
+  "period": 2,
+  "anchors_raw": [
+   "2nd|7.14",
+   "2nd|7.11"
+  ],
+  "anchors_frame": [
+   21990,
+   22152
+  ],
+  "anchors_clock_s": [
+   434,
+   431
+  ],
+  "anchors_str": "2nd|7.14 → 2nd|7.11",
+  "clock_s_str": "434 → 431",
+  "offense_real": "CLE",
+  "defense_real": "GSW",
+  "pbp_offense_real": "GSW",
+  "offense_agrees": false,
+  "pbp_possession": {
+   "team": "home",
+   "clock": [
+    461.0,
+    423.0
+   ],
+   "points": 3
+  },
+  "offense_points": 3,
+  "terminating_event": {
+   "clock_s": 445.0,
+   "team": "home",
+   "kind": "shot_made",
+   "desc": "K. Durant makes 3-pt jump shot from 26 ft"
+  },
+  "status": "aligned",
+  "confidence": 0.92,
+  "overlap_frac_of_span": 1.0,
+  "attacked_basket": "right",
+  "offense_team": 1,
+  "orientation_flipped": false,
+  "orientation_conf": 0.69
+ },
+ "matchup_span_729": {
+  "source": "data/tracking/gsw_hou_duel_s01_matchups.json → possessions[set_start_frame==729]",
+  "field_names": [
+   "set_start_frame",
+   "core_start_frame",
+   "core_end_frame",
+   "core_s",
+   "attacked_basket",
+   "offense_team",
+   "defense_team",
+   "confidence",
+   "coverage_pairs_per_frame",
+   "frames_used",
+   "frames_excluded_team_gt5",
+   "pct_excluded",
+   "degraded",
+   "team_count_distribution",
+   "spacing_conceded_ft2",
+   "defenders[]"
+  ],
+  "clip": "gsw_hou_duel_s01",
+  "set_start_frame": 729,
+  "core_start_frame": 729,
+  "core_end_frame": 1062,
+  "core_s": 11.2,
+  "offense_team": 1,
+  "defense_team": 0,
+  "attacked_basket": "right",
+  "confidence": 0.95,
+  "coverage_pairs_per_frame": 3.9,
+  "frames_used": 112,
+  "frames_excluded_team_gt5": 0,
+  "pct_excluded": 0.0,
+  "degraded": false,
+  "n_defenders": 6,
+  "team_count_distribution": {
+   "5v5": 26,
+   "3v4": 21,
+   "4v4": 18,
+   "4v5": 15,
+   "3v5": 15,
+   "5v4": 13,
+   "4v3": 4
+  },
+  "outcomes_row": {
+   "source": "data/pbp/gsw_hou_duel_s01_outcomes.json",
+   "period": 1,
+   "offense_real": "HOU",
+   "status": "aligned",
+   "terminating_event_desc": "T. Jones makes 2-pt jump shot from 8 ft",
+   "offense_agrees": true,
+   "confidence": 0.95
+  }
+ },
+ "matchup_curry_q1_span_0": {
+  "source": "data/tracking/curry_q1_clip_matchups.json → possessions[set_start_frame==0] (C6 banner-count target)",
+  "core_start_frame": 0,
+  "core_end_frame": 381,
+  "frames_used": 92,
+  "frames_excluded_team_gt5": 36,
+  "pct_excluded": 28.1,
+  "coverage_pairs_per_frame": 3.6
+ },
+ "matchup_coverage_corpus": {
+  "source": "recomputed from data/tracking/*_matchups.json (151 files)",
+  "n_possessions": 1183,
+  "n_non_degraded": 1015,
+  "non_degraded_min": 0.0,
+  "non_degraded_max": 4.4,
+  "non_degraded_p10": 1.0,
+  "non_degraded_median": 2.0,
+  "non_degraded_p90": 3.4,
+  "warning": "the DEVLOG's '2.5–4.0 pairs/frame' is a typical-band statement, not min/max — the raw range is wider; quote 2.5–4.0 only with its DEVLOG source"
+ },
+ "matchup_labeling": {
+  "source": "data/matchup_eval/labels_discarded_20260716_2343.json + labels.json (untracked, read-only)",
+  "attempt_1_discarded_n": 38,
+  "attempt_1_verdicts": {
+   "n": 37,
+   "y": 1
+  },
+  "attempt_2_n": 33,
+  "attempt_2_verdicts": {
+   "n": 23,
+   "u": 4,
+   "y": 6
+  },
+  "attempt_2_str": "33: 23 negative, 6 positive, 4 unsure"
+ },
+ "constants": {
+  "HOLD_S": 2.0,
+  "HOLD_S_source": "render_overlay_video.py"
+ },
+ "hand_typed_sources": {
+  "_rule": "figures below are NOT in any JSON artifact on disk; the page may show them only with the listed source in the evidence ledger (brief §E.1, §H)",
+  "corpus_games_16": "16 games — reports/tier2_bias_audit.json has games:16 (so this one IS in JSON); listed for clarity",
+  "hero_eyebrow_years_2012_2017": "fetch_pbp.py GAMES dates run 2012-06-07 (201206070BOS) … 2017-06-12; the page derives the span from crossval_per_game keys at build time. PROJECT_SUMMARY.md and paper §2/§5/§9 say 2013–2017 — wrong by a season, flagged to the owner",
+  "gate_harvest_threshold_0_35": "paper §4 / DEVLOG (harvest operating point 0.35 vs validated 0.70 in metrics.json)",
+  "detection_baseline_f1_0_71_p_0_68_r_0_74": "paper §4 / DEVLOG (pre-fine-tune YOLOv8m baseline)",
+  "detection_external_dataset_654_images_10_to_5_classes": "paper §4 / DEVLOG",
+  "detection_train_time_30min_T4_vs_22h_local": "DEVLOG",
+  "detection_negative_results_conf_0_40_to_0_25_recall_0_744_to_0_764": "paper §10 / DEVLOG",
+  "detection_negative_results_nms_0_45_0_70_no_change": "paper §10 / DEVLOG",
+  "detection_negative_results_yolov8x_recall_0_695": "paper §10 / DEVLOG",
+  "identity_impossible_steps_15_4_to_14_3_pct": "DEVLOG (label-free diagnostic)",
+  "identity_churn_6_57_to_5_0": "DEVLOG (label-free diagnostic)",
+  "homography_pixel_benchmark_p50_1_7px_279_val_frames": "paper §4 (snapped-mapping targets, not human labels) — MUST stay a separate sentence",
+  "homography_hand_labeled_400_frames_20_point_scheme": "paper §4",
+  "homography_unseen_games_66_89_pct_sane_mapping": "data/court_review / DEVLOG",
+  "c7_render_track_79_pct": "HUD-color scan of 1998_CHIatUTA render (scout notes; re-verify on the cut)",
+  "line_seg_dice_0_587": "paper §4 (train_line_seg.py)",
+  "team_misassignment_13_pct_and_gt5_hard_exclusion": "paper §5 (derived from teams_eval 87.1%)",
+  "team_cluster_crops_gsw_cle_2017f_g5_s03_1596_1979_84": "reports/viz/team_clusters_gsw_cle_2017f_g5_s03.png title / DEVLOG — no JSON found",
+  "possessions_100_100_more_than_2s_from_boundaries": "paper §5 (poss_eval.json only has by_kind: basket span_start 1.0 / pre_start 1.0; offense 0.917 / 0.833)",
+  "possessions_basket_93_0_before_ghost_fix": "DEVLOG 2026-07-07",
+  "possessions_boundary_fuzz_1_2s": "paper §5",
+  "clock_27_crops_7_layouts": "reports/viz/anchor_truth_sheet.png / DEVLOG",
+  "alignment_9_of_9_offense_crossval": "DEVLOG",
+  "orientation_crossval_69_4_to_93_7": "DEVLOG",
+  "anchor_failure_10_pct_per_possession": "paper §6 (248/1239 ≈ 20% of spans by the corpus JSON; the '~10% per possession, retryable' phrasing is the paper's)",
+  "matchup_coverage_2_5_4_0_pairs_per_frame": "DEVLOG 2026-07-07 (ghost audit); raw corpus range is wider — see matchup_coverage_corpus",
+  "matchup_coverage_inflated_4_5_before_ghost_fix": "DEVLOG 2026-07-07",
+  "ghost_points_20_30_pct_interpolated": "DEVLOG 2026-07-07",
+  "banner_counts_104_43_50_60": "DEVLOG 2026-07-07",
+  "credit_first_figure_minus_4_5": "DEVLOG 2026-07-16c",
+  "credit_bootstrap_2000_resamples": "data/pbp/tier2_credit.json 'ci' string (IS in JSON as prose)",
+  "funnel_10_12_9_10_7_9_58_pct_7_7": "paper §6 (audited sample)",
+  "reproducibility_151_151_byte_identical_colab": "DEVLOG 2026-07-17",
+  "reproducibility_51_of_151_changed_75_49_13_86_6_pct_92_min": "DEVLOG 2026-09-11 / paper §6.4",
+  "ledger_91_1_n_642_retracted_2026_09_11": "CLAIMS.md A1 history / DEVLOG 2026-09-11 (run-11 alignment report)",
+  "ledger_86_0_n_264": "reports/tier2_crossval.json (IS in JSON — see crossval_per_run_artifact)",
+  "audit_6197_frames_21_sources": "DEVLOG 2026-09-12 / CLAIMS A6",
+  "audit_6159_judged_10_80_usd_41_failures": "DEVLOG 2026-09-12 (Batches API run)",
+  "audit_37916_box_agreement_corpus": "DEVLOG 2026-09-12",
+  "audit_4694_jersey_reads_withdrawn": "DEVLOG 2026-09-12",
+  "audit_rule_4_300_stratified": "LABEL_SCHEMA.md / label protocol (label_audit.json sampled:300 confirms n)",
+  "gdino_p_0_70_r_0_94_vs_0_956_0_967_27_vs_15_fn_197_min": "DEVLOG 2026-07-18 (different matcher than tracking_metrics.json)",
+  "keypoint_mps_loss_11_4_11_5_to_7_7_11_epochs": "DEVLOG 2026-06-24",
+  "kp_review_worst_7_28_ft": "reports/viz/kp_review_worst.png title",
+  "stale_join_guard_day_one": "DEVLOG 2026-07-16",
+  "ocr_1080p_30_8_to_31_0_abstention_53_to_11": "DEVLOG 2026-07-12",
+  "mlops_52_tests_15_colab_runs": "pytest --collect-only -q tests → 52 collected (2026-09-12); DEVLOG / PROJECT_SUMMARY still say 45 (stale)",
+  "paper_18_pages": "paper/main.pdf has 19 pages (pypdf; main.log '19 pages'); the commit message said 18. The page reads the count at build time",
+  "matchup_labels_38_then_33_23_6_4": "DEVLOG 2026-07-17b / paper §10.4 (ALSO recomputed from untracked data/matchup_eval — see matchup_labeling)",
+  "hold_s_2s": "render_overlay_video.py HOLD_S (IS read from source — see constants)"
+ }
+}
