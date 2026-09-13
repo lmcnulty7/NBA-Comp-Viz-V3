@@ -1,11 +1,12 @@
 <title>Court Ledger</title>
 <style>{{STYLE}}</style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Libre+Franklin:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 
 <nav class="nav" id="nav" aria-label="Sections">
+  <a class="brand" href="#s0">Court Ledger</a>
   <a href="#s0" id="nav-s0"><i class="g g-m"></i>Court lock</a>
   <a href="#s1" id="nav-s1"><i class="g g-m"></i>Gate</a>
-  <a href="#s2" id="nav-s2"><i class="g g-h"></i>Find / follow / place</a>
+  <a href="#s2" id="nav-s2"><i class="g g-h"></i>Find &amp; place</a>
   <a href="#s3" id="nav-s3"><i class="g g-m"></i>One possession</a>
   <a href="#s4" id="nav-s4"><i class="g g-u"></i>Unmeasured</a>
   <a href="#s5" id="nav-s5"><i class="g g-h"></i>Straddles zero</a>
@@ -15,6 +16,7 @@
   <span class="spacer"></span>
   <button class="toggle" id="receipts-toggle" type="button" aria-pressed="false" title="Open every receipt on the page (n, CI, caveats, artifact paths)"><i></i>receipts</button>
 </nav>
+<div class="progress" aria-hidden="true"><i id="readbar"></i></div>
 
 <main class="page">
 
@@ -32,21 +34,21 @@
       <circle class="l" cx="250" cy="470" r="60"/>
     </svg>
   </div>
-  <p class="byline"><span>Lucien McNulty</span><span>·</span><span>a broadcast-video computer-vision pipeline, read as a ledger: every number carries its n, its interval and the file it came from.</span></p>
-  <div class="hero-title">
-    <p class="eyebrow"><i class="g g-m"></i>Computer vision · NBA broadcast footage · {{N:bias_audit.games}} games, {{N:corpus_years.min}}–{{N:corpus_years.max}}</p>
+  <div class="head">
+    <p class="kicker"><i class="g g-m"></i>Computer vision · NBA broadcast footage · {{N:bias_audit.games}} games, {{N:corpus_years.min}}–{{N:corpus_years.max}}</p>
     <h1>Broadcast video in.<br>Per-possession defensive records out.</h1>
-    <p class="sub">A 2019 TOR@PHI clip the model never trained on. The pixel-to-court mapping is re-solved on every frame; the magenta template is the solve. Every figure below has a <b>receipt</b> — its n, its interval, its caveat and the file it came from — one click deep.</p>
+    <p class="dek">A computer-vision pipeline that turns ordinary NBA television footage into records of who was on the floor and what each possession produced — with every number carrying its sample size, its interval and the file it came from.</p>
+    <p class="byline"><span class="by">By Lucien McNulty</span><a href="mailto:lucienmmcnulty@gmail.com">lucienmmcnulty@gmail.com</a><a href="https://www.linkedin.com/in/lucien-mcnulty/" rel="me noopener">LinkedIn</a><a href="https://github.com/lmcnulty7" rel="me noopener">GitHub</a></p>
+    <p class="dateline">Built {{BUILD_DATE}} · every figure has a receipt one click deep</p>
   </div>
-
-  <figure class="exhibit" id="m-c1">
+  <figure class="exhibit breakout" id="m-c1">
     <div class="screen" style="aspect-ratio:854/480">
       <span class="badge">2019 TOR@PHI · unseen · stage 3 · TRACK</span>
       <!--clip:c1_court_lock--><video id="v-c1" aria-label="2019 TOR@PHI, unseen clip, stage 3 court lock" muted playsinline loop preload="metadata" controls width="854" height="480" poster="{{POSTER:c1_court_lock}}" src="{{VIDEO:c1_court_lock}}" data-b64="c1_court_lock"></video><!--/clip-->
       <div class="prog" aria-hidden="true"><i id="p-c1"></i></div>
     </div>
     <div class="line">
-      <p class="what"><i class="g g-m"></i> <strong>Stage 3 · court homography</strong> <em>(the math that maps a TV pixel to a spot on the real court, in feet)</em> — locked to the painted lines through a live camera pan.</p>
+      <p class="what"><i class="g g-m"></i> A 2019 TOR@PHI clip the model never trained on. <strong>Stage 3, court homography</strong> <em>(the math that maps a TV pixel to a spot on the real court, in feet)</em>: the mapping is re-solved on every frame, and the magenta template is the solve — locked to the painted lines through a live camera pan.</p>
       <p class="stat"><span class="num">{{N:homography.median_ft_str}} ft (~{{N:homography.median_in}} in) median fit residual <small>· {{N:homography.val_frames}} hand-labeled frames held out of training · {{N:homography.homography_success_rate|pct0}}% solve success</small></span></p>
       <div class="chips"><span class="chip">⌗ reports/homography_metrics.json</span></div>
     </div>
@@ -59,7 +61,7 @@
     </details>
   </figure>
 
-  <div class="triad" id="docket">
+  <div class="triad breakout" id="docket">
     <div class="tile" id="tile-measured">
       <div class="state"><i class="g g-m"></i>measured</div>
       <div class="big"><span class="num">{{N:crossval.rate_pct}}%</span></div>
@@ -87,7 +89,7 @@
   </div>
   <p class="sample">Sample: halfcourt set-cores (the settled middle of a possession, boundaries trimmed) from a nonrandom, GSW-centric slice of {{N:corpus_years.min}}–{{N:corpus_years.max}} games. No league-wide claims.</p>
 
-  <div class="rail-wrap" id="diagram" role="region" aria-label="Eight pipeline stages on one rail, each with its validated number; play-by-play enters only at stage 8 and the join">
+  <div class="rail-wrap breakout" id="diagram" role="region" aria-label="Eight pipeline stages on one rail, each with its validated number; play-by-play enters only at stage 8 and the join">
     <div class="pbp-rail">independent play-by-play — never seen by stages 1–7 — enters at stage 8 and the join</div>
     {{CHART:RAIL}}
     <div class="rail-legend"><span><i class="g g-m"></i> measured (held-out number)</span><span><i class="g g-h"></i> label-free or inconclusive</span><span><i class="g g-u"></i> unmeasured (no number)</span><span>bar = the stage's headline score · click a stage to jump</span></div>
@@ -101,7 +103,7 @@
     <h2>Live or not — the gate</h2>
     <p class="lede">The first decision the system makes on every frame: is this live play, or a bench close-up, replay, crowd shot? Frames that fail are skipped, not tracked.</p>
   </header>
-  <div class="two">
+  <div class="flow">
     <figure class="exhibit" id="m-c2">
       <div class="screen" style="aspect-ratio:854/480">
         <span class="badge">2017 Finals G5 · f13026 · stage 1</span>
@@ -122,7 +124,7 @@
         </div>
       </details>
     </figure>
-    <div class="stack">
+    <div class="stack" style="gap:56px">
       <div class="viz" id="viz-gate">
         <div class="title"><span class="fig">Fig. 1</span> the gate against the two baselines it was built to beat</div>
         {{CHART:GATE}}
@@ -148,7 +150,7 @@
     <h2>Find, follow, place</h2>
     <p class="lede">Three stages as one argument: boxes, then track <em>fragments</em> (a run of boxes the tracker believes is one body — not a player), then court coordinates in feet. Each carries its number and the failure the number does not cover.</p>
   </header>
-  <div class="two">
+  <div class="flow">
     <figure class="figure" id="f-s1">
       <img src="{{IMG:S1}}" width="1440" height="624" alt="Detection evaluation sheet: correct boxes in green, missed players in yellow, false positives in red, per-frame counts">
       <div class="line">
@@ -171,7 +173,7 @@
       <div class="chips"><span class="chip">⌗ reports/tracking_metrics.json</span><span class="chip">⌗ paper §4 (baseline)</span></div>
     </div>
   </div>
-  <div class="two">
+  <div class="flow">
     <figure class="figure" id="f-s2">
       <img src="{{IMG:S2}}" width="1200" height="1080" alt="Six MIA at BOS frames with the projected court template, including two degenerate failures">
       <div class="line">
@@ -202,7 +204,7 @@
       </details>
     </figure>
   </div>
-  <figure class="exhibit" id="m-c7">
+  <figure class="breakout exhibit" id="m-c7">
     <div class="screen" style="aspect-ratio:640/360;max-height:420px">
       <span class="badge">1998 CHI@UTA · unseen · stage 3 · TRACK → HELD → TRACK</span>
       <!--clip:c7_held_1998--><video id="v-c7" aria-label="1998 CHI@UTA, unseen clip, stage 3: TRACK, then HELD, then TRACK" muted playsinline loop preload="metadata" controls width="640" height="360" poster="{{POSTER:c7_held_1998}}" src="{{VIDEO:c7_held_1998}}" data-b64="c7_held_1998"></video><!--/clip-->
@@ -230,7 +232,7 @@
     <h2>One possession, end to end</h2>
     <p class="lede">One real possession — 2017 Finals G5, second period, the GSW possession ending in a 27-ft three (frame {{N:record_card_f33816.set_start_frame}}) — followed through the back stages of the chain, so a video timestamp becomes a named, scored record. Both clips and the record card below are this possession.</p>
   </header>
-  <figure class="exhibit" id="m-c3">
+  <figure class="breakout exhibit" id="m-c3">
     <div class="screen" style="aspect-ratio:1024/284">
       <span class="badge">2017 Finals G5 · f33816 · stages 2, 4, 5, 6</span>
       <!--clip:c3_possession_sidebyside--><video id="v-c3" aria-label="2017 Finals G5, frame 33816, stages 2, 4, 5, 6: broadcast beside a top-down minimap" muted playsinline loop preload="metadata" controls width="1024" height="284" poster="{{POSTER:c3_possession_sidebyside}}" src="{{VIDEO:c3_possession_sidebyside}}" data-b64="c3_possession_sidebyside"></video><!--/clip-->
@@ -249,7 +251,7 @@
       </div>
     </details>
   </figure>
-  <div class="two">
+  <div class="pair">
     <figure class="exhibit" id="m-c4">
       <div class="screen" style="aspect-ratio:854/480">
         <span class="badge">2017 Finals G5 · f33816 · stage 3 · H CONFIDENT</span>
@@ -281,7 +283,7 @@
       <div class="foot">Values copied from the outcomes JSON at build time; nothing on this card is typed by hand. Team A/B is kit color, not home/away. "home" here is the play-by-play's field, not the pipeline's. <span class="rc-live-note">Rows brighten as the clip plays.</span> <span class="chip">⌗ data/pbp/gsw_cle_2017f_g5_s03_outcomes.json</span></div>
     </div>
   </div>
-  <figure class="figure" id="f-s7">
+  <figure class="breakout figure" id="f-s7">
     <div class="bracket"><img src="{{IMG:S7}}" width="1000" height="220" alt="Occupancy median-x timeline for the whole 10-minute section with shaded possession spans"><div class="mark" style="left:89.0%;width:2.1%"><span>this possession</span></div></div>
     <div class="line">
       <p class="what"><i class="g g-m"></i> Possession segmentation for the full 10-minute section — the bracketed span at the right is the possession above.</p>
@@ -295,7 +297,7 @@
       </div>
     </details>
   </figure>
-  <div class="two">
+  <div class="flow">
     <figure class="figure" id="f-s3">
       <div class="scroll"><img src="{{IMG:S3}}" width="576" height="930" alt="Crop grids produced by the team classifier for this section: team A, team B, abstained"></div>
       <div class="line">
@@ -330,10 +332,10 @@
 <section class="section" id="s4">
   <header>
     <p class="eyebrow"><i class="g g-u"></i>Stage 7 · matchups</p>
-    <h2>Who is guarding whom — <span class="unm">UNMEASURED</span></h2>
+    <h2>Who is guarding whom — <span class="unm">unmeasured</span></h2>
     <p class="lede">The stage the whole page exists for is the one without a number. The engine draws defender–attacker pairs on every frame of a set core; what it cannot yet say is how often those pairs are right.</p>
   </header>
-  <div class="two">
+  <div class="flow">
     <figure class="exhibit" id="m-c5">
       <div class="screen" style="aspect-ratio:876/480">
         <span class="badge">gsw_hou_duel_s01 · span f729–1062 · stage 7 · JSON only</span>
@@ -374,7 +376,7 @@
       </details>
     </figure>
   </div>
-  <div class="two">
+  <div class="flow">
     <div class="viz" id="viz-cov">
       <div class="title"><span class="fig">Fig. 3</span> how many pairs the engine draws per frame, across the corpus</div>
       {{CHART:COV}}
@@ -396,14 +398,14 @@
     <h2>The number that straddles zero</h2>
     <p class="lede">The end-to-end result is an interval, shown with the funnel that produced its sample and the selection bias measured on that sample. The statistics here restrain a claim rather than make one.</p>
   </header>
-  <div class="viz" id="f1">
+  <div class="breakout viz" id="f1">
     <div class="title"><span class="fig">Fig. 4</span> team credit per 100 possessions — the one bucket that clears the reporting gate</div>
     {{CHART:F1}}
     <div class="cap">Cluster-bootstrapped 95% CI by game (2,000 resamples); leave-sample-out, start-type-matched baselines. Pre-registered n ≥ {{N:credit.min_bucket}} reporting gate — exactly one bucket clears it. Sub-gate buckets are not plotted.</div>
     <div class="cap">Read as: vs. these opponents' own context-matched norms, on the surviving sample, with this CI. <b>Credit is an accounting attribution of points, not a measure of defensive skill.</b></div>
     <div class="chips"><span class="chip">⌗ paper §7 · tier2_credit.py</span><span class="chip">⌗ data/pbp/tier2_credit.json</span></div>
   </div>
-  <div class="two">
+  <div class="flow">
     <div class="viz" id="viz-xval">
       <div class="title"><span class="fig">Fig. 5</span> the play-by-play check, game by game</div>
       {{CHART:XVAL_GAMES}}
@@ -417,7 +419,7 @@
       <div class="chips"><span class="chip">⌗ reports/tier2_bias_audit.json</span><span class="chip">⌗ reports/tier2_crossval_corpus.json</span></div>
     </div>
   </div>
-  <div class="two">
+  <div class="flow">
     <div class="viz" id="viz-mix">
       <div class="title"><span class="fig">Fig. 7</span> what the funnel selects for — points scored per possession</div>
       {{CHART:MIX}}
@@ -439,7 +441,7 @@
       </div>
     </div>
   </div>
-  <div class="two">
+  <div class="flow">
     <div class="stack">
       <div class="card" id="xval">
         <div class="state"><i class="g g-m"></i>cross-validation against play-by-play</div>
@@ -486,7 +488,7 @@
     <p class="lede">Six incidents, each in three columns: what the log said, what was true, what changed. These are the product. I built the checks; the checks found these.</p>
     <p class="hint">Short on time? Read 01 and 02.</p>
   </header>
-  <div class="reg">
+  <div class="breakout reg">
     <details id="inc-01" open>
       <summary id="sum-inc-01"><span class="case">01 · 2026-09-12</span><span class="verdict">A 300-label hand audit found the LLM judge's labels <span class="num">{{N:label_audit.judge_adjudicated_bands.range_pct_str}}</span> right; discarded before any model trained on them.</span></summary>
       <div class="cols">
@@ -503,7 +505,7 @@
           <div class="cap">{{N:label_audit.sampled}} stratified labels audited by hand. The dashed line is the aggregate {{N:label_audit.overall.accuracy|pct}}% — not a meaningful number (mixes bands).</div>
           <div class="chips"><span class="chip">⌗ reports/label_audit.json</span></div>
         </div>
-        <div class="two">
+        <div class="pair" style="grid-template-columns:1fr 1fr">
           <figure class="figure" id="f-s9">
             <img src="{{IMG:S9}}" width="862" height="188" alt="Audit crop 0092: a box labeled ball drawn over the TNT scorebug">
             <div class="line"><p class="what">a "ball" label — on the TNT scorebug</p><p class="stat">crop 0092 · stratum {{N:label_audit.crops.0092.jpg.stratum}} · verdict {{N:label_audit.crops.0092.jpg.verdict}} = box_or_class_wrong</p><div class="chips"><span class="chip">⌗ data/label_audit/labels.json</span></div></div>
@@ -616,7 +618,7 @@
     <h2>For the reviewer</h2>
     <p class="lede">Each skill names the file that carries it. The evidence ledger at the end maps every number on this page to an artifact path or a dated log entry.</p>
   </header>
-  <div class="skills" id="skills">
+  <div class="breakout skills" id="skills">
     <div class="skill"><b>Transfer learning</b><span>frozen CLIP + logistic probe, <span class="num">{{N:gate.accuracy_pct}}% <small>/ {{N:gate.n_test}}</small></span></span><div class="chips"><span class="chip">⌗ train_gate.py</span></div></div>
     <div class="skill"><b>Detection fine-tuning</b><span>YOLOv8m, F1 0.71 → {{N:detection.f1_str}}</span><div class="chips"><span class="chip">⌗ train_player_detector.py</span></div></div>
     <div class="skill"><b>Multi-object tracking</b><span>BoT-SORT + camera-cut reset, label-free churn diagnostics</span><div class="chips"><span class="chip">⌗ run_tracking.py</span></div></div>
@@ -638,7 +640,7 @@
     <li>Achieved pixel-to-court mapping at <span class="num">{{N:homography.median_ft_str}} ft (~{{N:homography.median_in}} in) median reprojection residual (the RANSAC inliers' fit against the court template) with {{N:homography.homography_success_rate|pct0}}% solve success <small>on {{N:homography.val_frames}} hand-labeled frames held out of training; detector keypoint error vs those labels: median {{N:homography.keypoint_pixel_error.median|f1}} px</small></span> (and p50 1.7 px on a separate 279-frame pixel benchmark, also a fit-consistency score), by hand-labeling 400 frames on a 20-point scheme, training a YOLOv8m-pose keypoint model, and solving with RANSAC plus ICP-style line-snapping refinement guarded to accept only improvements.</li>
   </ul>
 
-  <div class="neg" id="neg">
+  <div class="breakout neg" id="neg">
     <table>
       <tr><td>detector conf 0.40 → 0.25</td><td>recall 0.744 → 0.764 at 2× crowd false positives</td></tr>
       <tr><td>NMS 0.45–0.70</td><td>no change</td></tr>
@@ -649,7 +651,7 @@
     </table>
   </div>
 
-  <details class="ledger-wrap" id="ledger-wrap">
+  <details class="breakout ledger-wrap" id="ledger-wrap">
   <summary id="sum-ledger">Evidence ledger — every number on this page → the artifact it came from ({{LEDGER_ROWS}} rows)</summary>
   <div class="ledger" id="ledger">
     <table>
@@ -700,10 +702,10 @@
   </div>
   </details>
 
-  <p class="links" id="links"><span>Paper ({{N:paper_pages}} pp.) — available on request ·</span> <span>Repository — private, access on request; paths cited ·</span> <span>CLAIMS.md (per-claim status ledger, in the repo) ·</span> <span>DEVLOG (dated engineering log, in the repo)</span></p>
+  <p class="links" id="links"><a href="mailto:lucienmmcnulty@gmail.com?subject=Court%20Ledger%20paper">Paper ({{N:paper_pages}} pp.) — request a copy</a><a href="https://github.com/lmcnulty7" rel="me noopener">GitHub — lmcnulty7</a><a href="https://www.linkedin.com/in/lucien-mcnulty/" rel="me noopener">LinkedIn</a><a href="mailto:lucienmmcnulty@gmail.com">lucienmmcnulty@gmail.com</a><span class="small">Repository access on request; CLAIMS.md and DEVLOG are the per-claim ledger and the dated engineering log in it.</span></p>
 
   <div class="foot" id="foot">
-    <div>Court Ledger · built {{BUILD_DATE}} · Lucien McNulty</div>
+    <div>Court Ledger · built {{BUILD_DATE}} · Lucien McNulty · <a href="mailto:lucienmmcnulty@gmail.com">lucienmmcnulty@gmail.com</a></div>
     <div>every number on this page is traceable to a named artifact; the ⌗ chips name it, and every figure's receipt opens on click</div>
     <div>numbers extracted from the JSON artifacts at build time by build_numbers.py (generated {{N:_meta.generated_utc}}); the record and disagreement cards are copied, not typed</div>
     <div>video: H.264 480p/360p 24 fps CRF 30, ≤ 6 s each, embedded as data URIs · stills: WebP · fonts: Google Fonts · no other external asset</div>
@@ -788,6 +790,11 @@
   }
   document.addEventListener('mousemove', showTip);
   document.addEventListener('mouseleave', function(){ tip.classList.remove('on'); });
+
+  // reading progress line
+  var rb = document.getElementById('readbar');
+  function onScroll(){ if (!rb) return; var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; rb.style.width = (max > 0 ? (100 * h.scrollTop / max) : 0).toFixed(2) + '%'; }
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
 
   // sticky nav: current section
   var secs = Array.prototype.slice.call(document.querySelectorAll('[id^="s"]')).filter(function(s){ return /^s[0-8]$/.test(s.id); });

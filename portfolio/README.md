@@ -20,8 +20,11 @@ data: URIs) are regenerable in under a minute. Needs ffmpeg/ffprobe at
   `{{N:key}}` and `{{CHART:NAME}}` placeholders. No number is typed into the template.
   Two layers: every figure shows one line + one number, with a collapsed `receipt`
   (n, CI, caveats, artifact chips) beneath; the nav's **receipts** button opens all.
-- `style.css` — the visual system (tokens for light/dark/toggle, the court-motif
-  watermark, the two-layer exhibit anatomy, chart styles). Injected at `{{STYLE}}`.
+- `style.css` — the visual system, modeled on an Upshot-style data article: a
+  centered 640 px serif reading column (Newsreader) with figures that break out to
+  1100 px, charts annotated in a sans face (Libre Franklin), no boxes, a court-motif
+  watermark, three-state light/dark tokens. Injected at `{{STYLE}}`. Layout classes:
+  `breakout` (wide figure), `flow` (stacked figures), `pair` (a true side-by-side).
 - `build_numbers.py` — pulls every headline figure from `reports/*.json`,
   `data/pbp/*.json`, `data/tracking/*.json` into `numbers.json`; the few
   paper/DEVLOG-sourced figures are listed under `hand_typed_sources`.
