@@ -16,14 +16,22 @@ data: URIs) are regenerable in under a minute. Needs ffmpeg/ffprobe at
 /opt/homebrew/bin, Pillow, pypdf.
 
 ## What is here
-- `template.html` — the page with `{{VIDEO:…}}`, `{{IMG:…}}`, `{{POSTER:…}}`
-  and `{{N:key}}` placeholders. No number is typed into the template.
+- `template.html` — the page with `{{VIDEO:…}}`, `{{IMG:…}}`, `{{POSTER:…}}`,
+  `{{N:key}}` and `{{CHART:NAME}}` placeholders. No number is typed into the template.
+  Two layers: every figure shows one line + one number, with a collapsed `receipt`
+  (n, CI, caveats, artifact chips) beneath; the nav's **receipts** button opens all.
+- `style.css` — the visual system (tokens for light/dark/toggle, the court-motif
+  watermark, the two-layer exhibit anatomy, chart styles). Injected at `{{STYLE}}`.
 - `build_numbers.py` — pulls every headline figure from `reports/*.json`,
   `data/pbp/*.json`, `data/tracking/*.json` into `numbers.json`; the few
   paper/DEVLOG-sourced figures are listed under `hand_typed_sources`.
 - `assemble.py` — fills placeholders, encodes media as base64, extracts
-  poster frames with ffmpeg, renders the SVG charts from numbers.json, writes
-  both outputs and a size report.
+  poster frames with ffmpeg, renders 13 charts from numbers.json through the
+  `CHARTS` registry (hero tile minis, the stage rail, gate baselines, detection
+  dumbbell, matchup coverage, the interval, per-game cross-validation, the real
+  funnel + anchor-failure breakdown, points-mix, the audit Wilson chart, the
+  number line), writes both outputs and a size report. Chart text lives in HTML;
+  SVGs carry marks only, so labels never scale with a viewBox.
 - `gate.py` — the honesty grep gate (banned phrasings, 91.1 only struck
   through, no player name within 80 chars of a credit figure, …).
 - `clips/` — the seven final H.264 overlay renders (≤ 6 s, ≤ 480p, no audio;
