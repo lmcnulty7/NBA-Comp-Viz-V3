@@ -44,6 +44,11 @@ data: URIs) are regenerable in under a minute. Needs ffmpeg/ffprobe at
   `render_matchup_c6.py` + `scan_c6.py` (c6, banner relocated and
   pixel-verified against the JSON's 36 excluded frames).
 - `img/` — stills as WebP q80 + `stills_manifest.json`.
+- Three hand-drawn inline-SVG schematics live in `template.html` (`#d-chain` the
+  data flow with its exclusion branches and the independent play-by-play source;
+  `#d-truth` what scores each stage and what the end-to-end check covers;
+  `#d-court` the pixel-to-court mapping). Structure in `currentColor`, one accent
+  for the element carrying the claim; numbers via `{{N:…}}` placeholders.
 
 ## Provenance
 Every moving image is a pipeline-derived overlay render of 6 s or less; the
