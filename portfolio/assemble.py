@@ -21,6 +21,9 @@ CLIPS = {
  'c7_held_1998': SC/'clips/c7_held_1998.mp4',
 }
 STILLS = {s['id']: s for s in json.load(open(SC/'img/stills_manifest.json'))}
+for _s in STILLS.values():                      # resolve inside the repo, whatever the manifest recorded
+    _s['out'] = str(SC / 'img' / Path(_s['out']).name)
+    assert Path(_s['out']).exists(), 'missing still: ' + _s['out']
 N = json.load(open(NUMBERS))
 # derived (from JSON fields, not typed)
 m = N['matchup_curry_q1_span_0']; m['frames_sampled'] = m['frames_used'] + m['frames_excluded_team_gt5']

@@ -1,7 +1,7 @@
 /* Court Ledger — visual system v3: an Upshot-style data article.
    Centered serif reading column; figures break out wider; charts annotated in a sans face; no boxes. */
 :root{
-  --ground:#FFFFFF; --surface:#FFFFFF; --ink:#121212; --muted:#666666; --faint:#999999; --rule:#E2E2E2; --rule-soft:#EFEFEF; --wash:#F7F7F5;
+  --ground:#FFFFFF; --surface:#FFFFFF; --ink:#121212; --muted:#666666; --faint:#767676; --rule:#E2E2E2; --rule-soft:#EFEFEF; --wash:#F7F7F5;
   --template:#BE2490; --measured:#1B7A52; --held:#B77A1E; --excluded:#B0302A;
   --teamA:#E8801F; --teamB:#3A7BD5;
   --held-text:#8D5C10; --measured-text:#1B7A52;
@@ -17,7 +17,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ground:#121212; --surface:#121212; --ink:#ECECEC; --muted:#A6A6A6; --faint:#7A7A7A; --rule:#2E2E2E; --rule-soft:#232323; --wash:#1A1A1A;
+    --ground:#121212; --surface:#121212; --ink:#ECECEC; --muted:#A6A6A6; --faint:#8C8C8C; --rule:#2E2E2E; --rule-soft:#232323; --wash:#1A1A1A;
     --template:#D858C2; --measured:#42A878; --held:#A66B29; --excluded:#F44F5D;
     --held-text:#E2A648; --measured-text:#42A878;
     --invert-ground:#ECECEC; --invert-ink:#121212; --held-on-invert:#8D5C10; --bracket-ink:#121212;
@@ -25,7 +25,7 @@
   }
 }
 :root[data-theme="dark"]{
-  --ground:#121212; --surface:#121212; --ink:#ECECEC; --muted:#A6A6A6; --faint:#7A7A7A; --rule:#2E2E2E; --rule-soft:#232323; --wash:#1A1A1A;
+  --ground:#121212; --surface:#121212; --ink:#ECECEC; --muted:#A6A6A6; --faint:#8C8C8C; --rule:#2E2E2E; --rule-soft:#232323; --wash:#1A1A1A;
   --template:#D858C2; --measured:#42A878; --held:#A66B29; --excluded:#F44F5D;
   --held-text:#E2A648; --measured-text:#42A878;
   --invert-ground:#ECECEC; --invert-ink:#121212; --held-on-invert:#8D5C10; --bracket-ink:#121212;

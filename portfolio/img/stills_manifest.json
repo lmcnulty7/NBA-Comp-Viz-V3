@@ -2,7 +2,7 @@
  {
   "id": "S1",
   "src": "reports/viz/detection_eval.png",
-  "out": "/tmp/portfolio_scout/img/detection_eval.webp",
+  "out": "detection_eval.webp",
   "w": 1440,
   "h": 624,
   "bytes": 179088,
@@ -11,7 +11,7 @@
  {
   "id": "S2",
   "src": "reports/viz/homography_overlay.png",
-  "out": "/tmp/portfolio_scout/img/homography_overlay.webp",
+  "out": "homography_overlay.webp",
   "w": 1200,
   "h": 1080,
   "bytes": 249000,
@@ -20,7 +20,7 @@
  {
   "id": "S3",
   "src": "reports/viz/team_clusters_gsw_cle_2017f_g5_s03.png",
-  "out": "/tmp/portfolio_scout/img/team_clusters_gsw_cle_2017f_g5_s03.webp",
+  "out": "team_clusters_gsw_cle_2017f_g5_s03.webp",
   "w": 576,
   "h": 930,
   "bytes": 93140,
@@ -29,7 +29,7 @@
  {
   "id": "S4",
   "src": "reports/viz/false_negatives.png",
-  "out": "/tmp/portfolio_scout/img/false_negatives.webp",
+  "out": "false_negatives.webp",
   "w": 1584,
   "h": 264,
   "bytes": 14102,
@@ -38,7 +38,7 @@
  {
   "id": "S5a",
   "src": "reports/viz/anchor_truth_sheet.png",
-  "out": "/tmp/portfolio_scout/img/anchor_truth_sheet.webp",
+  "out": "anchor_truth_sheet.webp",
   "w": 900,
   "h": 600,
   "bytes": 68584,
@@ -47,7 +47,7 @@
  {
   "id": "S5b",
   "src": "reports/viz/clockcal_espn17.png",
-  "out": "/tmp/portfolio_scout/img/clockcal_espn17.webp",
+  "out": "clockcal_espn17.webp",
   "w": 680,
   "h": 180,
   "bytes": 3404,
@@ -56,7 +56,7 @@
  {
   "id": "S6",
   "src": "reports/viz/track_3_crops.png",
-  "out": "/tmp/portfolio_scout/img/track_3_crops.webp",
+  "out": "track_3_crops.webp",
   "w": 600,
   "h": 360,
   "bytes": 27456,
@@ -65,7 +65,7 @@
  {
   "id": "S7",
   "src": "data/tracking/gsw_cle_2017f_g5_s03_possessions.png",
-  "out": "/tmp/portfolio_scout/img/gsw_cle_2017f_g5_s03_possessions.webp",
+  "out": "gsw_cle_2017f_g5_s03_possessions.webp",
   "w": 1000,
   "h": 220,
   "bytes": 14204,
@@ -74,7 +74,7 @@
  {
   "id": "S8",
   "src": "reports/viz/kp_review_worst.png",
-  "out": "/tmp/portfolio_scout/img/kp_review_worst.webp",
+  "out": "kp_review_worst.webp",
   "w": 1200,
   "h": 996,
   "bytes": 260194,
@@ -83,7 +83,7 @@
  {
   "id": "S9",
   "src": "data/label_audit/crops/0092.jpg",
-  "out": "/tmp/portfolio_scout/img/label_audit_crop_0092.webp",
+  "out": "label_audit_crop_0092.webp",
   "w": 862,
   "h": 188,
   "bytes": 17232,
@@ -92,7 +92,7 @@
  {
   "id": "S10",
   "src": "data/label_audit/crops/0006.jpg",
-  "out": "/tmp/portfolio_scout/img/label_audit_crop_0006.webp",
+  "out": "label_audit_crop_0006.webp",
   "w": 175,
   "h": 221,
   "bytes": 8818,
