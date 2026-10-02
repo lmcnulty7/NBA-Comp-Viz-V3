@@ -9,6 +9,42 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-10-02b — Gate sheet: 5,454 harvest frames human-labeled in an hour; both thresholds were wrong
+
+`gate_sheet.py`: the contact-sheet pass over every frame the judge called
+wide_broadcast, pages ordered by the current gate's P(live) so most pages are
+homogeneous (ordering only; no score shown; every frame seen; `i` inverts a page).
+182 pages × 30, 14:40→15:40. **3,544 wide / 1,910 not wide.**
+
+- Judge's wide precision on its biggest class: **65.0% [63.7, 66.2]** (n=5,454);
+  the 80-frame audit said 68.8% [57.9, 77.8] — consistent, interval 10× tighter.
+- **Test-retest 75/80 (93.8%)** vs the one-at-a-time audit verdicts on the same
+  frames: sorted pages did not change the judgments. Method is sound.
+- **The gate, in-domain, against human labels** (wide-claimed frames only, so the
+  negatives are the hard ones and FP-rate is conservative):
+  @0.35 recall 0.999 / precision 0.917 / FP-rate 0.169 (322 FP) ·
+  @0.50 0.993 / 0.957 / 0.083 · @0.70 **recall 0.859 (500 FN)** / 0.988 / 0.019 ·
+  objective (min FN s.t. FP-rate ≤ 0.10) picks **0.47**: 0.995 / 0.949 / 0.099,
+  acc 0.962 · max accuracy 0.973 at 0.55.
+  0.70 (prototype-validated) drops 14% of real wide frames; 0.35 (the harvest
+  hack) lets 17% of non-wide through. Domain shift is now a number, not a story.
+- The gate's own view already predicted it: 29.2% of the judge's "wide" scored
+  < 0.35, vs 35% not-wide by human label.
+
+**Production stays at 0.35.** A validated candidate exists (0.47), but adopting it
+changes what gets harvested, so: (1) retrain-vs-recalibrate experiment on a
+held-out-by-game split (re-embed; the head is a logistic regression on CLIP
+embeddings), (2) adopt by the rule, (3) re-run the PBP canary and the bias audit.
+Docs updated to say "measured, candidate 0.47, not yet adopted": CLAIMS caveat 1,
+PIPELINE row 1, PROJECT_SUMMARY, paper §3 table / §4.1 / §9.3.
+
+Training data now in hand for the gate: 3,544 wide + 1,910 not-wide, all 21
+harvest sources (vs 1,050 prototype-clip labels). `--pool rest` extends the same
+sheet to the 705 non-wide-claimed frames so the entire 6,159-frame corpus is
+human-verified and the gate eval becomes unconditional.
+
+---
+
 ## 2026-10-02 — shot_type audit: the judge calls closeups "wide" (68.8%); contact sheets beat one-at-a-time
 
 LABEL_PLAN item 1. 200 class-stratified frames of the judge's frame-level

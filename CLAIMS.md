@@ -46,10 +46,9 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 ## Standing caveats that ship with the report
 
 1. **Gate operating point:** harvesting runs at threshold **0.35**, not the
-   validated 0.70 (domain shift on unfamiliar broadcasts, DEVLOG 07-05). The
-   98.7% number belongs to the 0.70 in-domain eval; the 0.35 point is
-   protected downstream by possession-level structure + PBP cross-val, not by
-   a frame-level eval of its own.
+   0.70 validated on the prototype clips. **Now measured in-domain (2026-10-02):** On 5,454 human-labeled harvest frames (every frame the judge called wide, contact-sheet pass 2026-10-02): at 0.70 the gate drops 14.1% of truly wide frames (recall 0.859); at 0.35 it admits 16.9% of non-wide frames (322 of 1,910; precision 0.917); the original objective (min FN s.t. FP-rate <= 0.10) picks 0.47 (recall 0.995, precision 0.949, accuracy 0.962); max accuracy 0.973 at 0.55. A validated candidate (0.47) therefore exists; production stays at 0.35 until
+   the retrain-vs-recalibrate experiment is adopted by the rule and the PBP canary is re-run,
+   because a new threshold changes what gets harvested (reports/gate_sheet.*).
 2. **Funnel yield ~58% span→join** and losses are not random (F3) — B3's audit
    quantifies this; until then no representativeness language.
 3. **Identity = track fragment**, not player, everywhere upstream of jersey OCR.

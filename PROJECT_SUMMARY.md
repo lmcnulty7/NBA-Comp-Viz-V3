@@ -67,10 +67,11 @@ curve. Error types labeled by **downstream cost** — false negatives = dropped 
 validation to minimize FN subject to an FP cap. Visual error-analysis contact sheets.
 
 **Result: 98.7% test accuracy** (macro-F1 0.986, 1 FN / 1 FP on 158 held-out frames), beating
-CLIP zero-shot (0.886) and HSV (0.873). **Standing caveat:** harvesting runs at threshold
-**0.35**, not the validated 0.70 — unfamiliar broadcasts score 0.47–0.66 under domain shift.
-The 98.7% belongs to the 0.70 in-domain eval; the 0.35 operating point is protected
-downstream by possession structure and PBP cross-validation, not by a frame-level eval.
+CLIP zero-shot (0.886) and HSV (0.873). **Standing caveat, now measured:** harvesting runs at
+**0.35**, not the 0.70 validated on the prototype clips. On 5,454 human-labeled harvest frames
+(2026-10-02) the gate at 0.70 drops 14% of truly wide frames and at 0.35 admits 17% of non-wide
+frames; the validated in-domain pick is 0.47 (recall 0.995, precision 0.949). Production stays at
+0.35 until the retrain-vs-recalibrate experiment is adopted and the PBP canary re-run.
 
 ## Stage 2 — Player detection + multi-object tracking
 **Approach:** YOLOv8 detection + **BoT-SORT** tracking in a single streaming pass, with

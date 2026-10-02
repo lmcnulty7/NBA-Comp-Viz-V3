@@ -1,0 +1,7 @@
+GATE SHEET — 5454/5454 wide-claimed frames labeled
+  truly wide: 3544   not wide: 1910   judge's wide precision: 0.65 [0.637, 0.662]
+  test-retest vs audit: {'n': 80, 'agree': 75, 'rate': 0.938}
+  gate @0.35: {'precision': 0.917, 'recall': 0.999, 'fp_rate': 0.169, 'accuracy': 0.94, 'fn': 5, 'fp': 322}
+  gate @0.50: {'precision': 0.957, 'recall': 0.993, 'fp_rate': 0.083, 'accuracy': 0.966, 'fn': 26, 'fp': 159}
+  gate @0.70: {'precision': 0.988, 'recall': 0.859, 'fp_rate': 0.019, 'accuracy': 0.902, 'fn': 500, 'fp': 36}
+  objective (min FN s.t. FP-rate <= 0.10) picks: {'threshold': 0.47, 'tp': 3527, 'fp': 189, 'fn': 17, 'tn': 1721, 'precision': 0.949, 'recall': 0.995, 'fp_rate': 0.099, 'accuracy': 0.962}
