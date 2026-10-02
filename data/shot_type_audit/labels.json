@@ -1,0 +1,1175 @@
+{
+ "gsw_phx_2016@174494": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-01 20:14:09"
+ },
+ "gsw_hou_duel@58374": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-01 20:14:32"
+ },
+ "gsw_nyk_curry54@23965": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-01 20:14:35"
+ },
+ "gsw_cle_2017f_g5@394963": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-01 20:14:36"
+ },
+ "gsw_bos_2016@144700": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-01 20:14:37"
+ },
+ "gsw_hou_duel@27878": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-01 20:14:38"
+ },
+ "curry_q1_clip@11371": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-01 20:14:45"
+ },
+ "clip_10m00_18m00@5134": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-01 20:14:48"
+ },
+ "gsw_okc_2016wcf_g6@76037": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-01 20:15:10"
+ },
+ "gsw_bos_2016@92557": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-01 20:15:22"
+ },
+ "curry_classic_clip@11119": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-01 20:15:25"
+ },
+ "clip_70m00_78m00@7982": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-01 20:15:29"
+ },
+ "gsw_phx_2016@171709": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 00:26:43"
+ },
+ "gsw_phx_2016@43554": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 00:26:44"
+ },
+ "gsw_sas_2016@144113": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 00:26:47"
+ },
+ "curry_classic_clip@16200": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 00:26:50"
+ },
+ "gsw_hou_duel@138400": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 00:26:57"
+ },
+ "gsw_sac_klay37@14008": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 00:26:58"
+ },
+ "gsw_nyk_curry54@10808": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 00:26:59"
+ },
+ "clip_10m00_18m00@4433": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 00:27:00"
+ },
+ "clip_40m00_48m00@4876": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 00:27:05"
+ },
+ "gsw_sas_2016@117963": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 00:27:07"
+ },
+ "gsw_okc_2016wcf_g1@61496": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 00:27:10"
+ },
+ "curry_classic_clip@12127": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 00:27:19"
+ },
+ "clip_55m00_63m00@3591": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 00:27:21"
+ },
+ "clip_40m00_48m00@11182": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 00:27:22"
+ },
+ "gsw_bos_2016@79028": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 00:27:23"
+ },
+ "curry_q1_clip@6744": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "curry_q1_clip@868": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@263255": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@38236": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@150720": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "clip_70m00_78m00@13147": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@293700": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@87731": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@3326": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_sas_2016@72863": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@12999": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@5043": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@7288": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "clip_55m00_63m00@4489": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "curry_q1_clip@8501": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@126449": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@117337": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@32092": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@13854": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@70458": {
+  "verdict": "n",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:34:44",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@161887": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@66127": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@129736": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_sas_2016@67734": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@136471": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@7846": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@14256": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@40488": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_splash62@58041": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "curry_classic_clip@14534": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@268185": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@126363": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "clip_70m00_78m00@9687": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@80247": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@103203": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@7543": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@11052": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@7540": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@23417": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@100876": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:36:57",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@12329": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@281924": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@102528": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@51139": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_bos_2016@118355": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@341109": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@76806": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@174355": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@8064": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@56135": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@59120": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@47803": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@121332": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@46854": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@6240": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_splash62@104007": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@249533": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@174968": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@60999": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@1965": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:21",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@130782": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@28718": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@26119": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_bos_2016@153886": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@352970": {
+  "verdict": "y",
+  "truth": "wide_broadcast",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@149697": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@30667": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@112005": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@2653": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@64121": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:36",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@10301": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@104025": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_splash62@45964": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@80137": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@86842": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@179787": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@119222": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@174915": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_bos_2016@175932": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@129068": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@11237": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@15978": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@122246": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@182223": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "clip_10m00_18m00@7525": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@251074": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@396391": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@10853": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@8925": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@117593": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:37:51",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@53062": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@177376": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "clip_55m00_63m00@3484": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@78360": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@111725": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@146019": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@90714": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@153052": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@132928": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_splash62@154870": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_bos_2016@123189": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@2295": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "curry_q1_clip@11393": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_bos_2016@31549": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@162823": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@165049": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_sas_2016@84653": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "clip_26m00_34m00@5840": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@42464": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "curry_classic_clip@11280": {
+  "verdict": "n",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:38:18",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@184115": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:47:58",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@3780": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:47:58",
+  "mode": "grid"
+ },
+ "clip_26m00_34m00@917": {
+  "verdict": "y",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:47:58",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@70690": {
+  "verdict": "y",
+  "truth": "replay",
+  "ts": "2026-10-02 11:48:07",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@147093": {
+  "verdict": "y",
+  "truth": "replay",
+  "ts": "2026-10-02 11:48:07",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@327253": {
+  "verdict": "y",
+  "truth": "replay",
+  "ts": "2026-10-02 11:48:07",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@20354": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@148339": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@161433": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@380082": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@170292": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@316105": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@3551": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@288103": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@181032": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@3589": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_splash62@786": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "clip_40m00_48m00@3663": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@334084": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "curry_classic_clip@10742": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@160326": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@169269": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@108467": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@61586": {
+  "verdict": "n",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_splash62@136461": {
+  "verdict": "n",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@182967": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:48:32",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@131042": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@46352": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "curry_classic_clip@10941": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "clip_70m00_78m00@2442": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "curry_classic_clip@11623": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@42091": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@286961": {
+  "verdict": "y",
+  "truth": "graphic",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@316069": {
+  "verdict": "n",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "curry_q1_clip@7645": {
+  "verdict": "n",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@36329": {
+  "verdict": "n",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@72451": {
+  "verdict": "n",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:48:59",
+  "mode": "grid"
+ },
+ "gsw_cle_xmas16@57016": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_cle_2017f_g5@344000": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "curry_classic_clip@11755": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@38357": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_splash62@19099": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_splash62@49370": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "curry_q1_clip@5297": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_sas_2016@85066": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@20532": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@32383": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@203425": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@16822": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_sas_2016@28957": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_phx_2016@9952": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g6@154680": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_okc_2016wcf_g1@4659": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_ind_klay60@109677": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@148126": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@120541": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_cle_2016f_g7@32475": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:39",
+  "mode": "grid"
+ },
+ "gsw_sas_2016@28555": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:52",
+  "mode": "grid"
+ },
+ "gsw_mia_2017@94063": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:52",
+  "mode": "grid"
+ },
+ "gsw_nyk_curry54@47648": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:52",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@101636": {
+  "verdict": "y",
+  "truth": "split_screen",
+  "ts": "2026-10-02 11:49:52",
+  "mode": "grid"
+ },
+ "gsw_sac_klay37@60824": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:52",
+  "mode": "grid"
+ },
+ "gsw_hou_duel@152621": {
+  "verdict": "n",
+  "truth": "closeup",
+  "ts": "2026-10-02 11:49:52",
+  "mode": "grid"
+ }
+}

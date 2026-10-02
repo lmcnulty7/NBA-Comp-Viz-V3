@@ -183,7 +183,7 @@ pipelines**; scaled to **641 joined possessions / 16 games**. Composite funnel y
   dataset; every **judge-adjudicated band measures 6.7–20.0%** (adj_player 11.3%, referee
   20.0%, rim 16.7%, scorebug 16.7%, ball 10.0%, backboard 6.7%) and is **NOT training data**,
   along with the attributes riding on it (kit, on_court, occlusion, 4,694 jersey numbers).
-  Frame-level shot_type came from the same judge and was not audited — untested, not validated.
+  Frame-level shot_type came from the same judge and was audited 2026-10-02 (n=200): closeup-claimed 98.0%, but wide-claimed only 68.8% (the errors are closeups called wide) — not usable for the wide class.
 - **What the protocol bought:** knowing which half to keep BEFORE a retrain consumed the
   other half. That is what the audit rule exists for.
 

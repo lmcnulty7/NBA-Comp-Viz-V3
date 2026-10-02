@@ -9,6 +9,49 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-10-02 — shot_type audit: the judge calls closeups "wide" (68.8%); contact sheets beat one-at-a-time
+
+LABEL_PLAN item 1. 200 class-stratified frames of the judge's frame-level
+shot_type (wide 80 / closeup 50 / graphic 40 / split 27 / replay 3), human-judged
+with `audit_shot_type.py`.
+
+| claim | correct | n | accuracy (Wilson 95%) | errors went to |
+|---|---|---|---|---|
+| closeup | 49 | 50 | 0.980 [0.895, 0.996] | 1 graphic |
+| graphic | 33 | 40 | 0.825 [0.680, 0.913] | 6 split, 1 closeup |
+| split_screen | 18 | 27 | 0.667 [0.478, 0.814] | 9 closeup |
+| **wide_broadcast** | 55 | 80 | **0.688 [0.579, 0.778]** | **24 closeup**, 1 graphic |
+| replay | 3 | 3 | 1.0 | — |
+
+Corpus-weighted ≈ 71% (wide is 88.6% of 6,159). ~1,700 closeups are sitting in
+the 5,454 "wide" labels. Spot-checked three flagged frames: a head-and-shoulders
+player shot and a bench shot called wide, a two-announcer shot called split —
+not borderline. **Verdict: not gate-v2 training data for the wide class** (it
+would train in exactly the gate's known failure). The error is one-directional:
+the judge under-calls closeup, almost never over-calls it, so the 399
+closeup-claimed frames are clean negatives.
+
+Second audit in a row where the judge's output looked like data until a human
+sample said otherwise (cf. 09-12: boxes 6.7–20%). Pattern worth stating: the
+judge is precise on the minority class it commits to and unreliable on the
+default class.
+
+**Tooling lesson — contact sheets.** 27 frames were judged one at a time, then
+the user asked for something faster. `--grid`: 20 thumbnails sharing one claim
+per page, click the wrong ones, SPACE accepts the rest, flagged frames then get
+their true class full-size. 173 frames in 12 pages, ~2 min. Right for frame-level
+gestalt classes; NOT for box audits (pixel-scale errors). Report bug found and
+fixed: correctness must be truth == claim, not the keypress (one frame was
+flagged then given its own claim).
+
+Next: `gate_sheet.py` — the same sheet over all 5,454 wide-claimed frames, pages
+ordered by the current gate's score (ordering only; the human sees every frame;
+the 80 audited frames are re-shown as a test-retest check). Replaces the planned
+420-frame gate eval with a ~6k human-verified harvest-domain gate set and gives
+the in-domain accuracy at 0.70 vs 0.35.
+
+---
+
 ## 2026-09-12 — Rule-4 audit EXECUTED: the judge's output is unusable, the unjudged band is 95%
 
 300 stratified accepted labels, human-judged (`label_audit.py --label`). The

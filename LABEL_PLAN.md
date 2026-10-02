@@ -117,13 +117,19 @@ into the credit table, and neither has a harvest-domain evaluation.
   rule or the 2 s trim; they will also give the "100% beyond 2 s" claim a harvest-domain n.
 
 ### 3.6 Gate (stage 1) — P2, a coverage problem, not a count problem
-- **Eval set:** **30 frames × 14 games ≈ 420** harvest frames, stratified by shot type
-  (wide / closeup / replay / graphic / split). Tool: `label_frames.py`, ~1.5 s per frame
-  → **~15 min**. This is what lets the operating point be set *in-domain* instead of the
-  unvalidated 0.35.
-- **Free data, untested:** the judge's frame-level `shot_type` on 6,159 frames was never
-  audited. A **200-frame human audit** (~5 min) decides whether 6k gate-v2 labels exist or
-  not — the highest value-per-minute item in this plan.
+- **Eval + training set (revised 2026-10-02 after the audit below):** a human contact-sheet
+  pass over **all 5,454 wide-claimed frames** (`gate_sheet.py`), pages ordered by the current
+  gate's score for homogeneity (ordering only — the model never supplies a label; every frame
+  is seen). ~35–50 min. Yields ~3,750 verified wide + ~1,700 verified closeups from all 21
+  harvest-domain sources, which both sets the operating point *in-domain* (retiring the
+  unvalidated 0.35) and is enough to retrain. The 80 wide-claimed audit frames are re-shown
+  as a built-in test-retest check on the sorted-page condition.
+- **Judge's `shot_type` labels — AUDITED 2026-10-02 (n=200, class-stratified, human):**
+  closeup 98.0% [89.5, 99.6] (n=50); graphic 82.5% [68.0, 91.3] (n=40); split_screen 66.7% [47.8, 81.4] (n=27); wide_broadcast 68.8% [57.9, 77.8] (n=80, 24 of the 25 errors are closeups); replay 3/3.
+  Corpus-weighted accuracy ≈ 71%; wide is 88.6% of the corpus, so ~1,700 closeups sit inside
+  the 5,454 "wide" labels. **Not usable for the wide class** — admitting closeups is the gate's
+  known failure and these labels would train it in. The judge under-calls closeup but almost
+  never over-calls it, so the 399 closeup-claimed frames are clean negatives as they stand.
 - **Retrain?** Threshold recalibration first; a gate-v2 (5-class shot type) only if the
   audit passes.
 
@@ -142,10 +148,10 @@ into the credit table, and neither has a harvest-domain evaluation.
 
 | # | set | items | human time | unlocks |
 |---|---|---|---|---|
-| 1 | gate shot_type audit | 200 verdicts | 5 min | whether 6k gate-v2 labels exist |
+| 1 | ~~gate shot_type audit~~ **DONE 2026-10-02** | 200 verdicts | 5 min | answer: not for the wide class (68.8%); closeup-claimed frames are clean (98%) |
 | 2 | teams eval | 400 tracks | 30 min | an honest stage-5 number; kit-classifier training data |
 | 3 | possessions eval | 200 frames | 20 min | harvest-domain stage-6 number |
-| 4 | gate eval | 420 frames | 15 min | an in-domain operating point replacing 0.35 |
+| 4 | gate contact-sheet pass over all wide-claimed frames | 5,454 frames | 35–50 min | an in-domain operating point replacing 0.35 **and** a ~6k verified gate training set |
 | 5 | **matchups** (after the overlay fix) | 250 verdicts | 1.5 h | **C1** |
 | 6 | court eval | 140 frames | 1–2 h | per-arena homography truth |
 | 7 | detection eval | 100 frames / ~900 boxes | 2 h | harvest-domain stage-2 number, scrum stratum |

@@ -83,3 +83,8 @@ data/harvest/video/
 /data/NewExternalDatasets to train on Roboflow srcd
 # torso-crop archives: Drive-persisted on Colab, regenerable from video
 data/tracking/crops/
+
+# audit frames are regenerable from Drive via sample.json
+data/shot_type_audit/frames/
+data/gate_sheet/thumbs/
+data/label_audit/crops/

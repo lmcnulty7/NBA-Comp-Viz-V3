@@ -1,0 +1,8 @@
+SHOT_TYPE AUDIT — 200/200 audited
+overall (stratified, not a corpus rate): {'n_judged': 200, 'correct': 158, 'wrong': 42, 'unsure': 0, 'accuracy': 0.79, 'wilson95': [0.728, 0.841]}
+  closeup          {'n_judged': 50, 'correct': 49, 'wrong': 1, 'unsure': 0, 'accuracy': 0.98, 'wilson95': [0.895, 0.996]}
+  graphic          {'n_judged': 40, 'correct': 33, 'wrong': 7, 'unsure': 0, 'accuracy': 0.825, 'wilson95': [0.68, 0.913]}
+  replay           {'n_judged': 3, 'correct': 3, 'wrong': 0, 'unsure': 0, 'accuracy': 1.0, 'wilson95': [0.438, 1.0]}
+  split_screen     {'n_judged': 27, 'correct': 18, 'wrong': 9, 'unsure': 0, 'accuracy': 0.667, 'wilson95': [0.478, 0.814]}
+  wide_broadcast   {'n_judged': 80, 'correct': 55, 'wrong': 25, 'unsure': 0, 'accuracy': 0.688, 'wilson95': [0.579, 0.778]}
+  confusion: {'closeup -> closeup': 49, 'closeup -> graphic': 1, 'graphic -> closeup': 1, 'graphic -> graphic': 33, 'graphic -> split_screen': 6, 'replay -> replay': 3, 'split_screen -> closeup': 9, 'split_screen -> split_screen': 18, 'wide_broadcast -> closeup': 24, 'wide_broadcast -> graphic': 1, 'wide_broadcast -> wide_broadcast': 55}

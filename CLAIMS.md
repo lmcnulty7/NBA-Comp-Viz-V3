@@ -16,6 +16,7 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 | A4 | OCR read-rate saturates at 720p (30.8%→31.0% at 1080p, controlled A/B); added resolution buys tracking length (~3×) and team-call abstention (53%→11%) instead | DEVLOG 07-12; probe artifacts | SHIPPED |
 | A5 | Auto-label accuracy is **measured, not assumed** (LABEL_SCHEMA rule 4, 300 stratified accepted labels, human-judged): the **agreement band is 95.0% [88.8, 97.8] (n=100)** and is the usable dataset; the **Claude-adjudicated band measures 6.7–20.0% (n=200) and is NOT used for training**, along with the attributes riding on it | reports/label_audit.*; data/label_audit/labels.json | SHIPPED 2026-09-12 |
 | A6 | The qualification gate protected only classes with an in-house baseline; classes exempted as "nothing to compare against" (rim/backboard/scorebug/ball + attributes) are exactly the ones that failed the audit — recorded as a design defect, not a footnote | reports/label_audit.*; DEVLOG 09-12 | SHIPPED 2026-09-12 |
+| A7 | The judge's frame-level shot_type labels were audited before use (200 class-stratified frames, human): closeup-claimed 98.0% [89.5, 99.6] but **wide-claimed only 68.8% [57.9, 77.8]** — ~3 in 10 "wide" frames are closeups — so they are NOT used as gate training data for the wide class | reports/shot_type_audit.*; data/shot_type_audit/labels.json | SHIPPED 2026-10-02 |
 
 ## Tier B — team-level measurement claims (Phase 1 gates these)
 
