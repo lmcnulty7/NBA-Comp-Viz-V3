@@ -151,7 +151,7 @@ into the credit table, and neither has a harvest-domain evaluation.
 | 1 | ~~gate shot_type audit~~ **DONE 2026-10-02** | 200 verdicts | 5 min | answer: not for the wide class (68.8%); closeup-claimed frames are clean (98%) |
 | 2 | teams eval | 400 tracks | 30 min | an honest stage-5 number; kit-classifier training data |
 | 3 | possessions eval | 200 frames | 20 min | harvest-domain stage-6 number |
-| 4 | ~~gate contact-sheet pass over all wide-claimed frames~~ **DONE 2026-10-02** | 5,454 frames | 60 min | judge wide precision 65.0% [63.7, 66.2]; test-retest 75/80; gate @0.70 recall 0.859, @0.35 FP-rate 0.169, objective picks **0.47**; 3,544 wide + 1,910 not-wide verified labels |
+| 4 | ~~gate contact-sheet pass over all wide-claimed frames~~ **DONE 2026-10-02** | 5,454 frames | 60 min | judge wide precision 65.0% [63.7, 66.2]; test-retest 75/80; then the 705-frame rest pool (0 wide): full corpus n = 6,159, gate @0.70 recall 0.859, @0.35 FP-rate 0.131, objective picks **0.42**, max accuracy 0.975 @0.55; **3,544 wide + 2,615 not-wide verified labels, all 21 sources** |
 | 5 | **matchups** (after the overlay fix) | 250 verdicts | 1.5 h | **C1** |
 | 6 | court eval | 140 frames | 1–2 h | per-arena homography truth |
 | 7 | detection eval | 100 frames / ~900 boxes | 2 h | harvest-domain stage-2 number, scrum stratum |

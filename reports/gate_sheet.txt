@@ -5,3 +5,8 @@ GATE SHEET — 5454/5454 wide-claimed frames labeled
   gate @0.50: {'precision': 0.957, 'recall': 0.993, 'fp_rate': 0.083, 'accuracy': 0.966, 'fn': 26, 'fp': 159}
   gate @0.70: {'precision': 0.988, 'recall': 0.859, 'fp_rate': 0.019, 'accuracy': 0.902, 'fn': 500, 'fp': 36}
   objective (min FN s.t. FP-rate <= 0.10) picks: {'threshold': 0.47, 'tp': 3527, 'fp': 189, 'fn': 17, 'tn': 1721, 'precision': 0.949, 'recall': 0.995, 'fp_rate': 0.099, 'accuracy': 0.962}
+FULL CORPUS (both pools, n = 6159, wide = 3544):
+  gate @0.35: {'precision': 0.912, 'recall': 0.999, 'fp_rate': 0.131, 'accuracy': 0.943, 'fn': 5, 'fp': 343}
+  gate @0.50: {'precision': 0.954, 'recall': 0.993, 'fp_rate': 0.065, 'accuracy': 0.968, 'fn': 26, 'fp': 170}
+  gate @0.70: {'precision': 0.988, 'recall': 0.859, 'fp_rate': 0.014, 'accuracy': 0.913, 'fn': 500, 'fp': 37}
+  objective picks: {'threshold': 0.42, 'tp': 3537, 'fp': 256, 'fn': 7, 'tn': 2359, 'precision': 0.933, 'recall': 0.998, 'fp_rate': 0.098, 'accuracy': 0.957}

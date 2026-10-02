@@ -169,7 +169,7 @@ def report():
     rep["gate_objective_pick"] = min(ok, key=lambda c: (c["fn"], -c["threshold"])) if ok else None
     rep["note"] = ("human labels cover the judge's wide-CLAIMED frames only, so gate metrics here are conditional on that claim; "
                    "page order used the gate score (ordering only) — the test-retest row measures any anchoring that introduced")
-    rep["pool"] = POOL
+    rep["pool_name"] = POOL
     other = SHEET / ("labels_rest.json" if POOL == "wide" else "labels.json"); oidx = SHEET / ("index_rest.json" if POOL == "wide" else "index.json")
     if other.exists() and oidx.exists():
         OL = json.loads(other.read_text()); OI = [d for d in json.loads(oidx.read_text()) if d["key"] in OL]

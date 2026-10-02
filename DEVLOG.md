@@ -9,6 +9,24 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-10-02c — Rest pool labeled (705 frames, 0 wide): the gate eval is now unconditional
+
+`--pool rest` over the judge's closeup/graphic/split/replay frames: 24 pages, no
+wide shots among them (the gate agreed in advance: 684/705 scored < 0.35). The
+whole 6,159-frame corpus is human-verified for the gate question: **3,544 wide,
+2,615 not** (57.5% wide; a broadcast is a bit under half non-basketball).
+
+Full corpus, unconditional: @0.35 recall 0.999 / precision 0.912 / **FP-rate
+0.131** (343 FP) · @0.70 recall 0.859 / FP 0.014 · objective (min FN s.t. FP ≤
+0.10) picks **0.42** (0.998 / 0.933) · max accuracy **0.975 at 0.55**. Adding the
+easy negatives lowered the FP-rate at 0.35 from 0.169 to 0.131 and moved the pick
+from 0.47 to 0.42; the conclusion is unchanged. Candidate range 0.42–0.55; the
+retrain-vs-recalibrate experiment (held out by game) settles it. Docs/paper moved
+to the unconditional numbers. Report bug: pool name overwrote the pool count key;
+fixed.
+
+---
+
 ## 2026-10-02b — Gate sheet: 5,454 harvest frames human-labeled in an hour; both thresholds were wrong
 
 `gate_sheet.py`: the contact-sheet pass over every frame the judge called

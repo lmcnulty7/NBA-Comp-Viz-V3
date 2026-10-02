@@ -46,7 +46,7 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 ## Standing caveats that ship with the report
 
 1. **Gate operating point:** harvesting runs at threshold **0.35**, not the
-   0.70 validated on the prototype clips. **Now measured in-domain (2026-10-02):** On 5,454 human-labeled harvest frames (every frame the judge called wide, contact-sheet pass 2026-10-02): at 0.70 the gate drops 14.1% of truly wide frames (recall 0.859); at 0.35 it admits 16.9% of non-wide frames (322 of 1,910; precision 0.917); the original objective (min FN s.t. FP-rate <= 0.10) picks 0.47 (recall 0.995, precision 0.949, accuracy 0.962); max accuracy 0.973 at 0.55. A validated candidate (0.47) therefore exists; production stays at 0.35 until
+   0.70 validated on the prototype clips. **Now measured in-domain (2026-10-02):** On all 6,159 harvest frames, human-verified (contact-sheet passes 2026-10-02; 3,544 wide): at 0.70 the gate drops 14.1% of truly wide frames (recall 0.859); at 0.35 it admits 13.1% of non-wide frames (343 of 2,615; precision 0.912); the original objective (min FN s.t. FP-rate <= 0.10) picks 0.42 (recall 0.998, precision 0.933); max accuracy 0.975 at 0.55; candidate range 0.42–0.55. Validated candidates therefore exist; production stays at 0.35 until
    the retrain-vs-recalibrate experiment is adopted by the rule and the PBP canary is re-run,
    because a new threshold changes what gets harvested (reports/gate_sheet.*).
 2. **Funnel yield ~58% span→join** and losses are not random (F3) — B3's audit
