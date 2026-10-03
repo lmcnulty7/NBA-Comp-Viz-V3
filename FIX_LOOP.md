@@ -2,11 +2,12 @@
 
 You are fixing the court projection and player boxes of the NBA broadcast pipeline and
 measuring the result against SportVU tracking on the held-out game gsw_phx_2016, so that
-Lucien never has to label frames by hand. The plan is `FIX_PLAN.md`; the record is `FIX_LOG.md`.
-Work on branch `track-fix`.
+Lucien never has to label frames by hand. The plan is `ROADMAP.md` (since 2026-10-03; it replaced
+FIX_PLAN.md Phases C and D) and the record is `ROADMAP_LOG.md`. FIX_PLAN.md and FIX_LOG.md hold
+the finished Phase A and B work. Work on branch `track-fix`.
 
 ## Each pass
-1. Read `FIX_PLAN.md` (including the diagnosis table) and `FIX_LOG.md`.
+1. Read `ROADMAP.md` and `ROADMAP_LOG.md` (and FIX_LOG.md once, for the traps and the Phase B tools).
 2. Take the FIRST unchecked item not tagged [HUMAN] or [BLOCKED]. Do only that item.
    An unticked [HUMAN] item is a gate: nothing below it starts until Lucien ticks it
    (the "Waiting on Lucien" section is the only exception). Reaching a gate = stop the loop.
@@ -17,14 +18,13 @@ Work on branch `track-fix`.
 4. Verify (all must pass):
    - `/opt/anaconda3/bin/python -m pytest -q` passes.
    - The item's own measurable from the plan is met and written to the named artifact under
-     `reports/` (json + txt).
+     `reports/` (json + txt). Scorecards come from `python -m sportvu.bench` once R0.3 exists.
    - Rejection counts per rule per game are in the artifact for any item that rejects anything.
    - No number changes in CLAIMS.md, PIPELINE.md or the paper without the artifact path and a
      caveat line in the same commit.
-   - For Phase C items: SportVU p50 and p90 on gsw_phx_2016 did not get worse, frames with
-     positions did not drop more than 25% in any game without SportVU showing they were wrong,
-     and `align_outcomes` on gsw_phx_2016 did not lose aligned possessions.
-5. If verification passes: tick the item, append 2 to 3 lines to `FIX_LOG.md` (what changed,
+   - For any adoption item (R2.3 onward): the scorecard on the held-out game AND the held-out arena
+     improves on every target metric the stage touches and worsens none; coverage is reported.
+5. If verification passes: tick the item, append 2 to 3 lines to `ROADMAP_LOG.md` (what changed,
    the key number, where to look), commit on `track-fix`.
 6. If it fails: fix and re-verify. After 3 failed attempts on one item, tag it
    [BLOCKED: reason], log it, and move on.
@@ -33,12 +33,13 @@ Work on branch `track-fix`.
 - every item is ticked, [HUMAN], or [BLOCKED]; or
 - 3 items in a row end [BLOCKED]; or
 - a [HUMAN] gate is reached.
-On stop, write a summary at the top of FIX_LOG.md: done, blocked, waiting on Lucien, and
-the current SportVU numbers if Phase B has run.
+On stop, write a summary at the top of ROADMAP_LOG.md: done, blocked, waiting on Lucien, and
+the current scorecard numbers.
 
 ## Hard rules
-- Never train, tune, calibrate, or choose a threshold on gsw_phx_2016 or on the extra held-out
-  game named in D. Thresholds come from the other games or the prototype clips; phx is reported once.
+- Never train, tune, calibrate, or choose a threshold on gsw_phx_2016, on the held-out arena, or on
+  the held-out era named in R1. Thresholds come from the train arenas; held-out sets are reported once
+  per adoption decision.
 - A fix ships behind a config flag, default off, until Lucien ticks the adoption gate.
 - Every acceptance rule logs how many frames it rejected, per rule, per game. A rule that silently
   drops most frames is a failure, not a fix.

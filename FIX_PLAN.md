@@ -1,5 +1,8 @@
 # Tracking fix plan (one item per loop pass, in order)
 
+> **2026-10-03: Phases C and D are superseded by `ROADMAP.md`.** Phases A and B stay as the record of
+> done work and their tools (`qc/`, `sportvu/`) carry over. Do not run C or D items from this file.
+
 Goal: make the court projection and the player boxes right on the 14 production games,
 measure it against real tracking data instead of hand-labeled frames, and only then
 retrain. Loop instructions live in `FIX_LOOP.md`; the pass-by-pass record in `FIX_LOG.md`.
