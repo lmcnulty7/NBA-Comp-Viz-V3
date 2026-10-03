@@ -71,10 +71,12 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
       of one team per frame, kept-id jump > 15 ft across a replayed camera cut. Counts per clip and per
       game in `reports/qc/`. Baseline on the 55 renders: cleaned speed fails on 16% of frames (raw 49%),
       team_count on 24%, 4 cuts with 0 jumps.
-- [ ] A4. Second-tracker disagreement: run COCO `yolov8m.pt` person class with `bytetrack.yaml`
-      (both already available through ultralytics, no new dependency) on the same frames; frame
-      disagreement = 1 minus the mutual IoU >= 0.5 match rate; flag frames above 0.30. Report per
-      clip. Cost note: doubles detection time; run on triage renders locally, on sections in Colab.
+- [x] A4. Second-tracker disagreement (`qc/second_tracker.py`): COCO `yolov8m.pt` person + `bytetrack.yaml`
+      on the same frames, cached as `<clip>_second.json`; per frame 1 minus mutual IoU>=0.5 matches over
+      max(n_pipeline, n_second); fails above 0.30. Baseline on the 55 renders: median disagreement 0.40 on
+      every game (0.38 at IoU 0.3, 0.43 on a 25 px foot match, so it is different people, not box extents);
+      7.5 vs 6.6 boxes per frame; 70% of frames above 0.30. Not a warm-up effect (first second 0.38 vs 0.40).
+      Which tracker is wrong is B5's question. Cost: ~10 min for 3,721 frames on MPS.
 - [ ] A5. Worst-frame contact sheets: for each clip the 6 frames with the most failed checks,
       overlay plus a caption listing which checks failed, one jpg per clip, one summary sheet per
       game (`reports/qc_sheets/`). Then `track_qc.py --summary` writes `reports/qc_summary.*`

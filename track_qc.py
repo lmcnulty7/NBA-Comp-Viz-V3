@@ -10,7 +10,8 @@ from __future__ import annotations
 import argparse, json
 from pathlib import Path
 import config
-from qc.track_qc import score_build, summarize, physics, BUG_PAD
+from qc.track_qc import score_build, summarize, physics, BUG_PAD, SECOND_MAX
+from qc.second_tracker import run_second, disagreement
 from clock_reader import LAYOUTS, layout_for_clip
 import re
 
@@ -47,6 +48,16 @@ def run_one(sidecar_path: Path, video_path: Path, checks: tuple) -> dict:
         ph = physics(traj, sc, ident, sc["fps"], sc["stride"])
         for f, v in ph["frames"].items():
             rows.setdefault(f, {"frame": f, "state": next(x["state"] for x in sc["frames"] if x["frame"] == f)})["physics"] = v
+    if "second" in checks:
+        sec = run_second(video_path, sc, sidecar_path.with_name(clip + "_second.json"))
+        second_by_frame = {r["frame"]: r["boxes"] for r in sec["frames"]}
+        for r in sc["frames"]:
+            f = r["frame"]
+            if f not in second_by_frame:
+                continue
+            d = disagreement([b["bbox"] for b in r["boxes"]], [b["bbox"] for b in second_by_frame[f]])
+            d["fails"] = ["second_tracker"] if d["disagreement"] > SECOND_MAX else []
+            rows.setdefault(f, {"frame": f, "state": r["state"]})["second"] = d
     rows = [rows[f] for f in sorted(rows)]
     summ = summarize(rows)
     rep_path.write_text(json.dumps({"clip": clip, "video": str(video_path), "summary": summ, "frames": rows}, indent=1))
@@ -57,7 +68,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--triage", action="store_true")
     ap.add_argument("--sidecar", type=Path); ap.add_argument("--video", type=Path)
-    ap.add_argument("--checks", default="overlay,geometry,physics", help="comma list; image checks read the video, physics only the json")
+    ap.add_argument("--checks", default="overlay,geometry,physics,second", help="comma list; image checks read the video, physics only the json")
     a = ap.parse_args()
     jobs = []
     if a.triage:

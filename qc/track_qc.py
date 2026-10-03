@@ -33,6 +33,10 @@ A3  physics(trajectories, sidecar, identity, fps, stride): per processed frame, 
     from the identity audit); (c) a camera cut (the pipeline's own rule: >= CUT_VANISH of the
     previous frame's ids gone, at least CUT_MIN_TRACKS of them) across which a kept id jumps more
     than CUT_JUMP_FT. Counts per rule per clip; frames carry `fails`.
+A4  second-tracker disagreement (qc/second_tracker.py): COCO yolov8m person + ByteTrack over the
+    same frames; per frame 1 - mutual IoU>=0.5 matches / max(n_pipeline, n_second); a frame fails
+    when the disagreement exceeds SECOND_MAX. Boxes only the pipeline has are ghost candidates,
+    boxes only the second tracker has are miss candidates (either tracker can be the wrong one).
 """
 from __future__ import annotations
 
@@ -51,6 +55,7 @@ MAX_SPEED_FTS = 30.0          # ft/s; nobody on an NBA floor sustains this betwe
 MAX_PER_TEAM = 5              # boxes per team on a frame beyond this = ghosts or a team flip
 CUT_VANISH, CUT_MIN_TRACKS = 0.80, 4   # detect/camera_cut.py's rule, replayed from the sidecar
 CUT_JUMP_FT = 15.0            # a kept id moving this far across a cut is a stale id on a new player
+SECOND_MAX = 0.30             # frame disagreement with the independent tracker above this fails
 NEAR_PX = 6                   # within this of a template line counts as "on the line"
 BOX_PAD = 4                   # px grown around player boxes before removing their ridge pixels
 MIN_RIDGE_PX = 500            # fewer ridge pixels than this: score undefined (no line evidence in frame)
@@ -293,11 +298,12 @@ def summarize(rows: list[dict], far: float = 40.0) -> dict:
     has_h = sum(1 for r in rows if r["state"] != "LOST")
     rules = {}
     for r in rows:
-        for f in r.get("geometry", {}).get("fails", []) + r.get("physics", {}).get("fails", []):
+        for f in r.get("geometry", {}).get("fails", []) + r.get("physics", {}).get("fails", []) + r.get("second", {}).get("fails", []):
             rules[f] = rules.get(f, 0) + 1
     return {"frames": len(rows), "frames_with_H": has_h, "frames_scored": len(ov),
             "rule_counts": rules,
-            "frames_failing_any": sum(1 for r in rows if r.get("geometry", {}).get("fails") or r.get("physics", {}).get("fails")),
+            "frames_failing_any": sum(1 for r in rows if r.get("geometry", {}).get("fails") or r.get("physics", {}).get("fails") or r.get("second", {}).get("fails")),
+            "second_disagreement_median": (lambda d: round(float(np.median(d)), 4) if d else None)([r["second"]["disagreement"] for r in rows if "second" in r]),
             "dist_px_median": round(float(np.median(dd)), 2) if dd else None,
             "dist_px_p90": round(float(np.percentile(dd, 90)), 2) if dd else None,
             "score_median": round(float(np.median(sc)), 4) if sc else None,
