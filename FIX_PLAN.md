@@ -103,11 +103,14 @@ Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/
       phx: 232 anchors, 34,425 processed frames, 10,337 mapped (1,056 s in 137 running spans), 3,552 s excluded
       (88 spans: stopped clock or disagreement, 2 period changes). `data/sportvu/sync/<section>_timemap.json`,
       `reports/sportvu_sync_gsw_phx_2016.json`.
-- [ ] B3. Direction and offset per section: for each of the four mirror candidates (identity, flip x,
-      flip y, both) and each sub-second offset in 0.04 s steps over +-1.0 s, project pipeline feet
-      through the pipeline H and compute the median nearest-neighbour distance to SportVU players.
-      Keep the best; require the runner-up candidate to be worse by >= 2 ft or mark the section
-      ambiguous. Report chosen offsets and ambiguities. gsw_phx_2016 has 10 sections; expect all to resolve.
+- [x] B3. Direction and offset (`python -m sportvu.sync gsw_phx_2016 --direction 12.16.2015.PHX.at.GSW`):
+      four mirrors x offsets in 0.04 s steps over +-1 s, scored by the median nearest-SportVU-player distance
+      of the production positions over mapped frames. phx, all 10 sections: identity wins; flip_x is 30+ ft
+      worse; flip_y is only 0.4..1.7 ft worse (under the 2 ft rule, so each section reads "ambiguous"), and
+      still only 1..3 ft worse on positions > 12 ft from the mid-line. Resolved at game level: 10/10 sections
+      pick identity under both statistics. Offsets per section -0.60..+0.84 s. First real number: median
+      nearest-neighbour distance 4.6..6.9 ft per section, and the weak y-flip signal means the pipeline's y
+      coordinates are compressed toward mid-court (consistent with the near-sideline overshoot). B5 quantifies.
 - [ ] B4. Per-frame truth H: Hungarian-match pipeline feet (pixels) to SportVU players through the
       pipeline H, then RANSAC an H_truth from pixel feet to SportVU feet at a 1.5 ft threshold; accept
       with >= 6 inliers. Frames with fewer are "untestable" and counted. Caveat on record: H_truth
