@@ -128,12 +128,15 @@ Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/
       +1.69 (far) / +0.58 / -1.04 (near) ft, i.e. compression toward mid-court; missed players 25.1% of those
       in frame; ghost boxes 15.3% (referees count as ghosts); team accuracy 81.8% (n=11,240); nearest-defender
       proxy 48.1% agreement (160 of 224 defenders mapped, via segment_possessions + matchup_metrics on the windows).
-- [ ] B6. Validate the Phase A checks against truth: per check, precision and recall for flagging
-      frames whose SportVU H error > 3 ft, or with a missed or ghost player. Thresholds fixed BEFORE
-      looking: drop a check with recall < 0.50 or precision < 0.30; keep the rest. Report in
-      `reports/sportvu_check_validation.*`; update Phase C rules to use only surviving checks.
-      Thresholds for the surviving checks are the ones chosen in Phase A on the other games; do not
-      re-tune them on phx.
+- [x] B6. Validate the Phase A checks against truth (`sportvu/validate_checks.py`, `reports/sportvu_check_validation.*`,
+      1,447 testable phx frames). Degenerate under the plan's definition: wrong_any = 1.00 (H > 3 ft on 95%,
+      a missed player on 95%, a ghost on 74%), so precision is trivially 1.0 and the pre-set rule keeps
+      A1 at 30/40 px and A4 at 0.30 only because they flag most frames; A2 scorebug (2 flags), A2 off-court
+      feet (26), A3 speed, A3 team count, A3 cut jump (0) and A4 at 0.50 are DROPPED by recall. Graded view:
+      at H > 10 ft (base rate 0.29) the best check, A1 >= 50 px, reaches precision 0.43 / recall 0.47; A1's
+      rank correlation with H error is 0.27; A4 has no lift against H error. Consequence for Phase C: no
+      label-free check can carry an acceptance rule on its own; the SportVU p50/p90 is the arbiter and A1 is
+      a weak prior. A2/A3 stay as reported measurements, not rules.
 - [ ] [HUMAN] Lucien reads `reports/sportvu_phx.txt` and the validation, and confirms the Phase C order.
 
 ## Phase C: fixes, each adopted only if it improves Phase B on gsw_phx_2016
@@ -143,8 +146,9 @@ the rejection counts per rule per game are logged, and `align_outcomes` on gsw_p
 the same or more aligned possessions. Each fix is a flag in config (default off) until adopted.
 
 - [ ] C1. Stricter H acceptance on the model path in `snap_track.update`: after `_snap`, require
-      the surviving Phase A rules (overlay score, floor mask, scorebug, residual <= 1.1 px at 640
-      scale per `label_factory` convention). Failing H is treated as "model failed" and falls to the
+      the surviving Phase A rules (B6: only A1 line distance survived, and weakly; plus the solver's own
+      residual <= 1.1 px at 640 scale per `label_factory` convention and a minimum match count). Judge
+      by SportVU p50/p90 on phx, not by the checks. Failing H is treated as "model failed" and falls to the
       propagate branch. Report per game: frames by outcome (accepted, relocked, held, lost).
 - [ ] C2. Rejected means LOST: `build_trajectories` records no position when the tracker state is
       HELD (quality 9.9). Check `segment_possessions.py` tolerates the gaps (it already handles

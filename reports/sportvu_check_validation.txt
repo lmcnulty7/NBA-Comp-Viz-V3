@@ -1,0 +1,15 @@
+CHECK VALIDATION vs SportVU, 1447 testable frames; wrong = H_err > 3.0 ft OR missed > 0 OR ghosts > 0
+  base rates: wrong_any 1.00  H>3ft 0.95  missed 0.95  ghost 0.74  | H>6ft 0.65  H>10ft 0.29  H>15ft 0.04
+  NOTE: with wrong_any at 1.00 precision is uninformative; read recall as the flag rate and look at the graded columns
+  drop rule: recall < 0.50 or precision < 0.30
+  A1_lines_over_30px       flagged 1333  vs wrong_any P 0.999 R 0.921 | vs H>3 P 0.956 R 0.927 | H>6ft P 0.65 R 0.929 | H>10ft P 0.284 R 0.913 | H>15ft P 0.041 R 0.859 | KEEP
+  A1_lines_over_40px       flagged  905  vs wrong_any P 1.0 R 0.626 | vs H>3 P 0.977 R 0.643 | H>6ft P 0.718 R 0.697 | H>10ft P 0.331 R 0.723 | H>15ft P 0.041 R 0.578 | KEEP  (A1 vs H_err spearman rho 0.272)
+  A1_lines_over_50px       flagged  460  vs wrong_any P 1.0 R 0.318 | vs H>3 P 0.991 R 0.332 | H>6ft P 0.822 R 0.405 | H>10ft P 0.426 R 0.472 | H>15ft P 0.054 R 0.391 | DROP
+  A1_lines_over_60px       flagged  224  vs wrong_any P 1.0 R 0.155 | vs H>3 P 0.996 R 0.162 | H>6ft P 0.839 R 0.202 | H>10ft P 0.451 R 0.243 | H>15ft P 0.076 R 0.266 | DROP
+  A2_scorebug              flagged    2  vs wrong_any P 1.0 R 0.001 | vs H>3 P 1.0 R 0.001 | H>6ft P 0.0 R 0.0 | H>10ft P 0.0 R 0.0 | H>15ft P 0.0 R 0.0 | DROP
+  A2_offcourt_feet         flagged   26  vs wrong_any P 1.0 R 0.018 | vs H>3 P 1.0 R 0.019 | H>6ft P 0.769 R 0.021 | H>10ft P 0.538 R 0.034 | H>15ft P 0.077 R 0.031 | DROP
+  A3_speed                 flagged  294  vs wrong_any P 1.0 R 0.203 | vs H>3 P 0.983 R 0.21 | H>6ft P 0.755 R 0.238 | H>10ft P 0.391 R 0.277 | H>15ft P 0.044 R 0.203 | DROP
+  A3_team_count            flagged  392  vs wrong_any P 1.0 R 0.271 | vs H>3 P 0.977 R 0.279 | H>6ft P 0.724 R 0.304 | H>10ft P 0.367 R 0.347 | H>15ft P 0.064 R 0.391 | DROP
+  A3_cut_jump              flagged    0  vs wrong_any P None R 0.0 | vs H>3 P None R 0.0 | H>6ft P None R 0.0 | H>10ft P None R 0.0 | H>15ft P None R 0.0 | DROP
+  A4_second_over_0.30      flagged  931  vs wrong_any P 1.0 R 0.644 | vs H>3 P 0.944 R 0.639 | H>6ft P 0.599 R 0.598 | H>10ft P 0.261 R 0.586 | H>15ft P 0.04 R 0.578 | KEEP
+  A4_second_over_0.50      flagged  218  vs wrong_any P 1.0 R 0.151 | vs H>3 P 0.899 R 0.143 | H>6ft P 0.518 R 0.121 | H>10ft P 0.193 R 0.101 | H>15ft P 0.037 R 0.125 | DROP

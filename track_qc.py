@@ -18,7 +18,7 @@ import re
 
 def bug_rect_for(clip: str):
     """Scorebug rectangle for a clip: union of the layout's clock and period boxes, padded."""
-    section = re.sub(r"^triage_", "", clip); section = re.sub(r"_f\d+$", "", section)
+    section = re.sub(r"^triage_", "", clip); section = re.sub(r"_f\d+$", "", section); section = re.sub(r"_w\d+$", "", section)
     try:
         lay = LAYOUTS[layout_for_clip(section)]
     except KeyError:
@@ -158,6 +158,7 @@ def write_summary():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--triage", action="store_true")
+    ap.add_argument("--windows", metavar="GAME", help="every data/sportvu/build/<GAME>_s*_w*_frames.json against its window mp4")
     ap.add_argument("--sheets", action="store_true", help="worst-frame contact sheets per clip and per game (reports/qc_sheets/)")
     ap.add_argument("--summary", action="store_true", help="reports/qc_summary.{json,txt}")
     ap.add_argument("--sidecar", type=Path); ap.add_argument("--video", type=Path)
@@ -172,6 +173,10 @@ def main():
         side = config.PROJECT_ROOT / "data" / "triage" / "side"
         for s in sorted(side.glob("*_frames.json")):
             jobs.append((s, config.PROJECT_ROOT / "data" / "triage" / "src" / (s.name.replace("_frames.json", "") + ".mp4")))
+    elif a.windows:
+        bdir = config.PROJECT_ROOT / "data" / "sportvu" / "build"
+        for s in sorted(bdir.glob(a.windows + "_s*_w*_frames.json")):
+            jobs.append((s, bdir / (s.name.replace("_frames.json", "") + ".mp4")))
     elif a.sidecar and a.video:
         jobs.append((a.sidecar, a.video))
     else:
@@ -185,7 +190,7 @@ def main():
     from fetch_pbp import game_for_clip
     by_game = {}
     for r in res:
-        section = re.sub(r"_f\d+$", "", re.sub(r"^triage_", "", r["clip"]))
+        section = re.sub(r"_w\d+$", "", re.sub(r"_f\d+$", "", re.sub(r"^triage_", "", r["clip"])))
         g = by_game.setdefault(game_for_clip(section), {"clips": 0, "frames": 0, "frames_failing_any": 0, "rule_counts": {}})
         g["clips"] += 1; g["frames"] += r["frames"]; g["frames_failing_any"] += r["frames_failing_any"]
         for k, v in r["rule_counts"].items():
