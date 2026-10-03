@@ -27,6 +27,12 @@ A2  geometry(frame, H, boxes, feet, bug_rect): three rules on the projected cour
         "not floor", so the inside rule can fail on a right H there (reported per game, not hidden).
     (c) off-court feet: more than OFFCOURT_MAX boxes whose stabilized foot maps outside the court
         by more than OFFCOURT_FT (one is allowed: a ref or coach on the apron).
+A3  physics(trajectories, sidecar, identity, fps, stride): per processed frame, (a) any track
+    moving faster than MAX_SPEED_FTS between consecutive processed frames (raw court positions,
+    pre-clean); (b) more than MAX_PER_TEAM boxes of one team on the frame (canonical ids, teams
+    from the identity audit); (c) a camera cut (the pipeline's own rule: >= CUT_VANISH of the
+    previous frame's ids gone, at least CUT_MIN_TRACKS of them) across which a kept id jumps more
+    than CUT_JUMP_FT. Counts per rule per clip; frames carry `fails`.
 """
 from __future__ import annotations
 
@@ -41,6 +47,10 @@ FLOOR_LO, FLOOR_HI = (8, 25, 90), (38, 210, 245)   # HSV maple band, gate/hsv_ba
 OFFCOURT_FT = 3.0             # feet outside the court lines before a foot counts as off court
 OFFCOURT_MAX = 1              # more off-court feet than this flags the frame
 MIN_EDGE_SAMPLES = 8          # an edge with fewer on-frame samples is not judged
+MAX_SPEED_FTS = 30.0          # ft/s; nobody on an NBA floor sustains this between two 10 Hz samples
+MAX_PER_TEAM = 5              # boxes per team on a frame beyond this = ghosts or a team flip
+CUT_VANISH, CUT_MIN_TRACKS = 0.80, 4   # detect/camera_cut.py's rule, replayed from the sidecar
+CUT_JUMP_FT = 15.0            # a kept id moving this far across a cut is a stale id on a new player
 NEAR_PX = 6                   # within this of a template line counts as "on the line"
 BOX_PAD = 4                   # px grown around player boxes before removing their ridge pixels
 MIN_RIDGE_PX = 500            # fewer ridge pixels than this: score undefined (no line evidence in frame)
@@ -192,6 +202,60 @@ def geometry(frame_bgr: np.ndarray, H_px2ft, boxes: list, feet: list, bug_rect=N
     return out
 
 
+def physics(traj: dict, sidecar: dict, identity: dict, fps: float, stride: int) -> dict:
+    """A3 over one build. Returns {"frames": {frame: {...}}, "counts": {...}}."""
+    idmap = {int(k): int(v) for k, v in identity.get("idmap", {}).items()}
+    team = {int(k): v for k, v in identity.get("team_by_track", {}).items()}
+    dt = stride / fps
+    per_frame = {r["frame"]: {"fails": [], "speed_max": 0.0, "speed_max_raw": 0.0, "team_counts": {}, "cut": False} for r in sidecar["frames"]}
+    # (a) speeds between consecutive processed frames: cleaned (failing rule) and raw (measurement)
+    for key, field in (("cleaned", "speed_max"), ("raw", "speed_max_raw")):
+        for tid, tr in traj.items():
+            pts = sorted(p[:3] for p in tr.get(key, []))
+            for (f0, x0, y0), (f1, x1, y1) in zip(pts, pts[1:]):
+                if f1 - f0 != stride:
+                    continue
+                v = float(np.hypot(x1 - x0, y1 - y0)) / dt
+                row = per_frame.get(f1)
+                if row is not None:
+                    row[field] = max(row[field], v)
+    # (b) per-team counts and (c) cuts, replayed over the sidecar boxes
+    prev_ids, prev_pos = set(), {}
+    pos_by_frame = {}
+    for tid, tr in traj.items():
+        for f, x, y in tr.get("raw", []):
+            pos_by_frame.setdefault(f, {})[int(tid)] = (x, y)
+    for r in sidecar["frames"]:
+        f = r["frame"]; row = per_frame[f]
+        ids = {idmap.get(b["tid"], b["tid"]) for b in r["boxes"]}
+        cnt = {}
+        for cid in ids:
+            t = team.get(cid)
+            if t is not None:
+                cnt[str(t)] = cnt.get(str(t), 0) + 1
+        row["team_counts"] = cnt
+        if any(c > MAX_PER_TEAM for c in cnt.values()):
+            row["fails"].append("team_count")
+        if row["speed_max"] > MAX_SPEED_FTS:
+            row["fails"].append("speed")
+        cut = len(prev_ids) >= CUT_MIN_TRACKS and len(prev_ids - ids) / len(prev_ids) >= CUT_VANISH
+        row["cut"] = bool(cut)
+        if cut:
+            cur = pos_by_frame.get(f, {})
+            jumped = [cid for cid in ids & prev_ids if cid in cur and cid in prev_pos
+                      and np.hypot(cur[cid][0] - prev_pos[cid][0], cur[cid][1] - prev_pos[cid][1]) > CUT_JUMP_FT]
+            if jumped:
+                row["fails"].append("cut_jump")
+                row["cut_jumped_ids"] = jumped
+        prev_ids, prev_pos = ids, pos_by_frame.get(f, {})
+    counts = {}
+    for row in per_frame.values():
+        for k in row["fails"]:
+            counts[k] = counts.get(k, 0) + 1
+    counts["cuts"] = sum(1 for row in per_frame.values() if row["cut"])
+    return {"frames": per_frame, "counts": counts}
+
+
 def score_build(video_path, sidecar: dict, checks=("overlay", "geometry"), bug_rect=None) -> list[dict]:
     """Run the per-frame checks over one build. Reads the video sequentially (never seeks)."""
     import cv2
@@ -229,10 +293,11 @@ def summarize(rows: list[dict], far: float = 40.0) -> dict:
     has_h = sum(1 for r in rows if r["state"] != "LOST")
     rules = {}
     for r in rows:
-        for f in r.get("geometry", {}).get("fails", []):
+        for f in r.get("geometry", {}).get("fails", []) + r.get("physics", {}).get("fails", []):
             rules[f] = rules.get(f, 0) + 1
     return {"frames": len(rows), "frames_with_H": has_h, "frames_scored": len(ov),
-            "rule_counts": rules, "frames_failing_any": sum(1 for r in rows if r.get("geometry", {}).get("fails")),
+            "rule_counts": rules,
+            "frames_failing_any": sum(1 for r in rows if r.get("geometry", {}).get("fails") or r.get("physics", {}).get("fails")),
             "dist_px_median": round(float(np.median(dd)), 2) if dd else None,
             "dist_px_p90": round(float(np.percentile(dd, 90)), 2) if dd else None,
             "score_median": round(float(np.median(sc)), 4) if sc else None,

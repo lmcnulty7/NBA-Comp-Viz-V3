@@ -66,9 +66,11 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
       variants (maple HSV band, ridge-texture, adaptive per-frame colour) could not separate right from
       wrong H's on the 55 renders (FIX_LOG pass 3); B6 decides if any floor rule survives. Counts per rule
       per clip in `reports/qc/<clip>.json`, per game in `reports/qc/_by_game.json`.
-- [ ] A3. Physics checks: extend `build_trajectories.physics_report` logic into qc: speed > 30 ft/s
-      between consecutive processed frames, more than 5 boxes per team per frame, position jump
-      > 15 ft for a kept id across a `camera_cut` event. Report per clip and per game.
+- [x] A3. Physics checks (`qc/track_qc.py: physics`): speed > 30 ft/s between consecutive processed
+      frames on the CLEANED positions (failing rule; raw reported as a measurement), more than 5 boxes
+      of one team per frame, kept-id jump > 15 ft across a replayed camera cut. Counts per clip and per
+      game in `reports/qc/`. Baseline on the 55 renders: cleaned speed fails on 16% of frames (raw 49%),
+      team_count on 24%, 4 cuts with 0 jumps.
 - [ ] A4. Second-tracker disagreement: run COCO `yolov8m.pt` person class with `bytetrack.yaml`
       (both already available through ultralytics, no new dependency) on the same frames; frame
       disagreement = 1 minus the mutual IoU >= 0.5 match rate; flag frames above 0.30. Report per
