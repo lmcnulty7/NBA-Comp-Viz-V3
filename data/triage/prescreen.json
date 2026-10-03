@@ -1,0 +1,38 @@
+{
+ "method": "model pre-screen (Claude) on ONE mid-clip still per render + automated proxies from the side trajectories; NOT a human label \u2014 use to prioritise --label, never as a result",
+ "date": "2026-10-03",
+ "court_off": [
+  "gsw_cle_2017f_g5_s10_f2316",
+  "gsw_cle_2017f_g5_s10_f876",
+  "gsw_cle_xmas16_s06_f2583",
+  "gsw_cle_xmas16_s08_f12297",
+  "gsw_okc_2016wcf_g6_s08_f14619",
+  "gsw_okc_2016wcf_g6_s09_f60",
+  "gsw_nyk_curry54_s04_f9135",
+  "gsw_splash62_s01_f3951"
+ ],
+ "no_template_drawn": [
+  "gsw_cle_xmas16_s05_f16416",
+  "gsw_sac_klay37_s05_f10047",
+  "gsw_sas_2016_s08_f7158"
+ ],
+ "borderline": [
+  "gsw_hou_duel_s02_f14166",
+  "gsw_bos_2016_s00_f3120",
+  "gsw_cle_xmas16_s07_f16530"
+ ],
+ "boxes_suspect": [
+  "gsw_cle_2017f_g5_s10_f876",
+  "gsw_sac_klay37_s05_f10047",
+  "gsw_okc_2016wcf_g6_s09_f60",
+  "gsw_nyk_curry54_s04_f9135",
+  "gsw_cle_xmas16_s07_f16530"
+ ],
+ "systematic": "In nearly every clip the far sideline and the key sit on the paint but the NEAR sideline is drawn well into the crowd \u2014 a near-field depth overshoot, consistent with homographies constrained only by far-side line features.",
+ "proxies": {
+  "median_players_per_frame": 9.9,
+  "median_track_ids_per_clip": 18,
+  "median_extrapolated_share": 0.13,
+  "fast_steps_share_max": 0.035
+ }
+}

@@ -143,6 +143,10 @@ def render(items):
 def label_loop(items, labels):
     import cv2
     todo = [it for it in items if it["id"] not in labels and (REN / (it["id"] + ".mp4")).exists()]
+    pre = TRI / "prescreen.json"                     # model pre-screen (not a label): flagged clips first
+    if pre.exists():
+        f = json.loads(pre.read_text()); hot = set(f.get("court_off", []) + f.get("no_template_drawn", []) + f.get("borderline", []) + f.get("boxes_suspect", []))
+        todo.sort(key=lambda it: it["id"] not in hot)
     print("%d clips to triage (%d done). 1-5 toggle a fault · g/m/b overall · r restart · SPACE next · q quit" % (len(todo), len(labels)))
     win = "triage — score the faults you SEE"
     for n, it in enumerate(todo):
