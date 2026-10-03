@@ -190,7 +190,17 @@ def report(items, labels):
         by_game[g] = {"n": len(gi), "broken": sum(1 for it in gi if labels[it["id"]]["overall"] == "broken"),
                       "faults": dict(Counter(f for it in gi for f in labels[it["id"]]["faults"]))}
     offsets = json.loads(OFFSETS.read_text()) if OFFSETS.exists() else {}
+    # label-free QC (FIX_PLAN Phase A, qc/track_qc.py) next to the human labels, per clip
+    qc_dir = config.REPORTS_DIR / "qc"; qc = {}
+    for it in items:
+        qp = qc_dir / ("triage_%s.json" % it["id"])
+        if qp.exists():
+            sm = json.loads(qp.read_text())["summary"]
+            qc[it["id"]] = {"lines_px": sm.get("dist_px_median"), "fail_rate": round(sm["frames_failing_any"] / max(sm["frames"], 1), 3),
+                            "second_disagreement": sm.get("second_disagreement_median"), "rules": sm.get("rule_counts", {})}
     rep = {"sampled": len(items), "rendered": sum(1 for it in items if (REN / (it["id"] + ".mp4")).exists()),
+           "qc_note": "label-free indicators per clip (qc/track_qc.py), thresholds uncalibrated until FIX_PLAN B6; see reports/qc_summary.*",
+           "qc": qc,
            "offset_unresolved": [it["id"] for it in items if offsets.get(it["id"]) is None],
            "offset_note": "snippets are cut at production frame + a per-possession offset solved from the game clock (±1-3 s; "
                           "stopped clocks are ambiguous) — faults are judged on the footage shown, not on possession boundaries",
@@ -201,9 +211,16 @@ def report(items, labels):
            "by_game": by_game}
     config.REPORTS_DIR.mkdir(exist_ok=True)
     (config.REPORTS_DIR / "triage.json").write_text(json.dumps(rep, indent=1))
-    L = ["VISUAL TRIAGE — %d/%d clips triaged (%d rendered, %d offset-unresolved)" % (rep["triaged"], rep["sampled"], rep["rendered"], len(rep["offset_unresolved"])), "  overall: %s" % rep["overall"], "  fault rates: %s" % rep["fault_rates"],
+    L = ["VISUAL TRIAGE — %d/%d clips triaged (%d rendered, %d offset-unresolved, QC on %d)" % (rep["triaged"], rep["sampled"], rep["rendered"], len(rep["offset_unresolved"]), len(qc)), "  overall: %s" % rep["overall"], "  fault rates: %s" % rep["fault_rates"],
          "  dominant: %s" % rep["dominant_fault"], "  games by broken rate: %s" % rep["games_by_broken_rate"]]
     for g, v in by_game.items(): L.append("    %-14s n=%d broken=%d faults=%s" % (g, v["n"], v["broken"], v["faults"]))
+    if qc:
+        L.append("  label-free QC per clip (human label beside it when present):")
+        for it in sorted(items, key=lambda it: -(qc.get(it["id"], {}).get("fail_rate") or 0)):
+            q = qc.get(it["id"])
+            if q is None: continue
+            hl = labels.get(it["id"]); hs = ("%s %s" % (hl["overall"], ",".join(hl["faults"]))) if hl else "-"
+            L.append("    %-32s lines %5s px  fail %.2f  2nd %5s  human: %s" % (it["id"], q["lines_px"], q["fail_rate"], q["second_disagreement"], hs))
     txt = "\n".join(L); (config.REPORTS_DIR / "triage.txt").write_text(txt + "\n"); print(txt)
 
 

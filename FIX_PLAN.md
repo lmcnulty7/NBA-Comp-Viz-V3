@@ -83,8 +83,8 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
       worst across the game); gitignored, regenerable. `track_qc.py --summary` writes `reports/qc_summary.*`
       (per clip and per game, worst first). Lucien: the 14 game sheets are the glance; note which look wrong
       in FIX_LOG.
-- [ ] A6. Wire `triage_sheet.py --report` to include the QC scores next to any human labels, and
-      log the QC numbers for all 55 renders as the Phase A baseline (label-free, pre-truth).
+- [x] A6. `triage_sheet.py --report` lists the label-free QC per clip (line distance, fail rate, second-tracker
+      disagreement) beside any human label; `reports/triage.*`. Phase A baseline logged in FIX_LOG pass 7.
 
 ## Phase B: ground truth from SportVU on the held-out game
 Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/` (gitignored),

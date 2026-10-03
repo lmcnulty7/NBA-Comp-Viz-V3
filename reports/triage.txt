@@ -1,0 +1,61 @@
+VISUAL TRIAGE — 0/56 clips triaged (55 rendered, 1 offset-unresolved, QC on 55)
+  overall: {}
+  fault rates: {}
+  dominant: None
+  games by broken rate: []
+  label-free QC per clip (human label beside it when present):
+    gsw_cle_xmas16_s08_f12297        lines 89.77 px  fail 1.00  2nd 0.2222  human: -
+    gsw_okc_2016wcf_g1_s08_f23079    lines 46.41 px  fail 1.00  2nd   0.5  human: -
+    gsw_hou_duel_s02_f14166          lines 37.18 px  fail 1.00  2nd   0.5  human: -
+    gsw_sac_klay37_s05_f10047        lines 93.85 px  fail 1.00  2nd 0.7143  human: -
+    gsw_cle_xmas16_s07_f16530        lines 69.42 px  fail 1.00  2nd 0.6667  human: -
+    gsw_hou_duel_s05_f2910           lines 52.94 px  fail 1.00  2nd 0.5556  human: -
+    gsw_bos_2016_s04_f4800           lines 32.47 px  fail 0.99  2nd   0.5  human: -
+    gsw_okc_2016wcf_g1_s08_f22335    lines 26.85 px  fail 0.99  2nd   0.4  human: -
+    gsw_cle_xmas16_s05_f16416        lines 78.46 px  fail 0.96  2nd 0.375  human: -
+    gsw_cle_2017f_g5_s10_f876        lines 39.16 px  fail 0.96  2nd 0.6667  human: -
+    gsw_okc_2016wcf_g1_s00_f13344    lines 35.28 px  fail 0.95  2nd 0.4143  human: -
+    gsw_sas_2016_s02_f0              lines 45.84 px  fail 0.95  2nd   0.4  human: -
+    gsw_bos_2016_s04_f6909           lines  52.4 px  fail 0.95  2nd   0.5  human: -
+    gsw_ind_klay60_s01_f813          lines 51.57 px  fail 0.95  2nd 0.4444  human: -
+    gsw_sas_2016_s01_f7350           lines  42.7 px  fail 0.94  2nd 0.4444  human: -
+    gsw_ind_klay60_s02_f8922         lines 47.52 px  fail 0.92  2nd 0.4444  human: -
+    gsw_hou_duel_s04_f87             lines 41.07 px  fail 0.91  2nd   0.4  human: -
+    gsw_cle_2016f_g7_s02_f4626       lines 41.07 px  fail 0.91  2nd 0.375  human: -
+    gsw_cle_2017f_g5_s10_f2316       lines 41.07 px  fail 0.89  2nd 0.6667  human: -
+    gsw_okc_2016wcf_g6_s09_f60       lines 51.98 px  fail 0.89  2nd   0.5  human: -
+    gsw_splash62_s01_f3951           lines 35.27 px  fail 0.88  2nd 0.3959  human: -
+    gsw_cle_2016f_g7_s04_f11160      lines 42.03 px  fail 0.87  2nd   0.4  human: -
+    gsw_sas_2016_s07_f3165           lines 47.75 px  fail 0.87  2nd 0.4444  human: -
+    gsw_mia_2017_s07_f11310          lines 45.84 px  fail 0.86  2nd   0.4  human: -
+    gsw_okc_2016wcf_g6_s06_f828      lines  57.3 px  fail 0.85  2nd   0.4  human: -
+    gsw_splash62_s06_f9723           lines 41.07 px  fail 0.84  2nd 0.4444  human: -
+    gsw_cle_2016f_g7_s06_f13053      lines  46.8 px  fail 0.83  2nd 0.375  human: -
+    gsw_nyk_curry54_s04_f2568        lines 38.62 px  fail 0.83  2nd   0.4  human: -
+    gsw_nyk_curry54_s04_f9135        lines 27.69 px  fail 0.83  2nd 0.7639  human: -
+    gsw_phx_2016_s09_f16296          lines 40.94 px  fail 0.82  2nd   0.4  human: -
+    gsw_ind_klay60_s05_f7944         lines 47.91 px  fail 0.82  2nd 0.4444  human: -
+    gsw_mia_2017_s09_f11520          lines 45.84 px  fail 0.82  2nd 0.4286  human: -
+    gsw_sas_2016_s08_f7158           lines 44.89 px  fail 0.81  2nd 0.3333  human: -
+    gsw_cle_xmas16_s06_f2583         lines 80.22 px  fail 0.81  2nd 0.3693  human: -
+    gsw_phx_2016_s05_f9390           lines 50.62 px  fail 0.81  2nd 0.2857  human: -
+    gsw_mia_2017_s01_f13056          lines  46.8 px  fail 0.80  2nd 0.4286  human: -
+    gsw_sac_klay37_s03_f993          lines 43.88 px  fail 0.80  2nd 0.3875  human: -
+    gsw_cle_2016f_g7_s05_f15138      lines 36.04 px  fail 0.80  2nd   0.5  human: -
+    gsw_sac_klay37_s05_f537          lines 35.19 px  fail 0.79  2nd 0.375  human: -
+    gsw_phx_2016_s03_f20472          lines 45.37 px  fail 0.79  2nd 0.4018  human: -
+    gsw_bos_2016_s00_f3120           lines 33.82 px  fail 0.79  2nd 0.3333  human: -
+    gsw_okc_2016wcf_g6_s04_f1290     lines 69.72 px  fail 0.77  2nd   0.3  human: -
+    gsw_okc_2016wcf_g1_s08_f29817    lines 38.61 px  fail 0.76  2nd 0.3333  human: -
+    gsw_cle_2017f_g5_s07_f8166       lines 32.47 px  fail 0.75  2nd   0.4  human: -
+    gsw_cle_2017f_g5_s08_f31428      lines 40.66 px  fail 0.75  2nd 0.375  human: -
+    gsw_splash62_s05_f11232          lines 37.33 px  fail 0.73  2nd 0.3333  human: -
+    gsw_okc_2016wcf_g6_s08_f14619    lines 66.85 px  fail 0.72  2nd 0.375  human: -
+    gsw_mia_2017_s01_f3675           lines 42.98 px  fail 0.70  2nd 0.4286  human: -
+    gsw_splash62_s02_f273            lines 32.25 px  fail 0.66  2nd 0.3541  human: -
+    gsw_ind_klay60_s08_f5634         lines 39.32 px  fail 0.65  2nd 0.3333  human: -
+    gsw_hou_duel_s03_f4641           lines 56.35 px  fail 0.65  2nd 0.2857  human: -
+    gsw_phx_2016_s05_f20118          lines 38.88 px  fail 0.58  2nd   0.3  human: -
+    gsw_sac_klay37_s05_f15936        lines 32.47 px  fail 0.50  2nd 0.2475  human: -
+    gsw_bos_2016_s02_f9543           lines 34.25 px  fail 0.48  2nd 0.2727  human: -
+    gsw_nyk_curry54_s06_f5313        lines 34.38 px  fail 0.34  2nd 0.2727  human: -
