@@ -103,6 +103,8 @@ def main():
     ap.add_argument("--max-frames", type=int, default=300)
     ap.add_argument("--stride", type=int, default=3)
     ap.add_argument("--use-gate", action="store_true", help="Skip non-court frames via the gate.")
+    ap.add_argument("--gate-thr", type=float, default=None, help="Gate threshold override (default: thresholds.json['trained'] = 0.70, which is what the harvest ran at).")
+    ap.add_argument("--gate-head", type=Path, default=None, help="Gate head path (default: config.HEAD_PATH; config.HEAD_V2_PATH for v2).")
     # Component B levers (identity + foot-point stability)
     ap.add_argument("--no-stab", action="store_true", help="Disable foot-point stabilization (A/B).")
     ap.add_argument("--no-reid", action="store_true", help="Disable offline fragment linking (A/B).")
@@ -139,8 +141,9 @@ def main():
     gate = None
     if args.use_gate or args.pregate:
         from gate.trained_head import TrainedHeadGate
-        thr = json.loads(config.THRESHOLDS_PATH.read_text())["trained"]
-        gate = TrainedHeadGate.load(config.HEAD_PATH, backbone=get_backbone("clip", device), threshold=thr)
+        thr = args.gate_thr if args.gate_thr is not None else json.loads(config.THRESHOLDS_PATH.read_text())["trained"]
+        gate = TrainedHeadGate.load(args.gate_head or config.HEAD_PATH, backbone=get_backbone("clip", device), threshold=thr)
+        log.info("gate: %s @ %.2f", (args.gate_head or config.HEAD_PATH).name, thr)
     tracker = PlayerTracker(device=device)
     mapper = CourtMapper()
     stab = None if args.no_stab else FootPointStabilizer()

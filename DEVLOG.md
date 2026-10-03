@@ -9,6 +9,46 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-10-02e — Provenance correction: the harvest ran the gate at 0.70, not 0.35
+
+While building the visual triage sheet (below), `build_trajectories --use-gate`
+returned 0 frames for 5/56 snippets at the stored threshold, which prompted the
+question: where does the harvest set 0.35? Answer: nowhere. `harvest_driver.py`
+runs `build_trajectories.py --pregate`, which loads `thresholds.json["trained"]`
+— 0.7004 in every commit including the harvest commit b751d18 (Drive
+`results/run_report.json`), with no override in `colab_run.py`. The pregate pass
+*and* the per-frame gate both use it. The only 0.35 in the codebase is
+`label_factory.py:GATE_THR` — the court LABEL factory. The DEVLOG 07-05 line
+"Harvest runs at 0.35" was written in that section and was read, from 09-11 on,
+as describing the possession harvest. It propagated into CLAIMS caveat 1, the
+paper (§3 table, §4.1, §9.3), PROJECT_SUMMARY, PIPELINE and the 10-02 entries.
+
+Why it matters — the direction of the error flips. From the 6,159-frame gate
+sheet, v1 @ 0.70 on harvest footage: precision 0.988 (37 FP), recall 0.859
+(500 FN). So the published sample is **clean but thin**: ~14% of truly wide
+frames never reached the tracker, a selection effect on which live stretches
+survive. It is not "13% closeups and crowd entering the tracker" as the docs
+said since 10-02a. Everything downstream (87.8% corpus crossval, the canary,
+the bias audit) stands as measured; the caveat text changes, the numbers do not.
+
+Fixed today: CLAIMS caveat 1, paper §3/§4.1/§9.3, PROJECT_SUMMARY, PIPELINE,
+the 10-02a/b/d entries (annotated, not rewritten), `build_trajectories --gate-thr`
+help text, and `triage_sheet.py` now renders with `--pregate` at the stored
+threshold and `harvest_driver.build_stride` so the triage shows exactly what
+production produced. Lesson for the ledger: a threshold claim needs a code path,
+not a DEVLOG sentence — the 07-05 line was never checked against `stage_cmd`.
+
+## 2026-10-02f — Visual triage sheet (triage_sheet.py)
+
+Why: Lucien's worry — "the model isn't good enough yet and isn't even
+presentable from a visual standpoint." The numbers say 87.8% corpus-wide, but no
+one had watched the overlay on the harvest games. `triage_sheet.py`: 4 aligned
+possessions per game (56, seeded) from `data/pbp/*_outcomes.json`, ffmpeg h264
+snippet [set_start − 1 s, ≤ 7 s], real pipeline at production settings, then a
+playback reviewer scoring per fault (court_off / boxes / id_swaps / team_flips /
+gliding + overall g/m/b). Report: fault rates, per game / arena, dominant fault.
+Nothing here changes the pipeline; it tells us which stage to fix first.
+
 ## 2026-10-02d — Retrain beats recalibrate; gate v2 shipped for future harvesting
 
 `gate_retrain_experiment.py`, leave-one-source-out over the 21 harvest sources,
@@ -36,7 +76,7 @@ and the threshold key now follow the head's name (v1 path unchanged, 52 tests
 green). `config.HEAD_V2_PATH`; HEAD_PATH untouched.
 
 Decision: v2 is the gate for every future game. The published sample stays on
-v1 @ 0.35 (consistent provenance) until the 14 games are re-harvested under v2,
+v1 @ 0.70 (consistent provenance; see 10-02e) until the 14 games are re-harvested under v2,
 then the PBP canary and the bias audit are re-run. Second option (re-harvest
 now) deferred to the next batch of games.
 
@@ -77,12 +117,13 @@ homogeneous (ordering only; no score shown; every frame seen; `i` inverts a page
   @0.50 0.993 / 0.957 / 0.083 · @0.70 **recall 0.859 (500 FN)** / 0.988 / 0.019 ·
   objective (min FN s.t. FP-rate ≤ 0.10) picks **0.47**: 0.995 / 0.949 / 0.099,
   acc 0.962 · max accuracy 0.973 at 0.55.
-  0.70 (prototype-validated) drops 14% of real wide frames; 0.35 (the harvest
-  hack) lets 17% of non-wide through. Domain shift is now a number, not a story.
+  0.70 (prototype-validated, and — per 10-02e — what the harvest actually ran)
+  drops 14% of real wide frames; 0.35 (the label factory's threshold) would let
+  17% of non-wide through. Domain shift is now a number, not a story.
 - The gate's own view already predicted it: 29.2% of the judge's "wide" scored
   < 0.35, vs 35% not-wide by human label.
 
-**Production stays at 0.35.** A validated candidate exists (0.47), but adopting it
+**Production threshold unchanged** (0.70 — this entry originally said 0.35; corrected in 10-02e). A validated candidate exists (0.47), but adopting it
 changes what gets harvested, so: (1) retrain-vs-recalibrate experiment on a
 held-out-by-game split (re-embed; the head is a logistic regression on CLIP
 embeddings), (2) adopt by the rule, (3) re-run the PBP canary and the bias audit.

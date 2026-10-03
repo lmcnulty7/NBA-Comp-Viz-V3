@@ -241,7 +241,7 @@
         <div class="hud">
           <div class="hud-l">Frozen CLIP ViT-B/32 + logistic-regression probe. (The banner's em dash shows as "???" — OpenCV's built-in font lacks the glyph.)</div>
           <div class="hud-r"><span class="num">{{N:gate.labeled_total|comma}} hand-labeled frames <small>({{N:gate.labeled_live}} live / {{N:gate.labeled_dead}} dead)</small></span> · test split {{N:gate.test_live}} live / {{N:gate.test_dead}} dead · backbone {{N:gate.backbone}}</div>
-          <div class="hud-s warn">Harvesting runs at threshold 0.35, not the validated {{N:gate.threshold_validated_str}} — unfamiliar broadcasts score lower. That operating point is protected by downstream possession structure and the play-by-play cross-check, not by a frame-level eval of its own.</div>
+          <div class="hud-s warn">The harvest ran at the same {{N:gate.threshold_validated_str}} on broadcasts the gate was never validated on. Measured afterwards on all 6,159 harvest frames (human-verified): precision 0.988, recall 0.859 — the sample is clean but about 14% of truly wide frames never reached the tracker.</div>
           <div class="hud-p">run_tracking.py --use-gate render · 4 s · <span class="chip">⌗ reports/viz/pr_curve.png</span></div>
         </div>
       </details>
@@ -786,7 +786,7 @@
       <span>team A/B ≠ home/away ·</span>
       <span>set core ≠ full possession ·</span>
       <span>credit = accounting attribution, not defensive skill ·</span>
-      <span>the gate's {{N:gate.accuracy_pct}}% belongs to the {{N:gate.threshold_validated_str}} in-domain eval; harvesting runs at 0.35 ·</span>
+      <span>the gate's {{N:gate.accuracy_pct}}% belongs to the {{N:gate.threshold_validated_str}} in-domain eval; on harvest footage that threshold keeps precision 0.988 but misses 14% of wide frames ·</span>
       <span>151/151 reproducibility is environment-conditional ·</span>
       <span>the auto-label {{N:label_audit.agreement_band.accuracy|pct0}}% is the agreement band only (n = {{N:label_audit.agreement_band.n_judged}})</span>
     </div>
@@ -861,7 +861,7 @@
         <tr><td>400 hand-labeled frames, 20-point scheme; 66–89% sane mapping on unseen games; Dice 0.587</td><td>find/follow/place, reviewer</td><td class="src">paper §4 · data/court_review · DEVLOG · train_line_seg.py</td></tr>
         <tr><td>TRACK on 12/20 sampled frames; line-res 2.3 px (8 matches); HOLD_S = 2 s</td><td>1998 clip receipt</td><td class="src">HUD-color scan of the cut (scout scan, 20 samples at 5 fps) · render_overlay_video.py HOLD_S</td></tr>
         <tr><td>98.7%, 158 held-out, macro-F1 0.986, 1 FN / 1 FP, 88.6%, 87.3%, 1,050 (659 / 391), 0.70</td><td>hero rail, gate, Fig. 1, not claimed, reviewer</td><td class="src">reports/metrics.json</td></tr>
-        <tr><td>harvest threshold 0.35; P(live) = 0.65 on the false negative</td><td>gate</td><td class="src">paper §4 · DEVLOG · reports/viz/false_negatives.png</td></tr>
+        <tr><td>harvest gate @0.70 in-domain: recall 0.859, precision 0.988 (n = 6,159); P(live) = 0.65 on the prototype false negative</td><td>gate</td><td class="src">reports/gate_sheet.txt · paper §4 · DEVLOG 10-02e</td></tr>
         <tr><td>F1 0.88 (P 0.89 / R 0.87), 50 frames / 453 boxes</td><td>hero rail, Fig. 2, reviewer</td><td class="src">reports/tracking_metrics.json (IoU 0.5)</td></tr>
         <tr><td>baseline F1 0.71 (P 0.68 / R 0.74); 654 images, 10 → 5 classes; ~30 min T4 vs ~22 h</td><td>Fig. 2, reviewer</td><td class="src">paper §4 · DEVLOG</td></tr>
         <tr><td>conf 0.40 → 0.25: 0.744 → 0.764; NMS no change; yolov8x 0.695</td><td>reviewer negative results</td><td class="src">paper §10 · DEVLOG</td></tr>

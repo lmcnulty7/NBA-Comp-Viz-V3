@@ -251,7 +251,7 @@ def main() -> None:
         "split_sizes": m["config_record"]["split_sizes"],
         "backbone": m["config_record"]["clip_model"],
         "head": m["config_record"]["head"],
-        "warning": "the harvest operating point 0.35 is NOT in this file — see hand_typed_sources",
+        "warning": "the harvest operating point (0.70 = threshold_validated; provenance verified DEVLOG 10-02e) and the in-domain gate-sheet metrics are NOT in this file — see hand_typed_sources",
     }
 
     # ------------------------------------------------------------------ 6. possessions / clock / detection
@@ -466,7 +466,7 @@ def main() -> None:
                   "source in the evidence ledger (brief §E.1, §H)"),
         ("corpus_games_16", "16 games — reports/tier2_bias_audit.json has games:16 (so this one IS in JSON); listed for clarity"),
         ("hero_eyebrow_years_2012_2017", "fetch_pbp.py GAMES dates run 2012-06-07 (201206070BOS) … 2017-06-12; the page derives the span from crossval_per_game keys at build time. PROJECT_SUMMARY.md and paper §2/§5/§9 say 2013–2017 — wrong by a season, flagged to the owner"),
-        ("gate_harvest_threshold_0_35", "paper §4 / DEVLOG (harvest operating point 0.35 vs validated 0.70 in metrics.json)"),
+        ("gate_harvest_in_domain_0_70_recall_0_859_precision_0_988", "reports/gate_sheet.txt FULL CORPUS @0.70; harvest ran at the validated 0.70 (DEVLOG 10-02e corrected the earlier 0.35 claim)"),
         ("detection_baseline_f1_0_71_p_0_68_r_0_74", "paper §4 / DEVLOG (pre-fine-tune YOLOv8m baseline)"),
         ("detection_external_dataset_654_images_10_to_5_classes", "paper §4 / DEVLOG"),
         ("detection_train_time_30min_T4_vs_22h_local", "DEVLOG"),

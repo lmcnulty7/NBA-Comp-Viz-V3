@@ -45,12 +45,20 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 
 ## Standing caveats that ship with the report
 
-1. **Gate operating point:** harvesting runs at threshold **0.35**, not the
-   0.70 validated on the prototype clips. **Now measured in-domain (2026-10-02):** On all 6,159 harvest frames, human-verified (contact-sheet passes 2026-10-02; 3,544 wide): at 0.70 the gate drops 14.1% of truly wide frames (recall 0.859); at 0.35 it admits 13.1% of non-wide frames (343 of 2,615; precision 0.912); the original objective (min FN s.t. FP-rate <= 0.10) picks 0.42 (recall 0.998, precision 0.933); max accuracy 0.975 at 0.55; candidate range 0.42–0.55. **Retrain-vs-recalibrate decided 2026-10-02** (leave-one-source-out, reports/gate_retrain_experiment.*):
+1. **Gate operating point:** the possession harvest ran gate v1 at **0.70** — `harvest_driver.py` calls
+   `build_trajectories.py --pregate`, which gates every frame at `thresholds.json["trained"]` (0.70 in every
+   commit incl. the harvest commit b751d18). **Provenance corrected 2026-10-02:** docs from 07-05 to 10-02
+   said the harvest ran at 0.35; that figure belongs to `label_factory.py` (the court LABEL factory), never to
+   the possession harvest. **Measured in-domain (2026-10-02):** on all 6,159 harvest frames, human-verified
+   (contact-sheet passes; 3,544 wide): at 0.70 the gate keeps 98.8% precision (37 FP, FP-rate 0.014) but
+   drops **14.1% of truly wide frames** (recall 0.859, 500 FN) — the production error is lost yield, not
+   contamination. At 0.35 it would have admitted 13.1% of non-wide frames (343; precision 0.912). The original
+   objective (min FN s.t. FP-rate <= 0.10) picks 0.42 (recall 0.998, precision 0.933); max accuracy 0.975
+   at 0.55. **Retrain-vs-recalibrate decided 2026-10-02** (leave-one-source-out, reports/gate_retrain_experiment.*):
    a head refit on the harvest frames + prototype train/val wins by the adoption rule (acc 0.970 vs 0.957,
    FP-rate 0.068 vs 0.098 at recall 0.998, worst source 0.948 vs 0.920, prototype test 0.975 within v1's
    interval) and ships as **gate v2** (`models/trained_head_v2.*`, threshold 0.33) for all FUTURE harvesting.
-   Every published number was produced with v1 at 0.35 and stays so until the games are re-harvested
+   Every published number was produced with v1 at 0.70 and stays so until the games are re-harvested
    under v2, after which the PBP canary and bias audit are re-run.
 2. **Funnel yield ~58% span→join** and losses are not random (F3) — B3's audit
    quantifies this; until then no representativeness language.

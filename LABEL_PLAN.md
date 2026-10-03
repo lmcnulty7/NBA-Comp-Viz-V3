@@ -15,7 +15,7 @@ play-by-play cross-validation, which validates possession attribution and nothin
 
 | stage | labels today | source | covers the 14 harvest games? | precision of the number |
 |---|---|---|---|---|
-| 1 gate | 1,050 frames (158 test) | 7 prototype clips | **no** — hence harvesting at 0.35, not the validated 0.70 | 98.7% in-domain only; OOD set = 1 video |
+| 1 gate | 1,050 frames (158 test) | 7 prototype clips | **no** — the harvest ran the prototype-validated 0.70 on footage it was never validated on (DEVLOG 10-02e) | 98.7% in-domain only; OOD set = 1 video |
 | 2 detection | 50 frames / 453 boxes | 7 prototype clips | **no** | recall 0.865 ± 0.03 — but not on the data that matters |
 | 3 homography | 1,858 external Roboflow frames (val 279); 28 held-out for the 0.30 ft | `nbacourt_*` only | **no** — 0 verified frames from any harvest arena | success 28/28 → Wilson lower bound ≈ 88%; unseen games 66–89% sane H |
 | 4 identity | 0 | — | — | label-free diagnostics only |
@@ -26,8 +26,8 @@ play-by-play cross-validation, which validates possession attribution and nothin
 | auto-label corpus | 37,916 agreement boxes (95% [88.8, 97.8], n=100 audited) | the 6,197-frame stratified corpus (21 sources) | yes | usable, but see §3.2 |
 
 Two consequences follow. First, every per-stage number on the page is an **in-domain
-number for the wrong domain**: it describes the prototype clips, and the 0.35 gate hack
-is the visible symptom. Second, the weakest links are not where the smallest numbers are:
+number for the wrong domain**: it describes the prototype clips; the gate's 14% in-domain miss rate at 0.70
+(measured 10-02) is the visible symptom. Second, the weakest links are not where the smallest numbers are:
 teams (n=31, one clip) and matchups (n=0) are the two stages whose errors flow directly
 into the credit table, and neither has a harvest-domain evaluation.
 
@@ -121,8 +121,8 @@ into the credit table, and neither has a harvest-domain evaluation.
   pass over **all 5,454 wide-claimed frames** (`gate_sheet.py`), pages ordered by the current
   gate's score for homogeneity (ordering only — the model never supplies a label; every frame
   is seen). ~35–50 min. Yields ~3,750 verified wide + ~1,700 verified closeups from all 21
-  harvest-domain sources, which both sets the operating point *in-domain* (retiring the
-  unvalidated 0.35) and is enough to retrain. The 80 wide-claimed audit frames are re-shown
+  harvest-domain sources, which both sets the operating point *in-domain* (replacing the
+  out-of-domain 0.70) and is enough to retrain. The 80 wide-claimed audit frames are re-shown
   as a built-in test-retest check on the sorted-page condition.
 - **Judge's `shot_type` labels — AUDITED 2026-10-02 (n=200, class-stratified, human):**
   closeup 98.0% [89.5, 99.6] (n=50); graphic 82.5% [68.0, 91.3] (n=40); split_screen 66.7% [47.8, 81.4] (n=27); wide_broadcast 68.8% [57.9, 77.8] (n=80, 24 of the 25 errors are closeups); replay 3/3.
@@ -172,8 +172,8 @@ into "measured on the games the results come from."
 - **Gate — DONE 2026-10-02:** the shot_type labels failed item 1 (no 5-class retrain), but item 4 produced
   6,159 binary labels; leave-one-source-out showed a refit beats recalibration (acc 0.970 vs 0.957, FP-rate
   0.068 vs 0.098 at recall 0.998, worst source 0.948 vs 0.920; prototype test 0.975 within v1's interval).
-  Shipped as `models/trained_head_v2.*` @ 0.33 for future harvesting; published numbers stay on v1 @ 0.35
-  until re-harvest + canary + bias-audit re-run (`gate_retrain_experiment.py`, `gate_ship_v2.py`).
+  Shipped as `models/trained_head_v2.*` @ 0.33 for future harvesting; published numbers stay on v1 @ 0.70
+  (provenance verified 10-02e) until re-harvest + canary + bias-audit re-run (`gate_retrain_experiment.py`, `gate_ship_v2.py`).
 - **Kit classifier:** new model, small; train on item 2's crops; adopt only against k-means
   on the same held-out tracks.
 - **Matchups, possessions, clock:** no retrain; these need evaluation, not models.
