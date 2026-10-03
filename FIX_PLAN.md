@@ -90,13 +90,12 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
 Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/` (gitignored),
 `reports/sportvu_phx.{json,txt}`, `reports/sportvu_check_validation.{json,txt}`.
 
-- [ ] B1. `sportvu/fetch.py`: download one game archive from the GitHub raw URL, extract (7z: use
-      `py7zr`, add to requirements), parse to a flat table of moments: quarter, game_clock_s,
-      shot_clock, 10 player rows (team_id, player_id, x_ft, y_ft) plus ball. Dedupe repeated moments
-      across events on (quarter, game_clock_s, first player position). Verify on first pass: the JSON
-      layout is events -> moments -> [quarter, timestamp_ms, game_clock, shot_clock, None, entities],
-      25 Hz, court coordinates 0..94 by 0..50 ft. Report per quarter: moments, coverage seconds, gaps
-      > 2 s. Run on 12.16.2015.PHX.at.GSW.
+- [x] B1. `sportvu/fetch.py` (`python -m sportvu.fetch <game>`): downloads the .7z from the GitHub raw URL,
+      extracts with py7zr (added to requirements), parses and dedupes moments to `data/sportvu/<game>_moments.json`
+      (gitignored), reports per quarter to `reports/sportvu_fetch_<game>.json`. Verified on 12.16.2015.PHX.at.GSW:
+      layout as expected (events -> moments -> [q, ts, clock, shot, None, 11 entities]), 25 Hz, 81,654 deduped
+      moments, every quarter 720 -> 0 s with 10 players per moment, two gaps > 2 s (Q3 626.0..622.9 and
+      178.4..173.1), player x in -5..99 ft and y in -3..53 ft (99.9% inside court +-3 ft).
 - [ ] B2. `sportvu/sync.py`: section time map from the existing clock anchors
       (`data/pbp/<section>_outcomes.json` anchors: frame, period, clock_s). Between two anchors
       whose clock delta matches the frame delta within 1 s the clock is running: interpolate.

@@ -10,3 +10,4 @@ numpy>=1.24
 matplotlib>=3.7
 joblib>=1.3
 tqdm>=4.65
+py7zr>=0.20        # FIX_PLAN B1: SportVU game logs ship as .7z
