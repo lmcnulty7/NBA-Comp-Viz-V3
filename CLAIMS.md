@@ -13,21 +13,24 @@ changes the targets at the [HUMAN] gate after ROADMAP R0.3.
 
 | Metric | How measured | Target | V3 baseline, gsw_phx_2016 |
 |---|---|---|---|
-| Court line error | px between the projected template and the painted lines, from the SportVU truth H and the line field | <= 3 px (about 0.5 ft) on 95% of accepted wide frames | not measured yet (R0.3) |
-| Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft | p50 7.31 ft, p90 15.38 ft |
-| Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft | near third -1.04 ft, far third +1.69 ft |
-| Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play | not measured yet (R0.3) |
-| Missed players | SportVU players in frame with no box within 2.5 ft | <= 5% | 25.1% |
-| Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.3%, referees included (V3 has no referee class in its sidecar) |
-| Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% |
-| Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | not measured yet (R0.3) |
+| Court line error | px between the projected template and the painted lines, from the SportVU truth H and the line field | <= 3 px (about 0.5 ft) on 95% of accepted wide frames | 0.0% of frames <= 3 px; p50 26.7 px, p95 57.0 px (n=1,447); floor: truth fit residual p50 6.0 px |
+| Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft | p50 7.33 ft, p90 15.35 ft (n=11,292 players) |
+| Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft | near third -1.02 ft, far third +1.67 ft |
+| Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play | 98.6% (838 of 850 live wide s; V3 has no acceptance rule) |
+| Missed players | SportVU players in frame with no box within 2.5 ft | <= 5% | 25.1% (n=14,020) |
+| Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.1% non-referee (15.3% with referees; 280 of 12,637 boxes overlap a referee detection) |
+| Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% (n=10,829) |
+| Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | 21.7 id switches per possession (56 shot-clock possessions); jersey-read rate not measurable (no OCR on the windows) |
 | Generalisation | the same metrics on an arena never trained on and an era never trained on | within 1.5x of the held-out game | not measured (held-out arena not chosen) |
 
-V3 column: reports/sportvu_phx.{json,txt} (row A8, PROPOSED). Caveat: testable frames only (1,447
-of 9,500 rebuilt window frames, 15%, where a truth H could be fitted), so the numbers are
-optimistic; the truth H passes through the pipeline's own boxes; a local windowed rebuild, not the
-production artifacts. R0.3 re-measures every row through the scorecard and replaces this column
-with its own artifact.
+V3 column: reports/scorecard/gsw_phx_2016__v3.{json,txt} (ROADMAP R0.3, 2026-10-03). Caveat:
+testable frames only (1,447 of 9,500 rebuilt window frames, 15%, where a truth H could be fitted),
+so the numbers are optimistic; the truth H passes through the pipeline's own boxes; a local
+windowed rebuild, not the production artifacts; wide shots judged by gate v2, which saw phx frames
+in training; the referee class is the V3 detector's own, its recall never measured; id switches
+are counted on sparse samples (a lower bound). The court line target sits below the truth fit's own
+6.0 px residual, so the current truth H cannot confirm a 3 px line error. The scorecard reproduces
+row A8 (B5, reports/sportvu_phx.*) within 0.03 ft on position error.
 
 Physical ceiling: one 720p camera gives about 1.5 ft median at best. Hawk-Eye (14 cameras, about
 1 inch) is matched in output format and in honesty about error, not in accuracy, and the product
@@ -52,10 +55,9 @@ says so.
   every target metric the stage touches and worsens none.
 
 **The single scorecard.** `python -m sportvu.bench <build_dir>` (ROADMAP R0.3) writes
-`reports/scorecard/<game>__<build>.{json,txt}`; the V3 baseline will be
-`reports/scorecard/gsw_phx_2016__v3.{json,txt}`. Once it exists, every number in this section and
-in row A8 comes from a file under `reports/scorecard/`; until then the V3 column comes from
-reports/sportvu_phx.*.
+`reports/scorecard/<game>__<build>.{json,txt}`; the V3 baseline is
+`reports/scorecard/gsw_phx_2016__v3.{json,txt}`. Every number in this section comes from a file
+under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewrites it.
 
 ## Tier A — system & validation claims (evidence exists today)
 

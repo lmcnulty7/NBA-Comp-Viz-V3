@@ -56,7 +56,7 @@ only, since no check separates right from wrong frames well enough to accept the
 | Per-frame truth homography (ICP + RANSAC vs SportVU) | `sportvu/truth.py` | `data/sportvu/truth/`, `reports/sportvu_truth_<game>.json` |
 | Pipeline vs SportVU on the held-out game | `sportvu/eval.py` | `reports/sportvu_phx.{json,txt}` |
 | Label-free checks vs SportVU truth | `sportvu/validate_checks.py` | `reports/sportvu_check_validation.{json,txt}` |
-| One scorecard with every Stage 1 metric (ROADMAP R0.3, not built yet) | `sportvu/bench.py` | one json + txt per build |
+| One scorecard with every Stage 1 metric (ROADMAP R0.3) | `sportvu/bench.py` | `reports/scorecard/<game>__<build>.{json,txt}` (V3: `gsw_phx_2016__v3`) |
 
 **Plan and record.** `ROADMAP.md` is the plan (Stage 1 targets and phases 0..5), `ROADMAP_LOG.md`
 the pass-by-pass record, `FIX_LOOP.md` the loop rules; work happens on branch `track-fix`.

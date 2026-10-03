@@ -87,7 +87,7 @@ download scripts, manifests and licence notes are committed.
       scoreboard lives. No code change.
 - [x] R0.2 Write the targets table above into CLAIMS.md as "Stage 1 definition of done", with the
       measurement protocol (held-out game, held-out arena, held-out era) and the single scorecard path.
-- [ ] R0.3 Scorecard CLI `python -m sportvu.bench <build_dir>`: one json + txt with every target metric
+- [x] R0.3 Scorecard CLI `python -m sportvu.bench <build_dir>`: one json + txt with every target metric
       on gsw_phx_2016. Reuse eval.py; add coverage (accepted wide seconds / live wide seconds from the
       local time map), referee split (run the detector's referee class on the sidecar boxes), identity
       switches per possession (track to player mapping from the truth pairs), court line px error.
