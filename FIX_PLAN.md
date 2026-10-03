@@ -60,12 +60,12 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
       share within 6 px; template-side support as a secondary number). Reports in `reports/qc/`.
       Original spec (3 px hit rate on template samples) saturated at 0.02 for every clip because
       production H's are 10..40 px off the paint nearly everywhere.
-- [ ] A2. Geometry checks per frame: (a) far sideline or either baseline intersects the scorebug
-      rectangle (from `clock_reader.LAYOUTS[layout]`, union of clock and period boxes padded 20 px);
-      (b) floor-colour mask (HSV maple band from `models/thresholds.json` `hsv_band`): sample points
-      2 ft inside each projected sideline and baseline must be >= 70% floor, points 6 ft outside the
-      near sideline must be <= 40% floor; (c) more than one on-court box whose foot maps outside
-      court +-3 ft. Report rejection counts per rule per clip and per game.
+- [x] A2. Geometry checks per frame (`qc/track_qc.py: geometry`): (a) far sideline or either baseline
+      crosses the scorebug rectangle (layout clock+period boxes, 20 px pad); (c) more than one box whose
+      foot maps outside court +-3 ft. Rule (b) floor mask is MEASURED but does not fail a frame: three
+      variants (maple HSV band, ridge-texture, adaptive per-frame colour) could not separate right from
+      wrong H's on the 55 renders (FIX_LOG pass 3); B6 decides if any floor rule survives. Counts per rule
+      per clip in `reports/qc/<clip>.json`, per game in `reports/qc/_by_game.json`.
 - [ ] A3. Physics checks: extend `build_trajectories.physics_report` logic into qc: speed > 30 ft/s
       between consecutive processed frames, more than 5 boxes per team per frame, position jump
       > 15 ft for a kept id across a `camera_cut` event. Report per clip and per game.
