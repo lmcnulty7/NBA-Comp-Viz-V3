@@ -85,7 +85,7 @@ download scripts, manifests and licence notes are committed.
 ## Phase 0: freeze and reframe
 - [x] R0.1 Tag V3 (`v3-frozen` on main) and add a README section: what V3 is, what is reused, where the
       scoreboard lives. No code change.
-- [ ] R0.2 Write the targets table above into CLAIMS.md as "Stage 1 definition of done", with the
+- [x] R0.2 Write the targets table above into CLAIMS.md as "Stage 1 definition of done", with the
       measurement protocol (held-out game, held-out arena, held-out era) and the single scorecard path.
 - [ ] R0.3 Scorecard CLI `python -m sportvu.bench <build_dir>`: one json + txt with every target metric
       on gsw_phx_2016. Reuse eval.py; add coverage (accepted wide seconds / live wide seconds from the

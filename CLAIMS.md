@@ -5,6 +5,58 @@ remaining task must serve a claim below; anything that serves no claim is out
 of scope. A claim ships only with its evidence artifact and its caveats — the
 project's differentiator is epistemic hygiene, and this file is its contract.
 
+## Stage 1 definition of done (ROADMAP.md, written 2026-10-03)
+
+Targets, not claims. A row becomes a claim only when the scorecard measures it on held-out
+footage; until then the V3 column is the baseline to beat. Status: PROPOSED; Lucien confirms or
+changes the targets at the [HUMAN] gate after ROADMAP R0.3.
+
+| Metric | How measured | Target | V3 baseline, gsw_phx_2016 |
+|---|---|---|---|
+| Court line error | px between the projected template and the painted lines, from the SportVU truth H and the line field | <= 3 px (about 0.5 ft) on 95% of accepted wide frames | not measured yet (R0.3) |
+| Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft | p50 7.31 ft, p90 15.38 ft |
+| Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft | near third -1.04 ft, far third +1.69 ft |
+| Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play | not measured yet (R0.3) |
+| Missed players | SportVU players in frame with no box within 2.5 ft | <= 5% | 25.1% |
+| Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.3%, referees included (V3 has no referee class in its sidecar) |
+| Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% |
+| Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | not measured yet (R0.3) |
+| Generalisation | the same metrics on an arena never trained on and an era never trained on | within 1.5x of the held-out game | not measured (held-out arena not chosen) |
+
+V3 column: reports/sportvu_phx.{json,txt} (row A8, PROPOSED). Caveat: testable frames only (1,447
+of 9,500 rebuilt window frames, 15%, where a truth H could be fitted), so the numbers are
+optimistic; the truth H passes through the pipeline's own boxes; a local windowed rebuild, not the
+production artifacts. R0.3 re-measures every row through the scorecard and replaces this column
+with its own artifact.
+
+Physical ceiling: one 720p camera gives about 1.5 ft median at best. Hawk-Eye (14 cameras, about
+1 inch) is matched in output format and in honesty about error, not in accuracy, and the product
+says so.
+
+**Measurement protocol.**
+- Held-out game: gsw_phx_2016 (2015-12-16, PHX at GSW, Oracle Arena; SportVU log
+  12.16.2015.PHX.at.GSW).
+- Held-out arena: one of CLE, OKC or NYK, using its home games inside the public SportVU window
+  (2015-10-27 .. 2016-01-23). The whole arena is held out: no game played there enters training.
+  Lucien names it at the [HUMAN] gate after ROADMAP R1.1.
+- Held-out era: gsw_nyk_curry54 (2013-02-27, GSW at NYK, the 2013 production game), untouched by
+  training. Open question for the same gate: the public SportVU logs cover 2015-16 only, so this
+  game has no tracking truth, and how its rows are measured is not yet decided.
+- Nothing is trained, tuned, calibrated or thresholded on a held-out set. Thresholds come from the
+  train arenas. Held-out sets are reported once per adoption decision. The splits live in
+  `data/sportvu/splits.json` (ROADMAP R1.4) and every training script refuses held-out ids.
+- Every row reports its n, and beside it the untestable share (frames where no truth H fits) and the
+  coverage. A rejected frame carries no positions, never wrong ones, and rejections are counted
+  per rule per game.
+- Adoption: a stage ships only if the scorecard on the held-out game AND the held-out arena improves
+  every target metric the stage touches and worsens none.
+
+**The single scorecard.** `python -m sportvu.bench <build_dir>` (ROADMAP R0.3) writes
+`reports/scorecard/<game>__<build>.{json,txt}`; the V3 baseline will be
+`reports/scorecard/gsw_phx_2016__v3.{json,txt}`. Once it exists, every number in this section and
+in row A8 comes from a file under `reports/scorecard/`; until then the V3 column comes from
+reports/sportvu_phx.*.
+
 ## Tier A — system & validation claims (evidence exists today)
 
 | # | Claim | Evidence | Status |
