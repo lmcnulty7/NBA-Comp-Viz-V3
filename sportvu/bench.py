@@ -13,7 +13,9 @@ belong to the V3 boxes. Each metric reports its n; the untestable share sits bes
                      template drawn through H_truth, symmetric median px (the larger of the two
                      directional medians); share of frames <= LINE_TARGET_PX. Beside it, the floor:
                      the truth fit's own residual in px (SportVU inliers projected back through
-                     H_truth vs the V3 feet they were fitted on). The line field (painted-line
+                     H_truth vs the V3 feet they were fitted on). The row is pass/fail only while
+                     that floor is at most LINE_TARGET_PX / 2 (the truth must be twice as fine as
+                     the goal; Lucien, 2026-10-03); otherwise it is reported. The line field (painted-line
                      ridges) was tried as that floor and does not resolve a few px on 720p
                      footage (2026-10-03, window s00_w00: ridge support within 2 px 0.047 for
                      H_truth vs 0.045 for H_truth shifted 6 px), so it is not used.
@@ -37,7 +39,8 @@ belong to the V3 boxes. Each metric reports its n; the untestable share sits bes
                      inside one possession, from pairs within ID_MATCH_FT only (a looser pair can be
                      a swap between two close players, which would read as a false switch).
                      Jersey-read rate when a build writes <window>_jersey.json.
-  generalisation     the same scorecard on the held-out arena and era; needs those builds (R1).
+  generalisation     the same scorecard on the held-out arena; needs that build (R1). The held-out
+                     era (2013) has no SportVU and is reported with label-free indicators only.
 
   python -m sportvu.bench data/sportvu/build --name v3 [--game gsw_phx_2016]
       -> reports/scorecard/<game>__<name>.{json,txt}
@@ -65,7 +68,7 @@ MIN_POSS_FRAMES = 5           # a possession counts for identity with this many 
 EMBED_BATCH = 32
 
 TARGETS = {
-    "court_line_error": "<= 3 px (about 0.5 ft) on 95% of accepted wide frames",
+    "court_line_error": "reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median",
     "position_error": "p50 <= 2.0 ft, p90 <= 5.0 ft",
     "near_field_bias": "median toward the camera within +-0.5 ft in the near and the far third",
     "coverage": ">= 50% of live wide seconds",
@@ -73,7 +76,7 @@ TARGETS = {
     "ghost_boxes": "<= 5%, referees excluded by class",
     "team_labels": ">= 95%",
     "identity": "reported; no target yet (720p ceiling)",
-    "generalisation": "held-out arena and era within 1.5x of the held-out game",
+    "generalisation": "held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free",
 }
 
 
@@ -81,6 +84,17 @@ def accepted(row: dict) -> bool:
     """A build emits positions on a frame when it says so; V3 has no acceptance flag and emits
     whenever it has an H (TRACK, LINE_TRACK and HELD)."""
     return bool(row.get("accepted", row.get("H") is not None))
+
+
+def line_verdict(share_le_target, truth_p50_px):
+    """(pass, withheld): the court line row is judged only when the truth fit residual is at most
+    half the target, since a coarser truth cannot confirm a LINE_TARGET_PX error."""
+    if share_le_target is None:
+        return None, "no frame with a defined line error"
+    if truth_p50_px is None or truth_p50_px > LINE_TARGET_PX / 2:
+        return None, "truth fit residual p50 %s px > %.1f px: the truth cannot resolve a %.0f px line error, so the row is reported" % (
+            truth_p50_px, LINE_TARGET_PX / 2, LINE_TARGET_PX)
+    return share_le_target >= 0.95, None
 
 
 def sportvu_name(game: str) -> str:
@@ -364,11 +378,13 @@ def aggregate(wins: list, wide_thr: float) -> dict:
     le = np.array([x["line_px"] for w in wins for x in w["line"] if x["line_px"] is not None])
     tr = np.array([x for w in wins for x in w["truth_resid_px"]])
     n_line = sum(len(w["line"]) for w in wins)
+    share = float((le <= LINE_TARGET_PX).mean()) if len(le) else None
+    lpass, withheld = line_verdict(share, _pct(tr, 50))
     M["court_line_error"] = {"frames": n_line, "frames_defined": int(len(le)),
                              "share_le_target": round(float((le <= LINE_TARGET_PX).mean()), 3) if len(le) else None,
                              "p50_px": _pct(le, 50), "p90_px": _pct(le, 90), "p95_px": _pct(le, 95),
                              "truth_fit_residual_p50_px": _pct(tr, 50), "truth_fit_residual_p90_px": _pct(tr, 90),
-                             "pass": (float((le <= LINE_TARGET_PX).mean()) >= 0.95) if len(le) else None}
+                             "pass": lpass, "pass_withheld": withheld}
     # position error and near-field bias
     mt = [m for w in wins for m in w["matched"]]
     e = np.array([m["err"] for m in mt])
@@ -426,7 +442,7 @@ def aggregate(wins: list, wide_thr: float) -> dict:
                      "jersey_not_measurable": None if jr else "the build wrote no <window>_jersey.json: jersey OCR (CLAIMS C2) did not run on these windows (no saved crops)",
                      "pass": None}
     M["generalisation"] = {"value": None, "pass": None,
-                           "not_measurable": "needs builds on the held-out arena (named after ROADMAP R1.1) and the held-out era; the era game (2013) has no public SportVU log"}
+                           "not_measurable": "needs a build on the held-out arena (named after ROADMAP R1.1); the held-out era game (2013) has no public SportVU log and is reported with label-free indicators only"}
     causes = {}
     for w in wins:
         for k, n_ in w["truth_status"].items():
@@ -450,7 +466,7 @@ def render_txt(rep: dict) -> str:
          "%s of frames <= 3 px; p50 %s px, p95 %s px (floor: truth fit residual p50 %s px, p90 %s px)" % (
              v(cl["share_le_target"] and 100 * cl["share_le_target"], "%.1f%%"),
              v(cl["p50_px"]), v(cl["p95_px"]), v(cl["truth_fit_residual_p50_px"]), v(cl["truth_fit_residual_p90_px"])),
-         "%d frames" % cl["frames_defined"], verdict(cl)),
+         "%d frames" % cl["frames_defined"], "reported" if cl.get("pass_withheld") else verdict(cl)),
         ("position error", TARGETS["position_error"], "p50 %s ft, p90 %s ft" % (v(pe["p50_ft"]), v(pe["p90_ft"])),
          "%d players" % pe["matched_players"], verdict(pe)),
         ("near-field bias", TARGETS["near_field_bias"], "near %s ft, far %s ft (toward camera)" % (v(nf["near_third_ft"], "%+.2f"), v(nf["far_third_ft"], "%+.2f")),
@@ -478,7 +494,8 @@ def render_txt(rep: dict) -> str:
     for name, tgt, val, n, ver in rows:
         L.append("%-*s  %-8s  %s" % (w0, name, ver, val))
         L.append("%-*s            target %s; n = %s" % (w0, "", tgt, n))
-    L += ["", "not measurable:", "  jersey-read rate: " + (idn["jersey_not_measurable"] or "-"),
+    L += ["", "reported, not judged:", "  court line error: " + (cl.get("pass_withheld") or "-"),
+          "", "not measurable:", "  jersey-read rate: " + (idn["jersey_not_measurable"] or "-"),
           "  generalisation: " + M["generalisation"]["not_measurable"], "", "caveats:"]
     L += ["  - " + c for c in rep["caveats"]]
     return "\n".join(L)

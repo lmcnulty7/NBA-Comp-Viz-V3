@@ -31,7 +31,7 @@ extrapolated from keypoints that only ever lie in the far half.
 
 | Metric | How measured | Target |
 |---|---|---|
-| Court line error | px between projected template and painted lines, from the SportVU truth H (B4) and the line field | <= 3 px (about 0.5 ft) on 95% of accepted wide frames |
+| Court line error | px between the projected template and the template under the SportVU truth H (B4) | reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median |
 | Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft |
 | Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft |
 | Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play |
@@ -39,7 +39,7 @@ extrapolated from keypoints that only ever lie in the far half.
 | Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% |
 | Team labels | vs SportVU team of the matched player | >= 95% |
 | Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) |
-| Generalisation | the same metrics on an arena never trained on, and an era never trained on | within 1.5x of the held-out game |
+| Generalisation | the same metrics on an arena never trained on; the held-out era (no SportVU) gets label-free indicators only | held-out arena within 1.5x of the held-out game; era reported |
 
 Physical ceiling for one 720p camera: about 1.5 ft median. Hawk-Eye (14 cameras, about 1 inch)
 is matched in output format and honesty, not in accuracy; say so on the product.
@@ -92,7 +92,9 @@ download scripts, manifests and licence notes are committed.
       local time map), referee split (run the detector's referee class on the sidecar boxes), identity
       switches per possession (track to player mapping from the truth pairs), court line px error.
       Measurable: the V3 scorecard printed, every metric filled or marked not measurable with a reason.
-- [ ] [HUMAN] Lucien confirms the targets or changes them. Nothing below starts before this.
+- [x] [HUMAN] Lucien confirms the targets or changes them. Nothing below starts before this.
+      (2026-10-03: confirmed with two changes: court line error reported until the truth can resolve
+      it, the held-out era reported label-free only. Court stage judged on position error and bias.)
 
 ## Phase 1: SportVU-synced data
 - [ ] R1.1 Availability manifest: for the 20 Oracle games plus CLE, OKC and NYK home games in the SportVU
@@ -134,10 +136,12 @@ download scripts, manifests and licence notes are committed.
       rejections per rule per game. Measurable: p90 falls and coverage is reported, on held-out footage.
 - [ ] R2.6 Temporal smoothing of camera parameters across frames (pan, tilt, zoom are smooth; cuts
       reset). Scorecard.
-- [ ] R2.7 Generalisation report: the court metrics on the held-out arena and the held-out era, printed
-      per arena. If either is worse than 1.5x the held-out game, add that arena's games to R1 (not the
+- [ ] R2.7 Generalisation report: the court metrics on the held-out arena (SportVU scorecard) and the
+      held-out era (label-free indicators only, no SportVU for 2013), printed per arena. If the
+      held-out arena is worse than 1.5x the held-out game, add that arena's games to R1 (not the
       held-out one) and repeat R2.3.
-- [ ] [HUMAN] Lucien accepts the court stage when the court rows of the targets table are met.
+- [ ] [HUMAN] Lucien accepts the court stage when the court rows of the targets table are met
+      (position error and near-field bias; court line error is reported until the truth resolves it).
 
 ## Phase 3: detection and tracking
 - [ ] R3.1 Baseline scorecard: missed, ghosts split by referee class, id switches per possession, on the
@@ -173,5 +177,5 @@ download scripts, manifests and licence notes are committed.
 - [ ] [HUMAN] Lucien approves publishing; Stage 2 planning starts in a new document.
 
 ## Waiting on Lucien
-- [ ] [HUMAN] Confirm the Stage 1 targets (gate after R0.3).
+- [x] [HUMAN] Confirm the Stage 1 targets (gate after R0.3). Done 2026-10-03, see Phase 0.
 - [ ] [HUMAN] Pick games and held-out arena/era (gate after R1.1).

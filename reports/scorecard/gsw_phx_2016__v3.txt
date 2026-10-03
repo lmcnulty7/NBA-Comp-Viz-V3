@@ -2,8 +2,8 @@ STAGE 1 SCORECARD  gsw_phx_2016 (held-out game) vs SportVU 12.16.2015.PHX.at.GSW
 truth: 1447 testable of 9500 window frames; untestable 84.8% (no truth H fits). Every row below is on testable frames only.
 untestable by cause (sportvu/truth.py): untestable_inliers 3961, untestable_boxes 1835, untestable_match 1155, unmapped 1064, untestable_noH 33, no_moment 5
 
-court line error  not met   0.0% of frames <= 3 px; p50 26.74 px, p95 57.04 px (floor: truth fit residual p50 6.04 px, p90 10.75 px)
-                            target <= 3 px (about 0.5 ft) on 95% of accepted wide frames; n = 1447 frames
+court line error  reported  0.0% of frames <= 3 px; p50 26.74 px, p95 57.04 px (floor: truth fit residual p50 6.04 px, p90 10.75 px)
+                            target reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median; n = 1447 frames
 position error    not met   p50 7.33 ft, p90 15.35 ft
                             target p50 <= 2.0 ft, p90 <= 5.0 ft; n = 11292 players
 near-field bias   not met   near -1.02 ft, far +1.67 ft (toward camera)
@@ -19,11 +19,14 @@ team labels       not met   81.8%
 identity          reported  21.68 id switches / possession (22.14 before linking); jersey: not measurable
                             target reported; no target yet (720p ceiling); n = 56 possessions
 generalisation    -         not measurable
-                            target held-out arena and era within 1.5x of the held-out game; n = -
+                            target held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free; n = -
+
+reported, not judged:
+  court line error: truth fit residual p50 6.04 px > 1.5 px: the truth cannot resolve a 3 px line error, so the row is reported
 
 not measurable:
   jersey-read rate: the build wrote no <window>_jersey.json: jersey OCR (CLAIMS C2) did not run on these windows (no saved crops)
-  generalisation: needs builds on the held-out arena (named after ROADMAP R1.1) and the held-out era; the era game (2013) has no public SportVU log
+  generalisation: needs a build on the held-out arena (named after ROADMAP R1.1); the held-out era game (2013) has no public SportVU log and is reported with label-free indicators only
 
 caveats:
   - testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled

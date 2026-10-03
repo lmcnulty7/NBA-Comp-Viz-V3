@@ -8,12 +8,14 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 ## Stage 1 definition of done (ROADMAP.md, written 2026-10-03)
 
 Targets, not claims. A row becomes a claim only when the scorecard measures it on held-out
-footage; until then the V3 column is the baseline to beat. Status: PROPOSED; Lucien confirms or
-changes the targets at the [HUMAN] gate after ROADMAP R0.3.
+footage; until then the V3 column is the baseline to beat. Status: CONFIRMED by Lucien on
+2026-10-03 (ROADMAP gate after R0.3) with two changes: the court line row is reported, not
+pass/fail, until the truth can resolve it, and the held-out era is reported with label-free
+indicators only. The court stage is judged on position error and near-field bias.
 
 | Metric | How measured | Target | V3 baseline, gsw_phx_2016 |
 |---|---|---|---|
-| Court line error | px between the projected template and the painted lines, from the SportVU truth H and the line field | <= 3 px (about 0.5 ft) on 95% of accepted wide frames | 0.0% of frames <= 3 px; p50 26.7 px, p95 57.0 px (n=1,447); floor: truth fit residual p50 6.0 px |
+| Court line error | px between the projected template and the template under the SportVU truth H | reported. Goal <= 3 px on 95% of accepted wide frames; pass/fail only once the truth fit residual is <= 1.5 px median (the truth must be twice as fine as the goal) | 0.0% of frames <= 3 px; p50 26.7 px, p95 57.0 px (n=1,447); floor: truth fit residual p50 6.0 px |
 | Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft | p50 7.33 ft, p90 15.35 ft (n=11,292 players) |
 | Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft | near third -1.02 ft, far third +1.67 ft |
 | Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play | 98.6% (838 of 850 live wide s; V3 has no acceptance rule) |
@@ -21,15 +23,16 @@ changes the targets at the [HUMAN] gate after ROADMAP R0.3.
 | Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.1% non-referee (15.3% with referees; 280 of 12,637 boxes overlap a referee detection) |
 | Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% (n=10,829) |
 | Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | 21.7 id switches per possession (56 shot-clock possessions); jersey-read rate not measurable (no OCR on the windows) |
-| Generalisation | the same metrics on an arena never trained on and an era never trained on | within 1.5x of the held-out game | not measured (held-out arena not chosen) |
+| Generalisation | the same metrics on an arena never trained on; the held-out era (2013, no SportVU) gets label-free indicators only | held-out arena within 1.5x of the held-out game; era reported, not pass/fail | not measured (held-out arena not chosen) |
 
 V3 column: reports/scorecard/gsw_phx_2016__v3.{json,txt} (ROADMAP R0.3, 2026-10-03). Caveat:
 testable frames only (1,447 of 9,500 rebuilt window frames, 15%, where a truth H could be fitted),
 so the numbers are optimistic; the truth H passes through the pipeline's own boxes; a local
 windowed rebuild, not the production artifacts; wide shots judged by gate v2, which saw phx frames
 in training; the referee class is the V3 detector's own, its recall never measured; id switches
-are counted on sparse samples (a lower bound). The court line target sits below the truth fit's own
-6.0 px residual, so the current truth H cannot confirm a 3 px line error. The scorecard reproduces
+are counted on sparse samples (a lower bound). The court line goal sits below the truth fit's own
+6.0 px residual, so the current truth H cannot confirm a 3 px line error; the row stays reported
+until a truth at least twice as fine exists (ROADMAP R1.3 or later). The scorecard reproduces
 row A8 (B5, reports/sportvu_phx.*) within 0.03 ft on position error.
 
 Physical ceiling: one 720p camera gives about 1.5 ft median at best. Hawk-Eye (14 cameras, about
@@ -43,8 +46,9 @@ says so.
   (2015-10-27 .. 2016-01-23). The whole arena is held out: no game played there enters training.
   Lucien names it at the [HUMAN] gate after ROADMAP R1.1.
 - Held-out era: gsw_nyk_curry54 (2013-02-27, GSW at NYK, the 2013 production game), untouched by
-  training. Open question for the same gate: the public SportVU logs cover 2015-16 only, so this
-  game has no tracking truth, and how its rows are measured is not yet decided.
+  training. The public SportVU logs cover 2015-16 only, so this game has no tracking truth: it is
+  reported with the label-free indicators (qc/, track_qc.py) and is not a pass/fail row (decided
+  2026-10-03).
 - Nothing is trained, tuned, calibrated or thresholded on a held-out set. Thresholds come from the
   train arenas. Held-out sets are reported once per adoption decision. The splits live in
   `data/sportvu/splits.json` (ROADMAP R1.4) and every training script refuses held-out ids.

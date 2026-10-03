@@ -6,7 +6,7 @@
  "mirror": "identity",
  "date": "2026-10-03",
  "targets": {
-  "court_line_error": "<= 3 px (about 0.5 ft) on 95% of accepted wide frames",
+  "court_line_error": "reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median",
   "position_error": "p50 <= 2.0 ft, p90 <= 5.0 ft",
   "near_field_bias": "median toward the camera within +-0.5 ft in the near and the far third",
   "coverage": ">= 50% of live wide seconds",
@@ -14,7 +14,7 @@
   "ghost_boxes": "<= 5%, referees excluded by class",
   "team_labels": ">= 95%",
   "identity": "reported; no target yet (720p ceiling)",
-  "generalisation": "held-out arena and era within 1.5x of the held-out game"
+  "generalisation": "held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free"
  },
  "truth_frames": 9500,
  "testable": 1447,
@@ -37,7 +37,8 @@
    "p95_px": 57.04,
    "truth_fit_residual_p50_px": 6.04,
    "truth_fit_residual_p90_px": 10.75,
-   "pass": false
+   "pass": null,
+   "pass_withheld": "truth fit residual p50 6.04 px > 1.5 px: the truth cannot resolve a 3 px line error, so the row is reported"
   },
   "position_error": {
    "matched_players": 11292,
@@ -120,7 +121,7 @@
   "generalisation": {
    "value": null,
    "pass": null,
-   "not_measurable": "needs builds on the held-out arena (named after ROADMAP R1.1) and the held-out era; the era game (2013) has no public SportVU log"
+   "not_measurable": "needs a build on the held-out arena (named after ROADMAP R1.1); the held-out era game (2013) has no public SportVU log and is reported with label-free indicators only"
   }
  },
  "per_window": {
