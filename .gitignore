@@ -91,3 +91,7 @@ data/label_audit/crops/
 data/triage/src/
 data/triage/renders/
 data/triage/side/
+
+# third-party tracking data (FIX_PLAN): scripts committed, data never
+data/sportvu/
+data/external/
