@@ -178,6 +178,8 @@ class CourtTracker:
         self._P = None                                  # court ft → px
         self._held = 0
         self._prev_small = None
+        self.last_res_px = None    # QC sidecar: snap residual (px) of the returned H, None if unmeasured
+        self.last_n_match = 0      # QC sidecar: line matches supporting the returned H
 
     # ── pieces ────────────────────────────────────────────────────────────────
     def _detect_fit(self, frame, w, h):
@@ -240,6 +242,7 @@ class CourtTracker:
         small = cv2.resize(gray, (PHASE_W, int(h * scale))).astype(np.float32)
         ridge = ridge_field(gray)
 
+        self.last_res_px, self.last_n_match = None, 0
         H, kp_px = self._detect_fit(frame, w, h)
         if H is not None and h_sane(H, w, h):
             try:
@@ -249,8 +252,9 @@ class CourtTracker:
             if P is not None:
                 res_ft = None
                 if ridge is not None:
-                    P, mpx, _, res_ft, _ = self._snap(P, ridge, w, h, SNAP_RADII, MAX_CORNER_SNAP)
+                    P, mpx, res_px, res_ft, n_m = self._snap(P, ridge, w, h, SNAP_RADII, MAX_CORNER_SNAP)
                     self.last_pts = mpx if len(mpx) >= 3 else kp_px
+                    self.last_res_px, self.last_n_match = res_px, n_m
                 else:
                     self.last_pts = kp_px
                 self._P, self._held, self.state = P, 0, "TRACK"
@@ -271,6 +275,7 @@ class CourtTracker:
                 if relocked:
                     self._P, self._held, self.state = P, 0, "LINE_TRACK"
                     self.last_pts = mpx
+                    self.last_res_px, self.last_n_match = res_px, n_m
                     self._prev_small = small
                     return CourtHomography.from_matrix(
                         np.linalg.inv(P), quality=res_ft, n_inliers=n_m)

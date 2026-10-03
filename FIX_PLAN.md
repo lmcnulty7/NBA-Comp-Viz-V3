@@ -47,7 +47,7 @@ and `harvest_driver` call into it; `triage_sheet.py` stays the renderer and huma
 Reason: the checks must run on harvest sections on Colab, not only on triage renders.
 Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/qc_sheets/<clip>.jpg`.
 
-- [ ] A0. Make the build keep what QC needs: `build_trajectories.py` writes a sidecar
+- [x] A0. Make the build keep what QC needs: `build_trajectories.py` writes a sidecar
       `<clip>_frames.json` with, per processed frame: tracker state (TRACK / LINE_TRACK / HELD / LOST),
       H (3x3), snap residual px, match count, hull points, boxes with track id and raw foot pixel.
       Measurable: sidecar present for all 55 triage renders after a re-render; byte-identical
