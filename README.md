@@ -16,6 +16,55 @@ perception stack (see `DEVLOG.md` for the narrative history):
 
 ---
 
+## Status (2026-10-03): V3 frozen, Stage 1 rebuilt on a SportVU scoreboard
+
+**What V3 is.** Git tag `v3-frozen` (commit `869f7a0` on `main`): the CLIP gate, the
+grid-keypoint court solver with line snap and tracking (`court/`), the YOLO detector with
+BoT-SORT (`detect/`), the unsupervised team classifier, possession segmentation, the play-by-play
+alignment and the stats layer, run on the 14-game production harvest (`data/harvest/games.json`).
+Everything below this section describes V3 as tagged.
+
+**How good it is against real tracking.** On the held-out game gsw_phx_2016 against SportVU
+(`reports/sportvu_phx.txt`, CLAIMS.md row A8, PROPOSED): position error p50 7.3 ft, p90 15.4 ft,
+compressed toward mid-court; 25.1% of in-frame players missed; 15.3% of boxes are ghosts (referees
+included); team labels 81.8%. Caveat: measured only on the 15% of rebuilt window frames where a
+truth homography could be fitted (`reports/sportvu_truth_gsw_phx_2016.json`), so it is optimistic,
+and on a local windowed rebuild, not the production artifacts. V3's own stage numbers (CLAIMS.md
+A2: gate 98.7%, detection P.89/R.87, homography 0.30 ft median) were measured on the 7 prototype
+clips the models were tuned on, and the 87.8% play-by-play canary (CLAIMS.md A1) checks which team
+scored, not where players stand. Those numbers keep their meaning until a re-measure replaces them
+with its own artifact.
+
+**Frozen.** The court solver, the detector training set, the team classifier and the stats on top.
+Nothing new is built on them; the stats layer is not extended until ROADMAP Phase 5.
+
+**Reused by the rebuild.** The measurement discipline (CLAIMS.md, audits, corrections); the SportVU
+scoreboard (`sportvu/`); the label-free QC (`qc/`, `track_qc.py`), as a worst-first ranking tool
+only, since no check separates right from wrong frames well enough to accept them
+(`reports/sportvu_check_validation.txt`); the play-by-play alignment; the possession and stats layer
+(reattached in ROADMAP Phase 5); the harvest tooling and the game registry.
+
+**Where the scoreboard lives** (all run as `python -m sportvu.<module>`; SportVU data stays under
+`data/sportvu/`, gitignored):
+
+| Step | Module | Output |
+|---|---|---|
+| Fetch and parse a SportVU game log | `sportvu/fetch.py` | `data/sportvu/<game>_moments.json`, `reports/sportvu_fetch_<game>.json` |
+| Production frame to game clock, mirror and offset | `sportvu/sync.py` | `data/sportvu/sync/`, `reports/sportvu_sync_<game>.json` |
+| Local OCR time maps (local files are not frame-aligned with production) | `sportvu/local_sync.py` | `data/sportvu/sync/<section>_local_timemap.json` |
+| Windowed local rebuild with the frame sidecar | `sportvu/rebuild.py` | `data/sportvu/build/` |
+| Per-frame truth homography (ICP + RANSAC vs SportVU) | `sportvu/truth.py` | `data/sportvu/truth/`, `reports/sportvu_truth_<game>.json` |
+| Pipeline vs SportVU on the held-out game | `sportvu/eval.py` | `reports/sportvu_phx.{json,txt}` |
+| Label-free checks vs SportVU truth | `sportvu/validate_checks.py` | `reports/sportvu_check_validation.{json,txt}` |
+| One scorecard with every Stage 1 metric (ROADMAP R0.3, not built yet) | `sportvu/bench.py` | one json + txt per build |
+
+**Plan and record.** `ROADMAP.md` is the plan (Stage 1 targets and phases 0..5), `ROADMAP_LOG.md`
+the pass-by-pass record, `FIX_LOOP.md` the loop rules; work happens on branch `track-fix`.
+`FIX_PLAN.md` and `FIX_LOG.md` hold the finished Phase A (label-free QC) and Phase B (SportVU
+scoreboard) work.
+
+---
+
 ## Operating manual — improving the court model (push-button loop)
 
 Every step is a command + your eyes; run from the project root with

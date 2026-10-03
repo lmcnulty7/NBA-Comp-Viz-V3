@@ -83,7 +83,7 @@ download scripts, manifests and licence notes are committed.
   the clock OCR resolves 1 s, so solve a residual offset against SportVU per window.
 
 ## Phase 0: freeze and reframe
-- [ ] R0.1 Tag V3 (`v3-frozen` on main) and add a README section: what V3 is, what is reused, where the
+- [x] R0.1 Tag V3 (`v3-frozen` on main) and add a README section: what V3 is, what is reused, where the
       scoreboard lives. No code change.
 - [ ] R0.2 Write the targets table above into CLAIMS.md as "Stage 1 definition of done", with the
       measurement protocol (held-out game, held-out arena, held-out era) and the single scorecard path.
