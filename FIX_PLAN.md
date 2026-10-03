@@ -111,10 +111,17 @@ Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/
       pick identity under both statistics. Offsets per section -0.60..+0.84 s. First real number: median
       nearest-neighbour distance 4.6..6.9 ft per section, and the weak y-flip signal means the pipeline's y
       coordinates are compressed toward mid-court (consistent with the near-sideline overshoot). B5 quantifies.
-- [ ] B4. Per-frame truth H: Hungarian-match pipeline feet (pixels) to SportVU players through the
-      pipeline H, then RANSAC an H_truth from pixel feet to SportVU feet at a 1.5 ft threshold; accept
-      with >= 6 inliers. Frames with fewer are "untestable" and counted. Caveat on record: H_truth
-      passes through the pipeline's own boxes, so a frame where every box is wrong has no truth.
+- [x] B4. Per-frame truth H (`sportvu/truth.py`), on a LOCAL windowed rebuild because production never
+      saved pixel feet and local sections are not frame-aligned with production (anchors re-read 4..9 s off,
+      drifting). Chain: `sportvu.local_sync` (OCR clock at 1 Hz per section, running spans) ->
+      `sportvu.rebuild` (25 windows, 1,034 s, longest spans up to 100 s per section, ffmpeg cut +
+      build_trajectories --pregate at the harvest stride, 27 min on MPS) -> `sportvu.local_sync --windows`
+      (OCR on the window files themselves: an ffmpeg -ss cut starts a keyframe early, +4.5..+7 s measured)
+      -> `sportvu.truth` (residual offset per window within +-1.5 s, then ICP-style Hungarian match at gates
+      20/12/8/5 ft with RANSAC refits, final RANSAC 1.5 ft, >= 6 inliers). phx: 9,500 window frames; 1,447 (15%)
+      with a truth H (24/25 windows, truth residual median 0.33 ft); untestable: 3,961 too few inliers,
+      1,155 too few matches, 1,835 fewer than 6 boxes, 33 no H; 1,064 outside the mapped spans.
+      Caveat on record: truth passes through the pipeline's own boxes and starts from its H.
 - [ ] B5. `sportvu/eval.py` on gsw_phx_2016: position error in ft per matched player (p50, p90, per
       court region: near third, middle, far third); frame H error = median over matched players;
       missed players = SportVU players projecting inside the frame with no box foot within 2.5 ft;
