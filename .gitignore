@@ -88,3 +88,6 @@ data/tracking/crops/
 data/shot_type_audit/frames/
 data/gate_sheet/thumbs/
 data/label_audit/crops/
+data/triage/src/
+data/triage/renders/
+data/triage/side/

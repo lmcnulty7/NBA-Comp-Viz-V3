@@ -1,0 +1,1122 @@
+[
+ {
+  "section": "gsw_bos_2016_s04",
+  "set_start_frame": 4800,
+  "core_end_frame": 4989,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4800,
+    "period": 2,
+    "clock_s": 24.8
+   },
+   {
+    "frame": 4989,
+    "period": 2,
+    "clock_s": 19.3
+   }
+  ],
+  "game": "201604010GSW",
+  "id": "gsw_bos_2016_s04_f4800"
+ },
+ {
+  "section": "gsw_mia_2017_s01",
+  "set_start_frame": 3675,
+  "core_end_frame": 3837,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3675,
+    "period": 1,
+    "clock_s": 396
+   },
+   {
+    "frame": 3837,
+    "period": 1,
+    "clock_s": 390
+   }
+  ],
+  "game": "201701100GSW",
+  "id": "gsw_mia_2017_s01_f3675"
+ },
+ {
+  "section": "gsw_phx_2016_s09",
+  "set_start_frame": 16296,
+  "core_end_frame": 17016,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16296,
+    "period": 4,
+    "clock_s": 74
+   },
+   {
+    "frame": 17016,
+    "period": 4,
+    "clock_s": 62
+   }
+  ],
+  "game": "201512160GSW",
+  "id": "gsw_phx_2016_s09_f16296"
+ },
+ {
+  "section": "gsw_splash62_s05",
+  "set_start_frame": 11232,
+  "core_end_frame": 11373,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11232,
+    "period": 3,
+    "clock_s": 621
+   },
+   {
+    "frame": 11373,
+    "period": 3,
+    "clock_s": 617
+   }
+  ],
+  "game": "201605110GSW",
+  "id": "gsw_splash62_s05_f11232"
+ },
+ {
+  "section": "gsw_sas_2016_s08",
+  "set_start_frame": 7158,
+  "core_end_frame": 7467,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 7158,
+    "period": 4,
+    "clock_s": 339
+   },
+   {
+    "frame": 7467,
+    "period": 4,
+    "clock_s": 328
+   }
+  ],
+  "game": "201601250GSW",
+  "id": "gsw_sas_2016_s08_f7158"
+ },
+ {
+  "section": "gsw_mia_2017_s01",
+  "set_start_frame": 13056,
+  "core_end_frame": 13404,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 13172,
+    "period": 1,
+    "clock_s": 220
+   },
+   {
+    "frame": 13404,
+    "period": 1,
+    "clock_s": 213
+   }
+  ],
+  "game": "201701100GSW",
+  "id": "gsw_mia_2017_s01_f13056"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g6_s08",
+  "set_start_frame": 14619,
+  "core_end_frame": 14769,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 14619,
+    "period": 4,
+    "clock_s": 285
+   },
+   {
+    "frame": 14769,
+    "period": 4,
+    "clock_s": 280
+   }
+  ],
+  "game": "201605280OKC",
+  "id": "gsw_okc_2016wcf_g6_s08_f14619"
+ },
+ {
+  "section": "gsw_splash62_s02",
+  "set_start_frame": 273,
+  "core_end_frame": 417,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 273,
+    "period": 1,
+    "clock_s": 133
+   },
+   {
+    "frame": 417,
+    "period": 1,
+    "clock_s": 128
+   }
+  ],
+  "game": "201605110GSW",
+  "id": "gsw_splash62_s02_f273"
+ },
+ {
+  "section": "gsw_cle_2017f_g5_s10",
+  "set_start_frame": 2316,
+  "core_end_frame": 2496,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 2316,
+    "period": 4,
+    "clock_s": 100
+   },
+   {
+    "frame": 2496,
+    "period": 4,
+    "clock_s": 97
+   }
+  ],
+  "game": "201706120GSW",
+  "id": "gsw_cle_2017f_g5_s10_f2316"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g6_s04",
+  "set_start_frame": 1290,
+  "core_end_frame": 1446,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1290,
+    "period": 2,
+    "clock_s": 80
+   },
+   {
+    "frame": 1368,
+    "period": 2,
+    "clock_s": 77
+   }
+  ],
+  "game": "201605280OKC",
+  "id": "gsw_okc_2016wcf_g6_s04_f1290"
+ },
+ {
+  "section": "gsw_cle_2017f_g5_s07",
+  "set_start_frame": 8166,
+  "core_end_frame": 8526,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 8166,
+    "period": 3,
+    "clock_s": 232
+   },
+   {
+    "frame": 8526,
+    "period": 3,
+    "clock_s": 226
+   }
+  ],
+  "game": "201706120GSW",
+  "id": "gsw_cle_2017f_g5_s07_f8166"
+ },
+ {
+  "section": "gsw_cle_xmas16_s08",
+  "set_start_frame": 12297,
+  "core_end_frame": 12486,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 12297,
+    "period": 4,
+    "clock_s": 186
+   },
+   {
+    "frame": 12486,
+    "period": 4,
+    "clock_s": 179
+   }
+  ],
+  "game": "201612250CLE",
+  "id": "gsw_cle_xmas16_s08_f12297"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g6_s06",
+  "set_start_frame": 828,
+  "core_end_frame": 1011,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 828,
+    "period": 3,
+    "clock_s": 312
+   },
+   {
+    "frame": 1011,
+    "period": 3,
+    "clock_s": 307
+   }
+  ],
+  "game": "201605280OKC",
+  "id": "gsw_okc_2016wcf_g6_s06_f828"
+ },
+ {
+  "section": "gsw_sac_klay37_s05",
+  "set_start_frame": 15936,
+  "core_end_frame": 16311,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15936,
+    "period": 3,
+    "clock_s": 268
+   },
+   {
+    "frame": 16123,
+    "period": 3,
+    "clock_s": 267
+   }
+  ],
+  "game": "201501230GSW",
+  "id": "gsw_sac_klay37_s05_f15936"
+ },
+ {
+  "section": "gsw_cle_2017f_g5_s08",
+  "set_start_frame": 31428,
+  "core_end_frame": 32076,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 31428,
+    "period": 4,
+    "clock_s": 506
+   },
+   {
+    "frame": 32076,
+    "period": 4,
+    "clock_s": 496
+   }
+  ],
+  "game": "201706120GSW",
+  "id": "gsw_cle_2017f_g5_s08_f31428"
+ },
+ {
+  "section": "gsw_bos_2016_s00",
+  "set_start_frame": 3120,
+  "core_end_frame": 3570,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3120,
+    "period": 1,
+    "clock_s": 693
+   },
+   {
+    "frame": 3570,
+    "period": 1,
+    "clock_s": 678
+   }
+  ],
+  "game": "201604010GSW",
+  "id": "gsw_bos_2016_s00_f3120"
+ },
+ {
+  "section": "gsw_cle_xmas16_s06",
+  "set_start_frame": 2583,
+  "core_end_frame": 2814,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2583,
+    "period": 3,
+    "clock_s": 243
+   },
+   {
+    "frame": 2814,
+    "period": 3,
+    "clock_s": 235
+   }
+  ],
+  "game": "201612250CLE",
+  "id": "gsw_cle_xmas16_s06_f2583"
+ },
+ {
+  "section": "gsw_nyk_curry54_s04",
+  "set_start_frame": 2568,
+  "core_end_frame": 2712,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 2568,
+    "period": 2,
+    "clock_s": 99
+   },
+   {
+    "frame": 2712,
+    "period": 2,
+    "clock_s": 94
+   }
+  ],
+  "game": "201302270NYK",
+  "id": "gsw_nyk_curry54_s04_f2568"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g1_s08",
+  "set_start_frame": 23079,
+  "core_end_frame": 23268,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 23079,
+    "period": 4,
+    "clock_s": 450
+   },
+   {
+    "frame": 23268,
+    "period": 4,
+    "clock_s": 447
+   }
+  ],
+  "game": "201605160GSW",
+  "id": "gsw_okc_2016wcf_g1_s08_f23079"
+ },
+ {
+  "section": "gsw_bos_2016_s04",
+  "set_start_frame": 6909,
+  "core_end_frame": 7167,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 6995,
+    "period": 2,
+    "clock_s": 7.4
+   },
+   {
+    "frame": 7167,
+    "period": 2,
+    "clock_s": 2.3
+   }
+  ],
+  "game": "201604010GSW",
+  "id": "gsw_bos_2016_s04_f6909"
+ },
+ {
+  "section": "gsw_cle_2016f_g7_s04",
+  "set_start_frame": 11160,
+  "core_end_frame": 11388,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 11160,
+    "period": 3,
+    "clock_s": 585
+   },
+   {
+    "frame": 11388,
+    "period": 3,
+    "clock_s": 577
+   }
+  ],
+  "game": "201606190GSW",
+  "id": "gsw_cle_2016f_g7_s04_f11160"
+ },
+ {
+  "section": "gsw_sas_2016_s07",
+  "set_start_frame": 3165,
+  "core_end_frame": 3399,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 3165,
+    "period": 3,
+    "clock_s": 34.6
+   },
+   {
+    "frame": 3399,
+    "period": 3,
+    "clock_s": 26.5
+   }
+  ],
+  "game": "201601250GSW",
+  "id": "gsw_sas_2016_s07_f3165"
+ },
+ {
+  "section": "gsw_hou_duel_s02",
+  "set_start_frame": 14166,
+  "core_end_frame": 14667,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 14166,
+    "period": 2,
+    "clock_s": 451
+   },
+   {
+    "frame": 14667,
+    "period": 2,
+    "clock_s": 435
+   }
+  ],
+  "game": "201505210GSW",
+  "id": "gsw_hou_duel_s02_f14166"
+ },
+ {
+  "section": "gsw_sac_klay37_s05",
+  "set_start_frame": 10047,
+  "core_end_frame": 10446,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 10047,
+    "period": 3,
+    "clock_s": 359
+   },
+   {
+    "frame": 10446,
+    "period": 3,
+    "clock_s": 348
+   }
+  ],
+  "game": "201501230GSW",
+  "id": "gsw_sac_klay37_s05_f10047"
+ },
+ {
+  "section": "gsw_nyk_curry54_s06",
+  "set_start_frame": 5313,
+  "core_end_frame": 5697,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 5313,
+    "period": 3,
+    "clock_s": 169
+   },
+   {
+    "frame": 5697,
+    "period": 3,
+    "clock_s": 156
+   }
+  ],
+  "game": "201302270NYK",
+  "id": "gsw_nyk_curry54_s06_f5313"
+ },
+ {
+  "section": "gsw_ind_klay60_s08",
+  "set_start_frame": 5634,
+  "core_end_frame": 5757,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 5634,
+    "period": 4,
+    "clock_s": 531
+   },
+   {
+    "frame": 5757,
+    "period": 4,
+    "clock_s": 527
+   }
+  ],
+  "game": "201612050GSW",
+  "id": "gsw_ind_klay60_s08_f5634"
+ },
+ {
+  "section": "gsw_cle_xmas16_s05",
+  "set_start_frame": 16416,
+  "core_end_frame": 16680,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 16416,
+    "period": 3,
+    "clock_s": 449
+   },
+   {
+    "frame": 16680,
+    "period": 3,
+    "clock_s": 440
+   }
+  ],
+  "game": "201612250CLE",
+  "id": "gsw_cle_xmas16_s05_f16416"
+ },
+ {
+  "section": "gsw_mia_2017_s07",
+  "set_start_frame": 11310,
+  "core_end_frame": 11580,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11310,
+    "period": 4,
+    "clock_s": 658
+   },
+   {
+    "frame": 11580,
+    "period": 4,
+    "clock_s": 645
+   }
+  ],
+  "game": "201701100GSW",
+  "id": "gsw_mia_2017_s07_f11310"
+ },
+ {
+  "section": "gsw_hou_duel_s04",
+  "set_start_frame": 87,
+  "core_end_frame": 498,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 87,
+    "period": 3,
+    "clock_s": 701
+   },
+   {
+    "frame": 498,
+    "period": 3,
+    "clock_s": 687
+   }
+  ],
+  "game": "201505210GSW",
+  "id": "gsw_hou_duel_s04_f87"
+ },
+ {
+  "section": "gsw_cle_2016f_g7_s05",
+  "set_start_frame": 15138,
+  "core_end_frame": 15339,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 15138,
+    "period": 3,
+    "clock_s": 248
+   },
+   {
+    "frame": 15339,
+    "period": 3,
+    "clock_s": 240
+   }
+  ],
+  "game": "201606190GSW",
+  "id": "gsw_cle_2016f_g7_s05_f15138"
+ },
+ {
+  "section": "gsw_bos_2016_s02",
+  "set_start_frame": 9543,
+  "core_end_frame": 9876,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9543,
+    "period": 2,
+    "clock_s": 658
+   },
+   {
+    "frame": 9876,
+    "period": 2,
+    "clock_s": 646
+   }
+  ],
+  "game": "201604010GSW",
+  "id": "gsw_bos_2016_s02_f9543"
+ },
+ {
+  "section": "gsw_cle_2016f_g7_s02",
+  "set_start_frame": 4626,
+  "core_end_frame": 4905,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4626,
+    "period": 2,
+    "clock_s": 616
+   },
+   {
+    "frame": 4905,
+    "period": 2,
+    "clock_s": 607
+   }
+  ],
+  "game": "201606190GSW",
+  "id": "gsw_cle_2016f_g7_s02_f4626"
+ },
+ {
+  "section": "gsw_sac_klay37_s03",
+  "set_start_frame": 993,
+  "core_end_frame": 1371,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 1182,
+    "period": 2,
+    "clock_s": 478
+   },
+   {
+    "frame": 1371,
+    "period": 2,
+    "clock_s": 468
+   }
+  ],
+  "game": "201501230GSW",
+  "id": "gsw_sac_klay37_s03_f993"
+ },
+ {
+  "section": "gsw_splash62_s06",
+  "set_start_frame": 9723,
+  "core_end_frame": 10062,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9836,
+    "period": 3,
+    "clock_s": 313
+   },
+   {
+    "frame": 10062,
+    "period": 3,
+    "clock_s": 306
+   }
+  ],
+  "game": "201605110GSW",
+  "id": "gsw_splash62_s06_f9723"
+ },
+ {
+  "section": "gsw_phx_2016_s05",
+  "set_start_frame": 9390,
+  "core_end_frame": 9558,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 9390,
+    "period": 3,
+    "clock_s": 656
+   },
+   {
+    "frame": 9558,
+    "period": 3,
+    "clock_s": 653
+   }
+  ],
+  "game": "201512160GSW",
+  "id": "gsw_phx_2016_s05_f9390"
+ },
+ {
+  "section": "gsw_sas_2016_s02",
+  "set_start_frame": 0,
+  "core_end_frame": 318,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 0,
+    "period": 1,
+    "clock_s": 54.2
+   },
+   {
+    "frame": 330,
+    "period": 1,
+    "clock_s": 45.0
+   }
+  ],
+  "game": "201601250GSW",
+  "id": "gsw_sas_2016_s02_f0"
+ },
+ {
+  "section": "gsw_ind_klay60_s05",
+  "set_start_frame": 7944,
+  "core_end_frame": 8124,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 7944,
+    "period": 3,
+    "clock_s": 626
+   },
+   {
+    "frame": 8124,
+    "period": 3,
+    "clock_s": 620
+   }
+  ],
+  "game": "201612050GSW",
+  "id": "gsw_ind_klay60_s05_f7944"
+ },
+ {
+  "section": "gsw_mia_2017_s09",
+  "set_start_frame": 11520,
+  "core_end_frame": 11742,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 11520,
+    "period": 4,
+    "clock_s": 74
+   },
+   {
+    "frame": 11742,
+    "period": 4,
+    "clock_s": 67
+   }
+  ],
+  "game": "201701100GSW",
+  "id": "gsw_mia_2017_s09_f11520"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g1_s00",
+  "set_start_frame": 13344,
+  "core_end_frame": 14169,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 13344,
+    "period": 1,
+    "clock_s": 699
+   },
+   {
+    "frame": 14169,
+    "period": 1,
+    "clock_s": 685
+   }
+  ],
+  "game": "201605160GSW",
+  "id": "gsw_okc_2016wcf_g1_s00_f13344"
+ },
+ {
+  "section": "gsw_ind_klay60_s01",
+  "set_start_frame": 813,
+  "core_end_frame": 1035,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 813,
+    "period": 1,
+    "clock_s": 429
+   },
+   {
+    "frame": 1035,
+    "period": 1,
+    "clock_s": 422
+   }
+  ],
+  "game": "201612050GSW",
+  "id": "gsw_ind_klay60_s01_f813"
+ },
+ {
+  "section": "gsw_ind_klay60_s02",
+  "set_start_frame": 8922,
+  "core_end_frame": 9162,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9042,
+    "period": 2,
+    "clock_s": 597
+   },
+   {
+    "frame": 9162,
+    "period": 2,
+    "clock_s": 593
+   }
+  ],
+  "game": "201612050GSW",
+  "id": "gsw_ind_klay60_s02_f8922"
+ },
+ {
+  "section": "gsw_phx_2016_s05",
+  "set_start_frame": 20118,
+  "core_end_frame": 20622,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 20118,
+    "period": 3,
+    "clock_s": 588
+   },
+   {
+    "frame": 20622,
+    "period": 3,
+    "clock_s": 580
+   }
+  ],
+  "game": "201512160GSW",
+  "id": "gsw_phx_2016_s05_f20118"
+ },
+ {
+  "section": "gsw_nyk_curry54_s01",
+  "set_start_frame": 6501,
+  "core_end_frame": 6798,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 6597,
+    "period": 1,
+    "clock_s": 271
+   },
+   {
+    "frame": 6777,
+    "period": 1,
+    "clock_s": 265
+   }
+  ],
+  "game": "201302270NYK",
+  "id": "gsw_nyk_curry54_s01_f6501"
+ },
+ {
+  "section": "gsw_sas_2016_s01",
+  "set_start_frame": 7350,
+  "core_end_frame": 7587,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 7350,
+    "period": 1,
+    "clock_s": 204
+   },
+   {
+    "frame": 7587,
+    "period": 1,
+    "clock_s": 199
+   }
+  ],
+  "game": "201601250GSW",
+  "id": "gsw_sas_2016_s01_f7350"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g1_s08",
+  "set_start_frame": 29817,
+  "core_end_frame": 30234,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 29817,
+    "period": 4,
+    "clock_s": 360
+   },
+   {
+    "frame": 30234,
+    "period": 4,
+    "clock_s": 353
+   }
+  ],
+  "game": "201605160GSW",
+  "id": "gsw_okc_2016wcf_g1_s08_f29817"
+ },
+ {
+  "section": "gsw_cle_2016f_g7_s06",
+  "set_start_frame": 13053,
+  "core_end_frame": 13224,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 13053,
+    "period": 3,
+    "clock_s": 20.2
+   },
+   {
+    "frame": 13135,
+    "period": 3,
+    "clock_s": 17.4
+   }
+  ],
+  "game": "201606190GSW",
+  "id": "gsw_cle_2016f_g7_s06_f13053"
+ },
+ {
+  "section": "gsw_cle_xmas16_s07",
+  "set_start_frame": 16530,
+  "core_end_frame": 16737,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 16530,
+    "period": 4,
+    "clock_s": 451
+   },
+   {
+    "frame": 16737,
+    "period": 4,
+    "clock_s": 444
+   }
+  ],
+  "game": "201612250CLE",
+  "id": "gsw_cle_xmas16_s07_f16530"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g1_s08",
+  "set_start_frame": 22335,
+  "core_end_frame": 22581,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 22335,
+    "period": 4,
+    "clock_s": 463
+   },
+   {
+    "frame": 22587,
+    "period": 4,
+    "clock_s": 458
+   }
+  ],
+  "game": "201605160GSW",
+  "id": "gsw_okc_2016wcf_g1_s08_f22335"
+ },
+ {
+  "section": "gsw_splash62_s01",
+  "set_start_frame": 3951,
+  "core_end_frame": 4095,
+  "period": 1,
+  "anchors": [
+   {
+    "frame": 3951,
+    "period": 1,
+    "clock_s": 351
+   },
+   {
+    "frame": 4095,
+    "period": 1,
+    "clock_s": 347
+   }
+  ],
+  "game": "201605110GSW",
+  "id": "gsw_splash62_s01_f3951"
+ },
+ {
+  "section": "gsw_nyk_curry54_s04",
+  "set_start_frame": 9135,
+  "core_end_frame": 9663,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 9135,
+    "period": 2,
+    "clock_s": 15
+   },
+   {
+    "frame": 9663,
+    "period": 2,
+    "clock_s": 0.8
+   }
+  ],
+  "game": "201302270NYK",
+  "id": "gsw_nyk_curry54_s04_f9135"
+ },
+ {
+  "section": "gsw_cle_2017f_g5_s10",
+  "set_start_frame": 876,
+  "core_end_frame": 1350,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 876,
+    "period": 4,
+    "clock_s": 124
+   },
+   {
+    "frame": 1350,
+    "period": 4,
+    "clock_s": 116
+   }
+  ],
+  "game": "201706120GSW",
+  "id": "gsw_cle_2017f_g5_s10_f876"
+ },
+ {
+  "section": "gsw_sac_klay37_s05",
+  "set_start_frame": 537,
+  "core_end_frame": 891,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 537,
+    "period": 3,
+    "clock_s": 599
+   },
+   {
+    "frame": 891,
+    "period": 3,
+    "clock_s": 587
+   }
+  ],
+  "game": "201501230GSW",
+  "id": "gsw_sac_klay37_s05_f537"
+ },
+ {
+  "section": "gsw_okc_2016wcf_g6_s09",
+  "set_start_frame": 60,
+  "core_end_frame": 198,
+  "period": 4,
+  "anchors": [
+   {
+    "frame": 60,
+    "period": 4,
+    "clock_s": 252
+   },
+   {
+    "frame": 198,
+    "period": 4,
+    "clock_s": 248
+   }
+  ],
+  "game": "201605280OKC",
+  "id": "gsw_okc_2016wcf_g6_s09_f60"
+ },
+ {
+  "section": "gsw_hou_duel_s05",
+  "set_start_frame": 2910,
+  "core_end_frame": 3231,
+  "period": 3,
+  "anchors": [
+   {
+    "frame": 2910,
+    "period": 3,
+    "clock_s": 219
+   },
+   {
+    "frame": 3231,
+    "period": 3,
+    "clock_s": 210
+   }
+  ],
+  "game": "201505210GSW",
+  "id": "gsw_hou_duel_s05_f2910"
+ },
+ {
+  "section": "gsw_phx_2016_s03",
+  "set_start_frame": 20472,
+  "core_end_frame": 20688,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 20472,
+    "period": 2,
+    "clock_s": 325
+   },
+   {
+    "frame": 20688,
+    "period": 2,
+    "clock_s": 321
+   }
+  ],
+  "game": "201512160GSW",
+  "id": "gsw_phx_2016_s03_f20472"
+ },
+ {
+  "section": "gsw_hou_duel_s03",
+  "set_start_frame": 4641,
+  "core_end_frame": 5208,
+  "period": 2,
+  "anchors": [
+   {
+    "frame": 4641,
+    "period": 2,
+    "clock_s": 257
+   },
+   {
+    "frame": 5208,
+    "period": 2,
+    "clock_s": 238
+   }
+  ],
+  "game": "201505210GSW",
+  "id": "gsw_hou_duel_s03_f4641"
+ }
+]

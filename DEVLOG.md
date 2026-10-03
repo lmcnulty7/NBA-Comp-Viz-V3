@@ -49,6 +49,20 @@ playback reviewer scoring per fault (court_off / boxes / id_swaps / team_flips /
 gliding + overall g/m/b). Report: fault rates, per game / arena, dominant fault.
 Nothing here changes the pipeline; it tells us which stage to fix first.
 
+Trap found on the way, worth its own line: **local section files are not
+frame-aligned with the production sections.** The harvest ran on h264 copies
+split by `ffmpeg -f segment`, which cuts at keyframes; the local
+`data/harvest/video/<tag>_sNN.mp4` are AV1 re-downloads of the same games
+(full-game frame counts match exactly) split at *their* keyframes, so a
+section's frame 0 lands at a different moment — +480 frames (16 s) for
+gsw_okc_2016wcf_g6_s08. First render pass showed 5/56 "gate-rejected" snippets
+that were simply closeups at the wrong timestamp. `triage_sheet.py` now solves a
+per-possession offset by reading the local game clock (easyocr, 1 fps, ±45 s)
+around both production anchors and requiring them to agree within 1.5 s;
+unresolved possessions are skipped and counted. Any future local re-run of a
+harvest section (label factory, swap verify, crops) needs the same offset or
+a re-split from the h264 copy.
+
 ## 2026-10-02d — Retrain beats recalibrate; gate v2 shipped for future harvesting
 
 `gate_retrain_experiment.py`, leave-one-source-out over the 21 harvest sources,
