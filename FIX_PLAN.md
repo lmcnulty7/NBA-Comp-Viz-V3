@@ -122,15 +122,12 @@ Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/
       with a truth H (24/25 windows, truth residual median 0.33 ft); untestable: 3,961 too few inliers,
       1,155 too few matches, 1,835 fewer than 6 boxes, 33 no H; 1,064 outside the mapped spans.
       Caveat on record: truth passes through the pipeline's own boxes and starts from its H.
-- [ ] B5. `sportvu/eval.py` on gsw_phx_2016: position error in ft per matched player (p50, p90, per
-      court region: near third, middle, far third); frame H error = median over matched players;
-      missed players = SportVU players projecting inside the frame with no box foot within 2.5 ft;
-      ghost boxes = boxes whose foot is > 3 ft from every SportVU player (refs are not in SportVU:
-      report ghosts split by the detector's referee class); team accuracy = pipeline A/B vs SportVU
-      team_id under the majority mapping per section; nearest-defender agreement = for each
-      offensive player, the pipeline's assigned defender vs the SportVU nearest opponent (this is a
-      proxy for CLAIMS C1, labeled as such, not the human-labeled matchup). Write `reports/sportvu_phx.*`
-      and a CLAIMS.md Tier A row "A8 (proposed)" with every caveat above.
+- [x] B5. `sportvu/eval.py` on gsw_phx_2016 (`reports/sportvu_phx.{json,txt}`; CLAIMS.md row A8 PROPOSED with
+      every caveat): 1,447 testable frames, 11,721 matched players: position error p50 7.31 ft / p90 15.38 ft,
+      frame H error p50 7.44 ft; by region far 7.92 / middle 7.44 / near 6.85 ft with bias toward the camera
+      +1.69 (far) / +0.58 / -1.04 (near) ft, i.e. compression toward mid-court; missed players 25.1% of those
+      in frame; ghost boxes 15.3% (referees count as ghosts); team accuracy 81.8% (n=11,240); nearest-defender
+      proxy 48.1% agreement (160 of 224 defenders mapped, via segment_possessions + matchup_metrics on the windows).
 - [ ] B6. Validate the Phase A checks against truth: per check, precision and recall for flagging
       frames whose SportVU H error > 3 ft, or with a missed or ghost player. Thresholds fixed BEFORE
       looking: drop a check with recall < 0.50 or precision < 0.30; keep the rest. Report in
