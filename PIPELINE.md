@@ -20,7 +20,7 @@ broadcast video
 
 | # | Stage (code) | Input → Output | Validated number | Residual limitation |
 |---|---|---|---|---|
-| 1 | Gate (`gate/`, CLIP probe) | frame → live/dead | **98.7%** acc, held-out in-domain (DEVLOG 06-23) | Domain shift measured on all 6,159 harvest frames (10-02): 0.70 drops 14% of wide frames, 0.35 admits 13% of non-wide; in-domain candidates 0.42–0.55 — production still 0.35 pending adoption |
+| 1 | Gate (`gate/`, CLIP probe) | frame → live/dead | **98.7%** acc, held-out in-domain (DEVLOG 06-23) | Domain shift measured on all 6,159 harvest frames (10-02): 0.70 drops 14% of wide frames, 0.35 admits 13% of non-wide; gate **v2** (refit on 6,159 harvest frames, thr 0.33; LOSO acc 0.970, FP-rate 0.068 @ recall 0.998) shipped 10-02 for future harvesting — published sample still v1 @ 0.35 |
 | 2 | Detection+tracking (`detect/`, YOLOv8m + BoT-SORT) | frames → boxes + fragment ids | det **P .89 / R .87** @IoU vs hand labels (06-28) | Per-frame recall ceiling ~.74 on paint scrums; ids are per-shot fragments; ultralytics native-reID crash guarded (07-07) |
 | 3 | Homography (`court/`, grid model + snap tracker) | frame → H (px→ft) | H-err **p50 1.7 px**, 279 val frames; unseen games 66–89% sane-H (07-03/04) | Far-court extrapolation tail (physics p99 ~40 ft); era/floor-design sensitivity on unseen footage |
 | 4 | Identity (`detect/footpoint.py`, `detect/reid.py`) | fragments → canonical tracks | impossible steps 15.4→**14.3%**; churn 6.57→**5.0** (label-free, 07-05b/c) | Identity = fragment, NOT player (needs jersey OCR); churn still ~5× (conservative refusals by design) |

@@ -1,0 +1,332 @@
+{
+ "harvest_n": 6159,
+ "harvest_wide": 3544,
+ "sources": 21,
+ "prototype_test_n": 158,
+ "current_head_on_harvest": {
+  "0.35": {
+   "threshold": 0.35,
+   "tp": 3539,
+   "fp": 343,
+   "fn": 5,
+   "tn": 2272,
+   "recall": 0.9986,
+   "precision": 0.9116,
+   "fp_rate": 0.1312,
+   "accuracy": 0.9435
+  },
+  "0.42": {
+   "threshold": 0.42,
+   "tp": 3537,
+   "fp": 256,
+   "fn": 7,
+   "tn": 2359,
+   "recall": 0.998,
+   "precision": 0.9325,
+   "fp_rate": 0.0979,
+   "accuracy": 0.9573
+  },
+  "0.47": {
+   "threshold": 0.47,
+   "tp": 3527,
+   "fp": 202,
+   "fn": 17,
+   "tn": 2413,
+   "recall": 0.9952,
+   "precision": 0.9458,
+   "fp_rate": 0.0772,
+   "accuracy": 0.9644
+  },
+  "0.55": {
+   "threshold": 0.55,
+   "tp": 3496,
+   "fp": 108,
+   "fn": 48,
+   "tn": 2507,
+   "recall": 0.9865,
+   "precision": 0.97,
+   "fp_rate": 0.0413,
+   "accuracy": 0.9747
+  },
+  "0.70": {
+   "threshold": 0.7,
+   "tp": 3044,
+   "fp": 37,
+   "fn": 500,
+   "tn": 2578,
+   "recall": 0.8589,
+   "precision": 0.988,
+   "fp_rate": 0.0141,
+   "accuracy": 0.9128
+  },
+  "objective_pick": {
+   "threshold": 0.42,
+   "tp": 3537,
+   "fp": 256,
+   "fn": 7,
+   "tn": 2359,
+   "recall": 0.998,
+   "precision": 0.9325,
+   "fp_rate": 0.0979,
+   "accuracy": 0.9573
+  }
+ },
+ "retrained_A_harvest_only_oof": {
+  "recall": 0.998,
+  "precision": 0.9511,
+  "fp_rate": 0.0696,
+  "accuracy": 0.9693,
+  "fn": 7,
+  "fp": 182,
+  "fold_thresholds": [
+   0.22,
+   0.32,
+   0.33,
+   0.34,
+   0.35,
+   0.36,
+   0.37
+  ],
+  "at_0.5": {
+   "threshold": 0.5,
+   "tp": 3524,
+   "fp": 117,
+   "fn": 20,
+   "tn": 2498,
+   "recall": 0.9944,
+   "precision": 0.9679,
+   "fp_rate": 0.0447,
+   "accuracy": 0.9778
+  }
+ },
+ "retrained_B_harvest_plus_prototype_oof": {
+  "recall": 0.9983,
+  "precision": 0.9521,
+  "fp_rate": 0.0681,
+  "accuracy": 0.9701,
+  "fn": 6,
+  "fp": 178,
+  "fold_thresholds": [
+   0.31,
+   0.32,
+   0.33,
+   0.34,
+   0.35
+  ],
+  "at_0.5": {
+   "threshold": 0.5,
+   "tp": 3524,
+   "fp": 111,
+   "fn": 20,
+   "tn": 2504,
+   "recall": 0.9944,
+   "precision": 0.9695,
+   "fp_rate": 0.0424,
+   "accuracy": 0.9787
+  }
+ },
+ "per_source": [
+  {
+   "source": "clip_10m00_18m00",
+   "n": 297,
+   "wide": 168,
+   "current@0.42": 0.9764,
+   "A@fold_thr": 0.9832,
+   "B@fold_thr": 0.9832
+  },
+  {
+   "source": "clip_26m00_34m00",
+   "n": 299,
+   "wide": 159,
+   "current@0.42": 0.9532,
+   "A@fold_thr": 0.9465,
+   "B@fold_thr": 0.9666
+  },
+  {
+   "source": "clip_40m00_48m00",
+   "n": 296,
+   "wide": 138,
+   "current@0.42": 0.9561,
+   "A@fold_thr": 0.9628,
+   "B@fold_thr": 0.9628
+  },
+  {
+   "source": "clip_55m00_63m00",
+   "n": 295,
+   "wide": 162,
+   "current@0.42": 0.9559,
+   "A@fold_thr": 0.9695,
+   "B@fold_thr": 0.9695
+  },
+  {
+   "source": "clip_70m00_78m00",
+   "n": 299,
+   "wide": 226,
+   "current@0.42": 0.9967,
+   "A@fold_thr": 1.0,
+   "B@fold_thr": 1.0
+  },
+  {
+   "source": "curry_classic_clip",
+   "n": 298,
+   "wide": 216,
+   "current@0.42": 0.9866,
+   "A@fold_thr": 0.9966,
+   "B@fold_thr": 0.9966
+  },
+  {
+   "source": "curry_q1_clip",
+   "n": 298,
+   "wide": 194,
+   "current@0.42": 0.9564,
+   "A@fold_thr": 0.9564,
+   "B@fold_thr": 0.9564
+  },
+  {
+   "source": "gsw_bos_2016",
+   "n": 288,
+   "wide": 154,
+   "current@0.42": 0.9618,
+   "A@fold_thr": 0.9618,
+   "B@fold_thr": 0.9618
+  },
+  {
+   "source": "gsw_cle_2016f_g7",
+   "n": 289,
+   "wide": 148,
+   "current@0.42": 0.9758,
+   "A@fold_thr": 0.9862,
+   "B@fold_thr": 0.9862
+  },
+  {
+   "source": "gsw_cle_2017f_g5",
+   "n": 293,
+   "wide": 152,
+   "current@0.42": 0.9488,
+   "A@fold_thr": 0.9659,
+   "B@fold_thr": 0.9625
+  },
+  {
+   "source": "gsw_cle_xmas16",
+   "n": 289,
+   "wide": 179,
+   "current@0.42": 0.9689,
+   "A@fold_thr": 0.9862,
+   "B@fold_thr": 0.9862
+  },
+  {
+   "source": "gsw_hou_duel",
+   "n": 289,
+   "wide": 169,
+   "current@0.42": 0.9308,
+   "A@fold_thr": 0.9516,
+   "B@fold_thr": 0.9481
+  },
+  {
+   "source": "gsw_ind_klay60",
+   "n": 298,
+   "wide": 169,
+   "current@0.42": 0.9463,
+   "A@fold_thr": 0.9664,
+   "B@fold_thr": 0.9664
+  },
+  {
+   "source": "gsw_mia_2017",
+   "n": 287,
+   "wide": 153,
+   "current@0.42": 0.9443,
+   "A@fold_thr": 0.9512,
+   "B@fold_thr": 0.9512
+  },
+  {
+   "source": "gsw_nyk_curry54",
+   "n": 299,
+   "wide": 190,
+   "current@0.42": 0.9699,
+   "A@fold_thr": 0.9833,
+   "B@fold_thr": 0.9833
+  },
+  {
+   "source": "gsw_okc_2016wcf_g1",
+   "n": 293,
+   "wide": 140,
+   "current@0.42": 0.9317,
+   "A@fold_thr": 0.9556,
+   "B@fold_thr": 0.9556
+  },
+  {
+   "source": "gsw_okc_2016wcf_g6",
+   "n": 289,
+   "wide": 155,
+   "current@0.42": 0.9516,
+   "A@fold_thr": 0.9585,
+   "B@fold_thr": 0.9585
+  },
+  {
+   "source": "gsw_phx_2016",
+   "n": 294,
+   "wide": 179,
+   "current@0.42": 0.9864,
+   "A@fold_thr": 0.983,
+   "B@fold_thr": 0.983
+  },
+  {
+   "source": "gsw_sac_klay37",
+   "n": 291,
+   "wide": 173,
+   "current@0.42": 0.9519,
+   "A@fold_thr": 0.9828,
+   "B@fold_thr": 0.9828
+  },
+  {
+   "source": "gsw_sas_2016",
+   "n": 289,
+   "wide": 174,
+   "current@0.42": 0.9308,
+   "A@fold_thr": 0.9619,
+   "B@fold_thr": 0.9619
+  },
+  {
+   "source": "gsw_splash62",
+   "n": 289,
+   "wide": 146,
+   "current@0.42": 0.9204,
+   "A@fold_thr": 0.9446,
+   "B@fold_thr": 0.9481
+  }
+ ],
+ "per_source_min_accuracy": {
+  "current@0.42": 0.9204,
+  "A": 0.9446,
+  "B": 0.9481
+ },
+ "prototype_test_check": {
+  "current_head@0.70_reference": {
+   "accuracy": 0.987,
+   "note": "reports/metrics.json; Wilson 95% of 156/158 = [0.955, 0.997]"
+  },
+  "A_harvest_only": {
+   "threshold": 0.35,
+   "tp": 99,
+   "fp": 4,
+   "fn": 0,
+   "tn": 55,
+   "recall": 1.0,
+   "precision": 0.9612,
+   "fp_rate": 0.0678,
+   "accuracy": 0.9747
+  },
+  "B_harvest_plus_prototype": {
+   "threshold": 0.33,
+   "tp": 99,
+   "fp": 4,
+   "fn": 0,
+   "tn": 55,
+   "recall": 1.0,
+   "precision": 0.9612,
+   "fp_rate": 0.0678,
+   "accuracy": 0.9747
+  }
+ },
+ "adoption_rule": "adopt a retrained head only if its leave-one-source-out harvest metrics beat the current head at its best recalibrated threshold AND the prototype test split does not fall outside the current head's interval; then re-run the PBP canary and the bias audit, since the gate changes what is harvested"
+}

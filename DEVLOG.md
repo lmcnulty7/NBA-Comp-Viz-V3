@@ -9,6 +9,39 @@ the *reasoning*, not just the *what* — future-you can read the code for the wh
 
 ---
 
+## 2026-10-02d — Retrain beats recalibrate; gate v2 shipped for future harvesting
+
+`gate_retrain_experiment.py`, leave-one-source-out over the 21 harvest sources,
+thresholds chosen on training folds under the original objective (min FN s.t.
+FP-rate ≤ 0.10); prototype test split as the regression check.
+
+| option | thr | acc | recall | FP-rate | FN | FP |
+|---|---|---|---|---|---|---|
+| v1, recalibrated to the objective | 0.42 | 0.957 | 0.998 | 0.098 | 7 | 256 |
+| v1, max accuracy | 0.55 | 0.975 | 0.987 | 0.041 | 48 | 108 |
+| A refit, harvest only (OOF) | ~0.33–0.37 | 0.969 | 0.998 | 0.070 | 7 | 182 |
+| **B refit, harvest + prototype (OOF)** | ~0.31–0.35 | **0.970** | 0.998 | **0.068** | 6 | **178** |
+
+At the no-miss operating point the refit cuts false admits 30% (256→178);
+worst source 0.920→0.948. Prototype test: A/B 0.975 vs v1 0.987, inside
+[0.955, 0.997]. The comparison is tilted against the refit (v1's 0.42 was tuned
+on the same frames; A/B are OOF). Diagnosis: both calibration AND representation
+shifted — a threshold alone cannot match the refit at high recall.
+
+**Shipped B as v2** (`gate_ship_v2.py`): trained on all 6,159 harvest frames +
+prototype train/val (never the prototype test); `models/trained_head_v2.joblib`
++ `_coefs.npz`; thresholds.json["v2"] = 0.33; in-sample harvest acc 0.971 (≈ OOF,
+no overfit), prototype test 0.975 (0 FN / 4 FP). Loader changes: the coefs file
+and the threshold key now follow the head's name (v1 path unchanged, 52 tests
+green). `config.HEAD_V2_PATH`; HEAD_PATH untouched.
+
+Decision: v2 is the gate for every future game. The published sample stays on
+v1 @ 0.35 (consistent provenance) until the 14 games are re-harvested under v2,
+then the PBP canary and the bias audit are re-run. Second option (re-harvest
+now) deferred to the next batch of games.
+
+---
+
 ## 2026-10-02c — Rest pool labeled (705 frames, 0 wide): the gate eval is now unconditional
 
 `--pool rest` over the judge's closeup/graphic/split/replay frames: 24 pages, no

@@ -95,7 +95,7 @@ class TrainedHeadGate:
         # → no attribute 'multi_class'). The head is a logistic regression, so
         # raw coefficients + a sigmoid are exactly equivalent and depend on
         # nothing but numpy. Falls back to the joblib for old checkouts.
-        coefs = Path(path).parent / "trained_head_coefs.npz"
+        coefs = Path(path).with_name(Path(path).stem + "_coefs.npz")   # trained_head.joblib -> trained_head_coefs.npz; v2 likewise
         if coefs.exists():
             import json as _json
 
@@ -104,7 +104,9 @@ class TrainedHeadGate:
             clf = _NpzLogit(z["coef"], z["intercept"], z["classes"])
             thr = threshold
             if thr is None:
-                thr = _json.loads(config.THRESHOLDS_PATH.read_text())["trained"]
+                stem = Path(path).stem   # trained_head -> "trained"; trained_head_v2 -> "v2"
+                key = "trained" if stem == "trained_head" else stem.replace("trained_head_", "")
+                thr = _json.loads(config.THRESHOLDS_PATH.read_text())[key]
             return cls(clf=clf, backbone=backbone, threshold=thr, meta={"src": "npz"})
         import joblib
 

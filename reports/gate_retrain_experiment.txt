@@ -1,0 +1,13 @@
+GATE RETRAIN vs RECALIBRATE — harvest 6159 frames / 21 sources, leave-one-source-out
+current head (prototype-trained) on harvest:
+  @0.35  acc 0.944  recall 0.999  precision 0.912  FP-rate 0.131  FN 5  FP 343
+  @0.42  acc 0.957  recall 0.998  precision 0.932  FP-rate 0.098  FN 7  FP 256
+  @0.47  acc 0.964  recall 0.995  precision 0.946  FP-rate 0.077  FN 17  FP 202
+  @0.55  acc 0.975  recall 0.987  precision 0.970  FP-rate 0.041  FN 48  FP 108
+  @0.70  acc 0.913  recall 0.859  precision 0.988  FP-rate 0.014  FN 500  FP 37
+A  retrained, harvest only (OOF, per-fold objective thresholds [0.22, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37]):
+  acc 0.969  recall 0.998  precision 0.951  FP-rate 0.070  FN 7  FP 182   | at fixed 0.5: acc 0.978
+B  retrained, harvest + prototype (OOF, per-fold objective thresholds [0.31, 0.32, 0.33, 0.34, 0.35]):
+  acc 0.970  recall 0.998  precision 0.952  FP-rate 0.068  FN 6  FP 178   | at fixed 0.5: acc 0.979
+per-source minimum accuracy: {'current@0.42': 0.9204, 'A': 0.9446, 'B': 0.9481}
+prototype test split (158): current 0.987 reports/metrics.json; Wilson 95% of 156/158 = [0.955, 0.997] | A 0.975 @0.35 | B 0.975 @0.33

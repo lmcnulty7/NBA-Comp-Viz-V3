@@ -55,6 +55,7 @@ VIZ_DIR = REPORTS_DIR / "viz"
 
 SPLIT_PATH = MODELS_DIR / "split.json"
 HEAD_PATH = MODELS_DIR / "trained_head.joblib"
+HEAD_V2_PATH = MODELS_DIR / "trained_head_v2.joblib"   # retrained on 6,159 human-verified harvest frames + prototype train/val (2026-10-02); use for all future harvesting; published numbers were produced with HEAD_PATH at 0.35
 THRESHOLDS_PATH = MODELS_DIR / "thresholds.json"
 CONFIG_RECORD_PATH = MODELS_DIR / "config_record.json"
 METRICS_JSON = REPORTS_DIR / "metrics.json"

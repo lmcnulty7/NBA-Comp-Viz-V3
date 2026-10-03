@@ -169,7 +169,11 @@ into "measured on the games the results come from."
   targeted occlusion data. Adopt only on the harvest scrum-stratum test.
 - **Court model:** yes, once item 6 exists and the weak-arena seeds are labeled. Adopt
   only on per-arena sane-H and residual.
-- **Gate:** recalibrate the threshold on item 4; retrain to 5 classes only if item 1 passes.
+- **Gate — DONE 2026-10-02:** the shot_type labels failed item 1 (no 5-class retrain), but item 4 produced
+  6,159 binary labels; leave-one-source-out showed a refit beats recalibration (acc 0.970 vs 0.957, FP-rate
+  0.068 vs 0.098 at recall 0.998, worst source 0.948 vs 0.920; prototype test 0.975 within v1's interval).
+  Shipped as `models/trained_head_v2.*` @ 0.33 for future harvesting; published numbers stay on v1 @ 0.35
+  until re-harvest + canary + bias-audit re-run (`gate_retrain_experiment.py`, `gate_ship_v2.py`).
 - **Kit classifier:** new model, small; train on item 2's crops; adopt only against k-means
   on the same held-out tracks.
 - **Matchups, possessions, clock:** no retrain; these need evaluation, not models.
