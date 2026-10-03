@@ -96,11 +96,13 @@ Artifacts: `sportvu/` package (`fetch.py`, `sync.py`, `eval.py`), `data/sportvu/
       layout as expected (events -> moments -> [q, ts, clock, shot, None, 11 entities]), 25 Hz, 81,654 deduped
       moments, every quarter 720 -> 0 s with 10 players per moment, two gaps > 2 s (Q3 626.0..622.9 and
       178.4..173.1), player x in -5..99 ft and y in -3..53 ft (99.9% inside court +-3 ft).
-- [ ] B2. `sportvu/sync.py`: section time map from the existing clock anchors
-      (`data/pbp/<section>_outcomes.json` anchors: frame, period, clock_s). Between two anchors
-      whose clock delta matches the frame delta within 1 s the clock is running: interpolate.
-      Otherwise mark the span stopped and exclude it. Output per section: list of (frame, period,
-      game_clock_s) for processed frames, plus how many seconds were excluded and why.
+- [x] B2. `sportvu/sync.py` (`python -m sportvu.sync gsw_phx_2016`): per section, consecutive OCR anchors
+      (from `data/pbp/<section>_outcomes.json`, production frame numbers) whose clock delta matches the video
+      delta within 1 s define running spans; processed frames (those with raw positions in the production
+      trajectories) inside them get an interpolated (period, clock). Everything else excluded and counted.
+      phx: 232 anchors, 34,425 processed frames, 10,337 mapped (1,056 s in 137 running spans), 3,552 s excluded
+      (88 spans: stopped clock or disagreement, 2 period changes). `data/sportvu/sync/<section>_timemap.json`,
+      `reports/sportvu_sync_gsw_phx_2016.json`.
 - [ ] B3. Direction and offset per section: for each of the four mirror candidates (identity, flip x,
       flip y, both) and each sub-second offset in 0.04 s steps over +-1.0 s, project pipeline feet
       through the pipeline H and compute the median nearest-neighbour distance to SportVU players.
