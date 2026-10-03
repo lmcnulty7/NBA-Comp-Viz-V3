@@ -77,11 +77,12 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
       every game (0.38 at IoU 0.3, 0.43 on a 25 px foot match, so it is different people, not box extents);
       7.5 vs 6.6 boxes per frame; 70% of frames above 0.30. Not a warm-up effect (first second 0.38 vs 0.40).
       Which tracker is wrong is B5's question. Cost: ~10 min for 3,721 frames on MPS.
-- [ ] A5. Worst-frame contact sheets: for each clip the 6 frames with the most failed checks,
-      overlay plus a caption listing which checks failed, one jpg per clip, one summary sheet per
-      game (`reports/qc_sheets/`). Then `track_qc.py --summary` writes `reports/qc_summary.*`
-      with per-clip and per-game scores. Measurable: a glance at the 14 game sheets replaces labeling;
-      record in FIX_LOG which sheets look wrong to you.
+- [x] A5. Worst-frame contact sheets: `track_qc.py --sheets` writes `reports/qc_sheets/<clip>.jpg` (6 worst
+      frames by failed-check count, then line distance, then disagreement; review-render tile + red boxes
+      only the second tracker has + magenta boxes only the pipeline has + caption) and `game_<id>.jpg` (6
+      worst across the game); gitignored, regenerable. `track_qc.py --summary` writes `reports/qc_summary.*`
+      (per clip and per game, worst first). Lucien: the 14 game sheets are the glance; note which look wrong
+      in FIX_LOG.
 - [ ] A6. Wire `triage_sheet.py --report` to include the QC scores next to any human labels, and
       log the QC numbers for all 55 renders as the Phase A baseline (label-free, pre-truth).
 

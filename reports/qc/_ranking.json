@@ -1,0 +1,1023 @@
+[
+ {
+  "clip": "triage_gsw_sac_klay37_s05_f10047",
+  "frames": 66,
+  "frames_with_H": 42,
+  "frames_scored": 42,
+  "rule_counts": {
+   "offcourt_feet": 13,
+   "second_tracker": 66,
+   "speed": 4,
+   "no_H": 24,
+   "team_count": 10
+  },
+  "frames_failing_any": 66,
+  "second_disagreement_median": 0.7143,
+  "dist_px_median": 93.85,
+  "dist_px_p90": 127.12,
+  "score_median": 0.0619,
+  "support_median": 0.0493,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_cle_xmas16_s08_f12297",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "team_count": 78,
+   "speed": 50,
+   "offcourt_feet": 15,
+   "second_tracker": 14
+  },
+  "frames_failing_any": 79,
+  "second_disagreement_median": 0.2222,
+  "dist_px_median": 89.77,
+  "dist_px_p90": 109.46,
+  "score_median": 0.0658,
+  "support_median": 0.064,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_cle_xmas16_s06_f2583",
+  "frames": 68,
+  "frames_with_H": 58,
+  "frames_scored": 58,
+  "rule_counts": {
+   "no_H": 10,
+   "second_tracker": 40,
+   "team_count": 41,
+   "speed": 14
+  },
+  "frames_failing_any": 55,
+  "second_disagreement_median": 0.3693,
+  "dist_px_median": 80.22,
+  "dist_px_p90": 97.03,
+  "score_median": 0.0587,
+  "support_median": 0.0524,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_cle_xmas16_s05_f16416",
+  "frames": 56,
+  "frames_with_H": 44,
+  "frames_scored": 44,
+  "rule_counts": {
+   "no_H": 12,
+   "second_tracker": 41,
+   "team_count": 25,
+   "speed": 13
+  },
+  "frames_failing_any": 54,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 78.46,
+  "dist_px_p90": 92.13,
+  "score_median": 0.0551,
+  "support_median": 0.0591,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g6_s04_f1290",
+  "frames": 77,
+  "frames_with_H": 77,
+  "frames_scored": 77,
+  "rule_counts": {
+   "team_count": 31,
+   "second_tracker": 36,
+   "speed": 24
+  },
+  "frames_failing_any": 59,
+  "second_disagreement_median": 0.3,
+  "dist_px_median": 69.72,
+  "dist_px_p90": 120.4,
+  "score_median": 0.0583,
+  "support_median": 0.0466,
+  "share_far": 0.961
+ },
+ {
+  "clip": "triage_gsw_cle_xmas16_s07_f16530",
+  "frames": 39,
+  "frames_with_H": 33,
+  "frames_scored": 33,
+  "rule_counts": {
+   "no_H": 6,
+   "second_tracker": 37
+  },
+  "frames_failing_any": 39,
+  "second_disagreement_median": 0.6667,
+  "dist_px_median": 69.42,
+  "dist_px_p90": 89.08,
+  "score_median": 0.0671,
+  "support_median": 0.0592,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g6_s08_f14619",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "second_tracker": 50,
+   "speed": 14,
+   "scorebug": 1,
+   "offcourt_feet": 1
+  },
+  "frames_failing_any": 57,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 66.85,
+  "dist_px_p90": 93.49,
+  "score_median": 0.064,
+  "support_median": 0.0592,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g6_s06_f828",
+  "frames": 79,
+  "frames_with_H": 69,
+  "frames_scored": 69,
+  "rule_counts": {
+   "no_H": 10,
+   "team_count": 15,
+   "second_tracker": 65,
+   "speed": 5
+  },
+  "frames_failing_any": 67,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 57.3,
+  "dist_px_p90": 70.85,
+  "score_median": 0.069,
+  "support_median": 0.0574,
+  "share_far": 1.0
+ },
+ {
+  "clip": "triage_gsw_hou_duel_s03_f4641",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "speed": 38,
+   "team_count": 4,
+   "second_tracker": 31,
+   "scorebug": 1,
+   "offcourt_feet": 1
+  },
+  "frames_failing_any": 51,
+  "second_disagreement_median": 0.2857,
+  "dist_px_median": 56.35,
+  "dist_px_p90": 90.73,
+  "score_median": 0.0756,
+  "support_median": 0.0635,
+  "share_far": 0.9114
+ },
+ {
+  "clip": "triage_gsw_hou_duel_s05_f2910",
+  "frames": 56,
+  "frames_with_H": 55,
+  "frames_scored": 55,
+  "rule_counts": {
+   "no_H": 1,
+   "second_tracker": 54,
+   "team_count": 7,
+   "speed": 1
+  },
+  "frames_failing_any": 56,
+  "second_disagreement_median": 0.5556,
+  "dist_px_median": 52.94,
+  "dist_px_p90": 60.45,
+  "score_median": 0.081,
+  "support_median": 0.0517,
+  "share_far": 0.9091
+ },
+ {
+  "clip": "triage_gsw_bos_2016_s04_f6909",
+  "frames": 58,
+  "frames_with_H": 53,
+  "frames_scored": 53,
+  "rule_counts": {
+   "no_H": 5,
+   "second_tracker": 55,
+   "team_count": 10
+  },
+  "frames_failing_any": 55,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 52.4,
+  "dist_px_p90": 57.11,
+  "score_median": 0.0795,
+  "support_median": 0.0363,
+  "share_far": 0.9811
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g6_s09_f60",
+  "frames": 52,
+  "frames_with_H": 51,
+  "frames_scored": 51,
+  "rule_counts": {
+   "no_H": 1,
+   "second_tracker": 44,
+   "speed": 9
+  },
+  "frames_failing_any": 46,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 51.98,
+  "dist_px_p90": 63.03,
+  "score_median": 0.0753,
+  "support_median": 0.0532,
+  "share_far": 0.9412
+ },
+ {
+  "clip": "triage_gsw_ind_klay60_s01_f813",
+  "frames": 58,
+  "frames_with_H": 57,
+  "frames_scored": 57,
+  "rule_counts": {
+   "no_H": 1,
+   "second_tracker": 51,
+   "offcourt_feet": 3,
+   "speed": 17,
+   "team_count": 12
+  },
+  "frames_failing_any": 55,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 51.57,
+  "dist_px_p90": 69.72,
+  "score_median": 0.076,
+  "support_median": 0.076,
+  "share_far": 0.9649
+ },
+ {
+  "clip": "triage_gsw_phx_2016_s05_f9390",
+  "frames": 57,
+  "frames_with_H": 57,
+  "frames_scored": 57,
+  "rule_counts": {
+   "second_tracker": 27,
+   "speed": 22,
+   "team_count": 11
+  },
+  "frames_failing_any": 46,
+  "second_disagreement_median": 0.2857,
+  "dist_px_median": 50.62,
+  "dist_px_p90": 87.2,
+  "score_median": 0.0838,
+  "support_median": 0.0957,
+  "share_far": 0.7895
+ },
+ {
+  "clip": "triage_gsw_ind_klay60_s05_f7944",
+  "frames": 78,
+  "frames_with_H": 78,
+  "frames_scored": 78,
+  "rule_counts": {
+   "second_tracker": 63,
+   "speed": 3,
+   "team_count": 17
+  },
+  "frames_failing_any": 64,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 47.91,
+  "dist_px_p90": 56.47,
+  "score_median": 0.0851,
+  "support_median": 0.1007,
+  "share_far": 0.9615
+ },
+ {
+  "clip": "triage_gsw_sas_2016_s07_f3165",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "second_tracker": 60,
+   "speed": 8,
+   "team_count": 18,
+   "offcourt_feet": 6
+  },
+  "frames_failing_any": 69,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 47.75,
+  "dist_px_p90": 66.85,
+  "score_median": 0.0769,
+  "support_median": 0.0617,
+  "share_far": 0.7595
+ },
+ {
+  "clip": "triage_gsw_ind_klay60_s02_f8922",
+  "frames": 49,
+  "frames_with_H": 49,
+  "frames_scored": 49,
+  "rule_counts": {
+   "team_count": 27,
+   "second_tracker": 42,
+   "speed": 2,
+   "offcourt_feet": 1
+  },
+  "frames_failing_any": 45,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 47.52,
+  "dist_px_p90": 56.75,
+  "score_median": 0.0856,
+  "support_median": 0.0865,
+  "share_far": 0.7959
+ },
+ {
+  "clip": "triage_gsw_cle_2016f_g7_s06_f13053",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "second_tracker": 61,
+   "speed": 12,
+   "team_count": 15
+  },
+  "frames_failing_any": 66,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 46.8,
+  "dist_px_p90": 64.59,
+  "score_median": 0.0901,
+  "support_median": 0.0807,
+  "share_far": 0.8228
+ },
+ {
+  "clip": "triage_gsw_mia_2017_s01_f13056",
+  "frames": 65,
+  "frames_with_H": 63,
+  "frames_scored": 63,
+  "rule_counts": {
+   "no_H": 2,
+   "second_tracker": 48,
+   "team_count": 7,
+   "speed": 10
+  },
+  "frames_failing_any": 52,
+  "second_disagreement_median": 0.4286,
+  "dist_px_median": 46.8,
+  "dist_px_p90": 57.31,
+  "score_median": 0.0896,
+  "support_median": 0.0839,
+  "share_far": 0.746
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g1_s08_f23079",
+  "frames": 58,
+  "frames_with_H": 58,
+  "frames_scored": 58,
+  "rule_counts": {
+   "second_tracker": 53,
+   "team_count": 49,
+   "speed": 17,
+   "offcourt_feet": 3,
+   "scorebug": 1
+  },
+  "frames_failing_any": 58,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 46.41,
+  "dist_px_p90": 57.11,
+  "score_median": 0.1008,
+  "support_median": 0.1073,
+  "share_far": 0.6552
+ },
+ {
+  "clip": "triage_gsw_mia_2017_s07_f11310",
+  "frames": 65,
+  "frames_with_H": 65,
+  "frames_scored": 65,
+  "rule_counts": {
+   "second_tracker": 48,
+   "speed": 21,
+   "offcourt_feet": 2,
+   "team_count": 7
+  },
+  "frames_failing_any": 56,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 45.84,
+  "dist_px_p90": 63.41,
+  "score_median": 0.0976,
+  "support_median": 0.0879,
+  "share_far": 0.7385
+ },
+ {
+  "clip": "triage_gsw_mia_2017_s09_f11520",
+  "frames": 61,
+  "frames_with_H": 55,
+  "frames_scored": 55,
+  "rule_counts": {
+   "no_H": 6,
+   "second_tracker": 47,
+   "team_count": 3,
+   "speed": 1
+  },
+  "frames_failing_any": 50,
+  "second_disagreement_median": 0.4286,
+  "dist_px_median": 45.84,
+  "dist_px_p90": 58.21,
+  "score_median": 0.0899,
+  "support_median": 0.087,
+  "share_far": 0.8727
+ },
+ {
+  "clip": "triage_gsw_sas_2016_s02_f0",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "team_count": 52,
+   "second_tracker": 58,
+   "scorebug": 1,
+   "offcourt_feet": 1,
+   "speed": 3
+  },
+  "frames_failing_any": 75,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 45.84,
+  "dist_px_p90": 61.61,
+  "score_median": 0.0891,
+  "support_median": 0.0618,
+  "share_far": 0.8101
+ },
+ {
+  "clip": "triage_gsw_phx_2016_s03_f20472",
+  "frames": 52,
+  "frames_with_H": 52,
+  "frames_scored": 52,
+  "rule_counts": {
+   "second_tracker": 39,
+   "speed": 6,
+   "team_count": 8,
+   "offcourt_feet": 1
+  },
+  "frames_failing_any": 41,
+  "second_disagreement_median": 0.4018,
+  "dist_px_median": 45.37,
+  "dist_px_p90": 62.94,
+  "score_median": 0.1068,
+  "support_median": 0.0954,
+  "share_far": 0.5577
+ },
+ {
+  "clip": "triage_gsw_sas_2016_s08_f7158",
+  "frames": 74,
+  "frames_with_H": 44,
+  "frames_scored": 44,
+  "rule_counts": {
+   "second_tracker": 43,
+   "team_count": 17,
+   "no_H": 30,
+   "speed": 3
+  },
+  "frames_failing_any": 60,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 44.89,
+  "dist_px_p90": 57.24,
+  "score_median": 0.0746,
+  "support_median": 0.0662,
+  "share_far": 0.9318
+ },
+ {
+  "clip": "triage_gsw_sac_klay37_s03_f993",
+  "frames": 50,
+  "frames_with_H": 50,
+  "frames_scored": 50,
+  "rule_counts": {
+   "second_tracker": 32,
+   "offcourt_feet": 3,
+   "speed": 6,
+   "team_count": 17
+  },
+  "frames_failing_any": 40,
+  "second_disagreement_median": 0.3875,
+  "dist_px_median": 43.88,
+  "dist_px_p90": 59.12,
+  "score_median": 0.0742,
+  "support_median": 0.0744,
+  "share_far": 0.66
+ },
+ {
+  "clip": "triage_gsw_mia_2017_s01_f3675",
+  "frames": 77,
+  "frames_with_H": 77,
+  "frames_scored": 77,
+  "rule_counts": {
+   "second_tracker": 52,
+   "team_count": 9,
+   "speed": 11
+  },
+  "frames_failing_any": 54,
+  "second_disagreement_median": 0.4286,
+  "dist_px_median": 42.98,
+  "dist_px_p90": 52.71,
+  "score_median": 0.0899,
+  "support_median": 0.1184,
+  "share_far": 0.7662
+ },
+ {
+  "clip": "triage_gsw_sas_2016_s01_f7350",
+  "frames": 64,
+  "frames_with_H": 64,
+  "frames_scored": 64,
+  "rule_counts": {
+   "team_count": 43,
+   "second_tracker": 57,
+   "speed": 2
+  },
+  "frames_failing_any": 60,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 42.7,
+  "dist_px_p90": 52.53,
+  "score_median": 0.0938,
+  "support_median": 0.0955,
+  "share_far": 0.6562
+ },
+ {
+  "clip": "triage_gsw_cle_2016f_g7_s04_f11160",
+  "frames": 71,
+  "frames_with_H": 71,
+  "frames_scored": 71,
+  "rule_counts": {
+   "second_tracker": 57,
+   "speed": 2,
+   "team_count": 11
+  },
+  "frames_failing_any": 62,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 42.03,
+  "dist_px_p90": 64.94,
+  "score_median": 0.1148,
+  "support_median": 0.0962,
+  "share_far": 0.5211
+ },
+ {
+  "clip": "triage_gsw_cle_2016f_g7_s02_f4626",
+  "frames": 65,
+  "frames_with_H": 63,
+  "frames_scored": 63,
+  "rule_counts": {
+   "no_H": 2,
+   "second_tracker": 50,
+   "speed": 2,
+   "team_count": 20
+  },
+  "frames_failing_any": 59,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 41.07,
+  "dist_px_p90": 55.39,
+  "score_median": 0.0954,
+  "support_median": 0.0799,
+  "share_far": 0.5873
+ },
+ {
+  "clip": "triage_gsw_cle_2017f_g5_s10_f2316",
+  "frames": 44,
+  "frames_with_H": 42,
+  "frames_scored": 42,
+  "rule_counts": {
+   "no_H": 2,
+   "second_tracker": 35,
+   "speed": 14,
+   "offcourt_feet": 2
+  },
+  "frames_failing_any": 39,
+  "second_disagreement_median": 0.6667,
+  "dist_px_median": 41.07,
+  "dist_px_p90": 53.45,
+  "score_median": 0.0947,
+  "support_median": 0.0628,
+  "share_far": 0.5238
+ },
+ {
+  "clip": "triage_gsw_hou_duel_s04_f87",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "speed": 39,
+   "second_tracker": 62,
+   "offcourt_feet": 1,
+   "scorebug": 1
+  },
+  "frames_failing_any": 72,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 41.07,
+  "dist_px_p90": 67.26,
+  "score_median": 0.096,
+  "support_median": 0.1013,
+  "share_far": 0.519
+ },
+ {
+  "clip": "triage_gsw_splash62_s06_f9723",
+  "frames": 37,
+  "frames_with_H": 37,
+  "frames_scored": 37,
+  "rule_counts": {
+   "second_tracker": 30,
+   "speed": 8,
+   "team_count": 1
+  },
+  "frames_failing_any": 31,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 41.07,
+  "dist_px_p90": 45.08,
+  "score_median": 0.1034,
+  "support_median": 0.0863,
+  "share_far": 0.6216
+ },
+ {
+  "clip": "triage_gsw_phx_2016_s09_f16296",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "second_tracker": 62,
+   "speed": 1,
+   "team_count": 10
+  },
+  "frames_failing_any": 65,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 40.94,
+  "dist_px_p90": 52.61,
+  "score_median": 0.1026,
+  "support_median": 0.1138,
+  "share_far": 0.519
+ },
+ {
+  "clip": "triage_gsw_cle_2017f_g5_s08_f31428",
+  "frames": 79,
+  "frames_with_H": 76,
+  "frames_scored": 76,
+  "rule_counts": {
+   "no_H": 3,
+   "second_tracker": 55,
+   "speed": 16,
+   "team_count": 1
+  },
+  "frames_failing_any": 59,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 40.66,
+  "dist_px_p90": 61.81,
+  "score_median": 0.1103,
+  "support_median": 0.0849,
+  "share_far": 0.5395
+ },
+ {
+  "clip": "triage_gsw_ind_klay60_s08_f5634",
+  "frames": 71,
+  "frames_with_H": 71,
+  "frames_scored": 71,
+  "rule_counts": {
+   "second_tracker": 38,
+   "team_count": 10,
+   "speed": 2,
+   "scorebug": 1
+  },
+  "frames_failing_any": 46,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 39.32,
+  "dist_px_p90": 61.12,
+  "score_median": 0.0971,
+  "support_median": 0.1011,
+  "share_far": 0.493
+ },
+ {
+  "clip": "triage_gsw_cle_2017f_g5_s10_f876",
+  "frames": 77,
+  "frames_with_H": 77,
+  "frames_scored": 77,
+  "rule_counts": {
+   "second_tracker": 67,
+   "speed": 25,
+   "team_count": 50,
+   "offcourt_feet": 8
+  },
+  "frames_failing_any": 74,
+  "second_disagreement_median": 0.6667,
+  "dist_px_median": 39.16,
+  "dist_px_p90": 61.22,
+  "score_median": 0.0938,
+  "support_median": 0.0734,
+  "share_far": 0.4286
+ },
+ {
+  "clip": "triage_gsw_phx_2016_s05_f20118",
+  "frames": 66,
+  "frames_with_H": 66,
+  "frames_scored": 66,
+  "rule_counts": {
+   "second_tracker": 32,
+   "team_count": 8,
+   "speed": 2
+  },
+  "frames_failing_any": 38,
+  "second_disagreement_median": 0.3,
+  "dist_px_median": 38.88,
+  "dist_px_p90": 50.43,
+  "score_median": 0.124,
+  "support_median": 0.1195,
+  "share_far": 0.4242
+ },
+ {
+  "clip": "triage_gsw_nyk_curry54_s04_f2568",
+  "frames": 76,
+  "frames_with_H": 76,
+  "frames_scored": 76,
+  "rule_counts": {
+   "second_tracker": 62,
+   "speed": 7,
+   "team_count": 1
+  },
+  "frames_failing_any": 63,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 38.62,
+  "dist_px_p90": 98.13,
+  "score_median": 0.1028,
+  "support_median": 0.137,
+  "share_far": 0.4868
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g1_s08_f29817",
+  "frames": 78,
+  "frames_with_H": 78,
+  "frames_scored": 78,
+  "rule_counts": {
+   "offcourt_feet": 14,
+   "second_tracker": 50,
+   "speed": 7,
+   "team_count": 2
+  },
+  "frames_failing_any": 59,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 38.61,
+  "dist_px_p90": 46.56,
+  "score_median": 0.0928,
+  "support_median": 0.0795,
+  "share_far": 0.4615
+ },
+ {
+  "clip": "triage_gsw_splash62_s05_f11232",
+  "frames": 70,
+  "frames_with_H": 70,
+  "frames_scored": 70,
+  "rule_counts": {
+   "speed": 15,
+   "second_tracker": 39,
+   "team_count": 14
+  },
+  "frames_failing_any": 51,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 37.33,
+  "dist_px_p90": 60.91,
+  "score_median": 0.096,
+  "support_median": 0.0761,
+  "share_far": 0.3571
+ },
+ {
+  "clip": "triage_gsw_hou_duel_s02_f14166",
+  "frames": 67,
+  "frames_with_H": 64,
+  "frames_scored": 64,
+  "rule_counts": {
+   "no_H": 3,
+   "second_tracker": 62,
+   "team_count": 26,
+   "speed": 17
+  },
+  "frames_failing_any": 67,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 37.18,
+  "dist_px_p90": 46.51,
+  "score_median": 0.1089,
+  "support_median": 0.0917,
+  "share_far": 0.4062
+ },
+ {
+  "clip": "triage_gsw_cle_2016f_g7_s05_f15138",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "second_tracker": 62,
+   "speed": 11,
+   "team_count": 3
+  },
+  "frames_failing_any": 63,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 36.04,
+  "dist_px_p90": 47.75,
+  "score_median": 0.1126,
+  "support_median": 0.0747,
+  "share_far": 0.3544
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g1_s00_f13344",
+  "frames": 60,
+  "frames_with_H": 60,
+  "frames_scored": 60,
+  "rule_counts": {
+   "team_count": 45,
+   "second_tracker": 47,
+   "speed": 6,
+   "offcourt_feet": 2
+  },
+  "frames_failing_any": 57,
+  "second_disagreement_median": 0.4143,
+  "dist_px_median": 35.28,
+  "dist_px_p90": 45.88,
+  "score_median": 0.1073,
+  "support_median": 0.1057,
+  "share_far": 0.3167
+ },
+ {
+  "clip": "triage_gsw_splash62_s01_f3951",
+  "frames": 74,
+  "frames_with_H": 74,
+  "frames_scored": 74,
+  "rule_counts": {
+   "team_count": 17,
+   "speed": 29,
+   "second_tracker": 49,
+   "offcourt_feet": 8,
+   "scorebug": 12
+  },
+  "frames_failing_any": 65,
+  "second_disagreement_median": 0.3959,
+  "dist_px_median": 35.27,
+  "dist_px_p90": 51.96,
+  "score_median": 0.1153,
+  "support_median": 0.1052,
+  "share_far": 0.3378
+ },
+ {
+  "clip": "triage_gsw_sac_klay37_s05_f537",
+  "frames": 77,
+  "frames_with_H": 77,
+  "frames_scored": 77,
+  "rule_counts": {
+   "second_tracker": 50,
+   "team_count": 11,
+   "speed": 11
+  },
+  "frames_failing_any": 61,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 35.19,
+  "dist_px_p90": 51.98,
+  "score_median": 0.1239,
+  "support_median": 0.1192,
+  "share_far": 0.3117
+ },
+ {
+  "clip": "triage_gsw_nyk_curry54_s06_f5313",
+  "frames": 77,
+  "frames_with_H": 76,
+  "frames_scored": 76,
+  "rule_counts": {
+   "no_H": 1,
+   "second_tracker": 19,
+   "team_count": 11
+  },
+  "frames_failing_any": 26,
+  "second_disagreement_median": 0.2727,
+  "dist_px_median": 34.38,
+  "dist_px_p90": 64.67,
+  "score_median": 0.105,
+  "support_median": 0.1201,
+  "share_far": 0.1974
+ },
+ {
+  "clip": "triage_gsw_bos_2016_s02_f9543",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "team_count": 7,
+   "second_tracker": 35,
+   "speed": 2
+  },
+  "frames_failing_any": 38,
+  "second_disagreement_median": 0.2727,
+  "dist_px_median": 34.25,
+  "dist_px_p90": 47.32,
+  "score_median": 0.1085,
+  "support_median": 0.0603,
+  "share_far": 0.3165
+ },
+ {
+  "clip": "triage_gsw_bos_2016_s00_f3120",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "speed": 27,
+   "second_tracker": 55,
+   "offcourt_feet": 10
+  },
+  "frames_failing_any": 62,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 33.82,
+  "dist_px_p90": 59.42,
+  "score_median": 0.1081,
+  "support_median": 0.0602,
+  "share_far": 0.2532
+ },
+ {
+  "clip": "triage_gsw_bos_2016_s04_f4800",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "team_count": 44,
+   "second_tracker": 69
+  },
+  "frames_failing_any": 78,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 32.47,
+  "dist_px_p90": 37.44,
+  "score_median": 0.1257,
+  "support_median": 0.1004,
+  "share_far": 0.0633
+ },
+ {
+  "clip": "triage_gsw_cle_2017f_g5_s07_f8166",
+  "frames": 79,
+  "frames_with_H": 79,
+  "frames_scored": 79,
+  "rule_counts": {
+   "second_tracker": 58,
+   "speed": 2
+  },
+  "frames_failing_any": 59,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 32.47,
+  "dist_px_p90": 45.16,
+  "score_median": 0.1206,
+  "support_median": 0.1046,
+  "share_far": 0.2025
+ },
+ {
+  "clip": "triage_gsw_sac_klay37_s05_f15936",
+  "frames": 56,
+  "frames_with_H": 56,
+  "frames_scored": 56,
+  "rule_counts": {
+   "second_tracker": 24,
+   "speed": 6,
+   "team_count": 4
+  },
+  "frames_failing_any": 28,
+  "second_disagreement_median": 0.2475,
+  "dist_px_median": 32.47,
+  "dist_px_p90": 41.96,
+  "score_median": 0.1361,
+  "support_median": 0.1131,
+  "share_far": 0.1429
+ },
+ {
+  "clip": "triage_gsw_splash62_s02_f273",
+  "frames": 74,
+  "frames_with_H": 74,
+  "frames_scored": 74,
+  "rule_counts": {
+   "second_tracker": 42,
+   "team_count": 10,
+   "speed": 7
+  },
+  "frames_failing_any": 49,
+  "second_disagreement_median": 0.3541,
+  "dist_px_median": 32.25,
+  "dist_px_p90": 40.62,
+  "score_median": 0.1091,
+  "support_median": 0.0963,
+  "share_far": 0.1081
+ },
+ {
+  "clip": "triage_gsw_nyk_curry54_s04_f9135",
+  "frames": 46,
+  "frames_with_H": 46,
+  "frames_scored": 46,
+  "rule_counts": {
+   "second_tracker": 38,
+   "speed": 3
+  },
+  "frames_failing_any": 38,
+  "second_disagreement_median": 0.7639,
+  "dist_px_median": 27.69,
+  "dist_px_p90": 42.02,
+  "score_median": 0.1378,
+  "support_median": 0.1716,
+  "share_far": 0.1304
+ },
+ {
+  "clip": "triage_gsw_okc_2016wcf_g1_s08_f22335",
+  "frames": 70,
+  "frames_with_H": 70,
+  "frames_scored": 70,
+  "rule_counts": {
+   "team_count": 54,
+   "second_tracker": 48,
+   "speed": 6
+  },
+  "frames_failing_any": 69,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 26.85,
+  "dist_px_p90": 33.52,
+  "score_median": 0.1409,
+  "support_median": 0.1396,
+  "share_far": 0.0286
+ }
+]

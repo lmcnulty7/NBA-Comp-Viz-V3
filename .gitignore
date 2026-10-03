@@ -95,3 +95,6 @@ data/triage/side/
 # third-party tracking data (FIX_PLAN): scripts committed, data never
 data/sportvu/
 data/external/
+
+# QC contact sheets (28 MB of jpg, regenerable: track_qc.py --sheets)
+reports/qc_sheets/

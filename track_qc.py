@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse, json
 from pathlib import Path
 import config
-from qc.track_qc import score_build, summarize, physics, BUG_PAD, SECOND_MAX
+from qc.track_qc import score_build, summarize, physics, BUG_PAD, SECOND_MAX, frame_badness, tile, sheet
 from qc.second_tracker import run_second, disagreement
 from clock_reader import LAYOUTS, layout_for_clip
 import re
@@ -64,12 +64,109 @@ def run_one(sidecar_path: Path, video_path: Path, checks: tuple) -> dict:
     return {"clip": clip, **summ}
 
 
+def worst_tiles(clip: str, n: int):
+    """The n worst frames of one clip as tiles, read from the review render (frame k of the render =
+    k-th processed frame). Returns [(badness, tile_image, clip, frame)]."""
+    import cv2
+    rep = json.loads((QC_DIR / (clip + ".json")).read_text())
+    side = config.PROJECT_ROOT / "data" / "triage" / "side"
+    sc = json.loads((side / (clip + "_frames.json")).read_text())
+    order = [r["frame"] for r in sc["frames"]]
+    pos = {f: k for k, f in enumerate(order)}
+    sec_p = side / (clip + "_second.json")
+    sec = {r["frame"]: [b["bbox"] for b in r["boxes"]] for r in json.loads(sec_p.read_text())["frames"]} if sec_p.exists() else {}
+    srow = {r["frame"]: r for r in sc["frames"]}
+    rows = sorted(rep["frames"], key=frame_badness, reverse=True)[:n]
+    render = config.PROJECT_ROOT / "data" / "triage" / "renders" / (clip.replace("triage_", "") + ".mp4")
+    cap = cv2.VideoCapture(str(render)); frames = {}
+    want = {pos[r["frame"]] for r in rows if r["frame"] in pos}
+    k = 0
+    while want:
+        ret, fr = cap.read()
+        if not ret:
+            break
+        if k in want:
+            frames[k] = fr; want.discard(k)
+        k += 1
+    cap.release()
+    out = []
+    for r in rows:
+        k = pos.get(r["frame"])
+        if k is None or k not in frames:
+            continue
+        out.append((frame_badness(r), tile(frames[k], r, sec.get(r["frame"]), srow.get(r["frame"])), clip, r["frame"]))
+    return out
+
+
+def make_sheets(n_per_clip: int = 6):
+    """One sheet per clip (its 6 worst frames) and one per game (the 6 worst across its clips)."""
+    import cv2
+    from fetch_pbp import game_for_clip
+    out_dir = config.REPORTS_DIR / "qc_sheets"; out_dir.mkdir(parents=True, exist_ok=True)
+    by_game = {}
+    for p in sorted(QC_DIR.glob("triage_*.json")):
+        clip = p.stem
+        tiles = worst_tiles(clip, n_per_clip)
+        if not tiles:
+            continue
+        cv2.imwrite(str(out_dir / (clip + ".jpg")), sheet([t[1] for t in tiles]), [cv2.IMWRITE_JPEG_QUALITY, 80])
+        section = re.sub(r"_f\d+$", "", re.sub(r"^triage_", "", clip))
+        by_game.setdefault(game_for_clip(section), []).extend(tiles)
+        print("  sheet", clip, flush=True)
+    for g, tiles in by_game.items():
+        tiles.sort(key=lambda t: t[0], reverse=True)
+        cv2.imwrite(str(out_dir / ("game_%s.jpg" % g)), sheet([t[1] for t in tiles[:n_per_clip]]), [cv2.IMWRITE_JPEG_QUALITY, 80])
+    print("sheets: %d clips, %d games -> %s" % (len(list(out_dir.glob("triage_*.jpg"))), len(by_game), out_dir))
+
+
+def write_summary():
+    """reports/qc_summary.{json,txt}: per clip and per game, every A1..A4 number, worst first."""
+    from fetch_pbp import game_for_clip
+    clips = []
+    for p in sorted(QC_DIR.glob("triage_*.json")):
+        rep = json.loads(p.read_text()); s = rep["summary"]
+        section = re.sub(r"_f\d+$", "", re.sub(r"^triage_", "", p.stem))
+        clips.append({"clip": p.stem, "game": game_for_clip(section), **s})
+    games = {}
+    for c in clips:
+        g = games.setdefault(c["game"], {"clips": 0, "frames": 0, "frames_failing_any": 0, "rule_counts": {}, "dist_px": [], "second": []})
+        g["clips"] += 1; g["frames"] += c["frames"]; g["frames_failing_any"] += c["frames_failing_any"]
+        for k, v in c["rule_counts"].items():
+            g["rule_counts"][k] = g["rule_counts"].get(k, 0) + v
+        if c.get("dist_px_median") is not None: g["dist_px"].append(c["dist_px_median"])
+        if c.get("second_disagreement_median") is not None: g["second"].append(c["second_disagreement_median"])
+    import numpy as np
+    for g in games.values():
+        g["fail_rate"] = round(g["frames_failing_any"] / max(g["frames"], 1), 3)
+        g["dist_px_median"] = round(float(np.median(g["dist_px"])), 1) if g["dist_px"] else None
+        g["second_disagreement_median"] = round(float(np.median(g["second"])), 3) if g["second"] else None
+        del g["dist_px"], g["second"]
+    clips.sort(key=lambda c: -c["frames_failing_any"] / max(c["frames"], 1))
+    out = {"method": "label-free indicators (FIX_PLAN Phase A) on the 55 triage renders; thresholds uncalibrated until B6",
+           "clips": clips, "games": games}
+    (config.REPORTS_DIR / "qc_summary.json").write_text(json.dumps(out, indent=1))
+    L = ["QC SUMMARY (label-free, uncalibrated until B6): %d clips, %d frames" % (len(clips), sum(c["frames"] for c in clips)),
+         "per game, worst first (fail rate = frames failing any live rule):"]
+    for g, v in sorted(games.items(), key=lambda kv: -kv[1]["fail_rate"]):
+        L.append("  %-14s clips %2d frames %4d fail %.2f lines %5s px 2nd %5s  %s" % (g, v["clips"], v["frames"], v["fail_rate"], v["dist_px_median"], v["second_disagreement_median"], v["rule_counts"]))
+    L.append("per clip, worst first:")
+    for c in clips:
+        L.append("  %-40s fail %.2f lines %5s px 2nd %5s  %s" % (c["clip"], c["frames_failing_any"] / max(c["frames"], 1), c.get("dist_px_median"), c.get("second_disagreement_median"), c["rule_counts"]))
+    txt = "\n".join(L); (config.REPORTS_DIR / "qc_summary.txt").write_text(txt + "\n"); print(txt[:1500])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--triage", action="store_true")
+    ap.add_argument("--sheets", action="store_true", help="worst-frame contact sheets per clip and per game (reports/qc_sheets/)")
+    ap.add_argument("--summary", action="store_true", help="reports/qc_summary.{json,txt}")
     ap.add_argument("--sidecar", type=Path); ap.add_argument("--video", type=Path)
     ap.add_argument("--checks", default="overlay,geometry,physics,second", help="comma list; image checks read the video, physics only the json")
     a = ap.parse_args()
+    if a.sheets:
+        make_sheets(); return
+    if a.summary:
+        write_summary(); return
     jobs = []
     if a.triage:
         side = config.PROJECT_ROOT / "data" / "triage" / "side"

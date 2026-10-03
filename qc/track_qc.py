@@ -309,3 +309,64 @@ def summarize(rows: list[dict], far: float = 40.0) -> dict:
             "score_median": round(float(np.median(sc)), 4) if sc else None,
             "support_median": round(float(np.median(su)), 4) if su else None,
             "share_far": round(sum(d > far for d in dd) / len(dd), 4) if dd else None}
+
+
+# ── A5: worst-frame contact sheets ───────────────────────────────────────────
+TILE_W, TILE_H, CAP_H = 640, 360, 44
+
+
+def frame_badness(row: dict) -> tuple:
+    """Sort key: more failed checks first, then farther from the lines, then higher disagreement."""
+    fails = (row.get("geometry", {}).get("fails", []) + row.get("physics", {}).get("fails", [])
+             + row.get("second", {}).get("fails", []))
+    dist = row.get("overlay", {}).get("dist_px") or 0.0
+    dis = row.get("second", {}).get("disagreement") or 0.0
+    return (len(fails), dist, dis)
+
+
+def caption_for(row: dict) -> str:
+    g, p, s2, ov = row.get("geometry", {}), row.get("physics", {}), row.get("second", {}), row.get("overlay", {})
+    fails = g.get("fails", []) + p.get("fails", []) + s2.get("fails", [])
+    bits = ["f%d" % row["frame"], row.get("state", "?")]
+    if ov.get("dist_px") is not None:
+        bits.append("lines %.0fpx" % ov["dist_px"])
+    if p.get("speed_max"):
+        bits.append("v%.0f" % p["speed_max"])
+    if p.get("team_counts"):
+        bits.append("teams " + "/".join(str(v) for v in p["team_counts"].values()))
+    if s2:
+        bits.append("2nd %.2f" % s2["disagreement"])
+    return " | ".join(bits) + ("  FAILS: " + ",".join(fails) if fails else "  ok")
+
+
+def tile(render_frame_bgr, row: dict, second_boxes: list | None, sidecar_row: dict | None):
+    """One tile: left (broadcast) half of the review render, second-tracker-only boxes in red,
+    pipeline-only boxes in magenta, caption bar under it."""
+    import cv2
+    h, w = render_frame_bgr.shape[:2]
+    img = render_frame_bgr[:, : w // 2].copy() if w > 1.5 * h else render_frame_bgr.copy()
+    s2 = row.get("second", {})
+    if second_boxes is not None and s2:
+        for j in s2.get("only_second", []):
+            x1, y1, x2, y2 = second_boxes[j]
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        if sidecar_row is not None:
+            for i in s2.get("only_pipeline", []):
+                x1, y1, x2, y2 = sidecar_row["boxes"][i]["bbox"]
+                cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
+    img = cv2.resize(img, (TILE_W, TILE_H))
+    bar = np.zeros((CAP_H, TILE_W, 3), np.uint8)
+    txt = caption_for(row)
+    cv2.putText(bar, txt[:70], (6, 17), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
+    if len(txt) > 70:
+        cv2.putText(bar, txt[70:140], (6, 36), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
+    return np.vstack([img, bar])
+
+
+def sheet(tiles: list, cols: int = 2):
+    """Grid of tiles (row-major); pads to a full grid with black."""
+    blank = np.zeros((TILE_H + CAP_H, TILE_W, 3), np.uint8)
+    while len(tiles) % cols:
+        tiles.append(blank)
+    rows = [np.hstack(tiles[i:i + cols]) for i in range(0, len(tiles), cols)]
+    return np.vstack(rows)
