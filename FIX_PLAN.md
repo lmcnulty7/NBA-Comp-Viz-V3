@@ -53,11 +53,13 @@ Artifacts: `reports/qc/<clip>.json`, `reports/qc_summary.{json,txt}`, `reports/q
       Measurable: sidecar present for all 55 triage renders after a re-render; byte-identical
       trajectories to the committed ones (no behaviour change). Note: this is the one Phase A item
       that touches pipeline code; it adds output only.
-- [ ] A1. Line-overlay score per frame: project the template chords (`snap_track.CH_A/CH_B`),
-      keep samples on frame and outside every player box, search the ridge field 3 px along the
-      normal; score = matched / sampled. Reuse `ridge_field` and `match_lines`. Report per clip:
-      median score, share of frames below 0.35. Measurable: scores for all 55 renders; the 11
-      clips in `prescreen.json` `court_off` must rank in the bottom half or the score is wrong.
+- [ ] [BLOCKED: 2026-10-03, 4 variants; clip ranking puts 7/11 pre-screen flags in the bottom half,
+      see FIX_LOG pass 2; the score ships as a ranking tool and is calibrated or dropped in B6]
+      A1. Line-overlay score per frame: implemented in `qc/track_qc.py` as the ridge-side distance
+      (median px from detected line pixels outside player boxes to the projected template; score =
+      share within 6 px; template-side support as a secondary number). Reports in `reports/qc/`.
+      Original spec (3 px hit rate on template samples) saturated at 0.02 for every clip because
+      production H's are 10..40 px off the paint nearly everywhere.
 - [ ] A2. Geometry checks per frame: (a) far sideline or either baseline intersects the scorebug
       rectangle (from `clock_reader.LAYOUTS[layout]`, union of clock and period boxes padded 20 px);
       (b) floor-colour mask (HSV maple band from `models/thresholds.json` `hsv_band`): sample points
