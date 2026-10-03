@@ -55,4 +55,4 @@ def test_line_verdict_withheld_while_truth_is_coarse():
     assert line_verdict(0.0, 6.04)[0] is None and "reported" in line_verdict(0.0, 6.04)[1]
     assert line_verdict(0.97, 1.2) == (True, None)
     assert line_verdict(0.50, 1.5) == (False, None)
-    assert line_verdict(None, 1.0)[0] is None
+    assert line_verdict(None, 1.0) == (None, None)

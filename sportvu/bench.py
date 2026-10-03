@@ -90,7 +90,7 @@ def line_verdict(share_le_target, truth_p50_px):
     """(pass, withheld): the court line row is judged only when the truth fit residual is at most
     half the target, since a coarser truth cannot confirm a LINE_TARGET_PX error."""
     if share_le_target is None:
-        return None, "no frame with a defined line error"
+        return None, None                 # not measurable: no frame with a defined line error
     if truth_p50_px is None or truth_p50_px > LINE_TARGET_PX / 2:
         return None, "truth fit residual p50 %s px > %.1f px: the truth cannot resolve a %.0f px line error, so the row is reported" % (
             truth_p50_px, LINE_TARGET_PX / 2, LINE_TARGET_PX)
@@ -494,7 +494,7 @@ def render_txt(rep: dict) -> str:
     for name, tgt, val, n, ver in rows:
         L.append("%-*s  %-8s  %s" % (w0, name, ver, val))
         L.append("%-*s            target %s; n = %s" % (w0, "", tgt, n))
-    L += ["", "reported, not judged:", "  court line error: " + (cl.get("pass_withheld") or "-"),
+    L += ["", "reported, not judged:", "  court line error: " + (cl.get("pass_withheld") or "-" if cl["frames_defined"] else "not measurable: no frame with a defined line error"),
           "", "not measurable:", "  jersey-read rate: " + (idn["jersey_not_measurable"] or "-"),
           "  generalisation: " + M["generalisation"]["not_measurable"], "", "caveats:"]
     L += ["  - " + c for c in rep["caveats"]]

@@ -73,8 +73,10 @@ download scripts, manifests and licence notes are committed.
   until measured on held-out footage; before that it is an indicator.
 - Every acceptance rule logs rejections per rule per game; rejected means no positions, never
   wrong positions.
-- A stage is adopted only if it beats the current scoreboard on ALL target metrics it touches and
-  does not worsen the others.
+- A stage is adopted only if, on the held-out game AND the held-out arena, it improves every pass/fail row of the targets table the stage touches and worsens no
+  pass/fail row. Rows marked reported (court line error until its truth can resolve 3 px,
+  identity, the held-out era) are printed beside the verdict but do not decide adoption.
+  Coverage is a floor: it may fall but must stay >= 50% of live wide seconds.
 - Training runs on Colab through a repo script behind a one-cell notebook; everything else local
   with `/opt/anaconda3/bin/python` and `PYTORCH_ENABLE_MPS_FALLBACK=1`.
 - Known traps (FIX_LOG passes 11..13): local section files are not frame-aligned with production
@@ -97,13 +99,32 @@ download scripts, manifests and licence notes are committed.
       it, the held-out era reported label-free only. Court stage judged on position error and bias.)
 
 ## Phase 1: SportVU-synced data
-- [ ] R1.1 Availability manifest: for the 20 Oracle games plus CLE, OKC and NYK home games in the SportVU
-      window, probe a full broadcast with yt-dlp (avc1, 720p, per harvest_driver rules) and the SportVU
-      file for gaps > 10 s per quarter. `data/sportvu/manifest.json` with verdicts and priority
-      (12.25.2015 CLE at GSW first, then Oracle, then the other arenas). No video downloads beyond probes.
-- [ ] [HUMAN] Lucien picks the games to download, names the held-out ARENA (one of CLE, OKC, NYK) and
-      the held-out ERA (the 2013 NYK production game stays untouched by training), and confirms
-      gsw_phx_2016 stays the held-out game.
+- [ ] R1.1 Availability manifest for the 84 SportVU home games in the window: GSW 20 (incl. the held-out
+      gsw_phx_2016), CLE 17, OKC 25, NYK 22, listed from the GitHub contents API of
+      linouk23/NBA-Player-Movements (names matching `MM.DD.YYYY.AAA.at.HHH.7z`). Per game:
+      (a) SportVU: fetch with `sportvu.fetch`; an archive under 1 MB or one that fails to parse is
+      `sportvu_broken` (never abort the pass). Per quarter flag interior clock gaps > 10 s, a start or
+      end edge gap > 10 s (720 s periods, 300 s in overtime) and a missing quarter 1..4.
+      (b) Broadcast: search YouTube with 2 or 3 query forms (`yt-dlp --no-update --js-runtimes node
+      --flat-playlist "ytsearch10:<query>"`); keep results >= 2400 s; drop ids registered in
+      data/harvest/games.json to another game (h5pTl8fOM2U is the 2016 Christmas game); season
+      evidence = the game's date or season in the title or description, or upload_date within 30
+      days after the game. Format-probe the best candidate with `harvest_driver.YTDLP_FMT`
+      (`--simulate`, no download). Record id, title, channel, upload_date, duration, format_id,
+      vcodec, height, fps and the queries used.
+      Verdicts: `ok_unverified` (>= 4500 s, avc1 720p, season evidence), `ambiguous` (full length, no
+      season evidence), `short_broadcast` (2400..4500 s), `low_res` (avc1 only below 720p), `no_avc1`,
+      `no_broadcast`, `probe_error` (a yt-dlp failure, never read as no_avc1), `sportvu_gaps`,
+      `sportvu_broken`, `held_out` (gsw_phx_2016, registry id f8lAcHg6kk0, not searched). Identity is
+      confirmed only by the scorebug at R1.2. Priority: 12.25.2015 CLE at GSW first, then Oracle by
+      date, then CLE, OKC, NYK by date; usable verdicts first within each group.
+      Artifact: `reports/sportvu_manifest.{json,txt}`, committed (ids, urls, verdicts, gap counts; no
+      third-party data); the SportVU logs stay in `data/sportvu/` (gitignored). The run takes about
+      30 min: run it in the background with a per-game cache (`data/sportvu/manifest_parts/`) so a
+      rerun resumes. No video downloads beyond probes. Measurable: games per arena per verdict.
+- [ ] [HUMAN] Lucien picks the games to download, names the held-out ARENA (one of CLE, OKC, NYK;
+      choosing NYK also puts the era game's arena out of training) and confirms gsw_phx_2016 (held-out
+      game) and gsw_nyk_curry54 (held-out era: untouched by training, reported label-free only).
 - [ ] R1.2 Fetch, register (`data/harvest/games.json`), split and clock-calibrate the chosen games with
       the harvest tooling; OCR time maps per section (`sportvu.local_sync`); SportVU moments fetched.
       Measurable: per game, mapped running seconds and the mirror/offset resolution (`sportvu.sync`).
@@ -112,16 +133,18 @@ download scripts, manifests and licence notes are committed.
       reject frames with truth residual > 0.5 ft or < 6 inliers, then write (a) court keypoints: the
       13x7 grid and 1 ft line samples projected through H_truth, (b) SportVU-confirmed boxes (foot within
       2.5 ft of a player) with team id and player id, (c) a contact sheet per game of projected lines
-      over the paint for a glance check. Measurable: `data/sportvu/labels/manifest.json` with frame
-      counts per arena, per court region, and the rejection counts per rule.
-- [ ] R1.4 Splits written to `data/sportvu/splits.json`: train arenas, held-out arena, held-out game,
-      held-out era, with per-split frame counts. Every training script reads this file and refuses
-      to run on held-out ids.
+      over the paint for a glance check. Measurable: `reports/sportvu_labels_manifest.{json,txt}`
+      (committed) with frame counts per arena, per court region, and the rejection counts per rule;
+      the labels themselves stay under `data/sportvu/labels/` (gitignored).
+- [ ] R1.4 Splits written to `sportvu/splits.json` (tracked: game and arena ids only, so a Colab checkout
+      has it): train arenas, held-out arena, held-out game, held-out era, with per-split frame counts.
+      Every training script reads this file, fails if it is missing, and refuses to run on held-out ids.
 
 ## Phase 2: court (first priority; nothing else is meaningful until this holds)
 - [ ] R2.1 Baseline scorecard of the V3 solver on gsw_phx_2016 (the R0.3 output) recorded as the number
-      to beat; also run it on 20 frames of the held-out arena from the production clips for a
-      generalisation baseline.
+      to beat; also score it on the held-out arena's SportVU-synced games from R1.2 (windows rebuilt
+      and truth fitted as in B4) for a generalisation baseline. The production clips at CLE, OKC and
+      NYK fall outside the SportVU window, so they cannot be scored.
 - [ ] R2.2 Off-the-shelf baseline: run one public court/field registration model (candidates: Roboflow
       Universe basketball court keypoints; a sports field registration network) on the same frames.
       Scorecard. The better of V3 and the public model is the starting point. Measurable: two
@@ -138,8 +161,9 @@ download scripts, manifests and licence notes are committed.
       reset). Scorecard.
 - [ ] R2.7 Generalisation report: the court metrics on the held-out arena (SportVU scorecard) and the
       held-out era (label-free indicators only, no SportVU for 2013), printed per arena. If the
-      held-out arena is worse than 1.5x the held-out game, add that arena's games to R1 (not the
-      held-out one) and repeat R2.3.
+      held-out arena is worse than 1.5x the held-out game, add games from the other non-Oracle
+      arenas (never the held-out arena) to R1, repeat R2.3, and report the held-out arena again only
+      at the next adoption decision.
 - [ ] [HUMAN] Lucien accepts the court stage when the court rows of the targets table are met
       (position error and near-field bias; court line error is reported until the truth resolves it).
 
@@ -178,4 +202,7 @@ download scripts, manifests and licence notes are committed.
 
 ## Waiting on Lucien
 - [x] [HUMAN] Confirm the Stage 1 targets (gate after R0.3). Done 2026-10-03, see Phase 0.
-- [ ] [HUMAN] Pick games and held-out arena/era (gate after R1.1).
+- [ ] [HUMAN] Pick games and the held-out arena (gate after R1.1; the era is fixed as gsw_nyk_curry54).
+- [ ] [HUMAN] Decide whether to push the local tag v3-frozen. Pushing it publishes the 21 local main
+      commits not on origin, including 7 broadcast-derived mp4 clips in portfolio/clips/, to a public
+      repo (CLAIMS caveat: no video redistributed). Does not gate the loop.

@@ -32,7 +32,9 @@ windowed rebuild, not the production artifacts; wide shots judged by gate v2, wh
 in training; the referee class is the V3 detector's own, its recall never measured; id switches
 are counted on sparse samples (a lower bound). The court line goal sits below the truth fit's own
 6.0 px residual, so the current truth H cannot confirm a 3 px line error; the row stays reported
-until a truth at least twice as fine exists (ROADMAP R1.3 or later). The scorecard reproduces
+until a truth at least twice as fine exists (no ROADMAP item produces one yet; R1.3 fits its truth
+the same way). The scorecard's n differ from A8 because it re-matches every build's feet through
+H_truth at 5 ft instead of reusing B4's stored pairs. The scorecard reproduces
 row A8 (B5, reports/sportvu_phx.*) within 0.03 ft on position error.
 
 Physical ceiling: one 720p camera gives about 1.5 ft median at best. Hawk-Eye (14 cameras, about
@@ -55,8 +57,11 @@ says so.
 - Every row reports its n, and beside it the untestable share (frames where no truth H fits) and the
   coverage. A rejected frame carries no positions, never wrong ones, and rejections are counted
   per rule per game.
-- Adoption: a stage ships only if the scorecard on the held-out game AND the held-out arena improves
-  every target metric the stage touches and worsens none.
+- Adoption: a stage ships only if, on the held-out game AND the held-out arena scorecards, it
+  improves every pass/fail row the stage touches and worsens no pass/fail row. Rows marked reported
+  (court line error until its truth can resolve 3 px, identity, the held-out era) are printed
+  beside the verdict but do not decide adoption. Coverage is a floor: it may fall but must stay
+  >= 50% of live wide seconds.
 
 **The single scorecard.** `python -m sportvu.bench <build_dir>` (ROADMAP R0.3) writes
 `reports/scorecard/<game>__<build>.{json,txt}`; the V3 baseline is
