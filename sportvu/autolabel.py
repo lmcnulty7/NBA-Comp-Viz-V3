@@ -63,13 +63,15 @@ EVERY_SPAN = 1e9          # plan_windows budget: every running span, not a sampl
 def training_games(only: str | None = None) -> dict:
     reg = json.loads(REG.read_text())
     games = {k: v for k, v in reg.items() if isinstance(v, dict) and v.get("sportvu") and not v.get("excluded")}
+    from sportvu import splits
+    train = set(splits.train_games())            # sportvu/splits.json (R1.4); fails if missing
     if only:
         keep = set(only.split(","))
         for k in keep:
-            if k in games and games[k].get("split") != "train":
-                raise SystemExit("refusing %s: split %r is held out (FIX_LOOP hard rule)" % (k, games[k].get("split")))
+            if k not in train:
+                raise SystemExit("refusing %s: not a train game in sportvu/splits.json (FIX_LOOP hard rule)" % k)
         games = {k: v for k, v in games.items() if k in keep}
-    return {k: v for k, v in games.items() if v.get("split") == "train"}
+    return {k: v for k, v in games.items() if k in train}
 
 
 def gate_args() -> tuple:
@@ -116,8 +118,9 @@ def label_game(tag: str, g: dict, max_windows: int | None = None, save_images: b
     import cv2
     from clock_reader import ClockReader
     from sportvu.local_sync import build_local_timemap
-    if g.get("split") != "train":
-        raise SystemExit("refusing %s: held out" % tag)
+    from sportvu import splits
+    if tag not in splits.train_games():
+        raise SystemExit("refusing %s: not a train game in sportvu/splits.json" % tag)
     mirror = json.loads((config.REPORTS_DIR / ("sportvu_direction_%s.json" % tag)).read_text())["resolution"]["mirror"]
     mom = json.loads((config.PROJECT_ROOT / "data" / "sportvu" / (g["sportvu"] + "_moments.json")).read_text())
     index = SportVUIndex(mom["moments"])
@@ -244,7 +247,7 @@ def write_manifest(results: list) -> None:
     rep = {"item": "ROADMAP R1.3", "rules": {"truth": "camera model (sportvu/camera.py)", "min_icp_inliers": 6,
                                              "min_line_matches": MIN_LINE_MATCHES, "min_support": MIN_SUPPORT,
                                              "max_feet_resid_ft": MAX_FEET_RESID_FT, "confirm_ft": CONFIRM_FT,
-                                             "gate": "v2", "games": "split == train only"},
+                                             "gate": "v2", "games": "train games of sportvu/splits.json only"},
            "by_arena": by_arena, "games": results,
            "caveats": ["candidate frames come from the B4 ICP matching, which starts from the V3 court H: frames where V3's H is too far off to match 6 players are lost (counted as untestable_*), so labels lean toward views V3 already handles",
                        "the camera truth is checked against the painted lines by A1 line support, an indicator, not a ground truth; feet vs SportVU noise is about 1.2..1.7 ft median",

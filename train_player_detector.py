@@ -37,6 +37,8 @@ def main():
     config.set_seed(args.seed)
     if not config.PLAYER_DETECTOR_DATA.exists():
         raise SystemExit("Run prepare_player_dataset.py first (no data.yaml).")
+    from sportvu import splits  # ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+    splits.refuse_heldout([str(p) for p in config.PLAYER_DETECTOR_DATA.parent.rglob("*") if p.is_file()], "train_player_detector")
     device = args.device or config.get_device()
 
     from ultralytics import YOLO

@@ -61,7 +61,15 @@ says so.
   2026-10-03).
 - Nothing is trained, tuned, calibrated or thresholded on a held-out set. Thresholds come from the
   train arenas. Held-out sets are reported once per adoption decision. The splits live in
-  `data/sportvu/splits.json` (ROADMAP R1.4) and every training script refuses held-out ids.
+  `sportvu/splits.json` (ROADMAP R1.4) and every training script refuses held-out ids.
+- Caveat (found at R1.4, 2026-10-04; reports/sportvu_splits.txt): gate v2 (models/trained_head_v2,
+  the wide-frame gate) was trained before the splits existed on harvest frames that include 294
+  frames of gsw_phx_2016, 299 of gsw_nyk_curry54 and 289 of gsw_cle_xmas16 (a CLE home game). It
+  places no court lines and no players, but it picks the wide frames that the scorecard scores and
+  counts for coverage, so wide-frame selection on those games is optimistic, and "untouched by
+  training" above holds for every court and position model, not for gate v2. Builds are compared
+  on the same cached frames, so adoption verdicts are unaffected. Its training scripts now refuse
+  to run until those games are dropped.
 - Every row reports its n, and beside it the untestable share (frames where no truth H fits) and the
   coverage. A rejected frame carries no positions, never wrong ones, and rejections are counted
   per rule per game.

@@ -18,6 +18,9 @@ from ultralytics import YOLO
 
 def main():
     data_yaml, run_name = sys.argv[1], sys.argv[2]
+    from pathlib import Path
+    from sportvu import splits  # ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+    splits.refuse_heldout([str(p) for p in Path(data_yaml).resolve().parent.rglob("*") if p.is_file()], "train_court_pose")
     model = YOLO("yolov8m-pose.pt")
     model.train(
         data=data_yaml,

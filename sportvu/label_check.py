@@ -179,8 +179,8 @@ def main() -> None:
     ap.add_argument("--games", nargs="*")
     ap.add_argument("--workers", type=int, default=8)
     a = ap.parse_args()
-    games = json.loads((config.PROJECT_ROOT / "data" / "harvest" / "games.json").read_text())
-    train = [t for t, g in games.items() if g.get("split") == "train" and (LABELS / t).is_dir()]
+    from sportvu import splits
+    train = [t for t in splits.train_games() if (LABELS / t).is_dir()]   # sportvu/splits.json (R1.4)
     sel = a.games or train
     bad = [t for t in sel if t not in train]
     if bad:

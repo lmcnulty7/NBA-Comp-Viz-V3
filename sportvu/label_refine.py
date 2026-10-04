@@ -206,8 +206,8 @@ def main() -> None:
     ap.add_argument("--sample", type=int, default=0, help="evenly spaced labels per game; no files written")
     ap.add_argument("--holdout", action="store_true", help="verification: fit without the y=17 lane edges, score them")
     a = ap.parse_args()
-    games = json.loads((config.PROJECT_ROOT / "data" / "harvest" / "games.json").read_text())
-    train = [t for t, g in games.items() if g.get("split") == "train" and (LABELS / t).is_dir()]
+    from sportvu import splits
+    train = [t for t in splits.train_games() if (LABELS / t).is_dir()]   # sportvu/splits.json (R1.4)
     sel = a.games or train
     bad = [t for t in sel if t not in train]
     if bad:

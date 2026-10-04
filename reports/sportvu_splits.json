@@ -1,0 +1,150 @@
+{
+ "splits": {
+  "version": 1,
+  "item": "ROADMAP R1.4",
+  "rule": "Training reads this file, fails if it is missing (sportvu.splits.load) and refuses any item that carries a held-out game id, SportVU id or video id (sportvu.splits.refuse_heldout). Thresholds are chosen on train games only.",
+  "train": {
+   "arenas": [
+    "GSW"
+   ],
+   "games": {
+    "gsw_bkn_2015": {
+     "arena": "GSW",
+     "sportvu": "11.14.2015.BKN.at.GSW",
+     "video_id": "-u83b73fFbY",
+     "frames": 2954,
+     "labels_before_paint_check": 3587
+    },
+    "gsw_cha_2016": {
+     "arena": "GSW",
+     "sportvu": "01.04.2016.CHA.at.GSW",
+     "video_id": "hoPgMa02zB4",
+     "frames": 2923,
+     "labels_before_paint_check": 3531
+    },
+    "gsw_ind_2016": {
+     "arena": "GSW",
+     "sportvu": "01.22.2016.IND.at.GSW",
+     "video_id": "UQHXGIH12Ds",
+     "frames": 2811,
+     "labels_before_paint_check": 3552
+    },
+    "gsw_sac_2015": {
+     "arena": "GSW",
+     "sportvu": "12.28.2015.SAC.at.GSW",
+     "video_id": "qzJbC4tmJeA",
+     "frames": 2818,
+     "labels_before_paint_check": 3305
+    }
+   },
+   "frames_rule": "R1.3 labels with keep=true in data/sportvu/labels/<game>_paint.jsonl (sportvu.label_check)",
+   "frames": 11506
+  },
+  "heldout_game": {
+   "games": {
+    "gsw_phx_2016": {
+     "arena": "GSW",
+     "sportvu": null,
+     "video_id": "f8lAcHg6kk0",
+     "frames": 1447
+    }
+   },
+   "frames_rule": "SportVU scorecard testable frames (reports/scorecard/gsw_phx_2016__v3.json)"
+  },
+  "heldout_arena": {
+   "arenas": [
+    "CLE"
+   ],
+   "games": {
+    "cle_gsw_2016": {
+     "arena": "CLE",
+     "sportvu": "01.18.2016.GSW.at.CLE",
+     "video_id": "bzmm0WiWYog",
+     "synced_running_s": 2454.0
+    },
+    "cle_nyk_2015": {
+     "arena": "CLE",
+     "sportvu": "12.23.2015.NYK.at.CLE",
+     "video_id": "7TuGdp5f_bg",
+     "synced_running_s": 1870.5
+    },
+    "gsw_cle_xmas16": {
+     "arena": "CLE",
+     "sportvu": null,
+     "video_id": "h5pTl8fOM2U",
+     "synced_running_s": null
+    }
+   },
+   "frames_rule": "never labelled; SportVU-synced running seconds from R1.2 (reports/sportvu_prepare.json)"
+  },
+  "heldout_era": {
+   "games": {
+    "gsw_nyk_curry54": {
+     "arena": "NYK",
+     "sportvu": null,
+     "video_id": "6sAFbDBBAZc",
+     "frames": null
+    }
+   },
+   "frames_rule": "no SportVU (2013): label-free indicators only, no frame count"
+  },
+  "excluded": {
+   "gsw_cle_xmas15": "NBA 2K16 simulation, not a broadcast: scorebug frame shows the 2K Sports logo and rendered players (R1.2, 2026-10-04)"
+  }
+ },
+ "audit": [
+  {
+   "scripts": "gate_ship_v2.py, gate_retrain_experiment.py",
+   "reads": "data/gate_sheet index tags (harvest frames)",
+   "items": 6159,
+   "heldout_items": 882,
+   "by_id": {
+    "gsw_cle_xmas16": 289,
+    "gsw_nyk_curry54": 299,
+    "gsw_phx_2016": 294
+   }
+  },
+  {
+   "scripts": "train_gate.py",
+   "reads": "truth/ (gate.labels.load_truth)",
+   "items": 1050,
+   "heldout_items": 0,
+   "by_id": {}
+  },
+  {
+   "scripts": "train_court_kp.py",
+   "reads": "config.COURT_KP_LABELS + COURT_KP_DATASET",
+   "items": 877,
+   "heldout_items": 0,
+   "by_id": {}
+  },
+  {
+   "scripts": "train_line_seg.py",
+   "reads": "config.LINE_DATASET",
+   "items": 242,
+   "heldout_items": 0,
+   "by_id": {}
+  },
+  {
+   "scripts": "train_player_detector.py, colab_train_player.py",
+   "reads": "config.PLAYER_DETECTOR_DATA (external set)",
+   "items": 1311,
+   "heldout_items": 0,
+   "by_id": {}
+  },
+  {
+   "scripts": "train_court_pose.py",
+   "reads": "data/court_pose33 + data/court_pose_grid",
+   "items": 7438,
+   "heldout_items": 0,
+   "by_id": {}
+  },
+  {
+   "scripts": "R1.3 labels (sportvu.splits.train_labels)",
+   "reads": "data/sportvu/labels kept rows",
+   "items": 11506,
+   "heldout_items": 0,
+   "by_id": {}
+  }
+ ]
+}

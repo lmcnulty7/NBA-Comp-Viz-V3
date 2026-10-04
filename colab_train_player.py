@@ -8,6 +8,7 @@ Self-contained (no project imports) so it runs on a bare Colab runtime. Trains
 SETUP on Colab (Runtime → Change runtime type → GPU):
   1. Upload  basketball-player-detection-3.v18i.yolov8.zip  to the runtime
      (it's in your project at data/external/), OR pull it via the Roboflow API.
+     Also upload the project's sportvu/splits.json (ROADMAP R1.4): the script refuses to run without it.
   2. Run this script:   %run colab_train_player.py
   3. Download  player_runs/train/weights/best.pt  and drop it into your project at
      models/player_detector.pt  — the tracker auto-uses it (tracks the 'player' class).
@@ -16,6 +17,7 @@ Same 10→5 class remap as prepare_player_dataset.py:
   player ← player + 4 action variants | referee | ball ← ball + ball-in-basket | rim | number
 """
 import glob
+import json
 import os
 import subprocess
 import sys
@@ -29,6 +31,25 @@ REMAP = {3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1, 0: 2, 1: 2, 9: 3, 2: 4}
 NEW_NAMES = ["player", "referee", "ball", "rim", "number"]
 
 
+def refuse_heldout(root):
+    """ROADMAP R1.4, inline (no project imports): read splits.json and stop if any training file
+    carries a held-out game id, SportVU id or video id."""
+    here = os.path.dirname(os.path.abspath(__file__)) if "__file__" in globals() else os.getcwd()
+    cands = [os.path.join(here, "sportvu", "splits.json"), os.path.join(os.getcwd(), "sportvu", "splits.json"),
+             os.path.join(os.getcwd(), "splits.json")]
+    path = next((c for c in cands if os.path.exists(c)), None)
+    if path is None:
+        raise SystemExit("sportvu/splits.json is missing (ROADMAP R1.4): upload it beside this script.")
+    sp = json.load(open(path))
+    toks = {v for s in ("heldout_game", "heldout_arena", "heldout_era") for t, g in sp[s]["games"].items()
+            for v in (t, g.get("sportvu"), g.get("video_id")) if v}
+    files = glob.glob(os.path.join(root, "**", "*"), recursive=True)
+    bad = [f for f in files if any(t in f for t in toks)]
+    if bad:
+        raise SystemExit("colab_train_player refuses to run: %d of %d files belong to held-out games, e.g. %s"
+                         % (len(bad), len(files), bad[:3]))
+
+
 def main():
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "ultralytics"], check=True)
 
@@ -36,6 +57,7 @@ def main():
         if not os.path.exists(ZIP):
             raise SystemExit(f"Upload {ZIP} to the runtime first (or set ZIP to its path).")
         zipfile.ZipFile(ZIP).extractall(ROOT)
+    refuse_heldout(ROOT)
 
     # remap class indices in-place
     n = 0

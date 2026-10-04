@@ -155,11 +155,15 @@ download scripts, manifests and licence notes are committed.
       over the paint for a glance check. Measurable: `reports/sportvu_labels_manifest.{json,txt}`
       (committed) with frame counts per arena, per court region, and the rejection counts per rule;
       the labels themselves stay under `data/sportvu/labels/` (gitignored).
-- [ ] R1.4 Splits written to `sportvu/splits.json` (tracked: game and arena ids only, so a Colab checkout
+- [x] R1.4 Splits written to `sportvu/splits.json` (tracked: game and arena ids only, so a Colab checkout
       has it): train arenas, held-out arena, held-out game, held-out era, with per-split frame counts.
       Every training script reads this file, fails if it is missing, and refuses to run on held-out ids.
       The usable R1.3 labels are the rows with keep=true in `data/sportvu/labels/<game>_paint.jsonl`
       (paint check, `sportvu.label_check`); frame counts and every training script use those only.
+      Done 2026-10-04: `python -m sportvu.splits`; train GSW 4 games 11,506 kept labels; held-out game
+      gsw_phx_2016 (1,447 scorecard frames), arena CLE (cle_nyk_2015, cle_gsw_2016, gsw_cle_xmas16), era
+      gsw_nyk_curry54. Guard sportvu.splits.refuse_heldout in every training script (test enforces it);
+      audit in reports/sportvu_splits.*: gate v2's training set holds 882 held-out frames (CLAIMS caveat).
 
 ## Phase 2: court (first priority; nothing else is meaningful until this holds)
 - [ ] R2.1 Baseline scorecard of the V3 solver on gsw_phx_2016 (the R0.3 output) recorded as the number
@@ -229,3 +233,8 @@ download scripts, manifests and licence notes are committed.
       paper/ and two unused raw ESPN frames were removed from the unpushed history (backup bundle and
       checksummed copies in ~/Developer/nba-comp-viz-data/backup-20261003), then main and v3-frozen
       were pushed. Clips stay on disk (gitignored); paper/ is the private repo NBA-Comp-Viz-V3-paper.
+- [ ] [HUMAN] (non-gating) Gate v2 was trained on 882 frames of held-out games (gsw_phx_2016 294,
+      gsw_nyk_curry54 299, gsw_cle_xmas16 289; reports/sportvu_splits.txt). Decide whether to retrain it
+      without them (gate v3 by the gate adoption rule, then re-cache the bench's wide-frame scores) or keep
+      v2 with the CLAIMS caveat. Court and position models are unaffected; build comparisons use the same
+      cached frames.

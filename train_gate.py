@@ -73,6 +73,8 @@ def main() -> None:
 
     # ── 1. Labels (truth/ only) ───────────────────────────────────────────────
     truth = load_truth(require=True)
+    from sportvu import splits  # ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+    splits.refuse_heldout(truth.paths, "train_gate")
     log.info("truth/ counts → live=%d  dead=%d  total=%d", truth.n_live, truth.n_dead, len(truth.paths))
     for name, n in (("live", truth.n_live), ("dead", truth.n_dead)):
         if n < config.MIN_PER_CLASS_HARD:

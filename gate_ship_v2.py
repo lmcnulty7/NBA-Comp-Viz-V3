@@ -36,10 +36,14 @@ def pick_thr(prob, y, max_fpr=0.10):
 items = []
 for ix, lb in (("index.json", "labels.json"), ("index_rest.json", "labels_rest.json")):
     I = json.loads((SHEET / ix).read_text()); L = json.loads((SHEET / lb).read_text()); items += [{**d, "wide": L[d["key"]]["wide"]} for d in I if d["key"] in L]
+# ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+from sportvu import splits
+splits.refuse_heldout([d["tag"] for d in items], "gate_ship_v2")
 paths = [DRIVE / "label_corpus" / d["tag"] / ("f%07d.jpg" % d["frame"]) for d in items]; y = np.array([int(d["wide"]) for d in items])
 backbone = ClipBackbone(config.CLIP_MODEL_NAME, config.get_device())
 X = get_image_embeddings(paths, backbone, SHEET / "emb_cache_clip.pkl")
-truth = load_truth(); Xp = get_image_embeddings(truth.paths, backbone, config.emb_cache_path("clip")); yp = np.array(truth.labels)
+truth = load_truth(); splits.refuse_heldout(truth.paths, "gate_ship_v2")
+Xp = get_image_embeddings(truth.paths, backbone, config.emb_cache_path("clip")); yp = np.array(truth.labels)
 test_keys = {str(Path(p).resolve()) for p in json.loads(config.SPLIT_PATH.read_text())["files"]["test"]}
 is_test = np.array([str(Path(p).resolve()) in test_keys for p in truth.paths])
 
