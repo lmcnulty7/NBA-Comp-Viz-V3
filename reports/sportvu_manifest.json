@@ -1,0 +1,3621 @@
+{
+ "item": "ROADMAP R1.1",
+ "date": "2026-10-03",
+ "source": "https://api.github.com/repos/linouk23/NBA-Player-Movements/contents/data/2016.NBA.Raw.SportVU.Game.Logs",
+ "rules": {
+  "min_archive_bytes": 1000000,
+  "gap_flag_s": 10.0,
+  "full_broadcast_s": 4500,
+  "min_broadcast_s": 2400,
+  "season_window_days": 30,
+  "max_probes": 3,
+  "format": "bv*[vcodec^=avc1][height<=720][height>=480]+ba/b[vcodec^=avc1][height<=720]",
+  "precedence": [
+   "held_out",
+   "sportvu_broken",
+   "no_broadcast",
+   "probe_error",
+   "no_avc1",
+   "low_res",
+   "short_broadcast",
+   "ambiguous",
+   "sportvu_gaps",
+   "ok_unverified"
+  ],
+  "usable": [
+   "ok_unverified",
+   "sportvu_gaps"
+  ]
+ },
+ "counts": {
+  "GSW": {
+   "ok_unverified": 2,
+   "sportvu_gaps": 1,
+   "no_broadcast": 10,
+   "ambiguous": 3,
+   "short_broadcast": 3,
+   "held_out": 1
+  },
+  "CLE": {
+   "sportvu_gaps": 2,
+   "no_broadcast": 13,
+   "low_res": 1,
+   "sportvu_broken": 1
+  },
+  "OKC": {
+   "no_broadcast": 24,
+   "short_broadcast": 1
+  },
+  "NYK": {
+   "no_broadcast": 20,
+   "short_broadcast": 1,
+   "ambiguous": 1
+  }
+ },
+ "candidate_rejections_by_arena": {
+  "GSW": {
+   "video-game simulation": 9,
+   "another date": 2,
+   "postseason game": 1,
+   "year 1991": 1
+  },
+  "CLE": {
+   "video-game simulation": 17,
+   "another date": 2,
+   "year 2010": 1,
+   "year 2026": 1,
+   "postseason game": 1
+  },
+  "OKC": {
+   "video-game simulation": 13,
+   "year 2012": 1,
+   "year 2011": 1,
+   "postseason game": 1
+  },
+  "NYK": {
+   "video-game simulation": 10,
+   "postseason game": 1,
+   "year 1995": 1,
+   "year 1991": 1
+  }
+ },
+ "usable_by_arena": {
+  "GSW": 3,
+  "CLE": 2,
+  "OKC": 0,
+  "NYK": 0
+ },
+ "games": [
+  {
+   "game": "12.25.2015.CLE.at.GSW",
+   "date": "2015-12-25",
+   "away": "CLE",
+   "home": "GSW",
+   "verdict": "ok_unverified",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81806,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": null,
+    "video_id": "QJLso8Uwklc",
+    "url": "https://www.youtube.com/watch?v=QJLso8Uwklc",
+    "title": "Cavs vs Warriors Xmas Game",
+    "channel": "Greg Smith",
+    "upload_date": "20151226",
+    "duration_s": 4975,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "uploaded 1 days after the game",
+    "evidence_kind": "upload",
+    "error": null,
+    "queries": [
+     "Cavaliers vs Warriors December 25, 2015 full game",
+     "Warriors vs Cavaliers 12/25/15",
+     "Cavaliers Warriors Dec 25 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 2
+   },
+   "rank": 1
+  },
+  {
+   "game": "11.14.2015.BKN.at.GSW",
+   "date": "2015-11-14",
+   "away": "BKN",
+   "home": "GSW",
+   "verdict": "sportvu_gaps",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 88252,
+    "flags": [
+     "Q3 gap 317..295 s",
+     "Q3 gap 284..269 s"
+    ],
+    "gap_s_total": 37.0
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": null,
+    "video_id": "-u83b73fFbY",
+    "url": "https://www.youtube.com/watch?v=-u83b73fFbY",
+    "title": "2015-2016 NBA Season Golden State Warriors vs Brooklyn Nets",
+    "channel": "Freedom ,",
+    "upload_date": "20260806",
+    "duration_s": 6364,
+    "format_id": "298+251",
+    "vcodec": "avc1.640020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "date: November 14 2015",
+    "evidence_kind": "date",
+    "error": null,
+    "queries": [
+     "Nets vs Warriors November 14, 2015 full game",
+     "Warriors vs Nets 11/14/15",
+     "Nets Warriors Nov 14 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 2
+  },
+  {
+   "game": "01.22.2016.IND.at.GSW",
+   "date": "2016-01-22",
+   "away": "IND",
+   "home": "GSW",
+   "verdict": "ok_unverified",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82464,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": null,
+    "video_id": "UQHXGIH12Ds",
+    "url": "https://www.youtube.com/watch?v=UQHXGIH12Ds",
+    "title": "2015-2016 NBA Season Golden State Warriors vs Indiana Pacers",
+    "channel": "Freedom ,",
+    "upload_date": "20260605",
+    "duration_s": 6291,
+    "format_id": "298+251",
+    "vcodec": "avc1.640020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "date: January 22 2016",
+    "evidence_kind": "date",
+    "error": null,
+    "queries": [
+     "Pacers vs Warriors January 22, 2016 full game",
+     "Warriors vs Pacers 1/22/16",
+     "Pacers Warriors Jan 22 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 3
+  },
+  {
+   "game": "10.27.2015.NOP.at.GSW",
+   "date": "2015-10-27",
+   "away": "NOP",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 82973,
+    "flags": [
+     "Q2 gap 110..98 s"
+    ],
+    "gap_s_total": 12.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Pelicans vs Warriors October 27, 2015 full game",
+     "Warriors vs Pelicans 10/27/15",
+     "Pelicans Warriors Oct 27 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 4
+  },
+  {
+   "game": "11.02.2015.MEM.at.GSW",
+   "date": "2015-11-02",
+   "away": "MEM",
+   "home": "GSW",
+   "verdict": "ambiguous",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 82144,
+    "flags": [
+     "Q3 gap 522..510 s"
+    ],
+    "gap_s_total": 12.3
+   },
+   "broadcast": {
+    "verdict": "ambiguous",
+    "note": null,
+    "video_id": "seKB6KYMBog",
+    "url": "https://www.youtube.com/watch?v=seKB6KYMBog",
+    "title": "Memphis Grizzlies vs Golden State Warriors",
+    "channel": "TYLER MARCOTTE",
+    "upload_date": "20151025",
+    "duration_s": 4591,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Grizzlies vs Warriors November 2, 2015 full game",
+     "Warriors vs Grizzlies 11/2/15",
+     "Grizzlies Warriors Nov 2 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2,
+     "another date": 2,
+     "postseason game": 1
+    },
+    "candidates_probed": 1
+   },
+   "rank": 5
+  },
+  {
+   "game": "11.04.2015.LAC.at.GSW",
+   "date": "2015-11-04",
+   "away": "LAC",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 84093,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Clippers vs Warriors November 4, 2015 full game",
+     "Warriors vs Clippers 11/4/15",
+     "Clippers Warriors Nov 4 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 6
+  },
+  {
+   "game": "11.06.2015.DEN.at.GSW",
+   "date": "2015-11-06",
+   "away": "DEN",
+   "home": "GSW",
+   "verdict": "short_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 83157,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "short_broadcast",
+    "note": null,
+    "video_id": "0aHFoUgSA6E",
+    "url": "https://www.youtube.com/watch?v=0aHFoUgSA6E",
+    "title": "Nuggets Vs Warriors",
+    "channel": "OG_Zilla",
+    "upload_date": "20151107",
+    "duration_s": 3970,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "uploaded 1 days after the game",
+    "evidence_kind": "upload",
+    "error": null,
+    "queries": [
+     "Nuggets vs Warriors November 6, 2015 full game",
+     "Warriors vs Nuggets 11/6/15",
+     "Nuggets Warriors Nov 6 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2
+    },
+    "candidates_probed": 1
+   },
+   "rank": 7
+  },
+  {
+   "game": "11.09.2015.DET.at.GSW",
+   "date": "2015-11-09",
+   "away": "DET",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80520,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": "QDYdputqtfE",
+    "url": "https://www.youtube.com/watch?v=QDYdputqtfE",
+    "title": "Golden State, Minnesota (2015)",
+    "channel": "Francisten (Abre Los Ojos)",
+    "upload_date": "20200601",
+    "duration_s": 6126,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Pistons vs Warriors November 9, 2015 full game",
+     "Warriors vs Pistons 11/9/15",
+     "Pistons Warriors Nov 9 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 8
+  },
+  {
+   "game": "11.17.2015.TOR.at.GSW",
+   "date": "2015-11-17",
+   "away": "TOR",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 86259,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Raptors vs Warriors November 17, 2015 full game",
+     "Warriors vs Raptors 11/17/15",
+     "Raptors Warriors Nov 17 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 9
+  },
+  {
+   "game": "11.20.2015.CHI.at.GSW",
+   "date": "2015-11-20",
+   "away": "CHI",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 81348,
+    "flags": [
+     "Q3 gap 401..390 s"
+    ],
+    "gap_s_total": 11.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bulls vs Warriors November 20, 2015 full game",
+     "Warriors vs Bulls 11/20/15",
+     "Bulls Warriors Nov 20 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "year 1991": 1,
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 10
+  },
+  {
+   "game": "11.24.2015.LAL.at.GSW",
+   "date": "2015-11-24",
+   "away": "LAL",
+   "home": "GSW",
+   "verdict": "short_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 78730,
+    "flags": [
+     "Q3 gap 681..658 s"
+    ],
+    "gap_s_total": 23.0
+   },
+   "broadcast": {
+    "verdict": "short_broadcast",
+    "note": null,
+    "video_id": "FVQw7_IIQRY",
+    "url": "https://www.youtube.com/watch?v=FVQw7_IIQRY",
+    "title": "NBA Lakers vs Warriors",
+    "channel": "OG_Zilla",
+    "upload_date": "20151125",
+    "duration_s": 4317,
+    "format_id": "136+251",
+    "vcodec": "avc1.64001f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "uploaded 1 days after the game",
+    "evidence_kind": "upload",
+    "error": null,
+    "queries": [
+     "Lakers vs Warriors November 24, 2015 full game",
+     "Warriors vs Lakers 11/24/15",
+     "Lakers Warriors Nov 24 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 11
+  },
+  {
+   "game": "11.28.2015.SAC.at.GSW",
+   "date": "2015-11-28",
+   "away": "SAC",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82777,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Kings vs Warriors November 28, 2015 full game",
+     "Warriors vs Kings 11/28/15",
+     "Kings Warriors Nov 28 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 12
+  },
+  {
+   "game": "12.16.2015.PHX.at.GSW",
+   "date": "2015-12-16",
+   "away": "PHX",
+   "home": "GSW",
+   "verdict": "held_out",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81654,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "held_out",
+    "note": "registry id, not searched",
+    "video_id": "f8lAcHg6kk0",
+    "url": "https://www.youtube.com/watch?v=f8lAcHg6kk0",
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": null,
+    "rejected_before_probe": null,
+    "candidates_probed": 0
+   },
+   "rank": 13
+  },
+  {
+   "game": "12.18.2015.MIL.at.GSW",
+   "date": "2015-12-18",
+   "away": "MIL",
+   "home": "GSW",
+   "verdict": "short_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 85393,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "short_broadcast",
+    "note": null,
+    "video_id": "zG7jyMwHHus",
+    "url": "https://www.youtube.com/watch?v=zG7jyMwHHus",
+    "title": "NBA Bucks vs Warriors",
+    "channel": "OG_Zilla",
+    "upload_date": "20151219",
+    "duration_s": 3991,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "uploaded 1 days after the game",
+    "evidence_kind": "upload",
+    "error": null,
+    "queries": [
+     "Bucks vs Warriors December 18, 2015 full game",
+     "Warriors vs Bucks 12/18/15",
+     "Bucks Warriors Dec 18 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 14
+  },
+  {
+   "game": "12.23.2015.UTA.at.GSW",
+   "date": "2015-12-23",
+   "away": "UTA",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 81276,
+    "flags": [
+     "Q3 gap 288..278 s"
+    ],
+    "gap_s_total": 10.4
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Jazz vs Warriors December 23, 2015 full game",
+     "Warriors vs Jazz 12/23/15",
+     "Jazz Warriors Dec 23 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 15
+  },
+  {
+   "game": "12.28.2015.SAC.at.GSW",
+   "date": "2015-12-28",
+   "away": "SAC",
+   "home": "GSW",
+   "verdict": "ambiguous",
+   "sportvu": {
+    "status": "ok",
+    "moments": 83479,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ambiguous",
+    "note": "season string only",
+    "video_id": "qzJbC4tmJeA",
+    "url": "https://www.youtube.com/watch?v=qzJbC4tmJeA",
+    "title": "Nba HD Full Game Kings at Warriors 2015 / 2016",
+    "channel": "Throwbackz King",
+    "upload_date": "20250103",
+    "duration_s": 6252,
+    "format_id": "298+251",
+    "vcodec": "avc1.640020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "season: 2015 / 2016",
+    "evidence_kind": "season",
+    "error": null,
+    "queries": [
+     "Kings vs Warriors December 28, 2015 full game",
+     "Warriors vs Kings 12/28/15",
+     "Kings Warriors Dec 28 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 16
+  },
+  {
+   "game": "01.02.2016.DEN.at.GSW",
+   "date": "2016-01-02",
+   "away": "DEN",
+   "home": "GSW",
+   "verdict": "ambiguous",
+   "sportvu": {
+    "status": "ok",
+    "moments": 91231,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ambiguous",
+    "note": null,
+    "video_id": "i5To6IgQLKc",
+    "url": "https://www.youtube.com/watch?v=i5To6IgQLKc",
+    "title": "Golden State Warriors vs Denver Nuggets Full Game 720p 60fps",
+    "channel": "Pinnacle Apex",
+    "upload_date": "20211007",
+    "duration_s": 6296,
+    "format_id": "298+251",
+    "vcodec": "avc1.4d4020",
+    "height": 720,
+    "fps": 60,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Nuggets vs Warriors January 2, 2016 full game",
+     "Warriors vs Nuggets 1/2/16",
+     "Nuggets Warriors Jan 2 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 1
+   },
+   "rank": 17
+  },
+  {
+   "game": "01.04.2016.CHA.at.GSW",
+   "date": "2016-01-04",
+   "away": "CHA",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81426,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Hornets vs Warriors January 4, 2016 full game",
+     "Warriors vs Hornets 1/4/16",
+     "Hornets Warriors Jan 4 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 18
+  },
+  {
+   "game": "01.11.2016.MIA.at.GSW",
+   "date": "2016-01-11",
+   "away": "MIA",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 80342,
+    "flags": [
+     "Q1 gap 57..36 s"
+    ],
+    "gap_s_total": 21.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Heat vs Warriors January 11, 2016 full game",
+     "Warriors vs Heat 1/11/16",
+     "Heat Warriors Jan 11 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 19
+  },
+  {
+   "game": "01.14.2016.LAL.at.GSW",
+   "date": "2016-01-14",
+   "away": "LAL",
+   "home": "GSW",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81075,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Lakers vs Warriors January 14, 2016 full game",
+     "Warriors vs Lakers 1/14/16",
+     "Lakers Warriors Jan 14 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 20
+  },
+  {
+   "game": "12.23.2015.NYK.at.CLE",
+   "date": "2015-12-23",
+   "away": "NYK",
+   "home": "CLE",
+   "verdict": "sportvu_gaps",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 73100,
+    "flags": [
+     "Q1 gap 386..375 s",
+     "Q3 starts at 700 s",
+     "Q4 gap 657..647 s"
+    ],
+    "gap_s_total": 41.3
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": null,
+    "video_id": "7TuGdp5f_bg",
+    "url": "https://www.youtube.com/watch?v=7TuGdp5f_bg",
+    "title": "2015-2016 NBA Season Cleveland Cavaliers vs New York Knicks",
+    "channel": "Freedom ,",
+    "upload_date": "20260308",
+    "duration_s": 6316,
+    "format_id": "298+251",
+    "vcodec": "avc1.4d4020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "date: December 23 2015",
+    "evidence_kind": "date",
+    "error": null,
+    "queries": [
+     "Knicks vs Cavaliers December 23, 2015 full game",
+     "Cavaliers vs Knicks 12/23/15",
+     "Knicks Cavaliers Dec 23 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 1
+   },
+   "rank": 21
+  },
+  {
+   "game": "01.18.2016.GSW.at.CLE",
+   "date": "2016-01-18",
+   "away": "GSW",
+   "home": "CLE",
+   "verdict": "sportvu_gaps",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 58963,
+    "flags": [
+     "Q1 gap 610..532 s",
+     "Q1 gap 358..302 s",
+     "Q1 starts at 624 s",
+     "Q2 gap 534..475 s",
+     "Q2 gap 353..304 s",
+     "Q2 gap 212..196 s",
+     "Q2 starts at 636 s",
+     "Q3 gap 512..429 s",
+     "Q3 gap 322..260 s",
+     "Q3 starts at 660 s",
+     "Q4 gap 602..571 s",
+     "Q4 gap 533..489 s",
+     "Q4 gap 405..362 s",
+     "Q4 gap 184..140 s",
+     "Q4 starts at 695 s"
+    ],
+    "gap_s_total": 830.5
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": null,
+    "video_id": "bzmm0WiWYog",
+    "url": "https://www.youtube.com/watch?v=bzmm0WiWYog",
+    "title": "Golden State Warriors, Cleveland Cavaliers (1/18/2016)",
+    "channel": "Francisten (Abre Los Ojos)",
+    "upload_date": "20210119",
+    "duration_s": 6238,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "date: 1/18/2016",
+    "evidence_kind": "date",
+    "error": null,
+    "queries": [
+     "Warriors vs Cavaliers January 18, 2016 full game",
+     "Cavaliers vs Warriors 1/18/16",
+     "Warriors Cavaliers Jan 18 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 2
+   },
+   "rank": 22
+  },
+  {
+   "game": "10.30.2015.MIA.at.CLE",
+   "date": "2015-10-30",
+   "away": "MIA",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 76600,
+    "flags": [
+     "Q1 starts at 704 s",
+     "Q2 gap 558..541 s",
+     "Q2 gap 352..334 s",
+     "Q2 starts at 708 s",
+     "Q3 starts at 705 s",
+     "Q4 gap 530..512 s",
+     "Q4 gap 338..324 s",
+     "Q4 starts at 705 s"
+    ],
+    "gap_s_total": 125.6
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Heat vs Cavaliers October 30, 2015 full game",
+     "Cavaliers vs Heat 10/30/15",
+     "Heat Cavaliers Oct 30 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2
+    },
+    "candidates_probed": 0
+   },
+   "rank": 23
+  },
+  {
+   "game": "11.04.2015.NYK.at.CLE",
+   "date": "2015-11-04",
+   "away": "NYK",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 64628,
+    "flags": [
+     "Q1 gap 706..695 s",
+     "Q1 gap 560..537 s",
+     "Q1 gap 372..342 s",
+     "Q1 gap 226..214 s",
+     "Q1 gap 124..97 s",
+     "Q1 gap 84..57 s",
+     "Q1 starts at 706 s",
+     "Q2 gap 662..638 s",
+     "Q2 gap 638..628 s",
+     "Q2 gap 537..516 s",
+     "Q2 gap 358..329 s",
+     "Q2 gap 168..136 s",
+     "Q2 gap 22..5 s",
+     "Q2 starts at 699 s",
+     "Q3 gap 344..314 s",
+     "Q3 gap 191..169 s",
+     "Q3 starts at 690 s",
+     "Q4 gap 523..512 s",
+     "Q4 gap 397..376 s",
+     "Q4 gap 288..264 s",
+     "Q4 gap 125..102 s",
+     "Q4 gap 18..4 s",
+     "Q4 starts at 688 s"
+    ],
+    "gap_s_total": 503.4
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": "video is dated for 12.23.2015.NYK.at.CLE",
+    "video_id": "7TuGdp5f_bg",
+    "url": "https://www.youtube.com/watch?v=7TuGdp5f_bg",
+    "title": "2015-2016 NBA Season Cleveland Cavaliers vs New York Knicks",
+    "channel": "Freedom ,",
+    "upload_date": "20260308",
+    "duration_s": 6316,
+    "format_id": "298+251",
+    "vcodec": "avc1.4d4020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "season: 2015-2016",
+    "evidence_kind": "season",
+    "error": null,
+    "queries": [
+     "Knicks vs Cavaliers November 4, 2015 full game",
+     "Cavaliers vs Knicks 11/4/15",
+     "Knicks Cavaliers Nov 4 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 24
+  },
+  {
+   "game": "11.06.2015.PHI.at.CLE",
+   "date": "2015-11-06",
+   "away": "PHI",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 63304,
+    "flags": [
+     "Q1 gap 426..384 s",
+     "Q1 gap 171..155 s",
+     "Q1 gap 41..8 s",
+     "Q1 starts at 701 s",
+     "Q2 gap 571..541 s",
+     "Q2 gap 369..308 s",
+     "Q2 gap 158..121 s",
+     "Q2 starts at 690 s",
+     "Q2 ends at 40 s",
+     "Q3 gap 640..603 s",
+     "Q3 gap 208..197 s",
+     "Q3 gap 172..138 s",
+     "Q3 starts at 690 s",
+     "Q4 gap 577..519 s",
+     "Q4 gap 321..297 s",
+     "Q4 gap 151..112 s",
+     "Q4 starts at 682 s"
+    ],
+    "gap_s_total": 577.8
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "76ers vs Cavaliers November 6, 2015 full game",
+     "Cavaliers vs 76ers 11/6/15",
+     "76ers Cavaliers Nov 6 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 25
+  },
+  {
+   "game": "11.08.2015.IND.at.CLE",
+   "date": "2015-11-08",
+   "away": "IND",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 79346,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Pacers vs Cavaliers November 8, 2015 full game",
+     "Cavaliers vs Pacers 11/8/15",
+     "Pacers Cavaliers Nov 8 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2
+    },
+    "candidates_probed": 0
+   },
+   "rank": 26
+  },
+  {
+   "game": "11.10.2015.UTA.at.CLE",
+   "date": "2015-11-10",
+   "away": "UTA",
+   "home": "CLE",
+   "verdict": "low_res",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 76367,
+    "flags": [
+     "Q1 gap 376..363 s",
+     "Q2 gap 535..523 s"
+    ],
+    "gap_s_total": 25.4
+   },
+   "broadcast": {
+    "verdict": "low_res",
+    "note": null,
+    "video_id": "mkYea3CYYBo",
+    "url": "https://www.youtube.com/watch?v=mkYea3CYYBo",
+    "title": "[NBA] Utah Jazz vs Cleveland Cavaliers",
+    "channel": "Antho'",
+    "upload_date": "20151212",
+    "duration_s": 4661,
+    "format_id": "18",
+    "vcodec": "avc1.42001E",
+    "height": 360,
+    "fps": 30,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Jazz vs Cavaliers November 10, 2015 full game",
+     "Cavaliers vs Jazz 11/10/15",
+     "Jazz Cavaliers Nov 10 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "another date": 1
+    },
+    "candidates_probed": 1
+   },
+   "rank": 27
+  },
+  {
+   "game": "11.19.2015.MIL.at.CLE",
+   "date": "2015-11-19",
+   "away": "MIL",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 66303,
+    "flags": [
+     "Q1 gap 362..348 s",
+     "Q1 gap 127..110 s",
+     "Q1 starts at 684 s",
+     "Q2 gap 536..497 s",
+     "Q2 gap 403..370 s",
+     "Q2 gap 281..267 s",
+     "Q2 gap 177..162 s",
+     "Q2 starts at 700 s",
+     "Q3 gap 630..614 s",
+     "Q3 gap 431..397 s",
+     "Q3 gap 39..21 s",
+     "Q3 starts at 699 s",
+     "Q4 gap 633..614 s",
+     "Q4 gap 519..508 s",
+     "Q4 gap 371..361 s",
+     "Q4 gap 316..297 s",
+     "Q4 gap 297..285 s",
+     "Q4 gap 230..210 s",
+     "Q4 gap 151..141 s",
+     "Q4 starts at 689 s"
+    ],
+    "gap_s_total": 408.7
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bucks vs Cavaliers November 19, 2015 full game",
+     "Cavaliers vs Bucks 11/19/15",
+     "Bucks Cavaliers Nov 19 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2
+    },
+    "candidates_probed": 0
+   },
+   "rank": 28
+  },
+  {
+   "game": "11.21.2015.ATL.at.CLE",
+   "date": "2015-11-21",
+   "away": "ATL",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 63431,
+    "flags": [
+     "Q1 gap 606..595 s",
+     "Q1 gap 354..330 s",
+     "Q1 gap 317..289 s",
+     "Q1 gap 167..128 s",
+     "Q1 starts at 694 s",
+     "Q2 gap 523..482 s",
+     "Q2 gap 359..338 s",
+     "Q2 gap 183..150 s",
+     "Q2 starts at 676 s",
+     "Q3 gap 593..576 s",
+     "Q3 gap 445..432 s",
+     "Q3 gap 201..191 s",
+     "Q3 starts at 688 s",
+     "Q4 gap 579..538 s",
+     "Q4 gap 501..482 s",
+     "Q4 gap 436..424 s",
+     "Q4 gap 410..393 s",
+     "Q4 gap 381..335 s",
+     "Q4 gap 175..134 s",
+     "Q4 gap 88..75 s",
+     "Q4 starts at 679 s"
+    ],
+    "gap_s_total": 570.3
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Hawks vs Cavaliers November 21, 2015 full game",
+     "Cavaliers vs Hawks 11/21/15",
+     "Hawks Cavaliers Nov 21 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "another date": 1,
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 29
+  },
+  {
+   "game": "11.23.2015.ORL.at.CLE",
+   "date": "2015-11-23",
+   "away": "ORL",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 76490,
+    "flags": [
+     "Q3 starts at 708 s"
+    ],
+    "gap_s_total": 11.5
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Magic vs Cavaliers November 23, 2015 full game",
+     "Cavaliers vs Magic 11/23/15",
+     "Magic Cavaliers Nov 23 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 30
+  },
+  {
+   "game": "12.01.2015.WAS.at.CLE",
+   "date": "2015-12-01",
+   "away": "WAS",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 64582,
+    "flags": [
+     "Q1 gap 607..597 s",
+     "Q1 gap 563..532 s",
+     "Q1 gap 271..245 s",
+     "Q1 starts at 699 s",
+     "Q2 gap 587..573 s",
+     "Q2 gap 478..451 s",
+     "Q2 gap 375..355 s",
+     "Q2 gap 344..326 s",
+     "Q2 gap 277..261 s",
+     "Q2 gap 203..174 s",
+     "Q2 gap 143..117 s",
+     "Q2 starts at 697 s",
+     "Q3 gap 560..537 s",
+     "Q3 gap 186..153 s",
+     "Q3 starts at 685 s",
+     "Q4 gap 537..521 s",
+     "Q4 gap 353..327 s",
+     "Q4 gap 48..37 s",
+     "Q4 gap 23..11 s",
+     "Q4 starts at 693 s"
+    ],
+    "gap_s_total": 444.3
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": "w3hsBSvTZN8",
+    "url": "https://www.youtube.com/watch?v=w3hsBSvTZN8",
+    "title": "NBA FINALS - FULL GAME - Cleveland Cavaliers vs Golden State Warriors",
+    "channel": "Viral Videos",
+    "upload_date": "20150605",
+    "duration_s": 9220,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 25,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Wizards vs Cavaliers December 1, 2015 full game",
+     "Cavaliers vs Wizards 12/1/15",
+     "Wizards Cavaliers Dec 1 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "year 2010": 1,
+     "video-game simulation": 3
+    },
+    "candidates_probed": 1
+   },
+   "rank": 31
+  },
+  {
+   "game": "12.08.2015.POR.at.CLE",
+   "date": "2015-12-08",
+   "away": "POR",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 72922,
+    "flags": [
+     "Q2 gap 424..412 s",
+     "Q3 gap 269..256 s",
+     "Q4 gap 436..422 s"
+    ],
+    "gap_s_total": 38.7
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Trail Blazers vs Cavaliers December 8, 2015 full game",
+     "Cavaliers vs Trail Blazers 12/8/15",
+     "Trail Blazers Cavaliers Dec 8 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 32
+  },
+  {
+   "game": "12.17.2015.OKC.at.CLE",
+   "date": "2015-12-17",
+   "away": "OKC",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 61311,
+    "flags": [
+     "Q1 gap 479..469 s",
+     "Q1 gap 362..336 s",
+     "Q1 gap 159..124 s",
+     "Q1 starts at 691 s",
+     "Q2 gap 533..492 s",
+     "Q2 gap 417..400 s",
+     "Q2 gap 352..318 s",
+     "Q2 gap 226..191 s",
+     "Q2 gap 151..141 s",
+     "Q2 gap 122..110 s",
+     "Q2 gap 72..39 s",
+     "Q2 starts at 683 s",
+     "Q3 gap 506..492 s",
+     "Q3 gap 418..386 s",
+     "Q3 gap 359..322 s",
+     "Q3 gap 184..173 s",
+     "Q3 starts at 692 s",
+     "Q4 gap 669..655 s",
+     "Q4 gap 614..574 s",
+     "Q4 gap 188..158 s",
+     "Q4 gap 58..28 s",
+     "Q4 gap 22..1 s",
+     "Q4 starts at 676 s"
+    ],
+    "gap_s_total": 622.4
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Thunder vs Cavaliers December 17, 2015 full game",
+     "Cavaliers vs Thunder 12/17/15",
+     "Thunder Cavaliers Dec 17 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 33
+  },
+  {
+   "game": "12.20.2015.PHI.at.CLE",
+   "date": "2015-12-20",
+   "away": "PHI",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 82821,
+    "flags": [
+     "Q4 gap 250..229 s"
+    ],
+    "gap_s_total": 20.8
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "76ers vs Cavaliers December 20, 2015 full game",
+     "Cavaliers vs 76ers 12/20/15",
+     "76ers Cavaliers Dec 20 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2,
+     "year 2026": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 34
+  },
+  {
+   "game": "01.02.2016.ORL.at.CLE",
+   "date": "2016-01-02",
+   "away": "ORL",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 67337,
+    "flags": [
+     "Q1 gap 427..394 s",
+     "Q1 gap 206..165 s",
+     "Q1 starts at 677 s",
+     "Q2 gap 520..485 s",
+     "Q2 gap 343..333 s",
+     "Q2 gap 248..226 s",
+     "Q2 gap 220..207 s",
+     "Q2 gap 160..146 s",
+     "Q2 gap 100..89 s",
+     "Q2 starts at 671 s",
+     "Q3 gap 347..326 s",
+     "Q3 gap 131..84 s",
+     "Q3 gap 61..48 s",
+     "Q3 starts at 691 s",
+     "Q4 gap 499..469 s",
+     "Q4 gap 443..427 s",
+     "Q4 gap 332..304 s",
+     "Q4 gap 110..96 s",
+     "Q4 starts at 686 s"
+    ],
+    "gap_s_total": 502.8
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Magic vs Cavaliers January 2, 2016 full game",
+     "Cavaliers vs Magic 1/2/16",
+     "Magic Cavaliers Jan 2 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2
+    },
+    "candidates_probed": 0
+   },
+   "rank": 35
+  },
+  {
+   "game": "01.04.2016.TOR.at.CLE",
+   "date": "2016-01-04",
+   "away": "TOR",
+   "home": "CLE",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 63858,
+    "flags": [
+     "Q1 gap 683..669 s",
+     "Q1 gap 416..368 s",
+     "Q1 gap 281..232 s",
+     "Q1 gap 160..130 s",
+     "Q1 gap 107..97 s",
+     "Q1 starts at 696 s",
+     "Q2 gap 530..503 s",
+     "Q2 gap 438..412 s",
+     "Q2 gap 388..376 s",
+     "Q2 gap 351..338 s",
+     "Q2 gap 213..203 s",
+     "Q2 gap 186..172 s",
+     "Q2 gap 142..118 s",
+     "Q2 starts at 683 s",
+     "Q3 gap 414..390 s",
+     "Q3 gap 173..134 s",
+     "Q3 starts at 671 s",
+     "Q4 gap 635..624 s",
+     "Q4 gap 526..472 s",
+     "Q4 gap 322..279 s",
+     "Q4 gap 177..144 s",
+     "Q4 starts at 684 s"
+    ],
+    "gap_s_total": 625.1
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Raptors vs Cavaliers January 4, 2016 full game",
+     "Cavaliers vs Raptors 1/4/16",
+     "Raptors Cavaliers Jan 4 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "postseason game": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 36
+  },
+  {
+   "game": "01.23.2016.CHI.at.CLE",
+   "date": "2016-01-23",
+   "away": "CHI",
+   "home": "CLE",
+   "verdict": "sportvu_broken",
+   "sportvu": {
+    "status": "sportvu_broken",
+    "error": "archive is 2350 bytes"
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bulls vs Cavaliers January 23, 2016 full game",
+     "Cavaliers vs Bulls 1/23/16",
+     "Bulls Cavaliers Jan 23 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 37
+  },
+  {
+   "game": "10.28.2015.SAS.at.OKC",
+   "date": "2015-10-28",
+   "away": "SAS",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81458,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Spurs vs Thunder October 28, 2015 full game",
+     "Thunder vs Spurs 10/28/15",
+     "Spurs Thunder Oct 28 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 38
+  },
+  {
+   "game": "11.01.2015.DEN.at.OKC",
+   "date": "2015-11-01",
+   "away": "DEN",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80993,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Nuggets vs Thunder November 1, 2015 full game",
+     "Thunder vs Nuggets 11/1/15",
+     "Nuggets Thunder Nov 1 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "year 2012": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 39
+  },
+  {
+   "game": "11.04.2015.TOR.at.OKC",
+   "date": "2015-11-04",
+   "away": "TOR",
+   "home": "OKC",
+   "verdict": "short_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 81544,
+    "flags": [
+     "Q2 gap 648..622 s"
+    ],
+    "gap_s_total": 25.9
+   },
+   "broadcast": {
+    "verdict": "short_broadcast",
+    "note": null,
+    "video_id": "nrMaYKFvE_s",
+    "url": "https://www.youtube.com/watch?v=nrMaYKFvE_s",
+    "title": "OKLAHOMA CITY THUNDER vs TORONTO RAPTORS Full Game",
+    "channel": "CAPTAIN SOJ",
+    "upload_date": "20200106",
+    "duration_s": 2437,
+    "format_id": "135+251",
+    "vcodec": "avc1.4d401e",
+    "height": 480,
+    "fps": 25,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Raptors vs Thunder November 4, 2015 full game",
+     "Thunder vs Raptors 11/4/15",
+     "Raptors Thunder Nov 4 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 40
+  },
+  {
+   "game": "11.08.2015.PHX.at.OKC",
+   "date": "2015-11-08",
+   "away": "PHX",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 83885,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Suns vs Thunder November 8, 2015 full game",
+     "Thunder vs Suns 11/8/15",
+     "Suns Thunder Nov 8 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 41
+  },
+  {
+   "game": "11.13.2015.PHI.at.OKC",
+   "date": "2015-11-13",
+   "away": "PHI",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81091,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "76ers vs Thunder November 13, 2015 full game",
+     "Thunder vs 76ers 11/13/15",
+     "76ers Thunder Nov 13 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 42
+  },
+  {
+   "game": "11.15.2015.BOS.at.OKC",
+   "date": "2015-11-15",
+   "away": "BOS",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 82262,
+    "flags": [
+     "Q1 gap 615..604 s"
+    ],
+    "gap_s_total": 10.8
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Celtics vs Thunder November 15, 2015 full game",
+     "Thunder vs Celtics 11/15/15",
+     "Celtics Thunder Nov 15 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 43
+  },
+  {
+   "game": "11.18.2015.NOP.at.OKC",
+   "date": "2015-11-18",
+   "away": "NOP",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 80027,
+    "flags": [
+     "Q1 gap 163..151 s",
+     "Q2 gap 144..122 s",
+     "Q4 gap 451..440 s"
+    ],
+    "gap_s_total": 43.6
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Pelicans vs Thunder November 18, 2015 full game",
+     "Thunder vs Pelicans 11/18/15",
+     "Pelicans Thunder Nov 18 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 44
+  },
+  {
+   "game": "11.20.2015.NYK.at.OKC",
+   "date": "2015-11-20",
+   "away": "NYK",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82303,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Knicks vs Thunder November 20, 2015 full game",
+     "Thunder vs Knicks 11/20/15",
+     "Knicks Thunder Nov 20 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 45
+  },
+  {
+   "game": "11.22.2015.DAL.at.OKC",
+   "date": "2015-11-22",
+   "away": "DAL",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82383,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Mavericks vs Thunder November 22, 2015 full game",
+     "Thunder vs Mavericks 11/22/15",
+     "Mavericks Thunder Nov 22 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 46
+  },
+  {
+   "game": "11.25.2015.BKN.at.OKC",
+   "date": "2015-11-25",
+   "away": "BKN",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80317,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Nets vs Thunder November 25, 2015 full game",
+     "Thunder vs Nets 11/25/15",
+     "Nets Thunder Nov 25 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 47
+  },
+  {
+   "game": "11.27.2015.DET.at.OKC",
+   "date": "2015-11-27",
+   "away": "DET",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81380,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": "-EewJI99WNI",
+    "url": "https://www.youtube.com/watch?v=-EewJI99WNI",
+    "title": "Charlotte Hornets Vs Detroit Pistons 2015/16",
+    "channel": "Rick Hunter",
+    "upload_date": "20160401",
+    "duration_s": 6400,
+    "format_id": "298+251",
+    "vcodec": "avc1.4d4020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "season: 2015/16",
+    "evidence_kind": "season",
+    "error": null,
+    "queries": [
+     "Pistons vs Thunder November 27, 2015 full game",
+     "Thunder vs Pistons 11/27/15",
+     "Pistons Thunder Nov 27 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 1
+   },
+   "rank": 48
+  },
+  {
+   "game": "12.06.2015.SAC.at.OKC",
+   "date": "2015-12-06",
+   "away": "SAC",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82683,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Kings vs Thunder December 6, 2015 full game",
+     "Thunder vs Kings 12/6/15",
+     "Kings Thunder Dec 6 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 49
+  },
+  {
+   "game": "12.10.2015.ATL.at.OKC",
+   "date": "2015-12-10",
+   "away": "ATL",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81411,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": "Xx5sgrjHiiE",
+    "url": "https://www.youtube.com/watch?v=Xx5sgrjHiiE",
+    "title": "Thunder Thursday, December 10, 2015",
+    "channel": "NewsOK Live Archive",
+    "upload_date": "20151210",
+    "duration_s": 3668,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "date: December 10, 2015",
+    "evidence_kind": "date",
+    "error": null,
+    "queries": [
+     "Hawks vs Thunder December 10, 2015 full game",
+     "Thunder vs Hawks 12/10/15",
+     "Hawks Thunder Dec 10 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 50
+  },
+  {
+   "game": "12.13.2015.UTA.at.OKC",
+   "date": "2015-12-13",
+   "away": "UTA",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 65030,
+    "flags": [
+     "Q4 ends at 599 s"
+    ],
+    "gap_s_total": 599.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Jazz vs Thunder December 13, 2015 full game",
+     "Thunder vs Jazz 12/13/15",
+     "Jazz Thunder Dec 13 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 51
+  },
+  {
+   "game": "12.16.2015.POR.at.OKC",
+   "date": "2015-12-16",
+   "away": "POR",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 83387,
+    "flags": [
+     "Q1 gap 438..426 s"
+    ],
+    "gap_s_total": 12.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Trail Blazers vs Thunder December 16, 2015 full game",
+     "Thunder vs Trail Blazers 12/16/15",
+     "Trail Blazers Thunder Dec 16 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 3
+    },
+    "candidates_probed": 0
+   },
+   "rank": 52
+  },
+  {
+   "game": "12.19.2015.LAL.at.OKC",
+   "date": "2015-12-19",
+   "away": "LAL",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81057,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Lakers vs Thunder December 19, 2015 full game",
+     "Thunder vs Lakers 12/19/15",
+     "Lakers Thunder Dec 19 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 53
+  },
+  {
+   "game": "12.25.2015.CHI.at.OKC",
+   "date": "2015-12-25",
+   "away": "CHI",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81628,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bulls vs Thunder December 25, 2015 full game",
+     "Thunder vs Bulls 12/25/15",
+     "Bulls Thunder Dec 25 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 54
+  },
+  {
+   "game": "12.27.2015.DEN.at.OKC",
+   "date": "2015-12-27",
+   "away": "DEN",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80732,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Nuggets vs Thunder December 27, 2015 full game",
+     "Thunder vs Nuggets 12/27/15",
+     "Nuggets Thunder Dec 27 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 55
+  },
+  {
+   "game": "12.29.2015.MIL.at.OKC",
+   "date": "2015-12-29",
+   "away": "MIL",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82635,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bucks vs Thunder December 29, 2015 full game",
+     "Thunder vs Bucks 12/29/15",
+     "Bucks Thunder Dec 29 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 56
+  },
+  {
+   "game": "12.31.2015.PHX.at.OKC",
+   "date": "2015-12-31",
+   "away": "PHX",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80663,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Suns vs Thunder December 31, 2015 full game",
+     "Thunder vs Suns 12/31/15",
+     "Suns Thunder Dec 31 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 57
+  },
+  {
+   "game": "01.04.2016.SAC.at.OKC",
+   "date": "2016-01-04",
+   "away": "SAC",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82494,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Kings vs Thunder January 4, 2016 full game",
+     "Thunder vs Kings 1/4/16",
+     "Kings Thunder Jan 4 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 5,
+     "year 2011": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 58
+  },
+  {
+   "game": "01.06.2016.MEM.at.OKC",
+   "date": "2016-01-06",
+   "away": "MEM",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 83626,
+    "flags": [
+     "Q4 gap 138..127 s"
+    ],
+    "gap_s_total": 10.6
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Grizzlies vs Thunder January 6, 2016 full game",
+     "Thunder vs Grizzlies 1/6/16",
+     "Grizzlies Thunder Jan 6 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "postseason game": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 59
+  },
+  {
+   "game": "01.13.2016.DAL.at.OKC",
+   "date": "2016-01-13",
+   "away": "DAL",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 81172,
+    "flags": [
+     "Q2 gap 451..441 s",
+     "Q4 gap 459..442 s"
+    ],
+    "gap_s_total": 27.3
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Mavericks vs Thunder January 13, 2016 full game",
+     "Thunder vs Mavericks 1/13/16",
+     "Mavericks Thunder Jan 13 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 60
+  },
+  {
+   "game": "01.15.2016.MIN.at.OKC",
+   "date": "2016-01-15",
+   "away": "MIN",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80601,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Timberwolves vs Thunder January 15, 2016 full game",
+     "Thunder vs Timberwolves 1/15/16",
+     "Timberwolves Thunder Jan 15 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 61
+  },
+  {
+   "game": "01.20.2016.CHA.at.OKC",
+   "date": "2016-01-20",
+   "away": "CHA",
+   "home": "OKC",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82523,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Hornets vs Thunder January 20, 2016 full game",
+     "Thunder vs Hornets 1/20/16",
+     "Hornets Thunder Jan 20 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 62
+  },
+  {
+   "game": "10.29.2015.ATL.at.NYK",
+   "date": "2015-10-29",
+   "away": "ATL",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 83932,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Hawks vs Knicks October 29, 2015 full game",
+     "Knicks vs Hawks 10/29/15",
+     "Hawks Knicks Oct 29 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 63
+  },
+  {
+   "game": "11.02.2015.SAS.at.NYK",
+   "date": "2015-11-02",
+   "away": "SAS",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 79760,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Spurs vs Knicks November 2, 2015 full game",
+     "Knicks vs Spurs 11/2/15",
+     "Spurs Knicks Nov 2 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "postseason game": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 64
+  },
+  {
+   "game": "11.06.2015.MIL.at.NYK",
+   "date": "2015-11-06",
+   "away": "MIL",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 84833,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bucks vs Knicks November 6, 2015 full game",
+     "Knicks vs Bucks 11/6/15",
+     "Bucks Knicks Nov 6 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 65
+  },
+  {
+   "game": "11.08.2015.LAL.at.NYK",
+   "date": "2015-11-08",
+   "away": "LAL",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82206,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Lakers vs Knicks November 8, 2015 full game",
+     "Knicks vs Lakers 11/8/15",
+     "Lakers Knicks Nov 8 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 66
+  },
+  {
+   "game": "11.13.2015.CLE.at.NYK",
+   "date": "2015-11-13",
+   "away": "CLE",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80439,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": "video is dated for 12.23.2015.NYK.at.CLE",
+    "video_id": "7TuGdp5f_bg",
+    "url": "https://www.youtube.com/watch?v=7TuGdp5f_bg",
+    "title": "2015-2016 NBA Season Cleveland Cavaliers vs New York Knicks",
+    "channel": "Freedom ,",
+    "upload_date": "20260308",
+    "duration_s": 6316,
+    "format_id": "298+251",
+    "vcodec": "avc1.4d4020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "season: 2015-2016",
+    "evidence_kind": "season",
+    "error": null,
+    "queries": [
+     "Cavaliers vs Knicks November 13, 2015 full game",
+     "Knicks vs Cavaliers 11/13/15",
+     "Cavaliers Knicks Nov 13 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 67
+  },
+  {
+   "game": "11.15.2015.NOP.at.NYK",
+   "date": "2015-11-15",
+   "away": "NOP",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80972,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Pelicans vs Knicks November 15, 2015 full game",
+     "Knicks vs Pelicans 11/15/15",
+     "Pelicans Knicks Nov 15 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 68
+  },
+  {
+   "game": "11.17.2015.CHA.at.NYK",
+   "date": "2015-11-17",
+   "away": "CHA",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81470,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Hornets vs Knicks November 17, 2015 full game",
+     "Knicks vs Hornets 11/17/15",
+     "Hornets Knicks Nov 17 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 3
+    },
+    "candidates_probed": 0
+   },
+   "rank": 69
+  },
+  {
+   "game": "11.27.2015.MIA.at.NYK",
+   "date": "2015-11-27",
+   "away": "MIA",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82760,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Heat vs Knicks November 27, 2015 full game",
+     "Knicks vs Heat 11/27/15",
+     "Heat Knicks Nov 27 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 70
+  },
+  {
+   "game": "11.29.2015.HOU.at.NYK",
+   "date": "2015-11-29",
+   "away": "HOU",
+   "home": "NYK",
+   "verdict": "short_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 90343,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "short_broadcast",
+    "note": null,
+    "video_id": "eeVYFnJRh00",
+    "url": "https://www.youtube.com/watch?v=eeVYFnJRh00",
+    "title": "Rockets @ Knicks",
+    "channel": "Cedric Thomas",
+    "upload_date": "20151129",
+    "duration_s": 3645,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": "uploaded 0 days after the game",
+    "evidence_kind": "upload",
+    "error": null,
+    "queries": [
+     "Rockets vs Knicks November 29, 2015 full game",
+     "Knicks vs Rockets 11/29/15",
+     "Rockets Knicks Nov 29 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 71
+  },
+  {
+   "game": "12.02.2015.PHI.at.NYK",
+   "date": "2015-12-02",
+   "away": "PHI",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 79115,
+    "flags": [
+     "Q4 gap 176..88 s"
+    ],
+    "gap_s_total": 87.9
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "76ers vs Knicks December 2, 2015 full game",
+     "Knicks vs 76ers 12/2/15",
+     "76ers Knicks Dec 2 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 72
+  },
+  {
+   "game": "12.04.2015.BKN.at.NYK",
+   "date": "2015-12-04",
+   "away": "BKN",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81022,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Nets vs Knicks December 4, 2015 full game",
+     "Knicks vs Nets 12/4/15",
+     "Nets Knicks Dec 4 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 73
+  },
+  {
+   "game": "12.07.2015.DAL.at.NYK",
+   "date": "2015-12-07",
+   "away": "DAL",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80122,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Mavericks vs Knicks December 7, 2015 full game",
+     "Knicks vs Mavericks 12/7/15",
+     "Mavericks Knicks Dec 7 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 74
+  },
+  {
+   "game": "12.16.2015.MIN.at.NYK",
+   "date": "2015-12-16",
+   "away": "MIN",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 82451,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Timberwolves vs Knicks December 16, 2015 full game",
+     "Knicks vs Timberwolves 12/16/15",
+     "Timberwolves Knicks Dec 16 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 75
+  },
+  {
+   "game": "12.19.2015.CHI.at.NYK",
+   "date": "2015-12-19",
+   "away": "CHI",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80027,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bulls vs Knicks December 19, 2015 full game",
+     "Knicks vs Bulls 12/19/15",
+     "Bulls Knicks Dec 19 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "year 1995": 1,
+     "year 1991": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 76
+  },
+  {
+   "game": "12.21.2015.ORL.at.NYK",
+   "date": "2015-12-21",
+   "away": "ORL",
+   "home": "NYK",
+   "verdict": "ambiguous",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80696,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ambiguous",
+    "note": null,
+    "video_id": "3GuXP5HDKw8",
+    "url": "https://www.youtube.com/watch?v=3GuXP5HDKw8",
+    "title": "21-35 Magic vs 34-25 Knicks",
+    "channel": "Game Tyme",
+    "upload_date": "20160226",
+    "duration_s": 5564,
+    "format_id": "136+251",
+    "vcodec": "avc1.4d401f",
+    "height": 720,
+    "fps": 30,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Magic vs Knicks December 21, 2015 full game",
+     "Knicks vs Magic 12/21/15",
+     "Magic Knicks Dec 21 2015 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 1
+   },
+   "rank": 77
+  },
+  {
+   "game": "12.29.2015.DET.at.NYK",
+   "date": "2015-12-29",
+   "away": "DET",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 80754,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Pistons vs Knicks December 29, 2015 full game",
+     "Knicks vs Pistons 12/29/15",
+     "Pistons Knicks Dec 29 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 78
+  },
+  {
+   "game": "01.03.2016.ATL.at.NYK",
+   "date": "2016-01-03",
+   "away": "ATL",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 58681,
+    "flags": [
+     "Q1 gap 77..10 s",
+     "Q2 ends at 719 s",
+     "Q3 gap 720..695 s"
+    ],
+    "gap_s_total": 811.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Hawks vs Knicks January 3, 2016 full game",
+     "Knicks vs Hawks 1/3/16",
+     "Hawks Knicks Jan 3 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 79
+  },
+  {
+   "game": "01.10.2016.MIL.at.NYK",
+   "date": "2016-01-10",
+   "away": "MIL",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81634,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Bucks vs Knicks January 10, 2016 full game",
+     "Knicks vs Bucks 1/10/16",
+     "Bucks Knicks Jan 10 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 1
+    },
+    "candidates_probed": 0
+   },
+   "rank": 80
+  },
+  {
+   "game": "01.12.2016.BOS.at.NYK",
+   "date": "2016-01-12",
+   "away": "BOS",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 79382,
+    "flags": [
+     "Q4 gap 506..494 s",
+     "Q4 gap 476..428 s"
+    ],
+    "gap_s_total": 59.5
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Celtics vs Knicks January 12, 2016 full game",
+     "Knicks vs Celtics 1/12/16",
+     "Celtics Knicks Jan 12 2016 full game"
+    ],
+    "rejected_before_probe": {
+     "video-game simulation": 2
+    },
+    "candidates_probed": 0
+   },
+   "rank": 81
+  },
+  {
+   "game": "01.18.2016.PHI.at.NYK",
+   "date": "2016-01-18",
+   "away": "PHI",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 98479,
+    "flags": [
+     "Q1 gap 197..185 s"
+    ],
+    "gap_s_total": 12.1
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "76ers vs Knicks January 18, 2016 full game",
+     "Knicks vs 76ers 1/18/16",
+     "76ers Knicks Jan 18 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 82
+  },
+  {
+   "game": "01.20.2016.UTA.at.NYK",
+   "date": "2016-01-20",
+   "away": "UTA",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "ok",
+    "moments": 90620,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Jazz vs Knicks January 20, 2016 full game",
+     "Knicks vs Jazz 1/20/16",
+     "Jazz Knicks Jan 20 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 83
+  },
+  {
+   "game": "01.22.2016.LAC.at.NYK",
+   "date": "2016-01-22",
+   "away": "LAC",
+   "home": "NYK",
+   "verdict": "no_broadcast",
+   "sportvu": {
+    "status": "sportvu_gaps",
+    "moments": 82060,
+    "flags": [
+     "Q4 gap 352..336 s"
+    ],
+    "gap_s_total": 16.3
+   },
+   "broadcast": {
+    "verdict": "no_broadcast",
+    "note": null,
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
+    "error": null,
+    "queries": [
+     "Clippers vs Knicks January 22, 2016 full game",
+     "Knicks vs Clippers 1/22/16",
+     "Clippers Knicks Jan 22 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 84
+  }
+ ],
+ "caveats": [
+  "a broadcast verdict is a search result, not an identity check: the scorebug confirms the game at R1.2",
+  "YouTube availability changes over time and search results vary; probe_error means the probe failed, not that no video exists",
+  "SportVU flags count clock gaps above 10 s; short stoppage-free gaps below that are not listed"
+ ]
+}

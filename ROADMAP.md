@@ -99,7 +99,7 @@ download scripts, manifests and licence notes are committed.
       it, the held-out era reported label-free only. Court stage judged on position error and bias.)
 
 ## Phase 1: SportVU-synced data
-- [ ] R1.1 Availability manifest for the 84 SportVU home games in the window: GSW 20 (incl. the held-out
+- [x] R1.1 Availability manifest for the 84 SportVU home games in the window: GSW 20 (incl. the held-out
       gsw_phx_2016), CLE 17, OKC 25, NYK 22, listed from the GitHub contents API of
       linouk23/NBA-Player-Movements (names matching `MM.DD.YYYY.AAA.at.HHH.7z`). Per game:
       (a) SportVU: fetch with `sportvu.fetch`; an archive under 1 MB or one that fails to parse is

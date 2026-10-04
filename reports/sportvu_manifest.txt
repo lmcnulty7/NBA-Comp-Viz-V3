@@ -1,0 +1,102 @@
+SPORTVU AVAILABILITY MANIFEST (ROADMAP R1.1), 84 games, 2026-10-03
+verdicts per arena (usable = ok_unverified or sportvu_gaps):
+  GSW  usable  3 of 20 | held_out 1, no_broadcast 10, short_broadcast 3, ambiguous 3, sportvu_gaps 1, ok_unverified 2
+  CLE  usable  2 of 17 | sportvu_broken 1, no_broadcast 13, low_res 1, sportvu_gaps 2
+  OKC  usable  0 of 25 | no_broadcast 24, short_broadcast 1
+  NYK  usable  0 of 22 | no_broadcast 20, short_broadcast 1, ambiguous 1
+candidate videos rejected before probing, per arena and rule:
+  GSW  video-game simulation 9, another date 2, postseason game 1, year 1991 1
+  CLE  video-game simulation 17, another date 2, year 2010 1, year 2026 1, postseason game 1
+  OKC  video-game simulation 13, year 2012 1, year 2011 1, postseason game 1
+  NYK  video-game simulation 10, postseason game 1, year 1995 1, year 1991 1
+
+priority list:
+   1 12.25.2015.CLE.at.GSW    ok_unverified   QJLso8Uwklc 4975s 720p upload
+   2 11.14.2015.BKN.at.GSW    sportvu_gaps    -u83b73fFbY 6364s 720p date  | Q3 gap 317..295 s; Q3 gap 284..269 s
+   3 01.22.2016.IND.at.GSW    ok_unverified   UQHXGIH12Ds 6291s 720p date
+   4 10.27.2015.NOP.at.GSW    no_broadcast    -    | Q2 gap 110..98 s
+   5 11.02.2015.MEM.at.GSW    ambiguous       seKB6KYMBog 4591s 720p  | Q3 gap 522..510 s
+   6 11.04.2015.LAC.at.GSW    no_broadcast    -  
+   7 11.06.2015.DEN.at.GSW    short_broadcast 0aHFoUgSA6E 3970s 720p upload
+   8 11.09.2015.DET.at.GSW    no_broadcast    -  
+   9 11.17.2015.TOR.at.GSW    no_broadcast    -  
+  10 11.20.2015.CHI.at.GSW    no_broadcast    -    | Q3 gap 401..390 s
+  11 11.24.2015.LAL.at.GSW    short_broadcast FVQw7_IIQRY 4317s 720p upload  | Q3 gap 681..658 s
+  12 11.28.2015.SAC.at.GSW    no_broadcast    -  
+  13 12.16.2015.PHX.at.GSW    held_out        f8lAcHg6kk0  
+  14 12.18.2015.MIL.at.GSW    short_broadcast zG7jyMwHHus 3991s 720p upload
+  15 12.23.2015.UTA.at.GSW    no_broadcast    -    | Q3 gap 288..278 s
+  16 12.28.2015.SAC.at.GSW    ambiguous       qzJbC4tmJeA 6252s 720p season
+  17 01.02.2016.DEN.at.GSW    ambiguous       i5To6IgQLKc 6296s 720p
+  18 01.04.2016.CHA.at.GSW    no_broadcast    -  
+  19 01.11.2016.MIA.at.GSW    no_broadcast    -    | Q1 gap 57..36 s
+  20 01.14.2016.LAL.at.GSW    no_broadcast    -  
+  21 12.23.2015.NYK.at.CLE    sportvu_gaps    7TuGdp5f_bg 6316s 720p date  | Q1 gap 386..375 s; Q3 starts at 700 s; Q4 gap 657..647 s
+  22 01.18.2016.GSW.at.CLE    sportvu_gaps    bzmm0WiWYog 6238s 720p date  | Q1 gap 610..532 s; Q1 gap 358..302 s; Q1 starts at 624 s; Q2 gap 534..475 s; Q2 gap 353..304 s; Q2 gap 212..196 s; Q2 st
+  23 10.30.2015.MIA.at.CLE    no_broadcast    -    | Q1 starts at 704 s; Q2 gap 558..541 s; Q2 gap 352..334 s; Q2 starts at 708 s; Q3 starts at 705 s; Q4 gap 530..512 s; Q4 
+  24 11.04.2015.NYK.at.CLE    no_broadcast    -    | Q1 gap 706..695 s; Q1 gap 560..537 s; Q1 gap 372..342 s; Q1 gap 226..214 s; Q1 gap 124..97 s; Q1 gap 84..57 s; Q1 starts
+  25 11.06.2015.PHI.at.CLE    no_broadcast    -    | Q1 gap 426..384 s; Q1 gap 171..155 s; Q1 gap 41..8 s; Q1 starts at 701 s; Q2 gap 571..541 s; Q2 gap 369..308 s; Q2 gap 1
+  26 11.08.2015.IND.at.CLE    no_broadcast    -  
+  27 11.10.2015.UTA.at.CLE    low_res         mkYea3CYYBo 4661s 360p  | Q1 gap 376..363 s; Q2 gap 535..523 s
+  28 11.19.2015.MIL.at.CLE    no_broadcast    -    | Q1 gap 362..348 s; Q1 gap 127..110 s; Q1 starts at 684 s; Q2 gap 536..497 s; Q2 gap 403..370 s; Q2 gap 281..267 s; Q2 ga
+  29 11.21.2015.ATL.at.CLE    no_broadcast    -    | Q1 gap 606..595 s; Q1 gap 354..330 s; Q1 gap 317..289 s; Q1 gap 167..128 s; Q1 starts at 694 s; Q2 gap 523..482 s; Q2 ga
+  30 11.23.2015.ORL.at.CLE    no_broadcast    -    | Q3 starts at 708 s
+  31 12.01.2015.WAS.at.CLE    no_broadcast    -    | Q1 gap 607..597 s; Q1 gap 563..532 s; Q1 gap 271..245 s; Q1 starts at 699 s; Q2 gap 587..573 s; Q2 gap 478..451 s; Q2 ga
+  32 12.08.2015.POR.at.CLE    no_broadcast    -    | Q2 gap 424..412 s; Q3 gap 269..256 s; Q4 gap 436..422 s
+  33 12.17.2015.OKC.at.CLE    no_broadcast    -    | Q1 gap 479..469 s; Q1 gap 362..336 s; Q1 gap 159..124 s; Q1 starts at 691 s; Q2 gap 533..492 s; Q2 gap 417..400 s; Q2 ga
+  34 12.20.2015.PHI.at.CLE    no_broadcast    -    | Q4 gap 250..229 s
+  35 01.02.2016.ORL.at.CLE    no_broadcast    -    | Q1 gap 427..394 s; Q1 gap 206..165 s; Q1 starts at 677 s; Q2 gap 520..485 s; Q2 gap 343..333 s; Q2 gap 248..226 s; Q2 ga
+  36 01.04.2016.TOR.at.CLE    no_broadcast    -    | Q1 gap 683..669 s; Q1 gap 416..368 s; Q1 gap 281..232 s; Q1 gap 160..130 s; Q1 gap 107..97 s; Q1 starts at 696 s; Q2 gap
+  37 01.23.2016.CHI.at.CLE    sportvu_broken  -  
+  38 10.28.2015.SAS.at.OKC    no_broadcast    -  
+  39 11.01.2015.DEN.at.OKC    no_broadcast    -  
+  40 11.04.2015.TOR.at.OKC    short_broadcast nrMaYKFvE_s 2437s 480p  | Q2 gap 648..622 s
+  41 11.08.2015.PHX.at.OKC    no_broadcast    -  
+  42 11.13.2015.PHI.at.OKC    no_broadcast    -  
+  43 11.15.2015.BOS.at.OKC    no_broadcast    -    | Q1 gap 615..604 s
+  44 11.18.2015.NOP.at.OKC    no_broadcast    -    | Q1 gap 163..151 s; Q2 gap 144..122 s; Q4 gap 451..440 s
+  45 11.20.2015.NYK.at.OKC    no_broadcast    -  
+  46 11.22.2015.DAL.at.OKC    no_broadcast    -  
+  47 11.25.2015.BKN.at.OKC    no_broadcast    -  
+  48 11.27.2015.DET.at.OKC    no_broadcast    -  
+  49 12.06.2015.SAC.at.OKC    no_broadcast    -  
+  50 12.10.2015.ATL.at.OKC    no_broadcast    -  
+  51 12.13.2015.UTA.at.OKC    no_broadcast    -    | Q4 ends at 599 s
+  52 12.16.2015.POR.at.OKC    no_broadcast    -    | Q1 gap 438..426 s
+  53 12.19.2015.LAL.at.OKC    no_broadcast    -  
+  54 12.25.2015.CHI.at.OKC    no_broadcast    -  
+  55 12.27.2015.DEN.at.OKC    no_broadcast    -  
+  56 12.29.2015.MIL.at.OKC    no_broadcast    -  
+  57 12.31.2015.PHX.at.OKC    no_broadcast    -  
+  58 01.04.2016.SAC.at.OKC    no_broadcast    -  
+  59 01.06.2016.MEM.at.OKC    no_broadcast    -    | Q4 gap 138..127 s
+  60 01.13.2016.DAL.at.OKC    no_broadcast    -    | Q2 gap 451..441 s; Q4 gap 459..442 s
+  61 01.15.2016.MIN.at.OKC    no_broadcast    -  
+  62 01.20.2016.CHA.at.OKC    no_broadcast    -  
+  63 10.29.2015.ATL.at.NYK    no_broadcast    -  
+  64 11.02.2015.SAS.at.NYK    no_broadcast    -  
+  65 11.06.2015.MIL.at.NYK    no_broadcast    -  
+  66 11.08.2015.LAL.at.NYK    no_broadcast    -  
+  67 11.13.2015.CLE.at.NYK    no_broadcast    -  
+  68 11.15.2015.NOP.at.NYK    no_broadcast    -  
+  69 11.17.2015.CHA.at.NYK    no_broadcast    -  
+  70 11.27.2015.MIA.at.NYK    no_broadcast    -  
+  71 11.29.2015.HOU.at.NYK    short_broadcast eeVYFnJRh00 3645s 720p upload
+  72 12.02.2015.PHI.at.NYK    no_broadcast    -    | Q4 gap 176..88 s
+  73 12.04.2015.BKN.at.NYK    no_broadcast    -  
+  74 12.07.2015.DAL.at.NYK    no_broadcast    -  
+  75 12.16.2015.MIN.at.NYK    no_broadcast    -  
+  76 12.19.2015.CHI.at.NYK    no_broadcast    -  
+  77 12.21.2015.ORL.at.NYK    ambiguous       3GuXP5HDKw8 5564s 720p
+  78 12.29.2015.DET.at.NYK    no_broadcast    -  
+  79 01.03.2016.ATL.at.NYK    no_broadcast    -    | Q1 gap 77..10 s; Q2 ends at 719 s; Q3 gap 720..695 s
+  80 01.10.2016.MIL.at.NYK    no_broadcast    -  
+  81 01.12.2016.BOS.at.NYK    no_broadcast    -    | Q4 gap 506..494 s; Q4 gap 476..428 s
+  82 01.18.2016.PHI.at.NYK    no_broadcast    -    | Q1 gap 197..185 s
+  83 01.20.2016.UTA.at.NYK    no_broadcast    -  
+  84 01.22.2016.LAC.at.NYK    no_broadcast    -    | Q4 gap 352..336 s
+
+caveats:
+  - a broadcast verdict is a search result, not an identity check: the scorebug confirms the game at R1.2
+  - YouTube availability changes over time and search results vary; probe_error means the probe failed, not that no video exists
+  - SportVU flags count clock gaps above 10 s; short stoppage-free gaps below that are not listed
