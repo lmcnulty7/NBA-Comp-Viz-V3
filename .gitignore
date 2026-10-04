@@ -98,3 +98,7 @@ data/external/
 
 # QC contact sheets (28 MB of jpg, regenerable: track_qc.py --sheets)
 reports/qc_sheets/
+
+# ── Kept out of the public repo (2026-10-03) ──
+# the paper draft is its own private repo (lmcnulty7/NBA-Comp-Viz-V3-paper), checked out in place
+/paper/
