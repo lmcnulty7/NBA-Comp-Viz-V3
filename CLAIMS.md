@@ -44,9 +44,10 @@ says so.
 **Measurement protocol.**
 - Held-out game: gsw_phx_2016 (2015-12-16, PHX at GSW, Oracle Arena; SportVU log
   12.16.2015.PHX.at.GSW).
-- Held-out arena: one of CLE, OKC or NYK, using its home games inside the public SportVU window
-  (2015-10-27 .. 2016-01-23). The whole arena is held out: no game played there enters training.
-  Lucien names it at the [HUMAN] gate after ROADMAP R1.1.
+- Held-out arena: CLE (Quicken Loans Arena), chosen 2026-10-04 at the [HUMAN] gate after ROADMAP
+  R1.1 because OKC and NYK have no game with a usable broadcast (reports/sportvu_manifest.txt).
+  Scored on 12.23.2015 NYK at CLE and 01.18.2016 GSW at CLE (the latter with 830 s of SportVU clock
+  gaps). The whole arena is held out: no game played there enters training.
 - Held-out era: gsw_nyk_curry54 (2013-02-27, GSW at NYK, the 2013 production game), untouched by
   training. The public SportVU logs cover 2015-16 only, so this game has no tracking truth: it is
   reported with the label-free indicators (qc/, track_qc.py) and is not a pass/fail row (decided

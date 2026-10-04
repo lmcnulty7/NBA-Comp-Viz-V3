@@ -122,9 +122,16 @@ download scripts, manifests and licence notes are committed.
       third-party data); the SportVU logs stay in `data/sportvu/` (gitignored). The run takes about
       30 min: run it in the background with a per-game cache (`data/sportvu/manifest_parts/`) so a
       rerun resumes. No video downloads beyond probes. Measurable: games per arena per verdict.
-- [ ] [HUMAN] Lucien picks the games to download, names the held-out ARENA (one of CLE, OKC, NYK;
+- [x] [HUMAN] Lucien picks the games to download, names the held-out ARENA (one of CLE, OKC, NYK;
       choosing NYK also puts the era game's arena out of training) and confirms gsw_phx_2016 (held-out
       game) and gsw_nyk_curry54 (held-out era: untouched by training, reported label-free only).
+      Decided 2026-10-04: proceed with the usable games in reports/sportvu_manifest.txt. Held-out
+      arena CLE (the only arena with scoreable games; OKC and NYK have none). Training (Oracle):
+      12.25.2015 CLE (QJLso8Uwklc), 11.14.2015 BKN (-u83b73fFbY), 01.22.2016 IND (UQHXGIH12Ds),
+      12.28.2015 SAC (qzJbC4tmJeA), 01.04.2016 CHA (hoPgMa02zB4). Held-out arena (CLE):
+      12.23.2015 NYK (7TuGdp5f_bg), 01.18.2016 GSW (bzmm0WiWYog; SportVU has 830 s of clock gaps).
+      Held-out game gsw_phx_2016 and held-out era gsw_nyk_curry54 confirmed. More games (GSW away
+      games at other arenas) may be added later through sportvu/manifest_overrides.json.
 - [ ] R1.2 Fetch, register (`data/harvest/games.json`), split and clock-calibrate the chosen games with
       the harvest tooling; OCR time maps per section (`sportvu.local_sync`); SportVU moments fetched.
       Measurable: per game, mapped running seconds and the mirror/offset resolution (`sportvu.sync`).
@@ -202,7 +209,8 @@ download scripts, manifests and licence notes are committed.
 
 ## Waiting on Lucien
 - [x] [HUMAN] Confirm the Stage 1 targets (gate after R0.3). Done 2026-10-03, see Phase 0.
-- [ ] [HUMAN] Pick games and the held-out arena (gate after R1.1; the era is fixed as gsw_nyk_curry54).
+- [x] [HUMAN] Pick games and the held-out arena (gate after R1.1; the era is fixed as gsw_nyk_curry54).
+      Done 2026-10-04: held-out arena CLE, games listed at the Phase 1 gate.
 - [x] [HUMAN] Decide whether to push the local tag v3-frozen. Decided 2026-10-03: the 7 portfolio clips,
       paper/ and two unused raw ESPN frames were removed from the unpushed history (backup bundle and
       checksummed copies in ~/Developer/nba-comp-viz-data/backup-20261003), then main and v3-frozen

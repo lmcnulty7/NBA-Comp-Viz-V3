@@ -48,3 +48,6 @@ RESOLVED 2026-10-03: targets confirmed with changes (a) and (b) below as recomme
 
 ## Gate input (2026-10-04): broadcasts found or confirmed by Lucien
 - 12.28.2015 SAC at GSW = qzJbC4tmJeA (watched by Lucien; the title only names the season) and 01.04.2016 CHA at GSW = hoPgMa02zB4 (found by Lucien), both probed 720p60 avc1 (104 and 92 min). Recorded in sportvu/manifest_overrides.json (tracked; human decisions outrank the search, the format is still probed); reports/sportvu_manifest.* regenerated: GSW usable 5 of 20 (+ held-out phx), CLE 2, OKC 0, NYK 0. Search list for Lucien: reports/broadcast_wishlist.csv (untracked working file).
+
+## Gate (2026-10-04): games and held-out arena chosen by Lucien
+- Proceed with the usable games: training = 5 Oracle games (12.25 CLE, 11.14 BKN, 01.22 IND, 12.28 SAC, 01.04 CHA); held-out arena CLE (12.23 NYK, 01.18 GSW), the only arena with scoreable games; held-out game gsw_phx_2016 and era gsw_nyk_curry54 confirmed. Both gates ticked (Phase 1 and Waiting on Lucien); CLAIMS.md protocol names CLE. Next: R1.2.
