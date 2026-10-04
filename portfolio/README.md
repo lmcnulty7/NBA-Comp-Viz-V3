@@ -43,6 +43,9 @@ data: URIs) are regenerable in under a minute. Needs ffmpeg/ffprobe at
   JSON-only wrappers here, `render_matchup.py` (c5) and
   `render_matchup_c6.py` + `scan_c6.py` (c6, banner relocated and
   pixel-verified against the JSON's 36 excluded frames).
+  Kept out of git since 2026-10-03 (broadcast-derived video, CLAIMS caveat 4):
+  the files stay on disk for `assemble.py`, with a checksummed backup in
+  `~/Developer/nba-comp-viz-data/backup-20261003/clips/`.
 - `img/` — stills as WebP q80 + `stills_manifest.json`.
 - Three hand-drawn inline-SVG schematics live in `template.html` (`#d-chain` the
   data flow with its exclusion branches and the independent play-by-play source;

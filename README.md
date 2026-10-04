@@ -391,3 +391,19 @@ $PY evaluate_possessions.py --report   # basket + offense accuracy separately, b
 ```
 "left/right" = as seen on the broadcast frame (sideline camera keeps court-x
 aligned with screen-x on these clips).
+
+---
+
+## Licence and third-party content
+
+The code, docs and labels in this repository are released under the MIT licence (`LICENSE`).
+Not covered by it:
+- **Broadcast-derived stills** (NBA and broadcaster footage, mostly with analysis overlays),
+  included at low resolution for research and commentary. Broadcast video is never committed;
+  the portfolio clips are kept out of git.
+- **Roboflow-export frames** under `data/court_review/`: their dataset's own terms apply.
+- **Tracking-data summaries** (SportVU, `reports/sportvu_*` where present): counts and metrics
+  only; the raw tracking logs are never committed.
+
+The paper draft lives in a separate private repository. Rights holders can request removal by
+opening an issue.

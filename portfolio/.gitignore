@@ -1,1 +1,3 @@
 build/
+# broadcast-derived video stays out of git (CLAIMS caveat 4); checksummed backup outside the repo
+clips/

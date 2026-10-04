@@ -91,3 +91,7 @@ data/label_audit/crops/
 data/triage/src/
 data/triage/renders/
 data/triage/side/
+
+# ── Kept out of the public repo (2026-10-03) ──
+# the paper draft is its own private repo (lmcnulty7/NBA-Comp-Viz-V3-paper), checked out in place
+/paper/
