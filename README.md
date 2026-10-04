@@ -18,7 +18,7 @@ perception stack (see `DEVLOG.md` for the narrative history):
 
 ## Status (2026-10-03): V3 frozen, Stage 1 rebuilt on a SportVU scoreboard
 
-**What V3 is.** Git tag `v3-frozen` (commit `869f7a0` on `main`): the CLIP gate, the
+**What V3 is.** Git tag `v3-frozen` (commit `07bf4e6` on `main`, on GitHub): the CLIP gate, the
 grid-keypoint court solver with line snap and tracking (`court/`), the YOLO detector with
 BoT-SORT (`detect/`), the unsupervised team classifier, possession segmentation, the play-by-play
 alignment and the stats layer, run on the 14-game production harvest (`data/harvest/games.json`).

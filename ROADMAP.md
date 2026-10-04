@@ -203,6 +203,7 @@ download scripts, manifests and licence notes are committed.
 ## Waiting on Lucien
 - [x] [HUMAN] Confirm the Stage 1 targets (gate after R0.3). Done 2026-10-03, see Phase 0.
 - [ ] [HUMAN] Pick games and the held-out arena (gate after R1.1; the era is fixed as gsw_nyk_curry54).
-- [ ] [HUMAN] Decide whether to push the local tag v3-frozen. Pushing it publishes the 21 local main
-      commits not on origin, including 7 broadcast-derived mp4 clips in portfolio/clips/, to a public
-      repo (CLAIMS caveat: no video redistributed). Does not gate the loop.
+- [x] [HUMAN] Decide whether to push the local tag v3-frozen. Decided 2026-10-03: the 7 portfolio clips,
+      paper/ and two unused raw ESPN frames were removed from the unpushed history (backup bundle and
+      checksummed copies in ~/Developer/nba-comp-viz-data/backup-20261003), then main and v3-frozen
+      were pushed. Clips stay on disk (gitignored); paper/ is the private repo NBA-Comp-Viz-V3-paper.
