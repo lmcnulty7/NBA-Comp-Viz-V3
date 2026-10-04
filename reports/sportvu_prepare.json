@@ -1,0 +1,236 @@
+{
+ "item": "ROADMAP R1.2",
+ "games": {
+  "gsw_bkn_2015": {
+   "sportvu": "11.14.2015.BKN.at.GSW",
+   "split": "train",
+   "video_id": "-u83b73fFbY",
+   "video": true,
+   "sections": 11,
+   "layout": "csn_ba16_720",
+   "sportvu_moments": 88252,
+   "sections_mapped": 11,
+   "mapped_running_s": 2529.2,
+   "clock_reads": 6262,
+   "clock_reads_ok": 4556,
+   "home": "GSW",
+   "direction": {
+    "status": "ok",
+    "mirror": "identity",
+    "vote_share": 1.0,
+    "windows_voting": 15,
+    "median_ft_by_mirror": {
+     "identity": 5.81,
+     "flip_x": 30.84,
+     "flip_y": 7.48,
+     "flip_xy": 29.64
+    },
+    "far_ft_by_mirror": {
+     "identity": 7.04,
+     "flip_x": 35.87,
+     "flip_y": 10.2,
+     "flip_xy": 36.49
+    },
+    "offsets_s": [
+     -1.14,
+     1.42
+    ]
+   }
+  },
+  "gsw_ind_2016": {
+   "sportvu": "01.22.2016.IND.at.GSW",
+   "split": "train",
+   "video_id": "UQHXGIH12Ds",
+   "video": true,
+   "sections": 11,
+   "layout": "abc_finals16_720",
+   "sportvu_moments": 82464,
+   "sections_mapped": 11,
+   "mapped_running_s": 2632.8,
+   "clock_reads": 6192,
+   "clock_reads_ok": 4496,
+   "home": "GSW",
+   "direction": {
+    "status": "ok",
+    "mirror": "identity",
+    "vote_share": 0.92,
+    "windows_voting": 13,
+    "median_ft_by_mirror": {
+     "identity": 5.89,
+     "flip_x": 29.58,
+     "flip_y": 7.48,
+     "flip_xy": 29.98
+    },
+    "far_ft_by_mirror": {
+     "identity": 7.92,
+     "flip_x": 34.1,
+     "flip_y": 10.52,
+     "flip_xy": 34.03
+    },
+    "offsets_s": [
+     -1.5,
+     0.86
+    ]
+   }
+  },
+  "gsw_sac_2015": {
+   "sportvu": "12.28.2015.SAC.at.GSW",
+   "split": "train",
+   "video_id": "qzJbC4tmJeA",
+   "video": true,
+   "sections": 11,
+   "layout": "csn_ba16_720",
+   "sportvu_moments": 83479,
+   "sections_mapped": 11,
+   "mapped_running_s": 2316.9,
+   "clock_reads": 6154,
+   "clock_reads_ok": 4494,
+   "home": "GSW",
+   "direction": {
+    "status": "ok",
+    "mirror": "identity",
+    "vote_share": 0.91,
+    "windows_voting": 11,
+    "median_ft_by_mirror": {
+     "identity": 5.33,
+     "flip_x": 33.08,
+     "flip_y": 7.14,
+     "flip_xy": 33.15
+    },
+    "far_ft_by_mirror": {
+     "identity": 6.52,
+     "flip_x": 35.67,
+     "flip_y": 10.82,
+     "flip_xy": 33.6
+    },
+    "offsets_s": [
+     -0.94,
+     1.38
+    ]
+   }
+  },
+  "gsw_cha_2016": {
+   "sportvu": "01.04.2016.CHA.at.GSW",
+   "split": "train",
+   "video_id": "hoPgMa02zB4",
+   "video": true,
+   "sections": 10,
+   "layout": "csn_ba16_720",
+   "sportvu_moments": 81426,
+   "sections_mapped": 10,
+   "mapped_running_s": 2308.0,
+   "clock_reads": 5439,
+   "clock_reads_ok": 3828,
+   "home": "GSW",
+   "direction": {
+    "status": "ok",
+    "mirror": "identity",
+    "vote_share": 1.0,
+    "windows_voting": 12,
+    "median_ft_by_mirror": {
+     "identity": 5.88,
+     "flip_x": 30.66,
+     "flip_y": 6.95,
+     "flip_xy": 30.5
+    },
+    "far_ft_by_mirror": {
+     "identity": 6.58,
+     "flip_x": 33.16,
+     "flip_y": 8.8,
+     "flip_xy": 34.95
+    },
+    "offsets_s": [
+     -1.38,
+     1.06
+    ]
+   }
+  },
+  "cle_nyk_2015": {
+   "sportvu": "12.23.2015.NYK.at.CLE",
+   "split": "heldout_arena",
+   "video_id": "7TuGdp5f_bg",
+   "video": true,
+   "sections": 11,
+   "layout": "fso15_720",
+   "sportvu_moments": 73100,
+   "sections_mapped": 11,
+   "mapped_running_s": 1870.5,
+   "clock_reads": 6216,
+   "clock_reads_ok": 3162,
+   "home": "CLE",
+   "direction": {
+    "status": "ok",
+    "mirror": "identity",
+    "vote_share": 0.89,
+    "windows_voting": 9,
+    "median_ft_by_mirror": {
+     "identity": 6.78,
+     "flip_x": 36.5,
+     "flip_y": 7.36,
+     "flip_xy": 35.94
+    },
+    "far_ft_by_mirror": {
+     "identity": 7.73,
+     "flip_x": 37.67,
+     "flip_y": 9.21,
+     "flip_xy": 39.34
+    },
+    "offsets_s": [
+     -0.94,
+     1.46
+    ]
+   }
+  },
+  "cle_gsw_2016": {
+   "sportvu": "01.18.2016.GSW.at.CLE",
+   "split": "heldout_arena",
+   "video_id": "bzmm0WiWYog",
+   "video": true,
+   "sections": 11,
+   "layout": "tnt_playoffs16_720",
+   "sportvu_moments": 58963,
+   "sections_mapped": 11,
+   "mapped_running_s": 2454.0,
+   "clock_reads": 6035,
+   "clock_reads_ok": 4740,
+   "home": "CLE",
+   "direction": {
+    "status": "ok_by_arena",
+    "mirror": "identity",
+    "vote_share": 0.6,
+    "windows_voting": 10,
+    "median_ft_by_mirror": {
+     "identity": 7.25,
+     "flip_x": 31.94,
+     "flip_y": 7.64,
+     "flip_xy": 31.78
+    },
+    "far_ft_by_mirror": {
+     "identity": 9.11,
+     "flip_x": 33.78,
+     "flip_y": 9.1,
+     "flip_xy": 32.99
+    },
+    "offsets_s": [
+     -0.78,
+     1.5
+    ],
+    "rule": "arena consistency: cle_nyk_2015 at the same arena resolved identity"
+   }
+  }
+ },
+ "excluded": {
+  "gsw_cle_xmas15": {
+   "sportvu": "12.25.2015.CLE.at.GSW",
+   "video_id": "QJLso8Uwklc",
+   "reason": "NBA 2K16 simulation, not a broadcast: scorebug frame shows the 2K Sports logo and rendered players (R1.2, 2026-10-04)"
+  }
+ },
+ "caveats": [
+  "mirror and offset come from short local rebuilds (sportvu.direction, 40 s of running clock per section), not full-game builds",
+  "the clock OCR resolves 1 s; per-window residual offsets within +-1.5 s are expected and are re-solved per window at R1.3",
+  "mapped running seconds are spans where consecutive 1 Hz clock reads agree with the elapsed video time within 1 s",
+  "ok_by_arena: ambiguous on its own windows (the y-flip is the weak axis, as in B3), resolved by the other game at the same arena; R1.3's per-frame truth fit re-checks it",
+  "windows inside SportVU clock gaps cannot vote (cle_gsw_2016 has 830 s of gaps)"
+ ]
+}

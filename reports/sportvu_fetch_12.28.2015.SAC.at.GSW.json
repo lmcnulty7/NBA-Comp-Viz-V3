@@ -1,0 +1,57 @@
+{
+ "game": "12.28.2015.SAC.at.GSW",
+ "date": "2015-12-28",
+ "teams": {
+  "1610612758": "SAC",
+  "1610612744": "GSW"
+ },
+ "n_players": 26,
+ "moments": 83479,
+ "quarters": {
+  "1": {
+   "moments": 20632,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 825.3,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20632
+  },
+  "2": {
+   "moments": 20659,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 826.4,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20649
+  },
+  "3": {
+   "moments": 20689,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 827.6,
+   "gaps_over_2s": [
+    [
+     343.9,
+     341.4
+    ]
+   ],
+   "moments_with_10_players": 20684
+  },
+  "4": {
+   "moments": 21499,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 860.0,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 21499
+  }
+ }
+}

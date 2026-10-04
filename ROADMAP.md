@@ -132,7 +132,7 @@ download scripts, manifests and licence notes are committed.
       12.23.2015 NYK (7TuGdp5f_bg), 01.18.2016 GSW (bzmm0WiWYog; SportVU has 830 s of clock gaps).
       Held-out game gsw_phx_2016 and held-out era gsw_nyk_curry54 confirmed. More games (GSW away
       games at other arenas) may be added later through sportvu/manifest_overrides.json.
-- [ ] R1.2 Fetch, register (`data/harvest/games.json`), split and clock-calibrate the chosen games with
+- [x] R1.2 Fetch, register (`data/harvest/games.json`), split and clock-calibrate the chosen games with
       the harvest tooling; OCR time maps per section (`sportvu.local_sync`); SportVU moments fetched.
       Measurable: per game, mapped running seconds and the mirror/offset resolution (`sportvu.sync`).
 - [ ] R1.3 Auto-labels: on every synced wide frame (gate v2, frames outside the held-out sets), fit the

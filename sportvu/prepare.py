@@ -152,15 +152,44 @@ def do_report(games: dict) -> None:
                      "sportvu_moments": json.loads(cov.read_text())["moments"] if cov.exists() else None,
                      "sections_mapped": len(tms), "mapped_running_s": round(sum(t["mapped_video_s"] for t in tms), 1),
                      "clock_reads": sum(t["reads"] for t in tms), "clock_reads_ok": sum(t["reads_ok"] for t in tms),
-                     "direction": json.loads(dirp.read_text()).get("resolution") if dirp.exists() else None}
-    rep = {"item": "ROADMAP R1.2", "games": rows}
+                     "home": g["home"],
+                     "direction": ({"status": json.loads(dirp.read_text())["status"], **(json.loads(dirp.read_text()).get("resolution") or {})}
+                                   if dirp.exists() else None)}
+    # a game ambiguous on its own takes its arena's mirror when every other game there resolved ok to
+    # the same mirror and its own leading vote agrees (the mirror depends on the court model's labelling
+    # and on SportVU's axes in that arena from the main camera side, both fixed per arena; B3 used the
+    # same cross-check across sections). R1.3's per-frame truth fit re-checks it.
+    for tag, r in rows.items():
+        d = r["direction"]
+        if not d or d["status"] != "ambiguous":
+            continue
+        peers = [o["direction"] for t, o in rows.items() if t != tag and o["home"] == r["home"] and o["direction"]]
+        ok = [p for p in peers if p["status"] == "ok"]
+        if ok and len({p["mirror"] for p in ok}) == 1 and ok[0]["mirror"] == d["mirror"]:
+            d["status"] = "ok_by_arena"
+            d["rule"] = "arena consistency: %s at the same arena resolved %s" % (
+                ", ".join(t for t, o in rows.items() if t != tag and o["home"] == r["home"] and o["direction"] and o["direction"]["status"] == "ok"), d["mirror"])
+    reg = json.loads(REG.read_text())
+    excluded = {k: {"sportvu": v["sportvu"], "video_id": v["video_id"], "reason": v["excluded"]}
+                for k, v in reg.items() if isinstance(v, dict) and v.get("sportvu") and v.get("excluded")}
+    rep = {"item": "ROADMAP R1.2", "games": rows, "excluded": excluded,
+           "caveats": ["mirror and offset come from short local rebuilds (sportvu.direction, 40 s of running clock per section), not full-game builds",
+                       "the clock OCR resolves 1 s; per-window residual offsets within +-1.5 s are expected and are re-solved per window at R1.3",
+                       "mapped running seconds are spans where consecutive 1 Hz clock reads agree with the elapsed video time within 1 s",
+                       "ok_by_arena: ambiguous on its own windows (the y-flip is the weak axis, as in B3), resolved by the other game at the same arena; R1.3's per-frame truth fit re-checks it",
+                       "windows inside SportVU clock gaps cannot vote (cle_gsw_2016 has 830 s of gaps)"]}
     (config.REPORTS_DIR / "sportvu_prepare.json").write_text(json.dumps(rep, indent=1))
     L = ["SPORTVU GAME PREPARATION (ROADMAP R1.2): %d games" % len(rows)]
     for tag, r in rows.items():
         d = r["direction"] or {}
-        L.append("  %-16s %-14s video %s sections %2d layout %-18s mapped %6.1f s in %d sections | mirror %s offset %s" % (
+        L.append("  %-16s %-14s video %s sections %2d layout %-18s mapped %6.1f s in %d sections | mirror %s (%s, vote %s of %s windows) offset %s" % (
             tag, r["split"], "ok" if r["video"] else "--", r["sections"], r["layout"] or "-", r["mapped_running_s"],
-            r["sections_mapped"], d.get("mirror", "-"), d.get("offsets_s", "-")))
+            r["sections_mapped"], d.get("mirror", "-"), d.get("status", "-"), d.get("vote_share", "-"), d.get("windows_voting", "-"), d.get("offsets_s", "-")))
+        if d.get("rule"):
+            L.append("  %-16s   resolved by %s" % ("", d["rule"]))
+    for k, v in excluded.items():
+        L.append("  %-16s EXCLUDED  %s" % (k, v["reason"]))
+    L += ["", "caveats:"] + ["  - " + c for c in rep["caveats"]]
     txt = "\n".join(L)
     (config.REPORTS_DIR / "sportvu_prepare.txt").write_text(txt + "\n")
     print(txt)

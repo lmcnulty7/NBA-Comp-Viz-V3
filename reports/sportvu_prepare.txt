@@ -1,0 +1,16 @@
+SPORTVU GAME PREPARATION (ROADMAP R1.2): 6 games
+  gsw_bkn_2015     train          video ok sections 11 layout csn_ba16_720       mapped 2529.2 s in 11 sections | mirror identity (ok, vote 1.0 of 15 windows) offset [-1.14, 1.42]
+  gsw_ind_2016     train          video ok sections 11 layout abc_finals16_720   mapped 2632.8 s in 11 sections | mirror identity (ok, vote 0.92 of 13 windows) offset [-1.5, 0.86]
+  gsw_sac_2015     train          video ok sections 11 layout csn_ba16_720       mapped 2316.9 s in 11 sections | mirror identity (ok, vote 0.91 of 11 windows) offset [-0.94, 1.38]
+  gsw_cha_2016     train          video ok sections 10 layout csn_ba16_720       mapped 2308.0 s in 10 sections | mirror identity (ok, vote 1.0 of 12 windows) offset [-1.38, 1.06]
+  cle_nyk_2015     heldout_arena  video ok sections 11 layout fso15_720          mapped 1870.5 s in 11 sections | mirror identity (ok, vote 0.89 of 9 windows) offset [-0.94, 1.46]
+  cle_gsw_2016     heldout_arena  video ok sections 11 layout tnt_playoffs16_720 mapped 2454.0 s in 11 sections | mirror identity (ok_by_arena, vote 0.6 of 10 windows) offset [-0.78, 1.5]
+                     resolved by arena consistency: cle_nyk_2015 at the same arena resolved identity
+  gsw_cle_xmas15   EXCLUDED  NBA 2K16 simulation, not a broadcast: scorebug frame shows the 2K Sports logo and rendered players (R1.2, 2026-10-04)
+
+caveats:
+  - mirror and offset come from short local rebuilds (sportvu.direction, 40 s of running clock per section), not full-game builds
+  - the clock OCR resolves 1 s; per-window residual offsets within +-1.5 s are expected and are re-solved per window at R1.3
+  - mapped running seconds are spans where consecutive 1 Hz clock reads agree with the elapsed video time within 1 s
+  - ok_by_arena: ambiguous on its own windows (the y-flip is the weak axis, as in B3), resolved by the other game at the same arena; R1.3's per-frame truth fit re-checks it
+  - windows inside SportVU clock gaps cannot vote (cle_gsw_2016 has 830 s of gaps)

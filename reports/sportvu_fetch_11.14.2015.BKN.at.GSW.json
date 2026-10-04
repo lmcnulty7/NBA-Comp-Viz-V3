@@ -1,0 +1,71 @@
+{
+ "game": "11.14.2015.BKN.at.GSW",
+ "date": "2015-11-14",
+ "teams": {
+  "1610612751": "BKN",
+  "1610612744": "GSW"
+ },
+ "n_players": 26,
+ "moments": 88252,
+ "quarters": {
+  "1": {
+   "moments": 19080,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 763.2,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 19080
+  },
+  "2": {
+   "moments": 20727,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 829.1,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20727
+  },
+  "3": {
+   "moments": 18781,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 751.2,
+   "gaps_over_2s": [
+    [
+     317.3,
+     295.0
+    ],
+    [
+     283.6,
+     268.9
+    ]
+   ],
+   "moments_with_10_players": 18781
+  },
+  "4": {
+   "moments": 21109,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 844.4,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 21109
+  },
+  "5": {
+   "moments": 8555,
+   "clock_span": [
+    300.0,
+    0.0
+   ],
+   "covered_s": 342.2,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 8555
+  }
+ }
+}

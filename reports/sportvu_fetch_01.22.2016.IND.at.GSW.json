@@ -1,0 +1,57 @@
+{
+ "game": "01.22.2016.IND.at.GSW",
+ "date": "2016-01-22",
+ "teams": {
+  "1610612754": "IND",
+  "1610612744": "GSW"
+ },
+ "n_players": 26,
+ "moments": 82464,
+ "quarters": {
+  "1": {
+   "moments": 19778,
+   "clock_span": [
+    720.0,
+    4.3
+   ],
+   "covered_s": 791.1,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 19778
+  },
+  "2": {
+   "moments": 20950,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 838.0,
+   "gaps_over_2s": [
+    [
+     390.6,
+     388.1
+    ]
+   ],
+   "moments_with_10_players": 20950
+  },
+  "3": {
+   "moments": 20395,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 815.8,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20395
+  },
+  "4": {
+   "moments": 21341,
+   "clock_span": [
+    720.0,
+    0.9
+   ],
+   "covered_s": 853.6,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 21340
+  }
+ }
+}
