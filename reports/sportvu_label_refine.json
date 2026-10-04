@@ -1,0 +1,62 @@
+{
+ "item": "ROADMAP R1.3 attempt 3 (not adopted): paint refit, held-out lane check",
+ "sample": 300,
+ "rules": {
+  "paint_radii": [
+   40,
+   16
+  ],
+  "line_radii": [
+   12,
+   6
+  ],
+  "prior_w": 0.05,
+  "holdout_radius": 30
+ },
+ "games": [
+  {
+   "game": "gsw_bkn_2015",
+   "labels": 300,
+   "status": {
+    "ok": 300
+   },
+   "paint_measured_both": 298,
+   "paint_px": {
+    "before": {
+     "p50": 7.18,
+     "p90": 14.35,
+     "le10": 0.732
+    },
+    "after": {
+     "p50": 4.88,
+     "p90": 8.99,
+     "le10": 0.943
+    }
+   },
+   "feet_ft": {
+    "n": 2130,
+    "before": {
+     "p50": 1.15,
+     "p90": 2.1
+    },
+    "after": {
+     "p50": 1.55,
+     "p90": 2.99
+    }
+   },
+   "move_px_p50": {
+    "p50": 8.55,
+    "p90": 21.41
+   },
+   "holdout_lane17": {
+    "frames": 297,
+    "offset_px_p50_before": 6.04,
+    "offset_px_p50_after": 7.53,
+    "offset_px_p90_before": 13.82,
+    "offset_px_p90_after": 13.81,
+    "frames_better_1px": 75,
+    "frames_worse_1px": 159
+   }
+  }
+ ]
+}

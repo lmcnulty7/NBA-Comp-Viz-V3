@@ -1,0 +1,16 @@
+SPORTVU AUTO-LABELS (ROADMAP R1.3): 4 training games
+  arena GSW: 4 games, 13975 accepted frames, regions {'left': 6646, 'middle': 353, 'right': 6976}
+  gsw_bkn_2015     accepted   3587 in 83 windows | regions {'left': 1671, 'middle': 83, 'right': 1833}
+                     rejected: untestable_inliers 7627, unmapped 3082, untestable_match 2497, untestable_boxes 1926, gate_v2_skipped 1609, line_matches_low 750, feet_resid_high 567, no_moment 264, untestable_noH 234, support_low 114
+  gsw_cha_2016     accepted   3531 in 74 windows | regions {'left': 1635, 'right': 1770, 'middle': 126}
+                     rejected: untestable_inliers 6553, unmapped 2593, untestable_match 2037, gate_v2_skipped 1633, untestable_boxes 1584, line_matches_low 792, feet_resid_high 608, untestable_noH 246, support_low 121, no_moment 17, zoom_at_bound 3, build_failed 2
+  gsw_ind_2016     accepted   3552 in 92 windows | regions {'right': 1628, 'left': 1835, 'middle': 89}
+                     rejected: untestable_inliers 9364, untestable_match 3852, unmapped 3789, untestable_boxes 1852, line_matches_low 1022, feet_resid_high 825, untestable_noH 481, support_low 286, gate_v2_skipped 162, no_moment 32, zoom_at_bound 3, camera_no_init 1
+  gsw_sac_2015     accepted   3305 in 83 windows | regions {'left': 1505, 'middle': 55, 'right': 1745}
+                     rejected: untestable_inliers 6890, unmapped 2867, untestable_match 2445, untestable_boxes 1143, gate_v2_skipped 974, line_matches_low 798, feet_resid_high 669, untestable_noH 412, support_low 167, no_moment 11, camera_no_init 2, build_failed 1, zoom_at_bound 1
+
+caveats:
+  - candidate frames come from the B4 ICP matching, which starts from the V3 court H: frames where V3's H is too far off to match 6 players are lost (counted as untestable_*), so labels lean toward views V3 already handles
+  - the camera truth is checked against the painted lines by A1 line support, an indicator, not a ground truth; feet vs SportVU noise is about 1.2..1.7 ft median
+  - one camera position per game: an upload that switches broadcast feeds (gsw_cha_2016) mixes camera positions and loses more frames
+  - labels are on the local h264 copies of the harvest uploads, not on the production sections

@@ -16,11 +16,12 @@ Steps, each timed and recorded in the run report:
   preflight gate v2 scores a frame, easyocr initialises from the Drive cache, cv2 decodes a section.
   label     sportvu.autolabel --games <game> --save-images, one process per game in parallel.
   manifest  sportvu.autolabel --manifest-only -> reports/sportvu_labels_manifest.{json,txt}.
-  package   results/r13_<stamp>/ on Drive: labels (jsonl, images, contact sheets, per-game results),
-            the manifest, logs and this report. Honesty line: accepted frames per game; zero is loud.
+  package   results/r13_<stamp>/ on Drive: labels (jsonl, contact sheets, per-game results, images as
+            one img.tar per game), the manifest, logs and this report. Honesty line: accepted frames per
+            game; zero is loud. The notebook then calls drive.flush_and_unmount() so the upload completes.
 """
 from __future__ import annotations
-import hashlib, json, os, shutil, subprocess, sys, time
+import glob, hashlib, json, os, shutil, subprocess, sys, time
 
 T0 = time.time()
 STAMP = time.strftime("%Y%m%d_%H%M")
@@ -150,7 +151,16 @@ def step_package(accepted: dict) -> None:
     banner("package -> Drive")
     out = os.path.join(PERSIST, "results", "r13_" + STAMP)
     os.makedirs(out, exist_ok=True)
-    shutil.copytree("data/sportvu/labels", os.path.join(out, "labels"), dirs_exist_ok=True)
+    # Images go up as one tar per game: run r13_20261004_1846 copied ~14k loose jpgs and Drive kept only
+    # 3354 of 3587 for one game (scattered losses in the async upload). One big file per game, then the
+    # notebook's flush_and_unmount, avoids that.
+    shutil.copytree("data/sportvu/labels", os.path.join(out, "labels"), dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns("img"))
+    REPORT["images"] = {}
+    for d in sorted(glob.glob("data/sportvu/labels/*/img")):
+        game = os.path.basename(os.path.dirname(d))
+        REPORT["images"][game] = len(os.listdir(d))
+        shutil.make_archive(os.path.join(out, "labels", game, "img"), "tar", root_dir=os.path.dirname(d), base_dir="img")
     for f in ("reports/sportvu_labels_manifest.json", "reports/sportvu_labels_manifest.txt"):
         if os.path.exists(f):
             shutil.copy(f, out)

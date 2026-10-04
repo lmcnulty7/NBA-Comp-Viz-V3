@@ -94,10 +94,12 @@ def _bilinear(imgf, xy):
     return v
 
 
-def match_lines(P, ridge, w, h, radius):
+def match_lines(P, ridge, w, h, radius, chords=None):
     """Court-template samples → sub-pixel line peaks along each sample's normal.
+    chords: optional (A, B, MID) subset of the template (default: every court line).
     Returns (court_ft_midpoints, matched_px)."""
-    pa, pb = project(P, CH_A), project(P, CH_B)
+    ch_a, ch_b, ch_mid = chords if chords is not None else (CH_A, CH_B, CH_MID)
+    pa, pb = project(P, ch_a), project(P, ch_b)
     mid = (pa + pb) / 2.0
     ok = np.isfinite(pa).all(1) & np.isfinite(pb).all(1)
     ok &= (mid[:, 0] >= 1) & (mid[:, 0] < w - 1) & (mid[:, 1] >= 1) & (mid[:, 1] < h - 1)
@@ -125,7 +127,7 @@ def match_lines(P, ridge, w, h, radius):
     den = left - 2 * cen + right
     delta = np.clip(np.where(den < -1e-6, 0.5 * (left - right) / den, 0.0), -1.0, 1.0)
     t_star = T[k] + delta
-    return CH_MID[idx], (mid[idx] + t_star[:, None] * nrm).astype(np.float32)
+    return ch_mid[idx], (mid[idx] + t_star[:, None] * nrm).astype(np.float32)
 
 
 def h_sane(H_px2ft, w, h):

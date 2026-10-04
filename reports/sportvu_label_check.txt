@@ -1,0 +1,24 @@
+R1.3 LABEL PAINT CHECK: distance from each label's projected key edges (lane lines, free-throw line)
+to the gold paint edge, px at 1280x720. Rule: reject when the median > 12 px, or when the key is in
+frame and its edges are not found within 30 px. Labels with no key in frame are kept, unverified.
+  gsw_bkn_2015   labels  3587 -> kept  2954 (82%, 5 unverified) | rejected {'paint_edge_high': 633}
+                 edge px p50 7.47 p75 10.7 p90 14.24 | share <= px {'4': 0.101, '6': 0.337, '8': 0.554, '10': 0.708, '12': 0.823, '15': 0.92}
+                 kept regions {'left': 1403, 'middle': 71, 'right': 1480}
+  gsw_ind_2016   labels  3552 -> kept  2811 (79%, 3 unverified) | rejected {'paint_edge_high': 741}
+                 edge px p50 8.05 p75 11.25 p90 14.97 | share <= px {'4': 0.044, '6': 0.252, '8': 0.495, '10': 0.668, '12': 0.791, '15': 0.901}
+                 kept regions {'right': 1338, 'left': 1413, 'middle': 60}
+  gsw_sac_2015   labels  3305 -> kept  2818 (85%, 1 unverified) | rejected {'paint_edge_high': 481, 'paint_edge_unmatched': 6}
+                 edge px p50 6.13 p75 9.62 p90 13.49 | share <= px {'4': 0.247, '6': 0.487, '8': 0.647, '10': 0.772, '12': 0.854, '15': 0.938}
+                 kept regions {'left': 1217, 'middle': 45, 'right': 1556}
+  gsw_cha_2016   labels  3531 -> kept  2923 (83%, 6 unverified) | rejected {'paint_edge_high': 604, 'paint_edge_unmatched': 4}
+                 edge px p50 6.54 p75 10.12 p90 14.22 | share <= px {'4': 0.212, '6': 0.446, '8': 0.624, '10': 0.744, '12': 0.828, '15': 0.915}
+                 kept regions {'right': 1536, 'middle': 108, 'left': 1279}
+  total kept 11506 of 13975
+
+caveats:
+  - the key is the only colour-painted marking checked: a label can sit on the key and be off elsewhere
+    (pinhole camera, no lens distortion); the far end of the court is not checked
+  - the gold edge is not exactly the line centre (line width, blur): about 4-5 px of the median is
+    measurement floor (only ~10% of bkn labels are within 4 px)
+  - players and gold uniforms (IND) occlude or add gold edges; the median over samples limits that
+  - unverified labels (no key in frame, mostly mid-court) keep the camera-truth error of the rest

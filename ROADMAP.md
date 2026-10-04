@@ -135,7 +135,12 @@ download scripts, manifests and licence notes are committed.
 - [x] R1.2 Fetch, register (`data/harvest/games.json`), split and clock-calibrate the chosen games with
       the harvest tooling; OCR time maps per section (`sportvu.local_sync`); SportVU moments fetched.
       Measurable: per game, mapped running seconds and the mirror/offset resolution (`sportvu.sync`).
-- [ ] R1.3 Auto-labels. Decided 2026-10-04 (Lucien) after attempt 1 failed verification: the truth H
+- [x] R1.3 Auto-labels. Done 2026-10-04 (attempt 2, Colab run r13_20261004_1846): 13,975 camera-truth
+      labels on the 4 training games (reports/sportvu_labels_manifest.*), then a paint check on the gold
+      key (`sportvu.label_check`, reports/sportvu_label_check.*) keeps 11,506 (82%): median key-edge
+      distance 6.1..8.1 px per game, rejected when > 12 px or the key's edges are not found. A per-frame
+      refit to the paint was tried and not adopted (held-out lane worse, reports/sportvu_label_refine.*).
+      Decided 2026-10-04 (Lucien) after attempt 1 failed verification: the truth H
       comes from a per-game CAMERA MODEL (the broadcast camera is fixed in place: estimate its position
       and lens once per game from pooled feet <-> SportVU pairs, then fit only pan, tilt and zoom per
       frame), not a free 8-parameter homography, and it must sit on the painted lines (contact sheet +
@@ -153,6 +158,8 @@ download scripts, manifests and licence notes are committed.
 - [ ] R1.4 Splits written to `sportvu/splits.json` (tracked: game and arena ids only, so a Colab checkout
       has it): train arenas, held-out arena, held-out game, held-out era, with per-split frame counts.
       Every training script reads this file, fails if it is missing, and refuses to run on held-out ids.
+      The usable R1.3 labels are the rows with keep=true in `data/sportvu/labels/<game>_paint.jsonl`
+      (paint check, `sportvu.label_check`); frame counts and every training script use those only.
 
 ## Phase 2: court (first priority; nothing else is meaningful until this holds)
 - [ ] R2.1 Baseline scorecard of the V3 solver on gsw_phx_2016 (the R0.3 output) recorded as the number
