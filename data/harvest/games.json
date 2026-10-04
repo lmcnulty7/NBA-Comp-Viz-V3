@@ -119,5 +119,75 @@
   "home": "GSW",
   "date": "2015-05-21",
   "layout": "abc_finals16_720"
+ },
+ "gsw_cle_xmas15": {
+  "video_id": "QJLso8Uwklc",
+  "game_code": "201512250GSW",
+  "away": "CLE",
+  "home": "GSW",
+  "date": "2015-12-25",
+  "sportvu": "12.25.2015.CLE.at.GSW",
+  "split": "train",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). Christmas 2015 (upload 'Cavs vs Warriors Xmas Game', Greg Smith, uploaded 2015-12-26). Layout and scorebug identity set at R1.2."
+ },
+ "gsw_bkn_2015": {
+  "video_id": "-u83b73fFbY",
+  "game_code": "201511140GSW",
+  "away": "BKN",
+  "home": "GSW",
+  "date": "2015-11-14",
+  "sportvu": "11.14.2015.BKN.at.GSW",
+  "split": "train",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). upload '2015-2016 NBA Season Golden State Warriors vs Brooklyn Nets' (description dated November 14 2015). Layout and scorebug identity set at R1.2."
+ },
+ "gsw_ind_2016": {
+  "video_id": "UQHXGIH12Ds",
+  "game_code": "201601220GSW",
+  "away": "IND",
+  "home": "GSW",
+  "date": "2016-01-22",
+  "sportvu": "01.22.2016.IND.at.GSW",
+  "split": "train",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). upload '2015-2016 NBA Season Golden State Warriors vs Indiana Pacers' (description dated January 22 2016). Layout and scorebug identity set at R1.2."
+ },
+ "gsw_sac_2015": {
+  "video_id": "qzJbC4tmJeA",
+  "game_code": "201512280GSW",
+  "away": "SAC",
+  "home": "GSW",
+  "date": "2015-12-28",
+  "sportvu": "12.28.2015.SAC.at.GSW",
+  "split": "train",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). upload 'Nba HD Full Game Kings at Warriors 2015 / 2016'; Lucien watched it and confirmed Dec 28 (2026-10-04). Layout and scorebug identity set at R1.2."
+ },
+ "gsw_cha_2016": {
+  "video_id": "hoPgMa02zB4",
+  "game_code": "201601040GSW",
+  "away": "CHA",
+  "home": "GSW",
+  "date": "2016-01-04",
+  "sportvu": "01.04.2016.CHA.at.GSW",
+  "split": "train",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). upload 'Nba HD Full Game Hornets at Warriors 2015 / 2016', found by Lucien (2026-10-04); CHA played at Oracle once in the window. Layout and scorebug identity set at R1.2."
+ },
+ "cle_nyk_2015": {
+  "video_id": "7TuGdp5f_bg",
+  "game_code": "201512230CLE",
+  "away": "NYK",
+  "home": "CLE",
+  "date": "2015-12-23",
+  "sportvu": "12.23.2015.NYK.at.CLE",
+  "split": "heldout_arena",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). upload '2015-2016 NBA Season Cleveland Cavaliers vs New York Knicks' (description dated December 23 2015). Layout and scorebug identity set at R1.2."
+ },
+ "cle_gsw_2016": {
+  "video_id": "bzmm0WiWYog",
+  "game_code": "201601180CLE",
+  "away": "GSW",
+  "home": "CLE",
+  "date": "2016-01-18",
+  "sportvu": "01.18.2016.GSW.at.CLE",
+  "split": "heldout_arena",
+  "note": "ROADMAP R1.2 (Stage 1 SportVU set). upload 'Golden State Warriors, Cleveland Cavaliers (1/18/2016)'; SportVU log has 830 s of clock gaps. Layout and scorebug identity set at R1.2."
  }
 }

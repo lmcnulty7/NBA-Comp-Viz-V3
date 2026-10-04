@@ -51,3 +51,7 @@ RESOLVED 2026-10-03: targets confirmed with changes (a) and (b) below as recomme
 
 ## Gate (2026-10-04): games and held-out arena chosen by Lucien
 - Proceed with the usable games: training = 5 Oracle games (12.25 CLE, 11.14 BKN, 01.22 IND, 12.28 SAC, 01.04 CHA); held-out arena CLE (12.23 NYK, 01.18 GSW), the only arena with scoreable games; held-out game gsw_phx_2016 and era gsw_nyk_curry54 confirmed. Both gates ticked (Phase 1 and Waiting on Lucien); CLAIMS.md protocol names CLE. Next: R1.2.
+
+## Pass 5 (2026-10-04): R1.2 started, video download blocked by YouTube
+- Done: the 7 chosen games registered in data/harvest/games.json (new fields sportvu, split: 5 train at Oracle, 2 heldout_arena at CLE); sportvu/prepare.py (fetch / sync / report steps for R1.2).
+- Blocked: every 720p avc1 download stops with HTTP 403 after about 10 MB. Tried yt-dlp 2026.03.17 and 2026.08.19, with and without a node JS runtime, and the player clients tv, web_safari, mweb, ios, android_vr, tv_simply, web_embedded, web_creator (no usable format or 403) and android (downloads freely, but only 360p, below the 720p the models and production footage use). Probes (metadata, format selection) still work, which is why R1.1 succeeded. YouTube now requires a proof-of-origin token or a signed-in session for these streams; the fix needs Lucien's choice (token provider plugin, cookies, or a manual download). Item stays open, not [BLOCKED], because nothing below can start without it.
