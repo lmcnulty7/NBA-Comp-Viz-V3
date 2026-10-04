@@ -103,3 +103,16 @@ def test_rejects_simulations_and_other_games():
     assert candidate_rejection("2015-2016 NBA Season Golden State Warriors vs Cleveland Cavaliers", None, d) is None
     assert candidate_rejection("Golden State Warriors, Cleveland Cavaliers (12/25/2015)", None, d) is None
     assert candidate_rejection("Warriors vs Cavaliers 25-12-2015 full game", None, d) is None
+
+
+def test_human_override():
+    sched = [{"game": "12.28.2015.SAC.at.GSW", "date": "2015-12-28", "away": "SAC", "home": "GSW"}]
+    parts = {"12.28.2015.SAC.at.GSW": {"broadcast": {"probed": [{"id": "qz", "verdict": "ok_unverified", "upload_date": "20250103",
+                                                                  "season_evidence": "season: 2015 / 2016"}]}}}
+    assert finalize(sched, parts, sched)["12.28.2015.SAC.at.GSW"]["verdict"] == "ambiguous"
+    ov = {"12.28.2015.SAC.at.GSW": {"video_id": "qz", "by": "Lucien", "date": "2026-10-04", "note": "watched",
+                                    "probe": {"vcodec": "avc1.640020", "height": 720, "duration": 6252}}}
+    out = finalize(sched, parts, sched, ov)["12.28.2015.SAC.at.GSW"]
+    assert out["verdict"] == "ok_unverified" and evidence_kind(out["best"]["season_evidence"]) == "human"
+    ov["12.28.2015.SAC.at.GSW"]["probe"]["height"] = 360
+    assert finalize(sched, parts, sched, ov)["12.28.2015.SAC.at.GSW"]["verdict"] == "low_res"

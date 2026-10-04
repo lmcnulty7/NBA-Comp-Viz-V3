@@ -1,0 +1,5 @@
+{
+ "_about": "Human decisions applied on top of the automatic manifest (ROADMAP R1.1). Each entry names the broadcast for one SportVU game; the format is still probed, and the scorebug confirms the game at R1.2.",
+ "12.28.2015.SAC.at.GSW": {"video_id": "qzJbC4tmJeA", "by": "Lucien", "date": "2026-10-04", "note": "watched: this is the Dec 28 game (the title only says 2015 / 2016; SAC played at Oracle twice in the window)"},
+ "01.04.2016.CHA.at.GSW": {"video_id": "hoPgMa02zB4", "by": "Lucien", "date": "2026-10-04", "note": "found by Lucien; CHA played at Oracle once in the window"}
+}

@@ -1,6 +1,6 @@
-SPORTVU AVAILABILITY MANIFEST (ROADMAP R1.1), 84 games, 2026-10-03
+SPORTVU AVAILABILITY MANIFEST (ROADMAP R1.1), 84 games, 2026-10-04
 verdicts per arena (usable = ok_unverified or sportvu_gaps):
-  GSW  usable  3 of 20 | held_out 1, no_broadcast 10, short_broadcast 3, ambiguous 3, sportvu_gaps 1, ok_unverified 2
+  GSW  usable  5 of 20 | held_out 1, no_broadcast 9, short_broadcast 3, ambiguous 2, sportvu_gaps 1, ok_unverified 4
   CLE  usable  2 of 17 | sportvu_broken 1, no_broadcast 13, low_res 1, sportvu_gaps 2
   OKC  usable  0 of 25 | no_broadcast 24, short_broadcast 1
   NYK  usable  0 of 22 | no_broadcast 20, short_broadcast 1, ambiguous 1
@@ -13,22 +13,22 @@ candidate videos rejected before probing, per arena and rule:
 priority list:
    1 12.25.2015.CLE.at.GSW    ok_unverified   QJLso8Uwklc 4975s 720p upload
    2 11.14.2015.BKN.at.GSW    sportvu_gaps    -u83b73fFbY 6364s 720p date  | Q3 gap 317..295 s; Q3 gap 284..269 s
-   3 01.22.2016.IND.at.GSW    ok_unverified   UQHXGIH12Ds 6291s 720p date
-   4 10.27.2015.NOP.at.GSW    no_broadcast    -    | Q2 gap 110..98 s
-   5 11.02.2015.MEM.at.GSW    ambiguous       seKB6KYMBog 4591s 720p  | Q3 gap 522..510 s
-   6 11.04.2015.LAC.at.GSW    no_broadcast    -  
-   7 11.06.2015.DEN.at.GSW    short_broadcast 0aHFoUgSA6E 3970s 720p upload
-   8 11.09.2015.DET.at.GSW    no_broadcast    -  
-   9 11.17.2015.TOR.at.GSW    no_broadcast    -  
-  10 11.20.2015.CHI.at.GSW    no_broadcast    -    | Q3 gap 401..390 s
-  11 11.24.2015.LAL.at.GSW    short_broadcast FVQw7_IIQRY 4317s 720p upload  | Q3 gap 681..658 s
-  12 11.28.2015.SAC.at.GSW    no_broadcast    -  
-  13 12.16.2015.PHX.at.GSW    held_out        f8lAcHg6kk0  
-  14 12.18.2015.MIL.at.GSW    short_broadcast zG7jyMwHHus 3991s 720p upload
-  15 12.23.2015.UTA.at.GSW    no_broadcast    -    | Q3 gap 288..278 s
-  16 12.28.2015.SAC.at.GSW    ambiguous       qzJbC4tmJeA 6252s 720p season
-  17 01.02.2016.DEN.at.GSW    ambiguous       i5To6IgQLKc 6296s 720p
-  18 01.04.2016.CHA.at.GSW    no_broadcast    -  
+   3 12.28.2015.SAC.at.GSW    ok_unverified   qzJbC4tmJeA 6252s 720p human
+   4 01.04.2016.CHA.at.GSW    ok_unverified   hoPgMa02zB4 5526s 720p human
+   5 01.22.2016.IND.at.GSW    ok_unverified   UQHXGIH12Ds 6291s 720p date
+   6 10.27.2015.NOP.at.GSW    no_broadcast    -    | Q2 gap 110..98 s
+   7 11.02.2015.MEM.at.GSW    ambiguous       seKB6KYMBog 4591s 720p  | Q3 gap 522..510 s
+   8 11.04.2015.LAC.at.GSW    no_broadcast    -  
+   9 11.06.2015.DEN.at.GSW    short_broadcast 0aHFoUgSA6E 3970s 720p upload
+  10 11.09.2015.DET.at.GSW    no_broadcast    -  
+  11 11.17.2015.TOR.at.GSW    no_broadcast    -  
+  12 11.20.2015.CHI.at.GSW    no_broadcast    -    | Q3 gap 401..390 s
+  13 11.24.2015.LAL.at.GSW    short_broadcast FVQw7_IIQRY 4317s 720p upload  | Q3 gap 681..658 s
+  14 11.28.2015.SAC.at.GSW    no_broadcast    -  
+  15 12.16.2015.PHX.at.GSW    held_out        f8lAcHg6kk0  
+  16 12.18.2015.MIL.at.GSW    short_broadcast zG7jyMwHHus 3991s 720p upload
+  17 12.23.2015.UTA.at.GSW    no_broadcast    -    | Q3 gap 288..278 s
+  18 01.02.2016.DEN.at.GSW    ambiguous       i5To6IgQLKc 6296s 720p
   19 01.11.2016.MIA.at.GSW    no_broadcast    -    | Q1 gap 57..36 s
   20 01.14.2016.LAL.at.GSW    no_broadcast    -  
   21 12.23.2015.NYK.at.CLE    sportvu_gaps    7TuGdp5f_bg 6316s 720p date  | Q1 gap 386..375 s; Q3 starts at 700 s; Q4 gap 657..647 s

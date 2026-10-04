@@ -1,6 +1,6 @@
 {
  "item": "ROADMAP R1.1",
- "date": "2026-10-03",
+ "date": "2026-10-04",
  "source": "https://api.github.com/repos/linouk23/NBA-Player-Movements/contents/data/2016.NBA.Raw.SportVU.Game.Logs",
  "rules": {
   "min_archive_bytes": 1000000,
@@ -29,10 +29,10 @@
  },
  "counts": {
   "GSW": {
-   "ok_unverified": 2,
+   "ok_unverified": 4,
    "sportvu_gaps": 1,
-   "no_broadcast": 10,
-   "ambiguous": 3,
+   "no_broadcast": 9,
+   "ambiguous": 2,
    "short_broadcast": 3,
    "held_out": 1
   },
@@ -80,7 +80,7 @@
   }
  },
  "usable_by_arena": {
-  "GSW": 3,
+  "GSW": 5,
   "CLE": 2,
   "OKC": 0,
   "NYK": 0
@@ -166,6 +166,82 @@
    "rank": 2
   },
   {
+   "game": "12.28.2015.SAC.at.GSW",
+   "date": "2015-12-28",
+   "away": "SAC",
+   "home": "GSW",
+   "verdict": "ok_unverified",
+   "sportvu": {
+    "status": "ok",
+    "moments": 83479,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": "human decision",
+    "video_id": "qzJbC4tmJeA",
+    "url": "https://www.youtube.com/watch?v=qzJbC4tmJeA",
+    "title": "Nba HD Full Game Kings at Warriors 2015 / 2016",
+    "channel": "Throwbackz King",
+    "upload_date": "20250103",
+    "duration_s": 6252,
+    "format_id": "298+251",
+    "vcodec": "avc1.640020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "human: Lucien, 2026-10-04 (watched: this is the Dec 28 game (the title only says 2015 / 2016; SAC played at Oracle twice in the window))",
+    "evidence_kind": "human",
+    "error": null,
+    "queries": [
+     "Kings vs Warriors December 28, 2015 full game",
+     "Warriors vs Kings 12/28/15",
+     "Kings Warriors Dec 28 2015 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 1
+   },
+   "rank": 3
+  },
+  {
+   "game": "01.04.2016.CHA.at.GSW",
+   "date": "2016-01-04",
+   "away": "CHA",
+   "home": "GSW",
+   "verdict": "ok_unverified",
+   "sportvu": {
+    "status": "ok",
+    "moments": 81426,
+    "flags": [],
+    "gap_s_total": 0.0
+   },
+   "broadcast": {
+    "verdict": "ok_unverified",
+    "note": "human decision",
+    "video_id": "hoPgMa02zB4",
+    "url": "https://www.youtube.com/watch?v=hoPgMa02zB4",
+    "title": "Nba HD Full Game Hornets at Warriors 2015 / 2016",
+    "channel": "Throwbackz King",
+    "upload_date": "20260403",
+    "duration_s": 5526,
+    "format_id": "298+251",
+    "vcodec": "avc1.640020",
+    "height": 720,
+    "fps": 60,
+    "evidence": "human: Lucien, 2026-10-04 (found by Lucien; CHA played at Oracle once in the window)",
+    "evidence_kind": "human",
+    "error": null,
+    "queries": [
+     "Hornets vs Warriors January 4, 2016 full game",
+     "Warriors vs Hornets 1/4/16",
+     "Hornets Warriors Jan 4 2016 full game"
+    ],
+    "rejected_before_probe": {},
+    "candidates_probed": 0
+   },
+   "rank": 4
+  },
+  {
    "game": "01.22.2016.IND.at.GSW",
    "date": "2016-01-22",
    "away": "IND",
@@ -201,7 +277,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 1
    },
-   "rank": 3
+   "rank": 5
   },
   {
    "game": "10.27.2015.NOP.at.GSW",
@@ -243,7 +319,7 @@
     },
     "candidates_probed": 0
    },
-   "rank": 4
+   "rank": 6
   },
   {
    "game": "11.02.2015.MEM.at.GSW",
@@ -287,7 +363,7 @@
     },
     "candidates_probed": 1
    },
-   "rank": 5
+   "rank": 7
   },
   {
    "game": "11.04.2015.LAC.at.GSW",
@@ -327,7 +403,7 @@
     },
     "candidates_probed": 0
    },
-   "rank": 6
+   "rank": 8
   },
   {
    "game": "11.06.2015.DEN.at.GSW",
@@ -367,7 +443,7 @@
     },
     "candidates_probed": 1
    },
-   "rank": 7
+   "rank": 9
   },
   {
    "game": "11.09.2015.DET.at.GSW",
@@ -405,7 +481,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 1
    },
-   "rank": 8
+   "rank": 10
   },
   {
    "game": "11.17.2015.TOR.at.GSW",
@@ -443,7 +519,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 0
    },
-   "rank": 9
+   "rank": 11
   },
   {
    "game": "11.20.2015.CHI.at.GSW",
@@ -486,7 +562,7 @@
     },
     "candidates_probed": 0
    },
-   "rank": 10
+   "rank": 12
   },
   {
    "game": "11.24.2015.LAL.at.GSW",
@@ -526,7 +602,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 1
    },
-   "rank": 11
+   "rank": 13
   },
   {
    "game": "11.28.2015.SAC.at.GSW",
@@ -564,7 +640,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 0
    },
-   "rank": 12
+   "rank": 14
   },
   {
    "game": "12.16.2015.PHX.at.GSW",
@@ -598,7 +674,7 @@
     "rejected_before_probe": null,
     "candidates_probed": 0
    },
-   "rank": 13
+   "rank": 15
   },
   {
    "game": "12.18.2015.MIL.at.GSW",
@@ -636,7 +712,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 1
    },
-   "rank": 14
+   "rank": 16
   },
   {
    "game": "12.23.2015.UTA.at.GSW",
@@ -676,45 +752,7 @@
     "rejected_before_probe": {},
     "candidates_probed": 0
    },
-   "rank": 15
-  },
-  {
-   "game": "12.28.2015.SAC.at.GSW",
-   "date": "2015-12-28",
-   "away": "SAC",
-   "home": "GSW",
-   "verdict": "ambiguous",
-   "sportvu": {
-    "status": "ok",
-    "moments": 83479,
-    "flags": [],
-    "gap_s_total": 0.0
-   },
-   "broadcast": {
-    "verdict": "ambiguous",
-    "note": "season string only",
-    "video_id": "qzJbC4tmJeA",
-    "url": "https://www.youtube.com/watch?v=qzJbC4tmJeA",
-    "title": "Nba HD Full Game Kings at Warriors 2015 / 2016",
-    "channel": "Throwbackz King",
-    "upload_date": "20250103",
-    "duration_s": 6252,
-    "format_id": "298+251",
-    "vcodec": "avc1.640020",
-    "height": 720,
-    "fps": 60,
-    "evidence": "season: 2015 / 2016",
-    "evidence_kind": "season",
-    "error": null,
-    "queries": [
-     "Kings vs Warriors December 28, 2015 full game",
-     "Warriors vs Kings 12/28/15",
-     "Kings Warriors Dec 28 2015 full game"
-    ],
-    "rejected_before_probe": {},
-    "candidates_probed": 1
-   },
-   "rank": 16
+   "rank": 17
   },
   {
    "game": "01.02.2016.DEN.at.GSW",
@@ -753,44 +791,6 @@
      "video-game simulation": 1
     },
     "candidates_probed": 1
-   },
-   "rank": 17
-  },
-  {
-   "game": "01.04.2016.CHA.at.GSW",
-   "date": "2016-01-04",
-   "away": "CHA",
-   "home": "GSW",
-   "verdict": "no_broadcast",
-   "sportvu": {
-    "status": "ok",
-    "moments": 81426,
-    "flags": [],
-    "gap_s_total": 0.0
-   },
-   "broadcast": {
-    "verdict": "no_broadcast",
-    "note": null,
-    "video_id": null,
-    "url": null,
-    "title": null,
-    "channel": null,
-    "upload_date": null,
-    "duration_s": null,
-    "format_id": null,
-    "vcodec": null,
-    "height": null,
-    "fps": null,
-    "evidence": null,
-    "evidence_kind": null,
-    "error": null,
-    "queries": [
-     "Hornets vs Warriors January 4, 2016 full game",
-     "Warriors vs Hornets 1/4/16",
-     "Hornets Warriors Jan 4 2016 full game"
-    ],
-    "rejected_before_probe": {},
-    "candidates_probed": 0
    },
    "rank": 18
   },

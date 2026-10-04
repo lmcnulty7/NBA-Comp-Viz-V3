@@ -55,6 +55,7 @@ MAX_PROBES = 3
 MAX_CONSECUTIVE_ERRORS = 5
 YTDLP = "/opt/anaconda3/bin/yt-dlp"
 YT_BASE = [YTDLP, "--no-update", "--js-runtimes", "node", "--no-warnings"]
+OVERRIDES = config.PROJECT_ROOT / "sportvu" / "manifest_overrides.json"   # human decisions, tracked
 PARTS = SV_DIR / "manifest_parts"
 ARCHIVES = SV_DIR / "archives"
 USABLE = ("ok_unverified", "sportvu_gaps")
@@ -206,6 +207,8 @@ def evidence_kind(e: str | None) -> str | None:
     """'date' | 'upload' | 'season' | None (also reads the earlier 'text: ...' form)."""
     if not e:
         return None
+    if e.startswith("human:"):
+        return "human"
     if e.startswith("uploaded"):
         return "upload"
     if e.startswith("season:"):
@@ -410,7 +413,7 @@ def final_candidate(c: dict, g: dict, schedule: list[dict]) -> tuple[str, str | 
     return "ambiguous", "season string only"
 
 
-def finalize(games: list[dict], parts: dict, schedule: list[dict]) -> dict:
+def finalize(games: list[dict], parts: dict, schedule: list[dict], overrides: dict | None = None) -> dict:
     """Final broadcast verdict and best candidate per game; a video picked for several games stays
     only with the game whose exact date it names."""
     out = {}
@@ -448,6 +451,20 @@ def finalize(games: list[dict], parts: dict, schedule: list[dict]) -> dict:
             for n in names:
                 if not (len(dated) == 1 and n == dated[0]):
                     out[n]["verdict"], out[n]["note"] = "ambiguous", "same video picked for " + ", ".join(x for x in names if x != n)
+    for name, o in (overrides or {}).items():            # a human decision outranks the search; the probe still judges format
+        if name not in out or not isinstance(o, dict):
+            continue
+        p = dict(o.get("probe") or {})
+        p.update({"id": o["video_id"], "season_evidence": "human: %s, %s (%s)" % (o.get("by"), o.get("date"), o.get("note", ""))})
+        if p.get("error"):
+            v = "no_avc1" if p.get("no_format") else "probe_error"
+        elif not str(p.get("vcodec") or "").startswith("avc1"):
+            v = "no_avc1"
+        elif (p.get("height") or 0) < 720:
+            v = "low_res"
+        else:
+            v = "ok_unverified"
+        out[name] = {"verdict": v, "best": p, "note": "human decision"}
     return out
 
 
@@ -545,7 +562,15 @@ def main():
         b = bc.get("best") or {}
         print("  broadcast %s: %s %s %s" % (g["game"], bc["verdict"], b.get("id", ""), _clean(b.get("title")) or ""), flush=True)
 
-    final = finalize(games, parts, all_games)
+    overrides = {k: v for k, v in json.loads(OVERRIDES.read_text()).items() if not k.startswith("_")} if OVERRIDES.exists() else {}
+    for name, o in overrides.items():                    # probe each human-chosen video once (cached in its part)
+        if name in parts and (parts[name].get("override_probe") or {}).get("id") != o["video_id"]:
+            parts[name]["override_probe"] = {"id": o["video_id"], **probe(o["video_id"], YTDLP_FMT)}
+            parts[name]["override_probe"].pop("description", None)
+            save(name)
+        if name in parts:
+            o["probe"] = parts[name]["override_probe"]
+    final = finalize(games, parts, all_games, overrides)
     rows = []
     for g in games:
         part = parts[g["game"]]
