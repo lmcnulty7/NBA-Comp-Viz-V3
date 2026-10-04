@@ -20,7 +20,7 @@ from harvest_driver import build_stride
 from sportvu.sync import SYNC_DIR
 
 BUILD_DIR = config.PROJECT_ROOT / "data" / "sportvu" / "build"
-FF = "/opt/homebrew/bin/ffmpeg"
+FF = shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"     # Colab: system ffmpeg
 BUDGET_S = 100.0           # seconds of running clock rebuilt per section
 PAD_S = 1.5                # warm-up before each span (positions there are not evaluated)
 MIN_SPAN_S = 8.0
@@ -63,7 +63,7 @@ def build(window: dict, snip: Path, out_dir: Path = BUILD_DIR, extra_args: tuple
     n = (window["f_end"] - window["f_start"]) // stride + 2
     import os
     env = {**os.environ, "PYTORCH_ENABLE_MPS_FALLBACK": "1"}
-    r = subprocess.run(["/opt/anaconda3/bin/python", "build_trajectories.py", "--source", str(snip), "--start", "0",
+    r = subprocess.run([sys.executable, "build_trajectories.py", "--source", str(snip), "--start", "0",
                         "--max-frames", str(n), "--stride", str(stride), "--pregate", "--no-video", *extra_args],
                        cwd=config.PROJECT_ROOT, env=env, capture_output=True, text=True)
     moved = []

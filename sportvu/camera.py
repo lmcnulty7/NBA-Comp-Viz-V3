@@ -140,6 +140,26 @@ def collect(game: str, windows_dir) -> list:
     return out
 
 
+def frames_from_rows(w: dict, side: dict, rows: list, index, mirror: str, W: int, H: int) -> list:
+    """Camera-fit inputs from one window's window_truth rows (status ok, >= MIN_PAIRS inlier pairs)."""
+    from sportvu.sync import MIRRORS, apply_mirror
+    fx, fy = MIRRORS[mirror]
+    srow = {r["frame"]: r for r in side["frames"]}
+    out = []
+    for r in rows:
+        if r["status"] != "ok":
+            continue
+        q, i = r["q"], r["moment"]
+        sv = apply_mirror(index.q[q]["xy"][i], fx, fy); pid = index.q[q]["pid"][i]
+        sr = srow[r["frame"]]
+        pairs = [(sr["boxes"][p["box"]]["foot_stab"], sv[int(np.where(pid == p["pid"])[0][0])]) for p in r["pairs"] if p["inlier"]]
+        if len(pairs) >= MIN_PAIRS:
+            out.append({"window": w["window"], "frame": r["frame"], "w": W, "h": H, "H_v3": sr["H"], "H_b4": r["H_truth"],
+                        "px": np.array([a for a, _ in pairs], np.float64), "ft": np.array([b for _, b in pairs], np.float64),
+                        "boxes": [b["bbox"] for b in sr["boxes"]], "row": r})
+    return out
+
+
 def fit_game(frames: list, seed: int = 0) -> dict:
     """Pooled bundle adjustment: shared C, per-frame (rvec, log f)."""
     from scipy.optimize import least_squares

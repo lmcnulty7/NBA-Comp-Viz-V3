@@ -7,24 +7,38 @@ is refused, so nothing from the held-out game, arena or era can become a label. 
   1. windows   every running span (>= MIN_SPAN_S) of the game's local time maps, cut and built with
                production settings except the gate: gate v2 at its v2 threshold (models/
                trained_head_v2, thresholds.json "v2"). Outputs under data/sportvu/label_build/.
-  2. truth     window OCR time map, residual clock offset and per-frame truth H (sportvu.truth.
-               window_truth: ICP from the pipeline H and the current detector's feet, RANSAC 1.5 ft,
-               >= 6 inliers), under the game's mirror from R1.2 (reports/sportvu_direction_<game>.json).
-  3. accept    status ok and truth residual <= MAX_RESID_FT; every other frame is counted under its
-               rule (gate_v2_skipped, unmapped, no_moment, untestable_boxes, untestable_noH,
-               untestable_match, untestable_inliers, resid_over_0.5ft).
-  4. labels    data/sportvu/labels/<game>/<window>.jsonl, one line per accepted frame: the window video
+  2. pairs     window OCR time map, residual clock offset and the B4 ICP matching (sportvu.truth.
+               window_truth: feet <-> SportVU pairs, >= 6 inliers), under the game's mirror from R1.2.
+               The B4 homography itself is NOT used: it fits the feet, not the court
+               (reports/sportvu_truth_line_check.txt).
+  3. camera    the truth H is a camera model (sportvu.camera, decided 2026-10-04): one camera position
+               per game from a pooled fit over the game's frames, per frame rotation + zoom fitted to
+               the pairs and refined onto the painted-line ridges.
+  4. accept    a frame is accepted when the camera fit has >= MIN_LINE_MATCHES painted-line matches, A1
+               line support >= MIN_SUPPORT (V3's typical support is 0.09..0.10), a feet residual median
+               <= MAX_FEET_RESID_FT (feet vs SportVU noise is about 1.2..1.7 ft median on the training
+               games) and a zoom off its bounds. Thresholds chosen on the training games
+               (reports/sportvu_camera_<game>.json). Every other frame is counted under its rule
+               (gate_v2_skipped, unmapped, no_moment, untestable_boxes, untestable_noH, untestable_match,
+               untestable_inliers, camera_no_init, line_matches_low, support_low, feet_resid_high,
+               zoom_at_bound).
+  5. labels    data/sportvu/labels/<game>/<window>.jsonl, one line per accepted frame: the window video
                and frame, H_truth (px -> ft), (a) the 13x7 grid keypoints and the 1 ft line samples
                (court/snap_track CH_MID) projected through H_truth, kept when on the frame, (b) boxes
                whose truth-projected foot is within CONFIRM_FT of a SportVU player (Hungarian), with
                team id, player id and jersey, (c) the court region of the frame (court x under the
                frame's lower centre: left, middle or right third).
-  5. sheet     data/sportvu/labels/<game>_sheet.jpg: SHEET_N accepted frames with the projected lines.
+  6. sheet     data/sportvu/labels/<game>_sheet.jpg: SHEET_N accepted frames with the projected lines.
+  7. images    with --save-images, every accepted frame as data/sportvu/labels/<game>/img/<window>_<frame>.jpg
+               (the court model trains on these; broadcast stills, never committed).
+Per-game results go to data/sportvu/labels/<game>_result.json so games can run in parallel processes;
+--manifest-only merges them into the manifest.
 
 Manifest: reports/sportvu_labels_manifest.{json,txt} (committed) with accepted frames per game, per
 arena and per court region, and the rejection counts per rule per game. Labels stay gitignored.
 
-  python -m sportvu.autolabel [--games gsw_bkn_2015,...] [--max-windows N]
+  python -m sportvu.autolabel [--games gsw_bkn_2015,...] [--max-windows N] [--save-images]
+  python -m sportvu.autolabel --manifest-only
 """
 from __future__ import annotations
 import argparse, json, time
@@ -38,7 +52,9 @@ from sportvu.truth import window_truth
 REG = config.PROJECT_ROOT / "data" / "harvest" / "games.json"
 OUT = config.PROJECT_ROOT / "data" / "sportvu" / "labels"
 WIN_DIR = config.PROJECT_ROOT / "data" / "sportvu" / "label_build"
-MAX_RESID_FT = 0.5
+MAX_FEET_RESID_FT = 2.0
+MIN_LINE_MATCHES = 30
+MIN_SUPPORT = 0.12
 CONFIRM_FT = 2.5
 SHEET_N = 12
 EVERY_SPAN = 1e9          # plan_windows budget: every running span, not a sample
@@ -96,7 +112,7 @@ def frame_labels(row: dict, side_row: dict, sv_xy, sv_pid, sv_team, jersey: dict
             "boxes": boxes, "region": region_of(Ht, w, h)}
 
 
-def label_game(tag: str, g: dict, max_windows: int | None = None) -> dict:
+def label_game(tag: str, g: dict, max_windows: int | None = None, save_images: bool = False) -> dict:
     import cv2
     from clock_reader import ClockReader
     from sportvu.local_sync import build_local_timemap
@@ -113,8 +129,12 @@ def label_game(tag: str, g: dict, max_windows: int | None = None) -> dict:
     WIN_DIR.mkdir(parents=True, exist_ok=True)
     (OUT / tag).mkdir(parents=True, exist_ok=True)
     reader = ClockReader(g["layout"])
+    from sportvu import camera as cam
+    from qc.track_qc import line_overlay
+    from videoseq import SeqReader
     counts, regions, accepted, sheet_pick = {}, {}, 0, []
     t0 = time.time()
+    built = []                         # phase A: build, OCR, ICP pairs per window
     for k, w in enumerate(windows):
         snip = cut(w, out_dir=WIN_DIR)
         r = build(w, snip, out_dir=WIN_DIR, extra_args=gate_args())
@@ -129,32 +149,65 @@ def label_game(tag: str, g: dict, max_windows: int | None = None) -> dict:
         live = {int(f) for f, _, _ in tm["frames"]}
         counts["gate_v2_skipped"] = counts.get("gate_v2_skipped", 0) + len(live - {r_["frame"] for r_ in sc["frames"]})
         off, _, rows = window_truth(w, sc, tm, index, mirror)
-        srow = {r_["frame"]: r_ for r_ in sc["frames"]}
-        cap = cv2.VideoCapture(str(snip)); W, H = int(cap.get(3)), int(cap.get(4)); cap.release()
-        lines = []
         for row in rows:
-            st = row["status"]
-            if st == "ok" and row["resid_ft"] > MAX_RESID_FT:
-                st = "resid_over_0.5ft"
-            if st != "ok":
-                counts[st] = counts.get(st, 0) + 1
+            if row["status"] != "ok":
+                counts[row["status"]] = counts.get(row["status"], 0) + 1
+        cap = cv2.VideoCapture(str(snip)); W, H = int(cap.get(3)), int(cap.get(4)); cap.release()
+        frs = cam.frames_from_rows(w, sc, rows, index, mirror, W, H)
+        counts["untestable_inliers"] = counts.get("untestable_inliers", 0) + sum(1 for r_ in rows if r_["status"] == "ok") - len(frs)
+        built.append((w, snip, sc, off, frs))
+        print("  A [%d/%d] %-26s %s candidates %d (%.0f s)" % (k + 1, len(windows), w["window"],
+              "cached" if r.get("cached") else ("ok" if r.get("rc") == 0 else "FAILED"), len(frs), time.time() - t0), flush=True)
+    allf = [f for _, _, _, _, frs in built for f in frs]
+    g_fit = cam.fit_game(allf)               # phase B: one camera position per game
+    if g_fit.get("status") != "ok":
+        return {"game": tag, "status": "camera_fit_failed", "camera": g_fit, "rejections": counts}
+    C = np.array(g_fit["C"])
+    lo, hi = np.log(cam.F_BOUNDS_PX[0]) + 0.01, np.log(cam.F_BOUNDS_PX[1]) - 0.01
+    for w, snip, sc, off, frs in built:      # phase C: per-frame camera truth, acceptance, labels
+        srow = {r_["frame"]: r_ for r_ in sc["frames"]}
+        sr = SeqReader(cv2.VideoCapture(str(snip)))
+        lines = []
+        for fr in frs:
+            ok_img, img = sr.read(fr["frame"])
+            fit = cam.refine_lines(C, fr, cam.fit_frame(C, fr), img) if ok_img else {"status": "no_image"}
+            if fit.get("status") != "ok":
+                rule = "camera_no_init"
+            elif fit.get("lines", 0) < MIN_LINE_MATCHES:
+                rule = "line_matches_low"
+            elif not (lo < np.log(fit["f"]) < hi):
+                rule = "zoom_at_bound"
+            elif fit["resid_ft"] > MAX_FEET_RESID_FT:
+                rule = "feet_resid_high"
+            else:
+                sup = line_overlay(img, fit["H"], fr["boxes"])["support"]
+                rule = None if sup is not None and sup >= MIN_SUPPORT else "support_low"
+            if rule:
+                counts[rule] = counts.get(rule, 0) + 1
                 continue
+            row = {**fr["row"], "H_truth": fit["H"]}
             q, i = row["q"], row["moment"]
             lab = frame_labels(row, srow[row["frame"]], index.q[q]["xy"][i], index.q[q]["pid"][i], index.q[q]["team"][i],
-                               jersey, mirror, W, H)
+                               jersey, mirror, fr["w"], fr["h"])
+            if save_images:
+                (OUT / tag / "img").mkdir(exist_ok=True)
+                img_rel = OUT / tag / "img" / ("%s_%06d.jpg" % (w["window"], row["frame"]))
+                cv2.imwrite(str(img_rel), img, [cv2.IMWRITE_JPEG_QUALITY, 92])
+                lab["image"] = str(img_rel.relative_to(config.PROJECT_ROOT))
             lines.append(json.dumps({"game": tag, "window": w["window"], "video": str(snip.relative_to(config.PROJECT_ROOT)),
                                      "frame": row["frame"], "section": w["section"], "section_frame": w["f_start"] + row["frame"],
-                                     "q": q, "clock": row["clock"], "offset_s": off, "H_truth": row["H_truth"],
-                                     "resid_ft": row["resid_ft"], "inliers": row["inliers"], **lab}))
+                                     "q": q, "clock": row["clock"], "offset_s": off, "H_truth": fit["H"], "truth": "camera",
+                                     "camera_C": g_fit["C"], "camera_f": fit["f"], "feet_resid_ft": fit["resid_ft"],
+                                     "line_matches": fit.get("lines"), **lab}))
             counts["accepted"] = counts.get("accepted", 0) + 1
             regions[lab["region"]] = regions.get(lab["region"], 0) + 1
-            sheet_pick.append((str(snip), row["frame"], row["H_truth"]))
+            sheet_pick.append((str(snip), row["frame"], fit["H"]))
         (OUT / tag / (w["window"] + ".jsonl")).write_text("\n".join(lines) + ("\n" if lines else ""))
         accepted += len(lines)
-        print("  [%d/%d] %-26s %s accepted %d (total %d, %.0f s)" % (k + 1, len(windows), w["window"],
-              "cached" if r.get("cached") else ("ok" if r.get("rc") == 0 else "FAILED"), len(lines), accepted, time.time() - t0), flush=True)
+    print("  C %s: accepted %d (%.0f s)" % (tag, accepted, time.time() - t0), flush=True)
     contact_sheet(tag, sheet_pick)
     return {"game": tag, "sportvu": g["sportvu"], "home": g["home"], "mirror": mirror, "windows": len(windows),
+            "camera": {k: v for k, v in g_fit.items() if k != "cost"},
             "accepted": accepted, "regions": regions, "rejections": {k: v for k, v in counts.items() if k != "accepted"}}
 
 
@@ -188,11 +241,14 @@ def write_manifest(results: list) -> None:
         a["games"] += 1; a["accepted"] += r["accepted"]
         for k, v in r["regions"].items():
             a["regions"][k] = a["regions"].get(k, 0) + v
-    rep = {"item": "ROADMAP R1.3", "rules": {"max_resid_ft": MAX_RESID_FT, "min_inliers": 6, "confirm_ft": CONFIRM_FT,
+    rep = {"item": "ROADMAP R1.3", "rules": {"truth": "camera model (sportvu/camera.py)", "min_icp_inliers": 6,
+                                             "min_line_matches": MIN_LINE_MATCHES, "min_support": MIN_SUPPORT,
+                                             "max_feet_resid_ft": MAX_FEET_RESID_FT, "confirm_ft": CONFIRM_FT,
                                              "gate": "v2", "games": "split == train only"},
            "by_arena": by_arena, "games": results,
-           "caveats": ["truth H passes through the current (V3) detector's feet and is initialised from the V3 court H: frames where V3's H is too far off to match 6 players are lost (counted as untestable_*), so labels lean toward views V3 already handles",
-                       "truth residual is measured on the feet the fit used (median of inliers); it is not an independent check of the court lines",
+           "caveats": ["candidate frames come from the B4 ICP matching, which starts from the V3 court H: frames where V3's H is too far off to match 6 players are lost (counted as untestable_*), so labels lean toward views V3 already handles",
+                       "the camera truth is checked against the painted lines by A1 line support, an indicator, not a ground truth; feet vs SportVU noise is about 1.2..1.7 ft median",
+                       "one camera position per game: an upload that switches broadcast feeds (gsw_cha_2016) mixes camera positions and loses more frames",
                        "labels are on the local h264 copies of the harvest uploads, not on the production sections"]}
     (config.REPORTS_DIR / "sportvu_labels_manifest.json").write_text(json.dumps(rep, indent=1))
     L = ["SPORTVU AUTO-LABELS (ROADMAP R1.3): %d training games" % len(results)]
@@ -211,15 +267,20 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--games", default=None)
     ap.add_argument("--max-windows", type=int, default=None, help="smoke test: label only the first N windows per game")
+    ap.add_argument("--save-images", action="store_true", help="write every accepted frame as a jpg (training input)")
+    ap.add_argument("--manifest-only", action="store_true", help="merge the per-game results into the manifest")
     a = ap.parse_args()
+    if a.manifest_only:
+        write_manifest([json.loads(p.read_text()) for p in sorted(OUT.glob("*_result.json"))])
+        return
     games = training_games(a.games)
-    results = []
     for tag, g in games.items():
-        results.append(label_game(tag, g, a.max_windows))
-    if not a.max_windows:
-        write_manifest(results)
-    else:
-        print(json.dumps(results, indent=1))
+        res = label_game(tag, g, a.max_windows, a.save_images)
+        if a.max_windows:
+            print(json.dumps(res, indent=1)); continue
+        (OUT / (tag + "_result.json")).write_text(json.dumps(res, indent=1))
+    if not a.max_windows and not a.games:
+        write_manifest([json.loads(p.read_text()) for p in sorted(OUT.glob("*_result.json"))])
 
 
 if __name__ == "__main__":
