@@ -2,7 +2,7 @@ STAGE 1 SCORECARD  gsw_phx_2016 (held-out game) vs SportVU 12.16.2015.PHX.at.GSW
 truth: 1447 testable of 9500 window frames; untestable 84.8% (no truth H fits). Every row below is on testable frames only.
 untestable by cause (sportvu/truth.py): untestable_inliers 3961, untestable_boxes 1835, untestable_match 1155, unmapped 1064, untestable_noH 33, no_moment 5
 
-court line error  reported  0.0% of frames <= 3 px; p50 26.74 px, p95 57.04 px (floor: truth fit residual p50 6.04 px, p90 10.75 px)
+court line error  n/a       not measurable (truth H fits the feet, not the court; diagnostic only: p50 26.74 px vs the truth template)
                             target reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median; n = 1447 frames
 position error    not met   p50 7.33 ft, p90 15.35 ft
                             target p50 <= 2.0 ft, p90 <= 5.0 ft; n = 11292 players
@@ -22,7 +22,7 @@ generalisation    -         not measurable
                             target held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free; n = -
 
 reported, not judged:
-  court line error: truth fit residual p50 6.04 px > 1.5 px: the truth cannot resolve a 3 px line error, so the row is reported
+  court line error: not measurable: the truth H fits the players' feet, not the painted court (reports/sportvu_truth_line_check.txt: about as far from the paint as V3's H)
 
 not measurable:
   jersey-read rate: the build wrote no <window>_jersey.json: jersey OCR (CLAIMS C2) did not run on these windows (no saved crops)
@@ -30,7 +30,7 @@ not measurable:
 
 caveats:
   - testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled
-  - the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet); its px residual is the floor printed beside the line error, and only a floor: lines far from the fitted players extrapolate
+  - the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet
   - local windowed rebuild of the harvest sections (25 windows of running clock), not the production artifacts
   - wide reference = gate v2 at its v2 threshold, which was trained on human-verified harvest frames including phx (in-sample here, so closer to the human label than a held-out gate); live = running clock read by OCR at 1 s resolution
   - referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)

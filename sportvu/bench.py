@@ -86,11 +86,18 @@ def accepted(row: dict) -> bool:
     return bool(row.get("accepted", row.get("H") is not None))
 
 
+TRUTH_COURT_VALID = False     # 2026-10-04: the feet-fitted truth H does not fit the painted court
+TRUTH_COURT_NOTE = ("not measurable: the truth H fits the players' feet, not the painted court "
+                    "(reports/sportvu_truth_line_check.txt: about as far from the paint as V3's H)")
+
+
 def line_verdict(share_le_target, truth_p50_px):
     """(pass, withheld): the court line row is judged only when the truth fit residual is at most
     half the target, since a coarser truth cannot confirm a LINE_TARGET_PX error."""
     if share_le_target is None:
         return None, None                 # not measurable: no frame with a defined line error
+    if not TRUTH_COURT_VALID:
+        return None, TRUTH_COURT_NOTE
     if truth_p50_px is None or truth_p50_px > LINE_TARGET_PX / 2:
         return None, "truth fit residual p50 %s px > %.1f px: the truth cannot resolve a %.0f px line error, so the row is reported" % (
             truth_p50_px, LINE_TARGET_PX / 2, LINE_TARGET_PX)
@@ -463,10 +470,12 @@ def render_txt(rep: dict) -> str:
                                                        "missed_players", "ghost_boxes", "team_labels", "identity"))
     rows = [
         ("court line error", TARGETS["court_line_error"],
+         ("not measurable (truth H fits the feet, not the court; diagnostic only: p50 %s px vs the truth template)" % v(cl["p50_px"]))
+         if cl.get("pass_withheld") == TRUTH_COURT_NOTE else
          "%s of frames <= 3 px; p50 %s px, p95 %s px (floor: truth fit residual p50 %s px, p90 %s px)" % (
              v(cl["share_le_target"] and 100 * cl["share_le_target"], "%.1f%%"),
              v(cl["p50_px"]), v(cl["p95_px"]), v(cl["truth_fit_residual_p50_px"]), v(cl["truth_fit_residual_p90_px"])),
-         "%d frames" % cl["frames_defined"], "reported" if cl.get("pass_withheld") else verdict(cl)),
+         "%d frames" % cl["frames_defined"], ("n/a" if cl.get("pass_withheld") == TRUTH_COURT_NOTE else "reported") if cl.get("pass_withheld") else verdict(cl)),
         ("position error", TARGETS["position_error"], "p50 %s ft, p90 %s ft" % (v(pe["p50_ft"]), v(pe["p90_ft"])),
          "%d players" % pe["matched_players"], verdict(pe)),
         ("near-field bias", TARGETS["near_field_bias"], "near %s ft, far %s ft (toward camera)" % (v(nf["near_third_ft"], "%+.2f"), v(nf["far_third_ft"], "%+.2f")),
@@ -534,7 +543,7 @@ def main():
                       "shot_reset_s": SHOT_RESET_S, "min_possession_frames": MIN_POSS_FRAMES, "wide_threshold_v2": refs.wide_thr},
            "caveats": [
                "testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled",
-               "the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet); its px residual is the floor printed beside the line error, and only a floor: lines far from the fitted players extrapolate",
+               "the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet",
                "local windowed rebuild of the harvest sections (25 windows of running clock), not the production artifacts",
                "wide reference = gate v2 at its v2 threshold, which was trained on human-verified harvest frames including phx (in-sample here, so closer to the human label than a held-out gate); live = running clock read by OCR at 1 s resolution",
                "referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)",

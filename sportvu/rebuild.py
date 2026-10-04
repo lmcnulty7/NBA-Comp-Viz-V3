@@ -43,8 +43,8 @@ def plan_windows(section: str, budget_s: float = BUDGET_S) -> list[dict]:
     return out
 
 
-def cut(window: dict) -> Path:
-    vid = video_path(window["section"]); out = BUILD_DIR / (window["window"] + ".mp4")
+def cut(window: dict, out_dir: Path = BUILD_DIR) -> Path:
+    vid = video_path(window["section"]); out = out_dir / (window["window"] + ".mp4")
     if out.exists():
         return out
     fps = window["fps"]
@@ -54,9 +54,9 @@ def cut(window: dict) -> Path:
     return out
 
 
-def build(window: dict, snip: Path) -> dict:
+def build(window: dict, snip: Path, out_dir: Path = BUILD_DIR, extra_args: tuple = ()) -> dict:
     stem = snip.stem
-    done = BUILD_DIR / (stem + "_frames.json")
+    done = out_dir / (stem + "_frames.json")
     if done.exists():
         return {"window": stem, "cached": True}
     stride = build_stride(window["fps"])
@@ -64,11 +64,11 @@ def build(window: dict, snip: Path) -> dict:
     import os
     env = {**os.environ, "PYTORCH_ENABLE_MPS_FALLBACK": "1"}
     r = subprocess.run(["/opt/anaconda3/bin/python", "build_trajectories.py", "--source", str(snip), "--start", "0",
-                        "--max-frames", str(n), "--stride", str(stride), "--pregate", "--no-video"],
+                        "--max-frames", str(n), "--stride", str(stride), "--pregate", "--no-video", *extra_args],
                        cwd=config.PROJECT_ROOT, env=env, capture_output=True, text=True)
     moved = []
     for p in list(config.TRACKING_DIR.glob(stem + "_*")) + list((config.PROJECT_ROOT / "reports" / "viz").glob("team_clusters_" + stem + "*")):
-        shutil.move(str(p), str(BUILD_DIR / p.name)); moved.append(p.name)
+        shutil.move(str(p), str(out_dir / p.name)); moved.append(p.name)
     return {"window": stem, "rc": r.returncode, "moved": moved, "tail": r.stderr[-300:] if r.returncode else ""}
 
 

@@ -15,12 +15,12 @@ indicators only. The court stage is judged on position error and near-field bias
 
 | Metric | How measured | Target | V3 baseline, gsw_phx_2016 |
 |---|---|---|---|
-| Court line error | px between the projected template and the template under the SportVU truth H | reported. Goal <= 3 px on 95% of accepted wide frames; pass/fail only once the truth fit residual is <= 1.5 px median (the truth must be twice as fine as the goal) | 0.0% of frames <= 3 px; p50 26.7 px, p95 57.0 px (n=1,447); floor: truth fit residual p50 6.0 px |
+| Court line error | px between the projected template and the template under the SportVU truth H | reported. Goal <= 3 px on 95% of accepted wide frames; pass/fail only once the truth fit residual is <= 1.5 px median (the truth must be twice as fine as the goal) | not measurable (corrected 2026-10-04: the truth H fits the players' feet, not the painted court; reports/sportvu_truth_line_check.txt). The earlier 0.0% <= 3 px / p50 26.7 px compared against that truth and is withdrawn |
 | Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft | p50 7.33 ft, p90 15.35 ft (n=11,292 players) |
 | Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft | near third -1.02 ft, far third +1.67 ft |
 | Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play | 98.6% (838 of 850 live wide s; V3 has no acceptance rule) |
-| Missed players | SportVU players in frame with no box within 2.5 ft | <= 5% | 25.1% (n=14,020) |
-| Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.1% non-referee (15.3% with referees; 280 of 12,637 boxes overlap a referee detection) |
+| Missed players | SportVU players in frame with no box within 2.5 ft | <= 5% | 25.1% (n=14,020; projected through the truth H away from the fitted feet, see the correction below) |
+| Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.1% non-referee (15.3% with referees; 280 of 12,637 boxes overlap a referee detection; same caveat as missed players) |
 | Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% (n=10,829) |
 | Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | 21.7 id switches per possession (56 shot-clock possessions); jersey-read rate not measurable (no OCR on the windows) |
 | Generalisation | the same metrics on an arena never trained on; the held-out era (2013, no SportVU) gets label-free indicators only | held-out arena within 1.5x of the held-out game; era reported, not pass/fail | not measured (held-out arena not chosen) |
@@ -30,10 +30,17 @@ testable frames only (1,447 of 9,500 rebuilt window frames, 15%, where a truth H
 so the numbers are optimistic; the truth H passes through the pipeline's own boxes; a local
 windowed rebuild, not the production artifacts; wide shots judged by gate v2, which saw phx frames
 in training; the referee class is the V3 detector's own, its recall never measured; id switches
-are counted on sparse samples (a lower bound). The court line goal sits below the truth fit's own
-6.0 px residual, so the current truth H cannot confirm a 3 px line error; the row stays reported
-until a truth at least twice as fine exists (no ROADMAP item produces one yet; R1.3 fits its truth
-the same way). The scorecard's n differ from A8 because it re-matches every build's feet through
+are counted on sparse samples (a lower bound).
+
+Correction (2026-10-04, found at ROADMAP R1.3): the per-frame truth H (sportvu/truth.py) is an
+8-parameter homography fitted to 6..10 feet bunched in one part of the court. Drawn over the frame it
+sits about as far from the painted lines as V3's own H (A1 ridge distance median 39.2 px vs 45.8 px on
+252 phx frames; worse than V3's on 34% of frames; reports/sportvu_truth_line_check.{json,txt}). It is
+valid near the fitted feet only. Consequences: the court line row is not measurable with it (the
+earlier 0.0% / 26.7 px and the 6.0 px "floor" are withdrawn); missed-player and ghost-box counts,
+which project through it away from the fitted players, carry that error; position error and
+near-field bias, which compare only players matched near the feet, stand; R1.3's court keypoint
+labels cannot be projected through it. The scorecard's n differ from A8 because it re-matches every build's feet through
 H_truth at 5 ft instead of reusing B4's stored pairs. The scorecard reproduces
 row A8 (B5, reports/sportvu_phx.*) within 0.03 ft on position error.
 
@@ -81,7 +88,7 @@ under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewri
 | A5 | Auto-label accuracy is **measured, not assumed** (LABEL_SCHEMA rule 4, 300 stratified accepted labels, human-judged): the **agreement band is 95.0% [88.8, 97.8] (n=100)** and is the usable dataset; the **Claude-adjudicated band measures 6.7–20.0% (n=200) and is NOT used for training**, along with the attributes riding on it | reports/label_audit.*; data/label_audit/labels.json | SHIPPED 2026-09-12 |
 | A6 | The qualification gate protected only classes with an in-house baseline; classes exempted as "nothing to compare against" (rim/backboard/scorebug/ball + attributes) are exactly the ones that failed the audit — recorded as a design defect, not a footnote | reports/label_audit.*; DEVLOG 09-12 | SHIPPED 2026-09-12 |
 | A7 | The judge's frame-level shot_type labels were audited before use (200 class-stratified frames, human): closeup-claimed 98.0% [89.5, 99.6] but **wide-claimed only 68.8% [57.9, 77.8]** — ~3 in 10 "wide" frames are closeups — so they are NOT used as gate training data for the wide class | reports/shot_type_audit.*; data/shot_type_audit/labels.json | SHIPPED 2026-10-02 |
-| A8 (proposed 2026-10-03, FIX_PLAN B5) | On the held-out game gsw_phx_2016 against SportVU tracking (12.16.2015 PHX at GSW), on the frames where a truth homography could be fitted (1,447 of 9,500 rebuilt window frames, 15%): player position error **p50 7.3 ft, p90 15.4 ft** under the pipeline H, compressed toward mid-court (far players pulled 1.7 ft toward the camera, near players pushed 1.0 ft away); **25.1% of in-frame players have no box within 2.5 ft; 15.3% of boxes are more than 3 ft from any player (referees included)**; team label accuracy **81.8%** (n=11,240); pipeline primary man = SportVU nearest opponent **48.1%** (n=160, a proxy for C1, not the human-labeled matchup) | reports/sportvu_phx.*; reports/sportvu_truth_gsw_phx_2016.json; sportvu/ | PROPOSED, not a shipped claim. Caveats: testable frames only (the untestable 85% are where the pipeline H was too far off to match 6 players, so these numbers are optimistic); truth H derived through the pipeline's own boxes; local windowed rebuild, not the production artifacts (same code, models, h264 source); gate v2 saw phx frames (court, detector, teams, identity did not) |
+| A8 (proposed 2026-10-03, FIX_PLAN B5) | On the held-out game gsw_phx_2016 against SportVU tracking (12.16.2015 PHX at GSW), on the frames where a truth homography could be fitted (1,447 of 9,500 rebuilt window frames, 15%): player position error **p50 7.3 ft, p90 15.4 ft** under the pipeline H, compressed toward mid-court (far players pulled 1.7 ft toward the camera, near players pushed 1.0 ft away); **25.1% of in-frame players have no box within 2.5 ft; 15.3% of boxes are more than 3 ft from any player (referees included)**; team label accuracy **81.8%** (n=11,240); pipeline primary man = SportVU nearest opponent **48.1%** (n=160, a proxy for C1, not the human-labeled matchup) | reports/sportvu_phx.*; reports/sportvu_truth_gsw_phx_2016.json; sportvu/ | PROPOSED, not a shipped claim. Correction 2026-10-04: the missed-player and ghost-box counts project through a truth H that is valid only near the fitted feet (see the Stage 1 section; reports/sportvu_truth_line_check.txt); position error stands. Caveats: testable frames only (the untestable 85% are where the pipeline H was too far off to match 6 players, so these numbers are optimistic); truth H derived through the pipeline's own boxes; local windowed rebuild, not the production artifacts (same code, models, h264 source); gate v2 saw phx frames (court, detector, teams, identity did not) |
 
 ## Tier B — team-level measurement claims (Phase 1 gates these)
 

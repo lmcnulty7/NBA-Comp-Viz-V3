@@ -52,7 +52,13 @@ def test_accepted_defaults_to_having_an_h():
 
 def test_line_verdict_withheld_while_truth_is_coarse():
     from sportvu.bench import line_verdict
-    assert line_verdict(0.0, 6.04)[0] is None and "reported" in line_verdict(0.0, 6.04)[1]
-    assert line_verdict(0.97, 1.2) == (True, None)
-    assert line_verdict(0.50, 1.5) == (False, None)
+    assert line_verdict(0.0, 6.04)[0] is None and line_verdict(0.0, 6.04)[1]
+    import sportvu.bench as B
+    assert line_verdict(0.97, 1.2)[0] is None              # truth H not valid at court level (2026-10-04)
+    B.TRUTH_COURT_VALID = True
+    try:
+        assert line_verdict(0.97, 1.2) == (True, None)
+        assert line_verdict(0.50, 1.5) == (False, None)
+    finally:
+        B.TRUTH_COURT_VALID = False
     assert line_verdict(None, 1.0) == (None, None)

@@ -1,0 +1,8 @@
+TRUTH H vs PAINTED LINES (gsw_phx_2016, 252 testable frames)
+  A1 ridge-to-template distance, median px: truth H 39.2 | V3 pipeline H 45.8
+  truth H farther from the paint than V3's H on 34% of frames; over 60 px: truth 16%, V3 19%
+  conclusion: the truth H is about as far from the paint as V3's H: it is valid near the fitted feet, not as a court-level homography
+  - court line error (pipeline template vs truth template) is not measurable with this truth
+  - missed-player and ghost-box counts project through H_truth away from the fitted feet and carry that error
+  - position error and near-field bias compare positions only for players the fit matched, near the feet, and stand
+  - ROADMAP R1.3 court keypoint labels projected through this H_truth would be wrong

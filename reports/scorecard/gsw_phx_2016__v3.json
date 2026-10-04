@@ -4,7 +4,7 @@
  "build": "v3",
  "build_dir": "data/sportvu/build",
  "mirror": "identity",
- "date": "2026-10-03",
+ "date": "2026-10-04",
  "targets": {
   "court_line_error": "reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median",
   "position_error": "p50 <= 2.0 ft, p90 <= 5.0 ft",
@@ -38,7 +38,7 @@
    "truth_fit_residual_p50_px": 6.04,
    "truth_fit_residual_p90_px": 10.75,
    "pass": null,
-   "pass_withheld": "truth fit residual p50 6.04 px > 1.5 px: the truth cannot resolve a 3 px line error, so the row is reported"
+   "pass_withheld": "not measurable: the truth H fits the players' feet, not the painted court (reports/sportvu_truth_line_check.txt: about as far from the paint as V3's H)"
   },
   "position_error": {
    "matched_players": 11292,
@@ -515,7 +515,7 @@
  },
  "caveats": [
   "testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled",
-  "the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet); its px residual is the floor printed beside the line error, and only a floor: lines far from the fitted players extrapolate",
+  "the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet",
   "local windowed rebuild of the harvest sections (25 windows of running clock), not the production artifacts",
   "wide reference = gate v2 at its v2 threshold, which was trained on human-verified harvest frames including phx (in-sample here, so closer to the human label than a held-out gate); live = running clock read by OCR at 1 s resolution",
   "referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)",

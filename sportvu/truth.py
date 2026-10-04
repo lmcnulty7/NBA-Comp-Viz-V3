@@ -101,6 +101,33 @@ def truth_for_frame(row: dict, sv_xy: np.ndarray, sv_pid: np.ndarray, mirror: st
                        "inlier": bool(mask[k])} for k, (i, j, d) in enumerate(pairs)]}
 
 
+def window_truth(w: dict, sc: dict, tm: dict, index: SportVUIndex, mirror: str) -> tuple:
+    """(offset_s, offset_median_ft, rows) for one rebuilt window: the residual clock offset solved on
+    the pipeline's projected feet, then truth_for_frame on every sidecar frame (status per frame)."""
+    import cv2
+    rows_pc = []
+    for r in sc["frames"]:
+        q, clock = frame_clock(w, tm, r["frame"])
+        if q is None or r["H"] is None or len(r["boxes"]) < 4:
+            continue
+        feet = np.array([b["foot_stab"] for b in r["boxes"]], np.float32)
+        rows_pc.append((q, clock, cv2.perspectiveTransform(feet.reshape(-1, 1, 2), np.array(r["H"]).reshape(3, 3)).reshape(-1, 2)))
+    off, off_ft = solve_window_offset(rows_pc, index, mirror) if len(rows_pc) >= 20 else (0.0, None)
+    rows = []
+    for r in sc["frames"]:
+        q, clock = frame_clock(w, tm, r["frame"])
+        if q is None:
+            rows.append({"frame": r["frame"], "status": "unmapped"}); continue
+        clock = clock + off
+        i = index.at(q, clock, CLOCK_TOL_S)
+        if i is None:
+            rows.append({"frame": r["frame"], "status": "no_moment", "q": q, "clock": round(clock, 2)}); continue
+        t = truth_for_frame(r, index.q[q]["xy"][i], index.q[q]["pid"][i], mirror)
+        t.update({"frame": r["frame"], "q": q, "clock": round(clock, 2), "moment": int(i), "state": r["state"]})
+        rows.append(t)
+    return off, off_ft, rows
+
+
 def main():
     game = sys.argv[1] if len(sys.argv) > 1 else "gsw_phx_2016"
     sv_game = sys.argv[2] if len(sys.argv) > 2 else "12.16.2015.PHX.at.GSW"
@@ -115,27 +142,7 @@ def main():
         if not side.exists():
             continue
         sc = json.loads(side.read_text()); tm = json.loads((BUILD_DIR / (w["window"] + "_timemap.json")).read_text())
-        import cv2
-        rows_pc = []
-        for r in sc["frames"]:
-            q, clock = frame_clock(w, tm, r["frame"])
-            if q is None or r["H"] is None or len(r["boxes"]) < 4:
-                continue
-            feet = np.array([b["foot_stab"] for b in r["boxes"]], np.float32)
-            rows_pc.append((q, clock, cv2.perspectiveTransform(feet.reshape(-1, 1, 2), np.array(r["H"]).reshape(3, 3)).reshape(-1, 2)))
-        off, off_ft = solve_window_offset(rows_pc, index, mirror) if len(rows_pc) >= 20 else (0.0, None)
-        rows = []
-        for r in sc["frames"]:
-            q, clock = frame_clock(w, tm, r["frame"])
-            if q is None:
-                rows.append({"frame": r["frame"], "status": "unmapped"}); continue
-            clock = clock + off
-            i = index.at(q, clock, CLOCK_TOL_S)
-            if i is None:
-                rows.append({"frame": r["frame"], "status": "no_moment", "q": q, "clock": round(clock, 2)}); continue
-            t = truth_for_frame(r, index.q[q]["xy"][i], index.q[q]["pid"][i], mirror)
-            t.update({"frame": r["frame"], "q": q, "clock": round(clock, 2), "moment": int(i), "state": r["state"]})
-            rows.append(t)
+        off, off_ft, rows = window_truth(w, sc, tm, index, mirror)
         (TRUTH_DIR / (w["window"] + "_truth.json")).write_text(json.dumps({"window": w, "offset_s": off, "offset_median_ft": off_ft, "frames": rows}))
         cnt = {}
         for r in rows:
