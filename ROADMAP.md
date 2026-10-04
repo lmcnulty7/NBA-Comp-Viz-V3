@@ -135,7 +135,14 @@ download scripts, manifests and licence notes are committed.
 - [x] R1.2 Fetch, register (`data/harvest/games.json`), split and clock-calibrate the chosen games with
       the harvest tooling; OCR time maps per section (`sportvu.local_sync`); SportVU moments fetched.
       Measurable: per game, mapped running seconds and the mirror/offset resolution (`sportvu.sync`).
-- [ ] R1.3 Auto-labels: on every synced wide frame (gate v2, frames outside the held-out sets), fit the
+- [ ] R1.3 Auto-labels. Decided 2026-10-04 (Lucien) after attempt 1 failed verification: the truth H
+      comes from a per-game CAMERA MODEL (the broadcast camera is fixed in place: estimate its position
+      and lens once per game from pooled feet <-> SportVU pairs, then fit only pan, tilt and zoom per
+      frame), not a free 8-parameter homography, and it must sit on the painted lines (contact sheet +
+      A1 line indicator better than V3's H) before any label is written. The full labelling run goes
+      to Colab (A100) through a repo script + one-cell notebook, Drive account lucienmmcnulty@gmail.com
+      (My Drive/nba_harvest/video and sportvu/, ACCOUNT.txt checked by the runner). Original text: on
+      every synced wide frame (gate v2, frames outside the held-out sets), fit the
       truth H with the ICP matcher (`sportvu.truth`, bootstrapped from the current detector's feet),
       reject frames with truth residual > 0.5 ft or < 6 inliers, then write (a) court keypoints: the
       13x7 grid and 1 ft line samples projected through H_truth, (b) SportVU-confirmed boxes (foot within
