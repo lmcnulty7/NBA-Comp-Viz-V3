@@ -454,6 +454,9 @@ def finalize(games: list[dict], parts: dict, schedule: list[dict], overrides: di
     for name, o in (overrides or {}).items():            # a human decision outranks the search; the probe still judges format
         if name not in out or not isinstance(o, dict):
             continue
+        if o.get("reject"):
+            out[name] = {"verdict": "no_broadcast", "best": None, "note": "rejected: " + o["reject"]}
+            continue
         p = dict(o.get("probe") or {})
         p.update({"id": o["video_id"], "season_evidence": "human: %s, %s (%s)" % (o.get("by"), o.get("date"), o.get("note", ""))})
         if p.get("error"):
@@ -564,6 +567,8 @@ def main():
 
     overrides = {k: v for k, v in json.loads(OVERRIDES.read_text()).items() if not k.startswith("_")} if OVERRIDES.exists() else {}
     for name, o in overrides.items():                    # probe each human-chosen video once (cached in its part)
+        if o.get("reject"):
+            continue
         if name in parts and (parts[name].get("override_probe") or {}).get("id") != o["video_id"]:
             parts[name]["override_probe"] = {"id": o["video_id"], **probe(o["video_id"], YTDLP_FMT)}
             parts[name]["override_probe"].pop("description", None)

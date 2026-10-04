@@ -65,6 +65,13 @@ LAYOUTS = {
                           "clock_box": (838, 574, 908, 610)},
     "espn_wed15_720":    {"period_box": (818, 576, 866, 610),    # 2015 ESPN NBA Wednesday
                           "clock_box": (868, 576, 950, 610)},    # strip (PHX@GSW 12/16/15)
+    # Stage 1 SportVU games (ROADMAP R1.2, measured on pixel-ruler crops, 2026-10-04)
+    "fso15_720":         {"period_box": (836, 598, 882, 626),    # Fox Sports Ohio strip (NYK@CLE 12/23/15);
+                          "clock_box": (938, 598, 1012, 626)},   # period box stops before "QTR" (reads as OT)
+    "fsse_csn15_720":    {"period_box": (1018, 624, 1068, 650),  # Hornets feed (FS Southeast), right bug
+                          "clock_box": (1072, 624, 1142, 650),
+                          "alternates": [((148, 602, 180, 626),  # the same upload switches to the CSN Bay
+                                          (247, 602, 304, 626))]},  # Area lower-left bug (CHA@GSW 1/4/16)
 }
 CLIP_LAYOUT = {
     "curry_q1_clip": "espn_saturday_480",
@@ -96,6 +103,8 @@ class ClockReader:
         import easyocr
         self.period_box = LAYOUTS[layout]["period_box"]
         self.clock_box = LAYOUTS[layout]["clock_box"]
+        # an upload that switches broadcast feeds has more than one bug position: tried in order
+        self.boxes = [(self.period_box, self.clock_box)] + list(LAYOUTS[layout].get("alternates", []))
         try:
             import torch
             gpu = torch.cuda.is_available()   # CUDA yes; MPS stays CPU (safer)
@@ -110,9 +119,18 @@ class ClockReader:
         return "".join(self.reader.readtext(big, allowlist=allowlist, detail=0))
 
     def read(self, frame_bgr: np.ndarray):
-        """→ (period 1–5 | None, clock_seconds int | None, raw string)."""
-        ptxt = self._ocr(frame_bgr, self.period_box, "1234stndrhSTNDRHoO")
-        ctxt = self._ocr(frame_bgr, self.clock_box, "0123456789:.")
+        """→ (period 1–5 | None, clock_seconds int | None, raw string). With alternates, the first
+        bug position that gives both a period and a clock wins."""
+        out = None
+        for pbox, cbox in self.boxes:
+            out = self._read_boxes(frame_bgr, pbox, cbox)
+            if out[0] is not None and out[1] is not None:
+                return out
+        return out
+
+    def _read_boxes(self, frame_bgr: np.ndarray, period_box, clock_box):
+        ptxt = self._ocr(frame_bgr, period_box, "1234stndrhSTNDRHoO")
+        ctxt = self._ocr(frame_bgr, clock_box, "0123456789:.")
         raw = f"{ptxt}|{ctxt}"
         period = None
         if "ot" in ptxt.lower() or ptxt.lower().startswith("o"):

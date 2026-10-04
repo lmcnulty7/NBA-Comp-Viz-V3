@@ -26,15 +26,15 @@ PAD_S = 1.5                # warm-up before each span (positions there are not e
 MIN_SPAN_S = 8.0
 
 
-def plan_windows(section: str) -> list[dict]:
+def plan_windows(section: str, budget_s: float = BUDGET_S) -> list[dict]:
     tm = json.loads((SYNC_DIR / (section + "_local_timemap.json")).read_text())
     fps = tm["fps"]
     spans = sorted((s for s in tm["spans"] if s["video_s"] >= MIN_SPAN_S), key=lambda s: -s["video_s"])
     out, used = [], 0.0
     for k, s in enumerate(spans):
-        if used >= BUDGET_S:
+        if used >= budget_s:
             break
-        take = min(s["video_s"], BUDGET_S - used)
+        take = min(s["video_s"], budget_s - used)
         f_start = max(0, int(s["f0"] - PAD_S * fps))
         f_end = int(min(s["f1"], s["f0"] + take * fps))
         out.append({"window": "%s_w%02d" % (section, len(out)), "section": section, "fps": fps,

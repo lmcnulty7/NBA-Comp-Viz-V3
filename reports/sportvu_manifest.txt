@@ -1,6 +1,6 @@
 SPORTVU AVAILABILITY MANIFEST (ROADMAP R1.1), 84 games, 2026-10-04
 verdicts per arena (usable = ok_unverified or sportvu_gaps):
-  GSW  usable  5 of 20 | held_out 1, no_broadcast 9, short_broadcast 3, ambiguous 2, sportvu_gaps 1, ok_unverified 4
+  GSW  usable  4 of 20 | held_out 1, no_broadcast 10, short_broadcast 3, ambiguous 2, sportvu_gaps 1, ok_unverified 3
   CLE  usable  2 of 17 | sportvu_broken 1, no_broadcast 13, low_res 1, sportvu_gaps 2
   OKC  usable  0 of 25 | no_broadcast 24, short_broadcast 1
   NYK  usable  0 of 22 | no_broadcast 20, short_broadcast 1, ambiguous 1
@@ -11,7 +11,7 @@ candidate videos rejected before probing, per arena and rule:
   NYK  video-game simulation 10, postseason game 1, year 1995 1, year 1991 1
 
 priority list:
-   1 12.25.2015.CLE.at.GSW    ok_unverified   QJLso8Uwklc 4975s 720p upload
+   1 12.25.2015.CLE.at.GSW    no_broadcast    -  
    2 11.14.2015.BKN.at.GSW    sportvu_gaps    -u83b73fFbY 6364s 720p date  | Q3 gap 317..295 s; Q3 gap 284..269 s
    3 12.28.2015.SAC.at.GSW    ok_unverified   qzJbC4tmJeA 6252s 720p human
    4 01.04.2016.CHA.at.GSW    ok_unverified   hoPgMa02zB4 5526s 720p human

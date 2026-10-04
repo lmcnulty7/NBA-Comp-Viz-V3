@@ -116,3 +116,12 @@ def test_human_override():
     assert out["verdict"] == "ok_unverified" and evidence_kind(out["best"]["season_evidence"]) == "human"
     ov["12.28.2015.SAC.at.GSW"]["probe"]["height"] = 360
     assert finalize(sched, parts, sched, ov)["12.28.2015.SAC.at.GSW"]["verdict"] == "low_res"
+
+
+def test_override_reject():
+    sched = [{"game": "12.25.2015.CLE.at.GSW", "date": "2015-12-25", "away": "CLE", "home": "GSW"}]
+    parts = {"12.25.2015.CLE.at.GSW": {"broadcast": {"probed": [{"id": "QJL", "verdict": "ok_unverified", "upload_date": "20151226",
+                                                                  "season_evidence": "uploaded 1 days after the game"}]}}}
+    ov = {"12.25.2015.CLE.at.GSW": {"reject": "video-game simulation", "video_id": "QJL"}}
+    out = finalize(sched, parts, sched, ov)["12.25.2015.CLE.at.GSW"]
+    assert out["verdict"] == "no_broadcast" and out["note"].startswith("rejected")

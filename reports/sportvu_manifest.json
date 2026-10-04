@@ -29,9 +29,9 @@
  },
  "counts": {
   "GSW": {
-   "ok_unverified": 4,
+   "no_broadcast": 10,
    "sportvu_gaps": 1,
-   "no_broadcast": 9,
+   "ok_unverified": 3,
    "ambiguous": 2,
    "short_broadcast": 3,
    "held_out": 1
@@ -80,7 +80,7 @@
   }
  },
  "usable_by_arena": {
-  "GSW": 5,
+  "GSW": 4,
   "CLE": 2,
   "OKC": 0,
   "NYK": 0
@@ -91,7 +91,7 @@
    "date": "2015-12-25",
    "away": "CLE",
    "home": "GSW",
-   "verdict": "ok_unverified",
+   "verdict": "no_broadcast",
    "sportvu": {
     "status": "ok",
     "moments": 81806,
@@ -99,20 +99,20 @@
     "gap_s_total": 0.0
    },
    "broadcast": {
-    "verdict": "ok_unverified",
-    "note": null,
-    "video_id": "QJLso8Uwklc",
-    "url": "https://www.youtube.com/watch?v=QJLso8Uwklc",
-    "title": "Cavs vs Warriors Xmas Game",
-    "channel": "Greg Smith",
-    "upload_date": "20151226",
-    "duration_s": 4975,
-    "format_id": "136+251",
-    "vcodec": "avc1.4d401f",
-    "height": 720,
-    "fps": 30,
-    "evidence": "uploaded 1 days after the game",
-    "evidence_kind": "upload",
+    "verdict": "no_broadcast",
+    "note": "rejected: video-game simulation: QJLso8Uwklc shows an NBA 2K16 scorebug and rendered players (frame check at R1.2)",
+    "video_id": null,
+    "url": null,
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration_s": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "evidence": null,
+    "evidence_kind": null,
     "error": null,
     "queries": [
      "Cavaliers vs Warriors December 25, 2015 full game",

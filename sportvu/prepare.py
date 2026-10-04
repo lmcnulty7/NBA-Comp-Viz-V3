@@ -7,12 +7,20 @@ R1.1). Steps, each resumable and safe to rerun:
   fetch      video via harvest_driver.ensure_decodable (avc1 pinned, decode-verified), split into
              ~10-min sections (harvest_driver.split_sections), SportVU moments via sportvu.fetch
              (data/sportvu/<game>_moments.json, gitignored) with the coverage report.
+  layout     pick the scorebug layout: sample LAYOUT_SAMPLES frames across the game and try every
+             registered clock_reader layout (plausible read: period 1..4, clock <= 720 s). A box that
+             merely overlaps the bug can read plausible digits, so the top CONSISTENCY_TOP layouts are
+             then judged on consistency: each sample is paired with the frame 1 s later, and a pair
+             counts when both reads agree on the period and the clock moved by 0 s (stopped) or
+             1 +- 0.5 s (running). The most consistent layout wins if its share reaches MIN_LAYOUT_SHARE
+             and is written to games.json; otherwise the game needs a new calibration.
   sync       OCR time map per section (sportvu.local_sync, the game's scorebug layout must be
              registered first) -> mapped running seconds per game.
   report     reports/sportvu_prepare.{json,txt}: per game the fetch, split, layout, mapped running
              seconds and (once solved) the mirror / offset resolution.
 
   python -m sportvu.prepare fetch [--games gsw_cle_xmas15,...]
+  python -m sportvu.prepare layout [--games ...]
   python -m sportvu.prepare sync  [--games ...]
   python -m sportvu.prepare report
 """
@@ -21,11 +29,14 @@ import argparse, json, time
 import config
 
 REG = config.PROJECT_ROOT / "data" / "harvest" / "games.json"
+LAYOUT_SAMPLES = 40
+MIN_LAYOUT_SHARE = 0.25            # live play with a visible bug; replays and graphics read nothing
+CONSISTENCY_TOP = 3
 
 
 def sportvu_games(only: str | None = None) -> dict:
     reg = json.loads(REG.read_text())
-    games = {k: v for k, v in reg.items() if isinstance(v, dict) and v.get("sportvu")}
+    games = {k: v for k, v in reg.items() if isinstance(v, dict) and v.get("sportvu") and not v.get("excluded")}
     if only:
         keep = set(only.split(","))
         games = {k: v for k, v in games.items() if k in keep}
@@ -46,6 +57,64 @@ def do_fetch(games: dict) -> None:
             rep = fetch.coverage_report(parsed)
             (config.REPORTS_DIR / ("sportvu_fetch_%s.json" % g["sportvu"])).write_text(json.dumps(rep, indent=1))
         print("  %-16s video ok, %d sections, SportVU moments ok (%.0f s)" % (tag, len(secs), time.time() - t), flush=True)
+
+
+def sample_frames(tag: str, n: int = LAYOUT_SAMPLES) -> list:
+    """n (frame, frame 1 s later) pairs spread over the game's sections (first and last section
+    skipped: pregame, postgame)."""
+    import cv2
+    from harvest_driver import HARVEST_VIDEO
+    secs = sorted(HARVEST_VIDEO.glob(tag + "_s*.mp4"))
+    secs = secs[1:-1] or secs
+    per = max(1, n // len(secs))
+    out = []
+    for vid in secs:
+        cap = cv2.VideoCapture(str(vid)); total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        for k in range(per):
+            f = int(total * (k + 0.5) / per)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, f)
+            ok, fr = cap.read()
+            cap.set(cv2.CAP_PROP_POS_FRAMES, f + int(round(fps)))
+            ok2, fr2 = cap.read()
+            if ok and ok2:
+                out.append((fr, fr2))
+        cap.release()
+    return out
+
+
+def do_layout(games: dict) -> None:
+    from clock_reader import ClockReader, LAYOUTS
+    readers, reg = {}, json.loads(REG.read_text())
+    for tag, g in games.items():
+        pairs = sample_frames(tag)
+        plaus = lambda p, c: p is not None and 1 <= p <= 4 and c is not None and 0 <= c <= 720
+        shares = {}
+        for lay in LAYOUTS:
+            readers.setdefault(lay, ClockReader(lay))
+            shares[lay] = round(sum(plaus(*readers[lay].read(a)[:2]) for a, _ in pairs) / max(len(pairs), 1), 3)
+        top = sorted((l for l in shares if shares[l] >= MIN_LAYOUT_SHARE), key=lambda l: -shares[l])[:CONSISTENCY_TOP]
+        consist = {}
+        for lay in top:
+            good = 0
+            for a, b in pairs:
+                p1, c1, _ = readers[lay].read(a)
+                p2, c2, _ = readers[lay].read(b)
+                if plaus(p1, c1) and plaus(p2, c2) and p1 == p2:
+                    d = c1 - c2
+                    good += abs(d) < 0.25 or 0.5 <= d <= 1.5
+            consist[lay] = round(good / max(len(pairs), 1), 3)
+        best = max(consist, key=consist.get) if consist else max(shares, key=shares.get)
+        verdict = best if consist.get(best, 0) >= MIN_LAYOUT_SHARE else None
+        if verdict:
+            reg[tag]["layout"] = verdict
+        else:
+            reg[tag].pop("layout", None)
+        reg[tag]["layout_check"] = {"pairs": len(pairs), "plausible_share": {l: shares[l] for l in top},
+                                    "consistent_share": consist, "chosen": verdict}
+        print("  %-16s %s | consistent %s | plausible %s" % (tag, verdict or "NEEDS CALIBRATION", consist,
+                                                         {l: shares[l] for l in top}), flush=True)
+    REG.write_text(json.dumps(reg, indent=1) + "\n")
 
 
 def do_sync(games: dict) -> None:
@@ -99,11 +168,11 @@ def do_report(games: dict) -> None:
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("step", choices=("fetch", "sync", "report"))
+    ap.add_argument("step", choices=("fetch", "layout", "sync", "report"))
     ap.add_argument("--games", default=None)
     a = ap.parse_args()
     games = sportvu_games(a.games)
-    {"fetch": do_fetch, "sync": do_sync, "report": do_report}[a.step](games)
+    {"fetch": do_fetch, "layout": do_layout, "sync": do_sync, "report": do_report}[a.step](games)
 
 
 if __name__ == "__main__":
