@@ -61,6 +61,7 @@ from sportvu.eval import MISS_FT, GHOST_FT, FRAME_MARGIN_PX, region_of, near_sid
 
 SCORECARD_DIR = config.REPORTS_DIR / "scorecard"
 CACHE_DIR = config.PROJECT_ROOT / "data" / "sportvu" / "bench"
+OBS_DIR = config.PROJECT_ROOT / "data" / "sportvu" / "bench_obs"   # per-observation errors (gitignored data)
 MATCH_FT = GATES_FT[-1]       # B4's final gate: a box and a SportVU player pair within 5 ft under H_truth
 LINE_TARGET_PX = 3.0
 MIN_LINE_SAMPLES = 40         # fewer on-frame template samples: the frame's line error is undefined
@@ -360,7 +361,7 @@ def score_window(wd: dict, build_dir: Path, refs: References, index: SportVUInde
             for bi, j, _ in pairs:
                 e = cp[bi] - sv[j]
                 out["matched"].append({"err": float(np.hypot(*e)), "toward_camera": float(e[1] if nh else -e[1]),
-                                       "region": region_of(float(sv[j][1]), nh)})
+                                       "region": region_of(float(sv[j][1]), nh), "frame": int(f), "sv": int(j)})
             if wide.get(f, 0.0) >= refs.wide_thr:
                 le = line_error_px(r["H"], row["H_truth"], W, Hh)
                 out["line"].append({"frame": f, "line_px": le})
@@ -475,15 +476,15 @@ def split_of(game: str) -> str:
     return next((s for s in ("train",) + splits.HELDOUT_SPLITS if game in sp[s]["games"]), "unsplit")
 
 
-def finish(rep: dict) -> dict:
+def finish(rep: dict, card_dir: Path | None = None) -> dict:
     """Split label, generalisation row and the split-dependent caveats (scoring is unchanged)."""
     rep["split"] = split_of(rep["game"])
     pe = rep["metrics"]["position_error"]
-    ref_p = SCORECARD_DIR / ("gsw_phx_2016__%s.json" % rep["build"])
+    ref_p = (card_dir or SCORECARD_DIR) / ("gsw_phx_2016__%s.json" % rep["build"])
     if rep["split"] == "heldout_arena" and ref_p.exists() and pe["p50_ft"] and pe["p90_ft"]:
         ref = json.loads(ref_p.read_text())["metrics"]["position_error"]
         r50, r90 = round(pe["p50_ft"] / ref["p50_ft"], 2), round(pe["p90_ft"] / ref["p90_ft"], 2)
-        rep["metrics"]["generalisation"] = {"value": {"p50_ratio": r50, "p90_ratio": r90, "vs": str(ref_p.relative_to(config.PROJECT_ROOT)),
+        rep["metrics"]["generalisation"] = {"value": {"p50_ratio": r50, "p90_ratio": r90, "vs": str(ref_p.relative_to(config.PROJECT_ROOT)) if ref_p.is_relative_to(config.PROJECT_ROOT) else str(ref_p),
                                                       "heldout_game_p50_ft": ref["p50_ft"], "heldout_game_p90_ft": ref["p90_ft"]},
                                             "pass": r50 <= GEN_MAX_RATIO and r90 <= GEN_MAX_RATIO, "not_measurable": None}
     elif rep["split"] == "heldout_game":
@@ -558,36 +559,24 @@ def render_txt(rep: dict) -> str:
     return "\n".join(L)
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Stage 1 scorecard for one build of a game's SportVU windows.")
-    ap.add_argument("build_dir", type=Path)
-    ap.add_argument("--game", default="gsw_phx_2016")
-    ap.add_argument("--name", default=None, help="build label in the output name (default: the build dir's name)")
-    ap.add_argument("--rerender", action="store_true", help="re-render the saved scorecard json without rescoring")
-    args = ap.parse_args()
-    build_dir = args.build_dir.resolve()
-    name = args.name or build_dir.name
-    if args.rerender:
-        stem = "%s__%s" % (args.game, name)
-        rep = finish(json.loads((SCORECARD_DIR / (stem + ".json")).read_text()))
-        (SCORECARD_DIR / (stem + ".json")).write_text(json.dumps(rep, indent=1))
-        (SCORECARD_DIR / (stem + ".txt")).write_text(render_txt(rep) + "\n")
-        print(render_txt(rep))
-        return
-    sv_game = sportvu_name(args.game)
+def score_build(build_dir: Path, game: str, name: str, card_dir: Path = SCORECARD_DIR, verbose: bool = True) -> dict:
+    """Score one build of one game; writes <card_dir>/<game>__<name>.{json,txt} and OBS_DIR/<game>__<name>.json."""
+    build_dir = build_dir.resolve()
+    sv_game = sportvu_name(game)
     moments = json.loads((config.PROJECT_ROOT / "data" / "sportvu" / (sv_game + "_moments.json")).read_text())["moments"]
     index = SportVUIndex(moments)
     poss = shot_clock_index(moments)
-    mirror = game_mirror(args.game)
-    wpath = build_dir / (args.game + "_windows.json")
-    windows = json.loads((wpath if wpath.exists() else BUILD_DIR / (args.game + "_windows.json")).read_text())
+    mirror = game_mirror(game)
+    wpath = build_dir / (game + "_windows.json")
+    windows = json.loads((wpath if wpath.exists() else BUILD_DIR / (game + "_windows.json")).read_text())
     refs = References()
     wins = []
     for wd in windows:
         wins.append(score_window(wd, build_dir, refs, index, poss, mirror))
-        print("  %s: %s" % (wd["window"], wins[-1].get("skipped") or "%d testable" % wins[-1]["testable"]), flush=True)
+        if verbose:
+            print("  %s: %s" % (wd["window"], wins[-1].get("skipped") or "%d testable" % wins[-1]["testable"]), flush=True)
     agg = aggregate(wins, refs.wide_thr)
-    rep = {"game": args.game, "sportvu_game": sv_game, "build": name,
+    rep = {"game": game, "sportvu_game": sv_game, "build": name,
            "build_dir": str(build_dir.relative_to(config.PROJECT_ROOT)) if build_dir.is_relative_to(config.PROJECT_ROOT) else str(build_dir),
            "mirror": mirror, "date": datetime.date.today().isoformat(), "targets": TARGETS, **agg,
            "per_window": {w["window"]: ({"skipped": w["skipped"]} if "skipped" in w else
@@ -606,13 +595,37 @@ def main():
                "id switches are counted between consecutive testable frames (sparse samples), so a switch and switch-back between samples is missed: a lower bound",
                "team accuracy uses the best A/B to team mapping per window, an upper bound on what a fixed mapping would score",
            ]}
-    rep = finish(rep)
-    SCORECARD_DIR.mkdir(parents=True, exist_ok=True)
-    stem = "%s__%s" % (args.game, name)
-    (SCORECARD_DIR / (stem + ".json")).write_text(json.dumps(rep, indent=1))
-    txt = render_txt(rep)
-    (SCORECARD_DIR / (stem + ".txt")).write_text(txt + "\n")
-    print(txt)
+    rep = finish(rep, card_dir)
+    card_dir.mkdir(parents=True, exist_ok=True)
+    stem = "%s__%s" % (game, name)
+    (card_dir / (stem + ".json")).write_text(json.dumps(rep, indent=1))
+    (card_dir / (stem + ".txt")).write_text(render_txt(rep) + "\n")
+    # per-observation errors, for paired comparisons between builds (sportvu.compare --paired)
+    OBS_DIR.mkdir(parents=True, exist_ok=True)
+    (OBS_DIR / (stem + ".json")).write_text(json.dumps({w["window"]: [[m["frame"], m["sv"], round(m["err"], 4), round(m["toward_camera"], 4), m["region"]]
+                                                      for m in w["matched"]] for w in wins if "matched" in w}))
+    return rep
+
+
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Stage 1 scorecard for one build of a game's SportVU windows.")
+    ap.add_argument("build_dir", type=Path)
+    ap.add_argument("--game", default="gsw_phx_2016")
+    ap.add_argument("--name", default=None, help="build label in the output name (default: the build dir's name)")
+    ap.add_argument("--card-dir", type=Path, default=SCORECARD_DIR, help="where the scorecard goes (default reports/scorecard)")
+    ap.add_argument("--rerender", action="store_true", help="re-render the saved scorecard json without rescoring")
+    args = ap.parse_args()
+    name = args.name or args.build_dir.resolve().name
+    if args.rerender:
+        stem = "%s__%s" % (args.game, name)
+        rep = finish(json.loads((args.card_dir / (stem + ".json")).read_text()), args.card_dir)
+        (args.card_dir / (stem + ".json")).write_text(json.dumps(rep, indent=1))
+        (args.card_dir / (stem + ".txt")).write_text(render_txt(rep) + "\n")
+        print(render_txt(rep))
+        return
+    print(render_txt(score_build(args.build_dir, args.game, name, args.card_dir)))
 
 
 if __name__ == "__main__":

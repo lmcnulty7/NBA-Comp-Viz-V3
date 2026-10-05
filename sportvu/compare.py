@@ -6,6 +6,10 @@ better build per row, and the testable n. Every build is scored on the same test
 
   python -m sportvu.compare v3 public
       -> reports/scorecard/compare__v3__public.{json,txt}
+  python -m sportvu.compare v3 r23 --paired
+      adds, per game, a paired window-cluster bootstrap of the court rows (amended adoption rule, 2026-10-04):
+      per-observation errors from data/sportvu/bench_obs/<game>__<build>.json, paired by (window, frame,
+      SportVU player), windows resampled with replacement; interval of (first build - second build).
 """
 from __future__ import annotations
 import argparse, json
@@ -31,6 +35,53 @@ def games() -> list:
     return [g for s in ("heldout_game", "heldout_arena") for g, v in sp[s]["games"].items() if v.get("sportvu")]
 
 
+def _obs(game: str, build: str, obs_dir=None) -> dict:
+    from sportvu.bench import OBS_DIR
+    p = (obs_dir or OBS_DIR) / ("%s__%s.json" % (game, build))
+    if not p.exists():
+        return {}
+    return {w: {(o[0], o[1]): o[2:] for o in rows} for w, rows in json.loads(p.read_text()).items()}
+
+
+def _stats(rows: list) -> dict:
+    import numpy as np
+    if not rows:
+        return {}
+    e = np.array([r[0] for r in rows])
+    out = {"p50": float(np.percentile(e, 50)), "p90": float(np.percentile(e, 90))}
+    for reg in ("near", "far"):
+        c = [r[1] for r in rows if r[2] == reg]
+        out["abs_" + reg] = abs(float(np.median(c))) if c else float("nan")
+    return out
+
+
+def paired(game: str, a: str, b: str, reps: int = 2000, seed: int = 0, obs_dir=None) -> dict:
+    """Window-cluster bootstrap of (a - b) for p50, p90, |near bias|, |far bias| on paired observations.
+    Positive means a is larger (worse) than b."""
+    import numpy as np
+    A, B = _obs(game, a, obs_dir), _obs(game, b, obs_dir)
+    wins = sorted(w for w in set(A) & set(B) if set(A[w]) & set(B[w]))
+    if not wins:
+        return {}
+    pa = {w: [A[w][k] for k in sorted(set(A[w]) & set(B[w]))] for w in wins}
+    pb = {w: [B[w][k] for k in sorted(set(A[w]) & set(B[w]))] for w in wins}
+    point = {k: _stats(sum(pa.values(), []))[k] - _stats(sum(pb.values(), []))[k] for k in ("p50", "p90", "abs_near", "abs_far")}
+    rng = np.random.default_rng(seed)
+    boot = {k: [] for k in point}
+    for _ in range(reps):
+        pick = rng.choice(len(wins), len(wins), replace=True)
+        ra = [o for i in pick for o in pa[wins[i]]]; rb = [o for i in pick for o in pb[wins[i]]]
+        sa, sb = _stats(ra), _stats(rb)
+        for k in boot:
+            boot[k].append(sa[k] - sb[k])
+    out = {"windows": len(wins), "observations": sum(len(v) for v in pa.values())}
+    for k, v in boot.items():
+        v = np.array(v); v = v[np.isfinite(v)]
+        out[k] = {"diff": round(point[k], 3), "ci95": [round(float(np.percentile(v, 2.5)), 3), round(float(np.percentile(v, 97.5)), 3)],
+                  "p_a_worse": round(float((v > 0).mean()), 3)}
+    return out
+
+
 def better(vals: dict, how) -> str | None:
     have = {b: v for b, v in vals.items() if v is not None}
     if len(have) < 2:
@@ -43,6 +94,7 @@ def better(vals: dict, how) -> str | None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("builds", nargs="+")
+    ap.add_argument("--paired", action="store_true", help="paired bootstrap of the first build vs each other build")
     a = ap.parse_args()
     out = {"builds": a.builds, "games": {}}
     L = ["SCORECARDS SIDE BY SIDE: %s (reports/scorecard/<game>__<build>.txt; same testable frames and truth)" % ", ".join(a.builds)]
@@ -60,6 +112,14 @@ def main() -> None:
             L.append("  %-20s %s  %s" % (name, "  ".join("%12s" % ("-" if vals[b] is None else vals[b]) for b in a.builds),
                                           rows[name]["better"] or "="))
         out["games"][g] = {"split": any_card.get("split"), "testable": any_card["testable"], "rows": rows}
+        if a.paired:
+            for other in a.builds[1:]:
+                pr = paired(g, a.builds[0], other)
+                out["games"][g].setdefault("paired", {})[other] = pr
+                if pr:
+                    L.append("  paired %s - %s (%d windows, %d obs; 95%% CI, window bootstrap): %s" % (
+                        a.builds[0], other, pr["windows"], pr["observations"],
+                        "; ".join("%s %+.2f [%+.2f, %+.2f]" % (k, pr[k]["diff"], *pr[k]["ci95"]) for k in ("p50", "p90", "abs_near", "abs_far"))))
     L += ["", "bias rows: closer to 0 is better; coverage: higher is better (a floor of 50% in the adoption rule)"]
     stem = "compare__" + "__".join(a.builds)
     (SCORECARD_DIR / (stem + ".json")).write_text(json.dumps(out, indent=1))
