@@ -29,6 +29,7 @@ ACCOUNT = "lucienmmcnulty@gmail.com"
 PERSIST = "/content/drive/MyDrive/nba_harvest"
 LOCAL_V = "/content/r13_video"
 REPORT: dict = {"started": time.strftime("%Y-%m-%d %H:%M:%S"), "steps": {}}
+STATUS_FILE = "/content/run_status.txt"
 
 
 def banner(name: str) -> None:
@@ -170,8 +171,10 @@ def step_package(accepted: dict) -> None:
     json.dump(REPORT, open(os.path.join(out, "run_report.json"), "w"), indent=1)
     record("package", "ok", out=out)
     if not accepted or sum(accepted.values()) == 0:
+        REPORT["final"] = "RUN FAILED: zero accepted frames (read logs/)"
         print("\n!!!! ZERO ACCEPTED FRAMES: something upstream failed; read logs/ before using anything.")
     else:
+        REPORT["final"] = "RUN OK: results in %s" % out
         print("\nDONE: %d accepted frames %s -> %s" % (sum(accepted.values()), accepted, out))
 
 
@@ -185,4 +188,13 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # The notebook prints this file after flushing Drive, so its last line says whether the run worked.
+    try:
+        main()
+        open(STATUS_FILE, "w").write(REPORT.get("final", "RUN OK"))
+    except SystemExit as e:
+        open(STATUS_FILE, "w").write("RUN FAILED: %s" % e)
+        raise
+    except Exception as e:
+        open(STATUS_FILE, "w").write("RUN FAILED: %r" % e)
+        raise

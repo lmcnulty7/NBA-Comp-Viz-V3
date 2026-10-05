@@ -28,6 +28,7 @@ INPUTS = os.path.join(PERSIST, "r23")
 WORK = "/content/r23"
 EPOCHS, PATIENCE, IMGSZ, BATCH = 100, 20, 640, 32
 REPORT: dict = {"started": time.strftime("%Y-%m-%d %H:%M:%S"), "steps": {}}
+STATUS_FILE = "/content/run_status.txt"
 
 
 def banner(name: str) -> None:
@@ -148,8 +149,10 @@ def step_package(best: str) -> None:
     record("package", "ok", out=out)
     base, tr = REPORT["steps"].get("baseline", {}), REPORT["steps"].get("train", {})
     if not best:
+        REPORT["final"] = "RUN FAILED: training produced no weights (read the output above)"
         print("\n!!!! TRAINING PRODUCED NO WEIGHTS: read the cell output above before using anything.")
     else:
+        REPORT["final"] = "RUN OK: results in %s" % out
         print("\nDONE: val pose mAP50-95 V3 %s -> fine-tuned %s (best epoch %s of %s) -> %s" % (
             base.get("pose_map50_95"), tr.get("finetuned_val", {}).get("pose_map50_95"), tr.get("best_epoch"), tr.get("epochs_run"), out))
 
@@ -163,4 +166,13 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # The notebook prints this file after flushing Drive, so its last line says whether the run worked.
+    try:
+        main()
+        open(STATUS_FILE, "w").write(REPORT.get("final", "RUN OK"))
+    except SystemExit as e:
+        open(STATUS_FILE, "w").write("RUN FAILED: %s" % e)
+        raise
+    except Exception as e:
+        open(STATUS_FILE, "w").write("RUN FAILED: %r" % e)
+        raise
