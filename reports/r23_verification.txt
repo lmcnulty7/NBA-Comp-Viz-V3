@@ -1,0 +1,19 @@
+R2.3 VERIFICATION: r23 grid model (models/court_grid_r23.pt) vs V3, 4 independent adversarial checks
+  scoring mechanics  HOLDS     scorecards reproduced exactly; same observations for both builds; r23 closer on 89..94% of paired players
+                              truth-free estimate on the untestable frames: r23 3.0..3.8 ft median vs V3 7.2..10.6 ft
+  paint (no SportVU) HOLDS     phx gold key edge p50 V3 14.92 px -> r23 7.03 px over 9,364 frames, r23 closer on 89%, 25/25 windows;
+                              all court lines: r23 lower on 94.7% (phx), 95.0% (cle_nyk), 87.5% (cle_gsw)
+  leakage            HOLDS     0 held-out frames in r23's or the init model's training data (provenance, inodes, content search vs 5,679 frames);
+                              but 56 frames of 2023-24 Cleveland home games (same building) sit in V3's grid set: the CLE arena is
+                              unseen games and season, not an unseen building, for both models
+  statistics         WEAKENED  p50/p90 gains: window-bootstrap 95% CIs far from zero in every game; phx p90 4.98 ft CI [4.42, 6.02] (P<=5.0 0.51);
+                              team labels dip on CLE (cle_nyk -1.0 pt borderline, cle_gsw -0.2 pt noise); phx bias gain within noise;
+                              cle_gsw coverage 39.7% (V3 38.5%) below the 50% floor
+
+rule: Literal FIX_LOOP step 4: position error and bias improve on the held-out game and arena; team labels (a pass/fail row) dip on both CLE games, within noise on cle_gsw and borderline on cle_nyk; cle_gsw coverage is below the 50% floor for V3 and r23 alike (r23 raises it). The rule has no noise tolerance and does not say how a floor the baseline already fails applies: decision for Lucien.
+
+caveats:
+  - phx shares arena and season with the R1.3 training games, so part of its gain is arena adaptation; CLE is the cross-arena evidence
+  - scored frames are the B4 testable set (4.7..15% of window frames) and the truth H fits the painted lines worse than r23 does,
+    so ~2 ft may be near the truth's own floor; finer model comparisons need a better truth
+  - full agent outputs: workflow journal wf_607f7aaf-0a2 (session transcript); scripts and sheets were in the session scratchpad

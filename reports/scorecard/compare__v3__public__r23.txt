@@ -1,0 +1,36 @@
+SCORECARDS SIDE BY SIDE: v3, public, r23 (reports/scorecard/<game>__<build>.txt; same testable frames and truth)
+
+gsw_phx_2016 (heldout_game): 1447 testable frames
+                                 v3        public           r23  better
+  position p50 ft              7.33         24.66          1.92  r23
+  position p90 ft             15.35         63.34          4.98  r23
+  near-third bias ft          -1.02          8.94         -0.67  r23
+  far-third bias ft            1.67         25.29          1.52  r23
+  coverage %                   98.6          99.2          99.3  r23
+  missed players %             25.1          25.1          25.1  =
+  ghost boxes %                15.1          15.1          15.1  =
+  team labels %                81.8          80.7          81.9  r23
+
+cle_gsw_2016 (heldout_arena): 158 testable frames
+                                 v3        public           r23  better
+  position p50 ft              9.51         11.01          2.22  r23
+  position p90 ft             17.14         66.18           5.5  r23
+  near-third bias ft            1.6          0.36         -0.12  r23
+  far-third bias ft             4.5         14.61           2.0  r23
+  coverage %                   38.5          38.6          39.7  r23
+  missed players %             26.2          26.2          26.2  =
+  ghost boxes %                14.8          14.8          14.8  =
+  team labels %                78.4          78.3          78.2  v3
+
+cle_nyk_2015 (heldout_arena): 485 testable frames
+                                 v3        public           r23  better
+  position p50 ft             11.04         11.68          2.25  r23
+  position p90 ft              18.4         54.25          5.46  r23
+  near-third bias ft           2.87          1.32         -0.63  r23
+  far-third bias ft            7.61         16.07          1.66  r23
+  coverage %                   90.5          92.1          92.3  r23
+  missed players %             24.4          24.4          24.4  =
+  ghost boxes %                14.8          14.8          14.8  =
+  team labels %                74.7          71.7          73.7  v3
+
+bias rows: closer to 0 is better; coverage: higher is better (a floor of 50% in the adoption rule)

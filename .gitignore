@@ -102,3 +102,5 @@ reports/qc_sheets/
 # ── Kept out of the public repo (2026-10-03) ──
 # the paper draft is its own private repo (lmcnulty7/NBA-Comp-Viz-V3-paper), checked out in place
 /paper/
+# R2.3 candidate: trained partly on SportVU-derived labels; kept on Drive (results/r23_20261005_0350), sha256 in reports/r23_verification.json
+models/court_grid_r23.pt

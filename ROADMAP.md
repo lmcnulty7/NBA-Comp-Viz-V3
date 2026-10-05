@@ -77,6 +77,9 @@ download scripts, manifests and licence notes are committed.
   pass/fail row. Rows marked reported (court line error until its truth can resolve 3 px,
   identity, the held-out era) are printed beside the verdict but do not decide adoption.
   Coverage is a floor: it may fall but must stay >= 50% of live wide seconds.
+  Amended 2026-10-04 (Lucien, at R2.3): a row counts as worse only when its paired change
+  (window-cluster bootstrap 95% interval, on the observations both builds score) excludes zero;
+  "improves" is the point estimate; a floor the baseline already fails must not fall further.
 - Training runs on Colab through a repo script behind a one-cell notebook; everything else local
   with `/opt/anaconda3/bin/python` and `PYTORCH_ENABLE_MPS_FALLBACK=1`.
 - Known traps (FIX_LOG passes 11..13): local section files are not frame-aligned with production
@@ -181,13 +184,17 @@ download scripts, manifests and licence notes are committed.
       set, roboflow/sports court config, per-frame H, keypoints >= 0.5). phx p50 24.66 / p90 63.34 ft vs V3
       7.33 / 15.35; worse p90 on CLE too (54..66 vs 17..18 ft). V3 is the starting point.
       reports/scorecard/compare__v3__public.*
-- [ ] R2.3 Train the line/keypoint detector on the R1.3 labels (Colab, held-out splits enforced).
+- [x] R2.3 Train the line/keypoint detector on the R1.3 labels (Colab, held-out splits enforced).
       Scorecard on the held-out game AND the held-out arena. Adopt by the rule.
       Queued for Colab 2026-10-04 (pass 13): dataset sportvu.grid_dataset (V3's grid set x3 + every 2nd kept
       R1.3 label, whole-window val), runner colab_train_court.py + colab_train_court.ipynb (fine-tune V3's
       grid model), inputs on Drive lucienmmcnulty My Drive/nba_harvest/r23 (sha256 manifest). After the run:
       COURT_GRID_WEIGHTS=<best.pt> sportvu.rebuild --out data/sportvu/build_r23 for phx and both CLE games,
       sportvu.bench --name r23, sportvu.compare v3 r23, adoption rule.
+      Done 2026-10-04: ADOPTED (Lucien, amended rule). models/court_grid_r23.pt (Drive results/r23_20261005_0350)
+      position p50 / p90 phx 1.92 / 4.98 ft (V3 7.33 / 15.35), cle_nyk 2.25 / 5.46, cle_gsw 2.22 / 5.50;
+      4 adversarial checks in reports/r23_verification.*. r23 is the court baseline for R2.4 onward; the
+      production default stays V3 until the court-stage gate (COURT_GRID_WEIGHTS switch).
 - [ ] R2.4 Camera model: per game, estimate the camera position once from the first minutes (self-
       calibration from detected lines), then fit pan, tilt, zoom per frame; the homography is derived,
       never free. Scorecard; must cut the near-field bias and the near-third error. Adopt by the rule.

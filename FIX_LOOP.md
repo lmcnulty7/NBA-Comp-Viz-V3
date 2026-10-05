@@ -31,6 +31,9 @@ the finished Phase A and B work. Work on branch `track-fix`.
      pass/fail row. Rows marked reported (court line error until its truth can resolve 3 px,
      identity, the held-out era) are printed beside the verdict but do not decide adoption.
      Coverage is a floor: it may fall but must stay >= 50% of live wide seconds.
+     Amended 2026-10-04 (Lucien, at R2.3): a row counts as worse only when its paired change
+     (window-cluster bootstrap 95% interval, on the observations both builds score) excludes zero;
+     "improves" is the point estimate; a floor the baseline already fails must not fall further.
 5. If verification passes: tick the item, append 2 to 3 lines to `ROADMAP_LOG.md` (what changed,
    the key number, where to look), commit on `track-fix`, staging only the files this pass changed
    (`git add <paths>`; never `git add -A` or `git add .`: the tree holds untracked files from other work).

@@ -40,6 +40,23 @@ clock gaps (713 frames with no moment) and 4 of its 34 windows (25 s, short left
 locally; gate v2, which defines the wide seconds, saw another CLE home game in training. The ratio is
 per game against phx for the same build; R2.7 reports the arena as a whole.
 
+Court stage candidate r23 (ROADMAP R2.3, adopted 2026-10-04 under the amended rule; the production
+default stays V3's grid model until the court-stage gate, switch COURT_GRID_WEIGHTS). V3's grid
+model fine-tuned on the R1.3 SportVU labels of 4 Oracle training games; same detector, tracker and
+frames. Position error p50 / p90: gsw_phx_2016 1.92 [1.79, 2.16] / 4.98 [4.42, 6.02] ft (V3 7.33 /
+15.35); cle_nyk_2015 2.25 / 5.46 ft (V3 11.04 / 18.40); cle_gsw_2016 2.22 / 5.50 ft (V3 9.51 /
+17.14); near / far-third bias -0.67 / +1.52, -0.63 / +1.66, -0.12 / +2.00 ft; generalisation 1.17x
+and 1.16x of phx (met). Paint check without SportVU: phx gold key edge median 14.9 px (V3) -> 7.0 px.
+Artifacts: reports/scorecard/*__r23.*, reports/scorecard/compare__v3__public__r23.txt,
+reports/r23_verification.{json,txt}. Caveats: intervals are window-cluster bootstrap 95%; the phx
+position row is MET on the point estimate only (P(p90 <= 5.0 ft) = 0.51) and the CLE games do not
+meet it; scored frames are the B4 testable set (4.7..15% of window frames; a truth-free estimate on
+the rest gives r23 about 3.0..3.8 ft median); phx shares arena and season with the training games,
+so CLE is the cross-arena evidence (see the CLE-building correction above); the truth H fits the
+painted lines worse than r23, so about 2 ft may be near the truth's own floor; team labels dip on
+CLE within noise (cle_nyk -1.0 pt, paired +0.15 [-0.12, +0.49]; cle_gsw -0.2 pt); cle_gsw coverage
+39.7% stays under the 50% floor (V3 38.5%).
+
 Correction (2026-10-04, found at ROADMAP R1.3): the per-frame truth H (sportvu/truth.py) is an
 8-parameter homography fitted to 6..10 feet bunched in one part of the court. Drawn over the frame it
 sits about as far from the painted lines as V3's own H (A1 ridge distance median 39.2 px vs 45.8 px on
@@ -62,7 +79,12 @@ says so.
 - Held-out arena: CLE (Quicken Loans Arena), chosen 2026-10-04 at the [HUMAN] gate after ROADMAP
   R1.1 because OKC and NYK have no game with a usable broadcast (reports/sportvu_manifest.txt).
   Scored on 12.23.2015 NYK at CLE and 01.18.2016 GSW at CLE (the latter with 830 s of SportVU clock
-  gaps). The whole arena is held out: no game played there enters training.
+  gaps). The whole arena is held out: no game played there enters training. Correction
+  (2026-10-04, R2.3 verification, reports/r23_verification.txt): V3's grid training set (Roboflow
+  nbacourt, 2023-24 broadcasts) holds 56 frames of 2023-24 Cleveland home games in the same
+  building, so for every grid model the CLE arena means unseen games and season in a building seen
+  in 2023-24 footage, not an unseen building. No frame of the held-out games themselves is in any
+  training set.
 - Held-out era: gsw_nyk_curry54 (2013-02-27, GSW at NYK, the 2013 production game), untouched by
   training. The public SportVU logs cover 2015-16 only, so this game has no tracking truth: it is
   reported with the label-free indicators (qc/, track_qc.py) and is not a pass/fail row (decided
@@ -86,6 +108,9 @@ says so.
   (court line error until its truth can resolve 3 px, identity, the held-out era) are printed
   beside the verdict but do not decide adoption. Coverage is a floor: it may fall but must stay
   >= 50% of live wide seconds.
+  Amended 2026-10-04 (Lucien, at R2.3): a row counts as worse only when its paired change
+  (window-cluster bootstrap 95% interval, on the observations both builds score) excludes zero;
+  "improves" is the point estimate; a floor the baseline already fails must not fall further.
 
 **The single scorecard.** `python -m sportvu.bench <build_dir>` (ROADMAP R0.3) writes
 `reports/scorecard/<game>__<build>.{json,txt}`; the V3 baseline is
