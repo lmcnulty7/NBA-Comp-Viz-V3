@@ -39,11 +39,15 @@ belong to the V3 boxes. Each metric reports its n; the untestable share sits bes
                      inside one possession, from pairs within ID_MATCH_FT only (a looser pair can be
                      a swap between two close players, which would read as a false switch).
                      Jersey-read rate when a build writes <window>_jersey.json.
-  generalisation     the same scorecard on the held-out arena; needs that build (R1). The held-out
-                     era (2013) has no SportVU and is reported with label-free indicators only.
+  generalisation     on a held-out arena game: its position error p50 and p90 over the held-out game's
+                     for the same build (reports/scorecard/gsw_phx_2016__<name>.json); met when both are
+                     <= GEN_MAX_RATIO. The held-out era (2013) has no SportVU and is reported with
+                     label-free indicators only.
 
   python -m sportvu.bench data/sportvu/build --name v3 [--game gsw_phx_2016]
       -> reports/scorecard/<game>__<name>.{json,txt}
+  python -m sportvu.bench data/sportvu/build --name v3 --game cle_nyk_2015 --rerender
+      re-renders from the saved json (split label, generalisation row, caveats) without rescoring
 """
 from __future__ import annotations
 import argparse, datetime, json
@@ -52,7 +56,7 @@ import numpy as np
 import config
 from sportvu.sync import SportVUIndex, apply_mirror, MIRRORS
 from sportvu.rebuild import BUILD_DIR
-from sportvu.truth import TRUTH_DIR, GATES_FT, _match
+from sportvu.truth import TRUTH_DIR, GATES_FT, _match, game_mirror
 from sportvu.eval import MISS_FT, GHOST_FT, FRAME_MARGIN_PX, region_of, near_side
 
 SCORECARD_DIR = config.REPORTS_DIR / "scorecard"
@@ -65,6 +69,7 @@ REF_IOU = 0.5
 REFEREE_CLASS = 1             # models/player_detector.pt: {0 player, 1 referee, 2 ball, 3 rim, 4 number}
 SHOT_RESET_S = 1.0
 MIN_POSS_FRAMES = 5           # a possession counts for identity with this many testable frames
+GEN_MAX_RATIO = 1.5           # held-out arena vs held-out game, position error p50 and p90
 EMBED_BATCH = 32
 
 TARGETS = {
@@ -460,6 +465,43 @@ def aggregate(wins: list, wide_thr: float) -> dict:
             "untestable_by_cause": dict(sorted(causes.items(), key=lambda kv: -kv[1])), "metrics": M}
 
 
+SPLIT_LABEL = {"heldout_game": "held-out game", "heldout_arena": "held-out arena", "heldout_era": "held-out era",
+               "train": "train game"}
+
+
+def split_of(game: str) -> str:
+    from sportvu import splits
+    sp = splits.load()
+    return next((s for s in ("train",) + splits.HELDOUT_SPLITS if game in sp[s]["games"]), "unsplit")
+
+
+def finish(rep: dict) -> dict:
+    """Split label, generalisation row and the split-dependent caveats (scoring is unchanged)."""
+    rep["split"] = split_of(rep["game"])
+    pe = rep["metrics"]["position_error"]
+    ref_p = SCORECARD_DIR / ("gsw_phx_2016__%s.json" % rep["build"])
+    if rep["split"] == "heldout_arena" and ref_p.exists() and pe["p50_ft"] and pe["p90_ft"]:
+        ref = json.loads(ref_p.read_text())["metrics"]["position_error"]
+        r50, r90 = round(pe["p50_ft"] / ref["p50_ft"], 2), round(pe["p90_ft"] / ref["p90_ft"], 2)
+        rep["metrics"]["generalisation"] = {"value": {"p50_ratio": r50, "p90_ratio": r90, "vs": str(ref_p.relative_to(config.PROJECT_ROOT)),
+                                                      "heldout_game_p50_ft": ref["p50_ft"], "heldout_game_p90_ft": ref["p90_ft"]},
+                                            "pass": r50 <= GEN_MAX_RATIO and r90 <= GEN_MAX_RATIO, "not_measurable": None}
+    elif rep["split"] == "heldout_game":
+        rep["metrics"]["generalisation"] = {"value": None, "pass": None, "not_measurable":
+            "scored on the held-out arena's games (reports/scorecard/cle_*__%s.txt, ratio to this game); the held-out era game "
+            "(2013) has no public SportVU log and is reported with label-free indicators only" % rep["build"]}
+    scored = sum(1 for w in rep["per_window"].values() if "skipped" not in w)
+    gate = ("gate v2 was trained on human-verified harvest frames including this game (in-sample here, so closer to the human label than a held-out gate)"
+            if rep["split"] in ("heldout_game", "heldout_era") else
+            "gate v2 was trained on harvest frames including another CLE home game (gsw_cle_xmas16), not this one (reports/sportvu_splits.txt)"
+            if rep["split"] == "heldout_arena" else "gate v2 was trained on human-verified harvest frames")
+    rep["caveats"] = [("local windowed rebuild of the harvest sections (%d windows of running clock scored), not the production artifacts" % scored)
+                      if c.startswith("local windowed rebuild") else
+                      ("wide reference = gate v2 at its v2 threshold; %s; live = running clock read by OCR at 1 s resolution" % gate)
+                      if c.startswith("wide reference = gate v2") else c for c in rep["caveats"]]
+    return rep
+
+
 def render_txt(rep: dict) -> str:
     M = rep["metrics"]
     def v(x, fmt="%s"):
@@ -492,9 +534,15 @@ def render_txt(rep: dict) -> str:
             v(idn["id_switches_per_possession"]), v(idn["fragment_switches_per_possession"]),
             "not measurable" if idn["jersey_read_rate"] is None else idn["jersey_read_rate"]),
          "%d possessions" % idn["possessions"], "reported"),
-        ("generalisation", TARGETS["generalisation"], "not measurable", "-", "-"),
+        ("generalisation", TARGETS["generalisation"],
+         "position error p50 %.2fx, p90 %.2fx of the held-out game (%s ft / %s ft there; %s)" % (
+             M["generalisation"]["value"]["p50_ratio"], M["generalisation"]["value"]["p90_ratio"],
+             M["generalisation"]["value"]["heldout_game_p50_ft"], M["generalisation"]["value"]["heldout_game_p90_ft"],
+             M["generalisation"]["value"]["vs"]) if M["generalisation"].get("value") else "not measurable",
+         "this game" if M["generalisation"].get("value") else "-", verdict(M["generalisation"])),
     ]
-    L = ["STAGE 1 SCORECARD  %s (held-out game) vs SportVU %s  build %s (%s)" % (rep["game"], rep["sportvu_game"], rep["build"], rep["build_dir"]),
+    L = ["STAGE 1 SCORECARD  %s (%s) vs SportVU %s  build %s (%s)" % (
+             rep["game"], SPLIT_LABEL.get(rep.get("split"), rep.get("split", "?")), rep["sportvu_game"], rep["build"], rep["build_dir"]),
          "truth: %d testable of %d window frames; untestable %.1f%% (no truth H fits). Every row below is on testable frames only." % (
              rep["testable"], rep["truth_frames"], 100 * rep["untestable_share"]),
          "untestable by cause (sportvu/truth.py): " + ", ".join("%s %d" % kv for kv in rep["untestable_by_cause"].items()),
@@ -505,7 +553,7 @@ def render_txt(rep: dict) -> str:
         L.append("%-*s            target %s; n = %s" % (w0, "", tgt, n))
     L += ["", "reported, not judged:", "  court line error: " + (cl.get("pass_withheld") or "-" if cl["frames_defined"] else "not measurable: no frame with a defined line error"),
           "", "not measurable:", "  jersey-read rate: " + (idn["jersey_not_measurable"] or "-"),
-          "  generalisation: " + M["generalisation"]["not_measurable"], "", "caveats:"]
+          ] + (["  generalisation: " + M["generalisation"]["not_measurable"]] if M["generalisation"].get("not_measurable") else []) + ["", "caveats:"]
     L += ["  - " + c for c in rep["caveats"]]
     return "\n".join(L)
 
@@ -515,14 +563,22 @@ def main():
     ap.add_argument("build_dir", type=Path)
     ap.add_argument("--game", default="gsw_phx_2016")
     ap.add_argument("--name", default=None, help="build label in the output name (default: the build dir's name)")
+    ap.add_argument("--rerender", action="store_true", help="re-render the saved scorecard json without rescoring")
     args = ap.parse_args()
     build_dir = args.build_dir.resolve()
     name = args.name or build_dir.name
+    if args.rerender:
+        stem = "%s__%s" % (args.game, name)
+        rep = finish(json.loads((SCORECARD_DIR / (stem + ".json")).read_text()))
+        (SCORECARD_DIR / (stem + ".json")).write_text(json.dumps(rep, indent=1))
+        (SCORECARD_DIR / (stem + ".txt")).write_text(render_txt(rep) + "\n")
+        print(render_txt(rep))
+        return
     sv_game = sportvu_name(args.game)
     moments = json.loads((config.PROJECT_ROOT / "data" / "sportvu" / (sv_game + "_moments.json")).read_text())["moments"]
     index = SportVUIndex(moments)
     poss = shot_clock_index(moments)
-    mirror = json.loads((config.REPORTS_DIR / ("sportvu_sync_%s.json" % args.game)).read_text())["direction_resolution"]["mirror"]
+    mirror = game_mirror(args.game)
     wpath = build_dir / (args.game + "_windows.json")
     windows = json.loads((wpath if wpath.exists() else BUILD_DIR / (args.game + "_windows.json")).read_text())
     refs = References()
@@ -550,6 +606,7 @@ def main():
                "id switches are counted between consecutive testable frames (sparse samples), so a switch and switch-back between samples is missed: a lower bound",
                "team accuracy uses the best A/B to team mapping per window, an upper bound on what a fixed mapping would score",
            ]}
+    rep = finish(rep)
     SCORECARD_DIR.mkdir(parents=True, exist_ok=True)
     stem = "%s__%s" % (args.game, name)
     (SCORECARD_DIR / (stem + ".json")).write_text(json.dumps(rep, indent=1))

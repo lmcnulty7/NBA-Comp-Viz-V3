@@ -79,10 +79,16 @@ def main():
     windows = [w for s in secs for w in plan_windows(s)]
     (BUILD_DIR / (game + "_windows.json")).write_text(json.dumps(windows, indent=1))
     print("windows: %d, %.0f s of video" % (len(windows), sum((w["f_end"] - w["f_start"]) / w["fps"] for w in windows)), flush=True)
+    from clock_reader import ClockReader
+    from sportvu.local_sync import build_local_timemap
+    reader = ClockReader(json.loads((config.PROJECT_ROOT / "data" / "harvest" / "games.json").read_text())[game]["layout"])
     t0 = time.time()
     for k, w in enumerate(windows):
         snip = cut(w)
         r = build(w, snip)
+        tm = BUILD_DIR / (w["window"] + "_timemap.json")      # the window's clock map, read by sportvu.truth
+        if not tm.exists():
+            tm.write_text(json.dumps(build_local_timemap(w["section"], reader, vid=snip)))
         print("  [%d/%d] %-24s %s  (%.0f s elapsed)" % (k + 1, len(windows), w["window"], "cached" if r.get("cached") else ("ok" if r["rc"] == 0 else "FAILED " + r["tail"]), time.time() - t0), flush=True)
     print("rebuild done: %d/%d windows have a sidecar" % (sum(1 for w in windows if (BUILD_DIR / (w["window"] + "_frames.json")).exists()), len(windows)), flush=True)
 

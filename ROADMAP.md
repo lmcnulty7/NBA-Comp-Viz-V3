@@ -166,10 +166,13 @@ download scripts, manifests and licence notes are committed.
       audit in reports/sportvu_splits.*: gate v2's training set holds 882 held-out frames (CLAIMS caveat).
 
 ## Phase 2: court (first priority; nothing else is meaningful until this holds)
-- [ ] R2.1 Baseline scorecard of the V3 solver on gsw_phx_2016 (the R0.3 output) recorded as the number
+- [x] R2.1 Baseline scorecard of the V3 solver on gsw_phx_2016 (the R0.3 output) recorded as the number
       to beat; also score it on the held-out arena's SportVU-synced games from R1.2 (windows rebuilt
       and truth fitted as in B4) for a generalisation baseline. The production clips at CLE, OKC and
       NYK fall outside the SportVU window, so they cannot be scored.
+      Done 2026-10-04: to beat on phx p50 7.33 / p90 15.35 ft, near -1.02 / far +1.67 ft. Held-out arena:
+      cle_nyk_2015 p50 11.04 / p90 18.40 ft (1.51x, not met), cle_gsw_2016 9.51 / 17.14 ft (1.30x, met),
+      far-third bias +7.61 / +4.50 ft; reports/scorecard/{gsw_phx_2016,cle_nyk_2015,cle_gsw_2016}__v3.*.
 - [ ] R2.2 Off-the-shelf baseline: run one public court/field registration model (candidates: Roboflow
       Universe basketball court keypoints; a sports field registration network) on the same frames.
       Scorecard. The better of V3 and the public model is the starting point. Measurable: two

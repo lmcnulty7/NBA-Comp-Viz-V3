@@ -318,7 +318,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("game")
     a = ap.parse_args()
-    from sportvu.rebuild import BUILD_DIR
+    from sportvu.direction import DIR_BUILD as BUILD_DIR   # the R1.2 40 s windows of the training games
     t0 = time.time()
     frames = collect(a.game, BUILD_DIR)
     print("%s: %d frames with >= %d ICP inlier pairs (%.0f s)" % (a.game, len(frames), MIN_PAIRS, time.time() - t0), flush=True)

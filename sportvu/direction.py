@@ -17,11 +17,14 @@ from __future__ import annotations
 import argparse, json, time
 import numpy as np
 import config
-from sportvu.rebuild import BUILD_DIR, cut, build, plan_windows
+from sportvu.rebuild import cut, build, plan_windows
 from sportvu.sync import SYNC_DIR, MIRRORS, FAR_FROM_MID_FT, SportVUIndex, apply_mirror
 from sportvu.truth import frame_clock, solve_window_offset, CLOCK_TOL_S
 
 BUDGET_S = 40.0         # seconds of running clock rebuilt per section (direction needs far less than truth)
+# Its own cache: the 40 s windows share names with sportvu.rebuild's 100 s windows (same section, same index),
+# so building them into data/sportvu/build made a later rebuild reuse the shorter clips (found at R2.1).
+DIR_BUILD = config.PROJECT_ROOT / "data" / "sportvu" / "build_direction"
 MIN_ROWS = 20
 VOTE_SHARE = 0.8
 
@@ -92,19 +95,19 @@ def main():
     from sportvu.local_sync import build_local_timemap
     secs = sorted(p.name.replace("_local_timemap.json", "") for p in SYNC_DIR.glob(a.game + "_s*_local_timemap.json"))
     windows = [w for s in secs for w in plan_windows(s, budget_s=a.budget)]
-    BUILD_DIR.mkdir(parents=True, exist_ok=True)
-    (BUILD_DIR / (a.game + "_windows.json")).write_text(json.dumps(windows, indent=1))
+    DIR_BUILD.mkdir(parents=True, exist_ok=True)
+    (DIR_BUILD / (a.game + "_windows.json")).write_text(json.dumps(windows, indent=1))
     print("%s: %d windows, %.0f s of video" % (a.game, len(windows), sum((w["f_end"] - w["f_start"]) / w["fps"] for w in windows)), flush=True)
     reader = ClockReader(reg["layout"])
     t0 = time.time()
     rows_by_window = {}
     for k, w in enumerate(windows):
-        snip = cut(w)
-        r = build(w, snip)
-        tmp = BUILD_DIR / (w["window"] + "_timemap.json")
+        snip = cut(w, out_dir=DIR_BUILD)
+        r = build(w, snip, out_dir=DIR_BUILD)
+        tmp = DIR_BUILD / (w["window"] + "_timemap.json")
         if not tmp.exists():
             tmp.write_text(json.dumps(build_local_timemap(w["section"], reader, vid=snip)))
-        trp = BUILD_DIR / (w["window"] + "_trajectories.json")
+        trp = DIR_BUILD / (w["window"] + "_trajectories.json")
         if trp.exists():
             rows_by_window[w["window"]] = window_rows(w, json.loads(tmp.read_text()), json.loads(trp.read_text()))
         print("  [%d/%d] %-24s %s rows %d (%.0f s)" % (k + 1, len(windows), w["window"], "cached" if r.get("cached") else ("ok" if r.get("rc") == 0 else "FAILED"),

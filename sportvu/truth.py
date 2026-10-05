@@ -128,13 +128,20 @@ def window_truth(w: dict, sc: dict, tm: dict, index: SportVUIndex, mirror: str) 
     return off, off_ft, rows
 
 
+def game_mirror(game: str) -> str:
+    """The game's SportVU mirror: the phx sync report (B3), else the R1.2 direction report."""
+    sync_p = config.REPORTS_DIR / ("sportvu_sync_%s.json" % game)
+    if sync_p.exists():
+        return json.loads(sync_p.read_text())["direction_resolution"]["mirror"]
+    return json.loads((config.REPORTS_DIR / ("sportvu_direction_%s.json" % game)).read_text())["resolution"]["mirror"]
+
+
 def main():
     game = sys.argv[1] if len(sys.argv) > 1 else "gsw_phx_2016"
     sv_game = sys.argv[2] if len(sys.argv) > 2 else "12.16.2015.PHX.at.GSW"
     TRUTH_DIR.mkdir(parents=True, exist_ok=True)
     index = SportVUIndex(json.loads((config.PROJECT_ROOT / "data" / "sportvu" / (sv_game + "_moments.json")).read_text())["moments"])
-    sync_rep = json.loads((config.REPORTS_DIR / ("sportvu_sync_%s.json" % game)).read_text())
-    mirror = sync_rep["direction_resolution"]["mirror"]
+    mirror = game_mirror(game)
     windows = json.loads((BUILD_DIR / (game + "_windows.json")).read_text())
     rep = {"game": game, "sportvu_game": sv_game, "mirror": mirror, "windows": {}, "status_counts": {}}
     for w in windows:

@@ -121,7 +121,7 @@
   "generalisation": {
    "value": null,
    "pass": null,
-   "not_measurable": "needs a build on the held-out arena (named after ROADMAP R1.1); the held-out era game (2013) has no public SportVU log and is reported with label-free indicators only"
+   "not_measurable": "scored on the held-out arena's games (reports/scorecard/cle_*__v3.txt, ratio to this game); the held-out era game (2013) has no public SportVU log and is reported with label-free indicators only"
   }
  },
  "per_window": {
@@ -516,10 +516,11 @@
  "caveats": [
   "testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled",
   "the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet",
-  "local windowed rebuild of the harvest sections (25 windows of running clock), not the production artifacts",
-  "wide reference = gate v2 at its v2 threshold, which was trained on human-verified harvest frames including phx (in-sample here, so closer to the human label than a held-out gate); live = running clock read by OCR at 1 s resolution",
+  "local windowed rebuild of the harvest sections (25 windows of running clock scored), not the production artifacts",
+  "wide reference = gate v2 at its v2 threshold; gate v2 was trained on human-verified harvest frames including this game (in-sample here, so closer to the human label than a held-out gate); live = running clock read by OCR at 1 s resolution",
   "referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)",
   "id switches are counted between consecutive testable frames (sparse samples), so a switch and switch-back between samples is missed: a lower bound",
   "team accuracy uses the best A/B to team mapping per window, an upper bound on what a fixed mapping would score"
- ]
+ ],
+ "split": "heldout_game"
 }

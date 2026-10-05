@@ -23,7 +23,7 @@ indicators only. The court stage is judged on position error and near-field bias
 | Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.1% non-referee (15.3% with referees; 280 of 12,637 boxes overlap a referee detection; same caveat as missed players) |
 | Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% (n=10,829) |
 | Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | 21.7 id switches per possession (56 shot-clock possessions); jersey-read rate not measurable (no OCR on the windows) |
-| Generalisation | the same metrics on an arena never trained on; the held-out era (2013, no SportVU) gets label-free indicators only | held-out arena within 1.5x of the held-out game; era reported, not pass/fail | not measured (held-out arena not chosen) |
+| Generalisation | the same metrics on an arena never trained on; the held-out era (2013, no SportVU) gets label-free indicators only | held-out arena within 1.5x of the held-out game; era reported, not pass/fail | held-out arena CLE (R2.1): cle_nyk_2015 position p50 11.04 / p90 18.40 ft (1.51x / 1.20x of phx, not met), near +2.87 / far +7.61 ft; cle_gsw_2016 p50 9.51 / p90 17.14 ft (1.30x / 1.12x, met), near +1.60 / far +4.50 ft, coverage 38.5%. Era not measured yet |
 
 V3 column: reports/scorecard/gsw_phx_2016__v3.{json,txt} (ROADMAP R0.3, 2026-10-03). Caveat:
 testable frames only (1,447 of 9,500 rebuilt window frames, 15%, where a truth H could be fitted),
@@ -31,6 +31,14 @@ so the numbers are optimistic; the truth H passes through the pipeline's own box
 windowed rebuild, not the production artifacts; wide shots judged by gate v2, which saw phx frames
 in training; the referee class is the V3 detector's own, its recall never measured; id switches
 are counted on sparse samples (a lower bound).
+
+Generalisation cell: reports/scorecard/cle_nyk_2015__v3.* and cle_gsw_2016__v3.* (ROADMAP R2.1,
+2026-10-04), same bench and same B4 truth method as phx. Caveat: far fewer testable frames than phx
+(485 of 6,393 and 158 of 3,380; V3 finds fewer than 6 boxes on 2,896 and 1,141 frames there), so the
+CLE numbers are thinner and lean further toward frames V3 handles; cle_gsw_2016 has 830 s of SportVU
+clock gaps (713 frames with no moment) and 4 of its 34 windows (25 s, short leftovers) failed to build
+locally; gate v2, which defines the wide seconds, saw another CLE home game in training. The ratio is
+per game against phx for the same build; R2.7 reports the arena as a whole.
 
 Correction (2026-10-04, found at ROADMAP R1.3): the per-frame truth H (sportvu/truth.py) is an
 8-parameter homography fitted to 6..10 feet bunched in one part of the court. Drawn over the frame it
