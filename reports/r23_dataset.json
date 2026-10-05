@@ -1,0 +1,46 @@
+{
+ "item": "ROADMAP R2.3 dataset",
+ "old_repeat": 3,
+ "r13_every": 2,
+ "val_frac": 0.15,
+ "seed": 42,
+ "counts": {
+  "old_train": 4737,
+  "old_val": 279,
+  "r13_train": 4779,
+  "r13_val": 1036
+ },
+ "r13": {
+  "gsw_bkn_2015": {
+   "windows": 58,
+   "val_windows": 9,
+   "train": 1351,
+   "val": 137
+  },
+  "gsw_cha_2016": {
+   "windows": 57,
+   "val_windows": 9,
+   "train": 1133,
+   "val": 344
+  },
+  "gsw_ind_2016": {
+   "windows": 80,
+   "val_windows": 12,
+   "train": 1227,
+   "val": 200
+  },
+  "gsw_sac_2015": {
+   "windows": 59,
+   "val_windows": 9,
+   "train": 1068,
+   "val": 355
+  }
+ },
+ "skipped": {},
+ "r13_visible_kp": {
+  "p10": 30,
+  "p50": 38,
+  "p90": 45
+ },
+ "heldout_checked": 10831
+}

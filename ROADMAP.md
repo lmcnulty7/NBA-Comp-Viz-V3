@@ -183,6 +183,11 @@ download scripts, manifests and licence notes are committed.
       reports/scorecard/compare__v3__public.*
 - [ ] R2.3 Train the line/keypoint detector on the R1.3 labels (Colab, held-out splits enforced).
       Scorecard on the held-out game AND the held-out arena. Adopt by the rule.
+      Queued for Colab 2026-10-04 (pass 13): dataset sportvu.grid_dataset (V3's grid set x3 + every 2nd kept
+      R1.3 label, whole-window val), runner colab_train_court.py + colab_train_court.ipynb (fine-tune V3's
+      grid model), inputs on Drive lucienmmcnulty My Drive/nba_harvest/r23 (sha256 manifest). After the run:
+      COURT_GRID_WEIGHTS=<best.pt> sportvu.rebuild --out data/sportvu/build_r23 for phx and both CLE games,
+      sportvu.bench --name r23, sportvu.compare v3 r23, adoption rule.
 - [ ] R2.4 Camera model: per game, estimate the camera position once from the first minutes (self-
       calibration from detected lines), then fit pan, tilt, zoom per frame; the homography is derived,
       never free. Scorecard; must cut the near-field bias and the near-third error. Adopt by the rule.

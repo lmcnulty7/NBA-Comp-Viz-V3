@@ -198,7 +198,8 @@ COURT_KP_DATASET_YAML = COURT_DIR / "court_kp.yaml"
 # human-verified + line-snapped homographies (see DEVLOG 2026-07-01→04). The grid
 # model + snap-tracker (court/snap_track.py) is the pipeline's court solver now.
 COURT_KP33_SNAPPED_WEIGHTS = MODELS_DIR / "court_kp33_snapped.pt"   # 33-pt retrain (benchmark)
-COURT_GRID_WEIGHTS = MODELS_DIR / "court_grid_snapped.pt"           # 13×7 grid model (deployed)
+COURT_GRID_WEIGHTS = Path(os.environ.get("COURT_GRID_WEIGHTS", MODELS_DIR / "court_grid_snapped.pt"))
+                                 # 13×7 grid model (deployed); env override for candidate models (R2.3 onward)
 COURT_USE_GRID_TRACKER = os.environ.get("COURT_TRACKER", "1") != "0"
                                  # CourtMapper uses CourtTracker (grid+snap+temporal);
                                  # set COURT_TRACKER=0 to A/B against the legacy 33-pt detector
