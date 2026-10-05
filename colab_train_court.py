@@ -124,12 +124,20 @@ def step_train(yaml_p: str, init: str) -> str:
     ok = os.path.exists(best)
     res = {}
     if ok:
-        import csv
-        rows = list(csv.DictReader(open("/content/runs/r23/results.csv")))
-        key = next(k for k in rows[0] if "pose" in k.lower() and "map50-95" in k.lower().replace(" ", ""))
-        b = max(rows, key=lambda r: float(r[key]))
-        res = {"epochs_run": len(rows), "best_epoch": int(float(b["epoch"])), "best_val_pose_map50_95": round(float(b[key]), 4)}
-        res["finetuned_val"] = val_metrics(YOLO(best), yaml_p, "r23_finetuned_val")
+        # Bookkeeping never blocks packaging: run 2026-10-04 trained fine, then crashed here on a column name
+        # (Ultralytics 8.4 writes the pose metric as "metrics/mAP50-95(P)") and nothing reached Drive.
+        try:
+            import csv
+            rows = [{k.strip(): v for k, v in r.items()} for r in csv.DictReader(open("/content/runs/r23/results.csv"))]
+            key = next(k for k in rows[0] if k.replace(" ", "") in ("metrics/mAP50-95(P)", "metrics/pose_mAP50-95"))
+            b = max(rows, key=lambda r: float(r[key]))
+            res = {"epochs_run": len(rows), "best_epoch": int(float(b["epoch"])), "best_val_pose_map50_95": round(float(b[key]), 4)}
+        except Exception as e:                       # noqa: BLE001
+            res = {"results_csv_error": repr(e)[:200]}
+        try:
+            res["finetuned_val"] = val_metrics(YOLO(best), yaml_p, "r23_finetuned_val")
+        except Exception as e:                       # noqa: BLE001
+            res["finetuned_val_error"] = repr(e)[:200]
     record("train", "ok" if ok else "FAILED", **res)
     return best if ok else ""
 
