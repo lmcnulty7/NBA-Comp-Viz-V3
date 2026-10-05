@@ -86,7 +86,13 @@ def build() -> dict:
     prep = rep("sportvu_prepare.json").get("games", {})
     card = rep("scorecard/gsw_phx_2016__v3.json")
     check = {g["game"]: g for g in rep("sportvu_label_check.json").get("games", [])}
-    ids = lambda t, g: {"arena": g["home"], "sportvu": g.get("sportvu"), "video_id": g.get("video_id")}
+    def sv_name(g):          # the R1.2 games carry it; phx predates the field (same rule as bench.sportvu_name)
+        if g.get("sportvu"):
+            return g["sportvu"]
+        y, m, d = g["date"].split("-")
+        name = "%s.%s.%s.%s.at.%s" % (m, d, y, g["away"], g["home"])
+        return name if (config.PROJECT_ROOT / "data" / "sportvu" / (name + "_moments.json")).exists() else None
+    ids = lambda t, g: {"arena": g["home"], "sportvu": sv_name(g), "video_id": g.get("video_id")}
     sp = {"version": 1, "item": "ROADMAP R1.4",
           "rule": "Training reads this file, fails if it is missing (sportvu.splits.load) and refuses any item "
                   "that carries a held-out game id, SportVU id or video id (sportvu.splits.refuse_heldout). "

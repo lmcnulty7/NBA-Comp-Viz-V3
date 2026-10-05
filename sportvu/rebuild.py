@@ -10,6 +10,10 @@ the window. Same code, same models, same h264 source as production; the only dif
 cold start per window (PAD_S of warm-up before the span) and the frames chosen.
 
   python -m sportvu.rebuild gsw_phx_2016
+  COURT_TRACKER=0 python -m sportvu.rebuild gsw_phx_2016 --out data/sportvu/build_public
+      another build of the SAME windows (V3's plan, clips and time maps in data/sportvu/build), with the
+      environment passed to build_trajectories; only its sidecars go to --out, so sportvu.bench scores it
+      on the same frames and truth as V3.
 """
 from __future__ import annotations
 import json, shutil, subprocess, sys, time
@@ -73,24 +77,33 @@ def build(window: dict, snip: Path, out_dir: Path = BUILD_DIR, extra_args: tuple
 
 
 def main():
-    game = sys.argv[1] if len(sys.argv) > 1 else "gsw_phx_2016"
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("game", nargs="?", default="gsw_phx_2016")
+    ap.add_argument("--out", type=Path, default=BUILD_DIR, help="sidecar dir for another build of V3's windows")
+    a = ap.parse_args()
+    game, out = a.game, a.out.resolve()
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
-    secs = sorted(p.name.replace("_local_timemap.json", "") for p in SYNC_DIR.glob(game + "_s*_local_timemap.json"))
-    windows = [w for s in secs for w in plan_windows(s)]
-    (BUILD_DIR / (game + "_windows.json")).write_text(json.dumps(windows, indent=1))
+    if out != BUILD_DIR:
+        out.mkdir(parents=True, exist_ok=True)
+        windows = json.loads((BUILD_DIR / (game + "_windows.json")).read_text())    # V3's plan: same frames
+    else:
+        secs = sorted(p.name.replace("_local_timemap.json", "") for p in SYNC_DIR.glob(game + "_s*_local_timemap.json"))
+        windows = [w for s in secs for w in plan_windows(s)]
+    (out / (game + "_windows.json")).write_text(json.dumps(windows, indent=1))
     print("windows: %d, %.0f s of video" % (len(windows), sum((w["f_end"] - w["f_start"]) / w["fps"] for w in windows)), flush=True)
     from clock_reader import ClockReader
     from sportvu.local_sync import build_local_timemap
     reader = ClockReader(json.loads((config.PROJECT_ROOT / "data" / "harvest" / "games.json").read_text())[game]["layout"])
     t0 = time.time()
     for k, w in enumerate(windows):
-        snip = cut(w)
-        r = build(w, snip)
+        snip = cut(w)                                           # clips stay in BUILD_DIR, shared by every build
+        r = build(w, snip, out_dir=out)
         tm = BUILD_DIR / (w["window"] + "_timemap.json")      # the window's clock map, read by sportvu.truth
         if not tm.exists():
             tm.write_text(json.dumps(build_local_timemap(w["section"], reader, vid=snip)))
         print("  [%d/%d] %-24s %s  (%.0f s elapsed)" % (k + 1, len(windows), w["window"], "cached" if r.get("cached") else ("ok" if r["rc"] == 0 else "FAILED " + r["tail"]), time.time() - t0), flush=True)
-    print("rebuild done: %d/%d windows have a sidecar" % (sum(1 for w in windows if (BUILD_DIR / (w["window"] + "_frames.json")).exists()), len(windows)), flush=True)
+    print("rebuild done: %d/%d windows have a sidecar" % (sum(1 for w in windows if (out / (w["window"] + "_frames.json")).exists()), len(windows)), flush=True)
 
 
 if __name__ == "__main__":

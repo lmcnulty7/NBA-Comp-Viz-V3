@@ -1,0 +1,194 @@
+{
+ "builds": [
+  "v3",
+  "public"
+ ],
+ "games": {
+  "gsw_phx_2016": {
+   "split": "heldout_game",
+   "testable": 1447,
+   "rows": {
+    "position p50 ft": {
+     "values": {
+      "v3": 7.33,
+      "public": 24.66
+     },
+     "better": "v3"
+    },
+    "position p90 ft": {
+     "values": {
+      "v3": 15.35,
+      "public": 63.34
+     },
+     "better": "v3"
+    },
+    "near-third bias ft": {
+     "values": {
+      "v3": -1.02,
+      "public": 8.94
+     },
+     "better": "v3"
+    },
+    "far-third bias ft": {
+     "values": {
+      "v3": 1.67,
+      "public": 25.29
+     },
+     "better": "v3"
+    },
+    "coverage %": {
+     "values": {
+      "v3": 98.6,
+      "public": 99.2
+     },
+     "better": "public"
+    },
+    "missed players %": {
+     "values": {
+      "v3": 25.1,
+      "public": 25.1
+     },
+     "better": null
+    },
+    "ghost boxes %": {
+     "values": {
+      "v3": 15.1,
+      "public": 15.1
+     },
+     "better": null
+    },
+    "team labels %": {
+     "values": {
+      "v3": 81.8,
+      "public": 80.7
+     },
+     "better": "v3"
+    }
+   }
+  },
+  "cle_gsw_2016": {
+   "split": "heldout_arena",
+   "testable": 158,
+   "rows": {
+    "position p50 ft": {
+     "values": {
+      "v3": 9.51,
+      "public": 11.01
+     },
+     "better": "v3"
+    },
+    "position p90 ft": {
+     "values": {
+      "v3": 17.14,
+      "public": 66.18
+     },
+     "better": "v3"
+    },
+    "near-third bias ft": {
+     "values": {
+      "v3": 1.6,
+      "public": 0.36
+     },
+     "better": "public"
+    },
+    "far-third bias ft": {
+     "values": {
+      "v3": 4.5,
+      "public": 14.61
+     },
+     "better": "v3"
+    },
+    "coverage %": {
+     "values": {
+      "v3": 38.5,
+      "public": 38.6
+     },
+     "better": "public"
+    },
+    "missed players %": {
+     "values": {
+      "v3": 26.2,
+      "public": 26.2
+     },
+     "better": null
+    },
+    "ghost boxes %": {
+     "values": {
+      "v3": 14.8,
+      "public": 14.8
+     },
+     "better": null
+    },
+    "team labels %": {
+     "values": {
+      "v3": 78.4,
+      "public": 78.3
+     },
+     "better": "v3"
+    }
+   }
+  },
+  "cle_nyk_2015": {
+   "split": "heldout_arena",
+   "testable": 485,
+   "rows": {
+    "position p50 ft": {
+     "values": {
+      "v3": 11.04,
+      "public": 11.68
+     },
+     "better": "v3"
+    },
+    "position p90 ft": {
+     "values": {
+      "v3": 18.4,
+      "public": 54.25
+     },
+     "better": "v3"
+    },
+    "near-third bias ft": {
+     "values": {
+      "v3": 2.87,
+      "public": 1.32
+     },
+     "better": "public"
+    },
+    "far-third bias ft": {
+     "values": {
+      "v3": 7.61,
+      "public": 16.07
+     },
+     "better": "v3"
+    },
+    "coverage %": {
+     "values": {
+      "v3": 90.5,
+      "public": 92.1
+     },
+     "better": "public"
+    },
+    "missed players %": {
+     "values": {
+      "v3": 24.4,
+      "public": 24.4
+     },
+     "better": null
+    },
+    "ghost boxes %": {
+     "values": {
+      "v3": 14.8,
+      "public": 14.8
+     },
+     "better": null
+    },
+    "team labels %": {
+     "values": {
+      "v3": 74.7,
+      "public": 71.7
+     },
+     "better": "v3"
+    }
+   }
+  }
+ }
+}

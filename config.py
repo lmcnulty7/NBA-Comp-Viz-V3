@@ -210,7 +210,8 @@ RANSAC_REPROJ_THRESHOLD = 2.0    # FEET (dst space), for cv2.findHomography RANS
                                  # Swept on val: 2.0 → median 0.30 ft reproj, 100% success
                                  # (was 5.0 = too loose, let noisy paint-corner kps skew H).
 MIN_KEYPOINTS_FOR_H = 4          # ≥4 non-collinear correspondences → valid H
-COURT_KP_CONF = 0.05             # min confidence to accept a predicted keypoint.
+COURT_KP_CONF = float(os.environ.get("COURT_KP_CONF", "0.05"))   # min confidence to accept a predicted keypoint
+                                 # (legacy 33-pt path; env override for R2.2, where the public recipe uses 0.5).
                                  # Swept on the 11445-13965 gameplay window: 0.30→0.05 nearly
                                  # doubles landmarks (12→23/frame) and grows keypoint coverage
                                  # 25%→42% of the frame, with reproj err ~unchanged (0.60→0.65 ft,

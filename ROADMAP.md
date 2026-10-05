@@ -173,10 +173,14 @@ download scripts, manifests and licence notes are committed.
       Done 2026-10-04: to beat on phx p50 7.33 / p90 15.35 ft, near -1.02 / far +1.67 ft. Held-out arena:
       cle_nyk_2015 p50 11.04 / p90 18.40 ft (1.51x, not met), cle_gsw_2016 9.51 / 17.14 ft (1.30x, met),
       far-third bias +7.61 / +4.50 ft; reports/scorecard/{gsw_phx_2016,cle_nyk_2015,cle_gsw_2016}__v3.*.
-- [ ] R2.2 Off-the-shelf baseline: run one public court/field registration model (candidates: Roboflow
+- [x] R2.2 Off-the-shelf baseline: run one public court/field registration model (candidates: Roboflow
       Universe basketball court keypoints; a sports field registration network) on the same frames.
       Scorecard. The better of V3 and the public model is the starting point. Measurable: two
       scorecards side by side.
+      Done 2026-10-04: public recipe = court_kp33.pt (YOLOv8m-pose on the public Roboflow court-detection-2
+      set, roboflow/sports court config, per-frame H, keypoints >= 0.5). phx p50 24.66 / p90 63.34 ft vs V3
+      7.33 / 15.35; worse p90 on CLE too (54..66 vs 17..18 ft). V3 is the starting point.
+      reports/scorecard/compare__v3__public.*
 - [ ] R2.3 Train the line/keypoint detector on the R1.3 labels (Colab, held-out splits enforced).
       Scorecard on the held-out game AND the held-out arena. Adopt by the rule.
 - [ ] R2.4 Camera model: per game, estimate the camera position once from the first minutes (self-
