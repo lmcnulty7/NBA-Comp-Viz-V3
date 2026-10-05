@@ -1,0 +1,37 @@
+DATA-SCALING STUDY, FIRST PASS: held-out position error from the exact court replay (sportvu.court_replay)
+phx = gsw_phx_2016 (new game, training arena); CLE = cle_nyk_2015 + cle_gsw_2016 pooled (new arena)
+
+arm      | phx p50 / p90 / near / far (ft)    | CLE p50 / p90 / near / far (ft)    | coverage
+V3       |  7.33 / 15.35 / +1.02 / +1.67      | 10.65 / 18.11 / +2.40 / +7.22      | 0.986 0.905 0.385
+r23      |  1.92 /  4.98 / +0.67 / +1.52      |  2.24 /  5.47 / +0.53 / +1.71      | 0.993 0.923 0.397
+A_full   |  1.91 /  4.93 / +0.53 / +1.50      |  2.83 /  8.26 / +0.28 / +2.48      | 0.993 0.932 0.396
+B_f1     |  1.97 /  5.04 / +0.55 / +1.45      |  3.01 /  8.34 / +0.22 / +1.60      | 0.993 0.935 0.397
+B_f4     |  1.95 /  4.97 / +0.87 / +1.41      |  2.70 /  7.05 / +0.71 / +1.42      | 0.993 0.937 0.397
+C_all4   |  1.98 /  5.09 / +0.84 / +1.57      |  2.68 /  6.90 / +0.68 / +1.82      | 0.993 0.933 0.395
+C_bkn    |  2.03 /  5.01 / +0.84 / +1.76      |  3.16 /  9.25 / +0.41 / +2.14      | 0.993 0.935 0.394
+C_cha    |  1.87 /  4.98 / +0.21 / +1.19      |  2.85 /  8.15 / +0.35 / +1.31      | 0.993 0.936 0.394
+C_ind    |  1.98 /  5.09 / +0.68 / +1.56      |  2.94 /  9.57 / +0.42 / +0.68      | 0.993 0.937 0.397
+C_sac    |  1.81 /  4.94 / +0.30 / +1.10      |  2.72 /  6.51 / +0.50 / +1.15      | 0.993 0.926 0.394
+D_nocle  |  1.93 /  4.95 / +0.61 / +1.53      |  2.97 /  8.88 / +0.53 / +2.57      | 0.993 0.934 0.396
+
+near/far columns are |median bias| toward the camera
+
+paired differences, first minus second (95% window-bootstrap interval); positive = first is worse:
+  B_f1 - A_full    phx p50 +0.06 [-0.01, +0.11] no difference p90 +0.11 [-0.04, +0.16] no difference
+  B_f1 - A_full    CLE p50 +0.18 [-0.07, +0.50] no difference p90 +0.08 [-1.15, +1.64] no difference
+  B_f4 - A_full    phx p50 +0.04 [+0.01, +0.08] worse         p90 +0.04 [-0.12, +0.10] no difference
+  B_f4 - A_full    CLE p50 -0.13 [-0.30, +0.02] no difference p90 -1.21 [-1.80, -0.43] better
+  C_all4 - A_full  phx p50 +0.08 [+0.04, +0.13] worse         p90 +0.16 [+0.02, +0.21] worse
+  C_all4 - A_full  CLE p50 -0.15 [-0.36, +0.09] no difference p90 -1.36 [-2.38, -0.33] better
+  D_nocle - A_full phx p50 +0.03 [+0.00, +0.06] worse         p90 +0.02 [-0.05, +0.09] no difference
+  D_nocle - A_full CLE p50 +0.14 [+0.05, +0.26] worse         p90 +0.62 [-0.04, +1.54] no difference
+  A_full - r23     phx p50 -0.01 [-0.05, +0.04] no difference p90 -0.05 [-0.10, +0.07] no difference
+  A_full - r23     CLE p50 +0.58 [+0.25, +0.93] worse         p90 +2.80 [+1.61, +3.81] worse
+  C_bkn - C_all4   phx p50 +0.05 [-0.02, +0.10] no difference p90 -0.08 [-0.19, +0.04] no difference
+  C_bkn - C_all4   CLE p50 +0.48 [+0.15, +0.79] worse         p90 +2.35 [+1.08, +4.66] worse
+  C_cha - C_all4   phx p50 -0.11 [-0.16, -0.07] better        p90 -0.11 [-0.22, +0.01] no difference
+  C_cha - C_all4   CLE p50 +0.18 [-0.00, +0.27] no difference p90 +1.25 [+0.02, +2.96] worse
+  C_ind - C_all4   phx p50 -0.00 [-0.05, +0.03] no difference p90 +0.00 [-0.12, +0.15] no difference
+  C_ind - C_all4   CLE p50 +0.26 [-0.08, +0.67] no difference p90 +2.67 [+0.23, +5.60] worse
+  C_sac - C_all4   phx p50 -0.17 [-0.22, -0.14] better        p90 -0.15 [-0.27, -0.03] better
+  C_sac - C_all4   CLE p50 +0.04 [-0.35, +0.30] no difference p90 -0.39 [-1.36, +0.79] no difference
