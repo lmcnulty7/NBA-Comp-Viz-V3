@@ -44,7 +44,15 @@ ARMS = {
     "C_all4":  {"r13": {"games": list(GAMES), "windows": 12, "per_game": True, "per_window": "all"}, "old": "all", "seed": 1},
     "D_nocle": {"r13": {"windows": "all", "per_window": "all"}, "old": "no_cle", "seed": 1},
 }
+# second pass (2026-10-05): training-seed repeats (same data, train_seed differs) and an arena curve from the old
+# set: k non-Cleveland arenas (nested random order, clip_arena tags in old_set_groups.json) at fixed compute, so the
+# held-out Cleveland arena is never seen; k=0 means no old set (R1.3 fills the whole list).
+for _arm, _ts in (("A_full", 2), ("A_full", 3), ("C_all4", 2), ("C_all4", 3)):
+    ARMS["%s_s%d" % (_arm, _ts)] = {**ARMS[_arm], "train_seed": _ts}
+for _k in (0, 3, 9, "all"):
+    ARMS["E_k%s" % _k] = {"r13": {"windows": "all", "per_window": "all"}, "old": "arenas:%s" % _k, "seed": 1}
 FIRST_PASS = ["A_full", "B_f1", "B_f4", "C_bkn", "C_cha", "C_ind", "C_sac", "C_all4", "D_nocle"]
+SECOND_PASS = ["A_full_s2", "A_full_s3", "C_all4_s2", "C_all4_s3", "E_k0", "E_k3", "E_k9", "E_kall"]
 
 
 def r13_train(ds: Path) -> dict:
@@ -86,6 +94,14 @@ def pools(arm: str, ds: Path = DS) -> tuple:
     if spec["old"] == "no_cle":
         cle = set(json.loads(GROUPS.read_text())["cle_images"])
         old = [n for n in old if n[len("old_"):] not in cle]
+    elif spec["old"].startswith("arenas:"):
+        k = spec["old"].split(":")[1]
+        g = json.loads(GROUPS.read_text())
+        arena_of = lambda n: g["clip_arena"][str(g["source_to_clip"][str(g["image_to_source"][n[len("old_"):]])])]
+        arenas = sorted({arena_of(n) for n in old} - {"CLE"})
+        order = random.Random(7).sample(arenas, len(arenas))          # nested: k arenas are the first k
+        keep = set(order if k == "all" else order[:int(k)])
+        old = [n for n in old if arena_of(n) in keep]
     return r13, old, chosen
 
 
@@ -103,7 +119,8 @@ def build(arm: str, out_root: Path, ds: Path = DS) -> Path:
     out = out_root / arm
     if out.exists():
         shutil.rmtree(out)
-    lines = [("train", n) for n in _resample(old, OLD_LINES, rng) + _resample(r13, R13_LINES, rng)]
+    r13_lines = R13_LINES if old else OLD_LINES + R13_LINES          # no old set: R1.3 fills the list
+    lines = [("train", n) for n in _resample(old, OLD_LINES, rng) + _resample(r13, r13_lines, rng)]
     lines += [("val", n) for n in sorted(os.listdir(ds / "images" / "val")) if n.startswith("r13_")]
     seen = {}
     for split, n in lines:
@@ -125,7 +142,8 @@ def build(arm: str, out_root: Path, ds: Path = DS) -> Path:
 
 def train(arm_dir: Path, init: Path, project: Path, workers: int = 4) -> Path:
     from ultralytics import YOLO
-    seed = json.loads((arm_dir / "arm.json").read_text())["spec"]["seed"]
+    spec = json.loads((arm_dir / "arm.json").read_text())["spec"]
+    seed = spec.get("train_seed", spec["seed"])
     YOLO(str(init)).train(data=str(arm_dir / "data.yaml"), epochs=EPOCHS, imgsz=IMGSZ, batch=BATCH, device=0,
                           optimizer="SGD", lr0=0.01, lrf=0.01, momentum=0.937, cos_lr=True, warmup_epochs=3,
                           patience=1000, seed=seed, deterministic=True, workers=workers,

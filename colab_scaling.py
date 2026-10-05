@@ -13,7 +13,7 @@ hard-resets to origin/track-fix, runs this file, flushes Drive and prints the st
   package  each arm as soon as it finishes: results/scaling_<stamp>/<arm>.tar (last.pt, results.csv, args.yaml,
            arm.json) on Drive, so a crash keeps what finished. Held-out scoring runs locally afterwards
            (sportvu.court_replay on each last.pt).
-Arms: env SCALING_ARMS="A_full,B_f1,..." (default sportvu.scaling.FIRST_PASS).
+Arms: env SCALING_ARMS="A_full,B_f1,..." (default sportvu.scaling.SECOND_PASS; the first pass ran 2026-10-05).
 """
 from __future__ import annotations
 import hashlib, json, os, shutil, subprocess, sys, tarfile, time
@@ -129,7 +129,7 @@ def main() -> None:
     step_env()
     ds, init = step_inputs()
     from sportvu import scaling
-    arms = [a for a in os.environ.get("SCALING_ARMS", ",".join(scaling.FIRST_PASS)).split(",") if a]
+    arms = [a for a in os.environ.get("SCALING_ARMS", ",".join(scaling.SECOND_PASS)).split(",") if a]
     step_train(ds, init, arms)
     REPORT["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
     json.dump(REPORT, open(os.path.join(REPORT["out"], "run_report.json"), "w"), indent=1)
