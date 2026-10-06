@@ -51,6 +51,13 @@ for _arm, _ts in (("A_full", 2), ("A_full", 3), ("C_all4", 2), ("C_all4", 3)):
     ARMS["%s_s%d" % (_arm, _ts)] = {**ARMS[_arm], "train_seed": _ts}
 for _k in (0, 3, 9, "all"):
     ARMS["E_k%s" % _k] = {"r13": {"windows": "all", "per_window": "all"}, "old": "arenas:%s" % _k, "seed": 1}
+# third pass (2026-10-05): r23's recipe (up to 100 epochs, patience 20, auto optimizer, best.pt) on the diversity-
+# balanced subset (C_all4: 48 windows over 4 games) vs the full data, 3 seeds each (r23 itself is the third F_full seed).
+for _ts in (1, 2, 3):
+    ARMS["F_c4_s%d" % _ts] = {**ARMS["C_all4"], "train_seed": _ts, "recipe": "r23"}
+for _ts in (2, 3):
+    ARMS["F_full_s%d" % _ts] = {**ARMS["A_full"], "train_seed": _ts, "recipe": "r23"}
+THIRD_PASS = ["F_c4_s1", "F_full_s2", "F_c4_s2", "F_full_s3", "F_c4_s3"]
 FIRST_PASS = ["A_full", "B_f1", "B_f4", "C_bkn", "C_cha", "C_ind", "C_sac", "C_all4", "D_nocle"]
 SECOND_PASS = ["A_full_s2", "A_full_s3", "C_all4_s2", "C_all4_s3", "E_k0", "E_k3", "E_k9", "E_kall"]
 
@@ -144,10 +151,15 @@ def train(arm_dir: Path, init: Path, project: Path, workers: int = 4) -> Path:
     from ultralytics import YOLO
     spec = json.loads((arm_dir / "arm.json").read_text())["spec"]
     seed = spec.get("train_seed", spec["seed"])
+    aug = dict(mosaic=0.0, degrees=0.0, translate=0.05, scale=0.2, fliplr=0.5)
+    if spec.get("recipe") == "r23":     # colab_train_court.py's R2.3 recipe; scored weights are best.pt
+        YOLO(str(init)).train(data=str(arm_dir / "data.yaml"), epochs=100, imgsz=IMGSZ, batch=BATCH, device=0, patience=20,
+                              seed=seed, deterministic=True, workers=workers, **aug,
+                              project=str(project), name=arm_dir.name, exist_ok=True, plots=False)
+        return project / arm_dir.name / "weights" / "best.pt"
     YOLO(str(init)).train(data=str(arm_dir / "data.yaml"), epochs=EPOCHS, imgsz=IMGSZ, batch=BATCH, device=0,
                           optimizer="SGD", lr0=0.01, lrf=0.01, momentum=0.937, cos_lr=True, warmup_epochs=3,
-                          patience=1000, seed=seed, deterministic=True, workers=workers,
-                          mosaic=0.0, degrees=0.0, translate=0.05, scale=0.2, fliplr=0.5,
+                          patience=1000, seed=seed, deterministic=True, workers=workers, **aug,
                           project=str(project), name=arm_dir.name, exist_ok=True, plots=False)
     return project / arm_dir.name / "weights" / "last.pt"
 
