@@ -19,7 +19,9 @@ from sportvu.bench import OBS_DIR
 from sportvu.compare import _stats
 
 CARDS = config.PROJECT_ROOT / "reports" / "scaling"
-ARMS = ["A_full", "B_f1", "B_f4", "C_all4", "C_bkn", "C_cha", "C_ind", "C_sac", "D_nocle"]
+ARMS = ["A_full", "A_full_s2", "A_full_s3", "B_f1", "B_f4", "C_all4", "C_all4_s2", "C_all4_s3", "C_bkn", "C_cha", "C_ind", "C_sac",
+        "D_nocle", "E_k0", "E_k3", "E_k9", "E_kall"]
+SEEDS = {"A_full": ["A_full", "A_full_s2", "A_full_s3"], "C_all4": ["C_all4", "C_all4_s2", "C_all4_s3"]}
 REFS = {"V3": "v3_replay", "r23": "r23_replay"}
 SETS = {"phx": ["gsw_phx_2016"], "CLE": ["cle_nyk_2015", "cle_gsw_2016"]}
 REPS = 2000
@@ -69,6 +71,8 @@ def main() -> None:
     rep = {"arms": {}, "contrasts": {}}
     for name in list(REFS) + ARMS:
         build = REFS.get(name, "scal_" + name)
+        if not (OBS_DIR / ("gsw_phx_2016__%s.json" % build)).exists():
+            continue
         rep["arms"][name] = {s: summary(build, gs) for s, gs in SETS.items()}
         cov = {}
         for g in sum(SETS.values(), []):
@@ -80,10 +84,21 @@ def main() -> None:
         rep["arms"][name]["coverage"] = cov
     pairs = [("B_f1", "A_full"), ("B_f4", "A_full"), ("C_all4", "A_full"), ("D_nocle", "A_full"), ("A_full", "r23_ref")]
     pairs += [("C_" + g, "C_all4") for g in ("bkn", "cha", "ind", "sac")]
+    pairs += [("A_full_s2", "A_full"), ("A_full_s3", "A_full"), ("C_all4_s2", "C_all4"), ("C_all4_s3", "C_all4"),
+              ("E_k0", "E_kall"), ("E_k3", "E_kall"), ("E_k9", "E_kall"), ("E_kall", "A_full")]
     for a, b in pairs:
+        if a not in rep["arms"] or (b != "r23_ref" and b not in rep["arms"]):
+            continue
         ba = "scal_" + a
         bb = REFS["r23"] if b == "r23_ref" else "scal_" + b
         rep["contrasts"]["%s - %s" % (a, b if b != "r23_ref" else "r23")] = {s: paired(ba, bb, gs) for s, gs in SETS.items()}
+    # training-seed spread: same data, 3 seeds; a single-run difference smaller than this range is not evidence
+    rep["seed_spread"] = {}
+    for base, runs in SEEDS.items():
+        if all(r in rep["arms"] for r in runs):
+            rep["seed_spread"][base] = {s: {k: [min(rep["arms"][r][s][k] for r in runs), max(rep["arms"][r][s][k] for r in runs)]
+                                            for k in ("p50", "p90", "abs_near", "abs_far")} for s in SETS}
+    rep["arena_curve"] = {a: rep["arms"][a]["CLE"] for a in ("E_k0", "E_k3", "E_k9", "E_kall") if a in rep["arms"]}
     (CARDS / "scaling_first_pass.json").write_text(json.dumps(rep, indent=1))
     L = ["DATA-SCALING STUDY, FIRST PASS: held-out position error from the exact court replay (sportvu.court_replay)",
          "phx = gsw_phx_2016 (new game, training arena); CLE = cle_nyk_2015 + cle_gsw_2016 pooled (new arena)", "",
@@ -99,6 +114,16 @@ def main() -> None:
                 L.append("  %-16s %-3s p50 %+5.2f [%+5.2f, %+5.2f] %-13s p90 %+5.2f [%+5.2f, %+5.2f] %s" % (
                     k, s, v[s]["p50"]["diff"], *v[s]["p50"]["ci95"], v[s]["p50"]["verdict"],
                     v[s]["p90"]["diff"], *v[s]["p90"]["ci95"], v[s]["p90"]["verdict"]))
+    if rep["seed_spread"]:
+        L += ["", "training-seed spread (same data, seeds 1..3), min..max:"]
+        for base, v in rep["seed_spread"].items():
+            for s_ in SETS:
+                L.append("  %-7s %-3s p50 %.2f..%.2f  p90 %.2f..%.2f  |near| %.2f..%.2f  |far| %.2f..%.2f" % (
+                    base, s_, *v[s_]["p50"], *v[s_]["p90"], *v[s_]["abs_near"], *v[s_]["abs_far"]))
+    if rep["arena_curve"]:
+        L += ["", "arena curve on CLE (old set limited to k non-Cleveland arenas; Cleveland never seen):"]
+        for a, v in rep["arena_curve"].items():
+            L.append("  %-7s p50 %.2f  p90 %.2f  |near| %.2f  |far| %.2f" % (a, v["p50"], v["p90"], v["abs_near"], v["abs_far"]))
     (CARDS / "scaling_first_pass.txt").write_text("\n".join(L) + "\n")
     print("\n".join(L))
 

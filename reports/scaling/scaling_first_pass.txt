@@ -5,14 +5,22 @@ arm      | phx p50 / p90 / near / far (ft)    | CLE p50 / p90 / near / far (ft) 
 V3       |  7.33 / 15.35 / +1.02 / +1.67      | 10.65 / 18.11 / +2.40 / +7.22      | 0.986 0.905 0.385
 r23      |  1.92 /  4.98 / +0.67 / +1.52      |  2.24 /  5.47 / +0.53 / +1.71      | 0.993 0.923 0.397
 A_full   |  1.91 /  4.93 / +0.53 / +1.50      |  2.83 /  8.26 / +0.28 / +2.48      | 0.993 0.932 0.396
+A_full_s2 |  1.95 /  4.99 / +0.53 / +1.59      |  2.65 /  7.04 / +0.38 / +2.72      | 0.993 0.935 0.395
+A_full_s3 |  1.98 /  5.02 / +0.54 / +1.67      |  3.01 /  7.76 / +0.52 / +3.33      | 0.993 0.934 0.390
 B_f1     |  1.97 /  5.04 / +0.55 / +1.45      |  3.01 /  8.34 / +0.22 / +1.60      | 0.993 0.935 0.397
 B_f4     |  1.95 /  4.97 / +0.87 / +1.41      |  2.70 /  7.05 / +0.71 / +1.42      | 0.993 0.937 0.397
 C_all4   |  1.98 /  5.09 / +0.84 / +1.57      |  2.68 /  6.90 / +0.68 / +1.82      | 0.993 0.933 0.395
+C_all4_s2 |  2.00 /  5.12 / +0.92 / +1.57      |  2.53 /  6.51 / +0.74 / +1.49      | 0.993 0.928 0.397
+C_all4_s3 |  2.00 /  5.15 / +0.84 / +1.60      |  2.49 /  6.03 / +0.91 / +1.24      | 0.993 0.934 0.396
 C_bkn    |  2.03 /  5.01 / +0.84 / +1.76      |  3.16 /  9.25 / +0.41 / +2.14      | 0.993 0.935 0.394
 C_cha    |  1.87 /  4.98 / +0.21 / +1.19      |  2.85 /  8.15 / +0.35 / +1.31      | 0.993 0.936 0.394
 C_ind    |  1.98 /  5.09 / +0.68 / +1.56      |  2.94 /  9.57 / +0.42 / +0.68      | 0.993 0.937 0.397
 C_sac    |  1.81 /  4.94 / +0.30 / +1.10      |  2.72 /  6.51 / +0.50 / +1.15      | 0.993 0.926 0.394
 D_nocle  |  1.93 /  4.95 / +0.61 / +1.53      |  2.97 /  8.88 / +0.53 / +2.57      | 0.993 0.934 0.396
+E_k0     |  1.89 /  4.98 / +0.57 / +1.39      |  2.59 /  6.70 / +0.73 / +0.30      | 0.993 0.934 0.397
+E_k3     |  1.91 /  4.96 / +0.51 / +1.49      |  2.65 /  6.43 / +0.99 / +2.05      | 0.993 0.926 0.394
+E_k9     |  1.92 /  4.94 / +0.52 / +1.48      |  2.68 /  7.35 / +0.70 / +1.92      | 0.993 0.935 0.396
+E_kall   |  1.92 /  4.93 / +0.52 / +1.50      |  2.59 /  7.11 / +0.33 / +2.04      | 0.993 0.934 0.395
 
 near/far columns are |median bias| toward the camera
 
@@ -35,3 +43,31 @@ paired differences, first minus second (95% window-bootstrap interval); positive
   C_ind - C_all4   CLE p50 +0.26 [-0.08, +0.67] no difference p90 +2.67 [+0.23, +5.60] worse
   C_sac - C_all4   phx p50 -0.17 [-0.22, -0.14] better        p90 -0.15 [-0.27, -0.03] better
   C_sac - C_all4   CLE p50 +0.04 [-0.35, +0.30] no difference p90 -0.39 [-1.36, +0.79] no difference
+  A_full_s2 - A_full phx p50 +0.05 [+0.02, +0.09] worse         p90 +0.06 [-0.04, +0.11] no difference
+  A_full_s2 - A_full CLE p50 -0.18 [-0.43, +0.07] no difference p90 -1.22 [-1.82, -0.44] better
+  A_full_s3 - A_full phx p50 +0.07 [+0.03, +0.12] worse         p90 +0.08 [-0.01, +0.15] no difference
+  A_full_s3 - A_full CLE p50 +0.19 [+0.03, +0.35] worse         p90 -0.44 [-0.95, +0.21] no difference
+  C_all4_s2 - C_all4 phx p50 +0.02 [-0.02, +0.03] no difference p90 +0.03 [-0.03, +0.10] no difference
+  C_all4_s2 - C_all4 CLE p50 -0.15 [-0.38, -0.04] better        p90 -0.39 [-0.87, +0.18] no difference
+  C_all4_s3 - C_all4 phx p50 +0.02 [-0.04, +0.05] no difference p90 +0.06 [-0.06, +0.25] no difference
+  C_all4_s3 - C_all4 CLE p50 -0.19 [-0.44, -0.04] better        p90 -0.87 [-1.37, -0.39] better
+  E_k0 - E_kall    phx p50 -0.03 [-0.06, +0.01] no difference p90 +0.04 [-0.06, +0.21] no difference
+  E_k0 - E_kall    CLE p50 -0.00 [-0.30, +0.38] no difference p90 -0.41 [-1.40, +0.39] no difference
+  E_k3 - E_kall    phx p50 -0.01 [-0.02, +0.02] no difference p90 +0.02 [-0.03, +0.09] no difference
+  E_k3 - E_kall    CLE p50 +0.06 [-0.10, +0.19] no difference p90 -0.67 [-1.29, -0.01] better
+  E_k9 - E_kall    phx p50 -0.01 [-0.03, +0.01] no difference p90 +0.00 [-0.05, +0.07] no difference
+  E_k9 - E_kall    CLE p50 +0.09 [+0.00, +0.19] worse         p90 +0.24 [-0.24, +0.63] no difference
+  E_kall - A_full  phx p50 +0.02 [-0.01, +0.05] no difference p90 +0.00 [-0.08, +0.06] no difference
+  E_kall - A_full  CLE p50 -0.23 [-0.36, -0.11] better        p90 -1.15 [-1.65, -0.47] better
+
+training-seed spread (same data, seeds 1..3), min..max:
+  A_full  phx p50 1.91..1.98  p90 4.93..5.02  |near| 0.53..0.54  |far| 1.50..1.67
+  A_full  CLE p50 2.65..3.01  p90 7.04..8.26  |near| 0.28..0.52  |far| 2.48..3.33
+  C_all4  phx p50 1.98..2.00  p90 5.09..5.15  |near| 0.84..0.92  |far| 1.57..1.60
+  C_all4  CLE p50 2.49..2.68  p90 6.03..6.90  |near| 0.68..0.91  |far| 1.24..1.82
+
+arena curve on CLE (old set limited to k non-Cleveland arenas; Cleveland never seen):
+  E_k0    p50 2.59  p90 6.70  |near| 0.73  |far| 0.30
+  E_k3    p50 2.65  p90 6.43  |near| 0.99  |far| 2.05
+  E_k9    p50 2.68  p90 7.35  |near| 0.70  |far| 1.92
+  E_kall  p50 2.59  p90 7.11  |near| 0.33  |far| 2.04

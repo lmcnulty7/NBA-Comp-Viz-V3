@@ -1,0 +1,619 @@
+{
+ "game": "cle_gsw_2016",
+ "sportvu_game": "01.18.2016.GSW.at.CLE",
+ "build": "scal_A_full_s2",
+ "build_dir": "data/sportvu/replay/scal_A_full_s2",
+ "mirror": "identity",
+ "date": "2026-10-05",
+ "targets": {
+  "court_line_error": "reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median",
+  "position_error": "p50 <= 2.0 ft, p90 <= 5.0 ft",
+  "near_field_bias": "median toward the camera within +-0.5 ft in the near and the far third",
+  "coverage": ">= 50% of live wide seconds",
+  "missed_players": "<= 5%",
+  "ghost_boxes": "<= 5%, referees excluded by class",
+  "team_labels": ">= 95%",
+  "identity": "reported; no target yet (720p ceiling)",
+  "generalisation": "held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free"
+ },
+ "truth_frames": 3380,
+ "testable": 158,
+ "untestable_share": 0.953,
+ "untestable_by_cause": {
+  "untestable_boxes": 1141,
+  "no_moment": 713,
+  "untestable_inliers": 643,
+  "untestable_match": 343,
+  "unmapped": 323,
+  "untestable_noH": 59
+ },
+ "metrics": {
+  "court_line_error": {
+   "frames": 158,
+   "frames_defined": 158,
+   "share_le_target": 0.0,
+   "p50_px": 22.92,
+   "p90_px": 37.28,
+   "p95_px": 44.8,
+   "truth_fit_residual_p50_px": 6.03,
+   "truth_fit_residual_p90_px": 10.51,
+   "pass": null,
+   "pass_withheld": "not measurable: the truth H fits the players' feet, not the painted court (reports/sportvu_truth_line_check.txt: about as far from the paint as V3's H)"
+  },
+  "position_error": {
+   "matched_players": 1178,
+   "p50_ft": 2.62,
+   "p90_ft": 6.69,
+   "mean_ft": 3.37,
+   "by_region": {
+    "far": {
+     "n": 260,
+     "p50": 4.56,
+     "p90": 7.87,
+     "toward_camera_ft": 2.93
+    },
+    "middle": {
+     "n": 559,
+     "p50": 2.3,
+     "p90": 5.81,
+     "toward_camera_ft": 0.42
+    },
+    "near": {
+     "n": 359,
+     "p50": 2.08,
+     "p90": 5.95,
+     "toward_camera_ft": -0.43
+    }
+   },
+   "pass": false
+  },
+  "near_field_bias": {
+   "near_third_ft": -0.43,
+   "far_third_ft": 2.93,
+   "n_near": 359,
+   "n_far": 260,
+   "pass": false
+  },
+  "coverage": {
+   "live_s": 854.9,
+   "live_wide_s": 769.9,
+   "accepted_live_wide_s": 303.9,
+   "accepted_live_not_wide_s": 0.1,
+   "coverage": 0.395,
+   "wide_reference": "gate v2 >= 0.33",
+   "pass": false
+  },
+  "missed_players": {
+   "missed": 407,
+   "in_frame_players": 1551,
+   "rate": 0.262,
+   "pass": false
+  },
+  "ghost_boxes": {
+   "boxes": 1306,
+   "ghosts": 195,
+   "rate_all": 0.149,
+   "referee_boxes": 12,
+   "referee_ghosts": 3,
+   "referee_boxes_within_ghost_ft_of_a_player": 9,
+   "non_referee_boxes": 1294,
+   "non_referee_ghosts": 192,
+   "rate": 0.148,
+   "pass": false
+  },
+  "team_labels": {
+   "n": 1144,
+   "correct": 897,
+   "accuracy": 0.784,
+   "pass": false
+  },
+  "identity": {
+   "possessions": 7,
+   "player_observations": 712,
+   "id_switches": 100,
+   "id_switches_per_possession": 14.29,
+   "fragment_switches_per_possession": 14.57,
+   "tracks_per_player_possession_mean": 2.1,
+   "jersey_read_rate": null,
+   "jersey_not_measurable": "the build wrote no <window>_jersey.json: jersey OCR (CLAIMS C2) did not run on these windows (no saved crops)",
+   "pass": null
+  },
+  "generalisation": {
+   "value": {
+    "p50_ratio": 1.34,
+    "p90_ratio": 1.34,
+    "vs": "reports/scaling/gsw_phx_2016__scal_A_full_s2.json",
+    "heldout_game_p50_ft": 1.95,
+    "heldout_game_p90_ft": 4.99
+   },
+   "pass": true,
+   "not_measurable": null
+  }
+ },
+ "per_window": {
+  "cle_gsw_2016_s00_w00": {
+   "testable": 0,
+   "truth_frames": 259,
+   "coverage": {
+    "live_s": 52.4,
+    "live_wide_s": 52.3,
+    "accepted_live_wide_s": 23.0,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s00_w01": {
+   "testable": 4,
+   "truth_frames": 64,
+   "coverage": {
+    "live_s": 15.1,
+    "live_wide_s": 14.7,
+    "accepted_live_wide_s": 6.4,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 13,
+   "in_frame": 39,
+   "ghosts": 7,
+   "boxes": 33,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s01_w00": {
+   "testable": 0,
+   "truth_frames": 231,
+   "coverage": {
+    "live_s": 91.3,
+    "live_wide_s": 79.9,
+    "accepted_live_wide_s": 22.5,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s01_w01": {
+   "skipped": "no sidecar"
+  },
+  "cle_gsw_2016_s02_w00": {
+   "testable": 0,
+   "truth_frames": 173,
+   "coverage": {
+    "live_s": 33.1,
+    "live_wide_s": 28.3,
+    "accepted_live_wide_s": 16.4,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s02_w01": {
+   "testable": 0,
+   "truth_frames": 39,
+   "coverage": {
+    "live_s": 20.3,
+    "live_wide_s": 15.0,
+    "accepted_live_wide_s": 3.0,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s02_w02": {
+   "testable": 3,
+   "truth_frames": 52,
+   "coverage": {
+    "live_s": 14.2,
+    "live_wide_s": 8.4,
+    "accepted_live_wide_s": 2.1,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 12,
+   "in_frame": 30,
+   "ghosts": 3,
+   "boxes": 21,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s03_w00": {
+   "testable": 0,
+   "truth_frames": 236,
+   "coverage": {
+    "live_s": 53.2,
+    "live_wide_s": 43.9,
+    "accepted_live_wide_s": 21.9,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s03_w01": {
+   "testable": 60,
+   "truth_frames": 142,
+   "coverage": {
+    "live_s": 21.1,
+    "live_wide_s": 18.5,
+    "accepted_live_wide_s": 14.2,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 131,
+   "in_frame": 592,
+   "ghosts": 66,
+   "boxes": 495,
+   "referee_boxes": 5
+  },
+  "cle_gsw_2016_s03_w02": {
+   "skipped": "no sidecar"
+  },
+  "cle_gsw_2016_s04_w00": {
+   "testable": 0,
+   "truth_frames": 175,
+   "coverage": {
+    "live_s": 50.2,
+    "live_wide_s": 44.7,
+    "accepted_live_wide_s": 14.9,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s04_w01": {
+   "testable": 0,
+   "truth_frames": 22,
+   "coverage": {
+    "live_s": 17.2,
+    "live_wide_s": 16.9,
+    "accepted_live_wide_s": 2.2,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s04_w02": {
+   "testable": 0,
+   "truth_frames": 42,
+   "coverage": {
+    "live_s": 11.1,
+    "live_wide_s": 11.1,
+    "accepted_live_wide_s": 3.7,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s05_w00": {
+   "testable": 0,
+   "truth_frames": 28,
+   "coverage": {
+    "live_s": 11.1,
+    "live_wide_s": 11.1,
+    "accepted_live_wide_s": 2.8,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s05_w01": {
+   "testable": 2,
+   "truth_frames": 113,
+   "coverage": {
+    "live_s": 12.3,
+    "live_wide_s": 11.5,
+    "accepted_live_wide_s": 8.8,
+    "accepted_live_not_wide_s": 0.1
+   },
+   "missed": 6,
+   "in_frame": 20,
+   "ghosts": 1,
+   "boxes": 16,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s05_w02": {
+   "testable": 0,
+   "truth_frames": 30,
+   "coverage": {
+    "live_s": 9.1,
+    "live_wide_s": 9.1,
+    "accepted_live_wide_s": 2.9,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s05_w03": {
+   "testable": 30,
+   "truth_frames": 111,
+   "coverage": {
+    "live_s": 11.2,
+    "live_wide_s": 11.2,
+    "accepted_live_wide_s": 9.0,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 81,
+   "in_frame": 299,
+   "ghosts": 42,
+   "boxes": 253,
+   "referee_boxes": 2
+  },
+  "cle_gsw_2016_s05_w04": {
+   "testable": 0,
+   "truth_frames": 7,
+   "coverage": {
+    "live_s": 0.0,
+    "live_wide_s": 0.0,
+    "accepted_live_wide_s": 0.0,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s05_w05": {
+   "testable": 1,
+   "truth_frames": 71,
+   "coverage": {
+    "live_s": 10.1,
+    "live_wide_s": 10.1,
+    "accepted_live_wide_s": 7.1,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 1,
+   "in_frame": 7,
+   "ghosts": 4,
+   "boxes": 10,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s05_w06": {
+   "testable": 0,
+   "truth_frames": 5,
+   "coverage": {
+    "live_s": 3.1,
+    "live_wide_s": 3.1,
+    "accepted_live_wide_s": 0.5,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s06_w00": {
+   "testable": 0,
+   "truth_frames": 167,
+   "coverage": {
+    "live_s": 65.2,
+    "live_wide_s": 60.6,
+    "accepted_live_wide_s": 15.6,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s06_w01": {
+   "testable": 0,
+   "truth_frames": 41,
+   "coverage": {
+    "live_s": 18.1,
+    "live_wide_s": 14.6,
+    "accepted_live_wide_s": 3.9,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s07_w00": {
+   "testable": 22,
+   "truth_frames": 174,
+   "coverage": {
+    "live_s": 49.1,
+    "live_wide_s": 48.8,
+    "accepted_live_wide_s": 16.0,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 59,
+   "in_frame": 211,
+   "ghosts": 35,
+   "boxes": 184,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s07_w01": {
+   "testable": 1,
+   "truth_frames": 69,
+   "coverage": {
+    "live_s": 35.1,
+    "live_wide_s": 30.7,
+    "accepted_live_wide_s": 6.9,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 2,
+   "in_frame": 10,
+   "ghosts": 1,
+   "boxes": 7,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s07_w02": {
+   "skipped": "no sidecar"
+  },
+  "cle_gsw_2016_s08_w00": {
+   "testable": 12,
+   "truth_frames": 146,
+   "coverage": {
+    "live_s": 46.2,
+    "live_wide_s": 41.2,
+    "accepted_live_wide_s": 11.8,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 32,
+   "in_frame": 118,
+   "ghosts": 13,
+   "boxes": 101,
+   "referee_boxes": 1
+  },
+  "cle_gsw_2016_s08_w01": {
+   "testable": 0,
+   "truth_frames": 129,
+   "coverage": {
+    "live_s": 32.1,
+    "live_wide_s": 30.4,
+    "accepted_live_wide_s": 12.3,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s08_w02": {
+   "skipped": "no sidecar"
+  },
+  "cle_gsw_2016_s09_w00": {
+   "testable": 3,
+   "truth_frames": 169,
+   "coverage": {
+    "live_s": 53.2,
+    "live_wide_s": 37.0,
+    "accepted_live_wide_s": 16.7,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 9,
+   "in_frame": 28,
+   "ghosts": 3,
+   "boxes": 22,
+   "referee_boxes": 1
+  },
+  "cle_gsw_2016_s09_w01": {
+   "testable": 4,
+   "truth_frames": 198,
+   "coverage": {
+    "live_s": 31.1,
+    "live_wide_s": 31.0,
+    "accepted_live_wide_s": 17.8,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 15,
+   "in_frame": 40,
+   "ghosts": 6,
+   "boxes": 32,
+   "referee_boxes": 1
+  },
+  "cle_gsw_2016_s10_w00": {
+   "testable": 0,
+   "truth_frames": 210,
+   "coverage": {
+    "live_s": 27.2,
+    "live_wide_s": 27.2,
+    "accepted_live_wide_s": 16.7,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s10_w01": {
+   "testable": 16,
+   "truth_frames": 171,
+   "coverage": {
+    "live_s": 29.3,
+    "live_wide_s": 29.3,
+    "accepted_live_wide_s": 14.2,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 46,
+   "in_frame": 157,
+   "ghosts": 14,
+   "boxes": 132,
+   "referee_boxes": 2
+  },
+  "cle_gsw_2016_s10_w02": {
+   "testable": 0,
+   "truth_frames": 96,
+   "coverage": {
+    "live_s": 24.1,
+    "live_wide_s": 21.2,
+    "accepted_live_wide_s": 9.6,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  },
+  "cle_gsw_2016_s10_w03": {
+   "testable": 0,
+   "truth_frames": 10,
+   "coverage": {
+    "live_s": 8.1,
+    "live_wide_s": 8.1,
+    "accepted_live_wide_s": 1.0,
+    "accepted_live_not_wide_s": 0.0
+   },
+   "missed": 0,
+   "in_frame": 0,
+   "ghosts": 0,
+   "boxes": 0,
+   "referee_boxes": 0
+  }
+ },
+ "method": {
+  "match_ft": 5.0,
+  "identity_match_ft": 2.5,
+  "miss_ft": 2.5,
+  "ghost_ft": 3.0,
+  "line_target_px": 3.0,
+  "referee_iou": 0.5,
+  "referee_conf": 0.4,
+  "shot_reset_s": 1.0,
+  "min_possession_frames": 5,
+  "wide_threshold_v2": 0.33
+ },
+ "caveats": [
+  "testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled",
+  "the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet",
+  "local windowed rebuild of the harvest sections (30 windows of running clock scored), not the production artifacts",
+  "wide reference = gate v2 at its v2 threshold; gate v2 was trained on harvest frames including another CLE home game (gsw_cle_xmas16), not this one (reports/sportvu_splits.txt); live = running clock read by OCR at 1 s resolution",
+  "referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)",
+  "id switches are counted between consecutive testable frames (sparse samples), so a switch and switch-back between samples is missed: a lower bound",
+  "team accuracy uses the best A/B to team mapping per window, an upper bound on what a fixed mapping would score"
+ ],
+ "split": "heldout_arena"
+}
