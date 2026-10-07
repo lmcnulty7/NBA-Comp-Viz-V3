@@ -1,0 +1,19 @@
+R2.4 CAMERA MODEL: one self-calibrated camera position per game, per-frame rotation + focal fitted to the painted lines; H derived, never free
+Grid weights r23 in both builds; scored by court replay (exact V3-pipeline rows). Positive paired diff = camera model better.
+No constant was set on a held-out game (fit constants from sportvu/camera.py, R1.3; pooling constants fixed before any held-out run).
+
+Training games (court-induced error of foot points vs the R1.3 camera-truth H; r23 saw these windows, so the free H is optimistic):
+  gsw_bkn_2015  C - truth C [-0.3, 0.8, 0.8] ft | free p50 0.50 p90 1.55 near +0.06 far +0.03 | camera p50 0.52 p90 1.50 near +0.29 far -0.12
+  gsw_sac_2015  C - truth C [-0.3, 0.5, 0.4] ft | free p50 0.59 p90 1.69 near +0.23 far +0.23 | camera p50 0.57 p90 1.68 near +0.27 far +0.18
+
+Held-out (position error ft; |near|, |far| = abs median bias toward the camera):
+  phx        r23 1.92 / 4.98 / 0.67 / 1.52   camera 1.84 / 4.95 / 0.27 / 1.27
+             paired r23 - camera: p50 +0.08 [+0.03, +0.10]; p90 +0.03 [-0.02, +0.10]; abs_near +0.40 [+0.32, +0.45]; abs_far +0.25 [+0.17, +0.33]
+  cle_nyk    r23 2.25 / 5.46 / 0.63 / 1.66   camera 2.17 / 5.49 / 0.47 / 1.30
+             paired r23 - camera: p50 +0.08 [+0.03, +0.11]; p90 -0.03 [-0.18, +0.21]; abs_near +0.15 [+0.01, +0.23]; abs_far +0.36 [+0.10, +0.48]
+  cle_gsw    r23 2.22 / 5.50 / 0.12 / 2.00   camera 2.26 / 5.45 / 0.26 / 1.89
+             paired r23 - camera: p50 -0.04 [-0.19, +0.11]; p90 +0.05 [-0.23, +0.45]; abs_near -0.14 [-0.39, +0.66]; abs_far +0.12 [-0.10, +0.62]
+  CLE pooled r23 2.24 / 5.47 / 0.53 / 1.71   camera 2.19 / 5.49 / 0.35 / 1.41
+             paired r23 - camera: p50 +0.06 [-0.02, +0.10]; p90 -0.02 [-0.16, +0.17]; abs_near +0.17 [-0.09, +0.28]; abs_far +0.31 [+0.06, +0.45]
+
+Self-calibrated camera positions (ft): {'gsw_phx_2016': [46.23313036053597, 125.31358892151, -28.92645741297954], 'cle_nyk_2015': [46.34323394301945, 116.98687746902125, -26.713316731837107], 'cle_gsw_2016': [48.3194188079843, 124.5777392112132, -28.693758124422843]}

@@ -1,0 +1,37 @@
+GSW road games 2015-16: YouTube broadcast search (R1.1 method, no downloads)
+format: bv*[vcodec^=avc1][height<=720][height>=480]+ba/b[vcodec^=avc1][height<=720]
+usable: 0; arenas: none
+
+date       home arena                        sv  best id      verdict                          candidate
+2015-10-31 NOP  Smoothie King Center         y   -            no_broadcast                     
+2015-11-07 SAC  Sleep Train Arena            y   JFImrxbItVQ  low_res                          error: ERROR: [youtube] JFImrxbItVQ: Requested format is not available. Use --list-form
+           note: manual -F listing: best avc1 is 360p (format 134/230); YTDLP_FMT needs >= 480p so the probe reported no format. Title 'Sacramento Kings vs Golden State Warriors', no date
+2015-11-11 MEM  FedExForum                   y   -            no_broadcast                     
+2015-11-12 MIN  Target Center                y   JVQhDSZXyKI  short_broadcast                  Wolves-Warriors [Partido completo - 12/11/15] | LVNBA TV | up 20151112 | 4172s | 136+251 avc1.64001F 720p 30fps
+           note: Spanish LVNBA TV 'Partido completo', 69.5 min (likely breaks cut), 720p avc1, uploaded the game day: best lead, below the 4500 s full-length line only
+2015-11-19 LAC  Staples Center               y   uxUTbEFu840  short_broadcast                  Golden state  vs clippers | sir willy | up 20151120 | 2779s | 136+251 avc1.4D401F 720p 30fps
+           note: 46 min, uploaded the next day: likely partial
+2015-11-22 DEN  Pepsi Center                 y   -            no_broadcast                     
+2015-11-27 PHX  Talking Stick Resort Arena   y   -            no_broadcast                     
+2015-11-30 UTA  Vivint Smart Home Arena      y   -            no_broadcast                     
+2015-12-02 CHA  Time Warner Cable Arena      y   QDYdputqtfE  no_broadcast                     Golden State, Minnesota (2015) | Francisten (Abre Los Ojos) | up 20200601 | 6126s | 136+251 avc1.4D401F 720p 30fps
+           note: only full-length result titles Minnesota (2015), rejected as another game
+2015-12-06 BKN  Barclays Center              y   -            no_broadcast                     
+2015-12-08 IND  Bankers Life Fieldhouse      y   -            no_broadcast                     
+2015-12-11 BOS  TD Garden                    y   -            no_broadcast                     
+2015-12-12 MIL  BMO Harris Bradley Center    y   zG7jyMwHHus  short_broadcast                  NBA Bucks vs Warriors | OG_Zilla | up 20151219 | 3991s | 136+251 avc1.4D401F 720p 30fps
+           note: same video the wishlist lists for 2015-12-18 MIL at GSW; uploaded 2015-12-19, 1 day after that game and 7 after this one, so probably the GSW home game
+2015-12-30 DAL  American Airlines Center     y   ZkwH9zTcLhw  ambiguous                        NBA Basketball Classics | Dallas Mavericks vs Golden State W | Fútbol Total | up 20200423 | 5517s | 136+251 avc1.4D401F 720p 30fps
+           note: full length 720p but only '2015' in the title, uploaded 2020: needs a scorebug check
+2015-12-31 HOU  Toyota Center                y   rqqh-z7XouU  short_broadcast                  NBA Golden State Warriors  Houston Rockets  31 12 15 2я поло | все про спорт all about sport | up 20160102 | 2928s | 136+251 avc1.4D401F 716p 30fps
+           note: second half only ('2я половина'), 716p
+2016-01-05 LAL  Staples Center               y   -            no_broadcast                     
+2016-01-08 POR  Moda Center                  y   -            no_broadcast                     
+2016-01-09 SAC  Sleep Train Arena            y   -            no_broadcast                     
+2016-01-13 DEN  Pepsi Center                 y   i5To6IgQLKc  ambiguous                        Golden State Warriors vs Denver Nuggets Full Game 720p 60fps | Pinnacle Apex | up 20211007 | 6296s | 298+251 avc1.4D4020 720p 60fps
+           note: same undated video the wishlist lists for 2016-01-02 DEN at GSW; title names no date, could be either game (or 11.22.2015 at DEN)
+2016-01-20 CHI  United Center                y   -            no_broadcast                     
+
+verdicts: ok_unverified / sportvu_gaps = usable 720p avc1 with date or upload evidence (identity still needs the scorebug check);
+ambiguous / short_broadcast / low_res / no_avc1 / probe_error = candidate needs a human check; no_broadcast = nothing found.
+sv = archive listed in linouk23/NBA-Player-Movements (y/n); SportVU gaps not checked (archives not downloaded).

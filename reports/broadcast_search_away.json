@@ -1,0 +1,703 @@
+{
+ "method": "ROADMAP R1.1 broadcast check (sportvu.manifest.broadcast_check + finalize) on the 20 GSW road games of reports/broadcast_wishlist.csv; metadata and format probes only, no downloads",
+ "format": "bv*[vcodec^=avc1][height<=720][height>=480]+ba/b[vcodec^=avc1][height<=720]",
+ "usable_count": 0,
+ "usable_arenas": [],
+ "games": [
+  {
+   "game": "10.31.2015.GSW.at.NOP",
+   "date": "2015-10-31",
+   "away": "GSW",
+   "home": "NOP",
+   "arena": "Smoothie King Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6181001,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Pelicans October 31, 2015 full game",
+    "Pelicans vs Warriors 10/31/15",
+    "Warriors Pelicans Oct 31 2015 full game"
+   ],
+   "search_results": 16,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "11.07.2015.GSW.at.SAC",
+   "date": "2015-11-07",
+   "away": "GSW",
+   "home": "SAC",
+   "arena": "Sleep Train Arena",
+   "sportvu_listed": true,
+   "archive_bytes": 5789283,
+   "verdict": "low_res",
+   "verdict_plain": "candidate needs a human check (below 720p)",
+   "note": "manual -F listing: best avc1 is 360p (format 134/230); YTDLP_FMT needs >= 480p so the probe reported no format. Title 'Sacramento Kings vs Golden State Warriors', no date",
+   "best": {
+    "id": "JFImrxbItVQ",
+    "title": null,
+    "channel": null,
+    "upload_date": null,
+    "duration": null,
+    "format_id": null,
+    "vcodec": null,
+    "height": null,
+    "fps": null,
+    "season_evidence": null,
+    "error": "ERROR: [youtube] JFImrxbItVQ: Requested format is not available. Use --list-formats for a list of available formats"
+   },
+   "queries": [
+    "Warriors vs Kings November 7, 2015 full game",
+    "Kings vs Warriors 11/7/15",
+    "Warriors Kings Nov 7 2015 full game"
+   ],
+   "search_results": 24,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {
+    "another date": 1
+   },
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "JFImrxbItVQ",
+     "title": null,
+     "channel": null,
+     "upload_date": null,
+     "duration": null,
+     "format_id": null,
+     "vcodec": null,
+     "height": null,
+     "fps": null,
+     "season_evidence": null,
+     "final": "no_avc1",
+     "note": null,
+     "error": "ERROR: [youtube] JFImrxbItVQ: Requested format is not available. Use --list-formats for a list of available formats"
+    }
+   ]
+  },
+  {
+   "game": "11.11.2015.GSW.at.MEM",
+   "date": "2015-11-11",
+   "away": "GSW",
+   "home": "MEM",
+   "arena": "FedExForum",
+   "sportvu_listed": true,
+   "archive_bytes": 6497445,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Grizzlies November 11, 2015 full game",
+    "Grizzlies vs Warriors 11/11/15",
+    "Warriors Grizzlies Nov 11 2015 full game"
+   ],
+   "search_results": 20,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {
+    "postseason game": 1,
+    "video-game simulation": 1
+   },
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "11.12.2015.GSW.at.MIN",
+   "date": "2015-11-12",
+   "away": "GSW",
+   "home": "MIN",
+   "arena": "Target Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6299412,
+   "verdict": "short_broadcast",
+   "verdict_plain": "candidate needs a human check (short)",
+   "note": "Spanish LVNBA TV 'Partido completo', 69.5 min (likely breaks cut), 720p avc1, uploaded the game day: best lead, below the 4500 s full-length line only",
+   "best": {
+    "id": "JVQhDSZXyKI",
+    "title": "Wolves-Warriors [Partido completo - 12/11/15]",
+    "channel": "LVNBA TV",
+    "upload_date": "20151112",
+    "duration": 4172,
+    "format_id": "136+251",
+    "vcodec": "avc1.64001F",
+    "height": 720,
+    "fps": 30,
+    "season_evidence": "uploaded 0 days after the game",
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Timberwolves November 12, 2015 full game",
+    "Timberwolves vs Warriors 11/12/15",
+    "Warriors Timberwolves Nov 12 2015 full game"
+   ],
+   "search_results": 23,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "JVQhDSZXyKI",
+     "title": "Wolves-Warriors [Partido completo - 12/11/15]",
+     "channel": "LVNBA TV",
+     "upload_date": "20151112",
+     "duration": 4172,
+     "format_id": "136+251",
+     "vcodec": "avc1.64001F",
+     "height": 720,
+     "fps": 30,
+     "season_evidence": "uploaded 0 days after the game",
+     "final": "short_broadcast",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "11.19.2015.GSW.at.LAC",
+   "date": "2015-11-19",
+   "away": "GSW",
+   "home": "LAC",
+   "arena": "Staples Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6202925,
+   "verdict": "short_broadcast",
+   "verdict_plain": "candidate needs a human check (short)",
+   "note": "46 min, uploaded the next day: likely partial",
+   "best": {
+    "id": "uxUTbEFu840",
+    "title": "Golden state  vs clippers",
+    "channel": "sir willy",
+    "upload_date": "20151120",
+    "duration": 2779,
+    "format_id": "136+251",
+    "vcodec": "avc1.4D401F",
+    "height": 720,
+    "fps": 30,
+    "season_evidence": "uploaded 1 days after the game",
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Clippers November 19, 2015 full game",
+    "Clippers vs Warriors 11/19/15",
+    "Warriors Clippers Nov 19 2015 full game"
+   ],
+   "search_results": 19,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "uxUTbEFu840",
+     "title": "Golden state  vs clippers",
+     "channel": "sir willy",
+     "upload_date": "20151120",
+     "duration": 2779,
+     "format_id": "136+251",
+     "vcodec": "avc1.4D401F",
+     "height": 720,
+     "fps": 30,
+     "season_evidence": "uploaded 1 days after the game",
+     "final": "short_broadcast",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "11.22.2015.GSW.at.DEN",
+   "date": "2015-11-22",
+   "away": "GSW",
+   "home": "DEN",
+   "arena": "Pepsi Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6425287,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Nuggets November 22, 2015 full game",
+    "Nuggets vs Warriors 11/22/15",
+    "Warriors Nuggets Nov 22 2015 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "11.27.2015.GSW.at.PHX",
+   "date": "2015-11-27",
+   "away": "GSW",
+   "home": "PHX",
+   "arena": "Talking Stick Resort Arena",
+   "sportvu_listed": true,
+   "archive_bytes": 6305424,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Suns November 27, 2015 full game",
+    "Suns vs Warriors 11/27/15",
+    "Warriors Suns Nov 27 2015 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "11.30.2015.GSW.at.UTA",
+   "date": "2015-11-30",
+   "away": "GSW",
+   "home": "UTA",
+   "arena": "Vivint Smart Home Arena",
+   "sportvu_listed": true,
+   "archive_bytes": 6190982,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Jazz November 30, 2015 full game",
+    "Jazz vs Warriors 11/30/15",
+    "Warriors Jazz Nov 30 2015 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {
+    "video-game simulation": 1
+   },
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "12.02.2015.GSW.at.CHA",
+   "date": "2015-12-02",
+   "away": "GSW",
+   "home": "CHA",
+   "arena": "Time Warner Cable Arena",
+   "sportvu_listed": true,
+   "archive_bytes": 6199238,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": "only full-length result titles Minnesota (2015), rejected as another game",
+   "best": {
+    "id": "QDYdputqtfE",
+    "title": "Golden State, Minnesota (2015)",
+    "channel": "Francisten (Abre Los Ojos)",
+    "upload_date": "20200601",
+    "duration": 6126,
+    "format_id": "136+251",
+    "vcodec": "avc1.4D401F",
+    "height": 720,
+    "fps": 30,
+    "season_evidence": null,
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Hornets December 2, 2015 full game",
+    "Hornets vs Warriors 12/2/15",
+    "Warriors Hornets Dec 2 2015 full game"
+   ],
+   "search_results": 24,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "QDYdputqtfE",
+     "title": "Golden State, Minnesota (2015)",
+     "channel": "Francisten (Abre Los Ojos)",
+     "upload_date": "20200601",
+     "duration": 6126,
+     "format_id": "136+251",
+     "vcodec": "avc1.4D401F",
+     "height": 720,
+     "fps": 30,
+     "season_evidence": null,
+     "final": "no_broadcast",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "12.06.2015.GSW.at.BKN",
+   "date": "2015-12-06",
+   "away": "GSW",
+   "home": "BKN",
+   "arena": "Barclays Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6004344,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Nets December 6, 2015 full game",
+    "Nets vs Warriors 12/6/15",
+    "Warriors Nets Dec 6 2015 full game"
+   ],
+   "search_results": 21,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "12.08.2015.GSW.at.IND",
+   "date": "2015-12-08",
+   "away": "GSW",
+   "home": "IND",
+   "arena": "Bankers Life Fieldhouse",
+   "sportvu_listed": true,
+   "archive_bytes": 6245510,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Pacers December 8, 2015 full game",
+    "Pacers vs Warriors 12/8/15",
+    "Warriors Pacers Dec 8 2015 full game"
+   ],
+   "search_results": 16,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "12.11.2015.GSW.at.BOS",
+   "date": "2015-12-11",
+   "away": "GSW",
+   "home": "BOS",
+   "arena": "TD Garden",
+   "sportvu_listed": true,
+   "archive_bytes": 7746959,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Celtics December 11, 2015 full game",
+    "Celtics vs Warriors 12/11/15",
+    "Warriors Celtics Dec 11 2015 full game"
+   ],
+   "search_results": 20,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {
+    "video-game simulation": 1
+   },
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "12.12.2015.GSW.at.MIL",
+   "date": "2015-12-12",
+   "away": "GSW",
+   "home": "MIL",
+   "arena": "BMO Harris Bradley Center",
+   "sportvu_listed": true,
+   "archive_bytes": 5883661,
+   "verdict": "short_broadcast",
+   "verdict_plain": "candidate needs a human check (short)",
+   "note": "same video the wishlist lists for 2015-12-18 MIL at GSW; uploaded 2015-12-19, 1 day after that game and 7 after this one, so probably the GSW home game",
+   "best": {
+    "id": "zG7jyMwHHus",
+    "title": "NBA Bucks vs Warriors",
+    "channel": "OG_Zilla",
+    "upload_date": "20151219",
+    "duration": 3991,
+    "format_id": "136+251",
+    "vcodec": "avc1.4D401F",
+    "height": 720,
+    "fps": 30,
+    "season_evidence": "uploaded 7 days after the game",
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Bucks December 12, 2015 full game",
+    "Bucks vs Warriors 12/12/15",
+    "Warriors Bucks Dec 12 2015 full game"
+   ],
+   "search_results": 19,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {
+    "video-game simulation": 1
+   },
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "zG7jyMwHHus",
+     "title": "NBA Bucks vs Warriors",
+     "channel": "OG_Zilla",
+     "upload_date": "20151219",
+     "duration": 3991,
+     "format_id": "136+251",
+     "vcodec": "avc1.4D401F",
+     "height": 720,
+     "fps": 30,
+     "season_evidence": "uploaded 7 days after the game",
+     "final": "short_broadcast",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "12.30.2015.GSW.at.DAL",
+   "date": "2015-12-30",
+   "away": "GSW",
+   "home": "DAL",
+   "arena": "American Airlines Center",
+   "sportvu_listed": true,
+   "archive_bytes": 5525396,
+   "verdict": "ambiguous",
+   "verdict_plain": "candidate needs a human check",
+   "note": "full length 720p but only '2015' in the title, uploaded 2020: needs a scorebug check",
+   "best": {
+    "id": "ZkwH9zTcLhw",
+    "title": "NBA Basketball Classics | Dallas Mavericks vs Golden State Warriors 2015",
+    "channel": "F\u00fatbol Total",
+    "upload_date": "20200423",
+    "duration": 5517,
+    "format_id": "136+251",
+    "vcodec": "avc1.4D401F",
+    "height": 720,
+    "fps": 30,
+    "season_evidence": null,
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Mavericks December 30, 2015 full game",
+    "Mavericks vs Warriors 12/30/15",
+    "Warriors Mavericks Dec 30 2015 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "ZkwH9zTcLhw",
+     "title": "NBA Basketball Classics | Dallas Mavericks vs Golden State Warriors 2015",
+     "channel": "F\u00fatbol Total",
+     "upload_date": "20200423",
+     "duration": 5517,
+     "format_id": "136+251",
+     "vcodec": "avc1.4D401F",
+     "height": 720,
+     "fps": 30,
+     "season_evidence": null,
+     "final": "ambiguous",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "12.31.2015.GSW.at.HOU",
+   "date": "2015-12-31",
+   "away": "GSW",
+   "home": "HOU",
+   "arena": "Toyota Center",
+   "sportvu_listed": true,
+   "archive_bytes": 5920712,
+   "verdict": "short_broadcast",
+   "verdict_plain": "candidate needs a human check (short)",
+   "note": "second half only ('2\u044f \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0430'), 716p",
+   "best": {
+    "id": "rqqh-z7XouU",
+    "title": "NBA Golden State Warriors  Houston Rockets  31 12 15 2\u044f \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0430",
+    "channel": "\u0432\u0441\u0435 \u043f\u0440\u043e \u0441\u043f\u043e\u0440\u0442 all about sport",
+    "upload_date": "20160102",
+    "duration": 2928,
+    "format_id": "136+251",
+    "vcodec": "avc1.4D401F",
+    "height": 716,
+    "fps": 30,
+    "season_evidence": "uploaded 2 days after the game",
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Rockets December 31, 2015 full game",
+    "Rockets vs Warriors 12/31/15",
+    "Warriors Rockets Dec 31 2015 full game"
+   ],
+   "search_results": 23,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "rqqh-z7XouU",
+     "title": "NBA Golden State Warriors  Houston Rockets  31 12 15 2\u044f \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0430",
+     "channel": "\u0432\u0441\u0435 \u043f\u0440\u043e \u0441\u043f\u043e\u0440\u0442 all about sport",
+     "upload_date": "20160102",
+     "duration": 2928,
+     "format_id": "136+251",
+     "vcodec": "avc1.4D401F",
+     "height": 716,
+     "fps": 30,
+     "season_evidence": "uploaded 2 days after the game",
+     "final": "short_broadcast",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "01.05.2016.GSW.at.LAL",
+   "date": "2016-01-05",
+   "away": "GSW",
+   "home": "LAL",
+   "arena": "Staples Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6315655,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Lakers January 5, 2016 full game",
+    "Lakers vs Warriors 1/5/16",
+    "Warriors Lakers Jan 5 2016 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "01.08.2016.GSW.at.POR",
+   "date": "2016-01-08",
+   "away": "GSW",
+   "home": "POR",
+   "arena": "Moda Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6262300,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Trail Blazers January 8, 2016 full game",
+    "Trail Blazers vs Warriors 1/8/16",
+    "Warriors Trail Blazers Jan 8 2016 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "01.09.2016.GSW.at.SAC",
+   "date": "2016-01-09",
+   "away": "GSW",
+   "home": "SAC",
+   "arena": "Sleep Train Arena",
+   "sportvu_listed": true,
+   "archive_bytes": 6292475,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Kings January 9, 2016 full game",
+    "Kings vs Warriors 1/9/16",
+    "Warriors Kings Jan 9 2016 full game"
+   ],
+   "search_results": 22,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  },
+  {
+   "game": "01.13.2016.GSW.at.DEN",
+   "date": "2016-01-13",
+   "away": "GSW",
+   "home": "DEN",
+   "arena": "Pepsi Center",
+   "sportvu_listed": true,
+   "archive_bytes": 6226778,
+   "verdict": "ambiguous",
+   "verdict_plain": "candidate needs a human check",
+   "note": "same undated video the wishlist lists for 2016-01-02 DEN at GSW; title names no date, could be either game (or 11.22.2015 at DEN)",
+   "best": {
+    "id": "i5To6IgQLKc",
+    "title": "Golden State Warriors vs Denver Nuggets Full Game 720p 60fps",
+    "channel": "Pinnacle Apex",
+    "upload_date": "20211007",
+    "duration": 6296,
+    "format_id": "298+251",
+    "vcodec": "avc1.4D4020",
+    "height": 720,
+    "fps": 60,
+    "season_evidence": null,
+    "error": null
+   },
+   "queries": [
+    "Warriors vs Nuggets January 13, 2016 full game",
+    "Nuggets vs Warriors 1/13/16",
+    "Warriors Nuggets Jan 13 2016 full game"
+   ],
+   "search_results": 24,
+   "candidates_over_min": 1,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": [
+    {
+     "id": "i5To6IgQLKc",
+     "title": "Golden State Warriors vs Denver Nuggets Full Game 720p 60fps",
+     "channel": "Pinnacle Apex",
+     "upload_date": "20211007",
+     "duration": 6296,
+     "format_id": "298+251",
+     "vcodec": "avc1.4D4020",
+     "height": 720,
+     "fps": 60,
+     "season_evidence": null,
+     "final": "ambiguous",
+     "note": null,
+     "error": null
+    }
+   ]
+  },
+  {
+   "game": "01.20.2016.GSW.at.CHI",
+   "date": "2016-01-20",
+   "away": "GSW",
+   "home": "CHI",
+   "arena": "United Center",
+   "sportvu_listed": true,
+   "archive_bytes": 5956176,
+   "verdict": "no_broadcast",
+   "verdict_plain": "nothing found",
+   "note": null,
+   "best": null,
+   "queries": [
+    "Warriors vs Bulls January 20, 2016 full game",
+    "Bulls vs Warriors 1/20/16",
+    "Warriors Bulls Jan 20 2016 full game"
+   ],
+   "search_results": 21,
+   "candidates_over_min": 0,
+   "rejected_before_probe": {},
+   "search_errors": [],
+   "probed": []
+  }
+ ]
+}
