@@ -20,8 +20,9 @@ from sportvu.compare import _stats
 
 CARDS = config.PROJECT_ROOT / "reports" / "scaling"
 ARMS = ["A_full", "A_full_s2", "A_full_s3", "B_f1", "B_f4", "C_all4", "C_all4_s2", "C_all4_s3", "C_bkn", "C_cha", "C_ind", "C_sac",
-        "D_nocle", "E_k0", "E_k3", "E_k9", "E_kall"]
-SEEDS = {"A_full": ["A_full", "A_full_s2", "A_full_s3"], "C_all4": ["C_all4", "C_all4_s2", "C_all4_s3"]}
+        "D_nocle", "E_k0", "E_k3", "E_k9", "E_kall", "F_c4_s1", "F_c4_s2", "F_c4_s3", "F_full_s2", "F_full_s3"]
+SEEDS = {"A_full": ["A_full", "A_full_s2", "A_full_s3"], "C_all4": ["C_all4", "C_all4_s2", "C_all4_s3"],
+         "F_full(r23 recipe)": ["r23", "F_full_s2", "F_full_s3"], "F_c4(r23 recipe)": ["F_c4_s1", "F_c4_s2", "F_c4_s3"]}
 REFS = {"V3": "v3_replay", "r23": "r23_replay"}
 SETS = {"phx": ["gsw_phx_2016"], "CLE": ["cle_nyk_2015", "cle_gsw_2016"]}
 REPS = 2000
@@ -85,7 +86,8 @@ def main() -> None:
     pairs = [("B_f1", "A_full"), ("B_f4", "A_full"), ("C_all4", "A_full"), ("D_nocle", "A_full"), ("A_full", "r23_ref")]
     pairs += [("C_" + g, "C_all4") for g in ("bkn", "cha", "ind", "sac")]
     pairs += [("A_full_s2", "A_full"), ("A_full_s3", "A_full"), ("C_all4_s2", "C_all4"), ("C_all4_s3", "C_all4"),
-              ("E_k0", "E_kall"), ("E_k3", "E_kall"), ("E_k9", "E_kall"), ("E_kall", "A_full")]
+              ("E_k0", "E_kall"), ("E_k3", "E_kall"), ("E_k9", "E_kall"), ("E_kall", "A_full"),
+              ("F_c4_s1", "r23_ref"), ("F_c4_s2", "r23_ref"), ("F_c4_s3", "r23_ref"), ("F_full_s2", "r23_ref"), ("F_full_s3", "r23_ref")]
     for a, b in pairs:
         if a not in rep["arms"] or (b != "r23_ref" and b not in rep["arms"]):
             continue
