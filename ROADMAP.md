@@ -205,9 +205,12 @@ download scripts, manifests and licence notes are committed.
       reset). Scorecard.
 - [ ] R2.7 Generalisation report: the court metrics on the held-out arena (SportVU scorecard) and the
       held-out era (label-free indicators only, no SportVU for 2013), printed per arena. If the
-      held-out arena is worse than 1.5x the held-out game, add games from the other non-Oracle
-      arenas (never the held-out arena) to R1, repeat R2.3, and report the held-out arena again only
-      at the next adoption decision.
+      held-out arena misses the court rows of the targets table (position p50 / p90, near-field bias)
+      or is worse than 1.5x the held-out game, add 2015-16 games from other non-Oracle arenas (never
+      the held-out arena; candidates in reports/broadcast_search_away.*) to R1, repeat R2.3 with >= 3
+      seeds, and report the held-out arena again only at the next adoption decision.
+      Amended 2026-10-06 (Lucien): the 1.5x trigger alone never fired (CLE is ~1.2x of phx while
+      missing the absolute targets; scaling study, reports/scaling/scaling_first_pass.*).
 - [ ] [HUMAN] Lucien accepts the court stage when the court rows of the targets table are met
       (position error and near-field bias; court line error is reported until the truth resolves it).
 
