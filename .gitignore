@@ -107,3 +107,5 @@ models/court_grid_r23.pt
 
 # collection-plan pulls (collect/): raw responses and parquet live on the Mac or Drive, never in git
 data/collect/
+# rosters tables (analytics/rosters.py): derived from frames parquet on the Mac or Drive, never in git
+analytics/rosters/
