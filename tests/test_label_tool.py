@@ -453,6 +453,7 @@ def test_read_jsonl_without_ids(tmp_path, game, labelset):
             for r in acts.to_dict("records")]
     pa_.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
     ps_ = L.labels_path(tmp_path, "screens", g)
+    ps_.parent.mkdir(parents=True)
     srows = [{k: (int(v) if hasattr(v, "item") else v) for k, v in r.items() if k != "screen_id"} for r in scrs.to_dict("records")]
     srows[0]["action_id"] = 0  # a fixture root references actions by 0-based position
     ps_.write_text(json.dumps(srows[0]) + "\n")
@@ -672,9 +673,9 @@ def test_cli_help_and_docs():
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf), pytest.raises(SystemExit):
         T.main(["--help"])
-    h = buf.getvalue()
+    h = " ".join(buf.getvalue().split())  # argparse wraps help text
     for flag, text in (("--seed", "same N and seed"), ("--port", "free one"), ("--source", "label_source"),
-                       ("--passes", "compares"), ("--export-pass", "training reads")):
+                       ("--passes", "compares"), ("--export-pass", "what training reads")):
         assert flag in h and text in h, flag
     md = (ROOT / "docs" / "contract" / "labels.md").read_text(encoding="utf-8")
     for text in ("read_labels", "labeller_pass == 1", "`hand`", '"deleted"', "last line per id", "visited",

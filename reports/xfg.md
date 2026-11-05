@@ -1,0 +1,158 @@
+# xFG upgrade: shot quality with contest features (analytics/xfg) (fixture output, not a result)
+
+Written 2026-11-05T08:47:15Z by `python -m analytics.xfg.train --fixtures --report reports/xfg.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/xfg/out --folds 5 --seed 0 --bootstrap 200`.
+
+**Fixture output, not a result.** Every number below comes from the synthetic season of tests/_fx_xfg.py (no real tracking, play-by-play or shot data). The real run is the command in the last section.
+
+## Inputs and rows
+
+| table | rows in | rows out | dropped missing | dropped range | dropped duplicate | schema problems |
+| --- | --- | --- | --- | --- | --- | --- |
+| shot_frames | 317 | 317 | 0 | 0 | 0 | 0 |
+| rosters | 112 | 112 | 0 | 0 | 0 | 0 |
+| possessions | 320 | 320 | 0 | 0 | 0 | 0 |
+| shots | 317 | 317 | 0 | 0 | 0 | 0 |
+| events | 547 | 547 | 0 | 0 | 0 | 0 |
+| frames | 966540 | 966540 | 0 | 0 | 0 | 0 |
+
+Training rows: 231 attempts from 6 game(s), 231 with contest features (has_contest 1), make rate 0.5714.
+Held-out rows set aside before any fit: 86 attempts from 2 game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW).
+Guard: `analytics.eval.refuse_heldout` checked 6 training game ids against sportvu/splits.json, and runs again on every fit; `schema.assert_time_forward` passed on the feature frame; `assert_no_leak` on every design matrix.
+
+## Protocol
+
+Features: distance_ft, angle_rad, is_three, is_corner, closest_defender_dist_ft, closest_defender_closing_speed_ftps, n_defenders_within_6ft, shooter_speed_ftps, touch_time_s, dribbles_proxy, shot_clock_s, has_contest, period, clock_s; the boosting candidate adds `shooter_prior`.
+Candidates: location_logistic (analytics.train_xfg, four location features), contest_logistic (median imputation, standardisation, C = 1), hgb_contest_prior (HistGradientBoostingClassifier {'max_iter': 100, 'learning_rate': 0.1, 'max_depth': 3, 'min_samples_leaf': 10, 'l2_regularization': 1.0, 'early_stopping': False}, isotonic calibration on inner out-of-fold predictions, 3 inner folds).
+Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0; the slope resamples use the Newton solve `fast_slope`, the point estimate `analytics.eval.calibration_slope`). Selection: lowest out-of-fold log loss. ECE target: under 0.02.
+
+## Candidate table (out-of-fold, 231 attempts, 6 games) (fixture output, not a result)
+
+| candidate | log loss | Brier | ECE (10 bins) | ECE under 0.02 | calibration slope | selected |
+| --- | --- | --- | --- | --- | --- | --- |
+| location_logistic | 0.6678 [0.6410, 0.7035] | 0.2373 [0.2245, 0.2544] | 0.0484 [0.0361, 0.1004] | no | 0.8326 [0.2079, 1.8906] | yes |
+| contest_logistic | 0.6946 [0.6591, 0.7269] | 0.2496 [0.2329, 0.2648] | 0.0762 [0.0749, 0.1562] | no | 0.3888 [0.0935, 0.8063] |  |
+| hgb_contest_prior | 0.8187 [0.6947, 1.0517] | 0.2626 [0.2514, 0.2783] | 0.1016 [0.0736, 0.1693] | no | -0.0120 [-0.4099, 0.1536] |  |
+
+Selected: **location_logistic** (lowest out-of-fold log loss).
+
+Paired bootstrap by game, log loss difference (negative favours the first):
+
+| pair | diff | lo | hi | interval excludes 0 |
+| --- | --- | --- | --- | --- |
+| hgb_contest_prior vs location_logistic | 0.1509 | 0.0139 | 0.4010 | yes |
+| contest_logistic vs location_logistic | 0.0268 | -0.0015 | 0.0612 | no |
+
+## Calibration (fixture output, not a result)
+
+### location_logistic (out-of-fold, selected)
+
+231 rows, 6 games, base rate 0.5714, bootstrap by game (n=200, seed=0, 95 percent percentile interval)
+
+| metric | point | lo | hi |
+| --- | --- | --- | --- |
+| log loss | 0.6678 | 0.6410 | 0.7035 |
+| Brier | 0.2373 | 0.2245 | 0.2544 |
+| ECE | 0.0484 | 0.0361 | 0.1004 |
+| calibration slope | 0.8326 | 0.2079 | 1.8906 |
+
+| bin | lo | hi | n | mean_p | mean_y |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.00 | 0.10 | 0 | - | - |
+| 1 | 0.10 | 0.20 | 0 | - | - |
+| 2 | 0.20 | 0.30 | 0 | - | - |
+| 3 | 0.30 | 0.40 | 4 | 0.3495 | 0.7500 |
+| 4 | 0.40 | 0.50 | 78 | 0.4457 | 0.4359 |
+| 5 | 0.50 | 0.60 | 23 | 0.5339 | 0.4348 |
+| 6 | 0.60 | 0.70 | 120 | 0.6558 | 0.6917 |
+| 7 | 0.70 | 0.80 | 6 | 0.7066 | 0.3333 |
+| 8 | 0.80 | 0.90 | 0 | - | - |
+| 9 | 0.90 | 1.00 | 0 | - | - |
+
+### contest_logistic (out-of-fold)
+
+| bin | lo | hi | n | mean_p | mean_y |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.00 | 0.10 | 1 | 0.0873 | 0.0000 |
+| 1 | 0.10 | 0.20 | 1 | 0.1825 | 0.0000 |
+| 2 | 0.20 | 0.30 | 13 | 0.2566 | 0.7692 |
+| 3 | 0.30 | 0.40 | 29 | 0.3566 | 0.3793 |
+| 4 | 0.40 | 0.50 | 29 | 0.4568 | 0.4828 |
+| 5 | 0.50 | 0.60 | 48 | 0.5547 | 0.5417 |
+| 6 | 0.60 | 0.70 | 55 | 0.6508 | 0.6545 |
+| 7 | 0.70 | 0.80 | 45 | 0.7477 | 0.5778 |
+| 8 | 0.80 | 0.90 | 10 | 0.8228 | 0.9000 |
+| 9 | 0.90 | 1.00 | 0 | - | - |
+
+### hgb_contest_prior (out-of-fold)
+
+| bin | lo | hi | n | mean_p | mean_y |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.00 | 0.10 | 2 | 0.0000 | 0.5000 |
+| 1 | 0.10 | 0.20 | 1 | 0.1224 | 0.0000 |
+| 2 | 0.20 | 0.30 | 1 | 0.2715 | 0.0000 |
+| 3 | 0.30 | 0.40 | 0 | - | - |
+| 4 | 0.40 | 0.50 | 54 | 0.4545 | 0.6481 |
+| 5 | 0.50 | 0.60 | 122 | 0.5748 | 0.5574 |
+| 6 | 0.60 | 0.70 | 18 | 0.6055 | 0.6667 |
+| 7 | 0.70 | 0.80 | 31 | 0.7224 | 0.4839 |
+| 8 | 0.80 | 0.90 | 0 | - | - |
+| 9 | 0.90 | 1.00 | 2 | 1.0000 | 0.5000 |
+
+## Held-out score (scored once by the selected candidate refit on all 231 training rows) (fixture output, not a result)
+
+86 attempts from 2 held-out game(s): 11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW. Never fitted or tuned on.
+
+| candidate | log loss | Brier | ECE (10 bins) | calibration slope |
+| --- | --- | --- | --- | --- |
+| location_logistic | 0.7084 | 0.2568 | 0.1554 | 0.7924 |
+
+Point estimates.
+
+### location_logistic (held-out, scored once)
+
+86 rows, 2 games, base rate 0.4302, bootstrap by game (n=200, seed=0, 95 percent percentile interval)
+
+| metric | point | lo | hi |
+| --- | --- | --- | --- |
+| log loss | 0.7084 | 0.6907 | 0.7277 |
+| Brier | 0.2568 | 0.2485 | 0.2660 |
+| ECE | 0.1554 | 0.1225 | 0.1953 |
+| calibration slope | 0.7924 | 0.4839 | 1.0764 |
+
+| bin | lo | hi | n | mean_p | mean_y |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.00 | 0.10 | 0 | - | - |
+| 1 | 0.10 | 0.20 | 0 | - | - |
+| 2 | 0.20 | 0.30 | 0 | - | - |
+| 3 | 0.30 | 0.40 | 6 | 0.3701 | 0.1667 |
+| 4 | 0.40 | 0.50 | 29 | 0.4601 | 0.3448 |
+| 5 | 0.50 | 0.60 | 6 | 0.5304 | 0.6667 |
+| 6 | 0.60 | 0.70 | 45 | 0.6664 | 0.4889 |
+| 7 | 0.70 | 0.80 | 0 | - | - |
+| 8 | 0.80 | 0.90 | 0 | - | - |
+| 9 | 0.90 | 1.00 | 0 | - | - |
+
+## Output
+
+xfg_predictions (docs/contract/xfg.md): /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/xfg/out/analytics/xfg/2015-16/xfg_predictions.parquet
+
+## Assumptions
+
+- The unit is a row of the shots table; shot_frames rows without a shots row are not attempts here.
+- shots rows are joined to shot_frames by (sportvu_game, event); a shots table without an event column (basketball-reference rows) is matched by (sportvu_game, period) and nearest clock_s within 1 s, each shot_frames row used once.
+- Frame rate 25 Hz: 0.4 s is 10 frames, the touch cap of 10 s is 250 frames; speeds use frame counts, not the clock.
+- An attempt with release_frame -1, confidence_flag unmatched, no shot_frames row or a shooter absent from the release frame keeps its location features and gets NaN contest features with has_contest 0; the logistic candidate imputes the training median, the boosting candidate takes NaN natively.
+- The shooter prior is the smoothed (m = 20) make rate by (player_id, zone) from the fitting rows only, out-of-fold by game for the rows being fitted; zones are rim (under 4 ft), paint (under 14 ft), mid, corner3, above3.
+- Selection is by out-of-fold log loss alone; ECE under 0.02 is a target reported, not a selection rule.
+- Held-out rows get a prediction from every refit candidate (each scored once) so the output table is complete; only the selected candidate's held-out score is reported.
+- Bootstrap intervals are 2.5 and 97.5 percentiles over whole-game resamples; with one held-out game no interval is meaningful.
+
+## The real run on the Mac
+
+With DATA_ROOT holding sportvu_contract/, collect/bref_shots/ and analytics/{shot_frames,rosters,possessions}/ (docs/contract/xfg.md):
+
+    python -m analytics.xfg.train --data "$DATA_ROOT" --report reports/xfg.md --folds 5 --seed 0 --bootstrap 1000
+
+Validate and build the features first with `python -m analytics.xfg.validate --data "$DATA_ROOT"` and `python -m analytics.xfg.features --data "$DATA_ROOT" --out "$DATA_ROOT"`.
+
+fixture output, not a result
