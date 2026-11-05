@@ -1,0 +1,74 @@
+{
+ "endpoint": "oddsapi_historical",
+ "params": {
+  "date": "2020-12-23T23:30:00Z"
+ },
+ "fetched_at": "2026-11-05T00:00:00Z",
+ "note": "hand-built in the documented The Odds API v4 response shape (headers as nba_api lists them) because no host answers from the build session; replace with real trimmed responses: python -m collect.probe --save-fixtures tests/fixtures/collect",
+ "body": {
+  "timestamp": "2020-12-23T23:30:00Z",
+  "previous_timestamp": "2020-12-23T23:25:00Z",
+  "next_timestamp": "2020-12-23T23:35:00Z",
+  "data": [
+   {
+    "id": "abc",
+    "sport_key": "basketball_nba",
+    "commence_time": "2020-12-24T00:00:00Z",
+    "home_team": "Brooklyn Nets",
+    "away_team": "Golden State Warriors",
+    "bookmakers": [
+     {
+      "key": "draftkings",
+      "title": "DraftKings",
+      "last_update": "2020-12-23T23:28:00Z",
+      "markets": [
+       {
+        "key": "h2h",
+        "outcomes": [
+         {
+          "name": "Brooklyn Nets",
+          "price": -300
+         },
+         {
+          "name": "Golden State Warriors",
+          "price": 240
+         }
+        ]
+       },
+       {
+        "key": "spreads",
+        "outcomes": [
+         {
+          "name": "Brooklyn Nets",
+          "price": -110,
+          "point": -7.5
+         },
+         {
+          "name": "Golden State Warriors",
+          "price": -110,
+          "point": 7.5
+         }
+        ]
+       },
+       {
+        "key": "totals",
+        "outcomes": [
+         {
+          "name": "Over",
+          "price": -110,
+          "point": 232.5
+         },
+         {
+          "name": "Under",
+          "price": -110,
+          "point": 232.5
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

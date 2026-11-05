@@ -104,3 +104,6 @@ reports/qc_sheets/
 /paper/
 # R2.3 candidate: trained partly on SportVU-derived labels; kept on Drive (results/r23_20261005_0350), sha256 in reports/r23_verification.json
 models/court_grid_r23.pt
+
+# collection-plan pulls (collect/): raw responses and parquet live on the Mac or Drive, never in git
+data/collect/

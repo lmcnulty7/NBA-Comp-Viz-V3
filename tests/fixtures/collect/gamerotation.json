@@ -1,0 +1,219 @@
+{
+ "endpoint": "gamerotation",
+ "params": {
+  "GameID": "0021500144",
+  "LeagueID": "00"
+ },
+ "fetched_at": "2026-11-05T00:00:00Z",
+ "note": "hand-built in the documented stats.nba.com response shape (headers as nba_api lists them) because no host answers from the build session; replace with real trimmed responses: python -m collect.probe --save-fixtures tests/fixtures/collect",
+ "body": {
+  "resultSets": [
+   {
+    "name": "AwayTeam",
+    "headers": [
+     "GAME_ID",
+     "TEAM_ID",
+     "TEAM_CITY",
+     "TEAM_NAME",
+     "PERSON_ID",
+     "PLAYER_FIRST",
+     "PLAYER_LAST",
+     "IN_TIME_REAL",
+     "OUT_TIME_REAL",
+     "PLAYER_PTS",
+     "PT_DIFF",
+     "USG_PCT"
+    ],
+    "rowSet": [
+     [
+      "0021500144",
+      1610612751,
+      "Brooklyn",
+      "Nets",
+      201599,
+      "Brook",
+      "Lopez",
+      0,
+      7200,
+      2,
+      -2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612751,
+      "Brooklyn",
+      "Nets",
+      203900,
+      "Joe",
+      "Johnson",
+      0,
+      900,
+      0,
+      -4,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612751,
+      "Brooklyn",
+      "Nets",
+      201960,
+      "Jarrett",
+      "Jack",
+      900,
+      7200,
+      0,
+      2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612751,
+      "Brooklyn",
+      "Nets",
+      2733,
+      "Thaddeus",
+      "Young",
+      0,
+      7200,
+      0,
+      -2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612751,
+      "Brooklyn",
+      "Nets",
+      203486,
+      "Rondae",
+      "Hollis-Jefferson",
+      0,
+      7200,
+      0,
+      -2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612751,
+      "Brooklyn",
+      "Nets",
+      203894,
+      "Shane",
+      "Larkin",
+      0,
+      7200,
+      0,
+      -2,
+      0.2
+     ]
+    ]
+   },
+   {
+    "name": "HomeTeam",
+    "headers": [
+     "GAME_ID",
+     "TEAM_ID",
+     "TEAM_CITY",
+     "TEAM_NAME",
+     "PERSON_ID",
+     "PLAYER_FIRST",
+     "PLAYER_LAST",
+     "IN_TIME_REAL",
+     "OUT_TIME_REAL",
+     "PLAYER_PTS",
+     "PT_DIFF",
+     "USG_PCT"
+    ],
+    "rowSet": [
+     [
+      "0021500144",
+      1610612744,
+      "Golden State",
+      "Warriors",
+      201939,
+      "Stephen",
+      "Curry",
+      0,
+      7200,
+      3,
+      2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612744,
+      "Golden State",
+      "Warriors",
+      202691,
+      "Klay",
+      "Thompson",
+      0,
+      900,
+      1,
+      4,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612744,
+      "Golden State",
+      "Warriors",
+      201575,
+      "Brandon",
+      "Rush",
+      900,
+      7200,
+      0,
+      -2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612744,
+      "Golden State",
+      "Warriors",
+      203110,
+      "Draymond",
+      "Green",
+      0,
+      7200,
+      0,
+      2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612744,
+      "Golden State",
+      "Warriors",
+      2738,
+      "Andre",
+      "Iguodala",
+      0,
+      7200,
+      0,
+      2,
+      0.2
+     ],
+     [
+      "0021500144",
+      1610612744,
+      "Golden State",
+      "Warriors",
+      101106,
+      "Andrew",
+      "Bogut",
+      0,
+      7200,
+      0,
+      2,
+      0.2
+     ]
+    ]
+   }
+  ]
+ }
+}

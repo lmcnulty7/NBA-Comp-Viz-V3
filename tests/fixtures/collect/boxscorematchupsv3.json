@@ -1,0 +1,137 @@
+{
+ "endpoint": "boxscorematchupsv3",
+ "params": {
+  "GameID": "0021700012",
+  "StartPeriod": 0,
+  "EndPeriod": 14,
+  "StartRange": 0,
+  "EndRange": 31800,
+  "RangeType": 0
+ },
+ "fetched_at": "2026-11-05T00:00:00Z",
+ "note": "hand-built in the documented stats.nba.com response shape (headers as nba_api lists them) because no host answers from the build session; replace with real trimmed responses: python -m collect.probe --save-fixtures tests/fixtures/collect",
+ "body": {
+  "meta": {
+   "version": 1
+  },
+  "boxScoreMatchups": {
+   "gameId": "0021700012",
+   "awayTeamId": 1610612739,
+   "homeTeamId": 1610612744,
+   "homeTeam": {
+    "teamId": 1610612744,
+    "teamCity": "Golden State",
+    "teamName": "Warriors",
+    "teamTricode": "GSW",
+    "teamSlug": "warriors",
+    "players": [
+     {
+      "personId": 203110,
+      "firstName": "Draymond",
+      "familyName": "Green",
+      "nameI": "D. Green",
+      "playerSlug": "draymond-green",
+      "position": "G",
+      "comment": "",
+      "jerseyNum": "30",
+      "matchups": [
+       {
+        "personId": 2544,
+        "firstName": "LeBron",
+        "familyName": "James",
+        "nameI": "L. James",
+        "playerSlug": "lebron-james",
+        "jerseyNum": "23",
+        "statistics": {
+         "matchupMinutes": "5:12",
+         "matchupMinutesSort": 312.0,
+         "partialPossessions": 12.4,
+         "percentageDefenderTotalTime": 0.15,
+         "percentageOffensiveTotalTime": 0.16,
+         "percentageTotalTimeBothOn": 0.2,
+         "switchesOn": 3,
+         "playerPoints": 6,
+         "teamPoints": 14,
+         "matchupAssists": 1,
+         "matchupPotentialAssists": 2,
+         "matchupTurnovers": 1,
+         "matchupBlocks": 0,
+         "matchupFieldGoalsMade": 2,
+         "matchupFieldGoalsAttempted": 5,
+         "matchupFieldGoalPercentage": 0.4,
+         "matchupThreePointersMade": 1,
+         "matchupThreePointersAttempted": 2,
+         "matchupThreePointerPercentage": 0.5,
+         "helpBlocks": 0,
+         "helpFieldGoalsMade": 1,
+         "helpFieldGoalsAttempted": 2,
+         "helpFieldGoalPercentage": 0.5,
+         "matchupFreeThrowsMade": 1,
+         "matchupFreeThrowsAttempted": 2,
+         "shootingFouls": 1
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "awayTeam": {
+    "teamId": 1610612739,
+    "teamCity": "Cleveland",
+    "teamName": "Cavaliers",
+    "teamTricode": "CLE",
+    "teamSlug": "cavaliers",
+    "players": [
+     {
+      "personId": 2544,
+      "firstName": "LeBron",
+      "familyName": "James",
+      "nameI": "L. James",
+      "playerSlug": "lebron-james",
+      "position": "G",
+      "comment": "",
+      "jerseyNum": "30",
+      "matchups": [
+       {
+        "personId": 203110,
+        "firstName": "Draymond",
+        "familyName": "Green",
+        "nameI": "D. Green",
+        "playerSlug": "draymond-green",
+        "jerseyNum": "23",
+        "statistics": {
+         "matchupMinutes": "5:12",
+         "matchupMinutesSort": 312.0,
+         "partialPossessions": 12.4,
+         "percentageDefenderTotalTime": 0.15,
+         "percentageOffensiveTotalTime": 0.16,
+         "percentageTotalTimeBothOn": 0.2,
+         "switchesOn": 3,
+         "playerPoints": 2,
+         "teamPoints": 14,
+         "matchupAssists": 1,
+         "matchupPotentialAssists": 2,
+         "matchupTurnovers": 1,
+         "matchupBlocks": 0,
+         "matchupFieldGoalsMade": 2,
+         "matchupFieldGoalsAttempted": 5,
+         "matchupFieldGoalPercentage": 0.4,
+         "matchupThreePointersMade": 1,
+         "matchupThreePointersAttempted": 2,
+         "matchupThreePointerPercentage": 0.5,
+         "helpBlocks": 0,
+         "helpFieldGoalsMade": 1,
+         "helpFieldGoalsAttempted": 2,
+         "helpFieldGoalPercentage": 0.5,
+         "matchupFreeThrowsMade": 1,
+         "matchupFreeThrowsAttempted": 2,
+         "shootingFouls": 1
+        }
+       }
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

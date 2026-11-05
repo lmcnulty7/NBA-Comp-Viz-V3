@@ -1,0 +1,101 @@
+{
+ "endpoint": "synergyplaytypes",
+ "params": {
+  "LeagueID": "00",
+  "PerMode": "Totals",
+  "PlayType": "Isolation",
+  "PlayerOrTeam": "P",
+  "SeasonType": "Regular Season",
+  "SeasonYear": "2015-16",
+  "TypeGrouping": "offensive"
+ },
+ "fetched_at": "2026-11-05T00:00:00Z",
+ "note": "hand-built in the documented stats.nba.com response shape (headers as nba_api lists them) because no host answers from the build session; replace with real trimmed responses: python -m collect.probe --save-fixtures tests/fixtures/collect",
+ "body": {
+  "resultSets": [
+   {
+    "name": "SynergyPlayType",
+    "headers": [
+     "SEASON_ID",
+     "PLAYER_ID",
+     "PLAYER_NAME",
+     "TEAM_ID",
+     "TEAM_ABBREVIATION",
+     "TEAM_NAME",
+     "PLAY_TYPE",
+     "TYPE_GROUPING",
+     "PERCENTILE",
+     "GP",
+     "POSS_PCT",
+     "PPP",
+     "FG_PCT",
+     "FT_POSS_PCT",
+     "TOV_POSS_PCT",
+     "SF_POSS_PCT",
+     "PLUSONE_POSS_PCT",
+     "SCORE_POSS_PCT",
+     "EFG_PCT",
+     "POSS",
+     "PTS",
+     "FGM",
+     "FGA",
+     "FGMX"
+    ],
+    "rowSet": [
+     [
+      "22015",
+      201939,
+      "Stephen Curry",
+      1610612744,
+      "GSW",
+      "Golden State Warriors",
+      "Isolation",
+      "Offensive",
+      0.95,
+      79,
+      0.11,
+      1.12,
+      0.49,
+      0.1,
+      0.09,
+      0.08,
+      0.02,
+      0.5,
+      0.6,
+      180,
+      202,
+      70,
+      143,
+      73
+     ],
+     [
+      "22015",
+      201142,
+      "Kevin Durant",
+      1610612760,
+      "OKC",
+      "Oklahoma City Thunder",
+      "Isolation",
+      "Offensive",
+      0.9,
+      72,
+      0.14,
+      1.05,
+      0.47,
+      0.12,
+      0.1,
+      0.1,
+      0.03,
+      0.48,
+      0.57,
+      220,
+      231,
+      85,
+      181,
+      96
+     ]
+    ]
+   }
+  ]
+ }
+}
