@@ -99,10 +99,10 @@ def fixture_tables(seed: int = 0, n_games: int = FIXTURE_GAMES, seasons=FIXTURE_
     return _FIXTURE_CACHE[key]
 
 
-def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto") -> dict:
+def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto", n_games=None) -> dict:
     """dict(stints, playbyplay, games, starters, fixture, generator): the input tables of a run."""
     if fixtures:
-        t = fixture_tables(seed, generator=generator)
+        t = fixture_tables(seed, n_games=n_games or FIXTURE_GAMES, generator=generator)
         return {"stints": t["stints"], "playbyplay": t["playbyplay"], "games": t.get("games", pd.DataFrame()),
                 "starters": t.get("starters", pd.DataFrame()), "fixture": True, "generator": t["generator"]}
     if data_root is None:

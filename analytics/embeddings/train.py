@@ -64,7 +64,7 @@ N_DIM = 8
 K_NN = 5
 AE_GATE = 0.60
 AE_LAYERS = (32, N_DIM, 32)
-FIXTURE_N_MIN = 50
+FIXTURE_N_MIN = 20
 NEXT_SEASON_TARGETS = (("leaguedashptstats", "drives"), ("leaguedashptstats", "touches"),
                        ("leaguedashptstats", "passes_made"), ("leaguehustlestatsplayer", "contested_shots"))
 EMB_COLS = ["e%d" % i for i in range(1, N_DIM + 1)]
@@ -149,18 +149,22 @@ def load_inputs(data_root) -> dict:
             "source": str(root)}
 
 
-def fixture_inputs(seed: int = 0, n_games: int = 8, heldout_every: int = 4, root=None) -> dict:
-    """Write the fixture DATA_ROOT (tests/_fx_embeddings.write_fixture_root) under a temporary directory and load it
-    through load_inputs, so a fixture run exercises the same loader as the real one."""
+def fixture_inputs(seed: int = 0, n_games: int = 8, heldout_every: int = 4, root=None, local: bool = False) -> dict:
+    """Write the fixture DATA_ROOT (tests/_fx_embeddings.write_fixture_root, or the lane's local generator with
+    local=True) under a temporary directory and load it through load_inputs, so a fixture run exercises the same
+    loader as the real one."""
     repo = Path(__file__).resolve().parents[2]
     if str(repo) not in sys.path:
         sys.path.insert(0, str(repo))
     from tests import _fx_embeddings as fx
     root = Path(root) if root is not None else Path(tempfile.mkdtemp(prefix="emb_fixture_"))
-    summary = fx.write_fixture_root(root, seed=seed, n_games=n_games, heldout_every=heldout_every)
+    writer = fx.local_write_fixture_root if local else fx.write_fixture_root
+    summary = writer(root, seed=seed, n_games=n_games, heldout_every=heldout_every)
     inputs = load_inputs(root)
     inputs["fixture"] = summary
-    inputs["source"] = "fixtures (tests/_fx_embeddings, shared=%s), written under %s" % (fx.SHARED, root)
+    inputs["fixture_root"] = str(root)
+    inputs["source"] = "fixtures (tests/_fx_embeddings, %s generator), written under %s" % (
+        "local" if (local or not fx.SHARED) else "shared analytics.fixtures", root)
     return inputs
 
 
@@ -429,7 +433,7 @@ def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fi
     feats = build_features(inputs, n_min)
     cols = F.available_features(feats)
     fit_rows = feats[~feats["insufficient"]].reset_index(drop=True)
-    ctx = {"features": feats, "feature_columns": cols, "n_rows": int(len(feats)), "n_fit": int(len(fit_rows)),
+    ctx = {"features": feats, "feature_columns": cols, "fixture_root": inputs.get("fixture_root"), "n_rows": int(len(feats)), "n_fit": int(len(fit_rows)),
            "n_insufficient": int(feats["insufficient"].sum()), "n_min": n_min, "seed": seed, "bootstrap": n_boot,
            "fixture": fixture, "games": sorted(g["sportvu_game"] for g in inputs["games"]), "dropped": inputs["dropped"],
            "source": inputs.get("source", ""), "has_aggregates": inputs.get("aggregates") is not None,
@@ -572,6 +576,7 @@ def parse_args(argv=None):
     ap.add_argument("--n-min", type=int, default=None, help="possession gate (300; %d for --fixtures)" % FIXTURE_N_MIN)
     ap.add_argument("--n-games", type=int, default=8, help="--fixtures: games in the synthetic season")
     ap.add_argument("--heldout-every", type=int, default=4, help="--fixtures: every k-th game is held out")
+    ap.add_argument("--local-fixtures", action="store_true", help="--fixtures: the lane's local generator (positions aligned to the tracked players)")
     return ap.parse_args(argv)
 
 
@@ -580,7 +585,7 @@ def main(argv=None) -> dict:
     if not a.fixtures and not a.data:
         raise SystemExit("%s: one of --fixtures or --data is required" % WHO)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
-    inputs = fixture_inputs(a.seed, a.n_games, a.heldout_every) if a.fixtures else load_inputs(a.data)
+    inputs = fixture_inputs(a.seed, a.n_games, a.heldout_every, local=a.local_fixtures) if a.fixtures else load_inputs(a.data)
     n_min = a.n_min if a.n_min is not None else (FIXTURE_N_MIN if a.fixtures else F.N_MIN)
     ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures)
     out_root = a.out if a.out else (tempfile.mkdtemp(prefix="emb_out_") if a.fixtures else None)

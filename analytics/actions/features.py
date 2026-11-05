@@ -4,11 +4,16 @@
 
 Step 1, rule-based candidate generation from the frames at 5 Hz (every round(hz / 5)-th frame of the
 possession; frame ids stay the contract's 25 Hz ids). The ball handler at a frame is the offensive player
-nearest the ball; the handler's defender is the defender nearest the handler at the window start.
+nearest the ball, none when the ball is over 6 ft from every offensive player (in flight); the handler's
+defender is the defender nearest the handler at the window start.
     ball_screen  any 1 s window where an offensive player other than the handler is within 4 ft of the
                  handler's defender on every frame, moving under 3 ft per s, with the handler within 12 ft
-                 of him; overlapping windows of the same (handler, screener) merge into one candidate
-    drive        any 0.6 s window where the handler closes on the basket faster than 8 ft per s
+                 of him; overlapping windows of the same (handler, screener) merge into the set, and the
+                 candidate's extent is the set padded by 1 s before (the approach) and 1 s after (the use),
+                 clipped to the possession, because a labelled screen spans approach, set and use (set
+                 SCREEN_PAD_PRE_S and SCREEN_PAD_POST_S to 0 if the hand labels mark the set alone)
+    drive        any 0.6 s window where the handler, starting within 30 ft of the basket (a half-court
+                 action, not the transition sprint), closes on the basket faster than 8 ft per s
     isolation    any 3 s window where the same handler keeps the ball (ball within 4 ft) and no teammate
                  comes within 10 ft
 Step 2, features per candidate from the positions and velocities inside the window (FEATURES), plus one
@@ -43,8 +48,10 @@ log = logging.getLogger("analytics.actions.features")
 
 TARGET_HZ = 5.0
 SCREEN_WINDOW_S, SCREEN_DIST_FT, SCREEN_SPEED_FTPS, SCREEN_HANDLER_DIST_FT = 1.0, 4.0, 3.0, 12.0
-DRIVE_WINDOW_S, DRIVE_SPEED_FTPS = 0.6, 8.0
+SCREEN_PAD_PRE_S, SCREEN_PAD_POST_S = 1.0, 1.0      # the approach before the set and the use after it
+DRIVE_WINDOW_S, DRIVE_SPEED_FTPS, DRIVE_START_FT = 0.6, 8.0, 30.0
 ISO_WINDOW_S, ISO_SPREAD_FT, ISO_BALL_FT = 3.0, 10.0, 4.0
+HANDLER_BALL_FT = 6.0                                # farther than this from every offensive player, the ball has no handler
 RECOVERY_S = 1.0
 NEAR_FT = 8.0
 BASKETS = (np.array([5.25, 25.0]), np.array([88.75, 25.0]))
@@ -112,12 +119,16 @@ def velocities(xy: np.ndarray, t: np.ndarray) -> np.ndarray:
 
 
 def handler_index(ball: np.ndarray, off: np.ndarray) -> np.ndarray:
-    """Index of the offensive player nearest the ball per frame, -1 when nothing is finite."""
+    """Index of the offensive player nearest the ball per frame; -1 when nothing is finite or the ball is more
+    than HANDLER_BALL_FT from every offensive player (a pass or shot in flight, a loose ball)."""
     d = np.linalg.norm(off - ball[:, None, :2], axis=2)
     out = np.full(len(ball), -1, dtype=int)
     ok = np.isfinite(d).any(axis=1)
     if ok.any():
-        out[ok] = np.nanargmin(np.where(np.isfinite(d[ok]), d[ok], np.inf), axis=1)
+        dd = np.where(np.isfinite(d[ok]), d[ok], np.inf)
+        best = np.argmin(dd, axis=1)
+        best[dd[np.arange(len(best)), best] > HANDLER_BALL_FT] = -1
+        out[ok] = best
     return out
 
 
@@ -234,7 +245,12 @@ def screen_windows(a: PossessionArrays) -> list:
             near_handler = np.linalg.norm(sxy - hxy, axis=1) < SCREEN_HANDLER_DIST_FT
             if near_def.all() and slow.all() and near_handler.all():
                 wins.append(((h, s), i, j))
-    return [("ball_screen", key[0], key[1], i, j) for key, i, j in _merge(wins)]
+    out = []
+    for key, i, j in _merge(wins):      # the candidate spans the approach, the set and the use (module docstring)
+        i0 = int(np.searchsorted(a.t, a.t[i] - SCREEN_PAD_PRE_S - 1e-6, side="left"))
+        i1 = int(np.searchsorted(a.t, a.t[j] + SCREEN_PAD_POST_S + 1e-6, side="right")) - 1
+        out.append(("ball_screen", key[0], key[1], i0, max(i1, j)))
+    return out
 
 
 def drive_windows(a: PossessionArrays) -> list:
@@ -242,7 +258,7 @@ def drive_windows(a: PossessionArrays) -> list:
     for i in range(a.n):
         j = window_end(a.t, i, DRIVE_WINDOW_S)
         h = a.handler[i]
-        if j is None or h < 0:
+        if j is None or h < 0 or not (a.r_handler[i] <= DRIVE_START_FT):
             continue
         r = np.linalg.norm(a.off[i:j + 1, h] - a.basket, axis=1)
         radial = -np.diff(r) / a.dt[i:j]

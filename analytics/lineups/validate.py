@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from analytics.lineups import PLAYER_COLUMNS, SEASONS, load_inputs
+from analytics.lineups import FIXTURE_GAMES, PLAYER_COLUMNS, SEASONS, load_inputs
 
 REQUIRED = ("game_id", "stint", "start_s", "end_s", "duration_s", "period_start", "period_end") + PLAYER_COLUMNS + (
     "home_ids", "away_ids", "n_home", "n_away", "lineup_ok", "points_home", "points_away", "score_home", "score_away")
@@ -86,6 +86,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT)")
     ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
     ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
                     help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
     return ap.parse_args(argv)
@@ -93,7 +94,7 @@ def parse_args(argv=None):
 
 def main(argv=None) -> dict:
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
     if len(inputs["stints"]) == 0:
         raise SystemExit("validate: no stints rows found")
     _clean, counts = validate(inputs["stints"])

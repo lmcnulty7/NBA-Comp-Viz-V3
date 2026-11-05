@@ -1,6 +1,6 @@
 # Betting market model (analytics/betting/train.py)
 
-Written 2026-11-05T08:35:06Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
+Written 2026-11-05T08:35:42Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
 
 **Fixture output, not a result.** This run used the synthetic games and odds of tests/_fx_betting.py; it proves the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through collect/extras.py --odds) that has not been collected.
 
@@ -28,6 +28,7 @@ Written 2026-11-05T08:35:06Z by `python -m analytics.betting.train --fixtures --
 | games without odds | 0 |
 | odds without a game | 0 |
 | matched with spread / total / moneyline | 80 / 80 / 80 |
+| team names given / inferred from dates / ids unresolved | 26 / 0 / 0 |
 | collector held-out rows dropped | 0 |
 
 ## Protocol
@@ -61,7 +62,7 @@ The row marked held-out is season 2021-22 scored ONCE by the selected models ref
 
 ## Outputs
 
-Tables under `/tmp/betting_fixture_h63v78ns/analytics/betting/<season>/`: betting_games, betting_predictions, betting_summary (docs/contract/betting.md).
+Tables under `/tmp/betting_fixture_k_fb5fq1/analytics/betting/<season>/`: betting_games, betting_predictions, betting_summary (docs/contract/betting.md).
 
 ## Status
 

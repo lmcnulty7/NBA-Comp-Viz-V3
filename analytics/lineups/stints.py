@@ -41,7 +41,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from analytics.lineups import PLAYER_COLUMNS, SEASONS, load_inputs, out_dir
+from analytics.lineups import FIXTURE_GAMES, PLAYER_COLUMNS, SEASONS, load_inputs, out_dir
 
 PERIOD_S, OT_S = 720.0, 300.0
 ENDPOINT = "playbyplay+substitutions"
@@ -178,7 +178,16 @@ def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team
             on_at[e["t"]] = {s2: sorted(on[s2]) for s2 in on}
             t_prev = e["t"]
         on_at.setdefault(p_end, {s: sorted(on[s]) for s in on})
-    scoring = sorted(((e["t"], e["side"], e["points"]) for e in rows if e["points"] and e["side"]), key=lambda x: x[0])
+    sc = sorted(((e["t"], e["side"], e["points"]) for e in rows if e["points"] and e["side"]), key=lambda x: x[0])
+    sc_t = np.array([x[0] for x in sc], dtype=float)
+    sc_h = np.cumsum([x[2] if x[1] == "home" else 0 for x in sc], dtype=int)
+    sc_a = np.cumsum([x[2] if x[1] == "away" else 0 for x in sc], dtype=int)
+
+    def points_in(t0, t1):                       # events with t0 < t <= t1
+        i0, i1 = np.searchsorted(sc_t, t0, side="right"), np.searchsorted(sc_t, t1, side="right")
+        h = int(sc_h[i1 - 1]) - (int(sc_h[i0 - 1]) if i0 else 0) if i1 else 0
+        a = int(sc_a[i1 - 1]) - (int(sc_a[i0 - 1]) if i0 else 0) if i1 else 0
+        return h, a
     meta = {c: pbp[c].iloc[0] for c in ("season", "split", "heldout", "season_type", "game_date", "source", "fetched_at") if c in pbp.columns}
     out, hp, ap, n = [], 0, 0, 0
     current = {"home": [], "away": []}
@@ -188,8 +197,7 @@ def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team
         if t1 <= t0:
             continue
         home, away = current["home"], current["away"]
-        ph = sum(pts for t, s, pts in scoring if t0 < t <= t1 and s == "home")
-        pa = sum(pts for t, s, pts in scoring if t0 < t <= t1 and s == "away")
+        ph, pa = points_in(t0, t1)
         hp += ph; ap += pa
         row = {"game_id": game_id, "stint": n, "start_s": round(t0, 1), "end_s": round(t1, 1), "duration_s": round(t1 - t0, 1),
                "period_start": period_of(t0), "period_end": period_of(max(t1 - 0.1, t0))}
@@ -261,6 +269,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT; nothing is written for --fixtures without it)")
     ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
     ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
                     help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
     return ap.parse_args(argv)
@@ -268,7 +277,7 @@ def parse_args(argv=None):
 
 def main(argv=None) -> dict:
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
     stints = build_stints(inputs["playbyplay"], inputs["games"], inputs["starters"])
     out_root = a.out or (a.data if not a.fixtures else None)
     written = []

@@ -372,11 +372,13 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
         period_first_event = len(events)
         period_first_frame = sim.n
         if period in SUBS:
+            first_handler = 1 if off_side == "home" else 6          # the point guard who will bring it up
             for side in ("home", "away"):
                 out_i, in_i = SUBS[period]
                 base = 0 if side == "home" else N_ROSTER
                 sim.phase(1, list(range(5)), list(range(5, 10)), sim.pos[:5], BASKETS[0], 1, 0,
-                          lambda o, d: np.array([[47.0, 25.0, 4.0]]), def_targets=sim.pos[5:])
+                          lambda o, d, h=first_handler: np.array([[sim.pos[h][0], sim.pos[h][1], 4.0]]),
+                          def_targets=sim.pos[5:])
                 add_event("substitution", side, "%s enters the game for %s" % (
                     _initial_name(roster[base + in_i]["player"]), _initial_name(roster[base + out_i]["player"])),
                     p1=int(pid[base + out_i]), p2=int(pid[base + in_i]), etype=8)

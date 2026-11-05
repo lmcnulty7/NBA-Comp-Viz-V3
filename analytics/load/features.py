@@ -148,8 +148,7 @@ def player_stints(frames: pd.DataFrame, sportvu_game: str | None = None, heldout
     out["stint"] = out.groupby("player_id").cumcount()
     out["sportvu_game"] = sportvu_game
     out["heldout"] = bool(heldout)
-    out["run_s"] = out["run_s"].astype(float)                           # kept for the game totals, dropped on write
-    return out[STINT_COLUMNS + ["run_s"]]
+    return out[STINT_COLUMNS]
 
 
 # ── schedule ───────────────────────────────────────────────────────────────────────────────────────
@@ -195,11 +194,14 @@ def _trend(part: pd.DataFrame) -> tuple[float, float]:
 
 
 def player_games(stints: pd.DataFrame, games: list, schedule: pd.DataFrame, rosters: dict) -> pd.DataFrame:
-    """player_stints of every loaded game (with run_s) + game dicts + schedule + {sportvu_game: roster} ->
-    the player_games table (GAME_COLUMNS). History features read previous games only."""
+    """player_stints of every loaded game + game dicts + schedule + {sportvu_game: roster} -> the player_games
+    table (GAME_COLUMNS). History features read previous games only."""
     meta = {g["sportvu_game"]: g for g in games}
     if not len(stints):
         return pd.DataFrame(columns=GAME_COLUMNS)
+    stints = stints.copy()
+    with np.errstate(divide="ignore", invalid="ignore"):                 # counted seconds of a stint = distance / avg speed
+        stints["run_s"] = np.where(stints["avg_speed_ftps"] > 0, stints["distance_ft"] / stints["avg_speed_ftps"], 0.0)
     grp = stints.groupby(["sportvu_game", "player_id"], sort=True)
     tot = grp.agg(minutes=("minutes", "sum"), distance_ft=("distance_ft", "sum"), run_s=("run_s", "sum")).reset_index()
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -296,12 +298,12 @@ def build_tables(inputs: dict, n_boot: int = 200, seed: int = 0) -> dict:
         rosters[g["sportvu_game"]] = ros
         stints.append(player_stints(clean, g["sportvu_game"], g["heldout"], validated=True))
         del frames, clean
-    st = pd.concat(stints, ignore_index=True) if stints else pd.DataFrame(columns=STINT_COLUMNS + ["run_s"])
+    st = pd.concat(stints, ignore_index=True) if stints else pd.DataFrame(columns=STINT_COLUMNS)
     schedule = schedule_table(inputs["manifest"])
     pg = player_games(st, inputs["games"], schedule, rosters)
     schema.assert_time_forward(pg, GUARD_TABLE)
     summary = load_summary(pg, st, n_boot=n_boot, seed=seed)
-    return {"player_stints": st[STINT_COLUMNS], "player_games": pg, "load_summary": summary, "schedule": schedule,
+    return {"player_stints": st, "player_games": pg, "load_summary": summary, "schedule": schedule,
             "logs": logs}
 
 

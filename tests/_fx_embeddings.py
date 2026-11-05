@@ -1,10 +1,11 @@
 """tests/_fx_embeddings.py: fixtures for the player style embeddings lane (analytics/embeddings).
 
-Prefers the shared generators of ``analytics.fixtures`` (lane I1) when they import, return the tables this lane needs
-and draw the game players from the same ids as the positions and aggregates (this lane joins the three by player_id;
-at the time of writing the shared module draws aggregate ids from 200000 and game ids from 9000, so it is not usable
-here and the local generator stands). EMBEDDINGS_FIXTURES=local or =shared forces one side. The local generator has
-the same signatures and column names:
+Uses the shared generators of ``analytics.fixtures`` (lane I1) when they import; otherwise falls back to a minimal
+local generator with the same signatures and column names, which also stays reachable as local_synth_game,
+local_synth_season, local_synth_aggregates and local_write_fixture_root (EMBEDDINGS_FIXTURES=local makes it the
+default). The local one exists because this lane joins the tracked players to the positions and aggregates by
+player_id: the shared module draws its aggregate and position ids from 200000 and its game player ids from 9000, so
+the 5-NN position accuracy and the next-season R squared have no labelled row on it and read n/a. Local signatures:
 
     synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
         -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
@@ -366,40 +367,18 @@ def write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0
 
 # ----------------------------------------------------------------------------- prefer the shared generators
 
-def _shared_usable() -> bool:
-    """True when analytics.fixtures imports and its synth_game carries the columns this lane reads."""
-    try:
-        from analytics import fixtures as fx  # noqa: F401
-    except ImportError:
-        return False
-    try:
-        g = fx.synth_game(0, n_possessions=4)
-        need = {"frames": {"game", "period", "frame", "ts_ms", "game_clock_s", "ball_x", "ball_y", "ball_z", "team_id",
-                           "player_id", "x", "y", "date"},
-                "shots": {"sportvu_game", "player_id", "shot_type", "made"},
-                "possessions": {"sportvu_game", "possession", "start_frame", "end_frame", "offense_team_id"},
-                "rosters": {"sportvu_game", "player_id", "team_id", "bref_slug"}}
-        for k, cols in need.items():
-            if k not in g or not cols <= set(g[k].columns):
-                return False
-        agg, pos = fx.synth_aggregates(0)
-        if not ({"player_id", "season", "endpoint", "metric", "value"} <= set(agg.columns) and
-                {"player_id", "season", "position"} <= set(pos.columns)):
-            return False
-        # this lane joins the tracked players to the positions and aggregates by player_id: the ids must line up
-        tracked = set(int(v) for v in g["frames"]["player_id"].unique())
-        return bool(tracked & set(int(v) for v in pos["player_id"].unique()))
-    except Exception:  # noqa: BLE001  (a half-written shared module falls back to the local generator)
-        return False
-
+# The local generators stay reachable under local_* whatever the import resolves to: its player ids line up with its
+# positions and aggregates, so a test that must exercise the position and next-season metrics runs on it.
+local_synth_game, local_synth_season = synth_game, synth_season
+local_synth_aggregates, local_write_fixture_root = synth_aggregates, write_fixture_root
 
 SHARED = False
-_FORCE = os.environ.get("EMBEDDINGS_FIXTURES", "").strip().lower()   # "local" or "shared" overrides the check
+_FORCE = os.environ.get("EMBEDDINGS_FIXTURES", "").strip().lower()   # "local" forces the local generators
 try:
     from analytics import fixtures as _shared_fx  # noqa: E402
 except ImportError:
     _shared_fx = None
-if _shared_fx is not None and _FORCE != "local" and (_FORCE == "shared" or _shared_usable()):
+if _shared_fx is not None and _FORCE != "local":
     SHARED = True
     synth_game = _shared_fx.synth_game            # noqa: F811
     synth_season = _shared_fx.synth_season        # noqa: F811

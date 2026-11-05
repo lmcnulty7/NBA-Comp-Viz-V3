@@ -90,7 +90,7 @@ def _script_possession(rng, kind: str) -> dict:
         off[0] = [(0.0, 24.0, 0.0), (t_use0, 24.0, 0.0), (t_use1, 18.0, side * 7.0), (T, 18.0, side * 7.0)]
         extra["def0"] = [(0.0, 21.0, 0.0), (t_use0 + 0.3, 21.0, 0.0), (t_use1 + 0.6, 17.0, side * 6.0),
                          (T, 17.0, side * 6.0)]
-        labels.append(("ball_screen", t_arrive, t_use1, 0, 1))
+        labels.append(("ball_screen", hold, t_use1, 0, 1))        # approach, set and use, as a labeller marks it
     elif kind == "drive":
         t0 = hold + 0.4
         t1 = t0 + 1.2

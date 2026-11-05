@@ -52,7 +52,7 @@ from scipy.stats import rankdata
 
 from analytics import schema
 from analytics.eval import bootstrap_by_game, grouped_folds, min_sample_gate, paired_bootstrap_by_game, refuse_heldout
-from analytics.lineups import FIXTURE_SEASONS, SEASONS, WHO, load_inputs, out_dir
+from analytics.lineups import FIXTURE_GAMES, FIXTURE_SEASONS, SEASONS, WHO, load_inputs, out_dir
 from analytics.lineups.features import TARGET, assert_no_leak, feature_columns, features
 from analytics.lineups.validate import validate
 
@@ -474,6 +474,7 @@ def parse_args(argv=None):
     ap.add_argument("--min-poss", type=int, default=MIN_POSS_EVAL)
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
+    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
     ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
                     help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
     return ap.parse_args(argv)
@@ -482,7 +483,7 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     from analytics.lineups.eda import cross_season_correlation
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
     if len(inputs["stints"]) == 0:
         raise SystemExit("%s: no stints rows found" % WHO)
     _clean, counts = validate(inputs["stints"])

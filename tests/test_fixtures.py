@@ -185,14 +185,11 @@ def test_ball_is_carried_and_passed(game, per_frame):
     assert carried.mean() > 0.5
     # the ball changes hands by travelling, never by jumping more than 3 ft between frames
     step = np.hypot(np.diff(first["ball_x"]), np.diff(first["ball_y"]))
-    same_period = np.diff(first["period"].to_numpy()) == 0
-    assert np.nanmax(step[same_period]) < 3.0
-    # players never move faster than 32 ft/s between consecutive frames of one period (gap frames excluded)
-    gapf = first.index[:-1][np.abs(np.diff(first["game_clock_s"].to_numpy())) > 2]
+    keep = (np.diff(first["period"].to_numpy()) == 0) & (np.abs(np.diff(first["game_clock_s"].to_numpy())) < 2)
+    assert np.nanmax(step[keep]) < 3.0                # one frame of a pass or a flight, never a teleport
+    # players never move faster than 32 ft/s between consecutive frames of one period (the gap excluded)
     piv = fr.pivot(index="frame", columns="player_id", values=["x", "y"])
     sp = np.hypot(piv["x"].diff().to_numpy(), piv["y"].diff().to_numpy())[1:]
-    keep = same_period.copy()
-    keep[np.isin(first.index[:-1], gapf)] = False
     assert np.nanmax(sp[keep]) <= 32.0 * fixtures.DT + 1e-6
 
 

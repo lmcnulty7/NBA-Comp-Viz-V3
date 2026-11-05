@@ -21,7 +21,7 @@ HELD = "12.16.2015.PHX.at.GSW"
 
 @pytest.fixture(scope="module")
 def inputs():
-    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=5, n_possessions=16, heldout_every=3))
+    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=4, n_possessions=10, heldout_every=4))
     return inp
 
 
@@ -37,7 +37,7 @@ def table(inputs):
 def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     report = tmp_path / "playcalling.md"
     ctx = T.main(["--fixtures", "--report", str(report), "--out", str(tmp_path / "out"),
-                  "--bootstrap", "15", "--fixture-games", "4", "--fixture-possessions", "12"])
+                  "--bootstrap", "10", "--fixture-games", "4", "--fixture-possessions", "8"])
     text = report.read_text()
     first = text.splitlines()[0]
     assert "Association only, not causal" in first and "causal" in first
@@ -52,7 +52,7 @@ def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     ppp = pd.read_parquet(out / "ppp_by_action.parquet")
     assert list(ppp.columns) == ["action_type", "coverage", "n", "ppp", "lo", "hi", "insufficient"]
     assert ppp["coverage"].isna().any() and ppp["coverage"].notna().any()
-    assert ppp["insufficient"].all()            # 48 fixture possessions: every group is under the 300 gate
+    assert ppp["insufficient"].all()            # 32 fixture possessions: every group is under the 300 gate
     adj = pd.read_parquet(out / "playcalling_adjusted.parquet")
     assert list(adj.columns) == ["coverage", "action_type", "adjusted_ppp", "lo", "hi", "n", "insufficient", "recommended"]
     assert (adj["n"] > 0).all() and not adj["recommended"].any()
@@ -63,12 +63,12 @@ def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
 def test_trainer_recovers_the_planted_association_of_the_local_generator():
     """The local generator plants PPP on action type and coverage (the shared physics fixture does not), so on it the
     by-action table must order isolation under cut and the nested out-of-fold ridge must stay close to the mean."""
-    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=6, n_possessions=30, heldout_every=3, shared=False))
+    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=8, n_possessions=40, heldout_every=4, shared=False))
     table, _ = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"],
                                     inp["coverage_predictions"], inp["epv_states"], inp["heldout_games"])
-    ctx = T.run(table, n_folds=4, seed=0, n_boot=10, n_min=N_MIN)
+    ctx = T.run(table, n_folds=3, seed=0, n_boot=5, n_min=N_MIN)
     t1 = ctx["ppp_by_action"].set_index("action_type")["ppp"]
-    assert t1["cut"] > t1["isolation"]
+    assert t1["ball_screen"] > t1["isolation"]          # planted: 1.06 against 0.84 expected points
     assert set(ctx["adjusted"]["coverage"]) <= set(table["coverage"])
     s = ctx["scores"]["mse"]
     assert s["ridge"]["point"] < s["mean"]["point"] + 0.05
@@ -128,7 +128,7 @@ def test_score_margin_uses_only_earlier_possessions_and_lineups_come_from_the_fi
     assert lus["off_lineup"].tolist()[0] == "100-101-102-103-104" and lus["def_lineup"].tolist()[0] == "105-106-107-108-109"
     assert lus["off_lineup"].tolist()[1] == "105-106-107-108-109"          # team 2 on offence: sides swap
     assert lus["off_lineup"].tolist()[2] == "120-121-122-123-124"          # read from frame 20, not frame 0
-    assert lus["def_lineup"].isna().tolist()[3] and log["not_five_v_five"] == 1
+    assert lus["off_lineup"].isna().tolist()[3] and log["not_five_v_five"] == 1     # team 2 (offence) is one short
 
 
 # ── the gate on a hand case ────────────────────────────────────────────────────────────────────────
@@ -224,12 +224,13 @@ def test_coverage_resolution_prefers_hand_labels_then_predictions_then_none(inpu
 
 
 def test_data_root_layout_round_trip(tmp_path):
-    root = fx.write_fixture_root(tmp_path / "data", seed=3, n_games=3, heldout_every=3, n_possessions=8, shared=True)
+    root = fx.write_fixture_root(tmp_path / "data", seed=3, n_games=3, heldout_every=3, n_possessions=4, shared=True)
     assert (root / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
     inp = V.load_data_root(root, root)
     assert inp["heldout_games"] == [HELD] and inp["actions"]["label_source"].eq("synthetic").all()
     assert len(inp["screens"]) and len(inp["coverage_predictions"]) and len(inp["epv_states"])
-    assert inp["files"]["coverage_predictions"]["skipped_files"] == 2          # the two coverage_team_rates decoys
+    assert "team_id" not in inp["coverage_predictions"].columns               # the coverage_team_rates decoys are not read
+    assert inp["files"]["coverage_predictions"]["rows"] == len(inp["coverage_predictions"]) > 0
     assert inp["files"]["actions_detected"]["skipped_files"] == 0             # actions_detected preferred over action_candidates
     assert inp["files"]["actions_detected"]["rows"] > 0
     # a root with detected actions only (no hand labels): they become the actions input

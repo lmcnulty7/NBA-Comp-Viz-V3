@@ -138,7 +138,7 @@ def test_builder_runs_on_the_shared_generator_when_present():
 
 
 def test_stints_cli_writes_per_season(tmp_path):
-    s = S.main(["--fixtures", "--fixture-generator", "local", "--out", str(tmp_path)])
+    s = S.main(["--fixtures", "--fixture-generator", "local", "--n-games", "12", "--out", str(tmp_path)])
     assert s["fixture"] and s["stints"] > 0 and s["lineup_ok_share"] > 0.8
     files = {Path(w).parent.name for w in s["written"]}
     assert files == set(SEASONS3)

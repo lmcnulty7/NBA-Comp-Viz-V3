@@ -144,7 +144,7 @@ def test_drive_detected_when_the_handler_runs_at_the_basket():
     slow[:, 0] = 30.0 - np.arange(n) * (4.0 / 25.0)
     ball2 = ball.copy()
     ball2[:, :2] = slow + np.array([0.5, 0.0])
-    assert F.detect_drives(_possession(_frames(ball2, dict(off, **{1: slow}), dfn), n)) == []
+    assert F.detect_drives(_possession(_frames(ball2, {**off, 1: slow}, dfn), n)) == []
 
 
 # ── option values ──────────────────────────────────────────────────────────────────────────────────

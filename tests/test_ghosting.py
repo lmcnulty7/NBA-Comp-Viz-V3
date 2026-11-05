@@ -72,8 +72,8 @@ def test_feature_frame_is_past_only_and_lags_line_up():
     # the velocity is over 0.4 s (two sampled steps) ending at t minus 1
     assert np.allclose(frame["def_vx"], (dx[pr - 1] - dx[pr - 3]) / (2 * F.DT))
     # relative features are offence minus defender at t minus 1, and the assignment is one of the five
-    rel = np.hypot(frame["rel_asg_dx"], frame["rel_asg_dy"])
-    offs = np.stack([np.hypot(frame[f"rel_off{i}_dx"], frame[f"rel_off{i}_dy"]) for i in range(1, 6)], axis=1)
+    rel = np.hypot(frame["rel_asg_dx"].to_numpy(), frame["rel_asg_dy"].to_numpy())
+    offs = np.stack([np.hypot(frame[f"rel_off{i}_dx"].to_numpy(), frame[f"rel_off{i}_dy"].to_numpy()) for i in range(1, 6)], axis=1)
     assert np.allclose(np.min(np.abs(offs - rel[:, None]), axis=1), 0, atol=1e-6)
     assert set(frame["attack_right"].unique()) <= {0.0, 1.0}
     assert frame["step"].min() == F.MIN_STEPS - 1
@@ -125,8 +125,8 @@ def test_shift_test_error_collapses_when_features_come_from_the_target_frame():
     a, b = gs[0]["sportvu_game"], gs[1]["sportvu_game"]
     tr, te = frame[frame["sportvu_game"] == a], frame[frame["sportvu_game"] == b]
 
-    def err(fit_frame, test_frame):
-        pred = T.fit_ridge(fit_frame, cols)(test_frame[cols].to_numpy(dtype=float))
+    def err(fit_frame, test_frame):          # a near-unpenalised linear probe on the window
+        pred = T.fit_ridge(fit_frame, cols, alpha=1e-8)(test_frame[cols].to_numpy(dtype=float))
         return float(np.linalg.norm(pred - test_frame[F.TARGETS].to_numpy(), axis=1).mean())
 
     honest = err(tr, te)
