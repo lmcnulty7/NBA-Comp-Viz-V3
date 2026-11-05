@@ -10,10 +10,12 @@ FEATURES (per game, every one from games strictly before game_date, ordered by (
     home_b2b, away_b2b          1 when rest_days == 1
     home_flag                   1 on every row (the unit is the home side's game; kept as the spec lists it)
     home_pf_std, home_pa_std, away_pf_std, away_pa_std   season-to-date points for and against per game (0 when none)
-RAPM_FEATURES (optional, present only when the lineups lane wrote player_rapm under OUT_ROOT/analytics/lineups/<season>/):
-    home_rapm_sum, away_rapm_sum  the sum of the team's player RAPM, as of the file (not time-forward inside a season,
-                                  so they are documented as a season-level prior and excluded until the lineups lane
-                                  writes dated values; see rapm_features())
+RAPM_FEATURES (optional, present only when the lineups lane wrote player_rapm*.parquet under
+OUT_ROOT/analytics/lineups/<season>/ with team_id, rapm and as_of; rows with in_sample False are preferred):
+    home_rapm_sum, away_rapm_sum  the team's player RAPM sum from the latest as_of strictly before the game; null in
+                                  betting_games when no dated row covers the game or the team, imputed to 0 in the
+                                  design matrix
+    home_has_rapm, away_has_rapm  1 when the sum was found, 0 when imputed (so a model can tell 0 from missing)
 
 Targets and lines, never features: home_margin, home_cover (null on a push), closing_spread_home, closing_total,
 implied_home_prob, home_score, away_score, home_win. The cover features exclude the spread; the spread is used only
@@ -38,7 +40,9 @@ from analytics.betting import validate as _validate
 WHO = "betting.features"
 FEATURES = ("home_net10", "away_net10", "home_net30", "away_net30", "home_rest_days", "away_rest_days",
             "home_b2b", "away_b2b", "home_flag", "home_pf_std", "home_pa_std", "away_pf_std", "away_pa_std")
-RAPM_FEATURES = ("home_rapm_sum", "away_rapm_sum")
+RAPM_SUMS = ("home_rapm_sum", "away_rapm_sum")
+RAPM_FLAGS = ("home_has_rapm", "away_has_rapm")
+RAPM_FEATURES = RAPM_SUMS + RAPM_FLAGS
 BETTING_TARGETS = frozenset({"home_margin", "home_cover", "home_score", "away_score", "home_win", "closing_spread_home",
                              "closing_total", "implied_home_prob", "clv", "spread_home", "overround_h2h",
                              "spread_price_home", "p_cover", "margin_forecast", "pnl", "stake"})
@@ -51,10 +55,11 @@ GAMES_COLUMNS = ("game_id", "season", "game_date", "home_team_id", "away_team_id
 
 
 def feature_columns(df: pd.DataFrame | None = None) -> list[str]:
-    """FEATURES, plus the RAPM features when df carries them with at least one non-null value."""
+    """FEATURES, plus the four RAPM features when df carries a non-null RAPM sum (the pair is imputed to 0 with the
+    has_rapm flags in design(), so a partial join never leaves NaN in a design matrix)."""
     cols = list(FEATURES)
-    if df is not None:
-        cols += [c for c in RAPM_FEATURES if c in df.columns and df[c].notna().any()]
+    if df is not None and all(c in df.columns for c in RAPM_FEATURES) and df[list(RAPM_SUMS)].notna().any().any():
+        cols += list(RAPM_FEATURES)
     return cols
 
 
@@ -120,12 +125,15 @@ def team_form(games: pd.DataFrame) -> pd.DataFrame:
 
 
 def rapm_features(games: pd.DataFrame, out_root=None) -> pd.DataFrame:
-    """home_rapm_sum, away_rapm_sum per game when OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet exists
-    with columns (player_id, team_id, rapm); otherwise all null. A season-level file is not time-forward inside the
-    season, so the columns are kept null (documented) unless the file carries an as_of date before each game."""
+    """home_rapm_sum, away_rapm_sum, home_has_rapm, away_has_rapm per game when
+    OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet (player_rapm_prior.parquet included) exists with columns
+    (team_id, rapm, as_of); the sums are null (flags 0) without such a file, for a game on or before the first as_of
+    and for a team with no row at the latest as_of before the game. Rows with in_sample False are preferred when the
+    column exists (in-sample fits of the season being predicted are not time-forward); a file without as_of is
+    ignored."""
     out = pd.DataFrame({"game_id": games["game_id"], "home_rapm_sum": np.nan, "away_rapm_sum": np.nan})
     if out_root is None:
-        return out
+        return _with_flags(out)
     for season, g in games.groupby("season"):
         files = sorted((Path(out_root) / "analytics" / "lineups" / str(season)).glob("player_rapm*.parquet"))
         if not files:
@@ -133,6 +141,10 @@ def rapm_features(games: pd.DataFrame, out_root=None) -> pd.DataFrame:
         r = pd.concat([pd.read_parquet(p) for p in files], ignore_index=True)
         if not {"team_id", "rapm", "as_of"}.issubset(r.columns):
             continue
+        if "in_sample" in r.columns:
+            oos = r[~r["in_sample"].fillna(True).astype(bool)]
+            r = oos if len(oos) else r
+        r = r.dropna(subset=["as_of"])
         r["as_of"] = pd.to_datetime(r["as_of"])
         for i, row in g.iterrows():
             before = r[r["as_of"] < pd.to_datetime(row["game_date"])]
@@ -142,6 +154,13 @@ def rapm_features(games: pd.DataFrame, out_root=None) -> pd.DataFrame:
             sums = latest.groupby("team_id")["rapm"].sum()
             out.loc[out["game_id"] == row["game_id"], "home_rapm_sum"] = float(sums.get(row["home_team_id"], np.nan))
             out.loc[out["game_id"] == row["game_id"], "away_rapm_sum"] = float(sums.get(row["away_team_id"], np.nan))
+    return _with_flags(out)
+
+
+def _with_flags(out: pd.DataFrame) -> pd.DataFrame:
+    out = out.copy()
+    out["home_has_rapm"] = out["home_rapm_sum"].notna().astype(float)
+    out["away_has_rapm"] = out["away_rapm_sum"].notna().astype(float)
     return out
 
 
@@ -175,6 +194,11 @@ def design(bg: pd.DataFrame, columns=None) -> pd.DataFrame:
     """The feature matrix of bg (float), guarded: never the spread, never a target."""
     cols = columns or feature_columns(bg)
     X = bg[cols].astype(float)
+    for c in RAPM_SUMS:
+        if c in X.columns:
+            X[c] = X[c].fillna(0.0)          # imputed; the has_rapm flag says which rows
+    if X.isna().any().any():
+        raise ValueError("%s: design matrix holds NaN in %s" % (WHO, [c for c in X.columns if X[c].isna().any()]))
     assert_no_leak(X, bg["home_margin"] if "home_margin" in bg.columns else None)
     return X
 

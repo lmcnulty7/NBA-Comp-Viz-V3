@@ -162,7 +162,7 @@ def default_probability(xfg: pd.DataFrame, fallback: float = 0.45) -> float:
     """Mean p_selected over the training rows (out-of-fold, not held out): the p of an attempt the xFG table lacks."""
     if xfg is None or len(xfg) == 0:
         return fallback
-    tr = xfg[(pd.to_numeric(xfg["fold"], errors="coerce").fillna(-1) >= 0) & ~xfg["sportvu_game"].astype(str).map(V.is_heldout)]
+    tr = xfg[(pd.to_numeric(xfg["fold"], errors="coerce").fillna(-1) >= 0) & ~V.xfg_heldout_mask(xfg)]
     return float(tr["p_selected"].mean()) if len(tr) else fallback
 
 

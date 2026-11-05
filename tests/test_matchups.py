@@ -133,6 +133,15 @@ def test_xfg_predictions_interface(tmp_path):
     assert V.load_xfg(tmp_path) is None
     assert V.load_xfg(tmp_path / "nowhere") is None
     assert V.load_xfg(None) is None
+    # a game held out by flag whose id carries no token: the heldout column decides, so fold -1 there is not a refusal
+    flagged = pd.DataFrame({"sportvu_game": ["01.01.2016.AAA.at.BBB", "01.02.2016.AAA.at.BBB"], "event": [0, 0], "player_id": [1, 2],
+                            "p_selected": [0.5, 0.6], "fold": [0, -1], "heldout": [False, True]})
+    flagged.to_parquet(d / "xfg_predictions.parquet", index=False)
+    x = V.load_xfg(tmp_path)
+    assert x is not None and len(x) == 2 and V.xfg_heldout_mask(x).tolist() == [False, True]
+    assert T.default_probability(x) == pytest.approx(0.5)
+    flagged.assign(fold=[-1, -1]).to_parquet(d / "xfg_predictions.parquet", index=False)      # a flagged-train row without a fold: refused
+    assert V.load_xfg(tmp_path) is None
 
 
 # ── end to end on the fixtures ─────────────────────────────────────────────────────────────────────

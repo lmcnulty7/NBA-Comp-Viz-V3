@@ -215,7 +215,7 @@ def test_train_end_to_end_writes_report_and_output_tables(season, tmp_path):
     ctx = T.run(season, n_folds=3, seed=0, n_boot=10, hgb_iter=30, fixtures=True, command="test",
                 report=tmp_path / "epv.md", out_root=tmp_path / "out")
     text = (tmp_path / "epv.md").read_text()
-    assert "fixture output, not a result" in text and "—" not in text
+    assert "fixture output, not a result" in text and chr(0x2014) not in text
     for section in ("## Inputs", "## Candidates by elapsed-time bucket", "## Calibration", "the gate", "## Shuffled-target check",
                     "## Held-out games, scored once", "python -m analytics.epv.train --data"):
         assert section in text

@@ -1,6 +1,6 @@
 # Betting market model (analytics/betting/train.py)
 
-Written 2026-11-05T08:54:53Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
+Written 2026-11-05T09:02:45Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
 
 **Fixture output, not a result.** This run used the synthetic games and odds of tests/_fx_betting.py; it proves the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through collect/extras.py --odds) that has not been collected.
 
