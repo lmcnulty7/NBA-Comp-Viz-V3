@@ -25,6 +25,10 @@ Assumptions taken where the contract is silent:
   - the free throw position in a trip is read from the description ("1 of 2"); a free throw without it is
     the last of its trip, except a technical free throw, which never ends a possession
   - a rebound with no preceding miss is defensive when its team differs from the current offense
+  - free throws shot by the team that is not the current offense (a loose-ball or away-from-play foul on the
+    offense) close the open possession at the preceding foul event with end_kind other, and the trip is its
+    own possession for the shooting team
+  - a period whose last event already closed a possession gets no trailing stub possession
 
 CLI: python -m analytics.possessions --game G --frames PATH --pbp PATH --out-dir analytics/possessions
 """
@@ -174,6 +178,14 @@ def segment(frames: pd.DataFrame, events: pd.DataFrame, sportvu_game: str) -> pd
         def event_frame(i: int) -> int:
             return int(ev_frame[i]) if ev_frame[i] >= 0 else P.nearest(ev_clock[i])
 
+        def span_offense():
+            for k in span_events:
+                if ev_kind[k] in OFFENSE_KINDS and tid(k) is not None:
+                    return tid(k)
+            if prev_offense is not None:
+                return away_id if prev_offense == home_id else home_id
+            return None
+
         def close(i: int, end_kind: str) -> None:
             nonlocal start_frame, start_event, span_events, pending_miss, deferred_and_one
             end_frame = event_frame(i)
@@ -191,6 +203,8 @@ def segment(frames: pd.DataFrame, events: pd.DataFrame, sportvu_game: str) -> pd
                 # and-one: free throws of the same team at the same clock follow the made shot
                 deferred_and_one = False
                 for j in pe[n + 1:]:
+                    if ev_kind[j] in ("ft_made", "ft_missed") and ft_position(ev_desc[j])[1]:
+                        continue
                     if ev_kind[j] in OFFENSE_KINDS or ev_kind[j] in ("rebound", "period_end"):
                         deferred_and_one = (ev_kind[j] in ("ft_made", "ft_missed") and tid(j) == team
                                             and abs(ev_clock[j] - ev_clock[i]) <= 1.0)
@@ -203,6 +217,15 @@ def segment(frames: pd.DataFrame, events: pd.DataFrame, sportvu_game: str) -> pd
                 last, technical = ft_position(ev_desc[i])
                 if technical:
                     continue
+                cur = span_offense()
+                if team is not None and cur is not None and team != cur and len(span_events) > 1:
+                    # the other team shoots: close the open span at the preceding foul (else here) as other
+                    span_events.pop()
+                    fouls = [k for k in span_events if ev_kind[k] == "foul"]
+                    at = fouls[-1] if fouls else int(i)
+                    close(at, "other")
+                    start_event = min(start_event, int(ev_idx[i]))
+                    span_events = [int(i)]
                 if last and kind == "ft_made":
                     close(i, "free_throws")
                 elif last:
@@ -211,13 +234,7 @@ def segment(frames: pd.DataFrame, events: pd.DataFrame, sportvu_game: str) -> pd
                 shooter = pending_miss[0] if pending_miss else None
                 end_kind = pending_miss[1] if pending_miss else "shot_missed"
                 if shooter is None:
-                    cur = None
-                    for k in span_events:
-                        if ev_kind[k] in OFFENSE_KINDS and tid(k) is not None:
-                            cur = tid(k)
-                            break
-                    shooter = cur if cur is not None else (
-                        (away_id if prev_offense == home_id else home_id) if prev_offense is not None else None)
+                    shooter = span_offense()
                 if shooter is not None and team is not None and team != shooter:
                     close(i, end_kind)
                 else:
@@ -227,11 +244,9 @@ def segment(frames: pd.DataFrame, events: pd.DataFrame, sportvu_game: str) -> pd
             elif kind == "period_end":
                 close(i, "period_end")
                 closed_by_period_end = True
-        if not closed_by_period_end and not P.empty:
+        if not closed_by_period_end and not P.empty and (span_events or not len(pe)):
             end_frame = int(P.frames[-1])
             end_event = int(ev_idx[pe[-1]]) if len(pe) else start_event
-            if len(pe) and start_event > end_event:
-                start_event = end_event
             emit(period, P, start_frame, end_frame, start_event, end_event, span_events, "period_end")
 
     out = pd.DataFrame(rows, columns=COLUMNS)
@@ -311,7 +326,7 @@ def run(game: str, frames_path, pbp_json_or_parquet, out_dir) -> dict:
 
 
 def main(argv=None) -> None:
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap = argparse.ArgumentParser(prog="python -m analytics.possessions", description=__doc__.split("\n")[0])
     ap.add_argument("--game", required=True, help="SportVU game id, e.g. 12.16.2015.PHX.at.GSW")
     ap.add_argument("--frames", required=True, help="frames parquet (DATA_CONTRACT section 4)")
     ap.add_argument("--pbp", required=True, help="<game>_pbp.parquet (section 5) or a fetch_pbp.py JSON")
