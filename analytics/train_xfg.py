@@ -26,12 +26,8 @@ import pandas as pd
 
 from analytics.features_xfg import assert_no_leak, feature_columns, features
 
-try:
-    from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_folds,
-                                log_loss, refuse_heldout)
-except ImportError:
-    from analytics._eval_local import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece,
-                                       grouped_folds, log_loss, refuse_heldout)
+from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_folds,
+                            log_loss, refuse_heldout)
 
 WHO = "train_xfg"
 MODELS = ("constant", "logistic")
@@ -143,6 +139,8 @@ def score(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
                 out[m][name] = dict(nan)      # a constant prediction has no slope (its out-of-fold values differ only by fold rate)
                 continue
             out[m][name] = bootstrap_by_game(df, "game", lambda d, f=fn: f(d["y"].to_numpy(), d["p"].to_numpy()), n=n_boot, seed=seed)
+            if df["game"].nunique() < 2:          # an interval over one game is meaningless: report none
+                out[m][name] = {**out[m][name], "lo": float("nan"), "hi": float("nan")}
     return out
 
 
