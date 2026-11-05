@@ -84,7 +84,7 @@ def test_candidate_generator_on_a_hand_built_screen():
     assert len(screens) == 1, cands
     s = screens.iloc[0]
     assert s["ball_handler_id"] == 1 and s["screener_id"] == 2
-    assert 20 <= s["start_frame"] <= 30 and s["end_frame"] >= 95       # arrives at 1.0 s, stands until the end
+    assert s["start_frame"] <= 5 and s["end_frame"] >= 95       # set from 1.0 s to the end, padded 1 s back for the approach
     f = feats.iloc[int(screens.index[0])]
     assert f["scr_def_dist_mean"] < 4 and f["scr_speed_mean"] < 1 and f["rule_is_screen"] == 1
     assert feats.columns.tolist() == F.ID_COLUMNS + F.FEATURES
@@ -171,16 +171,21 @@ def test_leakage_guard(games):
         T.fit_models(c, feats, seed=0)
     c = cands.copy()
     c["heldout"] = False
-    c.loc[c["sportvu_game"] == c["sportvu_game"].iloc[0], "sportvu_game"] = HELD
-    with pytest.raises(SystemExit):
-        T.training_split(c, feats)
+    first = c["sportvu_game"].iloc[0]
+    c.loc[c["sportvu_game"] == first, "sportvu_game"] = HELD
+    train_c, train_f, held_c, held_f = T.training_split(c, feats)      # a held-out id is set aside even with the flag off
+    assert HELD not in set(train_c["sportvu_game"]) and set(held_c["sportvu_game"]) == {HELD}
+    assert len(train_c) == len(train_f) and len(held_c) == len(held_f)
+    with pytest.raises(SystemExit):                                   # and the guard the trainer calls refuses it
+        from analytics.eval import refuse_heldout
+        refuse_heldout(sorted(c["sportvu_game"].unique()), "test")
 
 
 def test_end_to_end_fixture_run(games, tmp_path):
     ctx = T.run([dict(g) for g in games], n_folds=4, seed=0, n_boot=30, fixtures=True, out_root=tmp_path,
                 report=tmp_path / "actions.md", command="test")
     text = (tmp_path / "actions.md").read_text()
-    assert "fixture output, not a result" in text and "—" not in text
+    assert "fixture output, not a result" in text and chr(0x2014) not in text
     assert ctx["mode"] == "out-of-fold" and ctx["folds"] == 4 and ctx["train_games"] == 4 and ctx["heldout_games"] == 2
     assert HELD in ctx["heldout_game_ids"] and HELD not in ctx["train_game_ids"]
     s = ctx["scores"]
@@ -197,9 +202,11 @@ def test_end_to_end_fixture_run(games, tmp_path):
     assert (tab.loc[tab["heldout"], "fold"] == -1).all() and (tab.loc[~tab["heldout"], "fold"] >= 0).all()
     assert tab["p_ball_screen"].between(0, 1).all() and (tab["p_selected_class"] >= tab["p_ball_screen"]).all()
     det = ctx["detected"]
-    assert det.columns.tolist() == ["sportvu_game", "possession", "action_type", "start_frame", "end_frame", "ball_handler_id",
-                                    "screener_id", "label_source", "labeller_pass", "confidence"]
+    assert det.columns.tolist() == ["sportvu_game", "possession", "action_id", "action_type", "start_frame", "end_frame",
+                                    "ball_handler_id", "screener_id", "label_source", "labeller_pass", "confidence"]
     assert (det["label_source"] == "model").all() and (det["confidence"] > 0.5).all() and (det["action_type"] != "none").all()
+    for _g, grp in det.groupby("sportvu_game"):
+        assert grp["action_id"].tolist() == list(range(len(grp)))       # row position within the game
     base = tmp_path / "analytics" / "actions"
     for g in games:
         d = base / ("heldout/2015-16" if g["heldout"] else "2015-16")
@@ -214,7 +221,7 @@ def test_cli_on_a_data_root(tmp_path):
     root = tmp_path / "data"
     man = fx._fallback_write_fixture_root(root, seed=1, n_games=3, heldout_every=3, n_possessions=10)
     assert len(man["games"]) == 3 and (root / "labels" / "actions").exists() and (root / "labels" / "screens").exists()
-    assert (root / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
+    assert len(list((root / "sportvu_contract" / "heldout").glob("*.parquet"))) == 2        # frames and pbp of one held-out game
     v = V.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert v["summary"]["games"] == 3 and v["summary"]["ok"] == 3 and v["summary"]["heldout_games"] == 1
     assert json.loads((tmp_path / "out" / "analytics" / "actions" / "validation.json").read_text())["summary"]["ok"] == 3
@@ -265,7 +272,7 @@ def test_eda_tables_and_shuffled_label_check(games):
     sh = res["shuffled"].set_index("labels")
     assert sh.loc["real", "f1_ball_screen"] > sh.loc["shuffled_0", "f1_ball_screen"] + 0.2
     md = eda.to_markdown(res, fixtures=True)
-    assert "fixture output, not a result" in md and "—" not in md
+    assert "fixture output, not a result" in md and chr(0x2014) not in md
 
 
 def test_fallback_generator_end_to_end(fallback_games):
@@ -305,6 +312,6 @@ def test_owned_files_have_no_em_dash_and_notebook_is_json():
     for rel in OWNED:
         p = ROOT / rel
         if p.exists():
-            assert "—" not in p.read_text(), rel
+            assert chr(0x2014) not in p.read_text(), rel
     nb = json.loads((ROOT / "notebooks" / "eda_actions.ipynb").read_text())
     assert nb["nbformat"] == 4 and any("eda" in "".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code")

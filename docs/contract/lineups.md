@@ -10,7 +10,7 @@ Tables the lineups lane reads and writes. Section numbers refer to docs/DATA_CON
 | `DATA_ROOT/collect/stints/stints/<season>.parquet` | section 12 stints | yes for validate, features, train |
 | `DATA_ROOT/collect/stints/playbyplay/<season>.parquet` | section 13 play-by-play | yes for `analytics.lineups.stints` |
 | `DATA_ROOT/collect/stints/games/<season>.parquet` (or `DATA_ROOT/games/<season>.parquet`) | game_id, season, game_date, home_team_id, away_team_id, home_score, away_score, home_win, spread_home | optional: without it team_id is null in lineup_ratings and the builder reads the sides from the substitution rows |
-| `DATA_ROOT/collect/stints/starters/<season>.parquet` | game_id (string), team_id (int), player_id (int): the five period-1 starters per team | optional |
+| `DATA_ROOT/collect/stints/starters/<season>.parquet` | starter rows only: game_id (bref code), game (SportVU-style id when derivable), game_date, season, side (home/away), team (bref code), team_id (nullable Int64, null from the basketball-reference box score driver), player_slug, player, player_id (nullable Int64, null from that source) | optional |
 
 Seasons: 2020-21 to 2024-25 (`--seasons` overrides). A file that is missing is skipped with the season.
 
@@ -32,6 +32,13 @@ Derivation (also in the module docstring):
   C. Three" and the leading actor of other descriptions ("X. Name makes|misses", "... by X. Name"), mapped by
   the optional `roster` {name: id} else to `zlib.crc32(name) & 0x7FFFFFFF`. Those keys are stable per name,
   not NBA ids: join the section 16 rosters table to replace them.
+- Starters table join (agreed with lane I2): rows match the game on `game_id`, else on `game`. When `team_id`
+  and `player_id` are filled the side is the team id against the games table and the key is `player_id`.
+  When they are null (the basketball-reference box score driver) the side is the `side` column and the key is
+  `name_key(player)` (the play-by-play name "S. Curry"), else `name_key(player_slug)`: the same crc32 key the
+  builder gives a basketball-reference play-by-play name, so a slug-only starters table seeds period 1 only
+  for basketball-reference play-by-play (name keys) and is ignored for NBA.com play-by-play (integer ids never
+  meet a name key). A `roster` {name: id} mapping lifts both to NBA.com ids.
 - Starters per period: the first five players per side to appear in the period's events (actor of a
   non-substitution row, or the player going out in a substitution) before they appear coming in. Period 1
   takes the starters table first and the derivation fills the rest. A player who never appears in a period is
@@ -68,7 +75,18 @@ One row per five-man lineup seen in the season, from both sides of the floor.
 | `player_id` | int64 | |
 | `rapm` | float | the player's coefficient (per 100 possessions, +1 when on the home side, -1 away, home court as the intercept) in the possession-weighted ridge, alpha by grouped CV by game |
 | `lo`, `hi` | float | 2.5 and 97.5 percentiles over `--bootstrap` refits on games resampled with replacement; NaN when `--bootstrap 0` |
+| `team_id` (added) | Int64, nullable | the team the player had most possessions with in `fit_seasons` (null without a games table) |
+| `as_of` (added) | string, nullable | the last `game_date` of `fit_seasons`: the rating is known from that date on and valid for games after it |
+| `in_sample` (added) | bool | true for a training season (the fit includes it), false for the held-out season |
 | `fit_seasons` (added) | string | the seasons fitted on |
+
+Time-forwardness for consumers (betting reads team_id, rapm, as_of): a season-level RAPM is not time-forward
+inside its own season. A row with `in_sample` true was fitted on the season it is filed under, so it must not
+price a game of that season; a row with `in_sample` false (the held-out season's file) was fitted on earlier
+seasons only and is valid from `as_of` for every game of the held-out season. There is no per-date refit:
+a consumer that needs a rating for a game of season S uses the file of S only when `in_sample` is false, else
+the file of the previous season (fitted on seasons before S, `as_of` before S starts), and never a row whose
+`as_of` is on or after the game date.
 
 For a training season the fit is the expanding window of training seasons up to and including it; for the
 held-out season it is every training season.

@@ -92,6 +92,41 @@ def test_builder_marks_a_missing_player_and_uses_the_starters_table():
     assert st2["lineup_ok"].all() and st2["home_ids"].iloc[0] == "1|2|3|4|5"
 
 
+def test_starters_table_with_slugs_only_keys_on_side_and_name():
+    """The basketball-reference box score driver writes starters without NBA.com ids (team_id and player_id null):
+    the rows key on side plus player (the play-by-play name) or player_slug through the same name key the builder
+    gives basketball-reference play-by-play names."""
+    names_h = ["S. Curry", "D. Green", "K. Thompson", "A. Iguodala", "Z. Pachulia"]
+    names_a = ["K. Durant", "R. Westbrook", "S. Adams", "A. Roberson", "V. Oladipo"]
+    rows = []
+    for side, names, team in (("home", names_h, "GSW"), ("away", names_a, "OKC")):
+        for n in names:
+            rows.append({"game_id": "201602270OKC", "game": "02.27.2016.GSW.at.OKC", "game_date": "2016-02-27", "season": "2015-16",
+                         "side": side, "team": team, "team_id": pd.NA, "player_slug": n.lower().replace(". ", "_"), "player": n, "player_id": pd.NA})
+    starters = pd.DataFrame(rows).astype({"team_id": "Int64", "player_id": "Int64"})
+    st = S.starters_by_side(starters, "201602270OKC", None, None)
+    assert st["home"] == [S.name_key(n) for n in names_h] and st["away"] == [S.name_key(n) for n in names_a]
+    assert S.starters_by_side(starters, "02.27.2016.GSW.at.OKC", None, None) == st        # the game column matches too
+    slug_only = starters.drop(columns=["player"])
+    assert S.starters_by_side(slug_only, "201602270OKC", None, None)["home"] == [S.name_key(r) for r in starters.loc[starters["side"] == "home", "player_slug"]]
+    assert S.starters_by_side(starters, "201602270OKC", None, None, roster={"S. Curry": 201939})["home"][0] == 201939
+    # the id path still wins when ids are present
+    ids = starters.copy()
+    ids["team_id"] = [1 if r == "home" else 2 for r in ids["side"]]
+    ids["player_id"] = range(100, 110)
+    assert S.starters_by_side(ids, "201602270OKC", 1, 2) == {"home": list(range(100, 105)), "away": list(range(105, 110))}
+    # a bref play-by-play game: the slug starters seed period 1 so a quiet starter is still found
+    pbp = pd.DataFrame([
+        _ev(0, 1, 700, "home", "shot_made", "D. Green makes 2-pt layup (assist by S. Curry)", points=2),
+        _ev(1, 1, 650, "away", "rebound", "Defensive rebound by K. Durant"),
+        _ev(2, 1, 600, "home", "other", "J. Bell enters the game for Z. Pachulia"),
+        _ev(3, 1, 100, "away", "shot_made", "K. Durant makes 2-pt dunk", points=2),
+    ])
+    out = S.build_game_stints(pbp, starters=st)
+    assert out["n_home"].tolist() == [5, 5] and out["n_away"].tolist() == [5, 5] and out["lineup_ok"].all()
+    assert S.name_key("J. Bell") in [int(x) for x in out["home_ids"].iloc[1].split("|")]
+
+
 def test_builder_reads_basketball_reference_descriptions_without_ids():
     rows = [
         _ev(0, 1, 710, "home", "shot_missed", "S. Curry misses 3-pt jump shot from 26 ft"),
@@ -266,11 +301,16 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path):
         assert (lr["insufficient"] == (lr["n_possessions"] < 300)).all()
         assert (lr["synergy_per100"][lr["insufficient"]] == 0).all()
         pr = pd.read_parquet(tmp_path / "analytics" / "lineups" / season / "player_rapm.parquet")
-        assert list(pr.columns[:5]) == ["season", "player_id", "rapm", "lo", "hi"] and pr["player_id"].is_unique
+        assert list(pr.columns) == ["season", "player_id", "rapm", "lo", "hi", "team_id", "as_of", "in_sample", "fit_seasons"] and pr["player_id"].is_unique
+        assert pr["team_id"].notna().all() and pr["as_of"].str.match(r"\d{4}-\d{2}-\d{2}").all()
         multi = lr["n_games"] >= 2
         assert (lr.loc[multi, "lo"] <= lr.loc[multi, "plus_minus_per100"] + 1e-9).all()
     held = pd.read_parquet(tmp_path / "analytics" / "lineups" / "2022-23" / "lineup_ratings.parquet")
     assert (held["fit_seasons"] == "2020-21,2021-22").all() and (~held["in_sample"]).all()
+    pr_held = pd.read_parquet(tmp_path / "analytics" / "lineups" / "2022-23" / "player_rapm.parquet")
+    d0 = local_fixture()
+    assert (~pr_held["in_sample"]).all() and (pr_held["as_of"] == d0["games"].loc[d0["games"]["season"] == "2021-22", "game_date"].max()).all()
+    assert (pr_held["as_of"] < d0["games"].loc[d0["games"]["season"] == "2022-23", "game_date"].min()).all()
     # RAPM recovers the hidden ratings (fixture: a sanity check of the fit, not a result)
     d = local_fixture()
     truth = d["truth"]["ratings"]

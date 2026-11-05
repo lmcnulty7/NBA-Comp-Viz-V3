@@ -219,6 +219,25 @@ def test_data_root_layout_is_read_by_the_cli(tmp_path):
     feats = F.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert 0 < len(feats) <= counts["candidates"] and feats["heldout"].sum() > 0
     assert list((tmp_path / "out").rglob("coverage_features.parquet"))
+    # the detector's table at OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet (lane ACTIONS layout)
+    screens = pd.concat([V._read_jsonl(p, "screens") for p in sorted((root / "labels" / "screens").glob("*.jsonl"))])
+    actions = pd.concat([V._read_jsonl(p, "actions") for p in sorted((root / "labels" / "actions").glob("*.jsonl"))])
+    train_game = [g for g in sorted(screens["sportvu_game"].unique()) if not V.heldout_mask([g]).iloc[0]][0]
+    src = actions[(actions["sportvu_game"] == train_game) & (actions["action_type"] == "ball_screen")].head(2)
+    detected = src.drop(columns=[c for c in ("action_id", "labelled_at") if c in src.columns]).copy()
+    detected["start_frame"] = detected["start_frame"] + 60       # a minute later than the hand label: not a duplicate
+    detected["end_frame"] = detected["end_frame"] + 60
+    detected["label_source"] = "model"
+    out = tmp_path / "out"
+    ddir = out / "analytics" / "actions" / V.season_of(train_game) / "actions_detected"
+    ddir.mkdir(parents=True)
+    detected.to_parquet(ddir / (train_game + ".parquet"), index=False)
+    assert len(V.load_detected(out)) == 2
+    bundle = V.load_data_root(root, out)
+    cand, counts2 = V.validate_bundle(bundle)
+    assert counts2["detected_screens"] == 2 and counts2["candidates"] == counts["candidates"] + 2
+    model_rows = cand[cand["label_source"] == "model"]
+    assert len(model_rows) == 2 and model_rows["coverage"].isna().all() and model_rows["on_ball_defender_id"].isna().all()
 
 
 def test_label_files_are_resolved_like_the_label_tool_writes_them(tmp_path):

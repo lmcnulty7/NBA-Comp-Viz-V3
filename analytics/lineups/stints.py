@@ -215,17 +215,46 @@ def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team
     return df
 
 
-def starters_by_side(starters: pd.DataFrame, game_id: str, home_team_id, away_team_id=None) -> dict:
-    """{"home": ids, "away": ids} of one game from the starters table (game_id, team_id, player_id)."""
+def starters_by_side(starters: pd.DataFrame, game_id: str, home_team_id, away_team_id=None, roster: dict | None = None) -> dict:
+    """{"home": keys, "away": keys} of one game's period-1 starters from the starters table.
+
+    Rows are matched on `game_id` (or `game` when the table carries that column and game_id does not match).
+    Two paths per row, the id path first:
+      ids      `team_id` and `player_id` filled: the side is the team id against home_team_id / away_team_id
+               (or the `side` column when the team ids are unknown) and the key is player_id;
+      slug     `player_id` null (the basketball-reference box score driver writes no NBA.com ids): the side is
+               the `side` column ("home"/"away") and the key is name_key(player, roster) when `player` is the
+               play-by-play name, else name_key(player_slug): the same crc32 key the builder gives a
+               basketball-reference play-by-play name, so starters and substitutions meet on one key only when
+               both come from basketball-reference names. Document the join in docs/contract/lineups.md."""
     if starters is None or len(starters) == 0:
         return {}
     s = starters[starters["game_id"].astype(str) == str(game_id)]
-    out = {}
-    for tid, grp in s.groupby("team_id"):
-        if home_team_id is not None and int(tid) == int(home_team_id):
-            out["home"] = [int(x) for x in grp["player_id"]]
-        elif away_team_id is not None and int(tid) == int(away_team_id):
-            out["away"] = [int(x) for x in grp["player_id"]]
+    if len(s) == 0 and "game" in starters.columns:
+        s = starters[starters["game"].astype(str) == str(game_id)]
+    out: dict = {}
+    for r in s.to_dict("records"):
+        side = None
+        tid = r.get("team_id")
+        if _has(tid) and home_team_id is not None and int(tid) == int(home_team_id):
+            side = "home"
+        elif _has(tid) and away_team_id is not None and int(tid) == int(away_team_id):
+            side = "away"
+        elif isinstance(r.get("side"), str) and r["side"] in ("home", "away"):
+            side = r["side"]
+        if side is None:
+            continue
+        pid = r.get("player_id")
+        if _has(pid):
+            key = int(pid)
+        else:
+            name = r.get("player") if isinstance(r.get("player"), str) and r.get("player") else r.get("player_slug")
+            if not isinstance(name, str) or not name:
+                continue
+            key = name_key(name, roster)
+        out.setdefault(side, [])
+        if key not in out[side]:
+            out[side].append(key)
     return out
 
 

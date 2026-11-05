@@ -203,7 +203,7 @@ def validate_labels(actions: pd.DataFrame, screens: pd.DataFrame, possessions: p
         if miss.any() or miss_s.any():
             problems.append("actions: %d handler and %d screener id(s) missing from the roster" % (int(miss.sum()), int(miss_s.sum())))
     if len(s):
-        aid = a.set_index("action_id")["action_type"]
+        aid = a.drop_duplicates("action_id").set_index("action_id")["action_type"]
         ref = s["action_id"].isin(aid.index)
         counts["screens_unknown_action"] = int((~ref).sum())
         if (~ref).any():

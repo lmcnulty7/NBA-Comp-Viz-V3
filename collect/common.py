@@ -278,13 +278,13 @@ class Family:
         return out
 
 
-def base_parser(description: str, default_seasons: list[str]) -> argparse.ArgumentParser:
+def base_parser(description: str, default_seasons: list[str], rpm_help: str | None = None) -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", default=os.environ.get("NBA_COLLECT_OUT") or (DRIVE_OUT if os.path.isdir("/content/drive/MyDrive") else str(DEFAULT_OUT)),
                     help="output root (default: $NBA_COLLECT_OUT, Drive nba_harvest/collect on Colab, else data/collect)")
     ap.add_argument("--seasons", nargs="*", default=default_seasons, help="seasons like 2015-16 (default: %s)" % " ".join(default_seasons[:3] + (["..."] if len(default_seasons) > 3 else [])))
     ap.add_argument("--season-types", nargs="*", default=["Regular Season"], choices=SEASON_TYPES)
-    ap.add_argument("--rpm", type=float, default=30.0, help="stats.nba.com requests per minute (default 30)")
+    ap.add_argument("--rpm", type=float, default=30.0, help=rpm_help or "stats.nba.com requests per minute (default 30)")
     ap.add_argument("--limit", type=int, help="stop after this many units")
     ap.add_argument("--retry-failed", action="store_true", help="redo units whose last attempt failed")
     ap.add_argument("--compact-only", action="store_true", help="only rebuild the per-season parquet from parts/")

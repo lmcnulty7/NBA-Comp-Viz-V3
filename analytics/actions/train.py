@@ -203,10 +203,13 @@ def candidate_table(cands: pd.DataFrame, probs: np.ndarray, fold) -> pd.DataFram
 
 
 def detected_table(table: pd.DataFrame, labeller_pass: str) -> pd.DataFrame:
-    """actions_detected: selected class other than none with probability above DETECT_P, hand-label schema."""
+    """actions_detected: selected class other than none with probability above DETECT_P, in the hand-label schema
+    with label_source model and action_id the row position within the game (possession, start_frame order)."""
     m = (table["pred_class"] != "none") & (table["p_selected_class"] > DETECT_P)
-    d = table[m]
+    d = table[m].sort_values(["sportvu_game", "possession", "start_frame", "candidate"], kind="stable")
+    action_id = d.groupby("sportvu_game").cumcount().to_numpy()
     return pd.DataFrame({"sportvu_game": d["sportvu_game"].to_numpy(), "possession": d["possession"].to_numpy(),
+                         "action_id": action_id.astype("int32"),
                          "action_type": d["pred_class"].to_numpy(), "start_frame": d["start_frame"].to_numpy(),
                          "end_frame": d["end_frame"].to_numpy(), "ball_handler_id": d["ball_handler_id"].to_numpy(),
                          "screener_id": d["screener_id"].to_numpy(), "label_source": "model", "labeller_pass": labeller_pass,

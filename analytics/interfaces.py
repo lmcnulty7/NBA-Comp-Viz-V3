@@ -13,30 +13,30 @@ extension packages, so it works while a lane is absent or half-written.
     interfaces.discover_lanes()                         # every analytics/<ext>/ with validate, features, train
 
 Dtype classes: ``string`` (object or pandas string dtype), ``int`` (any integer dtype, nullable Int64 included),
+``int?`` (a nullable integer: an integer dtype, or a float column whose non-null values are whole numbers),
 ``float`` (float, or an integer dtype, which is accepted as a degenerate float), ``bool`` (bool or nullable
 boolean). A nullable column may hold nulls; the dtype class still has to match.
 
-Where the producer lane has documented its columns (docs/contract/<ext>.md, or the docstring and constants of
-its train module when the contract page is not written yet) the entry matches that. Where it has not, the entry
-records the columns the consumers already code against, and the assumption is stated in the entry's ``note``
-and in docs/contract/interfaces.md:
+The paths and column sets are the coordinator's decisions for the build (relayed to lane I6), reconciled
+with what the producer lanes document (docs/contract/<ext>.md) and what the consumers code against. Where
+the two differ, the coordinator's decision wins and the entry's ``note`` says so; docs/contract/interfaces.md
+carries the same text.
 
-  xfg_predictions      analytics/xfg/train.py PREDICTION_COLUMNS: sportvu_game, event, player_id, p_location,
-                       p_contest, p_selected, made, fold, heldout, one file per season
-                       (analytics/xfg/<season>/xfg_predictions.parquet). Consumers (decisions) join p_selected
-                       by (sportvu_game, event). gravity and epv use the location-only baseline of
-                       analytics.train_xfg today and are listed as consumers of the lane's shot-quality column.
-  epv_states           not documented by the epv lane yet (no docs/contract/epv.md, no train module). The
-                       consumers (decisions, playcalling) read OUT_ROOT/analytics/epv/<season>/<game>.parquet
-                       with sportvu_game, possession, frame, epv_points; that is the assumption recorded here.
-                       The lane's states_1hz table (analytics/states_1hz/) is the contract section 20 table,
-                       not this interface.
-  actions_detected     not documented yet (no docs/contract/actions.md, no train module). The consumers
-                       (coverage, playcalling) read OUT_ROOT/analytics/actions/<season>/<game>.parquet with the
-                       hand-label columns sportvu_game, possession, action_type, start_frame, end_frame,
-                       ball_handler_id, screener_id (nullable), label_source; action_id is optional and
-                       defaults to the row's position in the file. Files under analytics/actions/<season>/
-                       features/ are the lane's feature frames, not this interface, and are skipped.
+  xfg_predictions      OUT_ROOT/analytics/xfg/<season>/*.parquet with sportvu_game, event, player_id,
+                       p_selected, fold (xfg_features.parquet, the feature frame, is skipped).
+                       analytics/xfg/train.py writes xfg_predictions.parquet with p_location, p_contest, made
+                       and heldout as well (optional here). decisions joins p_selected by (sportvu_game, event);
+                       gravity and epv use the location-only baseline of analytics.train_xfg today and are
+                       listed as consumers of the lane's shot-quality column.
+  epv_states           OUT_ROOT/analytics/epv/<season>/<game>.parquet (held-out under heldout/<season>/) with
+                       sportvu_game, possession, frame, epv_points. epv_possessions.parquet in the same
+                       folder is the lane's possession table and is skipped. The lane's states_1hz table
+                       (analytics/states_1hz/) is the contract section 20 table, not this interface.
+  actions_detected     OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet with sportvu_game,
+                       possession, action_id, action_type, start_frame, end_frame, ball_handler_id,
+                       screener_id (nullable), label_source. Hand labels are read only through
+                       analytics.labels.read_labels (labeller_pass 1, label_source "hand"). The lane's feature
+                       frames under features/ are not matched.
   coverage_predictions docs/contract/coverage.md: sportvu_game, possession, action_id, coverage_label
                        (nullable), p_switch .. p_over, predicted, fold, heldout, one file per season at
                        analytics/coverage/<season>/coverage_predictions.parquet (held-out games under
@@ -65,40 +65,46 @@ EXPECTED_LANES = ("xfg", "rebounds", "matchups", "gravity", "ghosting", "embeddi
 COVERAGE_CLASSES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over")
 
 
-def _iface(name, producer, consumers, columns, keys, pattern, glob, optional=(), per_game=False, note=""):
+def _iface(name, producer, consumers, columns, keys, pattern, glob, optional=(), per_game=False, note="",
+           exclude=()):
     return {"name": name, "producer": producer, "consumers": list(consumers),
             "columns": dict(columns), "optional": dict(optional), "keys": list(keys),
-            "pattern": pattern, "glob": glob, "per_game": per_game, "note": note}
+            "pattern": pattern, "glob": glob, "per_game": per_game, "note": note,
+            "exclude": tuple(exclude)}      # file-stem prefixes under the producer's folder that are other tables
 
 
 INTERFACES = {
     "xfg_predictions": _iface(
         "xfg_predictions", "xfg", ["decisions", "gravity", "epv"],
-        columns={"sportvu_game": "string", "event": "int", "p_selected": "float", "made": "bool",
-                 "fold": "int", "heldout": "bool"},
-        optional={"player_id": "int", "p_location": "float", "p_contest": "float"},
+        columns={"sportvu_game": "string", "event": "int", "player_id": "int?", "p_selected": "float",
+                 "fold": "int"},
+        optional={"p_location": "float", "p_contest": "float", "made": "bool", "heldout": "bool"},
         keys=["sportvu_game", "event"],
         pattern="analytics/xfg/<season>/xfg_predictions.parquet",
-        glob="analytics/xfg/**/xfg_predictions*.parquet",
-        note="matches analytics/xfg/train.py PREDICTION_COLUMNS; one file per season, held-out rows flagged"),
+        glob="analytics/xfg/**/*.parquet", exclude=("xfg_features",),
+        note="coordinator decision: any analytics/xfg/<season>/*.parquet with sportvu_game, event, player_id, "
+             "p_selected, fold; analytics/xfg/train.py writes xfg_predictions.parquet with made and heldout too; "
+             "xfg_features.parquet is the lane's feature frame and is skipped"),
     "epv_states": _iface(
         "epv_states", "epv", ["decisions", "playcalling"],
         columns={"sportvu_game": "string", "possession": "int", "frame": "int", "epv_points": "float"},
         optional={"heldout": "bool", "fold": "int"},
         keys=["sportvu_game", "possession", "frame"],
         pattern="analytics/epv/<season>/<game>.parquet",
-        glob="analytics/epv/**/*.parquet", per_game=True,
-        note="assumed from the consumers (decisions, playcalling); the epv lane has not documented it yet"),
+        glob="analytics/epv/**/*.parquet", per_game=True, exclude=("epv_possessions",),
+        note="coordinator decision: one file per game, held-out under heldout/<season>/; "
+             "epv_possessions.parquet in the same folder is the lane's possession table, not this interface"),
     "actions_detected": _iface(
         "actions_detected", "actions", ["coverage", "playcalling"],
-        columns={"sportvu_game": "string", "possession": "int", "action_type": "string", "start_frame": "int",
-                 "end_frame": "int", "ball_handler_id": "int", "label_source": "string"},
-        optional={"screener_id": "int", "action_id": "int", "labeller_pass": "string", "heldout": "bool"},
-        keys=["sportvu_game", "possession", "start_frame"],
-        pattern="analytics/actions/<season>/<game>.parquet",
-        glob="analytics/actions/**/*.parquet", per_game=True,
-        note="assumed from the consumers (coverage ACTION_COLUMNS, playcalling); files under a features/ "
-             "directory are the lane's feature frames and are skipped"),
+        columns={"sportvu_game": "string", "possession": "int", "action_id": "int", "action_type": "string",
+                 "start_frame": "int", "end_frame": "int", "ball_handler_id": "int", "screener_id": "int?",
+                 "label_source": "string"},
+        optional={"labeller_pass": "string", "heldout": "bool"},
+        keys=["sportvu_game", "possession", "action_id"],
+        pattern="analytics/actions/<season>/actions_detected/<game>.parquet",
+        glob="analytics/actions/**/actions_detected/*.parquet", per_game=True,
+        note="coordinator decision: analytics/actions/<season>/actions_detected/<game>.parquet (held-out under "
+             "heldout/<season>/); screener_id nullable; the lane's feature frames under features/ are not matched"),
     "coverage_predictions": _iface(
         "coverage_predictions", "coverage", ["playcalling"],
         columns={"sportvu_game": "string", "possession": "int", "action_id": "int", "predicted": "string"},
@@ -113,11 +119,12 @@ INTERFACES = {
     "player_rapm": _iface(
         "player_rapm", "lineups", ["matchups", "betting"],
         columns={"season": "string", "player_id": "int", "rapm": "float", "lo": "float", "hi": "float"},
-        optional={"fit_seasons": "string", "team_id": "int", "as_of": "string"},
+        optional={"fit_seasons": "string"},
         keys=["season", "player_id"],
         pattern="analytics/lineups/<season>/player_rapm.parquet",
         glob="analytics/lineups/**/player_rapm*.parquet",
-        note="matches analytics/lineups/train.py; betting uses team_id and as_of only when present"),
+        note="matches docs/contract/lineups.md and the coordinator decision: no team_id and no as_of "
+             "(betting treats its RAPM features as absent)"),
 }
 
 INTERFACE_NAMES = tuple(INTERFACES)
@@ -155,6 +162,8 @@ def find_outputs(out_root, name: str) -> list[Path]:
         rel_parts = set(p.relative_to(root).parts[:-1])
         if rel_parts & _SKIP_DIRS:
             continue
+        if any(p.stem.startswith(x) for x in e["exclude"]):
+            continue
         out.append(p)
     return out
 
@@ -166,6 +175,13 @@ def _dtype_ok(s: pd.Series, cls: str) -> bool:
         return pd.api.types.is_string_dtype(dt) or dt == object
     if cls == "int":
         return pd.api.types.is_integer_dtype(dt)
+    if cls == "int?":           # nullable integer: Int64, or a float column that holds whole numbers and NaN
+        if pd.api.types.is_integer_dtype(dt):
+            return True
+        if pd.api.types.is_float_dtype(dt):
+            v = s.dropna().to_numpy(dtype=float)
+            return bool(len(v) == 0 or np.all(np.mod(v, 1) == 0))
+        return False
     if cls == "float":
         return pd.api.types.is_float_dtype(dt) or pd.api.types.is_integer_dtype(dt)
     if cls == "bool":

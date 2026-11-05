@@ -10,7 +10,7 @@ number the package has produced is fixture output, not a result.
 | --- | --- | --- |
 | actions | `DATA_ROOT/labels/actions/<game>.jsonl` | `sportvu_game`, `possession`, `action_type`, `start_frame`, `end_frame`, `ball_handler_id`, `screener_id`, `label_source`, `labeller_pass`, `labelled_at` (`action_id` when present, else the row's position within the game's file) |
 | screens | `DATA_ROOT/labels/screens/<game>.jsonl` | `sportvu_game`, `possession`, `screen_id`, `action_id`, `coverage` (7 classes), `on_ball_defender_id`, `screener_defender_id`, `label_source`, `confidence` in {`sure`, `unsure`}, `labeller_pass`, `labelled_at` |
-| actions_detected | `OUT_ROOT/analytics/actions/<season>/<game>.parquet` | the actions columns with `label_source` `model`; no defender ids, no coverage |
+| actions_detected | `OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` (held-out under `heldout/<season>/actions_detected/`; the older flat `<season>/<game>.parquet` layout is a fallback) | the actions columns with `label_source` `model`; no defender ids, no coverage |
 | frames | `DATA_ROOT/sportvu_contract/<game>.parquet` (held-out under `heldout/`) | docs/DATA_CONTRACT.md section 4 (`frame`, `period`, `game_clock_s`, `team_id`, `player_id`, `x`, `y` are read) |
 | rosters, possessions | `DATA_ROOT/analytics/<table>/<season>/<game>.parquet` (held-out under `heldout/<season>/`) | sections 16 and 19; rosters give the defending team, possessions are used only to log screens outside their span |
 

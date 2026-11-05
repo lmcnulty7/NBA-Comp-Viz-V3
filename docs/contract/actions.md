@@ -92,13 +92,28 @@ Written under `OUT_ROOT/analytics/actions/<season>/` (held-out games under
 | `fold` | int32 | out-of-fold index for training games; -1 for held-out games (scored once by the refit) |
 | `heldout` | bool | the game is held out (sportvu/splits.json, the heldout/ layout, or the CLE arena) |
 
-### `actions_detected/<game>.parquet` and `<game>.jsonl`
+### `actions_detected/<game>.parquet` and `<game>.jsonl` (the canonical detected-actions file)
 
-Candidates whose `pred_class` is not none with `p_selected_class` above 0.5, in the hand-label actions
-schema: `sportvu_game`, `possession`, `action_type` (= `pred_class`), `start_frame`, `end_frame`,
-`ball_handler_id`, `screener_id`, `label_source` = `model`, `labeller_pass` (trainer, model, seed and
-input kind), `confidence` (= `p_selected_class`). The JSONL has the same rows with `table: actions` so
-`validate.read_labels_jsonl` reads it back.
+`OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` (held-out games under
+`OUT_ROOT/analytics/actions/heldout/<season>/actions_detected/`) is what the playcalling and coverage
+lanes read. One row per candidate whose `pred_class` is not none with `p_selected_class` above 0.5, in
+the hand-label actions schema:
+
+| column | type | meaning |
+| --- | --- | --- |
+| `sportvu_game` | string | Step 1 game id |
+| `possession` | int32 | section 19 possession |
+| `action_id` | int32 | row position within the game (0..n-1 in possession, start_frame order); the detector has no hand id |
+| `action_type` | string | = `pred_class`: ball_screen, drive or isolation |
+| `start_frame`, `end_frame` | int32 | the candidate window |
+| `ball_handler_id` | int32 | handler at the window start |
+| `screener_id` | int32, nullable | the screener of a ball screen; null otherwise |
+| `label_source` | string | `model` for every detected row (`hand` marks the hand labels of `DATA_ROOT/labels/`, same schema, read through `analytics.labels.read_labels`) |
+| `labeller_pass` | string | trainer, selected model, seed and input kind, e.g. `actions.train hgb seed0 data` |
+| `confidence` | float | = `p_selected_class` |
+
+The JSONL beside it has the same rows with `table: actions`, so `validate.read_labels_jsonl` reads it
+back; it is not a hand-label file and never goes under `DATA_ROOT/labels/`.
 
 ## Evaluation (`analytics/actions/train.py`)
 

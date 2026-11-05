@@ -7,7 +7,9 @@ Inputs (the upstream interface of lane ACTIONS, consumed as given):
                                             ball_handler_id, screener_id, label_source, labeller_pass
     DATA_ROOT/labels/screens/<game>.jsonl   screens: sportvu_game, possession, action_id, coverage, on_ball_defender_id,
                                             screener_defender_id, label_source, confidence
-    OUT_ROOT/analytics/actions/<season>/<game>.parquet   the detector's actions (same columns, label_source model)
+    OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet   the detector's actions (same columns,
+        label_source model; held-out under heldout/<season>/actions_detected/); the older flat layout
+        OUT_ROOT/analytics/actions/<season>/<game>.parquet is accepted as a fallback
     DATA_ROOT/sportvu_contract/<game>.parquet (held-out under heldout/), DATA_ROOT/analytics/possessions/<season>/,
     DATA_ROOT/analytics/rosters/<season>/ (held-out under heldout/<season>/)
 
@@ -179,10 +181,14 @@ def load_labels(data_root, counts: dict | None = None) -> dict:
 
 
 def load_detected(out_root) -> pd.DataFrame:
-    """The detector's actions from OUT_ROOT/analytics/actions/<season>/<game>.parquet (every season; held-out
-    games are whatever sits under heldout/). Empty frame when the directory does not exist."""
+    """The detector's actions from OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet (held-out
+    under heldout/<season>/actions_detected/), every season. When no actions_detected/ directory exists the older
+    flat layout OUT_ROOT/analytics/actions/<season>/<game>.parquet is read instead. Empty frame when neither exists."""
     root = Path(out_root) / "analytics" / "actions"
-    files = sorted(root.rglob("*.parquet")) if root.exists() else []
+    files = sorted(root.glob("*/actions_detected/*.parquet")) + sorted(root.glob("heldout/*/actions_detected/*.parquet")) \
+        if root.exists() else []
+    if not files and root.exists():
+        files = sorted(root.glob("*/*.parquet")) + sorted(root.glob("heldout/*/*.parquet"))
     frames = [pd.read_parquet(p) for p in files]
     frames = [f for f in frames if len(f)]
     df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=ACTION_COLUMNS)

@@ -36,7 +36,9 @@ Outputs (docs/contract/lineups.md), OUT_ROOT/analytics/lineups/<season>/
                              in-sample descriptive ratings; for the held-out season the training fit, out of
                              sample), lo, hi (bootstrap by game of plus_minus_per100, NaN under two games),
                              insufficient (n_possessions under --gate), fit_seasons
-    player_rapm.parquet      season, player_id, rapm, lo, hi (bootstrap by game refits), fit_seasons
+    player_rapm.parquet      season, player_id, rapm, lo, hi (bootstrap by game refits), team_id (the player's main
+                             team in the fit seasons), as_of (the last game date of the fit seasons: the rating is
+                             known from that date on), in_sample, fit_seasons
 """
 from __future__ import annotations
 
@@ -349,6 +351,19 @@ def run(feats: pd.DataFrame, heldout_season: str, seed: int = 0, n_boot: int = 2
     return ctx
 
 
+def player_teams(feats: pd.DataFrame) -> dict:
+    """player_id -> the team id the player had most possessions with in feats (from the games table; empty without it)."""
+    parts = []
+    for side in ("home", "away"):
+        for k in range(1, 6):
+            parts.append(pd.DataFrame({"player_id": feats[f"{side}_{k}"].astype("int64"), "team_id": feats[f"{side}_team_id"], "w": feats["possessions"]}))
+    m = pd.concat(parts).dropna(subset=["team_id"])
+    if len(m) == 0:
+        return {}
+    w = m.groupby(["player_id", "team_id"])["w"].sum().reset_index().sort_values("w", ascending=False)
+    return {int(r.player_id): int(r.team_id) for r in w.drop_duplicates("player_id").itertuples()}
+
+
 def write_tables(out_root, season: str, season_feats: pd.DataFrame, fit_feats: pd.DataFrame, fits: dict, gate: int, n_boot: int, seed: int,
                  in_sample: bool) -> list[str]:
     d = out_dir(out_root, season)
@@ -368,6 +383,10 @@ def write_tables(out_root, season: str, season_feats: pd.DataFrame, fit_feats: p
     pr = pd.DataFrame({"season": season, "player_id": fits["players"], "rapm": [coef[p] for p in fits["players"]]}).merge(ci, on="player_id")
     pr["fit_seasons"] = ",".join(fits["fit_seasons"])
     pr["player_id"] = pr["player_id"].astype("int64")
+    pr["team_id"] = pr["player_id"].map(player_teams(fit_feats)).astype("Int64")
+    pr["as_of"] = str(fit_feats["game_date"].astype(str).max()) if "game_date" in fit_feats.columns and len(fit_feats) else None
+    pr["in_sample"] = bool(in_sample)
+    pr = pr[["season", "player_id", "rapm", "lo", "hi", "team_id", "as_of", "in_sample", "fit_seasons"]]
     pr.to_parquet(d / "player_rapm.parquet", index=False)
     return [str(d / "lineup_ratings.parquet"), str(d / "player_rapm.parquet")]
 

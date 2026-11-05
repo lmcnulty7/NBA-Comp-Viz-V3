@@ -134,7 +134,7 @@ def fetch_html(url: str, throttle: common.Throttle, timeout: float = 30.0, tries
         if r.status_code == 403:
             raise PageError("%s HTTP 403: this client is blocked by basketball-reference" % url, 403, stop_run=True)
         if r.status_code == 404:
-            raise PageError("%s HTTP 404: no shot chart for this game" % url, 404)
+            raise PageError("%s HTTP 404: no such page" % url, 404)
     raise PageError("%s failed after %d tries: %s" % (url, tries, last))
 
 
@@ -324,7 +324,8 @@ def pbp_shot_count(game: dict, code: str, contract_dir: Path | None, fam: common
             try:
                 events = fetch_pbp.fetch_game(code)
             except Exception as e:                              # noqa: BLE001 (classify the jail, else record)
-                if "429" in str(e):
+                status = getattr(getattr(e, "response", None), "status_code", None) or int((re.search(r"(?<!\d)(429|403)(?!\d)", str(e)) or [0, 0])[1])
+                if status == 429:
                     raise PageError("pbp page %s HTTP 429: no more requests this run" % code, 429, stop_run=True)
                 raise PageError("pbp page %s: %r" % (code, e))
             rec = fam.raw.put(RAW_PBP_ENDPOINT, params, events, "%s/boxscores/pbp/%s.html" % (HOST, code), 200)
@@ -418,7 +419,7 @@ def main(argv=None) -> str:
         sys.exit("no games: give --games, --contract-dir or --from-github")
     games = cc.order_games(games, sp)
     units = [(common.Manifest.key(ENDPOINT, season_of(g["date"]), g["game"]), {**g, "params": {"code": cc.br_code(g)}}) for g in games]
-    rpm = min(a.rpm, MAX_RPM)
+    rpm = MAX_RPM if a.rpm <= 0 else min(a.rpm, MAX_RPM)
     if a.rpm > MAX_RPM:
         print("--rpm %.0f capped at %.0f (basketball-reference's limit)" % (a.rpm, MAX_RPM), flush=True)
     throttle = common.Throttle(rpm)
