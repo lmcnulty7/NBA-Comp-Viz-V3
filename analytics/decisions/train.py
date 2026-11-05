@@ -65,8 +65,35 @@ MAC_CMD = ("python -m analytics.decisions.train --data \"$DATA_ROOT\" --out \"$O
            "--report reports/decisions.md --folds 5 --seed 0 --bootstrap 1000")
 EVENT_COLUMNS = ["sportvu_game", "possession", "frame", "player_id", "decision_kind", "chosen_value", "best_value",
                  "best_option", "decision_quality", "heldout", "event", "receiver_id", "shot_value", "hold_value",
-                 "prior", "fold"]
-PLAYER_COLUMNS = ["player_id", "n_decisions", "mean_quality", "lo", "hi", "insufficient", "n_games", "sum_quality"]
+                 "drive_value", "prior", "fold"]
+EVENT_INT32 = ["possession", "frame", "player_id", "event", "receiver_id", "fold"]
+PLAYER_COLUMNS = ["player_id", "n_decisions", "mean_quality", "lo", "hi", "insufficient", "n_games", "sum_quality",
+                  "mean_quality_shot", "mean_quality_pass", "mean_quality_drive", "n_shot", "n_pass", "n_drive"]
+PLAYER_INT32 = ["player_id", "n_decisions", "n_games", "n_shot", "n_pass", "n_drive"]
+
+
+def _cast_events(df: pd.DataFrame) -> pd.DataFrame:
+    """The contract dtypes of decision_events: int32 ids, float64 values, string kinds, bool heldout."""
+    out = df.copy()
+    for c in EVENT_INT32:
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c]).astype("int32")
+    for c in ("sportvu_game", "decision_kind", "best_option", "prior"):
+        if c in out.columns:
+            out[c] = out[c].astype("string")
+    if "heldout" in out.columns:
+        out["heldout"] = out["heldout"].astype(bool)
+    return out
+
+
+def _cast_players(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    for c in PLAYER_INT32:
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c]).astype("int32")
+    if "insufficient" in out.columns:
+        out["insufficient"] = out["insufficient"].astype(bool)
+    return out
 
 
 # ── the value model (location-only xFG) ────────────────────────────────────────────────────────────
@@ -212,13 +239,14 @@ def summarise_rhos(per_game: pd.DataFrame, n_boot: int, seed: int) -> dict:
     return out
 
 
-def shuffled_quality(pg: pd.DataFrame, seed: int) -> pd.DataFrame:
-    """sum_quality permuted across the players of each game (the null the validation is compared with)."""
+def shuffled_quality(pg: pd.DataFrame, seed: int, min_dec: int = MIN_DECISIONS_GAME, column: str = "mean_quality") -> pd.DataFrame:
+    """The player-game quality permuted across the players of each game (the null the validation is compared
+    with), after the same n >= min_dec filter the observed statistic uses, so both see the same players."""
     rng = np.random.default_rng(seed)
-    out = pg.copy()
+    out = pg[pg["n_decisions"] >= min_dec].copy()
     for g, idx in out.groupby("sportvu_game").indices.items():
-        vals = out["sum_quality"].to_numpy()[idx]
-        out.loc[out.index[idx], "sum_quality"] = vals[rng.permutation(len(idx))]
+        vals = out[column].to_numpy()[idx]
+        out.loc[out.index[idx], column] = vals[rng.permutation(len(idx))]
     return out
 
 
@@ -233,18 +261,29 @@ def validate_quality(events: pd.DataFrame, ortg: pd.DataFrame, n_boot: int, seed
 def player_table(events: pd.DataFrame, n_boot: int, seed: int, n_min: int = N_MIN) -> pd.DataFrame:
     if not len(events):
         return pd.DataFrame(columns=PLAYER_COLUMNS)
-    g = gated(events[["player_id", "sportvu_game", "decision_quality"]], "player_id", n_min)
+    g = gated(events[["player_id", "sportvu_game", "decision_kind", "decision_quality"]], "player_id", n_min)
     rows = []
     for pid, d in g.groupby("player_id"):
         r = {"player_id": int(pid), "n_decisions": int(len(d)), "mean_quality": float(d["decision_quality"].mean()),
              "sum_quality": float(d["decision_quality"].sum()), "n_games": int(d["sportvu_game"].nunique()),
              "insufficient": bool(d["insufficient"].iloc[0]), "lo": float("nan"), "hi": float("nan")}
+        for kind in F.KINDS:                                    # mean quality by kind (all are regret, at most 0)
+            dk = d.loc[d["decision_kind"] == kind, "decision_quality"]
+            r["mean_quality_" + kind] = float(dk.mean()) if len(dk) else float("nan")
+            r["n_" + kind] = int(len(dk))
         if r["n_games"] >= 2:
             b = bootstrap_by_game(d, "sportvu_game", lambda s: s["decision_quality"].mean(), n=n_boot, seed=seed)
             r["lo"], r["hi"] = b["lo"], b["hi"]
         rows.append(r)
     out = pd.DataFrame(rows, columns=PLAYER_COLUMNS)
-    return out.sort_values(["insufficient", "mean_quality"], ascending=[True, False]).reset_index(drop=True)
+    # ranked on mean quality among the players past the gate; insufficient rows carry no rank and sort last by id
+    out = out.sort_values(["insufficient", "mean_quality", "player_id"], ascending=[True, False, True]).reset_index(drop=True)
+    enough = ~out["insufficient"].to_numpy(dtype=bool)
+    rank = np.full(len(out), np.nan)
+    rank[enough] = np.arange(1, int(enough.sum()) + 1)
+    out["rank"] = rank
+    ins = out[out["insufficient"]].sort_values("player_id")
+    return pd.concat([out[~out["insufficient"]], ins], ignore_index=True)
 
 
 # ── the run ────────────────────────────────────────────────────────────────────────────────────────
@@ -330,7 +369,7 @@ def write_outputs(res: dict, out_root, season: str) -> list:
     d = base / season
     d.mkdir(parents=True, exist_ok=True)
     p = d / "decision_players.parquet"
-    res["players"].to_parquet(p, index=False)
+    _cast_players(res["players"]).to_parquet(p, index=False)
     written.append(p)
     return written
 
@@ -383,14 +422,20 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
           "## Value-function assumptions", "",
           "- Shot option: points (3 at 22 ft or more, else 2) times the location-only xFG probability at the player's position, "
           "minus %.2f per foot of nearest-defender distance below %.0f ft when no contest model exists (floor %.2f)." % (F.CONTEST_PER_FT, F.CONTEST_FT, F.P_FLOOR),
-          "- Pass option: the teammate's shot value times openness (1 at %.0f ft or more of nearest-defender distance, linearly down to %.1f at 0 ft) "
+          "- Pass option: points times the location-only probability at the teammate's position (no contest term: openness already carries the "
+          "defender distance) times openness (1 at %.0f ft or more of nearest-defender distance, linearly down to %.1f at 0 ft) "
           "times pass risk (%.2f minus %.2f per foot of pass length over %.0f ft)." % (F.OPEN_FT, F.OPEN_MIN, F.PASS_RISK_BASE, F.PASS_RISK_PER_FT, F.PASS_RISK_FT),
           "- Hold option: the EPV lane's epv_points of the last state at or before the decision frame; absent when the EPV table is absent.",
-          "- Drive (chosen value only): the shot value at the position %.0f s ahead along the decision-frame velocity, never nearer than %.0f ft, "
-          "times %.2f; a drive is not in the option set, so its quality can exceed 0." % (F.DRIVE_LOOKAHEAD_S, F.DRIVE_MIN_FT, F.DRIVE_RISK),
-          "- Attacked basket: the end of the court where the offence's mean x over the possession lies.",
+          "- Drive option: the shot value %.0f ft nearer the rim along the line to the basket (never nearer than %.0f ft), with the decision-frame "
+          "defender distance, times %.2f; it is in every decision's option set and is the chosen value of a drive, so every quality is regret "
+          "(at most 0) and best_option is one of shot, pass_to_<rank>, hold, drive." % (F.DRIVE_FT, F.DRIVE_MIN_FT, F.DRIVE_RISK),
+          "- Attacked basket: per (offence team, period) by majority vote over that team's possessions, each voting with the end where its "
+          "offence's mean x lies; the value-model fit uses the basket nearer the shooter at the release.",
           "- Event detection: holder within %.1f ft of the ball under %.0f ft; pass arrives within %.1f s with no release in between; "
-          "drive at over %.0f ft/s toward the basket for %.1f s." % (F.HOLD_FT, F.HOLD_Z_FT, F.PASS_MAX_S, F.DRIVE_FTPS, F.DRIVE_S),
+          "drive = the first frame at which the holder's speed toward the basket is measured above %.0f ft/s in a run lasting %.1f s." % (
+              F.HOLD_FT, F.HOLD_Z_FT, F.PASS_MAX_S, F.DRIVE_FTPS, F.DRIVE_S),
+          "- Upstream rows: a training game refuses EPV or xFG rows with fold == -1, a held-out game refuses rows not flagged heldout "
+          "(refused counts: %s)." % ({g: {k: v for k, v in c.items() if k.endswith("_refused")} for g, c in res["counts"].items() if any(k.endswith("_refused") for k in c)} or "none"),
           "- Leakage: option values use the decision frame and earlier frames only; the value model is out-of-fold by game; "
           "`schema.assert_time_forward` ran on every context frame; `assert_decisions_before_outcome` on every game.",
           "- Prior of the option values: candidate 1 = location-only xFG, candidate 2 = the xFG lane's p_selected on shot events. "

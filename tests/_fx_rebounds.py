@@ -6,7 +6,7 @@ Deterministic given the seed. No real tracking data: every number here is fixtur
 
     synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -> dict(frames, events, shots, rosters,
         shot_frames, rebound_frames, possessions, states_1hz)
-    synth_season(seed, n_games=8, heldout_every=0) -> list of such dicts (held-out id 12.16.2015.PHX.at.GSW first,
+    synth_season(seed, n_games=8, heldout_every=0, n_possessions=40) -> list of such dicts (held-out id 12.16.2015.PHX.at.GSW first,
         further held-out games at the CLE arena)
     write_fixture_root(root, seed, n_games, heldout_every) -> list of game ids, writing the DATA_ROOT layout
 
@@ -218,7 +218,7 @@ except ImportError:
                 "possessions": schema.cast(pd.DataFrame(poss_rows), "possessions"),
                 "states_1hz": schema.empty("states_1hz")}
 
-    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
+    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
         out, n_held = [], 0
         for k in range(n_games):
             held = heldout_every > 0 and (k + 1) % heldout_every == 0
@@ -227,7 +227,7 @@ except ImportError:
                 n_held += 1
             else:
                 gid = _game_id(k)
-            out.append(synth_game(seed * 1000 + k, heldout=held, sportvu_game=gid))
+            out.append(synth_game(seed * 1000 + k, n_possessions=n_possessions, heldout=held, sportvu_game=gid))
         return out
 
     def write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0) -> list:

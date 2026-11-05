@@ -191,7 +191,7 @@ def test_validate_counts_and_cli(games, tmp_path):
     bad["possessions"] = games[0]["possessions"].assign(end_kind="nope").drop(columns=["gap"])
     r = V.validate_game(bad)
     assert any("possessions" in p and "gap" in p for p in r["problems"]) and any("enum" in p for p in r["problems"])
-    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2", "--n-possessions", "12"])
+    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2", "--heldout-every", "2", "--n-possessions", "12"])
     written = sorted(p.name for p in (tmp_path / "analytics" / "matchups").rglob("*.parquet"))
     assert len(written) == 2 and any(HELD in n for n in written)
     assert (tmp_path / "analytics" / "matchups" / "heldout" / "2015-16" / (HELD + ".parquet")).exists()

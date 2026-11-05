@@ -10,17 +10,21 @@ becomes one candidate row per player on court at the rim frame (ten in a full fr
 (candidate_player_id = -1, the team rebound). The target column is ``is_rebounder``: true on the row of the
 play-by-play rebounder (``pbp_rebounder_id``), or on the none row when the play-by-play credits the team.
 
-Which misses are kept (``select_misses``):
-    kept, label = pbp_rebounder_id     pbp_rebounder_id not null and confidence_flag not "unmatched"
+Which misses are kept (``select_misses``), symmetric between the two classes: the frame-level localisation of
+the rebound (rebound_frame, rebounder_id, identity_match, confidence) is never required, since the label is the
+play-by-play rebounder, not the localiser's guess:
+    kept, label = pbp_rebounder_id     rim_frame found, a rebound event follows, pbp_rebounder_id not null (whatever
+                                       identity_match or confidence_flag say; counted as identity_match_null_kept,
+                                       identity_match_false_kept, unmatched_flag_kept)
     kept, label = none                 rim_frame found, a rebound event follows, and the play-by-play names no
                                        player (team rebound: pbp_rebounder_name and pbp_rebounder_id null)
-    dropped, counted                   rim_frame -1; no rebound event; confidence_flag "unmatched" with a named
-                                       rebounder (roster join failed); identity_match null otherwise; offence
-                                       unknown; fewer than two players in the rim frame; the labelled rebounder
-                                       not on court in the rim frame
-Assumption recorded: the lane spec drops every row with identity_match null, which would also drop every team
-rebound (its identity_match is null by construction, section 18). Team rebounds are kept as the "none" class
-when a rebound event follows the miss; every other null identity_match is dropped and counted.
+    dropped, counted                   rim_frame -1; no rebound event; a named rebounder the roster join could not
+                                       match (name present, id null); offence unknown; fewer than two players in
+                                       the rim frame; the labelled rebounder not on court in the rim frame
+Assumption recorded: the lane spec drops every row with identity_match null or flag unmatched, which would also
+drop every team rebound (its identity_match is null by construction, section 18) and every player rebound whose
+frame the localiser missed. Both are kept, because neither affects the label or the features (all at or before
+the rim frame); the counts above make the choice visible in the report.
 
 Features (all measured at or before the rim frame; the 0.4 s look-back is the frame nearest 0.4 s of game clock
 earlier, within 0.2 s, else the speed is NaN):
@@ -68,8 +72,10 @@ FEATURES = STATIC_FEATURES + [PRIOR]
 FORBIDDEN = frozenset(schema.ALL_EXCLUDED) | frozenset({"rebounder_id", "pbp_rebounder_id", "pbp_rebounder_name",
                                                        "rebound_frame", "identity_match", "confidence",
                                                        "confidence_flag", TARGET, "label_id"})
-DROP_REASONS = ("no_rim_frame", "no_rebound_event", "unmatched_named_rebounder", "identity_match_null",
-                "offense_unknown", "rim_frame_not_in_frames", "too_few_players", "rebounder_not_on_court")
+DROP_REASONS = ("no_rim_frame", "no_rebound_event", "unmatched_named_rebounder", "offense_unknown",
+                "rim_frame_not_in_frames", "too_few_players", "rebounder_not_on_court")
+INFO_COUNTS = ("team_rebounds_kept", "player_rebounds_kept", "identity_match_null_kept", "identity_match_false_kept",
+               "unmatched_flag_kept")
 
 
 def feature_columns() -> list:
@@ -94,18 +100,23 @@ def select_misses(rebound_frames: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     rim_ok = rf["rim_frame"].to_numpy() >= 0
     has_ev = rf["rebound_event"].notna().to_numpy()
     pbp_id = rf["pbp_rebounder_id"]
+    has_id = pbp_id.notna().to_numpy()
     named = rf["pbp_rebounder_name"].notna().to_numpy()
     unmatched = (rf["confidence_flag"].astype("string") == "unmatched").fillna(False).to_numpy()
-    ident_null = rf["identity_match"].isna().to_numpy()
-    team = rim_ok & has_ev & ~named & pbp_id.isna().to_numpy()
-    player = rim_ok & has_ev & pbp_id.notna().to_numpy() & ~unmatched & ~ident_null
+    ident = rf["identity_match"]
+    ident_null = ident.isna().to_numpy()
+    team = rim_ok & has_ev & ~named & ~has_id
+    player = rim_ok & has_ev & has_id            # symmetric with the team class: the frame-level rebound is not required
     keep = team | player
     counts["no_rim_frame"] = int((~rim_ok).sum())
     counts["no_rebound_event"] = int((rim_ok & ~has_ev).sum())
-    counts["unmatched_named_rebounder"] = int((rim_ok & has_ev & named & pbp_id.isna().to_numpy()).sum())
-    counts["identity_match_null"] = int((rim_ok & has_ev & pbp_id.notna().to_numpy() & ~keep).sum())
+    counts["unmatched_named_rebounder"] = int((rim_ok & has_ev & named & ~has_id).sum())
     counts["team_rebounds_kept"] = int(team.sum())
     counts["player_rebounds_kept"] = int(player.sum())
+    # informational: kept player rebounds whose frame-level localisation failed or disagreed
+    counts["identity_match_null_kept"] = int((player & ident_null).sum())
+    counts["identity_match_false_kept"] = int((player & ~ident_null & ~ident.fillna(True).astype(bool).to_numpy()).sum())
+    counts["unmatched_flag_kept"] = int((player & unmatched & ~ident_null).sum())
     out = rf.loc[keep, ["sportvu_game", "event", "period", "clock_s", "rim_frame"]].copy()
     out["label_id"] = np.where(team[keep], NONE_ID, pbp_id[keep].fillna(NONE_ID).astype(int).to_numpy()).astype(int)
     return out.reset_index(drop=True), counts
@@ -113,8 +124,9 @@ def select_misses(rebound_frames: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 def offense_side(misses: pd.DataFrame, events: pd.DataFrame | None, possessions: pd.DataFrame | None,
                  frames: pd.DataFrame) -> pd.Series:
-    """'home' or 'away' per miss: the section 5 team of the miss event, else the possession's offense_team_id
-    mapped through the frames' team_id and home columns; NA when neither is known."""
+    """'home' or 'away' per miss: the section 5 team of the miss event, else the offense_team_id of the possession
+    with the largest start_frame at or before the rim frame (start_frame only: end_frame is post-outcome), mapped
+    through the frames' team_id and home columns; NA when neither is known."""
     side = pd.Series(pd.NA, index=misses.index, dtype="string")
     if events is not None and "team" in events.columns:
         m = events.drop_duplicates("event").set_index("event")["team"].astype("string")
@@ -122,12 +134,12 @@ def offense_side(misses: pd.DataFrame, events: pd.DataFrame | None, possessions:
         side = side.where(side.isin(["home", "away"]), pd.NA)
     if side.isna().any() and possessions is not None and len(possessions):
         team_home = frames.drop_duplicates("team_id").set_index("team_id")["home"].astype(bool)
-        pos = possessions[["start_frame", "end_frame", "offense_team_id"]].dropna()
+        pos = possessions[["start_frame", "offense_team_id"]].dropna().sort_values("start_frame", kind="stable")
         fill = []
         for r in misses["rim_frame"].to_numpy():
-            hit = pos[(pos["start_frame"] <= r) & (pos["end_frame"] >= r)]
-            if len(hit) and int(hit["offense_team_id"].iloc[0]) in team_home.index:
-                fill.append("home" if bool(team_home.loc[int(hit["offense_team_id"].iloc[0])]) else "away")
+            hit = pos[pos["start_frame"] <= r]        # the possession that started last before the rim frame
+            if len(hit) and int(hit["offense_team_id"].iloc[-1]) in team_home.index:
+                fill.append("home" if bool(team_home.loc[int(hit["offense_team_id"].iloc[-1])]) else "away")
             else:
                 fill.append(pd.NA)
         side = side.where(side.notna(), pd.Series(fill, index=misses.index, dtype="string"))
@@ -279,7 +291,7 @@ def build(bundles: Iterable[dict]) -> tuple[pd.DataFrame, dict]:
         parts.append(df)
     out = pd.concat(parts, ignore_index=True) if parts else _empty()
     total = {k: int(sum(c.get(k, 0) for c in per_game.values())) for k in
-             ["n_in", "team_rebounds_kept", "player_rebounds_kept", "misses_kept", "rows"] + list(DROP_REASONS)}
+             ["n_in", "misses_kept", "rows"] + list(INFO_COUNTS) + list(DROP_REASONS)}
     schema.assert_time_forward(out, "rebound_frames")
     return out, {"per_game": per_game, "total": total}
 
@@ -339,6 +351,6 @@ if __name__ == "__main__":
     main()
 
 
-__all__ = ["FEATURES", "STATIC_FEATURES", "PRIOR", "KEYS", "TARGET", "NONE_ID", "FORBIDDEN", "DROP_REASONS",
+__all__ = ["FEATURES", "STATIC_FEATURES", "PRIOR", "KEYS", "TARGET", "NONE_ID", "FORBIDDEN", "DROP_REASONS", "INFO_COUNTS",
            "feature_columns", "assert_no_leak", "select_misses", "offense_side", "build_game", "build",
            "write_features", "main"]

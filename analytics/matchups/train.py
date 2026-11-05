@@ -422,7 +422,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "xFG probabilities: %s." % ctx["xfg_note"],
           "Skipped: %d possession(s) without an offence id, %d without frames, %d sampled frame(s) without both squads." % (ctx["skipped"]["no_offense"], ctx["skipped"]["no_frames"], ctx["skipped"]["frames_skipped"]), "",
           "## Protocol", "",
-          "Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (the basket nearer the offensive centroid); positions only. "
+          "Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (one basket per offense team and period, by majority over the possessions' last-third offensive centroids); positions only. "
           "Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (%s); the ridge design is built from partial_possession only." % ", ".join(F.feature_columns()),
           "Gate: %d distinct possessions per defender (`analytics.eval.gated`) before any ranking. Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)." % (ctx["n_min"], ctx["bootstrap"], ctx["seed"]), "",
           "## Assignment stability" + tag, "",

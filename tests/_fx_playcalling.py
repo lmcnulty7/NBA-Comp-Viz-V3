@@ -48,8 +48,8 @@ SEASON = "2015-16"
 LABELLED_AT = "2026-01-01T00:00:00Z"
 
 # expected points per possession by the first action's type, then a coverage shift (fixture truth)
-_ACTION_EP = {"ball_screen": 1.06, "handoff": 1.00, "off_ball_screen": 1.02, "isolation": 0.84, "post_up": 0.90, "drive": 1.12, "cut": 1.20}
-_COVERAGE_EP = {"switch": -0.08, "drop": 0.10, "hedge_show": 0.00, "blitz_trap": -0.12, "ice": 0.05, "under": 0.08, "over": -0.03, "none": 0.0}
+_ACTION_EP = {"ball_screen": 1.10, "handoff": 1.00, "off_ball_screen": 1.02, "isolation": 0.70, "post_up": 0.80, "drive": 1.25, "cut": 1.40}
+_COVERAGE_EP = {"switch": -0.15, "drop": 0.20, "hedge_show": 0.00, "blitz_trap": -0.25, "ice": 0.10, "under": 0.15, "over": -0.05, "none": 0.0}
 _SCREEN_ACTIONS = ("ball_screen",)
 _ACTION_P = np.array([0.40, 0.10, 0.10, 0.12, 0.08, 0.12, 0.08])
 _CLASSES = [c for c in COVERAGES if c != "none"]
@@ -129,7 +129,7 @@ def synth_labels_local(seed: int, game: dict) -> dict:
     kinds = []
     action_id = 5          # explicit, non-contiguous ids (5, 8, 11, ...): the joins must not assume positions
     for i, row in enumerate(poss.itertuples(index=False)):
-        n_actions = 1 if rng.uniform() < 0.7 else 2
+        n_actions = 1 if rng.uniform() < 0.85 else 2
         first = None
         off_lu = list(row.fx_off_lineup)
         for a in range(n_actions):

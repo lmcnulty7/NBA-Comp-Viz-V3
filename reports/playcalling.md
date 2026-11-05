@@ -1,6 +1,6 @@
 # Play calling: Association only, not causal: every number below is an observational comparison of what followed each action against each coverage, with a bootstrap interval by game and a sample gate. Nothing here estimates what would happen if a different play were called.
 
-Written 2026-11-05T08:40:31Z by `python -m analytics.playcalling.train --fixtures --report reports/playcalling.md --folds 5 --seed 0 --bootstrap 200`. FIXTURE OUTPUT, NOT A RESULT: the inputs are synthetic.
+Written 2026-11-05T08:57:35Z by `python -m analytics.playcalling.train --fixtures --report reports/playcalling.md --folds 5 --seed 0 --bootstrap 200`. FIXTURE OUTPUT, NOT A RESULT: the inputs are synthetic.
 
 ## Inputs
 
@@ -10,10 +10,10 @@ Written 2026-11-05T08:40:31Z by `python -m analytics.playcalling.train --fixture
 - coverage_predictions: rows=136, games=8, duplicates_dropped=0, unknown_predicted={}, null_predicted=0, p_out_of_range=0, p_not_summing_to_one=0
 - epv_states: rows=1600, games=8, duplicates_dropped=0, epv_not_finite=0, epv_out_of_range=0
 - actions: rows=320, games=8, duplicates_dropped=0, unknown_action_type={}, null_action_type=0, unknown_label_source={}, null_label_source=0, start_after_end=0, null_ball_handler_id=0, null_screener_id=134, possession_missing=0, outside_possession_span=0
-- heldout_games: ["11.11.2015.HLX.at.GRN", "12.16.2015.PHX.at.GSW"]
+- heldout_games: ["11.11.2015.HLX.at.CLE", "12.16.2015.PHX.at.GSW"]
 
 Build: possessions=320, no_first_frame=0, not_five_v_five=0, no_offense_team=0, actions_in=320, actions_without_possession=0, rows=320, epv_gain_rows=320, coverage_source={"none": 184, "hand": 136}, null_lineups=0.
-Training rows: 240 actions from 6 game(s). Held-out rows set aside before any fit: 80 actions from 2 game(s) (11.11.2015.HLX.at.GRN, 12.16.2015.PHX.at.GSW).
+Training rows: 240 actions from 6 game(s). Held-out rows set aside before any fit: 80 actions from 2 game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW).
 Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `analytics.schema.assert_time_forward` passed on the feature frame (action_type, coverage, off_lineup, def_lineup, score_margin, shot_clock_s, period).
 
 ## The caveat
@@ -82,18 +82,18 @@ epv_gain = epv_points at the action's end frame minus at its start frame (EPV la
 
 ## 3. Ridge adjustment (fixture output, not a result)
 
-Possession points regressed on indicator columns of action type, coverage, action type x coverage, offensive lineup and defensive lineup (lineups from the possession's first frame). Alpha grid [0.3, 1.0, 3.0, 10.0, 30.0, 100.0]; out-of-fold under 5 grouped folds by sportvu_game (seed 0), ridge alpha chosen by 3 inner grouped folds. Outer-fold alphas: [100.0, 100.0, 100.0, 100.0, 100.0]. Final alpha on all training rows: 100.0 (grouped-CV MSE by alpha: 0.3: 1.3933, 1.0: 1.3833, 3.0: 1.3621, 10.0: 1.3257, 30.0: 1.2967, 100.0: 1.2846).
+Possession points regressed on indicator columns of action type, coverage, action type x coverage, offensive lineup, defensive lineup (lineups from the possession's first frame) and the binned score margin at the action start (trailing by more than 5, within 5, leading by more than 5), the last three groups being controls averaged out of the adjusted PPP. Alpha grid [0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0, 1000.0]; out-of-fold under 5 grouped folds by sportvu_game (seed 0), ridge alpha chosen by 3 inner grouped folds. Outer-fold alphas: [100.0, 300.0, 300.0, 100.0, 300.0]. Final alpha on all training rows: 100.0 (grouped-CV MSE by alpha: 0.3: 1.4433, 1.0: 1.3993, 3.0: 1.3523, 10.0: 1.3074, 30.0: 1.2795, 100.0: 1.2735, 300.0: 1.2791, 1000.0: 1.2844).
 
 | model | out-of-fold MSE | lo | hi |
 | --- | --- | --- | --- |
 | mean | 1.2878 | 1.2528 | 1.3345 |
 | by_action | 1.2915 | 1.2436 | 1.3533 |
-| ridge | 1.2846 | 1.2567 | 1.3270 |
+| ridge | 1.2782 | 1.2493 | 1.3246 |
 
 Paired bootstrap by game of the MSE difference (ridge minus baseline; negative favours the ridge):
 
-- ridge minus mean: -0.0033 [-0.0144, 0.0132], interval excludes zero: no
-- ridge minus by_action: -0.0070 [-0.0294, 0.0184], interval excludes zero: no
+- ridge minus mean: -0.0096 [-0.0240, 0.0061], interval excludes zero: no
+- ridge minus by_action: -0.0133 [-0.0425, 0.0128], interval excludes zero: no
 
 ## 4. Recommendation table (association) (fixture output, not a result)
 
@@ -101,31 +101,31 @@ Per coverage, the adjusted PPP of each action type: the ridge prediction with th
 
 | coverage | action_type | adjusted_ppp | lo | hi | n | insufficient | recommended |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| blitz_trap | ball_screen | 1.144 | 1.007 | 1.251 | 22 | yes | no |
-| drop | ball_screen | 1.107 | 0.918 | 1.294 | 16 | yes | no |
-| hedge_show | ball_screen | 1.128 | 0.984 | 1.239 | 14 | yes | no |
-| ice | ball_screen | 1.167 | 0.975 | 1.391 | 17 | yes | no |
-| none | off_ball_screen | 1.386 | 1.208 | 1.540 | 19 | yes | no |
-| none | cut | 1.284 | 1.104 | 1.466 | 22 | yes | no |
-| none | handoff | 1.266 | 1.048 | 1.446 | 19 | yes | no |
-| none | drive | 1.255 | 1.142 | 1.369 | 22 | yes | no |
-| none | isolation | 1.221 | 1.001 | 1.458 | 28 | yes | no |
-| none | post_up | 1.160 | 1.036 | 1.257 | 21 | yes | no |
-| over | ball_screen | 1.036 | 0.920 | 1.187 | 14 | yes | no |
-| switch | ball_screen | 1.281 | 1.186 | 1.369 | 12 | yes | no |
-| under | ball_screen | 1.203 | 1.054 | 1.366 | 14 | yes | no |
+| blitz_trap | ball_screen | 1.150 | 1.018 | 1.252 | 22 | yes | no |
+| drop | ball_screen | 1.113 | 0.924 | 1.297 | 16 | yes | no |
+| hedge_show | ball_screen | 1.129 | 0.949 | 1.259 | 14 | yes | no |
+| ice | ball_screen | 1.175 | 0.979 | 1.400 | 17 | yes | no |
+| none | off_ball_screen | 1.384 | 1.206 | 1.531 | 19 | yes | no |
+| none | cut | 1.282 | 1.107 | 1.436 | 22 | yes | no |
+| none | handoff | 1.260 | 1.055 | 1.420 | 19 | yes | no |
+| none | drive | 1.250 | 1.151 | 1.324 | 22 | yes | no |
+| none | isolation | 1.212 | 1.006 | 1.398 | 28 | yes | no |
+| none | post_up | 1.157 | 1.044 | 1.242 | 21 | yes | no |
+| over | ball_screen | 1.045 | 0.916 | 1.198 | 14 | yes | no |
+| switch | ball_screen | 1.284 | 1.179 | 1.378 | 12 | yes | no |
+| under | ball_screen | 1.208 | 1.060 | 1.375 | 14 | yes | no |
 
 No coverage has a cell with at least 300 rows, so no recommendation is made.
 
-## Held-out rows
+## Held-out rows (fixture output, not a result)
 
-80 actions from 2 held-out game(s) (11.11.2015.HLX.at.GRN, 12.16.2015.PHX.at.GSW), scored ONCE by the final models refit on all 240 training rows; never fitted or tuned on.
+80 actions from 2 held-out game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW), scored ONCE by the final models refit on all 240 training rows; never fitted or tuned on.
 
 | model | held-out MSE |
 | --- | --- |
 | mean | 1.3653 |
 | by_action | 1.3488 |
-| ridge | 1.3461 |
+| ridge | 1.3788 |
 
 Point estimates only (no interval over 2 game(s)).
 

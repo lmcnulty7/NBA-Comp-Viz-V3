@@ -268,9 +268,12 @@ def possession_shots(game: dict, mf: pd.DataFrame, info: dict, xfg: pd.DataFrame
     F = _Frames(game["frames"])
     desc = {}
     ev_frame = {}
-    if events is not None and len(events):
-        desc = dict(zip(events["event"].astype(int), events["desc"].astype(str)))
-        ev_frame = dict(zip(events["event"].astype(int), events["frame"].astype(int)))
+    if events is not None and len(events):          # keyed by (period, event): event indices are unique per game in the contract, the key is belt and braces
+        per = events["period"].astype(int) if "period" in events.columns else pd.Series(-1, index=events.index)
+        desc = {(int(q), int(e)): str(d) for q, e, d in zip(per, events["event"], events["desc"])}
+        ev_frame = {(int(q), int(e)): int(f) for q, e, f in zip(per, events["event"], events["frame"])}
+    def _ev(table, q, e):
+        return table.get((q, e), table.get((-1, e)))
     pmap = {}
     if xfg is not None and len(xfg):
         pmap = {(str(g), int(e)): float(p) for g, e, p in zip(xfg["sportvu_game"], xfg["event"], xfg["p_selected"])}
@@ -290,7 +293,7 @@ def possession_shots(game: dict, mf: pd.DataFrame, info: dict, xfg: pd.DataFrame
         shooter = None if pd.isna(s.shooter_id) else int(s.shooter_id)
         rel = int(s.release_frame)
         if rel == schema.NOT_FOUND:
-            rel = int(ev_frame.get(ev, schema.NOT_FOUND))
+            rel = int(_ev(ev_frame, int(s.period), ev) or schema.NOT_FOUND)
         frames_s = inf["frames"]
         if rel == schema.NOT_FOUND:
             rel = int(frames_s[-1])
@@ -303,7 +306,7 @@ def possession_shots(game: dict, mf: pd.DataFrame, info: dict, xfg: pd.DataFrame
                 sx, sy = xy
         bx, by = inf["basket"]
         dist = float(np.hypot(sx - bx, sy - by)) if np.isfinite(sx) else np.nan
-        value = shot_value(desc.get(ev), dist)
+        value = shot_value(_ev(desc, int(s.period), ev), dist)
         def_id, def_dist = np.nan, np.nan
         g = by_pos.get(pos)
         if g is not None and shooter is not None:

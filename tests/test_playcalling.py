@@ -286,8 +286,10 @@ def test_data_root_layout_round_trip(tmp_path):
     import shutil
     shutil.rmtree(root / "labels" / "actions")
     det = V.load_data_root(root, root)
-    assert det["actions"]["label_source"].eq("model").all() and "action_id" in det["actions"].columns
-    assert det["actions"]["action_id"].notna().all() and (det["actions"]["labeller_pass"].astype(str) == "model").all()
+    assert det["actions"]["label_source"].eq("model").all() and "action_id" not in det["actions"].columns
+    assert (det["actions"]["labeller_pass"].astype(str) == "model").all()       # no pass filter on detected rows
+    det, _ = V.validate_inputs(det)
+    assert det["actions"]["action_id"].notna().all()                              # positions within the game
     dt, _ = F.build_action_table(det["frames"], det["possessions"], det["actions"], None, det["coverage_predictions"], None, [])
     assert set(dt["coverage_source"]) <= {"predicted", "none"}         # detected rows join the predictions by position
 

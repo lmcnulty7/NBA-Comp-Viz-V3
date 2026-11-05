@@ -59,7 +59,10 @@ def _fixture_module():
 def bundles_from_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> list:
     """Synthetic bundles. Fixture output, never a result."""
     fx = _fixture_module()
-    games = fx.synth_season(seed, n_games, heldout_every)
+    try:
+        games = fx.synth_season(seed, n_games, heldout_every, n_possessions=n_possessions)
+    except TypeError:                               # a generator without the n_possessions argument
+        games = fx.synth_season(seed, n_games, heldout_every)
     if isinstance(games, dict):
         games = list(games.values())
     out = []
@@ -230,7 +233,9 @@ def markdown(summary: dict, fixtures: bool) -> str:
     L += ["%d game(s), %d held out." % (summary["games"], summary["heldout_games"]), "",
           "| table | rows in | rows out | problems |", "| --- | --- | --- | --- |"]
     for t, c in summary["totals"].items():
-        probs = ", ".join("%s %d" % (k, v) for k, v in c.items() if k not in ("rows_in", "rows_out") and v)
+        # rim_frame_not_found and unmatched are localiser coverage counts (per-game table below), not problems
+        probs = ", ".join("%s %d" % (k, v) for k, v in c.items()
+                          if k not in ("rows_in", "rows_out", "rim_frame_not_found", "unmatched") and v)
         L.append("| %s | %d | %d | %s |" % (t, c["rows_in"], c["rows_out"], probs or "none"))
     L += ["", "| game | held out | frames in | frames out | misses | rim frame not found | unmatched |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for g in summary["per_game"]:

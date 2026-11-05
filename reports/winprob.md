@@ -1,6 +1,6 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written ['/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2020-21/winprob_states.parquet', '/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2020-21/winprob_calibration.parquet', '/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2021-22/winprob_states.parquet', '/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2021-22/winprob_calibration.parquet', '/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2024-25/winprob_states.parquet', '/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2024-25/winprob_calibration.parquet'] by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out --bootstrap 200`.
+Written 2026-11-05T08:56:55Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out --bootstrap 200`.
 
 **Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.
 
@@ -35,7 +35,7 @@ Brier score (lower is better), out-of-fold within the training seasons.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | constant | 0.2645 [0.2489, 0.2793] | 0.2656 [0.2498, 0.2808] | 0.2653 [0.2496, 0.2813] | 0.2650 [0.2496, 0.2795] | 0.2643 [0.2490, 0.2796] | n/a | 0.2650 | 0.7236 [0.6922, 0.7541] | 0.2650 [0.2496, 0.2801] |
 | logistic (selected) | 0.2427 [0.2120, 0.2793] | 0.1923 [0.1305, 0.2741] | 0.1457 [0.0968, 0.2287] | 0.0729 [0.0382, 0.1239] | 0.0502 [0.0212, 0.0935] | n/a | 0.1408 | 0.4814 [0.3887, 0.6279] | 0.1611 [0.1278, 0.2124] |
-| hgb_iso | 0.3277 [0.2738, 0.3741] | 0.3193 [0.2667, 0.3620] | 0.3058 [0.2594, 0.3502] | 0.2813 [0.2310, 0.3309] | 0.2702 [0.2192, 0.3150] | n/a | 0.3009 | 0.8309 [0.7153, 0.9279] | 0.3074 [0.2574, 0.3515] |
+| hgb_iso | 0.3263 [0.2663, 0.3810] | 0.2937 [0.2359, 0.3508] | 0.2654 [0.2087, 0.3264] | 0.2256 [0.1724, 0.2767] | 0.2176 [0.1677, 0.2653] | n/a | 0.2657 | 0.9637 [0.6708, 1.4094] | 0.2768 [0.2202, 0.3238] |
 
 Rows per bucket: 48-36 2395, 36-24 2403, 24-12 2415, 12-4 1558, 4-0 869, OT 0.
 
@@ -57,11 +57,11 @@ ECE (10 bins) and calibration slope per bucket, out-of-fold.
 | logistic | 24-12 | 2415 | 0.0884 [0.0526, 0.2159] | 0.7557 [0.4455, 1.2691] |
 | logistic | 12-4 | 1558 | 0.0299 [0.0319, 0.1012] | 1.1957 [0.7845, 2.3461] |
 | logistic | 4-0 | 869 | 0.0308 [0.0320, 0.0910] | 1.4018 [0.9455, 4.4817] |
-| hgb_iso | 48-36 | 2395 | 0.2650 [0.1741, 0.4093] | -0.6285 [-1.8641, 0.1219] |
-| hgb_iso | 36-24 | 2403 | 0.2728 [0.1991, 0.4392] | -0.6965 [-1.9215, 0.2283] |
-| hgb_iso | 24-12 | 2415 | 0.2539 [0.1842, 0.4114] | -0.4923 [-1.6345, 0.3122] |
-| hgb_iso | 12-4 | 1558 | 0.2224 [0.1712, 0.3795] | -0.0837 [-1.1311, 0.8674] |
-| hgb_iso | 4-0 | 869 | 0.2179 [0.1488, 0.3731] | 0.1404 [-0.8079, 1.0404] |
+| hgb_iso | 48-36 | 2395 | 0.2436 [0.1748, 0.3939] | -0.0473 [-0.9413, 0.1343] |
+| hgb_iso | 36-24 | 2403 | 0.2220 [0.1683, 0.3755] | 0.0972 [-0.2634, 0.3866] |
+| hgb_iso | 24-12 | 2415 | 0.1826 [0.1304, 0.3275] | 0.0688 [-0.0731, 0.4418] |
+| hgb_iso | 12-4 | 1558 | 0.1238 [0.0936, 0.2714] | 0.1779 [0.0327, 1.2077] |
+| hgb_iso | 4-0 | 869 | 0.1340 [0.0934, 0.2791] | 0.1893 [0.0512, 1.4260] |
 
 The constant model has no calibration slope by design.
 
@@ -135,4 +135,5 @@ The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<s
 - The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.
 - The possession indicator is read from event kinds and is null when the events so far do not say.
 - The interaction is margin times sqrt(seconds remaining), as specified; the logistic model also sees margin and time on their own.
+- On the fixtures the boosted candidate loses to the logistic one because the spread is nearly unique per game among a few dozen games and the trees memorise games through it; the selection rule picks the logistic candidate. This is a fixture artefact to re-check on the real seasons, where many games share a spread value.
 - The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.
