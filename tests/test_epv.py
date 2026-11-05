@@ -221,7 +221,7 @@ def test_calibrated_candidates_learn_a_strong_signal_and_calibrate():
     assert T.mse(y[te], e) < out["constant"][0]
 
 
-def _pred_frame(n=6000, seed=0, scale=1.0, lift_mse=True):
+def _pred_frame(n=30000, seed=0, scale=1.0, lift_mse=True):
     """A prediction frame with known calibration: p_hgb drawn, y from p_hgb (scale 1 is calibrated)."""
     rng = np.random.default_rng(seed)
     p = rng.uniform(0.05, 0.95, n)

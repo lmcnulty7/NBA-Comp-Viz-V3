@@ -1,6 +1,6 @@
 # EPV: expected possession value from 1 Hz states (analytics/epv)
 
-Written 2026-11-05T08:59:43Z by `python -m analytics.epv.train --fixtures --games 8 --folds 5 --bootstrap 200 --report reports/epv.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/epv_out` (fixture output, not a result).
+Written 2026-11-05T09:19:00Z by `python -m analytics.epv.train --fixtures --games 8 --folds 5 --bootstrap 200 --report reports/epv.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/epv_out2` (fixture output, not a result).
 
 **Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_epv.py, built to exercise the pipeline, and say nothing about basketball.
 
@@ -9,14 +9,14 @@ Written 2026-11-05T08:59:43Z by `python -m analytics.epv.train --fixtures --game
 | table | rows in | schema problems | duplicates dropped | rows dropped | rows out |
 | --- | --- | --- | --- | --- | --- |
 | possessions | 320 | 0 | 0 | 0 | 320 |
-| states_1hz | 3995 | 0 | 0 | 0 | 3995 |
-| shot_frames | 317 | 0 | 0 | 0 | 317 |
+| states_1hz | 4014 | 0 | 0 | 0 | 4014 |
+| shot_frames | 326 | 0 | 0 | 0 | 326 |
 | rosters | 112 | 0 | 0 | 0 | 112 |
-| shots | 317 | 0 | 0 | 0 | 317 |
+| shots | 326 | 0 | 0 | 0 | 326 |
 
-Training: 2969 states, 240 possessions, 6 game(s) (01.18.2016.HLX.at.LRD, 02.04.2016.GRN.at.QCY, 02.07.2016.OMA.at.DUL, 11.27.2015.GRN.at.QCY, 12.12.2015.RNO.at.MOB, 12.15.2015.ABQ.at.GRN). Held-out, set aside before any fit: 1026 states from 2 game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW).
+Training: 3026 states, 240 possessions, 6 game(s) (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL). Held-out, set aside before any fit: 988 states from 2 game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW).
 Guard: `analytics.eval.refuse_heldout` checked the 6 training game ids against sportvu/splits.json; `analytics.schema.assert_time_forward` passed on every feature frame (the only column source is `schema.feature_allowlist("states_1hz")`; points_to_end and possession_end_kind never enter).
-Training mean points per state: 1.2529; P(points > 0): 0.5699.
+Training mean points per state: 1.2406; P(points > 0): 0.5585.
 
 ## Protocol
 
@@ -29,72 +29,82 @@ Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals a
 
 | bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |
 | --- | --- | --- | --- | --- | --- |
-| all | constant | 2969 | 0.2462 [0.2426, 0.2497] | 1.2802 [1.2373, 1.3299] | n/a |
-| all | ridge | 2969 | 0.2476 [0.2447, 0.2506] | 1.2976 [1.2573, 1.3308] | -1.147 |
-| all | hgb | 2969 | 0.2468 [0.2429, 0.2506] | 1.3525 [1.3243, 1.3847] | -0.249 |
-| all | mlp | 2969 | 0.2473 [0.2435, 0.2505] | 2.2361 [2.0533, 2.4140] | 0.011 |
-| 0-4 | constant | 961 | 0.2489 [0.2442, 0.2544] | 1.2855 [1.2546, 1.3316] | n/a |
-| 0-4 | ridge | 961 | 0.2504 [0.2459, 0.2552] | 1.3162 [1.2604, 1.3590] | -1.565 |
-| 0-4 | hgb | 961 | 0.2482 [0.2437, 0.2541] | 1.3379 [1.2918, 1.3671] | 0.164 |
-| 0-4 | mlp | 961 | 0.2520 [0.2462, 0.2569] | 2.4111 [2.0382, 2.8034] | -1.373 |
-| 4-10 | constant | 1337 | 0.2462 [0.2418, 0.2509] | 1.2864 [1.2493, 1.3352] | n/a |
-| 4-10 | ridge | 1337 | 0.2476 [0.2438, 0.2515] | 1.3086 [1.2734, 1.3396] | -1.641 |
-| 4-10 | hgb | 1337 | 0.2483 [0.2432, 0.2537] | 1.3690 [1.3392, 1.4042] | -0.657 |
-| 4-10 | mlp | 1337 | 0.2478 [0.2429, 0.2528] | 2.1378 [1.9931, 2.2951] | -1.327 |
-| 10-24 | constant | 671 | 0.2424 [0.2387, 0.2466] | 1.2602 [1.1744, 1.3415] | n/a |
-| 10-24 | ridge | 671 | 0.2438 [0.2391, 0.2504] | 1.2490 [1.1950, 1.3115] | -0.743 |
-| 10-24 | hgb | 671 | 0.2417 [0.2387, 0.2466] | 1.3404 [1.2896, 1.3907] | 0.501 |
-| 10-24 | mlp | 671 | 0.2397 [0.2371, 0.2426] | 2.1812 [1.9110, 2.3826] | 0.980 |
+| all | constant | 3026 | 0.2516 [0.2423, 0.2619] | 1.3341 [1.2365, 1.4472] | n/a |
+| all | ridge | 3026 | 0.2541 [0.2448, 0.2661] | 1.3746 [1.2232, 1.5410] | 0.003 |
+| all | hgb | 3026 | 0.2543 [0.2428, 0.2688] | 1.4563 [1.3144, 1.6102] | -0.812 |
+| all | mlp | 3026 | 0.2519 [0.2427, 0.2635] | 2.2112 [1.9892, 2.3961] | -0.008 |
+| 0-4 | constant | 956 | 0.2560 [0.2445, 0.2677] | 1.3618 [1.2846, 1.4541] | n/a |
+| 0-4 | ridge | 956 | 0.2592 [0.2478, 0.2725] | 1.4148 [1.2966, 1.5436] | -1.359 |
+| 0-4 | hgb | 956 | 0.2576 [0.2447, 0.2714] | 1.4780 [1.3771, 1.6035] | -1.303 |
+| 0-4 | mlp | 956 | 0.2550 [0.2442, 0.2662] | 2.0646 [1.9392, 2.1890] | -0.023 |
+| 4-10 | constant | 1329 | 0.2525 [0.2424, 0.2627] | 1.3573 [1.2815, 1.4602] | n/a |
+| 4-10 | ridge | 1329 | 0.2553 [0.2466, 0.2660] | 1.3933 [1.2750, 1.5176] | -1.710 |
+| 4-10 | hgb | 1329 | 0.2573 [0.2440, 0.2712] | 1.5127 [1.3720, 1.6528] | -0.501 |
+| 4-10 | mlp | 1329 | 0.2525 [0.2429, 0.2623] | 2.1299 [1.9170, 2.3627] | -0.447 |
+| 10-24 | constant | 741 | 0.2440 [0.2309, 0.2622] | 1.2566 [1.1043, 1.4524] | n/a |
+| 10-24 | ridge | 741 | 0.2455 [0.2277, 0.2684] | 1.2890 [1.0327, 1.5905] | 0.133 |
+| 10-24 | hgb | 741 | 0.2445 [0.2321, 0.2639] | 1.3273 [1.1415, 1.5602] | -1.238 |
+| 10-24 | mlp | 741 | 0.2470 [0.2331, 0.2663] | 2.5459 [2.0318, 3.1165] | 0.054 |
+
+| model | in-sample MSE (mean over folds) | out-of-fold MSE |
+| --- | --- | --- |
+| constant | 1.3088 | 1.3341 |
+| ridge | 1.2594 | 1.3746 |
+| hgb | 0.9074 | 1.4563 |
+| mlp | 0.3794 | 2.2112 |
 
 Selected: **constant** (lowest out-of-fold MSE among the three candidates).
+Why the constant: no learner beats the constant out of fold (gradient boosting lift -9.2 percent); the gradient-boosting calibration slopes sit outside 0.9 to 1.1 in 14-24, 7-14; the real lift (-9.2 percent) is no better than the shuffled-target lift (-8.7 percent); the learners overfit (in-sample MSE well under out-of-fold for hgb, mlp: the target is one draw per possession while min_samples_leaf counts states, so a leaf can hold a handful of possessions).
 
 ## Calibration of P(points > 0), constant model (out-of-fold)
 
 | bucket (s) | bin | n | mean p | observed rate |
 | --- | --- | --- | --- | --- |
-| 0-4 | 0.4 to 0.6 | 961 | 0.566 | 0.549 |
-| 4-10 | 0.4 to 0.6 | 1337 | 0.565 | 0.571 |
-| 10-24 | 0.4 to 0.6 | 671 | 0.565 | 0.596 |
+| 0-4 | 0.4 to 0.6 | 637 | 0.550 | 0.579 |
+| 0-4 | 0.6 to 0.8 | 319 | 0.603 | 0.426 |
+| 4-10 | 0.4 to 0.6 | 893 | 0.549 | 0.601 |
+| 4-10 | 0.6 to 0.8 | 436 | 0.603 | 0.454 |
+| 10-24 | 0.4 to 0.6 | 482 | 0.550 | 0.639 |
+| 10-24 | 0.6 to 0.8 | 259 | 0.603 | 0.548 |
 
 ## Gradient boosting by shot-clock bucket and the gate
 
 | shot clock (s) | calibration slope |
 | --- | --- |
-| 14-24 | -0.461 |
-| 7-14 | 1.453 |
-| 0-7 | n/a |
+| 14-24 | -0.724 |
+| 7-14 | -1.449 |
 
-MSE lift of gradient boosting over the constant: -5.6 percent (1.3525 vs 1.2802). Slopes outside 0.9 to 1.1: 14-24, 7-14, 0-7.
+MSE lift of gradient boosting over the constant: -9.2 percent (1.4563 vs 1.3341). Slopes outside 0.9 to 1.1 (n/a counts as outside): 14-24, 7-14.
 Gate decision: the sequence model (MLPRegressor over the last 5 states, standing in for a GRU) was TRAINED.
-Paired bootstrap by game of MSE(hgb) - MSE(mlp): -0.8836 [-1.0629, -0.6749]; the sequence model is DROPPED (no significant gain over gradient boosting).
+Paired bootstrap by game of MSE(constant) - MSE(mlp), constant being the lowest-MSE candidate: -0.8771 [-1.0400, -0.7132]; the sequence model is DROPPED (no significant gain over the base candidate).
 
 ## Shuffled-target check
 
-Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE 1.3277 vs constant 1.2811, lift -3.6 percent (chance is at or below 0; the real lift above is -5.6 percent).
+Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE 1.4598 vs constant 1.3428, lift -8.7 percent (chance is at or below 0; the real lift above is -9.2 percent).
 
 ## Held-out games, scored once (never fitted or tuned on)
 
-1026 states from 2 held-out game(s): 11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW; the pipeline was refit on all 2969 training states.
-Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on.
+988 states from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW; the pipeline was refit on all 3026 training states.
+Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on. Point estimates only: fewer than 5 held-out games, so no bootstrap interval.
 
 | bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |
 | --- | --- | --- | --- | --- | --- |
-| all | constant | 1026 | 0.2605 [0.2579, 0.2632] | 1.3791 [1.3057, 1.4584] | n/a |
-| all | ridge | 1026 | 0.2645 [0.2637, 0.2654] | 1.4291 [1.3679, 1.4952] | 0.039 |
-| all | hgb | 1026 | 0.2642 [0.2601, 0.2680] | 1.4641 [1.4459, 1.4838] | -0.221 |
-| all | mlp | 1026 | 0.2625 [0.2619, 0.2632] | 2.1367 [2.1354, 2.1382] | -0.334 |
-| 0-4 | constant | 319 | 0.2599 [0.2544, 0.2654] | 1.3819 [1.3118, 1.4516] | n/a |
-| 0-4 | ridge | 319 | 0.2588 [0.2536, 0.2640] | 1.3767 [1.2675, 1.4852] | 0.103 |
-| 0-4 | hgb | 319 | 0.2605 [0.2577, 0.2633] | 1.4109 [1.3894, 1.4325] | -0.183 |
-| 0-4 | mlp | 319 | 0.2601 [0.2533, 0.2669] | 2.0745 [1.8093, 2.3380] | -1.235 |
-| 4-10 | constant | 447 | 0.2585 [0.2536, 0.2633] | 1.3802 [1.2999, 1.4608] | n/a |
-| 4-10 | ridge | 447 | 0.2603 [0.2582, 0.2624] | 1.4108 [1.3710, 1.4508] | -0.720 |
-| 4-10 | hgb | 447 | 0.2673 [0.2626, 0.2719] | 1.5335 [1.5315, 1.5356] | -0.565 |
-| 4-10 | mlp | 447 | 0.2590 [0.2542, 0.2637] | 2.0576 [1.9444, 2.1713] | -0.574 |
-| 10-24 | constant | 260 | 0.2646 [0.2600, 0.2679] | 1.3738 [1.3081, 1.4636] | n/a |
-| 10-24 | ridge | 260 | 0.2789 [0.2738, 0.2826] | 1.5248 [1.4698, 1.5999] | 0.093 |
-| 10-24 | hgb | 260 | 0.2634 [0.2585, 0.2670] | 1.4100 [1.3260, 1.5245] | 0.770 |
-| 10-24 | mlp | 260 | 0.2717 [0.2568, 0.2826] | 2.3491 [1.7804, 2.7662] | -0.224 |
+| all | constant | 988 | 0.2426 | 1.2191 | n/a |
+| all | ridge | 988 | 0.2419 | 1.2237 | 1.188 |
+| all | hgb | 988 | 0.2420 | 1.2424 | 5.993 |
+| all | mlp | 988 | 0.2422 | 2.0450 | 0.841 |
+| 0-4 | constant | 320 | 0.2432 | 1.2256 | n/a |
+| 0-4 | ridge | 320 | 0.2422 | 1.2291 | 1.931 |
+| 0-4 | hgb | 320 | 0.2423 | 1.2096 | 9.240 |
+| 0-4 | mlp | 320 | 0.2447 | 2.3928 | 0.001 |
+| 4-10 | constant | 450 | 0.2425 | 1.2367 | n/a |
+| 4-10 | ridge | 450 | 0.2426 | 1.2473 | 0.800 |
+| 4-10 | hgb | 450 | 0.2418 | 1.2705 | 7.200 |
+| 4-10 | mlp | 450 | 0.2431 | 1.9667 | 0.207 |
+| 10-24 | constant | 218 | 0.2422 | 1.1732 | n/a |
+| 10-24 | ridge | 218 | 0.2399 | 1.1671 | 1.251 |
+| 10-24 | hgb | 218 | 0.2422 | 1.2326 | -1.879 |
+| 10-24 | mlp | 218 | 0.2368 | 1.6962 | 3.437 |
 
 ## Status
 

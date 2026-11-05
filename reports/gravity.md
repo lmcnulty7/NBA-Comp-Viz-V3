@@ -1,6 +1,6 @@
 # Gravity and spacing (analytics/gravity) (fixture output, not a result)
 
-Written 2026-11-05T09:17:51Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:18:57Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from `analytics.fixtures` with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end.
 
@@ -32,15 +32,24 @@ Folds: out-of-fold under 5 grouped folds by sportvu_game (seed 0). Intervals: 2.
 
 Paired bootstrap by game, MSE(hgb) - MSE(ridge): -2.0446 [-2.1452, -1.9410], excludes zero: True (HGB lower: True). MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the location features leave unexplained.
 
-## Players (gate: 300 possessions; 0 gated of 42) (fixture output, not a result)
+## Players (gate: 40 possessions, the fixture gate; real data gates at 300; 13 gated of 42) (fixture output, not a result)
 
 | rank | player_id | possessions | gravity_ft | lo | hi |
 | --- | --- | --- | --- | --- | --- |
-| - | - | - | no player reaches the gate | - | - |
+| 1 | 500070 | 58 | 1.548 | 1.442 | 1.756 |
+| 2 | 500030 | 58 | 1.385 | 1.236 | 1.553 |
+| 3 | 500060 | 40 | 1.352 | 1.324 | 1.381 |
+| 4 | 500034 | 45 | 0.270 | 0.130 | 0.464 |
+| 5 | 500074 | 45 | 0.237 | 0.052 | 0.499 |
+| 6 | 500061 | 40 | -0.125 | -0.363 | 0.121 |
+| 7 | 500072 | 58 | -0.198 | -0.508 | 0.050 |
+| 8 | 500032 | 58 | -0.214 | -0.375 | -0.086 |
+| 9 | 500071 | 58 | -0.255 | -0.385 | -0.060 |
+| 10 | 500031 | 58 | -0.303 | -0.411 | -0.201 |
 
 ### Top-decile check (fixture output, not a result)
 
-Known high-gravity players [500030, 500050, 500060, 500070, 500150, 500160]; season-wide ranks among 0 gated players {500030: None, 500050: None, 500060: None, 500070: None, 500150: None, 500160: None}; decile cut 0; passed: False.
+Known high-gravity players [500030, 500050, 500060, 500070, 500150, 500160]; season-wide ranks among 13 gated players {500030: 2, 500050: None, 500060: 3, 500070: 1, 500150: None, 500160: None}; decile cut 3; passed: False.
 
 Within each training game (the check that applies when rosters do not persist across games): 6 of 6 games pass; passed: True.
 
@@ -100,15 +109,24 @@ Folds: out-of-fold under 5 grouped folds by sportvu_game (seed 0). Intervals: 2.
 
 Paired bootstrap by game, MSE(hgb) - MSE(ridge): -0.1497 [-0.1756, -0.1226], excludes zero: True (HGB lower: True). MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the location features leave unexplained.
 
-### Players (gate: 300 possessions; 0 gated of 14) (fixture output, not a result)
+### Players (gate: 40 possessions, the fixture gate; real data gates at 300; 14 gated of 14) (fixture output, not a result)
 
 | rank | player_id | possessions | gravity_ft | lo | hi |
 | --- | --- | --- | --- | --- | --- |
-| - | - | - | no player reaches the gate | - | - |
+| 1 | 1001 | 77 | 1.427 | 1.323 | 1.507 |
+| 2 | 2001 | 71 | 1.376 | 1.277 | 1.484 |
+| 3 | 2006 | 88 | 0.023 | -0.133 | 0.201 |
+| 4 | 2003 | 85 | 0.000 | -0.130 | 0.131 |
+| 5 | 2004 | 84 | -0.042 | -0.164 | 0.092 |
+| 6 | 1002 | 92 | -0.073 | -0.225 | 0.075 |
+| 7 | 1003 | 74 | -0.195 | -0.336 | -0.060 |
+| 8 | 1005 | 89 | -0.201 | -0.282 | -0.101 |
+| 9 | 1004 | 95 | -0.219 | -0.430 | -0.078 |
+| 10 | 2005 | 85 | -0.243 | -0.415 | -0.048 |
 
 #### Top-decile check (fixture output, not a result)
 
-Known high-gravity players [1001, 2001]; season-wide ranks among 0 gated players {1001: None, 2001: None}; decile cut 0; passed: False.
+Known high-gravity players [1001, 2001]; season-wide ranks among 14 gated players {1001: 1, 2001: 2}; decile cut 2; passed: True.
 
 Within each training game (the check that applies when rosters do not persist across games): 6 of 6 games pass; passed: True.
 

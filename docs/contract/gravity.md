@@ -61,7 +61,7 @@ One row per player seen on offence in a training game, sorted with the gated pla
 | `n_games` | int32 | training games with the player |
 | `gravity_ft` | float64 | mean `gravity_ft` over the player's frames |
 | `lo`, `hi` | float64, nullable | 2.5 and 97.5 percentiles of the mean over resamples of the player's games; null with one game |
-| `insufficient` | bool | fewer than `--min-possessions` (default 300) possessions (`analytics.eval.gated`); such a player is listed but never ranked |
+| `insufficient` | bool | fewer than `--min-possessions` possessions (`analytics.eval.gated`; default 300 on data, 40 on `--fixtures` whose seasons are a few small games); such a player is listed but never ranked |
 
 ## spacing_frames
 

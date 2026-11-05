@@ -30,8 +30,10 @@ from analytics.gravity import eda, features as F, train as T, validate as V  # n
 from tests import _fx_gravity as FX  # noqa: E402
 
 N_GAMES, N_POSS = 4, 24
-PULL_TOL_FT = 0.6   # recovered pull (ridge residual) vs the generator's effective pull: the expectation is fitted on
-#                     rows that include the planted players, so it absorbs about their share of the pull (2 of 14)
+PULL_TOL_FT = 0.6   # recovered pull (ridge residual) vs the generator's effective pull. The expectation is fitted on
+#                     rows that include the planted players (two stars on the floor 60 percent of the time: about a
+#                     quarter of the player-frames), so its level sits lower by about that share of the pull, 0.35 ft
+#                     of 1.5; the observed gap is 0.1 to 0.2 ft on 6 games and up to 0.45 ft on this 3-game fixture
 
 
 @pytest.fixture(scope="module")
