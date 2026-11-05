@@ -596,7 +596,9 @@ def parse_args(argv=None):
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--min-possessions", type=int, default=MIN_POSSESSIONS)
+    ap.add_argument("--min-possessions", type=int, default=None,
+                    help="gate for the player table; default %d on data, %d on --fixtures (fixture seasons are small)"
+                    % (MIN_POSSESSIONS, FIXTURE_MIN_POSSESSIONS))
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/{gravity_frames,gravity_players,spacing_frames}.parquet")
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--n-games", type=int, default=8, help="fixture games (--fixtures)")

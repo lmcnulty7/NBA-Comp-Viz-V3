@@ -18,8 +18,8 @@ defender is the defender nearest the handler at the window start.
                  candidate's extent is the set padded by 1 s before (the approach) and 1 s after (the use),
                  clipped to the possession, because a labelled screen spans approach, set and use (set
                  SCREEN_PAD_PRE_S and SCREEN_PAD_POST_S to 0 if the hand labels mark the set alone)
-    drive        any 0.6 s window where the handler, starting in the front court (within 47 ft of the basket:
-                 a half-court action, not the transition sprint), closes on the basket faster than 8 ft per s
+    drive        any 0.6 s window where the handler, starting within 35 ft of the basket (a step beyond the
+                 arc: a half-court action, not the transition sprint), closes on the basket faster than 8 ft per s
     isolation    any 2 s window where the same handler, starting in the front court, keeps the ball (ball
                  within 4 ft) under 8 ft per s with no teammate within 10 ft on at least 70 percent of the
                  frames (a clear-out still in progress). The plan said 3 s; 2 s because a 3 s minimum missed
@@ -63,7 +63,7 @@ SCREEN_WINDOW_S, SCREEN_DIST_FT, SCREEN_SPEED_FTPS, SCREEN_HANDLER_DIST_FT = 0.8
 SCREEN_N_DEFENDERS = 2                               # the screened man is one of the two defenders nearest the handler
 SCREEN_DEF_HANDLER_FT = 9.0                          # and is guarding him: within this of the handler at the window start
 SCREEN_PAD_PRE_S, SCREEN_PAD_POST_S = 1.0, 1.0      # the approach before the set and the use after it
-DRIVE_WINDOW_S, DRIVE_SPEED_FTPS, DRIVE_START_FT = 0.6, 8.0, 47.0      # starts in the front court (47 ft is half court)
+DRIVE_WINDOW_S, DRIVE_SPEED_FTPS, DRIVE_START_FT = 0.6, 8.0, 35.0      # starts a step beyond the arc, not in the transition sprint
 ISO_WINDOW_S, ISO_SPREAD_FT, ISO_BALL_FT, ISO_HANDLER_SPEED_FTPS, ISO_START_FT = 2.0, 10.0, 4.0, 8.0, 47.0
 ISO_SPREAD_FRAC = 0.7                                # share of the window's frames with no teammate within ISO_SPREAD_FT (a clear-out in progress)
 HANDLER_BALL_FT = 6.0                                # farther than this from every offensive player, the ball has no handler

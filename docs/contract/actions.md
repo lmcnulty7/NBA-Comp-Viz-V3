@@ -53,7 +53,7 @@ every offensive player. Constants are module-level in `features.py`.
 | rule_class | window | condition on every frame of the window |
 | --- | --- | --- |
 | ball_screen | at least 0.8 s | a teammate within 4 ft of the handler's defender (either of the two defenders nearest the handler at the window start, within 9 ft of him, and not the teammate's own matchup before the window), moving under 3 ft per s, handler within 12 ft of him; merged windows of one (handler, screener) are the set, padded by 1 s before and 1 s after (approach and use) |
-| drive | 0.6 s | handler starts in the front court (within 47 ft of the attacked basket) and closes on it faster than 8 ft per s |
+| drive | 0.6 s | handler starts within 35 ft of the attacked basket (a step beyond the arc, not the transition sprint) and closes on it faster than 8 ft per s |
 | isolation | 2 s | handler starts in the front court, keeps the ball (within 4 ft) under 8 ft per s, no teammate within 10 ft on at least 70 percent of the frames |
 
 The attacked basket is the one nearest the offence's mean position over the last half of the possession.
