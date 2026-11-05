@@ -155,6 +155,7 @@ def test_pbp_collector_fills_step1_files(tmp_path, monkeypatch):
 
 def test_pbp_falls_back_to_basketball_reference_and_stops_on_429(tmp_path, monkeypatch):
     d = step1_dir(tmp_path)
+    monkeypatch.setattr(pbp, "LOCAL_PBP_DIR", tmp_path / "no_local_pbp")      # the repo's data/pbp/ must not short-circuit
     monkeypatch.setattr(pbp, "NBAStats", lambda cache, throttle: FakeStats(fail={"playbyplayv2"}))
     import fetch_pbp
     calls = []
@@ -176,6 +177,41 @@ def test_pbp_falls_back_to_basketball_reference_and_stops_on_429(tmp_path, monke
     monkeypatch.setattr(fetch_pbp, "fetch_game", lambda code: [{"period": 1, "clock_s": 719.0, "team": "home", "desc": "x", "points": 2, "score": "0-2", "kind": "shot_made"}])
     assert pbp.main(["--contract-dir", str(d), "--out", str(tmp_path / "collect")]).startswith("RUN FAILED")
     assert pbp.main(["--contract-dir", str(d), "--out", str(tmp_path / "collect"), "--retry-failed"]).startswith("RUN OK")
+
+
+def test_pbp_br_only_reuses_cached_pages_and_data_pbp(tmp_path, monkeypatch):
+    d = step1_dir(tmp_path)
+    out = tmp_path / "collect"
+    monkeypatch.setattr(pbp, "LOCAL_PBP_DIR", tmp_path / "no_local_pbp")
+    fake = FakeStats()
+    monkeypatch.setattr(pbp, "NBAStats", lambda cache, throttle: fake)
+    # the bref_shots collector cached PHX at GSW; BKN at GSW is fetched from the page and cached for next time
+    cache = common.RawCache(out / "raw")
+    cached = [{"period": 1, "clock_s": 720.0, "team": None, "desc": "Jump ball", "points": 0, "score": None, "kind": "other"},
+              {"period": 1, "clock_s": 719.0, "team": "home", "desc": "Curry makes 3-pt", "points": 3, "score": "0-3", "kind": "shot_made"}]
+    cache.put(pbp.BR_RAW_ENDPOINT, {"code": "201512160GSW"}, cached, "u", 200)
+    import fetch_pbp
+    fetched = []
+    monkeypatch.setattr(fetch_pbp, "fetch_game", lambda code: fetched.append(code) or [{"period": 1, "clock_s": 700.0, "team": "away", "desc": "x", "points": 2, "score": "2-0", "kind": "shot_made"}])
+    final = pbp.main(["--contract-dir", str(d), "--out", str(out), "--br-only"])
+    assert final.startswith("RUN OK") and fake.calls == [] and fetched == ["201511140GSW"]
+    held = pq.read_table(d / "heldout" / "12.16.2015.PHX.at.GSW_pbp.parquet")
+    assert held.num_rows == 2 and held.column("source").to_pylist()[0] == "basketball-reference.com" and held.column("frame").to_pylist() == [0, 25]
+    own = json.loads((out / "pbp" / "manifest.json").read_text())
+    by = {k.split("|")[-1]: u for k, u in own["units"].items()}
+    assert by["12.16.2015.PHX.at.GSW"]["br_from"] == "cache" and by["11.14.2015.BKN.at.GSW"]["br_from"] == "page"
+    assert cache.get(pbp.BR_RAW_ENDPOINT, {"code": "201511140GSW"})["body"][0]["clock_s"] == 700.0
+    assert by["11.14.2015.BKN.at.GSW"]["errors"] == {"nba": "skipped (--br-only)"}
+    # a data/pbp/<code>.json file is used before any page request
+    local = tmp_path / "local_pbp"; local.mkdir()
+    (local / "201511140GSW.json").write_text(json.dumps({"meta": {}, "events": cached}))
+    monkeypatch.setattr(pbp, "LOCAL_PBP_DIR", local)
+    d2 = step1_dir(tmp_path / "again")
+    fetched.clear()
+    assert pbp.main(["--contract-dir", str(d2), "--out", str(tmp_path / "collect2"), "--br-only", "--games", "11.14.2015.BKN.at.GSW"]).startswith("RUN OK")
+    assert fetched == [] and pq.read_table(d2 / "11.14.2015.BKN.at.GSW_pbp.parquet").num_rows == 2
+    with pytest.raises(SystemExit):
+        pbp.main(["--contract-dir", str(d), "--out", str(out), "--br-only", "--no-br"])
 
 
 # ── shots ──────────────────────────────────────────────────────────────────────────────────────────

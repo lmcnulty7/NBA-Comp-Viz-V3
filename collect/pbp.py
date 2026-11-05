@@ -5,7 +5,9 @@ Fills the <game>_pbp.parquet files that the Step 1 Colab job skipped with --no-p
 (same period, nearest game clock within 2 s). Source order per game:
   1. stats.nba.com PlayByPlayV2 (the NBA game id read from the frames parquet)
   2. basketball-reference.com (fetch_pbp.fetch_game) at --br-rpm requests a minute (17 by default), only
-     when NBA.com failed; the first HTTP 429 from basketball-reference stops every further BR request in
+     when NBA.com failed, or always with --br-only (stats.nba.com hangs for non-browser clients). Pages
+     already parsed by collect.bref_shots --fetch-pbp (raw/bref_pbp/) or saved under data/pbp/ are reused
+     without a request. The first HTTP 429 from basketball-reference stops every further BR request in
      the run (a jail lasts up to a day)
 Every event row carries source, endpoint, season, fetched_at; NBA.com rows also carry event_id,
 event_type, action_type, player ids and team_id (docs/DATA_CONTRACT.md, play-by-play table v1.1).
@@ -13,6 +15,7 @@ event_type, action_type, player ids and team_id (docs/DATA_CONTRACT.md, play-by-
   python -m collect.pbp --contract-dir "~/Library/CloudStorage/GoogleDrive-.../My Drive/nba_harvest/sportvu_contract"
   python -m collect.pbp --contract-dir ... --retry-failed          # redo the games whose last attempt failed
   python -m collect.pbp --contract-dir ... --games 12.16.2015.PHX.at.GSW --no-br
+  python -m collect.pbp --contract-dir ... --br-only                # no NBA.com attempts; cached pages first
 Both manifests are kept: the Step 1 manifest.json (pbp_joined, pbp.{code, events, matched, error}) and
 collect/pbp/manifest.json (per game: source used, rows, matched, parameters, error).
 """
@@ -27,6 +30,8 @@ from sportvu import colab_contract as cc
 
 FAMILY = "pbp"
 BR_SOURCE = "basketball-reference.com"
+BR_RAW_ENDPOINT = "bref_pbp"          # the cache collect.bref_shots fills: raw/bref_pbp/<key of {"code"}>.json.gz
+LOCAL_PBP_DIR = Path(__import__("config").PROJECT_ROOT) / "data" / "pbp"     # fetch_pbp.py's files, reused too
 EVENT_KIND = {1: "shot_made", 2: "shot_missed", 4: "rebound", 5: "turnover", 6: "foul", 7: "violation", 8: "substitution",
               9: "timeout", 10: "jump_ball", 11: "ejection", 12: "period_start", 13: "period_end", 18: "instant_replay"}
 TEXT_COLS = {"homedescription", "neutraldescription", "visitordescription", "score", "pctimestring"}
@@ -102,22 +107,35 @@ def with_extras(joined, events: list[dict], source: str, endpoint: str, season: 
     return joined
 
 
-def fetch_br(code: str, throttle: common.Throttle, state: dict) -> list[dict]:
+def br_events(code: str, fam: common.Family, throttle: common.Throttle, state: dict) -> tuple[list[dict], str, str]:
+    """(events, fetched_at, where from) for a basketball-reference game code: the shared raw cache
+    (raw/bref_pbp/, written by collect.bref_shots --fetch-pbp and by this function), then data/pbp/<code>.json,
+    then the page itself under the throttle."""
+    params = {"code": code}
+    rec = fam.raw.get(BR_RAW_ENDPOINT, params)
+    if rec is not None:
+        return rec["body"], rec["fetched_at"], "cache"
+    local = LOCAL_PBP_DIR / ("%s.json" % code)
+    if local.exists():
+        doc = json.loads(local.read_text())
+        return doc["events"], time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(local.stat().st_mtime)), "data/pbp/%s.json" % code
     if state.get("br_jailed"):
         raise BRJailed("basketball-reference skipped: a 429 was seen earlier in this run")
     import fetch_pbp
     throttle.wait()
     try:
-        return fetch_pbp.fetch_game(code)
+        events = fetch_pbp.fetch_game(code)
     except Exception as e:                                      # noqa: BLE001 (classify, then re-raise)
         if "429" in str(e):
             state["br_jailed"] = True
             raise BRJailed("basketball-reference HTTP 429 on %s: no more BR requests this run (jail lasts up to a day)" % code)
         raise
+    rec = fam.raw.put(BR_RAW_ENDPOINT, params, events, "https://www.basketball-reference.com/boxscores/pbp/%s.html" % code, 200)
+    return events, rec["fetched_at"], "page"
 
 
 def do_game(game: dict, step1: dict, contract_dir: Path, stats: NBAStats, br_throttle, state: dict, use_br: bool,
-            sp: dict, scratch: Path) -> tuple[int, dict]:
+            sp: dict, scratch: Path, fam: common.Family | None = None, use_nba: bool = True) -> tuple[int, dict]:
     """One SportVU game -> <game>_pbp.parquet in the Step 1 layout. Returns (rows, manifest fields)."""
     import pyarrow.parquet as pq
     gid = game["game"]
@@ -127,8 +145,12 @@ def do_game(game: dict, step1: dict, contract_dir: Path, stats: NBAStats, br_thr
     season = game_id_season(nba_id)
     table = pq.read_table(frames_path, columns=["frame", "period", "game_clock_s"])
     fp, fc = cc.frame_clocks(table)
-    source, endpoint, params, events, errors = None, None, None, None, {}
+    source, endpoint, params, events, errors, br_from = None, None, None, None, {}, None
+    if not use_nba:
+        errors["nba"] = "skipped (--br-only)"
     try:
+        if not use_nba:
+            raise LookupError("skipped")
         params = {"GameID": nba_id}
         rec = stats.get_record("playbyplayv2", params)
         events = nba_events(rec["body"], home_team_id)
@@ -140,12 +162,13 @@ def do_game(game: dict, step1: dict, contract_dir: Path, stats: NBAStats, br_thr
         if e.stop_run:
             raise
     except Exception as e:                                      # noqa: BLE001 (fall back to BR)
-        errors["nba"] = repr(e)[:300]
+        if use_nba:
+            errors["nba"] = repr(e)[:300]
     if events is None and use_br:
         code = cc.br_code(g)
         try:
-            events = fetch_br(code, br_throttle, state)
-            source, endpoint, params, fetched_at = BR_SOURCE, "boxscores/pbp/%s.html" % code, {"code": code}, common.utc_now()
+            events, fetched_at, br_from = br_events(code, fam or common.Family(scratch.parent.parent, FAMILY), br_throttle, state)
+            source, endpoint, params = BR_SOURCE, "boxscores/pbp/%s.html" % code, {"code": code}
         except Exception as e:                                  # noqa: BLE001 (recorded)
             errors["br"] = repr(e)[:300]
     if events is None:
@@ -166,7 +189,8 @@ def do_game(game: dict, step1: dict, contract_dir: Path, stats: NBAStats, br_thr
                      pbp={"code": nba_id if source == NBA_SOURCE else cc.br_code(g), "events": len(events), "matched": matched,
                           "error": None, "source": source})
     return len(events), {"source": source, "endpoint": endpoint, "params": params, "matched": matched, "nba_game_id": nba_id,
-                         "split": split, "heldout": cc.is_heldout(split), "pbp_parquet": str(pbp_path), "errors": errors or None}
+                         "split": split, "heldout": cc.is_heldout(split), "pbp_parquet": str(pbp_path), "errors": errors or None,
+                         "br_from": br_from}
 
 
 def main(argv=None) -> str:
@@ -174,6 +198,7 @@ def main(argv=None) -> str:
     ap.add_argument("--contract-dir", required=True, help="the Step 1 sportvu_contract directory (Drive copy on the Mac)")
     ap.add_argument("--games", nargs="*", help="only these SportVU game ids")
     ap.add_argument("--no-br", action="store_true", help="never fall back to basketball-reference")
+    ap.add_argument("--br-only", action="store_true", help="never try stats.nba.com; basketball-reference (cache first) for every game")
     ap.add_argument("--br-rpm", type=float, default=17.0, help="basketball-reference requests per minute (max 17)")
     a = ap.parse_args(argv)
     contract_dir = Path(a.contract_dir).expanduser()
@@ -197,8 +222,11 @@ def main(argv=None) -> str:
     state: dict = {}
     scratch = fam.dir / "_scratch"
 
+    if a.no_br and a.br_only:
+        sys.exit("--no-br and --br-only exclude each other")
+
     def do_unit(unit):
-        rows, fields = do_game(unit, step1, contract_dir, stats, br_throttle, state, not a.no_br, sp, scratch)
+        rows, fields = do_game(unit, step1, contract_dir, stats, br_throttle, state, not a.no_br, sp, scratch, fam, not a.br_only)
         cc.write_manifest(contract_dir, step1)
         return rows, fields
 
