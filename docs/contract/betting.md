@@ -28,13 +28,15 @@ home side to do better than the line says.
 | `home_b2b`, `away_b2b` | float | 1 when rest_days is 1 |
 | `home_flag` | float | 1 on every row (the row is the home side's game) |
 | `home_pf_std`, `home_pa_std`, `away_pf_std`, `away_pa_std` | float | season-to-date points for and against per game, previous games only (0 with none) |
-| `home_rapm_sum`, `away_rapm_sum` | float, nullable | sum of player RAPM of the team from `OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet` when it carries (team_id, rapm, as_of) with `as_of` before the game; null otherwise (the lineups lane has not written dated values) |
+| `home_rapm_sum`, `away_rapm_sum` | float, nullable | sum of player RAPM of the team from `OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet` (the prior file included) at the latest `as_of` strictly before the game, rows with `in_sample` False preferred; null when no file, no dated row before the game, or no row for the team. Imputed to 0 in the design matrix |
+| `home_has_rapm`, `away_has_rapm` | float | 1 when the RAPM sum was found, 0 when it is null (imputed); the four RAPM columns enter the feature list together whenever any sum is non-null |
 | `home_margin` | float | home score minus away score (target; never a feature) |
 | `home_cover` | float, nullable | 1 when the home side covers, 0 when not, null on a push or without a spread (target) |
 | `heldout` | bool | true for rows of the held-out season (set aside before any fit, scored once) |
 
 The FEATURES constant of `analytics/betting/features.py` lists the thirteen feature columns in order;
-`feature_columns(df)` appends the RAPM pair when present with a value. Every feature is computed from games strictly
+`feature_columns(df)` appends the four RAPM columns when any RAPM sum is present with a value (a partial join is
+imputed, never dropped, so no design matrix holds NaN). Every feature is computed from games strictly
 before `game_date` (rolling values shifted by one game within the team's season). The spread, the total and the
 implied probability are lines, not features: they enter only the CLV target and the ridge model's conversion of a
 margin forecast into a cover probability. `features.assert_time_forward` refuses a feature frame holding any Phase 0

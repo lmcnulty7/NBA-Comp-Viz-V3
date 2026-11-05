@@ -301,11 +301,39 @@ def test_rapm_features_use_values_dated_before_the_game(tmp_path):
     pd.DataFrame({"player_id": [11, 12, 21], "team_id": [1, 1, 2], "rapm": [1.5, -0.5, 2.0],
                   "as_of": ["2021-01-10"] * 3}).to_parquet(d / "player_rapm.parquet", index=False)
     r = fx.rapm_features(games, tmp_path).set_index("game_id")
-    assert r.loc["g1"].isna().all() and r.loc["g2"].isna().all()
+    assert r.loc["g1", list(fx.RAPM_SUMS)].isna().all() and r.loc["g2", list(fx.RAPM_SUMS)].isna().all()
+    assert r.loc["g1", list(fx.RAPM_FLAGS)].eq(0).all() and r.loc["g3", list(fx.RAPM_FLAGS)].eq(1).all()
     assert r.loc["g3", "home_rapm_sum"] == 2.0 and r.loc["g3", "away_rapm_sum"] == 1.0
-    assert fx.rapm_features(games, None).drop(columns="game_id").isna().all().all()
+    assert fx.rapm_features(games, None)[list(fx.RAPM_SUMS)].isna().all().all()
+    # in_sample True rows are ignored when out-of-sample rows exist (the prior file of the lineups lane)
+    pd.DataFrame({"player_id": [11, 12, 21, 11], "team_id": [1, 1, 2, 1], "rapm": [1.5, -0.5, 2.0, 9.0],
+                  "as_of": ["2021-01-10"] * 4, "in_sample": [False, False, False, True]}).to_parquet(d / "player_rapm.parquet", index=False)
+    assert fx.rapm_features(games, tmp_path).set_index("game_id").loc["g3", "away_rapm_sum"] == 1.0
     pd.DataFrame({"player_id": [11], "team_id": [1], "rapm": [1.0]}).to_parquet(d / "player_rapm.parquet", index=False)
-    assert fx.rapm_features(games, tmp_path).drop(columns="game_id").isna().all().all()      # no as_of: stays null
+    assert fx.rapm_features(games, tmp_path)[list(fx.RAPM_SUMS)].isna().all().all()      # no as_of: stays null
+
+
+def test_partial_rapm_join_is_imputed_and_the_trainer_runs(tmp_path, data):
+    """An OUT_ROOT that already holds a lineups player_rapm table covering one team from mid-season on (the I6
+    integration case): the RAPM pair joins the feature list, missing values are imputed to 0 with the has_rapm flags,
+    no design matrix holds NaN and the trainer completes."""
+    games = data["games"]
+    season = sorted(games["season"].unique())[0]
+    s = games[games["season"] == season].sort_values("game_date")
+    mid = s["game_date"].iloc[len(s) // 2]
+    tid = int(s["home_team_id"].iloc[0])
+    d = tmp_path / "analytics" / "lineups" / season
+    d.mkdir(parents=True)
+    pd.DataFrame({"player_id": [1, 2], "team_id": [tid, tid], "rapm": [1.0, 0.5], "as_of": [mid, mid],
+                  "in_sample": [False, False]}).to_parquet(d / "player_rapm_prior.parquet", index=False)
+    ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(tmp_path / "r.md"), "--bootstrap", "5", "--fixture-games", str(N_GAMES)])
+    assert set(fx.RAPM_FEATURES) <= set(ctx["features"])
+    bg = ctx["games"]
+    assert bg["home_rapm_sum"].isna().any() and bg["home_rapm_sum"].notna().any()        # a partial join
+    assert ((bg["home_has_rapm"] == 1) == bg["home_rapm_sum"].notna()).all()
+    X = fx.design(bg)
+    assert not X.isna().any().any() and (X.loc[bg["home_rapm_sum"].isna(), "home_rapm_sum"] == 0).all()
+    assert (tmp_path / "analytics" / "betting" / season / "betting_predictions.parquet").exists()
 
 
 def test_no_em_dash_in_lane_files():
