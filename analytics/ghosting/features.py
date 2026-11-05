@@ -284,7 +284,7 @@ def feature_frame(panel: pd.DataFrame, n_lags: int = N_LAGS) -> pd.DataFrame:
     idx = np.arange(n)
     keep = idx[step >= MIN_STEPS - 1]
     out = {c: panel[c].to_numpy()[keep] for c in ID_COLUMNS if c != "panel_row"}
-    out["panel_row"] = panel["panel_row"].to_numpy()[keep]
+    out["panel_row"] = (panel["panel_row"].to_numpy() if "panel_row" in panel.columns else idx)[keep]
     cols = {}
     for k in range(1, n_lags + 1):
         src = keep - np.minimum(step[keep], k)

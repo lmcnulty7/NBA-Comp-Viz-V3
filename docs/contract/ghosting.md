@@ -11,7 +11,7 @@ of the plan, kept only if it beats the linear baseline under a paired bootstrap 
 | --- | --- |
 | unit | one defender at one sampled frame of one possession (a defender-frame sequence inside a possession) |
 | sampling | every 5th frame of the 25 Hz frames (section 4) from the possession's `start_frame`: 5 Hz, `DT` = 0.2 s |
-| possessions used | section 19 rows with `gap == false` and a non-null `offense_team_id`; the lineup is the ten players of the first sampled frame, split five and five by `team_id`; the sequence stops at the first sampled frame without those ten players or without a ball; sequences shorter than 4 steps are dropped; every skip is counted per game |
+| possessions used | section 19 rows with `gap == false` and a non-null `offense_team_id`; the lineup is the ten players of the first sampled frame, split five and five by `team_id`; the sequence stops at the first sampled frame without those ten players, without a ball, whose id is not exactly 5 on from the previous sampled frame, or whose game clock advanced by more than 0.2 s plus 0.1 s since it (a dropped frame or a source gap is never sampled as 0.2 s; a stopped clock with frames still flowing is a dead ball and allowed); sequences shorter than 4 steps are dropped; every skip and cut is counted per game |
 | assignment | for each defender, the nearest offensive player at the possession's first sampled frame (defender-centric nearest; two defenders may share an assignment, no one-to-one matching) |
 | attacking side | `attack_right = ball_x(t-1) > 47`; the attacking basket is the one on that side, (88.75, 25) or (5.25, 25). A past-only proxy for the offence's direction; a per-team per-period direction from the play-by-play is a follow-up |
 | shot clock | null filled with max(24 minus elapsed, 0) |
@@ -75,7 +75,12 @@ ghost is candidate 2. One training game: in-sample, labelled, no interval, candi
 
 ## Tables
 
-### `ghost_frames` (per game: `OUT_ROOT/ghost_frames/<season>/<sportvu_game>.parquet`, held-out under `heldout/<season>/`)
+Layout: `OUT_ROOT/analytics/ghosting/<season>/<table>_<sportvu_game>.parquet`, held-out games under
+`OUT_ROOT/analytics/ghosting/heldout/<season>/`; OUT_ROOT defaults to DATA_ROOT. The features CLI writes
+`ghost_features_<sportvu_game>.parquet` the same way. Dtypes follow the contract conventions (ids int32,
+positions float32, points int16, `sportvu_game` string).
+
+### `ghost_frames` (`ghost_frames_<sportvu_game>.parquet`)
 
 One row per defender-step, horizon and the selected candidate.
 
@@ -93,7 +98,7 @@ One row per defender-step, horizon and the selected candidate.
 | `fold` | int32 | the grouped fold whose test games hold the row; -1 for held-out rows scored once |
 | `heldout` | bool | the game is held out (never fitted or tuned on) |
 
-### `ghost_possessions` (per game: `OUT_ROOT/ghost_possessions/<season>/<sportvu_game>.parquet`)
+### `ghost_possessions` (`ghost_possessions_<sportvu_game>.parquet`)
 
 | column | type | meaning |
 | --- | --- | --- |
@@ -117,5 +122,6 @@ assignments than the ghost allows more points.
 
 `DATA_ROOT/sportvu_contract/<game>.parquet` (frames; held-out under `heldout/`) and
 `DATA_ROOT/analytics/possessions/2015-16/<game>.parquet` (held-out under `heldout/2015-16/`) are the inputs;
-rosters are read when present and checked but not needed. Fixture runs print and write "fixture output,
+rosters are read when present and checked but not needed. A game read from any `heldout/` path is held out
+whatever its id. `--out` defaults to DATA_ROOT; the Mac command is `--out "<Drive>/nba_harvest"`. Fixture runs print and write "fixture output,
 not a result".

@@ -71,6 +71,11 @@ def test_feature_frame_is_past_only_and_lags_line_up():
     assert np.allclose(frame["target_dx"], dx[pr] - dx[pr - 1])
     # the velocity is over 0.4 s (two sampled steps) ending at t minus 1
     assert np.allclose(frame["def_vx"], (dx[pr - 1] - dx[pr - 3]) / (2 * F.DT))
+    # the offence, the ball and the shot clock come from the panel at t minus 1 too
+    assert np.allclose(frame["rel_off1_dx"], panel["off1_x"].to_numpy()[pr - 1] - dx[pr - 1])
+    assert np.allclose(frame["rel_ball_dy"], panel["ball_y"].to_numpy()[pr - 1] - dy[pr - 1])
+    assert np.allclose(frame["shot_clock_s"], panel["shot_clock_s"].to_numpy()[pr - 1])
+    assert np.allclose(frame["elapsed_s_lag2"], panel["elapsed_s"].to_numpy()[pr - 2])
     # relative features are offence minus defender at t minus 1, and the assignment is one of the five
     rel = np.hypot(frame["rel_asg_dx"].to_numpy(), frame["rel_asg_dy"].to_numpy())
     offs = np.stack([np.hypot(frame[f"rel_off{i}_dx"].to_numpy(), frame[f"rel_off{i}_dy"].to_numpy()) for i in range(1, 6)], axis=1)
@@ -82,6 +87,40 @@ def test_feature_frame_is_past_only_and_lags_line_up():
         schema.assert_time_forward(frame.assign(points=0), "states_1hz")
     with pytest.raises(ValueError):
         T._design(frame.assign(end_frame=0), F.feature_columns() + ["end_frame"])
+
+
+def test_dropped_frames_cut_the_sequence_instead_of_being_sampled_as_a_step():
+    g = games()[0]
+    poss = g["possessions"].sort_values("possession").reset_index(drop=True)
+    r = poss.iloc[0]
+    start = int(r.start_frame)
+    assert int(r.end_frame) - start > 60 and not bool(r.gap)
+    base_panel, base_counts = F.build_panel_game(g["frames"], poss, g["sportvu_game"])
+    n0 = int((base_panel["possession"] == r.possession).sum() // 5)
+    assert n0 > 7 and base_counts["cut_frame_gap"] == 0
+    # (a) a run of frame ids missing inside the possession: the sampled id after the hole is not STRIDE on
+    drop = g["frames"]["frame"].between(start + 30, start + 34)
+    panel_a, counts_a = F.build_panel_game(g["frames"][~drop], poss, g["sportvu_game"])
+    seq = panel_a[(panel_a["possession"] == r.possession) & (panel_a["def_slot"] == 0)]
+    assert counts_a["cut_frame_gap"] == 1 and len(seq) == 6 and seq["frame"].max() == start + 25
+    # (b) the source dropped frames and the ids were renumbered: contiguous ids, a clock jump of 0.52 s
+    fr = g["frames"][~drop].copy()
+    fr["frame"] = pd.factorize(fr["frame"], sort=True)[0].astype("int32")
+    panel_b, counts_b = F.build_panel_game(fr, poss, g["sportvu_game"])
+    seq = panel_b[(panel_b["possession"] == r.possession) & (panel_b["def_slot"] == 0)]
+    assert counts_b["cut_frame_gap"] == 1 and len(seq) == 6
+    # the cut bounds the roll-forward: no 1.0 s row of that sequence reaches past the hole
+    frame_a = F.feature_frame(panel_a)
+    models = {c: (lambda W: np.zeros((len(W), 2))) for c in T.CANDIDATES}
+    err = T.roll_forward(models, frame_a, panel_a, fold=0)
+    e = err[(err["possession"] == r.possession) & (err["horizon_s"] == 1.0)]
+    assert len(e) and e["frame"].max() <= start + 25
+    # a stopped clock with frames still flowing is a dead ball, not a gap: nothing is cut
+    fz = g["frames"].copy()
+    m = fz["frame"].between(start + 10, start + 20)
+    fz.loc[m, "game_clock_s"] = float(fz.loc[fz["frame"] == start + 10, "game_clock_s"].iloc[0])
+    _, counts_c = F.build_panel_game(fz, poss, g["sportvu_game"])
+    assert counts_c["cut_frame_gap"] == 0
 
 
 def test_persistence_roll_forward_matches_actual_displacements():
@@ -146,7 +185,8 @@ def test_end_to_end_fixture_run(tmp_path, monkeypatch):
     assert HELD in ctx["heldout_games"] and HELD not in ctx["train_games"] and ctx["note"]["folds"] == 2
     gf, gp = ctx["ghost_frames"], ctx["ghost_possessions"]
     assert list(gf.columns) == T.GHOST_FRAMES_COLUMNS and list(gp.columns) == T.GHOST_POSSESSIONS_COLUMNS
-    assert set(gf["horizon_s"]) == {0.2, 1.0} and gf["heldout"].any() and not gf.loc[gf["fold"] >= 0, "heldout"].any()
+    assert np.allclose(sorted(gf["horizon_s"].unique()), [0.2, 1.0]) and str(gf["horizon_s"].dtype) == "float32"
+    assert gf["heldout"].any() and not gf.loc[gf["fold"] >= 0, "heldout"].any()
     assert (gf.loc[gf["sportvu_game"] == HELD, "fold"] == -1).all()
     assert np.allclose(gf["deviation_ft"].abs() <= np.hypot(gf["actual_x"] - gf["ghost_x"], gf["actual_y"] - gf["ghost_y"]) + 1e-6, True)
     assert gp["points"].ge(0).all() and gp.groupby("sportvu_game").size().min() >= 1
@@ -161,9 +201,12 @@ def test_end_to_end_fixture_run(tmp_path, monkeypatch):
     assert ctx["validation"]["n_pos"] + ctx["validation"]["n_neg"] + ctx["validation"]["n_zero"] <= 2
     assert ctx["heldout_scores"][1.0]["persistence"] > 0
     # tables land per game, held-out under heldout/
-    out = tmp_path / "out"
-    assert (out / "ghost_frames" / "heldout" / V.SEASON / (HELD + ".parquet")).exists()
-    assert len(list((out / "ghost_possessions" / V.SEASON).glob("*.parquet"))) == 2
+    out = tmp_path / "out" / "analytics" / "ghosting"
+    assert (out / "heldout" / V.SEASON / ("ghost_frames_%s.parquet" % HELD)).exists()
+    assert len(list((out / V.SEASON).glob("ghost_possessions_*.parquet"))) == 2
+    back = pd.read_parquet(out / "heldout" / V.SEASON / ("ghost_frames_%s.parquet" % HELD))
+    assert str(back["possession"].dtype) == "int32" and str(back["ghost_x"].dtype) == "float32"
+    assert str(gp["points"].dtype) == "int16" and str(gf["fold"].dtype) == "int32"
     # the EDA tables run on the same context
     assert len(eda.displacement_distributions(ctx["frame"])) == 5
     assert set(eda.error_by_horizon(ctx["errors"])["candidate"]) == set(T.CANDIDATES)
@@ -178,5 +221,6 @@ def test_validate_and_features_cli_run_on_fixtures(tmp_path, capsys):
     rep = V.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])
     assert rep["n_games"] == 2 and (tmp_path / "ghosting_validate.json").exists()
     out = F.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])
-    assert out["rows"] > 0 and len(list((tmp_path / "ghost_features" / V.SEASON).glob("*.parquet"))) == 2
+    assert out["rows"] > 0
+    assert len(list((tmp_path / "analytics" / "ghosting" / V.SEASON).glob("ghost_features_*.parquet"))) == 2
     assert "rel_asg_dx" in capsys.readouterr().out

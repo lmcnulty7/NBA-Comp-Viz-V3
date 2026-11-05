@@ -16,6 +16,7 @@ def guarded_scripts(root: Path) -> list:
     (globbed at test time, so a new analytics trainer is checked the moment it exists) and GUARDED."""
     scripts = sorted(p.name for p in root.glob("train_*.py"))
     scripts += sorted("analytics/" + p.name for p in (root / "analytics").glob("train_*.py"))
+    scripts += sorted("analytics/%s/%s" % (p.parent.name, p.name) for p in (root / "analytics").glob("*/train.py"))
     return scripts + [g for g in GUARDED if (root / g).exists() or root == ROOT]
 
 
