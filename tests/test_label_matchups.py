@@ -39,6 +39,10 @@ def test_report_ignores_unlabeled():
 
 
 def test_build_sample_deterministic_and_stratified():
+    import pytest
+    from pathlib import Path
+    if not (Path(__file__).resolve().parents[1] / "data" / "tracking").is_dir():
+        pytest.skip("needs the local tracking data under data/tracking (not in the repo)")
     s1 = build_sample(40, seed=42)
     s2 = build_sample(40, seed=42)
     assert [x["key"] for x in s1] == [x["key"] for x in s2]
