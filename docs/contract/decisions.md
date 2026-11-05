@@ -15,7 +15,7 @@ option minus the best available option, in expected points, at the decision fram
 | shot_frames (section 17) | `DATA_ROOT/analytics/shot_frames/<season>/<game>.parquet` | release frames (shot decisions); `made` for the value-model fit only |
 | states_1hz, rosters, rebound_frames | same layout | validated, not consumed |
 | epv_states (lane EPV) | `OUT_ROOT/analytics/epv/<season>/<game>.parquet` | `epv_points` as the hold option; optional |
-| xfg_predictions (lane XFG) | `OUT_ROOT/analytics/xfg/<season>/*.parquet` | `p_selected` on shot events; optional |
+| xfg_predictions (lane XFG) | `OUT_ROOT/analytics/xfg/<season>/*.parquet` (one file, held-out rows flagged `heldout=True, fold=-1`; a `heldout/<season>/` directory is read too when present), filtered on `sportvu_game` | `p_selected` on shot events; optional |
 
 A game listed under `heldout/` or whose id carries a held-out token of `sportvu/splits.json` is held out: it is
 valued once by the model refit on all training games and never fits or tunes anything
@@ -99,16 +99,20 @@ so a shot's own outcome never informs its value. The design matrix passes `schem
 | `n_decisions` | int32 | decisions in the training games |
 | `mean_quality` | float | mean decision quality |
 | `lo`, `hi` | float | 2.5 and 97.5 percentiles of a bootstrap over the player's games; NaN with one game |
-| `insufficient` | bool | under 300 decisions (`analytics.eval.gated`); such rows are not ranked |
+| `insufficient` | bool | under 300 decisions (`analytics.eval.gated`); such rows carry no rank and are listed after the ranked rows, by id |
+| `rank` | float | 1 = best mean quality among the players past the gate; NaN when insufficient |
+| `mean_quality_shot`, `mean_quality_pass`, `mean_quality_drive` | float | mean quality by kind (each is regret, at most 0); NaN without decisions of that kind |
+| `n_shot`, `n_pass`, `n_drive` | int32 | decisions by kind |
 | `n_games`, `sum_quality` | | diagnostics |
 
 ## Validation (train.validate_quality)
 
-Per game, the players' summed decision quality against their on-court offensive rating (points per 100
-offensive possessions on the floor: the offence's players at the first tracked frame of each possession,
-from possessions and frames). Spearman per game over players with at least 3 decisions and at least 3 such
-players; a two-sided sign test over the games' signs; a bootstrap by game of the mean Spearman; and the same
-with quality permuted across the players of each game (the shuffled check).
+Per game, the players' mean decision quality (not the sum: quality is regret, so a sum would rank by
+decision count) against their on-court offensive rating (points per 100 offensive possessions on the floor:
+the offence's players at the first tracked frame of each possession, from possessions and frames). Spearman
+per game over players with at least 3 decisions and at least 3 such players; a two-sided sign test over the
+games' signs; a bootstrap by game of the mean Spearman; and the same with mean quality permuted across those
+same players within each game (the shuffled check, filtered before shuffling).
 
 ## Leakage rules
 

@@ -60,7 +60,7 @@ def fake_fetcher(calls: list, fail_after: int | None = None, missing=(), tablele
         code = (re.search(r"/(\d{8}0[A-Z]{3})\.html$", url) or [None, None])[1]
         if status_for and code in status_for:
             raise bs.PageError("%s HTTP %d" % (url, status_for[code]), status_for[code], stop_run=True)
-        if code in tableless or url.endswith("/lineups/") and any(t in url for t in tableless) or any(url.endswith(t) for t in tableless):
+        if any(t in url for t in tableless):
             return NO_TABLE
         m = re.search(r"/leagues/NBA_(\d{4})_games-([a-z0-9-]+)\.html$", url)
         if m and (PAGES / ("schedule_%s_%s.html" % m.groups())).exists():
@@ -141,15 +141,6 @@ def test_shared_helpers(capsys):
     assert a.season_types == ["Play-In", "Playoffs"] and a.rpm == 17.0
     with pytest.raises(SystemExit):
         ap.parse_args(["--season-types", "Preseason"])
-    # bref_shots.main shares the fix for --rpm 0
-    waits = []
-    monkeypatch_ = pytest.MonkeyPatch()
-    monkeypatch_.setattr(common.Throttle, "__init__", lambda self, rpm: (waits.append(rpm), setattr(self, "interval", 0.0), setattr(self, "last", 0.0))[1])
-    try:
-        with pytest.raises(SystemExit):
-            bs.main(["--rpm", "0", "--out", "/nonexistent/never"])
-    finally:
-        monkeypatch_.undo()
 
 
 def test_pbp_fetch_errors_classify_by_status_code_not_by_substring(tmp_path, monkeypatch):
@@ -223,9 +214,11 @@ def test_schedule_run_is_resumable_and_feeds_games_for_season(tmp_path, monkeypa
     sched.main(["--seasons", "2015-16", "--out", str(out2)])
     u = json.loads((out2 / "bref_schedule" / "manifest.json").read_text())["units"]["games|2015-16|december"]
     assert u["status"] == "failed" and "2015-16 december: no table id=schedule on the page" in u["error"]
-    monkeypatch.setattr(bs, "fetch_html", fake_fetcher([]))
+    assert not common.RawCache(out2 / "raw").path("bref_schedule", {"season": "2015-16", "month": "december"}).exists()   # the tableless page is not kept
+    calls2 = []
+    monkeypatch.setattr(bs, "fetch_html", fake_fetcher(calls2))
     sched.main(["--seasons", "2015-16", "--out", str(out2), "--retry-failed"])
-    assert json.loads((out2 / "bref_schedule" / "manifest.json").read_text())["units"]["games|2015-16|december"]["status"] == "ok"
+    assert json.loads((out2 / "bref_schedule" / "manifest.json").read_text())["units"]["games|2015-16|december"]["status"] == "ok" and len(calls2) == 7
     # games_for_season: played regular-season games by default, Play-In and Playoffs on request, held-out tagging on the way out
     fam = common.Family(out, "bref_seasons")
     reg = sched.games_for_season(fam, "2015-16")
@@ -329,6 +322,11 @@ def test_seasons_first_429_stops_the_run_and_rpm_is_capped(tmp_path, monkeypatch
     man = json.loads((out / "bref_seasons" / "manifest.json").read_text())
     st = {k.split("|")[-1]: v["status"] for k, v in man["units"].items()}
     assert st == {PHX_GSW: "ok", "201512230CLE": "failed"} and "429" in man["units"]["shotchart|2015-16|201512230CLE"]["error"]
+    # bref_shots.main shares the fix: --rpm 0 is the maximum, not unthrottled
+    waits.clear()
+    monkeypatch.setattr(bs, "fetch_html", fake_fetcher([]))
+    assert bs.main(["--games", "02.27.2016.GSW.at.OKC", "--out", str(tmp_path / "bs0"), "--rpm", "0"]).startswith("RUN OK")
+    assert waits and all(w == pytest.approx(60.0 / 17.0) for w in waits)
     # a 429 on a play-by-play page stops the run the same way (no second request); a 403 too; the later units never enter the manifest
     monkeypatch.setattr(seasons, "LOCAL_PBP_DIR", tmp_path / "none")
     pbp_calls = []
@@ -483,6 +481,7 @@ def test_lineups_parser_and_run(tmp_path, monkeypatch):
     n = len(calls)
     lu.main(["--seasons", "2015-16", "--teams", "GSW", "PHO", "--out", str(out)])
     assert len(calls) == n
+    assert not (out / "raw" / "bref_lineups").exists() or len(list((out / "raw" / "bref_lineups").glob("*.json.gz"))) == 1   # the tableless page is not kept
     lu.main(["--seasons", "2015-16", "--teams", "GSW", "PHO", "--out", str(out), "--retry-failed"])
     assert len(calls) == n + 1 and json.loads((out / "bref_lineups" / "manifest.json").read_text())["units"]["lineups|2015-16|PHO"]["status"] == "failed"
 

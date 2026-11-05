@@ -115,8 +115,7 @@ def join_rosters(positions, rosters):
 # ── one unit ───────────────────────────────────────────────────────────────────────────────────────
 def do_season(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     season = unit["season"]
-    rec = sched.page_record(fam, RAW_ENDPOINT, unit["params"], per_game_url(season), throttle)
-    players = parse_per_game(rec["body"], season)
+    rec, players = sched.fetch_and_parse(fam, RAW_ENDPOINT, unit["params"], per_game_url(season), throttle, lambda html: parse_per_game(html, season))
     df = rows_for_season(season, players, rec["fetched_at"])
     if len(df):
         fam.write_part(ENDPOINT, season, season, df)

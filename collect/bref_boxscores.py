@@ -109,8 +109,7 @@ def rows_for_game(g: dict, players: list[dict], fetched_at: str):
 # ── one unit ───────────────────────────────────────────────────────────────────────────────────────
 def do_game(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     g, code = unit["game"], unit["game"]["game_id"]
-    rec = sched.page_record(fam, RAW_ENDPOINT, unit["params"], boxscore_url(code), throttle)
-    players = parse_boxscore(rec["body"], code)
+    rec, players = sched.fetch_and_parse(fam, RAW_ENDPOINT, unit["params"], boxscore_url(code), throttle, lambda html: parse_boxscore(html, code))
     starters, allp = rows_for_game(g, players, rec["fetched_at"])
     teams = sorted(set(allp["team"])) if len(allp) else []
     expected = sorted({g["home"], g["away"]})

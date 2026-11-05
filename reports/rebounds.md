@@ -1,6 +1,6 @@
 # Rebound probability (analytics/rebounds/train.py)
 
-Written 2026-11-05T08:44:27Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/outroot_full --bootstrap 200`.
+Written 2026-11-05T08:59:28Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --bootstrap 200`.
 
 **Fixture output, not a result.** Every number below comes from synthetic games (analytics.fixtures); no real tracking data was read. The real run is the Mac command at the end.
 
@@ -17,7 +17,8 @@ Written 2026-11-05T08:44:27Z by `python -m analytics.rebounds.train --fixtures -
 | 12.12.2015.RNO.at.MOB | False | 121170 | 121170 | 18 | 18 | 0 | 0 | 198 |
 | 11.11.2015.HLX.at.CLE | True | 118520 | 118520 | 24 | 24 | 0 | 0 | 264 |
 
-Dropped misses by reason (all games): no_rim_frame 0, no_rebound_event 0, unmatched_named_rebounder 0, identity_match_null 0, offense_unknown 0, rim_frame_not_in_frames 0, too_few_players 0, rebounder_not_on_court 0.
+Dropped misses by reason (all games): no_rim_frame 0, no_rebound_event 0, unmatched_named_rebounder 0, offense_unknown 0, rim_frame_not_in_frames 0, too_few_players 0, rebounder_not_on_court 0.
+Kept misses by kind: team_rebounds_kept 0, player_rebounds_kept 148, identity_match_null_kept 0, identity_match_false_kept 0, unmatched_flag_kept 0.
 Validation (analytics.rebounds.validate): frames 966540 rows in, 966540 out; events 547 rows in, 547 out; rebound_frames 148 rows in, 148 out; shot_frames 317 rows in, 317 out; rosters 112 rows in, 112 out; possessions 320 rows in, 320 out.
 
 Training: 1089 candidate rows, 99 misses, 6 game(s) (01.18.2016.HLX.at.LRD, 02.04.2016.GRN.at.QCY, 02.07.2016.OMA.at.DUL, 11.27.2015.GRN.at.QCY, 12.12.2015.RNO.at.MOB, 12.15.2015.ABQ.at.GRN). Held out, set aside before any fit: 539 rows, 49 misses, 2 game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW).
@@ -27,8 +28,8 @@ Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `analytics.s
 
 Unit: a missed field-goal attempt; one candidate row per player on court at the rim frame plus a none row (team rebound).
 Features: distance_to_rim_ft, distance_to_ball_landing_ft, angle_to_rim, speed_toward_rim_ftps, is_offense, nearest_opponent_dist_ft, n_opponents_closer_to_rim, ball_apex_ft, shot_distance_ft, is_none, prior_rate.
-Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (conditional logit: logistic regression on the rows, softmax of the linear scores within the miss), hgb (HistGradientBoostingClassifier, normalised within the miss).
-Priors for the logit and hgb training rows: out of fold over 5 inner grouped folds; test rows take the prior of their fold's training games.
+Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss).
+Priors for the logit and hgb training rows: out of fold over 4 to 5 inner grouped folds of each outer fold's training games (0 means in-sample: one game); test rows take the prior of their fold's training games.
 Selection: lowest out-of-fold per-miss multinomial log loss. Top-1 accuracy reported against the plan target of 40 percent.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
@@ -82,7 +83,7 @@ Per miss: y is whether the top candidate secured the rebound (a tie at the maxim
 | logit | 2.1964 | 0.2653 |
 | hgb | 2.1918 | 0.1633 |
 
-Held-out numbers are point estimates over 2 game(s), scored exactly once.
+Held-out numbers are point estimates over 2 game(s), scored exactly once. The selection (p_selected = hgb) was fixed on the out-of-fold training folds above before any held-out row was scored; the other rows are shown for the record and select nothing.
 
 ## Assumptions taken without asking
 
@@ -96,7 +97,7 @@ Held-out numbers are point estimates over 2 game(s), scored exactly once.
 
 ## Predictions
 
-Written 8 file(s) under /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/outroot_full/analytics/rebounds/ (docs/contract/rebounds.md).
+No --out given: the rebound_predictions table was not written.
 
 ## Status
 

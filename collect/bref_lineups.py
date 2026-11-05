@@ -111,8 +111,7 @@ def rows_for_team(team: str, season: str, lineups: list[dict], fetched_at: str):
 # ── one unit ───────────────────────────────────────────────────────────────────────────────────────
 def do_team(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     team, season = unit["team"], unit["season"]
-    rec = sched.page_record(fam, RAW_ENDPOINT, unit["params"], lineups_url(team, season), throttle)
-    lineups = parse_lineups(rec["body"], "%s %s" % (team, season))
+    rec, lineups = sched.fetch_and_parse(fam, RAW_ENDPOINT, unit["params"], lineups_url(team, season), throttle, lambda html: parse_lineups(html, "%s %s" % (team, season)))
     df = rows_for_team(team, season, lineups, rec["fetched_at"])
     if len(df):
         fam.write_part(ENDPOINT, season, team, df)

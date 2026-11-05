@@ -1,8 +1,10 @@
 # Load and fatigue baselines (analytics/load/train.py)
 
-Written 2026-11-05T08:43:04Z by `python -m analytics.load.train --fixtures --local-fixtures --report reports/load.md --bootstrap 200`.
+Written 2026-11-05T08:59:15Z by `python -m analytics.load.train --fixtures --local-fixtures --report reports/load.md --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_load.py (fixture (local tests/_fx_load.py)). The real run is the Mac command at the end.
+
+Produced with --local-fixtures: the shared analytics.fixtures season gives every game distinct teams and players, so the schedule history and the absence target are undefined on it; the local generator repeats four teams over a schedule.
 
 ## Inputs
 
@@ -25,7 +27,7 @@ Guard: `analytics.eval.refuse_heldout` checked 6 training game ids against sport
 
 ## Candidate 1: mean decline by rest bucket (fixture output, not a result)
 
-Bootstrap intervals by game (n=200, seed=0); an interval needs at least two games in the bucket.
+Buckets by days_rest: back_to_back (1 or fewer), one_day (2), two_plus (3 or more, including a team's first listed game, which takes the cap of 7). Bootstrap intervals by game (n=200, seed=0); an interval needs at least two games in the bucket.
 
 | bucket | n | games | mean_decline_ftps | lo | hi |
 | --- | --- | --- | --- | --- | --- |

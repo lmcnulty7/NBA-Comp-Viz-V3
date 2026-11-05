@@ -174,6 +174,9 @@ def run_step(module_name: str, argv: list[str], log_path: Path) -> tuple[str, fl
     handler = logging.StreamHandler(buf)
     handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
     root.addHandler(handler)
+    old_level = root.level
+    if old_level == logging.NOTSET or old_level > logging.INFO:
+        root.setLevel(logging.INFO)           # a lane's basicConfig(level=INFO) is a no-op once a handler exists
     try:
         with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
             mod = importlib.import_module(module_name)
@@ -198,6 +201,7 @@ def run_step(module_name: str, argv: list[str], log_path: Path) -> tuple[str, fl
         for h in list(root.handlers):
             if h is handler or getattr(h, "stream", None) is buf:
                 root.removeHandler(h)
+        root.setLevel(old_level)
     seconds = time.perf_counter() - t0
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "w", encoding="utf-8") as fh:

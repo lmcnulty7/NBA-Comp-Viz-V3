@@ -20,7 +20,8 @@ Fallback generator (the assumptions a test may rely on):
     left basket (5.25, 25) when it is the home team and the right basket (88.75, 25) when it is the away team;
   - possession durations 3 to 22 s, the game clock continuous inside a period (no gaps), the last possession of
     a period cut at 0 s with end_kind period_end;
-  - the handler is one offensive player, drifting from 20 to 35 ft out towards an end distance; the points of the
+  - the handler is one offensive player, drifting from 20 to 35 ft out to an end distance it reaches at 40 percent
+    of the possession and then holds; the points of the
     possession come from a logistic in the end distance, the handler's defender gap at the end and the handler's
     latent shooting skill (per game), and the turnover rate is a per-team latent, so a model over the states has
     something to find and the shooter and lineup priors carry signal;
@@ -98,7 +99,7 @@ def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = Fal
         n = int(round(dur / DT)) + 1
         t = np.arange(n) * DT
         clocks = (clock - t).astype(np.float32)
-        frac = t / max(dur, DT)
+        frac = np.clip(t / max(0.4 * dur, DT), 0.0, 1.0)      # the handler settles at the end distance early
         basket = LEFT_BASKET if offense_home else RIGHT_BASKET
         sx = 1.0 if offense_home else -1.0
         off_ids = HOME_IDS if offense_home else AWAY_IDS

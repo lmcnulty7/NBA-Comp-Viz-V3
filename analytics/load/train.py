@@ -239,6 +239,10 @@ def write_report(path: Path, ctx: dict) -> str:
     if fx:
         L += ["**Every number below is fixture output, not a result**: the inputs are the synthetic season of "
               "tests/_fx_load.py (%s). The real run is the Mac command at the end." % ctx["source"], ""]
+        if "local" in ctx["source"]:
+            L += ["Produced with --local-fixtures: the shared analytics.fixtures season gives every game distinct teams "
+                  "and players, so the schedule history and the absence target are undefined on it; the local generator "
+                  "repeats four teams over a schedule.", ""]
     L += ["## Inputs", "",
           "| games loaded | training games | held-out games | stints | player-games | players | aggregates rows |",
           "| --- | --- | --- | --- | --- | --- | --- |",
@@ -263,7 +267,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "prev_decline_ftps, prev_avg_speed_ftps); same-game totals and later stints are never features. A held-out game "
           "is never read for a feature (the window is NaN instead).",
           "", "## Candidate 1: mean decline by rest bucket%s" % tag, "",
-          "Bootstrap intervals by game (n=%d, seed=%d); an interval needs at least two games in the bucket." % (ctx["bootstrap"], ctx["seed"]), "",
+          "Buckets by days_rest: back_to_back (1 or fewer), one_day (2), two_plus (3 or more, including a team's first "
+          "listed game, which takes the cap of 7). Bootstrap intervals by game (n=%d, seed=%d); an interval needs at "
+          "least two games in the bucket." % (ctx["bootstrap"], ctx["seed"]), "",
           markdown(ctx["rest_table"]), "",
           "Per-player summary (load_summary): %d players, %d with at least %d stints (the others are gated out of any "
           "ranking, `insufficient`). The %d largest mean declines among the gated-in players:" % (

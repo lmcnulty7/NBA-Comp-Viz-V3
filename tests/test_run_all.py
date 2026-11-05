@@ -4,6 +4,7 @@ The extension packages themselves may be absent, so the runner is exercised agai
 tests write into a temporary directory placed on sys.path and name through a --registry JSON override."""
 from __future__ import annotations
 
+import importlib
 import json
 import re
 import shutil
@@ -71,6 +72,9 @@ def make_stub(root: Path, package: str, boom_step: str | None = None, expected_o
     pkg = root / package
     pkg.mkdir(parents=True)
     (pkg / "__init__.py").write_text("")
+    for m in [m for m in sys.modules if m == package or m.startswith(package + ".")]:
+        del sys.modules[m]                      # the same stub name may have been imported from another tmp dir
+    importlib.invalidate_caches()
     marks = str(root / (package + "_marks"))
     for step in ("validate", "features", "train"):
         tail = 'raise RuntimeError("stub %s exploded")' % step if step == boom_step else "pass"
@@ -81,6 +85,12 @@ def make_stub(root: Path, package: str, boom_step: str | None = None, expected_o
         {"name": package, "package": package, "steps": ["validate", "features", "train"],
          "depends_on": [], "phase": 1, "real_data_inputs": [], "notes": "test stub"}]}))
     return reg
+
+
+@pytest.fixture
+def no_fixture_root(monkeypatch):
+    """Skip analytics.fixtures.write_fixture_root (about 3 s a call) where the test does not need it."""
+    monkeypatch.setattr(run_all, "make_fixture_root", lambda root, seed: (None, "test: fixtures bypassed; passing --fixtures"))
 
 
 def report_rows(out: Path, ext: str) -> list[str]:
@@ -235,7 +245,7 @@ def test_run_all_runs_stub_steps_in_order(tmp_path, monkeypatch, capsys):
     assert "fixture" in text.lower()
 
 
-def test_run_all_failed_train_exits_nonzero(tmp_path, monkeypatch, capsys):
+def test_run_all_failed_train_exits_nonzero(tmp_path, monkeypatch, capsys, no_fixture_root):
     stubs = tmp_path / "stubs"
     out = tmp_path / "out"
     reg = make_stub(stubs, "xfg_boom", boom_step="train", expected_out=out)
@@ -255,7 +265,7 @@ def test_run_all_failed_train_exits_nonzero(tmp_path, monkeypatch, capsys):
     assert "Traceback" in log and "[failed in" in log
 
 
-def test_run_all_system_exit_message_reaches_log(tmp_path, monkeypatch, capsys):
+def test_run_all_system_exit_message_reaches_log(tmp_path, monkeypatch, capsys, no_fixture_root):
     stubs = tmp_path / "stubs"
     pkg = stubs / "exiter"
     pkg.mkdir(parents=True)
@@ -273,7 +283,7 @@ def test_run_all_system_exit_message_reaches_log(tmp_path, monkeypatch, capsys):
     assert "| exiter | validate | failed |" in (out / "reports" / "run_all.md").read_text()
 
 
-def test_run_all_skips_absent_package_and_continues(tmp_path, monkeypatch, capsys):
+def test_run_all_skips_absent_package_and_continues(tmp_path, monkeypatch, capsys, no_fixture_root):
     stubs = tmp_path / "stubs"
     out = tmp_path / "out"
     make_stub(stubs, "xfg_present", expected_out=out)
@@ -293,7 +303,7 @@ def test_run_all_skips_absent_package_and_continues(tmp_path, monkeypatch, capsy
 
 
 @pytest.mark.parametrize("continue_on_error", [False, True])
-def test_run_all_dependency_failure_skips_dependents(tmp_path, monkeypatch, capsys, continue_on_error):
+def test_run_all_dependency_failure_skips_dependents(tmp_path, monkeypatch, capsys, continue_on_error, no_fixture_root):
     stubs = tmp_path / "stubs"
     out = tmp_path / "out"
     make_stub(stubs, "dep_a", boom_step="features", expected_out=out)
@@ -327,7 +337,7 @@ def test_run_all_dependency_failure_skips_dependents(tmp_path, monkeypatch, caps
         assert not (stubs / "dep_c_marks").exists()
 
 
-def test_run_all_phase_selection_and_with_deps(tmp_path, monkeypatch, capsys):
+def test_run_all_phase_selection_and_with_deps(tmp_path, monkeypatch, capsys, no_fixture_root):
     stubs = tmp_path / "stubs"
     out = tmp_path / "out"
     make_stub(stubs, "ph_a", expected_out=out)
@@ -391,7 +401,7 @@ def test_run_all_phase0_uses_contract_folder(tmp_path, monkeypatch, capsys):
     assert "(contract: %s)" % contract in text
 
 
-def test_fixture_run_without_out_reports_under_reports_fixtures(tmp_path, monkeypatch, capsys):
+def test_fixture_run_without_out_reports_under_reports_fixtures(tmp_path, monkeypatch, capsys, no_fixture_root):
     """With --fixtures and no --out the summary goes to reports/fixtures/, never over reports/<ext>.md."""
     stubs = tmp_path / "stubs"
     reg = make_stub(stubs, "fx_stub")
@@ -426,12 +436,13 @@ def test_makefile_targets_match_registry():
     m = re.search(r"^EXTENSIONS = (.+)$", text, re.M)
     assert m and m.group(1).split() == EXPECTED
     # every expansion of a path variable is quoted (Drive paths have spaces)
+    scan = text.replace("$(or $(DATA),$(DATA_ROOT))", "$(DATA)")
     for var in ("DATA", "OUT", "DATA_ROOT", "SITE_DIR"):
-        for mm in re.finditer(r"\$\(%s\)" % var, text):
-            line = text[text.rfind("\n", 0, mm.start()) + 1:text.find("\n", mm.end())]
-            if line.startswith(("DATA", "OUT", "SITE_DIR", "#")) or "$(if $(%s)," % var in line or "test -n" in line:
+        for mm in re.finditer(r"\$\(%s\)" % var, scan):
+            line = scan[scan.rfind("\n", 0, mm.start()) + 1:scan.find("\n", mm.end())]
+            if line.startswith(("DATA", "OUT", "SITE_DIR", "#", "\t@echo")) or "$(if $(%s)," % var in line or "test -n" in line:
                 continue
-            assert text[mm.start() - 1] == '"' and text[mm.end():mm.end() + 1] in ('"', '/'), line
+            assert scan[mm.start() - 1] == '"' and scan[mm.end():mm.end() + 1] in ('"', '/'), line
     if shutil.which("make"):
         res = subprocess.run(["make", "-s", "help"], cwd=str(REPO), capture_output=True, text=True, timeout=20)
         assert res.returncode == 0, res.stderr

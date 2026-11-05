@@ -225,16 +225,18 @@ def test_end_to_end_fixture_run_writes_the_contract_tables(tmp_path):
                                      "best_value", "best_option", "decision_quality", "heldout"]
     assert {"shot", "pass"} <= set(ev["decision_kind"]) and ev["sportvu_game"].nunique() == 3
     assert not ev["heldout"].any() and (ev["fold"] >= 0).all()
-    non_drive = ev[ev["decision_kind"] != "drive"]
-    assert (non_drive["decision_quality"] <= 1e-9).all()
-    assert ev["best_option"].str.match(r"^(shot|hold|pass_to_[1-4])$").all()
+    assert (ev["decision_quality"] <= 1e-9).all()             # every kind is regret: the chosen option is in the set
+    assert ev["best_option"].str.match(r"^(shot|hold|drive|pass_to_[1-4])$").all()
     assert ev["chosen_value"].between(0, 3).all() and ev["best_value"].between(0, 3).all()
+    assert all(str(ev[c].dtype) == "int32" for c in T.EVENT_INT32)
     held = res["events_heldout"]
     assert len(held) and held["heldout"].all() and (held["fold"] == -1).all() and held["sportvu_game"].nunique() == 1
+    assert (held["prior"] == res["prior"]).all()
     players = res["players"]
     assert list(players.columns[:6]) == ["player_id", "n_decisions", "mean_quality", "lo", "hi", "insufficient"]
-    assert players["insufficient"].all()                      # fixture players are far under the 300-decision gate
-    assert players["n_decisions"].sum() == len(ev)
+    assert players["insufficient"].all() and players["rank"].isna().all()   # fixture players are far under the gate: unranked
+    assert players["n_decisions"].sum() == len(ev) and (players["n_shot"] + players["n_pass"] + players["n_drive"]).sum() == len(ev)
+    assert (players["mean_quality_shot"].dropna() <= 1e-9).all()
     v = res["validation"]["location"]
     assert set(v) == {"per_game", "summary", "shuffled"} and v["summary"]["n_games"] <= 3
     assert res["prior"] == "location" and res["fit_rows"] > 0
@@ -294,6 +296,64 @@ def test_end_to_end_on_the_shared_fixtures():
     assert len(res["events_heldout"]) and (res["events_heldout"]["sportvu_game"] == "12.16.2015.PHX.at.GSW").all()
     assert (ev[ev["decision_kind"] != "drive"]["decision_quality"] <= 1e-9).all()
     assert any(c.get("possessions_gap", 0) for c in res["counts"].values())
+
+
+def test_backcourt_start_is_outvoted_by_the_team_s_half_court_possessions():
+    """A transition possession whose offence's mean x sits in the backcourt (about 45 ft) must still attack the
+    right basket when the team's other possessions of the period do."""
+    n = 60
+    def block(x0, x1):
+        ball = np.zeros((n, 3))
+        path = np.column_stack([np.linspace(x0, x1, n), np.full(n, 25.0)])
+        ball[:, :2] = path + np.array([0.5, 0.0])
+        ball[:, 2] = 3.0
+        off = {1: path, 2: path + np.array([0.0, 10.0]), 3: path + np.array([-3.0, -8.0]), 4: path + np.array([-6.0, 12.0]), 5: path + np.array([-8.0, -4.0])}
+        dfn = {k + 10: v + np.array([4.0, 1.0]) for k, v in off.items()}
+        return _frames(ball, off, dfn)
+    parts = [block(80.0, 84.0), block(78.0, 82.0), block(12.0, 80.0)]           # two half-court, one transition
+    for k, f in enumerate(parts):
+        f["frame"] = f["frame"] + k * n
+    frames = pd.concat(parts, ignore_index=True)
+    poss = pd.DataFrame([{"sportvu_game": "g", "possession": k, "period": 1, "start_frame": k * n, "end_frame": (k + 1) * n - 1,
+                          "offense_team_id": 1, "gap": False, "points": 0} for k in range(3)])
+    fv = frames["frame"].to_numpy()
+    sub = frames[(frames["frame"] >= 2 * n) & (frames["team_id"] == 1)]
+    assert sub["x"].mean() < F.HALF_X                                           # the probe: mean x in the backcourt
+    assert F.basket_of(float(sub["x"].mean())) == F.RIM_LEFT                   # the old rule got it wrong
+    baskets = F.baskets_by_team_period(frames, fv, poss)
+    assert baskets == {(1, 1): F.RIM_RIGHT}
+    sf = pd.DataFrame(columns=["sportvu_game", "event", "release_frame", "shooter_id", "shooter_at_release_id"])
+    ctx = F.decision_contexts({"sportvu_game": "g", "heldout": False, "frames": frames, "shot_frames": sf, "possessions": poss})
+    drives = ctx[(ctx["decision_kind"] == "drive") & (ctx["possession"] == 2)]
+    assert len(drives) == 1 and drives["basket_x"].iloc[0] == F.RIM_RIGHT[0]
+    assert (ctx["dist_to_basket_ft"] < 50).all()
+
+
+def test_partial_xfg_coverage_keeps_every_game_and_selects_the_location_prior():
+    bundles = _bundles(n_games=2, n_possessions=8, heldout_every=0)
+    b0 = bundles[0]
+    shots = b0["shot_frames"].head(max(1, len(b0["shot_frames"]) // 3))        # well under half of all shot decisions
+    b0["xfg"] = pd.DataFrame({"sportvu_game": b0["sportvu_game"], "event": shots["event"], "player_id": shots["shooter_id"],
+                              "p_location": 0.4, "p_contest": 0.4, "p_selected": 0.42, "made": shots["made"], "fold": 0, "heldout": False})
+    res = T.run(bundles, 2, 0, 5)
+    assert res["has_xfg"] and 0 < res["xfg_coverage"] < 0.5 and res["prior"] == "location"
+    both = res["events_by_prior"]["xfg_selected"]
+    assert both["sportvu_game"].nunique() == 2 and len(both) == len(res["events_by_prior"]["location"])
+    assert set(res["players"]["player_id"]) == set(res["events"]["player_id"])
+    # a training game refuses upstream rows from a held-out fit
+    b0["xfg"]["fold"] = -1
+    res2 = T.run(bundles, 2, 0, 5)
+    assert res2["xfg_coverage"] == 0.0 and res2["counts"][b0["sportvu_game"]]["xfg_rows_refused"] == len(shots)
+
+
+def test_full_model_reproduces_the_held_out_events():
+    bundles = _bundles(n_games=3, n_possessions=8, heldout_every=3)
+    res = T.run(bundles, 2, 0, 5)
+    held = [b for b in bundles if b["heldout"]][0]
+    ctx = res["contexts"][held["sportvu_game"]]
+    again = T.value_game(ctx, held, res["full_model"], -1, with_xfg=False)["events"]["location"]
+    again = T._cast_events(again[T.EVENT_COLUMNS])
+    pd.testing.assert_frame_equal(again.reset_index(drop=True), res["events_heldout"].reset_index(drop=True))
 
 
 def test_ortg_counts_possessions_on_the_floor():

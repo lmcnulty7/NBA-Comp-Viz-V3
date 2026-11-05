@@ -14,18 +14,20 @@ overlaps the 2015-16 tracking era: it is listed by `validate.py` and nothing joi
 
 - **Player-stint**: a continuous on-court span of one player. The player's rows are sorted by period and frame; a
   new stint starts when the period changes or the game clock jumps by more than `CONTINUOUS_S` (5 s) between
-  consecutive rows (a substitution leaves a hole in the clock, a stopped clock does not). Positions are smoothed by
-  a centred 5-row mean (the two rows at each end of a stint stay raw). A step between consecutive rows counts when
-  its wall-clock dt (`ts_ms`, else the frame index at 25 Hz) is in (0, 1] s. Dead-ball movement counts because the
-  wall clock runs: a known limit.
+  consecutive rows (a substitution leaves a hole in the clock, a stopped clock does not). A step between
+  consecutive rows counts when its wall-clock dt (`ts_ms`, else the frame index at 25 Hz) is in (0, 1] s.
+  Positions are smoothed by a centred 5-row mean that restarts at every uncounted step (a dropout of 1 to 5 s
+  inside a stint is never bridged; the two rows at each end of a segment stay raw). Dead-ball movement counts
+  because the wall clock runs: a known limit.
 - **Player-game**: one row per player with frames in a game.
 
 ## Validation (`analytics/load/validate.py`), counts logged per game
 
 Required frame columns; rows with a missing key or position dropped; duplicate `(frame, player_id)` rows dropped;
 positions outside x in [-5, 99], y in [-5, 55] ft dropped; a step faster than 30 ft per s (within a continuous span)
-flags the arriving row, which is dropped (a one-frame glitch flags two rows); a player-game distance above 35,000 ft
-is flagged only. Nothing is interpolated.
+flags the arriving row, which is dropped. The check is one pass, aimed at one-frame glitches: a glitch flags two rows
+(the jump out and the jump back); a longer excursion loses only its first and last row and keeps its interior rows
+(a limit, logged by the count). A player-game distance above 35,000 ft is flagged only. Nothing is interpolated.
 
 ## `player_stints`
 
@@ -57,7 +59,7 @@ is flagged only. Nothing is interpolated.
 | `slope_ftps_per_stint` | float | TARGET: least-squares slope of avg speed on the index of those stints |
 | `days_rest` | float | days since the team's previous manifest game, capped at 7; the team's first listed game takes 7 |
 | `back_to_back` | bool | `days_rest <= 1` |
-| `games_last_7` | float | the team's manifest games in the previous 7 days |
+| `games_last_7` | float | the team's manifest games dated 7 days or fewer before the game (the game itself excluded) |
 | `minutes_last_3` | float | the player's minutes over the team's previous three games (0 when absent from one; NaN when one is held out or not loaded) |
 | `distance_last_3_ft` | float | same window, distance |
 | `prev_decline_ftps` | float | the player's `decline_ftps` in the team's previous game; NaN when absent, held out or not loaded |
@@ -80,6 +82,17 @@ games; a held-out game is never read for a feature. The same-game columns and th
 | `mean_decline` | float | mean `decline_ftps` over those games |
 | `lo`, `hi` | float | 2.5 and 97.5 percentiles of bootstrap resamples of the player's games (NaN with one game) |
 | `insufficient` | bool | fewer than 10 stints: never ranked |
+
+## Rest buckets (candidate 1 and the EDA)
+
+By `days_rest`: `back_to_back` (1 or fewer), `one_day` (2), `two_plus` (3 or more, including a team's first listed
+game, which takes the cap of 7).
+
+## Calibration of the absence baseline
+
+Log loss, Brier and ECE carry bootstrap intervals by game. The calibration slope is one fit on all out-of-fold rows
+and carries no interval: the harness's slope fit (unregularised logistic regression on logit p) is slow and unstable
+on near-separable probabilities, and at the fixture scale the slope is meaningless anyway.
 
 ## Limits of the targets
 

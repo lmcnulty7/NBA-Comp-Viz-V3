@@ -85,6 +85,24 @@ def page_record(fam: common.Family, raw_endpoint: str, params: dict, url: str, t
     return rec
 
 
+def discard_page(fam: common.Family, raw_endpoint: str, params: dict) -> None:
+    """Drop a cached page (a 200 without its table is not kept: --retry-failed must fetch it again)."""
+    p = fam.raw.path(raw_endpoint, params)
+    if p.exists():
+        p.unlink()
+
+
+def fetch_and_parse(fam: common.Family, raw_endpoint: str, params: dict, url: str, throttle: common.Throttle, parser):
+    """(raw record, parser(html)) for a page; when the parser raises ValueError (no table, no rows) the cached page is
+    discarded before the error propagates, so the unit fails and a later --retry-failed fetches the page afresh."""
+    rec = page_record(fam, raw_endpoint, params, url, throttle)
+    try:
+        return rec, parser(rec["body"])
+    except ValueError:
+        discard_page(fam, raw_endpoint, params)
+        raise
+
+
 def soup_of(html: str):
     from bs4 import BeautifulSoup
     return BeautifulSoup(html, "html.parser")
@@ -338,8 +356,7 @@ def teams_for_season(fam: common.Family, season: str) -> list[str]:
 # ── one unit ───────────────────────────────────────────────────────────────────────────────────────
 def do_month(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     season, month = unit["season"], unit["month"]
-    rec = page_record(fam, RAW_ENDPOINT, unit["params"], schedule_url(season, month), throttle)
-    games = parse_schedule(rec["body"], "%s %s" % (season, month))
+    rec, games = fetch_and_parse(fam, RAW_ENDPOINT, unit["params"], schedule_url(season, month), throttle, lambda html: parse_schedule(html, "%s %s" % (season, month)))
     df = rows_for_month(games, season, month, rec["fetched_at"])
     if len(df):
         fam.write_part(ENDPOINT, season, month, df)

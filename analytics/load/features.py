@@ -7,8 +7,9 @@ Units and definitions (docs/contract/load.md):
 player_stints  one row per continuous on-court span of a player. Frames of a player are sorted by period and
     frame; a new stint starts when the period changes or the game clock jumps by more than STINT_BREAK_S (5 s)
     between consecutive rows of that player (a substitution leaves a hole in the clock; a stopped clock does
-    not). Positions are smoothed by a centred rolling mean over SMOOTH_FRAMES (5) rows before differencing (the
-    two rows at each end of a stint stay raw, so a straight walk keeps its exact length).
+    not). Positions are smoothed by a centred rolling mean over SMOOTH_FRAMES (5) rows before differencing; the
+    smoothing restarts at every uncounted step (a dropout of 1 to 5 s inside a stint is never bridged) and the
+    two rows at each end of a segment stay raw, so a straight walk keeps its exact length.
     A step is the move between consecutive rows of a stint; it counts when its wall-clock dt (ts_ms, else the
     frame index at 25 Hz) is in (0, 1] s. minutes = game clock elapsed over the stint; distance_ft = sum of
     counted step lengths; avg_speed_ftps = distance / counted seconds; high_intensity_share = counted seconds
@@ -19,8 +20,9 @@ player_games  one row per player with frames in a game. Totals over the stints; 
     the stints of at least MIN_TREND_STINT_MIN (1.0) minutes in stint order: decline_ftps = avg speed of the
     last such stint minus the first (NaN with fewer than two), slope_ftps_per_stint = least-squares slope of
     avg speed on the stint index. Schedule features from the manifest dates of the player's team: days_rest
-    (capped at REST_CAP = 7, the team's first listed game takes the cap), back_to_back (days_rest == 1),
-    games_last_7 (team games in the previous 7 days), and the player's load over the team's previous games:
+    (capped at REST_CAP = 7, the team's first listed game takes the cap), back_to_back (days_rest <= 1),
+    games_last_7 (team games dated 7 days or fewer before the game, the game itself excluded), and the player's
+    load over the team's previous games:
     minutes_last_3 and distance_last_3_ft (sum over the team's last three games, 0 when the player had no
     frames in one, NaN when one of them is held out or not loaded), prev_decline_ftps and prev_avg_speed_ftps
     (the previous team game, NaN when absent, held out or not loaded). absent_next = the team's next manifest
@@ -102,33 +104,40 @@ def player_stints(frames: pd.DataFrame, sportvu_game: str | None = None, heldout
                   validated: bool = False) -> pd.DataFrame:
     """Section 4 frames of one game -> the player_stints table (STINT_COLUMNS). validate_frames runs first
     unless validated is true (then frames must be its output: sorted by player_id, period, frame)."""
+    return _stints_with_run_s(frames, sportvu_game, heldout, validated)[STINT_COLUMNS]
+
+
+def _stints_with_run_s(frames: pd.DataFrame, sportvu_game: str | None = None, heldout: bool = False,
+                       validated: bool = False) -> pd.DataFrame:
+    """player_stints plus run_s (counted seconds), carried internally so that a zero-distance stint keeps its
+    time in the game average speed denominator. Never written."""
     df = frames if validated else V.validate_frames(frames)[0]
     if sportvu_game is None:
         sportvu_game = str(df["game"].iloc[0]) if len(df) else ""
     if not len(df):
-        return pd.DataFrame(columns=STINT_COLUMNS)
+        return pd.DataFrame(columns=STINT_COLUMNS + ["run_s"])
     pid = df["player_id"].to_numpy()
-    per = df["period"].to_numpy()
     clock = df["game_clock_s"].to_numpy(dtype="float64")
     new = ~V.continuous_step(df)                                       # new player, new period or a clock jump
     key = np.cumsum(new) - 1                                            # stint key over the whole game
-    kser = pd.Series(key, index=df.index)
-    raw = df[["x", "y"]].astype("float64")
-    sm = raw.groupby(kser).rolling(SMOOTH_FRAMES, center=True, min_periods=SMOOTH_FRAMES).mean()
-    sm = sm.reset_index(level=0, drop=True).sort_index().fillna(raw)      # the two edge rows of a stint stay raw
-    xs, ys = sm["x"].to_numpy(), sm["y"].to_numpy()
     dt = V.step_dt_s(df)
     same_stint = key == _roll_prev(key)
     same_stint[0] = False
     dt = np.where(same_stint, dt, np.nan)
-    dist = np.hypot(xs - _roll_prev(xs), ys - _roll_prev(ys))
     counted = np.isfinite(dt) & (dt > 0) & (dt <= MAX_STEP_DT_S)
+    # smoothing never bridges an uncounted step (a dropout of 1 to 5 s inside a stint): its key breaks there too
+    skey = pd.Series(np.cumsum(~counted), index=df.index)
+    raw = df[["x", "y"]].astype("float64")
+    sm = raw.groupby(skey).rolling(SMOOTH_FRAMES, center=True, min_periods=SMOOTH_FRAMES).mean()
+    sm = sm.reset_index(level=0, drop=True).sort_index().fillna(raw)      # the two edge rows of a segment stay raw
+    xs, ys = sm["x"].to_numpy(), sm["y"].to_numpy()
+    dist = np.hypot(xs - _roll_prev(xs), ys - _roll_prev(ys))
     with np.errstate(divide="ignore", invalid="ignore"):
         speed = np.where(counted, dist / dt, np.nan)
     dt_c = np.where(counted, dt, 0.0)
     dist_c = np.where(counted, dist, 0.0)
     hi_s = np.where(counted & (speed > HIGH_INTENSITY_FTPS), dt, 0.0)
-    sp = pd.Series(speed, index=df.index).groupby(kser).rolling(SMOOTH_FRAMES, center=True, min_periods=1).mean()
+    sp = pd.Series(speed, index=df.index).groupby(skey).rolling(SMOOTH_FRAMES, center=True, min_periods=1).mean()
     sp = sp.reset_index(level=0, drop=True).sort_index().to_numpy()
     with np.errstate(divide="ignore", invalid="ignore"):
         accel = np.where(counted, (sp - _roll_prev(sp)) / dt, np.nan)
@@ -147,7 +156,11 @@ def player_stints(frames: pd.DataFrame, sportvu_game: str | None = None, heldout
     out["stint"] = out.groupby("player_id").cumcount()
     out["sportvu_game"] = sportvu_game
     out["heldout"] = bool(heldout)
-    return out[STINT_COLUMNS]
+    for c in ("player_id", "stint", "start_frame", "end_frame"):
+        out[c] = out[c].astype("int32")
+    out["accelerations"] = out["accelerations"].astype("int32")
+    out["run_s"] = out["run_s"].astype(float)
+    return out[STINT_COLUMNS + ["run_s"]]
 
 
 # ── schedule ───────────────────────────────────────────────────────────────────────────────────────
@@ -199,8 +212,9 @@ def player_games(stints: pd.DataFrame, games: list, schedule: pd.DataFrame, rost
     if not len(stints):
         return pd.DataFrame(columns=GAME_COLUMNS)
     stints = stints.copy()
-    with np.errstate(divide="ignore", invalid="ignore"):                 # counted seconds of a stint = distance / avg speed
-        stints["run_s"] = np.where(stints["avg_speed_ftps"] > 0, stints["distance_ft"] / stints["avg_speed_ftps"], 0.0)
+    if "run_s" not in stints.columns:                                   # a written table: counted seconds = distance / avg speed
+        with np.errstate(divide="ignore", invalid="ignore"):
+            stints["run_s"] = np.where(stints["avg_speed_ftps"] > 0, stints["distance_ft"] / stints["avg_speed_ftps"], 0.0)
     grp = stints.groupby(["sportvu_game", "player_id"], sort=True)
     tot = grp.agg(minutes=("minutes", "sum"), distance_ft=("distance_ft", "sum"), run_s=("run_s", "sum")).reset_index()
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -295,14 +309,14 @@ def build_tables(inputs: dict, n_boot: int = 200, seed: int = 0) -> dict:
         log["rosters"] = rlog
         logs[g["sportvu_game"]] = log
         rosters[g["sportvu_game"]] = ros
-        stints.append(player_stints(clean, g["sportvu_game"], g["heldout"], validated=True))
+        stints.append(_stints_with_run_s(clean, g["sportvu_game"], g["heldout"], validated=True))
         del frames, clean
-    st = pd.concat(stints, ignore_index=True) if stints else pd.DataFrame(columns=STINT_COLUMNS)
+    st = pd.concat(stints, ignore_index=True) if stints else pd.DataFrame(columns=STINT_COLUMNS + ["run_s"])
     schedule = schedule_table(inputs["manifest"])
     pg = player_games(st, inputs["games"], schedule, rosters)
     schema.assert_time_forward(pg, GUARD_TABLE)
     summary = load_summary(pg, st, n_boot=n_boot, seed=seed)
-    return {"player_stints": st, "player_games": pg, "load_summary": summary, "schedule": schedule,
+    return {"player_stints": st[STINT_COLUMNS], "player_games": pg, "load_summary": summary, "schedule": schedule,
             "logs": logs}
 
 

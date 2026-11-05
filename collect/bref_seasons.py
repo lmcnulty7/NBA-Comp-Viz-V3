@@ -82,8 +82,12 @@ def pbp_events(fam: common.Family, code: str, throttle: common.Throttle) -> tupl
         events = json.loads(local.read_text())["events"]
         rec = fam.raw.put(RAW_PBP, params, events, "data/pbp/%s.json" % code, 200)
         return events, rec["fetched_at"], "data/pbp/%s.json" % code
-    rec = sched.page_record(fam, RAW_PBP_PAGE, params, pbp_url(code), throttle)
-    events = fetch_pbp.parse_events(rec["body"])
+    def parse(html):
+        events = fetch_pbp.parse_events(html)
+        if not events:
+            raise ValueError("%s: no play-by-play events on the page" % code)
+        return events
+    rec, events = sched.fetch_and_parse(fam, RAW_PBP_PAGE, params, pbp_url(code), throttle, parse)
     fam.raw.put(RAW_PBP, params, events, pbp_url(code), 200)
     return events, rec["fetched_at"], "page"
 
@@ -116,10 +120,12 @@ def do_unit(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[
     import pandas as pd
     g, code = unit["game"], unit["game"]["game_id"]
     if unit["endpoint"] == SHOTS:
-        rec = sched.page_record(fam, RAW_SHOTS, {"code": code}, bs.shot_chart_url(code), throttle)
-        shots = bs.parse_shot_chart(rec["body"])
-        if not shots:
-            raise ValueError("%s: no shot markers on the page" % code)
+        def parse(html):
+            shots = bs.parse_shot_chart(html)
+            if not shots:
+                raise ValueError("%s: no shot markers on the page" % code)
+            return shots
+        rec, shots = sched.fetch_and_parse(fam, RAW_SHOTS, {"code": code}, bs.shot_chart_url(code), throttle, parse)
         cal = bs.calibrate(shots)
         if cal["ok"] is False:
             raise ValueError("%s: the hoop fitted from the tips sits %.1f px from HOOP_PX %s: the page's pixel frame is not the assumed one"

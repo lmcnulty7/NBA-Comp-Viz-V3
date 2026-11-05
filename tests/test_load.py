@@ -52,6 +52,19 @@ def test_stints_from_a_hand_built_on_off_sequence():
     assert (st["heldout"] == False).all()                                     # noqa: E712
 
 
+def test_smoothing_never_bridges_a_dropout_inside_a_stint():
+    """A 5 ft/s walk with a 2 s hole (frames 100..149 missing): one stint (the clock jump is under 5 s), the
+    uncounted step across the hole adds nothing, the smoothing restarts after it: 2 x 99 x 0.2 ft = 39.6 ft."""
+    f = pd.concat([walk(7, range(0, 100), 1, 720.0, 10.0, 5.0),
+                   walk(7, range(150, 250), 1, 720.0 - 150 / 25.0, 10.0 + 150 * 0.2, 5.0)], ignore_index=True)
+    st = F.player_stints(f, "11.01.2015.AAA.at.BBB")
+    assert len(st) == 1 and st["start_frame"].iloc[0] == 0 and st["end_frame"].iloc[0] == 249
+    assert st["distance_ft"].iloc[0] == pytest.approx(39.6, abs=1e-6)
+    assert st["avg_speed_ftps"].iloc[0] == pytest.approx(5.0, abs=1e-6)
+    assert st["minutes"].iloc[0] == pytest.approx(249 / 25 / 60, abs=1e-6)
+    assert str(st["start_frame"].dtype) == "int32" and str(st["player_id"].dtype) == "int32"
+
+
 def test_validate_drops_duplicates_offcourt_and_teleports_with_counts():
     f = walk(7, range(0, 50), 1, 720.0, 10.0, 5.0)
     f = pd.concat([f, f.iloc[[10]]], ignore_index=True)                       # duplicate (frame, player)
@@ -78,6 +91,48 @@ def test_schedule_features_from_manifest_dates():
     assert a["games_last_7"].tolist() == [0, 1, 2, 0]
     assert a["prev_game"].tolist()[1] == "11.01.2015.AAA.at.BBB" and a["next_game"].tolist()[0] == "11.02.2015.CCC.at.AAA"
     assert a["next_game"].tolist()[-1] is None or pd.isna(a["next_game"].tolist()[-1])
+
+
+def test_player_games_hand_built_history_prev_decline_and_absence():
+    """One team over five manifest games (the 4th held out), two players with known stints, player 2 absent from
+    game 3: exact minutes_last_3, prev_decline_ftps, absent_next and the schedule columns."""
+    gids = ["11.01.2015.AAA.at.BBB", "11.03.2015.BBB.at.AAA", "11.04.2015.AAA.at.BBB", "11.06.2015.BBB.at.AAA",
+            "11.09.2015.AAA.at.BBB"]
+    dates = ["2015-11-01", "2015-11-03", "2015-11-04", "2015-11-06", "2015-11-09"]
+    held = {gids[3]}
+    manifest = {"games": {g: {"date": d, "away": g.split(".")[3], "home": g.split(".")[5], "status": "ok"} for g, d in zip(gids, dates)}}
+    games = [{"sportvu_game": g, "date": d, "heldout": g in held} for g, d in zip(gids, dates)]
+    present = {1: set(gids), 2: set(gids) - {gids[2]}}
+    speeds = {1: (6.0, 5.0), 2: (5.0, 5.5)}                                 # (first stint, second stint) avg speed
+    rows = []
+    for g in gids:
+        for p in (1, 2):
+            if g not in present[p]:
+                continue
+            for k, v in enumerate(speeds[p]):
+                rows.append({"sportvu_game": g, "player_id": p, "stint": k, "start_frame": k * 5000, "end_frame": k * 5000 + 3749,
+                             "minutes": 2.5, "distance_ft": v * 150.0, "avg_speed_ftps": v, "high_intensity_share": 0.0,
+                             "accelerations": 0, "heldout": g in held})
+    stints = pd.DataFrame(rows, columns=F.STINT_COLUMNS)
+    rosters = {g: pd.DataFrame({"sportvu_game": g, "player_id": [p for p in (1, 2) if g in present[p]], "team": "AAA"}) for g in gids}
+    pg = F.player_games(stints, games, F.schedule_table(manifest), rosters)
+    p1 = pg[pg["player_id"] == 1].set_index("sportvu_game").loc[gids]
+    assert p1["minutes"].tolist() == pytest.approx([5.0] * 5) and p1["avg_speed_ftps"].tolist() == pytest.approx([5.5] * 5)
+    assert p1["decline_ftps"].tolist() == pytest.approx([-1.0] * 5) and p1["slope_ftps_per_stint"].tolist() == pytest.approx([-1.0] * 5)
+    assert p1["minutes_last_3"].tolist()[:4] == pytest.approx([0.0, 5.0, 10.0, 15.0]) and pd.isna(p1["minutes_last_3"].iloc[4])
+    assert p1["distance_last_3_ft"].tolist()[:4] == pytest.approx([0.0, 1650.0, 3300.0, 4950.0])
+    assert pd.isna(p1["prev_decline_ftps"].iloc[0]) and p1["prev_decline_ftps"].tolist()[1:4] == pytest.approx([-1.0] * 3)
+    assert pd.isna(p1["prev_decline_ftps"].iloc[4]) and p1["prev_avg_speed_ftps"].iloc[1] == pytest.approx(5.5)
+    assert p1["absent_next"].tolist()[:2] == [False, False] and pd.isna(p1["absent_next"].iloc[2])   # next game held out
+    assert p1["absent_next"].iloc[3] == False and pd.isna(p1["absent_next"].iloc[4])                   # noqa: E712  (no next game)
+    assert p1["days_rest"].tolist() == [7.0, 2.0, 1.0, 2.0, 3.0] and p1["back_to_back"].tolist() == [False, False, True, False, False]
+    assert p1["games_last_7"].tolist() == [0.0, 1.0, 2.0, 3.0, 3.0] and p1["heldout"].tolist() == [False, False, False, True, False]
+    p2 = pg[pg["player_id"] == 2].set_index("sportvu_game")
+    assert p2["absent_next"].loc[gids[1]] == True                                                   # noqa: E712  (not on the game 3 roster)
+    assert p2["minutes_last_3"].loc[gids[3]] == pytest.approx(10.0)       # the window: game 3 (absent, 0) + game 2 (5) + game 1 (5)
+    assert p2["decline_ftps"].loc[gids[1]] == pytest.approx(0.5) and pd.isna(p2["prev_decline_ftps"].loc[gids[3]])   # absent from game 3
+    assert pd.isna(p2["prev_decline_ftps"].loc[gids[4]])                                            # game 4 held out
+    assert len(pg) == 9 and list(pg.columns) == F.GAME_COLUMNS
 
 
 @pytest.fixture(scope="module")

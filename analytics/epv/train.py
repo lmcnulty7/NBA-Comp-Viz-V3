@@ -57,6 +57,7 @@ SEQUENCE = "mlp"
 SLOPE_LO, SLOPE_HI, MIN_LIFT = 0.9, 1.1, 0.05
 N_LAGS = 5
 INNER_FOLDS = 3
+MLP_ITER = 300
 MAC_CMD = ("python -m analytics.epv.train --data /path/to/DATA_ROOT --report reports/epv.md --folds 5 --seed 0 "
            "--bootstrap 1000 --out /path/to/DATA_ROOT")
 
@@ -92,7 +93,7 @@ def make_model(name: str, seed: int, hgb_iter: int = 100):
                                              l2_regularization=1.0, random_state=seed)
     if name == SEQUENCE:
         return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
-                             MLPRegressor(hidden_layer_sizes=(32,), alpha=1e-3, max_iter=300, random_state=seed))
+                             MLPRegressor(hidden_layer_sizes=(32,), alpha=1e-3, max_iter=MLP_ITER, random_state=seed))
     raise ValueError(name)
 
 
