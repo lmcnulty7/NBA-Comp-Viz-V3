@@ -1,6 +1,6 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written 2026-11-05T08:57:44Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
+Written 2026-11-05T09:15:57Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
 
 **Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.
 
@@ -9,16 +9,16 @@ Written 2026-11-05T08:57:44Z by `python -m analytics.winprob.train --fixtures --
 | input | value |
 | --- | --- |
 | files | <fixtures seed 0> |
-| events (states) | 14331 |
+| events (states) | 15195 |
 | games | 60 |
 | seasons | 2020-21, 2021-22, 2024-25 |
-| training seasons | 2020-21, 2021-22 (9640 events, 40 games) |
-| held-out season | 2024-25 (4691 events, 20 games), set aside before any fit |
+| training seasons | 2020-21, 2021-22 (10181 events, 40 games) |
+| held-out season | 2024-25 (5014 events, 20 games), set aside before any fit |
 | rows flagged heldout (sportvu/splits.json games) dropped | 0 |
 | guard | `analytics.eval.refuse_heldout` checked 40 training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |
-| closing spread coverage (training games) | 1.000 |
+| closing spread coverage (training games) | 0.975 |
 | possession known (training events) | 0.990 |
-| training home win rate (by game) | 0.525 |
+| training home win rate (by game) | 0.475 |
 
 ## Protocol
 
@@ -33,11 +33,11 @@ Brier score (lower is better), out-of-fold within the training seasons.
 
 | model | 48-36 | 36-24 | 24-12 | 12-4 | 4-0 | OT | selection (mean of 5) | log loss overall | Brier overall |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| constant | 0.2645 [0.2489, 0.2793] | 0.2656 [0.2498, 0.2808] | 0.2653 [0.2496, 0.2813] | 0.2650 [0.2496, 0.2795] | 0.2643 [0.2490, 0.2796] | n/a | 0.2650 | 0.7236 [0.6922, 0.7541] | 0.2650 [0.2496, 0.2801] |
-| logistic (selected) | 0.2427 [0.2120, 0.2793] | 0.1923 [0.1305, 0.2741] | 0.1457 [0.0968, 0.2287] | 0.0729 [0.0382, 0.1239] | 0.0502 [0.0212, 0.0935] | n/a | 0.1408 | 0.4814 [0.3887, 0.6279] | 0.1611 [0.1278, 0.2124] |
-| hgb_iso | 0.3263 [0.2663, 0.3810] | 0.2937 [0.2359, 0.3508] | 0.2654 [0.2087, 0.3264] | 0.2256 [0.1724, 0.2767] | 0.2176 [0.1677, 0.2653] | n/a | 0.2657 | 0.9637 [0.6708, 1.4094] | 0.2768 [0.2202, 0.3238] |
+| constant | 0.2581 [0.2491, 0.2683] | 0.2583 [0.2499, 0.2689] | 0.2573 [0.2490, 0.2677] | 0.2586 [0.2502, 0.2690] | 0.2585 [0.2501, 0.2684] | n/a | 0.2582 | 0.7094 [0.6926, 0.7303] | 0.2581 [0.2497, 0.2685] |
+| logistic (selected) | 0.2370 [0.1964, 0.2753] | 0.1957 [0.1242, 0.2582] | 0.0939 [0.0486, 0.1409] | 0.0784 [0.0282, 0.1279] | 0.0341 [0.0106, 0.0638] | n/a | 0.1278 | 0.4329 [0.3289, 0.5393] | 0.1473 [0.1078, 0.1882] |
+| hgb_iso | 0.2990 [0.2512, 0.3417] | 0.2590 [0.2078, 0.3188] | 0.1926 [0.1407, 0.2354] | 0.1705 [0.1166, 0.2164] | 0.1509 [0.1088, 0.1898] | n/a | 0.2144 | 0.6506 [0.5415, 0.7583] | 0.2284 [0.1849, 0.2681] |
 
-Rows per bucket: 48-36 2395, 36-24 2403, 24-12 2415, 12-4 1558, 4-0 869, OT 0.
+Rows per bucket: 48-36 2525, 36-24 2555, 24-12 2535, 12-4 1701, 4-0 865, OT 0.
 
 Selected: **logistic** (lowest mean bucket Brier).
 
@@ -47,21 +47,21 @@ ECE (10 bins) and calibration slope per bucket, out-of-fold.
 
 | model | bucket | n | ECE | slope |
 | --- | --- | --- | --- | --- |
-| constant | 48-36 | 2395 | 0.1089 [0.0299, 0.2605] | n/a |
-| constant | 36-24 | 2403 | 0.1153 [0.0365, 0.2673] | n/a |
-| constant | 24-12 | 2415 | 0.1166 [0.0375, 0.2654] | n/a |
-| constant | 12-4 | 1558 | 0.1018 [0.0361, 0.2579] | n/a |
-| constant | 4-0 | 869 | 0.0908 [0.0245, 0.2482] | n/a |
-| logistic | 48-36 | 2395 | 0.0918 [0.0622, 0.1972] | 0.5369 [-0.0815, 1.4773] |
-| logistic | 36-24 | 2403 | 0.0857 [0.0613, 0.2212] | 0.6591 [0.2190, 1.5428] |
-| logistic | 24-12 | 2415 | 0.0884 [0.0526, 0.2159] | 0.7557 [0.4455, 1.2691] |
-| logistic | 12-4 | 1558 | 0.0299 [0.0319, 0.1012] | 1.1957 [0.7845, 2.3461] |
-| logistic | 4-0 | 869 | 0.0308 [0.0320, 0.0910] | 1.4018 [0.9455, 4.4817] |
-| hgb_iso | 48-36 | 2395 | 0.2436 [0.1748, 0.3939] | -0.0473 [-0.9413, 0.1343] |
-| hgb_iso | 36-24 | 2403 | 0.2220 [0.1683, 0.3755] | 0.0972 [-0.2634, 0.3866] |
-| hgb_iso | 24-12 | 2415 | 0.1826 [0.1304, 0.3275] | 0.0688 [-0.0731, 0.4418] |
-| hgb_iso | 12-4 | 1558 | 0.1238 [0.0936, 0.2714] | 0.1779 [0.0327, 1.2077] |
-| hgb_iso | 4-0 | 869 | 0.1340 [0.0934, 0.2791] | 0.1893 [0.0512, 1.4260] |
+| constant | 48-36 | 2525 | 0.1083 [0.0203, 0.2526] | n/a |
+| constant | 36-24 | 2555 | 0.1144 [0.0303, 0.2606] | n/a |
+| constant | 24-12 | 2535 | 0.0978 [0.0196, 0.2544] | n/a |
+| constant | 12-4 | 1701 | 0.1125 [0.0192, 0.2614] | n/a |
+| constant | 4-0 | 865 | 0.1166 [0.0277, 0.2597] | n/a |
+| logistic | 48-36 | 2525 | 0.0895 [0.0543, 0.1988] | 0.6753 [0.0251, 1.5792] |
+| logistic | 36-24 | 2555 | 0.1038 [0.0669, 0.2250] | 0.6484 [0.3519, 1.4976] |
+| logistic | 24-12 | 2535 | 0.0453 [0.0371, 0.1212] | 1.1384 [0.7444, 2.5598] |
+| logistic | 12-4 | 1701 | 0.0425 [0.0292, 0.1173] | 1.0744 [0.8303, 2.1698] |
+| logistic | 4-0 | 865 | 0.0505 [0.0279, 0.0982] | 2.6010 [1.8378, 7.4726] |
+| hgb_iso | 48-36 | 2525 | 0.2144 [0.1298, 0.3507] | -0.0471 [-0.7472, 0.3286] |
+| hgb_iso | 36-24 | 2555 | 0.1823 [0.1129, 0.3246] | 0.2792 [-0.1821, 0.9024] |
+| hgb_iso | 24-12 | 2535 | 0.1198 [0.0785, 0.2367] | 0.8820 [0.3703, 2.0929] |
+| hgb_iso | 12-4 | 1701 | 0.0864 [0.0791, 0.2105] | 1.3020 [0.6107, 4.7151] |
+| hgb_iso | 4-0 | 865 | 0.1070 [0.0695, 0.2176] | 2.2131 [1.4673, 4.0748] |
 
 The constant model has no calibration slope by design.
 
@@ -69,45 +69,45 @@ The constant model has no calibration slope by design.
 
 | bin | lo | hi | n | mean p | mean home win |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 0.0 | 0.1 | 1588 | 0.034 | 0.089 |
-| 1 | 0.1 | 0.2 | 659 | 0.148 | 0.203 |
-| 2 | 0.2 | 0.3 | 572 | 0.252 | 0.245 |
-| 3 | 0.3 | 0.4 | 662 | 0.352 | 0.296 |
-| 4 | 0.4 | 0.5 | 845 | 0.455 | 0.530 |
-| 5 | 0.5 | 0.6 | 1197 | 0.545 | 0.565 |
-| 6 | 0.6 | 0.7 | 898 | 0.647 | 0.604 |
-| 7 | 0.7 | 0.8 | 761 | 0.749 | 0.693 |
-| 8 | 0.8 | 0.9 | 689 | 0.849 | 0.817 |
-| 9 | 0.9 | 1.0 | 1769 | 0.966 | 0.951 |
+| 0 | 0.0 | 0.1 | 1999 | 0.025 | 0.033 |
+| 1 | 0.1 | 0.2 | 735 | 0.146 | 0.200 |
+| 2 | 0.2 | 0.3 | 746 | 0.251 | 0.307 |
+| 3 | 0.3 | 0.4 | 975 | 0.354 | 0.414 |
+| 4 | 0.4 | 0.5 | 1222 | 0.449 | 0.459 |
+| 5 | 0.5 | 0.6 | 853 | 0.544 | 0.445 |
+| 6 | 0.6 | 0.7 | 607 | 0.648 | 0.619 |
+| 7 | 0.7 | 0.8 | 539 | 0.752 | 0.740 |
+| 8 | 0.8 | 0.9 | 677 | 0.850 | 0.780 |
+| 9 | 0.9 | 1.0 | 1828 | 0.977 | 0.981 |
 
 ### winprob_calibration rows of the selected candidate (training seasons, out-of-fold) (fixture output, not a result)
 
 | season | time_bucket | n | mean_p | mean_y | brier | slope |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2020-21 | 48-36 | 1172 | 0.547 | 0.435 | 0.2512 | 0.494 |
-| 2020-21 | 36-24 | 1173 | 0.526 | 0.443 | 0.1910 | 0.824 |
-| 2020-21 | 24-12 | 1212 | 0.522 | 0.432 | 0.1966 | 0.616 |
-| 2020-21 | 12-4 | 756 | 0.504 | 0.460 | 0.1045 | 0.818 |
-| 2020-21 | 4-0 | 437 | 0.514 | 0.467 | 0.0724 | 1.131 |
-| 2021-22 | 48-36 | 1223 | 0.522 | 0.608 | 0.2346 | 0.714 |
-| 2021-22 | 36-24 | 1230 | 0.459 | 0.602 | 0.1936 | 0.713 |
-| 2021-22 | 24-12 | 1203 | 0.541 | 0.598 | 0.0944 | 1.008 |
-| 2021-22 | 12-4 | 802 | 0.529 | 0.605 | 0.0432 | 4.529 |
-| 2021-22 | 4-0 | 432 | 0.550 | 0.597 | 0.0277 | 3.487 |
+| 2020-21 | 48-36 | 1236 | 0.439 | 0.403 | 0.1963 | 1.438 |
+| 2020-21 | 36-24 | 1236 | 0.431 | 0.394 | 0.1590 | 0.896 |
+| 2020-21 | 24-12 | 1276 | 0.440 | 0.381 | 0.0804 | 1.500 |
+| 2020-21 | 12-4 | 859 | 0.397 | 0.386 | 0.0597 | 1.239 |
+| 2020-21 | 4-0 | 420 | 0.415 | 0.419 | 0.0243 | 2.630 |
+| 2021-22 | 48-36 | 1289 | 0.480 | 0.569 | 0.2761 | 0.159 |
+| 2021-22 | 36-24 | 1319 | 0.573 | 0.551 | 0.2300 | 0.469 |
+| 2021-22 | 24-12 | 1259 | 0.556 | 0.566 | 0.1076 | 0.947 |
+| 2021-22 | 12-4 | 842 | 0.499 | 0.577 | 0.0975 | 1.080 |
+| 2021-22 | 4-0 | 445 | 0.487 | 0.546 | 0.0434 | 2.877 |
 
 ## Held-out season 2024-25, scored once (fixture output, not a result)
 
-4691 events from 20 games of 2024-25, never fitted or tuned on; the selected candidate (logistic) refit on all 9640 training rows scored them once.
+5014 events from 20 games of 2024-25, never fitted or tuned on; the selected candidate (logistic) refit on all 10181 training rows scored them once.
 
 | bucket | n | Brier | ECE | slope | benchmark (NBA.com WinProbabilityPBP) |
 | --- | --- | --- | --- | --- | --- |
-| 48-36 | 1150 | 0.1755 [0.1383, 0.2282] | 0.1046 [0.0666, 0.2221] | 2.1399 [0.9459, 5.2963] |  |
-| 36-24 | 1156 | 0.1450 [0.0783, 0.2442] | 0.0948 [0.0712, 0.2452] | 0.9938 [0.5125, 2.8468] |  |
-| 24-12 | 1181 | 0.1130 [0.0380, 0.2224] | 0.1074 [0.0567, 0.2510] | 0.9000 [0.5974, 3.5502] |  |
-| 12-4 | 766 | 0.1159 [0.0416, 0.2382] | 0.1194 [0.0361, 0.2459] | 0.7857 [0.3880, 25.4474] |  |
-| 4-0 | 438 | 0.0449 [0.0055, 0.1215] | 0.0753 [0.0292, 0.1690] | 2.5561 [2.0298, 45.8795] |  |
+| 48-36 | 1260 | 0.2344 [0.1933, 0.2882] | 0.1836 [0.0905, 0.4057] | 1.8904 [0.6624, 3.2003] |  |
+| 36-24 | 1257 | 0.1947 [0.1295, 0.2798] | 0.1911 [0.0887, 0.3956] | 1.4153 [0.8428, 3.0320] |  |
+| 24-12 | 1215 | 0.1685 [0.0817, 0.2955] | 0.1019 [0.0531, 0.2970] | 0.5894 [0.3427, 1.7108] |  |
+| 12-4 | 821 | 0.1140 [0.0406, 0.2119] | 0.0640 [0.0428, 0.1946] | 0.6863 [0.3887, 2.4497] |  |
+| 4-0 | 461 | 0.0538 [0.0122, 0.1171] | 0.0607 [0.0315, 0.1461] | 0.8951 [0.6039, 142.7178] |  |
 
-Overall: log loss 0.3984 [0.2510, 0.6233], Brier 0.1303 [0.0756, 0.2072], mean bucket Brier 0.1188.
+Overall: log loss 0.5038 [0.3698, 0.7094], Brier 0.1721 [0.1236, 0.2483], mean bucket Brier 0.1531.
 
 ## Benchmark
 
@@ -131,4 +131,6 @@ The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<s
 - The possession indicator is read from event kinds and is null when the events so far do not say.
 - The interaction is margin times sqrt(seconds remaining), as specified; the logistic model also sees margin and time on their own.
 - On the fixtures the boosted candidate loses to the logistic one because the spread is nearly unique per game among a few dozen games and the trees memorise games through it; the selection rule picks the logistic candidate. This is a fixture artefact to re-check on the real seasons, where many games share a spread value.
+- The HGB hyperparameters (depth 3, 50 rounds, 200 rows per leaf, L2 1.0) were set after seeing the fixture memorise games through the spread (a first setting of 15 leaves and 40 rows per leaf scored worse than the constant out of fold). They were chosen on fixture data, not on any real season, and the held-out season was not involved.
+- The closing spread join is analytics.betting.validate's (per-book latest pre-tip is_close snapshot, median over books, both team keys, tip date shifted 8 h to US local with one day of tolerance); the games table's spread_home is used only when no odds table exists.
 - The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.

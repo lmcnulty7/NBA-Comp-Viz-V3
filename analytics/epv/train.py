@@ -22,8 +22,8 @@ Protocol:
      (0 to 7, 7 to 14, 14 to 24 s) is outside 0.9 to 1.1 in any bucket or its MSE lift over the constant is under 5
      percent; it is kept only if it beats gradient boosting under paired bootstrap by game (the 95 percent interval
      of MSE(hgb) - MSE(mlp) above 0);
-  5. selection: lowest out-of-fold MSE of expected points among the three, replaced by the sequence model only under
-     rule 4; the report shows out-of-fold Brier of calibrated P(points > 0) and MSE by elapsed bucket (0 to 4, 4 to
+  5. selection: lowest out-of-fold MSE of expected points among the three (the base), replaced by the sequence model
+     only when it beats the base under paired bootstrap by game with a lower out-of-fold MSE; the report shows out-of-fold Brier of calibrated P(points > 0) and MSE by elapsed bucket (0 to 4, 4 to
      10, 10 to 24 s; a state past 24 s joins the last bucket) with bootstrap intervals by game, the calibration
      slope per bucket (target 0.9 to 1.1, reported, never tuned on), the reliability tables, a shuffled-target check
      (possession points permuted across possessions of the training games: the lift must sit at chance), and the
@@ -173,9 +173,12 @@ def fold_features(geo_tr: pd.DataFrame, geo_te: pd.DataFrame, states_tr: pd.Data
 
 
 def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n_folds: int, seed: int,
-                hgb_iter: int = 100, models=CANDIDATES, y_override=None) -> tuple[pd.DataFrame, dict]:
+                hgb_iter: int = 100, models=CANDIDATES, y_override=None, cache: dict | None = None) -> tuple[pd.DataFrame, dict]:
     """Out-of-fold expected points and calibrated P(points > 0) per candidate -> (pred, protocol note).
-    pred holds epv_<m>, p_<m>, fold, and the bucket columns."""
+    pred holds epv_<m>, p_<m>, fold, and the bucket columns; note["insample"] is each model's mean in-sample MSE over
+    the folds (fit and scored on the same training rows), next to which the out-of-fold MSE shows overfit.
+    ``cache`` (a dict the caller keeps) stores the fold feature frames by fold index, so the gate and shuffle runs
+    reuse the priors instead of rebuilding them."""
     y_all = np.asarray(states["points_to_end"] if y_override is None else y_override, dtype=float)
     games = states["sportvu_game"].astype(str).to_numpy()
     uniq = sorted(set(games))
@@ -185,6 +188,8 @@ def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n
     for m in models:
         pred["epv_" + m], pred["p_" + m] = np.nan, np.nan
     seq_cols = F.lagged_columns(N_LAGS)
+    cache = {} if cache is None else cache
+    insample = {m: [] for m in models}
     if len(uniq) == 1:
         folds = [(uniq, uniq)]
         note = {"mode": "in-sample", "folds": 0, "text": "one training game: no grouped fold is possible, so the metrics are IN-SAMPLE"}
@@ -196,17 +201,25 @@ def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n
             note["text"] += "; fewer games (%d) than the %d folds asked, so n_folds = number of games" % (len(uniq), n_folds)
     for fi, (tr_g, te_g) in enumerate(folds):
         tr, te = np.isin(games, tr_g), np.isin(games, te_g)
-        X_tr, X_te, _ = fold_features(geo.loc[tr], geo.loc[te], states.loc[tr], shots_train, rosters)
+        key = (fi, len(folds), tuple(tr_g))
+        if key not in cache:
+            X_tr, X_te, _ = fold_features(geo.loc[tr], geo.loc[te], states.loc[tr], shots_train, rosters)
+            cache[key] = (X_tr, X_te)
+        X_tr, X_te = cache[key]
         if SEQUENCE in models:
-            X_tr, X_te = F.lagged(X_tr, N_LAGS), F.lagged(X_te, N_LAGS)
+            if (key, "lag") not in cache:
+                cache[(key, "lag")] = (F.lagged(X_tr, N_LAGS), F.lagged(X_te, N_LAGS))
+            X_tr, X_te = cache[(key, "lag")]
         for m in models:
             cols = seq_cols if m == SEQUENCE else F.FEATURES
             c = Calibrated(m, cols, seed, hgb_iter).fit(X_tr, y_all[tr], games[tr])
             epv, p = c.predict(X_te)
             pred.loc[te, "epv_" + m], pred.loc[te, "p_" + m] = epv, p
+            insample[m].append(mse(y_all[tr], c.predict(X_tr)[0]))
         pred.loc[te, "fold"] = fi
     pred["elapsed_bucket"] = elapsed_bucket(pred["elapsed_in_possession_s"])
     pred["shot_clock_bucket"] = shot_clock_bucket(states["shot_clock_s"].to_numpy(dtype=float))
+    note["insample"] = {m: float(np.mean(v)) if v else float("nan") for m, v in insample.items()}
     return pred, note
 
 
@@ -268,6 +281,19 @@ def gate_decision(pred: pd.DataFrame) -> dict:
             "mse_constant": m_const, "mse_hgb": m_hgb}
 
 
+def select_model(overall: dict, paired: dict | None) -> tuple[str, str, bool]:
+    """(selected, reason, keep_sequence): the lowest out-of-fold MSE among CANDIDATES is the base; the sequence model
+    replaces it only when its paired bootstrap against the base (MSE(base) - MSE(mlp)) has its whole 95 percent
+    interval above 0 and its point out-of-fold MSE is below the base's."""
+    base = min(CANDIDATES, key=lambda m: overall[m])
+    selected, reason, keep = base, "lowest out-of-fold MSE among the three candidates", False
+    if paired is not None and SEQUENCE in overall:
+        keep = bool(paired["excludes_zero"] and paired["diff"] > 0 and overall[SEQUENCE] < overall[base])
+        if keep:
+            selected, reason = SEQUENCE, "beats %s, the lowest-MSE candidate, under paired bootstrap by game" % base
+    return selected, reason, keep
+
+
 def paired_mse(pred: pd.DataFrame, a: str, b: str, n_boot: int, seed: int) -> dict:
     """Paired bootstrap by game of MSE(a) - MSE(b); positive means b is better."""
     d = pd.DataFrame({"game": pred["sportvu_game"].astype(str).to_numpy(), "y": pred["y"].to_numpy(dtype=float),
@@ -288,8 +314,12 @@ def shuffled_target(states: pd.DataFrame, seed: int) -> np.ndarray:
     return key.map(perm).to_numpy(dtype=float)
 
 
+HELDOUT_MIN_GAMES_FOR_INTERVALS = 5
+
+
 def heldout_once(states_train, geo_train, states_heldout, geo_heldout, shots_train, rosters, seed, hgb_iter, models, n_boot) -> dict:
-    """Refit priors and candidates on every training row, score the held-out rows once."""
+    """Refit priors and candidates on every training row, score the held-out rows once. Point estimates only (no
+    bootstrap) with fewer than HELDOUT_MIN_GAMES_FOR_INTERVALS held-out games."""
     X_tr, X_ho, _ = fold_features(geo_train, geo_heldout, states_train, shots_train, rosters)
     if SEQUENCE in models:
         X_tr, X_ho = F.lagged(X_tr, N_LAGS), F.lagged(X_ho, N_LAGS)
@@ -303,19 +333,21 @@ def heldout_once(states_train, geo_train, states_heldout, geo_heldout, shots_tra
         pred["epv_" + m], pred["p_" + m] = c.predict(X_ho)
     pred["elapsed_bucket"] = elapsed_bucket(pred["elapsed_in_possession_s"])
     pred["shot_clock_bucket"] = shot_clock_bucket(states_heldout["shot_clock_s"].to_numpy(dtype=float))
-    return {"pred": pred, "by_bucket": metrics_by_bucket(pred, models, "elapsed_bucket", n_boot, seed)}
+    n_games = int(pred["sportvu_game"].nunique())
+    boot = n_boot if n_games >= HELDOUT_MIN_GAMES_FOR_INTERVALS else 0
+    return {"pred": pred, "by_bucket": metrics_by_bucket(pred, models, "elapsed_bucket", boot, seed), "n_games": n_games, "bootstrap": boot}
 
 
 # ── outputs ────────────────────────────────────────────────────────────────────────────────────────
 def epv_tables(pred: pd.DataFrame, selected: str, heldout: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     """(epv_states, epv_possessions) of docs/contract/epv.md from a prediction frame."""
-    st = pd.DataFrame({"sportvu_game": pred["sportvu_game"].astype(str).to_numpy(), "possession": pred["possession"].astype(int).to_numpy(),
-                       "frame": pred["frame"].astype(int).to_numpy(), "elapsed_in_possession_s": pred["elapsed_in_possession_s"].astype(float).to_numpy(),
+    st = pd.DataFrame({"sportvu_game": pred["sportvu_game"].astype(str).to_numpy(), "possession": pred["possession"].to_numpy(dtype=np.int32),
+                       "frame": pred["frame"].to_numpy(dtype=np.int32), "elapsed_in_possession_s": pred["elapsed_in_possession_s"].to_numpy(dtype=np.float32),
                        "epv_points": pred["epv_" + selected].astype(float).to_numpy(), "p_score": pred["p_" + selected].astype(float).to_numpy(),
-                       "points_to_end": pred["y"].astype(int).to_numpy(), "fold": pred["fold"].astype(int).to_numpy(), "heldout": bool(heldout)})
+                       "points_to_end": pred["y"].to_numpy(dtype=np.int16), "fold": pred["fold"].to_numpy(dtype=np.int32), "heldout": bool(heldout)})
     first = st.sort_values("elapsed_in_possession_s", kind="stable").drop_duplicates(["sportvu_game", "possession"])
-    po = pd.DataFrame({"sportvu_game": first["sportvu_game"].to_numpy(), "possession": first["possession"].to_numpy(),
-                       "epv_at_start": first["epv_points"].to_numpy(), "points": first["points_to_end"].to_numpy()})
+    po = pd.DataFrame({"sportvu_game": first["sportvu_game"].to_numpy(), "possession": first["possession"].to_numpy(dtype=np.int32),
+                       "epv_at_start": first["epv_points"].to_numpy(dtype=float), "points": first["points_to_end"].to_numpy(dtype=np.int16)})
     return st.sort_values(["sportvu_game", "possession", "elapsed_in_possession_s"]).reset_index(drop=True), po.reset_index(drop=True)
 
 
@@ -366,6 +398,25 @@ def _reliability(pred: pd.DataFrame, model: str, bins: int = 5) -> list:
     return L
 
 
+def _why_selected(ctx: dict) -> str:
+    """One sentence on why the constant won (or did not), from the numbers in ctx."""
+    g, o, i = ctx["gate"], ctx["overall_mse"], ctx["insample_mse"]
+    if ctx["selected"] != "constant":
+        return ("Why: %s has the lowest out-of-fold MSE (%.4f against the constant's %.4f, lift %.1f percent)."
+                % (ctx["selected"], o[ctx["selected"]], o["constant"], 100 * (1 - o[ctx["selected"]] / o["constant"])))
+    reasons = ["no learner beats the constant out of fold (gradient boosting lift %.1f percent)" % (100 * g["lift"])]
+    bad = g["slope_out_of_range"]
+    if bad:
+        reasons.append("the gradient-boosting calibration slopes sit outside 0.9 to 1.1 in %s" % ", ".join(bad))
+    if g["lift"] <= ctx["shuffle"]["lift"]:
+        reasons.append("the real lift (%.1f percent) is no better than the shuffled-target lift (%.1f percent)" % (100 * g["lift"], 100 * ctx["shuffle"]["lift"]))
+    over = [m for m in ("ridge", "hgb", SEQUENCE) if m in i and np.isfinite(i[m]) and i[m] < 0.9 * o.get(m, np.inf)]
+    if over:
+        reasons.append("the learners overfit (in-sample MSE well under out-of-fold for %s: the target is one draw per possession "
+                       "while min_samples_leaf counts states, so a leaf can hold a handful of possessions)" % ", ".join(over))
+    return "Why the constant: " + "; ".join(reasons) + "."
+
+
 def write_report(path: Path, ctx: dict) -> str:
     fixture = ctx["fixtures"]
     tag = "fixture output, not a result" if fixture else "real data run"
@@ -396,23 +447,27 @@ def write_report(path: Path, ctx: dict) -> str:
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""), "",
           "## Candidates by elapsed-time bucket (%s)" % ctx["note"]["mode"], ""]
     L += _bucket_table(ctx["by_elapsed"], ctx["models"])
-    L += ["", "Selected: **%s** (%s)." % (ctx["selected"], ctx["selection_reason"]), "",
-          "## Calibration of P(points > 0), %s model (%s)" % (ctx["selected"], ctx["note"]["mode"]), ""]
+    L += ["", "| model | in-sample MSE (mean over folds) | out-of-fold MSE |", "| --- | --- | --- |"]
+    for m in ctx["models"]:
+        L.append("| %s | %.4f | %.4f |" % (m, ctx["insample_mse"].get(m, float("nan")), ctx["overall_mse"][m]))
+    L += ["", "Selected: **%s** (%s)." % (ctx["selected"], ctx["selection_reason"])]
+    L.append(_why_selected(ctx))
+    L += ["", "## Calibration of P(points > 0), %s model (%s)" % (ctx["selected"], ctx["note"]["mode"]), ""]
     L += _reliability(ctx["pred"], ctx["selected"])
     L += ["", "## Gradient boosting by shot-clock bucket and the gate", "",
           "| shot clock (s) | calibration slope |", "| --- | --- |"]
     for b, s in ctx["gate"]["slopes"].items():
         L.append("| %s | %s |" % (b, "n/a" if not np.isfinite(s) else "%.3f" % s))
     g = ctx["gate"]
-    L += ["", "MSE lift of gradient boosting over the constant: %.1f percent (%.4f vs %.4f). Slopes outside %g to %g: %s."
+    L += ["", "MSE lift of gradient boosting over the constant: %.1f percent (%.4f vs %.4f). Slopes outside %g to %g (n/a counts as outside): %s."
           % (100 * g["lift"], g["mse_hgb"], g["mse_constant"], SLOPE_LO, SLOPE_HI, ", ".join(g["slope_out_of_range"]) or "none"),
           "Gate decision: the sequence model (MLPRegressor over the last %d states, standing in for a GRU) was %s."
           % (N_LAGS, "TRAINED" if g["train_sequence"] else "NOT trained (gradient boosting is calibrated in every bucket and its lift is at least 5 percent)")]
     if ctx.get("paired") is not None:
         p = ctx["paired"]
-        L.append("Paired bootstrap by game of MSE(hgb) - MSE(mlp): %.4f [%s, %s]; the sequence model is %s."
-                 % (p["diff"], "n/a" if not np.isfinite(p["lo"]) else "%.4f" % p["lo"], "n/a" if not np.isfinite(p["hi"]) else "%.4f" % p["hi"],
-                    "KEPT (it beats gradient boosting, interval above 0)" if ctx["keep_sequence"] else "DROPPED (no significant gain over gradient boosting)"))
+        L.append("Paired bootstrap by game of MSE(%s) - MSE(mlp), %s being the lowest-MSE candidate: %.4f [%s, %s]; the sequence model is %s."
+                 % (ctx["base"], ctx["base"], p["diff"], "n/a" if not np.isfinite(p["lo"]) else "%.4f" % p["lo"], "n/a" if not np.isfinite(p["hi"]) else "%.4f" % p["hi"],
+                    "KEPT (interval above 0 and a lower out-of-fold MSE)" if ctx["keep_sequence"] else "DROPPED (no significant gain over the base candidate)"))
     L += ["", "## Shuffled-target check", "",
           "Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE %.4f vs constant %.4f, "
           "lift %.1f percent (chance is at or below 0; the real lift above is %.1f percent)."
@@ -421,7 +476,8 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["", "## Held-out games, scored once (never fitted or tuned on)", "",
               "%d states from %d held-out game(s): %s; the pipeline was refit on all %d training states."
               % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"]), ctx["train_rows"]),
-              "Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on.", ""]
+              "Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on.%s" % (
+                  "" if ctx["heldout"]["bootstrap"] else " Point estimates only: fewer than %d held-out games, so no bootstrap interval." % HELDOUT_MIN_GAMES_FOR_INTERVALS), ""]
         L += _bucket_table(ctx["heldout"]["by_bucket"], ctx["models"])
     L += ["", "## Status", ""]
     if fixture:
@@ -447,24 +503,24 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
     st, ho = d["states_train"], d["states_heldout"]
     geo = F.geometry(st)
     schema.assert_time_forward(geo, "states_1hz")
-    pred, note = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter)
+    cache = {}
+    pred, note = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, cache=cache)
     gate = gate_decision(pred)
     models = list(CANDIDATES)
-    paired, keep_seq = None, False
+    insample = dict(note["insample"])
+    paired = None
+    base = min(CANDIDATES, key=lambda m: mse(pred["y"], pred["epv_" + m]))
     if gate["train_sequence"]:
-        seq_pred, _ = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, models=(SEQUENCE,))
+        seq_pred, seq_note = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, models=(SEQUENCE,), cache=cache)
         pred["epv_" + SEQUENCE], pred["p_" + SEQUENCE] = seq_pred["epv_" + SEQUENCE], seq_pred["p_" + SEQUENCE]
         models.append(SEQUENCE)
-        paired = paired_mse(pred, "hgb", SEQUENCE, n_boot, seed)
-        keep_seq = bool(paired["excludes_zero"] and paired["diff"] > 0)
+        insample.update(seq_note["insample"])
+        paired = paired_mse(pred, base, SEQUENCE, n_boot, seed)
     by_elapsed = metrics_by_bucket(pred, models, "elapsed_bucket", n_boot, seed)
     overall = {r["model"]: r["mse"]["point"] for _, r in by_elapsed[by_elapsed["bucket"] == "all"].iterrows()}
-    base = min(CANDIDATES, key=lambda m: overall[m])
-    selected, reason = base, "lowest out-of-fold MSE among the three candidates"
-    if keep_seq:
-        selected, reason = SEQUENCE, "beats gradient boosting under paired bootstrap by game"
+    selected, reason, keep_seq = select_model(overall, paired)
     y_shuf = shuffled_target(st, seed)
-    shuf_pred, _ = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, models=("constant", "hgb"), y_override=y_shuf)
+    shuf_pred, _ = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, models=("constant", "hgb"), y_override=y_shuf, cache=cache)
     shuffle = {"mse_constant": mse(shuf_pred["y"], shuf_pred["epv_constant"]), "mse_hgb": mse(shuf_pred["y"], shuf_pred["epv_hgb"])}
     shuffle["lift"] = 1.0 - shuffle["mse_hgb"] / shuffle["mse_constant"] if shuffle["mse_constant"] > 0 else 0.0
     heldout = None
@@ -477,7 +533,7 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
            "mean_points": float(st["points_to_end"].mean()), "rate_score": float((st["points_to_end"] > 0).mean()),
            "hgb_iter": hgb_iter, "note": note, "bootstrap": n_boot, "seed": seed, "models": models, "by_elapsed": by_elapsed,
            "selected": selected, "selection_reason": reason, "pred": pred, "gate": gate, "paired": paired, "keep_sequence": keep_seq,
-           "shuffle": shuffle, "heldout": heldout, "overall_mse": overall}
+           "shuffle": shuffle, "heldout": heldout, "overall_mse": overall, "insample_mse": insample, "base": base}
     if report is not None:
         ctx["text"] = write_report(Path(report), ctx)
     if out_root is not None:

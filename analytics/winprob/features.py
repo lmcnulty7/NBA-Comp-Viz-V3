@@ -321,6 +321,14 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
     for gid in pick:
         pg = pbp[pbp["game_id"].astype(str) == gid].sort_values(["period", "event"], kind="stable")
         n = len(pg)
+        g_odds = odds
+        if odds is not None and "commence_time" in odds.columns and "game_date" in games.columns:
+            # only the odds rows within two days of this game's date can join it (one day of tolerance), so the
+            # rebuilds skip the rest of the table
+            gd = pd.to_datetime(games.loc[games["game_id"].astype(str) == gid, "game_date"].astype(str), errors="coerce")
+            tip = pd.to_datetime(odds["commence_time"].astype(str), errors="coerce", utc=True).dt.tz_localize(None)
+            if len(gd) and pd.notna(gd.iloc[0]):
+                g_odds = odds[(tip - gd.iloc[0]).abs() <= pd.Timedelta(days=2)]
         for k in sorted(set(int(v) for v in rng.integers(2, max(3, n - 1), size=cuts))):
             cut = pg.iloc[:k]
             gk = games[games["game_id"].astype(str) == gid].copy()
@@ -329,7 +337,7 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
                 if c in gk.columns:
                     gk[c] = gk[c].astype(int) + int(rng.integers(1, 50))
             gk[TARGET] = ~gk[TARGET].astype(bool)
-            part = build(cut, gk, odds, **kw)
+            part = build(cut, gk, g_odds, **kw)
             ref = full[full["game_id"] == gid].iloc[:k]
             if len(part) != len(ref):
                 out.append((gid, k, "<rows>"))

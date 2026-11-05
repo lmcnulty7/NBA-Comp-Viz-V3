@@ -175,6 +175,22 @@ def test_priors_are_out_of_fold_by_game():
     other = (train["sportvu_game"] == g1).to_numpy()
     assert np.allclose(feats.loc[own, "handler_fg_prior"], feats2.loc[own, "handler_fg_prior"])
     assert not np.allclose(feats.loc[other, "handler_fg_prior"], feats2.loc[other, "handler_fg_prior"], atol=1e-3)
+    # the lineup prior: flipping g0's possession outcomes to turnovers moves other games' rows, not g0's own rows
+    alt = train.copy()
+    alt.loc[alt["sportvu_game"] == g0, "possession_end_kind"] = "turnover"
+    pri3 = F.Priors(pri.shooter, F.lineup_stats(alt), pri.xfg, pri.tov_rate, pri.train_games)
+    feats3 = F.build_features(train, pri3)
+    assert np.allclose(feats.loc[own, "lineup_tov_prior"], feats3.loc[own, "lineup_tov_prior"])
+    assert (feats3.loc[other, "lineup_tov_prior"] > feats.loc[other, "lineup_tov_prior"]).any()
+    # a test-fold game's shots never enter the priors of a fold that excludes it
+    fold_train = train[train["sportvu_game"] != g1].reset_index(drop=True)
+    pri_fold = F.Priors.from_training(fold_train, shots, season["rosters"])
+    assert g1 not in set(pri_fold.shooter["sportvu_game"]) and g1 not in set(pri_fold.lineup["sportvu_game"]) and g1 not in pri_fold.train_games
+    flipped1 = shots.copy()
+    m1 = flipped1["sportvu_game"] == g1
+    flipped1.loc[m1, "made"] = ~flipped1.loc[m1, "made"].astype(bool)
+    pri_fold2 = F.Priors.from_training(fold_train, flipped1, season["rosters"])
+    assert F.build_features(train, pri_fold).equals(F.build_features(train, pri_fold2))
     # a game outside the training set (a held-out row) gets the full training statistics
     ho = st[st["heldout"]].reset_index(drop=True)
     fh = F.build_features(ho, pri)
@@ -205,6 +221,54 @@ def test_calibrated_candidates_learn_a_strong_signal_and_calibrate():
     assert T.mse(y[te], e) < out["constant"][0]
 
 
+def _pred_frame(n=600, seed=0, scale=1.0, lift_mse=True):
+    """A prediction frame with known calibration: p_hgb drawn, y from p_hgb (scale 1 is calibrated)."""
+    rng = np.random.default_rng(seed)
+    p = rng.uniform(0.05, 0.95, n)
+    yb = rng.uniform(size=n) < p
+    y = np.where(yb, 2.0, 0.0)
+    e = 2 * p if lift_mse else np.full(n, 1.0)
+    logit = np.log(p / (1 - p)) * scale
+    p_rep = 1 / (1 + np.exp(-logit))
+    return pd.DataFrame({"sportvu_game": ["g%d" % (i % 4) for i in range(n)], "y": y, "epv_constant": np.full(n, y.mean()),
+                         "epv_hgb": e, "p_hgb": p_rep, "shot_clock_bucket": rng.choice(["0-7", "7-14", "14-24"], n)})
+
+
+def test_gate_decision_thresholds_and_selection():
+    g = T.gate_decision(_pred_frame())
+    assert all(0.9 <= s <= 1.1 for s in g["slopes"].values()) and g["lift"] >= 0.05 and not g["train_sequence"]
+    g = T.gate_decision(_pred_frame(scale=0.5))                       # over-confident: slopes near 0.5
+    assert g["slope_out_of_range"] and g["train_sequence"]
+    g = T.gate_decision(_pred_frame(lift_mse=False))                  # calibrated but no lift over the constant
+    assert not g["slope_out_of_range"] and g["lift"] < 0.05 and g["train_sequence"]
+    f = _pred_frame()
+    f.loc[f["shot_clock_bucket"] == "0-7", "y"] = 0.0                 # one class in a bucket: slope n/a counts as outside
+    g = T.gate_decision(f)
+    assert "0-7" in g["slope_out_of_range"] and g["train_sequence"]
+    overall = {"constant": 1.0, "ridge": 0.9, "hgb": 0.95, T.SEQUENCE: 0.85}
+    assert T.select_model(overall, None) == ("ridge", "lowest out-of-fold MSE among the three candidates", False)
+    sel, _, keep = T.select_model(overall, {"diff": 0.05, "lo": 0.01, "hi": 0.09, "excludes_zero": True})
+    assert sel == T.SEQUENCE and keep
+    sel, _, keep = T.select_model(overall, {"diff": 0.05, "lo": -0.01, "hi": 0.09, "excludes_zero": False})
+    assert sel == "ridge" and not keep
+    overall[T.SEQUENCE] = 0.92                                        # significant pairing but a higher MSE than the base
+    sel, _, keep = T.select_model(overall, {"diff": -0.02, "lo": -0.03, "hi": -0.01, "excludes_zero": True})
+    assert sel == "ridge" and not keep
+
+
+def test_no_fit_ever_sees_a_held_out_game(season, monkeypatch, tmp_path):
+    seen = []
+    real_fit = T.Calibrated.fit
+
+    def spy(self, X, y, games):
+        seen.append(set(np.asarray(games).astype(str)))
+        return real_fit(self, X, y, games)
+    monkeypatch.setattr(T.Calibrated, "fit", spy)
+    T.run(season, n_folds=3, seed=0, n_boot=0, hgb_iter=20, fixtures=True, report=tmp_path / "r.md")
+    assert seen and all(HELD not in s for s in seen)
+    assert all(not any(h for g, h in season["games"] if g in s) for s in seen)
+
+
 def test_buckets():
     assert T.elapsed_bucket([0, 3.9, 4, 9.9, 10, 23, 30]).tolist() == ["0-4", "0-4", "4-10", "4-10", "10-24", "10-24", "10-24"]
     assert T.shot_clock_bucket([0, 6.9, 7, 13.9, 14, 24, np.nan]).tolist() == ["0-7", "0-7", "7-14", "7-14", "14-24", "14-24", "none"]
@@ -216,6 +280,9 @@ def test_train_end_to_end_writes_report_and_output_tables(season, tmp_path):
                 report=tmp_path / "epv.md", out_root=tmp_path / "out")
     text = (tmp_path / "epv.md").read_text()
     assert "fixture output, not a result" in text and chr(0x2014) not in text
+    assert "in-sample MSE" in text and "Why" in text and "n/a counts as outside" in text
+    assert "Point estimates only" in text          # one held-out game: no bootstrap interval
+    assert ctx["heldout"]["bootstrap"] == 0 and all(np.isfinite(ctx["insample_mse"][m]) for m in ctx["models"])
     for section in ("## Inputs", "## Candidates by elapsed-time bucket", "## Calibration", "the gate", "## Shuffled-target check",
                     "## Held-out games, scored once", "python -m analytics.epv.train --data"):
         assert section in text
@@ -233,6 +300,8 @@ def test_train_end_to_end_writes_report_and_output_tables(season, tmp_path):
         df = pd.read_parquet(season_dir / ("%s.parquet" % g))
         assert {"sportvu_game", "possession", "frame", "elapsed_in_possession_s", "epv_points", "p_score", "points_to_end", "fold", "heldout"} <= set(df.columns)
         assert (df["sportvu_game"] == g).all() and not df["heldout"].any() and (df["fold"] >= 0).all()
+        assert df["possession"].dtype == np.int32 and df["frame"].dtype == np.int32 and df["points_to_end"].dtype == np.int16
+        pd.merge_asof(df.sort_values("frame"), season["states_1hz"][["frame"]].astype({"frame": np.int32}).sort_values("frame"), on="frame")
         assert df["frame"].is_monotonic_increasing or df.sort_values(["possession", "frame"]).equals(df)
     held = pd.read_parquet(tmp_path / "out" / "analytics" / "epv" / "heldout" / "2015-16" / ("%s.parquet" % HELD))
     assert held["heldout"].all() and (held["fold"] == -1).all() and len(held) == ctx["heldout_rows"]

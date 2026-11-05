@@ -220,8 +220,7 @@ def fit_xfg(shots_train: pd.DataFrame | None):
         return lambda loc_x, loc_y, r=rate: np.full(len(loc_x), r)
     from analytics import features_xfg as fx
     from analytics import train_xfg as tx
-    feats = fx.features(shots_train)
-    feats["heldout"] = False
+    feats = fx.features(shots_train)          # its heldout column feeds train_xfg's own tripwire (a held-out row raises)
     model = tx.fit_models(feats)["logistic"]
 
     def predict(loc_x, loc_y, m=model):

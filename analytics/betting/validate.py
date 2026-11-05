@@ -257,11 +257,15 @@ def _unknown_ids(games: pd.DataFrame, names: dict) -> set:
 
 
 def infer_team_names(closing: pd.DataFrame, games: pd.DataFrame, names: dict | None = None) -> dict:
-    """id -> feed name for game ids that neither TEAM_NAMES nor names know, from date co-occurrence: a local date
-    with exactly one odds game and exactly one games row (within DATE_TOLERANCE_DAYS) votes its home and away
-    pairs; an id is resolved only with at least MIN_VOTES votes and a strict majority for one name. Raises ValueError
-    when an inferred name collides with another inferred name or with a name already known (TEAM_NAMES or names):
-    two ids cannot share a team. Returns only the inferred pairs (empty when nothing is unknown)."""
+    """id -> feed name for game ids that neither TEAM_NAMES nor names know, from date co-occurrence.
+
+    Candidate pairs are an odds game and a games row within DATE_TOLERANCE_DAYS of each other. A pair votes its home
+    and away (id, name) only when it is the single candidate in both directions among the pairs still consistent
+    with what is resolved (a resolved id must carry the pair's name key; an unresolved id cannot take a name key a
+    resolved id already holds). Ids with at least MIN_VOTES votes and a strict majority for one name are resolved,
+    and the pass repeats with them until nothing new resolves. Raises ValueError when an inferred name collides with
+    another inferred name or with a name already known (TEAM_NAMES or names): two ids cannot share a team. Returns
+    only the inferred pairs (empty when nothing is unknown)."""
     names = dict(names or {})
     unknown = _unknown_ids(games, names)
     if not unknown or closing.empty:
@@ -270,35 +274,64 @@ def infer_team_names(closing: pd.DataFrame, games: pd.DataFrame, names: dict | N
     g_date = pd.to_datetime(games["game_date"]).dt.normalize()
     c_by = closing.groupby(c_date.to_numpy()).indices
     g_by = games.groupby(g_date.to_numpy()).indices
-    votes: dict = {}
-    for d, ci in c_by.items():
-        if len(ci) != 1:
-            continue
-        hits = [gi for off in range(-DATE_TOLERANCE_DAYS, DATE_TOLERANCE_DAYS + 1)
-                for gi in g_by.get(d + pd.Timedelta(days=off), [])]
-        if len(hits) != 1:
-            continue
-        crow, grow = closing.iloc[ci[0]], games.iloc[hits[0]]
-        for tid, name in ((grow["home_team_id"], crow["home_team"]), (grow["away_team_id"], crow["away_team"])):
-            if pd.notna(tid) and int(tid) in unknown:
-                votes.setdefault(int(tid), {}).setdefault(str(name), 0)
-                votes[int(tid)][str(name)] += 1
-    out: dict = {}
-    for tid, v in votes.items():
-        name, n = max(v.items(), key=lambda kv: (kv[1], kv[0]))
-        total = sum(v.values())
-        if n >= MIN_VOTES and n * 2 > total:
-            out[tid] = name
+    c_keys = list(zip(closing["home_team"].map(team_key), closing["away_team"].map(team_key)))
+    g_ids = list(zip(games["home_team_id"].astype("Int64"), games["away_team_id"].astype("Int64")))
+    offsets = [pd.Timedelta(days=o) for o in range(-DATE_TOLERANCE_DAYS, DATE_TOLERANCE_DAYS + 1)]
+    resolved = {tid: team_key(n) for tid, n in names.items()}
+    resolved.update({tid: team_key(n[1]) for tid, n in TEAM_NAMES.items()})
+    inferred: dict = {}
+
+    def consistent(ci: int, gi: int) -> bool:
+        taken = set(resolved.values())
+        for tid, key in zip(g_ids[gi], c_keys[ci]):
+            if pd.isna(tid):
+                return False
+            tid = int(tid)
+            if tid in resolved:
+                if resolved[tid] != key:
+                    return False
+            elif key in taken:
+                return False
+        return True
+
+    def cand_games(ci: int) -> list:
+        d = c_date.iloc[ci]
+        return [gi for off in offsets for gi in g_by.get(d + off, []) if consistent(ci, gi)]
+
+    def cand_odds(gi: int) -> list:
+        d = g_date.iloc[gi]
+        return [cj for off in offsets for cj in c_by.get(d + off, []) if consistent(cj, gi)]
+
+    while True:
+        votes: dict = {}
+        for ci in range(len(closing)):
+            hits = cand_games(ci)
+            if len(hits) != 1 or len(cand_odds(hits[0])) != 1:
+                continue
+            gi = hits[0]
+            for tid, name in ((g_ids[gi][0], closing["home_team"].iloc[ci]), (g_ids[gi][1], closing["away_team"].iloc[ci])):
+                if int(tid) in unknown and int(tid) not in resolved:
+                    votes.setdefault(int(tid), {}).setdefault(str(name), 0)
+                    votes[int(tid)][str(name)] += 1
+        new = {}
+        for tid, v in votes.items():
+            name, n = max(v.items(), key=lambda kv: (kv[1], kv[0]))
+            if n >= MIN_VOTES and n * 2 > sum(v.values()):
+                new[tid] = name
+        if not new:
+            break
+        inferred.update(new)
+        resolved.update({tid: team_key(n) for tid, n in new.items()})
     known_keys = {team_key(n) for n in names.values()} | {team_key(n[1]) for n in TEAM_NAMES.values()}
     seen: dict = {}
-    for tid, name in sorted(out.items()):
+    for tid, name in sorted(inferred.items()):
         k = team_key(name)
         if k in known_keys:
             raise ValueError("%s: inferred team name %r for id %d collides with a known team" % (WHO, name, tid))
         if k in seen:
             raise ValueError("%s: ids %d and %d both infer the team name %r" % (WHO, seen[k], tid, name))
         seen[k] = tid
-    return out
+    return inferred
 
 
 def join_games(closing: pd.DataFrame, games: pd.DataFrame, team_names: dict | None = None) -> tuple[pd.DataFrame, dict]:

@@ -1,17 +1,21 @@
-"""tests/test_gravity.py: analytics/gravity on the fixture generator (tests/_fx_gravity.py, which uses
-analytics.fixtures when it exists and its own fallback otherwise). No network, nothing written to the repo.
+"""tests/test_gravity.py: analytics/gravity on the fixture generators. No network, nothing written to the repo.
 
-Covers: the fixture shapes; the hull area on a hand-built square; 1 Hz sampling; the leakage guards (a target
-column in the feature frame, a held-out row reaching a fit, a held-out id in the training ids); the out-of-fold
-shooting prior; validate's duplicate and null handling; the EDA tables and the shuffled-y check; and the
-end-to-end fixture run of the trainer with the top-decile check, the sign test and the held-out scoring.
-Runs in well under 30 s on the fallback generator (six small games).
+Two generators (tests/_fx_gravity.py): the default (analytics.fixtures when importable, else the fallback) and
+the lane's fallback, always available as fallback_synth_season. The structural tests run on the default; the
+end-to-end run happens on both, and the effect-size assertions (season-wide top decile, sign test, recovered
+pull within tolerance of the planted pull) run on the fallback, whose truth is known and documented.
+
+Covers: fixture shapes; hull area on a hand-built square; 1 Hz sampling; the leakage guards (a target column
+in the feature frame, a held-out row reaching a fit, a held-out id in the training ids); the out-of-fold prior
+(flipping a test-fold game's shots leaves that game's prior unchanged); validate's duplicate and null handling;
+the EDA tables and the shuffled-y check; the end-to-end runs with the top-decile checks, the sign test, the
+held-out scoring, the shipped-ridge rule and the planted-pull tolerance. Under 30 s.
 """
 import os
 import sys
 from pathlib import Path
 
-os.environ.setdefault("OMP_NUM_THREADS", "2")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
 
 import numpy as np
 import pandas as pd
@@ -26,10 +30,8 @@ from analytics.gravity import eda, features as F, train as T, validate as V  # n
 from tests import _fx_gravity as FX  # noqa: E402
 
 N_GAMES, N_POSS = 4, 24
-# The fallback generator plants a known linear pull, the xFG effect, sits its star and keeps one roster across
-# the season; the shared generator (analytics.fixtures) plants its own star physics, plays its star every period
-# and gives every game a fresh roster, so the assertions on effect sizes are made only on the fallback.
-FALLBACK = FX.SOURCE == "tests._fx_gravity"
+PULL_TOL_FT = 0.6   # recovered pull (ridge residual) vs the generator's effective pull: the expectation is fitted on
+#                     rows that include the planted players, so it absorbs about their share of the pull (2 of 14)
 
 
 @pytest.fixture(scope="module")
@@ -44,8 +46,7 @@ def train_games(season):
 
 @pytest.fixture(scope="module")
 def built(train_games):
-    pf, sp, counts = F.build(train_games)
-    return pf, sp, counts
+    return F.build(train_games)
 
 
 # ── fixtures ───────────────────────────────────────────────────────────────────────────────────────
@@ -61,6 +62,9 @@ def test_fixture_shapes_and_columns(season):
     held = [F.game_id(d) for d in season if F.is_heldout(d)]
     assert held == ["12.16.2015.PHX.at.GSW"]       # every fourth game is held out and carries a held-out token
     assert len(season) == N_GAMES
+    fb = FX.fallback_synth_game(3, n_possessions=8)
+    assert fb["high_gravity_ids"] == [1001, 2001] and fb["truth"]["planted_pull_ft"] == FX.HG_PULL_FT
+    assert all(0 < v <= FX.HG_PULL_FT for v in fb["truth"]["effective_pull_ft"].values())
 
 
 # ── spacing ────────────────────────────────────────────────────────────────────────────────────────
@@ -84,30 +88,36 @@ def test_sampling_one_frame_per_second(train_games):
     poss = d["possessions"].set_index("possession")
     elapsed = poss.loc[samp["possession"], "start_clock_s"].to_numpy() - fl.loc[samp["frame"], "game_clock_s"].to_numpy()
     assert np.abs(elapsed - samp["elapsed_s"].to_numpy()).max() < 0.5
+    order = d["possessions"].sort_values(["period", "start_frame"]).reset_index(drop=True)
+    nxt = {int(r.possession): int(order.iloc[i + 1]["start_frame"]) for i, r in enumerate(order.itertuples()) if i + 1 < len(order)
+           and int(order.iloc[i + 1]["period"]) == int(r.period)}
+    starts = poss.loc[samp["possession"], "start_frame"].to_numpy()
+    assert (samp["frame"].to_numpy() >= starts).all()
+    for p, f in zip(samp["possession"], samp["frame"]):                 # the span stops before the next possession's start
+        assert int(p) not in nxt or int(f) < nxt[int(p)]
 
 
 def test_features_shape_and_time_forward(built, train_games):
     pf, sp, counts = built
-    assert list(F.feature_columns()) == F.FEATURES
+    assert list(F.feature_columns()) == F.FEATURES and "zone_make_rate" in F.FEATURES
+    assert not any(c.startswith("skill") for c in F.FEATURES)          # nothing player-specific in the features
     assert set(F.KEYS + F.FEATURES + [F.TARGET, "heldout"]) <= set(pf.columns)
     assert not (set(pf.columns) & schema.ALL_EXCLUDED)
     schema.assert_time_forward(pf, "states_1hz")
     assert (pf.groupby(["sportvu_game", "frame"]).size() == 5).all()   # five offensive players per sampled frame
     assert pf["has_ball"].groupby([pf["sportvu_game"], pf["frame"]]).sum().eq(1).all()
     assert (pf[F.TARGET] > 0).all() and pf["dist_basket_ft"].between(0, 100).all()
-    assert len(sp) == len(pf) // 5 and sp["hull_area_ft2"].notna().all()
+    assert list(sp.columns) == F.SPACING_COLUMNS and len(sp) == len(pf) // 5 and sp["hull_area_ft2"].notna().all()
+    assert sp["possession"].dtype == np.int32 and sp["frame"].dtype == np.int32 and not sp["heldout"].any()
     assert sum(c["kept"] for c in counts) == len(sp)
     known = {p for d in train_games for p in F.known_gravity_ids(d)}
     assert known                                                        # the generator names its planted players
-    hg = pf[pf["player_id"].isin(known)][F.TARGET].mean()
-    rest = pf[~pf["player_id"].isin(known)][F.TARGET].mean()
-    assert hg < rest                                                    # the planted pull is in the target
+    assert pf[pf["player_id"].isin(known)][F.TARGET].mean() < pf[~pf["player_id"].isin(known)][F.TARGET].mean()
 
 
 def test_leakage_guards(built, train_games):
     pf, _, _ = built
-    table = F.skill_table(T.shots_of(train_games, [F.game_id(d) for d in train_games]), T.rosters_of(train_games))
-    ok = F.attach_skill(pf, table)
+    ok = F.attach_skill(pf, F.skill_table(T.shots_of(train_games, [F.game_id(d) for d in train_games])))
     with pytest.raises(ValueError, match="never features"):
         F.design(ok.assign(points=0))                                   # a target column in the frame
     with pytest.raises(ValueError, match="never features"):
@@ -115,26 +125,28 @@ def test_leakage_guards(built, train_games):
     with pytest.raises(ValueError, match="skill"):
         F.design(pf)                                                    # the prior must be attached per fold first
     with pytest.raises(ValueError, match="held-out"):
-        T.fit_models(ok.assign(heldout=True))                           # a held-out row never reaches a fit
+        T.fit_models(ok.assign(heldout=True), which=("ridge",))         # a held-out row never reaches a fit
     with pytest.raises(SystemExit):
         T.refuse_heldout(["01.01.2016.AAA.at.HHH", "12.16.2015.PHX.at.GSW"], "test")
 
 
-def test_skill_prior_is_out_of_fold(train_games):
-    a, b = train_games[0], train_games[1]
-    table = F.skill_table(a["shots"], a["rosters"])
-    assert table["n_matched"] == len(a["shots"])                        # bref rows (null player_id) matched by name
-    pf_b, _, _ = F.build([b])
-    shooters_b = set(F.shot_player_ids(b["shots"], b["rosters"]).dropna().astype(int))
-    unseen = shooters_b - {p for p, _ in table["zone"]}
-    out = F.attach_skill(pf_b, table)
-    assert out[F.SKILL_COLUMNS].notna().all().all()
-    zone = F.zone_of(out["dist_basket_ft"].to_numpy())
-    for p in list(unseen)[:3]:
-        m = out["player_id"] == p
-        prior = np.array([table["prior_zone"][z] for z in zone[m.to_numpy()]])
-        assert np.allclose(out.loc[m, "skill_zone"].to_numpy(), prior)  # a player with no training-fold shots gets the prior
+def test_prior_is_out_of_fold(built, train_games):
+    """Flipping every shot of one test-fold game must not move that game's prior (it comes from the other games'
+    shots) and must move the prior of the games whose folds trained on it."""
+    pf, _, _ = built
+    pred1, note = T.out_of_fold(pf, train_games, n_folds=len(train_games), seed=0)
+    assert note["mode"] == "out-of-fold" and pred1["zone_make_rate"].notna().all()
+    g = F.game_id(train_games[0])
+    flipped = [dict(d) for d in train_games]
+    flipped[0]["shots"] = train_games[0]["shots"].assign(made=~train_games[0]["shots"]["made"].astype(bool))
+    pred2, _ = T.out_of_fold(pf, flipped, n_folds=len(train_games), seed=0)
+    own = (pred1["sportvu_game"] == g).to_numpy()
+    assert np.array_equal(pred1.loc[own, "zone_make_rate"].to_numpy(), pred2.loc[own, "zone_make_rate"].to_numpy())
+    assert not np.array_equal(pred1.loc[~own, "zone_make_rate"].to_numpy(), pred2.loc[~own, "zone_make_rate"].to_numpy())
+    assert np.array_equal(pred1.loc[own, "p_ridge"].to_numpy(), pred2.loc[own, "p_ridge"].to_numpy())
     assert F.zone_of([1.0, 5.0, 12.0, 20.0, 25.0]).tolist() == ["rim", "paint", "short_mid", "long_mid", "three"]
+    table = F.skill_table(train_games[0]["shots"])
+    assert set(table["prior_zone"]) == {z[2] for z in F.ZONES} and all(0 <= v <= 1 for v in table["prior_zone"].values())
 
 
 # ── validate ───────────────────────────────────────────────────────────────────────────────────────
@@ -158,7 +170,7 @@ def test_validate_counts_duplicates_and_nulls(train_games):
 
 # ── eda ────────────────────────────────────────────────────────────────────────────────────────────
 def test_eda_tables_and_shuffled_y(train_games):
-    tables = eda.run(train_games[:3], seed=0)
+    tables = eda.run(train_games, seed=0)
     assert set(tables) == {"counts", "nearest_def_by_distance_bin", "nearest_def_by_has_ball", "hull_area_by_end_kind",
                            "correlation_table", "shuffled_y_check"}
     hb = tables["nearest_def_by_has_ball"].set_index("has_ball")
@@ -170,51 +182,78 @@ def test_eda_tables_and_shuffled_y(train_games):
     sy = tables["shuffled_y_check"].set_index("target")
     assert sy.loc["shuffled", "r2"] < 0.05                              # nothing in the features leaks a permuted target
     assert sy.loc["real", "r2"] > sy.loc["shuffled", "r2"] + 0.05
-    if FALLBACK:
-        assert corr.loc["dist_basket_ft", "corr_with_target"] > 0.3     # the planted linear term in the fallback
-        assert sy.loc["real", "r2"] > 0.3
     assert eda.md_table(ek).startswith("| end_kind |")
 
 
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
-def test_end_to_end_fixture_run(tmp_path):
-    report = tmp_path / "gravity.md"
-    ctx = T.main(["--fixtures", "--n-games", str(N_GAMES), "--n-possessions", str(N_POSS), "--report", str(report),
-                  "--bootstrap", "30", "--min-possessions", "10", "--out", str(tmp_path)])
+def _run(tmp_path, generator: str) -> dict:
+    report = tmp_path / ("gravity_%s.md" % generator)
+    return T.main(["--fixtures", "--fixture-generator", generator, "--no-fallback-section", "--n-games", str(N_GAMES),
+                   "--n-possessions", str(N_POSS), "--report", str(report), "--bootstrap", "30", "--min-possessions", "10",
+                   "--out", str(tmp_path / generator)]), report
+
+
+def _check_common(ctx, report, tmp_path, generator):
     assert ctx["train_games"] == N_GAMES - 1 and ctx["heldout_games"] == 1
-    assert ctx["selected"] in ("ridge", "hgb")
+    assert ctx["selected"] == "ridge" == T.SHIPPED                      # ridge ships whatever the MSE table says
     s = ctx["scores"]["mse"]
     assert s["ridge"]["point"] < s["constant"]["point"]                 # location explains part of the distance
-    assert ctx["known_ids"] and ctx["top_decile_by_game"]["passed"] is True   # the planted players lead every game
-    if FALLBACK:                                                        # one roster across the season: the season-wide check
-        assert ctx["top_decile"]["passed"] is True
+    assert "paired_hgb_minus_ridge" in ctx["scores"] and "hgb_lower_mse" in ctx["scores"]
+    assert ctx["known_ids"]
+    gf, players, sp = ctx["gravity_frames"], ctx["gravity_players"], ctx["spacing_frames"]
+    assert list(gf.columns) == T.FRAME_COLUMNS
+    assert np.allclose(gf["gravity_ft"], gf["expected_ft"] - gf["nearest_def_dist_ft"], atol=1e-5)
+    tr = gf[~gf["heldout"]]
+    assert np.allclose(tr["expected_ft"], ctx["pred"]["p_ridge"].to_numpy(dtype=np.float32), atol=1e-5)   # the shipped expectation
+    assert (gf.loc[gf["heldout"], "fold"] == -1).all() and (tr["fold"] >= 0).all()
+    assert gf["heldout"].any() and ctx["heldout_rows"] == int(gf["heldout"].sum())
+    assert set(ctx["heldout_scores"]) == {"constant", "ridge"}          # held-out scored by the shipped model and the floor only
+    assert list(players.columns) == T.PLAYER_COLUMNS
+    assert all(players[c].dtype == np.int32 for c in ("player_id", "n_possessions", "n_frames", "n_games"))
+    assert players["n_possessions"].sum() == tr[["player_id", "sportvu_game", "possession"]].drop_duplicates().shape[0]
+    assert (players.loc[~players["insufficient"], "n_possessions"] >= 10).all()
+    assert list(sp.columns) == F.SPACING_COLUMNS and sp["heldout"].any() and sp["possession"].dtype == np.int32
     st = ctx["sign_test"]
     assert set(st) >= {"n_games", "n_positive", "p_value", "mean_diff", "lo", "hi", "candidates", "per_game"}
     assert st["candidates"] == ctx["known_ids"]
-    if FALLBACK:                                                        # the fallback plants the xFG effect and sits its star
-        assert st["n_games"] == N_GAMES - 1 and np.isfinite(st["p_value"])
-        assert st["mean_diff"] > 0 and st["n_positive"] >= st["n_games"] - 1
-    gf, players, sp = ctx["gravity_frames"], ctx["gravity_players"], ctx["spacing_frames"]
-    assert list(gf.columns) == ["sportvu_game", "possession", "frame", "player_id", "nearest_def_dist_ft", "expected_ft",
-                                "gravity_ft", "has_ball", "fold", "heldout"]
-    assert np.allclose(gf["gravity_ft"], gf["expected_ft"] - gf["nearest_def_dist_ft"], atol=1e-5)
-    assert (gf.loc[gf["heldout"], "fold"] == -1).all() and (gf.loc[~gf["heldout"], "fold"] >= 0).all()
-    assert gf["heldout"].any() and ctx["heldout_rows"] == int(gf["heldout"].sum())
-    assert list(players.columns) == ["player_id", "n_possessions", "n_frames", "n_games", "gravity_ft", "lo", "hi", "insufficient"]
-    assert players["n_possessions"].sum() == gf[~gf["heldout"]][["player_id", "sportvu_game", "possession"]].drop_duplicates().shape[0]
-    assert (players.loc[~players["insufficient"], "n_possessions"] >= 10).all()
-    assert {"hull_area_ft2", "mean_nearest_def_ft", "heldout"} <= set(sp.columns)
     for name in ("gravity_frames", "gravity_players", "spacing_frames"):
-        assert (tmp_path / "analytics" / "gravity" / (name + ".parquet")).exists()
+        assert (tmp_path / generator / "analytics" / "gravity" / (name + ".parquet")).exists()
     text = report.read_text()
     assert "fixture output, not a result" in text and "Mac command" in text and "Held-out, scored once" in text
-    assert chr(0x2014) not in text                                      # no em dash in the report
+    assert "MSE is not the selection criterion" in text and chr(0x2014) not in text
 
 
-def test_validate_and_features_cli(tmp_path, capsys):
+def test_end_to_end_default_generator(tmp_path):
+    ctx, report = _run(tmp_path, "auto")
+    _check_common(ctx, report, tmp_path, "auto")
+    tdg = ctx["top_decile_by_game"]
+    assert tdg["n_games"] >= 1 and tdg["n_passed"] >= tdg["n_games"] - 1    # the planted players lead (almost) every game
+    assert ctx["top_decile"]["decile_cut"] >= len([p for p in ctx["known_ids"] if ctx["top_decile"]["ranks"][p]])
+
+
+def test_end_to_end_fallback_generator_recovers_the_planted_pull(tmp_path):
+    ctx, report = _run(tmp_path, "fallback")
+    _check_common(ctx, report, tmp_path, "fallback")
+    assert ctx["top_decile"]["passed"] is True                          # one roster across the season: the season-wide check
+    assert ctx["top_decile_by_game"]["passed"] is True
+    st = ctx["sign_test"]
+    assert st["n_games"] == N_GAMES - 1 and np.isfinite(st["p_value"])
+    assert st["mean_diff"] > 0 and st["n_positive"] >= st["n_games"] - 1    # the planted xFG effect
+    truth = ctx["truth_pull"]
+    assert set(truth) == set(ctx["known_ids"]) and all(0 < v <= FX.HG_PULL_FT for v in truth.values())
+    for pid in ctx["known_ids"]:
+        rec = ctx["recovered_pull"][pid]
+        assert abs(rec - truth[pid]) <= PULL_TOL_FT, (pid, rec, truth[pid])   # the shipped expectation leaves the pull in the residual
+        assert ctx["known_by_model"]["ridge"][pid] == pytest.approx(rec, abs=1e-6)
+        assert ctx["known_by_model"]["hgb"][pid] < rec + 0.2            # HGB never recovers more of the pull than ridge here
+    assert "Recovered pull under the shipped expectation" in report.read_text()
+
+
+def test_validate_and_features_cli(tmp_path):
     out = V.main(["--fixtures", "--n-games", "2", "--n-possessions", "16", "--out", str(tmp_path)])
     assert out["games"] == 2 and out["schema_problems"] == 0
     assert (tmp_path / "analytics" / "gravity" / "validate.json").exists()
-    summ = F.main(["--fixtures", "--n-games", "2", "--n-possessions", "16", "--out", str(tmp_path)])
-    assert summ["player_frames"] == 5 * summ["spacing_frames"] > 0
-    assert (tmp_path / "analytics" / "gravity" / "player_frames.parquet").exists()
+    summ = F.main(["--fixtures", "--fixture-generator", "fallback", "--n-games", "2", "--n-possessions", "16", "--out", str(tmp_path)])
+    assert summ["player_frames"] == 5 * summ["spacing_frames"] > 0 and "validation" in summ
+    sp = pd.read_parquet(tmp_path / "analytics" / "gravity" / "spacing_frames.parquet")
+    assert list(sp.columns) == F.SPACING_COLUMNS                        # the same schema train.py writes

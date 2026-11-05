@@ -263,20 +263,24 @@ def test_inferred_names_need_votes_and_cannot_collide(data):
     names = team_names(games)
     if not names:
         pytest.skip("fallback fixtures use real ids: nothing to infer")
-    if any(va.team_key(n) in {va.team_key(v[1]) for v in va.TEAM_NAMES.values()} for n in names.values()):
-        pytest.skip("the fixture league includes a real NBA name: inference would refuse it as a collision by design")
+    used = set(games["home_team_id"].astype(int)) | set(games["away_team_id"].astype(int))
+    nba = {va.team_key(v[1]) for v in va.TEAM_NAMES.values()}
+    if any(va.team_key(n) in nba for t, n in names.items() if t in used):
+        pytest.skip("a fixture game uses a real NBA name: inference would refuse it as a collision by design")
     # every unknown id is resolved with at least MIN_VOTES votes and a majority on the full fixture
     inferred = va.infer_team_names(closing, games)
     assert len(inferred) >= 6
     # a single date gives one vote per id: below MIN_VOTES, nothing is inferred
     one = games.sort_values("game_date").iloc[[0]]
     assert va.infer_team_names(closing, one) == {}
-    # a known name on the odds side collides: refuse rather than map two ids to one team
+    # a known name on the odds side can never be taken by an unknown id: nothing is inferred, the ids stay unresolved
+    # and counted (the ValueError collision guard behind the vote is the backstop)
     collide = closing.copy()
     collide["home_team"] = "Boston Celtics"
     collide["away_team"] = "Miami Heat"
-    with pytest.raises(ValueError, match="collides"):
-        va.infer_team_names(collide, games)
+    assert va.infer_team_names(collide, games) == {}
+    _, counts = va.join_games(collide, games)
+    assert counts["team_names_inferred"] == 0 and counts["team_ids_unresolved"] == len(used) and counts["matched"] == 0
 
 
 def test_trainer_never_fits_or_scores_a_held_out_row(tmp_path, monkeypatch):

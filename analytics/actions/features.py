@@ -18,12 +18,13 @@ defender is the defender nearest the handler at the window start.
                  candidate's extent is the set padded by 1 s before (the approach) and 1 s after (the use),
                  clipped to the possession, because a labelled screen spans approach, set and use (set
                  SCREEN_PAD_PRE_S and SCREEN_PAD_POST_S to 0 if the hand labels mark the set alone)
-    drive        any 0.6 s window where the handler, starting within 30 ft of the basket (a half-court
-                 action, not the transition sprint), closes on the basket faster than 8 ft per s
-    isolation    any 2 s window where the same handler, starting within 30 ft of the basket, keeps the ball
-                 (ball within 4 ft) under 8 ft per s and no teammate comes within 10 ft. The plan said 3 s;
-                 2 s because a 3 s minimum missed the fixture's 2.4 s holds and the trainer, not the window
-                 length, decides the class
+    drive        any 0.6 s window where the handler, starting in the front court (within 47 ft of the basket:
+                 a half-court action, not the transition sprint), closes on the basket faster than 8 ft per s
+    isolation    any 2 s window where the same handler, starting in the front court, keeps the ball (ball
+                 within 4 ft) under 8 ft per s with no teammate within 10 ft on at least 70 percent of the
+                 frames (a clear-out still in progress). The plan said 3 s; 2 s because a 3 s minimum missed
+                 the fixture's 2.4 s holds and the trainer, not the window length, decides the class
+The attacked basket is the one nearest the offence's mean position over the last half of the possession.
 Step 2, features per candidate from the positions and velocities inside the rule window (FEATURES; for a
 ball screen that is the set, not the padded extent), plus one declared post-window feature, def_recovery_ft:
 the handler's defender's distance to the handler averaged over the 1 s after the rule window minus its
@@ -62,8 +63,9 @@ SCREEN_WINDOW_S, SCREEN_DIST_FT, SCREEN_SPEED_FTPS, SCREEN_HANDLER_DIST_FT = 0.8
 SCREEN_N_DEFENDERS = 2                               # the screened man is one of the two defenders nearest the handler
 SCREEN_DEF_HANDLER_FT = 9.0                          # and is guarding him: within this of the handler at the window start
 SCREEN_PAD_PRE_S, SCREEN_PAD_POST_S = 1.0, 1.0      # the approach before the set and the use after it
-DRIVE_WINDOW_S, DRIVE_SPEED_FTPS, DRIVE_START_FT = 0.6, 8.0, 30.0
-ISO_WINDOW_S, ISO_SPREAD_FT, ISO_BALL_FT, ISO_HANDLER_SPEED_FTPS, ISO_START_FT = 2.0, 10.0, 4.0, 8.0, 30.0
+DRIVE_WINDOW_S, DRIVE_SPEED_FTPS, DRIVE_START_FT = 0.6, 8.0, 47.0      # starts in the front court (47 ft is half court)
+ISO_WINDOW_S, ISO_SPREAD_FT, ISO_BALL_FT, ISO_HANDLER_SPEED_FTPS, ISO_START_FT = 2.0, 10.0, 4.0, 8.0, 47.0
+ISO_SPREAD_FRAC = 0.7                                # share of the window's frames with no teammate within ISO_SPREAD_FT (a clear-out in progress)
 HANDLER_BALL_FT = 6.0                                # farther than this from every offensive player, the ball has no handler
 RECOVERY_S = 1.0
 NEAR_FT = 8.0
@@ -241,7 +243,8 @@ def possession_arrays(sub, offense_team_id: int, target_hz: float = TARGET_HZ):
         log.debug("possession at frame %d: %d clock jump(s) over %g s inside the span", int(uf[0]), int(gaps.sum()), GAP_S)
     ball = np.stack([sub["ball_x"][rows5], sub["ball_y"][rows5], sub["ball_z"][rows5]], axis=1)
     shot_clock = sub["shot_clock_s"][rows5]
-    mean_off = np.nanmean(off.reshape(-1, 2), axis=0) if np.isfinite(off).any() else np.array([np.nan, np.nan])
+    tail = off[n // 2:] if n > 1 else off          # the attacked basket: nearest the offence over the last half of the possession
+    mean_off = np.nanmean(tail.reshape(-1, 2), axis=0) if np.isfinite(tail).any() else np.array([np.nan, np.nan])
     basket = min(BASKETS, key=lambda b: np.linalg.norm(mean_off - b)) if np.isfinite(mean_off).all() else BASKETS[0]
     return PossessionArrays(keep.astype(int), t, ball, shot_clock, np.array(off_ids), off, np.array(def_ids), de, basket)
 
@@ -332,7 +335,7 @@ def isolation_windows(a: PossessionArrays) -> list:
         if mates:
             dm = np.linalg.norm(a.off[i:j + 1][:, mates] - hxy[:, None, :], axis=2)
             dm = np.where(np.isfinite(dm), dm, np.inf)
-            if (dm.min(axis=1) < ISO_SPREAD_FT).any():
+            if (dm.min(axis=1) >= ISO_SPREAD_FT).mean() < ISO_SPREAD_FRAC:
                 continue
         wins.append((h, i, j))
     return [("isolation", key, None, nearest_defender(a, i, key), i, j, i, j) for key, i, j in _merge(wins)]

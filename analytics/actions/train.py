@@ -374,11 +374,11 @@ def write_report(path: Path, ctx: dict) -> str:
           "## Candidate generation" + tag, "",
           "Rules (5 Hz): ball_screen = window of at least %g s, teammate within %g ft of the handler's defender (one of the %d nearest, within %g ft of the handler, "
           "not the teammate's own man), under %g ft per s, handler within %g ft, extent padded %g s before and %g s after the set; "
-          "drive = %g s window, handler starting within %g ft of the basket closing on it over %g ft per s; isolation = %g s window, same handler with the ball under %g ft per s, "
-          "starting within %g ft, no teammate within %g ft. Target: IoU over frames with a label of at least %.2f."
+          "drive = %g s window, handler starting within %g ft of the basket (the front court) closing on it over %g ft per s; isolation = %g s window, same handler with the ball under %g ft per s, "
+          "starting within %g ft, no teammate within %g ft on at least %d percent of the frames. Target: IoU over frames with a label of at least %.2f."
           % (F.SCREEN_WINDOW_S, F.SCREEN_DIST_FT, F.SCREEN_N_DEFENDERS, F.SCREEN_DEF_HANDLER_FT, F.SCREEN_SPEED_FTPS, F.SCREEN_HANDLER_DIST_FT,
              F.SCREEN_PAD_PRE_S, F.SCREEN_PAD_POST_S, F.DRIVE_WINDOW_S, F.DRIVE_START_FT, F.DRIVE_SPEED_FTPS, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS,
-             F.ISO_START_FT, F.ISO_SPREAD_FT, F.IOU_MIN), "",
+             F.ISO_START_FT, F.ISO_SPREAD_FT, int(round(100 * F.ISO_SPREAD_FRAC)), F.IOU_MIN), "",
           "Candidates: %d over %d visited possessions of %d (%.2f per visited possession); %d overlap a label of a type this detector does not model (counted as none); "
           "%d are duplicates (they overlap a label at IoU >= %.2f that a higher-IoU candidate took in the one-to-one matching; counted as none)."
           % (ctx["n_candidates"], ctx["n_possessions_visited"], ctx["n_possessions"], ctx["n_candidates"] / max(1, ctx["n_possessions_visited"]),
@@ -436,9 +436,11 @@ def write_report(path: Path, ctx: dict) -> str:
           "%g s because a 1 s set lands on 4 or 5 intervals of the 5 Hz grid." % (F.SCREEN_PAD_PRE_S, F.SCREEN_PAD_POST_S, F.SCREEN_WINDOW_S),
           "- The screened defender is one of the %d defenders nearest the handler at the window start (a switch, ice or under puts him second), "
           "within %g ft of the handler, and not the screener's own matchup on the frames before the window on which they were apart." % (F.SCREEN_N_DEFENDERS, F.SCREEN_DEF_HANDLER_FT),
-          "- A drive starts within %g ft of the basket (a half-court action, not the transition sprint). An isolation is a %g s hold (the plan said 3 s; "
-          "3 s missed the fixture's 2.4 s holds and the model, not the window, decides the class) under %g ft per s starting within %g ft."
-          % (F.DRIVE_START_FT, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS, F.ISO_START_FT),
+          "- A drive starts in the front court (within %g ft of the attacked basket, itself the basket nearest the offence over the last half of the possession), "
+          "not in the transition sprint. An isolation is a %g s hold (the plan said 3 s; 3 s missed the fixture's 2.4 s holds and the model, not the window, decides the class) "
+          "under %g ft per s starting in the front court, with no teammate within %g ft on at least %d percent of the frames (a clear-out still in progress). "
+          "These constants were set so that candidate recall on the synthetic fixtures is high; the recall table above is the first thing to re-check on real labels."
+          % (F.DRIVE_START_FT, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS, F.ISO_SPREAD_FT, int(round(100 * F.ISO_SPREAD_FRAC))),
           "- The ball has no handler when it is over %g ft from every offensive player (in flight); features come from the rule window (the set), "
           "the padded extent serves the IoU only; `def_recovery_ft` is the one declared post-window feature." % F.HANDLER_BALL_FT,
           "- A candidate overlapping a label of a type the detector does not model (handoff, off_ball_screen, post_up, cut) is class none and counted above. "

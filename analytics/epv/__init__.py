@@ -11,6 +11,10 @@ Modules:
 Unit: one state at 1 Hz inside a possession. Target: points the offence scores from the state to the end of the
 possession (0 to 4), as a regression of expected points with a classification view P(points > 0) for calibration.
 Held-out games of sportvu/splits.json never fit or tune anything. The contract of the outputs is docs/contract/epv.md.
+
+Importing the package sets OMP_NUM_THREADS=1 when it is unset (os.environ.setdefault): two caveats, it only takes
+effect if sklearn (its OpenMP runtime) has not been imported yet in the process, and it caps the OpenMP threads of
+everything else in that process too; a caller who exported a value keeps it.
 """
 from __future__ import annotations
 

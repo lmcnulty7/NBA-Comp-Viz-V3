@@ -57,6 +57,12 @@ The only column source is `analytics.schema.feature_allowlist("states_1hz")`; `p
 | `handler_zone_value` | 2 or 3, the value of a shot from the handler's distance (22 ft and beyond is 3) |
 | `lineup_tov_prior` | the offensive lineup's smoothed turnover rate per possession from the training games, out-of-fold the same way, 30 pseudo-possessions towards the training mean |
 
+Prior fitting detail: the xFG shrinkage target and the lineup turnover mean (`tov_rate`) are fitted once on the whole
+outer training fold (league-wide quantities with a handful of parameters), while the per-player zone counts and the
+per-lineup counts are leave-one-game-out inside the fold. Leave-one-game-out target encoding carries a mild negative
+bias of order 1/(number of training games - 1): a game's own outcomes are subtracted from the total, so with very
+few games the prior anti-correlates with the game's target. Negligible at hundreds of games, visible on fixtures.
+
 Attacked basket: the contract does not carry it, so it is the basket nearer the expanding mean of the offensive
 centroid over the possession's states up to t (no later frame is read). Zones by distance: rim under 4 ft, paint
 4 to 14, mid 14 to 22, three 22 and beyond. The gated sequence model reads `features.lagged`: the same features
@@ -74,11 +80,14 @@ at t, t-1, ..., t-4 of the same possession (padded with the row's own values at 
 4. Gate: the sequence model is trained only if the gradient-boosting calibration slope by shot-clock bucket
    (0 to 7, 7 to 14, 14 to 24 s) is outside 0.9 to 1.1 in any bucket or its MSE lift over the constant is under 5
    percent, and kept only if it beats gradient boosting under paired bootstrap by game.
-5. Selection: the lowest out-of-fold MSE among the three; the report gives the Brier score of the calibrated
+5. Selection: the lowest out-of-fold MSE among the three is the base; the sequence model replaces it only when it
+   beats the base under paired bootstrap by game with a lower out-of-fold MSE. The report gives the in-sample MSE next
+   to the out-of-fold MSE (overfit is visible), a one-sentence reason for the selection, the Brier score of the calibrated
    P(points > 0) and the MSE by elapsed bucket (0 to 4, 4 to 10, 10 to 24 s, later states in the last bucket) with
    bootstrap intervals by game, the calibration slope per bucket (target 0.9 to 1.1, reported only), the
    reliability tables, the shuffled-target check (possession points permuted across possessions, the lift must sit
-   at chance), and the held-out games scored once by the pipeline refit on every training row.
+   at chance), and the held-out games scored once by the pipeline refit on every training row (point estimates only
+   with fewer than 5 held-out games).
 
 Each run calls `OMP_NUM_THREADS=1` for itself (set in `analytics/epv/__init__.py`); on the shared box the OpenMP
 runtime behind gradient boosting hung with its default thread count.
@@ -95,12 +104,12 @@ One row per state of the states table that reached the trainer, the selected mod
 | --- | --- | --- |
 | `sportvu_game` | string | Step 1 game id |
 | `possession` | int32 | section 19 possession |
-| `frame` | int32 | the section 20 frame of the state (join key for `merge_asof` on frame) |
-| `elapsed_in_possession_s` | float | seconds since the possession's start frame |
-| `epv_points` | float | expected points from this state to the end of the possession (the selected model) |
-| `p_score` | float | calibrated P(points > 0) |
-| `points_to_end` | int | the target, carried for evaluation (never a feature downstream either) |
-| `fold` | int | the grouped fold the row was predicted out of; -1 for held-out rows |
+| `frame` | int32 | the section 20 frame of the state (join key for `merge_asof` on frame; int32 as in the states table) |
+| `elapsed_in_possession_s` | float32 | seconds since the possession's start frame |
+| `epv_points` | float64 | expected points from this state to the end of the possession (the selected model) |
+| `p_score` | float64 | calibrated P(points > 0) |
+| `points_to_end` | int16 | the target, carried for evaluation (never a feature downstream either) |
+| `fold` | int32 | the grouped fold the row was predicted out of; -1 for held-out rows |
 | `heldout` | bool | the game is held out (scored once by the pipeline refit on all training rows) |
 
 Out-of-fold rows (training games) carry predictions from a model that never saw their game; held-out rows carry
@@ -114,8 +123,8 @@ One row per possession, one file per season (a later run merges its games into t
 | --- | --- | --- |
 | `sportvu_game` | string | Step 1 game id |
 | `possession` | int32 | section 19 possession |
-| `epv_at_start` | float | `epv_points` of the possession's first state (smallest elapsed time) |
-| `points` | int | the possession's points (the target at that state) |
+| `epv_at_start` | float64 | `epv_points` of the possession's first state (smallest elapsed time) |
+| `points` | int16 | the possession's points (the target at that state) |
 
 ### Report: `reports/epv.md`
 

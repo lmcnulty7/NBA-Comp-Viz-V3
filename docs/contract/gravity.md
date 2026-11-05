@@ -8,27 +8,33 @@ section 1, nullable columns are marked.
 
 Unit: the player-frame sampled at 1 Hz inside possessions. For every possession with `gap` false and a known
 `offense_team_id`, the span is the frames of the same period from `start_frame` to the next possession's
-`start_frame` (exclusive; `end_frame` is post-outcome and is not read), or to the period's last frame. Elapsed
-time is `start_clock_s - game_clock_s`; the frame nearest each whole second is the sample. A sample is kept
-only with exactly five offensive and five defensive players and a ball position (counts of the rest are logged).
+`start_frame` (exclusive), or to the period's last frame; on `analytics.possessions` output the next possession
+starts at the previous one's end frame, so the span equals `[start_frame, end_frame - 1]` (`end_frame` itself is
+post-outcome and is not read). Elapsed time is `start_clock_s - game_clock_s`; the frame nearest each whole
+second is the sample, and frames over a stopped clock share one elapsed value and collapse to one sample. A
+sample is kept only with exactly five offensive and five defensive players and a ball position (counts of the
+rest are logged).
 
 Target: `nearest_def_dist_ft`, the distance from the offensive player to the nearest defender.
 
 Features (`analytics.gravity.features.FEATURES`, all time-forward, all about location): `x_ft`, `y_ft`,
-`dist_basket_ft`, `angle_rad`, `dist_ball_ft`, `has_ball`, `ball_dist_basket_ft`, `skill_zone`, `skill_three`
-(the player's smoothed make rate by zone, from training-fold shots only), `game_clock_s`, `shot_clock_s`,
-`shot_clock_missing`. `schema.assert_time_forward` runs on the feature frame; no target or post-outcome column
-of sections 16 to 20 is in it.
+`dist_basket_ft`, `angle_rad`, `dist_ball_ft`, `has_ball`, `ball_dist_basket_ft`, `zone_make_rate` (the league
+make rate in the zone the player stands in, from training-fold shots only: rim, paint, short mid, long mid,
+three), `game_clock_s`, `shot_clock_s`, `shot_clock_missing`. Nothing in the features identifies a player: a
+per-player shooting prior let a flexible model absorb a player's pull into the expectation, which is the
+quantity being measured. `schema.assert_time_forward` runs on the feature frame; no target or post-outcome
+column of sections 16 to 20 is in it.
 
-Sign convention: `gravity_ft = expected_ft - nearest_def_dist_ft`. Positive means the nearest defender stays
-closer than the player's location alone predicts (the spec's stated meaning; its "y minus expectation" formula
-has the opposite sign and was not kept).
+Expectation: ridge regression (the plan's model) on the features above, out of fold by game. Sign convention:
+`gravity_ft = expected_ft - nearest_def_dist_ft`. Positive means the nearest defender stays closer than the
+player's location alone predicts (the spec's stated meaning; its "y minus expectation" formula has the opposite
+sign and was not kept).
 
 ## gravity_frames
 
-One row per sampled player-frame. Training rows carry the out-of-fold expectation of the selected model
-(fold = the grouped fold whose test set held the game); held-out rows (fold -1, heldout true) are scored once
-by the model refit on every training row and never rank anything.
+One row per sampled player-frame. Training rows carry the out-of-fold ridge expectation (fold = the grouped
+fold whose test set held the game); held-out rows (fold -1, heldout true) are scored once by ridge refit on
+every training row and never rank anything.
 
 | column | type | meaning |
 | --- | --- | --- |
@@ -37,7 +43,7 @@ by the model refit on every training row and never rank anything.
 | `frame` | int32 | the section 4 frame the sample is read from |
 | `player_id` | int32 | the offensive player |
 | `nearest_def_dist_ft` | float32 | distance to the nearest defender (the target) |
-| `expected_ft` | float32 | the selected model's expectation from the location features |
+| `expected_ft` | float32 | the ridge expectation from the location features |
 | `gravity_ft` | float32 | `expected_ft - nearest_def_dist_ft` |
 | `has_ball` | bool | the player is the offensive player nearest the ball |
 | `fold` | int16 | grouped fold by game whose test set held this row; -1 for held-out rows |
@@ -59,7 +65,7 @@ One row per player seen on offence in a training game, sorted with the gated pla
 
 ## spacing_frames
 
-One row per sampled possession-frame.
+One row per sampled possession-frame (training and held-out, flagged).
 
 | column | type | meaning |
 | --- | --- | --- |
@@ -70,19 +76,31 @@ One row per sampled possession-frame.
 | `mean_nearest_def_ft` | float64 | mean over the five offensive players of the nearest-defender distance |
 | `heldout` | bool | as above |
 
-## Selection and validation (reports/gravity.md)
+`python -m analytics.gravity.features --out OUT_ROOT` writes the same `spacing_frames.parquet` plus
+`player_frames.parquet` (the feature frame with the target, `zone_make_rate` left null).
 
-Candidates: constant (floor), ridge regression (the plan's model) and `HistGradientBoostingRegressor` on the
-same features. Selection metric: out-of-fold MSE under grouped folds by `sportvu_game`, bootstrap intervals
-by game; HGB is kept only when the paired bootstrap by game of MSE(HGB) - MSE(ridge) excludes zero on HGB's
-side. Validations: the known high-gravity players rank in the top decile of the gated players (on fixtures the
-generator's planted players; on real data the top ten are listed without a claim), and a sign test by game of
-teammates' location-only xFG probability (`analytics.features_xfg` features, `analytics.train_xfg` logistic,
-out of fold) with a high-gravity player on the floor, with the mean difference and a bootstrap interval by game.
-Held-out games are scored exactly once. Numbers from `--fixtures` are fixture output, not a result.
+## Candidates and validation (reports/gravity.md)
+
+Candidates: constant (floor), ridge (the plan's model, the shipped expectation) and
+`HistGradientBoostingRegressor` on the same features, with out-of-fold MSE under grouped folds by
+`sportvu_game`, bootstrap intervals by game and the paired bootstrap of MSE(HGB) - MSE(ridge). MSE is not the
+selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by
+fitting what should stay in the residual (on the fallback fixture a planted 2 ft pull came out at 0.6 ft under
+HGB with a player-identifying prior); HGB is reported as a diagnostic of how much structure the location
+features leave unexplained.
+
+Validations: (a) the known high-gravity players rank within the top decile of the gated players, or within the
+top `n_known` when the planted players outnumber a decile (two stars among fourteen), season-wide and within
+each game (on fixtures the generator's planted players; on real data the top ten are listed without a claim);
+(b) a sign test by game of teammates' location-only xFG probability (`analytics.features_xfg` features,
+`analytics.train_xfg` logistic, out of fold) with a high-gravity player on the floor, with the mean difference
+and a bootstrap interval by game; (c) on the lane's fallback fixture, the recovered pull against the generator's
+effective pull (tolerance stated in tests/test_gravity.py). Held-out games are scored exactly once. Numbers
+from `--fixtures` are fixture output, not a result; a fixture report carries a second section from the fallback
+generator when the default generator is `analytics.fixtures`.
 
 ## CLI
 
-    python -m analytics.gravity.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
-    python -m analytics.gravity.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
-    python -m analytics.gravity.train --fixtures | --data DATA_ROOT --report reports/gravity.md [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT]
+    python -m analytics.gravity.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-generator auto|fallback]
+    python -m analytics.gravity.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-generator auto|fallback]
+    python -m analytics.gravity.train --fixtures | --data DATA_ROOT --report reports/gravity.md [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT] [--fixture-generator auto|fallback]
