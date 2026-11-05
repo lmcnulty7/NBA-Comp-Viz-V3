@@ -109,3 +109,6 @@ models/court_grid_r23.pt
 
 # collection-plan pulls (collect/): raw responses and parquet live on the Mac or Drive, never in git
 data/collect/
+analytics/rebound_frames/
+analytics/possessions/
+analytics/rosters/
