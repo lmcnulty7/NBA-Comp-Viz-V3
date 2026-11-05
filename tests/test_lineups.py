@@ -154,8 +154,9 @@ def test_builder_reproduces_the_fixture_stints():
     d = local_fixture(n_games=4, seasons=("2020-21",))
     st = S.build_stints(d["playbyplay"], d["games"], d["starters"])
     truth = d["stints"]
-    m = st.merge(truth, on=["game_id", "start_s", "end_s"], suffixes=("", "_t"))
+    m = st.merge(truth, on=["game_id", "stint"], suffixes=("", "_t"))          # start_s is float32 after the section 12 cast
     assert len(m) == len(truth) == len(st)
+    assert m["start_s"].to_numpy() == pytest.approx(m["start_s_t"].to_numpy(), abs=0.05)
     ok = m[m["lineup_ok"]]
     assert len(ok) >= 0.8 * len(m)
     assert (ok["home_ids"] == ok["home_ids_t"]).all() and (ok["away_ids"] == ok["away_ids_t"]).all()
@@ -394,7 +395,7 @@ def test_full_name_starters_and_nba_id_play_by_play_match_through_the_games_tabl
     assert S.name_key("Z. Pachulia") not in [int(x) for x in out["home_ids"].iloc[1].split("|")]
     # without a games table nothing matches: the derivation alone finds only the players who appear
     out2 = S.build_stints(pbp, None, starters)
-    assert out2["n_home"].tolist() == [3, 3]
+    assert out2["n_home"].tolist() == [2, 2]          # D. Green (actor) and Z. Pachulia (out); the assist name is not an actor
     # a date-only match when the games table has no home team code
     st2 = S.starters_by_side(starters, "0022000001", None, None, games=games.drop(columns=["home_team"]))
     assert st2["away"][0] == S.name_key("J. Harden")

@@ -69,8 +69,12 @@ THREADS = 1
 GHOST_FRAMES_COLUMNS = ["sportvu_game", "possession", "frame", "def_player_id", "off_player_id", "actual_x", "actual_y",
                         "ghost_x", "ghost_y", "deviation_ft", "horizon_s", "fold", "heldout"]
 GHOST_POSSESSIONS_COLUMNS = ["sportvu_game", "possession", "mean_deviation_ft", "points"]
+GHOST_FRAMES_DTYPES = {"sportvu_game": "string", "possession": "int32", "frame": "int32", "def_player_id": "int32",
+                       "off_player_id": "int32", "actual_x": "float32", "actual_y": "float32", "ghost_x": "float32",
+                       "ghost_y": "float32", "deviation_ft": "float32", "horizon_s": "float32", "fold": "int32", "heldout": "bool"}
+GHOST_POSSESSIONS_DTYPES = {"sportvu_game": "string", "possession": "int32", "mean_deviation_ft": "float32", "points": "int16"}
 MAC_CMD = ("python -m analytics.ghosting.train --data \"<Drive>/nba_harvest\" --report reports/ghosting.md "
-           "--folds 5 --seed 0 --bootstrap 1000 --out \"<Drive>/nba_harvest/analytics\"")
+           "--folds 5 --seed 0 --bootstrap 1000 --out \"<Drive>/nba_harvest\"")
 
 
 # ----------------------------------------------------------------------------- models
@@ -264,15 +268,14 @@ def ghost_tables(err: pd.DataFrame, selected: str, possessions: pd.DataFrame) ->
     """ghost_frames (both horizons, selected candidate) and ghost_possessions (mean 1.0 s deviation joined
     to points; the join happens here, after every fit)."""
     e = err[err["candidate"] == selected]
-    gf = e[GHOST_FRAMES_COLUMNS].copy().reset_index(drop=True)
-    gf["heldout"] = gf["heldout"].astype(bool)
+    gf = e[GHOST_FRAMES_COLUMNS].copy().reset_index(drop=True).astype(GHOST_FRAMES_DTYPES)
     one = e[e["horizon_s"] == 1.0]
     gp = one.groupby(["sportvu_game", "possession"], as_index=False)["deviation_ft"].mean()
     gp = gp.rename(columns={"deviation_ft": "mean_deviation_ft"})
     pts = possessions[["sportvu_game", "possession", "points"]].drop_duplicates(["sportvu_game", "possession"])
     gp = gp.merge(pts, on=["sportvu_game", "possession"], how="left")
     gp["points"] = gp["points"].fillna(0).astype(int)
-    return gf, gp[GHOST_POSSESSIONS_COLUMNS]
+    return gf, gp[GHOST_POSSESSIONS_COLUMNS].astype(GHOST_POSSESSIONS_DTYPES)
 
 
 def sign_test(gp: pd.DataFrame, min_possessions: int = 3) -> dict:
@@ -349,13 +352,13 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int) -> dict:
 
 
 def write_tables(out_root, ctx: dict, season: str = V.SEASON) -> list[Path]:
-    """ghost_frames and ghost_possessions per game under OUT_ROOT/<table>/<season>/<game>.parquet (held-out
-    under heldout/<season>/)."""
+    """ghost_frames and ghost_possessions per game under OUT_ROOT/analytics/ghosting/<season>/<table>_<game>.parquet
+    (held-out under OUT_ROOT/analytics/ghosting/heldout/<season>/); OUT_ROOT defaults to DATA_ROOT."""
     written = []
     for table, df in (("ghost_frames", ctx["ghost_frames"]), ("ghost_possessions", ctx["ghost_possessions"])):
         for g, d in df.groupby("sportvu_game"):
             held = g in ctx["heldout_games"]
-            p = Path(out_root) / table / ("heldout" if held else "") / season / (str(g) + ".parquet")
+            p = V.output_path(out_root, table, str(g), held, season)
             p.parent.mkdir(parents=True, exist_ok=True)
             d.reset_index(drop=True).to_parquet(p, index=False)
             written.append(p)
@@ -472,7 +475,8 @@ def parse_args(argv=None):
     ap.add_argument("--report", default="reports/ghosting.md")
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--out", help="OUT_ROOT: write ghost_frames and ghost_possessions parquet per game there")
+    ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT): write ghost_frames and ghost_possessions per game under "
+                                  "OUT_ROOT/analytics/ghosting/<season>/")
     ap.add_argument("--threads", type=int, default=THREADS, help="BLAS threads for the fits (1 in the shared build container)")
     return ap.parse_args(argv)
 
@@ -487,8 +491,9 @@ def main(argv=None) -> dict:
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])
     text = write_report(Path(a.report), ctx, fixtures=bool(a.fixtures), command=cmd)
     print(text)
-    if a.out:
-        for p in write_tables(a.out, ctx):
+    out_root = a.out or a.data
+    if out_root:
+        for p in write_tables(out_root, ctx):
             print("wrote", p)
     return ctx
 

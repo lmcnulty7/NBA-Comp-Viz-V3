@@ -1,6 +1,6 @@
 # xFG upgrade: shot quality with contest features (analytics/xfg) (fixture output, not a result)
 
-Written 2026-11-05T08:49:08Z by `python -m analytics.xfg.train --fixtures --report reports/xfg.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:04:51Z by `python -m analytics.xfg.train --fixtures --report reports/xfg.md --folds 5 --seed 0 --bootstrap 200`.
 
 **Fixture output, not a result.** Every number below comes from the synthetic season of tests/_fx_xfg.py (no real tracking, play-by-play or shot data). The real run is the command in the last section.
 
@@ -30,8 +30,8 @@ Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals a
 | candidate | log loss | Brier | ECE (10 bins) | ECE under 0.02 | calibration slope | selected |
 | --- | --- | --- | --- | --- | --- | --- |
 | location_logistic | 0.6678 [0.6410, 0.7035] | 0.2373 [0.2245, 0.2544] | 0.0484 [0.0361, 0.1004] | no | 0.8326 [0.2079, 1.8906] | yes |
-| contest_logistic | 0.6946 [0.6591, 0.7269] | 0.2496 [0.2329, 0.2648] | 0.0762 [0.0749, 0.1562] | no | 0.3888 [0.0935, 0.8063] |  |
-| hgb_contest_prior | 0.7332 [0.6949, 0.7944] | 0.2623 [0.2514, 0.2773] | 0.1013 [0.0734, 0.1689] | no | -0.1056 [-0.4140, 0.1284] |  |
+| contest_logistic | 0.6946 [0.6591, 0.7269] | 0.2496 [0.2329, 0.2648] | 0.0762 [0.0749, 0.1562] | no | 0.3888 [0.0935, 0.8062] |  |
+| hgb_contest_prior | 0.7299 [0.6949, 0.7886] | 0.2616 [0.2512, 0.2764] | 0.0770 [0.0615, 0.1672] | no | 0.0639 [-0.0092, 0.2589] |  |
 
 Selected: **location_logistic** (lowest out-of-fold log loss).
 
@@ -39,7 +39,7 @@ Paired bootstrap by game, log loss difference (negative favours the first):
 
 | pair | diff | lo | hi | interval excludes 0 |
 | --- | --- | --- | --- | --- |
-| hgb_contest_prior vs location_logistic | 0.0654 | 0.0140 | 0.1454 | yes |
+| hgb_contest_prior vs location_logistic | 0.0621 | 0.0098 | 0.1409 | yes |
 | contest_logistic vs location_logistic | 0.0268 | -0.0015 | 0.0612 | no |
 
 ## Calibration (fixture output, not a result)
@@ -87,16 +87,16 @@ Paired bootstrap by game, log loss difference (negative favours the first):
 
 | bin | lo | hi | n | mean_p | mean_y |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 0.00 | 0.10 | 2 | 0.0200 | 0.5000 |
-| 1 | 0.10 | 0.20 | 1 | 0.1365 | 0.0000 |
-| 2 | 0.20 | 0.30 | 1 | 0.2785 | 0.0000 |
-| 3 | 0.30 | 0.40 | 0 | - | - |
-| 4 | 0.40 | 0.50 | 54 | 0.4545 | 0.6481 |
-| 5 | 0.50 | 0.60 | 122 | 0.5748 | 0.5574 |
-| 6 | 0.60 | 0.70 | 18 | 0.6055 | 0.6667 |
-| 7 | 0.70 | 0.80 | 31 | 0.7224 | 0.4839 |
+| 0 | 0.00 | 0.10 | 4 | 0.0200 | 0.2500 |
+| 1 | 0.10 | 0.20 | 0 | - | - |
+| 2 | 0.20 | 0.30 | 0 | - | - |
+| 3 | 0.30 | 0.40 | 8 | 0.3900 | 0.6250 |
+| 4 | 0.40 | 0.50 | 34 | 0.4568 | 0.6765 |
+| 5 | 0.50 | 0.60 | 128 | 0.5551 | 0.5547 |
+| 6 | 0.60 | 0.70 | 32 | 0.6318 | 0.5312 |
+| 7 | 0.70 | 0.80 | 22 | 0.7413 | 0.5909 |
 | 8 | 0.80 | 0.90 | 0 | - | - |
-| 9 | 0.90 | 1.00 | 2 | 0.9800 | 0.5000 |
+| 9 | 0.90 | 1.00 | 3 | 0.9800 | 0.6667 |
 
 ## Held-out score (scored once by the selected candidate refit on all 231 training rows) (fixture output, not a result)
 
@@ -106,7 +106,7 @@ Paired bootstrap by game, log loss difference (negative favours the first):
 | --- | --- | --- | --- | --- |
 | location_logistic | 0.7084 | 0.2568 | 0.1554 | 0.7924 |
 
-Point estimates.
+Point estimates, with the game bootstrap below.
 
 ### location_logistic (held-out, scored once)
 
@@ -145,7 +145,7 @@ xfg_predictions (docs/contract/xfg.md): not written (no --out)
 - The shooter prior is the smoothed (m = 20) make rate by (player_id, zone) from the fitting rows only, out-of-fold by game for the rows being fitted; zones are rim (under 4 ft), paint (under 14 ft), mid, corner3, above3.
 - Selection is by out-of-fold log loss alone; ECE under 0.02 is a target reported, not a selection rule.
 - The isotonic map of the boosting candidate is bounded to [0.02, 0.98] so a sparse calibration set cannot emit exact 0 or 1.
-- Held-out rows get a prediction from every refit candidate (each scored once) so the output table is complete; only the selected candidate's held-out score is reported.
+- Held-out rows are scored once, by the selected candidate refit on all training rows; in xfg_predictions their p_location and p_contest are NaN unless that candidate is the selected one.
 - Bootstrap intervals are 2.5 and 97.5 percentiles over whole-game resamples; with one held-out game no interval is meaningful.
 
 ## The real run on the Mac

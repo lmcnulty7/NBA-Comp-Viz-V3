@@ -130,10 +130,13 @@ def fixture_paths(root) -> dict:
             "analytics": str(root / "analytics"), "collect": str(root / "collect"), "labels": str(root / "labels")}
 
 
+NAME_SUFFIXES = ("son", "sen", "sson", "berg", "stad", "vik", "holm", "dal")
+
+
 def _last_name(i: int) -> str:
-    """Unique last names beyond the 26 base ones: 'One', ..., 'Twentysix', 'Oneone', 'Twoone', ..."""
+    """Unique last names beyond the 26 base ones: 'One', ..., 'Twentysix', 'Oneson', 'Twoson', ..., 'Onesen', ..."""
     base = LAST_NAMES[i % len(LAST_NAMES)]
-    return base if i < len(LAST_NAMES) else base + LAST_NAMES[i // len(LAST_NAMES) - 1].lower()
+    return base if i < len(LAST_NAMES) else base + NAME_SUFFIXES[(i // len(LAST_NAMES) - 1) % len(NAME_SUFFIXES)]
 
 
 def synth_league(seed: int, n_teams: int = 6) -> dict:
@@ -1346,9 +1349,10 @@ def synth_stints(seed: int, n_games: int = 20, seasons=("2020-21",), n_players_p
             boundaries = [0.0]
             while boundaries[-1] < 2880.0:
                 boundaries.append(min(2880.0, boundaries[-1] + float(rs.uniform(60, 240))))
-            cur = {home_tid: sorted(rs.choice(players[home_tid], 5, replace=False).tolist()),
-                   away_tid: sorted(rs.choice(players[away_tid], 5, replace=False).tolist())}
-            starters = {tid: list(v) for tid, v in cur.items()}
+            # the starting five is the first five of the roster all season (the pair of the interaction effect
+            # is among them), so starting lineups accumulate possessions across games
+            starters = {tid: sorted(players[tid][:5]) for tid in (home_tid, away_tid)}
+            cur = {tid: list(v) for tid, v in starters.items()}
             score = [0, 0]      # away, home
             ev_rows = []
 

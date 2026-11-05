@@ -5,8 +5,12 @@
 Unit: one defender at one sampled frame of a possession. The 25 Hz frames (section 4) are sampled every
 STRIDE = 5 frames (DT = 0.2 s) from the possession's start_frame; a possession (section 19) is used when
 gap is false, offense_team_id is set, every sampled frame holds the ten players of the first sampled frame
-split five and five by team, and the ball is present; the sequence is cut at the first sampled frame that
-breaks this, and sequences shorter than MIN_STEPS steps are dropped (counts are returned).
+split five and five by team, the ball is present, and consecutive sampled frames are exactly STRIDE frame
+ids apart with a game clock that advances by at most DT + CLOCK_TOL_S (ids are contiguous after the Step 1
+dedupe, so a source gap shows as a clock jump; a stopped clock with frames still flowing is a dead ball
+and allowed); the sequence is cut at the first sampled frame that breaks this (a dropped frame inside a
+possession is never sampled as 0.2 s), and sequences shorter than MIN_STEPS
+steps are dropped (cut and skip counts are returned per game).
 
 Assignment: for each defender, the nearest offensive player at the possession's first sampled frame
 (defender-centric nearest, so two defenders may share an assignment; no one-to-one matching).
@@ -66,6 +70,8 @@ HORIZON_STEPS = {0.2: 1, 1.0: 5}
 BASKETS = np.array([[5.25, 25.0], [88.75, 25.0]])
 MID_X = 47.0
 SHOT_CLOCK_S = 24.0
+CLOCK_TOL_S = 0.5 * DT              # a sampled step whose clock advances by more than DT + this cuts the sequence
+                                    # (a smaller step is a stopped clock with frames still flowing, allowed)
 
 OFF_XY = [f"off{i}_{a}" for i in range(1, 6) for a in ("x", "y")]
 ODEF_XY = [f"odef{j}_{a}" for j in range(1, 5) for a in ("x", "y")]
@@ -102,13 +108,15 @@ def window_columns(n_lags: int = N_LAGS) -> list[str]:
 
 # ----------------------------------------------------------------------------- the feature function
 
-def base_features(ctx: np.ndarray, def_xy: np.ndarray, def_back: np.ndarray) -> np.ndarray:
+def base_features(ctx: np.ndarray, def_xy: np.ndarray, def_back: np.ndarray, back_s=VEL_STEPS * DT) -> np.ndarray:
     """F as of one step for n rows: ctx (n, len(CTX_COLUMNS)) holds the state of everything except the
-    defender, def_xy (n, 2) the defender's position at that step, def_back (n, 2) its position VEL_STEPS
-    steps earlier. Returns (n, len(BASE_FEATURES)) in BASE_FEATURES order."""
+    defender, def_xy (n, 2) the defender's position at that step, def_back (n, 2) its position back_s
+    seconds earlier (VEL_STEPS steps, or fewer at the sequence start; scalar or (n,) array, floor DT).
+    Returns (n, len(BASE_FEATURES)) in BASE_FEATURES order."""
     ctx = np.asarray(ctx, dtype=float)
     def_xy = np.asarray(def_xy, dtype=float).reshape(-1, 2)
     def_back = np.asarray(def_back, dtype=float).reshape(-1, 2)
+    back_s = np.maximum(np.asarray(back_s, dtype=float), DT).reshape(-1, 1)
     n = len(ctx)
     cols = []
     cols.append(ctx[:, [_C["asg_x"], _C["asg_y"]]] - def_xy)
@@ -122,7 +130,7 @@ def base_features(ctx: np.ndarray, def_xy: np.ndarray, def_back: np.ndarray) -> 
     basket = BASKETS[right.astype(int)]
     cols.append(np.linalg.norm(ball - basket, axis=1).reshape(n, 1))
     cols.append(np.linalg.norm(def_xy - basket, axis=1).reshape(n, 1))
-    cols.append((def_xy - def_back) / (VEL_STEPS * DT))
+    cols.append((def_xy - def_back) / back_s)
     cols.append(def_xy)
     cols.append(ctx[:, [_C["shot_clock_s"], _C["elapsed_s"]]])
     cols.append(right.reshape(n, 1))
@@ -146,9 +154,14 @@ def _possession_arrays(sub: pd.DataFrame, offense_team_id: int, start_clock: flo
     gc = sub["game_clock_s"].to_numpy(dtype=float)
     period = sub["period"].to_numpy()
     lineup = None
+    cut = ""
     O, D, B, S, G, FR, P = [], [], [], [], [], [], []
     for s0, n in zip(starts, sizes):
         if n != 10:
+            cut = "lineup"
+            break
+        if FR and (fr[s0] != FR[-1] + STRIDE or (G[-1] - gc[s0]) > DT + CLOCK_TOL_S):
+            cut = "frame_gap"              # a dropped frame or a clock jump inside the possession: never sampled as 0.2 s
             break
         ids = pid[s0:s0 + 10]
         if lineup is None:
@@ -157,8 +170,10 @@ def _possession_arrays(sub: pd.DataFrame, offense_team_id: int, start_clock: flo
                 return None, "first frame without five on five"
             lineup, off_mask = ids.copy(), off.copy()
         elif not np.array_equal(ids, lineup):
+            cut = "lineup"
             break
         if not np.all(np.isfinite(ball[s0, :2])):
+            cut = "ball"
             break
         O.append(xy[s0:s0 + 10][off_mask])
         D.append(xy[s0:s0 + 10][~off_mask])
@@ -170,20 +185,22 @@ def _possession_arrays(sub: pd.DataFrame, offense_team_id: int, start_clock: flo
     if len(FR) < MIN_STEPS:
         return None, "shorter than %d steps" % MIN_STEPS
     T = len(FR)
+    cut_frames = int(fr[starts[len(FR)]]) if len(FR) < len(starts) else -1   # first sampled frame not used
     O, D, B = np.stack(O), np.stack(D), np.stack(B)
     elapsed = float(start_clock) - np.asarray(G, dtype=float)
     elapsed = np.where(np.isfinite(elapsed), elapsed, np.arange(T) * DT)
     S = np.asarray(S, dtype=float)
     S = np.where(np.isfinite(S), S, np.maximum(SHOT_CLOCK_S - elapsed, 0.0))
     return {"O": O, "D": D, "B": B, "shot_clock": S, "elapsed": elapsed, "game_clock": np.asarray(G, dtype=float),
-            "frame": np.asarray(FR), "period": np.asarray(P), "off_ids": lineup[off_mask], "def_ids": lineup[~off_mask]}, ""
+            "frame": np.asarray(FR), "period": np.asarray(P), "off_ids": lineup[off_mask], "def_ids": lineup[~off_mask],
+            "cut": cut, "cut_frame": cut_frames}, ""
 
 
 def build_panel_game(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_game: str) -> tuple[pd.DataFrame, dict]:
     """The 5 Hz defender panel of one game -> (panel, counts). Rows are contiguous per (possession, def_slot)
     and ordered by step."""
     counts = {"possessions": int(len(possessions)), "used": 0, "skipped_gap": 0, "skipped_no_offense": 0,
-              "skipped_short": 0, "skipped_lineup": 0, "steps": 0}
+              "skipped_short": 0, "skipped_lineup": 0, "cut_frame_gap": 0, "cut_lineup": 0, "cut_ball": 0, "steps": 0}
     f = frames.sort_values(["frame", "player_id"], kind="stable")
     fcol = f["frame"].to_numpy()
     blocks = []
@@ -201,6 +218,8 @@ def build_panel_game(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_ga
             counts["skipped_short" if "short" in why else "skipped_lineup"] += 1
             continue
         O, D, B, T = arr["O"], arr["D"], arr["B"], len(arr["frame"])
+        if arr["cut"]:
+            counts["cut_" + arr["cut"]] += 1
         d0 = np.linalg.norm(D[0][:, None, :] - O[0][None, :, :], axis=2)
         asg = d0.argmin(axis=1)
         for d in range(5):
@@ -242,17 +261,18 @@ def build_panel(games: list[dict]) -> tuple[pd.DataFrame, dict]:
 # ----------------------------------------------------------------------------- the feature frame
 
 def panel_features(panel: pd.DataFrame) -> np.ndarray:
-    """F(s) for every panel row (n, len(BASE_FEATURES)); the 0.4 s back position is edge padded at the
-    sequence start (rows are contiguous per sequence with step counting from 0)."""
+    """F(s) for every panel row (n, len(BASE_FEATURES)); at the sequence start the velocity is over the steps
+    that exist, min(step, VEL_STEPS) * DT with a floor of DT (rows are contiguous per sequence with step
+    counting from 0)."""
     n = len(panel)
     if n == 0:
         return np.zeros((0, len(BASE_FEATURES)))
     step = panel["step"].to_numpy()
     idx = np.arange(n)
-    back = idx - np.minimum(step, VEL_STEPS)
+    nback = np.minimum(step, VEL_STEPS)
     ctx = panel[CTX_COLUMNS].to_numpy(dtype=float)
     dxy = panel[["def_x", "def_y"]].to_numpy(dtype=float)
-    return base_features(ctx, dxy, dxy[back])
+    return base_features(ctx, dxy, dxy[idx - nback], back_s=nback * DT)
 
 
 def feature_frame(panel: pd.DataFrame, n_lags: int = N_LAGS) -> pd.DataFrame:
@@ -305,7 +325,8 @@ def build(games: list[dict]) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
 def parse_args(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     V.add_input_args(ap)
-    ap.add_argument("--out", help="OUT_ROOT: write ghost_features/<season>/<game>.parquet there (held-out under heldout/)")
+    ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT): write analytics/ghosting/<season>/ghost_features_<game>.parquet there "
+                                  "(held-out under analytics/ghosting/heldout/<season>/)")
     return ap.parse_args(argv)
 
 
@@ -324,10 +345,10 @@ def main(argv=None) -> dict:
         print("| %s | %s | %d | %d | %d | %d | %d | %d | %d | %d |" % (
             g["sportvu_game"], g["heldout"], c["possessions"], c["used"], c["skipped_gap"], c["skipped_no_offense"],
             c["skipped_short"], c["skipped_lineup"], c["steps"], int(rows_by_game.get(g["sportvu_game"], 0))))
-    if a.out:
+    out_root = a.out or a.data
+    if out_root:
         for g in games:
-            p = schema.table_path(Path(a.out), "states_1hz", V.SEASON, g["sportvu_game"], heldout=g["heldout"])
-            p = Path(str(p).replace("states_1hz", "ghost_features"))
+            p = V.output_path(out_root, "ghost_features", g["sportvu_game"], g["heldout"], V.SEASON)
             p.parent.mkdir(parents=True, exist_ok=True)
             frame[frame["sportvu_game"] == g["sportvu_game"]].to_parquet(p, index=False)
             print("wrote", p)

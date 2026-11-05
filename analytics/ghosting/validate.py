@@ -4,7 +4,6 @@
 
 Inputs per game (DATA_ROOT layout on the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet            frames, docs/DATA_CONTRACT.md section 4
-    DATA_ROOT/sportvu_contract/<game>_pbp.parquet        play-by-play, section 5 (read only to count rows)
     DATA_ROOT/analytics/possessions/2015-16/<game>.parquet   section 19
     DATA_ROOT/analytics/rosters/2015-16/<game>.parquet       section 16 (optional for ghosting)
 Held-out games live under sportvu_contract/heldout/ and analytics/<table>/heldout/2015-16/; a game is
@@ -27,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import inspect
 import json
 import logging
 import sys
@@ -117,6 +117,17 @@ def validate_game(game: dict) -> dict:
     return rep
 
 
+# ----------------------------------------------------------------------------- output paths
+
+def output_path(out_root, table: str, sportvu_game: str, heldout: bool, season: str = SEASON) -> Path:
+    """OUT_ROOT/analytics/ghosting/<season>/<table>_<game>.parquet, held-out under
+    OUT_ROOT/analytics/ghosting/heldout/<season>/ (the repo convention; OUT_ROOT defaults to DATA_ROOT)."""
+    base = Path(out_root) / "analytics" / "ghosting"
+    if heldout:
+        base = base / "heldout"
+    return base / season / ("%s_%s.parquet" % (table, sportvu_game))
+
+
 # ----------------------------------------------------------------------------- loaders
 
 def _fixture_module():
@@ -136,10 +147,10 @@ def _fixture_module():
 def fixture_games(seed: int = 0, n_games: int = 4, n_possessions: int = 10, heldout_every: int = 0) -> list[dict]:
     """Synthetic games as game dicts (sportvu_game, heldout, frames, possessions, rosters)."""
     fx = _fixture_module()
-    try:
-        season = fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
-    except TypeError:                       # the shared generator may not take n_possessions
-        season = fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    kw = {"n_games": n_games, "heldout_every": heldout_every}
+    if "n_possessions" in inspect.signature(fx.synth_season).parameters:
+        kw["n_possessions"] = n_possessions
+    season = fx.synth_season(seed, **kw)
     out = []
     for i, g in enumerate(season):
         meta = g.get("meta") or {}
@@ -162,16 +173,20 @@ def iter_data_root(data_root, season: str = SEASON) -> list[dict]:
             if p.name.endswith("_pbp.parquet"):
                 continue
             gid = p.stem
-            heldout = held or is_heldout_id(gid)
+            heldout = held or is_heldout_id(gid) or "heldout" in p.parts
             pp = schema.table_path(root / "analytics", "possessions", season, gid, heldout=heldout)
             if not pp.exists():
                 pp2 = schema.table_path(root / "analytics", "possessions", season, gid, heldout=not heldout)
                 if pp2.exists():
-                    pp, heldout = pp2, heldout or is_heldout_id(gid)
+                    pp = pp2
                 else:
                     log.warning("%s: no possessions table at %s, skipped", gid, pp)
                     continue
+            heldout = heldout or "heldout" in pp.parts
             rp = schema.table_path(root / "analytics", "rosters", season, gid, heldout=heldout)
+            if not rp.exists():
+                rp = schema.table_path(root / "analytics", "rosters", season, gid, heldout=not heldout)
+            heldout = heldout or (rp.exists() and "heldout" in rp.parts)
             out.append({"sportvu_game": gid, "heldout": heldout, "frames": pd.read_parquet(p),
                         "possessions": pd.read_parquet(pp), "rosters": pd.read_parquet(rp) if rp.exists() else None,
                         "source": str(p)})

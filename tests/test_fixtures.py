@@ -133,6 +133,9 @@ def test_shot_physics(game, per_frame):
     first, pos = per_frame
     sf = game["shot_frames"]
     assert (sf["release_frame"] >= 0).all() and (sf["confidence_flag"] == "high").all()
+    # confidence by the section 17 localiser's formula (identity always true here)
+    expect = 1.0 - np.minimum(1.0, np.abs((sf["apex_frame"] - sf["release_frame"]) - 25) / 25.0)
+    assert np.allclose(sf["confidence"], expect, atol=1e-6) and (sf["confidence"] >= 0.6).all()
     for r in sf.itertuples(index=False):
         rel, apex, out = int(r.release_frame), int(r.apex_frame), int(r.outcome_frame)
         assert rel < apex < out
@@ -158,7 +161,10 @@ def test_rebound_physics(game, per_frame):
     rb = game["rebound_frames"]
     sf = game["shot_frames"].set_index("event")
     ev = game["events"].set_index("event")
-    assert (rb["rebound_frame"] >= 0).all() and rb["identity_match"].all()
+    assert (rb["rebound_frame"] >= 0).all() and rb["identity_match"].all() and (rb["confidence_flag"] == "high").all()
+    expect = 1.0 - np.minimum(1.0, (rb["rebound_frame"] - rb["rim_frame"]) / 75.0)
+    assert np.allclose(rb["confidence"], expect, atol=1e-6) and (rb["confidence"] >= 0.5).all()
+    assert rb["rebounder_id"].notna().all() and rb["pbp_rebounder_id"].notna().all()
     assert set(rb["event"]) == set(sf.index[~sf["made"]])
     for r in rb.itertuples(index=False):
         assert int(r.rim_frame) == int(sf.loc[r.event, "outcome_frame"])
@@ -300,6 +306,12 @@ def test_deterministic_by_seed(game_small):
     other = fixtures.synth_game(8, n_possessions=16)
     assert not game_small["frames"]["x"].equals(other["frames"]["x"])
     assert game_small["meta"]["sportvu_game"] != other["meta"]["sportvu_game"]
+    # ids of a game drawn on its own: unique across seeds, no modulus
+    assert not (set(game_small["rosters"]["player_id"]) & set(other["rosters"]["player_id"]))
+    assert game_small["meta"]["home_team_id"] == fixtures.TEAM_ID_BASE + 1 + 2 * 7
+    assert game_small["rosters"]["player_id"].min() == fixtures.PLAYER_ID_BASE + 20 * 7
+    big = fixtures.synth_game(2500, n_possessions=4)
+    assert big["meta"]["home_team_id"] == fixtures.TEAM_ID_BASE + 1 + 5000 and big["rosters"]["player_id"].min() == 9000 + 50000
 
 
 def test_game_ids_and_heldout(game_small):
@@ -347,6 +359,25 @@ def test_season_heldout_rule():
     for gid in ids:
         assert gid.split(".")[2] in ("2015", "2016") and _date_of(gid) >= "2015-10-27" and _date_of(gid) <= "2016-04-13"
     mixed = fixtures.synth_season(3, n_games=4, heldout_every=2, n_possessions=4)
+    # one league all season: a code maps to one team id and one roster everywhere
+    league = fixtures.synth_league(3)
+    assert len(league["codes"]) == 6 and set(league["codes"]) <= set(fixtures.TEAM_CODES)
+    assert set(league["teams"]) == set(league["codes"]) | set(fixtures.HELDOUT_CODES)
+    seen_team, seen_roster = {}, {}
+    for g in mixed + plain:
+        for code, tid in g["rosters"].drop_duplicates("team")[["team", "team_id"]].itertuples(index=False):
+            assert tid == league["teams"][code] == fixtures.LEAGUE_TEAM_ID_BASE + fixtures.LEAGUE_CODES.index(code)
+            ids = tuple(g["rosters"].loc[g["rosters"]["team"] == code, "player_id"])
+            assert ids == tuple(r["player_id"] for r in league["rosters"][code])
+            seen_team.setdefault(code, tid); seen_roster.setdefault(code, ids)
+            assert seen_team[code] == tid and seen_roster[code] == ids
+        assert g["meta"]["league_seed"] == 3
+    names = [r["player"] for c in league["rosters"] for r in league["rosters"][c]]
+    assert len(set(n.split()[1] for n in names)) == len(names)      # unique last names across the league
+    own = fixtures.synth_game(3000, n_possessions=4)
+    assert own["rosters"]["player_id"].min() >= fixtures.PLAYER_ID_BASE and own["rosters"]["player_id"].max() < fixtures.LEAGUE_PLAYER_ID_BASE
+    other_league = fixtures.synth_league(4)["teams"]
+    assert all(other_league[c] == league["teams"][c] for c in other_league if c in league["teams"])   # ids fixed per code
     flags = [g["meta"]["heldout"] for g in mixed]
     assert flags == [False, True, False, True]
     assert mixed[1]["meta"]["sportvu_game"] == fixtures.HELDOUT_GAME
@@ -354,6 +385,8 @@ def test_season_heldout_rule():
     assert mixed[3]["meta"]["sportvu_game"].endswith(".at.CLE") and mixed[3]["meta"]["split"] == "heldout_arena"
     assert len({g["meta"]["sportvu_game"] for g in mixed}) == 4
     pd.testing.assert_frame_equal(mixed[0]["frames"], plain[0]["frames"])  # per-game seeds do not depend on the rule
+    with pytest.raises(ValueError):
+        fixtures.synth_game(1, n_possessions=4, sportvu_game="01.02.2016.ZZZ.at.ABQ", teams=league["teams"], rosters=league["rosters"])
 
 
 def _date_of(gid):
@@ -382,6 +415,15 @@ def test_aggregates_and_positions():
     assert set(ppp["play_type"]) == set(fixtures.PLAY_TYPES) and ppp["value"].between(0.3, 1.8).all()
     agg2, _ = fixtures.synth_aggregates(1, n_players=30, seasons=("2015-16",))
     pd.testing.assert_frame_equal(agg, agg2)
+    # built on rosters: the same players and team ids as the games, archetype from the roster slot
+    games = fixtures.synth_season(1, n_games=2, n_possessions=4)
+    ros = pd.concat([g["rosters"] for g in games], ignore_index=True).drop_duplicates("player_id")
+    agg3, pos3 = fixtures.synth_aggregates(1, seasons=("2015-16",), players=ros)
+    assert set(agg3["player_id"]) == set(ros["player_id"]) and set(agg3["team_id"]) == set(ros["team_id"])
+    assert set(agg3["team_abbreviation"]) == set(ros["team"]) and len(pos3) == len(ros)
+    slot = ros.groupby("team_id").cumcount()
+    want = slot.map(lambda k: fixtures.POSITION_OF[fixtures.SLOT_ARCHETYPE[int(k)]])
+    assert list(pos3.set_index("player_id").loc[ros["player_id"], "position"]) == list(want)
 
 
 def test_stints_playbyplay_games():
@@ -409,6 +451,21 @@ def test_stints_playbyplay_games():
         assert (subs["desc"].str.contains("enters the game for")).all()
     assert (games["home_win"] == (games["home_score"] > games["away_score"])).all()
     assert "spread_home" in games.columns and games["spread_home"].dtype == "Float32"
+    assert games["game_date"].is_monotonic_increasing and games["game_date"].iloc[0] == "2020-11-01"
+    assert set(games["home_team"]) <= set(fixtures.TEAM_CODES[6:12])
+    # starting lineups return: the busiest lineup of the season carries well over 100 possessions
+    poss = stints.groupby("home_ids")["duration_s"].sum() / 14.5
+    assert poss.max() >= 100
+    # built on the games' rosters: the same players and team ids
+    season = fixtures.synth_season(2, n_games=3, n_possessions=4)
+    ros = pd.concat([g["rosters"] for g in season], ignore_index=True).drop_duplicates("player_id")
+    st2 = fixtures.synth_stints(2, n_games=3, players=ros)
+    assert set(st2["games"]["home_team_id"]) | set(st2["games"]["away_team_id"]) <= set(ros["team_id"])
+    on = set(st2["stints"][["home_%d" % i for i in range(1, 6)] + ["away_%d" % i for i in range(1, 6)]].to_numpy().ravel())
+    assert on <= set(ros["player_id"])
+    assert (st2["playbyplay"].loc[st2["playbyplay"]["kind"] == "shot_made", "player1_id"].isin(ros["player_id"])).all()
+    odds2 = fixtures.synth_odds(2, st2["games"])
+    assert set(odds2["home_team"]) <= {fixtures.TEAM_NAMES[c] for c in ros["team"]}
     pbp_cols = {"game", "event", "period", "clock_s", "team", "desc", "points", "score", "kind", "frame", "game_id",
                 "split", "heldout", "season_type", "game_date", "event_id", "event_type", "player1_id", "player2_id",
                 "player3_id", "team_id", "clock_str", "source", "endpoint", "season", "fetched_at"}
@@ -432,6 +489,10 @@ def test_odds():
         home_line = key[key["side"] == key["home_team"]]["point"].median()
         assert abs(float(home_line) - float(g.spread_home)) <= 1.5
     assert odds["price"].dtype == "int32" and (odds["price"].abs() >= 100).all()
+    opens = odds[~odds["is_close"]]
+    assert (opens["snapshot_at"].str[:10] < opens["game_key"].str[:10]).all()      # opened the day before
+    closes = odds[odds["is_close"]]
+    assert (closes["snapshot_at"] < closes["commence_time"]).all()
     assert odds["game_key"].str.match(r"^\d{4}-\d{2}-\d{2}_\w+_\w+$").all()
 
 
@@ -501,8 +562,20 @@ def test_write_fixture_root(tmp_path):
     sv = tmp_path / "sportvu_contract"
     assert json.loads((sv / "manifest.json").read_text()) == man
     assert man["paths"] == fixtures.fixture_paths(tmp_path) and Path(man["paths"]["manifest"]) == sv / "manifest.json"
+    from sportvu import colab_contract as cc, splits
+    sp = splits.load()
     for gid, e in man["games"].items():
         assert e["heldout"] == (fixtures.split_for(gid) != "train") and e["split"] == fixtures.split_for(gid)
+        real = cc.split_of({"game": gid, "home": e["home"]}, sp)
+        assert cc.is_heldout(real) == e["heldout"] and (real is None or real == e["split"])
+    # one league: every family shares the games' players and team ids
+    ros = pd.concat([pd.read_parquet(schema.table_path(tmp_path / "analytics", "rosters", "2015-16", gid, e["heldout"]))
+                     for gid, e in man["games"].items()])
+    agg = pd.read_parquet(tmp_path / "collect" / "tracking" / "aggregates" / "2015-16.parquet")
+    st = pd.read_parquet(tmp_path / "collect" / "stints" / "stints" / "2020-21.parquet")
+    assert set(agg["player_id"]) == set(ros["player_id"])
+    assert set(st["home_1"]) <= set(ros["player_id"])
+    assert ros.groupby("team")["team_id"].nunique().eq(1).all() and ros.groupby("team_id")["team"].nunique().eq(1).all()
     assert man["counts"] == {"games": 3, "ok": 3, "failed": 0, "source_broken": 0, "pbp_joined": 3, "heldout": 1}
     assert man["heldout"] == [fixtures.HELDOUT_GAME] and man["contract_version"] == 1
     for gid, e in man["games"].items():

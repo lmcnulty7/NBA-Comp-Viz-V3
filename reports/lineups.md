@@ -1,8 +1,8 @@
 # Lineup synergy and stints (analytics/lineups)
 
-Written 2026-11-05T08:42:11Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
+Written 2026-11-05T09:05:19Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
 
-**This run used the synthetic fixture (tests/_fx_lineups.synth_stints). Every number below is fixture output, not a result.** The real run is the Mac command at the end.
+**This run used the synthetic fixture generator tests._fx_lineups._fallback_synth_stints. Every number below is fixture output, not a result.** The real run is the Mac command at the end.
 
 ## Inputs (fixture output, not a result)
 
@@ -43,7 +43,9 @@ Mean validation Spearman: plus_minus 0.624, rapm 0.576, rapm_synergy 0.576. Sele
 | from | to | lineups | Pearson | Spearman |
 | --- | --- | --- | --- | --- |
 | 2020-21 | 2021-22 | 10 | 0.606 | 0.624 |
-| 2021-22 | 2022-23 | 6 | 0.831 | 0.829 |
+| 2021-22 | 2022-23 (held-out season: descriptive, scored once below, not used for selection) | 6 | 0.831 | 0.829 |
+
+Seasons later than the held-out season are not in this table; the held-out row is labelled.
 
 ## Held-out season, scored once (fixture output, not a result)
 

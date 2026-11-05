@@ -16,13 +16,16 @@ Nothing in this lane reads the network or writes raw data into the repository.
 
 Join rule:
 
-1. `shots` to `shot_frames` by (`sportvu_game`, `event`). A shots table without an `event` column (basketball-reference
-   rows carry a null `event_id`) is matched by (`sportvu_game`, `period`) and nearest `clock_s` within 1.0 s, each
-   shot_frames row used at most once; unmatched attempts get no contest features. The count is logged.
+1. `shots` to `shot_frames` by (`sportvu_game`, `event`) when the shots table carries the section 5 `event` index. A
+   shots table without one (basketball-reference rows, which is every real run) is matched by clock: every shot_frames
+   row of the same (`sportvu_game`, `period`) with |`clock_s` difference| <= 1.0 s is a candidate, candidates are
+   assigned in order of clock distance, each attempt and each shot_frames row at most once (an attempt and its putback
+   0.8 s later each get their own row). An attempt with no match carries `event` -1. NBA.com `event_id`
+   (GAME_EVENT_ID) is not the section 5 page-order index and is never used as one. The match count is logged.
 2. The matched row gives `release_frame` and the shooter (`shooter_id`, else the shots `player_id`, else
-   `shooter_at_release_id`). An attempt with `release_frame` -1, `confidence_flag` `unmatched`, no shot_frames row, or a
-   shooter absent from the release frame keeps its location features and gets null contest features with
-   `has_contest` 0.
+   `shooter_at_release_id`). An attempt with `release_frame` -1 (section 17: that is what `confidence_flag`
+   `unmatched` means; the flag itself is not read), no shot_frames row (`event` -1), or a shooter absent from the
+   release frame keeps its location features and gets null contest features with `has_contest` 0.
 3. The release frame and the frames before it (10 for speeds, up to 250 for the touch) are read from the frames table
    of the same game, one game at a time (a season of frames does not fit in memory).
 
@@ -35,7 +38,8 @@ matrix (`FORBIDDEN` = `schema.ALL_EXCLUDED` plus `made`, `points`, `score`, `out
 ## 2. Validation (`analytics.xfg.validate`)
 
 `schema.validate` on shot_frames, rosters and possessions; column and range checks on frames, play-by-play and shots:
-court 0 to 94 by 0 to 50 ft (`x`, `y`, `ball_x`, `ball_y`), clocks 0 to 720 s, shot clock 0 to 24 s or null, shot
+the ball inside the court (`ball_x` 0 to 94, `ball_y` 0 to 50 ft), players within a 5 ft margin of it (they step out
+of bounds), clocks 0 to 720 s, shot clock 0 to 24 s or null, shot
 location inside the half court (`loc_x` -250 to 250, `loc_y` -55 to 420 tenths of a foot). Rows failing a range check
 or a non-nullable column are dropped; duplicates (frames by `game, frame, player_id`; shots and shot_frames by
 `sportvu_game, event`; rosters by `sportvu_game, player_id`; possessions by `sportvu_game, possession`) keep the first
@@ -54,7 +58,8 @@ row. Rows in and out and every drop are logged and written to `OUT_ROOT/analytic
 | `dribbles_proxy` | local minima of ball z under 2 ft strictly inside the touch window |
 | `shot_clock_s` | shot clock at the release frame (null when the source has none) |
 | `has_contest` | 1 when the contest features were measured, else 0 |
-| `period`, `clock_s` | the attempt's period and logged game clock (shots table) |
+| `period` | the attempt's period (shots table) |
+| `clock_s` | the game clock at the release frame when `has_contest` is 1, else the logged clock of the shots table (about 1 s after the release) |
 | `shooter_prior` (candidate 3 only) | the shooter's smoothed make rate in the attempt's zone, computed only from fitting rows, out-of-fold by game for the rows being fitted: `(makes + 20 * zone_rate) / (n + 20)`; zones rim (under 4 ft), paint (under 14 ft), mid, corner3, above3 |
 
 Frame rate 25 Hz; a window that crosses a period, has a frame gap or fewer than 2 frames gives null speeds.
@@ -73,8 +78,8 @@ intervals by game (`bootstrap_by_game`; the slope resamples use a Newton solve o
 bootstrap by game of candidate 3 against 1 and 2 against 1 on log loss (`paired_bootstrap_by_game`). Rows whose
 `heldout` flag is true, whose game is under `heldout/`, or whose game id carries a held-out token of
 `sportvu/splits.json` (or the CLE arena) are set aside before any fit; `analytics.eval.refuse_heldout` runs on the
-training game ids and again inside every fit. Held-out rows are scored once by the candidates refit on every
-training row; the reported held-out score is the selected candidate's. Fewer games than folds: leave-one-game-out;
+training game ids and again inside every fit. Held-out rows are scored once, by the selected candidate alone, refit
+on every training row; no other candidate is refit or scores them. Fewer games than folds: leave-one-game-out;
 one training game: the trainer stops.
 
 ## 5. Output table: `xfg_predictions`
@@ -85,18 +90,26 @@ held-out rows).
 | column | type | meaning |
 | --- | --- | --- |
 | `sportvu_game` | string | Step 1 game id |
-| `event` | int64 | play-by-play event index of the attempt (join key to shots and shot_frames) |
+| `event` | int64 | play-by-play event index of the attempt (join key to shots and shot_frames); -1 for an attempt that matched no shot_frames row (its location features and predictions are still present) |
 | `player_id` | Int64, nullable | the shooter |
-| `p_location` | float32 | probability from `location_logistic` |
-| `p_contest` | float32 | probability from `contest_logistic` |
-| `p_selected` | float32 | probability from the selected candidate (named in the report) |
+| `p_location` | float32, nullable | out-of-fold probability from `location_logistic` on a training row; on a held-out row NaN unless `location_logistic` is the selected candidate (then equal to `p_selected`) |
+| `p_contest` | float32, nullable | the same for `contest_logistic` |
+| `p_selected` | float32 | probability from the selected candidate (named in the report): out-of-fold on a training row, from the one refit on a held-out row |
 | `made` | bool | the target, carried for scoring downstream (never a feature) |
 | `fold` | int16 | the out-of-fold index of a training row; -1 for a held-out row |
-| `heldout` | bool | true for a held-out row (scored once by the refit candidates, never fitted on) |
+| `heldout` | bool | true for a held-out row (scored once by the selected candidate refit on all training rows, never fitted on) |
 
-For a training row every `p_*` is out-of-fold. For a held-out row every `p_*` comes from the candidate refit on all
-training rows. `OUT_ROOT` defaults to `DATA_ROOT` under `--data`; under `--fixtures` the table is written only with
-`--out`.
+Held-out rows are scored exactly once: only the selected candidate is refit, so the other two columns are NaN there.
+`OUT_ROOT` defaults to `DATA_ROOT` under `--data`; under `--fixtures` the table is written only with `--out`.
+
+Held-out membership and the `heldout` column (interface with the matchups lane and any consumer): a row is held out
+when its game is under `heldout/` on disk, when the collector wrote `heldout` true, or when its game id carries a
+held-out token of `sportvu/splits.json` or ends in the CLE arena (`.at.CLE`). The three are reconciled when the
+inputs are loaded, so the `heldout` column of this table is authoritative: a consumer that decides training rows
+must read it (and `fold` -1) rather than re-derive membership from the id alone. For that to be consistent, every
+held-out game must also be expressible by id: either a splits.json token or the CLE arena, which is how
+`sportvu/splits.json` defines the held-out sets today; a game held out only by flag or directory would be invisible to
+an id-only check, and the contract requires that such a game never exists.
 
 Also written: `OUT_ROOT/analytics/xfg/<season>/xfg_features.parquet` (by `python -m analytics.xfg.features --out`),
 the feature frame of section 3 with the keys, `release_frame` and `zone`, and no label.
