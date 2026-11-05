@@ -1,6 +1,4 @@
 # Data frames and model artifacts are large / regenerable — keep them out of git.
-# analytics outputs derived from tracking data stay out of git (reports only)
-analytics/shot_frames/
 data/visibility/_unsorted/
 data/visibility/predicted/
 data/visibility/truth/
@@ -24,7 +22,6 @@ reports/viz/*.png
 models/*.joblib
 models/*.pkl
 models/emb_cache_*.pkl
-reports/viz/*.png
 reports/metrics.json
 reports/metrics.txt
 
@@ -96,7 +93,6 @@ data/triage/side/
 
 # third-party tracking data (FIX_PLAN): scripts committed, data never
 data/sportvu/
-data/external/
 
 # QC contact sheets (28 MB of jpg, regenerable: track_qc.py --sheets)
 reports/qc_sheets/
@@ -109,6 +105,5 @@ models/court_grid_r23.pt
 
 # collection-plan pulls (collect/): raw responses and parquet live on the Mac or Drive, never in git
 data/collect/
-analytics/rebound_frames/
-analytics/possessions/
+# rosters tables (analytics/rosters.py): derived from frames parquet on the Mac or Drive, never in git
 analytics/rosters/
