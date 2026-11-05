@@ -73,9 +73,21 @@ def season_of_game(game: str) -> str:
     return "%d-%02d" % (y, (y + 1) % 100)
 
 
-def select_games(manifest: dict, games: list[str] | None = None, limit: int | None = None):
+def routed_heldout(game: str, entry: dict | None = None, sp: dict | None = None) -> bool:
+    """Whether sportvu/splits.json (the routing every module uses) holds the game out."""
+    from sportvu import splits
+    from sportvu.colab_contract import is_heldout, split_of
+    home = (entry or {}).get("home") or game.rsplit(".", 1)[-1]
+    return is_heldout(split_of({"game": game, "home": home}, sp or splits.load()))
+
+
+def select_games(manifest: dict, games: list[str] | None = None, limit: int | None = None, sp: dict | None = None):
     """(eligible [(game, entry)], skipped {game: reason}) over the manifest, in manifest order (the Step 1 order:
-    training games first, then by date). Eligible: status ok and pbp_joined true."""
+    training games first, then by date). Eligible: status ok, pbp_joined true, and the manifest's heldout flag
+    agrees with sportvu/splits.json; a game whose flag disagrees is skipped, because the modules route by the
+    splits file and a game the manifest holds out must never land in a training folder."""
+    from sportvu import splits
+    sp = sp or splits.load()
     entries = manifest.get("games", {})
     skipped: dict[str, str] = {}
     wanted = list(games) if games else list(entries)
@@ -92,6 +104,10 @@ def select_games(manifest: dict, games: list[str] | None = None, limit: int | No
         elif not e.get("pbp_joined"):
             err = (e.get("pbp") or {}).get("error")
             skipped[g] = "no play-by-play (pbp_joined false%s)" % ((": " + str(err)[:120]) if err else "")
+        elif bool(e.get("heldout")) != routed_heldout(g, e, sp):
+            skipped[g] = ("manifest says heldout %s but sportvu/splits.json routes it to the %s folder: refusing to run "
+                          "a game whose held-out status is in doubt" % (
+                              bool(e.get("heldout")), "heldout/" if routed_heldout(g, e, sp) else "training"))
         else:
             eligible.append((g, e))
     if limit is not None:
@@ -607,10 +623,10 @@ def main(argv=None) -> int:
         ap.error("--workers must be at least 1")
     data = a.data
     if a.fixtures and not data:
-        sys.path.insert(0, str(ROOT / "tests"))
-        from _fx_phase0 import write_fixture_root
-        data = tempfile.mkdtemp(prefix="phase0_fixtures_")       # left in place so the outputs can be inspected
-        write_fixture_root(data)
+        from tests import _fx_phase0 as fx
+        tmp = tempfile.mkdtemp(prefix="phase0_fixtures_")        # left in place so the outputs can be inspected
+        fx.write_fixture_root(tmp)
+        data = str(fx.fixture_data_root(tmp))
         print("fixtures: synthetic DATA_ROOT written to %s" % data)
     if not data:
         ap.error("--data is required (or --fixtures)")

@@ -3,23 +3,26 @@
 Shared generators come from analytics.fixtures (lane I1) when that module exists; otherwise the local
 fallback below with the same signatures and column names is used. Both are deterministic given a seed.
 The local generator makes points per possession depend on the first action's type and coverage (a fixed
-expected-points table) plus a small lineup effect, so associations exist for the trainer to find.
+expected-points table) plus a small lineup effect, so associations exist for the trainer to find. It is
+also much faster (three frames per possession), so the tests run on it and check the shared module once.
 Every number derived from these tables is fixture output, not a result.
 
-Generators (shared signatures)
+Generators (shared signatures; the local versions carry the suffix _local)
     synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
         -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
     synth_season(seed, n_games=8, heldout_every=0) -> list of game dicts (every heldout_every-th game held out)
     synth_labels(seed, game) -> dict(actions, screens)
-    write_fixture_root(root, seed, n_games, heldout_every) -> root with the DATA_ROOT layout
+    write_fixture_root(root, seed, n_games, heldout_every) -> root with the DATA_ROOT layout plus the upstream
+        lane outputs (analytics/actions/<season>/actions_detected/<game>.parquet,
+        analytics/coverage/<season>/coverage_predictions.parquet, analytics/epv/<season>/<game>.parquet)
 
 Lane-local helpers (always local)
     synth_outputs(seed, game, labels) -> dict(actions_detected, coverage_predictions, epv_states)
-    season_inputs(seed=0, n_games=8, n_possessions=40, heldout_every=0, with_epv=True) -> the dict of
-        concatenated inputs analytics.playcalling.features.build_action_table consumes
+    season_inputs(seed=0, n_games=8, n_possessions=40, heldout_every=0, with_epv=True, shared=True)
+        -> the dict of concatenated inputs analytics.playcalling.features.build_action_table consumes
 
-Assumption: analytics.fixtures.synth_season returns a list of game dicts. If it returns something else the
-local generator is used instead (checked at call time), so these tests never depend on the shared module.
+Conventions shared with analytics/fixtures and analytics/coverage: action_id is the row's position within its
+game; screens carry it; only ball_screen actions carry a coverage; label_source "synthetic".
 """
 from __future__ import annotations
 
@@ -41,14 +44,15 @@ except ImportError:
 HELDOUT_GAME = "12.16.2015.PHX.at.GSW"      # the SportVU held-out game of sportvu/splits.json
 FRAMES_PER_POSSESSION = 3
 N_ROSTER = 8
+SEASON = "2015-16"
 
 # expected points per possession by the first action's type, then a coverage shift (fixture truth)
-_ACTION_EP = {"pick_and_roll": 1.06, "isolation": 0.84, "post_up": 0.90, "handoff": 1.00,
-              "off_ball_screen": 1.02, "spot_up": 1.12, "transition": 1.20, "cut": 1.15}
-_COVERAGE_EP = {"drop": 0.10, "switch": -0.08, "hedge": 0.00, "blitz": -0.12, "ice": 0.05, "under": 0.08, "none": 0.0}
-_SCREEN_ACTIONS = ("pick_and_roll", "handoff", "off_ball_screen")
-_ACTION_P = np.array([0.34, 0.12, 0.08, 0.12, 0.10, 0.12, 0.07, 0.05])
-_COVERAGE_P = np.array([0.35, 0.25, 0.15, 0.10, 0.10, 0.05])
+_ACTION_EP = {"ball_screen": 1.06, "handoff": 1.00, "off_ball_screen": 1.02, "isolation": 0.84, "post_up": 0.90, "drive": 1.12, "cut": 1.20}
+_COVERAGE_EP = {"switch": -0.08, "drop": 0.10, "hedge_show": 0.00, "blitz_trap": -0.12, "ice": 0.05, "under": 0.08, "over": -0.03, "none": 0.0}
+_SCREEN_ACTIONS = ("ball_screen",)
+_ACTION_P = np.array([0.40, 0.10, 0.10, 0.12, 0.08, 0.12, 0.08])
+_CLASSES = [c for c in COVERAGES if c != "none"]
+_COVERAGE_P = np.array([0.25, 0.30, 0.12, 0.08, 0.10, 0.08, 0.07])
 
 
 def _game_id(seed: int, heldout: bool) -> str:
@@ -109,36 +113,41 @@ def synth_game_local(seed: int, n_possessions: int = 40, heldout: bool = False, 
                                                              "score", "kind", "frame"]),
             "shots": pd.DataFrame(), "rosters": schema.cast(pd.DataFrame(roster_rows), "rosters"),
             "shot_frames": schema.empty("shot_frames"), "rebound_frames": schema.empty("rebound_frames"),
-            "possessions": possessions, "states_1hz": schema.empty("states_1hz"), "_seed": seed, "_heldout": heldout}
+            "possessions": possessions, "states_1hz": schema.empty("states_1hz"),
+            "meta": {"sportvu_game": game, "heldout": heldout, "season": SEASON, "seed": seed}}
 
 
 def synth_labels_local(seed: int, game: dict) -> dict:
-    """Hand labels: one or two actions per possession; points of the possession follow the first action."""
+    """Hand labels: one or two actions per possession (action_id = position within the game); the points of the
+    possession follow its first action's type and coverage plus a small lineup effect."""
     rng = np.random.default_rng(seed + 7919)
     poss = game["possessions"]
     gid = str(poss["sportvu_game"].iloc[0])
     actions, screens = [], []
     points = np.zeros(len(poss), dtype=int)
     kinds = []
+    action_id = 0
     for i, row in enumerate(poss.itertuples(index=False)):
         n_actions = 1 if rng.uniform() < 0.7 else 2
         first = None
+        off_lu = list(row.fx_off_lineup)
         for a in range(n_actions):
             at = ACTION_TYPES[rng.choice(len(ACTION_TYPES), p=_ACTION_P)]
-            cov = COVERAGES[rng.choice(6, p=_COVERAGE_P)] if at in _SCREEN_ACTIONS else "none"
-            off_lu = row.fx_off_lineup
+            cov = _CLASSES[rng.choice(len(_CLASSES), p=_COVERAGE_P)] if at in _SCREEN_ACTIONS else "none"
             start = int(row.start_frame) + a
             end = min(start + 1, int(row.end_frame))
-            actions.append({"sportvu_game": gid, "possession": int(row.possession), "action_id": a, "action_type": at,
+            actions.append({"sportvu_game": gid, "possession": int(row.possession), "action_type": at,
                             "start_frame": start, "end_frame": end, "ball_handler_id": int(off_lu[rng.integers(5)]),
                             "screener_id": int(off_lu[rng.integers(5)]) if at in _SCREEN_ACTIONS else None,
-                            "label_source": "hand"})
+                            "label_source": "synthetic", "labeller_pass": 1})
             if at in _SCREEN_ACTIONS:
-                screens.append({"sportvu_game": gid, "possession": int(row.possession), "action_id": a, "coverage": cov,
-                                "label_source": "hand"})
+                screens.append({"sportvu_game": gid, "possession": int(row.possession), "action_id": action_id, "coverage": cov,
+                                "on_ball_defender_id": int(row.fx_def_lineup[0]), "screener_defender_id": int(row.fx_def_lineup[1]),
+                                "label_source": "synthetic", "confidence": "sure"})
+            action_id += 1
             if first is None:
-                first = (at, cov, off_lu)
-        at, cov, off_lu = first
+                first = (at, cov)
+        at, cov = first
         lineup_effect = 0.06 * ((sum(off_lu) // 100) % 3 - 1)
         ep = _ACTION_EP[at] + _COVERAGE_EP[cov] + lineup_effect
         p3 = 0.12
@@ -151,8 +160,8 @@ def synth_labels_local(seed: int, game: dict) -> dict:
         kinds.append("shot_made" if points[i] > 0 else ("turnover" if rng.uniform() < 0.3 else "shot_missed"))
     poss["points"] = points
     poss["end_kind"] = kinds
-    return {"actions": pd.DataFrame(actions), "screens": pd.DataFrame(screens, columns=["sportvu_game", "possession", "action_id",
-                                                                                         "coverage", "label_source"])}
+    screen_cols = ["sportvu_game", "possession", "action_id", "coverage", "on_ball_defender_id", "screener_defender_id", "label_source", "confidence"]
+    return {"actions": pd.DataFrame(actions), "screens": pd.DataFrame(screens, columns=screen_cols)}
 
 
 def synth_season_local(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
@@ -165,32 +174,39 @@ def synth_season_local(seed: int, n_games: int = 8, heldout_every: int = 0, n_po
 
 def synth_outputs(seed: int, game: dict, labels: dict) -> dict:
     """Upstream lane stand-ins derived from a game and its labels: detected actions (the hand actions with
-    label_source detected and one in ten dropped), coverage predictions (the hand coverage flipped one time in
-    five, with p_<class> columns) and epv_states (expected points per frame of each possession)."""
+    label_source "model" and one in ten dropped, action_id kept), coverage predictions (the hand coverage flipped
+    one time in five, with p_<class> columns; a coverage outside the classes gets no row) and epv_states
+    (expected points per frame of each possession, drifting towards the points scored)."""
+    from analytics.playcalling.features import assign_action_ids
     rng = np.random.default_rng(seed + 104729)
-    actions = labels["actions"].copy()
+    actions = assign_action_ids(labels["actions"])
     keep = rng.uniform(size=len(actions)) > 0.1
     detected = actions[keep].copy()
-    detected["label_source"] = "detected"
+    detected["label_source"] = "model"
     sc = labels["screens"]
-    classes = [c for c in COVERAGES if c != "none"]
     pred_rows = []
     for r in sc.itertuples(index=False):
-        cov = r.coverage if rng.uniform() > 0.2 else classes[rng.integers(len(classes))]
-        probs = rng.dirichlet(np.ones(len(classes)) * 0.5)
-        j = classes.index(cov)
+        if r.coverage not in _CLASSES:
+            continue
+        cov = r.coverage if rng.uniform() > 0.2 else _CLASSES[rng.integers(len(_CLASSES))]
+        probs = rng.dirichlet(np.ones(len(_CLASSES)) * 0.5)
+        j = _CLASSES.index(cov)
         probs[j] = max(probs[j], 0.5)
         probs = probs / probs.sum()
-        row = {"sportvu_game": r.sportvu_game, "possession": r.possession, "action_id": r.action_id, "predicted": cov}
-        row.update({"p_" + c: float(p) for c, p in zip(classes, probs)})
+        row = {"sportvu_game": r.sportvu_game, "possession": int(r.possession), "action_id": int(r.action_id), "coverage_label": r.coverage}
+        row.update({"p_" + c: float(p) for c, p in zip(_CLASSES, probs)})
+        row.update({"predicted": cov, "fold": 0, "heldout": False})
         pred_rows.append(row)
-    coverage_predictions = pd.DataFrame(pred_rows, columns=["sportvu_game", "possession", "action_id", "predicted"] + ["p_" + c for c in classes])
+    cols = ["sportvu_game", "possession", "action_id", "coverage_label"] + ["p_" + c for c in _CLASSES] + ["predicted", "fold", "heldout"]
+    coverage_predictions = pd.DataFrame(pred_rows, columns=cols)
     poss = game["possessions"]
     epv = []
     for r in poss.itertuples(index=False):
         base = 1.0 + 0.1 * rng.standard_normal()
-        for k in range(int(r.start_frame), int(r.end_frame) + 1):
-            frac = (k - r.start_frame) / max(r.end_frame - r.start_frame, 1)
+        span = int(r.end_frame) - int(r.start_frame)
+        step = max(1, span // 4)
+        for k in range(int(r.start_frame), int(r.end_frame) + 1, step):
+            frac = (k - r.start_frame) / max(span, 1)
             epv.append({"sportvu_game": r.sportvu_game, "possession": int(r.possession), "frame": int(k),
                         "epv_points": float(base + frac * (float(r.points) - base) * 0.6 + 0.05 * rng.standard_normal())})
     return {"actions_detected": detected, "coverage_predictions": coverage_predictions, "epv_states": pd.DataFrame(epv)}
@@ -227,21 +243,21 @@ def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
 
 
 def synth_labels(seed: int, game: dict) -> dict:
-    if HAVE_SHARED and "fx_off_lineup" not in game["possessions"].columns:
+    local = "fx_off_lineup" in game["possessions"].columns
+    if HAVE_SHARED and not local:
         try:
             lab = _shared_labels(seed, game)
             if isinstance(lab, dict) and "actions" in lab and len(lab["actions"]):
                 return lab
         except Exception:  # noqa: BLE001
             pass
-    if "fx_off_lineup" not in game["possessions"].columns:   # a shared game: derive lineups from its frames
+    if not local:   # a shared game without usable labels: derive lineups from its frames and label it locally
         _attach_lineups(game)
     return synth_labels_local(seed, game)
 
 
 def _attach_lineups(game: dict) -> None:
     fr, poss = game["frames"], game["possessions"]
-    first = fr.groupby("frame")
     offs, defs = [], []
     for r in poss.itertuples(index=False):
         rows = fr[fr["frame"] == r.start_frame]
@@ -256,13 +272,20 @@ def _strip(poss: pd.DataFrame) -> pd.DataFrame:
     return poss.drop(columns=[c for c in poss.columns if c.startswith("fx_")])
 
 
+def _is_heldout(g: dict, k: int, heldout_every: int) -> bool:
+    meta = g.get("meta") or {}
+    return bool(meta.get("heldout", False)) or (bool(heldout_every) and (k + 1) % heldout_every == 0)
+
+
 def season_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, heldout_every: int = 0,
-                  with_epv: bool = True, use_detected: bool = False, use_predicted: bool = False) -> dict:
+                  with_epv: bool = True, use_detected: bool = False, use_predicted: bool = False, shared: bool = True) -> dict:
     """The concatenated inputs of a season: frames, possessions, actions, screens, coverage_predictions,
     epv_states, plus heldout_games (ids) and season. Held-out games are included with their flag so the
-    trainer can set them aside and score them once."""
-    games = synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions) \
-        if not HAVE_SHARED else synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    trainer can set them aside and score them once. shared=False forces the local generator."""
+    if shared and HAVE_SHARED:
+        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    else:
+        games = synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     parts = {"frames": [], "possessions": [], "actions": [], "screens": [], "coverage_predictions": [], "epv_states": []}
     heldout_games = []
     for k, g in enumerate(games):
@@ -270,7 +293,7 @@ def season_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, held
         lab = synth_labels(gseed, g)
         outs = synth_outputs(gseed, g, lab)
         gid = str(g["possessions"]["sportvu_game"].iloc[0])
-        if bool(g.get("_heldout", False)) or (bool(heldout_every) and (k + 1) % heldout_every == 0):
+        if _is_heldout(g, k, heldout_every):
             heldout_games.append(gid)
         parts["frames"].append(g["frames"])
         parts["possessions"].append(_strip(g["possessions"]))
@@ -282,37 +305,58 @@ def season_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, held
     if not with_epv:
         out["epv_states"] = None
     out["heldout_games"] = heldout_games
-    out["season"] = "2015-16"
+    out["season"] = SEASON
     return out
 
 
-def write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> Path:
+def _jsonl(path: Path, df: pd.DataFrame) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as fh:
+        for rec in df.to_dict("records"):
+            fh.write(json.dumps({k: (None if (v is pd.NA or (isinstance(v, float) and np.isnan(v))) else (int(v) if isinstance(v, np.integer) else v))
+                                 for k, v in rec.items()}) + "\n")
+
+
+def write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40, shared: bool = False) -> Path:
     """Write the DATA_ROOT layout: sportvu_contract/<game>.parquet (held-out under heldout/),
-    analytics/possessions/2015-16/<game>.parquet (+ heldout/2015-16/), labels/actions/<game>.jsonl,
-    labels/screens/<game>.jsonl, and the upstream outputs under analytics/{actions,coverage,epv}/2015-16/."""
+    analytics/possessions/<season>/<game>.parquet (+ heldout/<season>/), labels/actions/<game>.jsonl,
+    labels/screens/<game>.jsonl, and the upstream outputs in their lanes' layouts under analytics/actions,
+    analytics/coverage and analytics/epv (held-out games under heldout/<season>/)."""
     root = Path(root)
-    games = synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    if shared and HAVE_SHARED:
+        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    else:
+        games = synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    preds = {False: [], True: []}
     for k, g in enumerate(games):
         gseed = seed * 100 + k
         lab = synth_labels(gseed, g)
         outs = synth_outputs(gseed, g, lab)
         gid = str(g["possessions"]["sportvu_game"].iloc[0])
-        held = bool(g.get("_heldout", False))
+        held = _is_heldout(g, k, heldout_every)
         sub = "heldout/" if held else ""
         fp = root / "sportvu_contract" / sub / (gid + ".parquet")
         fp.parent.mkdir(parents=True, exist_ok=True)
         g["frames"].to_parquet(fp, index=False)
-        pp = root / "analytics" / "possessions" / sub / "2015-16" / (gid + ".parquet")
+        pp = root / "analytics" / "possessions" / sub / SEASON / (gid + ".parquet")
         pp.parent.mkdir(parents=True, exist_ok=True)
         schema.cast(_strip(g["possessions"]), "possessions").to_parquet(pp, index=False)
-        for name, df in (("actions", lab["actions"]), ("screens", lab["screens"])):
-            lp = root / "labels" / name / (gid + ".jsonl")
-            lp.parent.mkdir(parents=True, exist_ok=True)
-            with lp.open("w") as fh:
-                for rec in df.to_dict("records"):
-                    fh.write(json.dumps({k: (None if (isinstance(v, float) and np.isnan(v)) else v) for k, v in rec.items()}) + "\n")
-        for name, df in (("actions", outs["actions_detected"]), ("coverage", outs["coverage_predictions"]), ("epv", outs["epv_states"])):
-            op = root / "analytics" / name / sub / "2015-16" / (gid + ".parquet")
-            op.parent.mkdir(parents=True, exist_ok=True)
-            df.to_parquet(op, index=False)
+        _jsonl(root / "labels" / "actions" / (gid + ".jsonl"), lab["actions"])
+        _jsonl(root / "labels" / "screens" / (gid + ".jsonl"), lab["screens"])
+        ap = root / "analytics" / "actions" / sub / SEASON / "actions_detected" / (gid + ".parquet")
+        ap.parent.mkdir(parents=True, exist_ok=True)
+        outs["actions_detected"].to_parquet(ap, index=False)
+        cp = root / "analytics" / "actions" / sub / SEASON / "action_candidates" / (gid + ".parquet")
+        cp.parent.mkdir(parents=True, exist_ok=True)
+        outs["actions_detected"].drop(columns=["action_type"]).to_parquet(cp, index=False)      # a decoy without the needed columns
+        ep = root / "analytics" / "epv" / sub / SEASON / (gid + ".parquet")
+        ep.parent.mkdir(parents=True, exist_ok=True)
+        outs["epv_states"].to_parquet(ep, index=False)
+        preds[held].append(outs["coverage_predictions"].assign(heldout=held))
+    for held, parts in preds.items():
+        if parts:
+            d = root / "analytics" / "coverage" / ("heldout/" if held else "") / SEASON
+            d.mkdir(parents=True, exist_ok=True)
+            pd.concat(parts, ignore_index=True).to_parquet(d / "coverage_predictions.parquet", index=False)
+            pd.DataFrame({"team_id": [1], "n": [1]}).to_parquet(d / "coverage_team_rates.parquet", index=False)   # a decoy table
     return root

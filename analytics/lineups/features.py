@@ -83,12 +83,14 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT; nothing is written for --fixtures without it)")
     ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
+                    help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator)
     if len(inputs["stints"]) == 0:
         raise SystemExit("features: no stints rows found")
     f = features(inputs["stints"], inputs["games"])

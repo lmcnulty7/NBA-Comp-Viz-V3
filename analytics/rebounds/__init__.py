@@ -13,5 +13,12 @@ or --data DATA_ROOT. Fixture numbers are fixture output, not a result. The leaka
 """
 from __future__ import annotations
 
+import os
+
+# Four shared cores: one BLAS and OpenMP thread per process, set before numpy or sklearn start a pool
+# (fit_candidates also wraps every fit in threadpoolctl.threadpool_limits(1)).
+for _var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ.setdefault(_var, "1")
+
 WHO = "analytics.rebounds"
 SEASON_DEFAULT = "2015-16"

@@ -384,6 +384,8 @@ def parse_args(argv=None):
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes analytics/matchups/<season>/<game>.parquet, reads analytics/xfg/")
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
+    ap.add_argument("--heldout-every", type=int, default=2, help="fixtures only: every k-th game is held out")
     return ap.parse_args(argv)
 
 
@@ -391,7 +393,7 @@ def main(argv=None) -> dict:
     from analytics.matchups import validate as V
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
-    games = V.fixture_games(a.seed) if a.fixtures else V.load_games(a.data, a.season)
+    games = V.fixture_games(a.seed, a.n_games, a.heldout_every) if a.fixtures else V.load_games(a.data, a.season)
     xfg = V.load_xfg(a.out, a.season) if a.out else None
     res = run_games(games, xfg)
     mp = res["matchup_possessions"]

@@ -9,18 +9,22 @@ pd = pytest.importorskip("pandas")
 pytest.importorskip("sklearn")
 
 from analytics.betting import eda, features as fx, train as tr, validate as va  # noqa: E402
-from tests._fx_betting import synth_odds, synth_stints  # noqa: E402
+from tests._fx_betting import team_names  # noqa: E402
 
 
 @pytest.fixture(scope="module")
 def data():
-    d = synth_stints(0, n_games=40, seasons=("2020-21", "2021-22"))
-    return {"games": d["games"], "odds": synth_odds(0, d["games"])}
+    """One generation of the fixtures per process (validate.fixture_data caches the synth_stints call, which the
+    shared analytics.fixtures generator makes expensive); the same frames serve the end-to-end run."""
+    d = va.fixture_data(0, n_games=40, seasons=("2020-21", "2021-22"))
+    assert set(d["games"].columns) >= {"game_id", "season", "game_date", "home_team_id", "away_team_id", "home_score",
+                                       "away_score", "home_win", "spread_home"}
+    return d
 
 
 @pytest.fixture(scope="module")
 def joined(data):
-    return va.validate(data["odds"], data["games"])
+    return va.validate(data["odds"], data["games"], team_names())
 
 
 # ── vig removal and prices ─────────────────────────────────────────────────────────────────────────
@@ -74,10 +78,26 @@ def test_join_coverage_handles_utc_dates_and_counts_unmatched(joined):
     assert jn["games_without_odds"] + jn["matched"] == jn["games"]
     j = joined["joined"]
     m = j[j["game_key"].notna()]
-    # the joined spread is the fixture's own spread (the close snapshot carries it without noise)
+    # the joined spread is the fixture's own spread up to the fixture's closing noise (median over books)
     both = m[m["spread_home"].notna()]
-    assert np.allclose(both["closing_spread_home"].astype(float), both["spread_home"].astype(float))
+    diff = both["closing_spread_home"].astype(float) - both["spread_home"].astype(float)
+    assert diff.abs().median() <= 1.0 and np.corrcoef(both["closing_spread_home"].astype(float), both["spread_home"].astype(float))[0, 1] > 0.9
     assert j["closing_total"].dropna().between(150, 300).all()
+
+
+def test_unknown_team_ids_are_inferred_from_date_cooccurrence(data):
+    """Without any id -> name map the join must still land: a date with one game on each side votes the pairs."""
+    res = va.validate(data["odds"], data["games"])
+    jn = res["counts"]["join"]
+    assert jn["team_names_given"] == 0
+    if team_names():                                # the shared fixtures' synthetic ids: every one inferred
+        assert jn["team_names_inferred"] >= 6 and jn["team_ids_unresolved"] == 0
+    else:                                           # real ids: nothing to infer
+        assert jn["team_names_inferred"] == 0
+    assert jn["matched"] >= 0.9 * jn["games"]
+    inferred = va.infer_team_names(res["closing"], data["games"])
+    for tid, name in inferred.items():
+        assert team_names().get(tid) == name
 
 
 # ── features: time-forward and leak guards ─────────────────────────────────────────────────────────

@@ -425,38 +425,43 @@ class _Game:
         return pd.DataFrame(rows, columns=schema.columns("states_1hz"))
 
 
+def local_synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:
+    """One synthetic game: frames (section 4), events (section 5), shots (10a-like), and the five Phase 0
+    tables, plus sportvu_game and heldout. The local generator, always available."""
+    return _Game(seed, n_possessions, heldout, sportvu_game).run().tables()
+
+
+def local_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+    """n_games synthetic games; every heldout_every-th game (1-based) is flagged held out (0: none)."""
+    out = []
+    for i in range(n_games):
+        held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
+        name = "%02d.%02d.2016.AAA.at.BBB" % (2 if held else 1, i % 28 + 1)
+        out.append(local_synth_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held, sportvu_game=name))
+    return out
+
+
+def local_write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+    """Write the DATA_ROOT layout: root/sportvu_contract/<game>.parquet and <game>_pbp.parquet (held-out under
+    heldout/), root/analytics/<table>/<season>/<game>.parquet (held-out under heldout/<season>/)."""
+    from analytics import schema
+    root = Path(root)
+    games = []
+    for g in local_synth_season(seed, n_games, heldout_every, n_possessions):
+        name, held = g["sportvu_game"], g["heldout"]
+        sub = root / "sportvu_contract" / ("heldout" if held else "")
+        sub.mkdir(parents=True, exist_ok=True)
+        g["frames"].to_parquet(sub / (name + ".parquet"), index=False)
+        g["events"].to_parquet(sub / (name + "_pbp.parquet"), index=False)
+        for t in ("rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz"):
+            p = schema.table_path(root / "analytics", t, SEASON, name, heldout=held)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            schema.cast(g[t], t).to_parquet(p, index=False)
+        games.append(name)
+    return games
+
+
 if not SHARED:
-    def synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:
-        """One synthetic game: frames (section 4), events (section 5), shots (10a-like), and the five Phase 0
-        tables, plus sportvu_game and heldout."""
-        return _Game(seed, n_possessions, heldout, sportvu_game).run().tables()
-
-    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
-        """n_games synthetic games; every heldout_every-th game (1-based) is flagged held out (0: none)."""
-        out = []
-        for i in range(n_games):
-            held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
-            name = "%02d.%02d.2016.AAA.at.BBB" % (2 if held else 1, i % 28 + 1)
-            out.append(synth_game(seed * 1000 + i, heldout=held, sportvu_game=name))
-        return out
-
-    def write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
-        """Write the DATA_ROOT layout: root/sportvu_contract/<game>.parquet and <game>_pbp.parquet (held-out under
-        heldout/), root/analytics/<table>/<season>/<game>.parquet (held-out under heldout/<season>/)."""
-        from analytics import schema
-        root = Path(root)
-        games = []
-        for i in range(n_games):
-            held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
-            name = "%02d.%02d.2016.AAA.at.BBB" % (2 if held else 1, i % 28 + 1)
-            g = synth_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held, sportvu_game=name)
-            sub = root / "sportvu_contract" / ("heldout" if held else "")
-            sub.mkdir(parents=True, exist_ok=True)
-            g["frames"].to_parquet(sub / (name + ".parquet"), index=False)
-            g["events"].to_parquet(sub / (name + "_pbp.parquet"), index=False)
-            for t in ("rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz"):
-                p = schema.table_path(root / "analytics", t, SEASON, name, heldout=held)
-                p.parent.mkdir(parents=True, exist_ok=True)
-                schema.cast(g[t], t).to_parquet(p, index=False)
-            games.append(name)
-        return games
+    synth_game = local_synth_game
+    synth_season = local_synth_season
+    write_fixture_root = local_write_fixture_root

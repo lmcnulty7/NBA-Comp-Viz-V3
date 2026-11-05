@@ -48,7 +48,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from scipy.stats import spearmanr
+from scipy.stats import rankdata
 
 from analytics import schema
 from analytics.eval import bootstrap_by_game, grouped_folds, min_sample_gate, paired_bootstrap_by_game, refuse_heldout
@@ -57,7 +57,7 @@ from analytics.lineups.features import TARGET, assert_no_leak, feature_columns, 
 from analytics.lineups.validate import validate
 
 CANDIDATES = ("plus_minus", "rapm", "rapm_synergy")
-ALPHAS = (30.0, 100.0, 300.0, 1000.0, 3000.0, 10000.0)
+ALPHAS = (30.0, 100.0, 300.0, 1000.0, 3000.0, 10000.0, 30000.0, 100000.0)
 GATE_POSS = 300
 MIN_POSS_EVAL = 100
 MAC_CMD = ("python -m analytics.lineups.train --data \"$DATA_ROOT\" --report reports/lineups.md --out \"$DATA_ROOT\" "
@@ -97,21 +97,31 @@ def _per100(d: pd.DataFrame) -> float:
 
 def lineup_table(feats: pd.DataFrame, n_boot: int = 0, seed: int = 0) -> pd.DataFrame:
     """One row per lineup: team_id (the most frequent), n_games, n_possessions, plus_minus_per100 and, with
-    n_boot > 0, lo and hi from a bootstrap by game of the lineup's own stints (NaN under two games)."""
+    n_boot > 0, lo and hi from a bootstrap by game of the lineup's own stints (games resampled with
+    replacement, the 2.5 and 97.5 percentiles; NaN under two games)."""
     rows = lineup_rows(feats)
-    out = []
-    for lid, g in rows.groupby("lineup_id", sort=True):
-        tid = g["team_id"].dropna()
-        rec = {"lineup_id": lid, "team_id": int(tid.mode().iloc[0]) if len(tid) else pd.NA,
-               "n_games": int(g["game_id"].nunique()), "n_possessions": float(g["possessions"].sum()),
-               "plus_minus_per100": _per100(g), "lo": float("nan"), "hi": float("nan")}
-        if n_boot > 0 and rec["n_games"] >= 2:
-            b = bootstrap_by_game(g, "game_id", _per100, n=n_boot, seed=seed)
-            rec["lo"], rec["hi"] = b["lo"], b["hi"]
-        out.append(rec)
-    df = pd.DataFrame(out, columns=["lineup_id", "team_id", "n_games", "n_possessions", "plus_minus_per100", "lo", "hi"])
-    df["team_id"] = df["team_id"].astype("Int64")
-    return df
+    per_game = rows.groupby(["lineup_id", "game_id"], sort=True).agg(possessions=("possessions", "sum"), diff=("diff", "sum")).reset_index()
+    tot = per_game.groupby("lineup_id", sort=True).agg(n_games=("game_id", "size"), n_possessions=("possessions", "sum"), diff=("diff", "sum"))
+    tot["plus_minus_per100"] = np.where(tot["n_possessions"] > 0, tot["diff"] / tot["n_possessions"].replace(0, np.nan) * 100.0, np.nan)
+    team = rows.dropna(subset=["team_id"]).groupby("lineup_id")["team_id"].agg(lambda s: int(s.mode().iloc[0]))
+    df = tot.reset_index()
+    df["team_id"] = df["lineup_id"].map(team).astype("Int64")
+    df["lo"], df["hi"] = np.nan, np.nan
+    if n_boot > 0:
+        rng = np.random.default_rng(seed)
+        codes, uniq = pd.factorize(per_game["lineup_id"], sort=True)
+        poss_all, diff_all = per_game["possessions"].to_numpy(dtype=float), per_game["diff"].to_numpy(dtype=float)
+        lo, hi = {}, {}
+        for k, lid in enumerate(uniq):
+            idx = np.flatnonzero(codes == k)
+            if len(idx) < 2:
+                continue
+            pick = idx[rng.integers(0, len(idx), size=(n_boot, len(idx)))]
+            vals = diff_all[pick].sum(axis=1) / np.maximum(poss_all[pick].sum(axis=1), 1e-9) * 100.0
+            lo[lid], hi[lid] = np.nanpercentile(vals, [2.5, 97.5])
+        df["lo"] = df["lineup_id"].map(lo).astype(float)
+        df["hi"] = df["lineup_id"].map(hi).astype(float)
+    return df[["lineup_id", "team_id", "n_games", "n_possessions", "plus_minus_per100", "lo", "hi"]]
 
 
 # ── ridge on sparse indicators ─────────────────────────────────────────────────────────────────────
@@ -245,9 +255,13 @@ def predict_lineups(fits: dict, lineup_ids) -> pd.DataFrame:
 
 # ── scoring ────────────────────────────────────────────────────────────────────────────────────────
 def _spearman(d: pd.DataFrame, col: str) -> float:
-    if len(d) < 3 or d[col].std() == 0 or d["actual"].std() == 0:
+    a, b = d[col].to_numpy(dtype=float), d["actual"].to_numpy(dtype=float)
+    if len(d) < 3 or a.std() == 0 or b.std() == 0:
         return float("nan")
-    return float(spearmanr(d[col], d["actual"]).correlation)
+    ra, rb = rankdata(a), rankdata(b)
+    if ra.std() == 0 or rb.std() == 0:
+        return float("nan")
+    return float(np.corrcoef(ra, rb)[0, 1])
 
 
 def _mse(d: pd.DataFrame, col: str) -> float:
@@ -460,13 +474,15 @@ def parse_args(argv=None):
     ap.add_argument("--min-poss", type=int, default=MIN_POSS_EVAL)
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
+    ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
+                    help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
     from analytics.lineups.eda import cross_season_correlation
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator)
     if len(inputs["stints"]) == 0:
         raise SystemExit("%s: no stints rows found" % WHO)
     _clean, counts = validate(inputs["stints"])
@@ -477,7 +493,7 @@ def main(argv=None) -> dict:
     ctx.update({"fixture": inputs["fixture"], "alphas": ALPHAS, "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "command": "python -m analytics.lineups.train " + " ".join(argv if argv is not None else sys.argv[1:]),
                 "cross_season": cross_season_correlation(feats, min_poss=a.min_poss),
-                "inputs": {"source": "fixture (tests/_fx_lineups.synth_stints)" if inputs["fixture"] else "DATA_ROOT " + str(a.data),
+                "inputs": {"source": "fixture generator %s" % inputs["generator"] if inputs["fixture"] else "DATA_ROOT " + str(a.data),
                            "seasons": ", ".join(ctx["seasons"]), "stints in": counts["rows_in"], "stints after validate": counts["rows_out"],
                            "games": counts["games_out"], "lineup_ok share": "%.3f" % counts["lineup_ok_share"],
                            "dropped not 5v5": counts["dropped_not_5v5"], "dropped duration": counts["dropped_duration"],

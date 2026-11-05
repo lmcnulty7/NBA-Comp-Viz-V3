@@ -174,20 +174,24 @@ def _fixture_module():
     return mod
 
 
-def fixture_bundle(seed: int = 0, n_games: int = 8, heldout_every: int = 0, local: bool = False) -> dict:
+def fixture_bundle(seed: int = 0, n_games: int = 8, heldout_every: int = 0, local: bool = False,
+                   n_possessions: int = 40) -> dict:
     """The load_data_root structure built in memory from the fixture generator (shared when it imports, else the
-    local scripted one; local=True pins the local one)."""
+    local scripted one; local=True pins the local one). Games are built one by one with synth_game(seed * 1000 + i,
+    n_possessions, heldout) so the size is the caller's; every heldout_every-th game (1-based) is held out and
+    carries a `.at.CLE` id so the arena rule marks it whatever the generator does."""
     fx = _fixture_module()
-    gen_season = fx.local_synth_season if local else fx.synth_season
+    gen_game = fx.local_synth_game if local else fx.synth_game
     gen_labels = fx.local_synth_labels if local else fx.synth_labels
-    season = gen_season(seed, n_games=n_games, heldout_every=heldout_every)
-    if isinstance(season, dict):
-        season = list(season.values())
     games, actions, screens = {}, [], []
-    for i, game in enumerate(season):
+    for i in range(n_games):
+        held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
+        gid = "%02d.%02d.2016.F%02d.at.%s" % (1 + i % 3, 1 + (seed + i) % 28, i, "CLE" if held else "FIX")
+        game = gen_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid)
         frames = game["frames"]
-        gid = str(game.get("sportvu_game") or frames["game"].iloc[0])
-        held = bool(game.get("heldout", False)) or bool(heldout_mask([gid]).iloc[0])
+        gid = str(game.get("sportvu_game") or game.get("meta", {}).get("sportvu_game") or frames["game"].iloc[0])
+        held = held or bool(game.get("heldout", False)) or bool(game.get("meta", {}).get("heldout", False)) \
+            or bool(heldout_mask([gid]).iloc[0])
         labels = gen_labels(seed * 1000 + i, game)
         games[gid] = {"frames": frames[[c for c in FRAME_COLUMNS if c in frames.columns]], "rosters": game.get("rosters"),
                       "possessions": game.get("possessions"), "heldout": held}
@@ -359,11 +363,13 @@ def add_input_args(ap: argparse.ArgumentParser) -> None:
     ap.add_argument("--out", default=None, help="OUT_ROOT (analytics/actions/ detected screens are read from here; outputs are written here)")
     ap.add_argument("--fixture-games", type=int, default=8)
     ap.add_argument("--fixture-heldout-every", type=int, default=0)
+    ap.add_argument("--fixture-possessions", type=int, default=40)
 
 
 def load_inputs(a) -> dict:
     if a.fixtures:
-        return fixture_bundle(seed=getattr(a, "seed", 0), n_games=a.fixture_games, heldout_every=a.fixture_heldout_every)
+        return fixture_bundle(seed=getattr(a, "seed", 0), n_games=a.fixture_games, heldout_every=a.fixture_heldout_every,
+                              n_possessions=a.fixture_possessions)
     return load_data_root(a.data, a.out)
 
 

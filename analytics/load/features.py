@@ -331,13 +331,16 @@ def main(argv=None) -> dict:
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--fixtures", action="store_true")
     src.add_argument("--data", help="DATA_ROOT")
+    ap.add_argument("--local-fixtures", action="store_true",
+                    help="with --fixtures: the local generator of tests/_fx_load.py even when analytics.fixtures imports")
     ap.add_argument("--out", help="OUT_ROOT for the three tables")
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--bootstrap", type=int, default=200)
     a = ap.parse_args(argv)
-    inputs = V.load_fixtures(seed=a.seed) if a.fixtures else V.load_data_root(a.data, a.season, a.limit)
+    inputs = V.load_fixtures(seed=a.seed, prefer_shared=not a.local_fixtures) if a.fixtures else \
+        V.load_data_root(a.data, a.season, a.limit)
     tables = build_tables(inputs, n_boot=a.bootstrap, seed=a.seed)
     if a.out:
         for p in write_tables(tables, a.out, inputs["season"]):

@@ -45,7 +45,7 @@ BETTING_TARGETS = frozenset({"home_margin", "home_cover", "home_score", "away_sc
 ID_COLUMNS = frozenset({"game_id", "season", "game_date", "home_team_id", "away_team_id", "game_key", "heldout",
                         "n_books", "n_close_snapshots", "used_fallback"})
 REST_CAP = 7
-LEAK_CORR = 0.95
+LEAK_CORR = 0.99   # a disguised copy of the margin sits above 0.999; a real form feature stays under 0.6
 GAMES_COLUMNS = ("game_id", "season", "game_date", "home_team_id", "away_team_id", "closing_spread_home", "closing_total",
                  "implied_home_prob") + FEATURES + ("home_margin", "home_cover", "heldout")
 
@@ -215,7 +215,7 @@ def parse_args(argv=None):
 def main(argv=None) -> pd.DataFrame:
     a = parse_args(argv)
     data = _validate.fixture_data(a.seed) if a.fixtures else _validate.load_data(a.data)
-    res = _validate.validate(data["odds"], data["games"])
+    res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     held = pick_heldout_season(res["joined"]["season"].unique(), a.heldout_season)
     bg = build_games(res["joined"], held, a.out)
     assert_time_forward(design(bg))

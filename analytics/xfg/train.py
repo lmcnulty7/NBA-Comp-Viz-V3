@@ -59,9 +59,9 @@ CANDIDATES = ("location_logistic", "contest_logistic", "hgb_contest_prior")
 SHORT = {"location_logistic": "location", "contest_logistic": "contest", "hgb_contest_prior": "selected"}
 METRICS = (("log_loss", log_loss), ("brier", brier), ("ece", ece), ("calibration_slope", calibration_slope))
 PRIOR_M = 20.0
-INNER_FOLDS = 4
+INNER_FOLDS = 3
 ECE_TARGET = 0.02
-HGB_PARAMS = dict(max_iter=150, learning_rate=0.08, max_depth=3, min_samples_leaf=10, l2_regularization=1.0,
+HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf=10, l2_regularization=1.0,
                   early_stopping=False)
 FULL_RUN_CMD = ("python -m analytics.xfg.train --data \"$DATA_ROOT\" --report reports/xfg.md --folds 5 --seed 0 "
                 "--bootstrap 1000")
@@ -221,13 +221,38 @@ def _frame(pred: pd.DataFrame, col: str) -> pd.DataFrame:
                          "p": pred[col].astype(float).to_numpy()})
 
 
+def fast_slope(y, p, iters: int = 25) -> float:
+    """Calibration slope by Newton's method on the 2-parameter logistic regression of y on logit(p): the same
+    quantity as analytics.eval.calibration_slope (unregularised) at a fraction of the cost, for the bootstrap."""
+    y = np.asarray(y, dtype=float).reshape(-1)
+    p = np.clip(np.asarray(p, dtype=float).reshape(-1), 1e-6, 1 - 1e-6)
+    if len(np.unique(y)) < 2:
+        return float("nan")
+    X = np.column_stack([np.ones(len(p)), np.log(p / (1 - p))])
+    w = np.zeros(2)
+    for _ in range(iters):
+        q = 1.0 / (1.0 + np.exp(-(X @ w)))
+        g = X.T @ (q - y)
+        H = (X * (q * (1 - q))[:, None]).T @ X + 1e-8 * np.eye(2)
+        step = np.linalg.solve(H, g)
+        w -= step
+        if np.abs(step).max() < 1e-8:
+            break
+    return float(w[1])
+
+
+BOOT_METRICS = (("log_loss", log_loss), ("brier", brier), ("ece", ece), ("calibration_slope", fast_slope))
+
+
 def score(pred: pd.DataFrame, n_boot: int, seed: int, candidates=CANDIDATES) -> dict:
-    """{candidate: {metric: {point, lo, hi}}} with bootstrap intervals by game."""
+    """{candidate: {metric: {point, lo, hi}}} with bootstrap intervals by game (the slope by fast_slope; the point
+    estimate of the slope is analytics.eval.calibration_slope)."""
     out = {}
     for name in candidates:
         d = _frame(pred, "p_" + name)
         out[name] = {m: bootstrap_by_game(d, "game", lambda s, f=fn: f(s["y"].to_numpy(), s["p"].to_numpy()), n=n_boot, seed=seed)
-                     for m, fn in METRICS}
+                     for m, fn in BOOT_METRICS}
+        out[name]["calibration_slope"]["point"] = calibration_slope(d["y"].to_numpy(), d["p"].to_numpy())
     return out
 
 
@@ -242,6 +267,16 @@ def paired(pred: pd.DataFrame, a: str, b: str, n_boot: int, seed: int) -> dict:
 def select(scores: dict, candidates=CANDIDATES) -> str:
     """The candidate with the lowest out-of-fold log loss (ties to the earlier, simpler one)."""
     return min(candidates, key=lambda n: (round(scores[n]["log_loss"]["point"], 6), candidates.index(n)))
+
+
+def calibration_block(name: str, y, p, bins: int = 10) -> str:
+    """The calibration table of one candidate as markdown (the metric intervals are in the candidate table)."""
+    L = ["### %s" % name, "", "| bin | lo | hi | n | mean_p | mean_y |", "| --- | --- | --- | --- | --- | --- |"]
+    for _, r in calibration_table(np.asarray(y, float), np.asarray(p, float), bins).iterrows():
+        mp = "%.4f" % r["mean_p"] if r["n"] else "-"
+        my = "%.4f" % r["mean_y"] if r["n"] else "-"
+        L.append("| %d | %.2f | %.2f | %d | %s | %s |" % (r["bin"], r["lo"], r["hi"], r["n"], mp, my))
+    return "\n".join(L) + "\n"
 
 
 def point_metrics(y, p) -> dict:
@@ -322,7 +357,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "Candidates: location_logistic (analytics.train_xfg, four location features), contest_logistic (median imputation, "
           "standardisation, C = 1), hgb_contest_prior (HistGradientBoostingClassifier %s, isotonic calibration on inner out-of-fold "
           "predictions, %d inner folds)." % (HGB_PARAMS, INNER_FOLDS),
-          "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d). "
+          "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d; the slope "
+          "resamples use the Newton solve `fast_slope`, the point estimate `analytics.eval.calibration_slope`). "
           "Selection: lowest out-of-fold log loss. ECE target: under %.2f." % (ctx["protocol"], ctx["bootstrap"], ctx["seed"], ECE_TARGET),
           "", "## Candidate table (out-of-fold, %d attempts, %d games)%s" % (ctx["train_rows"], ctx["train_games"], tag), "",
           "| candidate | log loss | Brier | ECE (10 bins) | ECE under %.2f | calibration slope | selected |" % ECE_TARGET,
@@ -394,8 +430,11 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
         selected = select(scores)
         pairs = {"hgb_contest_prior vs location_logistic": paired(pred, "hgb_contest_prior", "location_logistic", a.bootstrap, a.seed),
                  "contest_logistic vs location_logistic": paired(pred, "contest_logistic", "location_logistic", a.bootstrap, a.seed)}
-        blocks = {n: report_block("%s (out-of-fold)" % n, pred["made"].astype(float), pred["p_" + n].astype(float), pred,
-                                  "sportvu_game", n=a.bootstrap, seed=a.seed) for n in CANDIDATES}
+        blocks = {selected: report_block("%s (out-of-fold, selected)" % selected, pred["made"].astype(float),
+                                         pred["p_" + selected].astype(float), pred, "sportvu_game", n=a.bootstrap, seed=a.seed)}
+        for n in CANDIDATES:
+            if n != selected:
+                blocks[n] = calibration_block("%s (out-of-fold)" % n, pred["made"].astype(float), pred["p_" + n].astype(float))
         heldout_p, heldout_scores, heldout_block = {}, {}, ""
         if len(heldout):
             for n in CANDIDATES:

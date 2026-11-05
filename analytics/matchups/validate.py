@@ -213,10 +213,12 @@ def validate_game(game: dict) -> dict:
             problems.append("events: missing column(s) %s" % missing)
     pos = game["possessions"]
     if len(pos):
-        if (pos["end_frame"] < pos["start_frame"]).any():
+        if {"end_frame", "start_frame"} <= set(pos.columns) and (pos["end_frame"] < pos["start_frame"]).any():
             problems.append("possessions: end_frame before start_frame")
-        counts["possessions_no_offense"] = int(pos["offense_team_id"].isna().sum())
-        counts["possessions_gap"] = int(pos["gap"].astype(bool).sum())
+        if "offense_team_id" in pos.columns:
+            counts["possessions_no_offense"] = int(pos["offense_team_id"].isna().sum())
+        if "gap" in pos.columns:
+            counts["possessions_gap"] = int(pos["gap"].astype(bool).sum())
     return {"problems": problems, "counts": counts}
 
 
@@ -240,13 +242,15 @@ def parse_args(argv=None):
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes analytics/matchups/validate_<season>.json")
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
+    ap.add_argument("--heldout-every", type=int, default=2, help="fixtures only: every k-th game is held out")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> pd.DataFrame:
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
-    games = fixture_games(a.seed) if a.fixtures else load_games(a.data, a.season)
+    games = fixture_games(a.seed, a.n_games, a.heldout_every) if a.fixtures else load_games(a.data, a.season)
     if not games:
         raise SystemExit("validate: no games found")
     table = validate_games(games)

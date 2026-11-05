@@ -336,7 +336,7 @@ def parse_args(argv=None):
 
 
 def run(data: dict, a, fixtures: bool, argv) -> dict:
-    res = _validate.validate(data["odds"], data["games"])
+    res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     joined = res["joined"]
     held_season = _features.pick_heldout_season(joined["season"].unique(), a.heldout_season)
     out_root = a.out or (tempfile.mkdtemp(prefix="betting_fixture_") if fixtures else None)

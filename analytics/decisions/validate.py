@@ -64,21 +64,26 @@ def _fixture_module():
 
 
 def _as_bundle(game: dict, name=None, heldout=None) -> dict:
-    b = {"sportvu_game": name or game.get("sportvu_game") or str(game["possessions"]["sportvu_game"].iloc[0]),
-         "heldout": bool(game.get("heldout", False) if heldout is None else heldout),
+    meta = game.get("meta") or {}
+    if heldout is None:
+        heldout = game.get("heldout", meta.get("heldout", False))
+    b = {"sportvu_game": name or game.get("sportvu_game") or meta.get("sportvu_game") or str(game["possessions"]["sportvu_game"].iloc[0]),
+         "heldout": bool(heldout),
          "frames": game["frames"], "events": game.get("events"), "epv": game.get("epv"), "xfg": game.get("xfg")}
     for t in PHASE0_TABLES:
         b[t] = game.get(t)
     return b
 
 
-def load_fixture_bundles(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> list:
-    """Synthetic games from analytics.fixtures when present, else tests/_fx_decisions (same signatures)."""
-    fx = _fixture_module()
+def load_fixture_bundles(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40,
+                         season_fn=None) -> list:
+    """Synthetic games from analytics.fixtures when present, else tests/_fx_decisions (same signatures).
+    season_fn overrides the generator: any synth_season(seed, n_games, heldout_every[, n_possessions])."""
+    fn = season_fn or _fixture_module().synth_season
     try:
-        season = fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+        season = fn(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     except TypeError:
-        season = fx.synth_season(seed, n_games, heldout_every)
+        season = fn(seed, n_games=n_games, heldout_every=heldout_every)
     if isinstance(season, dict):
         season = [dict(g, sportvu_game=g.get("sportvu_game", k)) for k, g in season.items()]
     out = []

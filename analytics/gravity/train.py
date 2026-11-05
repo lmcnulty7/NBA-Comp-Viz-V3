@@ -442,7 +442,7 @@ def main(argv=None) -> dict:
     selected = scores["selected"]
     gf = gravity_frames(pred, selected)
     players = gravity_players(gf, a.min_possessions, a.bootstrap, a.seed)
-    known = sorted({int(p) for d in train_games for p in (d.get("high_gravity_ids") or [])})
+    known = sorted({p for d in train_games for p in F.known_gravity_ids(d)})
     td = top_decile_check(players, known)
     known_by_model = {m: {int(p): float((pred.loc[pred["player_id"] == p, "p_" + m] - pred.loc[pred["player_id"] == p, F.TARGET]).mean())
                           for p in known} for m in MODELS}

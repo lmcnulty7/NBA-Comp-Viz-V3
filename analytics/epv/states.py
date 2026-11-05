@@ -247,7 +247,7 @@ def main(argv=None) -> list:
         sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from tests import _fx_epv as fx
         out_root = Path(a.out) if a.out else Path(tempfile.gettempdir()) / "epv_fixture_root"
-        season = fx.synth_season(a.seed, n_games=a.games, heldout_every=4)
+        season = fx.season_tables(a.seed, n_games=a.games, heldout_every=4)
         for game, held in season["games"]:
             frames = season["frames"][season["frames"]["game"] == game]
             poss = season["possessions"][season["possessions"]["sportvu_game"] == game]

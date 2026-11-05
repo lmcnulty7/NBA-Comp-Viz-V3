@@ -338,6 +338,8 @@ def parse_args(argv=None):
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--fixtures", action="store_true")
     src.add_argument("--data", help="DATA_ROOT")
+    ap.add_argument("--local-fixtures", action="store_true",
+                    help="with --fixtures: the local generator of tests/_fx_load.py even when analytics.fixtures imports")
     ap.add_argument("--report", default="reports/load.md")
     ap.add_argument("--out", help="OUT_ROOT: also write the three tables")
     ap.add_argument("--folds", type=int, default=5)
@@ -406,7 +408,8 @@ def _totals(logs: dict) -> dict:
 def main(argv=None) -> dict:
     a = parse_args(argv)
     if a.fixtures:
-        inputs = V.load_fixtures(seed=a.seed, n_games=a.n_games, heldout_every=a.heldout_every)
+        inputs = V.load_fixtures(seed=a.seed, n_games=a.n_games, heldout_every=a.heldout_every,
+                                 prefer_shared=not a.local_fixtures)
     else:
         inputs = V.load_data_root(a.data, a.season, a.limit)
     ctx = run(inputs, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixture=a.fixtures)

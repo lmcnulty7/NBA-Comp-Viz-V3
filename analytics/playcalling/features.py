@@ -19,7 +19,7 @@ action's start frame.
 
 Assumptions (the upstream lanes were built in parallel; see analytics/playcalling/__init__.py):
   - actions: sportvu_game, possession, action_type, start_frame, end_frame, ball_handler_id, screener_id,
-    label_source; action_id is used when present, else assigned by start_frame rank inside the possession;
+    label_source; action_id is used when present, else assigned as the row's position within its game;
   - screens (hand): sportvu_game, possession, action_id, coverage; coverage_predictions: the same keys with
     ``predicted`` (or ``coverage``) and p_<class> columns;
   - epv_states: sportvu_game, possession, frame, epv_points;
@@ -54,13 +54,13 @@ def feature_columns() -> list[str]:
 
 
 def assign_action_ids(actions: pd.DataFrame) -> pd.DataFrame:
-    """actions with an action_id column: the given one, else the 0-based start_frame rank inside the possession."""
+    """actions with an action_id column: the given one, else the 0-based position of the row within its game in the
+    given row order (the convention of analytics/coverage and analytics/fixtures: jsonl line order)."""
     a = actions.copy()
     if "action_id" in a.columns and a["action_id"].notna().all():
         a["action_id"] = a["action_id"].astype(int)
         return a
-    order = a.sort_values(["sportvu_game", "possession", "start_frame"]).groupby(["sportvu_game", "possession"]).cumcount()
-    a["action_id"] = order.reindex(a.index).astype(int)
+    a["action_id"] = a.groupby("sportvu_game", sort=False).cumcount().astype(int)
     return a
 
 
@@ -238,8 +238,9 @@ def main(argv=None) -> dict:
     ap.add_argument("--out", default=None, help="OUT_ROOT for upstream outputs and this lane's tables (default DATA_ROOT)")
     ap.add_argument("--season", default=SEASON)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fixture-generator", choices=("auto", "local"), default="auto", help="auto: analytics.fixtures when present")
     a = ap.parse_args(argv)
-    inputs = v.fixture_inputs(a.seed) if a.fixtures else v.load_data_root(a.data, a.out or a.data, a.season)
+    inputs = v.fixture_inputs(a.seed, generator=a.fixture_generator) if a.fixtures else v.load_data_root(a.data, a.out or a.data, a.season)
     inputs, vlog = v.validate_inputs(inputs)
     table, log = build_action_table(inputs["frames"], inputs["possessions"], inputs["actions"], inputs.get("screens"),
                                     inputs.get("coverage_predictions"), inputs.get("epv_states"), inputs.get("heldout_games", ()))

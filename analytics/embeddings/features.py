@@ -76,16 +76,18 @@ SHOT_ZONES = ("restricted_area", "paint_non_ra", "mid_range", "corner_3", "above
 SHOT_FEATURES = ["shot_share_%s" % z for z in SHOT_ZONES] + ["shot_share_3pt", "attempts_per_poss"]
 PLAY_TYPES = ("isolation", "transition", "prballhandler", "prrollman", "postup", "spotup", "handoff", "cut",
               "offscreen", "offrebound", "misc")
-AGG_METRICS = (("leaguedashptstats", "drives", "agg_drives"),
-               ("leaguedashptstats", "touches", "agg_touches"),
-               ("leaguedashptstats", "passes_made", "agg_passes_made"),
-               ("leaguedashplayerptshot", "catch_shoot_fga", "agg_catch_shoot_fga"),
-               ("leaguedashplayerptshot", "pull_up_fga", "agg_pull_up_fga"),
-               ("leaguehustlestatsplayer", "deflections", "agg_deflections"),
-               ("leaguehustlestatsplayer", "contested_shots", "agg_contested_shots"),
-               ("leaguehustlestatsplayer", "screen_assists", "agg_screen_assists"))
+AGG_METRICS = (  # (metric, feature column, endpoints the metric may sit under)
+    ("drives", "agg_drives", ("leaguedashptstats",)),
+    ("touches", "agg_touches", ("leaguedashptstats",)),
+    ("passes_made", "agg_passes_made", ("leaguedashptstats",)),
+    ("catch_shoot_fga", "agg_catch_shoot_fga", ("leaguedashptstats", "leaguedashplayerptshot")),
+    ("pull_up_fga", "agg_pull_up_fga", ("leaguedashptstats", "leaguedashplayerptshot")),
+    ("deflections", "agg_deflections", ("leaguehustlestatsplayer",)),
+    ("contested_shots", "agg_contested_shots", ("leaguehustlestatsplayer",)),
+    ("screen_assists", "agg_screen_assists", ("leaguehustlestatsplayer",)))
+PLAY_TYPE_METRICS = ("poss_pct", "freq", "frequency", "poss")   # the first present wins; poss (a count) is normalised
 PLAY_TYPE_FEATURES = ["pt_%s_freq" % p for p in PLAY_TYPES]
-AGG_FEATURES = [c for _, _, c in AGG_METRICS] + PLAY_TYPE_FEATURES
+AGG_FEATURES = [c for _, c, _ in AGG_METRICS] + PLAY_TYPE_FEATURES
 FEATURES = TRACKING_FEATURES + SHOT_FEATURES + AGG_FEATURES
 KEYS = ["player_id", "season"]
 NBA_ZONE_MAP = {"restricted area": "restricted_area", "in the paint (non-ra)": "paint_non_ra", "mid-range": "mid_range",
@@ -369,22 +371,23 @@ def aggregate_features(aggregates: pd.DataFrame | None, season: str) -> pd.DataF
     a["endpoint"] = a["endpoint"].astype(str).str.lower()
     out = pd.DataFrame({"player_id": sorted(a["player_id"].unique())}).set_index("player_id")
     missing = []
-    for endpoint, metric, col in AGG_METRICS:
-        m = a[(a["endpoint"] == endpoint) & (a["metric"] == metric)]
+    for metric, col, endpoints in AGG_METRICS:
+        m = a[a["endpoint"].isin(endpoints) & (a["metric"] == metric)]
         if len(m) == 0:
             missing.append(col)
         out[col] = m.groupby("player_id")["value"].mean().reindex(out.index)
     pt = a[a["endpoint"] == "synergyplaytypes"]
+    wide = pd.DataFrame(index=out.index)
     if len(pt):
-        metric_pref = [m for m in ("poss_pct", "freq", "frequency", "poss") if (pt["metric"] == m).any()]
-        if metric_pref:
-            pt = pt[pt["metric"] == metric_pref[0]]
-        if "type_grouping" in pt.columns and (pt["type_grouping"].astype(str).str.lower() == "offensive").any():
-            pt = pt[pt["type_grouping"].astype(str).str.lower() == "offensive"]
-        ptn = pt.assign(pt=pt["play_type"].map(_norm_play_type))
-        wide = ptn.groupby(["player_id", "pt"])["value"].mean().unstack("pt")
-    else:
-        wide = pd.DataFrame(index=out.index)
+        present = [m for m in PLAY_TYPE_METRICS if (pt["metric"] == m).any()]
+        if present:
+            pt = pt[pt["metric"] == present[0]]
+            if "type_grouping" in pt.columns and (pt["type_grouping"].astype(str).str.lower() == "offensive").any():
+                pt = pt[pt["type_grouping"].astype(str).str.lower() == "offensive"]
+            ptn = pt.assign(pt=pt["play_type"].map(_norm_play_type))
+            wide = ptn.groupby(["player_id", "pt"])["value"].mean().unstack("pt")
+            if present[0] == "poss":   # a possession count: share of the player's possessions over the play types
+                wide = wide.div(wide.sum(axis=1).replace(0, np.nan), axis=0)
     for p in PLAY_TYPES:
         col = "pt_%s_freq" % p
         out[col] = wide[p].reindex(out.index).fillna(0.0) if p in wide.columns else 0.0

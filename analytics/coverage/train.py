@@ -86,6 +86,7 @@ def fit_models(train: pd.DataFrame, seed: int = 0) -> dict:
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
+    from threadpoolctl import threadpool_limits
     if train["heldout"].any():
         raise ValueError("%s: a held-out row reached fit_models" % WHO)
     if train["coverage_label"].isna().any():
@@ -96,12 +97,19 @@ def fit_models(train: pd.DataFrame, seed: int = 0) -> dict:
     if len(np.unique(y)) < 2:
         out["logistic"] = out["hgb"] = out["majority"]
         return out
-    lr = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
-                       LogisticRegression(C=1.0, max_iter=2000)).fit(X.to_numpy(), y)
-    out["logistic"] = lambda frame, m=lr: _align(m.classes_, m.predict_proba(design(frame).to_numpy()))
-    hgb = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf=5,
-                                         l2_regularization=1.0, early_stopping=False, random_state=seed).fit(X.to_numpy(), y)
-    out["hgb"] = lambda frame, m=hgb: _align(m.classes_, m.predict_proba(design(frame).to_numpy()))
+    # one thread per fit: the data is small and the machine is shared, so thread fan-out only costs time
+    with threadpool_limits(limits=1):
+        lr = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
+                           LogisticRegression(C=1.0, max_iter=2000)).fit(X.to_numpy(), y)
+        hgb = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf=5,
+                                             l2_regularization=1.0, early_stopping=False, random_state=seed).fit(X.to_numpy(), y)
+
+    def _predict(m):
+        def fn(frame):
+            with threadpool_limits(limits=1):
+                return _align(m.classes_, m.predict_proba(design(frame).to_numpy()))
+        return fn
+    out["logistic"], out["hgb"] = _predict(lr), _predict(hgb)
     return out
 
 

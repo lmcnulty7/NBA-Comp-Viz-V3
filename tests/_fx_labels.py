@@ -13,6 +13,7 @@ of any frames table so a test controls the geometry no matter which fixture prod
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -147,8 +148,11 @@ def _shared_ok(out) -> bool:
 
 
 def synth_game(seed: int = 0, n_possessions: int = 40, heldout: bool = False, sportvu_game: str | None = None) -> dict:
-    """Lane I1's shared synthetic game when it is importable and complete, else the local fallback."""
+    """Lane I1's shared synthetic game when it is importable and complete, else the local fallback
+    (LABELS_FX_FALLBACK=1 in the environment forces the fallback)."""
     try:
+        if os.environ.get("LABELS_FX_FALLBACK"):
+            raise ImportError("fallback forced")
         from analytics import fixtures as _fx  # noqa: F401
         out = _fx.synth_game(seed, n_possessions=n_possessions, heldout=heldout, sportvu_game=sportvu_game)
         if _shared_ok(out):
@@ -227,15 +231,10 @@ def plant_screen(frames: pd.DataFrame, start_frame: int, end_frame: int, offense
     bx = sub["ball_x"].to_numpy(dtype="float64")
     by = sub["ball_y"].to_numpy(dtype="float64")
     off = (sub["team_id"].to_numpy() == int(offense_team_id))
-    rank_off = np.cumsum(off) - 1
-    rank_def = np.cumsum(~off) - 1
-    # per-frame rank: subtract the count before the frame starts
-    fr = sub["frame"].to_numpy()
-    first = np.r_[True, fr[1:] != fr[:-1]]
-    base_off = np.maximum.accumulate(np.where(first, rank_off, 0))
-    base_def = np.maximum.accumulate(np.where(first, rank_def, 0))
-    r_off = np.where(off, rank_off - base_off, -1)
-    r_def = np.where(~off, rank_def - base_def, -1)
+    # rank of each row among its frame's offensive (or defensive) rows
+    rank = sub.groupby([sub["frame"].to_numpy(), off]).cumcount().to_numpy()
+    r_off = np.where(off, rank, -1)
+    r_def = np.where(~off, rank, -1)
     x = sub["x"].to_numpy(dtype="float64").copy()
     y = sub["y"].to_numpy(dtype="float64").copy()
     x[r_off == 0], y[r_off == 0] = bx[r_off == 0], by[r_off == 0]

@@ -213,11 +213,12 @@ def load_root(data_root, season: str | None = None) -> dict:
     return out
 
 
-def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int | None = None) -> dict:
-    """The synthetic season of tests/_fx_epv.py in the load_root shape (heldout flags from the generator)."""
+def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, fallback=None) -> dict:
+    """The synthetic season of tests/_fx_epv.py in the load_root shape (heldout flags from the generator).
+    fallback=True forces the local generator (so does EPV_FIXTURE_FALLBACK=1)."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from tests import _fx_epv as fx
-    season = fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    season = fx.season_tables(seed, n_games=n_games, heldout_every=heldout_every, fallback=fallback)
     held = {g: h for g, h in season["games"]}
     out = {}
     for table in TABLE_DIRS + ("shots",):

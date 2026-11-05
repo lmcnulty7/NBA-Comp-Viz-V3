@@ -11,7 +11,7 @@ DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/collect/tracking/aggregates/<season>.parquet            section 11 long table (optional: absent means tracking
                                                                       and shot features only)
     DATA_ROOT/collect/positions.parquet                               player_id, season, position in {G, F, C} (optional,
-                                                                      needed input for the 5-NN position metric)
+      or DATA_ROOT/collect/tracking/positions/<season>.parquet        needed input for the 5-NN position metric)
 
 Protocol:
   1. load_inputs drops every held-out game before any table is read into a feature: files under heldout/, ids that carry a
@@ -139,7 +139,12 @@ def load_inputs(data_root) -> dict:
         aggregates = pd.concat([pd.read_parquet(p) for p in sorted(adir.glob("*.parquet"))], ignore_index=True)
         if "heldout" in aggregates.columns:
             aggregates = aggregates[~aggregates["heldout"].fillna(False).astype(bool)]
-    positions = pd.read_parquet(root / "collect" / "positions.parquet") if (root / "collect" / "positions.parquet").exists() else None
+    positions = None
+    pdir = root / "collect" / "tracking" / "positions"
+    if (root / "collect" / "positions.parquet").exists():
+        positions = pd.read_parquet(root / "collect" / "positions.parquet")
+    elif pdir.exists() and list(pdir.glob("*.parquet")):
+        positions = pd.concat([pd.read_parquet(p) for p in sorted(pdir.glob("*.parquet"))], ignore_index=True)
     return {"games": games, "shots": shots, "aggregates": aggregates, "positions": positions, "dropped": dropped,
             "source": str(root)}
 

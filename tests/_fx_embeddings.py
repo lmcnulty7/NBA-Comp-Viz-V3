@@ -1,7 +1,10 @@
 """tests/_fx_embeddings.py: fixtures for the player style embeddings lane (analytics/embeddings).
 
-Prefers the shared generators of ``analytics.fixtures`` (lane I1) when they import and return the tables this
-lane needs; otherwise falls back to a minimal local generator with the same signatures and column names:
+Prefers the shared generators of ``analytics.fixtures`` (lane I1) when they import, return the tables this lane needs
+and draw the game players from the same ids as the positions and aggregates (this lane joins the three by player_id;
+at the time of writing the shared module draws aggregate ids from 200000 and game ids from 9000, so it is not usable
+here and the local generator stands). EMBEDDINGS_FIXTURES=local or =shared forces one side. The local generator has
+the same signatures and column names:
 
     synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
         -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
@@ -21,6 +24,7 @@ Fixture numbers are fixture output, not a result.
 from __future__ import annotations
 
 import datetime as dt
+import os
 from pathlib import Path
 
 import numpy as np
@@ -379,18 +383,23 @@ def _shared_usable() -> bool:
             if k not in g or not cols <= set(g[k].columns):
                 return False
         agg, pos = fx.synth_aggregates(0)
-        return {"player_id", "season", "endpoint", "metric", "value"} <= set(agg.columns) and \
-            {"player_id", "season", "position"} <= set(pos.columns)
+        if not ({"player_id", "season", "endpoint", "metric", "value"} <= set(agg.columns) and
+                {"player_id", "season", "position"} <= set(pos.columns)):
+            return False
+        # this lane joins the tracked players to the positions and aggregates by player_id: the ids must line up
+        tracked = set(int(v) for v in g["frames"]["player_id"].unique())
+        return bool(tracked & set(int(v) for v in pos["player_id"].unique()))
     except Exception:  # noqa: BLE001  (a half-written shared module falls back to the local generator)
         return False
 
 
 SHARED = False
+_FORCE = os.environ.get("EMBEDDINGS_FIXTURES", "").strip().lower()   # "local" or "shared" overrides the check
 try:
     from analytics import fixtures as _shared_fx  # noqa: E402
 except ImportError:
     _shared_fx = None
-if _shared_fx is not None and _shared_usable():
+if _shared_fx is not None and _FORCE != "local" and (_FORCE == "shared" or _shared_usable()):
     SHARED = True
     synth_game = _shared_fx.synth_game            # noqa: F811
     synth_season = _shared_fx.synth_season        # noqa: F811

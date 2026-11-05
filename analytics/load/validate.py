@@ -192,7 +192,8 @@ def load_data_root(data_root, season: str = "2015-16", limit: int | None = None)
             "source": str(root)}
 
 
-def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 20) -> dict:
+def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 20,
+                  prefer_shared: bool = True) -> dict:
     """The synthetic season: analytics.fixtures when it imports (through tests/_fx_load.py), else that file's
     local generator. Lazy import so the package never depends on tests/ outside --fixtures."""
     try:
@@ -203,7 +204,8 @@ def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_pos
         spec = importlib.util.spec_from_file_location("_fx_load", p)
         fx = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(fx)
-    return fx.season_inputs(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    return fx.season_inputs(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions,
+                            prefer_shared=prefer_shared)
 
 
 def injuries_note(injuries: pd.DataFrame | None) -> str:
@@ -243,12 +245,15 @@ def main(argv=None) -> dict:
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--fixtures", action="store_true")
     src.add_argument("--data", help="DATA_ROOT")
+    ap.add_argument("--local-fixtures", action="store_true",
+                    help="with --fixtures: the local generator of tests/_fx_load.py even when analytics.fixtures imports")
     ap.add_argument("--out", help="OUT_ROOT: writes OUT_ROOT/analytics/load/<season>/validation.json (counts only)")
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--limit", type=int, default=None, help="first N games of the manifest (smoke)")
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
-    inputs = load_fixtures(seed=a.seed) if a.fixtures else load_data_root(a.data, a.season, a.limit)
+    inputs = load_fixtures(seed=a.seed, prefer_shared=not a.local_fixtures) if a.fixtures else \
+        load_data_root(a.data, a.season, a.limit)
     rep = validate_inputs(inputs)
     rep["source"] = inputs["source"]
     rep["note"] = "fixture output, not a result" if a.fixtures else "validation counts"

@@ -75,9 +75,13 @@ def feature_columns() -> list:
 
 
 def game_id(d: dict) -> str:
-    """The sportvu_game of a game dict (its key, else the possessions table, else the frames' game column)."""
+    """The sportvu_game of a game dict: its sportvu_game key, else meta.sportvu_game (analytics.fixtures), else
+    the possessions table, else the frames' game column."""
     if d.get("sportvu_game"):
         return str(d["sportvu_game"])
+    meta = d.get("meta") or {}
+    if meta.get("sportvu_game"):
+        return str(meta["sportvu_game"])
     poss = d.get("possessions")
     if poss is not None and len(poss):
         return str(poss["sportvu_game"].iloc[0])
@@ -85,13 +89,21 @@ def game_id(d: dict) -> str:
 
 
 def is_heldout(d: dict) -> bool:
-    """The dict's heldout flag, or a held-out token of sportvu/splits.json in its id, or a game at the CLE arena."""
+    """The dict's heldout flag (its key or meta.heldout), or a held-out token of sportvu/splits.json in its id,
+    or a game at the CLE arena."""
     from sportvu import splits
-    if d.get("heldout"):
+    if d.get("heldout") or (d.get("meta") or {}).get("heldout"):
         return True
     g = game_id(d)
     toks = splits.heldout_tokens()
     return any(t in g for t in toks) or g.endswith(".at." + splits.HELDOUT_ARENA)
+
+
+def known_gravity_ids(d: dict) -> list:
+    """The planted high-gravity players of a fixture game: high_gravity_ids (tests/_fx_gravity.py fallback) or
+    truth.star_player_ids (analytics.fixtures); empty on real data."""
+    ids = d.get("high_gravity_ids") or (d.get("truth") or {}).get("star_player_ids") or []
+    return [int(p) for p in ids]
 
 
 # ── sampling ───────────────────────────────────────────────────────────────────────────────────────

@@ -129,6 +129,8 @@ def validate_labels(actions: pd.DataFrame, screens: pd.DataFrame, possessions: p
         return {"problems": problems, "warnings": warnings, "counts": counts}
     a = actions.copy()
     s = screens.copy()
+    if "action_id" not in a.columns or a["action_id"].isna().all():
+        a["action_id"] = np.arange(len(a))          # the row's position among the actions rows (module docstring)
     bad = sorted(set(a["action_type"].dropna().astype(str)) - set(ACTION_TYPES))
     if bad:
         problems.append("actions: unknown action_type value(s) %s" % bad)

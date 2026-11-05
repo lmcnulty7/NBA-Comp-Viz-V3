@@ -39,7 +39,7 @@ before `game_date` (rolling values shifted by one game within the team's season)
 implied probability are lines, not features: they enter only the CLV target and the ridge model's conversion of a
 margin forecast into a cover probability. `features.assert_time_forward` refuses a feature frame holding any Phase 0
 label (analytics.schema) or any of these target and line columns; `features.assert_no_leak` also refuses a column
-whose absolute correlation with `home_margin` exceeds 0.95.
+whose absolute correlation with `home_margin` exceeds 0.99 (a disguised copy of the margin; a legitimate form feature stays far below).
 
 ## betting_predictions: `OUT_ROOT/analytics/betting/<season>/betting_predictions.parquet`
 

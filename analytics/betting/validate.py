@@ -18,6 +18,9 @@ Steps
      and 'Lakers' all give 'lakers'); game ids give the same key through TEAM_NAMES (stats.nba.com ids). The
      feed's commence_time is UTC, so a 7pm ET tip is dated the next day: the join accepts a game whose
      game_date is within one day of the tip's UTC date (minus 8 hours), nearest first, each side used once.
+     A games table whose ids are not stats.nba.com ids (a fixture, another provider) can pass team_names
+     (id -> name); ids still unknown are inferred from date co-occurrence (a date with exactly one game on
+     each side votes home id -> home name, away id -> away name; the majority name wins) and counted.
      Coverage counts (games with a closing spread, with a total, with a moneyline, unmatched on both sides)
      are logged and returned.
 
@@ -27,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import functools
 import json
 import re
 import sys
@@ -63,8 +67,9 @@ _CITY_WORDS = {"los", "angeles", "la", "golden", "state", "new", "york", "orlean
 
 
 # ── team keys ──────────────────────────────────────────────────────────────────────────────────────
-def team_key(value) -> str:
-    """A join key for a team given its stats.nba.com id, abbreviation or any spelling of its name.
+def team_key(value, names: dict | None = None) -> str:
+    """A join key for a team given its stats.nba.com id, abbreviation or any spelling of its name; names
+    (id -> name) extends TEAM_NAMES for ids of another provider or a fixture.
 
     Known ids and abbreviations map to the nickname; names are lower-cased, split into words, the city words
     dropped and the nickname words joined ('Portland Trail Blazers' -> 'trailblazers', 'LA Clippers' ->
@@ -74,7 +79,9 @@ def team_key(value) -> str:
         return ""
     if isinstance(value, (int, np.integer)) or (isinstance(value, str) and value.strip().isdigit()):
         tid = int(value)
-        if tid in TEAM_NAMES:
+        if names and tid in names:
+            value = names[tid]
+        elif tid in TEAM_NAMES:
             value = TEAM_NAMES[tid][1]
         else:
             return "team%d" % tid
@@ -226,18 +233,55 @@ def check_ranges(closing: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 # ── join ───────────────────────────────────────────────────────────────────────────────────────────
-def join_games(closing: pd.DataFrame, games: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+def _unknown_ids(games: pd.DataFrame, names: dict) -> set:
+    ids = set(pd.concat([games["home_team_id"], games["away_team_id"]]).dropna().astype(int).tolist())
+    return {t for t in ids if t not in TEAM_NAMES and t not in names}
+
+
+def infer_team_names(closing: pd.DataFrame, games: pd.DataFrame, names: dict | None = None) -> dict:
+    """id -> feed name for game ids that neither TEAM_NAMES nor names know, from date co-occurrence: a local date
+    with exactly one odds game and exactly one games row (within DATE_TOLERANCE_DAYS) votes its home and away
+    pairs; the majority name per id wins. Returns only the inferred pairs (empty when nothing is unknown)."""
+    names = dict(names or {})
+    unknown = _unknown_ids(games, names)
+    if not unknown or closing.empty:
+        return {}
+    c_date = (_parse_time(closing["commence_time"]) - pd.Timedelta(hours=TIP_SHIFT_HOURS)).dt.tz_localize(None).dt.normalize()
+    g_date = pd.to_datetime(games["game_date"]).dt.normalize()
+    c_by = closing.groupby(c_date.to_numpy()).indices
+    g_by = games.groupby(g_date.to_numpy()).indices
+    votes: dict = {}
+    for d, ci in c_by.items():
+        if len(ci) != 1:
+            continue
+        hits = [gi for off in range(-DATE_TOLERANCE_DAYS, DATE_TOLERANCE_DAYS + 1)
+                for gi in g_by.get(d + pd.Timedelta(days=off), [])]
+        if len(hits) != 1:
+            continue
+        crow, grow = closing.iloc[ci[0]], games.iloc[hits[0]]
+        for tid, name in ((grow["home_team_id"], crow["home_team"]), (grow["away_team_id"], crow["away_team"])):
+            if pd.notna(tid) and int(tid) in unknown:
+                votes.setdefault(int(tid), {}).setdefault(str(name), 0)
+                votes[int(tid)][str(name)] += 1
+    return {tid: max(v.items(), key=lambda kv: (kv[1], kv[0]))[0] for tid, v in votes.items()}
+
+
+def join_games(closing: pd.DataFrame, games: pd.DataFrame, team_names: dict | None = None) -> tuple[pd.DataFrame, dict]:
     """Attach the closing line to each game -> (games with the closing columns, coverage counts).
 
     Match on (home key, away key) and a game_date within DATE_TOLERANCE_DAYS of the tip's local date; the nearest
-    date wins and every odds row and game is used at most once."""
+    date wins and every odds row and game is used at most once. team_names (id -> name) extends TEAM_NAMES; ids
+    still unknown are inferred (infer_team_names) and the count reported."""
+    names = dict(team_names or {})
+    inferred = infer_team_names(closing, games, names)
+    names.update(inferred)
     c = closing.copy()
     c["_hk"] = c["home_team"].map(team_key)
     c["_ak"] = c["away_team"].map(team_key)
     c["_date"] = (_parse_time(c["commence_time"]) - pd.Timedelta(hours=TIP_SHIFT_HOURS)).dt.tz_localize(None).dt.normalize()
     g = games.copy()
-    g["_hk"] = g["home_team_id"].map(team_key)
-    g["_ak"] = g["away_team_id"].map(team_key)
+    g["_hk"] = g["home_team_id"].map(lambda t: team_key(t, names))
+    g["_ak"] = g["away_team_id"].map(lambda t: team_key(t, names))
     g["_date"] = pd.to_datetime(g["game_date"]).dt.normalize()
     cand = g.reset_index().merge(c, on=["_hk", "_ak"], suffixes=("", "_odds"))
     cand["_diff"] = (cand["_date"] - cand["_date_odds"]).abs().dt.days
@@ -265,7 +309,9 @@ def join_games(closing: pd.DataFrame, games: pd.DataFrame) -> tuple[pd.DataFrame
               "matched_with_spread": int(out["closing_spread_home"].notna().sum()),
               "matched_with_total": int(out["closing_total"].notna().sum()),
               "matched_with_moneyline": int(out["implied_home_prob"].notna().sum()),
-              "coverage": float(matched.mean()) if len(games) else 0.0}
+              "coverage": float(matched.mean()) if len(games) else 0.0,
+              "team_names_given": len(team_names or {}), "team_names_inferred": len(inferred),
+              "team_ids_unresolved": len(_unknown_ids(games, names))}
     return out, counts
 
 
@@ -316,16 +362,25 @@ def load_data(data_root) -> dict:
     return {"odds": odds, "games": games, "files": {k: [str(p) for p in v] for k, v in files.items()}}
 
 
-def fixture_data(seed: int = 0, n_games: int = 40, seasons=("2020-21", "2021-22")) -> dict:
-    from tests._fx_betting import synth_odds, synth_stints
+@functools.lru_cache(maxsize=4)
+def _fixture_data_cached(seed: int, n_games: int, seasons: tuple) -> dict:
+    from tests._fx_betting import SOURCE, synth_odds, synth_stints, team_names
     d = synth_stints(seed, n_games=n_games, seasons=seasons)
-    return {"odds": synth_odds(seed, d["games"]), "games": d["games"], "files": {"fixtures": ["tests/_fx_betting.py"]},
-            "stints": d["stints"], "playbyplay": d["playbyplay"]}
+    return {"odds": synth_odds(seed, d["games"]), "games": d["games"], "files": {"fixtures": [SOURCE]},
+            "stints": d["stints"], "playbyplay": d["playbyplay"], "team_names": team_names()}
+
+
+def fixture_data(seed: int = 0, n_games: int = 40, seasons=("2020-21", "2021-22")) -> dict:
+    """The synthetic odds and games of tests/_fx_betting.py (generated once per (seed, n_games, seasons) in a
+    process; the frames come back as copies, so callers may mutate them)."""
+    d = _fixture_data_cached(int(seed), int(n_games), tuple(seasons))
+    return {k: (v.copy() if isinstance(v, pd.DataFrame) else v) for k, v in d.items()}
 
 
 # ── driver ─────────────────────────────────────────────────────────────────────────────────────────
-def validate(odds: pd.DataFrame, games: pd.DataFrame) -> dict:
-    """The whole check -> dict(problems, closing, joined, counts). Raises ValueError on a schema problem."""
+def validate(odds: pd.DataFrame, games: pd.DataFrame, team_names: dict | None = None) -> dict:
+    """The whole check -> dict(problems, closing, joined, counts). Raises ValueError on a schema problem.
+    team_names (id -> feed name) is for a games table whose ids are not stats.nba.com ids."""
     problems = check_schema(odds)
     if problems:
         raise ValueError("%s: odds table does not match section 14: %s" % (WHO, problems))
@@ -338,7 +393,7 @@ def validate(odds: pd.DataFrame, games: pd.DataFrame) -> dict:
         dropped_heldout = 0
     closing, counts = closing_lines(odds)
     closing, rng_counts = check_ranges(closing)
-    joined, join_counts = join_games(closing, games)
+    joined, join_counts = join_games(closing, games, team_names)
     counts = {"closing": {**counts, **rng_counts}, "join": join_counts, "games_heldout_dropped": dropped_heldout}
     return {"problems": problems, "closing": closing, "joined": joined, "counts": counts}
 
@@ -356,7 +411,7 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     a = parse_args(argv)
     data = fixture_data(a.seed) if a.fixtures else load_data(a.data)
-    res = validate(data["odds"], data["games"])
+    res = validate(data["odds"], data["games"], data.get("team_names"))
     summary = {"who": WHO, "mode": "fixtures" if a.fixtures else "data", "files": data["files"], "counts": res["counts"],
                "written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                "note": "fixture output, not a result" if a.fixtures else "counts over the collected odds table"}

@@ -73,29 +73,38 @@ def read_season_tables(data_root, kind: str, seasons=SEASONS) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
-def fixture_tables(seed: int = 0, n_games: int = FIXTURE_GAMES, seasons=FIXTURE_SEASONS) -> dict:
-    """The synthetic tables (tests/_fx_lineups.synth_stints: the shared generator when it exists, else the
-    local fallback). Fixture numbers are never results."""
+def fixture_tables(seed: int = 0, n_games: int = FIXTURE_GAMES, seasons=FIXTURE_SEASONS, generator: str = "auto") -> dict:
+    """The synthetic tables. generator: "shared" is analytics.fixtures.synth_stints (lane I1), "local" the
+    fallback of tests/_fx_lineups.py (fixed rosters and rotations, so five-man lineups repeat across seasons),
+    "auto" the shared one when it imports, else local. Fixture numbers are never results."""
     import sys
     root = Path(__file__).resolve().parents[2]
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
-    from tests._fx_lineups import synth_stints
-    return synth_stints(seed, n_games=n_games, seasons=tuple(seasons))
+    from tests import _fx_lineups as fx
+    if generator == "local":
+        fn = fx._fallback_synth_stints
+    elif generator == "shared":
+        from analytics.fixtures import synth_stints as fn
+    else:
+        fn = fx.synth_stints
+    t = fn(seed, n_games=n_games, seasons=tuple(seasons))
+    t["generator"] = "%s.%s" % (fn.__module__, fn.__name__)
+    return t
 
 
-def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0) -> dict:
-    """dict(stints, playbyplay, games, starters, fixture): the input tables of a run."""
+def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto") -> dict:
+    """dict(stints, playbyplay, games, starters, fixture, generator): the input tables of a run."""
     if fixtures:
-        t = fixture_tables(seed)
+        t = fixture_tables(seed, generator=generator)
         return {"stints": t["stints"], "playbyplay": t["playbyplay"], "games": t.get("games", pd.DataFrame()),
-                "starters": t.get("starters", pd.DataFrame()), "fixture": True}
+                "starters": t.get("starters", pd.DataFrame()), "fixture": True, "generator": t["generator"]}
     if data_root is None:
         raise SystemExit(f"{WHO}: pass --fixtures or --data DATA_ROOT")
     return {"stints": read_season_tables(data_root, "stints", seasons),
             "playbyplay": read_season_tables(data_root, "playbyplay", seasons),
             "games": read_season_tables(data_root, "games", seasons),
-            "starters": read_season_tables(data_root, "starters", seasons), "fixture": False}
+            "starters": read_season_tables(data_root, "starters", seasons), "fixture": False, "generator": None}
 
 
 def out_dir(out_root, season: str) -> Path:

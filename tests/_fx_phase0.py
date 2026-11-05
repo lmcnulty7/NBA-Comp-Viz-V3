@@ -1,8 +1,9 @@
 """tests/_fx_phase0.py: the fixture DATA_ROOT for tests/test_run_phase0.py.
 
 Prefers the shared writer of analytics/fixtures.py (lane I1) and falls back to a minimal local writer with
-the same signature when that module is absent or not importable yet. Both write the Step 1 layout of
-sportvu/colab_contract.py under ``root``:
+the same signature (``write_fixture_root_fallback``, always defined) when that module is absent or not
+importable yet. ``fixture_data_root(root)`` gives the Step 1 folder either writer produced (the shared one
+writes it under <root>/sportvu_contract). Both write the Step 1 layout of sportvu/colab_contract.py:
 
     <game>.parquet, <game>_pbp.parquet          training games (home GSW, split None or train)
     heldout/<game>.parquet, heldout/<game>_pbp.parquet   held-out games (home CLE: sportvu/splits.json heldout_arena)
@@ -31,9 +32,7 @@ import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-try:                                             # the shared writer of lane I1, when it is in place
-    from analytics.fixtures import write_fixture_root   # noqa: F401
-except Exception:                                # noqa: BLE001 (absent or half-written: use the fallback)
+if True:                                         # the local fallback, always defined (write_fixture_root_fallback)
     HZ, N_FRAMES, PERIOD_S = 25, 1500, 720.0
     RELEASES = (150, 350, 550, 750, 950, 1150)   # release frame of each scripted shot
     FLIGHT, APEX_AFTER = 48, 25                  # frames in flight; apex this many frames after release
@@ -165,7 +164,7 @@ except Exception:                                # noqa: BLE001 (absent or half-
         ev["score"] = ev["score"].astype(object).where(ev["score"].notna(), None)
         return pa.Table.from_pandas(ev, schema=schema, preserve_index=False)
 
-    def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int = 3) -> dict:
+    def write_fixture_root_fallback(root, seed: int = 0, n_games: int = 6, heldout_every: int = 3) -> dict:
         """Write the Step 1 layout under ``root`` and return the manifest. Game i is held out when
         (i + 1) % heldout_every == 0 (home CLE, the held-out arena of sportvu/splits.json); the others are at GSW.
         Games with i % 3 == 1 carry a 12 s clock jump late in the period, i % 3 == 2 a 3 s jump between the
@@ -212,4 +211,18 @@ except Exception:                                # noqa: BLE001 (absent or half-
         return man
 
 
-__all__ = ["write_fixture_root"]
+try:                                             # the shared writer of lane I1, when it is in place
+    from analytics.fixtures import write_fixture_root   # noqa: F401
+except Exception:                                # noqa: BLE001 (absent or half-written: use the fallback)
+    write_fixture_root = write_fixture_root_fallback
+
+
+def fixture_data_root(root) -> Path:
+    """The DATA_ROOT inside what write_fixture_root wrote: the shared writer puts the Step 1 layout under
+    <root>/sportvu_contract (with labels/ beside it), the fallback writes it at <root> itself."""
+    root = Path(root)
+    sub = root / "sportvu_contract"
+    return sub if (sub / "manifest.json").exists() and not (root / "manifest.json").exists() else root
+
+
+__all__ = ["write_fixture_root", "write_fixture_root_fallback", "fixture_data_root"]

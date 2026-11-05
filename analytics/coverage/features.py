@@ -53,7 +53,8 @@ FEATURES = (
     # after the screen (start_frame .. end_frame + 1.5 s)
     "d2_nearest_end", "def_dist_diff_end_ft", "d1_handler_dist_end_ft", "d2_handler_dist_end_ft",
     "d2_depth_end_ft", "d2_basket_dist_min_ft", "d2_handler_dist_min_early_ft", "d2_handler_dist_mean_early_ft",
-    "d2_handler_dist_mean_post_ft", "d2_handler_dist_late_ft", "d1_depth_rel_screener_pass_ft",
+    "d2_handler_dist_mean_post_ft", "d2_handler_dist_late_ft", "d2_handler_dist_min_post_ft",
+    "d2_handler_dist_min_frac", "d2_handler_dist_after_min_ft", "d1_depth_rel_screener_pass_ft",
     "d1_lat_rel_handler_end_ft", "handler_lat_end_ft", "handler_depth_end_ft", "both_within_6ft_frac",
     "both_within_6ft_any", "d2_screen_dist_end_ft", "d2_screen_dist_max_ft", "handler_speed_mean_ftps",
     "handler_speed_max_ftps", "d1_speed_mean_ftps", "d2_speed_mean_ftps", "d1_handler_dist_mean_post_ft",
@@ -201,6 +202,7 @@ def screen_geometry(H: np.ndarray, S: np.ndarray, D1: np.ndarray, D2: np.ndarray
     d1s = _dist(D1, S)
     pas = int(np.nanargmin(d1s)) if np.isfinite(d1s).any() else 0
     both = (d1h <= TRAP_FT) & (d2h <= TRAP_FT)
+    imin = int(np.nanargmin(d2h)) if np.isfinite(d2h).any() else 0
     d2b = _dist(D2, np.repeat(B[None, :], n, axis=0))
     d2p = _dist(D2, np.repeat(P[None, :], n, axis=0))
     out = {
@@ -217,6 +219,9 @@ def screen_geometry(H: np.ndarray, S: np.ndarray, D1: np.ndarray, D2: np.ndarray
         "d2_basket_dist_min_ft": _nanmin(d2b),
         "d2_handler_dist_min_early_ft": _nanmin(d2h[early]), "d2_handler_dist_mean_early_ft": _nanmean(d2h[early]),
         "d2_handler_dist_mean_post_ft": _nanmean(d2h), "d2_handler_dist_late_ft": _nanmean(d2h[late]),
+        "d2_handler_dist_min_post_ft": _nanmin(d2h),
+        "d2_handler_dist_min_frac": float(imin / max(1, n - 1)),
+        "d2_handler_dist_after_min_ft": _nanmax(d2h[imin:]),
         "d1_depth_rel_screener_pass_ft": float(d1d[pas] - sd[pas]),
         "d1_lat_rel_handler_end_ft": float(d1l[end] - hl[end]),
         "handler_lat_end_ft": float(hl[end]), "handler_depth_end_ft": float(hd[end]),

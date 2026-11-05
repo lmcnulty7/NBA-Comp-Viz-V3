@@ -20,7 +20,7 @@ HELD = "12.16.2015.PHX.at.GSW"
 
 @pytest.fixture(scope="module")
 def inputs():
-    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=6, n_possessions=30, heldout_every=3))
+    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=6, n_possessions=30, heldout_every=3, shared=False))
     return inp
 
 
@@ -35,8 +35,8 @@ def table(inputs):
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
 def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     report = tmp_path / "playcalling.md"
-    ctx = T.main(["--fixtures", "--report", str(report), "--out", str(tmp_path / "out"), "--bootstrap", "15",
-                  "--fixture-games", "6", "--fixture-possessions", "30"])
+    ctx = T.main(["--fixtures", "--fixture-generator", "local", "--report", str(report), "--out", str(tmp_path / "out"),
+                  "--bootstrap", "15", "--fixture-games", "6", "--fixture-possessions", "30"])
     text = report.read_text()
     first = text.splitlines()[0]
     assert "Association only, not causal" in first and "causal" in first
@@ -64,7 +64,7 @@ def test_ridge_beats_the_by_action_baseline_on_the_fixture_and_the_fixture_assoc
     transition and the nested out-of-fold ridge must not be worse than the by-action baseline by much."""
     ctx = T.run(table, n_folds=4, seed=0, n_boot=10, n_min=N_MIN)
     t1 = ctx["ppp_by_action"].set_index("action_type")["ppp"]
-    assert t1["transition"] > t1["isolation"]
+    assert t1["cut"] > t1["isolation"]
     assert set(ctx["adjusted"]["coverage"]) <= set(table["coverage"])
     s = ctx["scores"]["mse"]
     assert s["ridge"]["point"] < s["mean"]["point"] + 0.05
@@ -132,10 +132,10 @@ def hand_table(n_a=320, n_b=40, n_games=4, seed=1) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     rows = []
     for i in range(n_a + n_b):
-        at = "pick_and_roll" if i < n_a else "post_up"
+        at = "ball_screen" if i < n_a else "post_up"
         rows.append({"sportvu_game": "01.%02d.2016.AAA.at.BBB" % (i % n_games + 1), "possession": i, "action_id": 0, "action_type": at,
                      "coverage": "drop" if i % 2 == 0 else "switch", "off_lineup": "1-2-3-4-%d" % (5 + i % 2), "def_lineup": "6-7-8-9-10",
-                     "ppp": float(rng.choice([0, 2, 3], p=[0.5, 0.4, 0.1] if at == "pick_and_roll" else [0.7, 0.25, 0.05])),
+                     "ppp": float(rng.choice([0, 2, 3], p=[0.5, 0.4, 0.1] if at == "ball_screen" else [0.7, 0.25, 0.05])),
                      "epv_gain": np.nan, "heldout": False, "score_margin": 0.0, "shot_clock_s": 15.0, "period": 1, "label_source": "hand",
                      "coverage_source": "hand", "start_frame": i, "end_frame": i})
     return pd.DataFrame(rows, columns=list(F.ACTION_OUTCOMES_COLUMNS))
@@ -145,15 +145,15 @@ def test_gate_marks_small_groups_insufficient_and_the_recommendation_respects_it
     t = hand_table()
     one = T.ppp_by_action(t, by_coverage=False, n_boot=30, seed=0)
     by = one.set_index("action_type")
-    assert not by.loc["pick_and_roll", "insufficient"] and by.loc["post_up", "insufficient"]
-    assert by.loc["pick_and_roll", "n"] == 320 and by.loc["post_up", "n"] == 40
-    assert by.loc["pick_and_roll", "lo"] <= by.loc["pick_and_roll", "ppp"] <= by.loc["pick_and_roll", "hi"]
+    assert not by.loc["ball_screen", "insufficient"] and by.loc["post_up", "insufficient"]
+    assert by.loc["ball_screen", "n"] == 320 and by.loc["post_up", "n"] == 40
+    assert by.loc["ball_screen", "lo"] <= by.loc["ball_screen", "ppp"] <= by.loc["ball_screen", "hi"]
     two = T.ppp_by_action(t, by_coverage=True, n_boot=30, seed=0)
     assert two["insufficient"].all()                   # 160 per cell at most
     assert T.ppp_by_action(t, by_coverage=False, n_boot=30, seed=0, n_min=30)["insufficient"].tolist() == [False, False]
     adj = T.adjusted_table(t, alpha=1.0, n_boot=20, seed=0, n_min=100)
     rec = adj[adj["recommended"]]
-    assert set(rec["coverage"]) == {"drop", "switch"} and (rec["action_type"] == "pick_and_roll").all()
+    assert set(rec["coverage"]) == {"drop", "switch"} and (rec["action_type"] == "ball_screen").all()
     assert adj[adj["action_type"] == "post_up"]["insufficient"].all()
     assert (adj["lo"] <= adj["adjusted_ppp"]).all() and (adj["adjusted_ppp"] <= adj["hi"]).all()
     assert not T.adjusted_table(t, alpha=1.0, n_boot=5, seed=0, n_min=N_MIN)["recommended"].any()
@@ -188,6 +188,27 @@ def test_validate_counts_duplicates_unknown_enums_and_missing_columns(inputs):
     assert V.is_heldout_game(HELD) and V.is_heldout_game("01.02.2016.AAA.at.CLE") and not V.is_heldout_game("01.02.2016.AAA.at.BBB")
 
 
+def test_action_ids_are_the_row_position_within_the_game():
+    a = pd.DataFrame({"sportvu_game": ["g1", "g1", "g2", "g1"], "possession": [0, 0, 0, 1], "start_frame": [5, 1, 0, 9]})
+    assert F.assign_action_ids(a)["action_id"].tolist() == [0, 1, 0, 2]
+    assert F.assign_action_ids(a.assign(action_id=[7, 8, 9, 10]))["action_id"].tolist() == [7, 8, 9, 10]
+
+
+@pytest.mark.skipif(not fx.HAVE_SHARED, reason="analytics.fixtures (lane I1) not present")
+def test_shared_fixtures_flow_through_the_build():
+    """The shared generator's labels (no action_id on actions, game-wide ids on screens, label_source synthetic)
+    join and build; small so the physics simulation stays quick."""
+    inp, log = V.validate_inputs(fx.season_inputs(5, n_games=2, n_possessions=8, heldout_every=2, shared=True))
+    assert inp["heldout_games"] == [HELD] and log["actions"]["unknown_action_type"] == {}
+    t, blog = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"],
+                                   inp["coverage_predictions"], inp["epv_states"], inp["heldout_games"])
+    assert len(t) == len(inp["actions"]) and blog["actions_without_possession"] == 0
+    assert set(t.loc[t["action_type"] == "ball_screen", "coverage_source"]) <= {"hand"}
+    assert (t.loc[t["action_type"] != "ball_screen", "coverage"] == "none").all()
+    assert t["off_lineup"].notna().all() and t["heldout"].sum() > 0
+    F.features(t)
+
+
 def test_coverage_resolution_prefers_hand_labels_then_predictions_then_none(inputs):
     a = F.assign_action_ids(inputs["actions"]).head(40).reset_index(drop=True)
     cov, src = F.resolve_coverage(a, inputs["screens"], inputs["coverage_predictions"])
@@ -204,8 +225,16 @@ def test_data_root_layout_round_trip(tmp_path):
     root = fx.write_fixture_root(tmp_path / "data", seed=3, n_games=3, heldout_every=3, n_possessions=20)
     assert (root / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
     inp = V.load_data_root(root, root)
-    assert inp["heldout_games"] == [HELD] and inp["actions"]["label_source"].eq("hand").all()
+    assert inp["heldout_games"] == [HELD] and inp["actions"]["label_source"].eq("synthetic").all()
     assert len(inp["screens"]) and len(inp["coverage_predictions"]) and len(inp["epv_states"])
+    assert inp["files"]["coverage_predictions"]["skipped_files"] == 2          # the two coverage_team_rates decoys
+    assert inp["files"]["actions_detected"]["skipped_files"] == 0             # actions_detected preferred over action_candidates
+    assert inp["files"]["actions_detected"]["rows"] > 0
+    # a root with detected actions only (no hand labels): they become the actions input
+    import shutil
+    shutil.rmtree(root / "labels" / "actions")
+    det = V.load_data_root(root, root)
+    assert det["actions"]["label_source"].eq("model").all() and "action_id" in det["actions"].columns
     res = F.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert res["table"]["heldout"].sum() > 0
     assert (tmp_path / "out" / "analytics" / "playcalling" / "heldout" / "2015-16" / "action_outcomes.parquet").exists()
@@ -217,7 +246,7 @@ def test_data_root_layout_round_trip(tmp_path):
 def test_eda_tables_and_the_shuffled_check(table):
     train = table[~table["heldout"]]
     ac = eda.action_counts(train)
-    assert ac["actions"].sum() == len(train) and set(ac["label_source"]) == {"hand"}
+    assert ac["actions"].sum() == len(train) and set(ac["label_source"]) == {"synthetic"}
     cc = eda.coverage_counts(train)
     assert cc["actions"].sum() == len(train)
     dist = eda.ppp_distribution(train)

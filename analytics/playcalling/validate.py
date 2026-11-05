@@ -202,6 +202,8 @@ def validate_inputs(inputs: dict) -> tuple[dict, dict]:
         out[name], log[name] = fn(df)
     out["actions"], log["actions"] = validate_actions(inputs["actions"], out.get("possessions"))
     log["heldout_games"] = sorted(map(str, inputs.get("heldout_games", ())))
+    if inputs.get("files"):
+        log["files"] = inputs["files"]
     return out, log
 
 
@@ -224,50 +226,67 @@ def _read_jsonl(path: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _read_many(paths, reader=pd.read_parquet) -> tuple[pd.DataFrame | None, list[str]]:
-    frames, held = [], []
-    for p in sorted(paths):
+def _read_many(paths, reader=pd.read_parquet, required=(), prefer: str | None = None) -> tuple[pd.DataFrame | None, list[str], int]:
+    """Concatenate the files -> (frame or None, game ids found under a heldout/ folder, files skipped). A file without
+    every ``required`` column is skipped (the upstream folders hold several tables); when ``prefer`` names a file stem
+    prefix and some files match it, only those are read."""
+    paths = sorted(Path(p) for p in paths)
+    if prefer:
+        hit = [p for p in paths if p.stem.startswith(prefer) or prefer in p.parts]
+        paths = hit or paths
+    frames, held, skipped = [], [], 0
+    for p in paths:
         df = reader(p)
-        gid = p.stem
+        if any(c not in df.columns for c in required):
+            skipped += 1
+            continue
         if "heldout" in p.parts:
-            held.append(gid)
+            col = "sportvu_game" if "sportvu_game" in df.columns else ("game" if "game" in df.columns else None)
+            held += df[col].astype(str).unique().tolist() if col else [p.stem]
         frames.append(df)
     if not frames:
-        return None, held
-    return pd.concat(frames, ignore_index=True), held
+        return None, held, skipped
+    return pd.concat(frames, ignore_index=True), held, skipped
 
 
 def load_data_root(data_root, out_root=None, season: str = SEASON) -> dict:
-    """Read the DATA_ROOT and OUT_ROOT layout of the module docstring into the inputs dict."""
+    """Read the DATA_ROOT and OUT_ROOT layout of the module docstring into the inputs dict (plus a ``files`` log)."""
     data_root = Path(data_root)
     out_root = Path(out_root) if out_root else data_root
-    inputs: dict = {"season": season}
+    inputs: dict = {"season": season, "files": {}}
     held: set = set()
-    frames, h = _read_many(data_root.glob("sportvu_contract/**/*.parquet"))
-    held |= set(h)
-    poss, h = _read_many((data_root / "analytics" / "possessions").rglob("*.parquet"))
-    held |= set(h)
-    inputs["frames"], inputs["possessions"] = frames, poss
-    hand_actions, _ = _read_many((data_root / "labels" / "actions").glob("*.jsonl"), _read_jsonl)
-    det, h = _read_many((out_root / "analytics" / "actions").rglob("*.parquet"))
-    held |= set(h)
-    if hand_actions is not None and len(hand_actions):
-        if "label_source" not in hand_actions.columns:
-            hand_actions["label_source"] = "hand"
+
+    def take(name, paths, reader=pd.read_parquet, prefer=None):
+        df, h, skipped = _read_many(paths, reader, REQUIRED[name], prefer)
+        held.update(h)
+        inputs["files"][name] = {"rows": 0 if df is None else int(len(df)), "skipped_files": skipped}
+        return df
+
+    inputs["frames"] = take("frames", data_root.glob("sportvu_contract/**/*.parquet"))
+    inputs["possessions"] = take("possessions", (data_root / "analytics" / "possessions").rglob("*.parquet"))
+    hand = take("actions", (data_root / "labels" / "actions").glob("*.jsonl"), _read_jsonl)
+    inputs["files"]["actions_hand"] = inputs["files"].pop("actions")
+    det = take("actions", (out_root / "analytics" / "actions").rglob("*.parquet"), prefer="actions_detected")
+    inputs["files"]["actions_detected"] = inputs["files"].pop("actions")
+    if hand is not None and len(hand):
+        if "label_source" not in hand.columns:
+            hand["label_source"] = "hand"
         if det is not None and len(det):          # detected rows only for games without hand labels
-            det = det[~det["sportvu_game"].isin(hand_actions["sportvu_game"].unique())]
-            hand_actions = pd.concat([hand_actions, det], ignore_index=True)
-        inputs["actions"] = hand_actions
+            det = det[~det["sportvu_game"].isin(hand["sportvu_game"].unique())]
+            if "label_source" not in det.columns:
+                det["label_source"] = "detected"
+            hand = pd.concat([hand, det], ignore_index=True)
+        inputs["actions"] = hand
+    elif det is not None:
+        if "label_source" not in det.columns:
+            det["label_source"] = "detected"
+        inputs["actions"] = det
     else:
-        inputs["actions"] = det if det is not None else pd.DataFrame(columns=list(REQUIRED["actions"]))
-    screens, _ = _read_many((data_root / "labels" / "screens").glob("*.jsonl"), _read_jsonl)
-    inputs["screens"] = screens
-    cov, h = _read_many((out_root / "analytics" / "coverage").rglob("*.parquet"))
-    held |= set(h)
-    inputs["coverage_predictions"] = cov
-    epv, h = _read_many((out_root / "analytics" / "epv").rglob("*.parquet"))
-    held |= set(h)
-    inputs["epv_states"] = epv
+        inputs["actions"] = pd.DataFrame(columns=list(REQUIRED["actions"]))
+    inputs["screens"] = take("screens", (data_root / "labels" / "screens").glob("*.jsonl"), _read_jsonl)
+    inputs["coverage_predictions"] = take("coverage_predictions", (out_root / "analytics" / "coverage").rglob("*.parquet"),
+                                          prefer="coverage_predictions")
+    inputs["epv_states"] = take("epv_states", (out_root / "analytics" / "epv").rglob("*.parquet"))
     games = set()
     for name in ("frames", "possessions", "actions"):
         df = inputs.get(name)
@@ -278,14 +297,16 @@ def load_data_root(data_root, out_root=None, season: str = SEASON) -> dict:
     return inputs
 
 
-def fixture_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, heldout_every: int = 4, with_epv: bool = True) -> dict:
-    """Synthetic inputs from the shared fixtures when present, else tests/_fx_playcalling.py. Fixture output,
-    never a result."""
+def fixture_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, heldout_every: int = 4, with_epv: bool = True,
+                   generator: str = "auto") -> dict:
+    """Synthetic inputs: analytics.fixtures (lane I1) when present and generator is "auto", else the local generator of
+    tests/_fx_playcalling.py. Fixture output, never a result."""
     root = Path(__file__).resolve().parents[2]
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
     from tests import _fx_playcalling as fx
-    return fx.season_inputs(seed, n_games=n_games, n_possessions=n_possessions, heldout_every=heldout_every, with_epv=with_epv)
+    return fx.season_inputs(seed, n_games=n_games, n_possessions=n_possessions, heldout_every=heldout_every, with_epv=with_epv,
+                            shared=(generator == "auto"))
 
 
 def main(argv=None) -> dict:
@@ -296,8 +317,9 @@ def main(argv=None) -> dict:
     ap.add_argument("--out", default=None)
     ap.add_argument("--season", default=SEASON)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fixture-generator", choices=("auto", "local"), default="auto", help="auto: analytics.fixtures when present")
     a = ap.parse_args(argv)
-    inputs = fixture_inputs(a.seed) if a.fixtures else load_data_root(a.data, a.out, a.season)
+    inputs = fixture_inputs(a.seed, generator=a.fixture_generator) if a.fixtures else load_data_root(a.data, a.out, a.season)
     try:
         _, log = validate_inputs(inputs)
     except ValidationError as exc:

@@ -38,8 +38,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_folds, log_loss,
-                            refuse_heldout)
+from analytics.eval import bootstrap_by_game, brier, calibration_table, ece, grouped_folds, log_loss, refuse_heldout
 from analytics.winprob import features as F
 
 WHO = "winprob.train"
@@ -51,6 +50,31 @@ INNER_FOLDS = 3
 MAC_CMD = ("python -m analytics.winprob.train --data \"$DATA_ROOT\" --out \"$DATA_ROOT\" --report reports/winprob.md "
            "--seed 0 --bootstrap 1000 --folds 5 --heldout-season 2024-25")
 FIT_LOG: list = []      # every fit appends (model, sorted training game ids); tests read it
+SLOPE_RIDGE, SLOPE_ITER = 1e-6, 50
+
+
+def slope(y, p) -> float:
+    """Calibration slope: the coefficient of a logistic regression of y on logit(p), as analytics.eval.calibration_slope
+    defines it, solved by Newton's method with a ridge of 1e-6 and at most 50 iterations. The eval version (lbfgs at
+    C=1e6, up to 1000 iterations) agrees to two decimals on ordinary data but runs to its iteration cap on the nearly
+    separable late-game buckets, which made the bootstrap intervals too slow; this one stays bounded. NaN with one class."""
+    y = np.asarray(y, dtype=float).reshape(-1)
+    p = np.clip(np.asarray(p, dtype=float).reshape(-1), 1e-6, 1 - 1e-6)
+    if len(y) == 0 or len(np.unique(y)) < 2:
+        return float("nan")
+    x = np.log(p / (1 - p))
+    X = np.column_stack([np.ones_like(x), x])
+    w = np.zeros(2)
+    for _ in range(SLOPE_ITER):
+        z = np.clip(X @ w, -30, 30)
+        q = 1 / (1 + np.exp(-z))
+        g = X.T @ (q - y) + SLOPE_RIDGE * w
+        H = (X * (q * (1 - q))[:, None]).T @ X + SLOPE_RIDGE * np.eye(2)
+        step = np.linalg.solve(H, g)
+        w = w - step
+        if np.max(np.abs(step)) < 1e-8:
+            break
+    return float(w[1])
 
 
 def _limits():
@@ -105,7 +129,7 @@ def fit_logistic(train: pd.DataFrame):
 
 def _hgb():
     from sklearn.ensemble import HistGradientBoostingClassifier
-    return HistGradientBoostingClassifier(max_iter=80, learning_rate=0.1, max_leaf_nodes=15, min_samples_leaf=40,
+    return HistGradientBoostingClassifier(max_iter=60, learning_rate=0.1, max_leaf_nodes=15, min_samples_leaf=40,
                                           early_stopping=False, random_state=0)
 
 
@@ -186,7 +210,7 @@ def bucket_scores(pred: pd.DataFrame, p_col: str, n_boot: int, seed: int, interv
     d = pd.DataFrame({"game": pred["game_id"].astype(str).to_numpy(), "y": pred[F.TARGET].astype(float).to_numpy(),
                       "p": pred[p_col].astype(float).to_numpy(), "b": pred["time_bucket"].astype(str).to_numpy()})
     fns = {"brier": lambda s: brier(s["y"], s["p"]), "ece": lambda s: ece(s["y"], s["p"], 10),
-           "slope": lambda s: calibration_slope(s["y"], s["p"])}
+           "slope": lambda s: slope(s["y"], s["p"])}
     for b in F.BUCKET_NAMES:
         s = d[d["b"] == b]
         r = {"n": int(len(s))}
@@ -221,7 +245,7 @@ def calibration_rows(pred: pd.DataFrame, p_col: str, season_label: str) -> pd.Da
             continue
         y, p = s[F.TARGET].astype(float).to_numpy(), s[p_col].astype(float).to_numpy()
         rows.append({"season": season_label, "time_bucket": b, "n": int(len(s)), "mean_p": float(p.mean()),
-                     "mean_y": float(y.mean()), "brier": brier(y, p), "slope": calibration_slope(y, p)})
+                     "mean_y": float(y.mean()), "brier": brier(y, p), "slope": slope(y, p)})
     return pd.DataFrame(rows, columns=["season", "time_bucket", "n", "mean_p", "mean_y", "brier", "slope"])
 
 
@@ -346,6 +370,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "- The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.",
           "- The possession indicator is read from event kinds and is null when the events so far do not say.",
           "- The interaction is margin times sqrt(seconds remaining), as specified; the logistic model also sees margin and time on their own.",
+          "- The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.",
           ""]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)

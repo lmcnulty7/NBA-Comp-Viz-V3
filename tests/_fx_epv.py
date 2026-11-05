@@ -1,8 +1,11 @@
 """tests/_fx_epv.py: fixtures for the EPV lane (analytics/epv).
 
 Prefers the shared generator ``analytics.fixtures`` (lane I1) and falls back to a minimal local generator with
-the same signatures and column names, so the EPV tests pass with the fallback alone. Everything here is
-synthetic and deterministic given the seed; nothing is read from disk and nothing is written into the repo.
+the same signatures and column names, so the EPV tests pass with the fallback alone. ``season_tables`` gives the
+season in one shape whichever generator made it (the shared synth_season returns a list of game dicts, the local
+one a dict of concatenated tables); ``fallback=True`` or the environment variable EPV_FIXTURE_FALLBACK=1 forces the
+local generator. Everything here is synthetic and deterministic given the seed; nothing is read from disk and
+nothing is written into the repo.
 
     synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
         -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz, sportvu_game, heldout)
@@ -31,14 +34,17 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import os
+
 try:  # the shared generator of lane I1, when it exists
-    from analytics.fixtures import synth_game, synth_season  # type: ignore  # noqa: F401
+    from analytics.fixtures import synth_game as _shared_synth_game, synth_season as _shared_synth_season  # type: ignore
     try:
-        from analytics.fixtures import write_fixture_root  # type: ignore  # noqa: F401
+        from analytics.fixtures import write_fixture_root as _shared_write_fixture_root  # type: ignore
     except ImportError:  # pragma: no cover
-        write_fixture_root = None  # type: ignore
+        _shared_write_fixture_root = None
     SHARED = True
 except ImportError:
+    _shared_synth_game = _shared_synth_season = _shared_write_fixture_root = None
     SHARED = False
 
 HOME_ID, AWAY_ID = 1610612744, 1610612751
@@ -255,15 +261,49 @@ def _fallback_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) 
     return out
 
 
-if not SHARED:
-    synth_game = _fallback_synth_game  # type: ignore
-    synth_season = _fallback_synth_season  # type: ignore
+def _game_meta(g: dict) -> tuple:
+    """(sportvu_game, heldout) of a synth_game dict from either generator."""
+    meta = g.get("meta") or {}
+    game = g.get("sportvu_game") or meta.get("sportvu_game") or str(g["possessions"]["sportvu_game"].iloc[0])
+    held = g.get("heldout", meta.get("heldout", False))
+    return str(game), bool(held)
 
 
-def _fallback_write_fixture_root(root, seed: int, n_games: int, heldout_every: int = 0) -> list:
+def use_fallback(flag=None) -> bool:
+    """True when the local generator is to be used: no shared generator, an explicit flag, or EPV_FIXTURE_FALLBACK=1."""
+    if flag is not None:
+        return bool(flag) or not SHARED
+    return (not SHARED) or os.environ.get("EPV_FIXTURE_FALLBACK", "") == "1"
+
+
+def season_tables(seed: int = 0, n_games: int = 8, heldout_every: int = 0, fallback=None) -> dict:
+    """The season as concatenated tables whichever generator made it: keys frames, events, shots, rosters,
+    shot_frames, rebound_frames, possessions, states_1hz (each one DataFrame) and games [(sportvu_game, heldout)]."""
+    if use_fallback(fallback):
+        return _fallback_synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    season = _shared_synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    if isinstance(season, dict) and "games" in season:
+        return season
+    parts = {k: [] for k in ("frames", "events", "shots", "rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz")}
+    games = []
+    for g in season:
+        games.append(_game_meta(g))
+        for k in parts:
+            parts[k].append(g[k])
+    out = {k: pd.concat(v, ignore_index=True) if v else pd.DataFrame() for k, v in parts.items()}
+    out["games"] = games
+    return out
+
+
+synth_game = _shared_synth_game if SHARED else _fallback_synth_game
+synth_season = _shared_synth_season if SHARED else _fallback_synth_season
+fallback_synth_game, fallback_synth_season = _fallback_synth_game, _fallback_synth_season
+
+
+def _fallback_write_fixture_root(root, seed: int, n_games: int, heldout_every: int = 0, fallback=None) -> list:
     """Write the DATA_ROOT layout the EPV CLIs read. Returns [(sportvu_game, heldout), ...]."""
     root = Path(root)
-    season = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    season = season_tables(seed, n_games=n_games, heldout_every=heldout_every, fallback=fallback)
     games = season["games"]
     for game, held in games:
         sub = "heldout/" if held else ""
@@ -290,7 +330,8 @@ def _fallback_write_fixture_root(root, seed: int, n_games: int, heldout_every: i
     return games
 
 
-if not SHARED or write_fixture_root is None:
-    write_fixture_root = _fallback_write_fixture_root  # type: ignore
+write_fixture_root = _shared_write_fixture_root if (SHARED and _shared_write_fixture_root is not None) else _fallback_write_fixture_root
+fallback_write_fixture_root = _fallback_write_fixture_root
 
-__all__ = ["synth_game", "synth_season", "write_fixture_root", "SHARED", "HELDOUT_IDS", "SEASON"]
+__all__ = ["synth_game", "synth_season", "write_fixture_root", "season_tables", "use_fallback", "fallback_synth_game",
+           "fallback_synth_season", "fallback_write_fixture_root", "SHARED", "HELDOUT_IDS", "SEASON"]

@@ -449,6 +449,7 @@ def parse_args(argv=None):
     ap.add_argument("--season", default=SEASON)
     ap.add_argument("--fixture-games", type=int, default=8)
     ap.add_argument("--fixture-possessions", type=int, default=40)
+    ap.add_argument("--fixture-generator", choices=("auto", "local"), default="auto", help="auto: analytics.fixtures when present")
     return ap.parse_args(argv)
 
 
@@ -456,7 +457,7 @@ def main(argv=None) -> dict:
     from analytics.playcalling import validate as V
     a = parse_args(argv)
     if a.fixtures:
-        inputs = V.fixture_inputs(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions)
+        inputs = V.fixture_inputs(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions, generator=a.fixture_generator)
     else:
         inputs = V.load_data_root(a.data, a.out or a.data, a.season)
     inputs, vlog = V.validate_inputs(inputs)

@@ -404,7 +404,7 @@ def test_html_has_no_external_resources():
     assert "http://" not in stripped and "https://" not in stripped
     assert re.search(r"<script[^>]*\ssrc=", html) is None
     assert "<link" not in html and "@import" not in html and "url(" not in html
-    assert "—" not in html
+    assert chr(0x2014) not in html
     for key in ("ArrowLeft", "ArrowRight", "Enter", "Escape", "coverage"):
         assert key in html
 
@@ -414,4 +414,4 @@ def test_no_em_dashes_in_owned_files():
                 "tests/_fx_labels.py", "docs/contract/labels.md", "docs/labeling_guide.md"):
         p = ROOT / rel
         if p.exists():
-            assert "—" not in p.read_text(encoding="utf-8"), rel
+            assert chr(0x2014) not in p.read_text(encoding="utf-8"), rel

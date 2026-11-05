@@ -18,7 +18,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from analytics import audit_shots, run_phase0 as rp, schema  # noqa: E402
-from tests._fx_phase0 import write_fixture_root  # noqa: E402
+from tests import _fx_phase0 as fx  # noqa: E402
 
 EM_DASH = chr(0x2014)
 
@@ -33,9 +33,11 @@ def _call(argv) -> tuple[int, str]:
 @pytest.fixture(scope="module")
 def root(tmp_path_factory) -> Path:
     """A fixture DATA_ROOT where the last training game has lost its play-by-play (pbp_joined false)."""
-    r = tmp_path_factory.mktemp("phase0_root")
-    man = write_fixture_root(r, seed=0, n_games=6, heldout_every=3)
-    train = [g for g, e in man["games"].items() if not e["heldout"]]
+    base = tmp_path_factory.mktemp("phase0_root")
+    fx.write_fixture_root(base, seed=0, n_games=6, heldout_every=3)
+    r = fx.fixture_data_root(base)
+    man = json.loads((r / "manifest.json").read_text())
+    train = [g for g, e in man["games"].items() if not e["heldout"] and e["pbp_joined"]]
     assert len(train) >= 3 and any(e["heldout"] for e in man["games"].values())
     victim = train[-1]
     e = man["games"][victim]
@@ -56,7 +58,16 @@ def step1(root) -> dict:
 
 @pytest.fixture(scope="module")
 def eligible(step1) -> list:
-    return [g for g, e in step1["games"].items() if e["status"] == "ok" and e["pbp_joined"]]
+    """Status ok, play-by-play joined, and the manifest's heldout flag agreeing with sportvu/splits.json."""
+    return [g for g, e in step1["games"].items()
+            if e["status"] == "ok" and e["pbp_joined"] and bool(e["heldout"]) == rp.routed_heldout(g, e)]
+
+
+@pytest.fixture(scope="module")
+def disagree(step1) -> list:
+    """Games whose heldout flag disagrees with the routing (none in the fallback fixture)."""
+    return [g for g, e in step1["games"].items()
+            if e["status"] == "ok" and e["pbp_joined"] and bool(e["heldout"]) != rp.routed_heldout(g, e)]
 
 
 @pytest.fixture(scope="module")
@@ -98,13 +109,16 @@ def test_games_and_limit_narrow_the_dry_run(root, out, eligible):
 
 
 # ── the full run ───────────────────────────────────────────────────────────────────────────────────
-def test_full_run_writes_every_table(root, out, step1, eligible, no_pbp):
+def test_full_run_writes_every_table(root, out, step1, eligible, no_pbp, disagree):
     rc, text = _call(["--data", str(root), "--out", str(out)])
     assert rc == 0, text
     assert text.rstrip().splitlines()[-1] == "RUN OK"
     man = _manifest(out)
     assert sorted(man["games"]) == sorted(eligible)
     assert no_pbp in man["skipped"] and "pbp_joined false" in man["skipped"][no_pbp]
+    for g in disagree:
+        assert g in man["skipped"] and "sportvu/splits.json" in man["skipped"][g]
+        assert not any(p.stem == g for p in (out / "analytics").rglob("*.parquet"))
     for g in eligible:
         entry = man["games"][g]
         assert entry["status"] == "ok" and entry["heldout"] == bool(step1["games"][g]["heldout"])
@@ -130,7 +144,7 @@ def test_full_run_writes_every_table(root, out, step1, eligible, no_pbp):
         held_files = {p.stem for p in held_dir.glob("*.parquet")} if held_dir.exists() else set()
         assert train_files == {g for g in eligible if not step1["games"][g]["heldout"]}
         assert held_files == {g for g in eligible if step1["games"][g]["heldout"]}
-    assert no_pbp not in train_files | held_files
+    assert not ({no_pbp} | set(disagree)) & (train_files | held_files)
     assert man["gaps"]["games"] == len(step1["games"])
     assert (out / "reports" / "sportvu_gaps.md").exists()
     assert (out / "reports" / "localisation_shots.md").exists() and (out / "reports" / "localisation_rebounds.md").exists()
@@ -156,7 +170,7 @@ def test_summary_report_carries_the_totals(root, out, step1, eligible, no_pbp):
     assert text.rstrip().endswith("RUN OK")
     assert EM_DASH not in text
     t = rp.totals(man)
-    assert t["shot_frames"]["n_shots"] == n_shots and t["games"]["skipped"] == 1
+    assert t["shot_frames"]["n_shots"] == n_shots and t["games"]["skipped"] == len(man["skipped"]) >= 1
 
 
 def test_second_run_reuses_everything(root, out, eligible):
@@ -227,6 +241,7 @@ def test_steps_subset_and_workers(root, out, tmp_path, step1, eligible):
 
 def test_fixtures_flag_writes_the_repo_report(tmp_path, monkeypatch):
     monkeypatch.setattr(rp, "FIXTURE_REPORT", tmp_path / "phase0_driver.md")
+    monkeypatch.setattr(fx, "write_fixture_root", fx.write_fixture_root_fallback)   # the quick writer: plumbing only
     monkeypatch.setattr("tempfile.mkdtemp", lambda prefix="": str(tmp_path / "fxroot"))
     (tmp_path / "fxroot").mkdir()
     rc, text = _call(["--fixtures", "--out", str(tmp_path / "fxout"), "--limit", "1", "--steps", "possessions,gaps"])

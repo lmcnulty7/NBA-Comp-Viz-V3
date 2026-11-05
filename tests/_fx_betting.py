@@ -1,7 +1,8 @@
 """tests/_fx_betting.py: fixtures for the betting lane.
 
 Prefers the shared generators of analytics.fixtures (lane I1) when they import; otherwise a minimal
-local generator with the same signatures and column names, deterministic given the seed:
+local generator with the same signatures and column names, deterministic given the seed. SOURCE names which one
+is in use and team_names() gives the id -> name map the join needs for the shared fixtures' synthetic ids:
 
     synth_stints(seed, n_games=20, seasons=("2020-21",), n_players_per_team=9)
         -> dict(stints, playbyplay, games)
@@ -22,8 +23,22 @@ import numpy as np
 import pandas as pd
 
 try:  # the shared fixtures of lane I1, when present
+    from analytics import fixtures as _shared
     from analytics.fixtures import synth_odds, synth_stints  # noqa: F401
+    SOURCE = "analytics/fixtures.py"
+
+    def team_names() -> dict:
+        """id -> feed name of the shared fixtures' synthetic teams (their ids are not stats.nba.com ids), for
+        validate.validate(..., team_names=...); the join also infers them from dates when this is not passed."""
+        codes, base = _shared.TEAM_CODES, _shared.TEAM_ID_BASE
+        return {base + i: _shared.TEAM_NAMES[codes[i % len(codes)]] for i in range(len(codes) + 6)
+                if codes[i % len(codes)] in _shared.TEAM_NAMES}
 except ImportError:  # pragma: no cover - exercised when the shared module is absent
+    SOURCE = "tests/_fx_betting.py (fallback generator)"
+
+    def team_names() -> dict:
+        return {}      # the fallback uses real stats.nba.com ids, which validate.TEAM_NAMES knows
+
     _TEAMS = [(1610612744, "Golden State Warriors"), (1610612747, "Los Angeles Lakers"),
               (1610612738, "Boston Celtics"), (1610612748, "Miami Heat"),
               (1610612743, "Denver Nuggets"), (1610612749, "Milwaukee Bucks")]

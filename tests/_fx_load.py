@@ -281,11 +281,12 @@ def game_meta(game: dict) -> dict:
             "away": game.get("away") or away, "home": game.get("home") or home, "heldout": bool(game.get("heldout", False))}
 
 
-def season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20) -> dict:
+def season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20, prefer_shared=True) -> dict:
     """The inputs dict of analytics.load.validate: games (list of dict(sportvu_game, date, away, home, heldout,
     frames, rosters)), manifest (section 6 shape, dates and teams), aggregates (section 11), injuries (None:
-    the injuries table covers 2021-22 onward and never overlaps the tracking era)."""
-    if SHARED:
+    the injuries table covers 2021-22 onward and never overlaps the tracking era). prefer_shared=False forces
+    the local generator (the tests assert on its planted signal: the schedule and the speed decline)."""
+    if SHARED and prefer_shared:
         games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
     else:
         games = _local_synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
@@ -305,8 +306,11 @@ def season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20) -> dict:
         if g["heldout"]:
             manifest["heldout"].append(g["sportvu_game"])
     n_players = len({int(p) for g in out_games for p in g["rosters"]["player_id"]})
-    return {"games": out_games, "manifest": manifest, "aggregates": synth_aggregates(seed, max(n_players, 1), ["2015-16"]),
-            "injuries": None, "season": "2015-16", "source": "fixture (shared)" if SHARED else "fixture (local fallback)"}
+    agg = synth_aggregates(seed, max(n_players, 1), ["2015-16"]) if SHARED and prefer_shared else \
+        _local_synth_aggregates(seed, max(n_players, 1), ["2015-16"])
+    return {"games": out_games, "manifest": manifest, "aggregates": agg,
+            "injuries": None, "season": "2015-16",
+            "source": "fixture (shared analytics.fixtures)" if SHARED and prefer_shared else "fixture (local tests/_fx_load.py)"}
 
 
 __all__ = ["SHARED", "synth_game", "synth_season", "synth_aggregates", "season_inputs", "game_meta", "team_players"]

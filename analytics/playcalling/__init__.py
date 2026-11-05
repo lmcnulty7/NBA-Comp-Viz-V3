@@ -16,21 +16,22 @@ Nothing here identifies the effect of calling a play: the defence, the lineup an
 choose the play as much as the coach does. The report says so in its first line.
 
 Assumptions recorded here because the upstream lanes (ACTIONS, COVERAGE, EPV) were built in parallel:
-  - ACTION_TYPES and COVERAGES below are the vocabularies this lane codes against. An unknown value
-    in an input is counted and kept as its own category, never dropped and never refused, so a
+  - ACTION_TYPES is the ACTIONS lane vocabulary (analytics/actions, also analytics/fixtures) and
+    COVERAGES the COVERAGE lane classes (analytics/coverage CLASSES) plus "none". An unknown value in
+    an input is counted and kept as its own category, never dropped and never refused, so a
     different upstream vocabulary flows through with a logged count.
   - Actions without a screen label (or whose screen row is missing) get coverage "none".
-  - An actions table without an action_id column gets one: the 0-based rank of the action by
-    start_frame inside its possession. The screens and coverage tables join on
-    (sportvu_game, possession, action_id).
+  - An actions table without an action_id column gets one: the 0-based position of the row within
+    its game (jsonl line order, parquet row order), the convention of analytics/coverage and of the
+    shared fixtures. The screens and coverage tables join on (sportvu_game, possession, action_id).
   - Hand labels (labels/actions, labels/screens) win over detected or predicted rows when both
     exist for the same key; label_source records which one was used.
 """
 from __future__ import annotations
 
-ACTION_TYPES = ("pick_and_roll", "isolation", "post_up", "handoff", "off_ball_screen", "spot_up", "transition", "cut")
-COVERAGES = ("drop", "switch", "hedge", "blitz", "ice", "under", "none")
-LABEL_SOURCES = ("hand", "detected", "predicted")
+ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
+COVERAGES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over", "none")
+LABEL_SOURCES = ("hand", "human", "model", "detected", "predicted", "synthetic")
 SEASON = "2015-16"
 N_MIN = 300            # the possession gate of analytics.eval.gated
 WHO = "playcalling"

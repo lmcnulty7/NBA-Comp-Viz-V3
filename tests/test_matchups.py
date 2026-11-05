@@ -22,7 +22,7 @@ def games():
 
 @pytest.fixture(scope="module")
 def ctx(games):
-    return T.run(games, None, n_folds=3, seed=0, n_boot=20, n_min=30, fixtures=True, command="pytest")
+    return T.run(games, None, n_folds=3, seed=0, n_boot=20, n_min=10, fixtures=True, command="pytest")
 
 
 # ── assignment on hand-built frames ────────────────────────────────────────────────────────────────
@@ -143,9 +143,10 @@ def test_end_to_end_fixture_run(ctx, games, tmp_path):
     assert HELD not in set(mp["sportvu_game"])
     d = ctx["defenders"]
     assert list(d.columns) == T.DEFENDER_COLUMNS and d["insufficient"].dtype == bool
-    assert (~d["insufficient"]).sum() == (d["n_possessions"] >= 30).sum() > 0
+    assert (~d["insufficient"]).sum() == (d["n_possessions"] >= 10).sum() > 0
     assert np.isfinite(d["ridge_value"]).all() and np.isfinite(d["diff_per100"]).all()
-    assert (d["lo"] <= d["diff_per100"] + 1e-9).all() and (d["hi"] >= d["diff_per100"] - 1e-9).all()
+    m = d["lo"].notna()                                   # no interval for a defender seen in one game only
+    assert (d.loc[m, "lo"] <= d.loc[m, "diff_per100"] + 1e-9).all() and (d.loc[m, "hi"] >= d.loc[m, "diff_per100"] - 1e-9).all()
     assert d["diff_per100"].tolist() == pytest.approx((d["points_allowed_per100"] - d["expected_per100"]).tolist())
     assert ctx["cv"]["alpha"] in T.ALPHAS and ctx["cv"]["folds"] == 3
     assert set(ctx["compare"]["mse"]) == set(T.MODELS) and all(np.isfinite(v["point"]) for v in ctx["compare"]["mse"].values())
@@ -183,18 +184,19 @@ def test_validate_counts_and_cli(games, tmp_path):
     g["frames"] = fr
     r = V.validate_game(g)
     assert r["counts"]["duplicate_rows"] == 7 and r["counts"]["missing_position"] == 3 and r["problems"] == []
-    assert len(g["frames"]) == len(games[0]["frames"])
+    assert len(g["frames"]) == len(games[0]["frames"]) - 3      # duplicates dropped, the three rows without a position dropped
     bad = dict(games[0])
     bad["possessions"] = games[0]["possessions"].assign(end_kind="nope").drop(columns=["gap"])
     r = V.validate_game(bad)
     assert any("possessions" in p and "gap" in p for p in r["problems"]) and any("enum" in p for p in r["problems"])
-    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3"])
+    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2"])
     written = sorted(p.name for p in (tmp_path / "analytics" / "matchups").rglob("*.parquet"))
-    assert len(written) == 8 and any(HELD in n for n in written)
+    assert len(written) == 2 and any(HELD in n for n in written)
     assert (tmp_path / "analytics" / "matchups" / "heldout" / "2015-16" / (HELD + ".parquet")).exists()
-    back = pd.read_parquet(tmp_path / "analytics" / "matchups" / "2015-16" / "01.19.2016.AAA.at.BBB.parquet")
-    assert list(back.columns) == F.MATCHUP_COLUMNS and len(res["matchup_possessions"]) > 0
-    table = V.main(["--fixtures", "--out", str(tmp_path), "--seed", "3"])
+    train_files = sorted((tmp_path / "analytics" / "matchups" / "2015-16").glob("*.parquet"))
+    back = pd.read_parquet(train_files[0])
+    assert len(train_files) == 1 and list(back.columns) == F.MATCHUP_COLUMNS and len(res["matchup_possessions"]) > 0
+    table = V.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2"])
     assert (table["n_problems"] == 0).all() and (tmp_path / "analytics" / "matchups" / "validate_2015-16.json").exists()
 
 

@@ -329,26 +329,43 @@ if not SHARED:
 
 
 # ── adapters for tests (one shape whichever generator is in use) ───────────────────────────────────
-def season_games(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 24) -> list:
-    """List of game dicts with keys sportvu_game, heldout, frames, possessions, rosters, labels (actions, screens)."""
-    if SHARED:
-        try:
-            raw = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
-        except TypeError:
-            raw = synth_season(seed, n_games, heldout_every)
-        if isinstance(raw, dict):
-            raw = raw.get("games", list(raw.values()))
-    else:
-        raw = _fallback_synth_season(seed, n_games, heldout_every, n_possessions)
+def fixture_source() -> str:
+    return "analytics.fixtures (shared, lane I1)" if SHARED else "tests/_fx_actions.py (fallback)"
+
+
+def _normalise(raw, seed: int, label_fn) -> list:
     out = []
-    for i, g in enumerate(raw):
+    for g in raw:
         g = dict(g)
         sg = g.get("sportvu_game") or str(g["possessions"]["sportvu_game"].iloc[0])
         g["sportvu_game"] = sg
-        g["heldout"] = bool(g.get("heldout", False))
-        g["labels"] = labels_for(seed, g)
+        held = g.get("heldout")
+        if held is None:
+            held = bool((g.get("meta") or {}).get("heldout", False)) if isinstance(g.get("meta"), dict) else False
+        g["heldout"] = bool(held)
+        g["labels"] = label_fn(seed, g)
         out.append(g)
     return out
+
+
+def fallback_season_games(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 24) -> list:
+    """The fallback generator whatever is importable: deterministic scripted games for the assertions of the tests."""
+    raw = _fallback_synth_season(seed, n_games, heldout_every, n_possessions)
+    return _normalise(raw, seed, lambda s, g: _fallback_synth_labels(s, g))
+
+
+def season_games(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 24) -> list:
+    """List of game dicts with keys sportvu_game, heldout, frames, possessions, rosters, labels (actions, screens):
+    the shared generator when importable (its own possession count), else the fallback."""
+    if not SHARED:
+        return fallback_season_games(seed, n_games, heldout_every, n_possessions)
+    try:
+        raw = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    except TypeError:
+        raw = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    if isinstance(raw, dict):
+        raw = raw.get("games", list(raw.values()))
+    return _normalise(raw, seed, labels_for)
 
 
 def labels_for(seed: int, game: dict) -> dict:

@@ -40,7 +40,7 @@ PERIOD_S = 720.0
 HOME_COURT = 2.5
 PACE_S_PER_POSS = 28.8
 SUB_MEAN_S = 200.0
-OTHER_EVENT_S = 20.0
+OTHER_EVENT_S = 30.0
 
 
 def _elapsed(period: int, clock_s: float) -> float:
@@ -58,7 +58,7 @@ def _lineup_id(ids) -> str:
 
 def _synergy(seed: int, ids, starters: bool) -> float:
     rng = np.random.default_rng([seed, 7919] + sorted(int(x) for x in ids))
-    return float(rng.normal(0, 3.0 if starters else 1.5))
+    return float(rng.normal(0, 5.0 if starters else 2.0))
 
 
 def _season_start(season: str) -> dt.date:
@@ -71,7 +71,7 @@ def _fallback_synth_stints(seed: int = 0, n_games: int = 20, seasons=("2020-21",
     ratings = {}
     for t, ids in rosters.items():
         for k, pid in enumerate(ids):
-            ratings[pid] = float(rng.normal(1.0 if k < 5 else -1.0, 2.0))
+            ratings[pid] = float(rng.normal(1.5 if k < 5 else -1.5, 4.0))
     starters_of = {t: ids[:5] for t, ids in rosters.items()}
     synergies: dict[str, float] = {}
 

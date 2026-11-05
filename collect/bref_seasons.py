@@ -107,6 +107,7 @@ def pbp_rows(g: dict, events: list[dict], fetched_at: str):
 
 # ── units ──────────────────────────────────────────────────────────────────────────────────────────
 def do_unit(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
+    import pandas as pd
     g, code = unit["game"], unit["game"]["game_id"]
     if unit["endpoint"] == SHOTS:
         rec = sched.page_record(fam, RAW_SHOTS, {"code": code}, bs.shot_chart_url(code), throttle)
@@ -116,8 +117,7 @@ def do_unit(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[
             raise ValueError("%s: the hoop fitted from the tips sits %.1f px from HOOP_PX %s: the page's pixel frame is not the assumed one"
                              % (code, cal["hoop_shift_px"], cal["hoop_px"]))
         df = bs.rows_for_game(game_dict(g), shots, rec["fetched_at"], g.get("split"), g["season_type"])
-        df["game_id"] = df["game_id"].astype("string")
-        df.loc[:, "game_id"] = code
+        df["game_id"] = pd.Series([code] * len(df), dtype="string")
         if len(df):
             fam.write_part(SHOTS, g["season"], code, df)
         return len(df), {"fetched_at": rec["fetched_at"], "endpoint": "boxscores/shot-chart/%s.html" % code, "markers": len(shots),

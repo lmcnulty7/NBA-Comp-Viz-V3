@@ -124,9 +124,12 @@ def _move(start, target, n, vmax=VMAX):
 
 def _smooth(raw, prev, a=0.18):
     """First-order lag: y[t] = (1-a) y[t-1] + a raw[t], y[-1] = prev. raw (n,k,2), prev (k,2)."""
-    from scipy.signal import lfilter
-    zi = ((1 - a) * np.asarray(prev, float))[None, :, :]
-    y, _ = lfilter([a], [1.0, -(1 - a)], raw, axis=0, zi=zi)
+    y = np.empty_like(raw)
+    cur = np.asarray(prev, float)
+    r = 1.0 - a
+    for t in range(len(raw)):
+        cur = r * cur + a * raw[t]
+        y[t] = cur
     return y
 
 
@@ -177,7 +180,7 @@ class _Sim:
         n = len(pos)
         clock = self.clock - np.arange(1, n + 1) * DT
         if gap_at is not None:
-            clock[gap_at:] -= GAP_SECONDS
+            clock[gap_at:] -= GAP_SECONDS - DT          # the removed frames plus the normal step make 3.0 s
             self.gap_spans.setdefault(self.period, []).append(
                 [round(float(clock[gap_at - 1]), 2), round(float(clock[gap_at]), 2)])
         shot = np.maximum(0.0, 24.0 - (self.poss_start_clock - clock))
@@ -218,7 +221,7 @@ class _Sim:
               override=None, swap=None, gap=False, def_targets=None):
         """One phase of n frames: offence moves straight to off_targets, defence tracks (or moves to
         def_targets when given), the ball follows ball_fn(off_pos, def_pos) -> (n,3)."""
-        extra = int(GAP_SECONDS * HZ) if gap else 0
+        extra = int(GAP_SECONDS * HZ) - 1 if gap else 0
         m = n + extra
         off = _move(self.pos[off_idx], off_targets, m)
         if def_targets is not None:
@@ -367,6 +370,7 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
         sim.pos[:5] = np.column_stack([rs.uniform(30, 64, 5), rs.uniform(8, 42, 5)])
         sim.pos[5:] = np.column_stack([rs.uniform(30, 64, 5), rs.uniform(8, 42, 5)])
         period_first_event = len(events)
+        period_first_frame = sim.n
         if period in SUBS:
             for side in ("home", "away"):
                 out_i, in_i = SUBS[period]
@@ -378,7 +382,7 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
                     p1=int(pid[base + out_i]), p2=int(pid[base + in_i]), etype=8)
         handler_slot = 1                                   # point guard brings it up
         carrier_from_prev = None                           # (slot within team) when a rebound/steal continues
-        prev_end_frame = sim.n                             # start_frame of the first possession = first frame
+        prev_end_frame = period_first_frame                # start_frame of the first possession = first frame
         start_event = period_first_event
         for _k in range(per_period[period - 1]):
             is_home = off_side == "home"
@@ -557,7 +561,8 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
                     shooter = rebounder
                     last_passer = None
                     sim.poss_start_clock = sim.clock           # shot clock reset
-                    n_hold = int(rs.uniform(0.4, 0.8) * HZ)
+                    # hold long enough that the putback's localisation window excludes the first rim
+                    n_hold = int(rs.uniform(2.0, 2.5) * HZ)
                     sim.phase(n_hold, off_idx, def_idx, sim.pos[off_idx], basket, shooter, star_slot,
                               lambda o, d, h=shooter, b=basket: _held_ball(o[:, h], b, np.full(len(o), 5.0)), swap=swap)
                     continue
@@ -582,10 +587,16 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
     periods = np.concatenate(sim.period_chunks)
     N = len(pos)
     frame_ids = np.arange(N, dtype=np.int32)
+    _truth_pass(shot_rows, reb_rows, pos.astype(np.float32), ball.astype(np.float32))
     slot_pid = np.zeros((N, 10), dtype=np.int64)
     for p in range(1, 5):
         m = periods == p
         slot_pid[m] = pid[slot_roster[p]]
+    for r in reb_rows:
+        got = int(slot_pid[r["rebound_frame"], r.pop("_slot")])
+        if got != r["rebounder_id"]:
+            raise RuntimeError("fixture bug: rebound at frame %d secured by %d, play-by-play says %d"
+                               % (r["rebound_frame"], got, r["rebounder_id"]))
     pid_to_row = {int(r["player_id"]): r for r in roster}
     flat_pid = slot_pid.ravel()
     rep = lambda a: np.repeat(a, 10)   # noqa: E731
@@ -648,6 +659,44 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
     return {"frames": frames, "events": events_df, "shots": shots_df, "rosters": rosters_df,
             "shot_frames": shot_frames_df, "rebound_frames": rebound_df, "possessions": poss_df,
             "states_1hz": states_df, "meta": meta, "truth": truth, "manifest_entry": manifest_entry}
+
+
+def _truth_pass(shot_rows, reb_rows, pos, ball):
+    """Apex, outcome, rim and rebound frames by the contract rules (sections 17 and 18) on the float32 arrays
+    the frames table carries, so the truth is exactly what a correct localiser returns."""
+    N = len(ball)
+    bz = ball[:, 2].astype(float)
+    bx, by = ball[:, 0].astype(float), ball[:, 1].astype(float)
+    near_rim = np.zeros(N, dtype=bool)
+    for x0, y0 in BASKETS:
+        near_rim |= np.hypot(bx - x0, by - y0) <= 6.0
+    outcome_of = {}
+    for r in shot_rows:
+        rel = r["release_frame"]
+        hi = min(N, rel + 1 + 3 * HZ)
+        apex = rel + 1 + int(np.argmax(bz[rel + 1:hi]))
+        cand = np.where((bz[apex + 1:hi] < 10.0) & near_rim[apex + 1:hi])[0]
+        if not len(cand):
+            raise RuntimeError("fixture bug: shot at frame %d never reaches the rim" % rel)
+        out = apex + 1 + int(cand[0])
+        r["apex_frame"], r["outcome_frame"] = apex, out
+        r["clock_s"] = r["clock_s"]
+        outcome_of[r["event"]] = out
+    for r in reb_rows:
+        rim = outcome_of[r["event"]]
+        r["rim_frame"] = rim
+        found = None
+        for f in range(rim + 1, min(N, rim + 3 * HZ)):
+            if bz[f] >= 7.0:
+                continue
+            d = np.hypot(pos[f, :, 0] - bx[f], pos[f, :, 1] - by[f])
+            if d.min() <= 2.0:
+                found = (f, int(np.argmin(d)))
+                break
+        if found is None:
+            raise RuntimeError("fixture bug: no rebound after rim frame %d" % rim)
+        r["rebound_frame"] = found[0]
+        r["_slot"] = found[1]
 
 
 def _poss_row(game, no, period, sf, ef, sc, ec, se, ee, tid, kind, pts, gap):
@@ -847,13 +896,26 @@ def _shoot(sim, rs, off_idx, def_idx, basket, shooter, star_slot, spot, swap, cl
     z = np.linspace(4.0, 7.5, n_g)
     sim.phase(n_g, off_idx, def_idx, sim.pos[off_idx], basket, shooter, star_slot,
               lambda o, d: _held_ball(o[:, shooter], basket, z), swap=swap)
+    # nobody but the shooter within 1.6 ft of the ball during the gather (the release identity is the shooter)
+    gather = sim.pos_chunks[-1]
+    sp = gather[:, off_idx[shooter], :]
+    for j in range(10):
+        if j == off_idx[shooter]:
+            continue
+        v = gather[:, j, :] - sp
+        dd = np.linalg.norm(v, axis=1)
+        close = dd < 1.6
+        if close.any():
+            u = np.where(dd[:, None] > 1e-6, v / np.maximum(dd[:, None], 1e-6), np.array([[1.0, 0.0]]))
+            gather[close, j, :] = sp[close] + u[close] * 1.6
+    sim.pos = gather[-1].copy()
     release_frame = sim.last_frame()
     rel_ball = sim.ball_chunks[-1][-1]
     dpos = sim.pos[def_idx]
     def_dist = float(np.min(np.linalg.norm(dpos - sim.pos[off_idx][shooter][None, :], axis=1)))
     # flight to the rim
     b = np.array([basket[0], basket[1]])
-    T = 0.9 + 0.3 * (cls == "three") + 0.15 * (cls == "mid")
+    T = {"layup": 1.1, "mid": 1.2, "three": 1.3}[cls]      # apex 13.7 to 15.6 ft, above any rebound bounce
     n_f = int(round(T * HZ)) + 1           # one frame past the rim so the ball falls below 10 ft
     t = np.arange(1, n_f + 1) * DT
     vz = (10.0 - rel_ball[2] + 0.5 * G_FT * T * T) / T
@@ -863,8 +925,10 @@ def _shoot(sim, rs, off_idx, def_idx, basket, shooter, star_slot, spot, swap, cl
     # shooter lands, rebounders crash: slots 3 and 4 of both teams move toward the rim side
     targets = sim.pos[off_idx].copy()
     sim.phase(n_f, off_idx, def_idx, targets, basket, shooter, star_slot, lambda o, d: flight, swap=swap)
-    apex_frame = release_frame + 1 + int(np.argmax(zz))
-    outcome_frame = sim.last_frame()
+    apex_i = int(np.argmax(zz))
+    apex_frame = release_frame + 1 + apex_i
+    below = np.where(zz[apex_i + 1:].astype(np.float32) < 10.0)[0]
+    outcome_frame = release_frame + 1 + apex_i + 1 + int(below[0])
     return release_frame, apex_frame, outcome_frame, def_dist
 
 
@@ -894,14 +958,16 @@ def _rebound(sim, rs, off_idx, def_idx, basket, rebounder, offensive, star_slot,
     b = np.array(basket)
     sgn, _ = _attack(basket)
     ang = rs.uniform(-1.0, 1.0)
-    r = rs.uniform(4.0, 8.0)
+    r = rs.uniform(6.5, 9.0)
     land = b + np.array([sgn * r * math.cos(ang), r * math.sin(ang)])
     team_idx = off_idx if offensive else def_idx
     other_idx = def_idx if offensive else off_idx
-    n = int(rs.uniform(0.6, 0.9) * HZ)
+    team_idx = off_idx if offensive else def_idx
+    d_reb = float(np.linalg.norm(sim.pos[team_idx][rebounder] - land))
+    n = max(int(rs.uniform(0.6, 0.9) * HZ), int(d_reb / (24.0 * DT)) + 2)
     t = np.arange(1, n + 1) / n
     xy = b[None, :] + (land - b)[None, :] * t[:, None]
-    zz = 10.0 + 6.0 * np.sin(np.pi * t) * (1 - t) ** 0.3 - 3.5 * t      # peaks ~ 12 then down to 6.5
+    zz = 10.0 + 3.0 * np.sin(np.pi * t) * (1 - t) ** 0.3 - 3.5 * t      # peaks under 11.5 then down to 6.5
     zz[-1] = 6.5
     zz[:-1] = np.maximum(zz[:-1], 7.2)
     ball = np.column_stack([xy, zz])

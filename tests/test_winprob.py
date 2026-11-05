@@ -201,3 +201,15 @@ def test_cli_mains_on_fixtures(tmp_path, capsys):
     summ = F.main(["--fixtures", "--out", str(tmp_path)])
     assert summ["rows"] > 0 and len(summ["written"]) == 2
     capsys.readouterr()
+
+
+def test_bounded_slope_agrees_with_eval_calibration_slope():
+    from analytics.eval import calibration_slope
+    rng = np.random.default_rng(1)
+    x = rng.normal(0, 1.5, 2000)
+    y = (rng.random(2000) < 1 / (1 + np.exp(-0.7 * x))).astype(int)
+    p = 1 / (1 + np.exp(-x))
+    assert abs(T.slope(y, p) - calibration_slope(y, p)) < 1e-2
+    assert np.isnan(T.slope(np.ones(10), np.full(10, 0.5)))
+    sep = np.clip(np.where(y == 1, 0.999, 0.001), 1e-6, 1 - 1e-6)
+    assert np.isfinite(T.slope(y, sep))

@@ -526,13 +526,14 @@ def parse_args(argv=None):
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--n-min", type=int, default=N_MIN)
     ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
+    ap.add_argument("--heldout-every", type=int, default=4, help="fixtures only: every k-th game is held out")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
-    games = V.fixture_games(a.seed, a.n_games) if a.fixtures else V.load_games(a.data, a.season)
+    games = V.fixture_games(a.seed, a.n_games, a.heldout_every) if a.fixtures else V.load_games(a.data, a.season)
     if not games:
         raise SystemExit("%s: no games found" % WHO)
     V.validate_games(games)

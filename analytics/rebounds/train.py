@@ -150,11 +150,13 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
     if len(np.unique(y)) < 2:
         out["logit"] = out["prior"]; out["hgb"] = out["prior"]
         return out
+    from threadpoolctl import threadpool_limits
     lr = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), LogisticRegression(C=1.0, max_iter=2000))
-    lr.fit(X.to_numpy(), y)
     hgb = HistGradientBoostingClassifier(max_iter=80, learning_rate=0.1, max_depth=3, min_samples_leaf=10,
                                          early_stopping=False, random_state=seed)
-    hgb.fit(X.to_numpy(), y)
+    with threadpool_limits(limits=1):           # four cores shared by many jobs: no thread pool per fit
+        lr.fit(X.to_numpy(), y)
+        hgb.fit(X.to_numpy(), y)
 
     def logit_predict(frame, m=lr, r=rates):
         Xt = design(frame, apply_prior(frame, r))
