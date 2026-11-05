@@ -43,7 +43,7 @@ every offensive player. Constants are module-level in `features.py`.
 
 | rule_class | window | condition on every frame of the window |
 | --- | --- | --- |
-| ball_screen | at least 0.8 s | a teammate within 4 ft of the handler's defender (either of the two defenders nearest the handler at the window start, within 9 ft of him, and not the teammate's own matchup), moving under 3 ft per s, handler within 12 ft of him; merged windows of one (handler, screener) are the set, padded by 1 s before and 1 s after (approach and use) |
+| ball_screen | at least 0.8 s | a teammate within 4 ft of the handler's defender (either of the two defenders nearest the handler at the window start, within 9 ft of him, and not the teammate's own matchup before the window), moving under 3 ft per s, handler within 12 ft of him; merged windows of one (handler, screener) are the set, padded by 1 s before and 1 s after (approach and use) |
 | drive | 0.6 s | handler starts within 30 ft of the basket and closes on it faster than 8 ft per s |
 | isolation | 2 s | handler starts within 30 ft, keeps the ball (within 4 ft) under 8 ft per s, no teammate within 10 ft |
 

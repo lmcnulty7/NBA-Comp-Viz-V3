@@ -1,6 +1,8 @@
-"""tests/test_actions.py: analytics.actions (validate, features, train, eda) on the fallback fixtures of
-tests/_fx_actions.py (scripted screens, drives and isolations), a hand-built screen, and a DATA_ROOT on disk.
-Everything here runs on synthetic motion: fixture output, not a result. No network."""
+"""tests/test_actions.py: analytics.actions (validate, features, train, eda) on the shared fixtures of
+analytics/fixtures.py (tests/_fx_actions.py falls back to its own scripted generator only when that import fails),
+on the fallback generator's hand-scripted screens, drives and isolations, on a hand-built screen, and on a
+DATA_ROOT on disk with tombstoned and pass-2 labels. Everything here runs on synthetic motion: fixture output, not
+a result. No network."""
 import json
 import sys
 from pathlib import Path
@@ -26,8 +28,15 @@ OWNED = ["analytics/actions/__init__.py", "analytics/actions/validate.py", "anal
 
 @pytest.fixture(scope="module")
 def games():
-    """Six fallback games, every third held out (two held-out, four training), 24 possessions each."""
-    return fx.fallback_season_games(seed=0, n_games=6, heldout_every=3, n_possessions=24)
+    """Six games from the fixtures in use (analytics.fixtures when importable), every third held out (two held-out,
+    four training), 24 possessions each."""
+    return fx.season_games(seed=0, n_games=6, heldout_every=3, n_possessions=24)
+
+
+@pytest.fixture(scope="module")
+def fallback_games():
+    """Four training games from the fallback generator, whose scripted motion the assertions know exactly."""
+    return fx.fallback_season_games(seed=0, n_games=4, heldout_every=0, n_possessions=24)
 
 
 # ── hand-built frames ──────────────────────────────────────────────────────────────────────────────
@@ -120,16 +129,27 @@ def test_iou_label_matching_and_recall():
     assert r.loc["ball_screen", "recall_any"] == 1.0 and r.loc["isolation", "recall_any"] == 0.0 and r.loc["drive", "labels"] == 0
 
 
-def test_fixture_candidates_recover_every_scripted_label(games):
-    train = [g for g in games if not g["heldout"]]
-    cands, feats, recall, skipped = F.build_season(train)
+def test_fallback_candidates_recover_every_scripted_label(fallback_games):
+    cands, feats, recall, skipped = F.build_season(fallback_games)
     assert skipped == 0 and len(cands) == len(feats)
     r = recall.set_index("class")
     assert (r["labels"] > 0).all()
-    assert (r["recall_same_class"] >= 0.95).all(), recall
+    assert (r["recall_same_class"] == 1.0).all(), recall
     assert (cands["label_class"] == "none").sum() > 0                   # the slow cutter makes false screen candidates
     assert set(cands["label_class"]) <= set(CLASSES)
     assert cands.columns.tolist()[:8] == F.CANDIDATE_COLUMNS
+
+
+def test_fixture_candidates_recover_the_labels(games):
+    """On the fixtures in use: candidate recall at IoU >= 0.5 for every detected class, with hard negatives present."""
+    train = [g for g in games if not g["heldout"]]
+    cands, feats, recall, skipped = F.build_season(train)
+    assert len(cands) == len(feats)
+    r = recall.set_index("class")
+    assert (r["labels"] > 0).all()
+    assert (r["recall_any"] >= 0.85).all(), recall
+    assert (cands["label_class"] == "none").sum() > 0
+    assert cands["label_iou"].between(0, 1).all()
 
 
 def test_leakage_guard(games):
@@ -193,7 +213,7 @@ def test_end_to_end_fixture_run(games, tmp_path):
 def test_cli_on_a_data_root(tmp_path):
     root = tmp_path / "data"
     man = fx._fallback_write_fixture_root(root, seed=1, n_games=3, heldout_every=3, n_possessions=10)
-    assert len(man["games"]) == 3 and (root / "labels" / "actions").exists()
+    assert len(man["games"]) == 3 and (root / "labels" / "actions").exists() and (root / "labels" / "screens").exists()
     assert (root / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
     v = V.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert v["summary"]["games"] == 3 and v["summary"]["ok"] == 3 and v["summary"]["heldout_games"] == 1
@@ -248,19 +268,37 @@ def test_eda_tables_and_shuffled_label_check(games):
     assert "fixture output, not a result" in md and "—" not in md
 
 
-def test_shared_fixtures_smoke():
-    """The shared generator of lane I1, when importable: the pipeline runs on it (no thresholds, it may still change)."""
-    if not fx.SHARED:
-        pytest.skip("analytics.fixtures not importable; the fallback generator covered the tests")
-    try:
-        games = fx.season_games(seed=0, n_games=3, heldout_every=0, n_possessions=8)
-    except Exception as exc:   # noqa: BLE001  (another lane's generator is not under test here)
-        pytest.skip("shared generator raised: %r" % exc)
-    cands, feats, recall, _ = F.build_season(games)
-    schema.assert_time_forward(feats, "possessions")
-    assert len(recall) == 3 and len(cands) == len(feats)
-    ctx = T.run(games, n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
-    assert ctx["selected"] in T.MODELS and len(ctx["table"]) == len(cands)
+def test_fallback_generator_end_to_end(fallback_games):
+    """The fallback generator (used only when analytics.fixtures is not importable) also runs the whole protocol."""
+    ctx = T.run([dict(g) for g in fallback_games[:3]], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
+    assert ctx["selected"] in T.MODELS and ctx["scores"]["hgb"]["f1_ball_screen"]["point"] >= 0.8
+    assert "fixture" in fx.fixture_source()
+
+
+def test_hand_labels_drop_tombstones_and_pass_two(tmp_path):
+    """Hand labels come through analytics.labels.read_labels(labeller_pass=1): a tombstoned label and a pass-2
+    relabel in the file never reach the trainer."""
+    from analytics import labels as L
+    root = tmp_path / "data"
+    fx._fallback_write_fixture_root(root, seed=2, n_games=1, heldout_every=0, n_possessions=8)
+    game = V.discover_games(root)[0][0]
+    before = V.load_hand_labels(root, game)
+    n0 = len(before["actions"])
+    assert n0 > 0 and (before["actions"]["labeller_pass"] == 1).all() and (before["actions"]["label_source"] == "hand").all()
+    gone = int(before["actions"]["action_id"].iloc[0])
+    L.append_tombstone(root, game, "actions", gone)
+    relabel = before["actions"].iloc[[1]].copy()
+    relabel["action_id"] = 10 ** 5
+    relabel["labeller_pass"] = 2
+    L.write_labels(root, game, relabel, None)
+    raw = [json.loads(l) for l in (root / "labels" / "actions" / (game + ".jsonl")).read_text().splitlines() if l.strip()]
+    assert any(r.get("deleted") for r in raw) and any(r.get("labeller_pass") == 2 for r in raw)
+    after = V.load_hand_labels(root, game)
+    assert len(after["actions"]) == n0 - 1
+    assert gone not in set(after["actions"]["action_id"]) and 10 ** 5 not in set(after["actions"]["action_id"])
+    assert (after["actions"]["labeller_pass"] == 1).all()
+    g = V.load_game(root, game, False)
+    assert len(g["labels"]["actions"]) == n0 - 1 and V.validate_game(g)["ok"]
 
 
 def test_owned_files_have_no_em_dash_and_notebook_is_json():

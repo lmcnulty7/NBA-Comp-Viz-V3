@@ -17,10 +17,10 @@ Hand-label schema (lane I4 writes the tool; this package codes against it, DATA_
              label_source, confidence
 
 Assumptions recorded here because nobody could be asked:
-  - a JSONL line is an actions row when it carries action_type and a screens row when it carries coverage
-    (a "table" key, when present, wins); action_id defaults to the row's position among the actions rows
-  - the coverage vocabulary is not fixed by the schema; unknown values are counted as warnings, not errors;
-    screens.confidence may be a number in [0, 1] or a text grade (counted as a warning), never null
+  - hand labels are read only through analytics.labels.read_labels(DATA_ROOT, game, labeller_pass=1): the
+    last line per id wins, tombstoned ids are dropped, pass-2 relabels never reach a fit; the vocabularies
+    (action_type, coverage, label_source) are analytics.labels', and a coverage outside them is a warning;
+    screens.confidence may be a text grade (sure, unsure) or a number in [0, 1], never null
   - only ball_screen, drive and isolation are detected; a candidate overlapping a label of another type
     (handoff, off_ball_screen, post_up, cut) counts as "none" and the count is reported
   - frames are read at 5 Hz (every round(hz / 5)-th frame of the possession); hand labels and candidate
@@ -28,9 +28,12 @@ Assumptions recorded here because nobody could be asked:
 """
 from __future__ import annotations
 
-ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
-LABEL_SOURCES = ("hand", "model", "synthetic")
-COVERAGES = ("over", "under", "switch", "ice", "drop", "blitz", "blitz_trap", "hedge", "hedge_show", "show", "unknown")
+try:   # the label contract of lane I4 (docs/contract/labels.md) owns these vocabularies
+    from analytics.labels import ACTION_TYPES, COVERAGES, LABEL_SOURCES
+except ImportError:   # pragma: no cover - the schema as the lead stated it
+    ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
+    LABEL_SOURCES = ("hand", "model", "synthetic")
+    COVERAGES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over")
 CLASSES = ("ball_screen", "drive", "isolation", "none")      # the detector's classes, in output order
 SEASON = "2015-16"
 WHO = "actions.train"

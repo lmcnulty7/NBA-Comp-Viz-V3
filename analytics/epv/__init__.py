@@ -14,6 +14,13 @@ Held-out games of sportvu/splits.json never fit or tune anything. The contract o
 """
 from __future__ import annotations
 
+import os
+
+# Four cores are shared by many lanes and the OpenMP runtime behind sklearn's HistGradientBoosting has been seen
+# to hang outright here with its default thread count; one thread fits these models in well under a second.
+# Set before any sklearn import (the runtime reads it once, when it loads).
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+
 WHO = "train_epv"
 SEASON_DEFAULT = "2015-16"
 ELAPSED_BUCKETS = ((0.0, 4.0), (4.0, 10.0), (10.0, 24.0))
