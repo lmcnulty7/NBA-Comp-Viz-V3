@@ -454,3 +454,21 @@ which every trainer calls on its feature frame and which checks the union over a
 lists the columns a trainer may use: neither targets, nor post-outcome columns, nor the id columns
 `sportvu_game`, `event`, `rebound_event`, `possession`, `frame`, `player_id`, `shooter_id`. `release_frame`,
 `rim_frame` and the possession `start_*` columns stay allowed.
+
+## 21. Extension contracts: `docs/contract/`
+
+Each extension and infrastructure lane documents its inputs, output tables, columns, dtypes, paths,
+protocol and leakage rules in its own page. The pages are the contract for the tables written under
+`OUT_ROOT/analytics/<lane>/`; this file stays the contract for the five Phase 0 tables above.
+
+| page | what it specifies |
+| --- | --- |
+| `docs/contract/fixtures.md` | the shared synthetic generator (`analytics/fixtures.py`): every table above plus labels, aggregates, stints, odds; the held-out routing of fixture games |
+| `docs/contract/ingestion.md` | the basketball-reference drivers (`collect/bref_schedule`, `bref_seasons`, `bref_boxscores`, `bref_lineups`, `positions`, `drive`) and the tables they write under `DATA_ROOT/collect/` |
+| `docs/contract/phase0_driver.md` | `analytics.run_phase0` (rosters, shot frames, rebound frames, possessions over a Step 1 manifest) and `analytics.audit_shots` |
+| `docs/contract/labels.md` | hand labels: `labels/{actions,screens,visited}/<game>.jsonl`, the sanctioned reader `analytics.labels.read_labels`, passes and tombstones |
+| `docs/contract/interfaces.md` | the five cross-lane tables: `xfg_predictions`, `epv_states`, `actions_detected`, `coverage_predictions`, `player_rapm` |
+| `docs/contract/xfg.md`, `rebounds.md`, `matchups.md`, `gravity.md`, `ghosting.md`, `embeddings.md`, `epv.md`, `actions.md`, `coverage.md`, `decisions.md`, `playcalling.md`, `lineups.md`, `winprob.md`, `load.md`, `betting.md` | one page per extension: unit, features, candidates, selection and held-out protocol, output tables, CLI |
+
+`docs/run_order.md` gives the order to run everything on the Mac; `analytics/registry.py` holds the
+dependency graph that `run_all.py` and the Makefile follow.
