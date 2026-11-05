@@ -1,5 +1,10 @@
 """analytics/rebounds/features.py: candidate rows for the rebound model.
 
+    python -m analytics.rebounds.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--games 8]
+        [--possessions 40]
+writes the candidate frame of every game to OUT_ROOT/analytics/rebounds/features/<season>/<game>.parquet (held-out
+games under heldout/<season>/), under a temporary OUT_ROOT when --out is absent, and prints the row counts.
+
 Unit: one missed field-goal attempt (a row of the section 18 rebound_frames table with a rim frame). Each miss
 becomes one candidate row per player on court at the rim frame (ten in a full frame) plus one "none" row
 (candidate_player_id = -1, the team rebound). The target column is ``is_rebounder``: true on the row of the
@@ -39,6 +44,7 @@ every frame ``build`` returns; ``assert_no_leak`` refuses a design matrix with a
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Iterable
 
 import numpy as np
@@ -278,5 +284,61 @@ def build(bundles: Iterable[dict]) -> tuple[pd.DataFrame, dict]:
     return out, {"per_game": per_game, "total": total}
 
 
+# ── command line ──────────────────────────────────────────────────────────────────────────────────
+def write_features(cands: pd.DataFrame, out_root) -> list:
+    """One parquet per game under OUT_ROOT/analytics/rebounds/features/<season>/ (held-out under heldout/)."""
+    from analytics.rebound_frames import season_of_game
+    paths = []
+    for game, part in cands.groupby("sportvu_game", sort=True):
+        try:
+            season = season_of_game(str(game))
+        except ValueError:
+            season = "unknown"
+        held = bool(part["heldout"].any())
+        p = Path(out_root) / "analytics" / "rebounds" / "features" / ("heldout" if held else "") / season / (str(game) + ".parquet")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        part.reset_index(drop=True).to_parquet(p, index=False)
+        paths.append(str(p))
+    return paths
+
+
+def parse_args(argv=None):
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument("--fixtures", action="store_true", help="synthetic games (fixture output, not a result)")
+    src.add_argument("--data", help="DATA_ROOT (analytics.rebounds.validate docstring)")
+    ap.add_argument("--out", help="OUT_ROOT; a temporary directory when absent")
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--games", type=int, default=8, help="fixture games (every fourth held out)")
+    ap.add_argument("--possessions", type=int, default=40, help="fixture possessions per game")
+    return ap.parse_args(argv)
+
+
+def main(argv=None) -> dict:
+    import tempfile
+    from analytics.rebounds import validate as V
+    a = parse_args(argv)
+    bundles = V.bundles_from_fixtures(a.seed, a.games, 4, a.possessions) if a.fixtures else V.bundles_from_root(a.data)
+    cleaned = [V.clean_bundle(b)[0] for b in bundles]
+    cands, counts = build(cleaned)
+    out_root = a.out or tempfile.mkdtemp(prefix="rebounds_features_")
+    paths = write_features(cands, out_root)
+    t = counts["total"]
+    L = ["# Rebound candidate rows (analytics.rebounds.features)" + (" (fixture output, not a result)" if a.fixtures else ""), "",
+         "%d game(s): %d misses in, %d kept (%d team rebounds as none), %d candidate rows; dropped: %s."
+         % (len(counts["per_game"]), t["n_in"], t["misses_kept"], t["team_rebounds_kept"], t["rows"],
+            ", ".join("%s %d" % (k, t[k]) for k in DROP_REASONS)),
+         "Features: %s." % ", ".join(feature_columns()),
+         "Written %d file(s) under %s/analytics/rebounds/features/." % (len(paths), out_root), ""]
+    print("\n".join(L))
+    return {"candidates": cands, "counts": counts, "paths": paths, "out_root": out_root}
+
+
+if __name__ == "__main__":
+    main()
+
+
 __all__ = ["FEATURES", "STATIC_FEATURES", "PRIOR", "KEYS", "TARGET", "NONE_ID", "FORBIDDEN", "DROP_REASONS",
-           "feature_columns", "assert_no_leak", "select_misses", "offense_side", "build_game", "build"]
+           "feature_columns", "assert_no_leak", "select_misses", "offense_side", "build_game", "build",
+           "write_features", "main"]

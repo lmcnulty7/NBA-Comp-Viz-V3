@@ -59,8 +59,8 @@ def test_validate_drops_duplicates_offcourt_and_teleports_with_counts():
     f.loc[30, "x"] = f.loc[29, "x"] + 2.0                                     # a 2 ft jump in 40 ms: 50 ft/s teleport
     clean, log = V.validate_frames(f)
     assert log["rows_in"] == 51 and log["rows_duplicate_frame_player"] == 1 and log["rows_outside_court"] == 1
-    assert log["rows_speed_over_30_ftps"] == 1 and log["rows_out"] == 48
-    assert set(clean["frame"]) == set(range(50)) - {20, 30}
+    assert log["rows_speed_over_30_ftps"] == 2 and log["rows_out"] == 47     # the jump out and the jump back
+    assert set(clean["frame"]) == set(range(50)) - {20, 30, 31}
     with pytest.raises(ValueError, match="lacks column"):
         V.validate_frames(f.drop(columns=["x"]))
 

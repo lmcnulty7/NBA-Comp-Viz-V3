@@ -163,25 +163,28 @@ def local_synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -
         else:
             ball_holder = players[off][0]
         ball = pos[ball_holder] + np.array([0.5, 0.0])
-        for k in range(POSS_FRAMES):
-            frame = f0 + k
-            clock = 720.0 - ((p % per_period) * POSS_FRAMES + k) / HZ
-            for tid in (home_id, away_id):
-                for pid in players[tid]:
-                    rows.append((game, "002150%04d" % (seed % 10000), "2016-01-%02d" % (seed % 28 + 1), period, frame,
-                                 1_450_000_000_000 + frame * 40, np.float32(clock), np.float32(24.0 - (k / HZ) % 24),
-                                 10, np.float32(ball[k, 0]), np.float32(ball[k, 1]), np.float32(3.0), tid, TEAMS[tid],
-                                 tid == home_id, pid, "Player %d" % pid, str(pid % 100),
-                                 np.float32(pos[pid][k, 0]), np.float32(pos[pid][k, 1])))
+        order = [(tid, pid) for tid in (home_id, away_id) for pid in players[tid]]   # home players first
+        k = np.repeat(np.arange(POSS_FRAMES), 10)
+        frame = f0 + k
+        clock = 720.0 - ((p % per_period) * POSS_FRAMES + k) / HZ
+        tids = np.tile([t for t, _ in order], POSS_FRAMES)
+        pids = np.tile([q for _, q in order], POSS_FRAMES)
+        xy = np.stack([pos[q] for _, q in order], axis=1).reshape(-1, 2)      # (POSS_FRAMES * 10, 2)
+        rows.append(pd.DataFrame({
+            "game": game, "gameid": "002150%04d" % (seed % 10000), "date": "2016-01-%02d" % (seed % 28 + 1),
+            "period": np.int8(period), "frame": frame.astype(np.int32), "ts_ms": 1_450_000_000_000 + frame * 40,
+            "game_clock_s": clock.astype(np.float32), "shot_clock_s": (24.0 - (k / HZ) % 24).astype(np.float32),
+            "n_players": np.int8(10), "ball_x": ball[k, 0].astype(np.float32), "ball_y": ball[k, 1].astype(np.float32),
+            "ball_z": np.float32(3.0), "team_id": tids.astype(np.int32), "team": [TEAMS[t] for t in tids],
+            "home": tids == home_id, "player_id": pids.astype(np.int32), "player": ["Player %d" % q for q in pids],
+            "jersey": [str(q % 100) for q in pids], "x": xy[:, 0].astype(np.float32), "y": xy[:, 1].astype(np.float32)}))
         poss_rows.append({"sportvu_game": game, "possession": p, "period": period, "start_frame": f0,
                           "end_frame": f0 + POSS_FRAMES - 1, "start_clock_s": 720.0 - (p % per_period) * POSS_FRAMES / HZ,
                           "end_clock_s": 720.0 - ((p % per_period) * POSS_FRAMES + POSS_FRAMES - 1) / HZ,
                           "start_event": p * 2, "end_event": p * 2 + 1, "offense_team_id": off,
                           "end_kind": ("shot_made", "shot_missed", "turnover")[p % 3], "points": (2, 0, 0)[p % 3],
                           "gap": False, "n_frames": POSS_FRAMES})
-    cols = ["game", "gameid", "date", "period", "frame", "ts_ms", "game_clock_s", "shot_clock_s", "n_players",
-            "ball_x", "ball_y", "ball_z", "team_id", "team", "home", "player_id", "player", "jersey", "x", "y"]
-    frames = pd.DataFrame(rows, columns=cols)
+    frames = pd.concat(rows, ignore_index=True)
     rosters = pd.DataFrame([{"sportvu_game": game, "player_id": pid, "player": "Player %d" % pid, "team_id": tid,
                              "team": TEAMS[tid], "home": tid == home_id, "jersey": str(pid % 100), "bref_slug": None,
                              "bref_name": None, "pbp_name": None, "match_method": "none"}

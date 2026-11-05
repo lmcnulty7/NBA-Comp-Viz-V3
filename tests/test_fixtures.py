@@ -233,9 +233,10 @@ def test_possessions_consistent_with_events(game):
     for p, part in ps.groupby("period"):
         s, e = part["start_frame"].to_numpy(), part["end_frame"].to_numpy()
         assert (s[1:] == e[:-1]).all()
-    # offence alternates
-    off = ps["offense_team_id"].to_numpy()
-    assert (off[1:] != off[:-1]).all()
+    # offence alternates within a period (each period opens with a fixed side, like a possession arrow)
+    for _p, part in ps.groupby("period"):
+        off = part["offense_team_id"].to_numpy()
+        assert (off[1:] != off[:-1]).all()
 
 
 def test_states_1hz_consistent(game, per_frame):
@@ -252,7 +253,11 @@ def test_states_1hz_consistent(game, per_frame):
         assert (part["points_to_end"] == p.points).all() and (part["possession_end_kind"] == p.end_kind).all()
         assert (part["offense_team_id"] == p.offense_team_id).all()
         el = part["elapsed_in_possession_s"].to_numpy()
-        assert el[0] == 0 and np.allclose(np.round(el), np.arange(len(el)), atol=0.5)
+        assert el[0] == 0 and np.abs(el - np.round(el)).max() <= 0.5 and (np.diff(el) > 0).all()
+        if not p.gap:
+            assert np.allclose(np.round(el), np.arange(len(el)))
+        else:
+            assert len(el) < np.round(el[-1]) + 1          # the 3 s gap holds no states
     row = st.iloc[5]
     assert np.allclose([row.ball_x, row.ball_y], first.loc[row.frame, ["ball_x", "ball_y"]].to_numpy(dtype=float))
     assert np.allclose(_xy(pos, row.frame, row.off1_id), [row.off1_x, row.off1_y])
@@ -466,7 +471,8 @@ def test_labels_screens_present_and_separable(game, per_frame):
 
 # ── the DATA_ROOT layout ──────────────────────────────────────────────────────────────────────────
 def test_write_fixture_root(tmp_path):
-    man = fixtures.write_fixture_root(tmp_path, seed=0, n_games=3, heldout_every=3, n_possessions=8)
+    man = fixtures.write_fixture_root(tmp_path, seed=0, n_games=3, heldout_every=3, n_possessions=8,
+                                      n_stint_games=4, n_agg_players=12)
     sv = tmp_path / "sportvu_contract"
     assert json.loads((sv / "manifest.json").read_text()) == man
     assert man["counts"] == {"games": 3, "ok": 3, "failed": 0, "source_broken": 0, "pbp_joined": 3, "heldout": 1}
@@ -505,14 +511,14 @@ def test_write_fixture_root(tmp_path):
 
 
 def test_cli(tmp_path):
-    assert fixtures.main(["--out", str(tmp_path / "root"), "--games", "1", "--heldout-every", "0", "--possessions", "4"]) == 0
+    assert fixtures.main(["--out", str(tmp_path / "root"), "--games", "1", "--heldout-every", "0", "--possessions", "4",
+                          "--stint-games", "2", "--agg-players", "6"]) == 0
     man = json.loads((tmp_path / "root" / "sportvu_contract" / "manifest.json").read_text())
     assert man["counts"]["games"] == 1 and man["heldout"] == []
 
 
 # ── speed ─────────────────────────────────────────────────────────────────────────────────────────
 def test_speed_40_possessions_under_2s():
-    fixtures.synth_game(11, n_possessions=4)       # warm the code paths
     t = time.time()
     g = fixtures.synth_game(12, n_possessions=40)
     assert time.time() - t < 2.0

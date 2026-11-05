@@ -310,7 +310,8 @@ def write_report(path: Path, ctx: dict) -> str:
     for k in CLASSES:
         n = ctx["label_counts"].get(k, 0)
         L.append("| %s | %d | %s |" % (k, n, _f(n / ctx["train_rows"] if ctx["train_rows"] else float("nan"))))
-    L += ["", "Confidence: %d sure, %d unsure (both are fitted; the flag never enters a feature)." % (ctx["n_sure"], ctx["n_unsure"]),
+    L += ["", "Confidence over every labelled screen read: %d sure, %d unsure (sure and unsure rows are treated alike; the flag "
+          "never enters a feature)." % (ctx["n_sure"], ctx["n_unsure"]),
           "", "## Protocol", "",
           "Unit: one ball screen. Window: start_frame to end_frame plus 1.5 s (38 frames at 25 Hz), declared as the object "
           "being classified; no later frame enters. Features (%d): %s." % (len(feature_columns()), ", ".join(feature_columns())),
@@ -367,7 +368,10 @@ def write_report(path: Path, ctx: dict) -> str:
         "unlabelled screens are counted the same way; the defending team is the on-ball defender's team.",
         "- The feature frame is checked with `schema.assert_time_forward(frame, \"states_1hz\")`: the screen table is not one "
         "of the five contract tables, so the nearest per-frame table name is passed; the check is against the union of "
-        "every table's excluded columns whatever the name.", ""]
+        "every table's excluded columns whatever the name.",
+        "- The features assume start_frame is the screen moment. In the shared fixture (analytics.fixtures) a ball_screen "
+        "action opens with a 1 s approach and a 1 s hold before the drive, so the `_t0` features describe the approach there; "
+        "the window-wide features carry the class. The hand-label convention is confirmed once labels exist.", ""]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)

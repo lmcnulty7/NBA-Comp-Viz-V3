@@ -140,5 +140,14 @@ or the shared `analytics/fixtures.py`.
                                                                               # on every interface output,
                                                                               # manifest held-out check
 
+    INTEGRATION_SLOW=1 INTEGRATION_SHARED=1 python3 -m pytest -q tests/test_integration.py -m slow
+                                                                              # also: one DATA_ROOT from
+                                                                              # `python -m analytics.fixtures`,
+                                                                              # then validate, features, train
+                                                                              # with --data per lane in
+                                                                              # dependency order, interface
+                                                                              # checks on what they wrote
+
 A lane that is not present is a skip with the reason. Every subprocess has a timeout (120 s for validate,
-600 s per features or train step). Results of the latest run: reports/integration.md.
+600 s per features or train step with --fixtures, 300 s per step on the shared root). The fast part runs its
+subprocesses four at a time (`WORKERS`). Results of the latest run: reports/integration.md.

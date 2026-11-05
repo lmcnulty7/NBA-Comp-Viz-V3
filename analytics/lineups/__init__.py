@@ -38,7 +38,7 @@ PACE_POSS_PER_48 = 100.0
 SECONDS_PER_POSS = 48.0 * 60.0 / PACE_POSS_PER_48      # 28.8 s
 SEASONS = ("2020-21", "2021-22", "2022-23", "2023-24", "2024-25")
 FIXTURE_SEASONS = ("2020-21", "2021-22", "2022-23")
-FIXTURE_GAMES = 40
+FIXTURE_GAMES = 30
 WHO = "analytics.lineups"
 PLAYER_COLUMNS = tuple(f"home_{k}" for k in range(1, 6)) + tuple(f"away_{k}" for k in range(1, 6))
 

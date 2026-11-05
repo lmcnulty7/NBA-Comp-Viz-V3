@@ -66,7 +66,7 @@ def test_trainer_recovers_the_planted_association_of_the_local_generator():
     inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=8, n_possessions=40, heldout_every=4, shared=False))
     table, _ = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"],
                                     inp["coverage_predictions"], inp["epv_states"], inp["heldout_games"])
-    ctx = T.run(table, n_folds=3, seed=0, n_boot=5, n_min=N_MIN)
+    ctx = T.run(table, n_folds=3, seed=0, n_boot=3, n_min=N_MIN)
     t1 = ctx["ppp_by_action"].set_index("action_type")["ppp"]
     assert t1["ball_screen"] > t1["isolation"]          # planted: 1.06 against 0.84 expected points
     assert set(ctx["adjusted"]["coverage"]) <= set(table["coverage"])
@@ -233,16 +233,16 @@ def test_data_root_layout_round_trip(tmp_path):
     assert inp["files"]["coverage_predictions"]["rows"] == len(inp["coverage_predictions"]) > 0
     assert inp["files"]["actions_detected"]["skipped_files"] == 0             # actions_detected preferred over action_candidates
     assert inp["files"]["actions_detected"]["rows"] > 0
-    # a root with detected actions only (no hand labels): they become the actions input
-    import shutil
-    shutil.rmtree(root / "labels" / "actions")
-    det = V.load_data_root(root, root)
-    assert det["actions"]["label_source"].eq("model").all() and "action_id" in det["actions"].columns
     res = F.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert res["table"]["heldout"].sum() > 0
     assert (tmp_path / "out" / "analytics" / "playcalling" / "heldout" / "2015-16" / "action_outcomes.parquet").exists()
     assert V.main(["--data", str(root)])["heldout_games"] == [HELD]
-    assert V.main(["--fixtures"])["actions"]["rows"] > 0
+    assert V.main(["--fixtures", "--fixture-generator", "local"])["actions"]["rows"] > 0
+    # last: a root with detected actions only (no hand labels): they become the actions input
+    import shutil
+    shutil.rmtree(root / "labels" / "actions")
+    det = V.load_data_root(root, root)
+    assert det["actions"]["label_source"].eq("model").all() and "action_id" in det["actions"].columns
 
 
 # ── eda and notebook ───────────────────────────────────────────────────────────────────────────────

@@ -7,7 +7,8 @@ Units and definitions (docs/contract/load.md):
 player_stints  one row per continuous on-court span of a player. Frames of a player are sorted by period and
     frame; a new stint starts when the period changes or the game clock jumps by more than STINT_BREAK_S (5 s)
     between consecutive rows of that player (a substitution leaves a hole in the clock; a stopped clock does
-    not). Positions are smoothed by a centred rolling mean over SMOOTH_FRAMES (5) rows before differencing.
+    not). Positions are smoothed by a centred rolling mean over SMOOTH_FRAMES (5) rows before differencing (the
+    two rows at each end of a stint stay raw, so a straight walk keeps its exact length).
     A step is the move between consecutive rows of a stint; it counts when its wall-clock dt (ts_ms, else the
     frame index at 25 Hz) is in (0, 1] s. minutes = game clock elapsed over the stint; distance_ft = sum of
     counted step lengths; avg_speed_ftps = distance / counted seconds; high_intensity_share = counted seconds
@@ -47,7 +48,7 @@ import pandas as pd
 from analytics import schema
 from analytics.load import validate as V
 
-STINT_BREAK_S = 5.0
+STINT_BREAK_S = V.CONTINUOUS_S
 SMOOTH_FRAMES = 5
 MAX_STEP_DT_S = V.MAX_STEP_DT_S
 HIGH_INTENSITY_FTPS = 12.0
@@ -109,14 +110,12 @@ def player_stints(frames: pd.DataFrame, sportvu_game: str | None = None, heldout
     pid = df["player_id"].to_numpy()
     per = df["period"].to_numpy()
     clock = df["game_clock_s"].to_numpy(dtype="float64")
-    same_player = pid == _roll_prev(pid)
-    same_player[0] = False
-    jump = np.abs(_roll_prev(clock) - clock) > STINT_BREAK_S
-    new = ~same_player | (per != _roll_prev(per)) | jump
+    new = ~V.continuous_step(df)                                       # new player, new period or a clock jump
     key = np.cumsum(new) - 1                                            # stint key over the whole game
     kser = pd.Series(key, index=df.index)
-    sm = df[["x", "y"]].astype("float64").groupby(kser).rolling(SMOOTH_FRAMES, center=True, min_periods=1).mean()
-    sm = sm.reset_index(level=0, drop=True).sort_index()
+    raw = df[["x", "y"]].astype("float64")
+    sm = raw.groupby(kser).rolling(SMOOTH_FRAMES, center=True, min_periods=SMOOTH_FRAMES).mean()
+    sm = sm.reset_index(level=0, drop=True).sort_index().fillna(raw)      # the two edge rows of a stint stay raw
     xs, ys = sm["x"].to_numpy(), sm["y"].to_numpy()
     dt = V.step_dt_s(df)
     same_stint = key == _roll_prev(key)

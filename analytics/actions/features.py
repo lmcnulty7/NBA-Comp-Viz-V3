@@ -6,16 +6,21 @@ Step 1, rule-based candidate generation from the frames at 5 Hz (every round(hz 
 possession; frame ids stay the contract's 25 Hz ids). The ball handler at a frame is the offensive player
 nearest the ball, none when the ball is over 6 ft from every offensive player (in flight); the handler's
 defender is the defender nearest the handler at the window start.
-    ball_screen  any 1 s window where an offensive player other than the handler is within 4 ft of the
-                 handler's defender on every frame, moving under 3 ft per s, with the handler within 12 ft
-                 of him; overlapping windows of the same (handler, screener) merge into the set, and the
+    ball_screen  any window of at least 0.8 s (a 1 s set lands on 4 or 5 intervals of the 5 Hz grid) where an
+                 offensive player other than the handler is within 4 ft of the handler's defender on every
+                 frame, moving under 3 ft per s, with the handler within 12 ft of him; the handler's defender
+                 is either of the two defenders nearest the handler at the window start (a switch, ice or
+                 under puts the screened man second) and within 9 ft of the handler (guarding him, not the
+                 screener's own man); overlapping windows of one (handler, screener) merge into the set, and the
                  candidate's extent is the set padded by 1 s before (the approach) and 1 s after (the use),
                  clipped to the possession, because a labelled screen spans approach, set and use (set
                  SCREEN_PAD_PRE_S and SCREEN_PAD_POST_S to 0 if the hand labels mark the set alone)
     drive        any 0.6 s window where the handler, starting within 30 ft of the basket (a half-court
                  action, not the transition sprint), closes on the basket faster than 8 ft per s
-    isolation    any 3 s window where the same handler keeps the ball (ball within 4 ft) and no teammate
-                 comes within 10 ft
+    isolation    any 2 s window where the same handler, starting within 30 ft of the basket, keeps the ball
+                 (ball within 4 ft) under 8 ft per s and no teammate comes within 10 ft. The plan said 3 s;
+                 2 s because a 3 s minimum missed the fixture's 2.4 s holds and the trainer, not the window
+                 length, decides the class
 Step 2, features per candidate from the positions and velocities inside the window (FEATURES), plus one
 declared post-window feature, def_recovery_ft: the handler's defender's distance to the handler averaged
 over the 1 s after the window minus its average inside the window. A detector may look 1 s past the window
@@ -47,10 +52,12 @@ from analytics.actions import CLASSES, IOU_MIN
 log = logging.getLogger("analytics.actions.features")
 
 TARGET_HZ = 5.0
-SCREEN_WINDOW_S, SCREEN_DIST_FT, SCREEN_SPEED_FTPS, SCREEN_HANDLER_DIST_FT = 1.0, 4.0, 3.0, 12.0
+SCREEN_WINDOW_S, SCREEN_DIST_FT, SCREEN_SPEED_FTPS, SCREEN_HANDLER_DIST_FT = 0.8, 4.0, 3.0, 12.0
+SCREEN_N_DEFENDERS = 2                               # the screened man is one of the two defenders nearest the handler
+SCREEN_DEF_HANDLER_FT = 9.0                          # and is guarding him: within this of the handler at the window start
 SCREEN_PAD_PRE_S, SCREEN_PAD_POST_S = 1.0, 1.0      # the approach before the set and the use after it
 DRIVE_WINDOW_S, DRIVE_SPEED_FTPS, DRIVE_START_FT = 0.6, 8.0, 30.0
-ISO_WINDOW_S, ISO_SPREAD_FT, ISO_BALL_FT = 3.0, 10.0, 4.0
+ISO_WINDOW_S, ISO_SPREAD_FT, ISO_BALL_FT, ISO_HANDLER_SPEED_FTPS, ISO_START_FT = 2.0, 10.0, 4.0, 8.0, 30.0
 HANDLER_BALL_FT = 6.0                                # farther than this from every offensive player, the ball has no handler
 RECOVERY_S = 1.0
 NEAR_FT = 8.0
@@ -132,11 +139,16 @@ def handler_index(ball: np.ndarray, off: np.ndarray) -> np.ndarray:
     return out
 
 
-def nearest_defender(arrs: PossessionArrays, i: int, h: int) -> int:
+def nearest_defenders(arrs: PossessionArrays, i: int, h: int, n: int = 1) -> list:
+    """Indices of the n defenders nearest offensive player h at frame i, nearest first (finite positions only)."""
     d = np.linalg.norm(arrs.de[i] - arrs.off[i, h], axis=1)
-    if not np.isfinite(d).any():
-        return -1
-    return int(np.nanargmin(np.where(np.isfinite(d), d, np.inf)))
+    order = [int(k) for k in np.argsort(np.where(np.isfinite(d), d, np.inf)) if np.isfinite(d[k])]
+    return order[:n]
+
+
+def nearest_defender(arrs: PossessionArrays, i: int, h: int) -> int:
+    near = nearest_defenders(arrs, i, h, 1)
+    return near[0] if near else -1
 
 
 def _lineup(pid: np.ndarray, mask: np.ndarray) -> list:
@@ -231,25 +243,30 @@ def screen_windows(a: PossessionArrays) -> list:
         h = a.handler[i]
         if j is None or h < 0:
             continue
-        d = nearest_defender(a, i, h)
-        if d < 0:
-            continue
-        dxy = a.de[i:j + 1, d]
         hxy = a.off[i:j + 1, h]
-        for s in range(k):
-            if s == h:
+        for d in nearest_defenders(a, i, h, SCREEN_N_DEFENDERS):
+            if not np.linalg.norm(a.de[i, d] - a.off[i, h]) < SCREEN_DEF_HANDLER_FT:
                 continue
-            sxy = a.off[i:j + 1, s]
-            near_def = np.linalg.norm(sxy - dxy, axis=1) < SCREEN_DIST_FT
-            slow = a.speed_off[i:j, s] < SCREEN_SPEED_FTPS
-            near_handler = np.linalg.norm(sxy - hxy, axis=1) < SCREEN_HANDLER_DIST_FT
-            if near_def.all() and slow.all() and near_handler.all():
-                wins.append(((h, s), i, j))
+            dxy = a.de[i:j + 1, d]
+            for s in range(k):
+                if s == h:
+                    continue
+                sxy = a.off[i:j + 1, s]
+                near_def = np.linalg.norm(sxy - dxy, axis=1) < SCREEN_DIST_FT
+                slow = a.speed_off[i:j, s] < SCREEN_SPEED_FTPS
+                near_handler = np.linalg.norm(sxy - hxy, axis=1) < SCREEN_HANDLER_DIST_FT
+                if near_def.all() and slow.all() and near_handler.all():
+                    wins.append(((h, s), i, j, d))
+                    break          # one screened defender per (handler, screener, window start)
+    screened = {}
+    for key, i, j, d in sorted(wins, key=lambda w: w[1]):
+        screened.setdefault((key, i), d)
     out = []
-    for key, i, j in _merge(wins):      # the candidate spans the approach, the set and the use (module docstring)
+    for key, i, j in _merge([(key, i, j) for key, i, j, _d in wins]):
+        # the candidate spans the approach, the set and the use (module docstring); its defender is the one of the first window
         i0 = int(np.searchsorted(a.t, a.t[i] - SCREEN_PAD_PRE_S - 1e-6, side="left"))
         i1 = int(np.searchsorted(a.t, a.t[j] + SCREEN_PAD_POST_S + 1e-6, side="right")) - 1
-        out.append(("ball_screen", key[0], key[1], i0, max(i1, j)))
+        out.append(("ball_screen", key[0], key[1], screened[(key, i)], i0, max(i1, j)))
     return out
 
 
@@ -264,7 +281,7 @@ def drive_windows(a: PossessionArrays) -> list:
         radial = -np.diff(r) / a.dt[i:j]
         if np.isfinite(radial).all() and (radial > DRIVE_SPEED_FTPS).all():
             wins.append((h, i, j))
-    return [("drive", key, None, i, j) for key, i, j in _merge(wins)]
+    return [("drive", key, None, nearest_defender(a, i, key), i, j) for key, i, j in _merge(wins)]
 
 
 def isolation_windows(a: PossessionArrays) -> list:
@@ -273,9 +290,9 @@ def isolation_windows(a: PossessionArrays) -> list:
     for i in range(a.n):
         j = window_end(a.t, i, ISO_WINDOW_S)
         h = a.handler[i]
-        if j is None or h < 0:
+        if j is None or h < 0 or not (a.r_handler[i] <= ISO_START_FT):
             continue
-        if not (a.handler[i:j + 1] == h).all():
+        if not (a.handler[i:j + 1] == h).all() or not (a.speed_off[i:j, h] < ISO_HANDLER_SPEED_FTPS).all():
             continue
         hxy = a.off[i:j + 1, h]
         if not (np.linalg.norm(a.ball[i:j + 1, :2] - hxy, axis=1) < ISO_BALL_FT).all():
@@ -287,13 +304,14 @@ def isolation_windows(a: PossessionArrays) -> list:
             if (dm.min(axis=1) < ISO_SPREAD_FT).any():
                 continue
         wins.append((h, i, j))
-    return [("isolation", key, None, i, j) for key, i, j in _merge(wins)]
+    return [("isolation", key, None, nearest_defender(a, i, key), i, j) for key, i, j in _merge(wins)]
 
 
 def candidate_windows(a: PossessionArrays) -> list:
-    """[(rule_class, handler_idx, screener_idx or None, i0, i1)] ordered by start then class order."""
+    """[(rule_class, handler_idx, screener_idx or None, defender_idx, i0, i1)] ordered by start then class order.
+    The defender is the screened man of a ball screen, else the handler's nearest defender at the window start."""
     wins = screen_windows(a) + drive_windows(a) + isolation_windows(a)
-    return sorted(wins, key=lambda w: (w[3], CLASSES.index(w[0]), w[4]))
+    return sorted(wins, key=lambda w: (w[4], CLASSES.index(w[0]), w[5]))
 
 
 # ── features ───────────────────────────────────────────────────────────────────────────────────────
@@ -312,9 +330,10 @@ def _nanmin(x):
     return float(np.nanmin(x)) if np.isfinite(x).any() else float("nan")
 
 
-def candidate_features(a: PossessionArrays, rule_class: str, h: int, s, i0: int, i1: int) -> dict:
+def candidate_features(a: PossessionArrays, rule_class: str, h: int, s, d: int, i0: int, i1: int) -> dict:
     k = a.off.shape[1]
-    d = nearest_defender(a, i0, h)
+    if d is None or d < 0:
+        d = nearest_defender(a, i0, h)
     mates = [m for m in range(k) if m != h]
     hxy = a.off[i0:i1 + 1, h]
     if s is None and mates and d >= 0:
@@ -392,13 +411,13 @@ def build(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_game: str | N
         if a is None:
             skipped += 1
             continue
-        for c, (rule_class, h, s, i0, i1) in enumerate(candidate_windows(a)):
+        for c, (rule_class, h, s, d, i0, i1) in enumerate(candidate_windows(a)):
             cand_rows.append({"sportvu_game": game, "possession": int(p.possession), "candidate": c,
                               "start_frame": int(a.frames[i0]), "end_frame": int(a.frames[i1]), "rule_class": rule_class,
                               "ball_handler_id": int(a.off_ids[h]),
                               "screener_id": int(a.off_ids[s]) if s is not None else None})
             f = {"sportvu_game": game, "possession": int(p.possession), "candidate": c}
-            f.update(candidate_features(a, rule_class, h, s, i0, i1))
+            f.update(candidate_features(a, rule_class, h, s, d, i0, i1))
             feat_rows.append(f)
     cands = pd.DataFrame(cand_rows, columns=CANDIDATE_COLUMNS)
     feats = pd.DataFrame(feat_rows, columns=ID_COLUMNS + FEATURES)

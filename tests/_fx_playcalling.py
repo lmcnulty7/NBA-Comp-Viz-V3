@@ -231,15 +231,15 @@ def synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportv
     return synth_game_local(seed, n_possessions=n_possessions, heldout=heldout, sportvu_game=sportvu_game)
 
 
-def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
+def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
     if HAVE_SHARED:
         try:
-            s = _shared_season(seed, n_games=n_games, heldout_every=heldout_every)
+            s = _shared_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
             if _shared_ok(s):
                 return s
         except Exception:  # noqa: BLE001
             pass
-    return synth_season_local(seed, n_games=n_games, heldout_every=heldout_every)
+    return synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
 
 
 def synth_labels(seed: int, game: dict) -> dict:
@@ -283,7 +283,7 @@ def season_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, held
     epv_states, plus heldout_games (ids) and season. Held-out games are included with their flag so the
     trainer can set them aside and score them once. shared=False forces the local generator."""
     if shared and HAVE_SHARED:
-        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     else:
         games = synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     parts = {"frames": [], "possessions": [], "actions": [], "screens": [], "coverage_predictions": [], "epv_states": []}
@@ -324,7 +324,7 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int
     analytics/coverage and analytics/epv (held-out games under heldout/<season>/)."""
     root = Path(root)
     if shared and HAVE_SHARED:
-        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     else:
         games = synth_season_local(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     preds = {False: [], True: []}

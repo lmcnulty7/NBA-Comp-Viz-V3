@@ -17,8 +17,9 @@ fixture output is never a result.
 Checks on each frames table (validate_frames), all counted in a log dict:
     required columns; rows with a missing key or position dropped; duplicate (frame, player_id) rows dropped;
     positions outside the court margin (x in [-5, 99], y in [-5, 55] ft) dropped; a frame-to-frame speed above
-    30 ft per s (per player, consecutive frames within 1 s of wall clock) flags the arriving row, which is
-    dropped; the per player-game distance is checked against a 35,000 ft ceiling (about 6.6 miles) and only
+    30 ft per s (per player, consecutive frames of the same period within 1 s of wall clock and 5 s of game
+    clock) flags the arriving row, which is dropped (a one-frame glitch flags two rows: the jump out and the
+    jump back); the per player-game distance is checked against a 35,000 ft ceiling (about 6.6 miles) and only
     flagged. Nothing is interpolated.
 """
 from __future__ import annotations
@@ -35,6 +36,7 @@ REQUIRED_FRAME_COLUMNS = ("game", "period", "frame", "game_clock_s", "team_id", 
 READ_COLUMNS = ["game", "date", "period", "frame", "ts_ms", "game_clock_s", "team_id", "team", "home", "player_id", "x", "y"]
 SPEED_MAX_FTPS = 30.0
 MAX_STEP_DT_S = 1.0
+CONTINUOUS_S = 5.0        # a game clock jump above this (or a period change) ends a continuous span: no step across it
 COURT_X_FT = (-5.0, 99.0)
 COURT_Y_FT = (-5.0, 55.0)
 DISTANCE_GAME_MAX_FT = 35000.0
@@ -43,11 +45,20 @@ WHO = "analytics.load"
 
 
 # ── frames ─────────────────────────────────────────────────────────────────────────────────────────
-def step_dt_s(frames: pd.DataFrame) -> np.ndarray:
-    """Seconds between a row and the previous row of the same player (NaN on the first row of a player):
-    from ts_ms when present, else from the frame index at 25 Hz. frames must be sorted by player, period, frame."""
-    same = frames["player_id"].to_numpy() == np.roll(frames["player_id"].to_numpy(), 1)
+def continuous_step(frames: pd.DataFrame) -> np.ndarray:
+    """True where a row continues the previous row's span: same player, same period, game clock within
+    CONTINUOUS_S. frames must be sorted by player, period, frame."""
+    pid, per = frames["player_id"].to_numpy(), frames["period"].to_numpy()
+    clock = frames["game_clock_s"].to_numpy(dtype="float64")
+    same = (pid == np.roll(pid, 1)) & (per == np.roll(per, 1)) & (np.abs(np.roll(clock, 1) - clock) <= CONTINUOUS_S)
     same[0] = False
+    return same
+
+
+def step_dt_s(frames: pd.DataFrame) -> np.ndarray:
+    """Seconds between a row and the previous row of the same continuous span (continuous_step; NaN elsewhere):
+    from ts_ms when present, else from the frame index at 25 Hz. frames must be sorted by player, period, frame."""
+    same = continuous_step(frames)
     if "ts_ms" in frames.columns and frames["ts_ms"].notna().all():
         t = frames["ts_ms"].to_numpy(dtype="float64") / 1000.0
     else:

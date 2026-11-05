@@ -1,0 +1,68 @@
+# Lineup synergy and stints (analytics/lineups)
+
+Written 2026-11-05T08:40:55Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --report reports/lineups.md --bootstrap 200`.
+
+**This run used the synthetic fixture (tests/_fx_lineups.synth_stints). Every number below is fixture output, not a result.** The real run is the Mac command at the end.
+
+## Inputs (fixture output, not a result)
+
+| item | value |
+| --- | --- |
+| source | fixture generator tests._fx_lineups._fallback_synth_stints |
+| seasons | 2020-21, 2021-22, 2022-23 |
+| stints in | 1675 |
+| stints after validate | 1675 |
+| games | 90 |
+| lineup_ok share | 1.000 |
+| dropped not 5v5 | 0 |
+| dropped duration | 0 |
+| dropped points | 0 |
+| dropped duplicate | 0 |
+| dropped heldout | 0 |
+| possessions | 9000 |
+| feature frame rows | 1675 |
+
+## Protocol
+
+Unit: stint; target: (points_home - points_away) / possessions x 100 with possessions = duration_s / 28.8 when the table has no count (100 per team per 48 minutes). Candidates: plus_minus (raw net rating pooled over the fitting seasons), rapm (possession-weighted ridge on player indicators, alpha by grouped CV by game over [30.0, 100.0, 300.0, 1000.0, 3000.0, 10000.0, 30000.0, 100000.0]), rapm_synergy (rapm plus ridge-penalised indicators for five-man lineups with at least 300 possessions in the fitting seasons; the lineup coefficient is the synergy). Selection metric: out-of-season Spearman and MSE of the predicted against the raw next-season lineup net rating for lineups with at least 100 possessions on both sides, intervals from 200 bootstrap resamples over lineups (seed 0), paired against plus_minus. The candidate with the highest mean validation Spearman is selected and the held-out season 2022-23 is scored once by the candidates refitted on 2020-21, 2021-22. Guards: assert_season_split on every fit, refuse_heldout on the training game ids, assert_time_forward on the feature frame.
+
+## Candidate table: out-of-season validation within the training seasons (fixture output, not a result)
+
+Fit on 2020-21, predict 2021-22: 4 lineups present in both (109 in the fit seasons, 103 in the target), 4 gated lineups, 36 players, alpha rapm 1000, alpha synergy 1000.
+
+| candidate | Spearman | MSE | Spearman minus plus_minus (paired) |
+| --- | --- | --- | --- |
+| plus_minus | 1.000 [1.000, 1.000] | 125.027 [118.778, 135.031] | baseline |
+| rapm | 1.000 [1.000, 1.000] | 17.557 [4.106, 30.961] | 0.000 [0.000, 0.000] |
+| rapm_synergy | 1.000 [1.000, 1.000] | 17.734 [5.159, 30.310] | 0.000 [0.000, 0.000] |
+
+Mean validation Spearman: plus_minus 1.000, rapm 1.000, rapm_synergy 1.000. Selected: **plus_minus**.
+
+## Out-of-season correlation of raw lineup net rating (fixture output, not a result)
+
+| from | to | lineups | Pearson | Spearman |
+| --- | --- | --- | --- | --- |
+| 2020-21 | 2021-22 | 4 | 0.964 | 1.000 |
+| 2021-22 | 2022-23 | 4 | 0.952 | 1.000 |
+
+## Held-out season, scored once (fixture output, not a result)
+
+Season 2022-23 scored once by the candidates refitted on 2020-21, 2021-22: 5 lineups present in both, 4 gated lineups, 36 players, alpha rapm 3000, alpha synergy 3000, home court (rapm intercept) 4.01 per 100.
+
+| candidate | Spearman | MSE | Spearman minus plus_minus (paired) |
+| --- | --- | --- | --- |
+| plus_minus (selected) | 0.900 [0.247, 1.000] | 115.422 [5.781, 291.693] | baseline |
+| rapm | 1.000 [1.000, 1.000] | 139.366 [45.979, 217.222] | 0.100 [0.000, 0.753] |
+| rapm_synergy | 1.000 [1.000, 1.000] | 126.362 [44.914, 197.598] | 0.100 [0.000, 0.753] |
+
+## Outputs
+
+No tables written (pass --out OUT_ROOT).
+
+## Status and the Mac command
+
+Fixture run: the pipeline is exercised end to end on synthetic stints with hidden ratings and a lineup interaction; nothing here is a result.
+
+    python -m analytics.lineups.train --data "$DATA_ROOT" --report reports/lineups.md --out "$DATA_ROOT" --seed 0 --bootstrap 1000 --heldout-season 2024-25
+
+Needs on the Mac: DATA_ROOT/collect/stints/{stints,playbyplay}/<season>.parquet for 2020-21 to 2024-25 (collect/stints.py, or `python -m analytics.lineups.stints --data DATA_ROOT` from the play-by-play), games/<season>.parquet for team ids, and the optional starters/<season>.parquet. Nothing under collect/stints/heldout/ is read.

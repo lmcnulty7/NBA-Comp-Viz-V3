@@ -48,6 +48,7 @@ SLOW = os.environ.get("INTEGRATION_SLOW", "") not in ("", "0", "false", "no")
 VALIDATE_TIMEOUT = 120
 STEP_TIMEOUT = 600
 IMPORT_TIMEOUT = 60
+WORKERS = min(4, os.cpu_count() or 1)      # subprocesses of the fast part run concurrently (4 cores here)
 PRESENT = interfaces.discover_lanes()
 MISSING = interfaces.missing_lanes()
 LANES = list(interfaces.EXPECTED_LANES)
@@ -67,6 +68,14 @@ def _run(args: list[str], timeout: int) -> subprocess.CompletedProcess:
     except subprocess.TimeoutExpired as exc:
         return subprocess.CompletedProcess(exc.cmd, returncode=-999, stdout=(exc.stdout or ""),
                                            stderr=("timed out after %d s\n" % timeout) + (exc.stderr or ""))
+
+
+def _run_many(jobs: dict, timeout: int, workers: int = WORKERS) -> dict:
+    """{key: args} -> {key: CompletedProcess}, the subprocesses running `workers` at a time."""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        futs = {k: pool.submit(_run, args, timeout) for k, args in jobs.items()}
+        return {k: f.result() for k, f in futs.items()}
 
 
 def _tail(text: str, n: int = 15) -> str:
@@ -141,10 +150,22 @@ print(json.dumps(out))
 """
 
 
+@pytest.fixture(scope="session")
+def import_probes() -> dict:
+    """One fresh interpreter per present lane importing its three step modules, WORKERS at a time."""
+    return _run_many({ext: ["-c", _IMPORT_SNIPPET, ext] for ext in PRESENT}, IMPORT_TIMEOUT)
+
+
+@pytest.fixture(scope="session")
+def validate_runs() -> dict:
+    """`python -m analytics.<ext>.validate --fixtures` for every present lane, WORKERS at a time."""
+    return _run_many({ext: ["-m", "analytics.%s.validate" % ext, "--fixtures"] for ext in PRESENT}, VALIDATE_TIMEOUT)
+
+
 @pytest.mark.parametrize("ext", LANES)
-def test_imports_and_main(ext):
+def test_imports_and_main(ext, import_probes):
     _need(ext)
-    r = _run(["-c", _IMPORT_SNIPPET, ext], IMPORT_TIMEOUT)
+    r = import_probes[ext]
     assert r.returncode == 0, "import probe failed for %s:\n%s" % (ext, _tail(r.stderr))
     info = json.loads(r.stdout.strip().splitlines()[-1])
     problems = []
@@ -179,9 +200,9 @@ def test_fixture_generator_exists(ext):
 
 
 @pytest.mark.parametrize("ext", LANES)
-def test_validate_fixtures_exits_zero(ext):
+def test_validate_fixtures_exits_zero(ext, validate_runs):
     _need(ext)
-    r = _run(["-m", "analytics.%s.validate" % ext, "--fixtures"], VALIDATE_TIMEOUT)
+    r = validate_runs[ext]
     assert r.returncode == 0, "python -m analytics.%s.validate --fixtures exited %d:\n%s" % (
         ext, r.returncode, _tail(r.stderr) or _tail(r.stdout))
 
@@ -245,6 +266,74 @@ def test_slow_interface_outputs(name, slow_runs):
     for f in files:
         notes[str(f.relative_to(slow_runs["out_root"]))] = interfaces.check_file(name, f)
     print("interface %s: %d file(s) checked; notes: %s" % (name, len(files), notes))
+
+
+SHARED = os.environ.get("INTEGRATION_SHARED", "") not in ("", "0", "false", "no")
+SHARED_TIMEOUT = 300
+
+
+@pytest.fixture(scope="session")
+def shared_root_runs(tmp_path_factory) -> dict:
+    """One DATA_ROOT written by `python -m analytics.fixtures` (lane I1), then validate, features and train with
+    --data DATA_ROOT --out OUT_ROOT for every present lane in dependency order, so each consumer sees the real
+    interface files of its producers. Gated by INTEGRATION_SHARED=1 (three steps per lane, 300 s each)."""
+    if not SHARED:
+        pytest.skip("shared-root part: set INTEGRATION_SHARED=1")
+    if not interfaces.module_available("analytics.fixtures"):
+        pytest.skip("analytics/fixtures.py (lane I1) is not importable yet")
+    base = tmp_path_factory.mktemp("shared")
+    data_root, out_root = base / "data_root", base / "out_root"
+    reports = out_root / "reports"
+    reports.mkdir(parents=True)
+    w = _run(["-m", "analytics.fixtures", "--out", str(data_root), "--seed", "0", "--games", "6", "--heldout-every", "3"], STEP_TIMEOUT)
+    runs = {}
+    for ext in _ordered(PRESENT):
+        res = {}
+        if w.returncode != 0:
+            break
+        res["validate"] = _run(["-m", "analytics.%s.validate" % ext, "--data", str(data_root), "--out", str(out_root)], SHARED_TIMEOUT)
+        res["features"] = _run(["-m", "analytics.%s.features" % ext, "--data", str(data_root), "--out", str(out_root)], SHARED_TIMEOUT)
+        res["train"] = _run(["-m", "analytics.%s.train" % ext, "--data", str(data_root), "--out", str(out_root),
+                             "--report", str(reports / ("%s.md" % ext)), "--folds", "3", "--seed", "0", "--bootstrap", "20"], SHARED_TIMEOUT)
+        runs[ext] = res
+    (base / "shared_runs.json").write_text(json.dumps(
+        {e: {s: {"returncode": r.returncode, "stderr_tail": _tail(r.stderr)} for s, r in d.items()} for e, d in runs.items()},
+        indent=1))
+    return {"data_root": data_root, "out_root": out_root, "writer": w, "lanes": runs}
+
+
+@slow
+def test_shared_fixture_root_is_written(shared_root_runs):
+    w = shared_root_runs["writer"]
+    assert w.returncode == 0, "python -m analytics.fixtures --out DATA_ROOT exited %d:\n%s" % (w.returncode, _tail(w.stderr))
+    assert (shared_root_runs["data_root"] / "manifest.json").exists() or any(shared_root_runs["data_root"].rglob("*.parquet")), \
+        "analytics.fixtures wrote nothing under DATA_ROOT"
+
+
+@slow
+@pytest.mark.parametrize("ext", LANES)
+def test_shared_root_validate_features_train(ext, shared_root_runs):
+    _need(ext)
+    res = shared_root_runs["lanes"].get(ext)
+    if res is None:
+        pytest.skip("shared DATA_ROOT was not written")
+    for step in ("validate", "features", "train"):
+        r = res[step]
+        assert r.returncode == 0, "python -m analytics.%s.%s --data DATA_ROOT --out OUT_ROOT exited %d:\n%s" % (
+            ext, step, r.returncode, _tail(r.stderr) or _tail(r.stdout))
+
+
+@slow
+@pytest.mark.parametrize("name", interfaces.INTERFACE_NAMES)
+def test_shared_root_interface_outputs(name, shared_root_runs):
+    e = interfaces.get(name)
+    if e["producer"] not in PRESENT:
+        pytest.skip("producer lane %s not present yet" % e["producer"])
+    files = interfaces.find_outputs(shared_root_runs["out_root"], name) + interfaces.find_outputs(shared_root_runs["data_root"], name)
+    if not files:
+        pytest.skip("%s wrote no %s under OUT_ROOT or DATA_ROOT with --data (pattern %s)" % (e["producer"], name, e["pattern"]))
+    for f in files:
+        interfaces.check_file(name, f)
 
 
 def _training_items(obj, path="") -> list:

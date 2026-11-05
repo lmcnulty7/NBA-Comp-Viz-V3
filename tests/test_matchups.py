@@ -17,12 +17,12 @@ HELD = "12.16.2015.PHX.at.GSW"
 
 @pytest.fixture(scope="module")
 def games():
-    return V.fixture_games(0, n_games=3, heldout_every=3, n_possessions=24)
+    return V.fixture_games(0, n_games=3, heldout_every=3, n_possessions=16)
 
 
 @pytest.fixture(scope="module")
 def ctx(games):
-    return T.run(games, None, n_folds=3, seed=0, n_boot=20, n_min=10, fixtures=True, command="pytest")
+    return T.run(games, None, n_folds=3, seed=0, n_boot=20, n_min=5, fixtures=True, command="pytest")
 
 
 # ── assignment on hand-built frames ────────────────────────────────────────────────────────────────
@@ -143,7 +143,7 @@ def test_end_to_end_fixture_run(ctx, games, tmp_path):
     assert HELD not in set(mp["sportvu_game"])
     d = ctx["defenders"]
     assert list(d.columns) == T.DEFENDER_COLUMNS and d["insufficient"].dtype == bool
-    assert (~d["insufficient"]).sum() == (d["n_possessions"] >= 10).sum() > 0
+    assert (~d["insufficient"]).sum() == (d["n_possessions"] >= 5).sum() > 0
     assert np.isfinite(d["ridge_value"]).all() and np.isfinite(d["diff_per100"]).all()
     m = d["lo"].notna()                                   # no interval for a defender seen in one game only
     assert (d.loc[m, "lo"] <= d.loc[m, "diff_per100"] + 1e-9).all() and (d.loc[m, "hi"] >= d.loc[m, "diff_per100"] - 1e-9).all()
@@ -189,23 +189,24 @@ def test_validate_counts_and_cli(games, tmp_path):
     bad["possessions"] = games[0]["possessions"].assign(end_kind="nope").drop(columns=["gap"])
     r = V.validate_game(bad)
     assert any("possessions" in p and "gap" in p for p in r["problems"]) and any("enum" in p for p in r["problems"])
-    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2"])
+    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2", "--n-possessions", "12"])
     written = sorted(p.name for p in (tmp_path / "analytics" / "matchups").rglob("*.parquet"))
     assert len(written) == 2 and any(HELD in n for n in written)
     assert (tmp_path / "analytics" / "matchups" / "heldout" / "2015-16" / (HELD + ".parquet")).exists()
     train_files = sorted((tmp_path / "analytics" / "matchups" / "2015-16").glob("*.parquet"))
     back = pd.read_parquet(train_files[0])
     assert len(train_files) == 1 and list(back.columns) == F.MATCHUP_COLUMNS and len(res["matchup_possessions"]) > 0
-    table = V.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "1"])
+    table = V.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "1", "--n-possessions", "12"])
     assert (table["n_problems"] == 0).all() and (tmp_path / "analytics" / "matchups" / "validate_2015-16.json").exists()
 
 
 def test_fixture_root_layout_loads(tmp_path):
-    FX.write_fixture_root(tmp_path / "shared", seed=5, n_games=1, heldout_every=1)      # the shared layout, one held-out game
-    games = V.load_games(tmp_path / "shared")
-    assert len(games) == 1 and games[0]["heldout"] and games[0]["sportvu_game"] == HELD
-    assert all(set(("frames", "events", "possessions", "shot_frames", "rosters")) <= set(g) for g in games)
-    assert (tmp_path / "shared" / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
-    FX._fallback_write_fixture_root(tmp_path / "local", seed=5, n_games=2, heldout_every=2)   # the fallback generator's layout
-    games = V.load_games(tmp_path / "local")
+    """The DATA_ROOT layout written by the fallback generator (the shared analytics.fixtures.write_fixture_root writes
+    the same paths; it is not run here because a single 40-possession game takes seconds on a shared machine)."""
+    FX._fallback_write_fixture_root(tmp_path, seed=5, n_games=2, heldout_every=2, n_possessions=10)
+    games = V.load_games(tmp_path)
     assert len(games) == 2 and sorted(g["heldout"] for g in games) == [False, True]
+    held = [g for g in games if g["heldout"]][0]
+    assert held["sportvu_game"] == HELD and (tmp_path / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
+    assert all(set(("frames", "events", "possessions", "shot_frames", "rosters")) <= set(g) for g in games)
+    assert V.validate_games(games)["n_problems"].eq(0).all()

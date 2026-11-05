@@ -288,7 +288,7 @@ def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
             if away == home:
                 away = TRAIN_TEAMS[(i + 2) % len(TRAIN_TEAMS)]
             gid = _game_id(date, away, home)
-        games.append(synth_game(seed * 100 + i, heldout=held, sportvu_game=gid))
+        games.append(local_synth_game(seed * 100 + i, heldout=held, sportvu_game=gid))
     return games
 
 
@@ -334,7 +334,7 @@ def write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0
     analytics/possessions/2015-16/<game>.parquet (+ heldout/2015-16/), analytics/rosters/2015-16/<game>.parquet,
     collect/tracking/aggregates/<season>.parquet, collect/positions.parquet."""
     root = Path(root)
-    games = synth_season(seed, n_games, heldout_every)
+    games = local_synth_season(seed, n_games, heldout_every)
     shots_train, shots_held, summary = [], [], {"train_games": [], "heldout_games": []}
     for g in games:
         gid, held, season = g["sportvu_game"], g["heldout"], g["season"]
@@ -355,7 +355,7 @@ def write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0
         hdir = root / "collect" / "bref_shots" / "heldout" / "shotchart"
         hdir.mkdir(parents=True, exist_ok=True)
         pd.concat(shots_held, ignore_index=True).to_parquet(hdir / "2015-16.parquet", index=False)
-    agg, positions = synth_aggregates(seed)
+    agg, positions = local_synth_aggregates(seed)
     adir = root / "collect" / "tracking" / "aggregates"
     adir.mkdir(parents=True, exist_ok=True)
     for season, part in agg.groupby("season"):

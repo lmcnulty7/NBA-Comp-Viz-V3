@@ -202,8 +202,8 @@ def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int) -> tuple[pd.DataFr
 # ── metrics ────────────────────────────────────────────────────────────────────────────────────────
 def per_miss(pred: pd.DataFrame, col: str) -> pd.DataFrame:
     """One row per miss: game, event, logp (log probability of the true candidate), hit (the top candidate is the
-    rebounder; a tie at the maximum counts 1 / number tied, the expected top-1 under random tie-breaking), p_top,
-    n_candidates."""
+    rebounder; a tie at the maximum counts 1 / number tied, the expected top-1 under random tie-breaking),
+    top_is_rebounder (binary: the rebounder is at the maximum, for the calibration block), p_top, n_candidates."""
     d = pd.DataFrame({"game": pred["sportvu_game"].astype(str).to_numpy(), "event": pred["event"].to_numpy(),
                       "p": np.clip(pred[col].astype(float).to_numpy(), EPS, 1.0), "y": pred[F.TARGET].astype(bool).to_numpy()})
     d["row"] = np.arange(len(d))
@@ -217,8 +217,8 @@ def per_miss(pred: pd.DataFrame, col: str) -> pd.DataFrame:
     true = d[d["y"]].set_index(["game", "event"])
     # expected top-1 under random tie-breaking: 1 / (number tied at the maximum) when the rebounder is among them
     hit = np.where(true["tied"].to_numpy(), 1.0 / n_tied.reindex(true.index).to_numpy(float), 0.0)
-    out = pd.DataFrame({"logp": np.log(true["p"]), "hit": hit, "p_top": true["p_max"], "n_candidates": g.size().reindex(true.index)},
-                       index=true.index)
+    out = pd.DataFrame({"logp": np.log(true["p"]), "hit": hit, "top_is_rebounder": true["tied"].astype(bool),
+                        "p_top": true["p_max"], "n_candidates": g.size().reindex(true.index)}, index=true.index)
     return out.reset_index()
 
 
@@ -347,7 +347,7 @@ def write_report(path: Path, ctx: dict) -> str:
           % (_f(ctx["paired"]["diff"]), _f(ctx["paired"]["lo"]), _f(ctx["paired"]["hi"]), ctx["paired"]["excludes_zero"]),
           "Selected: %s." % ctx["selected"], "",
           "## Calibration of the top candidate's probability (%s, %s)" % (ctx["selected"], ctx["mode"]), "",
-          "Per miss: y is whether the top candidate secured the rebound, p is the top candidate's probability.", "",
+          "Per miss: y is whether the top candidate secured the rebound (a tie at the maximum counts as yes), p is the top candidate's probability.", "",
           ctx["calibration_block"]]
     if ctx["heldout_rows"]:
         L += ["## Held-out games (scored once by the models refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
@@ -431,7 +431,8 @@ def main(argv=None) -> dict:
     scores = score(pred, a.bootstrap, a.seed)
     selected = select(scores)
     pm = per_miss(pred, "p_" + selected)
-    cal = report_block("top candidate, %s" % selected, pm["hit"].to_numpy(), pm["p_top"].to_numpy(), pm, "game", n=a.bootstrap, seed=a.seed)
+    cal = report_block("top candidate, %s" % selected, pm["top_is_rebounder"].astype(float).to_numpy(), pm["p_top"].to_numpy(),
+                       pm, "game", n=a.bootstrap, seed=a.seed)
     _, prior_note = oof_prior(train, a.seed)
     ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
            "command": "python -m analytics.rebounds.train " + " ".join(argv if argv is not None else sys.argv[1:]),

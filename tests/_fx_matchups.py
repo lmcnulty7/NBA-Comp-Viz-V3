@@ -47,8 +47,10 @@ def _sigmoid(z):
 
 
 def _game_id(seed: int, heldout: bool) -> str:
+    """Held out: the SportVU held-out game of sportvu/splits.json (as analytics.fixtures.HELDOUT_GAME); a season
+    with several held-out games names the others after the other held-out ids, see _fallback_synth_season."""
     if heldout:
-        return HELD_IDS[seed % len(HELD_IDS)]
+        return HELD_IDS[0]
     return TRAIN_ID % (seed % 28 + 1)
 
 
@@ -228,19 +230,22 @@ def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = Fal
             "possessions": pd.DataFrame(poss_rows), "states_1hz": pd.DataFrame(states)}
 
 
-def _fallback_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
-    out = []
+def _fallback_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+    out, n_held = [], 0
     for i in range(n_games):
         held = bool(heldout_every) and (i + 1) % heldout_every == 0
-        out.append(_fallback_synth_game(seed * 100 + i, heldout=held))
+        gid = HELD_IDS[n_held % len(HELD_IDS)] if held else None
+        n_held += int(held)
+        out.append(_fallback_synth_game(seed * 100 + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid))
     return out
 
 
-def _fallback_write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0, season: str = "2015-16") -> Path:
+def _fallback_write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0, season: str = "2015-16",
+                                 n_possessions: int = 40) -> Path:
     """DATA_ROOT layout: sportvu_contract/<game>.parquet, <game>_pbp.parquet (held-out under heldout/),
     analytics/<table>/<season>/<game>.parquet (held-out under analytics/<table>/heldout/<season>/)."""
     root = Path(root)
-    for g in _fallback_synth_season(seed, n_games, heldout_every):
+    for g in _fallback_synth_season(seed, n_games, heldout_every, n_possessions):
         game = g["possessions"]["sportvu_game"].iloc[0]
         held = any(t in game for t in HELD_IDS)
         sv = root / "sportvu_contract" / ("heldout" if held else "")

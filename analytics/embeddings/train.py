@@ -110,7 +110,8 @@ def load_inputs(data_root) -> dict:
     dropped = {"heldout_frame_files": 0, "heldout_games_by_id": [], "games_without_possessions": [], "heldout_shot_rows": 0}
     fdir = root / "sportvu_contract"
     frame_files = sorted(p for p in fdir.glob("*.parquet") if not p.name.endswith("_pbp.parquet")) if fdir.exists() else []
-    dropped["heldout_frame_files"] = len(list((fdir / "heldout").glob("*.parquet"))) if (fdir / "heldout").exists() else 0
+    hdir = fdir / "heldout"
+    dropped["heldout_frame_files"] = len([p for p in hdir.glob("*.parquet") if not p.name.endswith("_pbp.parquet")]) if hdir.exists() else 0
     poss = _read_table_dir(root, "possessions")
     rosters = _read_table_dir(root, "rosters")
     games = []

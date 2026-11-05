@@ -26,7 +26,7 @@ from tests import _fx_lineups as fx                            # noqa: E402
 SEASONS3 = ("2020-21", "2021-22", "2022-23")
 
 
-def local_fixture(n_games=40, seasons=SEASONS3, seed=0):
+def local_fixture(n_games=30, seasons=SEASONS3, seed=0):
     from analytics.lineups import fixture_tables
     return fixture_tables(seed, n_games=n_games, seasons=seasons, generator="local")
 
@@ -280,6 +280,20 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path):
     m = ctx["heldout"]["metrics"]
     assert np.isfinite(m["rapm"]["spearman"]["point"]) and np.isfinite(m["plus_minus"]["mse"]["point"])
     assert m["rapm"]["spearman_vs_plus_minus"] is not None and m["plus_minus"]["spearman_vs_plus_minus"] is None
+
+
+def test_train_runs_on_the_shared_generator_when_present(tmp_path):
+    """The shared generator (analytics.fixtures.synth_stints, when importable) draws a fresh five per stint, so no
+    lineup repeats across seasons: the trainer must still run, score what it can and fall back to plus_minus."""
+    report = tmp_path / "shared.md"
+    ctx = T.main(["--fixtures", "--fixture-generator", "auto", "--n-games", "8", "--report", str(report), "--out", str(tmp_path),
+                  "--bootstrap", "10", "--folds", "3"])
+    assert ctx["fixture"] and ctx["selected"] in T.CANDIDATES and "fixture output, not a result" in report.read_text()
+    assert ctx["inputs"]["source"].startswith("fixture generator ")
+    for season in SEASONS3:
+        lr = pd.read_parquet(tmp_path / "analytics" / "lineups" / season / "lineup_ratings.parquet")
+        pr = pd.read_parquet(tmp_path / "analytics" / "lineups" / season / "player_rapm.parquet")
+        assert len(lr) and len(pr) and lr["lineup_id"].is_unique and pr["rapm"].notna().all()
 
 
 def test_ridge_recovers_a_planted_player_effect():

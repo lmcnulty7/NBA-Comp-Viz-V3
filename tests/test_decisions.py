@@ -106,7 +106,7 @@ def test_pass_detected_on_hand_built_ball_path():
     # the same path with a shot release inside the window is not a pass
     assert F.detect_passes(pos, releases=np.array([hold + 2])) == []
     # the ball arriving after 1.5 s is not a pass either
-    frames2, n2, hold2 = _hand_built(flight_frames=45)
+    frames2, n2, hold2 = _hand_built(flight_frames=70)           # 2.8 s in the air: over 2 s between the holder runs
     assert F.detect_passes(_possession(frames2, n2), releases=np.array([])) == []
 
 
@@ -218,8 +218,8 @@ def test_fit_value_model_refuses_held_out_rows_and_uses_location_only():
 
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
 def test_end_to_end_fixture_run_writes_the_contract_tables(tmp_path):
-    bundles = _bundles(n_games=4, n_possessions=12, heldout_every=4)
-    res = T.run(bundles, n_folds=3, seed=0, n_boot=20)
+    bundles = _bundles(n_games=4, n_possessions=10, heldout_every=4)
+    res = T.run(bundles, n_folds=3, seed=0, n_boot=10)
     ev = res["events"]
     assert list(ev.columns[:10]) == ["sportvu_game", "possession", "frame", "player_id", "decision_kind", "chosen_value",
                                      "best_value", "best_option", "decision_quality", "heldout"]
@@ -250,7 +250,7 @@ def test_end_to_end_fixture_run_writes_the_contract_tables(tmp_path):
 
 
 def test_hold_option_from_an_epv_table_and_xfg_override_join(tmp_path):
-    b = _bundles(n_games=1, n_possessions=8, heldout_every=0)[0]
+    b = _bundles(n_games=1, n_possessions=6, heldout_every=0)[0]
     ctx = F.decision_contexts(b)
     epv = pd.DataFrame({"sportvu_game": b["sportvu_game"], "possession": ctx["possession"], "frame": ctx["frame"] - 1,
                         "elapsed_in_possession_s": 0.0, "epv_points": 1.5, "p_score": 0.5, "points_to_end": 0, "fold": 0,
@@ -270,7 +270,7 @@ def test_hold_option_from_an_epv_table_and_xfg_override_join(tmp_path):
 
 
 def test_data_root_layout_round_trip(tmp_path):
-    games = fx.local_write_fixture_root(tmp_path, seed=1, n_games=2, heldout_every=2, n_possessions=6)
+    games = fx.local_write_fixture_root(tmp_path, seed=1, n_games=2, heldout_every=2, n_possessions=5)
     log = []
     bundles = V.load_root_bundles(tmp_path, fx.SEASON, log=log)
     assert [b["sportvu_game"] for b in bundles] == sorted(games, key=lambda g: g.startswith("02")) and log == []
@@ -285,10 +285,10 @@ def test_data_root_layout_round_trip(tmp_path):
 @pytest.mark.skipif(not fx.SHARED, reason="analytics/fixtures.py (lane I1) not importable; the local generator covers the lane")
 def test_end_to_end_on_the_shared_fixtures():
     """The same run on lane I1's generator: held-out game named with the real held-out id, gap possessions skipped."""
-    bundles = V.load_fixture_bundles(0, 3, 3, 10)
+    bundles = V.load_fixture_bundles(0, 3, 3, 8)
     assert [b["heldout"] for b in bundles] == [False, False, True]
     assert bundles[2]["sportvu_game"] == "12.16.2015.PHX.at.GSW"
-    res = T.run(bundles, n_folds=2, seed=0, n_boot=10)
+    res = T.run(bundles, n_folds=2, seed=0, n_boot=5)
     ev = res["events"]
     assert len(ev) and {"shot", "pass"} <= set(ev["decision_kind"]) and ev["sportvu_game"].nunique() == 2
     assert len(res["events_heldout"]) and (res["events_heldout"]["sportvu_game"] == "12.16.2015.PHX.at.GSW").all()

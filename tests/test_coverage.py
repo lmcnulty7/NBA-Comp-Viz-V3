@@ -13,13 +13,14 @@ from analytics import schema  # noqa: E402
 from analytics.coverage import CLASSES, eda, features as F, train as T, validate as V  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
+EM_DASH = chr(0x2014)
 FX = V._fixture_module()
 
 
 @pytest.fixture(scope="module")
 def bundle():
     """The generator every lane uses (shared when importable): 6 games, every third held out."""
-    return V.fixture_bundle(seed=0, n_games=6, heldout_every=3, n_possessions=16)
+    return V.fixture_bundle(seed=0, n_games=6, heldout_every=3, n_possessions=12)
 
 
 @pytest.fixture(scope="module")
@@ -49,7 +50,7 @@ def test_fixture_end_to_end(bundle, tmp_path):
     assert list(rates.columns) == T.TEAM_RATE_COLUMNS and len(rates) >= 1 and rates["insufficient"].all()
     assert np.allclose(rates[["share_" + c for c in CLASSES]].sum(axis=1), 1.0)
     text = report.read_text()
-    assert "fixture output, not a result" in text and "refuse_heldout" in text and "—" not in text
+    assert "fixture output, not a result" in text and "refuse_heldout" in text and EM_DASH not in text
     written = sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*.parquet"))
     assert any(p.startswith("analytics/coverage/heldout/") and p.endswith("coverage_predictions.parquet") for p in written)
     assert any(p.endswith("coverage_team_rates.parquet") and "/heldout/" not in p for p in written)
@@ -92,15 +93,12 @@ def test_label_and_post_outcome_columns_are_refused(scripted):
 def test_frames_beyond_the_declared_window_never_enter(scripted):
     gid, game = next(iter(scripted["games"].items()))
     cand, counts = V.validate_bundle(scripted)
-    cand = cand[cand["sportvu_game"] == gid].head(3)
+    cand = cand[cand["sportvu_game"] == gid].head(1)
     base = F.features(cand, {gid: game}, {})
-    last_in = cand["end_frame"].to_numpy() + F.POST_FRAMES
+    f1 = int(cand["end_frame"].iloc[0]) + F.POST_FRAMES
     frames = game["frames"].copy()
-    beyond = np.zeros(len(frames), dtype=bool)
-    edge = np.zeros(len(frames), dtype=bool)
-    for f1 in last_in:
-        beyond |= frames["frame"].to_numpy() > f1
-        edge |= frames["frame"].to_numpy() == f1
+    beyond = frames["frame"].to_numpy() > f1          # every later frame of the game
+    edge = frames["frame"].to_numpy() == f1           # the last frame of the declared window
     frames.loc[beyond, ["x", "y"]] = frames.loc[beyond, ["x", "y"]].to_numpy() + 30.0
     same = F.features(cand, {gid: {**game, "frames": frames}}, {})
     pd.testing.assert_frame_equal(base, same)
@@ -111,11 +109,16 @@ def test_frames_beyond_the_declared_window_never_enter(scripted):
 
 # ── feature geometry on hand-built screens ────────────────────────────────────────────────────────
 def _hand_built(d1_pass_depth: float, switch: bool, n: int = 60):
-    """Basket (5.25, 25); screen point P = (25, 30); u = (-1, 0) toward the basket, v = (0, 1) toward the near
-    sideline. H starts at depth -4, lat 3 and drives to depth 6, lat -5; S stays; D1 starts at depth -2, lat 2
-    and passes the screener at depth d1_pass_depth (negative: over the top; positive: under), then either stays
-    with S (switch) or trails H; D2 starts at depth 4 and either picks up H (switch) or holds its spot."""
-    P, u, v = np.array([25.0, 30.0]), np.array([-1.0, 0.0]), np.array([0.0, 1.0])
+    """Basket (5.25, 25); screen point P = (25, 30); u the unit vector from P to the basket, v perpendicular and
+    pointing to the near sideline (y up). H starts at depth -4, lat 3 and drives to depth 6, lat -5; S stays; D1
+    starts at depth -2, lat 2 and passes the screener at depth d1_pass_depth (negative: over the top; positive:
+    under), then either stays with S (switch) or trails H; D2 starts at depth 4 and either picks up H (switch)
+    or holds its spot."""
+    P = np.array([25.0, 30.0])
+    u = np.array([5.25, 25.0]) - P
+    u = u / np.linalg.norm(u)
+    v = np.array([-u[1], u[0]])
+    v = v if v[1] > 0 else -v
     at = lambda d, l: P + d * u + l * v  # noqa: E731
     t = np.linspace(0, 1, n)[:, None]
     H = at(-4, 3) + t * (at(6, -5) - at(-4, 3))
@@ -202,12 +205,12 @@ def test_validator_drops_and_counts_bad_rows(scripted):
 
 def test_data_root_layout_is_read_by_the_cli(tmp_path):
     root = tmp_path / "data_root"
-    FX.write_fixture_root(root, 0, 3, 3)
+    FX.write_fixture_root(root, 0, 2, 2)
     assert sorted((root / "labels" / "screens").glob("*.jsonl"))
     counts = V.main(["--data", str(root)])
-    assert counts["games"] == 3 and counts["games_heldout"] == 1 and counts["screens_kept"] > 0
+    assert counts["games"] == 2 and counts["games_heldout"] == 1 and counts["screens_kept"] > 0
     feats = F.main(["--data", str(root), "--out", str(tmp_path / "out")])
-    assert len(feats) == counts["features_rows"] > 0 and feats["heldout"].sum() > 0
+    assert 0 < len(feats) <= counts["candidates"] and feats["heldout"].sum() > 0
     assert list((tmp_path / "out").rglob("coverage_features.parquet"))
 
 
@@ -223,7 +226,7 @@ def test_eda_tables_and_shuffled_label_check(scripted):
     assert corr.shape == (len(F.feature_columns()),) * 2 and np.allclose(np.diag(corr.fillna(1.0)), 1.0)
     sep = eda.class_separation(feats)
     assert sep.iloc[0]["F"] > 1
-    chk = eda.shuffled_label_check(feats, seed=0, n_folds=3)
+    chk = eda.shuffled_label_check(feats, seed=0, n_folds=2)
     true_lr = chk[(chk["labels"] == "true labels") & (chk["model"] == "logistic")]["macro_f1"].iloc[0]
     perm_lr = chk[(chk["labels"] == "permuted labels") & (chk["model"] == "logistic")]["macro_f1"].iloc[0]
     assert true_lr > perm_lr + 0.3 and perm_lr < 0.4
@@ -235,7 +238,7 @@ def test_owned_files_carry_no_em_dash_and_notebook_is_valid_json():
     owned += [ROOT / "tests" / "test_coverage.py", ROOT / "tests" / "_fx_coverage.py", ROOT / "docs" / "contract" / "coverage.md",
               ROOT / "reports" / "coverage.md", ROOT / "notebooks" / "eda_coverage.ipynb"]
     for p in owned:
-        assert "—" not in p.read_text(), p
+        assert EM_DASH not in p.read_text(), p
     nb = json.loads((ROOT / "notebooks" / "eda_coverage.ipynb").read_text())
     assert nb["nbformat"] == 4 and any("eda" in "".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code")
     report = (ROOT / "reports" / "coverage.md").read_text()

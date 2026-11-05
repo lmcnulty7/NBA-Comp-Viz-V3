@@ -20,7 +20,7 @@ from analytics import schema  # noqa: E402
 from analytics.rebounds import eda, features as F, train as T, validate as V  # noqa: E402
 
 HELD = "12.16.2015.PHX.at.GSW"
-N_GAMES, N_POSS, N_BOOT = 4, 10, 20
+N_GAMES, N_POSS, N_BOOT = 4, 8, 10
 
 
 @pytest.fixture(scope="module")
@@ -119,6 +119,7 @@ def test_metric_hand_check():
     pm = T.per_miss(pred, "p")
     assert T.mlogloss(pm) == pytest.approx(-(np.log(0.5) + np.log(0.25) + np.log(0.2)) / 3)
     assert pm["hit"].tolist() == [1.0, 0.0, 0.0] and pm["p_top"].tolist() == [0.5, 0.5, 0.4]
+    assert pm["top_is_rebounder"].tolist() == [True, False, False]
     assert T.top1(pm) == pytest.approx(1 / 3)
     assert T.uniform_reference(pm) == {"mlogloss": pytest.approx(np.log(3)), "top1": pytest.approx(1 / 3)}
     tie = pred.copy(); tie["p"] = [0.4, 0.4, 0.2] * 3
@@ -205,6 +206,16 @@ def test_data_root_layout_is_read_with_heldout_detected(tmp_path):
     ctx = T.main(["--data", str(root), "--report", str(tmp_path / "r.md"), "--bootstrap", "5"])
     assert ctx["mode"] == "in-sample" and ctx["train_games"] == 1 and ctx["heldout_game_ids"] == [HELD]
     assert "Fixture output" not in (tmp_path / "r.md").read_text().split("## Inputs")[0]
+
+
+def test_features_cli_writes_one_file_per_game(tmp_path):
+    res = F.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])
+    assert len(res["paths"]) == 2 and all(Path(p).exists() for p in res["paths"])
+    assert all("/analytics/rebounds/features/" in p for p in res["paths"])
+    back = pd.read_parquet(res["paths"][0])
+    assert set(F.STATIC_FEATURES) <= set(back.columns) and F.TARGET in back.columns
+    schema.assert_time_forward(back, "rebound_frames")
+    assert res["counts"]["total"]["rows"] == len(res["candidates"])
 
 
 # ── eda ────────────────────────────────────────────────────────────────────────────────────────────

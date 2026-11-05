@@ -105,8 +105,8 @@ def test_forbidden_columns_raise():
 
 def test_contest_features_on_a_hand_made_window():
     """Shooter 1 (team A) at (10, 10) at release frame 40, moving from (9, 10) ten frames earlier (2.5 ft/s).
-    Defender 2 (team B) at (16, 10) at release, (18, 10) ten frames earlier: closing at 5 ft/s, 1 defender
-    within 6 ft. Defender 3 far away. Ball within 2.5 ft of the shooter for frames 11 to 40 (30 frames = 1.2 s)
+    Defender 2 (team B) at (16, 10) at release, (18, 10) ten frames earlier: the shooter-defender distance goes
+    from 9 to 6 ft in 0.4 s, closing at 7.5 ft/s; 1 defender within 6 ft. Defender 3 far away. Ball within 2.5 ft of the shooter for frames 11 to 40 (30 frames = 1.2 s)
     with two dips under 2 ft (dribbles) inside, far away before frame 11."""
     rows = []
     for fr in range(0, 45):
@@ -126,7 +126,7 @@ def test_contest_features_on_a_hand_made_window():
     c = G.contest(40, 1)
     assert c["has_contest"] == 1
     assert c["closest_defender_dist_ft"] == pytest.approx(6.0)
-    assert c["closest_defender_closing_speed_ftps"] == pytest.approx(5.0)
+    assert c["closest_defender_closing_speed_ftps"] == pytest.approx(7.5)
     assert c["n_defenders_within_6ft"] == 1
     assert c["shooter_speed_ftps"] == pytest.approx(2.5)
     assert c["touch_time_s"] == pytest.approx(30 / 25.0)
@@ -153,7 +153,7 @@ def test_metrics_and_selection_on_a_hand_case():
     p = np.array([0.9, 0.1, 0.8, 0.2, 0.6, 0.7, 0.3, 0.4])
     assert log_loss(y, p) == pytest.approx(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))
     assert brier(y, p) == pytest.approx(np.mean((p - y) ** 2))
-    assert ece(y, p) == pytest.approx(np.mean(np.abs(p - y)) * 0 + (0.1 + 0.2 + 0.3 + 0.4 + 0.4 + 0.3 + 0.2 + 0.1) / 8)
+    assert ece(y, p) == pytest.approx(np.mean(np.abs(p - y)))     # one attempt per bin: the bin gap is |p - y|
     assert T.fast_slope(y, p) == pytest.approx(calibration_slope(y, p), abs=0.02)
     assert np.isnan(T.fast_slope(np.ones(4), p[:4]))
     scores = {"location_logistic": {"log_loss": {"point": 0.60}}, "contest_logistic": {"log_loss": {"point": 0.58}},

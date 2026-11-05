@@ -126,9 +126,12 @@ def _smooth(raw, prev, a=0.18):
     """First-order lag: y[t] = (1-a) y[t-1] + a raw[t], y[-1] = prev. raw (n,k,2), prev (k,2)."""
     y = np.empty_like(raw)
     cur = np.asarray(prev, float)
-    r = 1.0 - a
+    cap = VMAX * 1.1 * DT                      # a defender never moves more than 22 ft/s
     for t in range(len(raw)):
-        cur = r * cur + a * raw[t]
+        step = a * (raw[t] - cur)
+        n = np.linalg.norm(step, axis=-1, keepdims=True)
+        step = np.where(n > cap, step * (cap / np.maximum(n, 1e-9)), step)
+        cur = cur + step
         y[t] = cur
     return y
 
@@ -906,10 +909,11 @@ def _shoot(sim, rs, off_idx, def_idx, basket, shooter, star_slot, spot, swap, cl
             continue
         v = gather[:, j, :] - sp
         dd = np.linalg.norm(v, axis=1)
-        close = dd < 1.6
+        need = 1.6 * np.arange(1, n_g + 1) / n_g           # ramps up so nobody jumps more than 0.2 ft a frame
+        close = dd < need
         if close.any():
             u = np.where(dd[:, None] > 1e-6, v / np.maximum(dd[:, None], 1e-6), np.array([[1.0, 0.0]]))
-            gather[close, j, :] = sp[close] + u[close] * 1.6
+            gather[close, j, :] = sp[close] + u[close] * need[close, None]
     sim.pos = gather[-1].copy()
     release_frame = sim.last_frame()
     rel_ball = sim.ball_chunks[-1][-1]
@@ -1022,7 +1026,11 @@ def _states_1hz(game, poss, pos, ball, clock, shotc, periods, slot_pid, home_id)
         def_slots = np.arange(5, 10) if is_home_off else np.arange(0, 5)
         s = 0
         while s <= total + 1e-6:
-            f = int(span[np.argmin(np.abs(elapsed - s))])
+            k = int(np.argmin(np.abs(elapsed - s)))
+            if abs(elapsed[k] - s) > 0.5:          # no frame near this second (the clock gap)
+                s += 1
+                continue
+            f = int(span[k])
             oid, did = slot_pid[f, off_slots], slot_pid[f, def_slots]
             oo, dd = np.argsort(oid), np.argsort(did)
             opos, dpos = pos[f, off_slots][oo], pos[f, def_slots][dd]
@@ -1388,7 +1396,8 @@ def _pq(df: pd.DataFrame, path: Path) -> int:
     return path.stat().st_size
 
 
-def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 40) -> dict:
+def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 40,
+                       n_stint_games: int = 20, n_agg_players: int = 60) -> dict:
     """Write the DATA_ROOT layout the lanes read (docs/contract/fixtures.md) and return the Step 1 manifest."""
     root = Path(root)
     games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
@@ -1423,12 +1432,12 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int
         _pq(pd.concat(shots_train, ignore_index=True), root / "collect" / "bref_shots" / "shotchart" / (SEASON_2015 + ".parquet"))
     if shots_held:
         _pq(pd.concat(shots_held, ignore_index=True), root / "collect" / "bref_shots" / "heldout" / "shotchart" / (SEASON_2015 + ".parquet"))
-    agg, positions = synth_aggregates(seed)
+    agg, positions = synth_aggregates(seed, n_players=n_agg_players)
     for season, part in agg.groupby("season"):
         _pq(part.reset_index(drop=True), root / "collect" / "tracking" / "aggregates" / (season + ".parquet"))
     for season, part in positions.groupby("season"):
         _pq(part.reset_index(drop=True), root / "collect" / "tracking" / "positions" / (season + ".parquet"))
-    st = synth_stints(seed)
+    st = synth_stints(seed, n_games=n_stint_games)
     for season, part in st["stints"].groupby("season"):
         _pq(part.reset_index(drop=True), root / "collect" / "stints" / "stints" / (season + ".parquet"))
     for season, part in st["playbyplay"].groupby("season"):
@@ -1448,8 +1457,11 @@ def main(argv=None) -> int:
     ap.add_argument("--games", type=int, default=6)
     ap.add_argument("--heldout-every", type=int, default=3)
     ap.add_argument("--possessions", type=int, default=40)
+    ap.add_argument("--stint-games", type=int, default=20)
+    ap.add_argument("--agg-players", type=int, default=60)
     a = ap.parse_args(argv)
-    man = write_fixture_root(a.out, seed=a.seed, n_games=a.games, heldout_every=a.heldout_every, n_possessions=a.possessions)
+    man = write_fixture_root(a.out, seed=a.seed, n_games=a.games, heldout_every=a.heldout_every,
+                             n_possessions=a.possessions, n_stint_games=a.stint_games, n_agg_players=a.agg_players)
     print(json.dumps({"out": str(a.out), "games": man["counts"], "heldout": man["heldout"]}))
     return 0
 
