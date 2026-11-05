@@ -26,7 +26,7 @@ def data():
 
 @pytest.fixture(scope="module")
 def joined(data):
-    return va.validate(data["odds"], data["games"], team_names())
+    return va.validate(data["odds"], data["games"], team_names(data["games"]))
 
 
 # ── vig removal and prices ─────────────────────────────────────────────────────────────────────────
@@ -93,14 +93,15 @@ def test_unknown_team_ids_are_inferred_from_date_cooccurrence(data):
     res = va.validate(data["odds"], data["games"])
     jn = res["counts"]["join"]
     assert jn["team_names_given"] == 0
-    if team_names():                                # the shared fixtures' synthetic ids: every one inferred
+    names = team_names(data["games"])
+    if names:                                       # the shared fixtures' synthetic ids: every one inferred
         assert jn["team_names_inferred"] >= 6 and jn["team_ids_unresolved"] == 0
     else:                                           # real ids: nothing to infer
         assert jn["team_names_inferred"] == 0
     assert jn["matched"] >= 0.9 * jn["games"]
     inferred = va.infer_team_names(res["closing"], data["games"])
     for tid, name in inferred.items():
-        assert team_names().get(tid) == name
+        assert names.get(tid) == name
 
 
 # ── features: time-forward and leak guards ─────────────────────────────────────────────────────────
@@ -249,18 +250,21 @@ def test_collector_heldout_game_is_dropped_before_the_join(data):
     games["heldout"] = False
     games.loc[games.index[3], "heldout"] = True
     gid = games.loc[games.index[3], "game_id"]
-    res = va.validate(data["odds"], games, team_names())
+    res = va.validate(data["odds"], games, team_names(games))
     assert gid not in set(res["joined"]["game_id"].astype(str)) and res["counts"]["games_heldout_dropped"] == 1
     dup = pd.concat([games, games.iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="duplicate game_id"):
-        va.validate(data["odds"], dup, team_names())
+        va.validate(data["odds"], dup, team_names(games))
 
 
 def test_inferred_names_need_votes_and_cannot_collide(data):
     closing = va.closing_lines(data["odds"])[0]
     games = data["games"].copy()
-    if not team_names():
+    names = team_names(games)
+    if not names:
         pytest.skip("fallback fixtures use real ids: nothing to infer")
+    if any(va.team_key(n) in {va.team_key(v[1]) for v in va.TEAM_NAMES.values()} for n in names.values()):
+        pytest.skip("the fixture league includes a real NBA name: inference would refuse it as a collision by design")
     # every unknown id is resolved with at least MIN_VOTES votes and a majority on the full fixture
     inferred = va.infer_team_names(closing, games)
     assert len(inferred) >= 6

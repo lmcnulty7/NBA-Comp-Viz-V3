@@ -402,7 +402,7 @@ def _fixture_data_cached(seed: int, n_games: int, seasons: tuple) -> dict:
     from tests._fx_betting import SOURCE, synth_odds, synth_stints, team_names
     d = synth_stints(seed, n_games=n_games, seasons=seasons)
     return {"odds": synth_odds(seed, d["games"]), "games": d["games"], "files": {"fixtures": [SOURCE]},
-            "stints": d["stints"], "playbyplay": d["playbyplay"], "team_names": team_names()}
+            "stints": d["stints"], "playbyplay": d["playbyplay"], "team_names": team_names(d["games"])}
 
 
 def fixture_data(seed: int = 0, n_games: int = 40, seasons=("2020-21", "2021-22")) -> dict:

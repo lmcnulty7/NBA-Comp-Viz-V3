@@ -161,12 +161,12 @@ def predicted(probs: np.ndarray) -> np.ndarray:
     return np.asarray(CLASSES, dtype=object)[np.argmax(probs, axis=1)]
 
 
-def score(cands: pd.DataFrame, probs: dict, n_boot: int, seed: int) -> dict:
+def score(cands: pd.DataFrame, probs: dict, n_boot: int, seed: int, models=MODELS) -> dict:
     """{model: {f1_ball_screen: {point, lo, hi}, per_class_f1, macro_f1, accuracy, confusion}} with the ball_screen
     F1 interval by game bootstrap (no interval with a single game)."""
     out = {}
     y = cands["label_class"].astype(str).to_numpy(dtype=object)
-    for m in MODELS:
+    for m in models:
         yhat = predicted(probs[m])
         d = pd.DataFrame({"game": cands["sportvu_game"].astype(str).to_numpy(), "y": y, "yhat": yhat})
         r = bootstrap_by_game(d, "game", lambda s: f1_for(s["y"], s["yhat"], "ball_screen"), n=n_boot, seed=seed)
@@ -197,23 +197,102 @@ def candidate_table(cands: pd.DataFrame, probs: np.ndarray, fold) -> pd.DataFram
     out["p_selected_class"] = probs.max(axis=1)
     out["fold"] = np.asarray(fold, dtype=int)
     out["heldout"] = out["heldout"].astype(bool)
+    out["labelled"] = out["label_class"].notna()
     cols = ["sportvu_game", "possession", "candidate", "start_frame", "end_frame", "rule_class", "ball_handler_id", "screener_id",
-            "label_class", "label_iou", "label_action_type", "pred_class", "p_ball_screen", "p_selected_class", "fold", "heldout"]
+            "screener_proxy_id", "label_class", "label_iou", "label_action_type", "label_duplicate", "pred_class", "p_ball_screen",
+            "p_selected_class", "fold", "heldout", "labelled"]
     return out[cols]
 
 
-def detected_table(table: pd.DataFrame, labeller_pass: str) -> pd.DataFrame:
-    """actions_detected: selected class other than none with probability above DETECT_P, in the hand-label schema
-    with label_source model and action_id the row position within the game (possession, start_frame order)."""
+def detected_table(table: pd.DataFrame, labeller_pass: str) -> tuple:
+    """actions_detected: selected class other than none with probability above DETECT_P, cast through
+    analytics.labels.cast(df, "actions") (label_source model, labeller_pass 1, labelled_at the run time, action_id the
+    row position within the game in possession then start_frame order) plus two columns of this lane: ``model``
+    (the provenance string: trainer, selected model, seed, input kind) and ``confidence`` (= p_selected_class, read
+    1 s after the window ends through def_recovery_ft, so an offline value). A ball_screen prediction takes the
+    candidate's screener, else its screener proxy; without either the row is refused and counted.
+    -> (frame, number of refused ball_screen rows)."""
+    from analytics import labels as L
     m = (table["pred_class"] != "none") & (table["p_selected_class"] > DETECT_P)
     d = table[m].sort_values(["sportvu_game", "possession", "start_frame", "candidate"], kind="stable")
-    action_id = d.groupby("sportvu_game").cumcount().to_numpy()
-    return pd.DataFrame({"sportvu_game": d["sportvu_game"].to_numpy(), "possession": d["possession"].to_numpy(),
-                         "action_id": action_id.astype("int32"),
-                         "action_type": d["pred_class"].to_numpy(), "start_frame": d["start_frame"].to_numpy(),
-                         "end_frame": d["end_frame"].to_numpy(), "ball_handler_id": d["ball_handler_id"].to_numpy(),
-                         "screener_id": d["screener_id"].to_numpy(), "label_source": "model", "labeller_pass": labeller_pass,
-                         "confidence": d["p_selected_class"].to_numpy()})
+    screener = d["screener_id"].astype("Int32")
+    if "screener_proxy_id" in d.columns:
+        screener = screener.where(screener.notna(), d["screener_proxy_id"].astype("Int32"))
+    no_screener = (d["pred_class"] == "ball_screen") & screener.isna()
+    refused = int(no_screener.sum())
+    if refused:
+        log.warning("%d ball_screen detection(s) refused: no screener and no screener proxy", refused)
+    d, screener = d[~no_screener], screener[~no_screener]
+    raw = pd.DataFrame({"sportvu_game": d["sportvu_game"].to_numpy(), "possession": d["possession"].to_numpy(),
+                        "action_id": d.groupby("sportvu_game").cumcount().to_numpy() if len(d) else np.zeros(0, dtype=int),
+                        "action_type": d["pred_class"].to_numpy(), "start_frame": d["start_frame"].to_numpy(),
+                        "end_frame": d["end_frame"].to_numpy(), "ball_handler_id": d["ball_handler_id"].to_numpy(),
+                        "screener_id": screener.to_numpy(), "label_source": "model", "labeller_pass": 1,
+                        "labelled_at": L.now_iso()})
+    out = L.cast(raw, "actions") if len(raw) else L.empty("actions")
+    out["model"] = labeller_pass
+    out["confidence"] = d["p_selected_class"].to_numpy(dtype=float) if len(d) else np.zeros(0)
+    return out.reset_index(drop=True), refused
+
+
+def labelled_scope(cands: pd.DataFrame, feats: pd.DataFrame, games: list) -> tuple:
+    """Keep for fitting and scoring only the candidates of possessions a labeller visited (analytics.labels visited
+    records, pass 1). Per game: with a visited file, candidates outside the visited set leave the labelled frames
+    (an unvisited possession is unlabelled, not negative); with labels but no visited file (older roots), every
+    possession counts as visited and the game is counted; with neither labels nor visited records, the whole game is
+    inference-only (detections allowed, never fitted or scored). -> (labelled cands, labelled feats, inference cands,
+    inference feats, counts)."""
+    keep = np.ones(len(cands), dtype=bool)
+    counts = {"games_without_labels": [], "games_without_visited": [], "possessions_outside_visited": 0,
+              "candidates_outside_visited": 0, "inference_games": []}
+    for g in games:
+        has_labels = g.get("labels") is not None and len(g["labels"]["actions"]) > 0
+        visited = g.get("visited")
+        m = (cands["sportvu_game"] == g["sportvu_game"]).to_numpy()
+        if visited is None and not has_labels:
+            counts["games_without_labels"].append(g["sportvu_game"])
+            counts["inference_games"].append(g["sportvu_game"])
+            keep[m] = False
+            continue
+        if visited is None:
+            counts["games_without_visited"].append(g["sportvu_game"])
+            continue
+        if not has_labels:
+            counts["games_without_labels"].append(g["sportvu_game"])
+        outside = m & ~cands["possession"].astype(int).isin(set(visited)).to_numpy()
+        counts["candidates_outside_visited"] += int(outside.sum())
+        counts["possessions_outside_visited"] += int(cands.loc[outside, "possession"].nunique())
+        keep[outside] = False
+    lab_c, lab_f = cands[keep].reset_index(drop=True), feats[keep].reset_index(drop=True)
+    inf_c, inf_f = cands[~keep].reset_index(drop=True), feats[~keep].reset_index(drop=True)
+    inf_c["label_class"] = None
+    inf_c["label_action_type"] = None
+    inf_c["label_iou"] = float("nan")
+    inf_c["label_duplicate"] = False
+    return lab_c, lab_f, inf_c, inf_f, counts
+
+
+def length_table(train_c: pd.DataFrame, actions: pd.DataFrame) -> pd.DataFrame:
+    """Per detected class: label length, candidate length (frames) and matched-pair IoU at p10, median, p90."""
+    rows = []
+
+    def q(v):
+        v = pd.to_numeric(pd.Series(v), errors="coerce").dropna()
+        if not len(v):
+            return (float("nan"),) * 3
+        return tuple(float(x) for x in v.quantile([0.1, 0.5, 0.9]))
+
+    for c in F.DETECT_CLASSES:
+        lab = actions[actions["action_type"] == c] if len(actions) else actions
+        cand = train_c[train_c["rule_class"] == c]
+        matched = train_c[train_c["label_class"] == c]
+        ll = q(lab["end_frame"].astype(int) - lab["start_frame"].astype(int) + 1) if len(lab) else (float("nan"),) * 3
+        cl = q(cand["end_frame"].astype(int) - cand["start_frame"].astype(int) + 1)
+        io = q(matched["label_iou"])
+        rows.append({"class": c, "labels": int(len(lab)), "label_len_p10": ll[0], "label_len_median": ll[1], "label_len_p90": ll[2],
+                     "candidates": int(len(cand)), "cand_len_p10": cl[0], "cand_len_median": cl[1], "cand_len_p90": cl[2],
+                     "matched": int(len(matched)), "iou_p10": io[0], "iou_median": io[1], "iou_p90": io[2]})
+    return pd.DataFrame(rows)
 
 
 def write_tables(out_root, table: pd.DataFrame, detected: pd.DataFrame) -> list:
@@ -263,6 +342,7 @@ def md_table(df: pd.DataFrame, nd: int = 3) -> list:
 
 def write_report(path: Path, ctx: dict) -> str:
     fx = ctx["fixtures"]
+    sc = ctx["scope"]
     tag = " (fixture output, not a result)" if fx else ""
     L = ["# Action recognition: ball-screen detection (analytics/actions/train.py)", "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
@@ -270,11 +350,11 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["**Every number below is fixture output, not a result**: the inputs are synthetic games from %s "
               "with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and "
               "hand labels on the owner's Mac (command under Status)." % ctx.get("fixture_source", "the fixture generator"), ""]
-    L += ["## Inputs" + tag, "", "| game | held-out | frames | possessions | action labels | screen labels | validation |",
-          "| --- | --- | --- | --- | --- | --- | --- |"]
+    L += ["## Inputs" + tag, "", "| game | held-out | frames | possessions | visited (pass 1) | action labels | screen labels | validation |",
+          "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for g in ctx["inputs"]:
-        L.append("| %s | %s | %d | %d | %d | %d | %s |" % (g["sportvu_game"], "yes" if g["heldout"] else "no", g["frames"],
-                                                        g["possessions"], g["actions"], g["screens"], g["validation"]))
+        L.append("| %s | %s | %d | %d | %s | %d | %d | %s |" % (g["sportvu_game"], "yes" if g["heldout"] else "no", g["frames"],
+                                                             g["possessions"], g.get("visited", "none"), g["actions"], g["screens"], g["validation"]))
     L += ["", "Label counts by action_type over every game (hand-label schema; only ball_screen, drive and isolation are detected): %s."
           % (", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_counts"].items())) or "none"),
           "Label counts by label_source: %s." % (", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_sources"].items())) or "none"),
@@ -282,6 +362,12 @@ def write_report(path: Path, ctx: dict) -> str:
           "Games skipped by validation: %s."
           % (ctx["train_games"], ", ".join(ctx["train_game_ids"]) or "none", ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]) or "none",
              ctx["skipped_possessions"], ", ".join(ctx["invalid_games"]) or "none"),
+          "Label scope: only candidates of possessions the labeller's pass 1 visited (labels/visited, analytics.labels.read_visited) are fitted or scored. "
+          "Candidates outside the visited set: %d (in %d possessions, scored as inference only); games with labels but no visited file (every possession counted as visited): %s; "
+          "games with neither labels nor visited records (inference only, never fitted or scored): %s; inference-only candidates in the tables: %d. "
+          "Action labels with label_source model dropped before matching: %d."
+          % (sc["candidates_outside_visited"], sc["possessions_outside_visited"], ", ".join(sc["games_without_visited"]) or "none",
+             ", ".join(sc["inference_games"]) or "none", ctx["inference_rows"], ctx["dropped_model_rows"]),
           "Guard: `analytics.eval.refuse_heldout` checked %d training game ids against sportvu/splits.json; "
           "`analytics.schema.assert_time_forward` and `features.assert_no_leak` passed on the training feature frame (%d rows, %d features)."
           % (ctx["train_games"], ctx["train_rows"], len(F.FEATURES)), "",
@@ -293,12 +379,16 @@ def write_report(path: Path, ctx: dict) -> str:
           % (F.SCREEN_WINDOW_S, F.SCREEN_DIST_FT, F.SCREEN_N_DEFENDERS, F.SCREEN_DEF_HANDLER_FT, F.SCREEN_SPEED_FTPS, F.SCREEN_HANDLER_DIST_FT,
              F.SCREEN_PAD_PRE_S, F.SCREEN_PAD_POST_S, F.DRIVE_WINDOW_S, F.DRIVE_START_FT, F.DRIVE_SPEED_FTPS, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS,
              F.ISO_START_FT, F.ISO_SPREAD_FT, F.IOU_MIN), "",
-          "Candidates: %d over %d possessions (%.2f per possession); %d overlap a label of a type this detector does not model (counted as none)."
-          % (ctx["n_candidates"], ctx["n_possessions"], ctx["n_candidates"] / max(1, ctx["n_possessions"]), ctx["other_type_overlaps"]), "",
+          "Candidates: %d over %d visited possessions of %d (%.2f per visited possession); %d overlap a label of a type this detector does not model (counted as none); "
+          "%d are duplicates (they overlap a label at IoU >= %.2f that a higher-IoU candidate took in the one-to-one matching; counted as none)."
+          % (ctx["n_candidates"], ctx["n_possessions_visited"], ctx["n_possessions"], ctx["n_candidates"] / max(1, ctx["n_possessions_visited"]),
+             ctx["other_type_overlaps"], ctx["duplicates"], F.IOU_MIN), "",
           "Rule class (rows) against label class (columns), training games:", ""]
     L += md_table(ctx["rule_vs_label"].reset_index().rename(columns={"index": "rule_class"}))
     L += ["", "Candidate recall against the labels (training games), IoU >= %.2f:" % F.IOU_MIN, ""]
     L += md_table(ctx["recall"])
+    L += ["", "Label length, candidate length (frames at the contract's 25 Hz) and IoU of the matched pairs, training games:", ""]
+    L += md_table(ctx["lengths"], 2)
     L += ["", "## Protocol", "",
           "Features (%d, positions and velocities inside the window): %s. `def_recovery_ft` is the one declared post-window feature "
           "(defender to handler distance over the 1 s after the window minus inside it); no feature reads the possession outcome and no label column is a feature."
@@ -317,17 +407,18 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "Selected model: **%s** (plan target: ball_screen F1 over 0.8 on a held-out game%s)." % (ctx["selected"], "; a fixture cannot meet or miss it" if fx else ""),
           "", "Confusion of the selected model (rows true, columns predicted, %s):" % ctx["mode"], ""]
     L += md_table(ctx["scores"][ctx["selected"]]["confusion"].reset_index().rename(columns={"true": "true \\ pred"}))
-    L += ["", "Detected actions (selected class other than none with probability above %.1f): %d of %d training candidates." % (DETECT_P, ctx["n_detected_train"], ctx["train_rows"])]
+    L += ["", "Detected actions (selected class other than none with probability above %.1f): %d of %d training candidates; %d ball_screen detection(s) refused for lack of a screener."
+          % (DETECT_P, ctx["n_detected_train"], ctx["train_rows"], ctx.get("refused_screens", 0))]
     if ctx["heldout_rows"]:
-        L += ["", "## Held-out games (scored once by the models refit on all %d training candidates; never fitted or tuned on)%s" % (ctx["train_rows"], tag), "",
+        L += ["", "## Held-out games (scored once by the selected model refit on all %d training candidates; never fitted or tuned on)%s" % (ctx["train_rows"], tag), "",
               "%d candidates from %d held-out game(s): %s." % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
               "| model | F1 ball_screen | F1 drive | F1 isolation | F1 none | macro F1 | accuracy |", "| --- | --- | --- | --- | --- | --- | --- |"]
-        for m in MODELS:
+        for m in ctx["heldout_scores"]:
             s = ctx["heldout_scores"][m]
             L.append("| %s | %s | %s | %s | %s | %s | %s |" % (m, _f(s["f1_ball_screen"]["point"]), _f(s["per_class_f1"]["drive"]),
                                                               _f(s["per_class_f1"]["isolation"]), _f(s["per_class_f1"]["none"]),
                                                               _f(s["macro_f1"]), _f(s["accuracy"])))
-        L += ["", "Held-out numbers are point estimates (no bootstrap over %d game(s)). Confusion of the selected model on the held-out candidates:" % ctx["heldout_games"], ""]
+        L += ["", "Held-out numbers are point estimates (no bootstrap over %d game(s)); only the selected model is scored there. Confusion on the held-out candidates:" % ctx["heldout_games"], ""]
         L += md_table(ctx["heldout_scores"][ctx["selected"]]["confusion"].reset_index().rename(columns={"true": "true \\ pred"}))
     elif ctx["heldout_games"]:
         L += ["", "## Held-out games", "", "%d held-out game(s) set aside (%s) but no candidate was generated in them." % (ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]))]
@@ -350,7 +441,12 @@ def write_report(path: Path, ctx: dict) -> str:
           % (F.DRIVE_START_FT, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS, F.ISO_START_FT),
           "- The ball has no handler when it is over %g ft from every offensive player (in flight); features come from the rule window (the set), "
           "the padded extent serves the IoU only; `def_recovery_ft` is the one declared post-window feature." % F.HANDLER_BALL_FT,
-          "- A candidate overlapping a label of a type the detector does not model (handoff, off_ball_screen, post_up, cut) is class none and counted above.",
+          "- A candidate overlapping a label of a type the detector does not model (handoff, off_ball_screen, post_up, cut) is class none and counted above. "
+          "Matching is one-to-one (each label to its highest-IoU free candidate); leftover overlapping candidates are none and counted as duplicates.",
+          "- An unvisited possession is unlabelled, not negative: only possessions in the pass-1 visited record enter a fit or a metric; a game with "
+          "neither labels nor a visited file is inference only. Action labels with label_source model are dropped before matching.",
+          "- actions_detected is an offline table: its confidence is the selected model's probability, which reads def_recovery_ft 1 s after the window ends, "
+          "so it is not available at start_frame. A ball_screen detection without a screener (candidate or proxy) is refused and counted.",
           "- The hgb model fits on one thread (threadpoolctl): on 4 cores shared by many processes its OpenMP loops stalled for minutes.",
           "- Fewer games than folds gives leave-one-game-out; one game gives in-sample metrics labelled as such; ties in the selection metric go to the rule baseline.",
           "", "## Status", ""]
@@ -385,12 +481,16 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
     """The whole protocol on a list of game dicts -> the report context (scores, tables, selected model)."""
     valid, inputs, invalid = [], [], []
     label_counts, label_sources = {}, {}
+    dropped_model_rows = 0
     for g in games:
         g["heldout"] = is_heldout(g)
         rep = V.validate_game(g)
         lab = g.get("labels") or {"actions": pd.DataFrame(), "screens": pd.DataFrame()}
+        dropped_model_rows += int(lab.get("dropped_model_rows", 0))
+        visited = g.get("visited")
         inputs.append({"sportvu_game": g["sportvu_game"], "heldout": g["heldout"], "frames": int(g["frames"]["frame"].nunique()),
                        "possessions": int(len(g["possessions"])), "actions": int(len(lab["actions"])), "screens": int(len(lab["screens"])),
+                       "visited": "none" if visited is None else str(len(visited)),
                        "validation": "ok" if rep["ok"] else "%d problem(s)" % sum(len(rep[p]["problems"]) for p in ("frames", "possessions", "rosters", "labels"))})
         if not rep["ok"]:
             invalid.append(g["sportvu_game"])
@@ -402,38 +502,52 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
         valid.append(g)
     if not valid:
         raise SystemExit("%s: no valid game" % WHO)
-    cands, feats, recall_all, skipped = F.build_season(valid)
+    cands_all, feats_all, _recall_all, skipped = F.build_season(valid)
+    cands, feats, inf_c, inf_f, scope = labelled_scope(cands_all, feats_all, valid)
     train_c, train_f, held_c, held_f = training_split(cands, feats)
     if len(train_c) == 0:
         raise SystemExit("%s: no training candidate after setting the held-out games aside" % WHO)
-    train_games = [g for g in valid if not g["heldout"]]
+    scored_games = set(cands["sportvu_game"])
+    train_games = [g for g in valid if not g["heldout"] and g["sportvu_game"] in scored_games]
     train_actions = pd.concat([g["labels"]["actions"] for g in train_games if len(g["labels"]["actions"])], ignore_index=True) \
         if any(len(g["labels"]["actions"]) for g in train_games) else pd.DataFrame(columns=["sportvu_game", "possession", "action_type", "start_frame", "end_frame"])
+    if len(train_actions):     # labels of unvisited possessions cannot be recalled by design; keep the visited ones
+        vis = {g["sportvu_game"]: g.get("visited") for g in train_games}
+        ok = [v is None or int(r.possession) in v for r, v in zip(train_actions.itertuples(index=False), train_actions["sportvu_game"].map(vis))]
+        train_actions = train_actions[np.asarray(ok, dtype=bool)].reset_index(drop=True)
     recall = F.candidate_recall(train_c, train_actions)
     probs, fold, note = out_of_fold(train_c, train_f, n_folds, seed)
     scores = score(train_c, probs, n_boot, seed)
     selected = select(scores)
     table = candidate_table(train_c, probs[selected], fold)
+    labeller_pass = "%s %s seed%d %s" % (WHO, selected, seed, "fixtures" if fixtures else "data")
     ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "command": command, "fixtures": fixtures,
            "fixture_source": V.fixture_source() if fixtures else "",
            "inputs": inputs, "invalid_games": invalid, "label_counts": label_counts, "label_sources": label_sources,
+           "dropped_model_rows": dropped_model_rows, "scope": scope,
            "train_games": int(train_c["sportvu_game"].nunique()), "train_game_ids": sorted(train_c["sportvu_game"].unique()),
-           "heldout_games": sum(1 for g in valid if g["heldout"]), "heldout_game_ids": sorted(g["sportvu_game"] for g in valid if g["heldout"]),
-           "train_rows": int(len(train_c)), "heldout_rows": int(len(held_c)), "skipped_possessions": int(skipped),
+           "heldout_games": int(held_c["sportvu_game"].nunique()), "heldout_game_ids": sorted(held_c["sportvu_game"].unique()),
+           "train_rows": int(len(train_c)), "heldout_rows": int(len(held_c)), "inference_rows": int(len(inf_c)), "skipped_possessions": int(skipped),
            "n_candidates": int(len(train_c)), "n_possessions": int(sum(len(g["possessions"]) for g in train_games)),
+           "n_possessions_visited": int(sum(len(g["visited"]) if g.get("visited") is not None else len(g["possessions"]) for g in train_games)),
            "other_type_overlaps": int((train_c["label_action_type"].notna() & (train_c["label_class"] == "none")).sum()),
+           "duplicates": int(train_c["label_duplicate"].astype(bool).sum()),
            "rule_vs_label": pd.crosstab(train_c["rule_class"], train_c["label_class"]).reindex(index=F.DETECT_CLASSES, columns=CLASSES, fill_value=0),
-           "recall": recall, "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
-           "scores": scores, "selected": selected, "n_detected_train": int(len(detected_table(table, "oof"))),
+           "recall": recall, "lengths": length_table(train_c, train_actions),
+           "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
+           "scores": scores, "selected": selected, "n_detected_train": int(len(detected_table(table, labeller_pass)[0])),
            "heldout_scores": {}, "written_tables": [], "table": table}
-    if len(held_c):
+    tables = [table]
+    if len(held_c) or len(inf_c):
         models = fit_models(train_c, train_f, seed)
-        held_probs = {m: models[m](held_c, held_f) for m in MODELS}
-        ctx["heldout_scores"] = score(held_c, held_probs, 1, seed)
-        held_table = candidate_table(held_c, held_probs[selected], np.full(len(held_c), -1))
-        ctx["table"] = pd.concat([table, held_table], ignore_index=True)
-    labeller_pass = "%s %s seed%d %s" % (WHO, selected, seed, "fixtures" if fixtures else "data")
-    ctx["detected"] = detected_table(ctx["table"], labeller_pass)
+        if len(held_c):          # scored once, the selected model only
+            held_probs = {selected: models[selected](held_c, held_f)}
+            ctx["heldout_scores"] = {selected: score(held_c, held_probs, 1, seed, models=(selected,))[selected]}
+            tables.append(candidate_table(held_c, held_probs[selected], np.full(len(held_c), -1)))
+        if len(inf_c):           # inference only: detections allowed, never fitted or scored
+            tables.append(candidate_table(inf_c, models[selected](inf_c, inf_f), np.full(len(inf_c), -1)))
+    ctx["table"] = pd.concat(tables, ignore_index=True)
+    ctx["detected"], ctx["refused_screens"] = detected_table(ctx["table"], labeller_pass)
     if out_root:
         ctx["written_tables"] = write_tables(out_root, ctx["table"], ctx["detected"])
     if report is not None:

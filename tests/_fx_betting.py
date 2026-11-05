@@ -27,16 +27,25 @@ try:  # the shared fixtures of lane I1, when present
     from analytics.fixtures import synth_odds, synth_stints  # noqa: F401
     SOURCE = "analytics/fixtures.py"
 
-    def team_names() -> dict:
+    def team_names(games=None) -> dict:
         """id -> feed name of the shared fixtures' synthetic teams (their ids are not stats.nba.com ids), for
-        validate.validate(..., team_names=...); the join also infers them from dates when this is not passed."""
-        codes, base = _shared.TEAM_CODES, _shared.TEAM_ID_BASE
-        return {base + i: _shared.TEAM_NAMES[codes[i % len(codes)]] for i in range(len(codes) + 6)
-                if codes[i % len(codes)] in _shared.TEAM_NAMES}
+        validate.validate(..., team_names=...); the join also infers them from dates when this is not passed.
+        From the games frame's home_team / away_team codes when given (synth_odds names its teams from those codes),
+        plus the league formula LEAGUE_TEAM_ID_BASE + LEAGUE_CODES.index(code) for every code with a name."""
+        out = {}
+        league_base, league_codes = getattr(_shared, "LEAGUE_TEAM_ID_BASE", None), getattr(_shared, "LEAGUE_CODES", ())
+        if league_base is not None:
+            out.update({league_base + i: _shared.TEAM_NAMES[c] for i, c in enumerate(league_codes) if c in _shared.TEAM_NAMES})
+        if games is not None and {"home_team", "away_team"} <= set(games.columns):
+            for side in ("home", "away"):
+                for tid, code in zip(games[side + "_team_id"], games[side + "_team"]):
+                    if str(code) in _shared.TEAM_NAMES:
+                        out[int(tid)] = _shared.TEAM_NAMES[str(code)]
+        return out
 except ImportError:  # pragma: no cover - exercised when the shared module is absent
     SOURCE = "tests/_fx_betting.py (fallback generator)"
 
-    def team_names() -> dict:
+    def team_names(games=None) -> dict:
         return {}      # the fallback uses real stats.nba.com ids, which validate.TEAM_NAMES knows
 
     _TEAMS = [(1610612744, "Golden State Warriors"), (1610612747, "Los Angeles Lakers"),

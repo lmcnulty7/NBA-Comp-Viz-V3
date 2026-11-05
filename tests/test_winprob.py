@@ -263,7 +263,8 @@ def test_eda_tables_never_read_the_held_out_season(states):
     assert set(t) == {"margin_distribution", "time_distribution", "win_rate_by_margin_bucket", "spread_coverage", "shuffled_label_check"}
     assert set(t["spread_coverage"]["season"]) == set(SEASONS) - {HELD}
     assert int(t["shuffled_label_check"]["rows"].iloc[0]) == int((states["season"] != HELD).sum())
-    assert int(t["win_rate_by_margin_bucket"].filter(like="n_").sum().sum()) == int((states["season"] != HELD).sum())
+    wr = t["win_rate_by_margin_bucket"]
+    assert int(wr[[c for c in wr.columns if c.startswith("n_")]].sum().sum()) == int((states["season"] != HELD).sum())
     sh = t["shuffled_label_check"].set_index("labels")
     assert sh.loc["shuffled labels (across games)", "brier_oof_logistic"] > sh.loc["real labels", "brier_oof_logistic"]
     assert sh.loc["shuffled labels (across games)", "brier_oof_logistic"] > 0.2
