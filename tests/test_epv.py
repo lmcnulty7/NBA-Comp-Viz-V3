@@ -269,6 +269,15 @@ def test_no_fit_ever_sees_a_held_out_game(season, monkeypatch, tmp_path):
     assert all(not any(h for g, h in season["games"] if g in s) for s in seen)
 
 
+def test_one_training_game_is_in_sample_with_fold_minus_two(season):
+    st = season["states_1hz"]
+    one = st[st["sportvu_game"] == [g for g, h in season["games"] if not h][0]].reset_index(drop=True)
+    pred, note = T.out_of_fold(one, F.geometry(one), None, None, 3, 0, 20, models=("constant", "ridge"))
+    assert note["mode"] == "in-sample" and (pred["fold"] == T.IN_SAMPLE_FOLD).all() and T.IN_SAMPLE_FOLD == -2
+    st_tab, _ = T.epv_tables(pred, "ridge", heldout=False)
+    assert (st_tab["fold"] == -2).all()
+
+
 def test_buckets():
     assert T.elapsed_bucket([0, 3.9, 4, 9.9, 10, 23, 30]).tolist() == ["0-4", "0-4", "4-10", "4-10", "10-24", "10-24", "10-24"]
     assert T.shot_clock_bucket([0, 6.9, 7, 13.9, 14, 24, np.nan]).tolist() == ["0-7", "0-7", "7-14", "7-14", "14-24", "14-24", "none"]
@@ -293,6 +302,9 @@ def test_train_end_to_end_writes_report_and_output_tables(season, tmp_path):
         assert pred["epv_" + m].notna().all() and pred["p_" + m].between(0, 1).all()
     assert set(ctx["by_elapsed"]["bucket"]) >= {"all", "0-4", "4-10"}
     assert ctx["heldout"] is not None and ctx["heldout_games"] == [HELD]
+    assert set(ctx["heldout"]["by_bucket"]["model"]) == set(ctx["heldout"]["models"]) <= {ctx["selected"], "constant"}
+    assert set(c for c in ctx["heldout"]["pred"].columns if c.startswith("epv_")) == {"epv_" + m for m in ctx["heldout"]["models"]}
+    assert "Only the selected candidate" in text
     # the output layout the decisions and playcalling lanes read
     season_dir = tmp_path / "out" / "analytics" / "epv" / "2015-16"
     train_games = [g for g, h in season["games"] if not h]

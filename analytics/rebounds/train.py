@@ -385,7 +385,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "Per miss: y is whether the top candidate secured the rebound (a tie at the maximum counts as yes), p is the top candidate's probability.", "",
           ctx["calibration_block"]]
     if ctx["heldout_rows"]:
-        L += ["## Held-out games (scored once by the models refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
+        L += ["## Held-out games (scored once by the selected candidate refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
               "%d misses from %d held-out game(s): %s." % (ctx["heldout_misses"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
               "| model | per-miss log loss | top-1 accuracy |", "| --- | --- | --- |"]
         for m, sc in ctx["heldout_scores"].items():

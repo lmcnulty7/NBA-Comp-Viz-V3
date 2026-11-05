@@ -1,6 +1,6 @@
 # EPV: expected possession value from 1 Hz states (analytics/epv)
 
-Written 2026-11-05T09:19:00Z by `python -m analytics.epv.train --fixtures --games 8 --folds 5 --bootstrap 200 --report reports/epv.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/epv_out2` (fixture output, not a result).
+Written 2026-11-05T09:47:03Z by `python -m analytics.epv.train --fixtures --games 8 --folds 5 --bootstrap 200 --report reports/epv.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/epv_out3` (fixture output, not a result).
 
 **Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_epv.py, built to exercise the pipeline, and say nothing about basketball.
 
@@ -21,7 +21,7 @@ Training mean points per state: 1.2406; P(points > 0): 0.5585.
 ## Protocol
 
 Features (25): ball_x, ball_y, ball_z, ball_dist_basket, handler_dist_basket, handler_angle, handler_nearest_def_dist_ft, off_dist_1, off_dist_2, off_dist_3, off_dist_4, off_dist_5, off_def_1, off_def_2, off_def_3, off_def_4, off_def_5, off_hull_area, shot_clock_s, elapsed_in_possession_s, ball_dist_min_so_far, n_handler_switches, handler_fg_prior, handler_zone_value, lineup_tov_prior.
-Priors come from the training games of each fold only and are out-of-fold for the training rows (a game's own shots and possessions are left out of its prior); the location-only xFG (analytics.features_xfg) at the handler's position is the shrinkage target of the shooter prior.
+Priors come from the training games of each fold only. The per-player zone counts and the per-lineup counts are out-of-fold for the training rows (a game's own shots and possessions are left out of its prior); the two league-wide quantities they shrink towards, the location-only xFG (analytics.features_xfg, four parameters) at the handler's position and the training turnover rate, are fitted once on the whole training fold, the row's own game included.
 Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor (100 iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds), and under the gate an MLPRegressor over the last 5 states' features.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
@@ -84,27 +84,15 @@ Possession points permuted across possessions of the training games, gradient bo
 
 ## Held-out games, scored once (never fitted or tuned on)
 
-988 states from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW; the pipeline was refit on all 3026 training states.
+988 states from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW; the pipeline was refit on all 3026 training states. Only the selected candidate (constant) is scored here; the other candidates never see a held-out row.
 Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on. Point estimates only: fewer than 5 held-out games, so no bootstrap interval.
 
 | bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |
 | --- | --- | --- | --- | --- | --- |
 | all | constant | 988 | 0.2426 | 1.2191 | n/a |
-| all | ridge | 988 | 0.2419 | 1.2237 | 1.188 |
-| all | hgb | 988 | 0.2420 | 1.2424 | 5.993 |
-| all | mlp | 988 | 0.2422 | 2.0450 | 0.841 |
 | 0-4 | constant | 320 | 0.2432 | 1.2256 | n/a |
-| 0-4 | ridge | 320 | 0.2422 | 1.2291 | 1.931 |
-| 0-4 | hgb | 320 | 0.2423 | 1.2096 | 9.240 |
-| 0-4 | mlp | 320 | 0.2447 | 2.3928 | 0.001 |
 | 4-10 | constant | 450 | 0.2425 | 1.2367 | n/a |
-| 4-10 | ridge | 450 | 0.2426 | 1.2473 | 0.800 |
-| 4-10 | hgb | 450 | 0.2418 | 1.2705 | 7.200 |
-| 4-10 | mlp | 450 | 0.2431 | 1.9667 | 0.207 |
 | 10-24 | constant | 218 | 0.2422 | 1.1732 | n/a |
-| 10-24 | ridge | 218 | 0.2399 | 1.1671 | 1.251 |
-| 10-24 | hgb | 218 | 0.2422 | 1.2326 | -1.879 |
-| 10-24 | mlp | 218 | 0.2368 | 1.6962 | 3.437 |
 
 ## Status
 

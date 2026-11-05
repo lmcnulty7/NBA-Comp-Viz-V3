@@ -1,6 +1,6 @@
 # Rebound probability (analytics/rebounds/train.py)
 
-Written 2026-11-05T09:44:32Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --bootstrap 200`.
+Written 2026-11-05T09:44:54Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --bootstrap 200`.
 
 **Fixture output, not a result.** Every number below comes from synthetic games (analytics.fixtures); no real tracking data was read. The real run is the Mac command at the end.
 
@@ -73,7 +73,7 @@ Per miss: y is whether the top candidate secured the rebound (a tie at the maxim
 | 8 | 0.80 | 0.90 | 0 | - | - |
 | 9 | 0.90 | 1.00 | 0 | - | - |
 
-## Held-out games (scored once by the models refit on all 1276 training rows; never fitted or tuned on)
+## Held-out games (scored once by the selected candidate refit on all 1276 training rows; never fitted or tuned on)
 
 36 misses from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW.
 

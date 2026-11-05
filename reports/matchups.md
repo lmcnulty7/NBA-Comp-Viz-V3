@@ -1,6 +1,6 @@
 # Matchups: individual defender assessment (analytics/matchups)
 
-Written 2026-11-05T08:58:06Z by `python -m analytics.matchups.train --fixtures --report reports/matchups.md --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:44:38Z by `python -m analytics.matchups.train --fixtures --report reports/matchups.md --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_matchups.py (or analytics.fixtures), drawn from a seeded generator. The real run is the Mac command at the end.
 
@@ -8,16 +8,16 @@ Written 2026-11-05T08:58:06Z by `python -m analytics.matchups.train --fixtures -
 
 | game | held out | possessions | sampled frames | matchup rows | attempts |
 | --- | --- | --- | --- | --- | --- |
-| 02.07.2016.OMA.at.DUL | no | 40 | 478 | 293 | 37 |
-| 01.18.2016.HLX.at.LRD | no | 40 | 506 | 290 | 44 |
-| 02.04.2016.GRN.at.QCY | no | 40 | 508 | 277 | 37 |
-| 12.15.2015.ABQ.at.GRN | no | 40 | 486 | 284 | 35 |
-| 11.27.2015.GRN.at.QCY | no | 40 | 497 | 290 | 40 |
-| 12.12.2015.RNO.at.MOB | no | 40 | 500 | 301 | 38 |
-| 12.16.2015.PHX.at.GSW | yes | 40 | 534 | 282 | 45 |
-| 11.11.2015.HLX.at.CLE | yes | 40 | 494 | 283 | 41 |
+| 03.08.2016.GRN.at.HLX | no | 40 | 509 | 285 | 41 |
+| 12.10.2015.GRN.at.DUL | no | 40 | 527 | 295 | 45 |
+| 02.10.2016.QCY.at.FRS | no | 40 | 481 | 290 | 37 |
+| 12.01.2015.DUL.at.HLX | no | 40 | 506 | 309 | 40 |
+| 11.28.2015.HLX.at.FRS | no | 40 | 531 | 286 | 46 |
+| 12.09.2015.PEO.at.DUL | no | 40 | 477 | 285 | 34 |
+| 12.16.2015.PHX.at.GSW | yes | 40 | 490 | 300 | 41 |
+| 11.26.2015.DUL.at.CLE | yes | 40 | 500 | 300 | 42 |
 
-Training: 6 game(s) (01.18.2016.HLX.at.LRD, 02.04.2016.GRN.at.QCY, 02.07.2016.OMA.at.DUL, 11.27.2015.GRN.at.QCY, 12.12.2015.RNO.at.MOB, 12.15.2015.ABQ.at.GRN). Held out, set aside before any fit: 2 game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW). Guard: `analytics.eval.refuse_heldout` checked the training ids against sportvu/splits.json.
+Training: 6 game(s) (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL). Held out, set aside before any fit: 2 game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW). Guard: `analytics.eval.refuse_heldout` checked the training ids against sportvu/splits.json.
 xFG probabilities: location-only logistic, out-of-fold under 5 grouped folds by game.
 Skipped: 0 possession(s) without an offence id, 0 without frames, 0 sampled frame(s) without both squads.
 
@@ -28,63 +28,64 @@ Gate: 300 distinct possessions per defender (`analytics.eval.gated`) before any 
 
 ## Assignment stability (fixture output, not a result)
 
-Share of defender sampled frames whose assignment equals the previous sampled frame: 0.933 [0.930, 0.937] over 13675 defender-frames (6 games).
-Switches per possession per defender: mean 0.77, share of defender-possessions with no switch 0.607.
+Share of defender sampled frames whose assignment equals the previous sampled frame: 0.936 [0.932, 0.940] over 13955 defender-frames (6 games).
+Switches per possession per defender: mean 0.74, share of defender-possessions with no switch 0.595.
 
 ## Defended FG% consistency (fixture output, not a result)
 
 | assigned defender | attempts | FG% |
 | --- | --- | --- |
-| within 4 ft | 179 | 0.609 [0.536, 0.686] |
-| beyond 4 ft | 52 | 0.442 [0.280, 0.600] |
+| within 4 ft | 187 | 0.545 [0.463, 0.661] |
+| beyond 4 ft | 56 | 0.446 [0.293, 0.525] |
 
-Beyond minus within: -0.167 [-0.366, 0.064] (paired by game; excludes zero: False).
+Beyond minus within: -0.099 [-0.265, 0.004] (paired by game; excludes zero: False).
 
 ## Baseline comparison: possession points, out-of-fold under 5 grouped folds by game (seed 0) (fixture output, not a result)
 
-Ridge alpha 30.0 chosen from [0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0] by out-of-fold MSE (0.3: 1.2903, 1.0: 1.2898, 3.0: 1.2888, 10.0: 1.2876, 30.0: 1.2873, 100.0: 1.2875, 300.0: 1.2877).
+Ridge alpha nested: inside each outer fold an inner grouped CV over that fold's training games chose from [0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0] (per-fold alphas 300.0, 100.0, 300.0, 300.0, 300.0); the final model's alpha 300.0 was chosen by grouped CV over all training games (0.3: 1.6698, 1.0: 1.6424, 3.0: 1.5983, 10.0: 1.5339, 30.0: 1.4681, 100.0: 1.4058, 300.0: 1.3746).
 
 | model | out-of-fold MSE |
 | --- | --- |
-| constant | 1.2878 [1.2528, 1.3345] |
-| raw | 1.2878 [1.2528, 1.3345] |
-| ridge | 1.2873 [1.2542, 1.3345] |
-| ridge minus raw | -0.0005 [-0.0042, 0.0035] (excludes zero: False) |
-| ridge minus constant | -0.0005 [-0.0042, 0.0035] (excludes zero: False) |
+| constant | 1.3580 [1.3008, 1.4412] |
+| raw | 1.5105 [1.4062, 1.5897] |
+| ridge | 1.3854 [1.3381, 1.4578] |
+| ridge minus raw | -0.1251 [-0.1995, -0.0363] (excludes zero: True) |
+| ridge minus constant | 0.0273 [-0.0004, 0.0743] (excludes zero: False) |
 
-The ridge MSE is at the alpha chosen on the same folds, so it is slightly optimistic; the raw and constant models carry no such choice.
-Every defender is in one game on this input: raw and ridge out-of-fold equal the constant, so the comparison above carries no information about the defenders.
+The out-of-fold MSE of every model carries no choice made on the scored rows (the ridge alpha of each fold comes from an inner CV over that fold's training games).
+28 of 42 defenders appear in two or more training games (only those can move an out-of-fold prediction).
 
 ## Defenders (fixture output, not a result)
 
-84 defenders, 0 pass the 300-possession gate. Sorted by diff_per100 (points allowed minus expected per 100 matchup possessions; positive = worse); ridge_value is the ridge coefficient per 100 possessions (positive = worse).
+42 defenders, 0 pass the 300-possession gate. Sorted by diff_per100 (points allowed minus expected per 100 matchup possessions; positive = worse); ridge_value is the ridge coefficient per 100 possessions (positive = worse).
 
 No defender passes the gate, so there is no ranking. The ungated rows, every one flagged insufficient, for inspection only:
 
 | def_player_id | n_possessions | points_allowed_per100 | expected_per100 | diff_per100 | ridge_value | lo | hi | insufficient |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 9013 | 5 | 3.1 | 51.5 | -48.4 | -2.4 | n/a | n/a | yes |
-| 9026 | 5 | 8.4 | 56.3 | -47.9 | 1.0 | n/a | n/a | yes |
-| 9126 | 5 | 24.6 | 56.9 | -32.3 | -2.1 | n/a | n/a | yes |
-| 9133 | 5 | 30.0 | 60.8 | -30.8 | -4.2 | n/a | n/a | yes |
-| 9105 | 5 | 35.0 | 65.2 | -30.2 | -5.1 | n/a | n/a | yes |
-| 9112 | 5 | 29.3 | 51.2 | -21.8 | -2.1 | n/a | n/a | yes |
-| 9052 | 5 | 2.5 | 23.5 | -21.0 | 6.9 | n/a | n/a | yes |
-| 9010 | 15 | 13.1 | 33.7 | -20.6 | 0.3 | n/a | n/a | yes |
-| 9023 | 15 | 16.4 | 35.3 | -18.9 | 1.9 | n/a | n/a | yes |
-| 9028 | 20 | 14.9 | 33.6 | -18.7 | -0.8 | n/a | n/a | yes |
+| 500066 | 10 | 6.1 | 41.4 | -35.4 | -0.1 | -48.8 | -22.0 | yes |
+| 500063 | 30 | 12.5 | 38.9 | -26.4 | -1.2 | -27.9 | -24.8 | yes |
+| 500074 | 45 | 7.4 | 26.2 | -18.8 | -2.3 | -34.5 | -2.7 | yes |
+| 500035 | 15 | 27.2 | 38.6 | -11.4 | -0.4 | -32.3 | 26.4 | yes |
+| 500071 | 60 | 22.9 | 34.2 | -11.4 | -1.9 | -23.6 | 2.8 | yes |
+| 500033 | 45 | 19.9 | 30.6 | -10.7 | 1.6 | -19.5 | -4.0 | yes |
+| 500056 | 10 | 1.3 | 10.0 | -8.6 | -0.5 | -17.3 | 0.0 | yes |
+| 500031 | 60 | 15.4 | 22.3 | -7.0 | 1.6 | -17.0 | 0.8 | yes |
+| 500152 | 20 | 3.3 | 8.5 | -5.2 | -0.2 | n/a | n/a | yes |
+| 500073 | 45 | 18.0 | 23.0 | -5.1 | -1.4 | -19.2 | 7.8 | yes |
 
 ## Held-out game(s), scored once (fixture output, not a result)
 
-11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW: 80 possessions, 565 matchup rows; never fitted or tuned on; point estimates only.
+11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW: 80 possessions, 600 matchup rows; never fitted or tuned on; point estimates only.
+
+Selected candidate: ridge (the lower out-of-fold MSE on the training folds; the rule was fixed before scoring). Only the candidate and the constant floor are scored here.
 
 | model | MSE |
 | --- | --- |
-| constant | 1.3653 |
-| raw | 1.3653 |
-| ridge | 1.3720 |
+| constant (floor) | 1.2336 |
+| ridge (selected) | 1.2287 |
 
-Assignment stability 0.947; defended FG% within 4 ft 0.433 (60 attempts) vs beyond 0.423 (26 attempts).
+Assignment stability 0.922; defended FG% within 4 ft 0.569 (65 attempts) vs beyond 0.556 (18 attempts).
 
 ## Status
 

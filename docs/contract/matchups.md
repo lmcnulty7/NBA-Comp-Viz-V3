@@ -74,7 +74,7 @@ the per-game directory so a glob over `<season>/*.parquet` sees each game once).
 | `points_allowed_per100` | float | 100 times the sum of `points_allowed_share` over the sum of `partial_possession` |
 | `expected_per100` | float | 100 times the sum of `xfg_expected_share` over the sum of `partial_possession` |
 | `diff_per100` | float | `points_allowed_per100 - expected_per100`; positive = more points allowed than expected (worse) |
-| `ridge_value` | float | 100 times the defender's coefficient in the ridge regression of possession points on defender and offensive-player indicator columns (alpha by grouped CV by game); positive = worse |
+| `ridge_value` | float | 100 times the defender's coefficient in the ridge regression of possession points on defender and offensive-player indicator columns (final alpha by grouped CV by game over all training games; the out-of-fold comparison chooses each outer fold's alpha by an inner CV over that fold's training games); positive = worse |
 | `lo`, `hi` | float | 2.5 and 97.5 percentiles of `diff_per100` over bootstrap resamples of whole games; NaN with one game |
 | `insufficient` | bool | fewer than 300 distinct possessions (`analytics.eval.gated`); such rows are never ranked |
 
@@ -91,7 +91,11 @@ training-fold points allowed per matchup possession times their share) and the r
 - Defended FG% consistency: FG% of attempts whose assigned defender is within 4 ft at the sampled frame at
   or before the release versus beyond, with intervals and a paired difference.
 - The held-out game(s) of `sportvu/splits.json`: matchups built with the training-fitted xFG and scored once
-  by the three models fit on all training games; never fitted or tuned on.
+  by the selected candidate (raw or ridge, whichever had the lower out-of-fold MSE on the training folds; the
+  rule is fixed before scoring) next to the constant floor, both fit on all training games; never fitted or
+  tuned on.
+- xFG `fold` convention: `>= 0` out-of-fold, `-1` held-out, `-2` in-sample; `load_xfg` refuses a file whose
+  training rows carry a missing or negative fold.
 
 ## Leakage rules
 

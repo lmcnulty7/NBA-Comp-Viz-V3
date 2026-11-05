@@ -1,6 +1,6 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written 2026-11-05T09:42:11Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
+Written 2026-11-05T09:46:27Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
 
 **Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.
 
@@ -15,6 +15,7 @@ Written 2026-11-05T09:42:11Z by `python -m analytics.winprob.train --fixtures --
 | training seasons | 2020-21, 2021-22 (10181 events, 40 games) |
 | held-out season | 2024-25 (5014 events, 20 games), set aside before any fit |
 | rows flagged heldout (sportvu/splits.json games) dropped | 0 |
+| seasons later than the held-out season, ignored (never fitted or scored) | none |
 | guard | `analytics.eval.refuse_heldout` checked 40 training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |
 | closing spread coverage (training games) | 0.975 |
 | possession known (training events) | 0.990 |
@@ -125,7 +126,7 @@ The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<s
 
 ## Assumptions
 
-- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game.
+- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).
 - 2015-16 games of sportvu/splits.json never fit anything: rows flagged heldout are dropped, the 2015-16 season is refused as a held-out season, and refuse_heldout runs on the training ids.
 - The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.
 - The possession indicator is read from event kinds and is null when the events so far do not say.

@@ -53,7 +53,7 @@ The only column source is `analytics.schema.feature_allowlist("states_1hz")`; `p
 | `off_hull_area` | convex-hull area of the five offensive players, square feet |
 | `shot_clock_s`, `elapsed_in_possession_s` | from the table (shot clock NaN when the source has none) |
 | `ball_dist_min_so_far`, `n_handler_switches` | the possession's past up to t: the smallest ball distance to the basket so far, handler changes so far |
-| `handler_fg_prior` | the handler's smoothed make probability in the zone of the handler's current distance, from the shots of the training games only, out-of-fold (a training game's own shots are left out of its prior), shrunk with 20 pseudo-attempts towards the location-only xFG (`analytics.features_xfg`, fitted on the training fold) at the handler's position |
+| `handler_fg_prior` | the handler's smoothed make probability in the zone of the handler's current distance, from the shots of the training games only, out-of-fold (a training game's own shots are left out of its zone counts), shrunk with 20 pseudo-attempts towards the location-only xFG (`analytics.features_xfg`, a four-parameter league model fitted once on the whole training fold, the row's own game included) at the handler's position |
 | `handler_zone_value` | 2 or 3, the value of a shot from the handler's distance (22 ft and beyond is 3) |
 | `lineup_tov_prior` | the offensive lineup's smoothed turnover rate per possession from the training games, out-of-fold the same way, 30 pseudo-possessions towards the training mean |
 
@@ -86,8 +86,9 @@ at t, t-1, ..., t-4 of the same possession (padded with the row's own values at 
    P(points > 0) and the MSE by elapsed bucket (0 to 4, 4 to 10, 10 to 24 s, later states in the last bucket) with
    bootstrap intervals by game, the calibration slope per bucket (target 0.9 to 1.1, reported only), the
    reliability tables, the shuffled-target check (possession points permuted across possessions, the lift must sit
-   at chance), and the held-out games scored once by the pipeline refit on every training row (point estimates only
-   with fewer than 5 held-out games).
+   at chance), and the held-out games scored once by the selected candidate refit on every training row, with the
+   constant kept as a labelled floor; no other candidate ever sees a held-out row (point estimates only with fewer
+   than 5 held-out games).
 
 Each run calls `OMP_NUM_THREADS=1` for itself (set in `analytics/epv/__init__.py`); on the shared box the OpenMP
 runtime behind gradient boosting hung with its default thread count.
@@ -109,7 +110,7 @@ One row per state of the states table that reached the trainer, the selected mod
 | `epv_points` | float64 | expected points from this state to the end of the possession (the selected model) |
 | `p_score` | float64 | calibrated P(points > 0) |
 | `points_to_end` | int16 | the target, carried for evaluation (never a feature downstream either) |
-| `fold` | int32 | the grouped fold the row was predicted out of; -1 for held-out rows |
+| `fold` | int32 | the grouped fold the row was predicted out of (>= 0); -1 for held-out rows; -2 for in-sample rows (the one-training-game mode, where no grouped fold is possible and the report says IN-SAMPLE) |
 | `heldout` | bool | the game is held out (scored once by the pipeline refit on all training rows) |
 
 Out-of-fold rows (training games) carry predictions from a model that never saw their game; held-out rows carry

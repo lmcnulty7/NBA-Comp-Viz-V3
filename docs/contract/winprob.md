@@ -20,7 +20,8 @@ CLI (each module also exposes main(argv=None); --fixtures runs on tests/_fx_winp
                                          [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
 
 A held-out season (default 2024-25) is written like the others with `heldout = true` and `fold = -1`; its rows
-were scored once by the selected candidate refit on every training row. The 2015-16 games of
+were scored once by the selected candidate refit on every training row. Seasons later than the held-out season are
+ignored entirely (never fitted, scored or written) and listed under Inputs in reports/winprob.md. The 2015-16 games of
 sportvu/splits.json never fit anything and never appear here.
 
 ## winprob_states

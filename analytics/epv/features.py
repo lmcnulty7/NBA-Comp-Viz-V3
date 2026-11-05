@@ -20,9 +20,11 @@ FEATURES (one row per state):
   n_handler_switches                         handler changes over this possession up to t
   handler_fg_prior                           the handler's smoothed make probability in the zone of the handler's
                                              current distance (shots of the training games only, out-of-fold: a
-                                             training game's own shots are left out of its prior), shrunk with
+                                             training game's own shots are left out of its zone counts), shrunk with
                                              K_SHOOTER pseudo-attempts towards the location-only xFG at the
-                                             handler's position (analytics.features_xfg, fitted on the training fold)
+                                             handler's position (analytics.features_xfg, a four-parameter league
+                                             model fitted once on the whole training fold, the row's own game
+                                             included; it is not left out per game)
   handler_zone_value                         2 or 3: the value of a shot from the handler's distance (>= 22 ft)
   lineup_tov_prior                           the offensive lineup's smoothed turnover rate per possession from the
                                              training games (out-of-fold the same way, K_LINEUP pseudo-possessions
@@ -214,7 +216,9 @@ def lineup_stats(states: pd.DataFrame) -> pd.DataFrame:
 
 def fit_xfg(shots_train: pd.DataFrame | None):
     """The location-only xFG (analytics.features_xfg + analytics.train_xfg.fit_models) on the training shots ->
-    p(loc_x, loc_y) in tenths of a foot from the basket. A constant when there are too few shots."""
+    p(loc_x, loc_y) in tenths of a foot from the basket. A constant when there are too few shots. Fitted once per
+    training fold on every fold-training shot (a league-wide four-parameter model), so a training row's own game is
+    inside it; only the per-player zone counts are left out per game."""
     if shots_train is None or len(shots_train) < 30 or shots_train["made"].nunique() < 2:
         rate = float(shots_train["made"].mean()) if shots_train is not None and len(shots_train) else 0.45
         return lambda loc_x, loc_y, r=rate: np.full(len(loc_x), r)
@@ -250,9 +254,9 @@ class Priors:
 
     def _lookup(self, tot, per_game, keys, key_cols, val_cols, games):
         """Sum over training games minus the row's own game when that game is a training game."""
-        n = len(keys)
+        n = len(games)
         out = np.zeros((n, len(val_cols)))
-        if tot is None:
+        if tot is None:                      # no statistics at all (no shots table): the prior is the shrinkage target
             return out
         idx = pd.MultiIndex.from_arrays([keys[c] for c in key_cols]) if len(key_cols) > 1 else pd.Index(keys[key_cols[0]])
         got = tot.reindex(idx)[val_cols].to_numpy(dtype=float)

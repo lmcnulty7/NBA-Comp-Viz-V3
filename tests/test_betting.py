@@ -370,13 +370,13 @@ def test_seasons_after_the_heldout_season_are_ignored(tmp_path):
     assert fx.later_seasons(["2020-21", "2021-22"], None) == []
     seasons = ("2020-21", "2021-22", "2022-23")
     d = va.fixture_data(0, n_games=12, seasons=seasons)
-    real = tr._validate.fixture_data
+    real = va.fixture_data                       # va and tr._validate are the same module: call the captured original
     try:
-        tr._validate.fixture_data = lambda seed, n_games=12: va.fixture_data(seed, n_games=12, seasons=seasons)
+        va.fixture_data = lambda seed, n_games=12, seasons=seasons: real(seed, n_games=n_games, seasons=seasons)
         ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(tmp_path / "r.md"), "--bootstrap", "5",
                        "--fixture-games", "12", "--heldout-season", "2021-22"])
     finally:
-        tr._validate.fixture_data = real
+        va.fixture_data = real
     assert set(d["games"]["season"]) == set(seasons)
     assert ctx["ignored_seasons"] == ["2022-23"] and ctx["train_seasons"] == ["2020-21"] and ctx["heldout_season"] == "2021-22"
     assert "2022-23" not in set(ctx["games"]["season"]) and "2022-23" not in set(ctx["predictions"]["season"])

@@ -27,7 +27,9 @@ Protocol:
      10, 10 to 24 s; a state past 24 s joins the last bucket) with bootstrap intervals by game, the calibration
      slope per bucket (target 0.9 to 1.1, reported, never tuned on), the reliability tables, a shuffled-target check
      (possession points permuted across possessions of the training games: the lift must sit at chance), and the
-     held-out games scored once by the pipeline refit on every training row.
+     held-out games scored once by the selected candidate refit on every training row (the constant kept as a labelled
+     floor; no other candidate sees a held-out row). The fold column of the outputs is >= 0 out-of-fold, -1 held-out,
+     -2 in-sample (the one-training-game mode).
 
 Outputs (docs/contract/epv.md) with --out: OUT_ROOT/analytics/epv/<season>/<game>.parquet (epv_states, one file per
 game) and OUT_ROOT/analytics/epv/<season>/epv_possessions.parquet (one file per season), held-out games under
@@ -58,6 +60,7 @@ SLOPE_LO, SLOPE_HI, MIN_LIFT = 0.9, 1.1, 0.05
 N_LAGS = 5
 INNER_FOLDS = 3
 MLP_ITER = 300
+IN_SAMPLE_FOLD = -2          # repo convention for the fold column: -1 held-out, -2 in-sample, >= 0 out-of-fold
 MAC_CMD = ("python -m analytics.epv.train --data /path/to/DATA_ROOT --report reports/epv.md --folds 5 --seed 0 "
            "--bootstrap 1000 --out /path/to/DATA_ROOT")
 
@@ -216,7 +219,7 @@ def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n
             epv, p = c.predict(X_te)
             pred.loc[te, "epv_" + m], pred.loc[te, "p_" + m] = epv, p
             insample[m].append(mse(y_all[tr], c.predict(X_tr)[0]))
-        pred.loc[te, "fold"] = fi
+        pred.loc[te, "fold"] = fi if note["mode"] == "out-of-fold" else IN_SAMPLE_FOLD
     pred["elapsed_bucket"] = elapsed_bucket(pred["elapsed_in_possession_s"])
     pred["shot_clock_bucket"] = shot_clock_bucket(states["shot_clock_s"].to_numpy(dtype=float))
     note["insample"] = {m: float(np.mean(v)) if v else float("nan") for m, v in insample.items()}
@@ -437,9 +440,10 @@ def write_report(path: Path, ctx: dict) -> str:
           "Training mean points per state: %.4f; P(points > 0): %.4f." % (ctx["mean_points"], ctx["rate_score"]), "",
           "## Protocol", "",
           "Features (%d): %s." % (len(F.FEATURES), ", ".join(F.FEATURES)),
-          "Priors come from the training games of each fold only and are out-of-fold for the training rows (a game's own "
-          "shots and possessions are left out of its prior); the location-only xFG (analytics.features_xfg) at the handler's "
-          "position is the shrinkage target of the shooter prior.",
+          "Priors come from the training games of each fold only. The per-player zone counts and the per-lineup counts are "
+          "out-of-fold for the training rows (a game's own shots and possessions are left out of its prior); the two league-wide "
+          "quantities they shrink towards, the location-only xFG (analytics.features_xfg, four parameters) at the handler's "
+          "position and the training turnover rate, are fitted once on the whole training fold, the row's own game included.",
           "Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor "
           "(%d iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold "
           "predictions (%d grouped folds), and under the gate an MLPRegressor over the last %d states' features." % (ctx["hgb_iter"], INNER_FOLDS, N_LAGS),
@@ -474,11 +478,13 @@ def write_report(path: Path, ctx: dict) -> str:
           % (ctx["shuffle"]["mse_hgb"], ctx["shuffle"]["mse_constant"], 100 * ctx["shuffle"]["lift"], 100 * g["lift"])]
     if ctx.get("heldout") is not None:
         L += ["", "## Held-out games, scored once (never fitted or tuned on)", "",
-              "%d states from %d held-out game(s): %s; the pipeline was refit on all %d training states."
-              % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"]), ctx["train_rows"]),
+              "%d states from %d held-out game(s): %s; the pipeline was refit on all %d training states. Only the selected "
+              "candidate (%s) is scored here%s; the other candidates never see a held-out row."
+              % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"]), ctx["train_rows"], ctx["selected"],
+                 ", with the constant as a labelled floor" if ctx["selected"] != "constant" else ""),
               "Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on.%s" % (
                   "" if ctx["heldout"]["bootstrap"] else " Point estimates only: fewer than %d held-out games, so no bootstrap interval." % HELDOUT_MIN_GAMES_FOR_INTERVALS), ""]
-        L += _bucket_table(ctx["heldout"]["by_bucket"], ctx["models"])
+        L += _bucket_table(ctx["heldout"]["by_bucket"], ctx["heldout"]["models"])
     L += ["", "## Status", ""]
     if fixture:
         L.append("Fixture output, not a result. The real run of this protocol on the owner's Mac, where the full data lives, is")
@@ -526,7 +532,9 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
     heldout = None
     if len(ho):
         geo_ho = F.geometry(ho)
-        heldout = heldout_once(st, geo, ho, geo_ho, d["shots_train"], d["rosters"], seed, hgb_iter, models, n_boot)
+        scored = [selected] + (["constant"] if selected != "constant" else [])      # the selected candidate, the constant as a labelled floor
+        heldout = heldout_once(st, geo, ho, geo_ho, d["shots_train"], d["rosters"], seed, hgb_iter, scored, n_boot)
+        heldout["models"] = scored
     ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "command": command, "fixtures": fixtures,
            "reports": d["reports"], "train_rows": int(len(st)), "train_possessions": int(st.groupby(["sportvu_game", "possession"]).ngroups),
            "train_games": d["train_games"], "heldout_rows": int(len(ho)), "heldout_games": sorted(ho["sportvu_game"].astype(str).unique()),
