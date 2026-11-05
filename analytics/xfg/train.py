@@ -30,7 +30,8 @@ Fewer training games than folds: n_folds becomes the number of games (leave-one-
 so. One training game: SystemExit (no grouped fold is possible; this trainer does not report in-sample numbers).
 
 Output: the report (markdown) and, with --out (default DATA_ROOT for --data, none for --fixtures), the table
-xfg_predictions (docs/contract/xfg.md) under OUT_ROOT/analytics/xfg/<season>/xfg_predictions.parquet.
+xfg_predictions (docs/contract/xfg.md) under OUT_ROOT/analytics/xfg/<season>/xfg_predictions.parquet. Held-out rows
+of that table carry p_selected only (p_location and p_contest NaN unless that candidate is the selected one).
 Under --fixtures every number is labelled "fixture output, not a result".
 """
 from __future__ import annotations
@@ -295,6 +296,11 @@ def point_metrics(y, p) -> dict:
 # ----------------------------------------------------------------------------- predictions table
 
 def predictions_table(pred: pd.DataFrame, heldout: pd.DataFrame, selected: str, heldout_p: dict) -> pd.DataFrame:
+    """Training rows carry every candidate's out-of-fold p; held-out rows carry p_selected only (fold -1), with
+    p_location and p_contest NaN unless that candidate is the selected one: held-out rows are scored once."""
+    def held(name):
+        return heldout_p[selected].astype("float32") if name == selected else np.float32(np.nan)
+
     rows = pd.DataFrame({"sportvu_game": pred["sportvu_game"].astype(str), "event": pred["event"].astype("int64"),
                          "player_id": pd.to_numeric(pred["player_id"], errors="coerce").astype("Int64"),
                          "p_location": pred["p_location_logistic"].astype("float32"),
@@ -304,8 +310,7 @@ def predictions_table(pred: pd.DataFrame, heldout: pd.DataFrame, selected: str, 
     if len(heldout):
         h = pd.DataFrame({"sportvu_game": heldout["sportvu_game"].astype(str), "event": heldout["event"].astype("int64"),
                           "player_id": pd.to_numeric(heldout["player_id"], errors="coerce").astype("Int64"),
-                          "p_location": heldout_p["location_logistic"].astype("float32"),
-                          "p_contest": heldout_p["contest_logistic"].astype("float32"),
+                          "p_location": held("location_logistic"), "p_contest": held("contest_logistic"),
                           "p_selected": heldout_p[selected].astype("float32"), "made": heldout["made"].astype(bool),
                           "fold": np.int16(-1), "heldout": True})
         rows = pd.concat([rows, h], ignore_index=True)
@@ -337,8 +342,8 @@ ASSUMPTIONS = [
     "rows being fitted; zones are rim (under 4 ft), paint (under 14 ft), mid, corner3, above3." % int(PRIOR_M),
     "Selection is by out-of-fold log loss alone; ECE under %.2f is a target reported, not a selection rule." % ECE_TARGET,
     "The isotonic map of the boosting candidate is bounded to [%.2f, %.2f] so a sparse calibration set cannot emit exact 0 or 1." % (ISO_CLIP, 1 - ISO_CLIP),
-    "Held-out rows get a prediction from every refit candidate (each scored once) so the output table is complete; only the "
-    "selected candidate's held-out score is reported.",
+    "Held-out rows are scored once, by the selected candidate refit on all training rows; in xfg_predictions their p_location and "
+    "p_contest are NaN unless that candidate is the selected one.",
     "Bootstrap intervals are 2.5 and 97.5 percentiles over whole-game resamples; with one held-out game no interval is meaningful.",
 ]
 
@@ -393,8 +398,8 @@ def write_report(path: Path, ctx: dict) -> str:
               "| candidate | log loss | Brier | ECE (10 bins) | calibration slope |", "| --- | --- | --- | --- | --- |"]
         hs = ctx["heldout_scores"]
         L.append("| %s | %s | %s | %s | %s |" % (ctx["selected"], _f(hs["log_loss"]), _f(hs["brier"]), _f(hs["ece"]), _f(hs["calibration_slope"])))
-        L += ["", "Point estimates%s." % ("; no interval over a single held-out game" if ctx["heldout_games"] < 2 else ""), "",
-              ctx["heldout_block"]]
+        L += ["", "Point estimates%s." % ("; no interval over a single held-out game (n/a)" if ctx["heldout_games"] < 2
+                                           else ", with the game bootstrap below"), "", ctx["heldout_block"]]
     else:
         L += ["No held-out rows in the input.", ""]
     L += ["## Output", "", "xfg_predictions (docs/contract/xfg.md): %s" % (ctx["predictions_path"] or "not written (no --out)"), "",
@@ -448,12 +453,15 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
                 blocks[n] = calibration_block("%s (out-of-fold)" % n, pred["made"].astype(float), pred["p_" + n].astype(float))
         heldout_p, heldout_scores, heldout_block = {}, {}, ""
         if len(heldout):
-            for n in CANDIDATES:
-                heldout_p[n] = np.asarray(fit_candidate(n, train, a.seed)(heldout), dtype=float)
+            # only the selected candidate is refit and scores the held-out rows, once
+            heldout_p[selected] = np.asarray(fit_candidate(selected, train, a.seed)(heldout), dtype=float)
             y = heldout["made"].astype(float).to_numpy()
             heldout_scores = point_metrics(y, heldout_p[selected])
-            heldout_block = report_block("%s (held-out, scored once)" % selected, y, heldout_p[selected], heldout, "sportvu_game",
-                                         n=a.bootstrap if heldout["sportvu_game"].nunique() > 1 else 1, seed=a.seed)
+            if heldout["sportvu_game"].nunique() >= 2:
+                heldout_block = report_block("%s (held-out, scored once)" % selected, y, heldout_p[selected], heldout,
+                                             "sportvu_game", n=a.bootstrap, seed=a.seed)
+            else:
+                heldout_block = calibration_block("%s (held-out, scored once; one game, no interval)" % selected, y, heldout_p[selected])
     table = predictions_table(pred, heldout, selected, heldout_p)
     out_root = a.out or (None if a.fixtures else a.data)
     path = None

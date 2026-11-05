@@ -8,7 +8,8 @@ possessions (19) and the frames (4) and play-by-play (5) tables. For the contrac
 have no schema.py entry, so they are checked against the column lists and ranges below.
 
 Checks and cleaning (every dropped row is counted; counts of rows in and out are logged and returned):
-    frames        x, y and ball_x, ball_y inside the court (0 to 94 by 0 to 50 ft, ball may be null),
+    frames        ball_x, ball_y inside the court (0 to 94 by 0 to 50 ft, may be null); x, y within a 5 ft margin
+                  of it (players step out of bounds),
                   game_clock_s in 0 to 720, shot_clock_s in 0 to 24 or null; duplicates by (game, frame, player_id)
     pbp (events)  clock_s in 0 to 720; duplicates by (game, event)
     shots         loc_x in -250 to 250 and loc_y in -55 to 420 tenths of a foot (the half court around the basket:
@@ -52,6 +53,7 @@ log = logging.getLogger("analytics.xfg.validate")
 
 ROOT = Path(__file__).resolve().parents[2]
 COURT_X, COURT_Y = (0.0, 94.0), (0.0, 50.0)
+PLAYER_MARGIN_FT = 5.0       # players step out of bounds; the ball is kept to the court
 CLOCK = (0.0, 720.0)
 SHOT_CLOCK = (0.0, 24.0)
 LOC_X, LOC_Y = (-250.0, 250.0), (-55.0, 420.0)
@@ -212,7 +214,9 @@ def _apply(df: pd.DataFrame, table: str, required: list, range_masks: list, dup_
 
 def clean_frames(df: pd.DataFrame) -> tuple:
     required = ["game", "period", "frame", "game_clock_s", "player_id", "x", "y"]
-    ranges = [("x", *COURT_X, False), ("y", *COURT_Y, False), ("ball_x", *COURT_X, True), ("ball_y", *COURT_Y, True),
+    ranges = [("x", COURT_X[0] - PLAYER_MARGIN_FT, COURT_X[1] + PLAYER_MARGIN_FT, False),
+              ("y", COURT_Y[0] - PLAYER_MARGIN_FT, COURT_Y[1] + PLAYER_MARGIN_FT, False),
+              ("ball_x", *COURT_X, True), ("ball_y", *COURT_Y, True),
               ("game_clock_s", *CLOCK, False), ("shot_clock_s", *SHOT_CLOCK, True)]
     return _apply(df, "frames", required, ranges, ["game", "frame", "player_id"])
 

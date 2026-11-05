@@ -20,12 +20,15 @@ Features (FEATURES, in order):
     dribbles_proxy                                   local minima of ball z under 2 ft inside that touch window
     shot_clock_s                                     the shot clock at the release frame (NaN when the source has none)
     has_contest                                      1 when the contest features could be measured, else 0
-    period, clock_s                                  the attempt's period and logged game clock (the shots table)
+    period                                           the attempt's period (the shots table)
+    clock_s                                          the game clock at the release frame when has_contest is 1, else the
+                                                     logged clock of the shots table (about 1 s after the release)
 
-Join rule: an attempt whose shot_frames row has release_frame -1 or confidence_flag unmatched, or whose shooter is
-not in the release frame, keeps the location features and gets NaN contest features with has_contest 0. An
-attempt with no shot_frames row at all is treated the same way (has_contest 0). The shooter is shooter_id of
-shot_frames, else player_id of the shots table, else shooter_at_release_id.
+Join rule: an attempt whose shot_frames row has release_frame -1 (which is what confidence_flag unmatched means in
+section 17), or whose shooter is not in the release frame, keeps the location features and gets NaN contest
+features with has_contest 0. An attempt with no shot_frames row at all is treated the same way (has_contest 0)
+and carries event -1. The shooter is shooter_id of shot_frames, else player_id of the shots table, else
+shooter_at_release_id.
 
 Frame rate: 25 Hz (SportVU); 0.4 s is 10 frames, 10 s is 250 frames. Speeds use the frame count, not the clock,
 so a clock gap inside the window (rare, section 4) does not blow a speed up; a window that crosses a period or
@@ -35,10 +38,11 @@ The shooter prior (make rate by zone, out-of-fold target encoding) is NOT built 
 added fold by fold in analytics.xfg.train so the row's own outcome never enters. ``zone`` (rim, paint, mid,
 corner3, above3) is the key it uses.
 
-Event matching when the shots table lacks an ``event`` column (basketball-reference rows carry a null event_id):
-the attempt is matched to the shot_frames row of the same sportvu_game and period whose clock_s is nearest
-within MATCH_CLOCK_S = 1.0 s, each shot_frames row used at most once (greedy by clock distance); unmatched
-attempts get has_contest 0. The count is logged.
+Event matching when the shots table lacks an ``event`` column (basketball-reference rows; the real run): every
+shot_frames row of the same sportvu_game and period with |clock_s difference| <= MATCH_CLOCK_S = 1.0 s is a
+candidate; candidates are assigned in order of clock distance, each attempt and each shot_frames row at most once
+(so an attempt and its putback 0.8 s later each get their own row). Unmatched attempts carry event -1 and
+has_contest 0. The count is logged. NBA.com ``event_id`` is not the section 5 index and is never used as one.
 """
 from __future__ import annotations
 
@@ -107,19 +111,19 @@ def zone_of(distance_ft, is_three, is_corner) -> np.ndarray:
 # ----------------------------------------------------------------------------- event matching
 
 def match_events(shots: pd.DataFrame, shot_frames: pd.DataFrame) -> pd.Series:
-    """The shot_frames event of each shots row: the row's own event when it has one, else the nearest-clock
-    shot_frames row of the same game and period within MATCH_CLOCK_S, each used once. -1 when none."""
+    """The shot_frames event of each shots row: the row's own ``event`` when the table has one, else the clock
+    match: every shot_frames row of the same game and period within MATCH_CLOCK_S is a candidate, and candidates
+    are assigned in order of clock distance, each shot and each shot_frames row at most once (so a shot whose
+    nearest row went to a closer shot still gets its second-nearest row when that is within the window). -1 when
+    none. ``event_id`` (NBA.com GAME_EVENT_ID) is not a section 5 page-order index and is never used."""
     out = pd.Series(-1, index=shots.index, dtype="int64")
     if "event" in shots.columns and shots["event"].notna().any():
         out = pd.to_numeric(shots["event"], errors="coerce").fillna(-1).astype("int64")
         if out.ge(0).all():
             return out
-    if "event_id" in shots.columns and shots["event_id"].notna().all() and len(shots):
-        return pd.to_numeric(shots["event_id"], errors="coerce").fillna(-1).astype("int64")
     sf = shot_frames[["sportvu_game", "event", "period", "clock_s"]].copy()
     sf["sportvu_game"] = sf["sportvu_game"].astype(str)
     sf_groups = {k: g for k, g in sf.groupby(["sportvu_game", "period"])}
-    used: set = set()
     cand = []
     for idx, row in shots.iterrows():
         if out.loc[idx] >= 0:
@@ -128,15 +132,15 @@ def match_events(shots: pd.DataFrame, shot_frames: pd.DataFrame) -> pd.Series:
         if g is None:
             continue
         diff = (g["clock_s"].astype(float) - float(row["clock_s"])).abs()
-        for sf_idx in diff.sort_values().index:
-            if diff.loc[sf_idx] > MATCH_CLOCK_S:
-                break
+        for sf_idx in diff.index[diff.to_numpy() <= MATCH_CLOCK_S]:
             cand.append((float(diff.loc[sf_idx]), idx, int(g.loc[sf_idx, "event"]), str(row["sportvu_game"])))
-            break
+    used_rows: set = set()
+    assigned: set = set()
     for _d, idx, ev, game in sorted(cand):
-        if (game, ev) in used:
+        if idx in assigned or (game, ev) in used_rows:
             continue
-        used.add((game, ev))
+        used_rows.add((game, ev))
+        assigned.add(idx)
         out.loc[idx] = ev
     log.info("match_events: %d of %d attempts matched to a shot_frames row by clock", int(out.ge(0).sum()), len(shots))
     return out
@@ -171,6 +175,7 @@ class GameFrames:
         """The contest features at ``release_frame`` for ``shooter``; NaNs with has_contest 0 when not measurable."""
         nan = {c: np.nan for c in CONTEST_FEATURES}
         nan["has_contest"] = 0
+        nan["release_clock_s"] = np.nan
         i = self.pos.get(int(release_frame))
         j = self.col.get(int(shooter))
         if i is None or j is None or not np.isfinite(self.x[i, j]):
@@ -183,7 +188,8 @@ class GameFrames:
         d_opp = np.where(opp, d, np.inf)
         k = int(np.argmin(d_opp))
         out = {"closest_defender_dist_ft": float(d_opp[k]), "n_defenders_within_6ft": int((d_opp <= CONTEST_RADIUS_FT).sum()),
-               "shot_clock_s": float(self.shot_clock[i]) if np.isfinite(self.shot_clock[i]) else np.nan, "has_contest": 1}
+               "shot_clock_s": float(self.shot_clock[i]) if np.isfinite(self.shot_clock[i]) else np.nan, "has_contest": 1,
+               "release_clock_s": float(self.game_clock[i])}
         # 0.4 s window before the release: same period, consecutive frame indices
         i0 = i - SPEED_FRAMES
         if i0 >= 0 and self.period[i0] == self.period[i] and self.frames[i] - self.frames[i0] == SPEED_FRAMES \
@@ -255,14 +261,13 @@ def build(shots: pd.DataFrame, shot_frames: pd.DataFrame, frames=None) -> pd.Dat
     out["period"] = pd.to_numeric(shots["period"]).astype(int).to_numpy()
     out["clock_s"] = shots["clock_s"].astype(float).to_numpy()
     # shot_frames join by (sportvu_game, event): release frame and shooter, nothing post-outcome
-    sf = shot_frames[["sportvu_game", "event", "release_frame", "shooter_id", "shooter_at_release_id", "confidence_flag"]].copy()
+    sf = shot_frames[["sportvu_game", "event", "release_frame", "shooter_id", "shooter_at_release_id"]].copy()
     sf["sportvu_game"] = sf["sportvu_game"].astype(str)
     sf["event"] = sf["event"].astype("int64")
     sf = sf.drop_duplicates(["sportvu_game", "event"])
     j = out[["sportvu_game", "event"]].merge(sf, on=["sportvu_game", "event"], how="left")
     rel = pd.to_numeric(j["release_frame"], errors="coerce").fillna(schema.NOT_FOUND).astype(int)
-    unmatched = j["confidence_flag"].astype("string").fillna("unmatched").eq("unmatched").to_numpy()
-    out["release_frame"] = np.where(unmatched, schema.NOT_FOUND, rel.to_numpy())
+    out["release_frame"] = np.where(rel.to_numpy() < 0, schema.NOT_FOUND, rel.to_numpy())
     shooter = pd.to_numeric(j["shooter_id"], errors="coerce")
     shooter = shooter.fillna(pd.to_numeric(out["player_id"], errors="coerce"))
     shooter = shooter.fillna(pd.to_numeric(j["shooter_at_release_id"], errors="coerce"))
@@ -278,8 +283,11 @@ def build(shots: pd.DataFrame, shot_frames: pd.DataFrame, frames=None) -> pd.Dat
         G = GameFrames(gf)
         for i in idx:
             c = G.contest(int(out.at[i, "release_frame"]), int(shooter.loc[i]))
+            rc = c.pop("release_clock_s")
             for k, v in c.items():
                 out.at[i, k] = v
+            if c["has_contest"] and np.isfinite(rc):
+                out.at[i, "clock_s"] = rc              # the game clock at the release, not the logged outcome clock
             n_matched += int(c["has_contest"])
     out["has_contest"] = out["has_contest"].astype(int)
     out["n_defenders_within_6ft"] = out["n_defenders_within_6ft"].astype(float)
