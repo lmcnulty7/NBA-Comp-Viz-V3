@@ -10,7 +10,11 @@ boxscores/shot-chart/<code>.html, with every field-goal attempt as a positioned 
 
 The marker gives (x, y) in page pixels, make or miss, the player (slug and name), the period and the clock; the
 tip also gives the shooter's distance, which is used as a check of the pixel mapping (calibrate). The chart is a
-half court 500 px wide (50 ft, 10 px per ft) with the baseline at the top and the basket at HOOP_PX.
+half court 500 px wide (50 ft, 10 px per ft) with the baseline at the top and the basket centre at HOOP_IMG_PX
+(250, 52.5) on the image. A marker's top and left place its top-left corner, not the glyph's centre: on the saved
+pages (tests/fixtures/bref) the basket fitted from the stated distances sits at (239.5, 35.5) in marker
+coordinates, so the glyph centre is MARKER_OFFSET_PX (10.5, 17) past the anchor and HOOP_PX is the anchor the
+basket corresponds to. Every mapping below takes the anchor as the page gives it.
 
 Court frame (docs/DATA_CONTRACT.md, section 1 and court/court33.py): x along the length 0..94 ft, y across 0..50 ft,
 rims at (5.25, 25) and (88.75, 25). Every shot is written attacking the LEFT basket: court_x = 5.25 + ft from the
@@ -61,9 +65,11 @@ UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit
       "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9"}
 
 # ── the chart's pixel frame ────────────────────────────────────────────────────────────────────────
-CHART_PX = (500, 472)                         # width, height of the shot area
+CHART_PX = (500, 472)                         # width, height of the court image
 PX_PER_FT = 10.0
-HOOP_PX = (250.0, 52.5)                       # (left, top) of the basket centre: 25 ft across, 5.25 ft from the baseline
+HOOP_IMG_PX = (250.0, 52.5)                   # the basket centre on the image: 25 ft across, 5.25 ft from the baseline
+MARKER_OFFSET_PX = (10.5, 17.0)               # glyph centre minus marker anchor (top-left), fitted on the saved pages
+HOOP_PX = (HOOP_IMG_PX[0] - MARKER_OFFSET_PX[0], HOOP_IMG_PX[1] - MARKER_OFFSET_PX[1])   # (239.5, 35.5): the basket in marker coordinates
 RIM_LEFT = tuple(float(v) for v in COURT_VERTICES_33[6])      # (5.25, 25.0)
 RIM_RIGHT = tuple(float(v) for v in COURT_VERTICES_33[26])    # (88.75, 25.0)
 CALIB_MIN_DIST_FT = 3.0                       # tips round to whole feet: near-rim shots say little about the hoop pixel
@@ -71,7 +77,7 @@ CALIB_TOL_PX = 10.0                           # the fitted hoop may differ from 
 BREF_TO_SPORTVU = {v: k for k, v in cc.BR_ABBR.items()}
 
 TIP_RE = re.compile(r"^(?P<player>.+?)\s+(?P<made>made|missed)\s+(?P<pts>\d)-pointer(?:\s+from\s+(?P<dist>\d+)\s*ft)?", re.I)
-PERIOD_RE = re.compile(r"(\d+)(?:st|nd|rd|th)\s+(Qtr|OT)", re.I)
+PERIOD_RE = re.compile(r"(\d+)(?:st|nd|rd|th)\s+(Qtr|quarter|OT|overtime)", re.I)
 CLOCK_RE = re.compile(r"(\d+):(\d+(?:\.\d+)?)\s+remaining", re.I)
 PX_RE = {k: re.compile(k + r"\s*:\s*(-?\d+(?:\.\d+)?)\s*px") for k in ("top", "left")}
 
@@ -156,7 +162,7 @@ def _period(classes: list[str], head: str) -> int | None:
     m = PERIOD_RE.search(head or "")
     if m:
         n, kind = int(m.group(1)), m.group(2).upper()
-        return n if kind == "QTR" else 4 + n
+        return n if kind in ("QTR", "QUARTER") else 4 + n
     return None
 
 
@@ -210,8 +216,8 @@ def parse_shot_chart(html: str) -> list[dict]:
 
 # ── the court frame ────────────────────────────────────────────────────────────────────────────────
 def to_court(px_left: float, px_top: float, hoop_px=HOOP_PX) -> tuple[float, float]:
-    """Chart pixels -> contract court feet, attacking the LEFT basket (rim at RIM_LEFT): x along the length from the
-    attacked baseline, y across (page left -> small y)."""
+    """Marker anchor pixels -> contract court feet, attacking the LEFT basket (rim at RIM_LEFT): x along the length from
+    the attacked baseline, y across (page left -> small y)."""
     x = RIM_LEFT[0] + (px_top - hoop_px[1]) / PX_PER_FT
     y = RIM_LEFT[1] + (px_left - hoop_px[0]) / PX_PER_FT
     return round(x, 2), round(y, 2)

@@ -209,7 +209,7 @@ SportVU-derived fields are null until the SportVU join.
 | `made` | bool | the marker's `make` or `miss` class |
 | `shot_type` | string | `2PT` or `3PT` |
 | `shot_distance_ft` | float32, nullable | the distance the page states, whole feet |
-| `px_left`, `px_top` | float32 | the marker's position on the 500 x 472 px chart (10 px per foot, baseline at the top, basket at 250, 52.5) |
+| `px_left`, `px_top` | float32 | the marker's anchor (its top-left corner) on the 500 px wide chart as the page gives it: 10 px per foot, baseline at the top; the basket centre is at (250, 52.5) on the image and at (239.5, 35.5) in anchor coordinates (`collect.bref_shots.HOOP_PX`, the glyph offset fitted on the saved pages) |
 | `court_x`, `court_y` | float32 | the shot in the section 1 court frame attacking the LEFT basket (rim at 5.25, 25): `court_x` = 5.25 + feet from the attacked baseline, `court_y` = 25 + feet across (page left is small y) |
 | `basket` | string | `left` for every row as written; `collect.bref_shots.mirror_to_right(x, y)` gives the row for the right basket (94 - x, 50 - y) once the frames say which basket the team attacked in that period |
 | `loc_x`, `loc_y` | float32 | the section 10 convention, tenths of a foot from the basket: `loc_x` across (page right positive; the sign against NBA.com is unverified until a game is collected from both sources), `loc_y` toward half court |
@@ -224,7 +224,9 @@ in the play-by-play: the Step 1 `<game>_pbp.parquet`, `data/pbp/<code>.json` or 
 with `--fetch-pbp`), `pbp_source`, `by_team`, `made` and `calibration`: the basket pixel fitted from the stated
 distances (`hoop_px`, `hoop_shift_px`, `resid_default_ft`, `resid_fit_ft`, `ok`). A unit fails when the fitted
 basket sits more than 10 px from the assumed one, which means the page's pixel frame changed. `--report` prints
-the recovered count against the play-by-play count per game.
+the recovered count against the play-by-play count per game. The chart draws the half court only: on ten games
+(`reports/bref_shots_recovery.md`) every attempt inside it had a marker and the only attempts without one were
+heaves from 46 ft and beyond, so `bref_shots` runs 0 to 2 short of `pbp_shots` per game.
 
 ## 11. Aggregates table: `collect/<family>/aggregates/<season>.parquet`
 

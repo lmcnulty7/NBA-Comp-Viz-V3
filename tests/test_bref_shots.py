@@ -47,14 +47,17 @@ def _no_sleep(monkeypatch):
 
 # ── the court frame ────────────────────────────────────────────────────────────────────────────────
 def test_pixel_frame_lands_on_the_contract_court():
-    assert bs.to_court(*bs.HOOP_PX) == (5.25, 25.0) == bs.RIM_LEFT                          # the hoop is the left rim
-    assert bs.to_court(bs.HOOP_PX[0], bs.HOOP_PX[1] + 23.75 * bs.PX_PER_FT) == (29.0, 25.0)   # top-of-key three: court33 vertex 13 (29.01, 25)
-    assert bs.to_court(0.0, 0.0) == (0.0, 0.0) and bs.to_court(500.0, 470.0) == (47.0, 50.0)   # the chart spans a half court
-    assert bs.to_court(30.0, bs.HOOP_PX[1]) == (5.25, 3.0)                                    # corner three line sits 3 ft in (vertex 1: 2.99)
+    hx, hy = bs.HOOP_PX
+    assert (hx, hy) == (239.5, 35.5) and bs.HOOP_IMG_PX == (250.0, 52.5)                     # the basket on the image, in marker (anchor) coordinates
+    assert bs.to_court(hx, hy) == (5.25, 25.0) == bs.RIM_LEFT                                 # the hoop is the left rim
+    assert bs.to_court(hx, hy + 23.75 * bs.PX_PER_FT) == (29.0, 25.0)                          # top-of-key three: court33 vertex 13 (29.01, 25)
+    ox, oy = bs.MARKER_OFFSET_PX
+    assert bs.to_court(0.0 - ox, 0.0 - oy) == (0.0, 0.0) and bs.to_court(500.0 - ox, 470.0 - oy) == (47.0, 50.0)   # the image spans a half court
+    assert bs.to_court(30.0 - ox, hy) == (5.25, 3.0)                                          # corner three line sits 3 ft in (vertex 1: 2.99)
     assert bs.mirror_to_right(*bs.RIM_LEFT) == bs.RIM_RIGHT == (88.75, 25.0)
     assert bs.mirror_to_right(29.0, 3.0) == (65.0, 47.0)
-    assert bs.nba_loc(*bs.HOOP_PX) == (0.0, 0.0) and bs.nba_loc(250.0 + 50.0, 52.5 + 237.5) == (50.0, 237.5)
-    assert bs.pixel_distance_ft(250.0, 52.5 + 237.5) == pytest.approx(23.75)
+    assert bs.nba_loc(hx, hy) == (0.0, 0.0) and bs.nba_loc(hx + 50.0, hy + 237.5) == (50.0, 237.5)
+    assert bs.pixel_distance_ft(hx, hy + 237.5) == pytest.approx(23.75)
 
 
 def test_games_codes_and_seasons():
@@ -90,13 +93,14 @@ def test_marker_fields_from_the_bref_markup():
 
 
 def test_calibration_flags_a_foreign_pixel_frame():
-    good = [{"px_left": 250.0 + 10 * d * np.sin(t), "px_top": 52.5 + 10 * d * np.cos(t), "shot_distance_ft": float(d)}
+    hx, hy = bs.HOOP_PX
+    good = [{"px_left": hx + 10 * d * np.sin(t), "px_top": hy + 10 * d * np.cos(t), "shot_distance_ft": float(d)}
             for d, t in zip(range(3, 28), np.linspace(-1.2, 1.2, 25))]
     cal = bs.calibrate(good)
     assert cal["ok"] is True and cal["hoop_shift_px"] == 0.0 and cal["resid_default_ft"] < 0.01 and cal["n"] == 25
     shifted = [{**s, "px_top": s["px_top"] + 20.0} for s in good]                             # the baseline 2 ft lower than assumed
     cal = bs.calibrate(shifted)
-    assert cal["ok"] is False and cal["hoop_px"] == [250.0, 72.5] and cal["resid_fit_ft"] < 0.01 < cal["resid_default_ft"]
+    assert cal["ok"] is False and cal["hoop_px"] == [hx, hy + 20.0] and cal["resid_fit_ft"] < 0.01 < cal["resid_default_ft"]
     assert bs.calibrate(good[:3])["ok"] is None                                               # too few far shots to say
 
 
