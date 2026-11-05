@@ -136,12 +136,40 @@ def test_missed_last_free_throw_and_synthesized_period_end(frames):
         (640.0, "away", "shot_made", 2, "B makes 2-pt layup"),
         (640.0, "home", "foul", 0, "Shooting foul by A"),
         (640.0, "away", "ft_made", 1, "B makes free throw 1 of 1"),
+        (600.0, "home", "shot_missed", 0, "A misses 3-pt jump shot"),
     ]
     poss = P.segment(frames, scripted_events(frames, script), "synthetic")
     assert poss["end_kind"].tolist() == ["shot_missed", "free_throws", "free_throws", "period_end"]
     assert poss["points"].tolist() == [1, 0, 3, 0]
     assert poss["offense_team_id"].tolist() == [HOME, HOME, AWAY, HOME]
-    assert poss["end_event"].iloc[-1] == 11 and poss["end_frame"].iloc[-1] == P.frame_level(frames)["frame"].iloc[-1]
+    assert poss["end_event"].iloc[-1] == 12 and poss["end_frame"].iloc[-1] == P.frame_level(frames)["frame"].iloc[-1]
+
+
+def test_no_stub_possession_after_a_closing_last_event(frames):
+    script = [(700.0, "home", "shot_made", 2, "A makes 2-pt jump shot")]
+    poss = P.segment(frames, scripted_events(frames, script), "synthetic")
+    assert poss["end_kind"].tolist() == ["shot_made"] and poss["points"].tolist() == [2]
+
+
+def test_free_throws_by_the_other_team_split_the_possession(frames):
+    script = [
+        (700.0, "home", "shot_missed", 0, "A misses 2-pt jump shot"),
+        (698.0, "home", "rebound", 0, "Offensive rebound by C"),
+        (690.0, "home", "foul", 0, "Loose ball foul by C (drawn by B)"),
+        (690.0, "away", "ft_made", 1, "B makes free throw 1 of 2"),
+        (690.0, "away", "ft_made", 1, "B makes free throw 2 of 2"),
+        (670.0, "home", "shot_made", 2, "A makes 2-pt layup"),
+        (650.0, "home", "foul", 0, "Technical foul by A"),
+        (650.0, "away", "ft_made", 1, "B makes technical free throw"),
+        (640.0, "away", "shot_made", 2, "B makes 2-pt layup"),
+    ]
+    poss = P.segment(frames, scripted_events(frames, script), "synthetic")
+    assert poss["end_kind"].tolist()[:3] == ["other", "free_throws", "shot_made"]
+    assert poss["points"].tolist()[:3] == [0, 2, 2]
+    assert poss["offense_team_id"].tolist()[:3] == [HOME, AWAY, HOME]
+    assert poss["end_event"].tolist()[:3] == [2, 4, 5]
+    # a technical free throw never ends or splits a possession; its point goes to the shooting team
+    assert poss["end_kind"].tolist()[3:] == ["shot_made"] and poss["points"].tolist()[3:] == [3]
 
 
 def test_game_meta_and_output_path(tmp_path):
