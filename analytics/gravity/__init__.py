@@ -2,9 +2,13 @@
 
 Unit: the player-frame, sampled at 1 Hz inside possessions (the frame nearest each whole second of
 elapsed time since the possession's start frame). Target: the distance in feet from the offensive
-player to the nearest defender. A location-only model (ridge regression, or a histogram gradient
-boosting regressor when it beats ridge out of fold under a paired bootstrap by game) gives the
-expected distance; gravity is what the defence does beyond that expectation.
+player to the nearest defender. A location-only ridge regression (the plan's model) gives the expected
+distance; gravity is what the defence does beyond that expectation. A histogram gradient boosting
+regressor on the same features is reported as a diagnostic only: gravity is a residual, and a flexible
+model lowers MSE partly by fitting what should stay in the residual, so MSE is not the selection
+criterion. The shooting prior is the league make rate by zone of the player's position, never a
+per-player rate, for the same reason (a per-player prior identifies the player and lets the
+expectation absorb the pull).
 
 Sign convention (an assumption recorded here because the spec text states both "y minus the
 expectation" and "positive means defenders stay closer than location predicts", which conflict):
