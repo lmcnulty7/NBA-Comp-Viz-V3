@@ -346,11 +346,11 @@ localised in the frames of section 4.
 | `period` | int8 | period of the event |
 | `clock_s` | float32 | game clock of the event, seconds remaining (the logged clock marks the outcome) |
 | `made` | bool | the shot was made (TARGET) |
-| `pbp_shooter_name` | string, nullable | shooter's name as the play-by-play prints it |
+| `pbp_shooter_name` | string, nullable | shooter's name as the play-by-play prints it (POST-OUTCOME) |
 | `shooter_id` | int32, nullable | the shooter's NBA player id from the roster join (section 16); null when unmatched |
 | `release_frame` | int32 | frame of the release; `-1` when not found |
-| `apex_frame` | int32 | frame of the ball's highest point after release; `-1` when not found |
-| `outcome_frame` | int32 | frame where the ball falls back through rim height; `-1` when not found |
+| `apex_frame` | int32 | frame of the ball's highest point after release; `-1` when not found (POST-OUTCOME) |
+| `outcome_frame` | int32 | frame where the ball falls back through rim height; `-1` when not found (POST-OUTCOME) |
 | `shooter_at_release_id` | int32, nullable | the player nearest the ball at the release frame; null when no release frame |
 | `identity_match` | bool, nullable | `shooter_at_release_id == shooter_id` (TARGET); null when either side is null |
 | `confidence` | float32 | 0 to 1, the localiser's confidence in the release frame |
@@ -378,7 +378,7 @@ rebound that follows it.
 | `period` | int8 | period of the event |
 | `clock_s` | float32 | game clock of the missed shot, seconds remaining |
 | `rim_frame` | int32 | frame where the ball reaches the rim (the section 17 outcome frame); `-1` when not found |
-| `rebound_frame` | int32 | frame where a player first secures the ball after the rim frame; `-1` when not found |
+| `rebound_frame` | int32 | frame where a player first secures the ball after the rim frame; `-1` when not found (POST-OUTCOME) |
 | `rebounder_id` | int32, nullable | the first player within 2 ft of the ball with ball `z` under 7 ft after the rim frame (TARGET) |
 | `pbp_rebounder_name` | string, nullable | rebounder's name as the play-by-play prints it (TARGET) |
 | `pbp_rebounder_id` | int32, nullable | the play-by-play rebounder's NBA player id from the roster join (TARGET); null when unmatched or a team rebound |
@@ -402,16 +402,16 @@ section 4. Possessions are numbered 0..P-1 within the game in time order.
 | `possession` | int32 | 0..P-1 within the game |
 | `period` | int8 | period of the possession |
 | `start_frame` | int32 | first frame of the span |
-| `end_frame` | int32 | last frame of the span |
+| `end_frame` | int32 | last frame of the span (POST-OUTCOME) |
 | `start_clock_s` | float32 | game clock at `start_frame` |
-| `end_clock_s` | float32 | game clock at `end_frame` |
+| `end_clock_s` | float32 | game clock at `end_frame` (POST-OUTCOME) |
 | `start_event` | int32 | play-by-play event index that opens the possession |
-| `end_event` | int32 | play-by-play event index that ends it |
+| `end_event` | int32 | play-by-play event index that ends it (POST-OUTCOME) |
 | `offense_team_id` | int32, nullable | NBA team id of the offence; null when it could not be assigned |
 | `end_kind` | string | `shot_made`, `shot_missed`, `free_throws`, `turnover`, `period_end`, `other` (TARGET) |
 | `points` | int16 | points the offence scored on the possession (TARGET) |
 | `gap` | bool | the span holds a frame-to-frame game clock jump over 2 s |
-| `n_frames` | int32 | frames in the span (`end_frame - start_frame + 1` when there is no gap) |
+| `n_frames` | int32 | frames in the span (`end_frame - start_frame + 1` when there is no gap) (POST-OUTCOME) |
 
 Gap rule. `gap` is true when any two consecutive frames inside `[start_frame, end_frame]` differ in
 `game_clock_s` by more than 2 s (the section 4 `gaps_over_2s` rule applied to the span). Frames are not
@@ -442,10 +442,15 @@ off5_id` and likewise for the defence).
 | `def1_x`, `def1_y` .. `def5_x`, `def5_y` | float32 | their positions in feet, same order |
 | `handler_nearest_def_dist_ft` | float32, nullable | distance from the handler to the nearest defender; null when no handler |
 | `points_to_end` | int16 | points the offence scores from this state to the end of the possession (TARGET) |
-| `possession_end_kind` | string | the section 19 `end_kind` of the possession (TARGET) |
+| `possession_end_kind` | string | the section 19 `end_kind` of the possession: `shot_made`, `shot_missed`, `free_throws`, `turnover`, `period_end`, `other` (TARGET) |
 
-The TARGET columns (`points_to_end`, `possession_end_kind` here; `made`, `identity_match`, `rebounder_id`,
-`pbp_rebounder_id`, `pbp_rebounder_name`, `end_kind`, `points` in sections 17 to 19) are excluded from
-every feature frame by `analytics.schema.assert_time_forward`, which every trainer calls on its feature
-frame; `analytics.schema.feature_allowlist` lists the columns a trainer may use (neither targets nor the
-id columns `sportvu_game`, `event`, `rebound_event`, `possession`, `frame`, `player_id`, `shooter_id`).
+The TARGET columns of every table (`points_to_end`, `possession_end_kind` here; `made`, `identity_match`,
+`rebounder_id`, `pbp_rebounder_id`, `pbp_rebounder_name`, `end_kind`, `points` in sections 17 to 19) and
+the POST-OUTCOME columns of every table (measured at or after the outcome: `apex_frame`, `outcome_frame`,
+`pbp_shooter_name` in section 17; `rebound_frame` in section 18; `end_frame`, `end_clock_s`, `end_event`,
+`n_frames` in section 19) are excluded from every feature frame by `analytics.schema.assert_time_forward`,
+which every trainer calls on its feature frame and which checks the union over all five tables
+(`analytics.schema.ALL_EXCLUDED`), whatever table the frame was built for. `analytics.schema.feature_allowlist`
+lists the columns a trainer may use: neither targets, nor post-outcome columns, nor the id columns
+`sportvu_game`, `event`, `rebound_event`, `possession`, `frame`, `player_id`, `shooter_id`. `release_frame`,
+`rim_frame` and the possession `start_*` columns stay allowed.

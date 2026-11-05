@@ -69,17 +69,44 @@ def test_unknown_table_raises():
 def test_feature_allowlist_excludes_targets_and_ids(table):
     allow = S.feature_allowlist(table)
     assert not set(allow) & S.TARGET_COLUMNS[table]
+    assert not set(allow) & S.POST_OUTCOME[table]
     assert not set(allow) & S.ID_COLUMNS
     assert all(c in S.TABLES[table] for c in allow)
     # Everything else is allowed.
-    expected = [c for c in S.TABLES[table] if c not in S.TARGET_COLUMNS[table] and c not in S.ID_COLUMNS]
+    excluded = S.TARGET_COLUMNS[table] | S.POST_OUTCOME[table] | S.ID_COLUMNS
+    expected = [c for c in S.TABLES[table] if c not in excluded]
     assert allow == expected
+
+
+POST_OUTCOME_EXPECTED = {
+    "rosters": set(),
+    "shot_frames": {"apex_frame", "outcome_frame", "pbp_shooter_name"},
+    "rebound_frames": {"rebound_frame"},
+    "possessions": {"end_frame", "end_clock_s", "end_event", "n_frames"},
+    "states_1hz": set(),
+}
+
+
+@pytest.mark.parametrize("table", ALL_TABLES)
+def test_post_outcome_columns_absent_from_allowlist(table):
+    assert S.POST_OUTCOME[table] == POST_OUTCOME_EXPECTED[table]
+    allow = set(S.feature_allowlist(table))
+    for col in POST_OUTCOME_EXPECTED[table]:
+        assert col in S.TABLES[table]
+        assert col not in allow, col
+    assert S.ALL_EXCLUDED >= POST_OUTCOME_EXPECTED[table] | S.TARGET_COLUMNS[table]
 
 
 def test_feature_allowlist_examples():
     assert "made" not in S.feature_allowlist("shot_frames")
     assert "shooter_id" not in S.feature_allowlist("shot_frames")
     assert "release_frame" in S.feature_allowlist("shot_frames")
+    assert "apex_frame" not in S.feature_allowlist("shot_frames")
+    assert "rim_frame" in S.feature_allowlist("rebound_frames")
+    assert "rebound_frame" not in S.feature_allowlist("rebound_frames")
+    assert "start_frame" in S.feature_allowlist("possessions")
+    assert "start_clock_s" in S.feature_allowlist("possessions")
+    assert "end_frame" not in S.feature_allowlist("possessions")
     assert "end_kind" not in S.feature_allowlist("possessions")
     assert "possession_end_kind" not in S.feature_allowlist("states_1hz")
     assert "handler_nearest_def_dist_ft" in S.feature_allowlist("states_1hz")
@@ -94,6 +121,22 @@ def test_assert_time_forward_raises_on_target():
     with pytest.raises(ValueError, match="made"):
         S.assert_time_forward(pd.DataFrame({"made": [True], "release_frame": [3]}), "shot_frames")
     S.assert_time_forward(pd.DataFrame({"anything": [1]}), "rosters")
+
+
+def test_assert_time_forward_checks_union_across_tables():
+    # A states_1hz feature frame carrying another table's target or post-outcome column raises.
+    feats = synthetic("states_1hz")[S.feature_allowlist("states_1hz")]
+    with pytest.raises(ValueError, match="points"):
+        S.assert_time_forward(feats.assign(points=0), "states_1hz")
+    with pytest.raises(ValueError, match="made"):
+        S.assert_time_forward(feats.assign(made=True), "states_1hz")
+    with pytest.raises(ValueError, match="outcome_frame"):
+        S.assert_time_forward(feats.assign(outcome_frame=-1), "states_1hz")
+    with pytest.raises(ValueError, match="end_frame"):
+        S.assert_time_forward(pd.DataFrame({"start_frame": [1], "end_frame": [2]}), "possessions")
+    # Release and rim frames, and the possession start columns, stay allowed.
+    S.assert_time_forward(pd.DataFrame({"release_frame": [1], "rim_frame": [2], "start_clock_s": [3.0]}),
+                          "shot_frames")
 
 
 # ---------------------------------------------------------------- validate
