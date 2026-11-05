@@ -299,7 +299,7 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path):
                                          "synergy_per100", "lo", "hi", "insufficient"]
         assert (lr["season"] == season).all() and lr["lineup_id"].is_unique and lr["team_id"].notna().all()
         assert (lr["insufficient"] == (lr["n_possessions"] < 300)).all()
-        assert (lr["synergy_per100"][lr["insufficient"]] == 0).all()
+        assert (lr["synergy_per100"] != 0).sum() <= ctx["final"]["n_gated"] + 4        # gated in the fit seasons, not this season's gate
         pr = pd.read_parquet(tmp_path / "analytics" / "lineups" / season / "player_rapm.parquet")
         assert list(pr.columns) == ["season", "player_id", "rapm", "lo", "hi", "team_id", "as_of", "in_sample", "fit_seasons"] and pr["player_id"].is_unique
         assert pr["team_id"].notna().all() and pr["as_of"].str.match(r"\d{4}-\d{2}-\d{2}").all()
@@ -316,7 +316,12 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path):
     truth = d["truth"]["ratings"]
     pr = pd.read_parquet(tmp_path / "analytics" / "lineups" / "2021-22" / "player_rapm.parquet")
     r = np.corrcoef(pr["rapm"], [truth[int(p)] for p in pr["player_id"]])[0, 1]
-    assert r > 0.2, r
+    assert r > 0.2, r          # a sanity bar, not a result: 36 players, two fixture seasons, heavy shrinkage (about 0.4 to 0.5 observed)
+    prior = pd.read_parquet(tmp_path / "analytics" / "lineups" / "2021-22" / "player_rapm_prior.parquet")
+    assert list(prior.columns) == list(pr.columns) and (~prior["in_sample"]).all() and (prior["fit_seasons"] == "2020-21").all()
+    assert (prior["as_of"] == d["games"].loc[d["games"]["season"] == "2020-21", "game_date"].max()).all()
+    assert not (tmp_path / "analytics" / "lineups" / "2020-21" / "player_rapm_prior.parquet").exists()
+    assert prior["team_id"].notna().all()
     m = ctx["heldout"]["metrics"]
     assert np.isfinite(m["rapm"]["spearman"]["point"]) and np.isfinite(m["plus_minus"]["mse"]["point"])
     assert m["rapm"]["spearman_vs_plus_minus"] is not None and m["plus_minus"]["spearman_vs_plus_minus"] is None
@@ -336,6 +341,84 @@ def test_train_runs_on_the_shared_generator_when_present(tmp_path):
         assert len(lr) and len(pr) and lr["lineup_id"].is_unique and pr["rapm"].notna().all()
 
 
+def test_team_ids_in_player1_never_enter_a_lineup():
+    """NBA.com puts the team id in player1_id for team rebounds, team turnovers and timeouts: a team rebound before
+    all five starters have appeared is not a starter, and a technical foul by a bench player is not either."""
+    tid = 1610612744
+    rows = [
+        _ev(0, 1, 715, "home", "rebound", "GSW Rebound", p1=tid, team_id=tid),
+        _ev(1, 1, 712, "home", "turnover", "GSW Turnover: shot clock", p1=tid, team_id=tid),
+        _ev(2, 1, 711, "home", "timeout", "GSW Timeout", p1=tid, team_id=tid),
+        _ev(3, 1, 709, "home", "foul", "P9 T.FOUL (Technical)", p1=9, team_id=tid),
+        _ev(4, 1, 710, "home", "shot_missed", p1=1, team_id=tid), _ev(5, 1, 700, "home", "shot_made", points=2, p1=2, team_id=tid),
+        _ev(6, 1, 690, "home", "foul", p1=3, team_id=tid), _ev(7, 1, 680, "home", "rebound", p1=4, team_id=tid),
+        _ev(8, 1, 670, "home", "substitution", "P6 enters the game for P5", p1=5, p2=6, team_id=tid),
+        _ev(9, 1, 660, "away", "shot_made", points=2, p1=11, team_id=1610612745),
+    ]
+    st = S.build_game_stints(pd.DataFrame(rows))
+    assert st["home_ids"].tolist() == ["1|2|3|4|5", "1|2|3|4|6"]
+    for ids in list(st["home_ids"]) + list(st["away_ids"]):
+        assert str(tid) not in ids.split("|") and "9" not in ids.split("|")
+    assert S.event_players({"kind": "rebound", "player1_id": tid, "team_id": tid, "desc": ""}) == ("rebound", None, None)
+    assert S.event_players({"kind": "rebound", "player1_id": 77, "team_id": 77, "desc": ""}) == ("rebound", None, None)
+    assert S.bench_ok("foul", "S. Curry technical foul") and not S.bench_ok("foul", "Shooting foul by S. Curry")
+
+
+def test_full_name_starters_and_nba_id_play_by_play_match_through_the_games_table():
+    """The I2 starters table (STARTERS_COLUMNS): a bref game code and full names, null ids. The play-by-play carries
+    the NBA game id and basketball-reference descriptions. The game maps through the games table and the name
+    through abbreviated(); a quiet starter is then on the floor from the start."""
+    games = pd.DataFrame([{"game_id": "0022000001", "season": "2020-21", "game_date": "2020-12-25", "home_team_id": 1610612744,
+                           "away_team_id": 1610612745, "home_team": "GSW", "home_score": 100, "away_score": 90, "home_win": True, "spread_home": 10.0}])
+    rows = []
+    for side, team, names in (("home", "GSW", ["Stephen Curry", "Draymond Green", "Klay Thompson", "Andre Iguodala", "Zaza Pachulia"]),
+                              ("away", "HOU", ["James Harden", "Chris Paul", "Clint Capela", "Trevor Ariza", "P.J. Tucker"])):
+        for n in names:
+            rows.append({"game_id": "202012250GSW", "game": None, "game_date": "2020-12-25", "season": "2020-21", "side": side, "team": team,
+                         "team_id": pd.NA, "player_slug": n.lower().replace(" ", ""), "player": n, "player_id": pd.NA})
+    starters = pd.DataFrame(rows, columns=list(S.STARTERS_COLUMNS)).astype({"team_id": "Int64", "player_id": "Int64"})
+    assert S.abbreviated("Eric Bledsoe") == "E. Bledsoe" and S.abbreviated("E. Bledsoe") == "E. Bledsoe" and S.abbreviated("P.J. Tucker") == "P. Tucker"
+    res = S.resolve_starters_games(starters, games)
+    assert (res["pbp_game_id"] == "0022000001").all()
+    st = S.starters_by_side(starters, "0022000001", 1610612744, 1610612745, games=games)
+    assert st["home"] == [S.name_key(S.abbreviated(n)) for n in ["Stephen Curry", "Draymond Green", "Klay Thompson", "Andre Iguodala", "Zaza Pachulia"]]
+    pbp = pd.DataFrame([
+        {**_ev(0, 1, 700, "home", "shot_made", "D. Green makes 2-pt layup (assist by S. Curry)", points=2, team_id=1610612744), "game_id": "0022000001"},
+        {**_ev(1, 1, 650, "away", "rebound", "Defensive rebound by J. Harden", team_id=1610612745), "game_id": "0022000001"},
+        {**_ev(2, 1, 600, "home", "other", "J. Bell enters the game for Z. Pachulia", team_id=1610612744), "game_id": "0022000001"},
+        {**_ev(3, 1, 100, "away", "shot_made", "C. Paul makes 2-pt jump shot", points=2, team_id=1610612745), "game_id": "0022000001"},
+    ])
+    out = S.build_stints(pbp, games, starters)
+    assert out["n_home"].tolist() == [5, 5] and out["n_away"].tolist() == [5, 5] and out["lineup_ok"].all()
+    assert S.name_key("J. Bell") in [int(x) for x in out["home_ids"].iloc[1].split("|")]
+    assert S.name_key("Z. Pachulia") not in [int(x) for x in out["home_ids"].iloc[1].split("|")]
+    # without a games table nothing matches: the derivation alone finds only the players who appear
+    out2 = S.build_stints(pbp, None, starters)
+    assert out2["n_home"].tolist() == [3, 3]
+    # a date-only match when the games table has no home team code
+    st2 = S.starters_by_side(starters, "0022000001", None, None, games=games.drop(columns=["home_team"]))
+    assert st2["away"][0] == S.name_key("J. Harden")
+    assert out["stint"].dtype == "int32" and out["points_home"].dtype == "int16" and out["start_s"].dtype == "float32" and out["n_home"].dtype == "int8"
+
+
+def test_ridge_intercept_is_unpenalised():
+    rng = np.random.default_rng(4)
+    rows = []
+    for i in range(400):
+        home = rng.choice(np.arange(1, 10), 5, replace=False)
+        away = rng.choice(np.arange(11, 20), 5, replace=False)
+        y = 8.0 * (1 in home) + rng.normal(0, 3)
+        rows.append({"game_id": "g%d" % (i // 25), "season": "2020-21", "stint": i, "possessions": 20.0, "lineup_home": lineup_id(home),
+                     "lineup_away": lineup_id(away), "home_team_id": 1, "away_team_id": 2, "points_diff": y * 0.2, F.TARGET: y,
+                     **{f"home_{k + 1}": int(v) for k, v in enumerate(sorted(home))}, **{f"away_{k + 1}": int(v) for k, v in enumerate(sorted(away))}})
+    f = pd.DataFrame(rows)
+    a = T.fit_ridge(f, list(range(1, 20)), [], 300.0, 3, 0)
+    b = T.fit_ridge(f.assign(**{F.TARGET: f[F.TARGET] + 50.0}), list(range(1, 20)), [], 300.0, 3, 0)
+    assert b["intercept"] - a["intercept"] == pytest.approx(50.0, abs=1e-6)
+    for p in range(1, 20):
+        assert b["player_coef"][p] == pytest.approx(a["player_coef"][p], abs=1e-6)
+
+
 def test_ridge_recovers_a_planted_player_effect():
     rng = np.random.default_rng(3)
     n = 600
@@ -352,6 +435,7 @@ def test_ridge_recovers_a_planted_player_effect():
     coef = fit["player_coef"]
     assert coef[1] > 5 and coef[11] > 5 and max(abs(coef[p]) for p in range(2, 10)) < 4
     assert fit["alpha"] in T.ALPHAS and fit["cv_mse"]
+    assert T.choose_alpha.__doc__ and "larger" in T.choose_alpha.__doc__
 
 
 # ----------------------------------------------------------------------------- eda, fixture, hygiene

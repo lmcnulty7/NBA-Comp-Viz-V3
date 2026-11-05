@@ -31,6 +31,7 @@ Physics of a synthetic game (all in feet, 25 Hz, court 94 x 50, baskets at (5.25
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import json
 import math
 import sys
@@ -76,7 +77,17 @@ TEAM_NAMES = {"ABQ": "Albuquerque Arrows", "BOI": "Boise Badgers", "CHT": "Chatt
               "TUL": "Tulsa Titans", "PHX": "Phoenix Suns", "GSW": "Golden State Warriors"}
 TEAM_ID_BASE = 1610612700
 PLAYER_ID_BASE = 9000
+# id families (docs/contract/fixtures.md): a game drawn on its own (synth_game without teams/rosters) uses
+# team ids TEAM_ID_BASE + 1 + 2 * seed (home) and + 2 (away) and player ids PLAYER_ID_BASE + 20 * seed + i;
+# a league (synth_league, used by synth_season and write_fixture_root) gives every code a fixed team id
+# LEAGUE_TEAM_ID_BASE + LEAGUE_CODES.index(code) and player ids LEAGUE_PLAYER_ID_BASE + 200 * seed + 10 * index + k.
+LEAGUE_TEAM_ID_BASE = TEAM_ID_BASE + 100
+LEAGUE_PLAYER_ID_BASE = 500000
+HELDOUT_CODES = ["PHX", "GSW", "CLE"]      # the real held-out id's teams and the held-out arena
+LEAGUE_CODES = TEAM_CODES + HELDOUT_CODES
 N_ROSTER = 7                     # players per team in a synthetic game (5 on the floor, 2 reserves)
+# roster slot -> aggregates archetype (slots 0 and 1 guards, 2 a wing, 3 and 4 bigs; the reserves 5 big, 6 wing)
+SLOT_ARCHETYPE = {0: "guard", 1: "guard", 2: "wing", 3: "big", 4: "big", 5: "big", 6: "wing"}
 # lineup per period as slots into the 7-man roster; slot 0 is the star, slot 1 the point guard
 LINEUPS = {1: [0, 1, 2, 3, 4], 2: [0, 1, 2, 3, 5], 3: [0, 1, 2, 3, 4], 4: [0, 1, 2, 6, 4]}
 SUBS = {2: (4, 5), 3: (5, 4), 4: (3, 6)}        # period -> (roster index out, roster index in)
@@ -117,6 +128,33 @@ def fixture_paths(root) -> dict:
     return {"root": str(root), "sportvu": str(root / "sportvu_contract"),
             "manifest": str(root / "sportvu_contract" / "manifest.json"),
             "analytics": str(root / "analytics"), "collect": str(root / "collect"), "labels": str(root / "labels")}
+
+
+def _last_name(i: int) -> str:
+    """Unique last names beyond the 26 base ones: 'One', ..., 'Twentysix', 'Oneone', 'Twoone', ..."""
+    base = LAST_NAMES[i % len(LAST_NAMES)]
+    return base if i < len(LAST_NAMES) else base + LAST_NAMES[i // len(LAST_NAMES) - 1].lower()
+
+
+def synth_league(seed: int, n_teams: int = 6) -> dict:
+    """A small league: n_teams codes drawn from TEAM_CODES plus the held-out codes PHX, GSW and CLE, each with
+    a fixed team id (LEAGUE_TEAM_ID_BASE + LEAGUE_CODES.index(code), stable across seeds) and a fixed 7-man
+    roster (player ids LEAGUE_PLAYER_ID_BASE + 200 * seed + 10 * index + k, unique names). Returns
+    {"seed", "codes" (the n_teams drawn codes), "teams" (code -> team_id), "rosters" (code -> list of 7 dicts
+    with player_id, player, jersey)}; pass teams and rosters to synth_game."""
+    rs = np.random.RandomState(seed * 4423 + 9)
+    codes = sorted(rs.choice(TEAM_CODES, n_teams, replace=False).tolist())
+    all_codes = codes + HELDOUT_CODES
+    firsts = list(FIRST_NAMES)
+    rs.shuffle(firsts)
+    teams, rosters = {}, {}
+    for t, code in enumerate(all_codes):
+        idx = LEAGUE_CODES.index(code)
+        teams[code] = LEAGUE_TEAM_ID_BASE + idx
+        rosters[code] = [{"player_id": LEAGUE_PLAYER_ID_BASE + 200 * seed + 10 * idx + k,
+                          "player": "%s %s" % (firsts[(t * N_ROSTER + k) % len(firsts)], _last_name(t * N_ROSTER + k)),
+                          "jersey": str(k)} for k in range(N_ROSTER)]
+    return {"seed": seed, "codes": codes, "teams": teams, "rosters": rosters}
 
 
 def GAP_POSSESSION(n_possessions: int) -> int:
@@ -302,7 +340,7 @@ def _shot_spot(rs, basket, cls):
     return _court(basket, u, v), (u, v)
 
 
-def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
+def _synth_game_impl(seed, n_possessions, heldout, sportvu_game, teams=None, rosters=None):
     rs = np.random.RandomState(seed)
     # -- identity --
     if sportvu_game is None:
@@ -318,20 +356,32 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
     date = "%s-%s-%s" % (yyyy, mm, dd)
     season = _season_of_date(date)
     gameid = "00215%05d" % (seed % 100000)
-    home_id, away_id = TEAM_ID_BASE + (seed % 50) * 2 + 1, TEAM_ID_BASE + (seed % 50) * 2 + 2
     split = split_for(sportvu_game)
     if (split != "train") != heldout:
         raise ValueError("heldout=%s disagrees with the real routing of %s (split %s): a held-out fixture game "
                          "is the real id %s or a game at %s" % (heldout, sportvu_game, split, HELDOUT_GAME, HELDOUT_ARENA))
     # rosters: 7 per team; home first. Names are unique within the game.
-    names_first = list(FIRST_NAMES)
-    rs.shuffle(names_first)
     roster = []
-    for t, (tid, code, is_home) in enumerate(((home_id, home, True), (away_id, away, False))):
-        for k in range(N_ROSTER):
-            i = t * N_ROSTER + k
-            roster.append({"player_id": PLAYER_ID_BASE + seed % 1000 * 20 + i, "player": "%s %s" % (names_first[i], LAST_NAMES[i]),
-                           "team_id": tid, "team": code, "home": is_home, "jersey": str(k + (0 if is_home else 10))})
+    if teams is None and rosters is None:
+        home_id, away_id = TEAM_ID_BASE + 1 + 2 * seed, TEAM_ID_BASE + 2 + 2 * seed
+        names_first = list(FIRST_NAMES)
+        rs.shuffle(names_first)
+        for t, (tid, code, is_home) in enumerate(((home_id, home, True), (away_id, away, False))):
+            for k in range(N_ROSTER):
+                i = t * N_ROSTER + k
+                roster.append({"player_id": PLAYER_ID_BASE + 20 * seed + i, "player": "%s %s" % (names_first[i], LAST_NAMES[i]),
+                               "team_id": tid, "team": code, "home": is_home, "jersey": str(k + (0 if is_home else 10))})
+    else:
+        if teams is None or rosters is None:
+            raise ValueError("teams and rosters go together (see synth_league)")
+        for code in (home, away):
+            if code not in teams or code not in rosters or len(rosters[code]) != N_ROSTER:
+                raise ValueError("no %d-man roster or team id for %s in the given league" % (N_ROSTER, code))
+        home_id, away_id = int(teams[home]), int(teams[away])
+        for tid, code, is_home in ((home_id, home, True), (away_id, away, False)):
+            for k, r in enumerate(rosters[code]):
+                roster.append({"player_id": int(r["player_id"]), "player": str(r["player"]), "team_id": tid, "team": code,
+                               "home": is_home, "jersey": str(r.get("jersey", k))})
     pid = np.array([r["player_id"] for r in roster])
     skill = rs.uniform(-0.06, 0.06, len(roster))
     skill[0] += STAR_SKILL; skill[N_ROSTER] += STAR_SKILL
@@ -447,7 +497,7 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
                 _handoff(sim, rs, off_idx, def_idx, basket, handler, giver, star_slot)
                 screener = giver
                 # the receiver of the handoff is the new handler
-                handler, screener = _handoff_result(handler, giver)
+                screener = giver                          # the handler keeps the ball after the handoff
             elif action == "off_ball_screen":
                 cutter = 0 if handler != 0 else 2
                 screener = 4 if handler != 4 else 3
@@ -627,7 +677,6 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
         if got != r["rebounder_id"]:
             raise RuntimeError("fixture bug: rebound at frame %d secured by %d, play-by-play says %d"
                                % (r["rebound_frame"], got, r["rebounder_id"]))
-    pid_to_row = {int(r["player_id"]): r for r in roster}
     flat_pid = slot_pid.ravel()
     rep = lambda a: np.repeat(a, 10)   # noqa: E731
     name_of = {int(r["player_id"]): r["player"] for r in roster}
@@ -635,7 +684,6 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
     ts0 = 1450000000000
     ts = ts0 + np.cumsum(np.r_[0, np.round((clock[:-1] - clock[1:]) * 1000).astype(np.int64)
                                + np.where(np.diff(periods) != 0, 900000, 0)])
-    ts = ts + np.where(np.diff(np.r_[periods[0], periods]) != 0, 0, 0)
     ts = np.abs(ts)
     frames = pd.DataFrame({
         "game": sportvu_game, "gameid": gameid, "date": date,
@@ -710,7 +758,8 @@ def _truth_pass(shot_rows, reb_rows, pos, ball):
             raise RuntimeError("fixture bug: shot at frame %d never reaches the rim" % rel)
         out = apex + 1 + int(cand[0])
         r["apex_frame"], r["outcome_frame"] = apex, out
-        r["clock_s"] = r["clock_s"]
+        r["confidence"] = 1.0 - min(1.0, abs((apex - rel) - 25) / 25.0)     # analytics.shot_frames, identity True
+        r["confidence_flag"] = "high" if r["confidence"] >= 0.6 else "low"
         outcome_of[r["event"]] = out
     for r in reb_rows:
         rim = outcome_of[r["event"]]
@@ -727,6 +776,8 @@ def _truth_pass(shot_rows, reb_rows, pos, ball):
             raise RuntimeError("fixture bug: no rebound after rim frame %d" % rim)
         r["rebound_frame"] = found[0]
         r["_slot"] = found[1]
+        r["confidence"] = 1.0 - min(1.0, (found[0] - rim) / 75.0)            # analytics.rebound_frames, identity True
+        r["confidence_flag"] = "high" if r["confidence"] >= 0.5 else "low"
 
 
 def _poss_row(game, no, period, sf, ef, sc, ec, se, ee, tid, kind, pts, gap):
@@ -830,10 +881,6 @@ def _handoff(sim, rs, off_idx, def_idx, basket, handler, giver, star_slot):
     sim.phase(int(0.8 * HZ), off_idx, def_idx, targets, basket, giver, star_slot, _held(giver, basket))
     targets[handler] = _court(basket, 12.0, -2.0)
     sim.phase(int(0.6 * HZ), off_idx, def_idx, targets, basket, handler, star_slot, _held(handler, basket, _dribble_z))
-
-
-def _handoff_result(handler, giver):
-    return handler, giver
 
 
 def _off_ball_screen(sim, rs, off_idx, def_idx, basket, handler, cutter, screener, star_slot):
@@ -993,7 +1040,6 @@ def _rebound(sim, rs, off_idx, def_idx, basket, rebounder, offensive, star_slot,
     land = b + np.array([sgn * r * math.cos(ang), r * math.sin(ang)])
     team_idx = off_idx if offensive else def_idx
     other_idx = def_idx if offensive else off_idx
-    team_idx = off_idx if offensive else def_idx
     d_reb = float(np.linalg.norm(sim.pos[team_idx][rebounder] - land))
     n = max(int(rs.uniform(0.6, 0.9) * HZ), int(d_reb / (24.0 * DT)) + 2)
     t = np.arange(1, n + 1) / n
@@ -1085,20 +1131,28 @@ def _states_1hz(game, poss, pos, ball, clock, shotc, periods, slot_pid, home_id)
 
 
 # ── public API ────────────────────────────────────────────────────────────────────────────────────
-def synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game: str | None = None) -> dict:
+def synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game: str | None = None,
+               teams: dict | None = None, rosters: dict | None = None) -> dict:
     """One synthetic game: frames, events, shots, rosters, shot_frames, rebound_frames, possessions,
-    states_1hz, plus meta, truth and manifest_entry. Deterministic in (seed, n_possessions, heldout, id)."""
+    states_1hz, plus meta, truth and manifest_entry. Deterministic in (seed, n_possessions, heldout, id, league).
+    teams (code -> team_id) and rosters (code -> 7 dicts with player_id, player, jersey) come from synth_league;
+    without them the game draws its own ids (TEAM_ID_BASE + 1 + 2 * seed, PLAYER_ID_BASE + 20 * seed + i)."""
     if n_possessions < 4:
         raise ValueError("n_possessions must be at least 4 (one per period)")
-    return _synth_game_impl(int(seed), int(n_possessions), bool(heldout), sportvu_game)
+    return _synth_game_impl(int(seed), int(n_possessions), bool(heldout), sportvu_game, teams, rosters)
 
 
-def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list[dict]:
-    """n_games synthetic games with distinct ids. With heldout_every = k > 0, every k-th game (the k-th,
-    2k-th, ...) is held out: the first of them carries the real held-out id 12.16.2015.PHX.at.GSW, any
-    later one a game at the held-out arena CLE with a synthetic away code (ids never repeat within a season),
-    so sportvu.colab_contract.split_of routes every held-out fixture game as held out."""
+def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40,
+                 league: dict | None = None) -> list[dict]:
+    """n_games synthetic games of one league (synth_league(seed) unless given): six codes with fixed team ids
+    and fixed 7-man rosters, so a code maps to one team id and one roster all season. Ids are distinct. With
+    heldout_every = k > 0, every k-th game (the k-th, 2k-th, ...) is held out: the first of them carries the
+    real held-out id 12.16.2015.PHX.at.GSW, any later one a game at the held-out arena CLE with a league away
+    code (ids never repeat within a season), so sportvu.colab_contract.split_of routes every held-out fixture
+    game as held out. Each game dict carries the league under meta["league_seed"]."""
     rs = np.random.RandomState(seed * 7919 + 17)
+    if league is None:
+        league = synth_league(seed)
     games, used = [], set()
     first_heldout_done = False
     for k in range(n_games):
@@ -1110,7 +1164,7 @@ def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessi
             first_heldout_done = True
         else:
             while gid is None or gid in used:
-                away, home = rs.choice(TEAM_CODES, 2, replace=False)
+                away, home = rs.choice(league["codes"], 2, replace=False)
                 if held:
                     home = HELDOUT_ARENA                  # routed heldout_arena by sportvu/splits.json
                 month = int(rs.choice([11, 12, 1, 2, 3]))
@@ -1118,20 +1172,44 @@ def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessi
                 year = 2015 if month >= 10 else 2016
                 gid = "%02d.%02d.%d.%s.at.%s" % (month, day, year, away, home)
         used.add(gid)
-        games.append(synth_game(gseed, n_possessions=n_possessions, heldout=held, sportvu_game=gid))
+        g = synth_game(gseed, n_possessions=n_possessions, heldout=held, sportvu_game=gid,
+                       teams=league["teams"], rosters=league["rosters"])
+        g["meta"]["league_seed"] = league["seed"]
+        games.append(g)
     return games
 
 
-def synth_aggregates(seed: int, n_players: int = 60, seasons=("2015-16", "2016-17")):
-    """Long aggregates (section 11) for n_players over the seasons, with a hidden 3-archetype style factor
-    (guard, wing, big) that drives every metric; plus a positions frame aligned to the archetypes."""
+def _roster_players(players: pd.DataFrame) -> pd.DataFrame:
+    """Distinct players of a rosters frame (section 16 columns) with their roster slot (order within the team)
+    and the archetype SLOT_ARCHETYPE gives that slot."""
+    df = players.drop_duplicates("player_id").reset_index(drop=True)
+    df = df.assign(slot=df.groupby("team_id", sort=False).cumcount())
+    df["archetype"] = df["slot"].map(lambda k: SLOT_ARCHETYPE.get(int(k), ARCHETYPES[int(k) % 3]))
+    return df
+
+
+def synth_aggregates(seed: int, n_players: int = 60, seasons=("2015-16", "2016-17"), players: pd.DataFrame | None = None):
+    """Long aggregates (section 11) over the seasons, with a hidden 3-archetype style factor (guard, wing, big)
+    that drives every metric; plus a positions frame aligned to the archetypes. Without players, n_players
+    players with ids 200000 + 100 * seed + i, team ids TEAM_ID_BASE + i % 4 and a random archetype; with players
+    (a rosters frame, e.g. the season's concatenated synth_game rosters) the players, names and team ids of
+    that frame, the archetype from the roster slot (SLOT_ARCHETYPE: 0 and 1 guard, 2 wing, 3 and 4 big) and
+    n_players ignored."""
     rs = np.random.RandomState(seed * 31 + 5)
-    arche = rs.randint(0, 3, n_players)
-    base_pid = 200000 + (seed % 1000) * 100
-    pids = base_pid + np.arange(n_players)
-    names = ["%s %s" % (FIRST_NAMES[i % len(FIRST_NAMES)], LAST_NAMES[(i // len(FIRST_NAMES)) % len(LAST_NAMES)])
-             for i in range(n_players)]
-    team_of = TEAM_ID_BASE + (np.arange(n_players) % 4)
+    if players is None:
+        arche = rs.randint(0, 3, n_players)
+        pids = 200000 + 100 * seed + np.arange(n_players)
+        names = ["%s %s" % (FIRST_NAMES[i % len(FIRST_NAMES)], _last_name(i // len(FIRST_NAMES))) for i in range(n_players)]
+        team_of = TEAM_ID_BASE + (np.arange(n_players) % 4)
+        code_of = [TEAM_CODES[i % 4] for i in range(n_players)]
+    else:
+        rp = _roster_players(players)
+        n_players = len(rp)
+        arche = rp["archetype"].map(ARCHETYPES.index).to_numpy()
+        pids = rp["player_id"].to_numpy(dtype=np.int64)
+        names = rp["player"].astype(str).tolist()
+        team_of = rp["team_id"].to_numpy(dtype=np.int64)
+        code_of = rp["team"].astype(str).tolist()
     rows, pos_rows = [], []
     # archetype profiles: guard, wing, big
     prof = {
@@ -1155,7 +1233,7 @@ def synth_aggregates(seed: int, n_players: int = 60, seasons=("2015-16", "2016-1
             a = ARCHETYPES[arche[i]]
             pos_rows.append({"player_id": int(pids[i]), "season": season, "position": POSITION_OF[a]})
             common = {"player_id": int(pids[i]), "player_name": names[i], "team_id": int(team_of[i]),
-                      "team_abbreviation": TEAM_CODES[i % 4], "season": season, "season_type": "Regular Season",
+                      "team_abbreviation": code_of[i], "season": season, "season_type": "Regular Season",
                       "split_name": None, "split_value": None, "pt_measure_type": None, "player_or_team": "Player",
                       "play_type": None, "type_grouping": None, "measure_type": None, "heldout": None,
                       "source": SOURCE, "fetched_at": FETCHED_AT}
@@ -1207,27 +1285,48 @@ def synth_aggregates(seed: int, n_players: int = 60, seasons=("2015-16", "2016-1
     return agg, positions
 
 
-def synth_stints(seed: int, n_games: int = 20, seasons=("2020-21",), n_players_per_team: int = 9) -> dict:
+def synth_stints(seed: int, n_games: int = 20, seasons=("2020-21",), n_players_per_team: int = 9,
+                 players: pd.DataFrame | None = None) -> dict:
     """Stints (section 12), play-by-play (section 13) and a games frame with hidden player ratings
     (offence and defence per player) and a lineup interaction effect (one designated pair per team scores
-    an extra 0.12 points per possession when both are on the floor)."""
+    an extra 0.12 points per possession when both are on the floor). Without players: six teams with ids
+    TEAM_ID_BASE + 20 + t, codes TEAM_CODES[6:12], n_players_per_team players each with ids
+    300000 + 100 * seed + i. With players (a rosters frame): its teams, team ids, codes and players
+    (n_players_per_team ignored). The starting five of each game returns at half the stint boundaries, so
+    starting lineups accumulate well over 100 possessions."""
     rs = np.random.RandomState(seed * 101 + 3)
-    n_teams = 6
-    team_ids = [TEAM_ID_BASE + 20 + t for t in range(n_teams)]
-    team_code = {tid: TEAM_CODES[6 + t] for t, tid in enumerate(team_ids)}
-    players = {}            # team -> list of player ids
+    players_by_team = {}    # team -> list of player ids
     off_rating, def_rating, names = {}, {}, {}
     pair = {}
-    k = 0
+    if players is None:
+        n_teams = 6
+        team_ids = [TEAM_ID_BASE + 20 + t for t in range(n_teams)]
+        team_code = {tid: TEAM_CODES[6 + t] for t, tid in enumerate(team_ids)}
+        k = 0
+        for tid in team_ids:
+            ids = [300000 + 100 * seed + k + i for i in range(n_players_per_team)]
+            k += n_players_per_team
+            players_by_team[tid] = ids
+            for i, p in enumerate(ids):
+                names[p] = "%s %s" % (FIRST_NAMES[(p + i) % len(FIRST_NAMES)], _last_name(k + i))
+    else:
+        rp = players.drop_duplicates("player_id")
+        team_ids = [int(t) for t in rp["team_id"].drop_duplicates()]
+        if len(team_ids) < 2:
+            raise ValueError("players must hold at least two teams")
+        team_code = {int(t): str(c) for t, c in rp.drop_duplicates("team_id")[["team_id", "team"]].itertuples(index=False)}
+        for tid in team_ids:
+            ids = [int(p) for p in rp.loc[rp["team_id"] == tid, "player_id"]]
+            players_by_team[tid] = ids
+            for p, n in rp.loc[rp["team_id"] == tid, ["player_id", "player"]].itertuples(index=False):
+                names[int(p)] = str(n)
+        n_teams = len(team_ids)
     for tid in team_ids:
-        ids = [300000 + (seed % 1000) * 100 + k + i for i in range(n_players_per_team)]
-        k += n_players_per_team
-        players[tid] = ids
-        for i, p in enumerate(ids):
+        for p in players_by_team[tid]:
             off_rating[p] = float(rs.normal(0, 0.03))
             def_rating[p] = float(rs.normal(0, 0.03))
-            names[p] = "%s %s" % (FIRST_NAMES[(p + i) % len(FIRST_NAMES)], LAST_NAMES[p % len(LAST_NAMES)])
-        pair[tid] = (ids[0], ids[1])
+        pair[tid] = (players_by_team[tid][0], players_by_team[tid][1])
+    players = players_by_team
     stints, pbp, games = [], [], []
     stint_cols = ["game_id", "season", "stint", "start_s", "end_s", "duration_s", "period_start", "period_end"] + \
         ["home_%d" % i for i in range(1, 6)] + ["away_%d" % i for i in range(1, 6)] + \
@@ -1235,18 +1334,21 @@ def synth_stints(seed: int, n_games: int = 20, seasons=("2020-21",), n_players_p
          "score_away", "split", "heldout", "season_type", "game_date", "source", "endpoint", "fetched_at"]
     for si, season in enumerate(seasons):
         yy = int(season[:4])
+        day = _dt.date(yy, 11, 1)
         for g in range(n_games):
             game_id = "002%02d%05d" % (yy % 100, g + 1)
             h, a = rs.choice(n_teams, 2, replace=False)
             home_tid, away_tid = team_ids[h], team_ids[a]
-            month = [11, 12, 1, 2, 3][g % 5]
-            date = "%d-%02d-%02d" % (yy if month >= 7 else yy + 1, month, 1 + (g * 3) % 27)
+            if g > 0:
+                day = day + _dt.timedelta(days=int(rs.randint(1, 4)))     # chronological ids, short rests occur
+            date = day.isoformat()
             # lineups: a stint boundary every 60 to 240 s
             boundaries = [0.0]
             while boundaries[-1] < 2880.0:
                 boundaries.append(min(2880.0, boundaries[-1] + float(rs.uniform(60, 240))))
             cur = {home_tid: sorted(rs.choice(players[home_tid], 5, replace=False).tolist()),
                    away_tid: sorted(rs.choice(players[away_tid], 5, replace=False).tolist())}
+            starters = {tid: list(v) for tid, v in cur.items()}
             score = [0, 0]      # away, home
             ev_rows = []
 
@@ -1268,16 +1370,20 @@ def synth_stints(seed: int, n_games: int = 20, seasons=("2020-21",), n_players_p
                 t0, t1 = boundaries[s], boundaries[s + 1]
                 p0, p1 = int(t0 // 720) + 1, int(max(t0, t1 - 0.01) // 720) + 1
                 if s > 0:
-                    # one substitution per team at the boundary
+                    # at a boundary each team either brings its starting five back (probability 0.5) or swaps one
                     for tid, side in ((home_tid, "home"), (away_tid, "away")):
                         on = cur[tid]
-                        out_p = int(rs.choice(on))
-                        bench = [p for p in players[tid] if p not in on]
-                        in_p = int(rs.choice(bench))
-                        cur[tid] = sorted([p for p in on if p != out_p] + [in_p])
+                        if rs.rand() < 0.5 and on != starters[tid]:
+                            new = list(starters[tid])
+                        else:
+                            out_p = int(rs.choice(on))
+                            bench = [p for p in players[tid] if p not in on]
+                            new = sorted([p for p in on if p != out_p] + [int(rs.choice(bench))])
                         clock = 720.0 - (t0 - (p0 - 1) * 720.0)
-                        add_ev(p0, clock, side, "%s enters the game for %s" % (_initial_name(names[in_p]), _initial_name(names[out_p])),
-                               0, "substitution", p1=out_p, p2=in_p, etype=8)
+                        for out_p, in_p in zip([p for p in on if p not in new], [p for p in new if p not in on]):
+                            add_ev(p0, clock, side, "%s enters the game for %s" % (_initial_name(names[in_p]), _initial_name(names[out_p])),
+                                   0, "substitution", p1=out_p, p2=in_p, etype=8)
+                        cur[tid] = sorted(new)
                 hl, al = cur[home_tid], cur[away_tid]
                 n_poss = max(1, int(round((t1 - t0) / 14.5)))
                 pts = {}
@@ -1336,7 +1442,8 @@ def synth_stints(seed: int, n_games: int = 20, seasons=("2020-21",), n_players_p
             strength = (sum(off_rating[p] - def_rating[p] for p in players[home_tid]) -
                         sum(off_rating[p] - def_rating[p] for p in players[away_tid])) * 40.0 + 2.5
             games.append({"game_id": game_id, "season": season, "game_date": date, "home_team_id": home_tid,
-                          "away_team_id": away_tid, "home_score": sh, "away_score": sa, "home_win": sh > sa,
+                          "away_team_id": away_tid, "home_team": team_code[home_tid], "away_team": team_code[away_tid],
+                          "home_score": sh, "away_score": sa, "home_win": sh > sa,
                           "spread_home": None if rs.rand() < 0.1 else float(round(-strength * 2) / 2)})
     stints_df = pd.DataFrame(stints, columns=stint_cols)
     stints_df = stints_df.astype({"stint": "int32", "start_s": "float32", "end_s": "float32", "duration_s": "float32",
@@ -1364,13 +1471,17 @@ def synth_odds(seed: int, games: pd.DataFrame) -> pd.DataFrame:
     rs = np.random.RandomState(seed * 17 + 11)
     rows = []
     code_of = lambda tid: TEAM_CODES[(tid - TEAM_ID_BASE) % len(TEAM_CODES)]   # noqa: E731
+    has_codes = "home_team" in games.columns and "away_team" in games.columns
     for g in games.itertuples(index=False):
-        hname, aname = TEAM_NAMES[code_of(int(g.home_team_id))], TEAM_NAMES[code_of(int(g.away_team_id))]
+        hcode = str(g.home_team) if has_codes else code_of(int(g.home_team_id))
+        acode = str(g.away_team) if has_codes else code_of(int(g.away_team_id))
+        hname, aname = TEAM_NAMES.get(hcode, hcode), TEAM_NAMES.get(acode, acode)
         key = "%s_%s_%s" % (g.game_date, aname.replace(" ", ""), hname.replace(" ", ""))
         commence = "%sT02:00:00Z" % g.game_date
+        day_before = (_dt.date.fromisoformat(str(g.game_date)) - _dt.timedelta(days=1)).isoformat()
         true_spread = float(g.spread_home) if pd.notna(g.spread_home) else float(rs.normal(0, 1.0))
         total = float(round(2 * (210.0 + rs.normal(0, 6.0))) / 2)
-        for snap, is_close in (("%sT14:00:00Z" % g.game_date, False), ("%sT01:30:00Z" % g.game_date, True)):
+        for snap, is_close in (("%sT14:00:00Z" % day_before, False), ("%sT01:30:00Z" % g.game_date, True)):
             for book in BOOKS:
                 sp = round(2 * (true_spread + rs.normal(0, 0.5 if is_close else 1.0))) / 2
                 p_home = 1.0 / (1.0 + math.exp(sp / 4.0))
@@ -1435,7 +1546,9 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int
                        n_stint_games: int = 20, n_agg_players: int = 60) -> dict:
     """Write the DATA_ROOT layout the lanes read (docs/contract/fixtures.md) and return the Step 1 manifest.
     The Step 1 files (frames, pbp, manifest.json) live under <root>/sportvu_contract, the other families under
-    <root>/collect, <root>/analytics and <root>/labels; manifest["paths"] (fixture_paths(root)) names them."""
+    <root>/collect, <root>/analytics and <root>/labels; manifest["paths"] (fixture_paths(root)) names them.
+    The games come from one synth_league(seed); the aggregates and stints are built on the season's
+    concatenated rosters, so every family shares the same players and team ids (n_agg_players is then unused)."""
     root = Path(root)
     games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     sv = root / "sportvu_contract"
@@ -1470,12 +1583,13 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int
         _pq(pd.concat(shots_train, ignore_index=True), root / "collect" / "bref_shots" / "shotchart" / (SEASON_2015 + ".parquet"))
     if shots_held:
         _pq(pd.concat(shots_held, ignore_index=True), root / "collect" / "bref_shots" / "heldout" / "shotchart" / (SEASON_2015 + ".parquet"))
-    agg, positions = synth_aggregates(seed, n_players=n_agg_players)
+    season_rosters = pd.concat([g["rosters"] for g in games], ignore_index=True).drop_duplicates("player_id")
+    agg, positions = synth_aggregates(seed, n_players=n_agg_players, players=season_rosters)
     for season, part in agg.groupby("season"):
         _pq(part.reset_index(drop=True), root / "collect" / "tracking" / "aggregates" / (season + ".parquet"))
     for season, part in positions.groupby("season"):
         _pq(part.reset_index(drop=True), root / "collect" / "tracking" / "positions" / (season + ".parquet"))
-    st = synth_stints(seed, n_games=n_stint_games)
+    st = synth_stints(seed, n_games=n_stint_games, players=season_rosters)
     for season, part in st["stints"].groupby("season"):
         _pq(part.reset_index(drop=True), root / "collect" / "stints" / "stints" / (season + ".parquet"))
     for season, part in st["playbyplay"].groupby("season"):
@@ -1491,12 +1605,14 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m analytics.fixtures", description=__doc__.splitlines()[0])
     ap.add_argument("--out", required=True, help="DATA_ROOT directory to write")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=6)
-    ap.add_argument("--heldout-every", type=int, default=3)
-    ap.add_argument("--possessions", type=int, default=40)
-    ap.add_argument("--stint-games", type=int, default=20)
-    ap.add_argument("--agg-players", type=int, default=60)
+    ap.add_argument("--seed", type=int, default=0, help="RandomState seed of the whole root (default 0)")
+    ap.add_argument("--games", type=int, default=6, help="SportVU games to generate (default 6)")
+    ap.add_argument("--heldout-every", type=int, default=3,
+                    help="hold out every k-th game, the first as 12.16.2015.PHX.at.GSW; 0 holds out none (default 3)")
+    ap.add_argument("--possessions", type=int, default=40, help="possessions per game, at least 4 (default 40)")
+    ap.add_argument("--stint-games", type=int, default=20, help="games in the stints family (default 20)")
+    ap.add_argument("--agg-players", type=int, default=60,
+                    help="players in the aggregates family when no rosters feed it (unused here: the season rosters do)")
     a = ap.parse_args(argv)
     man = write_fixture_root(a.out, seed=a.seed, n_games=a.games, heldout_every=a.heldout_every,
                              n_possessions=a.possessions, n_stint_games=a.stint_games, n_agg_players=a.agg_players)
@@ -1505,7 +1621,8 @@ def main(argv=None) -> int:
 
 
 __all__ = ["synth_game", "synth_season", "synth_aggregates", "synth_stints", "synth_odds", "synth_labels",
-           "write_fixture_root", "fixture_paths", "split_for", "HELDOUT_GAME", "HELDOUT_ARENA", "BASKETS", "HZ",
+           "write_fixture_root", "fixture_paths", "split_for", "synth_league", "HELDOUT_GAME", "HELDOUT_ARENA",
+           "LEAGUE_CODES", "SLOT_ARCHETYPE", "BASKETS", "HZ",
            "GAP_POSSESSION", "TEAM_CODES", "TEAM_NAMES", "ACTION_COLUMNS", "SCREEN_COLUMNS"]
 
 if __name__ == "__main__":

@@ -20,8 +20,10 @@ Candidates (every fit goes through fit_candidates, the one place a test can watc
                    sum plus the synergy
 Selection: for every training season after the first, the candidates are fitted on the seasons before it and
 predict the raw net rating of its lineups present in both (at least --min-poss possessions on each side);
-Spearman and MSE against the raw next-season rating with bootstrap intervals over lineups
-(analytics.eval.bootstrap_by_game with lineup_id as the group) and a paired bootstrap against plus_minus.
+Spearman and MSE against the raw next-season rating; every interval of the selection table and of the held-out
+table is over lineups (analytics.eval.bootstrap_by_game with lineup_id as the group, lineups resampled with
+replacement), as is the paired bootstrap against plus_minus. The lo and hi of the output tables are different
+intervals: over games (lineup_ratings) and over game-resampled refits (player_rapm).
 The candidate with the highest mean Spearman over the validation pairs is selected (ties go to plus_minus).
 The held-out season is scored ONCE by the candidates refitted on every training season, after selection.
 
@@ -37,8 +39,11 @@ Outputs (docs/contract/lineups.md), OUT_ROOT/analytics/lineups/<season>/
                              sample), lo, hi (bootstrap by game of plus_minus_per100, NaN under two games),
                              insufficient (n_possessions under --gate), fit_seasons
     player_rapm.parquet      season, player_id, rapm, lo, hi (bootstrap by game refits), team_id (the player's main
-                             team in the fit seasons), as_of (the last game date of the fit seasons: the rating is
-                             known from that date on), in_sample, fit_seasons
+                             team in the output season's lineups), as_of (the last game date of the fit seasons:
+                             the rating is known from that date on), in_sample, fit_seasons
+    player_rapm_prior.parquet  for every training season after the first: the same columns from the fit on the
+                             seasons BEFORE it (the validation-pair fit), in_sample false, as_of the last date of
+                             the previous season: the dated table a consumer (betting) may use for that season
 """
 from __future__ import annotations
 
@@ -162,7 +167,8 @@ def solve_ridge(A: np.ndarray, b: np.ndarray, alpha: float) -> np.ndarray:
 
 
 def choose_alpha(X: sp.csr_matrix, y: np.ndarray, w: np.ndarray, games: np.ndarray, alphas=ALPHAS, n_folds: int = 5, seed: int = 0) -> tuple[float, dict]:
-    """Grouped CV by game: alpha with the smallest possession-weighted out-of-fold MSE. Returns (alpha, {alpha: mse})."""
+    """Grouped CV by game: alpha with the smallest possession-weighted out-of-fold MSE, ties to the larger alpha.
+    Returns (alpha, {alpha: mse})."""
     uniq = np.unique(games)
     k = min(n_folds, len(uniq))
     if k < 2:
@@ -178,7 +184,7 @@ def choose_alpha(X: sp.csr_matrix, y: np.ndarray, w: np.ndarray, games: np.ndarr
             se[a] += float(np.sum(w[m] * (y[m] - pred) ** 2))
     tot = float(w.sum())
     mse = {float(a): v / tot for a, v in se.items()}
-    best = min(mse, key=lambda a: (mse[a], a))
+    best = min(mse, key=lambda a: (mse[a], -a))          # ties go to the larger alpha (more shrinkage)
     return best, mse
 
 
@@ -331,6 +337,9 @@ def run(feats: pd.DataFrame, heldout_season: str, seed: int = 0, n_boot: int = 2
         r.update({"fit_seasons": train_seasons[:i], "target": target, "alpha_rapm": fits["rapm"]["alpha"], "alpha_synergy": fits["rapm_synergy"]["alpha"],
                   "n_gated": len(fits["lineups"]), "n_players": len(fits["players"])})
         ctx["pairs"].append(r)
+        if out_root is not None:                   # the dated, prior-seasons-only player table of the target season
+            ctx["written"].append(write_player_rapm(out_dir(out_root, target) / "player_rapm_prior.parquet", target, by_season[target], tr, fits,
+                                                    n_boot, seed, in_sample=False))
     ctx["selected"], ctx["mean_spearman"] = select(ctx["pairs"])
     # the held-out season, once, by the candidates refitted on every training season
     tr_all = pd.concat([by_season[s] for s in train_seasons], ignore_index=True)
@@ -378,17 +387,25 @@ def write_tables(out_root, season: str, season_feats: pd.DataFrame, fit_feats: p
     lr = lr[["season", "lineup_id", "team_id", "n_possessions", "plus_minus_per100", "rapm_sum_per100", "synergy_per100", "lo", "hi", "insufficient",
              "n_games", "fit_seasons", "in_sample"]]
     lr.to_parquet(d / "lineup_ratings.parquet", index=False)
+    return [str(d / "lineup_ratings.parquet"), write_player_rapm(d / "player_rapm.parquet", season, season_feats, fit_feats, fits, n_boot, seed, in_sample)]
+
+
+def write_player_rapm(path: Path, season: str, season_feats: pd.DataFrame, fit_feats: pd.DataFrame, fits: dict, n_boot: int, seed: int,
+                      in_sample: bool) -> str:
+    """The player table: team_id is the player's main team in the OUTPUT season's lineups (fit seasons only for a
+    player absent from it), as_of the last game date of the fit seasons."""
     coef = fits["rapm"]["player_coef"]
     ci = bootstrap_player_coef(fit_feats, fits["players"], [], fits["rapm"]["alpha"], n_boot, seed)
     pr = pd.DataFrame({"season": season, "player_id": fits["players"], "rapm": [coef[p] for p in fits["players"]]}).merge(ci, on="player_id")
-    pr["fit_seasons"] = ",".join(fits["fit_seasons"])
     pr["player_id"] = pr["player_id"].astype("int64")
-    pr["team_id"] = pr["player_id"].map(player_teams(fit_feats)).astype("Int64")
+    teams = {**player_teams(fit_feats), **player_teams(season_feats)}
+    pr["team_id"] = pr["player_id"].map(teams).astype("Int64")
     pr["as_of"] = str(fit_feats["game_date"].astype(str).max()) if "game_date" in fit_feats.columns and len(fit_feats) else None
     pr["in_sample"] = bool(in_sample)
+    pr["fit_seasons"] = ",".join(fits["fit_seasons"])
     pr = pr[["season", "player_id", "rapm", "lo", "hi", "team_id", "as_of", "in_sample", "fit_seasons"]]
-    pr.to_parquet(d / "player_rapm.parquet", index=False)
-    return [str(d / "lineup_ratings.parquet"), str(d / "player_rapm.parquet")]
+    pr.to_parquet(path, index=False)
+    return str(path)
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
@@ -413,8 +430,8 @@ def write_report(path: Path, ctx: dict) -> str:
     L = ["# Lineup synergy and stints (analytics/lineups)", "",
          "Written %s by `%s`." % (ctx["written_at"], ctx["command"]), ""]
     if fx:
-        L += ["**This run used the synthetic fixture (tests/_fx_lineups.synth_stints). Every number below is fixture output, not a result.** "
-              "The real run is the Mac command at the end.", ""]
+        L += ["**This run used the synthetic fixture generator %s. Every number below is fixture output, not a result.** "
+              "The real run is the Mac command at the end." % ctx["generator"], ""]
     L += ["## Inputs%s" % tag, "", "| item | value |", "| --- | --- |"]
     for k, v in ctx["inputs"].items():
         L.append("| %s | %s |" % (k, v))
@@ -445,7 +462,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "## Out-of-season correlation of raw lineup net rating%s" % tag, "",
           "| from | to | lineups | Pearson | Spearman |", "| --- | --- | --- | --- | --- |"]
     for r in ctx["cross_season"].itertuples():
-        L.append("| %s | %s | %d | %s | %s |" % (r.season_from, r.season_to, r.n_lineups, _f(r.pearson), _f(r.spearman)))
+        held = " (held-out season: descriptive, scored once below, not used for selection)" if r.season_to == ctx["heldout_season"] else ""
+        L.append("| %s | %s%s | %d | %s | %s |" % (r.season_from, r.season_to, held, r.n_lineups, _f(r.pearson), _f(r.spearman)))
+    L += ["", "Seasons later than the held-out season are not in this table; the held-out row is labelled."]
     L += ["", "## Held-out season, scored once%s" % tag, ""]
     h = ctx.get("heldout")
     if h is None:
@@ -510,9 +529,10 @@ def main(argv=None) -> dict:
     heldout = a.heldout_season or (FIXTURE_SEASONS[-1] if a.fixtures else "2024-25")
     out_root = a.out or (a.data if not a.fixtures else None)
     ctx = run(feats, heldout, a.seed, a.bootstrap, a.gate, a.min_poss, a.folds, ALPHAS, out_root)
-    ctx.update({"fixture": inputs["fixture"], "alphas": ALPHAS, "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    ctx.update({"fixture": inputs["fixture"], "generator": inputs["generator"], "alphas": ALPHAS, "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "command": "python -m analytics.lineups.train " + " ".join(argv if argv is not None else sys.argv[1:]),
-                "cross_season": cross_season_correlation(feats, min_poss=a.min_poss),
+                "cross_season": cross_season_correlation(feats[feats["season"].astype(str).isin(ctx["train_seasons"] + ([heldout] if ctx["heldout_season"] else []))],
+                                                        min_poss=a.min_poss),
                 "inputs": {"source": "fixture generator %s" % inputs["generator"] if inputs["fixture"] else "DATA_ROOT " + str(a.data),
                            "seasons": ", ".join(ctx["seasons"]), "stints in": counts["rows_in"], "stints after validate": counts["rows_out"],
                            "games": counts["games_out"], "lineup_ok share": "%.3f" % counts["lineup_ok_share"],

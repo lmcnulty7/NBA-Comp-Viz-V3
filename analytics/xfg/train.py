@@ -476,7 +476,7 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
            "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["sportvu_game"].nunique()),
            "heldout_game_ids": sorted(heldout["sportvu_game"].astype(str).unique()), "protocol": note["text"], "folds": note["folds"],
            "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "selected": selected, "paired": pairs, "blocks": blocks,
-           "heldout_scores": heldout_scores, "heldout_block": heldout_block, "predictions": table,
+           "heldout_scores": heldout_scores, "heldout_block": heldout_block, "predictions": table, "heldout_p": heldout_p,
            "predictions_path": str(path) if path else None,
            "calibration": calibration_table(pred["made"].astype(float).to_numpy(), pred["p_" + selected].astype(float).to_numpy())}
     return ctx

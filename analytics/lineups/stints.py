@@ -8,7 +8,9 @@ pages, docs/DATA_CONTRACT.md sections 5 and 13), whose substitutions say who lef
 who started a period. This module derives the rest.
 
 Player keys. A substitution row is `kind == substitution` with `player1_id` out and `player2_id` in when the
-NBA.com columns exist. Without ids (basketball-reference rows) the description "A. One enters the game for
+NBA.com columns exist. A player id at or above 1610612700, or equal to the row's team_id, is a TEAM id (NBA.com
+writes it into player1_id for team rebounds, team turnovers and timeouts) and never a player. Rows a bench
+player can produce (technical fouls, ejections, delay of game) never make a starter. Without ids (basketball-reference rows) the description "A. One enters the game for
 C. Three" gives the names, the actor of any other row is the leading "X. Name" of its description (before
 "makes", "misses", "enters" or after "by"), and names become stable integer keys: the id of `roster`
 (a {name: player_id} mapping, when given) else zlib.crc32 of the name (positive, under 2**31, documented in
@@ -17,8 +19,10 @@ docs/contract/lineups.md; the section 16 rosters table maps names to ids when th
 Starters per period. For each period and side, the starters are the first five players to appear in that
 period's events (the actor of a non-substitution event, or the player going OUT in a substitution) before
 they have appeared as a player coming IN, in event order. For period 1 the starters table
-(DATA_ROOT/collect/stints/starters/<season>.parquet: game_id, team_id, player_id, with team_id mapped to a
-side by the games table or the substitution rows) is taken first and the derivation fills what it lacks.
+(DATA_ROOT/collect/stints/starters/<season>.parquet, STARTERS_COLUMNS: starter rows with side, team, a bref
+game code, full names and null ids from the basketball-reference box score driver; starters_by_side maps the
+game through the games table and the name to the builder's key) is taken first and the derivation fills what
+it lacks.
 A player who never appears in a period is never found: that side then has fewer than five known players and
 every stint of that period carries n_home or n_away under 5 and lineup_ok false (validate.py drops and counts
 them). More than five candidates (a data error) keeps the first five by appearance.
@@ -88,6 +92,30 @@ def _has(v) -> bool:
     return v is not None and not (isinstance(v, float) and np.isnan(v)) and v is not pd.NA
 
 
+TEAM_ID_MIN = 1610612700
+STARTERS_COLUMNS = ("game_id", "game", "game_date", "season", "side", "team", "team_id", "player_slug", "player", "player_id")
+
+
+def _player(v, team_id=None):
+    """int(v) when v is a player id; None when absent, a team id (NBA.com puts the team id, 1610612xxx, in
+    player1_id for team rebounds, team turnovers and timeouts) or equal to the row's team_id."""
+    if not _has(v):
+        return None
+    v = int(v)
+    if v >= TEAM_ID_MIN or (_has(team_id) and v == int(team_id)):
+        return None
+    return v
+
+
+def abbreviated(name: str) -> str:
+    """"Eric Bledsoe" -> "E. Bledsoe" (the basketball-reference play-by-play form); a name already in that form,
+    or a single token, is returned unchanged."""
+    parts = str(name).split()
+    if len(parts) < 2 or re.match(r"^[A-Z]\.$", parts[0]):
+        return " ".join(parts)
+    return "%s. %s" % (parts[0][0], " ".join(parts[1:]))
+
+
 def event_players(row: dict, roster: dict | None = None) -> tuple[str, int | None, int | None]:
     """(kind, out_or_actor_key, in_key) of one play-by-play row: ids when the NBA.com columns are filled,
     else keys from the description."""
@@ -95,14 +123,16 @@ def event_players(row: dict, roster: dict | None = None) -> tuple[str, int | Non
     p1, p2 = row.get("player1_id"), row.get("player2_id")
     desc = row.get("desc") or ""
     sub = bref_substitution(desc)
+    tid = row.get("team_id")
+    p1, p2 = _player(p1, tid), _player(p2, tid)
     if kind == "substitution" or sub is not None:
-        if _has(p1) and _has(p2):
-            return "substitution", int(p1), int(p2)
+        if p1 is not None and p2 is not None:
+            return "substitution", p1, p2
         if sub is not None:
             return "substitution", name_key(sub[1], roster), name_key(sub[0], roster)
-        return "substitution", int(p1) if _has(p1) else None, int(p2) if _has(p2) else None
-    if _has(p1):
-        return kind, int(p1), None
+        return "substitution", p1, p2
+    if p1 is not None:
+        return kind, p1, None
     actor = bref_actor(desc)
     return kind, (name_key(actor, roster) if actor else None), None
 
@@ -121,9 +151,19 @@ def derive_starters(events: list[dict], side: str, known=()) -> list[int]:
                 starters.append(a)
             if b is not None:
                 came_in.add(b)
+        elif e.get("bench_ok"):
+            continue                               # a technical foul or an ejection can be a bench player's
         elif a is not None and a not in came_in and a not in starters:
             starters.append(a)
     return starters[:5]
+
+
+_BENCH_OK = re.compile(r"technical|ejection|T\.FOUL|Non-Unsportsmanlike|Delay", re.I)
+
+
+def bench_ok(kind: str, desc: str) -> bool:
+    """True for rows a player not on the floor can produce (technical fouls, ejections, delay-of-game)."""
+    return kind == "ejection" or bool(_BENCH_OK.search(str(desc or "")))
 
 
 def _side_of(row: dict, home_team_id) -> str | None:
@@ -149,7 +189,8 @@ def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team
     for r in order.to_dict("records"):
         kind, a, b = event_players(r, roster)
         rows.append({"t": float(r["_el"]), "period": int(r["period"]), "side": _side_of(r, home_team_id), "kind": kind,
-                     "a": a, "b": b, "points": int(r["points"]) if _has(r.get("points")) else 0})
+                     "a": a, "b": b, "points": int(r["points"]) if _has(r.get("points")) else 0,
+                     "bench_ok": bench_ok(kind, r.get("desc"))})
     n_periods = max(e["period"] for e in rows)
     cuts = {0.0}
     for p in range(1, n_periods + 1):
@@ -209,29 +250,99 @@ def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team
                     **meta, "endpoint": ENDPOINT})
         out.append(row)
         n += 1
-    df = pd.DataFrame(out)
+    return cast_section12(pd.DataFrame(out))
+
+
+def cast_section12(df: pd.DataFrame) -> pd.DataFrame:
+    """The section 12 dtypes: stint int32, times float32, periods int8, counts int8, points and scores int16,
+    player ids Int32 (nullable), lineup_ok bool."""
+    if len(df) == 0:
+        return df
     for c in PLAYER_COLUMNS:
         df[c] = df[c].astype("Int32")
+    for c, t in (("stint", "int32"), ("start_s", "float32"), ("end_s", "float32"), ("duration_s", "float32"), ("period_start", "int8"),
+                 ("period_end", "int8"), ("n_home", "int8"), ("n_away", "int8"), ("points_home", "int16"), ("points_away", "int16"),
+                 ("score_home", "int16"), ("score_away", "int16"), ("lineup_ok", "bool")):
+        df[c] = df[c].astype(t)
     return df
 
 
-def starters_by_side(starters: pd.DataFrame, game_id: str, home_team_id, away_team_id=None, roster: dict | None = None) -> dict:
-    """{"home": keys, "away": keys} of one game's period-1 starters from the starters table.
+def starter_key(row: dict, roster: dict | None = None):
+    """The key of one starters row: player_id when filled, else the roster id of player_slug, the full name or the
+    abbreviated name, else name_key(abbreviated(player)) (the key the builder gives the basketball-reference
+    play-by-play name "E. Bledsoe"), else name_key(player_slug). None when nothing names the player."""
+    pid = row.get("player_id")
+    if _has(pid):
+        return int(pid)
+    player = row.get("player") if isinstance(row.get("player"), str) and row.get("player") else None
+    slug = row.get("player_slug") if isinstance(row.get("player_slug"), str) and row.get("player_slug") else None
+    if roster:
+        for cand in (slug, player, abbreviated(player) if player else None):
+            if cand and cand in roster:
+                return int(roster[cand])
+    if player:
+        return name_key(abbreviated(player))
+    if slug:
+        return name_key(slug)
+    return None
 
-    Rows are matched on `game_id` (or `game` when the table carries that column and game_id does not match).
-    Two paths per row, the id path first:
-      ids      `team_id` and `player_id` filled: the side is the team id against home_team_id / away_team_id
-               (or the `side` column when the team ids are unknown) and the key is player_id;
-      slug     `player_id` null (the basketball-reference box score driver writes no NBA.com ids): the side is
-               the `side` column ("home"/"away") and the key is name_key(player, roster) when `player` is the
-               play-by-play name, else name_key(player_slug): the same crc32 key the builder gives a
-               basketball-reference play-by-play name, so starters and substitutions meet on one key only when
-               both come from basketball-reference names. Document the join in docs/contract/lineups.md."""
+
+def resolve_starters_games(starters: pd.DataFrame, games: pd.DataFrame | None) -> pd.DataFrame:
+    """starters with a `pbp_game_id` column: the play-by-play game id of each row. A bref box score code in
+    `game_id` (YYYYMMDD0HOME) is mapped through the games table when game_id is not itself a games id: by `game`
+    against games.game or games.game_id, else by (game_date, home team code) when games carries a home team
+    code column (home_team, home, home_abbr or home_code), else by game_date alone when exactly one game of
+    the games table is on that date. Unmatched rows keep game_id."""
+    out = starters.copy()
+    out["pbp_game_id"] = out["game_id"].astype(str)
+    if games is None or len(games) == 0 or "game_id" not in games.columns:
+        return out
+    gids = set(games["game_id"].astype(str))
+    miss = ~out["pbp_game_id"].isin(gids)
+    if not miss.any():
+        return out
+    g = games.copy()
+    g["game_id"] = g["game_id"].astype(str)
+    if "game" in out.columns and "game" in g.columns:
+        by_game = dict(zip(g["game"].astype(str), g["game_id"]))
+        hit = out.loc[miss, "game"].astype(str).map(by_game)
+        out.loc[miss, "pbp_game_id"] = hit.fillna(out.loc[miss, "pbp_game_id"])
+        miss = ~out["pbp_game_id"].isin(gids)
+    code_col = next((c for c in ("home_team", "home", "home_abbr", "home_code") if c in g.columns), None)
+    if miss.any() and "game_date" in g.columns:
+        date = g["game_date"].astype(str).str[:10]
+        if code_col is not None and "game_date" in out.columns:
+            by_dh = dict(zip(zip(date, g[code_col].astype(str)), g["game_id"]))
+            codes = out.loc[miss, "game_id"].astype(str).str[9:]
+            dates = out.loc[miss, "game_date"].astype(str).str[:10]
+            hit = pd.Series([by_dh.get((d, c)) for d, c in zip(dates, codes)], index=out.index[miss])
+            out.loc[miss, "pbp_game_id"] = hit.fillna(out.loc[miss, "pbp_game_id"])
+            miss = ~out["pbp_game_id"].isin(gids)
+        if miss.any() and "game_date" in out.columns:
+            counts = date.value_counts()
+            by_date = {d: gid for d, gid in zip(date, g["game_id"]) if counts[d] == 1}
+            hit = out.loc[miss, "game_date"].astype(str).str[:10].map(by_date)
+            out.loc[miss, "pbp_game_id"] = hit.fillna(out.loc[miss, "pbp_game_id"])
+    return out
+
+
+def starters_by_side(starters: pd.DataFrame, game_id: str, home_team_id, away_team_id=None, roster: dict | None = None,
+                     games: pd.DataFrame | None = None) -> dict:
+    """{"home": keys, "away": keys} of one game's period-1 starters from the starters table (STARTERS_COLUMNS,
+    agreed with lane I2: starter rows only, team_id and player_id null from the basketball-reference box score
+    driver). Rows match the game on `pbp_game_id` (resolve_starters_games, when `games` is given), else on
+    `game_id`, else on `game`. The side is the team id against home_team_id / away_team_id when filled, else the
+    `side` column. The key is starter_key(row, roster)."""
     if starters is None or len(starters) == 0:
         return {}
-    s = starters[starters["game_id"].astype(str) == str(game_id)]
-    if len(s) == 0 and "game" in starters.columns:
-        s = starters[starters["game"].astype(str) == str(game_id)]
+    if "pbp_game_id" not in starters.columns and games is not None:
+        starters = resolve_starters_games(starters, games)
+    s = pd.DataFrame()
+    for col in ("pbp_game_id", "game_id", "game"):
+        if col in starters.columns:
+            s = starters[starters[col].astype(str) == str(game_id)]
+            if len(s):
+                break
     out: dict = {}
     for r in s.to_dict("records"):
         side = None
@@ -242,16 +353,9 @@ def starters_by_side(starters: pd.DataFrame, game_id: str, home_team_id, away_te
             side = "away"
         elif isinstance(r.get("side"), str) and r["side"] in ("home", "away"):
             side = r["side"]
-        if side is None:
+        key = starter_key(r, roster)
+        if side is None or key is None:
             continue
-        pid = r.get("player_id")
-        if _has(pid):
-            key = int(pid)
-        else:
-            name = r.get("player") if isinstance(r.get("player"), str) and r.get("player") else r.get("player_slug")
-            if not isinstance(name, str) or not name:
-                continue
-            key = name_key(name, roster)
         out.setdefault(side, [])
         if key not in out[side]:
             out[side].append(key)
@@ -269,6 +373,8 @@ def build_stints(playbyplay: pd.DataFrame, games: pd.DataFrame | None = None, st
     if "home_team_id" in playbyplay.columns:
         for g, grp in playbyplay.groupby(gcol):
             teams.setdefault(str(g), (grp["home_team_id"].iloc[0], None))
+    if starters is not None and len(starters):
+        starters = resolve_starters_games(starters, games)
     frames = []
     for g, grp in playbyplay.groupby(gcol, sort=True):
         h, a = teams.get(str(g), (None, None))
