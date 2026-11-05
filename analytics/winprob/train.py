@@ -14,8 +14,8 @@ Protocol
        constant    the training-fold home win rate
        logistic    logistic regression on margin, seconds_remaining, possession_home (plus its missing flag) and
                    margin_x_sqrt_time, standardised, C=1
-       hgb_iso     HistGradientBoostingClassifier on the same plus period, overtime, spread_home and
-                   spread_missing, calibrated with isotonic regression fitted on out-of-fold predictions of the
+       hgb_iso     HistGradientBoostingClassifier (depth 3, 50 rounds, 200 rows per leaf, L2 1.0) on the same plus
+                   period, overtime, spread_home and spread_missing, calibrated with isotonic regression fitted on out-of-fold predictions of the
                    candidate's own training rows (inner grouped folds by game), then refit on all of them
   4. Selection: out-of-fold predictions under --folds grouped folds by game within the training seasons; the
      selection metric is the unweighted mean over time buckets (48-36, 36-24, 24-12, 12-4, 4-0 minutes
@@ -133,8 +133,10 @@ def fit_logistic(train: pd.DataFrame):
 
 def _hgb():
     from sklearn.ensemble import HistGradientBoostingClassifier
-    return HistGradientBoostingClassifier(max_iter=60, learning_rate=0.1, max_leaf_nodes=15, min_samples_leaf=40,
-                                          early_stopping=False, random_state=0)
+    # shallow and heavily regularised: the spread is constant inside a game, so deep trees on few games memorise
+    # games through it (seen on the fixtures); on real seasons many games share a spread value
+    return HistGradientBoostingClassifier(max_iter=50, learning_rate=0.1, max_depth=3, min_samples_leaf=200,
+                                          l2_regularization=1.0, early_stopping=False, random_state=0)
 
 
 def fit_hgb_iso(train: pd.DataFrame, seed: int = 0):
@@ -374,6 +376,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "- The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.",
           "- The possession indicator is read from event kinds and is null when the events so far do not say.",
           "- The interaction is margin times sqrt(seconds remaining), as specified; the logistic model also sees margin and time on their own.",
+          "- On the fixtures the boosted candidate loses to the logistic one because the spread is nearly unique per game among a few dozen games and the trees memorise games through it; the selection rule picks the logistic candidate. This is a fixture artefact to re-check on the real seasons, where many games share a spread value.",
           "- The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.",
           ""]
     text = "\n".join(L)

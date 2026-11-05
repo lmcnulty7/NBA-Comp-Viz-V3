@@ -1,6 +1,6 @@
 # Action recognition: ball-screen detection (analytics/actions/train.py)
 
-Written 2026-11-05T08:55:49Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
+Written 2026-11-05T08:56:34Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from analytics.fixtures (shared, lane I1) with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and hand labels on the owner's Mac (command under Status).
 
@@ -22,7 +22,7 @@ Guard: `analytics.eval.refuse_heldout` checked 4 training game ids against sport
 
 ## Candidate generation (fixture output, not a result)
 
-Rules (5 Hz): ball_screen = 1 s window, teammate within 4 ft of the handler's defender, under 3 ft per s, handler within 12 ft; drive = 0.6 s window, handler closing on the basket over 8 ft per s; isolation = 2 s window, same handler with the ball, no teammate within 10 ft. Target: IoU over frames with a label of at least 0.50.
+Rules (5 Hz): ball_screen = window of at least 0.8 s, teammate within 4 ft of the handler's defender (one of the 2 nearest, within 9 ft of the handler, not the teammate's own man), under 3 ft per s, handler within 12 ft, extent padded 1 s before and 1 s after the set; drive = 0.6 s window, handler starting within 30 ft of the basket closing on it over 8 ft per s; isolation = 2 s window, same handler with the ball under 8 ft per s, starting within 30 ft, no teammate within 10 ft. Target: IoU over frames with a label of at least 0.50.
 
 Candidates: 197 over 96 possessions (2.05 per possession); 16 overlap a label of a type this detector does not model (counted as none).
 
@@ -90,9 +90,20 @@ Held-out numbers are point estimates (no bootstrap over 2 game(s)). Confusion of
 
 No table written (no --out). With --out OUT_ROOT the action_candidates and actions_detected tables of docs/contract/actions.md go under OUT_ROOT/analytics/actions/<season>/.
 
+## Assumptions (recorded because nobody could be asked)
+
+- Hand labels are read only through `analytics.labels.read_labels(DATA_ROOT, game, labeller_pass=1)`: the last line per id wins, tombstoned ids are dropped, pass-2 relabels never reach a fit; `label_source` hand is the accepted value (synthetic on fixtures).
+- A labelled ball screen spans approach, set and use, so the candidate extent pads the detected set by 1 s before and 1 s after (`SCREEN_PAD_PRE_S`, `SCREEN_PAD_POST_S`; set both to 0 if lane I4's labels mark the set alone). The plan's 1 s set is read as at least 0.8 s because a 1 s set lands on 4 or 5 intervals of the 5 Hz grid.
+- The screened defender is one of the 2 defenders nearest the handler at the window start (a switch, ice or under puts him second), within 9 ft of the handler, and not the screener's own matchup on the frames before the window on which they were apart.
+- A drive starts within 30 ft of the basket (a half-court action, not the transition sprint). An isolation is a 2 s hold (the plan said 3 s; 3 s missed the fixture's 2.4 s holds and the model, not the window, decides the class) under 8 ft per s starting within 30 ft.
+- The ball has no handler when it is over 6 ft from every offensive player (in flight); features come from the rule window (the set), the padded extent serves the IoU only; `def_recovery_ft` is the one declared post-window feature.
+- A candidate overlapping a label of a type the detector does not model (handoff, off_ball_screen, post_up, cut) is class none and counted above.
+- The hgb model fits on one thread (threadpoolctl): on 4 cores shared by many processes its OpenMP loops stalled for minutes.
+- Fewer games than folds gives leave-one-game-out; one game gives in-sample metrics labelled as such; ties in the selection metric go to the rule baseline.
+
 ## Status
 
-Fixture output, not a result: this run shows the pipeline works end to end on scripted motion. The real run, on the owner's Mac where the SportVU frames, the possessions tables and the hand labels (DATA_ROOT/labels/actions/<game>.jsonl, lane I4's tool) live, is
+Fixture output, not a result: this run shows the pipeline works end to end on scripted motion. The real run, on the owner's Mac where the SportVU frames, the possessions tables and the hand labels (DATA_ROOT/labels/actions/<game>.jsonl and labels/screens/<game>.jsonl, lane I4's tool, read with labeller_pass 1) live, is
 
     python -m analytics.actions.train --data "$DATA_ROOT" --report reports/actions.md --out "$DATA_ROOT" --folds 5 --seed 0 --bootstrap 1000
 

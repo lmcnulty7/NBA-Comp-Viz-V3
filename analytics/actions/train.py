@@ -286,10 +286,13 @@ def write_report(path: Path, ctx: dict) -> str:
           "`analytics.schema.assert_time_forward` and `features.assert_no_leak` passed on the training feature frame (%d rows, %d features)."
           % (ctx["train_games"], ctx["train_rows"], len(F.FEATURES)), "",
           "## Candidate generation" + tag, "",
-          "Rules (5 Hz): ball_screen = 1 s window, teammate within %g ft of the handler's defender, under %g ft per s, handler within %g ft; "
-          "drive = %g s window, handler closing on the basket over %g ft per s; isolation = %g s window, same handler with the ball, no teammate within %g ft. "
-          "Target: IoU over frames with a label of at least %.2f."
-          % (F.SCREEN_DIST_FT, F.SCREEN_SPEED_FTPS, F.SCREEN_HANDLER_DIST_FT, F.DRIVE_WINDOW_S, F.DRIVE_SPEED_FTPS, F.ISO_WINDOW_S, F.ISO_SPREAD_FT, F.IOU_MIN), "",
+          "Rules (5 Hz): ball_screen = window of at least %g s, teammate within %g ft of the handler's defender (one of the %d nearest, within %g ft of the handler, "
+          "not the teammate's own man), under %g ft per s, handler within %g ft, extent padded %g s before and %g s after the set; "
+          "drive = %g s window, handler starting within %g ft of the basket closing on it over %g ft per s; isolation = %g s window, same handler with the ball under %g ft per s, "
+          "starting within %g ft, no teammate within %g ft. Target: IoU over frames with a label of at least %.2f."
+          % (F.SCREEN_WINDOW_S, F.SCREEN_DIST_FT, F.SCREEN_N_DEFENDERS, F.SCREEN_DEF_HANDLER_FT, F.SCREEN_SPEED_FTPS, F.SCREEN_HANDLER_DIST_FT,
+             F.SCREEN_PAD_PRE_S, F.SCREEN_PAD_POST_S, F.DRIVE_WINDOW_S, F.DRIVE_START_FT, F.DRIVE_SPEED_FTPS, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS,
+             F.ISO_START_FT, F.ISO_SPREAD_FT, F.IOU_MIN), "",
           "Candidates: %d over %d possessions (%.2f per possession); %d overlap a label of a type this detector does not model (counted as none)."
           % (ctx["n_candidates"], ctx["n_possessions"], ctx["n_candidates"] / max(1, ctx["n_possessions"]), ctx["other_type_overlaps"]), "",
           "Rule class (rows) against label class (columns), training games:", ""]
@@ -334,10 +337,27 @@ def write_report(path: Path, ctx: dict) -> str:
             L.append("- %s: %d candidates, %d detected, under `%s`" % (w["sportvu_game"], w["candidates"], w["detected"], w["dir"]))
     else:
         L.append("No table written (no --out). With --out OUT_ROOT the action_candidates and actions_detected tables of docs/contract/actions.md go under OUT_ROOT/analytics/actions/<season>/.")
-    L += ["", "## Status", ""]
+    L += ["", "## Assumptions (recorded because nobody could be asked)", "",
+          "- Hand labels are read only through `analytics.labels.read_labels(DATA_ROOT, game, labeller_pass=1)`: the last line per id wins, "
+          "tombstoned ids are dropped, pass-2 relabels never reach a fit; `label_source` hand is the accepted value (synthetic on fixtures).",
+          "- A labelled ball screen spans approach, set and use, so the candidate extent pads the detected set by %g s before and %g s after "
+          "(`SCREEN_PAD_PRE_S`, `SCREEN_PAD_POST_S`; set both to 0 if lane I4's labels mark the set alone). The plan's 1 s set is read as at least "
+          "%g s because a 1 s set lands on 4 or 5 intervals of the 5 Hz grid." % (F.SCREEN_PAD_PRE_S, F.SCREEN_PAD_POST_S, F.SCREEN_WINDOW_S),
+          "- The screened defender is one of the %d defenders nearest the handler at the window start (a switch, ice or under puts him second), "
+          "within %g ft of the handler, and not the screener's own matchup on the frames before the window on which they were apart." % (F.SCREEN_N_DEFENDERS, F.SCREEN_DEF_HANDLER_FT),
+          "- A drive starts within %g ft of the basket (a half-court action, not the transition sprint). An isolation is a %g s hold (the plan said 3 s; "
+          "3 s missed the fixture's 2.4 s holds and the model, not the window, decides the class) under %g ft per s starting within %g ft."
+          % (F.DRIVE_START_FT, F.ISO_WINDOW_S, F.ISO_HANDLER_SPEED_FTPS, F.ISO_START_FT),
+          "- The ball has no handler when it is over %g ft from every offensive player (in flight); features come from the rule window (the set), "
+          "the padded extent serves the IoU only; `def_recovery_ft` is the one declared post-window feature." % F.HANDLER_BALL_FT,
+          "- A candidate overlapping a label of a type the detector does not model (handoff, off_ball_screen, post_up, cut) is class none and counted above.",
+          "- The hgb model fits on one thread (threadpoolctl): on 4 cores shared by many processes its OpenMP loops stalled for minutes.",
+          "- Fewer games than folds gives leave-one-game-out; one game gives in-sample metrics labelled as such; ties in the selection metric go to the rule baseline.",
+          "", "## Status", ""]
     if fx:
         L.append("Fixture output, not a result: this run shows the pipeline works end to end on scripted motion. The real run, on the owner's Mac where the SportVU frames, "
-                 "the possessions tables and the hand labels (DATA_ROOT/labels/actions/<game>.jsonl, lane I4's tool) live, is")
+                 "the possessions tables and the hand labels (DATA_ROOT/labels/actions/<game>.jsonl and labels/screens/<game>.jsonl, lane I4's tool, "
+                 "read with labeller_pass 1) live, is")
     else:
         L.append("The real run of this protocol is")
     L += ["", "    " + FULL_RUN_CMD, "",

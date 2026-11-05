@@ -172,22 +172,27 @@ def value_game(contexts: pd.DataFrame, bundle: dict, model: ValueModel, fold: in
 
 # ── validation against on-court offensive rating ───────────────────────────────────────────────────
 def player_game_quality(events: pd.DataFrame) -> pd.DataFrame:
+    """Per player-game: n_decisions, sum_quality and mean_quality. The validation ranks players by mean quality
+    (quality is regret, at most 0, so a sum would mostly rank by decision count)."""
     g = events.groupby(["sportvu_game", "player_id"]).agg(n_decisions=("decision_quality", "size"),
-                                                           sum_quality=("decision_quality", "sum")).reset_index()
+                                                           sum_quality=("decision_quality", "sum"),
+                                                           mean_quality=("decision_quality", "mean")).reset_index()
     return g
 
 
-def per_game_spearman(pg: pd.DataFrame, ortg: pd.DataFrame, min_dec: int = MIN_DECISIONS_GAME) -> pd.DataFrame:
-    """One row per game: rho between the players' summed quality and their on-court offensive rating."""
+def per_game_spearman(pg: pd.DataFrame, ortg: pd.DataFrame, min_dec: int = MIN_DECISIONS_GAME,
+                      column: str = "mean_quality") -> pd.DataFrame:
+    """One row per game: rho between the players' mean decision quality and their on-court offensive rating,
+    over players with at least min_dec decisions in the game."""
     from scipy.stats import spearmanr
     m = pg.merge(ortg, on=["sportvu_game", "player_id"], how="inner")
     m = m[m["n_decisions"] >= min_dec]
     rows = []
     for g, d in m.groupby("sportvu_game"):
-        if len(d) < MIN_PLAYERS_GAME or d["sum_quality"].nunique() < 2 or d["ortg"].nunique() < 2:
+        if len(d) < MIN_PLAYERS_GAME or d[column].nunique() < 2 or d["ortg"].nunique() < 2:
             rows.append({"sportvu_game": g, "rho": np.nan, "n_players": int(len(d))})
             continue
-        rho = spearmanr(d["sum_quality"], d["ortg"]).correlation
+        rho = spearmanr(d[column], d["ortg"]).correlation
         rows.append({"sportvu_game": g, "rho": float(rho), "n_players": int(len(d))})
     return pd.DataFrame(rows, columns=["sportvu_game", "rho", "n_players"])
 
@@ -272,34 +277,36 @@ def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> di
     elif k < n_folds:
         mode += "; fewer games (%d) than the %d folds asked, so leave-one-game-out" % (len(train_ids), n_folds)
     by_game = {b["sportvu_game"]: b for b in bundles}
+    has_xfg = any(b.get("xfg") is not None for b in bundles)
     events = {"location": [], "xfg_selected": []}
-    diag = {"xfg_coverage": [], "n_hold": 0, "fit_rows": 0}
+    diag = {"n_shot": 0, "n_shot_overridden": 0, "n_hold": 0, "fit_rows": 0}
     for fi, (tr, te) in enumerate(folds):
         rows = pd.concat([fit_rows[g] for g in tr], ignore_index=True) if tr else fit_rows[te[0]].iloc[:0]
         model = fit_value_model(rows)
         for g in te:
-            r = value_game(contexts[g], by_game[g], model, fi)
+            r = value_game(contexts[g], by_game[g], model, fi, with_xfg=has_xfg, counts=counts[g])
             for name, ev in r["events"].items():
                 events[name].append(ev)
-            diag["xfg_coverage"].append(r["xfg_coverage"])
+            diag["n_shot"] += r["n_shot"]
+            diag["n_shot_overridden"] += r["n_shot_overridden"]
             diag["n_hold"] += r["n_hold"]
     full_rows = pd.concat(list(fit_rows.values()), ignore_index=True)
     diag["fit_rows"] = int(len(full_rows))
     full_model = fit_value_model(full_rows)
     held_events = {"location": [], "xfg_selected": []}
     for b in held:
-        r = value_game(contexts[b["sportvu_game"]], b, full_model, -1)
+        r = value_game(contexts[b["sportvu_game"]], b, full_model, -1, with_xfg=has_xfg, counts=counts[b["sportvu_game"]])
         for name, ev in r["events"].items():
             held_events[name].append(ev)
-    cat = lambda L: pd.concat(L, ignore_index=True)[EVENT_COLUMNS] if L else pd.DataFrame(columns=EVENT_COLUMNS)
+    cat = lambda L: _cast_events(pd.concat(L, ignore_index=True)[EVENT_COLUMNS]) if L else pd.DataFrame(columns=EVENT_COLUMNS)
     ev_train = {n: cat(L) for n, L in events.items()}
     ev_held = {n: cat(L) for n, L in held_events.items()}
-    cover = float(np.mean(diag["xfg_coverage"])) if diag["xfg_coverage"] else 0.0
-    has_xfg = len(ev_train["xfg_selected"]) > 0
+    # pooled coverage: overridden shot decisions over all shot decisions of the training games
+    cover = float(diag["n_shot_overridden"] / diag["n_shot"]) if diag["n_shot"] else 0.0
     prior = "xfg_selected" if (has_xfg and cover >= XFG_MIN_COVERAGE) else "location"
     validation = {n: validate_quality(ev_train[n], ortg, n_boot, seed) for n in ("location", "xfg_selected") if len(ev_train[n])}
     players = player_table(ev_train[prior], n_boot, seed)
-    return {"events": ev_train[prior], "events_heldout": ev_held[prior] if len(ev_held[prior]) else ev_held["location"],
+    return {"events": ev_train[prior], "events_heldout": ev_held[prior],
             "events_by_prior": ev_train, "players": players, "validation": validation, "prior": prior,
             "xfg_coverage": cover, "has_xfg": has_xfg, "n_hold": diag["n_hold"], "fit_rows": diag["fit_rows"],
             "ortg": ortg, "counts": counts, "train_ids": train_ids, "heldout_ids": sorted(b["sportvu_game"] for b in held),
