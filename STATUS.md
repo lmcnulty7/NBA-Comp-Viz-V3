@@ -31,14 +31,18 @@ Eight lanes ran in parallel worktrees; each is listed below with its outcome onc
 
 | lane | files | outcome |
 | --- | --- | --- |
-| A schema | docs/DATA_CONTRACT.md 16 to 20, analytics/schema.py, tests/test_schema.py | pending |
-| B gaps | analytics/gaps.py, tests/test_gaps.py, reports/sportvu_gaps.md | pending |
-| C rosters | analytics/rosters.py, tests/test_rosters.py, reports/rosters_unmatched.md | pending |
-| D shot frames | analytics/shot_frames.py, tests/test_shot_frames.py, reports/localisation_shots.md | pending |
-| E rebound frames | analytics/rebound_frames.py, tests/test_rebound_frames.py, reports/localisation_rebounds.md | pending |
-| F possessions | analytics/possessions.py, tests/test_possessions.py | pending |
-| G evaluation | analytics/eval.py, tests/test_eval.py, tests/test_splits.py | pending |
-| H xFG baseline | analytics/features_xfg.py, analytics/train_xfg.py, tests/test_xfg.py, reports/xfg_baseline.md | pending |
+| A schema | docs/DATA_CONTRACT.md 16 to 20, analytics/schema.py, tests/test_schema.py | merged; reviewer found three leakage holes (post-outcome fields in the allowlist, shooter name reconstructing the identity target, guard checking one table only); fixed, 33 tests |
+| B gaps | analytics/gaps.py, tests/test_gaps.py, reports/sportvu_gaps.md | merged, reviewer PASS; 8 tests; real 3-game report: 1 game with a gap over 10 s (BKN at GSW, longest 22.3 s) |
+| C rosters | analytics/rosters.py, tests/test_rosters.py, reports/rosters_unmatched.md | merged, review pending; 9 tests; PHX at GSW: 22 of 22 shot-chart names and 25 of 25 play-by-play names matched |
+| D shot frames | analytics/shot_frames.py, tests/test_shot_frames.py, reports/localisation_shots.md | merged, reviewer PASS; 8 tests; PHX at GSW smoke: release found for 125 of 179 shots (70%), shooter identity agreement 97% where known, 71 high-confidence rows |
+| E rebound frames | analytics/rebound_frames.py, tests/test_rebound_frames.py, reports/localisation_rebounds.md | merged, review pending; 7 tests; PHX at GSW smoke: rebound frame for 83 of 95 misses (87%), rebounder identity agreement 72.5% where known |
+| F possessions | analytics/possessions.py, tests/test_possessions.py | merged, reviewer PASS with one medium finding (free throws by the non-offense team credited to nobody), fix requested; 8 tests; PHX at GSW smoke: 219 possessions, points sum 231 equals the final score |
+| G evaluation | analytics/eval.py, tests/test_eval.py, tests/test_splits.py | merged, reviewer PASS; 17 tests; the guard test fails on any analytics/train_*.py without refuse_heldout and on any file that fits without the guard |
+| H xFG baseline | analytics/features_xfg.py, analytics/train_xfg.py, tests/test_xfg.py, reports/xfg_baseline.md | merged, review pending; 7 tests; smoke run only: one game in-sample (191 attempts) log loss 0.674 logistic vs 0.692 constant; held-out PHX (179 attempts, scored once) 0.664 vs 0.693; no interval over one game |
+
+## Where it stands
+
+97 tests pass on `analytics-phase0` (`python3 -m pytest tests/test_schema.py tests/test_gaps.py tests/test_rosters.py tests/test_shot_frames.py tests/test_rebound_frames.py tests/test_possessions.py tests/test_eval.py tests/test_splits.py tests/test_xfg.py`). Phase 0 is built and tested on synthetic fixtures plus one real held-out game used as a smoke test. The Phase 1 baseline exists as a tested pipeline; its numbers are a smoke run, not a result. Open items: the possessions free-throw fix, reviews of C, E and H, pinning four unspecified shot-localisation constants in the contract (apex search 2 s, rim radius 6 ft, flight 25 frames, high-confidence 0.6), and a driver that runs the three localisers over every game of the Drive manifest.
 
 ## Next on the Mac (where the full data is)
 

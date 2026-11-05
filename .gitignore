@@ -107,3 +107,6 @@ models/court_grid_r23.pt
 data/collect/
 # rosters tables (analytics/rosters.py): derived from frames parquet on the Mac or Drive, never in git
 analytics/rosters/
+analytics/shot_frames/
+analytics/rebound_frames/
+analytics/possessions/
