@@ -22,7 +22,8 @@ Fallback generator (the assumptions a test may rely on):
     a period cut at 0 s with end_kind period_end;
   - the handler is one offensive player, drifting from 20 to 35 ft out towards an end distance; the points of the
     possession come from a logistic in the end distance, the handler's defender gap at the end and the handler's
-    latent shooting skill, so a model over the states has something to find and shooter priors carry signal;
+    latent shooting skill (per game), and the turnover rate is a per-team latent, so a model over the states has
+    something to find and the shooter and lineup priors carry signal;
   - the shots table is 10a-shaped with player_id null (as basketball-reference gives it) and player_slug matching
     rosters.bref_slug, so the shooter is found through the roster join;
   - states_1hz is built by analytics.epv.states.build_states from the frames and possessions.
@@ -71,7 +72,8 @@ def _game_id(seed: int, heldout: bool) -> str:
 def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game: str | None = None) -> dict:
     rng = np.random.default_rng(1000 + seed)
     game = sportvu_game or _game_id(seed, heldout)
-    skill = {pid: float(rng.normal(0.0, 0.45)) for pid in HOME_IDS + AWAY_IDS}
+    skill = {pid: float(rng.normal(0.0, 0.6)) for pid in HOME_IDS + AWAY_IDS}
+    lineup_tov = {HOME_ID: float(rng.uniform(0.0, 0.6)), AWAY_ID: float(rng.uniform(0.0, 0.6))}
     poss_rows, frame_chunks, event_rows, shot_rows, sf_rows, rb_rows = [], [], [], [], [], []
     frame_counter, event_counter, poss_idx = 0, 0, 0
     period, clock = 1, PERIOD_S
@@ -132,10 +134,10 @@ def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = Fal
         if rng.uniform() < 0.1:
             shot_clock = np.full(n, np.nan, dtype=np.float32)
         # outcome
-        logit = 1.0 - 0.09 * d_end + 0.22 * g_end + skill[handler] - 0.02 * dur + rng.normal(0, 0.3)
+        logit = 2.2 - 0.16 * d_end + 0.35 * g_end + skill[handler] - 0.03 * dur + rng.normal(0, 0.2)
         if cut:
             end_kind, points, shot = "period_end", 0, False
-        elif rng.uniform() < 0.13:
+        elif rng.uniform() < 0.05 + 0.25 * lineup_tov[off_team]:
             end_kind, points, shot = "turnover", 0, False
         elif rng.uniform() < 0.08:
             end_kind, points, shot = "free_throws", int(rng.choice([0, 1, 2], p=[0.1, 0.35, 0.55])), False

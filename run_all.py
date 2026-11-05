@@ -9,15 +9,23 @@
     python run_all.py --phase0 --data DATA_ROOT [--out OUT_ROOT]   # analytics.gaps then analytics.run_phase0
                       [--all | --ext NAME ...]                      # and then those extensions
 
-Every step is `analytics.<ext>.<step>.main(argv)` imported at run time (never at import time here), its
-stdout and stderr captured to logs/run_all/<ext>_<step>.log and timed. The run stops at the first failed
-step unless --continue-on-error. A package that is not importable is skipped with a printed reason. The
-summary table lands in reports/run_all.md (under OUT_ROOT when --out is given). Exit code 0 when no
-step failed, 1 when one did, 2 on a usage error. The last line is always RUN OK or RUN FAILED.
+DATA_ROOT is the parent of `sportvu_contract/` (the Step 1 contract: manifest.json, <game>.parquet,
+heldout/) and of `collect/` (the collector tables); a DATA_ROOT that itself holds manifest.json is
+accepted and treated as the contract folder.
 
-With --fixtures and no --out, the fixture root is written to a temporary directory through
+Every step is `analytics.<ext>.<step>.main(argv)` imported at run time (never at import time here), its
+stdout, stderr and logging captured to logs/run_all/<ext>_<step>.log and timed. The run stops at the first
+failed step unless --continue-on-error. A package that is not importable is skipped with a printed reason,
+and so are the dependents of an extension that failed. The summary table lands in reports/run_all.md
+(under OUT_ROOT when --out is given). Exit code 0 when no step failed, 1 when one did, 2 on a usage error.
+The last line is always RUN OK or RUN FAILED.
+
+Step argv, per the package convention: every step gets `--data DATA_ROOT` (or `--fixtures`), `--seed N`
+and `--out OUT_ROOT` when --out is given; train also gets `--report REPORT_DIR/<ext>.md` and `--bootstrap N`
+when given. With --fixtures and no --out, the fixture root is written to a temporary directory through
 analytics.fixtures.write_fixture_root and every step receives `--data FIXTURE_ROOT`; when that module is
-absent (or fails) each step receives `--fixtures` instead and builds its own fixtures.
+absent (or fails) each step receives `--fixtures` instead and builds its own fixtures. Reports of such a
+run go to reports/fixtures/ so the tracked reports/<ext>.md are never overwritten by fixture output.
 
 --registry PATH points at a JSON file ({"extensions": [...]} in the analytics.registry shape); the tests
 use it to run stub packages. Nothing here imports an extension package until it is run.
@@ -30,7 +38,7 @@ import importlib
 import importlib.util
 import io
 import json
-import os
+import logging
 import sys
 import tempfile
 import time
@@ -50,6 +58,9 @@ STATUS_NOT_RUN = "not run"
 
 FIXTURE_N_GAMES = 4
 FIXTURE_HELDOUT_EVERY = 4
+FIXTURE_REPORT_DIR = "reports/fixtures"
+CONTRACT_DIR = "sportvu_contract"
+PHASE0_LOCALISERS = "rosters,shot_frames,rebound_frames,possessions"   # gaps runs on its own, before
 
 
 # ----------------------------------------------------------------------------- registry access
@@ -88,6 +99,15 @@ def select(args, extensions: list[dict]) -> list[str]:
     return registry.order_for(names, extensions)
 
 
+def contract_dir(data_root: Path) -> Path:
+    """The Step 1 contract folder under DATA_ROOT: DATA_ROOT/sportvu_contract when it holds a manifest,
+    else DATA_ROOT itself (a DATA_ROOT given as the contract folder)."""
+    sub = data_root / CONTRACT_DIR
+    if (sub / "manifest.json").exists():
+        return sub
+    return data_root
+
+
 # ----------------------------------------------------------------------------- listing
 
 def print_list(extensions: list[dict]) -> None:
@@ -104,7 +124,7 @@ def print_list(extensions: list[dict]) -> None:
 
 
 def print_collectors() -> None:
-    print("Collector run order (DATA_ROOT is the Step 1 contract root; DRIVE is the Google Drive mount):")
+    print("Collector run order (DATA_ROOT is the parent of sportvu_contract/ and collect/, normally the Drive nba_harvest folder):")
     print(registry.BREF_RPM_NOTE)
     print()
     for i, c in enumerate(registry.COLLECTORS, 1):
@@ -124,8 +144,9 @@ def classify_return(rc) -> tuple[str, str]:
     """(status, detail) for a step's return value.
 
     None, 0 and True are ok. A nonzero int (not bool) or False is failed. A dict is the step's summary:
-    failed only when it carries "ok": False. Any other object (a list of written paths, a DataFrame)
-    is ok and is noted in the log."""
+    failed when its "ok" key is the boolean False, or when "ok" is a falsy number (0) and the dict also
+    carries a "problems" key; absent "ok" means ok. Any other object (a list of written paths, a
+    DataFrame) is ok and is noted in the log."""
     if rc is None or rc is True:
         return STATUS_OK, ""
     if rc is False:
@@ -133,20 +154,26 @@ def classify_return(rc) -> tuple[str, str]:
     if isinstance(rc, int):
         return (STATUS_OK, "") if rc == 0 else (STATUS_FAILED, "main returned %d" % rc)
     if isinstance(rc, dict):
-        if rc.get("ok", True) is False:
-            return STATUS_FAILED, "main returned ok=False: " + _short(rc.get("problems", ""), 120)
+        ok = rc.get("ok", True)
+        bad = ok is False or (isinstance(ok, (int, float)) and not ok and "problems" in rc)
+        if bad:
+            return STATUS_FAILED, "main returned ok=%r: %s" % (ok, _short(rc.get("problems", ""), 120))
         return STATUS_OK, "summary"
     return STATUS_OK, "value"
 
 
 def run_step(module_name: str, argv: list[str], log_path: Path) -> tuple[str, float, str]:
-    """Import `module_name`, call main(argv) with stdout and stderr captured to log_path.
+    """Import `module_name`, call main(argv) with stdout, stderr and root logging captured to log_path.
 
     Returns (status, seconds, detail). A return of None or 0, or SystemExit(0), is ok; anything else,
-    including an exception, is failed with the traceback in the log."""
+    including an exception, is failed with the traceback in the log. See classify_return for dicts."""
     buf = io.StringIO()
     t0 = time.perf_counter()
     status, detail = STATUS_OK, ""
+    root = logging.getLogger()
+    handler = logging.StreamHandler(buf)
+    handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    root.addHandler(handler)
     try:
         with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
             mod = importlib.import_module(module_name)
@@ -161,10 +188,16 @@ def run_step(module_name: str, argv: list[str], log_path: Path) -> tuple[str, fl
     except SystemExit as exc:                      # argparse errors and explicit exits
         code = exc.code
         if code not in (None, 0):
-            status, detail = STATUS_FAILED, "exit %r" % (code,)
+            buf.write("\nSystemExit: %s\n" % (code,))
+            status, detail = STATUS_FAILED, _short("exit %r" % (code,))
     except BaseException as exc:                   # noqa: BLE001  (a step must never kill the runner)
         buf.write(traceback.format_exc())
         status, detail = STATUS_FAILED, _short("%s: %s" % (type(exc).__name__, exc))
+    finally:
+        # drop our handler and any handler a lane's logging.basicConfig bound to the captured buffer
+        for h in list(root.handlers):
+            if h is handler or getattr(h, "stream", None) is buf:
+                root.removeHandler(h)
     seconds = time.perf_counter() - t0
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "w", encoding="utf-8") as fh:
@@ -175,18 +208,15 @@ def run_step(module_name: str, argv: list[str], log_path: Path) -> tuple[str, fl
 
 
 def step_argv(step: str, ext: str, data_root: Path | None, out_root: Path | None, report_path: Path, args) -> list[str]:
-    """The argv for one step under the package convention."""
-    if data_root is not None:
-        argv = ["--data", str(data_root)]
-    else:
-        argv = ["--fixtures"]
+    """The argv for one step under the package convention (see the module docstring)."""
+    argv = ["--data", str(data_root)] if data_root is not None else ["--fixtures"]
+    if out_root is not None:
+        argv += ["--out", str(out_root)]
+    argv += ["--seed", str(args.seed)]
     if step == "train":
-        argv += ["--report", str(report_path), "--seed", str(args.seed)]
+        argv += ["--report", str(report_path)]
         if args.bootstrap is not None:
             argv += ["--bootstrap", str(args.bootstrap)]
-    else:
-        if out_root is not None:
-            argv += ["--out", str(out_root)]
     return argv
 
 
@@ -233,21 +263,34 @@ def write_report(path: Path, rows: list[dict], header: list[str]) -> None:
 
 # ----------------------------------------------------------------------------- phase 0
 
-def run_phase0(args, data_root: Path, out_root: Path | None, report_dir: Path, log_dir: Path) -> list[dict]:
+def run_phase0(args, data_root: Path | None, out_root: Path | None, report_dir: Path, log_dir: Path) -> list[dict]:
+    """analytics.gaps on the contract manifest, then analytics.run_phase0 (the localisers only, since gaps
+    already ran). With no data root (fixtures without analytics.fixtures) run_phase0 gets --fixtures and
+    gaps is skipped for want of a manifest."""
     rows = []
-    fmt = {"data_root": str(data_root), "out_root": str(out_root if out_root else data_root),
-           "report_dir": str(report_dir)}
+    contract = contract_dir(data_root) if data_root is not None else None
+    fmt = {"contract": str(contract), "data_root": str(data_root),
+           "out_root": str(out_root if out_root else data_root), "report_dir": str(report_dir),
+           "steps": PHASE0_LOCALISERS}
     for s in registry.PHASE0_STEPS:
         name, module = s["name"], s["module"]
         if not registry.module_available(module):
             print("phase0 %-12s skipped: %s is not importable" % (name, module))
             rows.append({"extension": "phase0", "step": name, "status": STATUS_SKIPPED, "seconds": 0.0,
-                         "detail": module + " absent"})
+                         "detail": module + " absent", "report": ""})
             continue
-        argv = [a.format(**fmt) for a in s["argv"]]
+        if data_root is None:
+            if name == "gaps":
+                print("phase0 %-12s skipped: no manifest (fixtures without analytics.fixtures)" % name)
+                rows.append({"extension": "phase0", "step": name, "status": STATUS_SKIPPED, "seconds": 0.0,
+                             "detail": "no manifest: fixtures without analytics.fixtures", "report": ""})
+                continue
+            argv = ["--fixtures"] + (["--out", str(out_root)] if out_root else [])
+        else:
+            argv = [a.format(**fmt) for a in s["argv"]]
         log = log_dir / ("phase0_%s.log" % name)
         status, seconds, detail = run_step(module, argv, log)
-        print("phase0 %-12s %-7s %7.2fs  %s" % (name, status, seconds, log))
+        print("phase0 %-12s %-7s %7.2fs  %s%s" % (name, status, seconds, log, ("  " + detail) if detail else ""))
         rows.append({"extension": "phase0", "step": name, "status": status, "seconds": seconds,
                      "detail": detail, "report": ""})
         if status == STATUS_FAILED and not args.continue_on_error:
@@ -262,20 +305,22 @@ def build_parser() -> argparse.ArgumentParser:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     src = ap.add_mutually_exclusive_group()
     src.add_argument("--fixtures", action="store_true", help="run on synthetic fixtures")
-    src.add_argument("--data", metavar="DATA_ROOT", help="run on the real contract dataset at DATA_ROOT")
+    src.add_argument("--data", metavar="DATA_ROOT", help="run on the real dataset: the parent of sportvu_contract/ and collect/")
     ap.add_argument("--ext", nargs="+", metavar="NAME", help="extensions to run (dependency order is applied)")
     ap.add_argument("--all", action="store_true", help="every registered extension (the default when nothing is selected)")
     ap.add_argument("--phase", type=int, help="every extension of this phase")
     ap.add_argument("--with-deps", action="store_true", help="also run the dependencies of the selected extensions")
     ap.add_argument("--out", metavar="OUT_ROOT", help="where steps write; also holds logs/ and reports/")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=0, help="passed to every step")
     ap.add_argument("--bootstrap", type=int, default=None, help="passed to each train step when given")
     ap.add_argument("--continue-on-error", action="store_true")
-    ap.add_argument("--report-dir", default="reports", help="report directory (relative to OUT_ROOT when --out is given)")
+    ap.add_argument("--report-dir", default=None,
+                    help="report directory (relative to OUT_ROOT when --out is given); default reports, "
+                         "or reports/fixtures for a --fixtures run without --out")
     ap.add_argument("--registry", metavar="PATH", help="JSON registry override (tests)")
     ap.add_argument("--list", action="store_true", help="print the registry with availability and exit")
     ap.add_argument("--collectors", action="store_true", help="print the collector run order and exit")
-    ap.add_argument("--phase0", action="store_true", help="run analytics.gaps then analytics.run_phase0 on --data")
+    ap.add_argument("--phase0", action="store_true", help="run analytics.gaps then analytics.run_phase0 first")
     return ap
 
 
@@ -310,7 +355,12 @@ def main(argv=None) -> int:
 
     out_root = Path(args.out).resolve() if args.out else None
     base = out_root if out_root else Path.cwd()
-    report_dir = Path(args.report_dir)
+    if args.report_dir:
+        report_dir = Path(args.report_dir)
+    elif args.fixtures and out_root is None:
+        report_dir = Path(FIXTURE_REPORT_DIR)
+    else:
+        report_dir = Path("reports")
     if not report_dir.is_absolute():
         report_dir = base / report_dir
     log_dir = base / "logs" / "run_all"
@@ -325,7 +375,7 @@ def main(argv=None) -> int:
             print("run_all: DATA_ROOT %s does not exist" % data_root)
             print("RUN FAILED")
             return 2
-        header.append("data root: %s" % data_root)
+        header.append("data root: %s (contract: %s)" % (data_root, contract_dir(data_root)))
     else:
         if out_root is not None:
             fixture_root = out_root / "fixture_root"
@@ -344,10 +394,6 @@ def main(argv=None) -> int:
     failed = False
 
     if args.phase0:
-        if data_root is None:
-            print("run_all: --phase0 needs --data DATA_ROOT (fixtures from analytics.fixtures when --fixtures)")
-            print("RUN FAILED")
-            return 2
         rows += run_phase0(args, data_root, out_root, report_dir, log_dir)
         failed = any(r["status"] == STATUS_FAILED for r in rows)
         if failed and not args.continue_on_error:

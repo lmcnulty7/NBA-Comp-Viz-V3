@@ -36,6 +36,8 @@ from collect import bref_shots as bs
 from sportvu import colab_contract as cc
 
 FAMILY = "bref_schedule"
+SEASON_TYPES = common.SEASON_TYPES + ("Play-In",)
+RPM_HELP = "basketball-reference requests per minute (default and maximum 17)"
 ENDPOINT = "games"
 RAW_ENDPOINT = "bref_schedule"
 SOURCE = "basketball-reference.com"
@@ -197,34 +199,58 @@ def is_heldout(split: str | None) -> bool:
     return cc.is_heldout(split)
 
 
+def bref_parser(description: str, default_seasons: list[str]):
+    """common.base_parser for a basketball-reference driver: --rpm defaults to 17 with its own help, --season-types
+    also accepts Play-In."""
+    ap = common.base_parser(description, default_seasons, rpm_help=RPM_HELP)
+    ap.set_defaults(rpm=MAX_RPM)
+    for action in ap._actions:
+        if action.dest == "season_types":
+            action.choices = SEASON_TYPES
+    return ap
+
+
 def capped_throttle(rpm: float) -> common.Throttle:
-    """The shared throttle: never more than MAX_RPM (17) a minute, whatever --rpm says."""
+    """The shared throttle: never more than MAX_RPM (17) a minute, whatever --rpm says (0 or negative: the maximum)."""
     if rpm > MAX_RPM:
         print("--rpm %.0f capped at %.0f (basketball-reference's limit)" % (rpm, MAX_RPM), flush=True)
-    return common.Throttle(min(rpm, MAX_RPM))
+    return common.Throttle(MAX_RPM if rpm <= 0 else min(rpm, MAX_RPM))
 
 
 def estimate_requests(fam: common.Family, units: list, args, raw_of) -> int:
     """How many pages a run would fetch: pending units (after --limit) whose page is not in the raw cache. raw_of(unit)
-    -> (raw_endpoint, params). Printed before every run."""
+    -> (raw_endpoint, params), or a list of them when any one cached record spares the request. Printed before every run."""
     keys = [k for k, _ in units]
     pending = fam.manifest.pending(keys, args.retry_failed)
     if args.limit:
         pending = pending[:args.limit]
     by_key = dict(units)
-    n = sum(1 for k in pending if fam.raw.get(*raw_of(by_key[k])) is None)
+
+    def cached(unit) -> bool:
+        cands = raw_of(unit)
+        cands = cands if isinstance(cands, list) else [cands]
+        return any(fam.raw.path(ep, params).exists() for ep, params in cands)
+    n = sum(1 for k in pending if not cached(by_key[k]))
     print("estimated requests: %d (%d pending units, %d pages already cached); at %.0f a minute about %.0f min"
           % (n, len(pending), len(pending) - n, MAX_RPM, n / MAX_RPM), flush=True)
     return n
 
 
 # ── parsing ────────────────────────────────────────────────────────────────────────────────────────
-def parse_schedule(html: str) -> list[dict]:
-    """Every game row of a month page -> dict(game_id, date, home, away, home_score, away_score, season_type, start_time,
-    overtimes, attendance, arena, notes). Rows after the 'Playoffs' divider are Playoffs; a 'Play-In' note marks Play-In."""
-    tables = find_tables(html, r"^schedule$")
+def require_table(html: str, id_re: str, what: str, where: str = "") -> list:
+    """find_tables, or ValueError("<where>: no table <what> on the page") so the unit fails (and --retry-failed redoes
+    it) instead of being marked empty for good."""
+    tables = find_tables(html, id_re)
     if not tables:
-        return []
+        raise ValueError("%sno table %s on the page" % (where + ": " if where else "", what))
+    return tables
+
+
+def parse_schedule(html: str, where: str = "") -> list[dict]:
+    """Every game row of a month page -> dict(game_id, date, home, away, home_score, away_score, season_type, start_time,
+    overtimes, attendance, arena, notes). Rows after the 'Playoffs' divider are Playoffs; a 'Play-In' note marks Play-In.
+    ValueError when the page has no schedule table."""
+    tables = require_table(html, r"^schedule$", "id=schedule", where)
     games, season_type = [], "Regular Season"
     for tr in tables[0].find_all("tr"):
         if "thead" in (tr.get("class") or []):
@@ -313,7 +339,7 @@ def teams_for_season(fam: common.Family, season: str) -> list[str]:
 def do_month(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     season, month = unit["season"], unit["month"]
     rec = page_record(fam, RAW_ENDPOINT, unit["params"], schedule_url(season, month), throttle)
-    games = parse_schedule(rec["body"])
+    games = parse_schedule(rec["body"], "%s %s" % (season, month))
     df = rows_for_month(games, season, month, rec["fetched_at"])
     if len(df):
         fam.write_part(ENDPOINT, season, month, df)
@@ -327,8 +353,7 @@ def units_for(seasons: list[str]) -> list[tuple[str, dict]]:
 
 
 def main(argv=None) -> str:
-    ap = common.base_parser(__doc__.split("\n\n")[0], DEFAULT_SEASONS)
-    ap.set_defaults(rpm=MAX_RPM)
+    ap = bref_parser(__doc__.split("\n\n")[0], DEFAULT_SEASONS)
     a = ap.parse_args(argv)
     fam = common.Family(a.out, FAMILY)
     if a.compact_only:

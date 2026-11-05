@@ -29,9 +29,10 @@ Protocol:
      (possession points permuted across possessions of the training games: the lift must sit at chance), and the
      held-out games scored once by the pipeline refit on every training row.
 
-Outputs (docs/contract/epv.md) with --out: OUT_ROOT/analytics/epv_states/<season>/<game>.parquet and
-OUT_ROOT/analytics/epv_possessions/<season>/<game>.parquet (held-out under heldout/). A fixture run writes the
-report with the words "fixture output, not a result" and the numbers are never presented as results.
+Outputs (docs/contract/epv.md) with --out: OUT_ROOT/analytics/epv/<season>/<game>.parquet (epv_states, one file per
+game) and OUT_ROOT/analytics/epv/<season>/epv_possessions.parquet (one file per season), held-out games under
+OUT_ROOT/analytics/epv/heldout/<season>/. A fixture run writes the report with the words "fixture output, not a
+result" and the numbers are never presented as results.
 """
 from __future__ import annotations
 
@@ -87,7 +88,7 @@ def make_model(name: str, seed: int, hgb_iter: int = 100):
     if name == "ridge":
         return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), Ridge(alpha=1.0))
     if name == "hgb":
-        return HistGradientBoostingRegressor(max_iter=hgb_iter, learning_rate=0.1, max_leaf_nodes=15, min_samples_leaf=20,
+        return HistGradientBoostingRegressor(max_iter=hgb_iter, learning_rate=0.05, max_leaf_nodes=8, min_samples_leaf=50,
                                              l2_regularization=1.0, random_state=seed)
     if name == SEQUENCE:
         return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
@@ -318,14 +319,30 @@ def epv_tables(pred: pd.DataFrame, selected: str, heldout: bool) -> tuple[pd.Dat
 
 
 def write_tables(out_root, st: pd.DataFrame, po: pd.DataFrame) -> list:
+    """OUT_ROOT/analytics/epv/<season>/<game>.parquet (the states table, one file per game) and
+    OUT_ROOT/analytics/epv/<season>/epv_possessions.parquet (one file per season); held-out games under
+    OUT_ROOT/analytics/epv/heldout/<season>/. The layout the decisions and playcalling lanes read."""
     written = []
-    for table, df in (("epv_states", st), ("epv_possessions", po)):
-        for game, part in df.groupby("sportvu_game", sort=True):
-            held = bool(st.loc[st["sportvu_game"] == game, "heldout"].iloc[0])
-            path = Path(out_root) / "analytics" / table / ("heldout" if held else "") / season_of(game) / ("%s.parquet" % game)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            part.reset_index(drop=True).to_parquet(path, index=False)
-            written.append(path)
+    held_of = st.drop_duplicates("sportvu_game").set_index("sportvu_game")["heldout"].to_dict()
+    for game, part in st.groupby("sportvu_game", sort=True):
+        base = Path(out_root) / "analytics" / "epv" / ("heldout" if held_of[game] else "") / season_of(game)
+        base.mkdir(parents=True, exist_ok=True)
+        part.reset_index(drop=True).to_parquet(base / ("%s.parquet" % game), index=False)
+        written.append(base / ("%s.parquet" % game))
+    po = po.copy()
+    po["heldout"] = po["sportvu_game"].map(held_of).astype(bool)
+    po["season"] = po["sportvu_game"].map(season_of)
+    for (season, held), part in po.groupby(["season", "heldout"], sort=True):
+        base = Path(out_root) / "analytics" / "epv" / ("heldout" if held else "") / season
+        base.mkdir(parents=True, exist_ok=True)
+        path = base / "epv_possessions.parquet"
+        part = part.drop(columns=["season", "heldout"]).reset_index(drop=True)
+        if path.exists():      # one file per season: merge with what an earlier run wrote for other games
+            old = pd.read_parquet(path)
+            old = old[~old["sportvu_game"].isin(part["sportvu_game"])]
+            part = pd.concat([old, part], ignore_index=True).sort_values(["sportvu_game", "possession"]).reset_index(drop=True)
+        part.to_parquet(path, index=False)
+        written.append(path)
     return written
 
 
@@ -372,7 +389,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "shots and possessions are left out of its prior); the location-only xFG (analytics.features_xfg) at the handler's "
           "position is the shrinkage target of the shooter prior.",
           "Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor "
-          "(%d iterations, 15 leaves, min 20 per leaf) with isotonic calibration of P(points > 0) fitted on inner out-of-fold "
+          "(%d iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold "
           "predictions (%d grouped folds), and under the gate an MLPRegressor over the last %d states' features." % (ctx["hgb_iter"], INNER_FOLDS, N_LAGS),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""), "",
@@ -414,7 +431,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "which expects DATA_ROOT/analytics/states_1hz/<season>/<game>.parquet (build it first with "
           "`python -m analytics.epv.states --data DATA_ROOT` when absent), DATA_ROOT/analytics/possessions, rosters, and "
           "DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet, and writes the epv_states and epv_possessions tables of "
-          "docs/contract/epv.md under --out.", ""]
+          "docs/contract/epv.md under OUT_ROOT/analytics/epv/<season>/.", ""]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
