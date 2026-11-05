@@ -24,10 +24,11 @@ defender is the defender nearest the handler at the window start.
                  (ball within 4 ft) under 8 ft per s and no teammate comes within 10 ft. The plan said 3 s;
                  2 s because a 3 s minimum missed the fixture's 2.4 s holds and the trainer, not the window
                  length, decides the class
-Step 2, features per candidate from the positions and velocities inside the window (FEATURES), plus one
-declared post-window feature, def_recovery_ft: the handler's defender's distance to the handler averaged
-over the 1 s after the window minus its average inside the window. A detector may look 1 s past the window
-it is classifying; nothing else looks past the window, and nothing looks at the possession outcome.
+Step 2, features per candidate from the positions and velocities inside the rule window (FEATURES; for a
+ball screen that is the set, not the padded extent), plus one declared post-window feature, def_recovery_ft:
+the handler's defender's distance to the handler averaged over the 1 s after the rule window minus its
+average inside it. A detector may look 1 s past the window it is classifying; nothing else looks past the
+window, and nothing looks at the possession outcome.
 
 Target: a candidate overlaps a labelled action at IoU over frames >= 0.5 (IOU_MIN); the class is that
 action's type when it is ball_screen, drive or isolation, else "none". Label columns never enter the
@@ -288,7 +289,7 @@ def screen_windows(a: PossessionArrays) -> list:
         # the candidate spans the approach, the set and the use (module docstring); its defender is the one of the first window
         i0 = int(np.searchsorted(a.t, a.t[i] - SCREEN_PAD_PRE_S - 1e-6, side="left"))
         i1 = int(np.searchsorted(a.t, a.t[j] + SCREEN_PAD_POST_S + 1e-6, side="right")) - 1
-        out.append(("ball_screen", key[0], key[1], screened[(key, i)], i0, max(i1, j)))
+        out.append(("ball_screen", key[0], key[1], screened[(key, i)], i0, max(i1, j), i, j))
     return out
 
 
@@ -303,7 +304,7 @@ def drive_windows(a: PossessionArrays) -> list:
         radial = -np.diff(r) / a.dt[i:j]
         if np.isfinite(radial).all() and (radial > DRIVE_SPEED_FTPS).all():
             wins.append((h, i, j))
-    return [("drive", key, None, nearest_defender(a, i, key), i, j) for key, i, j in _merge(wins)]
+    return [("drive", key, None, nearest_defender(a, i, key), i, j, i, j) for key, i, j in _merge(wins)]
 
 
 def isolation_windows(a: PossessionArrays) -> list:
@@ -326,12 +327,14 @@ def isolation_windows(a: PossessionArrays) -> list:
             if (dm.min(axis=1) < ISO_SPREAD_FT).any():
                 continue
         wins.append((h, i, j))
-    return [("isolation", key, None, nearest_defender(a, i, key), i, j) for key, i, j in _merge(wins)]
+    return [("isolation", key, None, nearest_defender(a, i, key), i, j, i, j) for key, i, j in _merge(wins)]
 
 
 def candidate_windows(a: PossessionArrays) -> list:
-    """[(rule_class, handler_idx, screener_idx or None, defender_idx, i0, i1)] ordered by start then class order.
-    The defender is the screened man of a ball screen, else the handler's nearest defender at the window start."""
+    """[(rule_class, handler_idx, screener_idx or None, defender_idx, i0, i1, set0, set1)] ordered by start then
+    class order. i0..i1 is the candidate's extent (padded for a ball screen), set0..set1 the rule window the
+    features are read from. The defender is the screened man of a ball screen, else the handler's nearest
+    defender at the window start."""
     wins = screen_windows(a) + drive_windows(a) + isolation_windows(a)
     return sorted(wins, key=lambda w: (w[4], CLASSES.index(w[0]), w[5]))
 
@@ -433,13 +436,13 @@ def build(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_game: str | N
         if a is None:
             skipped += 1
             continue
-        for c, (rule_class, h, s, d, i0, i1) in enumerate(candidate_windows(a)):
+        for c, (rule_class, h, s, d, i0, i1, set0, set1) in enumerate(candidate_windows(a)):
             cand_rows.append({"sportvu_game": game, "possession": int(p.possession), "candidate": c,
                               "start_frame": int(a.frames[i0]), "end_frame": int(a.frames[i1]), "rule_class": rule_class,
                               "ball_handler_id": int(a.off_ids[h]),
                               "screener_id": int(a.off_ids[s]) if s is not None else None})
             f = {"sportvu_game": game, "possession": int(p.possession), "candidate": c}
-            f.update(candidate_features(a, rule_class, h, s, d, i0, i1))
+            f.update(candidate_features(a, rule_class, h, s, d, set0, set1))
             feat_rows.append(f)
     cands = pd.DataFrame(cand_rows, columns=CANDIDATE_COLUMNS)
     feats = pd.DataFrame(feat_rows, columns=ID_COLUMNS + FEATURES)

@@ -151,7 +151,7 @@ def test_end_to_end_fixture_run_writes_report_and_tables(run):
             assert 0 <= run["scores"][m][b]["brier"]["point"] <= 1
     # the margin and time carry signal on the fixture: the logistic beats the constant late in the game
     assert run["scores"]["logistic"]["4-0"]["brier"]["point"] < run["scores"]["constant"]["4-0"]["brier"]["point"]
-    written = {Path(p).parent.name + "/" + Path(p).name for p in run["written"]}
+    written = {Path(p).parent.name + "/" + Path(p).name for p in run["outputs"]}
     assert written == {"%s/%s" % (s, t) for s in SEASONS for t in ("winprob_states.parquet", "winprob_calibration.parquet")}
     st = pd.read_parquet(Path(run["out_root"]) / "analytics" / "winprob" / HELD / "winprob_states.parquet")
     assert list(st.columns) == ["game_id", "season", "event", "period", "seconds_remaining", "margin", "possession", "spread",

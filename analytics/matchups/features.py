@@ -61,6 +61,7 @@ FEATURES = ["partial_possession", "switches"]
 TARGETS = ["points_allowed_share", "xfg_expected_share"]
 MATCHUP_COLUMNS = ID_COLUMNS + ["partial_possession", "points_allowed_share", "xfg_expected_share", "switches"]
 FRAME_COLUMNS = ["sportvu_game", "possession", "k", "frame", "def_player_id", "off_player_id", "dist_ft", "changed"]
+# k is the matchup_frames index of the sampled frame at or before the release (-1 when that frame has no assignment)
 SHOT_COLUMNS = ["sportvu_game", "possession", "event", "shooter_id", "made", "value", "p", "release_frame", "k",
                 "assigned_def_id", "def_dist_ft", "shooter_x", "shooter_y", "basket_x", "basket_y"]
 
@@ -406,7 +407,7 @@ def parse_args(argv=None):
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
-    ap.add_argument("--heldout-every", type=int, default=2, help="fixtures only: every k-th game is held out")
+    ap.add_argument("--heldout-every", type=int, default=2 + 2, help="fixtures only: every k-th game is held out (the package default, 4)")
     ap.add_argument("--n-possessions", type=int, default=None, help="fixtures only: possessions per game (default: the generator's season)")
     return ap.parse_args(argv)
 

@@ -365,7 +365,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "The NBA.com WinProbabilityPBP endpoint is unreachable from here, so the benchmark column is empty until it exists. "
           "When it does, its probability at each event joins winprob_states on (game_id, event) and is scored with the same bucket Brier.", "",
           "## Outputs", ""]
-    L += ["- " + p for p in ctx["written"]] if ctx["written"] else ["- no tables written (no --out)"]
+    L += ["- " + p for p in ctx["outputs"]] if ctx["outputs"] else ["- no tables written (no --out)"]
     L += ["", "## Mac command", "", "The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<season>.parquet, collect/extras/odds/<season>.parquet when present):", "",
           "    " + MAC_CMD, "",
           "## Assumptions", "",
@@ -426,7 +426,7 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
            "scores": scores, "selection": selection, "selected": selected,
            "calibration": calibration_table(pred[F.TARGET].astype(float).to_numpy(), pred[p_sel].astype(float).to_numpy()),
            "calibration_rows": pd.concat([calibration_rows(s, p_sel, str(season)) for season, s in pred.groupby("season", sort=True)], ignore_index=True),
-           "heldout_scores": {}, "heldout_selection": float("nan"), "written": [], "pred": pred, "heldout_pred": None}
+           "heldout_scores": {}, "heldout_selection": float("nan"), "outputs": [], "pred": pred, "heldout_pred": None}
     if len(heldout):
         model = fit_models(train, seed, models=(selected,))[selected]
         hp = heldout.copy()
@@ -436,7 +436,7 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
         ctx["heldout_selection"] = selection_score(ctx["heldout_scores"])
         ctx["heldout_pred"] = hp
     if out_root:
-        ctx["written"] = write_tables(out_root, pred, ctx["heldout_pred"], p_sel)
+        ctx["outputs"] = write_tables(out_root, pred, ctx["heldout_pred"], p_sel)
     if report:
         ctx["report"] = write_report(Path(report), ctx)
     return ctx

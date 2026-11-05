@@ -20,15 +20,21 @@ Step 2, option values at the decision frame (positions at that frame and earlier
                           contest term is the assumption that stands in for a contest model (minus 0.03 per foot
                           below 6 ft of nearest-defender distance). When the xFG lane's p_selected is joined for
                           the shot event, it replaces p and the contest term is not applied (p_selected has one).
-  pass option(teammate) = teammate's shot value * openness * risk, openness = 0.5 + 0.5 * min(d, 6) / 6 of the
-                          teammate's nearest-defender distance, risk = 0.95 - 0.01 * max(0, pass length - 15 ft)
+  pass option(teammate) = points * p(teammate position) * openness * risk, with no contest term (openness already
+                          carries the defender distance): openness = 0.5 + 0.5 * min(d, 6) / 6 of the teammate's
+                          nearest-defender distance, risk = 0.95 - 0.01 * max(0, pass length - 15 ft)
   hold                  = the EPV state value (epv_points of the last state at or before the frame) when present
-  drive (chosen only)   = shot value at the position 1 s ahead along the decision-frame velocity (never nearer
-                          than 3 ft to the basket), with the decision-frame defender distance, times DRIVE_RISK 0.9
-  decision quality      = chosen value minus the max over {shot, pass options, hold}; a drive is not in the option
-                          set (best_option is one of shot, pass_to_<rank>, hold), so a drive's quality may exceed 0
-The attacked basket of a possession is the end of the court where the offence's mean x over the span lies
-(assumption: the frames do not say which basket a team attacks).
+  drive                 = shot value at the position DRIVE_FT = 8 ft nearer the rim along the line to the basket
+                          (never nearer than 3 ft), with the decision-frame defender distance, times DRIVE_RISK 0.9;
+                          the chosen value of a drive decision is this same quantity
+  decision quality      = chosen value minus the max over {shot, pass options, hold, drive}; every chosen option is
+                          in the set, so quality <= 0 (regret); best_option in {shot, pass_to_<rank>, hold, drive}
+The attacked basket of a possession is inferred per (offense_team_id, period) by majority vote over that team's
+possessions in the period, each voting with the end where its offence's mean x lies (baskets_by_team_period), so a
+transition possession that starts in the backcourt is outvoted (assumption: the frames do not say which basket a
+team attacks). Upstream EPV and xFG rows are filtered by upstream_rows: a training game refuses rows with fold == -1,
+a held-out game refuses rows not flagged heldout; refused counts are logged. A receiver always gets a teammate slot;
+teammates beyond MAX_TEAMMATES = 4 are dropped and counted (teammates_truncated).
 
 Leakage: contexts hold the decision frame's geometry only; assert_time_forward (schema) runs on every context frame
 and the FEATURES subset; assert_decisions_before_outcome refuses a decision frame later than its possession's end
@@ -501,8 +507,29 @@ def option_values(contexts: pd.DataFrame, p_fn: Callable, hold: Optional[pd.Seri
 
 
 # ── EPV hold values and the xFG join ───────────────────────────────────────────────────────────────
-def hold_values(contexts: pd.DataFrame, epv: Optional[pd.DataFrame]) -> pd.Series:
+def upstream_rows(df: Optional[pd.DataFrame], heldout: bool, counts: Optional[dict] = None, name: str = "upstream") -> Optional[pd.DataFrame]:
+    """The rows of an upstream lane's table that may value this game: for a training game, rows with fold == -1
+    (a held-out fit) are refused; for a held-out game, rows not flagged heldout are refused. Counts are logged."""
+    if df is None:
+        return None
+    keep = np.ones(len(df), dtype=bool)
+    if heldout:
+        if "heldout" in df.columns:
+            keep &= df["heldout"].fillna(False).astype(bool).to_numpy()
+    elif "fold" in df.columns:
+        keep &= (pd.to_numeric(df["fold"], errors="coerce").fillna(0) != -1).to_numpy()
+    dropped = int((~keep).sum())
+    if counts is not None and dropped:
+        counts[name + "_rows_refused"] = counts.get(name + "_rows_refused", 0) + dropped
+    out = df[keep]
+    return out if len(out) else None
+
+
+def hold_values(contexts: pd.DataFrame, epv: Optional[pd.DataFrame], heldout: Optional[bool] = None,
+                counts: Optional[dict] = None) -> pd.Series:
     """epv_points of the last EPV state at or before each decision frame in the same possession (NaN when absent)."""
+    if heldout is not None:
+        epv = upstream_rows(epv, heldout, counts, "epv")
     if epv is None or not len(contexts) or "epv_points" not in epv.columns:
         return pd.Series(np.nan, index=contexts.index)
     e = epv[["possession", "frame", "epv_points"]].dropna().copy()
@@ -517,9 +544,12 @@ def hold_values(contexts: pd.DataFrame, epv: Optional[pd.DataFrame]) -> pd.Serie
     return pd.Series(m.sort_values("_i")["epv_points"].to_numpy(dtype=float), index=contexts.index)
 
 
-def xfg_override(contexts: pd.DataFrame, xfg: Optional[pd.DataFrame], column: str = "p_selected") -> pd.Series:
+def xfg_override(contexts: pd.DataFrame, xfg: Optional[pd.DataFrame], column: str = "p_selected",
+                 heldout: Optional[bool] = None, counts: Optional[dict] = None) -> pd.Series:
     """The xFG lane's probability for the shot decisions (joined by event), NaN elsewhere."""
     out = pd.Series(np.nan, index=contexts.index)
+    if heldout is not None:
+        xfg = upstream_rows(xfg, heldout, counts, "xfg")
     if xfg is None or column not in xfg.columns or "event" not in xfg.columns or not len(contexts):
         return out
     x = xfg[["event", column]].dropna().drop_duplicates("event")

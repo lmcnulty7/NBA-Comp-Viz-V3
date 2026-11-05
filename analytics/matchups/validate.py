@@ -44,6 +44,7 @@ XFG_COLUMNS = ["sportvu_game", "event", "player_id", "p_selected", "fold"]
 COURT_X, COURT_Y, MARGIN = 94.0, 50.0, 5.0
 CLOCK_MAX, OT_CLOCK_MAX = 720.0, 300.0
 TABLES = ("possessions", "shot_frames", "rosters")
+FIXTURE_HELDOUT_EVERY = 4            # the fixture default of every CLI of the package: every 4th game held out
 
 
 # ── held-out ──────────────────────────────────────────────────────────────────────────────────────
@@ -83,7 +84,7 @@ def _as_game_list(season) -> list:
     return list(season)
 
 
-def fixture_games(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int | None = None) -> list:
+def fixture_games(seed: int = 0, n_games: int = 8, heldout_every: int = FIXTURE_HELDOUT_EVERY, n_possessions: int | None = None) -> list:
     """The synthetic season as game dicts with a heldout flag (fixture output, not a result). With n_possessions
     the games come from synth_game one by one (smaller games for tests), else from synth_season."""
     fx = _fixture_module()
@@ -113,8 +114,9 @@ def load_games(data_root, season: str = "2015-16") -> list:
             gid = pq.stem
             sv = root / "sportvu_contract" / ("heldout" if held else "")
             frames = _read(sv / (gid + ".parquet"))
-            if frames is None:
-                frames = _read(root / "sportvu_contract" / ("" if held else "heldout") / (gid + ".parquet"))
+            if frames is None:                          # the other directory: the play-by-play is read next to the frames found
+                sv = root / "sportvu_contract" / ("" if held else "heldout")
+                frames = _read(sv / (gid + ".parquet"))
             if frames is None:
                 log.warning("%s: no frames under sportvu_contract, skipped", gid)
                 continue
@@ -248,7 +250,7 @@ def parse_args(argv=None):
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
-    ap.add_argument("--heldout-every", type=int, default=2, help="fixtures only: every k-th game is held out")
+    ap.add_argument("--heldout-every", type=int, default=FIXTURE_HELDOUT_EVERY, help="fixtures only: every k-th game is held out")
     ap.add_argument("--n-possessions", type=int, default=None, help="fixtures only: possessions per game (default: the generator's season)")
     return ap.parse_args(argv)
 

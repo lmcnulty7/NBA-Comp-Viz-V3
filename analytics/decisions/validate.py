@@ -136,8 +136,12 @@ def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, ga
             continue
         epv_dir = out_root / "analytics" / "epv" / ("heldout/" + season if held else season)
         game["epv"] = _read(epv_dir / (g + ".parquet"))
-        xfg_dir = out_root / "analytics" / "xfg" / ("heldout/" + season if held else season)
-        parts = [x for x in (_read(p) for p in sorted(xfg_dir.glob("*.parquet"))) if x is not None]
+        # the xFG lane writes OUT_ROOT/analytics/xfg/<season>/xfg_predictions.parquet with held-out rows flagged
+        # heldout=True, fold=-1 in the same file; a heldout/<season>/ directory is read too when it exists
+        xfg_dirs = [out_root / "analytics" / "xfg" / season]
+        if held:
+            xfg_dirs.append(out_root / "analytics" / "xfg" / "heldout" / season)
+        parts = [x for d in xfg_dirs for x in (_read(p) for p in sorted(d.glob("*.parquet"))) if x is not None]
         if parts:
             x = pd.concat(parts, ignore_index=True)
             x = x[x["sportvu_game"].astype(str) == g] if "sportvu_game" in x.columns else x

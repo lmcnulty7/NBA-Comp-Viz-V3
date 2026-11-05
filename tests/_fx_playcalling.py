@@ -45,6 +45,7 @@ HELDOUT_GAME = "12.16.2015.PHX.at.GSW"      # the SportVU held-out game of sport
 FRAMES_PER_POSSESSION = 3
 N_ROSTER = 8
 SEASON = "2015-16"
+LABELLED_AT = "2026-01-01T00:00:00Z"
 
 # expected points per possession by the first action's type, then a coverage shift (fixture truth)
 _ACTION_EP = {"ball_screen": 1.06, "handoff": 1.00, "off_ball_screen": 1.02, "isolation": 0.84, "post_up": 0.90, "drive": 1.12, "cut": 1.20}
@@ -126,7 +127,7 @@ def synth_labels_local(seed: int, game: dict) -> dict:
     actions, screens = [], []
     points = np.zeros(len(poss), dtype=int)
     kinds = []
-    action_id = 0
+    action_id = 5          # explicit, non-contiguous ids (5, 8, 11, ...): the joins must not assume positions
     for i, row in enumerate(poss.itertuples(index=False)):
         n_actions = 1 if rng.uniform() < 0.7 else 2
         first = None
@@ -136,15 +137,16 @@ def synth_labels_local(seed: int, game: dict) -> dict:
             cov = _CLASSES[rng.choice(len(_CLASSES), p=_COVERAGE_P)] if at in _SCREEN_ACTIONS else "none"
             start = int(row.start_frame) + a
             end = min(start + 1, int(row.end_frame))
-            actions.append({"sportvu_game": gid, "possession": int(row.possession), "action_type": at,
+            actions.append({"sportvu_game": gid, "possession": int(row.possession), "action_id": action_id, "action_type": at,
                             "start_frame": start, "end_frame": end, "ball_handler_id": int(off_lu[rng.integers(5)]),
                             "screener_id": int(off_lu[rng.integers(5)]) if at in _SCREEN_ACTIONS else None,
-                            "label_source": "synthetic", "labeller_pass": 1})
+                            "label_source": "synthetic", "labeller_pass": 1, "labelled_at": LABELLED_AT})
             if at in _SCREEN_ACTIONS:
-                screens.append({"sportvu_game": gid, "possession": int(row.possession), "action_id": action_id, "coverage": cov,
-                                "on_ball_defender_id": int(row.fx_def_lineup[0]), "screener_defender_id": int(row.fx_def_lineup[1]),
-                                "label_source": "synthetic", "confidence": "sure"})
-            action_id += 1
+                screens.append({"sportvu_game": gid, "possession": int(row.possession), "screen_id": len(screens), "action_id": action_id,
+                                "coverage": cov, "on_ball_defender_id": int(row.fx_def_lineup[0]),
+                                "screener_defender_id": int(row.fx_def_lineup[1]), "label_source": "synthetic", "confidence": "sure",
+                                "labeller_pass": 1, "labelled_at": LABELLED_AT})
+            action_id += 3
             if first is None:
                 first = (at, cov)
         at, cov = first
@@ -160,7 +162,8 @@ def synth_labels_local(seed: int, game: dict) -> dict:
         kinds.append("shot_made" if points[i] > 0 else ("turnover" if rng.uniform() < 0.3 else "shot_missed"))
     poss["points"] = points
     poss["end_kind"] = kinds
-    screen_cols = ["sportvu_game", "possession", "action_id", "coverage", "on_ball_defender_id", "screener_defender_id", "label_source", "confidence"]
+    screen_cols = ["sportvu_game", "possession", "screen_id", "action_id", "coverage", "on_ball_defender_id", "screener_defender_id",
+                   "label_source", "confidence", "labeller_pass", "labelled_at"]
     return {"actions": pd.DataFrame(actions), "screens": pd.DataFrame(screens, columns=screen_cols)}
 
 
@@ -172,9 +175,10 @@ def synth_season_local(seed: int, n_games: int = 8, heldout_every: int = 0, n_po
     return out
 
 
-def synth_outputs(seed: int, game: dict, labels: dict) -> dict:
+def synth_outputs(seed: int, game: dict, labels: dict, with_action_id: bool = False) -> dict:
     """Upstream lane stand-ins derived from a game and its labels: detected actions (the hand actions with
-    label_source "model" and one in ten dropped, action_id kept), coverage predictions (the hand coverage flipped
+    label_source "model", labeller_pass the string "model" as the actions lane writes it, one in ten dropped and
+    NO action_id column unless with_action_id is set, as the actions lane may or may not write one), coverage predictions (the hand coverage flipped
     one time in five, with p_<class> columns; a coverage outside the classes gets no row) and epv_states
     (expected points per frame of each possession, drifting towards the points scored)."""
     from analytics.playcalling.features import assign_action_ids
@@ -183,6 +187,10 @@ def synth_outputs(seed: int, game: dict, labels: dict) -> dict:
     keep = rng.uniform(size=len(actions)) > 0.1
     detected = actions[keep].copy()
     detected["label_source"] = "model"
+    detected["labeller_pass"] = "model"
+    detected = detected.drop(columns=[c for c in ("labelled_at",) if c in detected.columns])
+    if not with_action_id:
+        detected = detected.drop(columns=["action_id"])
     sc = labels["screens"]
     pred_rows = []
     for r in sc.itertuples(index=False):
@@ -310,7 +318,13 @@ def season_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, held
 
 
 def _jsonl(path: Path, df: pd.DataFrame) -> None:
+    """Append-only label lines as analytics.labels writes them (labeller_pass and labelled_at filled when absent)."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    df = df.copy()
+    if "labeller_pass" not in df.columns:
+        df["labeller_pass"] = 1
+    if "labelled_at" not in df.columns:
+        df["labelled_at"] = LABELLED_AT
     with path.open("w") as fh:
         for rec in df.to_dict("records"):
             fh.write(json.dumps({k: (None if (v is pd.NA or (isinstance(v, float) and np.isnan(v))) else (int(v) if isinstance(v, np.integer) else v))

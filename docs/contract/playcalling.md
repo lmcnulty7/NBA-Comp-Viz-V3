@@ -21,10 +21,10 @@ only and never reach `ppp_by_action` or `playcalling_adjusted`. Written by `pyth
 | `ppp` | float32 | OUTCOME: the possession's `points` (section 19) |
 | `epv_gain` | float32, nullable | OUTCOME: `epv_points` at the action's `end_frame` minus at its `start_frame` (nearest epv_states frame of the same possession at or before each); null without epv_states |
 | `heldout` | bool | the game is held out (never fitted or tuned on) |
-| `score_margin` | float32, nullable | offence minus defence points scored on the earlier possessions of the game (known at the action's start); null when `offense_team_id` is null |
+| `score_margin` | float32, nullable | offence minus defence points scored on the earlier possessions of the game (known at the action's start); null when `offense_team_id` is null. Enters the ridge binned (trailing below -5, within 5, leading above 5) as a control |
 | `shot_clock_s` | float32, nullable | section 4 `shot_clock_s` at `start_frame` |
 | `period` | int8 | period of the possession |
-| `label_source` | string | as the actions input gives it (`hand`, `human`, `model`, `detected`, `synthetic`; unknown values counted and kept) |
+| `label_source` | string | `analytics.labels.LABEL_SOURCES` (`hand`, `model`, `synthetic`) as the actions input gives it; detected rows without one get `model`; unknown values counted and kept |
 | `coverage_source` | string | `hand`, `predicted` or `none` (where `coverage` came from) |
 | `start_frame`, `end_frame` | int32 | the action's span (id-like; not features) |
 
@@ -58,17 +58,25 @@ The same two tables for `epv_gain` appear in the report only (section 2b) when e
 | `recommended` | bool | the highest `adjusted_ppp` among the sufficient cells of that coverage (at most one per coverage; none when every cell is insufficient); an association label, not advice |
 
 Ridge: `sklearn.linear_model.Ridge` on indicator columns of action type, coverage, action type x coverage,
-offensive lineup and defensive lineup (unknown lineup levels at prediction time get no column). Alpha from
-`(0.3, 1, 3, 10, 30, 100)` by grouped cross-validation by game; the reported out-of-fold MSE is nested (alpha
-chosen inside each outer fold). Baselines: the training-fold mean and the training-fold PPP by action type.
+offensive lineup, defensive lineup and the binned score margin at the action start (trailing by more than 5,
+within 5, leading by more than 5); unknown levels at prediction time get no column. The lineup and margin groups
+are controls: `adjusted_ppp` averages their contributions over the training rows. Alpha from
+`(0.3, 1, 3, 10, 30, 100, 300, 1000)` by grouped cross-validation by game; the reported out-of-fold MSE is nested
+(alpha chosen inside each outer fold). Baselines: the training-fold mean and the training-fold PPP by action type.
+
+Written parquet dtypes follow the types above (`analytics.playcalling.features.cast_output`): ids and counts
+int32, `period` int8, every ppp, epv and interval column float32, flags bool, strings as pandas `string`.
 
 ## Inputs this lane consumes (assumed interfaces; counted and kept when they differ)
 
-- actions (hand labels `DATA_ROOT/labels/actions/<game>.jsonl`, or the ACTIONS lane's
-  `OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` for games without hand labels; files under
-  `action_candidates/` are not read): `sportvu_game`, `possession`, `action_type`, `start_frame`, `end_frame`,
-  `ball_handler_id`, `screener_id`, `label_source`, optional `action_id`.
-- screens (`DATA_ROOT/labels/screens/<game>.jsonl`): `sportvu_game`, `possession`, `action_id`, `coverage`.
+- actions (hand labels `DATA_ROOT/labels/actions/<game>.jsonl`, read through `analytics.labels.read_labels(..., labeller_pass=1)`
+  so tombstones are applied and pass-2 relabels never reach training, with `analytics.playcalling.validate.read_labels_raw`
+  as the explicit fallback under the same rules; or the ACTIONS lane's
+  `OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` for games without hand labels, with no
+  pass filter; files under `action_candidates/` are not read): `sportvu_game`, `possession`, `action_type`,
+  `start_frame`, `end_frame`, `ball_handler_id`, `screener_id`, `label_source`, optional `action_id` (hand ids are
+  kept as given; only rows without one take their position within the game).
+- screens (`DATA_ROOT/labels/screens/<game>.jsonl`, same reader): `sportvu_game`, `possession`, `action_id`, `coverage`.
 - coverage_predictions (`OUT_ROOT/analytics/coverage/<season>/coverage_predictions.parquet`, COVERAGE lane; the
   team-rates file beside it is not read): the same keys, `predicted` (or `coverage`) and `p_<class>` columns in
   [0, 1] summing to about 1.

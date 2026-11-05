@@ -1,6 +1,6 @@
 # Action recognition: ball-screen detection (analytics/actions/train.py)
 
-Written 2026-11-05T08:54:30Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
+Written 2026-11-05T08:55:49Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from analytics.fixtures (shared, lane I1) with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and hand labels on the owner's Mac (command under Status).
 
@@ -53,7 +53,7 @@ Metrics: out-of-fold under 4 grouped folds by sportvu_game (seed 0); fewer games
 | model | F1 ball_screen | F1 drive | F1 isolation | F1 none | macro F1 | accuracy |
 | --- | --- | --- | --- | --- | --- | --- |
 | rule | 0.679 [0.581, 0.800] | 0.220 | 0.455 | 0.000 | 0.338 | 0.299 |
-| hgb | 0.974 [0.941, 1.000] | 0.900 | 0.947 | 0.982 | 0.951 | 0.975 |
+| hgb | 0.947 [0.914, 0.986] | 0.952 | 0.900 | 0.975 | 0.944 | 0.964 |
 
 Selected model: **hgb** (plan target: ball_screen F1 over 0.8 on a held-out game; a fixture cannot meet or miss it).
 
@@ -61,12 +61,12 @@ Confusion of the selected model (rows true, columns predicted, out-of-fold):
 
 | true \ pred | ball_screen | drive | isolation | none |
 | --- | --- | --- | --- | --- |
-| ball_screen | 37 | 0 | 0 | 1 |
-| drive | 0 | 9 | 0 | 2 |
+| ball_screen | 36 | 0 | 0 | 2 |
+| drive | 0 | 10 | 0 | 1 |
 | isolation | 0 | 0 | 9 | 1 |
-| none | 1 | 0 | 0 | 137 |
+| none | 2 | 0 | 1 | 135 |
 
-Detected actions (selected class other than none with probability above 0.5): 56 of 197 training candidates.
+Detected actions (selected class other than none with probability above 0.5): 58 of 197 training candidates.
 
 ## Held-out games (scored once by the models refit on all 197 training candidates; never fitted or tuned on) (fixture output, not a result)
 

@@ -3,6 +3,9 @@
     python -m analytics.matchups.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/matchups.md
                                        [--seed 0] [--bootstrap 200] [--folds 5] [--n-min 300]
 
+With --out the season-wide tables go to OUT_ROOT/analytics/matchups/tables/<season>/matchup_defenders.parquet and
+matchup_possessions_train.parquet, apart from the per-game files of analytics.matchups.features.
+
 Steps
   1. load the games (analytics.matchups.validate), set the held-out games aside (heldout/ directory or a
      held-out token of sportvu/splits.json), call analytics.eval.refuse_heldout on the training game ids
@@ -30,8 +33,8 @@ Steps
      constant models fit on all training games; stability and defended FG% of that game; never fitted on
 
 Leakage: assignments use positions only; the possession's points and the shot outcome enter only as targets;
-schema.assert_time_forward runs on the feature frame (ids plus partial_possession and switches) and on the
-ridge design columns; the xFG lane's p_selected is used only when its fold column is present and
+schema.assert_time_forward runs on the feature frame (ids plus partial_possession and switches); the ridge
+design is built from partial_possession only; the xFG lane's p_selected is used only when its fold column is present and
 non-negative on every training row.
 
 Fewer games than folds: the fold count becomes the number of games (leave-one-game-out). One training game:
@@ -58,6 +61,7 @@ from analytics.matchups import validate as V
 log = logging.getLogger("analytics.matchups.train")
 
 WHO = "train_matchups"
+FIXTURE_HELDOUT_EVERY = V.FIXTURE_HELDOUT_EVERY
 N_MIN = 300
 ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0)
 MODELS = ("constant", "raw", "ridge")
@@ -154,6 +158,14 @@ def matchup_tables(parts: dict, xfg: pd.DataFrame, default_p: float) -> dict:
             "shots": cat(shots, F.SHOT_COLUMNS)}
 
 
+def default_probability(xfg: pd.DataFrame, fallback: float = 0.45) -> float:
+    """Mean p_selected over the training rows (out-of-fold, not held out): the p of an attempt the xFG table lacks."""
+    if xfg is None or len(xfg) == 0:
+        return fallback
+    tr = xfg[(pd.to_numeric(xfg["fold"], errors="coerce").fillna(-1) >= 0) & ~xfg["sportvu_game"].astype(str).map(V.is_heldout)]
+    return float(tr["p_selected"].mean()) if len(tr) else fallback
+
+
 # ── step 3: defender table ─────────────────────────────────────────────────────────────────────────
 def pair_table(mp: pd.DataFrame) -> pd.DataFrame:
     """defender x offensive player: matchup possessions (sum of shares), points allowed, expected, per 100."""
@@ -223,7 +235,6 @@ def possession_design(mp: pd.DataFrame, points: dict) -> dict:
     y = np.array([points.get(k, 0) for k in uniq], dtype=float)
     groups = np.array([k[0] for k in uniq])
     columns = ["D%d" % d for d in defs] + ["O%d" % o for o in offs]
-    schema.assert_time_forward(pd.DataFrame(columns=columns), "possessions")
     return {"X": X, "y": y, "groups": groups, "defs": defs, "offs": offs, "columns": columns, "keys": list(uniq)}
 
 
@@ -412,7 +423,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "Skipped: %d possession(s) without an offence id, %d without frames, %d sampled frame(s) without both squads." % (ctx["skipped"]["no_offense"], ctx["skipped"]["no_frames"], ctx["skipped"]["frames_skipped"]), "",
           "## Protocol", "",
           "Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (the basket nearer the offensive centroid); positions only. "
-          "Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (%s) and on the ridge design columns." % ", ".join(F.feature_columns()),
+          "Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (%s); the ridge design is built from partial_possession only." % ", ".join(F.feature_columns()),
           "Gate: %d distinct possessions per defender (`analytics.eval.gated`) before any ranking. Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)." % (ctx["n_min"], ctx["bootstrap"], ctx["seed"]), "",
           "## Assignment stability" + tag, "",
           "Share of defender sampled frames whose assignment equals the previous sampled frame: %s over %d defender-frames (%d games)." % (_ci(ctx["stability"]), ctx["stability"]["n"], len(ctx["train_ids"])),
@@ -429,7 +440,12 @@ def write_report(path: Path, ctx: dict) -> str:
         L.append("| %s | %s |" % (m, _ci(ctx["compare"]["mse"][m], "point", 4)))
     for k, d in ctx["compare"]["paired"].items():
         L.append("| %s | %s (excludes zero: %s) |" % (k.replace("_", " "), _ci(d, "diff", 4), d["excludes_zero"]))
-    L += ["", "The ridge MSE is at the alpha chosen on the same folds, so it is slightly optimistic; the raw and constant models carry no such choice.", "",
+    L += ["", "The ridge MSE is at the alpha chosen on the same folds, so it is slightly optimistic; the raw and constant models carry no such choice."]
+    if ctx["n_defenders_multi_game"] == 0:
+        L.append("Every defender is in one game on this input: raw and ridge out-of-fold equal the constant, so the comparison above carries no information about the defenders.")
+    else:
+        L.append("%d of %d defenders appear in two or more training games (only those can move an out-of-fold prediction)." % (ctx["n_defenders_multi_game"], ctx["n_defenders"]))
+    L += ["",
           "## Defenders" + tag, "",
           "%d defenders, %d pass the %d-possession gate. Sorted by diff_per100 (points allowed minus expected per 100 matchup possessions; positive = worse); ridge_value is the ridge coefficient per 100 possessions (positive = worse)."
           % (ctx["n_defenders"], ctx["n_gated"], ctx["n_min"]), ""]
@@ -481,10 +497,9 @@ def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: 
     held_parts = assign_games(held)
     if xfg is not None:
         note = "the xFG lane's out-of-fold p_selected (%d rows, fold column verified)" % len(xfg)
-        default_p = float(xfg["p_selected"].mean())
     else:
         xfg, note = fallback_xfg(train_parts, held_parts, n_folds, seed)
-        default_p = float(xfg["p_selected"].mean()) if len(xfg) else 0.45
+    default_p = default_probability(xfg)
     tt = matchup_tables(train_parts, xfg, default_p)
     ht = matchup_tables(held_parts, xfg, default_p)
     mp = tt["matchup_possessions"]
@@ -508,6 +523,7 @@ def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: 
            "switch_mean": float(dsw.mean()) if len(dsw) else float("nan"), "no_switch_share": float((dsw == 0).mean()) if len(dsw) else float("nan"),
            "defended": defended_fg(tt["shots"], n_boot, seed), "cv": cv, "compare": compare, "defenders": defenders, "pairs": pairs,
            "n_defenders": int(len(defenders)), "n_gated": int((~defenders["insufficient"]).sum()),
+           "n_defenders_multi_game": int((mp.groupby("def_player_id")["sportvu_game"].nunique() >= 2).sum()),
            "heldout": score_heldout(ht, held, cv, n_boot, seed) if held else {},
            "tables": {"train": tt, "heldout": ht}, "xfg": xfg}
     return ctx
@@ -526,7 +542,7 @@ def parse_args(argv=None):
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--n-min", type=int, default=N_MIN)
     ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
-    ap.add_argument("--heldout-every", type=int, default=4, help="fixtures only: every k-th game is held out")
+    ap.add_argument("--heldout-every", type=int, default=FIXTURE_HELDOUT_EVERY, help="fixtures only: every k-th game is held out")
     ap.add_argument("--n-possessions", type=int, default=None, help="fixtures only: possessions per game (default: the generator's season)")
     return ap.parse_args(argv)
 
@@ -544,10 +560,10 @@ def main(argv=None) -> dict:
     text = write_report(Path(a.report), ctx)
     print(text)
     if a.out:
-        d = Path(a.out) / "analytics" / "matchups" / a.season
+        d = Path(a.out) / "analytics" / "matchups" / "tables" / a.season     # season-wide tables, apart from the per-game files
         d.mkdir(parents=True, exist_ok=True)
         ctx["defenders"].to_parquet(d / "matchup_defenders.parquet", index=False)
-        ctx["tables"]["train"]["matchup_possessions"].to_parquet(d / "matchup_possessions.parquet", index=False)
+        ctx["tables"]["train"]["matchup_possessions"].to_parquet(d / "matchup_possessions_train.parquet", index=False)
         print("wrote %s" % d)
     return ctx
 

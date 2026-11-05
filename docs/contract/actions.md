@@ -50,7 +50,7 @@ every offensive player. Constants are module-level in `features.py`.
 Overlapping windows of one rule and handler merge into one candidate. Candidates are numbered 0..k-1
 within the possession in start order.
 
-## Features (`features.FEATURES`, all inside the window unless stated)
+## Features (`features.FEATURES`, all inside the rule window unless stated; for a ball screen the set, not the padded extent)
 
 `scr_def_dist_min`, `scr_def_dist_mean` (screener to the screened defender; for a drive or isolation the
 screener is the teammate nearest the handler's defender at the window start), `scr_speed_mean`,

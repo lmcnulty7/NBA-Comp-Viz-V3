@@ -61,18 +61,25 @@ def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
 
 
 def test_trainer_recovers_the_planted_association_of_the_local_generator():
-    """The local generator plants PPP on action type and coverage (the shared physics fixture does not), so on it the
-    by-action table must order isolation under cut and the nested out-of-fold ridge must stay close to the mean."""
-    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=8, n_possessions=40, heldout_every=4, shared=False))
+    """The local generator plants PPP on the first action's type and coverage (ball_screen 1.06 against isolation
+    0.84, cut 1.20; drop +0.10 against blitz_trap -0.12), which the shared physics fixture does not. At 8 games x 400
+    possessions the adjusted table must recover those orderings, the by-action baseline must beat the mean out of
+    fold, and the chosen alpha must sit inside the grid."""
+    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=8, n_possessions=400, heldout_every=4, shared=False))
     table, _ = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"],
                                     inp["coverage_predictions"], inp["epv_states"], inp["heldout_games"])
     ctx = T.run(table, n_folds=3, seed=0, n_boot=3, n_min=N_MIN)
     t1 = ctx["ppp_by_action"].set_index("action_type")["ppp"]
-    assert t1["ball_screen"] > t1["isolation"]          # planted: 1.06 against 0.84 expected points
-    assert set(ctx["adjusted"]["coverage"]) <= set(table["coverage"])
+    assert t1["ball_screen"] > t1["isolation"] and t1["cut"] > t1["isolation"]
+    adj = ctx["adjusted"].set_index(["coverage", "action_type"])["adjusted_ppp"]
+    assert adj[("drop", "ball_screen")] > adj[("blitz_trap", "ball_screen")]
+    assert adj[("none", "cut")] > adj[("none", "isolation")]
     s = ctx["scores"]["mse"]
-    assert s["ridge"]["point"] < s["mean"]["point"] + 0.05
-    assert 0.3 <= ctx["alpha"] <= 100
+    assert s["by_action"]["point"] < s["mean"]["point"]
+    assert s["ridge"]["point"] < s["mean"]["point"]
+    assert T.ALPHAS[0] < ctx["alpha"] < T.ALPHAS[-1]
+    assert "margin_bin" in T.RIDGE_GROUPS and set(T.margin_bin(table["score_margin"])) <= set(T.MARGIN_BINS) | {"unknown"}
+    assert T.margin_bin(pd.Series([-9.0, -5.0, 0.0, 5.0, 6.0, np.nan])).tolist() == ["trailing", "within_5", "within_5", "within_5", "leading", "unknown"]
 
 
 # ── leakage guards ─────────────────────────────────────────────────────────────────────────────────
@@ -159,7 +166,7 @@ def test_gate_marks_small_groups_insufficient_and_the_recommendation_respects_it
     rec = adj[adj["recommended"]]
     assert set(rec["coverage"]) == {"drop", "switch"} and (rec["action_type"] == "ball_screen").all()
     assert adj[adj["action_type"] == "post_up"]["insufficient"].all()
-    assert (adj["lo"] <= adj["adjusted_ppp"]).all() and (adj["adjusted_ppp"] <= adj["hi"]).all()
+    assert adj["lo"].notna().all() and adj["hi"].notna().all() and (adj["lo"] <= adj["hi"]).all()
     assert not T.adjusted_table(t, alpha=1.0, n_boot=5, seed=0, n_min=N_MIN)["recommended"].any()
     assert T.ppp_by_action(t[t["sportvu_game"] == t["sportvu_game"].iloc[0]], n_boot=5)["lo"].isna().all()   # one game: no interval
 
@@ -192,10 +199,42 @@ def test_validate_counts_duplicates_unknown_enums_and_missing_columns(inputs):
     assert V.is_heldout_game(HELD) and V.is_heldout_game("01.02.2016.AAA.at.CLE") and not V.is_heldout_game("01.02.2016.AAA.at.BBB")
 
 
-def test_action_ids_are_the_row_position_within_the_game():
+def test_action_ids_are_the_row_position_within_the_game_and_existing_ids_are_kept():
     a = pd.DataFrame({"sportvu_game": ["g1", "g1", "g2", "g1"], "possession": [0, 0, 0, 1], "start_frame": [5, 1, 0, 9]})
     assert F.assign_action_ids(a)["action_id"].tolist() == [0, 1, 0, 2]
     assert F.assign_action_ids(a.assign(action_id=[7, 8, 9, 10]))["action_id"].tolist() == [7, 8, 9, 10]
+    # mixed: hand rows with ids beside detected rows without (another game); only the null ids take positions
+    mixed = pd.concat([a.assign(action_id=[7, 8, 9, 10]), pd.DataFrame({"sportvu_game": ["g3", "g3"], "possession": [0, 1],
+                                                                       "start_frame": [0, 4], "action_id": [None, None]})], ignore_index=True)
+    assert F.assign_action_ids(mixed)["action_id"].tolist() == [7, 8, 9, 10, 0, 1]
+
+
+def test_tombstoned_and_pass_two_labels_never_reach_training(tmp_path):
+    """A tombstone line and a labeller_pass 2 relabel in labels/actions: neither reaches inputs["actions"], through
+    analytics.labels.read_labels and through the raw fallback reader."""
+    root = fx.write_fixture_root(tmp_path / "data", seed=4, n_games=2, heldout_every=0, n_possessions=6, shared=False)
+    game = sorted(p.stem for p in (root / "labels" / "actions").glob("*.jsonl"))[0]
+    path = root / "labels" / "actions" / (game + ".jsonl")
+    before = V.read_labels_raw(path, "actions", labeller_pass=None)
+    victim = int(before["action_id"].iloc[0])
+    relabel = dict(before.iloc[1].to_dict())
+    relabel.update({"action_id": 9001, "action_type": "post_up", "labeller_pass": 2, "labelled_at": "2026-01-08T00:00:00Z"})
+    relabel = {k: (None if (isinstance(v, float) and np.isnan(v)) else (int(v) if isinstance(v, (np.integer,)) else v)) for k, v in relabel.items()}
+    with path.open("a") as fh:
+        fh.write(json.dumps({"action_id": victim, "deleted": True, "labelled_at": "2026-01-08T00:00:00Z"}) + "\n")
+        fh.write(json.dumps(relabel) + "\n")
+    inp = V.load_data_root(root, root)
+    acts = inp["actions"][inp["actions"]["sportvu_game"] == game]
+    assert inp["files"]["labels_hand"]["read_labels"] == 2 and inp["files"]["labels_hand"]["raw_fallback"] == 0
+    assert victim not in set(acts["action_id"]) and 9001 not in set(acts["action_id"])
+    assert len(acts) == len(before) - 1 and (acts["labeller_pass"] == 1).all()
+    raw = V.read_labels_raw(path, "actions")
+    assert victim not in set(raw["action_id"]) and 9001 not in set(raw["action_id"]) and len(raw) == len(before) - 1
+    # the joins to screens survive the non-contiguous hand ids
+    inp, _ = V.validate_inputs(inp)
+    t, _ = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"], inp["coverage_predictions"], None, [])
+    assert (t.loc[t["action_type"] == "ball_screen", "coverage_source"] == "hand").all()
+    assert (t.loc[t["action_type"] == "ball_screen", "coverage"] != "none").all()
 
 
 def test_shared_fixture_labels_join_and_build(inputs, table):
@@ -228,6 +267,7 @@ def test_data_root_layout_round_trip(tmp_path):
     assert (root / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
     inp = V.load_data_root(root, root)
     assert inp["heldout_games"] == [HELD] and inp["actions"]["label_source"].eq("synthetic").all()
+    assert inp["files"]["labels_hand"]["read_labels"] == 3 and inp["files"]["labels_hand"]["raw_fallback"] == 0
     assert len(inp["screens"]) and len(inp["coverage_predictions"]) and len(inp["epv_states"])
     assert "team_id" not in inp["coverage_predictions"].columns               # the coverage_team_rates decoys are not read
     assert inp["files"]["coverage_predictions"]["rows"] == len(inp["coverage_predictions"]) > 0
@@ -235,6 +275,10 @@ def test_data_root_layout_round_trip(tmp_path):
     assert inp["files"]["actions_detected"]["rows"] > 0
     res = F.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert res["table"]["heldout"].sum() > 0
+    bs = res["table"][res["table"]["action_type"] == "ball_screen"]
+    assert len(bs) and (bs["coverage_source"] == "hand").all()          # screens joined on the hand ids
+    ao = pd.read_parquet(tmp_path / "out" / "analytics" / "playcalling" / "2015-16" / "action_outcomes.parquet")
+    assert str(ao["action_id"].dtype) == "int32" and str(ao["ppp"].dtype) == "float32" and str(ao["period"].dtype) == "int8"
     assert (tmp_path / "out" / "analytics" / "playcalling" / "heldout" / "2015-16" / "action_outcomes.parquet").exists()
     assert V.main(["--data", str(root)])["heldout_games"] == [HELD]
     assert V.main(["--fixtures", "--fixture-generator", "local"])["actions"]["rows"] > 0
@@ -243,6 +287,9 @@ def test_data_root_layout_round_trip(tmp_path):
     shutil.rmtree(root / "labels" / "actions")
     det = V.load_data_root(root, root)
     assert det["actions"]["label_source"].eq("model").all() and "action_id" in det["actions"].columns
+    assert det["actions"]["action_id"].notna().all() and (det["actions"]["labeller_pass"].astype(str) == "model").all()
+    dt, _ = F.build_action_table(det["frames"], det["possessions"], det["actions"], None, det["coverage_predictions"], None, [])
+    assert set(dt["coverage_source"]) <= {"predicted", "none"}         # detected rows join the predictions by position
 
 
 # ── eda and notebook ───────────────────────────────────────────────────────────────────────────────

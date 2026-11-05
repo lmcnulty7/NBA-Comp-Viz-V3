@@ -296,3 +296,143 @@ def test_audit_summarise_reports_agreement(out, tmp_path):
     assert rc == 0 and "agreement within 2 frames" in buf.getvalue()
     text = report.read_text(encoding="utf-8")
     assert "| agreement_within_tolerance |" in text and "## By game" in text and EM_DASH not in text
+
+
+# ── review follow-ups: step records across --steps runs, refusals, captured errors, torn files, bref pages ──
+def test_steps_subset_keeps_records_of_other_steps(root, out, tmp_path, eligible):
+    out3 = tmp_path / "out3"
+    g = eligible[0]
+    rc, _ = _call(["--data", str(root), "--out", str(out3), "--steps", "shot_frames", "--games", g])
+    assert rc == 0 and set(_manifest(out3)["games"][g]["steps"]) == {"shot_frames"}
+    rc, text = _call(["--data", str(root), "--out", str(out3), "--steps", "possessions", "--games", g])
+    assert rc == 0 and "1 games to run" in text
+    steps = _manifest(out3)["games"][g]["steps"]
+    assert set(steps) == {"shot_frames", "possessions"} and all(r["status"] == "ok" for r in steps.values())
+    assert "reused" not in steps["possessions"]
+    rc, text = _call(["--data", str(root), "--out", str(out3), "--games", g])
+    assert rc == 0
+    steps = _manifest(out3)["games"][g]["steps"]
+    assert set(steps) == set(rp.GAME_STEPS)
+    assert steps["shot_frames"]["reused"] is True and steps["possessions"]["reused"] is True
+    assert "reused" not in steps["rosters"] and "reused" not in steps["rebound_frames"]
+    # a step record failed in an earlier subset run still fails the game in a later run of other steps
+    mp = out3 / "analytics" / rp.MANIFEST_NAME
+    man = json.loads(mp.read_text())
+    man["games"][g]["steps"]["rosters"]["status"] = "failed"
+    mp.write_text(json.dumps(man))
+    rc, text = _call(["--data", str(root), "--out", str(out3), "--steps", "possessions", "--games", g])
+    assert rc == 1 and text.rstrip().splitlines()[-1] == "RUN FAILED"
+    assert _manifest(out3)["games"][g]["status"] == "failed"
+
+
+def test_heldout_flag_disagreeing_with_splits_is_refused(root, step1, eligible, tmp_path):
+    import os
+    g = next(x for x in eligible if not step1["games"][x]["heldout"])
+    data2 = tmp_path / "data2"
+    (data2 / "heldout").mkdir(parents=True)
+    for p in root.glob("*.parquet"):
+        os.symlink(p, data2 / p.name)
+    for p in (root / "heldout").glob("*.parquet"):
+        os.symlink(p, data2 / "heldout" / p.name)
+    man = json.loads(json.dumps(step1))
+    man["games"][g]["heldout"] = True
+    man["games"][g]["split"] = "heldout_game"
+    (data2 / "manifest.json").write_text(json.dumps(man))
+    out4 = tmp_path / "out4"
+    rc, text = _call(["--data", str(data2), "--out", str(out4), "--steps", "rosters", "--games", g])
+    assert rc == 0 and text.rstrip().splitlines()[-1] == "RUN OK"
+    reason = _manifest(out4)["skipped"][g]
+    assert "sportvu/splits.json" in reason and "training folder" in reason
+    assert not any(p.stem == g for p in (out4 / "analytics").rglob("*.parquet"))
+    assert "| %s | manifest says heldout True" % g in (out4 / "reports" / rp.SUMMARY_NAME).read_text(encoding="utf-8")
+
+
+def test_module_exception_is_captured_per_step(root, out, tmp_path, eligible, monkeypatch):
+    from analytics import possessions
+    def boom(*a, **k):
+        raise RuntimeError("injected possessions failure")
+    monkeypatch.setattr(possessions, "run", boom)
+    out5 = tmp_path / "out5"
+    g = eligible[0]
+    rc, text = _call(["--data", str(root), "--out", str(out5), "--steps", "shot_frames,possessions", "--games", g])
+    assert rc == 1 and text.rstrip().splitlines()[-1] == "RUN FAILED"
+    rec = _manifest(out5)["games"][g]
+    assert rec["status"] == "failed"
+    assert rec["steps"]["shot_frames"]["status"] == "ok"
+    assert rec["steps"]["possessions"]["status"] == "failed" and "injected possessions failure" in rec["steps"]["possessions"]["error"]
+    assert "traceback" in rec["steps"]["possessions"]
+    summary = (out5 / "reports" / rp.SUMMARY_NAME).read_text(encoding="utf-8")
+    assert "injected possessions failure" in summary and summary.rstrip().endswith("RUN FAILED")
+
+
+def test_torn_parquet_is_rebuilt(root, out, step1, eligible):
+    g = eligible[0]
+    p = _table(out, "rosters", g, step1)
+    data = p.read_bytes()
+    p.write_bytes(data[:100])
+    assert rp.reads_back(p) is None
+    rc, text = _call(["--data", str(root), "--out", str(out), "--games", g])
+    assert rc == 0 and "1 games to run" in text
+    assert rp.reads_back(p) is not None and rp.reads_back(p) > 0
+    assert "reused" not in _manifest(out)["games"][g]["steps"]["rosters"]
+
+
+def test_bad_data_root_ends_with_run_failed(tmp_path):
+    rc, text = _call(["--data", str(tmp_path / "nowhere"), "--out", str(tmp_path / "o")])
+    assert rc == 1 and text.rstrip().splitlines()[-1] == "RUN FAILED" and "no Step 1 manifest" in text
+
+
+def test_bref_dir_fills_slugs(root, step1, eligible, tmp_path):
+    from analytics import rosters
+    from sportvu.colab_contract import BR_ABBR
+    g = next(x for x in eligible if not step1["games"][x]["heldout"])
+    frames, _pbp = rp.input_paths(step1["games"][g], root)
+    ros = rosters.roster_from_frames(frames)
+    areas = []
+    for team, grp in ros.groupby("team"):
+        divs = []
+        for k, name in enumerate(grp["player"]):
+            first, last = str(name).split(" ", 1)
+            slug = "".join(c for c in last.lower() if c.isalpha())[:5] + first[:2].lower() + "01"
+            divs.append('<div style="top:%dpx;left:%dpx;" tip="1st Qtr, 11:%02d.0 remaining<br>%s. %s made 2-pointer from 15 ft<br>'
+                        '%s now leads 2-0" class="tooltip make p-%s q-1">&#9679;</div>' % (60 + k, 80 + k, 59 - k, first[0], last, team, slug))
+        br = BR_ABBR.get(team, team)
+        areas.append('<div id="shooting-%s"><div class="shot-area" id="shots-%s">%s</div></div>' % (br, br, "".join(divs)))
+    bref = tmp_path / "bref"
+    bref.mkdir()
+    code = rp.bref_code(g, step1["games"][g])
+    (bref / (code + ".html")).write_text("<html><body>%s</body></html>" % "".join(areas), encoding="utf-8")
+    assert rp.bref_page(g, step1["games"][g], bref) is not None
+    assert rp.bref_page(eligible[-1], step1["games"][eligible[-1]], bref) is None or eligible[-1] == g
+    out6 = tmp_path / "out6"
+    rc, text = _call(["--data", str(root), "--out", str(out6), "--steps", "rosters", "--games", g, "--bref-dir", str(bref)])
+    assert rc == 0, text
+    table = pd.read_parquet(_table(out6, "rosters", g, step1))
+    assert table["bref_slug"].notna().all() and table["bref_name"].notna().all()
+    v = _manifest(out6)["games"][g]["steps"]["rosters"]["validate"]
+    assert v["bref_page"] is True and v["bref_total"] == len(table) and v["bref_matched"] == len(table)
+    assert v["bref_slug_filled"] == len(table)
+    summary = (out6 / "reports" / rp.SUMMARY_NAME).read_text(encoding="utf-8")
+    assert "| games with a shot chart page (bref_slug, bref_name filled) | 1 |" in summary
+    assert "| players with bref_slug filled | %d |" % len(table) in summary
+    # without a page the columns stay null and the summary says so
+    out7 = tmp_path / "out7"
+    rc, _ = _call(["--data", str(root), "--out", str(out7), "--steps", "rosters", "--games", g])
+    assert rc == 0
+    table = pd.read_parquet(_table(out7, "rosters", g, step1))
+    assert table["bref_slug"].isna().all()
+    assert "| games without one (bref_slug, bref_name null; pass --bref-dir) | 1 |" in (out7 / "reports" / rp.SUMMARY_NAME).read_text(encoding="utf-8")
+
+
+def test_audit_refuses_heldout_id_planted_in_training_folder(out, step1, eligible, tmp_path):
+    import shutil
+    held = next(x for x in eligible if step1["games"][x]["heldout"])
+    train = next(x for x in eligible if not step1["games"][x]["heldout"])
+    d = tmp_path / "planted" / "analytics" / "shot_frames" / rp.season_of_game(train)
+    d.mkdir(parents=True)
+    shutil.copy(_table(out, "shot_frames", train, step1), d / (train + ".parquet"))
+    shutil.copy(_table(out, "shot_frames", held, step1), d / (held + ".parquet"))
+    tables = audit_shots.training_tables(tmp_path / "planted")
+    assert [p.stem for p in tables] == [train]
+    sample, info = audit_shots.draw(tables, 2, seed=0)
+    assert set(sample["sportvu_game"]) == {train} and info["games"] == 1

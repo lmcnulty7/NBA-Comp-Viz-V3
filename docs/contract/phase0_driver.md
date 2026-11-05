@@ -12,7 +12,7 @@ a held-out game is read and written but nothing is fit or tuned on it.
 ```
 python -m analytics.run_phase0 --data DATA_ROOT [--out OUT_ROOT] [--games G ...] [--limit N]
     [--steps rosters,shot_frames,rebound_frames,possessions,gaps] [--retry-failed] [--dry-run] [--workers 1]
-    [--fixtures]
+    [--bref-dir DIR] [--fixtures]
 ```
 
 | option | meaning |
@@ -24,14 +24,16 @@ python -m analytics.run_phase0 --data DATA_ROOT [--out OUT_ROOT] [--games G ...]
 | `--steps` | comma list; `gaps` runs once over the manifest, the other four per game |
 | `--retry-failed` | rerun the steps `phase0_manifest.json` marks failed (otherwise they stay failed and the run reports RUN FAILED) |
 | `--dry-run` | list eligible games, input availability and the steps that would run or be reused; write nothing |
+| `--bref-dir` | cached basketball-reference shot chart pages: `<DIR>/<code>.html` as `collect.bref_shots --save-pages` writes them, or the collector's raw cache `<DIR>/raw/bref_shotchart/<sha1 key>.json.gz` (`data/collect/bref_shots/raw` on the Mac, or the Drive copy). When a page exists for a game, `rosters.build` fills `bref_slug` and `bref_name`; without it, or for a game without a page, those two columns are null, the step record says `bref_page: false`, and the summary counts the games without one. The embeddings and EPV features resolve shooter ids through `rosters.bref_slug`, so pass it on the real run |
 | `--workers` | games in parallel through `multiprocessing.Pool` when more than 1. Default 1: Drive FUSE on a Mac serialises and sometimes corrupts concurrent writers, so keep 1 when OUT_ROOT is on Google Drive; with more than 1 the module reports (`localisation_*.md`) may interleave lines |
-| `--fixtures` | without `--data`, write a synthetic DATA_ROOT (`tests/_fx_phase0.py`: `analytics.fixtures.write_fixture_root` when present, which puts the Step 1 layout under `<tmp>/sportvu_contract`, else the local fallback) to a temp folder and run on it; also copy the summary to the repo's `reports/phase0_driver.md` (fixture output only, never real data) |
+| `--fixtures` | only without `--data` (with `--data` the flag does nothing): write a synthetic DATA_ROOT (`tests/_fx_phase0.py`: `analytics.fixtures.write_fixture_root` when present, which puts the Step 1 layout under `<tmp>/sportvu_contract`, else the local fallback) to a temp folder and run on it; also copy the summary to the repo's `reports/phase0_driver.md` (fixture output only, never real data) |
 
 Eligible games: manifest `status` `ok`, `pbp_joined` true, and the manifest's `heldout` flag agreeing with
 `sportvu/splits.json` (`run_phase0.routed_heldout`, the same `split_of` the modules route by). Every other game
 is listed under `skipped` with a reason (`status failed: ...`, `status source_broken: ...`,
 `no play-by-play (pbp_joined false: ...)`, `not in the manifest`, `manifest says heldout X but
-sportvu/splits.json routes it to the ... folder`). The last one exists because a game the manifest holds out
+sportvu/splits.json routes it to the ... folder`). A skipped id that is neither in the Step 1 manifest nor skipped
+by the current run (a typo in an earlier `--games`) is dropped from `skipped` on the next run. The last one exists because a game the manifest holds out
 must never land in a training folder: Step 1 computes the flag with the same function, so a disagreement
 means the manifest or the splits file changed and somebody has to look.
 
@@ -39,7 +41,10 @@ Inputs are located with `sportvu.colab_contract.game_paths` (the split routing),
 folder and then to the manifest's own `parquet` and `pbp_parquet` paths.
 
 The last line printed is `RUN OK` (no eligible game has a failed step and the gaps report wrote) or
-`RUN FAILED`; the exit code is 0 or 1 accordingly.
+`RUN FAILED`; the exit code is 0 or 1 accordingly. A missing manifest or data folder also ends with
+`RUN FAILED` (exit 1) after one line naming the error. Anything that goes wrong outside a step (a malformed game
+id, a manifest entry without a home, an unreadable page) marks every requested step of that game failed with the
+error and the run goes on.
 
 ## Outputs
 
@@ -74,7 +79,9 @@ Rewritten atomically after every game, so a partial run is readable and a rerun 
    "frames": "<frames parquet read>", "pbp": "<pbp parquet read>",
    "final_score": {"away": a, "home": h, "total": a + h} or null   (the last non-null "away-home" score of the events)
    "points_check": {"possession_points": n, "final_total": n, "ok": bool} or null
-   "status": "ok" | "failed",      failed when any step failed
+   "status": "ok" | "failed" | "pending",   failed when any recorded step (this run or an earlier one) failed;
+                                            pending only while the game is being run (a run that dies leaves it, and
+                                            the next run reports it failed with "the run ended before this game finished")
    "seconds": s,
    "steps": {
     "<step>": {
@@ -97,21 +104,26 @@ Rewritten atomically after every game, so a partial run is readable and a rerun 
 
 | step | keys |
 | --- | --- |
-| rosters | `n_players`, `pbp_total`, `pbp_matched`, `methods` {exact, lastname, fuzzy, none}, `unmatched` (first ten names) |
+| rosters | `n_players`, `pbp_total`, `pbp_matched`, `bref_page` (a shot chart page was found under `--bref-dir`), `bref_total`, `bref_matched`, `bref_slug_filled` (players with a slug), `methods` {exact, lastname, fuzzy, none}, `unmatched` (first ten names) |
 | shot_frames | `shot_frames.validate`: `n_shots`, `n_release_found`, `share_release_found`, `n_identity_known`, `identity_agreement`, `share_high`; plus `n_identity_agree`, `n_high`, `n_low`, `n_unmatched` counted by the driver |
 | rebound_frames | `rebound_frames.validate`: `n_misses`, `n_rebound_found`, `share_rebound_found`, `n_identity_known`, `identity_agreement`, `share_high`; plus the same four driver counts |
 | possessions | `possessions.summary`: `n`, `by_end_kind`, `points_total`, `n_gap`, `mean_duration_s`, `share_offense_known`, `n_dropped` |
 
 Resume rule (`run_phase0.pending_steps`): a step is reused when its last record is `ok` and the file at
 `path` exists and its parquet footer reads; a step whose record is `failed` is reused as failed unless
-`--retry-failed`; anything else (no record, missing or torn output) runs again. A game whose manifest
+`--retry-failed`; anything else (no record, missing or torn output) runs again. Records of steps outside the
+current `--steps` are kept untouched, so a `--steps shot_frames` run followed by a full run only builds the other
+three tables, and a failed record from an earlier run still fails the game. Each step's `path` is the one the
+module itself reported (`shot_frames.out_path`, `rebound_frames.run`'s `out`, `possessions.run`'s `path`,
+`rosters.out_path_for`), checked against `schema.table_path`; a module writing anywhere else fails the step. A game whose manifest
 entry is no longer eligible (for example `pbp_joined` turned false) moves from `games` to `skipped`.
 
 ## `phase0_summary.md`
 
 Sections, in order: Games (manifest size, processed, ok, failed, held-out among processed, skipped);
 Per-step totals (games ok, games failed, rows, seconds per step); rosters (players, play-by-play names
-matched / total, `share_pbp_matched`, `match_method` counts); shot_frames (`n_shots`, `n_release_found`,
+matched / total, `share_pbp_matched`, shot chart names matched / total, `share_bref_matched`, players with
+`bref_slug` filled, games with and without a shot chart page: without one `bref_slug` and `bref_name` are null); shot_frames (`n_shots`, `n_release_found`,
 `share_release_found`, `n_identity_known`, `n_identity_agree`, `identity_agreement` over all shots with both
 ids, `n_high`, `share_high`); rebound_frames (the same over misses); possessions (count, `points_total`,
 possessions with a clock gap, dropped, by `end_kind`, the points-sum check: games whose events carry a
@@ -130,7 +142,8 @@ python -m analytics.audit_shots --summarise OUT_ROOT/analytics/audit/shots_sampl
 
 Draw: the shot_frames tables of the training games only (`OUT_ROOT/analytics/shot_frames/<season>/*.parquet`,
 never `heldout/`, and a game `sportvu/splits.json` holds out is refused even if a file sits in the training
-folder); `n // games` shots per game, drawn without replacement with `numpy.random.default_rng(seed)` from the
+folder); `n // games` shots per game (at least 1, so an `n` below the number of training games gives one shot
+per game and more than `n` rows), drawn without replacement with `numpy.random.default_rng(seed)` from the
 shots whose `release_frame` was found (`--all` includes the unfound rows); a game with fewer candidates
 contributes what it has and is listed under `games_short`. Rows are sorted by game and event.
 

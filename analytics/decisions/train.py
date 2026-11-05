@@ -45,6 +45,7 @@ import datetime as dt
 import sys
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -152,18 +153,21 @@ def fit_value_model(rows: pd.DataFrame) -> ValueModel:
 
 
 # ── per-game valuation ─────────────────────────────────────────────────────────────────────────────
-def value_game(contexts: pd.DataFrame, bundle: dict, model: ValueModel, fold: int) -> dict:
-    """{prior: decision events} for the game under candidate 1 and, when the xFG table joins, candidate 2."""
-    hold = F.hold_values(contexts, bundle.get("epv"))
+def value_game(contexts: pd.DataFrame, bundle: dict, model: ValueModel, fold: int, with_xfg: bool = False,
+               counts: Optional[dict] = None) -> dict:
+    """{prior: decision events} for the game under candidate 1 and, with with_xfg, candidate 2 (computed for every
+    game when any bundle carries an xFG table: rows without a joined p_selected fall back to candidate 1, so no game
+    vanishes under partial coverage). Upstream rows are filtered by features.upstream_rows."""
+    held = bool(bundle["heldout"])
+    hold = F.hold_values(contexts, bundle.get("epv"), heldout=held, counts=counts)
     out = {"location": F.option_values(contexts, model, hold=hold, prior="location")}
-    ov = F.xfg_override(contexts, bundle.get("xfg"))
+    ov = F.xfg_override(contexts, bundle.get("xfg"), heldout=held, counts=counts)
     n_shot = int((contexts["decision_kind"] == "shot").sum())
-    cover = float(ov.notna().sum() / n_shot) if n_shot else 0.0
-    if ov.notna().any():
+    if with_xfg:
         out["xfg_selected"] = F.option_values(contexts, model, hold=hold, p_shot_override=ov, prior="xfg_selected")
     for ev in out.values():
         ev["fold"] = fold
-    return {"events": out, "xfg_coverage": cover, "n_hold": int(hold.notna().sum())}
+    return {"events": out, "n_shot": n_shot, "n_shot_overridden": int(ov.notna().sum()), "n_hold": int(hold.notna().sum())}
 
 
 # ── validation against on-court offensive rating ───────────────────────────────────────────────────

@@ -27,8 +27,9 @@ is nearest each whole second). At each sampled frame every defender (rows of the
 
     cost[d, o] = dist(d, o) + 0.5 * dist(d, midpoint(o, basket))
 
-with the basket the one nearer the offensive centroid over the possession's sampled frames. Positions only:
-nothing about the outcome enters the assignment.
+with one basket per (offense team, period): each possession votes for the basket nearer its offensive
+centroid over the last third of its sampled frames, and the majority over that team's possessions in the
+period applies to all of them. Positions only: nothing about the outcome enters the assignment.
 
 ## Table `matchup_possessions`
 
@@ -55,12 +56,16 @@ the defender was assigned at every sampled frame).
 Auxiliary tables (in memory, not written by default): `matchup_frames` (one row per defender and sampled
 frame: `sportvu_game, possession, k, frame, def_player_id, off_player_id, dist_ft, changed`) feeds the
 stability check; `shots` (one row per attempt inside a possession: shooter, value, p, assigned defender and
-its distance at the sampled frame at or before the release) feeds the defended FG% check.
+its distance at the sampled frame at or before the release, and `k`, that frame's index in `matchup_frames`,
+-1 when it holds no assignment) feeds the defended FG% check. The possession's points go to the shooter of
+its last attempt; when that shooter is unmatched (null `shooter_id`) nothing is attributed.
 
 ## Table `matchup_defenders`
 
 One row per defender over the training games, written by `python -m analytics.matchups.train ... --out OUT_ROOT`
-to `OUT_ROOT/analytics/matchups/<season>/matchup_defenders.parquet`.
+to `OUT_ROOT/analytics/matchups/tables/<season>/matchup_defenders.parquet` (next to
+`matchup_possessions_train.parquet`, the training games' matchup_possessions in one file; both live apart from
+the per-game directory so a glob over `<season>/*.parquet` sees each game once).
 
 | column | type | meaning |
 | --- | --- | --- |
