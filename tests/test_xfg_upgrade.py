@@ -221,7 +221,7 @@ def test_end_to_end_fixture_run(season, tmp_path, monkeypatch):
     for c in ("p_location", "p_contest", "p_selected"):
         assert out[c].between(0, 1).all()
     assert ctx["heldout_scores"]["log_loss"] > 0
-    assert "—" not in text
+    assert "\u2014" not in text                                    # no em dashes in the report
 
 
 def test_data_root_layout_round_trip(tmp_path):

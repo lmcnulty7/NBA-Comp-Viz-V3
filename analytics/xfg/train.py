@@ -61,6 +61,7 @@ METRICS = (("log_loss", log_loss), ("brier", brier), ("ece", ece), ("calibration
 PRIOR_M = 20.0
 INNER_FOLDS = 3
 ECE_TARGET = 0.02
+ISO_CLIP = 0.02              # the isotonic map never returns a probability under ISO_CLIP or over 1 - ISO_CLIP
 HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf=10, l2_regularization=1.0,
                   early_stopping=False)
 FULL_RUN_CMD = ("python -m analytics.xfg.train --data \"$DATA_ROOT\" --report reports/xfg.md --folds 5 --seed 0 "
@@ -189,7 +190,7 @@ def _fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
         hgb = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(_design(full, cols), y)
         iso = None
         if k >= 2 and len(np.unique(y)) == 2 and np.isfinite(oof).all():
-            iso = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip").fit(oof, y)
+            iso = IsotonicRegression(y_min=ISO_CLIP, y_max=1 - ISO_CLIP, out_of_bounds="clip").fit(oof, y)
         pt = prior_table(train)
 
         def predict(frame, h=hgb, iso=iso, pt=pt, c=cols):
@@ -335,6 +336,7 @@ ASSUMPTIONS = [
     "The shooter prior is the smoothed (m = %d) make rate by (player_id, zone) from the fitting rows only, out-of-fold by game for the "
     "rows being fitted; zones are rim (under 4 ft), paint (under 14 ft), mid, corner3, above3." % int(PRIOR_M),
     "Selection is by out-of-fold log loss alone; ECE under %.2f is a target reported, not a selection rule." % ECE_TARGET,
+    "The isotonic map of the boosting candidate is bounded to [%.2f, %.2f] so a sparse calibration set cannot emit exact 0 or 1." % (ISO_CLIP, 1 - ISO_CLIP),
     "Held-out rows get a prediction from every refit candidate (each scored once) so the output table is complete; only the "
     "selected candidate's held-out score is reported.",
     "Bootstrap intervals are 2.5 and 97.5 percentiles over whole-game resamples; with one held-out game no interval is meaningful.",
@@ -364,7 +366,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "Features: %s; the boosting candidate adds `%s`." % (", ".join(FEATURES), PRIOR_FEATURE),
           "Candidates: location_logistic (analytics.train_xfg, four location features), contest_logistic (median imputation, "
           "standardisation, C = 1), hgb_contest_prior (HistGradientBoostingClassifier %s, isotonic calibration on inner out-of-fold "
-          "predictions, %d inner folds)." % (HGB_PARAMS, INNER_FOLDS),
+          "predictions, %d inner folds, output bounded to [%.2f, %.2f])." % (HGB_PARAMS, INNER_FOLDS, ISO_CLIP, 1 - ISO_CLIP),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d; the slope "
           "resamples use the Newton solve `fast_slope`, the point estimate `analytics.eval.calibration_slope`). "
           "Selection: lowest out-of-fold log loss. ECE target: under %.2f." % (ctx["protocol"], ctx["bootstrap"], ctx["seed"], ECE_TARGET),

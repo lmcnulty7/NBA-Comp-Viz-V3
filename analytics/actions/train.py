@@ -9,7 +9,10 @@ game aside (under heldout/, a held-out token of sportvu/splits.json, or the CLE 
 analytics.eval.refuse_heldout on the training game ids and analytics.schema.assert_time_forward plus
 features.assert_no_leak on the training feature frame; fit two models under grouped folds by sportvu_game:
     rule   the candidate generator's own class (the baseline: p = 1 for the rule class)
-    hgb    HistGradientBoostingClassifier, multi-class over {ball_screen, drive, isolation, none}
+    hgb    HistGradientBoostingClassifier, multi-class over {ball_screen, drive, isolation, none}, fitted on one
+           thread (threadpoolctl): with 4 cores shared by many processes its OpenMP loops stall for minutes
+Hand labels come through analytics.labels.read_labels(DATA_ROOT, game, labeller_pass=1): tombstoned ids are
+dropped, the last line per id wins, and the pass-2 relabels never reach a fit.
 Selection metric: out-of-fold F1 for ball_screen (plan target over 0.8 on a held-out game); the report also
 carries per-class F1, macro F1, accuracy, the confusion table of the selected model, bootstrap intervals by
 game, and candidate recall against the labels. Ties go to the rule baseline (simpler first). The held-out
@@ -86,6 +89,7 @@ def fit_models(train_c: pd.DataFrame, train_f: pd.DataFrame, seed: int = 0) -> d
     """Fit on one training frame -> {name: predict(cands, feats) -> (n, 4) class probabilities in CLASSES order}.
     Every fit of the trainer goes through here."""
     from sklearn.ensemble import HistGradientBoostingClassifier
+    from threadpoolctl import threadpool_limits
     if train_c["heldout"].astype(bool).any():
         raise ValueError("%s: a held-out row reached fit_models" % WHO)
     if (train_c[["sportvu_game", "possession", "candidate"]].to_numpy() != train_f[["sportvu_game", "possession", "candidate"]].to_numpy()).any():
@@ -97,10 +101,12 @@ def fit_models(train_c: pd.DataFrame, train_f: pd.DataFrame, seed: int = 0) -> d
         freq = np.bincount(y, minlength=len(CLASSES)) / max(1, len(y))
         out["hgb"] = lambda cands, feats, p=freq: np.tile(p, (len(cands), 1))
         return out
-    m = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(design(train_f), y)
+    with threadpool_limits(limits=1):      # OpenMP oversubscription on shared cores stalls HGB; one thread is plenty here
+        m = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(design(train_f), y)
 
     def predict(cands, feats, m=m):
-        p = m.predict_proba(design(feats))
+        with threadpool_limits(limits=1):
+            p = m.predict_proba(design(feats))
         full = np.zeros((len(feats), len(CLASSES)))
         full[:, m.classes_] = p
         return full

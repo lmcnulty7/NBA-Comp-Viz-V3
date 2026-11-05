@@ -268,16 +268,17 @@ def _fallback_synth_labels(seed: int, game) -> dict:
             actions.append({"sportvu_game": sg, "possession": sc["possession"], "action_id": aid, "action_type": lab["action_type"],
                             "start_frame": lab["start_frame"], "end_frame": lab["end_frame"],
                             "ball_handler_id": lab["ball_handler_id"], "screener_id": lab["screener_id"],
-                            "label_source": "hand", "labeller_pass": "fixture"})
+                            "label_source": "hand", "labeller_pass": 1})
             if lab["action_type"] == "ball_screen":
-                screens.append({"sportvu_game": sg, "possession": sc["possession"], "action_id": aid,
+                screens.append({"sportvu_game": sg, "possession": sc["possession"], "screen_id": len(screens), "action_id": aid,
                                 "coverage": str(rng.choice(COVERAGES)), "on_ball_defender_id": lab["on_ball_defender_id"],
-                                "screener_defender_id": lab["screener_defender_id"], "label_source": "hand", "confidence": 1.0})
+                                "screener_defender_id": lab["screener_defender_id"], "label_source": "hand", "confidence": "sure",
+                                "labeller_pass": 1})
             aid += 1
     a_cols = ["sportvu_game", "possession", "action_id", "action_type", "start_frame", "end_frame", "ball_handler_id",
               "screener_id", "label_source", "labeller_pass"]
-    s_cols = ["sportvu_game", "possession", "action_id", "coverage", "on_ball_defender_id", "screener_defender_id",
-              "label_source", "confidence"]
+    s_cols = ["sportvu_game", "possession", "screen_id", "action_id", "coverage", "on_ball_defender_id", "screener_defender_id",
+              "label_source", "confidence", "labeller_pass"]
     return {"actions": pd.DataFrame(actions, columns=a_cols), "screens": pd.DataFrame(screens, columns=s_cols)}
 
 
@@ -293,7 +294,7 @@ def _fallback_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, 
 def _fallback_write_fixture_root(root, seed: int, n_games: int = 4, heldout_every: int = 0, n_possessions: int = 40) -> dict:
     """DATA_ROOT layout: sportvu_contract/<game>.parquet, <game>_pbp.parquet (held-out under heldout/),
     analytics/possessions/2015-16/<game>.parquet and analytics/rosters/2015-16/ (held-out under heldout/2015-16/),
-    labels/actions/<game>.jsonl (one object per line; actions rows carry action_type, screens rows coverage)."""
+    labels/actions/<game>.jsonl and labels/screens/<game>.jsonl through analytics.labels.write_labels."""
     root = Path(root)
     games = _fallback_synth_season(seed, n_games, heldout_every, n_possessions)
     written = []
@@ -308,15 +309,8 @@ def _fallback_write_fixture_root(root, seed: int, n_games: int = 4, heldout_ever
             d.mkdir(parents=True, exist_ok=True)
             g[table].to_parquet(d / (sg + ".parquet"), index=False)
         lab = _fallback_synth_labels(seed, g)
-        ld = root / "labels" / "actions"
-        ld.mkdir(parents=True, exist_ok=True)
-        with open(ld / (sg + ".jsonl"), "w") as fh:
-            for table in ("actions", "screens"):
-                for rec in lab[table].to_dict("records"):
-                    rec = {k: (None if (isinstance(v, float) and np.isnan(v)) else (v.item() if hasattr(v, "item") else v))
-                           for k, v in rec.items()}
-                    rec["table"] = table
-                    fh.write(json.dumps(rec) + "\n")
+        from analytics.labels import write_labels       # the sanctioned writer: labels/actions and labels/screens
+        write_labels(root, sg, lab["actions"], lab["screens"], labelled_at="2026-01-01T00:00:00Z")
         written.append({"sportvu_game": sg, "heldout": held, "actions": int(len(lab["actions"])), "screens": int(len(lab["screens"]))})
     return {"root": str(root), "games": written}
 

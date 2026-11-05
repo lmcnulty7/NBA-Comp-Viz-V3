@@ -6,7 +6,8 @@ Inputs per game (DATA_ROOT layout on the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet            frames, section 4 (held-out games under heldout/)
     DATA_ROOT/analytics/possessions/2015-16/<game>.parquet   section 19 (held-out under heldout/2015-16/)
     DATA_ROOT/analytics/rosters/2015-16/<game>.parquet       section 16 (optional for this lane)
-    DATA_ROOT/labels/actions/<game>.jsonl                hand labels (actions and screens rows)
+    DATA_ROOT/labels/actions/<game>.jsonl, labels/screens/<game>.jsonl   hand labels, read only through
+                                                         analytics.labels.read_labels(labeller_pass=1)
 
 Checks, each logged with counts and returned in the report dict:
     frames        required columns, dtype casts, null ball counts, duplicate (frame, player_id) rows (dropped),
@@ -62,8 +63,10 @@ def is_heldout_id(sportvu_game: str) -> bool:
 
 # ── labels ─────────────────────────────────────────────────────────────────────────────────────────
 def read_labels_jsonl(path) -> dict:
-    """<game>.jsonl -> dict(actions, screens) frames. A line's table is its "table" key when present, else
-    actions when it carries action_type, screens when it carries coverage; other lines are counted and dropped."""
+    """A JSONL this lane wrote (actions_detected) -> dict(actions, screens) frames. NOT the hand-label reader:
+    hand labels go through load_hand_labels (analytics.labels.read_labels), which applies tombstones and the
+    labeller pass. A line's table is its "table" key when present, else actions when it carries action_type,
+    screens when it carries coverage; other lines are counted and dropped."""
     actions, screens, unknown = [], [], 0
     path = Path(path)
     if path.exists():
@@ -91,6 +94,18 @@ def read_labels_jsonl(path) -> dict:
         log.warning("%s: %d line(s) that are neither actions nor screens rows dropped", path.name, unknown)
         out["unknown_lines"] = unknown
     return out
+
+
+TRAINING_PASS = 1
+
+
+def load_hand_labels(root, game: str, labeller_pass: int = TRAINING_PASS) -> dict:
+    """The hand labels of ``game`` through the sanctioned reader analytics.labels.read_labels: the last line per
+    id wins, tombstoned (deleted) ids are dropped, and only ``labeller_pass`` (1, the first pass) is kept, so
+    the pass-2 relabels of the consistency check never reach a fit. Never reads the raw lines."""
+    from analytics.labels import read_labels
+    actions, screens = read_labels(root, game, labeller_pass=labeller_pass)
+    return {"actions": actions, "screens": screens, "labeller_pass": labeller_pass}
 
 
 def write_labels_jsonl(path, actions: pd.DataFrame, screens: pd.DataFrame) -> int:
@@ -340,7 +355,7 @@ def load_game(root, game: str, heldout: bool) -> dict:
     poss = pd.read_parquet(root / "analytics" / "possessions" / sub / SEASON / (game + ".parquet"))
     rpath = root / "analytics" / "rosters" / sub / SEASON / (game + ".parquet")
     rosters = pd.read_parquet(rpath) if rpath.exists() else None
-    labels = read_labels_jsonl(root / "labels" / "actions" / (game + ".jsonl"))
+    labels = load_hand_labels(root, game)
     return {"sportvu_game": game, "heldout": bool(heldout), "frames": frames, "possessions": poss, "rosters": rosters,
             "labels": labels}
 
