@@ -24,9 +24,10 @@ from analytics.epv import features as F
 from analytics.epv import validate as V
 
 
-def load_tables(fixtures: bool = True, data_root=None, seed: int = 0, n_games: int = 4, heldout_every: int = 4) -> dict:
-    """The cleaned EPV inputs: the fixture season (default) or DATA_ROOT."""
-    tables = V.load_fixtures(seed, n_games=n_games, heldout_every=heldout_every) if fixtures else V.load_root(data_root)
+def load_tables(fixtures: bool = True, data_root=None, seed: int = 0, n_games: int = 4, heldout_every: int = 4, out_root=None) -> dict:
+    """The cleaned EPV inputs: the fixture season (default) or DATA_ROOT (with the tables under OUT_ROOT first, as
+    analytics.epv.validate.load_root)."""
+    tables = V.load_fixtures(seed, n_games=n_games, heldout_every=heldout_every) if fixtures else V.load_root(data_root, out_root=out_root)
     clean, reports = V.validate_all(tables)
     clean["reports"] = reports
     return clean

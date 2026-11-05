@@ -25,26 +25,29 @@ carries the same text.
   xfg_predictions      OUT_ROOT/analytics/xfg/<season>/*.parquet with sportvu_game, event, player_id,
                        p_selected, fold (xfg_features.parquet, the feature frame, is skipped).
                        analytics/xfg/train.py writes xfg_predictions.parquet with p_location, p_contest, made
-                       and heldout as well (optional here). decisions joins p_selected by (sportvu_game, event);
-                       gravity and epv use the location-only baseline of analytics.train_xfg today and are
-                       listed as consumers of the lane's shot-quality column.
+                       and heldout as well (optional here). Consumers: decisions joins p_selected by
+                       (sportvu_game, event) and matchups reads it for defender credit. gravity and epv refit
+                       analytics.train_xfg in process and never read the file, so they are not consumers.
   epv_states           OUT_ROOT/analytics/epv/<season>/<game>.parquet (held-out under heldout/<season>/) with
                        sportvu_game, possession, frame, epv_points. epv_possessions.parquet in the same
                        folder is the lane's possession table and is skipped. The lane's states_1hz table
                        (analytics/states_1hz/) is the contract section 20 table, not this interface.
   actions_detected     OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet with sportvu_game,
                        possession, action_id, action_type, start_frame, end_frame, ball_handler_id,
-                       screener_id (nullable), label_source. Hand labels are read only through
-                       analytics.labels.read_labels (labeller_pass 1, label_source "hand"). The lane's feature
-                       frames under features/ are not matched.
+                       screener_id (nullable), label_source. (sportvu_game, possession, action_id) is unique
+                       only per label_source: a game may carry hand rows and detected rows with the same ids,
+                       and both consumers drop the detected rows of a game that has hand labels. Hand labels
+                       are read only through analytics.labels.read_labels (labeller_pass 1, label_source
+                       "hand"). The lane's feature frames under features/ are not matched.
   coverage_predictions docs/contract/coverage.md: sportvu_game, possession, action_id, coverage_label
                        (nullable), p_switch .. p_over, predicted, fold, heldout, one file per season at
                        analytics/coverage/<season>/coverage_predictions.parquet (held-out games under
                        heldout/<season>/). The consumer (playcalling) reads predicted and the p_<class>
                        columns. coverage_features.parquet (the lane's feature frame) is skipped.
   player_rapm          analytics/lineups/train.py docstring: season, player_id, rapm, lo, hi, fit_seasons, one
-                       file per season (analytics/lineups/<season>/player_rapm.parquet). betting reads team_id
-                       and as_of when present and keeps its RAPM columns null otherwise; both are optional here.
+                       file per season (analytics/lineups/<season>/player_rapm.parquet). betting is the only
+                       consumer (matchups never reads it); it joins team_id and as_of when present and keeps
+                       its RAPM columns null otherwise, so both are optional here.
 """
 from __future__ import annotations
 
@@ -75,7 +78,7 @@ def _iface(name, producer, consumers, columns, keys, pattern, glob, optional=(),
 
 INTERFACES = {
     "xfg_predictions": _iface(
-        "xfg_predictions", "xfg", ["decisions", "gravity", "epv"],
+        "xfg_predictions", "xfg", ["decisions", "matchups"],
         columns={"sportvu_game": "string", "event": "int", "player_id": "int?", "p_selected": "float",
                  "fold": "int"},
         optional={"p_location": "float", "p_contest": "float", "made": "bool", "heldout": "bool"},
@@ -117,7 +120,7 @@ INTERFACES = {
              "coverage_label nullable, fold, heldout); coverage_features.parquet is the lane's feature frame "
              "and is not matched"),
     "player_rapm": _iface(
-        "player_rapm", "lineups", ["matchups", "betting"],
+        "player_rapm", "lineups", ["betting"],
         columns={"season": "string", "player_id": "int", "rapm": "float", "lo": "float", "hi": "float"},
         optional={"fit_seasons": "string", "team_id": "int?", "as_of": "string", "in_sample": "bool"},
         keys=["season", "player_id"],

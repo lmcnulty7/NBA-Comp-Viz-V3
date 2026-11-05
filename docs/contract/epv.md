@@ -133,6 +133,20 @@ Inputs, protocol, the candidate table by elapsed bucket, calibration tables, the
 decision, the shuffled check, the held-out games once, the Mac command. A fixture run says "fixture output, not a
 result" and its numbers are never presented as results.
 
+### Feature frames: `OUT_ROOT/analytics/epv_features/<season>/<game>.parquet` (held-out: `OUT_ROOT/analytics/epv_features/heldout/<season>/<game>.parquet`)
+
+Written by `python -m analytics.epv.features`: `sportvu_game`, `possession`, `frame` and the geometric features of
+FEATURES, one row per state; the three prior columns are NaN here because they are fold-dependent and the trainer
+builds them inside each fold. Also written: `OUT_ROOT/analytics/epv_validate.md` by `python -m analytics.epv.validate`.
+
+## Where the CLIs read from
+
+`analytics.epv.validate.load_root(DATA_ROOT, out_root=OUT_ROOT)` reads each Phase 0 table (`analytics/states_1hz`,
+`possessions`, `rosters`, `shot_frames`, with their `heldout/` variants) from OUT_ROOT when OUT_ROOT holds any parquet
+for that table, else from DATA_ROOT; the shots tables always come from `DATA_ROOT/collect/`. So
+`states --data X --out Y` followed by `features` or `train --data X --out Y` finds the states under Y and the other
+tables under X (`make ext-epv DATA=X OUT=Y`).
+
 ## Commands
 
     python -m analytics.epv.states   --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--tol 0.5]

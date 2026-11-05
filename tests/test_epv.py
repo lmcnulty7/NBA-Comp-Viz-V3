@@ -357,6 +357,27 @@ def test_eda_tables(season):
 
 
 # ── CLIs on a temporary DATA_ROOT ──────────────────────────────────────────────────────────────────
+def test_out_root_differs_from_data_root(tmp_path):
+    """states --data X --out Y, then features and train --data X --out Y: the states come from Y, the rest from X."""
+    import shutil
+    data, out = tmp_path / "data", tmp_path / "out"
+    games = fx.fallback_write_fixture_root(data, seed=5, n_games=3, heldout_every=3, fallback=True)
+    shutil.rmtree(data / "analytics" / "states_1hz")                 # DATA_ROOT has no states table at all
+    assert V.load_root(data)["states_1hz"] is None
+    S.main(["--data", str(data), "--out", str(out)])
+    t = V.load_root(data, out_root=out)
+    assert t["states_1hz"] is not None and t["sources"]["states_1hz"] == str(out) and t["sources"]["possessions"] == str(data)
+    assert sorted(t["games"]) == sorted(games) and t["shots"] is not None
+    feats = F.main(["--data", str(data), "--out", str(out)])
+    assert len(feats) == 3 and (out / "analytics" / "epv_features" / "heldout" / "2015-16" / ("%s.parquet" % HELD)).exists()
+    ctx = T.main(["--data", str(data), "--out", str(out), "--report", str(tmp_path / "r.md"), "--folds", "2", "--bootstrap", "0", "--hgb-iter", "20"])
+    assert ctx["train_rows"] == int((~t["states_1hz"]["heldout"]).sum()) and ctx["heldout_games"] == [HELD]
+    assert (out / "analytics" / "epv" / "2015-16" / "epv_possessions.parquet").exists()
+    # a states table under both roots: OUT_ROOT wins
+    fx.fallback_write_fixture_root(data, seed=5, n_games=3, heldout_every=3, fallback=True)
+    assert V.load_root(data, out_root=out)["sources"]["states_1hz"] == str(out)
+
+
 def test_clis_on_a_temporary_data_root(tmp_path):
     root = tmp_path / "root"
     games = fx.fallback_write_fixture_root(root, seed=3, n_games=2, heldout_every=2, fallback=True)

@@ -19,6 +19,7 @@ help: ## list the targets with their one-line descriptions
 	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/^([a-zA-Z0-9_-]+):.*## (.*)$$/  \1\t\2/' | sort | expand -t 18
 	@echo
 	@echo "  make ext-xfg DATA=/path/to/DATA_ROOT runs on real data; make ext-xfg alone runs on fixtures."
+	@echo "  Lanes read the Phase 0 tables and states_1hz from OUT first, then DATA; leave OUT unset (OUT_ROOT = DATA_ROOT) for the simplest setup."
 
 test: ## run every test under tests/
 	$(PYTEST) tests

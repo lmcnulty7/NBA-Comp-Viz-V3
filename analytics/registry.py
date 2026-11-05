@@ -14,7 +14,10 @@ Two packages carry one extra step between validate and features: `analytics.epv.
 1 Hz states table (docs/DATA_CONTRACT.md section 20) and `analytics.lineups.stints` builds lineup stints.
 Each step module exposes `main(argv=None) -> int`, which run_all.py calls in-process.
 
-`real_data_inputs` are paths relative to DATA_ROOT, the parent folder of `sportvu_contract/` (the Step 1
+`real_data_inputs` are paths relative to DATA_ROOT (collector tables) or to OUT_ROOT for the tables other
+lanes write under `analytics/` (Phase 0 tables, states_1hz, epv_states, lineups RAPM, coverage predictions):
+the consuming lanes look under OUT_ROOT first, then DATA_ROOT, so the simplest setup is no --out at all
+(OUT_ROOT = DATA_ROOT). DATA_ROOT is the parent folder of `sportvu_contract/` (the Step 1
 contract dataset, docs/DATA_CONTRACT.md section 3: manifest.json, <game>.parquet, heldout/), of the
 collector outputs under `collect/` and of the Phase 0 tables under `analytics/`; on the Mac that is the
 Drive nba_harvest folder. `<game>` is a SportVU game code such as 12.16.2015.PHX.at.GSW, `<season>` is 2015-16.
@@ -41,15 +44,20 @@ _ROSTERS = "analytics/rosters/<season>/<game>.parquet"
 _SHOT_FRAMES = "analytics/shot_frames/<season>/<game>.parquet"
 _REBOUND_FRAMES = "analytics/rebound_frames/<season>/<game>.parquet"
 _POSSESSIONS = "analytics/possessions/<season>/<game>.parquet"
-_STATES = "analytics/states_1hz/<season>/<game>.parquet"
+_STATES = "analytics/states_1hz/<season>/<game>.parquet"          # written by analytics.epv.states (OUT_ROOT)
+_EPV_STATES = "analytics/epv_states/<season>/<game>.parquet"      # written by analytics.epv (OUT_ROOT)
+_RAPM = "analytics/lineups/<season>/player_rapm*.parquet"         # written by analytics.lineups (OUT_ROOT)
+_COVERAGE_PRED = "analytics/coverage/<season>/coverage_predictions/<game>.parquet"
 _BREF_SHOTS = "collect/bref_shots/shotchart/<season>.parquet"
 _NBA_SHOTS = "collect/shots/shotchartdetail/<season>.parquet"
+# bref_boxscores/{starters,players}/ and bref_seasons/{shotchart,playbyplay}/ are compacted by the collectors
+# into collect/stints/, which is what the lanes read; bref_schedule writes collect/bref_schedule/games/.
 _STINTS = "collect/stints/stints/<season>.parquet"
 _MULTI_PBP = "collect/stints/playbyplay/<season>.parquet"
-_SCHEDULE = "collect/bref_schedule/<season>.parquet"
-_BOXSCORES = "collect/bref_boxscores/<season>.parquet"
-_BREF_LINEUPS = "collect/bref_lineups/<season>.parquet"
-_POSITIONS = "collect/positions/<season>.parquet"
+_STINT_GAMES = "collect/stints/games/<season>.parquet"
+_STINT_STARTERS = "collect/stints/starters/<season>.parquet"
+_POSITIONS = "collect/positions.parquet"
+_TRACKING_POSITIONS = "collect/tracking/positions/<season>.parquet"
 _TRACKING_AGG = "collect/tracking/aggregates/<season>.parquet"
 _ODDS = "collect/extras/odds/<season>.parquet"
 _INJURIES = "collect/extras/injuries/<season>.parquet"
@@ -81,7 +89,7 @@ EXTENSIONS = [
          [_FRAMES, _POSSESSIONS, _ROSTERS],
          "ghost defence: where a league-average defender would stand, versus where the real one stood"),
     _ext("embeddings", STANDARD_STEPS, [], 2,
-         [_FRAMES, _POSSESSIONS, _ROSTERS, _POSITIONS],
+         [_FRAMES, _POSSESSIONS, _ROSTERS, _POSITIONS, _TRACKING_POSITIONS],
          "player and lineup embeddings from movement; the coursework foundation-model angle"),
     _ext("epv", ["validate", "states", "features", "train"], [], 3,
          [_FRAMES, _PBP, _POSSESSIONS, _ROSTERS, _STATES],
@@ -97,19 +105,19 @@ EXTENSIONS = [
          [_STATES, _SHOT_FRAMES, _PBP, _POSSESSIONS],
          "shot versus pass decisions scored against EPV and xfg at the moment of the choice"),
     _ext("playcalling", STANDARD_STEPS, ["epv", "actions", "coverage"], 4,
-         [_STATES, _POSSESSIONS, _PBP, "analytics/coverage/<season>/coverage_predictions/<game>.parquet"],
+         [_EPV_STATES, _POSSESSIONS, _PBP, _COVERAGE_PRED],
          "play-type recognition and value from the action sequences, coverage predictions and EPV traces"),
     _ext("lineups", ["validate", "stints", "features", "train"], [], 4,
-         [_STINTS, _MULTI_PBP, _BREF_LINEUPS, _SCHEDULE],
+         [_STINTS, _MULTI_PBP, _STINT_GAMES, _STINT_STARTERS],
          "lineup stints and adjusted plus-minus; analytics.lineups.stints builds the stint table first"),
     _ext("winprob", STANDARD_STEPS, [], 5,
-         [_MULTI_PBP, _PBP, _SCHEDULE, _BOXSCORES],
+         [_MULTI_PBP, _STINT_GAMES, _ODDS],
          "in-game win probability from score, clock and possession; calibration on held-out seasons"),
     _ext("load", STANDARD_STEPS, [], 5,
-         [_TRACKING_AGG, _BOXSCORES, _SCHEDULE, _INJURIES],
+         [_TRACKING_AGG, _INJURIES, "sportvu_contract/", _ROSTERS],
          "player load: distance, speed and minutes against rest days and injury reports"),
     _ext("betting", STANDARD_STEPS, ["lineups"], 5,
-         [_ODDS, _SCHEDULE, _BOXSCORES, _STINTS],
+         [_ODDS, _STINT_GAMES, _MULTI_PBP, _RAPM],
          "closing-line comparison of lineup-adjusted ratings; odds only if the odds table was pursued"),
 ]
 

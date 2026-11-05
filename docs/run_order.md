@@ -23,11 +23,11 @@ before the long steps.
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | tests on fixtures | `make test-fast` | nothing | pass or fail | 2 to 5 minutes | python3 with the packages above; ffmpeg for the video tests |
 | 2 | Drive sync | `python -m collect.drive --sync-from "DATA_ROOT" [--only bref_shots ...] [--dry-run]` (`--where` prints the resolved Drive root; `--sync-to` copies the other way) | `DATA_ROOT/collect/` on Drive (default: the Drive nba_harvest folder) | the local `data/collect/` | minutes (local copy) | Google Drive mounted; no network calls. The Step 1 contract stays at `DATA_ROOT/sportvu_contract/` and is read in place |
-| 3 | schedule | `python -m collect.bref_schedule --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/bref_schedule/<season>.parquet` | 1 minute a season (one page a month) | basketball-reference reachable, 17 a minute |
-| 4 | season tables | `python -m collect.bref_seasons --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/bref_seasons/<season>.parquet` | 2 to 5 minutes a season | same |
-| 5 | positions | `python -m collect.positions --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/positions/<season>.parquet` | about 2 minutes a season | same |
-| 6 | box scores | `python -m collect.bref_boxscores --seasons 2015-16 --out DATA_ROOT/collect` | schedule table, network | `collect/bref_boxscores/<season>.parquet` | about 75 minutes a season (1,230 pages at 17 a minute) | same; resumable, rerun to continue |
-| 7 | lineups | `python -m collect.bref_lineups --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/bref_lineups/<season>.parquet` | about 2 minutes a season (one page a team) | same |
+| 3 | schedule | `python -m collect.bref_schedule --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/bref_schedule/games/<season>.parquet` | 1 minute a season (one page a month) | basketball-reference reachable, 17 a minute |
+| 4 | season tables | `python -m collect.bref_seasons --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/bref_seasons/{shotchart,playbyplay}/<season>.parquet`, compacted to `collect/stints/playbyplay/<season>.parquet` and `collect/stints/games/<season>.parquet` | 2 to 5 minutes a season | same |
+| 5 | positions | `python -m collect.positions --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/positions/positions/<season>.parquet` plus the merged `collect/positions.parquet` | about 2 minutes a season | same |
+| 6 | box scores | `python -m collect.bref_boxscores --seasons 2015-16 --out DATA_ROOT/collect` | schedule table, network | `collect/bref_boxscores/{starters,players}/<season>.parquet`, compacted to `collect/stints/starters/<season>.parquet` | about 75 minutes a season (1,230 pages at 17 a minute) | same; resumable, rerun to continue |
+| 7 | lineups | `python -m collect.bref_lineups --seasons 2015-16 --out DATA_ROOT/collect` | network | `collect/bref_lineups/lineups/<season>.parquet` | about 2 minutes a season (one page a team) | same |
 | 8 | shot charts | `python -m collect.bref_shots --contract-dir DATA_ROOT --fetch-pbp` | manifest, network | `collect/bref_shots/shotchart/<season>.parquet` | about 1 minute per 17 games; a full season about 75 minutes | same |
 | 9 | play-by-play fill | `python -m collect.pbp --contract-dir DATA_ROOT --br-only` | manifest, network | `<game>_pbp.parquet` for games whose join failed | 1 minute per 17 games | same; only the NBA.com path is blocked |
 | 10 | NBA.com tables (optional) | `python -m collect.shots`, `collect.tracking`, `collect.context`, `collect.stints` | network | `collect/shots/`, `collect/tracking/`, `collect/context/`, `collect/stints/` | hours; 30 requests a minute | a network that stats.nba.com accepts (a browser session); not reachable from the cloud |
@@ -40,21 +40,24 @@ before the long steps.
 | 17 | matchups | `make ext-matchups DATA=DATA_ROOT` | frames, possessions, rosters, shot frames, xfg output | `reports/matchups.md` | 2 to 5 minutes (8 tracked games) | steps 13, 15 |
 | 18 | gravity | `make ext-gravity DATA=DATA_ROOT` | frames, possessions, shot frames, rosters | `reports/gravity.md` | 2 to 5 minutes | step 13 |
 | 19 | ghosting | `make ext-ghosting DATA=DATA_ROOT` | frames, possessions, rosters | `reports/ghosting.md` | 5 to 15 minutes (sequence model on a CPU) | step 13 |
-| 20 | embeddings | `make ext-embeddings DATA=DATA_ROOT` | frames, possessions, rosters, positions | `reports/embeddings.md` | 5 to 15 minutes | steps 5, 13 |
+| 20 | embeddings | `make ext-embeddings DATA=DATA_ROOT` | frames, possessions, rosters, `collect/positions.parquet` (or `collect/tracking/positions/<season>.parquet`) | `reports/embeddings.md` | 5 to 15 minutes | steps 5, 13 |
 | 21 | epv (validate, states, features, train) | `make ext-epv DATA=DATA_ROOT` | frames, pbp, possessions, rosters | `analytics/states_1hz/`, `reports/epv.md` | 5 to 15 minutes | step 13 |
 | 22 | actions | `make ext-actions DATA=DATA_ROOT` | frames, pbp, possessions, rosters | `reports/actions.md` | 2 to 5 minutes | step 13 |
 | 23 | coverage | `make ext-coverage DATA=DATA_ROOT` | frames, possessions, rosters, actions output | `reports/coverage.md` | 2 to 5 minutes | steps 13, 22 |
 | 24 | decisions | `make ext-decisions DATA=DATA_ROOT` | states, shot frames, pbp, xfg and epv outputs | `reports/decisions.md` | 1 to 3 minutes | steps 15, 21 |
-| 25 | playcalling | `make ext-playcalling DATA=DATA_ROOT` | states, possessions, pbp, epv, actions and coverage outputs (coverage_predictions) | `reports/playcalling.md` | 2 to 5 minutes | steps 21, 22, 23 |
-| 26 | lineups (validate, stints, features, train) | `make ext-lineups DATA=DATA_ROOT` | stints or multi-season pbp, bref lineups, schedule | `reports/lineups.md` | 2 to 10 minutes a season | steps 3, 7 (10 when the NBA.com stints are wanted) |
-| 27 | winprob | `make ext-winprob DATA=DATA_ROOT` | pbp, schedule, box scores | `reports/winprob.md` | 1 to 5 minutes a season | steps 3, 6, 9 |
-| 28 | load | `make ext-load DATA=DATA_ROOT` | tracking aggregates, box scores, schedule, injuries | `reports/load.md` | 1 to 3 minutes | steps 3, 6 (10, 11 optional) |
-| 29 | betting | `make ext-betting DATA=DATA_ROOT` | odds, schedule, box scores, lineups output | `reports/betting.md` | 1 to 3 minutes | steps 11, 26 |
+| 25 | playcalling | `make ext-playcalling DATA=DATA_ROOT` | `OUT_ROOT/analytics/epv_states/`, possessions, pbp, actions and coverage outputs (coverage_predictions) | `reports/playcalling.md` | 2 to 5 minutes | steps 21, 22, 23 |
+| 26 | lineups (validate, stints, features, train) | `make ext-lineups DATA=DATA_ROOT` | `collect/stints/{stints,playbyplay,games,starters}/<season>.parquet` | `reports/lineups.md`, `OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet` | 2 to 10 minutes a season | steps 4 and 6 (10 when the NBA.com stints table is wanted) |
+| 27 | winprob | `make ext-winprob DATA=DATA_ROOT` | `collect/stints/{playbyplay,games}/<season>.parquet`, `collect/extras/odds/` when present | `reports/winprob.md` | 1 to 5 minutes a season | step 4 (11 optional) |
+| 28 | load | `make ext-load DATA=DATA_ROOT` | `collect/tracking/aggregates/`, `collect/extras/injuries/`, the sportvu_contract frames, rosters | `reports/load.md` | 1 to 3 minutes | step 13; 10 and 11 optional |
+| 29 | betting | `make ext-betting DATA=DATA_ROOT` | `collect/extras/odds/`, `collect/stints/{games,playbyplay}/`, `OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet` | `reports/betting.md` | 1 to 3 minutes | steps 4, 11 and 26 |
 | 30 | everything at once | `make all DATA=DATA_ROOT` (fixtures: `make all-fixtures`) | all of the above | `reports/run_all.md`, `logs/run_all/<ext>_<step>.log` | sum of 15 to 29, about 1 to 2 hours | steps 2 to 13 |
 | 31 | site | `make site` | `portfolio/hiring_manager_page.html` | `site/index.html` | seconds | nothing |
 
 Add `OUT=/path` to any make line to put step outputs, logs and reports under that root instead of the
-repo. Every step receives `--data DATA_ROOT` (or `--fixtures`), `--seed N` and `--out OUT_ROOT` when set;
+repo. The tables one lane writes for another (the Phase 0 tables, `analytics/states_1hz/`,
+`analytics/epv_states/`, the lineups RAPM, the coverage predictions) are written under OUT_ROOT, and the
+lanes that consume them look under OUT_ROOT first, then DATA_ROOT. The simplest Mac setup is therefore OUT
+unset: OUT_ROOT = DATA_ROOT and everything lives beside the contract. Every step receives `--data DATA_ROOT` (or `--fixtures`), `--seed N` and `--out OUT_ROOT` when set;
 train also gets `--report` and `--bootstrap` when given. `run_all.py` stops at the first failed step unless
 `--continue-on-error` (`make all` passes it), skips packages that are not importable and the dependents of
 a failed extension with a printed reason, and ends with `RUN OK` or `RUN FAILED`. Its exit code is nonzero

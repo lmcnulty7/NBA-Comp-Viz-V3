@@ -353,7 +353,7 @@ def main(argv=None) -> list:
     """Writes the geometric features (priors are fold-dependent, so they are NaN here and filled by the trainer)."""
     from analytics.epv import validate as V
     a = parse_args(argv)
-    tables = V.load_fixtures(a.seed, n_games=a.games) if a.fixtures else V.load_root(a.data, a.season)
+    tables = V.load_fixtures(a.seed, n_games=a.games) if a.fixtures else V.load_root(a.data, a.season, out_root=a.out)
     clean, _reports = V.validate_all(tables)
     st = clean["states_1hz"]
     if st is None or len(st) == 0:

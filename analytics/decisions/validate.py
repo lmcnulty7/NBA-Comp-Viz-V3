@@ -39,6 +39,14 @@ FRAME_OPTIONAL = ["ts_ms", "shot_clock_s"]
 EVENT_COLUMNS = ["event", "period", "clock_s", "kind", "frame", "points"]
 X_RANGE, Y_RANGE, Z_RANGE = (-5.0, 99.0), (-5.0, 55.0), (-1.0, 40.0)
 DEFAULT_SEASON = "2015-16"
+XFG_SKIP_STEMS = ("xfg_features",)        # the xFG lane's feature table sits beside its predictions: not a prediction table
+
+
+def _analytics_roots(out_root: Path, data_root: Path) -> list:
+    """Where the Phase 0 tables and the upstream lanes' outputs are looked for, in order: OUT_ROOT/analytics
+    first (the Mac may write there), then DATA_ROOT/analytics; the same root once when OUT_ROOT is DATA_ROOT."""
+    roots = [Path(out_root) / "analytics", Path(data_root) / "analytics"]
+    return roots if roots[0].resolve() != roots[1].resolve() else roots[:1]
 
 
 # ── held-out ───────────────────────────────────────────────────────────────────────────────────────
@@ -110,11 +118,14 @@ def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, ga
     data_root = Path(data_root)
     out_root = Path(out_root) if out_root else data_root
     log = log if log is not None else []
-    found = []
+    found, seen = [], set()
     for held in (False, True):
-        d = data_root / "analytics" / "possessions" / ("heldout/" + season if held else season)
-        for p in sorted(d.glob("*.parquet")):
-            found.append((p.stem, held))
+        for root in _analytics_roots(out_root, data_root):
+            d = root / "possessions" / ("heldout/" + season if held else season)
+            for p in sorted(d.glob("*.parquet")):
+                if (p.stem, held) not in seen:
+                    seen.add((p.stem, held))
+                    found.append((p.stem, held))
     if games:
         found = [(g, h) for g, h in found if g in set(games)]
     bundles = []
@@ -129,19 +140,32 @@ def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, ga
             continue
         events = _read(sv / (g + "_pbp.parquet"))
         game = {"sportvu_game": g, "heldout": held, "frames": frames, "events": events}
+        # Phase 0 tables: OUT_ROOT/analytics first (the Mac may write them there), then DATA_ROOT/analytics, per table
         for t in PHASE0_TABLES:
-            game[t] = _read(schema.table_path(data_root / "analytics", t, season, g, heldout=held))
+            game[t] = None
+            for root in _analytics_roots(out_root, data_root):
+                game[t] = _read(schema.table_path(root, t, season, g, heldout=held))
+                if game[t] is not None:
+                    break
         if game["possessions"] is None or game["shot_frames"] is None:
             log.append("%s: possessions or shot_frames missing, skipped" % g)
             continue
-        epv_dir = out_root / "analytics" / "epv" / ("heldout/" + season if held else season)
-        game["epv"] = _read(epv_dir / (g + ".parquet"))
+        game["epv"] = None
+        for root in _analytics_roots(out_root, data_root):
+            epv_dir = root / "epv" / ("heldout/" + season if held else season)
+            game["epv"] = _read(epv_dir / (g + ".parquet"))
+            if game["epv"] is not None:
+                break
         # the xFG lane writes OUT_ROOT/analytics/xfg/<season>/xfg_predictions.parquet with held-out rows flagged
-        # heldout=True, fold=-1 in the same file; a heldout/<season>/ directory is read too when it exists
-        xfg_dirs = [out_root / "analytics" / "xfg" / season]
-        if held:
-            xfg_dirs.append(out_root / "analytics" / "xfg" / "heldout" / season)
-        parts = [x for d in xfg_dirs for x in (_read(p) for p in sorted(d.glob("*.parquet"))) if x is not None]
+        # heldout=True, fold=-1 in the same file; a heldout/<season>/ directory is read too when it exists; the
+        # feature table (xfg_features*.parquet) beside it is not a prediction table and is skipped
+        xfg_dirs = []
+        for root in _analytics_roots(out_root, data_root):
+            xfg_dirs.append(root / "xfg" / season)
+            if held:
+                xfg_dirs.append(root / "xfg" / "heldout" / season)
+        parts = [x for d in xfg_dirs for x in (_read(p) for p in sorted(d.glob("*.parquet"))
+                                               if not p.stem.startswith(XFG_SKIP_STEMS)) if x is not None]
         if parts:
             x = pd.concat(parts, ignore_index=True)
             x = x[x["sportvu_game"].astype(str) == g] if "sportvu_game" in x.columns else x

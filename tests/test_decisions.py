@@ -363,6 +363,38 @@ def test_full_model_reproduces_the_held_out_events():
     pd.testing.assert_frame_equal(again.reset_index(drop=True), res["events_heldout"].reset_index(drop=True))
 
 
+def test_out_root_differs_from_data_root(tmp_path):
+    """OUT_ROOT/analytics is looked in first for the Phase 0 tables and the upstream outputs, then DATA_ROOT; the
+    xFG feature table beside xfg_predictions is skipped."""
+    data, out = tmp_path / "data", tmp_path / "out"
+    games = fx.local_write_fixture_root(data, seed=2, n_games=2, heldout_every=2, n_possessions=5)
+    train_g, held_g = games[0], games[1]
+    # move states_1hz of the training game and every table of the held-out game under OUT_ROOT
+    for t, g, held in (("states_1hz", train_g, False), ("possessions", held_g, True), ("shot_frames", held_g, True)):
+        src = schema.table_path(data / "analytics", t, fx.SEASON, g, heldout=held)
+        dst = schema.table_path(out / "analytics", t, fx.SEASON, g, heldout=held)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        src.rename(dst)
+    shots = pd.read_parquet(schema.table_path(data / "analytics", "shot_frames", fx.SEASON, train_g))
+    xdir = out / "analytics" / "xfg" / fx.SEASON
+    xdir.mkdir(parents=True)
+    pred = pd.DataFrame({"sportvu_game": train_g, "event": shots["event"], "player_id": shots["shooter_id"], "p_location": 0.4,
+                         "p_contest": 0.4, "p_selected": 0.45, "made": shots["made"], "fold": 0, "heldout": False})
+    pred.to_parquet(xdir / "xfg_predictions.parquet", index=False)
+    pd.concat([pred, pred], ignore_index=True).to_parquet(xdir / "xfg_features.parquet", index=False)   # the decoy
+    epv_dir = out / "analytics" / "epv" / fx.SEASON
+    epv_dir.mkdir(parents=True)
+    pd.DataFrame({"sportvu_game": [train_g], "possession": [0], "frame": [0], "elapsed_in_possession_s": [0.0], "epv_points": [1.0],
+                  "p_score": [0.5], "points_to_end": [0], "fold": [0], "heldout": [False]}).to_parquet(epv_dir / (train_g + ".parquet"), index=False)
+    log = []
+    bundles = V.load_root_bundles(data, fx.SEASON, out, log=log)
+    assert log == [] and [b["sportvu_game"] for b in bundles] == [train_g, held_g]
+    b0, b1 = bundles
+    assert b0["states_1hz"] is not None and b1["possessions"] is not None and b1["heldout"]
+    assert len(b0["xfg"]) == len(shots) and b0["epv"] is not None and b1["xfg"] is None
+    assert V._analytics_roots(data, data) == [data / "analytics"]
+
+
 def test_ortg_counts_possessions_on_the_floor():
     g = fx.local_synth_game(5, n_possessions=8)
     o = F.on_court_offensive_rating(g["frames"], g["possessions"], g["sportvu_game"])

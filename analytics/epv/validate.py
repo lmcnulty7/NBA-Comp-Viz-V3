@@ -145,7 +145,7 @@ def validate_all(tables: dict) -> tuple[dict, dict]:
     """{name: frame or None} -> ({name: cleaned frame}, {name: report})."""
     clean, reports = {}, {}
     for name, df in tables.items():
-        if df is None or name == "games":
+        if df is None or name in ("games", "sources"):
             clean[name] = df
             continue
         if name == "states_1hz":
@@ -189,14 +189,28 @@ def _read_dir(base: Path, held: bool, season: str | None) -> list:
     return out
 
 
-def load_root(data_root, season: str | None = None) -> dict:
-    """The EPV input tables under DATA_ROOT -> {states_1hz, possessions, rosters, shot_frames, shots, games};
-    a table with no file is None. games is [(sportvu_game, heldout)] from the states files."""
+def _has_parquet(base: Path) -> bool:
+    return base.exists() and any(base.rglob("*.parquet"))
+
+
+def load_root(data_root, season: str | None = None, out_root=None) -> dict:
+    """The EPV input tables -> {states_1hz, possessions, rosters, shot_frames, shots, games, sources}; a table with
+    no file is None. games is [(sportvu_game, heldout)] from the states files.
+
+    Each Phase 0 table (analytics/<table>/<season>/ and analytics/<table>/heldout/<season>/) is read from OUT_ROOT
+    when OUT_ROOT holds any parquet for it, else from DATA_ROOT: `states --data X --out Y` writes states_1hz under Y,
+    and `features`/`train --data X --out Y` then find them there while possessions, rosters and shot_frames still
+    come from X. sources records the root used per table. The shots tables (collect/) come from DATA_ROOT."""
     root = Path(data_root)
-    out = {}
+    out, sources = {}, {}
     for table in TABLE_DIRS:
-        parts = _read_dir(root / "analytics" / table, False, season) + _read_dir(root / "analytics" / table / "heldout", True, season)
+        base = root / "analytics" / table
+        if out_root is not None and _has_parquet(Path(out_root) / "analytics" / table):
+            base = Path(out_root) / "analytics" / table
+        parts = _read_dir(base, False, season) + _read_dir(base / "heldout", True, season)
         out[table] = pd.concat(parts, ignore_index=True) if parts else None
+        sources[table] = str(base.parent.parent) if parts else None
+    out["sources"] = sources
     shots = []
     for fam in ("bref_shots/shotchart", "shots/shotchartdetail"):
         d = root / "collect" / fam
@@ -244,7 +258,7 @@ def parse_args(argv=None):
 
 def main(argv=None) -> dict:
     a = parse_args(argv)
-    tables = load_fixtures(a.seed, n_games=a.games) if a.fixtures else load_root(a.data, a.season)
+    tables = load_fixtures(a.seed, n_games=a.games) if a.fixtures else load_root(a.data, a.season, out_root=a.out)
     _clean, reports = validate_all(tables)
     title = "EPV input validation (%s)" % ("fixture output, not a result" if a.fixtures else a.data)
     text = format_report(reports, title)

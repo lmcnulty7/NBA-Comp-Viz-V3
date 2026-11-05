@@ -40,8 +40,8 @@ the decision wins and the entry's `note` in `analytics/interfaces.py` says so.
 - `xfg_predictions`: any `OUT_ROOT/analytics/xfg/<season>/*.parquet` with `sportvu_game, event, player_id,
   p_selected, fold`; `analytics/xfg/train.py` writes `xfg_predictions.parquet` with `p_location, p_contest,
   made, heldout` as well (optional here). `xfg_features.parquet` is the lane's feature frame and is skipped.
-  decisions joins `p_selected` by `(sportvu_game, event)`; gravity and epv use the location-only baseline of
-  `analytics.train_xfg` in their own code today and are listed as consumers of the lane's shot-quality column.
+  decisions joins `p_selected` by `(sportvu_game, event)` and matchups reads it for defender credit; gravity and
+  epv refit `analytics.train_xfg` in process and never read the file, so they are not consumers.
 - `epv_states`: `OUT_ROOT/analytics/epv/<season>/<game>.parquet` (held-out under `heldout/<season>/`) with
   `sportvu_game, possession, frame, epv_points`. `epv_possessions.parquet` in the same folder is the lane's
   possession table and is skipped. The lane's `states_1hz` output (`analytics/states_1hz/`, contract section
@@ -61,7 +61,7 @@ the decision wins and the entry's `note` in `analytics/interfaces.py` says so.
 
 ## xfg_predictions
 
-Producer `xfg`; consumers `decisions`, `gravity`, `epv`. Path `OUT_ROOT/analytics/xfg/<season>/*.parquet`
+Producer `xfg`; consumers `decisions`, `matchups` (gravity and epv refit `analytics.train_xfg` in process and never read the file). Path `OUT_ROOT/analytics/xfg/<season>/*.parquet`
 (`xfg_predictions.parquet` from the trainer; one file per season, held-out rows flagged, not separated).
 Key `(sportvu_game, event)`.
 
@@ -95,7 +95,8 @@ Producer `epv`; consumers `decisions`, `playcalling`. Path `OUT_ROOT/analytics/e
 
 Producer `actions`; consumers `coverage`, `playcalling`. Path
 `OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` (held-out under `heldout/<season>/`).
-Key `(sportvu_game, possession, action_id)`.
+Key `(sportvu_game, possession, action_id)`, unique only per `label_source`: a game may carry hand rows and
+detected rows with the same ids, and both consumers drop the detected rows of a game that has hand labels.
 
 | column | dtype | meaning |
 | --- | --- | --- |
@@ -128,7 +129,7 @@ Producer `coverage`; consumer `playcalling`. Path `OUT_ROOT/analytics/coverage/<
 
 ## player_rapm
 
-Producer `lineups`; consumers `matchups`, `betting`. Path `OUT_ROOT/analytics/lineups/<season>/player_rapm.parquet`
+Producer `lineups`; consumer `betting` (matchups never reads it). Path `OUT_ROOT/analytics/lineups/<season>/player_rapm.parquet`
 (one file per season). Key `(season, player_id)`.
 
 | column | dtype | meaning |
@@ -170,8 +171,8 @@ or the shared `analytics/fixtures.py`.
                                                                               # checks on what they wrote
 
 The slow part also runs `python run_all.py --fixtures --all --continue-on-error --out OUT_ROOT` once and
-asserts every interface file exists under that OUT_ROOT (skipped while run_all.py does not pass `--out` to
-the train step).
+asserts every interface file exists under that OUT_ROOT and passes `check_frame` (run_all.py passes `--out`
+and `--seed` to every step).
 
 A lane that is not present is a skip with the reason. Every subprocess has a timeout (120 s for validate,
 600 s per features or train step with --fixtures, 300 s per step on the shared root). The fast part runs its

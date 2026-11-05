@@ -572,7 +572,7 @@ def parse_args(argv=None):
 
 def main(argv=None) -> dict:
     a = parse_args(argv)
-    tables = V.load_fixtures(a.seed, n_games=a.games, heldout_every=4) if a.fixtures else V.load_root(a.data, a.season)
+    tables = V.load_fixtures(a.seed, n_games=a.games, heldout_every=4) if a.fixtures else V.load_root(a.data, a.season, out_root=a.out)
     cmd = "python -m analytics.epv.train " + " ".join(argv if argv is not None else sys.argv[1:])
     out_root = a.out if a.out else (Path(tempfile.gettempdir()) / "epv_fixture_root" if a.fixtures else None)
     ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root)

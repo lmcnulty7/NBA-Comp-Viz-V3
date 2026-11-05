@@ -458,7 +458,12 @@ def report_training_lines(reports_dir: Path, ext: str, toks: set) -> list[str]:
         if f.stem != ext and not f.stem.startswith(ext + "_"):
             continue
         for i, ln in enumerate(f.read_text(errors="replace").splitlines(), 1):
-            if "training games" in ln.lower() and any(t in ln for t in toks):
+            low = ln.lower()
+            if "training games" not in low:
+                continue
+            # only the training clause: a line may go on to list the held-out games set aside
+            cut = min([k for k in (low.find("held-out"), low.find("heldout"), low.find("held out")) if k >= 0] or [len(ln)])
+            if any(t in ln[:cut] for t in toks):
                 out.append("%s:%d: %s" % (f.name, i, ln.strip()[:160]))
     return out
 
