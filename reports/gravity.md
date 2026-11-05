@@ -1,8 +1,8 @@
 # Gravity and spacing (analytics/gravity) (fixture output, not a result)
 
-Written 2026-11-05T08:46:06Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200 --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/report_out`.
+Written 2026-11-05T08:46:56Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
 
-**Every number below is fixture output, not a result**: the inputs are synthetic games from `analytics.fixtures` with two planted high-gravity players, used to exercise the pipeline. The real run is the Mac command at the end.
+**Every number below is fixture output, not a result**: the inputs are synthetic games from `analytics.fixtures` with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end.
 
 ## Inputs
 
@@ -73,7 +73,7 @@ Mean hull area 338.2 ft2 (sd 156.3), mean nearest-defender distance 4.47 ft over
 
 ## Outputs
 
-Tables written under `/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/report_out/analytics/gravity`: gravity_frames (19605 rows), gravity_players (84 rows), spacing_frames (3921 rows).
+No tables written (pass --out OUT_ROOT).
 
 ## Assumptions
 
@@ -86,6 +86,7 @@ Tables written under `/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf
 - A player's interval resamples that player's games; a player seen in one game gets no interval. The player table is built on training frames only.
 - The sign test's candidates are the fixture's planted players on fixtures and the top ten gated players on real data; the xFG probability is the location-only logistic of analytics.train_xfg fitted out of fold by game on the training games' shots.
 - On-court at a shot means the player has a row in the frame of the same period nearest the shot's clock.
+- Fixture runs on analytics.fixtures: every game has a fresh roster (player ids depend on the game seed), so no player reaches the 300-possession gate and the season-wide top-decile check cannot pass by construction; the per-game check is the one that applies there. Its star plays every period, so the on/off sign test finds no off-court shots; the fallback generator (tests/_fx_gravity.py) keeps one roster across the season and sits its star, and both checks run on it.
 
 ## Mac command (the real run)
 

@@ -1,6 +1,6 @@
 # Integration report (lane I6)
 
-Latest run: 2026-11-05 08:36 UTC. Every number here is fixture output (synthetic data from tests/_fx_<ext>.py or analytics/fixtures.py), not a result. Produced by `python3 -m pytest -q tests/test_integration.py` (fast part, 195 s of test time); the slow part has not been run in this report.
+Latest run: 2026-11-05 08:46 UTC. Every number here is fixture output (synthetic data from tests/_fx_<ext>.py or analytics/fixtures.py), not a result. Produced by `python3 -m pytest -q tests/test_integration.py` (fast part, 182 s of test time); the slow part has not been run in this report.
 
 Lanes present (15 of 15): actions, betting, coverage, decisions, embeddings, epv, ghosting, gravity, lineups, load, matchups, playcalling, rebounds, winprob, xfg
 
@@ -11,7 +11,7 @@ Lanes missing (0): none
 | lane | imports+main | guard | fixture module | validate --fixtures | 
 | --- | --- | --- | --- | --- |
 | `xfg` | pass | pass | pass | pass |
-| `rebounds` | FAIL | pass | pass | pass |
+| `rebounds` | pass | pass | pass | pass |
 | `matchups` | pass | pass | pass | pass |
 | `gravity` | pass | pass | pass | pass |
 | `ghosting` | pass | pass | pass | pass |
@@ -26,14 +26,11 @@ Lanes missing (0): none
 | `load` | pass | pass | pass | pass |
 | `betting` | pass | pass | pass | pass |
 
-Fast part totals: 62 passed, 1 failed, 0 skipped (skips are absent lanes).
+Fast part totals: 63 passed, 0 failed, 0 skipped (skips are absent lanes).
 
 ## Failures
 
-- `rebounds` imports:
-    - `AssertionError: analytics/rebounds/features.py has no callable main(argv)`
-    - `assert not ['analytics/rebounds/features.py has no callable main(argv)']`
-    - `assert r.returncode == 0, "import probe failed for %s:\n%s" % (ext, _tail(r.stderr))`
+None in the latest run.
 
 ## Registry checks
 
@@ -44,6 +41,7 @@ Fast part totals: 62 passed, 1 failed, 0 skipped (skips are absent lanes).
 ## Run history
 
 - run 1 (fast only): 62 passed, 1 failed (rebounds imports+main), 15 of 15 lanes present, 196 s
+- run 2 (fast only, subprocesses 4 at a time): 63 passed, 0 failed, 15 of 15 lanes present, 183 s wall while the slow part and other lanes shared the 4 cores
 
 ## Assumptions
 

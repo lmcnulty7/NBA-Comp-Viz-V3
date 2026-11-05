@@ -415,3 +415,271 @@ def test_no_em_dashes_in_owned_files():
         p = ROOT / rel
         if p.exists():
             assert chr(0x2014) not in p.read_text(encoding="utf-8"), rel
+
+
+# ---------------------------------------------------------------------------- review fixes
+
+def test_read_labels_by_pass_and_export_default_pass_1(tmp_path, game, labelset):
+    g = str(game["possessions"]["sportvu_game"].iloc[0])
+    acts, scrs = labelset["actions"], labelset["screens"]
+    L.write_labels(tmp_path, g, acts, scrs)
+    L.write_labels(tmp_path, g, acts.assign(labeller_pass=2, action_id=acts["action_id"] + 10),
+                   scrs.assign(labeller_pass=2, screen_id=scrs["screen_id"] + 10, action_id=scrs["action_id"] + 10))
+    a_all, s_all = L.read_labels(tmp_path, g)
+    assert len(a_all) == 4 and len(s_all) == 2
+    a1, s1 = L.read_labels(tmp_path, g, labeller_pass=1)
+    assert a1["labeller_pass"].tolist() == [1, 1] and s1["labeller_pass"].tolist() == [1]
+    a2, _ = L.read_labels(tmp_path, g, labeller_pass=2)
+    assert a2["action_id"].tolist() == [11, 12]
+    import pyarrow.parquet as pq
+    rep = T.export_parquet(tmp_path, g, tmp_path / "e" / "labels.parquet")
+    assert rep["labeller_pass"] == 1 and rep["n_actions"] == 2 and rep["n_screens"] == 1
+    assert pq.read_table(rep["actions"]).to_pandas()["labeller_pass"].tolist() == [1, 1]
+    rep = T.export_parquet(tmp_path, g, tmp_path / "e" / "all.parquet", labeller_pass=None)
+    assert rep["n_actions"] == 4 and rep["n_screens"] == 2
+    # the CLI flag
+    assert T.main(["--data", str(tmp_path), "--game", g, "--export", str(tmp_path / "e" / "p2.parquet"), "--export-pass", "2"]) == 0
+    assert pq.read_table(tmp_path / "e" / "p2.parquet").num_rows == 2
+    assert T.main(["--data", str(tmp_path), "--game", g, "--export", str(tmp_path / "e" / "pa.parquet"), "--export-pass", "all"]) == 0
+    assert pq.read_table(tmp_path / "e" / "pa.parquet").num_rows == 4
+
+
+def test_read_jsonl_without_ids(tmp_path, game, labelset):
+    g = "noid.game"
+    acts, scrs = labelset["actions"].copy(), labelset["screens"].copy()
+    pa_ = L.labels_path(tmp_path, "actions", g)
+    pa_.parent.mkdir(parents=True)
+    rows = [{k: (None if pd.isna(v) else (int(v) if hasattr(v, "item") else v)) for k, v in r.items() if k != "action_id"}
+            for r in acts.to_dict("records")]
+    pa_.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    ps_ = L.labels_path(tmp_path, "screens", g)
+    srows = [{k: (int(v) if hasattr(v, "item") else v) for k, v in r.items() if k != "screen_id"} for r in scrs.to_dict("records")]
+    srows[0]["action_id"] = 0  # a fixture root references actions by 0-based position
+    ps_.write_text(json.dumps(srows[0]) + "\n")
+    a, s = L.read_labels(tmp_path, g)
+    assert a["action_id"].tolist() == [0, 1] and s["screen_id"].tolist() == [0]
+    assert L.validate_labels(a, s, game["possessions"]) == []
+    # a tombstone still needs an id
+    with pa_.open("a") as fh:
+        fh.write(json.dumps({"deleted": True, "labelled_at": "2026-01-01T00:00:00Z"}) + "\n")
+    with pytest.raises(ValueError, match="tombstone has no action_id"):
+        L.read_labels(tmp_path, g)
+
+
+def _two_pass_root(root, game, visited=True, unsure_second=False):
+    """Pass 1 labels possessions 0..3 (ball_screen, ball_screen, drive, cut), pass 2 labels 0..2 the same
+    and finds nothing in possession 3; both passes visit 0..3, pass 1 also visits 4 with a drive."""
+    g = str(game["possessions"]["sportvu_game"].iloc[0])
+    types = ["ball_screen", "ball_screen", "drive", "cut", "drive"]
+    rows, scr = [], []
+    for k, n in ((1, 5), (2, 3)):
+        for p in range(n):
+            s, e, _ = _span(game, p)
+            off, de = _ids(game, p)
+            rows.append({"sportvu_game": g, "possession": p, "action_id": p + 1 + 100 * k, "action_type": types[p],
+                         "start_frame": s + 10, "end_frame": s + 60, "ball_handler_id": off[0],
+                         "screener_id": off[1] if types[p] == "ball_screen" else None, "label_source": "hand",
+                         "labeller_pass": k, "labelled_at": "2026-01-01T00:00:00Z"})
+            if types[p] == "ball_screen":
+                scr.append({"sportvu_game": g, "possession": p, "screen_id": p + 1 + 100 * k, "action_id": p + 1 + 100 * k,
+                            "coverage": "drop" if p == 0 else "switch", "on_ball_defender_id": de[0],
+                            "screener_defender_id": de[1], "label_source": "hand",
+                            "confidence": "unsure" if (unsure_second and k == 2 and p == 1) else "sure",
+                            "labeller_pass": k, "labelled_at": "2026-01-01T00:00:00Z"})
+    L.write_labels(root, g, pd.DataFrame(rows), pd.DataFrame(scr))
+    if visited:
+        for p in range(5):
+            L.mark_visited(root, g, p, 1)
+        for p in range(4):
+            L.mark_visited(root, g, p, 2)
+    return g
+
+
+def test_kappa_report_uses_visited_record(tmp_path, game):
+    g = _two_pass_root(tmp_path, game)
+    v = L.read_visited(tmp_path, g)
+    assert len(v) == 9 and set(v.columns) == set(L.VISITED_COLUMNS)
+    rep = T.kappa_report(tmp_path, [g], (1, 2))
+    per = rep["per_game"][g]
+    # possessions 0..3 are compared (4 was visited by pass 1 only); possession 3 is (cut, none)
+    assert per["n_possessions"] == 4 and per["n_actions"] == 4
+    assert per["visited_source"] == {"1": "visited", "2": "visited"}
+    assert per["action_type"] == pytest.approx(L.cohen_kappa(["ball_screen", "ball_screen", "drive", "cut"],
+                                                             ["ball_screen", "ball_screen", "drive", "none"]))
+    assert per["coverage"] == 1.0 and per["n_screens"] == 2
+    # without a visited record the labelled possessions stand in (and possession 3 would never enter)
+    g2 = _two_pass_root(tmp_path / "novisit", game, visited=False)
+    per2 = T.kappa_report(tmp_path / "novisit", [g2], (1, 2))["per_game"][g2]
+    assert per2["visited_source"] == {"1": "labels", "2": "labels"} and per2["n_possessions"] == 3
+    assert per2["action_type"] == 1.0
+
+
+def test_kappa_skips_heldout_games(tmp_path, game):
+    g = _two_pass_root(tmp_path, game)
+    held = fx.HELDOUT_GAME
+    acts, scrs = L.read_labels(tmp_path, g)
+    L.write_labels(tmp_path, held, acts.assign(sportvu_game=held), scrs.assign(sportvu_game=held))
+    for p in range(4):
+        L.mark_visited(tmp_path, held, p, 1); L.mark_visited(tmp_path, held, p, 2)
+    assert L.list_games(tmp_path) == sorted([held, g])
+    rep = T.kappa_report(tmp_path, L.list_games(tmp_path), (1, 2), heldout=fx.HELDOUT_TOKENS)
+    assert rep["skipped_heldout"] == [held] and list(rep["per_game"]) == [g]
+    assert rep["pooled"]["n_actions"] == 4
+    rep_all = T.kappa_report(tmp_path, L.list_games(tmp_path), (1, 2), heldout=())
+    assert rep_all["pooled"]["n_actions"] == 8
+
+
+def test_kappa_coverage_sure_only(tmp_path, game):
+    g = _two_pass_root(tmp_path, game, unsure_second=True)
+    per = T.kappa_report(tmp_path, [g], (1, 2))["per_game"][g]
+    # pass 2 marked possession 1's coverage unsure: that screen pairs as (switch, none), not (switch, switch)
+    assert per["n_screens"] == 2
+    assert per["coverage"] == pytest.approx(L.cohen_kappa(["drop", "switch"], ["drop", "none"]))
+    a1, s1 = L.read_labels(tmp_path, g, labeller_pass=1)
+    a2, s2 = L.read_labels(tmp_path, g, labeller_pass=2)
+    assert L.kappa((a1, s1), (a2, s2))["coverage"] == per["coverage"]
+
+
+def test_heldout_tokens_fail_closed(monkeypatch):
+    from sportvu import splits
+    monkeypatch.setattr(splits, "heldout_tokens", lambda *a, **k: (_ for _ in ()).throw(SystemExit("no splits")))
+    with pytest.raises(SystemExit):
+        T.heldout_tokens()
+    assert fx.HELDOUT_GAME not in T.heldout_tokens.__doc__ and "SystemExit" in T.heldout_tokens.__doc__
+
+
+def test_heldout_game_notice(tmp_path, game):
+    poss = game["possessions"].copy(); poss["sportvu_game"] = fx.HELDOUT_GAME
+    sess = T.LabelSession(tmp_path, fx.HELDOUT_GAME, game["frames"], poss, heldout=fx.HELDOUT_TOKENS)
+    assert sess.heldout is True and len(sess.order) == len(poss)
+    srv = T.make_server(sess, 0)
+    th = threading.Thread(target=srv.serve_forever, daemon=True); th.start()
+    try:
+        status, d = _req(srv.server_address[1], "GET", "/possessions")
+        assert status == 200 and d["heldout"] is True and d["notice"].startswith("HELD-OUT")
+        status, d = _req(srv.server_address[1], "GET", "/possession?index=0")
+        assert d["meta"]["heldout"] is True
+    finally:
+        srv.shutdown(); srv.server_close()
+    train = T.LabelSession(tmp_path, str(game["possessions"]["sportvu_game"].iloc[0]), game["frames"],
+                           game["possessions"], heldout=fx.HELDOUT_TOKENS)
+    assert train.heldout is False
+
+
+def test_post_guards(server):
+    port = server["port"]
+    # no JSON content type
+    c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+    c.request("POST", "/label", body=b"{}", headers={"Content-Type": "text/plain"})
+    assert c.getresponse().status == 415
+    c.close()
+    # bad Content-Length
+    c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+    c.putrequest("POST", "/label"); c.putheader("Content-Type", "application/json"); c.putheader("Content-Length", "abc")
+    c.endheaders()
+    assert c.getresponse().status == 400
+    c.close()
+    # body over 1 MiB is refused before it is read
+    c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+    c.putrequest("POST", "/label"); c.putheader("Content-Type", "application/json")
+    c.putheader("Content-Length", str(T.MAX_BODY + 1)); c.endheaders()
+    assert c.getresponse().status == 413
+    c.close()
+    # a foreign Host header is refused
+    c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+    c.request("POST", "/delete", body=b"{}", headers={"Content-Type": "application/json", "Host": "evil.example:80"})
+    assert c.getresponse().status == 403
+    c.close()
+    for host in ("127.0.0.1:%d" % port, "localhost", "[::1]:8765"):
+        c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+        c.request("POST", "/delete", body=b'{"kind": "bogus"}', headers={"Content-Type": "application/json", "Host": host})
+        assert c.getresponse().status == 400, host
+        c.close()
+
+
+def test_visited_endpoint(server, game):
+    port = server["port"]
+    status, r = _req(port, "POST", "/visited", {"possession": 1})
+    assert status == 200 and r["visited"] == [1] and r["labeller_pass"] == 1
+    assert _req(port, "POST", "/visited", {"possession": 10 ** 6})[0] == 400
+    assert _req(port, "POST", "/visited", {})[0] == 400
+    status, lst = _req(port, "GET", "/possessions")
+    flags = {x["possession"]: x["visited"] for x in lst["possessions"]}
+    assert flags[1] is True and flags[0] is False
+    status, d = _req(port, "GET", "/possession?index=1")
+    assert d["visited"] is True
+    v = L.read_visited(server["root"], server["session"].game)
+    assert v["possession"].tolist() == [1] and v["labeller_pass"].tolist() == [1]
+
+
+def test_html_key_guards():
+    html = (ROOT / "analytics" / "label_tool.html").read_text(encoding="utf-8")
+    assert "if (ev.ctrlKey || ev.metaKey || ev.altKey) return;" in html
+    i = html.index("function enterCoverage()")
+    assert 'if (!S.data)' in html[i:i + 200]
+    assert '"/visited"' in html
+
+
+def test_sampling_redistributes_short_team(game):
+    poss, frames = game["possessions"].copy(), game["frames"].copy()
+    teams = sorted(int(t) for t in poss["offense_team_id"].dropna().unique())
+    assert len(teams) == 2
+    flags = L.possession_flags(poss, frames)
+    elig = flags.loc[flags["half_court"]]
+    per_team = elig.groupby("offense_team_id").size()
+    small = int(per_team.idxmin())
+    # keep only one eligible possession of the small team
+    keep_small = elig.loc[elig["offense_team_id"] == small, "possession"].iloc[:1].tolist()
+    drop = elig.loc[(elig["offense_team_id"] == small) & (~elig["possession"].isin(keep_small)), "possession"]
+    poss2 = poss.loc[~poss["possession"].isin(drop)]
+    n_big = int(per_team.max())
+    out = L.sample_possessions(poss2, frames, 6, seed=0, heldout_tokens=fx.HELDOUT_TOKENS)
+    assert len(out) == 6 and out.attrs["n_short"] == 0
+    assert (out["offense_team_id"] == small).sum() == 1
+    out = L.sample_possessions(poss2, frames, n_big + 5, seed=0, heldout_tokens=fx.HELDOUT_TOKENS)
+    assert len(out) == n_big + 1 and out.attrs["n_short"] == 4
+    # precomputed flags give the same draw as computing them inside
+    a = L.sample_possessions(poss2, frames, 6, seed=1, heldout_tokens=fx.HELDOUT_TOKENS)
+    b = L.sample_possessions(poss2, frames, 6, seed=1, heldout_tokens=fx.HELDOUT_TOKENS, flags=flags)
+    assert a["possession"].tolist() == b["possession"].tolist()
+
+
+def test_validate_sides_and_pass(game, labelset, server):
+    acts, scrs = labelset["actions"].copy(), labelset["screens"].copy()
+    poss, frames = game["possessions"], game["frames"]
+    off0, def0 = _ids(game, 0)
+    assert L.validate_labels(acts, scrs, poss, frames) == []
+    bad = acts.copy(); bad.loc[0, "ball_handler_id"] = def0[0]
+    assert any("ball_handler_id" in p and "on the defence" in p for p in L.validate_labels(bad, scrs, poss, frames))
+    bad = acts.copy(); bad.loc[0, "screener_id"] = def0[1]
+    assert any("screener_id" in p and "on the defence" in p for p in L.validate_labels(bad, scrs, poss, frames))
+    bad = scrs.copy(); bad.loc[0, "on_ball_defender_id"] = off0[2]
+    assert any("on_ball_defender_id" in p and "on the offence" in p for p in L.validate_labels(acts, bad, poss, frames))
+    bad = acts.copy(); bad.loc[0, "ball_handler_id"] = 424242
+    assert any("not in the frames" in p for p in L.validate_labels(bad, scrs, poss, frames))
+    bad = acts.copy(); bad.loc[0, "labeller_pass"] = 3
+    assert any("labeller_pass" in p for p in L.validate_labels(bad, scrs, poss))
+    # the server passes its frames: a defender as handler is a 400
+    s, e, _ = _span(game, 2)
+    off2, def2 = _ids(game, 2)
+    status, r = _req(server["port"], "POST", "/label", {"kind": "action", "possession": 2, "action_type": "drive",
+                                                       "start_frame": s + 10, "end_frame": s + 40, "ball_handler_id": def2[0]})
+    assert status == 400 and "defence" in r["error"]
+
+
+def test_cli_help_and_docs():
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf), pytest.raises(SystemExit):
+        T.main(["--help"])
+    h = buf.getvalue()
+    for flag, text in (("--seed", "same N and seed"), ("--port", "free one"), ("--source", "label_source"),
+                       ("--passes", "compares"), ("--export-pass", "training reads")):
+        assert flag in h and text in h, flag
+    md = (ROOT / "docs" / "contract" / "labels.md").read_text(encoding="utf-8")
+    for text in ("read_labels", "labeller_pass == 1", "`hand`", '"deleted"', "last line per id", "visited",
+                 "spends at least 2 s", "unsure"):
+        assert text in md, text
+    assert "exactly the columns above" not in md
+    guide = (ROOT / "docs" / "labeling_guide.md").read_text(encoding="utf-8")
+    assert "spends at least 2 s" in guide and "sure" in guide and "HELD-OUT" in guide
