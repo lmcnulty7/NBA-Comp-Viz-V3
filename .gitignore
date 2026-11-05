@@ -110,3 +110,10 @@ analytics/rosters/
 analytics/shot_frames/
 analytics/rebound_frames/
 analytics/possessions/
+
+# run_all.py outputs (lane I5): logs, the run summary, fixture-run reports, the local fixture root, the copied site
+logs/
+reports/run_all.md
+reports/fixtures/
+.fixture_root/
+site/

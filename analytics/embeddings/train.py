@@ -1,7 +1,7 @@
 """analytics/embeddings/train.py: player style embeddings (unsupervised, unit player-season) under the evaluation protocol.
 
     python -m analytics.embeddings.train --fixtures | --data DATA_ROOT --report reports/embeddings.md
-                                        [--out OUT_ROOT] [--seed 0] [--bootstrap 200] [--n-min 300]
+                                        [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--n-min 300]
 
 DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet (+ heldout/)            section 4 frames, one file per game
@@ -30,7 +30,7 @@ Protocol:
        5-NN position accuracy: leave-one-out, majority of the 5 nearest player-seasons' positions (ties go to the nearest),
        against the majority-class baseline;
        next-season R squared: ridge (alpha 1) from the 2015-16 embedding to a 2016-17 aggregate stat (the first of
-       NEXT_SEASON_TARGETS present), out-of-fold under grouped K-fold by player_id, against the fold-mean baseline.
+       NEXT_SEASON_TARGETS present), out-of-fold under grouped K-fold by player_id (--folds, default 5), against the fold-mean baseline.
      The next-season stat is a target only; no 2016-17 value enters the embedding (aggregate_features reads one season).
   6. Outputs under OUT_ROOT/analytics/embeddings/<season>/: player_season_features, player_embeddings (both candidates
      when both were fitted, the chosen one first) and embedding_neighbours (the chosen method), docs/contract/embeddings.md.
@@ -340,7 +340,7 @@ def _interval(df: pd.DataFrame, fn, n_boot: int, seed: int) -> dict:
 
 
 def evaluate(E: np.ndarray, rows: pd.DataFrame, positions: pd.DataFrame | None, aggregates: pd.DataFrame | None,
-             n_boot: int, seed: int) -> dict:
+             n_boot: int, seed: int, n_folds: int = 5) -> dict:
     """Both metrics for one embedding of ``rows`` (player_id, season aligned to E) with bootstrap intervals by player."""
     out = {"knn": None, "next": None}
     nan = {"point": float("nan"), "lo": float("nan"), "hi": float("nan")}
@@ -367,7 +367,7 @@ def evaluate(E: np.ndarray, rows: pd.DataFrame, positions: pd.DataFrame | None, 
             if has.sum() >= 4:
                 idx = np.flatnonzero(sel)[has]
                 pids = rows["player_id"].to_numpy()[idx]
-                p = next_season_predictions(E[idx], y[has], pids, seed=seed)
+                p = next_season_predictions(E[idx], y[has], pids, seed=seed, n_folds=n_folds)
                 if p["folds"] >= 2:
                     d = pd.DataFrame({"player_id": pids, "y": y[has], "ridge": p["ridge"], "mean": p["mean"]})
                     out["next"] = {"n": int(has.sum()), "target": name, "folds": p["folds"],
@@ -430,13 +430,13 @@ def neighbours_table(rows: pd.DataFrame, E: np.ndarray, method: str, k: int = K_
 
 # ----------------------------------------------------------------------------- run
 
-def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fixture: bool = False) -> dict:
+def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fixture: bool = False, n_folds: int = 5) -> dict:
     feats = build_features(inputs, n_min)
     cols = F.available_features(feats)
     fit_rows = feats[~feats["insufficient"]].reset_index(drop=True)
     ctx = {"features": feats, "feature_columns": cols, "fixture_root": inputs.get("fixture_root"), "n_rows": int(len(feats)), "n_fit": int(len(fit_rows)),
            "n_insufficient": int(feats["insufficient"].sum()), "n_min": n_min, "seed": seed, "bootstrap": n_boot,
-           "fixture": fixture, "games": sorted(g["sportvu_game"] for g in inputs["games"]), "dropped": inputs["dropped"],
+           "fixture": fixture, "folds": n_folds, "games": sorted(g["sportvu_game"] for g in inputs["games"]), "dropped": inputs["dropped"],
            "source": inputs.get("source", ""), "has_aggregates": inputs.get("aggregates") is not None,
            "has_positions": inputs.get("positions") is not None, "candidates": {}, "tables": {}}
     if len(fit_rows) < 3 or not cols:
@@ -448,7 +448,7 @@ def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fi
     Z, transform, _ = standardise(X)
     pca = fit_pca(Z, seed)
     E_pca = pca["embed"](Z)
-    ev_pca = evaluate(E_pca, fit_rows, inputs.get("positions"), inputs.get("aggregates"), n_boot, seed)
+    ev_pca = evaluate(E_pca, fit_rows, inputs.get("positions"), inputs.get("aggregates"), n_boot, seed, n_folds)
     ctx["candidates"]["pca"] = {"eval": ev_pca, "explained_variance_ratio": pca["explained_variance_ratio"]}
     embeddings = {"pca": E_pca}
     pca_acc = ev_pca["knn"]["accuracy"]["point"]
@@ -456,7 +456,7 @@ def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fi
     if np.isfinite(pca_acc) and pca_acc < AE_GATE:
         ae = fit_autoencoder(Z, seed)
         E_ae = ae["embed"](Z)
-        ev_ae = evaluate(E_ae, fit_rows, inputs.get("positions"), inputs.get("aggregates"), n_boot, seed)
+        ev_ae = evaluate(E_ae, fit_rows, inputs.get("positions"), inputs.get("aggregates"), n_boot, seed, n_folds)
         ctx["candidates"]["autoencoder"] = {"eval": ev_ae, "reconstruction_mse": ae["reconstruction_mse"], "n_iter": ae["n_iter"]}
         embeddings["autoencoder"] = E_ae
         ae_acc = ev_ae["knn"]["accuracy"]["point"]
@@ -585,6 +585,7 @@ def parse_args(argv=None):
     ap.add_argument("--data", help="DATA_ROOT (layout in the module docstring)")
     ap.add_argument("--report", default="reports/embeddings.md")
     ap.add_argument("--out", help="OUT_ROOT for the three tables (a fixture run uses a temporary directory when absent)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by player_id for the next-season ridge (fewer when fewer players)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--bootstrap", type=int, default=200)
     ap.add_argument("--n-min", type=int, default=None, help="possession gate (300; %d for --fixtures)" % FIXTURE_N_MIN)
@@ -601,7 +602,7 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     inputs = fixture_inputs(a.seed, a.n_games, a.heldout_every, local=a.local_fixtures) if a.fixtures else load_inputs(a.data)
     n_min = a.n_min if a.n_min is not None else (FIXTURE_N_MIN if a.fixtures else F.N_MIN)
-    ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures)
+    ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures, n_folds=a.folds)
     out_root = a.out if a.out else (tempfile.mkdtemp(prefix="emb_out_") if a.fixtures else None)
     if out_root:
         ctx["written"] = write_tables(ctx, out_root)

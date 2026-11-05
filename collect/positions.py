@@ -10,6 +10,8 @@ during the season has a total row, team TOT or 2TM/3TM, plus one row per team):
       <td data-stat="player" data-append-csv="curryst01" csk="Curry,Stephen"><a href="/players/c/curryst01.html">Stephen Curry</a></td>
       <td data-stat="pos">PG</td><td data-stat="age">27</td><td data-stat="team_id"><a href="/teams/GSW/2016.html">GSW</a></td>
       <td data-stat="g">79</td> ... <td data-stat="mp_per_g">34.2</td> ... </tr>
+  (the 2024 redesign renames player to name_display, team_id to team_name_abbr, g and gs to games and games_started;
+  both spellings are read)
 Total rows are dropped: every row of the output names a real team, and the position is the same on a player's rows.
 
 Output: --out/positions/positions/<season>.parquet per season and, after compaction, their union in one file,
@@ -44,24 +46,30 @@ def per_game_url(season: str) -> str:
 
 
 # ── parsing ────────────────────────────────────────────────────────────────────────────────────────
-def parse_per_game(html: str) -> list[dict]:
-    """Every player row of the per-game table -> dict(player_slug, player, position, team, age, games, mp_per_g, is_total)."""
-    tables = sched.find_tables(html, r"^per_game_stats$")
-    if not tables:
-        return []
+def _first(cells: dict, *stats):
+    """The first of several data-stat spellings present in the row (page redesigns rename columns)."""
+    return next((cells[s] for s in stats if s in cells), None)
+
+
+def parse_per_game(html: str, where: str = "") -> list[dict]:
+    """Every player row of the per-game table -> dict(player_slug, player, position, team, age, games, mp_per_g, is_total).
+    ValueError when the page has no per-game table."""
+    tables = sched.require_table(html, r"^per_game_stats$", "id=per_game_stats", where)
     rows = []
     body = tables[0].find("tbody") or tables[0]
     for tr in body.find_all("tr"):
         if "thead" in (tr.get("class") or []):
             continue
         cells = sched.row_cells(tr)
-        pc = cells.get("player")
+        pc = _first(cells, "player", "name_display")
         slug = sched.slug_of(pc)
         if pc is None or slug is None:
             continue
-        team_cell = cells.get("team_id") if "team_id" in cells else cells.get("team_name_abbr")
+        team_cell = _first(cells, "team_id", "team_name_abbr")
         team = sched.team_of_link(team_cell) or (team_cell.get_text(" ", strip=True) if team_cell is not None else None)
-        age, g, mp = sched.cell_num(cells, "age"), sched.cell_num(cells, "g"), sched.cell_num(cells, "mp_per_g")
+        g_cell = _first(cells, "g", "games")
+        age, mp = sched.cell_num(cells, "age"), sched.cell_num(cells, "mp_per_g")
+        g = sched.cell_num(cells, g_cell["data-stat"]) if g_cell is not None else None
         rows.append({"player_slug": slug, "player": pc.get_text(" ", strip=True), "position": sched.cell_text(cells, "pos"), "team": team,
                      "age": int(age) if age is not None else None, "games": int(g) if g is not None else None, "mp_per_g": mp,
                      "is_total": team in TOTAL_TEAMS})
@@ -108,7 +116,7 @@ def join_rosters(positions, rosters):
 def do_season(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     season = unit["season"]
     rec = sched.page_record(fam, RAW_ENDPOINT, unit["params"], per_game_url(season), throttle)
-    players = parse_per_game(rec["body"])
+    players = parse_per_game(rec["body"], season)
     df = rows_for_season(season, players, rec["fetched_at"])
     if len(df):
         fam.write_part(ENDPOINT, season, season, df)
@@ -133,8 +141,7 @@ def units_for(seasons: list[str]) -> list[tuple[str, dict]]:
 
 
 def main(argv=None) -> str:
-    ap = common.base_parser(__doc__.split("\n\n")[0], DEFAULT_SEASONS)
-    ap.set_defaults(rpm=MAX_RPM)
+    ap = sched.bref_parser(__doc__.split("\n\n")[0], DEFAULT_SEASONS)
     a = ap.parse_args(argv)
     fam = common.Family(a.out, FAMILY)
     if a.compact_only:

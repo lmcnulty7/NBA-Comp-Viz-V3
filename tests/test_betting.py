@@ -64,7 +64,8 @@ def test_closing_line_is_the_is_close_snapshot_nearest_tip_and_duplicates_are_co
     closing, counts = va.closing_lines(odds)
     assert len(closing) == 1 and counts["duplicate_snapshots"] == 1 and counts["fallback_preclose"] == 0
     r = closing.iloc[0]
-    assert r["closing_spread_home"] == -3.5 and r["closing_total"] == 220.5 and r["n_close_snapshots"] == 2
+    assert r["closing_spread_home"] == -3.5 and r["closing_total"] == 220.5
+    assert r["n_close_snapshots"] == 1 and r["snapshot_at"] == "2021-01-01T23:55:00Z"   # one book: one chosen instant; its earlier close is the counted duplicate
     assert np.isclose(r["implied_home_prob"], 0.5798, atol=5e-4)
     # no is_close row: the latest pre-tip snapshot stands in and is counted
     closing2, counts2 = va.closing_lines(odds.assign(is_close=False))
@@ -107,14 +108,36 @@ def test_features_use_previous_games_only(joined):
     bg = fx.build_games(joined["joined"], "2021-22")
     assert list(bg.columns[:len(fx.GAMES_COLUMNS)]) == list(fx.GAMES_COLUMNS)
     assert bg["heldout"].sum() == (bg["season"] == "2021-22").sum() > 0
-    # changing a later game's score must not change any earlier row's features
-    j2 = joined["joined"].copy()
-    last = j2.sort_values(["game_date", "game_id"]).index[-1]
-    j2.loc[last, "home_score"] = 300
-    bg2 = fx.build_games(j2, "2021-22")
-    earlier = bg["game_id"] != j2.loc[last, "game_id"]
+    # mutate a mid-season game's own score: its OWN row keeps every feature (an unshifted window would change
+    # net10, net30, pf_std, pa_std), every earlier row is unchanged, and later rows of both its teams change
+    j = joined["joined"].copy()
+    season = sorted(j["season"].unique())[0]
+    s = j[j["season"] == season].sort_values(["game_date", "game_id"])
+    target = None
+    for pos in range(len(s) // 3, len(s)):
+        r = s.iloc[pos]
+        later = s.iloc[pos + 1:]
+        if (later["home_team_id"].eq(r["home_team_id"]) | later["away_team_id"].eq(r["home_team_id"])).any() and \
+           (later["home_team_id"].eq(r["away_team_id"]) | later["away_team_id"].eq(r["away_team_id"])).any():
+            target = s.index[pos]
+            break
+    assert target is not None
+    gid, date = j.loc[target, "game_id"], j.loc[target, "game_date"]
+    j.loc[target, "home_score"] = int(j.loc[target, "home_score"]) + 40
+    bg2 = fx.build_games(j, "2021-22")
+    own, own2 = bg[bg["game_id"] == gid].iloc[0], bg2[bg2["game_id"] == gid].iloc[0]
+    for c in fx.FEATURES:
+        assert own[c] == own2[c], c
+    earlier = (bg["season"] == season) & (bg["game_date"] < date)
     pd.testing.assert_frame_equal(bg.loc[earlier, list(fx.FEATURES)].reset_index(drop=True),
                                   bg2.loc[earlier, list(fx.FEATURES)].reset_index(drop=True))
+    for tid in (own["home_team_id"], own["away_team_id"]):
+        nxt = bg[(bg["season"] == season) & (bg["game_date"] > date) & ((bg["home_team_id"] == tid) | (bg["away_team_id"] == tid))]
+        nxt = nxt.sort_values(["game_date", "game_id"]).iloc[0]
+        side = "home" if nxt["home_team_id"] == tid else "away"
+        nxt2 = bg2[bg2["game_id"] == nxt["game_id"]].iloc[0]
+        assert nxt[side + "_net10"] != nxt2[side + "_net10"] and nxt[side + "_pf_std"] != nxt2[side + "_pf_std"] or \
+               nxt[side + "_pa_std"] != nxt2[side + "_pa_std"]
     # the first game of every team in a season (home or away) carries no form and the capped rest
     srt = bg.sort_values(["game_date", "game_id"])
     seen = set()
@@ -122,7 +145,9 @@ def test_features_use_previous_games_only(joined):
         for side, tid in (("home", r.home_team_id), ("away", r.away_team_id)):
             if (r.season, tid) not in seen:
                 seen.add((r.season, tid))
-                assert getattr(r, side + "_rest_days") == fx.REST_CAP and getattr(r, side + "_net10") == 0.0
+                assert getattr(r, side + "_rest_days") == fx.REST_CAP
+                for c in ("net10", "net30", "pf_std", "pa_std"):
+                    assert getattr(r, "%s_%s" % (side, c)) == 0.0, (side, c)
     fx.assert_time_forward(fx.design(bg))
     cover = bg["home_margin"] + bg["closing_spread_home"]
     assert ((bg["home_cover"] == 1) == (cover > 0)).loc[bg["home_cover"].notna()].all()
@@ -151,6 +176,8 @@ def test_staking_rule_and_pnl():
     assert st.tolist() == [1, -1, 0, 1, -1]
     out = tr.pnl([1, -1, 1, 1, 0, 1], home_margin=[5, 5, -3, 2, 9, 4], closing_spread_home=[-3, -3, 1, -2, -1, np.nan])
     assert np.allclose(out, [0.91, -1, -1, 0, 0, 0])                # win, loss, loss, push, no bet, no spread
+    priced = tr.pnl([1, 1], home_margin=[5, 5], closing_spread_home=[-3, -3], price=[-120, 110])
+    assert np.allclose(priced, [100 / 120, 1.1])
 
 
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
@@ -185,14 +212,100 @@ def test_eda_tables_and_shuffled_labels(joined):
     bg = fx.build_games(joined["joined"], "2021-22")
     sd = eda.spread_distribution(bg)
     assert sd["n"].iloc[0] == bg["closing_spread_home"].notna().sum()
+    train_rows = bg[~bg["heldout"]]
     cr = eda.cover_rate_by_spread_bin(bg)
-    assert cr["n"].sum() == bg["home_cover"].notna().sum()
+    assert cr["n"].sum() == train_rows["home_cover"].notna().sum() < bg["home_cover"].notna().sum()
+    md_ = eda.margin_distribution(bg)
+    assert md_["n"].iloc[0] == len(train_rows)
     md = eda.render_markdown(eda.join_coverage(joined["counts"]))
     assert md.startswith("| count | value |") and "join.coverage" in md
     sh = eda.shuffled_label_check(bg, seed=0, folds=3)
     assert set(sh["labels"]) == {"true", "shuffled"} and len(sh) == 6
     market = sh[sh["candidate"] == "market"]["log_loss"]
     assert np.allclose(market, np.log(2))
+
+
+def test_staggered_books_each_keep_their_own_closing_snapshot():
+    """Book A closes 5 minutes before tip, book B 35 minutes before (and has an earlier duplicate): both books are kept
+    at their own instant, the duplicate is counted, and a book with no is_close row is dropped and counted."""
+    base = {"game_key": "2021-01-02_MiamiHeat_BostonCeltics", "commence_time": "2021-01-02T00:00:00Z", "home_team": "Boston Celtics",
+            "away_team": "Miami Heat", "source": "x", "endpoint": "y"}
+    rows = []
+    for book, at, close, sp in (("a", "2021-01-01T23:55:00Z", True, -3.5), ("b", "2021-01-01T23:25:00Z", True, -5.5),
+                                ("b", "2021-01-01T22:00:00Z", True, -9.5), ("c", "2021-01-01T12:00:00Z", False, -1.5)):
+        for market, side, point, price in (("spreads", "Boston Celtics", sp, -110), ("spreads", "Miami Heat", -sp, -110),
+                                           ("totals", "Over", 220.5, -110), ("totals", "Under", 220.5, -110),
+                                           ("h2h", "Boston Celtics", None, -150), ("h2h", "Miami Heat", None, 130)):
+            rows.append({**base, "book": book, "snapshot_at": at, "is_close": close, "market": market, "side": side, "point": point, "price": price})
+    closing, counts = va.closing_lines(pd.DataFrame(rows))
+    r = closing.iloc[0]
+    assert r["n_books"] == 2 and r["closing_spread_home"] == -4.5 and r["n_close_snapshots"] == 2
+    assert counts["duplicate_snapshots"] == 1 and counts["books_without_close"] == 1 and counts["multi_book_games"] == 1
+    assert r["snapshot_at"] == "2021-01-01T23:55:00Z"
+
+
+def test_collector_heldout_game_is_dropped_before_the_join(data):
+    games = data["games"].copy()
+    games["heldout"] = False
+    games.loc[games.index[3], "heldout"] = True
+    gid = games.loc[games.index[3], "game_id"]
+    res = va.validate(data["odds"], games, team_names())
+    assert gid not in set(res["joined"]["game_id"].astype(str)) and res["counts"]["games_heldout_dropped"] == 1
+    dup = pd.concat([games, games.iloc[[0]]], ignore_index=True)
+    with pytest.raises(ValueError, match="duplicate game_id"):
+        va.validate(data["odds"], dup, team_names())
+
+
+def test_inferred_names_need_votes_and_cannot_collide(data):
+    closing = va.closing_lines(data["odds"])[0]
+    games = data["games"].copy()
+    if not team_names():
+        pytest.skip("fallback fixtures use real ids: nothing to infer")
+    # every unknown id is resolved with at least MIN_VOTES votes and a majority on the full fixture
+    inferred = va.infer_team_names(closing, games)
+    assert len(inferred) >= 6
+    # a single date gives one vote per id: below MIN_VOTES, nothing is inferred
+    one = games.sort_values("game_date").iloc[[0]]
+    assert va.infer_team_names(closing, one) == {}
+    # a known name on the odds side collides: refuse rather than map two ids to one team
+    collide = closing.copy()
+    collide["home_team"] = "Boston Celtics"
+    collide["away_team"] = "Miami Heat"
+    with pytest.raises(ValueError, match="collides"):
+        va.infer_team_names(collide, games)
+
+
+def test_trainer_never_fits_or_scores_a_held_out_row(tmp_path, monkeypatch):
+    seen = {"fit": [], "score": []}
+    real_fit, real_score = tr.fit_models, tr.score_candidates
+    monkeypatch.setattr(tr, "fit_models", lambda train: (seen["fit"].append(train), real_fit(train))[1])
+    monkeypatch.setattr(tr, "score_candidates", lambda pred, n, seed: (seen["score"].append(pred), real_score(pred, n, seed))[1])
+    before = (tr.STAKE_THRESHOLD, tr.VIG, tr.WIN_RETURN, tr.UNIT)
+    ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(tmp_path / "r.md"), "--bootstrap", "5", "--fixture-games", str(N_GAMES)])
+    assert seen["fit"] and seen["score"]
+    assert not any(f["heldout"].astype(bool).any() for f in seen["fit"])
+    assert not any(f["heldout"].astype(bool).any() for f in seen["score"])
+    assert ctx["heldout_games"] > 0 and (tr.STAKE_THRESHOLD, tr.VIG, tr.WIN_RETURN, tr.UNIT) == before == (0.55, 0.045, 0.91, 1.0)
+    assert np.isclose(tr.win_return([-110])[0], 100 / 110) and tr.win_return([np.nan])[0] == tr.WIN_RETURN and tr.win_return(None, 2).tolist() == [0.91, 0.91]
+    assert "a temporary directory" not in (tmp_path / "r.md").read_text()      # --out was given
+
+
+def test_rapm_features_use_values_dated_before_the_game(tmp_path):
+    """A player_rapm table with as_of: null for a game on or before as_of, the team sum after it. The lineups lane's
+    current table carries no as_of, so on real data the two columns stay null (documented)."""
+    games = pd.DataFrame({"game_id": ["g1", "g2", "g3"], "season": ["2020-21"] * 3,
+                          "game_date": ["2021-01-01", "2021-01-10", "2021-01-20"],
+                          "home_team_id": [1, 1, 2], "away_team_id": [2, 2, 1]})
+    d = tmp_path / "analytics" / "lineups" / "2020-21"
+    d.mkdir(parents=True)
+    pd.DataFrame({"player_id": [11, 12, 21], "team_id": [1, 1, 2], "rapm": [1.5, -0.5, 2.0],
+                  "as_of": ["2021-01-10"] * 3}).to_parquet(d / "player_rapm.parquet", index=False)
+    r = fx.rapm_features(games, tmp_path).set_index("game_id")
+    assert r.loc["g1"].isna().all() and r.loc["g2"].isna().all()
+    assert r.loc["g3", "home_rapm_sum"] == 2.0 and r.loc["g3", "away_rapm_sum"] == 1.0
+    assert fx.rapm_features(games, None).drop(columns="game_id").isna().all().all()
+    pd.DataFrame({"player_id": [11], "team_id": [1], "rapm": [1.0]}).to_parquet(d / "player_rapm.parquet", index=False)
+    assert fx.rapm_features(games, tmp_path).drop(columns="game_id").isna().all().all()      # no as_of: stays null
 
 
 def test_no_em_dash_in_lane_files():

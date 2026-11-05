@@ -24,14 +24,21 @@ Assumptions recorded here because the upstream lanes (ACTIONS, COVERAGE, EPV) we
   - An actions table without an action_id column gets one: the 0-based position of the row within
     its game (jsonl line order, parquet row order), the convention of analytics/coverage and of the
     shared fixtures. The screens and coverage tables join on (sportvu_game, possession, action_id).
-  - Hand labels (labels/actions, labels/screens) win over detected or predicted rows when both
-    exist for the same key; label_source records which one was used.
+  - Hand labels (labels/actions, labels/screens, read with analytics.labels.read_labels at
+    labeller_pass 1 so tombstones and pass-2 relabels never reach training) win over detected rows
+    for a game that has them; detected rows (label_source "model") fill the other games and get no
+    pass filter. label_source records which one was used.
+  - The score margin enters the ridge as a binned indicator group (trailing by more than 5, within
+    5, leading by more than 5), so it is a control in the adjustment, not an outcome.
 """
 from __future__ import annotations
 
 ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
 COVERAGES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over", "none")
-LABEL_SOURCES = ("hand", "human", "model", "detected", "predicted", "synthetic")
+try:
+    from analytics.labels import LABEL_SOURCES          # ("hand", "model", "synthetic")
+except ImportError:                                      # the labels module is another lane's file
+    LABEL_SOURCES = ("hand", "model", "synthetic")
 SEASON = "2015-16"
 N_MIN = 300            # the possession gate of analytics.eval.gated
 WHO = "playcalling"

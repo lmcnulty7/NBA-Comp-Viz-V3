@@ -116,7 +116,7 @@ When over or under is combined with a drop, label the screener's defender's beha
 | `v` | coverage mode for the selected ball_screen (the last saved one when none is selected) |
 | `u` | toggle sure / unsure |
 | `j` | jump to the selected action's start frame |
-| `n`, `p` | next / previous possession; the possession being left is recorded as visited by this pass, labels or none |
+| `n`, `p` | next / previous possession; the possession being left is recorded as visited by this pass, labels or none (also at the first and last possession of the list) |
 | `f` | half court / full court |
 
 Keys pressed with `ctrl`, `cmd` or `alt` are left to the browser. Opening a held-out game shows a

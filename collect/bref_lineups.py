@@ -60,11 +60,10 @@ def parse_lineup_cell(cell) -> tuple[list[str], list[str]]:
     return slugs, names
 
 
-def parse_lineups(html: str) -> list[dict]:
-    """Every row of the five-man table -> dict(rank, slugs, names, minutes, pace, net_rating, stats)."""
-    tables = sched.find_tables(html, TABLE_ID_RE)
-    if not tables:
-        return []
+def parse_lineups(html: str, where: str = "") -> list[dict]:
+    """Every row of the five-man table -> dict(rank, slugs, names, minutes, pace, net_rating, stats). ValueError when the
+    page has no five-man table."""
+    tables = sched.require_table(html, TABLE_ID_RE, "id=lineups_5-man_", where)
     rows = []
     body = tables[0].find("tbody") or tables[0]
     for tr in body.find_all("tr"):
@@ -113,7 +112,7 @@ def rows_for_team(team: str, season: str, lineups: list[dict], fetched_at: str):
 def do_team(unit: dict, fam: common.Family, throttle: common.Throttle) -> tuple[int, dict]:
     team, season = unit["team"], unit["season"]
     rec = sched.page_record(fam, RAW_ENDPOINT, unit["params"], lineups_url(team, season), throttle)
-    lineups = parse_lineups(rec["body"])
+    lineups = parse_lineups(rec["body"], "%s %s" % (team, season))
     df = rows_for_team(team, season, lineups, rec["fetched_at"])
     if len(df):
         fam.write_part(ENDPOINT, season, team, df)
@@ -130,8 +129,7 @@ def units_for(fam: common.Family, seasons: list[str], teams: list[str] | None = 
 
 
 def main(argv=None) -> str:
-    ap = common.base_parser(__doc__.split("\n\n")[0], DEFAULT_SEASONS)
-    ap.set_defaults(rpm=MAX_RPM)
+    ap = sched.bref_parser(__doc__.split("\n\n")[0], DEFAULT_SEASONS)
     ap.add_argument("--teams", nargs="*", help="basketball-reference team codes (default: the season's schedule, else all 30)")
     a = ap.parse_args(argv)
     fam = common.Family(a.out, FAMILY)

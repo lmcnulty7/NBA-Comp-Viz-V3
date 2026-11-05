@@ -51,7 +51,7 @@ DRIVE_FTPS, DRIVE_S = 8.0, 0.6
 CONTEST_PER_FT, CONTEST_FT, P_FLOOR = 0.03, 6.0, 0.01
 OPEN_FT, OPEN_MIN = 6.0, 0.5
 PASS_RISK_BASE, PASS_RISK_PER_FT, PASS_RISK_FT = 0.95, 0.01, 15.0
-DRIVE_LOOKAHEAD_S, DRIVE_MIN_FT, DRIVE_RISK = 1.0, 3.0, 0.9
+DRIVE_FT, DRIVE_MIN_FT, DRIVE_RISK = 8.0, 3.0, 0.9
 THREE_FT = 22.0
 RIM_LEFT, RIM_RIGHT, HALF_X = (5.25, 25.0), (88.75, 25.0), 47.0
 MAX_TEAMMATES = 4
@@ -96,6 +96,35 @@ def basket_of(mean_x: float) -> tuple:
     return RIM_RIGHT if mean_x > HALF_X else RIM_LEFT
 
 
+def baskets_by_team_period(frames_sorted: pd.DataFrame, frame_values: np.ndarray, possessions: pd.DataFrame) -> dict:
+    """{(offense_team_id, period): basket} by majority vote over the team's possessions of the period, each
+    possession voting with the end where its offence's mean x lies; a tie goes to the frame-weighted mean x.
+    A transition possession that starts in the backcourt is outvoted by the team's half-court possessions."""
+    votes: dict = {}
+    for row in possessions.itertuples(index=False):
+        if pd.isna(row.offense_team_id):
+            continue
+        lo = int(np.searchsorted(frame_values, int(row.start_frame), side="left"))
+        hi = int(np.searchsorted(frame_values, int(row.end_frame), side="right"))
+        sub = frames_sorted.iloc[lo:hi]
+        offx = sub.loc[sub["team_id"].to_numpy() == row.offense_team_id, "x"].to_numpy(dtype=float)
+        offx = offx[np.isfinite(offx)]
+        if not len(offx):
+            continue
+        key = (int(row.offense_team_id), int(row.period))
+        v = votes.setdefault(key, {"right": 0, "left": 0, "sum_x": 0.0, "n": 0})
+        v["right" if basket_of(float(offx.mean())) == RIM_RIGHT else "left"] += 1
+        v["sum_x"] += float(offx.sum())
+        v["n"] += len(offx)
+    out = {}
+    for key, v in votes.items():
+        if v["right"] != v["left"]:
+            out[key] = RIM_RIGHT if v["right"] > v["left"] else RIM_LEFT
+        else:
+            out[key] = basket_of(v["sum_x"] / max(v["n"], 1))
+    return out
+
+
 def loc_tenths(x, y, bx, by) -> tuple:
     """Court feet -> the section 10 convention in tenths of a foot: loc_y toward half court, loc_x across."""
     x, y, bx, by = (np.asarray(v, dtype=float) for v in (x, y, bx, by))
@@ -124,7 +153,7 @@ def pass_risk(length_ft):
 class Possession:
     """Frames of one possession as arrays: ball (n, 3), offence xy (n, k, 2), defence xy (n, m, 2)."""
 
-    def __init__(self, frames_sorted: pd.DataFrame, frame_values: np.ndarray, row, fps: float):
+    def __init__(self, frames_sorted: pd.DataFrame, frame_values: np.ndarray, row, fps: float, basket=None):
         self.possession = int(row.possession)
         self.start, self.end = int(row.start_frame), int(row.end_frame)
         self.fps = fps
@@ -143,7 +172,10 @@ class Possession:
         self.ball = ball
         self.off_ids, self.off = self._side(sub, inv, is_off)
         self.def_ids, self.dfn = self._side(sub, inv, ~is_off)
-        self.basket = basket_of(float(np.nanmean(self.off[:, :, 0]))) if self.ok else RIM_LEFT
+        if basket is not None:
+            self.basket = tuple(basket)
+        else:
+            self.basket = basket_of(float(np.nanmean(self.off[:, :, 0]))) if self.ok else RIM_LEFT
         self.bx, self.by = self.basket
 
     def _side(self, sub, inv, mask):
@@ -245,7 +277,7 @@ def shot_rows(shot_frames: pd.DataFrame, pos: Possession) -> list:
 
 # ── contexts ───────────────────────────────────────────────────────────────────────────────────────
 def _context(pos: Possession, i: int, h: int, kind: str, game: str, heldout: bool, event: int = -1,
-             receiver: int = -1) -> Optional[dict]:
+             receiver: int = -1, counts: Optional[dict] = None) -> Optional[dict]:
     o = pos.off[i]
     if np.isnan(o[h]).any():
         return None
@@ -267,7 +299,13 @@ def _context(pos: Possession, i: int, h: int, kind: str, game: str, heldout: boo
          "nearest_def_dist_ft": float(dd[h]), "elapsed_in_possession_s": float((pos.frames[i] - pos.start) / pos.fps),
          "ball_z": float(pos.ball[i, 2]), "speed_toward_basket_ftps": float(speed)}
     mates = [j for j in range(len(pos.off_ids)) if j != h and not np.isnan(o[j]).any()]
-    mates = mates[:MAX_TEAMMATES]
+    if receiver >= 0 and receiver in mates:                       # the receiver always gets a slot
+        mates.remove(receiver)
+        mates.insert(0, receiver)
+    if len(mates) > MAX_TEAMMATES:
+        if counts is not None:
+            counts["teammates_truncated"] = counts.get("teammates_truncated", 0) + len(mates) - MAX_TEAMMATES
+        mates = mates[:MAX_TEAMMATES]
     c["n_teammates"] = len(mates)
     c["n_teammates_open"] = int(sum(1 for j in mates if dd[j] >= OPEN_FT))
     for k in range(1, MAX_TEAMMATES + 1):
@@ -298,6 +336,9 @@ def decision_contexts(bundle: dict, counts: Optional[dict] = None) -> pd.DataFra
     fps = fps_of(frames)
     poss = bundle["possessions"]
     sf = bundle["shot_frames"]
+    baskets = baskets_by_team_period(frames, fv, poss)
+    all_releases = pd.to_numeric(sf["release_frame"]).to_numpy(dtype=float)
+    all_releases = all_releases[np.isfinite(all_releases) & (all_releases != schema.NOT_FOUND)].astype(int)
     rows = []
     for row in poss.itertuples(index=False):
         if pd.isna(row.offense_team_id):
@@ -306,26 +347,27 @@ def decision_contexts(bundle: dict, counts: Optional[dict] = None) -> pd.DataFra
         if bool(getattr(row, "gap", False)):
             counts["possessions_gap"] = counts.get("possessions_gap", 0) + 1
             continue
-        pos = Possession(frames, fv, row, fps)
+        pos = Possession(frames, fv, row, fps, basket=baskets.get((int(row.offense_team_id), int(row.period))))
         if not pos.ok:
             counts["possessions_empty"] = counts.get("possessions_empty", 0) + 1
             continue
         shots = shot_rows(sf, pos)
-        releases = np.array([pos.frames[i] for i, _, _ in shots if i is not None])
+        # every release inside the span blocks a pass, whether or not the shooter was matched
+        releases = all_releases[(all_releases >= pos.start) & (all_releases <= pos.end)]
         segs = pos.segments(pos.holders())
         for i, h, ev in shots:
             if i is None:
                 counts["shots_unlocated"] = counts.get("shots_unlocated", 0) + 1
                 continue
-            c = _context(pos, i, h, "shot", game, heldout, event=ev)
+            c = _context(pos, i, h, "shot", game, heldout, event=ev, counts=counts)
             if c:
                 rows.append(c)
         for i, a, b in detect_passes(pos, releases, segs):
-            c = _context(pos, i, a, "pass", game, heldout, receiver=b)
+            c = _context(pos, i, a, "pass", game, heldout, receiver=b, counts=counts)
             if c:
                 rows.append(c)
         for i, h in detect_drives(pos, segs):
-            c = _context(pos, i, h, "drive", game, heldout)
+            c = _context(pos, i, h, "drive", game, heldout, counts=counts)
             if c:
                 rows.append(c)
         counts["possessions_used"] = counts.get("possessions_used", 0) + 1
@@ -388,7 +430,7 @@ def option_values(contexts: pd.DataFrame, p_fn: Callable, hold: Optional[pd.Seri
     n = len(c)
     out = c[CONTEXT_IDS].copy()
     if n == 0:
-        for col in ("chosen_value", "best_value", "decision_quality", "shot_value", "hold_value"):
+        for col in ("chosen_value", "best_value", "decision_quality", "shot_value", "hold_value", "drive_value"):
             out[col] = pd.Series(dtype=float)
         out["best_option"] = pd.Series(dtype="string")
         out["prior"] = pd.Series(dtype="string")
@@ -406,17 +448,18 @@ def option_values(contexts: pd.DataFrame, p_fn: Callable, hold: Optional[pd.Seri
             continue
         tx, ty = c["tm%d_x" % k].to_numpy(float), c["tm%d_y" % k].to_numpy(float)
         dft = c["tm%d_def_ft" % k].to_numpy(float)
-        sv, _ = _shot_value(p_fn, np.where(present, tx, 0.0), np.where(present, ty, 0.0), bx, by, dft)
+        # the teammate's shot value without the contest term: openness already carries the defender distance
+        sv, _ = _shot_value(p_fn, np.where(present, tx, 0.0), np.where(present, ty, 0.0), bx, by, np.full(n, np.inf))
         v = sv * openness(dft) * pass_risk(c["tm%d_pass_ft" % k].to_numpy(float))
         passes[:, k - 1] = np.where(present, v, -np.inf)
         tm_ids[:, k - 1] = ids
     hold_v = np.full(n, np.nan) if hold is None else np.asarray(hold, dtype=float)
-    # drive value: the position one second ahead at the decision-frame velocity, never nearer than 3 ft
-    px = c["x"].to_numpy(float) + c["vx"].to_numpy(float) * DRIVE_LOOKAHEAD_S
-    py = c["y"].to_numpy(float) + c["vy"].to_numpy(float) * DRIVE_LOOKAHEAD_S
-    dx, dy = px - bx, py - by
+    # the drive option: attacking DRIVE_FT toward the rim from the decision position, never nearer than DRIVE_MIN_FT,
+    # with the decision-frame defender distance, times DRIVE_RISK; the same quantity is the chosen value of a drive
+    dx, dy = c["x"].to_numpy(float) - bx, c["y"].to_numpy(float) - by
     dd = np.hypot(dx, dy)
-    scale = np.where(dd < DRIVE_MIN_FT, DRIVE_MIN_FT / np.maximum(dd, 1e-9), 1.0)
+    target = np.maximum(dd - DRIVE_FT, DRIVE_MIN_FT)
+    scale = target / np.maximum(dd, 1e-9)
     px, py = bx + dx * scale, by + dy * scale
     drive_v, _ = _shot_value(p_fn, px, py, bx, by, c["nearest_def_dist_ft"].to_numpy(float))
     drive_v = drive_v * DRIVE_RISK
@@ -429,25 +472,28 @@ def option_values(contexts: pd.DataFrame, p_fn: Callable, hold: Optional[pd.Seri
     hit = (tm_ids == recv[:, None]) & is_pass[:, None]
     has = hit.any(axis=1)
     chosen[has] = passes[hit]
-    # best over shot, pass options, hold
+    # best over shot, the pass options, hold and drive: every chosen option is in the set, so quality <= 0
     hold_f = np.where(np.isfinite(hold_v), hold_v, -np.inf)
-    cand = np.column_stack([shot_v, passes, hold_f])
+    cand = np.column_stack([shot_v, passes, hold_f, drive_v])
     best_i = np.argmax(cand, axis=1)
     best_v = cand[np.arange(n), best_i]
     order = np.argsort(-passes, axis=1)
     rank = np.empty_like(order)
     rank[np.arange(n)[:, None], order] = np.arange(1, MAX_TEAMMATES + 1)
-    names = np.where(best_i == 0, "shot", np.where(best_i == MAX_TEAMMATES + 1, "hold", ""))
+    names = np.full(n, "", dtype=object)
+    names[best_i == 0] = "shot"
+    names[best_i == MAX_TEAMMATES + 1] = "hold"
+    names[best_i == MAX_TEAMMATES + 2] = "drive"
     pass_best = (best_i >= 1) & (best_i <= MAX_TEAMMATES)
-    names = names.astype(object)
     for r in np.flatnonzero(pass_best):
         names[r] = "pass_to_%d" % rank[r, best_i[r] - 1]
     out["chosen_value"] = chosen
     out["best_value"] = best_v
     out["best_option"] = pd.array(names, dtype="string")
-    out["decision_quality"] = chosen - best_v
+    out["decision_quality"] = np.minimum(chosen - best_v, 0.0)
     out["shot_value"] = shot_v
     out["hold_value"] = hold_v
+    out["drive_value"] = drive_v
     out["prior"] = prior
     keep = np.isfinite(chosen)
     out = out[keep].reset_index(drop=True)

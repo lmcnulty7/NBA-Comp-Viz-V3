@@ -65,18 +65,35 @@ def stakes(p_cover) -> np.ndarray:
     return np.where(p > STAKE_THRESHOLD, UNIT, np.where(1.0 - p > STAKE_THRESHOLD, -UNIT, 0.0))
 
 
-def pnl(stake, home_margin, closing_spread_home) -> np.ndarray:
+def win_return(price=None, n: int | None = None) -> np.ndarray:
+    """Units won per unit staked: from the collected American spread price when present and finite (-110 -> 0.909,
+    +100 -> 1.0), else the nominal WIN_RETURN (the 4.5 percent vig a side)."""
+    if price is None:
+        return np.full(int(n), WIN_RETURN)
+    p = np.asarray(price, dtype=float)
+    ret = np.where(p < 0, 100.0 / np.abs(np.where(p < 0, p, -100.0)), p / 100.0)
+    return np.where(np.isfinite(p) & (np.abs(p) >= 100), ret, WIN_RETURN)
+
+
+def pnl(stake, home_margin, closing_spread_home, price=None) -> np.ndarray:
     """Profit of each stake against the result: home covers when margin + spread > 0, push when it is 0.
-    No spread or no stake gives 0."""
+    No spread or no stake gives 0. A win pays win_return(price) per unit (the collected spread price when present,
+    the nominal WIN_RETURN otherwise); a loss costs the unit."""
     s = np.asarray(stake, dtype=float)
     cover = np.asarray(home_margin, dtype=float) + np.asarray(closing_spread_home, dtype=float)
     out = np.zeros(len(s))
     live = (s != 0) & np.isfinite(cover)
     win = live & (np.sign(cover) == np.sign(s))
     lose = live & (cover != 0) & ~win
-    out[win] = np.abs(s[win]) * WIN_RETURN
+    ret = win_return(price, len(s))
+    out[win] = np.abs(s[win]) * ret[win]
     out[lose] = -np.abs(s[lose])
     return out
+
+
+def _price_of(frame: pd.DataFrame):
+    """The collected home spread price when the frame carries it, else None (nominal return)."""
+    return frame["spread_price_home"].to_numpy(dtype=float) if "spread_price_home" in frame.columns else None
 
 
 # ── models ─────────────────────────────────────────────────────────────────────────────────────────
@@ -189,7 +206,7 @@ def score_candidates(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
         res["mse"] = bootstrap_by_game(m, "game", lambda s: _mse(s["y"], s["m"]), n=n_boot, seed=seed)
         st = stakes(pred["p_" + c])
         b = pd.DataFrame({"game": pred["game_id"].astype(str).to_numpy(), "stake": st,
-                          "pnl": pnl(st, pred["home_margin"], pred["closing_spread_home"])})
+                          "pnl": pnl(st, pred["home_margin"], pred["closing_spread_home"], _price_of(pred))})
         res["n_bets"] = int((b["stake"] != 0).sum())
         res["pnl"] = bootstrap_by_game(b, "game", lambda s: float(s["pnl"].sum()), n=n_boot, seed=seed)
         res["roi"] = _boot(b, _roi, n_boot, seed)
@@ -212,7 +229,7 @@ def predictions_table(pred: pd.DataFrame, chosen: dict, heldout: bool) -> pd.Dat
     spread = pred["closing_spread_home"].astype(float).to_numpy()
     return pd.DataFrame({"game_id": pred["game_id"].astype(str).to_numpy(), "season": pred["season"].astype(str).to_numpy(),
                          "p_cover": p, "margin_forecast": m, "clv": m - (-spread), "stake": st,
-                         "pnl": pnl(st, pred["home_margin"], spread), "fold": pred["fold"].astype(int).to_numpy(),
+                         "pnl": pnl(st, pred["home_margin"], spread, _price_of(pred)), "fold": pred["fold"].astype(int).to_numpy(),
                          "heldout": heldout, "cover_model": chosen["cover_model"], "margin_model": chosen["margin_model"]})
 
 
@@ -283,8 +300,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "Selection: %s; cover model by out-of-fold log loss, margin model by out-of-fold MSE; intervals are 2.5 and 97.5 percentiles of %d "
           "bootstrap resamples of whole games (seed %d)." % (ctx["protocol"], ctx["bootstrap"], ctx["seed"]), "",
           "Staking rule, fixed in code before scoring (train.py constants): flat %.0f unit on the home cover when p_cover > %.2f, on the away "
-          "cover when 1 - p_cover > %.2f, else no bet; a win returns %.2f units (vig %.1f percent a side), a loss costs one unit, a push returns "
-          "the stake; ROI is profit over units staked." % (UNIT, STAKE_THRESHOLD, STAKE_THRESHOLD, WIN_RETURN, 100 * VIG), "",
+          "cover when 1 - p_cover > %.2f, else no bet; a win returns the collected spread price when the row carries one, else the nominal "
+          "%.2f units (vig %.1f percent a side, about -110); a loss costs one unit, a push returns the stake; ROI is profit over units "
+          "staked. betting_games carries no spread price, so the run reports the nominal return." % (UNIT, STAKE_THRESHOLD, STAKE_THRESHOLD, WIN_RETURN, 100 * VIG), "",
           "## Candidates (%s, %d games)" % (ctx["mode"], ctx["train_games"]), "",
           "| candidate | cover log loss | Brier | margin MSE | bets | profit (units) | ROI |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for c in CANDIDATES:
@@ -305,8 +323,8 @@ def write_report(path: Path, ctx: dict) -> str:
                  "fitted or tuned on. Training-season rows are out-of-fold under the grouped folds." % ctx["heldout_season"])
     else:
         L.append("No held-out season: the input carried one season, so only the out-of-fold block is reported.")
-    L += ["", "## Outputs", "", "Tables under `%s/analytics/betting/<season>/`: betting_games, betting_predictions, betting_summary "
-          "(docs/contract/betting.md)." % ctx["out_root"], "", "## Status", ""]
+    L += ["", "## Outputs", "", "Tables under %s: betting_games, betting_predictions, betting_summary "
+          "(docs/contract/betting.md)." % ctx["out_root_label"], "", "## Status", ""]
     if fx:
         L.append("Fixture output, not a result. The real run on the Mac, once odds have been bought and collected with "
                  "`ODDS_API_KEY=... python -m collect.extras --odds --seasons ...`, is one command:")
@@ -374,7 +392,8 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
            "heldout_season": held_season, "heldout_games": int(len(heldout)), "train_games": int(len(train)),
            "train_labelled": int(train["home_cover"].notna().sum()), "train_seasons": sorted(train["season"].astype(str).unique()),
            "protocol": note["text"], "mode": note["mode"], "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores,
-           "chosen": chosen, "summary": summary, "out_root": str(out_root), "games": bg, "predictions": pt}
+           "chosen": chosen, "summary": summary, "out_root": str(out_root), "games": bg, "predictions": pt,
+           "out_root_label": ("`%s/analytics/betting/<season>/`" % a.out) if a.out else "a temporary directory (no --out given), `analytics/betting/<season>/`"}
     return ctx
 
 

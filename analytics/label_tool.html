@@ -547,9 +547,12 @@
   }
 
   function nextPossession(k) {
+    // the possession being left is marked visited first, so the last one of the list gets its record too
     var i = S.idx + k;
-    if (i < 0 || i >= S.n) { setStatus(i < 0 ? "this is the first possession" : "this is the last possession"); return; }
-    markVisited().then(function () { loadPossession(i); });
+    markVisited().then(function () {
+      if (i < 0 || i >= S.n) { setStatus((i < 0 ? "this is the first possession" : "this is the last possession") + "; marked visited"); return; }
+      loadPossession(i);
+    });
   }
 
   // ---------------------------------------------------------------- keys

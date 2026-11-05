@@ -340,6 +340,45 @@ def test_shared_root_interface_outputs(name, shared_root_runs):
         interfaces.check_file(name, f)
 
 
+def _run_all_passes_out_to_train() -> bool:
+    """True when run_all.py's train argv carries --out (lane I5 fix); read from the source, not imported."""
+    src = (ROOT / "run_all.py").read_text(encoding="utf-8", errors="replace")
+    m = re.search(r"if step == \"train\":(.*?)(?:\n    else:|\n    return)", src, re.S)
+    return bool(m and "--out" in m.group(1))
+
+
+@pytest.fixture(scope="session")
+def run_all_run(tmp_path_factory) -> dict:
+    """`python run_all.py --fixtures --all --continue-on-error --out OUT_ROOT` once, 30 min cap."""
+    if not SLOW:
+        pytest.skip("slow part: set INTEGRATION_SLOW=1")
+    if not (ROOT / "run_all.py").is_file():
+        pytest.skip("run_all.py (lane I5) is not written yet")
+    if not _run_all_passes_out_to_train():
+        pytest.skip("run_all.py does not pass --out to the train step yet (lane I5); interface files would not land under OUT_ROOT")
+    out_root = tmp_path_factory.mktemp("run_all_out")
+    r = _run(["run_all.py", "--fixtures", "--all", "--continue-on-error", "--out", str(out_root), "--bootstrap", "20"], 1800)
+    return {"out_root": out_root, "run": r}
+
+
+@slow
+def test_run_all_fixtures_exits_zero(run_all_run):
+    r = run_all_run["run"]
+    assert r.returncode == 0, "run_all.py --fixtures --all --continue-on-error exited %d:\n%s" % (r.returncode, _tail(r.stderr) or _tail(r.stdout))
+
+
+@slow
+@pytest.mark.parametrize("name", interfaces.INTERFACE_NAMES)
+def test_run_all_interface_file_exists(name, run_all_run):
+    e = interfaces.get(name)
+    if e["producer"] not in PRESENT:
+        pytest.skip("producer lane %s not present yet" % e["producer"])
+    files = interfaces.find_outputs(run_all_run["out_root"], name)
+    assert files, "run_all.py --fixtures --all wrote no %s under OUT_ROOT (pattern %s, producer %s)" % (name, e["pattern"], e["producer"])
+    for f in files:
+        interfaces.check_file(name, f)
+
+
 def _training_items(obj, path="") -> list:
     """Every string reachable from a key whose name mentions train (and not held-out) in a JSON manifest."""
     out = []

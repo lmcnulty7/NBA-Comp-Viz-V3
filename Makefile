@@ -1,6 +1,7 @@
 # Makefile: the Mac run order in one place. `make help` lists the targets; docs/run_order.md has the long form.
-# Variables: PY (interpreter), DATA (real DATA_ROOT; unset means fixtures), OUT (OUT_ROOT for run_all),
-# DATA_ROOT (where `make fixtures` and `make phase0` write and read), SITE_DIR (where `make site` copies the page).
+# Variables: PY (interpreter), DATA (real DATA_ROOT, the parent of sportvu_contract/ and collect/; unset means
+# fixtures), OUT (OUT_ROOT for run_all), DATA_ROOT (where `make fixtures` writes and `make phase0` reads when
+# DATA is unset), SITE_DIR (where `make site` copies the page). Every path is quoted: Drive paths have spaces.
 
 PY ?= python3
 DATA ?=
@@ -8,7 +9,7 @@ OUT ?=
 DATA_ROOT ?= .fixture_root
 SITE_DIR ?= site
 PYTEST ?= $(PY) -m pytest -q
-RUN_ARGS = $(if $(DATA),--data $(DATA),--fixtures)$(if $(OUT), --out $(OUT),)
+RUN_ARGS = $(if $(DATA),--data "$(DATA)",--fixtures)$(if $(OUT), --out "$(OUT)",)
 
 EXTENSIONS = xfg rebounds matchups gravity ghosting embeddings epv actions coverage decisions playcalling lineups winprob load betting
 
@@ -26,11 +27,11 @@ test-fast: ## run the tests not marked slow
 	$(PYTEST) -m "not slow" tests
 
 fixtures: ## write a synthetic fixture dataset to DATA_ROOT (default .fixture_root) with analytics.fixtures
-	$(PY) -c "from analytics.fixtures import write_fixture_root; write_fixture_root('$(DATA_ROOT)', seed=0, n_games=4, heldout_every=4)"
+	$(PY) -c "import sys; from analytics.fixtures import write_fixture_root; write_fixture_root(sys.argv[1], seed=0, n_games=4, heldout_every=4)" "$(DATA_ROOT)"
 	@echo "fixture root: $(DATA_ROOT)"
 
-phase0: ## run analytics.gaps then analytics.run_phase0 on DATA_ROOT (make phase0 DATA_ROOT=/path)
-	$(PY) run_all.py --phase0 --data $(DATA_ROOT)$(if $(OUT), --out $(OUT),)
+phase0: ## run analytics.gaps then analytics.run_phase0 on DATA (or DATA_ROOT when DATA is unset)
+	$(PY) run_all.py --phase0 --data "$(or $(DATA),$(DATA_ROOT))"$(if $(OUT), --out "$(OUT)",)
 
 list: ## print the extension registry with availability
 	$(PY) run_all.py --list
@@ -65,7 +66,7 @@ ext-coverage: ## coverage: validate, features, train (depends on actions)
 ext-decisions: ## decisions: validate, features, train (depends on xfg, epv)
 	$(PY) run_all.py $(RUN_ARGS) --ext decisions
 
-ext-playcalling: ## playcalling: validate, features, train (depends on epv, actions)
+ext-playcalling: ## playcalling: validate, features, train (depends on epv, actions, coverage)
 	$(PY) run_all.py $(RUN_ARGS) --ext playcalling
 
 ext-lineups: ## lineups: validate, stints, features, train
@@ -82,18 +83,18 @@ ext-betting: ## betting: validate, features, train (depends on lineups)
 
 all: ## every extension in dependency order on real data (make all DATA=/path/to/DATA_ROOT)
 	@test -n "$(DATA)" || (echo "make all needs DATA=/path/to/DATA_ROOT (use make all-fixtures for fixtures)"; exit 2)
-	$(PY) run_all.py --data $(DATA)$(if $(OUT), --out $(OUT),) --all --continue-on-error
+	$(PY) run_all.py --data "$(DATA)"$(if $(OUT), --out "$(OUT)",) --all --continue-on-error
 
-all-fixtures: ## every extension in dependency order on fixtures
-	$(PY) run_all.py --fixtures$(if $(OUT), --out $(OUT),) --all --continue-on-error
+all-fixtures: ## every extension in dependency order on fixtures (reports under reports/fixtures unless OUT is set)
+	$(PY) run_all.py --fixtures$(if $(OUT), --out "$(OUT)",) --all --continue-on-error
 
-collect-bref: ## print the collector run order and commands (basketball-reference: 17 requests a minute)
+collect-bref: ## print (only print) the collector run order and commands; basketball-reference allows 17 requests a minute
 	$(PY) run_all.py --collectors
 
 site: ## copy portfolio/hiring_manager_page.html to SITE_DIR/index.html (default site/)
-	mkdir -p $(SITE_DIR)
-	cp portfolio/hiring_manager_page.html $(SITE_DIR)/index.html
+	mkdir -p "$(SITE_DIR)"
+	cp portfolio/hiring_manager_page.html "$(SITE_DIR)/index.html"
 	@echo "site: $(SITE_DIR)/index.html"
 
-clean-logs: ## remove logs/run_all and the run_all report
-	rm -rf logs/run_all reports/run_all.md
+clean-logs: ## remove logs/run_all and the run_all reports (reports/run_all.md, reports/fixtures/)
+	rm -rf logs/run_all reports/run_all.md reports/fixtures

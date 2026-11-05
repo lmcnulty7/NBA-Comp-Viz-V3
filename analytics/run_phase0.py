@@ -21,7 +21,12 @@ against the final score, the gaps summary, a per-game table) and prints RUN OK o
 
     python -m analytics.run_phase0 --data DATA_ROOT [--out OUT_ROOT] [--games G ...] [--limit N]
         [--steps rosters,shot_frames,rebound_frames,possessions,gaps] [--retry-failed] [--dry-run] [--workers 1]
-        [--fixtures]
+        [--bref-dir DIR] [--fixtures]
+
+--bref-dir names the cached basketball-reference shot chart pages (either <DIR>/<code>.html as
+collect.bref_shots --save-pages writes them, or the collector's raw cache <DIR>/raw/bref_shotchart/<key>.json.gz);
+when a page exists for a game, rosters.build fills bref_slug and bref_name from it. Without it (or for a game
+without a page) those two columns stay null and the summary says how many games lack them.
 
 --workers N > 1 runs games in a multiprocessing pool. The default is 1: Drive FUSE on a Mac serialises and
 sometimes corrupts concurrent writers, so keep 1 when OUT_ROOT is on Drive. --fixtures writes a synthetic
@@ -193,15 +198,56 @@ def final_score(events: pd.DataFrame) -> dict | None:
     return {"away": away, "home": home, "total": away + home}
 
 
-def _run_rosters(game: str, frames: Path, pbp: Path, out_dir: Path) -> tuple[dict, Path]:
+def bref_code(game: str, entry: dict | None = None) -> str:
+    """basketball-reference box score code YYYYMMDD0HOME (BRK, CHO, PHO for BKN, CHA, PHX)."""
+    from sportvu.colab_contract import BR_ABBR
+    mm, dd, yyyy = game.split(".")[:3]
+    home = (entry or {}).get("home") or game.rsplit(".", 1)[-1]
+    date = (entry or {}).get("date") or "%s-%s-%s" % (yyyy, mm, dd)
+    return date.replace("-", "") + "0" + BR_ABBR.get(home, home)
+
+
+def bref_page(game: str, entry: dict | None, bref_dir) -> str | None:
+    """The cached shot chart page of a game under --bref-dir: <dir>/<code>.html (collect.bref_shots --save-pages)
+    or the collector's raw cache <dir>/raw/bref_shotchart/<key>.json.gz (also <dir>/bref_shotchart/...); None when
+    there is no page."""
+    if not bref_dir:
+        return None
+    d = Path(bref_dir)
+    code = bref_code(game, entry)
+    html = d / (code + ".html")
+    if html.exists():
+        return html.read_text(encoding="utf-8", errors="replace")
+    try:
+        from collect.common import params_key
+    except Exception:  # noqa: BLE001 (collector not importable: only the .html layout is searched)
+        return None
+    key = params_key({"code": code}) + ".json.gz"
+    for cache in (d / "raw" / "bref_shotchart" / key, d / "bref_shotchart" / key):
+        if cache.exists():
+            import gzip
+            try:
+                with gzip.open(cache, "rt") as f:
+                    rec = json.load(f)
+            except Exception:  # noqa: BLE001 (a torn cache file counts as no page)
+                return None
+            body = rec.get("body") if isinstance(rec, dict) else None
+            return body if isinstance(body, str) else None
+    return None
+
+
+def _run_rosters(game: str, frames: Path, pbp: Path, out_dir: Path, bref_html: str | None = None) -> tuple[dict, Path]:
     from analytics import rosters
     events = pq.read_table(pbp, columns=["desc"]).to_pandas()
     pbp_json = {"events": [{"desc": d} for d in events["desc"].astype(object).tolist()]}
-    table = rosters.build(game, frames, pbp_json=pbp_json)
+    table = rosters.build(game, frames, bref_html=bref_html, pbp_json=pbp_json)
     names = rosters.pbp_names(pbp_json)
+    bref_list = list(rosters.bref_names(bref_html, game)["name"]) if bref_html else []
     dest = rosters.write_table(table, rosters.out_path_for(game, out_dir))
-    s = rosters.summarize(game, table, [], names)
+    s = rosters.summarize(game, table, bref_list, names)
     v = {"n_players": s["roster_size"], "pbp_total": s["pbp_total"], "pbp_matched": s["pbp_matched"],
+         "bref_page": bref_html is not None, "bref_total": s["bref_total"], "bref_matched": s["bref_matched"],
+         "bref_slug_filled": int(table["bref_slug"].notna().sum()),
          "methods": s["methods"], "unmatched": s["unmatched"][:10]}
     return v, dest
 
@@ -210,21 +256,6 @@ def _run_shot_frames(game: str, frames: Path, pbp: Path, out_dir: Path, report: 
     from analytics import shot_frames
     with contextlib.redirect_stdout(io.StringIO()):
         return shot_frames.run(game, frames, pbp, out_dir, report)
-
-
-def _run_rebound_frames(game: str, frames: Path, pbp: Path, out_dir: Path, report: Path) -> dict:
-    from analytics import rebound_frames
-    with contextlib.redirect_stdout(io.StringIO()):
-        r = rebound_frames.run(game, frames, pbp, out_dir, report)
-    return {k: v for k, v in r.items() if k not in ("out", "report", "split")}
-
-
-def _run_possessions(game: str, frames: Path, pbp: Path, out_dir: Path) -> dict:
-    from analytics import possessions
-    with contextlib.redirect_stdout(io.StringIO()):
-        s = possessions.run(game, frames, pbp, out_dir)
-    s.pop("path", None)
-    return s
 
 
 def _extra_numbers(step: str, df: pd.DataFrame) -> dict:
@@ -238,8 +269,9 @@ def _extra_numbers(step: str, df: pd.DataFrame) -> dict:
     return {}
 
 
-def run_step(step: str, game: str, frames: Path, pbp: Path, out_root: Path) -> dict:
-    """One step of one game: run the module, read the output back, validate it against the contract."""
+def run_step(step: str, game: str, frames: Path, pbp: Path, out_root: Path, bref_html: str | None = None) -> dict:
+    """One step of one game: run the module, check it wrote where the contract says, read the output back and
+    validate it against the contract. The path read back is the one the module reports, never a guess."""
     out_root = Path(out_root)
     out_dir = out_root / "analytics" / step
     t0 = time.time()
@@ -248,20 +280,28 @@ def run_step(step: str, game: str, frames: Path, pbp: Path, out_root: Path) -> d
     try:
         expected = expected_output(step, game, out_root)
         if step == "rosters":
-            v, dest = _run_rosters(game, frames, pbp, out_dir)
+            v, dest = _run_rosters(game, frames, pbp, out_dir, bref_html)
         elif step == "shot_frames":
+            from analytics import shot_frames
             v = _run_shot_frames(game, frames, pbp, out_dir, out_root / "reports" / MODULE_REPORTS[step])
-            dest = expected
+            dest, _held = shot_frames.out_path(game, out_dir, game.rsplit(".", 1)[-1])
         elif step == "rebound_frames":
-            v = _run_rebound_frames(game, frames, pbp, out_dir, out_root / "reports" / MODULE_REPORTS[step])
-            dest = expected
+            from analytics import rebound_frames
+            with contextlib.redirect_stdout(io.StringIO()):
+                r = rebound_frames.run(game, frames, pbp, out_dir, out_root / "reports" / MODULE_REPORTS[step])
+            dest = Path(r["out"])
+            v = {k: x for k, x in r.items() if k not in ("out", "report", "split")}
         elif step == "possessions":
-            v = _run_possessions(game, frames, pbp, out_dir)
-            dest = expected
+            from analytics import possessions
+            with contextlib.redirect_stdout(io.StringIO()):
+                v = possessions.run(game, frames, pbp, out_dir)
+            dest = Path(v.pop("path"))
         else:
             raise ValueError("unknown step %r" % step)
-        if Path(dest) != expected:
-            raise RuntimeError("module wrote %s, the driver expected %s" % (dest, expected))
+        if Path(dest).resolve() != expected.resolve():
+            raise RuntimeError("module wrote %s, the contract path is %s" % (dest, expected))
+        if not Path(dest).exists():
+            raise FileNotFoundError("module reported %s but the file is not there" % dest)
         df = pq.read_table(str(dest)).to_pandas()
         problems = schema.validate(df, step)
         v = dict(v)
@@ -275,33 +315,46 @@ def run_step(step: str, game: str, frames: Path, pbp: Path, out_root: Path) -> d
     return rec
 
 
+def _failed_step(error: str) -> dict:
+    return {"status": "failed", "error": error, "seconds": 0.0, "path": None, "rows": None, "validate": None,
+            "schema_problems": None, "written": time.strftime("%Y-%m-%d %H:%M:%S")}
+
+
 def process_game(args: tuple) -> dict:
-    """(game, entry, data_root, out_root, steps to run, previous entry or None) -> the manifest entry of the game.
-    Top level so a multiprocessing pool can pickle it."""
-    game, entry, data_root, out_root, steps, previous = args
-    data_root, out_root = Path(data_root), Path(out_root)
-    frames, pbp = input_paths(entry, data_root)
-    prev_steps = (previous or {}).get("steps", {})
+    """(game, entry, data_root, out_root, steps to run, previous entry or None, bref_dir) -> the manifest entry of
+    the game. Top level so a multiprocessing pool can pickle it. Never raises: anything outside a step (a bad game
+    id, a manifest entry without a home, an unreadable page) marks every requested step failed with the error."""
+    game, entry, data_root, out_root, steps, previous, bref_dir = args
+    prev_steps = dict((previous or {}).get("steps", {}))
     rec = {"game": game, "date": entry.get("date"), "away": entry.get("away"), "home": entry.get("home"),
-           "split": entry.get("split"), "heldout": bool(entry.get("heldout")), "season": season_of_game(game),
-           "frames": str(frames), "pbp": str(pbp), "steps": dict(prev_steps), "final_score": None,
-           "points_check": None, "status": "ok", "seconds": 0.0}
+           "split": entry.get("split"), "heldout": bool(entry.get("heldout")), "season": None,
+           "frames": None, "pbp": None, "steps": prev_steps, "final_score": None,
+           "points_check": None, "status": "failed", "seconds": 0.0}
     t0 = time.time()
     try:
-        rec["final_score"] = final_score(pq.read_table(str(pbp), columns=["score"]).to_pandas())
-    except Exception as e:  # noqa: BLE001
-        rec["final_score"] = None
-        rec["pbp_error"] = "%s: %s" % (type(e).__name__, str(e)[:200])
-    for step in steps:
-        if not frames.exists():
-            rec["steps"][step] = {"status": "failed", "error": "frames parquet missing: %s" % frames, "seconds": 0.0,
-                                  "path": None, "rows": None, "validate": None, "schema_problems": None}
-            continue
-        if not pbp.exists():
-            rec["steps"][step] = {"status": "failed", "error": "pbp parquet missing: %s" % pbp, "seconds": 0.0,
-                                  "path": None, "rows": None, "validate": None, "schema_problems": None}
-            continue
-        rec["steps"][step] = run_step(step, game, frames, pbp, out_root)
+        data_root, out_root = Path(data_root), Path(out_root)
+        rec["season"] = season_of_game(game)
+        frames, pbp = input_paths(entry, data_root)
+        rec["frames"], rec["pbp"] = str(frames), str(pbp)
+        try:
+            rec["final_score"] = final_score(pq.read_table(str(pbp), columns=["score"]).to_pandas())
+        except Exception as e:  # noqa: BLE001
+            rec["final_score"] = None
+            rec["pbp_error"] = "%s: %s" % (type(e).__name__, str(e)[:200])
+        bref_html = bref_page(game, entry, bref_dir) if "rosters" in steps else None
+        for step in steps:
+            if not frames.exists():
+                rec["steps"][step] = _failed_step("frames parquet missing: %s" % frames)
+            elif not pbp.exists():
+                rec["steps"][step] = _failed_step("pbp parquet missing: %s" % pbp)
+            else:
+                rec["steps"][step] = run_step(step, game, frames, pbp, out_root, bref_html)
+    except Exception as e:  # noqa: BLE001 (outside a step: the whole game fails, the run goes on)
+        err = "%s: %s" % (type(e).__name__, str(e)[:300])
+        rec["error"] = err
+        rec["traceback"] = traceback.format_exc()[-1500:]
+        for step in steps:
+            rec["steps"].setdefault(step, _failed_step(err))
     fs, poss = rec["final_score"], rec["steps"].get("possessions")
     if fs and poss and poss.get("status") == "ok":
         pts = int((poss.get("validate") or {}).get("points_total", 0))
@@ -357,7 +410,7 @@ def totals(man: dict) -> dict:
     acc = {}
     for step, keys in (("shot_frames", ("n_shots", "n_release_found", "n_identity_known", "n_identity_agree", "n_high")),
                        ("rebound_frames", ("n_misses", "n_rebound_found", "n_identity_known", "n_identity_agree", "n_high")),
-                       ("rosters", ("n_players", "pbp_total", "pbp_matched")),
+                       ("rosters", ("n_players", "pbp_total", "pbp_matched", "bref_total", "bref_matched", "bref_slug_filled")),
                        ("possessions", ("n", "points_total", "n_gap", "n_dropped"))):
         acc[step] = {k: 0 for k in keys}
         for e in games.values():
@@ -372,7 +425,11 @@ def totals(man: dict) -> dict:
     t["rebound_frames"].update(rb, share_rebound_found=_ratio(rb["n_rebound_found"], rb["n_misses"]),
                                identity_agreement=_ratio(rb["n_identity_agree"], rb["n_identity_known"]),
                                share_high=_ratio(rb["n_high"], rb["n_misses"]))
-    t["rosters"].update(ro, share_pbp_matched=_ratio(ro["pbp_matched"], ro["pbp_total"]))
+    t["rosters"].update(ro, share_pbp_matched=_ratio(ro["pbp_matched"], ro["pbp_total"]),
+                        share_bref_matched=_ratio(ro["bref_matched"], ro["bref_total"]))
+    ros_ok = [e for e in games.values() if (e.get("steps", {}).get("rosters") or {}).get("status") == "ok"]
+    t["rosters"]["games_with_bref_page"] = sum(1 for e in ros_ok if (e["steps"]["rosters"].get("validate") or {}).get("bref_page"))
+    t["rosters"]["games_without_bref_page"] = len(ros_ok) - t["rosters"]["games_with_bref_page"]
     methods = {}
     for e in games.values():
         r = e.get("steps", {}).get("rosters")
@@ -404,8 +461,9 @@ def write_summary(man: dict, step1: dict, out_path: Path, data_root, out_root, v
     gs = man.get("gaps") or gaps_mod.summary(step1)
     L = ["# Phase 0 driver summary", ""]
     if fixtures:
-        L += ["Fixture output: synthetic games written by tests/_fx_phase0.py (or analytics/fixtures.py), not real "
-              "tracking data. The numbers only show the driver works end to end.", ""]
+        L += ["Fixture output: synthetic games written by tests/_fx_phase0.py (analytics.fixtures.write_fixture_root "
+              "when present), not real tracking data. The numbers only show the driver works end to end.", ""]
+        data_root, out_root = "<temporary synthetic DATA_ROOT>", "<temporary OUT_ROOT>"
     L += ["Data root: `%s`. Output root: `%s`. Written %s by `python -m analytics.run_phase0`." % (
         data_root, out_root, man.get("updated", "")),
           "Held-out games (sportvu/splits.json) are written under `heldout/` by the modules' own routing and are never "
@@ -423,6 +481,11 @@ def write_summary(man: dict, step1: dict, out_path: Path, data_root, out_root, v
     L += ["", "### rosters", "", "| metric | value |", "|---|---|",
           "| players | %d |" % ro["n_players"], "| play-by-play names matched / total | %d / %d |" % (ro["pbp_matched"], ro["pbp_total"]),
           "| share_pbp_matched | %s |" % _fmt(ro["share_pbp_matched"]),
+          "| shot chart names matched / total | %d / %d |" % (ro["bref_matched"], ro["bref_total"]),
+          "| share_bref_matched | %s |" % _fmt(ro["share_bref_matched"]),
+          "| players with bref_slug filled | %d |" % ro["bref_slug_filled"],
+          "| games with a shot chart page (bref_slug, bref_name filled) | %d |" % ro["games_with_bref_page"],
+          "| games without one (bref_slug, bref_name null; pass --bref-dir) | %d |" % ro["games_without_bref_page"],
           "| match_method counts | %s |" % (", ".join("%s %d" % kv for kv in sorted(ro["methods"].items())) or "n/a"), ""]
     L += ["### shot_frames", "", "| metric | value |", "|---|---|",
           "| n_shots | %d |" % sf["n_shots"], "| n_release_found | %d |" % sf["n_release_found"],
@@ -495,7 +558,7 @@ def write_summary(man: dict, step1: dict, out_path: Path, data_root, out_root, v
 
 # ── the run ───────────────────────────────────────────────────────────────────────────────────────
 def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry_failed=False, dry_run=False,
-        workers=1, fixtures=False, log=print) -> int:
+        workers=1, fixtures=False, bref_dir=None, log=print) -> int:
     """The driver. Returns 0 for RUN OK, 1 for RUN FAILED."""
     data_root = Path(data_root)
     out_root = Path(out_root) if out_root else data_root
@@ -529,6 +592,8 @@ def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry
     man.setdefault("skipped", {}).update(skipped)
     for g, _e in eligible:
         man["skipped"].pop(g, None)
+    # a skipped id that is neither in the Step 1 manifest nor skipped by this run (a typo in an earlier --games) goes
+    man["skipped"] = {g: r for g, r in man["skipped"].items() if g in step1.get("games", {}) or g in skipped}
     for g in list(man["games"]):
         if g in man["skipped"]:
             del man["games"][g]
@@ -536,16 +601,16 @@ def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry
     for g, e, todo, reused in plan:
         prev = man["games"].get(g) or {}
         base = {"game": g, "date": e.get("date"), "away": e.get("away"), "home": e.get("home"), "split": e.get("split"),
-                "heldout": bool(e.get("heldout")), "season": season_of_game(g), "steps": {},
-                "final_score": prev.get("final_score"), "points_check": prev.get("points_check"), "status": "ok",
+                "heldout": bool(e.get("heldout")), "season": season_of_game(g),
+                "steps": {**prev.get("steps", {}), **reused},        # records of steps outside this run are kept
+                "final_score": prev.get("final_score"), "points_check": prev.get("points_check"), "status": "pending",
                 "seconds": prev.get("seconds", 0.0), "frames": prev.get("frames"), "pbp": prev.get("pbp")}
-        base["steps"] = reused
         man["games"][g] = base
         if todo:
-            jobs.append((g, e, str(data_root), str(out_root), todo, {"steps": reused}))
+            jobs.append((g, e, str(data_root), str(out_root), todo, {"steps": base["steps"]}, bref_dir))
         else:
             n_reused += 1
-            base["status"] = "failed" if any(r.get("status") == "failed" for r in reused.values()) else "ok"
+            base["status"] = "failed" if any(r.get("status") == "failed" for r in base["steps"].values()) else "ok"
             if base["points_check"] is None and base.get("final_score") and reused.get("possessions", {}).get("status") == "ok":
                 pts = int((reused["possessions"].get("validate") or {}).get("points_total", 0))
                 base["points_check"] = {"possession_points": pts, "final_total": base["final_score"]["total"],
@@ -555,8 +620,7 @@ def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry
     t0 = time.time()
 
     def finish(i: int, rec: dict) -> None:
-        reused_steps = (man["games"].get(rec["game"]) or {}).get("steps", {})
-        merged = dict(reused_steps)
+        merged = dict((man["games"].get(rec["game"]) or {}).get("steps", {}))   # every recorded step, any run
         merged.update(rec["steps"])
         rec["steps"] = merged
         rec["status"] = "failed" if any(r.get("status") == "failed" for r in merged.values()) else "ok"
@@ -587,6 +651,10 @@ def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry
             man["gaps"] = None
             man["gaps_error"] = "%s: %s" % (type(e).__name__, str(e)[:300])
             log("gaps FAILED: %s" % man["gaps_error"])
+    for e in man["games"].values():                              # a game the pool never returned stays loud
+        if e.get("status") == "pending":
+            e["status"] = "failed"
+            e["error"] = "the run ended before this game finished"
     failed = [g for g, e in man["games"].items() if e.get("status") == "failed"] + (["gaps"] if man.get("gaps_error") else [])
     verdict = "RUN OK" if not failed else "RUN FAILED (%d game(s) with a failed step: %s)" % (
         len(failed), ", ".join(failed[:8]) + (" ..." if len(failed) > 8 else ""))
@@ -612,8 +680,12 @@ def main(argv=None) -> int:
     ap.add_argument("--retry-failed", action="store_true", help="rerun steps the phase0 manifest marks failed")
     ap.add_argument("--dry-run", action="store_true", help="list what would run; write nothing")
     ap.add_argument("--workers", type=int, default=1, help="games in parallel (default 1; keep 1 on Drive FUSE)")
+    ap.add_argument("--bref-dir", default=None,
+                    help="cached basketball-reference shot chart pages (<dir>/<code>.html or the collector's raw/bref_shotchart "
+                         "cache); fills rosters.bref_slug and bref_name for the games that have a page")
     ap.add_argument("--fixtures", action="store_true",
-                    help="use a synthetic DATA_ROOT (tests/_fx_phase0.py) when --data is absent and copy the summary to reports/phase0_driver.md")
+                    help="without --data: use a synthetic DATA_ROOT (tests/_fx_phase0.py) and copy the summary to "
+                         "reports/phase0_driver.md; with --data the flag does nothing")
     a = ap.parse_args(argv)
     steps = tuple(s.strip() for s in a.steps.split(",") if s.strip())
     bad = [s for s in steps if s not in ALL_STEPS]
@@ -622,7 +694,8 @@ def main(argv=None) -> int:
     if a.workers < 1:
         ap.error("--workers must be at least 1")
     data = a.data
-    if a.fixtures and not data:
+    fixtures = bool(a.fixtures and not a.data)
+    if fixtures:
         from tests import _fx_phase0 as fx
         tmp = tempfile.mkdtemp(prefix="phase0_fixtures_")        # left in place so the outputs can be inspected
         fx.write_fixture_root(tmp)
@@ -630,7 +703,12 @@ def main(argv=None) -> int:
         print("fixtures: synthetic DATA_ROOT written to %s" % data)
     if not data:
         ap.error("--data is required (or --fixtures)")
-    return run(data, a.out, a.games, a.limit, steps, a.retry_failed, a.dry_run, a.workers, a.fixtures)
+    try:
+        return run(data, a.out, a.games, a.limit, steps, a.retry_failed, a.dry_run, a.workers, fixtures, a.bref_dir)
+    except (FileNotFoundError, NotADirectoryError, PermissionError, json.JSONDecodeError) as e:
+        print("%s: %s" % (type(e).__name__, e))
+        print("RUN FAILED")
+        return 1
 
 
 if __name__ == "__main__":

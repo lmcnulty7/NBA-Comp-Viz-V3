@@ -22,7 +22,9 @@ possessions table. Everything else is a logged count.
 DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet, held-out games under sportvu_contract/heldout/
     DATA_ROOT/analytics/possessions/<season>/<game>.parquet and analytics/possessions/heldout/<season>/
-    DATA_ROOT/labels/actions/<game>.jsonl, DATA_ROOT/labels/screens/<game>.jsonl (hand labels)
+    DATA_ROOT/labels/actions/<game>.jsonl, DATA_ROOT/labels/screens/<game>.jsonl (hand labels, read through
+    analytics.labels.read_labels(labeller_pass=1): tombstones applied, pass-2 relabels never reach training; the
+    raw reader read_labels_raw is the explicit fallback with the same rules; detected rows get no pass filter)
     OUT_ROOT/analytics/actions/**.parquet (actions_detected), OUT_ROOT/analytics/coverage/**.parquet
     (coverage_predictions), OUT_ROOT/analytics/epv/**.parquet (epv_states), each optional; the upstream
     lanes' exact file layout was not fixed when this was written, so every parquet below those folders is
@@ -226,6 +228,72 @@ def _read_jsonl(path: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def read_labels_raw(path: Path, kind: str, labeller_pass: int | None = 1) -> pd.DataFrame:
+    """Explicit fallback for a labels JSONL when analytics.labels.read_labels cannot read it: drops every line
+    carrying ``deleted``, keeps the last line per id (action_id for actions, screen_id for screens; a line without
+    an id takes the running position of the non-tombstone lines), then keeps ``labeller_pass == labeller_pass``
+    (a line without labeller_pass counts as pass 1)."""
+    idf = "action_id" if kind == "actions" else "screen_id"
+    live, order, n = {}, [], 0
+    for raw in path.read_text().splitlines():
+        raw = raw.strip()
+        if not raw:
+            continue
+        rec = json.loads(raw)
+        key = rec.get(idf)
+        if rec.get("deleted"):
+            if key is not None:
+                live.pop(int(key), None)
+            continue
+        if key is None:
+            key = n
+            rec[idf] = key
+        key = int(key)
+        n += 1
+        if key not in live:
+            order.append(key)
+        live[key] = rec
+    df = pd.DataFrame([live[k] for k in order if k in live])
+    if labeller_pass is not None and len(df):
+        lp = pd.to_numeric(df.get("labeller_pass", pd.Series(1, index=df.index)), errors="coerce").fillna(1)
+        df = df[lp == int(labeller_pass)].reset_index(drop=True)
+    return df
+
+
+def load_hand_labels(data_root: Path, games) -> tuple[pd.DataFrame | None, pd.DataFrame | None, dict]:
+    """(actions, screens, log) of the hand labels of ``games`` through analytics.labels.read_labels(labeller_pass=1):
+    tombstones applied, pass 2 relabels excluded. A game whose files that reader cannot parse falls back to
+    read_labels_raw with the same rules; the log counts both paths."""
+    acts, scrs, log = [], [], {"games": 0, "read_labels": 0, "raw_fallback": 0, "actions_rows": 0, "screens_rows": 0}
+    try:
+        from analytics import labels as L
+    except ImportError:          # the labels module is another lane's file; the raw reader carries the same rules
+        L = None
+    for game in sorted(games):
+        log["games"] += 1
+        a = sc = None
+        if L is not None:
+            try:
+                a, sc = L.read_labels(data_root, game, labeller_pass=1)
+                log["read_labels"] += 1
+            except Exception:  # noqa: BLE001  (a file the sanctioned reader cannot cast: fall back, counted)
+                a = sc = None
+        if a is None:
+            log["raw_fallback"] += 1
+            ap, sp = data_root / "labels" / "actions" / (game + ".jsonl"), data_root / "labels" / "screens" / (game + ".jsonl")
+            a = read_labels_raw(ap, "actions") if ap.exists() else pd.DataFrame()
+            sc = read_labels_raw(sp, "screens") if sp.exists() else pd.DataFrame()
+        if len(a):
+            acts.append(a)
+        if len(sc):
+            scrs.append(sc)
+    actions = pd.concat(acts, ignore_index=True) if acts else None
+    screens = pd.concat(scrs, ignore_index=True) if scrs else None
+    log["actions_rows"] = 0 if actions is None else int(len(actions))
+    log["screens_rows"] = 0 if screens is None else int(len(screens))
+    return actions, screens, log
+
+
 def _read_many(paths, reader=pd.read_parquet, required=(), prefer: str | None = None) -> tuple[pd.DataFrame | None, list[str], int]:
     """Concatenate the files -> (frame or None, game ids found under a heldout/ folder, files skipped). A file without
     every ``required`` column is skipped (the upstream folders hold several tables); when ``prefer`` names a file stem
@@ -264,26 +332,25 @@ def load_data_root(data_root, out_root=None, season: str = SEASON) -> dict:
 
     inputs["frames"] = take("frames", data_root.glob("sportvu_contract/**/*.parquet"))
     inputs["possessions"] = take("possessions", (data_root / "analytics" / "possessions").rglob("*.parquet"))
-    hand = take("actions", (data_root / "labels" / "actions").glob("*.jsonl"), _read_jsonl)
-    inputs["files"]["actions_hand"] = inputs["files"].pop("actions")
+    stems = {p.stem for p in (data_root / "labels" / "actions").glob("*.jsonl")} | {p.stem for p in (data_root / "labels" / "screens").glob("*.jsonl")}
+    hand, screens, hlog = load_hand_labels(data_root, stems)
+    inputs["files"]["labels_hand"] = hlog
     det = take("actions", (out_root / "analytics" / "actions").rglob("*.parquet"), prefer="actions_detected")
     inputs["files"]["actions_detected"] = inputs["files"].pop("actions")
+    if det is not None and len(det) and "label_source" not in det.columns:
+        det["label_source"] = "model"
     if hand is not None and len(hand):
         if "label_source" not in hand.columns:
             hand["label_source"] = "hand"
-        if det is not None and len(det):          # detected rows only for games without hand labels
+        if det is not None and len(det):          # detected rows only for games without hand labels; no pass filter on them
             det = det[~det["sportvu_game"].isin(hand["sportvu_game"].unique())]
-            if "label_source" not in det.columns:
-                det["label_source"] = "detected"
             hand = pd.concat([hand, det], ignore_index=True)
         inputs["actions"] = hand
     elif det is not None:
-        if "label_source" not in det.columns:
-            det["label_source"] = "detected"
         inputs["actions"] = det
     else:
         inputs["actions"] = pd.DataFrame(columns=list(REQUIRED["actions"]))
-    inputs["screens"] = take("screens", (data_root / "labels" / "screens").glob("*.jsonl"), _read_jsonl)
+    inputs["screens"] = screens
     inputs["coverage_predictions"] = take("coverage_predictions", (out_root / "analytics" / "coverage").rglob("*.parquet"),
                                           prefer="coverage_predictions")
     inputs["epv_states"] = take("epv_states", (out_root / "analytics" / "epv").rglob("*.parquet"))

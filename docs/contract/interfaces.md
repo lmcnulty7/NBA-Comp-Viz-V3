@@ -14,50 +14,49 @@ their key; a producer may write out-of-fold rows per fold).
 Every number produced by these lanes so far is fixture output: no real SportVU, play-by-play, NBA.com or odds
 row is in the repository, and nothing below is a result.
 
-## Assumptions
+## Decisions and assumptions
 
-Where the producer has documented its table (docs/contract/<ext>.md, or the docstring and constants of its
-train module while the contract page is pending), the entry matches that: `xfg_predictions` matches
-`analytics/xfg/train.py` `PREDICTION_COLUMNS`; `player_rapm` matches the `analytics/lineups/train.py`
-docstring. Where it has not (no `docs/contract/{epv,actions,coverage}.md` and no train module at the time of
-writing), the entry records the columns the consumers already code against:
+The paths and column sets below are the coordinator's decisions for the build, reconciled with what the
+producer lanes document (docs/contract/<ext>.md) and what the consumers code against. Where the two differ,
+the decision wins and the entry's `note` in `analytics/interfaces.py` says so.
 
-- `epv_states`: decisions and playcalling read `OUT_ROOT/analytics/epv/<season>/<game>.parquet` (held-out
-  games under `heldout/<season>/`) with `sportvu_game, possession, frame, epv_points`. The lane's `states_1hz`
-  output (`analytics/states_1hz/`, contract section 20) is an input table, not this interface.
-- `actions_detected`: coverage (`ACTION_COLUMNS`) and playcalling read `OUT_ROOT/analytics/actions/<season>/
-  <game>.parquet` with the hand-label columns; `action_id` is optional and defaults to the row's position in
-  the file; `screener_id` is nullable. The lane's feature frames under `analytics/actions/<season>/features/`
-  are skipped by `find_outputs`.
-- `coverage_predictions`: now documented in docs/contract/coverage.md (`coverage_predictions.parquet` per
-  season with `coverage_label` nullable, `p_switch` to `p_over`, `predicted`, `fold`, `heldout`); the entry
-  matches it. playcalling reads `predicted` and the `p_<class>` columns. `coverage_features.parquet` and
-  `coverage_team_rates.parquet` are not matched by the glob.
-- `xfg_predictions`: gravity and epv use the location-only baseline of `analytics.train_xfg` in their own code
-  today; they are listed as consumers of the lane's shot-quality column (`p_selected`) per the registry note
-  in `analytics/registry.py`, and decisions joins `p_selected` by `(sportvu_game, event)`.
-- `player_rapm`: betting reads `team_id` and `as_of` when present and keeps its RAPM features null otherwise;
-  matchups has no RAPM read in its code yet. Both are optional columns here.
-
-When a producer lane documents something different, the registry entry changes to match; the consumers are
-told through reports/integration.md.
+- `xfg_predictions`: any `OUT_ROOT/analytics/xfg/<season>/*.parquet` with `sportvu_game, event, player_id,
+  p_selected, fold`; `analytics/xfg/train.py` writes `xfg_predictions.parquet` with `p_location, p_contest,
+  made, heldout` as well (optional here). `xfg_features.parquet` is the lane's feature frame and is skipped.
+  decisions joins `p_selected` by `(sportvu_game, event)`; gravity and epv use the location-only baseline of
+  `analytics.train_xfg` in their own code today and are listed as consumers of the lane's shot-quality column.
+- `epv_states`: `OUT_ROOT/analytics/epv/<season>/<game>.parquet` (held-out under `heldout/<season>/`) with
+  `sportvu_game, possession, frame, epv_points`. `epv_possessions.parquet` in the same folder is the lane's
+  possession table and is skipped. The lane's `states_1hz` output (`analytics/states_1hz/`, contract section
+  20) is an input table, not this interface.
+- `actions_detected`: `OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` with
+  `sportvu_game, possession, action_id, action_type, start_frame, end_frame, ball_handler_id, screener_id`
+  (nullable), `label_source`. Hand labels are read only through `analytics.labels.read_labels` (labeller_pass
+  1, label_source `hand`). The lane's `action_candidates/` and `features/` folders are not matched.
+- `coverage_predictions`: as documented in docs/contract/coverage.md (`coverage_predictions.parquet` per
+  season with `coverage_label` nullable, `p_switch` to `p_over`, `predicted`, `fold`, `heldout`). playcalling
+  reads `predicted` and the `p_<class>` columns. `coverage_features.parquet` and `coverage_team_rates.parquet`
+  are not matched by the glob.
+- `player_rapm`: as documented in docs/contract/lineups.md: `season, player_id, rapm, lo, hi, fit_seasons`.
+  No `as_of` and no `team_id`; betting treats its RAPM features as absent.
 
 ## xfg_predictions
 
-Producer `xfg`; consumers `decisions`, `gravity`, `epv`. Path `OUT_ROOT/analytics/xfg/<season>/xfg_predictions.parquet`
-(one file per season; held-out rows flagged, not separated). Key `(sportvu_game, event)`.
+Producer `xfg`; consumers `decisions`, `gravity`, `epv`. Path `OUT_ROOT/analytics/xfg/<season>/*.parquet`
+(`xfg_predictions.parquet` from the trainer; one file per season, held-out rows flagged, not separated).
+Key `(sportvu_game, event)`.
 
 | column | dtype | meaning |
 | --- | --- | --- |
 | `sportvu_game` | string | Step 1 game id (contract section 16) |
 | `event` | int | the shot's play-by-play event id (section 10) |
-| `player_id` | int, optional | shooter id |
+| `player_id` | int, nullable | shooter id |
+| `p_selected` | float | the selected candidate's probability (the shot-quality column consumers join) |
+| `fold` | int | grouped CV fold; -1 for held-out rows scored once |
 | `p_location` | float, optional | the location-only candidate's out-of-fold make probability |
 | `p_contest` | float, optional | the contest logistic candidate's out-of-fold make probability |
-| `p_selected` | float | the selected candidate's probability (the shot-quality column consumers join) |
-| `made` | bool | the outcome (never a feature downstream) |
-| `fold` | int | grouped CV fold; -1 for held-out rows scored once |
-| `heldout` | bool | the row's game is held out |
+| `made` | bool, optional | the outcome (never a feature downstream) |
+| `heldout` | bool, optional | the row's game is held out |
 
 ## epv_states
 
@@ -75,19 +74,20 @@ Producer `epv`; consumers `decisions`, `playcalling`. Path `OUT_ROOT/analytics/e
 
 ## actions_detected
 
-Producer `actions`; consumers `coverage`, `playcalling`. Path `OUT_ROOT/analytics/actions/<season>/<game>.parquet`
-(held-out under `heldout/<season>/`). Key `(sportvu_game, possession, start_frame)`.
+Producer `actions`; consumers `coverage`, `playcalling`. Path
+`OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` (held-out under `heldout/<season>/`).
+Key `(sportvu_game, possession, action_id)`.
 
 | column | dtype | meaning |
 | --- | --- | --- |
 | `sportvu_game` | string | game id |
 | `possession` | int | section 19 possession |
+| `action_id` | int | id inside the game |
 | `action_type` | string | `ball_screen`, `drive`, `isolation` (the detector's classes) or another ACTION_TYPES value |
 | `start_frame`, `end_frame` | int | the action's span in 25 Hz frame ids |
 | `ball_handler_id` | int | the handler |
-| `screener_id` | int, optional (nullable) | the screener for a ball screen |
+| `screener_id` | int, nullable | the screener for a ball screen |
 | `label_source` | string | `model` for detected rows (`hand` for labels passed through) |
-| `action_id` | int, optional | id inside the game; defaults to the row's position when absent |
 | `labeller_pass` | string, optional | carried from hand labels |
 | `heldout` | bool, optional | the game is held out |
 
@@ -119,8 +119,6 @@ Producer `lineups`; consumers `matchups`, `betting`. Path `OUT_ROOT/analytics/li
 | `rapm` | float | regularised adjusted plus-minus per 100 possessions from the fit on seasons up to and including `season` |
 | `lo`, `hi` | float | bootstrap-by-game interval |
 | `fit_seasons` | string, optional | comma-joined seasons of the fit |
-| `team_id` | int, optional | the player's team (betting sums by team when present) |
-| `as_of` | string, optional | date the value is known (betting uses values dated before each game only) |
 
 ## Discovery convention
 
@@ -148,6 +146,10 @@ or the shared `analytics/fixtures.py`.
                                                                               # with --data per lane in
                                                                               # dependency order, interface
                                                                               # checks on what they wrote
+
+The slow part also runs `python run_all.py --fixtures --all --continue-on-error --out OUT_ROOT` once and
+asserts every interface file exists under that OUT_ROOT (skipped while run_all.py does not pass `--out` to
+the train step).
 
 A lane that is not present is a skip with the reason. Every subprocess has a timeout (120 s for validate,
 600 s per features or train step with --fixtures, 300 s per step on the shared root). The fast part runs its

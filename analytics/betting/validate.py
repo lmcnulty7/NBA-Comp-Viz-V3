@@ -6,11 +6,12 @@ closing line per game and market, then joined to the games table.
 Steps
   1. check_schema: the section 14 columns, markets in {h2h, spreads, totals}, prices are non-zero integers
      with absolute value at least 100, points present for spreads and totals.
-  2. closing_lines: per (game_key, market, book) the is_close snapshot nearest tip (the latest snapshot_at not
-     after commence_time among the is_close rows; a game without one falls back to its latest pre-tip snapshot
-     and is counted under fallback_preclose). Extra closing snapshots and books are the duplicates: they are
-     counted, never silently dropped (duplicate_snapshots, n_books per game). Books are combined by the median
-     point (home spread, total) and the mean de-vigged home probability.
+  2. closing_lines: per (game_key, book) the book's own latest pre-tip is_close snapshot (books are staggered);
+     a game whose books have no is_close snapshot falls back to each book's latest pre-tip snapshot and is counted
+     under fallback_preclose. Earlier closing snapshots of a book are the duplicates: counted per book, never
+     silently dropped (duplicate_snapshots; books_without_close for a book lacking one while others have it).
+     Books are combined by the median point (home spread, total, spread price) and the mean de-vigged home
+     probability.
   3. vig removal per market and book: implied(p_i) = American price to probability, then p_i / sum(p) over the
      market's sides (the multiplicative method). Hand case: -110/-110 -> 0.5/0.5; -150/+130 -> 0.5798/0.4202.
   4. ranges: a home spread within [-30, 30], a total within [150, 300]; rows outside are counted and dropped.
@@ -46,6 +47,7 @@ MARKETS = ("h2h", "spreads", "totals")
 SPREAD_RANGE = (-30.0, 30.0)
 TOTAL_RANGE = (150.0, 300.0)
 TIP_SHIFT_HOURS = 8        # UTC tip minus this is the US local calendar date for every NBA tip time
+MIN_VOTES = 2              # date co-occurrence votes an inferred team name needs (and a strict majority)
 DATE_TOLERANCE_DAYS = 1
 
 # stats.nba.com team ids -> (abbreviation, name as the odds feed prints it)
@@ -175,33 +177,49 @@ def _market_frame(rows: pd.DataFrame) -> dict:
 
 def closing_lines(odds: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     """-> (one row per game_key, counts). Columns: game_key, commence_time, home_team, away_team, closing_spread_home,
-    closing_total, implied_home_prob, overround_h2h, n_books, n_close_snapshots, used_fallback."""
+    closing_total, implied_home_prob, overround_h2h, spread_price_home, n_books, n_close_snapshots, used_fallback,
+    snapshot_at.
+
+    Per (game_key, book): the book's own latest pre-tip is_close snapshot (books are staggered in the feed, so the
+    instant differs by book); its earlier is_close snapshots are the duplicates, counted per book. A book without an
+    is_close pre-tip snapshot while another book has one is dropped and counted (books_without_close). When no book
+    has one, every book's latest pre-tip snapshot stands in (used_fallback, counted per game). Books are then
+    combined: median spread, total and spread price, mean de-vigged home probability. snapshot_at is the latest of
+    the chosen book snapshots."""
     df = odds.copy()
     df["_tip"] = _parse_time(df["commence_time"])
     df["_at"] = _parse_time(df["snapshot_at"])
     df["is_close"] = df["is_close"].fillna(False).astype(bool)
+    df["book"] = df["book"].astype(str)
     counts = {"rows": int(len(df)), "games": int(df["game_key"].nunique()), "duplicate_snapshots": 0,
-              "fallback_preclose": 0, "no_pretip_snapshot": 0, "multi_book_games": 0}
+              "fallback_preclose": 0, "no_pretip_snapshot": 0, "multi_book_games": 0, "books_without_close": 0}
     rows = []
     for key, g in df.groupby("game_key", sort=True):
         tip = g["_tip"].iloc[0]
         pre = g[g["_at"] <= tip]
-        close = pre[pre["is_close"]]
-        used_fallback = False
-        if close.empty:
-            if pre.empty:
-                counts["no_pretip_snapshot"] += 1
-                continue
-            close, used_fallback = pre, True
+        if pre.empty:
+            counts["no_pretip_snapshot"] += 1
+            continue
+        any_close = bool(pre["is_close"].any())
+        used_fallback = not any_close
+        if used_fallback:
             counts["fallback_preclose"] += 1
-        snaps = sorted(close["_at"].unique())
-        if len(snaps) > 1:
-            counts["duplicate_snapshots"] += len(snaps) - 1
-        chosen = close[close["_at"] == snaps[-1]]       # the snapshot nearest tip
-        books = sorted(chosen["book"].astype(str).unique())
-        if len(books) > 1:
+        chosen_parts, snaps = [], []
+        for book, b in pre.groupby("book", sort=True):
+            close = b[b["is_close"]] if any_close else b
+            if close.empty:
+                counts["books_without_close"] += 1
+                continue
+            b_snaps = sorted(close["_at"].unique())
+            counts["duplicate_snapshots"] += len(b_snaps) - 1
+            chosen_parts.append(close[close["_at"] == b_snaps[-1]])
+            snaps.append(b_snaps[-1])
+        if not chosen_parts:
+            counts["no_pretip_snapshot"] += 1
+            continue
+        if len(chosen_parts) > 1:
             counts["multi_book_games"] += 1
-        per_book = pd.DataFrame([_market_frame(chosen[chosen["book"].astype(str) == b]) for b in books])
+        per_book = pd.DataFrame([_market_frame(part) for part in chosen_parts])
         rows.append({"game_key": key, "commence_time": g["commence_time"].iloc[0], "home_team": g["home_team"].iloc[0],
                      "away_team": g["away_team"].iloc[0],
                      "closing_spread_home": float(per_book["spread_home"].median()),
@@ -209,8 +227,8 @@ def closing_lines(odds: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
                      "implied_home_prob": float(per_book["implied_home_prob"].mean()),
                      "overround_h2h": float(per_book["overround_h2h"].mean()),
                      "spread_price_home": float(per_book["spread_price_home"].median()),
-                     "n_books": len(books), "n_close_snapshots": len(snaps), "used_fallback": used_fallback,
-                     "snapshot_at": snaps[-1].strftime("%Y-%m-%dT%H:%M:%SZ")})
+                     "n_books": len(chosen_parts), "n_close_snapshots": len(set(snaps)), "used_fallback": used_fallback,
+                     "snapshot_at": max(snaps).strftime("%Y-%m-%dT%H:%M:%SZ")})
     out = pd.DataFrame(rows, columns=["game_key", "commence_time", "home_team", "away_team", "closing_spread_home",
                                       "closing_total", "implied_home_prob", "overround_h2h", "spread_price_home",
                                       "n_books", "n_close_snapshots", "used_fallback", "snapshot_at"])
@@ -241,7 +259,9 @@ def _unknown_ids(games: pd.DataFrame, names: dict) -> set:
 def infer_team_names(closing: pd.DataFrame, games: pd.DataFrame, names: dict | None = None) -> dict:
     """id -> feed name for game ids that neither TEAM_NAMES nor names know, from date co-occurrence: a local date
     with exactly one odds game and exactly one games row (within DATE_TOLERANCE_DAYS) votes its home and away
-    pairs; the majority name per id wins. Returns only the inferred pairs (empty when nothing is unknown)."""
+    pairs; an id is resolved only with at least MIN_VOTES votes and a strict majority for one name. Raises ValueError
+    when an inferred name collides with another inferred name or with a name already known (TEAM_NAMES or names):
+    two ids cannot share a team. Returns only the inferred pairs (empty when nothing is unknown)."""
     names = dict(names or {})
     unknown = _unknown_ids(games, names)
     if not unknown or closing.empty:
@@ -263,7 +283,22 @@ def infer_team_names(closing: pd.DataFrame, games: pd.DataFrame, names: dict | N
             if pd.notna(tid) and int(tid) in unknown:
                 votes.setdefault(int(tid), {}).setdefault(str(name), 0)
                 votes[int(tid)][str(name)] += 1
-    return {tid: max(v.items(), key=lambda kv: (kv[1], kv[0]))[0] for tid, v in votes.items()}
+    out: dict = {}
+    for tid, v in votes.items():
+        name, n = max(v.items(), key=lambda kv: (kv[1], kv[0]))
+        total = sum(v.values())
+        if n >= MIN_VOTES and n * 2 > total:
+            out[tid] = name
+    known_keys = {team_key(n) for n in names.values()} | {team_key(n[1]) for n in TEAM_NAMES.values()}
+    seen: dict = {}
+    for tid, name in sorted(out.items()):
+        k = team_key(name)
+        if k in known_keys:
+            raise ValueError("%s: inferred team name %r for id %d collides with a known team" % (WHO, name, tid))
+        if k in seen:
+            raise ValueError("%s: ids %d and %d both infer the team name %r" % (WHO, seen[k], tid, name))
+        seen[k] = tid
+    return out
 
 
 def join_games(closing: pd.DataFrame, games: pd.DataFrame, team_names: dict | None = None) -> tuple[pd.DataFrame, dict]:
@@ -385,6 +420,9 @@ def validate(odds: pd.DataFrame, games: pd.DataFrame, team_names: dict | None = 
     if problems:
         raise ValueError("%s: odds table does not match section 14: %s" % (WHO, problems))
     games = games.copy()
+    dup = games["game_id"].astype(str).duplicated()
+    if dup.any():
+        raise ValueError("%s: games table has %d duplicate game_id(s), e.g. %s" % (WHO, int(dup.sum()), sorted(games.loc[dup, "game_id"].astype(str).unique())[:3]))
     if "heldout" in games.columns:
         held = games["heldout"].fillna(False).astype(bool)
         dropped_heldout = int(held.sum())

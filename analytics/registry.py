@@ -14,9 +14,10 @@ Two packages carry one extra step between validate and features: `analytics.epv.
 1 Hz states table (docs/DATA_CONTRACT.md section 20) and `analytics.lineups.stints` builds lineup stints.
 Each step module exposes `main(argv=None) -> int`, which run_all.py calls in-process.
 
-`real_data_inputs` are paths relative to DATA_ROOT, the root of the Step 1 contract dataset
-(docs/DATA_CONTRACT.md section 3) plus the collector outputs under `collect/` and the Phase 0 tables
-under `analytics/`. `<game>` is a SportVU game code such as 12.16.2015.PHX.at.GSW, `<season>` is 2015-16.
+`real_data_inputs` are paths relative to DATA_ROOT, the parent folder of `sportvu_contract/` (the Step 1
+contract dataset, docs/DATA_CONTRACT.md section 3: manifest.json, <game>.parquet, heldout/), of the
+collector outputs under `collect/` and of the Phase 0 tables under `analytics/`; on the Mac that is the
+Drive nba_harvest folder. `<game>` is a SportVU game code such as 12.16.2015.PHX.at.GSW, `<season>` is 2015-16.
 """
 from __future__ import annotations
 
@@ -33,9 +34,9 @@ PHASES = {
 }
 
 # Paths that recur in real_data_inputs (relative to DATA_ROOT).
-_FRAMES = "<game>.parquet"
-_PBP = "<game>_pbp.parquet"
-_MANIFEST = "manifest.json"
+_FRAMES = "sportvu_contract/<game>.parquet"
+_PBP = "sportvu_contract/<game>_pbp.parquet"
+_MANIFEST = "sportvu_contract/manifest.json"
 _ROSTERS = "analytics/rosters/<season>/<game>.parquet"
 _SHOT_FRAMES = "analytics/shot_frames/<season>/<game>.parquet"
 _REBOUND_FRAMES = "analytics/rebound_frames/<season>/<game>.parquet"
@@ -95,9 +96,9 @@ EXTENSIONS = [
     _ext("decisions", STANDARD_STEPS, ["xfg", "epv"], 4,
          [_STATES, _SHOT_FRAMES, _PBP, _POSSESSIONS],
          "shot versus pass decisions scored against EPV and xfg at the moment of the choice"),
-    _ext("playcalling", STANDARD_STEPS, ["epv", "actions"], 4,
-         [_STATES, _POSSESSIONS, _PBP],
-         "play-type recognition and value from the action sequences and EPV traces"),
+    _ext("playcalling", STANDARD_STEPS, ["epv", "actions", "coverage"], 4,
+         [_STATES, _POSSESSIONS, _PBP, "analytics/coverage/<season>/coverage_predictions/<game>.parquet"],
+         "play-type recognition and value from the action sequences, coverage predictions and EPV traces"),
     _ext("lineups", ["validate", "stints", "features", "train"], [], 4,
          [_STINTS, _MULTI_PBP, _BREF_LINEUPS, _SCHEDULE],
          "lineup stints and adjusted plus-minus; analytics.lineups.stints builds the stint table first"),
@@ -114,14 +115,16 @@ EXTENSIONS = [
 
 EXTENSION_NAMES = [e["name"] for e in EXTENSIONS]
 
-# Phase 0, run before any extension. argv templates are formatted with data_root, out_root, report_dir.
+# Phase 0, run before any extension. argv templates are formatted with contract (DATA_ROOT/sportvu_contract,
+# or DATA_ROOT itself when it holds manifest.json), data_root, out_root, report_dir and steps.
 PHASE0_STEPS = [
     {"name": "gaps", "module": "analytics.gaps",
-     "argv": ["--manifest", "{data_root}/manifest.json", "--out", "{report_dir}/sportvu_gaps.md"],
+     "argv": ["--manifest", "{contract}/manifest.json", "--out", "{report_dir}/sportvu_gaps.md"],
      "notes": "clock gaps per game from the Step 1 manifest; flags games over the threshold"},
     {"name": "run_phase0", "module": "analytics.run_phase0",
-     "argv": ["--data", "{data_root}", "--out", "{out_root}"],
-     "notes": "rosters, shot frames, rebound frames and possessions for every game of the manifest"},
+     "argv": ["--data", "{contract}", "--out", "{out_root}", "--steps", "{steps}"],
+     "notes": "rosters, shot frames, rebound frames and possessions for every game of the manifest "
+              "(--data is the contract folder; gaps is left out because it already ran)"},
 ]
 
 _NBA_BLOCKED = ("stats.nba.com refuses non-browser clients from cloud and many home networks; "
@@ -129,8 +132,10 @@ _NBA_BLOCKED = ("stats.nba.com refuses non-browser clients from cloud and many h
 
 COLLECTORS = [
     {"name": "drive", "module": "collect.drive", "reachable": True, "reason": "local Google Drive folder, no network",
-     "command": "python -m collect.drive --contract-dir DRIVE/nba_harvest/sportvu_contract --out DATA_ROOT",
-     "notes": "reconciles the Step 1 contract (frames, pbp, manifest) from Drive into DATA_ROOT"},
+     "command": "python -m collect.drive --sync-from [DATA_ROOT] [--only bref_shots ...] [--dry-run]",
+     "notes": "copies DATA_ROOT/collect (default: the Drive nba_harvest folder) to the local data/collect; "
+              "--sync-to copies local data/collect to DATA_ROOT/collect; --where prints the resolved Drive root. "
+              "The Step 1 contract itself stays at DATA_ROOT/sportvu_contract"},
     {"name": "bref_schedule", "module": "collect.bref_schedule", "reachable": True, "reason": "basketball-reference, 17 requests a minute",
      "command": "python -m collect.bref_schedule --seasons 2015-16 --out DATA_ROOT/collect",
      "notes": "schedule and game codes per season; one page per month"},

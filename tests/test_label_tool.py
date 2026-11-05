@@ -530,6 +530,18 @@ def test_kappa_skips_heldout_games(tmp_path, game):
     assert rep_all["pooled"]["n_actions"] == 8
 
 
+def test_kappa_report_default_guard(tmp_path, game, monkeypatch):
+    g = _two_pass_root(tmp_path, game)
+    held = fx.HELDOUT_GAME
+    acts, scrs = L.read_labels(tmp_path, g)
+    L.write_labels(tmp_path, held, acts.assign(sportvu_game=held), scrs.assign(sportvu_game=held))
+    for p in range(4):
+        L.mark_visited(tmp_path, held, p, 1); L.mark_visited(tmp_path, held, p, 2)
+    monkeypatch.setattr(T, "heldout_tokens", lambda: set(fx.HELDOUT_TOKENS))
+    rep = T.kappa_report(tmp_path, L.list_games(tmp_path), (1, 2))  # no heldout argument
+    assert rep["skipped_heldout"] == [held] and list(rep["per_game"]) == [g]
+
+
 def test_kappa_coverage_sure_only(tmp_path, game):
     g = _two_pass_root(tmp_path, game, unsure_second=True)
     per = T.kappa_report(tmp_path, [g], (1, 2))["per_game"][g]
@@ -619,6 +631,9 @@ def test_html_key_guards():
     i = html.index("function enterCoverage()")
     assert 'if (!S.data)' in html[i:i + 200]
     assert '"/visited"' in html
+    j = html.index("function nextPossession(k)")
+    body = html[j:j + 500]
+    assert body.index("markVisited()") < body.index("i >= S.n"), "the bounds check must follow the visited mark"
 
 
 def test_sampling_redistributes_short_team(game):

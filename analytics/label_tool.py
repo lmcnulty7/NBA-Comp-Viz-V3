@@ -463,10 +463,13 @@ def kappa_report(data_root, games: list[str], passes=(1, 2), heldout: Iterable[s
     Only possessions both passes visited (``visited_by_pass``: the visited record, or the labelled
     possessions of a pass without one) enter, so an action one pass saw and the other did not counts as
     ``none``. Games carrying a held-out token are skipped and listed in ``skipped_heldout``: the kappa
-    tightens the definitions, and held-out games tune nothing.
+    tightens the definitions, and held-out games tune nothing. ``heldout`` defaults to
+    ``heldout_tokens()`` (sportvu/splits.json); pass an empty tuple to compare everything.
     """
     p1, p2 = int(passes[0]), int(passes[1])
-    toks = set(str(t) for t in (heldout or ()) if t)
+    if heldout is None:
+        heldout = heldout_tokens()
+    toks = set(str(t) for t in heldout if t)
     skipped = [g for g in games if L.is_heldout(g, toks)]
     games = [g for g in games if g not in skipped]
     per = {}
@@ -523,7 +526,7 @@ def main(argv=None) -> int:
 
     if a.kappa:
         games = [a.game] if a.game else L.list_games(a.data)
-        rep = kappa_report(a.data, games, a.passes, heldout=heldout_tokens())
+        rep = kappa_report(a.data, games, a.passes)
         print(json.dumps(rep, indent=1))
         if rep["skipped_heldout"]:
             print("skipped %d held-out game(s): %s" % (len(rep["skipped_heldout"]), rep["skipped_heldout"]))

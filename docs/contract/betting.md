@@ -39,7 +39,10 @@ before `game_date` (rolling values shifted by one game within the team's season)
 implied probability are lines, not features: they enter only the CLV target and the ridge model's conversion of a
 margin forecast into a cover probability. `features.assert_time_forward` refuses a feature frame holding any Phase 0
 label (analytics.schema) or any of these target and line columns; `features.assert_no_leak` also refuses a column
-whose absolute correlation with `home_margin` exceeds 0.99 (a disguised copy of the margin; a legitimate form feature stays far below).
+whose absolute correlation with `home_margin` exceeds `LEAK_CORR` (0.99). That correlation check is a name-trick
+tripwire only: it catches a renamed copy of the final margin, not a feature that uses same-game information in a
+subtler way. The time-forward construction (rolling values shifted by one game, tested by mutating a game's own
+score) is what carries the leakage guarantee.
 
 ## betting_predictions: `OUT_ROOT/analytics/betting/<season>/betting_predictions.parquet`
 
@@ -50,7 +53,7 @@ whose absolute correlation with `home_margin` exceeds 0.99 (a disguised copy of 
 | `margin_forecast` | float | the selected margin model's forecast of `home_margin` |
 | `clv` | float | `margin_forecast - (-closing_spread_home)` (null without a spread) |
 | `stake` | float | +1 on the home cover, -1 on the away cover, 0 no bet, by the staking rule of `train.py` (p_cover above 0.55 for a side; VIG 4.5 percent a side) |
-| `pnl` | float | +0.91 for a winning unit, -1 for a loss, 0 for a push or no bet |
+| `pnl` | float | a winning unit returns the collected home spread price when the prediction frame carries `spread_price_home` (-110 gives 0.909), else the nominal `WIN_RETURN` 0.91 (4.5 percent vig a side); -1 for a loss, 0 for a push or no bet. betting_games carries no price column, so the run reports the nominal return |
 | `fold` | int | the grouped CV fold that produced the out-of-fold prediction; -1 for the held-out season |
 | `heldout` | bool | true for the held-out season rows (scored once) |
 | `cover_model`, `margin_model` | string | the candidates selected inside the training seasons (`market`, `logistic`, `ridge`) |

@@ -276,7 +276,7 @@ def game_meta(game: str) -> dict:
     """'12.16.2015.PHX.at.GSW' -> {'game', 'date', 'away', 'home', 'season'}."""
     mm, dd, yyyy, away, _at, home = game.split(".")
     y = int(yyyy)
-    season = "%d-%02d" % (y, (y + 1) % 100) if int(mm) >= 9 else "%d-%02d" % (y - 1, y % 100)
+    season = "%d-%02d" % (y, (y + 1) % 100) if int(mm) >= 7 else "%d-%02d" % (y - 1, y % 100)
     return {"game": game, "date": "%s-%s-%s" % (yyyy, mm, dd), "away": away, "home": home, "season": season}
 
 

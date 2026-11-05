@@ -36,7 +36,7 @@ def run_local(tmp_path_factory):
     out = tmp_path_factory.mktemp("emb_out_local")
     report = out / "embeddings.md"
     ctx = T.main(["--fixtures", "--local-fixtures", "--report", str(report), "--out", str(out), "--bootstrap", str(N_BOOT),
-                  "--n-games", "6", "--heldout-every", "3", "--seed", "0"])
+                  "--n-games", "6", "--heldout-every", "3", "--seed", "0", "--folds", "3"])
     ctx["_report"] = report.read_text()
     return ctx
 
@@ -141,6 +141,8 @@ def test_next_season_r2_against_mean_baseline():
     y = 2.0 * E[:, 0] - E[:, 1] + rng.normal(scale=0.1, size=40)
     p = T.next_season_predictions(E, y, groups=np.arange(40), seed=0)
     assert p["folds"] == 5 and np.isfinite(p["ridge"]).all()
+    assert T.next_season_predictions(E, y, groups=np.arange(40), seed=0, n_folds=3)["folds"] == 3
+    assert T.next_season_predictions(E, y, groups=np.arange(40) % 2, seed=0, n_folds=5)["folds"] == 2   # capped by players
     assert T.r2(y, p["ridge"]) > 0.9 > T.r2(y, p["mean"])
 
 
@@ -235,6 +237,8 @@ def test_local_fixture_run_beats_both_baselines(run_local):
     assert ev["knn"]["accuracy"]["point"] > ev["knn"]["majority"]["point"]
     assert ev["knn"]["accuracy"]["lo"] <= ev["knn"]["accuracy"]["point"] <= ev["knn"]["accuracy"]["hi"]
     assert ev["next"]["n"] >= 20 and ev["next"]["r2"]["point"] > ev["next"]["r2_mean"]["point"]
+    assert ev["next"]["folds"] == 3 == run_local["folds"] and "3 grouped folds by player_id" in run_local["_report"]
+    assert T.parse_args(["--fixtures"]).folds == 5
     assert run_local["decision"]["chosen"] in T.METHODS and len(run_local["games"]) == 4
     assert "fixture output, not a result" in run_local["_report"]
 

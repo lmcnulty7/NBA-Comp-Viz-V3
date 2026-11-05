@@ -321,8 +321,7 @@ def ok(report: dict) -> bool:
 
 
 # ── loaders ────────────────────────────────────────────────────────────────────────────────────────
-def load_fixture_games(seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 24) -> list:
-    """Synthetic games with labels: analytics.fixtures when importable, else the fallback of tests/_fx_actions.py."""
+def _fx():
     root = Path(__file__).resolve().parents[2]
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
@@ -331,7 +330,17 @@ def load_fixture_games(seed: int = 0, n_games: int = 6, heldout_every: int = 3, 
     except ImportError:
         sys.path.insert(0, str(root / "tests"))
         import _fx_actions as fx                   # type: ignore
-    return fx.season_games(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    return fx
+
+
+def fixture_source() -> str:
+    """Which generator a --fixtures run uses (analytics.fixtures when importable, else the fallback)."""
+    return _fx().fixture_source()
+
+
+def load_fixture_games(seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 24) -> list:
+    """Synthetic games with labels: analytics.fixtures when importable, else the fallback of tests/_fx_actions.py."""
+    return _fx().season_games(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
 
 
 def discover_games(root) -> list:

@@ -11,7 +11,9 @@ Sampling: training games only (the shot_frames tables under <root>/analytics/sho
 heldout/, and any game sportvu/splits.json holds out is refused even if a file sits in the training folder);
 equal counts per game (n // games, drawn without replacement with numpy's default_rng(seed) from the shots
 whose release frame was found, so the auditor always has a frame to scrub to; --all includes the unfound
-rows too); a game with fewer candidates than the per-game count contributes what it has and is listed.
+rows too); a game with fewer candidates than the per-game count contributes what it has and is listed. The
+per-game count is at least 1, so an n below the number of training games returns one shot per game, which is
+more than n rows.
 
 Sample columns: the court replay keys (sportvu_game, event, period, clock_s, release_frame, apex_frame,
 outcome_frame, shooter_id, confidence_flag) plus the empty audit columns audited_release_frame (Int32),
@@ -155,8 +157,9 @@ def summary_markdown(res: dict, sample_path) -> str:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m analytics.audit_shots", description=__doc__.split("\n")[0])
     ap.add_argument("--data", help="OUT_ROOT of analytics.run_phase0 (holds analytics/shot_frames), or that folder itself")
-    ap.add_argument("--n", type=int, default=200, help="sample size in total; n // games per training game")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n", type=int, default=200,
+                    help="sample size in total: n // games per training game, at least 1, so n below the game count gives one shot per game and more than n rows")
+    ap.add_argument("--seed", type=int, default=0, help="numpy default_rng seed of the draw (the same seed gives the same sample)")
     ap.add_argument("--out", default=None, help="sample parquet (default <data>/analytics/audit/shots_sample.parquet)")
     ap.add_argument("--all", action="store_true", help="draw from every shot, not only those with a release frame")
     ap.add_argument("--summarise", default=None, metavar="SAMPLE", help="read a filled sample back and report agreement")

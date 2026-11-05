@@ -47,27 +47,31 @@ def drive_root(env: dict | None = None) -> Path | None:
     return Path(COLAB_ROOT) if os.path.isdir(COLAB_ROOT) else None
 
 
+def files_under(src: Path, only: list[str] | None = None) -> list[Path]:
+    """Every file sync considers under src: the top-level entries (or the --only ones), .part files left out."""
+    src = Path(src)
+    if not src.is_dir():
+        return []
+    tops = sorted(p for p in src.iterdir()) if not only else [src / o for o in only]
+    out = []
+    for top in tops:
+        if not top.exists():
+            continue
+        out.extend(f for f in ([top] if top.is_file() else sorted(p for p in top.rglob("*") if p.is_file())) if not f.name.endswith(SKIP_SUFFIXES))
+    return out
+
+
 def plan(src: Path, dst: Path, only: list[str] | None = None) -> list[tuple[Path, Path, str]]:
     """(source file, destination file, reason) for every file under src that sync would copy: 'missing' or
     'size <src> != <dst>'. Files whose destination has the same size are left out."""
     src, dst = Path(src), Path(dst)
     out = []
-    if not src.is_dir():
-        return out
-    tops = sorted(p for p in src.iterdir()) if not only else [src / o for o in only]
-    for top in tops:
-        if not top.exists():
-            continue
-        files = [top] if top.is_file() else sorted(p for p in top.rglob("*") if p.is_file())
-        for f in files:
-            if f.name.endswith(SKIP_SUFFIXES):
-                continue
-            rel = f.relative_to(src)
-            d = dst / rel
-            if not d.exists():
-                out.append((f, d, "missing"))
-            elif d.stat().st_size != f.stat().st_size:
-                out.append((f, d, "size %d != %d" % (f.stat().st_size, d.stat().st_size)))
+    for f in files_under(src, only):
+        d = dst / f.relative_to(src)
+        if not d.exists():
+            out.append((f, d, "missing"))
+        elif d.stat().st_size != f.stat().st_size:
+            out.append((f, d, "size %d != %d" % (f.stat().st_size, d.stat().st_size)))
     return out
 
 
@@ -75,7 +79,7 @@ def sync(src: Path, dst: Path, only: list[str] | None = None, dry_run: bool = Fa
     """Copy what plan() lists. Returns {"copied": n, "bytes": n, "skipped": n, "files": [relative paths]}."""
     src, dst = Path(src), Path(dst)
     todo = plan(src, dst, only)
-    total = sum(1 for top in (src.iterdir() if src.is_dir() else []) for f in ([top] if top.is_file() else top.rglob("*")) if f.is_file() and not f.name.endswith(SKIP_SUFFIXES))
+    total = len(files_under(src, only))
     copied, nbytes, files = 0, 0, []
     for f, d, why in todo:
         rel = str(f.relative_to(src))

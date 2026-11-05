@@ -6,8 +6,9 @@ dict; render_markdown turns a frame into a markdown table (no plotting library, 
 
 Tables
     spread_distribution       closing home spread: count, mean, sd, quantiles, share of favourites at home
-    margin_distribution       final home margin: the same, plus the margin minus the market forecast (the line's error)
-    cover_rate_by_spread_bin  home cover rate per spread bin (a fair line gives about 0.5 everywhere)
+    margin_distribution       final home margin: the same, plus the margin minus the market forecast (the line's error);
+                              training seasons only (held-out outcomes are never looked at)
+    cover_rate_by_spread_bin  home cover rate per spread bin (a fair line gives about 0.5 everywhere); training seasons only
     join_coverage             the validate counts as one two-column table
     shuffled_label_check      out-of-fold log loss of the logistic and ridge candidates on the true labels and on
                               labels shuffled within season: a pipeline that leaks shows a gap on shuffled labels too
@@ -50,13 +51,20 @@ def spread_distribution(bg: pd.DataFrame) -> pd.DataFrame:
     return t
 
 
+def training_rows(bg: pd.DataFrame) -> pd.DataFrame:
+    """bg without the held-out season: outcome tables never look at held-out results."""
+    return bg[~bg["heldout"].astype(bool)] if "heldout" in bg.columns else bg
+
+
 def margin_distribution(bg: pd.DataFrame) -> pd.DataFrame:
+    bg = training_rows(bg)
     err = bg["home_margin"] + bg["closing_spread_home"]      # positive when the home side beat the line
     return pd.concat([_describe(bg["home_margin"], "home_margin"), _describe(err, "home_margin_minus_market")], ignore_index=True)
 
 
 def cover_rate_by_spread_bin(bg: pd.DataFrame) -> pd.DataFrame:
-    lab = bg[bg["home_cover"].notna()].copy()
+    lab = training_rows(bg)
+    lab = lab[lab["home_cover"].notna()].copy()
     lab["bin"] = pd.cut(lab["closing_spread_home"], bins=list(SPREAD_BINS), include_lowest=True)
     out = lab.groupby("bin", observed=False).agg(n=("home_cover", "size"), cover_rate=("home_cover", "mean"),
                                                 mean_margin=("home_margin", "mean"), mean_spread=("closing_spread_home", "mean")).reset_index()

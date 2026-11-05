@@ -267,9 +267,9 @@ def write_report(path: Path, ctx: dict) -> str:
     L = ["# Action recognition: ball-screen detection (analytics/actions/train.py)", "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
-        L += ["**Every number below is fixture output, not a result**: the inputs are synthetic games from "
-              "tests/_fx_actions.py (or analytics/fixtures.py) with scripted screens, drives and isolations. The real run "
-              "awaits the SportVU frames, possessions and hand labels on the owner's Mac (command under Status).", ""]
+        L += ["**Every number below is fixture output, not a result**: the inputs are synthetic games from %s "
+              "with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and "
+              "hand labels on the owner's Mac (command under Status)." % ctx.get("fixture_source", "the fixture generator"), ""]
     L += ["## Inputs" + tag, "", "| game | held-out | frames | possessions | action labels | screen labels | validation |",
           "| --- | --- | --- | --- | --- | --- | --- |"]
     for g in ctx["inputs"]:
@@ -395,6 +395,7 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
     selected = select(scores)
     table = candidate_table(train_c, probs[selected], fold)
     ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "command": command, "fixtures": fixtures,
+           "fixture_source": V.fixture_source() if fixtures else "",
            "inputs": inputs, "invalid_games": invalid, "label_counts": label_counts, "label_sources": label_sources,
            "train_games": int(train_c["sportvu_game"].nunique()), "train_game_ids": sorted(train_c["sportvu_game"].unique()),
            "heldout_games": sum(1 for g in valid if g["heldout"]), "heldout_game_ids": sorted(g["sportvu_game"] for g in valid if g["heldout"]),

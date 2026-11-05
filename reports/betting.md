@@ -1,6 +1,6 @@
 # Betting market model (analytics/betting/train.py)
 
-Written 2026-11-05T08:35:42Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
+Written 2026-11-05T08:54:53Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
 
 **Fixture output, not a result.** This run used the synthetic games and odds of tests/_fx_betting.py; it proves the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through collect/extras.py --odds) that has not been collected.
 
@@ -39,7 +39,7 @@ Held-out unit: season 2021-22, 40 games set aside before any fit; `analytics.eva
 Training seasons: 2020-21 (40 games, 40 with a cover label).
 Selection: out-of-fold under 5 grouped folds by game inside the training seasons (seed 0); cover model by out-of-fold log loss, margin model by out-of-fold MSE; intervals are 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
-Staking rule, fixed in code before scoring (train.py constants): flat 1 unit on the home cover when p_cover > 0.55, on the away cover when 1 - p_cover > 0.55, else no bet; a win returns 0.91 units (vig 4.5 percent a side), a loss costs one unit, a push returns the stake; ROI is profit over units staked.
+Staking rule, fixed in code before scoring (train.py constants): flat 1 unit on the home cover when p_cover > 0.55, on the away cover when 1 - p_cover > 0.55, else no bet; a win returns the collected spread price when the row carries one, else the nominal 0.91 units (vig 4.5 percent a side, about -110); a loss costs one unit, a push returns the stake; ROI is profit over units staked. betting_games carries no spread price, so the run reports the nominal return.
 
 ## Candidates (out-of-fold, 40 games)
 
@@ -62,7 +62,7 @@ The row marked held-out is season 2021-22 scored ONCE by the selected models ref
 
 ## Outputs
 
-Tables under `/tmp/betting_fixture_k_fb5fq1/analytics/betting/<season>/`: betting_games, betting_predictions, betting_summary (docs/contract/betting.md).
+Tables under a temporary directory (no --out given), `analytics/betting/<season>/`: betting_games, betting_predictions, betting_summary (docs/contract/betting.md).
 
 ## Status
 

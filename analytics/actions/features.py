@@ -11,8 +11,9 @@ defender is the defender nearest the handler at the window start.
                  frame, moving under 3 ft per s, with the handler within 12 ft of him; the handler's defender
                  is either of the two defenders nearest the handler at the window start (a switch, ice or
                  under puts the screened man second), within 9 ft of the handler (guarding him) and not the
-                 screener's own matchup (the defender nearest him on most frames before the window: a player
-                 standing beside his own man is not screening); overlapping windows of one (handler, screener)
+                 screener's own matchup (the defender nearest him on most frames before the window on which
+                 he is not already in contact with that defender: a player standing beside his own man is not
+                 screening, and a player who never approached is not either); overlapping windows of one (handler, screener)
                  merge into the set, and the
                  candidate's extent is the set padded by 1 s before (the approach) and 1 s after (the use),
                  clipped to the possession, because a labelled screen spans approach, set and use (set
@@ -149,12 +150,15 @@ def nearest_defender_per_frame(off: np.ndarray, de: np.ndarray) -> np.ndarray:
     return out.astype(int)
 
 
-def matchup_before(a: "PossessionArrays", s: int, i: int) -> int:
-    """The defender nearest offensive player s on most frames before frame i (frame 0 when i is 0): his matchup
-    before the window, so a screen that lasts most of a short possession does not become his own man."""
-    near = a.near_def[:max(i, 1), s]
-    near = near[near >= 0]
-    return int(np.bincount(near).argmax()) if len(near) else -1
+def matchup_before(a: "PossessionArrays", s: int, d: int, i: int) -> int:
+    """The defender nearest offensive player s on most frames before frame i on which s is not in contact with
+    defender d (within SCREEN_DIST_FT): his matchup before the screen. Without such a frame (s has stood beside d
+    since the possession began, no approach seen) d counts as his own man."""
+    k = max(i, 1)
+    near = a.near_def[:k, s]
+    free = ~(np.linalg.norm(a.off[:k, s] - a.de[:k, d], axis=1) < SCREEN_DIST_FT)
+    sel = near[free & (near >= 0)]
+    return int(np.bincount(sel).argmax()) if len(sel) else d
 
 
 def nearest_defenders(arrs: PossessionArrays, i: int, h: int, n: int = 1) -> list:
@@ -267,7 +271,7 @@ def screen_windows(a: PossessionArrays) -> list:
                 continue
             dxy = a.de[i:j + 1, d]
             for s in range(k):
-                if s == h or matchup_before(a, s, i) == d:      # a player standing beside his own man is not screening
+                if s == h or matchup_before(a, s, d, i) == d:   # a player standing beside his own man is not screening
                     continue
                 sxy = a.off[i:j + 1, s]
                 near_def = np.linalg.norm(sxy - dxy, axis=1) < SCREEN_DIST_FT

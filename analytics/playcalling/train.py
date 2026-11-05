@@ -13,7 +13,8 @@ Steps
   2. PPP by action type x coverage, the same way (coverage is the hand screen label, else the prediction, else
      "none"). The same two tables for epv_gain when epv_states exist (reported, not written).
   3. Ridge regression of possession points on indicator columns of action type, coverage, action type x
-     coverage, offensive lineup and defensive lineup. Alpha from the grid ALPHAS by grouped cross-validation by
+     coverage, offensive lineup, defensive lineup and the binned score margin at the action start (trailing by
+     more than 5, within 5, leading by more than 5: a control). Alpha from the grid ALPHAS by grouped cross-validation by
      game; the reported out-of-fold MSE is nested (alpha chosen inside each outer fold on its training games
      only). Baselines: the training-fold mean, and the training-fold PPP by action type (table 1 as a
      predictor). Paired bootstrap by game of the MSE differences.
@@ -44,9 +45,10 @@ from analytics.eval import bootstrap_by_game, gated, grouped_folds, paired_boots
 from analytics.playcalling import ACTION_TYPES, COVERAGES, N_MIN, SEASON, WHO
 from analytics.playcalling import features as F
 
-ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0)
+ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0, 1000.0)
 BASELINES = ("mean", "by_action", "ridge")
-RIDGE_GROUPS = ("action_type", "coverage", "interaction", "off_lineup", "def_lineup")
+RIDGE_GROUPS = ("action_type", "coverage", "interaction", "off_lineup", "def_lineup", "margin_bin")
+MARGIN_BINS = ("trailing", "within_5", "leading")      # score margin below -5, in [-5, 5], above 5 at the action start
 FULL_RUN_CMD = ("python -m analytics.playcalling.train --data DATA_ROOT --out OUT_ROOT --report reports/playcalling.md "
                 "--folds 5 --seed 0 --bootstrap 1000 --n-min 300")
 ASSOCIATION_LINE = ("Association only, not causal: every number below is an observational comparison of what followed "
@@ -105,6 +107,8 @@ class Design:
     def _col(frame: pd.DataFrame, g: str) -> pd.Series:
         if g == "interaction":
             return frame["action_type"].astype(str) + "|" + frame["coverage"].astype(str)
+        if g == "margin_bin":
+            return margin_bin(frame["score_margin"])
         return frame[g].fillna("unknown").astype(str)
 
     def matrix(self, frame: pd.DataFrame) -> sp.csr_matrix:
@@ -121,6 +125,16 @@ class Design:
 
     def group_slice(self, g: str) -> list[int]:
         return [self.index[(g, lv)] for lv in self.levels[g]]
+
+
+def margin_bin(margin: pd.Series) -> pd.Series:
+    """trailing (below -5), within_5, leading (above 5); unknown when the margin is null."""
+    m = pd.to_numeric(margin, errors="coerce")
+    out = pd.Series("unknown", index=m.index, dtype=object)
+    out[m < -5] = MARGIN_BINS[0]
+    out[(m >= -5) & (m <= 5)] = MARGIN_BINS[1]
+    out[m > 5] = MARGIN_BINS[2]
+    return out
 
 
 def fit_ridge(train: pd.DataFrame, alpha: float):
@@ -230,12 +244,12 @@ def score(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
 
 # ── table 4 ─────────────────────────────────────────────────────────────────────────────────────────
 def _adjusted_grid(model, ref: pd.DataFrame) -> dict:
-    """{(coverage, action_type): adjusted ppp} from one fitted ridge: intercept + mean lineup contribution over the
-    reference rows + the action, coverage and interaction coefficients."""
+    """{(coverage, action_type): adjusted ppp} from one fitted ridge: intercept + the mean over the reference rows of
+    the lineup and score-margin-bin contributions + the action, coverage and interaction coefficients."""
     d, m = model
     w = np.asarray(m.coef_, dtype=float)
     X = d.matrix(ref)
-    lu = d.group_slice("off_lineup") + d.group_slice("def_lineup")
+    lu = d.group_slice("off_lineup") + d.group_slice("def_lineup") + d.group_slice("margin_bin")
     base = float(m.intercept_) + (float(np.mean(X[:, lu] @ w[lu])) if lu else 0.0)
     out = {}
     for c in d.levels["coverage"]:
@@ -344,8 +358,9 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["", "## 2b. EPV gained across the action", "", "No epv_states were given, so no EPV outcome is reported."]
     sc = ctx["scores"]
     L += ["", "## 3. Ridge adjustment%s" % tag, "",
-          "Possession points regressed on indicator columns of action type, coverage, action type x coverage, offensive lineup and defensive lineup "
-          "(lineups from the possession's first frame). Alpha grid %s; %s. Outer-fold alphas: %s. Final alpha on all training rows: %s (grouped-CV MSE by alpha: %s)."
+          "Possession points regressed on indicator columns of action type, coverage, action type x coverage, offensive lineup, defensive lineup "
+          "(lineups from the possession's first frame) and the binned score margin at the action start (trailing by more than 5, within 5, leading by more than 5), "
+          "the last three groups being controls averaged out of the adjusted PPP. Alpha grid %s; %s. Outer-fold alphas: %s. Final alpha on all training rows: %s (grouped-CV MSE by alpha: %s)."
           % (list(ALPHAS), ctx["protocol"], ctx["fold_alphas"], _f(ctx["alpha"], 1),
              ", ".join("%s: %s" % (_f(a, 1), _f(m, 4)) for a, m in ctx["alpha_scores"].items()) or "n/a"), "",
           "| model | out-of-fold MSE | lo | hi |", "| --- | --- | --- | --- |"]
@@ -366,7 +381,7 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["", "Recommended (association, gated): " + "; ".join("%s: %s (%s [%s, %s], n=%d)" % (r.coverage, r.action_type, _f(r.adjusted_ppp), _f(r.lo), _f(r.hi), r.n) for r in rec.itertuples())]
     else:
         L += ["", "No coverage has a cell with at least %d rows, so no recommendation is made." % ctx["n_min"]]
-    L += ["", "## Held-out rows", ""]
+    L += ["", "## Held-out rows%s" % tag, ""]
     if ctx["heldout_rows"]:
         L += ["%d actions from %d held-out game(s) (%s), scored ONCE by the final models refit on all %d training rows; never fitted or tuned on."
               % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]), ctx["train_rows"]), "",
@@ -430,7 +445,7 @@ def write_tables(ctx: dict, table: pd.DataFrame, out_root, season: str) -> list[
     for name, df in (("ppp_by_action", both), ("playcalling_adjusted", ctx["adjusted"])):
         p = F.out_path(out_root, season, name)
         p.parent.mkdir(parents=True, exist_ok=True)
-        df.to_parquet(p, index=False)
+        F.cast_output(df, name).to_parquet(p, index=False)
         written.append(p)
     return written
 

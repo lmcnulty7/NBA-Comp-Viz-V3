@@ -78,7 +78,11 @@ def slope(y, p) -> float:
 
 
 def _limits():
+    """A one-thread context for every fit: 4 cores are shared, and OpenMP spinning in HistGradientBoosting under
+    contention is many times slower than one thread. The HGB module is imported first so its OpenMP library is loaded
+    before the limit is taken (threadpoolctl only limits libraries already loaded)."""
     try:
+        import sklearn.ensemble._hist_gradient_boosting.gradient_boosting  # noqa: F401  (loads OpenMP)
         from threadpoolctl import threadpool_limits
         return threadpool_limits(limits=1)
     except Exception:                                   # noqa: BLE001

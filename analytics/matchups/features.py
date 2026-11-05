@@ -10,8 +10,10 @@ on the cost
 
     cost[d, o] = dist(defender d, offensive player o) + 0.5 * dist(defender d, midpoint(o, basket))
 
-where the basket is the one nearer the centroid of the offensive players over the possession's sampled
-frames (the offence plays near the basket it attacks; the choice uses positions only). A defender's share of a
+where the basket is chosen per (offense team, period): each possession votes for the basket nearer the
+centroid of its offensive players over the last third of its sampled frames (so the walk-up of a transition
+possession does not vote), and the majority over that team's possessions in the period applies to all of
+them (a tie keeps the last vote; positions only). A defender's share of a
 possession against an offensive player (partial_possession) is the fraction of the possession's sampled
 frames at which it was assigned to that player; switches is the number of sampled frames (after the first) at
 which the defender's assignment differed from the previous sampled frame, counted once per defender and
@@ -171,6 +173,10 @@ def frame_assignments(frames: pd.DataFrame, possessions: pd.DataFrame) -> tuple:
     game = str(possessions["sportvu_game"].iloc[0]) if len(possessions) else ""
     rows, info = [], {}
     counts = {"possessions": int(len(possessions)), "no_offense": 0, "no_frames": 0, "frames_skipped": 0, "frames_sampled": 0}
+    # pass 1: sample the frames, read both squads, and let each possession vote for the basket nearer the
+    # offensive centroid over the last third of its sampled frames (positions only; the walk-up of a
+    # transition possession is in the first two thirds)
+    staged, votes = [], {}
     for p in possessions.itertuples(index=False):
         if pd.isna(p.offense_team_id):
             counts["no_offense"] += 1
@@ -181,7 +187,6 @@ def frame_assignments(frames: pd.DataFrame, possessions: pd.DataFrame) -> tuple:
         if len(sampled) == 0:
             counts["no_frames"] += 1
             continue
-        # basket from the offensive centroid over the sampled frames (positions only)
         off_pts = []
         per_frame = []
         for fr in sampled:
@@ -200,7 +205,19 @@ def frame_assignments(frames: pd.DataFrame, possessions: pd.DataFrame) -> tuple:
         if not off_pts:
             counts["no_frames"] += 1
             continue
-        basket = basket_for(np.vstack(off_pts))
+        tail = off_pts[-max(1, int(np.ceil(len(off_pts) / 3))):]
+        vote = basket_for(np.vstack(tail))
+        key = (off_team, int(p.period))
+        votes.setdefault(key, []).append(vote)
+        staged.append((p, off_team, sampled, per_frame, vote))
+    # one basket per (offense team, period) by majority over that team's possessions in the period
+    basket_of = {}
+    for key, vs in votes.items():
+        n_right = sum(1 for v in vs if v == BASKETS[1])
+        basket_of[key] = BASKETS[1] if n_right * 2 > len(vs) else (BASKETS[0] if n_right * 2 < len(vs) else vs[-1])
+    # pass 2: assignments
+    for p, off_team, sampled, per_frame, vote in staged:
+        basket = basket_of[(off_team, int(p.period))]
         prev = {}
         k = 0
         n_sampled = 0
@@ -292,7 +309,10 @@ def possession_shots(game: dict, mf: pd.DataFrame, info: dict, xfg: pd.DataFrame
             if len(m):
                 def_id, def_dist = float(m["def_player_id"].iloc[0]), float(m["dist_ft"].iloc[0])
         p = pmap.get((gid, ev), default_p)
-        k = int(np.flatnonzero(frames_s == k_frame)[0]) if (frames_s == k_frame).any() else 0
+        k = -1
+        if g is not None:
+            mk = g.loc[g["frame"] == k_frame, "k"]
+            k = int(mk.iloc[0]) if len(mk) else -1
         rows.append((gid, pos, ev, shooter, bool(s.made), value, p, int(s.release_frame), k, def_id, def_dist, sx, sy, bx, by))
     out = pd.DataFrame(rows, columns=SHOT_COLUMNS)
     if len(out):
@@ -313,10 +333,11 @@ def matchup_possessions(mf: pd.DataFrame, info: dict, shots: pd.DataFrame, game:
     # targets
     last_shooter, expected = {}, {}
     if len(shots):
-        ss = shots.dropna(subset=["shooter_id"]).sort_values("event")
+        ss = shots.sort_values("event")
         for pos, g in ss.groupby("possession"):
-            last_shooter[pos] = int(g["shooter_id"].iloc[-1])
-            for sid, gg in g.groupby("shooter_id"):
+            last = g["shooter_id"].iloc[-1]          # the last attempt, whoever took it: a null shooter attributes nothing
+            last_shooter[pos] = None if pd.isna(last) else int(last)
+            for sid, gg in g.dropna(subset=["shooter_id"]).groupby("shooter_id"):
                 expected[(pos, int(sid))] = float((gg["p"] * gg["value"]).sum())
     pts = pair["possession"].map(lambda p: info[p]["points"])
     is_shooter = [last_shooter.get(p) == o for p, o in zip(pair["possession"], pair["off_player_id"])]

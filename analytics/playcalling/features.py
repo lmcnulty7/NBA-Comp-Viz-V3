@@ -54,13 +54,18 @@ def feature_columns() -> list[str]:
 
 
 def assign_action_ids(actions: pd.DataFrame) -> pd.DataFrame:
-    """actions with an action_id column: the given one, else the 0-based position of the row within its game in the
-    given row order (the convention of analytics/coverage and analytics/fixtures: jsonl line order)."""
+    """actions with an action_id column: the given ids kept; a row without one (or the whole table without the column)
+    takes the 0-based position of the row within its game in the given row order (the convention of
+    analytics/coverage and analytics/fixtures: jsonl line order). Existing ids are never overwritten."""
     a = actions.copy()
-    if "action_id" in a.columns and a["action_id"].notna().all():
-        a["action_id"] = a["action_id"].astype(int)
-        return a
-    a["action_id"] = a.groupby("sportvu_game", sort=False).cumcount().astype(int)
+    if "action_id" not in a.columns:
+        a["action_id"] = a.groupby("sportvu_game", sort=False).cumcount()
+    else:
+        m = pd.to_numeric(a["action_id"], errors="coerce").isna()
+        if m.any():          # only the rows without an id (e.g. detected rows beside hand labels) take positions
+            a["action_id"] = pd.to_numeric(a["action_id"], errors="coerce").astype(object)
+            a.loc[m, "action_id"] = a[m].groupby("sportvu_game", sort=False).cumcount().to_numpy()
+    a["action_id"] = a["action_id"].astype(int)
     return a
 
 
@@ -215,11 +220,33 @@ def out_path(out_root, season: str, name: str, heldout: bool = False) -> Path:
     return (base / "heldout" / season if heldout else base / season) / (name + ".parquet")
 
 
+OUTPUT_DTYPES = {
+    "action_outcomes": {"sportvu_game": "string", "possession": "int32", "action_id": "int32", "action_type": "string",
+                        "coverage": "string", "off_lineup": "string", "def_lineup": "string", "ppp": "float32",
+                        "epv_gain": "float32", "heldout": "bool", "score_margin": "float32", "shot_clock_s": "float32",
+                        "period": "int8", "label_source": "string", "coverage_source": "string", "start_frame": "int32",
+                        "end_frame": "int32"},
+    "ppp_by_action": {"action_type": "string", "coverage": "string", "n": "int32", "ppp": "float32", "lo": "float32",
+                      "hi": "float32", "insufficient": "bool"},
+    "playcalling_adjusted": {"coverage": "string", "action_type": "string", "adjusted_ppp": "float32", "lo": "float32",
+                             "hi": "float32", "n": "int32", "insufficient": "bool", "recommended": "bool"},
+}
+
+
+def cast_output(df: pd.DataFrame, name: str) -> pd.DataFrame:
+    """The contract dtypes of docs/contract/playcalling.md for a written table."""
+    out = df.copy()
+    for c, d in OUTPUT_DTYPES[name].items():
+        if c in out.columns:
+            out[c] = out[c].astype(d)
+    return out
+
+
 def write_action_outcomes(table: pd.DataFrame, out_root, season: str = SEASON) -> list[Path]:
-    """Write the training rows and the held-out rows to their two files; returns the paths written."""
+    """Write the training rows and the held-out rows to their two files with contract dtypes; returns the paths."""
     written = []
     for held in (False, True):
-        part = table[table["heldout"] == held]
+        part = cast_output(table[table["heldout"] == held], "action_outcomes")
         if held and not len(part):
             continue
         p = out_path(out_root, season, "action_outcomes", heldout=held)
