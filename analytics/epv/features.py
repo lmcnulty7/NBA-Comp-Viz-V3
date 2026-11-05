@@ -104,7 +104,8 @@ def basket_side(states_allowed: pd.DataFrame, keys: pd.DataFrame) -> np.ndarray:
 
 
 def geometry(states: pd.DataFrame) -> pd.DataFrame:
-    """KEYS plus the geometric features (no priors). Reads only the allow-listed columns of states."""
+    """KEYS plus the geometric features (no priors) plus the underscore auxiliary columns the priors read.
+    Reads only the allow-listed columns of states."""
     missing = [c for c in ALLOWED if c not in states.columns]
     if missing:
         raise ValueError("features: states table lacks allow-listed column(s) %s" % missing)
@@ -160,10 +161,9 @@ def geometry(states: pd.DataFrame) -> pd.DataFrame:
     tmp2[order] = nsw
     out["n_handler_switches"] = tmp2
     del gb
-    out.attrs["basket_side"] = side
-    out.attrs["handler_pos"] = (hx, hy)
-    out.attrs["handler_id"] = hid
-    out.attrs["lineup"] = ["-".join(str(int(v)) for v in row) for row in oid]
+    # auxiliary columns the priors read (dropped by build_features): underscore-prefixed, never features
+    out["_side"], out["_hx"], out["_hy"], out["_handler_id"] = side, hx, hy, hid
+    out["_lineup"] = ["-".join(str(int(v)) for v in row) for row in oid]
     return out
 
 
@@ -266,12 +266,12 @@ class Priors:
         return np.clip(out, 0, None)
 
     def apply(self, geo: pd.DataFrame) -> pd.DataFrame:
-        """The three prior columns for a geometry frame (uses its attrs: handler ids and positions, lineups)."""
+        """The three prior columns for a geometry frame (reads its auxiliary _handler_id, _hx, _hy, _side, _lineup)."""
         n = len(geo)
         games = geo["sportvu_game"].astype(str).to_numpy()
-        hid = np.asarray(geo.attrs["handler_id"], dtype=float)
-        hx, hy = geo.attrs["handler_pos"]
-        side = np.asarray(geo.attrs["basket_side"])
+        hid = geo["_handler_id"].to_numpy(dtype=float)
+        hx, hy = geo["_hx"].to_numpy(dtype=float), geo["_hy"].to_numpy(dtype=float)
+        side = geo["_side"].to_numpy(dtype=int)
         bk = BASKETS[side]
         dist = geo["handler_dist_basket"].to_numpy(dtype=float)
         zone = zone_of(np.nan_to_num(dist, nan=15.0))
@@ -283,7 +283,7 @@ class Priors:
         sh = self._lookup(self._sh_tot, self.shooter, keys, ["player_id", "zone"], ["attempts", "makes"], games)
         fg = (sh[:, 1] + K_SHOOTER * p_loc) / (sh[:, 0] + K_SHOOTER)
         fg = np.where(np.isfinite(hid), fg, p_loc)
-        ln = self._lookup(self._ln_tot, self.lineup, {"lineup": np.asarray(geo.attrs["lineup"], dtype=object)}, ["lineup"],
+        ln = self._lookup(self._ln_tot, self.lineup, {"lineup": geo["_lineup"].to_numpy(dtype=object)}, ["lineup"],
                           ["possessions", "turnovers"], games)
         tov = (ln[:, 1] + K_LINEUP * self.tov_rate) / (ln[:, 0] + K_LINEUP)
         return pd.DataFrame({"handler_fg_prior": fg, "handler_zone_value": np.where(np.nan_to_num(dist, nan=0.0) >= THREE_FT, 3.0, 2.0),
@@ -301,8 +301,7 @@ def build_features(states: pd.DataFrame, priors: Priors | None = None, geo: pd.D
     else:
         for c in PRIORS:
             out[c] = np.nan
-    out = out[[c for c in KEYS if c in out.columns] + FEATURES]
-    out.attrs = dict(g.attrs)
+    out = out[[c for c in KEYS if c in out.columns] + FEATURES].copy()
     schema.assert_time_forward(out, "states_1hz")
     return out
 
@@ -316,14 +315,15 @@ def lagged(feats: pd.DataFrame, n_lags: int = 5, columns: list | None = None) ->
     order = np.lexsort((t, feats["possession"].to_numpy(), feats["sportvu_game"].astype(str).to_numpy()))
     s = feats.iloc[order]
     grp = [s["sportvu_game"].astype(str).to_numpy(), s["possession"].to_numpy()]
-    out = feats.copy()
+    extra = {}
     for k in range(1, n_lags):
         sh = s[cols].groupby(grp, sort=False).shift(k)
         sh = sh.where(sh.notna(), s[cols])
         for c in cols:
             tmp = np.empty(len(feats))
             tmp[order] = sh[c].to_numpy(dtype=float)
-            out["%s_lag%d" % (c, k)] = tmp
+            extra["%s_lag%d" % (c, k)] = tmp
+    out = pd.concat([feats, pd.DataFrame(extra, index=feats.index)], axis=1)
     schema.assert_time_forward(out, "states_1hz")
     return out
 

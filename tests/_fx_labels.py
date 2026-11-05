@@ -159,16 +159,35 @@ def synth_game(seed: int = 0, n_possessions: int = 40, heldout: bool = False, sp
     return _fallback_synth_game(seed, n_possessions=n_possessions, heldout=heldout, sportvu_game=sportvu_game)
 
 
-def synth_labels(seed: int, game: dict) -> dict:
-    """A small valid label set for ``game``: one ball_screen with a coverage on possession 0, one drive on
-    possession 1 (shared fixture when available, else local)."""
+def shared_truth_labels(game: dict):
+    """Lane I1's truth labels of a shared synth_game, normalised to analytics.labels (action_id = the
+    0-based action row the shared screens reference, screen_id = 1.., labelled_at filled); None when the
+    shared fixture is not importable or ``game`` did not come from it."""
+    if game.get("source") != "shared":
+        return None
     try:
         from analytics import fixtures as _fx
-        out = _fx.synth_labels(seed, game)
-        if isinstance(out, dict) and "actions" in out and "screens" in out:
-            return out
+        out = _fx.synth_labels(0, game)
     except Exception:
-        pass
+        return None
+    acts = out["actions"].reset_index(drop=True).copy()
+    scrs = out["screens"].reset_index(drop=True).copy()
+    if "action_id" not in acts.columns:
+        acts["action_id"] = np.arange(len(acts), dtype="int32")
+    if "screen_id" not in scrs.columns:
+        scrs["screen_id"] = np.arange(1, len(scrs) + 1, dtype="int32")
+    for df in (acts, scrs):
+        if "labelled_at" not in df.columns:
+            df["labelled_at"] = "2026-01-01T00:00:00Z"
+        if "labeller_pass" not in df.columns:
+            df["labeller_pass"] = 1
+    return {"actions": acts, "screens": scrs}
+
+
+def synth_labels(seed: int, game: dict) -> dict:
+    """A small valid label set for ``game`` in the exact analytics.labels shape: one ball_screen with a
+    coverage on possession 0, one drive on possession 1. Always local: the shared fixture's truth labels
+    have their own shape (see ``shared_truth_labels``)."""
     po = game["possessions"]
     fr = game["frames"]
     g = str(po["sportvu_game"].iloc[0])

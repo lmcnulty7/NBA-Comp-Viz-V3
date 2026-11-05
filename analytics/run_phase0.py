@@ -553,7 +553,8 @@ def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry
     if jobs:
         if workers > 1:
             import multiprocessing
-            with multiprocessing.Pool(workers) as pool:
+            ctx = multiprocessing.get_context("spawn")           # the Mac default; uniform and fork-safe everywhere
+            with ctx.Pool(workers) as pool:
                 for i, rec in enumerate(pool.imap(process_game, jobs)):
                     finish(i, rec)
         else:

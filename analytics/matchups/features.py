@@ -69,7 +69,9 @@ def feature_columns() -> list:
 
 
 def feature_frame(mp: pd.DataFrame) -> pd.DataFrame:
-    """Ids plus FEATURES of a matchup_possessions table, checked by schema.assert_time_forward."""
+    """Ids plus FEATURES of a matchup_possessions table, checked by schema.assert_time_forward (on the input
+    too: a table that carries a contract target or post-outcome column is refused, not silently trimmed)."""
+    schema.assert_time_forward(mp, "possessions")
     out = mp[ID_COLUMNS + FEATURES].copy()
     leaked = [c for c in out.columns if c in TARGETS]
     if leaked:
