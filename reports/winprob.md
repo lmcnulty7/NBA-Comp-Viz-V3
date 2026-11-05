@@ -1,6 +1,6 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written 2026-11-05T08:56:55Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --out /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out --bootstrap 200`.
+Written 2026-11-05T08:57:44Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
 
 **Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.
 
@@ -115,12 +115,7 @@ The NBA.com WinProbabilityPBP endpoint is unreachable from here, so the benchmar
 
 ## Outputs
 
-- /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2020-21/winprob_states.parquet
-- /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2020-21/winprob_calibration.parquet
-- /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2021-22/winprob_states.parquet
-- /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2021-22/winprob_calibration.parquet
-- /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2024-25/winprob_states.parquet
-- /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/analytics/winprob/2024-25/winprob_calibration.parquet
+- no tables written (no --out)
 
 ## Mac command
 

@@ -2,7 +2,8 @@
 
     python -m analytics.embeddings.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--n-min 300]
 
-Unit: player-season. Every aggregate is built from TRAINING games only: the loader (analytics.embeddings.train.load_inputs)
+Unit: player-season. The tracking and shot aggregates are built from TRAINING games only (the NBA.com block is
+season-level as the source publishes it and covers every game of the season, held-out ones included): the loader (analytics.embeddings.train.load_inputs)
 drops held-out games (sportvu/splits.json ids, the CLE arena, heldout/ directories, heldout flags) before any table
 reaches this module, and ``player_season_features`` refuses a game id that carries a held-out token.
 
@@ -10,8 +11,9 @@ Features (the FEATURES constant, in order):
 
   tracking (section 4 frames joined to section 19 possessions; sums per game, then combined over games so a season of
   600 games never sits in memory at once):
-    avg_speed_ftps         mean speed over consecutive frames of the same game and period, 0 < dt <= 2 s (the gap rule),
-                           steps faster than 30 ft/s dropped as tracking glitches
+    avg_speed_ftps         mean speed over consecutive frames of the same game and period, 0 < dt <= 2 s on ts_ms (the gap
+                           rule applied to the wall clock, not game_clock_s), steps faster than 30 ft/s dropped as tracking
+                           glitches; frames outside a possession span are included, so dead-ball movement counts
     dist_per_poss_ft       distance covered over those steps / n_possessions
     zone_<near|mid|far>_<left|right>  share of the player's OFFENSIVE frames (own team is the possession's offence) in each
                            cell of a 3 by 2 grid of the attacked half: x bands of 47/3 ft from the attacked baseline, y

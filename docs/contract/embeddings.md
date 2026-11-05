@@ -3,7 +3,8 @@
 Unit: player-season. Unsupervised. Code: `analytics/embeddings/{validate,features,train,eda}.py`; tests
 `tests/test_embeddings.py`; report `reports/embeddings.md`; notebook `notebooks/eda_embeddings.ipynb`.
 
-Every aggregate below is built from TRAINING games only. Held-out games of `sportvu/splits.json` (the ids, the
+The tracking and shot aggregates below are built from TRAINING games only; the NBA.com block is season-level as the
+source publishes it and covers every game of the season, held-out ones included. Held-out games of `sportvu/splits.json` (the ids, the
 CLE arena, files under `heldout/`, shot rows flagged `heldout`) are set aside by the loader before any table is
 read into a feature; the training game ids pass `analytics.eval.refuse_heldout`, the feature frame passes
 `analytics.schema.assert_time_forward`.
@@ -17,7 +18,12 @@ read into a feature; the training game ids pass `analytics.eval.refuse_heldout`,
 | rosters (section 16) | `DATA_ROOT/analytics/rosters/<season>/<game>.parquet` | resolves a null basketball-reference shooter id by `player_slug = bref_slug` |
 | shots (section 10a or 10) | `DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet` or `collect/shots/shotchartdetail/2015-16.parquet` | shot mix; restricted to the tracked training games |
 | NBA.com aggregates (section 11) | `DATA_ROOT/collect/tracking/aggregates/<season>.parquet` | optional: drives, touches, passes, play types, hustle; the 2016-17 file supplies the next-season target only |
-| positions | `DATA_ROOT/collect/positions.parquet` or `collect/tracking/positions/<season>.parquet` with `player_id, season, position in {G, F, C}` | optional, a NEEDED INPUT for the 5-NN position metric; without it the metric is n/a and the autoencoder gate cannot be evaluated |
+| positions | `DATA_ROOT/collect/positions.parquet` (collect/positions.py: `player_slug, player, season, position`) or `collect/tracking/positions/<season>.parquet` (`player_id, season, position`) | optional, a NEEDED INPUT for the 5-NN position metric; without it the metric is n/a and the autoencoder gate cannot be evaluated |
+
+Position rule: a table without `player_id` is joined to the section 16 rosters by `collect.positions.join_rosters`
+(`bref_slug = player_slug`, season from `sportvu_game`), then reduced to one row per (player_id, season). The
+basketball-reference position collapses to G/F/C by the part before the first hyphen: PG, SG, G to G; SF, PF, F to F;
+C to C (so SF-SG is F and C-PF is C); anything else is dropped with a logged count.
 
 A game without a possessions table is skipped and counted. Shots of games without tracking frames are not used
 (attempts per possession needs the tracking possessions).
@@ -37,8 +43,9 @@ One row per player-season with tracking frames in the training games. Written to
 
 Feature definitions (details in the `features.py` docstring):
 
-- tracking: mean speed over consecutive frames of the same game and period with `0 < dt <= 2 s` (steps over 30 ft/s
-  dropped); distance over those steps per possession; share of the player's offensive frames in each cell of a
+- tracking: mean speed over consecutive frames of the same game and period with `0 < dt <= 2 s` on `ts_ms` (the gap
+  rule on the wall clock, not `game_clock_s`; steps over 30 ft/s dropped; frames outside a possession span are included,
+  so dead-ball movement counts); distance over those steps per possession; share of the player's offensive frames in each cell of a
   3 by 2 grid of the attacked half (x bands of 47/3 ft from the attacked baseline, y halves; positions mirrored so the
   attacked rim is at (5.25, 25); the attacked basket of a (game, period, team) is the side where the ball spends that
   team's offensive frames; backcourt frames count in the denominator only); share of offensive frames as the handler
@@ -95,6 +102,10 @@ the embedding.
    embedding.
 5. Intervals: 2.5 and 97.5 percentiles of bootstrap resamples of players (`analytics.eval.bootstrap_by_game` with
    `player_id` as the group) over the per-player out-of-sample outcomes (correct flag, out-of-fold prediction).
+   The imputer, scaler and embedding (PCA or autoencoder) are fit once on all sufficient rows, unsupervised; only the
+   ridge fit and the k-NN vote are out-of-sample.
+6. The gate's comparison metric is the reported 5-NN accuracy (leave-one-out point estimate). A fifth branch of the
+   rule: an autoencoder trained but with undefined accuracy leaves PCA chosen.
 
 ## Leakage rules
 

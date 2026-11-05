@@ -133,14 +133,16 @@ def check_aggregates(agg: pd.DataFrame) -> dict:
 def check_positions(pos: pd.DataFrame) -> dict:
     missing = [c for c in ("player_id", "season", "position") if c not in pos.columns]
     out = {"rows": int(len(pos)), "missing_columns": missing, "problems": []}
-    if missing:
+    if missing:   # the loader has already joined a player_slug table to the rosters; a table still lacking the keys is unusable
         out["problems"].append("positions lack column(s) %s" % missing)
         return out
-    bad = sorted(set(pos["position"].dropna().astype(str).unique()) - {"G", "F", "C"})
+    from analytics.embeddings.train import collapse_position
+    collapsed = pos["position"].map(collapse_position)
+    bad = sorted(set(pos.loc[collapsed.isna(), "position"].dropna().astype(str).unique()))
     if bad:
-        out["problems"].append("positions outside {G, F, C}: %s" % bad)
+        out["problems"].append("positions that do not collapse to G, F or C (part before the first hyphen): %s" % bad)
     out["duplicate_rows"] = int(pos.duplicated(["player_id", "season"]).sum())
-    out["counts"] = {str(k): int(v) for k, v in pos["position"].value_counts().items()}
+    out["counts"] = {str(k): int(v) for k, v in collapsed.value_counts().items()}
     return out
 
 

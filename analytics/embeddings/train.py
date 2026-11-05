@@ -14,6 +14,8 @@ DATA_ROOT layout (the owner's Mac):
       or DATA_ROOT/collect/tracking/positions/<season>.parquet        needed input for the 5-NN position metric)
 
 Protocol:
+  0. Speed and distance steps are consecutive frames of the same game and period with 0 < dt <= 2 s on ts_ms (not the
+     game clock); frames outside a possession span (dead balls) are included, so dead-ball movement counts.
   1. load_inputs drops every held-out game before any table is read into a feature: files under heldout/, ids that carry a
      sportvu/splits.json held-out token, games at the held-out arena (CLE), shot rows with heldout true. The training game
      ids then pass analytics.eval.refuse_heldout, and the feature frame passes analytics.schema.assert_time_forward.
@@ -68,6 +70,7 @@ FIXTURE_N_MIN = 20
 NEXT_SEASON_TARGETS = (("leaguedashptstats", "drives"), ("leaguedashptstats", "touches"),
                        ("leaguedashptstats", "passes_made"), ("leaguehustlestatsplayer", "contested_shots"))
 EMB_COLS = ["e%d" % i for i in range(1, N_DIM + 1)]
+POSITION_MAP = {"PG": "G", "SG": "G", "G": "G", "SF": "F", "PF": "F", "F": "F", "C": "C"}   # part before the first hyphen
 MAC_CMD = ("python -m analytics.embeddings.train --data /path/to/DATA_ROOT --report reports/embeddings.md "
            "--out /path/to/DATA_ROOT --seed 0 --bootstrap 1000")
 
@@ -146,8 +149,44 @@ def load_inputs(data_root) -> dict:
         positions = pd.read_parquet(root / "collect" / "positions.parquet")
     elif pdir.exists() and list(pdir.glob("*.parquet")):
         positions = pd.concat([pd.read_parquet(p) for p in sorted(pdir.glob("*.parquet"))], ignore_index=True)
+    if positions is not None:
+        positions = normalise_positions(positions, pd.concat(rosters.values(), ignore_index=True) if rosters else None)
     return {"games": games, "shots": shots, "aggregates": aggregates, "positions": positions, "dropped": dropped,
             "source": str(root)}
+
+
+def collapse_position(value) -> object:
+    """basketball-reference position -> G, F or C by the part before the first hyphen (SF-SG -> F, C-PF -> C); NaN otherwise."""
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return np.nan
+    return POSITION_MAP.get(str(value).strip().upper().split("-")[0], np.nan)
+
+
+def normalise_positions(positions: pd.DataFrame, rosters: pd.DataFrame | None) -> pd.DataFrame:
+    """A positions table -> (player_id, season, position in G/F/C), one row per player-season.
+
+    The real file (collect/positions.py: player_slug, player, season, position as PG, SG, SF, PF, C, hyphenated) has no
+    player_id: it is joined to the section 16 rosters by collect.positions.join_rosters (bref_slug = player_slug, season
+    from sportvu_game). A table that already carries player_id is used as is. Positions outside POSITION_MAP are dropped
+    with a logged count."""
+    pos = positions.copy()
+    if "player_id" not in pos.columns and "player_slug" in pos.columns:
+        if rosters is None or len(rosters) == 0:
+            log.warning("%s: positions carry player_slug but no rosters are present to resolve player_id; positions dropped", WHO)
+            return pd.DataFrame(columns=["player_id", "season", "position"])
+        if "games" not in pos.columns:
+            pos["games"] = 0
+        from collect.positions import join_rosters
+        pos = join_rosters(pos, rosters[["sportvu_game", "player_id", "bref_slug"]].drop_duplicates())
+    out = pos[["player_id", "season", "position"]].copy()
+    out["position"] = out["position"].map(collapse_position)
+    n_bad = int(out["position"].isna().sum())
+    if n_bad:
+        log.warning("%s: %d position row(s) outside %s dropped", WHO, n_bad, sorted(POSITION_MAP))
+    out = out[out["position"].notna() & out["player_id"].notna()].copy()
+    out["player_id"] = pd.to_numeric(out["player_id"]).astype(int)
+    out["season"] = out["season"].astype(str)
+    return out.drop_duplicates(["player_id", "season"]).reset_index(drop=True)
 
 
 def fixture_inputs(seed: int = 0, n_games: int = 8, heldout_every: int = 4, root=None, local: bool = False) -> dict:
@@ -164,8 +203,8 @@ def fixture_inputs(seed: int = 0, n_games: int = 8, heldout_every: int = 4, root
     inputs = load_inputs(root)
     inputs["fixture"] = summary
     inputs["fixture_root"] = str(root)
-    inputs["source"] = "fixtures (tests/_fx_embeddings, %s generator), written under %s" % (
-        "local" if (local or not fx.SHARED) else "shared analytics.fixtures", root)
+    inputs["source"] = "fixtures (tests/_fx_embeddings, %s generator), written under a temporary directory" % (
+        "local" if (local or not fx.SHARED) else "shared analytics.fixtures")
     return inputs
 
 
@@ -384,7 +423,8 @@ def evaluate(E: np.ndarray, rows: pd.DataFrame, positions: pd.DataFrame | None, 
 
 def decide(pca_acc: float, ae_acc) -> dict:
     """The PCA-or-autoencoder rule: the autoencoder is trained only when PCA's 5-NN accuracy is under AE_GATE, and kept
-    only when it beats PCA on that metric. NaN accuracy (no positions) keeps PCA."""
+    only when it beats PCA on that metric. NaN PCA accuracy (no positions) keeps PCA. A fifth branch covers an
+    autoencoder that was trained but whose accuracy is undefined (ae_acc None or NaN): PCA stands, ae_trained true."""
     if not np.isfinite(pca_acc):
         return {"chosen": "pca", "ae_trained": False, "reason": "no position labels: the gate cannot be evaluated, PCA stands"}
     if pca_acc >= AE_GATE:
@@ -530,7 +570,8 @@ def write_report(path, ctx: dict, command: str) -> str:
     L += ["## Candidates%s" % tag, "",
           "Protocol: median imputation and standardisation fit on the sufficient rows; PCA to %d components; the autoencoder "
           "(MLPRegressor %s, tanh, bottleneck %d) only when PCA's 5-NN accuracy is under %.2f, kept only when it beats PCA. "
-          "Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of players (seed %d)."
+          "Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of players (seed %d). The imputer, scaler and embedding "
+          "are fit once on all sufficient rows, unsupervised; only the ridge fit and the k-NN vote are out-of-sample."
           % (N_DIM, AE_LAYERS, N_DIM, AE_GATE, ctx["bootstrap"], ctx["seed"]), "",
           "| method | 5-NN position accuracy | majority baseline | next-season R squared (ridge) | mean baseline R squared | note |",
           "| --- | --- | --- | --- | --- | --- |"]
@@ -548,12 +589,16 @@ def write_report(path, ctx: dict, command: str) -> str:
     L += ["", "5-NN: leave-one-out over %d labelled player-seasons, majority class %s. Next season: %s, %d player(s), "
           "out-of-fold under %d grouped folds by player_id." % (ev["knn"]["n"], ev["knn"]["majority_class"], ev["next"]["target"],
                                                                  ev["next"]["n"], ev["next"]["folds"]), "",
-          "## Decision", "", "Chosen: **%s**. %s." % (ctx["decision"]["chosen"], ctx["decision"]["reason"]), "",
+          "## Decision", "", "Chosen: **%s**. %s." % (ctx["decision"]["chosen"], ctx["decision"]["reason"]),
+          "The gate compares the 5-NN position accuracy reported in the candidate table above (leave-one-out point estimate).", "",
           "## Outputs", "",
           "Tables (docs/contract/embeddings.md): player_season_features (%d rows), player_embeddings (%d rows), embedding_neighbours (%d rows)."
           % (len(ctx["tables"]["player_season_features"]), len(ctx["tables"]["player_embeddings"]), len(ctx["tables"]["embedding_neighbours"]))]
     if ctx.get("written"):
-        L.append("Written under: " + "; ".join("%s: %s" % (k, v[0]) for k, v in ctx["written"].items()) + ".")
+        if ctx.get("out_is_temp"):
+            L.append("Written under a temporary directory (no --out given).")
+        else:
+            L.append("Written under: " + "; ".join("%s: %s" % (k, v[0]) for k, v in ctx["written"].items()) + ".")
     L += ["", "## Assumptions (decided without asking; also in the module docstrings)", "",
           "- The attacked basket of a (game, period, team) is the side where the ball spends that team's offensive frames; "
           "court zones are shares of the player's OFFENSIVE frames in a 3 by 2 grid of that half, backcourt frames in the denominator only.",
@@ -606,6 +651,7 @@ def main(argv=None) -> dict:
     out_root = a.out if a.out else (tempfile.mkdtemp(prefix="emb_out_") if a.fixtures else None)
     if out_root:
         ctx["written"] = write_tables(ctx, out_root)
+        ctx["out_is_temp"] = not bool(a.out)
     cmd = "python -m analytics.embeddings.train " + " ".join(argv if argv is not None else sys.argv[1:])
     text = write_report(a.report, ctx, cmd)
     print(text)

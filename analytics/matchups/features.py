@@ -293,7 +293,8 @@ def possession_shots(game: dict, mf: pd.DataFrame, info: dict, xfg: pd.DataFrame
         shooter = None if pd.isna(s.shooter_id) else int(s.shooter_id)
         rel = int(s.release_frame)
         if rel == schema.NOT_FOUND:
-            rel = int(_ev(ev_frame, int(s.period), ev) or schema.NOT_FOUND)
+            f = _ev(ev_frame, int(s.period), ev)
+            rel = schema.NOT_FOUND if f is None else int(f)
         frames_s = inf["frames"]
         if rel == schema.NOT_FOUND:
             rel = int(frames_s[-1])

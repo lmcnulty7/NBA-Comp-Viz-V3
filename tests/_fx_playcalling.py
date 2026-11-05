@@ -79,7 +79,8 @@ def synth_game_local(seed: int, n_possessions: int = 40, heldout: bool = False, 
     game = sportvu_game or _game_id(seed, heldout)
     home_id, away_id = _team_ids(seed)
     teams = {home_id: ("HOM", True), away_id: ("AWY", False)}
-    frames, poss = [], []
+    cols = {k: [] for k in ("period", "frame", "ts_ms", "game_clock_s", "shot_clock_s", "ball_x", "ball_y", "ball_z", "team_id", "player_id", "x", "y")}
+    poss = []
     ts = 1_450_000_000_000 + seed * 10_000_000
     for p in range(n_possessions):
         period = 1 + (p * 4) // n_possessions
@@ -88,24 +89,37 @@ def synth_game_local(seed: int, n_possessions: int = 40, heldout: bool = False, 
         de = away_id if off == home_id else home_id
         off_lu, def_lu = _lineup(rng, off), _lineup(rng, de)
         f0 = p * FRAMES_PER_POSSESSION
-        for k in range(FRAMES_PER_POSSESSION):
-            clock = max(start_clock - 6.0 * k, 0.0)
-            shot_clock = 24.0 - 7.0 * k if rng.uniform() > 0.05 else np.nan
-            for team_id, pid in [(off, i) for i in off_lu] + [(de, i) for i in def_lu]:
-                frames.append({"game": game, "gameid": "0021500%03d" % (seed % 1000), "date": "2016-01-%02d" % (seed % 28 + 1),
-                               "period": period, "frame": f0 + k, "ts_ms": ts + 40 * (f0 + k), "game_clock_s": clock,
-                               "shot_clock_s": shot_clock, "n_players": 10, "ball_x": float(rng.uniform(0, 94)),
-                               "ball_y": float(rng.uniform(0, 50)), "ball_z": float(rng.uniform(0, 10)),
-                               "team_id": team_id, "team": teams[team_id][0], "home": teams[team_id][1],
-                               "player_id": pid, "player": "P %d" % pid, "jersey": str(pid % 100),
-                               "x": float(rng.uniform(0, 94)), "y": float(rng.uniform(0, 50))})
+        ks = np.repeat(np.arange(FRAMES_PER_POSSESSION), 10)
+        n = len(ks)
+        shot = np.where(rng.uniform(size=FRAMES_PER_POSSESSION) > 0.05, 24.0 - 7.0 * np.arange(FRAMES_PER_POSSESSION), np.nan)
+        cols["period"].append(np.full(n, period))
+        cols["frame"].append(f0 + ks)
+        cols["ts_ms"].append(ts + 40 * (f0 + ks))
+        cols["game_clock_s"].append(np.maximum(start_clock - 6.0 * ks, 0.0))
+        cols["shot_clock_s"].append(shot[ks])
+        for c in ("ball_x", "ball_y", "ball_z"):
+            cols[c].append(np.repeat(rng.uniform(0, 94 if c == "ball_x" else (50 if c == "ball_y" else 10), size=FRAMES_PER_POSSESSION), 10))
+        cols["team_id"].append(np.tile(np.array([off] * 5 + [de] * 5), FRAMES_PER_POSSESSION))
+        cols["player_id"].append(np.tile(np.array(off_lu + def_lu), FRAMES_PER_POSSESSION))
+        cols["x"].append(rng.uniform(0, 94, size=n))
+        cols["y"].append(rng.uniform(0, 50, size=n))
         poss.append({"sportvu_game": game, "possession": p, "period": period, "start_frame": f0,
                      "end_frame": f0 + FRAMES_PER_POSSESSION - 1, "start_clock_s": start_clock,
                      "end_clock_s": max(start_clock - 6.0 * (FRAMES_PER_POSSESSION - 1), 0.0),
                      "start_event": 2 * p, "end_event": 2 * p + 1, "offense_team_id": off,
                      "end_kind": "shot_missed", "points": 0, "gap": False, "n_frames": FRAMES_PER_POSSESSION,
                      "fx_off_lineup": off_lu, "fx_def_lineup": def_lu})
-    frames = pd.DataFrame(frames)
+    frames = pd.DataFrame({k: np.concatenate(v) for k, v in cols.items()})
+    frames["game"] = game
+    frames["gameid"] = "0021500%03d" % (seed % 1000)
+    frames["date"] = "2016-01-%02d" % (seed % 28 + 1)
+    frames["n_players"] = 10
+    frames["team"] = np.where(frames["team_id"] == home_id, "HOM", "AWY")
+    frames["home"] = frames["team_id"] == home_id
+    frames["player"] = "P " + frames["player_id"].astype(str)
+    frames["jersey"] = (frames["player_id"] % 100).astype(str)
+    frames = frames[["game", "gameid", "date", "period", "frame", "ts_ms", "game_clock_s", "shot_clock_s", "n_players", "ball_x", "ball_y",
+                     "ball_z", "team_id", "team", "home", "player_id", "player", "jersey", "x", "y"]]
     possessions = pd.DataFrame(poss)
     roster_rows = [{"sportvu_game": game, "player_id": t * 100 + k, "player": "P %d" % (t * 100 + k), "team_id": t,
                     "team": teams[t][0], "home": teams[t][1], "jersey": str(k), "bref_slug": None, "bref_name": None,

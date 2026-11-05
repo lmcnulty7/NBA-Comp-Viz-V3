@@ -115,23 +115,10 @@ def shot_fit_rows(bundle: dict) -> pd.DataFrame:
     m = s.merge(fr, left_on=["release_frame", "pid"], right_on=["frame", "player_id"], how="inner")
     if not len(m):
         return pd.DataFrame(columns=["sportvu_game", "event", "made", "period", "clock_s", "loc_x", "loc_y", "heldout"])
-    # basket of the possession holding the release (mean offence x), else the nearer basket
-    p = poss.dropna(subset=["offense_team_id"])
-    bx = np.full(len(m), np.nan)
-    fsorted = frames if frames["frame"].is_monotonic_increasing else frames.sort_values("frame", kind="stable")
-    fv = fsorted["frame"].to_numpy()
-    for i, r in enumerate(m.itertuples(index=False)):
-        hit = p[(p["start_frame"] <= r.release_frame) & (p["end_frame"] >= r.release_frame)]
-        if len(hit):
-            row = hit.iloc[0]
-            lo = int(np.searchsorted(fv, int(row.start_frame), side="left"))
-            hi = int(np.searchsorted(fv, int(row.end_frame), side="right"))
-            sub = fsorted.iloc[lo:hi]
-            offx = sub.loc[sub["team_id"] == row.offense_team_id, "x"]
-            bx[i] = F.basket_of(float(offx.mean()))[0] if len(offx) else np.nan
-        if np.isnan(bx[i]):
-            bx[i] = F.RIM_RIGHT[0] if r.x > F.HALF_X else F.RIM_LEFT[0]
-    loc_x, loc_y = F.loc_tenths(m["x"].to_numpy(float), m["y"].to_numpy(float), bx, np.full(len(m), F.RIM_LEFT[1]))
+    # the basket nearer the shooter at the release (a shot is taken at the attacked basket)
+    sx = m["x"].to_numpy(float)
+    bx = np.where(sx > F.HALF_X, F.RIM_RIGHT[0], F.RIM_LEFT[0])
+    loc_x, loc_y = F.loc_tenths(sx, m["y"].to_numpy(float), bx, np.full(len(m), F.RIM_LEFT[1]))
     return pd.DataFrame({"sportvu_game": bundle["sportvu_game"], "event": m["event"].to_numpy(), "made": m["made"].astype(bool).to_numpy(),
                          "period": m["period"].to_numpy(), "clock_s": m["clock_s"].to_numpy(float), "loc_x": loc_x,
                          "loc_y": loc_y, "heldout": bool(bundle["heldout"])})
@@ -441,16 +428,29 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
           "- Prior of the option values: candidate 1 = location-only xFG, candidate 2 = the xFG lane's p_selected on shot events. "
           "Rule fixed in advance: candidate 2 when its coverage of shot decisions is at least %.2f. Selected: **%s**%s." % (
               XFG_MIN_COVERAGE, res["prior"], "" if res["has_xfg"] else " (no xFG table present)"), "",
-          "## Player table (training games, gated at %d decisions; insufficient rows are not ranked)" % N_MIN, "",
-          "| player_id | n_decisions | n_games | mean quality | lo | hi | insufficient |", "| --- | --- | --- | --- | --- | --- | --- |"]
-    for r in res["players"].head(25).itertuples(index=False):
-        L.append("| %d | %d | %d | %s | %s | %s | %s |" % (r.player_id, r.n_decisions, r.n_games, _f(r.mean_quality), _f(r.lo), _f(r.hi), "yes" if r.insufficient else "no"))
-    n_ins = int(res["players"]["insufficient"].sum()) if len(res["players"]) else 0
-    L += ["", "%d of %d players are under the %d-decision gate." % (n_ins, len(res["players"]), N_MIN), "",
-          "## Validation: summed decision quality per player-game against on-court offensive rating", "",
-          "Spearman per game over players with at least %d decisions in the game; sign test over games (two sided); "
-          "bootstrap of the mean Spearman by game (n=%d, seed %d); shuffled = quality permuted across the players of each game." % (
-              MIN_DECISIONS_GAME, res["n_boot"], res["seed"]), "",
+          "## Player table (training games, gated at %d decisions; ranked on mean quality, by-kind means are regret at most 0)" % N_MIN, ""]
+    players = res["players"]
+    ranked = players[~players["insufficient"]] if len(players) else players
+    n_ins = int(players["insufficient"].sum()) if len(players) else 0
+    head = ["| rank | player_id | n_decisions | n_games | mean quality | lo | hi | shot | pass | drive |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    if len(ranked):
+        L += head
+        for r in ranked.head(25).itertuples(index=False):
+            L.append("| %d | %d | %d | %d | %s | %s | %s | %s | %s | %s |" % (r.rank, r.player_id, r.n_decisions, r.n_games, _f(r.mean_quality),
+                                                                         _f(r.lo), _f(r.hi), _f(r.mean_quality_shot), _f(r.mean_quality_pass), _f(r.mean_quality_drive)))
+    else:
+        L.append("No player passes the %d-decision gate: nobody is ranked." % N_MIN)
+    L += ["", "%d of %d players are under the %d-decision gate and carry no rank (listed unranked, by id, first 10):" % (n_ins, len(players), N_MIN), "",
+          "| player_id | n_decisions | n_games | mean quality | shot | pass | drive |", "| --- | --- | --- | --- | --- | --- | --- |"]
+    for r in players[players["insufficient"]].head(10).itertuples(index=False):
+        L.append("| %d | %d | %d | %s | %s | %s | %s |" % (r.player_id, r.n_decisions, r.n_games, _f(r.mean_quality), _f(r.mean_quality_shot),
+                                                       _f(r.mean_quality_pass), _f(r.mean_quality_drive)))
+    L += ["", "## Validation: mean decision quality per player-game against on-court offensive rating", "",
+          "Spearman per game between the players' mean decision quality (a sum would rank by decision count, since quality is regret) and "
+          "their points per 100 offensive possessions on the floor, over players with at least %d decisions in the game; sign test over "
+          "games (two sided); bootstrap of the mean Spearman by game (n=%d, seed %d); shuffled = the same statistic with mean quality permuted "
+          "across those players within each game." % (MIN_DECISIONS_GAME, res["n_boot"], res["seed"]), "",
           "| prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for n, v in res["validation"].items():
         L += _val_lines(n, v)

@@ -100,6 +100,46 @@ def test_tracking_features_hand_case():
     assert (feats["n_possessions"] == 1).all()
 
 
+def test_tracking_features_mirrored_half_gap_rule_and_glitch():
+    frames, poss = _hand_frames()
+    # the same play attacking the right basket: ball and players at (94 - x, 50 - y) give the same zone shares
+    m = frames.copy()
+    for a, b in (("x", "ball_x"),):
+        m[a], m[b] = 94.0 - m[a], 94.0 - m[b]
+    m["y"], m["ball_y"] = 50.0 - m["y"], 50.0 - m["ball_y"]
+    f0 = F.combine_partials([F.tracking_partials(frames, poss)]).set_index("player_id")
+    f1 = F.combine_partials([F.tracking_partials(m, poss)]).set_index("player_id")
+    for z in F.ZONE_FEATURES + ["ball_share", "avg_speed_ftps"]:
+        pd.testing.assert_series_equal(f0[z], f1[z], check_names=False)
+    assert f1.loc[1, "zone_near_left"] == pytest.approx(0.4) and f1.loc[2, "zone_far_right"] == pytest.approx(1.0)
+    # the gap rule on ts_ms: frame 4 moved 3.5 s after frame 3, so that step is dropped (3 steps at 3 ft/s, 9 ft)
+    g = frames.copy()
+    g.loc[g["frame"] == 4, "ts_ms"] = 3000 + 3500
+    fg = F.combine_partials([F.tracking_partials(g, poss)]).set_index("player_id")
+    assert fg.loc[1, "avg_speed_ftps"] == pytest.approx(3.0) and fg.loc[1, "dist_per_poss_ft"] == pytest.approx(9.0)
+    # a 40 ft jump in one second is a tracking glitch (over 30 ft/s): dropped from speed and distance
+    j = frames.copy()
+    j.loc[(j["frame"] == 4) & (j["player_id"] == 1), "x"] = 19.0 + 40.0
+    fj = F.combine_partials([F.tracking_partials(j, poss)]).set_index("player_id")
+    assert fj.loc[1, "avg_speed_ftps"] == pytest.approx(3.0) and fj.loc[1, "dist_per_poss_ft"] == pytest.approx(9.0)
+
+
+def test_positions_from_the_collect_positions_file_join_rosters_and_collapse():
+    """An I2-shaped positions frame (player_slug, player, season, position, no player_id) resolves through the rosters."""
+    rosters = pd.DataFrame({"sportvu_game": ["11.01.2015.BKN.at.GSW"] * 4, "player_id": [1, 2, 3, 4],
+                            "bref_slug": ["aa01", "bb01", "cc01", "dd01"]})
+    pos = pd.DataFrame({"player_slug": ["aa01", "bb01", "cc01", "dd01", "ee01"], "player": ["A", "B", "C", "D", "E"],
+                        "season": ["2015-16"] * 5, "position": ["PG", "SF-SG", "C-PF", "XX", "C"]})
+    out = T.normalise_positions(pos, rosters)
+    assert out.sort_values("player_id").set_index("player_id")["position"].to_dict() == {1: "G", 2: "F", 3: "C"}
+    assert list(out.columns) == ["player_id", "season", "position"]
+    assert T.collapse_position("PF") == "F" and T.collapse_position("G-F") == "G" and np.isnan(T.collapse_position(None))
+    ready = pd.DataFrame({"player_id": [7, 7], "season": ["2015-16"] * 2, "position": ["SG", "SG"]})
+    assert len(T.normalise_positions(ready, None)) == 1
+    chk = V.check_positions(pd.DataFrame({"player_id": [1, 2], "season": ["2015-16"] * 2, "position": ["SF-SG", "QB"]}))
+    assert chk["counts"] == {"F": 1} and chk["problems"] == ["positions that do not collapse to G, F or C (part before the first hyphen): ['QB']"]
+
+
 def test_zone_basic_derivation_and_nba_names():
     shots = pd.DataFrame({"court_x": [6.0, 15.0, 20.0, 9.0, 30.0, 60.0], "court_y": [25.0, 30.0, 40.0, 47.0, 25.0, 25.0],
                           "shot_type": ["2PT", "2PT", "2PT", "3PT", "3PT", "3PT"]})
@@ -147,9 +187,10 @@ def test_next_season_r2_against_mean_baseline():
 
 
 def test_pca_or_autoencoder_gate():
-    assert T.decide(0.9, None) == {"chosen": "pca", "ae_trained": False, "reason": T.decide(0.9, None)["reason"]}
-    assert not T.decide(0.9, None)["ae_trained"]
+    assert T.decide(0.9, None)["chosen"] == "pca" and not T.decide(0.9, None)["ae_trained"]
+    assert T.decide(T.AE_GATE, None)["chosen"] == "pca" and not T.decide(T.AE_GATE, None)["ae_trained"]   # the boundary
     assert T.decide(float("nan"), None)["chosen"] == "pca"
+    assert T.decide(0.5, float("nan")) == {"chosen": "pca", "ae_trained": True, "reason": T.decide(0.5, float("nan"))["reason"]} and "undefined" in T.decide(0.5, None)["reason"]
     assert T.decide(0.5, 0.7) == {**T.decide(0.5, 0.7), "chosen": "autoencoder", "ae_trained": True}
     assert T.decide(0.5, 0.45)["chosen"] == "pca" and T.decide(0.5, 0.45)["ae_trained"]
     Z = np.random.default_rng(1).normal(size=(40, 12))

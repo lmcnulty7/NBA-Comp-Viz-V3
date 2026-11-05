@@ -144,7 +144,7 @@ def test_end_to_end_fixture_run_writes_report_and_tables(run):
     assert run["selected"] in T.MODELS
     rep = Path(run["out_root"]) / "winprob.md"
     text = rep.read_text()
-    assert "fixture output, not a result" in text and "WinProbabilityPBP" in text and "—" not in text
+    assert "fixture output, not a result" in text and "WinProbabilityPBP" in text and chr(0x2014) not in text
     assert run["prefix_violations"] == 0
     for m in T.MODELS:
         for b in ("48-36", "4-0"):

@@ -1,6 +1,6 @@
 # Matchups: individual defender assessment (analytics/matchups)
 
-Written 2026-11-05T08:57:24Z by `python -m analytics.matchups.train --fixtures --report reports/matchups.md --seed 0 --bootstrap 200`.
+Written 2026-11-05T08:58:06Z by `python -m analytics.matchups.train --fixtures --report reports/matchups.md --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_matchups.py (or analytics.fixtures), drawn from a seeded generator. The real run is the Mac command at the end.
 
@@ -23,7 +23,7 @@ Skipped: 0 possession(s) without an offence id, 0 without frames, 0 sampled fram
 
 ## Protocol
 
-Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (the basket nearer the offensive centroid); positions only. Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (partial_possession, switches); the ridge design is built from partial_possession only.
+Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (one basket per offense team and period, by majority over the possessions' last-third offensive centroids); positions only. Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (partial_possession, switches); the ridge design is built from partial_possession only.
 Gate: 300 distinct possessions per defender (`analytics.eval.gated`) before any ranking. Intervals: 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
 ## Assignment stability (fixture output, not a result)

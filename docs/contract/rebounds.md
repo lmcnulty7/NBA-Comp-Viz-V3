@@ -36,12 +36,17 @@ One row per player on court at the rim frame plus one none row per kept miss, wr
 | `is_none` | int8 | 1 on the none row, whose player features are 0 and miss-level features copied |
 | `prior_rate` | float | NaN on disk: the candidate's smoothed rebound rate by player and `is_offense`, filled by the trainer from training folds only |
 
-Which misses are kept: `pbp_rebounder_id` not null and `confidence_flag` not `unmatched` (label the player),
-or a rim frame and a rebound event with no named rebounder (label none). Dropped and counted: no rim frame,
-no rebound event, a named rebounder the roster join could not match, every other null `identity_match`,
-unknown offence, fewer than two players in the rim frame, a labelled rebounder not on court in the rim frame.
-Assumption: the lane spec drops every null `identity_match`, which would also drop every team rebound
-(null by construction); team rebounds are kept as the none class instead.
+Which misses are kept (symmetric between the two classes; the frame-level localisation of the rebound is
+never required because the label is the play-by-play rebounder): a rim frame, a rebound event and
+`pbp_rebounder_id` not null (label the player, whatever `identity_match` or `confidence_flag` say; the
+report counts `identity_match_null_kept`, `identity_match_false_kept`, `unmatched_flag_kept`), or a rim frame
+and a rebound event with no named rebounder (label none). Dropped and counted: no rim frame, no rebound
+event, a named rebounder the roster join could not match (name present, id null), unknown offence, fewer
+than two players in the rim frame, a labelled rebounder not on court in the rim frame.
+Assumption: the lane spec drops every null `identity_match` or `unmatched` flag, which would drop every team
+rebound (null by construction) and every player rebound whose frame the localiser missed; both are kept
+since neither affects the label or the features. The offence of a miss is the section 5 `team` of the miss
+event, else the `offense_team_id` of the possession with the largest `start_frame` at or before the rim frame.
 
 ## Predictions (`rebound_predictions`, written by `python -m analytics.rebounds.train --out OUT_ROOT`)
 
@@ -54,10 +59,10 @@ Assumption: the lane spec drops every null `identity_match`, which would also dr
 | `event` | int32 | play-by-play event index of the missed shot |
 | `candidate_player_id` | int32 | NBA player id, `-1` for none |
 | `p_prior` | float32 | player-prior baseline: smoothed training-fold rebound rate by player and `is_offense`, normalised within the miss |
-| `p_logit` | float32 | conditional logit: logistic regression on the candidate rows, softmax of the linear scores within the miss |
+| `p_logit` | float32 | binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, softmax of the linear scores within the miss |
 | `p_selected` | float32 | the model selected by out-of-fold per-miss log loss (prior, logit or hgb, named in the report) |
 | `is_rebounder` | bool | the target |
-| `fold` | int16 | grouped fold (by `sportvu_game`) that scored the row out of fold; `-1` on held-out rows |
+| `fold` | int16 | grouped fold (by `sportvu_game`) that scored the row out of fold; `-1` on held-out rows; `-2` when one training game forced an in-sample fit (`train.IN_SAMPLE_FOLD`) |
 | `heldout` | bool | scored once by the models refit on every training row; never fitted or tuned on |
 
 Probabilities of a miss sum to one for each model. Selection metric: per-miss multinomial log loss, the mean

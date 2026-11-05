@@ -28,32 +28,39 @@ valued once by the model refit on all training games and never fits or tunes any
 | holder | offensive player within 2.5 ft (horizontal) of the ball while the ball is under 8 ft; nearest when several; a run shorter than 3 frames is ignored | | |
 | pass | holder A's run ends at f, teammate B's run starts at g, (g - f) / fps <= 1.5 s, no release frame in [f - 2, g] | f | A, receiver B |
 | shot | shot_frames row with `release_frame` inside the possession span | release_frame | `shooter_at_release_id`, else `shooter_id` |
-| drive | the holder's speed toward the basket (frame to frame) above 8 ft/s for at least 0.6 s inside one holder run; one per run | first frame of the run | the holder |
+| drive | the holder's speed toward the basket (frame to frame) above 8 ft/s for at least 0.6 s inside one holder run; one per run | the first frame at which the speed toward the basket is measured above 8 ft/s in that run | the holder |
 
 Possessions without an offence, with `gap` true, or without both sides on the floor are skipped and counted.
-The attacked basket is the end of the court where the offence's mean x over the span lies (assumption: the
-frames do not state the attacked basket).
+Every release frame inside the span blocks a pass, matched shooter or not. The attacked basket is inferred per
+(offense_team_id, period) by majority vote over that team's possessions in the period, each voting with the end
+where its offence's mean x lies (a transition possession starting in the backcourt is outvoted; a tie goes to the
+frame-weighted mean x). The receiver of a pass always gets a teammate slot; teammates beyond four are dropped and
+counted (`teammates_truncated`).
 
 ## Option values at the decision frame (features.option_values)
 
 | option | value |
 | --- | --- |
 | shot | points(dist) * max(p - 0.03 * max(0, 6 - d_def), 0.01), points = 3 at 22 ft or more else 2, p = the value model's make probability at the position (location-only xFG), d_def = nearest-defender distance; with the xFG lane's `p_selected` joined on the shot event, p is replaced and the contest term is not applied |
-| pass to teammate t | t's shot value * openness(d_def(t)) * risk(length), openness = 0.5 + 0.5 * min(d, 6) / 6, risk = 0.95 - 0.01 * max(0, length - 15 ft) |
+| pass to teammate t | points * p(t's position) * openness(d_def(t)) * risk(length), with no contest term (openness already carries the defender distance), openness = 0.5 + 0.5 * min(d, 6) / 6, risk = 0.95 - 0.01 * max(0, length - 15 ft) |
 | hold | `epv_points` of the last EPV state at or before the frame in the same possession; absent without the EPV table |
-| drive (chosen only) | shot value at the position 1 s ahead along the decision-frame velocity, never nearer than 3 ft to the basket, with the decision-frame d_def, times 0.9 |
+| drive | shot value at the position 8 ft nearer the rim along the line to the basket (never nearer than 3 ft), with the decision-frame d_def, times 0.9; in every decision's option set, and the chosen value of a drive decision |
 
-`chosen_value` is the value of the taken option; `best_value` the max over shot, the pass options and hold (a
-drive is not in the option set, so a drive's quality may exceed 0); `decision_quality = chosen_value -
-best_value`. The contest term, openness, pass risk and drive value are assumptions, not fitted; the prior of
-the option values (location-only xFG, or the xFG lane's `p_selected`) is selected by a rule fixed in advance
-(coverage of shot decisions at least 0.5) and reported, not fitted.
+`chosen_value` is the value of the taken option; `best_value` the max over shot, the pass options, hold and
+drive; `decision_quality = chosen_value - best_value`, at most 0 for every kind (regret). The contest term,
+openness, pass risk and drive value are assumptions, not fitted; the prior of the option values (location-only
+xFG, or the xFG lane's `p_selected`) is selected by a rule fixed in advance (pooled coverage of the training
+games' shot decisions at least 0.5) and reported, not fitted. When any game carries an xFG table, the
+`xfg_selected` events are computed for every game (rows without a joined `p_selected` fall back to the
+location prior), so no game vanishes under partial coverage. Upstream EPV and xFG rows are filtered: a training
+game refuses rows with `fold == -1`, a held-out game refuses rows not flagged `heldout`; refused counts are
+logged in the report.
 
 ## The value model (train.py)
 
 The location-only xFG of `analytics/features_xfg.py` (distance_ft, angle_rad, is_three, is_corner): a logistic
 regression with standardisation (C=1) fit on the shot_frames rows with a release frame, at the shooter's
-position at the release relative to the basket of the possession, target `made`. Fit under grouped folds by
+position at the release relative to the basket nearer the shooter, target `made`. Fit under grouped folds by
 game (`analytics.eval.grouped_folds`): the decisions of a game are valued by the model fit on the other folds,
 so a shot's own outcome never informs its value. The design matrix passes `schema.assert_time_forward` and
 `features_xfg.assert_no_leak`. One training game: in-sample, labelled.
@@ -71,15 +78,18 @@ so a shot's own outcome never informs its value. The design matrix passes `schem
 | `decision_kind` | string | `shot`, `pass`, `drive` |
 | `chosen_value` | float | expected points of the taken option |
 | `best_value` | float | max over the option set |
-| `best_option` | string | `shot`, `pass_to_<rank>` (rank 1 = the most valuable pass), `hold` |
-| `decision_quality` | float | `chosen_value - best_value` |
+| `best_option` | string | `shot`, `pass_to_<rank>` (rank 1 = the most valuable pass), `hold`, `drive` |
+| `decision_quality` | float | `chosen_value - best_value`, at most 0 |
 | `heldout` | bool | the game is held out |
 | `event` | int32 | play-by-play event of a shot decision, -1 otherwise |
 | `receiver_id` | int32 | the receiver of a pass, -1 otherwise |
 | `shot_value` | float | the handler's own shot option |
 | `hold_value` | float | the EPV hold option, NaN when absent |
-| `prior` | string | `location` or `xfg_selected` |
+| `drive_value` | float | the drive option |
+| `prior` | string | `location` or `xfg_selected` (the held-out table carries the prior actually selected) |
 | `fold` | int32 | the grouped fold that valued the game; -1 for held-out games |
+
+`possession`, `frame`, `player_id`, `event`, `receiver_id` and `fold` are written as int32; the values as float64.
 
 ### decision_players: `decision_players.parquet` (training games only)
 

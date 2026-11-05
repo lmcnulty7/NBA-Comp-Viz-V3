@@ -1,12 +1,12 @@
 # Player style embeddings (analytics/embeddings/train.py) (fixture output, not a result)
 
-Written 2026-11-05T08:44:19Z by `python -m analytics.embeddings.train --fixtures --local-fixtures --report reports/embeddings.md --seed 0 --bootstrap 200`.
+Written 2026-11-05T08:57:56Z by `python -m analytics.embeddings.train --fixtures --local-fixtures --report reports/embeddings.md --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from tests/_fx_embeddings.py with planted archetypes. The real run is the Mac command at the end.
 
 ## Inputs
 
-Source: fixtures (tests/_fx_embeddings, local generator), written under /tmp/emb_fixture_jbsc8fwv.
+Source: fixtures (tests/_fx_embeddings, local generator), written under a temporary directory.
 Training games (6): 11.01.2015.BKN.at.GSW, 11.04.2015.SAC.at.BKN, 11.07.2015.CHA.at.SAC, 11.13.2015.GSW.at.PHX, 11.16.2015.SAC.at.GSW, 11.19.2015.CHA.at.BKN.
 Held-out material set aside before any feature: 2 frame file(s) under heldout/, 0 game id(s) dropped by sportvu/splits.json or the CLE arena (none), 0 shot row(s) flagged held out, 0 game(s) without a possessions table (none).
 Guards: `analytics.eval.refuse_heldout` on the training game ids, `analytics.schema.assert_time_forward` on the feature frame.
@@ -16,7 +16,7 @@ Features used (38): avg_speed_ftps, dist_per_poss_ft, zone_near_left, zone_near_
 
 ## Candidates (fixture output, not a result)
 
-Protocol: median imputation and standardisation fit on the sufficient rows; PCA to 8 components; the autoencoder (MLPRegressor (32, 8, 32), tanh, bottleneck 8) only when PCA's 5-NN accuracy is under 0.60, kept only when it beats PCA. Intervals: 2.5 and 97.5 percentiles of 200 bootstrap resamples of players (seed 0).
+Protocol: median imputation and standardisation fit on the sufficient rows; PCA to 8 components; the autoencoder (MLPRegressor (32, 8, 32), tanh, bottleneck 8) only when PCA's 5-NN accuracy is under 0.60, kept only when it beats PCA. Intervals: 2.5 and 97.5 percentiles of 200 bootstrap resamples of players (seed 0). The imputer, scaler and embedding are fit once on all sufficient rows, unsupervised; only the ridge fit and the k-NN vote are out-of-sample.
 
 | method | 5-NN position accuracy | majority baseline | next-season R squared (ridge) | mean baseline R squared | note |
 | --- | --- | --- | --- | --- | --- |
@@ -28,11 +28,12 @@ Protocol: median imputation and standardisation fit on the sufficient rows; PCA 
 ## Decision
 
 Chosen: **pca**. PCA 5-NN accuracy 1.000 is at or above the 0.60 gate: the autoencoder is not trained.
+The gate compares the 5-NN position accuracy reported in the candidate table above (leave-one-out point estimate).
 
 ## Outputs
 
 Tables (docs/contract/embeddings.md): player_season_features (50 rows), player_embeddings (44 rows), embedding_neighbours (220 rows).
-Written under: player_season_features: /tmp/emb_out_nt9_y883/analytics/embeddings/2015-16/player_season_features.parquet; player_embeddings: /tmp/emb_out_nt9_y883/analytics/embeddings/2015-16/player_embeddings.parquet; embedding_neighbours: /tmp/emb_out_nt9_y883/analytics/embeddings/2015-16/embedding_neighbours.parquet.
+Written under a temporary directory (no --out given).
 
 ## Assumptions (decided without asking; also in the module docstrings)
 
