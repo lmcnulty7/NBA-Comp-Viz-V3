@@ -83,35 +83,43 @@ def correlation_table(pf: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _ridge_oof(pf: pd.DataFrame, y: np.ndarray, seed: int, n_folds: int) -> np.ndarray:
-    """Ridge out of fold by game for the shuffled-y check. The same guards as the trainer: the frame passes
+def _shots_of(games, ids) -> pd.DataFrame:
+    parts = [d["shots"] for d in games if F.game_id(d) in set(ids) and d.get("shots") is not None and len(d["shots"])]
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["made", "loc_x", "loc_y"])
+
+
+def _ridge_oof(pf: pd.DataFrame, games: list, y: np.ndarray, seed: int, n_folds: int) -> np.ndarray:
+    """Ridge out of fold by game for the shuffled-y check, with the zone prior attached per fold from the
+    training-fold games' shots (as the trainer does). The same guards as the trainer: the frame passes
     schema.assert_time_forward and the game ids pass analytics.eval.refuse_heldout before any fit."""
     from sklearn.linear_model import Ridge
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
     schema.assert_time_forward(pf, "states_1hz")
-    games = pf["sportvu_game"].astype(str).to_numpy()
-    uniq = sorted(set(games))
+    gid = pf["sportvu_game"].astype(str).to_numpy()
+    uniq = sorted(set(gid))
     refuse_heldout(uniq, "gravity.eda")
-    X = F.design(pf)
     p = np.full(len(pf), np.nan)
     if len(uniq) < 2:
+        X = F.design(F.attach_skill(pf, F.skill_table(_shots_of(games, uniq))))
         m = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(X, y)
         return m.predict(X)
     for tr_ids, te_ids in grouped_folds(uniq, n_folds=min(n_folds, len(uniq)), seed=seed):
-        tr, te = np.isin(games, tr_ids), np.isin(games, te_ids)
-        m = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(X[tr], y[tr])
-        p[te] = m.predict(X[te])
+        tr, te = np.isin(gid, tr_ids), np.isin(gid, te_ids)
+        table = F.skill_table(_shots_of(games, tr_ids))
+        Xtr, Xte = F.design(F.attach_skill(pf[tr], table)), F.design(F.attach_skill(pf[te], table))
+        m = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(Xtr, y[tr])
+        p[te] = m.predict(Xte)
     return p
 
 
-def shuffled_y_check(pf: pd.DataFrame, seed: int = 0, n_folds: int = 5) -> pd.DataFrame:
+def shuffled_y_check(pf: pd.DataFrame, games: list, seed: int = 0, n_folds: int = 5) -> pd.DataFrame:
     """Ridge out of fold by game on the real target and on a permuted one: rows (target, mse, r2)."""
     y = pf[F.TARGET].to_numpy(dtype=float)
     rng = np.random.default_rng(seed)
     rows = []
     for name, yy in (("real", y), ("shuffled", rng.permutation(y))):
-        p = _ridge_oof(pf, yy, seed, n_folds)
+        p = _ridge_oof(pf, games, yy, seed, n_folds)
         m = float(np.mean((yy - p) ** 2))
         rows.append({"target": name, "mse": m, "r2": float(1 - m / np.var(yy))})
     return pd.DataFrame(rows)
@@ -122,12 +130,11 @@ def run(games, seed: int = 0) -> dict:
     pf, sp, counts = F.build(games)
     shots = pd.concat([d["shots"] for d in games if d.get("shots") is not None and len(d["shots"])], ignore_index=True) \
         if any(d.get("shots") is not None and len(d["shots"]) for d in games) else pd.DataFrame(columns=["sportvu_game", "player", "made", "loc_x", "loc_y"])
-    rosters = pd.concat([d["rosters"] for d in games if d.get("rosters") is not None], ignore_index=True)
-    pf = F.attach_skill(pf, F.skill_table(shots, rosters))
+    pf_all = F.attach_skill(pf, F.skill_table(shots))      # every game's shots: the correlation table only (exploration)
     poss = pd.concat([d["possessions"] for d in games], ignore_index=True)
     return {"counts": pd.DataFrame(counts),
             "nearest_def_by_distance_bin": nearest_def_by_distance_bin(pf),
             "nearest_def_by_has_ball": nearest_def_by_has_ball(pf),
             "hull_area_by_end_kind": hull_area_by_end_kind(sp, poss),
-            "correlation_table": correlation_table(pf),
-            "shuffled_y_check": shuffled_y_check(pf, seed)}
+            "correlation_table": correlation_table(pf_all),
+            "shuffled_y_check": shuffled_y_check(pf, games, seed)}     # the prior per fold, as the trainer

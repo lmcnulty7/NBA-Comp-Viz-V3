@@ -1,6 +1,7 @@
 """analytics/gravity/features.py: the 1 Hz player-frame feature frame and the spacing frame.
 
     python -m analytics.gravity.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
+        [--fixture-generator auto|fallback]
 
 Inputs are game dicts (frames: contract section 4; possessions: section 19; rosters: section 16; shots:
 section 10a) as tests/_fx_gravity.py, analytics.fixtures or validate.load_data_root give them.
@@ -8,10 +9,11 @@ section 10a) as tests/_fx_gravity.py, analytics.fixtures or validate.load_data_r
 Sampling (the unit). For every possession with gap false and a known offense_team_id, the span is the
 frames of the same period from start_frame up to the next possession's start_frame (exclusive), or to the
 period's last frame for the period's last possession. end_frame is a POST-OUTCOME column of the contract,
-so the span is cut by the next start instead (possessions are contiguous in analytics.possessions, so this
-is the same span without reading a post-outcome column). Inside the span, elapsed = start_clock_s minus
-game_clock_s, and the frame nearest each whole second of elapsed time is the sample (one frame per second).
-A sampled frame is kept only with exactly five offensive and five defensive players and a ball position.
+so the span is cut by the next start instead; on analytics.possessions output the next possession starts at
+the previous one's end frame, so the span equals [start_frame, end_frame - 1]. Inside the span, elapsed =
+start_clock_s minus game_clock_s, and the frame nearest each whole second of elapsed time is the sample (one
+frame per second; frames over a stopped clock share one elapsed value and collapse to one sample). A sampled
+frame is kept only with exactly five offensive and five defensive players and a ball position.
 
 Target: nearest_def_dist_ft, the distance from the offensive player to the nearest defender.
 
@@ -22,26 +24,25 @@ FEATURES (time-forward, about location only; none is a target or post-outcome co
     dist_ball_ft               distance to the ball
     has_ball                   1 when the player is the offensive player nearest the ball (the section 20 handler)
     ball_dist_basket_ft        the ball's distance to the attacked basket
-    skill_zone                 the player's smoothed make rate in the zone they stand in (training folds only)
-    skill_three                the player's smoothed make rate on threes (training folds only)
+    zone_make_rate             the league make rate in the zone the player stands in, from training-fold shots only
     game_clock_s               seconds remaining in the period
     shot_clock_s               seconds on the shot clock (SHOT_CLOCK_FILL when the source has none)
     shot_clock_missing         1 when shot_clock_s was null
+
+The shooting prior is deliberately NOT player-specific. Gravity is the residual of the expectation, so any
+feature that identifies a player lets a flexible model absorb that player's pull into the expectation (a
+per-player skill prior did exactly that on the fixtures: a planted 2 ft pull came out at 0.6 ft under HGB).
+zone_make_rate carries the location's shooting value (a corner is worth more than a long two) and nothing
+about who stands there. ZONES are distance bins; the rate per zone comes from the shots of the training-fold
+games (skill_table) and is attached per fold by the trainer (attach_skill); build() leaves it NaN.
 
 Attacked basket (assumption): per (offense_team_id, period), the basket nearer the mean x of the sampled
 offensive positions; the offence spends most of a possession in its frontcourt. The fixture does not swap
 ends at half time and the features do not assume a swap either.
 
-Shooting skill (assumption): shots of the training folds only, matched to SportVU player ids by the shots'
-player_id when present, else by name against the game's roster (bref_name, then player, then pbp_name).
-Zones by distance to the basket: ZONES. skill = (makes + K_SMOOTH * zone prior) / (attempts + K_SMOOTH), the
-zone prior being the make rate of the training-fold shots in that zone; a player without shots gets the prior.
-The caller attaches the skill columns per fold (train.py); build() leaves them at the prior of the frame it
-sees, so a feature frame without attach_skill is still usable but carries no player information.
-
 Spacing frame (one row per sampled possession-frame): hull_area_ft2, the convex hull area of the five
 offensive players (scipy.spatial.ConvexHull; its volume attribute is the area in 2-D; NaN when the five
-points are collinear), and mean_nearest_def_ft, the mean of the five nearest-defender distances.
+points are collinear), mean_nearest_def_ft, the mean of the five nearest-defender distances, and heldout.
 """
 from __future__ import annotations
 
@@ -57,16 +58,17 @@ from scipy.spatial import ConvexHull, QhullError
 from analytics import schema
 
 FEATURES = ["x_ft", "y_ft", "dist_basket_ft", "angle_rad", "dist_ball_ft", "has_ball", "ball_dist_basket_ft",
-            "skill_zone", "skill_three", "game_clock_s", "shot_clock_s", "shot_clock_missing"]
+            "zone_make_rate", "game_clock_s", "shot_clock_s", "shot_clock_missing"]
 KEYS = ["sportvu_game", "possession", "frame", "player_id"]
 TARGET = "nearest_def_dist_ft"
 LEFT_BASKET, RIGHT_BASKET = (5.25, 25.0), (88.75, 25.0)
 MID_X = 47.0
 SHOT_CLOCK_FILL = 24.0
 ZONES = ((0.0, 4.0, "rim"), (4.0, 10.0, "paint"), (10.0, 16.0, "short_mid"), (16.0, 22.0, "long_mid"), (22.0, np.inf, "three"))
-K_SMOOTH = 25.0
 THREE_FT = 22.0
-SKILL_COLUMNS = ["skill_zone", "skill_three"]
+SKILL_COLUMNS = ["zone_make_rate"]
+PRIOR_DEFAULT = 0.45
+SPACING_COLUMNS = ["sportvu_game", "possession", "frame", "hull_area_ft2", "mean_nearest_def_ft", "heldout"]
 
 
 def feature_columns() -> list:
@@ -168,20 +170,24 @@ def hull_area_ft2(points) -> float:
     return _hull_area(np.asarray(points, dtype=float))
 
 
+def _empty_frames() -> tuple[pd.DataFrame, pd.DataFrame]:
+    pf = pd.DataFrame(columns=KEYS + ["heldout", "period", "elapsed_s", "offense_team_id"] + FEATURES + [TARGET])
+    return pf, pd.DataFrame(columns=SPACING_COLUMNS)
+
+
 def build_game(d: dict) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    """(player_frame, spacing_frame, counts) of one game dict. The skill columns are left at NaN (train.py
-    attaches them per fold with attach_skill); the frame carries sportvu_game, possession, frame, player_id,
-    heldout, period, elapsed_s, offense_team_id, the FEATURES and the TARGET."""
+    """(player_frame, spacing_frame, counts) of one game dict. zone_make_rate is left at NaN (train.py attaches it
+    per fold with attach_skill); the frame carries sportvu_game, possession, frame, player_id, heldout, period,
+    elapsed_s, offense_team_id, the FEATURES and the TARGET."""
     g = game_id(d)
+    held = bool(is_heldout(d))
     frames, poss = d["frames"], d["possessions"]
     counts = {"sportvu_game": g, "possessions": int(len(poss)), "sampled": 0, "kept": 0, "not_ten": 0, "no_ball": 0,
               "degenerate_hull": 0}
     samp = sample_frames(frames, poss)
     counts["sampled"] = int(len(samp))
-    empty_pf = pd.DataFrame(columns=KEYS + ["heldout", "period", "elapsed_s", "offense_team_id"] + FEATURES + [TARGET])
-    empty_sp = pd.DataFrame(columns=["sportvu_game", "possession", "frame", "hull_area_ft2", "mean_nearest_def_ft"])
     if samp.empty:
-        return empty_pf, empty_sp, counts
+        return (*_empty_frames(), counts)
     sub = frames[frames["frame"].isin(samp["frame"])].copy()
     sub = sub.merge(samp[["frame", "possession", "elapsed_s", "offense_team_id", "start_clock_s"]], on="frame", how="inner")
     sub["is_def"] = (sub["team_id"].to_numpy() != sub["offense_team_id"].to_numpy())
@@ -194,7 +200,7 @@ def build_game(d: dict) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     counts["no_ball"] = int(len(no_ball))
     sub = sub[~sub["frame"].isin(no_ball)]
     if sub.empty:
-        return empty_pf, empty_sp, counts
+        return (*_empty_frames(), counts)
     sub = sub.sort_values(["frame", "is_def", "player_id"], kind="stable").reset_index(drop=True)
     n = len(sub) // 10
     xy = sub[["x", "y"]].to_numpy(dtype=float).reshape(n, 10, 2)
@@ -202,7 +208,6 @@ def build_game(d: dict) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     dist = np.sqrt(((off[:, :, None, :] - dfn[:, None, :, :]) ** 2).sum(-1))     # (n, 5, 5)
     nearest = dist.min(axis=2)                                                   # (n, 5)
     head = sub.iloc[::10].reset_index(drop=True)                                 # frame-level rows, offence first
-    # attacked basket per (offense_team_id, period): the one nearer the mean sampled offensive x
     off_rows = sub[~sub["is_def"]]
     mean_x = off_rows.groupby(["offense_team_id", "period"])["x"].mean()
     basket_left = {k: bool(v < MID_X) for k, v in mean_x.items()}
@@ -225,19 +230,19 @@ def build_game(d: dict) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     off_ids = sub.loc[~sub["is_def"], "player_id"].to_numpy(dtype=np.int64)
     pf = pd.DataFrame({
         "sportvu_game": g, "possession": rep(head["possession"].to_numpy(dtype=np.int64)),
-        "frame": rep(head["frame"].to_numpy(dtype=np.int64)), "player_id": off_ids, "heldout": bool(is_heldout(d)),
+        "frame": rep(head["frame"].to_numpy(dtype=np.int64)), "player_id": off_ids, "heldout": held,
         "period": rep(head["period"].to_numpy(dtype=np.int64)), "elapsed_s": rep(head["elapsed_s"].to_numpy(dtype=float)),
         "offense_team_id": rep(head["offense_team_id"].to_numpy(dtype=np.int64)),
         "x_ft": off[:, :, 0].ravel(), "y_ft": off[:, :, 1].ravel(), "dist_basket_ft": dist_basket.ravel(),
         "angle_rad": angle.ravel(), "dist_ball_ft": dist_ball.ravel(), "has_ball": has.ravel(),
-        "ball_dist_basket_ft": rep(ball_basket), "skill_zone": np.nan, "skill_three": np.nan,
+        "ball_dist_basket_ft": rep(ball_basket), "zone_make_rate": np.nan,
         "game_clock_s": rep(head["game_clock_s"].to_numpy(dtype=float)), "shot_clock_s": rep(sc),
         "shot_clock_missing": rep(sc_missing.astype(float)), TARGET: nearest.ravel()})
     areas = np.array([_hull_area(off[i]) for i in range(n)])
     counts["degenerate_hull"] = int(np.isnan(areas).sum())
-    sp = pd.DataFrame({"sportvu_game": g, "possession": head["possession"].to_numpy(dtype=np.int64),
-                       "frame": head["frame"].to_numpy(dtype=np.int64), "hull_area_ft2": areas,
-                       "mean_nearest_def_ft": nearest.mean(axis=1)})
+    sp = pd.DataFrame({"sportvu_game": g, "possession": head["possession"].to_numpy(dtype=np.int32),
+                       "frame": head["frame"].to_numpy(dtype=np.int32), "hull_area_ft2": areas,
+                       "mean_nearest_def_ft": nearest.mean(axis=1), "heldout": held})
     counts["kept"] = int(n)
     return pf, sp, counts
 
@@ -251,13 +256,17 @@ def build(games) -> tuple[pd.DataFrame, pd.DataFrame, list]:
         pfs.append(pf)
         sps.append(sp)
         counts.append(c)
-    pf = pd.concat(pfs, ignore_index=True) if pfs else build_game({"frames": pd.DataFrame(), "possessions": pd.DataFrame()})[0]
-    sp = pd.concat(sps, ignore_index=True) if sps else pd.DataFrame()
+    if pfs:
+        pf, sp = pd.concat(pfs, ignore_index=True), pd.concat(sps, ignore_index=True)
+    else:
+        pf, sp = _empty_frames()
+    if len(sp):
+        sp = sp.astype({"possession": np.int32, "frame": np.int32, "heldout": bool})
     schema.assert_time_forward(pf, "states_1hz")
     return pf, sp, counts
 
 
-# ── shooting skill prior ───────────────────────────────────────────────────────────────────────────
+# ── shooting prior (league rate by zone, non-identifying) ─────────────────────────────────────────
 def zone_of(dist_ft) -> np.ndarray:
     """Zone name of each distance to the basket (ZONES)."""
     d = np.asarray(dist_ft, dtype=float)
@@ -269,11 +278,11 @@ def zone_of(dist_ft) -> np.ndarray:
 
 def shot_player_ids(shots: pd.DataFrame, rosters: pd.DataFrame) -> pd.Series:
     """SportVU player id of each shot: the shots' player_id when present, else the name matched against the
-    roster of the same game (bref_name, then player, then pbp_name). NaN when unmatched."""
+    roster of the same game (bref_name, then player, then pbp_name). NaN when unmatched. Used by the sign test
+    and validate, never by the prior (which is not player-specific)."""
     out = pd.Series(np.nan, index=shots.index, dtype=float)
     if "player_id" in shots.columns:
-        have = pd.to_numeric(shots["player_id"], errors="coerce")
-        out = have.astype(float)
+        out = pd.to_numeric(shots["player_id"], errors="coerce").astype(float)
     if out.notna().all() or rosters is None or len(rosters) == 0 or "player" not in shots.columns:
         return out
     lookup = {}
@@ -298,45 +307,29 @@ def _shot_distance(shots: pd.DataFrame) -> np.ndarray:
     return pixel
 
 
-def skill_table(shots: pd.DataFrame, rosters: pd.DataFrame) -> dict:
-    """The smoothed shooting prior from a shots table (training folds only, the caller filters):
-    dict(zone={(player_id, zone): skill}, three={player_id: skill}, prior_zone={zone: rate}, prior_three=rate,
-    n_shots, n_matched). An empty shots table gives a prior of PRIOR_DEFAULT everywhere."""
-    out = {"zone": {}, "three": {}, "prior_zone": {z[2]: PRIOR_DEFAULT for z in ZONES}, "prior_three": PRIOR_DEFAULT,
-           "n_shots": int(len(shots)) if shots is not None else 0, "n_matched": 0}
+def skill_table(shots: pd.DataFrame, rosters: pd.DataFrame = None) -> dict:
+    """The zone prior from a shots table (training folds only, the caller filters):
+    dict(prior_zone={zone: league make rate}, n_shots, n_by_zone). An empty table gives PRIOR_DEFAULT everywhere.
+    Nothing here is per player: rosters is accepted for signature stability and not used."""
+    out = {"prior_zone": {z[2]: PRIOR_DEFAULT for z in ZONES}, "n_shots": int(len(shots)) if shots is not None else 0,
+           "n_by_zone": {z[2]: 0 for z in ZONES}}
     if shots is None or len(shots) == 0:
         return out
-    pid = shot_player_ids(shots, rosters)
-    made = shots["made"].astype(bool).to_numpy()
-    dist = _shot_distance(shots)
-    zone = zone_of(dist)
-    df = pd.DataFrame({"player_id": pid, "made": made.astype(float), "zone": zone, "three": dist >= THREE_FT})
-    for z, grp in df.groupby("zone"):
-        out["prior_zone"][str(z)] = float(grp["made"].mean())
-    th = df[df["three"]]
-    if len(th):
-        out["prior_three"] = float(th["made"].mean())
-    m = df.dropna(subset=["player_id"])
-    out["n_matched"] = int(len(m))
-    for (p, z), grp in m.groupby(["player_id", "zone"]):
-        prior = out["prior_zone"][str(z)]
-        out["zone"][(int(p), str(z))] = float((grp["made"].sum() + K_SMOOTH * prior) / (len(grp) + K_SMOOTH))
-    for p, grp in m[m["three"]].groupby("player_id"):
-        out["three"][int(p)] = float((grp["made"].sum() + K_SMOOTH * out["prior_three"]) / (len(grp) + K_SMOOTH))
+    made = shots["made"].astype(bool).to_numpy().astype(float)
+    zone = zone_of(_shot_distance(shots))
+    for z in np.unique(zone):
+        m = zone == z
+        out["prior_zone"][str(z)] = float(made[m].mean())
+        out["n_by_zone"][str(z)] = int(m.sum())
     return out
 
 
-PRIOR_DEFAULT = 0.45
-
-
 def attach_skill(pf: pd.DataFrame, table: dict) -> pd.DataFrame:
-    """pf with skill_zone and skill_three filled from a skill_table (the prior where the player has no shots)."""
+    """pf with zone_make_rate filled from a skill_table by the zone of the player's position."""
     out = pf.copy()
     zone = zone_of(out["dist_basket_ft"].to_numpy(dtype=float))
-    pids = out["player_id"].to_numpy(dtype=np.int64)
     pz = table["prior_zone"]
-    out["skill_zone"] = [table["zone"].get((int(p), str(z)), pz.get(str(z), PRIOR_DEFAULT)) for p, z in zip(pids, zone)]
-    out["skill_three"] = [table["three"].get(int(p), table["prior_three"]) for p in pids]
+    out["zone_make_rate"] = np.array([pz.get(str(z), PRIOR_DEFAULT) for z in zone], dtype=float)
     return out
 
 
@@ -360,18 +353,19 @@ def main(argv=None) -> dict:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-games", type=int, default=8)
     ap.add_argument("--n-possessions", type=int, default=40)
+    ap.add_argument("--fixture-generator", default="auto", choices=("auto", "fallback"))
     a = ap.parse_args(argv)
-    games = V.load_games(a, who="gravity.features")
+    games, vcounts = V.validate_games(V.load_games(a, who="gravity.features"))
     pf, sp, counts = build(games)
     summary = {"games": len(games), "player_frames": int(len(pf)), "spacing_frames": int(len(sp)), "counts": counts,
-               "features": FEATURES, "fixture": bool(a.fixtures)}
+               "validation": vcounts, "features": FEATURES, "fixture": bool(a.fixtures)}
     if a.out:
         root = Path(a.out) / "analytics" / "gravity"
         root.mkdir(parents=True, exist_ok=True)
         pf.to_parquet(root / "player_frames.parquet", index=False)
-        sp.to_parquet(root / "spacing_frames.parquet", index=False)
+        sp.to_parquet(root / "spacing_frames.parquet", index=False)      # same schema as train.py's spacing_frames
         summary["written"] = str(root)
-    print(json.dumps({k: v for k, v in summary.items() if k != "counts"}, indent=1))
+    print(json.dumps({k: v for k, v in summary.items() if k not in ("counts", "validation")}, indent=1))
     return summary
 
 

@@ -309,8 +309,10 @@ def _fallback_write_fixture_root(root, seed: int, n_games: int = 4, heldout_ever
             d.mkdir(parents=True, exist_ok=True)
             g[table].to_parquet(d / (sg + ".parquet"), index=False)
         lab = _fallback_synth_labels(seed, g)
-        from analytics.labels import write_labels       # the sanctioned writer: labels/actions and labels/screens
+        from analytics.labels import write_labels, mark_visited   # the sanctioned writers: labels/actions, labels/screens, labels/visited
         write_labels(root, sg, lab["actions"], lab["screens"], labelled_at="2026-01-01T00:00:00Z")
+        for poss in g["possessions"]["possession"]:          # the generator labelled every possession: all visited
+            mark_visited(root, sg, int(poss), 1, visited_at="2026-01-01T00:00:00Z")
         written.append({"sportvu_game": sg, "heldout": held, "actions": int(len(lab["actions"])), "screens": int(len(lab["screens"]))})
     return {"root": str(root), "games": written}
 
@@ -338,6 +340,7 @@ def _normalise(raw, seed: int, label_fn) -> list:
             held = bool((g.get("meta") or {}).get("heldout", False)) if isinstance(g.get("meta"), dict) else False
         g["heldout"] = bool(held)
         g["labels"] = label_fn(seed, g)
+        g["visited"] = set(int(x) for x in g["possessions"]["possession"])     # the generator labelled every possession
         out.append(g)
     return out
 

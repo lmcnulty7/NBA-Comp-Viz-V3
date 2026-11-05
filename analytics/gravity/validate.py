@@ -168,17 +168,37 @@ def load_data_root(root, season: str = "2015-16", log=print) -> list:
     return games
 
 
+def fixture_generator(name: str = "auto"):
+    """The season generator for --fixtures: 'auto' is tests/_fx_gravity.py's synth_season (analytics.fixtures when
+    importable, else the fallback); 'fallback' is the lane's own generator whatever is importable."""
+    repo = Path(__file__).resolve().parents[2]
+    if str(repo) not in sys.path:
+        sys.path.insert(0, str(repo))
+    from tests import _fx_gravity as fx
+    if name == "fallback":
+        return fx.fallback_synth_season
+    if name == "auto":
+        return fx.synth_season
+    raise SystemExit("gravity: unknown fixture generator %r (auto or fallback)" % name)
+
+
+def fixture_source(name: str = "auto") -> str:
+    """The module name of the generator fixture_generator(name) resolves to."""
+    repo = Path(__file__).resolve().parents[2]
+    if str(repo) not in sys.path:
+        sys.path.insert(0, str(repo))
+    from tests import _fx_gravity as fx
+    return "tests._fx_gravity" if name == "fallback" else fx.SOURCE
+
+
 def load_games(a, who: str = "gravity") -> list:
-    """The game dicts a CLI of the lane asked for: --fixtures (synth_season of tests/_fx_gravity.py, with every
-    fourth game held out) or --data DATA_ROOT."""
+    """The game dicts a CLI of the lane asked for: --fixtures (a season of fixture games with every fourth game
+    held out, from the generator --fixture-generator names) or --data DATA_ROOT."""
     if getattr(a, "fixtures", False):
-        repo = Path(__file__).resolve().parents[2]
-        if str(repo) not in sys.path:
-            sys.path.insert(0, str(repo))
-        from tests._fx_gravity import synth_season
+        gen = fixture_generator(getattr(a, "fixture_generator", "auto"))
         n = int(getattr(a, "n_games", 8))
-        return synth_season(int(getattr(a, "seed", 0)), n_games=n, heldout_every=4 if n >= 4 else 0,
-                            n_possessions=int(getattr(a, "n_possessions", 40)))
+        return gen(int(getattr(a, "seed", 0)), n_games=n, heldout_every=4 if n >= 4 else 0,
+                   n_possessions=int(getattr(a, "n_possessions", 40)))
     if getattr(a, "data", None):
         return load_data_root(a.data, getattr(a, "season", "2015-16"))
     raise SystemExit("%s: pass --fixtures or --data DATA_ROOT" % who)
@@ -193,6 +213,7 @@ def main(argv=None) -> dict:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-games", type=int, default=8)
     ap.add_argument("--n-possessions", type=int, default=40)
+    ap.add_argument("--fixture-generator", default="auto", choices=("auto", "fallback"))
     a = ap.parse_args(argv)
     games = load_games(a, who="gravity.validate")
     _, counts = validate_games(games)

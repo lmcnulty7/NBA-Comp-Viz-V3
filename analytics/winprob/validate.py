@@ -11,7 +11,8 @@ Checks (every finding is a count, never a row of data):
     duplicates    repeated (game_id, event) pairs
     games         every play-by-play game has a games row; the games table's final score agrees with the
                   last score of the play-by-play where both exist
-    odds          the share of games with a closing home spread
+    odds          the share of games with a closing home spread (analytics.betting.validate join; the games
+                  table's spread_home counts only when there is no odds table)
     heldout       rows flagged heldout (or split starting with heldout) are counted; they never fit anything
 
 validate(...) returns dict(counts, problems, ok); problems is a list of strings naming the check and the
@@ -31,7 +32,8 @@ from analytics.winprob import features as F
 REQUIRED = ("game_id", "event", "period", "clock_s", "team", "kind", "score", "season")
 
 
-def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.DataFrame | None = None) -> dict:
+def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.DataFrame | None = None,
+             team_names: dict | None = None) -> dict:
     problems: list[str] = []
     counts: dict = {"rows": int(len(pbp)), "games": int(pbp["game_id"].nunique()) if "game_id" in pbp.columns else 0}
     missing = [c for c in REQUIRED if c not in pbp.columns]
@@ -105,10 +107,10 @@ def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.Data
         if "home_win" in gg.columns:
             counts["home_win_rate"] = float(gg["home_win"].astype(bool).mean())
         gtab = gg.reset_index(drop=True).assign(game_id=gg.index)
-        spread = F.closing_spreads(odds, gtab) if odds is not None else pd.Series(np.nan, index=gtab["game_id"], dtype=float)
+        spread = F.closing_spreads(odds, gtab, team_names) if odds is not None else pd.Series(np.nan, index=gtab["game_id"], dtype=float)
         counts["odds_rows"] = int(len(odds)) if odds is not None else 0
         counts["games_with_spread_from_odds"] = int(spread.notna().sum())
-        if "spread_home" in gg.columns:
+        if odds is None and "spread_home" in gg.columns:
             spread = spread.where(spread.notna(), gg["spread_home"].astype(float).to_numpy())
         counts["games_with_closing_spread"] = int(spread.notna().sum())
         counts["spread_coverage"] = float(spread.notna().mean()) if len(spread) else 0.0
@@ -128,7 +130,7 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     a = parse_args(argv)
     d = F.load_fixtures(a.seed) if a.fixtures else F.load_data(a.data)
-    res = validate(d["playbyplay"], d["games"], d["odds"])
+    res = validate(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     res["files"] = d["files"]
     if a.out:
         p = Path(a.out) / "analytics" / "winprob" / "validate.json"

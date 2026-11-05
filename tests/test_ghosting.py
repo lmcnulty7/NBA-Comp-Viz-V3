@@ -99,26 +99,28 @@ def test_dropped_frames_cut_the_sequence_instead_of_being_sampled_as_a_step():
     n0 = int((base_panel["possession"] == r.possession).sum() // 5)
     assert n0 > 7 and base_counts["cut_frame_gap"] == 0
     # (a) a run of frame ids missing inside the possession: the sampled id after the hole is not STRIDE on
-    drop = g["frames"]["frame"].between(start + 30, start + 34)
+    drop = g["frames"]["frame"].between(start + 45, start + 49)
     panel_a, counts_a = F.build_panel_game(g["frames"][~drop], poss, g["sportvu_game"])
     seq = panel_a[(panel_a["possession"] == r.possession) & (panel_a["def_slot"] == 0)]
-    assert counts_a["cut_frame_gap"] == 1 and len(seq) == 6 and seq["frame"].max() == start + 25
+    assert counts_a["cut_frame_gap"] == 1 and len(seq) == 9 and seq["frame"].max() == start + 40
     # (b) the source dropped frames and the ids were renumbered: contiguous ids, a clock jump of 0.52 s
     fr = g["frames"][~drop].copy()
     fr["frame"] = pd.factorize(fr["frame"], sort=True)[0].astype("int32")
     panel_b, counts_b = F.build_panel_game(fr, poss, g["sportvu_game"])
     seq = panel_b[(panel_b["possession"] == r.possession) & (panel_b["def_slot"] == 0)]
-    assert counts_b["cut_frame_gap"] == 1 and len(seq) == 6
+    assert counts_b["cut_frame_gap"] == 1 and len(seq) == 9
     # the cut bounds the roll-forward: no 1.0 s row of that sequence reaches past the hole
     frame_a = F.feature_frame(panel_a)
     models = {c: (lambda W: np.zeros((len(W), 2))) for c in T.CANDIDATES}
     err = T.roll_forward(models, frame_a, panel_a, fold=0)
     e = err[(err["possession"] == r.possession) & (err["horizon_s"] == 1.0)]
-    assert len(e) and e["frame"].max() <= start + 25
+    assert len(e) and e["frame"].max() <= start + 40
     # a stopped clock with frames still flowing is a dead ball, not a gap: nothing is cut
     fz = g["frames"].copy()
     m = fz["frame"].between(start + 10, start + 20)
     fz.loc[m, "game_clock_s"] = float(fz.loc[fz["frame"] == start + 10, "game_clock_s"].iloc[0])
+    later = fz["frame"].between(start + 21, int(r.end_frame))
+    fz.loc[later, "game_clock_s"] = fz.loc[later, "game_clock_s"] + np.float32(11 / F.HZ)   # the clock resumes
     _, counts_c = F.build_panel_game(fz, poss, g["sportvu_game"])
     assert counts_c["cut_frame_gap"] == 0
 
@@ -188,7 +190,8 @@ def test_end_to_end_fixture_run(tmp_path, monkeypatch):
     assert np.allclose(sorted(gf["horizon_s"].unique()), [0.2, 1.0]) and str(gf["horizon_s"].dtype) == "float32"
     assert gf["heldout"].any() and not gf.loc[gf["fold"] >= 0, "heldout"].any()
     assert (gf.loc[gf["sportvu_game"] == HELD, "fold"] == -1).all()
-    assert np.allclose(gf["deviation_ft"].abs() <= np.hypot(gf["actual_x"] - gf["ghost_x"], gf["actual_y"] - gf["ghost_y"]) + 1e-6, True)
+    gap = np.hypot((gf["actual_x"] - gf["ghost_x"]).to_numpy(), (gf["actual_y"] - gf["ghost_y"]).to_numpy())
+    assert (gf["deviation_ft"].abs().to_numpy() <= gap + 1e-3).all()       # float32 tables
     assert gp["points"].ge(0).all() and gp.groupby("sportvu_game").size().min() >= 1
     s = ctx["scores"]
     for h in F.HORIZONS:

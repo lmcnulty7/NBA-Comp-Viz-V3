@@ -26,11 +26,12 @@ is unchanged when the play-by-play is cut after event k (a feature built from th
 analytics.schema.assert_time_forward runs on every frame this module returns.
 
 Assumptions taken where the spec is silent:
-  - the odds table has no NBA id: a game joins its closing spread on game_date and the home team's name
-    (TEAM_NAMES maps the NBA team id to the name the-odds-api uses); when the odds table carries a game_id
-    column (a fixture may) that join is used instead, and a date with exactly one game in both tables joins
-    without a name match; the median over books of the is_close spreads market for the home side is the spread;
-    a game still without one takes the games table's spread_home column when present
+  - the odds table has no NBA id: the closing spread comes from analytics.betting.validate (closing_lines: per
+    book the latest pre-tip is_close snapshot, median over books; join_games: both team keys and the tip's US
+    local date with one day of tolerance, each row used once); no date-only matching. The games table's
+    spread_home column is used only when there is no odds table at all
+  - the games table's home_score, away_score and home_win are dropped before any feature is built; the target
+    is mapped onto the states after the features, and the prefix probe scrambles the finals of the games row
   - the possession indicator is read from event kinds only (shot_made, rebound, turnover, free throws by
     position in the trip); it stays null when unknown rather than guessed
   - the time buckets of the evaluation are minutes remaining in regulation: 48 to 36, 36 to 24, 24 to 12,
@@ -51,6 +52,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.betting import validate as _betting
 
 FEATURES = ("margin", "seconds_remaining", "overtime", "period", "possession_home", "spread_home",
             "spread_missing", "margin_x_sqrt_time")
@@ -68,19 +70,8 @@ SEASONS = ("2020-21", "2021-22", "2022-23", "2023-24", "2024-25")
 FT_RE = re.compile(r"(\d+)\s+of\s+(\d+)")
 SCORE_RE = re.compile(r"^\s*(\d+)\s*-\s*(\d+)\s*$")
 
-# NBA team id -> the full name the-odds-api.com uses (the odds table joins on date and names, section 14).
-TEAM_NAMES = {
-    1610612737: "Atlanta Hawks", 1610612738: "Boston Celtics", 1610612751: "Brooklyn Nets",
-    1610612766: "Charlotte Hornets", 1610612741: "Chicago Bulls", 1610612739: "Cleveland Cavaliers",
-    1610612742: "Dallas Mavericks", 1610612743: "Denver Nuggets", 1610612765: "Detroit Pistons",
-    1610612744: "Golden State Warriors", 1610612745: "Houston Rockets", 1610612754: "Indiana Pacers",
-    1610612746: "Los Angeles Clippers", 1610612747: "Los Angeles Lakers", 1610612763: "Memphis Grizzlies",
-    1610612748: "Miami Heat", 1610612749: "Milwaukee Bucks", 1610612750: "Minnesota Timberwolves",
-    1610612740: "New Orleans Pelicans", 1610612752: "New York Knicks", 1610612760: "Oklahoma City Thunder",
-    1610612753: "Orlando Magic", 1610612755: "Philadelphia 76ers", 1610612756: "Phoenix Suns",
-    1610612757: "Portland Trail Blazers", 1610612758: "Sacramento Kings", 1610612759: "San Antonio Spurs",
-    1610612761: "Toronto Raptors", 1610612762: "Utah Jazz", 1610612764: "Washington Wizards",
-}
+# NBA team id -> the full name the-odds-api.com uses (analytics.betting.validate.TEAM_NAMES is the source).
+TEAM_NAMES = {tid: name for tid, (_abbr, name) in _betting.TEAM_NAMES.items()}
 
 
 def feature_columns() -> list:
@@ -126,10 +117,11 @@ def seconds_remaining(period, clock_s) -> np.ndarray:
 
 
 # ── possession ─────────────────────────────────────────────────────────────────────────────────────
-def _ft_last(desc) -> bool:
+def _ft_last(desc):
+    """True for the last free throw of a trip, False for an earlier one, None for a technical (possession unchanged)."""
     d = str(desc) if desc is not None and desc is not pd.NA else ""
     if "technical" in d.lower():
-        return False
+        return None
     m = FT_RE.search(d)
     return True if not m else int(m.group(1)) >= int(m.group(2))
 
@@ -158,10 +150,10 @@ def possession_after(kind, team, desc, period) -> np.ndarray:
                 cur = np.nan
             elif k == "rebound":
                 cur = side
-            elif k == "ft_made":
-                cur = other if _ft_last(desc[i]) else side
-            elif k == "ft_missed":
-                cur = np.nan if _ft_last(desc[i]) else side
+            elif k in ("ft_made", "ft_missed"):
+                last = _ft_last(desc[i])
+                if last is not None:
+                    cur = side if not last else (other if k == "ft_made" else np.nan)
             elif k == "jump_ball":
                 cur = side
         if k in ("period_start", "period_end"):
@@ -171,44 +163,27 @@ def possession_after(kind, team, desc, period) -> np.ndarray:
 
 
 # ── odds ───────────────────────────────────────────────────────────────────────────────────────────
-def closing_spreads(odds: pd.DataFrame | None, games: pd.DataFrame) -> pd.Series:
-    """Home closing spread per game_id (index game_id), NaN when the odds table has none for the game."""
+def closing_spreads(odds: pd.DataFrame | None, games: pd.DataFrame, team_names: dict | None = None) -> pd.Series:
+    """Home closing spread per game_id (index game_id), NaN when the odds table has none for the game.
+
+    Delegates to analytics.betting.validate: closing_lines picks, per (game, book), the book's latest pre-tip
+    is_close snapshot and takes the median over books; join_games matches on both team keys and the tip's US
+    local date (UTC minus 8 h, one day of tolerance), each odds row and game used at most once. team_names (id ->
+    feed name) extends TEAM_NAMES for ids that are not stats.nba.com ids (a fixture); ids still unknown are inferred
+    from date co-occurrence there. No date-only matching."""
     out = pd.Series(np.nan, index=pd.Index(games["game_id"].astype(str), name="game_id"), dtype=float)
-    if odds is None or len(odds) == 0:
+    if odds is None or len(odds) == 0 or not {"home_team_id", "away_team_id", "game_date"} <= set(games.columns):
         return out
-    o = odds.copy()
-    if "market" in o.columns:
-        o = o[o["market"].astype(str) == "spreads"]
-    if "is_close" in o.columns:
-        o = o[o["is_close"].fillna(False).astype(bool)]
-    if "point" not in o.columns or len(o) == 0:
+    closing, _ = _betting.closing_lines(odds)
+    if len(closing) == 0:
         return out
-    o = o[pd.notna(o["point"])]
-    if "game_id" in o.columns and o["game_id"].notna().any():
-        home = o[o["side"].astype(str) == o["home_team"].astype(str)] if {"side", "home_team"} <= set(o.columns) else o
-        med = home.groupby(home["game_id"].astype(str))["point"].median()
-        hit = out.index.intersection(med.index)
-        out.loc[hit] = med.loc[hit].astype(float).to_numpy()
-        return out
-    if not {"side", "home_team", "game_key"} <= set(o.columns):
-        return out
-    home = o[o["side"].astype(str) == o["home_team"].astype(str)]
-    date = home["game_key"].astype(str).str.slice(0, 10)
-    key = date + "|" + home["home_team"].astype(str)
-    med = home.groupby(key.to_numpy())["point"].median()
     g = games.copy()
-    g_date = pd.to_datetime(g["game_date"].astype(str), errors="coerce").dt.strftime("%Y-%m-%d")
-    g_name = g["home_team_id"].map(lambda v: TEAM_NAMES.get(int(v)) if pd.notna(v) else None)
-    g_key = (g_date.fillna("") + "|" + g_name.fillna("")).to_numpy()
-    vals = pd.Series(g_key).map(med).to_numpy(dtype=float)
-    # date-unique fallback: a date with exactly one game in both tables joins without a name match
-    by_date = home.groupby(date.to_numpy())["point"].median()
-    odds_one = set(k for k, n in home.groupby(date.to_numpy())["game_key"].nunique().items() if n == 1)
-    g_counts = g_date.value_counts()
-    for i, (dte, v) in enumerate(zip(g_date.to_numpy(), vals)):
-        if np.isnan(v) and isinstance(dte, str) and dte in odds_one and g_counts.get(dte, 0) == 1:
-            vals[i] = float(by_date.loc[dte])
-    out.loc[:] = vals
+    g["game_id"] = g["game_id"].astype(str)
+    g = g.drop_duplicates("game_id").reset_index(drop=True)
+    joined, _ = _betting.join_games(closing, g, {**TEAM_NAMES, **(team_names or {})})
+    vals = pd.Series(joined["closing_spread_home"].astype(float).to_numpy(), index=joined["game_id"].astype(str))
+    hit = out.index.intersection(vals.index)
+    out.loc[hit] = vals.loc[hit].to_numpy()
     return out
 
 
@@ -240,7 +215,8 @@ def games_from_playbyplay(pbp: pd.DataFrame) -> pd.DataFrame:
 
 
 # ── the state frame ────────────────────────────────────────────────────────────────────────────────
-def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | None = None) -> pd.DataFrame:
+def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | None = None,
+                 team_names: dict | None = None) -> pd.DataFrame:
     """Play-by-play, games and (optional) odds -> the winprob_states frame (docs/contract/winprob.md), one row per
     event, sorted by game_id, period, event. Columns: keys, the features, time_bucket, heldout, and the target
     home_win (the trainer splits the target off before any fit). Never the final score."""
@@ -272,9 +248,15 @@ def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | No
     g = games.copy()
     g["game_id"] = g["game_id"].astype(str)
     g = g.drop_duplicates("game_id").set_index("game_id")
-    spread = closing_spreads(odds, g.reset_index()) if odds is not None else pd.Series(np.nan, index=g.index)
-    if "spread_home" in g.columns:
-        spread = spread.where(spread.notna(), g["spread_home"].astype(float).reindex(spread.index))
+    target = g[TARGET].astype(bool).astype(int)
+    # the finals and the target leave the games table here, before any feature is built
+    g = g.drop(columns=[c for c in ("home_score", "away_score", "home_win", "final_margin") if c in g.columns])
+    if odds is not None:
+        spread = closing_spreads(odds, g.reset_index(), team_names)
+    elif "spread_home" in g.columns:
+        spread = g["spread_home"].astype(float)
+    else:
+        spread = pd.Series(np.nan, index=g.index, dtype=float)
     sp = p["game_id"].map(spread).astype(float).to_numpy()
     margin = (home - away).to_numpy(dtype=float)
     out = pd.DataFrame({
@@ -298,7 +280,7 @@ def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | No
     missing = sorted(set(out["game_id"]) - set(g.index))
     if missing:
         raise ValueError("winprob.features: %d game(s) of the play-by-play are not in the games table, e.g. %s" % (len(missing), missing[:3]))
-    out[TARGET] = out["game_id"].map(g["home_win"]).astype(bool).astype(int).to_numpy()
+    out[TARGET] = out["game_id"].map(target).astype(int).to_numpy()
     schema.assert_time_forward(out.drop(columns=[TARGET]), "states_1hz")
     return out
 
@@ -324,12 +306,14 @@ def design(states: pd.DataFrame, cols=None) -> pd.DataFrame:
 
 # ── value-based leakage probe ──────────────────────────────────────────────────────────────────────
 def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=None, build=build_states,
-                                 n_games: int = 3, cuts: int = 3, seed: int = 0) -> list:
-    """Cut the play-by-play of a few games after event k and rebuild: every feature of the rows up to k must be
-    unchanged (events after the state never enter). Returns the list of (game_id, cut, column) violations; a
-    feature built from the final margin lands here because the cut changes the final score."""
+                                 n_games: int = 3, cuts: int = 3, seed: int = 0, team_names: dict | None = None) -> list:
+    """Cut the play-by-play of a few games after event k, scramble the finals and the outcome of the games row, and
+    rebuild: every feature of the rows up to k must be unchanged (events after the state never enter, the games
+    table's final score and outcome never enter). Returns the list of (game_id, cut, column) violations; a feature
+    built from the final margin lands here whether it read the play-by-play or the games table."""
     rng = np.random.default_rng(seed)
-    full = build(pbp, games, odds)
+    kw = {"team_names": team_names} if team_names is not None else {}
+    full = build(pbp, games, odds, **kw)
     cols = [c for c in feature_columns() if c in full.columns]
     gids = sorted(pbp["game_id"].astype(str).unique())
     pick = [gids[i] for i in rng.choice(len(gids), size=min(n_games, len(gids)), replace=False)]
@@ -339,8 +323,13 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
         n = len(pg)
         for k in sorted(set(int(v) for v in rng.integers(2, max(3, n - 1), size=cuts))):
             cut = pg.iloc[:k]
-            gk = games[games["game_id"].astype(str) == gid]
-            part = build(cut, gk, odds)
+            gk = games[games["game_id"].astype(str) == gid].copy()
+            # scrambled finals: a feature that reads the games table's final score or outcome changes too
+            for c in ("home_score", "away_score"):
+                if c in gk.columns:
+                    gk[c] = gk[c].astype(int) + int(rng.integers(1, 50))
+            gk[TARGET] = ~gk[TARGET].astype(bool)
+            part = build(cut, gk, odds, **kw)
             ref = full[full["game_id"] == gid].iloc[:k]
             if len(part) != len(ref):
                 out.append((gid, k, "<rows>"))
@@ -385,23 +374,25 @@ def load_data(data_root, seasons=SEASONS) -> dict:
     if not pbp:
         raise SystemExit("winprob: no play-by-play under %s/collect/stints/playbyplay for seasons %s" % (root, list(seasons)))
     return {"playbyplay": pd.concat(pbp, ignore_index=True), "games": pd.concat(games, ignore_index=True),
-            "odds": pd.concat(odds, ignore_index=True) if odds else None, "files": files}
+            "odds": pd.concat(odds, ignore_index=True) if odds else None, "files": files, "team_names": {}}
 
 
 def load_fixtures(seed: int = 0, n_games: int = 20, seasons=("2020-21", "2021-22")) -> dict:
     """The shared synthetic fixtures (tests/_fx_winprob.py) in the load_data layout."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from tests._fx_winprob import synth_odds, synth_stints
+    from tests._fx_winprob import synth_odds, synth_stints, team_names
     d = synth_stints(seed, n_games=n_games, seasons=tuple(seasons))
     odds = synth_odds(seed, d["games"])
-    return {"playbyplay": d["playbyplay"], "games": d["games"], "odds": odds, "files": ["<fixtures seed %d>" % seed]}
+    return {"playbyplay": d["playbyplay"], "games": d["games"], "odds": odds, "files": ["<fixtures seed %d>" % seed],
+            "team_names": team_names(d["games"])}
 
 
 def write_states(states: pd.DataFrame, out_root) -> list:
-    """OUT_ROOT/analytics/winprob/<season>/winprob_states.parquet per season -> the paths written."""
+    """OUT_ROOT/analytics/winprob/<season>/winprob_features.parquet per season (the full feature frame of this module,
+    docs/contract/winprob.md) -> the paths written. The trainer writes winprob_states beside it."""
     paths = []
     for season, s in states.groupby("season", sort=True):
-        p = Path(out_root) / "analytics" / "winprob" / str(season) / "winprob_states.parquet"
+        p = Path(out_root) / "analytics" / "winprob" / str(season) / "winprob_features.parquet"
         p.parent.mkdir(parents=True, exist_ok=True)
         s.reset_index(drop=True).to_parquet(p, index=False)
         paths.append(str(p))
@@ -421,7 +412,7 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     a = parse_args(argv)
     d = load_fixtures(a.seed) if a.fixtures else load_data(a.data)
-    states = build_states(d["playbyplay"], d["games"], d["odds"])
+    states = build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     summary = {"rows": int(len(states)), "games": int(states["game_id"].nunique()),
                "seasons": sorted(states["season"].unique().tolist()), "features": feature_columns(),
                "spread_coverage": float(1 - states["spread_missing"].mean()) if len(states) else 0.0,

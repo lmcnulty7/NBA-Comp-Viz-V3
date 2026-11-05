@@ -6,6 +6,7 @@ generator with the same signatures and column names:
     synth_stints(seed, n_games=20, seasons=("2020-21",), n_players_per_team=9)
         -> dict(stints, playbyplay, games)
     synth_odds(seed, games) -> the section 14 odds table
+    team_names(games=None) -> id -> feed name for the fixture's team ids (empty for the fallback, whose ids are real)
 
 The fallback simulates possessions with a per-team strength so that the home win depends on the running
 margin and the time left; the score string is "away-home" on scoring events and null otherwise (as NBA.com
@@ -19,10 +20,28 @@ import numpy as np
 import pandas as pd
 
 try:
+    from analytics import fixtures as _shared
     from analytics.fixtures import synth_odds, synth_stints  # noqa: F401
     SHARED = True
+
+    def team_names(games=None) -> dict:
+        """id -> feed name of the shared fixtures' synthetic teams (their ids are not stats.nba.com ids): read from
+        the games frame's home_team and away_team codes when given, else the synth_stints scheme
+        (TEAM_ID_BASE + 20 + t -> TEAM_CODES[6 + t])."""
+        codes, base = _shared.TEAM_CODES, _shared.TEAM_ID_BASE
+        out = {base + 20 + t: _shared.TEAM_NAMES[codes[(6 + t) % len(codes)]] for t in range(len(codes))
+               if codes[(6 + t) % len(codes)] in _shared.TEAM_NAMES}
+        if games is not None and {"home_team", "away_team"} <= set(games.columns):
+            for side in ("home", "away"):
+                for tid, code in zip(games[side + "_team_id"], games[side + "_team"]):
+                    if str(code) in _shared.TEAM_NAMES:
+                        out[int(tid)] = _shared.TEAM_NAMES[str(code)]
+        return out
 except ImportError:
     SHARED = False
+
+    def team_names(games=None) -> dict:
+        return {}      # the fallback uses real stats.nba.com ids, which features.TEAM_NAMES knows
 
 from analytics.winprob.features import TEAM_NAMES
 
@@ -191,4 +210,4 @@ if not SHARED:
     synth_stints = _fallback_synth_stints
     synth_odds = _fallback_synth_odds
 
-__all__ = ["synth_stints", "synth_odds", "SHARED", "PBP_COLUMNS", "GAME_COLUMNS", "ODDS_COLUMNS"]
+__all__ = ["synth_stints", "synth_odds", "team_names", "SHARED", "PBP_COLUMNS", "GAME_COLUMNS", "ODDS_COLUMNS"]

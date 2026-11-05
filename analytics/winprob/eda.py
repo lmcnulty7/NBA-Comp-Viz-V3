@@ -1,7 +1,10 @@
 """analytics/winprob/eda.py: the tables of notebooks/eda_winprob.ipynb (no plots; pandas only).
 
 Every function takes the winprob_states frame of analytics.winprob.features.build_states and returns a
-DataFrame. The notebook runs them on the synthetic fixtures, so its output is fixture output, not a result.
+DataFrame. all_tables and main drop the held-out season (default 2024-25) and heldout-flagged rows before any
+table that reads home_win or fits (win rate, spread coverage, shuffled-label check); the margin and time
+distributions read no outcome and cover every season. The notebook runs on the synthetic fixtures, so its
+output is fixture output, not a result.
 
     margin_distribution       quantiles of the margin per time bucket
     time_distribution         rows per period and per time bucket
@@ -107,10 +110,23 @@ def shuffled_label_check(states: pd.DataFrame, seed: int = 0, n_folds: int = 5) 
     return pd.DataFrame(rows)
 
 
-def all_tables(states: pd.DataFrame, seed: int = 0) -> dict:
+DEFAULT_HELDOUT_SEASON = "2024-25"
+
+
+def drop_heldout_season(states: pd.DataFrame, heldout_season: str = DEFAULT_HELDOUT_SEASON) -> pd.DataFrame:
+    """The states without the held-out season and without heldout-flagged rows: every table that reads home_win or
+    fits runs on this frame only, so the held-out season is never looked at before it is scored once."""
+    keep = (states["season"].astype(str) != str(heldout_season)) & ~states["heldout"].astype(bool)
+    return states[keep].reset_index(drop=True)
+
+
+def all_tables(states: pd.DataFrame, seed: int = 0, heldout_season: str = DEFAULT_HELDOUT_SEASON) -> dict:
+    """margin and time distributions over every season (no outcome read); the win rate, spread coverage and
+    shuffled-label tables over the training seasons only (heldout_season dropped first)."""
+    train = drop_heldout_season(states, heldout_season)
     return {"margin_distribution": margin_distribution(states), "time_distribution": time_distribution(states),
-            "win_rate_by_margin_bucket": win_rate_by_margin_bucket(states), "spread_coverage": spread_coverage(states),
-            "shuffled_label_check": shuffled_label_check(states, seed)}
+            "win_rate_by_margin_bucket": win_rate_by_margin_bucket(train), "spread_coverage": spread_coverage(train),
+            "shuffled_label_check": shuffled_label_check(train, seed)}
 
 
 def main(argv=None) -> dict:
@@ -120,10 +136,11 @@ def main(argv=None) -> dict:
     src.add_argument("--fixtures", action="store_true")
     src.add_argument("--data")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--heldout-season", default=DEFAULT_HELDOUT_SEASON)
     a = ap.parse_args(argv)
     d = F.load_fixtures(a.seed) if a.fixtures else F.load_data(a.data)
-    states = F.build_states(d["playbyplay"], d["games"], d["odds"])
-    tabs = all_tables(states, a.seed)
+    states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
+    tabs = all_tables(states, a.seed, a.heldout_season)
     for name, t in tabs.items():
         print("## %s%s\n" % (name, " (fixture output, not a result)" if a.fixtures else ""))
         print(t.to_string(index=False))

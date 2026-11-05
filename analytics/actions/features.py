@@ -56,6 +56,8 @@ from analytics.actions import CLASSES, IOU_MIN
 log = logging.getLogger("analytics.actions.features")
 
 TARGET_HZ = 5.0
+DEFAULT_HZ = 25.0                                    # the contract's frame rate, used when the clock gives no step
+GAP_S = 2.0
 SCREEN_WINDOW_S, SCREEN_DIST_FT, SCREEN_SPEED_FTPS, SCREEN_HANDLER_DIST_FT = 0.8, 4.0, 3.0, 12.0
 SCREEN_N_DEFENDERS = 2                               # the screened man is one of the two defenders nearest the handler
 SCREEN_DEF_HANDLER_FT = 9.0                          # and is guarding him: within this of the handler at the window start
@@ -78,8 +80,8 @@ FEATURES = [
 ]
 POST_WINDOW_FEATURES = ("def_recovery_ft",)
 ID_COLUMNS = ["sportvu_game", "possession", "candidate"]
-CANDIDATE_COLUMNS = ID_COLUMNS + ["start_frame", "end_frame", "rule_class", "ball_handler_id", "screener_id"]
-LABEL_COLUMNS = frozenset({"label_class", "label_iou", "label_action_type", "action_type", "coverage", "label_source",
+CANDIDATE_COLUMNS = ID_COLUMNS + ["start_frame", "end_frame", "rule_class", "ball_handler_id", "screener_id", "screener_proxy_id"]
+LABEL_COLUMNS = frozenset({"label_class", "label_iou", "label_action_type", "label_duplicate", "action_type", "coverage", "label_source",
                            "labeller_pass", "confidence", "pred_class", "p_ball_screen", "p_selected_class",
                            "start_frame", "end_frame", "rule_class"})
 
@@ -202,10 +204,14 @@ def possession_arrays(sub, offense_team_id: int, target_hz: float = TARGET_HZ):
         return None
     uf, first_idx = np.unique(fr, return_index=True)
     clock = sub["game_clock_s"][first_idx]
-    stride = 1
+    hz = DEFAULT_HZ
     if len(uf) > 1:
         step = float(np.nanmedian(np.abs(np.diff(clock))))
-        stride = max(1, int(round(1.0 / (step * target_hz)))) if step > 0 else 1
+        if step > 0 and np.isfinite(step):
+            hz = 1.0 / step
+        else:
+            log.warning("possession at frame %d: median clock step is %r, assuming %g Hz", int(uf[0]), step, DEFAULT_HZ)
+    stride = max(1, int(round(hz / target_hz)))
     keep_idx = np.arange(0, len(uf), stride)
     keep = uf[keep_idx]
     pos = np.searchsorted(keep, fr)
@@ -229,8 +235,10 @@ def possession_arrays(sub, offense_team_id: int, target_hz: float = TARGET_HZ):
 
     off, de = stack(off_ids), stack(def_ids)
     rows5 = first_idx[keep_idx]
-    t = float(clock[0]) - clock[keep_idx]
-    t = np.maximum.accumulate(np.where(np.isfinite(t), t, 0.0))
+    t = (keep - keep[0]) / hz                     # frame-based time; the clock only flags gaps (section 19 gap rule)
+    gaps = np.abs(np.diff(clock)) > GAP_S
+    if gaps.any():
+        log.debug("possession at frame %d: %d clock jump(s) over %g s inside the span", int(uf[0]), int(gaps.sum()), GAP_S)
     ball = np.stack([sub["ball_x"][rows5], sub["ball_y"][rows5], sub["ball_z"][rows5]], axis=1)
     shot_clock = sub["shot_clock_s"][rows5]
     mean_off = np.nanmean(off.reshape(-1, 2), axis=0) if np.isfinite(off).any() else np.array([np.nan, np.nan])
@@ -355,15 +363,23 @@ def _nanmin(x):
     return float(np.nanmin(x)) if np.isfinite(x).any() else float("nan")
 
 
+def screener_proxy(a: PossessionArrays, h: int, d: int, i0: int):
+    """The teammate nearest defender d at frame i0 (the screener stand-in of a drive or isolation candidate)."""
+    mates = [m for m in range(a.off.shape[1]) if m != h]
+    if not mates or d is None or d < 0:
+        return None
+    dd = np.linalg.norm(a.off[i0][mates] - a.de[i0, d], axis=1)
+    return mates[int(np.nanargmin(np.where(np.isfinite(dd), dd, np.inf)))] if np.isfinite(dd).any() else None
+
+
 def candidate_features(a: PossessionArrays, rule_class: str, h: int, s, d: int, i0: int, i1: int) -> dict:
     k = a.off.shape[1]
     if d is None or d < 0:
         d = nearest_defender(a, i0, h)
     mates = [m for m in range(k) if m != h]
     hxy = a.off[i0:i1 + 1, h]
-    if s is None and mates and d >= 0:
-        dd = np.linalg.norm(a.off[i0][mates] - a.de[i0, d], axis=1)
-        s = mates[int(np.nanargmin(np.where(np.isfinite(dd), dd, np.inf)))] if np.isfinite(dd).any() else None
+    if s is None:
+        s = screener_proxy(a, h, d, i0)
     sl = slice(i0, max(i0 + 1, i1))          # intervals inside the window (at least one)
     f = {}
     if s is not None and d >= 0:
@@ -437,16 +453,19 @@ def build(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_game: str | N
             skipped += 1
             continue
         for c, (rule_class, h, s, d, i0, i1, set0, set1) in enumerate(candidate_windows(a)):
+            proxy = s if s is not None else screener_proxy(a, h, d if (d is not None and d >= 0) else nearest_defender(a, set0, h), set0)
             cand_rows.append({"sportvu_game": game, "possession": int(p.possession), "candidate": c,
                               "start_frame": int(a.frames[i0]), "end_frame": int(a.frames[i1]), "rule_class": rule_class,
                               "ball_handler_id": int(a.off_ids[h]),
-                              "screener_id": int(a.off_ids[s]) if s is not None else None})
+                              "screener_id": int(a.off_ids[s]) if s is not None else None,
+                              "screener_proxy_id": int(a.off_ids[proxy]) if proxy is not None else None})
             f = {"sportvu_game": game, "possession": int(p.possession), "candidate": c}
             f.update(candidate_features(a, rule_class, h, s, d, set0, set1))
             feat_rows.append(f)
     cands = pd.DataFrame(cand_rows, columns=CANDIDATE_COLUMNS)
     feats = pd.DataFrame(feat_rows, columns=ID_COLUMNS + FEATURES)
     cands["screener_id"] = cands["screener_id"].astype("Int32")
+    cands["screener_proxy_id"] = cands["screener_proxy_id"].astype("Int32")
     for c in FEATURES:
         feats[c] = feats[c].astype(float)
     schema.assert_time_forward(feats, "possessions")
@@ -465,27 +484,44 @@ def iou_frames(a0, a1, b0, b1) -> float:
 
 def match_labels(cands: pd.DataFrame, actions: pd.DataFrame) -> pd.DataFrame:
     """Candidate table + label_class (ball_screen, drive, isolation, none), label_iou (best IoU with any label of
-    the possession, 0 without labels) and label_action_type (the best-matched label's type at IoU >= IOU_MIN,
-    whatever it is, else None)."""
+    the possession, 0 without labels), label_action_type (the matched label's type, whatever it is, else None)
+    and label_duplicate (the candidate overlaps a label at IoU >= IOU_MIN that a higher-IoU candidate took).
+
+    Matching is one-to-one and greedy: every (label, candidate) pair at IoU >= IOU_MIN is taken in descending
+    IoU order while both sides are free; a label matches at most one candidate and a candidate at most one
+    label. A candidate left over with an overlap is class none and flagged duplicate."""
     out = cands.copy()
-    cls, ious, types = [], [], []
+    n = len(out)
+    cls = np.array(["none"] * n, dtype=object)
+    ious = np.zeros(n)
+    types = np.array([None] * n, dtype=object)
+    dup = np.zeros(n, dtype=bool)
     by = {}
     if actions is not None and len(actions):
-        for r in actions.itertuples(index=False):
-            by.setdefault((str(r.sportvu_game), int(r.possession)), []).append((int(r.start_frame), int(r.end_frame), str(r.action_type)))
-    for r in out.itertuples(index=False):
-        best, best_t = 0.0, None
-        for (s, e, t) in by.get((str(r.sportvu_game), int(r.possession)), []):
+        for li, r in enumerate(actions.itertuples(index=False)):
+            by.setdefault((str(r.sportvu_game), int(r.possession)), []).append((li, int(r.start_frame), int(r.end_frame), str(r.action_type)))
+    pairs = []
+    for ci, r in enumerate(out.itertuples(index=False)):
+        for (li, s, e, t) in by.get((str(r.sportvu_game), int(r.possession)), []):
             v = iou_frames(int(r.start_frame), int(r.end_frame), s, e)
-            if v > best:
-                best, best_t = v, t
-        hit = best >= IOU_MIN
-        types.append(best_t if hit else None)
-        cls.append(best_t if hit and best_t in DETECT_CLASSES else "none")
-        ious.append(best)
+            ious[ci] = max(ious[ci], v)
+            if v >= IOU_MIN:
+                pairs.append((v, li, ci, t))
+    taken_l, taken_c = set(), set()
+    for v, li, ci, t in sorted(pairs, key=lambda x: (-x[0], x[1], x[2])):
+        if li in taken_l or ci in taken_c:
+            continue
+        taken_l.add(li)
+        taken_c.add(ci)
+        types[ci] = t
+        cls[ci] = t if t in DETECT_CLASSES else "none"
+    for v, li, ci, t in pairs:
+        if ci not in taken_c:
+            dup[ci] = True
     out["label_class"] = pd.Series(cls, index=out.index, dtype="object")
-    out["label_iou"] = np.asarray(ious, dtype=float)
+    out["label_iou"] = ious
     out["label_action_type"] = pd.Series(types, index=out.index, dtype="object")
+    out["label_duplicate"] = dup
     return out
 
 

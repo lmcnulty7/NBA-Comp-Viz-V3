@@ -1,6 +1,6 @@
 # Ghosting: defender position from the past five sampled frames (analytics/ghosting/train.py) (fixture output, not a result)
 
-Written 2026-11-05T08:46:01Z by `python -m analytics.ghosting.train --fixtures --games 4 --possessions 6 --heldout-every 4 --folds 5 --seed 0 --bootstrap 200 --report reports/ghosting.md`.
+Written 2026-11-05T09:08:14Z by `python -m analytics.ghosting.train --fixtures --games 4 --possessions 6 --heldout-every 4 --folds 5 --seed 0 --bootstrap 200 --report reports/ghosting.md`.
 
 **Fixture output, not a result.** Every number below comes from synthetic games (tests/_fx_ghosting.py or analytics.fixtures); it shows the pipeline runs end to end and nothing about NBA defenders.
 
@@ -8,12 +8,12 @@ Written 2026-11-05T08:46:01Z by `python -m analytics.ghosting.train --fixtures -
 
 | game | held out | possessions | used | skipped (gap, no offence, short, lineup) | sampled steps |
 | --- | --- | --- | --- | --- | --- |
-| 02.07.2016.OMA.at.DUL | False | 6 | 5 | 1, 0, 0, 0 | 245 |
-| 01.18.2016.HLX.at.LRD | False | 6 | 5 | 1, 0, 0, 0 | 316 |
-| 02.04.2016.GRN.at.QCY | False | 6 | 5 | 1, 0, 0, 0 | 294 |
-| 12.16.2015.PHX.at.GSW | True | 6 | 5 | 1, 0, 0, 0 | 282 |
+| 03.08.2016.GRN.at.HLX | False | 6 | 5 | 1, 0, 0, 0 | 379 |
+| 12.10.2015.GRN.at.DUL | False | 6 | 5 | 1, 0, 0, 0 | 302 |
+| 02.10.2016.QCY.at.FRS | False | 6 | 5 | 1, 0, 0, 0 | 264 |
+| 12.16.2015.PHX.at.GSW | True | 6 | 5 | 1, 0, 0, 0 | 399 |
 
-Training rows: 4050 defender-steps from 3 game(s) (02.07.2016.OMA.at.DUL, 01.18.2016.HLX.at.LRD, 02.04.2016.GRN.at.QCY). Held-out rows set aside before any fit: 1335 from 1 game(s) (12.16.2015.PHX.at.GSW).
+Training rows: 4500 defender-steps from 3 game(s) (03.08.2016.GRN.at.HLX, 12.10.2015.GRN.at.DUL, 02.10.2016.QCY.at.FRS). Held-out rows set aside before any fit: 1920 from 1 game(s) (12.16.2015.PHX.at.GSW).
 Guard: `analytics.eval.refuse_heldout` checked 3 training game ids against sportvu/splits.json; `schema.assert_time_forward` passed on the feature frame (166 columns, 31 lag-1 features, 155 window columns).
 
 ## Protocol
@@ -27,22 +27,22 @@ Metrics: out-of-fold under 3 grouped folds by sportvu_game (seed 0); fewer games
 
 | candidate | 0.2 s error | rows | 1.0 s error | rows |
 | --- | --- | --- | --- | --- |
-| 1 persistence (position at t minus 1) | 1.054 [1.002, 1.173] | 4050 | 4.565 [4.289, 5.143] | 3750 |
-| 2 ridge on the lag-1 features (linear baseline) | 0.600 [0.532, 0.711] | 4050 | 3.852 [3.296, 4.730] | 3750 |
-| 3 MLPRegressor 64x64 on the 5-step window (GRU stand-in) | 0.802 [0.685, 0.864] | 4050 | 4.413 [3.708, 4.814] | 3750 |
+| 1 persistence (position at t minus 1) | 0.952 [0.835, 1.100] | 4500 | 4.015 [3.425, 4.672] | 4200 |
+| 2 ridge on the lag-1 features (linear baseline) | 0.556 [0.535, 0.585] | 4500 | 3.874 [3.356, 4.304] | 4200 |
+| 3 MLPRegressor 64x64 on the 5-step window (GRU stand-in) | 0.864 [0.790, 0.908] | 4500 | 4.968 [4.781, 5.153] | 4200 |
 
 ## Paired bootstrap by game (difference of mean error, feet; negative favours the first)
 
 | pair | horizon | diff | lo | hi | excludes zero |
 | --- | --- | --- | --- | --- | --- |
-| mlp vs ridge | 0.2 s | 0.202 | 0.123 | 0.332 | True |
-| mlp vs ridge | 1.0 s | 0.561 | 0.084 | 1.199 | True |
-| ridge vs persistence | 0.2 s | -0.454 | -0.635 | -0.291 | True |
-| ridge vs persistence | 1.0 s | -0.713 | -1.848 | 0.441 | False |
+| mlp vs ridge | 0.2 s | 0.308 | 0.253 | 0.338 | True |
+| mlp vs ridge | 1.0 s | 1.094 | 0.849 | 1.425 | True |
+| ridge vs persistence | 0.2 s | -0.396 | -0.563 | -0.250 | True |
+| ridge vs persistence | 1.0 s | -0.142 | -1.316 | 0.879 | False |
 
 ## Decision
 
-The deep candidate (3) is **dropped**: its 1.0 s error minus the linear baseline's is 0.561 with paired interval [0.084, 1.199], which excludes zero. The rule is fixed in advance: keep 3 only when the difference is negative and the interval excludes zero. Selected ghost: 2 ridge on the lag-1 features (linear baseline) (fixture output, not a result).
+The deep candidate (3) is **dropped**: its 1.0 s error minus the linear baseline's is 1.094 with paired interval [0.849, 1.425], which excludes zero. The rule is fixed in advance: keep 3 only when the difference is negative and the interval excludes zero. Selected ghost: 2 ridge on the lag-1 features (linear baseline) (fixture output, not a result).
 
 ## Validation: graded deviation against points allowed (out-of-fold rows, selected ghost, 1.0 s horizon)
 
@@ -50,27 +50,27 @@ deviation_ft = distance(actual, assignment) minus distance(ghost, assignment); p
 
 | game | possessions | Spearman |
 | --- | --- | --- |
-| 01.18.2016.HLX.at.LRD | 5 | 0.354 |
-| 02.04.2016.GRN.at.QCY | 5 | 0.000 |
-| 02.07.2016.OMA.at.DUL | 5 | 0.000 |
+| 02.10.2016.QCY.at.FRS | 5 | -0.289 |
+| 03.08.2016.GRN.at.HLX | 5 | 0.447 |
+| 12.10.2015.GRN.at.DUL | 5 | n/a |
 
-Sign test: 1 positive, 0 negative, 2 zero; one-sided p = 0.5000 (fixture output, not a result).
+Sign test: 1 positive, 1 negative, 0 zero; one-sided p = 0.7500 (fixture output, not a result).
 
-## Held-out games (scored once by the candidates refit on all 4050 training rows; never fitted or tuned on)
+## Held-out games (scored once by the candidates refit on all 4500 training rows; never fitted or tuned on)
 
-1335 defender-steps from 1 held-out game(s): 12.16.2015.PHX.at.GSW.
+1920 defender-steps from 1 held-out game(s): 12.16.2015.PHX.at.GSW.
 
 | candidate | 0.2 s error | 1.0 s error |
 | --- | --- | --- |
-| 1 persistence (position at t minus 1) | 1.065 | 4.568 |
-| 2 ridge on the lag-1 features (linear baseline) | 0.629 | 4.680 |
-| 3 MLPRegressor 64x64 on the 5-step window (GRU stand-in) | 0.948 | 5.380 |
+| 1 persistence (position at t minus 1) | 0.870 | 3.584 |
+| 2 ridge on the lag-1 features (linear baseline) | 0.524 | 3.623 |
+| 3 MLPRegressor 64x64 on the 5-step window (GRU stand-in) | 0.706 | 4.103 |
 
 Held-out numbers are point estimates (no bootstrap over 1 game(s)). Held-out sign test: 1 positive, 0 negative, p = 0.5000.
 
 ## Tables
 
-ghost_frames: 10370 rows; ghost_possessions: 20 rows (docs/contract/ghosting.md).
+ghost_frames: 12440 rows; ghost_possessions: 20 rows (docs/contract/ghosting.md).
 
 ## Assumptions and what needs real data
 
@@ -81,6 +81,6 @@ ghost_frames: 10370 rows; ghost_possessions: 20 rows (docs/contract/ghosting.md)
 
 ## Next on the Mac
 
-    python -m analytics.ghosting.train --data "<Drive>/nba_harvest" --report reports/ghosting.md --folds 5 --seed 0 --bootstrap 1000 --out "<Drive>/nba_harvest/analytics"
+    python -m analytics.ghosting.train --data "<Drive>/nba_harvest" --report reports/ghosting.md --folds 5 --seed 0 --bootstrap 1000 --out "<Drive>/nba_harvest"
 
 Torch GRU note: the deep candidate here is sklearn's MLPRegressor over the flattened 5-step window because torch is not installed in the build container. The window columns are ordered lag 1 first, so `X.reshape(n, 5, 31)` is the (batch, time, features) tensor a `torch.nn.GRU` consumes (reverse the time axis for oldest-first); it replaces `fit_mlp` with no change to the features, the roll-forward or the decision rule, and is kept under the same paired-bootstrap test.

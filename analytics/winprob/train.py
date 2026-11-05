@@ -49,7 +49,7 @@ SELECTION_BUCKETS = tuple(b[0] for b in F.BUCKETS)
 INNER_FOLDS = 3
 MAC_CMD = ("python -m analytics.winprob.train --data \"$DATA_ROOT\" --out \"$DATA_ROOT\" --report reports/winprob.md "
            "--seed 0 --bootstrap 1000 --folds 5 --heldout-season 2024-25")
-FIT_LOG: list = []      # every fit appends (model, sorted training game ids); tests read it
+FIT_LOG: list = []      # every fit appends (models, sorted training game ids); inner isotonic fits log as ("hgb_inner",)
 SLOPE_RIDGE, SLOPE_ITER = 1e-6, 50
 
 
@@ -152,6 +152,7 @@ def fit_hgb_iso(train: pd.DataFrame, seed: int = 0):
     if k >= 2:
         for tr_g, te_g in grouped_folds(uniq, n_folds=k, seed=seed):
             te = np.isin(games, te_g)
+            FIT_LOG.append((("hgb_inner",), sorted(set(games[~te].tolist()))))
             if len(np.unique(y[~te])) < 2:
                 oof[te] = float(y[~te].mean())
                 continue
@@ -377,6 +378,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "- The possession indicator is read from event kinds and is null when the events so far do not say.",
           "- The interaction is margin times sqrt(seconds remaining), as specified; the logistic model also sees margin and time on their own.",
           "- On the fixtures the boosted candidate loses to the logistic one because the spread is nearly unique per game among a few dozen games and the trees memorise games through it; the selection rule picks the logistic candidate. This is a fixture artefact to re-check on the real seasons, where many games share a spread value.",
+          "- The HGB hyperparameters (depth 3, 50 rounds, 200 rows per leaf, L2 1.0) were set after seeing the fixture memorise games through the spread (a first setting of 15 leaves and 40 rows per leaf scored worse than the constant out of fold). They were chosen on fixture data, not on any real season, and the held-out season was not involved.",
+          "- The closing spread join is analytics.betting.validate's (per-book latest pre-tip is_close snapshot, median over books, both team keys, tip date shifted 8 h to US local with one day of tolerance); the games table's spread_home is used only when no odds table exists.",
           "- The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.",
           ""]
     text = "\n".join(L)
@@ -404,8 +407,9 @@ def parse_args(argv=None):
 
 def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_root=None, fixtures: bool = False,
         command: str = "", report: str | None = None) -> dict:
-    states = F.build_states(d["playbyplay"], d["games"], d["odds"])
-    viol = F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=2, cuts=2, seed=seed)
+    states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
+    viol = F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=2, cuts=2, seed=seed,
+                                          team_names=d.get("team_names"))
     if viol:
         raise SystemExit("%s: a feature changed when the play-by-play was cut: %s" % (WHO, viol[:3]))
     train, heldout = split_seasons(states, heldout_season)

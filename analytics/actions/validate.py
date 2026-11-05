@@ -102,10 +102,31 @@ TRAINING_PASS = 1
 def load_hand_labels(root, game: str, labeller_pass: int = TRAINING_PASS) -> dict:
     """The hand labels of ``game`` through the sanctioned reader analytics.labels.read_labels: the last line per
     id wins, tombstoned (deleted) ids are dropped, and only ``labeller_pass`` (1, the first pass) is kept, so
-    the pass-2 relabels of the consistency check never reach a fit. Never reads the raw lines."""
+    the pass-2 relabels of the consistency check never reach a fit. Never reads the raw lines. Rows whose
+    label_source is "model" (a detector's output written back as labels) are dropped and counted
+    (``dropped_model_rows``), so a model never trains on its own detections."""
     from analytics.labels import read_labels
     actions, screens = read_labels(root, game, labeller_pass=labeller_pass)
-    return {"actions": actions, "screens": screens, "labeller_pass": labeller_pass}
+    model_rows = actions["label_source"].astype(str).eq("model") if len(actions) else pd.Series([], dtype=bool)
+    if model_rows.any():
+        log.warning("%s: %d action label(s) with label_source model dropped before matching", game, int(model_rows.sum()))
+        keep_ids = set(actions.loc[~model_rows, "action_id"].astype(int))
+        actions = actions.loc[~model_rows].reset_index(drop=True)
+        screens = screens[screens["action_id"].astype(int).isin(keep_ids)].reset_index(drop=True) if len(screens) else screens
+    return {"actions": actions, "screens": screens, "labeller_pass": labeller_pass, "dropped_model_rows": int(model_rows.sum())}
+
+
+def load_visited(root, game: str, labeller_pass: int = TRAINING_PASS):
+    """The possessions ``labeller_pass`` visited (analytics.labels.read_visited): a set of possession ids, or None
+    when the game has no visited file. A possession outside the set is unlabelled, not negative: the trainer keeps
+    only candidates of visited possessions for games that have the file."""
+    from analytics.labels import read_visited, visited_path
+    if not Path(visited_path(root, game)).exists():
+        return None
+    v = read_visited(root, game)
+    if len(v) == 0:
+        return set()
+    return set(int(x) for x in v.loc[v["labeller_pass"] == int(labeller_pass), "possession"])
 
 
 def write_labels_jsonl(path, actions: pd.DataFrame, screens: pd.DataFrame) -> int:
@@ -339,8 +360,12 @@ def fixture_source() -> str:
 
 
 def load_fixture_games(seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 24) -> list:
-    """Synthetic games with labels: analytics.fixtures when importable, else the fallback of tests/_fx_actions.py."""
-    return _fx().season_games(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    """Synthetic games with labels: analytics.fixtures when importable, else the fallback of tests/_fx_actions.py.
+    Every possession of a fixture game counts as visited (the generator labelled all of them)."""
+    games = _fx().season_games(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    for g in games:
+        g.setdefault("visited", set(int(x) for x in g["possessions"]["possession"]))
+    return games
 
 
 def discover_games(root) -> list:
@@ -372,7 +397,7 @@ def load_game(root, game: str, heldout: bool) -> dict:
     rosters = pd.read_parquet(rpath) if rpath.exists() else None
     labels = load_hand_labels(root, game)
     return {"sportvu_game": game, "heldout": bool(heldout), "frames": frames, "possessions": poss, "rosters": rosters,
-            "labels": labels}
+            "labels": labels, "visited": load_visited(root, game)}
 
 
 def load_data_root(root) -> list:
