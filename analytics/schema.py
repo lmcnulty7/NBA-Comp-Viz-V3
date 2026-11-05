@@ -150,6 +150,20 @@ TARGET_COLUMNS: dict[str, set[str]] = {
     "states_1hz": {"points_to_end", "possession_end_kind"},
 }
 
+# Columns measured at or after the outcome: excluded from feature frames exactly like targets.
+POST_OUTCOME: dict[str, set[str]] = {
+    "rosters": set(),
+    "shot_frames": {"apex_frame", "outcome_frame", "pbp_shooter_name"},
+    "rebound_frames": {"rebound_frame"},
+    "possessions": {"end_frame", "end_clock_s", "end_event", "n_frames"},
+    "states_1hz": set(),
+}
+
+# Every target and post-outcome column of every table. assert_time_forward checks against this
+# union, so a feature frame built for one table cannot carry another table's labels either.
+ALL_EXCLUDED: frozenset = frozenset(
+    set().union(*TARGET_COLUMNS.values()).union(*POST_OUTCOME.values()))
+
 # Identifier columns: join keys, never features.
 ID_COLUMNS: frozenset = frozenset(
     {"sportvu_game", "event", "rebound_event", "possession", "frame", "player_id", "shooter_id"})
@@ -187,23 +201,25 @@ def schema(table: str) -> pa.Schema:
 
 
 def feature_allowlist(table: str) -> list[str]:
-    """Columns of ``table`` that are neither targets nor ids, in contract order."""
+    """Columns of ``table`` that are neither targets, post-outcome columns nor ids, in contract order."""
     _check_table(table)
-    targets = TARGET_COLUMNS[table]
-    return [c for c in TABLES[table] if c not in targets and c not in ID_COLUMNS]
+    excluded = TARGET_COLUMNS[table] | POST_OUTCOME[table]
+    return [c for c in TABLES[table] if c not in excluded and c not in ID_COLUMNS]
 
 
 def assert_time_forward(df: pd.DataFrame, table: str) -> None:
-    """Leakage guard: raise ValueError naming every target column of ``table`` present in ``df``.
+    """Leakage guard: raise ValueError naming every target or post-outcome column present in ``df``.
 
-    Every trainer calls this on its feature frame before fitting.
+    The check is against ``ALL_EXCLUDED``, the union over all five tables, so a ``states_1hz``
+    feature frame holding ``points`` or ``made`` raises too. Every trainer calls this on its
+    feature frame before fitting.
     """
     _check_table(table)
-    leaked = [c for c in df.columns if c in TARGET_COLUMNS[table]]
+    leaked = [c for c in df.columns if c in ALL_EXCLUDED]
     if leaked:
         raise ValueError(
-            f"feature frame for {table!r} holds target column(s) {leaked}; "
-            "targets are never features (docs/DATA_CONTRACT.md section 20)")
+            f"feature frame for {table!r} holds target or post-outcome column(s) {leaked}; "
+            "these are never features (docs/DATA_CONTRACT.md section 20)")
 
 
 def table_path(root, table: str, season: str, sportvu_game: str, heldout: bool = False) -> Path:
@@ -336,7 +352,8 @@ def validate(df: pd.DataFrame, table: str) -> list[str]:
 
 
 __all__ = [
-    "TABLES", "NULLABLE", "ENUMS", "TARGET_COLUMNS", "ID_COLUMNS", "NOT_FOUND",
+    "TABLES", "NULLABLE", "ENUMS", "TARGET_COLUMNS", "POST_OUTCOME", "ALL_EXCLUDED", "ID_COLUMNS",
+    "NOT_FOUND",
     "END_KINDS", "CONFIDENCE_FLAGS", "MATCH_METHODS",
     "columns", "is_nullable", "schema", "feature_allowlist", "assert_time_forward", "table_path",
     "pandas_dtypes", "cast", "empty", "validate",
