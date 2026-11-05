@@ -7,6 +7,18 @@ Unit: the game state at each play-by-play event of the multi-season play-by-play
     OUT_ROOT/analytics/winprob/<season>/winprob_states.parquet
     OUT_ROOT/analytics/winprob/<season>/winprob_calibration.parquet
 
+`python -m analytics.winprob.features --data DATA_ROOT --out OUT_ROOT` writes the full feature frame beside them as
+`OUT_ROOT/analytics/winprob/<season>/winprob_features.parquet` (the keys, the FEATURES columns, time_bucket, heldout
+and home_win; never the final score), which the trainer does not overwrite.
+
+CLI (each module also exposes main(argv=None); --fixtures runs on tests/_fx_winprob.py and its output is never a result):
+
+    python -m analytics.winprob.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+    python -m analytics.winprob.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+    python -m analytics.winprob.eda      --fixtures | --data DATA_ROOT [--seed 0] [--heldout-season 2024-25]
+    python -m analytics.winprob.train    --fixtures | --data DATA_ROOT --report reports/winprob.md [--out OUT_ROOT]
+                                         [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
+
 A held-out season (default 2024-25) is written like the others with `heldout = true` and `fold = -1`; its rows
 were scored once by the selected candidate refit on every training row. The 2015-16 games of
 sportvu/splits.json never fit anything and never appear here.
@@ -25,7 +37,7 @@ events of the same game up to and including the row and of the pre-game odds; th
 | `seconds_remaining` | float32 | seconds left in regulation after periods 1 to 4 ((4 - period) * 720 + clock_s); in overtime the seconds left in the current overtime period |
 | `margin` | int16 | home score minus away score after the event (running score forward-filled, 0 before the first scoring event) |
 | `possession` | int8, nullable | 1 when the home team has the ball after the event, 0 when the away team has it, null when the events so far do not say |
-| `spread` | float32, nullable | the closing spread of the home side from the odds table (section 14; negative when the home team is favoured), null when the game has none |
+| `spread` | float32, nullable | the closing spread of the home side from the odds table (section 14) through analytics.betting.validate (per-book latest pre-tip is_close snapshot, median over books, joined on both team keys and the US local tip date), negative when the home team is favoured; null when the game has none; the games table's spread_home only when there is no odds table |
 | `p_home_win` | float32 | the selected candidate's probability that the home team wins, out-of-fold for training seasons, once-scored for the held-out season |
 | `home_win` | bool | the target: the home team won |
 | `fold` | int8 | the grouped fold (by game) whose test side the row was predicted on; -1 for the held-out season |
@@ -59,7 +71,9 @@ out-of-fold Brier score under grouped folds by game within the training seasons.
 bucket carry bootstrap intervals by game; log loss overall. The held-out season is scored once by the selected
 candidate. Guards: analytics.eval.refuse_heldout on the training game ids, analytics.schema.assert_time_forward on
 the design matrix, a name allowlist (analytics.winprob.features.assert_no_leak) and a value check
-(prefix_invariance_violations: a feature at event k is unchanged when the play-by-play is cut after k).
+(prefix_invariance_violations: a feature at event k is unchanged when the play-by-play is cut after k and the games
+row's finals and outcome are scrambled). The games table's home_score, away_score and home_win are dropped before any
+feature is built; the target is mapped onto the states afterwards.
 
 Benchmark: the NBA.com WinProbabilityPBP endpoint is unreachable, so the benchmark column of reports/winprob.md
 stays empty until it exists; it would join winprob_states on (game_id, event).

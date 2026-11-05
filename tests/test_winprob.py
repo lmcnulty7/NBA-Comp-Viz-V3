@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from analytics import schema                                     # noqa: E402
 from analytics.winprob import eda, features as F, train as T, validate as V   # noqa: E402
-from tests._fx_winprob import synth_odds, synth_stints          # noqa: E402
+from tests._fx_winprob import synth_odds, synth_stints, team_names   # noqa: E402
 
 SEASONS = ("2020-21", "2021-22", "2024-25")
 HELD = "2024-25"
@@ -25,12 +25,13 @@ HELD = "2024-25"
 @pytest.fixture(scope="module")
 def data():
     d = synth_stints(0, n_games=8, seasons=SEASONS)
-    return {"playbyplay": d["playbyplay"], "games": d["games"], "odds": synth_odds(0, d["games"]), "files": ["<fixtures>"]}
+    return {"playbyplay": d["playbyplay"], "games": d["games"], "odds": synth_odds(0, d["games"]), "files": ["<fixtures>"],
+            "team_names": team_names(d["games"])}
 
 
 @pytest.fixture(scope="module")
 def states(data):
-    return F.build_states(data["playbyplay"], data["games"], data["odds"])
+    return F.build_states(data["playbyplay"], data["games"], data["odds"], data["team_names"])
 
 
 @pytest.fixture(scope="module")
@@ -58,7 +59,7 @@ def test_fixture_is_deterministic_and_the_home_win_follows_the_final_margin(data
 
 # ── validate ───────────────────────────────────────────────────────────────────────────────────────
 def test_validate_passes_the_fixture_and_counts_injected_defects(data):
-    res = V.validate(data["playbyplay"], data["games"], data["odds"])
+    res = V.validate(data["playbyplay"], data["games"], data["odds"], data["team_names"])
     assert res["ok"], res["problems"]
     assert res["counts"]["games"] == 24 and res["counts"]["duplicate_events"] == 0
     assert 0 < res["counts"]["spread_coverage"] <= 1
@@ -68,11 +69,13 @@ def test_validate_passes_the_fixture_and_counts_injected_defects(data):
     j = bad.index[bad["score"].notna()][20]
     bad.loc[j, "score"] = "0-0"
     bad.loc[bad.index[3], "clock_s"] = 800.0
+    k = bad.index[-1]
+    bad.loc[k, ["period", "clock_s"]] = [5, 400.0]      # an overtime clock above 300 s
     bad = pd.concat([bad, bad.iloc[[7]]], ignore_index=True)
     res = V.validate(bad, data["games"], data["odds"])
     assert not res["ok"]
     c = res["counts"]
-    assert c["score_unparsed"] == 1 and c["score_decreases"] >= 1 and c["clock_out_of_range"] == 1 and c["duplicate_events"] == 1
+    assert c["score_unparsed"] == 1 and c["score_decreases"] >= 1 and c["clock_out_of_range"] == 2 and c["duplicate_events"] == 1
     assert any(p.startswith("monotone") for p in res["problems"])
 
 
@@ -91,30 +94,64 @@ def test_states_are_time_forward_and_well_formed(states, data):
     sp = states.drop_duplicates("game_id")
     assert (sp["spread_missing"] == sp["spread_home"].isna().astype(int)).all()
     assert sp["spread_missing"].mean() < 1
-    # the closing spread agrees with the games table's pre-game spread within a book's half-point jitter
+    # the closing spread came from the odds table through the betting join (per-book pre-tip close, median over books)
     g = data["games"].set_index("game_id")["spread_home"].astype(float)
     have = sp[sp["spread_missing"] == 0]
     both = g.loc[have["game_id"]].notna().to_numpy()
-    assert both.any() and np.nanmax(np.abs(have["spread_home"].to_numpy()[both] - g.loc[have["game_id"]].to_numpy()[both])) <= 1.5
-    # a game without any spread gets null and the flag, from the odds alone or from the games column
+    assert both.sum() >= 3 and np.nanmax(np.abs(have["spread_home"].to_numpy()[both] - g.loc[have["game_id"]].to_numpy()[both])) <= 1.5
+    # with an odds table the games column is never read: a game absent from the odds is null with the flag
     gid = sp["game_id"].iloc[0]
-    g2 = data["games"].copy()
-    g2.loc[g2["game_id"] == gid, "spread_home"] = np.nan
-    o2 = data["odds"]
-    o2 = o2[~o2["game_key"].astype(str).str.startswith(str(g2.loc[g2["game_id"] == gid, "game_date"].iloc[0]))]
-    s2 = F.build_states(data["playbyplay"][data["playbyplay"]["game_id"] == gid], g2[g2["game_id"] == gid], o2)
+    hk = F.TEAM_NAMES.get(int(data["games"].set_index("game_id").loc[gid, "home_team_id"]), None) or data["team_names"].get(
+        int(data["games"].set_index("game_id").loc[gid, "home_team_id"]))
+    o2 = data["odds"][~(data["odds"]["home_team"].astype(str) == str(hk))]
+    s2 = F.build_states(data["playbyplay"][data["playbyplay"]["game_id"] == gid], data["games"][data["games"]["game_id"] == gid], o2,
+                        data["team_names"])
     assert s2["spread_home"].isna().all() and (s2["spread_missing"] == 1).all()
+    # without any odds table the games column is the fallback
+    s3 = F.build_states(data["playbyplay"][data["playbyplay"]["game_id"] == gid], data["games"][data["games"]["game_id"] == gid], None)
+    assert np.allclose(s3["spread_home"].to_numpy(), float(g.loc[gid]), equal_nan=True)
     X = F.design(states)
     assert "possession_missing" in X.columns and not X.isna().any().any()
-    assert F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], n_games=2, cuts=2) == []
+    assert F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], n_games=2, cuts=2,
+                                          team_names=data["team_names"]) == []
+
+
+def test_overtime_seconds_and_buckets():
+    assert F.seconds_remaining([1, 4, 5, 6], [720, 30, 300, 12]).tolist() == [2880, 30, 300, 12]
+    ot = (np.array([1, 4, 5, 6]) > 4).astype(int)
+    assert F.time_bucket(F.seconds_remaining([1, 4, 5, 6], [720, 30, 300, 12]), ot).tolist() == ["48-36", "4-0", "OT", "OT"]
+
+
+def test_closing_spreads_land_on_the_right_games_with_real_ids_and_utc_tips():
+    # two games on the same date (a date-only match cannot tell them apart) and a tip after midnight UTC
+    games = pd.DataFrame({"game_id": ["g1", "g2", "g3"], "season": ["2023-24"] * 3,
+                          "game_date": ["2024-01-05", "2024-01-05", "2024-01-06"],
+                          "home_team_id": [1610612744, 1610612738, 1610612747], "away_team_id": [1610612747, 1610612748, 1610612744],
+                          "home_win": [True, False, True]})
+    def rows(key, commence, home, away, point, snap, close):
+        return [{"game_key": key, "commence_time": commence, "home_team": home, "away_team": away, "book": "pinnacle",
+                 "market": "spreads", "side": side, "point": pt, "price": -110, "snapshot_at": snap, "is_close": close,
+                 "source": "the-odds-api.com", "endpoint": "historical/odds", "season": "2023-24", "fetched_at": "x"}
+                for side, pt in ((home, point), (away, -point))]
+    odds = pd.DataFrame(
+        rows("2024-01-06_LosAngelesLakers_GoldenStateWarriors", "2024-01-06T03:00:00Z", "Golden State Warriors", "Los Angeles Lakers", -4.5, "2024-01-06T02:30:00Z", True)
+        + rows("2024-01-06_LosAngelesLakers_GoldenStateWarriors", "2024-01-06T03:00:00Z", "Golden State Warriors", "Los Angeles Lakers", -3.0, "2024-01-05T12:00:00Z", False)
+        + rows("2024-01-06_MiamiHeat_BostonCeltics", "2024-01-06T00:30:00Z", "Boston Celtics", "Miami Heat", -7.0, "2024-01-06T00:00:00Z", True)
+        + rows("2024-01-07_GoldenStateWarriors_LosAngelesLakers", "2024-01-07T03:30:00Z", "Los Angeles Lakers", "Golden State Warriors", 2.5, "2024-01-07T03:00:00Z", True))
+    sp = F.closing_spreads(odds, games)
+    assert sp.loc["g1"] == -4.5 and sp.loc["g2"] == -7.0 and sp.loc["g3"] == 2.5
+    # a snapshot after the tip is never the closing line
+    late = odds.copy()
+    late.loc[late["game_key"].str.endswith("BostonCeltics"), "snapshot_at"] = "2024-01-06T05:00:00Z"
+    assert np.isnan(F.closing_spreads(late, games).loc["g2"])
 
 
 def test_possession_indicator_reads_only_the_events_so_far():
-    kind = ["period_start", "jump_ball", "shot_made", "shot_missed", "rebound", "turnover", "ft_made", "ft_made", "ft_missed", "rebound"]
-    team = [None, "home", "home", "away", "away", "away", "home", "home", "away", "home"]
-    desc = ["", "", "", "MISS", "", "", "Free Throw 1 of 2", "Free Throw 2 of 2", "Free Throw 1 of 1 MISS", ""]
-    out = F.possession_after(kind, team, desc, [1] * 10)
-    exp = [np.nan, 1, 0, np.nan, 0, 1, 1, 0, np.nan, 1]
+    kind = ["period_start", "jump_ball", "shot_made", "shot_missed", "rebound", "turnover", "ft_made", "ft_made", "ft_missed", "rebound", "ft_made"]
+    team = [None, "home", "home", "away", "away", "away", "home", "home", "away", "home", "away"]
+    desc = ["", "", "", "MISS", "", "", "Free Throw 1 of 2", "Free Throw 2 of 2", "Free Throw 1 of 1 MISS", "", "Free Throw Technical"]
+    out = F.possession_after(kind, team, desc, [1] * 11)
+    exp = [np.nan, 1, 0, np.nan, 0, 1, 1, 0, np.nan, 1, 1]
     assert np.allclose(out, exp, equal_nan=True)
 
 
@@ -128,15 +165,36 @@ def test_a_feature_built_from_the_final_margin_is_caught(data):
         schema.assert_time_forward(pd.DataFrame({"margin": [0.0], "points": [2]}), "states_1hz")
 
     # by value: a builder that smuggles the final margin into a feature changes when the play-by-play is cut
-    def leaky(pbp, games, odds=None):
-        s = F.build_states(pbp, games, odds)
+    # (team_names go along because the betting join infers unknown fixture ids from date co-occurrence, which a
+    # one-game cut cannot do; the real ids need none)
+    tn = data["team_names"]
+
+    def leaky(pbp, games, odds=None, **kw):
+        s = F.build_states(pbp, games, odds, **kw)
         final = F.games_from_playbyplay(pbp).set_index("game_id")
         fm = s["game_id"].map(final["home_score"] - final["away_score"]).astype(float)
         s["margin_x_sqrt_time"] = fm * np.sqrt(s["seconds_remaining"])
         return s
-    v = F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], build=leaky, n_games=2, cuts=2)
+    v = F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], build=leaky, n_games=2, cuts=2, team_names=tn)
     assert v and all(c == "margin_x_sqrt_time" for _, _, c in v)
-    assert F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], n_games=2, cuts=2) == []
+
+    # games-table variant: a feature read from the games row's final score under a benign name is caught too,
+    # because the probe scrambles the finals of the games row it passes
+    def leaky_games(pbp, games, odds=None, **kw):
+        s = F.build_states(pbp, games, odds, **kw)
+        fm = games.set_index(games["game_id"].astype(str))
+        s["seconds_remaining"] = s["seconds_remaining"] + s["game_id"].map(fm["home_score"] - fm["away_score"]).astype(float) * 0.001
+        return s
+    v = F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], build=leaky_games, n_games=2, cuts=2, team_names=tn)
+    assert v and all(c in ("seconds_remaining", "margin_x_sqrt_time") for _, _, c in v)
+    # and the states frame itself never carries the finals
+    assert not ({"home_score", "away_score"} & set(states_cols(data)))
+    assert F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], n_games=2, cuts=2,
+                                          team_names=data["team_names"]) == []
+
+
+def states_cols(data):
+    return F.build_states(data["playbyplay"].head(60), data["games"], data["odds"], data["team_names"]).columns
 
 
 # ── train ──────────────────────────────────────────────────────────────────────────────────────────
@@ -168,11 +226,16 @@ def test_season_split_holds_a_whole_season_out_and_scores_it_once(run, states):
     held_ids = set(states.loc[states["season"] == HELD, "game_id"])
     assert held_ids and run["heldout_games"] == len(held_ids)
     for models, ids in run["fit_log"]:
-        assert not (set(ids) & held_ids), "a held-out season game reached a fit"
-    # 3 outer folds, then exactly one refit on all training rows for the single held-out scoring
-    assert len(run["fit_log"]) == 4
-    last_models, last_ids = run["fit_log"][-1]
+        assert not (set(ids) & held_ids), "a held-out season game reached a fit (%s)" % (models,)
+    outer = [e for e in run["fit_log"] if e[0] != ("hgb_inner",)]
+    inner = [e for e in run["fit_log"] if e[0] == ("hgb_inner",)]
+    # 3 outer folds (each with 3 inner isotonic fits), then exactly one refit on all training rows for the single
+    # held-out scoring (with its inner fits only when the boosted candidate was selected)
+    assert len(outer) == 4 and len(inner) == 3 * 3 + (3 if run["selected"] == "hgb_iso" else 0)
+    last_models, last_ids = outer[-1]
     assert last_models == (run["selected"],) and set(last_ids) == set(states.loc[states["season"] != HELD, "game_id"])
+    train_ids = set(states.loc[states["season"] != HELD, "game_id"])
+    assert all(set(ids) < train_ids for _, ids in inner)
     assert set(run["train_seasons"]) == set(SEASONS) - {HELD}
     assert run["heldout_rows"] == int((states["season"] == HELD).sum())
     assert run["heldout_scores"]["4-0"]["n"] > 0
@@ -195,10 +258,12 @@ def test_split_refuses_2015_16_and_drops_heldout_flagged_rows(states):
 
 
 # ── eda and clis ───────────────────────────────────────────────────────────────────────────────────
-def test_eda_tables(states):
-    t = eda.all_tables(states, seed=0)
+def test_eda_tables_never_read_the_held_out_season(states):
+    t = eda.all_tables(states, seed=0, heldout_season=HELD)
     assert set(t) == {"margin_distribution", "time_distribution", "win_rate_by_margin_bucket", "spread_coverage", "shuffled_label_check"}
-    assert len(t["spread_coverage"]) == len(SEASONS)
+    assert set(t["spread_coverage"]["season"]) == set(SEASONS) - {HELD}
+    assert int(t["shuffled_label_check"]["rows"].iloc[0]) == int((states["season"] != HELD).sum())
+    assert int(t["win_rate_by_margin_bucket"].filter(like="n_").sum().sum()) == int((states["season"] != HELD).sum())
     sh = t["shuffled_label_check"].set_index("labels")
     assert sh.loc["shuffled labels (across games)", "brier_oof_logistic"] > sh.loc["real labels", "brier_oof_logistic"]
     assert sh.loc["shuffled labels (across games)", "brier_oof_logistic"] > 0.2
@@ -209,6 +274,8 @@ def test_cli_mains_on_fixtures(tmp_path, capsys):
     assert res["ok"] and (tmp_path / "analytics" / "winprob" / "validate.json").exists()
     summ = F.main(["--fixtures", "--out", str(tmp_path)])
     assert summ["rows"] > 0 and len(summ["written"]) == 2
+    assert all(Path(w).name == "winprob_features.parquet" for w in summ["written"])
+    assert "home_score" not in pd.read_parquet(summ["written"][0]).columns
     capsys.readouterr()
 
 

@@ -13,8 +13,8 @@ Tables:
     correlation_table             Pearson correlation of each feature with the target and with dist_basket_ft
     shuffled_y_check              ridge out of fold by game on the real target and on a permuted target: the
                                   permuted run should sit at R2 about 0 (a leak would score well on both)
-The shooting prior in run() comes from every game's shots (exploration, not a fit that is reported); the
-trainer attaches it per fold.
+The correlation table uses the zone prior from every game's shots (exploration, not a fit); the shuffled-y
+check attaches the prior per fold from the training-fold games' shots, as the trainer does.
 """
 from __future__ import annotations
 
