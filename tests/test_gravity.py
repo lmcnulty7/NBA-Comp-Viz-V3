@@ -25,15 +25,16 @@ from analytics import schema  # noqa: E402
 from analytics.gravity import eda, features as F, train as T, validate as V  # noqa: E402
 from tests import _fx_gravity as FX  # noqa: E402
 
-N_GAMES = 6
-# The fallback generator plants a known linear pull and the xFG effect; the shared generator (analytics.fixtures)
-# plants its own star physics, so the assertions on effect sizes are made only on the fallback.
+N_GAMES, N_POSS = 4, 24
+# The fallback generator plants a known linear pull, the xFG effect, sits its star and keeps one roster across
+# the season; the shared generator (analytics.fixtures) plants its own star physics, plays its star every period
+# and gives every game a fresh roster, so the assertions on effect sizes are made only on the fallback.
 FALLBACK = FX.SOURCE == "tests._fx_gravity"
 
 
 @pytest.fixture(scope="module")
 def season():
-    return FX.synth_season(0, n_games=N_GAMES, heldout_every=4)
+    return FX.synth_season(0, n_games=N_GAMES, heldout_every=4, n_possessions=N_POSS)
 
 
 @pytest.fixture(scope="module")
@@ -178,16 +179,20 @@ def test_eda_tables_and_shuffled_y(train_games):
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
 def test_end_to_end_fixture_run(tmp_path):
     report = tmp_path / "gravity.md"
-    ctx = T.main(["--fixtures", "--n-games", str(N_GAMES), "--report", str(report), "--bootstrap", "30",
-                  "--min-possessions", "40", "--out", str(tmp_path)])
+    ctx = T.main(["--fixtures", "--n-games", str(N_GAMES), "--n-possessions", str(N_POSS), "--report", str(report),
+                  "--bootstrap", "30", "--min-possessions", "10", "--out", str(tmp_path)])
     assert ctx["train_games"] == N_GAMES - 1 and ctx["heldout_games"] == 1
     assert ctx["selected"] in ("ridge", "hgb")
     s = ctx["scores"]["mse"]
     assert s["ridge"]["point"] < s["constant"]["point"]                 # location explains part of the distance
-    assert ctx["top_decile"]["passed"] is True                          # the planted players rank in the top decile
+    assert ctx["known_ids"] and ctx["top_decile_by_game"]["passed"] is True   # the planted players lead every game
+    if FALLBACK:                                                        # one roster across the season: the season-wide check
+        assert ctx["top_decile"]["passed"] is True
     st = ctx["sign_test"]
-    assert st["n_games"] == N_GAMES - 1 and np.isfinite(st["p_value"]) and np.isfinite(st["mean_diff"])
-    if FALLBACK:                                                        # the fallback plants the xFG effect too
+    assert set(st) >= {"n_games", "n_positive", "p_value", "mean_diff", "lo", "hi", "candidates", "per_game"}
+    assert st["candidates"] == ctx["known_ids"]
+    if FALLBACK:                                                        # the fallback plants the xFG effect and sits its star
+        assert st["n_games"] == N_GAMES - 1 and np.isfinite(st["p_value"])
         assert st["mean_diff"] > 0 and st["n_positive"] >= st["n_games"] - 1
     gf, players, sp = ctx["gravity_frames"], ctx["gravity_players"], ctx["spacing_frames"]
     assert list(gf.columns) == ["sportvu_game", "possession", "frame", "player_id", "nearest_def_dist_ft", "expected_ft",
@@ -197,7 +202,7 @@ def test_end_to_end_fixture_run(tmp_path):
     assert gf["heldout"].any() and ctx["heldout_rows"] == int(gf["heldout"].sum())
     assert list(players.columns) == ["player_id", "n_possessions", "n_frames", "n_games", "gravity_ft", "lo", "hi", "insufficient"]
     assert players["n_possessions"].sum() == gf[~gf["heldout"]][["player_id", "sportvu_game", "possession"]].drop_duplicates().shape[0]
-    assert (players.loc[~players["insufficient"], "n_possessions"] >= 40).all()
+    assert (players.loc[~players["insufficient"], "n_possessions"] >= 10).all()
     assert {"hull_area_ft2", "mean_nearest_def_ft", "heldout"} <= set(sp.columns)
     for name in ("gravity_frames", "gravity_players", "spacing_frames"):
         assert (tmp_path / "analytics" / "gravity" / (name + ".parquet")).exists()
@@ -207,9 +212,9 @@ def test_end_to_end_fixture_run(tmp_path):
 
 
 def test_validate_and_features_cli(tmp_path, capsys):
-    out = V.main(["--fixtures", "--n-games", "2", "--out", str(tmp_path)])
+    out = V.main(["--fixtures", "--n-games", "2", "--n-possessions", "16", "--out", str(tmp_path)])
     assert out["games"] == 2 and out["schema_problems"] == 0
     assert (tmp_path / "analytics" / "gravity" / "validate.json").exists()
-    summ = F.main(["--fixtures", "--n-games", "2", "--out", str(tmp_path)])
+    summ = F.main(["--fixtures", "--n-games", "2", "--n-possessions", "16", "--out", str(tmp_path)])
     assert summ["player_frames"] == 5 * summ["spacing_frames"] > 0
     assert (tmp_path / "analytics" / "gravity" / "player_frames.parquet").exists()

@@ -34,6 +34,11 @@ possession table only after every fit, for the validation.
 
 Fewer games than folds: n_folds becomes the number of games (leave-one-game-out). One game: in-sample,
 labelled, with no interval and no keep decision (the deep candidate is dropped by default).
+
+Threads: every fit runs under threadpoolctl.threadpool_limits(THREADS) with THREADS = 1 by default, because
+the build container has 4 cores shared by 21 lanes and a multi-threaded BLAS spins for minutes there (an
+MLP fit measured 100 s with the default pools against 1.8 s single-threaded). ``--threads N`` raises it on
+the Mac.
 """
 from __future__ import annotations
 
@@ -60,6 +65,7 @@ CANDIDATE_LABELS = {"persistence": "1 persistence (position at t minus 1)",
                     "mlp": "3 MLPRegressor 64x64 on the 5-step window (GRU stand-in)"}
 HIDDEN = (64, 64)
 MAX_ITER = 200
+THREADS = 1
 GHOST_FRAMES_COLUMNS = ["sportvu_game", "possession", "frame", "def_player_id", "off_player_id", "actual_x", "actual_y",
                         "ghost_x", "ghost_y", "deviation_ft", "horizon_s", "fold", "heldout"]
 GHOST_POSSESSIONS_COLUMNS = ["sportvu_game", "possession", "mean_deviation_ft", "points"]
@@ -105,9 +111,11 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
         raise ValueError("%s: a held-out row reached fit_candidates" % WHO)
     if len(train) < 10:
         raise ValueError("%s: %d training rows is too few to fit" % (WHO, len(train)))
+    from threadpoolctl import threadpool_limits
     nb = len(F.BASE_FEATURES)
-    ridge = fit_ridge(train)
-    mlp = fit_mlp(train, seed=seed)
+    with threadpool_limits(limits=THREADS):
+        ridge = fit_ridge(train)
+        mlp = fit_mlp(train, seed=seed)
     return {"persistence": lambda W: np.zeros((len(W), 2)),
             "ridge": lambda W, m=ridge: m(W[:, :nb]),
             "mlp": lambda W, m=mlp: m(W)}
@@ -300,6 +308,12 @@ def split_games(games: list[dict]) -> tuple[list[dict], list[dict]]:
 
 def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> dict:
     """The whole protocol on game dicts -> ctx (scores, pairs, decision, errors, ghost tables, held-out)."""
+    from threadpoolctl import threadpool_limits
+    with threadpool_limits(limits=THREADS):
+        return _run(games, n_folds, seed, n_boot)
+
+
+def _run(games: list[dict], n_folds: int, seed: int, n_boot: int) -> dict:
     train_games, held_games = split_games(games)
     if not train_games:
         raise SystemExit("%s: no training games after setting the held-out games aside" % WHO)
@@ -450,12 +464,15 @@ def parse_args(argv=None):
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--bootstrap", type=int, default=200)
     ap.add_argument("--out", help="OUT_ROOT: write ghost_frames and ghost_possessions parquet per game there")
+    ap.add_argument("--threads", type=int, default=THREADS, help="BLAS threads for the fits (1 in the shared build container)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
+    global THREADS
+    THREADS = max(int(a.threads), 1)
     games = V.load_games(a)
     ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap)
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])

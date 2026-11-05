@@ -160,11 +160,15 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
 
     def logit_predict(frame, m=lr, r=rates):
         Xt = design(frame, apply_prior(frame, r))
-        return softmax_within(m.decision_function(Xt.to_numpy()), miss_key(frame))
+        with threadpool_limits(limits=1):
+            scores = m.decision_function(Xt.to_numpy())
+        return softmax_within(scores, miss_key(frame))
 
     def hgb_predict(frame, m=hgb, r=rates):
         Xt = design(frame, apply_prior(frame, r))
-        return normalise_within(m.predict_proba(Xt.to_numpy())[:, 1], miss_key(frame))
+        with threadpool_limits(limits=1):
+            p = m.predict_proba(Xt.to_numpy())[:, 1]
+        return normalise_within(p, miss_key(frame))
 
     out["logit"], out["hgb"] = logit_predict, hgb_predict
     return out
@@ -357,7 +361,15 @@ def write_report(path: Path, ctx: dict) -> str:
             s = ctx["heldout_scores"][m]
             L.append("| %s | %s | %s |" % (m, _f(s["mlogloss"]), _f(s["top1"])))
         L += ["", "Held-out numbers are point estimates over %d game(s), scored exactly once." % ctx["heldout_games"], ""]
-    L += ["## Predictions", "",
+    L += ["## Assumptions taken without asking", "",
+          "- Team rebounds are kept as the none class when a rebound event follows the miss and names no player; every other null identity_match is dropped and counted (the lane spec's literal rule would drop every team rebound, since its identity_match is null by construction).",
+          "- The offence of a miss is the section 5 team of the miss event, else the possession's offense_team_id; a miss with neither is dropped.",
+          "- The 0.4 s look-back is the frame of the same period nearest 0.4 s of game clock before the rim frame, within 0.2 s; otherwise the speed is NaN (imputed by the median in the logit, native in hgb).",
+          "- shot_distance_ft uses the section 17 release_frame when present, else the ball's horizontal distance from the basket 1 s before the rim frame.",
+          "- The prior is smoothed with 10 pseudo-opportunities toward the per-side base rate; the none rate is the Laplace team-rebound rate. Nothing was tuned.",
+          "- Top-1 accuracy counts a tie at the maximum as 1 over the number tied (expected accuracy under random tie-breaking); the calibration block counts it as a hit.",
+          "- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf.",
+          "", "## Predictions", "",
           ("Written %d file(s) under %s/analytics/rebounds/ (docs/contract/rebounds.md)." % (len(ctx["written_paths"]), ctx["out_root"]))
           if ctx["written_paths"] else "No --out given: the rebound_predictions table was not written.", "",
           "## Status", ""]

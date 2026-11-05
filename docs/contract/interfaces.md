@@ -29,10 +29,10 @@ writing), the entry records the columns the consumers already code against:
   <game>.parquet` with the hand-label columns; `action_id` is optional and defaults to the row's position in
   the file; `screener_id` is nullable. The lane's feature frames under `analytics/actions/<season>/features/`
   are skipped by `find_outputs`.
-- `coverage_predictions`: playcalling reads `OUT_ROOT/analytics/coverage/**/*.parquet` with
-  `sportvu_game, possession, action_id, predicted` and `p_<class>` columns in [0, 1]. The file name
-  `coverage_predictions.parquet` per season is the assumption; `coverage_features.parquet` (the lane's feature
-  frame, already written) is not matched by the glob.
+- `coverage_predictions`: now documented in docs/contract/coverage.md (`coverage_predictions.parquet` per
+  season with `coverage_label` nullable, `p_switch` to `p_over`, `predicted`, `fold`, `heldout`); the entry
+  matches it. playcalling reads `predicted` and the `p_<class>` columns. `coverage_features.parquet` and
+  `coverage_team_rates.parquet` are not matched by the glob.
 - `xfg_predictions`: gravity and epv use the location-only baseline of `analytics.train_xfg` in their own code
   today; they are listed as consumers of the lane's shot-quality column (`p_selected`) per the registry note
   in `analytics/registry.py`, and decisions joins `p_selected` by `(sportvu_game, event)`.
@@ -102,7 +102,8 @@ Producer `coverage`; consumer `playcalling`. Path `OUT_ROOT/analytics/coverage/<
 | `possession` | int | possession |
 | `action_id` | int | the ball screen's action id (actions interface) |
 | `predicted` | string | the selected model's class, one of `switch, drop, hedge_show, blitz_trap, ice, under, over` |
-| `p_<class>` | float, optional | class probabilities in [0, 1] |
+| `p_<class>` | float, optional | class probabilities in [0, 1], summing to 1 |
+| `coverage_label` | string, optional (nullable) | the hand label; null for an unlabelled or detected screen |
 | `heldout` | bool, optional | the game is held out |
 | `fold` | int, optional | grouped CV fold |
 

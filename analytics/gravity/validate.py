@@ -177,7 +177,8 @@ def load_games(a, who: str = "gravity") -> list:
             sys.path.insert(0, str(repo))
         from tests._fx_gravity import synth_season
         n = int(getattr(a, "n_games", 8))
-        return synth_season(int(getattr(a, "seed", 0)), n_games=n, heldout_every=4 if n >= 4 else 0)
+        return synth_season(int(getattr(a, "seed", 0)), n_games=n, heldout_every=4 if n >= 4 else 0,
+                            n_possessions=int(getattr(a, "n_possessions", 40)))
     if getattr(a, "data", None):
         return load_data_root(a.data, getattr(a, "season", "2015-16"))
     raise SystemExit("%s: pass --fixtures or --data DATA_ROOT" % who)
@@ -191,6 +192,7 @@ def main(argv=None) -> dict:
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-games", type=int, default=8)
+    ap.add_argument("--n-possessions", type=int, default=40)
     a = ap.parse_args(argv)
     games = load_games(a, who="gravity.validate")
     _, counts = validate_games(games)

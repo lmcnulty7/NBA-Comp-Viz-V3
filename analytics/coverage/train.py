@@ -292,6 +292,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "| item | count |", "| --- | --- |",
           "| games with frames | %d (held out: %d) |" % (c["games"], c["games_heldout"]),
           "| games with labels but no frames | %d |" % c["games_without_frames"],
+          "| label reader; first-pass filter dropped (actions, screens) | %s; %d, %d |" % (
+              c.get("label_reader", "n/a"), c.get("actions_other_pass_dropped", 0), c.get("screens_other_pass_dropped", 0)),
           "| action rows read / kept | %d / %d |" % (c["actions_in"], c["actions_kept"]),
           "| ball_screen actions | %d |" % c["ball_screen_actions"],
           "| screen rows read / kept | %d / %d |" % (c["screens_in"], c["screens_kept"]),

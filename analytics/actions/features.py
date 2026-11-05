@@ -10,8 +10,10 @@ defender is the defender nearest the handler at the window start.
                  offensive player other than the handler is within 4 ft of the handler's defender on every
                  frame, moving under 3 ft per s, with the handler within 12 ft of him; the handler's defender
                  is either of the two defenders nearest the handler at the window start (a switch, ice or
-                 under puts the screened man second) and within 9 ft of the handler (guarding him, not the
-                 screener's own man); overlapping windows of one (handler, screener) merge into the set, and the
+                 under puts the screened man second), within 9 ft of the handler (guarding him) and not the
+                 screener's own matchup (the defender nearest him on most frames of the possession: a player
+                 standing beside his own man is not screening); overlapping windows of one (handler, screener)
+                 merge into the set, and the
                  candidate's extent is the set padded by 1 s before (the approach) and 1 s after (the use),
                  clipped to the possession, because a labelled screen spans approach, set and use (set
                  SCREEN_PAD_PRE_S and SCREEN_PAD_POST_S to 0 if the hand labels mark the set alone)
@@ -106,6 +108,7 @@ class PossessionArrays:
         self.v_def = velocities(de, t)
         self.speed_off = np.linalg.norm(self.v_off, axis=2)
         self.handler = handler_index(ball, off)
+        self.matchup = matchups(off, de)
         self.r_handler = np.full(self.n, np.nan)
         for i in range(self.n):
             if self.handler[i] >= 0:
@@ -136,6 +139,18 @@ def handler_index(ball: np.ndarray, off: np.ndarray) -> np.ndarray:
         best = np.argmin(dd, axis=1)
         best[dd[np.arange(len(best)), best] > HANDLER_BALL_FT] = -1
         out[ok] = best
+    return out
+
+
+def matchups(off: np.ndarray, de: np.ndarray) -> np.ndarray:
+    """Per offensive player, the defender nearest him on most frames of the possession (-1 without data)."""
+    out = np.full(off.shape[1], -1, dtype=int)
+    for s in range(off.shape[1]):
+        d = np.linalg.norm(de - off[:, s][:, None, :], axis=2)
+        ok = np.isfinite(d).any(axis=1)
+        if ok.any():
+            near = np.argmin(np.where(np.isfinite(d[ok]), d[ok], np.inf), axis=1)
+            out[s] = int(np.bincount(near, minlength=de.shape[1]).argmax())
     return out
 
 
@@ -249,7 +264,7 @@ def screen_windows(a: PossessionArrays) -> list:
                 continue
             dxy = a.de[i:j + 1, d]
             for s in range(k):
-                if s == h:
+                if s == h or a.matchup[s] == d:      # a player standing beside his own man is not screening
                     continue
                 sxy = a.off[i:j + 1, s]
                 near_def = np.linalg.norm(sxy - dxy, axis=1) < SCREEN_DIST_FT

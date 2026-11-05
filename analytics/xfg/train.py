@@ -140,7 +140,13 @@ def _design(frame: pd.DataFrame, cols: list) -> np.ndarray:
 
 def fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
     """Fit one candidate on ``train`` -> predict(frame) -> p. Every fit of this module goes through here, so the
-    guards (held-out flag, held-out ids) run on exactly what reaches a fit."""
+    guards (held-out flag, held-out ids) run on exactly what reaches a fit. Fits run single-threaded (the shared
+    box has 4 cores and many lanes; OpenMP spin-waits are slower than one thread there)."""
+    with _threads(1):
+        return _fit_candidate(name, train, seed)
+
+
+def _fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
     from sklearn.ensemble import HistGradientBoostingClassifier
     from sklearn.impute import SimpleImputer
     from sklearn.isotonic import IsotonicRegression
@@ -221,9 +227,9 @@ def _frame(pred: pd.DataFrame, col: str) -> pd.DataFrame:
                          "p": pred[col].astype(float).to_numpy()})
 
 
-def fast_slope(y, p, iters: int = 25) -> float:
-    """Calibration slope by Newton's method on the 2-parameter logistic regression of y on logit(p): the same
-    quantity as analytics.eval.calibration_slope (unregularised) at a fraction of the cost, for the bootstrap."""
+def fast_slope(y, p, iters: int = 50, ridge: float = 1e-6) -> float:
+    """Calibration slope by Newton's method on the 2-parameter logistic regression of y on logit(p) with the same
+    negligible ridge as analytics.eval.calibration_slope (C = 1e6), at a fraction of its cost, for the bootstrap."""
     y = np.asarray(y, dtype=float).reshape(-1)
     p = np.clip(np.asarray(p, dtype=float).reshape(-1), 1e-6, 1 - 1e-6)
     if len(np.unique(y)) < 2:
@@ -232,8 +238,8 @@ def fast_slope(y, p, iters: int = 25) -> float:
     w = np.zeros(2)
     for _ in range(iters):
         q = 1.0 / (1.0 + np.exp(-(X @ w)))
-        g = X.T @ (q - y)
-        H = (X * (q * (1 - q))[:, None]).T @ X + 1e-8 * np.eye(2)
+        g = X.T @ (q - y) + ridge * w
+        H = (X * (q * (1 - q))[:, None]).T @ X + ridge * np.eye(2)
         step = np.linalg.solve(H, g)
         w -= step
         if np.abs(step).max() < 1e-8:

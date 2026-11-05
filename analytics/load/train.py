@@ -30,8 +30,8 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import (bootstrap_by_game, brier, grouped_folds, log_loss, paired_bootstrap_by_game,
-                            refuse_heldout, report_block)
+from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_folds,
+                            log_loss, paired_bootstrap_by_game, refuse_heldout)
 from analytics.load import validate as V
 from analytics.load.eda import markdown, rest_bucket
 from analytics.load.features import FEATURES, MIN_STINTS_RANK, assert_no_leak, build_tables, design, write_tables
@@ -154,18 +154,17 @@ def score_absence(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
     out = {"rows": int(len(d)), "games": int(d["game"].nunique()), "base_rate": float(y.mean())}
     for m in ("base", "logistic"):
         out[m] = {}
-        for name, fn in (("log_loss", log_loss), ("brier", brier)):
+        for name, fn in (("log_loss", log_loss), ("brier", brier), ("ece", ece)):
             r = bootstrap_by_game(d, "game", lambda s, f=fn, m=m: f(s["y"], s[m]), n=n_boot, seed=seed)
             if out["games"] < 2:
                 r = {**r, "lo": np.nan, "hi": np.nan}
             out[m][name] = r
     out["diff"] = paired_bootstrap_by_game(d, "game", lambda s: log_loss(s["y"], s["logistic"]),
                                            lambda s: log_loss(s["y"], s["base"]), n=n_boot, seed=seed)
-    if len(np.unique(y)) == 2:
-        out["block"] = report_block("logistic absence model, calibration", y, d["logistic"].to_numpy(), pred, "sportvu_game",
-                                    n=n_boot, seed=seed)
-    else:
-        out["block"] = "one class only in absent_next: no calibration table.\n"
+    two = len(np.unique(y)) == 2
+    # the slope is one fit (a point estimate): the harness's slope fit is slow on near-separable probabilities
+    out["logistic"]["calibration_slope"] = float(calibration_slope(y, d["logistic"].to_numpy())) if two else np.nan
+    out["calibration"] = calibration_table(y, d["logistic"].to_numpy()) if two else None
     return out
 
 
@@ -285,12 +284,21 @@ def write_report(path: Path, ctx: dict) -> str:
     else:
         L += ["%s. %d player-games with a known absent_next from %d games, base rate %s. Logistic C %.1f, same preprocessing. "
               "Absence is not injury." % (ctx["abs_note"]["text"], ab["rows"], ab["games"], _f(ab["base_rate"]), LOGISTIC_C), "",
-              "| model | log loss | Brier |", "| --- | --- | --- |",
-              "| base rate (training-fold rate) | %s | %s |" % (_ci(ab["base"]["log_loss"]), _ci(ab["base"]["brier"])),
-              "| logistic on FEATURES | %s | %s |" % (_ci(ab["logistic"]["log_loss"]), _ci(ab["logistic"]["brier"])), "",
-              "Paired bootstrap by game of log loss(logistic) - log loss(base): %s [%s, %s], excludes zero: %s." % (
-                  _f(ab["diff"]["diff"]), _f(ab["diff"]["lo"]), _f(ab["diff"]["hi"]), ab["diff"]["excludes_zero"]), "",
-              ab["block"]]
+              "| model | log loss | Brier | ECE (10 bins) |", "| --- | --- | --- | --- |",
+              "| base rate (training-fold rate) | %s | %s | %s |" % (_ci(ab["base"]["log_loss"]), _ci(ab["base"]["brier"]), _ci(ab["base"]["ece"])),
+              "| logistic on FEATURES | %s | %s | %s |" % (_ci(ab["logistic"]["log_loss"]), _ci(ab["logistic"]["brier"]), _ci(ab["logistic"]["ece"])), "",
+              "Paired bootstrap by game of log loss(logistic) - log loss(base): %s [%s, %s], excludes zero: %s. "
+              "Calibration slope of the logistic model: %s (one fit, no interval; 1 is calibrated)." % (
+                  _f(ab["diff"]["diff"]), _f(ab["diff"]["lo"]), _f(ab["diff"]["hi"]), ab["diff"]["excludes_zero"],
+                  _f(ab["logistic"]["calibration_slope"])), ""]
+        if ab["calibration"] is None:
+            L += ["One class only in absent_next: no calibration table.", ""]
+        else:
+            L += ["Calibration table of the logistic model (equal-width bins of p):", "",
+                  "| bin | lo | hi | n | mean p | mean absent |", "| --- | --- | --- | --- | --- | --- |"]
+            for r in ab["calibration"].itertuples():
+                L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, _f(r.mean_p, 3), _f(r.mean_y, 3)))
+            L.append("")
     agg = ctx["aggregates"]
     L += ["## Cross-check against the tracking aggregates (section 11)%s" % tag, ""]
     if agg is None:

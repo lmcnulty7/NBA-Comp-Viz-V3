@@ -11,8 +11,14 @@ Inputs (the upstream interface of lane ACTIONS, consumed as given):
     DATA_ROOT/sportvu_contract/<game>.parquet (held-out under heldout/), DATA_ROOT/analytics/possessions/<season>/,
     DATA_ROOT/analytics/rosters/<season>/ (held-out under heldout/<season>/)
 
+Label files are append-only JSONL (analytics/labels.py): the last line about an id wins and a tombstone line
+(``deleted: true``) removes the id. They are read through ``analytics.labels.read_labels`` when that module imports
+and its id fields are present, else through the resolver here with the same rule. Only first-pass labels
+(``labeller_pass`` == TRAIN_PASS, missing counts as 1) are kept; the pass-2 relabel is counted and dropped, so a
+relabelled screen never duplicates its training label.
+
 Checks (every count is logged and returned):
-    required columns present; coverage in the 7 classes; confidence in {sure, unsure}; label_source in {human, model}
+    required columns present; coverage in the 7 classes; confidence in {sure, unsure}; label_source in {hand, model, synthetic}
     (unknown values are logged, not dropped); every screen references an existing action of the same game whose
     action_type is ball_screen (otherwise dropped); a screen whose possession differs from its action's possession
     keeps the action's possession (logged); frames are non-negative with start_frame <= end_frame; player ids are
@@ -39,7 +45,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from analytics.coverage import CLASSES, CONFIDENCES, LABEL_SOURCES, SCREEN_ACTION
+from analytics.coverage import CLASSES, CONFIDENCES, LABEL_SOURCES, SCREEN_ACTION, TRAIN_PASS
 
 log = logging.getLogger("analytics.coverage")
 
@@ -73,14 +79,65 @@ def heldout_mask(game_ids) -> pd.Series:
 
 
 # ── readers ───────────────────────────────────────────────────────────────────────────────────────
-def _read_jsonl(path: Path) -> pd.DataFrame:
-    rows = []
+ID_FIELD = {"actions": "action_id", "screens": "screen_id"}
+
+
+def _read_jsonl(path: Path, kind: str = "actions") -> pd.DataFrame:
+    """Resolve an append-only label file: the last line about an id wins, a ``deleted`` line drops the id. A line
+    without the id field (fixture files written before the label tool) is kept as its own row."""
+    idf = ID_FIELD.get(kind, "action_id")
+    live, order, anon = {}, [], []
     with open(path) as fh:
         for line in fh:
             line = line.strip()
-            if line:
-                rows.append(json.loads(line))
+            if not line:
+                continue
+            rec = json.loads(line)
+            key = rec.get(idf)
+            if key is None and kind == "screens":
+                key = rec.get("action_id")
+            if key is None:
+                if not rec.get("deleted"):
+                    anon.append(rec)
+                continue
+            key = int(key)
+            if rec.get("deleted"):
+                live.pop(key, None)
+                continue
+            if key not in live:
+                order.append(key)
+            live[key] = rec
+    rows = [live[k] for k in order if k in live] + anon
     return pd.DataFrame(rows)
+
+
+def _read_game_labels(root: Path, game: str) -> tuple:
+    """(actions, screens, reader) of one game: analytics.labels.read_labels when it imports and the files carry
+    its id fields, else the resolver above (same last-line-wins and tombstone rule)."""
+    try:
+        from analytics import labels as _labels
+        a, s = _labels.read_labels(root, game)
+        return a, s, "analytics.labels"
+    except ImportError:
+        pass
+    except (ValueError, KeyError) as exc:
+        log.info("labels of %s: analytics.labels.read_labels refused them (%s); resolving the files here", game, exc)
+    out = []
+    for kind in ("actions", "screens"):
+        path = root / "labels" / kind / (game + ".jsonl")
+        out.append(_read_jsonl(path, kind) if path.exists() else pd.DataFrame())
+    return out[0], out[1], "raw"
+
+
+def training_pass(df: pd.DataFrame, counts: dict, kind: str) -> pd.DataFrame:
+    """Keep the rows of labeller_pass TRAIN_PASS (a missing pass counts as 1); count the rest."""
+    if "labeller_pass" not in df.columns or not len(df):
+        counts["%s_other_pass_dropped" % kind] = 0
+        return df
+    p = pd.to_numeric(df["labeller_pass"], errors="coerce").fillna(TRAIN_PASS)
+    keep = p == TRAIN_PASS
+    counts["%s_other_pass_dropped" % kind] = int((~keep).sum())
+    return df[keep].reset_index(drop=True)
 
 
 def _with_action_id(df: pd.DataFrame) -> pd.DataFrame:
@@ -91,18 +148,34 @@ def _with_action_id(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def load_labels(data_root) -> dict:
-    """dict(actions, screens) from DATA_ROOT/labels/{actions,screens}/<game>.jsonl (empty frames when none)."""
-    root = Path(data_root) / "labels"
-    out = {}
-    for name, cols in (("actions", ACTION_COLUMNS), ("screens", SCREEN_COLUMNS)):
-        files = sorted((root / name).glob("*.jsonl")) if (root / name).exists() else []
-        frames = [_read_jsonl(p) for p in files]
-        frames = [f for f in frames if len(f)]
-        df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=cols)
-        out[name] = _with_action_id(df) if name == "actions" else df
-        log.info("labels/%s: %d files, %d rows", name, len(files), len(df))
-    return out
+def load_labels(data_root, counts: dict | None = None) -> dict:
+    """dict(actions, screens, counts) from DATA_ROOT/labels/{actions,screens}/<game>.jsonl, tombstones applied,
+    first-pass labels only (empty frames when none)."""
+    counts = counts if counts is not None else {}
+    root = Path(data_root)
+    games = set()
+    for kind in ("actions", "screens"):
+        d = root / "labels" / kind
+        if d.exists():
+            games |= {p.stem for p in d.glob("*.jsonl")}
+    acts, scrs, readers = [], [], set()
+    for game in sorted(games):
+        a, s, reader = _read_game_labels(root, game)
+        readers.add(reader)
+        if len(a):
+            acts.append(a)
+        if len(s):
+            scrs.append(s)
+    actions = pd.concat(acts, ignore_index=True) if acts else pd.DataFrame(columns=ACTION_COLUMNS)
+    screens = pd.concat(scrs, ignore_index=True) if scrs else pd.DataFrame(columns=SCREEN_COLUMNS)
+    counts["label_files_games"] = len(games)
+    counts["label_reader"] = ",".join(sorted(readers)) or "none"
+    counts["actions_rows_resolved"], counts["screens_rows_resolved"] = int(len(actions)), int(len(screens))
+    actions = training_pass(actions, counts, "actions")
+    screens = training_pass(screens, counts, "screens")
+    log.info("labels: %d games via %s; actions %d, screens %d after tombstones and the pass filter",
+             len(games), counts["label_reader"], len(actions), len(screens))
+    return {"actions": _with_action_id(actions), "screens": screens, "counts": counts}
 
 
 def load_detected(out_root) -> pd.DataFrame:
@@ -161,7 +234,7 @@ def load_data_root(data_root, out_root=None) -> dict:
     if missing:
         log.warning("%d game(s) with labels but no frames under sportvu_contract/: %s", len(missing), missing[:5])
     return {"games": games, "actions": labels["actions"], "screens": labels["screens"], "detected": detected,
-            "missing_frames": missing}
+            "missing_frames": missing, "label_counts": labels["counts"]}
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────────────────────────
@@ -197,9 +270,12 @@ def fixture_bundle(seed: int = 0, n_games: int = 8, heldout_every: int = 0, loca
                       "possessions": game.get("possessions"), "heldout": held}
         actions.append(labels["actions"])
         screens.append(labels["screens"])
-    return {"games": games, "actions": _with_action_id(pd.concat(actions, ignore_index=True)),
-            "screens": pd.concat(screens, ignore_index=True), "detected": pd.DataFrame(columns=ACTION_COLUMNS + ["action_id"]),
-            "missing_frames": [], "fixture": "local" if (local or not fx.SHARED) else "shared"}
+    lc: dict = {"label_reader": "fixture"}
+    actions = training_pass(pd.concat(actions, ignore_index=True), lc, "actions")
+    screens = training_pass(pd.concat(screens, ignore_index=True), lc, "screens")
+    return {"games": games, "actions": _with_action_id(actions), "screens": screens,
+            "detected": pd.DataFrame(columns=ACTION_COLUMNS + ["action_id"]), "missing_frames": [], "label_counts": lc,
+            "fixture": "local" if (local or not fx.SHARED) else "shared"}
 
 
 # ── checks ────────────────────────────────────────────────────────────────────────────────────────
@@ -341,6 +417,7 @@ def validate_bundle(bundle: dict) -> tuple:
     """Run every check on a load_data_root or fixture_bundle structure -> (candidate table, counts)."""
     counts: dict = {"games": len(bundle["games"]), "games_heldout": int(sum(g["heldout"] for g in bundle["games"].values())),
                     "games_without_frames": len(bundle.get("missing_frames", []))}
+    counts.update(bundle.get("label_counts", {}))
     actions = check_actions(bundle["actions"], counts)
     poss = [g["possessions"] for g in bundle["games"].values() if g.get("possessions") is not None]
     poss = pd.concat(poss, ignore_index=True) if poss else None

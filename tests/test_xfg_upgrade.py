@@ -154,7 +154,8 @@ def test_metrics_and_selection_on_a_hand_case():
     assert log_loss(y, p) == pytest.approx(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))
     assert brier(y, p) == pytest.approx(np.mean((p - y) ** 2))
     assert ece(y, p) == pytest.approx(np.mean(np.abs(p - y)))     # one attempt per bin: the bin gap is |p - y|
-    assert T.fast_slope(y, p) == pytest.approx(calibration_slope(y, p), abs=0.02)
+    q = np.array([0.6, 0.4, 0.7, 0.3, 0.4, 0.55, 0.45, 0.6])       # not separable, so the slope is finite
+    assert T.fast_slope(y, q) == pytest.approx(calibration_slope(y, q), abs=0.02)
     assert np.isnan(T.fast_slope(np.ones(4), p[:4]))
     scores = {"location_logistic": {"log_loss": {"point": 0.60}}, "contest_logistic": {"log_loss": {"point": 0.58}},
               "hgb_contest_prior": {"log_loss": {"point": 0.58}}}

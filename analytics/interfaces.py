@@ -37,11 +37,11 @@ and in docs/contract/interfaces.md:
                        ball_handler_id, screener_id (nullable), label_source; action_id is optional and
                        defaults to the row's position in the file. Files under analytics/actions/<season>/
                        features/ are the lane's feature frames, not this interface, and are skipped.
-  coverage_predictions not documented yet (no docs/contract/coverage.md, no train module). The consumer
-                       (playcalling) reads OUT_ROOT/analytics/coverage/**/*.parquet with sportvu_game,
-                       possession, action_id, predicted and p_<class> columns in [0, 1]. The file name
-                       coverage_predictions.parquet per season is the assumption; coverage_features.parquet
-                       (the lane's feature frame) is skipped.
+  coverage_predictions docs/contract/coverage.md: sportvu_game, possession, action_id, coverage_label
+                       (nullable), p_switch .. p_over, predicted, fold, heldout, one file per season at
+                       analytics/coverage/<season>/coverage_predictions.parquet (held-out games under
+                       heldout/<season>/). The consumer (playcalling) reads predicted and the p_<class>
+                       columns. coverage_features.parquet (the lane's feature frame) is skipped.
   player_rapm          analytics/lineups/train.py docstring: season, player_id, rapm, lo, hi, fit_seasons, one
                        file per season (analytics/lineups/<season>/player_rapm.parquet). betting reads team_id
                        and as_of when present and keeps its RAPM columns null otherwise; both are optional here.
@@ -102,12 +102,14 @@ INTERFACES = {
     "coverage_predictions": _iface(
         "coverage_predictions", "coverage", ["playcalling"],
         columns={"sportvu_game": "string", "possession": "int", "action_id": "int", "predicted": "string"},
-        optional={**{"p_" + c: "float" for c in COVERAGE_CLASSES}, "heldout": "bool", "fold": "int"},
+        optional={**{"p_" + c: "float" for c in COVERAGE_CLASSES}, "coverage_label": "string", "heldout": "bool",
+                  "fold": "int"},
         keys=["sportvu_game", "possession", "action_id"],
         pattern="analytics/coverage/<season>/coverage_predictions.parquet",
         glob="analytics/coverage/**/coverage_predictions*.parquet",
-        note="assumed from the consumer (playcalling): predicted plus p_<class> in [0, 1]; "
-             "coverage_features.parquet is the lane's feature frame and is not matched"),
+        note="matches docs/contract/coverage.md (coverage_predictions: predicted, p_<class> summing to 1, "
+             "coverage_label nullable, fold, heldout); coverage_features.parquet is the lane's feature frame "
+             "and is not matched"),
     "player_rapm": _iface(
         "player_rapm", "lineups", ["matchups", "betting"],
         columns={"season": "string", "player_id": "int", "rapm": "float", "lo": "float", "hi": "float"},

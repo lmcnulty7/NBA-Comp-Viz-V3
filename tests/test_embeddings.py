@@ -158,9 +158,8 @@ def test_pca_or_autoencoder_gate():
 
 # ----------------------------------------------------------------------------- held-out exclusion
 
-def test_heldout_games_never_reach_an_aggregate(tmp_path):
-    root = tmp_path / "root"
-    fx.write_fixture_root(root, seed=1, n_games=4, heldout_every=2)
+def test_heldout_games_never_reach_an_aggregate(run):
+    root = Path(run["fixture_root"])        # the module run's root: 4 games, every second one held out
     held_files = sorted(p.stem for p in (root / "sportvu_contract" / "heldout").glob("*.parquet") if not p.stem.endswith("_pbp"))
     train_files = sorted(p.stem for p in (root / "sportvu_contract").glob("*.parquet") if not p.stem.endswith("_pbp"))
     assert len(held_files) == 2 and fx.HELDOUT_GAME_ID in held_files and len(train_files) == 2

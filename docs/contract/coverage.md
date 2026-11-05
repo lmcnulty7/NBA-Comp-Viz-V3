@@ -8,8 +8,8 @@ number the package has produced is fixture output, not a result.
 
 | table | where | columns |
 | --- | --- | --- |
-| actions | `DATA_ROOT/labels/actions/<game>.jsonl` | `sportvu_game`, `possession`, `action_type`, `start_frame`, `end_frame`, `ball_handler_id`, `screener_id`, `label_source`, `labeller_pass` (`action_id` when present, else the row's position within the game's file) |
-| screens | `DATA_ROOT/labels/screens/<game>.jsonl` | `sportvu_game`, `possession`, `action_id`, `coverage` (7 classes), `on_ball_defender_id`, `screener_defender_id`, `label_source`, `confidence` in {`sure`, `unsure`} |
+| actions | `DATA_ROOT/labels/actions/<game>.jsonl` | `sportvu_game`, `possession`, `action_type`, `start_frame`, `end_frame`, `ball_handler_id`, `screener_id`, `label_source`, `labeller_pass`, `labelled_at` (`action_id` when present, else the row's position within the game's file) |
+| screens | `DATA_ROOT/labels/screens/<game>.jsonl` | `sportvu_game`, `possession`, `screen_id`, `action_id`, `coverage` (7 classes), `on_ball_defender_id`, `screener_defender_id`, `label_source`, `confidence` in {`sure`, `unsure`}, `labeller_pass`, `labelled_at` |
 | actions_detected | `OUT_ROOT/analytics/actions/<season>/<game>.parquet` | the actions columns with `label_source` `model`; no defender ids, no coverage |
 | frames | `DATA_ROOT/sportvu_contract/<game>.parquet` (held-out under `heldout/`) | docs/DATA_CONTRACT.md section 4 (`frame`, `period`, `game_clock_s`, `team_id`, `player_id`, `x`, `y` are read) |
 | rosters, possessions | `DATA_ROOT/analytics/<table>/<season>/<game>.parquet` (held-out under `heldout/<season>/`) | sections 16 and 19; rosters give the defending team, possessions are used only to log screens outside their span |
@@ -18,8 +18,14 @@ Validation (`analytics.coverage.validate`): required columns; `coverage` and `co
 reference a `ball_screen` action of the same game (else dropped); the action's possession wins over the
 screen's; frames non-negative with `start_frame <= end_frame`; integer ids with handler != screener and the two
 defenders distinct; duplicate `(sportvu_game, action_id)` keeps the first row; rows with a missing required
-value are dropped. Every count is logged and lands in the report. `label_source` outside {`human`, `model`}
-is logged, not dropped (the shared fixture writes `synthetic`).
+value are dropped. Every count is logged and lands in the report. `label_source` outside {`hand`, `model`,
+`synthetic`} (the values analytics/labels.py writes) is logged, not dropped.
+
+Label files are append-only (analytics/labels.py): the last line about an id wins and a tombstone line
+(`deleted: true`) removes the id. They are read through `analytics.labels.read_labels` when the files carry its
+id fields, else resolved here by the same rule. Only first-pass labels (`labeller_pass` == 1, missing counts
+as 1) fit anything; the pass-2 relabel is counted and dropped so a relabelled screen never duplicates its
+training label.
 
 ## Feature window (declared)
 

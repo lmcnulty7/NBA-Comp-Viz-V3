@@ -34,7 +34,10 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-try:  # the shared generator of lane I1, when it exists
+try:  # the shared generator of lane I1, when it exists (GRAVITY_FX_FALLBACK=1 forces the fallback, for its own test)
+    import os as _os
+    if _os.environ.get("GRAVITY_FX_FALLBACK"):
+        raise ImportError("fallback forced by GRAVITY_FX_FALLBACK")
     from analytics.fixtures import synth_game, synth_season  # type: ignore  # noqa: F401
     SOURCE = "analytics.fixtures"
 except ImportError:  # the local fallback
@@ -259,9 +262,11 @@ except ImportError:  # the local fallback
                 "shot_frames": shot_frames, "rebound_frames": rebound_frames, "possessions": possessions,
                 "states_1hz": pd.DataFrame(state_rows)}
 
-    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
+    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
         """n_games games with distinct ids; every heldout_every-th game (1-based) is held out and named with a
-        held-out token of sportvu/splits.json (the PHX game first, then games at the CLE arena)."""
+        held-out token of sportvu/splits.json (the PHX game first, then games at the CLE arena). The same seven
+        players per team appear in every game (ids 1001 to 1007 and 2001 to 2007), as on real data where a
+        player table spans a season."""
         out, k_held = [], 0
         for i in range(n_games):
             held = bool(heldout_every) and (i + 1) % heldout_every == 0
@@ -270,5 +275,5 @@ except ImportError:  # the local fallback
                 k_held += 1
             else:
                 name = "01.%02d.2016.%s.at.%s" % (i + 1, AWAY_TEAM, HOME_TEAM)
-            out.append(synth_game(seed * 1000 + i, heldout=held, sportvu_game=name))
+            out.append(synth_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held, sportvu_game=name))
         return out

@@ -554,7 +554,20 @@ def write_report(path, ctx: dict, command: str) -> str:
           % (len(ctx["tables"]["player_season_features"]), len(ctx["tables"]["player_embeddings"]), len(ctx["tables"]["embedding_neighbours"]))]
     if ctx.get("written"):
         L.append("Written under: " + "; ".join("%s: %s" % (k, v[0]) for k, v in ctx["written"].items()) + ".")
-    L += ["", "## Mac command", "", "On the owner's Mac, with the full 2015-16 tracking games, possessions, shots, the NBA.com aggregates when "
+    L += ["", "## Assumptions (decided without asking; also in the module docstrings)", "",
+          "- The attacked basket of a (game, period, team) is the side where the ball spends that team's offensive frames; "
+          "court zones are shares of the player's OFFENSIVE frames in a 3 by 2 grid of that half, backcourt frames in the denominator only.",
+          "- The handler is the player nearest the ball within 3 ft while the ball is under 8 ft; speed uses the section 4 gap rule (dt <= 2 s) and drops steps over 30 ft/s.",
+          "- Shots are restricted to the tracked training games (attempts per possession needs the tracking possessions); a null basketball-reference "
+          "shooter id is resolved through the rosters by player_slug = bref_slug; a table without zone_basic gets zones derived from court_x, court_y, shot_type.",
+          "- NBA.com aggregates are matched by metric name under the listed endpoints; play-type frequency is poss_pct, or a poss count normalised over the "
+          "play types; a missing play type is 0, a missing metric NaN (median-imputed at fit). The 2016-17 file supplies the next-season target only.",
+          "- Positions (player_id, season, position in G, F, C) are a needed input at collect/positions.parquet or collect/tracking/positions/<season>.parquet; "
+          "without them the 5-NN metric is n/a and PCA stands (the gate cannot be evaluated).",
+          "- Insufficient rows (under %d possessions; 300 in the contract) are written to player_season_features but never fitted, embedded or scored." % ctx["n_min"],
+          "- The shared fixtures (analytics.fixtures) key their positions and aggregates by other player ids than their games, so on them both metrics read n/a; "
+          "the lane's local generator (tests/_fx_embeddings.py, 5 Hz, planted G/F/C archetypes, aligned ids) is what exercises the metrics. Fixture output is never a result.",
+          "", "## Mac command", "", "On the owner's Mac, with the full 2015-16 tracking games, possessions, shots, the NBA.com aggregates when "
           "collected and collect/positions.parquet (player_id, season, position):", "", "    " + MAC_CMD, ""]
     if fx:
         L.append("The numbers above are fixture output, not a result.")

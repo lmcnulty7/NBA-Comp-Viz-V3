@@ -29,6 +29,12 @@ def scripted():
     return V.fixture_bundle(seed=1, n_games=6, heldout_every=0, local=True, n_possessions=12)
 
 
+@pytest.fixture(scope="module")
+def scripted_feats(scripted):
+    cand, counts = V.validate_bundle(scripted)
+    return F.features(cand, scripted["games"], counts)
+
+
 # ── end to end ────────────────────────────────────────────────────────────────────────────────────
 def test_fixture_end_to_end(bundle, tmp_path):
     report = tmp_path / "coverage.md"
@@ -58,9 +64,8 @@ def test_fixture_end_to_end(bundle, tmp_path):
     assert back["coverage_label"].notna().sum() == ctx["train_rows"]
 
 
-def test_scripted_coverages_beat_majority(scripted):
-    cand, counts = V.validate_bundle(scripted)
-    feats = F.features(cand, scripted["games"], counts)
+def test_scripted_coverages_beat_majority(scripted_feats):
+    feats = scripted_feats
     train, _so, held = T.training_frame(feats)
     assert len(held) == 0 and train["coverage_label"].nunique() == 7
     _fold, probs, note = T.out_of_fold(train, 3, 0)
@@ -71,9 +76,8 @@ def test_scripted_coverages_beat_majority(scripted):
 
 
 # ── leakage guards ────────────────────────────────────────────────────────────────────────────────
-def test_label_and_post_outcome_columns_are_refused(scripted):
-    cand, counts = V.validate_bundle(scripted)
-    feats = F.features(cand, scripted["games"], counts)
+def test_label_and_post_outcome_columns_are_refused(scripted_feats):
+    feats = scripted_feats
     schema.assert_time_forward(feats, "states_1hz")
     F.assert_no_leak(F.design(feats))
     for bad in ("coverage", "coverage_label", "confidence", "label_source", "end_frame", "points", "fold", "p_switch"):
@@ -143,7 +147,8 @@ def test_feature_geometry_on_a_hand_built_switch():
     assert g["d2_nearest_end"] == 1.0 and g["d2_handler_dist_end_ft"] == pytest.approx(2.0, abs=1e-6)
     assert g["def_dist_diff_end_ft"] > 3 and g["d1_handler_dist_end_ft"] == pytest.approx(np.hypot(4.5, 5), abs=1e-6)
     assert g["handler_depth_end_ft"] == pytest.approx(6) and g["handler_lat_end_ft"] == pytest.approx(-5)
-    assert g["d2_depth_end_ft"] == pytest.approx(8) and g["d2_basket_dist_min_ft"] == pytest.approx(g["screen_basket_dist_ft"] - 8)
+    assert g["d2_depth_end_ft"] == pytest.approx(8)       # D2 ends 2 ft inside H, at depth 8, lat -5
+    assert g["d2_basket_dist_min_ft"] == pytest.approx(np.hypot(g["screen_basket_dist_ft"] - 8, 5), abs=1e-6)
     assert g["d1_depth_rel_screener_pass_ft"] < 0            # D1 passed over the top
     assert 0 < g["both_within_6ft_frac"] < 1 and g["both_within_6ft_any"] == 1.0
     speed = np.hypot(10, 8) / ((len(H) - 1) / F.HZ)
@@ -204,8 +209,10 @@ def test_validator_drops_and_counts_bad_rows(scripted):
 
 
 def test_data_root_layout_is_read_by_the_cli(tmp_path):
+    import inspect
     root = tmp_path / "data_root"
-    FX.write_fixture_root(root, 0, 2, 2)
+    small = {"n_possessions": 8} if "n_possessions" in inspect.signature(FX.write_fixture_root).parameters else {}
+    FX.write_fixture_root(root, 0, 2, 2, **small)
     assert sorted((root / "labels" / "screens").glob("*.jsonl"))
     counts = V.main(["--data", str(root)])
     assert counts["games"] == 2 and counts["games_heldout"] == 1 and counts["screens_kept"] > 0
@@ -214,10 +221,55 @@ def test_data_root_layout_is_read_by_the_cli(tmp_path):
     assert list((tmp_path / "out").rglob("coverage_features.parquet"))
 
 
+def test_label_files_are_resolved_like_the_label_tool_writes_them(tmp_path):
+    """Append-only JSONL: a tombstone deletes, the last line about an id wins, pass-2 relabels never reach training,
+    and label_source "hand" is a known source. Written in the label tool's line shape (analytics/labels.py)."""
+    import json
+    game = "01.09.2016.AAA.at.BBB"
+    stamp = "2026-01-01T00:00:00Z"
+    acts = [dict(sportvu_game=game, possession=0, action_id=1, action_type="ball_screen", start_frame=100, end_frame=140,
+                 ball_handler_id=101, screener_id=102, label_source="hand", labeller_pass=1, labelled_at=stamp),
+            dict(sportvu_game=game, possession=1, action_id=2, action_type="ball_screen", start_frame=300, end_frame=340,
+                 ball_handler_id=101, screener_id=103, label_source="hand", labeller_pass=1, labelled_at=stamp),
+            dict(sportvu_game=game, possession=1, action_id=2, action_type="ball_screen", start_frame=305, end_frame=345,
+                 ball_handler_id=101, screener_id=103, label_source="hand", labeller_pass=1, labelled_at=stamp),
+            dict(sportvu_game=game, possession=2, action_id=3, action_type="isolation", start_frame=500, end_frame=540,
+                 ball_handler_id=101, screener_id=None, label_source="hand", labeller_pass=1, labelled_at=stamp),
+            dict(action_id=3, deleted=True, labelled_at=stamp),
+            dict(sportvu_game=game, possession=0, action_id=4, action_type="ball_screen", start_frame=100, end_frame=140,
+                 ball_handler_id=101, screener_id=102, label_source="hand", labeller_pass=2, labelled_at=stamp)]
+    scr = [dict(sportvu_game=game, possession=0, screen_id=1, action_id=1, coverage="drop", on_ball_defender_id=201,
+                screener_defender_id=202, label_source="hand", confidence="sure", labeller_pass=1, labelled_at=stamp),
+           dict(sportvu_game=game, possession=1, screen_id=2, action_id=2, coverage="ice", on_ball_defender_id=201,
+                screener_defender_id=203, label_source="hand", confidence="unsure", labeller_pass=1, labelled_at=stamp),
+           dict(sportvu_game=game, possession=1, screen_id=2, action_id=2, coverage="over", on_ball_defender_id=201,
+                screener_defender_id=203, label_source="hand", confidence="sure", labeller_pass=1, labelled_at=stamp),
+           dict(sportvu_game=game, possession=0, screen_id=3, action_id=1, coverage="switch", on_ball_defender_id=201,
+                screener_defender_id=202, label_source="hand", confidence="sure", labeller_pass=2, labelled_at=stamp),
+           dict(screen_id=1, deleted=True, labelled_at=stamp)]
+    for kind, rows in (("actions", acts), ("screens", scr)):
+        d = tmp_path / "labels" / kind
+        d.mkdir(parents=True)
+        (d / (game + ".jsonl")).write_text("".join(json.dumps(r) + "\n" for r in rows))
+    counts = {}
+    labels = V.load_labels(tmp_path, counts)
+    a, s = labels["actions"], labels["screens"]
+    assert counts["label_reader"] in ("analytics.labels", "raw")
+    assert counts["actions_other_pass_dropped"] == 1 and counts["screens_other_pass_dropped"] == 1
+    assert sorted(a["action_id"].astype(int)) == [1, 2]                        # 3 tombstoned, 4 is pass 2
+    assert int(a.loc[a["action_id"] == 2, "start_frame"].iloc[0]) == 305        # last line wins
+    assert sorted(s["screen_id"].astype(int)) == [2] and s["coverage"].iloc[0] == "over"
+    checked = {}
+    acts_ok = V.check_actions(a, checked)
+    scr_ok = V.check_screens(s, acts_ok, checked)
+    assert checked["actions_unknown_label_source"] == 0 and checked["screens_unknown_label_source"] == 0
+    assert checked["screens_kept"] == 1 and checked["label_over"] == 1
+    assert "hand" in V.LABEL_SOURCES and "human" not in V.LABEL_SOURCES
+
+
 # ── EDA ───────────────────────────────────────────────────────────────────────────────────────────
-def test_eda_tables_and_shuffled_label_check(scripted):
-    cand, counts = V.validate_bundle(scripted)
-    feats = F.features(cand, scripted["games"], counts)
+def test_eda_tables_and_shuffled_label_check(scripted_feats):
+    feats = scripted_feats
     bal = eda.class_balance(feats)
     assert list(bal["class"]) == list(CLASSES) and bal["n"].sum() == feats["coverage_label"].notna().sum()
     dist = eda.feature_distributions_by_class(feats)

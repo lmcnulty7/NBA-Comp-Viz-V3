@@ -58,6 +58,8 @@ def _env() -> dict:
     env = dict(os.environ)
     env["PYTHONPATH"] = str(ROOT) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
     env.setdefault("MPLBACKEND", "Agg")
+    for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):   # no BLAS oversubscription
+        env.setdefault(k, "1")                                                  # across concurrent subprocesses
     return env
 
 
@@ -66,8 +68,10 @@ def _run(args: list[str], timeout: int) -> subprocess.CompletedProcess:
         return subprocess.run([sys.executable, *args], cwd=str(ROOT), env=_env(), capture_output=True,
                               text=True, timeout=timeout)
     except subprocess.TimeoutExpired as exc:
-        return subprocess.CompletedProcess(exc.cmd, returncode=-999, stdout=(exc.stdout or ""),
-                                           stderr=("timed out after %d s\n" % timeout) + (exc.stderr or ""))
+        def _s(b):
+            return b.decode("utf-8", "replace") if isinstance(b, bytes) else (b or "")
+        return subprocess.CompletedProcess(exc.cmd, returncode=-999, stdout=_s(exc.stdout),
+                                           stderr=("timed out after %d s\n" % timeout) + _s(exc.stderr))
 
 
 def _run_many(jobs: dict, timeout: int, workers: int = WORKERS) -> dict:

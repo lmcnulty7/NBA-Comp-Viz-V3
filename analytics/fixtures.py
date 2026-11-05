@@ -98,6 +98,27 @@ PLAY_TYPES = ("Isolation", "PRBallHandler", "PRRollman", "Postup", "Spotup", "Ha
               "Transition")
 
 
+HELDOUT_ARENA = "CLE"            # sportvu/splits.json heldout_arena.arenas: every game at CLE is held out
+
+
+def split_for(sportvu_game: str) -> str:
+    """The split the real routing gives a game id (sportvu.colab_contract.split_of with sportvu/splits.json):
+    `heldout_game` for the real held-out id, `heldout_arena` for a game at CLE, else `train`."""
+    if sportvu_game == HELDOUT_GAME:
+        return "heldout_game"
+    if sportvu_game.rsplit(".", 1)[-1] == HELDOUT_ARENA:
+        return "heldout_arena"
+    return "train"
+
+
+def fixture_paths(root) -> dict:
+    """Where write_fixture_root puts things under DATA_ROOT, as strings (manifest is the Step 1 manifest.json)."""
+    root = Path(root)
+    return {"root": str(root), "sportvu": str(root / "sportvu_contract"),
+            "manifest": str(root / "sportvu_contract" / "manifest.json"),
+            "analytics": str(root / "analytics"), "collect": str(root / "collect"), "labels": str(root / "labels")}
+
+
 def GAP_POSSESSION(n_possessions: int) -> int:
     """The possession index that carries the 3 s clock gap (always the same for a given count)."""
     return max(0, n_possessions // 3)
@@ -298,7 +319,10 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
     season = _season_of_date(date)
     gameid = "00215%05d" % (seed % 100000)
     home_id, away_id = TEAM_ID_BASE + (seed % 50) * 2 + 1, TEAM_ID_BASE + (seed % 50) * 2 + 2
-    split = "heldout_game" if heldout else "train"
+    split = split_for(sportvu_game)
+    if (split != "train") != heldout:
+        raise ValueError("heldout=%s disagrees with the real routing of %s (split %s): a held-out fixture game "
+                         "is the real id %s or a game at %s" % (heldout, sportvu_game, split, HELDOUT_GAME, HELDOUT_ARENA))
     # rosters: 7 per team; home first. Names are unique within the game.
     names_first = list(FIRST_NAMES)
     rs.shuffle(names_first)
@@ -442,17 +466,18 @@ def _synth_game_impl(seed, n_possessions, heldout, sportvu_game):
                 _cut(sim, rs, off_idx, def_idx, basket, handler, cutter, star_slot)
                 handler = cutter
             a_end = sim.last_frame()
-            truth_actions.append({"sportvu_game": sportvu_game, "possession": poss_no, "action_type": action,
-                                  "start_frame": a_start, "end_frame": a_end,
+            truth_actions.append({"sportvu_game": sportvu_game, "possession": poss_no, "action_id": action_id,
+                                  "action_type": action, "start_frame": a_start, "end_frame": a_end,
                                   "ball_handler_id": int(pid[sr[off_idx[handler]]]),
                                   "screener_id": None if screener is None else int(pid[sr[off_idx[screener]]]),
-                                  "label_source": "synthetic", "labeller_pass": 1})
+                                  "label_source": "synthetic", "labeller_pass": 1, "labelled_at": FETCHED_AT})
             if coverage is not None:
-                truth_screens.append({"sportvu_game": sportvu_game, "possession": poss_no, "action_id": action_id,
-                                      "coverage": coverage,
+                truth_screens.append({"sportvu_game": sportvu_game, "possession": poss_no,
+                                      "screen_id": len(truth_screens), "action_id": action_id, "coverage": coverage,
                                       "on_ball_defender_id": int(pid[sr[def_idx[handler]]]),
                                       "screener_defender_id": int(pid[sr[def_idx[screener]]]),
-                                      "label_source": "synthetic", "confidence": "sure"})
+                                      "label_source": "synthetic", "confidence": "sure", "labeller_pass": 1,
+                                      "labelled_at": FETCHED_AT})
             action_id += 1
             # -- PASSES (maybe a turnover) --
             turnover = rs.rand() < P_TURNOVER
@@ -1071,7 +1096,8 @@ def synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportv
 def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list[dict]:
     """n_games synthetic games with distinct ids. With heldout_every = k > 0, every k-th game (the k-th,
     2k-th, ...) is held out: the first of them carries the real held-out id 12.16.2015.PHX.at.GSW, any
-    later one a synthetic id with heldout True (ids never repeat within a season)."""
+    later one a game at the held-out arena CLE with a synthetic away code (ids never repeat within a season),
+    so sportvu.colab_contract.split_of routes every held-out fixture game as held out."""
     rs = np.random.RandomState(seed * 7919 + 17)
     games, used = [], set()
     first_heldout_done = False
@@ -1085,6 +1111,8 @@ def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessi
         else:
             while gid is None or gid in used:
                 away, home = rs.choice(TEAM_CODES, 2, replace=False)
+                if held:
+                    home = HELDOUT_ARENA                  # routed heldout_arena by sportvu/splits.json
                 month = int(rs.choice([11, 12, 1, 2, 3]))
                 day = int(rs.randint(1, 29))
                 year = 2015 if month >= 10 else 2016
@@ -1365,19 +1393,26 @@ def synth_odds(seed: int, games: pd.DataFrame) -> pd.DataFrame:
     return df.astype({"point": "float32", "price": "int32", "is_close": "bool"})
 
 
+ACTION_COLUMNS = ["sportvu_game", "possession", "action_id", "action_type", "start_frame", "end_frame",
+                  "ball_handler_id", "screener_id", "label_source", "labeller_pass", "labelled_at"]
+SCREEN_COLUMNS = ["sportvu_game", "possession", "screen_id", "action_id", "coverage", "on_ball_defender_id",
+                  "screener_defender_id", "label_source", "confidence", "labeller_pass", "labelled_at"]
+
+
 def synth_labels(seed: int, game: dict) -> dict:
-    """Action and screen labels of a synth_game dict: the truth the simulator recorded (seed is accepted for
-    API symmetry and only orders the rows)."""
-    actions = pd.DataFrame(game["truth"]["actions"],
-                           columns=["sportvu_game", "possession", "action_type", "start_frame", "end_frame",
-                                    "ball_handler_id", "screener_id", "label_source", "labeller_pass"])
-    actions = actions.astype({"possession": "int32", "start_frame": "int32", "end_frame": "int32",
-                              "ball_handler_id": "int32", "screener_id": "Int32", "labeller_pass": "int8"})
-    screens = pd.DataFrame(game["truth"]["screens"],
-                           columns=["sportvu_game", "possession", "action_id", "coverage", "on_ball_defender_id",
-                                    "screener_defender_id", "label_source", "confidence"])
-    screens = screens.astype({"possession": "int32", "action_id": "int32", "on_ball_defender_id": "int32",
-                              "screener_defender_id": "int32"})
+    """Action and screen labels of a synth_game dict in the docs/contract/labels.md shapes (analytics.labels
+    ACTIONS_SCHEMA and SCREENS_SCHEMA): the truth the simulator recorded, label_source synthetic, labeller_pass 1,
+    action_id and screen_id unique within the game. seed is accepted for API symmetry."""
+    actions = pd.DataFrame(game["truth"]["actions"], columns=ACTION_COLUMNS)
+    actions = actions.astype({"sportvu_game": "string", "possession": "int32", "action_id": "int32",
+                              "action_type": "string", "start_frame": "int32", "end_frame": "int32",
+                              "ball_handler_id": "int32", "screener_id": "Int32", "label_source": "string",
+                              "labeller_pass": "int16", "labelled_at": "string"})
+    screens = pd.DataFrame(game["truth"]["screens"], columns=SCREEN_COLUMNS)
+    screens = screens.astype({"sportvu_game": "string", "possession": "int32", "screen_id": "int32",
+                              "action_id": "int32", "coverage": "string", "on_ball_defender_id": "int32",
+                              "screener_defender_id": "int32", "label_source": "string", "confidence": "string",
+                              "labeller_pass": "int16", "labelled_at": "string"})
     return {"actions": actions, "screens": screens}
 
 
@@ -1398,7 +1433,9 @@ def _pq(df: pd.DataFrame, path: Path) -> int:
 
 def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 40,
                        n_stint_games: int = 20, n_agg_players: int = 60) -> dict:
-    """Write the DATA_ROOT layout the lanes read (docs/contract/fixtures.md) and return the Step 1 manifest."""
+    """Write the DATA_ROOT layout the lanes read (docs/contract/fixtures.md) and return the Step 1 manifest.
+    The Step 1 files (frames, pbp, manifest.json) live under <root>/sportvu_contract, the other families under
+    <root>/collect, <root>/analytics and <root>/labels; manifest["paths"] (fixture_paths(root)) names them."""
     root = Path(root)
     games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     sv = root / "sportvu_contract"
@@ -1426,6 +1463,7 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int
         _write_jsonl(root / "labels" / "screens" / (gid + ".jsonl"), labels["screens"])
     manifest["counts"] = {"games": len(games), "ok": len(games), "failed": 0, "source_broken": 0,
                           "pbp_joined": len(games), "heldout": len(manifest["heldout"])}
+    manifest["paths"] = fixture_paths(root)
     sv.mkdir(parents=True, exist_ok=True)
     (sv / "manifest.json").write_text(json.dumps(manifest, indent=1))
     if shots_train:
@@ -1467,7 +1505,8 @@ def main(argv=None) -> int:
 
 
 __all__ = ["synth_game", "synth_season", "synth_aggregates", "synth_stints", "synth_odds", "synth_labels",
-           "write_fixture_root", "HELDOUT_GAME", "BASKETS", "HZ", "GAP_POSSESSION", "TEAM_CODES", "TEAM_NAMES"]
+           "write_fixture_root", "fixture_paths", "split_for", "HELDOUT_GAME", "HELDOUT_ARENA", "BASKETS", "HZ",
+           "GAP_POSSESSION", "TEAM_CODES", "TEAM_NAMES", "ACTION_COLUMNS", "SCREEN_COLUMNS"]
 
 if __name__ == "__main__":
     sys.exit(main())

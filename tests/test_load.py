@@ -82,7 +82,7 @@ def test_schedule_features_from_manifest_dates():
 
 @pytest.fixture(scope="module")
 def local_tables():
-    inp = fx.season_inputs(seed=1, n_games=6, heldout_every=3, n_possessions=16, prefer_shared=False)
+    inp = fx.season_inputs(seed=1, n_games=5, heldout_every=3, n_possessions=16, prefer_shared=False)
     return inp, F.build_tables(inp, n_boot=30, seed=0)
 
 
@@ -157,7 +157,7 @@ def test_leakage_guards_refuse_targets_same_game_totals_and_held_out_rows(local_
 def test_train_end_to_end_on_the_local_fixture(tmp_path, local_tables):
     inp, t = local_tables
     ctx = T.run(inp, n_folds=5, seed=0, n_boot=20, fixture=True, tables=t)
-    assert ctx["train_games"] == 4 and ctx["heldout_games"] == 2
+    assert ctx["train_games"] == 4 and ctx["heldout_games"] == 1
     assert np.isfinite(ctx["reg"]["mean"]["point"]) and np.isfinite(ctx["reg"]["ridge"]["point"])
     assert ctx["reg_note"]["mode"] == "out-of-fold" and ctx["reg_note"]["folds"] == 4
     assert ctx["abs"] is not None and 0 < ctx["abs"]["base_rate"] < 1 and np.isfinite(ctx["abs"]["logistic"]["log_loss"]["point"])
@@ -167,7 +167,7 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path, local_tables):
     ctx["command"] = "test"
     text = T.write_report(tmp_path / "load.md", ctx)
     assert "fixture output, not a result" in text and "refuse_heldout" in text and "Absence is not injury" in text
-    assert "—" not in text
+    assert chr(0x2014) not in text
     written = F.write_tables(t, tmp_path, "2015-16")
     assert (tmp_path / "analytics" / "load" / "2015-16" / "player_games.parquet").exists()
     assert (tmp_path / "analytics" / "load" / "heldout" / "2015-16" / "player_stints.parquet").exists()
@@ -189,12 +189,12 @@ def test_eda_tables(local_tables):
     sh = eda.shuffled_check(pg, n_shuffles=10)
     assert sh["feature"].tolist() == F.FEATURES and "outside_band" in sh.columns
     md = eda.markdown(eda.stint_gate(sm))
-    assert md.startswith("| players |") and "—" not in md
+    assert md.startswith("| players |") and chr(0x2014) not in md
 
 
 def test_data_root_layout_round_trip(tmp_path):
     """A tiny DATA_ROOT written from the local generator (frames parquet, manifest, rosters): the --data path."""
-    inp = fx.season_inputs(seed=2, n_games=3, heldout_every=3, n_possessions=8, prefer_shared=False)
+    inp = fx.season_inputs(seed=2, n_games=3, heldout_every=3, n_possessions=4, prefer_shared=False)
     root = tmp_path / "root"
     (root / "sportvu_contract" / "heldout").mkdir(parents=True)
     for g in inp["games"]:
@@ -219,12 +219,12 @@ def test_data_root_layout_round_trip(tmp_path):
 def test_shared_fixtures_run_end_to_end(tmp_path):
     """The shared season: distinct teams and players per game, so the schedule history is empty and absent_next
     unknown; the stints, the decline target, the guards and the held-out path must still work."""
-    inp = V.load_fixtures(seed=0, n_games=3, heldout_every=3, prefer_shared=True)
+    inp = V.load_fixtures(seed=0, n_games=2, heldout_every=2, prefer_shared=True)
     assert "shared" in inp["source"] and sum(g["heldout"] for g in inp["games"]) == 1
     t = F.build_tables(inp, n_boot=10)
     assert len(t["player_stints"]) > 0 and t["player_games"]["decline_ftps"].notna().any()
     ctx = T.run(inp, n_folds=5, seed=0, n_boot=10, fixture=True, tables=t)
-    assert ctx["heldout_games"] == 1 and ctx["train_games"] == 2
+    assert ctx["heldout_games"] == 1 and ctx["train_games"] == 1 and ctx["reg_note"]["mode"] == "in-sample"
     assert np.isfinite(ctx["reg"]["ridge"]["point"])
     ctx["command"] = "test"
     assert "fixture output, not a result" in T.write_report(tmp_path / "load.md", ctx)

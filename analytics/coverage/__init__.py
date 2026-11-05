@@ -14,8 +14,9 @@ from __future__ import annotations
 
 CLASSES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over")
 CONFIDENCES = ("sure", "unsure")
-LABEL_SOURCES = ("human", "model")
+LABEL_SOURCES = ("hand", "model", "synthetic")   # as analytics/labels.py writes them
+TRAIN_PASS = 1                                       # only first-pass labels fit; pass 2 is the consistency relabel
 SCREEN_ACTION = "ball_screen"
 WHO = "analytics.coverage.train"
 
-__all__ = ["CLASSES", "CONFIDENCES", "LABEL_SOURCES", "SCREEN_ACTION", "WHO"]
+__all__ = ["CLASSES", "CONFIDENCES", "LABEL_SOURCES", "SCREEN_ACTION", "TRAIN_PASS", "WHO"]

@@ -38,6 +38,7 @@ SCREEN_LEN = 15              # end_frame = start_frame + 15 (0.6 s)
 MOTION_END_S = 2.4           # scripted motion runs from t = -2.0 s to +2.4 s around the screen
 TEAMS = {1: "AAA", 2: "BBB", 3: "CCC", 4: "DDD"}
 NOISE_FT = 0.1
+STAMP = "2026-01-01T00:00:00Z"
 
 
 # ── scripted keyframes in screen coordinates: (t_s, depth toward the basket, lateral toward the sideline) ──
@@ -196,18 +197,19 @@ def local_synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -
             "states_1hz": empty, "scripted": scripted}
 
 
-def local_synth_season(seed, n_games=8, heldout_every=0) -> list:
+def local_synth_season(seed, n_games=8, heldout_every=0, n_possessions=24) -> list:
     """n_games synth_game dicts; every heldout_every-th game (1-based) is held out when heldout_every > 0."""
     out = []
     for i in range(n_games):
         held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
-        out.append(local_synth_game(seed * 1000 + i, n_possessions=24, heldout=held))
+        out.append(local_synth_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held))
     return out
 
 
 def local_synth_labels(seed, game) -> dict:
-    """Hand-label tables (actions, screens) of one synth_game dict. Adds a few non-screen actions so the
-    validator has something to ignore; one in ten screens is marked unsure."""
+    """Hand-label tables (actions, screens) of one synth_game dict in the label tool's line shape (analytics/labels.py:
+    label_source hand, labeller_pass 1, labelled_at, screen_id). Adds a few non-screen actions so the validator has
+    something to ignore; one in ten screens is marked unsure."""
     rng = np.random.default_rng(seed + 7)
     g = game["sportvu_game"]
     actions, screens = [], []
@@ -216,19 +218,21 @@ def local_synth_labels(seed, game) -> dict:
         actions.append({"sportvu_game": g, "possession": s["possession"], "action_id": aid, "action_type": "ball_screen",
                         "start_frame": s["start_frame"], "end_frame": s["end_frame"],
                         "ball_handler_id": s["ball_handler_id"], "screener_id": s["screener_id"],
-                        "label_source": "human", "labeller_pass": 1})
-        screens.append({"sportvu_game": g, "possession": s["possession"], "action_id": aid, "coverage": s["coverage"],
-                        "on_ball_defender_id": s["on_ball_defender_id"], "screener_defender_id": s["screener_defender_id"],
-                        "label_source": "human", "confidence": "unsure" if rng.uniform() < 0.1 else "sure"})
+                        "label_source": "hand", "labeller_pass": 1, "labelled_at": STAMP})
+        screens.append({"sportvu_game": g, "possession": s["possession"], "screen_id": len(screens) + 1, "action_id": aid,
+                        "coverage": s["coverage"], "on_ball_defender_id": s["on_ball_defender_id"],
+                        "screener_defender_id": s["screener_defender_id"], "label_source": "hand",
+                        "confidence": "unsure" if rng.uniform() < 0.1 else "sure", "labeller_pass": 1,
+                        "labelled_at": STAMP})
         if rng.uniform() < 0.15:
             actions.append({"sportvu_game": g, "possession": s["possession"], "action_id": len(actions),
                             "action_type": "isolation", "start_frame": s["end_frame"] + 20, "end_frame": s["end_frame"] + 60,
                             "ball_handler_id": s["ball_handler_id"], "screener_id": -1,
-                            "label_source": "human", "labeller_pass": 1})
+                            "label_source": "hand", "labeller_pass": 1, "labelled_at": STAMP})
     cols_a = ["sportvu_game", "possession", "action_id", "action_type", "start_frame", "end_frame", "ball_handler_id",
-              "screener_id", "label_source", "labeller_pass"]
-    cols_s = ["sportvu_game", "possession", "action_id", "coverage", "on_ball_defender_id", "screener_defender_id",
-              "label_source", "confidence"]
+              "screener_id", "label_source", "labeller_pass", "labelled_at"]
+    cols_s = ["sportvu_game", "possession", "screen_id", "action_id", "coverage", "on_ball_defender_id",
+              "screener_defender_id", "label_source", "confidence", "labeller_pass", "labelled_at"]
     return {"actions": pd.DataFrame(actions, columns=cols_a), "screens": pd.DataFrame(screens, columns=cols_s)}
 
 
@@ -241,13 +245,13 @@ def _season(game_id: str) -> str:
     return "%d-%s" % (y, str(y + 1)[2:]) if m >= 9 else "%d-%s" % (y - 1, str(y)[2:])
 
 
-def local_write_fixture_root(root, seed, n_games, heldout_every) -> list:
+def local_write_fixture_root(root, seed, n_games, heldout_every, n_possessions=24) -> list:
     """Write a season in the DATA_ROOT layout: sportvu_contract/<game>.parquet (held-out under heldout/),
     analytics/possessions/<season>/, analytics/rosters/<season>/ (held-out under heldout/<season>/),
     labels/actions/<game>.jsonl, labels/screens/<game>.jsonl."""
     root = Path(root)
     ids = []
-    for i, game in enumerate(local_synth_season(seed, n_games, heldout_every)):
+    for i, game in enumerate(local_synth_season(seed, n_games, heldout_every, n_possessions)):
         g, held = game["sportvu_game"], game["heldout"]
         season = _season(g)
         fdir = root / "sportvu_contract" / ("heldout" if held else "")

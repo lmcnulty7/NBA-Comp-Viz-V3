@@ -359,6 +359,7 @@ def main(argv=None) -> dict:
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-games", type=int, default=8)
+    ap.add_argument("--n-possessions", type=int, default=40)
     a = ap.parse_args(argv)
     games = V.load_games(a, who="gravity.features")
     pf, sp, counts = build(games)

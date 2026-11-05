@@ -8,17 +8,25 @@ Two tables, both append-only JSONL under DATA_ROOT/labels/:
 Every line carries ``labelled_at`` (ISO 8601, UTC) and ``labeller_pass`` (1 = first pass, 2 = the relabel a
 week later). A label is never rewritten in place: a deletion is a tombstone line ``{"action_id": k,
 "deleted": true, "labelled_at": ...}`` (``screen_id`` for screens) and ``read_labels`` resolves the file in
-order, so the last line about an id wins.
+order, so the last line about an id wins. ``read_labels`` (or the parquet that ``label_tool --export``
+writes from it) is the only sanctioned reader: a consumer that reads the raw lines must drop every line
+carrying ``deleted`` and keep the last line per id, and training consumers read ``labeller_pass == 1``
+only (``read_labels(..., labeller_pass=1)``). A line without an id (older fixture roots) takes the running
+0-based position of the non-tombstone lines of its file.
+
+A third file, ``labels/visited/<sportvu_game>.jsonl``, records every possession a labeller pass finished
+(``mark_visited``); ``kappa_report`` restricts the two passes to the possessions both passes visited, so an
+action one pass saw and the other did not enters the kappa as ``none``.
 
 Sampling (``sample_possessions``): half-court possessions only (the ball crosses the half-court line and
-then dwells in the front court for HALF_COURT_DWELL_S), training games only (an id carrying a held-out
+then spends at least HALF_COURT_DWELL_S in the front court), training games only (an id carrying a held-out
 token is never sampled), stratified by offensive team, with at least half of each team's draw carrying the
 rule-based screen candidate flag (a non-handler offensive player within SCREEN_CANDIDATE_FT of the
 handler's nearest defender for SCREEN_CANDIDATE_S).
 
 Consistency (``kappa``): two labeller passes over the same possessions are paired by temporal overlap of
-their actions and Cohen's kappa is reported for ``action_type`` and for ``coverage``; an action one pass
-has and the other does not counts as the category ``none``.
+their actions and Cohen's kappa is reported for ``action_type`` and for ``coverage`` (``sure`` coverages
+only); an action one pass has and the other does not counts as the category ``none``.
 """
 from __future__ import annotations
 
@@ -85,6 +93,7 @@ ENUMS: dict[str, tuple[str, ...]] = {
 
 ID_FIELD = {"actions": "action_id", "screens": "screen_id"}
 SCHEMAS = {"actions": ACTIONS_SCHEMA, "screens": SCREENS_SCHEMA}
+LABELLER_PASSES = (1, 2)
 
 # Sampling constants
 MIDCOURT_X = 47.0
@@ -247,6 +256,7 @@ def _read_jsonl(path: Path, kind: str) -> pd.DataFrame:
         return empty(kind)
     live: dict = {}
     order: list = []
+    n_labels = 0
     with path.open("r", encoding="utf-8") as fh:
         for ln, raw in enumerate(fh):
             raw = raw.strip()
@@ -257,12 +267,17 @@ def _read_jsonl(path: Path, kind: str) -> pd.DataFrame:
             except json.JSONDecodeError as exc:
                 raise ValueError(f"{path}:{ln + 1}: bad JSON ({exc})") from exc
             key = rec.get(idf)
-            if key is None:
-                raise ValueError(f"{path}:{ln + 1}: line has no {idf}")
-            key = int(key)
             if rec.get("deleted"):
-                live.pop(key, None)
+                if key is None:
+                    raise ValueError(f"{path}:{ln + 1}: tombstone has no {idf}")
+                live.pop(int(key), None)
                 continue
+            if key is None:
+                # a root written without ids (older fixtures): the running position of the labels
+                key = n_labels
+                rec[idf] = key
+            key = int(key)
+            n_labels += 1
             if key not in live:
                 order.append(key)
             live[key] = rec
@@ -276,10 +291,45 @@ def _read_jsonl(path: Path, kind: str) -> pd.DataFrame:
     return cast(df, kind).reset_index(drop=True)
 
 
-def read_labels(data_root, game: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """(actions_df, screens_df) of ``game`` with tombstones applied and contract dtypes."""
-    return (_read_jsonl(labels_path(data_root, "actions", game), "actions"),
-            _read_jsonl(labels_path(data_root, "screens", game), "screens"))
+def read_labels(data_root, game: str, labeller_pass: int | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """(actions_df, screens_df) of ``game`` with tombstones applied and contract dtypes.
+
+    ``labeller_pass`` keeps that pass only; training consumers pass 1 (the relabel pass 2 exists for the
+    kappa check and must never reach a trainer as extra rows).
+    """
+    acts = _read_jsonl(labels_path(data_root, "actions", game), "actions")
+    scrs = _read_jsonl(labels_path(data_root, "screens", game), "screens")
+    if labeller_pass is not None:
+        acts = acts.loc[acts["labeller_pass"] == int(labeller_pass)].reset_index(drop=True)
+        scrs = scrs.loc[scrs["labeller_pass"] == int(labeller_pass)].reset_index(drop=True)
+    return acts, scrs
+
+
+VISITED_COLUMNS = ("sportvu_game", "possession", "labeller_pass", "visited_at")
+
+
+def visited_path(data_root, game: str) -> Path:
+    return Path(data_root) / "labels" / "visited" / f"{game}.jsonl"
+
+
+def mark_visited(data_root, game: str, possession: int, labeller_pass: int, visited_at: str | None = None) -> Path:
+    """Append the record that ``labeller_pass`` finished ``possession`` (whether or not it holds labels)."""
+    p = visited_path(data_root, game)
+    _append_lines(p, [{"sportvu_game": str(game), "possession": int(possession), "labeller_pass": int(labeller_pass),
+                       "visited_at": visited_at or now_iso()}])
+    return p
+
+
+def read_visited(data_root, game: str) -> pd.DataFrame:
+    """The visited records of ``game`` (one row per line; a possession may appear more than once)."""
+    p = visited_path(data_root, game)
+    rows = []
+    if p.exists():
+        for raw in p.read_text(encoding="utf-8").splitlines():
+            if raw.strip():
+                rows.append(json.loads(raw))
+    df = pd.DataFrame(rows, columns=list(VISITED_COLUMNS))
+    return df.astype({"possession": "int32", "labeller_pass": "int16"}) if len(df) else df
 
 
 def next_id(df: pd.DataFrame, kind: str) -> int:
@@ -316,13 +366,15 @@ def _enum_problems(df: pd.DataFrame, kind: str) -> list[str]:
 
 
 def validate_labels(actions_df: pd.DataFrame | None, screens_df: pd.DataFrame | None,
-                    possessions_df: pd.DataFrame | None = None) -> list[str]:
+                    possessions_df: pd.DataFrame | None = None, frames_df: pd.DataFrame | None = None) -> list[str]:
     """Problems with the label frames; empty when they conform.
 
-    Checks: contract columns present and castable, unknown enum values, start_frame after end_frame,
-    screener_id missing on a screen or handoff action, frames outside the possession span (when
-    ``possessions_df`` is given), overlapping actions of the same type in one possession, screens whose
-    action_id is not a ball_screen action of the same game and possession, duplicate ids.
+    Checks: contract columns present and castable, unknown enum values, labeller_pass in (1, 2), start_frame
+    after end_frame, screener_id missing on a screen or handoff action, frames outside the possession span
+    (when ``possessions_df`` is given), overlapping actions of the same type in one possession, screens
+    whose action_id is not a ball_screen action of the same game and possession, duplicate ids, and, when
+    ``frames_df`` and the possessions' ``offense_team_id`` are given, that the handler and screener are
+    on the offence and the two defenders on the defence of their possession.
     """
     probs: list[str] = []
     acts = actions_df if actions_df is not None else empty("actions")
@@ -343,6 +395,12 @@ def validate_labels(actions_df: pd.DataFrame | None, screens_df: pd.DataFrame | 
         if len(df) and df.duplicated([ "sportvu_game", idf]).any():
             dup = sorted(df.loc[df.duplicated(["sportvu_game", idf]), idf].unique().tolist())
             probs.append(f"{kind}: duplicate {idf}(s) {dup}")
+
+    for kind, df in (("actions", acts), ("screens", scrs)):
+        if len(df):
+            bad = sorted(set(df["labeller_pass"].astype(int).tolist()) - set(LABELLER_PASSES))
+            if bad:
+                probs.append(f"{kind}.labeller_pass: unknown pass(es) {bad}; allowed {list(LABELLER_PASSES)}")
 
     for r in acts.itertuples(index=False):
         tag = f"action {int(r.action_id)} ({r.action_type}, possession {int(r.possession)})"
@@ -375,6 +433,35 @@ def validate_labels(actions_df: pd.DataFrame | None, screens_df: pd.DataFrame | 
             for (s1, e1, i1), (s2, e2, i2) in zip(rows[:-1], rows[1:]):
                 if s2 <= e1:
                     probs.append(f"actions {i1} and {i2} ({t}, possession {int(p)}) overlap: [{s1}, {e1}] and [{s2}, {e2}]")
+
+    if frames_df is not None and possessions_df is not None and "offense_team_id" in possessions_df.columns:
+        team_of = {int(p): int(t) for p, t in zip(frames_df["player_id"], frames_df["team_id"])}
+        offense = {(str(g), int(p)): (None if pd.isna(t) else int(t)) for g, p, t in zip(
+            possessions_df["sportvu_game"], possessions_df["possession"], possessions_df["offense_team_id"])}
+
+        def side_problem(tag, role, pid, g, p, want_offense):
+            off = offense.get((str(g), int(p)))
+            if off is None or pid is None or pd.isna(pid):
+                return None
+            team = team_of.get(int(pid))
+            if team is None:
+                return f"{tag}: {role} {int(pid)} is not in the frames"
+            if (team == off) != want_offense:
+                return f"{tag}: {role} {int(pid)} is on the {'defence' if want_offense else 'offence'}"
+            return None
+
+        for r in acts.itertuples(index=False):
+            tag = f"action {int(r.action_id)} ({r.action_type}, possession {int(r.possession)})"
+            for role, pid in (("ball_handler_id", r.ball_handler_id), ("screener_id", r.screener_id)):
+                pr = side_problem(tag, role, pid, r.sportvu_game, r.possession, True)
+                if pr:
+                    probs.append(pr)
+        for r in scrs.itertuples(index=False):
+            tag = f"screen {int(r.screen_id)} (possession {int(r.possession)})"
+            for role, pid in (("on_ball_defender_id", r.on_ball_defender_id), ("screener_defender_id", r.screener_defender_id)):
+                pr = side_problem(tag, role, pid, r.sportvu_game, r.possession, False)
+                if pr:
+                    probs.append(pr)
 
     if len(scrs):
         ball = {(str(g), int(p), int(a)) for g, p, a, t in zip(
@@ -411,7 +498,8 @@ def _span_rows(frames_df: pd.DataFrame, start: int, end: int) -> pd.DataFrame:
 
 
 def is_half_court(span: pd.DataFrame, fps: float) -> bool:
-    """The ball crosses MIDCOURT_X inside the span and then stays in the new half for HALF_COURT_DWELL_S."""
+    """The ball crosses MIDCOURT_X inside the span and then spends at least HALF_COURT_DWELL_S (summed
+    over the frames after the first crossing) in the new half."""
     fl = span.drop_duplicates("frame").sort_values("frame")
     bx = fl["ball_x"].to_numpy(dtype="float64")
     bx = bx[~np.isnan(bx)]
@@ -485,33 +573,49 @@ def is_heldout(game: str, heldout_tokens: Iterable[str] | None) -> bool:
 
 
 def sample_possessions(possessions_df: pd.DataFrame, frames_df: pd.DataFrame, n: int, seed: int = 0,
-                       heldout_tokens: Iterable[str] | None = None) -> pd.DataFrame:
+                       heldout_tokens: Iterable[str] | None = None, flags: pd.DataFrame | None = None) -> pd.DataFrame:
     """``n`` possessions to label, stratified as the labeling guide prescribes.
 
     1. training games only: a row whose sportvu_game carries any of ``heldout_tokens`` is dropped;
     2. half-court possessions only (``is_half_court``);
     3. the quota is split evenly across offensive teams (the remainder goes to the teams with more
-       eligible possessions);
+       eligible possessions); a team with fewer eligible possessions than its quota gives the shortfall to
+       the other teams, and what cannot be placed anywhere is ``attrs["n_short"]``;
     4. within each team at least half of the quota comes from screen-candidate possessions when that
        many exist, the rest from the others; a short stratum is topped up from the other one.
-    Rows are returned in a seeded random order with the flag columns and ``sample_rank``; attrs hold the
-    counts per stratum and the number of held-out rows refused.
+    ``flags`` is a ``possession_flags`` frame computed earlier (it is computed here when absent). Rows are
+    returned in a seeded random order with the flag columns and ``sample_rank``; attrs hold the counts per
+    stratum and the number of held-out rows refused.
     """
     toks = set(str(t) for t in (heldout_tokens or ()) if t)
     poss = possessions_df.copy()
     held = poss["sportvu_game"].astype(str).map(lambda g: is_heldout(g, toks))
     n_held = int(held.sum())
     poss = poss.loc[~held]
-    flags = possession_flags(poss, frames_df) if len(poss) else possession_flags(possessions_df.iloc[:0], frames_df)
+    if flags is None:
+        flags = possession_flags(poss, frames_df) if len(poss) else possession_flags(possessions_df.iloc[:0], frames_df)
+    else:
+        keep = set(zip(poss["sportvu_game"].astype(str), poss["possession"].astype(int)))
+        flags = flags.loc[[(str(g), int(p)) in keep for g, p in zip(flags["sportvu_game"], flags["possession"])]]
     elig = flags.loc[flags["half_court"] & flags["offense_team_id"].notna()].reset_index(drop=True)
     rng = np.random.RandomState(int(seed))
     teams = sorted(int(t) for t in elig["offense_team_id"].dropna().unique())
     picked: list[pd.DataFrame] = []
     counts: dict = {}
+    n_short = 0
     if teams and n > 0:
         base, rem = divmod(int(n), len(teams))
         by_size = sorted(teams, key=lambda t: (-int((elig["offense_team_id"] == t).sum()), t))
         quota = {t: base + (1 if i < rem else 0) for i, t in enumerate(by_size)}
+        avail = {t: int((elig["offense_team_id"] == t).sum()) for t in teams}
+        # a team short of its quota hands the shortfall to the teams with spare eligible possessions
+        spare = sum(max(0, quota[t] - avail[t]) for t in teams)
+        quota = {t: min(quota[t], avail[t]) for t in teams}
+        for t in sorted(teams, key=lambda t: (-(avail[t] - quota[t]), t)):
+            give = min(spare, avail[t] - quota[t])
+            quota[t] += give
+            spare -= give
+        n_short = spare
         for t in teams:
             e = elig.loc[elig["offense_team_id"] == t]
             cand = e.loc[e["screen_candidate"]]
@@ -529,6 +633,7 @@ def sample_possessions(possessions_df: pd.DataFrame, frames_df: pd.DataFrame, n:
         out = out.iloc[rng.permutation(len(out))].reset_index(drop=True)
     out["sample_rank"] = np.arange(len(out), dtype=np.int32)
     out.attrs["strata"] = counts
+    out.attrs["n_short"] = int(n_short)
     out.attrs["n_heldout_refused"] = n_held
     out.attrs["n_half_court"] = int(flags["half_court"].sum()) if len(flags) else 0
     out.attrs["seed"] = int(seed)
@@ -602,12 +707,15 @@ def kappa(labels_pass1, labels_pass2) -> dict:
     """Cohen's kappa between two labeller passes.
 
     ``action_type``: over paired actions (``pair_actions``), an action the other pass lacks counts as
-    ``none``. ``coverage``: over paired ball_screen actions, the coverage each pass attached (``none`` when
-    a pass attached no screen label). Returns ``{"action_type", "coverage", "n_actions", "n_screens"}``
-    with nan where a pass has no items.
+    ``none``. ``coverage``: over paired ball_screen actions, the ``sure`` coverage each pass attached
+    (``none`` when a pass attached no sure screen label; ``unsure`` labels are left out of the kappa and of
+    the first training set). Returns ``{"action_type", "coverage", "n_actions", "n_screens"}`` with nan
+    where a pass has no items.
     """
     acts1, scr1 = _unpack(labels_pass1)
     acts2, scr2 = _unpack(labels_pass2)
+    scr1 = scr1.loc[scr1["confidence"] == "sure"] if scr1 is not None and len(scr1) else scr1
+    scr2 = scr2.loc[scr2["confidence"] == "sure"] if scr2 is not None and len(scr2) else scr2
     pairs = pair_actions(acts1, acts2)
     t1 = [("none" if x is None else str(x.action_type)) for x, _ in pairs]
     t2 = [("none" if y is None else str(y.action_type)) for _, y in pairs]
@@ -633,8 +741,10 @@ __all__ = [
     "ACTION_TYPES", "COVERAGES", "LABEL_SOURCES", "CONFIDENCES", "SCREENER_REQUIRED", "ENUMS",
     "ACTIONS_SCHEMA", "SCREENS_SCHEMA", "SCHEMAS", "ID_FIELD",
     "MIDCOURT_X", "HALF_COURT_DWELL_S", "SCREEN_CANDIDATE_FT", "SCREEN_CANDIDATE_S", "DEFAULT_FPS",
+    "LABELLER_PASSES", "VISITED_COLUMNS",
     "pandas_dtypes", "empty", "cast", "now_iso",
     "labels_path", "write_labels", "append_tombstone", "read_labels", "next_id", "list_games",
+    "visited_path", "mark_visited", "read_visited",
     "validate_labels",
     "estimate_fps", "is_half_court", "is_screen_candidate", "possession_flags", "is_heldout", "sample_possessions",
     "cohen_kappa", "pair_actions", "kappa",

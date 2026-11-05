@@ -41,7 +41,7 @@ import os
 import sys
 from pathlib import Path
 
-os.environ.setdefault("OMP_NUM_THREADS", "2")   # 4 cores shared by 21 lanes: HGB must not take them all
+os.environ.setdefault("OMP_NUM_THREADS", "1")   # 4 cores shared by 21 lanes: HGB must not take them all
 
 import numpy as np
 import pandas as pd
@@ -54,7 +54,7 @@ from analytics.gravity import validate as V
 
 MODELS = ("constant", "ridge", "hgb")
 RIDGE_ALPHA = 1.0
-HGB_PARAMS = dict(max_iter=150, learning_rate=0.1, max_depth=4, min_samples_leaf=40)
+HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_depth=4, min_samples_leaf=40)
 TOP_DECILE = 0.10
 TOP_N_REAL = 10
 MAC_CMD = ("python -m analytics.gravity.train --data DATA_ROOT --report reports/gravity.md --folds 5 --seed 0 "
@@ -68,15 +68,22 @@ def fit_models(train: pd.DataFrame, seed: int = 0) -> dict:
     from sklearn.linear_model import Ridge
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
+    from threadpoolctl import threadpool_limits
     if train["heldout"].any():
         raise ValueError("%s: a held-out row reached fit_models" % WHO)
     X, y = F.design(train), train[F.TARGET].to_numpy(dtype=float)
     mean = float(y.mean())
     ridge = make_pipeline(StandardScaler(), Ridge(alpha=RIDGE_ALPHA)).fit(X, y)
-    hgb = HistGradientBoostingRegressor(random_state=seed, **HGB_PARAMS).fit(X, y)
+    with threadpool_limits(limits=1):      # OpenMP spin-waits are pathological on a shared, oversubscribed box
+        hgb = HistGradientBoostingRegressor(random_state=seed, **HGB_PARAMS).fit(X, y)
+
+    def predict_hgb(fr, m=hgb):
+        with threadpool_limits(limits=1):
+            return m.predict(F.design(fr))
+
     return {"constant": lambda fr, m=mean: np.full(len(fr), m),
             "ridge": lambda fr, m=ridge: m.predict(F.design(fr)),
-            "hgb": lambda fr, m=hgb: m.predict(F.design(fr))}
+            "hgb": predict_hgb}
 
 
 def shots_of(games, ids) -> pd.DataFrame:
@@ -205,6 +212,26 @@ def top_decile_check(players: pd.DataFrame, known_ids) -> dict:
     ok = bool(known_ids) and n > 0 and all(r is not None and r <= cut for r in ranks.values())
     return {"n_gated": int(n), "decile_cut": int(cut), "ranks": ranks, "passed": ok,
             "top": ranked.head(TOP_N_REAL)[["player_id", "n_possessions", "gravity_ft", "lo", "hi"]].to_dict("records")}
+
+
+def top_decile_by_game(pred: pd.DataFrame, selected: str, known_ids) -> dict:
+    """The same check inside each training game: players ranked by their mean out-of-fold gravity over that
+    game's frames, the known players of the game expected in the top decile of that game's roster. This is the
+    check that applies when rosters do not persist across games (analytics.fixtures gives every game a fresh
+    roster); the season-wide check applies when they do (real data, the fallback generator)."""
+    known = {int(p) for p in known_ids}
+    rows = []
+    for g, grp in pred.groupby("sportvu_game"):
+        gv = (grp["p_" + selected] - grp[F.TARGET]).groupby(grp["player_id"]).mean().sort_values(ascending=False)
+        ids = [int(p) for p in gv.index]
+        present = [p for p in ids if p in known]
+        if not present:
+            continue
+        cut = max(1, math.ceil(TOP_DECILE * len(ids)))
+        ranks = {p: ids.index(p) + 1 for p in present}
+        rows.append({"game": str(g), "n_players": len(ids), "cut": cut, "ranks": ranks, "passed": all(r <= cut for r in ranks.values())})
+    return {"games": rows, "n_games": len(rows), "n_passed": int(sum(r["passed"] for r in rows)),
+            "passed": bool(rows) and all(r["passed"] for r in rows)}
 
 
 # ── sign test with the location-only xFG probability ──────────────────────────────────────────────
@@ -356,6 +383,12 @@ def write_report(path: Path, ctx: dict) -> str:
     if ctx["known_ids"]:
         L.append("Known high-gravity players %s; ranks among %d gated players %s; decile cut %d; passed: %s."
                  % (ctx["known_ids"], td["n_gated"], td["ranks"], td["decile_cut"], td["passed"]))
+        tdg = ctx["top_decile_by_game"]
+        L += ["", "Within each training game (the check that applies when rosters do not persist across games): %d of %d games pass; passed: %s."
+              % (tdg["n_passed"], tdg["n_games"], tdg["passed"]), "",
+              "| game | players | decile cut | ranks of the known players |", "| --- | --- | --- | --- |"]
+        for r in tdg["games"]:
+            L.append("| %s | %d | %d | %s |" % (r["game"], r["n_players"], r["cut"], r["ranks"]))
         L += ["", "Mean out-of-fold gravity (ft) of the known players under each candidate (the skill prior nearly identifies a player, "
               "so a flexible model can absorb part of a player's pull into its expectation; the fixture plants a pull of 2 ft):", "",
               "| model | " + " | ".join(str(p) for p in ctx["known_ids"]) + " |", "| --- |" + " --- |" * len(ctx["known_ids"])]
@@ -419,6 +452,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/{gravity_frames,gravity_players,spacing_frames}.parquet")
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--n-games", type=int, default=8, help="fixture games (--fixtures)")
+    ap.add_argument("--n-possessions", type=int, default=40, help="possessions per fixture game (--fixtures)")
     return ap.parse_args(argv)
 
 
@@ -444,6 +478,7 @@ def main(argv=None) -> dict:
     players = gravity_players(gf, a.min_possessions, a.bootstrap, a.seed)
     known = sorted({p for d in train_games for p in F.known_gravity_ids(d)})
     td = top_decile_check(players, known)
+    tdg = top_decile_by_game(pred, selected, known)
     known_by_model = {m: {int(p): float((pred.loc[pred["player_id"] == p, "p_" + m] - pred.loc[pred["player_id"] == p, F.TARGET]).mean())
                           for p in known} for m in MODELS}
     if known:
@@ -493,7 +528,7 @@ def main(argv=None) -> dict:
            "dropped": {k: int(sum(c["dropped"].get(k, 0) for c in counts)) for k in sorted({k for c in counts for k in c["dropped"]})},
            "protocol": note["text"], "mode": note["mode"], "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "selected": selected,
            "min_possessions": a.min_possessions, "n_gated": int((~players["insufficient"]).sum()), "n_players": int(len(players)),
-           "top_decile": td, "known_ids": known, "known_by_model": known_by_model, "sign_test": st, "candidate_source": candidate_source,
+           "top_decile": td, "top_decile_by_game": tdg, "known_ids": known, "known_by_model": known_by_model, "sign_test": st, "candidate_source": candidate_source,
            "hull_mean": float(sp_train["hull_area_ft2"].mean()) if len(sp_train) else float("nan"),
            "hull_sd": float(sp_train["hull_area_ft2"].std()) if len(sp_train) else float("nan"),
            "mnd_mean": float(sp_train["mean_nearest_def_ft"].mean()) if len(sp_train) else float("nan"),

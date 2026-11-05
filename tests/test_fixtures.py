@@ -6,6 +6,7 @@ frames, the events and the derived tables, determinism, the held-out id rule, th
 import json
 import sys
 import time
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -203,7 +204,8 @@ def test_gravity_signal(game):
     for i, pid in enumerate(pids):
         opp = [j for j, q in enumerate(pids) if home[q] != home[pid]]
         d = np.hypot(X[:, [i]] - X[:, opp], Y[:, [i]] - Y[:, opp])
-        with np.errstate(all="ignore"):
+        with np.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
             mean_near[int(pid)] = float(np.nanmean(np.nanmin(d, axis=1)))
     stars = game["truth"]["star_player_ids"]
     others = [v for k, v in mean_near.items() if k not in stars]
@@ -312,8 +314,26 @@ def test_game_ids_and_heldout(game_small):
     assert set(held["frames"]["team"]) == {"PHX", "GSW"} and held["manifest_entry"]["heldout"]
     custom = fixtures.synth_game(7, n_possessions=8, sportvu_game="01.02.2016.KNX.at.TUL")
     assert custom["meta"]["sportvu_game"] == "01.02.2016.KNX.at.TUL" and not custom["meta"]["heldout"]
+    arena = fixtures.synth_game(7, n_possessions=8, heldout=True, sportvu_game="01.02.2016.KNX.at.CLE")
+    assert arena["meta"]["split"] == "heldout_arena" and arena["manifest_entry"]["heldout"]
+    with pytest.raises(ValueError):
+        fixtures.synth_game(7, n_possessions=8, heldout=True, sportvu_game="01.02.2016.KNX.at.TUL")
+    with pytest.raises(ValueError):
+        fixtures.synth_game(7, n_possessions=8, heldout=False, sportvu_game="01.02.2016.KNX.at.CLE")
     with pytest.raises(ValueError):
         fixtures.synth_game(0, n_possessions=2)
+
+
+def test_split_matches_real_routing():
+    """Every held-out fixture game is routed held out by sportvu.colab_contract.split_of with sportvu/splits.json."""
+    from sportvu import colab_contract as cc, splits
+    sp = splits.load()
+    ids = [fixtures.HELDOUT_GAME, "01.02.2016.KNX.at.CLE", "01.02.2016.KNX.at.TUL"]
+    for gid in ids:
+        real = cc.split_of({"game": gid, "home": gid.rsplit(".", 1)[-1]}, sp)
+        assert cc.is_heldout(real) == (fixtures.split_for(gid) != "train"), gid
+        if real is not None:
+            assert real == fixtures.split_for(gid)
 
 
 def test_season_heldout_rule():
@@ -331,6 +351,7 @@ def test_season_heldout_rule():
     assert flags == [False, True, False, True]
     assert mixed[1]["meta"]["sportvu_game"] == fixtures.HELDOUT_GAME
     assert mixed[3]["meta"]["sportvu_game"] != fixtures.HELDOUT_GAME        # ids never repeat
+    assert mixed[3]["meta"]["sportvu_game"].endswith(".at.CLE") and mixed[3]["meta"]["split"] == "heldout_arena"
     assert len({g["meta"]["sportvu_game"] for g in mixed}) == 4
     pd.testing.assert_frame_equal(mixed[0]["frames"], plain[0]["frames"])  # per-game seeds do not depend on the rule
 
@@ -418,6 +439,10 @@ def test_labels_screens_present_and_separable(game, per_frame):
     first, pos = per_frame
     lab = fixtures.synth_labels(0, game)
     acts, scr = lab["actions"], lab["screens"]
+    assert list(acts.columns) == fixtures.ACTION_COLUMNS and list(scr.columns) == fixtures.SCREEN_COLUMNS
+    assert acts["action_id"].is_unique and scr["screen_id"].is_unique
+    assert set(scr["action_id"]) <= set(acts.loc[acts["action_type"] == "ball_screen", "action_id"])
+    assert acts["labeller_pass"].dtype == "int16" and acts["labelled_at"].str.endswith("Z").all()
     assert set(acts["action_type"]) <= set(fixtures.ACTION_TYPES) and len(acts) == len(game["possessions"])
     assert (acts["label_source"] == "synthetic").all() and (acts["labeller_pass"] == 1).all()
     assert (acts["start_frame"] < acts["end_frame"]).all()
@@ -475,6 +500,9 @@ def test_write_fixture_root(tmp_path):
                                       n_stint_games=4, n_agg_players=12)
     sv = tmp_path / "sportvu_contract"
     assert json.loads((sv / "manifest.json").read_text()) == man
+    assert man["paths"] == fixtures.fixture_paths(tmp_path) and Path(man["paths"]["manifest"]) == sv / "manifest.json"
+    for gid, e in man["games"].items():
+        assert e["heldout"] == (fixtures.split_for(gid) != "train") and e["split"] == fixtures.split_for(gid)
     assert man["counts"] == {"games": 3, "ok": 3, "failed": 0, "source_broken": 0, "pbp_joined": 3, "heldout": 1}
     assert man["heldout"] == [fixtures.HELDOUT_GAME] and man["contract_version"] == 1
     for gid, e in man["games"].items():
