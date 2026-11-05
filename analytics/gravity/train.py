@@ -238,9 +238,9 @@ def top_decile_check(players: pd.DataFrame, known_ids) -> dict:
     ranks = {}
     for pid in known_ids:
         hit = np.flatnonzero(ranked["player_id"].to_numpy() == int(pid))
-        ranks[int(pid)] = int(hit[0]) + 1 if len(hit) else None
-    ok = bool(known_ids) and n > 0 and all(r is not None and r <= cut for r in ranks.values())
-    return {"n_gated": int(n), "decile_cut": int(cut), "ranks": ranks, "passed": ok,
+        ranks[int(pid)] = int(hit[0]) + 1 if len(hit) else None      # None: under the gate, so not ranked (not a failure)
+    ok = bool(present) and all(ranks[p] <= cut for p in present)
+    return {"n_gated": int(n), "n_known_gated": len(present), "decile_cut": int(cut), "ranks": ranks, "passed": ok,
             "top": ranked.head(TOP_N_REAL)[["player_id", "n_possessions", "gravity_ft", "lo", "hi"]].to_dict("records")}
 
 
