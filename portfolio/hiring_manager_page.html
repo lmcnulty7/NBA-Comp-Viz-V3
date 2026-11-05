@@ -1,0 +1,211 @@
+<title>Court Ledger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a dark hardwood ledger. One column of 72ch, court-line rules, orange for the one accent. */
+:root{
+  --bg:#f6f1e8; --bg2:#ece4d6; --fg:#1b1a17; --muted:#5f5a50; --line:#cfc5b2;
+  --accent:#d9731a; --accent-ink:#fff; --court:#c89a5c; --court-line:#2a241c; --ok:#2f7a4a; --plan:#7a7366;
+  --display:"Bebas Neue","Oswald",Impact,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15161a;--bg2:#1d1f25;--fg:#efeae0;--muted:#a7a093;--line:#33363e;--accent:#f0862a;--accent-ink:#15161a;--court:#5a4a35;--court-line:#efeae0;--ok:#6cc48a;--plan:#8c8678;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15161a;--bg2:#1d1f25;--fg:#efeae0;--muted:#a7a093;--line:#33363e;--accent:#f0862a;--accent-ink:#15161a;--court:#5a4a35;--court-line:#efeae0;--ok:#6cc48a;--plan:#8c8678;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;margin:0;padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:72ch;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.02em;text-wrap:balance;margin:0}
+h1{font-size:clamp(3rem,9vw,5.6rem);line-height:.92}
+h2{font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1;margin-bottom:12px}
+h3{font-size:1.25rem;letter-spacing:.04em}
+p{margin:0 0 12px;max-width:65ch}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+header{padding-block:40px 28px;border-bottom:2px solid var(--court-line)}
+header .pitch{font-size:1.2rem;max-width:60ch;margin-top:16px}
+.who{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;font-family:var(--mono);font-size:.85rem}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+section{padding-block:36px;border-bottom:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:16px}
+.tile{border-top:3px solid var(--court-line);padding-top:8px;min-width:0}
+.tile .n{font-family:var(--display);font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.tile .l{font-size:.85rem;color:var(--muted)}
+.tile.acc{border-top-color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.scroll{overflow-x:auto}
+.tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1px solid var(--line);border-radius:3px;white-space:nowrap}
+.tag.real{border-color:var(--ok);color:var(--ok)}
+.tag.plan{color:var(--plan)}
+.tag.smoke{border-color:var(--accent);color:var(--accent)}
+svg{max-width:100%;height:auto;display:block}
+figure{margin:16px 0 0}
+figcaption{font-size:.82rem;color:var(--muted);margin-top:8px}
+.phases{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:10px}
+.phases li{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;padding:10px 0;border-bottom:1px dashed var(--line)}
+.phases .ph{font-family:var(--display);font-size:1.6rem;line-height:1}
+.phases .gate{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:4px}
+.phases li.done .ph{color:var(--ok)}
+button{font-family:var(--mono);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);border:0;border-radius:3px;padding:8px 14px;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ctrl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:.85rem;color:var(--muted)}
+footer{padding-block:28px;font-size:.82rem;color:var(--muted)}
+footer ul{padding-left:18px;margin:8px 0 0}
+@media (prefers-reduced-motion:reduce){.anim{display:none}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">NBA Comp Viz V3 · analytics on player tracking · 2026</div>
+  <h1>Where every player stood, and what it was worth.</h1>
+  <p class="pitch">Player tracking recovered from broadcast video, validated against the one public half-season of league tracking data, and an analytics layer (shot quality, rebounds, possession value) built on that data with leakage control first.</p>
+  <div class="who"><a href="https://github.com/lmcnulty7">github.com/lmcnulty7</a><a href="https://www.linkedin.com/in/lucien-mcnulty">linkedin.com/in/lucien-mcnulty</a></div>
+</header>
+
+<section>
+  <div class="eyebrow">The binding constraint</div>
+  <h2>Public frame-level tracking exists for one half-season.</h2>
+  <p>SportVU logs with all ten players and the ball at 25 Hz are public only for 2015-10-27 to 2016-01-23. Every model that needs positions trains there. Later seasons are aggregates and serve as validation targets. Eighteen games are frozen as held out: a scorecard game and every game at one arena, so generalisation to an unseen building is measured, never tuned.</p>
+  <div class="grid">
+    <div class="tile"><div class="n">621</div><div class="l">games of tracking converted to the project's contract tables <span class="tag real">measured</span></div></div>
+    <div class="tile"><div class="n">25 Hz</div><div class="l">frames per second, ten players and the ball x, y, z</div></div>
+    <div class="tile"><div class="n">104,967</div><div class="l">shot attempts recovered from public shot charts, 0.27% short of play-by-play, all heaves beyond half court <span class="tag real">measured</span></div></div>
+    <div class="tile acc"><div class="n">18</div><div class="l">held-out games that fit nothing; a test fails any trainer that skips the guard</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Pipeline</div>
+  <h2>Two tracks, one contract, one gate between them.</h2>
+  <figure>
+  <svg viewBox="0 0 760 300" role="img" aria-label="Pipeline: broadcast video through vision to positions; SportVU frames through play-by-play join, localisation and possessions to models; the swap test gates vision rows into analytics" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="12">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+    <g fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)">
+      <path d="M128 60H176"/><path d="M304 60H352"/><path d="M480 60H528"/>
+      <path d="M128 200H176"/><path d="M304 200H352"/><path d="M480 200H528"/><path d="M656 200H690"/>
+      <path d="M604 84V140"/>
+    </g>
+    <g fill="none" stroke="currentColor" stroke-width="1.2">
+      <rect x="20" y="36" width="108" height="48" rx="6"/><rect x="176" y="36" width="128" height="48" rx="6"/><rect x="352" y="36" width="128" height="48" rx="6"/><rect x="528" y="36" width="152" height="48" rx="6"/>
+      <rect x="20" y="176" width="108" height="48" rx="6"/><rect x="176" y="176" width="128" height="48" rx="6"/><rect x="352" y="176" width="128" height="48" rx="6"/><rect x="528" y="176" width="128" height="48" rx="6"/>
+    </g>
+    <rect x="552" y="140" width="104" height="30" rx="15" fill="var(--accent)"/>
+    <g fill="currentColor" text-anchor="middle">
+      <text x="74" y="20" font-size="11" font-family="IBM Plex Mono,monospace" letter-spacing="1">VISION TRACK</text>
+      <text x="74" y="56">broadcast</text><text x="74" y="72">video, 720p</text>
+      <text x="240" y="56">court mapping,</text><text x="240" y="72">camera model</text>
+      <text x="416" y="56">player boxes,</text><text x="416" y="72">teams, identity</text>
+      <text x="604" y="56">positions per frame</text><text x="604" y="72">p50 7.3 ft, p90 15.4 ft*</text>
+      <text x="74" y="160" font-size="11" font-family="IBM Plex Mono,monospace" letter-spacing="1">TRACKING TRACK</text>
+      <text x="74" y="196">SportVU</text><text x="74" y="212">frames</text>
+      <text x="240" y="196">play-by-play join,</text><text x="240" y="212">shot charts</text>
+      <text x="416" y="196">release, rebound</text><text x="416" y="212">frames; possessions</text>
+      <text x="592" y="196">models: xFG,</text><text x="592" y="212">rebounds, EPV</text>
+      <text x="604" y="160" fill="var(--accent-ink)" font-size="11" font-family="IBM Plex Mono,monospace">SWAP TEST</text>
+      <text x="725" y="204" text-anchor="start" font-size="11">reports</text>
+      <text x="380" y="262" font-size="11" fill="var(--muted)">*vision track measured 2026-10-03 on the held-out game, 15% of frames testable</text>
+      <text x="380" y="280" font-size="11" fill="var(--muted)">targets p50 2.0 ft, p90 5.0 ft; camera-model fix adoption pending</text>
+    </g>
+  </svg>
+  <figcaption>Vision rows feed an analysis only after the swap test: replacing tracking positions with vision positions on held-out games must leave the analysis's quantities inside their own bootstrap interval and rankings at Spearman 0.8 or better.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="eyebrow">Results</div>
+  <h2>What has actually been measured.</h2>
+  <p>Every number below was computed from the repository's data. Rows marked smoke come from a single held-out game used once as a smoke test with no parameter tuned on it. Nothing here is a projection.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Component</th><th>Metric</th><th>Value</th><th>Sample</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Shot-chart recovery</td><td>attempts recovered vs play-by-play</td><td>104,967 vs 105,249</td><td>625 games</td><td><span class="tag real">measured</span></td></tr>
+      <tr><td>Shot-chart pixel frame</td><td>mean distance residual</td><td>0.31 ft</td><td>625 games</td><td><span class="tag real">measured</span></td></tr>
+      <tr><td>Roster name map</td><td>names matched, shot chart and play-by-play</td><td>22 of 22, 25 of 25</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
+      <tr><td>Shot release localisation</td><td>release frame found; shooter identity where known</td><td>125 of 179 (70%); 97%</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
+      <tr><td>Rebound localisation</td><td>rebound frame found; rebounder identity where known</td><td>83 of 95 (87%); 72.5%</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
+      <tr><td>Possession segmentation</td><td>possessions; points summed vs final score</td><td>219; 231 = 231</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
+      <tr><td>xFG location-only baseline</td><td>log loss, logistic vs constant</td><td>0.674 vs 0.692 in-sample; 0.664 vs 0.693 held out</td><td>191 and 179 attempts</td><td><span class="tag smoke">smoke</span></td></tr>
+      <tr><td>Vision track, held-out game</td><td>position error p50, p90; players missed</td><td>7.3 ft, 15.4 ft; 25%</td><td>15% of frames testable</td><td><span class="tag real">measured 2026-10-03</span></td></tr>
+      <tr><td>Test suite, analytics layer</td><td>tests passing</td><td>99</td><td>9 modules</td><td><span class="tag real">measured</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="eyebrow">Illustrative</div>
+  <h2>A possession, frame by frame.</h2>
+  <p>Synthetic coordinates, not a real game: this shows what the contract tables hold (ten positions and the ball at 25 Hz, a release frame, a rebound frame) and how the localisers read them.</p>
+  <figure>
+  <svg id="court" viewBox="0 0 500 470" role="img" aria-label="Half court with an animated illustrative possession">
+    <rect x="0" y="0" width="500" height="470" fill="var(--court)" rx="4"/>
+    <g fill="none" stroke="var(--court-line)" stroke-width="2">
+      <rect x="10" y="10" width="480" height="450"/>
+      <rect x="170" y="10" width="160" height="190"/>
+      <circle cx="250" cy="200" r="60"/>
+      <path d="M40 10 V 150 A 210 210 0 0 0 460 150 V 10"/>
+      <circle cx="250" cy="62" r="7.5"/>
+      <line x1="220" y1="50" x2="280" y2="50"/>
+    </g>
+    <g id="players"></g>
+    <circle id="ball" r="6" fill="var(--accent)" stroke="var(--court-line)" stroke-width="1"/>
+    <text id="label" x="250" y="440" text-anchor="middle" fill="var(--court-line)" font-family="IBM Plex Mono,monospace" font-size="13"></text>
+  </svg>
+  <div class="ctrl"><button id="play" type="button">Play</button><span id="clock" style="font-family:var(--mono)">frame 0 · 24.0 s shot clock</span></div>
+  <figcaption>Frame counter at 25 Hz. The release frame is the last frame the ball sits within 2.5 ft of the shooter below 8 ft before rising; the rebound frame is the first frame a player is within 2 ft of a ball under 7 ft after the rim. Both rules are fixed in the data contract.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="eyebrow">Roadmap</div>
+  <h2>Six phases, each closed by a measured gate.</h2>
+  <p>Baselines before deep models, one evaluation protocol for all of them: game-level splits, bootstrap intervals over games, calibration reported next to accuracy, a 300-sample floor before any ranking.</p>
+  <ol class="phases">
+    <li class="done"><div class="ph">0</div><div><strong>Data foundation</strong>: release and rebound frames, possessions, evaluation harness, held-out guard. <span class="tag real">built, 99 tests</span><div class="gate">gate: shooter identity 95%, rebounder 90% on 200 audited shots (full run pending)</div></div></li>
+    <li><div class="ph">1</div><div><strong>xFG and rebound probability</strong>: defender distance and closing speed at release; multinomial over the ten players at the rim. <span class="tag smoke">baseline built</span> <span class="tag plan">planned</span><div class="gate">gate: both beat their baselines; held-out arena within 1.5x of the held-out game</div></div></li>
+    <li><div class="ph">2</div><div><strong>EPV, gravity, matchups</strong>: one-second state table, gradient boosting with isotonic calibration before any sequence model. <span class="tag plan">planned</span><div class="gate">gate: calibration slope 0.9 to 1.1 on held-out games</div></div></li>
+    <li><div class="ph">3</div><div><strong>Stints, win probability, lineups, embeddings</strong> on five seasons of play-by-play. <span class="tag plan">planned</span><div class="gate">gate: win probability calibrated on a held-out season</div></div></li>
+    <li><div class="ph">4</div><div><strong>Hand labels, ball-screen detection, ghosting</strong>: the one deep model, after a linear baseline. <span class="tag plan">planned</span><div class="gate">gate: screen F1 over 0.8; ghosting beats linear</div></div></li>
+    <li><div class="ph">5</div><div><strong>Coverage recognition, decision quality</strong>. <span class="tag plan">planned</span><div class="gate">gate: reported, no fixed target until labels are counted</div></div></li>
+  </ol>
+</section>
+
+<footer>
+  <div class="eyebrow">Assumptions and provenance</div>
+  <ul>
+    <li>Built unattended on 2026-11-05 from the repository's STATUS.md, reports and execution plan. Numbers marked smoke come from one held-out game, 12.16.2015 at the home arena of the training set, run once with no tuning.</li>
+    <li>The vision-track error is the 2026-10-03 measurement on the held-out game, before a camera-model fix whose adoption is pending; it is shown because it is the last number on record, not because it is current.</li>
+    <li>The possession animation uses synthetic coordinates and illustrates the contract rules only.</li>
+    <li>Raw tracking logs are league property and stay private; the repository publishes code, schemas, aggregates and reports.</li>
+    <li>No NBA marks, logos or player likenesses are used. Team and arena names appear only as data identifiers.</li>
+  </ul>
+</footer>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('court');if(!svg)return;
+  var g=document.getElementById('players'),ball=document.getElementById('ball'),lab=document.getElementById('label'),clk=document.getElementById('clock'),btn=document.getElementById('play');
+  // ten players: offense (0-4) and defense (5-9); keyframes at frames 0,50,100,150; synthetic, illustrative only
+  var key=[[[250,330],[120,300],[380,300],[180,160],[320,150],[245,300],[135,275],[365,275],[200,180],[300,170]],
+           [[250,250],[110,230],[390,240],[200,120],[300,110],[248,222],[130,215],[370,218],[215,140],[290,130]],
+           [[230,180],[100,200],[400,200],[190,90],[310,100],[236,160],[125,190],[380,190],[205,105],[300,112]],
+           [[225,170],[110,210],[395,210],[200,80],[315,90],[232,150],[130,195],[378,195],[215,95],[305,100]]];
+  var N=150,frame=0,timer=null;
+  var dots=[];for(var i=0;i<10;i++){var c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('r',8);c.setAttribute('fill',i<5?'var(--fg)':'var(--bg)');c.setAttribute('stroke','var(--court-line)');c.setAttribute('stroke-width','1.5');g.appendChild(c);dots.push(c);}
+  function lerp(a,b,t){return a+(b-a)*t}
+  function pos(i,f){var seg=Math.min(2,Math.floor(f/50)),t=(f-seg*50)/50;var a=key[seg][i],b=key[seg+1][i];return [lerp(a[0],b[0],t),lerp(a[1],b[1],t)]}
+  function draw(f){
+    for(var i=0;i<10;i++){var p=pos(i,f);dots[i].setAttribute('cx',p[0]);dots[i].setAttribute('cy',p[1]);}
+    var h=pos(0,f),bx=h[0]+8,by=h[1]-4,txt='ball handler carries';
+    if(f>=110){var t=(f-110)/40;bx=lerp(h[0]+8,250,t);by=lerp(h[1]-4,62,t)-120*Math.sin(Math.PI*t);txt=f<112?'release frame '+f:(t<1?'flight, apex at frame 130':'rim, frame 150');}
+    if(f>=150){bx=262;by=80;txt='rebound frame 150: player within 2 ft';}
+    ball.setAttribute('cx',bx);ball.setAttribute('cy',by);lab.textContent=txt;
+    clk.textContent='frame '+f+' · '+(24-f/25).toFixed(1)+' s shot clock';
+  }
+  draw(0);
+  btn.addEventListener('click',function(){
+    if(timer){clearInterval(timer);timer=null;btn.textContent='Play';return;}
+    if(frame>=N)frame=0;btn.textContent='Pause';
+    timer=setInterval(function(){frame++;if(frame>N){clearInterval(timer);timer=null;btn.textContent='Replay';return;}draw(frame);},40);
+  });
+})();
+</script>
