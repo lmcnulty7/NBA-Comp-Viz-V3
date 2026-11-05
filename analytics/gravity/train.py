@@ -496,8 +496,9 @@ def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##"
     td = ctx["top_decile"]
     L += ["", "%s# Top-decile check%s" % (h, tag), ""]
     if ctx["known_ids"]:
-        L.append("Known high-gravity players %s; season-wide ranks among %d gated players %s; decile cut %d; passed: %s."
-                 % (ctx["known_ids"], td["n_gated"], td["ranks"], td["decile_cut"], td["passed"]))
+        L.append("Known high-gravity players %s; season-wide ranks among %d gated players %s (None: under the gate, not ranked); "
+                 "%d of the known players are gated; cut %d (the top decile, or the top n_known when the planted players outnumber "
+                 "a decile); passed: %s." % (ctx["known_ids"], td["n_gated"], td["ranks"], td["n_known_gated"], td["decile_cut"], td["passed"]))
         tdg = ctx["top_decile_by_game"]
         L += ["", "Within each training game (the check that applies when rosters do not persist across games): %d of %d games pass; passed: %s."
               % (tdg["n_passed"], tdg["n_games"], tdg["passed"]), "",

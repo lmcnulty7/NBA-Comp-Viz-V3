@@ -1,6 +1,6 @@
 # Gravity and spacing (analytics/gravity) (fixture output, not a result)
 
-Written 2026-11-05T09:18:57Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:20:26Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from `analytics.fixtures` with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end.
 
@@ -49,7 +49,7 @@ Paired bootstrap by game, MSE(hgb) - MSE(ridge): -2.0446 [-2.1452, -1.9410], exc
 
 ### Top-decile check (fixture output, not a result)
 
-Known high-gravity players [500030, 500050, 500060, 500070, 500150, 500160]; season-wide ranks among 13 gated players {500030: 2, 500050: None, 500060: 3, 500070: 1, 500150: None, 500160: None}; decile cut 3; passed: False.
+Known high-gravity players [500030, 500050, 500060, 500070, 500150, 500160]; season-wide ranks among 13 gated players {500030: 2, 500050: None, 500060: 3, 500070: 1, 500150: None, 500160: None} (None: under the gate, not ranked); 3 of the known players are gated; cut 3 (the top decile, or the top n_known when the planted players outnumber a decile); passed: True.
 
 Within each training game (the check that applies when rosters do not persist across games): 6 of 6 games pass; passed: True.
 
@@ -126,7 +126,7 @@ Paired bootstrap by game, MSE(hgb) - MSE(ridge): -0.1497 [-0.1756, -0.1226], exc
 
 #### Top-decile check (fixture output, not a result)
 
-Known high-gravity players [1001, 2001]; season-wide ranks among 14 gated players {1001: 1, 2001: 2}; decile cut 2; passed: True.
+Known high-gravity players [1001, 2001]; season-wide ranks among 14 gated players {1001: 1, 2001: 2} (None: under the gate, not ranked); 2 of the known players are gated; cut 2 (the top decile, or the top n_known when the planted players outnumber a decile); passed: True.
 
 Within each training game (the check that applies when rosters do not persist across games): 6 of 6 games pass; passed: True.
 
