@@ -17,7 +17,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from analytics.eval import brier, grouped_cv
+from analytics import schema
+from analytics.eval import brier, grouped_cv, refuse_heldout
 from analytics.winprob import features as F
 
 MARGIN_BINS = (-100, -20, -15, -10, -6, -3, -1, 0, 2, 5, 9, 14, 19, 100)
@@ -72,7 +73,9 @@ def spread_coverage(states: pd.DataFrame) -> pd.DataFrame:
 
 
 def shuffled_label_check(states: pd.DataFrame, seed: int = 0, n_folds: int = 5) -> pd.DataFrame:
-    """Out-of-fold Brier of a logistic regression on the real labels and on labels shuffled across games.
+    """Out-of-fold Brier of a logistic regression on the real labels and on labels shuffled across games. Rows flagged
+    heldout are dropped first, refuse_heldout runs on the game ids and assert_time_forward on the columns (the only fit
+    outside analytics.winprob.train).
     Expected: the shuffled run sits at the base-rate Brier (about 0.25); far below it would mean a feature
     carries the (shuffled) outcome, which no time-forward feature can."""
     from sklearn.linear_model import LogisticRegression
@@ -80,6 +83,9 @@ def shuffled_label_check(states: pd.DataFrame, seed: int = 0, n_folds: int = 5) 
     from sklearn.preprocessing import StandardScaler
 
     cols = ["margin", "seconds_remaining", "margin_x_sqrt_time"]
+    states = states[~states["heldout"].astype(bool)].reset_index(drop=True)
+    refuse_heldout(sorted(states["game_id"].astype(str).unique()), "winprob.eda")
+    schema.assert_time_forward(states[cols], "states_1hz")
     rng = np.random.default_rng(seed)
     games = states["game_id"].astype(str)
     uniq = sorted(games.unique())

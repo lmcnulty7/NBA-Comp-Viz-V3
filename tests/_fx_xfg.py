@@ -254,7 +254,7 @@ def _local_synth_game(seed: int, n_possessions: int = 40, heldout: bool = False,
             "sportvu_game": game, "heldout": bool(heldout)}
 
 
-def _local_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
+def _local_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
     out, n_held = [], 0
     for i in range(n_games):
         held = bool(heldout_every) and (i + 1) % heldout_every == 0
@@ -262,7 +262,7 @@ def _local_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> 
         if held:
             gid = HELDOUT_IDS[n_held % len(HELDOUT_IDS)]
             n_held += 1
-        out.append(_local_synth_game(seed + i, heldout=held, sportvu_game=gid))
+        out.append(_local_synth_game(seed + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid))
     return out
 
 
@@ -293,25 +293,26 @@ try:
         g.setdefault("sportvu_game", str(g["shots"]["sportvu_game"].iloc[0]))
         return g
 
-    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0) -> list:
+    def synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
         try:
-            season = _shared_season(seed, n_games=n_games, heldout_every=heldout_every)
+            season = _shared_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
         except Exception:  # noqa: BLE001
             season = None
         if not season or not all(_check(g) for g in season):
-            return _local_synth_season(seed, n_games, heldout_every)
+            return _local_synth_season(seed, n_games, heldout_every, n_possessions)
         for g in season:
             g.setdefault("heldout", bool(g["shots"]["heldout"].astype(bool).any()))
             g.setdefault("sportvu_game", str(g["shots"]["sportvu_game"].iloc[0]))
         return season
 
-    USING_SHARED = _check(_shared_game(0, n_possessions=4))
+    USING_SHARED = True
 except Exception:  # noqa: BLE001  (ImportError, or a shared module that is not ready)
     synth_game = _local_synth_game
     synth_season = _local_synth_season
 
 
-def write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int = 4, season: str = SEASON) -> Path:
+def write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int = 4, season: str = SEASON,
+                       n_possessions: int = 40) -> Path:
     """Write a synthetic season in the DATA_ROOT layout the xFG CLIs read:
 
         DATA_ROOT/sportvu_contract/<game>.parquet, <game>_pbp.parquet            (held-out under heldout/)
@@ -321,7 +322,7 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_every: int
     """
     root = Path(root)
     shots_train, shots_held = [], []
-    for g in synth_season(seed, n_games=n_games, heldout_every=heldout_every):
+    for g in synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions):
         held = bool(g["heldout"])
         game = g["sportvu_game"]
         sv = root / "sportvu_contract" / ("heldout" if held else "")

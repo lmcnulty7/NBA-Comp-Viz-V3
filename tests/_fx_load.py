@@ -251,6 +251,8 @@ def synth_aggregates(seed, n_players, seasons):
     if SHARED:
         try:
             df = _shared_aggregates(seed, n_players, seasons)
+            if isinstance(df, tuple):                          # the shared generator returns (aggregates, positions)
+                df = df[0]
             if isinstance(df, pd.DataFrame) and {"player_id", "metric", "value"} <= set(df.columns):
                 return df
         except Exception:                                   # noqa: BLE001
@@ -274,11 +276,17 @@ def _normalise_games(season) -> list:
 
 
 def game_meta(game: dict) -> dict:
-    """sportvu_game, date, away, home, heldout of a game dict (filled from the id or the frames when absent)."""
-    sid = game.get("sportvu_game") or (str(game["frames"]["game"].iloc[0]) if len(game.get("frames", [])) else None)
+    """sportvu_game, date, away, home, heldout of a game dict: from its top level, its meta or manifest_entry
+    (the shared generator keeps them there), else from the id or the frames."""
+    srcs = [game] + [game[k] for k in ("meta", "manifest_entry") if isinstance(game.get(k), dict)]
+    get = lambda key: next((d[key] for d in srcs if d.get(key) is not None), None)
+    sid = get("sportvu_game") or get("game") or (str(game["frames"]["game"].iloc[0]) if len(game.get("frames", [])) else None)
     mm, dd, yyyy, away, _at, home = sid.split(".")
-    return {"sportvu_game": sid, "date": game.get("date") or "%s-%s-%s" % (yyyy, mm, dd),
-            "away": game.get("away") or away, "home": game.get("home") or home, "heldout": bool(game.get("heldout", False))}
+    held = get("heldout")
+    if held is None:
+        held = str(get("split") or "").startswith("heldout")
+    return {"sportvu_game": sid, "date": get("date") or "%s-%s-%s" % (yyyy, mm, dd),
+            "away": get("away") or away, "home": get("home") or home, "heldout": bool(held)}
 
 
 def season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20, prefer_shared=True) -> dict:

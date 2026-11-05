@@ -83,10 +83,15 @@ def _as_game_list(season) -> list:
     return list(season)
 
 
-def fixture_games(seed: int = 0, n_games: int = 8, heldout_every: int = 4) -> list:
-    """The synthetic season as game dicts with a heldout flag (fixture output, not a result)."""
+def fixture_games(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int | None = None) -> list:
+    """The synthetic season as game dicts with a heldout flag (fixture output, not a result). With n_possessions
+    the games come from synth_game one by one (smaller games for tests), else from synth_season."""
     fx = _fixture_module()
-    games = _as_game_list(fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every))
+    if n_possessions is None:
+        games = _as_game_list(fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every))
+    else:
+        games = [fx.synth_game(seed * 100 + i, n_possessions=n_possessions,
+                               heldout=bool(heldout_every) and (i + 1) % heldout_every == 0) for i in range(n_games)]
     for g in games:
         gid = str(g["possessions"]["sportvu_game"].iloc[0])
         g["sportvu_game"] = gid

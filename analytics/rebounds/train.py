@@ -202,7 +202,8 @@ def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int) -> tuple[pd.DataFr
 # ── metrics ────────────────────────────────────────────────────────────────────────────────────────
 def per_miss(pred: pd.DataFrame, col: str) -> pd.DataFrame:
     """One row per miss: game, event, logp (log probability of the true candidate), hit (the top candidate is the
-    rebounder), p_top, n_candidates."""
+    rebounder; a tie at the maximum counts 1 / number tied, the expected top-1 under random tie-breaking), p_top,
+    n_candidates."""
     d = pd.DataFrame({"game": pred["sportvu_game"].astype(str).to_numpy(), "event": pred["event"].to_numpy(),
                       "p": np.clip(pred[col].astype(float).to_numpy(), EPS, 1.0), "y": pred[F.TARGET].astype(bool).to_numpy()})
     d["row"] = np.arange(len(d))
@@ -210,9 +211,14 @@ def per_miss(pred: pd.DataFrame, col: str) -> pd.DataFrame:
     n_true = g["y"].sum()
     if not (n_true == 1).all():
         raise ValueError("%s: every miss needs exactly one rebounder row; found counts %s" % (WHO, sorted(set(n_true))))
-    top = d.loc[g["p"].idxmax().to_numpy()].set_index(["game", "event"])
+    d["p_max"] = g["p"].transform("max")
+    d["tied"] = (d["p"] >= d["p_max"] - 1e-12)
+    n_tied = d[d["tied"]].groupby(["game", "event"], sort=False).size()
     true = d[d["y"]].set_index(["game", "event"])
-    out = pd.DataFrame({"logp": np.log(true["p"]), "hit": top["y"].astype(float), "p_top": top["p"], "n_candidates": g.size()})
+    # expected top-1 under random tie-breaking: 1 / (number tied at the maximum) when the rebounder is among them
+    hit = np.where(true["tied"].to_numpy(), 1.0 / n_tied.reindex(true.index).to_numpy(float), 0.0)
+    out = pd.DataFrame({"logp": np.log(true["p"]), "hit": hit, "p_top": true["p_max"], "n_candidates": g.size().reindex(true.index)},
+                       index=true.index)
     return out.reset_index()
 
 
@@ -439,7 +445,7 @@ def main(argv=None) -> dict:
            "prior_note": prior_note, "protocol": note["text"], "mode": note["mode"], "folds": note["folds"],
            "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "uniform": uniform_reference(pm),
            "paired": paired(pred, "hgb", "prior", a.bootstrap, a.seed), "selected": selected, "calibration_block": cal,
-           "heldout_scores": {}, "written_paths": [], "out_root": a.out}
+           "heldout_scores": {}, "written_paths": [], "out_root": a.out, "train": train, "heldout": heldout, "oof": pred}
     tables = [predictions_table(pred, selected)]
     if len(heldout):
         models = fit_candidates(train, a.seed)

@@ -308,9 +308,12 @@ def main(argv=None) -> dict:
     ap.add_argument("--out", metavar="OUT_ROOT", default=None)
     ap.add_argument("--season", default="2015-16")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fixture-games", type=int, default=8)
+    ap.add_argument("--fixture-possessions", type=int, default=40)
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = V.fixture_tables(a.seed) if a.fixtures else V.load_data_root(a.data, a.season)
+    tables = V.fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
+        else V.load_data_root(a.data, a.season)
     tables, _summary = V.clean(tables)
     feat = build(tables["shots"], tables["shot_frames"], tables["frames"])
     info = {"rows": int(len(feat)), "with_contest": int(feat["has_contest"].sum()), "games": int(feat["sportvu_game"].nunique()),

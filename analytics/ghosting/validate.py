@@ -142,8 +142,9 @@ def fixture_games(seed: int = 0, n_games: int = 4, n_possessions: int = 10, held
         season = fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every)
     out = []
     for i, g in enumerate(season):
-        gid = g.get("sportvu_game") or str(g["possessions"]["sportvu_game"].iloc[0])
-        held = bool(g.get("heldout", is_heldout_id(gid)))
+        meta = g.get("meta") or {}
+        gid = g.get("sportvu_game") or meta.get("sportvu_game") or str(g["possessions"]["sportvu_game"].iloc[0])
+        held = bool(g.get("heldout", meta.get("heldout", is_heldout_id(gid))))
         out.append({"sportvu_game": gid, "heldout": held or is_heldout_id(gid), "frames": g["frames"],
                     "possessions": g["possessions"], "rosters": g.get("rosters"), "source": "fixture %d" % i})
     return out

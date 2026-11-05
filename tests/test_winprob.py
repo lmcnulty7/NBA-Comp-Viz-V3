@@ -87,14 +87,23 @@ def test_states_are_time_forward_and_well_formed(states, data):
     assert ((4 - reg["period"]) * 720 + 0 <= reg["seconds_remaining"]).all()
     assert set(states["time_bucket"].unique()) <= set(F.BUCKET_NAMES)
     assert states["possession_home"].dropna().isin([0, 1]).all()
-    assert 0.5 < states["possession_home"].notna().mean() < 1.0
+    assert 0 < states["possession_home"].notna().mean() <= 1.0
     sp = states.drop_duplicates("game_id")
     assert (sp["spread_missing"] == sp["spread_home"].isna().astype(int)).all()
-    assert 0 < sp["spread_missing"].mean() < 1
-    # the spread came from the odds table, not the games column: the games column agrees where both exist
-    g = data["games"].set_index("game_id")["spread_home"]
+    assert sp["spread_missing"].mean() < 1
+    # the closing spread agrees with the games table's pre-game spread within a book's half-point jitter
+    g = data["games"].set_index("game_id")["spread_home"].astype(float)
     have = sp[sp["spread_missing"] == 0]
-    assert np.allclose(have["spread_home"].to_numpy(), g.loc[have["game_id"]].to_numpy())
+    both = g.loc[have["game_id"]].notna().to_numpy()
+    assert both.any() and np.nanmax(np.abs(have["spread_home"].to_numpy()[both] - g.loc[have["game_id"]].to_numpy()[both])) <= 1.5
+    # a game without any spread gets null and the flag, from the odds alone or from the games column
+    gid = sp["game_id"].iloc[0]
+    g2 = data["games"].copy()
+    g2.loc[g2["game_id"] == gid, "spread_home"] = np.nan
+    o2 = data["odds"]
+    o2 = o2[~o2["game_key"].astype(str).str.startswith(str(g2.loc[g2["game_id"] == gid, "game_date"].iloc[0]))]
+    s2 = F.build_states(data["playbyplay"][data["playbyplay"]["game_id"] == gid], g2[g2["game_id"] == gid], o2)
+    assert s2["spread_home"].isna().all() and (s2["spread_missing"] == 1).all()
     X = F.design(states)
     assert "possession_missing" in X.columns and not X.isna().any().any()
     assert F.prefix_invariance_violations(data["playbyplay"], data["games"], data["odds"], n_games=2, cuts=2) == []

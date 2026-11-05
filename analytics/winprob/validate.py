@@ -104,17 +104,14 @@ def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.Data
                 problems.append("games: %d game(s) whose games-table final score differs from the last play-by-play score" % mism)
         if "home_win" in gg.columns:
             counts["home_win_rate"] = float(gg["home_win"].astype(bool).mean())
-        spread = F.closing_spreads(odds, gg.reset_index(drop=True).assign(game_id=gg.index)) if odds is not None else None
-        if spread is not None:
-            counts["odds_rows"] = int(len(odds))
-            counts["games_with_closing_spread"] = int(spread.notna().sum())
-            counts["spread_coverage"] = float(spread.notna().mean()) if len(spread) else 0.0
-        elif "spread_home" in gg.columns:
-            counts["games_with_closing_spread"] = int(gg["spread_home"].notna().sum())
-            counts["spread_coverage"] = float(gg["spread_home"].notna().mean()) if len(gg) else 0.0
-        else:
-            counts["games_with_closing_spread"] = 0
-            counts["spread_coverage"] = 0.0
+        gtab = gg.reset_index(drop=True).assign(game_id=gg.index)
+        spread = F.closing_spreads(odds, gtab) if odds is not None else pd.Series(np.nan, index=gtab["game_id"], dtype=float)
+        counts["odds_rows"] = int(len(odds)) if odds is not None else 0
+        counts["games_with_spread_from_odds"] = int(spread.notna().sum())
+        if "spread_home" in gg.columns:
+            spread = spread.where(spread.notna(), gg["spread_home"].astype(float).to_numpy())
+        counts["games_with_closing_spread"] = int(spread.notna().sum())
+        counts["spread_coverage"] = float(spread.notna().mean()) if len(spread) else 0.0
     return {"counts": counts, "problems": problems, "ok": not problems}
 
 

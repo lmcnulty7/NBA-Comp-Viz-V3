@@ -28,8 +28,9 @@ analytics.schema.assert_time_forward runs on every frame this module returns.
 Assumptions taken where the spec is silent:
   - the odds table has no NBA id: a game joins its closing spread on game_date and the home team's name
     (TEAM_NAMES maps the NBA team id to the name the-odds-api uses); when the odds table carries a game_id
-    column (a fixture may) that join is used instead; the median over books of the is_close spreads market
-    for the home side is the spread
+    column (a fixture may) that join is used instead, and a date with exactly one game in both tables joins
+    without a name match; the median over books of the is_close spreads market for the home side is the spread;
+    a game still without one takes the games table's spread_home column when present
   - the possession indicator is read from event kinds only (shot_made, rebound, turnover, free throws by
     position in the trip); it stays null when unknown rather than guessed
   - the time buckets of the evaluation are minutes remaining in regulation: 48 to 36, 36 to 24, 24 to 12,
@@ -200,6 +201,13 @@ def closing_spreads(odds: pd.DataFrame | None, games: pd.DataFrame) -> pd.Series
     g_name = g["home_team_id"].map(lambda v: TEAM_NAMES.get(int(v)) if pd.notna(v) else None)
     g_key = (g_date.fillna("") + "|" + g_name.fillna("")).to_numpy()
     vals = pd.Series(g_key).map(med).to_numpy(dtype=float)
+    # date-unique fallback: a date with exactly one game in both tables joins without a name match
+    by_date = home.groupby(date.to_numpy())["point"].median()
+    odds_one = set(k for k, n in home.groupby(date.to_numpy())["game_key"].nunique().items() if n == 1)
+    g_counts = g_date.value_counts()
+    for i, (dte, v) in enumerate(zip(g_date.to_numpy(), vals)):
+        if np.isnan(v) and isinstance(dte, str) and dte in odds_one and g_counts.get(dte, 0) == 1:
+            vals[i] = float(by_date.loc[dte])
     out.loc[:] = vals
     return out
 

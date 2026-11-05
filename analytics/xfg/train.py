@@ -417,6 +417,7 @@ def parse_args(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--bootstrap", type=int, default=200)
     ap.add_argument("--fixture-games", type=int, default=8)
+    ap.add_argument("--fixture-possessions", type=int, default=40)
     return ap.parse_args(argv)
 
 
@@ -466,7 +467,8 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
 def main(argv=None) -> dict:
     a = parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = V.fixture_tables(a.seed, n_games=a.fixture_games) if a.fixtures else V.load_data_root(a.data, a.season)
+    tables = V.fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
+        else V.load_data_root(a.data, a.season)
     tables, summaries = V.clean(tables)
     command = "python -m analytics.xfg.train " + " ".join(argv if argv is not None else sys.argv[1:])
     ctx = run(tables, summaries, a, command)

@@ -77,9 +77,9 @@ def _fx_module():
         return m
 
 
-def fixture_season(seed: int = 0, n_games: int = 8, heldout_every: int = 4) -> list:
+def fixture_season(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> list:
     """The synthetic season (list of per-game dicts) the --fixtures runs use."""
-    return _fx_module().synth_season(seed, n_games=n_games, heldout_every=heldout_every)
+    return _fx_module().synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
 
 
 def tables_from_season(season: list) -> dict:
@@ -93,8 +93,8 @@ def tables_from_season(season: list) -> dict:
     return out
 
 
-def fixture_tables(seed: int = 0, n_games: int = 8, heldout_every: int = 4) -> dict:
-    return tables_from_season(fixture_season(seed, n_games, heldout_every))
+def fixture_tables(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> dict:
+    return tables_from_season(fixture_season(seed, n_games, heldout_every, n_possessions))
 
 
 # ----------------------------------------------------------------------------- DATA_ROOT
@@ -291,21 +291,19 @@ def main(argv=None) -> list:
     ap.add_argument("--out", metavar="OUT_ROOT", default=None)
     ap.add_argument("--season", default=SEASON)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--fixture-games", type=int, default=8)
+    ap.add_argument("--fixture-possessions", type=int, default=40)
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = fixture_tables(a.seed) if a.fixtures else load_data_root(a.data, a.season)
-    if not a.fixtures:
-        # a season of frames is validated game by game through the loader; here the games the shot_frames name
-        games = sorted(tables["shot_frames"]["sportvu_game"].astype(str).unique())
-        tables["frames"] = {g: pd.read_parquet(p, columns=FRAME_COLUMNS) for g in games
-                            for p in [Path(a.data) / "sportvu_contract" / ("%s.parquet" % g),
-                                      Path(a.data) / "sportvu_contract" / "heldout" / ("%s.parquet" % g)] if p.exists()} \
-            if len(games) <= 16 else tables["frames"]
+    tables = fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
+        else load_data_root(a.data, a.season)
     _tables, summaries = clean(tables)
     text = summary_table(summaries).to_string(index=False)
     for s in summaries:
         for p in s["schema_problems"]:
             text += "\n%s: %s" % (s["table"], p)
+    if not a.fixtures:
+        text += "\nframes: validated game by game as the features loader reads them (python -m analytics.xfg.features --data)"
     if a.fixtures:
         text += "\nfixture output, not a result"
     print(text)

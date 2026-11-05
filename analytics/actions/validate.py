@@ -198,9 +198,15 @@ def validate_labels(actions: pd.DataFrame, screens: pd.DataFrame, possessions: p
         if not_screen.any():
             problems.append("screens: %d row(s) point at an action that is not a ball_screen" % int(not_screen.sum()))
         conf = pd.to_numeric(s["confidence"], errors="coerce")
-        bad = conf.isna() | (conf < 0) | (conf > 1)
-        if bad.any():
-            problems.append("screens: %d confidence value(s) outside [0, 1] or not numeric" % int(bad.sum()))
+        out_of_range = conf.notna() & ((conf < 0) | (conf > 1))
+        if out_of_range.any():
+            problems.append("screens: %d numeric confidence value(s) outside [0, 1]" % int(out_of_range.sum()))
+        text = conf.isna() & s["confidence"].notna()
+        counts["screens_text_confidence"] = int(text.sum())
+        if text.any():     # the schema does not fix the type: a grade such as "sure" is kept and counted
+            warnings.append("screens: %d confidence value(s) are text grades, not numbers in [0, 1] (kept)" % int(text.sum()))
+        if s["confidence"].isna().any():
+            problems.append("screens: %d null confidence value(s)" % int(s["confidence"].isna().sum()))
     return {"problems": problems, "warnings": warnings, "counts": counts}
 
 

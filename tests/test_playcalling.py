@@ -1,5 +1,6 @@
-"""analytics.playcalling on the fixture stand-ins of tests/_fx_playcalling.py: the end-to-end fixture run, the
-leakage guards, the gate on a hand case, validation counts, the data-root CLI and the EDA tables. No network;
+"""analytics.playcalling on the shared fixtures (analytics.fixtures, through tests/_fx_playcalling.py; the local
+generator there stands in only when the import fails, and is checked once on its own): the end-to-end fixture run,
+the leakage guards, the gate on a hand case, validation counts, the data-root CLI and the EDA tables. No network;
 every number is fixture output, not a result."""
 import json
 from pathlib import Path
@@ -20,7 +21,7 @@ HELD = "12.16.2015.PHX.at.GSW"
 
 @pytest.fixture(scope="module")
 def inputs():
-    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=6, n_possessions=30, heldout_every=3, shared=False))
+    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=5, n_possessions=16, heldout_every=3))
     return inp
 
 
@@ -35,8 +36,8 @@ def table(inputs):
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
 def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     report = tmp_path / "playcalling.md"
-    ctx = T.main(["--fixtures", "--fixture-generator", "local", "--report", str(report), "--out", str(tmp_path / "out"),
-                  "--bootstrap", "15", "--fixture-games", "6", "--fixture-possessions", "30"])
+    ctx = T.main(["--fixtures", "--report", str(report), "--out", str(tmp_path / "out"),
+                  "--bootstrap", "15", "--fixture-games", "4", "--fixture-possessions", "12"])
     text = report.read_text()
     first = text.splitlines()[0]
     assert "Association only, not causal" in first and "causal" in first
@@ -51,7 +52,7 @@ def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     ppp = pd.read_parquet(out / "ppp_by_action.parquet")
     assert list(ppp.columns) == ["action_type", "coverage", "n", "ppp", "lo", "hi", "insufficient"]
     assert ppp["coverage"].isna().any() and ppp["coverage"].notna().any()
-    assert ppp["insufficient"].all()            # 180 fixture possessions: every group is under the 300 gate
+    assert ppp["insufficient"].all()            # 48 fixture possessions: every group is under the 300 gate
     adj = pd.read_parquet(out / "playcalling_adjusted.parquet")
     assert list(adj.columns) == ["coverage", "action_type", "adjusted_ppp", "lo", "hi", "n", "insufficient", "recommended"]
     assert (adj["n"] > 0).all() and not adj["recommended"].any()
@@ -59,9 +60,12 @@ def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     assert "## 2b. EPV gained" in text and ctx["epv_rows"] == ctx["train_rows"]
 
 
-def test_ridge_beats_the_by_action_baseline_on_the_fixture_and_the_fixture_association_exists(table):
-    """The fixture makes PPP depend on action type and coverage, so the by-action table must order isolation under
-    transition and the nested out-of-fold ridge must not be worse than the by-action baseline by much."""
+def test_trainer_recovers_the_planted_association_of_the_local_generator():
+    """The local generator plants PPP on action type and coverage (the shared physics fixture does not), so on it the
+    by-action table must order isolation under cut and the nested out-of-fold ridge must stay close to the mean."""
+    inp, _ = V.validate_inputs(fx.season_inputs(0, n_games=6, n_possessions=30, heldout_every=3, shared=False))
+    table, _ = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"],
+                                    inp["coverage_predictions"], inp["epv_states"], inp["heldout_games"])
     ctx = T.run(table, n_folds=4, seed=0, n_boot=10, n_min=N_MIN)
     t1 = ctx["ppp_by_action"].set_index("action_type")["ppp"]
     assert t1["cut"] > t1["isolation"]
@@ -194,15 +198,13 @@ def test_action_ids_are_the_row_position_within_the_game():
     assert F.assign_action_ids(a.assign(action_id=[7, 8, 9, 10]))["action_id"].tolist() == [7, 8, 9, 10]
 
 
-@pytest.mark.skipif(not fx.HAVE_SHARED, reason="analytics.fixtures (lane I1) not present")
-def test_shared_fixtures_flow_through_the_build():
+def test_shared_fixture_labels_join_and_build(inputs, table):
     """The shared generator's labels (no action_id on actions, game-wide ids on screens, label_source synthetic)
-    join and build; small so the physics simulation stays quick."""
-    inp, log = V.validate_inputs(fx.season_inputs(5, n_games=2, n_possessions=8, heldout_every=2, shared=True))
-    assert inp["heldout_games"] == [HELD] and log["actions"]["unknown_action_type"] == {}
-    t, blog = F.build_action_table(inp["frames"], inp["possessions"], inp["actions"], inp["screens"],
-                                   inp["coverage_predictions"], inp["epv_states"], inp["heldout_games"])
-    assert len(t) == len(inp["actions"]) and blog["actions_without_possession"] == 0
+    join and build. With the import missing, the same checks run on the local generator."""
+    inp, t = inputs, table
+    assert inp["heldout_games"] == [HELD]
+    assert V.validate_inputs(inp)[1]["actions"]["unknown_action_type"] == {}
+    assert len(t) == len(inp["actions"])
     assert set(t.loc[t["action_type"] == "ball_screen", "coverage_source"]) <= {"hand"}
     assert (t.loc[t["action_type"] != "ball_screen", "coverage"] == "none").all()
     assert t["off_lineup"].notna().all() and t["heldout"].sum() > 0
@@ -222,7 +224,7 @@ def test_coverage_resolution_prefers_hand_labels_then_predictions_then_none(inpu
 
 
 def test_data_root_layout_round_trip(tmp_path):
-    root = fx.write_fixture_root(tmp_path / "data", seed=3, n_games=3, heldout_every=3, n_possessions=20)
+    root = fx.write_fixture_root(tmp_path / "data", seed=3, n_games=3, heldout_every=3, n_possessions=8, shared=True)
     assert (root / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
     inp = V.load_data_root(root, root)
     assert inp["heldout_games"] == [HELD] and inp["actions"]["label_source"].eq("synthetic").all()

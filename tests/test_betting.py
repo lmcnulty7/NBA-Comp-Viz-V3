@@ -11,12 +11,14 @@ pytest.importorskip("sklearn")
 from analytics.betting import eda, features as fx, train as tr, validate as va  # noqa: E402
 from tests._fx_betting import team_names  # noqa: E402
 
+N_GAMES = 24      # games per fixture season: enough for the join, the folds and the form features, cheap to generate
+
 
 @pytest.fixture(scope="module")
 def data():
     """One generation of the fixtures per process (validate.fixture_data caches the synth_stints call, which the
     shared analytics.fixtures generator makes expensive); the same frames serve the end-to-end run."""
-    d = va.fixture_data(0, n_games=40, seasons=("2020-21", "2021-22"))
+    d = va.fixture_data(0, n_games=N_GAMES, seasons=("2020-21", "2021-22"))
     assert set(d["games"].columns) >= {"game_id", "season", "game_date", "home_team_id", "away_team_id", "home_score",
                                        "away_score", "home_win", "spread_home"}
     return d
@@ -154,7 +156,7 @@ def test_staking_rule_and_pnl():
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
 def test_end_to_end_fixture_run(tmp_path):
     report = tmp_path / "betting.md"
-    ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(report), "--bootstrap", "20", "--fixture-games", "40"])
+    ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(report), "--bootstrap", "10", "--fixture-games", str(N_GAMES)])
     assert ctx["heldout_season"] == "2021-22" and ctx["heldout_games"] > 0
     assert ctx["chosen"]["cover_model"] in tr.CANDIDATES and ctx["chosen"]["margin_model"] in ("market", "ridge")
     for season in ("2020-21", "2021-22"):

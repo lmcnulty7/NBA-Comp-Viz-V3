@@ -17,7 +17,7 @@ HELD = "12.16.2015.PHX.at.GSW"
 
 @pytest.fixture(scope="module")
 def games():
-    return V.fixture_games(0, n_games=4, heldout_every=4)
+    return V.fixture_games(0, n_games=3, heldout_every=3, n_possessions=24)
 
 
 @pytest.fixture(scope="module")
@@ -148,7 +148,7 @@ def test_end_to_end_fixture_run(ctx, games, tmp_path):
     m = d["lo"].notna()                                   # no interval for a defender seen in one game only
     assert (d.loc[m, "lo"] <= d.loc[m, "diff_per100"] + 1e-9).all() and (d.loc[m, "hi"] >= d.loc[m, "diff_per100"] - 1e-9).all()
     assert d["diff_per100"].tolist() == pytest.approx((d["points_allowed_per100"] - d["expected_per100"]).tolist())
-    assert ctx["cv"]["alpha"] in T.ALPHAS and ctx["cv"]["folds"] == 3
+    assert ctx["cv"]["alpha"] in T.ALPHAS and ctx["cv"]["folds"] == min(3, len(ctx["train_ids"]))
     assert set(ctx["compare"]["mse"]) == set(T.MODELS) and all(np.isfinite(v["point"]) for v in ctx["compare"]["mse"].values())
     assert 0.5 < ctx["stability"]["point"] <= 1.0 and ctx["stability"]["lo"] <= ctx["stability"]["point"] <= ctx["stability"]["hi"]
     assert ctx["defended"]["n_near"] + ctx["defended"]["n_far"] > 0
@@ -157,7 +157,7 @@ def test_end_to_end_fixture_run(ctx, games, tmp_path):
     h = ctx["heldout"]
     assert h["games"] == [HELD] and h["n_possessions"] > 0 and all(np.isfinite(h["mse"][m]) for m in T.MODELS)
     text = T.write_report(tmp_path / "matchups.md", ctx)
-    assert "fixture output, not a result" in text and "—" not in text
+    assert "fixture output, not a result" in text and chr(0x2014) not in text
     for section in ("## Inputs", "## Assignment stability", "## Defended FG%", "## Baseline comparison", "## Defenders", "## Held-out", "## Status"):
         assert section in text
 
@@ -196,13 +196,16 @@ def test_validate_counts_and_cli(games, tmp_path):
     train_files = sorted((tmp_path / "analytics" / "matchups" / "2015-16").glob("*.parquet"))
     back = pd.read_parquet(train_files[0])
     assert len(train_files) == 1 and list(back.columns) == F.MATCHUP_COLUMNS and len(res["matchup_possessions"]) > 0
-    table = V.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2"])
+    table = V.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "1"])
     assert (table["n_problems"] == 0).all() and (tmp_path / "analytics" / "matchups" / "validate_2015-16.json").exists()
 
 
 def test_fixture_root_layout_loads(tmp_path):
-    FX.write_fixture_root(tmp_path, seed=5, n_games=2, heldout_every=2)
-    games = V.load_games(tmp_path)
-    assert len(games) == 2 and [g["heldout"] for g in games] == [False, True]
+    FX.write_fixture_root(tmp_path / "shared", seed=5, n_games=1, heldout_every=1)      # the shared layout, one held-out game
+    games = V.load_games(tmp_path / "shared")
+    assert len(games) == 1 and games[0]["heldout"] and games[0]["sportvu_game"] == HELD
     assert all(set(("frames", "events", "possessions", "shot_frames", "rosters")) <= set(g) for g in games)
-    assert (tmp_path / "sportvu_contract" / "heldout").exists()
+    assert (tmp_path / "shared" / "sportvu_contract" / "heldout" / (HELD + ".parquet")).exists()
+    FX._fallback_write_fixture_root(tmp_path / "local", seed=5, n_games=2, heldout_every=2)   # the fallback generator's layout
+    games = V.load_games(tmp_path / "local")
+    assert len(games) == 2 and sorted(g["heldout"] for g in games) == [False, True]

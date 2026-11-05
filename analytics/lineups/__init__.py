@@ -73,6 +73,9 @@ def read_season_tables(data_root, kind: str, seasons=SEASONS) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
+_FIXTURE_CACHE: dict = {}
+
+
 def fixture_tables(seed: int = 0, n_games: int = FIXTURE_GAMES, seasons=FIXTURE_SEASONS, generator: str = "auto") -> dict:
     """The synthetic tables. generator: "shared" is analytics.fixtures.synth_stints (lane I1), "local" the
     fallback of tests/_fx_lineups.py (fixed rosters and rotations, so five-man lineups repeat across seasons),
@@ -88,9 +91,12 @@ def fixture_tables(seed: int = 0, n_games: int = FIXTURE_GAMES, seasons=FIXTURE_
         from analytics.fixtures import synth_stints as fn
     else:
         fn = fx.synth_stints
-    t = fn(seed, n_games=n_games, seasons=tuple(seasons))
-    t["generator"] = "%s.%s" % (fn.__module__, fn.__name__)
-    return t
+    key = (fn.__module__, fn.__name__, int(seed), int(n_games), tuple(seasons))
+    if key not in _FIXTURE_CACHE:                      # memoised per process: callers never modify the tables in place
+        t = fn(seed, n_games=n_games, seasons=tuple(seasons))
+        t["generator"] = "%s.%s" % (fn.__module__, fn.__name__)
+        _FIXTURE_CACHE[key] = t
+    return _FIXTURE_CACHE[key]
 
 
 def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto") -> dict:

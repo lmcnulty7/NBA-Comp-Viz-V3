@@ -270,6 +270,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "| games in the games table | %d |" % jn["games"], "| matched to a closing line | %d (%.1f percent) |" % (jn["matched"], 100 * jn["coverage"]),
           "| games without odds | %d |" % jn["games_without_odds"], "| odds without a game | %d |" % jn["odds_without_game"],
           "| matched with spread / total / moneyline | %d / %d / %d |" % (jn["matched_with_spread"], jn["matched_with_total"], jn["matched_with_moneyline"]),
+          "| team names given / inferred from dates / ids unresolved | %d / %d / %d |" % (jn.get("team_names_given", 0), jn.get("team_names_inferred", 0), jn.get("team_ids_unresolved", 0)),
           "| collector held-out rows dropped | %d |" % ctx["counts"]["games_heldout_dropped"], "",
           "## Protocol", "",
           "Unit: one game. Targets: home_cover (home margin plus closing home spread above 0; null on a push or without a spread) and "

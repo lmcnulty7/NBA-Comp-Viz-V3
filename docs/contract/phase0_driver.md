@@ -25,11 +25,15 @@ python -m analytics.run_phase0 --data DATA_ROOT [--out OUT_ROOT] [--games G ...]
 | `--retry-failed` | rerun the steps `phase0_manifest.json` marks failed (otherwise they stay failed and the run reports RUN FAILED) |
 | `--dry-run` | list eligible games, input availability and the steps that would run or be reused; write nothing |
 | `--workers` | games in parallel through `multiprocessing.Pool` when more than 1. Default 1: Drive FUSE on a Mac serialises and sometimes corrupts concurrent writers, so keep 1 when OUT_ROOT is on Google Drive; with more than 1 the module reports (`localisation_*.md`) may interleave lines |
-| `--fixtures` | without `--data`, write a synthetic DATA_ROOT (`tests/_fx_phase0.py`) to a temp folder and run on it; also copy the summary to the repo's `reports/phase0_driver.md` (fixture output only, never real data) |
+| `--fixtures` | without `--data`, write a synthetic DATA_ROOT (`tests/_fx_phase0.py`: `analytics.fixtures.write_fixture_root` when present, which puts the Step 1 layout under `<tmp>/sportvu_contract`, else the local fallback) to a temp folder and run on it; also copy the summary to the repo's `reports/phase0_driver.md` (fixture output only, never real data) |
 
-Eligible games: manifest `status` `ok` and `pbp_joined` true. Every other game is listed under `skipped`
-with a reason (`status failed: ...`, `status source_broken: ...`, `no play-by-play (pbp_joined false: ...)`,
-`not in the manifest`).
+Eligible games: manifest `status` `ok`, `pbp_joined` true, and the manifest's `heldout` flag agreeing with
+`sportvu/splits.json` (`run_phase0.routed_heldout`, the same `split_of` the modules route by). Every other game
+is listed under `skipped` with a reason (`status failed: ...`, `status source_broken: ...`,
+`no play-by-play (pbp_joined false: ...)`, `not in the manifest`, `manifest says heldout X but
+sportvu/splits.json routes it to the ... folder`). The last one exists because a game the manifest holds out
+must never land in a training folder: Step 1 computes the flag with the same function, so a disagreement
+means the manifest or the splits file changed and somebody has to look.
 
 Inputs are located with `sportvu.colab_contract.game_paths` (the split routing), falling back to the other
 folder and then to the manifest's own `parquet` and `pbp_parquet` paths.

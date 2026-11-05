@@ -19,7 +19,8 @@ Hand-label schema (lane I4 writes the tool; this package codes against it, DATA_
 Assumptions recorded here because nobody could be asked:
   - a JSONL line is an actions row when it carries action_type and a screens row when it carries coverage
     (a "table" key, when present, wins); action_id defaults to the row's position among the actions rows
-  - the coverage vocabulary is not fixed by the schema; unknown values are counted as warnings, not errors
+  - the coverage vocabulary is not fixed by the schema; unknown values are counted as warnings, not errors;
+    screens.confidence may be a number in [0, 1] or a text grade (counted as a warning), never null
   - only ball_screen, drive and isolation are detected; a candidate overlapping a label of another type
     (handoff, off_ball_screen, post_up, cut) counts as "none" and the count is reported
   - frames are read at 5 Hz (every round(hz / 5)-th frame of the possession); hand labels and candidate
@@ -29,7 +30,7 @@ from __future__ import annotations
 
 ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
 LABEL_SOURCES = ("hand", "model", "synthetic")
-COVERAGES = ("over", "under", "switch", "ice", "drop", "blitz", "hedge", "show", "unknown")
+COVERAGES = ("over", "under", "switch", "ice", "drop", "blitz", "blitz_trap", "hedge", "hedge_show", "show", "unknown")
 CLASSES = ("ball_screen", "drive", "isolation", "none")      # the detector's classes, in output order
 SEASON = "2015-16"
 WHO = "actions.train"
