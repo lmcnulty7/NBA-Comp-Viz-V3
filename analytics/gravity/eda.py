@@ -21,7 +21,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from analytics.eval import grouped_folds
+from analytics import schema
+from analytics.eval import grouped_folds, refuse_heldout
 from analytics.gravity import features as F
 
 DIST_BINS = (0.0, 4.0, 10.0, 16.0, 22.0, 30.0, 100.0)
@@ -83,12 +84,16 @@ def correlation_table(pf: pd.DataFrame) -> pd.DataFrame:
 
 
 def _ridge_oof(pf: pd.DataFrame, y: np.ndarray, seed: int, n_folds: int) -> np.ndarray:
+    """Ridge out of fold by game for the shuffled-y check. The same guards as the trainer: the frame passes
+    schema.assert_time_forward and the game ids pass analytics.eval.refuse_heldout before any fit."""
     from sklearn.linear_model import Ridge
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
-    X = F.design(pf)
+    schema.assert_time_forward(pf, "states_1hz")
     games = pf["sportvu_game"].astype(str).to_numpy()
     uniq = sorted(set(games))
+    refuse_heldout(uniq, "gravity.eda")
+    X = F.design(pf)
     p = np.full(len(pf), np.nan)
     if len(uniq) < 2:
         m = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(X, y)

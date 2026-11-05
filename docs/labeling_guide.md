@@ -63,8 +63,9 @@ looks at or passes to the cutter).
 
 A coverage describes how the two defenders involved in a ball_screen play it. Label from the moment the
 screener arrives until the handler is past the screen. Set `confidence` to `unsure` when the two defenders
-act differently from each other or the pictures are ambiguous; `unsure` labels are kept but excluded from the
-kappa check and from the first training set.
+act differently from each other or the pictures are ambiguous; `unsure` labels are kept in the file but
+`kappa` and the first training set (`read_labels(..., labeller_pass=1)` filtered to `confidence == "sure"`)
+leave them out.
 
 **switch.** The screener's defender takes the ball handler and the on-ball defender takes the screener, both
 staying with their new man for at least a second after the screen. Decision rule: after the screen each
@@ -115,8 +116,11 @@ When over or under is combined with a drop, label the screener's defender's beha
 | `v` | coverage mode for the selected ball_screen (the last saved one when none is selected) |
 | `u` | toggle sure / unsure |
 | `j` | jump to the selected action's start frame |
-| `n`, `p` | next / previous possession |
+| `n`, `p` | next / previous possession; the possession being left is recorded as visited by this pass, labels or none |
 | `f` | half court / full court |
+
+Keys pressed with `ctrl`, `cmd` or `alt` are left to the browser. Opening a held-out game shows a
+HELD-OUT banner: its labels are evaluation labels and tune nothing.
 
 The label list on the right shows every action of the possession with its coverages; `select` picks an
 action for coverage mode and jumps to its start, `delete` appends a tombstone (an action's coverages go
@@ -129,8 +133,8 @@ Possessions to label come from `analytics.labels.sample_possessions`, run by the
 --seed S` so that the same N and S always give the same list:
 
 1. training games only: a game id carrying a held-out token (`sportvu/splits.json`) is never sampled;
-2. half-court possessions only: the ball crosses the half-court line and then stays in the front court for
-   at least 2 s (transition possessions and possessions that end before the ball crosses are skipped);
+2. half-court possessions only: the ball crosses the half-court line and then spends at least 2 s in the
+   front court (transition possessions and possessions that end before the ball crosses are skipped);
 3. stratified by offensive team: the quota is split evenly across the two teams of the game;
 4. at least half of each team's quota comes from possessions the rule-based screen candidate flags (a
    non-handler offensive player within 4 ft of the handler's nearest defender for 1 s), the rest from
@@ -150,9 +154,11 @@ python -m analytics.label_tool --data DATA_ROOT --game G --kappa
 python -m analytics.label_tool --data DATA_ROOT --kappa          # pooled over every game with labels
 ```
 
-pairs the two passes' actions inside each possession by temporal overlap (an action only one pass found
-counts as `none`) and prints Cohen's kappa for `action_type` and, over the paired ball screens, for
-`coverage`. Both must reach 0.7. Below 0.7, the disagreements are reviewed against the definitions above,
+takes the possessions both passes visited (the visited record the page writes on next/previous; for a pass
+without one, the possessions it labelled), pairs the two passes' actions inside each by temporal overlap (an
+action only one pass found counts as `none`) and prints Cohen's kappa for `action_type` and, over the paired
+ball screens, for `coverage` using `sure` labels only. Held-out games are skipped and counted. Both kappas
+must reach 0.7. Below 0.7, the disagreements are reviewed against the definitions above,
 the definitions are tightened, and the 10% is relabelled a third time before the full set is trusted; the
 definitions, not the labels, are what gets edited.
 

@@ -443,6 +443,15 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
         L += ["## Held-out games", "", "None in this run; the Mac run scores the held-out games once after the decision above.", ""]
     L += ["## Tables", "",
           "ghost_frames: %d rows; ghost_possessions: %d rows (docs/contract/ghosting.md)." % (len(ctx["ghost_frames"]), len(ctx["ghost_possessions"])), "",
+          "## Assumptions and what needs real data", "",
+          "- Assignment is the nearest offensive player at the possession's first sampled frame (defender-centric, no one-to-one matching); "
+          "the attacking side is the half the ball is in at t minus 1; a null shot clock is max(24 minus elapsed, 0); possessions with a "
+          "clock gap or no offence are skipped; a sequence is cut at the first sampled frame without the first frame's ten players or without a ball.",
+          "- The 1.0 s roll-forward keeps the offence, the ball and the other defenders actual and feeds only this defender's ghost back.",
+          "- Fits run single-threaded (THREADS = 1) because the build container shares 4 cores across 21 lanes; `--threads` raises it on the Mac.",
+          "- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the "
+          "held-out games are scored once, after the decision, by the candidates refit on every training row. The sign test needs dozens of "
+          "games to say anything; with the fixtures it is a pipeline check.", "",
           "## Next on the Mac", "", "    " + MAC_CMD, "",
           "Torch GRU note: the deep candidate here is sklearn's MLPRegressor over the flattened 5-step window because torch is not installed "
           "in the build container. The window columns are ordered lag 1 first, so `X.reshape(n, %d, %d)` is the (batch, time, features) tensor "

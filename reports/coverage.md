@@ -1,6 +1,6 @@
 # Coverage recognition: pick-and-roll defensive coverage (analytics/coverage)
 
-Written 2026-11-05T08:38:47Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-05T08:45:09Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
 
 ## Status
 
@@ -12,6 +12,7 @@ No hand labels exist yet (STATUS.md): this run read the synthetic fixture season
 | --- | --- |
 | games with frames | 8 (held out: 2) |
 | games with labels but no frames | 0 |
+| label reader; first-pass filter dropped (actions, screens) | fixture; 0, 0 |
 | action rows read / kept | 320 / 320 |
 | ball_screen actions | 136 |
 | screen rows read / kept | 136 / 136 |
@@ -111,9 +112,9 @@ Held-out numbers are point estimates over 2 game(s), no interval.
 
 ## Outputs
 
-- `/tmp/coverage_out__ib5an0e/analytics/coverage/2015-16/coverage_predictions.parquet`
-- `/tmp/coverage_out__ib5an0e/analytics/coverage/heldout/2015-16/coverage_predictions.parquet`
-- `/tmp/coverage_out__ib5an0e/analytics/coverage/2015-16/coverage_team_rates.parquet`
+- `/tmp/coverage_out_umj4u9f1/analytics/coverage/2015-16/coverage_predictions.parquet`
+- `/tmp/coverage_out_umj4u9f1/analytics/coverage/heldout/2015-16/coverage_predictions.parquet`
+- `/tmp/coverage_out_umj4u9f1/analytics/coverage/2015-16/coverage_team_rates.parquet`
 - `reports/coverage.md`
 
 ## On the Mac (where the labels and frames will be)

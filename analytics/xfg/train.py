@@ -182,7 +182,8 @@ def _fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
                 test = train[m].copy()
                 test[PRIOR_FEATURE] = apply_prior(prior_table(inner), test)
                 h = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(_design(inner, cols), inner["made"].astype(int))
-                oof[m] = h.predict_proba(_design(test, cols))[:, 1]
+                with _threads(1):
+                    oof[m] = h.predict_proba(_design(test, cols))[:, 1]
         full = train.copy()
         full[PRIOR_FEATURE] = oof_prior(full, INNER_FOLDS, seed)
         hgb = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(_design(full, cols), y)
@@ -194,7 +195,8 @@ def _fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
         def predict(frame, h=hgb, iso=iso, pt=pt, c=cols):
             f = frame.copy()
             f[PRIOR_FEATURE] = apply_prior(pt, f)
-            p = h.predict_proba(_design(f, c))[:, 1]
+            with _threads(1):
+                p = h.predict_proba(_design(f, c))[:, 1]
             return iso.predict(p) if iso is not None else p
         return predict
     raise KeyError("unknown candidate %r" % name)

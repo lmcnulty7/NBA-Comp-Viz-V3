@@ -350,7 +350,7 @@ def write_report(path: Path, ctx: dict) -> str:
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
         L += ["**Every number below is fixture output, not a result**: the inputs are synthetic games from `%s` "
-              "with two planted high-gravity players, used to exercise the pipeline. The real run is the Mac command at the end." % ctx["fixture_source"], ""]
+              "with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end." % ctx["fixture_source"], ""]
     L += ["## Inputs", "",
           "| games | training | held-out | player-frames (train) | spacing frames (train) | shots (train) |", "| --- | --- | --- | --- | --- | --- |",
           "| %d | %d | %d | %d | %d | %d |" % (ctx["n_games"], ctx["train_games"], ctx["heldout_games"], ctx["train_rows"],
@@ -436,6 +436,10 @@ ASSUMPTIONS = [
     "The sign test's candidates are the fixture's planted players on fixtures and the top ten gated players on real data; the xFG probability "
     "is the location-only logistic of analytics.train_xfg fitted out of fold by game on the training games' shots.",
     "On-court at a shot means the player has a row in the frame of the same period nearest the shot's clock.",
+    "Fixture runs on analytics.fixtures: every game has a fresh roster (player ids depend on the game seed), so no player reaches the "
+    "300-possession gate and the season-wide top-decile check cannot pass by construction; the per-game check is the one that applies there. "
+    "Its star plays every period, so the on/off sign test finds no off-court shots; the fallback generator (tests/_fx_gravity.py) keeps one "
+    "roster across the season and sits its star, and both checks run on it.",
 ]
 
 

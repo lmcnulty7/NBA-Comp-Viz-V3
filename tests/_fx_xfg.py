@@ -10,7 +10,8 @@ below, which has the same signatures, dict keys and column names:
 
 The shared generator's output is checked for the keys and columns the xFG lane needs; if the check fails
 (the shared module is unfinished or shaped differently) the local generator is used, so this lane's tests
-never depend on another lane's state. ``USING_SHARED`` records which one is in use.
+never depend on another lane's state. ``USING_SHARED`` records which one is in use; the environment variable
+``XFG_LOCAL_FIXTURES=1`` forces the local generator (used to check that the tests pass with the fallback alone).
 
 Local generator (deterministic given the seed): a game is ``n_possessions`` possessions of 6 s at 25 Hz
 (150 frames, ten players on the floor, home and away alternate on offence). About 85 percent of possessions
@@ -25,6 +26,7 @@ synthetic ids ``MM.DD.2016.AAA.at.BBB`` that carry no held-out token. Nothing he
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -280,6 +282,8 @@ def _check(g: dict) -> bool:
 
 USING_SHARED = False
 try:
+    if os.environ.get("XFG_LOCAL_FIXTURES"):        # the test of the fallback alone sets this
+        raise ImportError("XFG_LOCAL_FIXTURES set: using the local generator")
     from analytics.fixtures import synth_game as _shared_game, synth_season as _shared_season  # type: ignore
 
     def synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:

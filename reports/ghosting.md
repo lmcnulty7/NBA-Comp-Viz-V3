@@ -1,6 +1,6 @@
 # Ghosting: defender position from the past five sampled frames (analytics/ghosting/train.py) (fixture output, not a result)
 
-Written 2026-11-05T08:44:13Z by `python -m analytics.ghosting.train --fixtures --games 4 --possessions 6 --heldout-every 4 --folds 5 --seed 0 --bootstrap 200 --report reports/ghosting.md`.
+Written 2026-11-05T08:46:01Z by `python -m analytics.ghosting.train --fixtures --games 4 --possessions 6 --heldout-every 4 --folds 5 --seed 0 --bootstrap 200 --report reports/ghosting.md`.
 
 **Fixture output, not a result.** Every number below comes from synthetic games (tests/_fx_ghosting.py or analytics.fixtures); it shows the pipeline runs end to end and nothing about NBA defenders.
 
@@ -71,6 +71,13 @@ Held-out numbers are point estimates (no bootstrap over 1 game(s)). Held-out sig
 ## Tables
 
 ghost_frames: 10370 rows; ghost_possessions: 20 rows (docs/contract/ghosting.md).
+
+## Assumptions and what needs real data
+
+- Assignment is the nearest offensive player at the possession's first sampled frame (defender-centric, no one-to-one matching); the attacking side is the half the ball is in at t minus 1; a null shot clock is max(24 minus elapsed, 0); possessions with a clock gap or no offence are skipped; a sequence is cut at the first sampled frame without the first frame's ten players or without a ball.
+- The 1.0 s roll-forward keeps the offence, the ball and the other defenders actual and feeds only this defender's ghost back.
+- Fits run single-threaded (THREADS = 1) because the build container shares 4 cores across 21 lanes; `--threads` raises it on the Mac.
+- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the held-out games are scored once, after the decision, by the candidates refit on every training row. The sign test needs dozens of games to say anything; with the fixtures it is a pipeline check.
 
 ## Next on the Mac
 

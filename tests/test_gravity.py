@@ -208,7 +208,7 @@ def test_end_to_end_fixture_run(tmp_path):
         assert (tmp_path / "analytics" / "gravity" / (name + ".parquet")).exists()
     text = report.read_text()
     assert "fixture output, not a result" in text and "Mac command" in text and "Held-out, scored once" in text
-    assert "—" not in text
+    assert chr(0x2014) not in text                                      # no em dash in the report
 
 
 def test_validate_and_features_cli(tmp_path, capsys):

@@ -155,7 +155,7 @@
         <div><kbd>v</kbd> coverage mode for the selected ball_screen</div>
         <div><kbd>u</kbd> toggle sure / unsure</div>
         <div><kbd>j</kbd> jump to the selected action's start</div>
-        <div><kbd>n</kbd> <kbd>p</kbd> next / previous possession</div>
+        <div><kbd>n</kbd> <kbd>p</kbd> next / previous possession (marks the current one as visited by this pass)</div>
         <div><kbd>f</kbd> half court / full court</div>
       </div>
     </div>
@@ -424,6 +424,7 @@
   }
 
   function enterCoverage() {
+    if (!S.data) { setStatus("no possession loaded", "err"); return false; }
     var a = selectedAction();
     if (!a) {
       // default to the last ball_screen of the possession
@@ -478,7 +479,8 @@
       applyView();
       $("scrub").max = Math.max(0, d.frames.length - 1); $("scrub").value = 0;
       $("hdr-game").textContent = d.game;
-      $("hdr-pass").textContent = "labeller pass " + d.meta.labeller_pass + (d.meta.sample ? ", sample n=" + d.meta.sample.n + " seed " + d.meta.sample.seed : "");
+      $("hdr-pass").textContent = "labeller pass " + d.meta.labeller_pass + (d.meta.sample ? ", sample n=" + d.meta.sample.n + " seed " + d.meta.sample.seed : "") +
+        (d.meta.heldout ? "  HELD-OUT game: evaluation labels only" : "") + (d.visited ? "  (visited)" : "");
       $("poss-pos").textContent = (d.index + 1) + " / " + d.n;
       var p = d.possession;
       $("poss-info").innerHTML = "<span>possession <b>" + p.possession + "</b></span><span>Q" + p.period + " " + fmtClock(p.start_clock_s) + " to " + fmtClock(p.end_clock_s) + "</span>" +
@@ -538,14 +540,21 @@
     }).catch(function (err) { setStatus(err.message, "err"); });
   }
 
+  function markVisited() {
+    // the pass finished this possession (labels or none): --kappa compares only possessions both passes finished
+    if (!S.data) return Promise.resolve();
+    return api("POST", "/visited", { possession: S.data.possession.possession }).catch(function (err) { setStatus(err.message, "err"); });
+  }
+
   function nextPossession(k) {
     var i = S.idx + k;
     if (i < 0 || i >= S.n) { setStatus(i < 0 ? "this is the first possession" : "this is the last possession"); return; }
-    loadPossession(i);
+    markVisited().then(function () { loadPossession(i); });
   }
 
   // ---------------------------------------------------------------- keys
   document.addEventListener("keydown", function (ev) {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;  // browser shortcuts stay with the browser
     var tag = (ev.target && ev.target.tagName) || "";
     if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") { if (ev.key === " " || ev.key === "Enter") ev.target.blur(); else return; }
     var k = ev.key;
