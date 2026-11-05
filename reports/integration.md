@@ -1,6 +1,6 @@
 # Integration report (lane I6)
 
-Latest run: 2026-11-05 09:00 UTC. Every number here is fixture output (synthetic data from tests/_fx_<ext>.py or analytics/fixtures.py), not a result. Produced by `python3 -m pytest -q tests/test_integration.py` (fast part, 245 s of test time) and the slow part with INTEGRATION_SLOW=1 (245 s).
+Latest run: 2026-11-05 09:01 UTC. Every number here is fixture output (synthetic data from tests/_fx_<ext>.py or analytics/fixtures.py), not a result. Produced by `python3 -m pytest -q tests/test_integration.py` (fast part, 245 s of test time) and the slow part with INTEGRATION_SLOW=1 (245 s).
 
 Lanes present (15 of 15): actions, betting, coverage, decisions, embeddings, epv, ghosting, gravity, lineups, load, matchups, playcalling, rebounds, winprob, xfg
 
@@ -26,7 +26,7 @@ Lanes missing (0): none
 | `load` | pass | pass | pass | pass | pass |
 | `betting` | pass | pass | pass | pass | FAIL |
 
-Fast part totals: 82 passed, 1 failed, 28 skipped (skips are absent lanes).
+Totals over both parts in this report: 82 passed, 1 failed, 28 skipped (skips are absent lanes and gated parts).
 
 ## Slow part
 
@@ -52,9 +52,9 @@ One DATA_ROOT from `python -m analytics.fixtures --out DATA_ROOT --seed 0 --game
 ## Failures
 
 - `betting` features+train:
+    - `ValueError: Input X contains NaN.`
     - `AssertionError: python -m analytics.betting.train --fixtures --out OUT_ROOT exited 1:`
     - `>           assert r.returncode == 0, "python -m analytics.%s.%s --fixtures --out OUT_ROOT exited %d:\n%s" % (`
-    - `E           AssertionError: python -m analytics.betting.train --fixtures --out OUT_ROOT exited 1:`
 
 ## Registry checks
 

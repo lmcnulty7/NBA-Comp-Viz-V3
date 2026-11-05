@@ -52,9 +52,17 @@ def test_fixture_end_to_end(bundle, tmp_path):
     s = ctx["scores"]
     assert s[ctx["best"]]["macro_f1"]["point"] >= s["majority"]["macro_f1"]["point"]
     assert s[ctx["best"]]["confusion"].to_numpy().sum() == ctx["train_rows"]
-    rates = ctx["rates"]
+    assert list(ctx["rates"]) == ["2015-16"]
+    rates = ctx["rates"]["2015-16"]
     assert list(rates.columns) == T.TEAM_RATE_COLUMNS and len(rates) >= 1 and rates["insufficient"].all()
     assert np.allclose(rates[["share_" + c for c in CLASSES]].sum(axis=1), 1.0)
+    roster_team = {(g, int(pid)): int(tid) for g, v in bundle["games"].items()
+                   for pid, tid in v["rosters"][["player_id", "team_id"]].itertuples(index=False)}
+    feats = ctx["features"]
+    train_feats = feats[~feats["heldout"]]
+    expect = pd.Series([roster_team[(g, int(d))] for g, d in zip(train_feats["sportvu_game"], train_feats["on_ball_defender_id"])])
+    assert dict(expect.value_counts()) == dict(zip(rates["team_id"], rates["n_screens"]))
+    assert ctx["counts"]["train_unsure_set_aside"] == 0 and "label_source" in pred.columns
     text = report.read_text()
     assert "fixture output, not a result" in text and "refuse_heldout" in text and EM_DASH not in text
     written = sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*.parquet"))
@@ -173,7 +181,7 @@ def test_defenders_are_inferred_for_detected_screens(scripted):
     row = cand[cand["sportvu_game"] == gid].iloc[0]
     tracks = F.GameTracks(game["frames"])
     d1, d2 = F.infer_defenders(tracks, int(row.ball_handler_id), int(row.screener_id), int(row.start_frame))
-    assert {d1, d2} <= {p for p, t in tracks.team.items() if t != tracks.team[int(row.ball_handler_id)]}
+    assert (d1, d2) == (int(row.on_ball_defender_id), int(row.screener_defender_id))   # the scripted defenders
     detected = cand[cand["sportvu_game"] == gid].head(2).assign(on_ball_defender_id=pd.NA, screener_defender_id=pd.NA,
                                                                  coverage=pd.NA, label_source="model")
     feats = F.features(detected, {gid: game}, {})
@@ -187,9 +195,17 @@ def test_validator_drops_and_counts_bad_rows(scripted):
     screens = scripted["screens"]
     good = screens[screens["sportvu_game"] == gid].iloc[0]
     non_screen = actions[(actions["sportvu_game"] == gid) & (actions["action_type"] != "ball_screen")]
-    extra = [dict(good, coverage="zone"), dict(good, confidence="maybe"), dict(good),
-             dict(good, action_id=999), dict(good, possession=int(good["possession"]) + 1, action_id=int(good["action_id"])),
-             dict(good, on_ball_defender_id=int(good["screener_defender_id"]))]
+    game_screens = actions[(actions["sportvu_game"] == gid) & (actions["action_type"] == "ball_screen")]
+    labelled = set(screens.loc[screens["sportvu_game"] == gid, "action_id"].astype(int))
+    # two ball_screen actions of the same game stripped of their own screen rows, so the new rows are not duplicates
+    other = [int(a) for a in game_screens["action_id"].astype(int) if a != int(good["action_id"])][:2]
+    assert len(other) == 2
+    own = {a: screens[screens["sportvu_game"].eq(gid) & screens["action_id"].eq(a)].iloc[0] for a in other}
+    screens = screens[~(screens["sportvu_game"].eq(gid) & screens["action_id"].isin(other))]
+    mismatch = dict(own[other[0]], possession=int(own[other[0]]["possession"]) + 1)
+    bad_ids = dict(own[other[1]], on_ball_defender_id=int(own[other[1]]["screener_defender_id"]))
+    extra = [dict(good, coverage="zone"), dict(good, confidence="maybe"), dict(good), dict(good, action_id=999),
+             mismatch, bad_ids]
     if len(non_screen):
         extra.append(dict(good, action_id=int(non_screen.iloc[0]["action_id"])))
     extra = pd.DataFrame(extra)
@@ -198,9 +214,13 @@ def test_validator_drops_and_counts_bad_rows(scripted):
     a = V.check_actions(actions, counts)
     s = V.check_screens(pd.concat([screens, extra], ignore_index=True), a, counts)
     assert counts["screens_unknown_coverage"] == 1 and counts["screens_unknown_confidence"] == 1
-    assert counts["screens_missing_value"] == 1 and counts["screens_duplicate_id"] >= 1
-    assert counts["screens_without_ball_screen_action"] >= 1 and counts["screens_bad_defender_ids"] == 0
-    assert counts["screens_kept"] == len(screens) and (s["possession"] == s["possession"].astype(int)).all()
+    assert counts["screens_missing_value"] == 1 and counts["screens_duplicate_id"] == 1
+    assert counts["screens_without_ball_screen_action"] >= 1
+    assert counts["screens_possession_mismatch"] == 1 and counts["screens_bad_defender_ids"] == 1
+    assert counts["screens_kept"] == len(screens) + 1 and (s["possession"] == s["possession"].astype(int)).all()
+    fixed = s[s["sportvu_game"].eq(gid) & s["action_id"].eq(other[0])]
+    assert set(fixed["possession"]) == {int(own[other[0]]["possession"])}   # the action's possession wins
+    assert len(labelled) == len(set(labelled))
     with pytest.raises(ValueError):
         V.check_screens(screens.drop(columns=["coverage"]), a, {})
     assert V.season_of("12.16.2015.PHX.at.GSW") == "2015-16" and V.season_of("02.07.2016.A.at.B") == "2015-16"
@@ -235,9 +255,17 @@ def test_data_root_layout_is_read_by_the_cli(tmp_path):
     assert len(V.load_detected(out)) == 2
     bundle = V.load_data_root(root, out)
     cand, counts2 = V.validate_bundle(bundle)
-    assert counts2["detected_screens"] == 2 and counts2["candidates"] == counts["candidates"] + 2
+    # the game has hand labels, so its detected screens are dropped (the hand labels own the game)
+    assert counts2["detected_dropped_game_has_hand_labels"] == 2 and counts2["detected_screens"] == 0
+    assert counts2["candidates"] == counts["candidates"]
+    # without hand labels for that game the detected screens are candidates with label_source model
+    bundle["actions"] = bundle["actions"][bundle["actions"]["sportvu_game"] != train_game]
+    bundle["screens"] = bundle["screens"][bundle["screens"]["sportvu_game"] != train_game]
+    cand, counts3 = V.validate_bundle(bundle)
     model_rows = cand[cand["label_source"] == "model"]
-    assert len(model_rows) == 2 and model_rows["coverage"].isna().all() and model_rows["on_ball_defender_id"].isna().all()
+    assert counts3["detected_screens"] == 2 and len(model_rows) == 2
+    assert model_rows["coverage"].isna().all() and model_rows["on_ball_defender_id"].isna().all()
+    assert not cand.duplicated(["sportvu_game", "action_id", "label_source"]).any()
 
 
 def test_label_files_are_resolved_like_the_label_tool_writes_them(tmp_path):

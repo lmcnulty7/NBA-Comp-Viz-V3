@@ -85,45 +85,44 @@ ID_FIELD = {"actions": "action_id", "screens": "screen_id"}
 
 
 def _read_jsonl(path: Path, kind: str = "actions") -> pd.DataFrame:
-    """Resolve an append-only label file: the last line about an id wins, a ``deleted`` line drops the id. A line
-    without the id field (fixture files written before the label tool) is kept as its own row."""
+    """Fallback for when analytics.labels does not import: the rule of ``analytics.labels._read_jsonl`` exactly.
+    The last line about an id wins, a ``deleted`` line drops the id (and must carry the id, else ValueError), a line
+    without the id field takes the running position of the labels read so far as its id."""
     idf = ID_FIELD.get(kind, "action_id")
-    live, order, anon = {}, [], []
+    live, order, n_labels = {}, [], 0
     with open(path) as fh:
-        for line in fh:
+        for ln, line in enumerate(fh):
             line = line.strip()
             if not line:
                 continue
             rec = json.loads(line)
             key = rec.get(idf)
-            if key is None and kind == "screens":
-                key = rec.get("action_id")
-            if key is None:
-                if not rec.get("deleted"):
-                    anon.append(rec)
-                continue
-            key = int(key)
             if rec.get("deleted"):
-                live.pop(key, None)
+                if key is None:
+                    raise ValueError("%s:%d: tombstone has no %s" % (path, ln + 1, idf))
+                live.pop(int(key), None)
                 continue
+            if key is None:
+                key = n_labels
+                rec[idf] = key
+            key = int(key)
+            n_labels += 1
             if key not in live:
                 order.append(key)
             live[key] = rec
-    rows = [live[k] for k in order if k in live] + anon
-    return pd.DataFrame(rows)
+    return pd.DataFrame([live[k] for k in order if k in live])
 
 
 def _read_game_labels(root: Path, game: str) -> tuple:
-    """(actions, screens, reader) of one game: analytics.labels.read_labels when it imports and the files carry
-    its id fields, else the resolver above (same last-line-wins and tombstone rule)."""
+    """(actions, screens, reader) of one game: analytics.labels.read_labels, the sanctioned reader (a ValueError
+    from it propagates); only when that module does not import, the resolver above with the same rule."""
     try:
         from analytics import labels as _labels
+    except ImportError:
+        _labels = None
+    if _labels is not None:
         a, s = _labels.read_labels(root, game)
         return a, s, "analytics.labels"
-    except ImportError:
-        pass
-    except (ValueError, KeyError) as exc:
-        log.info("labels of %s: analytics.labels.read_labels refused them (%s); resolving the files here", game, exc)
     out = []
     for kind in ("actions", "screens"):
         path = root / "labels" / kind / (game + ".jsonl")
@@ -362,7 +361,8 @@ def check_screens(screens: pd.DataFrame, actions: pd.DataFrame, counts: dict, po
     j = j.drop(columns=["action_possession"])
     ids_ok = ((j["on_ball_defender_id"] != j["screener_defender_id"])
               & ~j["on_ball_defender_id"].isin([-1]) & ~j["screener_defender_id"].isin([-1])
-              & (j["on_ball_defender_id"] != j["ball_handler_id"]) & (j["screener_defender_id"] != j["screener_id"]))
+              & (j["on_ball_defender_id"] != j["ball_handler_id"]) & (j["screener_defender_id"] != j["screener_id"])
+              & (j["on_ball_defender_id"] != j["screener_id"]) & (j["screener_defender_id"] != j["ball_handler_id"]))
     counts["screens_bad_defender_ids"] = int((~ids_ok).sum())
     j = j[ids_ok]
     if possessions is not None and len(possessions):
@@ -383,8 +383,9 @@ def candidates(actions: pd.DataFrame, screens: pd.DataFrame, detected: pd.DataFr
                counts: dict) -> pd.DataFrame:
     """One row per ball screen with CANDIDATE_COLUMNS: hand-labelled screens (coverage set), hand-labelled
     ball_screen actions without a screen row (coverage null, defenders null) and the detector's screens (coverage
-    null, defenders null, label_source model). A detected screen that duplicates a hand-labelled action (same
-    game, same handler, start frames within 1 s) is dropped and counted."""
+    null, defenders null, label_source model). Detected screens of a game that has any hand-labelled action are
+    dropped and counted (the hand labels own that game, as playcalling does), so a detected row never shares a
+    (sportvu_game, action_id) key with a hand label; label_source tells the rows apart downstream."""
     rows = [screens.assign(label_source=screens["label_source"].astype(str))]
     acts = actions[actions["action_type"].astype(str) == SCREEN_ACTION]
     unl = acts.merge(screens[["sportvu_game", "action_id"]], on=["sportvu_game", "action_id"], how="left", indicator=True)
@@ -396,14 +397,10 @@ def candidates(actions: pd.DataFrame, screens: pd.DataFrame, detected: pd.DataFr
         d = check_actions(detected, {})
         d = d[d["action_type"].astype(str) == SCREEN_ACTION].copy()
         d["label_source"] = "model"
-        if len(acts):
-            m = d.merge(acts[["sportvu_game", "ball_handler_id", "start_frame"]].rename(columns={"start_frame": "h_start"}),
-                        on=["sportvu_game", "ball_handler_id"], how="left")
-            near = (m["h_start"].notna()) & ((m["start_frame"] - m["h_start"]).abs() <= 25)
-            dup_ids = set(zip(m.loc[near, "sportvu_game"], m.loc[near, "action_id"]))
-            keep = ~pd.Series(list(zip(d["sportvu_game"], d["action_id"]))).isin(dup_ids).to_numpy()
-            counts["detected_duplicating_hand_label"] = int((~keep).sum())
-            d = d[keep]
+        hand_games = set(actions["sportvu_game"].astype(str))
+        keep = ~d["sportvu_game"].astype(str).isin(hand_games).to_numpy()
+        counts["detected_dropped_game_has_hand_labels"] = int((~keep).sum())
+        d = d[keep]
         counts["detected_screens"] = int(len(d))
         d["action_id"] = d["action_id"].astype(int)
         rows.append(d.assign(on_ball_defender_id=pd.NA, screener_defender_id=pd.NA, coverage=pd.NA, confidence=pd.NA))

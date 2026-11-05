@@ -62,7 +62,7 @@ FEATURES = (
 )
 KEYS = ("sportvu_game", "possession", "action_id")
 # Never in a design matrix: the label, its provenance and anything that names the outcome.
-FORBIDDEN = frozenset({"coverage", "coverage_label", "confidence", "label_source", "labeller_pass", "predicted",
+FORBIDDEN = frozenset({"coverage", "coverage_label", "confidence", "label_confidence", "label_source", "labeller_pass", "predicted",
                        "heldout", "fold"} | {"p_" + c for c in CLASSES} | set(schema.ALL_EXCLUDED))
 
 
@@ -93,7 +93,6 @@ class GameTracks:
         self.columns = {int(p): j for j, p in enumerate(px.columns)}
         self.xy = np.stack([px.to_numpy(dtype=float), py.to_numpy(dtype=float)], axis=-1)
         self.team = f.drop_duplicates("player_id").set_index("player_id")["team_id"].astype(int).to_dict()
-        self.present = frames["frame"].drop_duplicates().to_numpy()
 
     def window(self, pid: int, f0: int, f1: int) -> np.ndarray:
         """(f1 - f0 + 1, 2) positions of pid over frames f0..f1 (NaN outside the game or untracked)."""
@@ -114,8 +113,6 @@ class GameTracks:
         row = self.xy[f - self.fmin]
         return {p: row[j] for p, j in self.columns.items() if np.isfinite(row[j]).all()}
 
-    def n_frames_in(self, f0: int, f1: int) -> int:
-        return int(((self.present >= f0) & (self.present <= f1)).sum())
 
 
 def infer_defenders(tracks: GameTracks, handler: int, screener: int, f0: int) -> tuple:
@@ -197,7 +194,7 @@ def screen_geometry(H: np.ndarray, S: np.ndarray, D1: np.ndarray, D2: np.ndarray
     d1h, d2h = _dist(D1, H), _dist(D2, H)
     valid = np.isfinite(d1h) & np.isfinite(d2h)
     end = int(np.flatnonzero(valid)[-1]) if valid.any() else 0
-    early = slice(0, min(n, EARLY_FRAMES + 1))
+    early = slice(0, min(n, EARLY_FRAMES))        # 15 frames = 0.6 s
     late = slice(max(0, n - LATE_FRAMES), n)
     d1s = _dist(D1, S)
     pas = int(np.nanargmin(d1s)) if np.isfinite(d1s).any() else 0
@@ -240,7 +237,8 @@ def screen_geometry(H: np.ndarray, S: np.ndarray, D1: np.ndarray, D2: np.ndarray
 # ── the feature frame ─────────────────────────────────────────────────────────────────────────────
 def features(candidates: pd.DataFrame, games: dict, counts: dict | None = None) -> pd.DataFrame:
     """Candidate table (validate.CANDIDATE_COLUMNS) + {game: dict(frames, ...)} -> the feature frame: KEYS,
-    screen_frame, screen_end_frame, heldout, label_source, coverage_label (null when unlabelled), then FEATURES.
+    screen_frame, screen_end_frame, heldout, label_source, coverage_label (null when unlabelled), label_confidence
+    (sure, unsure or null; bookkeeping for the trainer, never a feature), then FEATURES.
     Calls schema.assert_time_forward on the result. Dropped screens are counted in ``counts``."""
     counts = counts if counts is not None else {}
     rows = []
@@ -269,10 +267,11 @@ def features(candidates: pd.DataFrame, games: dict, counts: dict | None = None) 
             row = {"sportvu_game": gid, "possession": int(r.possession), "action_id": int(r.action_id),
                    "screen_frame": int(r.start_frame), "screen_end_frame": int(r.end_frame), "heldout": bool(r.heldout),
                    "label_source": str(r.label_source), "coverage_label": None if pd.isna(r.coverage) else str(r.coverage),
+                   "label_confidence": None if pd.isna(r.confidence) else str(r.confidence),
                    "on_ball_defender_id": int(d1), "screener_defender_id": int(d2)}
             row.update(geo)
             rows.append(row)
-    cols = list(KEYS) + ["screen_frame", "screen_end_frame", "heldout", "label_source", "coverage_label",
+    cols = list(KEYS) + ["screen_frame", "screen_end_frame", "heldout", "label_source", "coverage_label", "label_confidence",
                          "on_ball_defender_id", "screener_defender_id"] + list(FEATURES)
     out = pd.DataFrame(rows, columns=cols)
     for k, v in dropped.items():

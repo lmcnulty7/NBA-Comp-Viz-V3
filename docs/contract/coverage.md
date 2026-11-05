@@ -53,6 +53,7 @@ Under `OUT_ROOT/analytics/coverage/<season>/` (held-out games under `OUT_ROOT/an
 | `sportvu_game` | string | Step 1 game id |
 | `possession` | int32 | section 19 possession (the action's) |
 | `action_id` | int32 | the action the screen belongs to |
+| `label_source` | string | `hand`, `synthetic` or `model`; with `sportvu_game` and `action_id` it keys the row (detected ids are positional and could otherwise collide with hand ids; detected screens of a game with any hand label are dropped) |
 | `coverage_label` | string, nullable | the hand label; null for an unlabelled or detected screen |
 | `p_switch` .. `p_over` | float32 | the selected model's class probabilities (7 columns, sum to 1) |
 | `predicted` | string | argmax class |
@@ -69,9 +70,21 @@ Under `OUT_ROOT/analytics/coverage/<season>/` (held-out games under `OUT_ROOT/an
 | `insufficient` | bool | fewer than 300 screens (`analytics.eval.gated`); the shares are not to be read |
 
 Shares use the predicted class of every training-game screen (out-of-fold for labelled rows) so labelled,
-unlabelled and detected screens are counted the same way.
+unlabelled and detected screens are counted the same way. One file per season, computed from that season's rows.
+
+### coverage_features (`coverage_features.parquet`, one row per screen; written by `analytics.coverage.features`)
+
+The feature frame: `sportvu_game`, `possession`, `action_id`, `screen_frame`, `screen_end_frame`, `heldout`,
+`label_source`, `coverage_label` (nullable), `label_confidence` (nullable), `on_ball_defender_id`,
+`screener_defender_id` (inferred for detected screens), then the 37 features of `features.feature_columns()`
+as float64. Held-out games go under `heldout/<season>/`. The label, confidence and source columns are
+bookkeeping for the trainer and are refused on any design matrix.
 
 ## Protocol
+
+Training rows are the sure-labelled screens of training games; screens labelled `unsure` are scored, never
+fitted (docs/contract/labels.md leaves them out of the first training set). Held-out rows are scored by the
+selected model only, once.
 
 Candidates: majority (training-fold class frequencies), multinomial logistic regression (median imputation,
 standardisation, C = 1), HistGradientBoostingClassifier (100 trees, depth 3, learning rate 0.1, min 5 rows per
