@@ -1,6 +1,6 @@
 # Ghosting: defender position from the past five sampled frames (analytics/ghosting/train.py) (fixture output, not a result)
 
-Written 2026-11-05T09:08:14Z by `python -m analytics.ghosting.train --fixtures --games 4 --possessions 6 --heldout-every 4 --folds 5 --seed 0 --bootstrap 200 --report reports/ghosting.md`.
+Written 2026-11-05T09:44:28Z by `python -m analytics.ghosting.train --fixtures --games 4 --possessions 6 --heldout-every 4 --folds 5 --seed 0 --bootstrap 200 --report reports/ghosting.md`.
 
 **Fixture output, not a result.** Every number below comes from synthetic games (tests/_fx_ghosting.py or analytics.fixtures); it shows the pipeline runs end to end and nothing about NBA defenders.
 
@@ -56,15 +56,14 @@ deviation_ft = distance(actual, assignment) minus distance(ghost, assignment); p
 
 Sign test: 1 positive, 1 negative, 0 zero; one-sided p = 0.7500 (fixture output, not a result).
 
-## Held-out games (scored once by the candidates refit on all 4500 training rows; never fitted or tuned on)
+## Held-out games (the selected candidate refit on all 4500 training rows, scored once; never fitted or tuned on)
 
-1920 defender-steps from 1 held-out game(s): 12.16.2015.PHX.at.GSW.
+1920 defender-steps from 1 held-out game(s): 12.16.2015.PHX.at.GSW. Only the selected candidate and the persistence floor are scored here; the dropped candidate never sees the held-out game.
 
 | candidate | 0.2 s error | 1.0 s error |
 | --- | --- | --- |
 | 1 persistence (position at t minus 1) | 0.870 | 3.584 |
 | 2 ridge on the lag-1 features (linear baseline) | 0.524 | 3.623 |
-| 3 MLPRegressor 64x64 on the 5-step window (GRU stand-in) | 0.706 | 4.103 |
 
 Held-out numbers are point estimates (no bootstrap over 1 game(s)). Held-out sign test: 1 positive, 0 negative, p = 0.5000.
 

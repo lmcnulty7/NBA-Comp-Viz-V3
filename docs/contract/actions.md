@@ -108,7 +108,7 @@ Written under `OUT_ROOT/analytics/actions/<season>/` (held-out games under
 | `pred_class` | string | the selected model's argmax class |
 | `p_ball_screen` | float | the selected model's probability of ball_screen |
 | `p_selected_class` | float | the selected model's probability of `pred_class` |
-| `fold` | int32 | out-of-fold index for training games; -1 for held-out and inference-only rows (scored once by the refit) |
+| `fold` | int32 | repo convention: >= 0 the out-of-fold index of a training row; -1 held-out and inference-only rows (scored once by the refit); -2 in-sample rows (a single training game, no grouped fold possible; the report labels the metrics in-sample) |
 | `heldout` | bool | the game is held out (sportvu/splits.json, the heldout/ layout, or the CLE arena) |
 | `labelled` | bool | the possession was visited by pass 1 (or the game has labels and no visited file): the row entered a fit or a metric; false for inference-only rows |
 
@@ -136,6 +136,7 @@ reads `def_recovery_ft` 1 s after the window ends, so neither the row nor its co
 | `labelled_at` | string | UTC time of the run |
 | `model` | string | provenance: trainer, selected model, seed and input kind, e.g. `actions.train hgb seed0 data` |
 | `confidence` | float | = `p_selected_class` (offline, see above) |
+| `fold` | int32 | the candidate's fold as above: >= 0 out-of-fold, -1 held-out or inference-only, -2 in-sample |
 
 The JSONL beside it has the same rows with `table: actions`, so `validate.read_labels_jsonl` reads it
 back; it is not a hand-label file and never goes under `DATA_ROOT/labels/`.

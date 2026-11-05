@@ -40,7 +40,8 @@ Protocol
      persist across games and whose star sits, so the season-wide checks run there
 
 Fewer games than folds: the fold count becomes the game count (leave-one-game-out) and the report says so;
-one training game: in-sample, labelled.
+one training game: in-sample, labelled, and its rows carry fold = IN_SAMPLE_FOLD (-2) so they can never be
+mistaken for out-of-fold rows (repo convention: -1 held-out, -2 in-sample, >= 0 the out-of-fold index).
 """
 from __future__ import annotations
 
@@ -72,6 +73,7 @@ TOP_N_REAL = 10
 FIXTURE_MIN_POSSESSIONS = 40   # a fixture season is a few small games: the real-data gate of 300 would gate nobody
 MAC_CMD = ("python -m analytics.gravity.train --data DATA_ROOT --report reports/gravity.md --folds 5 --seed 0 "
            "--bootstrap 1000 --min-possessions 300 --out DATA_ROOT")
+HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2   # repo convention for the fold column: -1 held-out, -2 in-sample, >= 0 out-of-fold
 PLAYER_COLUMNS = ["player_id", "n_possessions", "n_frames", "n_games", "gravity_ft", "lo", "hi", "insufficient"]
 FRAME_COLUMNS = ["sportvu_game", "possession", "frame", "player_id", "nearest_def_dist_ft", "expected_ft", "gravity_ft",
                  "has_ball", "fold", "heldout"]
@@ -130,7 +132,7 @@ def out_of_fold(pf: pd.DataFrame, games: list, n_folds: int, seed: int) -> tuple
         models = fit_models(pred, seed)
         for m in MODELS:
             pred["p_" + m] = models[m](pred)
-        pred["fold"] = 0
+        pred["fold"] = IN_SAMPLE_FOLD
         return pred, {"mode": "in-sample", "folds": 0, "games": 1,
                       "text": "one training game: no grouped fold is possible, so the metrics are IN-SAMPLE"}
     k = min(n_folds, len(ids))
@@ -415,7 +417,7 @@ def run_pipeline(games: list, a, label: str) -> dict:
             table = F.skill_table(shots_of(train_games, train_ids))
             models = fit_models(F.attach_skill(pf, table), a.seed, which=("constant", SHIPPED))
             hpf = F.attach_skill(hpf, table)
-            hpf["fold"] = -1
+            hpf["fold"] = HELDOUT_FOLD
             for m in ("constant", SHIPPED):
                 hpf["p_" + m] = models[m](hpf)
                 heldout_scores[m] = mse(hpf[F.TARGET], hpf["p_" + m])

@@ -324,8 +324,12 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path):
     assert not (tmp_path / "analytics" / "lineups" / "2020-21" / "player_rapm_prior.parquet").exists()
     assert prior["team_id"].notna().all()
     m = ctx["heldout"]["metrics"]
-    assert np.isfinite(m["rapm"]["spearman"]["point"]) and np.isfinite(m["plus_minus"]["mse"]["point"])
-    assert m["rapm"]["spearman_vs_plus_minus"] is not None and m["plus_minus"]["spearman_vs_plus_minus"] is None
+    assert set(m) == {"plus_minus", ctx["selected"]}, "only the selected candidate (plus the plus_minus floor) is scored on the held-out season"
+    assert np.isfinite(m[ctx["selected"]]["spearman"]["point"]) and np.isfinite(m["plus_minus"]["mse"]["point"])
+    assert all(v["spearman_vs_plus_minus"] is None for v in m.values()), "no paired test on the held-out season"
+    v = ctx["pairs"][0]["metrics"]
+    assert set(v) == set(T.CANDIDATES) and v["rapm"]["spearman_vs_plus_minus"] is not None
+    assert "Spearman minus plus_minus" in text.split("## Held-out season")[0] and "Spearman minus plus_minus" not in text.split("## Held-out season")[1]
 
 
 def test_train_runs_on_the_shared_generator_when_present(tmp_path):

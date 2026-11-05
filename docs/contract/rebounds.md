@@ -58,15 +58,17 @@ event, else the `offense_team_id` of the possession with the largest `start_fram
 | `sportvu_game` | string | Step 1 game id |
 | `event` | int32 | play-by-play event index of the missed shot |
 | `candidate_player_id` | int32 | NBA player id, `-1` for none |
-| `p_prior` | float32 | player-prior baseline: smoothed training-fold rebound rate by player and `is_offense`, normalised within the miss |
-| `p_logit` | float32 | binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, softmax of the linear scores within the miss |
+| `p_prior` | float32 | player-prior baseline: smoothed training-fold rebound rate by player and `is_offense`, normalised within the miss; NaN on held-out rows unless prior is the selected model |
+| `p_logit` | float32 | binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, softmax of the linear scores within the miss; NaN on held-out rows unless logit is the selected model |
 | `p_selected` | float32 | the model selected by out-of-fold per-miss log loss (prior, logit or hgb, named in the report) |
 | `is_rebounder` | bool | the target |
 | `fold` | int16 | grouped fold (by `sportvu_game`) that scored the row out of fold; `-1` on held-out rows; `-2` when one training game forced an in-sample fit (`train.IN_SAMPLE_FOLD`) |
-| `heldout` | bool | scored once by the models refit on every training row; never fitted or tuned on |
+| `heldout` | bool | scored once by the selected candidate alone, refit on every training row; never fitted or tuned on; the non-selected models are not scored on held-out rows (their columns are NaN there) |
 
 Probabilities of a miss sum to one for each model. Selection metric: per-miss multinomial log loss, the mean
 over misses of minus the log probability of the true candidate; also reported: top-1 accuracy (a tie at the
-maximum counts 1 over the number tied), bootstrap intervals by game, the paired bootstrap of hgb against prior,
-and the calibration of the top candidate's probability (`analytics.eval.report_block`). Numbers from
+maximum counts 1 over the number tied), bootstrap intervals by game, the paired bootstrap of hgb against prior
+and the calibration of the top candidate's probability (`analytics.eval.report_block`), all on out-of-fold
+training rows. Held-out rows get one score of the selected candidate next to a uniform floor (1 over the
+candidates of the miss, no fit); no bootstrap or paired comparison is computed on them. Numbers from
 `--fixtures` are fixture output, not a result.

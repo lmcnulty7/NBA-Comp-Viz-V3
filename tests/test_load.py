@@ -216,7 +216,10 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path, local_tables):
     assert np.isfinite(ctx["reg"]["mean"]["point"]) and np.isfinite(ctx["reg"]["ridge"]["point"])
     assert ctx["reg_note"]["mode"] == "out-of-fold" and ctx["reg_note"]["folds"] == 4
     assert ctx["abs"] is not None and 0 < ctx["abs"]["base_rate"] < 1 and np.isfinite(ctx["abs"]["logistic"]["log_loss"]["point"])
-    assert ctx["heldout"]["rows"] > 0 and np.isfinite(ctx["heldout"]["mse_ridge"])
+    ho = ctx["heldout"]
+    assert ho["rows"] > 0 and np.isfinite(ho["mse_selected"]) and ho["reg_selected"] in ("mean", "ridge")
+    assert ("mse_floor" in ho) == (ho["reg_selected"] == "ridge")        # the floor only under a selected candidate
+    assert "mse_mean" not in ho and "mse_ridge" not in ho and "ll_logistic" not in ho
     assert ctx["aggregates"]["players_matched"] > 0
     assert set(ctx["rest_table"]["bucket"]) == {"back_to_back", "one_day", "two_plus"}
     ctx["command"] = "test"

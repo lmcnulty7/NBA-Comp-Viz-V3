@@ -322,15 +322,18 @@ def write_report(path: Path, ctx: dict) -> str:
     if ho is None:
         L.append("No held-out player-game was loaded.")
     else:
-        L += ["%d player-games from %d held-out game(s) (%s), scored once by the models refit on all training rows; never "
-              "fitted or tuned on. Point estimates only." % (ho["rows"], ho["games"], ", ".join(ho["ids"])), "",
+        L += ["%d player-games from %d held-out game(s) (%s). One model per pair was selected on its out-of-fold score "
+              "and scored once here, refit on all training rows; never fitted or tuned on. The constant baseline appears "
+              "only as a labelled floor under a selected candidate. Point estimates only." % (ho["rows"], ho["games"], ", ".join(ho["ids"])), "",
               "| quantity | value |", "| --- | --- |",
               "| decline rows | %d |" % ho["reg_rows"],
-              "| MSE mean | %s |" % _f(ho.get("mse_mean")),
-              "| MSE ridge | %s |" % _f(ho.get("mse_ridge")),
-              "| absence rows | %d |" % ho["abs_rows"],
-              "| log loss base | %s |" % _f(ho.get("ll_base")),
-              "| log loss logistic | %s |" % _f(ho.get("ll_logistic"))]
+              "| MSE, selected model (%s) | %s |" % (ho["reg_selected"], _f(ho.get("mse_selected")))]
+        if "mse_floor" in ho:
+            L.append("| MSE, floor (training mean, not selected) | %s |" % _f(ho["mse_floor"]))
+        L += ["| absence rows | %d |" % ho["abs_rows"],
+              "| log loss, selected model (%s) | %s |" % (ho["abs_selected"], _f(ho.get("ll_selected")))]
+        if "ll_floor" in ho:
+            L.append("| log loss, floor (base rate, not selected) | %s |" % _f(ho["ll_floor"]))
     L += ["", "## Status and the Mac command", ""]
     if fx:
         L.append("Fixture output, not a result. The pipeline is tested (tests/test_load.py); the real run on the owner's Mac, "
@@ -397,18 +400,26 @@ def run(inputs: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixtur
            "reg_pred": reg_pred, "abs_pred": abs_pred}
     if len(heldout):
         ho = {"rows": int(len(heldout)), "games": int(heldout["sportvu_game"].nunique()), "ids": sorted(heldout["sportvu_game"].unique())}
+        # one model per pair is selected on the out-of-fold score and scored on the held-out rows; the constant
+        # baseline is scored only as a labelled floor under a selected candidate, never as a second candidate
         hr = regression_rows(heldout)
         ho["reg_rows"] = int(len(hr))
+        ho["reg_selected"] = "ridge" if reg["ridge"]["point"] <= reg["mean"]["point"] else "mean"
         if len(hr) and len(reg_rows):
             models = fit_regression(reg_rows)
             y = hr["decline_ftps"].astype(float).to_numpy()
-            ho["mse_mean"], ho["mse_ridge"] = mse(y, models["mean"](hr)), mse(y, models["ridge"](hr))
+            ho["mse_selected"] = mse(y, models[ho["reg_selected"]](hr))
+            if ho["reg_selected"] != "mean":
+                ho["mse_floor"] = mse(y, models["mean"](hr))
         ha = absence_rows(heldout)
         ho["abs_rows"] = int(len(ha))
+        ho["abs_selected"] = ("logistic" if ab["logistic"]["log_loss"]["point"] <= ab["base"]["log_loss"]["point"] else "base") if ab else "base"
         if len(ha) and len(abs_rows):
             models = fit_absence(abs_rows)
             y = ha["absent_next"].astype(bool).astype(float).to_numpy()
-            ho["ll_base"], ho["ll_logistic"] = log_loss(y, models["base"](ha)), log_loss(y, models["logistic"](ha))
+            ho["ll_selected"] = log_loss(y, models[ho["abs_selected"]](ha))
+            if ho["abs_selected"] != "base":
+                ho["ll_floor"] = log_loss(y, models["base"](ha))
         ctx["heldout"] = ho
     return ctx
 

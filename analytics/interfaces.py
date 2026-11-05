@@ -131,6 +131,14 @@ INTERFACES = {
 INTERFACE_NAMES = tuple(INTERFACES)
 _SKIP_DIRS = {"features", "eda"}        # sub-directories of a producer's folder that are never the interface
 
+# The fold convention of every interface and lane table that carries a `fold` column:
+#   fold >= 0   out-of-fold: the row was scored by the model of the grouped CV fold that held it out
+#   fold == -1  held-out: a held-out game, scored once by the model refit on every training row
+#   fold == -2  in-sample: scored by a model that was fitted on the row (descriptive tables only; never a score)
+# A fold == -2 row in a training folder is a note from check_frame, so a consumer sees it is not out-of-fold.
+FOLD_OOF_MIN, FOLD_HELDOUT, FOLD_IN_SAMPLE = 0, -1, -2
+FOLD_CONVENTION = {"out_of_fold": ">= 0", "heldout": FOLD_HELDOUT, "in_sample": FOLD_IN_SAMPLE}
+
 
 # ── paths ──────────────────────────────────────────────────────────────────────────────────────────
 def get(name: str) -> dict:
@@ -190,11 +198,13 @@ def _dtype_ok(s: pd.Series, cls: str) -> bool:
     raise ValueError("unknown dtype class %r" % cls)
 
 
-def check_frame(name: str, df: pd.DataFrame) -> list[str]:
+def check_frame(name: str, df: pd.DataFrame, path=None) -> list[str]:
     """Raise AssertionError naming every missing required column and every column of the wrong dtype class
     (required and present optional ones). Returns notes: optional columns absent, empty frames, key duplicates
     (duplicates are a note rather than a failure because a producer may legitimately write out-of-fold rows
-    twice under different folds; the consumers de-duplicate on their key)."""
+    twice under different folds; the consumers de-duplicate on their key), fold values outside the convention
+    (anything below -2), and fold == -2 (in-sample) rows when `path` is given and does not sit under heldout/
+    (a training folder), so a consumer sees those rows are not out-of-fold scores."""
     e = get(name)
     assert isinstance(df, pd.DataFrame), "%s: expected a DataFrame, got %s" % (name, type(df).__name__)
     missing = [c for c in e["columns"] if c not in df.columns]
@@ -219,6 +229,16 @@ def check_frame(name: str, df: pd.DataFrame) -> list[str]:
     keys = [k for k in e["keys"] if k in df.columns]
     if keys and len(df) and df.duplicated(keys).any():
         notes.append("%d duplicate rows on key %s" % (int(df.duplicated(keys).sum()), keys))
+    if "fold" in df.columns and len(df):
+        fold = pd.to_numeric(df["fold"], errors="coerce")
+        n_bad = int((fold < FOLD_IN_SAMPLE).sum())
+        if n_bad:
+            notes.append("%d rows with fold below %d (outside the convention: >= 0 out-of-fold, -1 held-out, "
+                         "-2 in-sample)" % (n_bad, FOLD_IN_SAMPLE))
+        n_in = int((fold == FOLD_IN_SAMPLE).sum())
+        in_training_folder = path is not None and "heldout" not in Path(path).parts
+        if n_in and in_training_folder:
+            notes.append("%d in-sample rows (fold == -2) in a training folder: not out-of-fold scores" % n_in)
     if name == "coverage_predictions":
         pcols = [c for c in df.columns if c.startswith("p_")]
         if pcols and len(df):
@@ -235,7 +255,7 @@ def check_file(name: str, path) -> list[str]:
     except Exception as exc:                                              # noqa: BLE001
         raise AssertionError("interface %s: cannot read %s: %s" % (name, path, exc)) from exc
     try:
-        return check_frame(name, df)
+        return check_frame(name, df, path=path)
     except AssertionError as exc:
         raise AssertionError("%s: %s" % (path, exc)) from None
 
@@ -299,6 +319,7 @@ def producers_present() -> dict:
     return {n: lane_steps_present(e["producer"])["train"] for n, e in INTERFACES.items()}
 
 
-__all__ = ["INTERFACES", "INTERFACE_NAMES", "EXPECTED_LANES", "STANDARD_STEPS", "get", "interface_path",
+__all__ = ["INTERFACES", "INTERFACE_NAMES", "EXPECTED_LANES", "STANDARD_STEPS", "FOLD_OOF_MIN", "FOLD_HELDOUT",
+           "FOLD_IN_SAMPLE", "FOLD_CONVENTION", "get", "interface_path",
            "find_outputs", "check_frame", "check_file", "discover_lanes", "missing_lanes", "lane_steps_present",
            "fixture_module", "module_available", "producers_present"]

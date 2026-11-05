@@ -1,6 +1,6 @@
 # Lineup synergy and stints (analytics/lineups)
 
-Written 2026-11-05T09:05:19Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
+Written 2026-11-05T09:44:08Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
 
 **This run used the synthetic fixture generator tests._fx_lineups._fallback_synth_stints. Every number below is fixture output, not a result.** The real run is the Mac command at the end.
 
@@ -49,13 +49,13 @@ Seasons later than the held-out season are not in this table; the held-out row i
 
 ## Held-out season, scored once (fixture output, not a result)
 
-Season 2022-23 scored once by the candidates refitted on 2020-21, 2021-22: 8 lineups present in both, 4 gated lineups, 36 players, alpha rapm 1000, alpha synergy 3000, home court (rapm intercept) 1.43 per 100.
+Season 2022-23 scored once by the selected candidate refitted on 2020-21, 2021-22: 8 lineups present in both, 4 gated lineups, 36 players, alpha rapm 1000, alpha synergy 3000, home court (rapm intercept) 1.43 per 100.
 
-| candidate | Spearman | MSE | Spearman minus plus_minus (paired) |
-| --- | --- | --- | --- |
-| plus_minus (selected) | 0.881 [0.342, 1.000] | 198.677 [39.772, 383.567] | baseline |
-| rapm | 0.857 [0.341, 1.000] | 167.705 [50.270, 313.989] | -0.024 [-0.159, 0.000] |
-| rapm_synergy | 0.786 [0.215, 0.976] | 183.477 [50.150, 341.626] | -0.095 [-0.450, 0.000] |
+Only the candidate selected on the training seasons is scored here; plus_minus is shown as the labelled floor (not a comparison, no paired test): the other candidates are never scored on the held-out season.
+
+| candidate | Spearman | MSE |
+| --- | --- | --- |
+| plus_minus (selected) | 0.881 [0.342, 1.000] | 198.677 [39.772, 383.567] |
 
 ## Outputs
 

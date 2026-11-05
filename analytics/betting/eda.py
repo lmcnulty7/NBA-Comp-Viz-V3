@@ -32,8 +32,9 @@ def load_games(seed: int = 0, data_root=None, heldout_season: str = "2024-25", n
     data = _validate.load_data(data_root) if data_root else _validate.fixture_data(seed, n_games=n_games)
     res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     held = _features.pick_heldout_season(res["joined"]["season"].unique(), heldout_season)
-    return {"games": _features.build_games(res["joined"], held), "counts": res["counts"], "fixtures": data_root is None,
-            "heldout_season": held}
+    joined, ignored = _features.drop_later_seasons(res["joined"], held)
+    return {"games": _features.build_games(joined, held), "counts": res["counts"], "fixtures": data_root is None,
+            "heldout_season": held, "ignored_seasons": ignored}
 
 
 def _describe(s: pd.Series, name: str) -> pd.DataFrame:

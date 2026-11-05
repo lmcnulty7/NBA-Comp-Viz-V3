@@ -1,6 +1,6 @@
 # xFG baseline: location only (analytics/train_xfg.py)
 
-Written 2026-11-05T07:37:18Z by `python -m analytics.train_xfg --shots /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/bref_smoke_shots.parquet --report reports/xfg_baseline.md --folds 5 --seed 0 --bootstrap 200 --smoke`.
+Written 2026-11-05T09:44:35Z by `python -m analytics.train_xfg --shots /tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/bref_smoke_shots.parquet --report reports/xfg_baseline.md --folds 5 --seed 0 --bootstrap 200 --smoke`.
 
 ## Inputs
 
@@ -42,16 +42,9 @@ The constant model's calibration slope is n/a by design: its predictions vary on
 | 8 | 0.8 | 0.9 | 0 | n/a | n/a |
 | 9 | 0.9 | 1.0 | 0 | n/a | n/a |
 
-## Held-out rows (scored once by the models refit on all 191 training rows; never fitted or tuned on)
+## Held-out rows
 
-179 attempts from 1 held-out game(s): 12.16.2015.PHX.at.GSW.
-
-| model | log loss | Brier | ECE (10 bins) | calibration slope |
-| --- | --- | --- | --- | --- |
-| constant | 0.6929 | 0.2499 | 0.0096 | n/a |
-| logistic | 0.6643 | 0.2358 | 0.0397 | 1.4975 |
-
-Held-out numbers are point estimates (no bootstrap: 1 game(s)).
+179 attempts from 1 held-out game(s) (12.16.2015.PHX.at.GSW) were set aside and NOT scored: a smoke run never touches them. The held-out game is reserved for the one final scoring on the Mac, by the real run below.
 
 ## Status
 

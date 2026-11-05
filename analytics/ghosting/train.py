@@ -33,7 +33,9 @@ is over the 1.0 s rows of the selected candidate. Points (a TARGET of section 19
 possession table only after every fit, for the validation.
 
 Fewer games than folds: n_folds becomes the number of games (leave-one-game-out). One game: in-sample,
-labelled, with no interval and no keep decision (the deep candidate is dropped by default).
+labelled, with no interval and no keep decision (the deep candidate is dropped by default). Fold convention
+in the tables: >= 0 out-of-fold, -1 held-out scored once (HELDOUT_FOLD), -2 in-sample (IN_SAMPLE_FOLD).
+The held-out games are scored by the selected candidate (plus persistence as a labelled floor) only.
 
 Threads: every fit runs under threadpoolctl.threadpool_limits(THREADS) with THREADS = 1 by default, because
 the build container has 4 cores shared by 21 lanes and a multi-threaded BLAS spins for minutes there (an
@@ -63,6 +65,7 @@ CANDIDATES = ("persistence", "ridge", "mlp")
 CANDIDATE_LABELS = {"persistence": "1 persistence (position at t minus 1)",
                     "ridge": "2 ridge on the lag-1 features (linear baseline)",
                     "mlp": "3 MLPRegressor 64x64 on the 5-step window (GRU stand-in)"}
+HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2        # fold convention: >= 0 out-of-fold, -1 held-out scored once, -2 in-sample
 HIDDEN = (64, 64)
 MAX_ITER = 200
 THREADS = 1
@@ -150,8 +153,9 @@ def roll_forward(models: dict, rows: pd.DataFrame, panel: pd.DataFrame, fold: in
     p = rows["panel_row"].to_numpy().astype(int)
     nb = len(F.BASE_FEATURES)
     W0 = rows[F.window_columns()].to_numpy(dtype=float)
+    cands = [c for c in CANDIDATES if c in models]       # the held-out run passes only persistence and the selected candidate
     state = {}
-    for c in CANDIDATES:
+    for c in cands:
         state[c] = {"ghost": dxy[p - 1].copy(), "hist": [dxy[p - 2].copy(), dxy[p - 1].copy()],
                     "win": [W0[:, k * nb:(k + 1) * nb].copy() for k in range(F.N_LAGS)]}
     max_steps = max(F.HORIZON_STEPS.values())
@@ -160,7 +164,7 @@ def roll_forward(models: dict, rows: pd.DataFrame, panel: pd.DataFrame, fold: in
     for j in range(max_steps):
         q = np.minimum(p + j, n_panel - 1)
         valid = (p + j) <= seq_end[p]
-        for c in CANDIDATES:
+        for c in cands:
             s = state[c]
             W = np.concatenate(s["win"], axis=1)
             s["ghost"] = s["ghost"] + models[c](W)
@@ -189,7 +193,7 @@ def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: in
     games = sorted(frame["sportvu_game"].unique())
     if len(games) == 1:
         models = fit_candidates(frame, seed)
-        err = roll_forward(models, frame, panel, fold=0)
+        err = roll_forward(models, frame, panel, fold=IN_SAMPLE_FOLD)
         note = {"mode": "in-sample", "folds": 0, "games": 1,
                 "text": "one training game: no grouped fold is possible, so the errors are IN-SAMPLE (fit and scored on the same rows)"}
         return err, note
@@ -339,11 +343,15 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int) -> dict:
            "ghost_possessions": gp, "validation": val, "folds": n_folds, "seed": seed, "bootstrap": n_boot,
            "panel": panel, "frame": frame, "heldout_scores": {}, "heldout_validation": None}
     if len(he):
+        # the held-out game sees only the selected candidate (and persistence as a labelled floor): the other
+        # candidate is never scored on it, so nothing can be chosen on held-out numbers
         models = fit_candidates(tr, seed)
-        herr = roll_forward(models, he, panel, fold=-1)
+        keep = [c for c in ("persistence", decision["selected"]) if c in models]
+        herr = roll_forward({c: models[c] for c in keep}, he, panel, fold=HELDOUT_FOLD)
         ctx["heldout_errors"] = herr
+        ctx["heldout_candidates"] = keep
         ctx["heldout_scores"] = {h: {c: float(herr[(herr["horizon_s"] == h) & (herr["candidate"] == c)]["error_ft"].mean())
-                                     for c in CANDIDATES} for h in F.HORIZONS}
+                                     for c in keep} for h in F.HORIZONS}
         hgf, hgp = ghost_tables(herr, decision["selected"], poss)
         ctx["ghost_frames"] = pd.concat([gf, hgf], ignore_index=True)
         ctx["ghost_possessions"] = pd.concat([gp, hgp], ignore_index=True)
@@ -434,10 +442,11 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
     v = ctx["validation"]
     L += ["", "Sign test: %d positive, %d negative, %d zero; one-sided p = %s%s." % (v["n_pos"], v["n_neg"], v["n_zero"], _f(v["p_value"], 4), tag), ""]
     if ctx["heldout_games"]:
-        L += ["## Held-out games (scored once by the candidates refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
-              "%d defender-steps from %d held-out game(s): %s." % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"])), "",
+        L += ["## Held-out games (the selected candidate refit on all %d training rows, scored once; never fitted or tuned on)" % ctx["train_rows"], "",
+              "%d defender-steps from %d held-out game(s): %s. Only the selected candidate and the persistence floor are scored here; "
+              "the dropped candidate never sees the held-out game." % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"])), "",
               "| candidate | 0.2 s error | 1.0 s error |", "| --- | --- | --- |"]
-        for c in CANDIDATES:
+        for c in ctx["heldout_candidates"]:
             L.append("| %s | %s | %s |" % (CANDIDATE_LABELS[c], _f(ctx["heldout_scores"][0.2][c]), _f(ctx["heldout_scores"][1.0][c])))
         hv = ctx["heldout_validation"]
         L += ["", "Held-out numbers are point estimates (no bootstrap over %d game(s)). Held-out sign test: %d positive, %d negative, p = %s."

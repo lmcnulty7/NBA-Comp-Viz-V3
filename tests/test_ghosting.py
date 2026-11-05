@@ -203,6 +203,10 @@ def test_end_to_end_fixture_run(tmp_path, monkeypatch):
     assert ctx["decision"]["selected"] in ("ridge", "mlp")
     assert ctx["validation"]["n_pos"] + ctx["validation"]["n_neg"] + ctx["validation"]["n_zero"] <= 2
     assert ctx["heldout_scores"][1.0]["persistence"] > 0
+    # the held-out game sees only the selected candidate and the persistence floor
+    assert set(ctx["heldout_candidates"]) == {"persistence", ctx["decision"]["selected"]}
+    assert set(ctx["heldout_errors"]["candidate"]) == set(ctx["heldout_candidates"])
+    assert set(ctx["heldout_scores"][0.2]) == set(ctx["heldout_candidates"])
     # tables land per game, held-out under heldout/
     out = tmp_path / "out" / "analytics" / "ghosting"
     assert (out / "heldout" / V.SEASON / ("ghost_frames_%s.parquet" % HELD)).exists()
@@ -218,6 +222,15 @@ def test_end_to_end_fixture_run(tmp_path, monkeypatch):
     per, st = eda.correlation_table(gp)
     assert len(per) == 3 and "p_value" in st
     assert "|" in eda.markdown(per)
+
+
+def test_one_game_runs_in_sample_with_fold_minus_two(monkeypatch):
+    monkeypatch.setattr(T, "MAX_ITER", 30)
+    ctx = T.run(games()[:1], n_folds=5, seed=0, n_boot=10)
+    assert ctx["note"]["mode"] == "in-sample" and ctx["note"]["folds"] == 0
+    assert (ctx["ghost_frames"]["fold"] == T.IN_SAMPLE_FOLD).all() and T.IN_SAMPLE_FOLD == -2
+    assert not ctx["decision"]["keep_mlp"] and not np.isfinite(ctx["pairs"]["mlp_vs_ridge"][1.0]["lo"])
+    assert "IN-SAMPLE" in ctx["note"]["text"]
 
 
 def test_validate_and_features_cli_run_on_fixtures(tmp_path, capsys):

@@ -23,9 +23,9 @@ value are dropped. Every count is logged and lands in the report. `label_source`
 
 Label files are append-only (analytics/labels.py): the last line about an id wins and a tombstone line
 (`deleted: true`) removes the id. They are read through `analytics.labels.read_labels` when the files carry its
-id fields, else resolved here by the same rule. Only first-pass labels (`labeller_pass` == 1, missing counts
-as 1) fit anything; the pass-2 relabel is counted and dropped so a relabelled screen never duplicates its
-training label.
+id fields, else resolved here by the same rule. `read_labels` is called with `labeller_pass=1`, so only
+first-pass labels arrive; the lane keeps its own `labeller_pass == 1` filter as a check (it must count 0 and
+warns otherwise) and as the filter for the fallback reader, so a pass-2 relabel never duplicates a training label.
 
 ## Feature window (declared)
 
@@ -57,7 +57,7 @@ Under `OUT_ROOT/analytics/coverage/<season>/` (held-out games under `OUT_ROOT/an
 | `coverage_label` | string, nullable | the hand label; null for an unlabelled or detected screen |
 | `p_switch` .. `p_over` | float32 | the selected model's class probabilities (7 columns, sum to 1) |
 | `predicted` | string | argmax class |
-| `fold` | int8 | grouped fold whose model scored the row (out-of-fold); -1 when scored by the model refit on every training row (held-out, unlabelled and detected screens) |
+| `fold` | int8 | >= 0: the grouped fold whose model scored the row (out-of-fold); -1: scored by the model refit on every training row (held-out, unlabelled, unsure and detected screens); -2: in-sample (a run with a single training game, where no grouped fold exists) |
 | `heldout` | bool | the game is held out (sportvu/splits.json token, `.at.CLE` arena, or frames under `heldout/`) |
 
 ### coverage_team_rates (`coverage_team_rates.parquet`, one row per defending team, training games only)

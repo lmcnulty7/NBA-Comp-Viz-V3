@@ -87,7 +87,11 @@ so a shot's own outcome never informs its value. The design matrix passes `schem
 | `hold_value` | float | the EPV hold option, NaN when absent |
 | `drive_value` | float | the drive option |
 | `prior` | string | `location` or `xfg_selected` (the held-out table carries the prior actually selected) |
-| `fold` | int32 | the grouped fold that valued the game; -1 for held-out games |
+| `fold` | int32 | the grouped fold that valued the game (>= 0, out-of-fold); -1 for held-out games (valued by the full refit); -2 for in-sample rows (one training game, no fold possible) |
+
+Upstream tables follow the same convention: for a training game only rows with `fold >= 0` are accepted
+(-1 held-out, -2 in-sample and a table without a `fold` column, which counts as -1, are refused); for a
+held-out game only rows flagged `heldout`.
 
 `possession`, `frame`, `player_id`, `event`, `receiver_id` and `fold` are written as int32; the values as float64.
 

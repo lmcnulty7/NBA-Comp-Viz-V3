@@ -15,9 +15,9 @@ Inputs (the upstream interface of lane ACTIONS, consumed as given):
 
 Label files are append-only JSONL (analytics/labels.py): the last line about an id wins and a tombstone line
 (``deleted: true``) removes the id. They are read through ``analytics.labels.read_labels`` when that module imports
-and its id fields are present, else through the resolver here with the same rule. Only first-pass labels
-(``labeller_pass`` == TRAIN_PASS, missing counts as 1) are kept; the pass-2 relabel is counted and dropped, so a
-relabelled screen never duplicates its training label.
+and its id fields are present, else through the resolver here with the same rule. read_labels is called with
+``labeller_pass=1`` so only first-pass labels arrive; ``training_pass`` keeps that filter as a check (and as the
+filter for the fallback reader and the in-memory fixtures), so a pass-2 relabel never duplicates a training label.
 
 Checks (every count is logged and returned):
     required columns present; coverage in the 7 classes; confidence in {sure, unsure}; label_source in {hand, model, synthetic}
@@ -121,7 +121,7 @@ def _read_game_labels(root: Path, game: str) -> tuple:
     except ImportError:
         _labels = None
     if _labels is not None:
-        a, s = _labels.read_labels(root, game)
+        a, s = _labels.read_labels(root, game, labeller_pass=TRAIN_PASS)
         return a, s, "analytics.labels"
     out = []
     for kind in ("actions", "screens"):
@@ -131,13 +131,17 @@ def _read_game_labels(root: Path, game: str) -> tuple:
 
 
 def training_pass(df: pd.DataFrame, counts: dict, kind: str) -> pd.DataFrame:
-    """Keep the rows of labeller_pass TRAIN_PASS (a missing pass counts as 1); count the rest."""
+    """Keep the rows of labeller_pass TRAIN_PASS (a missing pass counts as 1); count the rest. After
+    analytics.labels.read_labels(..., labeller_pass=1) this is a check that must count 0 (logged as a warning
+    otherwise); it still does the filtering for the fallback reader and the in-memory fixtures."""
     if "labeller_pass" not in df.columns or not len(df):
         counts["%s_other_pass_dropped" % kind] = 0
         return df
     p = pd.to_numeric(df["labeller_pass"], errors="coerce").fillna(TRAIN_PASS)
     keep = p == TRAIN_PASS
     counts["%s_other_pass_dropped" % kind] = int((~keep).sum())
+    if counts["%s_other_pass_dropped" % kind]:
+        log.warning("%s: %d row(s) of another labeller pass reached the trainer and were dropped", kind, int((~keep).sum()))
     return df[keep].reset_index(drop=True)
 
 

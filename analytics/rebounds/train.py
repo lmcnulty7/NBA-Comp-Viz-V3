@@ -22,9 +22,10 @@ training games of their fold. The prior never sees the row it scores.
 
 Protocol: analytics.eval.grouped_folds by sportvu_game; selection by per-miss multinomial log loss (lower is
 better); top-1 accuracy also reported (plan target over 40 percent); 95 percent bootstrap intervals by game;
-paired bootstrap of hgb against prior; calibration of the top candidate's probability via analytics.eval.report_block;
-held-out games (heldout flag of the bundle, or an id of sportvu/splits.json) set aside before any fit, scored once by
-the models refit on every training row. analytics.eval.refuse_heldout runs on the training game ids and
+paired bootstrap of hgb against prior (out-of-fold rows only); calibration of the top candidate's probability via
+analytics.eval.report_block; held-out games (heldout flag of the bundle, or an id of sportvu/splits.json) set aside
+before any fit and scored once, by the selected candidate alone refit on every training row (next to a uniform floor
+that needs no fit); the non-selected models are never scored on held-out rows. analytics.eval.refuse_heldout runs on the training game ids and
 analytics.schema.assert_time_forward on the feature frame before any fit. One training game: in-sample, labelled.
 
 Fold column of the predictions: the outer fold index, HELDOUT_FOLD (-1) on held-out rows, IN_SAMPLE_FOLD (-2) when
@@ -136,9 +137,10 @@ def design(frame: pd.DataFrame, prior: np.ndarray) -> pd.DataFrame:
     return X
 
 
-def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
+def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) -> dict:
     """Fit the three candidates on one training frame -> {name: predict(frame) -> p normalised within miss}.
-    Every fit goes through here: it refuses a held-out row or a held-out game id."""
+    With ``only`` set to a model name, only that candidate is fitted (the held-out refit). Every fit goes through
+    here: it refuses a held-out row or a held-out game id."""
     from sklearn.ensemble import HistGradientBoostingClassifier
     from sklearn.impute import SimpleImputer
     from sklearn.linear_model import LogisticRegression
@@ -155,6 +157,8 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
     prior_tr, _ = oof_prior(train, seed)
     X, y = design(train, prior_tr), train[F.TARGET].astype(int).to_numpy()
     out = {"prior": lambda frame, r=rates: normalise_within(apply_prior(frame, r), miss_key(frame))}
+    if only == "prior":
+        return out
     if len(np.unique(y)) < 2:
         out["logit"] = out["prior"]; out["hgb"] = out["prior"]
         return out
@@ -163,8 +167,10 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
     hgb = HistGradientBoostingClassifier(max_iter=80, learning_rate=0.1, max_depth=3, min_samples_leaf=10,
                                          early_stopping=False, random_state=seed)
     with threadpool_limits(limits=1):           # four cores shared by many jobs: no thread pool per fit
-        lr.fit(X.to_numpy(), y)
-        hgb.fit(X.to_numpy(), y)
+        if only in (None, "logit"):
+            lr.fit(X.to_numpy(), y)
+        if only in (None, "hgb"):
+            hgb.fit(X.to_numpy(), y)
 
     def logit_predict(frame, m=lr, r=rates):
         Xt = design(frame, apply_prior(frame, r))
@@ -178,7 +184,12 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
             p = m.predict_proba(Xt.to_numpy())[:, 1]
         return normalise_within(p, miss_key(frame))
 
-    out["logit"], out["hgb"] = logit_predict, hgb_predict
+    if only in (None, "logit"):
+        out["logit"] = logit_predict
+    if only in (None, "hgb"):
+        out["hgb"] = hgb_predict
+    if only is not None:
+        out = {k: v for k, v in out.items() if k == only}
     return out
 
 
@@ -277,12 +288,21 @@ def select(scores: dict) -> str:
 
 
 # ── outputs ────────────────────────────────────────────────────────────────────────────────────────
+def _p_or_nan(pred: pd.DataFrame, col: str) -> np.ndarray:
+    """The probability column as float32, or NaN where it was never computed (non-selected models on held-out rows)."""
+    if col in pred.columns:
+        return pred[col].astype("float32").to_numpy()
+    return np.full(len(pred), np.nan, dtype="float32")
+
+
 def predictions_table(pred: pd.DataFrame, selected: str) -> pd.DataFrame:
+    """The rebound_predictions table (docs/contract/rebounds.md). On held-out rows only the selected model was
+    refit and scored, so p_prior and p_logit are NaN there unless that model is the selected one."""
     out = pd.DataFrame({"sportvu_game": pred["sportvu_game"].astype("string").to_numpy(),
                         "event": pred["event"].astype("int32").to_numpy(),
                         "candidate_player_id": pred["candidate_player_id"].astype("int32").to_numpy(),
-                        "p_prior": pred["p_prior"].astype("float32").to_numpy(),
-                        "p_logit": pred["p_logit"].astype("float32").to_numpy(),
+                        "p_prior": _p_or_nan(pred, "p_prior"),
+                        "p_logit": _p_or_nan(pred, "p_logit"),
                         "p_selected": pred["p_" + selected].astype("float32").to_numpy(),
                         "is_rebounder": pred[F.TARGET].astype(bool).to_numpy(),
                         "fold": pred["fold"].astype("int16").to_numpy(),
@@ -368,10 +388,9 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["## Held-out games (scored once by the models refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
               "%d misses from %d held-out game(s): %s." % (ctx["heldout_misses"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
               "| model | per-miss log loss | top-1 accuracy |", "| --- | --- | --- |"]
-        for m in MODELS:
-            s = ctx["heldout_scores"][m]
-            L.append("| %s | %s | %s |" % (m, _f(s["mlogloss"]), _f(s["top1"])))
-        L += ["", "Held-out numbers are point estimates over %d game(s), scored exactly once. The selection (p_selected = %s) was fixed on the out-of-fold training folds above before any held-out row was scored; the other rows are shown for the record and select nothing."
+        for m, sc in ctx["heldout_scores"].items():
+            L.append("| %s | %s | %s |" % (m + (" (selected)" if m == ctx["selected"] else " (no fit: 1 over the candidates of the miss)"), _f(sc["mlogloss"]), _f(sc["top1"])))
+        L += ["", "Held-out numbers are point estimates over %d game(s), scored exactly once. The selection (p_selected = %s) was fixed on the out-of-fold training folds above before any held-out row was scored; only the selected candidate was refit and scored on held-out rows, so the other models' held-out scores do not exist and their columns are NaN on held-out rows of the predictions table. No bootstrap or paired comparison is computed on held-out rows."
               % (ctx["heldout_games"], ctx["selected"]), ""]
     L += ["## Assumptions taken without asking", "",
           "- Team rebounds are kept as the none class when a rebound event follows the miss and names no player; every other null identity_match is dropped and counted (the lane spec's literal rule would drop every team rebound, since its identity_match is null by construction).",
@@ -476,12 +495,13 @@ def main(argv=None) -> dict:
            "heldout_scores": {}, "written_paths": [], "out_root": a.out, "train": train, "heldout": heldout, "oof": pred}
     tables = [predictions_table(pred, selected)]
     if len(heldout):
-        models = fit_candidates(train, a.seed)
+        # only the selected candidate is refit and scored on held-out rows; the uniform floor needs no fit
+        models = fit_candidates(train, a.seed, only=selected)
         hp = heldout.copy(); hp["fold"] = HELDOUT_FOLD
-        for m in MODELS:
-            hp["p_" + m] = models[m](heldout)
-            pmh = per_miss(hp, "p_" + m)
-            ctx["heldout_scores"][m] = {"mlogloss": mlogloss(pmh), "top1": top1(pmh)}
+        hp["p_" + selected] = models[selected](heldout)
+        pmh = per_miss(hp, "p_" + selected)
+        ctx["heldout_scores"][selected] = {"mlogloss": mlogloss(pmh), "top1": top1(pmh)}
+        ctx["heldout_scores"]["uniform floor"] = uniform_reference(pmh)
         tables.append(predictions_table(hp, selected))
     ctx["predictions"] = pd.concat(tables, ignore_index=True)
     if a.out:

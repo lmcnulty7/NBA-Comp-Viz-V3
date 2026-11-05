@@ -1,6 +1,6 @@
 # Rebound probability (analytics/rebounds/train.py)
 
-Written 2026-11-05T08:59:28Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --bootstrap 200`.
+Written 2026-11-05T09:44:32Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --bootstrap 200`.
 
 **Fixture output, not a result.** Every number below comes from synthetic games (analytics.fixtures); no real tracking data was read. The real run is the Mac command at the end.
 
@@ -8,20 +8,20 @@ Written 2026-11-05T08:59:28Z by `python -m analytics.rebounds.train --fixtures -
 
 | game | held out | frames in | frames out | misses in | kept | team rebounds (none) | dropped | candidate rows |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 02.07.2016.OMA.at.DUL | False | 115020 | 115020 | 15 | 15 | 0 | 0 | 165 |
-| 01.18.2016.HLX.at.LRD | False | 123210 | 123210 | 20 | 20 | 0 | 0 | 220 |
-| 02.04.2016.GRN.at.QCY | False | 123230 | 123230 | 13 | 13 | 0 | 0 | 143 |
-| 12.16.2015.PHX.at.GSW | True | 128550 | 128550 | 25 | 25 | 0 | 0 | 275 |
-| 12.15.2015.ABQ.at.GRN | False | 117110 | 117110 | 16 | 16 | 0 | 0 | 176 |
-| 11.27.2015.GRN.at.QCY | False | 119730 | 119730 | 17 | 17 | 0 | 0 | 187 |
-| 12.12.2015.RNO.at.MOB | False | 121170 | 121170 | 18 | 18 | 0 | 0 | 198 |
-| 11.11.2015.HLX.at.CLE | True | 118520 | 118520 | 24 | 24 | 0 | 0 | 264 |
+| 03.08.2016.GRN.at.HLX | False | 123500 | 123500 | 24 | 24 | 0 | 0 | 264 |
+| 12.10.2015.GRN.at.DUL | False | 126350 | 126350 | 24 | 24 | 0 | 0 | 264 |
+| 02.10.2016.QCY.at.FRS | False | 114850 | 114850 | 16 | 16 | 0 | 0 | 176 |
+| 12.16.2015.PHX.at.GSW | True | 118000 | 118000 | 20 | 20 | 0 | 0 | 220 |
+| 12.01.2015.DUL.at.HLX | False | 122180 | 122180 | 23 | 23 | 0 | 0 | 253 |
+| 11.28.2015.HLX.at.FRS | False | 128610 | 128610 | 20 | 20 | 0 | 0 | 220 |
+| 12.09.2015.PEO.at.DUL | False | 115790 | 115790 | 9 | 9 | 0 | 0 | 99 |
+| 11.26.2015.DUL.at.CLE | True | 121780 | 121780 | 16 | 16 | 0 | 0 | 176 |
 
 Dropped misses by reason (all games): no_rim_frame 0, no_rebound_event 0, unmatched_named_rebounder 0, offense_unknown 0, rim_frame_not_in_frames 0, too_few_players 0, rebounder_not_on_court 0.
-Kept misses by kind: team_rebounds_kept 0, player_rebounds_kept 148, identity_match_null_kept 0, identity_match_false_kept 0, unmatched_flag_kept 0.
-Validation (analytics.rebounds.validate): frames 966540 rows in, 966540 out; events 547 rows in, 547 out; rebound_frames 148 rows in, 148 out; shot_frames 317 rows in, 317 out; rosters 112 rows in, 112 out; possessions 320 rows in, 320 out.
+Kept misses by kind: team_rebounds_kept 0, player_rebounds_kept 152, identity_match_null_kept 0, identity_match_false_kept 0, unmatched_flag_kept 0.
+Validation (analytics.rebounds.validate): frames 971060 rows in, 971060 out; events 566 rows in, 566 out; rebound_frames 152 rows in, 152 out; shot_frames 326 rows in, 326 out; rosters 112 rows in, 112 out; possessions 320 rows in, 320 out.
 
-Training: 1089 candidate rows, 99 misses, 6 game(s) (01.18.2016.HLX.at.LRD, 02.04.2016.GRN.at.QCY, 02.07.2016.OMA.at.DUL, 11.27.2015.GRN.at.QCY, 12.12.2015.RNO.at.MOB, 12.15.2015.ABQ.at.GRN). Held out, set aside before any fit: 539 rows, 49 misses, 2 game(s) (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW).
+Training: 1276 candidate rows, 116 misses, 6 game(s) (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL). Held out, set aside before any fit: 396 rows, 36 misses, 2 game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW).
 Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `analytics.schema.assert_time_forward` passed on the feature frame (11 columns).
 
 ## Protocol
@@ -33,57 +33,56 @@ Priors for the logit and hgb training rows: out of fold over 4 to 5 inner groupe
 Selection: lowest out-of-fold per-miss multinomial log loss. Top-1 accuracy reported against the plan target of 40 percent.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
-## Candidates (out-of-fold, 99 misses, 6 game(s))
+## Candidates (out-of-fold, 116 misses, 6 game(s))
 
 | model | per-miss log loss | top-1 accuracy |
 | --- | --- | --- |
-| prior | 2.1141 [2.0150, 2.2294] | 0.1636 [0.1489, 0.1786] |
-| logit | 1.9630 [1.7647, 2.1603] | 0.2727 [0.1333, 0.4357] |
-| hgb (selected) | 1.8108 [1.5781, 2.1397] | 0.3939 [0.2989, 0.4661] |
+| prior (selected) | 1.7981 [1.6972, 1.8927] | 0.3379 [0.2835, 0.4085] |
+| logit | 1.8517 [1.7540, 1.9911] | 0.2931 [0.2237, 0.3465] |
+| hgb | 1.8307 [1.6344, 2.0684] | 0.2586 [0.2277, 0.2857] |
 | uniform reference | 2.3979 | 0.0909 |
 
-Paired bootstrap by game, hgb minus prior per-miss log loss: -0.3033 [-0.5296, 0.0290]; interval excludes zero: False (negative favours hgb).
-Selected: hgb.
+Paired bootstrap by game, hgb minus prior per-miss log loss: 0.0326 [-0.1358, 0.2302]; interval excludes zero: False (negative favours hgb).
+Selected: prior.
 
-## Calibration of the top candidate's probability (hgb, out-of-fold)
+## Calibration of the top candidate's probability (prior, out-of-fold)
 
 Per miss: y is whether the top candidate secured the rebound (a tie at the maximum counts as yes), p is the top candidate's probability.
 
-### top candidate, hgb
+### top candidate, prior
 
-99 rows, 6 games, base rate 0.3939, bootstrap by game (n=200, seed=0, 95 percent percentile interval)
+116 rows, 6 games, base rate 0.3793, bootstrap by game (n=200, seed=0, 95 percent percentile interval)
 
 | metric | point | lo | hi |
 | --- | --- | --- | --- |
-| log loss | 0.6637 | 0.6263 | 0.6931 |
-| Brier | 0.2355 | 0.2175 | 0.2494 |
-| ECE | 0.0793 | 0.0728 | 0.1504 |
-| calibration slope | 0.6254 | 0.0296 | 1.0345 |
+| log loss | 0.7306 | 0.6536 | 0.8952 |
+| Brier | 0.2604 | 0.2285 | 0.3257 |
+| ECE | 0.1181 | 0.0700 | 0.2321 |
+| calibration slope | -1.4187 | -3.1682 | 0.0515 |
 
 | bin | lo | hi | n | mean_p | mean_y |
 | --- | --- | --- | --- | --- | --- |
 | 0 | 0.00 | 0.10 | 0 | - | - |
-| 1 | 0.10 | 0.20 | 0 | - | - |
-| 2 | 0.20 | 0.30 | 28 | 0.2620 | 0.3571 |
-| 3 | 0.30 | 0.40 | 33 | 0.3460 | 0.3939 |
-| 4 | 0.40 | 0.50 | 20 | 0.4336 | 0.3000 |
-| 5 | 0.50 | 0.60 | 14 | 0.5410 | 0.5000 |
-| 6 | 0.60 | 0.70 | 3 | 0.6335 | 0.6667 |
-| 7 | 0.70 | 0.80 | 1 | 0.7429 | 1.0000 |
+| 1 | 0.10 | 0.20 | 12 | 0.1654 | 0.6667 |
+| 2 | 0.20 | 0.30 | 51 | 0.2552 | 0.3529 |
+| 3 | 0.30 | 0.40 | 50 | 0.3309 | 0.3600 |
+| 4 | 0.40 | 0.50 | 3 | 0.4137 | 0.0000 |
+| 5 | 0.50 | 0.60 | 0 | - | - |
+| 6 | 0.60 | 0.70 | 0 | - | - |
+| 7 | 0.70 | 0.80 | 0 | - | - |
 | 8 | 0.80 | 0.90 | 0 | - | - |
 | 9 | 0.90 | 1.00 | 0 | - | - |
 
-## Held-out games (scored once by the models refit on all 1089 training rows; never fitted or tuned on)
+## Held-out games (scored once by the models refit on all 1276 training rows; never fitted or tuned on)
 
-49 misses from 2 held-out game(s): 11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW.
+36 misses from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW.
 
 | model | per-miss log loss | top-1 accuracy |
 | --- | --- | --- |
-| prior | 2.2190 | 0.1469 |
-| logit | 2.1964 | 0.2653 |
-| hgb | 2.1918 | 0.1633 |
+| prior (selected) | 2.1135 | 0.2167 |
+| uniform floor (no fit: 1 over the candidates of the miss) | 2.3979 | 0.0909 |
 
-Held-out numbers are point estimates over 2 game(s), scored exactly once. The selection (p_selected = hgb) was fixed on the out-of-fold training folds above before any held-out row was scored; the other rows are shown for the record and select nothing.
+Held-out numbers are point estimates over 2 game(s), scored exactly once. The selection (p_selected = prior) was fixed on the out-of-fold training folds above before any held-out row was scored; only the selected candidate was refit and scored on held-out rows, so the other models' held-out scores do not exist and their columns are NaN on held-out rows of the predictions table. No bootstrap or paired comparison is computed on held-out rows.
 
 ## Assumptions taken without asking
 

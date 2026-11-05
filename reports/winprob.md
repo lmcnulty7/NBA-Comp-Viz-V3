@@ -1,6 +1,6 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written 2026-11-05T09:15:57Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
+Written 2026-11-05T09:42:11Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
 
 **Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.
 

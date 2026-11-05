@@ -49,6 +49,7 @@ log = logging.getLogger("analytics.coverage")
 
 MODELS = ("majority", "logistic", "hgb")
 N_MIN_TEAM = 300
+IN_SAMPLE_FOLD, REFIT_FOLD = -2, -1      # fold convention: >= 0 out-of-fold, -1 scored by the full refit (held-out, unlabelled), -2 in-sample
 MAC_CMD = ('python -m analytics.coverage.train --data "<Drive>/nba_harvest" --out "<Drive>/nba_harvest" '
            "--report reports/coverage.md --folds 5 --seed 0 --bootstrap 1000")
 PROB_COLUMNS = ["p_" + c for c in CLASSES]
@@ -119,7 +120,8 @@ def fit_models(train: pd.DataFrame, seed: int = 0) -> dict:
 
 
 def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int) -> tuple:
-    """-> (fold array, {model: (n, 7) out-of-fold probabilities}, protocol note)."""
+    """-> (fold array, {model: (n, 7) out-of-fold probabilities}, protocol note). With one training game the
+    probabilities are in-sample and every fold is IN_SAMPLE_FOLD (-2)."""
     games = sorted(train["sportvu_game"].unique())
     probs = {m: np.full((len(train), len(CLASSES)), np.nan) for m in MODELS}
     fold = np.full(len(train), -1, dtype=int)
@@ -127,7 +129,7 @@ def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int) -> tuple:
         models = fit_models(train, seed)
         for m in MODELS:
             probs[m][:] = models[m](train)
-        fold[:] = 0
+        fold[:] = IN_SAMPLE_FOLD
         note = {"mode": "in-sample", "folds": 0, "games": 1,
                 "text": "one training game: no grouped fold is possible, so the metrics are IN-SAMPLE (fit and scored on the same rows)"}
         return fold, probs, note
@@ -308,7 +310,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "| item | count |", "| --- | --- |",
           "| games with frames | %d (held out: %d) |" % (c["games"], c["games_heldout"]),
           "| games with labels but no frames | %d |" % c["games_without_frames"],
-          "| label reader; first-pass filter dropped (actions, screens) | %s; %d, %d |" % (
+          "| label reader; rows of another labeller pass that reached the trainer, must be 0 (actions, screens) | %s; %d, %d |" % (
               c.get("label_reader", "n/a"), c.get("actions_other_pass_dropped", 0), c.get("screens_other_pass_dropped", 0)),
           "| action rows read / kept | %d / %d |" % (c["actions_in"], c["actions_kept"]),
           "| ball_screen actions | %d |" % c["ball_screen_actions"],
@@ -425,11 +427,11 @@ def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Pa
     full = fit_models(train, seed)
     pred = [prediction_rows(train, probs[best], fold)]
     if len(score_only):
-        pred.append(prediction_rows(score_only, full[best](score_only), -1))
+        pred.append(prediction_rows(score_only, full[best](score_only), REFIT_FOLD))
     heldout_scores = {}
     if len(heldout):
         P = full[best](heldout)
-        pred.append(prediction_rows(heldout, P, -1))
+        pred.append(prediction_rows(heldout, P, REFIT_FOLD))
         lab = heldout["coverage_label"].notna().to_numpy()
         y = heldout.loc[lab, "coverage_label"].astype(str).to_numpy()
         yh = predicted(P)[lab]

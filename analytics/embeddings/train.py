@@ -610,6 +610,9 @@ def write_report(path, ctx: dict, command: str) -> str:
           "- Positions (player_id, season, position in G, F, C) are a needed input at collect/positions.parquet or collect/tracking/positions/<season>.parquet; "
           "without them the 5-NN metric is n/a and PCA stands (the gate cannot be evaluated).",
           "- Insufficient rows (under %d possessions; 300 in the contract) are written to player_season_features but never fitted, embedded or scored." % ctx["n_min"],
+          "- The NBA.com season aggregates and the positions table are season-level and include the held-out games' minutes; no "
+          "held-out row is fitted, but those season totals are not held-out-free. There is no flag to drop the aggregate block yet: "
+          "a tracked-era run without it is the run without collect/tracking/aggregates present (the block is then NaN and unused).",
           "- The shared fixtures (analytics.fixtures) key their positions and aggregates by other player ids than their games, so on them both metrics read n/a; "
           "the lane's local generator (tests/_fx_embeddings.py, 5 Hz, planted G/F/C archetypes, aligned ids) is what exercises the metrics. Fixture output is never a result.",
           "", "## Mac command", "", "On the owner's Mac, with the full 2015-16 tracking games, possessions, shots, the NBA.com aggregates when "

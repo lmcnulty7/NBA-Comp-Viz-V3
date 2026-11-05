@@ -282,6 +282,7 @@ def test_data_root_layout_round_trip(tmp_path):
     assert len(rep) == 2 and all(sum(len(v) for v in r["schema"].values()) == 0 for r in rep)
     res = T.run(bundles, 2, 0, 5)
     assert res["mode"].startswith("IN-SAMPLE") and len(res["events_heldout"])
+    assert (res["events"]["fold"] == T.IN_SAMPLE_FOLD).all() and (res["events_heldout"]["fold"] == T.HELDOUT_FOLD).all()
 
 
 @pytest.mark.skipif(not fx.SHARED, reason="analytics/fixtures.py (lane I1) not importable; the local generator covers the lane")
@@ -346,6 +347,10 @@ def test_partial_xfg_coverage_keeps_every_game_and_selects_the_location_prior():
     b0["xfg"]["fold"] = -1
     res2 = T.run(bundles, 2, 0, 5)
     assert res2["xfg_coverage"] == 0.0 and res2["counts"][b0["sportvu_game"]]["xfg_rows_refused"] == len(shots)
+    # in-sample rows (-2) and a table without a fold column are refused too; out-of-fold rows (>= 0) pass
+    assert F.upstream_rows(b0["xfg"].assign(fold=-2), False) is None
+    assert F.upstream_rows(b0["xfg"].drop(columns=["fold"]), False) is None
+    assert len(F.upstream_rows(b0["xfg"].assign(fold=3), False)) == len(shots)
 
 
 def test_full_model_reproduces_the_held_out_events():

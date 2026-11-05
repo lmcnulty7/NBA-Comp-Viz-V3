@@ -7,7 +7,8 @@ Protocol
   1. validate and join (analytics.betting.validate), build betting_games (analytics.betting.features); rows that the
      collectors marked heldout (sportvu/splits.json games) are dropped before anything.
   2. The held-out unit is a whole season: --heldout-season when present, else the latest season when there are at
-     least two, else none (then only the cross-validation block is reported). Its rows are set aside before any fit.
+     least two, else none (then only the cross-validation block is reported). Its rows are set aside before any fit;
+     seasons later than it are dropped before the split and listed in the report as ignored.
      analytics.eval.refuse_heldout runs on the training game ids; features.assert_no_leak runs on every design matrix.
   3. Candidates, each giving a cover probability p_cover and a margin forecast:
        market    p_cover 0.5, margin forecast minus the closing home spread (the line itself)
@@ -296,7 +297,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "correlation check against the final margin (over %.2f refused) on every design matrix." % (", ".join(ctx["features"]), _features.LEAK_CORR),
           "Held-out unit: season %s, %d games set aside before any fit; `analytics.eval.refuse_heldout` checked %d training game ids."
           % (ctx["heldout_season"] or "none", ctx["heldout_games"], ctx["train_games"]),
-          "Training seasons: %s (%d games, %d with a cover label)." % (", ".join(ctx["train_seasons"]), ctx["train_games"], ctx["train_labelled"]),
+          "Training seasons: %s (%d games, %d with a cover label). Seasons later than the held-out season, ignored (never fitted, never "
+          "scored): %s." % (", ".join(ctx["train_seasons"]), ctx["train_games"], ctx["train_labelled"], ", ".join(ctx["ignored_seasons"]) or "none"),
           "Selection: %s; cover model by out-of-fold log loss, margin model by out-of-fold MSE; intervals are 2.5 and 97.5 percentiles of %d "
           "bootstrap resamples of whole games (seed %d)." % (ctx["protocol"], ctx["bootstrap"], ctx["seed"]), "",
           "Staking rule, fixed in code before scoring (train.py constants): flat %.0f unit on the home cover when p_cover > %.2f, on the away "
@@ -358,6 +360,7 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
     res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     joined = res["joined"]
     held_season = _features.pick_heldout_season(joined["season"].unique(), a.heldout_season)
+    joined, ignored = _features.drop_later_seasons(joined, held_season)      # never fit on seasons after the held-out one
     out_root = a.out or (tempfile.mkdtemp(prefix="betting_fixture_") if fixtures else None)
     if out_root is None:
         raise SystemExit("%s: --out OUT_ROOT is required with --data" % WHO)
@@ -391,6 +394,7 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
            "fixtures": fixtures, "files": data["files"], "counts": res["counts"], "features": _features.feature_columns(train),
            "heldout_season": held_season, "heldout_games": int(len(heldout)), "train_games": int(len(train)),
            "train_labelled": int(train["home_cover"].notna().sum()), "train_seasons": sorted(train["season"].astype(str).unique()),
+           "ignored_seasons": ignored,
            "protocol": note["text"], "mode": note["mode"], "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores,
            "chosen": chosen, "summary": summary, "out_root": str(out_root), "games": bg, "predictions": pt,
            "out_root_label": ("`%s/analytics/betting/<season>/`" % a.out) if a.out else "a temporary directory (no --out given), `analytics/betting/<season>/`"}

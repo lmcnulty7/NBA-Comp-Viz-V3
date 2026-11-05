@@ -49,6 +49,7 @@ log = logging.getLogger("analytics.actions.train")
 
 MODELS = ("rule", "hgb")
 DETECT_P = 0.5
+HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2          # fold values of the candidate table: -1 held-out or inference-only, -2 in-sample, >= 0 out-of-fold
 FULL_RUN_CMD = ("python -m analytics.actions.train --data \"$DATA_ROOT\" --report reports/actions.md "
                 "--out \"$DATA_ROOT\" --folds 5 --seed 0 --bootstrap 1000")
 HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_leaf_nodes=15, min_samples_leaf=5, l2_regularization=0.1)
@@ -123,7 +124,7 @@ def out_of_fold(train_c: pd.DataFrame, train_f: pd.DataFrame, n_folds: int, seed
         models = fit_models(train_c, train_f, seed)
         for m in MODELS:
             probs[m] = models[m](train_c, train_f)
-        fold[:] = 0
+        fold[:] = IN_SAMPLE_FOLD           # repo convention: -1 held-out, -2 in-sample, >= 0 out-of-fold
         note = {"mode": "in-sample", "folds": 0, "games": 1,
                 "text": "one training game: no grouped fold is possible, so the metrics are IN-SAMPLE (fit and scored on the same rows)"}
         return probs, fold, note
@@ -232,6 +233,7 @@ def detected_table(table: pd.DataFrame, labeller_pass: str) -> tuple:
     out = L.cast(raw, "actions") if len(raw) else L.empty("actions")
     out["model"] = labeller_pass
     out["confidence"] = d["p_selected_class"].to_numpy(dtype=float) if len(d) else np.zeros(0)
+    out["fold"] = d["fold"].to_numpy(dtype=int) if len(d) else np.zeros(0, dtype=int)   # -2 in-sample, -1 held-out or inference, >= 0 out-of-fold
     return out.reset_index(drop=True), refused
 
 
@@ -545,9 +547,9 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
         if len(held_c):          # scored once, the selected model only
             held_probs = {selected: models[selected](held_c, held_f)}
             ctx["heldout_scores"] = {selected: score(held_c, held_probs, 1, seed, models=(selected,))[selected]}
-            tables.append(candidate_table(held_c, held_probs[selected], np.full(len(held_c), -1)))
+            tables.append(candidate_table(held_c, held_probs[selected], np.full(len(held_c), HELDOUT_FOLD)))
         if len(inf_c):           # inference only: detections allowed, never fitted or scored
-            tables.append(candidate_table(inf_c, models[selected](inf_c, inf_f), np.full(len(inf_c), -1)))
+            tables.append(candidate_table(inf_c, models[selected](inf_c, inf_f), np.full(len(inf_c), HELDOUT_FOLD)))
     ctx["table"] = pd.concat(tables, ignore_index=True)
     ctx["detected"], ctx["refused_screens"] = detected_table(ctx["table"], labeller_pass)
     if out_root:

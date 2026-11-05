@@ -58,6 +58,7 @@ from analytics.features_xfg import assert_no_leak, feature_columns as xfg_featur
 
 WHO = "train_decisions"
 N_MIN = 300
+IN_SAMPLE_FOLD, HELDOUT_FOLD = -2, -1      # fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample
 MIN_DECISIONS_GAME = 3
 MIN_PLAYERS_GAME = 3
 XFG_MIN_COVERAGE = 0.5
@@ -306,11 +307,13 @@ def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> di
     has_xfg = any(b.get("xfg") is not None for b in bundles)
     events = {"location": [], "xfg_selected": []}
     diag = {"n_shot": 0, "n_shot_overridden": 0, "n_hold": 0, "fit_rows": 0}
+    in_sample = len(train_ids) == 1
     for fi, (tr, te) in enumerate(folds):
         rows = pd.concat([fit_rows[g] for g in tr], ignore_index=True) if tr else fit_rows[te[0]].iloc[:0]
         model = fit_value_model(rows)
         for g in te:
-            r = value_game(contexts[g], by_game[g], model, fi, with_xfg=has_xfg, counts=counts[g])
+            # fold convention: >= 0 out-of-fold, -1 held-out (valued by the full refit), -2 in-sample (one training game)
+            r = value_game(contexts[g], by_game[g], model, IN_SAMPLE_FOLD if in_sample else fi, with_xfg=has_xfg, counts=counts[g])
             for name, ev in r["events"].items():
                 events[name].append(ev)
             diag["n_shot"] += r["n_shot"]

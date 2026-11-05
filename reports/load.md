@@ -1,6 +1,6 @@
 # Load and fatigue baselines (analytics/load/train.py)
 
-Written 2026-11-05T08:59:15Z by `python -m analytics.load.train --fixtures --local-fixtures --report reports/load.md --bootstrap 200`.
+Written 2026-11-05T09:43:47Z by `python -m analytics.load.train --fixtures --local-fixtures --report reports/load.md --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_load.py (fixture (local tests/_fx_load.py)). The real run is the Mac command at the end.
 
@@ -100,16 +100,14 @@ Our distance counts dead-ball movement at the wall clock and only frames that pa
 
 ## Held-out games, scored once (fixture output, not a result)
 
-39 player-games from 2 held-out game(s) (11.07.2015.BBB.at.DDD, 11.14.2015.CCC.at.DDD), scored once by the models refit on all training rows; never fitted or tuned on. Point estimates only.
+39 player-games from 2 held-out game(s) (11.07.2015.BBB.at.DDD, 11.14.2015.CCC.at.DDD). One model per pair was selected on its out-of-fold score and scored once here, refit on all training rows; never fitted or tuned on. The constant baseline appears only as a labelled floor under a selected candidate. Point estimates only.
 
 | quantity | value |
 | --- | --- |
 | decline rows | 39 |
-| MSE mean | 0.0534 |
-| MSE ridge | 0.0485 |
+| MSE, selected model (mean) | 0.0534 |
 | absence rows | 20 |
-| log loss base | 0.3431 |
-| log loss logistic | 0.3414 |
+| log loss, selected model (base) | 0.3431 |
 
 ## Status and the Mac command
 

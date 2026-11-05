@@ -516,8 +516,11 @@ def upstream_rows(df: Optional[pd.DataFrame], heldout: bool, counts: Optional[di
     if heldout:
         if "heldout" in df.columns:
             keep &= df["heldout"].fillna(False).astype(bool).to_numpy()
-    elif "fold" in df.columns:
-        keep &= (pd.to_numeric(df["fold"], errors="coerce").fillna(0) != -1).to_numpy()
+    else:
+        # a training game accepts out-of-fold rows only (fold >= 0): -1 held-out and -2 in-sample are refused, and so
+        # is a table without a fold column (a missing fold counts as -1)
+        fold = pd.to_numeric(df["fold"], errors="coerce").fillna(-1) if "fold" in df.columns else pd.Series(-1, index=df.index)
+        keep &= (fold >= 0).to_numpy()
     dropped = int((~keep).sum())
     if counts is not None and dropped:
         counts[name + "_rows_refused"] = counts.get(name + "_rows_refused", 0) + dropped

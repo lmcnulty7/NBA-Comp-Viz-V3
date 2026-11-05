@@ -41,12 +41,20 @@ def test_end_to_end_fixture_run_report_and_predictions(run):
         assert ("| %s" % m) in text
     assert run["selected"] in T.MODELS
     assert run["train_games"] == N_GAMES - 1 and run["heldout_game_ids"] == [HELD]
-    assert set(run["heldout_scores"]) == set(T.MODELS)           # held-out scored once, every model
+    assert set(run["heldout_scores"]) == {run["selected"], "uniform floor"}   # only the selected candidate is scored on held-out rows
     assert run["mode"] == "out-of-fold" and run["folds"] == 3
     pred = run["predictions"]
     assert list(pred.columns) == T.PRED_COLUMNS
-    sums = pred.groupby(["sportvu_game", "event"])[["p_prior", "p_logit", "p_selected"]].sum()
+    tr = pred[~pred["heldout"]]
+    sums = tr.groupby(["sportvu_game", "event"])[["p_prior", "p_logit", "p_selected"]].sum()
     assert np.allclose(sums.to_numpy(), 1.0, atol=1e-4)
+    hd = pred[pred["heldout"]]
+    assert np.allclose(hd.groupby(["sportvu_game", "event"])["p_selected"].sum().to_numpy(), 1.0, atol=1e-4)
+    for m in ("prior", "logit"):                                    # non-selected models are never scored on held-out rows
+        if m != run["selected"]:
+            assert hd["p_" + m].isna().all()
+        else:
+            assert np.allclose(hd["p_" + m].to_numpy(), hd["p_selected"].to_numpy())
     assert (pred.groupby(["sportvu_game", "event"])["is_rebounder"].sum() == 1).all()
     assert (pred.loc[pred["heldout"], "fold"] == T.HELDOUT_FOLD).all() and (pred.loc[~pred["heldout"], "fold"] >= 0).all()
     assert (pred.loc[pred["heldout"], "sportvu_game"] == HELD).all()
@@ -56,6 +64,9 @@ def test_end_to_end_fixture_run_report_and_predictions(run):
     assert held_paths and held_paths[0].parts[-4:-1] == ("rebounds", "heldout", "2015-16")
     back = pd.read_parquet(held_paths[0])
     assert list(back.columns) == T.PRED_COLUMNS and back["heldout"].all()
+    assert back["p_selected"].notna().all()
+    only = T.fit_candidates(run["train"], 0, only=run["selected"])
+    assert set(only) == {run["selected"]}
     for m in T.MODELS:                                             # every model beats or matches the uniform reference on fixture rows
         assert np.isfinite(run["scores"][m]["mlogloss"]["point"])
     assert run["scores"][run["selected"]]["mlogloss"]["point"] <= run["uniform"]["mlogloss"] + 0.05

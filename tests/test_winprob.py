@@ -247,8 +247,8 @@ def test_split_refuses_2015_16_and_drops_heldout_flagged_rows(states):
     s = states.copy()
     flagged = s["game_id"].iloc[0]
     s.loc[s["game_id"] == flagged, "heldout"] = True
-    train, heldout = T.split_seasons(s, HELD)
-    assert flagged not in set(train["game_id"]) and flagged not in set(heldout["game_id"])
+    train, heldout, ignored = T.split_seasons(s, HELD)
+    assert ignored == [] and flagged not in set(train["game_id"]) and flagged not in set(heldout["game_id"])
     with pytest.raises(ValueError, match="held-out"):
         T.fit_models(s[s["game_id"] == flagged], models=("constant",))
     bad = states.copy()
@@ -307,3 +307,23 @@ def test_four_game_fixture_root_runs_end_to_end(tmp_path):
     ctx = T.run(d, "2024-25", seed=0, n_boot=0, n_folds=2, out_root=tmp_path / "out", fixtures=True, command="pytest",
                 report=str(tmp_path / "r.md"))
     assert ctx["heldout_rows"] == 0 and ctx["selected"] in T.MODELS and (tmp_path / "r.md").exists()
+
+
+def test_seasons_later_than_the_held_out_season_are_ignored(data, states):
+    # relabel the 2021-22 games as a season after the held-out one: they must not fit, score or appear in any fold
+    s = states.copy()
+    later = s["season"] == "2021-22"
+    s.loc[later, "season"] = "2025-26"
+    train, heldout, ignored = T.split_seasons(s, HELD)
+    assert ignored == ["2025-26"] and set(train["season"]) == {"2020-21"} and set(heldout["season"]) == {HELD}
+    pbp, games = data["playbyplay"].copy(), data["games"].copy()
+    pbp.loc[pbp["season"] == "2021-22", "season"] = "2025-26"
+    games.loc[games["season"] == "2021-22", "season"] = "2025-26"
+    d2 = {**data, "playbyplay": pbp, "games": games}
+    T.FIT_LOG.clear()
+    ctx = T.run(d2, HELD, seed=0, n_boot=0, n_folds=2, fixtures=True, command="pytest")
+    late_ids = set(games.loc[games["season"] == "2025-26", "game_id"].astype(str))
+    assert ctx["ignored_seasons"] == ["2025-26"] and ctx["train_seasons"] == ["2020-21"]
+    assert all(not (set(ids) & late_ids) for _, ids in T.FIT_LOG)
+    text = T.write_report(Path(__import__("tempfile").mkdtemp()) / "r.md", ctx)
+    assert "seasons later than the held-out season, ignored" in text and "2025-26 (" in text

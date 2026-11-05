@@ -60,7 +60,9 @@ Selection metric: out-of-fold mean position error in feet at 0.2 s and 1.0 s und
 (`analytics.eval.bootstrap_by_game`), paired bootstrap of 3 vs 2 and 2 vs 1
 (`analytics.eval.paired_bootstrap_by_game`). Rule, fixed in advance: candidate 3 is kept only when its
 1.0 s error minus candidate 2's is negative with a paired interval excluding zero; otherwise the selected
-ghost is candidate 2. One training game: in-sample, labelled, no interval, candidate 3 dropped.
+ghost is candidate 2. One training game: in-sample, labelled, no interval, candidate 3 dropped. The
+held-out games are scored once by the selected candidate only (plus persistence as a labelled floor); the
+dropped candidate never sees them, so nothing can be chosen on held-out numbers.
 
 ## Leakage guards
 
@@ -95,7 +97,7 @@ One row per defender-step, horizon and the selected candidate.
 | `ghost_x`, `ghost_y` | float32 | the selected candidate's ghost at `frame`, feet |
 | `deviation_ft` | float32 | distance(actual, assignment) minus distance(ghost, assignment) at `frame`; positive = farther from his man than the ghost |
 | `horizon_s` | float32 | 0.2 or 1.0 |
-| `fold` | int32 | the grouped fold whose test games hold the row; -1 for held-out rows scored once |
+| `fold` | int32 | >= 0: the grouped fold whose test games hold the row (out-of-fold); -1: held-out rows scored once; -2: in-sample rows (one training game, no fold possible) |
 | `heldout` | bool | the game is held out (never fitted or tuned on) |
 
 ### `ghost_possessions` (`ghost_possessions_<sportvu_game>.parquet`)

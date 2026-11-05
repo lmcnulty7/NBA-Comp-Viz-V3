@@ -23,7 +23,8 @@ Steps
      n, the gate, and recommended = the highest adjusted PPP among the sufficient cells of that coverage.
      Labelled association: it ranks what happened after each call against each coverage, holding lineups
      fixed in a linear sense; it does not say what would happen if the call were changed.
-  5. Held-out rows, when any: scored once by the final ridge and the two baselines (MSE), never fitted on.
+  5. Held-out rows, when any: scored once by the selected model (the final ridge) with the training mean as a
+     labelled floor (MSE); the by-action candidate is not scored there; never fitted on.
 
 Fewer games than folds: n_folds becomes the number of games. One game: in-sample metrics, labelled so.
 Deep models are out of scope (baselines first; ridge is the only fitted model).
@@ -383,11 +384,12 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["", "No coverage has a cell with at least %d rows, so no recommendation is made." % ctx["n_min"]]
     L += ["", "## Held-out rows%s" % tag, ""]
     if ctx["heldout_rows"]:
-        L += ["%d actions from %d held-out game(s) (%s), scored ONCE by the final models refit on all %d training rows; never fitted or tuned on."
+        L += ["%d actions from %d held-out game(s) (%s), scored ONCE by the selected model (the ridge) refit on all %d training rows; never fitted or tuned on. "
+              "The training mean is shown as a labelled floor only; no other candidate is scored on held-out rows."
               % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]), ctx["train_rows"]), "",
               "| model | held-out MSE |", "| --- | --- |"]
-        for m in BASELINES:
-            L.append("| %s | %s |" % (m, _f(ctx["heldout_scores"][m], 4)))
+        for m, label in (("ridge", "ridge (selected)"), ("mean_floor", "training mean (floor)")):
+            L.append("| %s | %s |" % (label, _f(ctx["heldout_scores"][m], 4)))
         L.append("")
         L.append("Point estimates only (no interval over %d game(s))." % ctx["heldout_games"])
     else:
@@ -433,8 +435,9 @@ def run(table: pd.DataFrame, n_folds: int = 5, seed: int = 0, n_boot: int = 200,
     if len(heldout):
         base, model = fit_baselines(train), fit_ridge(train, ctx["alpha"])
         y = heldout["ppp"].astype(float).to_numpy()
-        ctx["heldout_scores"] = {"mean": mse(y, base["mean"](heldout)), "by_action": mse(y, base["by_action"](heldout)),
-                                 "ridge": mse(y, predict_ridge(model, heldout))}
+        # the selected model only (the ridge, the one model the protocol carries forward), with the training mean as a
+        # labelled floor; the by-action table is never scored on held-out rows
+        ctx["heldout_scores"] = {"mean_floor": mse(y, base["mean"](heldout)), "ridge": mse(y, predict_ridge(model, heldout))}
     ctx["train"], ctx["heldout"] = train, heldout
     return ctx
 

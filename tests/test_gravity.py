@@ -147,6 +147,12 @@ def test_prior_is_out_of_fold(built, train_games):
     assert not np.array_equal(pred1.loc[~own, "zone_make_rate"].to_numpy(), pred2.loc[~own, "zone_make_rate"].to_numpy())
     assert np.array_equal(pred1.loc[own, "p_ridge"].to_numpy(), pred2.loc[own, "p_ridge"].to_numpy())
     assert F.zone_of([1.0, 5.0, 12.0, 20.0, 25.0]).tolist() == ["rim", "paint", "short_mid", "long_mid", "three"]
+    # fold convention: >= 0 out of fold, -1 held-out, -2 in-sample (one training game), never 0 for in-sample rows
+    assert (pred1["fold"] >= 0).all() and T.HELDOUT_FOLD == -1 and T.IN_SAMPLE_FOLD == -2
+    one = pf[pf["sportvu_game"] == g]
+    pred_one, note_one = T.out_of_fold(one, train_games[:1], n_folds=5, seed=0)
+    assert note_one["mode"] == "in-sample" and (pred_one["fold"] == T.IN_SAMPLE_FOLD).all()
+    assert (T.gravity_frames(pred_one)["fold"] == T.IN_SAMPLE_FOLD).all()
     table = F.skill_table(train_games[0]["shots"])
     assert set(table["prior_zone"]) == {z[2] for z in F.ZONES} and all(0 <= v <= 1 for v in table["prior_zone"].values())
 

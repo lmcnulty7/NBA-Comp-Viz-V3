@@ -142,6 +142,10 @@ def test_xfg_predictions_interface(tmp_path):
     assert T.default_probability(x) == pytest.approx(0.5)
     flagged.assign(fold=[-1, -1]).to_parquet(d / "xfg_predictions.parquet", index=False)      # a flagged-train row without a fold: refused
     assert V.load_xfg(tmp_path) is None
+    flagged.assign(fold=[-2, -1]).to_parquet(d / "xfg_predictions.parquet", index=False)      # in-sample (-2) on a training row: refused too
+    assert V.load_xfg(tmp_path) is None
+    flagged.assign(fold=[np.nan, -1]).to_parquet(d / "xfg_predictions.parquet", index=False)
+    assert V.load_xfg(tmp_path) is None
 
 
 # ── end to end on the fixtures ─────────────────────────────────────────────────────────────────────
@@ -166,7 +170,9 @@ def test_end_to_end_fixture_run(ctx, games, tmp_path):
     assert ctx["xfg"]["fold"].ge(0).sum() == (ctx["xfg"]["sportvu_game"] != HELD).sum()    # training attempts are out-of-fold
     assert (ctx["xfg"].loc[ctx["xfg"]["sportvu_game"] == HELD, "fold"] == -1).all()
     h = ctx["heldout"]
-    assert h["games"] == [HELD] and h["n_possessions"] > 0 and all(np.isfinite(h["mse"][m]) for m in T.MODELS)
+    assert h["games"] == [HELD] and h["n_possessions"] > 0 and h["candidate"] in ("raw", "ridge")
+    assert set(h["mse"]) == {"constant", h["candidate"]} and all(np.isfinite(v) for v in h["mse"].values())
+    assert h["candidate"] == T.selected_candidate(ctx["cv"]) and len(ctx["cv"]["fold_alphas"]) == ctx["cv"]["folds"]
     text = T.write_report(tmp_path / "matchups.md", ctx)
     assert "fixture output, not a result" in text and chr(0x2014) not in text
     for section in ("## Inputs", "## Assignment stability", "## Defended FG%", "## Baseline comparison", "## Defenders", "## Held-out", "## Status"):
@@ -346,7 +352,7 @@ def test_score_heldout_aligns_unseen_players():
     held_games = [{"possessions": pd.DataFrame({"sportvu_game": ["H", "H"], "possession": [0, 1], "points": [2, 0]})}]
     tables = {"matchup_possessions": held_mp, "matchup_frames": pd.DataFrame(columns=F.FRAME_COLUMNS), "shots": pd.DataFrame(columns=F.SHOT_COLUMNS)}
     h = T.score_heldout(tables, held_games, cv, 0, 0)
-    assert h["n_possessions"] == 2 and all(np.isfinite(h["mse"][m]) for m in T.MODELS)
+    assert h["n_possessions"] == 2 and set(h["mse"]) == {"constant", h["candidate"]} and all(np.isfinite(v) for v in h["mse"].values())
     D = T.possession_design(held_mp, T.possession_points(held_games))
     assert D["columns"] == ["D1", "D2", "D77", "O11", "O12", "O88"]
     # the unseen possession is carried by the intercept alone

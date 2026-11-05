@@ -25,7 +25,9 @@ table is over lineups (analytics.eval.bootstrap_by_game with lineup_id as the gr
 replacement), as is the paired bootstrap against plus_minus. The lo and hi of the output tables are different
 intervals: over games (lineup_ratings) and over game-resampled refits (player_rapm).
 The candidate with the highest mean Spearman over the validation pairs is selected (ties go to plus_minus).
-The held-out season is scored ONCE by the candidates refitted on every training season, after selection.
+The held-out season is scored ONCE, after selection, by the SELECTED candidate refitted on every training season;
+plus_minus is reported beside it as a labelled floor and the other candidates are never scored on it (no paired
+test on the held-out season either).
 
 Leakage: no row of the target season or of any later season reaches a fit (assert_season_split, in code,
 on every fit); the held-out season never reaches a fit; analytics.eval.refuse_heldout checks the training game
@@ -276,8 +278,10 @@ def _mse(d: pd.DataFrame, col: str) -> float:
     return float(np.mean((d[col] - d["actual"]) ** 2))
 
 
-def evaluate_pair(fits: dict, train: pd.DataFrame, test: pd.DataFrame, min_poss: int, n_boot: int, seed: int) -> dict:
-    """Score the candidates on the lineups present in both frames with at least min_poss possessions each side."""
+def evaluate_pair(fits: dict, train: pd.DataFrame, test: pd.DataFrame, min_poss: int, n_boot: int, seed: int,
+                  candidates=CANDIDATES, paired: bool = True) -> dict:
+    """Score `candidates` on the lineups present in both frames with at least min_poss possessions each side;
+    `paired` adds the paired bootstrap of each candidate's Spearman against plus_minus (validation pairs only)."""
     tr = lineup_table(train).set_index("lineup_id")
     te = lineup_table(test)
     both = te[te["lineup_id"].isin(tr.index[tr["n_possessions"] >= min_poss]) & (te["n_possessions"] >= min_poss)].copy()
@@ -286,14 +290,14 @@ def evaluate_pair(fits: dict, train: pd.DataFrame, test: pd.DataFrame, min_poss:
     d = both.merge(pred, on="lineup_id")
     res = {"n_lineups": int(len(d)), "n_lineups_test": int(len(te)), "n_lineups_train": int(len(tr)), "metrics": {}, "frame": d}
     nan = {"point": float("nan"), "lo": float("nan"), "hi": float("nan")}
-    for c in CANDIDATES:
+    for c in [c for c in CANDIDATES if c in candidates]:
         col = "pred_" + c
         if len(d) < 3:
             res["metrics"][c] = {"spearman": dict(nan), "mse": dict(nan), "spearman_vs_plus_minus": None}
             continue
         m = {"spearman": bootstrap_by_game(d, "lineup_id", lambda s, col=col: _spearman(s, col), n=n_boot, seed=seed),
              "mse": bootstrap_by_game(d, "lineup_id", lambda s, col=col: _mse(s, col), n=n_boot, seed=seed)}
-        if c != "plus_minus":
+        if c != "plus_minus" and paired:
             m["spearman_vs_plus_minus"] = paired_bootstrap_by_game(d, "lineup_id", lambda s, col=col: _spearman(s, col),
                                                                    lambda s: _spearman(s, "pred_plus_minus"), n=n_boot, seed=seed)
         else:
@@ -348,7 +352,9 @@ def run(feats: pd.DataFrame, heldout_season: str, seed: int = 0, n_boot: int = 2
                     "n_gated": len(fits_all["lineups"]), "n_players": len(fits_all["players"]), "cv_mse_rapm": fits_all["rapm"]["cv_mse"],
                     "cv_mse_synergy": fits_all["rapm_synergy"]["cv_mse"], "home_court_rapm": fits_all["rapm"]["intercept"]}
     if has_heldout:
-        ctx["heldout"] = evaluate_pair(fits_all, tr_all, by_season[heldout_season], min_poss, n_boot, seed)
+        # the selected candidate only (plus_minus stays as the labelled floor); no paired test on the held-out season
+        ctx["heldout"] = evaluate_pair(fits_all, tr_all, by_season[heldout_season], min_poss, n_boot, seed,
+                                       candidates=("plus_minus", ctx["selected"]), paired=False)
     # output tables: expanding-window fits per training season, the training fit for the held-out season
     if out_root is not None:
         for i, s in enumerate(train_seasons):
@@ -470,16 +476,18 @@ def write_report(path: Path, ctx: dict) -> str:
     if h is None:
         L.append("The held-out season %s is not in the inputs: nothing scored." % ctx["heldout_season"])
     else:
-        L += ["Season %s scored once by the candidates refitted on %s: %d lineups present in both, %d gated lineups, %d players, alpha rapm %g, alpha synergy %g, home court (rapm intercept) %s per 100."
+        L += ["Season %s scored once by the selected candidate refitted on %s: %d lineups present in both, %d gated lineups, %d players, alpha rapm %g, alpha synergy %g, home court (rapm intercept) %s per 100."
               % (ctx["heldout_season"], ", ".join(ctx["final"]["fit_seasons"]), h["n_lineups"], ctx["final"]["n_gated"], ctx["final"]["n_players"],
                  ctx["final"]["alpha_rapm"], ctx["final"]["alpha_synergy"], _f(ctx["final"]["home_court_rapm"], 2)), "",
-              "| candidate | Spearman | MSE | Spearman minus plus_minus (paired) |", "| --- | --- | --- | --- |"]
+              "Only the candidate selected on the training seasons is scored here; plus_minus is shown as the labelled floor "
+              "(not a comparison, no paired test): the other candidates are never scored on the held-out season.", "",
+              "| candidate | Spearman | MSE |", "| --- | --- | --- |"]
         for c in CANDIDATES:
+            if c not in h["metrics"]:
+                continue
             m = h["metrics"][c]
-            pv = m.get("spearman_vs_plus_minus")
-            pvs = "baseline" if pv is None else "%s [%s, %s]%s" % (_f(pv["diff"]), _f(pv["lo"]), _f(pv["hi"]), " (excludes 0)" if pv["excludes_zero"] else "")
-            mark = " (selected)" if c == ctx["selected"] else ""
-            L.append("| %s%s | %s | %s | %s |" % (c, mark, _ci(m["spearman"]), _ci(m["mse"]), pvs))
+            mark = " (selected)" if c == ctx["selected"] else " (floor)"
+            L.append("| %s%s | %s | %s |" % (c, mark, _ci(m["spearman"]), _ci(m["mse"])))
     L += ["", "## Outputs", ""]
     L += ["- " + w for w in ctx["written"]] or ["No tables written (pass --out OUT_ROOT)."]
     L += ["", "## Status and the Mac command", ""]

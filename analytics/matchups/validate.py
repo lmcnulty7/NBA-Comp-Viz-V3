@@ -22,7 +22,8 @@ problem, a player 2 ft off the court still has a nearest opponent).
 The xFG lane's predictions are read from OUT_ROOT/analytics/xfg/<season>/*.parquet when a file there has the
 columns sportvu_game, event, player_id, p_selected and fold (plus heldout when the lane writes it: the held-out
 rows are those flagged, else those whose id sportvu/splits.json marks); the fold column must be present and
-non-negative on every training row, otherwise the file is refused (logged) and the trainer uses the location-only fallback.
+non-negative on every training row (convention: >= 0 out-of-fold, -1 held-out, -2 in-sample; a training row at -1,
+-2 or null is refused), otherwise the file is refused (logged) and the trainer uses the location-only fallback.
 """
 from __future__ import annotations
 
@@ -158,7 +159,7 @@ def load_xfg(out_root, season: str = "2015-16") -> pd.DataFrame | None:
         return None
     x = pd.concat(parts, ignore_index=True)
     train = x[~xfg_heldout_mask(x)]
-    bad = train["fold"].isna() | (pd.to_numeric(train["fold"], errors="coerce").fillna(-1) < 0)
+    bad = train["fold"].isna() | (pd.to_numeric(train["fold"], errors="coerce").fillna(-1) < 0)     # -1, -2 and null alike
     if bad.any():
         log.warning("xfg: %d of %d training rows have no out-of-fold fold index; refused, using the fallback", int(bad.sum()), len(train))
         return None

@@ -213,7 +213,8 @@ def test_end_to_end_fixture_run(games, tmp_path):
     assert tab["p_ball_screen"].between(0, 1).all() and (tab["p_selected_class"] >= tab["p_ball_screen"]).all()
     det = ctx["detected"]
     from analytics import labels as L
-    assert det.columns.tolist() == [f.name for f in L.ACTIONS_SCHEMA] + ["model", "confidence"]
+    assert det.columns.tolist() == [f.name for f in L.ACTIONS_SCHEMA] + ["model", "confidence", "fold"]
+    assert set(det["fold"]).issubset({-1, 0, 1, 2, 3}) and (det["fold"] >= -1).all()
     assert (det["label_source"] == "model").all() and (det["labeller_pass"] == 1).all() and (det["confidence"] > 0.5).all()
     assert (det["action_type"] != "none").all() and det.loc[det["action_type"] == "ball_screen", "screener_id"].notna().all()
     assert L.cast(det, "actions").shape[0] == len(det)                   # a valid actions frame for analytics.labels
@@ -293,6 +294,18 @@ def test_fallback_generator_end_to_end(fallback_games):
     ctx = T.run([dict(g) for g in fallback_games[:3]], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
     assert ctx["selected"] in T.MODELS and ctx["scores"]["hgb"]["f1_ball_screen"]["point"] >= 0.8
     assert "fixture" in fx.fixture_source()
+    assert (ctx["table"]["fold"] >= 0).all() and (ctx["detected"]["fold"] >= 0).all()
+
+
+def test_one_game_is_in_sample_with_fold_minus_two(fallback_games):
+    """One training game: no grouped fold is possible, the metrics are labelled in-sample and every row carries
+    fold -2 (repo convention: -1 held-out or inference-only, -2 in-sample, >= 0 out-of-fold) in action_candidates
+    and actions_detected."""
+    ctx = T.run([dict(fallback_games[0])], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
+    assert ctx["mode"] == "in-sample" and ctx["folds"] == 0 and "IN-SAMPLE" in ctx["protocol"]
+    tab = ctx["table"]
+    assert (tab["fold"] == T.IN_SAMPLE_FOLD).all() and T.IN_SAMPLE_FOLD == -2 and T.HELDOUT_FOLD == -1
+    assert len(ctx["detected"]) > 0 and (ctx["detected"]["fold"] == -2).all()
 
 
 def test_hand_labels_drop_tombstones_and_pass_two(tmp_path):

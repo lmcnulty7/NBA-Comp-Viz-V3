@@ -96,7 +96,7 @@ held-out rows).
 | `p_contest` | float32, nullable | the same for `contest_logistic` |
 | `p_selected` | float32 | probability from the selected candidate (named in the report): out-of-fold on a training row, from the one refit on a held-out row |
 | `made` | bool | the target, carried for scoring downstream (never a feature) |
-| `fold` | int16 | the out-of-fold index of a training row; -1 for a held-out row |
+| `fold` | int16 | the out-of-fold index (>= 0) of a training row; -1 for a held-out row; -2 is reserved for an in-sample row (this trainer has no one-game in-sample mode and stops with fewer than 2 training games, so -2 is never written here; the convention is shared with analytics/train_xfg.py's in-sample mode) |
 | `heldout` | bool | true for a held-out row (scored once by the selected candidate refit on all training rows, never fitted on) |
 
 Held-out rows are scored exactly once: only the selected candidate is refit, so the other two columns are NaN there.

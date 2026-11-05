@@ -1,6 +1,6 @@
 # Action recognition: ball-screen detection (analytics/actions/train.py)
 
-Written 2026-11-05T09:18:08Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
+Written 2026-11-05T09:44:36Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from analytics.fixtures (shared, lane I1) with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and hand labels on the owner's Mac (command under Status).
 

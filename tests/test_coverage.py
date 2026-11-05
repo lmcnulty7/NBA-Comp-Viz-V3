@@ -72,6 +72,15 @@ def test_fixture_end_to_end(bundle, tmp_path):
     assert back["coverage_label"].notna().sum() == ctx["train_rows"]
 
 
+def test_one_training_game_is_in_sample_with_fold_minus_two(scripted_feats):
+    one = scripted_feats[scripted_feats["sportvu_game"] == scripted_feats["sportvu_game"].iloc[0]]
+    train, _so, _h = T.training_frame(one)
+    fold, probs, note = T.out_of_fold(train, 5, 0)
+    assert note["mode"] == "in-sample" and (fold == T.IN_SAMPLE_FOLD).all() and T.IN_SAMPLE_FOLD == -2
+    rows = T.prediction_rows(train, probs["logistic"], fold)
+    assert (rows["fold"] == -2).all() and T.REFIT_FOLD == -1
+
+
 def test_scripted_coverages_beat_majority(scripted_feats):
     feats = scripted_feats
     train, _so, held = T.training_frame(feats)
@@ -302,7 +311,11 @@ def test_label_files_are_resolved_like_the_label_tool_writes_them(tmp_path):
     labels = V.load_labels(tmp_path, counts)
     a, s = labels["actions"], labels["screens"]
     assert counts["label_reader"] in ("analytics.labels", "raw")
-    assert counts["actions_other_pass_dropped"] == 1 and counts["screens_other_pass_dropped"] == 1
+    if counts["label_reader"] == "analytics.labels":     # read_labels(labeller_pass=1) already left pass 2 out
+        assert counts["actions_other_pass_dropped"] == 0 and counts["screens_other_pass_dropped"] == 0
+    else:                                                # the fallback reader relies on the lane's own filter
+        assert counts["actions_other_pass_dropped"] == 1 and counts["screens_other_pass_dropped"] == 1
+    assert (a["labeller_pass"].astype(int) == 1).all() and (s["labeller_pass"].astype(int) == 1).all()
     assert sorted(a["action_id"].astype(int)) == [1, 2]                        # 3 tombstoned, 4 is pass 2
     assert int(a.loc[a["action_id"] == 2, "start_frame"].iloc[0]) == 305        # last line wins
     assert sorted(s["screen_id"].astype(int)) == [2] and s["coverage"].iloc[0] == "over"

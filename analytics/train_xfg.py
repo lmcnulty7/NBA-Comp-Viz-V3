@@ -9,7 +9,9 @@ refuse a design matrix with a forbidden column; fit two models, the constant (le
 training folds) and a logistic regression on the four location features after standardisation, under grouped
 folds by sportvu_game; report out-of-fold log loss, Brier, ECE and calibration slope with bootstrap intervals by
 game, the calibration table of the logistic model, and, when the input carried held-out rows, those rows scored once
-by the models refit on every training row (labelled held-out, never used for fitting or tuning).
+by the logistic (selected) model refit on every training row (labelled held-out, never used for fitting or tuning;
+the constant model is not scored on them). Under --smoke the held-out rows are set aside and never scored: the
+held-out game is reserved for the one final scoring on the Mac.
 
 Fewer games than folds: n_folds becomes the number of games (leave-one-game-out) and the report says so. One game:
 no out-of-fold fit is possible, so the report carries in-sample metrics, labelled in-sample.
@@ -183,13 +185,18 @@ def write_report(path: Path, ctx: dict) -> str:
           "| bin | lo | hi | n | mean p | mean made |", "| --- | --- | --- | --- | --- | --- |"]
     for r in ctx["calibration"].itertuples():
         L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, _f(r.mean_p, 3), _f(r.mean_y, 3)))
-    if ctx["heldout_rows"]:
-        L += ["", "## Held-out rows (scored once by the models refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
-              "%d attempts from %d held-out game(s): %s." % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])),
+    if ctx["heldout_rows"] and ctx["smoke"]:
+        L += ["", "## Held-out rows", "",
+              "%d attempts from %d held-out game(s) (%s) were set aside and NOT scored: a smoke run never touches them. The held-out "
+              "game is reserved for the one final scoring on the Mac, by the real run below."
+              % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]))]
+    elif ctx["heldout_rows"]:
+        L += ["", "## Held-out rows (scored once by the logistic model refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
+              "%d attempts from %d held-out game(s): %s. Only the selected (logistic) model scores them; the constant model is not scored on held-out rows."
+              % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])),
               "", "| model | log loss | Brier | ECE (10 bins) | calibration slope |", "| --- | --- | --- | --- | --- |"]
-        for m in MODELS:
-            s = ctx["heldout_scores"][m]
-            L.append("| %s | %s | %s | %s | %s |" % (m, _f(s["log_loss"]), _f(s["brier"]), _f(s["ece"]), _f(s["calibration_slope"])))
+        s = ctx["heldout_scores"]["logistic"]
+        L.append("| %s | %s | %s | %s | %s |" % ("logistic", _f(s["log_loss"]), _f(s["brier"]), _f(s["ece"]), _f(s["calibration_slope"])))
         L.append("")
         L.append("Held-out numbers are point estimates (no bootstrap: %d game(s))." % ctx["heldout_games"])
     L += ["", "## Status", ""]
@@ -233,13 +240,15 @@ def main(argv=None) -> dict:
            "heldout_games": int(heldout["sportvu_game"].nunique()), "heldout_game_ids": sorted(heldout["sportvu_game"].unique()),
            "make_rate": float(train["made"].mean()), "protocol": note["text"], "mode": note["mode"], "folds": note["folds"],
            "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "calibration": cal, "smoke": a.smoke, "heldout_scores": {}}
-    if len(heldout):
+    if len(heldout) and not a.smoke:
+        # the held-out rows are scored once, by the selected (logistic) model refit on every training row; the constant
+        # model is not scored on them (its entry is kept with n/a so the table shape is stable). A smoke run never
+        # scores them: the held-out game is reserved for the one final scoring on the Mac.
         models = fit_models(train)
         y = heldout["made"].astype(float).to_numpy()
-        for m in MODELS:
-            p = models[m](heldout)
-            ctx["heldout_scores"][m] = {name: float(fn(y, p)) if not (m == "constant" and name == "calibration_slope") else float("nan")
-                                        for name, fn in METRICS}
+        p = models["logistic"](heldout)
+        ctx["heldout_scores"]["constant"] = {name: float("nan") for name, _fn in METRICS}
+        ctx["heldout_scores"]["logistic"] = {name: float(fn(y, p)) for name, fn in METRICS}
     text = write_report(Path(a.report), ctx)
     print(text)
     return ctx

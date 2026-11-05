@@ -22,15 +22,19 @@ Steps
      columns (each defender's column holds its share of the possession's sampled frames, each offensive
      player's column the share of frames it was guarded); alpha from a grid by out-of-fold mean squared
      error under grouped folds by game; ridge_value = 100 times the defender coefficient (per 100 possessions,
-     positive = worse). The out-of-fold MSE of ridge (at the chosen alpha, so slightly optimistic), of the raw
+     positive = worse); the alpha of each outer fold is chosen by an inner grouped CV over that fold's training
+     games (nested), the final model's alpha by grouped CV over all training games. The out-of-fold MSE of ridge, of the raw
      model (possession points predicted as the sum over the defenders on the floor of their training-fold
      points allowed per matchup possession, times their share) and of the constant (training-fold mean points)
      are compared with paired bootstrap intervals by game
   5. internal validation: assignment stability (share of defender sampled frames whose assignment is the same
      as at the previous sampled frame) and defended FG% consistency (FG% of attempts whose assigned defender
      is within 4 ft at the sampled frame at or before the release vs beyond), both with bootstrap by game
-  6. the held-out game(s): matchups built with the training-fitted xFG, scored once by the ridge, raw and
-     constant models fit on all training games; stability and defended FG% of that game; never fitted on
+  6. the held-out game(s): matchups built with the training-fitted xFG, scored once by the selected candidate
+     (raw or ridge, whichever has the lower out-of-fold MSE on the training folds; a rule fixed before scoring)
+     next to the constant floor, both fit on all training games; stability and defended FG% of that game;
+     never fitted on. xFG fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample (one training game);
+     load_xfg refuses a training row whose fold is missing or below 0
 
 Leakage: assignments use positions only; the possession's points and the shot outcome enter only as targets;
 schema.assert_time_forward runs on the feature frame (ids plus partial_possession and switches); the ridge
@@ -61,6 +65,8 @@ from analytics.matchups import validate as V
 log = logging.getLogger("analytics.matchups.train")
 
 WHO = "train_matchups"
+IN_SAMPLE_FOLD = -2          # fold convention of the xFG tables: >= 0 out-of-fold, -1 held-out, -2 in-sample
+ALPHA_ONE_GAME = 30.0        # the ridge alpha when no inner fold is possible (one training game)
 FIXTURE_HELDOUT_EVERY = V.FIXTURE_HELDOUT_EVERY
 N_MIN = 300
 ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0)
@@ -125,8 +131,8 @@ def fallback_xfg(train_parts: dict, held_parts: dict, n_folds: int, seed: int) -
         model = fit_models(tr_ok)["logistic"]
         p[ok] = model(tr_ok)
         p[~ok] = rate
-        fold[:] = 0
-        note = "location-only logistic, IN-SAMPLE (one training game)"
+        fold[:] = IN_SAMPLE_FOLD
+        note = "location-only logistic, IN-SAMPLE (one training game; fold -2)"
     out = pd.DataFrame({"sportvu_game": tr["sportvu_game"].astype(str), "event": tr["event"].astype(int), "p_selected": p, "fold": fold})
     if len(he):
         model = fit_models(tr_ok)["logistic"]
@@ -261,14 +267,33 @@ def raw_predict(model: dict, mp_test: pd.DataFrame, keys: list) -> np.ndarray:
     return np.array([s.get(k, 0.0) for k in keys])
 
 
+def choose_alpha(X, y, groups, n_folds: int, seed: int, alphas=ALPHAS) -> tuple:
+    """Alpha with the lowest out-of-fold MSE under grouped folds by game over (X, y, groups) -> (alpha, {alpha: mse}).
+    With one game no fold is possible: ALPHA_ONE_GAME and an empty table."""
+    games = sorted(set(groups))
+    if len(games) < 2:
+        return ALPHA_ONE_GAME, {}
+    k = min(n_folds, len(games))
+    oof = {a: np.full(len(y), np.nan) for a in alphas}
+    for tr_g, te_g in grouped_folds(games, n_folds=k, seed=seed):
+        te = np.isin(groups, te_g)
+        for a in alphas:
+            oof[a][te] = _fit_ridge(X[~te], y[~te], a).predict(X[te])
+    mse = {a: float(np.mean((oof[a] - y) ** 2)) for a in alphas}
+    return min(alphas, key=lambda a: mse[a]), mse
+
+
 def ridge_cv(mp: pd.DataFrame, points: dict, n_folds: int, seed: int, alphas=ALPHAS) -> dict:
-    """Alpha by grouped CV by game, out-of-fold predictions of constant, raw and ridge, the final ridge fit."""
+    """Out-of-fold predictions of constant, raw and ridge under grouped folds by game, the alpha chosen inside each
+    outer fold by an inner grouped CV over that fold's training games (nested, so the reported out-of-fold MSE
+    carries no choice made on the scored rows), and the final ridge fit with the alpha chosen by grouped CV over
+    all training games."""
     D = possession_design(mp, points)
     games = sorted(set(D["groups"]))
     k = min(n_folds, len(games))
     n = len(D["y"])
     oof = {m: np.full(n, np.nan) for m in MODELS}
-    oof_alpha = {a: np.full(n, np.nan) for a in alphas}
+    fold_alphas = []
     if len(games) >= 2:
         folds = grouped_folds(games, n_folds=k, seed=seed)
         mode = "out-of-fold under %d grouped folds by game (seed %d)" % (k, seed)
@@ -284,17 +309,16 @@ def ridge_cv(mp: pd.DataFrame, points: dict, n_folds: int, seed: int, alphas=ALP
         oof["constant"][te] = float(D["y"][tr].mean())
         rm = raw_model(mp[m_tr])
         oof["raw"][te] = raw_predict(rm, mp[m_te], [kk for kk, t in zip(D["keys"], te) if t])
-        for a in alphas:
-            oof_alpha[a][te] = _fit_ridge(D["X"][tr], D["y"][tr], a).predict(D["X"][te])
-    mse_alpha = {a: float(np.mean((oof_alpha[a] - D["y"]) ** 2)) for a in alphas}
-    best = min(alphas, key=lambda a: mse_alpha[a])
-    oof["ridge"] = oof_alpha[best]
+        a_k, _ = choose_alpha(D["X"][tr], D["y"][tr], D["groups"][tr], n_folds, seed, alphas)
+        fold_alphas.append(a_k)
+        oof["ridge"][te] = _fit_ridge(D["X"][tr], D["y"][tr], a_k).predict(D["X"][te])
+    best, mse_alpha = choose_alpha(D["X"], D["y"], D["groups"], n_folds, seed, alphas)
     final = _fit_ridge(D["X"], D["y"], best)
     coef = final.coef_
     ridge_values = {d: 100.0 * float(coef[i]) for i, d in enumerate(D["defs"])}
     pred = pd.DataFrame({"sportvu_game": D["groups"], "y": D["y"], **{"p_" + m: oof[m] for m in MODELS}})
-    return {"alpha": best, "mse_alpha": mse_alpha, "pred": pred, "ridge_values": ridge_values, "model": final,
-            "design": D, "mode": mode, "folds": k, "raw": raw_model(mp)}
+    return {"alpha": best, "mse_alpha": mse_alpha, "fold_alphas": fold_alphas, "pred": pred, "ridge_values": ridge_values,
+            "model": final, "design": D, "mode": mode, "folds": k, "raw": raw_model(mp)}
 
 
 def _mse(d: pd.DataFrame, col: str) -> float:
@@ -360,6 +384,13 @@ def defended_fg(shots: pd.DataFrame, n_boot: int, seed: int) -> dict:
     return out
 
 
+def selected_candidate(cv: dict) -> str:
+    """The one candidate scored on the held-out game: raw or ridge, whichever has the lower out-of-fold MSE on the
+    training folds (rule fixed before the held-out game is touched; ties go to raw, the simpler model)."""
+    pred = cv["pred"]
+    return "ridge" if _mse(pred, "p_ridge") < _mse(pred, "p_raw") else "raw"
+
+
 # ── step 6: held-out, scored once ──────────────────────────────────────────────────────────────────
 def score_heldout(held_tables: dict, held_games: list, cv: dict, n_boot: int, seed: int) -> dict:
     mp = held_tables["matchup_possessions"]
@@ -374,12 +405,14 @@ def score_heldout(held_tables: dict, held_games: list, cv: dict, n_boot: int, se
         j = cols.get(D["columns"][c])
         if j is not None:
             X[r, j] = v
-    pred = pd.DataFrame({"sportvu_game": D["groups"], "y": D["y"],
-                         "p_constant": float(cv["pred"]["y"].mean()),
-                         "p_raw": raw_predict(cv["raw"], mp, D["keys"]),
-                         "p_ridge": cv["model"].predict(X.tocsr())})
-    return {"games": sorted(set(D["groups"])), "n_possessions": int(len(D["y"])), "n_rows": int(len(mp)),
-            "mse": {m: _mse(pred, "p_" + m) for m in MODELS},
+    candidate = selected_candidate(cv)
+    pred = pd.DataFrame({"sportvu_game": D["groups"], "y": D["y"], "p_constant": float(cv["pred"]["y"].mean())})
+    if candidate == "raw":
+        pred["p_raw"] = raw_predict(cv["raw"], mp, D["keys"])
+    else:
+        pred["p_ridge"] = cv["model"].predict(X.tocsr())
+    return {"games": sorted(set(D["groups"])), "n_possessions": int(len(D["y"])), "n_rows": int(len(mp)), "candidate": candidate,
+            "mse": {m: _mse(pred, "p_" + m) for m in ("constant", candidate)},
             "stability": stability(held_tables["matchup_frames"], 0, seed),
             "defended_fg": defended_fg(held_tables["shots"], 0, seed)}
 
@@ -434,13 +467,15 @@ def write_report(path: Path, ctx: dict) -> str:
           "| beyond %.0f ft | %d | %s |" % (F.DEFENDED_FT, ctx["defended"]["n_far"], _ci(ctx["defended"]["far"])),
           "", "Beyond minus within: %s (paired by game; excludes zero: %s)." % (_ci(ctx["defended"]["far_minus_near"], "diff"), ctx["defended"]["far_minus_near"]["excludes_zero"]), "",
           "## Baseline comparison: possession points, %s" % ctx["cv"]["mode"] + tag, "",
-          "Ridge alpha %s chosen from %s by out-of-fold MSE (%s)." % (_f(ctx["cv"]["alpha"], 1), list(ALPHAS), ", ".join("%s: %s" % (_f(a, 1), _f(m, 4)) for a, m in ctx["cv"]["mse_alpha"].items())), "",
+          "Ridge alpha nested: inside each outer fold an inner grouped CV over that fold's training games chose from %s (per-fold alphas %s); the final model's alpha %s was chosen by grouped CV over all training games (%s)."
+          % (list(ALPHAS), ", ".join(_f(a, 1) for a in ctx["cv"]["fold_alphas"]) or "none", _f(ctx["cv"]["alpha"], 1),
+             ", ".join("%s: %s" % (_f(a, 1), _f(m, 4)) for a, m in ctx["cv"]["mse_alpha"].items()) or "one game, no inner fold"), "",
           "| model | out-of-fold MSE |", "| --- | --- |"]
     for m in MODELS:
         L.append("| %s | %s |" % (m, _ci(ctx["compare"]["mse"][m], "point", 4)))
     for k, d in ctx["compare"]["paired"].items():
         L.append("| %s | %s (excludes zero: %s) |" % (k.replace("_", " "), _ci(d, "diff", 4), d["excludes_zero"]))
-    L += ["", "The ridge MSE is at the alpha chosen on the same folds, so it is slightly optimistic; the raw and constant models carry no such choice."]
+    L += ["", "The out-of-fold MSE of every model carries no choice made on the scored rows (the ridge alpha of each fold comes from an inner CV over that fold's training games)."]
     if ctx["n_defenders_multi_game"] == 0:
         L.append("Every defender is in one game on this input: raw and ridge out-of-fold equal the constant, so the comparison above carries no information about the defenders.")
     else:
@@ -462,7 +497,8 @@ def write_report(path: Path, ctx: dict) -> str:
     h = ctx["heldout"]
     if h:
         L += ["%s: %d possessions, %d matchup rows; never fitted or tuned on; point estimates only." % (", ".join(h["games"]), h["n_possessions"], h["n_rows"]), "",
-              "| model | MSE |", "| --- | --- |"] + ["| %s | %s |" % (m, _f(h["mse"][m], 4)) for m in MODELS] + \
+              "Selected candidate: %s (the lower out-of-fold MSE on the training folds; the rule was fixed before scoring). Only the candidate and the constant floor are scored here." % h["candidate"], "",
+              "| model | MSE |", "| --- | --- |"] + ["| %s | %s |" % (m + (" (floor)" if m == "constant" else " (selected)"), _f(h["mse"][m], 4)) for m in ("constant", h["candidate"])] + \
              ["", "Assignment stability %s; defended FG%% within %.0f ft %s (%d attempts) vs beyond %s (%d attempts)." % (
                  _f(h["stability"]["point"], 3), F.DEFENDED_FT, _f(h["defended_fg"]["near"]["point"], 3), h["defended_fg"]["n_near"],
                  _f(h["defended_fg"]["far"]["point"], 3), h["defended_fg"]["n_far"])]

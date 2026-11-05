@@ -46,7 +46,7 @@ every training row and never rank anything.
 | `expected_ft` | float32 | the ridge expectation from the location features |
 | `gravity_ft` | float32 | `expected_ft - nearest_def_dist_ft` |
 | `has_ball` | bool | the player is the offensive player nearest the ball |
-| `fold` | int16 | grouped fold by game whose test set held this row; -1 for held-out rows |
+| `fold` | int16 | grouped fold by game whose test set held this row (>= 0, out of fold); -1 for held-out rows; -2 for in-sample rows (a single training game, where no grouped fold is possible and the report says in-sample) |
 | `heldout` | bool | the game is held out in sportvu/splits.json (or flagged so by the fixture) |
 
 ## gravity_players

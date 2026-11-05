@@ -387,50 +387,94 @@ def test_run_all_interface_file_exists(name, run_all_run):
         interfaces.check_file(name, f)
 
 
-def _training_items(obj, path="") -> list:
-    """Every string reachable from a key whose name mentions train (and not held-out) in a JSON manifest."""
+
+# ── held-out isolation on the shared DATA_ROOT ────────────────────────────────────────────────────
+GAME_COLUMNS = ("sportvu_game", "game", "game_id")
+
+
+def _heldout_tokens() -> set:
+    """Held-out ids: sportvu/splits.json tokens plus the fixture's real held-out id (12.16.2015.PHX.at.GSW),
+    which analytics.fixtures.write_fixture_root puts in its first held-out slot."""
+    from sportvu import splits
+    toks = set(splits.heldout_tokens())
+    try:
+        from analytics import fixtures
+        toks.add(fixtures.HELDOUT_GAME)
+    except Exception:                                                     # noqa: BLE001
+        toks.add("12.16.2015.PHX.at.GSW")
+    return {t for t in toks if t}
+
+
+def _lane_folders(root: Path, ext: str) -> list[Path]:
+    """analytics/<ext>/ and analytics/<ext>_*/ under root (epv also writes epv_features, for example)."""
+    base = root / "analytics"
+    if not base.is_dir():
+        return []
+    return [d for d in sorted(base.iterdir()) if d.is_dir() and (d.name == ext or d.name.startswith(ext + "_"))]
+
+
+def heldout_leaks(root: Path, ext: str, toks: set) -> list[str]:
+    """Every way a held-out game reaches a lane's training outputs under root: a per-game file named after it
+    outside heldout/, or rows naming it in a table outside heldout/ that are not flagged heldout with fold -1."""
+    import pandas as pd
+    problems = []
+    for folder in _lane_folders(root, ext):
+        for f in sorted(folder.rglob("*.parquet")):
+            rel = f.relative_to(root)
+            if "heldout" in rel.parts:
+                continue                                                  # the held-out folder is where it belongs
+            if any(t in f.stem for t in toks):
+                problems.append("%s: per-game file of a held-out game outside heldout/" % rel)
+                continue
+            try:
+                df = pd.read_parquet(f)
+            except Exception as exc:                                     # noqa: BLE001
+                problems.append("%s: unreadable (%s)" % (rel, exc))
+                continue
+            cols = [c for c in GAME_COLUMNS if c in df.columns]
+            if not cols or not len(df):
+                continue
+            mask = pd.Series(False, index=df.index)
+            for c in cols:
+                s = df[c].astype(str)
+                for t in toks:
+                    mask |= s.str.contains(t, regex=False)
+            if not mask.any():
+                continue
+            flagged = "heldout" in df.columns and bool(df.loc[mask, "heldout"].astype(bool).all())
+            fold_ok = "fold" not in df.columns or bool((pd.to_numeric(df.loc[mask, "fold"], errors="coerce") == -1).all())
+            if not (flagged and fold_ok):
+                problems.append("%s: %d rows of a held-out game in a training-folder table%s%s" % (
+                    rel, int(mask.sum()),
+                    "" if flagged else " without heldout=True",
+                    "" if fold_ok else " with fold != -1"))
+    return problems
+
+
+def report_training_lines(reports_dir: Path, ext: str, toks: set) -> list[str]:
+    """Lines of reports/<ext>.md that name training games and carry a held-out token."""
     out = []
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            key = str(k).lower()
-            if "train" in key and "held" not in key:
-                out += [s for s in _flatten(v)]
-            else:
-                out += _training_items(v, path + "/" + str(k))
-    elif isinstance(obj, list):
-        for v in obj:
-            out += _training_items(v, path)
+    for f in sorted(reports_dir.glob("*.md")) if reports_dir.is_dir() else []:
+        if f.stem != ext and not f.stem.startswith(ext + "_"):
+            continue
+        for i, ln in enumerate(f.read_text(errors="replace").splitlines(), 1):
+            if "training games" in ln.lower() and any(t in ln for t in toks):
+                out.append("%s:%d: %s" % (f.name, i, ln.strip()[:160]))
     return out
 
 
-def _flatten(v) -> list:
-    if isinstance(v, dict):
-        return [str(k) for k in v] + [x for vv in v.values() for x in _flatten(vv)]
-    if isinstance(v, list):
-        return [x for vv in v for x in _flatten(vv)]
-    return [str(v)]
-
-
 @slow
-def test_slow_no_heldout_in_training_manifests(slow_runs):
-    from sportvu import splits
-    toks = splits.heldout_tokens()
-    out_root = slow_runs["out_root"]
-    manifests = [p for p in out_root.rglob("*") if p.is_file() and "manifest" in p.name.lower()]
-    if not manifests:
-        pytest.skip("no trainer wrote a manifest under OUT_ROOT with --fixtures")
-    hits = {}
-    for m in manifests:
-        items = []
-        if m.suffix == ".json":
-            try:
-                items = _training_items(json.loads(m.read_text()))
-            except Exception as exc:                                     # noqa: BLE001
-                hits[str(m)] = ["unreadable: %s" % exc]
-                continue
-        elif "train" in m.name.lower():
-            items = m.read_text(errors="replace").split()
-        bad = sorted({s for s in items if any(t in s for t in toks)})
-        if bad:
-            hits[str(m.relative_to(out_root))] = bad[:5]
-    assert not hits, "held-out tokens in training manifests: %s" % hits
+@pytest.mark.parametrize("ext", LANES)
+def test_shared_root_heldout_isolation(ext, shared_root_runs):
+    """The real held-out id of the fixture root never reaches a lane's training outputs: its rows sit under
+    heldout/ (or carry heldout=True and fold=-1 in a single-file table) and no report lists it as a training game."""
+    _need(ext)
+    res = shared_root_runs["lanes"].get(ext)
+    if res is None:
+        pytest.skip("shared DATA_ROOT was not written")
+    toks = _heldout_tokens()
+    problems = []
+    for root in (shared_root_runs["out_root"], shared_root_runs["data_root"]):
+        problems += heldout_leaks(root, ext, toks)
+    problems += report_training_lines(shared_root_runs["out_root"] / "reports", ext, toks)
+    assert not problems, "held-out game in %s training outputs:\n%s" % (ext, "\n".join(problems))

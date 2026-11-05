@@ -7,7 +7,8 @@ Protocol
   1. Load the play-by-play, games and odds tables (analytics.winprob.features.load_data or the fixtures), build
      the winprob_states frame (one row per event, time-forward features only).
   2. Split by season: every row of --heldout-season is set aside before any fit and scored once at the end by the
-     selected candidate refit on all training rows. Rows flagged heldout (sportvu/splits.json games, 2015-16)
+     selected candidate refit on all training rows; seasons later than the held-out season are ignored (listed
+     in the report), so nothing from the held-out season's future fits. Rows flagged heldout (sportvu/splits.json games, 2015-16)
      are dropped from training as well, and analytics.eval.refuse_heldout runs on the training game ids.
      analytics.schema.assert_time_forward runs on the design matrix.
   3. Candidates (baselines first, no deep model):
@@ -91,22 +92,32 @@ def _limits():
 
 
 # ── split ──────────────────────────────────────────────────────────────────────────────────────────
-def split_seasons(states: pd.DataFrame, heldout_season: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """-> (train, heldout). The held-out season and every heldout-flagged row are set aside; the guard runs on
-    the training game ids; the leakage guard runs on the training design matrix."""
+def later_seasons(states: pd.DataFrame, heldout_season: str) -> list:
+    """Seasons whose key sorts after the held-out season (YYYY-YY keys sort chronologically); they never fit."""
+    return sorted(s for s in states["season"].astype(str).unique() if s > str(heldout_season))
+
+
+def split_seasons(states: pd.DataFrame, heldout_season: str) -> tuple[pd.DataFrame, pd.DataFrame, list]:
+    """-> (train, heldout, ignored_seasons). The held-out season and every heldout-flagged row are set aside, and
+    every season later than the held-out one is ignored (training on the future of the held-out season would leak
+    the era into it); the guard runs on the training game ids; the leakage guard runs on the training design
+    matrix."""
     if "2015-16" in str(heldout_season) or heldout_season == "":
         raise SystemExit("%s: --heldout-season must name a modelling season (2015-16 never fits or scores here)" % WHO)
     s = states.copy()
     s["season"] = s["season"].astype(str)
+    ignored = later_seasons(s, heldout_season)
     held_mask = (s["season"] == str(heldout_season)) & ~s["heldout"].astype(bool)
-    drop = s["heldout"].astype(bool) | (s["season"] == "2015-16")
+    drop = s["heldout"].astype(bool) | (s["season"] == "2015-16") | s["season"].isin(ignored)
     train = s[~held_mask & ~drop].reset_index(drop=True)
     heldout = s[held_mask].reset_index(drop=True)
     refuse_heldout(sorted(train["game_id"].astype(str).unique()), WHO)
     if "2015-16" in set(train["season"]):
         raise SystemExit("%s: 2015-16 rows reached the training frame" % WHO)
+    if train["season"].gt(str(heldout_season)).any():
+        raise SystemExit("%s: a season later than the held-out season reached the training frame" % WHO)
     schema.assert_time_forward(F.design(train), "states_1hz")
-    return train, heldout
+    return train, heldout, ignored
 
 
 # ── models ─────────────────────────────────────────────────────────────────────────────────────────
@@ -311,6 +322,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "| training seasons | %s (%d events, %d games) |" % (", ".join(ctx["train_seasons"]), ctx["train_rows"], ctx["train_games"]),
           "| held-out season | %s (%d events, %d games), set aside before any fit |" % (ctx["heldout_season"], ctx["heldout_rows"], ctx["heldout_games"]),
           "| rows flagged heldout (sportvu/splits.json games) dropped | %d |" % ctx["dropped_heldout_rows"],
+          "| seasons later than the held-out season, ignored (never fitted or scored) | %s |"
+          % (("%s (%d events)" % (", ".join(ctx["ignored_seasons"]), ctx["ignored_rows"])) if ctx["ignored_seasons"] else "none"),
           "| guard | `analytics.eval.refuse_heldout` checked %d training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |" % ctx["train_games"],
           "| closing spread coverage (training games) | %s |" % _f(ctx["spread_coverage"], 3),
           "| possession known (training events) | %s |" % _f(ctx["possession_known"], 3),
@@ -372,7 +385,7 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "## Mac command", "", "The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<season>.parquet, collect/extras/odds/<season>.parquet when present):", "",
           "    " + MAC_CMD, "",
           "## Assumptions", "",
-          "- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game.",
+          "- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).",
           "- 2015-16 games of sportvu/splits.json never fit anything: rows flagged heldout are dropped, the 2015-16 season is refused as a held-out season, and refuse_heldout runs on the training ids.",
           "- The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.",
           "- The possession indicator is read from event kinds and is null when the events so far do not say.",
@@ -412,7 +425,7 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
                                           team_names=d.get("team_names"))   # joins the spread once on the full games table
     if viol:
         raise SystemExit("%s: a feature changed when the play-by-play was cut: %s" % (WHO, viol[:3]))
-    train, heldout = split_seasons(states, heldout_season)
+    train, heldout, ignored = split_seasons(states, heldout_season)
     if len(train) == 0:
         raise SystemExit("%s: no training rows after setting season %s aside" % (WHO, heldout_season))
     pred, note = out_of_fold(train, n_folds, seed)
@@ -424,7 +437,8 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
            "files": d["files"], "rows_all": int(len(states)), "games_all": int(states["game_id"].nunique()),
            "seasons": sorted(states["season"].astype(str).unique()), "train_seasons": sorted(train["season"].unique()),
            "train_rows": int(len(train)), "train_games": int(train["game_id"].nunique()), "heldout_season": heldout_season,
-           "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["game_id"].nunique()),
+           "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["game_id"].nunique()), "ignored_seasons": ignored,
+           "ignored_rows": int(states["season"].astype(str).isin(ignored).sum()),
            "dropped_heldout_rows": int(states["heldout"].astype(bool).sum()),
            "spread_coverage": float((train.drop_duplicates("game_id")["spread_missing"] == 0).mean()),
            "possession_known": float(train["possession_home"].notna().mean()),

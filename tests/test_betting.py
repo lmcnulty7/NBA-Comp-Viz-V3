@@ -363,6 +363,27 @@ def test_leak_tripwire_skips_tiny_samples_but_catches_a_copy_at_size(tmp_path):
     assert ctx["train_games"] > 0 and (tmp_path / "r.md").exists()
 
 
+def test_seasons_after_the_heldout_season_are_ignored(tmp_path):
+    """Three fixture seasons with 2021-22 held out: 2022-23 is dropped before the split (never fitted, never scored)
+    and the report lists it as ignored."""
+    assert fx.later_seasons(["2020-21", "2022-23", "2021-22"], "2021-22") == ["2022-23"]
+    assert fx.later_seasons(["2020-21", "2021-22"], None) == []
+    seasons = ("2020-21", "2021-22", "2022-23")
+    d = va.fixture_data(0, n_games=12, seasons=seasons)
+    real = tr._validate.fixture_data
+    try:
+        tr._validate.fixture_data = lambda seed, n_games=12: va.fixture_data(seed, n_games=12, seasons=seasons)
+        ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(tmp_path / "r.md"), "--bootstrap", "5",
+                       "--fixture-games", "12", "--heldout-season", "2021-22"])
+    finally:
+        tr._validate.fixture_data = real
+    assert set(d["games"]["season"]) == set(seasons)
+    assert ctx["ignored_seasons"] == ["2022-23"] and ctx["train_seasons"] == ["2020-21"] and ctx["heldout_season"] == "2021-22"
+    assert "2022-23" not in set(ctx["games"]["season"]) and "2022-23" not in set(ctx["predictions"]["season"])
+    assert "ignored (never fitted, never scored): 2022-23" in (tmp_path / "r.md").read_text()
+    assert not (tmp_path / "analytics" / "betting" / "2022-23").exists()
+
+
 def test_no_em_dash_in_lane_files():
     root = Path(__file__).resolve().parents[1]
     files = [root / "analytics" / "betting" / f for f in ("__init__.py", "validate.py", "eda.py", "features.py", "train.py")]

@@ -1,6 +1,6 @@
 # Betting market model (analytics/betting/train.py)
 
-Written 2026-11-05T09:16:19Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
+Written 2026-11-05T09:44:11Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
 
 **Fixture output, not a result.** This run used the synthetic games and odds of tests/_fx_betting.py; it proves the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through collect/extras.py --odds) that has not been collected.
 
@@ -36,7 +36,7 @@ Written 2026-11-05T09:16:19Z by `python -m analytics.betting.train --fixtures --
 Unit: one game. Targets: home_cover (home margin plus closing home spread above 0; null on a push or without a spread) and clv = margin forecast minus the market margin forecast (minus the closing home spread).
 Features (previous games only): home_net10, away_net10, home_net30, away_net30, home_rest_days, away_rest_days, home_b2b, away_b2b, home_flag, home_pf_std, home_pa_std, away_pf_std, away_pa_std. Guard: analytics.schema.assert_time_forward plus the betting target list and a correlation check against the final margin (over 0.99 refused) on every design matrix.
 Held-out unit: season 2021-22, 40 games set aside before any fit; `analytics.eval.refuse_heldout` checked 40 training game ids.
-Training seasons: 2020-21 (40 games, 38 with a cover label).
+Training seasons: 2020-21 (40 games, 38 with a cover label). Seasons later than the held-out season, ignored (never fitted, never scored): none.
 Selection: out-of-fold under 5 grouped folds by game inside the training seasons (seed 0); cover model by out-of-fold log loss, margin model by out-of-fold MSE; intervals are 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
 Staking rule, fixed in code before scoring (train.py constants): flat 1 unit on the home cover when p_cover > 0.55, on the away cover when 1 - p_cover > 0.55, else no bet; a win returns the collected spread price when the row carries one, else the nominal 0.91 units (vig 4.5 percent a side, about -110); a loss costs one unit, a push returns the stake; ROI is profit over units staked. betting_games carries no spread price, so the run reports the nominal return.

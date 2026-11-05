@@ -43,7 +43,8 @@ def test_fixture_run_end_to_end_writes_report_and_tables(tmp_path):
     assert "Association only, not causal" in first and "causal" in first
     assert "fixture output, not a result" in text and chr(0x2014) not in text
     assert ctx["heldout_rows"] > 0 and ctx["train_rows"] > 0
-    assert set(ctx["heldout_scores"]) == {"mean", "by_action", "ridge"}
+    assert set(ctx["heldout_scores"]) == {"ridge", "mean_floor"}      # the selected model only, plus the labelled floor
+    assert "by_action" not in text.split("## Held-out rows")[1].split("## Status")[0]
     out = tmp_path / "out" / "analytics" / "playcalling" / "2015-16"
     ao = pd.read_parquet(out / "action_outcomes.parquet")
     assert list(ao.columns) == list(F.ACTION_OUTCOMES_COLUMNS) and not ao["heldout"].any()

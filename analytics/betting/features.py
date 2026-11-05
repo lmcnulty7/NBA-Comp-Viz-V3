@@ -218,6 +218,22 @@ def pick_heldout_season(seasons, requested: str | None) -> str | None:
     return None
 
 
+def later_seasons(seasons, heldout_season: str | None) -> list[str]:
+    """Seasons whose key sorts after the held-out season: they are never fitted on (their games postdate the held-out
+    season, so fitting on them would look into the future of the games being scored). Empty without a held-out season."""
+    if not heldout_season:
+        return []
+    return sorted(s for s in set(map(str, seasons)) if s > str(heldout_season))
+
+
+def drop_later_seasons(joined: pd.DataFrame, heldout_season: str | None) -> tuple[pd.DataFrame, list[str]]:
+    """joined without the seasons later than the held-out season -> (frame, the ignored season keys)."""
+    ignored = later_seasons(joined["season"].unique(), heldout_season)
+    if not ignored:
+        return joined, []
+    return joined[~joined["season"].astype(str).isin(ignored)].reset_index(drop=True), ignored
+
+
 def write_games(bg: pd.DataFrame, out_root) -> list[Path]:
     paths = []
     for season, g in bg.groupby("season", sort=True):
@@ -245,7 +261,10 @@ def main(argv=None) -> pd.DataFrame:
     data = _validate.fixture_data(a.seed) if a.fixtures else _validate.load_data(a.data)
     res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     held = pick_heldout_season(res["joined"]["season"].unique(), a.heldout_season)
-    bg = build_games(res["joined"], held, a.out)
+    joined, ignored = drop_later_seasons(res["joined"], held)
+    bg = build_games(joined, held, a.out)
+    if ignored:
+        print("%s: seasons later than the held-out season ignored: %s" % (WHO, ", ".join(ignored)))
     assert_time_forward(design(bg))
     print("%s: %d games, %d seasons, held-out season %s, %d rows with a closing spread, features %s%s"
           % (WHO, len(bg), bg["season"].nunique(), held, int(bg["closing_spread_home"].notna().sum()),

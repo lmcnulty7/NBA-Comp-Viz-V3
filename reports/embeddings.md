@@ -1,6 +1,6 @@
 # Player style embeddings (analytics/embeddings/train.py) (fixture output, not a result)
 
-Written 2026-11-05T08:57:56Z by `python -m analytics.embeddings.train --fixtures --local-fixtures --report reports/embeddings.md --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:42:24Z by `python -m analytics.embeddings.train --fixtures --local-fixtures --report reports/embeddings.md --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from tests/_fx_embeddings.py with planted archetypes. The real run is the Mac command at the end.
 
@@ -43,6 +43,7 @@ Written under a temporary directory (no --out given).
 - NBA.com aggregates are matched by metric name under the listed endpoints; play-type frequency is poss_pct, or a poss count normalised over the play types; a missing play type is 0, a missing metric NaN (median-imputed at fit). The 2016-17 file supplies the next-season target only.
 - Positions (player_id, season, position in G, F, C) are a needed input at collect/positions.parquet or collect/tracking/positions/<season>.parquet; without them the 5-NN metric is n/a and PCA stands (the gate cannot be evaluated).
 - Insufficient rows (under 20 possessions; 300 in the contract) are written to player_season_features but never fitted, embedded or scored.
+- The NBA.com season aggregates and the positions table are season-level and include the held-out games' minutes; no held-out row is fitted, but those season totals are not held-out-free. There is no flag to drop the aggregate block yet: a tracked-era run without it is the run without collect/tracking/aggregates present (the block is then NaN and unused).
 - The shared fixtures (analytics.fixtures) key their positions and aggregates by other player ids than their games, so on them both metrics read n/a; the lane's local generator (tests/_fx_embeddings.py, 5 Hz, planted G/F/C archetypes, aligned ids) is what exercises the metrics. Fixture output is never a result.
 
 ## Mac command

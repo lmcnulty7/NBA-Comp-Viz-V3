@@ -11,6 +11,23 @@ Dtype classes: `string` (object or pandas string), `int` (any integer dtype, nul
 present and noted when absent. Duplicate rows on the key are a note, not a failure (consumers de-duplicate on
 their key; a producer may write out-of-fold rows per fold).
 
+## Fold convention
+
+Every interface or lane table that carries a `fold` column uses one convention (`analytics.interfaces.FOLD_*`):
+`fold >= 0` is an out-of-fold row (scored by the model of the grouped CV fold that held it out), `fold == -1` is a
+held-out game scored once by the model refit on every training row, and `fold == -2` is an in-sample row (scored by
+a model fitted on it; descriptive tables only, never a reported score). `check_frame(name, df, path=...)` returns a
+note for `fold == -2` rows in a file outside `heldout/` (a training folder) and for any fold below -2, so a consumer
+sees which rows are not out-of-fold scores.
+
+## Held-out isolation check
+
+`analytics.fixtures.write_fixture_root` puts the real held-out id `12.16.2015.PHX.at.GSW` in its first held-out
+slot. The shared DATA_ROOT part asserts, for every lane, that no file named after a held-out token (that id and
+every token of `sportvu/splits.json`) sits outside `heldout/` in the lane's output folders, that any rows naming
+such a game in a single-file table outside `heldout/` carry `heldout == True` and `fold == -1`, and that no
+"Training games" line of the lane's report under `OUT_ROOT/reports/` names it. Nothing depends on a manifest.
+
 Every number produced by these lanes so far is fixture output: no real SportVU, play-by-play, NBA.com or odds
 row is in the repository, and nothing below is a result.
 
@@ -54,7 +71,7 @@ Key `(sportvu_game, event)`.
 | `event` | int | the shot's play-by-play event id (section 10) |
 | `player_id` | int, nullable | shooter id |
 | `p_selected` | float | the selected candidate's probability (the shot-quality column consumers join) |
-| `fold` | int | grouped CV fold; -1 for held-out rows scored once |
+| `fold` | int | fold convention: >= 0 out-of-fold, -1 held-out scored once, -2 in-sample |
 | `p_location` | float, optional | the location-only candidate's out-of-fold make probability |
 | `p_contest` | float, optional | the contest logistic candidate's out-of-fold make probability |
 | `made` | bool, optional | the outcome (never a feature downstream) |
@@ -72,7 +89,7 @@ Producer `epv`; consumers `decisions`, `playcalling`. Path `OUT_ROOT/analytics/e
 | `frame` | int | the 1 Hz state's frame (section 20) |
 | `epv_points` | float | expected points of the possession from this state, out of fold or held-out scored once |
 | `heldout` | bool, optional | the game is held out |
-| `fold` | int, optional | grouped CV fold |
+| `fold` | int, optional | fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample |
 
 ## actions_detected
 
@@ -107,7 +124,7 @@ Producer `coverage`; consumer `playcalling`. Path `OUT_ROOT/analytics/coverage/<
 | `p_<class>` | float, optional | class probabilities in [0, 1], summing to 1 |
 | `coverage_label` | string, optional (nullable) | the hand label; null for an unlabelled or detected screen |
 | `heldout` | bool, optional | the game is held out |
-| `fold` | int, optional | grouped CV fold |
+| `fold` | int, optional | fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample |
 
 ## player_rapm
 

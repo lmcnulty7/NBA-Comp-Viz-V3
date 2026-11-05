@@ -68,6 +68,7 @@ HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf
 FULL_RUN_CMD = ("python -m analytics.xfg.train --data \"$DATA_ROOT\" --report reports/xfg.md --folds 5 --seed 0 "
                 "--bootstrap 1000")
 PREDICTION_COLUMNS = ["sportvu_game", "event", "player_id", "p_location", "p_contest", "p_selected", "made", "fold", "heldout"]
+FOLD_HELDOUT, FOLD_IN_SAMPLE = -1, -2     # fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample (never written: no one-game mode)
 
 
 def _threads(n: int = 1):
@@ -312,7 +313,7 @@ def predictions_table(pred: pd.DataFrame, heldout: pd.DataFrame, selected: str, 
                           "player_id": pd.to_numeric(heldout["player_id"], errors="coerce").astype("Int64"),
                           "p_location": held("location_logistic"), "p_contest": held("contest_logistic"),
                           "p_selected": heldout_p[selected].astype("float32"), "made": heldout["made"].astype(bool),
-                          "fold": np.int16(-1), "heldout": True})
+                          "fold": np.int16(FOLD_HELDOUT), "heldout": True})
         rows = pd.concat([rows, h], ignore_index=True)
     rows["heldout"] = rows["heldout"].astype(bool)
     return rows[PREDICTION_COLUMNS]

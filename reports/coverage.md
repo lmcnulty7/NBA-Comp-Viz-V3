@@ -1,6 +1,6 @@
 # Coverage recognition: pick-and-roll defensive coverage (analytics/coverage)
 
-Written 2026-11-05T09:01:34Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:44:37Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
 
 ## Status
 
@@ -12,7 +12,7 @@ No hand labels exist yet (STATUS.md): this run read the synthetic fixture season
 | --- | --- |
 | games with frames | 8 (held out: 2) |
 | games with labels but no frames | 0 |
-| label reader; first-pass filter dropped (actions, screens) | fixture; 0, 0 |
+| label reader; rows of another labeller pass that reached the trainer, must be 0 (actions, screens) | fixture; 0, 0 |
 | action rows read / kept | 320 / 320 |
 | ball_screen actions | 136 |
 | screen rows read / kept | 136 / 136 |
