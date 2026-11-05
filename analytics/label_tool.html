@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Action Label Tool</title>
+<style>
+  :root { --bg:#f4f4f2; --panel:#ffffff; --ink:#1d1d1b; --muted:#6b6b66; --line:#d7d7d2; --court:#e9d9b7; --paint:#d9c4a0;
+          --home:#1f5fbf; --away:#c8371f; --ball:#e58a1f; --accent:#0a7a4f; --warn:#b4231a; --sel:#fff3bf; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; align-items:center; gap:16px; padding:8px 16px; background:var(--panel); border-bottom:1px solid var(--line); }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .meta { color:var(--muted); font-size:13px; }
+  main { display:grid; grid-template-columns: minmax(360px, 560px) 1fr; gap:16px; padding:16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; }
+  #court-wrap { width:100%; }
+  svg { width:100%; height:auto; display:block; background:var(--court); border-radius:6px; }
+  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px; }
+  .controls input[type=range] { flex:1 1 200px; }
+  button { font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:6px; background:#fafaf8; cursor:pointer; }
+  button:hover { background:#efefeb; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button.danger { color:var(--warn); }
+  .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:13px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin:4px 0; }
+  .kv b { font-weight:600; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; border:1px solid var(--line); background:#fafaf8; }
+  .pill.on { background:var(--sel); border-color:#e0c86a; }
+  .types { display:flex; flex-wrap:wrap; gap:6px; }
+  .types button { padding:3px 8px; }
+  .types button.on { background:var(--sel); border-color:#e0c86a; font-weight:600; }
+  #status { margin-top:8px; min-height:20px; color:var(--muted); }
+  #status.err { color:var(--warn); }
+  #status.ok { color:var(--accent); }
+  ul.labels { list-style:none; margin:6px 0 0; padding:0; }
+  ul.labels li { padding:6px 8px; border-top:1px solid var(--line); display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  ul.labels li.sel { background:var(--sel); }
+  ul.labels li .grow { flex:1 1 auto; }
+  ul.labels li.screen { padding-left:28px; color:#333; }
+  .keys { columns:2; column-gap:18px; font-size:12.5px; color:var(--muted); }
+  .keys div { break-inside:avoid; }
+  kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:12px; background:#ecece8; border:1px solid var(--line); border-radius:4px; padding:0 5px; }
+  .legend span { display:inline-flex; align-items:center; gap:4px; margin-right:12px; font-size:12.5px; }
+  .legend i { width:12px; height:12px; border-radius:50%; display:inline-block; border:2px solid transparent; }
+  h2 { font-size:14px; margin:0 0 6px; }
+  .section { margin-top:12px; }
+  .hidden { display:none; }
+  .small { font-size:12.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Action Label Tool</h1>
+  <span class="meta" id="hdr-game">loading</span>
+  <span class="meta" id="hdr-pass"></span>
+  <span style="flex:1"></span>
+  <button id="btn-prev" title="previous possession (p)">prev</button>
+  <span class="mono" id="poss-pos">0 / 0</span>
+  <button id="btn-next" title="next possession (n)">next</button>
+</header>
+<main>
+  <section class="card">
+    <div id="court-wrap">
+      <svg id="svg" viewBox="0 0 500 470">
+        <g id="court" fill="none" stroke="#7a6240" stroke-width="2"></g>
+        <g id="dots"></g>
+        <g id="ball-g"><circle id="ball" r="7" fill="var(--ball)" stroke="#7a3d00" stroke-width="2"></circle></g>
+      </svg>
+    </div>
+    <div class="controls">
+      <button id="btn-play" title="space">play</button>
+      <input id="scrub" type="range" min="0" max="0" value="0" step="1">
+      <select id="speed" title="[ and ] change speed">
+        <option value="0.25">0.25x</option><option value="0.5">0.5x</option><option value="1" selected>1x</option>
+        <option value="2">2x</option><option value="4">4x</option>
+      </select>
+      <button id="btn-full" title="f toggles half and full court">full court</button>
+    </div>
+    <div class="row mono">
+      <span id="frame-counter">frame</span>
+      <span id="clock">clock</span>
+      <span id="shot-clock"></span>
+      <span id="downsampled" class="small"></span>
+    </div>
+    <div class="legend row">
+      <span><i style="background:var(--home)"></i>home</span>
+      <span><i style="background:var(--away)"></i>away</span>
+      <span><i style="background:#ddd;border-color:#f5c400"></i>ball handler</span>
+      <span><i style="background:#ddd;border-color:#0a7a4f"></i>screener</span>
+      <span><i style="background:#ddd;border-color:#7b2cbf"></i>on-ball defender</span>
+      <span><i style="background:#ddd;border-color:#e58a1f"></i>screener's defender</span>
+      <span>offence drawn solid, defence hollow</span>
+    </div>
+    <div id="status"></div>
+  </section>
+
+  <section class="card">
+    <div class="row kv" id="poss-info"></div>
+
+    <div class="section" id="action-panel">
+      <h2>Action <span class="small" id="mode-tag"></span></h2>
+      <div class="types" id="type-buttons"></div>
+      <div class="row">
+        <span class="pill" id="p-start">start: <b>?</b></span>
+        <span class="pill" id="p-end">end: <b>?</b></span>
+        <span class="pill" id="p-handler">handler: <b>?</b></span>
+        <span class="pill" id="p-screener">screener: <b>?</b></span>
+      </div>
+      <div class="row">
+        <button id="btn-start">mark start (s)</button>
+        <button id="btn-end">mark end (e)</button>
+        <button id="btn-handler">set handler (h, then click)</button>
+        <button id="btn-screener">set screener (c, then click)</button>
+        <button class="primary" id="btn-save">save (enter)</button>
+        <button id="btn-clear">clear (esc)</button>
+      </div>
+    </div>
+
+    <div class="section" id="cov-panel">
+      <h2>Coverage <span class="small" id="cov-target">select a ball_screen in the list, then press v</span></h2>
+      <div class="types" id="cov-buttons"></div>
+      <div class="row">
+        <span class="pill" id="p-onball">on-ball defender: <b>?</b></span>
+        <span class="pill" id="p-scrdef">screener's defender: <b>?</b></span>
+        <span class="pill" id="p-conf">confidence: <b>sure</b></span>
+      </div>
+      <div class="row">
+        <button id="btn-cov-mode">coverage mode (v)</button>
+        <button id="btn-onball">set on-ball defender (h, then click)</button>
+        <button id="btn-scrdef">set screener's defender (c, then click)</button>
+        <button id="btn-conf">toggle sure/unsure (u)</button>
+        <button class="primary" id="btn-cov-save">save coverage (enter)</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Labels in this possession</h2>
+      <ul class="labels" id="label-list"></ul>
+    </div>
+
+    <div class="section">
+      <h2>Keys</h2>
+      <div class="keys">
+        <div><kbd>space</kbd> play / pause</div>
+        <div><kbd>left</kbd> <kbd>right</kbd> one frame, with <kbd>shift</kbd> ten frames</div>
+        <div><kbd>home</kbd> <kbd>end</kbd> first / last frame</div>
+        <div><kbd>[</kbd> <kbd>]</kbd> slower / faster</div>
+        <div><kbd>1</kbd> to <kbd>7</kbd> action type (coverage class in coverage mode)</div>
+        <div><kbd>s</kbd> mark start, <kbd>e</kbd> mark end</div>
+        <div><kbd>h</kbd> then click: ball handler (on-ball defender in coverage mode)</div>
+        <div><kbd>c</kbd> then click: screener (screener's defender in coverage mode)</div>
+        <div><kbd>enter</kbd> save, <kbd>esc</kbd> clear or leave coverage mode</div>
+        <div><kbd>v</kbd> coverage mode for the selected ball_screen</div>
+        <div><kbd>u</kbd> toggle sure / unsure</div>
+        <div><kbd>j</kbd> jump to the selected action's start</div>
+        <div><kbd>n</kbd> <kbd>p</kbd> next / previous possession</div>
+        <div><kbd>f</kbd> half court / full court</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  // Court geometry in feet (corner origin, 94 x 50), the same vertices as court/court33.py.
+  var COURT_L = 94, COURT_W = 50, SCALE = 10;
+  var RIM_X = 5.25, RIM_Y = 25, RIM_R = 0.75, BACKBOARD_X = 4, KEY_W = 16, FT_X = 19, FT_R = 6,
+      RESTRICTED_R = 4, THREE_R = 23.75, THREE_SIDE_Y = 2.99, THREE_SIDE_X = 13.92, CENTER_R = 6, MID_X = 46.99;
+
+  var ACTION_KEYS = ["ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut"];
+  var COVERAGE_KEYS = ["switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over"];
+
+  var S = {
+    idx: 0, n: 0, data: null, fi: 0, playing: false, timer: null, speed: 1, full: false, attackRight: true,
+    mode: "action", clickRole: null, selected: null,
+    pend: { type: null, start: null, end: null, handler: null, screener: null },
+    cov: { coverage: null, onball: null, scrdef: null, confidence: "sure" }
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------------------------------------------------------------- court drawing
+  function halfCourtPath(mirror) {
+    // one basket end drawn in court coordinates; mirror = true draws the right end (x -> 94 - x)
+    var X = function (x) { return (mirror ? COURT_L - x : x) * SCALE; };
+    var Y = function (y) { return y * SCALE; };
+    var sweep = mirror ? 0 : 1;
+    var p = [];
+    // paint
+    p.push("M" + X(0) + " " + Y(RIM_Y - KEY_W / 2) + " L" + X(FT_X) + " " + Y(RIM_Y - KEY_W / 2) +
+           " L" + X(FT_X) + " " + Y(RIM_Y + KEY_W / 2) + " L" + X(0) + " " + Y(RIM_Y + KEY_W / 2));
+    // free-throw circle
+    p.push("M" + X(FT_X) + " " + Y(RIM_Y - FT_R) + " A" + FT_R * SCALE + " " + FT_R * SCALE + " 0 0 " + sweep + " " +
+           X(FT_X) + " " + Y(RIM_Y + FT_R));
+    p.push("M" + X(FT_X) + " " + Y(RIM_Y - FT_R) + " A" + FT_R * SCALE + " " + FT_R * SCALE + " 0 0 " + (1 - sweep) + " " +
+           X(FT_X) + " " + Y(RIM_Y + FT_R));
+    // backboard and rim
+    p.push("M" + X(BACKBOARD_X) + " " + Y(RIM_Y - 3) + " L" + X(BACKBOARD_X) + " " + Y(RIM_Y + 3));
+    p.push("M" + X(RIM_X - RIM_R) + " " + Y(RIM_Y) + " A" + RIM_R * SCALE + " " + RIM_R * SCALE + " 0 1 0 " +
+           X(RIM_X + RIM_R) + " " + Y(RIM_Y) + " A" + RIM_R * SCALE + " " + RIM_R * SCALE + " 0 1 0 " + X(RIM_X - RIM_R) + " " + Y(RIM_Y));
+    // restricted area
+    p.push("M" + X(RIM_X) + " " + Y(RIM_Y - RESTRICTED_R) + " A" + RESTRICTED_R * SCALE + " " + RESTRICTED_R * SCALE + " 0 0 " + sweep + " " +
+           X(RIM_X) + " " + Y(RIM_Y + RESTRICTED_R));
+    // three-point line: two straight sides then the arc between their ends
+    var dy = RIM_Y - THREE_SIDE_Y;
+    var ax = RIM_X + Math.sqrt(THREE_R * THREE_R - dy * dy);
+    p.push("M" + X(0) + " " + Y(THREE_SIDE_Y) + " L" + X(THREE_SIDE_X) + " " + Y(THREE_SIDE_Y) + " L" + X(ax) + " " + Y(THREE_SIDE_Y) +
+           " A" + THREE_R * SCALE + " " + THREE_R * SCALE + " 0 0 " + sweep + " " + X(ax) + " " + Y(COURT_W - THREE_SIDE_Y) +
+           " L" + X(THREE_SIDE_X) + " " + Y(COURT_W - THREE_SIDE_Y) + " L" + X(0) + " " + Y(COURT_W - THREE_SIDE_Y));
+    return p.join(" ");
+  }
+
+  function drawCourt() {
+    var g = $("court");
+    var html = "";
+    html += '<rect x="0" y="0" width="' + COURT_L * SCALE + '" height="' + COURT_W * SCALE + '" fill="none"/>';
+    html += '<rect x="0" y="' + (RIM_Y - KEY_W / 2) * SCALE + '" width="' + FT_X * SCALE + '" height="' + KEY_W * SCALE + '" fill="var(--paint)" stroke="none"/>';
+    html += '<rect x="' + (COURT_L - FT_X) * SCALE + '" y="' + (RIM_Y - KEY_W / 2) * SCALE + '" width="' + FT_X * SCALE + '" height="' + KEY_W * SCALE + '" fill="var(--paint)" stroke="none"/>';
+    html += '<path d="' + halfCourtPath(false) + '"/>';
+    html += '<path d="' + halfCourtPath(true) + '"/>';
+    html += '<line x1="' + MID_X * SCALE + '" y1="0" x2="' + MID_X * SCALE + '" y2="' + COURT_W * SCALE + '"/>';
+    html += '<circle cx="' + MID_X * SCALE + '" cy="' + RIM_Y * SCALE + '" r="' + CENTER_R * SCALE + '"/>';
+    g.innerHTML = html;
+    applyView();
+  }
+
+  // screen coordinates: the attacked basket at the top of the picture
+  function toScreen(x, y) {
+    if (S.attackRight) return [y * SCALE, (COURT_L - x) * SCALE];
+    return [(COURT_W - y) * SCALE, x * SCALE];
+  }
+
+  function applyView() {
+    var g = $("court");
+    // u = a x + c y + e ; v = b x + d y + f   (SVG matrix(a b c d e f)), in units already scaled by 10
+    g.setAttribute("transform", S.attackRight ? "matrix(0 -1 1 0 0 " + COURT_L * SCALE + ")" : "matrix(0 1 -1 0 " + COURT_W * SCALE + " 0)");
+    $("svg").setAttribute("viewBox", "0 0 " + COURT_W * SCALE + " " + (S.full ? COURT_L * SCALE : (COURT_L / 2) * SCALE));
+    $("btn-full").textContent = S.full ? "half court" : "full court";
+  }
+
+  // ---------------------------------------------------------------- players
+  function playerLabel(pid) {
+    if (pid === null || pid === undefined) return "?";
+    var p = S.data && S.data.players[String(pid)];
+    if (!p) return String(pid);
+    return (p.jersey ? "#" + p.jersey + " " : "") + p.name;
+  }
+
+  function buildDots() {
+    var g = $("dots");
+    var html = "";
+    var ids = Object.keys(S.data.players);
+    ids.forEach(function (k) {
+      var p = S.data.players[k];
+      var col = p.home ? "var(--home)" : "var(--away)";
+      var off = p.side === "offense";
+      html += '<g class="dot" data-pid="' + k + '" style="cursor:pointer">' +
+              '<circle r="13" fill="' + (off ? col : "#fff") + '" stroke="' + col + '" stroke-width="3"/>' +
+              '<circle class="ring" r="17" fill="none" stroke="none" stroke-width="3"/>' +
+              '<text text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="' + (off ? "#fff" : col) + '">' +
+              (p.jersey || "") + '</text></g>';
+    });
+    g.innerHTML = html;
+    Array.prototype.forEach.call(g.querySelectorAll("g.dot"), function (el) {
+      el.addEventListener("click", function () { onPlayerClick(parseInt(el.getAttribute("data-pid"), 10)); });
+    });
+  }
+
+  function ringColour(pid) {
+    if (S.mode === "coverage") {
+      if (pid === S.cov.onball) return "#7b2cbf";
+      if (pid === S.cov.scrdef) return "#e58a1f";
+      var a = selectedAction();
+      if (a && pid === a.ball_handler_id) return "#f5c400";
+      if (a && pid === a.screener_id) return "#0a7a4f";
+    } else {
+      if (pid === S.pend.handler) return "#f5c400";
+      if (pid === S.pend.screener) return "#0a7a4f";
+    }
+    return "none";
+  }
+
+  function renderFrame() {
+    if (!S.data || !S.data.frames.length) return;
+    var fr = S.data.frames[S.fi];
+    var seen = {};
+    fr.players.forEach(function (p) {
+      var el = $("dots").querySelector('g.dot[data-pid="' + p[0] + '"]');
+      if (!el) return;
+      var uv = toScreen(p[1], p[2]);
+      el.setAttribute("transform", "translate(" + uv[0].toFixed(1) + " " + uv[1].toFixed(1) + ")");
+      el.style.display = "";
+      el.querySelector(".ring").setAttribute("stroke", ringColour(p[0]));
+      seen[p[0]] = true;
+    });
+    Array.prototype.forEach.call($("dots").querySelectorAll("g.dot"), function (el) {
+      if (!seen[el.getAttribute("data-pid")]) el.style.display = "none";
+    });
+    var b = $("ball");
+    if (fr.ball && fr.ball[0] !== null) {
+      var uv2 = toScreen(fr.ball[0], fr.ball[1]);
+      b.setAttribute("cx", uv2[0].toFixed(1)); b.setAttribute("cy", uv2[1].toFixed(1));
+      b.setAttribute("r", (6 + Math.min(8, Math.max(0, (fr.ball[2] || 0) - 4))).toFixed(1));
+      b.style.display = "";
+    } else { b.style.display = "none"; }
+    $("scrub").value = S.fi;
+    $("frame-counter").textContent = "frame " + fr.frame + " (" + (S.fi + 1) + "/" + S.data.frames.length + ")";
+    $("clock").textContent = "Q" + S.data.possession.period + " " + fmtClock(fr.clock);
+    $("shot-clock").textContent = fr.shot_clock === null ? "" : "shot " + fr.shot_clock.toFixed(1);
+  }
+
+  function fmtClock(s) {
+    if (s === null || s === undefined) return "--:--";
+    var m = Math.floor(s / 60), r = s - m * 60;
+    return m + ":" + (r < 10 ? "0" : "") + r.toFixed(1);
+  }
+
+  // ---------------------------------------------------------------- playback
+  function effFps() { return (S.data ? S.data.fps : 25) / (S.data && S.data.downsampled ? 2 : 1); }
+  function play() {
+    if (!S.data) return;
+    S.playing = true; $("btn-play").textContent = "pause";
+    clearInterval(S.timer);
+    S.timer = setInterval(function () {
+      if (S.fi >= S.data.frames.length - 1) { pause(); return; }
+      S.fi += 1; renderFrame();
+    }, 1000 / (effFps() * S.speed));
+  }
+  function pause() { S.playing = false; clearInterval(S.timer); S.timer = null; $("btn-play").textContent = "play"; }
+  function togglePlay() { if (S.playing) pause(); else play(); }
+  function step(k) { if (!S.data) return; pause(); S.fi = Math.max(0, Math.min(S.data.frames.length - 1, S.fi + k)); renderFrame(); }
+  function setSpeed(v) { S.speed = v; $("speed").value = String(v); if (S.playing) play(); }
+  function curFrame() { return S.data ? S.data.frames[S.fi].frame : null; }
+  function jumpToFrame(f) {
+    if (!S.data) return;
+    var best = 0, bd = Infinity;
+    S.data.frames.forEach(function (fr, i) { var d = Math.abs(fr.frame - f); if (d < bd) { bd = d; best = i; } });
+    pause(); S.fi = best; renderFrame();
+  }
+
+  // ---------------------------------------------------------------- labels state
+  function selectedAction() {
+    if (!S.data || S.selected === null) return null;
+    for (var i = 0; i < S.data.labels.actions.length; i++) if (S.data.labels.actions[i].action_id === S.selected) return S.data.labels.actions[i];
+    return null;
+  }
+
+  function setStatus(msg, cls) { var el = $("status"); el.textContent = msg || ""; el.className = cls || ""; }
+
+  function renderPending() {
+    $("type-buttons").innerHTML = ACTION_KEYS.map(function (t, i) {
+      return '<button data-type="' + t + '" class="' + (S.pend.type === t ? "on" : "") + '">' + (i + 1) + " " + t + "</button>";
+    }).join("");
+    Array.prototype.forEach.call($("type-buttons").querySelectorAll("button"), function (b) {
+      b.addEventListener("click", function () { S.pend.type = b.getAttribute("data-type"); renderPending(); });
+    });
+    $("cov-buttons").innerHTML = COVERAGE_KEYS.map(function (t, i) {
+      return '<button data-cov="' + t + '" class="' + (S.cov.coverage === t ? "on" : "") + '">' + (i + 1) + " " + t + "</button>";
+    }).join("");
+    Array.prototype.forEach.call($("cov-buttons").querySelectorAll("button"), function (b) {
+      b.addEventListener("click", function () { S.cov.coverage = b.getAttribute("data-cov"); enterCoverage(); renderPending(); });
+    });
+    $("p-start").innerHTML = "start: <b>" + (S.pend.start === null ? "?" : S.pend.start) + "</b>";
+    $("p-end").innerHTML = "end: <b>" + (S.pend.end === null ? "?" : S.pend.end) + "</b>";
+    $("p-handler").innerHTML = "handler: <b>" + playerLabel(S.pend.handler) + "</b>";
+    $("p-screener").innerHTML = "screener: <b>" + (S.pend.screener === null ? "none" : playerLabel(S.pend.screener)) + "</b>";
+    $("p-onball").innerHTML = "on-ball defender: <b>" + playerLabel(S.cov.onball) + "</b>";
+    $("p-scrdef").innerHTML = "screener's defender: <b>" + playerLabel(S.cov.scrdef) + "</b>";
+    $("p-conf").innerHTML = "confidence: <b>" + S.cov.confidence + "</b>";
+    var a = selectedAction();
+    $("cov-target").textContent = a ? (a.action_type === "ball_screen" ? "for ball_screen " + a.action_id + " (" + playerLabel(a.ball_handler_id) + " off " + playerLabel(a.screener_id) + ")" : "selected action " + a.action_id + " is not a ball_screen") : "select a ball_screen in the list, then press v";
+    $("mode-tag").textContent = S.mode === "coverage" ? "(coverage mode: keys go to the coverage panel)" : (S.clickRole ? "(click a player to set the " + S.clickRole + ")" : "");
+    $("action-panel").style.opacity = S.mode === "coverage" ? 0.55 : 1;
+    $("cov-panel").style.opacity = S.mode === "coverage" ? 1 : 0.7;
+    renderFrame();
+  }
+
+  function renderLabels() {
+    var ul = $("label-list");
+    var acts = S.data.labels.actions, scrs = S.data.labels.screens;
+    if (!acts.length) { ul.innerHTML = '<li class="small">no labels yet</li>'; return; }
+    var html = "";
+    acts.forEach(function (a) {
+      html += '<li class="' + (a.action_id === S.selected ? "sel" : "") + '" data-aid="' + a.action_id + '">' +
+              '<span class="mono">' + a.action_id + "</span> <b>" + a.action_type + "</b> " +
+              '<span class="mono">' + a.start_frame + " to " + a.end_frame + "</span> " +
+              "<span class=\"grow\">" + playerLabel(a.ball_handler_id) + (a.screener_id !== null ? " with " + playerLabel(a.screener_id) : "") +
+              ' <span class="small">pass ' + a.labeller_pass + "</span></span>" +
+              '<button data-sel="' + a.action_id + '">select</button>' +
+              '<button class="danger" data-del-action="' + a.action_id + '">delete</button></li>';
+      scrs.filter(function (s) { return s.action_id === a.action_id; }).forEach(function (s) {
+        html += '<li class="screen"><span class="mono">' + s.screen_id + "</span> coverage <b>" + s.coverage + "</b> " +
+                '<span class="grow">' + playerLabel(s.on_ball_defender_id) + " and " + playerLabel(s.screener_defender_id) +
+                " (" + s.confidence + ', pass ' + s.labeller_pass + ")</span>" +
+                '<button class="danger" data-del-screen="' + s.screen_id + '">delete</button></li>';
+      });
+    });
+    ul.innerHTML = html;
+    Array.prototype.forEach.call(ul.querySelectorAll("button[data-sel]"), function (b) {
+      b.addEventListener("click", function () { selectAction(parseInt(b.getAttribute("data-sel"), 10)); });
+    });
+    Array.prototype.forEach.call(ul.querySelectorAll("button[data-del-action]"), function (b) {
+      b.addEventListener("click", function () { deleteLabel("action", parseInt(b.getAttribute("data-del-action"), 10)); });
+    });
+    Array.prototype.forEach.call(ul.querySelectorAll("button[data-del-screen]"), function (b) {
+      b.addEventListener("click", function () { deleteLabel("screen", parseInt(b.getAttribute("data-del-screen"), 10)); });
+    });
+  }
+
+  function selectAction(aid) {
+    S.selected = aid;
+    var a = selectedAction();
+    if (a) jumpToFrame(a.start_frame);
+    renderLabels(); renderPending();
+  }
+
+  function clearPending() {
+    S.pend = { type: null, start: null, end: null, handler: null, screener: null };
+    S.clickRole = null;
+    renderPending();
+  }
+
+  function enterCoverage() {
+    var a = selectedAction();
+    if (!a) {
+      // default to the last ball_screen of the possession
+      var bs = S.data.labels.actions.filter(function (x) { return x.action_type === "ball_screen"; });
+      if (!bs.length) { setStatus("coverage needs a saved ball_screen action: label one first", "err"); return false; }
+      S.selected = bs[bs.length - 1].action_id; a = selectedAction(); renderLabels();
+    }
+    if (a.action_type !== "ball_screen") { setStatus("the selected action is a " + a.action_type + ", coverages attach to ball screens only", "err"); return false; }
+    S.mode = "coverage"; S.clickRole = null;
+    renderPending();
+    return true;
+  }
+
+  function leaveCoverage() {
+    S.mode = "action"; S.clickRole = null;
+    S.cov = { coverage: null, onball: null, scrdef: null, confidence: "sure" };
+    renderPending();
+  }
+
+  function onPlayerClick(pid) {
+    var role = S.clickRole;
+    if (S.mode === "coverage") {
+      if (role === "screener's defender") S.cov.scrdef = pid; else S.cov.onball = pid;
+    } else {
+      if (role === "screener") S.pend.screener = pid; else S.pend.handler = pid;
+    }
+    S.clickRole = null;
+    setStatus("set " + (role || (S.mode === "coverage" ? "on-ball defender" : "ball handler")) + " to " + playerLabel(pid));
+    renderPending();
+  }
+
+  // ---------------------------------------------------------------- server
+  function api(method, path, body) {
+    var opts = { method: method, headers: {} };
+    if (body !== undefined) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    return fetch(path, opts).then(function (r) {
+      return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("HTTP " + r.status)); return j; });
+    });
+  }
+
+  function loadPossession(i) {
+    pause();
+    setStatus("loading possession " + i);
+    return api("GET", "/possession?index=" + i).then(function (d) {
+      S.data = d; S.idx = d.index; S.n = d.n; S.fi = 0; S.selected = null;
+      S.mode = "action"; S.cov = { coverage: null, onball: null, scrdef: null, confidence: "sure" };
+      S.pend = { type: null, start: null, end: null, handler: null, screener: null }; S.clickRole = null;
+      // attack side: where the ball spends the second half of the possession
+      var sum = 0, k = 0;
+      d.frames.slice(Math.floor(d.frames.length / 2)).forEach(function (f) { if (f.ball && f.ball[0] !== null) { sum += f.ball[0]; k++; } });
+      S.attackRight = k ? (sum / k) > COURT_L / 2 : true;
+      applyView();
+      $("scrub").max = Math.max(0, d.frames.length - 1); $("scrub").value = 0;
+      $("hdr-game").textContent = d.game;
+      $("hdr-pass").textContent = "labeller pass " + d.meta.labeller_pass + (d.meta.sample ? ", sample n=" + d.meta.sample.n + " seed " + d.meta.sample.seed : "");
+      $("poss-pos").textContent = (d.index + 1) + " / " + d.n;
+      var p = d.possession;
+      $("poss-info").innerHTML = "<span>possession <b>" + p.possession + "</b></span><span>Q" + p.period + " " + fmtClock(p.start_clock_s) + " to " + fmtClock(p.end_clock_s) + "</span>" +
+        "<span>frames <span class=\"mono\">" + p.start_frame + " to " + p.end_frame + "</span></span>" +
+        "<span>offence " + teamName(p.offense_team_id) + "</span><span>end " + p.end_kind + (p.points !== null ? " (" + p.points + " pts)" : "") + "</span>" +
+        '<span class="pill ' + (p.half_court ? "on" : "") + '">half court</span><span class="pill ' + (p.screen_candidate ? "on" : "") + '">screen candidate</span>';
+      $("downsampled").textContent = d.downsampled ? "(every second frame: " + d.frames.length + " shown)" : "";
+      buildDots(); renderLabels(); renderPending();
+      setStatus("possession " + p.possession + " loaded; " + d.labels.actions.length + " action(s), " + d.labels.screens.length + " coverage(s)");
+    }).catch(function (e) { setStatus(e.message, "err"); });
+  }
+
+  function teamName(tid) {
+    if (tid === null || tid === undefined) return "unknown";
+    var ks = Object.keys(S.data.players);
+    for (var i = 0; i < ks.length; i++) { var p = S.data.players[ks[i]]; if (p.team_id === tid) return p.team + (p.home ? " (home)" : " (away)"); }
+    return String(tid);
+  }
+
+  function saveAction() {
+    var p = S.pend;
+    if (!p.type) return setStatus("pick an action type (1 to 7)", "err");
+    if (p.start === null || p.end === null) return setStatus("mark start (s) and end (e)", "err");
+    if (p.handler === null) return setStatus("set the ball handler (h, then click a player)", "err");
+    var s = Math.min(p.start, p.end), e = Math.max(p.start, p.end);
+    var body = { kind: "action", possession: S.data.possession.possession, action_type: p.type, start_frame: s, end_frame: e,
+                 ball_handler_id: p.handler, screener_id: p.screener };
+    api("POST", "/label", body).then(function (r) {
+      S.data.labels = r.labels;
+      setStatus("saved " + r.label.action_type + " " + r.label.action_id + " (" + s + " to " + e + ")", "ok");
+      S.selected = r.label.action_id;
+      clearPending(); renderLabels();
+    }).catch(function (err) { setStatus("not saved: " + err.message, "err"); });
+  }
+
+  function saveCoverage() {
+    var a = selectedAction();
+    if (!a || a.action_type !== "ball_screen") return setStatus("select a ball_screen first (v)", "err");
+    var c = S.cov;
+    if (!c.coverage) return setStatus("pick a coverage (1 to 7 in coverage mode)", "err");
+    if (c.onball === null || c.scrdef === null) return setStatus("set both defenders (h and c, then click)", "err");
+    var body = { kind: "screen", possession: S.data.possession.possession, action_id: a.action_id, coverage: c.coverage,
+                 on_ball_defender_id: c.onball, screener_defender_id: c.scrdef, confidence: c.confidence };
+    api("POST", "/label", body).then(function (r) {
+      S.data.labels = r.labels;
+      setStatus("saved coverage " + r.label.coverage + " on action " + a.action_id, "ok");
+      leaveCoverage(); renderLabels();
+    }).catch(function (err) { setStatus("not saved: " + err.message, "err"); });
+  }
+
+  function deleteLabel(kind, id) {
+    api("POST", "/delete", { kind: kind, id: id }).then(function (r) {
+      S.data.labels = r.labels;
+      if (kind === "action" && S.selected === id) { S.selected = null; if (S.mode === "coverage") leaveCoverage(); }
+      setStatus("deleted " + kind + " " + id, "ok");
+      renderLabels(); renderPending();
+    }).catch(function (err) { setStatus(err.message, "err"); });
+  }
+
+  function nextPossession(k) {
+    var i = S.idx + k;
+    if (i < 0 || i >= S.n) { setStatus(i < 0 ? "this is the first possession" : "this is the last possession"); return; }
+    loadPossession(i);
+  }
+
+  // ---------------------------------------------------------------- keys
+  document.addEventListener("keydown", function (ev) {
+    var tag = (ev.target && ev.target.tagName) || "";
+    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") { if (ev.key === " " || ev.key === "Enter") ev.target.blur(); else return; }
+    var k = ev.key;
+    if (k === " ") { ev.preventDefault(); togglePlay(); return; }
+    if (k === "ArrowRight") { ev.preventDefault(); step(ev.shiftKey ? 10 : 1); return; }
+    if (k === "ArrowLeft") { ev.preventDefault(); step(ev.shiftKey ? -10 : -1); return; }
+    if (k === "Home") { ev.preventDefault(); step(-1e9); return; }
+    if (k === "End") { ev.preventDefault(); step(1e9); return; }
+    if (k === "[") { setSpeed(Math.max(0.25, S.speed / 2)); return; }
+    if (k === "]") { setSpeed(Math.min(4, S.speed * 2)); return; }
+    if (k === "n") { nextPossession(1); return; }
+    if (k === "p") { nextPossession(-1); return; }
+    if (k === "f") { S.full = !S.full; applyView(); renderFrame(); return; }
+    if (k === "j") { var a = selectedAction(); if (a) jumpToFrame(a.start_frame); return; }
+    if (k === "v") { if (S.mode === "coverage") leaveCoverage(); else enterCoverage(); return; }
+    if (k === "u") { S.cov.confidence = S.cov.confidence === "sure" ? "unsure" : "sure"; renderPending(); return; }
+    if (k === "Escape") { if (S.mode === "coverage") leaveCoverage(); else clearPending(); setStatus(""); return; }
+    if (k === "Enter") { ev.preventDefault(); if (S.mode === "coverage") saveCoverage(); else saveAction(); return; }
+    if (k >= "1" && k <= "7") {
+      var i = parseInt(k, 10) - 1;
+      if (S.mode === "coverage") S.cov.coverage = COVERAGE_KEYS[i]; else S.pend.type = ACTION_KEYS[i];
+      renderPending(); return;
+    }
+    if (S.mode === "coverage") {
+      if (k === "h") { S.clickRole = "on-ball defender"; renderPending(); setStatus("click the on-ball defender"); return; }
+      if (k === "c") { S.clickRole = "screener's defender"; renderPending(); setStatus("click the screener's defender"); return; }
+      return;
+    }
+    if (k === "s") { S.pend.start = curFrame(); renderPending(); return; }
+    if (k === "e") { S.pend.end = curFrame(); renderPending(); return; }
+    if (k === "h") { S.clickRole = "ball handler"; renderPending(); setStatus("click the ball handler"); return; }
+    if (k === "c") { S.clickRole = "screener"; renderPending(); setStatus("click the screener"); return; }
+  });
+
+  // ---------------------------------------------------------------- buttons
+  $("btn-play").addEventListener("click", togglePlay);
+  $("scrub").addEventListener("input", function () { pause(); S.fi = parseInt(this.value, 10) || 0; renderFrame(); });
+  $("speed").addEventListener("change", function () { setSpeed(parseFloat(this.value)); });
+  $("btn-full").addEventListener("click", function () { S.full = !S.full; applyView(); renderFrame(); });
+  $("btn-prev").addEventListener("click", function () { nextPossession(-1); });
+  $("btn-next").addEventListener("click", function () { nextPossession(1); });
+  $("btn-start").addEventListener("click", function () { S.pend.start = curFrame(); renderPending(); });
+  $("btn-end").addEventListener("click", function () { S.pend.end = curFrame(); renderPending(); });
+  $("btn-handler").addEventListener("click", function () { S.mode = "action"; S.clickRole = "ball handler"; renderPending(); });
+  $("btn-screener").addEventListener("click", function () { S.mode = "action"; S.clickRole = "screener"; renderPending(); });
+  $("btn-save").addEventListener("click", saveAction);
+  $("btn-clear").addEventListener("click", clearPending);
+  $("btn-cov-mode").addEventListener("click", function () { if (S.mode === "coverage") leaveCoverage(); else enterCoverage(); });
+  $("btn-onball").addEventListener("click", function () { if (enterCoverage()) { S.clickRole = "on-ball defender"; renderPending(); } });
+  $("btn-scrdef").addEventListener("click", function () { if (enterCoverage()) { S.clickRole = "screener's defender"; renderPending(); } });
+  $("btn-conf").addEventListener("click", function () { S.cov.confidence = S.cov.confidence === "sure" ? "unsure" : "sure"; renderPending(); });
+  $("btn-cov-save").addEventListener("click", saveCoverage);
+
+  drawCourt();
+  renderPending();
+  var start = parseInt((location.hash || "#0").slice(1), 10) || 0;
+  loadPossession(start);
+})();
+</script>
+</body>
+</html>

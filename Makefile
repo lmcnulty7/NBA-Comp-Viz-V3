@@ -1,0 +1,99 @@
+# Makefile: the Mac run order in one place. `make help` lists the targets; docs/run_order.md has the long form.
+# Variables: PY (interpreter), DATA (real DATA_ROOT; unset means fixtures), OUT (OUT_ROOT for run_all),
+# DATA_ROOT (where `make fixtures` and `make phase0` write and read), SITE_DIR (where `make site` copies the page).
+
+PY ?= python3
+DATA ?=
+OUT ?=
+DATA_ROOT ?= .fixture_root
+SITE_DIR ?= site
+PYTEST ?= $(PY) -m pytest -q
+RUN_ARGS = $(if $(DATA),--data $(DATA),--fixtures)$(if $(OUT), --out $(OUT),)
+
+EXTENSIONS = xfg rebounds matchups gravity ghosting embeddings epv actions coverage decisions playcalling lineups winprob load betting
+
+.PHONY: help test test-fast fixtures phase0 all all-fixtures collect-bref site clean-logs list $(addprefix ext-,$(EXTENSIONS))
+
+help: ## list the targets with their one-line descriptions
+	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/^([a-zA-Z0-9_-]+):.*## (.*)$$/  \1\t\2/' | sort | expand -t 18
+	@echo
+	@echo "  make ext-xfg DATA=/path/to/DATA_ROOT runs on real data; make ext-xfg alone runs on fixtures."
+
+test: ## run every test under tests/
+	$(PYTEST) tests
+
+test-fast: ## run the tests not marked slow
+	$(PYTEST) -m "not slow" tests
+
+fixtures: ## write a synthetic fixture dataset to DATA_ROOT (default .fixture_root) with analytics.fixtures
+	$(PY) -c "from analytics.fixtures import write_fixture_root; write_fixture_root('$(DATA_ROOT)', seed=0, n_games=4, heldout_every=4)"
+	@echo "fixture root: $(DATA_ROOT)"
+
+phase0: ## run analytics.gaps then analytics.run_phase0 on DATA_ROOT (make phase0 DATA_ROOT=/path)
+	$(PY) run_all.py --phase0 --data $(DATA_ROOT)$(if $(OUT), --out $(OUT),)
+
+list: ## print the extension registry with availability
+	$(PY) run_all.py --list
+
+ext-xfg: ## xfg: validate, features, train (DATA=/path for real data, else fixtures)
+	$(PY) run_all.py $(RUN_ARGS) --ext xfg
+
+ext-rebounds: ## rebounds: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext rebounds
+
+ext-matchups: ## matchups: validate, features, train (depends on xfg)
+	$(PY) run_all.py $(RUN_ARGS) --ext matchups
+
+ext-gravity: ## gravity: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext gravity
+
+ext-ghosting: ## ghosting: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext ghosting
+
+ext-embeddings: ## embeddings: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext embeddings
+
+ext-epv: ## epv: validate, states, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext epv
+
+ext-actions: ## actions: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext actions
+
+ext-coverage: ## coverage: validate, features, train (depends on actions)
+	$(PY) run_all.py $(RUN_ARGS) --ext coverage
+
+ext-decisions: ## decisions: validate, features, train (depends on xfg, epv)
+	$(PY) run_all.py $(RUN_ARGS) --ext decisions
+
+ext-playcalling: ## playcalling: validate, features, train (depends on epv, actions)
+	$(PY) run_all.py $(RUN_ARGS) --ext playcalling
+
+ext-lineups: ## lineups: validate, stints, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext lineups
+
+ext-winprob: ## winprob: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext winprob
+
+ext-load: ## load: validate, features, train
+	$(PY) run_all.py $(RUN_ARGS) --ext load
+
+ext-betting: ## betting: validate, features, train (depends on lineups)
+	$(PY) run_all.py $(RUN_ARGS) --ext betting
+
+all: ## every extension in dependency order on real data (make all DATA=/path/to/DATA_ROOT)
+	@test -n "$(DATA)" || (echo "make all needs DATA=/path/to/DATA_ROOT (use make all-fixtures for fixtures)"; exit 2)
+	$(PY) run_all.py --data $(DATA)$(if $(OUT), --out $(OUT),) --all --continue-on-error
+
+all-fixtures: ## every extension in dependency order on fixtures
+	$(PY) run_all.py --fixtures$(if $(OUT), --out $(OUT),) --all --continue-on-error
+
+collect-bref: ## print the collector run order and commands (basketball-reference: 17 requests a minute)
+	$(PY) run_all.py --collectors
+
+site: ## copy portfolio/hiring_manager_page.html to SITE_DIR/index.html (default site/)
+	mkdir -p $(SITE_DIR)
+	cp portfolio/hiring_manager_page.html $(SITE_DIR)/index.html
+	@echo "site: $(SITE_DIR)/index.html"
+
+clean-logs: ## remove logs/run_all and the run_all report
+	rm -rf logs/run_all reports/run_all.md
