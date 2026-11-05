@@ -343,8 +343,16 @@ def test_shared_root_interface_outputs(name, shared_root_runs):
 def _run_all_passes_out_to_train() -> bool:
     """True when run_all.py's train argv carries --out (lane I5 fix); read from the source, not imported."""
     src = (ROOT / "run_all.py").read_text(encoding="utf-8", errors="replace")
-    m = re.search(r"if step == \"train\":(.*?)(?:\n    else:|\n    return)", src, re.S)
-    return bool(m and "--out" in m.group(1))
+    m = re.search(r"\ndef step_argv\(.*?(?=\ndef |\Z)", src, re.S)       # the argv builder of one step
+    body = m.group(0) if m else src
+    out_at, train_at = body.find('"--out"'), body.find('if step == "train"')
+    # --out given to every step (before any train branch), or inside the train branch itself
+    if out_at < 0:
+        return False
+    if train_at < 0 or out_at < train_at:
+        return True
+    branch = re.search(r'if step == "train":(.*?)(?:\n    else:|\n    return)', body, re.S)
+    return bool(branch and '"--out"' in branch.group(1))
 
 
 @pytest.fixture(scope="session")

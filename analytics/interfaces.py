@@ -99,7 +99,7 @@ INTERFACES = {
         columns={"sportvu_game": "string", "possession": "int", "action_id": "int", "action_type": "string",
                  "start_frame": "int", "end_frame": "int", "ball_handler_id": "int", "screener_id": "int?",
                  "label_source": "string"},
-        optional={"labeller_pass": "string", "heldout": "bool"},
+        optional={"labeller_pass": "int?", "heldout": "bool"},
         keys=["sportvu_game", "possession", "action_id"],
         pattern="analytics/actions/<season>/actions_detected/<game>.parquet",
         glob="analytics/actions/**/actions_detected/*.parquet", per_game=True,

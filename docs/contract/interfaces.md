@@ -90,7 +90,7 @@ Key `(sportvu_game, possession, action_id)`.
 | `ball_handler_id` | int | the handler |
 | `screener_id` | int, nullable | the screener for a ball screen |
 | `label_source` | string | `model` for detected rows (`hand` for labels passed through) |
-| `labeller_pass` | string, optional | carried from hand labels |
+| `labeller_pass` | int, optional (nullable) | the labelling pass of a hand label (1 for the first pass); null for detected rows |
 | `heldout` | bool, optional | the game is held out |
 
 ## coverage_predictions
