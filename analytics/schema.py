@@ -144,8 +144,8 @@ ENUMS: dict[tuple[str, str], tuple[str, ...]] = {
 # Label columns: never a feature. assert_time_forward refuses a frame that holds any of them.
 TARGET_COLUMNS: dict[str, set[str]] = {
     "rosters": set(),
-    "shot_frames": {"made", "identity_match"},
-    "rebound_frames": {"rebounder_id", "pbp_rebounder_id", "pbp_rebounder_name", "identity_match"},
+    "shot_frames": {"made", "identity_match", "confidence", "confidence_flag"},
+    "rebound_frames": {"rebounder_id", "pbp_rebounder_id", "pbp_rebounder_name", "identity_match", "confidence", "confidence_flag"},
     "possessions": {"end_kind", "points"},
     "states_1hz": {"points_to_end", "possession_end_kind"},
 }
