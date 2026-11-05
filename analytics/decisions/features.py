@@ -117,7 +117,7 @@ def baskets_by_team_period(frames_sorted: pd.DataFrame, frame_values: np.ndarray
         offx = offx[np.isfinite(offx)]
         if not len(offx):
             continue
-        key = (int(row.offense_team_id), int(row.period))
+        key = (int(row.offense_team_id), int(getattr(row, "period", 0)))
         v = votes.setdefault(key, {"right": 0, "left": 0, "sum_x": 0.0, "n": 0})
         v["right" if basket_of(float(offx.mean())) == RIM_RIGHT else "left"] += 1
         v["sum_x"] += float(offx.sum())
@@ -353,7 +353,7 @@ def decision_contexts(bundle: dict, counts: Optional[dict] = None) -> pd.DataFra
         if bool(getattr(row, "gap", False)):
             counts["possessions_gap"] = counts.get("possessions_gap", 0) + 1
             continue
-        pos = Possession(frames, fv, row, fps, basket=baskets.get((int(row.offense_team_id), int(row.period))))
+        pos = Possession(frames, fv, row, fps, basket=baskets.get((int(row.offense_team_id), int(getattr(row, "period", 0)))))
         if not pos.ok:
             counts["possessions_empty"] = counts.get("possessions_empty", 0) + 1
             continue

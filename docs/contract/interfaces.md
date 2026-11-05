@@ -38,7 +38,9 @@ the decision wins and the entry's `note` in `analytics/interfaces.py` says so.
   reads `predicted` and the `p_<class>` columns. `coverage_features.parquet` and `coverage_team_rates.parquet`
   are not matched by the glob.
 - `player_rapm`: as documented in docs/contract/lineups.md: `season, player_id, rapm, lo, hi, fit_seasons`.
-  No `as_of` and no `team_id`; betting treats its RAPM features as absent.
+  The decision was no `as_of` and no `team_id` (betting treats its RAPM features as absent), but
+  `analytics/lineups/train.py` now also writes `team_id`, `as_of` and `in_sample`, which betting joins when
+  present; they are optional columns here.
 
 ## xfg_predictions
 
@@ -119,6 +121,9 @@ Producer `lineups`; consumers `matchups`, `betting`. Path `OUT_ROOT/analytics/li
 | `rapm` | float | regularised adjusted plus-minus per 100 possessions from the fit on seasons up to and including `season` |
 | `lo`, `hi` | float | bootstrap-by-game interval |
 | `fit_seasons` | string, optional | comma-joined seasons of the fit |
+| `team_id` | int, optional (nullable) | the player's team in that season (written by lineups today) |
+| `as_of` | string, optional | date the value is known (written by lineups today; betting uses values dated before each game only) |
+| `in_sample` | bool, optional | the fit included this season |
 
 ## Discovery convention
 

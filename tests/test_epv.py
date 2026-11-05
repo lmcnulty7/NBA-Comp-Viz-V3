@@ -165,12 +165,17 @@ def test_priors_are_out_of_fold_by_game(season):
     flipped = shots.copy()
     m = flipped["sportvu_game"] == g0
     flipped.loc[m, "made"] = ~flipped.loc[m, "made"].astype(bool)
-    pri2 = F.Priors.from_training(train, flipped, season["rosters"])
+    # same xFG shrinkage target (it is fitted on the whole training fold by design), only the zone statistics differ
+    pri2 = F.Priors(F.shooter_stats(flipped, season["rosters"]), pri.lineup, pri.xfg, pri.tov_rate, pri.train_games)
     feats2 = F.build_features(train, pri2)
     own = (train["sportvu_game"] == g0).to_numpy()
     other = (train["sportvu_game"] == g1).to_numpy()
-    assert np.allclose(feats.loc[own, "handler_fg_prior"], feats2.loc[own, "handler_fg_prior"], atol=0.05)   # only the xFG fit moves
+    assert np.allclose(feats.loc[own, "handler_fg_prior"], feats2.loc[own, "handler_fg_prior"])
     assert not np.allclose(feats.loc[other, "handler_fg_prior"], feats2.loc[other, "handler_fg_prior"], atol=1e-3)
+    # a game outside the training set (a held-out row) gets the full training statistics
+    ho = st[st["heldout"]].reset_index(drop=True)
+    fh = F.build_features(ho, pri)
+    assert fh[F.PRIORS].notna().all().all()
     schema.assert_time_forward(feats, "states_1hz")
 
 

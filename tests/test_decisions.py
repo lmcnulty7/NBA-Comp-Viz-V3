@@ -326,7 +326,9 @@ def test_backcourt_start_is_outvoted_by_the_team_s_half_court_possessions():
     ctx = F.decision_contexts({"sportvu_game": "g", "heldout": False, "frames": frames, "shot_frames": sf, "possessions": poss})
     drives = ctx[(ctx["decision_kind"] == "drive") & (ctx["possession"] == 2)]
     assert len(drives) == 1 and drives["basket_x"].iloc[0] == F.RIM_RIGHT[0]
-    assert (ctx["dist_to_basket_ft"] < 50).all()
+    assert (ctx["basket_x"] == F.RIM_RIGHT[0]).all()
+    assert drives["dist_to_basket_ft"].iloc[0] == pytest.approx(F.RIM_RIGHT[0] - drives["x"].iloc[0], abs=0.01)   # measured to the right rim
+    assert (ctx.loc[ctx["possession"] < 2, "dist_to_basket_ft"] < 20).all()      # the half-court possessions sit at the right rim
 
 
 def test_partial_xfg_coverage_keeps_every_game_and_selects_the_location_prior():

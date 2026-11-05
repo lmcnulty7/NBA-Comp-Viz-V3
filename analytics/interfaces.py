@@ -119,12 +119,13 @@ INTERFACES = {
     "player_rapm": _iface(
         "player_rapm", "lineups", ["matchups", "betting"],
         columns={"season": "string", "player_id": "int", "rapm": "float", "lo": "float", "hi": "float"},
-        optional={"fit_seasons": "string"},
+        optional={"fit_seasons": "string", "team_id": "int?", "as_of": "string", "in_sample": "bool"},
         keys=["season", "player_id"],
         pattern="analytics/lineups/<season>/player_rapm.parquet",
         glob="analytics/lineups/**/player_rapm*.parquet",
-        note="matches docs/contract/lineups.md and the coordinator decision: no team_id and no as_of "
-             "(betting treats its RAPM features as absent)"),
+        note="matches docs/contract/lineups.md; the coordinator decided on no as_of (betting treats its RAPM "
+             "features as absent), but analytics/lineups/train.py now also writes team_id, as_of and "
+             "in_sample, which betting joins when present, so they are optional here"),
 }
 
 INTERFACE_NAMES = tuple(INTERFACES)

@@ -164,7 +164,8 @@ def test_select_misses_is_symmetric_and_counts_the_rest():
     assert c["no_rim_frame"] == 1 and c["no_rebound_event"] == 1 and c["unmatched_named_rebounder"] == 1
     assert c["team_rebounds_kept"] == 1 and c["player_rebounds_kept"] == 4
     assert c["identity_match_null_kept"] == 1 and c["identity_match_false_kept"] == 1 and c["unmatched_flag_kept"] == 1
-    assert set(F.DROP_REASONS) <= set(c) and "identity_match_null" not in c
+    assert {"no_rim_frame", "no_rebound_event", "unmatched_named_rebounder"} <= set(c) and "identity_match_null" not in c
+    assert set(F.INFO_COUNTS) <= set(c)                              # build_game adds the frame-level drop reasons
     assert "rebounder_id" not in kept.columns and "pbp_rebounder_id" not in kept.columns
 
 

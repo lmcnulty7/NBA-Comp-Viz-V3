@@ -295,7 +295,7 @@ def test_seasons_run_shots_and_pbp_with_heldout_tagging(tmp_path, monkeypatch, c
     monkeypatch.setattr(seasons, "LOCAL_PBP_DIR", local)
     capsys.readouterr()
     seasons.main(["--shots-seasons", "--pbp-seasons", "2015-16", "--out", str(out), "--retry-failed", "--season-types", "Regular Season", "Playoffs"])
-    assert "estimated requests: 3 (5 pending units, 2 pages already cached)" in capsys.readouterr().out
+    assert "estimated requests: 4 (5 pending units, 1 pages already cached)" in capsys.readouterr().out   # the data/pbp file is not a cached page
     assert len(calls) == n + 3
     units = json.loads((out / "bref_seasons" / "manifest.json").read_text())["units"]
     assert units["playbyplay|2015-16|" + GSW_OKC]["from"] == "data/pbp/%s.json" % GSW_OKC and units["playbyplay|2015-16|201512230CLE"]["from"] == "cache"
