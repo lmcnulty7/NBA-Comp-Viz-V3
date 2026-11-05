@@ -216,10 +216,12 @@ def games_from_playbyplay(pbp: pd.DataFrame) -> pd.DataFrame:
 
 # ── the state frame ────────────────────────────────────────────────────────────────────────────────
 def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | None = None,
-                 team_names: dict | None = None) -> pd.DataFrame:
+                 team_names: dict | None = None, spreads: pd.Series | None = None) -> pd.DataFrame:
     """Play-by-play, games and (optional) odds -> the winprob_states frame (docs/contract/winprob.md), one row per
     event, sorted by game_id, period, event. Columns: keys, the features, time_bucket, heldout, and the target
-    home_win (the trainer splits the target off before any fit). Never the final score."""
+    home_win (the trainer splits the target off before any fit). Never the final score. spreads (game_id -> home
+    closing spread, from closing_spreads on the full games table) takes precedence over odds when given, so a
+    rebuild from part of a game's events sees the same pre-game spread as the full build."""
     for c in ("game_id", "event", "period", "clock_s", "kind", "score"):
         if c not in pbp.columns:
             raise ValueError("winprob.features: play-by-play lacks column %r" % c)
@@ -251,7 +253,12 @@ def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | No
     target = g[TARGET].astype(bool).astype(int)
     # the finals and the target leave the games table here, before any feature is built
     g = g.drop(columns=[c for c in ("home_score", "away_score", "home_win", "final_margin") if c in g.columns])
-    if odds is not None:
+    if spreads is not None:
+        # pre-game spreads joined once on the full games table (closing_spreads), independent of the events
+        spread = pd.Series(spreads).astype(float)
+        spread.index = spread.index.astype(str)
+        spread = spread.reindex(g.index)
+    elif odds is not None:
         spread = closing_spreads(odds, g.reset_index(), team_names)
     elif "spread_home" in g.columns:
         spread = g["spread_home"].astype(float)
@@ -313,6 +320,10 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
     built from the final margin lands here whether it read the play-by-play or the games table."""
     rng = np.random.default_rng(seed)
     kw = {"team_names": team_names} if team_names is not None else {}
+    if odds is not None:
+        # the pre-game spread is joined once on the full games table: the join (team names inferred from date
+        # co-occurrence when the ids are unknown) is schedule information, not an event, so no cut may change it
+        kw["spreads"] = closing_spreads(odds, games, team_names)
     full = build(pbp, games, odds, **kw)
     cols = [c for c in feature_columns() if c in full.columns]
     gids = sorted(pbp["game_id"].astype(str).unique())
@@ -321,14 +332,6 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
     for gid in pick:
         pg = pbp[pbp["game_id"].astype(str) == gid].sort_values(["period", "event"], kind="stable")
         n = len(pg)
-        g_odds = odds
-        if odds is not None and "commence_time" in odds.columns and "game_date" in games.columns:
-            # only the odds rows within two days of this game's date can join it (one day of tolerance), so the
-            # rebuilds skip the rest of the table
-            gd = pd.to_datetime(games.loc[games["game_id"].astype(str) == gid, "game_date"].astype(str), errors="coerce")
-            tip = pd.to_datetime(odds["commence_time"].astype(str), errors="coerce", utc=True).dt.tz_localize(None)
-            if len(gd) and pd.notna(gd.iloc[0]):
-                g_odds = odds[(tip - gd.iloc[0]).abs() <= pd.Timedelta(days=2)]
         for k in sorted(set(int(v) for v in rng.integers(2, max(3, n - 1), size=cuts))):
             cut = pg.iloc[:k]
             gk = games[games["game_id"].astype(str) == gid].copy()
@@ -337,7 +340,7 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
                 if c in gk.columns:
                     gk[c] = gk[c].astype(int) + int(rng.integers(1, 50))
             gk[TARGET] = ~gk[TARGET].astype(bool)
-            part = build(cut, gk, g_odds, **kw)
+            part = build(cut, gk, odds, **kw)
             ref = full[full["game_id"] == gid].iloc[:k]
             if len(part) != len(ref):
                 out.append((gid, k, "<rows>"))

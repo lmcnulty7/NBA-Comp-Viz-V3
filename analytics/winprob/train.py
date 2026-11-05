@@ -409,7 +409,7 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
         command: str = "", report: str | None = None) -> dict:
     states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     viol = F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=2, cuts=2, seed=seed,
-                                          team_names=d.get("team_names"))
+                                          team_names=d.get("team_names"))   # joins the spread once on the full games table
     if viol:
         raise SystemExit("%s: a feature changed when the play-by-play was cut: %s" % (WHO, viol[:3]))
     train, heldout = split_seasons(states, heldout_season)

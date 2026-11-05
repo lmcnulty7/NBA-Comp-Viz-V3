@@ -50,6 +50,9 @@ ID_COLUMNS = frozenset({"game_id", "season", "game_date", "home_team_id", "away_
                         "n_books", "n_close_snapshots", "used_fallback"})
 REST_CAP = 7
 LEAK_CORR = 0.99   # a disguised copy of the margin sits above 0.999; a real form feature stays under 0.6
+LEAK_MIN_ROWS = 30   # the correlation tripwire needs this many finite rows: on fewer, a rolling mean over one or two
+                     # prior games is degenerate and correlates with anything (the name guard still applies)
+LEAK_MIN_STD = 1e-9  # a constant feature is skipped by the tripwire
 GAMES_COLUMNS = ("game_id", "season", "game_date", "home_team_id", "away_team_id", "closing_spread_home", "closing_total",
                  "implied_home_prob") + FEATURES + ("home_margin", "home_cover", "heldout")
 
@@ -74,7 +77,8 @@ def assert_time_forward(df: pd.DataFrame) -> None:
 
 def assert_no_leak(X: pd.DataFrame, y_margin=None) -> None:
     """assert_time_forward on X, then refuse any column whose absolute correlation with the final margin exceeds
-    LEAK_CORR (a disguised copy of the final margin)."""
+    LEAK_CORR (a disguised copy of the final margin). The correlation tripwire runs only over columns with at least
+    LEAK_MIN_ROWS finite rows and a standard deviation above LEAK_MIN_STD; the name guard always runs."""
     assert_time_forward(X)
     if y_margin is None:
         return
@@ -82,7 +86,7 @@ def assert_no_leak(X: pd.DataFrame, y_margin=None) -> None:
     for c in X.columns:
         x = pd.to_numeric(X[c], errors="coerce").to_numpy(dtype=float)
         ok = np.isfinite(x) & np.isfinite(y)
-        if ok.sum() < 3 or np.std(x[ok]) == 0 or np.std(y[ok]) == 0:
+        if ok.sum() < LEAK_MIN_ROWS or np.std(x[ok]) <= LEAK_MIN_STD or np.std(y[ok]) <= LEAK_MIN_STD:
             continue
         r = abs(float(np.corrcoef(x[ok], y[ok])[0, 1]))
         if r > LEAK_CORR:

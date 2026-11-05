@@ -290,3 +290,20 @@ def test_bounded_slope_agrees_with_eval_calibration_slope():
     assert np.isnan(T.slope(np.ones(10), np.full(10, 0.5)))
     sep = np.clip(np.where(y == 1, 0.999, 0.001), 1e-6, 1 - 1e-6)
     assert np.isfinite(T.slope(y, sep))
+
+
+def test_four_game_fixture_root_runs_end_to_end(tmp_path):
+    """run_all's smallest root (write_fixture_root n_games=4, heldout_every=4): no held-out season present, fixture
+    team ids unknown to the odds feed, so the spread join relies on inference over the whole games table; the probe
+    must see the same spread after a cut."""
+    try:
+        from analytics.fixtures import write_fixture_root
+    except ImportError:
+        pytest.skip("shared fixtures absent")
+    root = tmp_path / "root"
+    write_fixture_root(root, seed=0, n_games=4, heldout_every=4)
+    d = F.load_data(root)
+    assert F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=4, cuts=2, team_names=d["team_names"]) == []
+    ctx = T.run(d, "2024-25", seed=0, n_boot=0, n_folds=2, out_root=tmp_path / "out", fixtures=True, command="pytest",
+                report=str(tmp_path / "r.md"))
+    assert ctx["heldout_rows"] == 0 and ctx["selected"] in T.MODELS and (tmp_path / "r.md").exists()

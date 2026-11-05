@@ -41,8 +41,9 @@ before `game_date` (rolling values shifted by one game within the team's season)
 implied probability are lines, not features: they enter only the CLV target and the ridge model's conversion of a
 margin forecast into a cover probability. `features.assert_time_forward` refuses a feature frame holding any Phase 0
 label (analytics.schema) or any of these target and line columns; `features.assert_no_leak` also refuses a column
-whose absolute correlation with `home_margin` exceeds `LEAK_CORR` (0.99). That correlation check is a name-trick
-tripwire only: it catches a renamed copy of the final margin, not a feature that uses same-game information in a
+whose absolute correlation with `home_margin` exceeds `LEAK_CORR` (0.99), over columns with at least
+`LEAK_MIN_ROWS` (30) finite rows and a non-degenerate standard deviation (on a handful of games a rolling mean over
+one or two prior games correlates with anything). That correlation check is a name-trick tripwire only: it catches a renamed copy of the final margin, not a feature that uses same-game information in a
 subtler way. The time-forward construction (rolling values shifted by one game, tested by mutating a game's own
 score) is what carries the leakage guarantee.
 

@@ -344,6 +344,25 @@ def test_partial_rapm_join_is_imputed_and_the_trainer_runs(tmp_path, data):
     assert (tmp_path / "analytics" / "betting" / season / "betting_predictions.parquet").exists()
 
 
+def test_leak_tripwire_skips_tiny_samples_but_catches_a_copy_at_size(tmp_path):
+    """The I6 case: on a 4-game fixture root a legitimate season-to-date feature correlates 0.999 with the margin, so
+    the correlation tripwire must wait for LEAK_MIN_ROWS rows; above that size a disguised copy still raises, and the
+    name guard applies at any size."""
+    rng = np.random.default_rng(1)
+    y = rng.normal(0, 12, 40)
+    copy = pd.DataFrame({"home_net10": 0.5 * y + rng.normal(0, 0.1, 40), "away_net10": rng.normal(0, 1, 40)})
+    fx.assert_no_leak(copy.iloc[:fx.LEAK_MIN_ROWS - 1], y[:fx.LEAK_MIN_ROWS - 1])          # too few rows: no tripwire
+    with pytest.raises(ValueError, match="built from the outcome"):
+        fx.assert_no_leak(copy, y)
+    with pytest.raises(ValueError):
+        fx.assert_no_leak(copy.iloc[:5].assign(home_margin=y[:5]), y[:5])                  # the name guard at any size
+    fixtures = pytest.importorskip("analytics.fixtures")
+    root = tmp_path / "root"
+    fixtures.write_fixture_root(root, seed=0, n_games=4, heldout_every=4)
+    ctx = tr.main(["--data", str(root), "--out", str(tmp_path / "out"), "--report", str(tmp_path / "r.md"), "--bootstrap", "5"])
+    assert ctx["train_games"] > 0 and (tmp_path / "r.md").exists()
+
+
 def test_no_em_dash_in_lane_files():
     root = Path(__file__).resolve().parents[1]
     files = [root / "analytics" / "betting" / f for f in ("__init__.py", "validate.py", "eda.py", "features.py", "train.py")]

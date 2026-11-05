@@ -456,6 +456,7 @@ def load_inputs(a) -> dict:
 def main(argv=None) -> dict:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     add_input_args(ap)
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (the standard CLI passes it to every step)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s %(levelname)s %(message)s", stream=sys.stderr)
     bundle = load_inputs(a)
