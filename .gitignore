@@ -1,4 +1,6 @@
 # Data frames and model artifacts are large / regenerable — keep them out of git.
+# analytics outputs derived from tracking data stay out of git (reports only)
+analytics/shot_frames/
 data/visibility/_unsorted/
 data/visibility/predicted/
 data/visibility/truth/
