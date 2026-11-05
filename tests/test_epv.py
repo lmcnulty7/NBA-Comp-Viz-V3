@@ -151,7 +151,10 @@ def test_features_come_from_the_allowlist_only_and_pass_the_guard(fallback_game)
     assert np.allclose(lag.loc[first, "ball_x_lag1"], feats.loc[first, "ball_x"])
 
 
-def test_priors_are_out_of_fold_by_game(season):
+def test_priors_are_out_of_fold_by_game():
+    """On the fallback season (the same two teams in every game, so a shooter of one game is a handler in the others;
+    the shared season gives every game its own teams, so there the cross-game check has nothing to move)."""
+    season = V.load_fixtures(0, n_games=4, heldout_every=4, fallback=True)
     st = season["states_1hz"]
     train = st[~st["heldout"]].reset_index(drop=True)
     shots = season["shots"][~season["shots"]["heldout"]].reset_index(drop=True)

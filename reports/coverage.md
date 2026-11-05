@@ -1,10 +1,10 @@
 # Coverage recognition: pick-and-roll defensive coverage (analytics/coverage)
 
-Written 2026-11-05T08:45:09Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-05T09:01:34Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
 
 ## Status
 
-No hand labels exist yet (STATUS.md): this run read the synthetic fixture season (shared generator), so every number below is fixture output, not a result. The real run awaits the hand-label tables of lane ACTIONS under DATA_ROOT/labels/ on the owner's Mac.
+No hand labels exist yet (STATUS.md): this run read the synthetic fixture season (shared generator), so every number below is fixture output, not a result. The generator scripts the two defenders' paths by coverage class, so the classes are separable by construction; the F1 here says nothing about hand labels. The real run awaits the hand-label tables of lane ACTIONS under DATA_ROOT/labels/ on the owner's Mac.
 
 ## Inputs
 
@@ -20,7 +20,8 @@ No hand labels exist yet (STATUS.md): this run read the synthetic fixture season
 | ball_screen actions without a screen label (scored, never fitted) | 0 |
 | detected screens (label_source model; scored, never fitted) | 0 |
 | screens dropped at feature time: no frames, roles untracked, defenders not inferable | 0, 0, 0 |
-| training rows (labelled, training games) | 109 from 6 game(s) |
+| training rows (sure-labelled, training games) | 109 from 6 game(s) |
+| unsure-labelled rows of training games set aside (scored, never fitted) | 0 |
 | held-out rows set aside before any fit | 27 from 2 game(s) |
 
 Guard: `analytics.eval.refuse_heldout` checked 6 training game ids against sportvu/splits.json; `analytics.schema.assert_time_forward` passed on the feature frame.
@@ -37,7 +38,7 @@ Guard: `analytics.eval.refuse_heldout` checked 6 training game ids against sport
 | under | 14 | 0.128 |
 | over | 14 | 0.128 |
 
-Confidence over every labelled screen read: 136 sure, 0 unsure (sure and unsure rows are treated alike; the flag never enters a feature).
+Confidence over every labelled screen read: 136 sure, 0 unsure. Only sure rows fit (docs/contract/labels.md leaves unsure out of the first training set); unsure rows are scored and the flag never enters a feature.
 
 ## Protocol
 
@@ -79,7 +80,9 @@ Selected: hgb. Fixture target: beat majority (met).
 | under | 0 | 0 | 0 | 0 | 0 | 13 | 1 |
 | over | 0 | 0 | 0 | 0 | 0 | 1 | 13 |
 
-## Team rates (predicted class shares per defending team, training games; insufficient under 300 screens)
+## Team rates (predicted class shares per defending team and season, training games; insufficient under 300 screens)
+
+Season 2015-16:
 
 | team_id | n_screens | share_switch | share_drop | share_hedge_show | share_blitz_trap | share_ice | share_under | share_over | insufficient |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -104,18 +107,16 @@ A team marked insufficient has fewer than 300 screens; its shares are shown for 
 
 | model | macro F1 | accuracy | labelled rows |
 | --- | --- | --- | --- |
-| majority | 0.029 | 0.111 | 27 |
-| logistic | 0.918 | 0.926 | 27 |
 | hgb | 0.835 | 0.852 | 27 |
 
-Held-out numbers are point estimates over 2 game(s), no interval.
+Only the selected model is scored on the held-out rows (one look); the numbers are point estimates over 2 game(s), no interval.
 
-## Outputs
+## Outputs (under OUT_ROOT)
 
-- `/tmp/coverage_out_umj4u9f1/analytics/coverage/2015-16/coverage_predictions.parquet`
-- `/tmp/coverage_out_umj4u9f1/analytics/coverage/heldout/2015-16/coverage_predictions.parquet`
-- `/tmp/coverage_out_umj4u9f1/analytics/coverage/2015-16/coverage_team_rates.parquet`
-- `reports/coverage.md`
+- `analytics/coverage/2015-16/coverage_predictions.parquet`
+- `analytics/coverage/heldout/2015-16/coverage_predictions.parquet`
+- `analytics/coverage/2015-16/coverage_team_rates.parquet`
+- `reports/coverage.md (this report, in the repo)`
 
 ## On the Mac (where the labels and frames will be)
 
