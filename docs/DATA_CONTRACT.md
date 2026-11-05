@@ -148,8 +148,8 @@ run that stops resumes where it was. Raw archives and JSON never stay on the VM 
 
 | column | type | meaning |
 | --- | --- | --- |
-| `source` | string | the host the rows came from: `stats.nba.com`, `basketball-reference.com`, `the-odds-api.com`, an archive file |
-| `endpoint` | string | the endpoint or page, e.g. `shotchartdetail`, `gamerotation+playbyplayv2` |
+| `source` | string | the host the rows came from: `stats.nba.com`, `basketball-reference.com`, `bref` (the shot chart fallback, section 10a), `the-odds-api.com`, an archive file |
+| `endpoint` | string | the endpoint or page, e.g. `shotchartdetail`, `gamerotation+playbyplayv2`, `boxscores/shot-chart/<code>.html` |
 | `season` | string | `YYYY-YY` of the request (the odds and injury tables derive it from the date) |
 | `fetched_at` | string | UTC `YYYY-MM-DDTHH:MM:SSZ` of the response (from the raw cache record) |
 
@@ -188,6 +188,43 @@ SportVU join of a later step; the join key is (`sportvu_game`, `period`, `clock_
 | `closest_defender_dist_ft` | float32, nullable | that distance in feet (SportVU join) |
 | `defender_closing_speed_ftps` | float32, nullable | the closest defender's speed toward the shooter at release (SportVU join) |
 | provenance | | section 9 |
+
+## 10a. Shots from basketball-reference: `collect/bref_shots/shotchart/<season>.parquet`
+
+The fallback for section 10 while stats.nba.com is unreachable (`collect/bref_shots.py`): one row per field-goal
+attempt of a SportVU game, parsed from the shot chart page `boxscores/shot-chart/<code>.html` (one page per game,
+at most 17 requests a minute, the page cached under `collect/raw/bref_shotchart/`). Rows of held-out games are
+compacted into `collect/bref_shots/heldout/shotchart/<season>.parquet`. The table carries every section 10 column
+so the two union; the ids NBA.com gives (`game_id`, `event_id`, `player_id`, `team_id`) are null here, and the
+SportVU-derived fields are null until the SportVU join.
+
+| column | type | meaning |
+| --- | --- | --- |
+| `game`, `sportvu_game` | string | `MM.DD.YYYY.AWAY.at.HOME` |
+| `br_code` | string | the basketball-reference box score code, `YYYYMMDD0HOME` (BRK, CHO, PHO for BKN, CHA, PHX) |
+| `player`, `player_slug` | string | the shooter as the page names them, and the basketball-reference player slug (`currystep01`) |
+| `team`, `team_br`, `team_side` | string | the shooter's team as the SportVU abbreviation, as basketball-reference writes it, and `home` or `away` |
+| `period` | int8 | 1..4, 5+ for overtime |
+| `clock_s`, `clock_str` | float32, string | seconds remaining in the period, and the clock as the page printed it |
+| `made` | bool | the marker's `make` or `miss` class |
+| `shot_type` | string | `2PT` or `3PT` |
+| `shot_distance_ft` | float32, nullable | the distance the page states, whole feet |
+| `px_left`, `px_top` | float32 | the marker's position on the 500 x 472 px chart (10 px per foot, baseline at the top, basket at 250, 52.5) |
+| `court_x`, `court_y` | float32 | the shot in the section 1 court frame attacking the LEFT basket (rim at 5.25, 25): `court_x` = 5.25 + feet from the attacked baseline, `court_y` = 25 + feet across (page left is small y) |
+| `basket` | string | `left` for every row as written; `collect.bref_shots.mirror_to_right(x, y)` gives the row for the right basket (94 - x, 50 - y) once the frames say which basket the team attacked in that period |
+| `loc_x`, `loc_y` | float32 | the section 10 convention, tenths of a foot from the basket: `loc_x` across (page right positive; the sign against NBA.com is unverified until a game is collected from both sources), `loc_y` toward half court |
+| `dist_resid_ft` | float32, nullable | pixel distance from the basket minus `shot_distance_ft`: the per-row check of the pixel frame (whole-foot rounding gives up to 0.5 ft) |
+| `desc` | string | the marker's tip text, lines joined with ` \| ` |
+| `game_date`, `home_team`, `away_team`, `split`, `heldout`, `season_type` | | as in section 10 (SportVU abbreviations) |
+| `game_id`, `event_id`, `player_id`, `team_id`, `release_frame`, `closest_defender_id`, `closest_defender_dist_ft`, `defender_closing_speed_ftps` | nullable | null (section 10 columns kept for the union) |
+| provenance | | `source` is `bref`, `endpoint` is `boxscores/shot-chart/<code>.html`, `season` from the game date |
+
+Per game the manifest records `bref_shots` (rows), `markers` (markers on the page), `pbp_shots` (field-goal attempts
+in the play-by-play: the Step 1 `<game>_pbp.parquet`, `data/pbp/<code>.json` or the basketball-reference pbp page
+with `--fetch-pbp`), `pbp_source`, `by_team`, `made` and `calibration`: the basket pixel fitted from the stated
+distances (`hoop_px`, `hoop_shift_px`, `resid_default_ft`, `resid_fit_ft`, `ok`). A unit fails when the fitted
+basket sits more than 10 px from the assumed one, which means the page's pixel frame changed. `--report` prints
+the recovered count against the play-by-play count per game.
 
 ## 11. Aggregates table: `collect/<family>/aggregates/<season>.parquet`
 
