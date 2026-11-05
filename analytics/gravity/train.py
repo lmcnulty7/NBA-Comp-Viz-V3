@@ -69,6 +69,7 @@ RIDGE_ALPHA = 1.0
 HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_depth=4, min_samples_leaf=40)
 TOP_DECILE = 0.10
 TOP_N_REAL = 10
+FIXTURE_MIN_POSSESSIONS = 40   # a fixture season is a few small games: the real-data gate of 300 would gate nobody
 MAC_CMD = ("python -m analytics.gravity.train --data DATA_ROOT --report reports/gravity.md --folds 5 --seed 0 "
            "--bootstrap 1000 --min-possessions 300 --out DATA_ROOT")
 PLAYER_COLUMNS = ["player_id", "n_possessions", "n_frames", "n_games", "gravity_ft", "lo", "hi", "insufficient"]
@@ -484,7 +485,9 @@ def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##"
           "MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by "
           "fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the "
           "location features leave unexplained." % (_f(pair["diff"], 4), _f(pair["lo"], 4), _f(pair["hi"], 4), pair["excludes_zero"], ctx["scores"]["hgb_lower_mse"]),
-          "", "%s Players (gate: %d possessions; %d gated of %d)%s" % (h, ctx["min_possessions"], ctx["n_gated"], ctx["n_players"], tag), "",
+          "", "%s Players (gate: %d possessions%s; %d gated of %d)%s" % (
+              h, ctx["min_possessions"], ", the fixture gate; real data gates at %d" % MIN_POSSESSIONS if fixture else "",
+              ctx["n_gated"], ctx["n_players"], tag), "",
           "| rank | player_id | possessions | gravity_ft | lo | hi |", "| --- | --- | --- | --- | --- | --- |"]
     for i, r in enumerate(ctx["top_decile"]["top"]):
         L.append("| %d | %d | %d | %s | %s | %s |" % (i + 1, r["player_id"], r["n_possessions"], _f(r["gravity_ft"]), _f(r["lo"]), _f(r["hi"])))
@@ -611,6 +614,8 @@ def parse_args(argv=None):
 
 def main(argv=None) -> dict:
     a = parse_args(argv)
+    if a.min_possessions is None:
+        a.min_possessions = FIXTURE_MIN_POSSESSIONS if a.fixtures else MIN_POSSESSIONS
     raw = V.load_games(a, who=WHO)
     source = V.fixture_source(a.fixture_generator) if a.fixtures else ""
     ctx = run_pipeline(raw, a, "default")
