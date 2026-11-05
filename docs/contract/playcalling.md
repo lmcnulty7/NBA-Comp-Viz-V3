@@ -13,9 +13,9 @@ only and never reach `ppp_by_action` or `playcalling_adjusted`. Written by `pyth
 | --- | --- | --- |
 | `sportvu_game` | string | Step 1 game id (docs/DATA_CONTRACT.md section 16) |
 | `possession` | int32 | section 19 possession |
-| `action_id` | int32 | the action's id from the actions input; when absent, its 0-based rank by `start_frame` inside the possession |
-| `action_type` | string | ACTION_TYPES of `analytics/playcalling/__init__.py` (`pick_and_roll`, `isolation`, `post_up`, `handoff`, `off_ball_screen`, `spot_up`, `transition`, `cut`); an unknown upstream value is kept as its own category and counted |
-| `coverage` | string | the hand screen label (`labels/screens`), else the coverage lane's `predicted`, else `none`; COVERAGES are `drop`, `switch`, `hedge`, `blitz`, `ice`, `under`, `none` |
+| `action_id` | int32 | the action's id from the actions input; when absent, the row's 0-based position within its game (jsonl line order, parquet row order: the convention of analytics/coverage and analytics/fixtures) |
+| `action_type` | string | ACTION_TYPES of `analytics/playcalling/__init__.py`, the ACTIONS lane vocabulary (`ball_screen`, `handoff`, `off_ball_screen`, `isolation`, `post_up`, `drive`, `cut`); an unknown upstream value is kept as its own category and counted |
+| `coverage` | string | the hand screen label (`labels/screens`), else the coverage lane's `predicted`, else `none`; COVERAGES are the COVERAGE lane classes `switch`, `drop`, `hedge_show`, `blitz_trap`, `ice`, `under`, `over` plus `none` |
 | `off_lineup` | string, nullable | the five offensive player ids of the possession's first frame, sorted ascending, joined with `-`; null when the first frame is missing or does not split five against five |
 | `def_lineup` | string, nullable | the same for the defence |
 | `ppp` | float32 | OUTCOME: the possession's `points` (section 19) |
@@ -24,7 +24,7 @@ only and never reach `ppp_by_action` or `playcalling_adjusted`. Written by `pyth
 | `score_margin` | float32, nullable | offence minus defence points scored on the earlier possessions of the game (known at the action's start); null when `offense_team_id` is null |
 | `shot_clock_s` | float32, nullable | section 4 `shot_clock_s` at `start_frame` |
 | `period` | int8 | period of the possession |
-| `label_source` | string | `hand`, `detected` or `predicted` (the actions input) |
+| `label_source` | string | as the actions input gives it (`hand`, `human`, `model`, `detected`, `synthetic`; unknown values counted and kept) |
 | `coverage_source` | string | `hand`, `predicted` or `none` (where `coverage` came from) |
 | `start_frame`, `end_frame` | int32 | the action's span (id-like; not features) |
 
@@ -64,13 +64,18 @@ chosen inside each outer fold). Baselines: the training-fold mean and the traini
 
 ## Inputs this lane consumes (assumed interfaces; counted and kept when they differ)
 
-- actions (hand labels `DATA_ROOT/labels/actions/<game>.jsonl`, or `OUT_ROOT/analytics/actions/**.parquet` from the
-  ACTIONS lane for games without hand labels): `sportvu_game`, `possession`, `action_type`, `start_frame`, `end_frame`,
+- actions (hand labels `DATA_ROOT/labels/actions/<game>.jsonl`, or the ACTIONS lane's
+  `OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet` for games without hand labels; files under
+  `action_candidates/` are not read): `sportvu_game`, `possession`, `action_type`, `start_frame`, `end_frame`,
   `ball_handler_id`, `screener_id`, `label_source`, optional `action_id`.
 - screens (`DATA_ROOT/labels/screens/<game>.jsonl`): `sportvu_game`, `possession`, `action_id`, `coverage`.
-- coverage_predictions (`OUT_ROOT/analytics/coverage/**.parquet`, COVERAGE lane): the same keys, `predicted`
-  (or `coverage`) and `p_<class>` columns in [0, 1] summing to about 1.
-- epv_states (`OUT_ROOT/analytics/epv/**.parquet`, EPV lane): `sportvu_game`, `possession`, `frame`, `epv_points`.
+- coverage_predictions (`OUT_ROOT/analytics/coverage/<season>/coverage_predictions.parquet`, COVERAGE lane; the
+  team-rates file beside it is not read): the same keys, `predicted` (or `coverage`) and `p_<class>` columns in
+  [0, 1] summing to about 1.
+- epv_states (every parquet under `OUT_ROOT/analytics/epv/` that holds the columns, EPV lane; this table was not yet
+  produced by that lane when this was written, so the name and columns are this lane's assumption):
+  `sportvu_game`, `possession`, `frame`, `epv_points`.
+- A file lacking a table's required columns is skipped with a count; a path holding `heldout` marks its games held out.
 - possessions (section 19) and frames (section 4), the latter for the first-frame lineups and the shot clock.
 
 Validation (`python -m analytics.playcalling.validate`): required columns (hard failure), duplicates on the key of

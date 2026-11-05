@@ -1,6 +1,6 @@
 # Lineup synergy and stints (analytics/lineups)
 
-Written 2026-11-05T08:40:55Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --report reports/lineups.md --bootstrap 200`.
+Written 2026-11-05T08:42:11Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
 
 **This run used the synthetic fixture (tests/_fx_lineups.synth_stints). Every number below is fixture output, not a result.** The real run is the Mac command at the end.
 
@@ -10,17 +10,17 @@ Written 2026-11-05T08:40:55Z by `python -m analytics.lineups.train --fixtures --
 | --- | --- |
 | source | fixture generator tests._fx_lineups._fallback_synth_stints |
 | seasons | 2020-21, 2021-22, 2022-23 |
-| stints in | 1675 |
-| stints after validate | 1675 |
-| games | 90 |
+| stints in | 2256 |
+| stints after validate | 2256 |
+| games | 120 |
 | lineup_ok share | 1.000 |
 | dropped not 5v5 | 0 |
 | dropped duration | 0 |
 | dropped points | 0 |
 | dropped duplicate | 0 |
 | dropped heldout | 0 |
-| possessions | 9000 |
-| feature frame rows | 1675 |
+| possessions | 12000 |
+| feature frame rows | 2256 |
 
 ## Protocol
 
@@ -28,32 +28,32 @@ Unit: stint; target: (points_home - points_away) / possessions x 100 with posses
 
 ## Candidate table: out-of-season validation within the training seasons (fixture output, not a result)
 
-Fit on 2020-21, predict 2021-22: 4 lineups present in both (109 in the fit seasons, 103 in the target), 4 gated lineups, 36 players, alpha rapm 1000, alpha synergy 1000.
+Fit on 2020-21, predict 2021-22: 10 lineups present in both (119 in the fit seasons, 111 in the target), 4 gated lineups, 36 players, alpha rapm 300, alpha synergy 300.
 
 | candidate | Spearman | MSE | Spearman minus plus_minus (paired) |
 | --- | --- | --- | --- |
-| plus_minus | 1.000 [1.000, 1.000] | 125.027 [118.778, 135.031] | baseline |
-| rapm | 1.000 [1.000, 1.000] | 17.557 [4.106, 30.961] | 0.000 [0.000, 0.000] |
-| rapm_synergy | 1.000 [1.000, 1.000] | 17.734 [5.159, 30.310] | 0.000 [0.000, 0.000] |
+| plus_minus | 0.624 [-0.113, 0.950] | 712.776 [221.103, 1266.230] | baseline |
+| rapm | 0.576 [-0.273, 0.923] | 703.568 [220.711, 1210.533] | -0.048 [-0.297, 0.151] |
+| rapm_synergy | 0.576 [-0.273, 0.923] | 739.105 [204.853, 1302.922] | -0.048 [-0.297, 0.151] |
 
-Mean validation Spearman: plus_minus 1.000, rapm 1.000, rapm_synergy 1.000. Selected: **plus_minus**.
+Mean validation Spearman: plus_minus 0.624, rapm 0.576, rapm_synergy 0.576. Selected: **plus_minus**.
 
 ## Out-of-season correlation of raw lineup net rating (fixture output, not a result)
 
 | from | to | lineups | Pearson | Spearman |
 | --- | --- | --- | --- | --- |
-| 2020-21 | 2021-22 | 4 | 0.964 | 1.000 |
-| 2021-22 | 2022-23 | 4 | 0.952 | 1.000 |
+| 2020-21 | 2021-22 | 10 | 0.606 | 0.624 |
+| 2021-22 | 2022-23 | 6 | 0.831 | 0.829 |
 
 ## Held-out season, scored once (fixture output, not a result)
 
-Season 2022-23 scored once by the candidates refitted on 2020-21, 2021-22: 5 lineups present in both, 4 gated lineups, 36 players, alpha rapm 3000, alpha synergy 3000, home court (rapm intercept) 4.01 per 100.
+Season 2022-23 scored once by the candidates refitted on 2020-21, 2021-22: 8 lineups present in both, 4 gated lineups, 36 players, alpha rapm 1000, alpha synergy 3000, home court (rapm intercept) 1.43 per 100.
 
 | candidate | Spearman | MSE | Spearman minus plus_minus (paired) |
 | --- | --- | --- | --- |
-| plus_minus (selected) | 0.900 [0.247, 1.000] | 115.422 [5.781, 291.693] | baseline |
-| rapm | 1.000 [1.000, 1.000] | 139.366 [45.979, 217.222] | 0.100 [0.000, 0.753] |
-| rapm_synergy | 1.000 [1.000, 1.000] | 126.362 [44.914, 197.598] | 0.100 [0.000, 0.753] |
+| plus_minus (selected) | 0.881 [0.342, 1.000] | 198.677 [39.772, 383.567] | baseline |
+| rapm | 0.857 [0.341, 1.000] | 167.705 [50.270, 313.989] | -0.024 [-0.159, 0.000] |
+| rapm_synergy | 0.786 [0.215, 0.976] | 183.477 [50.150, 341.626] | -0.095 [-0.450, 0.000] |
 
 ## Outputs
 
