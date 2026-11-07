@@ -22,7 +22,6 @@ reports/viz/*.png
 models/*.joblib
 models/*.pkl
 models/emb_cache_*.pkl
-reports/viz/*.png
 reports/metrics.json
 reports/metrics.txt
 
@@ -94,7 +93,6 @@ data/triage/side/
 
 # third-party tracking data (FIX_PLAN): scripts committed, data never
 data/sportvu/
-data/external/
 
 # QC contact sheets (28 MB of jpg, regenerable: track_qc.py --sheets)
 reports/qc_sheets/
@@ -107,3 +105,19 @@ models/court_grid_r23.pt
 
 # collection-plan pulls (collect/): raw responses and parquet live on the Mac or Drive, never in git
 data/collect/
+# rosters tables (analytics/rosters.py): derived from frames parquet on the Mac or Drive, never in git
+analytics/rosters/
+analytics/shot_frames/
+analytics/rebound_frames/
+analytics/possessions/
+
+# run_all.py outputs (lane I5): logs, the run summary, fixture-run reports, the local fixture root, the copied site
+logs/
+reports/run_all.md
+reports/fixtures/
+.fixture_root/
+site/
+
+# human gate signal files for the autonomous loop (docs/mac_runbook.md)
+gates/
+logs/loop/

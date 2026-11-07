@@ -305,3 +305,170 @@ The play-by-play columns of section 5 (NBA.com fields included), `frame` -1, plu
 
 The column mapping (`collect.extras.INJURY_ALIASES`) is by name and is printed per file; check it on the
 first file before trusting the table.
+
+## 16. Rosters table: `analytics/rosters/<season>/<sportvu_game>.parquet`
+
+Sections 16 to 20 are the Phase 0 foundation tables. Each is parquet, one file per game, under
+`analytics/<table>/<season>/<sportvu_game>.parquet`; a game listed as held out in `sportvu/splits.json`
+is written under `analytics/<table>/heldout/<season>/<sportvu_game>.parquet` instead and never fits or
+tunes anything. `sportvu_game` is the Step 1 game id (`MM.DD.YYYY.AWAY.at.HOME`, e.g.
+`12.16.2015.PHX.at.GSW`), the `game` column of sections 4 and 5. Column names, types, nullability and
+the enum vocabularies are encoded in `analytics/schema.py` (`TABLES`, `NULLABLE`, `ENUMS`); `schema.cast`
+gives a frame the contract dtypes (nullable ints as pandas `Int32`) and `schema.validate` lists what a
+frame gets wrong. Frame indices that could not be localised are `-1`.
+
+One row per player on a game's SportVU roster (the distinct `player_id` of the section 4 frames),
+joined to the basketball-reference and play-by-play spellings of the name.
+
+| column | type | meaning |
+| --- | --- | --- |
+| `sportvu_game` | string | Step 1 game id |
+| `player_id` | int32 | NBA player id (section 4) |
+| `player` | string | "First Last" from the SportVU roster |
+| `team_id` | int32 | NBA team id |
+| `team` | string | SportVU abbreviation (GSW, BKN, ...) |
+| `home` | bool | the player's team is the home team |
+| `jersey` | string, nullable | jersey number as the source gives it |
+| `bref_slug` | string, nullable | basketball-reference player slug, e.g. `curryst01`; null when unmatched |
+| `bref_name` | string, nullable | the name as basketball-reference prints it; null when unmatched |
+| `pbp_name` | string, nullable | the name as the play-by-play text prints it; null when unmatched |
+| `match_method` | string | how the names were matched: `exact`, `lastname`, `fuzzy`, `none` |
+
+## 17. Shot frames table: `analytics/shot_frames/<season>/<sportvu_game>.parquet`
+
+One row per field-goal attempt of the play-by-play (`kind` in `shot_made`, `shot_missed`, section 5),
+localised in the frames of section 4.
+
+| column | type | meaning |
+| --- | --- | --- |
+| `sportvu_game` | string | Step 1 game id |
+| `event` | int32 | play-by-play event index (section 5 `event`) |
+| `period` | int8 | period of the event |
+| `clock_s` | float32 | game clock of the event, seconds remaining (the logged clock marks the outcome) |
+| `made` | bool | the shot was made (TARGET) |
+| `pbp_shooter_name` | string, nullable | shooter's name as the play-by-play prints it (POST-OUTCOME) |
+| `shooter_id` | int32, nullable | the shooter's NBA player id from the roster join (section 16); null when unmatched |
+| `release_frame` | int32 | frame of the release; `-1` when not found |
+| `apex_frame` | int32 | frame of the ball's highest point after release; `-1` when not found (POST-OUTCOME) |
+| `outcome_frame` | int32 | frame where the ball falls back through rim height; `-1` when not found (POST-OUTCOME) |
+| `shooter_at_release_id` | int32, nullable | the player nearest the ball at the release frame; null when no release frame |
+| `identity_match` | bool, nullable | `shooter_at_release_id == shooter_id` (TARGET); null when either side is null |
+| `confidence` | float32 | 0 to 1, the localiser's confidence in the release frame |
+| `confidence_flag` | string | `high`, `low`, `unmatched` |
+
+Localisation rules. The candidate window is the frames of the same period whose game clock lies between
+`clock_s - 0.5 s` and `clock_s + 3.0 s`: the logged clock marks the outcome and the release is earlier,
+which is a larger clock value. The release frame is the last frame in the window where the ball is
+within 2.5 ft horizontally of the shooter and below 8 ft, after which the ball height rises for at least
+0.2 s. The apex frame is the frame of the highest ball `z` after the release. The outcome frame is the
+frame where the ball falls back through 10 ft near the rim. A row whose release frame was not found has
+the three frame columns at `-1`, `shooter_at_release_id` null and `confidence_flag` `unmatched`.
+
+## 18. Rebound frames table: `analytics/rebound_frames/<season>/<sportvu_game>.parquet`
+
+One row per missed shot of the play-by-play (`kind` `shot_missed`, plus `ft_missed` on the last free
+throw when the collector pursues it), localised in the frames of section 4 and joined to the play-by-play
+rebound that follows it.
+
+| column | type | meaning |
+| --- | --- | --- |
+| `sportvu_game` | string | Step 1 game id |
+| `event` | int32 | play-by-play event index of the missed shot |
+| `rebound_event` | int32, nullable | play-by-play event index of the rebound (`kind` `rebound`); null when none follows |
+| `period` | int8 | period of the event |
+| `clock_s` | float32 | game clock of the missed shot, seconds remaining |
+| `rim_frame` | int32 | frame where the ball reaches the rim (the section 17 outcome frame); `-1` when not found |
+| `rebound_frame` | int32 | frame where a player first secures the ball after the rim frame; `-1` when not found (POST-OUTCOME) |
+| `rebounder_id` | int32, nullable | the first player within 2 ft of the ball with ball `z` under 7 ft after the rim frame (TARGET) |
+| `pbp_rebounder_name` | string, nullable | rebounder's name as the play-by-play prints it (TARGET) |
+| `pbp_rebounder_id` | int32, nullable | the play-by-play rebounder's NBA player id from the roster join (TARGET); null when unmatched or a team rebound |
+| `identity_match` | bool, nullable | `rebounder_id == pbp_rebounder_id` (TARGET); null when either side is null |
+| `confidence` | float32 | 0 to 1, the localiser's confidence in the rebound frame |
+| `confidence_flag` | string | `high`, `low`, `unmatched` |
+
+Localisation rules. The rim frame is the section 17 outcome frame of the same `event`. After the rim
+frame, the rebound frame is the first frame where some player is within 2 ft of the ball while the
+ball `z` is under 7 ft, and `rebounder_id` is that player. A row with no rim frame has both frame
+columns at `-1`, `rebounder_id` null and `confidence_flag` `unmatched`.
+
+## 19. Possessions table: `analytics/possessions/<season>/<sportvu_game>.parquet`
+
+One row per possession, segmented from the play-by-play of section 5 and spanned onto the frames of
+section 4. Possessions are numbered 0..P-1 within the game in time order.
+
+| column | type | meaning |
+| --- | --- | --- |
+| `sportvu_game` | string | Step 1 game id |
+| `possession` | int32 | 0..P-1 within the game |
+| `period` | int8 | period of the possession |
+| `start_frame` | int32 | first frame of the span |
+| `end_frame` | int32 | last frame of the span (POST-OUTCOME) |
+| `start_clock_s` | float32 | game clock at `start_frame` |
+| `end_clock_s` | float32 | game clock at `end_frame` (POST-OUTCOME) |
+| `start_event` | int32 | play-by-play event index that opens the possession |
+| `end_event` | int32 | play-by-play event index that ends it (POST-OUTCOME) |
+| `offense_team_id` | int32, nullable | NBA team id of the offence; null when it could not be assigned |
+| `end_kind` | string | `shot_made`, `shot_missed`, `free_throws`, `turnover`, `period_end`, `other` (TARGET) |
+| `points` | int16 | points the offence scored on the possession (TARGET) |
+| `gap` | bool | the span holds a frame-to-frame game clock jump over 2 s |
+| `n_frames` | int32 | frames in the span (`end_frame - start_frame + 1` when there is no gap) (POST-OUTCOME) |
+
+Gap rule. `gap` is true when any two consecutive frames inside `[start_frame, end_frame]` differ in
+`game_clock_s` by more than 2 s (the section 4 `gaps_over_2s` rule applied to the span). Frames are not
+interpolated across the gap; a trainer that needs a continuous span filters on `gap == false`.
+
+## 20. States table (1 Hz): `analytics/states_1hz/<season>/<sportvu_game>.parquet`
+
+Defined now, filled in Phase 2. One row per possession per second of play: the frame nearest each
+whole second of elapsed time inside the possession, with the ten players split into the offence and
+the defence of that possession and each side sorted by `player_id` (so `off1_id < off2_id < ... <
+off5_id` and likewise for the defence).
+
+| column | type | meaning |
+| --- | --- | --- |
+| `sportvu_game` | string | Step 1 game id |
+| `possession` | int32 | section 19 possession |
+| `frame` | int32 | the section 4 frame the state is read from |
+| `period` | int8 | period |
+| `game_clock_s` | float32 | game clock at `frame` |
+| `shot_clock_s` | float32, nullable | shot clock at `frame`; null when the source has none |
+| `elapsed_in_possession_s` | float32 | seconds since `start_frame` of the possession |
+| `offense_team_id` | int32 | NBA team id of the offence |
+| `handler_id` | int32, nullable | the offensive player nearest the ball; null when no ball entity |
+| `ball_x`, `ball_y`, `ball_z` | float32 | ball position in feet |
+| `off1_id` .. `off5_id` | int32 | offensive player ids, sorted ascending |
+| `off1_x`, `off1_y` .. `off5_x`, `off5_y` | float32 | their positions in feet, same order |
+| `def1_id` .. `def5_id` | int32 | defensive player ids, sorted ascending |
+| `def1_x`, `def1_y` .. `def5_x`, `def5_y` | float32 | their positions in feet, same order |
+| `handler_nearest_def_dist_ft` | float32, nullable | distance from the handler to the nearest defender; null when no handler |
+| `points_to_end` | int16 | points the offence scores from this state to the end of the possession (TARGET) |
+| `possession_end_kind` | string | the section 19 `end_kind` of the possession: `shot_made`, `shot_missed`, `free_throws`, `turnover`, `period_end`, `other` (TARGET) |
+
+The TARGET columns of every table (`points_to_end`, `possession_end_kind` here; `made`, `identity_match`,
+`rebounder_id`, `pbp_rebounder_id`, `pbp_rebounder_name`, `end_kind`, `points` in sections 17 to 19) and
+the POST-OUTCOME columns of every table (measured at or after the outcome: `apex_frame`, `outcome_frame`,
+`pbp_shooter_name` in section 17; `rebound_frame` in section 18; `end_frame`, `end_clock_s`, `end_event`,
+`n_frames` in section 19) are excluded from every feature frame by `analytics.schema.assert_time_forward`,
+which every trainer calls on its feature frame and which checks the union over all five tables
+(`analytics.schema.ALL_EXCLUDED`), whatever table the frame was built for. `analytics.schema.feature_allowlist`
+lists the columns a trainer may use: neither targets, nor post-outcome columns, nor the id columns
+`sportvu_game`, `event`, `rebound_event`, `possession`, `frame`, `player_id`, `shooter_id`. `release_frame`,
+`rim_frame` and the possession `start_*` columns stay allowed.
+
+## 21. Extension contracts: `docs/contract/`
+
+Each extension and infrastructure lane documents its inputs, output tables, columns, dtypes, paths,
+protocol and leakage rules in its own page. The pages are the contract for the tables written under
+`OUT_ROOT/analytics/<lane>/`; this file stays the contract for the five Phase 0 tables above.
+
+| page | what it specifies |
+| --- | --- |
+| `docs/contract/fixtures.md` | the shared synthetic generator (`analytics/fixtures.py`): every table above plus labels, aggregates, stints, odds; the held-out routing of fixture games |
+| `docs/contract/ingestion.md` | the basketball-reference drivers (`collect/bref_schedule`, `bref_seasons`, `bref_boxscores`, `bref_lineups`, `positions`, `drive`) and the tables they write under `DATA_ROOT/collect/` |
+| `docs/contract/phase0_driver.md` | `analytics.run_phase0` (rosters, shot frames, rebound frames, possessions over a Step 1 manifest) and `analytics.audit_shots` |
+| `docs/contract/labels.md` | hand labels: `labels/{actions,screens,visited}/<game>.jsonl`, the sanctioned reader `analytics.labels.read_labels`, passes and tombstones |
+| `docs/contract/interfaces.md` | the five cross-lane tables: `xfg_predictions`, `epv_states`, `actions_detected`, `coverage_predictions`, `player_rapm` |
+| `docs/contract/xfg.md`, `rebounds.md`, `matchups.md`, `gravity.md`, `ghosting.md`, `embeddings.md`, `epv.md`, `actions.md`, `coverage.md`, `decisions.md`, `playcalling.md`, `lineups.md`, `winprob.md`, `load.md`, `betting.md` | one page per extension: unit, features, candidates, selection and held-out protocol, output tables, CLI |
+
+`docs/run_order.md` gives the order to run everything on the Mac; `analytics/registry.py` holds the
+dependency graph that `run_all.py` and the Makefile follow.

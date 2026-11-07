@@ -126,7 +126,8 @@ def br_events(code: str, fam: common.Family, throttle: common.Throttle, state: d
     try:
         events = fetch_pbp.fetch_game(code)
     except Exception as e:                                      # noqa: BLE001 (classify, then re-raise)
-        if "429" in str(e):
+        status = getattr(getattr(e, "response", None), "status_code", None) or int((re.search(r"(?<!\d)(429|403)(?!\d)", str(e)) or [0, 0])[1])
+        if status == 429:
             state["br_jailed"] = True
             raise BRJailed("basketball-reference HTTP 429 on %s: no more BR requests this run (jail lasts up to a day)" % code)
         raise

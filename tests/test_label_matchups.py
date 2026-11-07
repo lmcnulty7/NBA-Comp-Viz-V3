@@ -39,7 +39,12 @@ def test_report_ignores_unlabeled():
 
 
 def test_build_sample_deterministic_and_stratified():
-    s1 = build_sample(40, seed=42)
+    import pytest
+    from pathlib import Path
+    try:
+        s1 = build_sample(40, seed=42)
+    except FileNotFoundError as e:
+        pytest.skip("needs the local tracking data under data/tracking (not in the repo): %s" % e)
     s2 = build_sample(40, seed=42)
     assert [x["key"] for x in s1] == [x["key"] for x in s2]
     assert len(s1) <= 40 and len(s1) >= 35

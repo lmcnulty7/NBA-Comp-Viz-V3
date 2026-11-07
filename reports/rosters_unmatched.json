@@ -1,0 +1,54 @@
+{
+ "12.16.2015.PHX.at.GSW": {
+  "game": "12.16.2015.PHX.at.GSW",
+  "roster_size": 25,
+  "bref_total": 22,
+  "bref_matched": 22,
+  "pbp_total": 25,
+  "pbp_matched": 25,
+  "methods": {
+   "exact": 25,
+   "lastname": 0,
+   "fuzzy": 0,
+   "none": 0
+  },
+  "unmatched": [],
+  "unnamed_players": []
+ },
+ "11.14.2015.BKN.at.GSW": {
+  "game": "11.14.2015.BKN.at.GSW",
+  "roster_size": 19,
+  "bref_total": 0,
+  "bref_matched": 0,
+  "pbp_total": 0,
+  "pbp_matched": 0,
+  "methods": {
+   "exact": 0,
+   "lastname": 0,
+   "fuzzy": 0,
+   "none": 19
+  },
+  "unmatched": [],
+  "unnamed_players": [
+   "Shaun Livingston",
+   "Andre Iguodala",
+   "Andrew Bogut",
+   "Brandon Rush",
+   "Stephen Curry",
+   "Harrison Barnes",
+   "Festus Ezeli",
+   "Draymond Green",
+   "Ian Clark",
+   "Joe Johnson",
+   "Jarrett Jack",
+   "Andrea Bargnani",
+   "Thaddeus Young",
+   "Brook Lopez",
+   "Wayne Ellington",
+   "Bojan Bogdanovic",
+   "Thomas Robinson",
+   "Shane Larkin",
+   "Rondae Hollis-Jefferson"
+  ]
+ }
+}

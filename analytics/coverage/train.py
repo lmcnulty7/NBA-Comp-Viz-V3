@@ -1,0 +1,492 @@
+"""analytics/coverage/train.py: the coverage classifier under the evaluation protocol.
+
+    python -m analytics.coverage.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/coverage.md
+                                       [--folds 5] [--seed 0] [--bootstrap 200] [--fixture-games 8]
+                                       [--fixture-possessions 40] [--fixture-heldout-every 0]
+
+Steps: load the inputs (analytics.coverage.validate), run every check, build the feature frame
+(analytics.coverage.features; schema.assert_time_forward runs on it), set every held-out row aside
+(analytics.eval.is_heldout_game: a sportvu/splits.json token or the `.at.CLE` arena; or frames under heldout/), call
+analytics.eval.refuse_heldout on the training game ids, then fit three candidates under grouped folds by
+sportvu_game:
+
+    majority    the training-fold class frequencies (predicts the most frequent class)
+    logistic    multinomial logistic regression on the standardised features (median imputation, C = 1)
+    hgb         HistGradientBoostingClassifier (100 trees, depth 3, learning rate 0.1, min 5 rows per leaf)
+
+Selection: out-of-fold macro F1 (ties go to the simpler model); accuracy, per-class F1 and a confusion table
+are reported for the selected model, with 95 percent bootstrap intervals by game. Held-out rows are scored
+once by the selected model refit on every training row, never fitted or tuned on. Unlabelled screens of
+training games (ball_screen actions without a screen label and the detector's screens) are scored the same way.
+
+Outputs (docs/contract/coverage.md): OUT_ROOT/analytics/coverage/<season>/coverage_predictions.parquet (held-out
+rows under heldout/<season>/) and OUT_ROOT/analytics/coverage/<season>/coverage_team_rates.parquet (shares of the
+predicted class per defending team over training-game screens, insufficient under 300 screens via
+analytics.eval.gated, one file per season from that season's rows), plus the markdown report. Rows labelled
+unsure are scored, never fitted (docs/contract/labels.md). Held-out rows are scored by the selected model only.
+
+Fewer games than folds: n_folds becomes the number of training games (leave-one-game-out) and the report says
+so. One training game: in-sample metrics, labelled as such. No deep model here: baselines first. Every fit and
+predict runs inside analytics.eval.fit_threads(); <season> is analytics.schema.season_of_game. A fixture report
+carries "fixture output, not a result" on every section heading and records its command with --out written as
+OUT_ROOT.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import logging
+import sys
+import tempfile
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from analytics import schema
+from analytics.coverage import CLASSES, WHO
+from analytics.coverage.features import design, feature_columns, features
+from analytics.coverage.validate import add_input_args, load_inputs, validate_bundle
+from analytics.eval import bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds, refuse_heldout
+
+log = logging.getLogger("analytics.coverage")
+
+MODELS = ("majority", "logistic", "hgb")
+N_MIN_TEAM = 300
+IN_SAMPLE_FOLD, REFIT_FOLD = -2, -1      # fold convention: >= 0 out-of-fold, -1 scored by the full refit (held-out, unlabelled), -2 in-sample
+MAC_CMD = ('python -m analytics.coverage.train --data "<Drive>/nba_harvest" --out "<Drive>/nba_harvest" '
+           "--report reports/coverage.md --folds 5 --seed 0 --bootstrap 1000")
+PROB_COLUMNS = ["p_" + c for c in CLASSES]
+PREDICTION_COLUMNS = ["sportvu_game", "possession", "action_id", "label_source", "coverage_label"] + PROB_COLUMNS + ["predicted", "fold", "heldout"]
+TEAM_RATE_COLUMNS = ["team_id", "n_screens"] + ["share_" + c for c in CLASSES] + ["insufficient"]
+FIXTURE_TAG = " (fixture output, not a result)"
+
+
+# ── training frame ────────────────────────────────────────────────────────────────────────────────
+def training_frame(feats: pd.DataFrame, counts: dict | None = None) -> tuple:
+    """-> (train, score_only, heldout): sure-labelled rows of training games; unlabelled and unsure rows of training
+    games (scored, never fitted: docs/contract/labels.md leaves confidence == unsure out of the first training set);
+    every held-out row. The guard runs on the training game ids."""
+    counts = counts if counts is not None else {}
+    held = feats["heldout"].astype(bool)
+    lab = feats["coverage_label"].notna()
+    unsure = lab & (feats["label_confidence"].astype("string") == "unsure").fillna(False).astype(bool)
+    counts["train_unsure_set_aside"] = int((~held & unsure).sum())
+    train = feats[~held & lab & ~unsure].reset_index(drop=True)
+    score_only = feats[~held & (~lab | unsure)].reset_index(drop=True)
+    heldout = feats[held].reset_index(drop=True)
+    refuse_heldout(sorted(train["sportvu_game"].unique()), WHO)
+    schema.assert_time_forward(train, "states_1hz")
+    assert not train["heldout"].any()
+    return train, score_only, heldout
+
+
+# ── models ────────────────────────────────────────────────────────────────────────────────────────
+def _align(model_classes, P: np.ndarray) -> np.ndarray:
+    out = np.zeros((len(P), len(CLASSES)))
+    for j, c in enumerate(model_classes):
+        out[:, CLASSES.index(str(c))] = P[:, j]
+    return out
+
+
+def fit_models(train: pd.DataFrame, seed: int = 0) -> dict:
+    """Fit the three candidates on one training frame -> {name: predict(frame) -> (n, 7) probabilities in CLASSES
+    order}. Every fit goes through here, so a test can watch what reaches a fit."""
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.impute import SimpleImputer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+    if train["heldout"].any():
+        raise ValueError("%s: a held-out row reached fit_models" % WHO)
+    if train["coverage_label"].isna().any():
+        raise ValueError("%s: an unlabelled row reached fit_models" % WHO)
+    X, y = design(train), train["coverage_label"].astype(str).to_numpy()
+    freq = np.array([(y == c).mean() for c in CLASSES])
+    out = {"majority": lambda frame, f=freq: np.tile(f, (len(frame), 1))}
+    if len(np.unique(y)) < 2:
+        out["logistic"] = out["hgb"] = out["majority"]
+        return out
+    # one thread per fit: the data is small and the machine is shared, so thread fan-out only costs time
+    with fit_threads():
+        lr = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
+                           LogisticRegression(C=1.0, max_iter=2000)).fit(X.to_numpy(), y)
+        hgb = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf=5,
+                                             l2_regularization=1.0, early_stopping=False, random_state=seed).fit(X.to_numpy(), y)
+
+    def _predict(m):
+        def fn(frame):
+            """(n, 7) probabilities of the fitted model in CLASSES order."""
+            with fit_threads():
+                return _align(m.classes_, m.predict_proba(design(frame).to_numpy()))
+        return fn
+    out["logistic"], out["hgb"] = _predict(lr), _predict(hgb)
+    return out
+
+
+def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int) -> tuple:
+    """-> (fold array, {model: (n, 7) out-of-fold probabilities}, protocol note). With one training game the
+    probabilities are in-sample and every fold is IN_SAMPLE_FOLD (-2)."""
+    games = sorted(train["sportvu_game"].unique())
+    probs = {m: np.full((len(train), len(CLASSES)), np.nan) for m in MODELS}
+    fold = np.full(len(train), -1, dtype=int)
+    if len(games) == 1:
+        models = fit_models(train, seed)
+        for m in MODELS:
+            probs[m][:] = models[m](train)
+        fold[:] = IN_SAMPLE_FOLD
+        note = {"mode": "in-sample", "folds": 0, "games": 1,
+                "text": "one training game: no grouped fold is possible, so the metrics are IN-SAMPLE (fit and scored on the same rows)"}
+        return fold, probs, note
+    k = min(n_folds, len(games))
+    for i, (tr_games, te_games) in enumerate(grouped_folds(games, n_folds=k, seed=seed)):
+        tr, te = train["sportvu_game"].isin(tr_games).to_numpy(), train["sportvu_game"].isin(te_games).to_numpy()
+        models = fit_models(train[tr], seed)
+        for m in MODELS:
+            probs[m][te] = models[m](train[te])
+        fold[te] = i
+    assert all(np.isfinite(p).all() for p in probs.values()) and (fold >= 0).all()
+    text = "out-of-fold under %d grouped folds by sportvu_game (seed %d)" % (k, seed)
+    if k < n_folds:
+        text += "; fewer games (%d) than the %d folds asked, so n_folds = number of games (leave-one-game-out)" % (len(games), n_folds)
+    return fold, probs, {"mode": "out-of-fold", "folds": k, "games": len(games), "text": text}
+
+
+# ── metrics ───────────────────────────────────────────────────────────────────────────────────────
+def predicted(P: np.ndarray) -> np.ndarray:
+    """The most probable class of each row of an (n, 7) probability array."""
+    return np.array(CLASSES, dtype=object)[np.argmax(P, axis=1)]
+
+
+def macro_f1(y, yhat) -> float:
+    """Macro F1 over the classes present in y (sklearn, zero_division = 0)."""
+    from sklearn.metrics import f1_score
+    y, yhat = np.asarray(y, dtype=object), np.asarray(yhat, dtype=object)
+    labels = sorted(set(y.tolist()))
+    return float(f1_score(y, yhat, labels=labels, average="macro", zero_division=0))
+
+
+def accuracy(y, yhat) -> float:
+    """Share of rows whose predicted class is the true class."""
+    return float(np.mean(np.asarray(y, dtype=object) == np.asarray(yhat, dtype=object)))
+
+
+def per_class_f1(y, yhat) -> dict:
+    """{class: F1} over CLASSES (NaN for a class neither true nor predicted)."""
+    from sklearn.metrics import f1_score
+    y, yhat = np.asarray(y, dtype=object), np.asarray(yhat, dtype=object)
+    present = set(y.tolist()) | set(yhat.tolist())
+    f = f1_score(y, yhat, labels=list(CLASSES), average=None, zero_division=0)
+    return {c: (float(v) if c in present else float("nan")) for c, v in zip(CLASSES, f)}
+
+
+def confusion(y, yhat) -> pd.DataFrame:
+    """Rows: true class; columns: predicted class; CLASSES order."""
+    y, yhat = pd.Categorical(y, categories=CLASSES), pd.Categorical(yhat, categories=CLASSES)
+    return pd.crosstab(y, yhat, dropna=False).reindex(index=list(CLASSES), columns=list(CLASSES), fill_value=0)
+
+
+def score(train: pd.DataFrame, probs: dict, n_boot: int, seed: int) -> dict:
+    """{model: {macro_f1: {point, lo, hi}, accuracy: {...}, per_class: {...}, confusion: DataFrame}}."""
+    y = train["coverage_label"].astype(str).to_numpy()
+    games = train["sportvu_game"].astype(str).to_numpy()
+    out = {}
+    for m in MODELS:
+        yhat = predicted(probs[m])
+        d = pd.DataFrame({"game": games, "y": y, "yhat": yhat})
+        res = {}
+        for name, fn in (("macro_f1", macro_f1), ("accuracy", accuracy)):
+            r = bootstrap_by_game(d, "game", lambda s, f=fn: f(s["y"].to_numpy(), s["yhat"].to_numpy()), n=n_boot, seed=seed)
+            if d["game"].nunique() < 2:
+                r = {**r, "lo": float("nan"), "hi": float("nan")}
+            res[name] = r
+        res["per_class"] = per_class_f1(y, yhat)
+        res["confusion"] = confusion(y, yhat)
+        out[m] = res
+    return out
+
+
+def select(scores: dict) -> str:
+    """The model with the highest out-of-fold macro F1; ties go to the earlier (simpler) entry of MODELS."""
+    best = MODELS[0]
+    for m in MODELS[1:]:
+        if scores[m]["macro_f1"]["point"] > scores[best]["macro_f1"]["point"] + 1e-12:
+            best = m
+    return best
+
+
+# ── output tables ─────────────────────────────────────────────────────────────────────────────────
+def prediction_rows(frame: pd.DataFrame, P: np.ndarray, fold) -> pd.DataFrame:
+    """coverage_predictions rows (PREDICTION_COLUMNS) of a feature frame scored with probabilities P."""
+    out = pd.DataFrame({"sportvu_game": frame["sportvu_game"].astype(str).to_numpy(),
+                        "possession": frame["possession"].astype("int32").to_numpy(),
+                        "action_id": frame["action_id"].astype("int32").to_numpy(),
+                        "label_source": frame["label_source"].astype("string").to_numpy(),
+                        "coverage_label": frame["coverage_label"].astype("string").to_numpy()})
+    for j, c in enumerate(CLASSES):
+        out["p_" + c] = P[:, j].astype("float32")
+    out["predicted"] = pd.array(predicted(P), dtype="string")
+    out["fold"] = np.asarray(np.broadcast_to(fold, len(frame)), dtype="int8")
+    out["heldout"] = frame["heldout"].astype(bool).to_numpy()
+    return out[PREDICTION_COLUMNS]
+
+
+def defender_team(feats: pd.DataFrame, games: dict) -> pd.Series:
+    """team_id of the on-ball defender from the rosters table, else from the frames; NaN when unknown."""
+    team = {}
+    for gid, g in games.items():
+        src = g.get("rosters")
+        if src is None or not len(src):
+            src = g["frames"]
+        for pid, tid in src.drop_duplicates("player_id")[["player_id", "team_id"]].itertuples(index=False):
+            team[(gid, int(pid))] = int(tid)
+    keys = list(zip(feats["sportvu_game"].astype(str), feats["on_ball_defender_id"].astype(int)))
+    return pd.Series([team.get(k, np.nan) for k in keys], index=feats.index, dtype=float)
+
+
+def team_rates(pred: pd.DataFrame, team: pd.Series, n_min: int = N_MIN_TEAM) -> pd.DataFrame:
+    """Shares of the predicted class per defending team over training-game screens; insufficient under n_min
+    screens (analytics.eval.gated). Rows without a team are dropped."""
+    d = pred[~pred["heldout"]].copy()
+    d["team_id"] = team.loc[d.index].to_numpy() if len(d) else []
+    d = d[d["team_id"].notna()]
+    if not len(d):
+        return pd.DataFrame(columns=TEAM_RATE_COLUMNS)
+    d["team_id"] = d["team_id"].astype(int)
+    g = gated(d, "team_id", n_min)
+    rows = []
+    for tid, part in g.groupby("team_id"):
+        row = {"team_id": int(tid), "n_screens": int(len(part))}
+        for c in CLASSES:
+            row["share_" + c] = float((part["predicted"] == c).mean())
+        row["insufficient"] = bool(part["insufficient"].any())
+        rows.append(row)
+    return pd.DataFrame(rows, columns=TEAM_RATE_COLUMNS)
+
+
+def rates_by_season(pred: pd.DataFrame, team: pd.Series) -> dict:
+    """{season: team_rates of that season's training-game rows}."""
+    out = {}
+    for season, part in pred[~pred["heldout"]].groupby(pred["sportvu_game"].map(schema.season_of_game)):
+        out[str(season)] = team_rates(part, team)
+    return out
+
+
+def write_tables(pred: pd.DataFrame, rates: dict, out_root) -> list:
+    """-> the written paths relative to OUT_ROOT."""
+    paths = []
+    root = Path(out_root)
+    for (season, held), part in pred.groupby([pred["sportvu_game"].map(schema.season_of_game), pred["heldout"]]):
+        d = root / "analytics" / "coverage" / ("heldout" if held else "") / season
+        d.mkdir(parents=True, exist_ok=True)
+        part.to_parquet(d / "coverage_predictions.parquet", index=False)
+        paths.append((d / "coverage_predictions.parquet").relative_to(root))
+    for season, r in rates.items():
+        d = root / "analytics" / "coverage" / season
+        d.mkdir(parents=True, exist_ok=True)
+        r.to_parquet(d / "coverage_team_rates.parquet", index=False)
+        paths.append((d / "coverage_team_rates.parquet").relative_to(root))
+    return paths
+
+
+# ── report ────────────────────────────────────────────────────────────────────────────────────────
+def write_report(path: Path, ctx: dict) -> str:
+    """The markdown report of a run (ctx from run) written to path; returns the text."""
+    c, s = ctx["counts"], ctx["scores"]
+    best = ctx["best"]
+    L = ["# Coverage recognition: pick-and-roll defensive coverage (analytics/coverage)", "",
+         "Written %s by `%s`." % (ctx["written"], ctx["command"]), "", "## Status", ""]
+    if ctx["fixtures"]:
+        L.append("No hand labels exist yet (STATUS.md): this run read the synthetic fixture season (%s generator), so every "
+                 "number below is fixture output, not a result. The generator scripts the two defenders' paths by coverage "
+                 "class, so the classes are separable by construction; the F1 here says nothing about hand labels. The real "
+                 "run awaits the hand-label tables of lane ACTIONS under DATA_ROOT/labels/ on the owner's Mac." % ctx["fixture_kind"])
+    else:
+        L.append("This run read `%s`. Whether its numbers are a result depends on the label tables it found (counts below); "
+                 "with no hand labels under DATA_ROOT/labels/screens/ nothing here is a result." % ctx["data"])
+    L += ["", "## Inputs", "",
+          "| item | count |", "| --- | --- |",
+          "| games with frames | %d (held out: %d) |" % (c["games"], c["games_heldout"]),
+          "| games with labels but no frames | %d |" % c["games_without_frames"],
+          "| label reader; rows of another labeller pass that reached the trainer, must be 0 (actions, screens) | %s; %d, %d |" % (
+              c.get("label_reader", "n/a"), c.get("actions_other_pass_dropped", 0), c.get("screens_other_pass_dropped", 0)),
+          "| action rows read / kept | %d / %d |" % (c["actions_in"], c["actions_kept"]),
+          "| ball_screen actions | %d |" % c["ball_screen_actions"],
+          "| screen rows read / kept | %d / %d |" % (c["screens_in"], c["screens_kept"]),
+          "| screens dropped: missing value, non-integer, unknown coverage, unknown confidence, duplicate id, no ball_screen action, bad defender ids | %d, %d, %d, %d, %d, %d, %d |" % (
+              c["screens_missing_value"], c["screens_non_integer"], c["screens_unknown_coverage"], c["screens_unknown_confidence"],
+              c["screens_duplicate_id"], c["screens_without_ball_screen_action"], c["screens_bad_defender_ids"]),
+          "| ball_screen actions without a screen label (scored, never fitted) | %d |" % c["ball_screen_actions_without_label"],
+          "| detected screens (label_source model; scored, never fitted) | %d |" % c.get("detected_screens", 0),
+          "| screens dropped at feature time: no frames, roles untracked, defenders not inferable | %d, %d, %d |" % (
+              c["features_dropped_no_frames"], c["features_dropped_roles_untracked"], c["features_dropped_defenders_not_inferable"]),
+          "| training rows (sure-labelled, training games) | %d from %d game(s) |" % (ctx["train_rows"], ctx["train_games"]),
+          "| unsure-labelled rows of training games set aside (scored, never fitted) | %d |" % c.get("train_unsure_set_aside", 0),
+          "| held-out rows set aside before any fit | %d from %d game(s) |" % (ctx["heldout_rows"], ctx["heldout_games"]),
+          "", "Guard: `analytics.eval.refuse_heldout` checked %d training game ids against sportvu/splits.json; "
+          "`analytics.schema.assert_time_forward` passed on the feature frame." % ctx["train_games"],
+          "", "## Label counts (training rows)", "", "| class | n | share |", "| --- | --- | --- |"]
+    for k in CLASSES:
+        n = ctx["label_counts"].get(k, 0)
+        L.append("| %s | %d | %s |" % (k, n, fmt_num(n / ctx["train_rows"] if ctx["train_rows"] else float("nan"))))
+    L += ["", "Confidence over every labelled screen read: %d sure, %d unsure. Only sure rows fit (docs/contract/labels.md leaves "
+          "unsure out of the first training set); unsure rows are scored and the flag never enters a feature." % (ctx["n_sure"], ctx["n_unsure"]),
+          "", "## Protocol", "",
+          "Unit: one ball screen. Window: start_frame to end_frame plus 1.5 s (38 frames at 25 Hz), declared as the object "
+          "being classified; no later frame enters. Features (%d): %s." % (len(feature_columns()), ", ".join(feature_columns())),
+          "Candidates: majority (training-fold class frequencies), multinomial logistic regression (median imputation, "
+          "standardisation, C = 1), HistGradientBoostingClassifier (100 trees, depth 3, learning rate 0.1, min 5 rows per leaf).",
+          "Metrics: %s; macro F1 over the classes present in the truth; intervals are the 2.5 and 97.5 percentiles of %d "
+          "bootstrap resamples of whole games (seed %d)%s. Selection: highest out-of-fold macro F1, ties to the simpler model." % (
+              ctx["protocol"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if ctx["train_games"] < 2 else ""),
+          "", "## Candidates (%s, %d rows, %d game(s))" % (ctx["mode"], ctx["train_rows"], ctx["train_games"]), "",
+          "| model | macro F1 | accuracy | selected |", "| --- | --- | --- | --- |"]
+    for m in MODELS:
+        L.append("| %s | %s | %s | %s |" % (m, fmt_ci(s[m]["macro_f1"]), fmt_ci(s[m]["accuracy"]), "yes" if m == best else ""))
+    L += ["", "Selected: %s. Fixture target: beat majority (%s)." % (
+        best, "met" if s[best]["macro_f1"]["point"] > s["majority"]["macro_f1"]["point"] else "NOT met"),
+          "", "## Per-class F1 (%s, %s)" % (best, ctx["mode"]), "", "| class | F1 |", "| --- | --- |"]
+    for k in CLASSES:
+        L.append("| %s | %s |" % (k, fmt_num(s[best]["per_class"][k])))
+    cm = s[best]["confusion"]
+    L += ["", "## Confusion (%s, %s): rows true, columns predicted" % (best, ctx["mode"]), "",
+          "| true \\ predicted | " + " | ".join(CLASSES) + " |", "| --- |" + " --- |" * len(CLASSES)]
+    for k in CLASSES:
+        L.append("| %s | " % k + " | ".join(str(int(cm.loc[k, j])) for j in CLASSES) + " |")
+    L += ["", "## Team rates (predicted class shares per defending team and season, training games; insufficient under %d screens)" % N_MIN_TEAM]
+    any_rates = False
+    for season, rates in ctx["rates"].items():
+        if not len(rates):
+            continue
+        any_rates = True
+        L += ["", "Season %s:" % season, "",
+              "| team_id | n_screens | " + " | ".join("share_" + k for k in CLASSES) + " | insufficient |",
+              "| --- | --- |" + " --- |" * len(CLASSES) + " --- |"]
+        for r in rates.itertuples(index=False):
+            L.append("| %d | %d | " % (r.team_id, r.n_screens) + " | ".join(fmt_num(getattr(r, "share_" + k)) for k in CLASSES)
+                     + " | %s |" % ("yes" if r.insufficient else "no"))
+    if any_rates:
+        L += ["", "A team marked insufficient has fewer than %d screens; its shares are shown for completeness and are not to be read." % N_MIN_TEAM]
+    else:
+        L += ["", "No team rates: no training-game screen with a known defending team."]
+    L += ["", "## Held-out rows (scored once by %s refit on all %d training rows; never fitted or tuned on)" % (best, ctx["train_rows"]), ""]
+    if ctx["heldout_rows"]:
+        h = ctx["heldout_scores"]
+        L += ["%d screens from %d held-out game(s): %s." % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])),
+              "", "| model | macro F1 | accuracy | labelled rows |", "| --- | --- | --- | --- |",
+              "| %s | %s | %s | %d |" % (best, fmt_num(h["macro_f1"]), fmt_num(h["accuracy"]), h["n_labelled"]), "",
+              "Only the selected model is scored on the held-out rows (one look); the numbers are point estimates over %d game(s), "
+              "no interval." % ctx["heldout_games"]]
+    else:
+        L.append("No held-out rows in this run.")
+    L += ["", "## Outputs (under OUT_ROOT)", ""] + ["- `%s`" % p for p in ctx["paths"]] + [
+        "", "## On the Mac (where the labels and frames will be)", "", "    " + MAC_CMD, "",
+        "## Assumptions", "",
+        "- action_id is the row's position within its game's actions file when the table carries no action_id column.",
+        "- The basket a screen attacks is the one nearer the handler at start_frame.",
+        "- Detected screens (no defender ids) take the opponent nearest the handler as on-ball defender and the opponent "
+        "nearest the screener, other than that one, as the screener's defender.",
+        "- A held-out game is one with a sportvu/splits.json token, the `.at.CLE` arena rule, or frames under heldout/.",
+        "- Team rates use the predicted class of every training-game screen (out-of-fold for labelled rows) so labelled and "
+        "unlabelled screens are counted the same way; the defending team is the on-ball defender's team.",
+        "- The feature frame is checked with `schema.assert_time_forward(frame, \"states_1hz\")`: the screen table is not one "
+        "of the five contract tables, so the nearest per-frame table name is passed; the check is against the union of "
+        "every table's excluded columns whatever the name.",
+        "- The features assume start_frame is the screen moment. In the shared fixture (analytics.fixtures) a ball_screen "
+        "action opens with a 1 s approach and a 1 s hold before the drive, so the `_t0` features describe the approach there; "
+        "the window-wide features carry the class. The hand-label convention is confirmed once labels exist.", ""]
+    if ctx["fixtures"]:      # every section heading carries the label, not only the status paragraph
+        L = [x + FIXTURE_TAG if x.startswith("## ") and not x.endswith(FIXTURE_TAG) else x for x in L]
+    text = "\n".join(L)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return text
+
+
+# ── main ──────────────────────────────────────────────────────────────────────────────────────────
+def parse_args(argv=None):
+    """The train CLI flags."""
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    add_input_args(ap)
+    ap.add_argument("--report", default="reports/coverage.md", help="markdown report path (default reports/coverage.md)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the fixture season, the folds and the bootstrap (default 0)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    return ap.parse_args(argv)
+
+
+def recorded_command(argv) -> str:
+    """The command line the report records, with the value of --out written as OUT_ROOT (a run's output root is often
+    a scratch directory, and no scratch path belongs in a report)."""
+    out, skip = [], False
+    for tok in argv:
+        if skip:
+            out.append("OUT_ROOT")
+            skip = False
+        elif tok == "--out":
+            out.append(tok)
+            skip = True
+        elif tok.startswith("--out="):
+            out.append("--out=OUT_ROOT")
+        else:
+            out.append(tok)
+    return "python -m analytics.coverage.train " + " ".join(out)
+
+
+def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Path, command: str, fixtures: bool,
+        data: str = "") -> dict:
+    """The whole protocol on a load_data_root or fixture_bundle structure -> the report context (also written)."""
+    cand, counts = validate_bundle(bundle)
+    feats = features(cand, bundle["games"], counts)
+    train, score_only, heldout = training_frame(feats, counts)
+    if len(train) == 0:
+        raise SystemExit("%s: no labelled training rows after setting the held-out rows aside" % WHO)
+    fold, probs, note = out_of_fold(train, n_folds, seed)
+    scores = score(train, probs, n_boot, seed)
+    best = select(scores)
+    full = fit_models(train, seed)
+    pred = [prediction_rows(train, probs[best], fold)]
+    if len(score_only):
+        pred.append(prediction_rows(score_only, full[best](score_only), REFIT_FOLD))
+    heldout_scores = {}
+    if len(heldout):
+        P = full[best](heldout)
+        pred.append(prediction_rows(heldout, P, REFIT_FOLD))
+        lab = heldout["coverage_label"].notna().to_numpy()
+        y = heldout.loc[lab, "coverage_label"].astype(str).to_numpy()
+        yh = predicted(P)[lab]
+        heldout_scores = {"macro_f1": macro_f1(y, yh) if lab.any() else float("nan"),
+                          "accuracy": accuracy(y, yh) if lab.any() else float("nan"), "n_labelled": int(lab.sum())}
+    pred_all = pd.concat(pred, ignore_index=True)
+    feats_all = pd.concat([train, score_only, heldout], ignore_index=True)
+    rates = rates_by_season(pred_all, defender_team(feats_all, bundle["games"]))
+    paths = write_tables(pred_all, rates, out_root)
+    ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "command": command,
+           "fixtures": fixtures, "fixture_kind": bundle.get("fixture", "shared"), "data": data, "counts": counts,
+           "train_rows": int(len(train)), "train_games": int(train["sportvu_game"].nunique()),
+           "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["sportvu_game"].nunique()),
+           "heldout_game_ids": sorted(heldout["sportvu_game"].unique()),
+           "label_counts": train["coverage_label"].value_counts().to_dict(),
+           "n_sure": int((cand["confidence"] == "sure").sum()), "n_unsure": int((cand["confidence"] == "unsure").sum()),
+           "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
+           "scores": scores, "best": best, "rates": rates, "heldout_scores": heldout_scores,
+           "paths": [p.as_posix() for p in paths] + ["%s (this report, in the repo)" % report], "predictions": pred_all,
+           "features": feats_all}
+    ctx["report_text"] = write_report(Path(report), ctx)
+    return ctx
+
+
+def main(argv=None) -> dict:
+    """Run the protocol on the inputs the flags name (tables under OUT_ROOT, a scratch directory without --out)."""
+    a = parse_args(argv)
+    logging.basicConfig(level=logging.INFO, format="%(name)s %(levelname)s %(message)s", stream=sys.stderr)
+    bundle = load_inputs(a)
+    out_root = a.out or tempfile.mkdtemp(prefix="coverage_out_")
+    cmd = recorded_command(argv if argv is not None else sys.argv[1:])
+    ctx = run(bundle, a.folds, a.seed, a.bootstrap, out_root, Path(a.report), cmd, a.fixtures, a.data or "")
+    print(ctx["report_text"])
+    return ctx
+
+
+if __name__ == "__main__":
+    main()

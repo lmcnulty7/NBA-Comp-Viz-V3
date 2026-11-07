@@ -40,6 +40,10 @@ def heldout_tokens(sp: dict | None = None) -> set:
     for s in HELDOUT_SPLITS:
         for tag, g in sp[s]["games"].items():
             out |= {tag} | {v for v in (g.get("sportvu"), g.get("video_id")) if v}
+    # The arena rule: every game at a held-out arena is held out, listed in splits.json or not, so the
+    # SportVU id suffix ".at.<arena>" is a token too (a lane that forgets the suffix still trips the guard).
+    for arena in sp.get("heldout_arena", {}).get("arenas", [HELDOUT_ARENA]) or [HELDOUT_ARENA]:
+        out.add(".at.%s" % arena)
     return out
 
 
