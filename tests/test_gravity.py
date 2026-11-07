@@ -155,7 +155,12 @@ def test_prior_is_out_of_fold(built, train_games):
 
 
 # ── validate ───────────────────────────────────────────────────────────────────────────────────────
-def test_validate_counts_duplicates_and_nulls(train_games):
+def test_validate_counts_duplicates_and_nulls(train_games, season):
+    held = [V.validate_game(g)[1] for g in season if F.is_heldout(g)]
+    assert held and all(c["heldout"] is True for c in held)             # a summary never names a held-out game unflagged
+    unflagged = {**next(g for g in season if F.is_heldout(g)), "heldout": False, "meta": {}}
+    assert V.validate_game(unflagged)[1]["heldout"] is True             # the id alone flags it (analytics.eval.is_heldout_game)
+    assert V.validate_game(train_games[0])[1]["heldout"] is False
     d = dict(train_games[0])
     fr = d["frames"]
     dup = pd.concat([fr, fr.iloc[:7]], ignore_index=True)

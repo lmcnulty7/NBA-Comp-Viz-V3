@@ -56,11 +56,12 @@ def _count_out_of_range(s: pd.Series, lo: float, hi: float) -> int:
 
 
 def validate_game(d: dict) -> tuple[dict, dict]:
-    """(cleaned game dict, counts). See the module docstring for what is checked."""
-    from analytics.gravity.features import game_id, shot_player_ids
+    """(cleaned game dict, counts). See the module docstring for what is checked. counts carries heldout (the dict's
+    flag, or analytics.eval.is_heldout_game on the id), so a summary never names a held-out game unflagged."""
+    from analytics.gravity.features import game_id, is_heldout, shot_player_ids
     g = game_id(d)
     out = dict(d)
-    counts = {"sportvu_game": g, "schema": {}, "frames": {}, "events": {}, "shots": {}, "dropped": {}}
+    counts = {"sportvu_game": g, "heldout": bool(is_heldout(d)), "schema": {}, "frames": {}, "events": {}, "shots": {}, "dropped": {}}
     for t in CONTRACT_TABLES:
         if d.get(t) is not None and len(d[t]):
             counts["schema"][t] = schema.validate(d[t], t)
