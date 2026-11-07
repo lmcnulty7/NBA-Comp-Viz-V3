@@ -76,7 +76,8 @@ at t, t-1, ..., t-4 of the same possession (padded with the row's own values at 
 3. Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1),
    `HistGradientBoostingRegressor` (100 iterations, learning rate 0.05, 8 leaves, 50 per leaf, fixed in advance),
    each with an isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds);
-   under the gate, `MLPRegressor` (one hidden layer of 32) over the last 5 states' features.
+   under the gate, `MLPRegressor` (one hidden layer of 32) over the last 5 states' features (the default,
+   `--deep mlp`); with `--deep torch` the torch sequence model below fills that slot instead.
 4. Gate: the sequence model is trained only if the gradient-boosting calibration slope by shot-clock bucket
    (0 to 7, 7 to 14, 14 to 24 s) is outside 0.9 to 1.1 in any bucket or its MSE lift over the constant is under 5
    percent, and kept only if it beats gradient boosting under paired bootstrap by game.
@@ -94,6 +95,32 @@ Every fit and predict of a candidate runs inside `analytics.eval.fit_threads()`,
 pools to one thread after loading sklearn's gradient-boosting runtime (on the shared box that runtime hung with its
 default thread count). Nothing is set in the environment at import. The per-bucket calibration slopes use
 `analytics.eval.calibration_slope_fast` (the same regression, bounded on nearly separable buckets).
+
+## Deep model (stage 6): the torch sequence model behind `--deep torch`
+
+Code: `analytics/epv/deep.py` (the model) and `analytics/deep_torch.py` (shared plumbing); tests:
+`tests/test_deep_models.py`.
+
+| item | definition |
+| --- | --- |
+| option | `--deep {mlp,torch}` on `analytics.epv.train`, default `mlp` (the `MLPRegressor` stand-in, byte for byte the same candidates and decision) |
+| slot | with `--deep torch` the GRU replaces the MLP as the gated sequence model, still named `mlp` in the code and the tables (`epv_mlp`, `SEQUENCE`), so one sequence model per run |
+| inputs | the same `features.lagged_columns(5)`: the state's features at t and at the four earlier states of the same possession (padded with the row's own values at the possession start), reshaped to (n, 5, n_features) and reversed on the time axis, so the GRU runs from t minus 4 to t; no state after t is read (`features.lagged` reads earlier states only, and `assert_time_forward` runs on the frame) |
+| target | the same `points_to_end` regression; `train.Calibrated` fits the same isotonic map to P(points > 0) on inner out-of-fold predictions |
+| architecture | median imputation and standardisation fit on the training rows (as the stand-in's pipeline), target standardised; `GRU(n_features -> 16, one layer)`, last hidden state, `Linear(16 -> 1)` |
+| training | Adam (learning rate 0.002, weight decay 0.0001), batch 256, at most 100 epochs, MSE loss; early stopping after 8 epochs without a lower validation MSE. The fit is two passes on the rows the fit receives: early stopping on the inner split picks the best epoch, then the net is reset to its initial weights (the same seed) and refit for that many epochs on every one of those rows, so it learns from the same rows as the sklearn stand-in; a validation loss that is never finite raises ValueError. `torch.use_deterministic_algorithms(True)` is on during the fit and the predictions (restored after), so `--threads` above 1 reproduces too. |
+| early-stopping split | from the rows the fit receives (the training games of the current outer fold, or of the inner calibration fold): whole games when there are at least 5, else a seeded 20 percent row split; never a held-out row, never the fold being scored |
+| determinism | `torch.manual_seed(--seed)` before the net is built, a seeded shuffling generator, CPU only, `torch.set_num_threads(1)` for the fit and the predictions (restored after) |
+| gate and keep rule | unchanged and fixed in advance: trained only when `gate_decision` opens it; kept only by `select_model` (paired bootstrap of MSE(base) minus MSE(sequence) with its interval above 0 and a lower out-of-fold MSE) |
+| held-out | the same code path as the MLP (`split_tables` and `refuse_heldout` first; the held-out games are scored once by the selected candidate); `deep.fit_sequence` raises ValueError on a true `heldout` flag or a held-out game id before torch is touched |
+| fallback | `--deep torch` without an importable torch logs "torch not available; MLP stand-in used", runs the stand-in, and the report says so; torch is imported lazily inside the fit |
+| report | with `--deep torch` a "Sequence model (--deep torch)" line gives these settings and the gate line names the torch GRU; the default report is unchanged |
+
+Stage 6 command (only when this lane's gate opened; `--skip-heldout` is the stage 4 flag every real run carries):
+
+    python -m analytics.epv.train --data "$DATA_ROOT" --report reports/epv.md --folds 5 --seed 0 --bootstrap 1000 --out "$DATA_ROOT" --deep torch --skip-heldout
+
+This command needs PR #8 (the stage 4a `--skip-heldout` flag) merged first; without it the trainer rejects the flag.
 
 ## Outputs
 
@@ -154,7 +181,7 @@ tables under X (`make ext-epv DATA=X OUT=Y`).
     python -m analytics.epv.states   --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--tol 0.5]
     python -m analytics.epv.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.epv.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
-    python -m analytics.epv.train    --fixtures | --data DATA_ROOT --report reports/epv.md [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT]
+    python -m analytics.epv.train    --fixtures | --data DATA_ROOT --report reports/epv.md [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--deep mlp|torch]
 
 `--fixtures` builds the synthetic season of `analytics.fixtures` (one league: teams and rosters recur) in memory
 through `analytics.epv.validate.fixture_season`; every CLI sizes it with `--fixture-games` (alias `--games`; 4, or 8

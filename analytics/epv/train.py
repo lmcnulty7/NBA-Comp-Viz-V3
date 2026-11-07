@@ -18,7 +18,9 @@ Protocol:
      standardisation, alpha 1), (3) HistGradientBoostingRegressor (the plan's model), each with an isotonic
      calibration of P(points > 0) fitted on out-of-fold predictions inside the training fold (3 inner grouped folds
      by game), (4) only under the gate: MLPRegressor over the last 5 states' features (features.lagged; one hidden
-     layer of 32 units), the stand-in for a GRU;
+     layer of 32 units), the stand-in for a GRU; with --deep torch the GRU of analytics/epv/deep.py over the same last
+     5 states fills that slot instead (still named mlp in the tables, the same gate and keep rule; --deep mlp is the
+     default, and --deep torch without torch falls back to the stand-in with "torch not available; MLP stand-in used");
   4. the gate: the sequence model is trained only if the gradient-boosting calibration slope by shot-clock bucket
      (0 to 7, 7 to 14, 14 to 24 s) is outside 0.9 to 1.1 in any bucket or its MSE lift over the constant is under 5
      percent; it is kept only if it beats gradient boosting under paired bootstrap by game (the 95 percent interval
@@ -50,7 +52,9 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.deep_torch import add_deep_arg, resolve_deep
 from analytics.epv import ELAPSED_BUCKETS, SHOT_CLOCK_BUCKETS, WHO
+from analytics.epv import deep as D
 from analytics.epv import features as F
 from analytics.epv import validate as V
 from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, fit_threads, fmt_ci,
@@ -110,13 +114,16 @@ class Calibrated:
     """A regression candidate plus an isotonic map from its expected points to P(points > 0), the map fitted on
     out-of-fold predictions inside the training rows (inner grouped folds by game)."""
 
-    def __init__(self, name: str, columns: list, seed: int, hgb_iter: int = 100):
+    def __init__(self, name: str, columns: list, seed: int, hgb_iter: int = 100, deep: str = "mlp"):
         self.name, self.columns, self.seed, self.hgb_iter = name, list(columns), seed, hgb_iter
+        self.deep = deep          # the sequence slot's model: "mlp" (the stand-in) or "torch" (analytics.epv.deep)
         self.model, self.iso, self.const, self.p_const = None, None, 0.0, 0.0
 
     def _fit_raw(self, X: pd.DataFrame, y: np.ndarray):
         if self.name == "constant":
             return float(np.mean(y))
+        if self.name == SEQUENCE and self.deep == "torch":
+            return D.fit_sequence(X, y, self.columns, seed=self.seed, n_steps=N_LAGS)
         m = make_model(self.name, self.seed, self.hgb_iter)
         with fit_threads():
             return m.fit(X[self.columns].to_numpy(dtype=float), y)
@@ -185,7 +192,8 @@ def fold_features(geo_tr: pd.DataFrame, geo_te: pd.DataFrame, states_tr: pd.Data
 
 
 def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n_folds: int, seed: int,
-                hgb_iter: int = 100, models=CANDIDATES, y_override=None, cache: dict | None = None) -> tuple[pd.DataFrame, dict]:
+                hgb_iter: int = 100, models=CANDIDATES, y_override=None, cache: dict | None = None,
+                deep: str = "mlp") -> tuple[pd.DataFrame, dict]:
     """Out-of-fold expected points and calibrated P(points > 0) per candidate -> (pred, protocol note).
     pred holds epv_<m>, p_<m>, fold, and the bucket columns; note["insample"] is each model's mean in-sample MSE over
     the folds (fit and scored on the same training rows), next to which the out-of-fold MSE shows overfit.
@@ -224,7 +232,7 @@ def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n
             X_tr, X_te = cache[(key, "lag")]
         for m in models:
             cols = seq_cols if m == SEQUENCE else F.FEATURES
-            c = Calibrated(m, cols, seed, hgb_iter).fit(X_tr, y_all[tr], games[tr])
+            c = Calibrated(m, cols, seed, hgb_iter, deep).fit(X_tr, y_all[tr], games[tr])
             epv, p = c.predict(X_te)
             pred.loc[te, "epv_" + m], pred.loc[te, "p_" + m] = epv, p
             insample[m].append(mse(y_all[tr], c.predict(X_tr)[0]))
@@ -321,7 +329,8 @@ def shuffled_target(states: pd.DataFrame, seed: int) -> np.ndarray:
 HELDOUT_MIN_GAMES_FOR_INTERVALS = 5
 
 
-def heldout_once(states_train, geo_train, states_heldout, geo_heldout, shots_train, rosters, seed, hgb_iter, models, n_boot) -> dict:
+def heldout_once(states_train, geo_train, states_heldout, geo_heldout, shots_train, rosters, seed, hgb_iter, models, n_boot,
+                 deep: str = "mlp") -> dict:
     """Refit priors and candidates on every training row, score the held-out rows once. Point estimates only (no
     bootstrap) with fewer than HELDOUT_MIN_GAMES_FOR_INTERVALS held-out games."""
     X_tr, X_ho, _ = fold_features(geo_train, geo_heldout, states_train, shots_train, rosters)
@@ -333,7 +342,7 @@ def heldout_once(states_train, geo_train, states_heldout, geo_heldout, shots_tra
     pred["fold"] = -1
     for m in models:
         cols = F.lagged_columns(N_LAGS) if m == SEQUENCE else F.FEATURES
-        c = Calibrated(m, cols, seed, hgb_iter).fit(X_tr, y_tr, states_train["sportvu_game"].to_numpy())
+        c = Calibrated(m, cols, seed, hgb_iter, deep).fit(X_tr, y_tr, states_train["sportvu_game"].to_numpy())
         pred["epv_" + m], pred["p_" + m] = c.predict(X_ho)
     pred["elapsed_bucket"] = elapsed_bucket(pred["elapsed_in_possession_s"])
     pred["shot_clock_bucket"] = shot_clock_bucket(states_heldout["shot_clock_s"].to_numpy(dtype=float))
@@ -424,6 +433,7 @@ def _why_selected(ctx: dict) -> str:
 def write_report(path: Path, ctx: dict) -> str:
     """The markdown report of a run (ctx from run) written to path; returns the text."""
     fixture = ctx["fixtures"]
+    deep = ctx.get("deep") or {"requested": "mlp", "used": "mlp", "notice": ""}
     tag = "fixture output, not a result" if fixture else "real data run"
     L = ["# EPV: expected possession value from 1 Hz states (analytics/epv)", "",
          "Written %s by `%s` (%s)." % (ctx["written"], ctx["command"], tag), ""]
@@ -449,6 +459,13 @@ def write_report(path: Path, ctx: dict) -> str:
           "Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor "
           "(%d iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold "
           "predictions (%d grouped folds), and under the gate an MLPRegressor over the last %d states' features." % (ctx["hgb_iter"], INNER_FOLDS, N_LAGS),
+          *([] if deep["requested"] == "mlp" else
+            ["Sequence model (--deep torch): %s." % (deep["notice"] if deep["notice"] else
+             "a torch GRU (hidden %d) over the last %d states of the possession, run from t-%d to t (no state after t), replaces the "
+             "MLPRegressor in the sequence slot (still named mlp in the tables); Adam, batch %d, at most %d epochs, early stopping after "
+             "%d epochs on an inner split of the training games, then refit on every training row for the best epoch count; the same "
+             "isotonic calibration, gate and keep rule"
+             % (D.GRU_HIDDEN, N_LAGS, N_LAGS - 1, D.BATCH, D.MAX_EPOCHS, D.PATIENCE))]),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""), "",
           "## Candidates by elapsed-time bucket (%s)" % ctx["note"]["mode"], ""]
@@ -467,8 +484,8 @@ def write_report(path: Path, ctx: dict) -> str:
     g = ctx["gate"]
     L += ["", "MSE lift of gradient boosting over the constant: %.1f percent (%.4f vs %.4f). Slopes outside %g to %g (n/a counts as outside): %s."
           % (100 * g["lift"], g["mse_hgb"], g["mse_constant"], SLOPE_LO, SLOPE_HI, ", ".join(g["slope_out_of_range"]) or "none"),
-          "Gate decision: the sequence model (MLPRegressor over the last %d states, standing in for a GRU) was %s."
-          % (N_LAGS, "TRAINED" if g["train_sequence"] else "NOT trained (gradient boosting is calibrated in every bucket and its lift is at least 5 percent)")]
+          "Gate decision: the sequence model (%s) was %s."
+          % ("MLPRegressor over the last %d states, standing in for a GRU" % N_LAGS if deep["used"] == "mlp" else D.LABEL, "TRAINED" if g["train_sequence"] else "NOT trained (gradient boosting is calibrated in every bucket and its lift is at least 5 percent)")]
     if ctx.get("paired") is not None:
         p = ctx["paired"]
         L.append("Paired bootstrap by game of MSE(%s) - MSE(mlp), %s being the lowest-MSE candidate: %s; the sequence model is %s."
@@ -507,8 +524,11 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_iter: int = 100, fixtures: bool = False,
-        command: str = "", report: Path | None = None, out_root=None) -> dict:
-    """The whole protocol on loaded tables -> ctx (also written as the report when a path is given)."""
+        command: str = "", report: Path | None = None, out_root=None, deep: str = "mlp") -> dict:
+    """The whole protocol on loaded tables -> ctx (also written as the report when a path is given). ``deep`` ("mlp" or
+    "torch", resolved by analytics.deep_torch.resolve_deep: torch absent falls back to "mlp") picks the model of the
+    gated sequence slot; the gate and select_model are the same either way."""
+    deep_info = resolve_deep(deep, WHO)
     d = split_tables(tables)
     st, ho = d["states_train"], d["states_heldout"]
     geo = F.geometry(st)
@@ -521,7 +541,8 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
     paired = None
     base = min(CANDIDATES, key=lambda m: mse(pred["y"], pred["epv_" + m]))
     if gate["train_sequence"]:
-        seq_pred, seq_note = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, models=(SEQUENCE,), cache=cache)
+        seq_pred, seq_note = out_of_fold(st, geo, d["shots_train"], d["rosters"], n_folds, seed, hgb_iter, models=(SEQUENCE,), cache=cache,
+                                         deep=deep_info["used"])
         pred["epv_" + SEQUENCE], pred["p_" + SEQUENCE] = seq_pred["epv_" + SEQUENCE], seq_pred["p_" + SEQUENCE]
         models.append(SEQUENCE)
         insample.update(seq_note["insample"])
@@ -537,7 +558,7 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
     if len(ho):
         geo_ho = F.geometry(ho)
         scored = [selected] + (["constant"] if selected != "constant" else [])      # the selected candidate, the constant as a labelled floor
-        heldout = heldout_once(st, geo, ho, geo_ho, d["shots_train"], d["rosters"], seed, hgb_iter, scored, n_boot)
+        heldout = heldout_once(st, geo, ho, geo_ho, d["shots_train"], d["rosters"], seed, hgb_iter, scored, n_boot, deep=deep_info["used"])
         heldout["models"] = scored
     ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "command": command, "fixtures": fixtures,
            "reports": d["reports"], "train_rows": int(len(st)), "train_possessions": int(st.groupby(["sportvu_game", "possession"]).ngroups),
@@ -545,7 +566,7 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
            "mean_points": float(st["points_to_end"].mean()), "rate_score": float((st["points_to_end"] > 0).mean()),
            "hgb_iter": hgb_iter, "note": note, "bootstrap": n_boot, "seed": seed, "models": models, "by_elapsed": by_elapsed,
            "selected": selected, "selection_reason": reason, "pred": pred, "gate": gate, "paired": paired, "keep_sequence": keep_seq,
-           "shuffle": shuffle, "heldout": heldout, "overall_mse": overall, "insample_mse": insample, "base": base}
+           "shuffle": shuffle, "heldout": heldout, "overall_mse": overall, "insample_mse": insample, "base": base, "deep": deep_info}
     if report is not None:
         ctx["text"] = write_report(Path(report), ctx)
     if out_root is not None:
@@ -571,6 +592,7 @@ def parse_args(argv=None):
     ap.add_argument("--season", default=None, help="only this season directory, e.g. 2015-16 (default: every season)")
     ap.add_argument("--hgb-iter", type=int, default=100, help="gradient-boosting iterations, fixed in advance (default 100)")
     V.add_fixture_args(ap, games=8)
+    add_deep_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -598,7 +620,8 @@ def main(argv=None) -> dict:
     tables = V.load_inputs(a)
     cmd = recorded_command(argv if argv is not None else sys.argv[1:])
     out_root = a.out if a.out else (Path(tempfile.gettempdir()) / "epv_fixture_root" if a.fixtures else None)
-    ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root)
+    ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root,
+              deep=a.deep)
     print(ctx["text"])
     return ctx
 

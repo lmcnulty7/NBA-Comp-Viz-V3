@@ -92,7 +92,8 @@ the embedding.
 2. Autoencoder: sklearn `MLPRegressor(hidden_layer_sizes=(32, 8, 32), activation=tanh)` reconstructing the
    standardised features; the bottleneck is the second hidden layer's activation. Trained ONLY when PCA's 5-NN
    position accuracy is under 0.60; kept ONLY when it beats PCA on that metric. Without positions the gate cannot be
-   evaluated and PCA stands.
+   evaluated and PCA stands. This is the default, `--deep mlp`; with `--deep torch` the torch autoencoder below is
+   the autoencoder instead, under the same gate and rule.
 3. 5-NN position accuracy: leave-one-out over the sufficient player-seasons with a position; majority of the 5
    nearest player-seasons' positions, ties to the nearest; baseline the majority class share.
 4. Next-season R squared: ridge (alpha 1) from the 2015-16 embedding to a 2016-17 aggregate stat (the first present
@@ -107,6 +108,31 @@ the embedding.
 6. The gate's comparison metric is the reported 5-NN accuracy (leave-one-out point estimate). A fifth branch of the
    rule: an autoencoder trained but with undefined accuracy leaves PCA chosen.
 
+## Deep model (stage 6): the torch autoencoder behind `--deep torch`
+
+Code: `analytics/embeddings/deep.py` (the model) and `analytics/deep_torch.py` (shared plumbing); tests:
+`tests/test_deep_models.py`.
+
+| item | definition |
+| --- | --- |
+| option | `--deep {mlp,torch}` on `analytics.embeddings.train`, default `mlp` (the `MLPRegressor` stand-in, byte for byte the same candidates and decision) |
+| slot | with `--deep torch` the torch model is THE autoencoder (method `autoencoder` in `player_embeddings`), so PCA against one autoencoder, as before |
+| inputs and target | the same `Z`: the sufficient player-seasons after median imputation and `StandardScaler` (`train.standardise`), reconstructed |
+| architecture | the stand-in's layers: encoder `Linear(d -> 32) tanh, Linear(32 -> 8) tanh`, decoder `Linear(8 -> 32) tanh, Linear(32 -> d)`; the embedding is the 8-unit bottleneck activation, in [-1, 1] as the `player_embeddings` table says |
+| training | Adam (learning rate 0.01, the stand-in's), batch 32, at most 400 epochs, reconstruction MSE; early stopping after 25 epochs without a lower validation MSE. The fit is two passes on the rows the fit receives: early stopping on the inner split picks the best epoch, then the net is reset to its initial weights (the same seed) and refit for that many epochs on every one of those rows, so it learns from the same rows as the sklearn stand-in; a validation loss that is never finite raises ValueError. `torch.use_deterministic_algorithms(True)` is on during the fit and the predictions (restored after), so `--threads` above 1 reproduces too. `reconstruction_mse` is on all of Z and `n_iter` is the refit's epoch count (the best epoch) |
+| early-stopping split | from the sufficient player-seasons (built from training games only): whole players when there are at least 5, else a seeded 20 percent row split |
+| determinism | `torch.manual_seed(--seed)` before the net is built, a seeded shuffling generator, CPU only, `torch.set_num_threads(1)` for the fit and the embeddings (restored after) |
+| gate and keep rule | unchanged and fixed in advance: `train.decide`, trained only when PCA's 5-NN position accuracy is under 0.60 and kept only when the autoencoder's beats it |
+| held-out | the same code path as the stand-in (held-out games dropped by `load_inputs`, `refuse_heldout` on the training ids); `deep.fit_autoencoder` raises ValueError on a held-out id among the training games or a true `heldout` flag in the rows before torch is touched |
+| fallback | `--deep torch` without an importable torch logs "torch not available; MLP stand-in used", runs the stand-in, and the report says so; torch is imported lazily inside the fit |
+| report | with `--deep torch` an "Autoencoder (--deep torch)" line gives these settings; the default report is unchanged |
+
+Stage 6 command (only when this lane's gate opened; `--skip-heldout` is the stage 4 flag every real run carries):
+
+    python -m analytics.embeddings.train --data "$DATA_ROOT" --report reports/embeddings.md --out "$DATA_ROOT" --seed 0 --bootstrap 1000 --deep torch --skip-heldout
+
+This command needs PR #8 (the stage 4a `--skip-heldout` flag) merged first; without it the trainer rejects the flag.
+
 ## Leakage rules
 
 - No held-out game row in any aggregate (loader, `refuse_heldout`, a second check on the shot rows).
@@ -118,7 +144,7 @@ the embedding.
 
     python -m analytics.embeddings.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.embeddings.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--n-min 300]
-    python -m analytics.embeddings.train --fixtures | --data DATA_ROOT --report reports/embeddings.md [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200]
+    python -m analytics.embeddings.train --fixtures | --data DATA_ROOT --report reports/embeddings.md [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--deep mlp|torch]
 
 Fixture flags (every embeddings CLI): `--fixture-games 8`, `--fixture-possessions 40`, `--fixture-heldout-every 4`
 (`--n-games` and `--heldout-every` are kept as aliases). A fixture run writes the `analytics.fixtures` DATA_ROOT
