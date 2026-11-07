@@ -304,3 +304,94 @@ def report_block(name: str, y, p, df: pd.DataFrame, game_col: str, n: int = 1000
         my = "%.4f" % r["mean_y"] if r["n"] else "-"
         L.append("| %d | %.2f | %.2f | %d | %s | %s |" % (r["bin"], r["lo"], r["hi"], r["n"], mp, my))
     return "\n".join(L) + "\n"
+
+
+# ----------------------------------------------------------------------------- shared helpers (consolidated after the
+# code-quality review: every lane imports these instead of carrying its own copy)
+
+def is_heldout_game(game_id) -> bool:
+    """True when a SportVU-style game id carries a held-out token of sportvu/splits.json (game tags, SportVU ids,
+    video ids) or the held-out arena suffix (".at.<arena>"). The arena rule is part of heldout_tokens, so one check
+    covers both."""
+    g = str(game_id)
+    return any(t in g for t in _splits.heldout_tokens())
+
+
+def heldout_mask(games) -> np.ndarray:
+    """Boolean array, one entry per element of ``games`` (a Series, list or array of game ids): is_heldout_game each."""
+    return np.array([is_heldout_game(g) for g in np.asarray(games, dtype=object)], dtype=bool)
+
+
+def fit_threads(n: int = 1):
+    """Context manager that pins BLAS and OpenMP pools to ``n`` threads for the fits inside it. Imports sklearn's
+    HistGradientBoosting module first so its OpenMP runtime is loaded before the limit is taken (a limit taken earlier
+    does not reach a library that is not loaded yet). Without threadpoolctl it is a no-op and says so once."""
+    import contextlib, warnings
+    try:
+        import sklearn.ensemble._hist_gradient_boosting  # noqa: F401  (loads the OpenMP runtime)
+    except Exception:  # noqa: BLE001  (sklearn absent or built without it; nothing to pin)
+        pass
+    try:
+        from threadpoolctl import threadpool_limits
+    except ImportError:
+        warnings.warn("threadpoolctl is not installed: fits run with the default thread pools", RuntimeWarning)
+        return contextlib.nullcontext()
+    return threadpool_limits(limits=n)
+
+
+def calibration_slope_fast(y, p, ridge: float = 1e-6, max_iter: int = 50) -> float:
+    """calibration_slope solved by Newton's method with a tiny ridge: the same regression (y on logit(p) with an
+    intercept) and the same answer to two decimals on ordinary data, but bounded on nearly separable data where the
+    lbfgs fit at C=1e6 runs to its iteration cap. Use it inside bootstrap loops. NaN when y has one class."""
+    y, p = _yp(y, p)
+    if len(y) == 0 or len(np.unique(y)) < 2:
+        return float("nan")
+    x = np.log(p / (1 - p))
+    X = np.column_stack([np.ones_like(x), x])
+    w = np.zeros(2)
+    for _ in range(max_iter):
+        z = np.clip(X @ w, -30, 30)
+        q = 1 / (1 + np.exp(-z))
+        g = X.T @ (q - y) + ridge * w
+        H = (X * (q * (1 - q))[:, None]).T @ X + ridge * np.eye(2)
+        step = np.linalg.solve(H, g)
+        w = w - step
+        if np.max(np.abs(step)) < 1e-8:
+            break
+    return float(w[1])
+
+
+def fmt_num(v, nd: int = 3) -> str:
+    """A float to ``nd`` decimals, "n/a" when not finite."""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return "n/a"
+    return ("%%.%df" % nd) % v if np.isfinite(v) else "n/a"
+
+
+def fmt_ci(d: Mapping, nd: int = 3, key: str = "point") -> str:
+    """"point [lo, hi]" from a dict with ``key``, lo and hi; "point" alone when lo is not finite; "n/a" when the point
+    is not finite. The one formatter every report uses for a bootstrap interval."""
+    pt = d.get(key, float("nan"))
+    if not np.isfinite(float(pt)) if pt is not None else True:
+        return "n/a"
+    lo, hi = d.get("lo", float("nan")), d.get("hi", float("nan"))
+    if lo is None or not np.isfinite(float(lo)):
+        return fmt_num(pt, nd)
+    return "%s [%s, %s]" % (fmt_num(pt, nd), fmt_num(lo, nd), fmt_num(hi, nd))
+
+
+def md_table(df: pd.DataFrame, nd: int = 3) -> list:
+    """A DataFrame as markdown table lines (header, rule, rows); floats to ``nd`` decimals, NaN and None blank."""
+    cols = [str(c) for c in df.columns]
+    L = ["| " + " | ".join(cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
+    for row in df.itertuples(index=False):
+        cells = []
+        for v in row:
+            if isinstance(v, (float, np.floating)):
+                cells.append("" if np.isnan(v) else fmt_num(float(v), nd))
+            else:
+                cells.append("" if v is None else str(v))
+        L.append("| " + " | ".join(cells) + " |")
+    return L

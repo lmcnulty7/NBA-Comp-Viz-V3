@@ -358,3 +358,13 @@ __all__ = [
     "columns", "is_nullable", "schema", "feature_allowlist", "assert_time_forward", "table_path",
     "pandas_dtypes", "cast", "empty", "validate",
 ]
+
+
+def season_of_game(sportvu_game: str) -> str:
+    """The NBA season ("2015-16") of a SportVU-style game id "MM.DD.YYYY.AWAY.at.HOME": the season turns over in
+    July (a game in July or later belongs to the season that starts that autumn), the rule the Phase 0 localisers
+    use. The one implementation every lane imports."""
+    mm, dd, yyyy = str(sportvu_game).split(".")[:3]
+    y, m = int(yyyy), int(mm)
+    start = y if m >= 7 else y - 1
+    return "%d-%02d" % (start, (start + 1) % 100)
