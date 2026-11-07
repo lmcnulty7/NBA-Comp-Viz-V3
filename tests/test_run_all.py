@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -480,6 +481,21 @@ def test_makefile_targets_match_registry():
         assert 'run_all.py --phase0 --data "/tmp/a b"' in res.stdout
         res = subprocess.run(["make", "-n", "phase0"], cwd=str(REPO), capture_output=True, text=True, timeout=20)
         assert 'run_all.py --phase0 --data ".fixture_root"' in res.stdout
+
+
+def test_makefile_ignores_an_exported_data_root():
+    """The Mac runbook exports DATA_ROOT as the real Drive folder; make must not take it as the fixture root (make
+    fixtures would write synthetic data into the real dataset). DATA_ROOT on the make command line still works."""
+    if not shutil.which("make"):
+        pytest.skip("make not installed")
+    env = dict(os.environ, DATA_ROOT="/tmp/real drive/nba_harvest")
+    for target in ("fixtures", "phase0"):
+        res = subprocess.run(["make", "-n", target], cwd=str(REPO), capture_output=True, text=True, timeout=20, env=env)
+        assert res.returncode == 0, res.stderr
+        assert '".fixture_root"' in res.stdout and "real drive" not in res.stdout, res.stdout
+    res = subprocess.run(["make", "-n", "fixtures", "DATA_ROOT=/tmp/fx root"], cwd=str(REPO), capture_output=True,
+                         text=True, timeout=20, env=env)
+    assert '"/tmp/fx root"' in res.stdout and "real drive" not in res.stdout, res.stdout
 
 
 def test_pytest_ini_registers_slow_marker_and_gitignore_covers_outputs():

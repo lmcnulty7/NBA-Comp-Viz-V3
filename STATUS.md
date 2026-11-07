@@ -1,5 +1,43 @@
 # STATUS.md: extension build, 2026-11-05 (unattended)
 
+## Runbook progress
+
+WAITING ON YOU: on GitHub, merge PR #5 (stage 0 fixes, into analytics-phase0) first, then PR #6 (stage 1,
+analytics-phase0 into track-fix). No gate file needed: the loop checks both with `gh pr view`.
+
+Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
+
+- **Current stage:** 1, waiting at the merge gate. Stage 2 runs meanwhile (it does not depend on the merge):
+  collectors one at a time, in runbook order bref_schedule, positions, bref_seasons, bref_boxscores.
+- **Background jobs:** bref_seasons play-by-play, 2020-21 to 2024-25, 6424 games (about 6.3 hours at 17 a
+  minute), started 2026-11-07 02:04, PID 80406, log logs/loop/bref_seasons.log. Rerunning the same command resumes.
+- **Stage 2 so far:**
+
+  | collector | units ok | empty | failed | rows | output |
+  | --- | --- | --- | --- | --- | --- |
+  | bref_schedule | 53 | 0 | 0 | 7770 games (2015-16 1316; 2020-21 1171; 2021-22 1323; 2022-23 1320; 2023-24 1319; 2024-25 1321) | collect/ under DATA_ROOT |
+  | positions | 2 | 0 | 0 | 1070 (2015-16 528; 2016-17 542) | collect/positions.parquet |
+  | bref_seasons | running | | | | |
+  | bref_boxscores | not started | | | | |
+- **Open gates:** stage 1 merge (PR #5 then PR #6). No later gate reached yet.
+- **Branch:** the Mac checkout is on fix/stage0-checks (PR #5). After both merges, work moves to track-fix.
+
+### Stage 0 (passed 2026-11-07)
+
+DATA_ROOT is exported in ~/.zshrc and points at the Drive nba_harvest folder, which holds
+sportvu_contract/manifest.json and collect/. The first run failed three ways; each was fixed with a test (PR #5):
+
+| check | first run | after PR #5 |
+| --- | --- | --- |
+| make test-fast | could not run: no pytest, then no bs4, then test_makefile_targets_match_registry failed | 612 passed, 1 skipped |
+| make all-fixtures | 46 of 47 steps OK; betting train refused --data without --out | 47 of 47 OK |
+
+- requirements.txt now lists pytest, beautifulsoup4, pandas, scipy, threadpoolctl and requests. Running the
+  stage 0 install command put pytest 9.2.0 and beautifulsoup4 4.15.0 into /usr/local/bin/python3. Use that
+  python3, not /opt/anaconda3: anaconda's site-packages holds a stray `tests` package that shadows the repo's.
+- The Makefile no longer takes the exported DATA_ROOT as its fixture root. Before the fix, `make fixtures` would
+  have written synthetic data into the real Drive folder.
+
 Goal: the code for every remaining part of the extension plan, on top of Phase 0 and the xFG location
 baseline. Integration branch `analytics-phase0`, based on `track-fix`. Twenty-one lanes ran in parallel in
 one shared working copy (worktrees did not fit the disk allowance): fifteen extensions and six

@@ -362,6 +362,18 @@ def test_leak_tripwire_skips_tiny_samples_but_catches_a_copy_at_size(tmp_path):
     assert ctx["train_games"] > 0 and (tmp_path / "r.md").exists()
 
 
+def test_data_without_out_writes_under_data_root(tmp_path):
+    """run_all --fixtures without --out passes --data FIXTURE_ROOT and no --out; like every other lane, OUT_ROOT then
+    defaults to DATA_ROOT instead of refusing, and the report says where the tables went."""
+    root = tmp_path / "root"
+    fixtures.write_fixture_root(root, seed=0, n_games=4, heldout_every=4)
+    report = tmp_path / "r.md"
+    ctx = tr.main(["--data", str(root), "--report", str(report), "--bootstrap", "5"])
+    assert Path(ctx["out_root"]) == root
+    assert list((root / "analytics" / "betting").glob("*/betting_games.parquet"))
+    assert "DATA_ROOT (no --out given)" in report.read_text()
+
+
 def test_seasons_after_the_heldout_season_are_ignored(tmp_path):
     """Three fixture seasons with 2021-22 held out: 2022-23 is dropped before the split (never fitted, never scored)
     and the report lists it as ignored."""
