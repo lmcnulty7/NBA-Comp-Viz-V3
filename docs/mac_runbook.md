@@ -22,10 +22,11 @@ docs/mac_runbook.md", which points here.
 
 ## Stage 0: set up (15 minutes)
 
-In Terminal:
+In Terminal, from the repo folder on the Mac (wherever the clone lives; `git remote -v` there prints
+lmcnulty7/NBA-Comp-Viz-V3; quote the path if it has spaces):
 
 ```bash
-cd ~/NBA-Comp-Viz-V3 && git fetch origin && git checkout analytics-phase0 && git pull
+git fetch origin && git checkout analytics-phase0 && git pull
 ```
 
 ```bash
