@@ -2,13 +2,15 @@
 
 ## Runbook progress
 
-WAITING ON YOU: on GitHub, merge PR #5 (stage 0 fixes, into analytics-phase0) first, then PR #6 (stage 1,
-analytics-phase0 into track-fix). No gate file needed: the loop checks both with `gh pr view`.
+No gate is waiting on you right now. Stage 1 passed: PR #5 and PR #6 merged 2026-11-07.
+
+Open PRs from you, not touched by the loop (merge when ready): #7 stage 3 audit mode, #8 stage 4a --skip-heldout,
+#9 stage 9 results, #10 stage 6 torch models. The loop does not redo stage 4a while #8 is open.
 
 Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 1, waiting at the merge gate. Stage 2 runs meanwhile (it does not depend on the merge):
-  collectors one at a time, in runbook order bref_schedule, positions, bref_seasons, bref_boxscores.
+- **Current stage:** 2, collectors one at a time in runbook order (bref_schedule, positions, bref_seasons,
+  bref_boxscores), then the stage 2 check. Stage 3 starts after that check passes.
 - **Background jobs:** bref_seasons play-by-play, 2020-21 to 2024-25, 6424 games (about 6.3 hours at 17 a
   minute), started 2026-11-07 02:04, PID 80406, log logs/loop/bref_seasons.log. Rerunning the same command resumes.
 - **Stage 2 so far:**
@@ -19,8 +21,8 @@ Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
   | positions | 2 | 0 | 0 | 1070 (2015-16 528; 2016-17 542) | collect/positions.parquet |
   | bref_seasons | running | | | | |
   | bref_boxscores | not started | | | | |
-- **Open gates:** stage 1 merge (PR #5 then PR #6). No later gate reached yet.
-- **Branch:** the Mac checkout is on fix/stage0-checks (PR #5). After both merges, work moves to track-fix.
+- **Open gates:** none reached yet. Stage 1 merge passed 2026-11-07.
+- **Branch:** the Mac checkout is on track-fix.
 
 ### Stage 0 (passed 2026-11-07)
 
