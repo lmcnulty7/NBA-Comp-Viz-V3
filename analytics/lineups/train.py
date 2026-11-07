@@ -483,8 +483,9 @@ def write_report(path: Path, ctx: dict) -> str:
     for r in ctx["cross_season"].itertuples():
         held = " (held-out season: descriptive, scored once below, not used for selection)" if r.season_to == ctx["heldout_season"] else ""
         L.append("| %s | %s%s | %d | %s | %s |" % (r.season_from, r.season_to, held, r.n_lineups, fmt_num(r.pearson), fmt_num(r.spearman)))
-    L += ["", "Seasons later than the held-out season are not in this table; the held-out row is labelled."]
-    L += ["", "## Held-out season, scored once%s" % tag, ""]
+    L += ["", "Seasons later than the held-out season are not in this table; %s." % (
+        "the held-out season is left out of it (--skip-heldout)" if ctx.get("skip_heldout") else "the held-out row is labelled")]
+    L += ["", "## Held-out season, %s%s" % ("not scored" if ctx.get("skip_heldout") else "scored once", tag), ""]
     h = ctx.get("heldout")
     if ctx.get("skip_heldout"):
         L += skip_heldout_lines(ctx.get("heldout_games", 0))

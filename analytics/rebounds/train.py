@@ -353,12 +353,20 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["## Inputs and rows%s" % tag, "",
           "| game | held out | frames in | frames out | misses in | kept | team rebounds (none) | dropped | candidate rows |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    # --skip-heldout: no outcome count of a held-out game (team rebounds are a target class) reaches the report
+    hide = set(ctx["heldout_game_ids"]) if ctx.get("skip_heldout") else set()
     for g in ctx["inputs"]:
-        L.append("| %s | %s | %d | %d | %d | %d | %d | %d | %d |" % (g["game"], g["heldout"], g["frames_in"], g["frames_out"],
-                                                                     g["misses_in"], g["kept"], g["team"], g["dropped"], g["rows"]))
+        team = "-" if g["game"] in hide else "%d" % g["team"]
+        L.append("| %s | %s | %d | %d | %d | %d | %s | %d | %d |" % (g["game"], g["heldout"], g["frames_in"], g["frames_out"],
+                                                                     g["misses_in"], g["kept"], team, g["dropped"], g["rows"]))
     t = ctx["drop_total"]
+    if hide:
+        kept = {k: sum(g["info"].get(k, 0) for g in ctx["inputs"] if g["game"] not in hide) for k in F.INFO_COUNTS}
+        kept_line = "Kept misses by kind (training games only; held-out outcomes not shown): "
+    else:
+        kept, kept_line = t, "Kept misses by kind: "
     L += ["", "Dropped misses by reason (all games): " + ", ".join("%s %d" % (k, t[k]) for k in F.DROP_REASONS) + ".",
-          "Kept misses by kind: " + ", ".join("%s %d" % (k, t[k]) for k in F.INFO_COUNTS) + ".",
+          kept_line + ", ".join("%s %d" % (k, kept[k]) for k in F.INFO_COUNTS) + ".",
           "Validation (analytics.rebounds.validate): " + ctx["validate_line"] + ".", "",
           "Training: %d candidate rows, %d misses, %d game(s) (%s). Held out, set aside before any fit: %d rows, %d misses, %d game(s) (%s)."
           % (ctx["train_rows"], ctx["train_misses"], ctx["train_games"], ", ".join(ctx["train_game_ids"]) or "none",
@@ -433,7 +441,8 @@ def load_candidates(bundles) -> tuple[pd.DataFrame, list, dict, dict]:
         c = fc["per_game"].get(cb["sportvu_game"], {})
         inputs.append({"game": cb["sportvu_game"], "heldout": bool(cb["heldout"]), "frames_in": counts["frames"]["rows_in"],
                        "frames_out": counts["frames"]["rows_out"], "misses_in": c.get("n_in", 0), "kept": c.get("misses_kept", 0),
-                       "team": c.get("team_rebounds_kept", 0), "dropped": int(sum(c.get(k, 0) for k in F.DROP_REASONS)), "rows": c.get("rows", 0)})
+                       "team": c.get("team_rebounds_kept", 0), "dropped": int(sum(c.get(k, 0) for k in F.DROP_REASONS)), "rows": c.get("rows", 0),
+                       "info": {k: int(c.get(k, 0)) for k in F.INFO_COUNTS}})
     return cands, inputs, fc["total"], V.summarise(val)["totals"]
 
 

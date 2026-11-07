@@ -50,6 +50,7 @@ from analytics.playcalling import features as F
 
 ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0, 1000.0)
 BASELINES = ("mean", "by_action", "ridge")
+SELECTED = "ridge"                              # the model the protocol carries forward (recommendation table, held-out)
 RIDGE_GROUPS = ("action_type", "coverage", "interaction", "off_lineup", "def_lineup", "margin_bin")
 MARGIN_BINS = ("trailing", "within_5", "leading")      # score margin below -5, in [-5, 5], above 5 at the action start
 FULL_RUN_CMD = ("python -m analytics.playcalling.train --data DATA_ROOT --out OUT_ROOT --report reports/playcalling.md "
@@ -364,6 +365,7 @@ def write_report(path: Path, ctx: dict) -> str:
     for m in ("mean", "by_action"):
         r = sc["paired"][m]
         L.append("- ridge minus %s: %s [%s, %s], interval excludes zero: %s" % (m, fmt_num(r["diff"], 4), fmt_num(r["lo"], 4), fmt_num(r["hi"], 4), "yes" if r["excludes_zero"] else "no"))
+    L += ["", "Selected candidate: %s." % SELECTED]
     L += ["", "## 4. Recommendation table (association)%s" % tag, "",
           "Per coverage, the adjusted PPP of each action type: the ridge prediction with the lineup effects averaged over the training rows. "
           "recommended marks the highest adjusted PPP among the cells with at least %d rows; a coverage with no sufficient cell has no recommendation. "
@@ -378,11 +380,11 @@ def write_report(path: Path, ctx: dict) -> str:
     if ctx.get("skip_heldout"):
         L += skip_heldout_lines(ctx["heldout_games"])
     elif ctx["heldout_rows"]:
-        L += ["%d actions from %d held-out game(s) (%s), scored ONCE by the selected model (the ridge) refit on all %d training rows; never fitted or tuned on. "
+        L += ["%d actions from %d held-out game(s) (%s), scored ONCE by the selected model (the %s) refit on all %d training rows; never fitted or tuned on. "
               "The training mean is shown as a labelled floor only; no other candidate is scored on held-out rows."
-              % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]), ctx["train_rows"]), "",
+              % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]), SELECTED, ctx["train_rows"]), "",
               "| model | held-out MSE |", "| --- | --- |"]
-        for m, label in (("ridge", "ridge (selected)"), ("mean_floor", "training mean (floor)")):
+        for m, label in ((SELECTED, "%s (selected)" % SELECTED), ("mean_floor", "training mean (floor)")):
             L.append("| %s | %s |" % (label, fmt_num(ctx["heldout_scores"][m], 4)))
         L.append("")
         L.append("Point estimates only (no interval over %d game(s))." % ctx["heldout_games"])
@@ -440,7 +442,7 @@ def _run(table: pd.DataFrame, n_folds: int, seed: int, n_boot: int, n_min: int, 
         y = heldout["ppp"].astype(float).to_numpy()
         # the selected model only (the ridge, the one model the protocol carries forward), with the training mean as a
         # labelled floor; the by-action table is never scored on held-out rows
-        ctx["heldout_scores"] = {"mean_floor": mse(y, base["mean"](heldout)), "ridge": mse(y, predict_ridge(model, heldout))}
+        ctx["heldout_scores"] = {"mean_floor": mse(y, base["mean"](heldout)), SELECTED: mse(y, predict_ridge(model, heldout))}
     ctx["train"], ctx["heldout"] = train, heldout
     return ctx
 

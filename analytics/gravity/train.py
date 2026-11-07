@@ -513,8 +513,11 @@ def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##"
           "Mean hull area %s ft2 (sd %s), mean nearest-defender distance %s ft over %d training possession-frames."
           % (fmt_num(ctx["hull_mean"], 1), fmt_num(ctx["hull_sd"], 1), fmt_num(ctx["mnd_mean"], 2), ctx["spacing_rows"]),
           "", "%s Held-out, %s%s" % (h, "not scored" if ctx.get("skip_heldout") else "scored once", tag), ""]
-    if ctx.get("skip_heldout"):
+    if ctx.get("skip_heldout") and h == "##":
         L += skip_heldout_lines(ctx["heldout_games"])
+    elif ctx.get("skip_heldout"):      # the planted-pull run of a fixture report: the note is said once, above
+        L.append("%d held-out game(s) of this run set aside before any fit and left unscored, as in the main run."
+                 % ctx["heldout_games"])
     elif ctx["heldout_games"]:
         hs = ctx["heldout_scores"]
         L.append("%d held-out game(s), %d player-frames, scored once by the shipped ridge refit on all %d training rows: MSE %s "

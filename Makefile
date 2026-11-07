@@ -1,8 +1,9 @@
 # Makefile: the Mac run order in one place. `make help` lists the targets; docs/run_order.md has the long form.
 # Variables: PY (interpreter), DATA (real DATA_ROOT, the parent of sportvu_contract/ and collect/; unset means
 # fixtures), OUT (OUT_ROOT for run_all), DATA_ROOT (command line only: where `make fixtures` writes and `make phase0` reads when
-# DATA is unset), SITE_DIR (where `make site` copies the page), SKIP_HELDOUT (1 passes --skip-heldout to every train
-# step through run_all: held-out games set aside but never scored, the rule for every real run before stage 8).
+# DATA is unset), SITE_DIR (where `make site` copies the page), SKIP_HELDOUT (1, or any value other than empty or 0,
+# passes --skip-heldout to every train step through run_all: held-out games set aside but never scored, the rule
+# for every real run before stage 8).
 # Every path is quoted: Drive paths have spaces.
 
 PY ?= python3
@@ -29,7 +30,8 @@ help: ## list the targets with their one-line descriptions
 	@grep -E '^[a-zA-Z0-9_-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/^([a-zA-Z0-9_-]+):.*## (.*)$$/  \1\t\2/' | sort | expand -t 18
 	@echo
 	@echo "  make ext-xfg DATA=/path/to/DATA_ROOT runs on real data; make ext-xfg alone runs on fixtures."
-	@echo "  SKIP_HELDOUT=1 on ext-*, all or all-fixtures passes --skip-heldout to every train step (every real run before stage 8)."
+	@echo "  SKIP_HELDOUT=1 on ext-*, all or all-fixtures passes --skip-heldout to every train step (every real run before stage 8);"
+	@echo "  any value other than empty or 0 turns it on."
 	@echo "  Lanes read the Phase 0 tables and states_1hz from OUT first, then DATA; leave OUT unset (OUT_ROOT = DATA_ROOT) for the simplest setup."
 
 test: ## run every test under tests/

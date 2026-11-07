@@ -347,10 +347,10 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["## Inputs" + tag, "", "| game | held-out | frames | possessions | visited (pass 1) | action labels | screen labels | validation |",
           "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for g in ctx["inputs"]:
-        L.append("| %s | %s | %d | %d | %s | %d | %d | %s |" % (g["sportvu_game"], "yes" if g["heldout"] else "no", g["frames"],
+        L.append("| %s | %s | %d | %d | %s | %s | %s | %s |" % (g["sportvu_game"], "yes" if g["heldout"] else "no", g["frames"],
                                                              g["possessions"], g.get("visited", "none"), g["actions"], g["screens"], g["validation"]))
-    L += ["", "Label counts by action_type over every game (hand-label schema; only ball_screen, drive and isolation are detected): %s."
-          % (", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_counts"].items())) or "none"),
+    L += ["", "Label counts by action_type over every %sgame (hand-label schema; only ball_screen, drive and isolation are detected): %s."
+          % ("non-held-out " if ctx.get("skip_heldout") else "", ", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_counts"].items())) or "none"),
           "Label counts by label_source: %s." % (", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_sources"].items())) or "none"),
           "Training games: %d (%s). Held-out games set aside before any fit: %d (%s). Skipped possessions (null offense or no rows): %d. "
           "Games skipped by validation: %s."
@@ -456,7 +456,8 @@ def write_report(path: Path, ctx: dict) -> str:
         L.append("The real run of this protocol is")
     L += ["", "    " + FULL_RUN_CMD, "",
           "Needs real data before any number means anything: hand-labelled ball screens, drives and isolations on training games "
-          "(the plan asks for over 0.8 ball_screen F1 on a held-out game, judged once on the held-out block above), and the possessions table of every labelled game.", ""]
+          "(the plan asks for over 0.8 ball_screen F1 on a held-out game, %s), and the possessions table of every labelled game."
+          % ("not scored in this run (--skip-heldout)" if ctx.get("skip_heldout") else "judged once on the held-out block above"), ""]
     if fx:      # every section heading carries the label, not only the banner
         L = [x + FIXTURE_TAG if x.startswith("## ") and not x.endswith(FIXTURE_TAG) else x for x in L]
     text = "\n".join(L)
@@ -510,17 +511,21 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
         dropped_model_rows += int(lab.get("dropped_model_rows", 0))
         visited = g.get("visited")
         inputs.append({"sportvu_game": g["sportvu_game"], "heldout": g["heldout"], "frames": int(g["frames"]["frame"].nunique()),
-                       "possessions": int(len(g["possessions"])), "actions": int(len(lab["actions"])), "screens": int(len(lab["screens"])),
+                       "possessions": int(len(g["possessions"])),
+                       "actions": "-" if skip_heldout and g["heldout"] else int(len(lab["actions"])),
+                       "screens": "-" if skip_heldout and g["heldout"] else int(len(lab["screens"])),
                        "visited": "none" if visited is None else str(len(visited)),
                        "validation": "ok" if rep["ok"] else "%d problem(s)" % sum(len(rep[p]["problems"]) for p in ("frames", "possessions", "rosters", "labels"))})
         if not rep["ok"]:
             invalid.append(g["sportvu_game"])
             continue
+        valid.append(g)
+        if skip_heldout and g["heldout"]:      # --skip-heldout: no label count of a held-out game reaches the report
+            continue
         for k, v in rep["labels"]["counts"].get("by_action_type", {}).items():
             label_counts[k] = label_counts.get(k, 0) + v
         for k, v in rep["labels"]["counts"].get("by_label_source", {}).items():
             label_sources[k] = label_sources.get(k, 0) + v
-        valid.append(g)
     if not valid:
         raise SystemExit("%s: no valid game" % WHO)
     cands_all, feats_all, _recall_all, skipped = F.build_season(valid)
@@ -528,6 +533,12 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
     train_c, train_f, held_c, held_f = training_split(cands, feats)
     if len(train_c) == 0:
         raise SystemExit("%s: no training candidate after setting the held-out games aside" % WHO)
+    held_ids = set(held_c["sportvu_game"])
+    if skip_heldout and len(inf_c):      # an unlabelled held-out game is inference-only: set it aside too, never predicted
+        m_inf = (inf_c["heldout"].astype(bool) | inf_c["sportvu_game"].map(is_heldout_game).astype(bool)).to_numpy()
+        held_ids |= set(inf_c.loc[m_inf, "sportvu_game"])
+        inf_c, inf_f = inf_c[~m_inf].reset_index(drop=True), inf_f[~m_inf].reset_index(drop=True)
+        scope["inference_games"] = [x for x in scope["inference_games"] if x not in held_ids]
     scored_games = set(cands["sportvu_game"])
     train_games = [g for g in valid if not g["heldout"] and g["sportvu_game"] in scored_games]
     train_actions = pd.concat([g["labels"]["actions"] for g in train_games if len(g["labels"]["actions"])], ignore_index=True) \
@@ -547,7 +558,7 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
            "inputs": inputs, "invalid_games": invalid, "label_counts": label_counts, "label_sources": label_sources,
            "dropped_model_rows": dropped_model_rows, "scope": scope,
            "train_games": int(train_c["sportvu_game"].nunique()), "train_game_ids": sorted(train_c["sportvu_game"].unique()),
-           "heldout_games": int(held_c["sportvu_game"].nunique()), "heldout_game_ids": sorted(held_c["sportvu_game"].unique()),
+           "heldout_games": len(held_ids), "heldout_game_ids": sorted(held_ids),
            "train_rows": int(len(train_c)), "heldout_rows": int(len(held_c)), "inference_rows": int(len(inf_c)), "skipped_possessions": int(skipped),
            "n_candidates": int(len(train_c)), "n_possessions": int(sum(len(g["possessions"]) for g in train_games)),
            "n_possessions_visited": int(sum(len(g["visited"]) if g.get("visited") is not None else len(g["possessions"]) for g in train_games)),

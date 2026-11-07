@@ -462,7 +462,9 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
           "- Fits run under `analytics.eval.fit_threads(--threads)`, single-threaded by default because the build container shares 4 cores "
           "across 21 lanes; `--threads` raises it on the Mac.",
           "- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the "
-          "held-out games are scored once, after the decision, by the candidates refit on every training row. The sign test needs dozens of "
+          "held-out games are %s. The sign test needs dozens of "
+          % ("set aside and left unscored until a run without --skip-heldout" if ctx.get("skip_heldout")
+             else "scored once, after the decision, by the candidates refit on every training row") +
           "games to say anything; with the fixtures it is a pipeline check.", "",
           "## Next on the Mac", "", "    " + MAC_CMD, "",
           "Torch GRU note: the deep candidate here is sklearn's MLPRegressor over the flattened 5-step window because torch is not installed "

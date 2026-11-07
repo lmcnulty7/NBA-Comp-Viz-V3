@@ -184,6 +184,7 @@ def write_report(path: Path, ctx: dict) -> str:
         s = ctx["scores"][m]
         L.append("| %s | %s | %s | %s | %s |" % (m, _ci(s["log_loss"]), _ci(s["brier"]), _ci(s["ece"]), _ci(s["calibration_slope"])))
     L += ["", "The constant model's calibration slope is n/a by design: its predictions vary only by fold make rate, so a slope is not defined.", "",
+          "Selected candidate: logistic.", "",
           "## Calibration table, logistic model (%s)" % ctx["mode"], "",
           "| bin | lo | hi | n | mean p | mean made |", "| --- | --- | --- | --- | --- | --- |"]
     for r in ctx["calibration"].itertuples():

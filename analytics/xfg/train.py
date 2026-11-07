@@ -317,6 +317,8 @@ ASSUMPTIONS = [
     "p_contest are NaN unless that candidate is the selected one.",
     "Bootstrap intervals are 2.5 and 97.5 percentiles over whole-game resamples; with one held-out game no interval is meaningful.",
 ]
+SKIP_ASSUMPTION = ("Held-out rows are set aside before any fit and, under --skip-heldout, never refit on, predicted or scored; "
+                   "none reaches xfg_predictions.")
 
 
 def write_report(path: Path, ctx: dict) -> str:
@@ -367,7 +369,10 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "## Calibration%s" % tag, ""]
     for name in CANDIDATES:
         L.append(ctx["blocks"][name])
-    L += ["## Held-out score (scored once by the selected candidate refit on all %d training rows)%s" % (ctx["train_rows"], tag), ""]
+    if ctx.get("skip_heldout"):     # same "## Held-out score" prefix; nothing is refit or scored
+        L += ["## Held-out score (not scored)%s" % tag, ""]
+    else:
+        L += ["## Held-out score (scored once by the selected candidate refit on all %d training rows)%s" % (ctx["train_rows"], tag), ""]
     if ctx.get("skip_heldout"):
         L += skip_heldout_lines(ctx["heldout_games"]) + [""]
     elif ctx["heldout_rows"]:
@@ -383,7 +388,8 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["No held-out rows in the input.", ""]
     L += ["## Output%s" % tag, "", "xfg_predictions (docs/contract/xfg.md): %s" % (ctx["predictions_path"] or "not written (no --out)"), "",
           "## Assumptions%s" % tag, ""]
-    L += ["- " + a for a in ASSUMPTIONS]
+    L += ["- " + (SKIP_ASSUMPTION if ctx.get("skip_heldout") and a.startswith("Held-out rows are scored once") else a)
+          for a in ASSUMPTIONS]
     L += ["", "## The real run on the Mac%s" % tag, "",
           "With DATA_ROOT holding sportvu_contract/, collect/bref_shots/ and analytics/{shot_frames,rosters,possessions}/ "
           "(docs/contract/xfg.md):", "", "    " + FULL_RUN_CMD, "",
