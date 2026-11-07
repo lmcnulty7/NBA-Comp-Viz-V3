@@ -22,6 +22,9 @@ Candidates (the displacement from t-1 to t is the regression target, both axes a
                   on the window of the last five sampled feature vectors (features.window_columns), the
                   stand-in for the GRU: a torch GRU reading the same window reshaped to (n, 5, n_features)
                   with the most recent step first is the drop-in once torch is installed on the Mac
+  --deep torch    the GRU of analytics/ghosting/deep.py fills slot 3 instead (one deep candidate per run, the same
+                  window, target, roll-forward and keep rule); --deep mlp, the default, keeps the stand-in, and
+                  --deep torch without torch falls back to it with "torch not available; MLP stand-in used"
 Roll-forward: at each of the five sampled steps the candidate's predicted displacement moves its ghost,
 the ghost's own position and velocity re-enter the features, and the offence, the ball and the other
 defenders stay actual (the question is where this defender would have been given what everyone else did).
@@ -54,8 +57,10 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.deep_torch import add_deep_arg, resolve_deep
 from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, is_heldout_game,
                             paired_bootstrap_by_game, refuse_heldout)
+from analytics.ghosting import deep as D
 from analytics.ghosting import features as F
 from analytics.ghosting import validate as V
 
@@ -113,10 +118,11 @@ def fit_mlp(frame: pd.DataFrame, seed: int = 0, columns: list[str] | None = None
     return m.predict
 
 
-def fit_candidates(train: pd.DataFrame, seed: int = 0, threads: int = THREADS) -> dict:
+def fit_candidates(train: pd.DataFrame, seed: int = 0, threads: int = THREADS, deep: str = "mlp") -> dict:
     """{candidate: predict(window_matrix) -> displacement (n, 2)}. Every fit of the trainer goes through here,
     under analytics.eval.fit_threads(threads). The window matrix is (n, N_LAGS * n_base) in window_columns order;
-    the ridge reads its first block."""
+    the ridge reads its first block. ``deep`` fills the one deep slot ("mlp"): the sklearn stand-in, or with
+    "torch" the GRU of analytics.ghosting.deep over the same window."""
     if "heldout" in train.columns and bool(train["heldout"].any()):
         raise ValueError("%s: a held-out row reached fit_candidates" % WHO)
     if len(train) < 10:
@@ -124,7 +130,7 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0, threads: int = THREADS) -
     nb = len(F.BASE_FEATURES)
     with fit_threads(threads):
         ridge = fit_ridge(train)
-        mlp = fit_mlp(train, seed=seed)
+        mlp = fit_mlp(train, seed=seed) if deep == "mlp" else D.fit_gru(train, seed=seed, threads=threads)
     return {"persistence": lambda W: np.zeros((len(W), 2)),
             "ridge": lambda W, m=ridge: m(W[:, :nb]),
             "mlp": lambda W, m=mlp: m(W)}
@@ -191,11 +197,11 @@ def roll_forward(models: dict, rows: pd.DataFrame, panel: pd.DataFrame, fold: in
 
 
 def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: int,
-                threads: int = THREADS) -> tuple[pd.DataFrame, dict]:
+                threads: int = THREADS, deep: str = "mlp") -> tuple[pd.DataFrame, dict]:
     """Out-of-fold ghosts of every candidate -> (errors frame, protocol note)."""
     games = sorted(frame["sportvu_game"].unique())
     if len(games) == 1:
-        models = fit_candidates(frame, seed, threads)
+        models = fit_candidates(frame, seed, threads, deep)
         err = roll_forward(models, frame, panel, fold=IN_SAMPLE_FOLD)
         note = {"mode": "in-sample", "folds": 0, "games": 1,
                 "text": "one training game: no grouped fold is possible, so the errors are IN-SAMPLE (fit and scored on the same rows)"}
@@ -205,7 +211,7 @@ def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: in
     for i, (tr_games, te_games) in enumerate(grouped_folds(games, n_folds=k, seed=seed)):
         tr = frame[frame["sportvu_game"].isin(tr_games)]
         te = frame[frame["sportvu_game"].isin(te_games)]
-        models = fit_candidates(tr, seed, threads)
+        models = fit_candidates(tr, seed, threads, deep)
         parts.append(roll_forward(models, te, panel, fold=i))
     text = "out-of-fold under %d grouped folds by sportvu_game (seed %d)" % (k, seed)
     if k < n_folds:
@@ -317,14 +323,20 @@ def split_games(games: list[dict]) -> tuple[list[dict], list[dict]]:
     return train, held
 
 
-def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200, threads: int = THREADS) -> dict:
+def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200, threads: int = THREADS,
+        deep: str = "mlp") -> dict:
     """The whole protocol on game dicts -> ctx (scores, pairs, decision, errors, ghost tables, held-out), with BLAS
-    and OpenMP pinned to ``threads`` (analytics.eval.fit_threads)."""
+    and OpenMP pinned to ``threads`` (analytics.eval.fit_threads). ``deep`` ("mlp" or "torch", resolved by
+    analytics.deep_torch.resolve_deep: torch absent falls back to "mlp") picks the model of the deep slot; the
+    keep rule (decide) is the same either way."""
+    info = resolve_deep(deep, WHO)
     with fit_threads(threads):
-        return _run(games, n_folds, seed, n_boot, threads)
+        ctx = _run(games, n_folds, seed, n_boot, threads, info["used"])
+    ctx["deep"] = info
+    return ctx
 
 
-def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int = THREADS) -> dict:
+def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int = THREADS, deep: str = "mlp") -> dict:
     """run() without the thread pin."""
     train_games, held_games = split_games(games)
     if not train_games:
@@ -335,7 +347,7 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int =
     he = frame[frame["heldout"].astype(bool)].reset_index(drop=True)
     if len(tr) < 10:
         raise SystemExit("%s: %d training rows is too few" % (WHO, len(tr)))
-    err, note = out_of_fold(tr, panel, n_folds, seed, threads)
+    err, note = out_of_fold(tr, panel, n_folds, seed, threads, deep)
     scores = score(err, n_boot, seed)
     pairs = paired(err, n_boot, seed)
     decision = decide(pairs)
@@ -350,7 +362,7 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int =
     if len(he):
         # the held-out game sees only the selected candidate (and persistence as a labelled floor): the other
         # candidate is never scored on it, so nothing can be chosen on held-out numbers
-        models = fit_candidates(tr, seed, threads)
+        models = fit_candidates(tr, seed, threads, deep)
         keep = [c for c in ("persistence", decision["selected"]) if c in models]
         herr = roll_forward({c: models[c] for c in keep}, he, panel, fold=HELDOUT_FOLD)
         ctx["heldout_errors"] = herr
@@ -384,6 +396,8 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
     """Write the markdown report of a run context to path; returns the text. On fixtures every heading of a section
     that carries a number says it is fixture output, not a result."""
     tag = " (fixture output, not a result)" if fixtures else ""
+    deep = ctx.get("deep") or {"requested": "mlp", "used": "mlp", "notice": ""}
+    LBL = {**CANDIDATE_LABELS, **({"mlp": D.LABEL} if deep["used"] == "torch" else {})}
     L = ["# Ghosting: defender position from the past five sampled frames (analytics/ghosting/train.py)%s" % tag, "",
          "Written %s by `%s`." % (dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), command), ""]
     if fixtures:
@@ -408,25 +422,32 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
           "%s." % (F.STRIDE, ", ".join(F.feature_columns())),
           "Target: displacement of the defender from t minus 1 to t. The 1.0 s horizon rolls the ghost forward five steps with its own "
           "position fed back and everyone else actual.",
-          "Candidates: " + "; ".join(CANDIDATE_LABELS[c] for c in CANDIDATES) + ".",
+          "Candidates: " + "; ".join(LBL[c] for c in CANDIDATES) + ".",
+          *([] if deep["requested"] == "mlp" else
+            ["Deep candidate (--deep torch): %s." % (deep["notice"] if deep["notice"] else
+             "torch GRU, hidden %d, over the same 5-step window reshaped to (n, %d, %d) oldest step first, the same "
+             "target and the same roll-forward; Adam, batch %d, at most %d epochs, early stopping after %d epochs on an "
+             "inner split of the training games; kept only by the rule below" % (D.GRU_HIDDEN, F.N_LAGS, len(F.BASE_FEATURES),
+                                                                                 D.BATCH, D.MAX_EPOCHS, D.PATIENCE))]),
           "Metrics: %s; mean position error in feet; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""),
           "", "## Candidates by horizon (%s, feet)%s" % (ctx["note"]["mode"], tag), "",
           "| candidate | 0.2 s error | rows | 1.0 s error | rows |", "| --- | --- | --- | --- | --- |"]
     for c in CANDIDATES:
         s2, s1 = ctx["scores"][0.2][c], ctx["scores"][1.0][c]
-        L.append("| %s | %s | %d | %s | %d |" % (CANDIDATE_LABELS[c], fmt_ci(s2), s2["rows"], fmt_ci(s1), s1["rows"]))
+        L.append("| %s | %s | %d | %s | %d |" % (LBL[c], fmt_ci(s2), s2["rows"], fmt_ci(s1), s1["rows"]))
     L += ["", "## Paired bootstrap by game (difference of mean error, feet; negative favours the first)%s" % tag, "",
           "| pair | horizon | diff | lo | hi | excludes zero |", "| --- | --- | --- | --- | --- | --- |"]
     for pair, byh in ctx["pairs"].items():
         for h, r in byh.items():
-            L.append("| %s | %.1f s | %s | %s | %s | %s |" % (pair.replace("_", " "), h, fmt_num(r["diff"]), fmt_num(r["lo"]), fmt_num(r["hi"]), r["excludes_zero"]))
+            name = pair.replace("_", " ") if deep["used"] == "mlp" else pair.replace("mlp_", "deep (GRU) ").replace("_", " ")
+            L.append("| %s | %.1f s | %s | %s | %s | %s |" % (name, h, fmt_num(r["diff"]), fmt_num(r["lo"]), fmt_num(r["hi"]), r["excludes_zero"]))
     d = ctx["decision"]
     L += ["", "## Decision%s" % tag, "",
           "The deep candidate (3) is **%s**: its 1.0 s error minus the linear baseline's is %s with paired interval [%s, %s], which %s zero. "
           "The rule is fixed in advance: keep 3 only when the difference is negative and the interval excludes zero. Selected ghost: %s%s."
           % ("kept" if d["keep_mlp"] else "dropped", fmt_num(d["diff_1s"]), fmt_num(d["lo"]), fmt_num(d["hi"]),
-             "excludes" if d["excludes_zero"] else "does not exclude", CANDIDATE_LABELS[d["selected"]], tag), "",
+             "excludes" if d["excludes_zero"] else "does not exclude", LBL[d["selected"]], tag), "",
           "## Validation: graded deviation against points allowed (%s rows, selected ghost, 1.0 s horizon)%s" % (ctx["note"]["mode"], tag), "",
           "deviation_ft = distance(actual, assignment) minus distance(ghost, assignment); per possession the mean over its 1.0 s rows; "
           "per game the Spearman correlation of that mean with the points the offence scored; then a sign test over games "
@@ -443,7 +464,7 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
               "the dropped candidate never sees the held-out game." % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"])), "",
               "| candidate | 0.2 s error | 1.0 s error |", "| --- | --- | --- |"]
         for c in ctx["heldout_candidates"]:
-            L.append("| %s | %s | %s |" % (CANDIDATE_LABELS[c], fmt_num(ctx["heldout_scores"][0.2][c]), fmt_num(ctx["heldout_scores"][1.0][c])))
+            L.append("| %s | %s | %s |" % (LBL[c], fmt_num(ctx["heldout_scores"][0.2][c]), fmt_num(ctx["heldout_scores"][1.0][c])))
         hv = ctx["heldout_validation"]
         L += ["", "Held-out numbers are point estimates (no bootstrap over %d game(s)). Held-out sign test: %d positive, %d negative, p = %s."
               % (len(ctx["heldout_games"]), hv["n_pos"], hv["n_neg"], fmt_num(hv["p_value"], 4)), ""]
@@ -466,6 +487,12 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
           "in the build container. The window columns are ordered lag 1 first, so `X.reshape(n, %d, %d)` is the (batch, time, features) tensor "
           "a `torch.nn.GRU` consumes (reverse the time axis for oldest-first); it replaces `fit_mlp` with no change to the features, the "
           "roll-forward or the decision rule, and is kept under the same paired-bootstrap test." % (F.N_LAGS, len(F.BASE_FEATURES)), ""]
+    if deep["used"] == "torch":      # the note above describes the stand-in; this run used the GRU itself
+        L[-2] = ("Torch GRU note: the deep candidate here is the torch GRU of analytics/ghosting/deep.py (--deep torch) over the same "
+                 "window reshaped to (n, %d, %d), oldest step first, with no change to the features, the roll-forward or the decision "
+                 "rule." % (F.N_LAGS, len(F.BASE_FEATURES)))
+    elif deep["notice"]:
+        L[-2] += " This run asked for --deep torch: %s." % deep["notice"]
     text = "\n".join(L)
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -486,6 +513,7 @@ def parse_args(argv=None):
                                   "OUT_ROOT/analytics/ghosting/<season>/")
     ap.add_argument("--threads", type=int, default=THREADS,
                     help="BLAS and OpenMP threads for the fits, passed to analytics.eval.fit_threads (default 1, the shared build container)")
+    add_deep_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -494,7 +522,7 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
     games = V.load_games(a)
-    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1))
+    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1), deep=a.deep)
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])
     text = write_report(Path(a.report), ctx, fixtures=bool(a.fixtures), command=cmd)
     print(text)
