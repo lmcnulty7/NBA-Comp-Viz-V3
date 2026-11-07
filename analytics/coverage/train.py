@@ -2,7 +2,7 @@
 
     python -m analytics.coverage.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/coverage.md
                                        [--folds 5] [--seed 0] [--bootstrap 200] [--fixture-games 8]
-                                       [--fixture-possessions 40] [--fixture-heldout-every 0]
+                                       [--fixture-possessions 40] [--fixture-heldout-every 0] [--skip-heldout]
 
 Steps: load the inputs (analytics.coverage.validate), run every check, build the feature frame
 (analytics.coverage.features; schema.assert_time_forward runs on it), set every held-out row aside
@@ -24,6 +24,8 @@ rows under heldout/<season>/) and OUT_ROOT/analytics/coverage/<season>/coverage_
 predicted class per defending team over training-game screens, insufficient under 300 screens via
 analytics.eval.gated, one file per season from that season's rows), plus the markdown report. Rows labelled
 unsure are scored, never fitted (docs/contract/labels.md). Held-out rows are scored by the selected model only.
+With --skip-heldout the held-out rows are set aside the same way but never scored: no held-out prediction is written
+and the held-out section says "held-out games not scored (--skip-heldout)".
 
 Fewer games than folds: n_folds becomes the number of training games (leave-one-game-out) and the report says
 so. One training game: in-sample metrics, labelled as such. No deep model here: baselines first. Every fit and
@@ -47,7 +49,8 @@ from analytics import schema
 from analytics.coverage import CLASSES, WHO
 from analytics.coverage.features import design, feature_columns, features
 from analytics.coverage.validate import add_input_args, load_inputs, validate_bundle
-from analytics.eval import bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds, refuse_heldout
+from analytics.eval import (add_skip_heldout_arg, bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds,
+                            refuse_heldout, skip_heldout_lines)
 
 log = logging.getLogger("analytics.coverage")
 
@@ -329,8 +332,10 @@ def write_report(path: Path, ctx: dict) -> str:
     for k in CLASSES:
         n = ctx["label_counts"].get(k, 0)
         L.append("| %s | %d | %s |" % (k, n, fmt_num(n / ctx["train_rows"] if ctx["train_rows"] else float("nan"))))
-    L += ["", "Confidence over every labelled screen read: %d sure, %d unsure. Only sure rows fit (docs/contract/labels.md leaves "
-          "unsure out of the first training set); unsure rows are scored and the flag never enters a feature." % (ctx["n_sure"], ctx["n_unsure"]),
+    L += ["", "Confidence over every labelled screen read%s: %d sure, %d unsure. Only sure rows fit (docs/contract/labels.md leaves "
+          "unsure out of the first training set); unsure rows are scored and the flag never enters a feature." % (
+              " in the training games (held-out games left out under --skip-heldout)" if ctx.get("skip_heldout") else "",
+              ctx["n_sure"], ctx["n_unsure"]),
           "", "## Protocol", "",
           "Unit: one ball screen. Window: start_frame to end_frame plus 1.5 s (38 frames at 25 Hz), declared as the object "
           "being classified; no later frame enters. Features (%d): %s." % (len(feature_columns()), ", ".join(feature_columns())),
@@ -369,8 +374,10 @@ def write_report(path: Path, ctx: dict) -> str:
         L += ["", "A team marked insufficient has fewer than %d screens; its shares are shown for completeness and are not to be read." % N_MIN_TEAM]
     else:
         L += ["", "No team rates: no training-game screen with a known defending team."]
-    L += ["", "## Held-out rows (scored once by %s refit on all %d training rows; never fitted or tuned on)" % (best, ctx["train_rows"]), ""]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += ["", "## Held-out rows", ""] + skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_rows"]:
+        L += ["", "## Held-out rows (scored once by %s refit on all %d training rows; never fitted or tuned on)" % (best, ctx["train_rows"]), ""]
         h = ctx["heldout_scores"]
         L += ["%d screens from %d held-out game(s): %s." % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])),
               "", "| model | macro F1 | accuracy | labelled rows |", "| --- | --- | --- | --- |",
@@ -378,6 +385,7 @@ def write_report(path: Path, ctx: dict) -> str:
               "Only the selected model is scored on the held-out rows (one look); the numbers are point estimates over %d game(s), "
               "no interval." % ctx["heldout_games"]]
     else:
+        L += ["", "## Held-out rows (scored once by %s refit on all %d training rows; never fitted or tuned on)" % (best, ctx["train_rows"]), ""]
         L.append("No held-out rows in this run.")
     L += ["", "## Outputs (under OUT_ROOT)", ""] + ["- `%s`" % p for p in ctx["paths"]] + [
         "", "## On the Mac (where the labels and frames will be)", "", "    " + MAC_CMD, "",
@@ -412,6 +420,7 @@ def parse_args(argv=None):
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
     ap.add_argument("--seed", type=int, default=0, help="seed of the fixture season, the folds and the bootstrap (default 0)")
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -434,8 +443,9 @@ def recorded_command(argv) -> str:
 
 
 def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Path, command: str, fixtures: bool,
-        data: str = "") -> dict:
-    """The whole protocol on a load_data_root or fixture_bundle structure -> the report context (also written)."""
+        data: str = "", skip_heldout: bool = False) -> dict:
+    """The whole protocol on a load_data_root or fixture_bundle structure -> the report context (also written). With
+    skip_heldout the held-out rows are set aside as always but never scored or written."""
     cand, counts = validate_bundle(bundle)
     feats = features(cand, bundle["games"], counts)
     train, score_only, heldout = training_frame(feats, counts)
@@ -449,7 +459,7 @@ def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Pa
     if len(score_only):
         pred.append(prediction_rows(score_only, full[best](score_only), REFIT_FOLD))
     heldout_scores = {}
-    if len(heldout):
+    if len(heldout) and not skip_heldout:
         P = full[best](heldout)
         pred.append(prediction_rows(heldout, P, REFIT_FOLD))
         lab = heldout["coverage_label"].notna().to_numpy()
@@ -458,6 +468,8 @@ def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Pa
         heldout_scores = {"macro_f1": macro_f1(y, yh) if lab.any() else float("nan"),
                           "accuracy": accuracy(y, yh) if lab.any() else float("nan"), "n_labelled": int(lab.sum())}
     pred_all = pd.concat(pred, ignore_index=True)
+    # --skip-heldout: the confidence counts leave the held-out games' labels out (no held-out label count in the report)
+    conf_scope = ~cand["heldout"].astype(bool) if skip_heldout else pd.Series(True, index=cand.index)
     feats_all = pd.concat([train, score_only, heldout], ignore_index=True)
     rates = rates_by_season(pred_all, defender_team(feats_all, bundle["games"]))
     paths = write_tables(pred_all, rates, out_root)
@@ -467,9 +479,9 @@ def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Pa
            "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["sportvu_game"].nunique()),
            "heldout_game_ids": sorted(heldout["sportvu_game"].unique()),
            "label_counts": train["coverage_label"].value_counts().to_dict(),
-           "n_sure": int((cand["confidence"] == "sure").sum()), "n_unsure": int((cand["confidence"] == "unsure").sum()),
+           "n_sure": int(((cand["confidence"] == "sure") & conf_scope).sum()), "n_unsure": int(((cand["confidence"] == "unsure") & conf_scope).sum()),
            "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
-           "scores": scores, "best": best, "rates": rates, "heldout_scores": heldout_scores,
+           "scores": scores, "best": best, "rates": rates, "heldout_scores": heldout_scores, "skip_heldout": bool(skip_heldout),
            "paths": [p.as_posix() for p in paths] + ["%s (this report, in the repo)" % report], "predictions": pred_all,
            "features": feats_all}
     ctx["report_text"] = write_report(Path(report), ctx)
@@ -483,7 +495,8 @@ def main(argv=None) -> dict:
     bundle = load_inputs(a)
     out_root = a.out or tempfile.mkdtemp(prefix="coverage_out_")
     cmd = recorded_command(argv if argv is not None else sys.argv[1:])
-    ctx = run(bundle, a.folds, a.seed, a.bootstrap, out_root, Path(a.report), cmd, a.fixtures, a.data or "")
+    ctx = run(bundle, a.folds, a.seed, a.bootstrap, out_root, Path(a.report), cmd, a.fixtures, a.data or "",
+              skip_heldout=a.skip_heldout)
     print(ctx["report_text"])
     return ctx
 

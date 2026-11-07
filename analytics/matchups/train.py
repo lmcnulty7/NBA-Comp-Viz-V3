@@ -3,6 +3,7 @@
     python -m analytics.matchups.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/matchups.md
                                        [--seed 0] [--bootstrap 200] [--folds 5] [--n-min 300]
                                        [--fixture-games 8] [--fixture-possessions N] [--fixture-heldout-every 4]
+                                       [--skip-heldout]
 
 With --out the season-wide tables go to OUT_ROOT/analytics/matchups/tables/<season>/matchup_defenders.parquet and
 matchup_possessions_train.parquet, apart from the per-game files of analytics.matchups.features.
@@ -35,7 +36,10 @@ Steps
      (raw or ridge, whichever has the lower out-of-fold MSE on the training folds; a rule fixed before scoring)
      next to the constant floor, both fit on all training games; stability and defended FG% of that game;
      never fitted on. xFG fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample (one training game);
-     load_xfg refuses a training row whose fold is missing or below 0
+     load_xfg refuses a training row whose fold is missing or below 0. With --skip-heldout the held-out games are
+     set aside exactly the same way (their matchup rows are still built, so the Inputs counts match) but no xFG
+     probability is predicted or read for them and nothing is scored; the report says "held-out games not scored
+     (--skip-heldout)"
 
 Leakage: assignments use positions only; the possession's points and the shot outcome enter only as targets;
 schema.assert_time_forward runs on the feature frame (ids plus partial_possession and switches); the ridge
@@ -60,7 +64,7 @@ import scipy.sparse as sp
 
 from analytics import schema
 from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds,
-                            paired_bootstrap_by_game, refuse_heldout)
+                            paired_bootstrap_by_game, refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
 from analytics.matchups import features as F
 from analytics.matchups import validate as V
 
@@ -482,6 +486,7 @@ def write_report(path: Path, ctx: dict) -> str:
         L.append("Every defender is in one game on this input: raw and ridge out-of-fold equal the constant, so the comparison above carries no information about the defenders.")
     else:
         L.append("%d of %d defenders appear in two or more training games (only those can move an out-of-fold prediction)." % (ctx["n_defenders_multi_game"], ctx["n_defenders"]))
+    L += ["", "Selected candidate: %s." % ctx["selected"]]      # raw or ridge, the lower out-of-fold MSE; stated with and without --skip-heldout
     L += ["",
           "## Defenders" + tag, "",
           "%d defenders, %d pass the %d-possession gate. Sorted by diff_per100 (points allowed minus expected per 100 matchup possessions; positive = worse); ridge_value is the ridge coefficient per 100 possessions (positive = worse)."
@@ -495,9 +500,11 @@ def write_report(path: Path, ctx: dict) -> str:
     else:
         L += ["No defender passes the gate, so there is no ranking. The ungated rows, every one flagged insufficient, for inspection only:", ""] + head + \
              _defender_rows(ctx["defenders"].head(10))
-    L += ["", "## Held-out game(s), scored once" + tag, ""]
+    L += ["", "## Held-out game(s), %s" % ("not scored" if ctx.get("skip_heldout") else "scored once") + tag, ""]
     h = ctx["heldout"]
-    if h:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(len(ctx["held_ids"]))
+    elif h:
         L += ["%s: %d possessions, %d matchup rows; never fitted or tuned on; point estimates only." % (", ".join(h["games"]), h["n_possessions"], h["n_rows"]), "",
               "Selected candidate: %s (the lower out-of-fold MSE on the training folds; the rule was fixed before scoring). Only the candidate and the constant floor are scored here." % h["candidate"], "",
               "| model | MSE |", "| --- | --- |"] + ["| %s | %s |" % (m + (" (floor)" if m == "constant" else " (selected)"), fmt_num(h["mse"][m], 4)) for m in ("constant", h["candidate"])] + \
@@ -519,7 +526,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "- switches counts, per defender and possession, the sampled frames at which its assignment changed; the count repeats on each of that defender's pair rows.",
           "- The gate counts distinct possessions in which the defender was on the floor; n_possessions is that count, the per-100 denominators are the summed shares.",
           "- Unseen players in the held-out game have no ridge column; the intercept carries them.",
-          "- No NBA.com matchup table exists for 2015-16, so validation is internal (stability, defended FG% consistency, held-out MSE); nothing here is checked against an external matchup record.", ""]
+          "- No NBA.com matchup table exists for 2015-16, so validation is internal (stability, defended FG%% consistency%s); nothing here is checked against an external matchup record."
+          % ("" if ctx.get("skip_heldout") else ", held-out MSE"), ""]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
@@ -527,18 +535,24 @@ def write_report(path: Path, ctx: dict) -> str:
 
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
-def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: int, n_min: int, fixtures: bool, command: str) -> dict:
-    """Steps 1 to 6 of the module docstring -> the report context."""
+def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: int, n_min: int, fixtures: bool, command: str,
+        skip_heldout: bool = False) -> dict:
+    """Steps 1 to 6 of the module docstring -> the report context. With skip_heldout no held-out xFG probability is
+    predicted or used (held-out attempts take the training default) and step 6 does not run."""
     train, held = split(games)
     if not train:
         raise SystemExit("%s: no training games after setting the held-out games aside" % WHO)
     train_parts = assign_games(train)
     held_parts = assign_games(held)
     if xfg is not None:
+        if skip_heldout:         # no held-out probability is used, whichever way the xFG table marks those games
+            held_ids = {str(g["sportvu_game"]) for g in held}
+            keep = ~V.xfg_heldout_mask(xfg) & ~xfg["sportvu_game"].astype(str).isin(held_ids)
+            xfg = xfg[keep.to_numpy()].reset_index(drop=True)
         note = "the xFG lane's out-of-fold p_selected (%d rows, fold column verified)" % len(xfg)
     else:
         with fit_threads(1):
-            xfg, note = fallback_xfg(train_parts, held_parts, n_folds, seed)
+            xfg, note = fallback_xfg(train_parts, {} if skip_heldout else held_parts, n_folds, seed)
     default_p = default_probability(xfg)
     tt = matchup_tables(train_parts, xfg, default_p)
     ht = matchup_tables(held_parts, xfg, default_p)
@@ -564,7 +578,8 @@ def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: 
            "defended": defended_fg(tt["shots"], n_boot, seed), "cv": cv, "compare": compare, "defenders": defenders, "pairs": pairs,
            "n_defenders": int(len(defenders)), "n_gated": int((~defenders["insufficient"]).sum()),
            "n_defenders_multi_game": int((mp.groupby("def_player_id")["sportvu_game"].nunique() >= 2).sum()),
-           "heldout": score_heldout(ht, held, cv, n_boot, seed) if held else {},
+           "heldout": score_heldout(ht, held, cv, n_boot, seed) if held and not skip_heldout else {},
+           "skip_heldout": bool(skip_heldout), "selected": selected_candidate(cv),
            "tables": {"train": tt, "heldout": ht}, "xfg": xfg}
     return ctx
 
@@ -578,6 +593,7 @@ def parse_args(argv=None):
     ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by game (default %(default)s)")
     ap.add_argument("--n-min", type=int, default=N_MIN, help="distinct possessions a defender needs before ranking (default %(default)s)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -591,7 +607,7 @@ def main(argv=None) -> dict:
     V.validate_games(games)
     xfg = V.load_xfg(a.out, a.season) if a.out else None
     cmd = "python -m analytics.matchups.train " + " ".join(argv if argv is not None else sys.argv[1:])
-    ctx = run(games, xfg, a.folds, a.seed, a.bootstrap, a.n_min, a.fixtures, cmd)
+    ctx = run(games, xfg, a.folds, a.seed, a.bootstrap, a.n_min, a.fixtures, cmd, skip_heldout=a.skip_heldout)
     text = write_report(Path(a.report), ctx)
     print(text)
     if a.out:

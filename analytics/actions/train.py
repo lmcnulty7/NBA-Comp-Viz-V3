@@ -3,6 +3,7 @@
     python -m analytics.actions.train --fixtures | --data DATA_ROOT --report reports/actions.md
                                       [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200]
                                       [--fixture-games 6] [--fixture-possessions 24] [--fixture-heldout-every 3]
+                                      [--skip-heldout]
 
 Steps: load the games (validate.load_inputs) and run the validation checks (a game with a schema problem is
 skipped and listed); build the candidate windows and features (features.build_season); set every held-out
@@ -19,6 +20,8 @@ Selection metric: out-of-fold F1 for ball_screen (plan target over 0.8 on a held
 carries per-class F1, macro F1, accuracy, the confusion table of the selected model, bootstrap intervals by
 game, and candidate recall against the labels. Ties go to the rule baseline (simpler first). The held-out
 games are scored once by the models refit on every training row and reported apart; they never fit or tune.
+With --skip-heldout the held-out games are set aside exactly the same way but never scored: no held-out prediction
+or table is written and the held-out section says "held-out games not scored (--skip-heldout)".
 
 Outputs (docs/contract/actions.md), written under OUT_ROOT/analytics/actions/<season>/ when --out is given
 (held-out games under heldout/<season>/): action_candidates/<game>.parquet (every candidate with its label
@@ -47,8 +50,8 @@ from analytics import schema
 from analytics.actions import CLASSES, WHO
 from analytics.actions import features as F
 from analytics.actions import validate as V
-from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, is_heldout_game, md_table,
-                            refuse_heldout)
+from analytics.eval import (add_skip_heldout_arg, bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds,
+                            is_heldout_game, md_table, refuse_heldout, skip_heldout_lines)
 
 log = logging.getLogger("analytics.actions.train")
 
@@ -344,10 +347,10 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["## Inputs" + tag, "", "| game | held-out | frames | possessions | visited (pass 1) | action labels | screen labels | validation |",
           "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for g in ctx["inputs"]:
-        L.append("| %s | %s | %d | %d | %s | %d | %d | %s |" % (g["sportvu_game"], "yes" if g["heldout"] else "no", g["frames"],
+        L.append("| %s | %s | %d | %d | %s | %s | %s | %s |" % (g["sportvu_game"], "yes" if g["heldout"] else "no", g["frames"],
                                                              g["possessions"], g.get("visited", "none"), g["actions"], g["screens"], g["validation"]))
-    L += ["", "Label counts by action_type over every game (hand-label schema; only ball_screen, drive and isolation are detected): %s."
-          % (", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_counts"].items())) or "none"),
+    L += ["", "Label counts by action_type over every %sgame (hand-label schema; only ball_screen, drive and isolation are detected): %s."
+          % ("non-held-out " if ctx.get("skip_heldout") else "", ", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_counts"].items())) or "none"),
           "Label counts by label_source: %s." % (", ".join("%s %d" % (k, v) for k, v in sorted(ctx["label_sources"].items())) or "none"),
           "Training games: %d (%s). Held-out games set aside before any fit: %d (%s). Skipped possessions (null offense or no rows): %d. "
           "Games skipped by validation: %s."
@@ -400,7 +403,9 @@ def write_report(path: Path, ctx: dict) -> str:
     L += md_table(ctx["scores"][ctx["selected"]]["confusion"].reset_index().rename(columns={"true": "true \\ pred"}))
     L += ["", "Detected actions (selected class other than none with probability above %.1f): %d of %d training candidates; %d ball_screen detection(s) refused for lack of a screener."
           % (DETECT_P, ctx["n_detected_train"], ctx["train_rows"], ctx.get("refused_screens", 0))]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += ["", "## Held-out games" + tag, ""] + skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_rows"]:
         L += ["", "## Held-out games (scored once by the selected model refit on all %d training candidates; never fitted or tuned on)%s" % (ctx["train_rows"], tag), "",
               "%d candidates from %d held-out game(s): %s." % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
               "| model | F1 ball_screen | F1 drive | F1 isolation | F1 none | macro F1 | accuracy |", "| --- | --- | --- | --- | --- | --- | --- |"]
@@ -451,7 +456,8 @@ def write_report(path: Path, ctx: dict) -> str:
         L.append("The real run of this protocol is")
     L += ["", "    " + FULL_RUN_CMD, "",
           "Needs real data before any number means anything: hand-labelled ball screens, drives and isolations on training games "
-          "(the plan asks for over 0.8 ball_screen F1 on a held-out game, judged once on the held-out block above), and the possessions table of every labelled game.", ""]
+          "(the plan asks for over 0.8 ball_screen F1 on a held-out game, %s), and the possessions table of every labelled game."
+          % ("not scored in this run (--skip-heldout)" if ctx.get("skip_heldout") else "judged once on the held-out block above"), ""]
     if fx:      # every section heading carries the label, not only the banner
         L = [x + FIXTURE_TAG if x.startswith("## ") and not x.endswith(FIXTURE_TAG) else x for x in L]
     text = "\n".join(L)
@@ -469,6 +475,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT for the action_candidates and actions_detected tables")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -491,8 +498,9 @@ def recorded_command(argv) -> str:
 
 
 def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixtures: bool = False, out_root=None,
-        report: Path | None = None, command: str = "") -> dict:
-    """The whole protocol on a list of game dicts -> the report context (scores, tables, selected model)."""
+        report: Path | None = None, command: str = "", skip_heldout: bool = False) -> dict:
+    """The whole protocol on a list of game dicts -> the report context (scores, tables, selected model). With
+    skip_heldout the held-out candidates are set aside as always but never scored, predicted or written."""
     valid, inputs, invalid = [], [], []
     label_counts, label_sources = {}, {}
     dropped_model_rows = 0
@@ -503,17 +511,21 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
         dropped_model_rows += int(lab.get("dropped_model_rows", 0))
         visited = g.get("visited")
         inputs.append({"sportvu_game": g["sportvu_game"], "heldout": g["heldout"], "frames": int(g["frames"]["frame"].nunique()),
-                       "possessions": int(len(g["possessions"])), "actions": int(len(lab["actions"])), "screens": int(len(lab["screens"])),
+                       "possessions": int(len(g["possessions"])),
+                       "actions": "-" if skip_heldout and g["heldout"] else int(len(lab["actions"])),
+                       "screens": "-" if skip_heldout and g["heldout"] else int(len(lab["screens"])),
                        "visited": "none" if visited is None else str(len(visited)),
                        "validation": "ok" if rep["ok"] else "%d problem(s)" % sum(len(rep[p]["problems"]) for p in ("frames", "possessions", "rosters", "labels"))})
         if not rep["ok"]:
             invalid.append(g["sportvu_game"])
             continue
+        valid.append(g)
+        if skip_heldout and g["heldout"]:      # --skip-heldout: no label count of a held-out game reaches the report
+            continue
         for k, v in rep["labels"]["counts"].get("by_action_type", {}).items():
             label_counts[k] = label_counts.get(k, 0) + v
         for k, v in rep["labels"]["counts"].get("by_label_source", {}).items():
             label_sources[k] = label_sources.get(k, 0) + v
-        valid.append(g)
     if not valid:
         raise SystemExit("%s: no valid game" % WHO)
     cands_all, feats_all, _recall_all, skipped = F.build_season(valid)
@@ -521,6 +533,12 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
     train_c, train_f, held_c, held_f = training_split(cands, feats)
     if len(train_c) == 0:
         raise SystemExit("%s: no training candidate after setting the held-out games aside" % WHO)
+    held_ids = set(held_c["sportvu_game"])
+    if skip_heldout and len(inf_c):      # an unlabelled held-out game is inference-only: set it aside too, never predicted
+        m_inf = (inf_c["heldout"].astype(bool) | inf_c["sportvu_game"].map(is_heldout_game).astype(bool)).to_numpy()
+        held_ids |= set(inf_c.loc[m_inf, "sportvu_game"])
+        inf_c, inf_f = inf_c[~m_inf].reset_index(drop=True), inf_f[~m_inf].reset_index(drop=True)
+        scope["inference_games"] = [x for x in scope["inference_games"] if x not in held_ids]
     scored_games = set(cands["sportvu_game"])
     train_games = [g for g in valid if not g["heldout"] and g["sportvu_game"] in scored_games]
     train_actions = pd.concat([g["labels"]["actions"] for g in train_games if len(g["labels"]["actions"])], ignore_index=True) \
@@ -540,7 +558,7 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
            "inputs": inputs, "invalid_games": invalid, "label_counts": label_counts, "label_sources": label_sources,
            "dropped_model_rows": dropped_model_rows, "scope": scope,
            "train_games": int(train_c["sportvu_game"].nunique()), "train_game_ids": sorted(train_c["sportvu_game"].unique()),
-           "heldout_games": int(held_c["sportvu_game"].nunique()), "heldout_game_ids": sorted(held_c["sportvu_game"].unique()),
+           "heldout_games": len(held_ids), "heldout_game_ids": sorted(held_ids),
            "train_rows": int(len(train_c)), "heldout_rows": int(len(held_c)), "inference_rows": int(len(inf_c)), "skipped_possessions": int(skipped),
            "n_candidates": int(len(train_c)), "n_possessions": int(sum(len(g["possessions"]) for g in train_games)),
            "n_possessions_visited": int(sum(len(g["visited"]) if g.get("visited") is not None else len(g["possessions"]) for g in train_games)),
@@ -550,11 +568,12 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
            "recall": recall, "lengths": length_table(train_c, train_actions),
            "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
            "scores": scores, "selected": selected, "n_detected_train": int(len(detected_table(table, labeller_pass)[0])),
-           "heldout_scores": {}, "written_tables": [], "table": table}
+           "heldout_scores": {}, "written_tables": [], "table": table, "skip_heldout": bool(skip_heldout)}
     tables = [table]
-    if len(held_c) or len(inf_c):
+    score_held = len(held_c) > 0 and not skip_heldout
+    if score_held or len(inf_c):
         models = fit_models(train_c, train_f, seed)
-        if len(held_c):          # scored once, the selected model only
+        if score_held:           # scored once, the selected model only
             held_probs = {selected: models[selected](held_c, held_f)}
             ctx["heldout_scores"] = {selected: score(held_c, held_probs, 1, seed, models=(selected,))[selected]}
             tables.append(candidate_table(held_c, held_probs[selected], np.full(len(held_c), HELDOUT_FOLD)))
@@ -575,7 +594,7 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     games = V.load_inputs(a)
     ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixtures=bool(a.fixtures), out_root=a.out, report=Path(a.report),
-              command=recorded_command(argv if argv is not None else sys.argv[1:]))
+              command=recorded_command(argv if argv is not None else sys.argv[1:]), skip_heldout=a.skip_heldout)
     print(ctx["report_text"])
     return ctx
 

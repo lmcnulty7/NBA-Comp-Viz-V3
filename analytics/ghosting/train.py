@@ -1,7 +1,7 @@
 """analytics/ghosting/train.py: the three ghosting candidates under the full evaluation protocol.
 
     python -m analytics.ghosting.train --fixtures | --data DATA_ROOT --report reports/ghosting.md
-        [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--threads 1]
+        [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--threads 1] [--skip-heldout]
         [--fixture-games 4] [--fixture-possessions 10] [--fixture-heldout-every 0]
 
 Steps: load and validate the games (analytics.ghosting.validate); set every held-out game aside (its own
@@ -55,7 +55,7 @@ import pandas as pd
 
 from analytics import schema
 from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, is_heldout_game,
-                            paired_bootstrap_by_game, refuse_heldout)
+                            paired_bootstrap_by_game, refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
 from analytics.ghosting import features as F
 from analytics.ghosting import validate as V
 
@@ -317,14 +317,15 @@ def split_games(games: list[dict]) -> tuple[list[dict], list[dict]]:
     return train, held
 
 
-def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200, threads: int = THREADS) -> dict:
+def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200, threads: int = THREADS,
+        skip_heldout: bool = False) -> dict:
     """The whole protocol on game dicts -> ctx (scores, pairs, decision, errors, ghost tables, held-out), with BLAS
     and OpenMP pinned to ``threads`` (analytics.eval.fit_threads)."""
     with fit_threads(threads):
-        return _run(games, n_folds, seed, n_boot, threads)
+        return _run(games, n_folds, seed, n_boot, threads, skip_heldout)
 
 
-def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int = THREADS) -> dict:
+def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int = THREADS, skip_heldout: bool = False) -> dict:
     """run() without the thread pin."""
     train_games, held_games = split_games(games)
     if not train_games:
@@ -346,8 +347,8 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int =
            "counts": counts, "panel_rows": int(len(panel)), "train_rows": int(len(tr)), "heldout_rows": int(len(he)),
            "note": note, "scores": scores, "pairs": pairs, "decision": decision, "errors": err, "ghost_frames": gf,
            "ghost_possessions": gp, "validation": val, "folds": n_folds, "seed": seed, "bootstrap": n_boot,
-           "panel": panel, "frame": frame, "heldout_scores": {}, "heldout_validation": None}
-    if len(he):
+           "panel": panel, "frame": frame, "heldout_scores": {}, "heldout_validation": None, "skip_heldout": skip_heldout}
+    if len(he) and not skip_heldout:       # --skip-heldout: set aside above, never rolled forward or scored
         # the held-out game sees only the selected candidate (and persistence as a labelled floor): the other
         # candidate is never scored on it, so nothing can be chosen on held-out numbers
         models = fit_candidates(tr, seed, threads)
@@ -436,7 +437,9 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
         L.append("| %s | %d | %s |" % (r.sportvu_game, r.possessions, fmt_num(r.spearman)))
     v = ctx["validation"]
     L += ["", "Sign test: %d positive, %d negative, %d zero; one-sided p = %s%s." % (v["n_pos"], v["n_neg"], v["n_zero"], fmt_num(v["p_value"], 4), tag), ""]
-    if ctx["heldout_games"]:
+    if ctx.get("skip_heldout"):
+        L += ["## Held-out games%s" % tag, ""] + skip_heldout_lines(len(ctx["heldout_games"])) + [""]
+    elif ctx["heldout_games"]:
         L += ["## Held-out games (the selected candidate refit on all %d training rows, scored once; never fitted or tuned on)%s"
               % (ctx["train_rows"], tag), "",
               "%d defender-steps from %d held-out game(s): %s. Only the selected candidate and the persistence floor are scored here; "
@@ -459,7 +462,9 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
           "- Fits run under `analytics.eval.fit_threads(--threads)`, single-threaded by default because the build container shares 4 cores "
           "across 21 lanes; `--threads` raises it on the Mac.",
           "- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the "
-          "held-out games are scored once, after the decision, by the candidates refit on every training row. The sign test needs dozens of "
+          "held-out games are %s. The sign test needs dozens of "
+          % ("set aside and left unscored until a run without --skip-heldout" if ctx.get("skip_heldout")
+             else "scored once, after the decision, by the candidates refit on every training row") +
           "games to say anything; with the fixtures it is a pipeline check.", "",
           "## Next on the Mac", "", "    " + MAC_CMD, "",
           "Torch GRU note: the deep candidate here is sklearn's MLPRegressor over the flattened 5-step window because torch is not installed "
@@ -486,6 +491,7 @@ def parse_args(argv=None):
                                   "OUT_ROOT/analytics/ghosting/<season>/")
     ap.add_argument("--threads", type=int, default=THREADS,
                     help="BLAS and OpenMP threads for the fits, passed to analytics.eval.fit_threads (default 1, the shared build container)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -494,7 +500,8 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
     games = V.load_games(a)
-    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1))
+    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1),
+              skip_heldout=a.skip_heldout)
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])
     text = write_report(Path(a.report), ctx, fixtures=bool(a.fixtures), command=cmd)
     print(text)

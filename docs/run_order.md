@@ -58,7 +58,12 @@ repo. The tables one lane writes for another (the Phase 0 tables, `analytics/sta
 `analytics/epv_states/`, the lineups RAPM, the coverage predictions) are written under OUT_ROOT, and the
 lanes that consume them look under OUT_ROOT first, then DATA_ROOT. The simplest Mac setup is therefore OUT
 unset: OUT_ROOT = DATA_ROOT and everything lives beside the contract. Every step receives `--data DATA_ROOT` (or `--fixtures`), `--seed N` and `--out OUT_ROOT` when set;
-train also gets `--report` and `--bootstrap` when given. `run_all.py` stops at the first failed step unless
+train also gets `--report` and `--bootstrap` when given, and `--skip-heldout` when run_all gets it.
+`--skip-heldout` (every `analytics/<ext>/train.py` and `analytics.train_xfg` take it; `SKIP_HELDOUT=1` on
+an `ext-<name>`, `all` or `all-fixtures` make line passes it through run_all) sets the held-out games aside exactly as without it but
+never scores them or writes a held-out prediction; each report's held-out section then says
+"held-out games not scored (--skip-heldout)". Every real run uses it until stage 8 of docs/mac_runbook.md
+(for example `make all DATA=DATA_ROOT SKIP_HELDOUT=1`). `run_all.py` stops at the first failed step unless
 `--continue-on-error` (`make all` passes it), skips packages that are not importable and the dependents of
 a failed extension with a printed reason, and ends with `RUN OK` or `RUN FAILED`. Its exit code is nonzero
 when any step failed. A fixtures run without `OUT` writes its reports to `reports/fixtures/` so the tracked
