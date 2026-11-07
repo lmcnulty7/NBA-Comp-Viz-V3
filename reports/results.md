@@ -4,7 +4,7 @@
 
 **Fixture output, not a result.** 16 of 16 lane reports below are fixture output (synthetic analytics.fixtures runs, or a smoke run on fixture pages); every number copied from them is fixture output, not a result.
 
-Generated 2026-11-07T10:22:15Z by `python3 -m analytics.results --reports reports --out reports/results.md` (analytics/results.py; docs/contract/results.md). Every value is copied from the report named in its row; nothing here is computed. Regeneration rewrites only the text between the results markers.
+Generated 2026-11-07T10:42:23Z by `python3 -m analytics.results --reports reports --out reports/results.md` (analytics/results.py; docs/contract/results.md). Every value is copied from the report named in its row; nothing here is computed. Regeneration rewrites only the text between the results markers.
 
 ### Sources
 
@@ -42,7 +42,7 @@ Generated 2026-11-07T10:22:15Z by `python3 -m analytics.results --reports report
 | coverage | fixture output, not a result | hgb | macro F1 0.944 [0.902, 0.979] | macro F1 0.835 (point estimate) | target: beat majority (met) |
 | decisions | fixture output, not a result | location | mean Spearman, decision quality vs on-court rating (by game) 0.285 [0.125, 0.421] | mean Spearman, decision quality vs on-court rating (by game) -0.144 [-0.167, -0.121] | prior rule; player gate: nobody is ranked |
 | playcalling | fixture output, not a result | ridge | possession points MSE 1.3674 [1.3195, 1.4340] | possession points MSE 1.2359 (point estimate) | paired bootstrap, ridge minus mean: excludes zero: no; paired bootstrap, ridge minus by_action: excludes zero: no; recommendation gate: no recommendation is made |
-| lineups | fixture output, not a result | plus_minus | out-of-season Spearman 0.624 [-0.113, 0.950] | Spearman 0.881 [0.342, 1.000] | selection; paired bootstrap, rapm Spearman minus plus_minus (paired); paired bootstrap, rapm_synergy Spearman minus plus_minus (paired) |
+| lineups | fixture output, not a result | plus_minus | mean out-of-season Spearman over validation pairs 0.624 (no interval stated) | Spearman 0.881 [0.342, 1.000] | paired Spearman, rapm minus plus_minus (fit 2020-21, predict 2021-22); paired Spearman, rapm_synergy minus plus_minus (fit 2020-21, predict 2021-22); selection |
 | winprob | fixture output, not a result | logistic | mean bucket Brier (the selection metric) 0.1278 (no interval stated) | mean bucket Brier 0.1531 (no interval stated) | prefix invariance check: 0 violation(s) |
 | load | fixture output, not a result | ridge (decline); logistic (absence) | y_decline MSE (ft/s)^2 0.8584 [0.5032, 1.3310] | y_decline MSE (ft/s)^2 0.6271 (point estimate) | paired bootstrap, decline: excludes zero: False; paired bootstrap, absence: excludes zero: False; absence target: One class only |
 | betting | fixture output, not a result | cover model market, margin model market | cover log loss 0.6931 [0.6931, 0.6931] | cover log loss 0.6931 (point estimate, season 2021-22) | none stated |
@@ -227,14 +227,16 @@ Generated 2026-11-07T10:22:15Z by `python3 -m analytics.results --reports report
 | status | fixture output, not a result |
 | report | reports/lineups.md, written 2026-11-07T08:38:54Z |
 | selected model | plus_minus |
-| out-of-fold metric | out-of-season Spearman 0.624 [-0.113, 0.950] |
-| out-of-fold, selected | out-of-season MSE 712.776 [221.103, 1266.230] |
-| candidates, out-of-fold | plus_minus: Spearman 0.624 [-0.113, 0.950]; rapm: Spearman 0.576 [-0.273, 0.923]; rapm_synergy: Spearman 0.576 [-0.273, 0.923] |
+| out-of-fold metric | mean out-of-season Spearman over validation pairs 0.624 (no interval stated) |
+| out-of-fold, selected | fit 2020-21, predict 2021-22: Spearman 0.624 [-0.113, 0.950] |
+| out-of-fold, selected | fit 2020-21, predict 2021-22: MSE 712.776 [221.103, 1266.230] |
+| candidates, out-of-fold | plus_minus: mean Spearman 0.624; rapm: mean Spearman 0.576; rapm_synergy: mean Spearman 0.576 |
 | held-out | Spearman 0.881 [0.342, 1.000] |
 | held-out, selected | MSE 198.677 [39.772, 383.567] |
+| paired Spearman, rapm minus plus_minus (fit 2020-21, predict 2021-22) | -0.048 [-0.297, 0.151] |
+| paired Spearman, rapm_synergy minus plus_minus (fit 2020-21, predict 2021-22) | -0.048 [-0.297, 0.151] |
 | selection | Mean validation Spearman: plus_minus 0.624, rapm 0.576, rapm_synergy 0.576 |
-| paired bootstrap, rapm Spearman minus plus_minus (paired) | -0.048 [-0.297, 0.151] |
-| paired bootstrap, rapm_synergy Spearman minus plus_minus (paired) | -0.048 [-0.297, 0.151] |
+| note | 1 validation pair(s); the selection metric is the mean over them |
 
 ### winprob (fixture output, not a result)
 

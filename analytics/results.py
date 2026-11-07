@@ -18,11 +18,12 @@ Data status per lane:
                      the stage 5 banner of docs/mac_runbook.md, or a report with the --skip-heldout phrase
   real data, held-out scored once
                      no fixture banner, held-out numbers stated in the report
-  real data          no fixture banner, no held-out section (a lane without held-out scoring)
+  real data          no fixture banner, no held-out numbers (embeddings, or a held-out field that is unparsed)
 
 Held-out states: a copied metric; "not scored (--skip-heldout)" when the report contains the exact phrase
 `held-out games not scored (--skip-heldout)`; "not run yet" when the report says the held-out rows were set aside
-and not scored (the baseline smoke run); "absent" when the report has no held-out section; "unparsed" otherwise.
+and not scored (the baseline smoke run); "absent" when the report has no held-out section (unparsed too for every
+lane but embeddings, unless the --skip-heldout phrase or the stage 5 banner says why); "unparsed" otherwise.
 
 Regeneration rewrites only the text between `<!-- results:begin -->` and `<!-- results:end -->`; hand-written
 sections outside the markers survive. Usage:
@@ -296,6 +297,39 @@ def _gate_line(sec: Section, prefix: str, label: str, rec: LaneResult):
     rec.gates.append((label, sec.line(prefix)))
 
 
+HELDOUT = "Held-out"          # every lane's held-out heading starts with this (scored once or not scored)
+_SELECTED_CANDIDATE_RE = re.compile(r"^Selected candidate: (.+?)\.$")
+
+
+def selected_candidates(d: Doc) -> list:
+    """The names on `Selected candidate: <name>.` lines outside every held-out section, in order. The line is the
+    selection statement every writer emits before its held-out heading, with or without --skip-heldout."""
+    held = set()
+    for i, raw in enumerate(d.lines):
+        m = _HEADING_RE.match(raw)
+        if m and clean(m.group(2)).startswith(HELDOUT):
+            lvl, j = len(m.group(1)), i + 1
+            while j < len(d.lines):
+                m2 = _HEADING_RE.match(d.lines[j])
+                if m2 and len(m2.group(1)) <= lvl:
+                    break
+                held.add(j)
+                j += 1
+    out = []
+    for i, raw in enumerate(d.lines):
+        m = _SELECTED_CANDIDATE_RE.match(clean(raw))
+        if m and i not in held:
+            out.append(m.group(1))
+    return out
+
+
+def _one_selected_candidate(d: Doc):
+    names = selected_candidates(d)
+    if len(names) > 1:
+        raise ParseError("%d 'Selected candidate:' lines, expected 1" % len(names))
+    return names[0] if names else None
+
+
 def _first_sentence(text: str) -> str:
     parts = re.split(r"(?<=[.)])\s+(?=[A-Z])", text.strip(), maxsplit=1)
     return parts[0]
@@ -320,7 +354,7 @@ def xfg_train(d: Doc, r: LaneResult):
 
 
 def xfg_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out score")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     sub = s.find("%s (held-out" % r.selected)
@@ -353,7 +387,7 @@ def baseline_train(d: Doc, r: LaneResult):
 
 
 def baseline_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out rows")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     if "NOT scored" in s.text:
@@ -377,7 +411,7 @@ def rebounds_train(d: Doc, r: LaneResult):
 
 
 def rebounds_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out games")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("model", "per-miss log loss", "top-1 accuracy")
@@ -388,9 +422,11 @@ def rebounds_heldout(d: Doc, r: LaneResult):
 
 def matchups_train(d: Doc, r: LaneResult):
     s = d.need("Baseline comparison: possession points")
-    # the writer states the selected candidate in the held-out section only (analytics/matchups/train.py)
-    r.selected = d.search(r"^Selected candidate: (\S+) \(", "the 'Selected candidate:' line").group(1)
     t = s.table("model", "out-of-fold MSE")
+    r.selected = _one_selected_candidate(d)
+    if r.selected is None:
+        # fallback: older writers state the selection only in the held-out section (analytics/matchups/train.py)
+        r.selected = d.search(r"^Selected candidate: (\S+) \(", "the 'Selected candidate:' line").group(1)
     row = t.one("model", lambda c: c == r.selected, "selected model row")
     r.oof = metric("possession points MSE", t.cell(row, "out-of-fold MSE"))
     r.candidates = _candidates(t, "model", "out-of-fold MSE", "MSE", skip={n for n in (clean(x[0]) for x in t.rows) if " minus " in n})
@@ -408,7 +444,7 @@ def _first_body(s: Section) -> str:
 
 
 def matchups_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out game(s), scored once")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("model", "MSE")
@@ -434,14 +470,16 @@ def gravity_train(d: Doc, r: LaneResult):
         s2 = clean(raw)
         if "passed:" in s2 and not s2.startswith("|"):
             r.gates.append(("top-decile check", s2))
-    sign = d.need("Sign test")
+    sign = players.find("Sign test")
+    if sign is None:
+        raise ParseError("no Sign test section under Players")
     r.gates.append(("sign test", sign.line("Candidates")))
     if d.section("Second run:", level=2) is not None:
         r.notes.append("the fixture report carries a second run on the planted-pull generator; this summary copies the first run")
 
 
 def gravity_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out, scored once")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     m = s.search(r"refit on all \d+ training rows: MSE (\S+) \(constant floor (\S+?),", "the held-out MSE sentence")
@@ -466,7 +504,7 @@ def ghosting_train(d: Doc, r: LaneResult):
 
 
 def ghosting_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out games")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("candidate", "0.2 s error", "1.0 s error")
@@ -490,7 +528,7 @@ def embeddings_train(d: Doc, r: LaneResult):
 
 
 def embeddings_heldout(d: Doc, r: LaneResult):
-    if d.section("Held-out") is not None:
+    if d.section(HELDOUT) is not None:
         raise ParseError("an embeddings report with a held-out section: the rule for it is not written yet")
     r.notes.append("the lane scores no held-out rows: held-out material is set aside before any feature")
     return None
@@ -505,7 +543,10 @@ def epv_train(d: Doc, r: LaneResult):
     r.oof = metric("MSE expected points", alls.cell(row, "MSE expected points"))
     r.oof_extra = [metric("Brier P(points > 0)", alls.cell(row, "Brier P(points > 0)"))]
     r.candidates = _candidates(alls, "model", "MSE expected points", "MSE")
-    r.notes.append(s.line("Why the"))
+    try:
+        r.notes.append(s.line("Why the"))
+    except ParseError:
+        r.notes.append(s.line("Why:", "the reason for the selection"))
     g = d.need("Gradient boosting by shot-clock bucket and the gate")
     r.gates.append(("sequence model gate", g.line("Gate decision:")))
     try:
@@ -516,7 +557,7 @@ def epv_train(d: Doc, r: LaneResult):
 
 
 def epv_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out games, scored once")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("bucket (s)", "model", "MSE expected points")
@@ -540,7 +581,7 @@ def actions_train(d: Doc, r: LaneResult):
 
 
 def actions_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out games")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("model", "F1 ball_screen", "macro F1")
@@ -564,7 +605,7 @@ def coverage_train(d: Doc, r: LaneResult):
 
 
 def coverage_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out rows")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("model", "macro F1", "accuracy")
@@ -576,7 +617,7 @@ def coverage_heldout(d: Doc, r: LaneResult):
 def decisions_train(d: Doc, r: LaneResult):
     v = d.need("Value-function assumptions")
     rule = v.line("Prior of the option values:")
-    m = re.search(r"Selected: (\S+) \((.+?)\)\.?$", rule)
+    m = re.search(r"Selected: (\S+?)(?: \((.+?)\))?\.?$", rule)
     if not m:
         raise ParseError("Value-function assumptions: 'Selected:' not found on the prior line")
     r.selected = m.group(1)
@@ -592,7 +633,7 @@ def decisions_train(d: Doc, r: LaneResult):
 
 
 def decisions_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out games")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("prior", "mean rho", "lo", "hi")
@@ -602,10 +643,13 @@ def decisions_heldout(d: Doc, r: LaneResult):
 
 
 def playcalling_train(d: Doc, r: LaneResult):
-    m = re.search(r"the selected model \(the (\w+)\)", d.text) or re.search(r"^\| (\w+) \(selected\) \|", d.text, re.M)
-    if not m:
-        raise ParseError("the report states no selected model")
-    r.selected = m.group(1)
+    r.selected = _one_selected_candidate(d)
+    if r.selected is None:
+        # fallback: older writers name the selected model only in the held-out section
+        m = re.search(r"the selected model \(the (\w+)\)", d.text) or re.search(r"^\| (\w+) \(selected\) \|", d.text, re.M)
+        if not m:
+            raise ParseError("the report states no selected model")
+        r.selected = m.group(1)
     s = d.need("3. Ridge adjustment")
     t = s.table("model", "out-of-fold MSE", "lo", "hi")
     row = t.one("model", lambda c: c == r.selected, "selected model row")
@@ -628,7 +672,7 @@ def playcalling_train(d: Doc, r: LaneResult):
 
 
 def playcalling_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out rows")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("model", "held-out MSE")
@@ -637,24 +681,46 @@ def playcalling_heldout(d: Doc, r: LaneResult):
 
 
 def lineups_train(d: Doc, r: LaneResult):
+    """Selection is the highest mean validation Spearman over every validation pair (analytics/lineups/train.py
+    select), so the primary metric is that mean, copied from the 'Mean validation Spearman' line (no interval: the
+    report states none); each pair's table is listed on its own."""
     s = d.need("Candidate table: out-of-season validation")
-    m = s.search(r"^(Mean validation Spearman: .+?)\. Selected: \*\*([^*]+)\*\*\.$", "the Selected line")
+    m = s.search(r"^Mean validation Spearman: (.+?)\. Selected: \*\*([^*]+)\*\*\.$", "the Selected line")
     r.selected = m.group(2)
-    r.gates.append(("selection", m.group(1)))
-    t = s.table("candidate", "Spearman", "MSE")
-    row = t.one("candidate", lambda c: c == r.selected, "selected candidate row")
-    r.oof = metric("out-of-season Spearman", t.cell(row, "Spearman"))
-    r.oof_extra = [metric("out-of-season MSE", t.cell(row, "MSE"))]
-    r.candidates = _candidates(t, "candidate", "Spearman", "Spearman")
-    pcol = [c for c in t.header if c.startswith("Spearman minus")]
-    if pcol:
-        for x in t.rows:
-            if t.cell(x, pcol[0]) != "baseline":
-                r.gates.append(("paired bootstrap, %s %s" % (clean(x[0]), pcol[0]), t.cell(x, pcol[0])))
+    means = {}
+    for part in m.group(1).split(", "):
+        name, _, val = part.rpartition(" ")
+        if not name or not val:
+            raise ParseError("cannot read %r in the Mean validation Spearman line" % part)
+        means[name] = val
+    if r.selected not in means:
+        raise ParseError("the selected candidate %s has no mean validation Spearman" % r.selected)
+    r.oof = Metric("mean out-of-season Spearman over validation pairs", means[r.selected])
+    r.candidates = [(n, Metric("mean Spearman", v)) for n, v in means.items()]
+    fits = [clean(x) for x in s.lines if clean(x).startswith("Fit on ")]
+    tables = [t for t in s.tables() if {"candidate", "Spearman", "MSE"} <= set(t.header)]
+    if len(fits) != len(tables):
+        raise ParseError("%d 'Fit on' lines but %d pair tables" % (len(fits), len(tables)))
+    if not tables and not any(clean(x).startswith("One training season only") for x in s.lines):
+        raise ParseError("no validation pair table and no 'One training season only' line")
+    r.notes.append("%d validation pair(s); the selection metric is the mean over them" % len(tables))
+    pcol_name = "Spearman minus plus_minus (paired)"
+    for fit, t in zip(fits, tables):
+        pair = "fit " + fit.split(":")[0][len("Fit on "):]      # "fit 2020-21, predict 2021-22"
+        if sorted(clean(x[0]) for x in t.rows) != sorted(means):
+            raise ParseError("%s: candidates %s differ from the mean line's %s" % (pair, [clean(x[0]) for x in t.rows], sorted(means)))
+        row = t.one("candidate", lambda c: c == r.selected, "selected candidate row, %s" % pair)
+        r.oof_extra.append(metric("%s: Spearman" % pair, t.cell(row, "Spearman")))
+        r.oof_extra.append(metric("%s: MSE" % pair, t.cell(row, "MSE")))
+        if pcol_name in t.header:
+            for x in t.rows:
+                if t.cell(x, pcol_name) != "baseline":
+                    r.gates.append(("paired Spearman, %s minus plus_minus (%s)" % (clean(x[0]), pair), t.cell(x, pcol_name)))
+    r.gates.append(("selection", "Mean validation Spearman: %s" % m.group(1)))
 
 
 def lineups_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out season, scored once")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     t = s.table("candidate", "Spearman", "MSE")
@@ -678,7 +744,7 @@ def winprob_train(d: Doc, r: LaneResult):
 
 
 def winprob_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out season")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
     m = s.search(r"^Overall: log loss (\S+) (\[[^\]]*\]), Brier (\S+) (\[[^\]]*\]), mean bucket Brier ([^\s.]+(?:\.\d+)?)\.?$",
@@ -688,20 +754,37 @@ def winprob_heldout(d: Doc, r: LaneResult):
 
 
 def load_train(d: Doc, r: LaneResult):
-    # the writer names the selected model of each pair in the held-out section only (analytics/load/train.py)
-    reg = d.search(r"MSE, selected model \((\w+)\)", "the selected decline model").group(1)
-    ab = d.search(r"log loss, selected model \((\w+)\)", "the selected absence model").group(1)
-    r.selected = "%s (decline); %s (absence)" % (reg, ab)
     c2 = d.need("Candidate 2: ridge regression of y_decline")
     t = c2.table("model", "MSE (ft per s)^2")
-    row = t.one("model", lambda c: c.split(" ")[0] == reg, "selected decline model row")
+    c3 = d.need("Candidate 3: absence from the next game")
+    no_absence = any(clean(x).startswith("No player-game has a known absent_next") for x in c3.lines)
+    t3 = None if no_absence else c3.table("model", "log loss")
+    names = selected_candidates(d)
+    if names:
+        reg = [n for n in names if n in [clean(x[0]) for x in t.rows]]
+        ab = [n for n in names if t3 is not None and n in [clean(x[0]) for x in t3.rows]]
+        if len(reg) != 1 or len(ab) != (0 if no_absence else 1) or len(names) != len(reg) + len(ab):
+            raise ParseError("'Selected candidate:' lines %s do not map to one decline model%s" % (
+                names, "" if no_absence else " and one absence model"))
+        row = t.one("model", lambda c: clean(c) == reg[0], "selected decline model row")
+        row3 = None if no_absence else t3.one("model", lambda c: clean(c) == ab[0], "selected absence model row")
+        reg_name, ab_name = reg[0], (ab[0] if ab else None)
+    else:
+        # fallback: older writers name the selected model of each pair in the held-out section only (analytics/load/train.py)
+        reg_name = d.search(r"MSE, selected model \((\w+)\)", "the selected decline model").group(1)
+        row = t.one("model", lambda c: c.split(" ")[0] == reg_name, "selected decline model row")
+        ab_name, row3 = None, None
+        if not no_absence:
+            ab_name = d.search(r"log loss, selected model \((\w+)\)", "the selected absence model").group(1)
+            row3 = t3.one("model", lambda c: c.split(" ")[0] == ab_name, "selected absence model row")
+    r.selected = "%s (decline)" % reg_name + ("; %s (absence)" % ab_name if ab_name else "")
     r.oof = metric("y_decline MSE (ft/s)^2", t.cell(row, "MSE (ft per s)^2"))
     r.candidates = _candidates(t, "model", "MSE (ft per s)^2", "MSE")
-    c3 = d.need("Candidate 3: absence from the next game")
-    t3 = c3.table("model", "log loss")
-    row3 = t3.one("model", lambda c: c.split(" ")[0] == ab, "selected absence model row")
-    r.oof_extra = [metric("absent_next log loss", t3.cell(row3, "log loss"))]
     r.gates.append(("paired bootstrap, decline", c2.line("Paired bootstrap")))
+    if no_absence:
+        r.gates.append(("absence target", c3.line("No player-game has a known absent_next")))
+        return
+    r.oof_extra = [metric("absent_next log loss", t3.cell(row3, "log loss"))]
     r.gates.append(("paired bootstrap, absence", _first_sentence(c3.line("Paired bootstrap"))))
     for raw in c3.lines:
         if clean(raw).startswith("One class only"):
@@ -709,14 +792,18 @@ def load_train(d: Doc, r: LaneResult):
 
 
 def load_heldout(d: Doc, r: LaneResult):
-    s = d.section("Held-out games, scored once")
+    s = d.section(HELDOUT, level=2)
     if s is None:
         return None
+    if any(clean(x).startswith("No held-out player-game was loaded") for x in s.lines):
+        raise ParseError("the held-out section says no held-out player-game was loaded")
     t = s.table("quantity", "value")
     mse = t.one("quantity", lambda c: c.startswith("MSE, selected model"), "held-out decline MSE")
-    ll = t.one("quantity", lambda c: c.startswith("log loss, selected model"), "held-out absence log loss")
-    return HeldOut(HO_SCORED, metric("y_decline MSE (ft/s)^2", t.cell(mse, "value"), "point estimate"),
-                   [metric("absent_next log loss", t.cell(ll, "value"), "point estimate")])
+    extra = []
+    for ll in t.where("quantity", lambda c: c.startswith("log loss, selected model")):
+        if t.cell(ll, "value") not in ("n/a", "nan", ""):
+            extra.append(metric("absent_next log loss", t.cell(ll, "value"), "point estimate"))
+    return HeldOut(HO_SCORED, metric("y_decline MSE (ft/s)^2", t.cell(mse, "value"), "point estimate"), extra)
 
 
 def betting_train(d: Doc, r: LaneResult):
@@ -739,7 +826,7 @@ def betting_train(d: Doc, r: LaneResult):
 
 
 def betting_heldout(d: Doc, r: LaneResult):
-    s = d.section("Profit and loss per season")
+    s = d.section("Profit and loss per season")    # betting writes its held-out season as a row, not a section
     if s is None:
         return None
     t = s.table("season", "mode", "log loss", "margin MSE", "ROI")
@@ -773,6 +860,7 @@ LANES = {
     "xfg_baseline": (baseline_train, baseline_heldout),
 }
 OPTIONAL = {"xfg_baseline"}          # summarised only when the report exists
+NO_HELDOUT = {"embeddings"}          # lanes that score no held-out rows: a missing held-out section is expected
 
 
 # ── one report -> one record ───────────────────────────────────────────────────────────────────────
@@ -809,6 +897,10 @@ def parse_report(lane: str, text: str, path: str = "") -> LaneResult:
         rec.heldout = HeldOut("unparsed")
     elif ho is None:
         rec.heldout = HeldOut(HO_ABSENT)
+        if lane not in NO_HELDOUT:
+            # a lane that scores held-out rows must either state them or say why not
+            rec.problems.append(("heldout", "no held-out section or row, and neither the --skip-heldout phrase nor the "
+                                            "stage 5 banner"))
     else:
         rec.heldout = ho
     if rec.heldout.state == HO_SCORED and (rec.oof is None or any(f == "training" for f, _ in rec.problems)):
@@ -833,7 +925,7 @@ def collect(reports: Path) -> list:
     out = []
     for lane in list(EXTENSION_NAMES) + sorted(OPTIONAL):
         p = reports / ("%s.md" % lane)
-        shown = "%s/%s" % (reports.name, p.name)
+        shown = shown_path(p)
         if lane not in LANES:            # a lane added to analytics.registry without extraction rules here
             r = LaneResult(lane, shown, status=MISSING if not p.exists() else "no extraction rule", heldout=HeldOut(HO_ABSENT))
             r.problems.append(("report", "analytics/results.py has no extraction rule for lane %s" % lane))
@@ -876,6 +968,7 @@ def _training_cell(r: LaneResult, value: str) -> str:
 SHORT = [
     ("ECE under 0.02", r"selected candidate: (\w+)"),
     ("paired bootstrap", r"(excludes (?:zero|0):? (?:True|False|yes|no))"),
+    ("paired Spearman", r"\((excludes 0)\)"),
     ("defender gate", r"(\d+ pass the \S+ gate)"),
     ("player gate", r"(\d+ gated of \d+)|(nobody is ranked)"),
     ("top-decile check", r"(passed: \w+)"),
@@ -989,6 +1082,15 @@ DEFAULT_TAIL = ("\n\n<!-- Hand-written sections (stage 9 of docs/mac_runbook.md)
                 "only the text between the results markers. -->\n")
 
 
+def _existing_generated(existing):
+    """The generated-at time of the existing block, or None."""
+    if existing is None:
+        return None
+    parts = _split_existing(existing)
+    m = _GEN_RE.search(parts[1]) if parts else None
+    return m.group(1) if m else None
+
+
 def compose(existing, block: str) -> str:
     """The full file: the existing text with its marked block replaced, or a new file around the block."""
     if existing is None:
@@ -1003,8 +1105,18 @@ def compose(existing, block: str) -> str:
     return before + block + after
 
 
+def shown_path(p: Path) -> str:
+    """p relative to the working directory when it lies under it, else absolute: the same file always prints the same
+    way however --reports and --out were spelled."""
+    full = Path(p).resolve()
+    try:
+        return full.relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return full.as_posix()
+
+
 def canonical_command(reports: Path, out: Path) -> str:
-    return "python3 -m analytics.results --reports %s --out %s" % (reports.as_posix(), out.as_posix())
+    return "python3 -m analytics.results --reports %s --out %s" % (shown_path(reports), shown_path(out))
 
 
 def build(reports: Path, out: Path, existing, generated: str = None):
@@ -1026,20 +1138,20 @@ def main(argv=None) -> int:
     reports, out = Path(a.reports), Path(a.out)
     existing = out.read_text() if out.exists() else None
     if a.check:
-        gen = None
-        if existing is not None:
-            parts = _split_existing(existing)
-            m = _GEN_RE.search(parts[1]) if parts else None
-            gen = m.group(1) if m else None
-        results, text = build(reports, out, existing, generated=gen or "unknown")
+        results, text = build(reports, out, existing, generated=_existing_generated(existing) or "unknown")
         stale = existing is None or text != existing
         print("%s: %s" % (out, "stale (rerun python3 -m analytics.results)" if stale else "up to date"))
         rc = 1 if stale else 0
     else:
-        results, text = build(reports, out, existing)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(text)
-        print("wrote %s (%d lanes)" % (out, len(results)))
+        old = _existing_generated(existing)
+        results, text = build(reports, out, existing, generated=old) if old else (None, None)
+        if text is not None and text == existing:
+            print("%s: unchanged (%d lanes)" % (out, len(results)))
+        else:
+            results, text = build(reports, out, existing)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(text)
+            print("wrote %s (%d lanes)" % (out, len(results)))
         rc = 0
     for r in results:
         if r.unparsed:
