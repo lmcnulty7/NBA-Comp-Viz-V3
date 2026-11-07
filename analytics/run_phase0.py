@@ -20,13 +20,16 @@ driver writes OUT_ROOT/reports/phase0_summary.md (games processed, per-step tota
 against the final score, the gaps summary, a per-game table) and prints RUN OK or RUN FAILED last.
 
     python -m analytics.run_phase0 --data DATA_ROOT [--out OUT_ROOT] [--games G ...] [--limit N]
-        [--steps rosters,shot_frames,rebound_frames,possessions,gaps] [--retry-failed] [--dry-run] [--workers 1]
-        [--bref-dir DIR] [--fixtures]
+        [--steps rosters,shot_frames,rebound_frames,possessions,gaps] [--retry-failed] [--rebuild STEPS]
+        [--dry-run] [--workers 1] [--bref-dir DIR] [--fixtures]
 
 --bref-dir names the cached basketball-reference shot chart pages (either <DIR>/<code>.html as
 collect.bref_shots --save-pages writes them, or the collector's raw cache <DIR>/raw/bref_shotchart/<key>.json.gz);
 when a page exists for a game, rosters.build fills bref_slug and bref_name from it. Without it (or for a game
-without a page) those two columns stay null and the summary says how many games lack them.
+without a page) those two columns stay null and the summary says how many games lack them. For the collector's
+cache, DIR is the collector's --out (DATA_ROOT/collect or data/collect), not its bref_shots/ table folder; the
+driver warns when DIR holds no page for the first games. --rebuild rosters reruns the rosters of games already
+built (their output would otherwise be reused).
 
 --workers N > 1 runs games in a multiprocessing pool. The default is 1: Drive FUSE on a Mac serialises and
 sometimes corrupts concurrent writers, so keep 1 when OUT_ROOT is on Drive. --fixtures writes a synthetic
@@ -265,6 +268,7 @@ def _extra_numbers(step: str, df: pd.DataFrame) -> dict:
     return {}
 
 
+BREF_PROBE_GAMES = 5        # games checked for a page when --bref-dir is given (a wrong folder warns)
 READ_RETRIES = 2            # extra tries for a step that failed with a bare OSError (see run_step)
 READ_RETRY_WAIT_S = 5.0     # seconds between those tries
 
@@ -379,14 +383,17 @@ def process_game(args: tuple) -> dict:
     return rec
 
 
-def pending_steps(game: str, previous: dict | None, steps, out_root: Path, retry_failed: bool) -> tuple[list, dict]:
-    """(steps to run, reused step records). A step is reused when its last record is ok and the output reads
-    back, or when it failed and --retry-failed is not set."""
+def pending_steps(game: str, previous: dict | None, steps, out_root: Path, retry_failed: bool,
+                  rebuild=()) -> tuple[list, dict]:
+    """(steps to run, reused step records). A step named in rebuild always runs; otherwise it is reused when its
+    last record is ok and the output reads back, or when it failed and --retry-failed is not set."""
     prev = (previous or {}).get("steps", {})
     todo, reused = [], {}
     for step in steps:
         p = prev.get(step)
-        if p and p.get("status") == "ok" and p.get("path") and reads_back(Path(out_root) / p["path"]) is not None:
+        if step in rebuild:
+            todo.append(step)
+        elif p and p.get("status") == "ok" and p.get("path") and reads_back(Path(out_root) / p["path"]) is not None:
             reused[step] = {**p, "reused": True}
         elif p and p.get("status") == "failed" and not retry_failed:
             reused[step] = {**p, "reused": True}
@@ -573,8 +580,9 @@ def write_summary(man: dict, step1: dict, out_path: Path, data_root, out_root, v
 
 # ── the run ───────────────────────────────────────────────────────────────────────────────────────
 def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry_failed=False, dry_run=False,
-        workers=1, fixtures=False, bref_dir=None, log=print) -> int:
-    """The driver. Returns 0 for RUN OK, 1 for RUN FAILED."""
+        workers=1, fixtures=False, bref_dir=None, log=print, rebuild=()) -> int:
+    """The driver. Returns 0 for RUN OK, 1 for RUN FAILED. rebuild names steps to rerun even when their output
+    reads back (for example rosters after a --bref-dir that held no pages)."""
     data_root = Path(data_root)
     out_root = Path(out_root) if out_root else data_root
     steps = tuple(steps)
@@ -587,9 +595,17 @@ def run(data_root, out_root=None, games=None, limit=None, steps=ALL_STEPS, retry
         len(step1.get("games", {})), len(eligible), len(skipped), ",".join(steps), out_root))
     for g, reason in sorted(skipped.items()):
         log("  skip %-32s %s" % (g, reason))
+    rebuild = tuple(rebuild)
+    if bref_dir and "rosters" in game_steps and eligible:
+        probe = eligible[:BREF_PROBE_GAMES]
+        found = sum(1 for g, e in probe if bref_page(g, e, bref_dir) is not None)
+        if found == 0:
+            log("WARNING: --bref-dir %s holds no shot chart page for the first %d games; it should hold <code>.html "
+                "or raw/bref_shotchart/ (the collector's --out, for example DATA_ROOT/collect); rosters.bref_slug and "
+                "bref_name will stay null" % (bref_dir, len(probe)))
     plan = []
     for g, e in eligible:
-        todo, reused = pending_steps(g, man["games"].get(g), game_steps, out_root, retry_failed)
+        todo, reused = pending_steps(g, man["games"].get(g), game_steps, out_root, retry_failed, rebuild)
         plan.append((g, e, todo, reused))
     if dry_run:
         for g, e, todo, reused in plan:
@@ -698,6 +714,9 @@ def main(argv=None) -> int:
     ap.add_argument("--bref-dir", default=None,
                     help="cached basketball-reference shot chart pages (<dir>/<code>.html or the collector's raw/bref_shotchart "
                          "cache); fills rosters.bref_slug and bref_name for the games that have a page")
+    ap.add_argument("--rebuild", default="",
+                    help="comma list of steps to rerun even when their output reads back (e.g. rosters after a "
+                         "--bref-dir that held no pages)")
     ap.add_argument("--fixtures", action="store_true",
                     help="without --data: use a synthetic DATA_ROOT (tests/_fx_phase0.py) and copy the summary to "
                          "reports/phase0_driver.md; with --data the flag does nothing")
@@ -708,6 +727,10 @@ def main(argv=None) -> int:
         ap.error("unknown step(s) %s; known: %s" % (bad, ",".join(ALL_STEPS)))
     if a.workers < 1:
         ap.error("--workers must be at least 1")
+    rebuild = tuple(s.strip() for s in a.rebuild.split(",") if s.strip())
+    bad = [s for s in rebuild if s not in GAME_STEPS]
+    if bad:
+        ap.error("unknown --rebuild step(s) %s; known: %s" % (bad, ",".join(GAME_STEPS)))
     data = a.data
     fixtures = bool(a.fixtures and not a.data)
     if fixtures:
@@ -719,7 +742,8 @@ def main(argv=None) -> int:
     if not data:
         ap.error("--data is required (or --fixtures)")
     try:
-        return run(data, a.out, a.games, a.limit, steps, a.retry_failed, a.dry_run, a.workers, fixtures, a.bref_dir)
+        return run(data, a.out, a.games, a.limit, steps, a.retry_failed, a.dry_run, a.workers, fixtures, a.bref_dir,
+                   rebuild=rebuild)
     except (FileNotFoundError, NotADirectoryError, PermissionError, json.JSONDecodeError) as e:
         print("%s: %s" % (type(e).__name__, e))
         print("RUN FAILED")

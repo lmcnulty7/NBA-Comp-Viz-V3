@@ -461,6 +461,26 @@ def test_bref_dir_fills_slugs(root, step1, eligible, tmp_path):
     assert "| games without one (bref_slug, bref_name null; pass --bref-dir) | 1 |" in (out7 / "reports" / rp.SUMMARY_NAME).read_text(encoding="utf-8")
 
 
+def test_rebuild_reruns_a_reused_step_and_wrong_bref_dir_warns(root, step1, eligible, tmp_path):
+    """--rebuild rosters reruns rosters even though its output reads back (others stay reused); a --bref-dir with
+    no page for the probed games logs a WARNING (the runbook once pointed at the bref_shots table folder)."""
+    g = next(x for x in eligible if not step1["games"][x]["heldout"])
+    out8 = tmp_path / "out8"
+    rc, _ = _call(["--data", str(root), "--out", str(out8), "--steps", "rosters,possessions", "--games", g])
+    assert rc == 0
+    first = _manifest(out8)["games"][g]["steps"]
+    empty = tmp_path / "no_pages"
+    empty.mkdir()
+    rc, text = _call(["--data", str(root), "--out", str(out8), "--steps", "rosters,possessions", "--games", g,
+                      "--rebuild", "rosters", "--bref-dir", str(empty)])
+    assert rc == 0 and "WARNING: --bref-dir" in text
+    again = _manifest(out8)["games"][g]["steps"]
+    assert not again["rosters"].get("reused") and again["rosters"]["written"] >= first["rosters"]["written"]
+    assert again["possessions"].get("reused") is True
+    with pytest.raises(SystemExit):
+        rp.main(["--data", str(root), "--out", str(out8), "--rebuild", "nope"])
+
+
 def test_audit_refuses_heldout_id_planted_in_training_folder(out, step1, eligible, tmp_path):
     import shutil
     held = next(x for x in eligible if step1["games"][x]["heldout"])

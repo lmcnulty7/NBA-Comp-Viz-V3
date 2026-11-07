@@ -101,11 +101,13 @@ caffeinate -i python3 -m analytics.gaps --manifest "$DATA_ROOT/sportvu_contract/
 ```
 
 ```bash
-caffeinate -i python3 -m analytics.run_phase0 --data "$DATA_ROOT/sportvu_contract" --out "$DATA_ROOT" --steps rosters,shot_frames,rebound_frames,possessions --bref-dir data/collect/bref_shots --workers 1
+caffeinate -i python3 -m analytics.run_phase0 --data "$DATA_ROOT/sportvu_contract" --out "$DATA_ROOT" --steps rosters,shot_frames,rebound_frames,possessions --bref-dir "$DATA_ROOT/collect" --workers 1
 ```
 
-Add `--dry-run` first to see the plan. If `data/collect/bref_shots` is not on this Mac, use
-`"$DATA_ROOT/collect/bref_shots"`. Reruns resume; `--retry-failed` redoes failed games.
+Add `--dry-run` first to see the plan. `--bref-dir` is the collector's output folder, the one holding
+`raw/bref_shotchart/` (not its `bref_shots/` table folder); the driver warns when it finds no page. Reruns resume;
+`--retry-failed` redoes failed games, `--rebuild rosters` rebuilds rosters already written. The real run took
+about 40 minutes, not 10 hours.
 
 ```text
 Follow the rules in docs/mac_runbook.md. Stage 3: read $DATA_ROOT/reports/phase0_summary.md and report games
