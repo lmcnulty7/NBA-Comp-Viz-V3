@@ -72,3 +72,10 @@ and the calibration of the top candidate's probability (`analytics.eval.report_b
 training rows. Held-out rows get one score of the selected candidate next to a uniform floor (1 over the
 candidates of the miss, no fit); no bootstrap or paired comparison is computed on them. Numbers from
 `--fixtures` are fixture output, not a result.
+
+Held-out membership: the bundle's `heldout/` path or fixture flag, or the game id by
+`analytics.eval.is_heldout_game` / `heldout_mask` (sportvu/splits.json tokens plus the held-out arena);
+`analytics.eval.refuse_heldout` runs again inside every fit. Fits run under `analytics.eval.fit_threads(1)`.
+Fixture runs read `analytics.fixtures` directly (production code never imports `tests/`) and every CLI of the lane
+takes `--fixture-games`, `--fixture-possessions` and `--fixture-heldout-every` (the older `--games` and
+`--possessions` remain as aliases).

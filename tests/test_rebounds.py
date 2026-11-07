@@ -1,5 +1,5 @@
-"""tests/test_rebounds.py: analytics.rebounds on synthetic games (analytics.fixtures when importable, else the
-tests._fx_rebounds fallback). End-to-end fixture run, leakage guards, metric hand checks, input rules. No real
+"""tests/test_rebounds.py: analytics.rebounds on synthetic games of analytics.fixtures (through the test-only
+adapter tests/_fx_rebounds.py). End-to-end fixture run, leakage guards, metric hand checks, input rules. No real
 tracking data; every number is fixture output. Sizes are small so the file stays well under 30 s.
 """
 from __future__ import annotations
@@ -300,7 +300,7 @@ def _write_root(root: Path, games: list) -> None:
 
 
 def test_data_root_layout_is_read_with_heldout_detected(tmp_path):
-    games = fx.synth_season(1, 2, 2, 6) if fx.SOURCE == "analytics.fixtures" else fx.synth_season(1, 2, 2)
+    games = fx.synth_season(1, 2, 2, 6)
     root = tmp_path / "root"
     _write_root(root, games)
     listed = V.list_root(root)
@@ -314,7 +314,7 @@ def test_data_root_layout_is_read_with_heldout_detected(tmp_path):
 
 
 def test_features_cli_writes_one_file_per_game(tmp_path):
-    res = F.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])
+    res = F.main(["--fixtures", "--fixture-games", "2", "--fixture-possessions", "4", "--out", str(tmp_path)])
     assert len(res["paths"]) == 2 and all(Path(p).exists() for p in res["paths"])
     assert all("/analytics/rebounds/features/" in p for p in res["paths"])
     back = pd.read_parquet(res["paths"][0])

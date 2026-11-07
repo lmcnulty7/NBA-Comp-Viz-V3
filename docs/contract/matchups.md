@@ -96,6 +96,13 @@ training-fold points allowed per matchup possession times their share) and the r
   tuned on.
 - xFG `fold` convention: `>= 0` out-of-fold, `-1` held-out, `-2` in-sample; `load_xfg` refuses a file whose
   training rows carry a missing or negative fold.
+- Held-out membership: a `heldout/` directory, the fixture flag, or the game id by `analytics.eval.is_heldout_game`
+  (sportvu/splits.json tokens plus the held-out arena); an xFG table's own `heldout` column wins when present, else
+  `analytics.eval.heldout_mask` by id. Fits (the location-only xFG fallback, the ridge) run under
+  `analytics.eval.fit_threads(1)`.
+- Fixture runs read `analytics.fixtures` directly (production code never imports `tests/`); every CLI of the lane
+  takes `--fixture-games`, `--fixture-possessions` and `--fixture-heldout-every`, with the older `--n-games`,
+  `--n-possessions` and `--heldout-every` kept as aliases.
 
 ## Leakage rules
 

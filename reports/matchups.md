@@ -1,8 +1,8 @@
-# Matchups: individual defender assessment (analytics/matchups)
+# Matchups: individual defender assessment (analytics/matchups) (fixture output, not a result)
 
-Written 2026-11-05T09:44:38Z by `python -m analytics.matchups.train --fixtures --report reports/matchups.md --seed 0 --bootstrap 200`.
+Written 2026-11-07T08:40:31Z by `python -m analytics.matchups.train --fixtures --report reports/matchups.md --seed 0 --bootstrap 200`.
 
-**Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_matchups.py (or analytics.fixtures), drawn from a seeded generator. The real run is the Mac command at the end.
+**Every number below is fixture output, not a result**: the inputs are the synthetic season of analytics.fixtures, drawn from a seeded generator. The real run is the Mac command at the end.
 
 ## Inputs (fixture output, not a result)
 
@@ -21,7 +21,7 @@ Training: 6 game(s) (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HL
 xFG probabilities: location-only logistic, out-of-fold under 5 grouped folds by game.
 Skipped: 0 possession(s) without an offence id, 0 without frames, 0 sampled frame(s) without both squads.
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (one basket per offense team and period, by majority over the possessions' last-third offensive centroids); positions only. Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (partial_possession, switches); the ridge design is built from partial_possession only.
 Gate: 300 distinct possessions per defender (`analytics.eval.gated`) before any ranking. Intervals: 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
@@ -87,13 +87,13 @@ Selected candidate: ridge (the lower out-of-fold MSE on the training folds; the 
 
 Assignment stability 0.922; defended FG% within 4 ft 0.569 (65 attempts) vs beyond 0.556 (18 attempts).
 
-## Status
+## Status (fixture output, not a result)
 
 Fixture output, not a result. The real run, on the Mac with the full DATA_ROOT (frames, play-by-play, possessions, shot_frames, rosters for 2015-16) and the xFG lane's predictions under OUT_ROOT/analytics/xfg/2015-16/, is
 
     python -m analytics.matchups.train --data "<DATA_ROOT>" --out "<OUT_ROOT>" --report reports/matchups.md --seed 0 --bootstrap 1000 --folds 5 --n-min 300
 
-## Assumptions
+## Assumptions (fixture output, not a result)
 
 - The attacked basket is the one nearer the offensive centroid over the possession's sampled frames (positions only).
 - A possession's points go to the rows of the offensive player who took its last field-goal attempt; possessions without an attempt (turnovers, free throws without a shot) count 0 points and 0 expected for every matchup.

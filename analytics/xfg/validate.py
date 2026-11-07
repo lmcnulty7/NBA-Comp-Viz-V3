@@ -32,13 +32,12 @@ Frames are large (about 700k rows a game), so ``load_data_root`` returns them as
 The ``heldout`` flag of a shots row is the one the collector wrote OR the file location (heldout/) OR a held-out
 token of sportvu/splits.json in its game id; the three are reconciled in ``load_data_root``.
 
-The fixture season (``--fixtures``) comes from tests/_fx_xfg.py, which prefers analytics.fixtures (lane I1)
-and falls back to its own generator; it is loaded by file path so the package does not import tests/.
+The fixture season (``--fixtures``) comes from analytics.fixtures.synth_season; production code never imports
+tests/. Held-out detection by game id is analytics.eval.heldout_mask (splits tokens plus the held-out arena).
 """
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import logging
 import sys
@@ -47,11 +46,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from analytics import fixtures as _fixtures
 from analytics import schema
+from analytics.eval import heldout_mask
 
 log = logging.getLogger("analytics.xfg.validate")
 
-ROOT = Path(__file__).resolve().parents[2]
 COURT_X, COURT_Y = (0.0, 94.0), (0.0, 50.0)
 PLAYER_MARGIN_FT = 5.0       # players step out of bounds; the ball is kept to the court
 CLOCK = (0.0, 720.0)
@@ -67,21 +67,14 @@ SEASON = "2015-16"
 
 # ----------------------------------------------------------------------------- fixtures
 
-def _fx_module():
-    try:
-        import tests._fx_xfg as m  # type: ignore
-        return m
-    except Exception:  # noqa: BLE001
-        path = ROOT / "tests" / "_fx_xfg.py"
-        spec = importlib.util.spec_from_file_location("_fx_xfg", path)
-        m = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(m)
-        return m
-
-
 def fixture_season(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> list:
-    """The synthetic season (list of per-game dicts) the --fixtures runs use."""
-    return _fx_module().synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    """The synthetic season (analytics.fixtures.synth_season, list of per-game dicts) the --fixtures runs use."""
+    return _fixtures.synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+
+
+def _game_id(g: dict) -> str:
+    """The sportvu_game of a per-game fixture dict (meta of analytics.fixtures, or a top-level key)."""
+    return str(g["meta"]["sportvu_game"]) if "meta" in g else str(g["sportvu_game"])
 
 
 def tables_from_season(season: list) -> dict:
@@ -90,18 +83,20 @@ def tables_from_season(season: list) -> dict:
     for k in ("events", "shots", "rosters", "shot_frames", "possessions"):
         out[k] = pd.concat([g[k] for g in season], ignore_index=True)
     for g in season:
-        out["frames"][str(g["sportvu_game"])] = g["frames"]
+        out["frames"][_game_id(g)] = g["frames"]
     out["shots"]["heldout"] = out["shots"]["heldout"].astype(bool)
     return out
 
 
 def fixture_tables(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> dict:
+    """fixture_season as one dict of concatenated tables (tables_from_season)."""
     return tables_from_season(fixture_season(seed, n_games, heldout_every, n_possessions))
 
 
 # ----------------------------------------------------------------------------- DATA_ROOT
 
 def _read_many(paths, cols=None) -> pd.DataFrame:
+    """The parquet files at ``paths`` concatenated (an empty frame with ``cols`` when there are none)."""
     frames = [pd.read_parquet(p, columns=cols) for p in paths]
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=cols or [])
 
@@ -118,11 +113,9 @@ def _contract_files(root: Path, table: str, season: str) -> list:
 def load_data_root(root, season: str = SEASON) -> dict:
     """The DATA_ROOT layout -> dict(shots, shot_frames, rosters, possessions, events, frames=loader, fixture=False).
 
-    Game ids found under heldout/ or carrying a held-out token of sportvu/splits.json are marked heldout on the
-    shots table whatever the collector wrote."""
-    from sportvu import splits
+    Game ids found under heldout/ or carrying a held-out token of sportvu/splits.json (analytics.eval.heldout_mask)
+    are marked heldout on the shots table whatever the collector wrote."""
     root = Path(root)
-    toks = splits.heldout_tokens()
     held_ids: set = set()
     out = {"fixture": False}
     for table in CONTRACT_TABLES:
@@ -146,9 +139,9 @@ def load_data_root(root, season: str = SEASON) -> dict:
         raise SystemExit("validate: no shots table under %s" % shots_dir)
     shots = pd.concat(shots_parts, ignore_index=True)
     g = shots["sportvu_game"].astype(str)
-    by_tok = g.map(lambda s: any(t in s for t in toks) or s.endswith(".at." + splits.HELDOUT_ARENA))
+    by_id = heldout_mask(g)
     flag = shots["heldout"].fillna(False).astype(bool) if "heldout" in shots.columns else pd.Series(False, index=shots.index)
-    shots["heldout"] = (flag | g.isin(held_ids) | by_tok).astype(bool).to_numpy()
+    shots["heldout"] = (flag | g.isin(held_ids).to_numpy() | by_id).astype(bool).to_numpy()
     out["shots"] = shots
     sv = root / "sportvu_contract"
     pbp = [p for d in (sv, sv / "heldout") if d.exists() for p in sorted(d.glob("*_pbp.parquet"))]
@@ -213,6 +206,7 @@ def _apply(df: pd.DataFrame, table: str, required: list, range_masks: list, dup_
 
 
 def clean_frames(df: pd.DataFrame) -> tuple:
+    """Frames (section 4) -> (cleaned frame, summary): court and clock ranges, duplicates by (game, frame, player_id)."""
     required = ["game", "period", "frame", "game_clock_s", "player_id", "x", "y"]
     ranges = [("x", COURT_X[0] - PLAYER_MARGIN_FT, COURT_X[1] + PLAYER_MARGIN_FT, False),
               ("y", COURT_Y[0] - PLAYER_MARGIN_FT, COURT_Y[1] + PLAYER_MARGIN_FT, False),
@@ -222,16 +216,19 @@ def clean_frames(df: pd.DataFrame) -> tuple:
 
 
 def clean_events(df: pd.DataFrame) -> tuple:
+    """Play-by-play (section 5) -> (cleaned frame, summary): clock and period ranges, duplicates by (game, event)."""
     return _apply(df, "events", PBP_COLUMNS, [("clock_s", *CLOCK, False), ("period", 1, 20, False)], ["game", "event"])
 
 
 def clean_shots(df: pd.DataFrame) -> tuple:
+    """Shots (sections 10 and 10a) -> (cleaned frame, summary): location, clock and period ranges, duplicates."""
     keys = ["sportvu_game", "event"] if "event" in df.columns and df["event"].notna().all() else ["sportvu_game", "period", "clock_s", "player"]
     ranges = [("loc_x", *LOC_X, False), ("loc_y", *LOC_Y, False), ("clock_s", *CLOCK, False), ("period", 1, 20, False)]
     return _apply(df, "shots", SHOT_COLUMNS, ranges, keys)
 
 
 def clean_contract(df: pd.DataFrame, table: str) -> tuple:
+    """A schema.py contract table -> (cleaned and cast frame, summary); schema problems are reported, not fixed."""
     problems = schema.validate(df, table)
     keys = {"shot_frames": ["sportvu_game", "event"], "rosters": ["sportvu_game", "player_id"],
             "possessions": ["sportvu_game", "possession"]}[table]
@@ -281,26 +278,46 @@ def clean(tables: dict) -> tuple:
 
 
 def summary_table(summaries: list) -> pd.DataFrame:
+    """The per-table summaries of clean() as one DataFrame (schema problems as a count)."""
     rows = [{k: (len(v) if k == "schema_problems" else v) for k, v in s.items() if k != "games"} for s in summaries]
     return pd.DataFrame(rows).rename(columns={"schema_problems": "schema_problems_n"})
 
 
 # ----------------------------------------------------------------------------- CLI
 
-def main(argv=None) -> list:
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+def add_source_args(ap: argparse.ArgumentParser, games: int = 8, possessions: int = 40, heldout_every: int = 4):
+    """The --fixtures | --data group, --season, --seed and the fixture knobs every xFG CLI shares."""
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data", metavar="DATA_ROOT")
-    ap.add_argument("--out", metavar="OUT_ROOT", default=None)
-    ap.add_argument("--season", default=SEASON)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--fixture-games", type=int, default=8)
-    ap.add_argument("--fixture-possessions", type=int, default=40)
+    src.add_argument("--fixtures", action="store_true", help="run on the synthetic season (fixture output, not a result)")
+    src.add_argument("--data", metavar="DATA_ROOT", help="DATA_ROOT with sportvu_contract/, collect/bref_shots/ and analytics/")
+    ap.add_argument("--season", default=SEASON, help="season directory to read and write (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    ap.add_argument("--fixture-games", type=int, default=games, dest="fixture_games",
+                    help="fixtures only: games in the synthetic season (default %(default)s)")
+    ap.add_argument("--fixture-possessions", type=int, default=possessions, dest="fixture_possessions",
+                    help="fixtures only: possessions per game (default %(default)s)")
+    ap.add_argument("--fixture-heldout-every", type=int, default=heldout_every, dest="fixture_heldout_every",
+                    help="fixtures only: every k-th game is held out (default %(default)s)")
+    return ap
+
+
+def source_tables(a) -> dict:
+    """The tables the parsed --fixtures or --data arguments name (not yet cleaned)."""
+    if a.fixtures:
+        return fixture_tables(a.seed, n_games=a.fixture_games, heldout_every=a.fixture_heldout_every,
+                              n_possessions=a.fixture_possessions)
+    return load_data_root(a.data, a.season)
+
+
+def main(argv=None) -> list:
+    """CLI: validate and clean the inputs, print the per-table summary, write validate.json under --out."""
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    add_source_args(ap)
+    ap.add_argument("--out", metavar="OUT_ROOT", default=None,
+                    help="writes analytics/xfg/<season>/validate.json under OUT_ROOT (default: nothing written)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
-        else load_data_root(a.data, a.season)
+    tables = source_tables(a)
     _tables, summaries = clean(tables)
     text = summary_table(summaries).to_string(index=False)
     for s in summaries:

@@ -37,7 +37,6 @@ Under --fixtures every number is labelled "fixture output, not a result".
 from __future__ import annotations
 
 import argparse
-import contextlib
 import datetime as dt
 import logging
 import sys
@@ -47,9 +46,9 @@ import numpy as np
 import pandas as pd
 
 from analytics import train_xfg as baseline
-from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_cv,
-                            grouped_folds, log_loss, paired_bootstrap_by_game, refuse_heldout, report_block)
-from analytics.xfg import features as FX
+from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_slope_fast, calibration_table, ece,
+                            fit_threads, fmt_ci, fmt_num, grouped_cv, grouped_folds, heldout_mask, log_loss,
+                            paired_bootstrap_by_game, refuse_heldout, report_block)
 from analytics.xfg import validate as V
 from analytics.xfg.features import FEATURES, PRIOR_FEATURE, assert_no_leak, build, feature_columns, targets
 
@@ -71,14 +70,6 @@ PREDICTION_COLUMNS = ["sportvu_game", "event", "player_id", "p_location", "p_con
 FOLD_HELDOUT, FOLD_IN_SAMPLE = -1, -2     # fold convention: >= 0 out-of-fold, -1 held-out, -2 in-sample (never written: no one-game mode)
 
 
-def _threads(n: int = 1):
-    try:
-        from threadpoolctl import threadpool_limits
-        return threadpool_limits(limits=n)
-    except Exception:  # noqa: BLE001
-        return contextlib.nullcontext()
-
-
 # ----------------------------------------------------------------------------- inputs
 
 def assemble(tables: dict) -> tuple:
@@ -87,7 +78,7 @@ def assemble(tables: dict) -> tuple:
     y = targets(tables["shots"].reset_index(drop=True))
     df = feat.copy()
     df["made"] = y["made"].to_numpy()
-    held = baseline.heldout_mask(df)
+    held = df["heldout"].astype(bool).to_numpy() | heldout_mask(df["sportvu_game"])
     train, heldout = df[~held].reset_index(drop=True), df[held].reset_index(drop=True)
     refuse_heldout(sorted(train["sportvu_game"].unique()), WHO)
     assert not train["heldout"].any()
@@ -110,6 +101,7 @@ def prior_table(rows: pd.DataFrame, m: float = PRIOR_M) -> dict:
 
 
 def apply_prior(pt: dict, rows: pd.DataFrame) -> np.ndarray:
+    """The prior of each row from a prior_table: the (player_id, zone) rate, else the zone rate, else the base rate."""
     out = np.empty(len(rows))
     pids = pd.to_numeric(rows["player_id"], errors="coerce").to_numpy()
     zones = rows["zone"].astype(str).to_numpy()
@@ -136,6 +128,7 @@ def oof_prior(rows: pd.DataFrame, n_folds: int = INNER_FOLDS, seed: int = 0) -> 
 # ----------------------------------------------------------------------------- candidates
 
 def _design(frame: pd.DataFrame, cols: list) -> np.ndarray:
+    """The float design matrix of ``cols`` after the leak check."""
     X = frame[cols].astype(float)
     assert_no_leak(X)
     return X.to_numpy()
@@ -145,7 +138,7 @@ def fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
     """Fit one candidate on ``train`` -> predict(frame) -> p. Every fit of this module goes through here, so the
     guards (held-out flag, held-out ids) run on exactly what reaches a fit. Fits run single-threaded (the shared
     box has 4 cores and many lanes; OpenMP spin-waits are slower than one thread there)."""
-    with _threads(1):
+    with fit_threads(1):
         return _fit_candidate(name, train, seed)
 
 
@@ -185,8 +178,7 @@ def _fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
                 test = train[m].copy()
                 test[PRIOR_FEATURE] = apply_prior(prior_table(inner), test)
                 h = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(_design(inner, cols), inner["made"].astype(int))
-                with _threads(1):
-                    oof[m] = h.predict_proba(_design(test, cols))[:, 1]
+                oof[m] = h.predict_proba(_design(test, cols))[:, 1]
         full = train.copy()
         full[PRIOR_FEATURE] = oof_prior(full, INNER_FOLDS, seed)
         hgb = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(_design(full, cols), y)
@@ -198,7 +190,7 @@ def _fit_candidate(name: str, train: pd.DataFrame, seed: int = 0):
         def predict(frame, h=hgb, iso=iso, pt=pt, c=cols):
             f = frame.copy()
             f[PRIOR_FEATURE] = apply_prior(pt, f)
-            with _threads(1):
+            with fit_threads(1):
                 p = h.predict_proba(_design(f, c))[:, 1]
             return iso.predict(p) if iso is not None else p
         return predict
@@ -228,36 +220,17 @@ def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int, candidates=CANDIDA
 # ----------------------------------------------------------------------------- scoring
 
 def _frame(pred: pd.DataFrame, col: str) -> pd.DataFrame:
+    """(game, y, p) of one prediction column, the shape the bootstrap helpers take."""
     return pd.DataFrame({"game": pred["sportvu_game"].astype(str).to_numpy(), "y": pred["made"].astype(float).to_numpy(),
                          "p": pred[col].astype(float).to_numpy()})
 
 
-def fast_slope(y, p, iters: int = 50, ridge: float = 1e-6) -> float:
-    """Calibration slope by Newton's method on the 2-parameter logistic regression of y on logit(p) with the same
-    negligible ridge as analytics.eval.calibration_slope (C = 1e6), at a fraction of its cost, for the bootstrap."""
-    y = np.asarray(y, dtype=float).reshape(-1)
-    p = np.clip(np.asarray(p, dtype=float).reshape(-1), 1e-6, 1 - 1e-6)
-    if len(np.unique(y)) < 2:
-        return float("nan")
-    X = np.column_stack([np.ones(len(p)), np.log(p / (1 - p))])
-    w = np.zeros(2)
-    for _ in range(iters):
-        q = 1.0 / (1.0 + np.exp(-(X @ w)))
-        g = X.T @ (q - y) + ridge * w
-        H = (X * (q * (1 - q))[:, None]).T @ X + ridge * np.eye(2)
-        step = np.linalg.solve(H, g)
-        w -= step
-        if np.abs(step).max() < 1e-8:
-            break
-    return float(w[1])
-
-
-BOOT_METRICS = (("log_loss", log_loss), ("brier", brier), ("ece", ece), ("calibration_slope", fast_slope))
+BOOT_METRICS = (("log_loss", log_loss), ("brier", brier), ("ece", ece), ("calibration_slope", calibration_slope_fast))
 
 
 def score(pred: pd.DataFrame, n_boot: int, seed: int, candidates=CANDIDATES) -> dict:
-    """{candidate: {metric: {point, lo, hi}}} with bootstrap intervals by game (the slope by fast_slope; the point
-    estimate of the slope is analytics.eval.calibration_slope)."""
+    """{candidate: {metric: {point, lo, hi}}} with bootstrap intervals by game (the slope by
+    analytics.eval.calibration_slope_fast; the point estimate of the slope is analytics.eval.calibration_slope)."""
     out = {}
     for name in candidates:
         d = _frame(pred, "p_" + name)
@@ -281,7 +254,8 @@ def select(scores: dict, candidates=CANDIDATES) -> str:
 
 
 def calibration_block(name: str, y, p, bins: int = 10) -> str:
-    """The calibration table of one candidate as markdown (the metric intervals are in the candidate table)."""
+    """The calibration table of one candidate as markdown (the metric intervals are in the candidate table); the
+    "-" for an empty bin is what analytics.eval.report_block prints, so the blocks of one report read alike."""
     L = ["### %s" % name, "", "| bin | lo | hi | n | mean_p | mean_y |", "| --- | --- | --- | --- | --- | --- |"]
     for _, r in calibration_table(np.asarray(y, float), np.asarray(p, float), bins).iterrows():
         mp = "%.4f" % r["mean_p"] if r["n"] else "-"
@@ -291,6 +265,7 @@ def calibration_block(name: str, y, p, bins: int = 10) -> str:
 
 
 def point_metrics(y, p) -> dict:
+    """Point log loss, Brier, ECE and calibration slope (no interval)."""
     return {m: float(fn(y, p)) for m, fn in METRICS}
 
 
@@ -321,14 +296,7 @@ def predictions_table(pred: pd.DataFrame, heldout: pd.DataFrame, selected: str, 
 
 # ----------------------------------------------------------------------------- report
 
-def _f(v, nd=4) -> str:
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d: dict) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
+ND = 4                       # decimals of every number in the report
 
 
 ASSUMPTIONS = [
@@ -350,45 +318,50 @@ ASSUMPTIONS = [
 
 
 def write_report(path: Path, ctx: dict) -> str:
+    """Write the markdown report to ``path`` and return its text; under --fixtures every heading of a section that
+    carries a number ends with "(fixture output, not a result)"."""
     fx = ctx["fixture"]
     tag = " (fixture output, not a result)" if fx else ""
     L = ["# xFG upgrade: shot quality with contest features (analytics/xfg)%s" % tag, "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
-        L += ["**Fixture output, not a result.** Every number below comes from the synthetic season of tests/_fx_xfg.py "
+        L += ["**Fixture output, not a result.** Every number below comes from the synthetic season of analytics.fixtures "
               "(no real tracking, play-by-play or shot data). The real run is the command in the last section.", ""]
-    L += ["## Inputs and rows", "", "| table | rows in | rows out | dropped missing | dropped range | dropped duplicate | schema problems |",
+    L += ["## Inputs and rows%s" % tag, "",
+          "| table | rows in | rows out | dropped missing | dropped range | dropped duplicate | schema problems |",
           "| --- | --- | --- | --- | --- | --- | --- |"]
     for s in ctx["summaries"]:
         L.append("| %s | %d | %d | %d | %d | %d | %d |" % (s["table"], s["rows_in"], s["rows_out"], s["dropped_missing"],
                                                          s["dropped_range"], s["dropped_duplicate"], len(s["schema_problems"])))
     L += ["", "Training rows: %d attempts from %d game(s), %d with contest features (has_contest 1), make rate %s."
-          % (ctx["train_rows"], ctx["train_games"], ctx["train_contest"], _f(ctx["make_rate"])),
+          % (ctx["train_rows"], ctx["train_games"], ctx["train_contest"], fmt_num(ctx["make_rate"], ND)),
           "Held-out rows set aside before any fit: %d attempts from %d game(s) (%s)."
           % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]) or "none"),
           "Guard: `analytics.eval.refuse_heldout` checked %d training game ids against sportvu/splits.json, and runs again on every fit; "
           "`schema.assert_time_forward` passed on the feature frame; `assert_no_leak` on every design matrix." % ctx["train_games"], "",
-          "## Protocol", "",
+          "## Protocol%s" % tag, "",
           "Features: %s; the boosting candidate adds `%s`." % (", ".join(FEATURES), PRIOR_FEATURE),
           "Candidates: location_logistic (analytics.train_xfg, four location features), contest_logistic (median imputation, "
           "standardisation, C = 1), hgb_contest_prior (HistGradientBoostingClassifier %s, isotonic calibration on inner out-of-fold "
           "predictions, %d inner folds, output bounded to [%.2f, %.2f])." % (HGB_PARAMS, INNER_FOLDS, ISO_CLIP, 1 - ISO_CLIP),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d; the slope "
-          "resamples use the Newton solve `fast_slope`, the point estimate `analytics.eval.calibration_slope`). "
-          "Selection: lowest out-of-fold log loss. ECE target: under %.2f." % (ctx["protocol"], ctx["bootstrap"], ctx["seed"], ECE_TARGET),
+          "resamples use the Newton solve `analytics.eval.calibration_slope_fast`, the point estimate "
+          "`analytics.eval.calibration_slope`). Selection: lowest out-of-fold log loss. ECE target: under %.2f."
+          % (ctx["protocol"], ctx["bootstrap"], ctx["seed"], ECE_TARGET),
           "", "## Candidate table (out-of-fold, %d attempts, %d games)%s" % (ctx["train_rows"], ctx["train_games"], tag), "",
           "| candidate | log loss | Brier | ECE (10 bins) | ECE under %.2f | calibration slope | selected |" % ECE_TARGET,
           "| --- | --- | --- | --- | --- | --- | --- |"]
     for name in CANDIDATES:
         s = ctx["scores"][name]
-        L.append("| %s | %s | %s | %s | %s | %s | %s |" % (name, _ci(s["log_loss"]), _ci(s["brier"]), _ci(s["ece"]),
-                                                          "yes" if s["ece"]["point"] < ECE_TARGET else "no",
-                                                          _ci(s["calibration_slope"]), "yes" if name == ctx["selected"] else ""))
+        L.append("| %s | %s | %s | %s | %s | %s | %s |" % (name, fmt_ci(s["log_loss"], ND), fmt_ci(s["brier"], ND),
+                                                          fmt_ci(s["ece"], ND), "yes" if s["ece"]["point"] < ECE_TARGET else "no",
+                                                          fmt_ci(s["calibration_slope"], ND), "yes" if name == ctx["selected"] else ""))
     L += ["", "Selected: **%s** (lowest out-of-fold log loss)." % ctx["selected"], "",
           "Paired bootstrap by game, log loss difference (negative favours the first):", "",
           "| pair | diff | lo | hi | interval excludes 0 |", "| --- | --- | --- | --- | --- |"]
     for pair, r in ctx["paired"].items():
-        L.append("| %s | %s | %s | %s | %s |" % (pair, _f(r["diff"]), _f(r["lo"]), _f(r["hi"]), "yes" if r["excludes_zero"] else "no"))
+        L.append("| %s | %s | %s | %s | %s |" % (pair, fmt_num(r["diff"], ND), fmt_num(r["lo"], ND), fmt_num(r["hi"], ND),
+                                               "yes" if r["excludes_zero"] else "no"))
     L += ["", "## Calibration%s" % tag, ""]
     for name in CANDIDATES:
         L.append(ctx["blocks"][name])
@@ -398,15 +371,16 @@ def write_report(path: Path, ctx: dict) -> str:
                                                                                          ", ".join(ctx["heldout_game_ids"])), "",
               "| candidate | log loss | Brier | ECE (10 bins) | calibration slope |", "| --- | --- | --- | --- | --- |"]
         hs = ctx["heldout_scores"]
-        L.append("| %s | %s | %s | %s | %s |" % (ctx["selected"], _f(hs["log_loss"]), _f(hs["brier"]), _f(hs["ece"]), _f(hs["calibration_slope"])))
+        L.append("| %s | %s | %s | %s | %s |" % (ctx["selected"], fmt_num(hs["log_loss"], ND), fmt_num(hs["brier"], ND),
+                                               fmt_num(hs["ece"], ND), fmt_num(hs["calibration_slope"], ND)))
         L += ["", "Point estimates%s." % ("; no interval over a single held-out game (n/a)" if ctx["heldout_games"] < 2
                                            else ", with the game bootstrap below"), "", ctx["heldout_block"]]
     else:
         L += ["No held-out rows in the input.", ""]
-    L += ["## Output", "", "xfg_predictions (docs/contract/xfg.md): %s" % (ctx["predictions_path"] or "not written (no --out)"), "",
-          "## Assumptions", ""]
+    L += ["## Output%s" % tag, "", "xfg_predictions (docs/contract/xfg.md): %s" % (ctx["predictions_path"] or "not written (no --out)"), "",
+          "## Assumptions%s" % tag, ""]
     L += ["- " + a for a in ASSUMPTIONS]
-    L += ["", "## The real run on the Mac", "",
+    L += ["", "## The real run on the Mac%s" % tag, "",
           "With DATA_ROOT holding sportvu_contract/, collect/bref_shots/ and analytics/{shot_frames,rosters,possessions}/ "
           "(docs/contract/xfg.md):", "", "    " + FULL_RUN_CMD, "",
           "Validate and build the features first with `python -m analytics.xfg.validate --data \"$DATA_ROOT\"` and "
@@ -422,36 +396,35 @@ def write_report(path: Path, ctx: dict) -> str:
 # ----------------------------------------------------------------------------- main
 
 def parse_args(argv=None):
+    """The trainer's command line."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="run on the synthetic season (fixture output, not a result)")
-    src.add_argument("--data", metavar="DATA_ROOT")
-    ap.add_argument("--report", default="reports/xfg.md")
-    ap.add_argument("--out", metavar="OUT_ROOT", default=None, help="where analytics/xfg/<season>/xfg_predictions.parquet goes")
-    ap.add_argument("--season", default=V.SEASON)
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--fixture-games", type=int, default=8)
-    ap.add_argument("--fixture-possessions", type=int, default=40)
+    V.add_source_args(ap)
+    ap.add_argument("--report", default="reports/xfg.md", help="markdown report path (default %(default)s)")
+    ap.add_argument("--out", metavar="OUT_ROOT", default=None,
+                    help="writes analytics/xfg/<season>/xfg_predictions.parquet under OUT_ROOT (default DATA_ROOT for --data, "
+                         "nothing for --fixtures)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default %(default)s)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
     return ap.parse_args(argv)
 
 
 def run(tables: dict, summaries: list, a, command: str) -> dict:
+    """Out-of-fold candidates, scores, selection, the held-out score and the predictions table -> the report context."""
     train, heldout = assemble(tables)
     if len(train) == 0:
         raise SystemExit("%s: no training rows after setting the held-out rows aside" % WHO)
-    with _threads(1):
+    tag = " (fixture output, not a result)" if a.fixtures else ""
+    with fit_threads(1):
         pred, note = out_of_fold(train, a.folds, a.seed)
         scores = score(pred, a.bootstrap, a.seed)
         selected = select(scores)
         pairs = {"hgb_contest_prior vs location_logistic": paired(pred, "hgb_contest_prior", "location_logistic", a.bootstrap, a.seed),
                  "contest_logistic vs location_logistic": paired(pred, "contest_logistic", "location_logistic", a.bootstrap, a.seed)}
-        blocks = {selected: report_block("%s (out-of-fold, selected)" % selected, pred["made"].astype(float),
+        blocks = {selected: report_block("%s (out-of-fold, selected)%s" % (selected, tag), pred["made"].astype(float),
                                          pred["p_" + selected].astype(float), pred, "sportvu_game", n=a.bootstrap, seed=a.seed)}
         for n in CANDIDATES:
             if n != selected:
-                blocks[n] = calibration_block("%s (out-of-fold)" % n, pred["made"].astype(float), pred["p_" + n].astype(float))
+                blocks[n] = calibration_block("%s (out-of-fold)%s" % (n, tag), pred["made"].astype(float), pred["p_" + n].astype(float))
         heldout_p, heldout_scores, heldout_block = {}, {}, ""
         if len(heldout):
             # only the selected candidate is refit and scores the held-out rows, once
@@ -459,18 +432,18 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
             y = heldout["made"].astype(float).to_numpy()
             heldout_scores = point_metrics(y, heldout_p[selected])
             if heldout["sportvu_game"].nunique() >= 2:
-                heldout_block = report_block("%s (held-out, scored once)" % selected, y, heldout_p[selected], heldout,
+                heldout_block = report_block("%s (held-out, scored once)%s" % (selected, tag), y, heldout_p[selected], heldout,
                                              "sportvu_game", n=a.bootstrap, seed=a.seed)
             else:
-                heldout_block = calibration_block("%s (held-out, scored once; one game, no interval)" % selected, y, heldout_p[selected])
+                heldout_block = calibration_block("%s (held-out, scored once; one game, no interval)%s" % (selected, tag), y, heldout_p[selected])
     table = predictions_table(pred, heldout, selected, heldout_p)
     out_root = a.out or (None if a.fixtures else a.data)
     path = None
     if out_root:
-        d = Path(out_root) / "analytics" / "xfg" / a.season
-        d.mkdir(parents=True, exist_ok=True)
-        path = d / "xfg_predictions.parquet"
-        table.to_parquet(path, index=False)
+        rel = Path("analytics") / "xfg" / a.season / "xfg_predictions.parquet"
+        (Path(out_root) / rel).parent.mkdir(parents=True, exist_ok=True)
+        table.to_parquet(Path(out_root) / rel, index=False)
+        path = "OUT_ROOT/%s" % rel.as_posix()
     ctx = {"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "command": command, "fixture": bool(a.fixtures),
            "summaries": summaries, "train_rows": int(len(train)), "train_games": int(train["sportvu_game"].nunique()),
            "train_contest": int(train["has_contest"].sum()), "make_rate": float(train["made"].mean()),
@@ -478,16 +451,16 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
            "heldout_game_ids": sorted(heldout["sportvu_game"].astype(str).unique()), "protocol": note["text"], "folds": note["folds"],
            "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "selected": selected, "paired": pairs, "blocks": blocks,
            "heldout_scores": heldout_scores, "heldout_block": heldout_block, "predictions": table, "heldout_p": heldout_p,
-           "predictions_path": str(path) if path else None,
+           "predictions_path": path,
            "calibration": calibration_table(pred["made"].astype(float).to_numpy(), pred["p_" + selected].astype(float).to_numpy())}
     return ctx
 
 
 def main(argv=None) -> dict:
+    """CLI: run the protocol and write the report."""
     a = parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = V.fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
-        else V.load_data_root(a.data, a.season)
+    tables = V.source_tables(a)
     tables, summaries = V.clean(tables)
     command = "python -m analytics.xfg.train " + " ".join(argv if argv is not None else sys.argv[1:])
     ctx = run(tables, summaries, a, command)

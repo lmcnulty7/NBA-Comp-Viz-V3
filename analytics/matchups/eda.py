@@ -7,7 +7,8 @@
                                              assignment vs under assignments shuffled among the defenders of
                                              the same sampled frame (the gap should shrink toward zero when
                                              the assignment carries information)
-    fixture_tables(seed, n_games)            every table above on the synthetic season (fixture output, not a result)
+    fixture_tables(seed, n_games)            every table above on the synthetic season of analytics.fixtures
+                                             (fixture output, not a result)
 
 Everything here reads the tables analytics.matchups.features builds; nothing is fitted. Numbers from the
 fixtures are fixture output, not a result.

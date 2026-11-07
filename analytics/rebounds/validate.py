@@ -1,6 +1,7 @@
 """analytics/rebounds/validate.py: inputs of the rebound lane, their checks and their cleaning.
 
-    python -m analytics.rebounds.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--games 8]
+    python -m analytics.rebounds.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--fixture-games 8]
+        [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet and <game>_pbp.parquet        held-out games under heldout/
@@ -8,8 +9,9 @@ DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/analytics/<table>/heldout/<season>/<game>.parquet               rosters, possessions
 A game is a bundle: dict(sportvu_game, heldout, frames, events, rebound_frames, shot_frames, rosters, possessions).
 ``bundles_from_root`` reads one, lazily per game (frames are large); ``bundles_from_fixtures`` builds synthetic
-ones from analytics.fixtures when it exists, else tests._fx_rebounds. A bundle is held out when its files sit
-under heldout/ or its id carries a held-out token of sportvu/splits.json (analytics.eval.split_games).
+ones from analytics.fixtures (production code never imports tests/). A bundle is held out when its files sit
+under heldout/, the fixture flags it, or its id carries a held-out token of sportvu/splits.json or the held-out
+arena (analytics.eval.is_heldout_game).
 
 Checks (``check_bundle``): analytics.schema.validate on rebound_frames, shot_frames, rosters and possessions;
 frames and ball positions inside the court (0 to 94 by 0 to 50 ft), game clocks 0 to 720 s, periods at least 1,
@@ -21,14 +23,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+from analytics import fixtures as _fixtures
 from analytics import schema
-from analytics.eval import split_games
+from analytics.eval import is_heldout_game
 
 WHO = "rebounds.validate"
 COURT_X, COURT_Y, CLOCK_MAX = (0.0, 94.0), (0.0, 50.0), 720.0
@@ -44,31 +46,16 @@ TABLE_KEYS = {"rebound_frames": ["sportvu_game", "event"], "shot_frames": ["spor
 
 
 # ── sources ───────────────────────────────────────────────────────────────────────────────────────
-def _fixture_module():
-    try:
-        from analytics import fixtures as fx     # the shared generator of lane I1, when it exists
-        return fx
-    except ImportError:
-        root = Path(__file__).resolve().parents[2]
-        if str(root / "tests") not in sys.path:
-            sys.path.insert(0, str(root / "tests"))
-        import _fx_rebounds as fx
-        return fx
+FIXTURE_SOURCE = "analytics.fixtures"
 
 
 def bundles_from_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> list:
-    """Synthetic bundles. Fixture output, never a result."""
-    fx = _fixture_module()
-    try:
-        games = fx.synth_season(seed, n_games, heldout_every, n_possessions=n_possessions)
-    except TypeError:                               # a generator without the n_possessions argument
-        games = fx.synth_season(seed, n_games, heldout_every)
-    if isinstance(games, dict):
-        games = list(games.values())
+    """Synthetic bundles from analytics.fixtures.synth_season. Fixture output, never a result."""
+    games = _fixtures.synth_season(seed, n_games, heldout_every, n_possessions=n_possessions)
     out = []
     for g in games:
         gid = str(g["frames"]["game"].iat[0]) if "game" in g["frames"].columns else str(g["rebound_frames"]["sportvu_game"].iat[0])
-        held = bool(split_games([gid])["heldout"]) or gid.endswith(".at.CLE")
+        held = is_heldout_game(gid)
         if "shots" in g and len(g["shots"]) and "heldout" in g["shots"].columns:
             held = held or bool(g["shots"]["heldout"].astype(bool).any())
         out.append({"sportvu_game": gid, "heldout": held, "frames": g["frames"], "events": g.get("events"),
@@ -78,6 +65,7 @@ def bundles_from_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 
 
 
 def _is_heldout_path(p: Path) -> bool:
+    """True when a path relative to DATA_ROOT runs through a heldout/ directory."""
     return "heldout" in p.parts
 
 
@@ -87,7 +75,7 @@ def list_root(root) -> list:
     out = []
     for rf_path in sorted((root / "analytics" / "rebound_frames").rglob("*.parquet")):
         game = rf_path.stem
-        held = _is_heldout_path(rf_path.relative_to(root)) or bool(split_games([game])["heldout"]) or game.endswith(".at.CLE")
+        held = _is_heldout_path(rf_path.relative_to(root)) or is_heldout_game(game)
         sv = root / "sportvu_contract" / ("heldout" if held else "")
         frames = sv / (game + ".parquet")
         if not frames.exists():
@@ -106,6 +94,7 @@ def list_root(root) -> list:
 
 
 def read_frames(path) -> pd.DataFrame:
+    """The FRAME_COLUMNS of one frames parquet (the other columns are never read)."""
     import pyarrow.parquet as pq
     t = pq.read_table(path)
     cols = [c for c in FRAME_COLUMNS if c in t.column_names]
@@ -124,6 +113,7 @@ def bundles_from_root(root):
 
 # ── checks and cleaning ───────────────────────────────────────────────────────────────────────────
 def _range_mask(df: pd.DataFrame, col: str, lo: float, hi: float, nullable: bool = False) -> np.ndarray:
+    """True where ``col`` lies in [lo, hi] (or is null, when nullable)."""
     v = pd.to_numeric(df[col], errors="coerce").to_numpy(float)
     ok = (v >= lo) & (v <= hi)
     return ok | (nullable & np.isnan(v))
@@ -151,6 +141,7 @@ def check_frames(frames: pd.DataFrame) -> tuple[np.ndarray, dict]:
 
 
 def check_events(events: pd.DataFrame | None) -> tuple[np.ndarray | None, dict]:
+    """-> (keep mask, problem counts) for the section 5 events; (None, absent counts) when there are none."""
     if events is None:
         return None, {"rows_in": 0, "rows_out": 0, "absent": True}
     missing = [c for c in ("event", "period", "clock_s", "kind") if c not in events.columns]
@@ -213,6 +204,7 @@ def clean_bundle(b: dict) -> tuple[dict, dict]:
 
 
 def summarise(per_game: list) -> dict:
+    """Per-game check counts -> totals per table plus the game and held-out counts."""
     tot = {}
     for t in ("frames", "events") + TABLES:
         tot[t] = {"rows_in": int(sum(g[t]["rows_in"] for g in per_game)), "rows_out": int(sum(g[t]["rows_out"] for g in per_game))}
@@ -226,6 +218,7 @@ def summarise(per_game: list) -> dict:
 
 
 def markdown(summary: dict, fixtures: bool) -> str:
+    """The validation summary as markdown (the fixture banner on top under --fixtures)."""
     L = ["# Rebound lane inputs (analytics.rebounds.validate)", ""]
     if fixtures:
         L.append("Fixture output, not a result: synthetic games, no real tracking data.")
@@ -248,20 +241,41 @@ def markdown(summary: dict, fixtures: bool) -> str:
     return "\n".join(L) + "\n"
 
 
-def parse_args(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+def add_source_args(ap: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """The --fixtures | --data group, --seed and the fixture knobs every rebound CLI shares (the canonical
+    --fixture-* names, with the older --games and --possessions kept as aliases)."""
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--fixtures", action="store_true", help="synthetic games (fixture output, not a result)")
-    src.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/ (see module docstring)")
+    src.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/ (analytics.rebounds.validate docstring)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    ap.add_argument("--fixture-games", "--games", dest="games", type=int, default=8,
+                    help="fixtures only: games in the synthetic season (default %(default)s)")
+    ap.add_argument("--fixture-possessions", "--possessions", dest="possessions", type=int, default=40,
+                    help="fixtures only: possessions per game (default %(default)s)")
+    ap.add_argument("--fixture-heldout-every", dest="heldout_every", type=int, default=4,
+                    help="fixtures only: every k-th game is held out (default %(default)s)")
+    return ap
+
+
+def source_bundles(a):
+    """The bundles the parsed --fixtures or --data arguments name (a list for fixtures, a generator for DATA_ROOT)."""
+    if a.fixtures:
+        return bundles_from_fixtures(a.seed, a.games, a.heldout_every, a.possessions)
+    return bundles_from_root(a.data)
+
+
+def parse_args(argv=None):
+    """The validator's command line."""
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    add_source_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: writes analytics/rebounds/validate.json under it")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=8, help="fixture games")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: check every bundle, print the markdown summary, write validate.json under --out."""
     a = parse_args(argv)
-    bundles = bundles_from_fixtures(a.seed, a.games) if a.fixtures else bundles_from_root(a.data)
+    bundles = source_bundles(a)
     per_game = [check_bundle(b) for b in bundles]
     summary = summarise(per_game)
     summary["source"] = "fixtures (fixture output, not a result)" if a.fixtures else str(a.data)
@@ -271,7 +285,7 @@ def main(argv=None) -> dict:
         p = Path(a.out) / "analytics" / "rebounds" / "validate.json"
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps(summary, indent=1, default=str))
-        summary["written"] = str(p)
+        summary["written"] = "OUT_ROOT/analytics/rebounds/validate.json"
     return summary
 
 

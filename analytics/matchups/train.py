@@ -2,13 +2,14 @@
 
     python -m analytics.matchups.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/matchups.md
                                        [--seed 0] [--bootstrap 200] [--folds 5] [--n-min 300]
+                                       [--fixture-games 8] [--fixture-possessions N] [--fixture-heldout-every 4]
 
 With --out the season-wide tables go to OUT_ROOT/analytics/matchups/tables/<season>/matchup_defenders.parquet and
 matchup_possessions_train.parquet, apart from the per-game files of analytics.matchups.features.
 
 Steps
-  1. load the games (analytics.matchups.validate), set the held-out games aside (heldout/ directory or a
-     held-out token of sportvu/splits.json), call analytics.eval.refuse_heldout on the training game ids
+  1. load the games (analytics.matchups.validate), set the held-out games aside (heldout/ directory, the fixture
+     flag, or analytics.eval.is_heldout_game by id), call analytics.eval.refuse_heldout on the training game ids
   2. assign defenders at 1 Hz (analytics.matchups.features) and join the field-goal attempts; the xFG
      probability of each attempt is the xFG lane's out-of-fold p_selected when OUT_ROOT/analytics/xfg/<season>/
      holds it with a verified fold column, else the location-only fallback: analytics.features_xfg features of
@@ -58,7 +59,8 @@ import pandas as pd
 import scipy.sparse as sp
 
 from analytics import schema
-from analytics.eval import bootstrap_by_game, gated, grouped_folds, paired_bootstrap_by_game, refuse_heldout
+from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds,
+                            paired_bootstrap_by_game, refuse_heldout)
 from analytics.matchups import features as F
 from analytics.matchups import validate as V
 
@@ -67,7 +69,6 @@ log = logging.getLogger("analytics.matchups.train")
 WHO = "train_matchups"
 IN_SAMPLE_FOLD = -2          # fold convention of the xFG tables: >= 0 out-of-fold, -1 held-out, -2 in-sample
 ALPHA_ONE_GAME = 30.0        # the ridge alpha when no inner fold is possible (one training game)
-FIXTURE_HELDOUT_EVERY = V.FIXTURE_HELDOUT_EVERY
 N_MIN = 300
 ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0)
 MODELS = ("constant", "raw", "ridge")
@@ -79,6 +80,7 @@ MAC_CMD = ("python -m analytics.matchups.train --data \"<DATA_ROOT>\" --out \"<O
 
 # ── step 1 and 2: inputs, assignment, xFG ──────────────────────────────────────────────────────────
 def split(games: list) -> tuple:
+    """(training games, held-out games) by the heldout flag validate set; refuse_heldout runs on the training ids."""
     train = [g for g in games if not g.get("heldout")]
     held = [g for g in games if g.get("heldout")]
     refuse_heldout(sorted(str(g["sportvu_game"]) for g in train), WHO)
@@ -96,6 +98,7 @@ def assign_games(games: list) -> dict:
 
 
 def _xfg_frame(parts: dict, heldout: bool) -> pd.DataFrame:
+    """analytics.features_xfg features of every attempt in ``parts`` (an empty frame when there is none)."""
     from analytics.features_xfg import features as xfg_features
     shots = pd.concat([p["shots"] for p in parts.values()], ignore_index=True) if parts else pd.DataFrame(columns=F.SHOT_COLUMNS)
     if len(shots) == 0:
@@ -186,6 +189,7 @@ def pair_table(mp: pd.DataFrame) -> pd.DataFrame:
 
 
 def _diff_per100(d: pd.DataFrame) -> float:
+    """Points allowed minus expected per 100 matchup possessions of the rows ``d``."""
     den = float(d["partial_possession"].sum())
     return float("nan") if den == 0 else 100.0 * float(d["points_allowed_share"].sum() - d["xfg_expected_share"].sum()) / den
 
@@ -216,6 +220,7 @@ def defender_table(mp: pd.DataFrame, n_min: int = N_MIN, n_boot: int = 200, seed
 
 # ── step 4: ridge adjustment and the baseline comparison ───────────────────────────────────────────
 def possession_points(games: list) -> dict:
+    """{(sportvu_game, possession): points} over the games' possessions tables."""
     out = {}
     for g in games:
         p = g["possessions"]
@@ -245,8 +250,10 @@ def possession_design(mp: pd.DataFrame, points: dict) -> dict:
 
 
 def _fit_ridge(X, y, alpha: float):
+    """sklearn Ridge with an intercept, fitted under analytics.eval.fit_threads(1)."""
     from sklearn.linear_model import Ridge
-    return Ridge(alpha=alpha, fit_intercept=True).fit(X, y)
+    with fit_threads(1):
+        return Ridge(alpha=alpha, fit_intercept=True).fit(X, y)
 
 
 def raw_model(mp_train: pd.DataFrame) -> dict:
@@ -259,6 +266,7 @@ def raw_model(mp_train: pd.DataFrame) -> dict:
 
 
 def raw_predict(model: dict, mp_test: pd.DataFrame, keys: list) -> np.ndarray:
+    """Possession points predicted by the raw model: the sum over defenders of share times training-fold rate."""
     r = model["rate"]
     contrib = mp_test["partial_possession"].to_numpy(dtype=float) * np.array([r.get(int(d), model["mean_rate"]) for d in mp_test["def_player_id"]])
     s: dict = {}
@@ -322,6 +330,7 @@ def ridge_cv(mp: pd.DataFrame, points: dict, n_folds: int, seed: int, alphas=ALP
 
 
 def _mse(d: pd.DataFrame, col: str) -> float:
+    """Mean squared error of the prediction column ``col`` against y."""
     return float(np.mean((d[col] - d["y"]) ** 2))
 
 
@@ -346,11 +355,13 @@ def compare_models(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
 
 # ── step 5: internal validation ────────────────────────────────────────────────────────────────────
 def _stability(d: pd.DataFrame) -> float:
+    """Share of defender sampled frames whose assignment did not change."""
     c = d["changed"].dropna()
     return float("nan") if len(c) == 0 else 1.0 - float(c.mean())
 
 
 def stability(mf: pd.DataFrame, n_boot: int, seed: int) -> dict:
+    """Assignment stability with a bootstrap-by-game interval (point only over one game), plus n defender-frames."""
     d = mf.dropna(subset=["changed"])
     if len(d) == 0:
         return {"point": float("nan"), "lo": float("nan"), "hi": float("nan"), "n": 0}
@@ -362,11 +373,13 @@ def stability(mf: pd.DataFrame, n_boot: int, seed: int) -> dict:
 
 
 def _fg(d: pd.DataFrame, near: bool) -> float:
+    """FG% of the attempts whose assigned defender is within (near) or beyond DEFENDED_FT."""
     m = d["def_dist_ft"] <= F.DEFENDED_FT if near else d["def_dist_ft"] > F.DEFENDED_FT
     return float("nan") if m.sum() == 0 else float(d.loc[m, "made"].astype(float).mean())
 
 
 def defended_fg(shots: pd.DataFrame, n_boot: int, seed: int) -> dict:
+    """Defended FG% within and beyond DEFENDED_FT and their paired difference, by game bootstrap."""
     d = shots.dropna(subset=["def_dist_ft"])
     out = {"n_near": int((d["def_dist_ft"] <= F.DEFENDED_FT).sum()), "n_far": int((d["def_dist_ft"] > F.DEFENDED_FT).sum())}
     nan = {"point": float("nan"), "lo": float("nan"), "hi": float("nan")}
@@ -393,6 +406,7 @@ def selected_candidate(cv: dict) -> str:
 
 # ── step 6: held-out, scored once ──────────────────────────────────────────────────────────────────
 def score_heldout(held_tables: dict, held_games: list, cv: dict, n_boot: int, seed: int) -> dict:
+    """The held-out game(s) scored once: the selected candidate and the constant floor, stability, defended FG%."""
     mp = held_tables["matchup_possessions"]
     if len(mp) == 0:
         return {}
@@ -418,35 +432,23 @@ def score_heldout(held_tables: dict, held_games: list, cv: dict, n_boot: int, se
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=2) -> str:
-    try:
-        return "n/a" if v is None or not np.isfinite(float(v)) else ("%%.%df" % nd) % float(v)
-    except (TypeError, ValueError):
-        return "n/a"
-
-
-def _ci(d: dict, key="point", nd=3) -> str:
-    if d is None or not np.isfinite(float(d.get(key, np.nan))):
-        return "n/a"
-    if not np.isfinite(float(d.get("lo", np.nan))):
-        return _f(d[key], nd)
-    return "%s [%s, %s]" % (_f(d[key], nd), _f(d["lo"], nd), _f(d["hi"], nd))
-
-
 def _defender_rows(t: pd.DataFrame) -> list:
+    """Markdown rows of the defender table (per-100 numbers to one decimal)."""
     return ["| %d | %d | %s | %s | %s | %s | %s | %s | %s |" % (
-        r.def_player_id, r.n_possessions, _f(r.points_allowed_per100, 1), _f(r.expected_per100, 1), _f(r.diff_per100, 1),
-        _f(r.ridge_value, 1), _f(r.lo, 1), _f(r.hi, 1), "yes" if r.insufficient else "no") for r in t.itertuples(index=False)]
+        r.def_player_id, r.n_possessions, fmt_num(r.points_allowed_per100, 1), fmt_num(r.expected_per100, 1),
+        fmt_num(r.diff_per100, 1), fmt_num(r.ridge_value, 1), fmt_num(r.lo, 1), fmt_num(r.hi, 1), "yes" if r.insufficient else "no") for r in t.itertuples(index=False)]
 
 
 def write_report(path: Path, ctx: dict) -> str:
+    """Write the markdown report to ``path`` and return its text; under --fixtures every heading of a section that
+    carries a number ends with "(fixture output, not a result)"."""
     fixture = ctx["fixtures"]
     tag = " (fixture output, not a result)" if fixture else ""
-    L = ["# Matchups: individual defender assessment (analytics/matchups)", "",
+    L = ["# Matchups: individual defender assessment (analytics/matchups)" + tag, "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fixture:
         L += ["**Every number below is fixture output, not a result**: the inputs are the synthetic season of "
-              "tests/_fx_matchups.py (or analytics.fixtures), drawn from a seeded generator. The real run is the Mac command at the end.", ""]
+              "analytics.fixtures, drawn from a seeded generator. The real run is the Mac command at the end.", ""]
     L += ["## Inputs" + tag, "", "| game | held out | possessions | sampled frames | matchup rows | attempts |", "| --- | --- | --- | --- | --- | --- |"]
     for r in ctx["inputs"]:
         L.append("| %s | %s | %d | %d | %d | %d |" % (r["sportvu_game"], "yes" if r["heldout"] else "no", r["possessions"], r["frames_sampled"], r["rows"], r["attempts"]))
@@ -454,27 +456,27 @@ def write_report(path: Path, ctx: dict) -> str:
           % (len(ctx["train_ids"]), ", ".join(ctx["train_ids"]) or "none", len(ctx["held_ids"]), ", ".join(ctx["held_ids"]) or "none"),
           "xFG probabilities: %s." % ctx["xfg_note"],
           "Skipped: %d possession(s) without an offence id, %d without frames, %d sampled frame(s) without both squads." % (ctx["skipped"]["no_offense"], ctx["skipped"]["no_frames"], ctx["skipped"]["frames_skipped"]), "",
-          "## Protocol", "",
+          "## Protocol" + tag, "",
           "Assignment at 1 Hz by `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus 0.5 times distance to the midpoint between that player and the attacked basket (one basket per offense team and period, by majority over the possessions' last-third offensive centroids); positions only. "
           "Share = fraction of the possession's sampled frames assigned. Points enter only as targets; `schema.assert_time_forward` passed on the feature frame (%s); the ridge design is built from partial_possession only." % ", ".join(F.feature_columns()),
           "Gate: %d distinct possessions per defender (`analytics.eval.gated`) before any ranking. Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)." % (ctx["n_min"], ctx["bootstrap"], ctx["seed"]), "",
           "## Assignment stability" + tag, "",
-          "Share of defender sampled frames whose assignment equals the previous sampled frame: %s over %d defender-frames (%d games)." % (_ci(ctx["stability"]), ctx["stability"]["n"], len(ctx["train_ids"])),
-          "Switches per possession per defender: mean %s, share of defender-possessions with no switch %s." % (_f(ctx["switch_mean"], 2), _f(ctx["no_switch_share"], 3)), "",
+          "Share of defender sampled frames whose assignment equals the previous sampled frame: %s over %d defender-frames (%d games)." % (fmt_ci(ctx["stability"], 3), ctx["stability"]["n"], len(ctx["train_ids"])),
+          "Switches per possession per defender: mean %s, share of defender-possessions with no switch %s." % (fmt_num(ctx["switch_mean"], 2), fmt_num(ctx["no_switch_share"], 3)), "",
           "## Defended FG% consistency" + tag, "",
           "| assigned defender | attempts | FG% |", "| --- | --- | --- |",
-          "| within %.0f ft | %d | %s |" % (F.DEFENDED_FT, ctx["defended"]["n_near"], _ci(ctx["defended"]["near"])),
-          "| beyond %.0f ft | %d | %s |" % (F.DEFENDED_FT, ctx["defended"]["n_far"], _ci(ctx["defended"]["far"])),
-          "", "Beyond minus within: %s (paired by game; excludes zero: %s)." % (_ci(ctx["defended"]["far_minus_near"], "diff"), ctx["defended"]["far_minus_near"]["excludes_zero"]), "",
+          "| within %.0f ft | %d | %s |" % (F.DEFENDED_FT, ctx["defended"]["n_near"], fmt_ci(ctx["defended"]["near"], 3)),
+          "| beyond %.0f ft | %d | %s |" % (F.DEFENDED_FT, ctx["defended"]["n_far"], fmt_ci(ctx["defended"]["far"], 3)),
+          "", "Beyond minus within: %s (paired by game; excludes zero: %s)." % (fmt_ci(ctx["defended"]["far_minus_near"], 3, key="diff"), ctx["defended"]["far_minus_near"]["excludes_zero"]), "",
           "## Baseline comparison: possession points, %s" % ctx["cv"]["mode"] + tag, "",
           "Ridge alpha nested: inside each outer fold an inner grouped CV over that fold's training games chose from %s (per-fold alphas %s); the final model's alpha %s was chosen by grouped CV over all training games (%s)."
-          % (list(ALPHAS), ", ".join(_f(a, 1) for a in ctx["cv"]["fold_alphas"]) or "none", _f(ctx["cv"]["alpha"], 1),
-             ", ".join("%s: %s" % (_f(a, 1), _f(m, 4)) for a, m in ctx["cv"]["mse_alpha"].items()) or "one game, no inner fold"), "",
+          % (list(ALPHAS), ", ".join(fmt_num(a, 1) for a in ctx["cv"]["fold_alphas"]) or "none", fmt_num(ctx["cv"]["alpha"], 1),
+             ", ".join("%s: %s" % (fmt_num(a, 1), fmt_num(m, 4)) for a, m in ctx["cv"]["mse_alpha"].items()) or "one game, no inner fold"), "",
           "| model | out-of-fold MSE |", "| --- | --- |"]
     for m in MODELS:
-        L.append("| %s | %s |" % (m, _ci(ctx["compare"]["mse"][m], "point", 4)))
+        L.append("| %s | %s |" % (m, fmt_ci(ctx["compare"]["mse"][m], 4)))
     for k, d in ctx["compare"]["paired"].items():
-        L.append("| %s | %s (excludes zero: %s) |" % (k.replace("_", " "), _ci(d, "diff", 4), d["excludes_zero"]))
+        L.append("| %s | %s (excludes zero: %s) |" % (k.replace("_", " "), fmt_ci(d, 4, key="diff"), d["excludes_zero"]))
     L += ["", "The out-of-fold MSE of every model carries no choice made on the scored rows (the ridge alpha of each fold comes from an inner CV over that fold's training games)."]
     if ctx["n_defenders_multi_game"] == 0:
         L.append("Every defender is in one game on this input: raw and ridge out-of-fold equal the constant, so the comparison above carries no information about the defenders.")
@@ -488,8 +490,8 @@ def write_report(path: Path, ctx: dict) -> str:
             "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     ok = ctx["defenders"][~ctx["defenders"]["insufficient"]]
     if len(ok):
-        L += ["### Top %d (fewest points allowed over expected, gated)" % min(10, len(ok)), ""] + head + _defender_rows(ok.head(10))
-        L += ["", "### Bottom %d (gated)" % min(10, len(ok)), ""] + head + _defender_rows(ok.tail(10).iloc[::-1])
+        L += ["### Top %d (fewest points allowed over expected, gated)%s" % (min(10, len(ok)), tag), ""] + head + _defender_rows(ok.head(10))
+        L += ["", "### Bottom %d (gated)%s" % (min(10, len(ok)), tag), ""] + head + _defender_rows(ok.tail(10).iloc[::-1])
     else:
         L += ["No defender passes the gate, so there is no ranking. The ungated rows, every one flagged insufficient, for inspection only:", ""] + head + \
              _defender_rows(ctx["defenders"].head(10))
@@ -498,19 +500,19 @@ def write_report(path: Path, ctx: dict) -> str:
     if h:
         L += ["%s: %d possessions, %d matchup rows; never fitted or tuned on; point estimates only." % (", ".join(h["games"]), h["n_possessions"], h["n_rows"]), "",
               "Selected candidate: %s (the lower out-of-fold MSE on the training folds; the rule was fixed before scoring). Only the candidate and the constant floor are scored here." % h["candidate"], "",
-              "| model | MSE |", "| --- | --- |"] + ["| %s | %s |" % (m + (" (floor)" if m == "constant" else " (selected)"), _f(h["mse"][m], 4)) for m in ("constant", h["candidate"])] + \
+              "| model | MSE |", "| --- | --- |"] + ["| %s | %s |" % (m + (" (floor)" if m == "constant" else " (selected)"), fmt_num(h["mse"][m], 4)) for m in ("constant", h["candidate"])] + \
              ["", "Assignment stability %s; defended FG%% within %.0f ft %s (%d attempts) vs beyond %s (%d attempts)." % (
-                 _f(h["stability"]["point"], 3), F.DEFENDED_FT, _f(h["defended_fg"]["near"]["point"], 3), h["defended_fg"]["n_near"],
-                 _f(h["defended_fg"]["far"]["point"], 3), h["defended_fg"]["n_far"])]
+                 fmt_num(h["stability"]["point"], 3), F.DEFENDED_FT, fmt_num(h["defended_fg"]["near"]["point"], 3),
+                 h["defended_fg"]["n_near"], fmt_num(h["defended_fg"]["far"]["point"], 3), h["defended_fg"]["n_far"])]
     else:
         L.append("No held-out game in the inputs.")
-    L += ["", "## Status", ""]
+    L += ["", "## Status" + tag, ""]
     if fixture:
         L.append("Fixture output, not a result. The real run, on the Mac with the full DATA_ROOT (frames, play-by-play, possessions, shot_frames, rosters for 2015-16) and the xFG lane's predictions under OUT_ROOT/analytics/xfg/2015-16/, is")
     else:
         L.append("Run on the DATA_ROOT given; rerun with")
     L += ["", "    " + MAC_CMD, "",
-          "## Assumptions", "",
+          "## Assumptions" + tag, "",
           "- The attacked basket is the one nearer the offensive centroid over the possession's sampled frames (positions only).",
           "- A possession's points go to the rows of the offensive player who took its last field-goal attempt; possessions without an attempt (turnovers, free throws without a shot) count 0 points and 0 expected for every matchup.",
           "- Shot value is 3 when the play-by-play text says 3-pt, else by 22 ft from the basket at the release frame.",
@@ -526,6 +528,7 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: int, n_min: int, fixtures: bool, command: str) -> dict:
+    """Steps 1 to 6 of the module docstring -> the report context."""
     train, held = split(games)
     if not train:
         raise SystemExit("%s: no training games after setting the held-out games aside" % WHO)
@@ -534,7 +537,8 @@ def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: 
     if xfg is not None:
         note = "the xFG lane's out-of-fold p_selected (%d rows, fold column verified)" % len(xfg)
     else:
-        xfg, note = fallback_xfg(train_parts, held_parts, n_folds, seed)
+        with fit_threads(1):
+            xfg, note = fallback_xfg(train_parts, held_parts, n_folds, seed)
     default_p = default_probability(xfg)
     tt = matchup_tables(train_parts, xfg, default_p)
     ht = matchup_tables(held_parts, xfg, default_p)
@@ -566,27 +570,22 @@ def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: 
 
 
 def parse_args(argv=None):
+    """The trainer's command line."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="the synthetic season (fixture output, not a result)")
-    g.add_argument("--data", help="DATA_ROOT")
+    V.add_source_args(ap)
     ap.add_argument("--out", default=None, help="OUT_ROOT: reads analytics/xfg/<season>/ predictions, writes analytics/matchups/")
-    ap.add_argument("--report", default="reports/matchups.md")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--n-min", type=int, default=N_MIN)
-    ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
-    ap.add_argument("--heldout-every", type=int, default=FIXTURE_HELDOUT_EVERY, help="fixtures only: every k-th game is held out")
-    ap.add_argument("--n-possessions", type=int, default=None, help="fixtures only: possessions per game (default: the generator's season)")
+    ap.add_argument("--report", default="reports/matchups.md", help="markdown report path (default %(default)s)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by game (default %(default)s)")
+    ap.add_argument("--n-min", type=int, default=N_MIN, help="distinct possessions a defender needs before ranking (default %(default)s)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: run the protocol, write the report and (with --out) the season-wide tables."""
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
-    games = V.fixture_games(a.seed, a.n_games, a.heldout_every, a.n_possessions) if a.fixtures else V.load_games(a.data, a.season)
+    games = V.source_games(a)
     if not games:
         raise SystemExit("%s: no games found" % WHO)
     V.validate_games(games)
@@ -600,7 +599,7 @@ def main(argv=None) -> dict:
         d.mkdir(parents=True, exist_ok=True)
         ctx["defenders"].to_parquet(d / "matchup_defenders.parquet", index=False)
         ctx["tables"]["train"]["matchup_possessions"].to_parquet(d / "matchup_possessions_train.parquet", index=False)
-        print("wrote %s" % d)
+        print("wrote OUT_ROOT/analytics/matchups/tables/%s/" % a.season)
     return ctx
 
 

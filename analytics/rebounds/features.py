@@ -1,7 +1,7 @@
 """analytics/rebounds/features.py: candidate rows for the rebound model.
 
-    python -m analytics.rebounds.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--games 8]
-        [--possessions 40]
+    python -m analytics.rebounds.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 writes the candidate frame of every game to OUT_ROOT/analytics/rebounds/features/<season>/<game>.parquet (held-out
 games under heldout/<season>/), under a temporary OUT_ROOT when --out is absent, and prints the row counts.
 
@@ -55,6 +55,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.schema import season_of_game
 
 BASKETS = ((5.25, 25.0), (88.75, 25.0))
 NONE_ID = -1
@@ -148,6 +149,7 @@ def offense_side(misses: pd.DataFrame, events: pd.DataFrame | None, possessions:
 
 # ── per-game build ────────────────────────────────────────────────────────────────────────────────
 def _per_frame(frames: pd.DataFrame) -> pd.DataFrame:
+    """One row per frame (ball and clock columns), indexed by frame."""
     pf = frames[["frame", "period", "game_clock_s", "ball_x", "ball_y", "ball_z"]].drop_duplicates("frame", keep="first")
     return pf.sort_values("frame", kind="stable").set_index("frame")
 
@@ -269,11 +271,13 @@ def build_game(frames: pd.DataFrame, rebound_frames: pd.DataFrame, events: pd.Da
 
 
 def _columns() -> list:
+    """The columns of a candidate frame, in order."""
     return ["sportvu_game", "event", "candidate_player_id", "period", "clock_s", "heldout", "n_candidates",
             TARGET] + STATIC_FEATURES
 
 
 def _empty() -> pd.DataFrame:
+    """A candidate frame with no rows."""
     return pd.DataFrame({c: pd.Series([], dtype="float64") for c in _columns()}).astype(
         {"sportvu_game": "string", "event": "int32", "candidate_player_id": "int32", "heldout": "bool", TARGET: "bool"})
 
@@ -299,7 +303,6 @@ def build(bundles: Iterable[dict]) -> tuple[pd.DataFrame, dict]:
 # ── command line ──────────────────────────────────────────────────────────────────────────────────
 def write_features(cands: pd.DataFrame, out_root) -> list:
     """One parquet per game under OUT_ROOT/analytics/rebounds/features/<season>/ (held-out under heldout/)."""
-    from analytics.rebound_frames import season_of_game
     paths = []
     for game, part in cands.groupby("sportvu_game", sort=True):
         try:
@@ -315,23 +318,21 @@ def write_features(cands: pd.DataFrame, out_root) -> list:
 
 
 def parse_args(argv=None):
+    """The feature builder's command line."""
     import argparse
+    from analytics.rebounds import validate as V
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="synthetic games (fixture output, not a result)")
-    src.add_argument("--data", help="DATA_ROOT (analytics.rebounds.validate docstring)")
+    V.add_source_args(ap)
     ap.add_argument("--out", help="OUT_ROOT; a temporary directory when absent")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=8, help="fixture games (every fourth held out)")
-    ap.add_argument("--possessions", type=int, default=40, help="fixture possessions per game")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: build the candidate rows of every game, write one parquet per game, print the counts."""
     import tempfile
     from analytics.rebounds import validate as V
     a = parse_args(argv)
-    bundles = V.bundles_from_fixtures(a.seed, a.games, 4, a.possessions) if a.fixtures else V.bundles_from_root(a.data)
+    bundles = V.source_bundles(a)
     cleaned = [V.clean_bundle(b)[0] for b in bundles]
     cands, counts = build(cleaned)
     out_root = a.out or tempfile.mkdtemp(prefix="rebounds_features_")
@@ -342,7 +343,8 @@ def main(argv=None) -> dict:
          % (len(counts["per_game"]), t["n_in"], t["misses_kept"], t["team_rebounds_kept"], t["rows"],
             ", ".join("%s %d" % (k, t[k]) for k in DROP_REASONS)),
          "Features: %s." % ", ".join(feature_columns()),
-         "Written %d file(s) under %s/analytics/rebounds/features/." % (len(paths), out_root), ""]
+         "Written %d file(s) under %s/analytics/rebounds/features/."
+         % (len(paths), "OUT_ROOT" if a.out else "a temporary directory (no --out)"), ""]
     print("\n".join(L))
     return {"candidates": cands, "counts": counts, "paths": paths, "out_root": out_root}
 

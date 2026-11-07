@@ -1,4 +1,5 @@
-"""analytics/xfg (lane XFG): the contest-feature xFG upgrade on the synthetic season of tests/_fx_xfg.py.
+"""analytics/xfg (lane XFG): the contest-feature xFG upgrade on the synthetic season of analytics.fixtures
+(through the test adapter tests/_fx_xfg.py).
 
 One small season (4 games of 12 possessions, the 4th held out as 12.16.2015.PHX.at.GSW) is generated once per
 module and shared by every test; the end-to-end run goes through train.main() with the season patched in so no
@@ -12,7 +13,7 @@ import pytest
 pytest.importorskip("sklearn")
 
 from analytics import schema  # noqa: E402
-from analytics.eval import brier, calibration_slope, ece, log_loss  # noqa: E402
+from analytics.eval import brier, calibration_slope, calibration_slope_fast, ece, log_loss  # noqa: E402
 from analytics.xfg import eda as E, features as F, train as T, validate as V  # noqa: E402
 from tests import _fx_xfg as FX  # noqa: E402
 
@@ -229,8 +230,9 @@ def test_metrics_and_selection_on_a_hand_case():
     assert brier(y, p) == pytest.approx(np.mean((p - y) ** 2))
     assert ece(y, p) == pytest.approx(np.mean(np.abs(p - y)))     # one attempt per bin: the bin gap is |p - y|
     q = np.array([0.6, 0.4, 0.7, 0.3, 0.4, 0.55, 0.45, 0.6])       # not separable, so the slope is finite
-    assert T.fast_slope(y, q) == pytest.approx(calibration_slope(y, q), abs=0.02)
-    assert np.isnan(T.fast_slope(np.ones(4), p[:4]))
+    assert calibration_slope_fast(y, q) == pytest.approx(calibration_slope(y, q), abs=0.02)
+    assert np.isnan(calibration_slope_fast(np.ones(4), p[:4]))
+    assert dict(T.BOOT_METRICS)["calibration_slope"] is calibration_slope_fast      # the bootstrap uses the shared solve
     scores = {"location_logistic": {"log_loss": {"point": 0.60}}, "contest_logistic": {"log_loss": {"point": 0.58}},
               "hgb_contest_prior": {"log_loss": {"point": 0.58}}}
     assert T.select(scores) == "contest_logistic"

@@ -8,17 +8,11 @@ Modules
                selection by per-miss multinomial log loss, held-out games scored once, report and predictions
     eda        tables for notebooks/eda_rebounds.ipynb (shares, distributions, correlations, shuffled labels)
 
-Every command takes --fixtures (synthetic games from analytics.fixtures when present, else tests._fx_rebounds)
-or --data DATA_ROOT. Fixture numbers are fixture output, not a result. The leakage rules are in features.py.
+Every command takes --fixtures (synthetic games from analytics.fixtures) or --data DATA_ROOT. Fixture numbers are
+fixture output, not a result. The leakage rules are in features.py. Fits run under analytics.eval.fit_threads(1)
+(four shared cores: one BLAS and OpenMP thread per fit); nothing here touches the environment at import time.
 """
 from __future__ import annotations
-
-import os
-
-# Four shared cores: one BLAS and OpenMP thread per process, set before numpy or sklearn start a pool
-# (fit_candidates also wraps every fit in threadpoolctl.threadpool_limits(1)).
-for _var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
-    os.environ.setdefault(_var, "1")
 
 WHO = "analytics.rebounds"
 SEASON_DEFAULT = "2015-16"

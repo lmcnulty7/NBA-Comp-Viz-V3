@@ -1,6 +1,6 @@
 """analytics/rebounds/eda.py: tables for notebooks/eda_rebounds.ipynb (no plots: tables and markdown only).
 
-    python -m analytics.rebounds.eda --fixtures | --data DATA_ROOT [--seed 0] [--games 8]
+    python -m analytics.rebounds.eda --fixtures | --data DATA_ROOT [--seed 0] [--fixture-games 8] [--folds 5]
 
 Functions take the candidate frame of analytics.rebounds.features.build and return DataFrames:
     rebound_share_by_side          share of misses secured by the offence, the defence and nobody (none)
@@ -22,25 +22,16 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from analytics.eval import md_table
 from analytics.rebounds import features as F
 
 DIST_BINS = (0.0, 4.0, 8.0, 12.0, 16.0, 24.0, np.inf)
 
 
 def markdown(df: pd.DataFrame, nd: int = 4) -> str:
-    """A pipe table of ``df`` (index included when it is named)."""
+    """A pipe table of ``df`` (index included when it is named), via analytics.eval.md_table."""
     d = df.reset_index() if df.index.name is not None or isinstance(df.index, pd.MultiIndex) else df
-    cols = [str(c) for c in d.columns]
-    L = ["| " + " | ".join(cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for row in d.itertuples(index=False):
-        cells = []
-        for v in row:
-            if isinstance(v, (float, np.floating)):
-                cells.append("n/a" if not np.isfinite(v) else ("%%.%df" % nd) % v)
-            else:
-                cells.append(str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return "\n".join(L) + "\n"
+    return "\n".join(md_table(d, nd)) + "\n"
 
 
 def rebound_share_by_side(cands: pd.DataFrame) -> pd.DataFrame:
@@ -65,6 +56,7 @@ def rebound_share_by_distance_bin(cands: pd.DataFrame) -> pd.DataFrame:
 
 
 def feature_distributions(cands: pd.DataFrame) -> pd.DataFrame:
+    """count, mean, std and quartiles of every static feature, plus its mean on rebounder rows and on the others."""
     X = cands[F.STATIC_FEATURES].astype(float)
     d = X.describe().T[["count", "mean", "std", "min", "25%", "50%", "75%", "max"]]
     y = cands[F.TARGET].astype(bool).to_numpy()
@@ -75,6 +67,7 @@ def feature_distributions(cands: pd.DataFrame) -> pd.DataFrame:
 
 
 def correlation_table(cands: pd.DataFrame) -> pd.DataFrame:
+    """Pearson correlations among the static features and the target (descriptive only)."""
     X = cands[F.STATIC_FEATURES].astype(float).copy()
     X[F.TARGET] = cands[F.TARGET].astype(float)
     c = X.corr()
@@ -111,30 +104,29 @@ def shuffled_label_check(train: pd.DataFrame, seed: int = 0, n_folds: int = 5) -
 
 
 def parse_args(argv=None):
+    """The EDA command line."""
+    from analytics.rebounds import validate as V
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=8)
-    ap.add_argument("--folds", type=int, default=5)
+    V.add_source_args(ap)
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds of the shuffled-label check (default %(default)s)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: print every EDA table as markdown (fixture output, not a result, under --fixtures)."""
     from analytics.rebounds import train as T
     from analytics.rebounds import validate as V
     a = parse_args(argv)
-    bundles = V.bundles_from_fixtures(a.seed, a.games) if a.fixtures else V.bundles_from_root(a.data)
+    bundles = V.source_bundles(a)
     cands, _, _, _ = T.load_candidates(bundles)
     train, _ = T.split_train_heldout(cands)
     out = {"by_side": rebound_share_by_side(train), "by_distance": rebound_share_by_distance_bin(train),
            "distributions": feature_distributions(train), "correlations": correlation_table(train),
            "shuffled": shuffled_label_check(train, a.seed, a.folds)}
-    head = "# Rebound EDA" + (" (fixture output, not a result)" if a.fixtures else "")
-    print(head + "\n")
+    tag = " (fixture output, not a result)" if a.fixtures else ""
+    print("# Rebound EDA%s\n" % tag)
     for name, df in out.items():
-        print("## %s\n\n%s" % (name, markdown(df)))
+        print("## %s%s\n\n%s" % (name, tag, markdown(df)))
     return out
 
 

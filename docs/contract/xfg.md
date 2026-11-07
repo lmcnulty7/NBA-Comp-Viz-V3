@@ -2,7 +2,9 @@
 
 Lane XFG of the analytics build. Unit: one field-goal attempt of the shots table (docs/DATA_CONTRACT.md sections
 10 and 10a). Target: `made` (1/0). Code: `analytics/xfg/{validate,features,train,eda}.py`; tests:
-`tests/test_xfg_upgrade.py` on the synthetic season of `tests/_fx_xfg.py` (which prefers `analytics.fixtures`).
+`tests/test_xfg_upgrade.py` on the synthetic season of `analytics.fixtures` (through the test-only adapter
+`tests/_fx_xfg.py`; production code reads `analytics.fixtures` directly and never imports `tests/`). Fixture runs take
+`--fixture-games`, `--fixture-possessions` and `--fixture-heldout-every` on every CLI of the lane.
 Nothing in this lane reads the network or writes raw data into the repository.
 
 ## 1. Inputs and the join
@@ -74,10 +76,11 @@ Frame rate 25 Hz; a window that crosses a period, has a frame gap or fewer than 
 
 Protocol: `analytics.eval.grouped_folds` by `sportvu_game`, the same folds for every candidate (`grouped_cv`);
 selection by out-of-fold log loss; Brier, ECE (10 bins, target under 0.02) and calibration slope with bootstrap
-intervals by game (`bootstrap_by_game`; the slope resamples use a Newton solve of the same regression); paired
+intervals by game (`bootstrap_by_game`; the slope resamples use `analytics.eval.calibration_slope_fast`, a Newton
+solve of the same regression); fits run under `analytics.eval.fit_threads(1)`; paired
 bootstrap by game of candidate 3 against 1 and 2 against 1 on log loss (`paired_bootstrap_by_game`). Rows whose
 `heldout` flag is true, whose game is under `heldout/`, or whose game id carries a held-out token of
-`sportvu/splits.json` (or the CLE arena) are set aside before any fit; `analytics.eval.refuse_heldout` runs on the
+`sportvu/splits.json` (or the CLE arena; `analytics.eval.heldout_mask`) are set aside before any fit; `analytics.eval.refuse_heldout` runs on the
 training game ids and again inside every fit. Held-out rows are scored once, by the selected candidate alone, refit
 on every training row; no other candidate is refit or scores them. Fewer games than folds: leave-one-game-out;
 one training game: the trainer stops.
@@ -104,7 +107,8 @@ Held-out rows are scored exactly once: only the selected candidate is refit, so 
 
 Held-out membership and the `heldout` column (interface with the matchups lane and any consumer): a row is held out
 when its game is under `heldout/` on disk, when the collector wrote `heldout` true, or when its game id carries a
-held-out token of `sportvu/splits.json` or ends in the CLE arena (`.at.CLE`). The three are reconciled when the
+held-out token of `sportvu/splits.json` or ends in the CLE arena (`.at.CLE`), the by-id rule of
+`analytics.eval.is_heldout_game`. The three are reconciled when the
 inputs are loaded, so the `heldout` column of this table is authoritative: a consumer that decides training rows
 must read it (and `fold` -1) rather than re-derive membership from the id alone. For that to be consistent, every
 held-out game must also be expressible by id: either a splits.json token or the CLE arena, which is how

@@ -99,6 +99,7 @@ def assert_no_leak(X) -> None:
 # ----------------------------------------------------------------------------- zones
 
 def zone_of(distance_ft, is_three, is_corner) -> np.ndarray:
+    """The shooter-prior zone of each attempt: rim (under 4 ft), paint (under 14 ft), mid, corner3, above3."""
     d = np.asarray(distance_ft, dtype=float)
     three = np.asarray(is_three, dtype=bool)
     corner = np.asarray(is_corner, dtype=bool)
@@ -231,6 +232,7 @@ def count_dribbles(z) -> int:
 # ----------------------------------------------------------------------------- the feature frame
 
 def _frames_of(frames, game: str):
+    """One game's frames from a DataFrame, a mapping game -> DataFrame or a loader callable (None when absent)."""
     if frames is None:
         return None
     if callable(frames):
@@ -308,20 +310,15 @@ def targets(shots: pd.DataFrame) -> pd.DataFrame:
 # ----------------------------------------------------------------------------- CLI
 
 def main(argv=None) -> dict:
+    """CLI: build the feature frame, print its counts, write xfg_features.parquet under --out."""
     from analytics.xfg import validate as V
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data", metavar="DATA_ROOT")
-    ap.add_argument("--out", metavar="OUT_ROOT", default=None)
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--fixture-games", type=int, default=8)
-    ap.add_argument("--fixture-possessions", type=int, default=40)
+    V.add_source_args(ap)
+    ap.add_argument("--out", metavar="OUT_ROOT", default=None,
+                    help="writes analytics/xfg/<season>/xfg_features.parquet under OUT_ROOT (default: nothing written)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = V.fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
-        else V.load_data_root(a.data, a.season)
+    tables = V.source_tables(a)
     tables, _summary = V.clean(tables)
     feat = build(tables["shots"], tables["shot_frames"], tables["frames"])
     info = {"rows": int(len(feat)), "with_contest": int(feat["has_contest"].sum()), "games": int(feat["sportvu_game"].nunique()),
@@ -330,7 +327,7 @@ def main(argv=None) -> dict:
         d = Path(a.out) / "analytics" / "xfg" / a.season
         d.mkdir(parents=True, exist_ok=True)
         feat.to_parquet(d / "xfg_features.parquet", index=False)
-        info["path"] = str(d / "xfg_features.parquet")
+        info["path"] = "OUT_ROOT/analytics/xfg/%s/xfg_features.parquet" % a.season
     print(json.dumps(info, indent=1) + ("\nfixture output, not a result" if a.fixtures else ""))
     return info
 

@@ -1,6 +1,7 @@
 """analytics/matchups/validate.py: inputs of the matchups lane and their validation.
 
     python -m analytics.matchups.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
+        [--fixture-games 8] [--fixture-possessions N] [--fixture-heldout-every 4]
 
 Loads one game dict per game (frames, events, possessions, shot_frames, rosters, heldout flag) from the
 DATA_ROOT layout
@@ -8,9 +9,9 @@ DATA_ROOT layout
     DATA_ROOT/sportvu_contract/<game>.parquet, <game>_pbp.parquet       (held-out games under heldout/)
     DATA_ROOT/analytics/<table>/<season>/<game>.parquet                 (held-out under analytics/<table>/heldout/<season>/)
 
-or from the synthetic season (--fixtures: analytics.fixtures when present, else the fallback generator in
-tests/_fx_matchups.py). A game is held out when it lives under a heldout/ directory or when its id carries a
-held-out token of sportvu/splits.json.
+or from the synthetic season (--fixtures: analytics.fixtures; production code never imports tests/). A game is
+held out when it lives under a heldout/ directory, when the fixture flags it, or when its id carries a held-out
+token of sportvu/splits.json or the held-out arena (analytics.eval.is_heldout_game).
 
 Validation per game: schema.validate on possessions, shot_frames and rosters (contract tables); the frames
 table checked for its section 4 columns, positions inside the court with a 5 ft margin (0 to 94 by 0 to 50),
@@ -30,13 +31,14 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+from analytics import fixtures as _fixtures
 from analytics import schema
+from analytics.eval import heldout_mask, is_heldout_game
 
 log = logging.getLogger("analytics.matchups.validate")
 
@@ -50,67 +52,32 @@ FIXTURE_HELDOUT_EVERY = 4            # the fixture default of every CLI of the p
 
 
 # ── held-out ──────────────────────────────────────────────────────────────────────────────────────
-def is_heldout(sportvu_game: str) -> bool:
-    """True when the id carries a held-out token of sportvu/splits.json or ends in the held-out arena."""
-    from sportvu import splits
-    s = str(sportvu_game)
-    return any(t in s for t in splits.heldout_tokens()) or s.endswith(".at." + splits.HELDOUT_ARENA)
-
-
 def xfg_heldout_mask(x: pd.DataFrame) -> pd.Series:
     """Held-out rows of an xFG predictions table: its heldout column when present (the xFG lane sets it for games
     held out by flag, directory or token), else sportvu/splits.json by game id."""
     if "heldout" in x.columns:
         return x["heldout"].fillna(False).astype(bool)
-    return x["sportvu_game"].astype(str).map(is_heldout).astype(bool)
+    return pd.Series(heldout_mask(x["sportvu_game"].astype(str)), index=x.index)
 
 
 # ── loaders ───────────────────────────────────────────────────────────────────────────────────────
-def _fixture_module():
-    try:
-        from analytics import fixtures as fx  # type: ignore
-        return fx
-    except ImportError:
-        root = Path(__file__).resolve().parents[2]
-        if str(root) not in sys.path:
-            sys.path.insert(0, str(root))
-        from tests import _fx_matchups as fx  # type: ignore
-        return fx
-
-
-def _as_game_list(season) -> list:
-    """Normalise a synth_season result (a list of game dicts, or one dict of season-wide tables) to a list of game dicts."""
-    if isinstance(season, dict) and "frames" in season and isinstance(season["frames"], pd.DataFrame):
-        tables = {k: v for k, v in season.items() if isinstance(v, pd.DataFrame)}
-        key = "sportvu_game" if "sportvu_game" in tables["possessions"].columns else "game"
-        out = []
-        for gid in tables["possessions"][key].unique():
-            g = {}
-            for k, v in tables.items():
-                col = "sportvu_game" if "sportvu_game" in v.columns else ("game" if "game" in v.columns else None)
-                g[k] = v[v[col] == gid].reset_index(drop=True) if col else v
-            out.append(g)
-        return out
-    return list(season)
-
-
 def fixture_games(seed: int = 0, n_games: int = 8, heldout_every: int = FIXTURE_HELDOUT_EVERY, n_possessions: int | None = None) -> list:
     """The synthetic season as game dicts with a heldout flag (fixture output, not a result). With n_possessions
-    the games come from synth_game one by one (smaller games for tests), else from synth_season."""
-    fx = _fixture_module()
+    the games come from analytics.fixtures.synth_game one by one (smaller games for tests), else from synth_season."""
     if n_possessions is None:
-        games = _as_game_list(fx.synth_season(seed, n_games=n_games, heldout_every=heldout_every))
+        games = list(_fixtures.synth_season(seed, n_games=n_games, heldout_every=heldout_every))
     else:
-        games = [fx.synth_game(seed * 100 + i, n_possessions=n_possessions,
+        games = [_fixtures.synth_game(seed * 100 + i, n_possessions=n_possessions,
                                heldout=bool(heldout_every) and (i + 1) % heldout_every == 0) for i in range(n_games)]
     for g in games:
         gid = str(g["possessions"]["sportvu_game"].iloc[0])
         g["sportvu_game"] = gid
-        g["heldout"] = bool(g.get("heldout", False)) or is_heldout(gid)
+        g["heldout"] = bool(g["meta"]["heldout"]) or is_heldout_game(gid)
     return games
 
 
 def _read(path: Path) -> pd.DataFrame | None:
+    """The parquet at ``path``, None when it does not exist."""
     return pd.read_parquet(path) if path.exists() else None
 
 
@@ -131,7 +98,7 @@ def load_games(data_root, season: str = "2015-16") -> list:
                 log.warning("%s: no frames under sportvu_contract, skipped", gid)
                 continue
             events = _read(sv / (gid + "_pbp.parquet"))
-            g = {"sportvu_game": gid, "heldout": held or is_heldout(gid), "frames": frames, "events": events,
+            g = {"sportvu_game": gid, "heldout": held or is_heldout_game(gid), "frames": frames, "events": events,
                  "possessions": pd.read_parquet(pq)}
             for table in ("shot_frames", "rosters", "rebound_frames"):
                 t = _read(root / "analytics" / table / ("heldout" if held else "") / season / (gid + ".parquet"))
@@ -251,24 +218,43 @@ def validate_games(games: list) -> pd.DataFrame:
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────────────────────────
-def parse_args(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+def add_source_args(ap: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    """The --fixtures | --data group, --season, --seed and the fixture knobs every matchups CLI shares (the
+    canonical --fixture-* names, with the older --n-games, --n-possessions and --heldout-every kept as aliases)."""
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="validate the synthetic season (fixture output, not a result)")
-    g.add_argument("--data", help="DATA_ROOT")
+    g.add_argument("--fixtures", action="store_true", help="the synthetic season (fixture output, not a result)")
+    g.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/<table>/<season>/")
+    ap.add_argument("--season", default="2015-16", help="season directory to read and write (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    ap.add_argument("--fixture-games", "--n-games", dest="n_games", type=int, default=8,
+                    help="fixtures only: games in the synthetic season (default %(default)s)")
+    ap.add_argument("--fixture-possessions", "--n-possessions", dest="n_possessions", type=int, default=None,
+                    help="fixtures only: possessions per game (default: the generator's season)")
+    ap.add_argument("--fixture-heldout-every", "--heldout-every", dest="heldout_every", type=int, default=FIXTURE_HELDOUT_EVERY,
+                    help="fixtures only: every k-th game is held out (default %(default)s)")
+    return ap
+
+
+def source_games(a) -> list:
+    """The game dicts the parsed --fixtures or --data arguments name."""
+    if a.fixtures:
+        return fixture_games(a.seed, a.n_games, a.heldout_every, a.n_possessions)
+    return load_games(a.data, a.season)
+
+
+def parse_args(argv=None):
+    """The validator's command line."""
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    add_source_args(ap)
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes analytics/matchups/validate_<season>.json")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
-    ap.add_argument("--heldout-every", type=int, default=FIXTURE_HELDOUT_EVERY, help="fixtures only: every k-th game is held out")
-    ap.add_argument("--n-possessions", type=int, default=None, help="fixtures only: possessions per game (default: the generator's season)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> pd.DataFrame:
+    """CLI: validate every game, print the per-game counts and problems, write the JSON under --out."""
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
-    games = fixture_games(a.seed, a.n_games, a.heldout_every, a.n_possessions) if a.fixtures else load_games(a.data, a.season)
+    games = source_games(a)
     if not games:
         raise SystemExit("validate: no games found")
     table = validate_games(games)
@@ -281,7 +267,7 @@ def main(argv=None) -> pd.DataFrame:
         p = Path(a.out) / "analytics" / "matchups"
         p.mkdir(parents=True, exist_ok=True)
         (p / ("validate_%s.json" % a.season)).write_text(json.dumps(table.to_dict("records"), indent=1, default=str) + "\n")
-        print("wrote %s" % (p / ("validate_%s.json" % a.season)))
+        print("wrote OUT_ROOT/analytics/matchups/validate_%s.json" % a.season)
     return table
 
 

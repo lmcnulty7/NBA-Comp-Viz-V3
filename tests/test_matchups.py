@@ -1,4 +1,5 @@
-"""tests/test_matchups.py: analytics.matchups on the synthetic fixtures of tests/_fx_matchups.py (no network, no data)."""
+"""tests/test_matchups.py: analytics.matchups on the synthetic fixtures of analytics.fixtures, through the test-only adapter
+tests/_fx_matchups.py, whose local 5 Hz generator one layout test uses on purpose (no network, no data)."""
 import json
 import sys
 from pathlib import Path
@@ -9,6 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from analytics import schema  # noqa: E402
+from analytics.eval import is_heldout_game  # noqa: E402
 from analytics.matchups import eda, features as F, train as T, validate as V  # noqa: E402
 from tests import _fx_matchups as FX  # noqa: E402
 
@@ -119,7 +121,7 @@ def test_leakage_guards(games):
     held = [g for g in games if g["heldout"]][0]
     with pytest.raises(SystemExit):
         T.split([{**held, "heldout": False}])
-    assert V.is_heldout(HELD) and V.is_heldout("01.18.2016.GSW.at.CLE") and not V.is_heldout("01.01.2016.AAA.at.BBB")
+    assert is_heldout_game(HELD) and is_heldout_game("01.18.2016.GSW.at.CLE") and not is_heldout_game("01.01.2016.AAA.at.BBB")
 
 
 def test_xfg_predictions_interface(tmp_path):
@@ -206,7 +208,8 @@ def test_validate_counts_and_cli(games, tmp_path):
     bad["possessions"] = games[0]["possessions"].assign(end_kind="nope").drop(columns=["gap"])
     r = V.validate_game(bad)
     assert any("possessions" in p and "gap" in p for p in r["problems"]) and any("enum" in p for p in r["problems"])
-    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--n-games", "2", "--heldout-every", "2", "--n-possessions", "12"])
+    res = F.main(["--fixtures", "--out", str(tmp_path), "--seed", "3", "--fixture-games", "2", "--fixture-heldout-every", "2",
+                  "--fixture-possessions", "12"])
     written = sorted(p.name for p in (tmp_path / "analytics" / "matchups").rglob("*.parquet"))
     assert len(written) == 2 and any(HELD in n for n in written)
     assert (tmp_path / "analytics" / "matchups" / "heldout" / "2015-16" / (HELD + ".parquet")).exists()
@@ -218,9 +221,10 @@ def test_validate_counts_and_cli(games, tmp_path):
 
 
 def test_fixture_root_layout_loads(tmp_path):
-    """The DATA_ROOT layout written by the fallback generator (the shared analytics.fixtures.write_fixture_root writes
-    the same paths; it is not run here because a single 40-possession game takes seconds on a shared machine)."""
-    FX._fallback_write_fixture_root(tmp_path, seed=5, n_games=2, heldout_every=2, n_possessions=10)
+    """The DATA_ROOT layout written by the local 5 Hz generator of tests/_fx_matchups.py (the shared
+    analytics.fixtures.write_fixture_root writes the same paths at 25 Hz): the loader and validation read clocks,
+    not row counts, so a different frame rate loads and validates the same way."""
+    FX.local_write_fixture_root(tmp_path, seed=5, n_games=2, heldout_every=2, n_possessions=10)
     games = V.load_games(tmp_path)
     assert len(games) == 2 and sorted(g["heldout"] for g in games) == [False, True]
     held = [g for g in games if g["heldout"]][0]

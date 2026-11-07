@@ -1,7 +1,8 @@
 """analytics/rebounds/train.py: rebound probability under the full evaluation protocol.
 
     python -m analytics.rebounds.train --fixtures | --data DATA_ROOT --report reports/rebounds.md
-        [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--games 8]
+        [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--fixture-games 8] [--fixture-possessions 40]
+        [--fixture-heldout-every 4]
 
 Unit: one missed field-goal attempt; target: which player on court secures the rebound, or none (team rebound).
 Each miss is a block of candidate rows (analytics.rebounds.features) and every model gives a probability vector
@@ -23,7 +24,7 @@ training games of their fold. The prior never sees the row it scores.
 Protocol: analytics.eval.grouped_folds by sportvu_game; selection by per-miss multinomial log loss (lower is
 better); top-1 accuracy also reported (plan target over 40 percent); 95 percent bootstrap intervals by game;
 paired bootstrap of hgb against prior (out-of-fold rows only); calibration of the top candidate's probability via
-analytics.eval.report_block; held-out games (heldout flag of the bundle, or an id of sportvu/splits.json) set aside
+analytics.eval.report_block; held-out games (heldout flag of the bundle, or analytics.eval.heldout_mask by id) set aside
 before any fit and scored once, by the selected candidate alone refit on every training row (next to a uniform floor
 that needs no fit); the non-selected models are never scored on held-out rows. analytics.eval.refuse_heldout runs on the training game ids and
 analytics.schema.assert_time_forward on the feature frame before any fit. One training game: in-sample, labelled.
@@ -44,12 +45,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from analytics.eval import (EPS, bootstrap_by_game, grouped_folds, paired_bootstrap_by_game, refuse_heldout,
-                            report_block, split_games)
-from analytics.rebound_frames import season_of_game
+from analytics.eval import (EPS, bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, heldout_mask,
+                            paired_bootstrap_by_game, refuse_heldout, report_block)
 from analytics.rebounds import features as F
 from analytics.rebounds import validate as V
-from analytics.schema import assert_time_forward
+from analytics.schema import assert_time_forward, season_of_game
 
 WHO = "rebounds.train"
 MODELS = ("prior", "logit", "hgb")
@@ -79,6 +79,7 @@ def normalise_within(values, key: np.ndarray) -> np.ndarray:
 
 
 def softmax_within(scores, key: np.ndarray) -> np.ndarray:
+    """Softmax of ``scores`` within each key (max-shifted for stability)."""
     s = np.asarray(scores, dtype=float)
     mx = pd.Series(s).groupby(key).transform("max").to_numpy()
     return normalise_within(np.exp(s - mx), key)
@@ -103,6 +104,7 @@ def player_rates(train: pd.DataFrame) -> dict:
 
 
 def apply_prior(frame: pd.DataFrame, rates: dict) -> np.ndarray:
+    """The prior rate of each candidate row from player_rates (the side base rate for an unseen player)."""
     pid = frame["candidate_player_id"].astype(int).to_numpy()
     off = frame["is_offense"].astype(int).to_numpy()
     none = frame["is_none"].astype(int).to_numpy() == 1
@@ -129,6 +131,7 @@ def oof_prior(train: pd.DataFrame, seed: int = 0) -> tuple[np.ndarray, str]:
 
 # ── models ─────────────────────────────────────────────────────────────────────────────────────────
 def design(frame: pd.DataFrame, prior: np.ndarray) -> pd.DataFrame:
+    """The design matrix (static features plus the prior) after the leak and time-forward checks."""
     X = frame[F.STATIC_FEATURES].astype(float).copy()
     X[F.PRIOR] = np.asarray(prior, dtype=float)
     X = X[F.feature_columns()]
@@ -140,7 +143,7 @@ def design(frame: pd.DataFrame, prior: np.ndarray) -> pd.DataFrame:
 def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) -> dict:
     """Fit the three candidates on one training frame -> {name: predict(frame) -> p normalised within miss}.
     With ``only`` set to a model name, only that candidate is fitted (the held-out refit). Every fit goes through
-    here: it refuses a held-out row or a held-out game id."""
+    here: it refuses a held-out row or a held-out game id (refuse_heldout covers the held-out arena too)."""
     from sklearn.ensemble import HistGradientBoostingClassifier
     from sklearn.impute import SimpleImputer
     from sklearn.linear_model import LogisticRegression
@@ -150,9 +153,6 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) 
         raise ValueError("%s: a held-out row reached fit_candidates" % WHO)
     games = sorted(train["sportvu_game"].astype(str).unique())
     refuse_heldout(games, WHO)
-    cle = [g for g in games if g.endswith(".at.CLE")]
-    if cle:                                         # the held-out arena rule of sportvu/splits.json, by id suffix
-        raise SystemExit("%s refuses to run: %d training game(s) at the held-out arena CLE, e.g. %s" % (WHO, len(cle), cle[:3]))
     rates = player_rates(train)
     prior_tr, _ = oof_prior(train, seed)
     X, y = design(train, prior_tr), train[F.TARGET].astype(int).to_numpy()
@@ -162,11 +162,10 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) 
     if len(np.unique(y)) < 2:
         out["logit"] = out["prior"]; out["hgb"] = out["prior"]
         return out
-    from threadpoolctl import threadpool_limits
     lr = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), LogisticRegression(C=1.0, max_iter=2000))
     hgb = HistGradientBoostingClassifier(max_iter=80, learning_rate=0.1, max_depth=3, min_samples_leaf=10,
                                          early_stopping=False, random_state=seed)
-    with threadpool_limits(limits=1):           # four cores shared by many jobs: no thread pool per fit
+    with fit_threads(1):                        # four cores shared by many jobs: no thread pool per fit
         if only in (None, "logit"):
             lr.fit(X.to_numpy(), y)
         if only in (None, "hgb"):
@@ -174,13 +173,13 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) 
 
     def logit_predict(frame, m=lr, r=rates):
         Xt = design(frame, apply_prior(frame, r))
-        with threadpool_limits(limits=1):
+        with fit_threads(1):
             scores = m.decision_function(Xt.to_numpy())
         return softmax_within(scores, miss_key(frame))
 
     def hgb_predict(frame, m=hgb, r=rates):
         Xt = design(frame, apply_prior(frame, r))
-        with threadpool_limits(limits=1):
+        with fit_threads(1):
             p = m.predict_proba(Xt.to_numpy())[:, 1]
         return normalise_within(p, miss_key(frame))
 
@@ -248,14 +247,17 @@ def per_miss(pred: pd.DataFrame, col: str) -> pd.DataFrame:
 
 
 def mlogloss(pm: pd.DataFrame) -> float:
+    """Per-miss multinomial log loss (mean of -log p of the true candidate)."""
     return float(-pm["logp"].mean())
 
 
 def top1(pm: pd.DataFrame) -> float:
+    """Top-1 accuracy (ties counted as 1 over the number tied)."""
     return float(pm["hit"].mean())
 
 
 def uniform_reference(pm: pd.DataFrame) -> dict:
+    """Log loss and top-1 of the uniform guess over each miss's candidates."""
     return {"mlogloss": float(np.log(pm["n_candidates"].astype(float)).mean()), "top1": float((1.0 / pm["n_candidates"]).mean())}
 
 
@@ -284,6 +286,7 @@ def paired(pred: pd.DataFrame, a: str, b: str, n_boot: int, seed: int) -> dict:
 
 
 def select(scores: dict) -> str:
+    """The model with the lowest out-of-fold per-miss log loss."""
     return min(MODELS, key=lambda m: scores[m]["mlogloss"]["point"])
 
 
@@ -311,6 +314,7 @@ def predictions_table(pred: pd.DataFrame, selected: str) -> pd.DataFrame:
 
 
 def _season(game: str) -> str:
+    """analytics.schema.season_of_game, "unknown" for an id that is not MM.DD.YYYY.AWAY.at.HOME."""
     try:
         return season_of_game(game)
     except ValueError:
@@ -318,6 +322,7 @@ def _season(game: str) -> str:
 
 
 def write_predictions(table: pd.DataFrame, out_root) -> list:
+    """One rebound_predictions parquet per game under OUT_ROOT/analytics/rebounds/<season>/ (held-out under heldout/)."""
     paths = []
     for game, part in table.groupby("sportvu_game", sort=True):
         held = bool(part["heldout"].any())
@@ -329,26 +334,20 @@ def write_predictions(table: pd.DataFrame, out_root) -> list:
     return paths
 
 
-def _f(v, nd=4) -> str:
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d: dict, nd=4) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d["lo"]):
-        return _f(d["point"], nd)
-    return "%s [%s, %s]" % (_f(d["point"], nd), _f(d["lo"], nd), _f(d["hi"], nd))
+ND = 4                                       # decimals of every number in the report
 
 
 def write_report(path: Path, ctx: dict) -> str:
+    """Write the markdown report to ``path`` and return its text; under --fixtures every heading of a section that
+    carries a number ends with "(fixture output, not a result)"."""
     fx = ctx["fixtures"]
-    L = ["# Rebound probability (analytics/rebounds/train.py)", "",
+    tag = " (fixture output, not a result)" if fx else ""
+    L = ["# Rebound probability (analytics/rebounds/train.py)%s" % tag, "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
         L += ["**Fixture output, not a result.** Every number below comes from synthetic games (%s); no real tracking "
               "data was read. The real run is the Mac command at the end." % ctx["fixture_source"], ""]
-    L += ["## Inputs and rows", "",
+    L += ["## Inputs and rows%s" % tag, "",
           "| game | held out | frames in | frames out | misses in | kept | team rebounds (none) | dropped | candidate rows |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for g in ctx["inputs"]:
@@ -363,7 +362,7 @@ def write_report(path: Path, ctx: dict) -> str:
              ctx["heldout_rows"], ctx["heldout_misses"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]) or "none"),
           "Guard: `analytics.eval.refuse_heldout` checked %d training game ids; `analytics.schema.assert_time_forward` passed on the feature frame (%d columns)."
           % (ctx["train_games"], len(F.feature_columns())),
-          "", "## Protocol", "",
+          "", "## Protocol%s" % tag, "",
           "Unit: a missed field-goal attempt; one candidate row per player on court at the rim frame plus a none row (team rebound).",
           "Features: %s." % ", ".join(F.feature_columns()),
           "Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss).",
@@ -371,28 +370,30 @@ def write_report(path: Path, ctx: dict) -> str:
           "Selection: lowest out-of-fold per-miss multinomial log loss. Top-1 accuracy reported against the plan target of %.0f percent." % (100 * TOP1_TARGET),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["protocol"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if ctx["train_games"] < 2 else ""),
-          "", "## Candidates (%s, %d misses, %d game(s))" % (ctx["mode"], ctx["train_misses"], ctx["train_games"]), "",
+          "", "## Candidates (%s, %d misses, %d game(s))%s" % (ctx["mode"], ctx["train_misses"], ctx["train_games"], tag), "",
           "| model | per-miss log loss | top-1 accuracy |", "| --- | --- | --- |"]
     for m in MODELS:
         s = ctx["scores"][m]
-        L.append("| %s | %s | %s |" % (m + (" (selected)" if m == ctx["selected"] else ""), _ci(s["mlogloss"]), _ci(s["top1"])))
+        L.append("| %s | %s | %s |" % (m + (" (selected)" if m == ctx["selected"] else ""), fmt_ci(s["mlogloss"], ND), fmt_ci(s["top1"], ND)))
     u = ctx["uniform"]
-    L += ["| uniform reference | %s | %s |" % (_f(u["mlogloss"]), _f(u["top1"])), "",
+    L += ["| uniform reference | %s | %s |" % (fmt_num(u["mlogloss"], ND), fmt_num(u["top1"], ND)), "",
           "Paired bootstrap by game, hgb minus prior per-miss log loss: %s [%s, %s]; interval excludes zero: %s (negative favours hgb)."
-          % (_f(ctx["paired"]["diff"]), _f(ctx["paired"]["lo"]), _f(ctx["paired"]["hi"]), ctx["paired"]["excludes_zero"]),
+          % (fmt_num(ctx["paired"]["diff"], ND), fmt_num(ctx["paired"]["lo"], ND), fmt_num(ctx["paired"]["hi"], ND),
+             ctx["paired"]["excludes_zero"]),
           "Selected: %s." % ctx["selected"], "",
-          "## Calibration of the top candidate's probability (%s, %s)" % (ctx["selected"], ctx["mode"]), "",
+          "## Calibration of the top candidate's probability (%s, %s)%s" % (ctx["selected"], ctx["mode"], tag), "",
           "Per miss: y is whether the top candidate secured the rebound (a tie at the maximum counts as yes), p is the top candidate's probability.", "",
           ctx["calibration_block"]]
     if ctx["heldout_rows"]:
-        L += ["## Held-out games (scored once by the selected candidate refit on all %d training rows; never fitted or tuned on)" % ctx["train_rows"], "",
+        L += ["## Held-out games (scored once by the selected candidate refit on all %d training rows; never fitted or tuned on)%s"
+              % (ctx["train_rows"], tag), "",
               "%d misses from %d held-out game(s): %s." % (ctx["heldout_misses"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
               "| model | per-miss log loss | top-1 accuracy |", "| --- | --- | --- |"]
         for m, sc in ctx["heldout_scores"].items():
-            L.append("| %s | %s | %s |" % (m + (" (selected)" if m == ctx["selected"] else " (no fit: 1 over the candidates of the miss)"), _f(sc["mlogloss"]), _f(sc["top1"])))
+            L.append("| %s | %s | %s |" % (m + (" (selected)" if m == ctx["selected"] else " (no fit: 1 over the candidates of the miss)"), fmt_num(sc["mlogloss"], ND), fmt_num(sc["top1"], ND)))
         L += ["", "Held-out numbers are point estimates over %d game(s), scored exactly once. The selection (p_selected = %s) was fixed on the out-of-fold training folds above before any held-out row was scored; only the selected candidate was refit and scored on held-out rows, so the other models' held-out scores do not exist and their columns are NaN on held-out rows of the predictions table. No bootstrap or paired comparison is computed on held-out rows."
               % (ctx["heldout_games"], ctx["selected"]), ""]
-    L += ["## Assumptions taken without asking", "",
+    L += ["## Assumptions taken without asking%s" % tag, "",
           "- Team rebounds are kept as the none class when a rebound event follows the miss and names no player; every other null identity_match is dropped and counted (the lane spec's literal rule would drop every team rebound, since its identity_match is null by construction).",
           "- The offence of a miss is the section 5 team of the miss event, else the possession's offense_team_id; a miss with neither is dropped.",
           "- The 0.4 s look-back is the frame of the same period nearest 0.4 s of game clock before the rim frame, within 0.2 s; otherwise the speed is NaN (imputed by the median in the logit, native in hgb).",
@@ -400,10 +401,10 @@ def write_report(path: Path, ctx: dict) -> str:
           "- The prior is smoothed with 10 pseudo-opportunities toward the per-side base rate; the none rate is the Laplace team-rebound rate. Nothing was tuned.",
           "- Top-1 accuracy counts a tie at the maximum as 1 over the number tied (expected accuracy under random tie-breaking); the calibration block counts it as a hit.",
           "- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf.",
-          "", "## Predictions", "",
-          ("Written %d file(s) under %s/analytics/rebounds/ (docs/contract/rebounds.md)." % (len(ctx["written_paths"]), ctx["out_root"]))
+          "", "## Predictions%s" % tag, "",
+          ("Written %d file(s) under OUT_ROOT/analytics/rebounds/ (docs/contract/rebounds.md)." % len(ctx["written_paths"]))
           if ctx["written_paths"] else "No --out given: the rebound_predictions table was not written.", "",
-          "## Status", ""]
+          "## Status%s" % tag, ""]
     if fx:
         L.append("Fixture output, not a result: a synthetic run that exercises the pipeline end to end. The real run on the Mac, where the full data lives, is")
     else:
@@ -433,9 +434,7 @@ def load_candidates(bundles) -> tuple[pd.DataFrame, list, dict, dict]:
 
 def split_train_heldout(cands: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Held out: the bundle flag, or a sportvu_game that sportvu/splits.json marks held out, or the CLE arena."""
-    ids = cands["sportvu_game"].astype(str)
-    by_id = ids.isin(set(split_games(sorted(ids.unique()))["heldout"])) | ids.str.endswith(".at.CLE")
-    held = cands["heldout"].astype(bool) | by_id
+    held = cands["heldout"].astype(bool).to_numpy() | heldout_mask(cands["sportvu_game"].astype(str))
     train = cands[~held].reset_index(drop=True)
     heldout = cands[held].reset_index(drop=True)
     heldout["heldout"] = True
@@ -445,27 +444,21 @@ def split_train_heldout(cands: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame
 
 
 def parse_args(argv=None):
+    """The trainer's command line."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="synthetic games (fixture output, not a result)")
-    src.add_argument("--data", help="DATA_ROOT (analytics.rebounds.validate docstring)")
-    ap.add_argument("--report", default="reports/rebounds.md")
-    ap.add_argument("--out", help="OUT_ROOT for the rebound_predictions table")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--games", type=int, default=8, help="fixture games (every fourth held out)")
-    ap.add_argument("--possessions", type=int, default=40, help="fixture possessions per game")
+    V.add_source_args(ap)
+    ap.add_argument("--report", default="reports/rebounds.md", help="markdown report path (default %(default)s)")
+    ap.add_argument("--out", help="OUT_ROOT for the rebound_predictions table (default: not written)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default %(default)s)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: run the protocol, score the held-out games once, write the report and (with --out) the predictions."""
     a = parse_args(argv)
-    if a.fixtures:
-        bundles = V.bundles_from_fixtures(a.seed, a.games, 4, a.possessions)
-        fixture_source = V._fixture_module().__name__
-    else:
-        bundles, fixture_source = V.bundles_from_root(a.data), ""
+    bundles = V.source_bundles(a)
+    fixture_source = V.FIXTURE_SOURCE if a.fixtures else ""
     cands, inputs, drop_total, val_tot = load_candidates(bundles)
     train, heldout = split_train_heldout(cands)
     if len(train) == 0:
@@ -474,7 +467,7 @@ def main(argv=None) -> dict:
     scores = score(pred, a.bootstrap, a.seed)
     selected = select(scores)
     pm = per_miss(pred, "p_" + selected)
-    cal = report_block("top candidate, %s" % selected, pm["top_is_rebounder"].astype(float).to_numpy(), pm["p_top"].to_numpy(),
+    cal = report_block("top candidate, %s%s" % (selected, " (fixture output, not a result)" if a.fixtures else ""), pm["top_is_rebounder"].astype(float).to_numpy(), pm["p_top"].to_numpy(),
                        pm, "game", n=a.bootstrap, seed=a.seed)
     inner = sorted(set(note["inner_folds"]))
     prior_note = ("in-sample (one training game)" if inner == [0] else

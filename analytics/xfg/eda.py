@@ -30,6 +30,7 @@ DEFENDER_EDGES = (0, 2, 4, 6, 8, 12, 100)
 
 
 def _rate_table(df: pd.DataFrame, key: pd.Series, label: str) -> pd.DataFrame:
+    """n, make rate and its binomial standard error per value of ``key``."""
     g = df.groupby(key, observed=True)["made"]
     out = pd.DataFrame({"n": g.size(), "make_rate": g.mean().astype(float)})
     out.index.name = label
@@ -71,6 +72,7 @@ def correlation_table(df: pd.DataFrame, columns=None, method: str = "spearman") 
 
 
 def make_rate_by_zone(df: pd.DataFrame) -> pd.DataFrame:
+    """n, make rate and its standard error per shooter-prior zone."""
     return _rate_table(df, df["zone"].astype(str), "zone")
 
 
@@ -111,20 +113,14 @@ def run(train: pd.DataFrame, n_folds: int = 3, seed: int = 0) -> dict:
 
 
 def main(argv=None) -> dict:
+    """CLI: print every EDA table (fixture output, not a result, under --fixtures)."""
     from analytics.xfg import train as T
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data", metavar="DATA_ROOT")
-    ap.add_argument("--season", default=V.SEASON)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--folds", type=int, default=3)
-    ap.add_argument("--fixture-games", type=int, default=6)
-    ap.add_argument("--fixture-possessions", type=int, default=24)
+    V.add_source_args(ap, games=6, possessions=24)
+    ap.add_argument("--folds", type=int, default=3, help="grouped folds of the shuffled-label check (default %(default)s)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s", stream=sys.stderr)
-    tables = V.fixture_tables(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions) if a.fixtures \
-        else V.load_data_root(a.data, a.season)
+    tables = V.source_tables(a)
     tables, _s = V.clean(tables)
     train, _held = T.assemble(tables)
     out = run(train, a.folds, a.seed)

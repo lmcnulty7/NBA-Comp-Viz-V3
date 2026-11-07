@@ -1,14 +1,17 @@
-"""tests/_fx_matchups.py: synthetic fixtures for the matchups lane.
+"""tests/_fx_matchups.py: the test-only adapter of the matchups lane over analytics.fixtures.
 
-Prefers the shared generator analytics.fixtures (lane I1) when it imports; otherwise a minimal local
-generator with the same signatures and the same column names, deterministic given the seed:
+synth_game, synth_season and write_fixture_root are analytics.fixtures' own (imported unconditionally; production
+code never imports this module). One local generator stays, under its own names, because a test exercises it on
+purpose: tests/test_matchups.py::test_fixture_root_layout_loads writes the DATA_ROOT layout with
+local_write_fixture_root, whose frames run at 5 Hz instead of the shared 25 Hz, so the loader and the 1 Hz sampler
+are checked to read clocks, not row counts:
 
-    synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -> dict(
+    local_synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -> dict(
         frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
-    synth_season(seed, n_games=8, heldout_every=0) -> list of synth_game dicts
-    write_fixture_root(root, seed, n_games, heldout_every) -> DATA_ROOT layout on disk
+    local_synth_season(seed, n_games=8, heldout_every=0, n_possessions=40) -> list of local_synth_game dicts
+    local_write_fixture_root(root, seed, n_games, heldout_every) -> DATA_ROOT layout on disk
 
-Fallback generator (nothing here is data: every number is drawn from a seeded generator):
+Local generator (nothing here is data: every number is drawn from a seeded generator):
   - 5 Hz frames (the contract fixes no frame rate; the 1 Hz sampler reads clocks, not row counts)
   - 7 players per team, 5 on the floor per possession; the offence alternates each possession
   - defenders track one offensive assignment each (a permutation drawn per possession) with a 1 ft
@@ -22,16 +25,18 @@ Fallback generator (nothing here is data: every number is drawn from a seeded ge
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-try:  # pragma: no cover - the shared generator is preferred when the lead has merged it
-    from analytics.fixtures import synth_game, synth_season, write_fixture_root  # type: ignore  # noqa: F401
-    SHARED = True
-except ImportError:
-    SHARED = False
+_ROOT = Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from analytics.eval import is_heldout_game  # noqa: E402
+from analytics.fixtures import synth_game, synth_season, write_fixture_root  # noqa: E402,F401
 
 HZ = 5
 PERIOD_S = 720.0
@@ -48,7 +53,7 @@ def _sigmoid(z):
 
 def _game_id(seed: int, heldout: bool) -> str:
     """Held out: the SportVU held-out game of sportvu/splits.json (as analytics.fixtures.HELDOUT_GAME); a season
-    with several held-out games names the others after the other held-out ids, see _fallback_synth_season."""
+    with several held-out games names the others after the other held-out ids, see local_synth_season."""
     if heldout:
         return HELD_IDS[0]
     return TRAIN_ID % (seed % 28 + 1)
@@ -66,7 +71,8 @@ def _roster(game: str, rng) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:
+def local_synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:
+    """One 5 Hz synthetic game in the shapes of analytics.fixtures.synth_game (see the module docstring)."""
     rng = np.random.default_rng(seed)
     game = sportvu_game or _game_id(seed, heldout)
     roster = _roster(game, rng)
@@ -230,24 +236,25 @@ def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = Fal
             "possessions": pd.DataFrame(poss_rows), "states_1hz": pd.DataFrame(states)}
 
 
-def _fallback_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+def local_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+    """n_games local_synth_game dicts; every heldout_every-th game takes the next held-out id of HELD_IDS."""
     out, n_held = [], 0
     for i in range(n_games):
         held = bool(heldout_every) and (i + 1) % heldout_every == 0
         gid = HELD_IDS[n_held % len(HELD_IDS)] if held else None
         n_held += int(held)
-        out.append(_fallback_synth_game(seed * 100 + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid))
+        out.append(local_synth_game(seed * 100 + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid))
     return out
 
 
-def _fallback_write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0, season: str = "2015-16",
+def local_write_fixture_root(root, seed: int, n_games: int = 8, heldout_every: int = 0, season: str = "2015-16",
                                  n_possessions: int = 40) -> Path:
     """DATA_ROOT layout: sportvu_contract/<game>.parquet, <game>_pbp.parquet (held-out under heldout/),
     analytics/<table>/<season>/<game>.parquet (held-out under analytics/<table>/heldout/<season>/)."""
     root = Path(root)
-    for g in _fallback_synth_season(seed, n_games, heldout_every, n_possessions):
+    for g in local_synth_season(seed, n_games, heldout_every, n_possessions):
         game = g["possessions"]["sportvu_game"].iloc[0]
-        held = any(t in game for t in HELD_IDS)
+        held = is_heldout_game(game)
         sv = root / "sportvu_contract" / ("heldout" if held else "")
         sv.mkdir(parents=True, exist_ok=True)
         g["frames"].to_parquet(sv / (game + ".parquet"), index=False)
@@ -259,9 +266,5 @@ def _fallback_write_fixture_root(root, seed: int, n_games: int = 8, heldout_ever
     return root
 
 
-if not SHARED:
-    synth_game = _fallback_synth_game
-    synth_season = _fallback_synth_season
-    write_fixture_root = _fallback_write_fixture_root
-
-__all__ = ["synth_game", "synth_season", "write_fixture_root", "SHARED", "HZ", "HELD_IDS"]
+__all__ = ["synth_game", "synth_season", "write_fixture_root", "local_synth_game", "local_synth_season",
+           "local_write_fixture_root", "HZ", "HELD_IDS"]

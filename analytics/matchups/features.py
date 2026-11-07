@@ -1,6 +1,7 @@
 """analytics/matchups/features.py: defender to offensive player assignment at 1 Hz and the matchup_possessions table.
 
     python -m analytics.matchups.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
+        [--fixture-games 8] [--fixture-possessions N] [--fixture-heldout-every 4]
 
 Assignment (positions only, nothing about the outcome enters). Inside each possession of the section 19 table
 the section 4 frames are sampled at 1 Hz: for every whole second k of elapsed time (start_clock_s minus the
@@ -41,7 +42,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -49,6 +49,7 @@ import pandas as pd
 from scipy.optimize import linear_sum_assignment
 
 from analytics import schema
+from analytics.eval import is_heldout_game
 from analytics.matchups import validate as V
 
 log = logging.getLogger("analytics.matchups.features")
@@ -148,16 +149,19 @@ class _Frames:
         self.fl = pd.DataFrame({"frame": self.frame[first], "period": self.period[first], "game_clock_s": self.clock[first]})
 
     def rows(self, frame: int) -> slice:
+        """The row slice of one frame id in the frame-sorted arrays."""
         a = int(np.searchsorted(self.frame, frame, "left"))
         b = int(np.searchsorted(self.frame, frame, "right"))
         return slice(a, b)
 
     def span(self, start_frame: int, end_frame: int, period: int) -> pd.DataFrame:
+        """Frame-level rows (frame, period, game_clock_s) of [start_frame, end_frame] in ``period``."""
         fl = self.fl
         m = (fl["frame"] >= start_frame) & (fl["frame"] <= end_frame) & (fl["period"] == period)
         return fl[m]
 
     def position(self, frame: int, player_id: int):
+        """(x, y) of a player at a frame, None when the player is not in it."""
         s = self.rows(int(frame))
         m = self.pid[s] == int(player_id)
         if not m.any():
@@ -250,6 +254,7 @@ def frame_assignments(frames: pd.DataFrame, possessions: pd.DataFrame) -> tuple:
 
 # ── shots inside possessions ────────────────────────────────────────────────────────────────────────
 def shot_value(desc, dist_ft) -> int:
+    """2 or 3: the play-by-play text when it says 3-pt or 2-pt, else 3 at THREE_FT or more from the basket."""
     d = str(desc or "").lower()
     if "3-pt" in d or "3pt" in d:
         return 3
@@ -404,23 +409,18 @@ def run_games(games: list, xfg: pd.DataFrame | None = None, default_p: float = 0
 
 
 def parse_args(argv=None):
+    """The feature builder's command line."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="run on the synthetic season (fixture output, not a result)")
-    g.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/<table>/<season>/")
+    V.add_source_args(ap)
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes analytics/matchups/<season>/<game>.parquet, reads analytics/xfg/")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=8, help="fixtures only")
-    ap.add_argument("--heldout-every", type=int, default=V.FIXTURE_HELDOUT_EVERY, help="fixtures only: every k-th game is held out")
-    ap.add_argument("--n-possessions", type=int, default=None, help="fixtures only: possessions per game (default: the generator's season)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: build matchup_possessions for every game, print the counts, write one parquet per game under --out."""
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
-    games = V.fixture_games(a.seed, a.n_games, a.heldout_every, a.n_possessions) if a.fixtures else V.load_games(a.data, a.season)
+    games = V.source_games(a)
     xfg = V.load_xfg(a.out, a.season) if a.out else None
     res = run_games(games, xfg)
     mp = res["matchup_possessions"]
@@ -430,11 +430,11 @@ def main(argv=None) -> dict:
     print(res["counts"].to_string(index=False))
     if a.out:
         for gid, g in mp.groupby("sportvu_game"):
-            held = V.is_heldout(gid) or any(bool(x.get("heldout")) for x in games if str(x["possessions"]["sportvu_game"].iloc[0]) == gid)
+            held = is_heldout_game(gid) or any(bool(x.get("heldout")) for x in games if str(x["possessions"]["sportvu_game"].iloc[0]) == gid)
             d = Path(a.out) / "analytics" / "matchups" / ("heldout" if held else "") / a.season
             d.mkdir(parents=True, exist_ok=True)
             g.to_parquet(d / (str(gid) + ".parquet"), index=False)
-        print("wrote %s" % (Path(a.out) / "analytics" / "matchups"))
+        print("wrote OUT_ROOT/analytics/matchups/")
     return res
 
 
