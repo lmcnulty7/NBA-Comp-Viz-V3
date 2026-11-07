@@ -231,3 +231,56 @@ record. Open a PR.
 - The audit in stage 3 (about 3 hours) and the labels in stage 4 (about 27 hours).
 - An odds API key, or a decision to leave betting as code only.
 - Whether to try the NBA.com tables from a browser session or go without them.
+
+## Autonomous loop (for `/loop` in Claude Code)
+
+Start it with one line in Claude Code on the Mac, self-paced (no interval):
+
+```text
+/loop Follow the "Autonomous loop" section of docs/mac_runbook.md. Do one iteration.
+```
+
+Every iteration does the following, in order.
+
+1. **Read state.** Read the rules at the top of this file and the "Runbook progress" section of STATUS.md
+   (create it if missing: current stage, current step, background jobs with PID and log path, open gates,
+   last result). Never trust memory from an earlier iteration over that section.
+2. **If a gate is open, do not work around it.** Gates the loop never passes on its own: stage 1 merge,
+   the audit pass mark and the filled audit sheet (stage 3), the hand labels and kappa (stage 4), an odds API
+   key, the NBA.com decision, and stage 8. At a gate, write "WAITING ON YOU: <exactly what to do>" at the top
+   of the progress section, say it in one message, and end the loop. Stage 8 starts only after the owner
+   types "go for stage 8" in the conversation.
+3. **Long jobs run in the background.** Collectors and Phase 0 start with
+   `nohup caffeinate -i <command> > logs/loop/<name>.log 2>&1 &`, their PID and log go into the progress
+   section, and later iterations check the log and the collector manifest instead of waiting. One network
+   collector at a time. On a 429, stop it and resume no sooner than an hour later.
+4. **Do the next unit of work** of the current stage as this runbook describes it, then run its check.
+   A failed check is written into the progress section with the first error lines; fix it if it is a
+   code defect (with a test), otherwise open a gate.
+5. **Commit and push** code, docs and reports only (never data), on track-fix or a feature branch with a PR,
+   then update the progress section and pick the wait before the next iteration: about 30 to 60 minutes
+   while a background job runs, immediately when the next unit is ready.
+
+### Improvement search in stage 5 (Darwin Godel Machine style, held-out never read)
+
+After a phase has run with `--skip-heldout`, the loop may try to improve each lane, keeping an archive
+rather than a single best model:
+
+- **Archive.** `reports/archive/<lane>.md` lists every variant: id, parent id, the one change it makes
+  (a feature, a window, a regularisation, a candidate model), why it was proposed, and its out-of-fold metric
+  with the game-bootstrap interval. Variants can branch from any archived variant, not only the best, so
+  the search keeps exploring.
+- **Proposals come from evidence.** Each new variant is proposed from the incumbent's out-of-fold errors
+  (the worst games, buckets or classes in its report), written down with its acceptance test before it runs.
+- **Acceptance.** A variant replaces the incumbent only when the paired bootstrap by game of its
+  out-of-fold metric against the incumbent excludes zero in its favour, on training folds only. Ties keep
+  the simpler model. The plan's baseline-first rule and every lane's fixed gates still apply.
+- **Budget.** At most 5 variants per lane per phase, and the report states how many were tried, so the
+  final numbers carry the selection they went through. Stop a lane early after 2 rejections in a row.
+- **Never.** Read or print a held-out number, change a lane's held-out split, tune on the held-out season,
+  or change analytics/eval.py or analytics/schema.py guards to make a variant pass. The loop edits the
+  pipelines, not the rules.
+- **Each variant on its own branch** (`exp/<lane>-<id>`), tests passing; only accepted variants merge.
+
+When every lane of every phase has run and its archive has settled, the loop moves to stage 6, then
+stage 7 (freeze), and then opens the stage 8 gate and ends.
