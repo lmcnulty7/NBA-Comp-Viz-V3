@@ -21,7 +21,7 @@ Candidates (the displacement from t-1 to t is the regression target, both axes a
   3 mlp           StandardScaler + MLPRegressor(hidden_layer_sizes=(64, 64), max_iter=200, early_stopping=True)
                   on the window of the last five sampled feature vectors (features.window_columns), the
                   stand-in for the GRU: a torch GRU reading the same window reshaped to (n, 5, n_features)
-                  with the most recent step first is the drop-in once torch is installed on the Mac
+                  (lag 1 first in columns; the GRU reverses to oldest first) is the drop-in
   --deep torch    the GRU of analytics/ghosting/deep.py fills slot 3 instead (one deep candidate per run, the same
                   window, target, roll-forward and keep rule); --deep mlp, the default, keeps the stand-in, and
                   --deep torch without torch falls back to it with "torch not available; MLP stand-in used"
@@ -427,7 +427,7 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
             ["Deep candidate (--deep torch): %s." % (deep["notice"] if deep["notice"] else
              "torch GRU, hidden %d, over the same 5-step window reshaped to (n, %d, %d) oldest step first, the same "
              "target and the same roll-forward; Adam, batch %d, at most %d epochs, early stopping after %d epochs on an "
-             "inner split of the training games; kept only by the rule below" % (D.GRU_HIDDEN, F.N_LAGS, len(F.BASE_FEATURES),
+             "inner split of the training games, then refit on every training row for the best epoch count; kept only by the rule below" % (D.GRU_HIDDEN, F.N_LAGS, len(F.BASE_FEATURES),
                                                                                  D.BATCH, D.MAX_EPOCHS, D.PATIENCE))]),
           "Metrics: %s; mean position error in feet; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""),

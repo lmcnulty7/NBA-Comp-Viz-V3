@@ -35,8 +35,8 @@ The feature frame (``feature_frame``) has one row per defender-step t >= MIN_STE
     ids        sportvu_game, possession, frame (the frame of t), step, def_slot, def_player_id, off_player_id,
                panel_row (position of step t in the panel, for the roll-forward)
     features   F(t-1) under the plain names (``feature_columns``, the linear baseline's inputs) and
-               F(t-k) as <name>_lag<k> for k = 2..N_LAGS (``window_columns``: lag 1 first, then 2, ... so a
-               GRU reads the window as (n, N_LAGS, len(BASE_FEATURES)) with the most recent step first;
+               F(t-k) as <name>_lag<k> for k = 2..N_LAGS (``window_columns``: lag 1 first in columns, then 2, ...;
+               reshaped to (n, N_LAGS, len(BASE_FEATURES)), the GRU reverses it to oldest first;
                lags before the sequence start repeat F(0))
     targets    target_dx, target_dy = defender position at t minus at t-1 (the displacement in feet)
 Nothing measured at t or later enters the features; ``schema.assert_time_forward`` runs on every frame

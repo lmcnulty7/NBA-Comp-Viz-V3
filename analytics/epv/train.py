@@ -463,7 +463,8 @@ def write_report(path: Path, ctx: dict) -> str:
             ["Sequence model (--deep torch): %s." % (deep["notice"] if deep["notice"] else
              "a torch GRU (hidden %d) over the last %d states of the possession, run from t-%d to t (no state after t), replaces the "
              "MLPRegressor in the sequence slot (still named mlp in the tables); Adam, batch %d, at most %d epochs, early stopping after "
-             "%d epochs on an inner split of the training games; the same isotonic calibration, gate and keep rule"
+             "%d epochs on an inner split of the training games, then refit on every training row for the best epoch count; the same "
+             "isotonic calibration, gate and keep rule"
              % (D.GRU_HIDDEN, N_LAGS, N_LAGS - 1, D.BATCH, D.MAX_EPOCHS, D.PATIENCE))]),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""), "",

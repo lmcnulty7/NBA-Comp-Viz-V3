@@ -78,6 +78,69 @@ def test_packages_import_without_torch_and_never_import_it_eagerly():
     assert r.stdout.strip() == "imported without torch"
 
 
+def _toy(n=60, d=3, seed=0):
+    rng = np.random.default_rng(seed)
+    X = rng.normal(size=(n, d)).astype(np.float32)
+    return X, (X @ np.array([[1.0], [-2.0], [0.5]])[:d]).astype(np.float32), np.repeat(np.arange(n // 6), 6)
+
+
+def test_train_net_refits_on_every_row_for_the_best_epoch_count():
+    torch = needs_torch()
+    X, Y, groups = _toy()
+    torch.manual_seed(0)
+    net = torch.nn.Linear(3, 1)
+    init = {k: v.clone() for k, v in net.state_dict().items()}
+    hist = DT.train_net(torch, net, X, Y, groups=groups, seed=0, max_epochs=30, patience=3, batch_size=8, lr=0.05)
+    assert hist["refit"] and hist["n_refit"] == len(X) and hist["n_val"] > 0 and 1 <= hist["best_epoch"] <= hist["epochs"]
+    replay = torch.nn.Linear(3, 1)
+    replay.load_state_dict(init)                     # the same start, best_epoch epochs on every row, the same seed
+    with DT.deterministic(torch):
+        DT._epochs(torch, replay, torch.from_numpy(X), torch.from_numpy(Y), seed=0, lr=0.05, weight_decay=0.0,
+                   batch_size=8, max_epochs=hist["best_epoch"])
+    for k, v in net.state_dict().items():
+        assert torch.equal(v, replay.state_dict()[k]), k
+
+
+def test_train_net_raises_when_the_validation_loss_is_never_finite():
+    torch = needs_torch()
+    X, Y, groups = _toy()
+    Y[:] = np.nan
+    with pytest.raises(ValueError, match="never finite"):
+        DT.train_net(torch, torch.nn.Linear(3, 1), X, Y, groups=groups, max_epochs=4, patience=2, who="t")
+    frame = ghost_frame()
+    W = frame[GF.window_columns()].to_numpy(dtype=float)[:100]
+    with pytest.raises(ValueError, match="ghosting.deep: the validation loss was never finite"):
+        GD.GRUWindowRegressor(n_features=len(GF.BASE_FEATURES), max_epochs=3, patience=2).fit(W, np.full((100, 2), np.nan))
+
+
+def test_fits_run_deterministic_and_reproduce_on_two_threads(monkeypatch):
+    torch = needs_torch()
+    states = []
+    real = DT._epochs
+    monkeypatch.setattr(DT, "_epochs", lambda *a, **k: states.append((torch.are_deterministic_algorithms_enabled(),
+                                                                     torch.get_num_threads())) or real(*a, **k))
+    before = (torch.are_deterministic_algorithms_enabled(), torch.get_num_threads())
+    frame = ghost_frame()
+    W = frame[GF.window_columns()].to_numpy(dtype=float)
+    a = GD.fit_gru(frame, seed=0, threads=2, max_epochs=3)(W)
+    b = GD.fit_gru(frame, seed=0, threads=2, max_epochs=3)(W)
+    assert np.array_equal(a, b)
+    assert states and all(s == (True, 2) for s in states)            # deterministic and two threads inside every pass
+    assert (torch.are_deterministic_algorithms_enabled(), torch.get_num_threads()) == before   # both restored after
+
+
+def test_a_torch_that_raises_on_import_falls_back(monkeypatch, tmp_path, caplog):
+    pkg = tmp_path / "torch"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("raise RuntimeError('broken build of torch')\n")
+    monkeypatch.delitem(sys.modules, "torch", raising=False)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    with caplog.at_level(logging.WARNING):
+        assert DT.import_torch() is None
+        assert DT.resolve_deep("torch", "t") == {"requested": "torch", "used": "mlp", "notice": NOTICE}
+    assert any("RuntimeError: broken build of torch" in r.getMessage() for r in caplog.records)
+
+
 # ── ghosting ───────────────────────────────────────────────────────────────────────────────────────
 def ghost_games(n_games=3, n_possessions=4, heldout_every=3):
     key = ("ghost", n_games, n_possessions, heldout_every)
@@ -118,6 +181,12 @@ def test_ghosting_torch_gru_goes_through_the_unchanged_keep_rule(keep, monkeypat
     ctx = GT.run(ghost_games(), n_folds=3, seed=0, n_boot=10, deep="torch")
     assert ctx["deep"] == {"requested": "torch", "used": "torch", "notice": ""}
     assert len(calls) == 3 and all(HELD not in c for c in calls)          # 2 folds + the held-out refit, training games only
+    # the fold being scored never reaches its own torch fit; the held-out refit sees every training game
+    err = ctx["errors"]
+    for i in range(ctx["note"]["folds"]):
+        scored = set(err.loc[err["fold"] == i, "sportvu_game"])
+        assert scored and not set(calls[i]) & scored, (i, calls[i], scored)
+    assert calls[-1] == sorted(ctx["train_games"])
     assert len(decided) == 1 and ctx["decision"] == real_decide(ctx["pairs"])
     assert ctx["decision"]["selected"] == ("mlp" if keep else "ridge") and ctx["decision"]["keep_mlp"] is keep
     assert set(ctx["heldout_candidates"]) == {"persistence", ctx["decision"]["selected"]}
@@ -175,6 +244,31 @@ def test_ghosting_gru_refuses_a_held_out_row(monkeypatch):
         GD.fit_gru(frame)                           # a clean frame gets past the guard and stops at the missing torch
 
 
+def _gru_input(net, predict, A):
+    """The tensor the GRU layer receives when ``predict(A)`` runs (a forward hook on net.gru)."""
+    seen = []
+    h = net.gru.register_forward_hook(lambda mod, inp, out: seen.append(inp[0].detach().numpy().copy()))
+    try:
+        predict(A)
+    finally:
+        h.remove()
+    return seen[0]
+
+
+def test_ghosting_gru_reads_the_window_oldest_first():
+    needs_torch()
+    frame = ghost_frame()
+    nb = len(GF.BASE_FEATURES)
+    W = frame[GF.window_columns()].to_numpy(dtype=float)[:200]
+    m = GD.GRUWindowRegressor(n_features=nb, seed=0, max_epochs=2).fit(W, frame[GF.TARGETS].to_numpy()[:200])
+    seq = _gru_input(m.net_, m.predict, W)
+    Z = m.xs_.transform(W).astype(np.float32)
+    assert seq.shape == (200, GF.N_LAGS, nb)
+    assert not np.allclose(Z[:, :nb], Z[:, 4 * nb:])                   # lag 1 and lag 5 differ, so the order is visible
+    assert np.allclose(seq[:, -1, :], Z[:, :nb])                       # the last step the GRU reads is lag 1 (t minus 1)
+    assert np.allclose(seq[:, 0, :], Z[:, 4 * nb:5 * nb])              # the first is lag 5 (t minus 5)
+
+
 def test_ghosting_gru_seeded_fit_reproduces():
     needs_torch()
     frame = ghost_frame()
@@ -199,8 +293,8 @@ def season():
 def _lagged_frame(n=600, seed=0):
     rng = np.random.default_rng(seed)
     X = pd.DataFrame(rng.normal(size=(n, len(PF.FEATURES))), columns=PF.FEATURES)
-    X["sportvu_game"] = ["g%d" % (i % 6) for i in range(n)]
-    X["possession"] = np.arange(n) // 6
+    X["possession"] = np.arange(n) // 6               # six consecutive states per possession, all in one game
+    X["sportvu_game"] = ["g%d" % (q % 6) for q in X["possession"]]
     X["frame"] = np.arange(n)
     X["elapsed_in_possession_s"] = (np.arange(n) % 6).astype(float)
     y = np.clip(np.round(1.0 + X["handler_dist_basket"] + rng.normal(scale=0.5, size=n)), 0, 4).to_numpy()
@@ -233,6 +327,12 @@ def test_epv_torch_sequence_model_goes_through_the_unchanged_selection(keep, sea
     assert PT.SEQUENCE not in made                           # the stand-in never ran
     # 3 outer folds x (2 inner + 1 full) on 2 training games each, plus the held-out refit (3 inner + 1) when kept
     assert fits and all(HELD not in s for s in fits) and len(fits) == 9 + (4 if keep else 0)
+    pred, train_games = ctx["pred"], set(ctx["train_games"])
+    for i in range(3):                  # every fit of outer fold i (2 inner + the full one) leaves fold i's games out
+        scored = set(pred.loc[pred["fold"] == i, "sportvu_game"].astype(str))
+        chunk = fits[3 * i:3 * i + 3]
+        assert scored and all(not c & scored for c in chunk), (i, chunk, scored)
+        assert chunk[-1] == train_games - scored
     assert len(selected) == 1 and (ctx["selected"], ctx["selection_reason"], ctx["keep_sequence"]) == real_select(*selected[0])
     assert ctx["selected"] == (PT.SEQUENCE if keep else ctx["base"]) and ctx["keep_sequence"] is keep
     assert ctx["pred"]["epv_mlp"].notna().all() and ctx["pred"]["p_mlp"].between(0, 1).all()
@@ -280,6 +380,20 @@ def test_epv_sequence_model_refuses_a_held_out_row(monkeypatch):
         PT.Calibrated(PT.SEQUENCE, cols, 0, deep="torch")._fit_raw(X.assign(sportvu_game=HELD), y)
     with pytest.raises(RuntimeError):
         PD.fit_sequence(X, y, cols)
+
+
+def test_epv_sequence_model_reads_the_states_oldest_first():
+    needs_torch()
+    X, y = _lagged_frame()
+    cols = PF.lagged_columns(PT.N_LAGS)
+    nf = len(PF.FEATURES)
+    A = X[cols].to_numpy(dtype=float)
+    m = PD.fit_sequence(X, y, cols, seed=0, max_epochs=2)
+    seq = _gru_input(m.net_, m.predict, A)
+    Z = m.xs_.transform(m.imp_.transform(A)).astype(np.float32)
+    assert seq.shape == (len(X), PT.N_LAGS, nf) and not np.allclose(Z[:, :nf], Z[:, 4 * nf:])
+    assert np.allclose(seq[:, -1, :], Z[:, :nf])                       # the last step the GRU reads is the state at t
+    assert np.allclose(seq[:, 0, :], Z[:, 4 * nf:5 * nf])              # the first is t-4
 
 
 def test_epv_sequence_model_reproduces_and_reads_only_the_past():

@@ -15,7 +15,11 @@ set to ``threads`` (1 by default) for the fit and restored after, Adam on the me
 shuffled by a seeded generator, early stopping on an inner validation split of the rows passed in (the
 training rows of the current fold only: never a held-out row, never the fold being scored). The split is by
 group (whole games, or whole players for the embeddings) when there are at least MIN_GROUPS_FOR_GROUP_SPLIT
-groups, and a seeded row split otherwise. The weights of the epoch with the lowest validation loss are kept.
+groups, and a seeded row split otherwise. The epoch with the lowest finite validation loss is best_epoch; the
+net is then reset to its initial weights and refit for best_epoch epochs on every row passed in (the same seed),
+so it learns from the same rows as the sklearn stand-in. A validation loss that is never finite raises ValueError.
+torch.use_deterministic_algorithms(True) is on for the fit and the predictions (restored after), so a fit with
+more than one thread reproduces too.
 
 Held-out guard (``refuse_heldout_rows``): every lane's torch fit calls it first, so a held-out row raises
 ValueError before torch is even imported (a true ``heldout`` flag, or a game id that
@@ -40,10 +44,14 @@ VAL_FRAC = 0.2
 # ----------------------------------------------------------------------------- availability and the --deep option
 
 def import_torch():
-    """The torch module, imported lazily; None when it is not importable (absent, or blocked in sys.modules)."""
+    """The torch module, imported lazily; None when it is not importable: absent, blocked in sys.modules, or broken
+    (any exception on import is caught and logged in one line, and the caller falls back)."""
     try:
         import torch
-    except (ImportError, OSError):
+    except ImportError:
+        return None
+    except Exception as e:  # noqa: BLE001  (a broken install raises anything: OSError, RuntimeError, ...)
+        log.warning("torch failed to import (%s: %s); treated as not available", type(e).__name__, str(e).splitlines()[0] if str(e) else "")
         return None
     return torch
 
@@ -101,6 +109,18 @@ def refuse_heldout_rows(frame, who: str, game_col: str = "sportvu_game", games=N
 # ----------------------------------------------------------------------------- training
 
 @contextlib.contextmanager
+def deterministic(torch):
+    """torch.use_deterministic_algorithms(True) inside the block (so a multi-threaded fit reproduces too), the
+    previous setting restored after."""
+    prev, warn = torch.are_deterministic_algorithms_enabled(), torch.is_deterministic_algorithms_warn_only_enabled()
+    torch.use_deterministic_algorithms(True)
+    try:
+        yield
+    finally:
+        torch.use_deterministic_algorithms(prev, warn_only=warn)
+
+
+@contextlib.contextmanager
 def torch_threads(torch, n: int = 1):
     """torch's intra-op pool pinned to ``n`` threads inside the block, restored after."""
     prev = torch.get_num_threads()
@@ -132,56 +152,84 @@ def inner_split(n: int, groups=None, seed: int = 0, frac: float = VAL_FRAC) -> t
     return np.sort(perm[k:]), np.sort(perm[:k])
 
 
+def _epochs(torch, net, Xt, Yt, seed: int, lr: float, weight_decay: float, batch_size: int, max_epochs: int,
+            val=None, patience: int = 0) -> dict:
+    """Minibatch Adam on the MSE for up to max_epochs epochs, minibatches shuffled by a generator seeded with
+    ``seed``. With ``val`` (X, Y), early stopping: stop after ``patience`` epochs without a finite validation MSE
+    lower than the best, and return the best epoch and its weights."""
+    gen = torch.Generator().manual_seed(seed)
+    opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
+    loss_fn = torch.nn.MSELoss()
+    n = len(Xt)
+    bs = max(1, min(int(batch_size), n))
+    best, best_epoch, bad, epochs, best_state = float("inf"), 0, 0, 0, None
+    for epoch in range(int(max_epochs)):
+        net.train()
+        perm = torch.randperm(n, generator=gen)
+        for i in range(0, n, bs):
+            b = perm[i:i + bs]
+            opt.zero_grad()
+            loss = loss_fn(net(Xt[b]), Yt[b])
+            loss.backward()
+            opt.step()
+        epochs = epoch + 1
+        if val is None:
+            continue
+        net.eval()
+        with torch.no_grad():
+            v = float(loss_fn(net(val[0]), val[1]))
+        if np.isfinite(v) and v < best - 1e-7:
+            best, best_epoch, bad = v, epochs, 0
+            best_state = {k: t.detach().clone() for k, t in net.state_dict().items()}
+        else:
+            bad += 1
+            if bad >= patience:
+                break
+    return {"epochs": epochs, "best_epoch": best_epoch, "best": best, "best_state": best_state}
+
+
 def train_net(torch, net, X: np.ndarray, Y: np.ndarray, groups=None, seed: int = 0, threads: int = 1,
               max_epochs: int = 100, patience: int = 8, batch_size: int = 256, lr: float = 2e-3,
-              weight_decay: float = 0.0) -> dict:
-    """Fit ``net`` (already built under torch.manual_seed) to Y on X by minibatch Adam on the mean squared error,
-    with early stopping on inner_split; the best epoch's weights are loaded back. -> dict(epochs, best_epoch,
-    best_val_loss, n_train, n_val)."""
+              weight_decay: float = 0.0, who: str = "deep_torch") -> dict:
+    """Fit ``net`` (already built under torch.manual_seed) to Y on X by minibatch Adam on the mean squared error.
+
+    Two passes, both on the rows passed in (the training rows of the current fold only):
+      1. early stopping on inner_split: train on the inner-train rows, watch the validation MSE, pick best_epoch;
+      2. refit: the net's initial weights restored and the shuffling generator reseeded, then best_epoch epochs on
+         every row passed in, so the torch candidate learns from the same rows as the sklearn stand-in.
+    Under 5 rows there is no validation split: early stopping watches the training loss and its best weights are kept.
+    Runs on ``threads`` intra-op threads with torch.use_deterministic_algorithms(True), both restored after.
+    ValueError when the validation loss is never finite (NaN or inf in the inputs or the targets).
+    -> dict(epochs, best_epoch, best_val_loss, n_train, n_val, refit, n_refit)."""
     X = np.asarray(X, dtype=np.float32)
     Y = np.asarray(Y, dtype=np.float32)
     tr, va = inner_split(len(X), groups, seed)
-    with torch_threads(torch, threads):
-        torch.manual_seed(seed)
-        gen = torch.Generator().manual_seed(seed)
-        Xt, Yt = torch.from_numpy(X[tr]), torch.from_numpy(Y[tr])
-        Xv, Yv = (torch.from_numpy(X[va]), torch.from_numpy(Y[va])) if len(va) else (Xt, Yt)
-        opt = torch.optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
-        loss_fn = torch.nn.MSELoss()
-        best, best_epoch, bad, epochs = float("inf"), 0, 0, 0
-        best_state = {k: v.detach().clone() for k, v in net.state_dict().items()}
-        n = len(Xt)
-        bs = max(1, min(int(batch_size), n))
-        for epoch in range(int(max_epochs)):
-            net.train()
-            perm = torch.randperm(n, generator=gen)
-            for i in range(0, n, bs):
-                b = perm[i:i + bs]
-                opt.zero_grad()
-                loss = loss_fn(net(Xt[b]), Yt[b])
-                loss.backward()
-                opt.step()
-            net.eval()
-            with torch.no_grad():
-                v = float(loss_fn(net(Xv), Yv))
-            epochs = epoch + 1
-            if v < best - 1e-7:
-                best, best_epoch, bad = v, epochs, 0
-                best_state = {k: t.detach().clone() for k, t in net.state_dict().items()}
-            else:
-                bad += 1
-                if bad >= patience:
-                    break
-        net.load_state_dict(best_state)
+    init_state = {k: t.detach().clone() for k, t in net.state_dict().items()}
+    kw = dict(seed=seed, lr=lr, weight_decay=weight_decay, batch_size=batch_size)
+    with torch_threads(torch, threads), deterministic(torch):
+        Xa, Ya = torch.from_numpy(X), torch.from_numpy(Y)
+        Xt, Yt = Xa[tr], Ya[tr]
+        val = (Xa[va], Ya[va]) if len(va) else (Xt, Yt)
+        r = _epochs(torch, net, Xt, Yt, max_epochs=max_epochs, val=val, patience=patience, **kw)
+        if r["best_epoch"] == 0:
+            raise ValueError("%s: the validation loss was never finite in %d epoch(s); check the inputs and targets for "
+                             "NaN or inf" % (who, r["epochs"]))
+        refit = len(va) > 0
+        if refit:
+            net.load_state_dict(init_state)
+            _epochs(torch, net, Xa, Ya, max_epochs=r["best_epoch"], **kw)
+        else:
+            net.load_state_dict(r["best_state"])
         net.eval()
-    return {"epochs": epochs, "best_epoch": best_epoch, "best_val_loss": best, "n_train": int(len(tr)), "n_val": int(len(va))}
+    return {"epochs": r["epochs"], "best_epoch": r["best_epoch"], "best_val_loss": r["best"], "n_train": int(len(tr)),
+            "n_val": int(len(va)), "refit": refit, "n_refit": int(len(X)) if refit else 0}
 
 
 def predict_net(torch, net, X: np.ndarray, threads: int = 1, batch_size: int = 65536) -> np.ndarray:
     """net(X) as float64 numpy, in eval mode without gradients, on ``threads`` threads."""
     X = np.asarray(X, dtype=np.float32)
     out = []
-    with torch_threads(torch, threads), torch.no_grad():
+    with torch_threads(torch, threads), deterministic(torch), torch.no_grad():
         net.eval()
         for i in range(0, len(X), batch_size):
             out.append(net(torch.from_numpy(X[i:i + batch_size])).numpy().astype(float))

@@ -597,7 +597,8 @@ def write_report(path, ctx: dict, command: str) -> str:
           *([] if (ctx.get("deep") or {}).get("requested", "mlp") == "mlp" else
             ["Autoencoder (--deep torch): %s." % (ctx["deep"]["notice"] if ctx["deep"]["notice"] else
              "the %s of analytics/embeddings/deep.py replaces the MLPRegressor (bottleneck %d in [-1, 1]; Adam, learning rate %g, "
-             "batch %d, at most %d epochs, early stopping after %d epochs on an inner split by player; its iterations are epochs), "
+             "batch %d, at most %d epochs, early stopping after %d epochs on an inner split by player, then refit on every row "
+             "for the best epoch count; its iterations are epochs), "
              "under the same gate and rule" % (D.LABEL, N_DIM, D.LR, D.BATCH, D.MAX_EPOCHS, D.PATIENCE))]), "",
           "| method | 5-NN position accuracy | majority baseline | next-season R squared (ridge) | mean baseline R squared | note |",
           "| --- | --- | --- | --- | --- | --- |"]
