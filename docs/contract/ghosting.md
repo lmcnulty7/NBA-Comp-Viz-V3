@@ -44,8 +44,8 @@ sequence start repeat the first step's vector.
 | `shot_clock_s`, `elapsed_s` | shot clock; seconds since the possession's `start_frame` |
 | `attack_right` | 1 when the ball is in the right half |
 
-Window layout: lag 1 block first, then lag 2, ... lag 5, so `X.reshape(n, 5, 31)` is the (batch, time,
-features) tensor a GRU consumes with the most recent step first.
+Window layout: lag 1 block first in columns, then lag 2, ... lag 5, so `X.reshape(n, 5, 31)` is the (batch,
+time, features) tensor with lag 1 first; the GRU reverses it to oldest first.
 
 ## Candidates and selection
 
@@ -77,7 +77,7 @@ Code: `analytics/ghosting/deep.py` (the model) and `analytics/deep_torch.py` (sh
 | target | the same displacement from t minus 1 to t (both axes) |
 | roll-forward | the same `train.roll_forward`, unchanged: the GRU is a `predict(window_matrix) -> (n, 2)` callable like every candidate |
 | architecture | inputs and targets standardised on the training rows; `GRU(31 -> 32, one layer)`, last hidden state, `Linear(32 -> 2)` |
-| training | Adam (learning rate 0.002), batch 256, at most 100 epochs, MSE loss; early stopping after 8 epochs without a lower validation MSE, the best epoch's weights kept |
+| training | Adam (learning rate 0.002), batch 256, at most 100 epochs, MSE loss; early stopping after 8 epochs without a lower validation MSE. The fit is two passes on the rows the fit receives: early stopping on the inner split picks the best epoch, then the net is reset to its initial weights (the same seed) and refit for that many epochs on every one of those rows, so it learns from the same rows as the sklearn stand-in; a validation loss that is never finite raises ValueError. `torch.use_deterministic_algorithms(True)` is on during the fit and the predictions (restored after), so `--threads` above 1 reproduces too. |
 | early-stopping split | from the training games of the current fold only (the rows `fit_candidates` receives): whole games when there are at least 5, else a seeded 20 percent row split; never a held-out row, never the fold being scored |
 | determinism | `torch.manual_seed(--seed)` before the net is built, a seeded shuffling generator, CPU only, `torch.set_num_threads(--threads)` for the fit and the predictions (restored after) |
 | keep rule | unchanged and fixed in advance: `train.decide`, kept only when its 1.0 s error minus the ridge's is negative with a paired interval excluding zero; otherwise ridge |
@@ -88,6 +88,8 @@ Code: `analytics/ghosting/deep.py` (the model) and `analytics/deep_torch.py` (sh
 Stage 6 command (only when this lane's gate opened; `--skip-heldout` is the stage 4 flag every real run carries):
 
     python -m analytics.ghosting.train --data "$DATA_ROOT" --report reports/ghosting.md --folds 5 --seed 0 --bootstrap 1000 --out "$DATA_ROOT" --threads 4 --deep torch --skip-heldout
+
+This command needs PR #8 (the stage 4a `--skip-heldout` flag) merged first; without it the trainer rejects the flag.
 
 ## Leakage guards
 

@@ -119,7 +119,7 @@ Code: `analytics/embeddings/deep.py` (the model) and `analytics/deep_torch.py` (
 | slot | with `--deep torch` the torch model is THE autoencoder (method `autoencoder` in `player_embeddings`), so PCA against one autoencoder, as before |
 | inputs and target | the same `Z`: the sufficient player-seasons after median imputation and `StandardScaler` (`train.standardise`), reconstructed |
 | architecture | the stand-in's layers: encoder `Linear(d -> 32) tanh, Linear(32 -> 8) tanh`, decoder `Linear(8 -> 32) tanh, Linear(32 -> d)`; the embedding is the 8-unit bottleneck activation, in [-1, 1] as the `player_embeddings` table says |
-| training | Adam (learning rate 0.01, the stand-in's), batch 32, at most 400 epochs, reconstruction MSE; early stopping after 25 epochs without a lower validation MSE, the best epoch's weights kept; `reconstruction_mse` is on all of Z and `n_iter` counts epochs |
+| training | Adam (learning rate 0.01, the stand-in's), batch 32, at most 400 epochs, reconstruction MSE; early stopping after 25 epochs without a lower validation MSE. The fit is two passes on the rows the fit receives: early stopping on the inner split picks the best epoch, then the net is reset to its initial weights (the same seed) and refit for that many epochs on every one of those rows, so it learns from the same rows as the sklearn stand-in; a validation loss that is never finite raises ValueError. `torch.use_deterministic_algorithms(True)` is on during the fit and the predictions (restored after), so `--threads` above 1 reproduces too. `reconstruction_mse` is on all of Z and `n_iter` is the refit's epoch count (the best epoch) |
 | early-stopping split | from the sufficient player-seasons (built from training games only): whole players when there are at least 5, else a seeded 20 percent row split |
 | determinism | `torch.manual_seed(--seed)` before the net is built, a seeded shuffling generator, CPU only, `torch.set_num_threads(1)` for the fit and the embeddings (restored after) |
 | gate and keep rule | unchanged and fixed in advance: `train.decide`, trained only when PCA's 5-NN position accuracy is under 0.60 and kept only when the autoencoder's beats it |
@@ -130,6 +130,8 @@ Code: `analytics/embeddings/deep.py` (the model) and `analytics/deep_torch.py` (
 Stage 6 command (only when this lane's gate opened; `--skip-heldout` is the stage 4 flag every real run carries):
 
     python -m analytics.embeddings.train --data "$DATA_ROOT" --report reports/embeddings.md --out "$DATA_ROOT" --seed 0 --bootstrap 1000 --deep torch --skip-heldout
+
+This command needs PR #8 (the stage 4a `--skip-heldout` flag) merged first; without it the trainer rejects the flag.
 
 ## Leakage rules
 

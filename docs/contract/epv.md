@@ -108,7 +108,7 @@ Code: `analytics/epv/deep.py` (the model) and `analytics/deep_torch.py` (shared 
 | inputs | the same `features.lagged_columns(5)`: the state's features at t and at the four earlier states of the same possession (padded with the row's own values at the possession start), reshaped to (n, 5, n_features) and reversed on the time axis, so the GRU runs from t minus 4 to t; no state after t is read (`features.lagged` reads earlier states only, and `assert_time_forward` runs on the frame) |
 | target | the same `points_to_end` regression; `train.Calibrated` fits the same isotonic map to P(points > 0) on inner out-of-fold predictions |
 | architecture | median imputation and standardisation fit on the training rows (as the stand-in's pipeline), target standardised; `GRU(n_features -> 16, one layer)`, last hidden state, `Linear(16 -> 1)` |
-| training | Adam (learning rate 0.002, weight decay 0.0001), batch 256, at most 100 epochs, MSE loss; early stopping after 8 epochs without a lower validation MSE, the best epoch's weights kept |
+| training | Adam (learning rate 0.002, weight decay 0.0001), batch 256, at most 100 epochs, MSE loss; early stopping after 8 epochs without a lower validation MSE. The fit is two passes on the rows the fit receives: early stopping on the inner split picks the best epoch, then the net is reset to its initial weights (the same seed) and refit for that many epochs on every one of those rows, so it learns from the same rows as the sklearn stand-in; a validation loss that is never finite raises ValueError. `torch.use_deterministic_algorithms(True)` is on during the fit and the predictions (restored after), so `--threads` above 1 reproduces too. |
 | early-stopping split | from the rows the fit receives (the training games of the current outer fold, or of the inner calibration fold): whole games when there are at least 5, else a seeded 20 percent row split; never a held-out row, never the fold being scored |
 | determinism | `torch.manual_seed(--seed)` before the net is built, a seeded shuffling generator, CPU only, `torch.set_num_threads(1)` for the fit and the predictions (restored after) |
 | gate and keep rule | unchanged and fixed in advance: trained only when `gate_decision` opens it; kept only by `select_model` (paired bootstrap of MSE(base) minus MSE(sequence) with its interval above 0 and a lower out-of-fold MSE) |
@@ -119,6 +119,8 @@ Code: `analytics/epv/deep.py` (the model) and `analytics/deep_torch.py` (shared 
 Stage 6 command (only when this lane's gate opened; `--skip-heldout` is the stage 4 flag every real run carries):
 
     python -m analytics.epv.train --data "$DATA_ROOT" --report reports/epv.md --folds 5 --seed 0 --bootstrap 1000 --out "$DATA_ROOT" --deep torch --skip-heldout
+
+This command needs PR #8 (the stage 4a `--skip-heldout` flag) merged first; without it the trainer rejects the flag.
 
 ## Outputs
 

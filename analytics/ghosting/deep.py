@@ -12,7 +12,8 @@ Architecture and training (fixed in advance, never tuned on a held-out or scored
     inputs standardised by the training rows' column means and deviations; targets standardised the same way
     GRU(n_features -> GRU_HIDDEN, one layer, batch_first) -> Linear(GRU_HIDDEN -> 2)
     Adam (LR), batch BATCH, at most MAX_EPOCHS epochs, early stopping after PATIENCE epochs without a lower
-    validation MSE on an inner split of the training games (analytics.deep_torch.inner_split, by sportvu_game)
+    validation MSE on an inner split of the training games (analytics.deep_torch.inner_split, by sportvu_game),
+    then the net reset to its initial weights and refit for the best epoch count on every training row it was given
     torch.manual_seed(seed), CPU, torch.set_num_threads(threads) for the fit and the predictions
 
 torch is imported inside the fit only; importing this module never needs it. ``fit_gru`` refuses a held-out row
@@ -78,7 +79,7 @@ class GRUWindowRegressor:
         self.net_ = _net(torch, self.n_steps, nf, self.hidden, y.shape[1])
         self.history_ = DT.train_net(torch, self.net_, self.xs_.transform(X), self.ys_.transform(y), groups=groups,
                                      seed=self.seed, threads=self.threads, max_epochs=self.max_epochs,
-                                     patience=self.patience, batch_size=self.batch_size, lr=self.lr)
+                                     patience=self.patience, batch_size=self.batch_size, lr=self.lr, who=WHO)
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:

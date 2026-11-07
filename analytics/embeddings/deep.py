@@ -12,9 +12,10 @@ the contract gives for player_embeddings:
 
 Training (fixed in advance): Adam (LR 0.01, as the stand-in's learning_rate_init), batch BATCH, at most MAX_EPOCHS
 epochs, early stopping after PATIENCE epochs without a lower validation reconstruction MSE on an inner split of the
-player-seasons (by player_id: analytics.deep_torch.inner_split), torch.manual_seed(seed), CPU,
-torch.set_num_threads(THREADS). It returns the same dict as train.fit_autoencoder (name "autoencoder", embed,
-reconstruction_mse on all of Z, n_iter = epochs run), so the PCA-or-autoencoder rule (train.decide) and the
+player-seasons (by player_id: analytics.deep_torch.inner_split), then the net reset to its initial weights and
+refit for the best epoch count on all of Z; torch.manual_seed(seed), CPU, torch.set_num_threads(THREADS). It
+returns the same dict as train.fit_autoencoder (name "autoencoder", embed, reconstruction_mse on all of Z,
+n_iter = the epochs of the returned net, the best epoch), so the PCA-or-autoencoder rule (train.decide) and the
 tables are unchanged.
 
 torch is imported inside the fit only. ``fit_autoencoder`` refuses a held-out row (ValueError: a true heldout flag
@@ -68,7 +69,7 @@ def fit_autoencoder(Z: np.ndarray, seed: int = 0, rows=None, games=None, groups=
     net = _net(torch, Z.shape[1])
     hist = DT.train_net(torch, net, Z, Z, groups=groups, seed=seed, threads=th,
                         max_epochs=MAX_EPOCHS if max_epochs is None else max_epochs,
-                        patience=PATIENCE if patience is None else patience, batch_size=BATCH, lr=LR)
+                        patience=PATIENCE if patience is None else patience, batch_size=BATCH, lr=LR, who=WHO)
     encoder = net.encoder
 
     def embed(A, enc=encoder):
@@ -77,4 +78,4 @@ def fit_autoencoder(Z: np.ndarray, seed: int = 0, rows=None, games=None, groups=
 
     rec = DT.predict_net(torch, net, Z, threads=th)
     return {"name": "autoencoder", "embed": embed, "reconstruction_mse": float(np.mean((rec - Z) ** 2)),
-            "n_iter": int(hist["epochs"]), "history": hist}
+            "n_iter": int(hist["best_epoch"]), "history": hist}

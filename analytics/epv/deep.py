@@ -15,7 +15,8 @@ Architecture and training (fixed in advance, never tuned on a held-out or scored
     GRU(n_features -> GRU_HIDDEN, one layer, batch_first) -> Linear(GRU_HIDDEN -> 1)
     Adam (LR, weight decay WEIGHT_DECAY), batch BATCH, at most MAX_EPOCHS epochs, early stopping after PATIENCE
     epochs without a lower validation MSE on an inner split of the training games (analytics.deep_torch.inner_split,
-    by sportvu_game); torch.manual_seed(seed), CPU, torch.set_num_threads(THREADS)
+    by sportvu_game), then the net reset to its initial weights and refit for the best epoch count on every row it
+    was given; torch.manual_seed(seed), CPU, torch.set_num_threads(THREADS)
 
 torch is imported inside the fit only. ``fit_sequence`` refuses a held-out row (ValueError) before torch is touched.
 """
@@ -81,7 +82,7 @@ class GRUSequenceRegressor:
         self.net_ = _net(torch, self.n_steps, self.n_features, self.hidden)
         self.history_ = DT.train_net(torch, self.net_, self.xs_.transform(Xi), self.ys_.transform(y), groups=groups,
                                      seed=self.seed, threads=self.threads, max_epochs=self.max_epochs,
-                                     patience=self.patience, batch_size=BATCH, lr=LR, weight_decay=WEIGHT_DECAY)
+                                     patience=self.patience, batch_size=BATCH, lr=LR, weight_decay=WEIGHT_DECAY, who=WHO)
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
