@@ -7,9 +7,10 @@ analytics-phase0 into track-fix). No gate file needed: the loop checks both with
 
 Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 1, waiting at the merge gate. Stage 2 does not depend on the merge, so the next iteration
-  starts the stage 2 collectors in the background, one at a time.
-- **Background jobs:** none.
+- **Current stage:** 1, waiting at the merge gate. Stage 2 runs meanwhile (it does not depend on the merge):
+  collectors one at a time, in runbook order bref_schedule, positions, bref_seasons, bref_boxscores.
+- **Background jobs:** bref_schedule, 6 seasons, 53 month pages (about 3 min), started 2026-11-07 01:59, PID
+  80037, log logs/loop/bref_schedule.log.
 - **Open gates:** stage 1 merge (PR #5 then PR #6). No later gate reached yet.
 - **Branch:** the Mac checkout is on fix/stage0-checks (PR #5). After both merges, work moves to track-fix.
 
