@@ -1,9 +1,11 @@
 """analytics/results.py: the reports/results.md generator.
 
-Inputs are the committed lane reports (each written by its lane's train.py), copies of them edited the way a real run
-would change them (fixture banner removed, the stage 5 banner or the --skip-heldout phrase added, held-out sections
-dropped), and one report written by analytics.train_xfg's own writer on a tiny synthetic shots table. Nothing reads
-DATA_ROOT. Every test here can fail: the committed-report test is the guard against format drift in a writer.
+Inputs are frozen copies of the lane reports in tests/fixtures/results/ (the fixture reports of 2026-11-07, each
+written by its lane's train.py; frozen so that stage 5 regenerating reports/ does not move these tests), copies of them
+edited the way a real run would change them (fixture banner removed, the stage 5 banner or the --skip-heldout phrase
+added, held-out sections dropped, a second validation pair), and one report written by analytics.train_xfg's own
+writer on a tiny synthetic shots table. One test also parses the live reports/<ext>.md: the guard against format drift
+in a writer. Nothing reads DATA_ROOT. Every test here can fail.
 """
 import re
 import shutil
@@ -17,14 +19,16 @@ from analytics.registry import EXTENSION_NAMES
 
 REPO = Path(__file__).resolve().parents[1]
 REPORTS = REPO / "reports"
-LANES = list(EXTENSION_NAMES) + (["xfg_baseline"] if (REPORTS / "xfg_baseline.md").exists() else [])
+FROZEN = REPO / "tests" / "fixtures" / "results"
+LANES = list(EXTENSION_NAMES) + ["xfg_baseline"]
+LIVE = [x for x in LANES if (REPORTS / ("%s.md" % x)).exists()]
 TAG = re.compile(r"\s*\(fixture output, not a result\)", re.I)
 # the lanes whose writer states the selected model only inside the held-out section
 SELECTION_IN_HELDOUT = {"matchups", "playcalling", "load"}
 
 
 def report(lane: str) -> str:
-    return (REPORTS / ("%s.md" % lane)).read_text()
+    return (FROZEN / ("%s.md" % lane)).read_text()
 
 
 def realify(text: str) -> str:
@@ -58,6 +62,13 @@ def copied(m, text: str) -> bool:
     return m.value in text and all(e in text for e in ends)
 
 
+def add_line_before_heldout(text: str, line: str) -> str:
+    """Insert line before the first level-2 Held-out heading (where the --skip-heldout PR puts its selection line)."""
+    m = re.search(r"^## Held-out", text, re.M)
+    i = m.start() if m else len(text)
+    return text[:i] + line + "\n\n" + text[i:]
+
+
 def add_line_after_written(text: str, line: str) -> str:
     return re.sub(r"^(Written [^\n]*\n)", lambda m: m.group(1) + "\n" + line + "\n", text, count=1, flags=re.M)
 
@@ -67,46 +78,73 @@ def test_lanes_follow_the_registry():
     assert list(R.LANES)[:15] == list(EXTENSION_NAMES) and set(R.LANES) - set(EXTENSION_NAMES) == {"xfg_baseline"}
 
 
-@pytest.mark.parametrize("lane", LANES)
-def test_every_committed_report_parses(lane):
-    """Format drift guard: every reports/<ext>.md parses with no unparsed field, and every copied value is in the file."""
-    text = report(lane)
+@pytest.mark.parametrize("lane", LIVE)
+def test_every_live_report_parses(lane):
+    """Format drift guard: every reports/<ext>.md, whatever run wrote it, parses with no unparsed field, and every
+    copied value is in the file."""
+    text = (REPORTS / ("%s.md" % lane)).read_text()
     r = R.parse_report(lane, text, "reports/%s.md" % lane)
     assert not r.problems, r.problems
     assert r.selected and r.oof is not None and r.written_at and r.command
-    assert r.status in R.FIXTURE_LIKE                       # every committed report is fixture output today
     for m in [r.oof] + r.oof_extra + [c for _, c in r.candidates]:
         assert copied(m, text), m
-    if lane == "embeddings":
-        assert r.heldout.state == R.HO_ABSENT               # the lane scores no held-out rows
-    elif lane == "xfg_baseline":
-        assert r.heldout.state == R.HO_NOT_RUN              # the smoke run never scores the held-out game
-    else:
-        # a lane that scores held-out rows: a renamed held-out section must not read as "absent"
-        assert r.heldout.state in (R.HO_SCORED, R.HO_SKIPPED), r.heldout.state
     if r.heldout.state == R.HO_SCORED:
         for m in [r.heldout.metric] + r.heldout.extra:
             assert copied(m, text), m
+
+
+# lane: (selected, out-of-fold value, interval, held-out state, held-out value, held-out interval), read by hand
+# from the frozen reports. Pins which row each rule copies (a neighbouring row or bucket gives a different number).
+PINNED = {
+    "xfg": ("location_logistic", "0.6843", "[0.6653, 0.7095]", R.HO_SCORED, "0.6770", "[0.6554, 0.6991]"),
+    "rebounds": ("prior", "1.7981", "[1.6972, 1.8927]", R.HO_SCORED, "2.1135", ""),
+    "matchups": ("ridge", "1.3854", "[1.3381, 1.4578]", R.HO_SCORED, "1.2287", ""),
+    "gravity": ("ridge (SHIPPED expectation (the plan's model))", "4.299", "[4.050, 4.496]", R.HO_SCORED, "4.892", ""),
+    "ghosting": ("2 ridge on the lag-1 features (linear baseline)", "3.874", "[3.356, 4.304]", R.HO_SCORED, "3.623", ""),
+    "embeddings": ("pca", "0.921", "[0.841, 1.000]", R.HO_ABSENT, None, None),
+    "epv": ("constant", "1.3341", "[1.2365, 1.4472]", R.HO_SCORED, "1.2191", ""),
+    "actions": ("hgb", "1.000", "[1.000, 1.000]", R.HO_SCORED, "1.000", ""),
+    "coverage": ("hgb", "0.944", "[0.902, 0.979]", R.HO_SCORED, "0.835", ""),
+    "decisions": ("location", "0.285", "[0.125, 0.421]", R.HO_SCORED, "-0.144", "[-0.167, -0.121]"),
+    "playcalling": ("ridge", "1.3674", "[1.3195, 1.4340]", R.HO_SCORED, "1.2359", ""),
+    "lineups": ("plus_minus", "0.624", "", R.HO_SCORED, "0.881", "[0.342, 1.000]"),
+    "winprob": ("logistic", "0.1278", "", R.HO_SCORED, "0.1531", ""),
+    "load": ("ridge (decline); logistic (absence)", "0.8584", "[0.5032, 1.3310]", R.HO_SCORED, "0.6271", ""),
+    "betting": ("cover model market, margin model market", "0.6931", "[0.6931, 0.6931]", R.HO_SCORED, "0.6931", ""),
+    "xfg_baseline": ("logistic", "0.6741", "", R.HO_NOT_RUN, None, None),
+}
+
+
+def test_pinned_table_covers_every_lane():
+    assert sorted(PINNED) == sorted(LANES)
+
+
+@pytest.mark.parametrize("lane", LANES)
+def test_frozen_report_copies_the_pinned_rows(lane):
+    text = report(lane)
+    r = R.parse_report(lane, text, "tests/fixtures/results/%s.md" % lane)
+    assert not r.problems, r.problems
+    assert r.status in R.FIXTURE_LIKE and r.written_at and r.command
+    sel, val, ci, hstate, hval, hci = PINNED[lane]
+    assert (r.selected, r.oof.value, r.oof.interval) == (sel, val, ci)
+    assert r.heldout.state == hstate
+    if hval is not None:
+        assert (r.heldout.metric.value, r.heldout.metric.interval) == (hval, hci)
+    for m in [r.oof] + r.oof_extra + [c for _, c in r.candidates]:
+        assert copied(m, text), m
     for label, sentence in r.gates:
         assert R.clean(sentence)
 
 
 def test_committed_reports_render_with_fixture_banner(tmp_path):
     out = tmp_path / "results.md"
-    assert R.main(["--reports", str(REPORTS), "--out", str(out), "--strict"]) == 0
+    assert R.main(["--reports", str(FROZEN), "--out", str(out), "--strict"]) == 0
     text = out.read_text()
     block = text[text.index(R.BEGIN):text.index(R.END)]
     assert "**Fixture output, not a result.**" in block.split("### Sources")[0]
     for lane in LANES:
         assert "### %s (fixture output, not a result)" % lane in block
     assert "unparsed" not in block
-    assert chr(0x2014) not in text and chr(0x2013) not in text
-
-
-def test_committed_results_md_is_labelled_fixture_output():
-    text = (REPORTS / "results.md").read_text()
-    assert text.count(R.BEGIN) == 1 and text.count(R.END) == 1
-    assert "**Fixture output, not a result.**" in text
     assert chr(0x2014) not in text and chr(0x2013) not in text
 
 
@@ -133,10 +171,48 @@ def test_skip_heldout_phrase_shows_not_scored(lane):
     assert r.heldout.state == R.HO_SKIPPED and r.heldout.metric is None
     assert r.status == R.REAL_TRAINING_ONLY
     if lane in SELECTION_IN_HELDOUT:
-        # the writer names the selected model only in the held-out block: without it the summary says unparsed, never guesses
+        # today's writer names the selected model only in the held-out block: without it the summary says unparsed,
+        # never guesses
         assert [f for f, _ in r.problems] == ["training"] and r.problem("training").startswith("unparsed")
     else:
         assert not r.problems, r.problems
+    # the --skip-heldout PR's form: a "## Held-out ... not scored" section that keeps the prefix and states no numbers
+    text2 = drop_heldout(realify(report(lane))) + "\n## Held-out games, not scored\n\nHeld-out: %s.\n" % R.SKIP_PHRASE
+    r2 = R.parse_report(lane, text2)
+    assert r2.heldout.state == R.HO_SKIPPED and [f for f, _ in r2.problems] == [f for f, _ in r.problems]
+
+
+# the selection line the --skip-heldout PR adds outside the held-out block, before the held-out heading
+SELECTION_LINES = {"matchups": ["ridge"], "playcalling": ["ridge"], "load": ["ridge on FEATURES", "logistic on FEATURES"]}
+
+
+@pytest.mark.parametrize("lane", sorted(SELECTION_LINES))
+def test_selected_candidate_line_is_preferred_and_survives_skip_heldout(lane):
+    lines = "\n".join("Selected candidate: %s." % n for n in SELECTION_LINES[lane])
+    fx = R.parse_report(lane, report(lane))
+    with_line = add_line_before_heldout(report(lane), lines)
+    r = R.parse_report(lane, with_line)
+    assert not r.problems and r.oof == fx.oof and r.heldout.metric == fx.heldout.metric
+    skipped = add_line_after_written(drop_heldout(realify(with_line)), "Held-out: %s." % R.SKIP_PHRASE)
+    r = R.parse_report(lane, skipped)
+    assert not r.problems, r.problems
+    assert r.heldout.state == R.HO_SKIPPED and r.oof == fx.oof
+    if lane == "load":
+        assert r.selected == "ridge on FEATURES (decline); logistic on FEATURES (absence)"
+    else:
+        assert r.selected == "ridge"
+
+
+def test_selected_candidate_line_wins_over_the_fallback():
+    text = add_line_before_heldout(drop_heldout(report("matchups")), "Selected candidate: raw.")
+    r = R.parse_report("matchups", add_line_after_written(text, R.SKIP_PHRASE))
+    assert not r.problems and r.selected == "raw" and (r.oof.value, r.oof.interval) == ("1.5105", "[1.4062, 1.5897]")
+    r = R.parse_report("matchups", add_line_before_heldout(report("matchups"), "Selected candidate: ridge.\nSelected candidate: raw."))
+    assert "2 'Selected candidate:' lines" in r.problem("training")
+    r = R.parse_report("load", add_line_after_written(drop_heldout(add_line_before_heldout(report("load"), "Selected candidate: mean.")),
+                                                      R.SKIP_PHRASE))
+    assert r.problem("training") and "do not map" in r.problem("training")
+
 
 
 def test_skip_heldout_phrase_on_a_fixture_report_keeps_the_fixture_label():
@@ -303,3 +379,136 @@ def test_module_has_no_long_dashes():
     for p in (REPO / "analytics" / "results.py", Path(__file__), REPO / "docs" / "contract" / "results.md"):
         t = p.read_text()
         assert chr(0x2014) not in t and chr(0x2013) not in t, p
+
+
+# ── review fixes: lineups pairs, decisions, epv, absent held-out, gravity levels, load absence, paths, time ─────────
+def _two_pair_lineups() -> str:
+    """The frozen lineups report with a second validation pair whose winner (rapm) is not pair 1's (plus_minus), and
+    the mean line and held-out row rewritten for the mean winner, as analytics/lineups/train.py would write them."""
+    text = report("lineups")
+    i = text.index("Fit on 2020-21, predict 2021-22")
+    j = text.index("Mean validation Spearman:", i)
+    pair2 = ("Fit on 2020-21, 2021-22, predict 2022-23: 12 lineups present in both (130 in the fit seasons, 120 in the "
+             "target), 5 gated lineups, 36 players, alpha rapm 300, alpha synergy 300.\n\n"
+             "| candidate | Spearman | MSE | Spearman minus plus_minus (paired) |\n| --- | --- | --- | --- |\n"
+             "| plus_minus | 0.100 [-0.500, 0.600] | 800.000 [300.000, 1300.000] | baseline |\n"
+             "| rapm | 0.900 [0.700, 0.990] | 400.000 [200.000, 600.000] | 0.800 [0.400, 1.100] (excludes 0) |\n"
+             "| rapm_synergy | 0.500 [0.100, 0.800] | 500.000 [250.000, 700.000] | 0.400 [0.100, 0.700] (excludes 0) |\n\n")
+    text = text[:j] + pair2 + text[j:]
+    text = re.sub(r"^Mean validation Spearman: .*$",
+                  "Mean validation Spearman: plus_minus 0.362, rapm 0.738, rapm_synergy 0.538. Selected: **rapm**.", text, count=1, flags=re.M)
+    return text.replace("| plus_minus (selected) |", "| rapm (selected) |")
+
+
+def test_lineups_primary_metric_is_the_mean_over_pairs():
+    r = R.parse_report("lineups", _two_pair_lineups())
+    assert not r.problems, r.problems
+    assert r.selected == "rapm" and (r.oof.value, r.oof.interval) == ("0.738", "")
+    shown = {m.name: (m.value, m.interval) for m in r.oof_extra}
+    assert shown["fit 2020-21, predict 2021-22: Spearman"] == ("0.576", "[-0.273, 0.923]")
+    assert shown["fit 2020-21, 2021-22, predict 2022-23: Spearman"] == ("0.900", "[0.700, 0.990]")
+    assert dict((n, m.value) for n, m in r.candidates) == {"plus_minus": "0.362", "rapm": "0.738", "rapm_synergy": "0.538"}
+    assert any("predict 2022-23" in label and text.startswith("0.800") for label, text in r.gates)
+
+
+def test_lineups_shapes_it_cannot_map_are_unparsed():
+    text = _two_pair_lineups()
+    r = R.parse_report("lineups", text.replace("Fit on 2020-21, 2021-22, predict 2022-23", "Fitted on 2020-21, 2021-22", 1))
+    assert "'Fit on' lines but" in r.problem("training")
+    r = R.parse_report("lineups", text.replace("| rapm_synergy | 0.500", "| rapm_extra | 0.500", 1))
+    assert "differ from the mean line" in r.problem("training")
+    r = R.parse_report("lineups", text.replace("rapm 0.738, ", "", 1))
+    assert "no mean validation Spearman" in r.problem("training")
+
+
+def test_decisions_selected_line_without_parenthetical():
+    text = report("decisions").replace("Selected: **location** (no xFG table present).", "Selected: **location**.")
+    assert "Selected: **location**." in text
+    r = R.parse_report("decisions", text)
+    assert not r.problems and r.selected == "location" and r.oof.value == "0.285"
+
+
+def test_epv_accepts_the_why_line_of_a_learner_win():
+    text = re.sub(r"^Why the constant: .*$", "Why: hgb has the lowest out-of-fold MSE (1.2000 against the constant's "
+                  "1.3341, lift 10.0 percent).", report("epv"), count=1, flags=re.M)
+    r = R.parse_report("epv", text)
+    assert not r.problems and any(n.startswith("Why: hgb has the lowest") for n in r.notes)
+    r = R.parse_report("epv", re.sub(r"^Why the constant: .*$", "", report("epv"), count=1, flags=re.M))
+    assert "the reason for the selection" in r.problem("training")
+
+
+@pytest.mark.parametrize("lane", [x for x in LANES if x not in ("embeddings", "xfg_baseline")])
+def test_missing_heldout_section_is_unparsed_except_for_embeddings(lane):
+    r = R.parse_report(lane, drop_heldout(realify(report(lane))))
+    assert r.heldout.state == R.HO_ABSENT and "no held-out section" in r.problem("heldout")
+    assert r.unparsed
+
+
+def test_embeddings_and_betting_heldout_absence():
+    r = R.parse_report("embeddings", realify(report("embeddings")))
+    assert r.heldout.state == R.HO_ABSENT and not r.problems and r.status == R.REAL
+    text = re.sub(r"^\| 2021-22 \| heldout \|.*\n", "", report("betting"), flags=re.M)
+    assert "| heldout |" not in text
+    r = R.parse_report("betting", text)
+    assert "no held-out section" in r.problem("heldout")
+
+
+def test_gravity_never_reads_the_second_run():
+    text = report("gravity")
+    i = text.index("## Held-out, scored once")
+    j = text.index("## Second run:", i)
+    r = R.parse_report("gravity", text[:i] + text[j:])
+    assert "no held-out section" in r.problem("heldout")          # not the second run's "### Held-out" (MSE 2.129)
+    text = text.replace("### Sign test: teammates' location-only xFG", "### Sign check: teammates' location-only xFG", 1)
+    r = R.parse_report("gravity", text)
+    assert "no Sign test section under Players" in r.problem("training")
+
+
+def test_load_without_the_absence_model():
+    text = report("load")
+    i = text.index("## Candidate 3: absence from the next game")
+    j = text.index("## Cross-check", i)
+    text = (text[:i] + "## Candidate 3: absence from the next game (fixture output, not a result)\n\nNo player-game has a "
+            "known absent_next (no loaded next game), so the absence baseline did not run.\n\n" + text[j:])
+    text = re.sub(r"^\| log loss, selected model \(logistic\) \| 0.0010 \|\n", "| log loss, selected model (None) | n/a |\n",
+                  text, flags=re.M)
+    r = R.parse_report("load", text)
+    assert not r.problems, r.problems
+    assert r.selected == "ridge (decline)" and r.oof.value == "0.8584" and r.heldout.metric.value == "0.6271"
+    assert r.heldout.extra == [] and any(label == "absence target" for label, _ in r.gates)
+    r = R.parse_report("load", re.sub(r"\| quantity \| value \|[\s\S]*?\n\n", "No held-out player-game was loaded.\n\n", report("load")))
+    assert "no held-out player-game was loaded" in r.problem("heldout")
+
+
+def test_check_does_not_depend_on_path_spelling(tmp_path, monkeypatch):
+    reports = _copy_reports(tmp_path / "reports")
+    monkeypatch.chdir(tmp_path)
+    assert R.main(["--reports", str(reports.resolve()), "--out", str((tmp_path / "results.md").resolve())]) == 0
+    assert R.main(["--reports", "reports", "--out", "results.md", "--check"]) == 0
+    assert R.main(["--reports", "./reports/", "--out", "./results.md", "--check"]) == 0
+    assert "--reports reports --out results.md" in (tmp_path / "results.md").read_text()
+
+
+def test_regeneration_keeps_the_old_time_when_nothing_changed(tmp_path):
+    reports = _copy_reports(tmp_path / "reports")
+    out = tmp_path / "results.md"
+    assert R.main(["--reports", str(reports), "--out", str(out)]) == 0
+    old = re.sub(r"^Generated \S+ by", "Generated 2000-01-01T00:00:00Z by", out.read_text(), count=1, flags=re.M)
+    out.write_text(old)
+    assert R.main(["--reports", str(reports), "--out", str(out)]) == 0
+    assert out.read_text() == old                                  # a no-op: same bytes, same time
+    p = reports / "rebounds.md"
+    p.write_text(p.read_text().replace("Selected: prior.", "Selected: logit."))
+    assert R.main(["--reports", str(reports), "--out", str(out)]) == 0
+    assert "Generated 2000-01-01T00:00:00Z" not in out.read_text()
+
+
+def test_hand_text_quoting_a_marker_is_refused(tmp_path):
+    reports = _copy_reports(tmp_path / "reports")
+    out = tmp_path / "results.md"
+    assert R.main(["--reports", str(reports), "--out", str(out)]) == 0
+    text = out.read_text() + "\nThe generator writes between %s and the end marker.\n" % R.BEGIN
+    out.write_text(text)
+    with pytest.raises(SystemExit):
+        R.main(["--reports", str(reports), "--out", str(out)])
+    assert out.read_text() == text
