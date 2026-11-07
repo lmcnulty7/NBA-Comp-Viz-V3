@@ -266,6 +266,7 @@ class LaneResult:
     gates: list = field(default_factory=list)           # (label, text in the report's words)
     notes: list = field(default_factory=list)
     problems: list = field(default_factory=list)        # (field, reason): field is "report", "training" or "heldout"
+    in_sample: str = ""                                 # the report's words when its training metrics are in-sample
 
     @property
     def unparsed(self) -> bool:
@@ -274,6 +275,23 @@ class LaneResult:
     def problem(self, where: str) -> str:
         reasons = [r for f, r in self.problems if f == where or f == "report"]
         return "unparsed (%s)" % "; ".join(reasons) if reasons else ""
+
+
+def _lohi(t: Table, row: list) -> str:
+    """The interval of a row stated as separate lo and hi columns, as "[lo, hi]"; "" when the report gives n/a for both."""
+    lo, hi = t.cell(row, "lo"), t.cell(row, "hi")
+    return "" if lo == hi == "n/a" else "[%s, %s]" % (lo, hi)
+
+
+def _in_sample(r, sec: Section, text: str = None):
+    """Mark the record in-sample when the lane's own section says so: a heading carrying the writer's mode
+    ("in-sample") or a protocol sentence saying IN-SAMPLE (one training game: no grouped fold is possible)."""
+    body = sec.text if text is None else text
+    if "in-sample" in sec.title.lower():
+        r.in_sample = sec.title
+    elif "IN-SAMPLE" in body:
+        line = next(clean(x) for x in body.split("\n") if "IN-SAMPLE" in x)
+        r.in_sample = re.search(r"[^.;]*IN-SAMPLE[^.;]*", line).group(0).strip()
 
 
 def _sel_row(t: Table, col: str, name: str, what: str) -> list:
@@ -361,9 +379,9 @@ def xfg_heldout(d: Doc, r: LaneResult):
     if sub is not None:
         t = sub.table("metric", "point", "lo", "hi")
         row = t.one("metric", lambda c: c == "log loss", "held-out log loss")
-        m = Metric("log loss", t.cell(row, "point"), "[%s, %s]" % (t.cell(row, "lo"), t.cell(row, "hi")))
+        m = Metric("log loss", t.cell(row, "point"), _lohi(t, row))
         b = t.one("metric", lambda c: c == "Brier", "held-out Brier")
-        return HeldOut(HO_SCORED, m, [Metric("Brier", t.cell(b, "point"), "[%s, %s]" % (t.cell(b, "lo"), t.cell(b, "hi")))])
+        return HeldOut(HO_SCORED, m, [Metric("Brier", t.cell(b, "point"), _lohi(t, b))])
     t = s.table("candidate", "log loss")
     row = _sel_row(t, "candidate", r.selected, "held-out row of the selected candidate")
     return HeldOut(HO_SCORED, metric("log loss", t.cell(row, "log loss"), "point estimate"))
@@ -400,7 +418,8 @@ def baseline_heldout(d: Doc, r: LaneResult):
 
 
 def rebounds_train(d: Doc, r: LaneResult):
-    s = d.need("Candidates (out-of-fold")
+    s = d.need("Candidates (", level=2)
+    _in_sample(r, s)
     r.selected = s.search(r"^Selected: (\S+?)\.?$", "the Selected line").group(1)
     t = s.table("model", "per-miss log loss", "top-1 accuracy")
     row = _sel_row(t, "model", r.selected, "selected model row")
@@ -422,6 +441,7 @@ def rebounds_heldout(d: Doc, r: LaneResult):
 
 def matchups_train(d: Doc, r: LaneResult):
     s = d.need("Baseline comparison: possession points")
+    _in_sample(r, s)
     t = s.table("model", "out-of-fold MSE")
     r.selected = _one_selected_candidate(d)
     if r.selected is None:
@@ -453,7 +473,8 @@ def matchups_heldout(d: Doc, r: LaneResult):
 
 
 def gravity_train(d: Doc, r: LaneResult):
-    s = d.need("Candidates (out-of-fold MSE", level=2)
+    s = d.need("Candidates (", level=2)
+    _in_sample(r, s)
     t = s.table("model", "MSE", "role")
     row = t.one("role", lambda c: c.startswith("SHIPPED"), "shipped expectation row")
     r.selected = "%s (%s)" % (clean(row[0]), t.cell(row, "role"))
@@ -495,7 +516,9 @@ def ghosting_train(d: Doc, r: LaneResult):
         raise ParseError("Decision: 'Selected ghost:' not found")
     r.selected = m.group(1)
     r.gates.append(("deep candidate (MLP, GRU stand-in)", _first_sentence(txt)))
-    t = d.need("Candidates by horizon").table("candidate", "0.2 s error", "1.0 s error")
+    hz = d.need("Candidates by horizon")
+    _in_sample(r, hz)
+    t = hz.table("candidate", "0.2 s error", "1.0 s error")
     row = t.one("candidate", lambda c: c == r.selected, "selected candidate row")
     r.oof = metric("1.0 s position error (ft)", t.cell(row, "1.0 s error"))
     r.oof_extra = [metric("0.2 s position error (ft)", t.cell(row, "0.2 s error"))]
@@ -513,7 +536,20 @@ def ghosting_heldout(d: Doc, r: LaneResult):
                    [metric("0.2 s position error (ft)", t.cell(row, "0.2 s error"), "point estimate")])
 
 
+NOTHING_FITTED = "nothing fitted"
+
+
 def embeddings_train(d: Doc, r: LaneResult):
+    st = d.section("Status", level=2)
+    if d.section("Decision") is None and d.section("Candidates") is None and st is not None \
+            and _first_body(st).endswith(NOTHING_FITTED):
+        # the documented early exit: Inputs and Status only, the Status body the reason (and the Mac command)
+        reason = _first_body(st)
+        r.selected = "none (%s)" % reason
+        r.oof = Metric("5-NN position accuracy", "n/a", note=NOTHING_FITTED)
+        r.gates.append(("nothing fitted", reason))
+        r.notes.append(d.need("Inputs").line("Player-seasons:"))
+        return
     dec = d.need("Decision")
     m = dec.search(r"^Chosen: \*\*([^*]+)\*\*\. (.+?)\.?$", "the Chosen line")
     r.selected = m.group(1)
@@ -536,6 +572,7 @@ def embeddings_heldout(d: Doc, r: LaneResult):
 
 def epv_train(d: Doc, r: LaneResult):
     s = d.need("Candidates by elapsed-time bucket")
+    _in_sample(r, s)
     r.selected = s.search(r"^Selected: \*\*([^*]+)\*\*", "the Selected line").group(1)
     t = s.table("bucket (s)", "model", "MSE expected points", "Brier P(points > 0)")
     alls = Table(t.header, t.where("bucket (s)", lambda c: c == "all"))
@@ -568,7 +605,8 @@ def epv_heldout(d: Doc, r: LaneResult):
 
 
 def actions_train(d: Doc, r: LaneResult):
-    s = d.need("Metrics (out-of-fold")
+    s = d.need("Metrics (", level=2)
+    _in_sample(r, s)
     m = s.search(r"^Selected model: \*\*([^*]+)\*\* \((.+)\)\.$", "the Selected model line")
     r.selected = m.group(1)
     r.gates.append(("plan target", m.group(2)))
@@ -591,7 +629,8 @@ def actions_heldout(d: Doc, r: LaneResult):
 
 
 def coverage_train(d: Doc, r: LaneResult):
-    s = d.need("Candidates (out-of-fold")
+    s = d.need("Candidates (", level=2)
+    _in_sample(r, s)
     m = s.search(r"^Selected: (\S+)\. (.+)$", "the Selected line")
     r.selected = m.group(1)
     r.gates.append(("target", clean(m.group(2))))
@@ -622,11 +661,12 @@ def decisions_train(d: Doc, r: LaneResult):
         raise ParseError("Value-function assumptions: 'Selected:' not found on the prior line")
     r.selected = m.group(1)
     r.gates.append(("prior rule", rule[len("Prior of the option values: "):]))
+    _in_sample(r, d.need("Inputs"))
     s = d.need("Validation: mean decision quality")
     t = s.table("prior", "games", "mean rho", "lo", "hi", "positive / signed", "sign p")
     row = t.one("prior", lambda c: c == r.selected, "selected prior row")
     r.oof = Metric("mean Spearman, decision quality vs on-court rating (by game)", t.cell(row, "mean rho"),
-                   "[%s, %s]" % (t.cell(row, "lo"), t.cell(row, "hi")))
+                   _lohi(t, row))
     r.oof_extra = [Metric("positive / signed games", t.cell(row, "positive / signed")), Metric("sign p", t.cell(row, "sign p")),
                    Metric("shuffled mean rho", t.cell(row, "shuffled mean rho"))]
     r.gates.append(("player gate", _first_body(d.need("Player table"))))
@@ -639,7 +679,7 @@ def decisions_heldout(d: Doc, r: LaneResult):
     t = s.table("prior", "mean rho", "lo", "hi")
     row = t.one("prior", lambda c: c == "%s (held out)" % r.selected, "held-out row of the selected prior")
     return HeldOut(HO_SCORED, Metric("mean Spearman, decision quality vs on-court rating (by game)", t.cell(row, "mean rho"),
-                                     "[%s, %s]" % (t.cell(row, "lo"), t.cell(row, "hi"))))
+                                     _lohi(t, row)))
 
 
 def playcalling_train(d: Doc, r: LaneResult):
@@ -651,10 +691,11 @@ def playcalling_train(d: Doc, r: LaneResult):
             raise ParseError("the report states no selected model")
         r.selected = m.group(1)
     s = d.need("3. Ridge adjustment")
+    _in_sample(r, s)
     t = s.table("model", "out-of-fold MSE", "lo", "hi")
     row = t.one("model", lambda c: c == r.selected, "selected model row")
-    r.oof = Metric("possession points MSE", t.cell(row, "out-of-fold MSE"), "[%s, %s]" % (t.cell(row, "lo"), t.cell(row, "hi")))
-    r.candidates = [(clean(x[0]), Metric("MSE", t.cell(x, "out-of-fold MSE"), "[%s, %s]" % (t.cell(x, "lo"), t.cell(x, "hi"))))
+    r.oof = Metric("possession points MSE", t.cell(row, "out-of-fold MSE"), _lohi(t, row))
+    r.candidates = [(clean(x[0]), Metric("MSE", t.cell(x, "out-of-fold MSE"), _lohi(t, x)))
                     for x in t.rows]
     for raw in s.lines:
         if raw.startswith("- ") and " minus " in raw:
@@ -696,6 +737,9 @@ def lineups_train(d: Doc, r: LaneResult):
     if r.selected not in means:
         raise ParseError("the selected candidate %s has no mean validation Spearman" % r.selected)
     r.oof = Metric("mean out-of-season Spearman over validation pairs", means[r.selected])
+    one = [clean(x) for x in s.lines if clean(x).startswith("One training season only")]
+    if one:
+        r.oof.note = one[0].rstrip(".")
     r.candidates = [(n, Metric("mean Spearman", v)) for n, v in means.items()]
     fits = [clean(x) for x in s.lines if clean(x).startswith("Fit on ")]
     tables = [t for t in s.tables() if {"candidate", "Spearman", "MSE"} <= set(t.header)]
@@ -755,6 +799,7 @@ def winprob_heldout(d: Doc, r: LaneResult):
 
 def load_train(d: Doc, r: LaneResult):
     c2 = d.need("Candidate 2: ridge regression of y_decline")
+    _in_sample(r, c2)
     t = c2.table("model", "MSE (ft per s)^2")
     c3 = d.need("Candidate 3: absence from the next game")
     no_absence = any(clean(x).startswith("No player-game has a known absent_next") for x in c3.lines)
@@ -807,7 +852,8 @@ def load_heldout(d: Doc, r: LaneResult):
 
 
 def betting_train(d: Doc, r: LaneResult):
-    s = d.need("Candidates (out-of-fold")
+    s = d.need("Candidates (", level=2)
+    _in_sample(r, s)
     m = s.search(r"^Selected: cover model \*\*([^*]+)\*\*, margin model \*\*([^*]+)\*\*\.$", "the Selected line")
     cover, margin = m.group(1), m.group(2)
     r.selected = "cover model %s, margin model %s" % (cover, margin)
@@ -882,6 +928,10 @@ def parse_report(lane: str, text: str, path: str = "") -> LaneResult:
         train_fn(d, rec)
     except ParseError as e:
         rec.problems.append(("training", str(e)))
+    if rec.in_sample and rec.oof is not None:
+        for m in [rec.oof] + rec.oof_extra + [c for _, c in rec.candidates]:
+            m.name += " (in-sample)"
+        rec.gates.insert(0, ("metrics in-sample", rec.in_sample))
     try:
         ho = held_fn(d, rec)
     except ParseError as e:
@@ -982,6 +1032,7 @@ SHORT = [
     ("recommendation gate", r"(no recommendation is made)"),
     ("prefix invariance check", r"(\d+ violation\(s\))"),
     ("absence target", r"(One class only)"),
+    ("metrics in-sample", r"(one training game)"),
     ("plan target", r"(a fixture cannot meet or miss it)"),
 ]
 
