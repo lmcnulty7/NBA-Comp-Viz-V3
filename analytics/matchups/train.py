@@ -486,6 +486,7 @@ def write_report(path: Path, ctx: dict) -> str:
         L.append("Every defender is in one game on this input: raw and ridge out-of-fold equal the constant, so the comparison above carries no information about the defenders.")
     else:
         L.append("%d of %d defenders appear in two or more training games (only those can move an out-of-fold prediction)." % (ctx["n_defenders_multi_game"], ctx["n_defenders"]))
+    L += ["", "Selected candidate: %s." % ctx["selected"]]      # raw or ridge, the lower out-of-fold MSE; stated with and without --skip-heldout
     L += ["",
           "## Defenders" + tag, "",
           "%d defenders, %d pass the %d-possession gate. Sorted by diff_per100 (points allowed minus expected per 100 matchup possessions; positive = worse); ridge_value is the ridge coefficient per 100 possessions (positive = worse)."
@@ -499,7 +500,7 @@ def write_report(path: Path, ctx: dict) -> str:
     else:
         L += ["No defender passes the gate, so there is no ranking. The ungated rows, every one flagged insufficient, for inspection only:", ""] + head + \
              _defender_rows(ctx["defenders"].head(10))
-    L += ["", "## Held-out game(s), scored once" + tag, ""]
+    L += ["", "## Held-out game(s), %s" % ("not scored" if ctx.get("skip_heldout") else "scored once") + tag, ""]
     h = ctx["heldout"]
     if ctx.get("skip_heldout"):
         L += skip_heldout_lines(len(ctx["held_ids"]))
@@ -525,7 +526,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "- switches counts, per defender and possession, the sampled frames at which its assignment changed; the count repeats on each of that defender's pair rows.",
           "- The gate counts distinct possessions in which the defender was on the floor; n_possessions is that count, the per-100 denominators are the summed shares.",
           "- Unseen players in the held-out game have no ridge column; the intercept carries them.",
-          "- No NBA.com matchup table exists for 2015-16, so validation is internal (stability, defended FG% consistency, held-out MSE); nothing here is checked against an external matchup record.", ""]
+          "- No NBA.com matchup table exists for 2015-16, so validation is internal (stability, defended FG%% consistency%s); nothing here is checked against an external matchup record."
+          % ("" if ctx.get("skip_heldout") else ", held-out MSE"), ""]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
@@ -577,7 +579,7 @@ def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: 
            "n_defenders": int(len(defenders)), "n_gated": int((~defenders["insufficient"]).sum()),
            "n_defenders_multi_game": int((mp.groupby("def_player_id")["sportvu_game"].nunique() >= 2).sum()),
            "heldout": score_heldout(ht, held, cv, n_boot, seed) if held and not skip_heldout else {},
-           "skip_heldout": bool(skip_heldout),
+           "skip_heldout": bool(skip_heldout), "selected": selected_candidate(cv),
            "tables": {"train": tt, "heldout": ht}, "xfg": xfg}
     return ctx
 

@@ -108,8 +108,11 @@ def test_makefile_skip_heldout_variable():
     assert 'run_all.py --data "/tmp/a b" --skip-heldout --ext betting' in dry("ext-betting", "DATA=/tmp/a b", "SKIP_HELDOUT=1")
     assert 'run_all.py --data "/tmp/a b" --all --continue-on-error --skip-heldout' in dry("all", "DATA=/tmp/a b", "SKIP_HELDOUT=1")
     assert "run_all.py --fixtures --all --continue-on-error --skip-heldout" in dry("all-fixtures", "SKIP_HELDOUT=1")
+    assert "run_all.py --fixtures --skip-heldout --ext xfg" in dry("ext-xfg", "SKIP_HELDOUT=yes")
     for args in (("ext-xfg",), ("ext-xfg", "SKIP_HELDOUT=0"), ("all-fixtures",), ("all", "DATA=/tmp/x")):
         assert "--skip-heldout" not in dry(*args), args
+    res = subprocess.run(["make", "-s", "help"], cwd=str(REPO), capture_output=True, text=True, timeout=20)
+    assert "SKIP_HELDOUT=1" in res.stdout and "any value other than empty or 0 turns it on" in res.stdout, res.stdout
 
 
 # ----------------------------------------------------------------------------- lanes: xfg, train_xfg (Phase 1 baseline), rebounds, matchups
@@ -139,9 +142,12 @@ def test_skip_heldout_xfg(tmp_path, monkeypatch, capsys):
     printed = capsys.readouterr().out
     text = (tmp_path / "skip.md").read_text()
     assert ctx["heldout_rows"] > 0 and ctx["heldout_game_ids"] == [held]           # the fixture has a held-out game
-    assert SKIP_HELDOUT_NOTE in text and SKIP_HELDOUT_NOTE in printed
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and SKIP_HELDOUT_NOTE in printed
     sec = _g1_section(text, "## Held-out score")
     assert "| candidate |" not in sec and "log loss" not in sec
+    assert sec.splitlines()[0].startswith("## Held-out score (not scored)") and "refit" not in sec
+    assert "scored once" not in text and "scored once" in (tmp_path / "ref.md").read_text()   # no boilerplate claims a scoring
+    assert "Selected: **%s**" % ctx["selected"] in text.split("## Held-out")[0]
     assert ctx["heldout_p"] == {} and ctx["heldout_scores"] == {} and ctx["heldout_block"] == ""
     assert all(n < ctx["train_rows"] for n in fits)                                   # no refit on all training rows
     out = pd.read_parquet(tmp_path / "skip" / "analytics" / "xfg" / "2015-16" / "xfg_predictions.parquet")
@@ -181,7 +187,9 @@ def test_skip_heldout_train_xfg(tmp_path, monkeypatch, capsys):
     printed = capsys.readouterr().out
     text = (tmp_path / "skip.md").read_text()
     assert ctx["heldout_rows"] == 60 and ctx["heldout_games"] == 1                  # the input has a held-out game
-    assert SKIP_HELDOUT_NOTE in text and SKIP_HELDOUT_NOTE in printed
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and SKIP_HELDOUT_NOTE in printed
+    for t in (text, (tmp_path / "ref.md").read_text()):                             # the selection, outside the held-out block
+        assert "Selected candidate: logistic." in t.split("## Held-out")[0]
     sec = _g1_section(text, "## Held-out rows")
     assert "| model |" not in sec and "point estimates" not in sec
     assert ctx["heldout_scores"] == {}
@@ -206,7 +214,18 @@ def test_skip_heldout_rebounds(tmp_path, monkeypatch, capsys):
     printed = capsys.readouterr().out
     text = (tmp_path / "skip.md").read_text()
     assert ctx["heldout_rows"] > 0 and ctx["heldout_games"] == 1
-    assert SKIP_HELDOUT_NOTE in text and SKIP_HELDOUT_NOTE in printed
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and SKIP_HELDOUT_NOTE in printed
+    assert "scored once" not in text and "Selected: %s." % ctx["selected"] in text.split("## Held-out")[0]
+    # no outcome count of the held-out game: its team-rebound cell is blank, the kept-by-kind line covers training games only
+    hg = ctx["heldout_game_ids"][0]
+    row = next(l for l in text.splitlines() if l.startswith("| %s |" % hg)).split(" | ")
+    assert row[6] == "-", row
+    ref_row = next(l for l in (tmp_path / "ref.md").read_text().splitlines() if l.startswith("| %s |" % hg)).split(" | ")
+    assert ref_row[6] != "-"
+    kept = next(l for l in text.splitlines() if l.startswith("Kept misses by kind"))
+    train_team = sum(g["info"]["team_rebounds_kept"] for g in ctx["inputs"] if g["game"] != hg)
+    assert "training games only" in kept and "team_rebounds_kept %d," % train_team in kept
+    assert ref["drop_total"]["team_rebounds_kept"] == train_team + next(g["team"] for g in ref["inputs"] if g["game"] == hg)
     sec = _g1_section(text, "## Held-out games")
     assert "| model |" not in sec and "point estimates" not in sec
     assert ctx["heldout_scores"] == {}
@@ -233,7 +252,11 @@ def test_skip_heldout_matchups(tmp_path, monkeypatch, capsys):
     printed = capsys.readouterr().out
     text = (tmp_path / "skip.md").read_text()
     assert len(ctx["held_ids"]) == 1 and ref["heldout"]                              # a held-out game, scored without the flag
-    assert SKIP_HELDOUT_NOTE in text and SKIP_HELDOUT_NOTE in printed
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and SKIP_HELDOUT_NOTE in printed
+    assert "## Held-out game(s), not scored" in text and "scored once" not in text and "held-out MSE" not in text
+    for t, c in ((text, ctx), ((tmp_path / "ref.md").read_text(), ref)):            # the selection, outside the held-out block
+        assert "Selected candidate: %s." % c["selected"] in t.split("## Held-out")[0] and c["selected"] in ("raw", "ridge")
+    assert ctx["selected"] == ref["selected"] == ref["heldout"]["candidate"]
     sec = _g1_section(text, "## Held-out game(s)")
     assert "MSE" not in sec and "stability" not in sec
     assert ctx["heldout"] == {}
@@ -246,6 +269,46 @@ def test_skip_heldout_matchups(tmp_path, monkeypatch, capsys):
     pd.testing.assert_frame_equal(ctx["tables"]["train"]["matchup_possessions"], ref["tables"]["train"]["matchup_possessions"])
 
 
+def test_skip_heldout_matchups_upstream_xfg_filter(tmp_path, capsys):
+    """An upstream xFG table under OUT_ROOT that carries held-out rows (marked by its heldout column with fold -1, and
+    rows of a matchups held-out game the table does not mark): under --skip-heldout none of their probabilities is used."""
+    from analytics.matchups import train as T
+    base = ["--fixtures", "--fixture-games", "3", "--fixture-heldout-every", "3", "--fixture-possessions", "16",
+            "--folds", "3", "--bootstrap", "5", "--n-min", "5"]
+    fb = T.main(base + ["--report", str(tmp_path / "fb.md")])["xfg"]                 # the fallback: training fold >= 0, held-out -1
+    held = sorted(fb.loc[fb["fold"] == -1, "sportvu_game"].astype(str).unique())
+    assert len(held) == 1 and (fb["fold"] >= 0).any()
+    x = fb.copy()
+    x["player_id"] = 0
+    x["heldout"] = False
+    hm = x["sportvu_game"].astype(str).isin(held).to_numpy()
+    idx = np.flatnonzero(hm)
+    assert len(idx) >= 2
+    x.loc[idx, "p_selected"] = 0.987654                                              # sentinel: must never reach a table
+    x.loc[idx[::2], "heldout"] = True                                                # marked held out by the table
+    x.loc[idx[1::2], "fold"] = 0                                                     # unmarked, caught only by the game id
+    cols = ["sportvu_game", "event", "player_id", "p_selected", "fold", "heldout"]
+    runs = {}
+    for name, table in (("poisoned", x), ("clean", x[~hm])):
+        d = tmp_path / name / "analytics" / "xfg" / "2015-16"
+        d.mkdir(parents=True)
+        table[cols].to_parquet(d / "xfg_predictions.parquet", index=False)
+        runs[name] = T.main(base + ["--report", str(tmp_path / (name + ".md")), "--out", str(tmp_path / name), "--skip-heldout"])
+    capsys.readouterr()
+    ctx = runs["poisoned"]
+    assert not set(ctx["xfg"]["sportvu_game"].astype(str)) & set(held)
+    assert not np.isclose(ctx["xfg"]["p_selected"].astype(float), 0.987654).any()
+    for t in ctx["tables"]["heldout"].values():                                      # held-out attempts carry the training default
+        if isinstance(t, pd.DataFrame):
+            num = t.select_dtypes("number")
+            assert not np.isclose(num.to_numpy(dtype=float), 0.987654).any()
+    for k, t in runs["clean"]["tables"]["train"].items():
+        if isinstance(t, pd.DataFrame):
+            pd.testing.assert_frame_equal(ctx["tables"]["train"][k], t)
+    rel = Path("analytics") / "matchups" / "tables" / "2015-16" / "matchup_possessions_train.parquet"
+    pd.testing.assert_frame_equal(pd.read_parquet(tmp_path / "poisoned" / rel), pd.read_parquet(tmp_path / "clean" / rel))
+
+
 # ----------------------------------------------------------------------------- lanes: gravity, ghosting, embeddings, epv
 
 def test_skip_heldout_gravity(tmp_path, monkeypatch):
@@ -253,12 +316,12 @@ def test_skip_heldout_gravity(tmp_path, monkeypatch):
 
     def run(tag, *extra):
         report = tmp_path / ("gravity_%s.md" % tag)
-        ctx = T.main(["--fixtures", "--no-pull-section", "--fixture-games", "4", "--fixture-possessions", "12",
+        ctx = T.main(["--fixtures", "--fixture-games", "4", "--fixture-possessions", "12",
                       "--fixture-heldout-every", "4", "--folds", "2", "--bootstrap", "5", "--min-possessions", "5",
                       "--report", str(report), "--out", str(tmp_path / tag)] + list(extra))
         return ctx, report.read_text()
 
-    base, _ = run("base")
+    base, base_text = run("base", "--no-pull-section")
     assert base["heldout_games"] == 1 and base["heldout_scores"], "the fixture must hold a scored held-out game"
     real_build = T.F.build
 
@@ -267,8 +330,10 @@ def test_skip_heldout_gravity(tmp_path, monkeypatch):
         return real_build(games)
 
     monkeypatch.setattr(T.F, "build", build_training_only)
-    ctx, text = run("skip", "--skip-heldout")
-    assert SKIP_HELDOUT_NOTE in text
+    ctx, text = run("skip", "--skip-heldout")          # with the planted-pull section: the note still appears once
+    assert ctx["pull"] is not None and ctx["pull"]["heldout_games"] >= 1 and ctx["pull"]["heldout_scores"] == {}
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and "## Held-out, not scored" in text and "scored once" not in text
+    assert "### Held-out, not scored" in text and "MSE" not in _g4_section(text, "## Held-out")
     assert ctx["heldout_games"] == 1 and ctx["heldout_scores"] == {} and ctx["heldout_rows"] == 0
     held = set(ctx["heldout_game_ids"])
     for name in ("gravity_frames", "spacing_frames"):
@@ -299,7 +364,7 @@ def test_skip_heldout_ghosting(tmp_path, monkeypatch):
 
     monkeypatch.setattr(T, "roll_forward", roll_training_only)
     ctx, text = run("skip", "--skip-heldout")
-    assert SKIP_HELDOUT_NOTE in text and "## Held-out games" in text
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and "## Held-out games" in text and "scored once" not in text
     assert ctx["heldout_games"] == base["heldout_games"] and ctx["heldout_scores"] == {} and ctx["heldout_validation"] is None
     for df in (ctx["ghost_frames"], ctx["ghost_possessions"]):
         assert not set(df["sportvu_game"]) & set(ctx["heldout_games"])
@@ -321,7 +386,7 @@ def test_skip_heldout_embeddings(tmp_path):
 
     base, base_text = run("base")
     ctx, text = run("skip", "--skip-heldout")
-    assert SKIP_HELDOUT_NOTE in text and SKIP_HELDOUT_NOTE not in base_text
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and SKIP_HELDOUT_NOTE not in base_text
     held = set(ctx["dropped"]["heldout_games_by_id"])
     assert ctx["dropped"]["heldout_frame_files"] >= 1, "the fixture must hold a held-out game"
     assert not set(ctx["games"]) & held
@@ -345,7 +410,7 @@ def test_skip_heldout_epv(tmp_path, monkeypatch):
     assert (tmp_path / "base" / "analytics" / "epv" / "heldout").exists()
     monkeypatch.setattr(T, "heldout_once", lambda *a, **k: pytest.fail("held-out games scored under --skip-heldout"))
     ctx, text = run("skip", "--skip-heldout")
-    assert SKIP_HELDOUT_NOTE in text and "## Held-out games" in text
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and "## Held-out games" in text and "scored once" not in text
     assert ctx["heldout"] is None and ctx["heldout_games"] == base["heldout_games"]
     assert not (tmp_path / "skip" / "analytics" / "epv" / "heldout").exists()
     for p in (tmp_path / "skip" / "analytics" / "epv").rglob("*.parquet"):
@@ -396,6 +461,40 @@ def test_skip_heldout_actions(tmp_path, monkeypatch, capsys):
     assert ctx["train_game_ids"] == base["train_game_ids"]
     pd.testing.assert_frame_equal(ctx["table"].reset_index(drop=True),
                                   base["table"][~base["table"]["heldout"]].reset_index(drop=True))
+    assert text.count(SKIP_HELDOUT_NOTE) == 1
+    assert "judged once on the held-out block" not in text and "scored once" not in text
+    # no held-out label count: the label-class totals cover the non-held-out games, held-out label cells are blank
+    assert sum(ctx["label_counts"].values()) < sum(base["label_counts"].values())
+    for gid in base["heldout_game_ids"]:
+        row = next(l for l in _g3_section(text, "## Inputs").splitlines() if l.startswith("| %s |" % gid))
+        assert row.split(" | ")[5:7] == ["-", "-"], row
+
+
+def test_skip_heldout_actions_unlabelled_heldout(tmp_path):
+    """On real data every held-out game is unlabelled (the label tool refuses them), so labelled_scope makes it
+    inference-only; under the flag it must still be set aside: never predicted, written or named in Outputs."""
+    from analytics.actions import train as T
+    from analytics.actions import validate as V
+    games = V.load_fixture_games(seed=0, n_games=3, heldout_every=3, n_possessions=10)
+    held = [g["sportvu_game"] for g in games if T.is_heldout(g)]
+    assert held, "the fixture has a held-out game"
+    for g in games:
+        if g["sportvu_game"] in held:
+            g["labels"], g["visited"] = None, None
+    out = tmp_path / "out"
+    ctx = T.run(games, n_folds=2, seed=0, n_boot=5, fixtures=True, out_root=out, report=tmp_path / "skip.md",
+                skip_heldout=True)
+    text = (tmp_path / "skip.md").read_text()
+    for frame in (ctx["table"], ctx["detected"]):
+        assert not set(frame["sportvu_game"].astype(str)) & set(held)
+    assert not any(w["sportvu_game"] in held for w in ctx["written_tables"])
+    assert not (out / "analytics" / "actions" / "heldout").exists()
+    outputs = _g3_section(text, "## Outputs")
+    assert not any(h in outputs for h in held)
+    assert ctx["heldout_games"] == len(held) and ctx["heldout_game_ids"] == sorted(held)
+    assert "%d held-out game(s) set aside" % len(held) in _g3_section(text, "## Held-out games")
+    assert not any(h in ctx["scope"]["inference_games"] for h in held)
+    assert text.count(SKIP_HELDOUT_NOTE) == 1
 
 
 def test_skip_heldout_coverage(tmp_path, monkeypatch, capsys):
@@ -423,6 +522,11 @@ def test_skip_heldout_coverage(tmp_path, monkeypatch, capsys):
     assert not ctx["predictions"]["heldout"].any() and not (out / "analytics" / "coverage" / "heldout").exists()
     bp = base["predictions"]
     pd.testing.assert_frame_equal(ctx["predictions"].reset_index(drop=True), bp[~bp["heldout"]].reset_index(drop=True))
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and "scored once" not in text
+    # no held-out label count: the confidence counts cover the training games only under the flag
+    assert base["heldout_scores"]["n_labelled"] > 0
+    assert ctx["n_sure"] + ctx["n_unsure"] < base["n_sure"] + base["n_unsure"]
+    assert ctx["label_counts"] == base["label_counts"]
 
 
 def test_skip_heldout_decisions(tmp_path, monkeypatch, capsys):
@@ -450,6 +554,8 @@ def test_skip_heldout_decisions(tmp_path, monkeypatch, capsys):
     assert not (out / "analytics" / "decisions" / "heldout").exists()
     assert res["train_ids"] == base["train_ids"]
     pd.testing.assert_frame_equal(res["events"], base["events"])
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and "valued once" not in text
+    assert "Selected: **%s**" % res["prior"] in text.split("## Held-out games")[0]
 
 
 def test_skip_heldout_playcalling(tmp_path, monkeypatch, capsys):
@@ -475,9 +581,30 @@ def test_skip_heldout_playcalling(tmp_path, monkeypatch, capsys):
     assert ctx["heldout_scores"] == {} and ctx["heldout_rows"] == base["heldout_rows"]
     pd.testing.assert_frame_equal(ctx["train"], base["train"])
     pd.testing.assert_frame_equal(ctx["pred"], base["pred"])
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and "scored ONCE" not in text
+    # the selected candidate is named outside the held-out block, with and without the flag (reports/results.md reads it)
+    for t in (text, (tmp_path / "base.md").read_text()):
+        before = t.split("## Held-out rows")[0]
+        assert "\nSelected candidate: ridge.\n" in before and "| ridge |" in before
 
 
 # ----------------------------------------------------------------------------- lanes: lineups, winprob, load, betting
+
+def _g4_section(text: str, heading: str) -> str:
+    """The lines of the first section whose heading line starts with ``heading``, up to the next ## heading."""
+    lines = text.splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith(heading))
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    return "\n".join(lines[start:end])
+
+
+def _g4_no_heldout_numbers(text: str, heading: str) -> None:
+    """The held-out section of a --skip-heldout report (or of its stdout) carries the note once, a not-scored heading
+    and no table row: no held-out number."""
+    sec = _g4_section(text, heading)
+    assert sec.count(SKIP_HELDOUT_NOTE) == 1 and text.count(SKIP_HELDOUT_NOTE) == 1, sec
+    assert "| " not in sec and "scored once" not in sec and "not scored" in sec.splitlines()[0], sec
+
 
 def test_skip_heldout_lineups(tmp_path, monkeypatch):
     from analytics.lineups import train as T
@@ -492,12 +619,14 @@ def test_skip_heldout_lineups(tmp_path, monkeypatch):
 
     monkeypatch.setattr(T, "evaluate_pair", spy)
     args = ["--fixtures", "--fixture-generator", "local", "--bootstrap", "5", "--folds", "2"]
-    ctx = {}
+    ctx, stdout = {}, {}
     for flag in (False, True):
         out = tmp_path / ("skip" if flag else "full")
         seen.clear()
-        with contextlib.redirect_stdout(io.StringIO()):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
             ctx[flag] = T.main(args + ["--out", str(out), "--report", str(out / "r.md")] + (["--skip-heldout"] if flag else []))
+        stdout[flag] = buf.getvalue()
         if not flag:
             assert [held] in seen, "the fixture must carry a held-out season for the test to mean anything"
     assert all(held not in s for s in seen), seen                      # never scored
@@ -505,7 +634,10 @@ def test_skip_heldout_lineups(tmp_path, monkeypatch):
     assert c["heldout_season"] == held and c.get("heldout") is None
     assert held not in set(c["cross_season"]["season_to"].astype(str))
     text = (tmp_path / "skip" / "r.md").read_text()
-    assert SKIP_HELDOUT_NOTE in text and "## Held-out season, scored once" in text
+    _g4_no_heldout_numbers(text, "## Held-out season")
+    _g4_no_heldout_numbers(stdout[True], "## Held-out season")             # nothing held-out reaches stdout either
+    assert "| " in _g4_section(stdout[False], "## Held-out season")        # the run without the flag prints held-out rows
+    assert "held-out season:" not in stdout[True] and "held-out season:" in stdout[False]
     assert not (tmp_path / "skip" / "analytics" / "lineups" / held).exists()
     assert (tmp_path / "full" / "analytics" / "lineups" / held).exists()
     # the training side is unchanged: same validation pairs, same final fit, same training-season tables
@@ -528,13 +660,18 @@ def test_skip_heldout_winprob(tmp_path, monkeypatch):
         return real_score(pred, *a, **k)
 
     args = ["--fixtures", "--fixture-games", "8", "--bootstrap", "0", "--folds", "2"]
-    with contextlib.redirect_stdout(io.StringIO()):
+    out_full, out_skip = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out_full):
         full = T.main(args + ["--out", str(tmp_path / "full"), "--report", str(tmp_path / "full.md")])
-        assert full["heldout_rows"] > 0 and full["heldout_pred"] is not None
-        monkeypatch.setattr(T, "bucket_scores", guarded)
+    assert full["heldout_rows"] > 0 and full["heldout_pred"] is not None
+    monkeypatch.setattr(T, "bucket_scores", guarded)
+    with contextlib.redirect_stdout(out_skip):
         skip = T.main(args + ["--out", str(tmp_path / "skip"), "--report", str(tmp_path / "skip.md"), "--skip-heldout"])
     text = (tmp_path / "skip.md").read_text()
-    assert SKIP_HELDOUT_NOTE in text and "## Held-out season %s, scored once" % held in text
+    _g4_no_heldout_numbers(text, "## Held-out season %s" % held)
+    _g4_no_heldout_numbers(out_skip.getvalue(), "## Held-out season %s" % held)
+    assert "| " in _g4_section(out_full.getvalue(), "## Held-out season %s" % held)
+    assert "scored once" not in text and "Overall: log loss" not in out_skip.getvalue()
     assert skip["heldout_pred"] is None and skip["heldout_scores"] == {}
     assert skip["heldout_rows"] == full["heldout_rows"]                  # set aside exactly as before
     assert not (tmp_path / "skip" / "analytics" / "winprob" / held).exists()
@@ -557,15 +694,29 @@ def test_skip_heldout_load(tmp_path, monkeypatch):
 
     args = ["--fixtures", "--fixture-games", "4", "--fixture-possessions", "20", "--fixture-heldout-every", "2",
             "--bootstrap", "5", "--folds", "2"]
-    with contextlib.redirect_stdout(io.StringIO()):
+    out_full, out_skip = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out_full):
         full = T.main(args + ["--report", str(tmp_path / "full.md")])
-        assert full["heldout_games"] > 0 and full["heldout"] is not None
-        monkeypatch.setattr(T, "regression_rows", guarded)
+    assert full["heldout_games"] > 0 and full["heldout"] is not None
+    monkeypatch.setattr(T, "regression_rows", guarded)
+    with contextlib.redirect_stdout(out_skip):
         skip = T.main(args + ["--report", str(tmp_path / "skip.md"), "--skip-heldout"])
-    text = (tmp_path / "skip.md").read_text()
-    assert SKIP_HELDOUT_NOTE in text and "## Held-out games, scored once" in text
+    text, full_text = (tmp_path / "skip.md").read_text(), (tmp_path / "full.md").read_text()
+    _g4_no_heldout_numbers(text, "## Held-out games")
+    _g4_no_heldout_numbers(out_skip.getvalue(), "## Held-out games")
+    assert "| " in _g4_section(out_full.getvalue(), "## Held-out games")
     assert skip["heldout"] is None and skip["heldout_games"] == full["heldout_games"]
-    assert "MSE, selected model" not in text and "MSE, selected model" in (tmp_path / "full.md").read_text()
+    assert "MSE, selected model" not in text and "MSE, selected model" in full_text
+    # the selection is stated before the held-out section, with and without the flag (reports/results.md reads it there)
+    for t, c in ((text, skip), (full_text, full)):
+        before = t.split("## Held-out games")[0]
+        # the name is the first cell of the candidate's out-of-fold table row (reports/results.md maps it there)
+        reg_name = T.REG_ROWS[c["reg_selected"]]
+        assert "\nSelected candidate: %s.\n" % reg_name in before and "\n| %s | " % reg_name in before
+        if c["abs"] is not None:
+            abs_name = T.ABS_ROWS[c["abs_selected"]]
+            assert "\nSelected candidate: %s.\n" % abs_name in before and "\n| %s | " % abs_name in before
+    assert full["reg_selected"] == full["heldout"]["reg_selected"] == skip["reg_selected"]
     pd.testing.assert_frame_equal(full["reg_pred"], skip["reg_pred"])  # same training rows, same out-of-fold predictions
     assert full["train_games"] == skip["train_games"]
 
@@ -581,14 +732,18 @@ def test_skip_heldout_betting(tmp_path, monkeypatch):
         return real_predict(models, frame)
 
     args = ["--fixtures", "--fixture-games", "12", "--bootstrap", "5", "--folds", "2"]
-    with contextlib.redirect_stdout(io.StringIO()):
+    out_full, out_skip = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out_full):
         full = T.main(args + ["--out", str(tmp_path / "full"), "--report", str(tmp_path / "full.md")])
-        held = full["heldout_season"]
-        assert held and full["predictions"]["heldout"].any()
-        monkeypatch.setattr(T, "predict_frame", guarded)
+    held = full["heldout_season"]
+    assert held and full["predictions"]["heldout"].any()
+    monkeypatch.setattr(T, "predict_frame", guarded)
+    with contextlib.redirect_stdout(out_skip):
         skip = T.main(args + ["--out", str(tmp_path / "skip"), "--report", str(tmp_path / "skip.md"), "--skip-heldout"])
     text = (tmp_path / "skip.md").read_text()
-    assert SKIP_HELDOUT_NOTE in text
+    assert text.count(SKIP_HELDOUT_NOTE) == 1 and out_skip.getvalue().count(SKIP_HELDOUT_NOTE) == 1
+    assert "| heldout |" in out_full.getvalue() and "| heldout |" not in out_skip.getvalue()     # no held-out P&L row on stdout
+    assert "scored ONCE" not in text and "scored ONCE" in (tmp_path / "full.md").read_text()
     assert not skip["predictions"]["heldout"].any() and (skip["predictions"]["fold"] != -1).all()
     assert all(r["mode"] != "heldout" for r in skip["summary"]) and "| heldout |" not in text
     assert not (tmp_path / "skip" / "analytics" / "betting" / held / "betting_predictions.parquet").exists()

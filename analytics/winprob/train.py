@@ -326,7 +326,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "| season | time_bucket | n | mean_p | mean_y | brier | slope |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for r in ctx["calibration_rows"].itertuples():
         L.append("| %s | %s | %d | %s | %s | %s | %s |" % (r.season, r.time_bucket, r.n, fmt_num(r.mean_p, 3), fmt_num(r.mean_y, 3), fmt_num(r.brier, 4), fmt_num(r.slope, 3)))
-    L += ["", "## Held-out season %s, scored once%s" % (ctx["heldout_season"], tag), ""]
+    L += ["", "## Held-out season %s, %s%s" % (ctx["heldout_season"], "not scored" if ctx.get("skip_heldout") else "scored once", tag), ""]
     if ctx.get("skip_heldout"):
         L += skip_heldout_lines(ctx["heldout_games"])
     elif ctx["heldout_rows"]:
@@ -350,7 +350,8 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "## Mac command", "", "The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<season>.parquet, collect/extras/odds/<season>.parquet when present):", "",
           "    " + MAC_CMD, "",
           "## Assumptions", "",
-          "- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).",
+          "- A whole season is held out (default 2024-25) and %s; folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs)."
+          % ("set aside unscored in this run (--skip-heldout)" if ctx.get("skip_heldout") else "scored once"),
           "- 2015-16 games of sportvu/splits.json never fit anything: rows flagged heldout are dropped, the 2015-16 season is refused as a held-out season, and refuse_heldout runs on the training ids.",
           "- The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.",
           "- The possession indicator is read from event kinds and is null when the events so far do not say.",

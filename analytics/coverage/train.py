@@ -332,8 +332,10 @@ def write_report(path: Path, ctx: dict) -> str:
     for k in CLASSES:
         n = ctx["label_counts"].get(k, 0)
         L.append("| %s | %d | %s |" % (k, n, fmt_num(n / ctx["train_rows"] if ctx["train_rows"] else float("nan"))))
-    L += ["", "Confidence over every labelled screen read: %d sure, %d unsure. Only sure rows fit (docs/contract/labels.md leaves "
-          "unsure out of the first training set); unsure rows are scored and the flag never enters a feature." % (ctx["n_sure"], ctx["n_unsure"]),
+    L += ["", "Confidence over every labelled screen read%s: %d sure, %d unsure. Only sure rows fit (docs/contract/labels.md leaves "
+          "unsure out of the first training set); unsure rows are scored and the flag never enters a feature." % (
+              " in the training games (held-out games left out under --skip-heldout)" if ctx.get("skip_heldout") else "",
+              ctx["n_sure"], ctx["n_unsure"]),
           "", "## Protocol", "",
           "Unit: one ball screen. Window: start_frame to end_frame plus 1.5 s (38 frames at 25 Hz), declared as the object "
           "being classified; no later frame enters. Features (%d): %s." % (len(feature_columns()), ", ".join(feature_columns())),
@@ -466,6 +468,8 @@ def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Pa
         heldout_scores = {"macro_f1": macro_f1(y, yh) if lab.any() else float("nan"),
                           "accuracy": accuracy(y, yh) if lab.any() else float("nan"), "n_labelled": int(lab.sum())}
     pred_all = pd.concat(pred, ignore_index=True)
+    # --skip-heldout: the confidence counts leave the held-out games' labels out (no held-out label count in the report)
+    conf_scope = ~cand["heldout"].astype(bool) if skip_heldout else pd.Series(True, index=cand.index)
     feats_all = pd.concat([train, score_only, heldout], ignore_index=True)
     rates = rates_by_season(pred_all, defender_team(feats_all, bundle["games"]))
     paths = write_tables(pred_all, rates, out_root)
@@ -475,7 +479,7 @@ def run(bundle: dict, n_folds: int, seed: int, n_boot: int, out_root, report: Pa
            "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["sportvu_game"].nunique()),
            "heldout_game_ids": sorted(heldout["sportvu_game"].unique()),
            "label_counts": train["coverage_label"].value_counts().to_dict(),
-           "n_sure": int((cand["confidence"] == "sure").sum()), "n_unsure": int((cand["confidence"] == "unsure").sum()),
+           "n_sure": int(((cand["confidence"] == "sure") & conf_scope).sum()), "n_unsure": int(((cand["confidence"] == "unsure") & conf_scope).sum()),
            "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
            "scores": scores, "best": best, "rates": rates, "heldout_scores": heldout_scores, "skip_heldout": bool(skip_heldout),
            "paths": [p.as_posix() for p in paths] + ["%s (this report, in the repo)" % report], "predictions": pred_all,
