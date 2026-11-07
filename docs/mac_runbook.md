@@ -234,22 +234,52 @@ record. Open a PR.
 
 ## Autonomous loop (for `/loop` in Claude Code)
 
-Start it with one line in Claude Code on the Mac, self-paced (no interval):
+Start it once and leave it running. In Terminal, from the repo folder (keeps the Mac awake for as long as
+Claude Code runs):
+
+```bash
+caffeinate -i claude
+```
+
+Switch Claude Code to auto mode (Shift+Tab cycles the modes) so routine commands do not stop for approval,
+then paste one line, self-paced (no interval):
 
 ```text
 /loop Follow the "Autonomous loop" section of docs/mac_runbook.md. Do one iteration.
 ```
+
+The loop schedules its own next iteration (at most an hour apart) and never ends by itself before stage 8.
+It never needs another prompt: at a human gate it waits and checks for the gate's signal file below.
+
+**Gate signal files.** Create these in `gates/` at the repo root (gitignored) when you have done the
+human part; the loop sees them on its next iteration:
+
+| gate | what you do | then create |
+| --- | --- | --- |
+| stage 1 merge | merge the PR on GitHub | nothing: the loop checks the PR state with `gh pr view` |
+| stage 3 pass mark | read the pass mark the loop proposed in STATUS.md, edit it if you want | `gates/audit-mark-approved` |
+| stage 3 audit | fill the audit CSV the loop exported | `gates/audit-done` |
+| stage 4 labels | label the 8 games and the pass-2 relabels | `gates/labels-done` |
+| odds for betting | put `ODDS_API_KEY` in `~/.zshrc`, or skip betting | `gates/odds-ready` or `gates/odds-skip` |
+| NBA.com tables | try them yourself from a browser network, or skip | `gates/nbacom-done` or `gates/nbacom-skip` |
+| stage 8 | review the stage 7 freeze | `gates/go-stage8` |
+
+For example: `mkdir -p gates && touch gates/labels-done`. While a gate is open the loop keeps doing every
+piece of work that does not depend on it (for example, phases 1 and 2 run while you label for phase 3).
 
 Every iteration does the following, in order.
 
 1. **Read state.** Read the rules at the top of this file and the "Runbook progress" section of STATUS.md
    (create it if missing: current stage, current step, background jobs with PID and log path, open gates,
    last result). Never trust memory from an earlier iteration over that section.
-2. **If a gate is open, do not work around it.** Gates the loop never passes on its own: stage 1 merge,
-   the audit pass mark and the filled audit sheet (stage 3), the hand labels and kappa (stage 4), an odds API
-   key, the NBA.com decision, and stage 8. At a gate, write "WAITING ON YOU: <exactly what to do>" at the top
-   of the progress section, say it in one message, and end the loop. Stage 8 starts only after the owner
-   types "go for stage 8" in the conversation.
+2. **Gates.** The loop never passes a gate on its own: stage 1 merge (passed when `gh pr view` shows the PR
+   merged), the audit pass mark (`gates/audit-mark-approved`), the filled audit sheet (`gates/audit-done`),
+   the hand labels and kappa at least 0.7 (`gates/labels-done`, then the loop runs `--kappa` itself), odds
+   (`gates/odds-ready` or `gates/odds-skip`), NBA.com (`gates/nbacom-done` or `gates/nbacom-skip`), and stage 8
+   (`gates/go-stage8`, created by the owner only; never create a gate file yourself). At an open gate, write
+   "WAITING ON YOU: <exactly what to do and which file to create>" at the top of the progress section once,
+   keep doing any work that does not depend on that gate, and schedule the next iteration in about an hour.
+   Do not end the loop; end it only after stage 8 is committed and pushed.
 3. **Long jobs run in the background.** Collectors and Phase 0 start with
    `nohup caffeinate -i <command> > logs/loop/<name>.log 2>&1 &`, their PID and log go into the progress
    section, and later iterations check the log and the collector manifest instead of waiting. One network
@@ -283,4 +313,5 @@ rather than a single best model:
 - **Each variant on its own branch** (`exp/<lane>-<id>`), tests passing; only accepted variants merge.
 
 When every lane of every phase has run and its archive has settled, the loop moves to stage 6, then
-stage 7 (freeze), and then opens the stage 8 gate and ends.
+stage 7 (freeze), then waits at the stage 8 gate, runs stage 8 and stage 9 once `gates/go-stage8` exists,
+and only then ends the loop.

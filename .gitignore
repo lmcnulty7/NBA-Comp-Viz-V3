@@ -117,3 +117,7 @@ reports/run_all.md
 reports/fixtures/
 .fixture_root/
 site/
+
+# human gate signal files for the autonomous loop (docs/mac_runbook.md)
+gates/
+logs/loop/
