@@ -3,6 +3,7 @@
     python -m analytics.actions.train --fixtures | --data DATA_ROOT --report reports/actions.md
                                       [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200]
                                       [--fixture-games 6] [--fixture-possessions 24] [--fixture-heldout-every 3]
+                                      [--skip-heldout]
 
 Steps: load the games (validate.load_inputs) and run the validation checks (a game with a schema problem is
 skipped and listed); build the candidate windows and features (features.build_season); set every held-out
@@ -19,6 +20,8 @@ Selection metric: out-of-fold F1 for ball_screen (plan target over 0.8 on a held
 carries per-class F1, macro F1, accuracy, the confusion table of the selected model, bootstrap intervals by
 game, and candidate recall against the labels. Ties go to the rule baseline (simpler first). The held-out
 games are scored once by the models refit on every training row and reported apart; they never fit or tune.
+With --skip-heldout the held-out games are set aside exactly the same way but never scored: no held-out prediction
+or table is written and the held-out section says "held-out games not scored (--skip-heldout)".
 
 Outputs (docs/contract/actions.md), written under OUT_ROOT/analytics/actions/<season>/ when --out is given
 (held-out games under heldout/<season>/): action_candidates/<game>.parquet (every candidate with its label
@@ -47,8 +50,8 @@ from analytics import schema
 from analytics.actions import CLASSES, WHO
 from analytics.actions import features as F
 from analytics.actions import validate as V
-from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, is_heldout_game, md_table,
-                            refuse_heldout)
+from analytics.eval import (add_skip_heldout_arg, bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds,
+                            is_heldout_game, md_table, refuse_heldout, skip_heldout_lines)
 
 log = logging.getLogger("analytics.actions.train")
 
@@ -400,7 +403,9 @@ def write_report(path: Path, ctx: dict) -> str:
     L += md_table(ctx["scores"][ctx["selected"]]["confusion"].reset_index().rename(columns={"true": "true \\ pred"}))
     L += ["", "Detected actions (selected class other than none with probability above %.1f): %d of %d training candidates; %d ball_screen detection(s) refused for lack of a screener."
           % (DETECT_P, ctx["n_detected_train"], ctx["train_rows"], ctx.get("refused_screens", 0))]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += ["", "## Held-out games" + tag, ""] + skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_rows"]:
         L += ["", "## Held-out games (scored once by the selected model refit on all %d training candidates; never fitted or tuned on)%s" % (ctx["train_rows"], tag), "",
               "%d candidates from %d held-out game(s): %s." % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
               "| model | F1 ball_screen | F1 drive | F1 isolation | F1 none | macro F1 | accuracy |", "| --- | --- | --- | --- | --- | --- | --- |"]
@@ -469,6 +474,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT for the action_candidates and actions_detected tables")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -491,8 +497,9 @@ def recorded_command(argv) -> str:
 
 
 def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixtures: bool = False, out_root=None,
-        report: Path | None = None, command: str = "") -> dict:
-    """The whole protocol on a list of game dicts -> the report context (scores, tables, selected model)."""
+        report: Path | None = None, command: str = "", skip_heldout: bool = False) -> dict:
+    """The whole protocol on a list of game dicts -> the report context (scores, tables, selected model). With
+    skip_heldout the held-out candidates are set aside as always but never scored, predicted or written."""
     valid, inputs, invalid = [], [], []
     label_counts, label_sources = {}, {}
     dropped_model_rows = 0
@@ -550,11 +557,12 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
            "recall": recall, "lengths": length_table(train_c, train_actions),
            "protocol": note["text"], "mode": note["mode"], "folds": note["folds"], "bootstrap": n_boot, "seed": seed,
            "scores": scores, "selected": selected, "n_detected_train": int(len(detected_table(table, labeller_pass)[0])),
-           "heldout_scores": {}, "written_tables": [], "table": table}
+           "heldout_scores": {}, "written_tables": [], "table": table, "skip_heldout": bool(skip_heldout)}
     tables = [table]
-    if len(held_c) or len(inf_c):
+    score_held = len(held_c) > 0 and not skip_heldout
+    if score_held or len(inf_c):
         models = fit_models(train_c, train_f, seed)
-        if len(held_c):          # scored once, the selected model only
+        if score_held:           # scored once, the selected model only
             held_probs = {selected: models[selected](held_c, held_f)}
             ctx["heldout_scores"] = {selected: score(held_c, held_probs, 1, seed, models=(selected,))[selected]}
             tables.append(candidate_table(held_c, held_probs[selected], np.full(len(held_c), HELDOUT_FOLD)))
@@ -575,7 +583,7 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     games = V.load_inputs(a)
     ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixtures=bool(a.fixtures), out_root=a.out, report=Path(a.report),
-              command=recorded_command(argv if argv is not None else sys.argv[1:]))
+              command=recorded_command(argv if argv is not None else sys.argv[1:]), skip_heldout=a.skip_heldout)
     print(ctx["report_text"])
     return ctx
 

@@ -1,7 +1,7 @@
 """analytics/decisions/train.py: the value model, the decision events and the validation of decision quality.
 
     python -m analytics.decisions.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/decisions.md
-                                        [--folds 5] [--seed 0] [--bootstrap 200] [--season 2015-16]
+                                        [--folds 5] [--seed 0] [--bootstrap 200] [--season 2015-16] [--skip-heldout]
 
 Protocol
   1. Load and validate the bundles (analytics.decisions.validate). Held-out games (under heldout/ or carrying a
@@ -15,8 +15,9 @@ Protocol
      position at the release relative to the basket of the possession, target made. The fit frame is the design
      matrix only (assert_time_forward and features_xfg.assert_no_leak). Fit under grouped folds by game: the decisions
      of a game are valued by the model fit on the other folds, so a shot's own outcome never informs its value. Held-out
-     games are valued once by the model refit on every training game. Fewer games than folds: n_folds = number of
-     games; one game: in-sample, labelled.
+     games are valued once by the model refit on every training game (never with --skip-heldout: the held-out games
+     are then set aside the same way but never valued or written, and the report says "held-out games not scored
+     (--skip-heldout)"). Fewer games than folds: n_folds = number of games; one game: in-sample, labelled.
   4. Option values and decision quality (features.option_values). The prior of the option values is reported, not
      fitted: candidate 1 is the location-only xFG, candidate 2 the xFG lane's p_selected for the shot events when its
      table is present (contest adjustment then not applied on those events; passes and drives keep candidate 1).
@@ -54,7 +55,8 @@ import pandas as pd
 from analytics import schema
 from analytics.decisions import features as F
 from analytics.decisions import validate as V
-from analytics.eval import bootstrap_by_game, fit_threads, fmt_num, gated, grouped_folds, refuse_heldout
+from analytics.eval import (add_skip_heldout_arg, bootstrap_by_game, fit_threads, fmt_num, gated, grouped_folds,
+                            refuse_heldout, skip_heldout_lines)
 from analytics.features_xfg import assert_no_leak, feature_columns as xfg_feature_columns, features as xfg_features
 
 WHO = "train_decisions"
@@ -281,8 +283,9 @@ def player_table(events: pd.DataFrame, n_boot: int, seed: int, n_min: int = N_MI
 
 
 # ── the run ────────────────────────────────────────────────────────────────────────────────────────
-def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> dict:
-    """Everything train.py computes, as a dict (the report and the parquet files are written by main)."""
+def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, skip_heldout: bool = False) -> dict:
+    """Everything train.py computes, as a dict (the report and the parquet files are written by main). With
+    skip_heldout the held-out games are set aside as always but never valued, so events_heldout is empty."""
     bundles, val_reports = V.validate_bundles(bundles)
     train = [b for b in bundles if not b["heldout"]]
     held = [b for b in bundles if b["heldout"]]
@@ -329,7 +332,7 @@ def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> di
     diag["fit_rows"] = int(len(full_rows))
     full_model = fit_value_model(full_rows)
     held_events = {"location": [], "xfg_selected": []}
-    for b in held:
+    for b in ([] if skip_heldout else held):
         r = value_game(contexts[b["sportvu_game"]], b, full_model, -1, with_xfg=has_xfg, counts=counts[b["sportvu_game"]])
         for name, ev in r["events"].items():
             held_events[name].append(ev)
@@ -346,7 +349,7 @@ def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> di
             "xfg_coverage": cover, "has_xfg": has_xfg, "n_hold": diag["n_hold"], "fit_rows": diag["fit_rows"],
             "ortg": ortg, "counts": counts, "train_ids": train_ids, "heldout_ids": sorted(b["sportvu_game"] for b in held),
             "mode": mode, "folds": k, "val_reports": val_reports, "full_model": full_model, "contexts": contexts,
-            "seed": seed, "n_boot": n_boot}
+            "seed": seed, "n_boot": n_boot, "skip_heldout": bool(skip_heldout)}
 
 
 # ── outputs ────────────────────────────────────────────────────────────────────────────────────────
@@ -459,8 +462,10 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
           "| prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for n, v in res["validation"].items():
         L += _val_lines(n, v)
-    L += ["", "## Held-out games (valued once by the model refit on all training games; never fitted or tuned on)" + tag, ""]
-    if len(held):
+    if res.get("skip_heldout"):
+        L += ["", "## Held-out games" + tag, ""] + skip_heldout_lines(len(res["heldout_ids"]))
+    elif len(held):
+        L += ["", "## Held-out games (valued once by the model refit on all training games; never fitted or tuned on)" + tag, ""]
         L += ["%d decisions from %d held-out game(s): %s." % (len(held), held["sportvu_game"].nunique(), ", ".join(sorted(held["sportvu_game"].unique()))),
               "", "| kind | n | mean quality |", "| --- | --- | --- |"]
         for kd, d in held.groupby("decision_kind"):
@@ -469,6 +474,7 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
         L += ["", "| prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
         L += _val_lines(res["prior"] + " (held out)", hv)
     else:
+        L += ["", "## Held-out games (valued once by the model refit on all training games; never fitted or tuned on)" + tag, ""]
         L.append("No held-out game in this run.")
     L += ["", "## Outputs (relative to OUT_ROOT)" + tag, ""]
     L += ["- %s" % p for p in ctx["written_paths"]] or ["- none written"]
@@ -499,6 +505,7 @@ def parse_args(argv=None):
     ap.add_argument("--seed", type=int, default=0, help="seed of the folds, the bootstrap and the fixtures (default %(default)s)")
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples by game (default %(default)s)")
     V.add_fixture_args(ap)
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -515,7 +522,7 @@ def main(argv=None) -> dict:
         bundles = V.load_root_bundles(a.data, a.season, a.out)
         out_root = Path(a.out) if a.out else Path(a.data)
         season = a.season
-    res = run(bundles, a.folds, a.seed, a.bootstrap)
+    res = run(bundles, a.folds, a.seed, a.bootstrap, skip_heldout=a.skip_heldout)
     written = write_outputs(res, out_root, season)
     ctx = {"written_paths": [p.relative_to(out_root).as_posix() for p in written], "fixtures": a.fixtures,
            "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
