@@ -1,7 +1,7 @@
 """analytics/winprob/train.py: the live win probability candidates under the multi-season protocol.
 
     python -m analytics.winprob.train --fixtures | --data DATA_ROOT --report reports/winprob.md
-        [--out OUT_ROOT] [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
+        [--out OUT_ROOT] [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25] [--skip-heldout]
         [--fixture-games 20] [--fixture-seasons 2020-21,2021-22,2024-25]
 
 Protocol
@@ -11,7 +11,9 @@ Protocol
      selected candidate refit on all training rows; seasons later than the held-out season are ignored (listed
      in the report), so nothing from the held-out season's future fits. Rows flagged heldout (sportvu/splits.json games, 2015-16)
      are dropped from training as well, and analytics.eval.refuse_heldout runs on the training game ids.
-     analytics.schema.assert_time_forward runs on the design matrix.
+     analytics.schema.assert_time_forward runs on the design matrix. With --skip-heldout the season is set aside
+     exactly as without it but never scored or predicted (no held-out rows in winprob_states), and the report says
+     "held-out games not scored (--skip-heldout)".
   3. Candidates (baselines first, no deep model):
        constant    the training-fold home win rate
        logistic    logistic regression on margin, seconds_remaining, possession_home (plus its missing flag) and
@@ -41,7 +43,7 @@ import pandas as pd
 
 from analytics import schema
 from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, ece, fit_threads, fmt_ci,
-                            fmt_num, grouped_folds, log_loss, refuse_heldout)
+                            fmt_num, grouped_folds, log_loss, refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
 from analytics.winprob import features as F
 
 WHO = "winprob.train"
@@ -293,7 +295,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag) and margin_x_sqrt_time (standardised, C=1); "
           "HistGradientBoostingClassifier on the same plus period, overtime, spread_home and spread_missing, calibrated by isotonic regression on inner out-of-fold predictions (3 folds by game). No deep model.",
           "Selection: %s. The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). "
-          "Intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d). The held-out season is scored once, by the selected candidate refit on all training rows." % (ctx["protocol"], ctx["bootstrap"], ctx["seed"]),
+          "Intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d). %s" % (ctx["protocol"], ctx["bootstrap"], ctx["seed"],
+              "The held-out season is set aside and never scored (--skip-heldout)." if ctx.get("skip_heldout")
+              else "The held-out season is scored once, by the selected candidate refit on all training rows."),
           "", "## Candidates by time bucket%s" % tag, "",
           "Brier score (lower is better), out-of-fold within the training seasons.", "",
           "| model | " + " | ".join(F.BUCKET_NAMES) + " | selection (mean of 5) | log loss overall | Brier overall |",
@@ -323,7 +327,9 @@ def write_report(path: Path, ctx: dict) -> str:
     for r in ctx["calibration_rows"].itertuples():
         L.append("| %s | %s | %d | %s | %s | %s | %s |" % (r.season, r.time_bucket, r.n, fmt_num(r.mean_p, 3), fmt_num(r.mean_y, 3), fmt_num(r.brier, 4), fmt_num(r.slope, 3)))
     L += ["", "## Held-out season %s, scored once%s" % (ctx["heldout_season"], tag), ""]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_rows"]:
         hs = ctx["heldout_scores"]
         L += ["%d events from %d games of %s, never fitted or tuned on; the selected candidate (%s) refit on all %d training rows scored them once."
               % (ctx["heldout_rows"], ctx["heldout_games"], ctx["heldout_season"], ctx["selected"], ctx["train_rows"]), "",
@@ -374,13 +380,15 @@ def parse_args(argv=None):
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by game inside the training seasons (default 5)")
     ap.add_argument("--heldout-season", default="2024-25", help="the season set aside and scored once (default 2024-25)")
+    add_skip_heldout_arg(ap)
     F.add_fixture_args(ap, FIXTURE_SEASONS)
     return ap.parse_args(argv)
 
 
 def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_root=None, fixtures: bool = False,
-        command: str = "", report: str | None = None) -> dict:
-    """The whole protocol on the loaded tables -> ctx (what write_report renders), the report written when asked."""
+        command: str = "", report: str | None = None, skip_heldout: bool = False) -> dict:
+    """The whole protocol on the loaded tables -> ctx (what write_report renders), the report written when asked. With
+    skip_heldout the held-out season is set aside as usual but never scored or written."""
     states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     viol = F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=2, cuts=2, seed=seed,
                                           team_names=d.get("team_names"))   # joins the spread once on the full games table
@@ -408,8 +416,9 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
            "scores": scores, "selection": selection, "selected": selected,
            "calibration": calibration_table(pred[F.TARGET].astype(float).to_numpy(), pred[p_sel].astype(float).to_numpy()),
            "calibration_rows": pd.concat([calibration_rows(s, p_sel, str(season)) for season, s in pred.groupby("season", sort=True)], ignore_index=True),
-           "heldout_scores": {}, "heldout_selection": float("nan"), "outputs": [], "pred": pred, "heldout_pred": None}
-    if len(heldout):
+           "heldout_scores": {}, "heldout_selection": float("nan"), "outputs": [], "pred": pred, "heldout_pred": None,
+           "skip_heldout": bool(skip_heldout)}
+    if len(heldout) and not skip_heldout:
         model = fit_models(train, seed, models=(selected,))[selected]
         hp = heldout.copy()
         hp[p_sel] = model(heldout)
@@ -429,7 +438,8 @@ def main(argv=None) -> dict:
     a = parse_args(argv)
     d = F.load_args(a)
     cmd = "python -m analytics.winprob.train " + " ".join(argv if argv is not None else sys.argv[1:])
-    ctx = run(d, a.heldout_season, a.seed, a.bootstrap, a.folds, out_root=a.out, fixtures=a.fixtures, command=cmd, report=a.report)
+    ctx = run(d, a.heldout_season, a.seed, a.bootstrap, a.folds, out_root=a.out, fixtures=a.fixtures, command=cmd, report=a.report,
+              skip_heldout=a.skip_heldout)
     print(ctx["report"])
     return ctx
 

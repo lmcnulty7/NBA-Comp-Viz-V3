@@ -3,6 +3,7 @@ table, every number an association with a bootstrap interval by game and the 300
 
     python -m analytics.playcalling.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/playcalling.md
                                           [--folds 5] [--seed 0] [--bootstrap 200] [--n-min 300] [--season 2015-16]
+                                          [--skip-heldout]
 
 Steps
   0. Build the action table (analytics.playcalling.features), set every held-out row aside (heldout column: a
@@ -24,7 +25,8 @@ Steps
      Labelled association: it ranks what happened after each call against each coverage, holding lineups
      fixed in a linear sense; it does not say what would happen if the call were changed.
   5. Held-out rows, when any: scored once by the selected model (the final ridge) with the training mean as a
-     labelled floor (MSE); the by-action candidate is not scored there; never fitted on.
+     labelled floor (MSE); the by-action candidate is not scored there; never fitted on. With --skip-heldout they
+     are set aside the same way but never scored, and the report says "held-out games not scored (--skip-heldout)".
 
 Fewer games than folds: n_folds becomes the number of games. One game: in-sample metrics, labelled so.
 Deep models are out of scope (baselines first; ridge is the only fitted model).
@@ -41,8 +43,8 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-from analytics.eval import (bootstrap_by_game, fit_threads, fmt_num, gated, grouped_folds, md_table, paired_bootstrap_by_game,
-                           refuse_heldout)
+from analytics.eval import (add_skip_heldout_arg, bootstrap_by_game, fit_threads, fmt_num, gated, grouped_folds, md_table,
+                           paired_bootstrap_by_game, refuse_heldout, skip_heldout_lines)
 from analytics.playcalling import N_MIN, SEASON, WHO
 from analytics.playcalling import features as F
 
@@ -373,7 +375,9 @@ def write_report(path: Path, ctx: dict) -> str:
     else:
         L += ["", "No coverage has a cell with at least %d rows, so no recommendation is made." % ctx["n_min"]]
     L += ["", "## Held-out rows%s" % tag, ""]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_rows"]:
         L += ["%d actions from %d held-out game(s) (%s), scored ONCE by the selected model (the ridge) refit on all %d training rows; never fitted or tuned on. "
               "The training mean is shown as a labelled floor only; no other candidate is scored on held-out rows."
               % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]), ctx["train_rows"]), "",
@@ -400,20 +404,23 @@ def write_report(path: Path, ctx: dict) -> str:
 
 
 # ── main ────────────────────────────────────────────────────────────────────────────────────────────
-def run(table: pd.DataFrame, n_folds: int = 5, seed: int = 0, n_boot: int = 200, n_min: int = N_MIN) -> dict:
+def run(table: pd.DataFrame, n_folds: int = 5, seed: int = 0, n_boot: int = 200, n_min: int = N_MIN,
+        skip_heldout: bool = False) -> dict:
     """The whole protocol on a built action table -> context dict (tables and scores). Every ridge fit runs inside
-    analytics.eval.fit_threads() (one context for the whole run: the bootstrap refits the ridge hundreds of times)."""
+    analytics.eval.fit_threads() (one context for the whole run: the bootstrap refits the ridge hundreds of times).
+    With skip_heldout the held-out rows are set aside as always but never scored."""
     with fit_threads():
-        return _run(table, n_folds, seed, n_boot, n_min)
+        return _run(table, n_folds, seed, n_boot, n_min, skip_heldout)
 
 
-def _run(table: pd.DataFrame, n_folds: int, seed: int, n_boot: int, n_min: int) -> dict:
+def _run(table: pd.DataFrame, n_folds: int, seed: int, n_boot: int, n_min: int, skip_heldout: bool = False) -> dict:
     train, heldout = training_split(table)
     if not len(train):
         raise SystemExit("%s: no training rows after setting the held-out rows aside" % WHO)
     ctx = {"train_rows": int(len(train)), "train_games": int(train["sportvu_game"].nunique()),
            "heldout_rows": int(len(heldout)), "heldout_games": int(heldout["sportvu_game"].nunique()),
-           "heldout_game_ids": sorted(heldout["sportvu_game"].astype(str).unique()), "seed": seed, "bootstrap": n_boot, "n_min": n_min}
+           "heldout_game_ids": sorted(heldout["sportvu_game"].astype(str).unique()), "seed": seed, "bootstrap": n_boot, "n_min": n_min,
+           "skip_heldout": bool(skip_heldout)}
     ctx["ppp_by_action"] = ppp_by_action(train, False, "ppp", n_boot, seed, n_min)
     ctx["ppp_by_action_coverage"] = ppp_by_action(train, True, "ppp", n_boot, seed, n_min)
     ctx["epv_rows"] = int(train["epv_gain"].notna().sum())
@@ -428,7 +435,7 @@ def _run(table: pd.DataFrame, n_folds: int, seed: int, n_boot: int, n_min: int) 
     ctx["alpha"], ctx["alpha_scores"] = choose_alpha(train, n_folds, seed)
     ctx["adjusted"] = adjusted_table(train, ctx["alpha"], n_boot, seed, n_min)
     ctx["heldout_scores"] = {}
-    if len(heldout):
+    if len(heldout) and not skip_heldout:
         base, model = fit_baselines(train), fit_ridge(train, ctx["alpha"])
         y = heldout["ppp"].astype(float).to_numpy()
         # the selected model only (the ridge, the one model the protocol carries forward), with the training mean as a
@@ -465,6 +472,7 @@ def parse_args(argv=None):
     ap.add_argument("--n-min", type=int, default=N_MIN, help="row gate of analytics.eval.gated (default %(default)s)")
     ap.add_argument("--season", default=SEASON, help="season directory (default %(default)s)")
     V.add_fixture_args(ap)
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -479,7 +487,7 @@ def main(argv=None) -> dict:
     inputs, vlog = V.validate_inputs(inputs)
     table, blog = F.build_action_table(inputs["frames"], inputs["possessions"], inputs["actions"], inputs.get("screens"),
                                        inputs.get("coverage_predictions"), inputs.get("epv_states"), inputs.get("heldout_games", ()))
-    ctx = run(table, a.folds, a.seed, a.bootstrap, a.n_min)
+    ctx = run(table, a.folds, a.seed, a.bootstrap, a.n_min, skip_heldout=a.skip_heldout)
     out_root = a.out or a.data
     ctx["written_files"] = [Path(p).relative_to(out_root).as_posix() for p in write_tables(ctx, table, out_root, a.season)] if out_root else []
     ctx.update({"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

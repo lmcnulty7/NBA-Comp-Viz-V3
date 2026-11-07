@@ -3,6 +3,7 @@
     python -m analytics.load.train --fixtures | --data DATA_ROOT --report reports/load.md [--out OUT_ROOT]
                                    [--folds 5] [--seed 0] [--bootstrap 200] [--season 2015-16] [--limit N]
                                    [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
+                                   [--skip-heldout]
 
 Steps: load the inputs (analytics.load.validate), build the tables (analytics.load.features), set every
 held-out player-game aside, call analytics.eval.refuse_heldout on the training game ids, run
@@ -18,7 +19,10 @@ schema.assert_time_forward and assert_no_leak on the design matrix, then:
 
 No model is tuned: alpha and C are fixed here before any run. Fewer games than folds: n_folds becomes the
 number of games. Held-out rows are scored once by the models refit on every training row and labelled as
-such. With --fixtures the report says "fixture output, not a result" on every table. Deep models: none.
+such; with --skip-heldout they are set aside exactly as without it but never scored, and the report says "held-out
+games not scored (--skip-heldout)" (the descriptive player_stints and player_games tables of held-out games still go
+under heldout/<season>/ with --out, as the features step writes them: measurements, not predictions). With
+--fixtures the report says "fixture output, not a result" on every table. Deep models: none.
 """
 from __future__ import annotations
 
@@ -32,7 +36,8 @@ import pandas as pd
 
 from analytics import schema
 from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, ece, fit_threads, fmt_ci,
-                            fmt_num, grouped_folds, heldout_mask, log_loss, paired_bootstrap_by_game, refuse_heldout)
+                            fmt_num, grouped_folds, heldout_mask, log_loss, paired_bootstrap_by_game, refuse_heldout,
+                            add_skip_heldout_arg, skip_heldout_lines)
 from analytics.load import validate as V
 from analytics.load.eda import markdown, rest_bucket
 from analytics.load.features import FEATURES, MIN_STINTS_RANK, assert_no_leak, build_tables, design, write_tables
@@ -313,7 +318,9 @@ def write_report(path: Path, ctx: dict) -> str:
               "aggregate is NBA.com's own, so a gap in level with a high rank correlation is the expected picture."]
     L += ["", "## Held-out games, scored once%s" % tag, ""]
     ho = ctx["heldout"]
-    if ho is None:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx["heldout_games"])
+    elif ho is None:
         L.append("No held-out player-game was loaded.")
     else:
         L += ["%d player-games from %d held-out game(s) (%s). One model per pair was selected on its out-of-fold score "
@@ -352,11 +359,14 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT: also write the three tables")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
-def run(inputs: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture: bool = False, tables: dict | None = None) -> dict:
-    """The whole protocol on an inputs dict -> ctx (what write_report renders), with the tables under 'tables'."""
+def run(inputs: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture: bool = False, tables: dict | None = None,
+        skip_heldout: bool = False) -> dict:
+    """The whole protocol on an inputs dict -> ctx (what write_report renders), with the tables under 'tables'. With
+    skip_heldout the held-out player-games are set aside as usual but never scored."""
     tables = tables or build_tables(inputs, n_boot=n_boot, seed=seed)
     pg, st, sm = tables["player_games"], tables["player_stints"], tables["load_summary"]
     train, heldout = training_frames(pg)
@@ -383,8 +393,8 @@ def run(inputs: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixtur
            "summary_players": int(len(sm)), "summary_enough": int(len(enough)), "summary_top": top,
            "reg": reg, "reg_note": reg_note, "abs": ab, "abs_note": abs_note,
            "aggregates": aggregates_check(pg, inputs.get("aggregates")), "heldout": None, "tables": tables,
-           "reg_pred": reg_pred, "abs_pred": abs_pred}
-    if len(heldout):
+           "reg_pred": reg_pred, "abs_pred": abs_pred, "skip_heldout": bool(skip_heldout)}
+    if len(heldout) and not skip_heldout:
         ho = {"rows": int(len(heldout)), "games": int(heldout["sportvu_game"].nunique()), "ids": sorted(heldout["sportvu_game"].unique())}
         # one model per pair is selected on the out-of-fold score and scored on the held-out rows; the constant
         # baseline is scored only as a labelled floor under a selected candidate, never as a second candidate
@@ -420,7 +430,7 @@ def main(argv=None) -> dict:
     """Run the protocol from the command line, write the report (and the tables with --out) and return ctx."""
     a = parse_args(argv)
     inputs = V.load_args(a)
-    ctx = run(inputs, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixture=a.fixtures)
+    ctx = run(inputs, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixture=a.fixtures, skip_heldout=a.skip_heldout)
     ctx["command"] = "python -m analytics.load.train " + " ".join(argv if argv is not None else sys.argv[1:])
     if a.out:
         for p in write_tables(ctx["tables"], a.out, inputs["season"]):

@@ -1,7 +1,7 @@
 """analytics/gravity/train.py: the gravity trainer, candidates, player table, validations and report.
 
     python -m analytics.gravity.train --fixtures | --data DATA_ROOT --report reports/gravity.md
-        [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT] [--season 2015-16]
+        [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT] [--season 2015-16] [--skip-heldout]
         [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every K] [--fixture-generator shared|pull]
 
 Protocol
@@ -32,7 +32,8 @@ Protocol
      candidate players present), a one-sided binomial sign test over games and the mean difference with a
      bootstrap interval by game; (c) on the planted-pull fixture, the recovered pull of the planted players against
      the generator's effective pull (tests/test_gravity.py states the tolerance)
-  8. held-out games, when present, are scored exactly once by the shipped ridge refit on every training row
+  8. held-out games, when present, are scored exactly once by the shipped ridge refit on every training row (never
+     with --skip-heldout: then they are set aside the same way but not built, predicted or scored)
      (the constant floor alongside, labelled a floor, not a selection input); they never fit, tune or rank anything
   9. the report (--report) and, with --out, the three tables of docs/contract/gravity.md. With --fixtures the
      report is labelled "fixture output, not a result"; when the generator is analytics.fixtures the report
@@ -60,7 +61,7 @@ import pandas as pd
 
 from analytics import features_xfg, schema, train_xfg
 from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds,
-                            paired_bootstrap_by_game, refuse_heldout)
+                            paired_bootstrap_by_game, refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
 from analytics.gravity import MIN_POSSESSIONS, WHO
 from analytics.gravity import features as F
 from analytics.gravity import validate as V
@@ -411,7 +412,8 @@ def run_pipeline(games: list, a, label: str) -> dict:
     xfg = xfg_oof(train_games, a.folds, a.seed)
     st = sign_test(train_games, candidates, xfg, a.bootstrap, a.seed)
     heldout_scores, hf, heldout_rows = {}, pd.DataFrame(columns=FRAME_COLUMNS), 0
-    if held_games:
+    skip_heldout = bool(getattr(a, "skip_heldout", False))
+    if held_games and not skip_heldout:      # --skip-heldout: set aside above, never built, predicted or scored
         hpf, hsp, _ = F.build(held_games)
         if len(hpf):
             table = F.skill_table(shots_of(train_games, train_ids))
@@ -442,7 +444,7 @@ def run_pipeline(games: list, a, label: str) -> dict:
             "hull_mean": float(sp_train["hull_area_ft2"].mean()) if len(sp_train) else float("nan"),
             "hull_sd": float(sp_train["hull_area_ft2"].std()) if len(sp_train) else float("nan"),
             "mnd_mean": float(sp_train["mean_nearest_def_ft"].mean()) if len(sp_train) else float("nan"),
-            "heldout_scores": heldout_scores, "heldout_rows": heldout_rows,
+            "heldout_scores": heldout_scores, "heldout_rows": heldout_rows, "skip_heldout": skip_heldout,
             "gravity_frames": all_gf, "gravity_players": players, "spacing_frames": sp, "pred": pred, "xfg": xfg}
 
 
@@ -510,8 +512,10 @@ def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##"
           "", "%s Spacing%s" % (h, tag), "",
           "Mean hull area %s ft2 (sd %s), mean nearest-defender distance %s ft over %d training possession-frames."
           % (fmt_num(ctx["hull_mean"], 1), fmt_num(ctx["hull_sd"], 1), fmt_num(ctx["mnd_mean"], 2), ctx["spacing_rows"]),
-          "", "%s Held-out, scored once%s" % (h, tag), ""]
-    if ctx["heldout_games"]:
+          "", "%s Held-out, %s%s" % (h, "not scored" if ctx.get("skip_heldout") else "scored once", tag), ""]
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_games"]:
         hs = ctx["heldout_scores"]
         L.append("%d held-out game(s), %d player-frames, scored once by the shipped ridge refit on all %d training rows: MSE %s "
                  "(constant floor %s, not a selection input). Never fitted, tuned or ranked on."
@@ -591,6 +595,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/{gravity_frames,gravity_players,spacing_frames}.parquet")
     ap.add_argument("--no-pull-section", "--no-fallback-section", dest="no_pull_section", action="store_true",
                     help="--fixtures on the shared generator: skip the second run on the planted-pull generator")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 

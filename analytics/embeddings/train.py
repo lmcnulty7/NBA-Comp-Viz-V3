@@ -1,7 +1,7 @@
 """analytics/embeddings/train.py: player style embeddings (unsupervised, unit player-season) under the evaluation protocol.
 
     python -m analytics.embeddings.train --fixtures | --data DATA_ROOT --report reports/embeddings.md
-                                        [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--n-min 300]
+                                        [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--n-min 300] [--skip-heldout]
                                         [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 DATA_ROOT layout (the owner's Mac):
@@ -58,7 +58,8 @@ import pandas as pd
 
 from analytics import schema
 from analytics.embeddings import features as F
-from analytics.eval import bootstrap_by_game, fmt_ci, heldout_mask, is_heldout_game, refuse_heldout
+from analytics.eval import (bootstrap_by_game, fmt_ci, heldout_mask, is_heldout_game, refuse_heldout, add_skip_heldout_arg,
+                            skip_heldout_lines)
 
 log = logging.getLogger("analytics.embeddings.train")
 
@@ -567,6 +568,7 @@ def write_report(path, ctx: dict, command: str) -> str:
              ", ".join(ctx["dropped"]["heldout_games_by_id"]) or "none", ctx["dropped"]["heldout_shot_rows"],
              len(ctx["dropped"]["games_without_possessions"]), ", ".join(ctx["dropped"]["games_without_possessions"][:5]) or "none"),
           "Guards: `analytics.eval.refuse_heldout` on the training game ids, `analytics.schema.assert_time_forward` on the feature frame.",
+          *(skip_heldout_lines() if ctx.get("skip_heldout") else []),
           "NBA.com aggregates: %s. Positions table: %s." % ("present" if ctx["has_aggregates"] else "absent (tracking and shot features only)",
                                                           "present" if ctx["has_positions"] else "absent (5-NN position accuracy not computable)"),
           "Player-seasons: %d, of which %d sufficient (at least %d possessions) and %d insufficient%s."
@@ -649,6 +651,7 @@ def parse_args(argv=None):
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by player_id for the next-season ridge (fewer when fewer players)")
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of players for every interval (default 200)")
     ap.add_argument("--n-min", type=int, default=None, help="possession gate (300; %d for --fixtures)" % FIXTURE_N_MIN)
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -661,6 +664,7 @@ def main(argv=None) -> dict:
     inputs = inputs_from_args(a)
     n_min = a.n_min if a.n_min is not None else (FIXTURE_N_MIN if a.fixtures else F.N_MIN)
     ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures, n_folds=a.folds)
+    ctx["skip_heldout"] = bool(a.skip_heldout)     # held-out games are dropped at load and never scored here; the report says so
     out_root = a.out if a.out else (tempfile.mkdtemp(prefix="emb_out_") if a.fixtures else None)
     if out_root:
         ctx["written"] = write_tables(ctx, out_root)

@@ -1,7 +1,7 @@
 """analytics/xfg/train.py: three xFG candidates under the Phase 0 protocol, selection by out-of-fold log loss.
 
     python -m analytics.xfg.train --fixtures | --data DATA_ROOT --report reports/xfg.md [--folds 5] [--seed 0]
-                                  [--bootstrap 200] [--out OUT_ROOT] [--season 2015-16]
+                                  [--bootstrap 200] [--out OUT_ROOT] [--season 2015-16] [--skip-heldout]
 
 Candidates (CANDIDATES, in order):
     location_logistic   the Phase 1 baseline: analytics.train_xfg.fit_models on the four location features
@@ -24,7 +24,8 @@ Rows whose heldout flag is true, or whose game id carries a held-out token of sp
 aside before any fit; analytics.eval.refuse_heldout runs on the training game ids and again on every fit; the
 feature frame passed schema.assert_time_forward in analytics.xfg.features and every design matrix passes
 assert_no_leak. Held-out rows are scored once, by the candidates refit on every training row; the held-out
-score reported is the selected candidate's.
+score reported is the selected candidate's. With --skip-heldout the held-out rows are set aside exactly the same way
+but never scored: no held-out row reaches xfg_predictions and the report says "held-out games not scored (--skip-heldout)".
 
 Fewer training games than folds: n_folds becomes the number of games (leave-one-game-out) and the report says
 so. One training game: SystemExit (no grouped fold is possible; this trainer does not report in-sample numbers).
@@ -48,7 +49,8 @@ import pandas as pd
 from analytics import train_xfg as baseline
 from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_slope_fast, calibration_table, ece,
                             fit_threads, fmt_ci, fmt_num, grouped_cv, grouped_folds, heldout_mask, log_loss,
-                            paired_bootstrap_by_game, refuse_heldout, report_block)
+                            paired_bootstrap_by_game, refuse_heldout, report_block, add_skip_heldout_arg,
+                            skip_heldout_lines)
 from analytics.xfg import validate as V
 from analytics.xfg.features import FEATURES, PRIOR_FEATURE, assert_no_leak, build, feature_columns, targets
 
@@ -366,7 +368,9 @@ def write_report(path: Path, ctx: dict) -> str:
     for name in CANDIDATES:
         L.append(ctx["blocks"][name])
     L += ["## Held-out score (scored once by the selected candidate refit on all %d training rows)%s" % (ctx["train_rows"], tag), ""]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx["heldout_games"]) + [""]
+    elif ctx["heldout_rows"]:
         L += ["%d attempts from %d held-out game(s): %s. Never fitted or tuned on." % (ctx["heldout_rows"], ctx["heldout_games"],
                                                                                          ", ".join(ctx["heldout_game_ids"])), "",
               "| candidate | log loss | Brier | ECE (10 bins) | calibration slope |", "| --- | --- | --- | --- | --- |"]
@@ -405,6 +409,7 @@ def parse_args(argv=None):
                          "nothing for --fixtures)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default %(default)s)")
     ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -414,6 +419,7 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
     if len(train) == 0:
         raise SystemExit("%s: no training rows after setting the held-out rows aside" % WHO)
     tag = " (fixture output, not a result)" if a.fixtures else ""
+    skip = bool(getattr(a, "skip_heldout", False))
     with fit_threads(1):
         pred, note = out_of_fold(train, a.folds, a.seed)
         scores = score(pred, a.bootstrap, a.seed)
@@ -426,7 +432,7 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
             if n != selected:
                 blocks[n] = calibration_block("%s (out-of-fold)%s" % (n, tag), pred["made"].astype(float), pred["p_" + n].astype(float))
         heldout_p, heldout_scores, heldout_block = {}, {}, ""
-        if len(heldout):
+        if len(heldout) and not skip:
             # only the selected candidate is refit and scores the held-out rows, once
             heldout_p[selected] = np.asarray(fit_candidate(selected, train, a.seed)(heldout), dtype=float)
             y = heldout["made"].astype(float).to_numpy()
@@ -436,7 +442,7 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
                                              "sportvu_game", n=a.bootstrap, seed=a.seed)
             else:
                 heldout_block = calibration_block("%s (held-out, scored once; one game, no interval)%s" % (selected, tag), y, heldout_p[selected])
-    table = predictions_table(pred, heldout, selected, heldout_p)
+    table = predictions_table(pred, heldout.iloc[:0] if skip else heldout, selected, heldout_p)
     out_root = a.out or (None if a.fixtures else a.data)
     path = None
     if out_root:
@@ -451,7 +457,7 @@ def run(tables: dict, summaries: list, a, command: str) -> dict:
            "heldout_game_ids": sorted(heldout["sportvu_game"].astype(str).unique()), "protocol": note["text"], "folds": note["folds"],
            "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "selected": selected, "paired": pairs, "blocks": blocks,
            "heldout_scores": heldout_scores, "heldout_block": heldout_block, "predictions": table, "heldout_p": heldout_p,
-           "predictions_path": path,
+           "predictions_path": path, "skip_heldout": skip,
            "calibration": calibration_table(pred["made"].astype(float).to_numpy(), pred["p_" + selected].astype(float).to_numpy())}
     return ctx
 
