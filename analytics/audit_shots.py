@@ -17,7 +17,9 @@ more than n rows.
 
 Sample columns: the court replay keys (sportvu_game, event, period, clock_s, release_frame, apex_frame,
 outcome_frame, shooter_id, confidence_flag) plus the empty audit columns audited_release_frame (Int32),
-audited_ok (boolean) and auditor_note (string). --summarise reports, over the rows with
+audited_ok (boolean) and auditor_note (string), filled shot by shot with
+``python -m analytics.label_tool --data DATA_ROOT --audit SAMPLE`` (docs/labeling_guide.md section 7).
+--summarise reports, over the rows with
 audited_release_frame filled, the share within 2 frames of release_frame (overall, per confidence_flag and
 per game) and the share of audited_ok.
 """

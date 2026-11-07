@@ -112,15 +112,18 @@ Follow the rules in docs/mac_runbook.md. Stage 3: read $DATA_ROOT/reports/phase0
 processed, failed and skipped, share of shots with a release frame, identity agreement, rebound share and the
 points check. Before drawing the audit sample, write into STATUS.md the pass mark we will hold the audit to
 (I propose: release frame within 2 frames on at least 90 percent of high-confidence shots). Then run
-`python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0`, export the sample to CSV for me, and
-tell me how to check each shot in the label tool (python3 -m analytics.label_tool --data "$DATA_ROOT"
---game <game>, scrub to the frame).
+`python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0` and tell me the sample path.
 ```
 
-Fill in `audited_release_frame`, `audited_ok` and `auditor_note` for each shot, then:
+Audit every shot in the label tool's audit mode (keys in `docs/labeling_guide.md` section 7; it writes the
+verdicts straight into the sample and resumes where you stopped), then open http://127.0.0.1:8765/:
+
+```bash
+python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytics/audit/shots_sample.parquet"
+```
 
 ```text
-Follow the rules in docs/mac_runbook.md. Stage 3 check: convert my filled CSV back to the sample parquet, run
+Follow the rules in docs/mac_runbook.md. Stage 3 check: run
 python3 -m analytics.audit_shots --summarise <sample> --report reports/shot_audit.md, and compare with the pass
 mark in STATUS.md. If it passes, pin the four localisation constants (apex search 2 s, rim radius 6 ft,
 flight 25 frames, high-confidence 0.6) in docs/DATA_CONTRACT.md section 17 as validated. If it fails, stop and

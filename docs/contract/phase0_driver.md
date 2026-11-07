@@ -156,10 +156,49 @@ contributes what it has and is listed under `games_short`. Rows are sorted by ga
 | `release_frame`, `apex_frame`, `outcome_frame` | int32 | the localiser's frames, `-1` when not found |
 | `shooter_id` | int32, nullable | roster id of the shooter |
 | `confidence_flag` | string | `high`, `low`, `unmatched` |
-| `audited_release_frame` | int32, nullable | empty; the auditor's release frame from the court replay |
-| `audited_ok` | bool, nullable | empty; the auditor's verdict on the row |
+| `audited_release_frame` | int32, nullable | empty; the auditor's release frame from the court replay (set exactly when `audited_ok` is true) |
+| `audited_ok` | bool, nullable | empty; true for a real shot whose release the auditor placed, false for a bad row (below) |
 | `auditor_note` | string, nullable | empty; free text |
 
 `--summarise` reads a filled sample back and reports, over the rows with `audited_release_frame` set: the
 share within the tolerance (2 frames by default) of `release_frame`, the mean absolute difference, the share
 of `audited_ok`, and the agreement per `confidence_flag` and per game; `--report` writes the same as markdown.
+
+### Filling the sample: the label tool's audit mode
+
+```
+python -m analytics.label_tool --data DATA_ROOT --audit OUT_ROOT/analytics/audit/shots_sample.parquet [--port 8765] [--no-backup]
+```
+
+walks the sample row by row (`analytics.label_tool.AuditSession`, keys in `docs/labeling_guide.md`
+section 7). Each verdict sets the three audit columns of one row, exactly one of:
+
+| verdict (key) | `audited_release_frame` | `audited_ok` | meaning |
+| --- | --- | --- | --- |
+| accept (`a`) | `release_frame` | `True` | a real shot and the detected frame is its release |
+| release (`m`, then `enter`) | the marked frame | `True` | a real shot released at the marked frame (the localiser may be off by any amount) |
+| bad (`x`) | `<NA>` | `False` | no release to compare: not a shot at this time, the ball or the shooter cannot be followed, or the frames are broken |
+
+So `audited_release_frame = <NA>` with `audited_ok = False` is a bad row, and a frame is set exactly when
+`audited_ok = True`. In `--summarise` terms: the agreement (`within_tolerance` over `audited`) is computed
+over the confirmed shots only, a bad row counts against `share_audited_ok` and never in the agreement,
+and a release moved by 3 frames or more is outside the 2-frame mark. Report both numbers: many bad rows
+are a localiser problem the agreement alone does not show. `auditor_note` is optional
+free text (whitespace collapsed, at most 500 characters, empty means `<NA>`).
+
+A row is audited when either of the two columns is filled; the tool resumes at the first row with both
+empty, and a later verdict on a row replaces the earlier one. The served window is the shot's period,
+100 frames either side of `release_frame` (a row without one, from `--all`, gets `clock_s - 2.5` to
+`clock_s + 4.0`), and an audited frame must be a frame of the game in the shot's period.
+
+Writes: after every verdict the whole sample is written to a temporary file next to it, fsynced and moved
+over the sample with `os.replace`, so a crash loses at most the verdict being written. Row order, every
+other column and the arrow schema (with its pandas metadata) are kept; audit columns of another type (a CSV
+round trip) are written back as int32, bool and string. Before the first write of a session the sample is
+copied to `<sample>.bak` (`--no-backup` skips it). A sample changed on disk since the session read it is
+not overwritten (409; restart the tool). Nothing else is written: the server has no label endpoints.
+
+Held-out: the audit decides whether the localisation constants are pinned as validated, which is a
+selection, so held-out games stay out exactly as in the draw. The tool refuses a sample holding any game
+that `sportvu/splits.json` holds out (by the label tool's held-out tokens or by the split rule `draw` uses,
+which includes the held-out arena).
