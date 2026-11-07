@@ -137,7 +137,7 @@ then the verdict line. Shares in the totals are ratios of the summed counts, not
 ## Audit sample (`analytics/audit_shots.py`)
 
 ```
-python -m analytics.audit_shots --data OUT_ROOT --n 200 --seed 0 --out OUT_ROOT/analytics/audit/shots_sample.parquet [--all]
+python -m analytics.audit_shots --data OUT_ROOT --n 200 --seed 0 --out OUT_ROOT/analytics/audit/shots_sample.parquet [--all] [--force]
 python -m analytics.audit_shots --summarise OUT_ROOT/analytics/audit/shots_sample.parquet [--report PATH] [--tolerance 2]
 ```
 
@@ -146,7 +146,9 @@ never `heldout/`, and a game `sportvu/splits.json` holds out is refused even if 
 folder); `n // games` shots per game (at least 1, so an `n` below the number of training games gives one shot
 per game and more than `n` rows), drawn without replacement with `numpy.random.default_rng(seed)` from the
 shots whose `release_frame` was found (`--all` includes the unfound rows); a game with fewer candidates
-contributes what it has and is listed under `games_short`. Rows are sorted by game and event.
+contributes what it has and is listed under `games_short`. Rows are sorted by game and event. The sample is
+the only home of the audit verdicts, so a draw over an existing sample that holds any filled audit column
+(or that cannot be read) is refused with exit code 2 unless `--force`.
 
 | column | type | meaning |
 | --- | --- | --- |
@@ -163,7 +165,16 @@ contributes what it has and is listed under `games_short`. Rows are sorted by ga
 
 `--summarise` reads a filled sample back and reports, over the rows with `audited_release_frame` set: the
 share within the tolerance (2 frames by default) of `release_frame`, the mean absolute difference, the share
-of `audited_ok`, and the agreement per `confidence_flag` and per game; `--report` writes the same as markdown.
+of `audited_ok`, and the agreement per `confidence_flag` and per game, each group with its count of bad rows
+(`audited_ok` false); `--report` writes the same as markdown.
+
+**Pass-mark statistic.** `pass_mark.share` (printed as `pass-mark statistic`, the first table of the
+report) is the number the stage 3 pass mark is compared with: over every audited row with
+`confidence_flag == "high"` (a frame or a verdict filled), the share whose `audited_release_frame` is within
+the tolerance of `release_frame` and is not marked bad. A high-confidence row marked bad counts as a miss in
+the denominator, so sending hard shots to bad cannot raise it. `pass_mark` also holds `rows`,
+`within_tolerance` and `bad`. The older `agreement_within_tolerance` and the per-flag `share` leave bad rows
+out and stay for reference only.
 
 ### Filling the sample: the label tool's audit mode
 
@@ -181,25 +192,29 @@ section 7). Each verdict sets the three audit columns of one row, exactly one of
 | bad (`x`) | `<NA>` | `False` | no release to compare: not a shot at this time, the ball or the shooter cannot be followed, or the frames are broken |
 
 So `audited_release_frame = <NA>` with `audited_ok = False` is a bad row, and a frame is set exactly when
-`audited_ok = True`. In `--summarise` terms: the agreement (`within_tolerance` over `audited`) is computed
-over the confirmed shots only, a bad row counts against `share_audited_ok` and never in the agreement,
-and a release moved by 3 frames or more is outside the 2-frame mark. Report both numbers: many bad rows
-are a localiser problem the agreement alone does not show. `auditor_note` is optional
+`audited_ok = True`. In `--summarise` terms: a bad high-confidence row is a miss in the pass-mark statistic,
+counts against `share_audited_ok` and in the `bad` counts, and stays out of the older agreement numbers; a
+release moved by 3 frames or more is outside the 2-frame mark. `auditor_note` is optional
 free text (whitespace collapsed, at most 500 characters, empty means `<NA>`).
 
 A row is audited when either of the two columns is filled; the tool resumes at the first row with both
-empty, and a later verdict on a row replaces the earlier one. The served window is the shot's period,
+empty, and a later verdict on a row replaces the earlier one. A blank `release_frame`, `apex_frame` or
+`outcome_frame` (a CSV round trip turns `-1` into a blank) is read as `-1`, not found. The served window is the shot's period,
 100 frames either side of `release_frame` (a row without one, from `--all`, gets `clock_s - 2.5` to
 `clock_s + 4.0`), and an audited frame must be a frame of the game in the shot's period.
 
 Writes: after every verdict the whole sample is written to a temporary file next to it, fsynced and moved
 over the sample with `os.replace`, so a crash loses at most the verdict being written. Row order, every
 other column and the arrow schema (with its pandas metadata) are kept; audit columns of another type (a CSV
-round trip) are written back as int32, bool and string. Before the first write of a session the sample is
-copied to `<sample>.bak` (`--no-backup` skips it). A sample changed on disk since the session read it is
-not overwritten (409; restart the tool). Nothing else is written: the server has no label endpoints.
+round trip) are written back as int32, bool and string. Before the first write of each session the sample
+is copied to `<sample>.<UTC time>.bak`, a new file per session that never replaces an earlier backup
+(`--no-backup` skips it). The session records a SHA-256 of the sample's bytes when it reads it and after each
+of its own writes; a sample whose bytes differ at the next write is not overwritten (409; restart the tool).
+The hash, not the modification time, is compared, so a sync client touching the time is not a change. A
+failed write is a 500 and leaves the sample as it was. Nothing else is written: the server has no label
+endpoints. A file that is not a sample, or a missing one, stops the tool with a one-line error (exit 2).
 
 Held-out: the audit decides whether the localisation constants are pinned as validated, which is a
 selection, so held-out games stay out exactly as in the draw. The tool refuses a sample holding any game
-that `sportvu/splits.json` holds out (by the label tool's held-out tokens or by the split rule `draw` uses,
-which includes the held-out arena).
+that `analytics.eval.is_heldout_game` holds out (every held-out token of `sportvu/splits.json`, the
+held-out arena included); without `sportvu/splits.json` it does not start.

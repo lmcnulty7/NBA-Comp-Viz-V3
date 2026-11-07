@@ -126,8 +126,9 @@ python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytic
 
 ```text
 Follow the rules in docs/mac_runbook.md. Stage 3 check: run
-python3 -m analytics.audit_shots --summarise <sample> --report reports/shot_audit.md, and compare with the pass
-mark in STATUS.md. If it passes, pin the four localisation constants (apex search 2 s, rim radius 6 ft,
+python3 -m analytics.audit_shots --summarise <sample> --report reports/shot_audit.md, and compare its
+pass-mark statistic (pass_mark.share: high-confidence rows within 2 frames, rows marked bad counted as misses)
+with the pass mark in STATUS.md. If it passes, pin the four localisation constants (apex search 2 s, rim radius 6 ft,
 flight 25 frames, high-confidence 0.6) in docs/DATA_CONTRACT.md section 17 as validated. If it fails, stop and
 write what failed into STATUS.md. Commit reports and docs only.
 ```
