@@ -2,26 +2,21 @@
 
 ## Runbook progress
 
-Nothing blocks the loop right now. Two decisions are open for later (odds and NBA.com, under Open gates).
-Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07.
+WAITING ON YOU (stage 3 audit pass mark): read "Stage 3: proposed audit pass mark" below, edit the pass mark or
+the sample size there if you want, then `mkdir -p gates && touch gates/audit-mark-approved`. The loop draws the
+sample only after that file exists. Merging PR #7 first is recommended: it replaces the CSV round trip with an
+audit mode in the label tool.
+
+Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Two later decisions are open
+(odds and NBA.com, under Open gates).
 
 Open PRs from you, not touched by the loop (merge when ready): #7 stage 3 audit mode, #8 stage 4a --skip-heldout,
 #9 stage 9 results, #10 stage 6 torch models. The loop does not redo stage 4a while #8 is open.
 
 Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 3, Phase 0 on every tracked game (analytics.gaps, then analytics.run_phase0), then the shot
-  audit. Stage 2 passed 2026-11-07 14:40 (below).
-- **Background jobs:** Phase 0 (analytics.run_phase0, steps rosters, shot_frames, rebound_frames, possessions,
-  --bref-dir data/collect/bref_shots, one worker) resumed 2026-11-07 14:52 with --retry-failed, PID 39081, log
-  logs/loop/phase0.log. 621 games eligible, 5 skipped (source_broken in Step 1). It runs far faster than the
-  runbook's 10 hours: the first pass did about 126 games in 4 minutes.
-- **Stage 3 so far:** reports/sportvu_gaps.md rebuilt from the real manifest (626 games, 369 with a tracking gap
-  over 10 s; a data-quality count, nothing fitted). The first Phase 0 pass (log logs/loop/phase0.run1.log) was
-  stopped after 126 games: shot_frames failed on most games with a transient Drive read error (pyarrow
-  "Unexpected end of stream" on a frames file still streaming down; the same file read cleanly afterwards), and a
-  nameless player_id 0 in some frames crashed name matching in rosters (2 games) and shot_frames (1). Both fixed
-  with tests in f10db36 (a bare OSError is retried twice; a missing name normalises to empty).
+- **Current stage:** 3, Phase 0 done; waiting for the audit pass mark gate before drawing the audit sample.
+- **Background jobs:** none.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
@@ -31,6 +26,50 @@ Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
   or create gates/odds-skip) and NBA.com tables (gates/nbacom-done or gates/nbacom-skip). Neither blocks anything
   before stage 5 phase 5 (betting) and the embeddings aggregates; the loop carries on meanwhile.
 - **Branch:** the Mac checkout is on track-fix.
+
+### Stage 3: Phase 0 on every tracked game (done 2026-11-07)
+
+Commands as in the runbook, with `--bref-dir "$DATA_ROOT/collect"` (corrected, see below). Logs:
+logs/loop/phase0.run1.log, phase0.log, phase0_rosters.log. Summary on Drive: DATA_ROOT/reports/phase0_summary.md.
+Its totals include the 17 held-out games; the figures below are recomputed from phase0_manifest.json over the 604
+training games only (rule 1).
+
+| metric | value |
+| --- | --- |
+| games processed / failed / skipped | 621 / 0 / 5 (the 5 are source_broken in Step 1) |
+| training games | 604 |
+| shots | 101803 |
+| share of shots with a release frame | 0.6220 |
+| shooter identity agreement (shots with both ids) | 0.9538 |
+| high-confidence shots | 34528 (0.3392 of shots) |
+| misses / share with a rebound frame | 59762 / 0.8331 |
+| rebounder identity agreement | 0.6902 |
+| points check: possession points equal the final score | 537 of 604 |
+| rosters with basketball-reference names (all 621 games) | 621 games; 12599 players with bref_slug; shot chart names matched 0.9950 |
+
+- Points check: all 67 training mismatches undercount (possession points below the final score): 36 by 2, 11 by
+  1, 8 by 3, 5 by 4, the rest 5 to 10. Likely points inside the 138 possessions dropped as shorter than a frame or
+  across clock gaps; worth a look before the possession-based lanes in stage 5.
+- Rebounder identity agreement (0.69) is low next to the shooter's (0.95); the rebound localiser's identity is
+  weaker evidence than its frame.
+- Fixed on the way (tests in each commit): transient Drive read errors retried (f10db36); a nameless player_id 0
+  crashed name matching (f10db36); the runbook's `--bref-dir data/collect/bref_shots` held no pages, so rosters had
+  no bref_slug until rebuilt with `--rebuild rosters --bref-dir "$DATA_ROOT/collect"` (06cfc7a).
+- reports/sportvu_gaps.md: 626 games, 369 with a tracking gap over 10 s.
+
+### Stage 3: proposed audit pass mark (fixed before the sample is drawn)
+
+- **Pass mark:** among audited high-confidence shots (confidence_flag high) that the auditor confirms as shots,
+  the detected release frame is within 2 frames of the audited release frame on at least 90 percent. This is the
+  `high` row of `audit_shots --summarise` (tolerance 2 frames, analytics/audit_shots.py TOLERANCE_FRAMES). The low
+  row is reported, not graded.
+- **If it fails:** the four localisation constants (apex search 2 s, rim radius 6 ft, flight 25 frames,
+  high-confidence 0.6) are not pinned as validated; the loop writes what failed here and stops stage 3.
+- **Sample:** `python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0`, training games only, shots
+  with a release frame. Note: the sampler takes n // games shots per game with at least 1, so with 604 training
+  games `--n 200` draws one shot per game, **604 shots**, about three times the runbook's 3 hours (roughly half
+  will be high confidence). To audit about 200, change this line to "200 games, one shot each" before creating the
+  gate file and the loop adds a game cap to the sampler (with a test) before drawing.
 
 ### Stage 2 check (passed 2026-11-07)
 
