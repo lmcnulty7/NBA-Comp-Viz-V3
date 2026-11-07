@@ -1,12 +1,18 @@
 # Makefile: the Mac run order in one place. `make help` lists the targets; docs/run_order.md has the long form.
 # Variables: PY (interpreter), DATA (real DATA_ROOT, the parent of sportvu_contract/ and collect/; unset means
-# fixtures), OUT (OUT_ROOT for run_all), DATA_ROOT (where `make fixtures` writes and `make phase0` reads when
+# fixtures), OUT (OUT_ROOT for run_all), DATA_ROOT (command line only: where `make fixtures` writes and `make phase0` reads when
 # DATA is unset), SITE_DIR (where `make site` copies the page). Every path is quoted: Drive paths have spaces.
 
 PY ?= python3
 DATA ?=
 OUT ?=
 DATA_ROOT ?= .fixture_root
+# docs/mac_runbook.md exports DATA_ROOT (the real Drive folder) in ~/.zshrc. That environment value must never become
+# the fixture root, or `make fixtures` would write synthetic data into the real dataset; only DATA_ROOT=... given on
+# the make command line moves it.
+ifeq ($(origin DATA_ROOT),environment)
+DATA_ROOT := .fixture_root
+endif
 SITE_DIR ?= site
 PYTEST ?= $(PY) -m pytest -q
 RUN_ARGS = $(if $(DATA),--data "$(DATA)",--fixtures)$(if $(OUT), --out "$(OUT)",)

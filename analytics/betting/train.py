@@ -31,7 +31,7 @@ Protocol
 Outputs under OUT_ROOT/analytics/betting/<season>/: betting_games.parquet, betting_predictions.parquet,
 betting_summary.parquet (docs/contract/betting.md). A --fixtures run writes a report that says fixture output, not
 a result. With --fixtures and no --out the tables go to a temporary directory (nothing derived from odds is ever
-written into the repository).
+written into the repository); with --data and no --out they go under DATA_ROOT, as in every other lane.
 """
 from __future__ import annotations
 
@@ -361,9 +361,7 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
     joined = res["joined"]
     held_season = _features.pick_heldout_season(joined["season"].unique(), a.heldout_season)
     joined, ignored = _features.drop_later_seasons(joined, held_season)      # never fit on seasons after the held-out one
-    out_root = a.out or (tempfile.mkdtemp(prefix="betting_fixture_") if fixtures else None)
-    if out_root is None:
-        raise SystemExit("%s: --out OUT_ROOT is required with --data" % WHO)
+    out_root = a.out or (tempfile.mkdtemp(prefix="betting_fixture_") if fixtures else a.data)   # OUT_ROOT defaults to DATA_ROOT
     bg = _features.build_games(joined, held_season, out_root)
     train, heldout = bg[~bg["heldout"]].reset_index(drop=True), bg[bg["heldout"]].reset_index(drop=True)
     if len(train) == 0:
@@ -397,7 +395,9 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
            "ignored_seasons": ignored,
            "protocol": note["text"], "mode": note["mode"], "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores,
            "chosen": chosen, "summary": summary, "out_root": str(out_root), "games": bg, "predictions": pt,
-           "out_root_label": ("`%s/analytics/betting/<season>/`" % a.out) if a.out else "a temporary directory (no --out given), `analytics/betting/<season>/`"}
+           "out_root_label": ("`%s/analytics/betting/<season>/`" % a.out) if a.out else (
+               "a temporary directory (no --out given), `analytics/betting/<season>/`" if fixtures
+               else "DATA_ROOT (no --out given), `analytics/betting/<season>/`")}
     return ctx
 
 
