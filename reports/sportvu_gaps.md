@@ -1,35 +1,402 @@
 # SportVU clock gaps
 
-Manifest: `/tmp/claude-0/-home-user-NBA-Comp-Viz-V3/3957b6d2-ff62-5cf9-86ad-09705e0cfdf5/scratchpad/out/manifest.json` (3 games, updated 2026-11-04 23:52:59, contract v1).
+Manifest: `/Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest/sportvu_contract/manifest.json` (626 games, updated 2026-11-05 00:11:23, contract v1).
 
 Scope: this report covers only the games listed in that manifest. A gap is a hole of more than 2 s in the tracking clock of one quarter, as recorded by the Step 1 converter (`gaps_over_2s` in the manifest); the clock counts down, so a gap runs from the larger clock to the smaller one. Held-out games are counted here and nothing is fit or tuned.
-
-Coverage note: this is the 3-game manifest of the local Step 1 scratchpad run. The full Step 1 manifest (621 games) lives on the owner's Google Drive and was not available to this run, so the season-wide gap picture is not in this report; rerun the same command against that manifest.json to produce it.
 
 ## Summary
 
 | metric | value |
 |---|---|
-| games in manifest | 3 |
-| games with status ok | 2 |
-| games with any gap over 2 s | 2 |
-| games with any gap over 10 s | 1 |
-| gaps over 2 s | 4 |
-| gaps over 10 s | 2 |
-| total gap seconds (all gaps over 2 s) | 45.4 |
+| games in manifest | 626 |
+| games with status ok | 621 |
+| games with any gap over 2 s | 564 |
+| games with any gap over 10 s | 369 |
+| gaps over 2 s | 7327 |
+| gaps over 10 s | 2475 |
+| total gap seconds (all gaps over 2 s) | 71582.8 |
 
 ## By split
 
 | split | games | ok | with gap over 2 s | with gap over 10 s | gap seconds |
 |---|---|---|---|---|---|
-| heldout_arena | 1 | 0 | 0 | 0 | 0 |
+| None | 604 | 600 | 544 | 354 | 66447.7 |
+| heldout_arena | 17 | 16 | 16 | 14 | 5084.7 |
 | heldout_game | 1 | 1 | 1 | 0 | 8.4 |
-| train | 1 | 1 | 1 | 1 | 37 |
+| train | 4 | 4 | 3 | 1 | 42 |
 
 ## Games with a gap over 10 s
 
 | game | split | gaps over 10 s | longest gap (s) | seconds over 10 s |
 |---|---|---|---|---|
+| 01.15.2016.ATL.at.MIL | nan | 34 | 39.9 | 616.1 |
+| 01.18.2016.GSW.at.CLE | heldout_arena | 11 | 82.9 | 564.8 |
+| 12.09.2015.ATL.at.DAL | nan | 13 | 66.1 | 548 |
+| 01.08.2016.NYK.at.SAS | nan | 13 | 72.8 | 538.5 |
+| 01.04.2016.TOR.at.CLE | heldout_arena | 17 | 54.3 | 469.2 |
+| 12.17.2015.OKC.at.CLE | heldout_arena | 17 | 40.6 | 463.6 |
+| 01.06.2016.UTA.at.SAS | nan | 12 | 68 | 455.7 |
+| 01.22.2016.UTA.at.BKN | nan | 13 | 42.1 | 439.5 |
+| 12.30.2015.UTA.at.MIN | nan | 30 | 22.5 | 425.4 |
+| 11.06.2015.PHI.at.CLE | heldout_arena | 12 | 61 | 420.5 |
+| 11.21.2015.ATL.at.CLE | heldout_arena | 16 | 46.2 | 417.1 |
+| 01.02.2016.HOU.at.SAS | nan | 17 | 46 | 408.5 |
+| 01.12.2016.CHI.at.MIL | nan | 21 | 30.2 | 406.6 |
+| 11.04.2015.NYK.at.CLE | heldout_arena | 19 | 31.8 | 406.6 |
+| 11.07.2015.BKN.at.MIL | nan | 14 | 48.5 | 402 |
+| 11.25.2015.SAC.at.MIL | nan | 11 | 54.7 | 393.3 |
+| 11.06.2015.TOR.at.ORL | nan | 12 | 43.2 | 376.3 |
+| 12.04.2015.HOU.at.DAL | nan | 12 | 68.1 | 361 |
+| 01.20.2016.MIN.at.DAL | nan | 18 | 32.1 | 360.6 |
+| 11.20.2015.UTA.at.DAL | nan | 14 | 55.5 | 358.1 |
+| 11.04.2015.SAS.at.WAS | nan | 14 | 39.8 | 358 |
+| 01.21.2016.DET.at.NOP | nan | 16 | 39.8 | 356.7 |
+| 01.20.2016.CLE.at.BKN | nan | 14 | 39.2 | 353.5 |
+| 01.02.2016.ORL.at.CLE | heldout_arena | 15 | 46.9 | 349.5 |
+| 12.13.2015.MIN.at.PHX | nan | 24 | 23.8 | 348.6 |
+| 01.07.2016.BOS.at.CHI | nan | 20 | 27.2 | 344.2 |
+| 01.02.2016.NOP.at.DAL | nan | 8 | 230.1 | 343.9 |
+| 12.01.2015.WAS.at.CLE | heldout_arena | 16 | 32.9 | 338.9 |
+| 01.22.2016.OKC.at.DAL | nan | 15 | 28.4 | 331.6 |
+| 01.23.2016.MIL.at.NOP | nan | 15 | 37.9 | 330.2 |
+| 12.12.2015.SAS.at.ATL | nan | 10 | 41.8 | 329.2 |
+| 10.30.2015.BKN.at.SAS | nan | 20 | 21.6 | 326.3 |
+| 12.28.2015.MIL.at.DAL | nan | 12 | 41.2 | 324.8 |
+| 11.10.2015.OKC.at.WAS | nan | 10 | 60.5 | 323.6 |
+| 11.07.2015.CHA.at.SAS | nan | 17 | 43.3 | 321.5 |
+| 11.28.2015.ATL.at.SAS | nan | 16 | 27.3 | 314.7 |
+| 11.06.2015.MIA.at.IND | nan | 12 | 31.6 | 312.2 |
+| 11.18.2015.MIN.at.ORL | nan | 13 | 38.4 | 310.5 |
+| 11.17.2015.MIL.at.WAS | nan | 10 | 56.7 | 310.1 |
+| 11.21.2015.NYK.at.HOU | nan | 13 | 38.1 | 309 |
+| 01.15.2016.WAS.at.IND | nan | 13 | 36.7 | 307.5 |
+| 11.04.2015.BOS.at.IND | nan | 13 | 58 | 300.7 |
+| 11.23.2015.DET.at.MIL | nan | 11 | 45.6 | 299.9 |
+| 10.30.2015.OKC.at.ORL | nan | 18 | 23.6 | 296.2 |
+| 11.03.2015.TOR.at.DAL | nan | 11 | 33.2 | 293.9 |
+| 11.14.2015.ORL.at.WAS | nan | 12 | 40.4 | 291.5 |
+| 12.18.2015.NOP.at.PHX | nan | 12 | 39.1 | 282.2 |
+| 11.19.2015.MIL.at.CLE | heldout_arena | 14 | 39 | 280.7 |
+| 01.02.2016.MIL.at.MIN | nan | 17 | 21.5 | 267.3 |
+| 01.19.2016.MIL.at.MIA | nan | 11 | 34.6 | 266.8 |
+| 01.23.2016.DET.at.DEN | nan | 15 | 30.9 | 266.8 |
+| 12.04.2015.CLE.at.NOP | nan | 14 | 27.7 | 264.5 |
+| 11.06.2015.DET.at.PHX | nan | 14 | 28.5 | 264.1 |
+| 01.21.2016.MEM.at.DEN | nan | 16 | 23.7 | 263.7 |
+| 12.02.2015.NOP.at.HOU | nan | 14 | 26 | 261.5 |
+| 12.16.2015.CHA.at.ORL | nan | 9 | 35.7 | 260.8 |
+| 01.13.2016.NYK.at.BKN | nan | 10 | 31.4 | 258.2 |
+| 11.14.2015.CLE.at.MIL | nan | 19 | 17.1 | 256.2 |
+| 12.26.2015.CHI.at.DAL | nan | 13 | 28.5 | 255.9 |
+| 01.02.2016.DET.at.IND | nan | 11 | 32.9 | 254.9 |
+| 01.15.2016.CLE.at.HOU | nan | 12 | 28.3 | 254 |
+| 11.04.2015.ORL.at.HOU | nan | 13 | 23.3 | 249.9 |
+| 01.11.2016.SAS.at.BKN | nan | 11 | 29.7 | 248.2 |
+| 01.09.2016.WAS.at.ORL | nan | 15 | 21 | 247.8 |
+| 01.03.2016.PHX.at.LAL | nan | 18 | 18.6 | 247 |
+| 01.05.2016.MIL.at.CHI | nan | 15 | 25.8 | 246.8 |
+| 11.04.2015.PHI.at.MIL | nan | 10 | 32.2 | 244.7 |
+| 12.30.2015.PHX.at.SAS | nan | 11 | 31.4 | 244.2 |
+| 12.31.2015.MIL.at.IND | nan | 11 | 28.9 | 244.1 |
+| 11.18.2015.POR.at.HOU | nan | 12 | 24.2 | 243.6 |
+| 12.18.2015.BKN.at.IND | nan | 10 | 30.1 | 240 |
+| 11.21.2015.MEM.at.SAS | nan | 11 | 28.7 | 239.6 |
+| 12.28.2015.NOP.at.ORL | nan | 10 | 28.6 | 239.1 |
+| 12.11.2015.DET.at.PHI | nan | 13 | 24.1 | 232.9 |
+| 01.18.2016.BOS.at.DAL | nan | 13 | 25.7 | 231.7 |
+| 01.18.2016.CHI.at.DET | nan | 11 | 36.4 | 230.7 |
+| 12.30.2015.BKN.at.ORL | nan | 8 | 36.9 | 226.3 |
+| 01.23.2016.MEM.at.MIN | nan | 12 | 27.7 | 216.7 |
+| 01.06.2016.NYK.at.MIA | nan | 14 | 23.7 | 215.4 |
+| 11.15.2015.UTA.at.ATL | nan | 15 | 34.5 | 215.3 |
+| 11.04.2015.SAC.at.PHX | nan | 11 | 25.1 | 212.7 |
+| 01.07.2016.ATL.at.PHI | nan | 16 | 18.9 | 212.3 |
+| 01.09.2016.TOR.at.PHI | nan | 12 | 25.8 | 210.9 |
+| 11.18.2015.CHI.at.PHX | nan | 13 | 21.1 | 210.9 |
+| 01.22.2016.MIA.at.TOR | nan | 10 | 24.3 | 209.7 |
+| 12.16.2015.DAL.at.IND | nan | 10 | 36.4 | 207.1 |
+| 11.18.2015.DEN.at.SAS | nan | 15 | 17 | 205.7 |
+| 12.30.2015.IND.at.CHI | nan | 12 | 24.5 | 205.7 |
+| 01.10.2016.IND.at.HOU | nan | 17 | 14.8 | 204.6 |
+| 12.18.2015.MEM.at.DAL | nan | 11 | 24.8 | 201.7 |
+| 12.04.2015.LAL.at.ATL | nan | 10 | 27 | 201 |
+| 11.02.2015.OKC.at.HOU | nan | 12 | 25.9 | 199.8 |
+| 01.20.2016.BOS.at.TOR | nan | 12 | 26.2 | 197.1 |
+| 11.05.2015.OKC.at.CHI | nan | 12 | 23.9 | 196.5 |
+| 12.12.2015.WAS.at.DAL | nan | 14 | 20.1 | 195.1 |
+| 01.19.2016.MIN.at.NOP | nan | 8 | 30.1 | 192.9 |
+| 01.08.2016.ORL.at.BKN | nan | 10 | 24 | 189.2 |
+| 01.01.2016.NYK.at.CHI | nan | 10 | 29.3 | 186.7 |
+| 12.28.2015.ATL.at.IND | nan | 12 | 20.3 | 186.5 |
+| 01.15.2016.POR.at.BKN | nan | 9 | 32.3 | 185.9 |
+| 12.29.2015.ATL.at.HOU | nan | 11 | 20.3 | 184.1 |
+| 01.18.2016.ORL.at.ATL | nan | 8 | 28.1 | 183.7 |
+| 10.30.2015.UTA.at.PHI | nan | 10 | 22.2 | 183.5 |
+| 01.04.2016.IND.at.MIA | nan | 12 | 20.8 | 182.2 |
+| 12.30.2015.GSW.at.DAL | nan | 9 | 35.3 | 181.8 |
+| 11.13.2015.LAL.at.DAL | nan | 11 | 20.6 | 181 |
+| 11.07.2015.WAS.at.ATL | nan | 9 | 27.3 | 179 |
+| 11.07.2015.GSW.at.SAC | nan | 9 | 23.1 | 176.1 |
+| 12.28.2015.MIN.at.SAS | nan | 11 | 21.7 | 174.2 |
+| 01.04.2016.BOS.at.BKN | nan | 12 | 18 | 174 |
+| 12.26.2015.MIA.at.ORL | nan | 9 | 22.1 | 171.8 |
+| 01.08.2016.MIA.at.PHX | nan | 10 | 27.5 | 170.7 |
+| 11.16.2015.LAL.at.PHX | nan | 12 | 20.6 | 169.4 |
+| 01.12.2016.CLE.at.DAL | nan | 12 | 30.8 | 163.7 |
+| 01.06.2016.TOR.at.BKN | nan | 10 | 19.1 | 163.1 |
+| 01.13.2016.MIN.at.HOU | nan | 9 | 22.2 | 162.2 |
+| 12.28.2015.CLE.at.PHX | nan | 10 | 27.6 | 161.6 |
+| 11.07.2015.ORL.at.PHI | nan | 8 | 25.9 | 158.7 |
+| 01.15.2016.CHA.at.NOP | nan | 8 | 35.7 | 152.3 |
+| 12.02.2015.DEN.at.CHI | nan | 10 | 26.9 | 151.1 |
+| 01.10.2016.CLE.at.PHI | nan | 7 | 24.9 | 150.3 |
+| 12.14.2015.TOR.at.IND | nan | 11 | 17.4 | 149.4 |
+| 11.20.2015.LAC.at.POR | nan | 11 | 15.6 | 146.6 |
+| 01.09.2016.CHI.at.ATL | nan | 9 | 23 | 145 |
+| 11.03.2015.MEM.at.SAC | nan | 11 | 20.3 | 145 |
+| 11.06.2015.ATL.at.NOP | nan | 8 | 24 | 144.9 |
+| 01.08.2016.DAL.at.MIL | nan | 10 | 19.5 | 144.2 |
+| 11.06.2015.HOU.at.SAC | nan | 8 | 24.2 | 143.6 |
+| 12.18.2015.DET.at.CHI | nan | 10 | 20.8 | 142.9 |
+| 12.01.2015.LAL.at.PHI | nan | 8 | 27.7 | 142 |
+| 12.18.2015.LAC.at.SAS | nan | 8 | 21.8 | 141.4 |
+| 11.16.2015.BOS.at.HOU | nan | 9 | 20.7 | 140.1 |
+| 12.31.2015.LAC.at.NOP | nan | 8 | 24.7 | 139.5 |
+| 11.20.2015.SAS.at.NOP | nan | 8 | 23.8 | 138.9 |
+| 11.27.2015.MIL.at.ORL | nan | 8 | 37.3 | 137.4 |
+| 10.31.2015.NYK.at.WAS | nan | 8 | 23.8 | 137.3 |
+| 11.30.2015.OKC.at.ATL | nan | 10 | 17.3 | 132 |
+| 11.29.2015.BOS.at.ORL | nan | 6 | 25.6 | 131.9 |
+| 01.18.2016.BKN.at.TOR | nan | 8 | 18.5 | 126.9 |
+| 01.01.2016.DAL.at.MIA | nan | 11 | 13.9 | 124.1 |
+| 01.19.2016.OKC.at.DEN | nan | 7 | 23.6 | 123.2 |
+| 11.03.2015.ORL.at.NOP | nan | 9 | 20.4 | 123 |
+| 11.28.2015.DEN.at.DAL | nan | 6 | 23.7 | 121.1 |
+| 11.20.2015.PHX.at.DEN | nan | 9 | 17.9 | 119.9 |
+| 12.15.2015.HOU.at.SAC | nan | 9 | 16.4 | 119.8 |
+| 11.25.2015.DAL.at.SAS | nan | 9 | 16.3 | 118.1 |
+| 12.28.2015.TOR.at.CHI | nan | 6 | 25.8 | 116.7 |
+| 01.23.2016.IND.at.SAC | nan | 7 | 25.2 | 115.7 |
+| 12.16.2015.WAS.at.SAS | nan | 10 | 12.8 | 115.3 |
+| 01.01.2016.PHI.at.LAL | nan | 9 | 22.1 | 114.3 |
+| 11.18.2015.SAC.at.ATL | nan | 7 | 22.3 | 114 |
+| 12.01.2015.ORL.at.MIN | nan | 9 | 13.7 | 113.2 |
+| 11.14.2015.DEN.at.PHX | nan | 9 | 15.9 | 111.5 |
+| 12.01.2015.MEM.at.NOP | nan | 8 | 20.5 | 110.7 |
+| 01.12.2016.SAS.at.DET | nan | 9 | 14.7 | 109.3 |
+| 11.14.2015.DAL.at.HOU | nan | 9 | 13.6 | 108.6 |
+| 11.21.2015.PHI.at.MIA | nan | 7 | 23.6 | 106.2 |
+| 11.17.2015.MIN.at.MIA | nan | 8 | 16.1 | 101.5 |
+| 12.02.2015.TOR.at.ATL | nan | 6 | 23.1 | 101 |
+| 12.12.2015.GSW.at.MIL | nan | 6 | 22.3 | 100.9 |
+| 12.19.2015.LAC.at.HOU | nan | 6 | 18.1 | 100.8 |
+| 10.30.2015.WAS.at.MIL | nan | 8 | 15 | 100.6 |
+| 12.14.2015.PHI.at.CHI | nan | 9 | 13.8 | 100.6 |
+| 12.03.2015.SAS.at.MEM | nan | 8 | 16 | 98.6 |
+| 12.11.2015.CLE.at.ORL | nan | 7 | 16.7 | 96.1 |
+| 11.06.2015.LAL.at.BKN | nan | 8 | 12.6 | 95.7 |
+| 01.12.2016.PHX.at.IND | nan | 6 | 20.7 | 95 |
+| 11.05.2015.MIA.at.MIN | nan | 7 | 16.6 | 92.7 |
+| 11.20.2015.DET.at.MIN | nan | 6 | 19.3 | 92.3 |
+| 01.03.2016.ATL.at.NYK | nan | 2 | 66.8 | 91.7 |
+| 12.02.2015.MIL.at.SAS | nan | 7 | 14.1 | 89.3 |
+| 12.26.2015.TOR.at.MIL | nan | 6 | 16 | 89.1 |
+| 12.02.2015.PHI.at.NYK | nan | 1 | 87.9 | 87.9 |
+| 11.17.2015.DEN.at.NOP | nan | 7 | 13.9 | 85.2 |
+| 01.15.2016.MIA.at.DEN | nan | 5 | 22.9 | 84.2 |
+| 01.02.2016.PHI.at.LAC | nan | 6 | 20.8 | 83.1 |
+| 01.12.2016.NOP.at.LAL | nan | 7 | 15.9 | 81.2 |
+| 11.18.2015.IND.at.PHI | nan | 6 | 19.4 | 80.2 |
+| 12.28.2015.BKN.at.MIA | nan | 6 | 16.1 | 80.1 |
+| 12.31.2015.GSW.at.HOU | nan | 4 | 24 | 79.7 |
+| 01.07.2016.LAL.at.SAC | nan | 6 | 16.4 | 79.1 |
+| 10.30.2015.POR.at.PHX | nan | 6 | 15.6 | 79 |
+| 11.19.2015.SAC.at.MIA | nan | 6 | 18.1 | 78.7 |
+| 12.26.2015.DEN.at.SAS | nan | 6 | 20 | 78.1 |
+| 12.29.2015.CLE.at.DEN | nan | 6 | 18.1 | 78 |
+| 12.27.2015.POR.at.SAC | nan | 4 | 24 | 77 |
+| 11.04.2015.BKN.at.ATL | nan | 6 | 15.4 | 76.9 |
+| 01.23.2016.ATL.at.PHX | nan | 6 | 15.2 | 75.2 |
+| 01.22.2016.MIL.at.HOU | nan | 5 | 17 | 72.2 |
+| 11.07.2015.HOU.at.LAC | nan | 6 | 12.9 | 71.9 |
+| 10.29.2015.MEM.at.IND | nan | 4 | 32.1 | 71.8 |
+| 11.30.2015.DAL.at.SAC | nan | 6 | 15.8 | 71.8 |
+| 01.13.2016.UTA.at.POR | nan | 6 | 15 | 71.1 |
+| 12.16.2015.MIL.at.LAC | nan | 6 | 13.5 | 71.1 |
+| 11.25.2015.NOP.at.PHX | nan | 5 | 20.9 | 70.4 |
+| 12.15.2015.MIL.at.LAL | nan | 5 | 16.9 | 70.4 |
+| 11.20.2015.TOR.at.LAL | nan | 6 | 13.7 | 70.1 |
+| 12.18.2015.TOR.at.MIA | nan | 6 | 14.9 | 68.8 |
+| 10.30.2015.MIA.at.CLE | heldout_arena | 4 | 18.5 | 68.7 |
+| 10.31.2015.UTA.at.IND | nan | 5 | 15.7 | 68.2 |
+| 12.06.2015.GSW.at.BKN | nan | 5 | 14.4 | 68.1 |
+| 01.08.2016.CLE.at.MIN | nan | 3 | 41.5 | 67.8 |
+| 12.26.2015.HOU.at.NOP | nan | 5 | 20.1 | 66.6 |
+| 11.07.2015.MIN.at.CHI | nan | 4 | 25.2 | 66 |
+| 12.04.2015.MIL.at.DET | nan | 5 | 15.8 | 66 |
+| 01.09.2016.BKN.at.DET | nan | 6 | 11.6 | 65.9 |
+| 12.30.2015.PHI.at.SAC | nan | 4 | 26 | 64.9 |
+| 12.03.2015.OKC.at.MIA | nan | 5 | 14.4 | 63.5 |
+| 10.28.2015.NYK.at.MIL | nan | 1 | 62.4 | 62.4 |
+| 12.23.2015.DAL.at.BKN | nan | 3 | 24.8 | 60.6 |
+| 01.12.2016.BOS.at.NYK | nan | 2 | 47.1 | 59.5 |
+| 11.11.2015.LAL.at.ORL | nan | 5 | 12.9 | 59.2 |
+| 12.11.2015.MIA.at.IND | nan | 5 | 12.3 | 58.2 |
+| 12.26.2015.PHI.at.PHX | nan | 5 | 13.5 | 57.3 |
+| 11.05.2015.UTA.at.DEN | nan | 4 | 21.5 | 56.2 |
+| 01.13.2016.NOP.at.SAC | nan | 4 | 15 | 55.5 |
+| 12.11.2015.POR.at.PHX | nan | 5 | 13 | 55.5 |
+| 12.27.2015.LAL.at.MEM | nan | 4 | 17.2 | 54.6 |
+| 12.11.2015.MIN.at.DEN | nan | 3 | 21.2 | 54.5 |
+| 01.20.2016.GSW.at.CHI | nan | 4 | 13.9 | 54.4 |
+| 12.22.2015.MEM.at.PHI | nan | 4 | 19.8 | 53.1 |
+| 11.21.2015.MIL.at.IND | nan | 4 | 15.3 | 52.7 |
+| 01.05.2016.SAC.at.DAL | nan | 3 | 24.7 | 52 |
+| 10.28.2015.WAS.at.ORL | nan | 4 | 15.1 | 51.4 |
+| 12.23.2015.HOU.at.ORL | nan | 4 | 13.2 | 51.1 |
+| 11.25.2015.NYK.at.ORL | nan | 4 | 13.7 | 50.9 |
+| 10.31.2015.PHX.at.POR | nan | 4 | 14.3 | 50.7 |
+| 11.27.2015.CHI.at.IND | nan | 4 | 16.1 | 48.4 |
+| 12.16.2015.BOS.at.DET | nan | 4 | 11.7 | 45.4 |
+| 11.30.2015.BOS.at.MIA | nan | 4 | 12 | 45 |
+| 11.27.2015.PHI.at.HOU | nan | 4 | 11.9 | 43.8 |
+| 11.18.2015.NOP.at.OKC | nan | 3 | 21.4 | 43.6 |
+| 01.23.2016.NYK.at.CHA | nan | 3 | 17.6 | 42.3 |
+| 12.15.2015.DEN.at.MIN | nan | 3 | 14.1 | 41.9 |
+| 11.01.2015.HOU.at.MIA | nan | 3 | 14.5 | 41.7 |
+| 11.27.2015.GSW.at.PHX | nan | 3 | 14.8 | 39.9 |
+| 12.23.2015.DEN.at.PHX | nan | 3 | 16.6 | 39.7 |
+| 12.16.2015.MEM.at.CHI | nan | 3 | 16.1 | 39.6 |
+| 12.08.2015.POR.at.CLE | heldout_arena | 3 | 14 | 38.7 |
+| 12.14.2015.WAS.at.MEM | nan | 3 | 13 | 38.5 |
+| 01.22.2016.CHA.at.ORL | nan | 3 | 15.6 | 38.2 |
+| 12.12.2015.IND.at.DET | nan | 3 | 14.1 | 38.1 |
+| 11.25.2015.MEM.at.HOU | nan | 3 | 14 | 37.8 |
+| 12.10.2015.LAC.at.CHI | nan | 3 | 12.5 | 37.3 |
 | 11.14.2015.BKN.at.GSW | train | 2 | 22.3 | 37 |
+| 11.30.2015.SAS.at.CHI | nan | 3 | 14.8 | 36.9 |
+| 01.10.2016.DAL.at.MIN | nan | 3 | 14.5 | 36.6 |
+| 11.13.2015.MIN.at.IND | nan | 3 | 14.8 | 36.6 |
+| 12.17.2015.HOU.at.LAL | nan | 3 | 13 | 34.8 |
+| 01.08.2016.DEN.at.MEM | nan | 3 | 13.2 | 34.3 |
+| 11.11.2015.TOR.at.PHI | nan | 3 | 11.7 | 34.2 |
+| 01.06.2016.IND.at.ORL | nan | 3 | 13.3 | 34.1 |
+| 12.23.2015.PHI.at.MIL | nan | 3 | 12.6 | 34 |
+| 11.15.2015.MEM.at.MIN | nan | 3 | 11.5 | 33.9 |
+| 11.29.2015.IND.at.LAL | nan | 2 | 18 | 33.8 |
+| 12.31.2015.POR.at.UTA | nan | 3 | 11.4 | 33.2 |
+| 12.14.2015.HOU.at.DEN | nan | 3 | 11.5 | 33 |
+| 01.12.2016.OKC.at.MIN | nan | 3 | 11.6 | 32.9 |
+| 11.13.2015.BKN.at.SAC | nan | 2 | 19.6 | 32.7 |
+| 12.18.2015.SAC.at.MIN | nan | 3 | 12.2 | 32.6 |
+| 01.15.2016.PHX.at.BOS | nan | 3 | 10.9 | 32 |
+| 01.12.2016.HOU.at.MEM | nan | 2 | 17.5 | 31.7 |
+| 01.22.2016.CHI.at.BOS | nan | 2 | 18 | 28.6 |
+| 11.02.2015.CLE.at.PHI | nan | 2 | 14.4 | 27.9 |
+| 11.03.2015.DEN.at.LAL | nan | 2 | 16.5 | 27.5 |
+| 12.16.2015.PHI.at.ATL | nan | 2 | 14.1 | 27.5 |
+| 11.13.2015.NOP.at.TOR | nan | 2 | 14.7 | 27.4 |
+| 01.13.2016.DAL.at.OKC | nan | 2 | 17.2 | 27.3 |
+| 12.18.2015.NYK.at.PHI | nan | 2 | 14 | 27.3 |
+| 10.30.2015.LAL.at.SAC | nan | 2 | 16.1 | 26.5 |
+| 11.29.2015.PHI.at.MEM | nan | 2 | 14.1 | 26.5 |
+| 11.18.2015.TOR.at.UTA | nan | 1 | 26 | 26 |
+| 11.04.2015.TOR.at.OKC | nan | 1 | 25.9 | 25.9 |
+| 11.10.2015.UTA.at.CLE | heldout_arena | 2 | 13.1 | 25.4 |
+| 11.21.2015.WAS.at.DET | nan | 2 | 14 | 24.9 |
+| 12.22.2015.DET.at.MIA | nan | 2 | 13.5 | 24.8 |
+| 10.31.2015.GSW.at.NOP | nan | 2 | 14.5 | 24.6 |
+| 11.01.2015.DAL.at.LAL | nan | 2 | 13 | 23.8 |
+| 11.10.2015.LAL.at.MIA | nan | 2 | 12.6 | 23.7 |
+| 12.07.2015.PHX.at.CHI | nan | 2 | 12.8 | 23.2 |
+| 12.26.2015.NYK.at.ATL | nan | 2 | 12.3 | 23.1 |
+| 01.01.2016.CHA.at.TOR | nan | 2 | 12.4 | 23 |
+| 11.24.2015.LAL.at.GSW | nan | 1 | 23 | 23 |
+| 11.02.2015.PHX.at.LAC | nan | 2 | 11.6 | 22.6 |
+| 01.11.2016.WAS.at.CHI | nan | 1 | 22.3 | 22.3 |
+| 12.09.2015.LAC.at.MIL | nan | 2 | 11.5 | 22.3 |
+| 11.07.2015.MEM.at.UTA | nan | 1 | 22.1 | 22.1 |
+| 12.30.2015.DEN.at.POR | nan | 2 | 11.1 | 22.1 |
+| 01.14.2016.SAC.at.UTA | nan | 2 | 11.7 | 21.8 |
+| 01.11.2016.MIA.at.GSW | nan | 1 | 21 | 21 |
+| 12.20.2015.PHI.at.CLE | heldout_arena | 1 | 20.8 | 20.8 |
+| 01.06.2016.DAL.at.NOP | nan | 1 | 20.7 | 20.7 |
+| 11.24.2015.CHI.at.POR | nan | 1 | 19.6 | 19.6 |
+| 12.12.2015.LAL.at.HOU | nan | 1 | 19.6 | 19.6 |
+| 10.28.2015.DEN.at.HOU | nan | 1 | 18.4 | 18.4 |
+| 12.12.2015.LAC.at.BKN | nan | 1 | 18.2 | 18.2 |
+| 12.18.2015.ATL.at.BOS | nan | 1 | 18.1 | 18.1 |
+| 01.08.2016.OKC.at.LAL | nan | 1 | 18 | 18 |
+| 12.25.2015.LAC.at.LAL | nan | 1 | 17.2 | 17.2 |
+| 11.03.2015.IND.at.DET | nan | 1 | 17.1 | 17.1 |
+| 12.09.2015.LAL.at.MIN | nan | 1 | 16.9 | 16.9 |
+| 12.31.2015.MIN.at.DET | nan | 1 | 16.7 | 16.7 |
+| 11.16.2015.OKC.at.MEM | nan | 1 | 16.6 | 16.6 |
+| 11.15.2015.DET.at.LAL | nan | 1 | 16.5 | 16.5 |
+| 01.22.2016.LAC.at.NYK | nan | 1 | 16.3 | 16.3 |
+| 12.14.2015.LAC.at.DET | nan | 1 | 15.9 | 15.9 |
+| 10.28.2015.UTA.at.DET | nan | 1 | 15.8 | 15.8 |
+| 12.03.2015.ORL.at.UTA | nan | 1 | 15.7 | 15.7 |
+| 12.09.2015.CHI.at.BOS | nan | 1 | 14.7 | 14.7 |
+| 10.28.2015.NOP.at.POR | nan | 1 | 14.4 | 14.4 |
+| 12.15.2015.CLE.at.BOS | nan | 1 | 14.3 | 14.3 |
+| 10.30.2015.MIN.at.DEN | nan | 1 | 14.2 | 14.2 |
+| 01.03.2016.CHI.at.TOR | nan | 1 | 13.9 | 13.9 |
+| 12.01.2015.PHX.at.BKN | nan | 1 | 13.9 | 13.9 |
+| 01.23.2016.LAL.at.POR | nan | 1 | 13.8 | 13.8 |
+| 11.27.2015.WAS.at.BOS | nan | 1 | 13.8 | 13.8 |
+| 11.05.2015.CHA.at.DAL | nan | 1 | 13.7 | 13.7 |
+| 12.01.2015.DAL.at.POR | nan | 1 | 13.5 | 13.5 |
+| 11.22.2015.BOS.at.BKN | nan | 1 | 13.2 | 13.2 |
+| 11.16.2015.IND.at.CHI | nan | 1 | 13.1 | 13.1 |
+| 12.26.2015.BOS.at.DET | nan | 1 | 13.1 | 13.1 |
+| 11.06.2015.WAS.at.BOS | nan | 1 | 13 | 13 |
+| 11.07.2015.NOP.at.DAL | nan | 1 | 13 | 13 |
+| 12.23.2015.DET.at.ATL | nan | 1 | 13 | 13 |
+| 10.27.2015.DET.at.ATL | nan | 1 | 12.9 | 12.9 |
+| 12.10.2015.NYK.at.SAC | nan | 1 | 12.9 | 12.9 |
+| 01.10.2016.OKC.at.POR | nan | 1 | 12.8 | 12.8 |
+| 11.02.2015.MEM.at.GSW | nan | 1 | 12.3 | 12.3 |
+| 01.09.2016.GSW.at.SAC | nan | 1 | 12.1 | 12.1 |
+| 01.18.2016.PHI.at.NYK | nan | 1 | 12.1 | 12.1 |
+| 12.21.2015.POR.at.ATL | nan | 1 | 12.1 | 12.1 |
+| 12.28.2015.PHI.at.UTA | nan | 1 | 12.1 | 12.1 |
+| 01.20.2016.ATL.at.POR | nan | 1 | 12 | 12 |
+| 10.27.2015.NOP.at.GSW | nan | 1 | 12 | 12 |
+| 12.16.2015.POR.at.OKC | nan | 1 | 12 | 12 |
+| 01.05.2016.GSW.at.LAL | nan | 1 | 11.9 | 11.9 |
+| 01.05.2016.NYK.at.ATL | nan | 1 | 11.8 | 11.8 |
+| 11.19.2015.GSW.at.LAC | nan | 1 | 11.8 | 11.8 |
+| 11.30.2015.POR.at.LAC | nan | 1 | 11.8 | 11.8 |
+| 12.13.2015.MEM.at.MIA | nan | 1 | 11.5 | 11.5 |
+| 12.22.2015.LAL.at.DEN | nan | 1 | 11.4 | 11.4 |
+| 01.10.2016.UTA.at.LAL | nan | 1 | 11.3 | 11.3 |
+| 12.23.2015.NYK.at.CLE | heldout_arena | 1 | 11.2 | 11.2 |
+| 01.15.2016.DAL.at.CHI | nan | 1 | 11.1 | 11.1 |
+| 10.28.2015.MIN.at.LAL | nan | 1 | 11.1 | 11.1 |
+| 12.26.2015.IND.at.MIN | nan | 1 | 11.1 | 11.1 |
+| 11.09.2015.ORL.at.IND | nan | 1 | 11 | 11 |
+| 11.10.2015.BOS.at.MIL | nan | 1 | 11 | 11 |
+| 11.20.2015.CHI.at.GSW | nan | 1 | 11 | 11 |
+| 12.18.2015.DEN.at.UTA | nan | 1 | 11 | 11 |
+| 12.21.2015.BKN.at.CHI | nan | 1 | 11 | 11 |
+| 12.25.2015.SAS.at.HOU | nan | 1 | 11 | 11 |
+| 01.02.2016.OKC.at.CHA | nan | 1 | 10.9 | 10.9 |
+| 01.07.2016.UTA.at.HOU | nan | 1 | 10.8 | 10.8 |
+| 01.10.2016.BOS.at.MEM | nan | 1 | 10.8 | 10.8 |
+| 11.01.2015.MIL.at.TOR | nan | 1 | 10.8 | 10.8 |
+| 11.15.2015.BOS.at.OKC | nan | 1 | 10.8 | 10.8 |
+| 11.12.2015.LAC.at.PHX | nan | 1 | 10.7 | 10.7 |
+| 12.04.2015.PHX.at.WAS | nan | 1 | 10.7 | 10.7 |
+| 01.06.2016.MEM.at.OKC | nan | 1 | 10.6 | 10.6 |
+| 12.12.2015.BOS.at.CHA | nan | 1 | 10.6 | 10.6 |
+| 11.17.2015.CLE.at.DET | nan | 1 | 10.4 | 10.4 |
+| 11.28.2015.NOP.at.UTA | nan | 1 | 10.4 | 10.4 |
+| 12.23.2015.UTA.at.GSW | nan | 1 | 10.4 | 10.4 |
+| 11.01.2015.SAS.at.BOS | nan | 1 | 10.2 | 10.2 |
+| 11.16.2015.POR.at.SAS | nan | 1 | 10.2 | 10.2 |
+| 12.06.2015.DAL.at.WAS | nan | 1 | 10.2 | 10.2 |
+| 01.13.2016.GSW.at.DEN | nan | 1 | 10.1 | 10.1 |
+| 12.07.2015.POR.at.MIL | nan | 1 | 10.1 | 10.1 |
 
-Games without gap data (status not ok): 01.23.2016.CHI.at.CLE (source_broken).
+Games without gap data (status not ok): 01.14.2016.CHI.at.PHI (source_broken), 01.14.2016.CLE.at.SAS (source_broken), 01.14.2016.DET.at.MEM (source_broken), 01.23.2016.CHI.at.CLE (source_broken), 01.23.2016.UTA.at.WAS (source_broken).

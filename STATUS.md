@@ -12,7 +12,16 @@ Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
 - **Current stage:** 3, Phase 0 on every tracked game (analytics.gaps, then analytics.run_phase0), then the shot
   audit. Stage 2 passed 2026-11-07 14:40 (below).
-- **Background jobs:** none yet for stage 3.
+- **Background jobs:** Phase 0 (analytics.run_phase0, steps rosters, shot_frames, rebound_frames, possessions,
+  --bref-dir data/collect/bref_shots, one worker) resumed 2026-11-07 14:52 with --retry-failed, PID 39081, log
+  logs/loop/phase0.log. 621 games eligible, 5 skipped (source_broken in Step 1). It runs far faster than the
+  runbook's 10 hours: the first pass did about 126 games in 4 minutes.
+- **Stage 3 so far:** reports/sportvu_gaps.md rebuilt from the real manifest (626 games, 369 with a tracking gap
+  over 10 s; a data-quality count, nothing fitted). The first Phase 0 pass (log logs/loop/phase0.run1.log) was
+  stopped after 126 games: shot_frames failed on most games with a transient Drive read error (pyarrow
+  "Unexpected end of stream" on a frames file still streaming down; the same file read cleanly afterwards), and a
+  nameless player_id 0 in some frames crashed name matching in rosters (2 games) and shot_frames (1). Both fixed
+  with tests in f10db36 (a bare OSError is retried twice; a missing name normalises to empty).
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
