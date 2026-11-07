@@ -11,8 +11,13 @@ Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
 - **Current stage:** 2, collectors one at a time in runbook order (bref_schedule, positions, bref_seasons,
   bref_boxscores), then the stage 2 check. Stage 3 starts after that check passes.
-- **Background jobs:** bref_seasons play-by-play, 2020-21 to 2024-25, 6424 games (about 6.3 hours at 17 a
-  minute), started 2026-11-07 02:04, PID 80406, log logs/loop/bref_seasons.log. Rerunning the same command resumes.
+- **Background jobs:** bref_seasons play-by-play, 2020-21 to 2024-25, 6424 games. First run started 02:04 and
+  was stopped at 03:15 after 1226 games (log logs/loop/bref_seasons.run1.log) to check a run of failures; resumed
+  2026-11-07 03:17 with 5198 games pending (about 5 hours), PID 5473, log logs/loop/bref_seasons.log.
+- **Play-by-play gaps at the source:** eight 2021-10-27 games so far (BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
+  fail with "no play-by-play events on the page". The fetched page for 202110270BOS has the pbp table with a
+  caption and no rows, so basketball-reference has no events for it; the same date's ORL and PHO games parsed
+  normally. The stage 2 check retries failed games once with --retry-failed, as the runbook says.
 - **Stage 2 so far:**
 
   | collector | units ok | empty | failed | rows | output |
