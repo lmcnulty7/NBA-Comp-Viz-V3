@@ -2,32 +2,51 @@
 
 ## Runbook progress
 
-No gate is waiting on you right now. Stage 1 passed: PR #5 and PR #6 merged 2026-11-07.
+Nothing blocks the loop right now. Two decisions are open for later (odds and NBA.com, under Open gates).
+Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07.
 
 Open PRs from you, not touched by the loop (merge when ready): #7 stage 3 audit mode, #8 stage 4a --skip-heldout,
 #9 stage 9 results, #10 stage 6 torch models. The loop does not redo stage 4a while #8 is open.
 
 Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 2, collectors one at a time in runbook order (bref_schedule, positions, bref_seasons,
-  bref_boxscores), then the stage 2 check. Stage 3 starts after that check passes.
-- **Background jobs:** bref_boxscores, 2020-21 to 2024-25, 6424 games (about 6.3 hours at 17 a minute),
-  started 2026-11-07 08:25, PID 20137, log logs/loop/bref_boxscores.log. Rerunning the same command resumes.
+- **Current stage:** 3, Phase 0 on every tracked game (analytics.gaps, then analytics.run_phase0), then the shot
+  audit. Stage 2 passed 2026-11-07 14:40 (below).
+- **Background jobs:** none yet for stage 3.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
-  same date's ORL and PHO games parsed normally. The first run was stopped once at 03:15 to check this and resumed
-  at 03:17 (logs logs/loop/bref_seasons.run1.log, bref_seasons.log, bref_seasons.retry.log).
-- **Stage 2 so far:**
+  same date's ORL and PHO games parsed normally. Their box scores collected normally.
 
-  | collector | units ok | empty | failed | rows | output |
-  | --- | --- | --- | --- | --- | --- |
-  | bref_schedule | 53 | 0 | 0 | 7770 games (2015-16 1316; 2020-21 1171; 2021-22 1323; 2022-23 1320; 2023-24 1319; 2024-25 1321) | collect/ under DATA_ROOT |
-  | positions | 2 | 0 | 0 | 1070 (2015-16 528; 2016-17 542) | collect/positions.parquet |
-  | bref_seasons play-by-play | 6416 | 0 | 8 (2021-10-27, empty at source) | 2913837 events (2020-21 526883; 2021-22 593321; 2022-23 599722; 2023-24 592078; 2024-25 601833) | collect/stints/playbyplay/<season>.parquet |
-  | bref_boxscores | running | | | | |
-- **Open gates:** none reached yet. Stage 1 merge passed 2026-11-07.
+- **Open gates (not blocking yet):** odds for betting (put ODDS_API_KEY in ~/.zshrc and create gates/odds-ready,
+  or create gates/odds-skip) and NBA.com tables (gates/nbacom-done or gates/nbacom-skip). Neither blocks anything
+  before stage 5 phase 5 (betting) and the embeddings aggregates; the loop carries on meanwhile.
 - **Branch:** the Mac checkout is on track-fix.
+
+### Stage 2 check (passed 2026-11-07)
+
+Units per collector and season, read from each manifest under DATA_ROOT/collect. No collector had an empty unit;
+the only failures are the eight play-by-play games above, rerun once with --retry-failed.
+
+| season | schedule pages | positions | play-by-play ok / failed | box scores ok | schedule games |
+| --- | --- | --- | --- | --- | --- |
+| 2015-16 | 9 | 1 | | | 1316 |
+| 2016-17 | | 1 | | | |
+| 2020-21 | 8 | | 1165 / 0 | 1165 | 1171 |
+| 2021-22 | 9 | | 1309 / 8 | 1317 | 1323 |
+| 2022-23 | 9 | | 1314 / 0 | 1314 | 1320 |
+| 2023-24 | 9 | | 1313 / 0 | 1313 | 1319 |
+| 2024-25 | 9 | | 1315 / 0 | 1315 | 1321 |
+
+- Play-by-play and box scores cover six fewer games a season than the schedule: the six play-in games, which those
+  collectors do not request (default season types).
+- Files present: collect/stints/playbyplay/<season>.parquet for 2020-21 to 2024-25 (526883, 593321, 599722,
+  592078 and 601833 events); collect/stints/starters/<season>.parquet for the same seasons (10 starters a game:
+  11650, 13170, 13140, 13130, 13150 rows); collect/positions.parquet (1070 rows, 2015-16 528 and 2016-17 542).
+- Box scores also wrote the full player tables (players/<season>: 31394, 33649, 33834, 34677, 34940 rows).
+- Logs: logs/loop/bref_schedule.log, positions.log, bref_seasons.run1.log, bref_seasons.log,
+  bref_seasons.retry.log, bref_boxscores.log (gitignored, on the Mac).
+- Optional, not collected: odds (paid key) and NBA.com tables. Both are open gates (above).
 
 ### Stage 0 (passed 2026-11-07)
 
