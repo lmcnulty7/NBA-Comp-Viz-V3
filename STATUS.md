@@ -83,7 +83,8 @@ Every lane also has `notebooks/eda_<ext>.ipynb` (hand-written nbformat 4, tables
 one a local tracking data file), in about 3 minutes. `python3 -m pytest -q tests -m slow` runs every lane's
 validate, features and train on fixtures, then on a shared fixture DATA_ROOT, then through `run_all.py`,
 checks the five interface tables, and scans every lane output for the held-out game outside `heldout/`.
-Its result is recorded in `reports/integration.md` (fixture output, not a result).
+On the final tree it passes: 63 passed in about 6 minutes. The per-lane detail is in
+`reports/integration.md` (fixture output, not a result).
 
 Open items, none blocking the Mac run: the odds feed and the NBA.com tables remain uncollected
 (stats.nba.com drops non-browser clients, odds need an API key); the GRU, the EPV sequence model and the
