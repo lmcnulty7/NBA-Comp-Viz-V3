@@ -1,7 +1,8 @@
 """analytics/epv/train.py: EPV candidates under the evaluation protocol of analytics/eval.py.
 
     python -m analytics.epv.train --fixtures | --data DATA_ROOT --report reports/epv.md [--folds 5] [--seed 0] [--bootstrap 200]
-                                  [--out OUT_ROOT] [--season 2015-16] [--hgb-iter 100]
+                                  [--out OUT_ROOT] [--season 2015-16] [--hgb-iter 100] [--fixture-games 8]
+                                  [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Unit: a state at 1 Hz inside a possession (docs/DATA_CONTRACT.md section 20). Target: points_to_end (0 to 4) as a
 regression of expected points, with P(points > 0) as the classification view for calibration.
@@ -33,8 +34,9 @@ Protocol:
 
 Outputs (docs/contract/epv.md) with --out: OUT_ROOT/analytics/epv/<season>/<game>.parquet (epv_states, one file per
 game) and OUT_ROOT/analytics/epv/<season>/epv_possessions.parquet (one file per season), held-out games under
-OUT_ROOT/analytics/epv/heldout/<season>/. A fixture run writes the report with the words "fixture output, not a
-result" and the numbers are never presented as results.
+OUT_ROOT/analytics/epv/heldout/<season>/ (<season> is analytics.schema.season_of_game). A fixture run writes the
+report with the words "fixture output, not a result" on the banner and on every section heading, and the numbers are
+never presented as results. Every fit and predict of a candidate runs inside analytics.eval.fit_threads().
 """
 from __future__ import annotations
 
@@ -48,11 +50,11 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.epv import ELAPSED_BUCKETS, SHOT_CLOCK_BUCKETS, WHO, season_of
+from analytics.epv import ELAPSED_BUCKETS, SHOT_CLOCK_BUCKETS, WHO
 from analytics.epv import features as F
 from analytics.epv import validate as V
-from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, grouped_folds,
-                            paired_bootstrap_by_game, refuse_heldout)
+from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, fit_threads, fmt_ci,
+                            fmt_num, grouped_folds, paired_bootstrap_by_game, refuse_heldout)
 
 CANDIDATES = ("constant", "ridge", "hgb")
 SEQUENCE = "mlp"
@@ -63,10 +65,12 @@ MLP_ITER = 300
 IN_SAMPLE_FOLD = -2          # repo convention for the fold column: -1 held-out, -2 in-sample, >= 0 out-of-fold
 MAC_CMD = ("python -m analytics.epv.train --data /path/to/DATA_ROOT --report reports/epv.md --folds 5 --seed 0 "
            "--bootstrap 1000 --out /path/to/DATA_ROOT")
+FIXTURE_TAG = " (fixture output, not a result)"
 
 
 # ── buckets ────────────────────────────────────────────────────────────────────────────────────────
 def elapsed_bucket(t) -> np.ndarray:
+    """The ELAPSED_BUCKETS label ("0-4", "4-10", "10-24") of each elapsed time; past 24 s joins the last bucket."""
     t = np.asarray(t, dtype=float)
     labels = np.array(["%g-%g" % b for b in ELAPSED_BUCKETS], dtype=object)
     edges = np.array([b[1] for b in ELAPSED_BUCKETS[:-1]])
@@ -74,6 +78,7 @@ def elapsed_bucket(t) -> np.ndarray:
 
 
 def shot_clock_bucket(sc) -> np.ndarray:
+    """The SHOT_CLOCK_BUCKETS label ("0-7", "7-14", "14-24") of each shot clock, "none" where it is missing."""
     sc = np.asarray(sc, dtype=float)
     labels = np.array(["%g-%g" % (b[0], round(b[1])) for b in SHOT_CLOCK_BUCKETS], dtype=object)
     edges = np.array([b[1] for b in SHOT_CLOCK_BUCKETS[:-1]])
@@ -83,6 +88,7 @@ def shot_clock_bucket(sc) -> np.ndarray:
 
 # ── models ─────────────────────────────────────────────────────────────────────────────────────────
 def make_model(name: str, seed: int, hgb_iter: int = 100):
+    """An unfitted sklearn regressor for candidate ``name`` (ridge, hgb or the sequence model)."""
     from sklearn.ensemble import HistGradientBoostingRegressor
     from sklearn.impute import SimpleImputer
     from sklearn.linear_model import Ridge
@@ -112,15 +118,18 @@ class Calibrated:
         if self.name == "constant":
             return float(np.mean(y))
         m = make_model(self.name, self.seed, self.hgb_iter)
-        return m.fit(X[self.columns].to_numpy(dtype=float), y)
+        with fit_threads():
+            return m.fit(X[self.columns].to_numpy(dtype=float), y)
 
     @staticmethod
     def _predict_raw(m, X: pd.DataFrame, columns) -> np.ndarray:
         if isinstance(m, float):
             return np.full(len(X), m)
-        return np.asarray(m.predict(X[columns].to_numpy(dtype=float)), dtype=float)
+        with fit_threads():
+            return np.asarray(m.predict(X[columns].to_numpy(dtype=float)), dtype=float)
 
     def fit(self, X: pd.DataFrame, y, games) -> "Calibrated":
+        """Fit the regressor on every row and the isotonic map on its inner out-of-fold predictions."""
         from sklearn.isotonic import IsotonicRegression
         y = np.asarray(y, dtype=float)
         games = np.asarray(games).astype(str)
@@ -228,17 +237,9 @@ def out_of_fold(states: pd.DataFrame, geo: pd.DataFrame, shots_train, rosters, n
 
 # ── metrics ────────────────────────────────────────────────────────────────────────────────────────
 def mse(y, e) -> float:
+    """Mean squared error of expected points e against the points y."""
     y, e = np.asarray(y, dtype=float), np.asarray(e, dtype=float)
     return float(np.mean((y - e) ** 2))
-
-
-def _ci(d: dict, nd: int = 4) -> str:
-    f = "%%.%df" % nd
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d.get("lo", np.nan)):
-        return f % d["point"]
-    return (f + " [" + f + ", " + f + "]") % (d["point"], d["lo"], d["hi"])
 
 
 def _boot(df: pd.DataFrame, fn, n_boot: int, seed: int) -> dict:
@@ -265,7 +266,7 @@ def metrics_by_bucket(pred: pd.DataFrame, models, bucket_col: str, n_boot: int, 
             rows.append({"bucket": b, "model": m, "n": int(len(d)),
                          "brier": _boot(d, lambda s: brier((s["y"] > 0).astype(float), s["p"]), n_boot, seed),
                          "mse": _boot(d, lambda s: mse(s["y"], s["e"]), n_boot, seed),
-                         "slope": float(calibration_slope(yb, d["p"].to_numpy())) if m != "constant" and np.std(d["p"]) > 1e-9 else float("nan")})
+                         "slope": calibration_slope_fast(yb, d["p"].to_numpy()) if m != "constant" and np.std(d["p"]) > 1e-9 else float("nan")})
     return pd.DataFrame(rows)
 
 
@@ -276,7 +277,7 @@ def gate_decision(pred: pd.DataFrame) -> dict:
         part = pred[pred["shot_clock_bucket"] == b]
         yb = (part["y"] > 0).astype(float).to_numpy()
         p = part["p_hgb"].to_numpy(dtype=float)
-        slopes[b] = float(calibration_slope(yb, p)) if len(np.unique(yb)) == 2 and np.std(p) > 1e-9 else float("nan")
+        slopes[b] = calibration_slope_fast(yb, p) if len(np.unique(yb)) == 2 and np.std(p) > 1e-9 else float("nan")
     m_const, m_hgb = mse(pred["y"], pred["epv_constant"]), mse(pred["y"], pred["epv_hgb"])
     lift = 1.0 - m_hgb / m_const if m_const > 0 else 0.0
     bad = [b for b, s in slopes.items() if not np.isfinite(s) or s < SLOPE_LO or s > SLOPE_HI]
@@ -361,13 +362,13 @@ def write_tables(out_root, st: pd.DataFrame, po: pd.DataFrame) -> list:
     written = []
     held_of = st.drop_duplicates("sportvu_game").set_index("sportvu_game")["heldout"].to_dict()
     for game, part in st.groupby("sportvu_game", sort=True):
-        base = Path(out_root) / "analytics" / "epv" / ("heldout" if held_of[game] else "") / season_of(game)
+        base = Path(out_root) / "analytics" / "epv" / ("heldout" if held_of[game] else "") / schema.season_of_game(game)
         base.mkdir(parents=True, exist_ok=True)
         part.reset_index(drop=True).to_parquet(base / ("%s.parquet" % game), index=False)
         written.append(base / ("%s.parquet" % game))
     po = po.copy()
     po["heldout"] = po["sportvu_game"].map(held_of).astype(bool)
-    po["season"] = po["sportvu_game"].map(season_of)
+    po["season"] = po["sportvu_game"].map(schema.season_of_game)
     for (season, held), part in po.groupby(["season", "heldout"], sort=True):
         base = Path(out_root) / "analytics" / "epv" / ("heldout" if held else "") / season
         base.mkdir(parents=True, exist_ok=True)
@@ -386,8 +387,8 @@ def write_tables(out_root, st: pd.DataFrame, po: pd.DataFrame) -> list:
 def _bucket_table(t: pd.DataFrame, models) -> list:
     L = ["| bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |", "| --- | --- | --- | --- | --- | --- |"]
     for _, r in t.iterrows():
-        s = "n/a" if not np.isfinite(r["slope"]) else "%.3f" % r["slope"]
-        L.append("| %s | %s | %d | %s | %s | %s |" % (r["bucket"], r["model"], r["n"], _ci(r["brier"]), _ci(r["mse"]), s))
+        L.append("| %s | %s | %d | %s | %s | %s |" % (r["bucket"], r["model"], r["n"], fmt_ci(r["brier"], 4), fmt_ci(r["mse"], 4),
+                                                     fmt_num(r["slope"], 3)))
     return L
 
 
@@ -421,13 +422,14 @@ def _why_selected(ctx: dict) -> str:
 
 
 def write_report(path: Path, ctx: dict) -> str:
+    """The markdown report of a run (ctx from run) written to path; returns the text."""
     fixture = ctx["fixtures"]
     tag = "fixture output, not a result" if fixture else "real data run"
     L = ["# EPV: expected possession value from 1 Hz states (analytics/epv)", "",
          "Written %s by `%s` (%s)." % (ctx["written"], ctx["command"], tag), ""]
     if fixture:
         L += ["**Every number below is fixture output, not a result**: the inputs are the synthetic season of "
-              "tests/_fx_epv.py, built to exercise the pipeline, and say nothing about basketball.", ""]
+              "analytics.fixtures (synth_season, one league), built to exercise the pipeline, and say nothing about basketball.", ""]
     L += ["## Inputs", "", "| table | rows in | schema problems | duplicates dropped | rows dropped | rows out |", "| --- | --- | --- | --- | --- | --- |"]
     for name, r in ctx["reports"].items():
         L.append("| %s | %d | %d | %d | %d | %d |" % (name, r["rows_in"], len(r["schema_problems"]), r["duplicates_dropped"], r["rows_dropped"], r["rows_out"]))
@@ -461,7 +463,7 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "## Gradient boosting by shot-clock bucket and the gate", "",
           "| shot clock (s) | calibration slope |", "| --- | --- |"]
     for b, s in ctx["gate"]["slopes"].items():
-        L.append("| %s | %s |" % (b, "n/a" if not np.isfinite(s) else "%.3f" % s))
+        L.append("| %s | %s |" % (b, fmt_num(s, 3)))
     g = ctx["gate"]
     L += ["", "MSE lift of gradient boosting over the constant: %.1f percent (%.4f vs %.4f). Slopes outside %g to %g (n/a counts as outside): %s."
           % (100 * g["lift"], g["mse_hgb"], g["mse_constant"], SLOPE_LO, SLOPE_HI, ", ".join(g["slope_out_of_range"]) or "none"),
@@ -469,8 +471,8 @@ def write_report(path: Path, ctx: dict) -> str:
           % (N_LAGS, "TRAINED" if g["train_sequence"] else "NOT trained (gradient boosting is calibrated in every bucket and its lift is at least 5 percent)")]
     if ctx.get("paired") is not None:
         p = ctx["paired"]
-        L.append("Paired bootstrap by game of MSE(%s) - MSE(mlp), %s being the lowest-MSE candidate: %.4f [%s, %s]; the sequence model is %s."
-                 % (ctx["base"], ctx["base"], p["diff"], "n/a" if not np.isfinite(p["lo"]) else "%.4f" % p["lo"], "n/a" if not np.isfinite(p["hi"]) else "%.4f" % p["hi"],
+        L.append("Paired bootstrap by game of MSE(%s) - MSE(mlp), %s being the lowest-MSE candidate: %s; the sequence model is %s."
+                 % (ctx["base"], ctx["base"], fmt_ci(p, 4, key="diff"),
                     "KEPT (interval above 0 and a lower out-of-fold MSE)" if ctx["keep_sequence"] else "DROPPED (no significant gain over the base candidate)"))
     L += ["", "## Shuffled-target check", "",
           "Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE %.4f vs constant %.4f, "
@@ -495,6 +497,8 @@ def write_report(path: Path, ctx: dict) -> str:
           "`python -m analytics.epv.states --data DATA_ROOT` when absent), DATA_ROOT/analytics/possessions, rosters, and "
           "DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet, and writes the epv_states and epv_possessions tables of "
           "docs/contract/epv.md under OUT_ROOT/analytics/epv/<season>/.", ""]
+    if fixture:      # every section heading carries the label, not only the banner
+        L = [x + FIXTURE_TAG if x.startswith("## ") and not x.endswith(FIXTURE_TAG) else x for x in L]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
@@ -555,25 +559,44 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
 
 
 def parse_args(argv=None):
+    """The train CLI flags."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="the synthetic season of tests/_fx_epv.py")
+    g.add_argument("--fixtures", action="store_true", help="the synthetic season of analytics.fixtures (fixture output)")
     g.add_argument("--data", help="DATA_ROOT (see analytics.epv.validate)")
-    ap.add_argument("--report", default="reports/epv.md")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    ap.add_argument("--report", default="reports/epv.md", help="markdown report path (default reports/epv.md)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
     ap.add_argument("--out", help="OUT_ROOT for the epv_states and epv_possessions tables (never the repo)")
-    ap.add_argument("--season", default=None)
-    ap.add_argument("--games", type=int, default=8, help="fixture games (every fourth held out)")
-    ap.add_argument("--hgb-iter", type=int, default=100)
+    ap.add_argument("--season", default=None, help="only this season directory, e.g. 2015-16 (default: every season)")
+    ap.add_argument("--hgb-iter", type=int, default=100, help="gradient-boosting iterations, fixed in advance (default 100)")
+    V.add_fixture_args(ap, games=8)
     return ap.parse_args(argv)
 
 
+def recorded_command(argv) -> str:
+    """The command line the report records, with the value of --out written as OUT_ROOT (a run's output root is often
+    a scratch directory, and no scratch path belongs in a report)."""
+    out, skip = [], False
+    for tok in argv:
+        if skip:
+            out.append("OUT_ROOT")
+            skip = False
+        elif tok == "--out":
+            out.append(tok)
+            skip = True
+        elif tok.startswith("--out="):
+            out.append("--out=OUT_ROOT")
+        else:
+            out.append(tok)
+    return "python -m analytics.epv.train " + " ".join(out)
+
+
 def main(argv=None) -> dict:
+    """Run the protocol on the inputs the flags name, write the report (and the tables with --out) and print it."""
     a = parse_args(argv)
-    tables = V.load_fixtures(a.seed, n_games=a.games, heldout_every=4) if a.fixtures else V.load_root(a.data, a.season, out_root=a.out)
-    cmd = "python -m analytics.epv.train " + " ".join(argv if argv is not None else sys.argv[1:])
+    tables = V.load_inputs(a)
+    cmd = recorded_command(argv if argv is not None else sys.argv[1:])
     out_root = a.out if a.out else (Path(tempfile.gettempdir()) / "epv_fixture_root" if a.fixtures else None)
     ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root)
     print(ctx["text"])

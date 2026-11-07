@@ -1,8 +1,8 @@
 # Action recognition: ball-screen detection (analytics/actions/train.py)
 
-Written 2026-11-05T09:44:36Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
+Written 2026-11-07T08:40:37Z by `python -m analytics.actions.train --fixtures --report reports/actions.md --bootstrap 200`.
 
-**Every number below is fixture output, not a result**: the inputs are synthetic games from analytics.fixtures (shared, lane I1) with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and hand labels on the owner's Mac (command under Status).
+**Every number below is fixture output, not a result**: the inputs are synthetic games from analytics.fixtures (synth_season, synth_labels) with scripted screens, drives and isolations. The real run awaits the SportVU frames, possessions and hand labels on the owner's Mac (command under Status).
 
 ## Inputs (fixture output, not a result)
 
@@ -51,7 +51,7 @@ Label length, candidate length (frames at the contract's 25 Hz) and IoU of the m
 | drive | 13 | 37.00 | 37.00 | 37.00 | 99 | 16.00 | 21.00 | 51.00 | 13 | 0.67 | 0.77 | 0.81 |
 | isolation | 12 | 62.00 | 62.00 | 62.00 | 44 | 51.00 | 66.00 | 83.00 | 12 | 0.73 | 0.94 | 0.95 |
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Features (21, positions and velocities inside the window): scr_def_dist_min, scr_def_dist_mean, scr_speed_mean, scr_speed_max, handler_speed_mean, handler_speed_max, handler_dir_change_rad, handler_radial_speed_mean, handler_basket_dist_start, handler_basket_dist_end, def_handler_dist_mean, def_recovery_ft, ball_z_mean, ball_z_max, shot_clock_start, n_within_8ft_mean, teammate_min_dist_mean, window_s, rule_is_screen, rule_is_drive, rule_is_iso. `def_recovery_ft` is the one declared post-window feature (defender to handler distance over the 1 s after the window minus inside it); no feature reads the possession outcome and no label column is a feature.
 Models: rule (the generator's own class) and hgb (HistGradientBoostingClassifier, {'max_iter': 100, 'learning_rate': 0.1, 'max_leaf_nodes': 15, 'min_samples_leaf': 5, 'l2_regularization': 0.1}) over ['ball_screen', 'drive', 'isolation', 'none'].
@@ -94,11 +94,11 @@ Held-out numbers are point estimates (no bootstrap over 2 game(s)); only the sel
 | isolation | 0 | 0 | 3 | 0 |
 | none | 0 | 0 | 0 | 80 |
 
-## Outputs
+## Outputs (fixture output, not a result)
 
 No table written (no --out). With --out OUT_ROOT the action_candidates and actions_detected tables of docs/contract/actions.md go under OUT_ROOT/analytics/actions/<season>/.
 
-## Assumptions (recorded because nobody could be asked)
+## Assumptions (recorded because nobody could be asked) (fixture output, not a result)
 
 - Hand labels are read only through `analytics.labels.read_labels(DATA_ROOT, game, labeller_pass=1)`: the last line per id wins, tombstoned ids are dropped, pass-2 relabels never reach a fit; `label_source` hand is the accepted value (synthetic on fixtures).
 - A labelled ball screen spans approach, set and use, so the candidate extent pads the detected set by 1 s before and 1 s after (`SCREEN_PAD_PRE_S`, `SCREEN_PAD_POST_S`; set both to 0 if lane I4's labels mark the set alone). The plan's 1 s set is read as at least 0.8 s because a 1 s set lands on 4 or 5 intervals of the 5 Hz grid.
@@ -108,10 +108,10 @@ No table written (no --out). With --out OUT_ROOT the action_candidates and actio
 - A candidate overlapping a label of a type the detector does not model (handoff, off_ball_screen, post_up, cut) is class none and counted above. Matching is one-to-one (each label to its highest-IoU free candidate); leftover overlapping candidates are none and counted as duplicates.
 - An unvisited possession is unlabelled, not negative: only possessions in the pass-1 visited record enter a fit or a metric; a game with neither labels nor a visited file is inference only. Action labels with label_source model are dropped before matching.
 - actions_detected is an offline table: its confidence is the selected model's probability, which reads def_recovery_ft 1 s after the window ends, so it is not available at start_frame. A ball_screen detection without a screener (candidate or proxy) is refused and counted.
-- The hgb model fits on one thread (threadpoolctl): on 4 cores shared by many processes its OpenMP loops stalled for minutes.
+- The hgb model fits and scores inside `analytics.eval.fit_threads()` (one thread): on 4 cores shared by many processes its OpenMP loops stalled for minutes.
 - Fewer games than folds gives leave-one-game-out; one game gives in-sample metrics labelled as such; ties in the selection metric go to the rule baseline.
 
-## Status
+## Status (fixture output, not a result)
 
 Fixture output, not a result: this run shows the pipeline works end to end on scripted motion. The real run, on the owner's Mac where the SportVU frames, the possessions tables and the hand labels (DATA_ROOT/labels/actions/<game>.jsonl and labels/screens/<game>.jsonl, lane I4's tool, read with labeller_pass 1) live, is
 

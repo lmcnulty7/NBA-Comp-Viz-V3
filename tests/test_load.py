@@ -1,5 +1,5 @@
-"""analytics/load on hand-built frames, the local fixture generator (planted schedule and speed decline) and,
-when analytics.fixtures imports, the shared season. No network. Fixture numbers are never results."""
+"""analytics/load on hand-built frames, the test-only local generator of tests/_fx_load.py (planted schedule and
+speed decline) and the shared analytics.fixtures season the CLIs use. No network. Fixture numbers are never results."""
 import json
 import sys
 from pathlib import Path
@@ -137,7 +137,7 @@ def test_player_games_hand_built_history_prev_decline_and_absence():
 
 @pytest.fixture(scope="module")
 def local_tables():
-    inp = fx.season_inputs(seed=1, n_games=5, heldout_every=3, n_possessions=16, prefer_shared=False)
+    inp = fx.local_season_inputs(seed=1, n_games=5, heldout_every=3, n_possessions=16)
     return inp, F.build_tables(inp, n_boot=30, seed=0)
 
 
@@ -252,7 +252,7 @@ def test_eda_tables(local_tables):
 
 def test_data_root_layout_round_trip(tmp_path):
     """A tiny DATA_ROOT written from the local generator (frames parquet, manifest, rosters): the --data path."""
-    inp = fx.season_inputs(seed=2, n_games=3, heldout_every=3, n_possessions=4, prefer_shared=False)
+    inp = fx.local_season_inputs(seed=2, n_games=3, heldout_every=3, n_possessions=4)
     root = tmp_path / "root"
     (root / "sportvu_contract" / "heldout").mkdir(parents=True)
     for g in inp["games"]:
@@ -273,16 +273,35 @@ def test_data_root_layout_round_trip(tmp_path):
     assert (tmp_path / "out" / "analytics" / "load" / "2015-16" / "validation.json").exists() and out["n_heldout"] == 1
 
 
-@pytest.mark.skipif(not fx.SHARED, reason="analytics.fixtures (lane I1) not importable: the local generator covers the tests")
 def test_shared_fixtures_run_end_to_end(tmp_path):
-    """The shared season: distinct teams and players per game, so the schedule history is empty and absent_next
-    unknown; the stints, the decline target, the guards and the held-out path must still work."""
-    inp = V.load_fixtures(seed=0, n_games=2, heldout_every=2, prefer_shared=True)
-    assert "shared" in inp["source"] and sum(g["heldout"] for g in inp["games"]) == 1
+    """The shared season (one league with fixed team ids and rosters): the schedule history now repeats teams, so the
+    history features and absent_next are defined on it; the stints, the decline target, the guards and the held-out
+    path work, and the tracking aggregates cover the same players."""
+    inp = V.load_fixtures(seed=0, n_games=6, heldout_every=3, n_possessions=20)
+    assert "analytics.fixtures" in inp["source"] and sum(g["heldout"] for g in inp["games"]) == 2
+    assert all(g["heldout"] == (g["sportvu_game"] == HELD or g["sportvu_game"].endswith(".at.CLE")) for g in inp["games"])
     t = F.build_tables(inp, n_boot=10)
-    assert len(t["player_stints"]) > 0 and t["player_games"]["decline_ftps"].notna().any()
+    pg = t["player_games"]
+    assert len(t["player_stints"]) > 0 and pg["decline_ftps"].notna().any()
+    assert pg["minutes_last_3"].notna().any() and pg["prev_avg_speed_ftps"].notna().any() and pg["absent_next"].notna().any()
     ctx = T.run(inp, n_folds=5, seed=0, n_boot=10, fixture=True, tables=t)
-    assert ctx["heldout_games"] == 1 and ctx["train_games"] == 1 and ctx["reg_note"]["mode"] == "in-sample"
-    assert np.isfinite(ctx["reg"]["ridge"]["point"])
+    assert ctx["heldout_games"] == 2 and ctx["train_games"] == 4 and ctx["reg_note"]["mode"] == "out-of-fold"
+    assert np.isfinite(ctx["reg"]["ridge"]["point"]) and ctx["aggregates"]["players_matched"] > 0
     ctx["command"] = "test"
-    assert "fixture output, not a result" in T.write_report(tmp_path / "load.md", ctx)
+    text = T.write_report(tmp_path / "load.md", ctx)
+    assert "fixture output, not a result" in text and "## Inputs (fixture output, not a result)" in text
+    # one training game: no grouped fold is possible, the metrics are labelled in-sample
+    small = V.load_fixtures(seed=0, n_games=2, heldout_every=2, n_possessions=40)
+    ctx = T.run(small, n_folds=5, seed=0, n_boot=10, fixture=True)
+    assert ctx["heldout_games"] == 1 and ctx["train_games"] == 1 and ctx["reg_note"]["mode"] == "in-sample"
+
+
+def test_cli_fixture_knobs_and_their_aliases(tmp_path, capsys):
+    """The canonical --fixture-games, --fixture-possessions, --fixture-heldout-every and the old spellings."""
+    rep = V.main(["--fixtures", "--fixture-games", "2", "--fixture-possessions", "8", "--fixture-heldout-every", "2"])
+    assert rep["n_games"] == 2 and rep["n_heldout"] == 1 and rep["note"] == "fixture output, not a result"
+    rep = V.main(["--fixtures", "--n-games", "3", "--fixture-possessions", "8", "--heldout-every", "0"])
+    assert rep["n_games"] == 3 and rep["n_heldout"] == 0
+    tabs = F.main(["--fixtures", "--fixture-games", "2", "--fixture-possessions", "8", "--bootstrap", "5", "--out", str(tmp_path)])
+    assert len(tabs["player_stints"]) > 0 and (tmp_path / "analytics" / "load" / "2015-16" / "player_games.parquet").exists()
+    capsys.readouterr()

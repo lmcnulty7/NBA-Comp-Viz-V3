@@ -85,7 +85,7 @@ Candidates: constant (floor), ridge (the plan's model, the shipped expectation) 
 `HistGradientBoostingRegressor` on the same features, with out-of-fold MSE under grouped folds by
 `sportvu_game`, bootstrap intervals by game and the paired bootstrap of MSE(HGB) - MSE(ridge). MSE is not the
 selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by
-fitting what should stay in the residual (on the fallback fixture a planted 2 ft pull came out at 0.6 ft under
+fitting what should stay in the residual (on the planted-pull fixture a 2 ft pull came out at 0.6 ft under
 HGB with a player-identifying prior); HGB is reported as a diagnostic of how much structure the location
 features leave unexplained.
 
@@ -94,13 +94,19 @@ top `n_known` when the planted players outnumber a decile (two stars among fourt
 each game (on fixtures the generator's planted players; on real data the top ten are listed without a claim);
 (b) a sign test by game of teammates' location-only xFG probability (`analytics.features_xfg` features,
 `analytics.train_xfg` logistic, out of fold) with a high-gravity player on the floor, with the mean difference
-and a bootstrap interval by game; (c) on the lane's fallback fixture, the recovered pull against the generator's
-effective pull (tolerance stated in tests/test_gravity.py). Held-out games are scored exactly once. Numbers
-from `--fixtures` are fixture output, not a result; a fixture report carries a second section from the fallback
-generator when the default generator is `analytics.fixtures`.
+and a bootstrap interval by game; (c) on the lane's planted-pull fixture, the recovered pull against the
+generator's effective pull (tolerance stated in tests/test_gravity.py). Held-out games are scored exactly once.
+Numbers from `--fixtures` are fixture output, not a result. The default fixture is `analytics.fixtures`; a
+fixture report on it carries a second section from the lane's synthetic planted-pull generator
+(`analytics/gravity/fixture_pull.py`: its star sits on part of the possessions and its pull is known), where the
+sign test and the pull recovery run. Production code never imports `tests/`.
 
 ## CLI
 
-    python -m analytics.gravity.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-generator auto|fallback]
-    python -m analytics.gravity.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-generator auto|fallback]
-    python -m analytics.gravity.train --fixtures | --data DATA_ROOT --report reports/gravity.md [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT] [--fixture-generator auto|fallback]
+    python -m analytics.gravity.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [FIXTURE FLAGS]
+    python -m analytics.gravity.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [FIXTURE FLAGS]
+    python -m analytics.gravity.train --fixtures | --data DATA_ROOT --report reports/gravity.md [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT] [--no-pull-section] [FIXTURE FLAGS]
+
+FIXTURE FLAGS: `--fixture-games 8`, `--fixture-possessions 40`, `--fixture-heldout-every K` (default 4 with at
+least four games), `--fixture-generator shared|pull` (`--n-games`, `--n-possessions` and the values `auto`,
+`fallback` are kept as aliases). Fits run under `analytics.eval.fit_threads()`.

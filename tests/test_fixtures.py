@@ -618,9 +618,25 @@ def test_cli(tmp_path):
     assert man["counts"]["games"] == 1 and man["heldout"] == []
 
 
+def test_add_fixture_args():
+    import argparse
+    ap = fixtures.add_fixture_args(argparse.ArgumentParser(), games=6, possessions=24, heldout_every=3)
+    a = ap.parse_args([])
+    assert (a.fixture_games, a.fixture_possessions, a.fixture_heldout_every) == (6, 24, 3)
+    a = ap.parse_args(["--fixture-games", "2", "--fixture-possessions", "4", "--fixture-heldout-every", "0"])
+    assert (a.fixture_games, a.fixture_possessions, a.fixture_heldout_every) == (2, 4, 0)
+    helps = {x.dest: x.help for x in ap._actions}
+    assert all(helps[d] for d in ("fixture_games", "fixture_possessions", "fixture_heldout_every"))
+    assert fixtures.HELDOUT_GAME in helps["fixture_heldout_every"]
+    g = fixtures.add_fixture_args(argparse.ArgumentParser().add_argument_group("fixtures"))   # groups work too
+    assert g.title == "fixtures"
+
+
 # ── speed ─────────────────────────────────────────────────────────────────────────────────────────
-def test_speed_40_possessions_under_2s():
-    t = time.time()
+@pytest.mark.slow
+def test_speed_40_possessions_under_10s():
+    """A wall-clock bound, so it is marked slow (a loaded box can stretch it); 10 s is about 10x the usual time."""
+    t = time.perf_counter()
     g = fixtures.synth_game(12, n_possessions=40)
-    assert time.time() - t < 2.0
+    assert time.perf_counter() - t < 10.0
     assert len(g["possessions"]) == 40

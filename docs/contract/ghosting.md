@@ -127,3 +127,8 @@ assignments than the ghost allows more points.
 rosters are read when present and checked but not needed. A game read from any `heldout/` path is held out
 whatever its id. `--out` defaults to DATA_ROOT; the Mac command is `--out "<Drive>/nba_harvest"`. Fixture runs print and write "fixture output,
 not a result".
+
+Fixture flags (every ghosting CLI): `--fixture-games 4`, `--fixture-possessions 10` (at least 4),
+`--fixture-heldout-every 0`; `--games`, `--possessions` and `--heldout-every` are kept as aliases. The fixtures
+are `analytics.fixtures`; production code never imports `tests/`. `--threads N` is passed to
+`analytics.eval.fit_threads(N)`, which pins BLAS and OpenMP for every fit.

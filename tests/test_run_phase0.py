@@ -436,3 +436,17 @@ def test_audit_refuses_heldout_id_planted_in_training_folder(out, step1, eligibl
     assert [p.stem for p in tables] == [train]
     sample, info = audit_shots.draw(tables, 2, seed=0)
     assert set(sample["sportvu_game"]) == {train} and info["games"] == 1
+
+
+def test_shared_season_and_heldout_helpers(tmp_path):
+    """run_phase0 uses analytics.schema.season_of_game (the July rule) and analytics.eval.is_heldout_game for its
+    by-id held-out check; the expected output folder agrees with the modules' split_of routing."""
+    from analytics import eval as ev
+    assert rp.season_of_game is schema.season_of_game
+    assert rp.season_of_game("07.01.2016.GSW.at.BOS") == "2016-17" and rp.season_of_game("06.30.2016.GSW.at.BOS") == "2015-16"
+    for game in ("12.16.2015.PHX.at.GSW", "01.01.2016.GSW.at.CLE", "11.11.2015.LAL.at.BOS"):
+        held = ev.is_heldout_game(game)
+        assert held == rp.routed_heldout(game)
+        p = rp.expected_output("shot_frames", game, tmp_path)
+        assert ("heldout" in p.parts) == held and p.parent.name == rp.season_of_game(game)
+    assert ev.is_heldout_game("12.16.2015.PHX.at.GSW") and not ev.is_heldout_game("11.11.2015.LAL.at.BOS")

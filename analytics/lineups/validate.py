@@ -23,10 +23,9 @@ import argparse
 import json
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
-from analytics.lineups import FIXTURE_GAMES, PLAYER_COLUMNS, SEASONS, load_inputs
+from analytics.lineups import PLAYER_COLUMNS, SEASONS, add_fixture_args, load_inputs
 
 REQUIRED = ("game_id", "stint", "start_s", "end_s", "duration_s", "period_start", "period_end") + PLAYER_COLUMNS + (
     "home_ids", "away_ids", "n_home", "n_away", "lineup_ok", "points_home", "points_away", "score_home", "score_away")
@@ -35,6 +34,7 @@ MAX_POINTS = 70
 
 
 def schema_problems(stints: pd.DataFrame) -> list[str]:
+    """One message per section 12 column missing from the stints table."""
     return [f"missing column {c!r}" for c in REQUIRED if c not in stints.columns]
 
 
@@ -79,20 +79,20 @@ def validate(stints: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def parse_args(argv=None):
+    """The CLI's arguments."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
+    g.add_argument("--fixtures", action="store_true", help="synthetic stints (fixture output, not a result)")
     g.add_argument("--data", help="DATA_ROOT")
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT)")
-    ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
-    ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
-                    help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
+    ap.add_argument("--seasons", nargs="*", default=list(SEASONS), help="--data only: seasons to read (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Validate the fixture or DATA_ROOT stints, write validate.json under OUT_ROOT and print the counts."""
     a = parse_args(argv)
     inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
     if len(inputs["stints"]) == 0:

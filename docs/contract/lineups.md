@@ -115,7 +115,18 @@ prior table; the held-out season's `player_rapm.parquet` already is a prior-seas
 - `OUT_ROOT/analytics/lineups/<season>/features.parquet` (features CLI): the feature frame (keys, the ten
   player columns, possessions, lineup ids, team ids, points_diff and diff_per100).
 - `reports/lineups.md` (train CLI): inputs, candidate table, out-of-season correlation, the held-out season
-  scored once, the Mac command. A `--fixtures` run says "fixture output, not a result" on every table.
+  scored once, the Mac command. A `--fixtures` run says "fixture output, not a result" in its banner and on
+  every section heading, and lists the written tables relative to OUT_ROOT.
+
+## Fixtures
+
+Every CLI of the lane takes `--fixtures` with `--fixture-games` (alias `--n-games`; games per fixture season) and
+`--fixture-generator`: `auto` or `shared` is `analytics.fixtures.synth_stints` (called without a players frame, so
+its team ids match the betting lane's fixture), `local` is the lane's own synthetic generator
+`analytics/lineups/synthetic.py`, kept because it carries a starters table and player ratings large enough for
+RAPM to recover (the tests rely on both). Production code never imports `tests/`. The lane splits by season
+(`--heldout-season`), so it has no possessions or held-out-every knob. Every ridge solve runs inside
+`analytics.eval.fit_threads()`; intervals are formatted by `analytics.eval.fmt_ci`.
 
 ## Possessions and target
 

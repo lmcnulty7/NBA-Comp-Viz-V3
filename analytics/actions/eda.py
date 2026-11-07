@@ -1,6 +1,7 @@
 """analytics/actions/eda.py: exploratory tables for the action-recognition lane (no plots: tables and markdown).
 
-    python -m analytics.actions.eda --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+    python -m analytics.actions.eda --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--folds 5]
+                                    [--fixture-games 6] [--fixture-possessions 24] [--fixture-heldout-every 3]
 
 Functions (notebooks/eda_actions.ipynb calls them and prints the markdown):
     candidate_counts_per_possession(cands, n_possessions)   distribution of candidates per possession, by rule class
@@ -9,7 +10,7 @@ Functions (notebooks/eda_actions.ipynb calls them and prints the markdown):
     shuffled_label_check(cands, feats, seed, n_folds)       out-of-fold ball_screen F1 of the hgb model on the real labels and
                                                             on labels permuted within each game: a model that scores well on
                                                             permuted labels is reading something it should not
-    markdown_table(df)                                      a markdown table without the tabulate dependency
+    markdown_table(df)                                      a markdown table (analytics.eval.md_table)
 
 The shuffled check fits through train.fit_models, so the same held-out guard applies: the frame it sees has passed
 analytics.schema.assert_time_forward (called again here) and the candidates carry no held-out game. On fixtures every
@@ -27,12 +28,13 @@ import pandas as pd
 from analytics import schema
 from analytics.actions import CLASSES
 from analytics.actions import features as F
+from analytics.eval import md_table
 
 log = logging.getLogger("analytics.actions.eda")
 
 
 def markdown_table(df: pd.DataFrame, nd: int = 3) -> str:
-    from analytics.actions.train import md_table
+    """A frame (its named index as a column) as one markdown string through analytics.eval.md_table."""
     return "\n".join(md_table(df.reset_index() if df.index.name is not None else df, nd))
 
 
@@ -94,8 +96,8 @@ def shuffled_label_check(cands: pd.DataFrame, feats: pd.DataFrame, seed: int = 0
 
 def run(games: list, seed: int = 0, n_folds: int = 5) -> dict:
     """All EDA tables on a list of game dicts (held-out games are dropped first; EDA never looks at them)."""
-    from analytics.actions import validate as V
-    games = [g for g in games if not (g.get("heldout") or V.is_heldout_id(g["sportvu_game"]))]
+    from analytics.eval import is_heldout_game
+    games = [g for g in games if not (g.get("heldout") or is_heldout_game(g["sportvu_game"]))]
     cands, feats, recall, skipped = F.build_season(games)
     n_poss = int(sum(len(g["possessions"]) for g in games))
     out = {"counts": candidate_counts_per_possession(cands, n_poss), "balance": class_balance(cands),
@@ -105,21 +107,24 @@ def run(games: list, seed: int = 0, n_folds: int = 5) -> dict:
 
 
 def to_markdown(res: dict, fixtures: bool) -> str:
+    """The EDA tables of run() as one markdown document; on fixtures every heading says fixture output, not a result."""
     tag = " (fixture output, not a result)" if fixtures else ""
     L = ["# EDA: action candidates%s" % tag, "", "%d training game(s), %d possessions." % (res["n_games"], res["n_possessions"]), "",
-         "## Candidates per possession", "", markdown_table(res["counts"]), "", "## Class balance", "", markdown_table(res["balance"]["classes"]),
-         "", markdown_table(res["balance"]["rule_vs_label"]), "", "## Candidate recall", "", markdown_table(res["recall"]), "",
-         "## Feature distributions by label class", "", markdown_table(res["distributions"]), "",
-         "## Shuffled-label check", "", markdown_table(res["shuffled"]), ""]
+         "## Candidates per possession%s" % tag, "", markdown_table(res["counts"]), "", "## Class balance%s" % tag, "",
+         markdown_table(res["balance"]["classes"]), "", markdown_table(res["balance"]["rule_vs_label"]), "",
+         "## Candidate recall%s" % tag, "", markdown_table(res["recall"]), "",
+         "## Feature distributions by label class%s" % tag, "", markdown_table(res["distributions"]), "",
+         "## Shuffled-label check%s" % tag, "", markdown_table(res["shuffled"]), ""]
     return "\n".join(L)
 
 
 def main(argv=None) -> dict:
+    """Print the EDA tables of the input games (and write analytics/actions/eda.md under OUT_ROOT when given)."""
     from analytics.actions import validate as V
     ap = argparse.ArgumentParser(prog="python -m analytics.actions.eda", description=__doc__.split("\n")[0])
     V.add_input_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: writes analytics/actions/eda.md under it")
-    ap.add_argument("--folds", type=int, default=5)
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds of the shuffled-label check (default 5)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     res = run(V.load_inputs(a), seed=a.seed, n_folds=a.folds)

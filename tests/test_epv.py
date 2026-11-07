@@ -1,13 +1,12 @@
-"""tests/test_epv.py: analytics/epv on the fixtures of tests/_fx_epv.py (the shared analytics.fixtures when it is
-importable, the local fallback otherwise, and the fallback explicitly). No network, no raw data, under 30 s."""
-import os
+"""tests/test_epv.py: analytics/epv on the synthetic season of analytics.fixtures (one league, so teams recur), read
+through analytics.epv.validate and the test adapter tests/_fx_epv.py. No network, no raw data; every fit runs inside
+analytics.eval.fit_threads, and no test takes more than a few seconds on an idle machine."""
 import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-os.environ.setdefault("OMP_NUM_THREADS", "1")
 pd = pytest.importorskip("pandas")
 pytest.importorskip("sklearn")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -17,28 +16,29 @@ from analytics.epv import eda, features as F, states as S, train as T, validate 
 from tests import _fx_epv as fx  # noqa: E402
 
 T.MLP_ITER = 40          # the gated sequence model stays cheap in tests
-HELD = "12.16.2015.PHX.at.GSW"
+HELD = fx.HELD
+N_POSS = 24              # possessions per fixture game: enough for every bucket, small enough to keep the runs short
 
 
 @pytest.fixture(scope="module")
 def season():
-    """The season as the trainer loads it: 3 training games and 1 held-out, from whichever generator is active."""
-    return V.load_fixtures(0, n_games=4, heldout_every=4)
+    """The season as the trainer loads it: 3 training games and 1 held-out (analytics.fixtures, one league)."""
+    return V.load_fixtures(0, n_games=4, heldout_every=4, n_possessions=N_POSS)
 
 
 @pytest.fixture(scope="module")
-def fallback_game():
-    return fx.fallback_synth_game(1, n_possessions=20)
+def one_game():
+    return fx.game(1, n_possessions=20)
 
 
 # ── fixtures and the states builder ────────────────────────────────────────────────────────────────
-def test_fallback_tables_meet_the_contract(fallback_game):
-    g = fallback_game
-    for table in ("rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz"):
-        assert schema.validate(g[table], table) == [], table
-    assert len(g["possessions"]) == 20 and g["states_1hz"]["possession"].nunique() == 20
-    assert {"sportvu_game", "player_slug", "loc_x", "loc_y", "made", "heldout"} <= set(g["shots"].columns)
-    assert fx.fallback_synth_game(1, n_possessions=20)["states_1hz"].equals(g["states_1hz"])   # deterministic
+def test_fixture_season_meets_the_contract_and_is_deterministic(season):
+    for table in ("rosters", "shot_frames", "possessions", "states_1hz"):
+        assert schema.validate(season[table].drop(columns=["heldout"]), table) == [], table
+    assert {"sportvu_game", "player_id", "loc_x", "loc_y", "made", "heldout"} <= set(season["shots"].columns)
+    assert sorted(h for _, h in season["games"]) == [False, False, False, True]
+    again = V.load_fixtures(0, n_games=4, heldout_every=4, n_possessions=N_POSS)
+    assert again["states_1hz"].equals(season["states_1hz"]) and again["games"] == season["games"]
 
 
 def _check_states_against_possessions(st, poss):
@@ -64,20 +64,22 @@ def _check_states_against_possessions(st, poss):
     assert not st.duplicated(["possession", "frame"]).any()
 
 
-def test_states_builder_is_consistent_with_possessions_on_the_fallback(fallback_game):
-    g = fallback_game
+def test_states_builder_is_consistent_with_possessions(one_game):
+    g = one_game
     st = S.build_states(g["frames"], g["possessions"], g["sportvu_game"], events=g["events"])
     _check_states_against_possessions(st, g["possessions"])
     assert st.attrs["n_states"] == len(st) and st.attrs["n_skipped_split"] == 0
-    # every possession has a state at elapsed 0 and one per whole second of its clock span
-    dur = (g["possessions"]["start_clock_s"] - g["possessions"]["end_clock_s"]).to_numpy(dtype=float)
-    assert st.groupby("possession").size().to_numpy().tolist() == (np.floor(dur + 1e-6) + 1).astype(int).tolist()
+    # every possession without a clock gap has a state at elapsed 0 and one per whole second of its clock span
+    poss = g["possessions"][~g["possessions"]["gap"].astype(bool)]
+    dur = (poss["start_clock_s"] - poss["end_clock_s"]).to_numpy(dtype=float)
+    n = st.groupby("possession").size().reindex(poss["possession"]).to_numpy()
+    assert n.tolist() == (np.floor(dur + 1e-6) + 1).astype(int).tolist()
 
 
 def test_states_builder_on_the_active_fixture_frames(season):
     """Rebuilt from the frames and possessions, the states agree with the fixture's own states_1hz on the keys."""
     game, held = season["games"][0]
-    s = fx.season_tables(0, n_games=4, heldout_every=4)
+    s = V.fixture_season(0, n_games=4, heldout_every=4, n_possessions=N_POSS)
     frames = s["frames"][s["frames"]["game"] == game]
     poss = s["possessions"][s["possessions"]["sportvu_game"] == game]
     st = S.build_states(frames, poss, game)
@@ -89,8 +91,8 @@ def test_states_builder_on_the_active_fixture_frames(season):
     assert np.abs(shared["frame"].to_numpy() - shared["frame_ref"].to_numpy()).max() <= 13   # within half a second at 25 Hz
 
 
-def test_points_to_end_subtracts_points_logged_before_the_state(fallback_game):
-    g = fallback_game
+def test_points_to_end_subtracts_points_logged_before_the_state(one_game):
+    g = one_game
     poss = g["possessions"].iloc[:1].copy()
     p = poss.iloc[0]
     poss.loc[poss.index[0], "points"] = 3
@@ -106,8 +108,8 @@ def test_points_to_end_subtracts_points_logged_before_the_state(fallback_game):
 
 
 # ── validation ─────────────────────────────────────────────────────────────────────────────────────
-def test_validate_logs_and_drops(fallback_game):
-    st = fallback_game["states_1hz"]
+def test_validate_logs_and_drops(one_game):
+    st = one_game["states_1hz"]
     bad = pd.concat([st, st.iloc[:3]], ignore_index=True)
     bad.loc[0, "points_to_end"] = 7
     bad.loc[1, "elapsed_in_possession_s"] = -1.0
@@ -126,8 +128,8 @@ def test_loaders_flag_held_out_games(season):
 
 
 # ── features and the leakage guard ─────────────────────────────────────────────────────────────────
-def test_features_come_from_the_allowlist_only_and_pass_the_guard(fallback_game):
-    st = fallback_game["states_1hz"]
+def test_features_come_from_the_allowlist_only_and_pass_the_guard(one_game):
+    st = one_game["states_1hz"]
     feats = F.build_features(st)
     assert list(feats.columns) == F.KEYS + F.FEATURES and len(feats) == len(st)
     assert not set(feats.columns) & schema.ALL_EXCLUDED
@@ -151,15 +153,17 @@ def test_features_come_from_the_allowlist_only_and_pass_the_guard(fallback_game)
     assert np.allclose(lag.loc[first, "ball_x_lag1"], feats.loc[first, "ball_x"])
 
 
-def test_priors_are_out_of_fold_by_game():
-    """On the fallback season (the same two teams in every game, so a shooter of one game is a handler in the others;
-    the shared season gives every game its own teams, so there the cross-game check has nothing to move)."""
-    season = V.load_fixtures(0, n_games=4, heldout_every=4, fallback=True)
+def test_priors_are_out_of_fold_by_game(season):
+    """On two training games that share a team (analytics.fixtures draws a season from one league, so a shooter of
+    one game is a handler in the other and a lineup recurs)."""
     st = season["states_1hz"]
     train = st[~st["heldout"]].reset_index(drop=True)
     shots = season["shots"][~season["shots"]["heldout"]].reset_index(drop=True)
     games = sorted(train["sportvu_game"].unique())
-    g0, g1 = games[0], games[1]
+    players = season["rosters"].groupby("sportvu_game")["player_id"].apply(set)
+    pairs = [(a, b) for a in games for b in games if a != b and players[a] & players[b]]
+    assert pairs, "no two training games share a team"
+    g0, g1 = pairs[0]
     pri = F.Priors.from_training(train, shots, season["rosters"])
     feats = F.build_features(train, pri)
     assert feats[F.PRIORS].notna().all().all()
@@ -201,7 +205,7 @@ def test_priors_are_out_of_fold_by_game():
 # ── models ─────────────────────────────────────────────────────────────────────────────────────────
 def test_calibrated_candidates_learn_a_strong_signal_and_calibrate():
     rng = np.random.default_rng(0)
-    n = 1500
+    n = 900                                   # 150 rows per game: 600 to fit, 300 to score
     X = pd.DataFrame(rng.normal(size=(n, len(F.FEATURES))), columns=F.FEATURES)
     X["sportvu_game"], X["possession"], X["frame"] = ["g%d" % (i % 6) for i in range(n)], np.arange(n), np.arange(n)
     z = 1.5 * X["handler_dist_basket"] - X["elapsed_in_possession_s"]
@@ -361,7 +365,7 @@ def test_out_root_differs_from_data_root(tmp_path):
     """states --data X --out Y, then features and train --data X --out Y: the states come from Y, the rest from X."""
     import shutil
     data, out = tmp_path / "data", tmp_path / "out"
-    games = fx.fallback_write_fixture_root(data, seed=5, n_games=3, heldout_every=3, fallback=True)
+    games = fx.write_root(data, seed=5, n_games=3, heldout_every=3)
     shutil.rmtree(data / "analytics" / "states_1hz")                 # DATA_ROOT has no states table at all
     assert V.load_root(data)["states_1hz"] is None
     S.main(["--data", str(data), "--out", str(out)])
@@ -374,20 +378,24 @@ def test_out_root_differs_from_data_root(tmp_path):
     assert ctx["train_rows"] == int((~t["states_1hz"]["heldout"]).sum()) and ctx["heldout_games"] == [HELD]
     assert (out / "analytics" / "epv" / "2015-16" / "epv_possessions.parquet").exists()
     # a states table under both roots: OUT_ROOT wins
-    fx.fallback_write_fixture_root(data, seed=5, n_games=3, heldout_every=3, fallback=True)
+    fx.write_root(data, seed=5, n_games=3, heldout_every=3)
     assert V.load_root(data, out_root=out)["sources"]["states_1hz"] == str(out)
 
 
 def test_clis_on_a_temporary_data_root(tmp_path):
     root = tmp_path / "root"
-    games = fx.fallback_write_fixture_root(root, seed=3, n_games=2, heldout_every=2, fallback=True)
+    games = fx.write_root(root, seed=3, n_games=2, heldout_every=2)
     assert len(games) == 2 and sum(h for _, h in games) == 1
     out = tmp_path / "out"
     written = S.main(["--data", str(root), "--out", str(out)])
     assert len(written) == 2 and (out / "analytics" / "states_1hz" / "heldout" / "2015-16" / ("%s.parquet" % HELD)).exists()
-    rebuilt = pd.read_parquet(out / "analytics" / "states_1hz" / "2015-16" / ("%s.parquet" % games[0][0]))
-    stored = pd.read_parquet(root / "analytics" / "states_1hz" / "2015-16" / ("%s.parquet" % games[0][0]))
-    assert len(rebuilt) == len(stored)
+    g0 = games[0][0]
+    rebuilt = pd.read_parquet(out / "analytics" / "states_1hz" / "2015-16" / ("%s.parquet" % g0))
+    expected = S.build_states(pd.read_parquet(root / "sportvu_contract" / ("%s.parquet" % g0)),       # what the CLI must write
+                              pd.read_parquet(root / "analytics" / "possessions" / "2015-16" / ("%s.parquet" % g0)), g0,
+                              events=pd.read_parquet(root / "sportvu_contract" / ("%s_pbp.parquet" % g0)))
+    assert len(rebuilt) == len(expected) > 0
+    assert (rebuilt[["possession", "frame", "points_to_end"]].to_numpy() == expected[["possession", "frame", "points_to_end"]].to_numpy()).all()
     reports = V.main(["--data", str(root), "--out", str(out)])
     assert set(reports) >= {"states_1hz", "possessions", "shots"} and (out / "analytics" / "epv_validate.md").exists()
     feats = F.main(["--data", str(root), "--out", str(out)])

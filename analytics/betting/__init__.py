@@ -11,7 +11,8 @@ Modules
     eda       tables for notebooks/eda_betting.ipynb (spread and margin distributions, cover rate by spread bin,
               join coverage, shuffled-label check)
 
-Each of validate, features and train exposes main(argv=None) with --fixtures | --data DATA_ROOT [--out OUT_ROOT].
+Each of validate, features, eda and train exposes main(argv=None) with --fixtures | --data DATA_ROOT (--fixtures runs
+on analytics.fixtures, sized by --fixture-games and --fixture-seasons).
 
 Assumptions recorded here because nobody could be asked
   - Odds history is a paid feed (collect/extras.py --odds, The Odds API) and has not been collected; every

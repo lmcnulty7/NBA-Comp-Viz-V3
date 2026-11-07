@@ -1,7 +1,8 @@
-"""tests/test_embeddings.py: the player style embeddings lane (analytics/embeddings) on the fixtures of tests/_fx_embeddings.py.
+"""tests/test_embeddings.py: the player style embeddings lane (analytics/embeddings) on analytics.fixtures
+(re-exported by tests/_fx_embeddings.py).
 
-One end-to-end fixture run (module scope) feeds the table and report checks; the metric, feature and gate tests are
-hand cases. Everything here passes with the local fallback generator alone."""
+Two end-to-end fixture runs (module scope) feed the table, metric and report checks; the feature, metric and gate
+tests are hand cases. Every fixture number is fixture output, not a result."""
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,7 @@ pd = pytest.importorskip("pandas")
 pytest.importorskip("sklearn")
 
 from analytics import schema  # noqa: E402
+from analytics.eval import is_heldout_game  # noqa: E402
 from analytics.embeddings import eda, features as F, train as T, validate as V  # noqa: E402
 from tests import _fx_embeddings as fx  # noqa: E402
 
@@ -19,8 +21,8 @@ N_BOOT = 30
 
 @pytest.fixture(scope="module")
 def run(tmp_path_factory):
-    """train.main on a 4-game season of the resolved generator (the shared analytics.fixtures when it imports) with
-    every second game held out, tables and report under tmp."""
+    """train.main on a 4-game analytics.fixtures season with every second game held out (the older flag spellings
+    --n-games and --heldout-every), tables and report under tmp."""
     out = tmp_path_factory.mktemp("emb_out")
     report = out / "embeddings.md"
     ctx = T.main(["--fixtures", "--report", str(report), "--out", str(out), "--bootstrap", str(N_BOOT),
@@ -30,13 +32,13 @@ def run(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def run_local(tmp_path_factory):
-    """The same on the lane's local generator (6 games, every third held out), whose positions and aggregates share
-    the tracked players' ids, so both metrics have labelled rows."""
-    out = tmp_path_factory.mktemp("emb_out_local")
+def run_six(tmp_path_factory):
+    """A 6-game season, every third game held out, three folds (the canonical --fixture-* flags): enough sufficient
+    player-seasons for both metrics to have labelled rows."""
+    out = tmp_path_factory.mktemp("emb_out_six")
     report = out / "embeddings.md"
-    ctx = T.main(["--fixtures", "--local-fixtures", "--report", str(report), "--out", str(out), "--bootstrap", str(N_BOOT),
-                  "--n-games", "6", "--heldout-every", "3", "--seed", "0", "--folds", "3"])
+    ctx = T.main(["--fixtures", "--report", str(report), "--out", str(out), "--bootstrap", str(N_BOOT),
+                  "--fixture-games", "6", "--fixture-heldout-every", "3", "--seed", "0", "--folds", "3"])
     ctx["_report"] = report.read_text()
     return ctx
 
@@ -56,11 +58,12 @@ def test_fixture_generator_shapes_and_archetypes():
     # determinism
     g2 = fx.synth_game(3, n_possessions=8)
     pd.testing.assert_frame_equal(g["frames"], g2["frames"])
-    # the local generator: the tracked players carry positions (this lane joins the three tables by player_id)
-    gl = fx.local_synth_game(3, n_possessions=8)
-    _, pos_l = fx.local_synth_aggregates(0)
-    assert set(gl["frames"]["player_id"].unique()) <= set(pos_l["player_id"].unique())
-    assert schema.validate(gl["possessions"], "possessions") == [] and (gl["frames"].groupby("frame").size() == 10).all()
+    # a league season: the tracked players carry positions and aggregates (this lane joins the three tables by player_id)
+    season = fx.synth_season(0, n_games=2, n_possessions=8)
+    rosters = pd.concat([d["rosters"] for d in season], ignore_index=True).drop_duplicates("player_id")
+    _, pos_l = fx.synth_aggregates(0, players=rosters)
+    tracked = set(pd.concat([d["frames"]["player_id"] for d in season]).unique())
+    assert tracked <= set(pos_l["player_id"].unique())
 
 
 # ----------------------------------------------------------------------------- features: hand cases
@@ -151,7 +154,7 @@ def test_zone_basic_derivation_and_nba_names():
 def test_feature_frame_has_no_leak_and_aggregates_read_one_season():
     assert len(F.FEATURES) == len(set(F.FEATURES)) and not (set(F.FEATURES) & schema.ALL_EXCLUDED)
     assert F.feature_columns(with_aggregates=False) == F.TRACKING_FEATURES + F.SHOT_FEATURES
-    agg, _ = fx.local_synth_aggregates(0)
+    agg, _ = fx.synth_aggregates(0)
     both = F.aggregate_features(agg, "2015-16")
     only = F.aggregate_features(agg[agg["season"] == "2015-16"], "2015-16")
     pd.testing.assert_frame_equal(both, only)                      # 2016-17 rows never touch the 2015-16 features
@@ -208,7 +211,7 @@ def test_heldout_games_never_reach_an_aggregate(run):
     assert len(held_files) == 2 and fx.HELDOUT_GAME_ID in held_files and len(train_files) == 2
     inputs = T.load_inputs(root)
     ids = [g["sportvu_game"] for g in inputs["games"]]
-    assert sorted(ids) == train_files and not any(T.is_heldout_game(g) for g in ids)
+    assert sorted(ids) == train_files and not any(is_heldout_game(g) for g in ids)
     assert inputs["dropped"]["heldout_frame_files"] == 2
     assert not T.heldout_shot_mask(inputs["shots"]).any()
     assert set(inputs["shots"]["sportvu_game"]) <= set(ids)
@@ -257,45 +260,46 @@ def test_end_to_end_fixture_run_tables(run):
 
 
 def test_end_to_end_fixture_run_metrics_and_report(run):
-    """On the resolved generator the metrics may be n/a (the shared fixtures' positions and aggregates are keyed by
-    other player ids than the games); the report and the held-out exclusion hold either way."""
+    """The fixture's positions and aggregates share the tracked players, so both metrics have labelled rows; the
+    report carries the fixture label on every numbered section and no temporary path."""
     ev = run["candidates"]["pca"]["eval"]
-    if ev["knn"]["n"]:
-        assert ev["knn"]["accuracy"]["lo"] <= ev["knn"]["accuracy"]["point"] <= ev["knn"]["accuracy"]["hi"]
-    else:
-        assert np.isnan(ev["knn"]["accuracy"]["point"]) and run["decision"]["chosen"] == "pca"
+    assert ev["knn"]["n"] == run["n_fit"] and ev["next"]["n"] > 0
+    assert ev["knn"]["accuracy"]["lo"] <= ev["knn"]["accuracy"]["point"] <= ev["knn"]["accuracy"]["hi"]
     assert len(run["candidates"]["pca"]["explained_variance_ratio"]) == T.N_DIM
     text = run["_report"]
     assert "fixture output, not a result" in text and "## Decision" in text and T.MAC_CMD in text
     assert fx.HELDOUT_GAME_ID not in run["games"] and len(run["games"]) == 2
-    assert "\u2014" not in text
+    body = text.split("\n", 3)[3]                                      # after the title and the command line
+    assert "\u2014" not in text and "\u2013" not in text and "/tmp" not in body
+    for h in ("## Inputs", "## Candidates", "## Decision", "## Outputs"):
+        assert h + " (fixture output, not a result)" in text
 
 
-def test_local_fixture_run_beats_both_baselines(run_local):
-    """Planted archetypes with aligned ids: 5-NN accuracy above the majority class, ridge R squared above the mean."""
-    ev = run_local["candidates"]["pca"]["eval"]
-    assert ev["knn"]["n"] == run_local["n_fit"] >= 20
+def test_six_game_run_beats_both_baselines(run_six):
+    """Planted archetypes on league rosters: 5-NN accuracy above the majority class, ridge R squared above the mean."""
+    ev = run_six["candidates"]["pca"]["eval"]
+    assert ev["knn"]["n"] == run_six["n_fit"] >= 20
     assert ev["knn"]["accuracy"]["point"] > ev["knn"]["majority"]["point"]
     assert ev["knn"]["accuracy"]["lo"] <= ev["knn"]["accuracy"]["point"] <= ev["knn"]["accuracy"]["hi"]
     assert ev["next"]["n"] >= 20 and ev["next"]["r2"]["point"] > ev["next"]["r2_mean"]["point"]
-    assert ev["next"]["folds"] == 3 == run_local["folds"] and "3 grouped folds by player_id" in run_local["_report"]
+    assert ev["next"]["folds"] == 3 == run_six["folds"] and "3 grouped folds by player_id" in run_six["_report"]
     assert T.parse_args(["--fixtures"]).folds == 5
-    assert run_local["decision"]["chosen"] in T.METHODS and len(run_local["games"]) == 4
-    assert "fixture output, not a result" in run_local["_report"]
+    assert run_six["decision"]["chosen"] in T.METHODS and len(run_six["games"]) == 4
+    assert "fixture output, not a result" in run_six["_report"]
 
 
-def test_validate_and_eda_on_the_fixture_runs(run, run_local):
+def test_validate_and_eda_on_the_fixture_runs(run, run_six):
     summary = V.validate_inputs(T.load_inputs(run["fixture_root"]))
     assert summary["totals"]["games"] == 2 and summary["totals"]["problems"] == 0
     assert summary["shots"]["unresolved_shooter_ids"] == 0 and summary["positions"]["counts"]
-    feats = run_local["tables"]["player_season_features"]
-    positions = T.load_inputs(run_local["fixture_root"])["positions"]
+    feats = run_six["tables"]["player_season_features"]
+    positions = T.load_inputs(run_six["fixture_root"])["positions"]
     dist = eda.feature_distribution_by_position(feats, positions)
     assert set(dist["position"]) == {"G", "F", "C"} and set(dist["feature"]) == set(F.available_features(feats))
     corr = eda.correlation_table(feats, top=5)
     assert len(corr) == 5 and (corr["r"].abs() <= 1.0 + 1e-9).all()
     ev = eda.explained_variance(feats)
     assert len(ev) == T.N_DIM and ev["cumulative"].iloc[-1] <= 1.0 + 1e-9
-    E, labels = eda.embedding_with_labels(run_local, positions)
+    E, labels = eda.embedding_with_labels(run_six, positions)
     sep = eda.archetype_separation(E, labels)
     assert set(sep["label"]) == {"G", "F", "C"} and (sep["ratio"] < 1.0).all()

@@ -1,10 +1,10 @@
 """analytics/gravity/features.py: the 1 Hz player-frame feature frame and the spacing frame.
 
     python -m analytics.gravity.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
-        [--fixture-generator auto|fallback]
+        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every K] [--fixture-generator shared|pull]
 
 Inputs are game dicts (frames: contract section 4; possessions: section 19; rosters: section 16; shots:
-section 10a) as tests/_fx_gravity.py, analytics.fixtures or validate.load_data_root give them.
+section 10a) as analytics.fixtures, analytics/gravity/fixture_pull.py or validate.load_data_root give them.
 
 Sampling (the unit). For every possession with gap false and a known offense_team_id, the span is the
 frames of the same period from start_frame up to the next possession's start_frame (exclusive), or to the
@@ -56,6 +56,7 @@ import pandas as pd
 from scipy.spatial import ConvexHull, QhullError
 
 from analytics import schema
+from analytics.eval import is_heldout_game
 
 FEATURES = ["x_ft", "y_ft", "dist_basket_ft", "angle_rad", "dist_ball_ft", "has_ball", "ball_dist_basket_ft",
             "zone_make_rate", "game_clock_s", "shot_clock_s", "shot_clock_missing"]
@@ -91,18 +92,15 @@ def game_id(d: dict) -> str:
 
 
 def is_heldout(d: dict) -> bool:
-    """The dict's heldout flag (its key or meta.heldout), or a held-out token of sportvu/splits.json in its id,
-    or a game at the CLE arena."""
-    from sportvu import splits
+    """The dict's heldout flag (its key or meta.heldout), or a held-out id (analytics.eval.is_heldout_game: a token
+    of sportvu/splits.json or the held-out arena)."""
     if d.get("heldout") or (d.get("meta") or {}).get("heldout"):
         return True
-    g = game_id(d)
-    toks = splits.heldout_tokens()
-    return any(t in g for t in toks) or g.endswith(".at." + splits.HELDOUT_ARENA)
+    return is_heldout_game(game_id(d))
 
 
 def known_gravity_ids(d: dict) -> list:
-    """The planted high-gravity players of a fixture game: high_gravity_ids (tests/_fx_gravity.py fallback) or
+    """The planted high-gravity players of a fixture game: high_gravity_ids (analytics/gravity/fixture_pull.py) or
     truth.star_player_ids (analytics.fixtures); empty on real data."""
     ids = d.get("high_gravity_ids") or (d.get("truth") or {}).get("star_player_ids") or []
     return [int(p) for p in ids]
@@ -159,6 +157,7 @@ def sample_frames(frames: pd.DataFrame, possessions: pd.DataFrame) -> pd.DataFra
 
 # ── per-game build ─────────────────────────────────────────────────────────────────────────────────
 def _hull_area(pts: np.ndarray) -> float:
+    """Convex hull area of an (n, 2) array; NaN when Qhull finds the points degenerate (collinear, too few)."""
     try:
         return float(ConvexHull(pts).volume)      # 2-D: volume is the area, area would be the perimeter
     except (QhullError, ValueError):
@@ -344,16 +343,11 @@ def design(pf: pd.DataFrame) -> np.ndarray:
 
 # ── CLI ────────────────────────────────────────────────────────────────────────────────────────────
 def main(argv=None) -> dict:
+    """CLI: build the player frame and the spacing frame, print the summary, write the parquet files under --out."""
     from analytics.gravity import validate as V
     ap = argparse.ArgumentParser(description="gravity feature frame and spacing frame")
-    ap.add_argument("--fixtures", action="store_true")
-    ap.add_argument("--data", default=None, help="DATA_ROOT (owner's Mac layout)")
+    V.add_input_args(ap)
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/{player_frames,spacing_frames}.parquet")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=8)
-    ap.add_argument("--n-possessions", type=int, default=40)
-    ap.add_argument("--fixture-generator", default="auto", choices=("auto", "fallback"))
     a = ap.parse_args(argv)
     games, vcounts = V.validate_games(V.load_games(a, who="gravity.features"))
     pf, sp, counts = build(games)

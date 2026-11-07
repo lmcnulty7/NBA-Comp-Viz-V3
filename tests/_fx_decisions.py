@@ -1,13 +1,16 @@
-"""tests/_fx_decisions.py: synthetic games for the decision-quality lane (analytics/decisions).
+"""tests/_fx_decisions.py: test-only fixture adapter of the decision-quality lane (analytics/decisions).
 
-Prefers the shared generator of lane I1 (analytics/fixtures.py) when it is importable; otherwise the minimal
-local generator below with the same signatures and column names:
+Re-exports the shared generator (analytics.fixtures: synth_game, synth_season, write_fixture_root) and keeps a
+small local generator under its own names, which tests exercise on purpose because its per-player decision skill
+is known:
 
-    synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
+    local_synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
         -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz,
                 sportvu_game, heldout)
-    synth_season(seed, n_games=8, heldout_every=0) -> list of such dicts
-    write_fixture_root(root, seed, n_games, heldout_every) -> the DATA_ROOT layout train.py reads
+    local_synth_season(seed, n_games=8, heldout_every=0, n_possessions=40) -> list of such dicts
+    local_write_fixture_root(root, seed, n_games, heldout_every, n_possessions) -> the DATA_ROOT layout train.py reads
+
+Production code never imports this module; it loads analytics.fixtures directly.
 
 The local generator is deterministic given the seed. Each possession is a short script on a 94 x 50 ft court at
 25 frames per second: the handler holds the ball (ball within 1 ft of the handler, under 8 ft), passes it (the
@@ -21,20 +24,12 @@ Fixture numbers are never results.
 """
 from __future__ import annotations
 
-try:  # the shared generator of lane I1, when it exists
-    from analytics.fixtures import synth_game, synth_season  # type: ignore  # noqa: F401
-    try:
-        from analytics.fixtures import write_fixture_root  # type: ignore  # noqa: F401
-    except ImportError:  # pragma: no cover
-        write_fixture_root = None  # type: ignore
-    SHARED = True
-except ImportError:
-    SHARED = False
-
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+from analytics.fixtures import synth_game, synth_season, write_fixture_root  # noqa: F401  (the shared generator)
 
 FPS = 25
 DT = 1.0 / FPS
@@ -460,8 +455,3 @@ def local_write_fixture_root(root, seed: int = 0, n_games: int = 8, heldout_ever
         games.append(name)
     return games
 
-
-if not SHARED:
-    synth_game = local_synth_game
-    synth_season = local_synth_season
-    write_fixture_root = local_write_fixture_root

@@ -2,6 +2,7 @@
 
     python -m analytics.embeddings.train --fixtures | --data DATA_ROOT --report reports/embeddings.md
                                         [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--n-min 300]
+                                        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet (+ heldout/)            section 4 frames, one file per game
@@ -16,8 +17,8 @@ DATA_ROOT layout (the owner's Mac):
 Protocol:
   0. Speed and distance steps are consecutive frames of the same game and period with 0 < dt <= 2 s on ts_ms (not the
      game clock); frames outside a possession span (dead balls) are included, so dead-ball movement counts.
-  1. load_inputs drops every held-out game before any table is read into a feature: files under heldout/, ids that carry a
-     sportvu/splits.json held-out token, games at the held-out arena (CLE), shot rows with heldout true. The training game
+  1. load_inputs drops every held-out game before any table is read into a feature: files under heldout/, ids that
+     analytics.eval.is_heldout_game flags (sportvu/splits.json tokens and the held-out arena), shot rows with heldout true. The training game
      ids then pass analytics.eval.refuse_heldout, and the feature frame passes analytics.schema.assert_time_forward.
   2. Features per player-season (analytics.embeddings.features): tracking partial sums per game, combined over games,
      joined to the shot mix and to the same-season NBA.com aggregates when present. Rows under n_min possessions are
@@ -37,8 +38,10 @@ Protocol:
   6. Outputs under OUT_ROOT/analytics/embeddings/<season>/: player_season_features, player_embeddings (both candidates
      when both were fitted, the chosen one first) and embedding_neighbours (the chosen method), docs/contract/embeddings.md.
 
-A --fixtures run writes its tables to a temporary directory unless --out is given, lowers n_min to FIXTURE_N_MIN (the
-fixture games are short) and labels the report "fixture output, not a result".
+A --fixtures run writes the analytics.fixtures DATA_ROOT (write_fixture_root: league rosters, with aggregates and
+positions keyed by the same players) to a temporary directory and loads it through load_inputs, writes its tables to a
+temporary directory unless --out is given, lowers n_min to FIXTURE_N_MIN (the fixture games are short) and labels the
+report "fixture output, not a result".
 """
 from __future__ import annotations
 
@@ -55,8 +58,7 @@ import pandas as pd
 
 from analytics import schema
 from analytics.embeddings import features as F
-from analytics.eval import bootstrap_by_game, refuse_heldout
-from sportvu import splits as _splits
+from analytics.eval import bootstrap_by_game, fmt_ci, fmt_num, heldout_mask, is_heldout_game, refuse_heldout
 
 log = logging.getLogger("analytics.embeddings.train")
 
@@ -77,13 +79,9 @@ MAC_CMD = ("python -m analytics.embeddings.train --data /path/to/DATA_ROOT --rep
 
 # ----------------------------------------------------------------------------- held-out detection
 
-def is_heldout_game(game: str) -> bool:
-    g = str(game)
-    return any(t in g for t in _splits.heldout_tokens()) or g.endswith(".at." + _splits.HELDOUT_ARENA)
-
-
 def heldout_shot_mask(shots: pd.DataFrame) -> pd.Series:
-    m = shots["sportvu_game"].astype(str).map(is_heldout_game).astype(bool)
+    """True for shot rows of a held-out game: by id (analytics.eval.heldout_mask), a heldout flag or a heldout split."""
+    m = pd.Series(heldout_mask(shots["sportvu_game"].astype(str)), index=shots.index)
     if "heldout" in shots.columns:
         m = m | shots["heldout"].fillna(False).astype(bool)
     if "split" in shots.columns:
@@ -189,30 +187,45 @@ def normalise_positions(positions: pd.DataFrame, rosters: pd.DataFrame | None) -
     return out.drop_duplicates(["player_id", "season"]).reset_index(drop=True)
 
 
-def fixture_inputs(seed: int = 0, n_games: int = 8, heldout_every: int = 4, root=None, local: bool = False) -> dict:
-    """Write the fixture DATA_ROOT (tests/_fx_embeddings.write_fixture_root, or the lane's local generator with
-    local=True) under a temporary directory and load it through load_inputs, so a fixture run exercises the same
-    loader as the real one."""
-    repo = Path(__file__).resolve().parents[2]
-    if str(repo) not in sys.path:
-        sys.path.insert(0, str(repo))
-    from tests import _fx_embeddings as fx
+def fixture_inputs(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40, root=None) -> dict:
+    """Write the analytics.fixtures DATA_ROOT (write_fixture_root) under root, a temporary directory by default, and
+    load it through load_inputs, so a fixture run exercises the same loader as the real one."""
+    from analytics.fixtures import write_fixture_root
     root = Path(root) if root is not None else Path(tempfile.mkdtemp(prefix="emb_fixture_"))
-    writer = fx.local_write_fixture_root if local else fx.write_fixture_root
-    summary = writer(root, seed=seed, n_games=n_games, heldout_every=heldout_every)
+    manifest = write_fixture_root(root, seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     inputs = load_inputs(root)
-    inputs["fixture"] = summary
+    inputs["fixture"] = {"games": manifest["counts"], "heldout": manifest["heldout"]}
     inputs["fixture_root"] = str(root)
-    inputs["source"] = "fixtures (tests/_fx_embeddings, %s generator), written under a temporary directory" % (
-        "local" if (local or not fx.SHARED) else "shared analytics.fixtures")
+    inputs["source"] = "fixtures (analytics.fixtures, seed %d), written under a temporary directory" % seed
     return inputs
+
+
+def add_input_args(ap: argparse.ArgumentParser) -> None:
+    """The input flags every embeddings CLI shares: the source (--fixtures or --data), the seed and the fixture knobs
+    (canonical --fixture-* names; --n-games and --heldout-every are kept as aliases)."""
+    ap.add_argument("--fixtures", action="store_true", help="synthetic season from analytics.fixtures (fixture output, not a result)")
+    ap.add_argument("--data", help="DATA_ROOT (layout in analytics/embeddings/train.py)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed, also the seed of the fits and the bootstrap (default 0)")
+    ap.add_argument("--fixture-games", "--n-games", dest="fixture_games", type=int, default=8,
+                    help="--fixtures: games in the synthetic season (default 8)")
+    ap.add_argument("--fixture-possessions", dest="fixture_possessions", type=int, default=40,
+                    help="--fixtures: possessions per synthetic game (default 40)")
+    ap.add_argument("--fixture-heldout-every", "--heldout-every", dest="fixture_heldout_every", type=int, default=4,
+                    help="--fixtures: every k-th game is held out, 0 for none (default 4)")
+
+
+def inputs_from_args(a) -> dict:
+    """fixture_inputs or load_inputs, as the parsed add_input_args flags ask."""
+    if a.fixtures:
+        return fixture_inputs(a.seed, a.fixture_games, a.fixture_heldout_every, a.fixture_possessions)
+    return load_inputs(a.data)
 
 
 # ----------------------------------------------------------------------------- features
 
 def training_games(inputs: dict) -> list:
+    """The sorted training game ids of inputs; SystemExit when one is held out (analytics.eval.refuse_heldout)."""
     ids = sorted(g["sportvu_game"] for g in inputs["games"])
-    F.refuse_heldout_games(ids, WHO)
     refuse_heldout(ids, WHO)
     return ids
 
@@ -262,6 +275,7 @@ def fit_pca(Z: np.ndarray, seed: int = 0) -> dict:
 
 
 def _pad(E: np.ndarray) -> np.ndarray:
+    """E widened with zero columns to N_DIM (PCA on a small matrix has fewer components)."""
     if E.shape[1] == N_DIM:
         return E
     out = np.zeros((E.shape[0], N_DIM))
@@ -277,6 +291,7 @@ def fit_autoencoder(Z: np.ndarray, seed: int = 0, max_iter: int = 400) -> dict:
                      random_state=seed, learning_rate_init=0.01, early_stopping=False).fit(Z, Z)
 
     def embed(A, m=m):
+        """The bottleneck activation (second hidden layer) of A."""
         h = A
         for W, b in zip(m.coefs_[:2], m.intercepts_[:2]):
             h = np.tanh(h @ W + b)
@@ -312,6 +327,7 @@ def knn_position_predictions(E: np.ndarray, labels, k: int = K_NN) -> np.ndarray
 
 
 def knn_position_accuracy(E: np.ndarray, labels, k: int = K_NN) -> float:
+    """Share of rows whose leave-one-out k-NN label equals their own (NaN under two rows)."""
     labels = np.asarray(labels, dtype=object)
     if len(labels) < 2:
         return float("nan")
@@ -319,11 +335,13 @@ def knn_position_accuracy(E: np.ndarray, labels, k: int = K_NN) -> float:
 
 
 def majority_baseline(labels) -> float:
+    """Share of the most frequent label (the accuracy of always guessing it)."""
     labels = pd.Series(list(labels))
     return float(labels.value_counts(normalize=True).iloc[0]) if len(labels) else float("nan")
 
 
 def r2(y, p) -> float:
+    """1 - SSE / SST of p against y (NaN when y is constant)."""
     y, p = np.asarray(y, dtype=float), np.asarray(p, dtype=float)
     sst = float(np.sum((y - y.mean()) ** 2))
     return float("nan") if sst == 0 else float(1.0 - np.sum((y - p) ** 2) / sst)
@@ -365,11 +383,13 @@ def next_season_target(aggregates: pd.DataFrame | None, season: str, next_season
 
 
 def following_season(season: str) -> str:
+    """The season after ``season`` ("2015-16" -> "2016-17")."""
     y = int(season[:4]) + 1
     return "%d-%02d" % (y, (y + 1) % 100)
 
 
 def _interval(df: pd.DataFrame, fn, n_boot: int, seed: int) -> dict:
+    """fn on df with a bootstrap interval over players (no interval with one player)."""
     if len(df) == 0:
         return {"point": float("nan"), "lo": float("nan"), "hi": float("nan")}
     r = bootstrap_by_game(df, "player_id", fn, n=n_boot, seed=seed)
@@ -440,6 +460,7 @@ def decide(pca_acc: float, ae_acc) -> dict:
 
 
 def embeddings_table(rows: pd.DataFrame, E: np.ndarray, method: str) -> pd.DataFrame:
+    """player_embeddings rows of one method: player_id, season, method, e1 .. e8."""
     t = rows[["player_id", "season"]].copy().reset_index(drop=True)
     t["method"] = method
     for i, c in enumerate(EMB_COLS):
@@ -471,6 +492,7 @@ def neighbours_table(rows: pd.DataFrame, E: np.ndarray, method: str, k: int = K_
 # ----------------------------------------------------------------------------- run
 
 def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fixture: bool = False, n_folds: int = 5) -> dict:
+    """The protocol of the module docstring on loaded inputs -> ctx (features, candidates, decision, tables)."""
     feats = build_features(inputs, n_min)
     cols = F.available_features(feats)
     fit_rows = feats[~feats["insufficient"]].reset_index(drop=True)
@@ -526,27 +548,17 @@ def write_tables(ctx: dict, out_root) -> dict:
 
 # ----------------------------------------------------------------------------- report
 
-def _f(v, nd=3) -> str:
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d: dict) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d["lo"]):
-        return _f(d["point"])
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
-
-
 def write_report(path, ctx: dict, command: str) -> str:
+    """Write the markdown report of a run context to path; returns the text. On fixtures every heading of a section
+    that carries a number says it is fixture output, not a result."""
     fx = ctx["fixture"]
     tag = " (fixture output, not a result)" if fx else ""
     L = ["# Player style embeddings (analytics/embeddings/train.py)%s" % tag, "",
          "Written %s by `%s`." % (dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), command), ""]
     if fx:
         L += ["**Every number below is fixture output, not a result**: the inputs are synthetic games from "
-              "tests/_fx_embeddings.py with planted archetypes. The real run is the Mac command at the end.", ""]
-    L += ["## Inputs", "",
+              "analytics.fixtures with planted archetypes. The real run is the Mac command at the end.", ""]
+    L += ["## Inputs%s" % tag, "",
           "Source: %s." % ctx["source"],
           "Training games (%d): %s." % (len(ctx["games"]), ", ".join(ctx["games"]) or "none"),
           "Held-out material set aside before any feature: %d frame file(s) under heldout/, %d game id(s) dropped by "
@@ -562,7 +574,7 @@ def write_report(path, ctx: dict, command: str) -> str:
              "; the contract gate is 300, lowered for the short fixture games" if ctx["n_min"] != F.N_MIN else ""),
           "Features used (%d): %s." % (len(ctx["feature_columns"]), ", ".join(ctx["feature_columns"])), ""]
     if ctx["decision"]["chosen"] is None:
-        L += ["## Status", "", ctx["decision"]["reason"], "", "    " + MAC_CMD, ""]
+        L += ["## Status%s" % tag, "", ctx["decision"]["reason"], "", "    " + MAC_CMD, ""]
         text = "\n".join(L)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         Path(path).write_text(text)
@@ -583,22 +595,23 @@ def write_report(path, ctx: dict, command: str) -> str:
         ev = c["eval"]
         note = "explained variance %s" % ", ".join("%.2f" % v for v in c["explained_variance_ratio"]) if m == "pca" \
             else "reconstruction mse %.3f, %d iterations" % (c["reconstruction_mse"], c["n_iter"])
-        L.append("| %s | %s | %s | %s | %s | %s |" % (m, _ci(ev["knn"]["accuracy"]), _ci(ev["knn"]["majority"]),
-                                                     _ci(ev["next"]["r2"]), _ci(ev["next"]["r2_mean"]), note))
+        L.append("| %s | %s | %s | %s | %s | %s |" % (m, fmt_ci(ev["knn"]["accuracy"]), fmt_ci(ev["knn"]["majority"]),
+                                                     fmt_ci(ev["next"]["r2"]), fmt_ci(ev["next"]["r2_mean"]), note))
     ev = ctx["candidates"]["pca"]["eval"]
     L += ["", "5-NN: leave-one-out over %d labelled player-seasons, majority class %s. Next season: %s, %d player(s), "
           "out-of-fold under %d grouped folds by player_id." % (ev["knn"]["n"], ev["knn"]["majority_class"], ev["next"]["target"],
                                                                  ev["next"]["n"], ev["next"]["folds"]), "",
-          "## Decision", "", "Chosen: **%s**. %s." % (ctx["decision"]["chosen"], ctx["decision"]["reason"]),
+          "## Decision%s" % tag, "", "Chosen: **%s**. %s." % (ctx["decision"]["chosen"], ctx["decision"]["reason"]),
           "The gate compares the 5-NN position accuracy reported in the candidate table above (leave-one-out point estimate).", "",
-          "## Outputs", "",
+          "## Outputs%s" % tag, "",
           "Tables (docs/contract/embeddings.md): player_season_features (%d rows), player_embeddings (%d rows), embedding_neighbours (%d rows)."
           % (len(ctx["tables"]["player_season_features"]), len(ctx["tables"]["player_embeddings"]), len(ctx["tables"]["embedding_neighbours"]))]
     if ctx.get("written"):
         if ctx.get("out_is_temp"):
             L.append("Written under a temporary directory (no --out given).")
         else:
-            L.append("Written under: " + "; ".join("%s: %s" % (k, v[0]) for k, v in ctx["written"].items()) + ".")
+            L.append("Written under OUT_ROOT/analytics/embeddings/<season>/ (OUT_ROOT is the --out value): %s."
+                     % ", ".join(sorted(ctx["written"])))
     L += ["", "## Assumptions (decided without asking; also in the module docstrings)", "",
           "- The attacked basket of a (game, period, team) is the side where the ball spends that team's offensive frames; "
           "court zones are shares of the player's OFFENSIVE frames in a 3 by 2 grid of that half, backcourt frames in the denominator only.",
@@ -613,8 +626,8 @@ def write_report(path, ctx: dict, command: str) -> str:
           "- The NBA.com season aggregates and the positions table are season-level and include the held-out games' minutes; no "
           "held-out row is fitted, but those season totals are not held-out-free. There is no flag to drop the aggregate block yet: "
           "a tracked-era run without it is the run without collect/tracking/aggregates present (the block is then NaN and unused).",
-          "- The shared fixtures (analytics.fixtures) key their positions and aggregates by other player ids than their games, so on them both metrics read n/a; "
-          "the lane's local generator (tests/_fx_embeddings.py, 5 Hz, planted G/F/C archetypes, aligned ids) is what exercises the metrics. Fixture output is never a result.",
+          "- Fixture runs use analytics.fixtures.write_fixture_root: league rosters persist across games and the aggregates and positions are "
+          "keyed by the same players (archetype from the roster slot), so both metrics run on them. Fixture output is never a result.",
           "", "## Mac command", "", "On the owner's Mac, with the full 2015-16 tracking games, possessions, shots, the NBA.com aggregates when "
           "collected and collect/positions.parquet (player_id, season, position):", "", "    " + MAC_CMD, ""]
     if fx:
@@ -628,27 +641,24 @@ def write_report(path, ctx: dict, command: str) -> str:
 # ----------------------------------------------------------------------------- main
 
 def parse_args(argv=None):
+    """The trainer's command line (add_input_args plus the protocol flags)."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true", help="synthetic season from tests/_fx_embeddings.py")
-    ap.add_argument("--data", help="DATA_ROOT (layout in the module docstring)")
-    ap.add_argument("--report", default="reports/embeddings.md")
+    add_input_args(ap)
+    ap.add_argument("--report", default="reports/embeddings.md", help="markdown report path (default reports/embeddings.md)")
     ap.add_argument("--out", help="OUT_ROOT for the three tables (a fixture run uses a temporary directory when absent)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by player_id for the next-season ridge (fewer when fewer players)")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of players for every interval (default 200)")
     ap.add_argument("--n-min", type=int, default=None, help="possession gate (300; %d for --fixtures)" % FIXTURE_N_MIN)
-    ap.add_argument("--n-games", type=int, default=8, help="--fixtures: games in the synthetic season")
-    ap.add_argument("--heldout-every", type=int, default=4, help="--fixtures: every k-th game is held out")
-    ap.add_argument("--local-fixtures", action="store_true", help="--fixtures: the lane's local generator (positions aligned to the tracked players)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: run the protocol, write the tables and the report; returns the run context."""
     a = parse_args(argv)
     if not a.fixtures and not a.data:
         raise SystemExit("%s: one of --fixtures or --data is required" % WHO)
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
-    inputs = fixture_inputs(a.seed, a.n_games, a.heldout_every, local=a.local_fixtures) if a.fixtures else load_inputs(a.data)
+    inputs = inputs_from_args(a)
     n_min = a.n_min if a.n_min is not None else (FIXTURE_N_MIN if a.fixtures else F.N_MIN)
     ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures, n_folds=a.folds)
     out_root = a.out if a.out else (tempfile.mkdtemp(prefix="emb_out_") if a.fixtures else None)

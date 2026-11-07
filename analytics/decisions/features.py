@@ -70,10 +70,12 @@ CONTEXT_IDS = ["sportvu_game", "possession", "frame", "event", "player_id", "rec
 
 
 def feature_columns() -> list:
+    """The decision-frame feature names (FEATURES)."""
     return list(FEATURES)
 
 
 def teammate_columns() -> list:
+    """The per-teammate columns tm<k>_<field> of a decision context."""
     return ["tm%d_%s" % (k, f) for k in range(1, MAX_TEAMMATES + 1) for f in TEAMMATE_FIELDS]
 
 
@@ -95,10 +97,12 @@ def fps_of(frames: pd.DataFrame) -> float:
 
 
 def points_of(dist_ft) -> np.ndarray:
+    """3 for a distance of THREE_FT or more, else 2."""
     return np.where(np.asarray(dist_ft, dtype=float) >= THREE_FT, 3.0, 2.0)
 
 
 def basket_of(mean_x: float) -> tuple:
+    """The rim of the half where mean_x lies."""
     return RIM_RIGHT if mean_x > HALF_X else RIM_LEFT
 
 
@@ -147,11 +151,13 @@ def contested(p, def_ft):
 
 
 def openness(def_ft):
+    """Pass openness factor: OPEN_MIN at 0 ft of nearest-defender distance rising linearly to 1 at OPEN_FT."""
     d = np.asarray(def_ft, dtype=float)
     return OPEN_MIN + (1 - OPEN_MIN) * np.clip(d, 0, OPEN_FT) / OPEN_FT
 
 
 def pass_risk(length_ft):
+    """Pass completion factor: PASS_RISK_BASE minus PASS_RISK_PER_FT per foot of pass length over PASS_RISK_FT."""
     return PASS_RISK_BASE - PASS_RISK_PER_FT * np.clip(np.asarray(length_ft, dtype=float) - PASS_RISK_FT, 0, None)
 
 
@@ -328,6 +334,7 @@ def _context(pos: Possession, i: int, h: int, kind: str, game: str, heldout: boo
 
 
 def context_columns() -> list:
+    """The columns of a decision-context frame, in order."""
     return CONTEXT_IDS + ["basket_x", "basket_y", "x", "y", "vx", "vy"] + FEATURES + teammate_columns()
 
 
@@ -587,18 +594,19 @@ def on_court_offensive_rating(frames: pd.DataFrame, possessions: pd.DataFrame, s
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def main(argv=None) -> pd.DataFrame:
+    """Print the decision counts per game and return the decision contexts of every game."""
     from analytics.decisions import validate as V
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true")
-    ap.add_argument("--data")
-    ap.add_argument("--out")
-    ap.add_argument("--season", default=V.DEFAULT_SEASON)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=8)
+    ap.add_argument("--fixtures", action="store_true", help="run on synthetic games from analytics.fixtures")
+    ap.add_argument("--data", help="DATA_ROOT")
+    ap.add_argument("--out", help="OUT_ROOT (upstream lanes' outputs; default DATA_ROOT)")
+    ap.add_argument("--season", default=V.DEFAULT_SEASON, help="season directory under DATA_ROOT/analytics (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    V.add_fixture_args(ap)
     a = ap.parse_args(argv)
     if not a.fixtures and not a.data:
         raise SystemExit("features: pass --fixtures or --data DATA_ROOT")
-    bundles = V.load_fixture_bundles(a.seed, a.n_games) if a.fixtures else V.load_root_bundles(a.data, a.season, a.out)
+    bundles = V.load_fixture_bundles(a.seed, a.n_games, a.heldout_every, a.n_possessions) if a.fixtures else V.load_root_bundles(a.data, a.season, a.out)
     bundles, _ = V.validate_bundles(bundles)
     parts = []
     for b in bundles:

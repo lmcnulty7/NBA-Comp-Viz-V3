@@ -41,9 +41,9 @@ import numpy as np
 import pandas as pd
 import scipy.sparse as sp
 
-from analytics import schema
-from analytics.eval import bootstrap_by_game, gated, grouped_folds, paired_bootstrap_by_game, refuse_heldout
-from analytics.playcalling import ACTION_TYPES, COVERAGES, N_MIN, SEASON, WHO
+from analytics.eval import (bootstrap_by_game, fit_threads, fmt_num, gated, grouped_folds, md_table, paired_bootstrap_by_game,
+                           refuse_heldout)
+from analytics.playcalling import N_MIN, SEASON, WHO
 from analytics.playcalling import features as F
 
 ALPHAS = (0.3, 1.0, 3.0, 10.0, 30.0, 100.0, 300.0, 1000.0)
@@ -113,6 +113,7 @@ class Design:
         return frame[g].fillna("unknown").astype(str)
 
     def matrix(self, frame: pd.DataFrame) -> sp.csr_matrix:
+        """The sparse indicator matrix of frame (one row per action)."""
         rows, cols = [], []
         for g in RIDGE_GROUPS:
             v = self._col(frame, g).to_numpy()
@@ -125,6 +126,7 @@ class Design:
         return sp.csr_matrix((data, (rows, cols)), shape=(len(frame), self.n_cols))
 
     def group_slice(self, g: str) -> list[int]:
+        """The column positions of one indicator group."""
         return [self.index[(g, lv)] for lv in self.levels[g]]
 
 
@@ -151,11 +153,13 @@ def fit_ridge(train: pd.DataFrame, alpha: float):
 
 
 def predict_ridge(model, frame: pd.DataFrame) -> np.ndarray:
+    """Predictions of a (design, ridge) pair from fit_ridge on frame."""
     d, m = model
     return np.asarray(m.predict(d.matrix(frame)), dtype=float)
 
 
 def fit_baselines(train: pd.DataFrame) -> dict:
+    """{name: predict(frame)} of the training mean and the training PPP by action type."""
     if train["heldout"].any():
         raise ValueError("%s: a held-out row reached fit_baselines" % WHO)
     mean = float(train["ppp"].mean())
@@ -165,6 +169,7 @@ def fit_baselines(train: pd.DataFrame) -> dict:
 
 
 def mse(y, p) -> float:
+    """Mean squared error."""
     y, p = np.asarray(y, dtype=float), np.asarray(p, dtype=float)
     return float(np.mean((y - p) ** 2))
 
@@ -296,40 +301,25 @@ def adjusted_table(train: pd.DataFrame, alpha: float, n_boot: int = 200, seed: i
 
 
 # ── report ──────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=3) -> str:
-    try:
-        return "n/a" if v is None or not np.isfinite(float(v)) else ("%%.%df" % nd) % float(v)
-    except (TypeError, ValueError):
-        return "n/a"
-
-
-def _ci(r: dict, nd=3) -> str:
-    return "%s [%s, %s]" % (_f(r["point"], nd), _f(r["lo"], nd), _f(r["hi"], nd))
-
-
 def _md_table(df: pd.DataFrame, cols, nd=3) -> list[str]:
-    L = ["| " + " | ".join(cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for r in df[cols].itertuples(index=False):
-        cells = []
-        for v in r:
-            if isinstance(v, (bool, np.bool_)):
-                cells.append("yes" if v else "no")
-            elif isinstance(v, (float, np.floating)):
-                cells.append(_f(v, nd))
-            elif v is None or (isinstance(v, float) and np.isnan(v)):
-                cells.append("all")
-            else:
-                cells.append(str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return L
+    """analytics.eval.md_table of the named columns, booleans written yes / no."""
+    d = df[list(cols)].copy()
+    for c in d.columns:
+        if d[c].dtype == bool:
+            d[c] = np.where(d[c], "yes", "no")
+    return md_table(d, nd)
 
 
 def write_report(path: Path, ctx: dict) -> str:
+    """Write the markdown report to path and return its text; on fixtures every section heading says fixture output."""
     fixture = ctx["fixtures"]
     tag = " (fixture output, not a result)" if fixture else ""
-    L = ["# Play calling: " + ASSOCIATION_LINE, "",
-         "Written %s by `%s`.%s" % (ctx["written"], ctx["command"], " FIXTURE OUTPUT, NOT A RESULT: the inputs are synthetic." if fixture else ""), "",
-         "## Inputs", ""]
+    L = ["# Play calling%s: %s" % (tag, ASSOCIATION_LINE), "",
+         "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
+    if fixture:
+        L += ["**Fixture output, not a result.** Every number below comes from synthetic inputs (analytics/playcalling/synthetic.py "
+              "on the %s generator); the real run is the command under Status." % ctx.get("generator", "shared"), ""]
+    L += ["## Inputs%s" % tag, ""]
     for name, entry in ctx["validation"].items():
         if isinstance(entry, dict):
             L.append("- %s: %s" % (name, ", ".join("%s=%s" % (k, json.dumps(v, default=str)) for k, v in entry.items() if k != "schema")))
@@ -340,7 +330,7 @@ def write_report(path: Path, ctx: dict) -> str:
           % (ctx["train_rows"], ctx["train_games"], ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]) or "none"),
           "Guard: `analytics.eval.refuse_heldout` checked %d training game ids; `analytics.schema.assert_time_forward` passed on the feature frame (%s)."
           % (ctx["train_games"], ", ".join(F.feature_columns())), "",
-          "## The caveat", "",
+          "## The caveat%s" % tag, "",
           "The unit is an action event; the outcomes are the containing possession's points (PPP) and, when epv_states exist, the EPV gained across the action. "
           "Which action gets called depends on the defence, the lineup, the clock and the score, so a difference in PPP between action types is an association, not the effect of the call. "
           "Intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d); a group with fewer than %d rows is marked insufficient and its number is not to be quoted."
@@ -356,22 +346,22 @@ def write_report(path: Path, ctx: dict) -> str:
         L += [""]
         L += _md_table(ctx["epv_by_action_coverage"].rename(columns={"ppp": "epv_gain"}), ["coverage", "action_type", "n", "epv_gain", "lo", "hi", "insufficient"])
     else:
-        L += ["", "## 2b. EPV gained across the action", "", "No epv_states were given, so no EPV outcome is reported."]
+        L += ["", "## 2b. EPV gained across the action%s" % tag, "", "No epv_states were given, so no EPV outcome is reported."]
     sc = ctx["scores"]
     L += ["", "## 3. Ridge adjustment%s" % tag, "",
           "Possession points regressed on indicator columns of action type, coverage, action type x coverage, offensive lineup, defensive lineup "
           "(lineups from the possession's first frame) and the binned score margin at the action start (trailing by more than 5, within 5, leading by more than 5), "
           "the last three groups being controls averaged out of the adjusted PPP. Alpha grid %s; %s. Outer-fold alphas: %s. Final alpha on all training rows: %s (grouped-CV MSE by alpha: %s)."
-          % (list(ALPHAS), ctx["protocol"], ctx["fold_alphas"], _f(ctx["alpha"], 1),
-             ", ".join("%s: %s" % (_f(a, 1), _f(m, 4)) for a, m in ctx["alpha_scores"].items()) or "n/a"), "",
+          % (list(ALPHAS), ctx["protocol"], ctx["fold_alphas"], fmt_num(ctx["alpha"], 1),
+             ", ".join("%s: %s" % (fmt_num(a, 1), fmt_num(m, 4)) for a, m in ctx["alpha_scores"].items()) or "n/a"), "",
           "| model | out-of-fold MSE | lo | hi |", "| --- | --- | --- | --- |"]
     for m in BASELINES:
         r = sc["mse"][m]
-        L.append("| %s | %s | %s | %s |" % (m, _f(r["point"], 4), _f(r["lo"], 4), _f(r["hi"], 4)))
+        L.append("| %s | %s | %s | %s |" % (m, fmt_num(r["point"], 4), fmt_num(r["lo"], 4), fmt_num(r["hi"], 4)))
     L += ["", "Paired bootstrap by game of the MSE difference (ridge minus baseline; negative favours the ridge):", ""]
     for m in ("mean", "by_action"):
         r = sc["paired"][m]
-        L.append("- ridge minus %s: %s [%s, %s], interval excludes zero: %s" % (m, _f(r["diff"], 4), _f(r["lo"], 4), _f(r["hi"], 4), "yes" if r["excludes_zero"] else "no"))
+        L.append("- ridge minus %s: %s [%s, %s], interval excludes zero: %s" % (m, fmt_num(r["diff"], 4), fmt_num(r["lo"], 4), fmt_num(r["hi"], 4), "yes" if r["excludes_zero"] else "no"))
     L += ["", "## 4. Recommendation table (association)%s" % tag, "",
           "Per coverage, the adjusted PPP of each action type: the ridge prediction with the lineup effects averaged over the training rows. "
           "recommended marks the highest adjusted PPP among the cells with at least %d rows; a coverage with no sufficient cell has no recommendation. "
@@ -379,7 +369,7 @@ def write_report(path: Path, ctx: dict) -> str:
     L += _md_table(ctx["adjusted"], ["coverage", "action_type", "adjusted_ppp", "lo", "hi", "n", "insufficient", "recommended"])
     rec = ctx["adjusted"][ctx["adjusted"]["recommended"]]
     if len(rec):
-        L += ["", "Recommended (association, gated): " + "; ".join("%s: %s (%s [%s, %s], n=%d)" % (r.coverage, r.action_type, _f(r.adjusted_ppp), _f(r.lo), _f(r.hi), r.n) for r in rec.itertuples())]
+        L += ["", "Recommended (association, gated): " + "; ".join("%s: %s (%s [%s, %s], n=%d)" % (r.coverage, r.action_type, fmt_num(r.adjusted_ppp), fmt_num(r.lo), fmt_num(r.hi), r.n) for r in rec.itertuples())]
     else:
         L += ["", "No coverage has a cell with at least %d rows, so no recommendation is made." % ctx["n_min"]]
     L += ["", "## Held-out rows%s" % tag, ""]
@@ -389,12 +379,12 @@ def write_report(path: Path, ctx: dict) -> str:
               % (ctx["heldout_rows"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"]), ctx["train_rows"]), "",
               "| model | held-out MSE |", "| --- | --- |"]
         for m, label in (("ridge", "ridge (selected)"), ("mean_floor", "training mean (floor)")):
-            L.append("| %s | %s |" % (label, _f(ctx["heldout_scores"][m], 4)))
+            L.append("| %s | %s |" % (label, fmt_num(ctx["heldout_scores"][m], 4)))
         L.append("")
         L.append("Point estimates only (no interval over %d game(s))." % ctx["heldout_games"])
     else:
         L.append("No held-out rows were present in the inputs.")
-    L += ["", "## Status", ""]
+    L += ["", "## Status%s" % tag, ""]
     if fixture:
         L.append("This is a fixture run on synthetic inputs: fixture output, not a result. The real run awaits the actions, coverage and EPV lane outputs "
                  "and the possessions tables on the owner's Mac, with the exact command")
@@ -402,7 +392,7 @@ def write_report(path: Path, ctx: dict) -> str:
         L.append("The real run of this protocol is")
     L += ["", "    " + FULL_RUN_CMD, ""]
     if ctx["written"]:
-        L += ["Tables written: %s." % ", ".join(ctx["written_files"]) if ctx["written_files"] else "No tables written (no --out)."]
+        L += ["Tables written (relative to OUT_ROOT): %s." % ", ".join(ctx["written_files"]) if ctx["written_files"] else "No tables written (no --out)."]
     text = "\n".join(L) + "\n"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
@@ -411,7 +401,13 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ────────────────────────────────────────────────────────────────────────────────────────────
 def run(table: pd.DataFrame, n_folds: int = 5, seed: int = 0, n_boot: int = 200, n_min: int = N_MIN) -> dict:
-    """The whole protocol on a built action table -> context dict (tables and scores)."""
+    """The whole protocol on a built action table -> context dict (tables and scores). Every ridge fit runs inside
+    analytics.eval.fit_threads() (one context for the whole run: the bootstrap refits the ridge hundreds of times)."""
+    with fit_threads():
+        return _run(table, n_folds, seed, n_boot, n_min)
+
+
+def _run(table: pd.DataFrame, n_folds: int, seed: int, n_boot: int, n_min: int) -> dict:
     train, heldout = training_split(table)
     if not len(train):
         raise SystemExit("%s: no training rows after setting the held-out rows aside" % WHO)
@@ -443,6 +439,7 @@ def run(table: pd.DataFrame, n_folds: int = 5, seed: int = 0, n_boot: int = 200,
 
 
 def write_tables(ctx: dict, table: pd.DataFrame, out_root, season: str) -> list[Path]:
+    """Write action_outcomes, ppp_by_action and playcalling_adjusted under OUT_ROOT; returns the paths."""
     written = F.write_action_outcomes(table, out_root, season)
     both = pd.concat([ctx["ppp_by_action"], ctx["ppp_by_action_coverage"]], ignore_index=True)
     for name, df in (("ppp_by_action", both), ("playcalling_adjusted", ctx["adjusted"])):
@@ -454,28 +451,29 @@ def write_tables(ctx: dict, table: pd.DataFrame, out_root, season: str) -> list[
 
 
 def parse_args(argv=None):
+    """The train CLI's arguments."""
+    from analytics.playcalling import validate as V
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--fixtures", action="store_true", help="synthetic inputs: the report is labelled fixture output, not a result")
     g.add_argument("--data", help="DATA_ROOT")
     ap.add_argument("--out", default=None, help="OUT_ROOT (upstream outputs in, this lane's tables out); default DATA_ROOT")
-    ap.add_argument("--report", default="reports/playcalling.md")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--n-min", type=int, default=N_MIN)
-    ap.add_argument("--season", default=SEASON)
-    ap.add_argument("--fixture-games", type=int, default=8)
-    ap.add_argument("--fixture-possessions", type=int, default=40)
-    ap.add_argument("--fixture-generator", choices=("auto", "local"), default="auto", help="auto: analytics.fixtures when present")
+    ap.add_argument("--report", default="reports/playcalling.md", help="markdown report path (default %(default)s)")
+    ap.add_argument("--folds", type=int, default=5, help="outer grouped folds by game (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the folds, the bootstrap and the fixtures (default %(default)s)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples by game (default %(default)s)")
+    ap.add_argument("--n-min", type=int, default=N_MIN, help="row gate of analytics.eval.gated (default %(default)s)")
+    ap.add_argument("--season", default=SEASON, help="season directory (default %(default)s)")
+    V.add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Run the protocol on the fixture or DATA_ROOT inputs, write the tables under OUT_ROOT and the report."""
     from analytics.playcalling import validate as V
     a = parse_args(argv)
     if a.fixtures:
-        inputs = V.fixture_inputs(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions, generator=a.fixture_generator)
+        inputs = V.fixture_inputs_from_args(a)
     else:
         inputs = V.load_data_root(a.data, a.out or a.data, a.season)
     inputs, vlog = V.validate_inputs(inputs)
@@ -483,10 +481,11 @@ def main(argv=None) -> dict:
                                        inputs.get("coverage_predictions"), inputs.get("epv_states"), inputs.get("heldout_games", ()))
     ctx = run(table, a.folds, a.seed, a.bootstrap, a.n_min)
     out_root = a.out or a.data
-    ctx["written_files"] = [str(p) for p in write_tables(ctx, table, out_root, a.season)] if out_root else []
+    ctx["written_files"] = [Path(p).relative_to(out_root).as_posix() for p in write_tables(ctx, table, out_root, a.season)] if out_root else []
     ctx.update({"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "command": "python -m analytics.playcalling.train " + " ".join(argv if argv is not None else sys.argv[1:]),
-                "validation": vlog, "build": blog, "fixtures": bool(a.fixtures)})
+                "validation": vlog, "build": blog, "fixtures": bool(a.fixtures),
+                "generator": "local" if a.fixture_generator == "local" else "shared"})
     text = write_report(Path(a.report), ctx)
     print(text)
     return ctx

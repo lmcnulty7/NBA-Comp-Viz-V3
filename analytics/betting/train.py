@@ -2,6 +2,7 @@
 
     python -m analytics.betting.train --fixtures | --data DATA_ROOT --report reports/betting.md [--out OUT_ROOT]
         [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
+        [--fixture-games 40] [--fixture-seasons 2020-21,2021-22]
 
 Protocol
   1. validate and join (analytics.betting.validate), build betting_games (analytics.betting.features); rows that the
@@ -46,7 +47,7 @@ from scipy.stats import norm
 
 from analytics.betting import features as _features
 from analytics.betting import validate as _validate
-from analytics.eval import bootstrap_by_game, brier, grouped_folds, log_loss, refuse_heldout
+from analytics.eval import bootstrap_by_game, brier, fit_threads, fmt_ci, fmt_num, grouped_folds, log_loss, refuse_heldout
 
 WHO = "betting.train"
 CANDIDATES = ("market", "logistic", "ridge")
@@ -56,6 +57,7 @@ STAKE_THRESHOLD = 0.55     # bet only when the model's cover probability for a s
 VIG = 0.045                # the book's margin per side; break-even probability is 1 / (1 + WIN_RETURN) = 0.5236
 WIN_RETURN = 1.0 - 2.0 * VIG   # 0.91 units won on a one-unit winning bet (about -110)
 UNIT = 1.0
+FIXTURE_TAG = "(fixture output, not a result)"
 MAC_CMD = ("python -m analytics.betting.train --data \"$DATA_ROOT\" --out \"$OUT_ROOT\" --report reports/betting.md "
            "--seed 0 --bootstrap 1000 --heldout-season 2024-25")
 
@@ -112,13 +114,15 @@ def fit_models(train: pd.DataFrame) -> dict:
     lab = train[train["home_cover"].notna()]
     y = lab["home_cover"].astype(int).to_numpy()
     if len(lab) >= 2 and len(np.unique(y)) == 2:
-        lr = make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=1000)).fit(_features.design(lab, cols).to_numpy(), y)
+        with fit_threads():
+            lr = make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=1000)).fit(_features.design(lab, cols).to_numpy(), y)
         out["logistic"] = (lambda frame, m=lr: m.predict_proba(_features.design(frame, cols).to_numpy())[:, 1], market_margin)
     else:
         out["logistic"] = out["market"]
     mg = train[train["home_margin"].notna()]
     if len(mg) >= 2:
-        rg = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(_features.design(mg, cols).to_numpy(), mg["home_margin"].astype(float).to_numpy())
+        with fit_threads():
+            rg = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(_features.design(mg, cols).to_numpy(), mg["home_margin"].astype(float).to_numpy())
         resid = mg["home_margin"].astype(float).to_numpy() - rg.predict(_features.design(mg, cols).to_numpy())
         sigma = float(max(np.std(resid, ddof=1) if len(resid) > 1 else 12.0, 1.0))
 
@@ -253,29 +257,22 @@ def summary_rows(pt: pd.DataFrame, games: pd.DataFrame, mode: str, n_boot: int, 
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=4) -> str:
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d: dict, nd=4) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    return "%s [%s, %s]" % (_f(d["point"], nd), _f(d["lo"], nd), _f(d["hi"], nd))
-
-
 def write_report(path: Path, ctx: dict) -> str:
+    """The markdown report of a run (ctx from run); every heading over fixture numbers carries the fixture tag."""
     fx = ctx["fixtures"]
+    tag = " %s" % FIXTURE_TAG if fx else ""
     L = ["# Betting market model (analytics/betting/train.py)", "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
-        L += ["**Fixture output, not a result.** This run used the synthetic games and odds of tests/_fx_betting.py; it proves "
+        L += ["**Fixture output, not a result.** This run used the synthetic games and odds of analytics.fixtures (synth_stints, "
+              "synth_odds); it proves "
               "the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through "
               "collect/extras.py --odds) that has not been collected.", ""]
     L += ["## Inputs", "", "| source | value |", "| --- | --- |"]
     for k, v in ctx["files"].items():
         L.append("| %s | %s |" % (k, ", ".join(v) if v else "none"))
     cl, jn = ctx["counts"]["closing"], ctx["counts"]["join"]
-    L += ["", "## Join coverage (odds to games: team nickname key, game date within one day of the UTC tip minus 8 hours)", "",
+    L += ["", "## Join coverage (odds to games: team nickname key, game date within one day of the UTC tip minus 8 hours)%s" % tag, "",
           "| count | value |", "| --- | --- |",
           "| odds rows | %d |" % cl["rows"], "| odds games (game_key) | %d |" % cl["games"],
           "| closing rows after resolving duplicates | %d |" % cl["closing_rows"],
@@ -290,7 +287,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "| matched with spread / total / moneyline | %d / %d / %d |" % (jn["matched_with_spread"], jn["matched_with_total"], jn["matched_with_moneyline"]),
           "| team names given / inferred from dates / ids unresolved | %d / %d / %d |" % (jn.get("team_names_given", 0), jn.get("team_names_inferred", 0), jn.get("team_ids_unresolved", 0)),
           "| collector held-out rows dropped | %d |" % ctx["counts"]["games_heldout_dropped"], "",
-          "## Protocol", "",
+          "## Protocol%s" % tag, "",
           "Unit: one game. Targets: home_cover (home margin plus closing home spread above 0; null on a push or without a spread) and "
           "clv = margin forecast minus the market margin forecast (minus the closing home spread).",
           "Features (previous games only): %s. Guard: analytics.schema.assert_time_forward plus the betting target list and a "
@@ -305,20 +302,20 @@ def write_report(path: Path, ctx: dict) -> str:
           "cover when 1 - p_cover > %.2f, else no bet; a win returns the collected spread price when the row carries one, else the nominal "
           "%.2f units (vig %.1f percent a side, about -110); a loss costs one unit, a push returns the stake; ROI is profit over units "
           "staked. betting_games carries no spread price, so the run reports the nominal return." % (UNIT, STAKE_THRESHOLD, STAKE_THRESHOLD, WIN_RETURN, 100 * VIG), "",
-          "## Candidates (%s, %d games)" % (ctx["mode"], ctx["train_games"]), "",
+          "## Candidates (%s, %d games)%s" % (ctx["mode"], ctx["train_games"], tag), "",
           "| candidate | cover log loss | Brier | margin MSE | bets | profit (units) | ROI |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for c in CANDIDATES:
         s = ctx["scores"][c]
-        L.append("| %s | %s | %s | %s | %d | %s | %s |" % (c, _ci(s["log_loss"]), _ci(s["brier"]), _ci(s["mse"], 1), s["n_bets"],
-                                                        _ci(s["pnl"], 2), _ci(s["roi"], 3)))
+        L.append("| %s | %s | %s | %s | %d | %s | %s |" % (c, fmt_ci(s["log_loss"], 4), fmt_ci(s["brier"], 4), fmt_ci(s["mse"], 1), s["n_bets"],
+                                                        fmt_ci(s["pnl"], 2), fmt_ci(s["roi"], 3)))
     L += ["", "Selected: cover model **%s**, margin model **%s**." % (ctx["chosen"]["cover_model"], ctx["chosen"]["margin_model"]), "",
-          "## Profit and loss per season, selected models", "",
+          "## Profit and loss per season, selected models%s" % tag, "",
           "| season | mode | games | labelled | log loss | Brier | margin MSE | bets | profit | ROI | lo | hi |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for r in ctx["summary"]:
         L.append("| %s | %s | %d | %d | %s | %s | %s | %d | %s | %s | %s | %s |" % (
-            r["season"], r["mode"], r["n_games"], r["n_labelled"], _f(r["log_loss"]), _f(r["brier"]), _f(r["mse"], 1), r["n_bets"],
-            _f(r["pnl"], 2), _f(r["roi"], 3), _f(r["lo"], 3), _f(r["hi"], 3)))
+            r["season"], r["mode"], r["n_games"], r["n_labelled"], fmt_num(r["log_loss"], 4), fmt_num(r["brier"], 4), fmt_num(r["mse"], 1), r["n_bets"],
+            fmt_num(r["pnl"], 2), fmt_num(r["roi"], 3), fmt_num(r["lo"], 3), fmt_num(r["hi"], 3)))
     L.append("")
     if ctx["heldout_season"]:
         L.append("The row marked held-out is season %s scored ONCE by the selected models refit on every training row; it was never "
@@ -342,21 +339,24 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The train CLI: --fixtures or --data, the report and output paths, the protocol knobs and the fixture knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data")
+    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
+    src.add_argument("--data", help="DATA_ROOT with collect/extras/odds and collect/stints")
     ap.add_argument("--out", default=None, help="OUT_ROOT (fixtures default to a temporary directory)")
-    ap.add_argument("--report", default="reports/betting.md")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--heldout-season", default="2024-25")
-    ap.add_argument("--fixture-games", type=int, default=40, help="games per fixture season")
+    ap.add_argument("--report", default="reports/betting.md", help="markdown report path (default reports/betting.md)")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the folds, the bootstrap and the fixtures (default 0)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by game inside the training seasons (default 5)")
+    ap.add_argument("--heldout-season", default="2024-25", help="the season set aside and scored once (default 2024-25)")
+    _validate.add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def run(data: dict, a, fixtures: bool, argv) -> dict:
+    """The whole protocol on the loaded data and the parsed arguments -> ctx (what write_report renders)."""
     res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     joined = res["joined"]
     held_season = _features.pick_heldout_season(joined["season"].unique(), a.heldout_season)
@@ -402,8 +402,10 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
 
 
 def main(argv=None) -> dict:
+    """Run the trainer from the command line, write the report and return ctx."""
     a = parse_args(argv)
-    data = _validate.fixture_data(a.seed, n_games=a.fixture_games) if a.fixtures else _validate.load_data(a.data)
+    data = _validate.fixture_data(a.seed, n_games=a.fixture_games, seasons=_validate.fixture_seasons(a.fixture_seasons)) \
+        if a.fixtures else _validate.load_data(a.data)
     ctx = run(data, a, a.fixtures, argv)
     text = write_report(Path(a.report), ctx)
     print(text)

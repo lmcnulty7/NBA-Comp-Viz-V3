@@ -91,8 +91,9 @@ game, which takes the cap of 7).
 ## Calibration of the absence baseline
 
 Log loss, Brier and ECE carry bootstrap intervals by game. The calibration slope is one fit on all out-of-fold rows
-and carries no interval: the harness's slope fit (unregularised logistic regression on logit p) is slow and unstable
-on near-separable probabilities, and at the fixture scale the slope is meaningless anyway.
+(`analytics.eval.calibration_slope_fast`, the bounded Newton solution of the harness's logistic regression of the
+target on logit p, which stays finite on near-separable probabilities) and carries no interval; at the fixture scale
+the slope is meaningless anyway, and with one class in `absent_next` it is not computed.
 
 ## Limits of the targets
 
@@ -105,7 +106,10 @@ schedule is the manifest, so a game missing from the manifest overstates rest. N
 the mean, logistic on `absent_next` against the base rate, all under grouped folds by game, held-out games scored
 once.
 
-Commands (`--fixtures` runs the synthetic season; fixture output is never a result):
+Commands (`--fixtures` runs the synthetic season of `analytics.fixtures`, one league with fixed team ids and rosters,
+sized by `--fixture-games`, `--fixture-possessions` and `--fixture-heldout-every` (`--n-games` and `--heldout-every`
+are kept as aliases); fixture output is never a result. On that season every listed player plays every game, so
+`absent_next` has one class there and the absence baseline reduces to the base rate):
 
     python -m analytics.load.validate --data "$DATA_ROOT" --out "$DATA_ROOT"
     python -m analytics.load.features --data "$DATA_ROOT" --out "$DATA_ROOT"

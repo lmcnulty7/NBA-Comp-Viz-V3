@@ -1,6 +1,7 @@
 """analytics/coverage/validate.py: inputs of the coverage lane and their checks.
 
-    python -m analytics.coverage.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.coverage.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-games 8]
+                                          [--fixture-possessions 40] [--fixture-heldout-every 0]
 
 Inputs (the upstream interface of lane ACTIONS, consumed as given):
     DATA_ROOT/labels/actions/<game>.jsonl   actions: sportvu_game, possession, action_type, start_frame, end_frame,
@@ -14,10 +15,9 @@ Inputs (the upstream interface of lane ACTIONS, consumed as given):
     DATA_ROOT/analytics/rosters/<season>/ (held-out under heldout/<season>/)
 
 Label files are append-only JSONL (analytics/labels.py): the last line about an id wins and a tombstone line
-(``deleted: true``) removes the id. They are read through ``analytics.labels.read_labels`` when that module imports
-and its id fields are present, else through the resolver here with the same rule. read_labels is called with
-``labeller_pass=1`` so only first-pass labels arrive; ``training_pass`` keeps that filter as a check (and as the
-filter for the fallback reader and the in-memory fixtures), so a pass-2 relabel never duplicates a training label.
+(``deleted: true``) removes the id. They are read only through ``analytics.labels.read_labels`` with
+``labeller_pass=1``, so only first-pass labels arrive; ``training_pass`` keeps that filter as a check (and as the
+filter for the in-memory fixtures), so a pass-2 relabel never duplicates a training label.
 
 Checks (every count is logged and returned):
     required columns present; coverage in the 7 classes; confidence in {sure, unsure}; label_source in {hand, model, synthetic}
@@ -31,14 +31,16 @@ Checks (every count is logged and returned):
 Assumptions taken without asking (also in reports/coverage.md):
     - the actions table carries no action_id column in the interface as given; when the column is absent the
       action_id is the 0-based position of the row within its game's file (jsonl line order, parquet row order)
-    - a held-out game is one whose id carries a token of sportvu/splits.json or ends in `.at.CLE` (the held-out
-      arena rule of docs/DATA_CONTRACT.md section 7), or whose frames sit under heldout/
-    - the season directory is derived from the game id date (MM.DD.YYYY): September or later is the start year
+    - a held-out game is one analytics.eval.is_heldout_game marks (a token of sportvu/splits.json or the held-out
+      arena `.at.CLE` of docs/DATA_CONTRACT.md section 7), or whose frames sit under heldout/
+    - the season directory is analytics.schema.season_of_game of the game id (the season turns over in July)
+
+--fixtures builds the season in memory from analytics.fixtures (fixture_bundle); a test may pass its own scripted
+generator to fixture_bundle, but no production module imports tests/.
 """
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import logging
 import sys
@@ -47,7 +49,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from analytics import schema
 from analytics.coverage import CLASSES, CONFIDENCES, LABEL_SOURCES, SCREEN_ACTION, TRAIN_PASS
+from analytics.eval import heldout_mask, is_heldout_game
 
 log = logging.getLogger("analytics.coverage")
 
@@ -61,79 +65,18 @@ CANDIDATE_COLUMNS = ["sportvu_game", "possession", "action_id", "start_frame", "
                      "confidence", "heldout"]
 
 
-# ── game ids, seasons, held-out ───────────────────────────────────────────────────────────────────
-def season_of(game_id: str) -> str:
-    """`MM.DD.YYYY.AWAY.at.HOME` -> `YYYY-YY` (September or later starts the season); `unknown` otherwise."""
-    try:
-        m, _d, y = str(game_id).split(".")[:3]
-        y, m = int(y), int(m)
-    except (ValueError, IndexError):
-        return "unknown"
-    return "%d-%s" % (y, str(y + 1)[2:]) if m >= 9 else "%d-%s" % (y - 1, str(y)[2:])
-
-
-def heldout_mask(game_ids) -> pd.Series:
-    """True for ids that carry a held-out token of sportvu/splits.json or end in `.at.CLE`."""
-    from sportvu import splits
-    toks = splits.heldout_tokens()
-    g = pd.Series(game_ids).astype(str)
-    return g.map(lambda s: any(t in s for t in toks) or s.endswith(".at." + splits.HELDOUT_ARENA)).astype(bool)
-
-
 # ── readers ───────────────────────────────────────────────────────────────────────────────────────
-ID_FIELD = {"actions": "action_id", "screens": "screen_id"}
-
-
-def _read_jsonl(path: Path, kind: str = "actions") -> pd.DataFrame:
-    """Fallback for when analytics.labels does not import: the rule of ``analytics.labels._read_jsonl`` exactly.
-    The last line about an id wins, a ``deleted`` line drops the id (and must carry the id, else ValueError), a line
-    without the id field takes the running position of the labels read so far as its id."""
-    idf = ID_FIELD.get(kind, "action_id")
-    live, order, n_labels = {}, [], 0
-    with open(path) as fh:
-        for ln, line in enumerate(fh):
-            line = line.strip()
-            if not line:
-                continue
-            rec = json.loads(line)
-            key = rec.get(idf)
-            if rec.get("deleted"):
-                if key is None:
-                    raise ValueError("%s:%d: tombstone has no %s" % (path, ln + 1, idf))
-                live.pop(int(key), None)
-                continue
-            if key is None:
-                key = n_labels
-                rec[idf] = key
-            key = int(key)
-            n_labels += 1
-            if key not in live:
-                order.append(key)
-            live[key] = rec
-    return pd.DataFrame([live[k] for k in order if k in live])
-
-
 def _read_game_labels(root: Path, game: str) -> tuple:
-    """(actions, screens, reader) of one game: analytics.labels.read_labels, the sanctioned reader (a ValueError
-    from it propagates); only when that module does not import, the resolver above with the same rule."""
-    try:
-        from analytics import labels as _labels
-    except ImportError:
-        _labels = None
-    if _labels is not None:
-        a, s = _labels.read_labels(root, game, labeller_pass=TRAIN_PASS)
-        return a, s, "analytics.labels"
-    out = []
-    for kind in ("actions", "screens"):
-        path = root / "labels" / kind / (game + ".jsonl")
-        out.append(_read_jsonl(path, kind) if path.exists() else pd.DataFrame())
-    return out[0], out[1], "raw"
+    """(actions, screens) of one game through analytics.labels.read_labels, the sanctioned reader (tombstones
+    applied, the last line per id wins, first labeller pass only); a ValueError from it propagates."""
+    from analytics.labels import read_labels
+    return read_labels(root, game, labeller_pass=TRAIN_PASS)
 
 
 def training_pass(df: pd.DataFrame, counts: dict, kind: str) -> pd.DataFrame:
     """Keep the rows of labeller_pass TRAIN_PASS (a missing pass counts as 1); count the rest. After
     analytics.labels.read_labels(..., labeller_pass=1) this is a check that must count 0 (logged as a warning
-    otherwise); it still does the filtering for the fallback reader and the in-memory fixtures."""
+    otherwise); it still does the filtering for the in-memory fixtures."""
     if "labeller_pass" not in df.columns or not len(df):
         counts["%s_other_pass_dropped" % kind] = 0
         return df
@@ -163,10 +106,9 @@ def load_labels(data_root, counts: dict | None = None) -> dict:
         d = root / "labels" / kind
         if d.exists():
             games |= {p.stem for p in d.glob("*.jsonl")}
-    acts, scrs, readers = [], [], set()
+    acts, scrs = [], []
     for game in sorted(games):
-        a, s, reader = _read_game_labels(root, game)
-        readers.add(reader)
+        a, s = _read_game_labels(root, game)
         if len(a):
             acts.append(a)
         if len(s):
@@ -174,7 +116,7 @@ def load_labels(data_root, counts: dict | None = None) -> dict:
     actions = pd.concat(acts, ignore_index=True) if acts else pd.DataFrame(columns=ACTION_COLUMNS)
     screens = pd.concat(scrs, ignore_index=True) if scrs else pd.DataFrame(columns=SCREEN_COLUMNS)
     counts["label_files_games"] = len(games)
-    counts["label_reader"] = ",".join(sorted(readers)) or "none"
+    counts["label_reader"] = "analytics.labels" if games else "none"
     counts["actions_rows_resolved"], counts["screens_rows_resolved"] = int(len(actions)), int(len(screens))
     actions = training_pass(actions, counts, "actions")
     screens = training_pass(screens, counts, "screens")
@@ -202,10 +144,12 @@ def load_detected(out_root) -> pd.DataFrame:
 FRAME_COLUMNS = ["frame", "period", "game_clock_s", "team_id", "player_id", "x", "y"]
 
 
-def _find(root: Path, sub: str, game: str, season: str) -> tuple:
-    """-> (path, heldout) of the first existing layout variant, or (None, False)."""
-    cands = [(root / sub / season / (game + ".parquet"), False), (root / sub / "heldout" / season / (game + ".parquet"), True),
-             (root / sub / (game + ".parquet"), False), (root / sub / "heldout" / (game + ".parquet"), True)]
+def _find(root: Path, sub: str, game: str, season: str | None) -> tuple:
+    """-> (path, heldout) of the first existing layout variant, or (None, False); without a season only the flat
+    variants are tried."""
+    cands = [(root / sub / season / (game + ".parquet"), False), (root / sub / "heldout" / season / (game + ".parquet"), True)] \
+        if season else []
+    cands += [(root / sub / (game + ".parquet"), False), (root / sub / "heldout" / (game + ".parquet"), True)]
     for p, held in cands:
         if p.exists():
             return p, held
@@ -213,13 +157,18 @@ def _find(root: Path, sub: str, game: str, season: str) -> tuple:
 
 
 def load_game(data_root, game: str) -> dict | None:
-    """dict(frames, rosters, possessions, heldout) of one game from the DATA_ROOT layout; None without frames."""
-    root, season = Path(data_root), season_of(game)
+    """dict(frames, rosters, possessions, heldout) of one game from the DATA_ROOT layout; None without frames. A label
+    file whose name is not a SportVU game id has no season directory: only the flat layout is tried for it."""
+    root = Path(data_root)
+    try:
+        season = schema.season_of_game(game)
+    except ValueError:              # not MM.DD.YYYY.AWAY.at.HOME
+        season = None
     fpath, held = _find(root, "sportvu_contract", game, season)
     if fpath is None:
         return None
     frames = pd.read_parquet(fpath, columns=FRAME_COLUMNS)
-    out = {"frames": frames, "heldout": bool(held or heldout_mask([game]).iloc[0])}
+    out = {"frames": frames, "heldout": bool(held or is_heldout_game(game))}
     for table in ("rosters", "possessions"):
         p, _ = _find(root / "analytics", table, game, season)
         out[table] = pd.read_parquet(p) if p is not None else None
@@ -247,34 +196,26 @@ def load_data_root(data_root, out_root=None) -> dict:
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────────────────────────
-def _fixture_module():
-    """tests/_fx_coverage.py (which itself prefers analytics.fixtures when that imports)."""
-    path = Path(__file__).resolve().parents[2] / "tests" / "_fx_coverage.py"
-    spec = importlib.util.spec_from_file_location("_fx_coverage", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-def fixture_bundle(seed: int = 0, n_games: int = 8, heldout_every: int = 0, local: bool = False,
-                   n_possessions: int = 40) -> dict:
-    """The load_data_root structure built in memory from the fixture generator (shared when it imports, else the
-    local scripted one; local=True pins the local one). Games are built one by one with synth_game(seed * 1000 + i,
-    n_possessions, heldout) so the size is the caller's; every heldout_every-th game (1-based) is held out and
-    carries a `.at.CLE` id so the arena rule marks it whatever the generator does."""
-    fx = _fixture_module()
-    gen_game = fx.local_synth_game if local else fx.synth_game
-    gen_labels = fx.local_synth_labels if local else fx.synth_labels
+def fixture_bundle(seed: int = 0, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40,
+                   game_fn=None, labels_fn=None) -> dict:
+    """The load_data_root structure built in memory from a fixture generator: analytics.fixtures (synth_game,
+    synth_labels) by default; a test may pass its own game_fn and labels_fn with the same signatures to pin a
+    scripted geometry. Games are built one by one with game_fn(seed * 1000 + i, n_possessions, heldout, id) so the
+    size is the caller's; every heldout_every-th game (1-based) is held out and carries a `.at.CLE` id so the arena
+    rule marks it whatever the generator does."""
+    shared = game_fn is None and labels_fn is None
+    if game_fn is None or labels_fn is None:
+        from analytics import fixtures
+        game_fn = game_fn or fixtures.synth_game
+        labels_fn = labels_fn or fixtures.synth_labels
     games, actions, screens = {}, [], []
     for i in range(n_games):
         held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
         gid = "%02d.%02d.2016.F%02d.at.%s" % (1 + i % 3, 1 + (seed + i) % 28, i, "CLE" if held else "FIX")
-        game = gen_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid)
+        game = game_fn(seed * 1000 + i, n_possessions=n_possessions, heldout=held, sportvu_game=gid)
         frames = game["frames"]
-        gid = str(game.get("sportvu_game") or game.get("meta", {}).get("sportvu_game") or frames["game"].iloc[0])
-        held = held or bool(game.get("heldout", False)) or bool(game.get("meta", {}).get("heldout", False)) \
-            or bool(heldout_mask([gid]).iloc[0])
-        labels = gen_labels(seed * 1000 + i, game)
+        held = held or bool(game.get("heldout", False)) or bool(game.get("meta", {}).get("heldout", False)) or is_heldout_game(gid)
+        labels = labels_fn(seed * 1000 + i, game)
         games[gid] = {"frames": frames[[c for c in FRAME_COLUMNS if c in frames.columns]], "rosters": game.get("rosters"),
                       "possessions": game.get("possessions"), "heldout": held}
         actions.append(labels["actions"])
@@ -284,7 +225,7 @@ def fixture_bundle(seed: int = 0, n_games: int = 8, heldout_every: int = 0, loca
     screens = training_pass(pd.concat(screens, ignore_index=True), lc, "screens")
     return {"games": games, "actions": _with_action_id(actions), "screens": screens,
             "detected": pd.DataFrame(columns=ACTION_COLUMNS + ["action_id"]), "missing_frames": [], "label_counts": lc,
-            "fixture": "local" if (local or not fx.SHARED) else "shared"}
+            "fixture": "shared" if shared else "scripted"}
 
 
 # ── checks ────────────────────────────────────────────────────────────────────────────────────────
@@ -410,7 +351,7 @@ def candidates(actions: pd.DataFrame, screens: pd.DataFrame, detected: pd.DataFr
         rows.append(d.assign(on_ball_defender_id=pd.NA, screener_defender_id=pd.NA, coverage=pd.NA, confidence=pd.NA))
     out = pd.concat([r.reindex(columns=CANDIDATE_COLUMNS[:-1]) for r in rows], ignore_index=True)
     out["heldout"] = out["sportvu_game"].astype(str).map(lambda g: bool(heldout_by_game.get(g, False))).to_numpy()
-    out["heldout"] = out["heldout"] | heldout_mask(out["sportvu_game"]).to_numpy()
+    out["heldout"] = out["heldout"] | heldout_mask(out["sportvu_game"])
     for c in ("possession", "action_id", "start_frame", "end_frame", "ball_handler_id", "screener_id"):
         out[c] = out[c].astype(int)
     for c in ("on_ball_defender_id", "screener_defender_id"):
@@ -441,16 +382,19 @@ def validate_bundle(bundle: dict) -> tuple:
 
 # ── CLI ───────────────────────────────────────────────────────────────────────────────────────────
 def add_input_args(ap: argparse.ArgumentParser) -> None:
+    """The input flags every coverage CLI takes: --fixtures or --data, --out and the fixture sizes."""
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="run on the in-memory fixture season (fixture output, not a result)")
+    g.add_argument("--fixtures", action="store_true", help="run on the in-memory fixture season of analytics.fixtures (fixture output, not a result)")
     g.add_argument("--data", help="DATA_ROOT (sportvu_contract/, analytics/, labels/)")
     ap.add_argument("--out", default=None, help="OUT_ROOT (analytics/actions/ detected screens are read from here; outputs are written here)")
-    ap.add_argument("--fixture-games", type=int, default=8)
-    ap.add_argument("--fixture-heldout-every", type=int, default=0)
-    ap.add_argument("--fixture-possessions", type=int, default=40)
+    ap.add_argument("--fixture-games", type=int, default=8, help="fixture games with --fixtures (default 8)")
+    ap.add_argument("--fixture-heldout-every", type=int, default=0,
+                    help="hold out every k-th fixture game, at the CLE arena; 0 holds out none (default 0)")
+    ap.add_argument("--fixture-possessions", type=int, default=40, help="possessions per fixture game (default 40)")
 
 
 def load_inputs(a) -> dict:
+    """The bundle the parsed CLI flags name: fixture_bundle with --fixtures, else load_data_root(DATA_ROOT, OUT_ROOT)."""
     if a.fixtures:
         return fixture_bundle(seed=getattr(a, "seed", 0), n_games=a.fixture_games, heldout_every=a.fixture_heldout_every,
                               n_possessions=a.fixture_possessions)
@@ -458,6 +402,7 @@ def load_inputs(a) -> dict:
 
 
 def main(argv=None) -> dict:
+    """Run every check on the inputs and print the counts as JSON."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     add_input_args(ap)
     ap.add_argument("--seed", type=int, default=0, help="fixture seed (the standard CLI passes it to every step)")
@@ -465,7 +410,7 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(name)s %(levelname)s %(message)s", stream=sys.stderr)
     bundle = load_inputs(a)
     _cand, counts = validate_bundle(bundle)
-    counts["source"] = "fixture (%s generator): fixture output, not a result" % bundle.get("fixture", "local") if a.fixtures else str(a.data)
+    counts["source"] = "fixture (%s generator): fixture output, not a result" % bundle.get("fixture", "shared") if a.fixtures else str(a.data)
     print(json.dumps(counts, indent=1))
     return counts
 

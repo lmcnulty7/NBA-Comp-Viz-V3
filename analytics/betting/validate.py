@@ -430,17 +430,39 @@ def load_data(data_root) -> dict:
     return {"odds": odds, "games": games, "files": {k: [str(p) for p in v] for k, v in files.items()}}
 
 
+FIXTURE_SOURCE = "analytics.fixtures synth_stints and synth_odds"
+FIXTURE_STINT_TEAMS = 6      # synth_stints without players: team ids TEAM_ID_BASE + 20 + t, codes TEAM_CODES[6 + t]
+
+
+def fixture_team_names(games: pd.DataFrame | None = None) -> dict:
+    """id -> feed name of the analytics.fixtures synthetic teams (their ids are not stats.nba.com ids): the synth_stints
+    scheme (TEAM_ID_BASE + 20 + t -> TEAM_CODES[6 + t]), the league scheme (LEAGUE_TEAM_ID_BASE + i -> LEAGUE_CODES[i])
+    and, when games is given, its home_team and away_team codes (synth_odds names its teams from those codes). Pass it
+    as validate(..., team_names=...); the join also infers unknown ids from dates when it is not passed."""
+    from analytics import fixtures as fx
+    names = fx.TEAM_NAMES
+    codes = fx.TEAM_CODES
+    out = {fx.TEAM_ID_BASE + 20 + t: names[codes[6 + t]] for t in range(FIXTURE_STINT_TEAMS) if codes[6 + t] in names}
+    out.update({fx.LEAGUE_TEAM_ID_BASE + i: names[c] for i, c in enumerate(fx.LEAGUE_CODES) if c in names})
+    if games is not None and {"home_team", "away_team"} <= set(games.columns):
+        for side in ("home", "away"):
+            for tid, code in zip(games[side + "_team_id"], games[side + "_team"]):
+                if str(code) in names:
+                    out[int(tid)] = names[str(code)]
+    return out
+
+
 @functools.lru_cache(maxsize=4)
 def _fixture_data_cached(seed: int, n_games: int, seasons: tuple) -> dict:
-    from tests._fx_betting import SOURCE, synth_odds, synth_stints, team_names
+    from analytics.fixtures import synth_odds, synth_stints
     d = synth_stints(seed, n_games=n_games, seasons=seasons)
-    return {"odds": synth_odds(seed, d["games"]), "games": d["games"], "files": {"fixtures": [SOURCE]},
-            "stints": d["stints"], "playbyplay": d["playbyplay"], "team_names": team_names(d["games"])}
+    return {"odds": synth_odds(seed, d["games"]), "games": d["games"], "files": {"fixtures": [FIXTURE_SOURCE]},
+            "stints": d["stints"], "playbyplay": d["playbyplay"], "team_names": fixture_team_names(d["games"])}
 
 
 def fixture_data(seed: int = 0, n_games: int = 40, seasons=("2020-21", "2021-22")) -> dict:
-    """The synthetic odds and games of tests/_fx_betting.py (generated once per (seed, n_games, seasons) in a
-    process; the frames come back as copies, so callers may mutate them)."""
+    """The synthetic odds and games of analytics.fixtures (synth_stints, synth_odds), generated once per (seed, n_games,
+    seasons) in a process; the frames come back as copies, so callers may mutate them. Fixture output, not a result."""
     d = _fixture_data_cached(int(seed), int(n_games), tuple(seasons))
     return {k: (v.copy() if isinstance(v, pd.DataFrame) else v) for k, v in d.items()}
 
@@ -470,18 +492,36 @@ def validate(odds: pd.DataFrame, games: pd.DataFrame, team_names: dict | None = 
 
 
 def parse_args(argv=None):
+    """The validate CLI: --fixtures or --data, with --out, --seed and the fixture knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures of tests/_fx_betting.py")
+    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
     src.add_argument("--data", help="DATA_ROOT with collect/extras/odds and collect/stints")
     ap.add_argument("--out", default=None, help="OUT_ROOT; counts go to OUT_ROOT/analytics/betting/validate.json")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default 0)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
+def add_fixture_args(ap, games: int = 40) -> None:
+    """The fixture knobs every betting CLI shares: --fixture-games (games per season) and --fixture-seasons."""
+    ap.add_argument("--fixture-games", type=int, default=games, help="with --fixtures: games per fixture season "
+                    "(default %d)" % games)
+    ap.add_argument("--fixture-seasons", default="2020-21,2021-22",
+                    help="with --fixtures: fixture seasons, comma separated (default 2020-21,2021-22)")
+
+
+def fixture_seasons(text: str) -> tuple:
+    """'2020-21,2021-22' -> ('2020-21', '2021-22')."""
+    return tuple(s.strip() for s in str(text).split(",") if s.strip())
+
+
 def main(argv=None) -> dict:
+    """Validate from the command line, print the counts as JSON and, with --out, write them."""
     a = parse_args(argv)
-    data = fixture_data(a.seed) if a.fixtures else load_data(a.data)
+    data = fixture_data(a.seed, n_games=a.fixture_games, seasons=fixture_seasons(a.fixture_seasons)) if a.fixtures \
+        else load_data(a.data)
     res = validate(data["odds"], data["games"], data.get("team_names"))
     summary = {"who": WHO, "mode": "fixtures" if a.fixtures else "data", "files": data["files"], "counts": res["counts"],
                "written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

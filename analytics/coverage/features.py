@@ -1,6 +1,7 @@
 """analytics/coverage/features.py: the per-screen feature frame of the coverage classifier.
 
-    python -m analytics.coverage.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+    python -m analytics.coverage.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--fixture-games 8]
+                                          [--fixture-possessions 40] [--fixture-heldout-every 0]
 
 Unit: one ball screen (hand-labelled or detected). The object being classified is the screen and the play right
 after it, so the feature window is DECLARED as start_frame .. end_frame + 1.5 s (POST_FRAMES = 38 frames at
@@ -33,7 +34,7 @@ import pandas as pd
 
 from analytics import schema
 from analytics.coverage import CLASSES
-from analytics.coverage.validate import add_input_args, load_inputs, season_of, validate_bundle
+from analytics.coverage.validate import add_input_args, load_inputs, validate_bundle
 
 log = logging.getLogger("analytics.coverage")
 
@@ -112,7 +113,6 @@ class GameTracks:
             return {}
         row = self.xy[f - self.fmin]
         return {p: row[j] for p, j in self.columns.items() if np.isfinite(row[j]).all()}
-
 
 
 def infer_defenders(tracks: GameTracks, handler: int, screener: int, f0: int) -> tuple:
@@ -294,9 +294,10 @@ def design(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def write_features(feats: pd.DataFrame, out_root) -> list:
-    """OUT_ROOT/analytics/coverage/<season>/coverage_features.parquet per season (held-out under heldout/<season>/)."""
+    """OUT_ROOT/analytics/coverage/<season>/coverage_features.parquet per season (held-out under heldout/<season>/);
+    <season> is analytics.schema.season_of_game."""
     paths = []
-    for (season, held), part in feats.groupby([feats["sportvu_game"].map(season_of), feats["heldout"]]):
+    for (season, held), part in feats.groupby([feats["sportvu_game"].map(schema.season_of_game), feats["heldout"]]):
         d = Path(out_root) / "analytics" / "coverage" / ("heldout" if held else "") / season
         d.mkdir(parents=True, exist_ok=True)
         p = d / "coverage_features.parquet"
@@ -306,9 +307,10 @@ def write_features(feats: pd.DataFrame, out_root) -> list:
 
 
 def main(argv=None) -> pd.DataFrame:
+    """Build the feature frame of the inputs and write it under OUT_ROOT (a scratch directory without --out)."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     add_input_args(ap)
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default 0)")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(name)s %(levelname)s %(message)s", stream=sys.stderr)
     bundle = load_inputs(a)

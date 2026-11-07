@@ -82,6 +82,7 @@ def correlation_table(res: dict) -> pd.DataFrame:
 
 
 def correlation_summary(res: dict) -> pd.DataFrame:
+    """The observed and shuffled validation summaries (mean rho, interval, sign test) per prior, one row each."""
     rows = []
     for prior, v in res["validation"].items():
         for name in ("summary", "shuffled"):
@@ -99,9 +100,3 @@ def shuffled_check(res: dict, n_shuffles: int = 20, seed: int = 0) -> pd.DataFra
     return pd.DataFrame([{"observed_mean_rho": float(obs), "shuffled_mean": float(np.nanmean(vals)),
                           "shuffled_sd": float(np.nanstd(vals)), "n_shuffles": n_shuffles,
                           "share_shuffles_at_or_above_observed": float(np.nanmean(vals >= obs))}])
-
-
-def player_game_table(res: dict) -> pd.DataFrame:
-    """Summed quality per player-game joined to the on-court offensive rating."""
-    pg = T.player_game_quality(res["events"])
-    return pg.merge(res["ortg"], on=["sportvu_game", "player_id"], how="left")

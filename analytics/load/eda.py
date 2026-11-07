@@ -12,6 +12,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from analytics.eval import md_table
 from analytics.load.features import FEATURES, MIN_STINTS_RANK, SAME_GAME, TARGETS
 
 REST_BUCKETS = (("back_to_back", 0.0, 1.0), ("one_day", 1.0, 2.0), ("two_plus", 2.0, np.inf))
@@ -132,19 +133,8 @@ def stint_gate(summary: pd.DataFrame) -> pd.DataFrame:
 
 
 def markdown(df: pd.DataFrame, nd: int = 3) -> str:
-    """A markdown table of a frame without tabulate."""
-    cols = list(df.columns)
-    L = ["| " + " | ".join(str(c) for c in cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for _, r in df.iterrows():
-        cells = []
-        for c in cols:
-            v = r[c]
-            if isinstance(v, (float, np.floating)):
-                cells.append("n/a" if not np.isfinite(v) else ("%%.%df" % nd) % v)
-            else:
-                cells.append("n/a" if v is None or (v is pd.NA) else str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return "\n".join(L)
+    """A markdown table of a frame (analytics.eval.md_table): floats to nd decimals, NaN blank."""
+    return "\n".join(md_table(df, nd))
 
 
 __all__ = ["rest_bucket", "speed_by_stint_index", "decline_by_rest_bucket", "distance_distribution",

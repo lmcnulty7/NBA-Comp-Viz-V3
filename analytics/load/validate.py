@@ -1,6 +1,7 @@
 """analytics/load/validate.py: inputs of the load lane and the checks on them.
 
     python -m analytics.load.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16] [--limit N]
+        [--seed 0] [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Inputs (DATA_ROOT layout on the owner's Mac, docs/DATA_CONTRACT.md):
     sportvu_contract/manifest.json                       dates and teams of every game (section 6): the schedule
@@ -11,8 +12,8 @@ Inputs (DATA_ROOT layout on the owner's Mac, docs/DATA_CONTRACT.md):
     collect/extras/injuries/<season>.parquet              section 15, when present: 2021-22 onward only, never
                                                           overlapping the 2015-16 tracking era; it is listed and
                                                           nothing joins to it
-With --fixtures the synthetic season of tests/_fx_load.py (shared analytics.fixtures when it imports) stands in;
-fixture output is never a result.
+With --fixtures the synthetic season of analytics.fixtures (synth_season: one league with fixed team ids and fixed
+rosters, so the schedule history repeats teams) stands in; fixture output is never a result.
 
 Checks on each frames table (validate_frames), all counted in a log dict:
     required columns; rows with a missing key or position dropped; duplicate (frame, player_id) rows dropped;
@@ -31,6 +32,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+from analytics.eval import is_heldout_game
+from analytics.schema import season_of_game
 
 REQUIRED_FRAME_COLUMNS = ("game", "period", "frame", "game_clock_s", "team_id", "team", "home", "player_id", "x", "y")
 READ_COLUMNS = ["game", "date", "period", "frame", "ts_ms", "game_clock_s", "team_id", "team", "home", "player_id", "x", "y"]
@@ -121,6 +125,7 @@ def validate_rosters(rosters: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def roster_from_frames(frames: pd.DataFrame, sportvu_game: str) -> pd.DataFrame:
+    """The roster of a game read off its frames (sportvu_game, player_id, team_id, team, home), one row per player."""
     ros = frames[["player_id", "team_id", "team", "home"]].drop_duplicates("player_id").copy()
     ros.insert(0, "sportvu_game", sportvu_game)
     return ros.reset_index(drop=True)
@@ -128,22 +133,15 @@ def roster_from_frames(frames: pd.DataFrame, sportvu_game: str) -> pd.DataFrame:
 
 # ── game ids and the schedule ──────────────────────────────────────────────────────────────────────
 def game_meta(sportvu_game: str) -> dict:
-    """'12.16.2015.PHX.at.GSW' -> dict(sportvu_game, date, away, home, season)."""
+    """'12.16.2015.PHX.at.GSW' -> dict(sportvu_game, date, away, home, season); the season is
+    analytics.schema.season_of_game (the July rule)."""
     mm, dd, yyyy, away, _at, home = str(sportvu_game).split(".")
-    y = int(yyyy)
-    season = "%d-%02d" % (y, (y + 1) % 100) if int(mm) >= 9 else "%d-%02d" % (y - 1, y % 100)
-    return {"sportvu_game": sportvu_game, "date": "%s-%s-%s" % (yyyy, mm, dd), "away": away, "home": home, "season": season}
-
-
-def heldout_by_id(sportvu_game: str) -> bool:
-    """True when sportvu/splits.json marks the game held out (by id or by the held-out arena)."""
-    from sportvu import splits
-    toks = splits.heldout_tokens()
-    s = str(sportvu_game)
-    return any(t in s for t in toks) or s.endswith(".at." + splits.HELDOUT_ARENA)
+    return {"sportvu_game": sportvu_game, "date": "%s-%s-%s" % (yyyy, mm, dd), "away": away, "home": home,
+            "season": season_of_game(sportvu_game)}
 
 
 def load_manifest(path) -> dict:
+    """The Step 1 manifest.json as a dict."""
     return json.loads(Path(path).read_text())
 
 
@@ -159,6 +157,7 @@ def game_frames(game: dict) -> pd.DataFrame:
 
 
 def game_rosters(game: dict, frames: pd.DataFrame | None = None) -> pd.DataFrame:
+    """The roster of a game dict: in memory under 'rosters', else read from 'rosters_path', else built from the frames."""
     if isinstance(game.get("rosters"), pd.DataFrame):
         return game["rosters"]
     p = game.get("rosters_path")
@@ -177,7 +176,7 @@ def load_data_root(data_root, season: str = "2015-16", limit: int | None = None)
     for sid, g in sorted(manifest.get("games", {}).items(), key=lambda kv: (kv[1].get("date", ""), kv[0])):
         if g.get("status") != "ok":
             continue
-        held = bool(g.get("heldout")) or heldout_by_id(sid)
+        held = bool(g.get("heldout")) or is_heldout_game(sid)
         fp = root / "sportvu_contract" / ("heldout/" if held else "") / ("%s.parquet" % sid)
         if not fp.exists():
             alt = root / "sportvu_contract" / ("" if held else "heldout/") / ("%s.parquet" % sid)
@@ -203,20 +202,73 @@ def load_data_root(data_root, season: str = "2015-16", limit: int | None = None)
             "source": str(root)}
 
 
-def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 20,
-                  prefer_shared: bool = True) -> dict:
-    """The synthetic season: analytics.fixtures when it imports (through tests/_fx_load.py), else that file's
-    local generator. Lazy import so the package never depends on tests/ outside --fixtures."""
-    try:
-        from tests import _fx_load as fx
-    except ImportError:
-        import importlib.util
-        p = Path(__file__).resolve().parents[2] / "tests" / "_fx_load.py"
-        spec = importlib.util.spec_from_file_location("_fx_load", p)
-        fx = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(fx)
-    return fx.season_inputs(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions,
-                            prefer_shared=prefer_shared)
+def inputs_from_games(games: list, aggregates: pd.DataFrame | None = None, source: str = "fixture",
+                      season: str = "2015-16") -> dict:
+    """In-memory game dicts (each with frames and rosters, and sportvu_game, date, away, home, heldout at its top level
+    or under 'meta') -> the inputs dict load_data_root returns: games, a section 6 shaped manifest (dates and teams),
+    aggregates, injuries (None: the injuries table covers 2021-22 onward and never overlaps the tracking era)."""
+    out_games = []
+    for g in games:
+        meta = g.get("meta") if isinstance(g.get("meta"), dict) else {}
+        get = lambda k, g=g, meta=meta: g.get(k) if g.get(k) is not None else meta.get(k)   # noqa: E731
+        sid = get("sportvu_game")
+        idm = game_meta(sid)
+        ros = g.get("rosters")
+        if not isinstance(ros, pd.DataFrame) or "player_id" not in ros.columns:
+            ros = roster_from_frames(g["frames"], sid)
+        out_games.append({"sportvu_game": sid, "date": get("date") or idm["date"], "away": get("away") or idm["away"],
+                          "home": get("home") or idm["home"], "heldout": bool(get("heldout")), "frames": g["frames"],
+                          "rosters": ros})
+    manifest = {"contract_version": 1, "source": source, "games": {}, "heldout": []}
+    for g in out_games:
+        manifest["games"][g["sportvu_game"]] = {"game": g["sportvu_game"], "date": g["date"], "away": g["away"],
+                                               "home": g["home"], "status": "ok", "heldout": g["heldout"],
+                                               "split": "heldout_game" if g["heldout"] else "train"}
+        if g["heldout"]:
+            manifest["heldout"].append(g["sportvu_game"])
+    return {"games": out_games, "manifest": manifest, "aggregates": aggregates, "injuries": None, "season": season,
+            "source": source}
+
+
+def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> dict:
+    """The synthetic season of analytics.fixtures in the inputs layout: synth_season (one league, fixed team ids and
+    rosters, every heldout_every-th game held out) and synth_aggregates on the season's rosters, so the tracking
+    aggregates cover the same players. Fixture output, not a result."""
+    from analytics.fixtures import synth_aggregates, synth_season
+    games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    players = pd.concat([g["rosters"] for g in games], ignore_index=True).drop_duplicates("player_id")
+    agg, _positions = synth_aggregates(seed, players=players, seasons=("2015-16",))
+    return inputs_from_games(games, agg, source="fixture (analytics.fixtures synth_season)")
+
+
+def add_fixture_args(ap) -> None:
+    """The fixture knobs every load CLI shares; --n-games and --heldout-every stay as aliases."""
+    ap.add_argument("--fixture-games", "--n-games", dest="fixture_games", type=int, default=8,
+                    help="with --fixtures: games in the synthetic season (default 8)")
+    ap.add_argument("--fixture-possessions", type=int, default=40,
+                    help="with --fixtures: possessions per synthetic game (default 40)")
+    ap.add_argument("--fixture-heldout-every", "--heldout-every", dest="fixture_heldout_every", type=int, default=4,
+                    help="with --fixtures: every k-th game is held out, 0 none (default 4)")
+
+
+def add_source_args(ap) -> None:
+    """--fixtures or --data, and the DATA_ROOT selectors (--season, --limit, --seed) every load CLI shares."""
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument("--fixtures", action="store_true", help="the synthetic season of analytics.fixtures "
+                     "(fixture output, not a result)")
+    src.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/rosters/")
+    ap.add_argument("--season", default="2015-16", help="the tracking season under DATA_ROOT (default 2015-16)")
+    ap.add_argument("--limit", type=int, default=None, help="first N games of the manifest (smoke)")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the fixtures (and of the bootstrap where one runs)")
+    add_fixture_args(ap)
+
+
+def load_args(a) -> dict:
+    """The inputs a parsed CLI asks for: load_fixtures with the fixture knobs under --fixtures, else load_data_root."""
+    if a.fixtures:
+        return load_fixtures(seed=a.seed, n_games=a.fixture_games, heldout_every=a.fixture_heldout_every,
+                             n_possessions=a.fixture_possessions)
+    return load_data_root(a.data, a.season, a.limit)
 
 
 def injuries_note(injuries: pd.DataFrame | None) -> str:
@@ -252,19 +304,12 @@ def validate_inputs(inputs: dict) -> dict:
 
 
 def main(argv=None) -> dict:
+    """Run every check from the command line, print the counts as JSON and, with --out, write them."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data", help="DATA_ROOT")
-    ap.add_argument("--local-fixtures", action="store_true",
-                    help="with --fixtures: the local generator of tests/_fx_load.py even when analytics.fixtures imports")
+    add_source_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: writes OUT_ROOT/analytics/load/<season>/validation.json (counts only)")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--limit", type=int, default=None, help="first N games of the manifest (smoke)")
-    ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
-    inputs = load_fixtures(seed=a.seed, prefer_shared=not a.local_fixtures) if a.fixtures else \
-        load_data_root(a.data, a.season, a.limit)
+    inputs = load_args(a)
     rep = validate_inputs(inputs)
     rep["source"] = inputs["source"]
     rep["note"] = "fixture output, not a result" if a.fixtures else "validation counts"

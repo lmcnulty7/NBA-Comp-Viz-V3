@@ -1,6 +1,7 @@
 """analytics/ghosting/features.py: the defender-frame panel at 5 Hz and the lagged feature window.
 
     python -m analytics.ghosting.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+        [--fixture-games 4] [--fixture-possessions 10] [--fixture-heldout-every 0]
 
 Unit: one defender at one sampled frame of a possession. The 25 Hz frames (section 4) are sampled every
 STRIDE = 5 frames (DT = 0.2 s) from the possession's start_frame; a possession (section 19) is used when
@@ -98,6 +99,7 @@ def feature_columns() -> list[str]:
 
 
 def lag_name(name: str, k: int) -> str:
+    """The window column of feature ``name`` at lag k: the plain name for lag 1, else <name>_lag<k>."""
     return name if k == 1 else f"{name}_lag{k}"
 
 
@@ -323,6 +325,7 @@ def build(games: list[dict]) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
 # ----------------------------------------------------------------------------- CLI
 
 def parse_args(argv=None):
+    """The features CLI's command line (validate.add_input_args plus --out)."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     V.add_input_args(ap)
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT): write analytics/ghosting/<season>/ghost_features_<game>.parquet there "
@@ -331,6 +334,7 @@ def parse_args(argv=None):
 
 
 def main(argv=None) -> dict:
+    """CLI: build the panel and the feature frame, print the counts, write ghost_features per game under --out."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
     games = V.load_games(a)

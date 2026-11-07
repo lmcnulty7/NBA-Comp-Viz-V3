@@ -3,12 +3,13 @@
 Every function returns a pandas DataFrame the notebook prints as a markdown table (no plotting library here).
 On the synthetic fixtures the output is fixture output, not a result; the notebook says so in its first cell.
 
-    load_tables(fixtures=True, data_root=None, seed=0, n_games=4)   the EPV inputs (analytics.epv.validate)
+    load_tables(fixtures=True, data_root=None, seed=0, n_games=4)   the EPV inputs (analytics.epv.validate; the
+                                                                    fixtures are analytics.fixtures' synthetic season)
     points_by_elapsed_bucket(states)                                points_to_end by elapsed bucket and end kind
     feature_distributions(feats)                                    summary of every feature, with the missing share
     target_correlation(feats, y)                                    Pearson and Spearman correlation with the target
     shuffled_check(tables, folds, seed, hgb_iter)                   the real lift against the shuffled-target lift
-    markdown(df)                                                    a markdown table without tabulate
+    markdown(df)                                                    a markdown table (analytics.eval.md_table)
 
 The trainer's leakage guards apply here as well: ``feature_distributions`` and ``target_correlation`` take the
 frame of ``analytics.epv.features.build_features``, which has passed ``analytics.schema.assert_time_forward``.
@@ -20,14 +21,17 @@ import pandas as pd
 
 from analytics import schema
 from analytics.epv import ELAPSED_BUCKETS
+from analytics.eval import md_table
 from analytics.epv import features as F
 from analytics.epv import validate as V
 
 
-def load_tables(fixtures: bool = True, data_root=None, seed: int = 0, n_games: int = 4, heldout_every: int = 4, out_root=None) -> dict:
+def load_tables(fixtures: bool = True, data_root=None, seed: int = 0, n_games: int = 4, heldout_every: int = 4, out_root=None,
+                n_possessions: int = 40) -> dict:
     """The cleaned EPV inputs: the fixture season (default) or DATA_ROOT (with the tables under OUT_ROOT first, as
     analytics.epv.validate.load_root)."""
-    tables = V.load_fixtures(seed, n_games=n_games, heldout_every=heldout_every) if fixtures else V.load_root(data_root, out_root=out_root)
+    tables = (V.load_fixtures(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions) if fixtures
+              else V.load_root(data_root, out_root=out_root))
     clean, reports = V.validate_all(tables)
     clean["reports"] = reports
     return clean
@@ -98,19 +102,8 @@ def shuffled_check(tables: dict, folds: int = 3, seed: int = 0, hgb_iter: int = 
 
 
 def markdown(df: pd.DataFrame, nd: int = 4) -> str:
-    """A markdown table of a frame (floats to nd decimals) with no dependency on tabulate."""
-    cols = list(df.columns)
-    L = ["| " + " | ".join(str(c) for c in cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for _, r in df.iterrows():
-        cells = []
-        for c in cols:
-            v = r[c]
-            if isinstance(v, (float, np.floating)):
-                cells.append("n/a" if not np.isfinite(v) else ("%%.%df" % nd) % v)
-            else:
-                cells.append(str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return "\n".join(L)
+    """A markdown table of a frame (floats to nd decimals, NaN blank): analytics.eval.md_table joined into one string."""
+    return "\n".join(md_table(df, nd))
 
 
 __all__ = ["load_tables", "points_by_elapsed_bucket", "feature_distributions", "target_correlation", "shuffled_check", "markdown"]

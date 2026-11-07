@@ -14,6 +14,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from analytics.eval import md_table
 from analytics.ghosting import features as F
 
 QUANTILES = (0.5, 0.9, 0.99)
@@ -37,6 +38,7 @@ def displacement_distributions(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def feature_summary(frame: pd.DataFrame) -> pd.DataFrame:
+    """mean, sd, min and max of every lag-1 feature."""
     cols = F.feature_columns()
     d = frame[cols].astype(float)
     return pd.DataFrame({"feature": cols, "mean": d.mean().to_numpy(), "sd": d.std().to_numpy(),
@@ -70,18 +72,8 @@ def correlation_table(gp: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def markdown(df: pd.DataFrame, nd: int = 3) -> str:
-    """A markdown table of a frame (no tabulate dependency)."""
-    cols = list(df.columns)
-    L = ["| " + " | ".join(cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for r in df.itertuples(index=False):
-        cells = []
-        for v in r:
-            if isinstance(v, (float, np.floating)):
-                cells.append("n/a" if not np.isfinite(v) else ("%%.%df" % nd) % v)
-            else:
-                cells.append(str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return "\n".join(L)
+    """A DataFrame as one markdown string (analytics.eval.md_table, floats to nd decimals)."""
+    return "\n".join(md_table(df, nd))
 
 
 __all__ = ["displacement_distributions", "feature_summary", "error_by_horizon", "deviation_by_end_kind",

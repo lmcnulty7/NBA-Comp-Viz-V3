@@ -1,7 +1,7 @@
 """analytics/playcalling/eda.py: tables for notebooks/eda_playcalling.ipynb (no plots; pandas and numpy only).
 
 Every function takes the action table of analytics.playcalling.features.build_action_table and returns a
-DataFrame; ``to_markdown`` renders one without the tabulate dependency. Nothing here fits a model. On the
+DataFrame; ``to_markdown`` renders one with analytics.eval.md_table (no tabulate dependency). Nothing here fits a model. On the
 fixtures every table is fixture output, not a result.
 
     action_counts(table)          actions, possessions and games per action type, by label_source
@@ -18,24 +18,20 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from analytics.eval import md_table
+
 
 def to_markdown(df: pd.DataFrame, nd: int = 3) -> str:
-    cols = list(df.columns)
-    L = ["| " + " | ".join(map(str, cols)) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for r in df.itertuples(index=False):
-        cells = []
-        for v in r:
-            if isinstance(v, (bool, np.bool_)):
-                cells.append("yes" if v else "no")
-            elif isinstance(v, (float, np.floating)):
-                cells.append("n/a" if not np.isfinite(v) else ("%%.%df" % nd) % v)
-            else:
-                cells.append(str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return "\n".join(L)
+    """df as a markdown table through analytics.eval.md_table, booleans written yes / no."""
+    d = df.copy()
+    for c in d.columns:
+        if d[c].dtype == bool:
+            d[c] = np.where(d[c], "yes", "no")
+    return "\n".join(md_table(d, nd))
 
 
 def action_counts(table: pd.DataFrame) -> pd.DataFrame:
+    """Actions, possessions, games and held-out actions per action type and label_source."""
     g = table.groupby(["action_type", "label_source"])
     out = g.agg(actions=("possession", "size"),
                 possessions=("possession", lambda s: int(len(set(zip(table.loc[s.index, "sportvu_game"], s))))),
@@ -45,11 +41,13 @@ def action_counts(table: pd.DataFrame) -> pd.DataFrame:
 
 
 def coverage_counts(table: pd.DataFrame) -> pd.DataFrame:
+    """Actions per coverage x action type x coverage_source."""
     out = (table.groupby(["coverage", "action_type", "coverage_source"]).size().rename("actions").reset_index())
     return out.sort_values(["coverage", "actions"], ascending=[True, False]).reset_index(drop=True)
 
 
 def ppp_distribution(table: pd.DataFrame) -> pd.DataFrame:
+    """Per action type: n, mean PPP, the shares of 0, 1, 2 and 3+ points and the mean EPV gain."""
     t = table[table["ppp"].notna()]
     rows = []
     for at, grp in t.groupby("action_type"):
@@ -61,6 +59,7 @@ def ppp_distribution(table: pd.DataFrame) -> pd.DataFrame:
 
 
 def lineup_counts(table: pd.DataFrame) -> pd.DataFrame:
+    """Per side: distinct lineups, rows, null rows, the share in the top five and lineups with 300+ rows."""
     rows = []
     for side in ("off_lineup", "def_lineup"):
         c = table[side].dropna().value_counts()

@@ -18,6 +18,8 @@ API (docs/contract/fixtures.md documents the guarantees):
     write_fixture_root(root, seed=0, n_games=6, heldout_every=3) -> manifest dict (the DATA_ROOT layout)
 
 CLI: python -m analytics.fixtures --out DIR [--seed 0] [--games 6] [--heldout-every 3]
+add_fixture_args(parser, games=8, possessions=40, heldout_every=0) adds --fixture-games, --fixture-possessions and
+    --fixture-heldout-every to a lane CLI.
 
 Physics of a synthetic game (all in feet, 25 Hz, court 94 x 50, baskets at (5.25, 25) and (88.75, 25)):
     the ball is carried by a handler (within 1 ft of him, z between 1 and 5 ft), passed between players
@@ -1606,6 +1608,22 @@ def write_fixture_root(root, seed: int = 0, n_games: int = 6, heldout_every: int
     return manifest
 
 
+def add_fixture_args(parser, games: int = 8, possessions: int = 40, heldout_every: int = 0):
+    """Add --fixture-games, --fixture-possessions and --fixture-heldout-every (dests fixture_games,
+    fixture_possessions, fixture_heldout_every) to an argparse parser or argument group, the spellings the lane
+    CLIs use for the size of the synth_season they build under --fixtures. The defaults are the caller's; pass
+    the values on as synth_season(seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions,
+    heldout_every=a.fixture_heldout_every). Returns the parser."""
+    parser.add_argument("--fixture-games", type=int, default=games,
+                        help="with --fixtures: synthetic SportVU games to generate (default %d)" % games)
+    parser.add_argument("--fixture-possessions", type=int, default=possessions,
+                        help="with --fixtures: possessions per synthetic game, at least 4 (default %d)" % possessions)
+    parser.add_argument("--fixture-heldout-every", type=int, default=heldout_every,
+                        help="with --fixtures: hold out every k-th game, the first as %s; 0 holds out none "
+                             "(default %d)" % (HELDOUT_GAME, heldout_every))
+    return parser
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="python -m analytics.fixtures", description=__doc__.splitlines()[0])
     ap.add_argument("--out", required=True, help="DATA_ROOT directory to write")
@@ -1625,7 +1643,7 @@ def main(argv=None) -> int:
 
 
 __all__ = ["synth_game", "synth_season", "synth_aggregates", "synth_stints", "synth_odds", "synth_labels",
-           "write_fixture_root", "fixture_paths", "split_for", "synth_league", "HELDOUT_GAME", "HELDOUT_ARENA",
+           "write_fixture_root", "fixture_paths", "split_for", "add_fixture_args", "synth_league", "HELDOUT_GAME", "HELDOUT_ARENA",
            "LEAGUE_CODES", "SLOT_ARCHETYPE", "BASKETS", "HZ",
            "GAP_POSSESSION", "TEAM_CODES", "TEAM_NAMES", "ACTION_COLUMNS", "SCREEN_COLUMNS"]
 

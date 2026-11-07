@@ -285,7 +285,6 @@ def test_data_root_layout_round_trip(tmp_path):
     assert (res["events"]["fold"] == T.IN_SAMPLE_FOLD).all() and (res["events_heldout"]["fold"] == T.HELDOUT_FOLD).all()
 
 
-@pytest.mark.skipif(not fx.SHARED, reason="analytics/fixtures.py (lane I1) not importable; the local generator covers the lane")
 def test_end_to_end_on_the_shared_fixtures():
     """The same run on lane I1's generator: held-out game named with the real held-out id, gap possessions skipped."""
     bundles = V.load_fixture_bundles(0, 3, 3, 8)
@@ -401,3 +400,15 @@ def test_ortg_counts_possessions_on_the_floor():
     assert o["n_possessions"].sum() == 5 * len(g["possessions"])
     assert o["points"].sum() == 5 * g["possessions"]["points"].sum()
     assert (o["ortg"] >= 0).all()
+
+
+def test_fixture_flags_and_production_never_imports_tests():
+    """The canonical --fixture-* flags and the older spellings set the same knobs; no lane module imports tests/."""
+    a = T.parse_args(["--fixtures", "--fixture-games", "3", "--fixture-possessions", "5", "--fixture-heldout-every", "2"])
+    b = T.parse_args(["--fixtures", "--n-games", "3", "--n-possessions", "5", "--heldout-every", "2"])
+    assert (a.n_games, a.n_possessions, a.heldout_every) == (b.n_games, b.n_possessions, b.heldout_every) == (3, 5, 2)
+    for p in (Path(__file__).resolve().parents[1] / "analytics" / "decisions").glob("*.py"):
+        import ast
+        mods = [n.module or "" for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.ImportFrom)]
+        mods += [a.name for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.Import) for a in n.names]
+        assert not [m for m in mods if m == "tests" or m.startswith("tests.")], p

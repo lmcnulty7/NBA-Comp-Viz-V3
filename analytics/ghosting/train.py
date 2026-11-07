@@ -1,10 +1,11 @@
 """analytics/ghosting/train.py: the three ghosting candidates under the full evaluation protocol.
 
     python -m analytics.ghosting.train --fixtures | --data DATA_ROOT --report reports/ghosting.md
-        [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT]
+        [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--threads 1]
+        [--fixture-games 4] [--fixture-possessions 10] [--fixture-heldout-every 0]
 
 Steps: load and validate the games (analytics.ghosting.validate); set every held-out game aside (its own
-heldout flag, or an id that carries a held-out token of sportvu/splits.json); call
+heldout flag, or analytics.eval.is_heldout_game on its id); call
 analytics.eval.refuse_heldout on the training game ids; build the 5 Hz panel and the feature frame
 (analytics.ghosting.features, which runs schema.assert_time_forward); fit the candidates under grouped
 folds by sportvu_game and roll each one forward from every origin row; score out-of-fold mean position
@@ -37,10 +38,9 @@ labelled, with no interval and no keep decision (the deep candidate is dropped b
 in the tables: >= 0 out-of-fold, -1 held-out scored once (HELDOUT_FOLD), -2 in-sample (IN_SAMPLE_FOLD).
 The held-out games are scored by the selected candidate (plus persistence as a labelled floor) only.
 
-Threads: every fit runs under threadpoolctl.threadpool_limits(THREADS) with THREADS = 1 by default, because
-the build container has 4 cores shared by 21 lanes and a multi-threaded BLAS spins for minutes there (an
-MLP fit measured 100 s with the default pools against 1.8 s single-threaded). ``--threads N`` raises it on
-the Mac.
+Threads: every fit runs under analytics.eval.fit_threads(threads) with THREADS = 1 by default, because the
+build container has 4 cores shared by 21 lanes and a multi-threaded BLAS spins for minutes there (an MLP fit
+measured 100 s with the default pools against 1.8 s single-threaded). ``--threads N`` passes N on the Mac.
 """
 from __future__ import annotations
 
@@ -54,7 +54,8 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import bootstrap_by_game, grouped_folds, paired_bootstrap_by_game, refuse_heldout
+from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, is_heldout_game,
+                            paired_bootstrap_by_game, refuse_heldout)
 from analytics.ghosting import features as F
 from analytics.ghosting import validate as V
 
@@ -83,6 +84,7 @@ MAC_CMD = ("python -m analytics.ghosting.train --data \"<Drive>/nba_harvest\" --
 # ----------------------------------------------------------------------------- models
 
 def _design(frame: pd.DataFrame, columns: list[str]) -> np.ndarray:
+    """The design matrix of ``columns`` after schema.assert_time_forward."""
     X = frame[columns]
     schema.assert_time_forward(X, "states_1hz")
     return X.to_numpy(dtype=float)
@@ -111,16 +113,16 @@ def fit_mlp(frame: pd.DataFrame, seed: int = 0, columns: list[str] | None = None
     return m.predict
 
 
-def fit_candidates(train: pd.DataFrame, seed: int = 0) -> dict:
-    """{candidate: predict(window_matrix) -> displacement (n, 2)}. Every fit of the trainer goes through here.
-    The window matrix is (n, N_LAGS * n_base) in window_columns order; the ridge reads its first block."""
+def fit_candidates(train: pd.DataFrame, seed: int = 0, threads: int = THREADS) -> dict:
+    """{candidate: predict(window_matrix) -> displacement (n, 2)}. Every fit of the trainer goes through here,
+    under analytics.eval.fit_threads(threads). The window matrix is (n, N_LAGS * n_base) in window_columns order;
+    the ridge reads its first block."""
     if "heldout" in train.columns and bool(train["heldout"].any()):
         raise ValueError("%s: a held-out row reached fit_candidates" % WHO)
     if len(train) < 10:
         raise ValueError("%s: %d training rows is too few to fit" % (WHO, len(train)))
-    from threadpoolctl import threadpool_limits
     nb = len(F.BASE_FEATURES)
-    with threadpool_limits(limits=THREADS):
+    with fit_threads(threads):
         ridge = fit_ridge(train)
         mlp = fit_mlp(train, seed=seed)
     return {"persistence": lambda W: np.zeros((len(W), 2)),
@@ -188,11 +190,12 @@ def roll_forward(models: dict, rows: pd.DataFrame, panel: pd.DataFrame, fold: in
     return pd.concat(out, ignore_index=True)
 
 
-def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: int) -> tuple[pd.DataFrame, dict]:
+def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: int,
+                threads: int = THREADS) -> tuple[pd.DataFrame, dict]:
     """Out-of-fold ghosts of every candidate -> (errors frame, protocol note)."""
     games = sorted(frame["sportvu_game"].unique())
     if len(games) == 1:
-        models = fit_candidates(frame, seed)
+        models = fit_candidates(frame, seed, threads)
         err = roll_forward(models, frame, panel, fold=IN_SAMPLE_FOLD)
         note = {"mode": "in-sample", "folds": 0, "games": 1,
                 "text": "one training game: no grouped fold is possible, so the errors are IN-SAMPLE (fit and scored on the same rows)"}
@@ -202,7 +205,7 @@ def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: in
     for i, (tr_games, te_games) in enumerate(grouped_folds(games, n_folds=k, seed=seed)):
         tr = frame[frame["sportvu_game"].isin(tr_games)]
         te = frame[frame["sportvu_game"].isin(te_games)]
-        models = fit_candidates(tr, seed)
+        models = fit_candidates(tr, seed, threads)
         parts.append(roll_forward(models, te, panel, fold=i))
     text = "out-of-fold under %d grouped folds by sportvu_game (seed %d)" % (k, seed)
     if k < n_folds:
@@ -213,6 +216,7 @@ def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: in
 # ----------------------------------------------------------------------------- scoring
 
 def _wide(err: pd.DataFrame, horizon: float) -> pd.DataFrame:
+    """One row per origin at ``horizon`` with one error column per candidate."""
     e = err[err["horizon_s"] == horizon]
     keys = ["sportvu_game", "possession", "frame", "def_player_id"]
     w = e.pivot_table(index=keys, columns="candidate", values="error_ft", aggfunc="first").reset_index()
@@ -305,7 +309,7 @@ def sign_test(gp: pd.DataFrame, min_possessions: int = 3) -> dict:
 
 def split_games(games: list[dict]) -> tuple[list[dict], list[dict]]:
     """(training games, held-out games); refuse_heldout runs on the training ids."""
-    held = [g for g in games if g.get("heldout") or V.is_heldout_id(g["sportvu_game"])]
+    held = [g for g in games if g.get("heldout") or is_heldout_game(g["sportvu_game"])]
     train = [g for g in games if g not in held]
     for g in held:
         g["heldout"] = True
@@ -313,14 +317,15 @@ def split_games(games: list[dict]) -> tuple[list[dict], list[dict]]:
     return train, held
 
 
-def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> dict:
-    """The whole protocol on game dicts -> ctx (scores, pairs, decision, errors, ghost tables, held-out)."""
-    from threadpoolctl import threadpool_limits
-    with threadpool_limits(limits=THREADS):
-        return _run(games, n_folds, seed, n_boot)
+def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200, threads: int = THREADS) -> dict:
+    """The whole protocol on game dicts -> ctx (scores, pairs, decision, errors, ghost tables, held-out), with BLAS
+    and OpenMP pinned to ``threads`` (analytics.eval.fit_threads)."""
+    with fit_threads(threads):
+        return _run(games, n_folds, seed, n_boot, threads)
 
 
-def _run(games: list[dict], n_folds: int, seed: int, n_boot: int) -> dict:
+def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int = THREADS) -> dict:
+    """run() without the thread pin."""
     train_games, held_games = split_games(games)
     if not train_games:
         raise SystemExit("%s: no training games after setting the held-out games aside" % WHO)
@@ -330,7 +335,7 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int) -> dict:
     he = frame[frame["heldout"].astype(bool)].reset_index(drop=True)
     if len(tr) < 10:
         raise SystemExit("%s: %d training rows is too few" % (WHO, len(tr)))
-    err, note = out_of_fold(tr, panel, n_folds, seed)
+    err, note = out_of_fold(tr, panel, n_folds, seed, threads)
     scores = score(err, n_boot, seed)
     pairs = paired(err, n_boot, seed)
     decision = decide(pairs)
@@ -345,7 +350,7 @@ def _run(games: list[dict], n_folds: int, seed: int, n_boot: int) -> dict:
     if len(he):
         # the held-out game sees only the selected candidate (and persistence as a labelled floor): the other
         # candidate is never scored on it, so nothing can be chosen on held-out numbers
-        models = fit_candidates(tr, seed)
+        models = fit_candidates(tr, seed, threads)
         keep = [c for c in ("persistence", decision["selected"]) if c in models]
         herr = roll_forward({c: models[c] for c in keep}, he, panel, fold=HELDOUT_FOLD)
         ctx["heldout_errors"] = herr
@@ -375,26 +380,16 @@ def write_tables(out_root, ctx: dict, season: str = V.SEASON) -> list[Path]:
 
 # ----------------------------------------------------------------------------- report
 
-def _f(v, nd=3) -> str:
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d: dict) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d["lo"]):
-        return _f(d["point"])
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
-
-
 def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
+    """Write the markdown report of a run context to path; returns the text. On fixtures every heading of a section
+    that carries a number says it is fixture output, not a result."""
     tag = " (fixture output, not a result)" if fixtures else ""
     L = ["# Ghosting: defender position from the past five sampled frames (analytics/ghosting/train.py)%s" % tag, "",
          "Written %s by `%s`." % (dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), command), ""]
     if fixtures:
-        L += ["**Fixture output, not a result.** Every number below comes from synthetic games (tests/_fx_ghosting.py or "
-              "analytics.fixtures); it shows the pipeline runs end to end and nothing about NBA defenders.", ""]
-    L += ["## Inputs", "", "| game | held out | possessions | used | skipped (gap, no offence, short, lineup) | sampled steps |",
+        L += ["**Fixture output, not a result.** Every number below comes from synthetic games (analytics.fixtures); it "
+              "shows the pipeline runs end to end and nothing about NBA defenders.", ""]
+    L += ["## Inputs%s" % tag, "", "| game | held out | possessions | used | skipped (gap, no offence, short, lineup) | sampled steps |",
           "| --- | --- | --- | --- | --- | --- |"]
     for g in ctx["train_games"] + ctx["heldout_games"]:
         c = ctx["counts"][g]
@@ -407,7 +402,7 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
           "Guard: `analytics.eval.refuse_heldout` checked %d training game ids against sportvu/splits.json; "
           "`schema.assert_time_forward` passed on the feature frame (%d columns, %d lag-1 features, %d window columns)."
           % (len(ctx["train_games"]), ctx["frame"].shape[1], len(F.feature_columns()), len(F.window_columns())), "",
-          "## Protocol", "",
+          "## Protocol%s" % tag, "",
           "Unit: defender at a sampled frame (5 Hz, every %d frames of the 25 Hz tracking) inside a possession; assignment = nearest "
           "offensive player at the possession's first sampled frame. Features at t minus 1 (and t minus 2 to t minus 5 for the window): "
           "%s." % (F.STRIDE, ", ".join(F.feature_columns())),
@@ -416,51 +411,53 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
           "Candidates: " + "; ".join(CANDIDATE_LABELS[c] for c in CANDIDATES) + ".",
           "Metrics: %s; mean position error in feet; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
           % (ctx["note"]["text"], ctx["bootstrap"], ctx["seed"], "; no interval with a single game" if len(ctx["train_games"]) < 2 else ""),
-          "", "## Candidates by horizon (%s, feet)" % ctx["note"]["mode"], "",
+          "", "## Candidates by horizon (%s, feet)%s" % (ctx["note"]["mode"], tag), "",
           "| candidate | 0.2 s error | rows | 1.0 s error | rows |", "| --- | --- | --- | --- | --- |"]
     for c in CANDIDATES:
         s2, s1 = ctx["scores"][0.2][c], ctx["scores"][1.0][c]
-        L.append("| %s | %s | %d | %s | %d |" % (CANDIDATE_LABELS[c], _ci(s2), s2["rows"], _ci(s1), s1["rows"]))
-    L += ["", "## Paired bootstrap by game (difference of mean error, feet; negative favours the first)", "",
+        L.append("| %s | %s | %d | %s | %d |" % (CANDIDATE_LABELS[c], fmt_ci(s2), s2["rows"], fmt_ci(s1), s1["rows"]))
+    L += ["", "## Paired bootstrap by game (difference of mean error, feet; negative favours the first)%s" % tag, "",
           "| pair | horizon | diff | lo | hi | excludes zero |", "| --- | --- | --- | --- | --- | --- |"]
     for pair, byh in ctx["pairs"].items():
         for h, r in byh.items():
-            L.append("| %s | %.1f s | %s | %s | %s | %s |" % (pair.replace("_", " "), h, _f(r["diff"]), _f(r["lo"]), _f(r["hi"]), r["excludes_zero"]))
+            L.append("| %s | %.1f s | %s | %s | %s | %s |" % (pair.replace("_", " "), h, fmt_num(r["diff"]), fmt_num(r["lo"]), fmt_num(r["hi"]), r["excludes_zero"]))
     d = ctx["decision"]
-    L += ["", "## Decision", "",
+    L += ["", "## Decision%s" % tag, "",
           "The deep candidate (3) is **%s**: its 1.0 s error minus the linear baseline's is %s with paired interval [%s, %s], which %s zero. "
           "The rule is fixed in advance: keep 3 only when the difference is negative and the interval excludes zero. Selected ghost: %s%s."
-          % ("kept" if d["keep_mlp"] else "dropped", _f(d["diff_1s"]), _f(d["lo"]), _f(d["hi"]),
+          % ("kept" if d["keep_mlp"] else "dropped", fmt_num(d["diff_1s"]), fmt_num(d["lo"]), fmt_num(d["hi"]),
              "excludes" if d["excludes_zero"] else "does not exclude", CANDIDATE_LABELS[d["selected"]], tag), "",
-          "## Validation: graded deviation against points allowed (%s rows, selected ghost, 1.0 s horizon)" % ctx["note"]["mode"], "",
+          "## Validation: graded deviation against points allowed (%s rows, selected ghost, 1.0 s horizon)%s" % (ctx["note"]["mode"], tag), "",
           "deviation_ft = distance(actual, assignment) minus distance(ghost, assignment); per possession the mean over its 1.0 s rows; "
           "per game the Spearman correlation of that mean with the points the offence scored; then a sign test over games "
           "(one-sided, more positive than negative correlations).", "",
           "| game | possessions | Spearman |", "| --- | --- | --- |"]
     for r in ctx["validation"]["per_game"].itertuples():
-        L.append("| %s | %d | %s |" % (r.sportvu_game, r.possessions, _f(r.spearman)))
+        L.append("| %s | %d | %s |" % (r.sportvu_game, r.possessions, fmt_num(r.spearman)))
     v = ctx["validation"]
-    L += ["", "Sign test: %d positive, %d negative, %d zero; one-sided p = %s%s." % (v["n_pos"], v["n_neg"], v["n_zero"], _f(v["p_value"], 4), tag), ""]
+    L += ["", "Sign test: %d positive, %d negative, %d zero; one-sided p = %s%s." % (v["n_pos"], v["n_neg"], v["n_zero"], fmt_num(v["p_value"], 4), tag), ""]
     if ctx["heldout_games"]:
-        L += ["## Held-out games (the selected candidate refit on all %d training rows, scored once; never fitted or tuned on)" % ctx["train_rows"], "",
+        L += ["## Held-out games (the selected candidate refit on all %d training rows, scored once; never fitted or tuned on)%s"
+              % (ctx["train_rows"], tag), "",
               "%d defender-steps from %d held-out game(s): %s. Only the selected candidate and the persistence floor are scored here; "
               "the dropped candidate never sees the held-out game." % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"])), "",
               "| candidate | 0.2 s error | 1.0 s error |", "| --- | --- | --- |"]
         for c in ctx["heldout_candidates"]:
-            L.append("| %s | %s | %s |" % (CANDIDATE_LABELS[c], _f(ctx["heldout_scores"][0.2][c]), _f(ctx["heldout_scores"][1.0][c])))
+            L.append("| %s | %s | %s |" % (CANDIDATE_LABELS[c], fmt_num(ctx["heldout_scores"][0.2][c]), fmt_num(ctx["heldout_scores"][1.0][c])))
         hv = ctx["heldout_validation"]
         L += ["", "Held-out numbers are point estimates (no bootstrap over %d game(s)). Held-out sign test: %d positive, %d negative, p = %s."
-              % (len(ctx["heldout_games"]), hv["n_pos"], hv["n_neg"], _f(hv["p_value"], 4)), ""]
+              % (len(ctx["heldout_games"]), hv["n_pos"], hv["n_neg"], fmt_num(hv["p_value"], 4)), ""]
     else:
         L += ["## Held-out games", "", "None in this run; the Mac run scores the held-out games once after the decision above.", ""]
-    L += ["## Tables", "",
+    L += ["## Tables%s" % tag, "",
           "ghost_frames: %d rows; ghost_possessions: %d rows (docs/contract/ghosting.md)." % (len(ctx["ghost_frames"]), len(ctx["ghost_possessions"])), "",
           "## Assumptions and what needs real data", "",
           "- Assignment is the nearest offensive player at the possession's first sampled frame (defender-centric, no one-to-one matching); "
           "the attacking side is the half the ball is in at t minus 1; a null shot clock is max(24 minus elapsed, 0); possessions with a "
           "clock gap or no offence are skipped; a sequence is cut at the first sampled frame without the first frame's ten players or without a ball.",
           "- The 1.0 s roll-forward keeps the offence, the ball and the other defenders actual and feeds only this defender's ghost back.",
-          "- Fits run single-threaded (THREADS = 1) because the build container shares 4 cores across 21 lanes; `--threads` raises it on the Mac.",
+          "- Fits run under `analytics.eval.fit_threads(--threads)`, single-threaded by default because the build container shares 4 cores "
+          "across 21 lanes; `--threads` raises it on the Mac.",
           "- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the "
           "held-out games are scored once, after the decision, by the candidates refit on every training row. The sign test needs dozens of "
           "games to say anything; with the fixtures it is a pipeline check.", "",
@@ -479,24 +476,25 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
 # ----------------------------------------------------------------------------- main
 
 def parse_args(argv=None):
+    """The trainer's command line (validate.add_input_args plus the protocol flags)."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     V.add_input_args(ap)
-    ap.add_argument("--report", default="reports/ghosting.md")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    ap.add_argument("--report", default="reports/ghosting.md", help="markdown report path (default reports/ghosting.md)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5; fewer games: one per game)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games for every interval (default 200)")
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT): write ghost_frames and ghost_possessions per game under "
                                   "OUT_ROOT/analytics/ghosting/<season>/")
-    ap.add_argument("--threads", type=int, default=THREADS, help="BLAS threads for the fits (1 in the shared build container)")
+    ap.add_argument("--threads", type=int, default=THREADS,
+                    help="BLAS and OpenMP threads for the fits, passed to analytics.eval.fit_threads (default 1, the shared build container)")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: run the protocol, write the report and the per-game tables (under --out, else DATA_ROOT); returns ctx."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
-    global THREADS
-    THREADS = max(int(a.threads), 1)
     games = V.load_games(a)
-    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap)
+    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1))
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])
     text = write_report(Path(a.report), ctx, fixtures=bool(a.fixtures), command=cmd)
     print(text)

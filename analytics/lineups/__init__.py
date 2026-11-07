@@ -8,6 +8,7 @@ Modules
     train      the three candidates (raw plus-minus, RAPM, RAPM plus gated lineup terms), the out-of-season
                selection and the held-out season scored once, the report and the output tables
     eda        tables for notebooks/eda_lineups.ipynb
+    synthetic  the lane's own synthetic stints generator (--fixture-generator local); fixture output only
 
 Inputs (DATA_ROOT layout on the owner's Mac)
     DATA_ROOT/collect/stints/stints/<season>.parquet        section 12
@@ -49,6 +50,7 @@ def lineup_id(ids) -> str:
 
 
 def stints_dir(data_root) -> Path:
+    """DATA_ROOT/collect/stints."""
     return Path(data_root) / "collect" / "stints"
 
 
@@ -76,27 +78,35 @@ def read_season_tables(data_root, kind: str, seasons=SEASONS) -> pd.DataFrame:
 _FIXTURE_CACHE: dict = {}
 
 
+GENERATORS = ("auto", "shared", "local")
+
+
 def fixture_tables(seed: int = 0, n_games: int = FIXTURE_GAMES, seasons=FIXTURE_SEASONS, generator: str = "auto") -> dict:
-    """The synthetic tables. generator: "shared" is analytics.fixtures.synth_stints (lane I1), "local" the
-    fallback of tests/_fx_lineups.py (fixed rosters and rotations, so five-man lineups repeat across seasons),
-    "auto" the shared one when it imports, else local. Fixture numbers are never results."""
-    import sys
-    root = Path(__file__).resolve().parents[2]
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-    from tests import _fx_lineups as fx
+    """The synthetic tables. generator: "shared" (or "auto") is analytics.fixtures.synth_stints, called without a
+    players frame so its team ids match the betting lane's fixture; "local" is the lane's own synthetic generator
+    (analytics/lineups/synthetic.py: a starters table and recoverable player ratings). Fixture numbers are never results."""
+    if generator not in GENERATORS:
+        raise ValueError(f"{WHO}: unknown fixture generator {generator!r} (one of {GENERATORS})")
     if generator == "local":
-        fn = fx._fallback_synth_stints
-    elif generator == "shared":
-        from analytics.fixtures import synth_stints as fn
+        from analytics.lineups.synthetic import synth_stints_local as fn
     else:
-        fn = fx.synth_stints
+        from analytics.fixtures import synth_stints as fn
     key = (fn.__module__, fn.__name__, int(seed), int(n_games), tuple(seasons))
     if key not in _FIXTURE_CACHE:                      # memoised per process: callers never modify the tables in place
         t = fn(seed, n_games=n_games, seasons=tuple(seasons))
         t["generator"] = "%s.%s" % (fn.__module__, fn.__name__)
         _FIXTURE_CACHE[key] = t
     return _FIXTURE_CACHE[key]
+
+
+def add_fixture_args(ap) -> None:
+    """The fixture knobs of every lineups CLI: --fixture-games (alias --n-games) and --fixture-generator. The lane splits
+    by season (--heldout-season), so it has no possessions or held-out-every knob."""
+    ap.add_argument("--fixture-games", "--n-games", dest="n_games", type=int, default=None,
+                    help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
+    ap.add_argument("--fixture-generator", choices=GENERATORS, default="auto",
+                    help="--fixtures only: analytics.fixtures.synth_stints (shared, or auto), or the lane's synthetic "
+                         "generator analytics/lineups/synthetic.py (local)")
 
 
 def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto", n_games=None) -> dict:
@@ -114,10 +124,11 @@ def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, 
 
 
 def out_dir(out_root, season: str) -> Path:
+    """OUT_ROOT/analytics/lineups/<season>, created."""
     p = Path(out_root) / "analytics" / "lineups" / season
     p.mkdir(parents=True, exist_ok=True)
     return p
 
 
 __all__ = ["PACE_POSS_PER_48", "SECONDS_PER_POSS", "SEASONS", "FIXTURE_SEASONS", "PLAYER_COLUMNS", "WHO",
-           "lineup_id", "read_season_tables", "fixture_tables", "load_inputs", "out_dir"]
+           "lineup_id", "read_season_tables", "fixture_tables", "add_fixture_args", "load_inputs", "out_dir"]

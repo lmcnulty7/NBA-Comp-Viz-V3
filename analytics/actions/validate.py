@@ -1,6 +1,7 @@
 """analytics/actions/validate.py: input and label checks for the action-recognition lane.
 
-    python -m analytics.actions.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.actions.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-games 6]
+                                         [--fixture-possessions 24] [--fixture-heldout-every 3]
 
 Inputs per game (DATA_ROOT layout on the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet            frames, section 4 (held-out games under heldout/)
@@ -21,25 +22,26 @@ Checks, each logged with counts and returned in the report dict:
 Problems are strings; counts are integers. A game whose frames or possessions fail a schema check is
 reported and skipped by the trainer (validate.ok(report) is false). Nothing here fits anything.
 
-Loaders (used by features.py, train.py and eda.py): load_fixture_games(seed, n_games, heldout_every) returns
-the shared fixtures of analytics.fixtures when importable, else the fallback generator of tests/_fx_actions.py;
+Loaders (used by features.py, train.py and eda.py): load_fixture_games(seed, n_games, heldout_every,
+n_possessions) builds the synthetic season of analytics.fixtures (synth_season and synth_labels) in memory;
 load_data_root(DATA_ROOT) discovers every game with frames and a possessions table. Held-out games are the
-ones under heldout/, the ones whose id carries a held-out token of sportvu/splits.json, and the ones at the
-held-out arena (CLE).
+ones under heldout/ and the ones analytics.eval.is_heldout_game marks (a held-out token of sportvu/splits.json
+or the held-out arena).
 """
 from __future__ import annotations
 
 import argparse
 import json
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.actions import ACTION_TYPES, COVERAGES, LABEL_SOURCES, SEASON
+from analytics.actions import ACTION_TYPES, COVERAGES, LABEL_SOURCES
+from analytics.eval import is_heldout_game
+from analytics.labels import CONFIDENCES
 
 log = logging.getLogger("analytics.actions.validate")
 
@@ -51,14 +53,6 @@ SCREEN_COLUMNS = ("sportvu_game", "possession", "action_id", "coverage", "on_bal
                   "label_source", "confidence")
 COURT_MARGIN_FT = 10.0
 COURT_X, COURT_Y = 94.0, 50.0
-
-
-# ── held-out detection ─────────────────────────────────────────────────────────────────────────────
-def is_heldout_id(sportvu_game: str) -> bool:
-    """True when sportvu/splits.json marks the game held out (by id token or by the CLE arena)."""
-    from sportvu import splits
-    g = str(sportvu_game)
-    return any(t in g for t in splits.heldout_tokens()) or g.endswith(".at." + splits.HELDOUT_ARENA)
 
 
 # ── labels ─────────────────────────────────────────────────────────────────────────────────────────
@@ -238,10 +232,6 @@ def validate_labels(actions: pd.DataFrame, screens: pd.DataFrame, possessions: p
         if out_of_range.any():
             problems.append("screens: %d numeric confidence value(s) outside [0, 1]" % int(out_of_range.sum()))
         text = conf.isna() & s["confidence"].notna()
-        try:
-            from analytics.labels import CONFIDENCES
-        except ImportError:   # pragma: no cover
-            CONFIDENCES = ("sure", "unsure")
         odd = text & ~s["confidence"].astype(str).isin(CONFIDENCES)
         counts["screens_text_confidence"] = int(text.sum())
         if odd.any():      # a grade outside the label contract's vocabulary is kept and counted
@@ -296,6 +286,7 @@ def validate_frames(frames: pd.DataFrame) -> dict:
 
 
 def validate_possessions(possessions: pd.DataFrame, frames: pd.DataFrame | None = None) -> dict:
+    """Problems and counts of a section 19 possessions table (and its spans against the frame range when given)."""
     problems = ["possessions: " + p for p in schema.validate(possessions, "possessions")]
     warnings, counts = [], {"rows": int(len(possessions))}
     if not problems and len(possessions):
@@ -313,6 +304,7 @@ def validate_possessions(possessions: pd.DataFrame, frames: pd.DataFrame | None 
 
 
 def validate_rosters(rosters: pd.DataFrame | None) -> dict:
+    """Problems and counts of a section 16 rosters table (optional: absent is a warning)."""
     if rosters is None:
         return {"problems": [], "warnings": ["rosters: table absent (optional)"], "counts": {"rows": 0}}
     return {"problems": ["rosters: " + p for p in schema.validate(rosters, "rosters")], "warnings": [],
@@ -338,38 +330,40 @@ def validate_game(game: dict) -> dict:
 
 
 def ok(report: dict) -> bool:
+    """True when a validate_game report found no problem (the game may be fitted)."""
     return bool(report.get("ok", False))
 
 
 # ── loaders ────────────────────────────────────────────────────────────────────────────────────────
-def _fx():
-    root = Path(__file__).resolve().parents[2]
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-    try:
-        from tests import _fx_actions as fx       # tests/ is an implicit namespace package from the repo root
-    except ImportError:
-        sys.path.insert(0, str(root / "tests"))
-        import _fx_actions as fx                   # type: ignore
-    return fx
+FIXTURE_SOURCE = "analytics.fixtures (synth_season, synth_labels)"
 
 
 def fixture_source() -> str:
-    """Which generator a --fixtures run uses (analytics.fixtures when importable, else the fallback)."""
-    return _fx().fixture_source()
+    """Which generator a --fixtures run uses (named in the report)."""
+    return FIXTURE_SOURCE
 
 
 def load_fixture_games(seed: int = 0, n_games: int = 6, heldout_every: int = 3, n_possessions: int = 24) -> list:
-    """Synthetic games with labels: analytics.fixtures when importable, else the fallback of tests/_fx_actions.py.
-    Every possession of a fixture game counts as visited (the generator labelled all of them)."""
-    games = _fx().season_games(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
-    for g in games:
-        g.setdefault("visited", set(int(x) for x in g["possessions"]["possession"]))
-    return games
+    """The synthetic season of analytics.fixtures as game dicts (sportvu_game, heldout, frames, possessions, rosters,
+    labels with actions and screens, visited). Every possession of a fixture game counts as visited (the generator
+    labelled all of them); a game is held out when the generator says so or analytics.eval.is_heldout_game does."""
+    from analytics import fixtures
+    out = []
+    for g in fixtures.synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions):
+        game = dict(g)
+        game["sportvu_game"] = str(g["meta"]["sportvu_game"])
+        game["heldout"] = bool(g["meta"]["heldout"]) or is_heldout_game(game["sportvu_game"])
+        lab = fixtures.synth_labels(seed, g)
+        game["labels"] = {"actions": pd.DataFrame(lab["actions"]), "screens": pd.DataFrame(lab["screens"])}
+        game["visited"] = set(int(x) for x in g["possessions"]["possession"])
+        out.append(game)
+    return out
 
 
 def discover_games(root) -> list:
-    """[(sportvu_game, heldout)] for every game with frames and a possessions table under DATA_ROOT."""
+    """[(sportvu_game, heldout)] for every game with frames and a possessions table under DATA_ROOT (heldout: the
+    files sit under heldout/ or analytics.eval.is_heldout_game marks the id). The possessions table is looked up in
+    the season directory analytics.schema.season_of_game gives; a frames file whose name is not a game id is skipped."""
     root = Path(root)
     out = []
     for held in (False, True):
@@ -380,27 +374,36 @@ def discover_games(root) -> list:
             if p.name.endswith("_pbp.parquet"):
                 continue
             game = p.stem
-            poss = root / "analytics" / "possessions" / ("heldout/" if held else "") / SEASON / (game + ".parquet")
+            try:
+                season = schema.season_of_game(game)
+            except ValueError:          # not MM.DD.YYYY.AWAY.at.HOME: no season directory to look in
+                log.warning("%s: frames file name is not a SportVU game id; skipped", p.name)
+                continue
+            poss = root / "analytics" / "possessions" / ("heldout/" if held else "") / season / (game + ".parquet")
             if poss.exists():
-                out.append((game, held or is_heldout_id(game)))
+                out.append((game, held or is_heldout_game(game)))
             else:
                 log.warning("%s: frames present but no possessions table at %s; skipped", game, poss)
     return out
 
 
 def load_game(root, game: str, heldout: bool) -> dict:
+    """One game dict from DATA_ROOT: frames, possessions, rosters (None when absent), hand labels, visited set. The
+    files are read from heldout/ when the frames sit there (a game held out by its id alone may sit outside it)."""
     root = Path(root)
-    sub = "heldout/" if heldout else ""
+    sub = "heldout/" if (root / "sportvu_contract" / "heldout" / (game + ".parquet")).exists() else ""
+    season = schema.season_of_game(game)
     frames = pd.read_parquet(root / "sportvu_contract" / sub / (game + ".parquet"))
-    poss = pd.read_parquet(root / "analytics" / "possessions" / sub / SEASON / (game + ".parquet"))
-    rpath = root / "analytics" / "rosters" / sub / SEASON / (game + ".parquet")
+    poss = pd.read_parquet(root / "analytics" / "possessions" / sub / season / (game + ".parquet"))
+    rpath = root / "analytics" / "rosters" / sub / season / (game + ".parquet")
     rosters = pd.read_parquet(rpath) if rpath.exists() else None
     labels = load_hand_labels(root, game)
-    return {"sportvu_game": game, "heldout": bool(heldout), "frames": frames, "possessions": poss, "rosters": rosters,
+    return {"sportvu_game": game, "heldout": bool(heldout) or bool(sub) or is_heldout_game(game), "frames": frames, "possessions": poss, "rosters": rosters,
             "labels": labels, "visited": load_visited(root, game)}
 
 
 def load_data_root(root) -> list:
+    """Every game of DATA_ROOT with frames and a possessions table, as load_game dicts (SystemExit when none)."""
     games = discover_games(root)
     if not games:
         raise SystemExit("validate: no game with frames and possessions under %s" % root)
@@ -416,17 +419,20 @@ def load_inputs(args) -> list:
 
 
 def add_input_args(ap: argparse.ArgumentParser) -> None:
+    """The input flags every actions CLI takes: --fixtures or --data, the seed and the fixture sizes."""
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="synthetic games (fixture output, never a result)")
+    g.add_argument("--fixtures", action="store_true", help="synthetic games of analytics.fixtures (fixture output, never a result)")
     g.add_argument("--data", help="DATA_ROOT with sportvu_contract/, analytics/possessions/, labels/actions/")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--fixture-games", type=int, default=6)
-    ap.add_argument("--fixture-heldout-every", type=int, default=3)
-    ap.add_argument("--fixture-possessions", type=int, default=24)
+    ap.add_argument("--seed", type=int, default=0, help="seed of the fixture season and of the folds (default 0)")
+    ap.add_argument("--fixture-games", type=int, default=6, help="fixture games with --fixtures (default 6)")
+    ap.add_argument("--fixture-heldout-every", type=int, default=3,
+                    help="hold out every k-th fixture game, the first as 12.16.2015.PHX.at.GSW (default 3)")
+    ap.add_argument("--fixture-possessions", type=int, default=24, help="possessions per fixture game (default 24)")
 
 
 # ── CLI ────────────────────────────────────────────────────────────────────────────────────────────
 def summarize(reports: list) -> dict:
+    """Totals over validate_game reports: games, ok, held-out, labels, problems, warnings, labels by action_type."""
     tot = {"games": len(reports), "ok": sum(1 for r in reports if r["ok"]), "heldout_games": sum(1 for r in reports if r["heldout"]),
            "actions": sum(r["labels"]["counts"].get("actions", 0) for r in reports),
            "screens": sum(r["labels"]["counts"].get("screens", 0) for r in reports),
@@ -441,6 +447,7 @@ def summarize(reports: list) -> dict:
 
 
 def main(argv=None) -> dict:
+    """Validate every input game, print the summary and write validation.json under OUT_ROOT when given."""
     ap = argparse.ArgumentParser(prog="python -m analytics.actions.validate", description=__doc__.split("\n")[0])
     add_input_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: writes analytics/actions/validation.json under it")

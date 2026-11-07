@@ -23,10 +23,18 @@ sees which rows are not out-of-fold scores.
 ## Held-out isolation check
 
 `analytics.fixtures.write_fixture_root` puts the real held-out id `12.16.2015.PHX.at.GSW` in its first held-out
-slot. The shared DATA_ROOT part asserts, for every lane, that no file named after a held-out token (that id and
-every token of `sportvu/splits.json`) sits outside `heldout/` in the lane's output folders, that any rows naming
-such a game in a single-file table outside `heldout/` carry `heldout == True` and `fold == -1`, and that no
-"Training games" line of the lane's report under `OUT_ROOT/reports/` names it. Nothing depends on a manifest.
+slot (`fixtures.HELDOUT_GAME`). The shared DATA_ROOT part asserts, for every lane, over every file in the lane's
+output folders (`analytics/<ext>/` and `analytics/<ext>_*/`) outside `heldout/`:
+
+- no file is named after that id;
+- a parquet or csv table that holds rows of it carries `heldout == True` on them, and `fold == -1` when it has
+  a `fold` column (a single-file table that scores the held-out game once);
+- a json or jsonl file names it only inside a record that carries `heldout: true`, or under a key that names
+  the held-out set (`heldout_games`, `n_heldout`, ...); a line of any other text file names it only when it
+  says held-out;
+- no "Training games" line of the lane's report under `OUT_ROOT/reports/` names it.
+
+Files under `heldout/` are where its rows belong. Nothing reads a manifest file.
 
 Every number produced by these lanes so far is fixture output: no real SportVU, play-by-play, NBA.com or odds
 row is in the repository, and nothing below is a result.
@@ -154,26 +162,25 @@ or the shared `analytics/fixtures.py`.
 
 ## Running
 
-    python3 -m pytest -q tests/test_integration.py                            # fast part (per present lane:
-                                                                              # imports, main(argv), guard,
-                                                                              # fixture module, validate --fixtures)
-    INTEGRATION_SLOW=1 python3 -m pytest -q tests/test_integration.py -m slow # features and train --fixtures
-                                                                              # into one OUT_ROOT, check_frame
-                                                                              # on every interface output,
-                                                                              # manifest held-out check
+    python3 -m pytest -q tests/test_integration.py -m "not slow"   # fast part: per lane, imports, main(argv),
+                                                                   # guard, fixture module, validate --fixtures
+    python3 -m pytest -q tests/test_integration.py -m slow         # slow part (10 to 20 minutes)
+    python3 -m pytest -q tests/test_integration.py                 # both
 
-    INTEGRATION_SLOW=1 INTEGRATION_SHARED=1 python3 -m pytest -q tests/test_integration.py -m slow
-                                                                              # also: one DATA_ROOT from
-                                                                              # `python -m analytics.fixtures`,
-                                                                              # then validate, features, train
-                                                                              # with --data per lane in
-                                                                              # dependency order, interface
-                                                                              # checks on what they wrote
+The `slow` marker (registered in pytest.ini) is the only switch; there are no environment-variable gates. The
+slow part runs three things:
 
-The slow part also runs `python run_all.py --fixtures --all --continue-on-error --out OUT_ROOT` once and
-asserts every interface file exists under that OUT_ROOT and passes `check_frame` (run_all.py passes `--out`
-and `--seed` to every step).
+1. features and train `--fixtures --out OUT_ROOT` per lane in dependency order; every interface file the
+   producer wrote under OUT_ROOT exists and passes `check_frame`.
+2. one DATA_ROOT from `python -m analytics.fixtures --out DATA_ROOT --seed 0 --games 6 --heldout-every 3`, then
+   validate, features and train with `--data DATA_ROOT --out OUT_ROOT` per lane in dependency order; every
+   interface file exists and passes `check_frame`, and the held-out isolation check above holds for every lane.
+3. `python run_all.py --fixtures --all --continue-on-error --out OUT_ROOT` once: it exits 0, and every interface
+   file exists under that OUT_ROOT and passes `check_frame` (run_all.py passes `--out` and `--seed` to every
+   step).
 
-A lane that is not present is a skip with the reason. Every subprocess has a timeout (120 s for validate,
-600 s per features or train step with --fixtures, 300 s per step on the shared root). The fast part runs its
-subprocesses four at a time (`WORKERS`). Results of the latest run: reports/integration.md.
+All fifteen lanes exist, so a missing lane, or a producer that writes no interface file, is a failure rather
+than a skip. Every subprocess has a timeout (60 s for an import probe, 120 s for validate, 600 s per features
+or train step with --fixtures, 300 s per step on the shared root, 30 minutes for run_all). The fast part runs
+its subprocesses four at a time (`WORKERS`). Results of the latest run, all fixture output:
+reports/integration.md.

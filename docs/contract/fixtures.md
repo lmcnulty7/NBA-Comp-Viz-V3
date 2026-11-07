@@ -265,6 +265,22 @@ the root. Parquet is written with `DataFrame.to_parquet`; strings read back as t
 20 stint games) the root takes 5 to 12 s to write depending on load; the tests use smaller sizes and the
 whole test file runs in 6 to 20 s.
 
+## `add_fixture_args(parser, games=8, possessions=40, heldout_every=0) -> parser`
+
+Adds the three flags a lane CLI uses to size the synthetic season it builds under `--fixtures`, with help
+text, to an `argparse` parser or argument group, and returns it:
+
+| flag | dest | meaning |
+| --- | --- | --- |
+| `--fixture-games` | `fixture_games` | synthetic SportVU games to generate |
+| `--fixture-possessions` | `fixture_possessions` | possessions per synthetic game (at least 4) |
+| `--fixture-heldout-every` | `fixture_heldout_every` | hold out every k-th game, the first as `12.16.2015.PHX.at.GSW`; 0 holds out none |
+
+The defaults are the caller's (lanes size their fixtures differently). Pass the values on as
+`synth_season(seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions,
+heldout_every=a.fixture_heldout_every)`. The existing lanes add these spellings by hand; the helper is for
+new CLIs, so they keep the same spelling and help text.
+
 ## Assumptions taken where the brief was silent
 
 - The clock runs continuously within a period (no stoppage after a made basket); each period holds only

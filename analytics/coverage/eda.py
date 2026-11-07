@@ -29,12 +29,14 @@ def _labelled(feats: pd.DataFrame) -> pd.DataFrame:
 
 
 def class_balance(feats: pd.DataFrame) -> pd.DataFrame:
+    """n and share per class over the labelled rows of training games."""
     d = _labelled(feats)
     n = d["coverage_label"].value_counts().reindex(list(CLASSES), fill_value=0)
     return pd.DataFrame({"class": list(CLASSES), "n": n.to_numpy(), "share": (n / max(1, n.sum())).round(4).to_numpy()})
 
 
 def feature_distributions_by_class(feats: pd.DataFrame) -> pd.DataFrame:
+    """Long table: feature, class, n, mean, std, min, max over the labelled rows of training games."""
     d = _labelled(feats)
     rows = []
     for f in feature_columns():
@@ -46,6 +48,7 @@ def feature_distributions_by_class(feats: pd.DataFrame) -> pd.DataFrame:
 
 
 def correlation_table(feats: pd.DataFrame) -> pd.DataFrame:
+    """Pearson correlation matrix of the features over the labelled rows of training games."""
     d = _labelled(feats)
     return d[feature_columns()].astype(float).corr(method="pearson")
 

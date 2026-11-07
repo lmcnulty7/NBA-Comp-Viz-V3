@@ -1,40 +1,40 @@
 # Decision quality (analytics/decisions) (fixture output, not a result)
 
-Written 2026-11-05T09:00:48Z by `python -m analytics.decisions.train --fixtures --report reports/decisions.md`.
+Written 2026-11-07T08:32:25Z by `python -m analytics.decisions.train --fixtures --report reports/decisions.md`.
 
-**Fixture output, not a result.** Every number below comes from synthetic games (tests/_fx_decisions.py or analytics/fixtures.py); the real run is the Mac command at the end.
+**Fixture output, not a result.** Every number below comes from synthetic games (analytics/fixtures.py); the real run is the Mac command at the end.
 
-## Inputs
+## Inputs (fixture output, not a result)
 
 | game | held out | frames | possessions | shots | schema problems | duplicates dropped | epv rows | xfg rows |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 02.07.2016.OMA.at.DUL | no | 115020 | 40 | 37 | 0 | 0 | 0 | 0 |
-| 01.18.2016.HLX.at.LRD | no | 123210 | 40 | 44 | 0 | 0 | 0 | 0 |
-| 02.04.2016.GRN.at.QCY | no | 123230 | 40 | 37 | 0 | 0 | 0 | 0 |
-| 12.16.2015.PHX.at.GSW | yes | 128550 | 40 | 45 | 0 | 0 | 0 | 0 |
-| 12.15.2015.ABQ.at.GRN | no | 117110 | 40 | 35 | 0 | 0 | 0 | 0 |
-| 11.27.2015.GRN.at.QCY | no | 119730 | 40 | 40 | 0 | 0 | 0 | 0 |
-| 12.12.2015.RNO.at.MOB | no | 121170 | 40 | 38 | 0 | 0 | 0 | 0 |
-| 11.11.2015.HLX.at.CLE | yes | 118520 | 40 | 41 | 0 | 0 | 0 | 0 |
+| 03.08.2016.GRN.at.HLX | no | 123500 | 40 | 41 | 0 | 0 | 0 | 0 |
+| 12.10.2015.GRN.at.DUL | no | 126350 | 40 | 45 | 0 | 0 | 0 | 0 |
+| 02.10.2016.QCY.at.FRS | no | 114850 | 40 | 37 | 0 | 0 | 0 | 0 |
+| 12.16.2015.PHX.at.GSW | yes | 118000 | 40 | 41 | 0 | 0 | 0 | 0 |
+| 12.01.2015.DUL.at.HLX | no | 122180 | 40 | 40 | 0 | 0 | 0 | 0 |
+| 11.28.2015.HLX.at.FRS | no | 128610 | 40 | 46 | 0 | 0 | 0 | 0 |
+| 12.09.2015.PEO.at.DUL | no | 115790 | 40 | 34 | 0 | 0 | 0 | 0 |
+| 11.26.2015.DUL.at.CLE | yes | 121780 | 40 | 42 | 0 | 0 | 0 | 0 |
 
-Training games: 6 (01.18.2016.HLX.at.LRD, 02.04.2016.GRN.at.QCY, 02.07.2016.OMA.at.DUL, 11.27.2015.GRN.at.QCY, 12.12.2015.RNO.at.MOB, 12.15.2015.ABQ.at.GRN). Held-out games set aside before any fit: 2 (11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW). Guard: `analytics.eval.refuse_heldout` checked the training ids against sportvu/splits.json.
-Value model fit rows (localised shots of the training games): 231. Protocol: out-of-fold under 5 grouped folds by sportvu_game (seed 0).
+Training games: 6 (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL). Held-out games set aside before any fit: 2 (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW). Guard: `analytics.eval.refuse_heldout` checked the training ids against sportvu/splits.json.
+Value model fit rows (localised shots of the training games): 243. Protocol: out-of-fold under 5 grouped folds by sportvu_game (seed 0).
 
-## Event counts (training games)
+## Event counts (training games) (fixture output, not a result)
 
 | game | shots | passes | drives | possessions used | skipped |
 | --- | --- | --- | --- | --- | --- |
-| 01.18.2016.HLX.at.LRD | 43 | 58 | 53 | 39 | {'possessions_gap': 1} |
-| 02.04.2016.GRN.at.QCY | 37 | 71 | 51 | 39 | {'possessions_gap': 1} |
-| 02.07.2016.OMA.at.DUL | 37 | 59 | 57 | 39 | {'possessions_gap': 1} |
-| 11.27.2015.GRN.at.QCY | 39 | 69 | 58 | 39 | {'possessions_gap': 1} |
-| 12.12.2015.RNO.at.MOB | 37 | 45 | 50 | 39 | {'possessions_gap': 1} |
-| 12.15.2015.ABQ.at.GRN | 34 | 61 | 58 | 39 | {'possessions_gap': 1} |
+| 02.10.2016.QCY.at.FRS | 36 | 58 | 50 | 39 | {'possessions_gap': 1} |
+| 03.08.2016.GRN.at.HLX | 39 | 62 | 53 | 39 | {'possessions_gap': 1} |
+| 11.28.2015.HLX.at.FRS | 44 | 63 | 48 | 39 | {'possessions_gap': 1} |
+| 12.01.2015.DUL.at.HLX | 40 | 65 | 50 | 39 | {'possessions_gap': 1} |
+| 12.09.2015.PEO.at.DUL | 33 | 69 | 51 | 39 | {'possessions_gap': 1} |
+| 12.10.2015.GRN.at.DUL | 44 | 59 | 55 | 39 | {'possessions_gap': 1} |
 
-Total: 917 decisions ({'pass': 363, 'drive': 327, 'shot': 227}).
+Total: 919 decisions ({'pass': 376, 'drive': 307, 'shot': 236}).
 Hold option (EPV lane) present on 0 decisions; xFG lane coverage of shot decisions 0.00.
 
-## Value-function assumptions
+## Value-function assumptions (fixture output, not a result)
 
 - Shot option: points (3 at 22 ft or more, else 2) times the location-only xFG probability at the player's position, minus 0.03 per foot of nearest-defender distance below 6 ft when no contest model exists (floor 0.01).
 - Pass option: points times the location-only probability at the teammate's position (no contest term: openness already carries the defender distance) times openness (1 at 6 ft or more of nearest-defender distance, linearly down to 0.5 at 0 ft) times pass risk (0.95 minus 0.01 per foot of pass length over 15 ft).
@@ -46,60 +46,60 @@ Hold option (EPV lane) present on 0 decisions; xFG lane coverage of shot decisio
 - Leakage: option values use the decision frame and earlier frames only; the value model is out-of-fold by game; `schema.assert_time_forward` ran on every context frame; `assert_decisions_before_outcome` on every game.
 - Prior of the option values: candidate 1 = location-only xFG, candidate 2 = the xFG lane's p_selected on shot events. Rule fixed in advance: candidate 2 when its coverage of shot decisions is at least 0.50. Selected: **location** (no xFG table present).
 
-## Player table (training games, gated at 300 decisions; ranked on mean quality, by-kind means are regret at most 0)
+## Player table (training games, gated at 300 decisions; ranked on mean quality, by-kind means are regret at most 0) (fixture output, not a result)
 
 No player passes the 300-decision gate: nobody is ranked.
 
-82 of 82 players are under the 300-decision gate and carry no rank (listed unranked, by id, first 10):
+42 of 42 players are under the 300-decision gate and carry no rank (listed unranked, by id, first 10):
 
 | player_id | n_decisions | n_games | mean quality | shot | pass | drive |
 | --- | --- | --- | --- | --- | --- | --- |
-| 9000 | 8 | 1 | -0.3006 | -0.3026 | -0.2105 | -0.5627 |
-| 9001 | 35 | 1 | -0.2048 | -0.1241 | -0.2769 | -0.1733 |
-| 9002 | 5 | 1 | -0.2895 | -0.2974 | -0.2906 | -0.2785 |
-| 9003 | 13 | 1 | -0.2512 | -0.0482 | -0.5096 | -0.2068 |
-| 9004 | 6 | 1 | -0.2758 | 0.0000 | -0.4084 | -0.0215 |
-| 9005 | 3 | 1 | -0.1284 | -0.1018 | -0.1951 | -0.0883 |
-| 9006 | 4 | 1 | -0.1434 | -0.0040 | n/a | -0.2827 |
-| 9007 | 6 | 1 | -0.3866 | -0.4871 | -0.3736 | -0.2991 |
-| 9008 | 28 | 1 | -0.1792 | -0.0730 | -0.2724 | -0.1047 |
-| 9009 | 11 | 1 | -0.3789 | -0.0778 | -0.6722 | -0.5450 |
+| 500030 | 40 | 3 | -0.472 | -0.413 | -0.380 | -0.676 |
+| 500031 | 93 | 3 | -0.274 | -0.223 | -0.419 | -0.154 |
+| 500032 | 23 | 3 | -0.326 | -0.242 | -0.361 | -0.379 |
+| 500033 | 36 | 3 | -0.295 | -0.307 | -0.492 | -0.104 |
+| 500034 | 29 | 3 | -0.291 | -0.172 | -0.417 | -0.178 |
+| 500035 | 8 | 3 | -0.517 | -0.725 | -0.610 | -0.124 |
+| 500036 | 10 | 3 | -0.288 | 0.000 | -0.692 | -0.027 |
+| 500050 | 12 | 2 | -0.350 | -0.166 | -0.389 | -0.599 |
+| 500051 | 57 | 2 | -0.265 | -0.320 | -0.376 | -0.137 |
+| 500052 | 15 | 2 | -0.327 | -0.239 | -0.369 | -0.425 |
 
-## Validation: mean decision quality per player-game against on-court offensive rating
+## Validation: mean decision quality per player-game against on-court offensive rating (fixture output, not a result)
 
 Spearman per game between the players' mean decision quality (a sum would rank by decision count, since quality is regret) and their points per 100 offensive possessions on the floor, over players with at least 3 decisions in the game; sign test over games (two sided); bootstrap of the mean Spearman by game (n=200, seed 0); shuffled = the same statistic with mean quality permuted across those players within each game.
 
 | prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| location | 6 | 0.0801 | -0.1646 | 0.2831 | 4 / 5 | 0.3750 | -0.0949 |
+| location | 6 | 0.285 | 0.125 | 0.421 | 5 / 6 | 0.219 | -0.039 |
 
-## Held-out games (valued once by the model refit on all training games; never fitted or tuned on)
+## Held-out games (valued once by the model refit on all training games; never fitted or tuned on) (fixture output, not a result)
 
-322 decisions from 2 held-out game(s): 11.11.2015.HLX.at.CLE, 12.16.2015.PHX.at.GSW.
+303 decisions from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW.
 
 | kind | n | mean quality |
 | --- | --- | --- |
-| drive | 106 | -0.1979 |
-| pass | 132 | -0.3119 |
-| shot | 84 | -0.1466 |
+| drive | 102 | -0.210 |
+| pass | 120 | -0.441 |
+| shot | 81 | -0.235 |
 
 | prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| location (held out) | 2 | -0.2329 | -0.3185 | -0.1474 | 0 / 2 | 0.5000 | 0.2545 |
+| location (held out) | 2 | -0.144 | -0.167 | -0.121 | 0 / 2 | 0.500 | 0.273 |
 
-## Outputs
+## Outputs (relative to OUT_ROOT) (fixture output, not a result)
 
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_events/01.18.2016.HLX.at.LRD.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_events/02.04.2016.GRN.at.QCY.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_events/02.07.2016.OMA.at.DUL.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_events/11.27.2015.GRN.at.QCY.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_events/12.12.2015.RNO.at.MOB.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_events/12.15.2015.ABQ.at.GRN.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/heldout/fixture/decision_events/11.11.2015.HLX.at.CLE.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/heldout/fixture/decision_events/12.16.2015.PHX.at.GSW.parquet
-- /tmp/decisions_fixture_fcjxm2sz/analytics/decisions/fixture/decision_players.parquet
+- analytics/decisions/fixture/decision_events/02.10.2016.QCY.at.FRS.parquet
+- analytics/decisions/fixture/decision_events/03.08.2016.GRN.at.HLX.parquet
+- analytics/decisions/fixture/decision_events/11.28.2015.HLX.at.FRS.parquet
+- analytics/decisions/fixture/decision_events/12.01.2015.DUL.at.HLX.parquet
+- analytics/decisions/fixture/decision_events/12.09.2015.PEO.at.DUL.parquet
+- analytics/decisions/fixture/decision_events/12.10.2015.GRN.at.DUL.parquet
+- analytics/decisions/heldout/fixture/decision_events/11.26.2015.DUL.at.CLE.parquet
+- analytics/decisions/heldout/fixture/decision_events/12.16.2015.PHX.at.GSW.parquet
+- analytics/decisions/fixture/decision_players.parquet
 
-## Status
+## Status (fixture output, not a result)
 
 Fixture output, not a result. The real run, on the Mac where the full data lives:
 

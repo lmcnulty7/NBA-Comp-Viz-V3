@@ -2,6 +2,7 @@
 
     python -m analytics.winprob.train --fixtures | --data DATA_ROOT --report reports/winprob.md
         [--out OUT_ROOT] [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
+        [--fixture-games 20] [--fixture-seasons 2020-21,2021-22,2024-25]
 
 Protocol
   1. Load the play-by-play, games and odds tables (analytics.winprob.features.load_data or the fixtures), build
@@ -39,7 +40,8 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import bootstrap_by_game, brier, calibration_table, ece, grouped_folds, log_loss, refuse_heldout
+from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, ece, fit_threads, fmt_ci,
+                            fmt_num, grouped_folds, log_loss, refuse_heldout)
 from analytics.winprob import features as F
 
 WHO = "winprob.train"
@@ -51,44 +53,8 @@ INNER_FOLDS = 3
 MAC_CMD = ("python -m analytics.winprob.train --data \"$DATA_ROOT\" --out \"$DATA_ROOT\" --report reports/winprob.md "
            "--seed 0 --bootstrap 1000 --folds 5 --heldout-season 2024-25")
 FIT_LOG: list = []      # every fit appends (models, sorted training game ids); inner isotonic fits log as ("hgb_inner",)
-SLOPE_RIDGE, SLOPE_ITER = 1e-6, 50
-
-
-def slope(y, p) -> float:
-    """Calibration slope: the coefficient of a logistic regression of y on logit(p), as analytics.eval.calibration_slope
-    defines it, solved by Newton's method with a ridge of 1e-6 and at most 50 iterations. The eval version (lbfgs at
-    C=1e6, up to 1000 iterations) agrees to two decimals on ordinary data but runs to its iteration cap on the nearly
-    separable late-game buckets, which made the bootstrap intervals too slow; this one stays bounded. NaN with one class."""
-    y = np.asarray(y, dtype=float).reshape(-1)
-    p = np.clip(np.asarray(p, dtype=float).reshape(-1), 1e-6, 1 - 1e-6)
-    if len(y) == 0 or len(np.unique(y)) < 2:
-        return float("nan")
-    x = np.log(p / (1 - p))
-    X = np.column_stack([np.ones_like(x), x])
-    w = np.zeros(2)
-    for _ in range(SLOPE_ITER):
-        z = np.clip(X @ w, -30, 30)
-        q = 1 / (1 + np.exp(-z))
-        g = X.T @ (q - y) + SLOPE_RIDGE * w
-        H = (X * (q * (1 - q))[:, None]).T @ X + SLOPE_RIDGE * np.eye(2)
-        step = np.linalg.solve(H, g)
-        w = w - step
-        if np.max(np.abs(step)) < 1e-8:
-            break
-    return float(w[1])
-
-
-def _limits():
-    """A one-thread context for every fit: 4 cores are shared, and OpenMP spinning in HistGradientBoosting under
-    contention is many times slower than one thread. The HGB module is imported first so its OpenMP library is loaded
-    before the limit is taken (threadpoolctl only limits libraries already loaded)."""
-    try:
-        import sklearn.ensemble._hist_gradient_boosting.gradient_boosting  # noqa: F401  (loads OpenMP)
-        from threadpoolctl import threadpool_limits
-        return threadpool_limits(limits=1)
-    except Exception:                                   # noqa: BLE001
-        import contextlib
-        return contextlib.nullcontext()
+FIXTURE_SEASONS = "2020-21,2021-22,2024-25"
+FIXTURE_TAG = "(fixture output, not a result)"
 
 
 # ── split ──────────────────────────────────────────────────────────────────────────────────────────
@@ -127,11 +93,13 @@ def _xy(frame: pd.DataFrame, cols):
 
 
 def fit_constant(train: pd.DataFrame):
+    """The constant candidate: the training home win rate for every row."""
     rate = float(train[F.TARGET].astype(float).mean())
     return lambda frame, r=rate: np.full(len(frame), r)
 
 
 def fit_logistic(train: pd.DataFrame):
+    """The logistic candidate on LOGISTIC_COLS (standardised, C=1); the constant when y has one class."""
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
@@ -183,7 +151,7 @@ def fit_models(train: pd.DataFrame, seed: int = 0, models=MODELS) -> dict:
         raise ValueError("%s: a 2015-16 row reached fit_models" % WHO)
     FIT_LOG.append((tuple(models), sorted(train["game_id"].astype(str).unique())))
     out = {}
-    with _limits():
+    with fit_threads():
         if "constant" in models:
             out["constant"] = fit_constant(train)
         if "logistic" in models:
@@ -194,6 +162,7 @@ def fit_models(train: pd.DataFrame, seed: int = 0, models=MODELS) -> dict:
 
 
 def out_of_fold(train: pd.DataFrame, n_folds: int, seed: int) -> tuple[pd.DataFrame, dict]:
+    """Out-of-fold predictions p_<model> of every candidate under grouped folds by game, and a protocol note."""
     games = sorted(train["game_id"].astype(str).unique())
     pred = train.copy()
     pred["fold"] = -1
@@ -228,7 +197,7 @@ def bucket_scores(pred: pd.DataFrame, p_col: str, n_boot: int, seed: int, interv
     d = pd.DataFrame({"game": pred["game_id"].astype(str).to_numpy(), "y": pred[F.TARGET].astype(float).to_numpy(),
                       "p": pred[p_col].astype(float).to_numpy(), "b": pred["time_bucket"].astype(str).to_numpy()})
     fns = {"brier": lambda s: brier(s["y"], s["p"]), "ece": lambda s: ece(s["y"], s["p"], 10),
-           "slope": lambda s: slope(s["y"], s["p"])}
+           "slope": lambda s: calibration_slope_fast(s["y"], s["p"])}
     for b in F.BUCKET_NAMES:
         s = d[d["b"] == b]
         r = {"n": int(len(s))}
@@ -263,7 +232,7 @@ def calibration_rows(pred: pd.DataFrame, p_col: str, season_label: str) -> pd.Da
             continue
         y, p = s[F.TARGET].astype(float).to_numpy(), s[p_col].astype(float).to_numpy()
         rows.append({"season": season_label, "time_bucket": b, "n": int(len(s)), "mean_p": float(p.mean()),
-                     "mean_y": float(y.mean()), "brier": brier(y, p), "slope": slope(y, p)})
+                     "mean_y": float(y.mean()), "brier": brier(y, p), "slope": calibration_slope_fast(y, p)})
     return pd.DataFrame(rows, columns=["season", "time_bucket", "n", "mean_p", "mean_y", "brier", "slope"])
 
 
@@ -281,6 +250,7 @@ def states_table(pred: pd.DataFrame, p_col: str, heldout: bool) -> pd.DataFrame:
 
 
 def write_tables(out_root, train_pred: pd.DataFrame, heldout_pred: pd.DataFrame | None, p_col: str) -> list:
+    """winprob_states and winprob_calibration per season under OUT_ROOT/analytics/winprob/<season>/ -> paths."""
     paths = []
     frames = [(train_pred, False)] + ([(heldout_pred, True)] if heldout_pred is not None and len(heldout_pred) else [])
     for pred, held in frames:
@@ -294,27 +264,16 @@ def write_tables(out_root, train_pred: pd.DataFrame, heldout_pred: pd.DataFrame 
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=4):
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d):
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d["lo"]):
-        return _f(d["point"])
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
-
-
 def write_report(path: Path, ctx: dict) -> str:
+    """The markdown report of a run (ctx from run); every heading over fixture numbers carries the fixture tag."""
     fx = ctx["fixtures"]
-    tag = " (fixture output, not a result)" if fx else ""
+    tag = " " + FIXTURE_TAG if fx else ""
     L = ["# Live win probability (analytics/winprob/train.py)", "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
         L += ["**Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of "
-              "tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.", ""]
-    L += ["## Inputs", "", "| input | value |", "| --- | --- |",
+              "analytics.fixtures (synth_stints, synth_odds) stands in for the five seasons on the owner's Mac.", ""]
+    L += ["## Inputs%s" % tag, "", "| input | value |", "| --- | --- |",
           "| files | %s |" % ", ".join(ctx["files"]),
           "| events (states) | %d |" % ctx["rows_all"],
           "| games | %d |" % ctx["games_all"],
@@ -325,10 +284,10 @@ def write_report(path: Path, ctx: dict) -> str:
           "| seasons later than the held-out season, ignored (never fitted or scored) | %s |"
           % (("%s (%d events)" % (", ".join(ctx["ignored_seasons"]), ctx["ignored_rows"])) if ctx["ignored_seasons"] else "none"),
           "| guard | `analytics.eval.refuse_heldout` checked %d training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |" % ctx["train_games"],
-          "| closing spread coverage (training games) | %s |" % _f(ctx["spread_coverage"], 3),
-          "| possession known (training events) | %s |" % _f(ctx["possession_known"], 3),
-          "| training home win rate (by game) | %s |" % _f(ctx["home_win_rate"], 3),
-          "", "## Protocol", "",
+          "| closing spread coverage (training games) | %s |" % fmt_num(ctx["spread_coverage"], 3),
+          "| possession known (training events) | %s |" % fmt_num(ctx["possession_known"], 3),
+          "| training home win rate (by game) | %s |" % fmt_num(ctx["home_win_rate"], 3),
+          "", "## Protocol%s" % tag, "",
           "Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): %s." % ", ".join(F.feature_columns()),
           "The final score never enters a feature; `prefix_invariance_violations` found %d violation(s) on %d probed game(s) (a feature at event k is unchanged when the play-by-play is cut after k)." % (ctx["prefix_violations"], ctx["prefix_games"]),
           "Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag) and margin_x_sqrt_time (standardised, C=1); "
@@ -341,9 +300,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "| --- |" + " --- |" * (len(F.BUCKET_NAMES) + 3)]
     for m in MODELS:
         s = ctx["scores"][m]
-        cells = [_ci(s[b]["brier"]) for b in F.BUCKET_NAMES]
+        cells = [fmt_ci(s[b]["brier"], 4) for b in F.BUCKET_NAMES]
         L.append("| %s%s | %s | %s | %s | %s |" % (m, " (selected)" if m == ctx["selected"] else "", " | ".join(cells),
-                                                   _f(ctx["selection"][m]), _ci(s["all"]["log_loss"]), _ci(s["all"]["brier"])))
+                                                   fmt_num(ctx["selection"][m], 4), fmt_ci(s["all"]["log_loss"], 4), fmt_ci(s["all"]["brier"], 4)))
     L += ["", "Rows per bucket: " + ", ".join("%s %d" % (b, ctx["scores"][MODELS[0]][b]["n"]) for b in F.BUCKET_NAMES) + ".", "",
           "Selected: **%s** (lowest mean bucket Brier)." % ctx["selected"], "",
           "## Calibration by time bucket%s" % tag, "", "ECE (10 bins) and calibration slope per bucket, out-of-fold.", "",
@@ -353,16 +312,16 @@ def write_report(path: Path, ctx: dict) -> str:
             s = ctx["scores"][m][b]
             if s["n"] == 0:
                 continue
-            L.append("| %s | %s | %d | %s | %s |" % (m, b, s["n"], _ci(s["ece"]), _ci(s["slope"])))
+            L.append("| %s | %s | %d | %s | %s |" % (m, b, s["n"], fmt_ci(s["ece"], 4), fmt_ci(s["slope"], 4)))
     L += ["", "The constant model has no calibration slope by design.", "",
           "### Reliability table of the selected candidate (out-of-fold)%s" % tag, "",
           "| bin | lo | hi | n | mean p | mean home win |", "| --- | --- | --- | --- | --- | --- |"]
     for r in ctx["calibration"].itertuples():
-        L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, _f(r.mean_p, 3), _f(r.mean_y, 3)))
+        L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, fmt_num(r.mean_p, 3), fmt_num(r.mean_y, 3)))
     L += ["", "### winprob_calibration rows of the selected candidate (training seasons, out-of-fold)%s" % tag, "",
           "| season | time_bucket | n | mean_p | mean_y | brier | slope |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for r in ctx["calibration_rows"].itertuples():
-        L.append("| %s | %s | %d | %s | %s | %s | %s |" % (r.season, r.time_bucket, r.n, _f(r.mean_p, 3), _f(r.mean_y, 3), _f(r.brier), _f(r.slope, 3)))
+        L.append("| %s | %s | %d | %s | %s | %s | %s |" % (r.season, r.time_bucket, r.n, fmt_num(r.mean_p, 3), fmt_num(r.mean_y, 3), fmt_num(r.brier, 4), fmt_num(r.slope, 3)))
     L += ["", "## Held-out season %s, scored once%s" % (ctx["heldout_season"], tag), ""]
     if ctx["heldout_rows"]:
         hs = ctx["heldout_scores"]
@@ -373,8 +332,8 @@ def write_report(path: Path, ctx: dict) -> str:
             s = hs[b]
             if s["n"] == 0:
                 continue
-            L.append("| %s | %d | %s | %s | %s |  |" % (b, s["n"], _ci(s["brier"]), _ci(s["ece"]), _ci(s["slope"])))
-        L += ["", "Overall: log loss %s, Brier %s, mean bucket Brier %s." % (_ci(hs["all"]["log_loss"]), _ci(hs["all"]["brier"]), _f(ctx["heldout_selection"]))]
+            L.append("| %s | %d | %s | %s | %s |  |" % (b, s["n"], fmt_ci(s["brier"], 4), fmt_ci(s["ece"], 4), fmt_ci(s["slope"], 4)))
+        L += ["", "Overall: log loss %s, Brier %s, mean bucket Brier %s." % (fmt_ci(hs["all"]["log_loss"], 4), fmt_ci(hs["all"]["brier"], 4), fmt_num(ctx["heldout_selection"], 4))]
     else:
         L.append("No rows of season %s were in the input, so nothing was scored." % ctx["heldout_season"])
     L += ["", "## Benchmark", "",
@@ -393,7 +352,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "- On the fixtures the boosted candidate loses to the logistic one because the spread is nearly unique per game among a few dozen games and the trees memorise games through it; the selection rule picks the logistic candidate. This is a fixture artefact to re-check on the real seasons, where many games share a spread value.",
           "- The HGB hyperparameters (depth 3, 50 rounds, 200 rows per leaf, L2 1.0) were set after seeing the fixture memorise games through the spread (a first setting of 15 leaves and 40 rows per leaf scored worse than the constant out of fold). They were chosen on fixture data, not on any real season, and the held-out season was not involved.",
           "- The closing spread join is analytics.betting.validate's (per-book latest pre-tip is_close snapshot, median over books, both team keys, tip date shifted 8 h to US local with one day of tolerance); the games table's spread_home is used only when no odds table exists.",
-          "- The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.",
+          "- The calibration slope is analytics.eval.calibration_slope_fast: the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved by a bounded Newton method because the lbfgs solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's too.",
           ""]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -403,23 +362,25 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The train CLI: --fixtures or --data, the report and output paths, the protocol knobs and the fixture knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures (output is not a result)")
-    src.add_argument("--data", help="DATA_ROOT")
-    ap.add_argument("--report", default="reports/winprob.md")
+    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
+    src.add_argument("--data", help="DATA_ROOT with collect/stints/playbyplay/<season>.parquet")
+    ap.add_argument("--report", default="reports/winprob.md", help="markdown report path (default reports/winprob.md)")
     ap.add_argument("--out", default=None, help="OUT_ROOT for the winprob_states and winprob_calibration tables")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--heldout-season", default="2024-25")
-    ap.add_argument("--fixture-games", type=int, default=20, help="games per fixture season")
-    ap.add_argument("--fixture-seasons", default="2020-21,2021-22,2024-25", help="fixture seasons, comma separated")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the folds, the bootstrap and the fixtures (default 0)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by game inside the training seasons (default 5)")
+    ap.add_argument("--heldout-season", default="2024-25", help="the season set aside and scored once (default 2024-25)")
+    F.add_fixture_args(ap, FIXTURE_SEASONS)
     return ap.parse_args(argv)
 
 
 def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_root=None, fixtures: bool = False,
         command: str = "", report: str | None = None) -> dict:
+    """The whole protocol on the loaded tables -> ctx (what write_report renders), the report written when asked."""
     states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     viol = F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=2, cuts=2, seed=seed,
                                           team_names=d.get("team_names"))   # joins the spread once on the full games table
@@ -464,11 +425,9 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
 
 
 def main(argv=None) -> dict:
+    """Run the trainer from the command line, print the report and return ctx."""
     a = parse_args(argv)
-    if a.fixtures:
-        d = F.load_fixtures(a.seed, n_games=a.fixture_games, seasons=tuple(s for s in a.fixture_seasons.split(",") if s))
-    else:
-        d = F.load_data(a.data)
+    d = F.load_args(a)
     cmd = "python -m analytics.winprob.train " + " ".join(argv if argv is not None else sys.argv[1:])
     ctx = run(d, a.heldout_season, a.seed, a.bootstrap, a.folds, out_root=a.out, fixtures=a.fixtures, command=cmd, report=a.report)
     print(ctx["report"])

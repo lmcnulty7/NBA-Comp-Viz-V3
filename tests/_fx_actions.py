@@ -1,16 +1,19 @@
-"""tests/_fx_actions.py: fixtures for the action-recognition lane (analytics/actions).
+"""tests/_fx_actions.py: test-only fixtures for the action-recognition lane (analytics/actions).
 
-Prefers the shared generator ``analytics.fixtures`` (lane I1) when it is importable and falls back to a
-minimal local generator with the same signatures and the same column names:
+Production code never imports this module: a --fixtures run reads analytics.fixtures through
+analytics.actions.validate.load_fixture_games. This file keeps a small scripted generator that the tests use
+deliberately, because its labels describe motion the tests know exactly (candidate recall of 1.0, a hand-built
+hard negative, a DATA_ROOT with tombstones, pass-2 relabels and visited records):
 
-    synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
-        -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
-    synth_season(seed, n_games=8, heldout_every=0) -> list of game dicts (each also carries sportvu_game, heldout)
-    synth_labels(seed, game) -> dict(actions, screens)   (game is the dict synth_game returned)
-    write_fixture_root(root, seed, n_games, heldout_every) -> DATA_ROOT layout on disk
+    scripted_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
+        -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz, ...)
+    scripted_season(seed, n_games=8, heldout_every=0, n_possessions=40) -> list of scripted_game dicts
+    scripted_labels(seed, game) -> dict(actions, screens)   (game is the dict scripted_game returned)
+    scripted_season_games(seed, n_games, heldout_every, n_possessions) -> game dicts with labels and visited, the
+        shape analytics.actions.train.run takes
+    write_scripted_root(root, seed, n_games, heldout_every, n_possessions) -> the DATA_ROOT layout on disk
 
-The fallback scripts every possession deterministically from the seed, so the labels it returns describe
-motion that is really in the frames:
+Every possession is scripted deterministically from the seed:
     ball_screen   a teammate walks to the handler's defender, stands within about 2 ft of him for over a
                   second while the handler dribbles past the screen and the defender trails (recovery)
     drive         the handler goes straight at the basket at about 11 ft per s for 1.2 s, defender chasing
@@ -20,36 +23,24 @@ motion that is really in the frames:
                   and the handler stays put), the other half a fast cutter (7 ft per s, no candidate)
 Frames are 25 Hz with the section 4 columns, possessions follow section 19, rosters section 16; the shots,
 shot_frames, rebound_frames and states_1hz tables are empty contract-shaped frames (this lane never reads
-them). Every value is a float32 or an int32 as the contract says. Test adapters at the bottom
-(``season_games``, ``labels_for``) normalise either generator to one shape for tests/test_actions.py.
+them). Every value is a float32 or an int32 as the contract says. The first held-out game carries the held-out
+id of analytics.fixtures. Everything derived from these games is fixture output, not a result.
 """
 from __future__ import annotations
 
-import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-try:  # the shared generator of lane I1, when it exists
-    from analytics.fixtures import synth_game, synth_season, synth_labels, write_fixture_root  # type: ignore  # noqa: F401
-    SHARED = True
-except ImportError:
-    SHARED = False
-
-from analytics import schema  # noqa: E402
+from analytics import schema
+from analytics.fixtures import HELDOUT_GAME
 
 HZ = 25
 HOME_ID, AWAY_ID = 1610612744, 1610612751      # GSW, BKN ids
 HOME, AWAY = "GSW", "BKN"
 COURT_X, COURT_Y = 94.0, 50.0
 BASKET_LEFT, BASKET_RIGHT = np.array([5.25, 25.0]), np.array([88.75, 25.0])
-HELDOUT_GAME = "12.16.2015.PHX.at.GSW"
 SEASON = "2015-16"
 COVERAGES = ("over", "under", "switch")
 ACTION_MIX = (("ball_screen", 0.35), ("drive", 0.20), ("isolation", 0.15), ("none", 0.30))
@@ -141,8 +132,9 @@ def _to_court(local, basket, sign):
     return out
 
 
-# ── synth_game ─────────────────────────────────────────────────────────────────────────────────────
-def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:
+# ── scripted_game ──────────────────────────────────────────────────────────────────────────────────
+def scripted_game(seed: int, n_possessions: int = 40, heldout: bool = False, sportvu_game=None) -> dict:
+    """One scripted game (module docstring) with the hidden key _script that scripted_labels reads."""
     rng = np.random.default_rng(seed)
     game = sportvu_game or _game_id(seed, heldout)
     mm, dd, yyyy, away, _at, home = game.split(".")
@@ -255,10 +247,10 @@ def _fallback_synth_game(seed: int, n_possessions: int = 40, heldout: bool = Fal
             "states_1hz": schema.empty("states_1hz"), "_script": scripts}
 
 
-def _fallback_synth_labels(seed: int, game) -> dict:
-    """The hand-label tables (actions, screens) of a fallback game dict, as the label tool would write them."""
+def scripted_labels(seed: int, game) -> dict:
+    """The hand-label tables (actions, screens) of a scripted game dict, as the label tool would write them."""
     if not isinstance(game, dict) or "_script" not in game:
-        raise TypeError("fallback synth_labels needs the dict synth_game returned")
+        raise TypeError("scripted_labels needs the dict scripted_game returned")
     sg = game["sportvu_game"]
     rng = np.random.default_rng(seed + 7919)
     actions, screens = [], []
@@ -282,21 +274,22 @@ def _fallback_synth_labels(seed: int, game) -> dict:
     return {"actions": pd.DataFrame(actions, columns=a_cols), "screens": pd.DataFrame(screens, columns=s_cols)}
 
 
-def _fallback_synth_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+def scripted_season(seed: int, n_games: int = 8, heldout_every: int = 0, n_possessions: int = 40) -> list:
+    """n_games scripted games; every heldout_every-th one (1-based) is held out."""
     games = []
     for i in range(n_games):
         held = bool(heldout_every) and (i + 1) % heldout_every == 0
-        games.append(_fallback_synth_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held,
-                                          sportvu_game=_game_id(i, held)))
+        games.append(scripted_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held,
+                                   sportvu_game=_game_id(i, held)))
     return games
 
 
-def _fallback_write_fixture_root(root, seed: int, n_games: int = 4, heldout_every: int = 0, n_possessions: int = 40) -> dict:
+def write_scripted_root(root, seed: int, n_games: int = 4, heldout_every: int = 0, n_possessions: int = 40) -> dict:
     """DATA_ROOT layout: sportvu_contract/<game>.parquet, <game>_pbp.parquet (held-out under heldout/),
     analytics/possessions/2015-16/<game>.parquet and analytics/rosters/2015-16/ (held-out under heldout/2015-16/),
     labels/actions/<game>.jsonl and labels/screens/<game>.jsonl through analytics.labels.write_labels."""
     root = Path(root)
-    games = _fallback_synth_season(seed, n_games, heldout_every, n_possessions)
+    games = scripted_season(seed, n_games, heldout_every, n_possessions)
     written = []
     for g in games:
         sg, held = g["sportvu_game"], g["heldout"]
@@ -308,7 +301,7 @@ def _fallback_write_fixture_root(root, seed: int, n_games: int = 4, heldout_ever
             d = root / "analytics" / table / ("heldout/" if held else "") / SEASON
             d.mkdir(parents=True, exist_ok=True)
             g[table].to_parquet(d / (sg + ".parquet"), index=False)
-        lab = _fallback_synth_labels(seed, g)
+        lab = scripted_labels(seed, g)
         from analytics.labels import write_labels, mark_visited   # the sanctioned writers: labels/actions, labels/screens, labels/visited
         write_labels(root, sg, lab["actions"], lab["screens"], labelled_at="2026-01-01T00:00:00Z")
         for poss in g["possessions"]["possession"]:          # the generator labelled every possession: all visited
@@ -317,56 +310,18 @@ def _fallback_write_fixture_root(root, seed: int, n_games: int = 4, heldout_ever
     return {"root": str(root), "games": written}
 
 
-if not SHARED:
-    synth_game = _fallback_synth_game
-    synth_season = _fallback_synth_season
-    synth_labels = _fallback_synth_labels
-    write_fixture_root = _fallback_write_fixture_root
-
-
-# ── adapters for tests (one shape whichever generator is in use) ───────────────────────────────────
-def fixture_source() -> str:
-    return "analytics.fixtures (shared, lane I1)" if SHARED else "tests/_fx_actions.py (fallback)"
-
-
-def _normalise(raw, seed: int, label_fn) -> list:
+# ── adapter for tests: the shape analytics.actions.train.run takes ───────────────────────────────────
+def scripted_season_games(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 24) -> list:
+    """scripted_season as game dicts with sportvu_game, heldout, labels (actions, screens) and visited (every
+    possession: the script labelled all of them)."""
     out = []
-    for g in raw:
+    for g in scripted_season(seed, n_games, heldout_every, n_possessions):
         g = dict(g)
-        sg = g.get("sportvu_game") or str(g["possessions"]["sportvu_game"].iloc[0])
-        g["sportvu_game"] = sg
-        held = g.get("heldout")
-        if held is None:
-            held = bool((g.get("meta") or {}).get("heldout", False)) if isinstance(g.get("meta"), dict) else False
-        g["heldout"] = bool(held)
-        g["labels"] = label_fn(seed, g)
-        g["visited"] = set(int(x) for x in g["possessions"]["possession"])     # the generator labelled every possession
+        g["labels"] = scripted_labels(seed, g)
+        g["visited"] = set(int(x) for x in g["possessions"]["possession"])
         out.append(g)
     return out
 
 
-def fallback_season_games(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 24) -> list:
-    """The fallback generator whatever is importable: deterministic scripted games for the assertions of the tests."""
-    raw = _fallback_synth_season(seed, n_games, heldout_every, n_possessions)
-    return _normalise(raw, seed, lambda s, g: _fallback_synth_labels(s, g))
-
-
-def season_games(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 24) -> list:
-    """List of game dicts with keys sportvu_game, heldout, frames, possessions, rosters, labels (actions, screens):
-    the shared generator when importable (its own possession count), else the fallback."""
-    if not SHARED:
-        return fallback_season_games(seed, n_games, heldout_every, n_possessions)
-    try:
-        raw = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
-    except TypeError:
-        raw = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
-    if isinstance(raw, dict):
-        raw = raw.get("games", list(raw.values()))
-    return _normalise(raw, seed, labels_for)
-
-
-def labels_for(seed: int, game: dict) -> dict:
-    lab = synth_labels(seed, game)
-    if isinstance(lab, dict) and "actions" in lab:
-        return {"actions": pd.DataFrame(lab["actions"]), "screens": pd.DataFrame(lab.get("screens", []))}
-    raise TypeError("synth_labels returned an unexpected shape: %r" % type(lab))
+__all__ = ["scripted_game", "scripted_season", "scripted_labels", "scripted_season_games", "write_scripted_root",
+           "HELDOUT_GAME", "SEASON"]

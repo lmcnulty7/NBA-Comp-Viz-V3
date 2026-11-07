@@ -1,14 +1,14 @@
-# Lineup synergy and stints (analytics/lineups)
+# Lineup synergy and stints (analytics/lineups) (fixture output, not a result)
 
-Written 2026-11-05T09:44:08Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
+Written 2026-11-07T08:38:54Z by `python -m analytics.lineups.train --fixtures --fixture-generator local --n-games 40 --report reports/lineups.md --bootstrap 200`.
 
-**This run used the synthetic fixture generator tests._fx_lineups._fallback_synth_stints. Every number below is fixture output, not a result.** The real run is the Mac command at the end.
+**Fixture output, not a result.** This run used the synthetic fixture generator analytics.lineups.synthetic.synth_stints_local; every number below is fixture output. The real run is the Mac command at the end.
 
 ## Inputs (fixture output, not a result)
 
 | item | value |
 | --- | --- |
-| source | fixture generator tests._fx_lineups._fallback_synth_stints |
+| source | fixture generator analytics.lineups.synthetic.synth_stints_local |
 | seasons | 2020-21, 2021-22, 2022-23 |
 | stints in | 2256 |
 | stints after validate | 2256 |
@@ -22,7 +22,7 @@ Written 2026-11-05T09:44:08Z by `python -m analytics.lineups.train --fixtures --
 | possessions | 12000 |
 | feature frame rows | 2256 |
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Unit: stint; target: (points_home - points_away) / possessions x 100 with possessions = duration_s / 28.8 when the table has no count (100 per team per 48 minutes). Candidates: plus_minus (raw net rating pooled over the fitting seasons), rapm (possession-weighted ridge on player indicators, alpha by grouped CV by game over [30.0, 100.0, 300.0, 1000.0, 3000.0, 10000.0, 30000.0, 100000.0]), rapm_synergy (rapm plus ridge-penalised indicators for five-man lineups with at least 300 possessions in the fitting seasons; the lineup coefficient is the synergy). Selection metric: out-of-season Spearman and MSE of the predicted against the raw next-season lineup net rating for lineups with at least 100 possessions on both sides, intervals from 200 bootstrap resamples over lineups (seed 0), paired against plus_minus. The candidate with the highest mean validation Spearman is selected and the held-out season 2022-23 is scored once by the candidates refitted on 2020-21, 2021-22. Guards: assert_season_split on every fit, refuse_heldout on the training game ids, assert_time_forward on the feature frame.
 
@@ -57,11 +57,11 @@ Only the candidate selected on the training seasons is scored here; plus_minus i
 | --- | --- | --- |
 | plus_minus (selected) | 0.881 [0.342, 1.000] | 198.677 [39.772, 383.567] |
 
-## Outputs
+## Outputs (relative to OUT_ROOT) (fixture output, not a result)
 
 No tables written (pass --out OUT_ROOT).
 
-## Status and the Mac command
+## Status and the Mac command (fixture output, not a result)
 
 Fixture run: the pipeline is exercised end to end on synthetic stints with hidden ratings and a lineup interaction; nothing here is a result.
 

@@ -193,7 +193,9 @@ def run_step(module_name: str, argv: list[str], log_path: Path) -> tuple[str, fl
         if code not in (None, 0):
             buf.write("\nSystemExit: %s\n" % (code,))
             status, detail = STATUS_FAILED, _short("exit %r" % (code,))
-    except BaseException as exc:                   # noqa: BLE001  (a step must never kill the runner)
+    except KeyboardInterrupt:                      # Ctrl-C stops the whole run, never just one step
+        raise
+    except Exception as exc:                       # noqa: BLE001  (a failing step must never kill the runner)
         buf.write(traceback.format_exc())
         status, detail = STATUS_FAILED, _short("%s: %s" % (type(exc).__name__, exc))
     finally:

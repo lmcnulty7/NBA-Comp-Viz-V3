@@ -1,7 +1,7 @@
 """analytics/gravity/eda.py: the tables of notebooks/eda_gravity.ipynb (tables and markdown only, no plots).
 
 Every function takes frames the lane builds (features.build: the player frame pf and the spacing frame sp) or
-the contract tables, and returns a DataFrame; md_table renders one as markdown. run(games) builds everything
+the contract tables, and returns a DataFrame; markdown renders one (analytics.eval.md_table). run(games) builds everything
 from a list of game dicts. On fixtures every table is fixture output, not a result.
 
 Tables:
@@ -22,28 +22,19 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import grouped_folds, refuse_heldout
+from analytics.eval import fit_threads, grouped_folds, md_table, refuse_heldout
 from analytics.gravity import features as F
 
 DIST_BINS = (0.0, 4.0, 10.0, 16.0, 22.0, 30.0, 100.0)
 
 
-def md_table(df: pd.DataFrame, nd: int = 3) -> str:
-    """A DataFrame as a markdown table (no tabulate dependency)."""
-    cols = list(df.columns)
-    L = ["| " + " | ".join(str(c) for c in cols) + " |", "|" + " --- |" * len(cols)]
-    for r in df.itertuples(index=False):
-        cells = []
-        for v in r:
-            if isinstance(v, (float, np.floating)):
-                cells.append("n/a" if not np.isfinite(v) else ("%%.%df" % nd) % v)
-            else:
-                cells.append(str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return "\n".join(L)
+def markdown(df: pd.DataFrame, nd: int = 3) -> str:
+    """A DataFrame as one markdown string (analytics.eval.md_table, floats to nd decimals)."""
+    return "\n".join(md_table(df, nd))
 
 
 def nearest_def_by_distance_bin(pf: pd.DataFrame, bins=DIST_BINS) -> pd.DataFrame:
+    """n, mean and sd of the nearest-defender distance by distance-to-basket bin."""
     cut = pd.cut(pf["dist_basket_ft"].astype(float), bins=list(bins), right=False)
     g = pf.groupby(cut, observed=True)[F.TARGET].agg(["size", "mean", "std"]).reset_index()
     g.columns = ["dist_basket_bin", "n", "mean_nearest_def_ft", "sd_nearest_def_ft"]
@@ -52,12 +43,14 @@ def nearest_def_by_distance_bin(pf: pd.DataFrame, bins=DIST_BINS) -> pd.DataFram
 
 
 def nearest_def_by_has_ball(pf: pd.DataFrame) -> pd.DataFrame:
+    """n, mean and sd of the nearest-defender distance for the handler and the other four."""
     g = pf.groupby(pf["has_ball"].astype(float) > 0.5)[F.TARGET].agg(["size", "mean", "std"]).reset_index()
     g.columns = ["has_ball", "n", "mean_nearest_def_ft", "sd_nearest_def_ft"]
     return g
 
 
 def hull_area_by_end_kind(sp: pd.DataFrame, possessions: pd.DataFrame) -> pd.DataFrame:
+    """Mean hull area and mean nearest-defender distance by the possession's end_kind (a target: exploration only)."""
     keys = possessions[["sportvu_game", "possession", "end_kind"]].drop_duplicates()
     keys = keys.assign(sportvu_game=keys["sportvu_game"].astype(str), possession=keys["possession"].astype(np.int64))
     m = sp.assign(sportvu_game=sp["sportvu_game"].astype(str), possession=sp["possession"].astype(np.int64)).merge(
@@ -71,6 +64,7 @@ def hull_area_by_end_kind(sp: pd.DataFrame, possessions: pd.DataFrame) -> pd.Dat
 
 
 def correlation_table(pf: pd.DataFrame) -> pd.DataFrame:
+    """Pearson correlation of each feature with the target and with dist_basket_ft (NaN for a constant feature)."""
     rows = []
     y = pf[F.TARGET].astype(float)
     d = pf["dist_basket_ft"].astype(float)
@@ -84,6 +78,7 @@ def correlation_table(pf: pd.DataFrame) -> pd.DataFrame:
 
 
 def _shots_of(games, ids) -> pd.DataFrame:
+    """Concatenated shots of the game dicts whose id is in ids."""
     parts = [d["shots"] for d in games if F.game_id(d) in set(ids) and d.get("shots") is not None and len(d["shots"])]
     return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["made", "loc_x", "loc_y"])
 
@@ -102,14 +97,14 @@ def _ridge_oof(pf: pd.DataFrame, games: list, y: np.ndarray, seed: int, n_folds:
     p = np.full(len(pf), np.nan)
     if len(uniq) < 2:
         X = F.design(F.attach_skill(pf, F.skill_table(_shots_of(games, uniq))))
-        m = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(X, y)
-        return m.predict(X)
+        with fit_threads():
+            return make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(X, y).predict(X)
     for tr_ids, te_ids in grouped_folds(uniq, n_folds=min(n_folds, len(uniq)), seed=seed):
         tr, te = np.isin(gid, tr_ids), np.isin(gid, te_ids)
         table = F.skill_table(_shots_of(games, tr_ids))
         Xtr, Xte = F.design(F.attach_skill(pf[tr], table)), F.design(F.attach_skill(pf[te], table))
-        m = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(Xtr, y[tr])
-        p[te] = m.predict(Xte)
+        with fit_threads():
+            p[te] = make_pipeline(StandardScaler(), Ridge(alpha=1.0)).fit(Xtr, y[tr]).predict(Xte)
     return p
 
 

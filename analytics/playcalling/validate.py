@@ -1,6 +1,6 @@
 """analytics/playcalling/validate.py: checks on every input of the play calling lane, and the data root loader.
 
-    python -m analytics.playcalling.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
+    python -m analytics.playcalling.validate --fixtures [--fixture-games 8] | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
 
 Inputs and what is checked (every check logs a count; nothing is silently dropped):
   frames (docs/DATA_CONTRACT.md section 4): required columns; duplicates on (game, frame, player_id) dropped;
@@ -29,8 +29,8 @@ DATA_ROOT layout (the owner's Mac):
     (coverage_predictions), OUT_ROOT/analytics/epv/**.parquet (epv_states), each optional; the upstream
     lanes' exact file layout was not fixed when this was written, so every parquet below those folders is
     read and a path holding "heldout" marks the game held out.
-A game is held out when its id carries a held-out token of sportvu/splits.json, ends in ".at.CLE" (the
-held-out arena), or sits under a heldout/ folder.
+A game is held out when analytics.eval.is_heldout_game says so (a held-out token of sportvu/splits.json, the
+held-out arena included) or when it sits under a heldout/ folder.
 """
 from __future__ import annotations
 
@@ -43,6 +43,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.eval import is_heldout_game
 from analytics.playcalling import ACTION_TYPES, COVERAGES, LABEL_SOURCES, SEASON, WHO
 
 REQUIRED = {
@@ -65,14 +66,6 @@ KEYS = {
 
 class ValidationError(ValueError):
     """A hard failure: a required column is missing or a required table is empty."""
-
-
-# ── held-out detection ──────────────────────────────────────────────────────────────────────────────
-def is_heldout_game(game: str, from_path: bool = False) -> bool:
-    from sportvu import splits
-    g = str(game)
-    toks = splits.heldout_tokens()
-    return from_path or any(t in g for t in toks) or g.endswith(".at." + splits.HELDOUT_ARENA)
 
 
 # ── per-table checks ────────────────────────────────────────────────────────────────────────────────
@@ -108,6 +101,7 @@ def _count(mask, log: dict, key: str) -> None:
 
 
 def validate_frames(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Frames checks -> (deduplicated frames, log)."""
     _require(df, "frames")
     log = {"rows": int(len(df)), "games": int(df["game"].nunique())}
     df = _dedupe(df, "frames", log)
@@ -119,6 +113,7 @@ def validate_frames(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def validate_possessions(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Possessions checks (schema.validate included) -> (deduplicated possessions, log)."""
     _require(df, "possessions")
     if not len(df):
         raise ValidationError("%s: the possessions table is empty" % WHO)
@@ -132,6 +127,7 @@ def validate_possessions(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def validate_actions(df: pd.DataFrame, possessions: pd.DataFrame | None = None) -> tuple[pd.DataFrame, dict]:
+    """Actions checks, action ids assigned where missing -> (deduplicated actions, log)."""
     from analytics.playcalling.features import assign_action_ids
     _require(df, "actions")
     if not len(df):
@@ -170,15 +166,18 @@ def _validate_coverage_like(df: pd.DataFrame, name: str, col: str) -> tuple[pd.D
 
 
 def validate_screens(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Hand screen label checks -> (deduplicated screens, log)."""
     return _validate_coverage_like(df, "screens", "coverage")
 
 
 def validate_coverage_predictions(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Coverage lane prediction checks -> (deduplicated predictions, log)."""
     col = "predicted" if "predicted" in df.columns else "coverage"
     return _validate_coverage_like(df, "coverage_predictions", col)
 
 
 def validate_epv_states(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """EPV lane state checks -> (deduplicated states, log)."""
     _require(df, "epv_states")
     log = {"rows": int(len(df)), "games": int(df["sportvu_game"].nunique()) if len(df) else 0}
     df = _dedupe(df, "epv_states", log)
@@ -210,6 +209,7 @@ def validate_inputs(inputs: dict) -> tuple[dict, dict]:
 
 
 def format_report(log: dict) -> str:
+    """The validation log as markdown, one section per table."""
     L = ["# playcalling validate", ""]
     for name, entry in log.items():
         L.append("## %s" % name)
@@ -223,11 +223,6 @@ def format_report(log: dict) -> str:
 
 
 # ── loaders ─────────────────────────────────────────────────────────────────────────────────────────
-def _read_jsonl(path: Path) -> pd.DataFrame:
-    rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
-    return pd.DataFrame(rows)
-
-
 def read_labels_raw(path: Path, kind: str, labeller_pass: int | None = 1) -> pd.DataFrame:
     """Explicit fallback for a labels JSONL when analytics.labels.read_labels cannot read it: drops every line
     carrying ``deleted``, keeps the last line per id (action_id for actions, screen_id for screens; a line without
@@ -265,19 +260,15 @@ def load_hand_labels(data_root: Path, games) -> tuple[pd.DataFrame | None, pd.Da
     tombstones applied, pass 2 relabels excluded. A game whose files that reader cannot parse falls back to
     read_labels_raw with the same rules; the log counts both paths."""
     acts, scrs, log = [], [], {"games": 0, "read_labels": 0, "raw_fallback": 0, "actions_rows": 0, "screens_rows": 0}
-    try:
-        from analytics import labels as L
-    except ImportError:          # the labels module is another lane's file; the raw reader carries the same rules
-        L = None
+    from analytics import labels as L
     for game in sorted(games):
         log["games"] += 1
         a = sc = None
-        if L is not None:
-            try:
-                a, sc = L.read_labels(data_root, game, labeller_pass=1)
-                log["read_labels"] += 1
-            except Exception:  # noqa: BLE001  (a file the sanctioned reader cannot cast: fall back, counted)
-                a = sc = None
+        try:
+            a, sc = L.read_labels(data_root, game, labeller_pass=1)
+            log["read_labels"] += 1
+        except (ValueError, TypeError, KeyError):      # a line the sanctioned reader cannot parse or cast: fall back, counted
+            a = sc = None
         if a is None:
             log["raw_fallback"] += 1
             ap, sp = data_root / "labels" / "actions" / (game + ".jsonl"), data_root / "labels" / "screens" / (game + ".jsonl")
@@ -360,33 +351,52 @@ def load_data_root(data_root, out_root=None, season: str = SEASON) -> dict:
         if df is not None and len(df):
             col = "game" if name == "frames" else "sportvu_game"
             games |= set(df[col].astype(str).unique())
-    inputs["heldout_games"] = sorted(g for g in games if is_heldout_game(g, from_path=g in held))
+    inputs["heldout_games"] = sorted(g for g in games if g in held or is_heldout_game(g))
     return inputs
+
+
+GENERATORS = ("auto", "shared", "local")
 
 
 def fixture_inputs(seed: int = 0, n_games: int = 8, n_possessions: int = 40, heldout_every: int = 4, with_epv: bool = True,
                    generator: str = "auto") -> dict:
-    """Synthetic inputs: analytics.fixtures (lane I1) when present and generator is "auto", else the local generator of
-    tests/_fx_playcalling.py. Fixture output, never a result."""
-    root = Path(__file__).resolve().parents[2]
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-    from tests import _fx_playcalling as fx
-    return fx.season_inputs(seed, n_games=n_games, n_possessions=n_possessions, heldout_every=heldout_every, with_epv=with_epv,
-                            shared=(generator == "auto"))
+    """Synthetic inputs from analytics/playcalling/synthetic.py: the games of analytics.fixtures for generator "auto"
+    or "shared", the lane's local generator (planted PPP associations) for "local". Fixture output, never a result."""
+    from analytics.playcalling import synthetic
+    if generator not in GENERATORS:
+        raise ValueError("%s: unknown fixture generator %r (one of %s)" % (WHO, generator, GENERATORS))
+    return synthetic.season_inputs(seed, n_games=n_games, n_possessions=n_possessions, heldout_every=heldout_every,
+                                   with_epv=with_epv, shared=(generator != "local"))
+
+
+def add_fixture_args(ap: argparse.ArgumentParser) -> None:
+    """The fixture knobs every CLI of the lane takes (canonical --fixture-* spellings)."""
+    ap.add_argument("--fixture-games", type=int, default=8, help="fixture: number of synthetic games (default %(default)s)")
+    ap.add_argument("--fixture-possessions", type=int, default=40, help="fixture: possessions per synthetic game (default %(default)s)")
+    ap.add_argument("--fixture-heldout-every", type=int, default=4,
+                    help="fixture: every k-th synthetic game is held out, 0 for none (default %(default)s)")
+    ap.add_argument("--fixture-generator", choices=GENERATORS, default="auto",
+                    help="auto or shared: analytics.fixtures; local: the lane's generator with planted PPP associations")
+
+
+def fixture_inputs_from_args(a) -> dict:
+    """fixture_inputs with the knobs of add_fixture_args."""
+    return fixture_inputs(a.seed, n_games=a.fixture_games, n_possessions=a.fixture_possessions,
+                          heldout_every=a.fixture_heldout_every, generator=a.fixture_generator)
 
 
 def main(argv=None) -> dict:
+    """Validate the fixture or DATA_ROOT inputs and print the log; exits 1 on a hard failure."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
-    g.add_argument("--data")
-    ap.add_argument("--out", default=None)
-    ap.add_argument("--season", default=SEASON)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--fixture-generator", choices=("auto", "local"), default="auto", help="auto: analytics.fixtures when present")
+    g.add_argument("--fixtures", action="store_true", help="synthetic inputs (fixture output, not a result)")
+    g.add_argument("--data", help="DATA_ROOT")
+    ap.add_argument("--out", default=None, help="OUT_ROOT holding the upstream lanes' outputs (default DATA_ROOT)")
+    ap.add_argument("--season", default=SEASON, help="season directory (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    add_fixture_args(ap)
     a = ap.parse_args(argv)
-    inputs = fixture_inputs(a.seed, generator=a.fixture_generator) if a.fixtures else load_data_root(a.data, a.out, a.season)
+    inputs = fixture_inputs_from_args(a) if a.fixtures else load_data_root(a.data, a.out, a.season)
     try:
         _, log = validate_inputs(inputs)
     except ValidationError as exc:

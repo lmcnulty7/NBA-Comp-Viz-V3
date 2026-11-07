@@ -96,3 +96,7 @@ heldout) or, when absent, the final scores and team ids rebuilt from `DATA_ROOT/
 Join: odds team names and game team ids both become a nickname key (`validate.team_key`); the odds date is the UTC
 tip minus 8 hours (every NBA tip lands on its local date), and a game within one day of it matches, nearest first,
 each side used once. Coverage counts are logged by `python -m analytics.betting.validate`.
+
+Fixtures: `--fixtures` on validate, features and train runs on the synth_stints and synth_odds fixtures of
+`analytics.fixtures`, sized by `--fixture-games` (games per season, default 40) and `--fixture-seasons` (default
+2020-21,2021-22); every number such a run prints is fixture output, not a result.

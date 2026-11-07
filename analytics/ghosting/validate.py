@@ -1,13 +1,15 @@
 """analytics/ghosting/validate.py: input checks and the loaders every ghosting module shares.
 
-    python -m analytics.ghosting.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--games 4]
+    python -m analytics.ghosting.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+        [--fixture-games 4] [--fixture-possessions 10] [--fixture-heldout-every 0]
 
 Inputs per game (DATA_ROOT layout on the owner's Mac):
     DATA_ROOT/sportvu_contract/<game>.parquet            frames, docs/DATA_CONTRACT.md section 4
     DATA_ROOT/analytics/possessions/2015-16/<game>.parquet   section 19
     DATA_ROOT/analytics/rosters/2015-16/<game>.parquet       section 16 (optional for ghosting)
 Held-out games live under sportvu_contract/heldout/ and analytics/<table>/heldout/2015-16/; a game is
-also held out when its id carries a held-out token of sportvu/splits.json. A game needs frames and
+also held out when analytics.eval.is_heldout_game says so for its id (a sportvu/splits.json token or the
+held-out arena). A game needs frames and
 possessions to be used; rosters are checked when present.
 
 Checks (counts are logged with the ``analytics.ghosting`` logger and returned):
@@ -25,8 +27,6 @@ the training ids itself.
 from __future__ import annotations
 
 import argparse
-import importlib.util
-import inspect
 import json
 import logging
 import sys
@@ -36,24 +36,15 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.eval import is_heldout_game
 
 log = logging.getLogger("analytics.ghosting")
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
 SEASON = "2015-16"
 FRAME_COLUMNS = ["game", "period", "frame", "game_clock_s", "shot_clock_s", "n_players", "ball_x", "ball_y", "ball_z",
                  "team_id", "player_id", "x", "y"]
 RANGES = {"x": (-10.0, 104.0), "y": (-10.0, 60.0), "game_clock_s": (0.0, 720.0), "shot_clock_s": (0.0, 24.0),
           "ball_x": (-10.0, 104.0), "ball_y": (-10.0, 60.0), "ball_z": (0.0, 60.0)}
-
-
-# ----------------------------------------------------------------------------- held-out ids
-
-def is_heldout_id(sportvu_game: str) -> bool:
-    """True when the id carries a held-out token of sportvu/splits.json (or sits in the CLE arena)."""
-    from sportvu import splits
-    g = str(sportvu_game)
-    return any(t in g for t in splits.heldout_tokens()) or g.endswith(".at." + splits.HELDOUT_ARENA)
 
 
 # ----------------------------------------------------------------------------- checks
@@ -79,6 +70,7 @@ def check_frames(frames: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def check_possessions(poss: pd.DataFrame, frames: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """-> (cleaned possessions, counts): section 19 schema, duplicates, reversed spans and spans outside the frames dropped."""
     counts: dict = {"rows": int(len(poss)), "schema_problems": schema.validate(poss, "possessions")}
     dup = poss.duplicated(["possession"], keep="first")
     counts["duplicate_rows_dropped"] = int(dup.sum())
@@ -97,6 +89,7 @@ def check_possessions(poss: pd.DataFrame, frames: pd.DataFrame) -> tuple[pd.Data
 
 
 def check_rosters(rosters: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """-> (rosters without duplicate player_id rows, counts with the section 16 schema problems)."""
     counts: dict = {"rows": int(len(rosters)), "schema_problems": schema.validate(rosters, "rosters")}
     dup = rosters.duplicated(["player_id"], keep="first")
     counts["duplicate_rows_dropped"] = int(dup.sum())
@@ -130,33 +123,14 @@ def output_path(out_root, table: str, sportvu_game: str, heldout: bool, season: 
 
 # ----------------------------------------------------------------------------- loaders
 
-def _fixture_module():
-    """The synthetic generator: analytics.fixtures when it exists, else tests/_fx_ghosting.py by path."""
-    try:
-        import analytics.fixtures as fx  # type: ignore[import-not-found]
-        return fx
-    except ImportError:
-        pass
-    path = REPO_ROOT / "tests" / "_fx_ghosting.py"
-    spec = importlib.util.spec_from_file_location("_fx_ghosting", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
 def fixture_games(seed: int = 0, n_games: int = 4, n_possessions: int = 10, heldout_every: int = 0) -> list[dict]:
-    """Synthetic games as game dicts (sportvu_game, heldout, frames, possessions, rosters)."""
-    fx = _fixture_module()
-    kw = {"n_games": n_games, "heldout_every": heldout_every}
-    if "n_possessions" in inspect.signature(fx.synth_season).parameters:
-        kw["n_possessions"] = n_possessions
-    season = fx.synth_season(seed, **kw)
+    """Synthetic games of analytics.fixtures.synth_season as game dicts (sportvu_game, heldout, frames, possessions,
+    rosters). Every number computed from them is fixture output, not a result."""
+    from analytics.fixtures import synth_season
     out = []
-    for i, g in enumerate(season):
-        meta = g.get("meta") or {}
-        gid = g.get("sportvu_game") or meta.get("sportvu_game") or str(g["possessions"]["sportvu_game"].iloc[0])
-        held = bool(g.get("heldout", meta.get("heldout", is_heldout_id(gid))))
-        out.append({"sportvu_game": gid, "heldout": held or is_heldout_id(gid), "frames": g["frames"],
+    for i, g in enumerate(synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)):
+        gid = str(g["meta"]["sportvu_game"])
+        out.append({"sportvu_game": gid, "heldout": bool(g["meta"]["heldout"]) or is_heldout_game(gid), "frames": g["frames"],
                     "possessions": g["possessions"], "rosters": g.get("rosters"), "source": "fixture %d" % i})
     return out
 
@@ -173,7 +147,7 @@ def iter_data_root(data_root, season: str = SEASON) -> list[dict]:
             if p.name.endswith("_pbp.parquet"):
                 continue
             gid = p.stem
-            heldout = held or is_heldout_id(gid) or "heldout" in p.parts
+            heldout = held or is_heldout_game(gid) or "heldout" in p.parts
             pp = schema.table_path(root / "analytics", "possessions", season, gid, heldout=heldout)
             if not pp.exists():
                 pp2 = schema.table_path(root / "analytics", "possessions", season, gid, heldout=not heldout)
@@ -194,10 +168,10 @@ def iter_data_root(data_root, season: str = SEASON) -> list[dict]:
 
 
 def load_games(args) -> list[dict]:
-    """The games a CLI run works on, cleaned by validate_game. ``args`` has fixtures, data, seed, games."""
+    """The games a CLI run works on, cleaned by validate_game. ``args`` carries add_input_args' flags."""
     if getattr(args, "fixtures", False):
-        games = fixture_games(seed=args.seed, n_games=args.games, n_possessions=getattr(args, "possessions", 10),
-                              heldout_every=getattr(args, "heldout_every", 0))
+        games = fixture_games(seed=args.seed, n_games=args.fixture_games, n_possessions=args.fixture_possessions,
+                              heldout_every=args.fixture_heldout_every)
     elif getattr(args, "data", None):
         games = iter_data_root(args.data)
     else:
@@ -210,16 +184,22 @@ def load_games(args) -> list[dict]:
 # ----------------------------------------------------------------------------- CLI
 
 def add_input_args(ap: argparse.ArgumentParser) -> None:
+    """The input flags every ghosting CLI shares: the source (--fixtures or --data), the seed and the fixture knobs
+    (canonical --fixture-* names; --games, --possessions and --heldout-every are kept as aliases)."""
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="synthetic games (fixture output, not a result)")
+    src.add_argument("--fixtures", action="store_true", help="synthetic games from analytics.fixtures (fixture output, not a result)")
     src.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/ (the Mac layout)")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=4, help="fixture games")
-    ap.add_argument("--possessions", type=int, default=10, help="fixture possessions per game")
-    ap.add_argument("--heldout-every", type=int, default=0, help="fixtures: every n-th game is the held-out game")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed, also the seed of folds and bootstrap (default 0)")
+    ap.add_argument("--fixture-games", "--games", dest="fixture_games", type=int, default=4,
+                    help="--fixtures: synthetic games (default 4)")
+    ap.add_argument("--fixture-possessions", "--possessions", dest="fixture_possessions", type=int, default=10,
+                    help="--fixtures: possessions per synthetic game, at least 4 (default 10)")
+    ap.add_argument("--fixture-heldout-every", "--heldout-every", dest="fixture_heldout_every", type=int, default=0,
+                    help="--fixtures: every k-th game is held out, 0 for none (default 0)")
 
 
 def parse_args(argv=None):
+    """The validate CLI's command line."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     add_input_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: write ghosting_validate.json there")
@@ -227,6 +207,7 @@ def parse_args(argv=None):
 
 
 def main(argv=None) -> dict:
+    """CLI: validate the games, print a markdown table of the counts, write ghosting_validate.json under --out."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
     games = load_games(a)

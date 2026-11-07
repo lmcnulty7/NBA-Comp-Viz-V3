@@ -2,7 +2,7 @@
 
 Every table here is an observational association with a bootstrap interval by game and the 300-row gate of
 `analytics.eval.gated`; none of them is a causal estimate of what calling a play does. Files are parquet under
-`OUT_ROOT/analytics/playcalling/<season>/`; rows of held-out games (sportvu/splits.json tokens, the CLE arena, or
+`OUT_ROOT/analytics/playcalling/<season>/`; rows of held-out games (`analytics.eval.is_heldout_game`: sportvu/splits.json tokens and the CLE arena; or
 a `heldout/` folder in the inputs) are written to `OUT_ROOT/analytics/playcalling/heldout/<season>/action_outcomes.parquet`
 only and never reach `ppp_by_action` or `playcalling_adjusted`. Written by `python -m analytics.playcalling.train`
 (`action_outcomes` also by `python -m analytics.playcalling.features`).
@@ -90,3 +90,10 @@ Validation (`python -m analytics.playcalling.validate`): required columns (hard 
 each table dropped with a count, enum values outside the vocabularies counted and kept, ranges (points 0..8,
 shot clock 0..24, epv_points in [-1, 4], p columns in [0, 1]), actions whose possession is missing or whose span
 leaves the possession span counted.
+
+Fixture runs (`--fixtures` on every CLI of the lane): the synthetic inputs come from `analytics/playcalling/synthetic.py`
+(production code never imports `tests/`): `--fixture-generator auto` (or `shared`) draws the games and labels from
+`analytics.fixtures`, `local` from the lane's own generator, which plants PPP on the first action's type and coverage
+so the trainer has an association to recover. Knobs: `--fixture-games`, `--fixture-possessions`,
+`--fixture-heldout-every`. The report says "fixture output, not a result" in its banner and on every section heading;
+every ridge fit runs inside `analytics.eval.fit_threads()`; tables are formatted by `analytics.eval.md_table`.

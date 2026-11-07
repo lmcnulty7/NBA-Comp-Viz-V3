@@ -1,6 +1,7 @@
 """analytics/epv/validate.py: input checks for the EPV lane, and the loaders every EPV CLI shares.
 
-    python -m analytics.epv.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.epv.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-games 4]
+                                     [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Per input table (states_1hz, possessions, rosters, shot_frames: analytics.schema.validate; shots: the section 10
 and 10a columns the priors need) the report lists schema problems, null counts per column, out-of-range counts
@@ -16,13 +17,16 @@ DATA_ROOT layout (the owner's Mac): DATA_ROOT/sportvu_contract/<game>.parquet an
 under heldout/), DATA_ROOT/analytics/<table>/<season>/<game>.parquet (held-out under heldout/<season>/) for
 possessions, states_1hz, shot_frames, rosters, and DATA_ROOT/collect/bref_shots/shotchart/<season>.parquet
 (held-out under collect/bref_shots/heldout/shotchart/); collect/shots/shotchartdetail/ is unioned when present.
-Every loaded table carries a bool `heldout` column from the directory it came from, or-ed with the ids of
-sportvu/splits.json, so a held-out game can never be mistaken for a training one by its path alone.
+Every loaded table carries a bool `heldout` column from the directory it came from, or-ed with
+analytics.eval.heldout_mask (the ids of sportvu/splits.json and the held-out arena), so a held-out game can never be
+mistaken for a training one by its path alone.
+
+--fixtures builds the synthetic season of analytics.fixtures (one league, so teams and players recur across games)
+in memory: fixture output, never a result.
 """
 from __future__ import annotations
 
 import argparse
-import sys
 import tempfile
 from pathlib import Path
 
@@ -30,6 +34,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.eval import heldout_mask
 
 COURT_SLACK = 5.0
 RANGES = {"ball_x": (-COURT_SLACK, 94 + COURT_SLACK), "ball_y": (-COURT_SLACK, 50 + COURT_SLACK), "ball_z": (-1.0, 40.0),
@@ -45,22 +50,16 @@ SHOT_COLUMNS = ("sportvu_game", "period", "clock_s", "made", "loc_x", "loc_y")
 TABLE_DIRS = ("possessions", "states_1hz", "shot_frames", "rosters")
 
 
-# ── held-out ids ───────────────────────────────────────────────────────────────────────────────────
-def heldout_by_id(games: pd.Series) -> pd.Series:
-    """True where the game id carries a held-out token of sportvu/splits.json or ends at the CLE arena."""
-    from sportvu import splits
-    toks = splits.heldout_tokens()
-    g = games.astype(str)
-    return g.map(lambda s: any(t in s for t in toks) or s.endswith(".at." + splits.HELDOUT_ARENA)).astype(bool)
-
-
+# ── held-out flag ──────────────────────────────────────────────────────────────────────────────────
 def with_heldout(df: pd.DataFrame, flag) -> pd.DataFrame:
+    """df with a bool heldout column: the given flag (scalar or per row) or-ed with any existing column and with
+    analytics.eval.heldout_mask of the game ids."""
     out = df.copy()
     base = pd.Series(np.asarray(flag, dtype=bool) if not np.isscalar(flag) else bool(flag), index=out.index)
     if "heldout" in out.columns:
         base = base | out["heldout"].fillna(False).astype(bool)
     if "sportvu_game" in out.columns and len(out):
-        base = base | heldout_by_id(out["sportvu_game"]).to_numpy()
+        base = base | heldout_mask(out["sportvu_game"])
     out["heldout"] = base.astype(bool).to_numpy()
     return out
 
@@ -160,6 +159,7 @@ def validate_all(tables: dict) -> tuple[dict, dict]:
 
 
 def format_report(reports: dict, title: str = "EPV input validation") -> str:
+    """The validation reports as a markdown table (one row per table) plus the schema problems."""
     L = ["# %s" % title, "", "| table | rows in | schema problems | nulls | out of range | duplicates dropped | rows dropped | rows out |",
          "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for name, r in reports.items():
@@ -227,38 +227,70 @@ def load_root(data_root, season: str | None = None, out_root=None) -> dict:
     return out
 
 
-def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, fallback=None) -> dict:
-    """The synthetic season of tests/_fx_epv.py in the load_root shape (heldout flags from the generator).
-    fallback=True forces the local generator (so does EPV_FIXTURE_FALLBACK=1)."""
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from tests import _fx_epv as fx
-    season = fx.season_tables(seed, n_games=n_games, heldout_every=heldout_every, fallback=fallback)
+FIXTURE_TABLES = ("frames", "events", "shots", "rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz")
+
+
+def fixture_season(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> dict:
+    """The synthetic season of analytics.fixtures.synth_season (one league) as concatenated tables: keys
+    FIXTURE_TABLES (one DataFrame each) and games [(sportvu_game, heldout)] in generation order."""
+    from analytics import fixtures
+    games = fixtures.synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    out = {k: pd.concat([g[k] for g in games], ignore_index=True) for k in FIXTURE_TABLES}
+    out["games"] = [(str(g["meta"]["sportvu_game"]), bool(g["meta"]["heldout"])) for g in games]
+    return out
+
+
+def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40) -> dict:
+    """fixture_season in the load_root shape: states_1hz, possessions, rosters, shot_frames, shots (each with the
+    heldout flag of the generator or-ed with the ids), games, and sources (None: nothing read from disk)."""
+    season = fixture_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     held = {g: h for g, h in season["games"]}
     out = {}
     for table in TABLE_DIRS + ("shots",):
         df = season[table]
-        flag = df["sportvu_game"].map(held).fillna(False).to_numpy() if len(df) else np.zeros(0, dtype=bool)
+        flag = df["sportvu_game"].map(held).fillna(False).to_numpy(dtype=bool) if len(df) else np.zeros(0, dtype=bool)
         out[table] = with_heldout(df, flag)
     out["games"] = list(season["games"])
+    out["sources"] = {t: None for t in TABLE_DIRS}
     return out
+
+
+def add_fixture_args(ap: argparse.ArgumentParser, games: int = 4) -> None:
+    """The fixture-size flags every EPV CLI takes (canonical spelling first; --games is the older alias)."""
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default 0)")
+    ap.add_argument("--fixture-games", "--games", dest="fixture_games", type=int, default=games,
+                    help="fixture games with --fixtures (default %d)" % games)
+    ap.add_argument("--fixture-possessions", dest="fixture_possessions", type=int, default=40,
+                    help="possessions per fixture game (default 40)")
+    ap.add_argument("--fixture-heldout-every", dest="fixture_heldout_every", type=int, default=4,
+                    help="hold out every k-th fixture game, the first as 12.16.2015.PHX.at.GSW (default 4)")
+
+
+def load_inputs(a) -> dict:
+    """The input tables named by the parsed CLI flags: the fixture season or DATA_ROOT (OUT_ROOT first)."""
+    if a.fixtures:
+        return load_fixtures(a.seed, n_games=a.fixture_games, heldout_every=a.fixture_heldout_every,
+                             n_possessions=a.fixture_possessions)
+    return load_root(a.data, a.season, out_root=a.out)
 
 
 # ── CLI ────────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The validate CLI flags."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
-    g.add_argument("--data")
+    g.add_argument("--fixtures", action="store_true", help="the synthetic season of analytics.fixtures (fixture output)")
+    g.add_argument("--data", help="DATA_ROOT (layout in the module docstring)")
     ap.add_argument("--out", help="OUT_ROOT: the report goes to OUT_ROOT/analytics/epv_validate.md")
-    ap.add_argument("--season", default=None)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=4)
+    ap.add_argument("--season", default=None, help="only this season directory, e.g. 2015-16 (default: every season)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Validate the inputs, print the report and write it under OUT_ROOT (a scratch directory with --fixtures)."""
     a = parse_args(argv)
-    tables = load_fixtures(a.seed, n_games=a.games) if a.fixtures else load_root(a.data, a.season, out_root=a.out)
+    tables = load_inputs(a)
     _clean, reports = validate_all(tables)
     title = "EPV input validation (%s)" % ("fixture output, not a result" if a.fixtures else a.data)
     text = format_report(reports, title)

@@ -109,7 +109,7 @@ Written under `OUT_ROOT/analytics/actions/<season>/` (held-out games under
 | `p_ball_screen` | float | the selected model's probability of ball_screen |
 | `p_selected_class` | float | the selected model's probability of `pred_class` |
 | `fold` | int32 | repo convention: >= 0 the out-of-fold index of a training row; -1 held-out and inference-only rows (scored once by the refit); -2 in-sample rows (a single training game, no grouped fold possible; the report labels the metrics in-sample) |
-| `heldout` | bool | the game is held out (sportvu/splits.json, the heldout/ layout, or the CLE arena) |
+| `heldout` | bool | the game is held out (the heldout/ layout, or `analytics.eval.is_heldout_game`: a sportvu/splits.json token or the CLE arena) |
 | `labelled` | bool | the possession was visited by pass 1 (or the game has labels and no visited file): the row entered a fit or a metric; false for inference-only rows |
 
 ### `actions_detected/<game>.parquet` and `<game>.jsonl` (the canonical detected-actions file)
@@ -151,10 +151,25 @@ back; it is not a hand-label file and never goes under `DATA_ROOT/labels/`.
 ## Evaluation (`analytics/actions/train.py`)
 
 Models: `rule` (the generator's class, the baseline) and `hgb` (HistGradientBoostingClassifier,
-multi-class, one thread). Grouped folds by `sportvu_game` (n_folds = number of games when fewer; in-sample
+multi-class, fitted and scored inside `analytics.eval.fit_threads()`, one thread). Grouped folds by `sportvu_game` (n_folds = number of games when fewer; in-sample
 and labelled so with one game). Selection metric: out-of-fold F1 for ball_screen (plan target over 0.8 on a
 held-out game), ties to the rule baseline. Also per-class F1, macro F1, accuracy, the confusion table, the
 ball_screen F1 interval from bootstrap resamples of whole games, candidate recall against the labels (any
 candidate, same-class candidate), the distribution of label length, candidate length and matched IoU per
 class, duplicate counts. Held-out games are scored once by the selected model refit on all training rows
-and reported in their own block. A fixture run says "fixture output, not a result" on every table.
+and reported in their own block. A fixture run says "fixture output, not a result" on the banner and on every
+section heading; the report records its command with the value of `--out` written as `OUT_ROOT` and lists the
+written tables relative to `OUT_ROOT`. `<season>` in every path is `analytics.schema.season_of_game` (the season
+turns over in July), for the inputs read as for the tables written.
+
+## Commands
+
+    python -m analytics.actions.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.actions.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.actions.train    --fixtures | --data DATA_ROOT --report reports/actions.md [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200]
+    python -m analytics.actions.eda      --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--folds 5]
+
+`--fixtures` builds the synthetic season of `analytics.fixtures` (`synth_season` and `synth_labels`) in memory
+through `analytics.actions.validate.load_fixture_games`; `--fixture-games` (6), `--fixture-possessions` (24) and
+`--fixture-heldout-every` (3) size it. `tests/_fx_actions.py` is test-only: its scripted generator gives the tests
+motion whose labels they know exactly, and no production module imports it.

@@ -1,15 +1,9 @@
-"""tests/_fx_load.py: fixture inputs for the load and fatigue lane (analytics/load).
+"""tests/_fx_load.py: the test-only local generator of the load and fatigue lane (analytics/load).
 
-Prefers the shared generators of analytics/fixtures.py (lane I1) when that module imports and its games
-carry the frame columns the lane needs; otherwise the local generators below stand in. Both have the same
-signatures and column names:
-
-    synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
-        -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
-    synth_season(seed, n_games=8, heldout_every=0) -> list of synth_game dicts, each with sportvu_game,
-        date, away, home, heldout
-    synth_aggregates(seed, n_players, seasons) -> long aggregates (DATA_CONTRACT section 11) with the
-        leaguedashptstats speed and distance metrics
+Production code reads the shared season of analytics.fixtures through analytics.load.validate.load_fixtures and
+never imports this file. The tests also need a season with a planted signal they can assert on exactly, which the
+shared one does not carry: this local generator, under its own name (local_season_inputs), never shadowing the
+shared generator names.
 
 The local frames are section 4 shaped at 25 Hz: two periods, possessions of 24 s, five players a side,
 a lineup that rotates one player every possession (so every player has on-court stints of several minutes), one
@@ -18,9 +12,8 @@ has a base speed and a per-stint speed decline that is larger on a back-to-back,
 decline target has signal; sprint bursts give the high-intensity share something to count. Positions
 carry a small jitter (sd 0.02 ft). Deterministic given the seed.
 
-season_inputs(...) is the one entry point the lane's code and tests use: it returns the dict shape
-analytics.load.validate.load_fixtures hands to the feature builder, whichever generator produced it.
-Fixture numbers are never results.
+local_season_inputs(...) returns the inputs dict of analytics.load.validate (packaged by
+validate.inputs_from_games, the function the shared loader uses too). Fixture numbers are never results.
 """
 from __future__ import annotations
 
@@ -29,14 +22,7 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 
-try:                                                  # shared generators (lane I1), finished only when the lead says so
-    from analytics.fixtures import synth_aggregates as _shared_aggregates
-    from analytics.fixtures import synth_game as _shared_game
-    from analytics.fixtures import synth_season as _shared_season
-    SHARED = True
-except ImportError:
-    SHARED = False
-    _shared_game = _shared_season = _shared_aggregates = None
+from analytics.load import validate as V
 
 FPS = 25
 POSSESSION_S = 24.0
@@ -48,7 +34,6 @@ FRAME_COLUMNS = ["game", "gameid", "date", "period", "frame", "ts_ms", "game_clo
                  "ball_x", "ball_y", "ball_z", "team_id", "team", "home", "player_id", "player", "jersey", "x", "y"]
 ROSTER_COLUMNS = ["sportvu_game", "player_id", "player", "team_id", "team", "home", "jersey", "bref_slug", "bref_name",
                   "pbp_name", "match_method"]
-REQUIRED = ("game", "period", "frame", "game_clock_s", "team_id", "team", "home", "player_id", "x", "y")
 
 
 # ── player truth ───────────────────────────────────────────────────────────────────────────────────
@@ -59,6 +44,7 @@ def _player_truth(player_id: int) -> dict:
 
 
 def team_players(team: str) -> list:
+    """The player ids of a local team."""
     return [TEAMS[team] * 100 + k for k in range(1, PLAYERS_PER_TEAM + 1)]
 
 
@@ -219,106 +205,14 @@ def _local_synth_aggregates(seed, n_players=40, seasons=("2015-16",)):
     return pd.DataFrame(rows)
 
 
-# ── public names: shared when usable, local otherwise ─────────────────────────────────────────────
-def _usable(game) -> bool:
-    return isinstance(game, dict) and isinstance(game.get("frames"), pd.DataFrame) and \
-        all(c in game["frames"].columns for c in REQUIRED)
+# ── the inputs dict ────────────────────────────────────────────────────────────────────────────────
+def local_season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20) -> dict:
+    """The inputs dict of analytics.load.validate from the local generator: games (frames, rosters, schedule ids),
+    a section 6 manifest, aggregates (section 11) from the same player truth, injuries None."""
+    games = _local_synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    n_players = len({int(p) for g in games for p in g["rosters"]["player_id"]})
+    agg = _local_synth_aggregates(seed, max(n_players, 1), ["2015-16"])
+    return V.inputs_from_games(games, agg, source="fixture (local tests/_fx_load.py)")
 
 
-def synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None):
-    if SHARED:
-        try:
-            g = _shared_game(seed, n_possessions=n_possessions, heldout=heldout, sportvu_game=sportvu_game)
-            if _usable(g):
-                return g
-        except Exception:                                   # noqa: BLE001  (a half-written shared module: fall back)
-            pass
-    return _local_synth_game(seed, n_possessions=n_possessions, heldout=heldout, sportvu_game=sportvu_game)
-
-
-def synth_season(seed, n_games=8, heldout_every=0):
-    if SHARED:
-        try:
-            games = _normalise_games(_shared_season(seed, n_games=n_games, heldout_every=heldout_every))
-            if games and all(_usable(g) for g in games):
-                return games
-        except Exception:                                   # noqa: BLE001
-            pass
-    return _local_synth_season(seed, n_games=n_games, heldout_every=heldout_every)
-
-
-def synth_aggregates(seed, n_players, seasons):
-    if SHARED:
-        try:
-            df = _shared_aggregates(seed, n_players, seasons)
-            if isinstance(df, tuple):                          # the shared generator returns (aggregates, positions)
-                df = df[0]
-            if isinstance(df, pd.DataFrame) and {"player_id", "metric", "value"} <= set(df.columns):
-                return df
-        except Exception:                                   # noqa: BLE001
-            pass
-    return _local_synth_aggregates(seed, n_players, seasons)
-
-
-def _normalise_games(season) -> list:
-    """A shared synth_season may return a list, a dict of game id -> game, or a dict with a games key."""
-    if isinstance(season, dict) and "games" in season:
-        season = season["games"]
-    if isinstance(season, dict):
-        out = []
-        for key, g in season.items():
-            if isinstance(g, dict):
-                g = dict(g)
-                g.setdefault("sportvu_game", key)
-                out.append(g)
-        return out
-    return [dict(g) for g in season if isinstance(g, dict)]
-
-
-def game_meta(game: dict) -> dict:
-    """sportvu_game, date, away, home, heldout of a game dict: from its top level, its meta or manifest_entry
-    (the shared generator keeps them there), else from the id or the frames."""
-    srcs = [game] + [game[k] for k in ("meta", "manifest_entry") if isinstance(game.get(k), dict)]
-    get = lambda key: next((d[key] for d in srcs if d.get(key) is not None), None)
-    sid = get("sportvu_game") or get("game") or (str(game["frames"]["game"].iloc[0]) if len(game.get("frames", [])) else None)
-    mm, dd, yyyy, away, _at, home = sid.split(".")
-    held = get("heldout")
-    if held is None:
-        held = str(get("split") or "").startswith("heldout")
-    return {"sportvu_game": sid, "date": get("date") or "%s-%s-%s" % (yyyy, mm, dd),
-            "away": get("away") or away, "home": get("home") or home, "heldout": bool(held)}
-
-
-def season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20, prefer_shared=True) -> dict:
-    """The inputs dict of analytics.load.validate: games (list of dict(sportvu_game, date, away, home, heldout,
-    frames, rosters)), manifest (section 6 shape, dates and teams), aggregates (section 11), injuries (None:
-    the injuries table covers 2021-22 onward and never overlaps the tracking era). prefer_shared=False forces
-    the local generator (the tests assert on its planted signal: the schedule and the speed decline)."""
-    if SHARED and prefer_shared:
-        games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
-    else:
-        games = _local_synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
-    out_games = []
-    for g in games:
-        meta = game_meta(g)
-        ros = g.get("rosters")
-        if not isinstance(ros, pd.DataFrame) or "player_id" not in ros.columns:
-            ros = g["frames"][["player_id", "team_id", "team", "home"]].drop_duplicates("player_id")
-            ros.insert(0, "sportvu_game", meta["sportvu_game"])
-        out_games.append({**meta, "frames": g["frames"], "rosters": ros})
-    manifest = {"contract_version": 1, "source": "fixture", "games": {}, "heldout": []}
-    for g in out_games:
-        manifest["games"][g["sportvu_game"]] = {"game": g["sportvu_game"], "date": g["date"], "away": g["away"],
-                                               "home": g["home"], "status": "ok", "heldout": g["heldout"],
-                                               "split": "heldout_game" if g["heldout"] else "train"}
-        if g["heldout"]:
-            manifest["heldout"].append(g["sportvu_game"])
-    n_players = len({int(p) for g in out_games for p in g["rosters"]["player_id"]})
-    agg = synth_aggregates(seed, max(n_players, 1), ["2015-16"]) if SHARED and prefer_shared else \
-        _local_synth_aggregates(seed, max(n_players, 1), ["2015-16"])
-    return {"games": out_games, "manifest": manifest, "aggregates": agg,
-            "injuries": None, "season": "2015-16",
-            "source": "fixture (shared analytics.fixtures)" if SHARED and prefer_shared else "fixture (local tests/_fx_load.py)"}
-
-
-__all__ = ["SHARED", "synth_game", "synth_season", "synth_aggregates", "season_inputs", "game_meta", "team_players"]
+__all__ = ["local_season_inputs", "team_players"]

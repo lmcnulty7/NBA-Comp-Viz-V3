@@ -1,7 +1,8 @@
 """analytics/betting/features.py: the betting_games frame (docs/contract/betting.md) from the games table joined to
 the closing lines, with features that use previous games only.
 
-    python -m analytics.betting.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.betting.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--heldout-season 2024-25]
+        [--seed 0] [--fixture-games 40] [--fixture-seasons 2020-21,2021-22]
 
 FEATURES (per game, every one from games strictly before game_date, ordered by (game_date, game_id)):
     home_net10, away_net10      point margin per game over the team's previous 10 games (0 with no previous game)
@@ -28,7 +29,6 @@ with the final margin exceeds LEAK_CORR (a feature built from the final margin i
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -235,6 +235,7 @@ def drop_later_seasons(joined: pd.DataFrame, heldout_season: str | None) -> tupl
 
 
 def write_games(bg: pd.DataFrame, out_root) -> list[Path]:
+    """betting_games.parquet per season under OUT_ROOT/analytics/betting/<season>/ -> the paths written."""
     paths = []
     for season, g in bg.groupby("season", sort=True):
         d = Path(out_root) / "analytics" / "betting" / str(season)
@@ -246,19 +247,24 @@ def write_games(bg: pd.DataFrame, out_root) -> list[Path]:
 
 
 def parse_args(argv=None):
+    """The features CLI: --fixtures or --data, with --out, --heldout-season, --seed and the fixture knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data")
+    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
+    src.add_argument("--data", help="DATA_ROOT with collect/extras/odds and collect/stints")
     ap.add_argument("--out", default=None, help="OUT_ROOT: betting_games.parquet per season under analytics/betting/")
-    ap.add_argument("--heldout-season", default="2024-25")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--heldout-season", default="2024-25", help="the season flagged heldout (default 2024-25)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default 0)")
+    _validate.add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> pd.DataFrame:
+    """Build betting_games from the command line, print a one-line summary and, with --out, write it."""
     a = parse_args(argv)
-    data = _validate.fixture_data(a.seed) if a.fixtures else _validate.load_data(a.data)
+    data = _validate.fixture_data(a.seed, n_games=a.fixture_games, seasons=_validate.fixture_seasons(a.fixture_seasons)) \
+        if a.fixtures else _validate.load_data(a.data)
     res = _validate.validate(data["odds"], data["games"], data.get("team_names"))
     held = pick_heldout_season(res["joined"]["season"].unique(), a.heldout_season)
     joined, ignored = drop_later_seasons(res["joined"], held)

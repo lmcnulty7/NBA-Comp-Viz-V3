@@ -21,13 +21,14 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import brier, grouped_cv, refuse_heldout
+from analytics.eval import brier, fit_threads, grouped_cv, refuse_heldout
 from analytics.winprob import features as F
 
 MARGIN_BINS = (-100, -20, -15, -10, -6, -3, -1, 0, 2, 5, 9, 14, 19, 100)
 
 
 def margin_distribution(states: pd.DataFrame) -> pd.DataFrame:
+    """Quantiles and mean absolute value of the margin per time bucket."""
     q = [0.05, 0.25, 0.5, 0.75, 0.95]
     rows = []
     for b in F.BUCKET_NAMES:
@@ -42,6 +43,7 @@ def margin_distribution(states: pd.DataFrame) -> pd.DataFrame:
 
 
 def time_distribution(states: pd.DataFrame) -> pd.DataFrame:
+    """Rows and share per period and per time bucket."""
     a = states.groupby("period").size().rename("rows").reset_index().assign(kind="period").rename(columns={"period": "value"})
     b = states.groupby("time_bucket").size().rename("rows").reset_index().assign(kind="time_bucket").rename(columns={"time_bucket": "value"})
     out = pd.concat([a, b], ignore_index=True)
@@ -51,6 +53,7 @@ def time_distribution(states: pd.DataFrame) -> pd.DataFrame:
 
 
 def win_rate_by_margin_bucket(states: pd.DataFrame) -> pd.DataFrame:
+    """Home win rate by margin bin (rows) and time bucket (columns), with the counts beside."""
     s = states.copy()
     s["margin_bin"] = pd.cut(s["margin"].astype(float), bins=MARGIN_BINS, right=False)
     tab = s.pivot_table(index="margin_bin", columns="time_bucket", values=F.TARGET, aggfunc="mean", observed=False)
@@ -66,6 +69,7 @@ def win_rate_by_margin_bucket(states: pd.DataFrame) -> pd.DataFrame:
 
 
 def spread_coverage(states: pd.DataFrame) -> pd.DataFrame:
+    """Per season: games, games with a closing spread, row share with a spread, share with a known possession."""
     rows = []
     for season, s in states.groupby("season", sort=True):
         g = s.drop_duplicates("game_id")
@@ -104,7 +108,8 @@ def shuffled_label_check(states: pd.DataFrame, seed: int = 0, n_folds: int = 5) 
         d["y"] = y
         fit = lambda tr: make_pipeline(StandardScaler(), LogisticRegression(max_iter=500)).fit(tr[cols].to_numpy(), tr["y"].to_numpy())
         pred = lambda m, te: m.predict_proba(te[cols].to_numpy())[:, 1]
-        oof = grouped_cv(d, "game_id", fit, pred, n_folds=k, seed=seed)
+        with fit_threads():
+            oof = grouped_cv(d, "game_id", fit, pred, n_folds=k, seed=seed)
         rows.append({"labels": name, "rows": int(len(d)), "games": len(uniq), "base_rate": float(np.mean(y)),
                      "brier_base_rate": float(np.mean(y) * (1 - np.mean(y))), "brier_oof_logistic": brier(y, oof["p"].to_numpy())})
     return pd.DataFrame(rows)
@@ -130,15 +135,19 @@ def all_tables(states: pd.DataFrame, seed: int = 0, heldout_season: str = DEFAUL
 
 
 def main(argv=None) -> dict:
+    """Print every EDA table from the command line (fixture output under --fixtures) and return them."""
     import argparse
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--heldout-season", default=DEFAULT_HELDOUT_SEASON)
+    src.add_argument("--fixtures", action="store_true", help="run on the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
+    src.add_argument("--data", help="DATA_ROOT with collect/stints/playbyplay/<season>.parquet")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the fixtures and the shuffled-label check (default 0)")
+    ap.add_argument("--heldout-season", default=DEFAULT_HELDOUT_SEASON,
+                    help="the season no outcome table reads (default %s)" % DEFAULT_HELDOUT_SEASON)
+    F.add_fixture_args(ap)
     a = ap.parse_args(argv)
-    d = F.load_fixtures(a.seed) if a.fixtures else F.load_data(a.data)
+    d = F.load_args(a)
     states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     tabs = all_tables(states, a.seed, a.heldout_season)
     for name, t in tabs.items():

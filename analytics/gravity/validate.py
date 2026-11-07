@@ -1,8 +1,9 @@
 """analytics/gravity/validate.py: input checks for the gravity lane, and the loaders every CLI of the lane shares.
 
     python -m analytics.gravity.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
+        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every K] [--fixture-generator shared|pull]
 
-Per game dict (keys frames, events, shots, rosters, shot_frames, possessions; see tests/_fx_gravity.py):
+Per game dict (keys frames, events, shots, rosters, shot_frames, possessions; as analytics.fixtures gives them):
   - schema.validate on every contract table present (rosters, shot_frames, rebound_frames, possessions,
     states_1hz; sections 16 to 20), problems listed per table
   - frames (section 4): required columns; ranges x in [X_RANGE], y in [Y_RANGE], game_clock_s in
@@ -27,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -127,6 +127,7 @@ def validate_games(games) -> tuple[list, list]:
 
 # ── loaders ────────────────────────────────────────────────────────────────────────────────────────
 def _read_if(p: Path):
+    """The parquet at p, or None when it does not exist (the optional tables)."""
     return pd.read_parquet(p) if p.exists() else None
 
 
@@ -168,52 +169,75 @@ def load_data_root(root, season: str = "2015-16", log=print) -> list:
     return games
 
 
-def fixture_generator(name: str = "auto"):
-    """The season generator for --fixtures: 'auto' is tests/_fx_gravity.py's synth_season (analytics.fixtures when
-    importable, else the fallback); 'fallback' is the lane's own generator whatever is importable."""
-    repo = Path(__file__).resolve().parents[2]
-    if str(repo) not in sys.path:
-        sys.path.insert(0, str(repo))
-    from tests import _fx_gravity as fx
-    if name == "fallback":
-        return fx.fallback_synth_season
-    if name == "auto":
-        return fx.synth_season
-    raise SystemExit("gravity: unknown fixture generator %r (auto or fallback)" % name)
+GENERATORS = {"shared": "analytics.fixtures", "pull": "analytics.gravity.fixture_pull"}
+GENERATOR_ALIASES = {"auto": "shared", "fallback": "pull"}     # the spellings of earlier runs
 
 
-def fixture_source(name: str = "auto") -> str:
+def generator_name(name: str = "shared") -> str:
+    """The canonical generator name ("shared" or "pull") of a --fixture-generator value (aliases auto, fallback)."""
+    name = GENERATOR_ALIASES.get(name, name)
+    if name not in GENERATORS:
+        raise SystemExit("gravity: unknown fixture generator %r (shared or pull)" % name)
+    return name
+
+
+def fixture_generator(name: str = "shared"):
+    """The season generator for --fixtures: "shared" is analytics.fixtures.synth_season, "pull" the lane's synthetic
+    planted-pull generator analytics.gravity.fixture_pull.synth_pull_season."""
+    if generator_name(name) == "pull":
+        from analytics.gravity.fixture_pull import synth_pull_season
+        return synth_pull_season
+    from analytics.fixtures import synth_season
+    return synth_season
+
+
+def fixture_source(name: str = "shared") -> str:
     """The module name of the generator fixture_generator(name) resolves to."""
-    repo = Path(__file__).resolve().parents[2]
-    if str(repo) not in sys.path:
-        sys.path.insert(0, str(repo))
-    from tests import _fx_gravity as fx
-    return "tests._fx_gravity" if name == "fallback" else fx.SOURCE
+    return GENERATORS[generator_name(name)]
+
+
+def fixture_heldout_every(a) -> int:
+    """--fixture-heldout-every, defaulting to every fourth game held out when the season has at least four games."""
+    k = getattr(a, "fixture_heldout_every", None)
+    if k is not None:
+        return int(k)
+    return 4 if int(getattr(a, "fixture_games", 8)) >= 4 else 0
 
 
 def load_games(a, who: str = "gravity") -> list:
-    """The game dicts a CLI of the lane asked for: --fixtures (a season of fixture games with every fourth game
-    held out, from the generator --fixture-generator names) or --data DATA_ROOT."""
+    """The game dicts a CLI of the lane asked for: --fixtures (a season of fixture games from the generator
+    --fixture-generator names) or --data DATA_ROOT."""
     if getattr(a, "fixtures", False):
-        gen = fixture_generator(getattr(a, "fixture_generator", "auto"))
-        n = int(getattr(a, "n_games", 8))
-        return gen(int(getattr(a, "seed", 0)), n_games=n, heldout_every=4 if n >= 4 else 0,
-                   n_possessions=int(getattr(a, "n_possessions", 40)))
+        gen = fixture_generator(getattr(a, "fixture_generator", "shared"))
+        return gen(int(getattr(a, "seed", 0)), n_games=int(getattr(a, "fixture_games", 8)), heldout_every=fixture_heldout_every(a),
+                   n_possessions=int(getattr(a, "fixture_possessions", 40)))
     if getattr(a, "data", None):
         return load_data_root(a.data, getattr(a, "season", "2015-16"))
     raise SystemExit("%s: pass --fixtures or --data DATA_ROOT" % who)
 
 
+def add_input_args(ap: argparse.ArgumentParser) -> None:
+    """The input flags every CLI of the lane shares: the source (--fixtures or --data) and the fixture knobs."""
+    ap.add_argument("--fixtures", action="store_true", help="run on a synthetic season (fixture output, not a result)")
+    ap.add_argument("--data", default=None, help="DATA_ROOT in the owner's Mac layout (module docstring)")
+    ap.add_argument("--season", default="2015-16", help="season folder under DATA_ROOT (default 2015-16)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed, also the seed of folds and bootstrap (default 0)")
+    ap.add_argument("--fixture-games", "--n-games", dest="fixture_games", type=int, default=8,
+                    help="--fixtures: games in the synthetic season (default 8)")
+    ap.add_argument("--fixture-possessions", "--n-possessions", dest="fixture_possessions", type=int, default=40,
+                    help="--fixtures: possessions per synthetic game (default 40)")
+    ap.add_argument("--fixture-heldout-every", dest="fixture_heldout_every", type=int, default=None,
+                    help="--fixtures: hold out every k-th game, 0 for none (default 4 with at least four games, else 0)")
+    ap.add_argument("--fixture-generator", default="shared", choices=("shared", "pull", "auto", "fallback"),
+                    help="--fixtures: shared is analytics.fixtures, pull the lane's planted-pull generator "
+                         "(analytics/gravity/fixture_pull.py); auto and fallback are the older spellings of the two")
+
+
 def main(argv=None) -> dict:
+    """CLI: validate the inputs, print the summary, write validate.json under --out."""
     ap = argparse.ArgumentParser(description="validate the gravity lane inputs")
-    ap.add_argument("--fixtures", action="store_true")
-    ap.add_argument("--data", default=None)
+    add_input_args(ap)
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/validate.json")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=8)
-    ap.add_argument("--n-possessions", type=int, default=40)
-    ap.add_argument("--fixture-generator", default="auto", choices=("auto", "fallback"))
     a = ap.parse_args(argv)
     games = load_games(a, who="gravity.validate")
     _, counts = validate_games(games)

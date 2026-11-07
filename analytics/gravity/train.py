@@ -2,11 +2,11 @@
 
     python -m analytics.gravity.train --fixtures | --data DATA_ROOT --report reports/gravity.md
         [--folds 5] [--seed 0] [--bootstrap 200] [--min-possessions 300] [--out OUT_ROOT] [--season 2015-16]
-        [--fixture-generator auto|fallback]
+        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every K] [--fixture-generator shared|pull]
 
 Protocol
   1. load the game dicts (validate.load_games), clean them (validate.validate_games), set the held-out games
-     aside (features.is_heldout: the dict flag, a held-out token of sportvu/splits.json, or the CLE arena) and
+     aside (features.is_heldout: the dict flag, or analytics.eval.is_heldout_game on the id) and
      call analytics.eval.refuse_heldout on the training game ids
   2. build the 1 Hz player frame and the spacing frame (features.build); schema.assert_time_forward runs on
      the feature frame there and again in features.design before every fit
@@ -18,7 +18,7 @@ Protocol
      out-of-fold MSE with bootstrap by game, and the paired bootstrap of MSE(HGB) - MSE(ridge)
   5. the SHIPPED expectation is ridge. Gravity is a residual, and a lower MSE is not evidence of a better
      expectation for a residual quantity: a flexible model lowers MSE partly by fitting whatever is left over,
-     including the pull it is meant to leave in the residual (on the fallback fixture a planted 2 ft pull came out
+     including the pull it is meant to leave in the residual (on the planted-pull fixture a 2 ft pull came out
      at 0.6 ft under HGB with a player-identifying prior and 1.4 ft under ridge). HGB stays in the candidate
      table and the paired test as a diagnostic of how much structure the location features leave on the table
   6. gravity_ft = expected_ft - nearest_def_dist_ft (positive: the defender stays closer than location predicts;
@@ -30,18 +30,21 @@ Protocol
      xFG probability of teammates' shots (analytics.features_xfg features, analytics.train_xfg logistic, out of
      fold by game) is higher with a high-gravity player on the floor; one difference per game (mean over the
      candidate players present), a one-sided binomial sign test over games and the mean difference with a
-     bootstrap interval by game; (c) on the fallback fixture, the recovered pull of the planted players against
+     bootstrap interval by game; (c) on the planted-pull fixture, the recovered pull of the planted players against
      the generator's effective pull (tests/test_gravity.py states the tolerance)
   8. held-out games, when present, are scored exactly once by the shipped ridge refit on every training row
      (the constant floor alongside, labelled a floor, not a selection input); they never fit, tune or rank anything
   9. the report (--report) and, with --out, the three tables of docs/contract/gravity.md. With --fixtures the
-     report is labelled "fixture output, not a result"; when the default generator is analytics.fixtures the
-     report carries a second section from the lane's fallback generator (tests/_fx_gravity.py), whose rosters
-     persist across games and whose star sits, so the season-wide checks run there
+     report is labelled "fixture output, not a result"; when the generator is analytics.fixtures the report
+     carries a second section from the lane's synthetic planted-pull generator (analytics/gravity/fixture_pull.py),
+     whose star sits on part of the possessions, so the on/off sign test and the pull recovery run there
 
 Fewer games than folds: the fold count becomes the game count (leave-one-game-out) and the report says so;
 one training game: in-sample, labelled, and its rows carry fold = IN_SAMPLE_FOLD (-2) so they can never be
 mistaken for out-of-fold rows (repo convention: -1 held-out, -2 in-sample, >= 0 the out-of-fold index).
+
+Threads: every fit runs under analytics.eval.fit_threads() (BLAS and OpenMP pinned to one thread; the build box
+shares 4 cores across many lanes and HGB's OpenMP spin-waits are pathological there).
 """
 from __future__ import annotations
 
@@ -49,20 +52,19 @@ import argparse
 import datetime as dt
 import json
 import math
-import os
 import sys
 from pathlib import Path
-
-os.environ.setdefault("OMP_NUM_THREADS", "1")   # 4 cores shared by 21 lanes: HGB must not take them all
 
 import numpy as np
 import pandas as pd
 
 from analytics import features_xfg, schema, train_xfg
-from analytics.eval import bootstrap_by_game, gated, grouped_folds, paired_bootstrap_by_game, refuse_heldout
+from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, gated, grouped_folds,
+                            paired_bootstrap_by_game, refuse_heldout)
 from analytics.gravity import MIN_POSSESSIONS, WHO
 from analytics.gravity import features as F
 from analytics.gravity import validate as V
+from analytics.gravity.fixture_pull import effective_pull
 
 MODELS = ("constant", "ridge", "hgb")
 SHIPPED = "ridge"
@@ -74,6 +76,10 @@ FIXTURE_MIN_POSSESSIONS = 40   # a fixture season is a few small games: the real
 MAC_CMD = ("python -m analytics.gravity.train --data DATA_ROOT --report reports/gravity.md --folds 5 --seed 0 "
            "--bootstrap 1000 --min-possessions 300 --out DATA_ROOT")
 HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2   # repo convention for the fold column: -1 held-out, -2 in-sample, >= 0 out-of-fold
+PULL_SECTION_WHY = ("analytics.fixtures keeps one roster per team all season, so the season-wide top-decile check runs on it, but its "
+                    "stars play every period, so the on/off sign test finds no off-court shot there, and its pull has no closed form "
+                    "to recover. The planted-pull generator sits its star on about 40 percent of possessions and plants a known pull "
+                    "(effective_pull_ft), so the sign test and the pull recovery run here.")
 PLAYER_COLUMNS = ["player_id", "n_possessions", "n_frames", "n_games", "gravity_ft", "lo", "hi", "insufficient"]
 FRAME_COLUMNS = ["sportvu_game", "possession", "frame", "player_id", "nearest_def_dist_ft", "expected_ft", "gravity_ft",
                  "has_ball", "fold", "heldout"]
@@ -86,7 +92,6 @@ def fit_models(train: pd.DataFrame, seed: int = 0, which=MODELS) -> dict:
     from sklearn.linear_model import Ridge
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
-    from threadpoolctl import threadpool_limits
     if train["heldout"].any():
         raise ValueError("%s: a held-out row reached fit_models" % WHO)
     X, y = F.design(train), train[F.TARGET].to_numpy(dtype=float)
@@ -94,17 +99,18 @@ def fit_models(train: pd.DataFrame, seed: int = 0, which=MODELS) -> dict:
     if "constant" in which:
         mean = float(y.mean())
         out["constant"] = lambda fr, m=mean: np.full(len(fr), m)
-    if "ridge" in which:
-        ridge = make_pipeline(StandardScaler(), Ridge(alpha=RIDGE_ALPHA)).fit(X, y)
-        out["ridge"] = lambda fr, m=ridge: m.predict(F.design(fr))
-    if "hgb" in which:
-        with threadpool_limits(limits=1):      # OpenMP spin-waits are pathological on a shared, oversubscribed box
+    with fit_threads():
+        if "ridge" in which:
+            ridge = make_pipeline(StandardScaler(), Ridge(alpha=RIDGE_ALPHA)).fit(X, y)
+            out["ridge"] = lambda fr, m=ridge: m.predict(F.design(fr))
+        if "hgb" in which:
             hgb = HistGradientBoostingRegressor(random_state=seed, **HGB_PARAMS).fit(X, y)
 
-        def predict_hgb(fr, m=hgb):
-            with threadpool_limits(limits=1):
-                return m.predict(F.design(fr))
-        out["hgb"] = predict_hgb
+            def predict_hgb(fr, m=hgb):
+                """HGB expectation of a frame, under fit_threads."""
+                with fit_threads():
+                    return m.predict(F.design(fr))
+            out["hgb"] = predict_hgb
     return out
 
 
@@ -115,6 +121,7 @@ def shots_of(games, ids) -> pd.DataFrame:
 
 
 def rosters_of(games) -> pd.DataFrame:
+    """Concatenated rosters of the game dicts (an empty section 16 frame when none has one)."""
     parts = [d["rosters"] for d in games if d.get("rosters") is not None and len(d["rosters"])]
     return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=schema.columns("rosters"))
 
@@ -156,6 +163,7 @@ def out_of_fold(pf: pd.DataFrame, games: list, n_folds: int, seed: int) -> tuple
 
 # ── scoring ────────────────────────────────────────────────────────────────────────────────────────
 def mse(y, p) -> float:
+    """Mean squared error of p against y."""
     y, p = np.asarray(y, dtype=float), np.asarray(p, dtype=float)
     return float(np.mean((y - p) ** 2))
 
@@ -249,8 +257,8 @@ def top_decile_check(players: pd.DataFrame, known_ids) -> dict:
 def top_decile_by_game(gf: pd.DataFrame, known_ids) -> dict:
     """The same check inside each training game: players ranked by their mean gravity over that game's frames,
     the known players of the game expected in the top decile of that game's roster. This is the check that
-    applies when rosters do not persist across games (analytics.fixtures gives every game a fresh roster); the
-    season-wide check applies when they do (real data, the fallback generator)."""
+    applies when rosters do not persist across games; the season-wide check applies when they do (real data,
+    analytics.fixtures' league rosters, the planted-pull generator)."""
     known = {int(p) for p in known_ids}
     rows = []
     for g, grp in gf[~gf["heldout"]].groupby("sportvu_game"):
@@ -268,7 +276,7 @@ def top_decile_by_game(gf: pd.DataFrame, known_ids) -> dict:
 
 def recovered_pull(gf: pd.DataFrame, known_ids) -> dict:
     """{player_id: mean gravity_ft over training frames} for the known players: what the shipped expectation
-    recovers of the planted pull (compared with the fallback generator's effective_pull_ft in the tests)."""
+    recovers of the planted pull (compared with the planted-pull generator's effective_pull_ft in the tests)."""
     tr = gf[~gf["heldout"]]
     return {int(p): float(tr.loc[tr["player_id"] == int(p), "gravity_ft"].mean()) for p in known_ids}
 
@@ -315,6 +323,7 @@ class _OnCourt:
         self.fl_clock = fl["game_clock_s"].to_numpy(dtype=float)
 
     def players(self, period: int, clock_s: float) -> set:
+        """Player ids with a row in the frame of ``period`` nearest ``clock_s`` (empty when the period has no frame)."""
         m = self.fl_period == int(period)
         if not m.any():
             return set()
@@ -393,16 +402,7 @@ def run_pipeline(games: list, a, label: str) -> dict:
     tdg = top_decile_by_game(gf, known)
     known_by_model = {m: {int(p): float((pred.loc[pred["player_id"] == p, "p_" + m] - pred.loc[pred["player_id"] == p, F.TARGET]).mean())
                           for p in known} for m in MODELS}
-    truth_pull = {}
-    for d in train_games:
-        t = d.get("truth") or {}
-        if t.get("effective_pull_ft"):
-            try:
-                from tests._fx_gravity import effective_pull
-                truth_pull = effective_pull(train_games)
-            except ImportError:
-                truth_pull = {}
-            break
+    truth_pull = effective_pull(train_games)       # empty unless the games carry truth.effective_pull_ft (planted pull)
     if known:
         candidates, candidate_source = known, "the fixture's planted high-gravity players"
     else:
@@ -447,21 +447,6 @@ def run_pipeline(games: list, a, label: str) -> dict:
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=3) -> str:
-    try:
-        return "n/a" if v is None or not np.isfinite(float(v)) else ("%%.%df" % nd) % float(v)
-    except (TypeError, ValueError):
-        return str(v)
-
-
-def _ci(d: dict, nd=3) -> str:
-    if not np.isfinite(d.get("point", float("nan"))):
-        return "n/a"
-    if not np.isfinite(d.get("lo", float("nan"))):
-        return _f(d["point"], nd)
-    return "%s [%s, %s]" % (_f(d["point"], nd), _f(d["lo"], nd), _f(d["hi"], nd))
-
-
 def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##") -> list:
     """The report body of one pipeline run; h is the heading level of its sections."""
     tag = " (fixture output, not a result)" if fixture else ""
@@ -475,24 +460,24 @@ def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##"
          "Sampling: %d frames sampled at 1 Hz inside possessions, %d kept (not ten players: %d, no ball: %d, degenerate hull: %d)."
          % (ctx["sampled"], ctx["kept"], ctx["not_ten"], ctx["no_ball"], ctx["degenerate"]),
          "Validation counts: %d schema problem(s), dropped rows %s." % (ctx["schema_problems"], json.dumps(ctx["dropped"])), "",
-         "%s Candidates (%s MSE, %d player-frames, %d games; variance of y %s)%s" % (h, ctx["mode"], ctx["train_rows"], ctx["train_games"], _f(ctx["scores"]["var_y"]), tag), "",
+         "%s Candidates (%s MSE, %d player-frames, %d games; variance of y %s)%s" % (h, ctx["mode"], ctx["train_rows"], ctx["train_games"], fmt_num(ctx["scores"]["var_y"]), tag), "",
          "Folds: %s. Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)." % (ctx["protocol"], bootstrap, seed), "",
          "| model | MSE | R2 (1 - MSE / var y) | role |", "| --- | --- | --- | --- |"]
     role = {"constant": "floor", "ridge": "SHIPPED expectation (the plan's model)", "hgb": "diagnostic only"}
     for m in MODELS:
         s = ctx["scores"]["mse"][m]
-        L.append("| %s | %s | %s | %s |" % (m, _ci(s), _f(1 - s["point"] / ctx["scores"]["var_y"]), role[m]))
+        L.append("| %s | %s | %s | %s |" % (m, fmt_ci(s), fmt_num(1 - s["point"] / ctx["scores"]["var_y"]), role[m]))
     pair = ctx["scores"]["paired_hgb_minus_ridge"]
     L += ["", "Paired bootstrap by game, MSE(hgb) - MSE(ridge): %s [%s, %s], excludes zero: %s (HGB lower: %s). "
           "MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by "
           "fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the "
-          "location features leave unexplained." % (_f(pair["diff"], 4), _f(pair["lo"], 4), _f(pair["hi"], 4), pair["excludes_zero"], ctx["scores"]["hgb_lower_mse"]),
+          "location features leave unexplained." % (fmt_num(pair["diff"], 4), fmt_num(pair["lo"], 4), fmt_num(pair["hi"], 4), pair["excludes_zero"], ctx["scores"]["hgb_lower_mse"]),
           "", "%s Players (gate: %d possessions%s; %d gated of %d)%s" % (
               h, ctx["min_possessions"], ", the fixture gate; real data gates at %d" % MIN_POSSESSIONS if fixture else "",
               ctx["n_gated"], ctx["n_players"], tag), "",
           "| rank | player_id | possessions | gravity_ft | lo | hi |", "| --- | --- | --- | --- | --- | --- |"]
     for i, r in enumerate(ctx["top_decile"]["top"]):
-        L.append("| %d | %d | %d | %s | %s | %s |" % (i + 1, r["player_id"], r["n_possessions"], _f(r["gravity_ft"]), _f(r["lo"]), _f(r["hi"])))
+        L.append("| %d | %d | %d | %s | %s | %s |" % (i + 1, r["player_id"], r["n_possessions"], fmt_num(r["gravity_ft"]), fmt_num(r["lo"]), fmt_num(r["hi"])))
     if not ctx["top_decile"]["top"]:
         L.append("| - | - | - | no player reaches the gate | - | - |")
     td = ctx["top_decile"]
@@ -510,33 +495,34 @@ def _sections(ctx: dict, fixture: bool, bootstrap: int, seed: int, h: str = "##"
         L += ["", "Mean out-of-fold gravity (ft) of the known players under each candidate (ridge is the shipped one):", "",
               "| model | " + " | ".join(str(p) for p in ctx["known_ids"]) + " |", "| --- |" + " --- |" * len(ctx["known_ids"])]
         for m in MODELS:
-            L.append("| %s | %s |" % (m, " | ".join(_f(ctx["known_by_model"][m][p]) for p in ctx["known_ids"])))
+            L.append("| %s | %s |" % (m, " | ".join(fmt_num(ctx["known_by_model"][m][p]) for p in ctx["known_ids"])))
         if ctx["truth_pull"]:
             L += ["", "Recovered pull under the shipped expectation against the generator's effective pull (the planted pull in the "
-                  "target's own terms, see tests/_fx_gravity.py): " + "; ".join(
-                      "%d: recovered %s ft, effective %s ft" % (p, _f(ctx["recovered_pull"].get(p)), _f(ctx["truth_pull"].get(p)))
+                  "target's own terms, see analytics/gravity/fixture_pull.py): " + "; ".join(
+                      "%d: recovered %s ft, effective %s ft" % (p, fmt_num(ctx["recovered_pull"].get(p)), fmt_num(ctx["truth_pull"].get(p)))
                       for p in ctx["known_ids"]) + "."]
     else:
         L.append("No known high-gravity player on this input: the top ten above are listed without a claim.")
     st = ctx["sign_test"]
     L += ["", "%s# Sign test: teammates' location-only xFG with a high-gravity player on the floor%s" % (h, tag), "",
           "Candidates %s (%s). Games with a difference: %d; positive: %d; one-sided binomial p = %s; mean difference %s [%s, %s] (bootstrap by game)."
-          % (st["candidates"], ctx["candidate_source"], st["n_games"], st["n_positive"], _f(st["p_value"], 4), _f(st["mean_diff"], 4), _f(st["lo"], 4), _f(st["hi"], 4)),
+          % (st["candidates"], ctx["candidate_source"], st["n_games"], st["n_positive"], fmt_num(st["p_value"], 4), fmt_num(st["mean_diff"], 4), fmt_num(st["lo"], 4), fmt_num(st["hi"], 4)),
           "", "%s Spacing%s" % (h, tag), "",
           "Mean hull area %s ft2 (sd %s), mean nearest-defender distance %s ft over %d training possession-frames."
-          % (_f(ctx["hull_mean"], 1), _f(ctx["hull_sd"], 1), _f(ctx["mnd_mean"], 2), ctx["spacing_rows"]),
+          % (fmt_num(ctx["hull_mean"], 1), fmt_num(ctx["hull_sd"], 1), fmt_num(ctx["mnd_mean"], 2), ctx["spacing_rows"]),
           "", "%s Held-out, scored once%s" % (h, tag), ""]
     if ctx["heldout_games"]:
         hs = ctx["heldout_scores"]
         L.append("%d held-out game(s), %d player-frames, scored once by the shipped ridge refit on all %d training rows: MSE %s "
                  "(constant floor %s, not a selection input). Never fitted, tuned or ranked on."
-                 % (ctx["heldout_games"], ctx["heldout_rows"], ctx["train_rows"], _f(hs.get(SHIPPED)), _f(hs.get("constant"))))
+                 % (ctx["heldout_games"], ctx["heldout_rows"], ctx["train_rows"], fmt_num(hs.get(SHIPPED)), fmt_num(hs.get("constant"))))
     else:
         L.append("No held-out game in this input.")
     return L
 
 
-def write_report(path: Path, ctx: dict, fallback_ctx: dict = None) -> str:
+def write_report(path: Path, ctx: dict, pull_ctx: dict = None) -> str:
+    """Write the markdown report of a run (and of the planted-pull run when given) to path; returns the text."""
     fx = ctx["fixture"]
     tag = " (fixture output, not a result)" if fx else ""
     L = ["# Gravity and spacing (analytics/gravity)%s" % tag, "",
@@ -551,13 +537,11 @@ def write_report(path: Path, ctx: dict, fallback_ctx: dict = None) -> str:
           "(positive: defenders closer than location predicts). Shipped expectation: ridge (see the candidate table for why)."
           % ", ".join(z[2] for z in F.ZONES), ""]
     L += _sections(ctx, fx, ctx["bootstrap"], ctx["seed"], "##")
-    if fallback_ctx is not None:
-        L += ["", "## Second run: the lane's fallback generator (tests/_fx_gravity.py) (fixture output, not a result)", "",
-              "The default generator above gives every game a fresh roster and plays its star every period, so the season-wide "
-              "top-decile check and the on/off sign test cannot run there. The fallback keeps the same fourteen players across the "
-              "season, sits its star on about 40 percent of possessions and plants a known pull, so both checks run here.", ""]
-        L += _sections(fallback_ctx, True, ctx["bootstrap"], ctx["seed"], "###")
-    L += ["", "## Outputs", "", ctx["outputs"], "", "## Assumptions", ""]
+    if pull_ctx is not None:
+        L += ["", "## Second run: the lane's planted-pull generator (analytics/gravity/fixture_pull.py) (fixture output, not a result)", "",
+              PULL_SECTION_WHY, ""]
+        L += _sections(pull_ctx, True, ctx["bootstrap"], ctx["seed"], "###")
+    L += ["", "## Outputs%s" % tag, "", ctx["outputs"], "", "## Assumptions", ""]
     L += ["- " + s for s in ASSUMPTIONS]
     L += ["", "## Mac command (the real run)", "", "    " + MAC_CMD, "",
           "DATA_ROOT holds sportvu_contract/, analytics/possessions/2015-16/ (and heldout/2015-16/), analytics/rosters/, analytics/shot_frames/ "
@@ -586,47 +570,43 @@ ASSUMPTIONS = [
     "is the location-only logistic of analytics.train_xfg fitted out of fold by game on the training games' shots; shots whose shooter "
     "could not be matched to a roster id are left out of the teammates' set.",
     "On-court at a shot means the player has a row in the frame of the same period nearest the shot's clock.",
-    "Fixture runs on analytics.fixtures: every game has a fresh roster (player ids depend on the game seed), so no player reaches the "
-    "300-possession gate and the season-wide top-decile check cannot pass by construction; the per-game check is the one that applies there. "
-    "Its star plays every period, so the on/off sign test finds no off-court shots; the fallback generator (tests/_fx_gravity.py) keeps one "
-    "roster across the season and sits its star, and both checks run on it (the second section of a fixture report).",
+    "Fixture runs on analytics.fixtures keep one roster per team all season, so the season-wide and per-game top-decile checks both run; "
+    "its stars play every period, so the on/off sign test finds no off-court shots there. The lane's synthetic planted-pull generator "
+    "(analytics/gravity/fixture_pull.py) sits its star and plants a known pull, and the sign test and the pull recovery run on it (the "
+    "second section of a fixture report).",
 ]
 
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The trainer's command line (validate.add_input_args plus the protocol flags)."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true")
-    ap.add_argument("--data", default=None, help="DATA_ROOT (owner's Mac layout)")
-    ap.add_argument("--report", default="reports/gravity.md")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    V.add_input_args(ap)
+    ap.add_argument("--report", default="reports/gravity.md", help="markdown report path (default reports/gravity.md)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5; fewer games: one per game)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games for every interval (default 200)")
     ap.add_argument("--min-possessions", type=int, default=None,
                     help="gate for the player table; default %d on data, %d on --fixtures (fixture seasons are small)"
                     % (MIN_POSSESSIONS, FIXTURE_MIN_POSSESSIONS))
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/{gravity_frames,gravity_players,spacing_frames}.parquet")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--n-games", type=int, default=8, help="fixture games (--fixtures)")
-    ap.add_argument("--n-possessions", type=int, default=40, help="possessions per fixture game (--fixtures)")
-    ap.add_argument("--fixture-generator", default="auto", choices=("auto", "fallback"),
-                    help="--fixtures only: auto is analytics.fixtures when importable, fallback the lane's own generator")
-    ap.add_argument("--no-fallback-section", action="store_true", help="--fixtures only: skip the second run on the fallback generator")
+    ap.add_argument("--no-pull-section", "--no-fallback-section", dest="no_pull_section", action="store_true",
+                    help="--fixtures on the shared generator: skip the second run on the planted-pull generator")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """CLI: run the protocol, write the report and, with --out, the three tables; returns the run context."""
     a = parse_args(argv)
     if a.min_possessions is None:
         a.min_possessions = FIXTURE_MIN_POSSESSIONS if a.fixtures else MIN_POSSESSIONS
     raw = V.load_games(a, who=WHO)
-    source = V.fixture_source(a.fixture_generator) if a.fixtures else ""
-    ctx = run_pipeline(raw, a, "default")
-    fallback_ctx = None
-    if a.fixtures and source != "tests._fx_gravity" and not a.no_fallback_section:
-        gen = V.fixture_generator("fallback")
-        fb_games = gen(a.seed, n_games=a.n_games, heldout_every=4 if a.n_games >= 4 else 0, n_possessions=a.n_possessions)
-        fallback_ctx = run_pipeline(fb_games, a, "fallback")
+    gen = V.generator_name(a.fixture_generator) if a.fixtures else ""
+    ctx = run_pipeline(raw, a, gen or "data")
+    pull_ctx = None
+    if a.fixtures and gen == "shared" and not a.no_pull_section:
+        pull_games = V.fixture_generator("pull")(a.seed, n_games=a.fixture_games, heldout_every=V.fixture_heldout_every(a),
+                                                 n_possessions=a.fixture_possessions)
+        pull_ctx = run_pipeline(pull_games, a, "pull")
     outputs = "No tables written (pass --out OUT_ROOT)."
     if a.out:
         root = Path(a.out) / "analytics" / "gravity"
@@ -634,13 +614,14 @@ def main(argv=None) -> dict:
         ctx["gravity_frames"].to_parquet(root / "gravity_frames.parquet", index=False)
         ctx["gravity_players"].to_parquet(root / "gravity_players.parquet", index=False)
         ctx["spacing_frames"].to_parquet(root / "spacing_frames.parquet", index=False)
-        outputs = "Tables written under `%s`: gravity_frames (%d rows), gravity_players (%d rows), spacing_frames (%d rows)." % (
-            root, len(ctx["gravity_frames"]), len(ctx["gravity_players"]), len(ctx["spacing_frames"]))
+        outputs = ("Tables written under OUT_ROOT/analytics/gravity/ (OUT_ROOT is the --out value): gravity_frames (%d rows), "
+                   "gravity_players (%d rows), spacing_frames (%d rows)." % (
+                       len(ctx["gravity_frames"]), len(ctx["gravity_players"]), len(ctx["spacing_frames"])))
     ctx.update({"written": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "command": "python -m analytics.gravity.train " + " ".join(argv if argv is not None else sys.argv[1:]),
-                "fixture": bool(a.fixtures), "fixture_source": source, "bootstrap": a.bootstrap, "seed": a.seed,
-                "outputs": outputs, "fallback": fallback_ctx})
-    text = write_report(Path(a.report), ctx, fallback_ctx)
+                "fixture": bool(a.fixtures), "fixture_source": V.fixture_source(gen) if gen else "",
+                "bootstrap": a.bootstrap, "seed": a.seed, "outputs": outputs, "pull": pull_ctx})
+    text = write_report(Path(a.report), ctx, pull_ctx)
     print(text)
     return ctx
 

@@ -1,6 +1,7 @@
 """analytics/winprob/validate.py: checks of the play-by-play, games and odds tables before any feature is built.
 
     python -m analytics.winprob.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+        [--fixture-games 20] [--fixture-seasons 2020-21,2021-22]
 
 Checks (every finding is a count, never a row of data):
     schema        the section 13 columns the state builder needs are present
@@ -34,6 +35,7 @@ REQUIRED = ("game_id", "event", "period", "clock_s", "team", "kind", "score", "s
 
 def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.DataFrame | None = None,
              team_names: dict | None = None) -> dict:
+    """Every check of the module docstring on the play-by-play (and the games and odds tables when given)."""
     problems: list[str] = []
     counts: dict = {"rows": int(len(pbp)), "games": int(pbp["game_id"].nunique()) if "game_id" in pbp.columns else 0}
     missing = [c for c in REQUIRED if c not in pbp.columns]
@@ -118,18 +120,22 @@ def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.Data
 
 
 def parse_args(argv=None):
+    """The validate CLI: --fixtures or --data, with --out, --seed and the fixture knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
+    src.add_argument("--fixtures", action="store_true", help="check the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
     src.add_argument("--data", help="DATA_ROOT with collect/stints/playbyplay/<season>.parquet")
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/winprob/validate.json")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default 0)")
+    F.add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Run the checks from the command line, print the JSON result and, with --out, write it."""
     a = parse_args(argv)
-    d = F.load_fixtures(a.seed) if a.fixtures else F.load_data(a.data)
+    d = F.load_args(a)
     res = validate(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     res["files"] = d["files"]
     if a.out:

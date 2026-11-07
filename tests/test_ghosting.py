@@ -1,6 +1,6 @@
-"""analytics/ghosting on synthetic games (tests/_fx_ghosting.py: analytics.fixtures when importable, else the
-local fallback). No network, no raw data. The MLP is shortened (MAX_ITER 60) to keep the file under 30 s;
-every fixture number here is fixture output, not a result."""
+"""analytics/ghosting on synthetic games (analytics.fixtures through analytics.ghosting.validate.fixture_games).
+No network, no raw data. The MLP is shortened (MAX_ITER 60) to keep the file under 30 s; every fixture number
+here is fixture output, not a result."""
 from __future__ import annotations
 
 import sys
@@ -180,10 +180,10 @@ def test_shift_test_error_collapses_when_features_come_from_the_target_frame():
 def test_end_to_end_fixture_run(tmp_path, monkeypatch):
     monkeypatch.setattr(T, "MAX_ITER", 60)
     report = tmp_path / "ghosting.md"
-    ctx = T.main(["--fixtures", "--games", "3", "--possessions", "4", "--heldout-every", "3", "--folds", "3",
+    ctx = T.main(["--fixtures", "--fixture-games", "3", "--fixture-possessions", "4", "--fixture-heldout-every", "3", "--folds", "3",
                   "--bootstrap", "20", "--report", str(report), "--out", str(tmp_path / "out")])
     text = report.read_text()
-    assert "fixture output, not a result" in text and "## Decision" in text and "Torch GRU" in text
+    assert "fixture output, not a result" in text and "## Decision (fixture output, not a result)" in text and "Torch GRU" in text
     assert HELD in ctx["heldout_games"] and HELD not in ctx["train_games"] and ctx["note"]["folds"] == 2
     gf, gp = ctx["ghost_frames"], ctx["ghost_possessions"]
     assert list(gf.columns) == T.GHOST_FRAMES_COLUMNS and list(gp.columns) == T.GHOST_POSSESSIONS_COLUMNS
@@ -234,7 +234,7 @@ def test_one_game_runs_in_sample_with_fold_minus_two(monkeypatch):
 
 
 def test_validate_and_features_cli_run_on_fixtures(tmp_path, capsys):
-    rep = V.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])
+    rep = V.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])     # the older spellings still parse
     assert rep["n_games"] == 2 and (tmp_path / "ghosting_validate.json").exists()
     out = F.main(["--fixtures", "--games", "2", "--possessions", "4", "--out", str(tmp_path)])
     assert out["rows"] > 0

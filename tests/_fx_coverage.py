@@ -1,33 +1,33 @@
-"""tests/_fx_coverage.py: fixture bundle for the coverage lane (analytics/coverage).
+"""tests/_fx_coverage.py: test-only fixtures for the coverage lane (analytics/coverage).
 
-Prefers the shared generator of lane I1 (analytics/fixtures.py) when it imports; otherwise falls back to the
-minimal local generator below with the same signatures and column names:
+Production code never imports this module: a --fixtures run builds its season from analytics.fixtures through
+analytics.coverage.validate.fixture_bundle. This file keeps a scripted generator that the tests use deliberately,
+because its defenders move exactly the way the coverage class says, and two adapters:
 
-    synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
-        -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz)
-    synth_season(seed, n_games=8, heldout_every=0) -> list of synth_game dicts
-    synth_labels(seed, game) -> dict(actions, screens)
-    write_fixture_root(root, seed, n_games, heldout_every) -> list of game ids written in the DATA_ROOT layout
+    scripted_game(seed, n_possessions=40, heldout=False, sportvu_game=None)
+        -> dict(frames, events, shots, rosters, shot_frames, rebound_frames, possessions, states_1hz, scripted)
+    scripted_labels(seed, game) -> dict(actions, screens)   (game is the dict scripted_game returned)
+    scripted_bundle(seed, n_games, heldout_every, n_possessions)
+        -> analytics.coverage.validate.fixture_bundle built from the two functions above
+    write_root(root, seed, n_games, heldout_every, n_possessions)
+        -> analytics.fixtures.write_fixture_root (the DATA_ROOT layout the CLIs read), its manifest
 
-The local generator writes scripted ball screens whose defenders move the way the coverage class says
-(switch: the screener's defender picks up the handler and the on-ball defender stays with the screener;
-drop: the screener's defender retreats toward the rim; hedge_show: he steps to the handler's path for
-0.3 to 0.7 s then recovers; blitz_trap: both defenders converge on the handler and stay there; ice: the
+The scripted ball screens (switch: the screener's defender picks up the handler and the on-ball defender stays
+with the screener; drop: the screener's defender retreats toward the rim; hedge_show: he steps to the handler's
+path for 0.3 to 0.7 s then recovers; blitz_trap: both defenders converge on the handler and stay there; ice: the
 on-ball defender sits on the middle side and the handler is pushed toward the sideline; under: the on-ball
-defender passes between the screener and the basket; over: he passes on the far side of the screener).
-Positions carry 0.1 ft Gaussian noise and per-screen jitter of the screen point and timing. Everything is
-deterministic given the seed. The ``local_*`` names are always available so a test can pin itself to this
-scripted geometry whatever the shared generator does.
+defender passes between the screener and the basket; over: he passes on the far side of the screener) carry
+0.1 ft Gaussian noise and per-screen jitter of the screen point and timing. Everything is deterministic given the
+seed.
 
 Every number derived from these games is fixture output, not a result.
 """
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
+
+from analytics import fixtures
 
 HZ = 25
 BASKETS = ((5.25, 25.0), (88.75, 25.0))
@@ -124,9 +124,9 @@ def _game_id(seed, home_abbr, away_abbr, heldout):
     return "01.%02d.2016.%s.at.%s" % (seed % 28 + 1, away_abbr, "CLE" if heldout else home_abbr)
 
 
-def local_synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -> dict:
-    """One synthetic game: frames (section 4), rosters (16), possessions (19), the rest empty, plus the hidden
-    key ``scripted`` (the screens written into the frames) that local_synth_labels reads."""
+def scripted_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -> dict:
+    """One scripted game: frames (section 4), rosters (16), possessions (19), the rest empty, plus the hidden
+    key ``scripted`` (the screens written into the frames) that scripted_labels reads."""
     rng = np.random.default_rng(seed)
     home_id = int(rng.integers(1, 5))
     away_id = int(rng.choice([t for t in TEAMS if t != home_id]))
@@ -197,17 +197,8 @@ def local_synth_game(seed, n_possessions=40, heldout=False, sportvu_game=None) -
             "states_1hz": empty, "scripted": scripted}
 
 
-def local_synth_season(seed, n_games=8, heldout_every=0, n_possessions=24) -> list:
-    """n_games synth_game dicts; every heldout_every-th game (1-based) is held out when heldout_every > 0."""
-    out = []
-    for i in range(n_games):
-        held = bool(heldout_every) and ((i + 1) % heldout_every == 0)
-        out.append(local_synth_game(seed * 1000 + i, n_possessions=n_possessions, heldout=held))
-    return out
-
-
-def local_synth_labels(seed, game) -> dict:
-    """Hand-label tables (actions, screens) of one synth_game dict in the label tool's line shape (analytics/labels.py:
+def scripted_labels(seed, game) -> dict:
+    """Hand-label tables (actions, screens) of one scripted_game dict in the label tool's line shape (analytics/labels.py:
     label_source hand, labeller_pass 1, labelled_at, screen_id). Adds a few non-screen actions so the validator has
     something to ignore; one in ten screens is marked unsure."""
     rng = np.random.default_rng(seed + 7)
@@ -236,64 +227,18 @@ def local_synth_labels(seed, game) -> dict:
     return {"actions": pd.DataFrame(actions, columns=cols_a), "screens": pd.DataFrame(screens, columns=cols_s)}
 
 
-def _season(game_id: str) -> str:
-    try:
-        m, _d, y = game_id.split(".")[:3]
-        y, m = int(y), int(m)
-    except (ValueError, IndexError):
-        return "2015-16"
-    return "%d-%s" % (y, str(y + 1)[2:]) if m >= 9 else "%d-%s" % (y - 1, str(y)[2:])
+def scripted_bundle(seed: int = 0, n_games: int = 6, heldout_every: int = 0, n_possessions: int = 12) -> dict:
+    """analytics.coverage.validate.fixture_bundle built from the scripted generator (bundle["fixture"] is "scripted")."""
+    from analytics.coverage.validate import fixture_bundle
+    return fixture_bundle(seed=seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions,
+                          game_fn=scripted_game, labels_fn=scripted_labels)
 
 
-def local_write_fixture_root(root, seed, n_games, heldout_every, n_possessions=24) -> list:
-    """Write a season in the DATA_ROOT layout: sportvu_contract/<game>.parquet (held-out under heldout/),
-    analytics/possessions/<season>/, analytics/rosters/<season>/ (held-out under heldout/<season>/),
-    labels/actions/<game>.jsonl, labels/screens/<game>.jsonl."""
-    root = Path(root)
-    ids = []
-    for i, game in enumerate(local_synth_season(seed, n_games, heldout_every, n_possessions)):
-        g, held = game["sportvu_game"], game["heldout"]
-        season = _season(g)
-        fdir = root / "sportvu_contract" / ("heldout" if held else "")
-        fdir.mkdir(parents=True, exist_ok=True)
-        game["frames"].to_parquet(fdir / (g + ".parquet"), index=False)
-        for table in ("possessions", "rosters"):
-            tdir = root / "analytics" / table / ("heldout" if held else "") / season
-            tdir.mkdir(parents=True, exist_ok=True)
-            game[table].to_parquet(tdir / (g + ".parquet"), index=False)
-        labels = local_synth_labels(seed * 1000 + i, game)
-        for name in ("actions", "screens"):
-            ldir = root / "labels" / name
-            ldir.mkdir(parents=True, exist_ok=True)
-            with open(ldir / (g + ".jsonl"), "w") as fh:
-                for rec in labels[name].to_dict("records"):
-                    fh.write(json.dumps({k: (v.item() if hasattr(v, "item") else v) for k, v in rec.items()}) + "\n")
-        ids.append(g)
-    return ids
+def write_root(root, seed: int, n_games: int, heldout_every: int, n_possessions: int = 8) -> dict:
+    """The DATA_ROOT layout of analytics.fixtures.write_fixture_root (small stint family); returns its manifest."""
+    return fixtures.write_fixture_root(root, seed=seed, n_games=n_games, heldout_every=heldout_every,
+                                       n_possessions=n_possessions, n_stint_games=2)
 
 
-try:
-    from analytics.fixtures import synth_game, synth_season, synth_labels, write_fixture_root  # noqa: F401
-    SHARED = True
-except ImportError:
-    synth_game, synth_season, synth_labels, write_fixture_root = (
-        local_synth_game, local_synth_season, local_synth_labels, local_write_fixture_root)
-    SHARED = False
-
-
-def bundle(seed=0, n_games=8, heldout_every=0) -> dict:
-    """dict(games=[game dicts with a 'labels' key], shared=bool): a season with labels for every game."""
-    games = synth_season(seed, n_games=n_games, heldout_every=heldout_every)
-    if isinstance(games, dict):
-        games = list(games.values())
-    out = []
-    for i, game in enumerate(games):
-        game = dict(game)
-        game["labels"] = synth_labels(seed * 1000 + i, game)
-        out.append(game)
-    return {"games": out, "shared": SHARED}
-
-
-__all__ = ["synth_game", "synth_season", "synth_labels", "write_fixture_root", "bundle", "SHARED",
-           "local_synth_game", "local_synth_season", "local_synth_labels", "local_write_fixture_root",
-           "COVERAGES", "HZ", "BASKETS", "SCREEN_AT", "SCREEN_LEN", "POSS_FRAMES"]
+__all__ = ["scripted_game", "scripted_labels", "scripted_bundle", "write_root", "COVERAGES", "HZ", "BASKETS",
+           "SCREEN_AT", "SCREEN_LEN", "POSS_FRAMES"]

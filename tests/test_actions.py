@@ -1,6 +1,6 @@
-"""tests/test_actions.py: analytics.actions (validate, features, train, eda) on the shared fixtures of
-analytics/fixtures.py (tests/_fx_actions.py falls back to its own scripted generator only when that import fails),
-on the fallback generator's hand-scripted screens, drives and isolations, on a hand-built screen, and on a
+"""tests/test_actions.py: analytics.actions (validate, features, train, eda) on the synthetic season of
+analytics.fixtures (read through analytics.actions.validate.load_fixture_games), on the scripted screens, drives and
+isolations of tests/_fx_actions.py (whose motion the assertions know exactly), on a hand-built screen, and on a
 DATA_ROOT on disk with tombstoned and pass-2 labels. Everything here runs on synthetic motion: fixture output, not
 a result. No network."""
 import json
@@ -28,15 +28,14 @@ OWNED = ["analytics/actions/__init__.py", "analytics/actions/validate.py", "anal
 
 @pytest.fixture(scope="module")
 def games():
-    """Six games from the fixtures in use (analytics.fixtures when importable), every third held out (two held-out,
-    four training), 24 possessions each."""
-    return fx.season_games(seed=0, n_games=6, heldout_every=3, n_possessions=24)
+    """Six games of analytics.fixtures, every third held out (two held-out, four training), 24 possessions each."""
+    return V.load_fixture_games(seed=0, n_games=6, heldout_every=3, n_possessions=24)
 
 
 @pytest.fixture(scope="module")
-def fallback_games():
-    """Four training games from the fallback generator, whose scripted motion the assertions know exactly."""
-    return fx.fallback_season_games(seed=0, n_games=4, heldout_every=0, n_possessions=24)
+def scripted_games():
+    """Four training games from the scripted generator, whose motion the assertions know exactly."""
+    return fx.scripted_season_games(seed=0, n_games=4, heldout_every=0, n_possessions=24)
 
 
 # ── hand-built frames ──────────────────────────────────────────────────────────────────────────────
@@ -136,8 +135,8 @@ def test_iou_label_matching_and_recall():
     assert r.loc["ball_screen", "recall_any"] == 1.0 and r.loc["isolation", "recall_any"] == 0.0 and r.loc["drive", "labels"] == 0
 
 
-def test_fallback_candidates_recover_every_scripted_label(fallback_games):
-    cands, feats, recall, skipped = F.build_season(fallback_games)
+def test_scripted_candidates_recover_every_scripted_label(scripted_games):
+    cands, feats, recall, skipped = F.build_season(scripted_games)
     assert skipped == 0 and len(cands) == len(feats)
     r = recall.set_index("class")
     assert (r["labels"] > 0).all()
@@ -148,13 +147,13 @@ def test_fallback_candidates_recover_every_scripted_label(fallback_games):
 
 
 def test_fixture_candidates_recover_the_labels(games):
-    """On the fixtures in use: candidate recall at IoU >= 0.5 for every detected class, with hard negatives present."""
+    """On analytics.fixtures: candidate recall at IoU >= 0.5 for every detected class, with hard negatives present."""
     train = [g for g in games if not g["heldout"]]
     cands, feats, recall, skipped = F.build_season(train)
     assert len(cands) == len(feats)
     r = recall.set_index("class")
     assert (r["labels"] > 0).all()
-    assert (r["recall_any"] >= 0.8).all(), recall           # the shared generator keeps changing; the fallback test holds the exact bar
+    assert (r["recall_any"] >= 0.8).all(), recall           # the shared generator keeps changing; the scripted test holds the exact bar
     assert (cands["label_class"] == "none").sum() > 0
     assert cands["label_iou"].between(0, 1).all()
 
@@ -192,7 +191,10 @@ def test_end_to_end_fixture_run(games, tmp_path):
     ctx = T.run([dict(g) for g in games], n_folds=4, seed=0, n_boot=30, fixtures=True, out_root=tmp_path,
                 report=tmp_path / "actions.md", command="test")
     text = (tmp_path / "actions.md").read_text()
-    assert "fixture output, not a result" in text and chr(0x2014) not in text
+    assert "fixture output, not a result" in text and chr(0x2014) not in text and chr(0x2013) not in text
+    headings = [x for x in text.splitlines() if x.startswith("## ")]
+    assert headings and all(x.endswith("(fixture output, not a result)") for x in headings), headings
+    assert "OUT_ROOT/analytics/actions/" in text and str(tmp_path) not in text     # tables listed relative to OUT_ROOT
     assert ctx["mode"] == "out-of-fold" and ctx["folds"] == 4 and ctx["train_games"] == 4 and ctx["heldout_games"] == 2
     assert HELD in ctx["heldout_game_ids"] and HELD not in ctx["train_game_ids"]
     s = ctx["scores"]
@@ -233,7 +235,7 @@ def test_end_to_end_fixture_run(games, tmp_path):
 
 def test_cli_on_a_data_root(tmp_path):
     root = tmp_path / "data"
-    man = fx._fallback_write_fixture_root(root, seed=1, n_games=3, heldout_every=3, n_possessions=10)
+    man = fx.write_scripted_root(root, seed=1, n_games=3, heldout_every=3, n_possessions=10)
     assert len(man["games"]) == 3 and (root / "labels" / "actions").exists() and (root / "labels" / "screens").exists()
     assert len(list((root / "sportvu_contract" / "heldout").glob("*.parquet"))) == 2        # frames and pbp of one held-out game
     v = V.main(["--data", str(root), "--out", str(tmp_path / "out")])
@@ -241,9 +243,11 @@ def test_cli_on_a_data_root(tmp_path):
     assert json.loads((tmp_path / "out" / "analytics" / "actions" / "validation.json").read_text())["summary"]["ok"] == 3
     f = F.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert f["candidates"] > 0 and (tmp_path / "out" / "analytics" / "actions" / "2015-16" / "features").exists()
-    ctx = T.main(["--data", str(root), "--report", str(tmp_path / "r.md"), "--folds", "2", "--bootstrap", "5"])
+    ctx = T.main(["--data", str(root), "--report", str(tmp_path / "r.md"), "--folds", "2", "--bootstrap", "5",
+                  "--out", str(tmp_path / "out")])
     assert ctx["train_games"] == 2 and ctx["heldout_games"] == 1 and (tmp_path / "r.md").exists()
     assert "fixture output" not in ctx["report_text"].split("## Inputs")[0]      # a --data run is not labelled a fixture run
+    assert "--out OUT_ROOT" in ctx["report_text"] and str(tmp_path / "out") not in ctx["report_text"]   # no scratch path recorded
 
 
 def test_validate_flags_label_problems(games):
@@ -289,19 +293,18 @@ def test_eda_tables_and_shuffled_label_check(games):
     assert "fixture output, not a result" in md and chr(0x2014) not in md
 
 
-def test_fallback_generator_end_to_end(fallback_games):
-    """The fallback generator (used only when analytics.fixtures is not importable) also runs the whole protocol."""
-    ctx = T.run([dict(g) for g in fallback_games[:3]], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
+def test_scripted_generator_end_to_end(scripted_games):
+    """The scripted games also run the whole protocol, and the screen F1 clears the plan's bar on them."""
+    ctx = T.run([dict(g) for g in scripted_games[:3]], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
     assert ctx["selected"] in T.MODELS and ctx["scores"]["hgb"]["f1_ball_screen"]["point"] >= 0.8
-    assert "fixture" in fx.fixture_source()
     assert (ctx["table"]["fold"] >= 0).all() and (ctx["detected"]["fold"] >= 0).all()
 
 
-def test_one_game_is_in_sample_with_fold_minus_two(fallback_games):
+def test_one_game_is_in_sample_with_fold_minus_two(scripted_games):
     """One training game: no grouped fold is possible, the metrics are labelled in-sample and every row carries
     fold -2 (repo convention: -1 held-out or inference-only, -2 in-sample, >= 0 out-of-fold) in action_candidates
     and actions_detected."""
-    ctx = T.run([dict(fallback_games[0])], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
+    ctx = T.run([dict(scripted_games[0])], n_folds=3, seed=0, n_boot=5, fixtures=True, report=None, command="test")
     assert ctx["mode"] == "in-sample" and ctx["folds"] == 0 and "IN-SAMPLE" in ctx["protocol"]
     tab = ctx["table"]
     assert (tab["fold"] == T.IN_SAMPLE_FOLD).all() and T.IN_SAMPLE_FOLD == -2 and T.HELDOUT_FOLD == -1
@@ -313,7 +316,7 @@ def test_hand_labels_drop_tombstones_and_pass_two(tmp_path):
     relabel in the file never reach the trainer."""
     from analytics import labels as L
     root = tmp_path / "data"
-    fx._fallback_write_fixture_root(root, seed=2, n_games=1, heldout_every=0, n_possessions=8)
+    fx.write_scripted_root(root, seed=2, n_games=1, heldout_every=0, n_possessions=8)
     game = V.discover_games(root)[0][0]
     before = V.load_hand_labels(root, game)
     n0 = len(before["actions"])
@@ -338,7 +341,7 @@ def test_visited_subset_bounds_fitting_and_metrics(tmp_path):
     """A visited file covering a subset of possessions: candidates outside it never reach fit_models or the metrics,
     and a game with neither labels nor visited records is inference only."""
     root = tmp_path / "data"
-    fx._fallback_write_fixture_root(root, seed=3, n_games=3, heldout_every=0, n_possessions=12)
+    fx.write_scripted_root(root, seed=3, n_games=3, heldout_every=0, n_possessions=12)
     games = V.load_data_root(root)
     g0 = games[0]
     keep = sorted(set(int(x) for x in g0["possessions"]["possession"]))[:5]
@@ -410,6 +413,7 @@ def test_owned_files_have_no_em_dash_and_notebook_is_json():
     for rel in OWNED:
         p = ROOT / rel
         if p.exists():
-            assert chr(0x2014) not in p.read_text(), rel
+            text = p.read_text()
+            assert chr(0x2014) not in text and chr(0x2013) not in text, rel
     nb = json.loads((ROOT / "notebooks" / "eda_actions.ipynb").read_text())
     assert nb["nbformat"] == 4 and any("eda" in "".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code")

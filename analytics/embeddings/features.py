@@ -1,11 +1,13 @@
 """analytics/embeddings/features.py: player-season style features (docs/contract/embeddings.md, table player_season_features).
 
     python -m analytics.embeddings.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--n-min 300]
+        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Unit: player-season. The tracking and shot aggregates are built from TRAINING games only (the NBA.com block is
 season-level as the source publishes it and covers every game of the season, held-out ones included): the loader (analytics.embeddings.train.load_inputs)
-drops held-out games (sportvu/splits.json ids, the CLE arena, heldout/ directories, heldout flags) before any table
-reaches this module, and ``player_season_features`` refuses a game id that carries a held-out token.
+drops held-out games (analytics.eval.is_heldout_game ids, heldout/ directories, heldout flags) before any table
+reaches this module, and ``combine_partials`` refuses a held-out game id (analytics.eval.refuse_heldout). The season
+of a game is analytics.schema.season_of_game of its id.
 
 Features (the FEATURES constant, in order):
 
@@ -55,7 +57,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from sportvu import splits as _splits
+from analytics.eval import refuse_heldout
 
 log = logging.getLogger("analytics.embeddings.features")
 
@@ -108,22 +110,6 @@ def assert_no_leak(df: pd.DataFrame) -> None:
     bad = sorted(c for c in df.columns if c in {"position", "next_season_target"} or c.endswith("_next"))
     if bad:
         raise ValueError("%s: label or next-season column(s) in the feature frame: %s" % (WHO, bad))
-
-
-def refuse_heldout_games(games, who: str = WHO) -> int:
-    """SystemExit when a game id carries a held-out token of sportvu/splits.json or sits in the held-out arena."""
-    n = _splits.refuse_heldout(list(games), who)
-    arena = [g for g in games if str(g).endswith(".at." + _splits.HELDOUT_ARENA)]
-    if arena:
-        raise SystemExit("%s refuses to run: %d game(s) in the held-out arena %s, e.g. %s"
-                         % (who, len(arena), _splits.HELDOUT_ARENA, arena[:3]))
-    return n
-
-
-def season_of_date(date) -> str:
-    d = pd.to_datetime(date)
-    y = d.year if d.month >= 10 else d.year - 1
-    return "%d-%02d" % (y, (y + 1) % 100)
 
 
 # ----------------------------------------------------------------------------- tracking: one game -> partial sums
@@ -180,10 +166,7 @@ def tracking_partials(frames: pd.DataFrame, possessions: pd.DataFrame) -> pd.Dat
         raise ValueError("%s: frames lack column(s) %s" % (WHO, missing))
     f = frames[need + [c for c in ("date",) if c in frames.columns]].copy()
     f = f.drop_duplicates(["frame", "player_id"]).sort_values(["frame", "player_id"], kind="stable").reset_index(drop=True)
-    if "date" in f.columns and len(f):
-        season = season_of_date(str(f["date"].iloc[0]))
-    else:
-        season = season_of_date(_date_of_game(str(frames["game"].iloc[0])))
+    season = schema.season_of_game(str(frames["game"].iloc[0]))
     game = str(f["game"].iloc[0]) if len(f) else ""
     poss = possessions[possessions["sportvu_game"].astype(str) == game] if "sportvu_game" in possessions.columns else possessions
     frame_ids = f["frame"].to_numpy(dtype=np.int64)
@@ -258,18 +241,13 @@ def tracking_partials(frames: pd.DataFrame, possessions: pd.DataFrame) -> pd.Dat
     return out[["player_id", "season", "sportvu_game", "n_possessions"] + PARTIAL_SUMS]
 
 
-def _date_of_game(game: str) -> str:
-    m, d, y = game.split(".")[:3]
-    return "%s-%s-%s" % (y, m, d)
-
-
 def combine_partials(parts) -> pd.DataFrame:
     """Sum the per-game partial sums over games -> tracking features per (player_id, season) plus n_possessions."""
     parts = [p for p in parts if len(p)]
     if not parts:
         return pd.DataFrame(columns=KEYS + ["n_possessions"] + TRACKING_FEATURES)
     allp = pd.concat(parts, ignore_index=True)
-    refuse_heldout_games(sorted(allp["sportvu_game"].astype(str).unique()))
+    refuse_heldout(sorted(allp["sportvu_game"].astype(str).unique()), WHO)
     s = allp.groupby(KEYS)[["n_possessions"] + PARTIAL_SUMS].sum()
     with np.errstate(all="ignore"):
         out = pd.DataFrame(index=s.index)
@@ -336,8 +314,7 @@ def shot_features(shots: pd.DataFrame, rosters: pd.DataFrame | None, n_possessio
     if "season" in s.columns and s["season"].notna().all():
         s["season"] = s["season"].astype(str)
     else:
-        s["season"] = s["game_date"].map(season_of_date) if "game_date" in s.columns else \
-            s["sportvu_game"].astype(str).map(lambda g: season_of_date(_date_of_game(g)))
+        s["season"] = s["sportvu_game"].astype(str).map(schema.season_of_game)
     s["zone"] = derive_zone_basic(s)
     s["three"] = s["shot_type"].astype(str).str.upper().str.startswith("3").astype(int)
     g = s.groupby(KEYS)
@@ -354,6 +331,7 @@ def shot_features(shots: pd.DataFrame, rosters: pd.DataFrame | None, n_possessio
 # ----------------------------------------------------------------------------- NBA.com aggregates
 
 def _norm_play_type(v) -> str:
+    """A play-type label lower-cased with only its letters and digits (PRBallHandler -> prballhandler)."""
     return "".join(ch for ch in str(v).lower() if ch.isalnum())
 
 
@@ -436,17 +414,16 @@ def available_features(feats: pd.DataFrame) -> list:
 # ----------------------------------------------------------------------------- CLI
 
 def main(argv=None) -> dict:
+    """CLI: build player_season_features, print a summary, write it per season under --out."""
     from analytics.embeddings import train as _train
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true")
-    ap.add_argument("--data", help="DATA_ROOT (see analytics/embeddings/train.py)")
+    _train.add_input_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: writes analytics/embeddings/<season>/player_season_features.parquet")
     ap.add_argument("--n-min", type=int, default=None, help="possessions under which a player-season is insufficient (300)")
-    ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
     if not a.fixtures and not a.data:
         ap.error("one of --fixtures or --data is required")
-    inputs = _train.fixture_inputs(a.seed) if a.fixtures else _train.load_inputs(a.data)
+    inputs = _train.inputs_from_args(a)
     n_min = a.n_min if a.n_min is not None else (_train.FIXTURE_N_MIN if a.fixtures else N_MIN)
     feats = _train.build_features(inputs, n_min)
     summary = {"rows": int(len(feats)), "insufficient": int(feats["insufficient"].sum()), "n_min": n_min,

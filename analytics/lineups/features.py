@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.lineups import FIXTURE_GAMES, PLAYER_COLUMNS, SECONDS_PER_POSS, SEASONS, lineup_id, load_inputs, out_dir
+from analytics.lineups import PLAYER_COLUMNS, SEASONS, SECONDS_PER_POSS, add_fixture_args, lineup_id, load_inputs, out_dir
 from analytics.lineups.validate import validate
 
 FEATURES = PLAYER_COLUMNS + ("possessions",)
@@ -32,10 +32,12 @@ KEYS = ("game_id", "season", "stint", "game_date")
 
 
 def feature_columns() -> list[str]:
+    """The design columns (FEATURES)."""
     return list(FEATURES)
 
 
 def assert_no_leak(X) -> None:
+    """ValueError when a design holds a FORBIDDEN column (the points, scores or the target)."""
     cols = set(getattr(X, "columns", X))
     bad = sorted(cols & FORBIDDEN)
     if bad:
@@ -50,6 +52,7 @@ def possessions(stints: pd.DataFrame) -> pd.Series:
 
 
 def features(stints: pd.DataFrame, games: pd.DataFrame | None = None) -> pd.DataFrame:
+    """The stint feature frame of the module docstring, from the validated stints and the optional games table."""
     clean, _counts = validate(stints)
     out = pd.DataFrame(index=clean.index)
     for c in KEYS:
@@ -76,20 +79,20 @@ def features(stints: pd.DataFrame, games: pd.DataFrame | None = None) -> pd.Data
 
 
 def parse_args(argv=None):
+    """The CLI's arguments."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
+    g.add_argument("--fixtures", action="store_true", help="synthetic stints (fixture output, not a result)")
     g.add_argument("--data", help="DATA_ROOT")
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT; nothing is written for --fixtures without it)")
-    ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
-    ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
-                    help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
+    ap.add_argument("--seasons", nargs="*", default=list(SEASONS), help="--data only: seasons to read (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Build the feature frame from the fixture or DATA_ROOT stints, write it per season under OUT_ROOT and print a summary."""
     a = parse_args(argv)
     inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
     if len(inputs["stints"]) == 0:

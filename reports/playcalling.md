@@ -1,8 +1,10 @@
-# Play calling: Association only, not causal: every number below is an observational comparison of what followed each action against each coverage, with a bootstrap interval by game and a sample gate. Nothing here estimates what would happen if a different play were called.
+# Play calling (fixture output, not a result): Association only, not causal: every number below is an observational comparison of what followed each action against each coverage, with a bootstrap interval by game and a sample gate. Nothing here estimates what would happen if a different play were called.
 
-Written 2026-11-05T09:44:12Z by `python -m analytics.playcalling.train --fixtures --report reports/playcalling.md --folds 5 --seed 0 --bootstrap 200`. FIXTURE OUTPUT, NOT A RESULT: the inputs are synthetic.
+Written 2026-11-07T08:35:44Z by `python -m analytics.playcalling.train --fixtures --report reports/playcalling.md --folds 5 --seed 0 --bootstrap 200`.
 
-## Inputs
+**Fixture output, not a result.** Every number below comes from synthetic inputs (analytics/playcalling/synthetic.py on the shared generator); the real run is the command under Status.
+
+## Inputs (fixture output, not a result)
 
 - frames: rows=971060, games=8, duplicates_dropped=0, shot_clock_out_of_range=0, shot_clock_null=0, period_out_of_range=0
 - possessions: rows=320, games=8, duplicates_dropped=0, points_out_of_range=0, start_after_end=0, null_offense_team=0, unknown_end_kind={}, null_end_kind=0
@@ -16,7 +18,7 @@ Build: possessions=320, no_first_frame=0, not_five_v_five=0, no_offense_team=0, 
 Training rows: 240 actions from 6 game(s). Held-out rows set aside before any fit: 80 actions from 2 game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW).
 Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `analytics.schema.assert_time_forward` passed on the feature frame (action_type, coverage, off_lineup, def_lineup, score_margin, shot_clock_s, period).
 
-## The caveat
+## The caveat (fixture output, not a result)
 
 The unit is an action event; the outcomes are the containing possession's points (PPP) and, when epv_states exist, the EPV gained across the action. Which action gets called depends on the defence, the lineup, the clock and the score, so a difference in PPP between action types is an association, not the effect of the call. Intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0); a group with fewer than 300 rows is marked insufficient and its number is not to be quoted.
 
@@ -128,7 +130,7 @@ No coverage has a cell with at least 300 rows, so no recommendation is made.
 
 Point estimates only (no interval over 2 game(s)).
 
-## Status
+## Status (fixture output, not a result)
 
 This is a fixture run on synthetic inputs: fixture output, not a result. The real run awaits the actions, coverage and EPV lane outputs and the possessions tables on the owner's Mac, with the exact command
 

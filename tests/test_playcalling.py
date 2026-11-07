@@ -1,5 +1,5 @@
-"""analytics.playcalling on the shared fixtures (analytics.fixtures, through tests/_fx_playcalling.py; the local
-generator there stands in only when the import fails, and is checked once on its own): the end-to-end fixture run,
+"""analytics.playcalling on the shared fixtures (analytics.fixtures, through tests/_fx_playcalling.py; the lane's
+local generator in analytics/playcalling/synthetic.py is exercised on purpose for its planted associations): the end-to-end fixture run,
 the leakage guards, the gate on a hand case, validation counts, the data-root CLI and the EDA tables. No network;
 every number is fixture output, not a result."""
 import json
@@ -12,6 +12,7 @@ pd = pytest.importorskip("pandas")
 pytest.importorskip("sklearn")
 
 from analytics import schema  # noqa: E402
+from analytics.eval import is_heldout_game  # noqa: E402
 from analytics.playcalling import N_MIN, eda, features as F, train as T, validate as V  # noqa: E402
 from tests import _fx_playcalling as fx  # noqa: E402
 
@@ -197,7 +198,7 @@ def test_validate_counts_duplicates_unknown_enums_and_missing_columns(inputs):
     e = inputs["epv_states"].copy()
     e.loc[0, "epv_points"] = np.inf
     assert V.validate_epv_states(e)[1]["epv_not_finite"] == 1
-    assert V.is_heldout_game(HELD) and V.is_heldout_game("01.02.2016.AAA.at.CLE") and not V.is_heldout_game("01.02.2016.AAA.at.BBB")
+    assert is_heldout_game(HELD) and is_heldout_game("01.02.2016.AAA.at.CLE") and not is_heldout_game("01.02.2016.AAA.at.BBB")
 
 
 def test_action_ids_are_the_row_position_within_the_game_and_existing_ids_are_kept():
@@ -240,7 +241,7 @@ def test_tombstoned_and_pass_two_labels_never_reach_training(tmp_path):
 
 def test_shared_fixture_labels_join_and_build(inputs, table):
     """The shared generator's labels (no action_id on actions, game-wide ids on screens, label_source synthetic)
-    join and build. With the import missing, the same checks run on the local generator."""
+    join and build."""
     inp, t = inputs, table
     assert inp["heldout_games"] == [HELD]
     assert V.validate_inputs(inp)[1]["actions"]["unknown_action_type"] == {}
@@ -329,3 +330,17 @@ def test_no_em_dash_in_the_lane_files():
     for p in files:
         if p.exists():
             assert chr(0x2014) not in p.read_text(), p
+
+
+def test_fixture_flags_and_production_never_imports_tests():
+    """Every CLI of the lane takes the canonical --fixture-* knobs; no lane module imports tests/."""
+    a = T.parse_args(["--fixtures", "--fixture-games", "3", "--fixture-possessions", "5", "--fixture-heldout-every", "2",
+                      "--fixture-generator", "local"])
+    assert (a.fixture_games, a.fixture_possessions, a.fixture_heldout_every, a.fixture_generator) == (3, 5, 2, "local")
+    inp = V.fixture_inputs_from_args(a)
+    assert inp["possessions"]["sportvu_game"].nunique() == 3 and len(inp["heldout_games"]) == 1
+    for p in (ROOT / "analytics" / "playcalling").glob("*.py"):
+        import ast
+        mods = [n.module or "" for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.ImportFrom)]
+        mods += [a.name for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.Import) for a in n.names]
+        assert not [m for m in mods if m == "tests" or m.startswith("tests.")], p

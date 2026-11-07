@@ -1,6 +1,7 @@
 """analytics/load/features.py: player-stint and player-game load tables, the schedule features and the guards.
 
     python -m analytics.load.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16] [--limit N]
+        [--seed 0] [--bootstrap 200] [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Units and definitions (docs/contract/load.md):
 
@@ -76,6 +77,7 @@ GUARD_TABLE = "rosters"      # the schema table name assert_time_forward is call
 
 
 def feature_columns() -> list:
+    """The columns the models may be fed, in order."""
     return list(FEATURES)
 
 
@@ -342,20 +344,13 @@ def write_tables(tables: dict, out_root, season: str) -> list:
 
 
 def main(argv=None) -> dict:
+    """Build the three tables from the command line, print a one-line summary and, with --out, write them."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data", help="DATA_ROOT")
-    ap.add_argument("--local-fixtures", action="store_true",
-                    help="with --fixtures: the local generator of tests/_fx_load.py even when analytics.fixtures imports")
+    V.add_source_args(ap)
     ap.add_argument("--out", help="OUT_ROOT for the three tables")
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of a player's games in load_summary (default 200)")
     a = ap.parse_args(argv)
-    inputs = V.load_fixtures(seed=a.seed, prefer_shared=not a.local_fixtures) if a.fixtures else \
-        V.load_data_root(a.data, a.season, a.limit)
+    inputs = V.load_args(a)
     tables = build_tables(inputs, n_boot=a.bootstrap, seed=a.seed)
     if a.out:
         for p in write_tables(tables, a.out, inputs["season"]):

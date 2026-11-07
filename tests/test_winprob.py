@@ -1,4 +1,5 @@
-"""tests/test_winprob.py: the winprob lane (analytics/winprob) on the synthetic fixtures of tests/_fx_winprob.py.
+"""tests/test_winprob.py: the winprob lane (analytics/winprob) on the synthetic fixtures of analytics.fixtures
+(through the test adapter tests/_fx_winprob.py).
 
 One trainer run is shared by the tests (module fixture) to keep the file fast: 8 games per season, 3 seasons
 (one held out), 3 grouped folds, 5 bootstrap resamples. Every number here is fixture output, not a result.
@@ -281,25 +282,23 @@ def test_cli_mains_on_fixtures(tmp_path, capsys):
 
 
 def test_bounded_slope_agrees_with_eval_calibration_slope():
-    from analytics.eval import calibration_slope
+    from analytics.eval import calibration_slope, calibration_slope_fast
     rng = np.random.default_rng(1)
     x = rng.normal(0, 1.5, 2000)
     y = (rng.random(2000) < 1 / (1 + np.exp(-0.7 * x))).astype(int)
     p = 1 / (1 + np.exp(-x))
-    assert abs(T.slope(y, p) - calibration_slope(y, p)) < 1e-2
-    assert np.isnan(T.slope(np.ones(10), np.full(10, 0.5)))
+    assert abs(calibration_slope_fast(y, p) - calibration_slope(y, p)) < 1e-2
+    assert np.isnan(calibration_slope_fast(np.ones(10), np.full(10, 0.5)))
     sep = np.clip(np.where(y == 1, 0.999, 0.001), 1e-6, 1 - 1e-6)
-    assert np.isfinite(T.slope(y, sep))
+    assert np.isfinite(calibration_slope_fast(y, sep))
+    assert "calibration_slope_fast" in (Path(__file__).resolve().parents[1] / "analytics" / "winprob" / "train.py").read_text()
 
 
 def test_four_game_fixture_root_runs_end_to_end(tmp_path):
     """run_all's smallest root (write_fixture_root n_games=4, heldout_every=4): no held-out season present, fixture
     team ids unknown to the odds feed, so the spread join relies on inference over the whole games table; the probe
     must see the same spread after a cut."""
-    try:
-        from analytics.fixtures import write_fixture_root
-    except ImportError:
-        pytest.skip("shared fixtures absent")
+    from analytics.fixtures import write_fixture_root
     root = tmp_path / "root"
     write_fixture_root(root, seed=0, n_games=4, heldout_every=4)
     d = F.load_data(root)

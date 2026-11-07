@@ -90,8 +90,10 @@ at t, t-1, ..., t-4 of the same possession (padded with the row's own values at 
    constant kept as a labelled floor; no other candidate ever sees a held-out row (point estimates only with fewer
    than 5 held-out games).
 
-Each run calls `OMP_NUM_THREADS=1` for itself (set in `analytics/epv/__init__.py`); on the shared box the OpenMP
-runtime behind gradient boosting hung with its default thread count.
+Every fit and predict of a candidate runs inside `analytics.eval.fit_threads()`, which pins the BLAS and OpenMP
+pools to one thread after loading sklearn's gradient-boosting runtime (on the shared box that runtime hung with its
+default thread count). Nothing is set in the environment at import. The per-bucket calibration slopes use
+`analytics.eval.calibration_slope_fast` (the same regression, bounded on nearly separable buckets).
 
 ## Outputs
 
@@ -154,13 +156,20 @@ tables under X (`make ext-epv DATA=X OUT=Y`).
     python -m analytics.epv.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.epv.train    --fixtures | --data DATA_ROOT --report reports/epv.md [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT]
 
+`--fixtures` builds the synthetic season of `analytics.fixtures` (one league: teams and rosters recur) in memory
+through `analytics.epv.validate.fixture_season`; every CLI sizes it with `--fixture-games` (alias `--games`; 4, or 8
+for train), `--fixture-possessions` (40) and `--fixture-heldout-every` (4, the first held-out game being
+12.16.2015.PHX.at.GSW). A fixture report carries "fixture output, not a result" on its banner and on every section
+heading, and records its command with the value of `--out` written as `OUT_ROOT`. `<season>` in every path is
+`analytics.schema.season_of_game` (the season turns over in July); held-out ids are `analytics.eval.heldout_mask`.
+
 On the Mac: `python -m analytics.epv.states --data DATA_ROOT` once (when `analytics/states_1hz` is absent), then
 `python -m analytics.epv.train --data DATA_ROOT --report reports/epv.md --folds 5 --seed 0 --bootstrap 1000 --out DATA_ROOT`.
 
 ## Tests
 
-`tests/test_epv.py` (fixtures from `tests/_fx_epv.py`: the shared `analytics.fixtures` when importable, else the
-local fallback with the same signatures): the states builder against the possessions table, validation, the
+`tests/test_epv.py` (the season of `analytics.fixtures`, through `analytics.epv.validate` and the test-only
+adapter `tests/_fx_epv.py`): the states builder against the possessions table, validation, the
 feature guard (a target column raises, the allow-list is the only source), the priors out of fold, the end-to-end
 trainer with the report and the output tables, the leakage guard (a shuffled target shows no lift; a held-out id
 in the training set stops the trainer), the CLIs on a temporary DATA_ROOT.

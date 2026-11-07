@@ -53,6 +53,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from analytics import schema  # noqa: E402
+from analytics.eval import is_heldout_game  # noqa: E402
+from analytics.schema import season_of_game  # noqa: E402  (the July rule; one implementation for every lane)
 
 GAME_STEPS = ("rosters", "shot_frames", "rebound_frames", "possessions")
 ALL_STEPS = GAME_STEPS + ("gaps",)
@@ -71,15 +73,9 @@ def load_step1_manifest(data_root: Path) -> dict:
     return json.loads(p.read_text())
 
 
-def season_of_game(game: str) -> str:
-    """'2015-16' from 'MM.DD.YYYY.AWAY.at.HOME' (seasons turn over in July, as the localisers do)."""
-    mm, _dd, yyyy = game.split(".")[:3]
-    y = int(yyyy) if int(mm) >= 7 else int(yyyy) - 1
-    return "%d-%02d" % (y, (y + 1) % 100)
-
-
 def routed_heldout(game: str, entry: dict | None = None, sp: dict | None = None) -> bool:
-    """Whether sportvu/splits.json (the routing every module uses) holds the game out."""
+    """Whether sportvu/splits.json holds the game out through sportvu.colab_contract.split_of, the routing every
+    module uses for its output folders, with the manifest entry's home arena and the caller's splits dict."""
     from sportvu import splits
     from sportvu.colab_contract import is_heldout, split_of
     home = (entry or {}).get("home") or game.rsplit(".", 1)[-1]
@@ -141,10 +137,10 @@ def input_paths(entry: dict, data_root: Path, sp: dict | None = None) -> tuple[P
 
 
 def expected_output(step: str, game: str, out_root: Path) -> Path:
-    """Where the module will write: schema.table_path with the held-out flag of sportvu/splits.json."""
-    from sportvu import splits
-    from sportvu.colab_contract import is_heldout, split_of
-    held = is_heldout(split_of({"game": game, "home": game.rsplit(".", 1)[-1]}, splits.load()))
+    """Where the module will write: schema.table_path with the held-out flag of the game id
+    (analytics.eval.is_heldout_game: the held-out tokens of sportvu/splits.json, arena suffix included, which
+    agrees with the modules' split_of routing for an id whose home arena is its last field)."""
+    held = is_heldout_game(game)
     return schema.table_path(Path(out_root) / "analytics", step, season_of_game(game), game, heldout=held)
 
 

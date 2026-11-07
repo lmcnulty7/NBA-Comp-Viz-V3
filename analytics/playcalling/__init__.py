@@ -10,6 +10,8 @@ Modules
     train      PPP by action type, by action type x coverage, the ridge adjustment and the
                recommendation table, all with bootstrap intervals by game and the 300-possession gate
     eda        tables for notebooks/eda_playcalling.ipynb
+    synthetic  the synthetic inputs of the --fixtures runs (analytics.fixtures games or the lane's local
+               generator, plus stand-ins for the upstream lanes' outputs); fixture output, never a result
 
 Every output of this package is an observational association with an interval and a sample gate.
 Nothing here identifies the effect of calling a play: the defence, the lineup and the game state
@@ -35,10 +37,7 @@ from __future__ import annotations
 
 ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
 COVERAGES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over", "none")
-try:
-    from analytics.labels import LABEL_SOURCES          # ("hand", "model", "synthetic")
-except ImportError:                                      # the labels module is another lane's file
-    LABEL_SOURCES = ("hand", "model", "synthetic")
+from analytics.labels import LABEL_SOURCES              # ("hand", "model", "synthetic")
 SEASON = "2015-16"
 N_MIN = 300            # the possession gate of analytics.eval.gated
 WHO = "playcalling"

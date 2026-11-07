@@ -33,6 +33,7 @@ Protocol
 Outputs under OUT_ROOT/analytics/decisions/<season>/: decision_events/<game>.parquet (held-out under
 heldout/<season>/decision_events/), decision_players.parquet, and the markdown report. With --fixtures and no --out
 the parquet files go to a temporary directory (never into the repo) and the report says "fixture output, not a result".
+The report lists the written files relative to OUT_ROOT.
 
 Assumptions (also in reports/decisions.md): the contest adjustment, openness and pass-risk forms of features.py; the
 drive value; the attacked basket from the offence's mean x; players with no shot in the fit set still get values
@@ -53,7 +54,7 @@ import pandas as pd
 from analytics import schema
 from analytics.decisions import features as F
 from analytics.decisions import validate as V
-from analytics.eval import bootstrap_by_game, gated, grouped_folds, refuse_heldout
+from analytics.eval import bootstrap_by_game, fit_threads, fmt_num, gated, grouped_folds, refuse_heldout
 from analytics.features_xfg import assert_no_leak, feature_columns as xfg_feature_columns, features as xfg_features
 
 WHO = "train_decisions"
@@ -132,6 +133,7 @@ class ValueModel:
         self.model, self.rate, self.n_fit = model, float(rate), int(n_fit)
 
     def p_loc(self, loc_x, loc_y) -> np.ndarray:
+        """p(make) at court positions given as loc_x, loc_y (tenths of a foot from the basket)."""
         loc_x, loc_y = np.asarray(loc_x, float), np.asarray(loc_y, float)
         n = len(loc_x)
         if n == 0:
@@ -163,7 +165,8 @@ def fit_value_model(rows: pd.DataFrame) -> ValueModel:
     y = rows["made"].astype(int).to_numpy()
     if len(np.unique(y)) < 2:
         return ValueModel(None, float(y.mean()), len(y))
-    lr = make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=1000)).fit(X.to_numpy(), y)
+    with fit_threads():
+        lr = make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=1000)).fit(X.to_numpy(), y)
     return ValueModel(lr, float(y.mean()), len(y))
 
 
@@ -213,6 +216,7 @@ def per_game_spearman(pg: pd.DataFrame, ortg: pd.DataFrame, min_dec: int = MIN_D
 
 
 def summarise_rhos(per_game: pd.DataFrame, n_boot: int, seed: int) -> dict:
+    """Mean Spearman over games, the two-sided sign test and the bootstrap interval by game of the mean."""
     from scipy.stats import binomtest
     d = per_game.dropna(subset=["rho"])
     out = {"n_games": int(len(d)), "mean_rho": float(d["rho"].mean()) if len(d) else float("nan"),
@@ -239,6 +243,7 @@ def shuffled_quality(pg: pd.DataFrame, seed: int, min_dec: int = MIN_DECISIONS_G
 
 
 def validate_quality(events: pd.DataFrame, ortg: pd.DataFrame, n_boot: int, seed: int) -> dict:
+    """Per-game Spearman of mean quality against on-court offensive rating, summarised, plus the within-game shuffled check."""
     pg = player_game_quality(events)
     per = per_game_spearman(pg, ortg)
     shuf = per_game_spearman(shuffled_quality(pg, seed), ortg)
@@ -247,6 +252,7 @@ def validate_quality(events: pd.DataFrame, ortg: pd.DataFrame, n_boot: int, seed
 
 # ── player table ───────────────────────────────────────────────────────────────────────────────────
 def player_table(events: pd.DataFrame, n_boot: int, seed: int, n_min: int = N_MIN) -> pd.DataFrame:
+    """Per player: decision counts and mean quality (overall and by kind) with a bootstrap interval by game, gated at n_min and ranked."""
     if not len(events):
         return pd.DataFrame(columns=PLAYER_COLUMNS)
     g = gated(events[["player_id", "sportvu_game", "decision_kind", "decision_quality"]], "player_id", n_min)
@@ -345,6 +351,7 @@ def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200) -> di
 
 # ── outputs ────────────────────────────────────────────────────────────────────────────────────────
 def write_outputs(res: dict, out_root, season: str) -> list:
+    """Write decision_events per game (held-out games under heldout/) and decision_players; returns the paths."""
     base = Path(out_root) / "analytics" / "decisions"
     written = []
     for ev, held in ((res["events"], False), (res["events_heldout"], True)):
@@ -364,22 +371,17 @@ def write_outputs(res: dict, out_root, season: str) -> list:
     return written
 
 
-def _f(v, nd=4) -> str:
-    try:
-        return "n/a" if v is None or not np.isfinite(float(v)) else ("%%.%df" % nd) % float(v)
-    except (TypeError, ValueError):
-        return str(v)
-
-
 def _val_lines(name: str, v: dict) -> list:
+    """One validation table row: games, mean rho with its interval, the sign test and the shuffled mean."""
     s, sh = v["summary"], v["shuffled"]
-    L = ["| %s | %d | %s | %s | %s | %d / %d | %s | %s |" % (name, s["n_games"], _f(s["mean_rho"]), _f(s["lo"]), _f(s["hi"]),
-                                                            s["n_positive"], s["n_positive"] + s["n_negative"], _f(s["sign_p"]),
-                                                            _f(sh["mean_rho"]))]
+    L = ["| %s | %d | %s | %s | %s | %d / %d | %s | %s |" % (name, s["n_games"], fmt_num(s["mean_rho"]), fmt_num(s["lo"]), fmt_num(s["hi"]),
+                                                            s["n_positive"], s["n_positive"] + s["n_negative"], fmt_num(s["sign_p"]),
+                                                            fmt_num(sh["mean_rho"]))]
     return L
 
 
 def write_report(path: Path, res: dict, ctx: dict) -> str:
+    """Write the markdown report to path and return its text; with ctx["fixtures"] every section is labelled fixture output."""
     fixture = ctx["fixtures"]
     tag = " (fixture output, not a result)" if fixture else ""
     ev, held = res["events"], res["events_heldout"]
@@ -387,8 +389,8 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
          "Written %s by `%s`." % (ctx["written_at"], ctx["command"]), ""]
     if fixture:
         L += ["**Fixture output, not a result.** Every number below comes from synthetic games "
-              "(tests/_fx_decisions.py or analytics/fixtures.py); the real run is the Mac command at the end.", ""]
-    L += ["## Inputs", "", "| game | held out | frames | possessions | shots | schema problems | duplicates dropped | epv rows | xfg rows |",
+              "(analytics/fixtures.py); the real run is the Mac command at the end.", ""]
+    L += ["## Inputs" + tag, "", "| game | held out | frames | possessions | shots | schema problems | duplicates dropped | epv rows | xfg rows |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for r in res["val_reports"]:
         L.append("| %s | %s | %d | %d | %d | %d | %d | %d | %d |" % (
@@ -399,7 +401,7 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
           "checked the training ids against sportvu/splits.json." % (len(res["train_ids"]), ", ".join(res["train_ids"]) or "none",
                                                                        len(res["heldout_ids"]), ", ".join(res["heldout_ids"]) or "none"),
           "Value model fit rows (localised shots of the training games): %d. Protocol: %s." % (res["fit_rows"], res["mode"]), "",
-          "## Event counts (training games)", "", "| game | shots | passes | drives | possessions used | skipped |",
+          "## Event counts (training games)" + tag, "", "| game | shots | passes | drives | possessions used | skipped |",
           "| --- | --- | --- | --- | --- | --- |"]
     for g in res["train_ids"]:
         d = ev[ev["sportvu_game"] == g]
@@ -408,8 +410,8 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
         L.append("| %s | %d | %d | %d | %d | %s |" % (g, int((d["decision_kind"] == "shot").sum()), int((d["decision_kind"] == "pass").sum()),
                                                      int((d["decision_kind"] == "drive").sum()), c.get("possessions_used", 0), skipped or "none"))
     L += ["", "Total: %d decisions (%s)." % (len(ev), ev["decision_kind"].value_counts().to_dict() if len(ev) else {}),
-          "Hold option (EPV lane) present on %d decisions; xFG lane coverage of shot decisions %s." % (res["n_hold"], _f(res["xfg_coverage"], 2)), "",
-          "## Value-function assumptions", "",
+          "Hold option (EPV lane) present on %d decisions; xFG lane coverage of shot decisions %s." % (res["n_hold"], fmt_num(res["xfg_coverage"], 2)), "",
+          "## Value-function assumptions" + tag, "",
           "- Shot option: points (3 at 22 ft or more, else 2) times the location-only xFG probability at the player's position, "
           "minus %.2f per foot of nearest-defender distance below %.0f ft when no contest model exists (floor %.2f)." % (F.CONTEST_PER_FT, F.CONTEST_FT, F.P_FLOOR),
           "- Pass option: points times the location-only probability at the teammate's position (no contest term: openness already carries the "
@@ -431,7 +433,7 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
           "- Prior of the option values: candidate 1 = location-only xFG, candidate 2 = the xFG lane's p_selected on shot events. "
           "Rule fixed in advance: candidate 2 when its coverage of shot decisions is at least %.2f. Selected: **%s**%s." % (
               XFG_MIN_COVERAGE, res["prior"], "" if res["has_xfg"] else " (no xFG table present)"), "",
-          "## Player table (training games, gated at %d decisions; ranked on mean quality, by-kind means are regret at most 0)" % N_MIN, ""]
+          "## Player table (training games, gated at %d decisions; ranked on mean quality, by-kind means are regret at most 0)%s" % (N_MIN, tag), ""]
     players = res["players"]
     ranked = players[~players["insufficient"]] if len(players) else players
     n_ins = int(players["insufficient"].sum()) if len(players) else 0
@@ -440,16 +442,16 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
     if len(ranked):
         L += head
         for r in ranked.head(25).itertuples(index=False):
-            L.append("| %d | %d | %d | %d | %s | %s | %s | %s | %s | %s |" % (r.rank, r.player_id, r.n_decisions, r.n_games, _f(r.mean_quality),
-                                                                         _f(r.lo), _f(r.hi), _f(r.mean_quality_shot), _f(r.mean_quality_pass), _f(r.mean_quality_drive)))
+            L.append("| %d | %d | %d | %d | %s | %s | %s | %s | %s | %s |" % (r.rank, r.player_id, r.n_decisions, r.n_games, fmt_num(r.mean_quality),
+                                                                         fmt_num(r.lo), fmt_num(r.hi), fmt_num(r.mean_quality_shot), fmt_num(r.mean_quality_pass), fmt_num(r.mean_quality_drive)))
     else:
         L.append("No player passes the %d-decision gate: nobody is ranked." % N_MIN)
     L += ["", "%d of %d players are under the %d-decision gate and carry no rank (listed unranked, by id, first 10):" % (n_ins, len(players), N_MIN), "",
           "| player_id | n_decisions | n_games | mean quality | shot | pass | drive |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for r in players[players["insufficient"]].head(10).itertuples(index=False):
-        L.append("| %d | %d | %d | %s | %s | %s | %s |" % (r.player_id, r.n_decisions, r.n_games, _f(r.mean_quality), _f(r.mean_quality_shot),
-                                                       _f(r.mean_quality_pass), _f(r.mean_quality_drive)))
-    L += ["", "## Validation: mean decision quality per player-game against on-court offensive rating", "",
+        L.append("| %d | %d | %d | %s | %s | %s | %s |" % (r.player_id, r.n_decisions, r.n_games, fmt_num(r.mean_quality), fmt_num(r.mean_quality_shot),
+                                                       fmt_num(r.mean_quality_pass), fmt_num(r.mean_quality_drive)))
+    L += ["", "## Validation: mean decision quality per player-game against on-court offensive rating" + tag, "",
           "Spearman per game between the players' mean decision quality (a sum would rank by decision count, since quality is regret) and "
           "their points per 100 offensive possessions on the floor, over players with at least %d decisions in the game; sign test over "
           "games (two sided); bootstrap of the mean Spearman by game (n=%d, seed %d); shuffled = the same statistic with mean quality permuted "
@@ -457,20 +459,20 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
           "| prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for n, v in res["validation"].items():
         L += _val_lines(n, v)
-    L += ["", "## Held-out games (valued once by the model refit on all training games; never fitted or tuned on)", ""]
+    L += ["", "## Held-out games (valued once by the model refit on all training games; never fitted or tuned on)" + tag, ""]
     if len(held):
         L += ["%d decisions from %d held-out game(s): %s." % (len(held), held["sportvu_game"].nunique(), ", ".join(sorted(held["sportvu_game"].unique()))),
               "", "| kind | n | mean quality |", "| --- | --- | --- |"]
         for kd, d in held.groupby("decision_kind"):
-            L.append("| %s | %d | %s |" % (kd, len(d), _f(d["decision_quality"].mean())))
+            L.append("| %s | %d | %s |" % (kd, len(d), fmt_num(d["decision_quality"].mean())))
         hv = validate_quality(held, res["ortg"], res["n_boot"], res["seed"])
         L += ["", "| prior | games | mean rho | lo | hi | positive / signed | sign p | shuffled mean rho |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
         L += _val_lines(res["prior"] + " (held out)", hv)
     else:
         L.append("No held-out game in this run.")
-    L += ["", "## Outputs", ""]
+    L += ["", "## Outputs (relative to OUT_ROOT)" + tag, ""]
     L += ["- %s" % p for p in ctx["written_paths"]] or ["- none written"]
-    L += ["", "## Status", ""]
+    L += ["", "## Status" + tag, ""]
     if fixture:
         L.append("Fixture output, not a result. The real run, on the Mac where the full data lives:")
     else:
@@ -486,22 +488,22 @@ def write_report(path: Path, res: dict, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The train CLI's arguments."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true")
+    ap.add_argument("--fixtures", action="store_true", help="train on synthetic games from analytics.fixtures (fixture output, not a result)")
     ap.add_argument("--data", help="DATA_ROOT")
     ap.add_argument("--out", help="OUT_ROOT for the parquet outputs and the upstream lanes (default DATA_ROOT; a temp dir with --fixtures)")
-    ap.add_argument("--season", default=V.DEFAULT_SEASON)
-    ap.add_argument("--report", default="reports/decisions.md")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--n-games", type=int, default=8, help="fixture games")
-    ap.add_argument("--n-possessions", type=int, default=40, help="fixture possessions per game")
-    ap.add_argument("--heldout-every", type=int, default=4, help="fixture: every k-th game is held out")
+    ap.add_argument("--season", default=V.DEFAULT_SEASON, help="season directory under DATA_ROOT/analytics (default %(default)s)")
+    ap.add_argument("--report", default="reports/decisions.md", help="markdown report path (default %(default)s)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by game for the value model (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="seed of the folds, the bootstrap and the fixtures (default %(default)s)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples by game (default %(default)s)")
+    V.add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Run the protocol, write the parquet outputs and the report; returns the run dict."""
     a = parse_args(argv)
     if not a.fixtures and not a.data:
         raise SystemExit("%s: pass --fixtures or --data DATA_ROOT" % WHO)
@@ -515,7 +517,7 @@ def main(argv=None) -> dict:
         season = a.season
     res = run(bundles, a.folds, a.seed, a.bootstrap)
     written = write_outputs(res, out_root, season)
-    ctx = {"written_paths": [str(p) for p in written], "fixtures": a.fixtures,
+    ctx = {"written_paths": [p.relative_to(out_root).as_posix() for p in written], "fixtures": a.fixtures,
            "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
            "command": "python -m analytics.decisions.train " + " ".join(argv if argv is not None else sys.argv[1:])}
     text = write_report(Path(a.report), res, ctx)

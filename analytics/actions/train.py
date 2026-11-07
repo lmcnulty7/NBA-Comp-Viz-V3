@@ -2,15 +2,17 @@
 
     python -m analytics.actions.train --fixtures | --data DATA_ROOT --report reports/actions.md
                                       [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200]
+                                      [--fixture-games 6] [--fixture-possessions 24] [--fixture-heldout-every 3]
 
 Steps: load the games (validate.load_inputs) and run the validation checks (a game with a schema problem is
 skipped and listed); build the candidate windows and features (features.build_season); set every held-out
-game aside (under heldout/, a held-out token of sportvu/splits.json, or the CLE arena); call
+game aside (under heldout/, or analytics.eval.is_heldout_game: a held-out token or the held-out arena); call
 analytics.eval.refuse_heldout on the training game ids and analytics.schema.assert_time_forward plus
 features.assert_no_leak on the training feature frame; fit two models under grouped folds by sportvu_game:
     rule   the candidate generator's own class (the baseline: p = 1 for the rule class)
-    hgb    HistGradientBoostingClassifier, multi-class over {ball_screen, drive, isolation, none}, fitted on one
-           thread (threadpoolctl): with 4 cores shared by many processes its OpenMP loops stall for minutes
+    hgb    HistGradientBoostingClassifier, multi-class over {ball_screen, drive, isolation, none}, fitted and
+           scored inside analytics.eval.fit_threads() (one thread: with 4 cores shared by many processes its OpenMP
+           loops stalled for minutes)
 Hand labels come through analytics.labels.read_labels(DATA_ROOT, game, labeller_pass=1): tombstoned ids are
 dropped, the last line per id wins, and the pass-2 relabels never reach a fit.
 Selection metric: out-of-fold F1 for ball_screen (plan target over 0.8 on a held-out game); the report also
@@ -26,7 +28,9 @@ schema with label_source model).
 
 Fewer games than folds: n_folds becomes the number of games (leave-one-game-out) and the report says so. One
 training game: no out-of-fold fit is possible, so the report carries in-sample metrics, labelled in-sample.
-A fixture run is labelled "fixture output, not a result" everywhere.
+A fixture run is labelled "fixture output, not a result" on the banner and on every section heading; the report
+records its command with the value of --out written as OUT_ROOT and lists the written tables relative to OUT_ROOT.
+The season directory of a game is analytics.schema.season_of_game.
 """
 from __future__ import annotations
 
@@ -40,10 +44,11 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.actions import CLASSES, SEASON, WHO
+from analytics.actions import CLASSES, WHO
 from analytics.actions import features as F
 from analytics.actions import validate as V
-from analytics.eval import bootstrap_by_game, grouped_folds, refuse_heldout
+from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, is_heldout_game, md_table,
+                            refuse_heldout)
 
 log = logging.getLogger("analytics.actions.train")
 
@@ -53,17 +58,19 @@ HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2          # fold values of the candidate ta
 FULL_RUN_CMD = ("python -m analytics.actions.train --data \"$DATA_ROOT\" --report reports/actions.md "
                 "--out \"$DATA_ROOT\" --folds 5 --seed 0 --bootstrap 1000")
 HGB_PARAMS = dict(max_iter=100, learning_rate=0.1, max_leaf_nodes=15, min_samples_leaf=5, l2_regularization=0.1)
+FIXTURE_TAG = " (fixture output, not a result)"
 
 
 # ── inputs ─────────────────────────────────────────────────────────────────────────────────────────
 def is_heldout(game: dict) -> bool:
-    return bool(game.get("heldout", False)) or V.is_heldout_id(game["sportvu_game"])
+    """True when the game dict is flagged held out or analytics.eval.is_heldout_game marks its id."""
+    return bool(game.get("heldout", False)) or is_heldout_game(game["sportvu_game"])
 
 
 def training_split(cands: pd.DataFrame, feats: pd.DataFrame) -> tuple:
     """-> (train candidates, train features, held-out candidates, held-out features). The guard runs on the
     training game ids; the training feature frame passes assert_time_forward and assert_no_leak."""
-    held = cands["heldout"].astype(bool) | cands["sportvu_game"].map(V.is_heldout_id).astype(bool)
+    held = cands["heldout"].astype(bool) | cands["sportvu_game"].map(is_heldout_game).astype(bool)
     train_c, held_c = cands[~held].reset_index(drop=True), cands[held].reset_index(drop=True)
     train_f, held_f = feats[~held.to_numpy()].reset_index(drop=True), feats[held.to_numpy()].reset_index(drop=True)
     refuse_heldout(sorted(train_c["sportvu_game"].unique()), WHO)
@@ -74,12 +81,14 @@ def training_split(cands: pd.DataFrame, feats: pd.DataFrame) -> tuple:
 
 # ── models ─────────────────────────────────────────────────────────────────────────────────────────
 def design(feats: pd.DataFrame) -> np.ndarray:
+    """The design matrix (FEATURES as float) after the leakage check."""
     X = feats[F.feature_columns()]
     F.assert_no_leak(X)
     return X.to_numpy(dtype=float)
 
 
 def one_hot(classes: pd.Series) -> np.ndarray:
+    """(n, 4) one-hot rows in CLASSES order (an unknown class counts as none): the rule baseline's probabilities."""
     idx = classes.map({c: i for i, c in enumerate(CLASSES)}).fillna(CLASSES.index("none")).astype(int).to_numpy()
     out = np.zeros((len(idx), len(CLASSES)))
     out[np.arange(len(idx)), idx] = 1.0
@@ -90,7 +99,6 @@ def fit_models(train_c: pd.DataFrame, train_f: pd.DataFrame, seed: int = 0) -> d
     """Fit on one training frame -> {name: predict(cands, feats) -> (n, 4) class probabilities in CLASSES order}.
     Every fit of the trainer goes through here."""
     from sklearn.ensemble import HistGradientBoostingClassifier
-    from threadpoolctl import threadpool_limits
     if train_c["heldout"].astype(bool).any():
         raise ValueError("%s: a held-out row reached fit_models" % WHO)
     if (train_c[["sportvu_game", "possession", "candidate"]].to_numpy() != train_f[["sportvu_game", "possession", "candidate"]].to_numpy()).any():
@@ -102,11 +110,11 @@ def fit_models(train_c: pd.DataFrame, train_f: pd.DataFrame, seed: int = 0) -> d
         freq = np.bincount(y, minlength=len(CLASSES)) / max(1, len(y))
         out["hgb"] = lambda cands, feats, p=freq: np.tile(p, (len(cands), 1))
         return out
-    with threadpool_limits(limits=1):      # OpenMP oversubscription on shared cores stalls HGB; one thread is plenty here
+    with fit_threads():      # OpenMP oversubscription on shared cores stalls HGB; one thread is plenty here
         m = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(design(train_f), y)
 
     def predict(cands, feats, m=m):
-        with threadpool_limits(limits=1):
+        with fit_threads():
             p = m.predict_proba(design(feats))
         full = np.zeros((len(feats), len(CLASSES)))
         full[:, m.classes_] = p
@@ -144,6 +152,7 @@ def out_of_fold(train_c: pd.DataFrame, train_f: pd.DataFrame, n_folds: int, seed
 
 # ── metrics ────────────────────────────────────────────────────────────────────────────────────────
 def f1_for(y_true, y_pred, cls: str) -> float:
+    """F1 of one class (NaN when the class is neither true nor predicted anywhere)."""
     y_true, y_pred = np.asarray(y_true, dtype=object), np.asarray(y_pred, dtype=object)
     tp = int(((y_true == cls) & (y_pred == cls)).sum())
     fp = int(((y_true != cls) & (y_pred == cls)).sum())
@@ -159,6 +168,7 @@ def confusion(y_true, y_pred) -> pd.DataFrame:
 
 
 def predicted(probs: np.ndarray) -> np.ndarray:
+    """The most probable class of each row of an (n, 4) probability array."""
     return np.asarray(CLASSES, dtype=object)[np.argmax(probs, axis=1)]
 
 
@@ -192,6 +202,7 @@ def select(scores: dict) -> str:
 
 # ── output tables ──────────────────────────────────────────────────────────────────────────────────
 def candidate_table(cands: pd.DataFrame, probs: np.ndarray, fold) -> pd.DataFrame:
+    """action_candidates (docs/contract/actions.md): the candidates with the selected model's prediction and fold."""
     out = cands.copy()
     out["pred_class"] = predicted(probs)
     out["p_ball_screen"] = probs[:, CLASSES.index("ball_screen")]
@@ -298,11 +309,12 @@ def length_table(train_c: pd.DataFrame, actions: pd.DataFrame) -> pd.DataFrame:
 
 
 def write_tables(out_root, table: pd.DataFrame, detected: pd.DataFrame) -> list:
-    from analytics.possessions import game_meta
+    """action_candidates and actions_detected (parquet and jsonl) per game under OUT_ROOT/analytics/actions/; returns
+    one summary dict per game with its directory relative to OUT_ROOT."""
     written = []
     for game, grp in table.groupby("sportvu_game"):
         held = bool(grp["heldout"].iloc[0])
-        season = game_meta(str(game))["season"] if str(game).count(".") == 5 else SEASON
+        season = schema.season_of_game(str(game))
         base = Path(out_root) / "analytics" / "actions" / ("heldout/" if held else "") / season
         (base / "action_candidates").mkdir(parents=True, exist_ok=True)
         (base / "actions_detected").mkdir(parents=True, exist_ok=True)
@@ -311,41 +323,16 @@ def write_tables(out_root, table: pd.DataFrame, detected: pd.DataFrame) -> list:
         det.to_parquet(base / "actions_detected" / ("%s.parquet" % game), index=False)
         V.write_labels_jsonl(base / "actions_detected" / ("%s.jsonl" % game), det, pd.DataFrame(columns=V.SCREEN_COLUMNS))
         written.append({"sportvu_game": str(game), "heldout": held, "candidates": int(len(grp)), "detected": int(len(det)),
-                        "dir": str(base)})
+                        "dir": base.relative_to(Path(out_root)).as_posix()})
     return written
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=3) -> str:
-    return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-
-
-def _ci(d: dict) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d["lo"]):
-        return _f(d["point"])
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
-
-
-def md_table(df: pd.DataFrame, nd: int = 3) -> list:
-    cols = [str(c) for c in df.columns]
-    L = ["| " + " | ".join(cols) + " |", "| " + " | ".join("---" for _ in cols) + " |"]
-    for row in df.itertuples(index=False):
-        cells = []
-        for v in row:
-            if isinstance(v, (float, np.floating)):
-                cells.append(_f(float(v), nd))
-            else:
-                cells.append("" if v is None or (isinstance(v, float) and np.isnan(v)) else str(v))
-        L.append("| " + " | ".join(cells) + " |")
-    return L
-
-
 def write_report(path: Path, ctx: dict) -> str:
+    """The markdown report of a run (ctx from run) written to path; returns the text."""
     fx = ctx["fixtures"]
     sc = ctx["scope"]
-    tag = " (fixture output, not a result)" if fx else ""
+    tag = FIXTURE_TAG if fx else ""
     L = ["# Action recognition: ball-screen detection (analytics/actions/train.py)", "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
@@ -403,9 +390,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "| model | F1 ball_screen | F1 drive | F1 isolation | F1 none | macro F1 | accuracy |", "| --- | --- | --- | --- | --- | --- | --- |"]
     for m in MODELS:
         s = ctx["scores"][m]
-        L.append("| %s | %s | %s | %s | %s | %s | %s |" % (m, _ci(s["f1_ball_screen"]), _f(s["per_class_f1"]["drive"]),
-                                                          _f(s["per_class_f1"]["isolation"]), _f(s["per_class_f1"]["none"]),
-                                                          _f(s["macro_f1"]), _f(s["accuracy"])))
+        L.append("| %s | %s | %s | %s | %s | %s | %s |" % (m, fmt_ci(s["f1_ball_screen"]), fmt_num(s["per_class_f1"]["drive"]),
+                                                          fmt_num(s["per_class_f1"]["isolation"]), fmt_num(s["per_class_f1"]["none"]),
+                                                          fmt_num(s["macro_f1"]), fmt_num(s["accuracy"])))
     L += ["", "Selected model: **%s** (plan target: ball_screen F1 over 0.8 on a held-out game%s)." % (ctx["selected"], "; a fixture cannot meet or miss it" if fx else ""),
           "", "Confusion of the selected model (rows true, columns predicted, %s):" % ctx["mode"], ""]
     L += md_table(ctx["scores"][ctx["selected"]]["confusion"].reset_index().rename(columns={"true": "true \\ pred"}))
@@ -417,9 +404,9 @@ def write_report(path: Path, ctx: dict) -> str:
               "| model | F1 ball_screen | F1 drive | F1 isolation | F1 none | macro F1 | accuracy |", "| --- | --- | --- | --- | --- | --- | --- |"]
         for m in ctx["heldout_scores"]:
             s = ctx["heldout_scores"][m]
-            L.append("| %s | %s | %s | %s | %s | %s | %s |" % (m, _f(s["f1_ball_screen"]["point"]), _f(s["per_class_f1"]["drive"]),
-                                                              _f(s["per_class_f1"]["isolation"]), _f(s["per_class_f1"]["none"]),
-                                                              _f(s["macro_f1"]), _f(s["accuracy"])))
+            L.append("| %s | %s | %s | %s | %s | %s | %s |" % (m, fmt_num(s["f1_ball_screen"]["point"]), fmt_num(s["per_class_f1"]["drive"]),
+                                                              fmt_num(s["per_class_f1"]["isolation"]), fmt_num(s["per_class_f1"]["none"]),
+                                                              fmt_num(s["macro_f1"]), fmt_num(s["accuracy"])))
         L += ["", "Held-out numbers are point estimates (no bootstrap over %d game(s)); only the selected model is scored there. Confusion on the held-out candidates:" % ctx["heldout_games"], ""]
         L += md_table(ctx["heldout_scores"][ctx["selected"]]["confusion"].reset_index().rename(columns={"true": "true \\ pred"}))
     elif ctx["heldout_games"]:
@@ -427,7 +414,7 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "## Outputs", ""]
     if ctx["written_tables"]:
         for w in ctx["written_tables"]:
-            L.append("- %s: %d candidates, %d detected, under `%s`" % (w["sportvu_game"], w["candidates"], w["detected"], w["dir"]))
+            L.append("- %s: %d candidates, %d detected, under `OUT_ROOT/%s`" % (w["sportvu_game"], w["candidates"], w["detected"], w["dir"]))
     else:
         L.append("No table written (no --out). With --out OUT_ROOT the action_candidates and actions_detected tables of docs/contract/actions.md go under OUT_ROOT/analytics/actions/<season>/.")
     L += ["", "## Assumptions (recorded because nobody could be asked)", "",
@@ -451,7 +438,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "neither labels nor a visited file is inference only. Action labels with label_source model are dropped before matching.",
           "- actions_detected is an offline table: its confidence is the selected model's probability, which reads def_recovery_ft 1 s after the window ends, "
           "so it is not available at start_frame. A ball_screen detection without a screener (candidate or proxy) is refused and counted.",
-          "- The hgb model fits on one thread (threadpoolctl): on 4 cores shared by many processes its OpenMP loops stalled for minutes.",
+          "- The hgb model fits and scores inside `analytics.eval.fit_threads()` (one thread): on 4 cores shared by many processes its OpenMP loops stalled for minutes.",
           "- Fewer games than folds gives leave-one-game-out; one game gives in-sample metrics labelled as such; ties in the selection metric go to the rule baseline.",
           "", "## Status", ""]
     if fx:
@@ -463,6 +450,8 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["", "    " + FULL_RUN_CMD, "",
           "Needs real data before any number means anything: hand-labelled ball screens, drives and isolations on training games "
           "(the plan asks for over 0.8 ball_screen F1 on a held-out game, judged once on the held-out block above), and the possessions table of every labelled game.", ""]
+    if fx:      # every section heading carries the label, not only the banner
+        L = [x + FIXTURE_TAG if x.startswith("## ") and not x.endswith(FIXTURE_TAG) else x for x in L]
     text = "\n".join(L)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
@@ -471,13 +460,32 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The train CLI flags."""
     ap = argparse.ArgumentParser(prog="python -m analytics.actions.train", description=__doc__.split("\n")[0])
     V.add_input_args(ap)
-    ap.add_argument("--report", default="reports/actions.md")
+    ap.add_argument("--report", default="reports/actions.md", help="markdown report path (default reports/actions.md)")
     ap.add_argument("--out", help="OUT_ROOT for the action_candidates and actions_detected tables")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
     return ap.parse_args(argv)
+
+
+def recorded_command(argv) -> str:
+    """The command line the report records, with the value of --out written as OUT_ROOT (a run's output root is often
+    a scratch directory, and no scratch path belongs in a report)."""
+    out, skip = [], False
+    for tok in argv:
+        if skip:
+            out.append("OUT_ROOT")
+            skip = False
+        elif tok == "--out":
+            out.append(tok)
+            skip = True
+        elif tok.startswith("--out="):
+            out.append("--out=OUT_ROOT")
+        else:
+            out.append(tok)
+    return "python -m analytics.actions.train " + " ".join(out)
 
 
 def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixtures: bool = False, out_root=None,
@@ -560,11 +568,12 @@ def run(games: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, fixture
 
 
 def main(argv=None) -> dict:
+    """Run the protocol on the inputs the flags name, write the report (and the tables with --out) and print it."""
     a = parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     games = V.load_inputs(a)
     ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixtures=bool(a.fixtures), out_root=a.out, report=Path(a.report),
-              command="python -m analytics.actions.train " + " ".join(argv if argv is not None else sys.argv[1:]))
+              command=recorded_command(argv if argv is not None else sys.argv[1:]))
     print(ctx["report_text"])
     return ctx
 

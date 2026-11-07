@@ -1,18 +1,16 @@
 # Load and fatigue baselines (analytics/load/train.py)
 
-Written 2026-11-05T09:43:47Z by `python -m analytics.load.train --fixtures --local-fixtures --report reports/load.md --bootstrap 200`.
+Written 2026-11-07T08:42:06Z by `python -m analytics.load.train --fixtures --report reports/load.md --bootstrap 200`.
 
-**Every number below is fixture output, not a result**: the inputs are the synthetic season of tests/_fx_load.py (fixture (local tests/_fx_load.py)). The real run is the Mac command at the end.
+**Every number below is fixture output, not a result**: the inputs are a synthetic season (fixture (analytics.fixtures synth_season)). The real run is the Mac command at the end.
 
-Produced with --local-fixtures: the shared analytics.fixtures season gives every game distinct teams and players, so the schedule history and the absence target are undefined on it; the local generator repeats four teams over a schedule.
-
-## Inputs
+## Inputs (fixture output, not a result)
 
 | games loaded | training games | held-out games | stints | player-games | players | aggregates rows |
 | --- | --- | --- | --- | --- | --- | --- |
-| 8 | 6 | 2 | 448 | 152 | 40 | 160 |
+| 8 | 6 | 2 | 320 | 112 | 63 | 3528 |
 
-Validation totals over the loaded frames: rows_in 960000, rows_missing_key_or_position 0, rows_duplicate_frame_player 0, rows_outside_court 0, rows_speed_over_30_ftps 0, players_distance_over_ceiling 0, rows_out 960000.
+Validation totals over the loaded frames: rows_in 971060, rows_missing_key_or_position 0, rows_duplicate_frame_player 0, rows_outside_court 0, rows_speed_over_30_ftps 2, players_distance_over_ceiling 0, rows_out 971058.
 
 injuries table (section 15): not present; it covers 2021-22 onward only and never overlaps the 2015-16 tracking era, so absence here is read from the rosters, not from injury reports.
 
@@ -31,83 +29,68 @@ Buckets by days_rest: back_to_back (1 or fewer), one_day (2), two_plus (3 or mor
 
 | bucket | n | games | mean_decline_ftps | lo | hi |
 | --- | --- | --- | --- | --- | --- |
-| back_to_back | 9 | 1 | -0.434 | n/a | n/a |
-| one_day | 9 | 1 | -0.466 | n/a | n/a |
-| two_plus | 95 | 6 | -0.376 | -0.423 | -0.343 |
+| back_to_back | 5 | 1 | -0.712 |  |  |
+| one_day | 0 | 0 |  |  |  |
+| two_plus | 55 | 6 | -0.141 | -0.490 | 0.319 |
 
-Per-player summary (load_summary): 40 players, 11 with at least 10 stints (the others are gated out of any ranking, `insufficient`). The 10 largest mean declines among the gated-in players:
+Per-player summary (load_summary): 42 players, 6 with at least 10 stints (the others are gated out of any ranking, `insufficient`). The 6 largest mean declines among the gated-in players:
 
 | player_id | n_games | n_stints | mean_decline | lo | hi | insufficient |
 | --- | --- | --- | --- | --- | --- | --- |
-| 304 | 3 | 12 | -0.639 | -0.836 | -0.393 | False |
-| 103 | 4 | 16 | -0.625 | -0.997 | -0.293 | False |
-| 203 | 3 | 12 | -0.524 | -0.742 | -0.277 | False |
-| 105 | 4 | 12 | -0.393 | -0.477 | -0.286 | False |
-| 206 | 3 | 11 | -0.385 | -0.529 | -0.242 | False |
-| 301 | 3 | 11 | -0.378 | -0.423 | -0.334 | False |
-| 303 | 3 | 12 | -0.372 | -0.427 | -0.262 | False |
-| 101 | 4 | 14 | -0.318 | -0.422 | -0.147 | False |
-| 202 | 3 | 12 | -0.209 | -0.213 | -0.206 | False |
-| 102 | 4 | 16 | -0.160 | -0.211 | -0.079 | False |
+| 500032 | 3 | 12 | -0.878 | -1.394 | -0.579 | False |
+| 500030 | 3 | 12 | -0.876 | -1.548 | -0.008 | False |
+| 500031 | 3 | 12 | -0.264 | -1.249 | 0.419 | False |
+| 500072 | 3 | 12 | 0.063 | -0.523 | 0.963 | False |
+| 500071 | 3 | 12 | 0.216 | -0.215 | 0.688 | False |
+| 500070 | 3 | 12 | 0.276 | -0.106 | 0.637 | False |
 
 ## Candidate 2: ridge regression of y_decline (fixture output, not a result)
 
-out-of-fold under 5 grouped folds by sportvu_game (seed 0). 113 player-games with a decline from 6 games. Ridge alpha 1.0, median imputation and standardisation fitted inside the training folds.
+out-of-fold under 5 grouped folds by sportvu_game (seed 0). 60 player-games with a decline from 6 games. Ridge alpha 1.0, median imputation and standardisation fitted inside the training folds.
 
 | model | MSE (ft per s)^2 |
 | --- | --- |
-| mean (training-fold mean) | 0.0428 [0.0304, 0.0547] |
-| ridge on FEATURES | 0.0489 [0.0396, 0.0557] |
+| mean (training-fold mean) | 0.9133 [0.4863, 1.4505] |
+| ridge on FEATURES | 0.8584 [0.5032, 1.3310] |
 
-Paired bootstrap by game of MSE(ridge) - MSE(mean): 0.0061 [-0.0051, 0.0187], excludes zero: False.
+Paired bootstrap by game of MSE(ridge) - MSE(mean): -0.0549 [-0.2815, 0.1987], excludes zero: False.
 
 ## Candidate 3: absence from the next game (fixture output, not a result)
 
-out-of-fold under 5 grouped folds by sportvu_game (seed 0). 57 player-games with a known absent_next from 5 games, base rate 0.0526. Logistic C 1.0, same preprocessing. Absence is not injury.
+out-of-fold under 4 grouped folds by sportvu_game (seed 0); fewer games (4) than the 5 folds asked, so n_folds = number of games. 42 player-games with a known absent_next from 4 games, base rate 0.0000. Logistic C 1.0, same preprocessing. Absence is not injury.
 
 | model | log loss | Brier | ECE (10 bins) |
 | --- | --- | --- | --- |
-| base rate (training-fold rate) | 0.2149 [0.1266, 0.3273] | 0.0507 [0.0227, 0.0842] | 0.0006 [0.0006, 0.0637] |
-| logistic on FEATURES | 0.4749 [0.0915, 0.8148] | 0.1073 [0.0202, 0.1856] | 0.0937 [0.0006, 0.1847] |
+| base rate (training-fold rate) | 0.0010 [0.0010, 0.0010] | 0.0000 [0.0000, 0.0000] | 0.0010 [0.0010, 0.0010] |
+| logistic on FEATURES | 0.0010 [0.0010, 0.0010] | 0.0000 [0.0000, 0.0000] | 0.0010 [0.0010, 0.0010] |
 
-Paired bootstrap by game of log loss(logistic) - log loss(base): 0.2600 [-0.0361, 0.5717], excludes zero: False. Calibration slope of the logistic model: -0.3890 (one fit, no interval; 1 is calibrated).
+Paired bootstrap by game of log loss(logistic) - log loss(base): 0.0000 [0.0000, 0.0000], excludes zero: False. Calibration slope of the logistic model: n/a (one fit, no interval; 1 is calibrated).
 
-Calibration table of the logistic model (equal-width bins of p):
-
-| bin | lo | hi | n | mean p | mean absent |
-| --- | --- | --- | --- | --- | --- |
-| 0 | 0.0 | 0.1 | 51 | 0.028 | 0.059 |
-| 1 | 0.1 | 0.2 | 2 | 0.132 | 0.000 |
-| 2 | 0.2 | 0.3 | 0 | n/a | n/a |
-| 3 | 0.3 | 0.4 | 0 | n/a | n/a |
-| 4 | 0.4 | 0.5 | 0 | n/a | n/a |
-| 5 | 0.5 | 0.6 | 0 | n/a | n/a |
-| 6 | 0.6 | 0.7 | 1 | 0.628 | 0.000 |
-| 7 | 0.7 | 0.8 | 0 | n/a | n/a |
-| 8 | 0.8 | 0.9 | 1 | 0.887 | 0.000 |
-| 9 | 0.9 | 1.0 | 2 | 0.987 | 0.000 |
+One class only in absent_next: no calibration table.
 
 ## Cross-check against the tracking aggregates (section 11) (fixture output, not a result)
 
-40 players matched over 160 aggregate rows.
+42 players matched over 252 aggregate rows.
 
 | quantity | Spearman (ours vs aggregate) | ours mean | aggregate mean |
 | --- | --- | --- | --- |
-| distance per game, miles | 0.628 | 0.251 | 1.612 |
-| average speed, mph | 0.984 | 3.559 | 3.529 |
+| distance per game, miles | 0.184 | 0.380 | 2.264 |
+| average speed, mph | -0.047 | 4.085 | 4.273 |
 
 Our distance counts dead-ball movement at the wall clock and only frames that passed validation; the aggregate is NBA.com's own, so a gap in level with a high rank correlation is the expected picture.
 
 ## Held-out games, scored once (fixture output, not a result)
 
-39 player-games from 2 held-out game(s) (11.07.2015.BBB.at.DDD, 11.14.2015.CCC.at.DDD). One model per pair was selected on its out-of-fold score and scored once here, refit on all training rows; never fitted or tuned on. The constant baseline appears only as a labelled floor under a selected candidate. Point estimates only.
+28 player-games from 2 held-out game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW). One model per pair was selected on its out-of-fold score and scored once here, refit on all training rows; never fitted or tuned on. The constant baseline appears only as a labelled floor under a selected candidate. Point estimates only.
 
 | quantity | value |
 | --- | --- |
-| decline rows | 39 |
-| MSE, selected model (mean) | 0.0534 |
-| absence rows | 20 |
-| log loss, selected model (base) | 0.3431 |
+| decline rows | 20 |
+| MSE, selected model (ridge) | 0.6271 |
+| MSE, floor (training mean, not selected) | 0.5085 |
+| absence rows | 7 |
+| log loss, selected model (logistic) | 0.0010 |
+| log loss, floor (base rate, not selected) | 0.0010 |
 
 ## Status and the Mac command
 

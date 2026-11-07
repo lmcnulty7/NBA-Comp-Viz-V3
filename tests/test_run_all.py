@@ -283,6 +283,29 @@ def test_run_all_system_exit_message_reaches_log(tmp_path, monkeypatch, capsys, 
     assert "| exiter | validate | failed |" in (out / "reports" / "run_all.md").read_text()
 
 
+def test_run_all_keyboard_interrupt_in_step_propagates(tmp_path, monkeypatch, capsys, no_fixture_root):
+    """Ctrl-C inside a step stops the whole run (it is not recorded as one failed step), and the runner's
+    log handler and stdout capture are released on the way out."""
+    import logging
+    stubs = tmp_path / "stubs"
+    pkg = stubs / "interrupter"
+    pkg.mkdir(parents=True)
+    (pkg / "__init__.py").write_text("")
+    (pkg / "validate.py").write_text("def main(argv=None):\n    raise KeyboardInterrupt\n")
+    (pkg / "train.py").write_text("def main(argv=None):\n    raise AssertionError('train must not run')\n")
+    reg = tmp_path / "reg.json"
+    reg.write_text(json.dumps({"extensions": [
+        {"name": "interrupter", "package": "interrupter", "steps": ["validate", "train"]}]}))
+    monkeypatch.syspath_prepend(str(stubs))
+    out = tmp_path / "out"
+    handlers_before = list(logging.getLogger().handlers)
+    with pytest.raises(KeyboardInterrupt):
+        run_all.main(["--fixtures", "--ext", "interrupter", "--registry", str(reg), "--out", str(out)])
+    capsys.readouterr()
+    assert list(logging.getLogger().handlers) == handlers_before
+    assert not (out / "logs" / "run_all" / "interrupter_train.log").exists()
+
+
 def test_run_all_skips_absent_package_and_continues(tmp_path, monkeypatch, capsys, no_fixture_root):
     stubs = tmp_path / "stubs"
     out = tmp_path / "out"

@@ -60,8 +60,9 @@ import scipy.sparse as sp
 from scipy.stats import rankdata
 
 from analytics import schema
-from analytics.eval import bootstrap_by_game, grouped_folds, min_sample_gate, paired_bootstrap_by_game, refuse_heldout
-from analytics.lineups import FIXTURE_GAMES, FIXTURE_SEASONS, SEASONS, WHO, load_inputs, out_dir
+from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, min_sample_gate, paired_bootstrap_by_game,
+                           refuse_heldout)
+from analytics.lineups import FIXTURE_SEASONS, SEASONS, WHO, add_fixture_args, load_inputs, out_dir
 from analytics.lineups.features import TARGET, assert_no_leak, feature_columns, features
 from analytics.lineups.validate import validate
 
@@ -75,6 +76,7 @@ MAC_CMD = ("python -m analytics.lineups.train --data \"$DATA_ROOT\" --report rep
 
 # ── season split ───────────────────────────────────────────────────────────────────────────────────
 def season_key(s) -> int:
+    """The starting year of a season string, for ordering."""
     return int(str(s)[:4])
 
 
@@ -97,11 +99,6 @@ def lineup_rows(feats: pd.DataFrame) -> pd.DataFrame:
     a = pd.DataFrame({"lineup_id": feats["lineup_away"], "team_id": feats["away_team_id"], "game_id": feats["game_id"],
                       "season": feats["season"], "possessions": feats["possessions"], "diff": -feats["points_diff"]})
     return pd.concat([h, a], ignore_index=True)
-
-
-def _per100(d: pd.DataFrame) -> float:
-    p = float(d["possessions"].sum())
-    return float(d["diff"].sum() / p * 100.0) if p > 0 else float("nan")
 
 
 def lineup_table(feats: pd.DataFrame, n_boot: int = 0, seed: int = 0) -> pd.DataFrame:
@@ -157,6 +154,7 @@ def design(feats: pd.DataFrame, players: list, lineups: list) -> sp.csr_matrix:
 
 
 def normal_equations(X: sp.csr_matrix, y: np.ndarray, w: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """The weighted normal equations (X'WX, X'Wy) of a sparse design."""
     Xw = X.multiply(w[:, None]).tocsr()
     return (X.T @ Xw).toarray(), np.asarray(X.T @ (w * y)).reshape(-1)
 
@@ -191,6 +189,7 @@ def choose_alpha(X: sp.csr_matrix, y: np.ndarray, w: np.ndarray, games: np.ndarr
 
 
 def fit_ridge(feats: pd.DataFrame, players: list, lineups: list, alpha: float | None, n_folds: int, seed: int, alphas=ALPHAS) -> dict:
+    """A possession-weighted ridge fit of the target on the design (alpha by grouped CV when None) -> coefficients, alpha, CV MSE."""
     X = design(feats, players, lineups)
     y = feats[TARGET].to_numpy(dtype=float)
     w = feats["possessions"].to_numpy(dtype=float)
@@ -323,6 +322,14 @@ def select(pairs: list[dict]) -> tuple[str, dict]:
 # ── the run ────────────────────────────────────────────────────────────────────────────────────────
 def run(feats: pd.DataFrame, heldout_season: str, seed: int = 0, n_boot: int = 200, gate: int = GATE_POSS, min_poss: int = MIN_POSS_EVAL,
         n_folds: int = 5, alphas=ALPHAS, out_root=None) -> dict:
+    """The season-split protocol on a feature frame -> context dict (pairs, selection, held-out scores, written paths).
+    Every ridge solve and refit runs inside analytics.eval.fit_threads() (one context for the whole run)."""
+    with fit_threads():
+        return _run(feats, heldout_season, seed, n_boot, gate, min_poss, n_folds, alphas, out_root)
+
+
+def _run(feats: pd.DataFrame, heldout_season: str, seed: int, n_boot: int, gate: int, min_poss: int, n_folds: int, alphas,
+         out_root) -> dict:
     seasons = sorted(map(str, feats["season"].unique()), key=season_key)
     train_seasons = [s for s in seasons if season_key(s) < season_key(heldout_season)]
     ignored = [s for s in seasons if season_key(s) > season_key(heldout_season)]
@@ -381,6 +388,7 @@ def player_teams(feats: pd.DataFrame) -> dict:
 
 def write_tables(out_root, season: str, season_feats: pd.DataFrame, fit_feats: pd.DataFrame, fits: dict, gate: int, n_boot: int, seed: int,
                  in_sample: bool) -> list[str]:
+    """Write lineup_ratings and player_rapm of one output season; returns the paths."""
     d = out_dir(out_root, season)
     lt = lineup_table(season_feats, n_boot=n_boot, seed=seed)
     pred = predict_lineups(fits, lt["lineup_id"])
@@ -415,33 +423,29 @@ def write_player_rapm(path: Path, season: str, season_feats: pd.DataFrame, fit_f
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=3) -> str:
+def _rel(path: str, root) -> str:
+    """path relative to root (OUT_ROOT) when it lies under it, as written otherwise."""
+    if root is None:
+        return str(path)
     try:
-        return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-    except TypeError:
-        return "n/a"
-
-
-def _ci(d) -> str:
-    if d is None or not np.isfinite(d.get("point", np.nan)):
-        return "n/a"
-    if not np.isfinite(d["lo"]):
-        return _f(d["point"])
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
+        return Path(path).relative_to(Path(root)).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def write_report(path: Path, ctx: dict) -> str:
+    """Write the markdown report to path and return its text; on fixtures every section heading says fixture output."""
     fx = ctx["fixture"]
     tag = " (fixture output, not a result)" if fx else ""
-    L = ["# Lineup synergy and stints (analytics/lineups)", "",
+    L = ["# Lineup synergy and stints (analytics/lineups)%s" % tag, "",
          "Written %s by `%s`." % (ctx["written_at"], ctx["command"]), ""]
     if fx:
-        L += ["**This run used the synthetic fixture generator %s. Every number below is fixture output, not a result.** "
+        L += ["**Fixture output, not a result.** This run used the synthetic fixture generator %s; every number below is fixture output. "
               "The real run is the Mac command at the end." % ctx["generator"], ""]
     L += ["## Inputs%s" % tag, "", "| item | value |", "| --- | --- |"]
     for k, v in ctx["inputs"].items():
         L.append("| %s | %s |" % (k, v))
-    L += ["", "## Protocol", "",
+    L += ["", "## Protocol%s" % tag, "",
           "Unit: stint; target: (points_home - points_away) / possessions x 100 with possessions = duration_s / 28.8 when the table has no count "
           "(100 per team per 48 minutes). Candidates: plus_minus (raw net rating pooled over the fitting seasons), rapm (possession-weighted ridge "
           "on player indicators, alpha by grouped CV by game over %s), rapm_synergy (rapm plus ridge-penalised indicators for five-man lineups with at "
@@ -461,15 +465,15 @@ def write_report(path: Path, ctx: dict) -> str:
         for c in CANDIDATES:
             m = p["metrics"][c]
             pv = m.get("spearman_vs_plus_minus")
-            pvs = "baseline" if pv is None else "%s [%s, %s]%s" % (_f(pv["diff"]), _f(pv["lo"]), _f(pv["hi"]), " (excludes 0)" if pv["excludes_zero"] else "")
-            L.append("| %s | %s | %s | %s |" % (c, _ci(m["spearman"]), _ci(m["mse"]), pvs))
+            pvs = "baseline" if pv is None else "%s [%s, %s]%s" % (fmt_num(pv["diff"]), fmt_num(pv["lo"]), fmt_num(pv["hi"]), " (excludes 0)" if pv["excludes_zero"] else "")
+            L.append("| %s | %s | %s | %s |" % (c, fmt_ci(m["spearman"]), fmt_ci(m["mse"]), pvs))
         L.append("")
-    L += ["Mean validation Spearman: %s. Selected: **%s**." % (", ".join("%s %s" % (c, _f(v)) for c, v in ctx["mean_spearman"].items()), ctx["selected"]), "",
+    L += ["Mean validation Spearman: %s. Selected: **%s**." % (", ".join("%s %s" % (c, fmt_num(v)) for c, v in ctx["mean_spearman"].items()), ctx["selected"]), "",
           "## Out-of-season correlation of raw lineup net rating%s" % tag, "",
           "| from | to | lineups | Pearson | Spearman |", "| --- | --- | --- | --- | --- |"]
     for r in ctx["cross_season"].itertuples():
         held = " (held-out season: descriptive, scored once below, not used for selection)" if r.season_to == ctx["heldout_season"] else ""
-        L.append("| %s | %s%s | %d | %s | %s |" % (r.season_from, r.season_to, held, r.n_lineups, _f(r.pearson), _f(r.spearman)))
+        L.append("| %s | %s%s | %d | %s | %s |" % (r.season_from, r.season_to, held, r.n_lineups, fmt_num(r.pearson), fmt_num(r.spearman)))
     L += ["", "Seasons later than the held-out season are not in this table; the held-out row is labelled."]
     L += ["", "## Held-out season, scored once%s" % tag, ""]
     h = ctx.get("heldout")
@@ -478,7 +482,7 @@ def write_report(path: Path, ctx: dict) -> str:
     else:
         L += ["Season %s scored once by the selected candidate refitted on %s: %d lineups present in both, %d gated lineups, %d players, alpha rapm %g, alpha synergy %g, home court (rapm intercept) %s per 100."
               % (ctx["heldout_season"], ", ".join(ctx["final"]["fit_seasons"]), h["n_lineups"], ctx["final"]["n_gated"], ctx["final"]["n_players"],
-                 ctx["final"]["alpha_rapm"], ctx["final"]["alpha_synergy"], _f(ctx["final"]["home_court_rapm"], 2)), "",
+                 ctx["final"]["alpha_rapm"], ctx["final"]["alpha_synergy"], fmt_num(ctx["final"]["home_court_rapm"], 2)), "",
               "Only the candidate selected on the training seasons is scored here; plus_minus is shown as the labelled floor "
               "(not a comparison, no paired test): the other candidates are never scored on the held-out season.", "",
               "| candidate | Spearman | MSE |", "| --- | --- | --- |"]
@@ -487,10 +491,10 @@ def write_report(path: Path, ctx: dict) -> str:
                 continue
             m = h["metrics"][c]
             mark = " (selected)" if c == ctx["selected"] else " (floor)"
-            L.append("| %s%s | %s | %s |" % (c, mark, _ci(m["spearman"]), _ci(m["mse"])))
-    L += ["", "## Outputs", ""]
-    L += ["- " + w for w in ctx["written"]] or ["No tables written (pass --out OUT_ROOT)."]
-    L += ["", "## Status and the Mac command", ""]
+            L.append("| %s%s | %s | %s |" % (c, mark, fmt_ci(m["spearman"]), fmt_ci(m["mse"])))
+    L += ["", "## Outputs (relative to OUT_ROOT)%s" % tag, ""]
+    L += ["- " + _rel(w, ctx.get("out_root")) for w in ctx["written"]] or ["No tables written (pass --out OUT_ROOT)."]
+    L += ["", "## Status and the Mac command%s" % tag, ""]
     if fx:
         L.append("Fixture run: the pipeline is exercised end to end on synthetic stints with hidden ratings and a lineup interaction; nothing here is a result.")
     else:
@@ -507,26 +511,26 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The CLI's arguments."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
+    g.add_argument("--fixtures", action="store_true", help="synthetic stints (fixture output, not a result)")
     g.add_argument("--data", help="DATA_ROOT")
-    ap.add_argument("--report", default="reports/lineups.md")
+    ap.add_argument("--report", default="reports/lineups.md", help="markdown report path (default %(default)s)")
     ap.add_argument("--out", help="OUT_ROOT for the tables (default DATA_ROOT; none for --fixtures without it)")
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
+    ap.add_argument("--seed", type=int, default=0, help="seed of the fixtures and the bootstrap (default %(default)s)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples (default %(default)s)")
     ap.add_argument("--heldout-season", default=None, help="default 2024-25 (--data) or the last fixture season (--fixtures)")
-    ap.add_argument("--gate", type=int, default=GATE_POSS)
-    ap.add_argument("--min-poss", type=int, default=MIN_POSS_EVAL)
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
-    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
-    ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
-                    help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
+    ap.add_argument("--gate", type=int, default=GATE_POSS, help="possession gate of the lineup terms and the insufficient flag (default %(default)s)")
+    ap.add_argument("--min-poss", type=int, default=MIN_POSS_EVAL, help="possessions a lineup needs on both sides of a validation pair (default %(default)s)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by game for the ridge alpha (default %(default)s)")
+    ap.add_argument("--seasons", nargs="*", default=list(SEASONS), help="--data only: seasons to read (default %(default)s)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Validate, build the features, run the protocol, write the tables under OUT_ROOT and the report."""
     from analytics.lineups.eda import cross_season_correlation
     a = parse_args(argv)
     inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
@@ -537,7 +541,7 @@ def main(argv=None) -> dict:
     heldout = a.heldout_season or (FIXTURE_SEASONS[-1] if a.fixtures else "2024-25")
     out_root = a.out or (a.data if not a.fixtures else None)
     ctx = run(feats, heldout, a.seed, a.bootstrap, a.gate, a.min_poss, a.folds, ALPHAS, out_root)
-    ctx.update({"fixture": inputs["fixture"], "generator": inputs["generator"], "alphas": ALPHAS, "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    ctx.update({"fixture": inputs["fixture"], "generator": inputs["generator"], "out_root": out_root, "alphas": ALPHAS, "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "command": "python -m analytics.lineups.train " + " ".join(argv if argv is not None else sys.argv[1:]),
                 "cross_season": cross_season_correlation(feats[feats["season"].astype(str).isin(ctx["train_seasons"] + ([heldout] if ctx["heldout_season"] else []))],
                                                         min_poss=a.min_poss),

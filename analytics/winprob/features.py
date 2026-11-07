@@ -1,6 +1,7 @@
 """analytics/winprob/features.py: the time-forward state frame of the live win probability model.
 
     python -m analytics.winprob.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+        [--fixture-games 20] [--fixture-seasons 2020-21,2021-22]
 
 One row per play-by-play event (docs/DATA_CONTRACT.md sections 5 and 13). Every feature of a row is a
 function of the events of the same game up to and including that event, the pre-game odds table and
@@ -45,7 +46,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -67,6 +67,7 @@ BUCKETS = (("48-36", 36 * 60, 48 * 60 + 1), ("36-24", 24 * 60, 36 * 60), ("24-12
            ("12-4", 4 * 60, 12 * 60), ("4-0", 0, 4 * 60))
 BUCKET_NAMES = tuple(b[0] for b in BUCKETS) + ("OT",)
 SEASONS = ("2020-21", "2021-22", "2022-23", "2023-24", "2024-25")
+FIXTURE_SEASONS = ("2020-21", "2021-22")
 FT_RE = re.compile(r"(\d+)\s+of\s+(\d+)")
 SCORE_RE = re.compile(r"^\s*(\d+)\s*-\s*(\d+)\s*$")
 
@@ -110,6 +111,7 @@ def parse_score(s):
 
 
 def seconds_remaining(period, clock_s) -> np.ndarray:
+    """Seconds left in regulation for periods 1 to 4, the overtime clock itself after that."""
     p = np.asarray(period, dtype=int)
     c = np.asarray(clock_s, dtype=float)
     reg = (REGULATION_PERIODS - np.clip(p, 1, REGULATION_PERIODS)) * PERIOD_S + c
@@ -388,14 +390,28 @@ def load_data(data_root, seasons=SEASONS) -> dict:
             "odds": pd.concat(odds, ignore_index=True) if odds else None, "files": files, "team_names": {}}
 
 
-def load_fixtures(seed: int = 0, n_games: int = 20, seasons=("2020-21", "2021-22")) -> dict:
-    """The shared synthetic fixtures (tests/_fx_winprob.py) in the load_data layout."""
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from tests._fx_winprob import synth_odds, synth_stints, team_names
+def load_fixtures(seed: int = 0, n_games: int = 20, seasons=FIXTURE_SEASONS) -> dict:
+    """The synthetic play-by-play, games and odds of analytics.fixtures (synth_stints, synth_odds) in the load_data
+    layout, with the fixture team-name map the spread join needs. Fixture output, not a result."""
+    from analytics.fixtures import synth_odds, synth_stints
     d = synth_stints(seed, n_games=n_games, seasons=tuple(seasons))
     odds = synth_odds(seed, d["games"])
     return {"playbyplay": d["playbyplay"], "games": d["games"], "odds": odds, "files": ["<fixtures seed %d>" % seed],
-            "team_names": team_names(d["games"])}
+            "team_names": _betting.fixture_team_names(d["games"])}
+
+
+def add_fixture_args(ap, seasons: str = ",".join(FIXTURE_SEASONS)) -> None:
+    """The fixture knobs every winprob CLI shares: --fixture-games (games per season) and --fixture-seasons."""
+    ap.add_argument("--fixture-games", type=int, default=20, help="with --fixtures: games per fixture season (default 20)")
+    ap.add_argument("--fixture-seasons", default=seasons, help="with --fixtures: fixture seasons, comma separated "
+                    "(default %s)" % seasons)
+
+
+def load_args(a) -> dict:
+    """The inputs a parsed CLI asks for: load_fixtures with the fixture knobs under --fixtures, else load_data."""
+    if a.fixtures:
+        return load_fixtures(a.seed, n_games=a.fixture_games, seasons=tuple(s for s in a.fixture_seasons.split(",") if s))
+    return load_data(a.data)
 
 
 def write_states(states: pd.DataFrame, out_root) -> list:
@@ -411,18 +427,22 @@ def write_states(states: pd.DataFrame, out_root) -> list:
 
 
 def parse_args(argv=None):
+    """The features CLI: --fixtures or --data, with --out, --seed and the fixture knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true", help="build from the synthetic fixtures")
+    src.add_argument("--fixtures", action="store_true", help="build from the synthetic fixtures of analytics.fixtures "
+                     "(fixture output, not a result)")
     src.add_argument("--data", help="DATA_ROOT with collect/stints/playbyplay/<season>.parquet")
     ap.add_argument("--out", default=None, help="OUT_ROOT; the states table goes under OUT_ROOT/analytics/winprob/<season>/")
-    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default 0)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Build the state frame from the command line, print a JSON summary and, with --out, write it."""
     a = parse_args(argv)
-    d = load_fixtures(a.seed) if a.fixtures else load_data(a.data)
+    d = load_args(a)
     states = build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
     summary = {"rows": int(len(states)), "games": int(states["game_id"].nunique()),
                "seasons": sorted(states["season"].unique().tolist()), "features": feature_columns(),

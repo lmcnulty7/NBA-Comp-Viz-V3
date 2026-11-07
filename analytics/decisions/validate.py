@@ -1,6 +1,6 @@
 """analytics/decisions/validate.py: inputs of the decision-quality lane, validated.
 
-    python -m analytics.decisions.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
+    python -m analytics.decisions.validate --fixtures [--fixture-games 8] | --data DATA_ROOT [--out OUT_ROOT] [--season 2015-16]
 
 A game is carried as a bundle: dict(sportvu_game, heldout, frames, events, shot_frames, rebound_frames,
 possessions, states_1hz, rosters, epv, xfg). frames and events are the section 4 and 5 tables; the five
@@ -19,19 +19,18 @@ the game); duplicates ((frame, player_id) in frames, possession ids, shot events
 missing values counted (frames without a ball, possessions without an offence). Nothing is modified on disk.
 
 Assumption: a held-out game is one written under heldout/, or whose id carries a held-out token of
-sportvu/splits.json; the flag follows the bundle so train.py never fits on it.
+sportvu/splits.json (analytics.eval.is_heldout_game); the flag follows the bundle so train.py never fits on it.
 """
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
-from analytics import schema
+from analytics import fixtures, schema
+from analytics.eval import is_heldout_game
 
 PHASE0_TABLES = ("rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz")
 FRAME_COLUMNS = ["frame", "period", "game_clock_s", "ball_x", "ball_y", "ball_z", "team_id", "home", "player_id", "x", "y"]
@@ -49,29 +48,9 @@ def _analytics_roots(out_root: Path, data_root: Path) -> list:
     return roots if roots[0].resolve() != roots[1].resolve() else roots[:1]
 
 
-# ── held-out ───────────────────────────────────────────────────────────────────────────────────────
-def is_heldout_id(sportvu_game: str) -> bool:
-    """True when the game id carries a held-out token of sportvu/splits.json (or the held-out arena suffix)."""
-    from sportvu import splits
-    toks = splits.heldout_tokens()
-    g = str(sportvu_game)
-    return any(t in g for t in toks) or g.endswith(".at." + splits.HELDOUT_ARENA)
-
-
 # ── loading ────────────────────────────────────────────────────────────────────────────────────────
-def _fixture_module():
-    try:
-        from analytics import fixtures as fx  # type: ignore
-        return fx
-    except ImportError:
-        root = Path(__file__).resolve().parents[2]
-        if str(root) not in sys.path:
-            sys.path.insert(0, str(root))
-        from tests import _fx_decisions as fx  # type: ignore
-        return fx
-
-
 def _as_bundle(game: dict, name=None, heldout=None) -> dict:
+    """A generator or DATA_ROOT game dict as a lane bundle (the keys listed in the module docstring)."""
     meta = game.get("meta") or {}
     if heldout is None:
         heldout = game.get("heldout", meta.get("heldout", False))
@@ -85,32 +64,23 @@ def _as_bundle(game: dict, name=None, heldout=None) -> dict:
 
 def load_fixture_bundles(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_possessions: int = 40,
                          season_fn=None) -> list:
-    """Synthetic games from analytics.fixtures when present, else tests/_fx_decisions (same signatures).
-    season_fn overrides the generator: any synth_season(seed, n_games, heldout_every[, n_possessions])."""
-    fn = season_fn or _fixture_module().synth_season
-    try:
-        season = fn(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
-    except TypeError:
-        season = fn(seed, n_games=n_games, heldout_every=heldout_every)
-    if isinstance(season, dict):
-        season = [dict(g, sportvu_game=g.get("sportvu_game", k)) for k, g in season.items()]
-    out = []
-    for i, g in enumerate(season):
-        b = _as_bundle(g)
-        if n_possessions and len(b["possessions"]) > n_possessions:   # the shared generator may ignore the count
-            keep = b["possessions"]["possession"] < n_possessions
-            b["possessions"] = b["possessions"][keep].reset_index(drop=True)
-        out.append(b)
-    return out
+    """Synthetic games from analytics.fixtures.synth_season (fixture output, never a result). season_fn overrides
+    the generator: any synth_season(seed, n_games=, heldout_every=, n_possessions=) returning a list of game dicts."""
+    fn = season_fn or fixtures.synth_season
+    season = fn(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
+    return [_as_bundle(g) for g in season]
 
 
 def _read(path: Path, columns=None):
+    """The parquet file at path (None when absent). With columns, a file that lacks one of the optional columns is
+    read whole: only that schema mismatch is retried, any other fault (a corrupt file, a missing engine) raises."""
     if not path.exists():
         return None
-    try:
-        return pd.read_parquet(path, columns=columns)
-    except Exception:  # noqa: BLE001  (a column subset the file lacks: read everything)
+    if columns is None:
         return pd.read_parquet(path)
+    import pyarrow.parquet as pq
+    present = set(pq.read_schema(path).names)
+    return pd.read_parquet(path, columns=[c for c in columns if c in present])
 
 
 def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, games=None, log=None) -> list:
@@ -130,7 +100,7 @@ def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, ga
         found = [(g, h) for g, h in found if g in set(games)]
     bundles = []
     for g, held in found:
-        held = held or is_heldout_id(g)
+        held = held or is_heldout_game(g)
         sv = data_root / "sportvu_contract" / ("heldout" if held else "")
         frames = _read(sv / (g + ".parquet"), FRAME_COLUMNS + FRAME_OPTIONAL)
         if frames is None:
@@ -244,6 +214,7 @@ def validate_bundle(bundle: dict) -> tuple[dict, dict]:
 
 
 def validate_bundles(bundles: list) -> tuple[list, list]:
+    """validate_bundle on each bundle -> (cleaned bundles, reports), in input order."""
     cleaned, reports = [], []
     for b in bundles:
         c, r = validate_bundle(b)
@@ -253,6 +224,7 @@ def validate_bundles(bundles: list) -> tuple[list, list]:
 
 
 def summary_lines(reports: list) -> list:
+    """One printable line per game report, then one indented line per schema problem."""
     L = []
     for r in reports:
         probs = sum(len(v) for v in r["schema"].values())
@@ -270,24 +242,36 @@ def summary_lines(reports: list) -> list:
 
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
+def add_fixture_args(ap: argparse.ArgumentParser, n_games: int = 8, n_possessions: int = 40, heldout_every: int = 4) -> None:
+    """The fixture knobs every CLI of the lane takes: canonical --fixture-* spellings, the older ones kept as aliases."""
+    ap.add_argument("--fixture-games", "--n-games", dest="n_games", type=int, default=n_games,
+                    help="fixture: number of synthetic games (default %(default)s)")
+    ap.add_argument("--fixture-possessions", "--n-possessions", dest="n_possessions", type=int, default=n_possessions,
+                    help="fixture: possessions per synthetic game (default %(default)s)")
+    ap.add_argument("--fixture-heldout-every", "--heldout-every", dest="heldout_every", type=int, default=heldout_every,
+                    help="fixture: every k-th synthetic game is held out, 0 for none (default %(default)s)")
+
+
 def parse_args(argv=None):
+    """The validate CLI's arguments."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true")
+    ap.add_argument("--fixtures", action="store_true", help="validate synthetic games from analytics.fixtures")
     ap.add_argument("--data", help="DATA_ROOT")
     ap.add_argument("--out", help="OUT_ROOT (upstream lanes' outputs; default DATA_ROOT)")
-    ap.add_argument("--season", default=DEFAULT_SEASON)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=8)
+    ap.add_argument("--season", default=DEFAULT_SEASON, help="season directory under DATA_ROOT/analytics (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    add_fixture_args(ap)
     ap.add_argument("--json", help="write the per-game report here")
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> list:
+    """Load, validate and print the per-game reports; returns them."""
     a = parse_args(argv)
     if not a.fixtures and not a.data:
         raise SystemExit("validate: pass --fixtures or --data DATA_ROOT")
     log = []
-    bundles = load_fixture_bundles(a.seed, a.n_games) if a.fixtures else load_root_bundles(a.data, a.season, a.out, log=log)
+    bundles = load_fixture_bundles(a.seed, a.n_games, a.heldout_every, a.n_possessions) if a.fixtures else load_root_bundles(a.data, a.season, a.out, log=log)
     _, reports = validate_bundles(bundles)
     for line in log + summary_lines(reports):
         print(line)

@@ -1,6 +1,7 @@
 """analytics/epv/features.py: the time-forward EPV feature frame from states_1hz (docs/DATA_CONTRACT.md section 20).
 
-    python -m analytics.epv.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+    python -m analytics.epv.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--fixture-games 4]
+                                     [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 The only source of columns is ``analytics.schema.feature_allowlist("states_1hz")``: ``build_features`` reads nothing
 else from the states table, the targets (points_to_end, possession_end_kind) never enter, and the returned frame
@@ -38,7 +39,6 @@ mid 14 to 22, three >= 22. ``lagged`` builds the last-N-states view the gated se
 from __future__ import annotations
 
 import argparse
-import sys
 import tempfile
 from pathlib import Path
 
@@ -46,7 +46,6 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.epv import season_of
 
 BASKETS = np.array([[5.25, 25.0], [88.75, 25.0]])
 HALF_X = 47.0
@@ -70,12 +69,13 @@ def feature_columns() -> list:
 
 
 def zone_of(dist) -> np.ndarray:
+    """The shot zone (rim, paint, mid, three) of each distance in feet (ZONE_EDGES)."""
     d = np.asarray(dist, dtype=float)
     return np.asarray(ZONES, dtype=object)[np.searchsorted(np.asarray(ZONE_EDGES), d, side="right")]
 
 
 def _hull_area(px: np.ndarray, py: np.ndarray) -> np.ndarray:
-    """Convex-hull area per row of five points (monotone chain; 0 for collinear or degenerate sets)."""
+    """Convex-hull area per row of five points (scipy ConvexHull; 0 for collinear or degenerate sets, NaN with a missing point)."""
     from scipy.spatial import ConvexHull, QhullError
     out = np.zeros(len(px))
     pts = np.stack([px, py], axis=2)
@@ -149,7 +149,6 @@ def geometry(states: pd.DataFrame) -> pd.DataFrame:
     t = out["elapsed_in_possession_s"].to_numpy()
     order = np.lexsort((t, keys["possession"].to_numpy(), keys["sportvu_game"].astype(str).to_numpy()))
     grp = pd.DataFrame({"g": keys["sportvu_game"].astype(str).to_numpy()[order], "p": keys["possession"].to_numpy()[order]})
-    gb = grp.groupby(["g", "p"], sort=False)
     bd = pd.Series(out["ball_dist_basket"].to_numpy()[order])
     mn = bd.groupby([grp["g"].to_numpy(), grp["p"].to_numpy()], sort=False).cummin().to_numpy()
     hs = pd.Series(hid[order])
@@ -162,7 +161,6 @@ def geometry(states: pd.DataFrame) -> pd.DataFrame:
     tmp2 = np.empty(n)
     tmp2[order] = nsw
     out["n_handler_switches"] = tmp2
-    del gb
     # auxiliary columns the priors read (dropped by build_features): underscore-prefixed, never features
     out["_side"], out["_hx"], out["_hy"], out["_handler_id"] = side, hx, hy, hid
     out["_lineup"] = ["-".join(str(int(v)) for v in row) for row in oid]
@@ -183,6 +181,7 @@ def shooter_id(shots: pd.DataFrame, rosters: pd.DataFrame | None) -> pd.Series:
 
 
 def shot_distance(shots: pd.DataFrame) -> np.ndarray:
+    """Shot distance in feet: shot_distance_ft where given, else the length of (loc_x, loc_y) in tenths of a foot."""
     d = np.hypot(shots["loc_x"].to_numpy(dtype=float), shots["loc_y"].to_numpy(dtype=float)) / 10.0
     if "shot_distance_ft" in shots.columns:
         s = pd.to_numeric(shots["shot_distance_ft"], errors="coerce").to_numpy(dtype=float)
@@ -245,6 +244,7 @@ class Priors:
 
     @classmethod
     def from_training(cls, states_train: pd.DataFrame, shots_train: pd.DataFrame | None, rosters: pd.DataFrame | None) -> "Priors":
+        """Priors from the training states, the shots of those games and the rosters (shooter ids)."""
         games = set(states_train["sportvu_game"].astype(str))
         sh = shooter_stats(shots_train[shots_train["sportvu_game"].astype(str).isin(games)], rosters) if shots_train is not None and len(shots_train) else shooter_stats(None, rosters)
         ln = lineup_stats(states_train)
@@ -332,20 +332,22 @@ def lagged(feats: pd.DataFrame, n_lags: int = 5, columns: list | None = None) ->
 
 
 def lagged_columns(n_lags: int = 5, columns: list | None = None) -> list:
+    """The column names lagged() adds, after the base columns, in the order the sequence model is fed."""
     cols = list(columns or FEATURES)
     return cols + ["%s_lag%d" % (c, k) for k in range(1, n_lags) for c in cols]
 
 
 # ── CLI ────────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The features CLI flags."""
+    from analytics.epv.validate import add_fixture_args
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
-    g.add_argument("--data")
+    g.add_argument("--fixtures", action="store_true", help="the synthetic season of analytics.fixtures (fixture output)")
+    g.add_argument("--data", help="DATA_ROOT (see analytics.epv.validate)")
     ap.add_argument("--out", help="OUT_ROOT: analytics/epv_features/<season>/<game>.parquet (held-out under heldout/)")
-    ap.add_argument("--season", default=None)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=4)
+    ap.add_argument("--season", default=None, help="only this season directory, e.g. 2015-16 (default: every season)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
@@ -353,8 +355,7 @@ def main(argv=None) -> list:
     """Writes the geometric features (priors are fold-dependent, so they are NaN here and filled by the trainer)."""
     from analytics.epv import validate as V
     a = parse_args(argv)
-    tables = V.load_fixtures(a.seed, n_games=a.games) if a.fixtures else V.load_root(a.data, a.season, out_root=a.out)
-    clean, _reports = V.validate_all(tables)
+    clean, _reports = V.validate_all(V.load_inputs(a))
     st = clean["states_1hz"]
     if st is None or len(st) == 0:
         raise SystemExit("features: no states_1hz rows")
@@ -364,7 +365,7 @@ def main(argv=None) -> list:
     held = st.set_index(KEYS)["heldout"] if "heldout" in st.columns else None
     for game, part in feats.groupby("sportvu_game", sort=True):
         h = bool(held.loc[game].iloc[0]) if held is not None else False
-        path = out_root / "analytics" / "epv_features" / ("heldout" if h else "") / season_of(game) / ("%s.parquet" % game)
+        path = out_root / "analytics" / "epv_features" / ("heldout" if h else "") / schema.season_of_game(game) / ("%s.parquet" % game)
         path.parent.mkdir(parents=True, exist_ok=True)
         part.to_parquet(path, index=False)
         written.append(path)

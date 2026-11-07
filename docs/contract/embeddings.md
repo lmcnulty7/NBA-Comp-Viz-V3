@@ -118,7 +118,12 @@ the embedding.
 
     python -m analytics.embeddings.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.embeddings.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--n-min 300]
-    python -m analytics.embeddings.train --fixtures [--local-fixtures] | --data DATA_ROOT --report reports/embeddings.md [--out OUT_ROOT] [--seed 0] [--bootstrap 200]
+    python -m analytics.embeddings.train --fixtures | --data DATA_ROOT --report reports/embeddings.md [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200]
 
-A fixture run writes its tables under a temporary directory unless `--out` is given; nothing under `--fixtures`
-is a result.
+Fixture flags (every embeddings CLI): `--fixture-games 8`, `--fixture-possessions 40`, `--fixture-heldout-every 4`
+(`--n-games` and `--heldout-every` are kept as aliases). A fixture run writes the `analytics.fixtures` DATA_ROOT
+(`write_fixture_root`: league rosters, with aggregates and positions keyed by the same players, so both metrics
+run) under a temporary directory and loads it through `load_inputs`; it writes its tables under a temporary
+directory unless `--out` is given; nothing under `--fixtures` is a result. The season of a game is
+`analytics.schema.season_of_game` (the July rule); held-out ids are `analytics.eval.is_heldout_game`. Production
+code never imports `tests/`.

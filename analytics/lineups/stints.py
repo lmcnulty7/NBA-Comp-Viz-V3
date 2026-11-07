@@ -40,12 +40,11 @@ from __future__ import annotations
 import argparse
 import re
 import zlib
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from analytics.lineups import FIXTURE_GAMES, PLAYER_COLUMNS, SEASONS, load_inputs, out_dir
+from analytics.lineups import PLAYER_COLUMNS, SEASONS, add_fixture_args, load_inputs, out_dir
 
 PERIOD_S, OT_S = 720.0, 300.0
 ENDPOINT = "playbyplay+substitutions"
@@ -62,6 +61,7 @@ def elapsed_s(period: int, clock_s: float) -> float:
 
 
 def period_of(elapsed: float) -> int:
+    """The period of a game-elapsed second (5 and up for overtimes)."""
     if elapsed < 4 * PERIOD_S:
         return int(elapsed // PERIOD_S) + 1
     return 5 + int((elapsed - 4 * PERIOD_S) // OT_S)
@@ -389,6 +389,7 @@ def build_stints(playbyplay: pd.DataFrame, games: pd.DataFrame | None = None, st
 
 
 def summarize(stints: pd.DataFrame) -> dict:
+    """Stint and game counts, the lineup_ok share and the summed points of a stints table."""
     if len(stints) == 0:
         return {"stints": 0, "games": 0, "lineup_ok_share": float("nan")}
     return {"stints": int(len(stints)), "games": int(stints["game_id"].nunique()),
@@ -397,20 +398,20 @@ def summarize(stints: pd.DataFrame) -> dict:
 
 
 def parse_args(argv=None):
+    """The CLI's arguments."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true")
+    g.add_argument("--fixtures", action="store_true", help="synthetic stints (fixture output, not a result)")
     g.add_argument("--data", help="DATA_ROOT")
     ap.add_argument("--out", help="OUT_ROOT (default DATA_ROOT; nothing is written for --fixtures without it)")
-    ap.add_argument("--seasons", nargs="*", default=list(SEASONS))
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--n-games", type=int, default=None, help="--fixtures only: games per fixture season (default %d)" % FIXTURE_GAMES)
-    ap.add_argument("--fixture-generator", choices=("auto", "shared", "local"), default="auto",
-                    help="--fixtures only: analytics.fixtures.synth_stints (shared), the tests/_fx_lineups fallback (local), or shared when importable (auto)")
+    ap.add_argument("--seasons", nargs="*", default=list(SEASONS), help="--data only: seasons to read (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> dict:
+    """Build stints from the fixture or DATA_ROOT play-by-play, write them per season under OUT_ROOT and print a summary."""
     a = parse_args(argv)
     inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
     stints = build_stints(inputs["playbyplay"], inputs["games"], inputs["starters"])

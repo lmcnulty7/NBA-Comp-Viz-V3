@@ -1,7 +1,8 @@
 """analytics.lineups: stints from substitutions, validation, features, the season-split guard, end-to-end training.
 
-Runs on the local fallback generator of tests/_fx_lineups.py (fixed rosters, repeating lineups, hidden ratings and
-a lineup interaction); the shared generator, when importable, is exercised by the builder and validate tests only.
+Runs mostly on the lane's own synthetic generator (analytics/lineups/synthetic.py: fixed rosters, a starters table,
+recoverable hidden ratings and lineup synergies); the shared generator (analytics.fixtures.synth_stints) is exercised
+by the builder test and an end-to-end run.
 Fixture numbers are never results.
 """
 from __future__ import annotations
@@ -164,7 +165,7 @@ def test_builder_reproduces_the_fixture_stints():
     assert (m["score_home"] == m["score_home_t"]).all()
 
 
-def test_builder_runs_on_the_shared_generator_when_present():
+def test_builder_runs_on_the_shared_generator():
     d = fx.synth_stints(1, n_games=2, seasons=("2020-21",))
     st = S.build_stints(d["playbyplay"], d["games"])
     assert len(st) and st["lineup_ok"].mean() > 0.5
@@ -332,11 +333,11 @@ def test_train_end_to_end_on_the_local_fixture(tmp_path):
     assert "Spearman minus plus_minus" in text.split("## Held-out season")[0] and "Spearman minus plus_minus" not in text.split("## Held-out season")[1]
 
 
-def test_train_runs_on_the_shared_generator_when_present(tmp_path):
-    """The shared generator (analytics.fixtures.synth_stints, when importable) draws a fresh five per stint, so no
-    lineup repeats across seasons: the trainer must still run, score what it can and fall back to plus_minus."""
+def test_train_runs_on_the_shared_generator(tmp_path):
+    """The shared generator (analytics.fixtures.synth_stints, the default) returns to each team's starting five, with
+    weak player ratings: the trainer must run end to end on it, under the canonical --fixture-games spelling."""
     report = tmp_path / "shared.md"
-    ctx = T.main(["--fixtures", "--fixture-generator", "auto", "--n-games", "8", "--report", str(report), "--out", str(tmp_path),
+    ctx = T.main(["--fixtures", "--fixture-generator", "auto", "--fixture-games", "8", "--report", str(report), "--out", str(tmp_path),
                   "--bootstrap", "10", "--folds", "3"])
     assert ctx["fixture"] and ctx["selected"] in T.CANDIDATES and "fixture output, not a result" in report.read_text()
     assert ctx["inputs"]["source"].startswith("fixture generator ")
@@ -458,9 +459,9 @@ def test_eda_tables():
     assert cs.columns.tolist() == ["season_from", "season_to", "n_lineups", "pearson", "spearman"] and len(cs) == 1
 
 
-def test_fallback_fixture_is_deterministic_and_well_formed():
-    a = fx._fallback_synth_stints(5, n_games=3, seasons=("2021-22",))
-    b = fx._fallback_synth_stints(5, n_games=3, seasons=("2021-22",))
+def test_local_fixture_is_deterministic_and_well_formed():
+    a = fx.synth_stints_local(5, n_games=3, seasons=("2021-22",))
+    b = fx.synth_stints_local(5, n_games=3, seasons=("2021-22",))
     pd.testing.assert_frame_equal(a["stints"], b["stints"])
     pd.testing.assert_frame_equal(a["playbyplay"], b["playbyplay"])
     st = a["stints"]
@@ -480,3 +481,16 @@ def test_no_em_dash_in_lane_files():
                                                                      ROOT / "notebooks" / "eda_lineups.ipynb"]
     bad = [str(p) for p in files if p.exists() and chr(0x2014) in p.read_text()]
     assert not bad, bad
+
+
+def test_fixture_flags_and_production_never_imports_tests():
+    """--fixture-games and its alias --n-games set the same knob on every CLI; no lane module imports tests/."""
+    for mod in (S, V, F, T):
+        a = mod.parse_args(["--fixtures", "--fixture-games", "3"])
+        b = mod.parse_args(["--fixtures", "--n-games", "3"])
+        assert a.n_games == b.n_games == 3 and a.fixture_generator == "auto"
+    for p in (ROOT / "analytics" / "lineups").glob("*.py"):
+        import ast
+        mods = [n.module or "" for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.ImportFrom)]
+        mods += [a.name for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.Import) for a in n.names]
+        assert not [m for m in mods if m == "tests" or m.startswith("tests.")], p

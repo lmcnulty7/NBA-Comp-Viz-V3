@@ -1,10 +1,12 @@
 """analytics/epv/states.py: the section 20 states_1hz table from frames (section 4) and possessions (section 19).
 
-    python -m analytics.epv.states --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--tol 0.5]
+    python -m analytics.epv.states --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--tol 0.5] [--fixture-games 4]
+                                   [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 writes OUT_ROOT/analytics/states_1hz/<season>/<game>.parquet (held-out games under heldout/<season>/) for every game
 that has a possessions file and a frames file. With --data, OUT_ROOT defaults to DATA_ROOT; with --fixtures the
-synthetic season of tests/_fx_epv.py is built and written under a scratch directory (never into the repo).
+synthetic season of analytics.fixtures is built in memory and written under a scratch directory (never into the
+repo). <season> is analytics.schema.season_of_game.
 
 Rules (docs/DATA_CONTRACT.md section 20) and the assumptions taken where it is silent:
   - one row per possession per whole second of elapsed play: elapsed is measured on the game clock
@@ -25,7 +27,6 @@ The returned frame carries the contract dtypes (analytics.schema.cast) and ``att
 from __future__ import annotations
 
 import argparse
-import sys
 import tempfile
 from pathlib import Path
 
@@ -33,7 +34,6 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.epv import season_of
 
 STATE_COLUMNS = schema.columns("states_1hz")
 FRAME_LEVEL = ["frame", "period", "game_clock_s", "shot_clock_s", "ball_x", "ball_y", "ball_z"]
@@ -213,6 +213,7 @@ def game_files(data_root) -> list:
 
 
 def write_states(states: pd.DataFrame, out_root, season: str, game: str, heldout: bool) -> Path:
+    """Write one game's states table at its contract path under OUT_ROOT/analytics and return the path."""
     path = schema.table_path(Path(out_root) / "analytics", "states_1hz", season, game, heldout)
     path.parent.mkdir(parents=True, exist_ok=True)
     states.to_parquet(path, index=False)
@@ -229,31 +230,34 @@ def _log_line(game: str, states: pd.DataFrame) -> str:
 
 
 def parse_args(argv=None):
+    """The states CLI flags."""
+    from analytics.epv.validate import add_fixture_args
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--fixtures", action="store_true", help="build the synthetic season of tests/_fx_epv.py")
+    g.add_argument("--fixtures", action="store_true", help="build the synthetic season of analytics.fixtures (fixture output)")
     g.add_argument("--data", help="DATA_ROOT with sportvu_contract/ and analytics/possessions/")
     ap.add_argument("--out", help="OUT_ROOT (default: DATA_ROOT, or a scratch directory with --fixtures)")
-    ap.add_argument("--tol", type=float, default=0.5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--games", type=int, default=4, help="fixture games")
+    ap.add_argument("--tol", type=float, default=0.5,
+                    help="seconds between a whole second of the clock and its nearest frame for a state to be kept (default 0.5)")
+    add_fixture_args(ap)
     return ap.parse_args(argv)
 
 
 def main(argv=None) -> list:
+    """Build and write states_1hz for every game (the fixture season or DATA_ROOT); returns the written paths."""
     a = parse_args(argv)
     written = []
     if a.fixtures:
-        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-        from tests import _fx_epv as fx
+        from analytics.epv.validate import fixture_season
         out_root = Path(a.out) if a.out else Path(tempfile.gettempdir()) / "epv_fixture_root"
-        season = fx.season_tables(a.seed, n_games=a.games, heldout_every=4)
+        season = fixture_season(a.seed, n_games=a.fixture_games, heldout_every=a.fixture_heldout_every,
+                                n_possessions=a.fixture_possessions)
         for game, held in season["games"]:
             frames = season["frames"][season["frames"]["game"] == game]
             poss = season["possessions"][season["possessions"]["sportvu_game"] == game]
             ev = season["events"][season["events"]["game"] == game]
             st = build_states(frames, poss, game, events=ev, tol_s=a.tol)
-            written.append(write_states(st, out_root, fx.SEASON, game, held))
+            written.append(write_states(st, out_root, schema.season_of_game(game), game, held))
             print(_log_line(game, st))
         print("fixture output, not a result: %d game(s) written under %s" % (len(written), out_root))
         return written

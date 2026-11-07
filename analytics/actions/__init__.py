@@ -25,18 +25,14 @@ Assumptions recorded here because nobody could be asked:
     (handoff, off_ball_screen, post_up, cut) counts as "none" and the count is reported
   - frames are read at 5 Hz (every round(hz / 5)-th frame of the possession); hand labels and candidate
     frames stay in the 25 Hz frame ids of the contract
+  - a game is held out when it sits under heldout/ or analytics.eval.is_heldout_game says so (the tokens of
+    sportvu/splits.json and the held-out arena); its season directory is analytics.schema.season_of_game
 """
 from __future__ import annotations
 
-try:   # the label contract of lane I4 (docs/contract/labels.md) owns these vocabularies
-    from analytics.labels import ACTION_TYPES, COVERAGES, LABEL_SOURCES
-except ImportError:   # pragma: no cover - the schema as the lead stated it
-    ACTION_TYPES = ("ball_screen", "handoff", "off_ball_screen", "isolation", "post_up", "drive", "cut")
-    LABEL_SOURCES = ("hand", "model", "synthetic")
-    COVERAGES = ("switch", "drop", "hedge_show", "blitz_trap", "ice", "under", "over")
+from analytics.labels import ACTION_TYPES, COVERAGES, LABEL_SOURCES   # the label contract (docs/contract/labels.md) owns these
 CLASSES = ("ball_screen", "drive", "isolation", "none")      # the detector's classes, in output order
-SEASON = "2015-16"
 WHO = "actions.train"
 IOU_MIN = 0.5
 
-__all__ = ["ACTION_TYPES", "LABEL_SOURCES", "COVERAGES", "CLASSES", "SEASON", "WHO", "IOU_MIN"]
+__all__ = ["ACTION_TYPES", "LABEL_SOURCES", "COVERAGES", "CLASSES", "WHO", "IOU_MIN"]

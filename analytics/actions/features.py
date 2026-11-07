@@ -1,6 +1,7 @@
 """analytics/actions/features.py: candidate windows and per-candidate features for action recognition.
 
-    python -m analytics.actions.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
+    python -m analytics.actions.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0] [--fixture-games 6]
+                                         [--fixture-possessions 24] [--fixture-heldout-every 3]
 
 Step 1, rule-based candidate generation from the frames at 5 Hz (every round(hz / 5)-th frame of the
 possession; frame ids stay the contract's 25 Hz ids). The ball handler at a frame is the offensive player
@@ -89,6 +90,7 @@ LABEL_COLUMNS = frozenset({"label_class", "label_iou", "label_action_type", "lab
 
 
 def feature_columns() -> list:
+    """The columns the models are fed, in FEATURES order."""
     return list(FEATURES)
 
 
@@ -174,6 +176,7 @@ def nearest_defenders(arrs: PossessionArrays, i: int, h: int, n: int = 1) -> lis
 
 
 def nearest_defender(arrs: PossessionArrays, i: int, h: int) -> int:
+    """Index of the defender nearest offensive player h at frame i, -1 when none is tracked."""
     near = nearest_defenders(arrs, i, h, 1)
     return near[0] if near else -1
 
@@ -270,6 +273,7 @@ def _merge(windows: list) -> list:
 
 
 def screen_windows(a: PossessionArrays) -> list:
+    """Ball-screen candidates of one possession (the rule in the module docstring), merged per (handler, screener)."""
     wins = []
     k = a.off.shape[1]
     for i in range(a.n):
@@ -305,6 +309,7 @@ def screen_windows(a: PossessionArrays) -> list:
 
 
 def drive_windows(a: PossessionArrays) -> list:
+    """Drive candidates of one possession: merged windows where the handler closes on the basket fast enough."""
     wins = []
     for i in range(a.n):
         j = window_end(a.t, i, DRIVE_WINDOW_S)
@@ -319,6 +324,7 @@ def drive_windows(a: PossessionArrays) -> list:
 
 
 def isolation_windows(a: PossessionArrays) -> list:
+    """Isolation candidates of one possession: merged windows of a slow handler keeping the ball with space around him."""
     wins = []
     k = a.off.shape[1]
     for i in range(a.n):
@@ -376,6 +382,7 @@ def screener_proxy(a: PossessionArrays, h: int, d: int, i0: int):
 
 
 def candidate_features(a: PossessionArrays, rule_class: str, h: int, s, d: int, i0: int, i1: int) -> dict:
+    """FEATURES of one candidate from its rule window i0..i1 (def_recovery_ft also reads the 1 s after it)."""
     k = a.off.shape[1]
     if d is None or d < 0:
         d = nearest_defender(a, i0, h)
@@ -480,6 +487,7 @@ def build(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_game: str | N
 
 # ── labels ─────────────────────────────────────────────────────────────────────────────────────────
 def iou_frames(a0, a1, b0, b1) -> float:
+    """Intersection over union of two inclusive frame windows."""
     inter = max(0, min(a1, b1) - max(a0, b0) + 1)
     union = (a1 - a0 + 1) + (b1 - b0 + 1) - inter
     return inter / union if union > 0 else 0.0
@@ -570,6 +578,7 @@ def build_season(games: list) -> tuple:
 
 # ── CLI ────────────────────────────────────────────────────────────────────────────────────────────
 def main(argv=None) -> dict:
+    """Build the candidates and features of the input games, print a summary, write the features under OUT_ROOT."""
     from analytics.actions import validate as V
     ap = argparse.ArgumentParser(prog="python -m analytics.actions.features", description=__doc__.split("\n")[0])
     V.add_input_args(ap)
@@ -583,9 +592,8 @@ def main(argv=None) -> dict:
                "by_label_class": {k: int(v) for k, v in cands["label_class"].value_counts().items()},
                "recall": recall.to_dict("records"), "fixtures": bool(a.fixtures)}
     if a.out:
-        from analytics.possessions import game_meta
         for g in games:
-            season = game_meta(g["sportvu_game"])["season"]
+            season = schema.season_of_game(g["sportvu_game"])
             d = Path(a.out) / "analytics" / "actions" / ("heldout/" if g["heldout"] else "") / season / "features"
             d.mkdir(parents=True, exist_ok=True)
             m = feats["sportvu_game"] == g["sportvu_game"]

@@ -1,5 +1,5 @@
-"""analytics/betting on the fixtures of tests/_fx_betting.py (the shared analytics.fixtures when present, else the
-local fallback with the same signatures). No network, no real odds. Under 30 s."""
+"""analytics/betting on the fixtures of analytics.fixtures (through analytics.betting.validate.fixture_data and the
+test adapter tests/_fx_betting.py). No network, no real odds. Under 30 s."""
 from pathlib import Path
 
 import numpy as np
@@ -9,6 +9,7 @@ pd = pytest.importorskip("pandas")
 pytest.importorskip("sklearn")
 
 from analytics.betting import eda, features as fx, train as tr, validate as va  # noqa: E402
+from analytics import fixtures  # noqa: E402
 from tests._fx_betting import team_names  # noqa: E402
 
 N_GAMES = 24      # games per fixture season: enough for the join, the folds and the form features, cheap to generate
@@ -261,8 +262,7 @@ def test_inferred_names_need_votes_and_cannot_collide(data):
     closing = va.closing_lines(data["odds"])[0]
     games = data["games"].copy()
     names = team_names(games)
-    if not names:
-        pytest.skip("fallback fixtures use real ids: nothing to infer")
+    assert names
     used = set(games["home_team_id"].astype(int)) | set(games["away_team_id"].astype(int))
     nba = {va.team_key(v[1]) for v in va.TEAM_NAMES.values()}
     if any(va.team_key(n) in nba for t, n in names.items() if t in used):
@@ -356,7 +356,6 @@ def test_leak_tripwire_skips_tiny_samples_but_catches_a_copy_at_size(tmp_path):
         fx.assert_no_leak(copy, y)
     with pytest.raises(ValueError):
         fx.assert_no_leak(copy.iloc[:5].assign(home_margin=y[:5]), y[:5])                  # the name guard at any size
-    fixtures = pytest.importorskip("analytics.fixtures")
     root = tmp_path / "root"
     fixtures.write_fixture_root(root, seed=0, n_games=4, heldout_every=4)
     ctx = tr.main(["--data", str(root), "--out", str(tmp_path / "out"), "--report", str(tmp_path / "r.md"), "--bootstrap", "5"])
@@ -370,13 +369,8 @@ def test_seasons_after_the_heldout_season_are_ignored(tmp_path):
     assert fx.later_seasons(["2020-21", "2021-22"], None) == []
     seasons = ("2020-21", "2021-22", "2022-23")
     d = va.fixture_data(0, n_games=12, seasons=seasons)
-    real = va.fixture_data                       # va and tr._validate are the same module: call the captured original
-    try:
-        va.fixture_data = lambda seed, n_games=12, seasons=seasons: real(seed, n_games=n_games, seasons=seasons)
-        ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(tmp_path / "r.md"), "--bootstrap", "5",
-                       "--fixture-games", "12", "--heldout-season", "2021-22"])
-    finally:
-        va.fixture_data = real
+    ctx = tr.main(["--fixtures", "--out", str(tmp_path), "--report", str(tmp_path / "r.md"), "--bootstrap", "5",
+                   "--fixture-games", "12", "--fixture-seasons", ",".join(seasons), "--heldout-season", "2021-22"])
     assert set(d["games"]["season"]) == set(seasons)
     assert ctx["ignored_seasons"] == ["2022-23"] and ctx["train_seasons"] == ["2020-21"] and ctx["heldout_season"] == "2021-22"
     assert "2022-23" not in set(ctx["games"]["season"]) and "2022-23" not in set(ctx["predictions"]["season"])
@@ -384,11 +378,12 @@ def test_seasons_after_the_heldout_season_are_ignored(tmp_path):
     assert not (tmp_path / "analytics" / "betting" / "2022-23").exists()
 
 
-def test_no_em_dash_in_lane_files():
+def test_no_em_or_en_dash_in_lane_files():
     root = Path(__file__).resolve().parents[1]
     files = [root / "analytics" / "betting" / f for f in ("__init__.py", "validate.py", "eda.py", "features.py", "train.py")]
     files += [root / "tests" / "test_betting.py", root / "tests" / "_fx_betting.py", root / "docs" / "contract" / "betting.md",
               root / "notebooks" / "eda_betting.ipynb", root / "reports" / "betting.md"]
     for f in files:
         if f.exists():
-            assert chr(8212) not in f.read_text(), f
+            text = f.read_text()
+            assert chr(8212) not in text and chr(8211) not in text, f

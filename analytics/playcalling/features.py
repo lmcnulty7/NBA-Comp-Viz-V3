@@ -70,6 +70,7 @@ def assign_action_ids(actions: pd.DataFrame) -> pd.DataFrame:
 
 
 def lineup_id(ids) -> str | None:
+    """Five player ids sorted and joined with -; None unless exactly five ids are present."""
     ids = [int(i) for i in ids if pd.notna(i)]
     if len(ids) != 5:
         return None
@@ -216,6 +217,7 @@ def features(table: pd.DataFrame) -> pd.DataFrame:
 
 
 def out_path(out_root, season: str, name: str, heldout: bool = False) -> Path:
+    """OUT_ROOT/analytics/playcalling/[heldout/]<season>/<name>.parquet."""
     base = Path(out_root) / "analytics" / "playcalling"
     return (base / "heldout" / season if heldout else base / season) / (name + ".parquet")
 
@@ -257,17 +259,18 @@ def write_action_outcomes(table: pd.DataFrame, out_root, season: str = SEASON) -
 
 
 def main(argv=None) -> dict:
+    """Build the action table from the fixture or DATA_ROOT inputs, write action_outcomes under --out, print the logs."""
     from analytics.playcalling import validate as v
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--fixtures", action="store_true", help="synthetic inputs (fixture output, not a result)")
     g.add_argument("--data", help="DATA_ROOT (sportvu_contract/, analytics/possessions/, labels/)")
     ap.add_argument("--out", default=None, help="OUT_ROOT for upstream outputs and this lane's tables (default DATA_ROOT)")
-    ap.add_argument("--season", default=SEASON)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--fixture-generator", choices=("auto", "local"), default="auto", help="auto: analytics.fixtures when present")
+    ap.add_argument("--season", default=SEASON, help="season directory (default %(default)s)")
+    ap.add_argument("--seed", type=int, default=0, help="fixture seed (default %(default)s)")
+    v.add_fixture_args(ap)
     a = ap.parse_args(argv)
-    inputs = v.fixture_inputs(a.seed, generator=a.fixture_generator) if a.fixtures else v.load_data_root(a.data, a.out or a.data, a.season)
+    inputs = v.fixture_inputs_from_args(a) if a.fixtures else v.load_data_root(a.data, a.out or a.data, a.season)
     inputs, vlog = v.validate_inputs(inputs)
     table, log = build_action_table(inputs["frames"], inputs["possessions"], inputs["actions"], inputs.get("screens"),
                                     inputs.get("coverage_predictions"), inputs.get("epv_states"), inputs.get("heldout_games", ()))

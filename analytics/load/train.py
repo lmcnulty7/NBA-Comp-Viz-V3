@@ -2,6 +2,7 @@
 
     python -m analytics.load.train --fixtures | --data DATA_ROOT --report reports/load.md [--out OUT_ROOT]
                                    [--folds 5] [--seed 0] [--bootstrap 200] [--season 2015-16] [--limit N]
+                                   [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Steps: load the inputs (analytics.load.validate), build the tables (analytics.load.features), set every
 held-out player-game aside, call analytics.eval.refuse_heldout on the training game ids, run
@@ -30,8 +31,8 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_folds,
-                            log_loss, paired_bootstrap_by_game, refuse_heldout)
+from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, ece, fit_threads, fmt_ci,
+                            fmt_num, grouped_folds, heldout_mask, log_loss, paired_bootstrap_by_game, refuse_heldout)
 from analytics.load import validate as V
 from analytics.load.eda import markdown, rest_bucket
 from analytics.load.features import FEATURES, MIN_STINTS_RANK, assert_no_leak, build_tables, design, write_tables
@@ -46,7 +47,7 @@ MAC_CMD = ("python -m analytics.load.train --data \"$DATA_ROOT\" --report report
 # ── frames ─────────────────────────────────────────────────────────────────────────────────────────
 def training_frames(games_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """-> (train, heldout) player-game frames. The guard runs on the training ids; held-out rows are only scored."""
-    held = games_df["heldout"].astype(bool) | games_df["sportvu_game"].map(V.heldout_by_id).astype(bool)
+    held = games_df["heldout"].astype(bool).to_numpy() | heldout_mask(games_df["sportvu_game"])
     train = games_df[~held].reset_index(drop=True)
     heldout = games_df[held].reset_index(drop=True)
     refuse_heldout(sorted(train["sportvu_game"].unique()), WHO)
@@ -56,10 +57,12 @@ def training_frames(games_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
 
 
 def regression_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """The player-games with a finite decline_ftps (the regression target)."""
     return df[np.isfinite(df["decline_ftps"].astype(float))].reset_index(drop=True)
 
 
 def absence_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """The player-games with a known absent_next (the absence target)."""
     return df[df["absent_next"].notna()].reset_index(drop=True)
 
 
@@ -82,7 +85,8 @@ def fit_regression(train: pd.DataFrame) -> dict:
     if len(y) < 3:
         out["ridge"] = out["mean"]
     else:
-        m = make_pipeline(*_pre(), Ridge(alpha=RIDGE_ALPHA)).fit(X.to_numpy(), y)
+        with fit_threads():
+            m = make_pipeline(*_pre(), Ridge(alpha=RIDGE_ALPHA)).fit(X.to_numpy(), y)
         out["ridge"] = lambda frame, m=m: m.predict(design(frame).to_numpy())
     return out
 
@@ -99,12 +103,14 @@ def fit_absence(train: pd.DataFrame) -> dict:
     if len(np.unique(y)) < 2 or len(y) < 5:
         out["logistic"] = out["base"]
     else:
-        m = make_pipeline(*_pre(), LogisticRegression(C=LOGISTIC_C, max_iter=1000)).fit(X.to_numpy(), y)
+        with fit_threads():
+            m = make_pipeline(*_pre(), LogisticRegression(C=LOGISTIC_C, max_iter=1000)).fit(X.to_numpy(), y)
         out["logistic"] = lambda frame, m=m: m.predict_proba(design(frame).to_numpy())[:, 1]
     return out
 
 
 def out_of_fold(rows: pd.DataFrame, fit_fn, names, n_folds: int, seed: int) -> tuple[pd.DataFrame, dict]:
+    """Predictions p_<name> of fit_fn's models under grouped folds by sportvu_game (in-sample with one game) and a note."""
     games = sorted(rows["sportvu_game"].unique())
     pred = rows.copy()
     for m in names:
@@ -129,11 +135,13 @@ def out_of_fold(rows: pd.DataFrame, fit_fn, names, n_folds: int, seed: int) -> t
 
 # ── scoring ────────────────────────────────────────────────────────────────────────────────────────
 def mse(y, p) -> float:
+    """Mean squared error."""
     y, p = np.asarray(y, dtype=float), np.asarray(p, dtype=float)
     return float(np.mean((y - p) ** 2))
 
 
 def score_regression(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
+    """MSE of the mean and ridge predictions with bootstrap intervals by game, and their paired difference."""
     d = pd.DataFrame({"game": pred["sportvu_game"].astype(str).to_numpy(), "y": pred["decline_ftps"].astype(float).to_numpy(),
                       "mean": pred["p_mean"].astype(float).to_numpy(), "ridge": pred["p_ridge"].astype(float).to_numpy()})
     out = {"rows": int(len(d)), "games": int(d["game"].nunique())}
@@ -148,6 +156,8 @@ def score_regression(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
 
 
 def score_absence(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
+    """Log loss, Brier and ECE of the base and logistic predictions by game bootstrap, the paired difference, the
+    calibration slope and the calibration table of the logistic model."""
     y = pred["absent_next"].astype(bool).astype(float).to_numpy()
     d = pd.DataFrame({"game": pred["sportvu_game"].astype(str).to_numpy(), "y": y,
                       "base": pred["p_base"].astype(float).to_numpy(), "logistic": pred["p_logistic"].astype(float).to_numpy()})
@@ -162,8 +172,8 @@ def score_absence(pred: pd.DataFrame, n_boot: int, seed: int) -> dict:
     out["diff"] = paired_bootstrap_by_game(d, "game", lambda s: log_loss(s["y"], s["logistic"]),
                                            lambda s: log_loss(s["y"], s["base"]), n=n_boot, seed=seed)
     two = len(np.unique(y)) == 2
-    # the slope is one fit (a point estimate): the harness's slope fit is slow on near-separable probabilities
-    out["logistic"]["calibration_slope"] = float(calibration_slope(y, d["logistic"].to_numpy())) if two else np.nan
+    # the slope is one fit (a point estimate), solved by the bounded Newton method of the harness
+    out["logistic"]["calibration_slope"] = calibration_slope_fast(y, d["logistic"].to_numpy()) if two else np.nan
     out["calibration"] = calibration_table(y, d["logistic"].to_numpy()) if two else None
     return out
 
@@ -216,34 +226,16 @@ def aggregates_check(games_df: pd.DataFrame, aggregates: pd.DataFrame | None) ->
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
-def _f(v, nd=4) -> str:
-    try:
-        return "n/a" if v is None or not np.isfinite(v) else ("%%.%df" % nd) % v
-    except TypeError:
-        return str(v)
-
-
-def _ci(d: dict) -> str:
-    if not np.isfinite(d["point"]):
-        return "n/a"
-    if not np.isfinite(d.get("lo", np.nan)):
-        return _f(d["point"])
-    return "%s [%s, %s]" % (_f(d["point"]), _f(d["lo"]), _f(d["hi"]))
-
-
 def write_report(path: Path, ctx: dict) -> str:
+    """The markdown report of a run (ctx from run); every heading over fixture numbers carries the fixture tag."""
     fx = ctx["fixture"]
     tag = " (fixture output, not a result)" if fx else ""
     L = ["# Load and fatigue baselines (analytics/load/train.py)", "",
          "Written %s by `%s`." % (ctx["written"], ctx["command"]), ""]
     if fx:
-        L += ["**Every number below is fixture output, not a result**: the inputs are the synthetic season of "
-              "tests/_fx_load.py (%s). The real run is the Mac command at the end." % ctx["source"], ""]
-        if "local" in ctx["source"]:
-            L += ["Produced with --local-fixtures: the shared analytics.fixtures season gives every game distinct teams "
-                  "and players, so the schedule history and the absence target are undefined on it; the local generator "
-                  "repeats four teams over a schedule.", ""]
-    L += ["## Inputs", "",
+        L += ["**Every number below is fixture output, not a result**: the inputs are a synthetic season (%s). The real "
+              "run is the Mac command at the end." % ctx["source"], ""]
+    L += ["## Inputs%s" % tag, "",
           "| games loaded | training games | held-out games | stints | player-games | players | aggregates rows |",
           "| --- | --- | --- | --- | --- | --- | --- |",
           "| %d | %d | %d | %d | %d | %d | %d |" % (ctx["n_games"], ctx["train_games"], ctx["heldout_games"], ctx["n_stints"],
@@ -279,31 +271,31 @@ def write_report(path: Path, ctx: dict) -> str:
           "%s. %d player-games with a decline from %d games. Ridge alpha %.1f, median imputation and standardisation "
           "fitted inside the training folds." % (ctx["reg_note"]["text"], ctx["reg"]["rows"], ctx["reg"]["games"], RIDGE_ALPHA), "",
           "| model | MSE (ft per s)^2 |", "| --- | --- |",
-          "| mean (training-fold mean) | %s |" % _ci(ctx["reg"]["mean"]),
-          "| ridge on FEATURES | %s |" % _ci(ctx["reg"]["ridge"]), "",
+          "| mean (training-fold mean) | %s |" % fmt_ci(ctx["reg"]["mean"], 4),
+          "| ridge on FEATURES | %s |" % fmt_ci(ctx["reg"]["ridge"], 4), "",
           "Paired bootstrap by game of MSE(ridge) - MSE(mean): %s [%s, %s], excludes zero: %s." % (
-              _f(ctx["reg"]["diff"]["diff"]), _f(ctx["reg"]["diff"]["lo"]), _f(ctx["reg"]["diff"]["hi"]), ctx["reg"]["diff"]["excludes_zero"]),
+              fmt_num(ctx["reg"]["diff"]["diff"], 4), fmt_num(ctx["reg"]["diff"]["lo"], 4), fmt_num(ctx["reg"]["diff"]["hi"], 4), ctx["reg"]["diff"]["excludes_zero"]),
           "", "## Candidate 3: absence from the next game%s" % tag, ""]
     ab = ctx["abs"]
     if ab is None:
         L += ["No player-game has a known absent_next (no loaded next game), so the absence baseline did not run.", ""]
     else:
         L += ["%s. %d player-games with a known absent_next from %d games, base rate %s. Logistic C %.1f, same preprocessing. "
-              "Absence is not injury." % (ctx["abs_note"]["text"], ab["rows"], ab["games"], _f(ab["base_rate"]), LOGISTIC_C), "",
+              "Absence is not injury." % (ctx["abs_note"]["text"], ab["rows"], ab["games"], fmt_num(ab["base_rate"], 4), LOGISTIC_C), "",
               "| model | log loss | Brier | ECE (10 bins) |", "| --- | --- | --- | --- |",
-              "| base rate (training-fold rate) | %s | %s | %s |" % (_ci(ab["base"]["log_loss"]), _ci(ab["base"]["brier"]), _ci(ab["base"]["ece"])),
-              "| logistic on FEATURES | %s | %s | %s |" % (_ci(ab["logistic"]["log_loss"]), _ci(ab["logistic"]["brier"]), _ci(ab["logistic"]["ece"])), "",
+              "| base rate (training-fold rate) | %s | %s | %s |" % (fmt_ci(ab["base"]["log_loss"], 4), fmt_ci(ab["base"]["brier"], 4), fmt_ci(ab["base"]["ece"], 4)),
+              "| logistic on FEATURES | %s | %s | %s |" % (fmt_ci(ab["logistic"]["log_loss"], 4), fmt_ci(ab["logistic"]["brier"], 4), fmt_ci(ab["logistic"]["ece"], 4)), "",
               "Paired bootstrap by game of log loss(logistic) - log loss(base): %s [%s, %s], excludes zero: %s. "
               "Calibration slope of the logistic model: %s (one fit, no interval; 1 is calibrated)." % (
-                  _f(ab["diff"]["diff"]), _f(ab["diff"]["lo"]), _f(ab["diff"]["hi"]), ab["diff"]["excludes_zero"],
-                  _f(ab["logistic"]["calibration_slope"])), ""]
+                  fmt_num(ab["diff"]["diff"], 4), fmt_num(ab["diff"]["lo"], 4), fmt_num(ab["diff"]["hi"], 4), ab["diff"]["excludes_zero"],
+                  fmt_num(ab["logistic"]["calibration_slope"], 4)), ""]
         if ab["calibration"] is None:
             L += ["One class only in absent_next: no calibration table.", ""]
         else:
             L += ["Calibration table of the logistic model (equal-width bins of p):", "",
                   "| bin | lo | hi | n | mean p | mean absent |", "| --- | --- | --- | --- | --- | --- |"]
             for r in ab["calibration"].itertuples():
-                L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, _f(r.mean_p, 3), _f(r.mean_y, 3)))
+                L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, fmt_num(r.mean_p, 3), fmt_num(r.mean_y, 3)))
             L.append("")
     agg = ctx["aggregates"]
     L += ["## Cross-check against the tracking aggregates (section 11)%s" % tag, ""]
@@ -314,7 +306,7 @@ def write_report(path: Path, ctx: dict) -> str:
               "| quantity | Spearman (ours vs aggregate) | ours mean | aggregate mean |", "| --- | --- | --- | --- |"]
         for k, label in (("dist_miles", "distance per game, miles"), ("avg_speed", "average speed, mph")):
             if k in agg:
-                L.append("| %s | %s | %s | %s |" % (label, _f(agg[k]["spearman"], 3), _f(agg[k]["ours_mean"], 3), _f(agg[k]["theirs_mean"], 3)))
+                L.append("| %s | %s | %s | %s |" % (label, fmt_num(agg[k]["spearman"], 3), fmt_num(agg[k]["ours_mean"], 3), fmt_num(agg[k]["theirs_mean"], 3)))
         L += ["", "Our distance counts dead-ball movement at the wall clock and only frames that passed validation; the "
               "aggregate is NBA.com's own, so a gap in level with a high rank correlation is the expected picture."]
     L += ["", "## Held-out games, scored once%s" % tag, ""]
@@ -327,13 +319,13 @@ def write_report(path: Path, ctx: dict) -> str:
               "only as a labelled floor under a selected candidate. Point estimates only." % (ho["rows"], ho["games"], ", ".join(ho["ids"])), "",
               "| quantity | value |", "| --- | --- |",
               "| decline rows | %d |" % ho["reg_rows"],
-              "| MSE, selected model (%s) | %s |" % (ho["reg_selected"], _f(ho.get("mse_selected")))]
+              "| MSE, selected model (%s) | %s |" % (ho["reg_selected"], fmt_num(ho.get("mse_selected"), 4))]
         if "mse_floor" in ho:
-            L.append("| MSE, floor (training mean, not selected) | %s |" % _f(ho["mse_floor"]))
+            L.append("| MSE, floor (training mean, not selected) | %s |" % fmt_num(ho["mse_floor"], 4))
         L += ["| absence rows | %d |" % ho["abs_rows"],
-              "| log loss, selected model (%s) | %s |" % (ho["abs_selected"], _f(ho.get("ll_selected")))]
+              "| log loss, selected model (%s) | %s |" % (ho["abs_selected"], fmt_num(ho.get("ll_selected"), 4))]
         if "ll_floor" in ho:
-            L.append("| log loss, floor (base rate, not selected) | %s |" % _f(ho["ll_floor"]))
+            L.append("| log loss, floor (base rate, not selected) | %s |" % fmt_num(ho["ll_floor"], 4))
     L += ["", "## Status and the Mac command", ""]
     if fx:
         L.append("Fixture output, not a result. The pipeline is tested (tests/test_load.py); the real run on the owner's Mac, "
@@ -351,21 +343,13 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def parse_args(argv=None):
+    """The train CLI: the shared source and fixture arguments of analytics.load.validate plus the protocol knobs."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--fixtures", action="store_true")
-    src.add_argument("--data", help="DATA_ROOT")
-    ap.add_argument("--local-fixtures", action="store_true",
-                    help="with --fixtures: the local generator of tests/_fx_load.py even when analytics.fixtures imports")
-    ap.add_argument("--report", default="reports/load.md")
+    V.add_source_args(ap)
+    ap.add_argument("--report", default="reports/load.md", help="markdown report path (default reports/load.md)")
     ap.add_argument("--out", help="OUT_ROOT: also write the three tables")
-    ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bootstrap", type=int, default=200)
-    ap.add_argument("--season", default="2015-16")
-    ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--n-games", type=int, default=8, help="fixture games (with --fixtures)")
-    ap.add_argument("--heldout-every", type=int, default=4, help="fixture: every k-th game held out (0 none)")
+    ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default 5)")
+    ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
     return ap.parse_args(argv)
 
 
@@ -431,12 +415,9 @@ def _totals(logs: dict) -> dict:
 
 
 def main(argv=None) -> dict:
+    """Run the protocol from the command line, write the report (and the tables with --out) and return ctx."""
     a = parse_args(argv)
-    if a.fixtures:
-        inputs = V.load_fixtures(seed=a.seed, n_games=a.n_games, heldout_every=a.heldout_every,
-                                 prefer_shared=not a.local_fixtures)
-    else:
-        inputs = V.load_data_root(a.data, a.season, a.limit)
+    inputs = V.load_args(a)
     ctx = run(inputs, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixture=a.fixtures)
     ctx["command"] = "python -m analytics.load.train " + " ".join(argv if argv is not None else sys.argv[1:])
     if a.out:

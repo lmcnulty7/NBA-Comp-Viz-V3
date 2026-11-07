@@ -1,6 +1,7 @@
 """analytics/embeddings/validate.py: input checks for the player style embeddings.
 
     python -m analytics.embeddings.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
+        [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every 4]
 
 Per input table (the DATA_ROOT layout of analytics/embeddings/train.py), after the loader has set every held-out game
 aside: the contract tables (possessions, rosters) go through analytics.schema.validate; the frames (section 4), shots
@@ -38,10 +39,12 @@ RANGES = {  # column -> (lo, hi) inclusive; a value outside is counted, never dr
 
 
 def _nulls(df: pd.DataFrame, cols) -> dict:
+    """{column: null count} over the columns of cols present with at least one null."""
     return {c: int(df[c].isna().sum()) for c in cols if c in df.columns and df[c].isna().any()}
 
 
 def _ranges(df: pd.DataFrame) -> dict:
+    """{column: count outside RANGES} over the RANGES columns present, zero counts left out."""
     out = {}
     for c, (lo, hi) in RANGES.items():
         if c in df.columns:
@@ -76,6 +79,7 @@ def check_frames(frames: pd.DataFrame) -> dict:
 
 
 def check_contract_table(df: pd.DataFrame, table: str) -> dict:
+    """A possessions or rosters table -> dict(rows, problems (schema.validate), nulls, duplicate_rows)."""
     problems = schema.validate(df, table)
     keys = {"possessions": ["sportvu_game", "possession"], "rosters": ["sportvu_game", "player_id"]}[table]
     out = {"rows": int(len(df)), "problems": problems, "nulls": _nulls(df, schema.columns(table)),
@@ -88,6 +92,8 @@ def check_contract_table(df: pd.DataFrame, table: str) -> dict:
 
 
 def check_shots(shots: pd.DataFrame, rosters: pd.DataFrame | None) -> dict:
+    """The shots table -> dict(rows, missing_columns, nulls, out_of_range, duplicate_rows, games, unresolved_shooter_ids,
+    zone_counts, problems)."""
     missing = [c for c in SHOT_COLUMNS if c not in shots.columns]
     out = {"rows": int(len(shots)), "missing_columns": missing, "problems": []}
     if missing:
@@ -111,6 +117,8 @@ def check_shots(shots: pd.DataFrame, rosters: pd.DataFrame | None) -> dict:
 
 
 def check_aggregates(agg: pd.DataFrame) -> dict:
+    """The section 11 long table -> dict(rows, missing_columns, nulls, seasons, endpoints, duplicate_rows, metric_rows,
+    non_finite_values, problems)."""
     missing = [c for c in AGG_COLUMNS if c not in agg.columns]
     out = {"rows": int(len(agg)), "missing_columns": missing, "problems": []}
     if missing:
@@ -131,6 +139,7 @@ def check_aggregates(agg: pd.DataFrame) -> dict:
 
 
 def check_positions(pos: pd.DataFrame) -> dict:
+    """The positions table -> dict(rows, missing_columns, duplicate_rows, counts per G/F/C, problems)."""
     missing = [c for c in ("player_id", "season", "position") if c not in pos.columns]
     out = {"rows": int(len(pos)), "missing_columns": missing, "problems": []}
     if missing:   # the loader has already joined a player_slug table to the rosters; a table still lacking the keys is unusable
@@ -194,17 +203,16 @@ def validate_inputs(inputs: dict) -> dict:
 
 
 def main(argv=None) -> dict:
+    """CLI: validate the inputs, print the summary as JSON, write validate.json under --out."""
     from analytics.embeddings import train as _train
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--fixtures", action="store_true")
-    ap.add_argument("--data", help="DATA_ROOT (layout in analytics/embeddings/train.py)")
+    _train.add_input_args(ap)
     ap.add_argument("--out", help="OUT_ROOT: writes analytics/embeddings/validate.json")
-    ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
     if not a.fixtures and not a.data:
         ap.error("one of --fixtures or --data is required")
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
-    inputs = _train.fixture_inputs(a.seed) if a.fixtures else _train.load_inputs(a.data)
+    inputs = _train.inputs_from_args(a)
     summary = validate_inputs(inputs)
     summary["fixture"] = bool(a.fixtures)
     text = json.dumps(summary, indent=1, default=str)

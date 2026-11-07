@@ -1,16 +1,16 @@
 # Betting market model (analytics/betting/train.py)
 
-Written 2026-11-05T09:44:11Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
+Written 2026-11-07T08:42:01Z by `python -m analytics.betting.train --fixtures --report reports/betting.md`.
 
-**Fixture output, not a result.** This run used the synthetic games and odds of tests/_fx_betting.py; it proves the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through collect/extras.py --odds) that has not been collected.
+**Fixture output, not a result.** This run used the synthetic games and odds of analytics.fixtures (synth_stints, synth_odds); it proves the pipeline runs end to end and nothing else. Odds history is a paid feed (The Odds API through collect/extras.py --odds) that has not been collected.
 
 ## Inputs
 
 | source | value |
 | --- | --- |
-| fixtures | analytics/fixtures.py |
+| fixtures | analytics.fixtures synth_stints and synth_odds |
 
-## Join coverage (odds to games: team nickname key, game date within one day of the UTC tip minus 8 hours)
+## Join coverage (odds to games: team nickname key, game date within one day of the UTC tip minus 8 hours) (fixture output, not a result)
 
 | count | value |
 | --- | --- |
@@ -31,7 +31,7 @@ Written 2026-11-05T09:44:11Z by `python -m analytics.betting.train --fixtures --
 | team names given / inferred from dates / ids unresolved | 28 / 0 / 0 |
 | collector held-out rows dropped | 0 |
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Unit: one game. Targets: home_cover (home margin plus closing home spread above 0; null on a push or without a spread) and clv = margin forecast minus the market margin forecast (minus the closing home spread).
 Features (previous games only): home_net10, away_net10, home_net30, away_net30, home_rest_days, away_rest_days, home_b2b, away_b2b, home_flag, home_pf_std, home_pa_std, away_pf_std, away_pa_std. Guard: analytics.schema.assert_time_forward plus the betting target list and a correlation check against the final margin (over 0.99 refused) on every design matrix.
@@ -41,7 +41,7 @@ Selection: out-of-fold under 5 grouped folds by game inside the training seasons
 
 Staking rule, fixed in code before scoring (train.py constants): flat 1 unit on the home cover when p_cover > 0.55, on the away cover when 1 - p_cover > 0.55, else no bet; a win returns the collected spread price when the row carries one, else the nominal 0.91 units (vig 4.5 percent a side, about -110); a loss costs one unit, a push returns the stake; ROI is profit over units staked. betting_games carries no spread price, so the run reports the nominal return.
 
-## Candidates (out-of-fold, 40 games)
+## Candidates (out-of-fold, 40 games) (fixture output, not a result)
 
 | candidate | cover log loss | Brier | margin MSE | bets | profit (units) | ROI |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -51,7 +51,7 @@ Staking rule, fixed in code before scoring (train.py constants): flat 1 unit on 
 
 Selected: cover model **market**, margin model **market**.
 
-## Profit and loss per season, selected models
+## Profit and loss per season, selected models (fixture output, not a result)
 
 | season | mode | games | labelled | log loss | Brier | margin MSE | bets | profit | ROI | lo | hi |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

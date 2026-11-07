@@ -11,13 +11,16 @@ Unit: the game state at each play-by-play event of the multi-season play-by-play
 `OUT_ROOT/analytics/winprob/<season>/winprob_features.parquet` (the keys, the FEATURES columns, time_bucket, heldout
 and home_win; never the final score), which the trainer does not overwrite.
 
-CLI (each module also exposes main(argv=None); --fixtures runs on tests/_fx_winprob.py and its output is never a result):
+CLI (each module also exposes main(argv=None); --fixtures runs on the synth_stints and synth_odds fixtures of
+analytics.fixtures, sized by --fixture-games and --fixture-seasons, and its output is never a result):
 
     python -m analytics.winprob.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
     python -m analytics.winprob.features --fixtures | --data DATA_ROOT [--out OUT_ROOT] [--seed 0]
     python -m analytics.winprob.eda      --fixtures | --data DATA_ROOT [--seed 0] [--heldout-season 2024-25]
     python -m analytics.winprob.train    --fixtures | --data DATA_ROOT --report reports/winprob.md [--out OUT_ROOT]
                                          [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
+    (every --fixtures run also takes [--fixture-games 20] [--fixture-seasons 2020-21,2021-22]; train defaults to
+    the seasons 2020-21,2021-22,2024-25 so the held-out season is present)
 
 A held-out season (default 2024-25) is written like the others with `heldout = true` and `fold = -1`; its rows
 were scored once by the selected candidate refit on every training row. Seasons later than the held-out season are

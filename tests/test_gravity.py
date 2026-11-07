@@ -1,9 +1,9 @@
 """tests/test_gravity.py: analytics/gravity on the fixture generators. No network, nothing written to the repo.
 
-Two generators (tests/_fx_gravity.py): the default (analytics.fixtures when importable, else the fallback) and
-the lane's fallback, always available as fallback_synth_season. The structural tests run on the default; the
-end-to-end run happens on both, and the effect-size assertions (season-wide top decile, sign test, recovered
-pull within tolerance of the planted pull) run on the fallback, whose truth is known and documented.
+Two generators (tests/_fx_gravity.py): the shared analytics.fixtures (synth_season) and the lane's synthetic
+planted-pull generator analytics/gravity/fixture_pull.py (synth_pull_season). The structural tests run on the shared
+one; the end-to-end run happens on both, and the effect-size assertions (sign test, recovered pull within tolerance
+of the planted pull) run on the planted-pull generator, whose truth is known and documented.
 
 Covers: fixture shapes; hull area on a hand-built square; 1 Hz sampling; the leakage guards (a target column
 in the feature frame, a held-out row reaching a fit, a held-out id in the training ids); the out-of-fold prior
@@ -11,11 +11,8 @@ in the feature frame, a held-out row reaching a fit, a held-out id in the traini
 the EDA tables and the shuffled-y check; the end-to-end runs with the top-decile checks, the sign test, the
 held-out scoring, the shipped-ridge rule and the planted-pull tolerance. Under 30 s.
 """
-import os
 import sys
 from pathlib import Path
-
-os.environ.setdefault("OMP_NUM_THREADS", "1")
 
 import numpy as np
 import pandas as pd
@@ -53,7 +50,7 @@ def built(train_games):
 
 # ── fixtures ───────────────────────────────────────────────────────────────────────────────────────
 def test_fixture_shapes_and_columns(season):
-    assert FX.SOURCE in ("analytics.fixtures", "tests._fx_gravity")
+    assert FX.synth_season.__module__ == "analytics.fixtures"
     d = season[0]
     for k in ("frames", "events", "shots", "rosters", "shot_frames", "rebound_frames", "possessions", "states_1hz"):
         assert k in d, k
@@ -64,7 +61,7 @@ def test_fixture_shapes_and_columns(season):
     held = [F.game_id(d) for d in season if F.is_heldout(d)]
     assert held == ["12.16.2015.PHX.at.GSW"]       # every fourth game is held out and carries a held-out token
     assert len(season) == N_GAMES
-    fb = FX.fallback_synth_game(3, n_possessions=8)
+    fb = FX.synth_pull_game(3, n_possessions=8)
     assert fb["high_gravity_ids"] == [1001, 2001] and fb["truth"]["planted_pull_ft"] == FX.HG_PULL_FT
     assert all(0 < v <= FX.HG_PULL_FT for v in fb["truth"]["effective_pull_ft"].values())
 
@@ -190,15 +187,15 @@ def test_eda_tables_and_shuffled_y(train_games):
     sy = tables["shuffled_y_check"].set_index("target")
     assert sy.loc["shuffled", "r2"] < 0.05                              # nothing in the features leaks a permuted target
     assert sy.loc["real", "r2"] > sy.loc["shuffled", "r2"] + 0.05
-    assert eda.md_table(ek).startswith("| end_kind |")
+    assert eda.markdown(ek).startswith("| end_kind |")
 
 
 # ── end to end ─────────────────────────────────────────────────────────────────────────────────────
 def _run(tmp_path, generator: str) -> dict:
     report = tmp_path / ("gravity_%s.md" % generator)
-    return T.main(["--fixtures", "--fixture-generator", generator, "--no-fallback-section", "--n-games", str(N_GAMES),
-                   "--n-possessions", str(N_POSS), "--report", str(report), "--bootstrap", "30", "--min-possessions", "10",
-                   "--out", str(tmp_path / generator)]), report
+    return T.main(["--fixtures", "--fixture-generator", generator, "--no-pull-section", "--fixture-games", str(N_GAMES),
+                   "--fixture-possessions", str(N_POSS), "--fixture-heldout-every", "4", "--report", str(report),
+                   "--bootstrap", "30", "--min-possessions", "10", "--out", str(tmp_path / generator)]), report
 
 
 def _check_common(ctx, report, tmp_path, generator):
@@ -232,16 +229,16 @@ def _check_common(ctx, report, tmp_path, generator):
 
 
 def test_end_to_end_default_generator(tmp_path):
-    ctx, report = _run(tmp_path, "auto")
-    _check_common(ctx, report, tmp_path, "auto")
+    ctx, report = _run(tmp_path, "shared")
+    _check_common(ctx, report, tmp_path, "shared")
     tdg = ctx["top_decile_by_game"]
     assert tdg["n_games"] >= 1 and tdg["n_passed"] >= tdg["n_games"] - 1    # the planted players lead (almost) every game
     assert ctx["top_decile"]["decile_cut"] >= len([p for p in ctx["known_ids"] if ctx["top_decile"]["ranks"][p]])
 
 
-def test_end_to_end_fallback_generator_recovers_the_planted_pull(tmp_path):
-    ctx, report = _run(tmp_path, "fallback")
-    _check_common(ctx, report, tmp_path, "fallback")
+def test_end_to_end_pull_generator_recovers_the_planted_pull(tmp_path):
+    ctx, report = _run(tmp_path, "pull")
+    _check_common(ctx, report, tmp_path, "pull")
     assert ctx["top_decile"]["passed"] is True                          # one roster across the season: the season-wide check
     assert ctx["top_decile_by_game"]["passed"] is True
     st = ctx["sign_test"]
@@ -262,6 +259,7 @@ def test_validate_and_features_cli(tmp_path):
     assert out["games"] == 2 and out["schema_problems"] == 0
     assert (tmp_path / "analytics" / "gravity" / "validate.json").exists()
     summ = F.main(["--fixtures", "--fixture-generator", "fallback", "--n-games", "2", "--n-possessions", "16", "--out", str(tmp_path)])
+    assert V.generator_name("fallback") == "pull" and V.generator_name("auto") == "shared"     # the older spellings still parse
     assert summ["player_frames"] == 5 * summ["spacing_frames"] > 0 and "validation" in summ
     sp = pd.read_parquet(tmp_path / "analytics" / "gravity" / "spacing_frames.parquet")
     assert list(sp.columns) == F.SPACING_COLUMNS                        # the same schema train.py writes

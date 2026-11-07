@@ -17,7 +17,8 @@ option minus the best available option, in expected points, at the decision fram
 | epv_states (lane EPV) | `OUT_ROOT/analytics/epv/<season>/<game>.parquet` | `epv_points` as the hold option; optional |
 | xfg_predictions (lane XFG) | `OUT_ROOT/analytics/xfg/<season>/*.parquet` (one file, held-out rows flagged `heldout=True, fold=-1`; a `heldout/<season>/` directory is read too when present), filtered on `sportvu_game` | `p_selected` on shot events; optional |
 
-A game listed under `heldout/` or whose id carries a held-out token of `sportvu/splits.json` is held out: it is
+A game listed under `heldout/` or whose id carries a held-out token of `sportvu/splits.json`
+(`analytics.eval.is_heldout_game`, which includes the held-out arena) is held out: it is
 valued once by the model refit on all training games and never fits or tunes anything
 (`analytics.eval.refuse_heldout` on the training ids).
 
@@ -124,4 +125,8 @@ Option values use the decision frame and earlier frames only; no outcome column 
 `points_to_end`, `end_kind`) enters a context or a value; `schema.assert_time_forward` runs on every context
 frame and on the FEATURES subset; `features.assert_decisions_before_outcome` refuses a decision frame outside
 its possession span or, for a shot, after the release frame (tested by shifting a frame after the outcome).
-Fixture numbers are never results: `reports/decisions.md` from `--fixtures` says "fixture output, not a result".
+Fixture numbers are never results: `reports/decisions.md` from `--fixtures` says "fixture output, not a result" in
+its banner and on every section heading, and lists the written files relative to OUT_ROOT. The fixture games come
+from `analytics.fixtures` (knobs `--fixture-games`, `--fixture-possessions`, `--fixture-heldout-every`; the older
+`--n-games`, `--n-possessions`, `--heldout-every` remain as aliases); production code never imports `tests/`. Every
+value-model fit runs inside `analytics.eval.fit_threads()`.

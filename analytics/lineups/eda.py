@@ -24,6 +24,7 @@ def _season_sorted(values) -> list:
 
 
 def duration_summary(stints: pd.DataFrame) -> pd.DataFrame:
+    """Per season: stints, games, duration quantiles and the lineup_ok share."""
     rows = []
     for season in _season_sorted(stints["season"].unique()):
         s = stints[stints["season"].astype(str) == season]
@@ -35,6 +36,7 @@ def duration_summary(stints: pd.DataFrame) -> pd.DataFrame:
 
 
 def differential_summary(feats: pd.DataFrame) -> pd.DataFrame:
+    """Per season: points_diff moments and diff_per100 quantiles with the possession-weighted mean."""
     rows = []
     for season in _season_sorted(feats["season"].unique()):
         f = feats[feats["season"].astype(str) == season]
@@ -47,6 +49,7 @@ def differential_summary(feats: pd.DataFrame) -> pd.DataFrame:
 
 
 def lineup_possessions(feats: pd.DataFrame, gate: int = 300) -> pd.DataFrame:
+    """Per season: lineups seen, how many pass the possession gate, and possession quantiles."""
     from analytics.lineups.train import lineup_rows
     rows = []
     lr = lineup_rows(feats)
@@ -59,6 +62,7 @@ def lineup_possessions(feats: pd.DataFrame, gate: int = 300) -> pd.DataFrame:
 
 
 def player_minutes(stints: pd.DataFrame, top: int = 10) -> pd.DataFrame:
+    """Per season: the top players by minutes on court, from stint durations."""
     parts = []
     for c in PLAYER_COLUMNS:
         parts.append(pd.DataFrame({"season": stints["season"].astype(str), "player_id": stints[c], "minutes": stints["duration_s"].astype(float) / 60.0}))
@@ -70,6 +74,7 @@ def player_minutes(stints: pd.DataFrame, top: int = 10) -> pd.DataFrame:
 
 
 def cross_season_correlation(feats: pd.DataFrame, min_poss: int = 100) -> pd.DataFrame:
+    """Pearson and Spearman of raw lineup net rating between consecutive seasons, lineups with min_poss in both."""
     from analytics.lineups.train import lineup_table
     seasons = _season_sorted(feats["season"].unique())
     rows = []
