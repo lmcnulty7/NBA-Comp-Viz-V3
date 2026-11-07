@@ -1,6 +1,8 @@
-"""analytics/coverage on the fixture season (analytics.fixtures when it imports, else the local scripted generator
-of tests/_fx_coverage.py): end-to-end run, leakage guards, feature geometry on hand-built screens, validator
-counts, the DATA_ROOT reader and the EDA tables. No network, no raw data; every number is fixture output."""
+"""analytics/coverage on the fixture season of analytics.fixtures and on the scripted generator of
+tests/_fx_coverage.py (pinned where a test needs defenders that move exactly by coverage class): end-to-end run,
+leakage guards, feature geometry on hand-built screens, validator counts, the DATA_ROOT reader and the EDA tables.
+No network, no raw data; every number is fixture output."""
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -9,24 +11,27 @@ import pytest
 
 pytest.importorskip("sklearn")
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tests"))
+import _fx_coverage as FX  # noqa: E402
 from analytics import schema  # noqa: E402
 from analytics.coverage import CLASSES, eda, features as F, train as T, validate as V  # noqa: E402
+from analytics.eval import heldout_mask, is_heldout_game  # noqa: E402
 
-ROOT = Path(__file__).resolve().parents[1]
-EM_DASH = chr(0x2014)
-FX = V._fixture_module()
+EM_DASH, EN_DASH = chr(0x2014), chr(0x2013)
+TAG = "(fixture output, not a result)"
 
 
 @pytest.fixture(scope="module")
 def bundle():
-    """The generator every lane uses (shared when importable): 6 games, every third held out."""
+    """The generator every lane uses (analytics.fixtures): 6 games, every third held out."""
     return V.fixture_bundle(seed=0, n_games=6, heldout_every=3, n_possessions=12)
 
 
 @pytest.fixture(scope="module")
 def scripted():
-    """The local scripted generator (pinned, whatever the shared one does): 6 games, none held out."""
-    return V.fixture_bundle(seed=1, n_games=6, heldout_every=0, local=True, n_possessions=12)
+    """The scripted generator (pinned, whatever the shared one does): 6 games, none held out."""
+    return FX.scripted_bundle(seed=1, n_games=6, heldout_every=0, n_possessions=12)
 
 
 @pytest.fixture(scope="module")
@@ -64,7 +69,9 @@ def test_fixture_end_to_end(bundle, tmp_path):
     assert dict(expect.value_counts()) == dict(zip(rates["team_id"], rates["n_screens"]))
     assert ctx["counts"]["train_unsure_set_aside"] == 0 and "label_source" in pred.columns
     text = report.read_text()
-    assert "fixture output, not a result" in text and "refuse_heldout" in text and EM_DASH not in text
+    assert "fixture output, not a result" in text and "refuse_heldout" in text and EM_DASH not in text and EN_DASH not in text
+    headings = [x for x in text.splitlines() if x.startswith("## ")]
+    assert headings and all(x.endswith(TAG) for x in headings), headings
     written = sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*.parquet"))
     assert any(p.startswith("analytics/coverage/heldout/") and p.endswith("coverage_predictions.parquet") for p in written)
     assert any(p.endswith("coverage_team_rates.parquet") and "/heldout/" not in p for p in written)
@@ -232,16 +239,14 @@ def test_validator_drops_and_counts_bad_rows(scripted):
     assert len(labelled) == len(set(labelled))
     with pytest.raises(ValueError):
         V.check_screens(screens.drop(columns=["coverage"]), a, {})
-    assert V.season_of("12.16.2015.PHX.at.GSW") == "2015-16" and V.season_of("02.07.2016.A.at.B") == "2015-16"
-    assert V.season_of("nonsense") == "unknown"
-    assert V.heldout_mask(["12.16.2015.PHX.at.GSW", "01.01.2016.AAA.at.CLE", "01.01.2016.AAA.at.BBB"]).tolist() == [True, True, False]
+    # the held-out rule the candidate table applies: an id token of sportvu/splits.json or the CLE arena
+    assert heldout_mask(["12.16.2015.PHX.at.GSW", "01.01.2016.AAA.at.CLE", "01.01.2016.AAA.at.BBB"]).tolist() == [True, True, False]
 
 
 def test_data_root_layout_is_read_by_the_cli(tmp_path):
-    import inspect
+    from analytics.labels import read_labels
     root = tmp_path / "data_root"
-    small = {"n_possessions": 8} if "n_possessions" in inspect.signature(FX.write_fixture_root).parameters else {}
-    FX.write_fixture_root(root, 0, 2, 2, **small)
+    FX.write_root(root, 0, 2, 2)
     assert sorted((root / "labels" / "screens").glob("*.jsonl"))
     counts = V.main(["--data", str(root)])
     assert counts["games"] == 2 and counts["games_heldout"] == 1 and counts["screens_kept"] > 0
@@ -249,16 +254,17 @@ def test_data_root_layout_is_read_by_the_cli(tmp_path):
     assert 0 < len(feats) <= counts["candidates"] and feats["heldout"].sum() > 0
     assert list((tmp_path / "out").rglob("coverage_features.parquet"))
     # the detector's table at OUT_ROOT/analytics/actions/<season>/actions_detected/<game>.parquet (lane ACTIONS layout)
-    screens = pd.concat([V._read_jsonl(p, "screens") for p in sorted((root / "labels" / "screens").glob("*.jsonl"))])
-    actions = pd.concat([V._read_jsonl(p, "actions") for p in sorted((root / "labels" / "actions").glob("*.jsonl"))])
-    train_game = [g for g in sorted(screens["sportvu_game"].unique()) if not V.heldout_mask([g]).iloc[0]][0]
+    labels = [read_labels(root, p.stem) for p in sorted((root / "labels" / "screens").glob("*.jsonl"))]
+    screens = pd.concat([sc for _a, sc in labels])
+    actions = pd.concat([a for a, _sc in labels])
+    train_game = [g for g in sorted(screens["sportvu_game"].unique()) if not is_heldout_game(g)][0]
     src = actions[(actions["sportvu_game"] == train_game) & (actions["action_type"] == "ball_screen")].head(2)
     detected = src.drop(columns=[c for c in ("action_id", "labelled_at") if c in src.columns]).copy()
     detected["start_frame"] = detected["start_frame"] + 60       # a minute later than the hand label: not a duplicate
     detected["end_frame"] = detected["end_frame"] + 60
     detected["label_source"] = "model"
     out = tmp_path / "out"
-    ddir = out / "analytics" / "actions" / V.season_of(train_game) / "actions_detected"
+    ddir = out / "analytics" / "actions" / schema.season_of_game(train_game) / "actions_detected"
     ddir.mkdir(parents=True)
     detected.to_parquet(ddir / (train_game + ".parquet"), index=False)
     assert len(V.load_detected(out)) == 2
@@ -310,11 +316,8 @@ def test_label_files_are_resolved_like_the_label_tool_writes_them(tmp_path):
     counts = {}
     labels = V.load_labels(tmp_path, counts)
     a, s = labels["actions"], labels["screens"]
-    assert counts["label_reader"] in ("analytics.labels", "raw")
-    if counts["label_reader"] == "analytics.labels":     # read_labels(labeller_pass=1) already left pass 2 out
-        assert counts["actions_other_pass_dropped"] == 0 and counts["screens_other_pass_dropped"] == 0
-    else:                                                # the fallback reader relies on the lane's own filter
-        assert counts["actions_other_pass_dropped"] == 1 and counts["screens_other_pass_dropped"] == 1
+    assert counts["label_reader"] == "analytics.labels"
+    assert counts["actions_other_pass_dropped"] == 0 and counts["screens_other_pass_dropped"] == 0   # read_labels(labeller_pass=1) left pass 2 out
     assert (a["labeller_pass"].astype(int) == 1).all() and (s["labeller_pass"].astype(int) == 1).all()
     assert sorted(a["action_id"].astype(int)) == [1, 2]                        # 3 tombstoned, 4 is pass 2
     assert int(a.loc[a["action_id"] == 2, "start_frame"].iloc[0]) == 305        # last line wins
@@ -350,8 +353,11 @@ def test_owned_files_carry_no_em_dash_and_notebook_is_valid_json():
     owned += [ROOT / "tests" / "test_coverage.py", ROOT / "tests" / "_fx_coverage.py", ROOT / "docs" / "contract" / "coverage.md",
               ROOT / "reports" / "coverage.md", ROOT / "notebooks" / "eda_coverage.ipynb"]
     for p in owned:
-        assert EM_DASH not in p.read_text(), p
+        text = p.read_text()
+        assert EM_DASH not in text and EN_DASH not in text, p
     nb = json.loads((ROOT / "notebooks" / "eda_coverage.ipynb").read_text())
     assert nb["nbformat"] == 4 and any("eda" in "".join(c["source"]) for c in nb["cells"] if c["cell_type"] == "code")
     report = (ROOT / "reports" / "coverage.md").read_text()
     assert "fixture output, not a result" in report and "No hand labels exist yet" in report
+    assert all(x.endswith(TAG) for x in report.splitlines() if x.startswith("## "))
+    assert "/tmp" not in report and "scratchpad" not in report

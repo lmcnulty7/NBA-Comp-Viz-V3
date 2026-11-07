@@ -1,12 +1,12 @@
 # Coverage recognition: pick-and-roll defensive coverage (analytics/coverage)
 
-Written 2026-11-05T09:44:37Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-07T08:42:54Z by `python -m analytics.coverage.train --fixtures --fixture-games 8 --fixture-heldout-every 4 --fixture-possessions 40 --report reports/coverage.md --folds 5 --seed 0 --bootstrap 200`.
 
-## Status
+## Status (fixture output, not a result)
 
 No hand labels exist yet (STATUS.md): this run read the synthetic fixture season (shared generator), so every number below is fixture output, not a result. The generator scripts the two defenders' paths by coverage class, so the classes are separable by construction; the F1 here says nothing about hand labels. The real run awaits the hand-label tables of lane ACTIONS under DATA_ROOT/labels/ on the owner's Mac.
 
-## Inputs
+## Inputs (fixture output, not a result)
 
 | item | count |
 | --- | --- |
@@ -26,7 +26,7 @@ No hand labels exist yet (STATUS.md): this run read the synthetic fixture season
 
 Guard: `analytics.eval.refuse_heldout` checked 6 training game ids against sportvu/splits.json; `analytics.schema.assert_time_forward` passed on the feature frame.
 
-## Label counts (training rows)
+## Label counts (training rows) (fixture output, not a result)
 
 | class | n | share |
 | --- | --- | --- |
@@ -40,13 +40,13 @@ Guard: `analytics.eval.refuse_heldout` checked 6 training game ids against sport
 
 Confidence over every labelled screen read: 136 sure, 0 unsure. Only sure rows fit (docs/contract/labels.md leaves unsure out of the first training set); unsure rows are scored and the flag never enters a feature.
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Unit: one ball screen. Window: start_frame to end_frame plus 1.5 s (38 frames at 25 Hz), declared as the object being classified; no later frame enters. Features (37): screen_basket_dist_ft, handler_depth_t0_ft, handler_lat_t0_ft, d1_depth_t0_ft, d1_lat_t0_ft, d2_depth_t0_ft, d2_lat_t0_ft, d1_handler_dist_t0_ft, d2_handler_dist_t0_ft, d2_basket_dist_t0_ft, d2_nearest_end, def_dist_diff_end_ft, d1_handler_dist_end_ft, d2_handler_dist_end_ft, d2_depth_end_ft, d2_basket_dist_min_ft, d2_handler_dist_min_early_ft, d2_handler_dist_mean_early_ft, d2_handler_dist_mean_post_ft, d2_handler_dist_late_ft, d2_handler_dist_min_post_ft, d2_handler_dist_min_frac, d2_handler_dist_after_min_ft, d1_depth_rel_screener_pass_ft, d1_lat_rel_handler_end_ft, handler_lat_end_ft, handler_depth_end_ft, both_within_6ft_frac, both_within_6ft_any, d2_screen_dist_end_ft, d2_screen_dist_max_ft, handler_speed_mean_ftps, handler_speed_max_ftps, d1_speed_mean_ftps, d2_speed_mean_ftps, d1_handler_dist_mean_post_ft, n_window_frames.
 Candidates: majority (training-fold class frequencies), multinomial logistic regression (median imputation, standardisation, C = 1), HistGradientBoostingClassifier (100 trees, depth 3, learning rate 0.1, min 5 rows per leaf).
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); macro F1 over the classes present in the truth; intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0). Selection: highest out-of-fold macro F1, ties to the simpler model.
 
-## Candidates (out-of-fold, 109 rows, 6 game(s))
+## Candidates (out-of-fold, 109 rows, 6 game(s)) (fixture output, not a result)
 
 | model | macro F1 | accuracy | selected |
 | --- | --- | --- | --- |
@@ -56,7 +56,7 @@ Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); macro F1 ov
 
 Selected: hgb. Fixture target: beat majority (met).
 
-## Per-class F1 (hgb, out-of-fold)
+## Per-class F1 (hgb, out-of-fold) (fixture output, not a result)
 
 | class | F1 |
 | --- | --- |
@@ -68,7 +68,7 @@ Selected: hgb. Fixture target: beat majority (met).
 | under | 0.929 |
 | over | 0.929 |
 
-## Confusion (hgb, out-of-fold): rows true, columns predicted
+## Confusion (hgb, out-of-fold): rows true, columns predicted (fixture output, not a result)
 
 | true \ predicted | switch | drop | hedge_show | blitz_trap | ice | under | over |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -80,7 +80,7 @@ Selected: hgb. Fixture target: beat majority (met).
 | under | 0 | 0 | 0 | 0 | 0 | 13 | 1 |
 | over | 0 | 0 | 0 | 0 | 0 | 1 | 13 |
 
-## Team rates (predicted class shares per defending team and season, training games; insufficient under 300 screens)
+## Team rates (predicted class shares per defending team and season, training games; insufficient under 300 screens) (fixture output, not a result)
 
 Season 2015-16:
 
@@ -101,7 +101,7 @@ Season 2015-16:
 
 A team marked insufficient has fewer than 300 screens; its shares are shown for completeness and are not to be read.
 
-## Held-out rows (scored once by hgb refit on all 109 training rows; never fitted or tuned on)
+## Held-out rows (scored once by hgb refit on all 109 training rows; never fitted or tuned on) (fixture output, not a result)
 
 27 screens from 2 held-out game(s): 01.04.2016.F03.at.CLE, 02.08.2016.F07.at.CLE.
 
@@ -111,18 +111,18 @@ A team marked insufficient has fewer than 300 screens; its shares are shown for 
 
 Only the selected model is scored on the held-out rows (one look); the numbers are point estimates over 2 game(s), no interval.
 
-## Outputs (under OUT_ROOT)
+## Outputs (under OUT_ROOT) (fixture output, not a result)
 
 - `analytics/coverage/2015-16/coverage_predictions.parquet`
 - `analytics/coverage/heldout/2015-16/coverage_predictions.parquet`
 - `analytics/coverage/2015-16/coverage_team_rates.parquet`
 - `reports/coverage.md (this report, in the repo)`
 
-## On the Mac (where the labels and frames will be)
+## On the Mac (where the labels and frames will be) (fixture output, not a result)
 
     python -m analytics.coverage.train --data "<Drive>/nba_harvest" --out "<Drive>/nba_harvest" --report reports/coverage.md --folds 5 --seed 0 --bootstrap 1000
 
-## Assumptions
+## Assumptions (fixture output, not a result)
 
 - action_id is the row's position within its game's actions file when the table carries no action_id column.
 - The basket a screen attacks is the one nearer the handler at start_frame.

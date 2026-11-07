@@ -1,8 +1,8 @@
 # Load and fatigue baselines (analytics/load/train.py)
 
-Written 2026-11-07T08:42:06Z by `python -m analytics.load.train --fixtures --report reports/load.md --bootstrap 200`.
+Written 2026-11-07T08:42:47Z by `python -m analytics.load.train --fixtures --report reports/load.md --bootstrap 200`.
 
-**Every number below is fixture output, not a result**: the inputs are a synthetic season (fixture (analytics.fixtures synth_season)). The real run is the Mac command at the end.
+**Every number below is fixture output, not a result**: the inputs are a synthetic season (analytics.fixtures synth_season). The real run is the Mac command at the end.
 
 ## Inputs (fixture output, not a result)
 
@@ -66,7 +66,7 @@ out-of-fold under 4 grouped folds by sportvu_game (seed 0); fewer games (4) than
 
 Paired bootstrap by game of log loss(logistic) - log loss(base): 0.0000 [0.0000, 0.0000], excludes zero: False. Calibration slope of the logistic model: n/a (one fit, no interval; 1 is calibrated).
 
-One class only in absent_next: no calibration table.
+One class only in absent_next: no calibration table, and the logistic model reduces to the base rate. On the analytics.fixtures season every listed player plays every game, so no player is ever absent.
 
 ## Cross-check against the tracking aggregates (section 11) (fixture output, not a result)
 

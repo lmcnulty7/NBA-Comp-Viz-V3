@@ -1,18 +1,18 @@
 # Player style embeddings (analytics/embeddings/train.py) (fixture output, not a result)
 
-Written 2026-11-05T09:42:24Z by `python -m analytics.embeddings.train --fixtures --local-fixtures --report reports/embeddings.md --seed 0 --bootstrap 200`.
+Written 2026-11-07T08:42:24Z by `python -m analytics.embeddings.train --fixtures --report reports/embeddings.md --seed 0 --bootstrap 200`.
 
-**Every number below is fixture output, not a result**: the inputs are synthetic games from tests/_fx_embeddings.py with planted archetypes. The real run is the Mac command at the end.
+**Every number below is fixture output, not a result**: the inputs are synthetic games from analytics.fixtures with planted archetypes. The real run is the Mac command at the end.
 
-## Inputs
+## Inputs (fixture output, not a result)
 
-Source: fixtures (tests/_fx_embeddings, local generator), written under a temporary directory.
-Training games (6): 11.01.2015.BKN.at.GSW, 11.04.2015.SAC.at.BKN, 11.07.2015.CHA.at.SAC, 11.13.2015.GSW.at.PHX, 11.16.2015.SAC.at.GSW, 11.19.2015.CHA.at.BKN.
+Source: fixtures (analytics.fixtures, seed 0), written under a temporary directory.
+Training games (6): 02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL.
 Held-out material set aside before any feature: 2 frame file(s) under heldout/, 0 game id(s) dropped by sportvu/splits.json or the CLE arena (none), 0 shot row(s) flagged held out, 0 game(s) without a possessions table (none).
 Guards: `analytics.eval.refuse_heldout` on the training game ids, `analytics.schema.assert_time_forward` on the feature frame.
 NBA.com aggregates: present. Positions table: present.
-Player-seasons: 50, of which 44 sufficient (at least 20 possessions) and 6 insufficient; the contract gate is 300, lowered for the short fixture games.
-Features used (38): avg_speed_ftps, dist_per_poss_ft, zone_near_left, zone_near_right, zone_mid_left, zone_mid_right, zone_far_left, zone_far_right, ball_share, nearest_teammate_ft, offball_ball_dist_ft, shot_share_restricted_area, shot_share_paint_non_ra, shot_share_mid_range, shot_share_corner_3, shot_share_above_break_3, shot_share_backcourt, shot_share_3pt, attempts_per_poss, agg_drives, agg_touches, agg_passes_made, agg_catch_shoot_fga, agg_pull_up_fga, agg_deflections, agg_contested_shots, agg_screen_assists, pt_isolation_freq, pt_transition_freq, pt_prballhandler_freq, pt_prrollman_freq, pt_postup_freq, pt_spotup_freq, pt_handoff_freq, pt_cut_freq, pt_offscreen_freq, pt_offrebound_freq, pt_misc_freq.
+Player-seasons: 42, of which 38 sufficient (at least 20 possessions) and 4 insufficient; the contract gate is 300, lowered for the short fixture games.
+Features used (37): avg_speed_ftps, dist_per_poss_ft, zone_near_left, zone_near_right, zone_mid_left, zone_mid_right, zone_far_left, zone_far_right, ball_share, nearest_teammate_ft, offball_ball_dist_ft, shot_share_restricted_area, shot_share_paint_non_ra, shot_share_mid_range, shot_share_corner_3, shot_share_above_break_3, shot_share_backcourt, shot_share_3pt, attempts_per_poss, agg_drives, agg_touches, agg_catch_shoot_fga, agg_pull_up_fga, agg_deflections, agg_contested_shots, agg_screen_assists, pt_isolation_freq, pt_transition_freq, pt_prballhandler_freq, pt_prrollman_freq, pt_postup_freq, pt_spotup_freq, pt_handoff_freq, pt_cut_freq, pt_offscreen_freq, pt_offrebound_freq, pt_misc_freq.
 
 ## Candidates (fixture output, not a result)
 
@@ -20,19 +20,19 @@ Protocol: median imputation and standardisation fit on the sufficient rows; PCA 
 
 | method | 5-NN position accuracy | majority baseline | next-season R squared (ridge) | mean baseline R squared | note |
 | --- | --- | --- | --- | --- | --- |
-| pca | 1.000 [1.000, 1.000] | 0.409 [0.364, 0.568] | 0.887 [0.804, 0.937] | -0.110 [-0.264, -0.079] | explained variance 0.62, 0.15, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02 |
+| pca | 0.921 [0.841, 1.000] | 0.421 [0.342, 0.579] | 0.859 [0.797, 0.910] | -0.027 [-0.193, -0.006] | explained variance 0.30, 0.12, 0.10, 0.07, 0.06, 0.06, 0.04, 0.04 |
 | autoencoder | not trained | | | | gate not reached |
 
-5-NN: leave-one-out over 44 labelled player-seasons, majority class G. Next season: leaguedashptstats.drives (2016-17), 44 player(s), out-of-fold under 5 grouped folds by player_id.
+5-NN: leave-one-out over 38 labelled player-seasons, majority class C. Next season: leaguedashptstats.drives (2016-17), 38 player(s), out-of-fold under 5 grouped folds by player_id.
 
-## Decision
+## Decision (fixture output, not a result)
 
-Chosen: **pca**. PCA 5-NN accuracy 1.000 is at or above the 0.60 gate: the autoencoder is not trained.
+Chosen: **pca**. PCA 5-NN accuracy 0.921 is at or above the 0.60 gate: the autoencoder is not trained.
 The gate compares the 5-NN position accuracy reported in the candidate table above (leave-one-out point estimate).
 
-## Outputs
+## Outputs (fixture output, not a result)
 
-Tables (docs/contract/embeddings.md): player_season_features (50 rows), player_embeddings (44 rows), embedding_neighbours (220 rows).
+Tables (docs/contract/embeddings.md): player_season_features (42 rows), player_embeddings (38 rows), embedding_neighbours (190 rows).
 Written under a temporary directory (no --out given).
 
 ## Assumptions (decided without asking; also in the module docstrings)
@@ -44,7 +44,7 @@ Written under a temporary directory (no --out given).
 - Positions (player_id, season, position in G, F, C) are a needed input at collect/positions.parquet or collect/tracking/positions/<season>.parquet; without them the 5-NN metric is n/a and PCA stands (the gate cannot be evaluated).
 - Insufficient rows (under 20 possessions; 300 in the contract) are written to player_season_features but never fitted, embedded or scored.
 - The NBA.com season aggregates and the positions table are season-level and include the held-out games' minutes; no held-out row is fitted, but those season totals are not held-out-free. There is no flag to drop the aggregate block yet: a tracked-era run without it is the run without collect/tracking/aggregates present (the block is then NaN and unused).
-- The shared fixtures (analytics.fixtures) key their positions and aggregates by other player ids than their games, so on them both metrics read n/a; the lane's local generator (tests/_fx_embeddings.py, 5 Hz, planted G/F/C archetypes, aligned ids) is what exercises the metrics. Fixture output is never a result.
+- Fixture runs use analytics.fixtures.write_fixture_root: league rosters persist across games and the aggregates and positions are keyed by the same players (archetype from the roster slot), so both metrics run on them. Fixture output is never a result.
 
 ## Mac command
 

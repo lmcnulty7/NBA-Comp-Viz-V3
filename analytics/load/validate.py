@@ -238,7 +238,7 @@ def load_fixtures(seed: int = 0, n_games: int = 8, heldout_every: int = 4, n_pos
     games = synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     players = pd.concat([g["rosters"] for g in games], ignore_index=True).drop_duplicates("player_id")
     agg, _positions = synth_aggregates(seed, players=players, seasons=("2015-16",))
-    return inputs_from_games(games, agg, source="fixture (analytics.fixtures synth_season)")
+    return inputs_from_games(games, agg, source="analytics.fixtures synth_season")
 
 
 def add_fixture_args(ap) -> None:

@@ -1,10 +1,10 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written 2026-11-05T09:46:27Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
+Written 2026-11-07T08:42:18Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
 
-**Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of tests/_fx_winprob.py stands in for the five seasons on the owner's Mac.
+**Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of analytics.fixtures (synth_stints, synth_odds) stands in for the five seasons on the owner's Mac.
 
-## Inputs
+## Inputs (fixture output, not a result)
 
 | input | value |
 | --- | --- |
@@ -21,7 +21,7 @@ Written 2026-11-05T09:46:27Z by `python -m analytics.winprob.train --fixtures --
 | possession known (training events) | 0.990 |
 | training home win rate (by game) | 0.475 |
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): margin, seconds_remaining, overtime, period, possession_home, spread_home, spread_missing, margin_x_sqrt_time.
 The final score never enters a feature; `prefix_invariance_violations` found 0 violation(s) on 2 probed game(s) (a feature at event k is unchanged when the play-by-play is cut after k).
@@ -134,4 +134,4 @@ The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<s
 - On the fixtures the boosted candidate loses to the logistic one because the spread is nearly unique per game among a few dozen games and the trees memorise games through it; the selection rule picks the logistic candidate. This is a fixture artefact to re-check on the real seasons, where many games share a spread value.
 - The HGB hyperparameters (depth 3, 50 rounds, 200 rows per leaf, L2 1.0) were set after seeing the fixture memorise games through the spread (a first setting of 15 leaves and 40 rows per leaf scored worse than the constant out of fold). They were chosen on fixture data, not on any real season, and the held-out season was not involved.
 - The closing spread join is analytics.betting.validate's (per-book latest pre-tip is_close snapshot, median over books, both team keys, tip date shifted 8 h to US local with one day of tolerance); the games table's spread_home is used only when no odds table exists.
-- The calibration slope is the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved here by a bounded Newton method (analytics.winprob.train.slope) because the eval solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's.
+- The calibration slope is analytics.eval.calibration_slope_fast: the logistic regression of home_win on logit(p) of analytics.eval.calibration_slope, solved by a bounded Newton method because the lbfgs solver runs to its iteration cap on the nearly separable late-game buckets; Brier, ECE, log loss, the reliability table and the game bootstrap are analytics.eval's too.

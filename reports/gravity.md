@@ -1,10 +1,10 @@
 # Gravity and spacing (analytics/gravity) (fixture output, not a result)
 
-Written 2026-11-05T09:20:26Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
+Written 2026-11-07T08:42:42Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
 
 **Every number below is fixture output, not a result**: the inputs are synthetic games from `analytics.fixtures` with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end.
 
-## Protocol
+## Protocol (fixture output, not a result)
 
 Unit: player-frame at 1 Hz inside possessions. Target: nearest-defender distance (ft). Features: x_ft, y_ft, dist_basket_ft, angle_rad, dist_ball_ft, has_ball, ball_dist_basket_ft, zone_make_rate, game_clock_s, shot_clock_s, shot_clock_missing.
 Shooting prior: the league make rate by zone of the player's position (zones rim, paint, short_mid, long_mid, three), from training-fold shots only; nothing in the features identifies a player. Gravity sign: `gravity_ft = expected_ft - nearest_def_dist_ft` (positive: defenders closer than location predicts). Shipped expectation: ridge (see the candidate table for why).
@@ -82,9 +82,9 @@ Mean hull area 340.5 ft2 (sd 154.9), mean nearest-defender distance 4.48 ft over
 
 2 held-out game(s), 4860 player-frames, scored once by the shipped ridge refit on all 14795 training rows: MSE 4.892 (constant floor 8.032, not a selection input). Never fitted, tuned or ranked on.
 
-## Second run: the lane's fallback generator (tests/_fx_gravity.py) (fixture output, not a result)
+## Second run: the lane's planted-pull generator (analytics/gravity/fixture_pull.py) (fixture output, not a result)
 
-The default generator above gives every game a fresh roster and plays its star every period, so the season-wide top-decile check and the on/off sign test cannot run there. The fallback keeps the same fourteen players across the season, sits its star on about 40 percent of possessions and plants a known pull, so both checks run here.
+analytics.fixtures keeps one roster per team all season, so the season-wide top-decile check runs on it, but its stars play every period, so the on/off sign test finds no off-court shot there, and its pull has no closed form to recover. The planted-pull generator sits its star on about 40 percent of possessions and plants a known pull (effective_pull_ft), so the sign test and the pull recovery run here.
 
 ### Inputs (fixture output, not a result)
 
@@ -147,7 +147,7 @@ Mean out-of-fold gravity (ft) of the known players under each candidate (ridge i
 | ridge | 1.427 | 1.376 |
 | hgb | 1.420 | 1.259 |
 
-Recovered pull under the shipped expectation against the generator's effective pull (the planted pull in the target's own terms, see tests/_fx_gravity.py): 1001: recovered 1.427 ft, effective 1.536 ft; 2001: recovered 1.376 ft, effective 1.545 ft.
+Recovered pull under the shipped expectation against the generator's effective pull (the planted pull in the target's own terms, see analytics/gravity/fixture_pull.py): 1001: recovered 1.427 ft, effective 1.536 ft; 2001: recovered 1.376 ft, effective 1.545 ft.
 
 #### Sign test: teammates' location-only xFG with a high-gravity player on the floor (fixture output, not a result)
 
@@ -161,7 +161,7 @@ Mean hull area 243.1 ft2 (sd 126.3), mean nearest-defender distance 5.83 ft over
 
 2 held-out game(s), 3940 player-frames, scored once by the shipped ridge refit on all 11780 training rows: MSE 2.129 (constant floor 5.242, not a selection input). Never fitted, tuned or ranked on.
 
-## Outputs
+## Outputs (fixture output, not a result)
 
 No tables written (pass --out OUT_ROOT).
 
@@ -177,7 +177,7 @@ No tables written (pass --out OUT_ROOT).
 - A player's interval resamples that player's games; a player seen in one game gets no interval. The player table is built on training frames only.
 - The sign test's candidates are the fixture's planted players on fixtures and the top ten gated players on real data; the xFG probability is the location-only logistic of analytics.train_xfg fitted out of fold by game on the training games' shots; shots whose shooter could not be matched to a roster id are left out of the teammates' set.
 - On-court at a shot means the player has a row in the frame of the same period nearest the shot's clock.
-- Fixture runs on analytics.fixtures: every game has a fresh roster (player ids depend on the game seed), so no player reaches the 300-possession gate and the season-wide top-decile check cannot pass by construction; the per-game check is the one that applies there. Its star plays every period, so the on/off sign test finds no off-court shots; the fallback generator (tests/_fx_gravity.py) keeps one roster across the season and sits its star, and both checks run on it (the second section of a fixture report).
+- Fixture runs on analytics.fixtures keep one roster per team all season, so the season-wide and per-game top-decile checks both run; its stars play every period, so the on/off sign test finds no off-court shots there. The lane's synthetic planted-pull generator (analytics/gravity/fixture_pull.py) sits its star and plants a known pull, and the sign test and the pull recovery run on it (the second section of a fixture report).
 
 ## Mac command (the real run)
 

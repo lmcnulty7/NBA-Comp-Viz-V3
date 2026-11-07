@@ -290,7 +290,9 @@ def write_report(path: Path, ctx: dict) -> str:
                   fmt_num(ab["diff"]["diff"], 4), fmt_num(ab["diff"]["lo"], 4), fmt_num(ab["diff"]["hi"], 4), ab["diff"]["excludes_zero"],
                   fmt_num(ab["logistic"]["calibration_slope"], 4)), ""]
         if ab["calibration"] is None:
-            L += ["One class only in absent_next: no calibration table.", ""]
+            L += ["One class only in absent_next: no calibration table, and the logistic model reduces to the base rate.%s" % (
+                " On the analytics.fixtures season every listed player plays every game, so no player is ever absent."
+                if fx and ab["base_rate"] == 0 else ""), ""]
         else:
             L += ["Calibration table of the logistic model (equal-width bins of p):", "",
                   "| bin | lo | hi | n | mean p | mean absent |", "| --- | --- | --- | --- | --- | --- |"]

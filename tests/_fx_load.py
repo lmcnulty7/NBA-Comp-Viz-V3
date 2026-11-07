@@ -212,7 +212,7 @@ def local_season_inputs(seed=0, n_games=8, heldout_every=4, n_possessions=20) ->
     games = _local_synth_season(seed, n_games=n_games, heldout_every=heldout_every, n_possessions=n_possessions)
     n_players = len({int(p) for g in games for p in g["rosters"]["player_id"]})
     agg = _local_synth_aggregates(seed, max(n_players, 1), ["2015-16"])
-    return V.inputs_from_games(games, agg, source="fixture (local tests/_fx_load.py)")
+    return V.inputs_from_games(games, agg, source="local generator of tests/_fx_load.py")
 
 
 __all__ = ["local_season_inputs", "team_players"]

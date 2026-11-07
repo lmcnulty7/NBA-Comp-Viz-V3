@@ -530,7 +530,7 @@ def write_report(path: Path, ctx: dict, pull_ctx: dict = None) -> str:
     if fx:
         L += ["**Every number below is fixture output, not a result**: the inputs are synthetic games from `%s` "
               "with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end." % ctx["fixture_source"], ""]
-    L += ["## Protocol", "",
+    L += ["## Protocol%s" % tag, "",
           "Unit: player-frame at 1 Hz inside possessions. Target: nearest-defender distance (ft). Features: %s." % ", ".join(F.FEATURES),
           "Shooting prior: the league make rate by zone of the player's position (zones %s), from training-fold shots only; "
           "nothing in the features identifies a player. Gravity sign: `gravity_ft = expected_ft - nearest_def_dist_ft` "

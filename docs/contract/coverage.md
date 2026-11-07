@@ -44,7 +44,7 @@ screen point, and speeds. Detected screens get their defenders by nearest oppone
 ## Tables written
 
 Under `OUT_ROOT/analytics/coverage/<season>/` (held-out games under `OUT_ROOT/analytics/coverage/heldout/<season>/`);
-`<season>` is derived from the game id date (`MM.DD.YYYY`, September or later starts the season).
+`<season>` is `analytics.schema.season_of_game` of the game id (the season turns over in July).
 
 ### coverage_predictions (`coverage_predictions.parquet`, one row per screen)
 
@@ -100,6 +100,11 @@ rows are scored once by the selected model refit on every training row. No deep 
     python -m analytics.coverage.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.coverage.train --fixtures | --data DATA_ROOT [--out OUT_ROOT] --report reports/coverage.md [--folds 5] [--seed 0] [--bootstrap 200]
 
-`--fixtures` builds the season in memory from `analytics.fixtures` (lane I1) when it imports, else from the
-local scripted generator of `tests/_fx_coverage.py`; `--fixture-games`, `--fixture-heldout-every` and
-`--fixture-possessions` size it. Without `--out` the tables go to a temporary directory that the CLI prints.
+`--fixtures` builds the season in memory from `analytics.fixtures` (lane I1) through
+`analytics.coverage.validate.fixture_bundle`; `--fixture-games`, `--fixture-heldout-every` and
+`--fixture-possessions` size it. The scripted generator of `tests/_fx_coverage.py` is test-only (a test passes it
+to `fixture_bundle`); no production module imports `tests/`. Without `--out` the tables go to a temporary
+directory that the CLI prints, and the report lists them relative to OUT_ROOT. Hand labels are read only through
+`analytics.labels.read_labels(labeller_pass=1)`; held-out ids are `analytics.eval.heldout_mask`; every fit runs
+inside `analytics.eval.fit_threads()`. A fixture report carries "fixture output, not a result" on every section
+heading and records its command with the value of `--out` written as `OUT_ROOT`.
