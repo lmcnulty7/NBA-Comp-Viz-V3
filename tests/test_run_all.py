@@ -504,3 +504,70 @@ def test_pytest_ini_registers_slow_marker_and_gitignore_covers_outputs():
     ignore = (REPO / ".gitignore").read_text().splitlines()
     for line in ("logs/", "reports/run_all.md", "reports/fixtures/", ".fixture_root/", "site/"):
         assert line in ignore, line
+
+
+# ----------------------------------------------------------------------------- fixture banner on lane reports (runbook rule 4)
+
+def test_add_fixture_banner_labels_title_and_body_once(tmp_path):
+    p = tmp_path / "lane.md"
+    p.write_text("# Lane report\n\nWritten by a lane.\n")
+    assert run_all.add_fixture_banner(p) is True
+    lines = p.read_text().splitlines()
+    assert lines[0] == "# Lane report (fixture output, not a result)"
+    assert lines[1] == "" and lines[2] == run_all.FIXTURE_BANNER and lines[4] == "Written by a lane."
+    before = p.read_text()
+    assert run_all.add_fixture_banner(p) is False and p.read_text() == before          # idempotent
+    # a lane that already says it (any case) keeps its own wording: only the title is labelled
+    q = tmp_path / "own.md"
+    q.write_text("# Own\n\nFixture output, not a result: scripted motion.\n")
+    assert run_all.add_fixture_banner(q) is True
+    assert q.read_text() == "# Own (fixture output, not a result)\n\nFixture output, not a result: scripted motion.\n"
+    r = tmp_path / "untitled.md"
+    r.write_text("no title\n")
+    run_all.add_fixture_banner(r)
+    assert r.read_text().splitlines()[0] == run_all.FIXTURE_BANNER
+    assert run_all.add_fixture_banner(tmp_path / "absent.md") is False
+
+
+def _banner_ok(text: str) -> bool:
+    title = text.splitlines()[0]
+    return title.startswith("# ") and title.endswith("(fixture output, not a result)") and text.count(run_all.FIXTURE_BANNER) == 1
+
+
+def test_fixture_run_labels_every_lane_report_and_data_run_does_not(tmp_path, monkeypatch, capsys):
+    """Real lanes through run_all: --fixtures writes a fixture root and hands each step --data FIXTURE_ROOT, so the
+    lanes cannot tell; run_all labels the reports. A --data run on that same root (given explicitly) is left alone."""
+    out = tmp_path / "fx"
+    rc = run_all.main(["--fixtures", "--ext", "rebounds", "gravity", "--bootstrap", "5", "--out", str(out)])
+    assert rc == 0, capsys.readouterr().out
+    for lane in ("rebounds", "gravity"):
+        text = (out / "reports" / (lane + ".md")).read_text()
+        assert _banner_ok(text), text[:400]
+    root = out / "fixture_root"
+    assert (root / "sportvu_contract" / "manifest.json").exists() or (root / "manifest.json").exists()
+
+    def boom(path):
+        raise AssertionError("a --data run must never touch a lane report: %s" % path)
+
+    monkeypatch.setattr(run_all, "add_fixture_banner", boom)
+    out2 = tmp_path / "data"
+    rc = run_all.main(["--data", str(root), "--ext", "rebounds", "--bootstrap", "5", "--out", str(out2)])
+    assert rc == 0, capsys.readouterr().out
+    text = (out2 / "reports" / "rebounds.md").read_text()
+    assert "fixture output, not a result" not in text.splitlines()[0] and run_all.FIXTURE_BANNER not in text
+
+
+def test_fixture_fallback_run_labels_reports_too(tmp_path, monkeypatch, capsys, no_fixture_root):
+    """The per-step --fixtures fallback (no fixture root written) labels the report the same way; a --data run of the
+    same stub leaves its report exactly as the step wrote it."""
+    stubs = tmp_path / "stubs"
+    reg = make_stub(stubs, "fxban_stub")
+    monkeypatch.syspath_prepend(str(stubs))
+    rc = run_all.main(["--fixtures", "--ext", "fxban_stub", "--registry", str(reg), "--out", str(tmp_path / "o")])
+    assert rc == 0, capsys.readouterr().out
+    assert _banner_ok((tmp_path / "o" / "reports" / "fxban_stub.md").read_text())
+    data = tmp_path / "d"
+    data.mkdir()
+    rc = run_all.main(["--data", str(data), "--ext", "fxban_stub", "--registry", str(reg), "--out", str(tmp_path / "o2")])
+    assert rc == 0, capsys.readouterr().out
+    assert (tmp_path / "o2" / "reports" / "fxban_stub.md").read_text() == "# stub report\n"
