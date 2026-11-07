@@ -4,7 +4,7 @@
 
 **Fixture output, not a result.** 16 of 16 lane reports below are fixture output (synthetic analytics.fixtures runs, or a smoke run on fixture pages); every number copied from them is fixture output, not a result.
 
-Generated 2026-11-07T10:42:23Z by `python3 -m analytics.results --reports reports --out reports/results.md` (analytics/results.py; docs/contract/results.md). Every value is copied from the report named in its row; nothing here is computed. Regeneration rewrites only the text between the results markers.
+Generated 2026-11-07T10:59:18Z by `python3 -m analytics.results --reports reports --out reports/results.md` (analytics/results.py; docs/contract/results.md). Every value is copied from the report named in its row; nothing here is computed. Regeneration rewrites only the text between the results markers.
 
 ### Sources
 
@@ -46,7 +46,7 @@ Generated 2026-11-07T10:42:23Z by `python3 -m analytics.results --reports report
 | winprob | fixture output, not a result | logistic | mean bucket Brier (the selection metric) 0.1278 (no interval stated) | mean bucket Brier 0.1531 (no interval stated) | prefix invariance check: 0 violation(s) |
 | load | fixture output, not a result | ridge (decline); logistic (absence) | y_decline MSE (ft/s)^2 0.8584 [0.5032, 1.3310] | y_decline MSE (ft/s)^2 0.6271 (point estimate) | paired bootstrap, decline: excludes zero: False; paired bootstrap, absence: excludes zero: False; absence target: One class only |
 | betting | fixture output, not a result | cover model market, margin model market | cover log loss 0.6931 [0.6931, 0.6931] | cover log loss 0.6931 (point estimate, season 2021-22) | none stated |
-| xfg_baseline | smoke run on fixture pages, not a result | logistic | log loss (in-sample) 0.6741 (no interval stated) | not run yet (set aside and NOT scored: a smoke run never touches them) | metrics in-sample |
+| xfg_baseline | smoke run on fixture pages, not a result | logistic | log loss (in-sample) 0.6741 (no interval stated) | not run yet (set aside and NOT scored: a smoke run never touches them) | metrics in-sample: one training game |
 
 ### xfg (fixture output, not a result)
 

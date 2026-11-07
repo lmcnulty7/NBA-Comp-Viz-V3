@@ -57,6 +57,20 @@ may say "scored once" or "not scored" after it), never for the rest of the headi
 | betting | `Selected: cover model **x**, margin model **y**` | cover log loss |
 | xfg_baseline | the logistic model (train_xfg has a constant floor and no selection rule) | log loss, in-sample or out-of-fold as the heading says |
 
+Degenerate runs the writers document, read as valid records rather than unparsed:
+
+| shape | writer | how it is summarised |
+| --- | --- | --- |
+| one training game (no grouped fold) | rebounds, matchups, gravity, ghosting, epv, actions, coverage, decisions, playcalling, betting: the candidate heading carries the mode `in-sample`, or the protocol sentence says IN-SAMPLE | every training metric name gets ` (in-sample)` and the first gate is `metrics in-sample` with the report's words; the heading is found by its prefix (`Candidates (`, `Metrics (`), never by `out-of-fold` |
+| nothing fitted | embeddings: fewer than 3 sufficient player-seasons, a report with only Inputs and Status, the Status body `fewer than 3 sufficient player-seasons: nothing fitted` | selected `none (<that text>)`, metric `5-NN position accuracy n/a (nothing fitted)`, gate `nothing fitted`; any other embeddings report without a Decision section stays unparsed |
+| one training season | lineups: `One training season only: no validation pair, plus_minus selected by default.` | the mean Spearman as written (n/a) with that sentence as its note |
+| absence model not run | load: `No player-game has a known absent_next` | decline model only; the sentence is a gate |
+| lo and hi both n/a | decisions, playcalling (one game) | no interval, shown as "no interval stated" |
+
+Every other early exit in the lane trainers (no training game, no training rows, one game where a lane needs two
+folds) raises SystemExit and writes no report, so the lane shows `report missing` or the previous report. The load
+trainer crashes in its one-training-game run (`bootstrap_by_game needs at least one game`) before writing a report.
+
 Lines of the form `Selected candidate: <name exactly as in the out-of-fold table>.`, outside every held-out section,
 are preferred wherever they appear (the --skip-heldout change adds one before the held-out heading of matchups,
 playcalling and load, with and without the flag). More than one such line where one is expected is unparsed. Older

@@ -512,3 +512,83 @@ def test_hand_text_quoting_a_marker_is_refused(tmp_path):
     with pytest.raises(SystemExit):
         R.main(["--reports", str(reports), "--out", str(out)])
     assert out.read_text() == text
+
+
+# ── degenerate runs: the reports the writers emit when a gate leaves little or nothing to fit ──────────────────────
+# Each report is written by the lane's own trainer on a tiny analytics.fixtures run (in-process, about a second each).
+ONE_GAME = ["--fixtures", "--fixture-games", "2", "--fixture-heldout-every", "2", "--fixture-possessions", "12", "--bootstrap", "10"]
+DEGENERATE = {
+    # one training game: no grouped fold is possible, the writer labels its metrics in-sample
+    **{lane: ONE_GAME for lane in ("rebounds", "matchups", "gravity", "ghosting", "epv", "actions", "coverage",
+                                     "decisions", "playcalling")},
+    "betting": ["--fixtures", "--fixture-games", "1"],
+    # the embeddings early exit: fewer than 3 player-seasons pass the gate, nothing fitted, Inputs and Status only
+    "embeddings": ["--fixtures", "--n-min", "100000", "--bootstrap", "10"],
+    # one training season before the held-out one: no validation pair, plus_minus by default
+    "lineups": ["--fixtures", "--fixture-generator", "local", "--n-games", "10", "--heldout-season", "2021-22", "--bootstrap", "10"],
+}
+
+
+@pytest.fixture(scope="module")
+def degenerate_reports(tmp_path_factory):
+    import importlib
+    import os
+    pytest.importorskip("pandas")
+    pytest.importorskip("sklearn")
+    root = tmp_path_factory.mktemp("degenerate")
+    here = os.getcwd()
+    os.chdir(root)                                   # nothing a fixture run writes lands in the repo
+    try:
+        for lane, argv in DEGENERATE.items():
+            importlib.import_module("analytics.%s.train" % lane).main(argv + ["--report", str(root / ("%s.md" % lane))])
+    finally:
+        os.chdir(here)
+    return {lane: (root / ("%s.md" % lane)).read_text() for lane in DEGENERATE}
+
+
+@pytest.mark.parametrize("lane", [x for x in DEGENERATE if DEGENERATE[x] is ONE_GAME or x == "betting"])
+def test_one_training_game_reports_parse_as_in_sample(degenerate_reports, lane):
+    text = degenerate_reports[lane]
+    r = R.parse_report(lane, text)
+    assert not r.problems, r.problems
+    assert r.status == R.FIXTURE and r.heldout.state == R.HO_SCORED
+    assert r.oof.name.endswith("(in-sample)") and all(m.name.endswith("(in-sample)") for _, m in r.candidates)
+    assert r.gates[0][0] == "metrics in-sample" and r.gates[0][1].lower().count("in-sample") >= 1
+    assert copied(r.oof, text) and "n/a" not in r.oof.interval        # an n/a pair of lo and hi is no interval
+    if lane in ("decisions", "playcalling"):
+        assert r.oof.interval == ""                                      # these two state lo and hi as n/a here
+    assert not R.parse_report(lane, report(lane)).in_sample          # the normal fixture report is out-of-fold
+
+
+def test_embeddings_nothing_fitted_report_is_a_valid_record(degenerate_reports):
+    text = degenerate_reports["embeddings"]
+    assert "## Decision" not in text and "nothing fitted" in text
+    r = R.parse_report("embeddings", text)
+    assert not r.problems, r.problems
+    assert r.selected == "none (fewer than 3 sufficient player-seasons: nothing fitted)"
+    assert r.oof.show(primary=True) == "5-NN position accuracy n/a (nothing fitted)"
+    assert r.heldout.state == R.HO_ABSENT and r.status == R.FIXTURE
+    block = R.render_block([r], "T", "c")
+    assert "| embeddings | fixture output, not a result | none (fewer than 3" in block
+    assert "| nothing fitted | fewer than 3 sufficient player-seasons: nothing fitted |" in block
+    # any other report without a Decision section stays unparsed
+    other = text.replace("fewer than 3 sufficient player-seasons: nothing fitted", "something else went wrong")
+    assert "no section starting 'Decision'" in R.parse_report("embeddings", other).problem("training")
+
+
+def test_lineups_one_training_season_report(degenerate_reports):
+    text = degenerate_reports["lineups"]
+    r = R.parse_report("lineups", text)
+    assert not r.problems, r.problems
+    assert r.selected == "plus_minus" and r.oof.value == "n/a" and r.oof.note.startswith("One training season only")
+    assert r.heldout.state == R.HO_SCORED
+
+
+def test_run_all_fixture_banner_form_is_fixture():
+    """PR #8 stamps run_all fixture reports: a title ending in the tag plus one banner line, nothing else."""
+    text = realify(report("rebounds"))
+    title, rest = text.split("\n", 1)
+    stamped = title + " (fixture output, not a result)\n\n**Fixture output, not a result.**\n" + rest
+    assert R.parse_report("rebounds", stamped).status == R.FIXTURE
+    assert R.parse_report("rebounds", title + " (fixture output, not a result)\n" + rest).status == R.FIXTURE
+    assert R.parse_report("rebounds", text).status == R.REAL_HELDOUT
