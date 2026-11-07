@@ -56,6 +56,8 @@ def parse_shooter(desc: str | None) -> tuple[str | None, str | None]:
 
 
 def _norm(s: str) -> str:
+    if not isinstance(s, str):          # NaN or None: a nameless player (player_id 0 in some frames)
+        return ""
     return re.sub(r"[^a-z ]", "", s.lower()).strip()
 
 

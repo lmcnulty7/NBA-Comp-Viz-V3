@@ -54,6 +54,8 @@ SCHEMA = pa.schema([
 def fix_mojibake(s: str) -> str:
     """UTF-8 read as latin-1 and re-encoded (the cached basketball-reference pages hold "TeletoviÄ\x87"
     for Teletović): undo it when the round trip succeeds and changes the string."""
+    if not isinstance(s, str):          # NaN or None: the frames carry a nameless player_id 0 placeholder
+        return ""
     if not s or s.isascii():
         return s
     try:
@@ -66,7 +68,7 @@ def fix_mojibake(s: str) -> str:
 def normalize(name: str) -> str:
     """Lower-case ASCII, accents stripped (NFKD, combining marks dropped), periods removed ("T.J." -> "tj"),
     generation suffixes dropped, one space between tokens."""
-    s = unicodedata.normalize("NFKD", fix_mojibake(name or ""))
+    s = unicodedata.normalize("NFKD", fix_mojibake(name if isinstance(name, str) else ""))
     s = "".join(c for c in s if not unicodedata.combining(c))
     s = s.encode("ascii", "ignore").decode("ascii").lower().replace(".", "")
     toks = [t for t in re.split(r"[\s,]+", s) if t]

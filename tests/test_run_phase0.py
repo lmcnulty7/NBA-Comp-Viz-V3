@@ -365,6 +365,43 @@ def test_module_exception_is_captured_per_step(root, out, tmp_path, eligible, mo
     assert "injected possessions failure" in summary and summary.rstrip().endswith("RUN FAILED")
 
 
+def test_transient_oserror_is_retried_and_others_are_not(root, tmp_path, eligible, monkeypatch):
+    """A bare OSError (the Drive mount's "Unexpected end of stream" on a file still streaming down) is retried up
+    to READ_RETRIES times; it succeeds when a retry reads cleanly, fails after the last try, and any other error
+    (here a FileNotFoundError, an OSError subclass) is not retried."""
+    from analytics import possessions
+    real = possessions.run
+    monkeypatch.setattr(rp, "READ_RETRY_WAIT_S", 0.0)
+    g = eligible[0]
+    calls = {"n": 0}
+    def flaky(*a, **k):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise OSError("Unexpected end of stream")
+        return real(*a, **k)
+    monkeypatch.setattr(possessions, "run", flaky)
+    out_a = tmp_path / "out_a"
+    rc, _ = _call(["--data", str(root), "--out", str(out_a), "--steps", "possessions", "--games", g])
+    rec = _manifest(out_a)["games"][g]["steps"]["possessions"]
+    assert rc == 0 and rec["status"] == "ok" and rec["attempts"] == 2 and calls["n"] == 2
+
+    def always(*a, **k):
+        raise OSError("Unexpected end of stream")
+    monkeypatch.setattr(possessions, "run", always)
+    out_b = tmp_path / "out_b"
+    rc, _ = _call(["--data", str(root), "--out", str(out_b), "--steps", "possessions", "--games", g])
+    rec = _manifest(out_b)["games"][g]["steps"]["possessions"]
+    assert rc == 1 and rec["status"] == "failed" and rec["attempts"] == rp.READ_RETRIES + 1
+
+    def missing(*a, **k):
+        raise FileNotFoundError("no such file")
+    monkeypatch.setattr(possessions, "run", missing)
+    out_c = tmp_path / "out_c"
+    rc, _ = _call(["--data", str(root), "--out", str(out_c), "--steps", "possessions", "--games", g])
+    rec = _manifest(out_c)["games"][g]["steps"]["possessions"]
+    assert rc == 1 and rec["status"] == "failed" and rec["attempts"] == 1
+
+
 def test_torn_parquet_is_rebuilt(root, out, step1, eligible):
     g = eligible[0]
     p = _table(out, "rosters", g, step1)

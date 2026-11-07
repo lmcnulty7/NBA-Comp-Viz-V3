@@ -54,6 +54,12 @@ def test_normalize_strips_accents_periods_and_suffixes():
     assert R.is_initial_form("S. Curry") and not R.is_initial_form("T.J. Warren")
 
 
+def test_missing_name_normalises_to_empty():
+    """Real frames carry a player_id 0 row with no name (NaN after pandas); it must not crash the matcher."""
+    for missing in (float("nan"), None):
+        assert R.fix_mojibake(missing) == "" and R.normalize(missing) == ""
+
+
 # ── bref-style full names: every match_method ──────────────────────────────────────────────────────
 def test_match_names_bref_every_method():
     ros = synthetic_roster()

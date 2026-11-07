@@ -74,6 +74,12 @@ def located(frames, events):
     return sfm.locate_shots(frames, events, "synthetic")
 
 
+def test_missing_name_gives_empty_last_name():
+    """A nameless player (player_id 0, NaN name in real frames) yields an empty name instead of an AttributeError."""
+    for missing in (float("nan"), None):
+        assert sfm._norm(missing) == "" and sfm._last_name(missing) == ""
+
+
 def test_one_row_per_shot_with_contract_columns(located):
     assert list(located.columns) == sfm.COLUMNS
     assert located["event"].tolist() == [1, 2, 4, 5]

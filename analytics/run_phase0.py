@@ -265,7 +265,26 @@ def _extra_numbers(step: str, df: pd.DataFrame) -> dict:
     return {}
 
 
+READ_RETRIES = 2            # extra tries for a step that failed with a bare OSError (see run_step)
+READ_RETRY_WAIT_S = 5.0     # seconds between those tries
+
+
 def run_step(step: str, game: str, frames: Path, pbp: Path, out_root: Path, bref_html: str | None = None) -> dict:
+    """One step of one game (_run_step_once), tried again up to READ_RETRIES times when it failed with a bare
+    OSError. On the Google Drive mount the first read of a file that is still streaming down can fail with
+    pyarrow's "Unexpected end of stream" (or a thrift or ZSTD error) although the file is whole; the next read
+    succeeds. Subclasses such as FileNotFoundError and every other exception fail at once. The record keeps the
+    number of attempts."""
+    for attempt in range(1, READ_RETRIES + 2):
+        rec = _run_step_once(step, game, frames, pbp, out_root, bref_html)
+        if rec["status"] == "ok" or not (rec.get("error") or "").startswith("OSError:") or attempt > READ_RETRIES:
+            break
+        time.sleep(READ_RETRY_WAIT_S)
+    rec["attempts"] = attempt
+    return rec
+
+
+def _run_step_once(step: str, game: str, frames: Path, pbp: Path, out_root: Path, bref_html: str | None = None) -> dict:
     """One step of one game: run the module, check it wrote where the contract says, read the output back and
     validate it against the contract. The path read back is the one the module reports, never a guess."""
     out_root = Path(out_root)
