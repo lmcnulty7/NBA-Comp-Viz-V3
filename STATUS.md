@@ -9,8 +9,16 @@ Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
 
 - **Current stage:** 1, waiting at the merge gate. Stage 2 runs meanwhile (it does not depend on the merge):
   collectors one at a time, in runbook order bref_schedule, positions, bref_seasons, bref_boxscores.
-- **Background jobs:** bref_schedule, 6 seasons, 53 month pages (about 3 min), started 2026-11-07 01:59, PID
-  80037, log logs/loop/bref_schedule.log.
+- **Background jobs:** bref_seasons play-by-play, 2020-21 to 2024-25, 6424 games (about 6.3 hours at 17 a
+  minute), started 2026-11-07 02:04, PID 80406, log logs/loop/bref_seasons.log. Rerunning the same command resumes.
+- **Stage 2 so far:**
+
+  | collector | units ok | empty | failed | rows | output |
+  | --- | --- | --- | --- | --- | --- |
+  | bref_schedule | 53 | 0 | 0 | 7770 games (2015-16 1316; 2020-21 1171; 2021-22 1323; 2022-23 1320; 2023-24 1319; 2024-25 1321) | collect/ under DATA_ROOT |
+  | positions | 2 | 0 | 0 | 1070 (2015-16 528; 2016-17 542) | collect/positions.parquet |
+  | bref_seasons | running | | | | |
+  | bref_boxscores | not started | | | | |
 - **Open gates:** stage 1 merge (PR #5 then PR #6). No later gate reached yet.
 - **Branch:** the Mac checkout is on fix/stage0-checks (PR #5). After both merges, work moves to track-fix.
 
