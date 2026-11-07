@@ -58,7 +58,7 @@ import pandas as pd
 
 from analytics import schema
 from analytics.embeddings import features as F
-from analytics.eval import bootstrap_by_game, fmt_ci, fmt_num, heldout_mask, is_heldout_game, refuse_heldout
+from analytics.eval import bootstrap_by_game, fmt_ci, heldout_mask, is_heldout_game, refuse_heldout
 
 log = logging.getLogger("analytics.embeddings.train")
 

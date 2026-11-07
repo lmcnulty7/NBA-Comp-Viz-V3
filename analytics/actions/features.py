@@ -231,6 +231,7 @@ def possession_arrays(sub, offense_team_id: int, target_hz: float = TARGET_HZ):
     n = len(keep)
 
     def stack(ids):
+        """(n, len(ids), 2) positions of the given players on the kept frames, NaN where untracked."""
         out = np.full((n, len(ids), 2), np.nan)
         for j, i in enumerate(ids):
             sel = pid == i

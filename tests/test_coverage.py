@@ -326,7 +326,7 @@ def test_label_files_are_resolved_like_the_label_tool_writes_them(tmp_path):
     acts_ok = V.check_actions(a, checked)
     scr_ok = V.check_screens(s, acts_ok, checked)
     assert checked["actions_unknown_label_source"] == 0 and checked["screens_unknown_label_source"] == 0
-    assert checked["screens_kept"] == 1 and checked["label_over"] == 1
+    assert checked["screens_kept"] == 1 and checked["label_over"] == 1 and len(scr_ok) == 1
     assert "hand" in V.LABEL_SOURCES and "human" not in V.LABEL_SOURCES
 
 

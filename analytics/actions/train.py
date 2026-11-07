@@ -114,6 +114,7 @@ def fit_models(train_c: pd.DataFrame, train_f: pd.DataFrame, seed: int = 0) -> d
         m = HistGradientBoostingClassifier(random_state=seed, **HGB_PARAMS).fit(design(train_f), y)
 
     def predict(cands, feats, m=m):
+        """(n, 4) class probabilities of the fitted hgb model in CLASSES order."""
         with fit_threads():
             p = m.predict_proba(design(feats))
         full = np.zeros((len(feats), len(CLASSES)))
@@ -290,6 +291,7 @@ def length_table(train_c: pd.DataFrame, actions: pd.DataFrame) -> pd.DataFrame:
     rows = []
 
     def q(v):
+        """p10, median and p90 of the numeric values (NaN each when there is none)."""
         v = pd.to_numeric(pd.Series(v), errors="coerce").dropna()
         if not len(v):
             return (float("nan"),) * 3

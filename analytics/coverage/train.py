@@ -116,6 +116,7 @@ def fit_models(train: pd.DataFrame, seed: int = 0) -> dict:
 
     def _predict(m):
         def fn(frame):
+            """(n, 7) probabilities of the fitted model in CLASSES order."""
             with fit_threads():
                 return _align(m.classes_, m.predict_proba(design(frame).to_numpy()))
         return fn

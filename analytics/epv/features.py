@@ -227,6 +227,7 @@ def fit_xfg(shots_train: pd.DataFrame | None):
     model = tx.fit_models(feats)["logistic"]
 
     def predict(loc_x, loc_y, m=model):
+        """The league xFG at shot locations given in tenths of a foot from the basket."""
         q = pd.DataFrame({"sportvu_game": "query", "made": False, "loc_x": np.asarray(loc_x, dtype=float),
                           "loc_y": np.asarray(loc_y, dtype=float), "period": 1, "clock_s": 0.0})
         return np.asarray(m(fx.features(q)), dtype=float)
@@ -270,7 +271,6 @@ class Priors:
 
     def apply(self, geo: pd.DataFrame) -> pd.DataFrame:
         """The three prior columns for a geometry frame (reads its auxiliary _handler_id, _hx, _hy, _side, _lineup)."""
-        n = len(geo)
         games = geo["sportvu_game"].astype(str).to_numpy()
         hid = geo["_handler_id"].to_numpy(dtype=float)
         hx, hy = geo["_hx"].to_numpy(dtype=float), geo["_hy"].to_numpy(dtype=float)

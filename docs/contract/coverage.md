@@ -22,10 +22,10 @@ value are dropped. Every count is logged and lands in the report. `label_source`
 `synthetic`} (the values analytics/labels.py writes) is logged, not dropped.
 
 Label files are append-only (analytics/labels.py): the last line about an id wins and a tombstone line
-(`deleted: true`) removes the id. They are read through `analytics.labels.read_labels` when the files carry its
-id fields, else resolved here by the same rule. `read_labels` is called with `labeller_pass=1`, so only
-first-pass labels arrive; the lane keeps its own `labeller_pass == 1` filter as a check (it must count 0 and
-warns otherwise) and as the filter for the fallback reader, so a pass-2 relabel never duplicates a training label.
+(`deleted: true`) removes the id. They are read only through `analytics.labels.read_labels`, called with
+`labeller_pass=1`, so only first-pass labels arrive; the lane keeps its own `labeller_pass == 1` filter as a check
+(it must count 0 and warns otherwise) and as the filter for the in-memory fixtures, so a pass-2 relabel never
+duplicates a training label.
 
 ## Feature window (declared)
 

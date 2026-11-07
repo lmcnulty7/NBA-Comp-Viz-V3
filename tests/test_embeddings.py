@@ -270,7 +270,7 @@ def test_end_to_end_fixture_run_metrics_and_report(run):
     assert "fixture output, not a result" in text and "## Decision" in text and T.MAC_CMD in text
     assert fx.HELDOUT_GAME_ID not in run["games"] and len(run["games"]) == 2
     body = text.split("\n", 3)[3]                                      # after the title and the command line
-    assert "\u2014" not in text and "\u2013" not in text and "/tmp" not in body
+    assert chr(0x2014) not in text and chr(0x2013) not in text and "/tmp" not in body
     for h in ("## Inputs", "## Candidates", "## Decision", "## Outputs"):
         assert h + " (fixture output, not a result)" in text
 
