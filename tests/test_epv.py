@@ -15,7 +15,8 @@ from analytics import schema  # noqa: E402
 from analytics.epv import eda, features as F, states as S, train as T, validate as V  # noqa: E402
 from tests import _fx_epv as fx  # noqa: E402
 
-T.MLP_ITER = 40          # the gated sequence model stays cheap in tests
+T.MLP_ITER = 40          # the gated sequence model stays cheap in tests (it stops before converging, by design)
+pytestmark = pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 HELD = fx.HELD
 N_POSS = 24              # possessions per fixture game: enough for every bucket, small enough to keep the runs short
 
