@@ -29,6 +29,9 @@ fixture root is written to a temporary directory through analytics.fixtures.writ
 receives `--data FIXTURE_ROOT`; when that module is
 absent (or fails) each step receives `--fixtures` instead and builds its own fixtures. Reports of such a
 run go to reports/fixtures/ so the tracked reports/<ext>.md are never overwritten by fixture output.
+Every lane report of a --fixtures run (fixture root or the per-step --fixtures fallback) carries the fixture
+banner after its train step: " (fixture output, not a result)" on the `# ` title line and FIXTURE_BANNER right
+under it, unless the lane already wrote the phrase (add_fixture_banner). Reports of a --data run are never touched.
 
 --registry PATH points at a JSON file ({"extensions": [...]} in the analytics.registry shape); the tests
 use it to run stub packages. Nothing here imports an extension package until it is run.
@@ -64,6 +67,9 @@ FIXTURE_HELDOUT_EVERY = 4
 FIXTURE_REPORT_DIR = "reports/fixtures"
 CONTRACT_DIR = "sportvu_contract"
 PHASE0_LOCALISERS = "rosters,shot_frames,rebound_frames,possessions"   # gaps runs on its own, before
+FIXTURE_PHRASE = "fixture output, not a result"
+FIXTURE_BANNER = ("**Fixture output, not a result.** Every number below comes from synthetic games (analytics.fixtures, "
+                  "written by run_all.py --fixtures); it shows the pipeline runs end to end and nothing about NBA play.")
 
 
 # ----------------------------------------------------------------------------- registry access
@@ -253,6 +259,31 @@ def make_fixture_root(root: Path, seed: int) -> tuple[Path | None, str]:
 
 
 # ----------------------------------------------------------------------------- report
+
+def add_fixture_banner(path: Path) -> bool:
+    """Label a lane report of a fixture run (docs/mac_runbook.md rule 4): append " (fixture output, not a result)" to
+    the first `# ` title line when that line lacks the phrase, and insert FIXTURE_BANNER right after the title unless
+    the report already carried the phrase anywhere (case-insensitive). No title line: the banner goes on top.
+    True when the file changed; False when it is absent or already labelled."""
+    path = Path(path)
+    if not path.is_file():
+        return False
+    text = path.read_text(encoding="utf-8")
+    had_phrase = FIXTURE_PHRASE in text.lower()
+    lines = text.split("\n")
+    title = next((i for i, l in enumerate(lines) if l.startswith("# ")), None)
+    changed = False
+    if title is not None and FIXTURE_PHRASE not in lines[title].lower():
+        lines[title] = lines[title].rstrip() + " (" + FIXTURE_PHRASE + ")"
+        changed = True
+    if not had_phrase:
+        at = 0 if title is None else title + 1
+        lines[at:at] = ["", FIXTURE_BANNER] if title is not None else [FIXTURE_BANNER, ""]
+        changed = True
+    if changed:
+        path.write_text("\n".join(lines), encoding="utf-8")
+    return changed
+
 
 def write_report(path: Path, rows: list[dict], header: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -455,6 +486,8 @@ def main(argv=None) -> int:
                 continue
             argv_step = step_argv(step, name, data_root, out_root, report_path, args)
             status, seconds, detail = run_step(module, argv_step, log)
+            if step == "train" and args.fixtures:      # never a --data run: those reports stay as the lane wrote them
+                add_fixture_banner(report_path)
             rows.append({"extension": name, "step": step, "status": status, "seconds": seconds,
                          "report": str(report_path) if step == "train" and status == STATUS_OK else "",
                          "detail": detail})
