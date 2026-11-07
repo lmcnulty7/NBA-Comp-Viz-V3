@@ -3,6 +3,7 @@
     python -m analytics.label_tool --data DATA_ROOT --game G [--sample N --seed 0] [--port 8765]
     python -m analytics.label_tool --data DATA_ROOT --game G --export OUT.parquet
     python -m analytics.label_tool --data DATA_ROOT [--game G] --kappa [--passes 1 2]
+    python -m analytics.label_tool --data DATA_ROOT --audit SAMPLE.parquet [--port 8765] [--no-backup]
 
 Serves analytics/label_tool.html (everything inline, no network) from a standard-library http.server and
 two JSON endpoints:
@@ -21,6 +22,13 @@ two JSON endpoints:
 POST bodies are JSON (Content-Type application/json, at most 1 MiB) from 127.0.0.1 or localhost only.
 A held-out game (sportvu/splits.json) opens with a HELD-OUT notice: its labels are evaluation labels.
 
+Audit mode (``--audit``, stage 3 of docs/mac_runbook.md) serves analytics/label_tool_audit.html instead:
+the analytics.audit_shots sample in sample order across games, each game's frames loaded on demand, the
+court opening at the detected release frame, and three endpoints, GET /audit/state, GET /audit/shot?index=i
+and POST /audit/save, that write audited_release_frame, audited_ok and auditor_note straight back into the
+sample parquet after every verdict (``AuditSession``; semantics in docs/contract/phase0_driver.md). It
+never touches labels/, and it refuses a sample holding a held-out game.
+
 Inputs are read at run time and never copied anywhere: the section 4 frames parquet (``--frames``, or
 DATA_ROOT/<game>.parquet, DATA_ROOT/frames/<game>.parquet, DATA_ROOT/sportvu_contract/<game>.parquet) and
 the section 19 possessions parquet (``--possessions``, or any <game>.parquet under DATA_ROOT/analytics/
@@ -31,6 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -333,6 +342,40 @@ def frames_payload(span: pd.DataFrame, max_frames: int = MAX_FRAMES) -> tuple[li
 # HTTP
 # --------------------------------------------------------------------------------------
 
+def request_host(handler) -> str:
+    """The Host header's host part ('' when absent): '127.0.0.1', 'localhost', '[::1]', ..."""
+    h = handler.headers.get("Host") or ""
+    return h.split("]")[0] + "]" if h.startswith("[") else h.rsplit(":", 1)[0]
+
+
+def read_post_json(handler) -> tuple[dict | None, tuple[int, dict] | None]:
+    """(body, None) for a valid local JSON POST, else (None, (status, error)): the Host must be
+    127.0.0.1 or localhost (403), the Content-Type application/json (415), the Content-Length a number
+    (400) of at most MAX_BODY bytes (413), and the body a JSON object (400)."""
+    host = request_host(handler)
+    if host and host not in LOCAL_HOSTS:
+        return None, (403, {"error": f"POST accepted from 127.0.0.1 or localhost only, not {host!r}"})
+    ctype = (handler.headers.get("Content-Type") or "").strip().lower()
+    if not ctype.startswith("application/json"):
+        return None, (415, {"error": "Content-Type must be application/json"})
+    try:
+        n = int(handler.headers.get("Content-Length") or 0)
+        if n < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return None, (400, {"error": "bad Content-Length"})
+    if n > MAX_BODY:
+        return None, (413, {"error": f"body over {MAX_BODY} bytes"})
+    raw = handler.rfile.read(n) if n else b""
+    try:
+        body = json.loads(raw.decode("utf-8")) if raw else {}
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None, (400, {"error": "body is not JSON"})
+    if not isinstance(body, dict):
+        return None, (400, {"error": "body must be a JSON object"})
+    return body, None
+
+
 def make_handler(session: LabelSession, html_path: Path = HTML_PATH):
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -378,28 +421,9 @@ def make_handler(session: LabelSession, html_path: Path = HTML_PATH):
 
         def do_POST(self):
             u = urlparse(self.path)
-            host = (self.headers.get("Host") or "").rsplit(":", 1)[0] if not (self.headers.get("Host") or "").startswith("[") \
-                else (self.headers.get("Host") or "").split("]")[0] + "]"
-            if host and host not in LOCAL_HOSTS:
-                return self._json(403, {"error": f"POST accepted from 127.0.0.1 or localhost only, not {host!r}"})
-            ctype = (self.headers.get("Content-Type") or "").strip().lower()
-            if not ctype.startswith("application/json"):
-                return self._json(415, {"error": "Content-Type must be application/json"})
-            try:
-                n = int(self.headers.get("Content-Length") or 0)
-                if n < 0:
-                    raise ValueError
-            except (TypeError, ValueError):
-                return self._json(400, {"error": "bad Content-Length"})
-            if n > MAX_BODY:
-                return self._json(413, {"error": f"body over {MAX_BODY} bytes"})
-            raw = self.rfile.read(n) if n else b""
-            try:
-                body = json.loads(raw.decode("utf-8")) if raw else {}
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                return self._json(400, {"error": "body is not JSON"})
-            if not isinstance(body, dict):
-                return self._json(400, {"error": "body must be a JSON object"})
+            body, err = read_post_json(self)
+            if err is not None:
+                return self._json(*err)
             try:
                 if u.path == "/label":
                     self._json(200, session.add_label(body))
@@ -420,6 +444,416 @@ def make_handler(session: LabelSession, html_path: Path = HTML_PATH):
 def make_server(session: LabelSession, port: int = 0, host: str = "127.0.0.1") -> ThreadingHTTPServer:
     """A bound (not yet serving) server; port 0 picks a free port (``server.server_address[1]``)."""
     srv = ThreadingHTTPServer((host, port), make_handler(session))
+    srv.daemon_threads = True
+    return srv
+
+
+# --------------------------------------------------------------------------------------
+# Audit mode: walk the analytics.audit_shots sample shot by shot
+# --------------------------------------------------------------------------------------
+
+AUDIT_HTML_PATH = Path(__file__).with_name("label_tool_audit.html")
+AUDIT_CONTEXT_FRAMES = 100        # frames served either side of the detected release (4 s at 25 Hz)
+AUDIT_UNFOUND_CLOCK_S = (2.5, 4.0)  # no detected release: clock_s - 2.5 .. clock_s + 4.0 of the period
+AUDIT_NOTE_MAX = 500
+AUDIT_VERDICTS = ("accept", "release", "bad")
+AUDIT_FRAME_COLUMNS = ["frame", "period", "game_clock_s", "shot_clock_s", "ball_x", "ball_y", "ball_z",
+                       "player_id", "player", "jersey", "team_id", "team", "home", "x", "y"]
+AUDIT_CACHE_GAMES = 2
+_AUDIT_DTYPE = {"audited_release_frame": "Int32", "audited_ok": "boolean", "auditor_note": "string"}
+
+
+def _tolerance() -> int:
+    from analytics import audit_shots as A
+    return int(A.TOLERANCE_FRAMES)
+
+
+class HeldoutInSample(ValueError):
+    """The sample holds a held-out game: the audit validates the localiser constants, so it refuses."""
+
+
+class StaleSample(RuntimeError):
+    """The sample's bytes on disk differ from what this session read or last wrote (HTTP 409)."""
+
+
+class AuditWriteError(RuntimeError):
+    """Writing the sample failed; the sample on disk is unchanged (HTTP 500)."""
+
+
+def _frame_no(v) -> int:
+    """A localiser frame as an int, -1 when not found or null (a CSV round trip turns -1 into a blank)."""
+    try:
+        return -1 if v is None or pd.isna(v) else int(v)
+    except (TypeError, ValueError):
+        return -1
+
+
+def load_audit_frames(data_root, game: str) -> pd.DataFrame:
+    """The section 4 frames of ``game`` (find_frames under DATA_ROOT), only the columns the audit draws."""
+    import pyarrow.parquet as pq
+    path = find_frames(data_root, game)
+    have = set(pq.read_schema(str(path)).names)
+    return pd.read_parquet(path, columns=[c for c in AUDIT_FRAME_COLUMNS if c in have])
+
+
+def default_heldout_check(extra_tokens: set | None = None):
+    """game -> held out: analytics.eval.is_heldout_game (every held-out token of sportvu/splits.json,
+    the held-out arena suffix included; a missing splits file is a SystemExit, so it fails closed), or any
+    of ``extra_tokens``."""
+    from analytics.eval import is_heldout_game
+    toks = set(extra_tokens or ())
+    return lambda g: is_heldout_game(g) or L.is_heldout(g, toks)
+
+
+class AuditSession:
+    """The analytics.audit_shots sample in memory, its rows served one shot at a time, every verdict
+    written straight back into the sample parquet (atomic: a temporary file next to it, then os.replace).
+
+    Semantics of the three audit columns (what ``audit_shots --summarise`` reads):
+      accept   audited_release_frame = release_frame, audited_ok = True  (the detected frame is right)
+      release  audited_release_frame = the frame the auditor marked, audited_ok = True  (a real shot,
+               released at that frame; the localiser's frame may be off)
+      bad      audited_release_frame = <NA>, audited_ok = False  (no release to compare: not a shot, the
+               ball or shooter cannot be followed, or the frames are broken)
+    so a row has a frame exactly when audited_ok is True; --summarise's pass-mark statistic counts a bad
+    high-confidence row as a miss, and share_audited_ok is the share of rows that are real, placeable
+    shots. A row is audited when either column is filled; the session resumes at the first row with both
+    empty. A blank localiser frame (CSV round trip) reads as -1, not found.
+    """
+
+    def __init__(self, data_root, sample_path, frames_loader=None, heldout: set | None = None,
+                 heldout_check=None, backup: bool = True):
+        import io
+        import pyarrow.parquet as pq
+        from analytics import audit_shots as A
+        self.data_root = Path(data_root)
+        self.sample_path = Path(sample_path).resolve()
+        # one read of the bytes: the schema, the frame and the stale-check hash all come from the same content
+        raw = self.sample_path.read_bytes()
+        self._digest = _digest(raw)
+        try:
+            self.schema = pq.read_schema(io.BytesIO(raw))
+            df = pd.read_parquet(io.BytesIO(raw))
+        except Exception as exc:  # noqa: BLE001  (pyarrow raises several types for a file that is not parquet)
+            raise ValueError(f"{self.sample_path} is not an audit_shots sample: {exc}") from exc
+        missing = [c for c in A.COLUMNS if c not in df.columns]
+        if missing:
+            raise ValueError(f"{self.sample_path} is not an audit_shots sample: missing columns {missing}")
+        for c, dt in _AUDIT_DTYPE.items():
+            if str(df[c].dtype) != dt:
+                df[c] = df[c].astype(dt)
+        self.df = df.reset_index(drop=True)
+        check = heldout_check or default_heldout_check(heldout)
+        held = sorted({g for g in self.df["sportvu_game"].astype(str).unique() if check(g)})
+        if held:
+            raise HeldoutInSample(
+                "the sample holds held-out game(s) %s: the shot audit validates the localiser constants, and "
+                "held-out games select nothing (docs/mac_runbook.md rule 1); draw the sample with "
+                "analytics.audit_shots, which takes training games only" % held)
+        self.frames_loader = frames_loader or (lambda g: load_audit_frames(self.data_root, g))
+        self.backup = bool(backup)
+        self.backup_path = None       # this session's backup, made before its first write
+        self._cache: dict = {}
+        self._cache_lock = threading.Lock()
+        self.lock = threading.Lock()
+
+    # -- state ----------------------------------------------------------------------------
+    @property
+    def n(self) -> int:
+        return len(self.df)
+
+    def audited_mask(self) -> pd.Series:
+        return self.df["audited_release_frame"].notna() | self.df["audited_ok"].notna()
+
+    def first_unaudited(self) -> int | None:
+        idx = np.flatnonzero(~self.audited_mask().to_numpy())
+        return int(idx[0]) if len(idx) else None
+
+    def state(self) -> dict:
+        return {"sample": self.sample_path.name, "n": self.n, "n_audited": int(self.audited_mask().sum()),
+                "first_unaudited": self.first_unaudited(), "verdicts": list(AUDIT_VERDICTS),
+                "note_max": AUDIT_NOTE_MAX, "tolerance_frames": _tolerance(),
+                "heldout": "refused: the sample holds training games only"}
+
+    def audit_of(self, i: int) -> dict:
+        r = self.df.iloc[i]
+        return {"audited_release_frame": _i(r["audited_release_frame"]),
+                "audited_ok": None if pd.isna(r["audited_ok"]) else bool(r["audited_ok"]),
+                "auditor_note": None if pd.isna(r["auditor_note"]) else str(r["auditor_note"])}
+
+    # -- frames ---------------------------------------------------------------------------
+    def game_frames(self, game: str) -> pd.DataFrame:
+        with self._cache_lock:
+            fr = self._cache.get(game)
+            if fr is None:
+                fr = self.frames_loader(game).sort_values("frame", kind="stable").reset_index(drop=True)
+                while len(self._cache) >= AUDIT_CACHE_GAMES:
+                    self._cache.pop(next(iter(self._cache)))
+                self._cache[game] = fr
+            return fr
+
+    def _row_index(self, index) -> int:
+        if isinstance(index, bool) or not isinstance(index, (int, np.integer)):
+            raise ValueError("index must be an integer")
+        if index < 0 or index >= self.n:
+            raise IndexError(index)
+        return int(index)
+
+    def shot_payload(self, index) -> dict:
+        i = self._row_index(index)
+        r = self.df.iloc[i]
+        if pd.isna(r["period"]) or pd.isna(r["sportvu_game"]):
+            raise ValueError(f"shot {i} has no game or period in the sample")
+        game, period = str(r["sportvu_game"]), int(r["period"])
+        fr = self.game_frames(game)
+        per = fr.loc[fr["period"] == period]
+        rel = _frame_no(r["release_frame"])
+        if rel < 0 and pd.isna(r["clock_s"]):
+            span = per.iloc[:0]
+        elif rel >= 0:
+            span = per.loc[(per["frame"] >= rel - AUDIT_CONTEXT_FRAMES) & (per["frame"] <= rel + AUDIT_CONTEXT_FRAMES)]
+        else:
+            c = float(r["clock_s"])
+            lo, hi = AUDIT_UNFOUND_CLOCK_S
+            span = per.loc[(per["game_clock_s"] >= c - lo) & (per["game_clock_s"] <= c + hi)]
+        frames_out, downsampled = frames_payload(span, MAX_FRAMES)
+        shooter = _i(r["shooter_id"])
+        pl = fr.drop_duplicates("player_id")
+        team_of = {int(p): int(t) for p, t in zip(pl["player_id"], pl["team_id"])}
+        on_floor = set(int(v) for v in span["player_id"].unique())
+        players = {}
+        for p in pl.itertuples(index=False):
+            pid = int(p.player_id)
+            if pid not in on_floor:
+                continue
+            players[str(pid)] = {"id": pid, "name": str(getattr(p, "player", pid)),
+                                 "jersey": None if pd.isna(getattr(p, "jersey", None)) else str(getattr(p, "jersey", "")),
+                                 "team_id": int(p.team_id), "team": str(getattr(p, "team", "")),
+                                 "home": bool(getattr(p, "home", False)),
+                                 "side": "offense" if shooter is not None and team_of.get(shooter) == int(p.team_id) else "defense"}
+        frame_ids = [f["frame"] for f in frames_out]
+        open_frame = rel if rel in frame_ids else (frame_ids[len(frame_ids) // 2] if frame_ids else None)
+        # the attacked basket: the ball's side at the apex (else at the last served frame)
+        ref = _frame_no(r["apex_frame"]) if _frame_no(r["apex_frame"]) in frame_ids else (frame_ids[-1] if frame_ids else None)
+        bx = next((f["ball"][0] for f in frames_out if f["frame"] == ref), None)
+        sh = players.get(str(shooter)) if shooter is not None else None
+        return {"index": i, "n": self.n, "game": game, "event": _i(r["event"]), "period": period,
+                "clock_s": _f(r["clock_s"]), "shooter_id": shooter,
+                "shooter": sh or ({"id": shooter, "name": str(shooter)} if shooter is not None else None),
+                "confidence_flag": None if pd.isna(r["confidence_flag"]) else str(r["confidence_flag"]),
+                "release_frame": rel, "apex_frame": _frame_no(r["apex_frame"]), "outcome_frame": _frame_no(r["outcome_frame"]),
+                "open_frame": open_frame, "attack_right": True if bx is None else bool(bx > 47.0),
+                "fps": L.estimate_fps(per) if len(per) > 1 else 25.0, "downsampled": downsampled,
+                "frames": frames_out, "players": players, "audit": self.audit_of(i),
+                "n_audited": int(self.audited_mask().sum()), "first_unaudited": self.first_unaudited()}
+
+    # -- verdicts -------------------------------------------------------------------------
+    def _check_frame(self, r: pd.Series, frame) -> int:
+        if isinstance(frame, bool) or not isinstance(frame, (int, np.integer)):
+            raise ValueError("audited_release_frame must be an integer frame")
+        frame = int(frame)
+        fr = self.game_frames(str(r["sportvu_game"]))
+        fv = fr["frame"].to_numpy()
+        if len(fv) == 0 or frame < int(fv[0]) or frame > int(fv[-1]):
+            raise ValueError(f"frame {frame} is outside the game's frames {int(fv[0]) if len(fv) else None} to "
+                             f"{int(fv[-1]) if len(fv) else None}")
+        k = np.searchsorted(fv, frame)
+        if k >= len(fv) or int(fv[k]) != frame:
+            raise ValueError(f"frame {frame} is not in the game's frames")
+        if pd.isna(r["period"]):
+            raise ValueError("the shot has no period in the sample")
+        if int(fr["period"].iloc[k]) != int(r["period"]):
+            raise ValueError(f"frame {frame} is in period {int(fr['period'].iloc[k])}, the shot in period {int(r['period'])}")
+        return frame
+
+    def save(self, body: dict) -> dict:
+        """Apply one verdict ({"index", "verdict", "audited_release_frame" for release, "auditor_note"})
+        and write the sample. ValueError on any invalid input, before anything is written."""
+        if "index" not in body:
+            raise ValueError("index is required")
+        try:
+            i = self._row_index(body["index"])
+        except IndexError:
+            raise ValueError(f"no shot at index {body['index']}; n = {self.n}")
+        verdict = body.get("verdict")
+        if verdict not in AUDIT_VERDICTS:
+            raise ValueError(f"verdict must be one of {list(AUDIT_VERDICTS)}")
+        note = body.get("auditor_note")
+        if note is not None:
+            if not isinstance(note, str):
+                raise ValueError("auditor_note must be a string or null")
+            note = " ".join(note.split())
+            if len(note) > AUDIT_NOTE_MAX:
+                raise ValueError(f"auditor_note is over {AUDIT_NOTE_MAX} characters")
+            note = note or None
+        r = self.df.iloc[i]
+        frame = body.get("audited_release_frame")
+        if verdict == "accept":
+            if frame is not None:
+                raise ValueError("accept takes the detected release frame; send verdict release to set another")
+            if _frame_no(r["release_frame"]) < 0:
+                raise ValueError("this shot has no detected release frame to accept: mark the frame or call it bad")
+            frame, ok = self._check_frame(r, _frame_no(r["release_frame"])), True
+        elif verdict == "release":
+            if frame is None:
+                raise ValueError("verdict release needs audited_release_frame")
+            frame, ok = self._check_frame(r, frame), True
+        else:
+            if frame is not None:
+                raise ValueError("verdict bad carries no release frame (audited_release_frame stays empty)")
+            ok = False
+        with self.lock:
+            new = self.df.copy()
+            new.loc[i, "audited_release_frame"] = pd.NA if frame is None else frame
+            new.loc[i, "audited_ok"] = ok
+            new.loc[i, "auditor_note"] = pd.NA if note is None else note
+            self._write(new)
+            self.df = new
+        return {"ok": True, "index": i, "verdict": verdict, "audit": self.audit_of(i),
+                "n_audited": int(self.audited_mask().sum()), "first_unaudited": self.first_unaudited()}
+
+    # -- the file -------------------------------------------------------------------------
+    def _backup_path(self) -> Path:
+        """<sample>.<UTC time>.bak, never an existing file: one backup per session, none overwritten."""
+        import time
+        stem = "%s.%s" % (self.sample_path.name, time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
+        cand, k = self.sample_path.with_name(stem + ".bak"), 1
+        while cand.exists():
+            k += 1
+            cand = self.sample_path.with_name("%s-%d.bak" % (stem, k))
+        return cand
+
+    def _schema(self):
+        """The sample's own arrow schema (so every other column keeps its type and the pandas metadata
+        stays), with an audit column whose type is not the contract's (say a CSV round trip left it a
+        null or double column) replaced by int32 / bool / large_string."""
+        import pyarrow as pa
+        allowed = {"audited_release_frame": (pa.int32(),), "audited_ok": (pa.bool_(),),
+                   "auditor_note": (pa.string(), pa.large_string())}
+        fields = []
+        for f in self.schema:
+            if f.name in allowed and f.type not in allowed[f.name]:
+                f = pa.field(f.name, allowed[f.name][-1], nullable=True)
+            fields.append(f)
+        return pa.schema(fields, metadata=self.schema.metadata)
+
+    def _write(self, df: pd.DataFrame) -> None:
+        """Atomic: write a temporary file next to the sample, fsync it, os.replace it over the sample.
+        StaleSample when the sample's bytes differ from what this session read or last wrote (a content
+        hash, not the mtime, which a synced folder may touch); AuditWriteError when writing fails, the
+        sample then unchanged."""
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        try:
+            current = _digest(self.sample_path.read_bytes())
+        except OSError as exc:
+            raise AuditWriteError(f"cannot read {self.sample_path} before writing: {exc}") from exc
+        if current != self._digest:
+            raise StaleSample(f"{self.sample_path} changed on disk since this session read it; restart the "
+                              "audit so nothing written elsewhere is overwritten")
+        tmp = self.sample_path.with_name(".%s.%d.tmp" % (self.sample_path.name, os.getpid()))
+        try:
+            if self.backup and self.backup_path is None:
+                import shutil
+                bak = self._backup_path()
+                shutil.copy2(self.sample_path, bak)
+                self.backup_path = bak
+            schema = self._schema()
+            table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+            pq.write_table(table, str(tmp))
+            with open(tmp, "rb") as fh:
+                written = fh.read()
+                os.fsync(fh.fileno())
+            os.replace(tmp, self.sample_path)
+        except Exception as exc:  # noqa: BLE001  (pyarrow, OS and cast errors all leave the sample as it was)
+            raise AuditWriteError(f"writing {self.sample_path} failed, the sample is unchanged: {exc}") from exc
+        finally:
+            if tmp.exists():
+                tmp.unlink()
+        self.schema = schema
+        self._digest = _digest(written)
+
+
+def _digest(raw: bytes) -> str:
+    import hashlib
+    return hashlib.sha256(raw).hexdigest()
+
+
+def make_audit_handler(session: AuditSession, html_path: Path = AUDIT_HTML_PATH):
+    """GET / (the audit page), /audit/state, /audit/shot?index=i; POST /audit/save. Every request must
+    come with a local Host header; nothing else is served, so audit mode can never write labels."""
+    class Handler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def log_message(self, fmt, *args):  # quiet
+            pass
+
+        def _send(self, code: int, body: bytes, ctype: str = "application/json; charset=utf-8"):
+            self.send_response(code)
+            self.send_header("Content-Type", ctype)
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def _json(self, code: int, obj) -> None:
+            self._send(code, json.dumps(obj, ensure_ascii=False).encode("utf-8"))
+
+        def do_GET(self):
+            u = urlparse(self.path)
+            host = request_host(self)
+            if host and host not in LOCAL_HOSTS:
+                return self._json(403, {"error": f"served to 127.0.0.1 or localhost only, not {host!r}"})
+            q = parse_qs(u.query)
+            try:
+                if u.path in ("/", "/index.html"):
+                    self._send(200, html_path.read_bytes(), "text/html; charset=utf-8")
+                elif u.path == "/audit/state":
+                    self._json(200, session.state())
+                elif u.path == "/audit/shot":
+                    try:
+                        i = int(q.get("index", ["0"])[0])
+                    except ValueError:
+                        return self._json(400, {"error": "index must be an integer"})
+                    try:
+                        self._json(200, session.shot_payload(i))
+                    except IndexError:
+                        self._json(404, {"error": f"no shot at index {i}; n = {session.n}"})
+                    except ValueError as exc:
+                        self._json(400, {"error": str(exc)})
+                else:
+                    self._json(404, {"error": "not found"})
+            except FileNotFoundError as exc:
+                self._json(404, {"error": str(exc)})
+            except Exception as exc:  # pragma: no cover
+                self._json(500, {"error": str(exc)})
+
+        def do_POST(self):
+            u = urlparse(self.path)
+            body, err = read_post_json(self)
+            if err is not None:
+                return self._json(*err)
+            try:
+                if u.path == "/audit/save":
+                    self._json(200, session.save(body))
+                else:
+                    self._json(404, {"error": "not found"})
+            except StaleSample as exc:
+                self._json(409, {"error": str(exc)})
+            except AuditWriteError as exc:
+                self._json(500, {"error": str(exc)})
+            except FileNotFoundError as exc:
+                self._json(404, {"error": str(exc)})
+            except ValueError as exc:
+                self._json(400, {"error": str(exc)})
+            except Exception as exc:  # pragma: no cover
+                self._json(500, {"error": str(exc)})
+
+    return Handler
+
+
+def make_audit_server(session: AuditSession, port: int = 0, host: str = "127.0.0.1") -> ThreadingHTTPServer:
+    srv = ThreadingHTTPServer((host, port), make_audit_handler(session))
     srv.daemon_threads = True
     return srv
 
@@ -505,6 +939,31 @@ def build_session(a) -> LabelSession:
                         labeller_pass=a.labeller_pass, label_source=a.source)
 
 
+def run_audit(a) -> int:
+    try:
+        session = AuditSession(a.data, a.audit, backup=not a.no_backup)
+    except HeldoutInSample as exc:
+        print("refused: %s" % exc, file=sys.stderr, flush=True)
+        return 2
+    except (ValueError, OSError) as exc:
+        print("cannot audit %s: %s" % (a.audit, " ".join(str(exc).split())), file=sys.stderr, flush=True)
+        return 2
+    srv = make_audit_server(session, a.port)
+    port = srv.server_address[1]
+    st = session.state()
+    start = st["first_unaudited"]
+    print(f"shot audit: {session.sample_path} ({st['n']} shots, {st['n_audited']} audited; "
+          + (f"resuming at shot {start + 1})" if start is not None else "all audited)")
+          + f"; open http://127.0.0.1:{port}/  (Ctrl-C stops)", flush=True)
+    try:
+        srv.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        srv.server_close()
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--data", required=True, help="DATA_ROOT: frames, possessions and labels/ live under it")
@@ -522,7 +981,15 @@ def main(argv=None) -> int:
     ap.add_argument("--kappa", action="store_true", help="compare labeller passes and print Cohen's kappa")
     ap.add_argument("--passes", type=int, nargs=2, default=(1, 2), metavar=("P1", "P2"),
                     help="the two labeller passes --kappa compares (default 1 2)")
+    ap.add_argument("--audit", metavar="SAMPLE",
+                    help="shot audit mode: walk this analytics.audit_shots sample parquet shot by shot and write "
+                         "the verdicts straight back into it (frames from DATA_ROOT; no labels are written)")
+    ap.add_argument("--no-backup", action="store_true",
+                    help="with --audit: skip the copy SAMPLE.<time>.bak made before the first write of each session")
     a = ap.parse_args(argv)
+
+    if a.audit:
+        return run_audit(a)
 
     if a.kappa:
         games = [a.game] if a.game else L.list_games(a.data)

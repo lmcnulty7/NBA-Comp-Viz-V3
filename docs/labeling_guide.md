@@ -170,3 +170,65 @@ definitions, not the labels, are what gets edited.
 | coverages | 300 screens | 1.5 min each | 7.5 |
 | relabel (10% of both, a week later) and the kappa review | 40 possessions, 30 screens | | 3 |
 | total | | | about 27 |
+
+## 7. Shot audit mode (stage 3)
+
+The stage 3 shot audit checks the shot localiser (`docs/DATA_CONTRACT.md` section 17) against the court
+replay. The label tool walks the `analytics.audit_shots` sample shot by shot and writes each verdict
+straight into the sample parquet that `audit_shots --summarise` reads; no CSV, no labels.
+
+1. Draw the sample (training games only):
+
+   ```
+   python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0
+   ```
+
+   Drawing again over a sample that already holds verdicts is refused (`--force` overwrites it and loses
+   them).
+
+2. Audit it, then open `http://127.0.0.1:8765/`:
+
+   ```
+   python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytics/audit/shots_sample.parquet"
+   ```
+
+   The page opens at the first unaudited shot (stop with Ctrl-C at any time and rerun to resume), with the
+   court at the detected release frame and 4 s of frames either side. The shooter has a yellow ring; the
+   strip under the court is the ball height (dashed line at 8 ft) with the detected release in green, your
+   mark in purple and the apex dashed grey. The readout gives the offset from the detected frame, the ball
+   height and the ball's distance to the shooter.
+
+3. For each shot find the release: the last frame the ball is in the shooter's hands before it rises.
+   Then one key saves the row and opens the next shot:
+
+| key | action |
+| --- | --- |
+| `a` | accept: the detected frame is the release (`audited_release_frame` = the detected frame, `audited_ok` = true) |
+| `m` | mark the current frame as the release |
+| `enter` | save the marked frame (`audited_release_frame` = the mark, `audited_ok` = true) |
+| `x` | bad: not a shot here, or the ball or shooter cannot be followed (`audited_release_frame` empty, `audited_ok` = false); add a note |
+| `left`, `right` | one frame back / forward; with `shift` five frames (the possession labelling view steps ten) |
+| `r` | back to the detected release frame |
+| `esc` | clear the mark (in the note field: leave the field) |
+| `t` | type a note; `enter` or `esc` leaves the field, and the note is saved with the next `a`, `enter` or `x` |
+| `n`, `p` | next / previous shot without saving (to revisit or change a verdict) |
+| `space`, `[`, `]` | play / pause, slower / faster |
+| `home`, `end`, `f` | first / last served frame, half court / full court |
+
+   A release off by more than 2 frames is outside the pass mark, so place the mark on the exact frame.
+   Use `x` only when there is no release to place: a high-confidence shot marked bad counts as a miss in
+   the pass-mark statistic. Every verdict is written to the parquet at once (atomically; each session
+   keeps the state before its first write as `shots_sample.parquet.<UTC time>.bak`). A later verdict on
+   the same shot replaces the earlier one. The tool refuses a sample that holds a held-out game. The
+   sample can stay in the Drive folder: the tool notices an outside change by the file's content, so Drive
+   touching the file time is harmless; run one audit session per sample at a time.
+
+4. Summarise and compare with the pass mark in STATUS.md:
+
+   ```
+   python3 -m analytics.audit_shots --summarise "$DATA_ROOT/analytics/audit/shots_sample.parquet" --report reports/shot_audit.md
+   ```
+
+   Compare the `pass-mark statistic` line (`pass_mark.share`: high-confidence rows within 2 frames, bad
+   rows counted as misses) with the pass mark. The older agreement line leaves bad rows out and is for
+   reference. The column semantics are in `docs/contract/phase0_driver.md` (Audit sample).

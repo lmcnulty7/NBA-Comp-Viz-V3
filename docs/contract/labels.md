@@ -6,6 +6,10 @@ collects. Companion to `docs/labeling_guide.md` (definitions, keys, sampling, co
 Code: `analytics.labels.ACTIONS_SCHEMA`, `analytics.labels.SCREENS_SCHEMA` (pyarrow schemas),
 `read_labels`, `write_labels`, `validate_labels`, `sample_possessions`, `kappa`.
 
+The tool's shot audit mode (`--audit SAMPLE`) is not a label source: it writes only the three audit
+columns of the `analytics.audit_shots` sample parquet, never `labels/`. Its columns and verdict semantics
+are in `docs/contract/phase0_driver.md` (Audit sample).
+
 ## 1. Actions table
 
 One row per labelled action inside a possession. `action_id` is unique within a game (the tool assigns
