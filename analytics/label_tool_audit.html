@@ -359,6 +359,7 @@
 
   function loadShot(i) {
     pause();
+    S.busy = true;   // no verdict or navigation key acts until this shot is on screen
     setStatus("loading shot " + (i + 1));
     return api("GET", "/audit/shot?index=" + i).then(function (d) {
       S.data = d; S.idx = d.index; S.n = d.n;
@@ -372,7 +373,8 @@
       S.fi = k >= 0 ? k : 0;
       renderFrame();
       setStatus(d.frames.length ? "shot " + (d.index + 1) + " at the detected release frame" : "no frames for this shot: call it bad (x) with a note", d.frames.length ? "" : "err");
-    }).catch(function (e) { setStatus(e.message, "err"); });
+      S.busy = false;
+    }).catch(function (e) { S.busy = false; setStatus(e.message, "err"); });
   }
 
   function save(verdict) {
@@ -382,11 +384,11 @@
       if (S.mark === null) { setStatus("mark the release frame first (m), or accept the detected one (a)", "err"); return; }
       body.audited_release_frame = S.mark;
     }
-    S.busy = true;
+    S.busy = true;   // stays true until the next shot's loadShot resolves, so a fast second key cannot re-save this one
     api("POST", "/audit/save", body).then(function (r) {
-      S.busy = false;
       var what = verdict === "bad" ? "bad" : "release " + r.audit.audited_release_frame;
       if (S.data.index + 1 >= S.n) {
+        S.busy = false;
         S.data.audit = r.audit; S.data.n_audited = r.n_audited; S.data.first_unaudited = r.first_unaudited; renderPanel();
         setStatus("saved shot " + (r.index + 1) + " (" + what + "); last shot of the sample" +
           (r.first_unaudited === null ? ": all audited" : ", first unaudited is " + (r.first_unaudited + 1)), "ok");
@@ -397,6 +399,7 @@
   }
 
   function goShot(k) {
+    if (S.busy) return;
     var i = S.idx + k;
     if (i < 0 || i >= S.n) { setStatus(i < 0 ? "this is the first shot" : "this is the last shot"); return; }
     loadShot(i);
@@ -407,11 +410,13 @@
   // ---------------------------------------------------------------- keys
   document.addEventListener("keydown", function (ev) {
     if (ev.ctrlKey || ev.metaKey || ev.altKey) return;  // browser shortcuts stay with the browser
-    var tag = (ev.target && ev.target.tagName) || "";
-    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
+    // only the note field takes typing; a focused slider or speed menu never swallows the audit keys
+    if (ev.target && ev.target.id === "note") {
       if (ev.key === "Enter" || ev.key === "Escape") { ev.preventDefault(); ev.target.blur(); }
       return;
     }
+    if (ev.key === "Tab") return;
+    if (ev.target && (ev.target.id === "scrub" || ev.target.id === "speed" || ev.target.tagName === "BUTTON")) ev.target.blur();
     var k = ev.key;
     if (k === "a") { save("accept"); return; }
     if (k === "Enter") { ev.preventDefault(); save("release"); return; }
@@ -444,6 +449,14 @@
   $("btn-save").addEventListener("click", function () { save("release"); });
   $("btn-bad").addEventListener("click", function () { save("bad"); });
   $("btn-det").addEventListener("click", function () { if (S.data && S.data.release_frame >= 0) jumpToFrame(S.data.release_frame); });
+  // a clicked button, the slider and the speed menu give the focus back, so space or enter never re-triggers them
+  Array.prototype.forEach.call(document.querySelectorAll("button"), function (b) {
+    b.addEventListener("click", function () { b.blur(); });
+  });
+  ["change", "pointerup"].forEach(function (evName) {
+    $("scrub").addEventListener(evName, function () { this.blur(); });
+    $("speed").addEventListener(evName, function () { this.blur(); });
+  });
   $("spark").addEventListener("click", function (ev) {
     if (!S.data || !S.data.frames.length) return;
     var r = this.getBoundingClientRect();

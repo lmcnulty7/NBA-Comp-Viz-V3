@@ -183,6 +183,9 @@ straight into the sample parquet that `audit_shots --summarise` reads; no CSV, n
    python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0
    ```
 
+   Drawing again over a sample that already holds verdicts is refused (`--force` overwrites it and loses
+   them).
+
 2. Audit it, then open `http://127.0.0.1:8765/`:
 
    ```
@@ -213,9 +216,12 @@ straight into the sample parquet that `audit_shots --summarise` reads; no CSV, n
 | `home`, `end`, `f` | first / last served frame, half court / full court |
 
    A release off by more than 2 frames is outside the pass mark, so place the mark on the exact frame.
-   Every verdict is written to the parquet at once (atomically; the state before the session's first
-   write is kept as `shots_sample.parquet.bak`). A later verdict on the same shot replaces the earlier
-   one. The tool refuses a sample that holds a held-out game.
+   Use `x` only when there is no release to place: a high-confidence shot marked bad counts as a miss in
+   the pass-mark statistic. Every verdict is written to the parquet at once (atomically; each session
+   keeps the state before its first write as `shots_sample.parquet.<UTC time>.bak`). A later verdict on
+   the same shot replaces the earlier one. The tool refuses a sample that holds a held-out game. The
+   sample can stay in the Drive folder: the tool notices an outside change by the file's content, so Drive
+   touching the file time is harmless; run one audit session per sample at a time.
 
 4. Summarise and compare with the pass mark in STATUS.md:
 
@@ -223,5 +229,6 @@ straight into the sample parquet that `audit_shots --summarise` reads; no CSV, n
    python3 -m analytics.audit_shots --summarise "$DATA_ROOT/analytics/audit/shots_sample.parquet" --report reports/shot_audit.md
    ```
 
-   The agreement counts the shots you accepted or marked; bad rows count only in `share_audited_ok`.
-   The column semantics are in `docs/contract/phase0_driver.md` (Audit sample).
+   Compare the `pass-mark statistic` line (`pass_mark.share`: high-confidence rows within 2 frames, bad
+   rows counted as misses) with the pass mark. The older agreement line leaves bad rows out and is for
+   reference. The column semantics are in `docs/contract/phase0_driver.md` (Audit sample).

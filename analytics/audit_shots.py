@@ -21,7 +21,9 @@ audited_ok (boolean) and auditor_note (string), filled shot by shot with
 ``python -m analytics.label_tool --data DATA_ROOT --audit SAMPLE`` (docs/labeling_guide.md section 7).
 --summarise reports, over the rows with
 audited_release_frame filled, the share within 2 frames of release_frame (overall, per confidence_flag and
-per game) and the share of audited_ok.
+per game, with the bad rows per group) and the share of audited_ok, and the pass-mark statistic: over every
+audited high-confidence row, the share within 2 frames, a row marked bad (audited_ok False) counting as a
+miss. Drawing again over a sample that holds verdicts is refused without --force.
 """
 from __future__ import annotations
 
@@ -43,6 +45,7 @@ REPLAY_COLUMNS = ["sportvu_game", "event", "period", "clock_s", "release_frame",
 AUDIT_COLUMNS = ["audited_release_frame", "audited_ok", "auditor_note"]
 COLUMNS = REPLAY_COLUMNS + AUDIT_COLUMNS
 TOLERANCE_FRAMES = 2
+PASS_MARK_FLAG = "high"
 HELDOUT_SUBDIR = "heldout"
 
 
@@ -102,37 +105,66 @@ def draw(tables: list[Path], n: int, seed: int = 0, include_unfound: bool = Fals
     return sample, info
 
 
-def write_sample(sample: pd.DataFrame, out_path) -> Path:
+def audited_rows(out_path) -> int | None:
+    """Rows of an existing sample with any audit column filled (None when the file cannot be read)."""
+    try:
+        old = pd.read_parquet(out_path, columns=AUDIT_COLUMNS)
+    except Exception:  # noqa: BLE001  (unreadable or not a sample: the caller refuses without --force)
+        return None
+    return int(old.notna().any(axis=1).sum())
+
+
+def write_sample(sample: pd.DataFrame, out_path, force: bool = False) -> Path:
+    """Write the drawn sample. The sample is the only home of the audit verdicts (the label tool writes
+    them into it), so an existing file with any audit column filled, or one that cannot be read, is never
+    overwritten unless ``force``: FileExistsError instead."""
     out_path = Path(out_path)
+    if out_path.exists() and not force:
+        n = audited_rows(out_path)
+        if n is None or n > 0:
+            raise FileExistsError(
+                "%s already holds %s; drawing again would wipe the audit. Pass --force to overwrite, or --out "
+                "another path" % (out_path, "audited rows (%d)" % n if n is not None else "a file that is not a readable sample"))
     out_path.parent.mkdir(parents=True, exist_ok=True)
     sample.to_parquet(out_path, index=False)
     return out_path
 
 
 def summarise(sample: pd.DataFrame, tolerance: int = TOLERANCE_FRAMES) -> dict:
-    """Agreement of the audited release frame with the localiser's, over the audited rows."""
+    """Agreement of the audited release frame with the localiser's, over the audited rows, plus the
+    pass-mark statistic: over every audited high-confidence row (a frame or a verdict filled), the share
+    whose audited frame is within ``tolerance`` of release_frame and not marked bad, so a high-confidence
+    row the auditor marked bad (audited_ok False) counts as a miss instead of leaving the denominator."""
     s = sample.copy()
     audited = s[s["audited_release_frame"].notna()]
     diff = (audited["audited_release_frame"].astype("Int64") - audited["release_frame"].astype("Int64")).abs()
-    within = diff <= tolerance
+    within = (diff <= tolerance).fillna(False).astype(bool)
     ok = s["audited_ok"].dropna()
+    any_audit = s["audited_release_frame"].notna() | s["audited_ok"].notna()
+    bad = s["audited_ok"].eq(False).fillna(False).astype(bool)
+    full_diff = (s["audited_release_frame"].astype("Int64") - s["release_frame"].astype("Int64")).abs()
+    hit = ((full_diff <= tolerance).fillna(False).astype(bool) & ~bad)
+    hi = any_audit & s["confidence_flag"].astype("string").eq(PASS_MARK_FLAG).fillna(False).astype(bool)
 
     def share(mask) -> float | None:
         return round(float(mask.mean()), 4) if len(mask) else None
 
-    by_flag = {}
-    for flag, grp in audited.assign(_within=within.to_numpy()).groupby("confidence_flag", sort=True):
-        by_flag[str(flag)] = {"audited": int(len(grp)), "within_tolerance": int(grp["_within"].sum()),
-                              "share": share(grp["_within"])}
-    by_game = {}
-    for game, grp in audited.assign(_within=within.to_numpy()).groupby("sportvu_game", sort=True):
-        by_game[str(game)] = {"audited": int(len(grp)), "within_tolerance": int(grp["_within"].sum()),
-                              "share": share(grp["_within"])}
+    def groups(col: str) -> dict:
+        out = {}
+        aw = audited.assign(_within=within.to_numpy())
+        for key in sorted(set(s.loc[any_audit, col].astype(str))):
+            grp = aw[aw[col].astype(str) == key]
+            out[key] = {"audited": int(len(grp)), "within_tolerance": int(grp["_within"].sum()),
+                        "share": share(grp["_within"]), "bad": int((bad & (s[col].astype(str) == key)).sum())}
+        return out
+
+    pass_mark = {"confidence_flag": PASS_MARK_FLAG, "rows": int(hi.sum()), "within_tolerance": int((hit & hi).sum()),
+                 "bad": int((bad & hi).sum()), "share": share((hit & hi)[hi])}
     return {"rows": int(len(s)), "audited": int(len(audited)), "tolerance_frames": int(tolerance),
             "within_tolerance": int(within.sum()), "agreement_within_tolerance": share(within),
             "mean_abs_diff_frames": round(float(diff.mean()), 3) if len(diff) else None,
-            "audited_ok_filled": int(len(ok)), "share_audited_ok": share(ok.astype(bool)),
-            "by_confidence_flag": by_flag, "by_game": by_game}
+            "audited_ok_filled": int(len(ok)), "share_audited_ok": share(ok.astype(bool)), "bad": int(bad.sum()),
+            "pass_mark": pass_mark, "by_confidence_flag": groups("confidence_flag"), "by_game": groups("sportvu_game")}
 
 
 def _fmt(x) -> str:
@@ -144,15 +176,24 @@ def summary_markdown(res: dict, sample_path) -> str:
          "Sample `%s`: %d rows, %d audited. Agreement counts an audited release frame within %d frames of the "
          "localiser's release_frame (docs/DATA_CONTRACT.md section 17)." % (
              sample_path, res["rows"], res["audited"], res["tolerance_frames"]), "",
+         "## Pass-mark statistic", "",
+         "The statistic the stage 3 pass mark is compared with: over every audited `%s` confidence row, the share "
+         "whose audited release frame is within %d frames of release_frame; a row marked bad counts as a miss." % (
+             res["pass_mark"]["confidence_flag"], res["tolerance_frames"]), "",
+         "| rows | within tolerance | bad | pass_mark_share |", "|---|---|---|---|",
+         "| %d | %d | %d | %s |" % (res["pass_mark"]["rows"], res["pass_mark"]["within_tolerance"], res["pass_mark"]["bad"],
+                                   _fmt(res["pass_mark"]["share"])), "",
+         "## All audited rows", "",
          "| metric | value |", "|---|---|",
          "| audited rows | %d |" % res["audited"], "| within tolerance | %d |" % res["within_tolerance"],
          "| agreement_within_tolerance | %s |" % _fmt(res["agreement_within_tolerance"]),
          "| mean abs difference (frames) | %s |" % _fmt(res["mean_abs_diff_frames"]),
-         "| audited_ok filled | %d |" % res["audited_ok_filled"], "| share_audited_ok | %s |" % _fmt(res["share_audited_ok"]), "",
-         "## By confidence_flag", "", "| flag | audited | within tolerance | share |", "|---|---|---|---|"]
-    L += ["| %s | %d | %d | %s |" % (f, v["audited"], v["within_tolerance"], _fmt(v["share"])) for f, v in res["by_confidence_flag"].items()]
-    L += ["", "## By game", "", "| game | audited | within tolerance | share |", "|---|---|---|---|"]
-    L += ["| %s | %d | %d | %s |" % (g, v["audited"], v["within_tolerance"], _fmt(v["share"])) for g, v in res["by_game"].items()]
+         "| audited_ok filled | %d |" % res["audited_ok_filled"], "| share_audited_ok | %s |" % _fmt(res["share_audited_ok"]),
+         "| bad (audited_ok false) | %d |" % res["bad"], "",
+         "## By confidence_flag", "", "| flag | audited | within tolerance | share | bad |", "|---|---|---|---|---|"]
+    L += ["| %s | %d | %d | %s | %d |" % (f, v["audited"], v["within_tolerance"], _fmt(v["share"]), v["bad"]) for f, v in res["by_confidence_flag"].items()]
+    L += ["", "## By game", "", "| game | audited | within tolerance | share | bad |", "|---|---|---|---|---|"]
+    L += ["| %s | %d | %d | %s | %d |" % (g, v["audited"], v["within_tolerance"], _fmt(v["share"]), v["bad"]) for g, v in res["by_game"].items()]
     return "\n".join(L) + "\n"
 
 
@@ -167,6 +208,8 @@ def main(argv=None) -> int:
     ap.add_argument("--summarise", default=None, metavar="SAMPLE", help="read a filled sample back and report agreement")
     ap.add_argument("--report", default=None, help="with --summarise: write the markdown report here")
     ap.add_argument("--tolerance", type=int, default=TOLERANCE_FRAMES, help="frames of agreement (default 2)")
+    ap.add_argument("--force", action="store_true",
+                    help="overwrite an existing sample even when it holds audit verdicts (they are lost)")
     a = ap.parse_args(argv)
     if a.summarise:
         sample = pd.read_parquet(a.summarise)
@@ -178,12 +221,20 @@ def main(argv=None) -> int:
             print("wrote %s" % a.report)
         print("agreement within %d frames: %s over %d audited rows" % (
             res["tolerance_frames"], _fmt(res["agreement_within_tolerance"]), res["audited"]))
+        pm = res["pass_mark"]
+        print("pass-mark statistic (%s confidence, bad rows count as misses): %s, %d within %d frames over %d rows "
+              "(%d bad)" % (pm["confidence_flag"], _fmt(pm["share"]), pm["within_tolerance"], res["tolerance_frames"],
+                            pm["rows"], pm["bad"]))
         return 0
     if not a.data:
         ap.error("--data is required (or --summarise SAMPLE)")
     tables = training_tables(a.data)
     sample, info = draw(tables, a.n, a.seed, include_unfound=a.all)
-    out = write_sample(sample, a.out or Path(a.data) / "analytics" / "audit" / "shots_sample.parquet")
+    try:
+        out = write_sample(sample, a.out or Path(a.data) / "analytics" / "audit" / "shots_sample.parquet", force=a.force)
+    except FileExistsError as exc:
+        print("refused: %s" % exc, file=sys.stderr)
+        return 2
     print(json.dumps(info, indent=1))
     print("wrote %s: %d shots, %d per game over %d training games%s" % (
         out, info["rows"], info["per_game"], info["games"],

@@ -110,6 +110,10 @@ def _disk(path) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+def _baks(sample) -> list:
+    return sorted(sample.parent.glob(sample.name + ".*.bak"))
+
+
 # ---------------------------------------------------------------------------- the sample is what audit_shots draws
 
 def test_sample_is_an_audit_shots_draw(data_root):
@@ -182,9 +186,11 @@ def test_walk_accept_move_bad_then_summarise(server, data_root, sample, tmp_path
     assert after["audited_ok"].tolist()[:4] == [True, True, False, True]
     assert after["auditor_note"].tolist()[:4] == [pd.NA, "late release", "tip-in, no release", pd.NA]
     assert after.loc[4:, A.AUDIT_COLUMNS].isna().all().all()
-    # nothing but the sample and its one backup in the folder; the backup is the state before the first write
-    assert sorted(p.name for p in sample.parent.iterdir()) == ["shots_sample.parquet", "shots_sample.parquet.bak"]
-    pd.testing.assert_frame_equal(_disk(sample.with_name("shots_sample.parquet.bak")), before)
+    # nothing but the sample and this session's one backup in the folder; the backup is the state before the first write
+    baks = _baks(sample)
+    assert sorted(p.name for p in sample.parent.iterdir()) == sorted(["shots_sample.parquet"] + [b.name for b in baks])
+    assert len(baks) == 1 and server.session.backup_path == baks[0]
+    pd.testing.assert_frame_equal(_disk(baks[0]), before)
     # audit mode wrote no labels anywhere
     assert not (data_root["root"] / "labels").exists() and not (sample.parent / "labels").exists()
 
@@ -194,6 +200,14 @@ def test_walk_accept_move_bad_then_summarise(server, data_root, sample, tmp_path
     assert res["mean_abs_diff_frames"] == round((0 + 3 + 2) / 3, 3)
     assert res["audited_ok_filled"] == 4 and res["share_audited_ok"] == 0.75
     assert sum(v["audited"] for v in res["by_game"].values()) == 3
+    assert res["bad"] == 1 and sum(v["bad"] for v in res["by_game"].values()) == 1
+    # the pass-mark statistic keeps the bad row in its denominator
+    flags = before["confidence_flag"].astype(str).tolist()[:4]
+    hi = [k for k in range(4) if flags[k] == "high"]
+    within_hi = [k for k in hi if k in (0, 3)]
+    assert res["pass_mark"]["rows"] == len(hi) and res["pass_mark"]["within_tolerance"] == len(within_hi)
+    assert res["pass_mark"]["bad"] == (1 if 2 in hi else 0)
+    assert res["by_confidence_flag"][flags[2]]["bad"] == 1
     report = tmp_path / "shot_audit.md"
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
@@ -266,7 +280,7 @@ def test_invalid_inputs_rejected_and_nothing_written(server, data_root, sample):
     for body in bad_bodies:
         status, r = server.req("POST", "/audit/save", body)
         assert status == 400 and r["error"], body
-    assert sample.read_bytes() == raw0 and not sample.with_name(sample.name + ".bak").exists()
+    assert sample.read_bytes() == raw0 and not _baks(sample)
     assert server.req("GET", "/audit/shot?index=abc")[0] == 400
     assert server.req("GET", "/audit/shot?index=%d" % n)[0] == 404
     # a note at the cap is fine
@@ -313,7 +327,7 @@ def test_failed_write_keeps_the_sample(data_root, sample, monkeypatch):
     def boom(src, dst):
         raise OSError("disk full")
     monkeypatch.setattr(T.os, "replace", boom)
-    with pytest.raises(OSError):
+    with pytest.raises(T.AuditWriteError):
         sess.save({"index": 0, "verdict": "accept"})
     assert sample.read_bytes() == raw
     assert [p.name for p in sample.parent.iterdir()] == ["shots_sample.parquet"], "no temporary file left behind"
@@ -438,7 +452,7 @@ def test_html_wires_the_documented_keys_to_the_api():
         m = re.search(r"if \(k === %s\) \{([^\n]*)\}" % re.escape(key), h)
         assert m and call in m.group(1), (key, call)
     # inside the note field keys type text; enter and esc only leave the field
-    j = h.index('tag === "INPUT"')
+    j = h.index('ev.target.id === "note"')
     assert "ev.target.blur()" in h[j:j + 220] and "return;" in h[j:j + 220]
     # save() posts the verdict, the marked frame and the note to /audit/save
     s = html[html.index("function save(verdict)"):html.index("function goShot(k)")]
@@ -493,3 +507,228 @@ def test_cli_and_docs():
         assert text in contract, text
     runbook = (ROOT / "docs" / "mac_runbook.md").read_text(encoding="utf-8")
     assert "label_tool --data \"$DATA_ROOT\" --audit" in runbook and "export the sample to CSV" not in runbook
+    # the docs name exactly which statistic meets the pass mark
+    assert "pass-mark statistic (pass_mark.share" in runbook
+    assert "**Pass-mark statistic.** `pass_mark.share`" in contract and "counts as a miss" in contract
+    assert "`pass-mark statistic` line (`pass_mark.share`" in guide and "--force" in guide
+
+
+# ---------------------------------------------------------------------------- review fixes (PR #7)
+
+def test_redraw_refuses_to_wipe_an_audit(data_root, sample, capsys):
+    """M1: audit_shots never overwrites a sample holding verdicts unless --force."""
+    root = str(data_root["root"])
+    draw = ["--data", root, "--n", str(2 * N_PER_GAME), "--seed", "1", "--out", str(sample)]
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert A.main(draw) == 0                     # no verdicts yet: a redraw is fine
+    s = Server(data_root["root"], sample)
+    try:
+        assert s.save(index=0, verdict="accept")[0] == 200
+    finally:
+        s.close()
+    raw = sample.read_bytes()
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert A.main(draw) == 2
+    assert "audited rows (1)" in capsys.readouterr().err and sample.read_bytes() == raw
+    with pytest.raises(FileExistsError):
+        A.write_sample(_disk(data_root["pristine"]), sample)
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert A.main(draw + ["--force"]) == 0
+    assert _disk(sample)[A.AUDIT_COLUMNS].isna().all().all()
+    junk = sample.with_name("junk.parquet")
+    junk.write_bytes(b"not parquet")
+    with pytest.raises(FileExistsError):
+        A.write_sample(_disk(data_root["pristine"]), junk)
+
+
+def test_one_backup_per_session_none_overwritten(data_root, sample):
+    """M1: each session keeps its own timestamped backup; a second session never replaces the first."""
+    pristine = _disk(sample)
+    s1 = Server(data_root["root"], sample)
+    try:
+        assert s1.save(index=0, verdict="accept")[0] == 200
+        assert s1.save(index=1, verdict="bad")[0] == 200
+    finally:
+        s1.close()
+    after1 = _disk(sample)
+    s2 = Server(data_root["root"], sample)
+    try:
+        assert s2.save(index=2, verdict="accept")[0] == 200
+    finally:
+        s2.close()
+    baks = _baks(sample)
+    assert len(baks) == 2 and s1.session.backup_path != s2.session.backup_path
+    pd.testing.assert_frame_equal(_disk(s1.session.backup_path), pristine)
+    pd.testing.assert_frame_equal(_disk(s2.session.backup_path), after1)
+
+
+def test_pass_mark_counts_bad_high_confidence_rows():
+    """M3: two hard high-confidence shots sent to bad leave the agreement at 1.0 but fail a 90 percent mark."""
+    n = 10
+    s = pd.DataFrame({
+        "sportvu_game": pd.array(["g1"] * 5 + ["g2"] * 5, dtype="string"), "event": range(n), "period": 1,
+        "clock_s": 600.0, "release_frame": [100 * k for k in range(n)], "apex_frame": 0, "outcome_frame": 0,
+        "shooter_id": pd.array([1] * n, dtype="Int32"),
+        "confidence_flag": pd.array(["high"] * 9 + ["low"], dtype="string")})
+    s["audited_release_frame"] = pd.array([100 * k for k in range(n)], dtype="Int32")
+    s["audited_ok"] = pd.array([True] * n, dtype="boolean")
+    s["auditor_note"] = pd.array([pd.NA] * n, dtype="string")
+    for k in (3, 6):                                   # marked bad: no frame, audited_ok False
+        s.loc[k, "audited_release_frame"] = pd.NA
+        s.loc[k, "audited_ok"] = False
+    s.loc[9, "audited_release_frame"] = 900 + 7          # a low-confidence miss does not enter the pass mark
+    res = A.summarise(s)
+    assert res["by_confidence_flag"]["high"]["share"] == 1.0          # the old number hides the two bad rows
+    pm = res["pass_mark"]
+    assert pm == {"confidence_flag": "high", "rows": 9, "within_tolerance": 7, "bad": 2, "share": round(7 / 9, 4)}
+    assert pm["share"] < 0.9 <= res["by_confidence_flag"]["high"]["share"]
+    assert res["by_confidence_flag"]["high"]["bad"] == 2 and res["by_confidence_flag"]["low"]["bad"] == 0
+    assert res["by_game"]["g1"]["bad"] == 1 and res["by_game"]["g2"]["bad"] == 1 and res["bad"] == 2
+    # a frame-only row (old CSV route) of high confidence within the mark counts as a hit
+    s2 = s.copy(); s2.loc[3, "audited_ok"] = pd.NA; s2.loc[3, "audited_release_frame"] = 301
+    assert A.summarise(s2)["pass_mark"]["within_tolerance"] == 8
+    md = A.summary_markdown(res, "x.parquet")
+    assert "## Pass-mark statistic" in md and "| 9 | 7 | 2 | 0.7778 |" in md and "| high | 7 | 7 | 1.0000 | 2 |" in md
+
+
+def test_summarise_cli_prints_the_pass_mark_line(tmp_path):
+    s = pd.DataFrame({"sportvu_game": pd.array(["g"] * 2, dtype="string"), "event": [0, 1], "period": 1,
+                      "clock_s": 1.0, "release_frame": [10, 20], "apex_frame": 0, "outcome_frame": 0,
+                      "shooter_id": pd.array([1, 1], dtype="Int32"), "confidence_flag": pd.array(["high"] * 2, dtype="string"),
+                      "audited_release_frame": pd.array([10, pd.NA], dtype="Int32"),
+                      "audited_ok": pd.array([True, False], dtype="boolean"),
+                      "auditor_note": pd.array([pd.NA, "not a shot"], dtype="string")})
+    p = tmp_path / "s.parquet"
+    s.to_parquet(p, index=False)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        assert A.main(["--summarise", str(p)]) == 0
+    out = buf.getvalue()
+    assert "agreement within 2 frames: 1.0000 over 1 audited rows" in out
+    assert "pass-mark statistic (high confidence, bad rows count as misses): 0.5000, 1 within 2 frames over 2 rows (1 bad)" in out
+
+
+def test_html_only_the_note_field_takes_typing():
+    """M2: a focused slider or speed menu must not swallow the audit keys."""
+    h = _handler(HTML.read_text(encoding="utf-8"))
+    assert 'ev.target.id === "note"' in h
+    assert 'tag === "INPUT"' not in h and '"SELECT"' not in h and "tagName === \"INPUT\"" not in h
+    i = h.index('ev.target.id === "note"')
+    assert h.index('if (k === "m")') > i and h.index('if (k === "a")') > i
+    html = HTML.read_text(encoding="utf-8")
+    assert re.search(r'\["change", "pointerup"\]\.forEach\(function \(evName\) \{\s*\$\("scrub"\)\.addEventListener\(evName, '
+                     r'function \(\) \{ this\.blur\(\); \}\);\s*\$\("speed"\)\.addEventListener\(evName, function \(\) '
+                     r'\{ this\.blur\(\); \}\);', html)
+
+
+def test_html_busy_until_next_shot_and_buttons_blur():
+    """L1, L2: the busy flag holds from the save until the next shot is on screen; buttons give the focus back."""
+    html = HTML.read_text(encoding="utf-8")
+    sv = html[html.index("function save(verdict)"):html.index("function goShot(k)")]
+    assert "if (!S.data || S.busy) return;" in sv
+    then = sv[sv.index('api("POST", "/audit/save", body).then('):]
+    nxt = then.index("loadShot(S.data.index + 1)")
+    assert "S.busy = false" not in then[:nxt].replace("S.busy = false;\n        S.data.audit", ""), \
+        "busy is released only on the last shot or by loadShot"
+    ls = html[html.index("function loadShot(i)"):html.index("function save(verdict)")]
+    assert ls.index("S.busy = true") < ls.index('api("GET"') < ls.index("S.busy = false")
+    assert ".catch(function (e) { S.busy = false;" in ls
+    gs = html[html.index("function goShot(k)"):html.index("function markHere()")]
+    assert "if (S.busy) return;" in gs
+    assert re.search(r'querySelectorAll\("button"\), function \(b\) \{\s*b\.addEventListener\("click", function \(\) \{ b\.blur\(\); \}\);', html)
+
+
+def test_arrow_error_on_write_is_a_500_not_a_400(server, sample, monkeypatch):
+    """L3: pyarrow's ArrowInvalid is a ValueError; a failed write must still be a server error."""
+    import pyarrow as pa
+    raw = sample.read_bytes()
+
+    def bad_write(*a, **k):
+        raise pa.ArrowInvalid("cannot write")
+    monkeypatch.setattr(pq, "write_table", bad_write)
+    status, r = server.save(index=0, verdict="accept")
+    assert status == 500 and "unchanged" in r["error"]
+    assert sample.read_bytes() == raw and server.session.first_unaudited() == 0
+    assert [p.name for p in sample.parent.iterdir() if p.name.endswith(".tmp")] == []
+
+
+def test_frames_cache_loads_each_game_once_under_threads(data_root, sample):
+    """L4: concurrent requests for one game load its frames once."""
+    import time
+    calls = []
+
+    def slow_loader(game):
+        calls.append(game)
+        time.sleep(0.05)
+        return data_root["games"][game]
+    sess = T.AuditSession(data_root["root"], sample, frames_loader=slow_loader, heldout=TOKENS)
+    game = str(sess.df.loc[0, "sportvu_game"])
+    ths = [threading.Thread(target=sess.game_frames, args=(game,)) for _ in range(8)]
+    for t in ths:
+        t.start()
+    for t in ths:
+        t.join()
+    assert calls == [game]
+
+
+def test_stale_check_uses_content_not_mtime(server, sample):
+    """L5, L6: a touched mtime (a sync client) is not a change; a same-size edit with the old mtime is."""
+    import os
+    st = sample.stat()
+    os.utime(sample, ns=(st.st_atime_ns, st.st_mtime_ns + 5_000_000_000))
+    assert server.save(index=0, verdict="accept")[0] == 200
+    raw = bytearray(sample.read_bytes())
+    st = sample.stat()
+    k = raw.index(b"PAR1", 4) - 1 if raw.count(b"PAR1") > 1 else len(raw) // 2
+    raw[k] ^= 0x01                                     # one flipped byte: same size
+    sample.write_bytes(bytes(raw))
+    os.utime(sample, ns=(st.st_atime_ns, st.st_mtime_ns))
+    assert sample.stat().st_size == st.st_size and sample.stat().st_mtime_ns == st.st_mtime_ns
+    status, r = server.save(index=1, verdict="accept")
+    assert status == 409 and "changed on disk" in r["error"]
+
+
+def test_null_release_frame_from_a_csv_round_trip(data_root, sample):
+    """L7: a blank release_frame (CSV retyped the column to double) is a row without a detected release."""
+    df = _disk(sample)
+    df["release_frame"] = df["release_frame"].astype("float64")
+    df.loc[0, "release_frame"] = float("nan")
+    df["apex_frame"] = df["apex_frame"].astype("float64")
+    df.loc[0, "apex_frame"] = float("nan")
+    df.to_parquet(sample, index=False)
+    s = Server(data_root["root"], sample)
+    try:
+        status, d = s.req("GET", "/audit/shot?index=0")
+        assert status == 200 and d["release_frame"] == -1 and d["apex_frame"] == -1 and d["frames"]
+        status, r = s.save(index=0, verdict="accept")
+        assert status == 400 and "no detected release" in r["error"]
+        assert s.save(index=0, verdict="release", audited_release_frame=d["open_frame"])[0] == 200
+        status, d1 = s.req("GET", "/audit/shot?index=1")
+        assert status == 200 and d1["release_frame"] == int(df.loc[1, "release_frame"])
+        assert s.save(index=1, verdict="accept")[0] == 200
+    finally:
+        s.close()
+    assert pq.read_schema(sample).field("release_frame").type == "double"
+    assert A.summarise(_disk(sample))["audited"] == 2
+
+
+def test_cli_not_a_sample_is_one_line_exit_2(tmp_path, data_root, capsys):
+    """L8: a file that is not a sample gives a one-line error and exit code 2, no traceback."""
+    p = tmp_path / "x.parquet"
+    pd.DataFrame({"a": [1]}).to_parquet(p, index=False)
+    junk = tmp_path / "junk.parquet"
+    junk.write_bytes(b"not parquet at all")
+    for path in (p, junk, tmp_path / "missing.parquet"):
+        assert T.main(["--data", str(data_root["root"]), "--audit", str(path), "--port", "0"]) == 2
+        err = capsys.readouterr().err
+        assert err.startswith("cannot audit") and len(err.strip().splitlines()) == 1 and "Traceback" not in err
+
+
+def test_missing_splits_fails_closed(data_root, sample, monkeypatch, tmp_path):
+    """Without sportvu/splits.json the held-out guard cannot run, so the audit does not start."""
+    from sportvu import splits
+    monkeypatch.setattr(splits, "PATH", tmp_path / "no_splits.json")
+    with pytest.raises(SystemExit):
+        T.AuditSession(data_root["root"], sample)
+    with pytest.raises(SystemExit):
+        T.main(["--data", str(data_root["root"]), "--audit", str(sample), "--port", "0"])

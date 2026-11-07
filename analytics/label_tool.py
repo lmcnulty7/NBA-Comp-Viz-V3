@@ -472,6 +472,22 @@ class HeldoutInSample(ValueError):
     """The sample holds a held-out game: the audit validates the localiser constants, so it refuses."""
 
 
+class StaleSample(RuntimeError):
+    """The sample's bytes on disk differ from what this session read or last wrote (HTTP 409)."""
+
+
+class AuditWriteError(RuntimeError):
+    """Writing the sample failed; the sample on disk is unchanged (HTTP 500)."""
+
+
+def _frame_no(v) -> int:
+    """A localiser frame as an int, -1 when not found or null (a CSV round trip turns -1 into a blank)."""
+    try:
+        return -1 if v is None or pd.isna(v) else int(v)
+    except (TypeError, ValueError):
+        return -1
+
+
 def load_audit_frames(data_root, game: str) -> pd.DataFrame:
     """The section 4 frames of ``game`` (find_frames under DATA_ROOT), only the columns the audit draws."""
     import pyarrow.parquet as pq
@@ -480,11 +496,13 @@ def load_audit_frames(data_root, game: str) -> pd.DataFrame:
     return pd.read_parquet(path, columns=[c for c in AUDIT_FRAME_COLUMNS if c in have])
 
 
-def default_heldout_check(tokens: set):
-    """game -> held out, by the label tool's token rule or by analytics.audit_shots' split rule (which
-    also holds out every game at the held-out arena). Both read sportvu/splits.json and fail closed."""
-    from analytics import audit_shots as A
-    return lambda g: L.is_heldout(g, tokens) or A._is_heldout_game(g)
+def default_heldout_check(extra_tokens: set | None = None):
+    """game -> held out: analytics.eval.is_heldout_game (every held-out token of sportvu/splits.json,
+    the held-out arena suffix included; a missing splits file is a SystemExit, so it fails closed), or any
+    of ``extra_tokens``."""
+    from analytics.eval import is_heldout_game
+    toks = set(extra_tokens or ())
+    return lambda g: is_heldout_game(g) or L.is_heldout(g, toks)
 
 
 class AuditSession:
@@ -497,19 +515,27 @@ class AuditSession:
                released at that frame; the localiser's frame may be off)
       bad      audited_release_frame = <NA>, audited_ok = False  (no release to compare: not a shot, the
                ball or shooter cannot be followed, or the frames are broken)
-    so a row has a frame exactly when audited_ok is True, --summarise's agreement covers the confirmed
-    shots and share_audited_ok the share of rows that are real, placeable shots. A row is audited when
-    either column is filled; the session resumes at the first row with both empty.
+    so a row has a frame exactly when audited_ok is True; --summarise's pass-mark statistic counts a bad
+    high-confidence row as a miss, and share_audited_ok is the share of rows that are real, placeable
+    shots. A row is audited when either column is filled; the session resumes at the first row with both
+    empty. A blank localiser frame (CSV round trip) reads as -1, not found.
     """
 
     def __init__(self, data_root, sample_path, frames_loader=None, heldout: set | None = None,
                  heldout_check=None, backup: bool = True):
+        import io
         import pyarrow.parquet as pq
         from analytics import audit_shots as A
         self.data_root = Path(data_root)
         self.sample_path = Path(sample_path).resolve()
-        self.schema = pq.read_schema(str(self.sample_path))
-        df = pd.read_parquet(self.sample_path)
+        # one read of the bytes: the schema, the frame and the stale-check hash all come from the same content
+        raw = self.sample_path.read_bytes()
+        self._digest = _digest(raw)
+        try:
+            self.schema = pq.read_schema(io.BytesIO(raw))
+            df = pd.read_parquet(io.BytesIO(raw))
+        except Exception as exc:  # noqa: BLE001  (pyarrow raises several types for a file that is not parquet)
+            raise ValueError(f"{self.sample_path} is not an audit_shots sample: {exc}") from exc
         missing = [c for c in A.COLUMNS if c not in df.columns]
         if missing:
             raise ValueError(f"{self.sample_path} is not an audit_shots sample: missing columns {missing}")
@@ -517,7 +543,7 @@ class AuditSession:
             if str(df[c].dtype) != dt:
                 df[c] = df[c].astype(dt)
         self.df = df.reset_index(drop=True)
-        check = heldout_check or default_heldout_check(set(heldout) if heldout is not None else heldout_tokens())
+        check = heldout_check or default_heldout_check(heldout)
         held = sorted({g for g in self.df["sportvu_game"].astype(str).unique() if check(g)})
         if held:
             raise HeldoutInSample(
@@ -526,11 +552,10 @@ class AuditSession:
                 "analytics.audit_shots, which takes training games only" % held)
         self.frames_loader = frames_loader or (lambda g: load_audit_frames(self.data_root, g))
         self.backup = bool(backup)
-        self.backup_path = self.sample_path.with_name(self.sample_path.name + ".bak")
-        self._backed_up = False
+        self.backup_path = None       # this session's backup, made before its first write
         self._cache: dict = {}
+        self._cache_lock = threading.Lock()
         self.lock = threading.Lock()
-        self._stamp = self._file_stamp()
 
     # -- state ----------------------------------------------------------------------------
     @property
@@ -558,12 +583,14 @@ class AuditSession:
 
     # -- frames ---------------------------------------------------------------------------
     def game_frames(self, game: str) -> pd.DataFrame:
-        if game not in self._cache:
-            fr = self.frames_loader(game).sort_values("frame", kind="stable").reset_index(drop=True)
-            while len(self._cache) >= AUDIT_CACHE_GAMES:
-                self._cache.pop(next(iter(self._cache)))
-            self._cache[game] = fr
-        return self._cache[game]
+        with self._cache_lock:
+            fr = self._cache.get(game)
+            if fr is None:
+                fr = self.frames_loader(game).sort_values("frame", kind="stable").reset_index(drop=True)
+                while len(self._cache) >= AUDIT_CACHE_GAMES:
+                    self._cache.pop(next(iter(self._cache)))
+                self._cache[game] = fr
+            return fr
 
     def _row_index(self, index) -> int:
         if isinstance(index, bool) or not isinstance(index, (int, np.integer)):
@@ -575,11 +602,15 @@ class AuditSession:
     def shot_payload(self, index) -> dict:
         i = self._row_index(index)
         r = self.df.iloc[i]
+        if pd.isna(r["period"]) or pd.isna(r["sportvu_game"]):
+            raise ValueError(f"shot {i} has no game or period in the sample")
         game, period = str(r["sportvu_game"]), int(r["period"])
         fr = self.game_frames(game)
         per = fr.loc[fr["period"] == period]
-        rel = int(r["release_frame"])
-        if rel >= 0:
+        rel = _frame_no(r["release_frame"])
+        if rel < 0 and pd.isna(r["clock_s"]):
+            span = per.iloc[:0]
+        elif rel >= 0:
             span = per.loc[(per["frame"] >= rel - AUDIT_CONTEXT_FRAMES) & (per["frame"] <= rel + AUDIT_CONTEXT_FRAMES)]
         else:
             c = float(r["clock_s"])
@@ -603,14 +634,14 @@ class AuditSession:
         frame_ids = [f["frame"] for f in frames_out]
         open_frame = rel if rel in frame_ids else (frame_ids[len(frame_ids) // 2] if frame_ids else None)
         # the attacked basket: the ball's side at the apex (else at the last served frame)
-        ref = int(r["apex_frame"]) if int(r["apex_frame"]) in frame_ids else (frame_ids[-1] if frame_ids else None)
+        ref = _frame_no(r["apex_frame"]) if _frame_no(r["apex_frame"]) in frame_ids else (frame_ids[-1] if frame_ids else None)
         bx = next((f["ball"][0] for f in frames_out if f["frame"] == ref), None)
         sh = players.get(str(shooter)) if shooter is not None else None
-        return {"index": i, "n": self.n, "game": game, "event": int(r["event"]), "period": period,
+        return {"index": i, "n": self.n, "game": game, "event": _i(r["event"]), "period": period,
                 "clock_s": _f(r["clock_s"]), "shooter_id": shooter,
                 "shooter": sh or ({"id": shooter, "name": str(shooter)} if shooter is not None else None),
                 "confidence_flag": None if pd.isna(r["confidence_flag"]) else str(r["confidence_flag"]),
-                "release_frame": rel, "apex_frame": int(r["apex_frame"]), "outcome_frame": int(r["outcome_frame"]),
+                "release_frame": rel, "apex_frame": _frame_no(r["apex_frame"]), "outcome_frame": _frame_no(r["outcome_frame"]),
                 "open_frame": open_frame, "attack_right": True if bx is None else bool(bx > 47.0),
                 "fps": L.estimate_fps(per) if len(per) > 1 else 25.0, "downsampled": downsampled,
                 "frames": frames_out, "players": players, "audit": self.audit_of(i),
@@ -629,6 +660,8 @@ class AuditSession:
         k = np.searchsorted(fv, frame)
         if k >= len(fv) or int(fv[k]) != frame:
             raise ValueError(f"frame {frame} is not in the game's frames")
+        if pd.isna(r["period"]):
+            raise ValueError("the shot has no period in the sample")
         if int(fr["period"].iloc[k]) != int(r["period"]):
             raise ValueError(f"frame {frame} is in period {int(fr['period'].iloc[k])}, the shot in period {int(r['period'])}")
         return frame
@@ -658,9 +691,9 @@ class AuditSession:
         if verdict == "accept":
             if frame is not None:
                 raise ValueError("accept takes the detected release frame; send verdict release to set another")
-            if int(r["release_frame"]) < 0:
+            if _frame_no(r["release_frame"]) < 0:
                 raise ValueError("this shot has no detected release frame to accept: mark the frame or call it bad")
-            frame, ok = self._check_frame(r, int(r["release_frame"])), True
+            frame, ok = self._check_frame(r, _frame_no(r["release_frame"])), True
         elif verdict == "release":
             if frame is None:
                 raise ValueError("verdict release needs audited_release_frame")
@@ -680,9 +713,15 @@ class AuditSession:
                 "n_audited": int(self.audited_mask().sum()), "first_unaudited": self.first_unaudited()}
 
     # -- the file -------------------------------------------------------------------------
-    def _file_stamp(self):
-        st = self.sample_path.stat()
-        return (st.st_mtime_ns, st.st_size)
+    def _backup_path(self) -> Path:
+        """<sample>.<UTC time>.bak, never an existing file: one backup per session, none overwritten."""
+        import time
+        stem = "%s.%s" % (self.sample_path.name, time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
+        cand, k = self.sample_path.with_name(stem + ".bak"), 1
+        while cand.exists():
+            k += 1
+            cand = self.sample_path.with_name("%s-%d.bak" % (stem, k))
+        return cand
 
     def _schema(self):
         """The sample's own arrow schema (so every other column keeps its type and the pandas metadata
@@ -700,29 +739,44 @@ class AuditSession:
 
     def _write(self, df: pd.DataFrame) -> None:
         """Atomic: write a temporary file next to the sample, fsync it, os.replace it over the sample.
-        Refuses when the sample changed on disk since this session last read or wrote it."""
+        StaleSample when the sample's bytes differ from what this session read or last wrote (a content
+        hash, not the mtime, which a synced folder may touch); AuditWriteError when writing fails, the
+        sample then unchanged."""
         import pyarrow as pa
         import pyarrow.parquet as pq
-        if self._file_stamp() != self._stamp:
-            raise RuntimeError(f"{self.sample_path} changed on disk since this session opened it; restart the "
-                               "audit so nothing written elsewhere is overwritten")
-        if self.backup and not self._backed_up:
-            import shutil
-            shutil.copy2(self.sample_path, self.backup_path)
-            self._backed_up = True
-        schema = self._schema()
-        table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
+        try:
+            current = _digest(self.sample_path.read_bytes())
+        except OSError as exc:
+            raise AuditWriteError(f"cannot read {self.sample_path} before writing: {exc}") from exc
+        if current != self._digest:
+            raise StaleSample(f"{self.sample_path} changed on disk since this session read it; restart the "
+                              "audit so nothing written elsewhere is overwritten")
         tmp = self.sample_path.with_name(".%s.%d.tmp" % (self.sample_path.name, os.getpid()))
         try:
+            if self.backup and self.backup_path is None:
+                import shutil
+                bak = self._backup_path()
+                shutil.copy2(self.sample_path, bak)
+                self.backup_path = bak
+            schema = self._schema()
+            table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
             pq.write_table(table, str(tmp))
             with open(tmp, "rb") as fh:
+                written = fh.read()
                 os.fsync(fh.fileno())
             os.replace(tmp, self.sample_path)
+        except Exception as exc:  # noqa: BLE001  (pyarrow, OS and cast errors all leave the sample as it was)
+            raise AuditWriteError(f"writing {self.sample_path} failed, the sample is unchanged: {exc}") from exc
         finally:
             if tmp.exists():
                 tmp.unlink()
         self.schema = schema
-        self._stamp = self._file_stamp()
+        self._digest = _digest(written)
+
+
+def _digest(raw: bytes) -> str:
+    import hashlib
+    return hashlib.sha256(raw).hexdigest()
 
 
 def make_audit_handler(session: AuditSession, html_path: Path = AUDIT_HTML_PATH):
@@ -765,6 +819,8 @@ def make_audit_handler(session: AuditSession, html_path: Path = AUDIT_HTML_PATH)
                         self._json(200, session.shot_payload(i))
                     except IndexError:
                         self._json(404, {"error": f"no shot at index {i}; n = {session.n}"})
+                    except ValueError as exc:
+                        self._json(400, {"error": str(exc)})
                 else:
                     self._json(404, {"error": "not found"})
             except FileNotFoundError as exc:
@@ -782,12 +838,14 @@ def make_audit_handler(session: AuditSession, html_path: Path = AUDIT_HTML_PATH)
                     self._json(200, session.save(body))
                 else:
                     self._json(404, {"error": "not found"})
-            except ValueError as exc:
-                self._json(400, {"error": str(exc)})
+            except StaleSample as exc:
+                self._json(409, {"error": str(exc)})
+            except AuditWriteError as exc:
+                self._json(500, {"error": str(exc)})
             except FileNotFoundError as exc:
                 self._json(404, {"error": str(exc)})
-            except RuntimeError as exc:
-                self._json(409, {"error": str(exc)})
+            except ValueError as exc:
+                self._json(400, {"error": str(exc)})
             except Exception as exc:  # pragma: no cover
                 self._json(500, {"error": str(exc)})
 
@@ -887,6 +945,9 @@ def run_audit(a) -> int:
     except HeldoutInSample as exc:
         print("refused: %s" % exc, file=sys.stderr, flush=True)
         return 2
+    except (ValueError, OSError) as exc:
+        print("cannot audit %s: %s" % (a.audit, " ".join(str(exc).split())), file=sys.stderr, flush=True)
+        return 2
     srv = make_audit_server(session, a.port)
     port = srv.server_address[1]
     st = session.state()
@@ -924,7 +985,7 @@ def main(argv=None) -> int:
                     help="shot audit mode: walk this analytics.audit_shots sample parquet shot by shot and write "
                          "the verdicts straight back into it (frames from DATA_ROOT; no labels are written)")
     ap.add_argument("--no-backup", action="store_true",
-                    help="with --audit: skip the copy SAMPLE.bak made before the first write of a session")
+                    help="with --audit: skip the copy SAMPLE.<time>.bak made before the first write of each session")
     a = ap.parse_args(argv)
 
     if a.audit:
