@@ -52,6 +52,7 @@ before the long steps.
 | 29 | betting | `make ext-betting DATA=DATA_ROOT` | `collect/extras/odds/`, `collect/stints/{games,playbyplay}/`, `OUT_ROOT/analytics/lineups/<season>/player_rapm*.parquet` | `reports/betting.md` | 1 to 3 minutes | steps 4, 11 and 26 |
 | 30 | everything at once | `make all DATA=DATA_ROOT` (fixtures: `make all-fixtures`) | all of the above | `reports/run_all.md`, `logs/run_all/<ext>_<step>.log` | sum of 15 to 29, about 1 to 2 hours | steps 2 to 13 |
 | 31 | site | `make site` | `portfolio/hiring_manager_page.html` | `site/index.html` | seconds | nothing |
+| 32 | results summary | `make results` (`python3 -m analytics.results`; `--check` exits 1 when reports/results.md is stale, `--strict` exits 1 on any unparsed lane) | `reports/<ext>.md`, `reports/xfg_baseline.md` | `reports/results.md` (only the text between the results markers; docs/contract/results.md) | seconds | any of 14 to 29 |
 
 Add `OUT=/path` to any make line to put step outputs, logs and reports under that root instead of the
 repo. The tables one lane writes for another (the Phase 0 tables, `analytics/states_1hz/`,

@@ -105,3 +105,7 @@ site: ## copy portfolio/hiring_manager_page.html to SITE_DIR/index.html (default
 
 clean-logs: ## remove logs/run_all and the run_all reports (reports/run_all.md, reports/fixtures/)
 	rm -rf logs/run_all reports/run_all.md reports/fixtures
+
+.PHONY: results
+results: ## write reports/results.md, one summary table per lane copied from reports/<ext>.md (analytics/results.py)
+	$(PY) -m analytics.results --reports reports --out reports/results.md
