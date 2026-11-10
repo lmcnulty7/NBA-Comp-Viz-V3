@@ -59,9 +59,9 @@ training games only (rule 1).
 
 ### Stage 3: proposed audit pass mark (fixed before the sample is drawn)
 
-- **Pass mark:** among audited high-confidence shots (confidence_flag high) that the auditor confirms as shots,
-  the detected release frame is within 2 frames of the audited release frame on at least 90 percent. This is the
-  `high` row of `audit_shots --summarise` (tolerance 2 frames, analytics/audit_shots.py TOLERANCE_FRAMES). The low
+- **Pass mark:** among audited high-confidence shots (confidence_flag high), pass_mark.share, bad rows counted as misses:
+  the detected release frame is within 2 frames of the audited release frame on at least 90 percent. This is
+  `pass_mark.share` of `audit_shots --summarise` (tolerance 2 frames, analytics/audit_shots.py TOLERANCE_FRAMES). The low
   row is reported, not graded.
 - **If it fails:** the four localisation constants (apex search 2 s, rim radius 6 ft, flight 25 frames,
   high-confidence 0.6) are not pinned as validated; the loop writes what failed here and stops stage 3.
