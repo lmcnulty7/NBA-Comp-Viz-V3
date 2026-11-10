@@ -2,20 +2,27 @@
 
 ## Runbook progress
 
-WAITING ON YOU (stage 3 audit pass mark): read "Stage 3: proposed audit pass mark" below, edit the pass mark or
-the sample size there if you want, then `mkdir -p gates && touch gates/audit-mark-approved`. The loop draws the
-sample only after that file exists. Merging PR #7 first is recommended: it replaces the CSV round trip with an
-audit mode in the label tool.
+WAITING ON YOU (stage 3 shot audit): audit the 604 shots in the label tool's audit mode, then
+`mkdir -p gates && touch gates/audit-done`. Start the tool with:
+
+```bash
+python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytics/audit/shots_sample.parquet"
+```
+
+and open http://127.0.0.1:8765/. Keys are in docs/labeling_guide.md section 7 (a accept, m mark the release frame
+then enter to save, x bad). Verdicts are written into the sample after every shot and the tool resumes at the first
+unaudited shot, so it can be done over several sittings. Only the 334 high-confidence shots are graded against the
+pass mark; the 222 low and 48 unmatched are reported, not graded, so if time is short audit the high ones first.
 
 Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Two later decisions are open
 (odds and NBA.com, under Open gates).
 
-Open PRs from you, not touched by the loop (merge when ready): #7 stage 3 audit mode, #8 stage 4a --skip-heldout,
+Open PRs from you, not touched by the loop (merge when ready): #8 stage 4a --skip-heldout,
 #9 stage 9 results, #10 stage 6 torch models. The loop does not redo stage 4a while #8 is open.
 
-Updated 2026-11-07 by the autonomous loop (docs/mac_runbook.md).
+Updated 2026-11-09 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 3, Phase 0 done; waiting for the audit pass mark gate before drawing the audit sample.
+- **Current stage:** 3, audit sample drawn 2026-11-09; waiting for gates/audit-done.
 - **Background jobs:** none.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
@@ -57,7 +64,22 @@ training games only (rule 1).
   no bref_slug until rebuilt with `--rebuild rosters --bref-dir "$DATA_ROOT/collect"` (06cfc7a).
 - reports/sportvu_gaps.md: 626 games, 369 with a tracking gap over 10 s.
 
-### Stage 3: proposed audit pass mark (fixed before the sample is drawn)
+### Stage 3: audit sample (drawn 2026-11-09)
+
+Pass mark approved (gates/audit-mark-approved, 2026-11-09 21:12) with the sample line unchanged, and PR #7 merged
+first. `python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0` wrote
+DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log).
+
+| check | value |
+| --- | --- |
+| shots / games | 604 / 604 training games, one shot each |
+| confidence_flag high / low / unmatched | 334 / 222 / 48 |
+| held-out SportVU games in the sample (splits.json heldout_game, heldout_arena, heldout_era) | 0 |
+| games at CLE | 0 (21 CLE road games, which are training games) |
+| audit tests (tests/test_label_tool_audit.py and the audit_shots tests) | 51 passed |
+| audit tool smoke run on the real sample | page and shots 1, 301 and 604 served; sample file unchanged |
+
+### Stage 3: audit pass mark (approved 2026-11-09)
 
 - **Pass mark:** among audited high-confidence shots (confidence_flag high), pass_mark.share, bad rows counted as misses:
   the detected release frame is within 2 frames of the audited release frame on at least 90 percent. This is
