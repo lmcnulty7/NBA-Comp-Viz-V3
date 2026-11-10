@@ -206,7 +206,7 @@ straight into the sample parquet that `audit_shots --summarise` reads; no CSV, n
 | `a` | accept: the detected frame is the release (`audited_release_frame` = the detected frame, `audited_ok` = true) |
 | `m` | mark the current frame as the release |
 | `enter` | save the marked frame (`audited_release_frame` = the mark, `audited_ok` = true) |
-| `x` | bad: not a shot here, or the ball or shooter cannot be followed (`audited_release_frame` empty, `audited_ok` = false); add a note |
+| `x` | bad: not a shot here, the ringed player is not the shooter, or the ball or shooter cannot be followed (`audited_release_frame` empty, `audited_ok` = false); add a note |
 | `left`, `right` | one frame back / forward; with `shift` five frames (the possession labelling view steps ten) |
 | `r` | back to the detected release frame |
 | `esc` | clear the mark (in the note field: leave the field) |
@@ -215,9 +215,12 @@ straight into the sample parquet that `audit_shots --summarise` reads; no CSV, n
 | `space`, `[`, `]` | play / pause, slower / faster |
 | `home`, `end`, `f` | first / last served frame, half court / full court |
 
-   A release off by more than 2 frames is outside the pass mark, so place the mark on the exact frame.
-   Use `x` only when there is no release to place: a high-confidence shot marked bad counts as a miss in
-   the pass-mark statistic. Every verdict is written to the parquet at once (atomically; each session
+   The pass mark grades a release within 10 frames (about 0.4 s), the precision the court animation
+   allows; 2 and 5 frames are reported for information only. Still place the mark as close to the release
+   as you can see it, since those tighter numbers come from your marks. Check that the shot is the logged
+   one and that the yellow-ringed player is the one shooting: use `x` for a wrong shot or a wrong shooter,
+   and when there is no release to place. A high-confidence shot marked bad counts as a miss in the
+   pass-mark statistic. Every verdict is written to the parquet at once (atomically; each session
    keeps the state before its first write as `shots_sample.parquet.<UTC time>.bak`). A later verdict on
    the same shot replaces the earlier one. The tool refuses a sample that holds a held-out game. The
    sample can stay in the Drive folder: the tool notices an outside change by the file's content, so Drive
@@ -229,6 +232,7 @@ straight into the sample parquet that `audit_shots --summarise` reads; no CSV, n
    python3 -m analytics.audit_shots --summarise "$DATA_ROOT/analytics/audit/shots_sample.parquet" --report reports/shot_audit.md
    ```
 
-   Compare the `pass-mark statistic` line (`pass_mark.share`: high-confidence rows within 2 frames, bad
-   rows counted as misses) with the pass mark. The older agreement line leaves bad rows out and is for
+   Compare the `pass-mark statistic` line (`pass_mark.share`: high-confidence rows within 10 frames, bad
+   rows counted as misses) with the pass mark. The `information only` lines give the same share at 2 and 5
+   frames; they are not graded. The older agreement line leaves bad rows out and is for
    reference. The column semantics are in `docs/contract/phase0_driver.md` (Audit sample).

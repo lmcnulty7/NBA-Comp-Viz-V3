@@ -113,7 +113,8 @@ about 40 minutes, not 10 hours.
 Follow the rules in docs/mac_runbook.md. Stage 3: read $DATA_ROOT/reports/phase0_summary.md and report games
 processed, failed and skipped, share of shots with a release frame, identity agreement, rebound share and the
 points check. Before drawing the audit sample, write into STATUS.md the pass mark we will hold the audit to
-(I propose: release frame within 2 frames on at least 90 percent of high-confidence shots). Then run
+(I propose: release frame within 10 frames, about 0.4 s, on at least 90 percent of high-confidence shots, with
+2 and 5 frames reported for information only; the court animation does not support a 2-frame grade). Then run
 `python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0` and tell me the sample path.
 ```
 
@@ -127,10 +128,12 @@ python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytic
 ```text
 Follow the rules in docs/mac_runbook.md. Stage 3 check: run
 python3 -m analytics.audit_shots --summarise <sample> --report reports/shot_audit.md, and compare its
-pass-mark statistic (pass_mark.share: high-confidence rows within 2 frames, rows marked bad counted as misses)
-with the pass mark in STATUS.md. If it passes, pin the four localisation constants (apex search 2 s, rim radius 6 ft,
-flight 25 frames, high-confidence 0.6) in docs/DATA_CONTRACT.md section 17 as validated. If it fails, stop and
-write what failed into STATUS.md. Commit reports and docs only.
+pass-mark statistic (pass_mark.share: high-confidence rows within 10 frames, rows marked bad counted as misses)
+with the pass mark in STATUS.md; the 2 and 5 frame lines are information only. If it passes, record the four
+localisation constants (apex search 2 s, rim radius 6 ft, flight 25 frames, high-confidence 0.6) in
+docs/DATA_CONTRACT.md section 17 as validated for "shot event and shooter correct, release within about 0.4 s",
+not for 2-frame release precision. If it fails, stop and write what failed into STATUS.md. Commit reports and
+docs only.
 ```
 
 ## Stage 4: hold-out switch and hand labels (about 1 hour of Claude work, then about 27 hours by hand)

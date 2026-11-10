@@ -364,6 +364,16 @@ within 2.5 ft horizontally of the shooter and below 8 ft, after which the ball h
 frame where the ball falls back through 10 ft near the rim. A row whose release frame was not found has
 the three frame columns at `-1`, `shooter_at_release_id` null and `confidence_flag` `unmatched`.
 
+Validation status. Not yet validated. The four localisation constants (apex search 2 s, rim radius 6 ft,
+flight 25 frames, high-confidence 0.6) are recorded here as validated only when the stage 3 shot audit
+passes (`analytics.audit_shots --summarise`, `pass_mark.share`, docs/contract/phase0_driver.md). What a pass
+validates, for `confidence_flag` `high` rows: the shot event and the shooter are correct and the release frame
+is within about 0.4 s (10 frames at 25 Hz) of the release an auditor sees in the court animation. It does
+not validate 2-frame (0.08 s) release precision: the animation does not resolve the release that finely, and
+the audit's 2 and 5 frame shares are information only. A consumer that needs the release to a few frames
+(for example a feature read at the exact release frame) treats that precision as unverified until the
+independent check listed under open items in STATUS.md is done.
+
 ## 18. Rebound frames table: `analytics/rebound_frames/<season>/<sportvu_game>.parquet`
 
 One row per missed shot of the play-by-play (`kind` `shot_missed`, plus `ft_missed` on the last free

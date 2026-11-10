@@ -164,7 +164,7 @@ the only home of the audit verdicts, so a draw over an existing sample that hold
 | `auditor_note` | string, nullable | empty; free text |
 
 `--summarise` reads a filled sample back and reports, over the rows with `audited_release_frame` set: the
-share within the tolerance (2 frames by default) of `release_frame`, the mean absolute difference, the share
+share within the tolerance (10 frames by default, `TOLERANCE_FRAMES`, about 0.4 s) of `release_frame`, the mean absolute difference, the share
 of `audited_ok`, and the agreement per `confidence_flag` and per game, each group with its count of bad rows
 (`audited_ok` false); `--report` writes the same as markdown.
 
@@ -175,6 +175,13 @@ the tolerance of `release_frame` and is not marked bad. A high-confidence row ma
 the denominator, so sending hard shots to bad cannot raise it. `pass_mark` also holds `rows`,
 `within_tolerance` and `bad`. The older `agreement_within_tolerance` and the per-flag `share` leave bad rows
 out and stay for reference only.
+
+**Tighter tolerances, information only.** The tolerance is 10 frames because an auditor reading the court
+animation confirms a release to about 10 frames, not 2. `information_only` (the report's "Tighter
+tolerances" table, the CLI's `information only, not pass/fail` lines) repeats `pass_mark` share and count
+and `agreement_within_tolerance` at each of `INFO_TOLERANCES` (2 and 5 frames), skipping the graded
+tolerance. These numbers are not compared with any pass mark. `--tolerance N` changes the graded tolerance
+(older tests pass 2).
 
 ### Filling the sample: the label tool's audit mode
 

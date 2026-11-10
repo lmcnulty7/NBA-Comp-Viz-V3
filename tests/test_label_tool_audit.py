@@ -130,7 +130,7 @@ def test_first_shot_lands_on_detected_release(server, data_root, sample):
     assert status == 200 and b"Shot Audit" in page and b"/audit/save" in page
     status, st = server.req("GET", "/audit/state")
     assert status == 200 and st["n"] == 2 * N_PER_GAME and st["n_audited"] == 0 and st["first_unaudited"] == 0
-    assert st["tolerance_frames"] == A.TOLERANCE_FRAMES == 2
+    assert st["tolerance_frames"] == A.TOLERANCE_FRAMES == 10
     row = _disk(sample).iloc[0]
     status, d = server.req("GET", "/audit/shot?index=0")
     assert status == 200
@@ -194,7 +194,7 @@ def test_walk_accept_move_bad_then_summarise(server, data_root, sample, tmp_path
     # audit mode wrote no labels anywhere
     assert not (data_root["root"] / "labels").exists() and not (sample.parent / "labels").exists()
 
-    res = A.summarise(after)
+    res = A.summarise(after, 2)
     assert res["audited"] == 3 and res["within_tolerance"] == 2
     assert res["agreement_within_tolerance"] == round(2 / 3, 4)
     assert res["mean_abs_diff_frames"] == round((0 + 3 + 2) / 3, 3)
@@ -211,7 +211,7 @@ def test_walk_accept_move_bad_then_summarise(server, data_root, sample, tmp_path
     report = tmp_path / "shot_audit.md"
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        assert A.main(["--summarise", str(sample), "--report", str(report)]) == 0
+        assert A.main(["--summarise", str(sample), "--report", str(report), "--tolerance", "2"]) == 0
     assert "agreement within 2 frames: 0.6667 over 3 audited rows" in buf.getvalue()
     assert "| within tolerance | 2 |" in report.read_text(encoding="utf-8")
 
@@ -577,7 +577,7 @@ def test_pass_mark_counts_bad_high_confidence_rows():
         s.loc[k, "audited_release_frame"] = pd.NA
         s.loc[k, "audited_ok"] = False
     s.loc[9, "audited_release_frame"] = 900 + 7          # a low-confidence miss does not enter the pass mark
-    res = A.summarise(s)
+    res = A.summarise(s, 2)
     assert res["by_confidence_flag"]["high"]["share"] == 1.0          # the old number hides the two bad rows
     pm = res["pass_mark"]
     assert pm == {"confidence_flag": "high", "rows": 9, "within_tolerance": 7, "bad": 2, "share": round(7 / 9, 4)}
@@ -586,7 +586,7 @@ def test_pass_mark_counts_bad_high_confidence_rows():
     assert res["by_game"]["g1"]["bad"] == 1 and res["by_game"]["g2"]["bad"] == 1 and res["bad"] == 2
     # a frame-only row (old CSV route) of high confidence within the mark counts as a hit
     s2 = s.copy(); s2.loc[3, "audited_ok"] = pd.NA; s2.loc[3, "audited_release_frame"] = 301
-    assert A.summarise(s2)["pass_mark"]["within_tolerance"] == 8
+    assert A.summarise(s2, 2)["pass_mark"]["within_tolerance"] == 8
     md = A.summary_markdown(res, "x.parquet")
     assert "## Pass-mark statistic" in md and "| 9 | 7 | 2 | 0.7778 |" in md and "| high | 7 | 7 | 1.0000 | 2 |" in md
 
@@ -604,8 +604,8 @@ def test_summarise_cli_prints_the_pass_mark_line(tmp_path):
     with contextlib.redirect_stdout(buf):
         assert A.main(["--summarise", str(p)]) == 0
     out = buf.getvalue()
-    assert "agreement within 2 frames: 1.0000 over 1 audited rows" in out
-    assert "pass-mark statistic (high confidence, bad rows count as misses): 0.5000, 1 within 2 frames over 2 rows (1 bad)" in out
+    assert "agreement within 10 frames: 1.0000 over 1 audited rows" in out
+    assert "pass-mark statistic (high confidence, bad rows count as misses): 0.5000, 1 within 10 frames over 2 rows (1 bad)" in out
 
 
 def test_html_only_the_note_field_takes_typing():
@@ -732,3 +732,55 @@ def test_missing_splits_fails_closed(data_root, sample, monkeypatch, tmp_path):
         T.AuditSession(data_root["root"], sample)
     with pytest.raises(SystemExit):
         T.main(["--data", str(data_root["root"]), "--audit", str(sample), "--port", "0"])
+
+
+# ---------------------------------------------------------------------------- 10-frame pass mark (stage 3 amendment)
+
+def _graded_sample():
+    """Six high-confidence rows off by 0, 2, 4, 8, 12 frames and one bad, plus a low row off by 3."""
+    off = [0, 2, 4, 8, 12, None, 3]
+    s = pd.DataFrame({"sportvu_game": pd.array(["g"] * 7, dtype="string"), "event": range(7), "period": 1,
+                      "clock_s": 1.0, "release_frame": [1000 * k for k in range(7)], "apex_frame": 0, "outcome_frame": 0,
+                      "shooter_id": pd.array([1] * 7, dtype="Int32"),
+                      "confidence_flag": pd.array(["high"] * 6 + ["low"], dtype="string")})
+    s["audited_release_frame"] = pd.array([None if o is None else 1000 * k + o for k, o in enumerate(off)], dtype="Int32")
+    s["audited_ok"] = pd.array([o is not None for o in off], dtype="boolean")
+    s["auditor_note"] = pd.array([pd.NA] * 6 + [pd.NA], dtype="string")
+    return s
+
+
+def test_pass_mark_grades_10_frames_and_reports_2_and_5_as_information():
+    assert A.TOLERANCE_FRAMES == 10 and A.INFO_TOLERANCES == (2, 5)
+    res = A.summarise(_graded_sample())
+    assert res["tolerance_frames"] == 10
+    # graded: offsets 0, 2, 4, 8 within 10; 12 a miss; the bad row a miss
+    assert res["pass_mark"] == {"confidence_flag": "high", "rows": 6, "within_tolerance": 4, "bad": 1,
+                                "share": round(4 / 6, 4)}
+    info = {v["tolerance_frames"]: v for v in res["information_only"]}
+    assert sorted(info) == [2, 5]
+    assert info[2]["pass_mark_within"] == 2 and info[2]["pass_mark_share"] == round(2 / 6, 4)
+    assert info[5]["pass_mark_within"] == 3 and info[5]["pass_mark_share"] == round(3 / 6, 4)
+    # agreement over all audited rows (bad row out, low row in): 6 audited, within 2: 0, 2 -> 2; within 5: +4, +3 -> 4
+    assert info[2]["agreement_within_tolerance"] == round(2 / 6, 4)
+    assert info[5]["agreement_within_tolerance"] == round(4 / 6, 4)
+    # an explicit tolerance drops itself from the information rows
+    assert [v["tolerance_frames"] for v in A.summarise(_graded_sample(), 5)["information_only"]] == [2]
+
+
+def test_report_and_cli_mark_tighter_tolerances_as_information_only(tmp_path):
+    p = tmp_path / "s.parquet"
+    _graded_sample().to_parquet(p, index=False)
+    report = tmp_path / "shot_audit.md"
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        assert A.main(["--summarise", str(p), "--report", str(report)]) == 0
+    out = buf.getvalue()
+    assert "pass-mark statistic (high confidence, bad rows count as misses): 0.6667, 4 within 10 frames over 6 rows (1 bad)" in out
+    assert "information only, not pass/fail: within 2 frames 0.3333 (pass-mark rows 2 of 6)" in out
+    assert "information only, not pass/fail: within 5 frames 0.5000 (pass-mark rows 3 of 6)" in out
+    md = report.read_text(encoding="utf-8")
+    assert "within 10 frames (0.40 s)" in md and "release to about 0.4 s" in md
+    assert "## Tighter tolerances (information only, not pass/fail)" in md
+    assert "| 2 | 0.08 | 2 | 0.3333 | 0.3333 |" in md and "| 5 | 0.20 | 3 | 0.5000 | 0.6667 |" in md
+    assert md.index("## Pass-mark statistic") < md.index("## Tighter tolerances")
+    assert "\u2014" not in md

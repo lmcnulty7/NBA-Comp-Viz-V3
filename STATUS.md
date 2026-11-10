@@ -10,7 +10,7 @@ python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytic
 ```
 
 and open http://127.0.0.1:8765/. Keys are in docs/labeling_guide.md section 7 (a accept, m mark the release frame
-then enter to save, x bad). Verdicts are written into the sample after every shot and the tool resumes at the first
+then enter to save, x bad: wrong shot, wrong shooter under the yellow ring, or no release). Verdicts are written into the sample after every shot and the tool resumes at the first
 unaudited shot, so it can be done over several sittings. Only the 334 high-confidence shots are graded against the
 pass mark; the 222 low and 48 unmatched are reported, not graded. If time is short, audit the high ones first: the
 page shows each shot's confidence, and n skips a shot without saving.
@@ -77,17 +77,44 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 | confidence_flag high / low / unmatched | 334 / 222 / 48 |
 | held-out SportVU games in the sample (splits.json heldout_game, heldout_arena, heldout_era) | 0 |
 | games at CLE | 0 (21 CLE road games, which are training games) |
-| audit tests (tests/test_label_tool_audit.py and the audit_shots tests) | 51 passed |
+| audit tests (tests/test_label_tool_audit.py and the audit_shots tests) | 51 passed; 53 after the 10-frame amendment, make test-fast 648 passed |
 | audit tool smoke run on the real sample | page and shots 1, 301 and 604 served; sample file unchanged |
 
-### Stage 3: audit pass mark (approved 2026-11-09)
+### Stage 3: audit pass mark (approved 2026-11-09, amended 2026-11-09 before scoring)
 
-- **Pass mark:** among audited high-confidence shots (confidence_flag high), pass_mark.share, bad rows counted as misses:
-  the detected release frame is within 2 frames of the audited release frame on at least 90 percent. This is
-  `pass_mark.share` of `audit_shots --summarise` (tolerance 2 frames, analytics/audit_shots.py TOLERANCE_FRAMES). The low
-  row is reported, not graded.
+- **Pass mark:** among audited high-confidence shots (confidence_flag high), pass_mark.share, bad rows counted as
+  misses: the detected release frame is within 10 frames (about 0.4 s) of the audited release frame on at least
+  90 percent. This is `pass_mark.share` of `audit_shots --summarise` (analytics/audit_shots.py TOLERANCE_FRAMES = 10).
+  The low and unmatched rows are reported, not graded.
+- **What a pass validates:** "shot event and shooter correct, release within about 0.4 s". It does not validate
+  2-frame release precision. DATA_CONTRACT.md section 17 says the same in its validation status.
+- **Information only, not pass/fail:** the same share at 2 and 5 frames (0.08 s and 0.2 s), printed as
+  `information only` lines and a "Tighter tolerances" table in the report.
+- **Why amended:** the owner's audit labels confirm a release from the court animation only to about +-10 frames,
+  so a 2-frame grade would measure the labels, not the localiser. Amended before any verdict was scored (1 of 604
+  shots audited at the time). The x key now also covers a wrong shot or a wrong shooter under the yellow ring
+  (docs/labeling_guide.md section 7), which is what makes the "shooter correct" part of the claim checkable.
 - **If it fails:** the four localisation constants (apex search 2 s, rim radius 6 ft, flight 25 frames,
-  high-confidence 0.6) are not pinned as validated; the loop writes what failed here and stops stage 3.
+  high-confidence 0.6) are not recorded as validated; the loop writes what failed here and stops stage 3.
+
+### Open item: 2-frame release precision (not a gate)
+
+The audit cannot grade the release to 2 frames. Two independent checks, either of which can run later on
+training games only; neither blocks a stage:
+
+1. **Ball flight consistency, from the tracking alone.** For each high-confidence shot, fit a parabola to the
+   ball's height (and a line to its horizontal position) over the free-flight frames between a few frames after
+   release_frame and the apex, extrapolate back to the frame where the fitted ball is at the shooter's release
+   height (or leaves the 2.5 ft radius around the shooter's tracked position), and compare that frame with
+   release_frame. The fit uses the flight, not the hold-and-rise threshold that picks release_frame, so it is a
+   separate estimate. Report the share within 2 and 5 frames and the bias. Cheap: no labels, every shot.
+2. **Broadcast video of the SportVU-synced training games.** The four training games with a synced broadcast
+   (gsw_bkn_2015, gsw_cha_2016, gsw_ind_2016, gsw_sac_2015 in sportvu/splits.json) let a labeller mark the release
+   on the video frame, where the hand and ball are visible, then map it to a SportVU frame through the existing
+   sync. First measure the sync's own error; it has to be well under 2 frames for this to grade 2-frame precision.
+   About 50 shots would do. The held-out games (CLE and gsw_phx_2016) stay out.
+
+
 - **Sample:** `python3 -m analytics.audit_shots --data "$DATA_ROOT" --n 200 --seed 0`, training games only, shots
   with a release frame. Note: the sampler takes n // games shots per game with at least 1, so with 604 training
   games `--n 200` draws one shot per game, **604 shots**, about three times the runbook's 3 hours (roughly half

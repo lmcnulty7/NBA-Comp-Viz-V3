@@ -285,14 +285,14 @@ def test_audit_summarise_reports_agreement(out, tmp_path):
     s.loc[2, "audited_release_frame"] = pd.NA                                     # not audited
     s["audited_ok"] = pd.array([True] * len(s), dtype="boolean")
     s.to_parquet(sample_path, index=False)
-    res = audit_shots.summarise(pd.read_parquet(sample_path))
+    res = audit_shots.summarise(pd.read_parquet(sample_path), 2)
     assert res["audited"] == len(s) - 1 and res["within_tolerance"] == len(s) - 2
     assert res["agreement_within_tolerance"] == round((len(s) - 2) / (len(s) - 1), 4)
     assert res["share_audited_ok"] == 1.0 and "high" in res["by_confidence_flag"]
     report = tmp_path / "audit.md"
     buf = io.StringIO()
     with redirect_stdout(buf):
-        rc = audit_shots.main(["--summarise", str(sample_path), "--report", str(report)])
+        rc = audit_shots.main(["--summarise", str(sample_path), "--report", str(report), "--tolerance", "2"])
     assert rc == 0 and "agreement within 2 frames" in buf.getvalue()
     text = report.read_text(encoding="utf-8")
     assert "| agreement_within_tolerance |" in text and "## By game" in text and EM_DASH not in text
