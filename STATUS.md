@@ -12,7 +12,8 @@ python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytic
 and open http://127.0.0.1:8765/. Keys are in docs/labeling_guide.md section 7 (a accept, m mark the release frame
 then enter to save, x bad). Verdicts are written into the sample after every shot and the tool resumes at the first
 unaudited shot, so it can be done over several sittings. Only the 334 high-confidence shots are graded against the
-pass mark; the 222 low and 48 unmatched are reported, not graded, so if time is short audit the high ones first.
+pass mark; the 222 low and 48 unmatched are reported, not graded. If time is short, audit the high ones first: the
+page shows each shot's confidence, and n skips a shot without saving.
 
 Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Two later decisions are open
 (odds and NBA.com, under Open gates).
