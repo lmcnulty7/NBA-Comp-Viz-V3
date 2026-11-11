@@ -2,18 +2,18 @@
 
 ## Runbook progress
 
-WAITING ON YOU (stage 3 shot audit): audit the 604 shots in the label tool's audit mode, then
-`mkdir -p gates && touch gates/audit-done`. Start the tool with:
+WAITING ON YOU (stage 4 hand labels): stage 3 passed 2026-11-11 (below). Stage 4a is your PR #8
+(--skip-heldout); merge it when ready, since every stage 5 run needs the flag. Then label 8 training games
+spread across opponents, one at a time (any game not held out; the tool refuses held-out games):
 
 ```bash
-python3 -m analytics.label_tool --data "$DATA_ROOT" --audit "$DATA_ROOT/analytics/audit/shots_sample.parquet"
+python3 -m analytics.label_tool --data "$DATA_ROOT" --game <sportvu_game> --sample 50 --seed 0 --port 8765
 ```
 
-and open http://127.0.0.1:8765/. Keys are in docs/labeling_guide.md section 7 (a accept, m mark the release frame
-then enter to save, x bad: wrong shot, wrong shooter under the yellow ring, or no release). Verdicts are written into the sample after every shot and the tool resumes at the first
-unaudited shot, so it can be done over several sittings. Only the 334 high-confidence shots are graded against the
-pass mark; the 222 low and 48 unmatched are reported, not graded. If time is short, audit the high ones first: the
-page shows each shot's confidence, and n skips a shot without saving.
+and open http://127.0.0.1:8765/ (docs/labeling_guide.md: seven actions, seven coverages, keys, decision rules).
+After all 8 games, relabel every tenth sampled possession with `--labeller-pass 2`, then
+`mkdir -p gates && touch gates/labels-done`. The loop then runs `--kappa` and needs at least 0.7 for actions
+and for coverages.
 
 Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Two later decisions are open
 (odds and NBA.com, under Open gates).
@@ -21,9 +21,9 @@ Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Tw
 Open PRs from you, not touched by the loop (merge when ready): #8 stage 4a --skip-heldout,
 #9 stage 9 results, #10 stage 6 torch models. The loop does not redo stage 4a while #8 is open.
 
-Updated 2026-11-09 by the autonomous loop (docs/mac_runbook.md).
+Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 3, audit sample drawn 2026-11-09; waiting for gates/audit-done.
+- **Current stage:** 4, waiting for PR #8 (stage 4a) and gates/labels-done. Stage 3 passed 2026-11-11.
 - **Background jobs:** none.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
@@ -79,6 +79,28 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 | games at CLE | 0 (21 CLE road games, which are training games) |
 | audit tests (tests/test_label_tool_audit.py and the audit_shots tests) | 51 passed; 53 after the 10-frame amendment, make test-fast 648 passed |
 | audit tool smoke run on the real sample | page and shots 1, 301 and 604 served; sample file unchanged |
+
+### Stage 3 check (passed 2026-11-11)
+
+`python3 -m analytics.audit_shots --summarise "$DATA_ROOT/analytics/audit/shots_sample.parquet" --report
+reports/shot_audit.md`, run after gates/audit-done appeared at 15:14. All 604 rows have a verdict (555 with an
+audited release frame, 49 marked bad).
+
+| check | result | pass mark | verdict |
+|---|---|---|---|
+| pass_mark.share (high rows within 10 frames, bad = miss) | 0.9671 (323 of 334, 5 bad) | at least 0.90 | pass |
+| high rows within 5 frames (information only) | 0.9611 (321 of 334) | not graded | |
+| high rows within 2 frames (information only) | 0.9581 (320 of 334) | not graded | |
+| low rows within 10 frames, audited only (reported) | 0.8895 (169 of 190, 32 bad) | not graded | |
+| unmatched rows within 10 frames, audited only (reported) | 0.3333 (12 of 36, 12 bad) | not graded | |
+| all audited rows within 10 frames | 0.9081 (504 of 555), mean abs diff 5.65 frames | not graded | |
+
+The four localisation constants (apex search 2 s, rim radius 6 ft, flight 25 frames, high-confidence 0.6) are
+recorded in docs/DATA_CONTRACT.md section 17 as validated for "shot event and shooter correct, release within
+about 0.4 s", not for 2-frame release precision. The 2-frame figure above is the auditor's agreement with the
+localiser on frames the animation shows only to about 10 frames, so it does not settle the open item below.
+Readings for later stages: the high flag is the one to trust; low shots are usable with care; unmatched shots
+(a third within 10 frames, a third bad) should stay out of anything that reads the release frame.
 
 ### Stage 3: audit pass mark (approved 2026-11-09, amended 2026-11-09 before scoring)
 

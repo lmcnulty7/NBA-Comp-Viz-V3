@@ -364,9 +364,11 @@ within 2.5 ft horizontally of the shooter and below 8 ft, after which the ball h
 frame where the ball falls back through 10 ft near the rim. A row whose release frame was not found has
 the three frame columns at `-1`, `shooter_at_release_id` null and `confidence_flag` `unmatched`.
 
-Validation status. Not yet validated. The four localisation constants (apex search 2 s, rim radius 6 ft,
-flight 25 frames, high-confidence 0.6) are recorded here as validated only when the stage 3 shot audit
-passes (`analytics.audit_shots --summarise`, `pass_mark.share`, docs/contract/phase0_driver.md). What a pass
+Validation status. Validated 2026-11-11 by the stage 3 shot audit (reports/shot_audit.md) for "shot event
+and shooter correct, release within about 0.4 s". The four localisation constants are pinned: apex search
+2 s, rim radius 6 ft, flight 25 frames, high-confidence 0.6. The audit drew 604 training shots (no held-out
+game); `pass_mark.share` was 0.9671 (323 of 334 `high` rows within 10 frames, 5 marked bad), against a pass
+mark of 0.90 (`analytics.audit_shots --summarise`, docs/contract/phase0_driver.md). What this
 validates, for `confidence_flag` `high` rows: the shot event and the shooter are correct and the release frame
 is within about 0.4 s (10 frames at 25 Hz) of the release an auditor sees in the court animation. It does
 not validate 2-frame (0.08 s) release precision: the animation does not resolve the release that finely, and
