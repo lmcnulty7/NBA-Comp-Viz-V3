@@ -27,7 +27,10 @@ Protocol:
   4. Candidates: (1) PCA to 8 components; (2) an autoencoder (sklearn MLPRegressor reconstructing its standardised input,
      hidden layers 32, 8, 32, tanh; the 8-dim bottleneck is the second hidden layer's activation), trained ONLY when
      PCA's 5-NN position accuracy is under 0.60, and kept only when it beats PCA on that metric. Without positions the gate
-     cannot be evaluated and PCA stands.
+     cannot be evaluated and PCA stands. With --deep torch the torch autoencoder of analytics/embeddings/deep.py (the
+     same layers and bottleneck, early stopping on an inner split by player) is the autoencoder instead, under the same
+     gate and rule; --deep mlp is the default, and --deep torch without torch falls back to the stand-in with
+     "torch not available; MLP stand-in used".
   5. Evaluation, with bootstrap intervals over players (analytics.eval.bootstrap_by_game with player_id as the group, on
      the per-player out-of-sample outcomes):
        5-NN position accuracy: leave-one-out, majority of the 5 nearest player-seasons' positions (ties go to the nearest),
@@ -57,6 +60,8 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
+from analytics.deep_torch import add_deep_arg, resolve_deep
+from analytics.embeddings import deep as D
 from analytics.embeddings import features as F
 from analytics.eval import (bootstrap_by_game, fmt_ci, heldout_mask, is_heldout_game, refuse_heldout, add_skip_heldout_arg,
                             skip_heldout_lines)
@@ -492,8 +497,12 @@ def neighbours_table(rows: pd.DataFrame, E: np.ndarray, method: str, k: int = K_
 
 # ----------------------------------------------------------------------------- run
 
-def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fixture: bool = False, n_folds: int = 5) -> dict:
-    """The protocol of the module docstring on loaded inputs -> ctx (features, candidates, decision, tables)."""
+def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fixture: bool = False, n_folds: int = 5,
+        deep: str = "mlp") -> dict:
+    """The protocol of the module docstring on loaded inputs -> ctx (features, candidates, decision, tables). ``deep``
+    ("mlp" or "torch", resolved by analytics.deep_torch.resolve_deep: torch absent falls back to "mlp") picks the
+    autoencoder; the gate and decide are the same either way."""
+    deep_info = resolve_deep(deep, WHO)
     feats = build_features(inputs, n_min)
     cols = F.available_features(feats)
     fit_rows = feats[~feats["insufficient"]].reset_index(drop=True)
@@ -501,7 +510,7 @@ def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fi
            "n_insufficient": int(feats["insufficient"].sum()), "n_min": n_min, "seed": seed, "bootstrap": n_boot,
            "fixture": fixture, "folds": n_folds, "games": sorted(g["sportvu_game"] for g in inputs["games"]), "dropped": inputs["dropped"],
            "source": inputs.get("source", ""), "has_aggregates": inputs.get("aggregates") is not None,
-           "has_positions": inputs.get("positions") is not None, "candidates": {}, "tables": {}}
+           "has_positions": inputs.get("positions") is not None, "candidates": {}, "tables": {}, "deep": deep_info}
     if len(fit_rows) < 3 or not cols:
         ctx["decision"] = {"chosen": None, "ae_trained": False, "reason": "fewer than 3 sufficient player-seasons: nothing fitted"}
         ctx["tables"]["player_season_features"] = feats
@@ -517,7 +526,7 @@ def run(inputs: dict, seed: int = 0, n_boot: int = 200, n_min: int = F.N_MIN, fi
     pca_acc = ev_pca["knn"]["accuracy"]["point"]
     ae_acc = None
     if np.isfinite(pca_acc) and pca_acc < AE_GATE:
-        ae = fit_autoencoder(Z, seed)
+        ae = fit_autoencoder(Z, seed) if deep_info["used"] == "mlp" else D.fit_autoencoder(Z, seed, rows=fit_rows, games=ctx["games"])
         E_ae = ae["embed"](Z)
         ev_ae = evaluate(E_ae, fit_rows, inputs.get("positions"), inputs.get("aggregates"), n_boot, seed, n_folds)
         ctx["candidates"]["autoencoder"] = {"eval": ev_ae, "reconstruction_mse": ae["reconstruction_mse"], "n_iter": ae["n_iter"]}
@@ -586,7 +595,13 @@ def write_report(path, ctx: dict, command: str) -> str:
           "(MLPRegressor %s, tanh, bottleneck %d) only when PCA's 5-NN accuracy is under %.2f, kept only when it beats PCA. "
           "Intervals: 2.5 and 97.5 percentiles of %d bootstrap resamples of players (seed %d). The imputer, scaler and embedding "
           "are fit once on all sufficient rows, unsupervised; only the ridge fit and the k-NN vote are out-of-sample."
-          % (N_DIM, AE_LAYERS, N_DIM, AE_GATE, ctx["bootstrap"], ctx["seed"]), "",
+          % (N_DIM, AE_LAYERS, N_DIM, AE_GATE, ctx["bootstrap"], ctx["seed"]),
+          *([] if (ctx.get("deep") or {}).get("requested", "mlp") == "mlp" else
+            ["Autoencoder (--deep torch): %s." % (ctx["deep"]["notice"] if ctx["deep"]["notice"] else
+             "the %s of analytics/embeddings/deep.py replaces the MLPRegressor (bottleneck %d in [-1, 1]; Adam, learning rate %g, "
+             "batch %d, at most %d epochs, early stopping after %d epochs on an inner split by player, then refit on every row "
+             "for the best epoch count; its iterations are epochs), "
+             "under the same gate and rule" % (D.LABEL, N_DIM, D.LR, D.BATCH, D.MAX_EPOCHS, D.PATIENCE))]), "",
           "| method | 5-NN position accuracy | majority baseline | next-season R squared (ridge) | mean baseline R squared | note |",
           "| --- | --- | --- | --- | --- | --- |"]
     for m in METHODS:
@@ -652,6 +667,7 @@ def parse_args(argv=None):
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of players for every interval (default 200)")
     ap.add_argument("--n-min", type=int, default=None, help="possession gate (300; %d for --fixtures)" % FIXTURE_N_MIN)
     add_skip_heldout_arg(ap)
+    add_deep_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -663,7 +679,7 @@ def main(argv=None) -> dict:
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     inputs = inputs_from_args(a)
     n_min = a.n_min if a.n_min is not None else (FIXTURE_N_MIN if a.fixtures else F.N_MIN)
-    ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures, n_folds=a.folds)
+    ctx = run(inputs, seed=a.seed, n_boot=a.bootstrap, n_min=n_min, fixture=a.fixtures, n_folds=a.folds, deep=a.deep)
     ctx["skip_heldout"] = bool(a.skip_heldout)     # held-out games are dropped at load and never scored here; the report says so
     out_root = a.out if a.out else (tempfile.mkdtemp(prefix="emb_out_") if a.fixtures else None)
     if out_root:

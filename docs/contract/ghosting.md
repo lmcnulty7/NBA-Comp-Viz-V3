@@ -44,8 +44,8 @@ sequence start repeat the first step's vector.
 | `shot_clock_s`, `elapsed_s` | shot clock; seconds since the possession's `start_frame` |
 | `attack_right` | 1 when the ball is in the right half |
 
-Window layout: lag 1 block first, then lag 2, ... lag 5, so `X.reshape(n, 5, 31)` is the (batch, time,
-features) tensor a GRU consumes with the most recent step first.
+Window layout: lag 1 block first in columns, then lag 2, ... lag 5, so `X.reshape(n, 5, 31)` is the (batch,
+time, features) tensor with lag 1 first; the GRU reverses it to oldest first.
 
 ## Candidates and selection
 
@@ -53,7 +53,7 @@ features) tensor a GRU consumes with the most recent step first.
 | --- | --- |
 | 1 persistence | zero displacement (position at t minus 1) |
 | 2 ridge (linear baseline) | StandardScaler + Ridge(alpha = 1) on the lag-1 features |
-| 3 MLP window (GRU stand-in) | StandardScaler + MLPRegressor(hidden_layer_sizes = (64, 64), max_iter = 200, early_stopping = True) on the 5-lag window; a torch GRU over the same window is the drop-in once torch is installed on the Mac |
+| 3 MLP window (GRU stand-in) | StandardScaler + MLPRegressor(hidden_layer_sizes = (64, 64), max_iter = 200, early_stopping = True) on the 5-lag window (the default, `--deep mlp`); with `--deep torch` the torch GRU below fills this slot instead |
 
 Selection metric: out-of-fold mean position error in feet at 0.2 s and 1.0 s under grouped folds by
 `sportvu_game` (`analytics.eval.grouped_folds`), bootstrap intervals by game
@@ -63,6 +63,33 @@ Selection metric: out-of-fold mean position error in feet at 0.2 s and 1.0 s und
 ghost is candidate 2. One training game: in-sample, labelled, no interval, candidate 3 dropped. The
 held-out games are scored once by the selected candidate only (plus persistence as a labelled floor); the
 dropped candidate never sees them, so nothing can be chosen on held-out numbers.
+
+## Deep model (stage 6): the torch GRU behind `--deep torch`
+
+Code: `analytics/ghosting/deep.py` (the model) and `analytics/deep_torch.py` (shared plumbing); tests:
+`tests/test_deep_models.py`.
+
+| item | definition |
+| --- | --- |
+| option | `--deep {mlp,torch}` on `analytics.ghosting.train`, default `mlp` (the sklearn stand-in above, byte for byte the same candidates and decision) |
+| slot | with `--deep torch` the GRU replaces the MLP as candidate 3, still keyed `mlp` in the code (`pairs["mlp_vs_ridge"]`, `decision["keep_mlp"]`), so one deep candidate per run and the comparison count is unchanged |
+| inputs | the same `features.window_columns()` matrix (5 lags of the 31 base features, lag 1 block first) reshaped to (n, 5, 31) and reversed on the time axis, so the GRU runs from t minus 5 to t minus 1 |
+| target | the same displacement from t minus 1 to t (both axes) |
+| roll-forward | the same `train.roll_forward`, unchanged: the GRU is a `predict(window_matrix) -> (n, 2)` callable like every candidate |
+| architecture | inputs and targets standardised on the training rows; `GRU(31 -> 32, one layer)`, last hidden state, `Linear(32 -> 2)` |
+| training | Adam (learning rate 0.002), batch 256, at most 100 epochs, MSE loss; early stopping after 8 epochs without a lower validation MSE. The fit is two passes on the rows the fit receives: early stopping on the inner split picks the best epoch, then the net is reset to its initial weights (the same seed) and refit for that many epochs on every one of those rows, so it learns from the same rows as the sklearn stand-in; a validation loss that is never finite raises ValueError. `torch.use_deterministic_algorithms(True)` is on during the fit and the predictions (restored after), so `--threads` above 1 reproduces too. |
+| early-stopping split | from the training games of the current fold only (the rows `fit_candidates` receives): whole games when there are at least 5, else a seeded 20 percent row split; never a held-out row, never the fold being scored |
+| determinism | `torch.manual_seed(--seed)` before the net is built, a seeded shuffling generator, CPU only, `torch.set_num_threads(--threads)` for the fit and the predictions (restored after) |
+| keep rule | unchanged and fixed in advance: `train.decide`, kept only when its 1.0 s error minus the ridge's is negative with a paired interval excluding zero; otherwise ridge |
+| held-out | the same code path as the MLP: `split_games` and `refuse_heldout` first, `fit_candidates` raises on a held-out row, and `deep.fit_gru` raises ValueError on a true `heldout` flag or a held-out game id before torch is touched; the held-out games are scored once by the selected candidate only |
+| fallback | `--deep torch` without an importable torch logs "torch not available; MLP stand-in used", runs the MLP stand-in, and the report says so; torch is imported lazily inside the fit, so the package imports without it |
+| report | with `--deep torch` the candidate label reads "3 torch GRU (hidden 32) over the 5-step window" and a "Deep candidate (--deep torch)" line gives these settings; the default report is unchanged |
+
+Stage 6 command (only when this lane's gate opened; `--skip-heldout` is the stage 4 flag every real run carries):
+
+    python -m analytics.ghosting.train --data "$DATA_ROOT" --report reports/ghosting.md --folds 5 --seed 0 --bootstrap 1000 --out "$DATA_ROOT" --threads 4 --deep torch --skip-heldout
+
+This command needs PR #8 (the stage 4a `--skip-heldout` flag) merged first; without it the trainer rejects the flag.
 
 ## Leakage guards
 
@@ -121,6 +148,7 @@ assignments than the ghost allows more points.
     python -m analytics.ghosting.validate --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.ghosting.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.ghosting.train --fixtures | --data DATA_ROOT --report reports/ghosting.md [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--threads 1]
+        [--deep mlp|torch]
 
 `DATA_ROOT/sportvu_contract/<game>.parquet` (frames; held-out under `heldout/`) and
 `DATA_ROOT/analytics/possessions/2015-16/<game>.parquet` (held-out under `heldout/2015-16/`) are the inputs;

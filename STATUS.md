@@ -272,7 +272,8 @@ On the final tree it passes: 63 passed in about 6 minutes. The per-lane detail i
 
 Open items, none blocking the Mac run: the odds feed and the NBA.com tables remain uncollected
 (stats.nba.com drops non-browser clients, odds need an API key); the GRU, the EPV sequence model and the
-embeddings autoencoder stand in as sklearn MLPs until torch is installed; `analytics.fixtures` keeps its
+embeddings autoencoder stand in as sklearn MLPs by default, with the torch models behind `--deep torch` on each
+lane trainer for stage 6 to pass only where a gate opened (docs/contract/ghosting.md, epv.md, embeddings.md); `analytics.fixtures` keeps its
 star on the floor all game, so the gravity on/off sign test runs on the lane's planted-pull generator; the
 four shot-localisation constants (apex search 2 s, rim radius 6 ft, flight 25 frames, high-confidence 0.6)
 are still to pin in the contract; the lineups lane keeps its own synthetic stints generator because the
