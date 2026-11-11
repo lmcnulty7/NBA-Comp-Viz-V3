@@ -2,7 +2,7 @@
 
     python -m analytics.rebounds.train --fixtures | --data DATA_ROOT --report reports/rebounds.md
         [--out OUT_ROOT] [--folds 5] [--seed 0] [--bootstrap 200] [--fixture-games 8] [--fixture-possessions 40]
-        [--fixture-heldout-every 4]
+        [--fixture-heldout-every 4] [--skip-heldout]
 
 Unit: one missed field-goal attempt; target: which player on court secures the rebound, or none (team rebound).
 Each miss is a block of candidate rows (analytics.rebounds.features) and every model gives a probability vector
@@ -34,6 +34,8 @@ one training game forced an in-sample fit.
 Outputs: the report, and with --out the rebound_predictions table (docs/contract/rebounds.md) under
 OUT_ROOT/analytics/rebounds/<season>/<game>.parquet (held-out under heldout/<season>/). Under --fixtures every
 number is fixture output, not a result.
+--skip-heldout: the held-out games are set aside exactly as without it but never refit for, scored or written; the
+report says "held-out games not scored (--skip-heldout)".
 """
 from __future__ import annotations
 
@@ -46,7 +48,8 @@ import numpy as np
 import pandas as pd
 
 from analytics.eval import (EPS, bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, heldout_mask,
-                            paired_bootstrap_by_game, refuse_heldout, report_block)
+                            paired_bootstrap_by_game, refuse_heldout, report_block, add_skip_heldout_arg,
+                            skip_heldout_lines)
 from analytics.rebounds import features as F
 from analytics.rebounds import validate as V
 from analytics.schema import assert_time_forward, season_of_game
@@ -350,12 +353,20 @@ def write_report(path: Path, ctx: dict) -> str:
     L += ["## Inputs and rows%s" % tag, "",
           "| game | held out | frames in | frames out | misses in | kept | team rebounds (none) | dropped | candidate rows |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    # --skip-heldout: no outcome count of a held-out game (team rebounds are a target class) reaches the report
+    hide = set(ctx["heldout_game_ids"]) if ctx.get("skip_heldout") else set()
     for g in ctx["inputs"]:
-        L.append("| %s | %s | %d | %d | %d | %d | %d | %d | %d |" % (g["game"], g["heldout"], g["frames_in"], g["frames_out"],
-                                                                     g["misses_in"], g["kept"], g["team"], g["dropped"], g["rows"]))
+        team = "-" if g["game"] in hide else "%d" % g["team"]
+        L.append("| %s | %s | %d | %d | %d | %d | %s | %d | %d |" % (g["game"], g["heldout"], g["frames_in"], g["frames_out"],
+                                                                     g["misses_in"], g["kept"], team, g["dropped"], g["rows"]))
     t = ctx["drop_total"]
+    if hide:
+        kept = {k: sum(g["info"].get(k, 0) for g in ctx["inputs"] if g["game"] not in hide) for k in F.INFO_COUNTS}
+        kept_line = "Kept misses by kind (training games only; held-out outcomes not shown): "
+    else:
+        kept, kept_line = t, "Kept misses by kind: "
     L += ["", "Dropped misses by reason (all games): " + ", ".join("%s %d" % (k, t[k]) for k in F.DROP_REASONS) + ".",
-          "Kept misses by kind: " + ", ".join("%s %d" % (k, t[k]) for k in F.INFO_COUNTS) + ".",
+          kept_line + ", ".join("%s %d" % (k, kept[k]) for k in F.INFO_COUNTS) + ".",
           "Validation (analytics.rebounds.validate): " + ctx["validate_line"] + ".", "",
           "Training: %d candidate rows, %d misses, %d game(s) (%s). Held out, set aside before any fit: %d rows, %d misses, %d game(s) (%s)."
           % (ctx["train_rows"], ctx["train_misses"], ctx["train_games"], ", ".join(ctx["train_game_ids"]) or "none",
@@ -384,7 +395,9 @@ def write_report(path: Path, ctx: dict) -> str:
           "## Calibration of the top candidate's probability (%s, %s)%s" % (ctx["selected"], ctx["mode"], tag), "",
           "Per miss: y is whether the top candidate secured the rebound (a tie at the maximum counts as yes), p is the top candidate's probability.", "",
           ctx["calibration_block"]]
-    if ctx["heldout_rows"]:
+    if ctx.get("skip_heldout"):
+        L += ["## Held-out games%s" % tag, ""] + skip_heldout_lines(ctx["heldout_games"]) + [""]
+    elif ctx["heldout_rows"]:
         L += ["## Held-out games (scored once by the selected candidate refit on all %d training rows; never fitted or tuned on)%s"
               % (ctx["train_rows"], tag), "",
               "%d misses from %d held-out game(s): %s." % (ctx["heldout_misses"], ctx["heldout_games"], ", ".join(ctx["heldout_game_ids"])), "",
@@ -428,7 +441,8 @@ def load_candidates(bundles) -> tuple[pd.DataFrame, list, dict, dict]:
         c = fc["per_game"].get(cb["sportvu_game"], {})
         inputs.append({"game": cb["sportvu_game"], "heldout": bool(cb["heldout"]), "frames_in": counts["frames"]["rows_in"],
                        "frames_out": counts["frames"]["rows_out"], "misses_in": c.get("n_in", 0), "kept": c.get("misses_kept", 0),
-                       "team": c.get("team_rebounds_kept", 0), "dropped": int(sum(c.get(k, 0) for k in F.DROP_REASONS)), "rows": c.get("rows", 0)})
+                       "team": c.get("team_rebounds_kept", 0), "dropped": int(sum(c.get(k, 0) for k in F.DROP_REASONS)), "rows": c.get("rows", 0),
+                       "info": {k: int(c.get(k, 0)) for k in F.INFO_COUNTS}})
     return cands, inputs, fc["total"], V.summarise(val)["totals"]
 
 
@@ -451,6 +465,7 @@ def parse_args(argv=None):
     ap.add_argument("--out", help="OUT_ROOT for the rebound_predictions table (default: not written)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default %(default)s)")
     ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -485,9 +500,10 @@ def main(argv=None) -> dict:
            "prior_note": prior_note, "protocol": note["text"], "mode": note["mode"], "folds": note["folds"],
            "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "uniform": uniform_reference(pm),
            "paired": paired(pred, "hgb", "prior", a.bootstrap, a.seed), "selected": selected, "calibration_block": cal,
-           "heldout_scores": {}, "written_paths": [], "out_root": a.out, "train": train, "heldout": heldout, "oof": pred}
+           "heldout_scores": {}, "written_paths": [], "out_root": a.out, "train": train, "heldout": heldout, "oof": pred,
+           "skip_heldout": a.skip_heldout}
     tables = [predictions_table(pred, selected)]
-    if len(heldout):
+    if len(heldout) and not a.skip_heldout:
         # only the selected candidate is refit and scored on held-out rows; the uniform floor needs no fit
         models = fit_candidates(train, a.seed, only=selected)
         hp = heldout.copy(); hp["fold"] = HELDOUT_FOLD

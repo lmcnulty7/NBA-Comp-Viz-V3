@@ -2,7 +2,7 @@
 
     python -m analytics.epv.train --fixtures | --data DATA_ROOT --report reports/epv.md [--folds 5] [--seed 0] [--bootstrap 200]
                                   [--out OUT_ROOT] [--season 2015-16] [--hgb-iter 100] [--fixture-games 8]
-                                  [--fixture-possessions 40] [--fixture-heldout-every 4]
+                                  [--fixture-possessions 40] [--fixture-heldout-every 4] [--skip-heldout]
 
 Unit: a state at 1 Hz inside a possession (docs/DATA_CONTRACT.md section 20). Target: points_to_end (0 to 4) as a
 regression of expected points, with P(points > 0) as the classification view for calibration.
@@ -54,7 +54,8 @@ from analytics.epv import ELAPSED_BUCKETS, SHOT_CLOCK_BUCKETS, WHO
 from analytics.epv import features as F
 from analytics.epv import validate as V
 from analytics.eval import (bootstrap_by_game, brier, calibration_slope_fast, calibration_table, fit_threads, fmt_ci,
-                            fmt_num, grouped_folds, paired_bootstrap_by_game, refuse_heldout)
+                            fmt_num, grouped_folds, paired_bootstrap_by_game, refuse_heldout,
+                            add_skip_heldout_arg, skip_heldout_lines)
 
 CANDIDATES = ("constant", "ridge", "hgb")
 SEQUENCE = "mlp"
@@ -487,6 +488,8 @@ def write_report(path: Path, ctx: dict) -> str:
               "Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on.%s" % (
                   "" if ctx["heldout"]["bootstrap"] else " Point estimates only: fewer than %d held-out games, so no bootstrap interval." % HELDOUT_MIN_GAMES_FOR_INTERVALS), ""]
         L += _bucket_table(ctx["heldout"]["by_bucket"], ctx["heldout"]["models"])
+    elif ctx.get("skip_heldout"):
+        L += ["", "## Held-out games", ""] + skip_heldout_lines(len(ctx["heldout_games"]))
     L += ["", "## Status", ""]
     if fixture:
         L.append("Fixture output, not a result. The real run of this protocol on the owner's Mac, where the full data lives, is")
@@ -507,7 +510,7 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_iter: int = 100, fixtures: bool = False,
-        command: str = "", report: Path | None = None, out_root=None) -> dict:
+        command: str = "", report: Path | None = None, out_root=None, skip_heldout: bool = False) -> dict:
     """The whole protocol on loaded tables -> ctx (also written as the report when a path is given)."""
     d = split_tables(tables)
     st, ho = d["states_train"], d["states_heldout"]
@@ -534,7 +537,7 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
     shuffle = {"mse_constant": mse(shuf_pred["y"], shuf_pred["epv_constant"]), "mse_hgb": mse(shuf_pred["y"], shuf_pred["epv_hgb"])}
     shuffle["lift"] = 1.0 - shuffle["mse_hgb"] / shuffle["mse_constant"] if shuffle["mse_constant"] > 0 else 0.0
     heldout = None
-    if len(ho):
+    if len(ho) and not skip_heldout:       # --skip-heldout: set aside above, never refit on, predicted or scored
         geo_ho = F.geometry(ho)
         scored = [selected] + (["constant"] if selected != "constant" else [])      # the selected candidate, the constant as a labelled floor
         heldout = heldout_once(st, geo, ho, geo_ho, d["shots_train"], d["rosters"], seed, hgb_iter, scored, n_boot)
@@ -545,7 +548,8 @@ def run(tables: dict, n_folds: int = 5, seed: int = 0, n_boot: int = 200, hgb_it
            "mean_points": float(st["points_to_end"].mean()), "rate_score": float((st["points_to_end"] > 0).mean()),
            "hgb_iter": hgb_iter, "note": note, "bootstrap": n_boot, "seed": seed, "models": models, "by_elapsed": by_elapsed,
            "selected": selected, "selection_reason": reason, "pred": pred, "gate": gate, "paired": paired, "keep_sequence": keep_seq,
-           "shuffle": shuffle, "heldout": heldout, "overall_mse": overall, "insample_mse": insample, "base": base}
+           "shuffle": shuffle, "heldout": heldout, "overall_mse": overall, "insample_mse": insample, "base": base,
+           "skip_heldout": skip_heldout}
     if report is not None:
         ctx["text"] = write_report(Path(report), ctx)
     if out_root is not None:
@@ -571,6 +575,7 @@ def parse_args(argv=None):
     ap.add_argument("--season", default=None, help="only this season directory, e.g. 2015-16 (default: every season)")
     ap.add_argument("--hgb-iter", type=int, default=100, help="gradient-boosting iterations, fixed in advance (default 100)")
     V.add_fixture_args(ap, games=8)
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -598,7 +603,8 @@ def main(argv=None) -> dict:
     tables = V.load_inputs(a)
     cmd = recorded_command(argv if argv is not None else sys.argv[1:])
     out_root = a.out if a.out else (Path(tempfile.gettempdir()) / "epv_fixture_root" if a.fixtures else None)
-    ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root)
+    ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root,
+              skip_heldout=a.skip_heldout)
     print(ctx["text"])
     return ctx
 

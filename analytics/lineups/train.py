@@ -2,6 +2,7 @@
 
     python -m analytics.lineups.train --fixtures | --data DATA_ROOT --report reports/lineups.md [--out OUT_ROOT]
         [--seed 0] [--bootstrap 200] [--heldout-season 2024-25] [--gate 300] [--min-poss 100] [--folds 5]
+        [--skip-heldout]
 
 Unit: the stint (analytics.lineups.features). Target: points per 100 possessions differential, home minus
 away, possessions from duration at 28.8 s each when the table has no count.
@@ -27,7 +28,9 @@ intervals: over games (lineup_ratings) and over game-resampled refits (player_ra
 The candidate with the highest mean Spearman over the validation pairs is selected (ties go to plus_minus).
 The held-out season is scored ONCE, after selection, by the SELECTED candidate refitted on every training season;
 plus_minus is reported beside it as a labelled floor and the other candidates are never scored on it (no paired
-test on the held-out season either).
+test on the held-out season either). With --skip-heldout the held-out season is set aside exactly as without it but
+never scored, never predicted (no output table of that season) and left out of the cross-season correlation; the
+report says "held-out games not scored (--skip-heldout)".
 
 Leakage: no row of the target season or of any later season reaches a fit (assert_season_split, in code,
 on every fit); the held-out season never reaches a fit; analytics.eval.refuse_heldout checks the training game
@@ -61,7 +64,7 @@ from scipy.stats import rankdata
 
 from analytics import schema
 from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, min_sample_gate, paired_bootstrap_by_game,
-                           refuse_heldout)
+                           refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
 from analytics.lineups import FIXTURE_SEASONS, SEASONS, WHO, add_fixture_args, load_inputs, out_dir
 from analytics.lineups.features import TARGET, assert_no_leak, feature_columns, features
 from analytics.lineups.validate import validate
@@ -321,15 +324,16 @@ def select(pairs: list[dict]) -> tuple[str, dict]:
 
 # ── the run ────────────────────────────────────────────────────────────────────────────────────────
 def run(feats: pd.DataFrame, heldout_season: str, seed: int = 0, n_boot: int = 200, gate: int = GATE_POSS, min_poss: int = MIN_POSS_EVAL,
-        n_folds: int = 5, alphas=ALPHAS, out_root=None) -> dict:
+        n_folds: int = 5, alphas=ALPHAS, out_root=None, skip_heldout: bool = False) -> dict:
     """The season-split protocol on a feature frame -> context dict (pairs, selection, held-out scores, written paths).
-    Every ridge solve and refit runs inside analytics.eval.fit_threads() (one context for the whole run)."""
+    Every ridge solve and refit runs inside analytics.eval.fit_threads() (one context for the whole run). With
+    skip_heldout the held-out season is set aside as usual but never scored or written."""
     with fit_threads():
-        return _run(feats, heldout_season, seed, n_boot, gate, min_poss, n_folds, alphas, out_root)
+        return _run(feats, heldout_season, seed, n_boot, gate, min_poss, n_folds, alphas, out_root, skip_heldout)
 
 
 def _run(feats: pd.DataFrame, heldout_season: str, seed: int, n_boot: int, gate: int, min_poss: int, n_folds: int, alphas,
-         out_root) -> dict:
+         out_root, skip_heldout: bool = False) -> dict:
     seasons = sorted(map(str, feats["season"].unique()), key=season_key)
     train_seasons = [s for s in seasons if season_key(s) < season_key(heldout_season)]
     ignored = [s for s in seasons if season_key(s) > season_key(heldout_season)]
@@ -337,7 +341,8 @@ def _run(feats: pd.DataFrame, heldout_season: str, seed: int, n_boot: int, gate:
     if not train_seasons:
         raise SystemExit("%s: no training season before the held-out season %s (seasons %s)" % (WHO, heldout_season, seasons))
     ctx = {"seasons": seasons, "train_seasons": train_seasons, "heldout_season": heldout_season if has_heldout else None,
-           "ignored_seasons": ignored, "pairs": [], "written": [], "gate": gate, "min_poss": min_poss, "n_boot": n_boot, "seed": seed}
+           "ignored_seasons": ignored, "pairs": [], "written": [], "gate": gate, "min_poss": min_poss, "n_boot": n_boot, "seed": seed,
+           "skip_heldout": bool(skip_heldout)}
     by_season = {s: feats[feats["season"].astype(str) == s] for s in seasons}
     # validation pairs within the training seasons
     for i in range(1, len(train_seasons)):
@@ -358,7 +363,9 @@ def _run(feats: pd.DataFrame, heldout_season: str, seed: int, n_boot: int, gate:
     ctx["final"] = {"fit_seasons": train_seasons, "alpha_rapm": fits_all["rapm"]["alpha"], "alpha_synergy": fits_all["rapm_synergy"]["alpha"],
                     "n_gated": len(fits_all["lineups"]), "n_players": len(fits_all["players"]), "cv_mse_rapm": fits_all["rapm"]["cv_mse"],
                     "cv_mse_synergy": fits_all["rapm_synergy"]["cv_mse"], "home_court_rapm": fits_all["rapm"]["intercept"]}
-    if has_heldout:
+    if has_heldout and skip_heldout:
+        ctx["heldout_games"] = int(by_season[heldout_season]["game_id"].nunique())     # a count only: never scored
+    elif has_heldout:
         # the selected candidate only (plus_minus stays as the labelled floor); no paired test on the held-out season
         ctx["heldout"] = evaluate_pair(fits_all, tr_all, by_season[heldout_season], min_poss, n_boot, seed,
                                        candidates=("plus_minus", ctx["selected"]), paired=False)
@@ -368,7 +375,7 @@ def _run(feats: pd.DataFrame, heldout_season: str, seed: int, n_boot: int, gate:
             tr = pd.concat([by_season[x] for x in train_seasons[:i + 1]], ignore_index=True)
             fits = fits_all if i == len(train_seasons) - 1 else fit_candidates(tr, None, heldout_season, gate, n_folds, seed, alphas)
             ctx["written"] += write_tables(out_root, s, by_season[s], tr, fits, gate, n_boot, seed, in_sample=True)
-        if has_heldout:
+        if has_heldout and not skip_heldout:
             ctx["written"] += write_tables(out_root, heldout_season, by_season[heldout_season], tr_all, fits_all, gate, n_boot, seed, in_sample=False)
     return ctx
 
@@ -452,9 +459,11 @@ def write_report(path: Path, ctx: dict) -> str:
           "least %d possessions in the fitting seasons; the lineup coefficient is the synergy). Selection metric: out-of-season Spearman and MSE of the "
           "predicted against the raw next-season lineup net rating for lineups with at least %d possessions on both sides, intervals from %d bootstrap "
           "resamples over lineups (seed %d), paired against plus_minus. The candidate with the highest mean validation Spearman is selected and the "
-          "held-out season %s is scored once by the candidates refitted on %s. Guards: assert_season_split on every fit, refuse_heldout on the training "
+          "held-out season %s is %s. Guards: assert_season_split on every fit, refuse_heldout on the training "
           "game ids, assert_time_forward on the feature frame."
-          % (list(ctx["alphas"]), ctx["gate"], ctx["min_poss"], ctx["n_boot"], ctx["seed"], ctx["heldout_season"] or "(absent)", ", ".join(ctx["train_seasons"])), "",
+          % (list(ctx["alphas"]), ctx["gate"], ctx["min_poss"], ctx["n_boot"], ctx["seed"], ctx["heldout_season"] or "(absent)",
+             "set aside and never scored (--skip-heldout)" if ctx.get("skip_heldout")
+             else "scored once by the candidates refitted on " + ", ".join(ctx["train_seasons"])), "",
           "## Candidate table: out-of-season validation within the training seasons%s" % tag, ""]
     if not ctx["pairs"]:
         L.append("One training season only: no validation pair, plus_minus selected by default.")
@@ -474,10 +483,16 @@ def write_report(path: Path, ctx: dict) -> str:
     for r in ctx["cross_season"].itertuples():
         held = " (held-out season: descriptive, scored once below, not used for selection)" if r.season_to == ctx["heldout_season"] else ""
         L.append("| %s | %s%s | %d | %s | %s |" % (r.season_from, r.season_to, held, r.n_lineups, fmt_num(r.pearson), fmt_num(r.spearman)))
-    L += ["", "Seasons later than the held-out season are not in this table; the held-out row is labelled."]
-    L += ["", "## Held-out season, scored once%s" % tag, ""]
+    L += ["", "Seasons later than the held-out season are not in this table; %s." % (
+        "the held-out season is left out of it (--skip-heldout)" if ctx.get("skip_heldout") else "the held-out row is labelled")]
+    L += ["", "## Held-out season, %s%s" % ("not scored" if ctx.get("skip_heldout") else "scored once", tag), ""]
     h = ctx.get("heldout")
-    if h is None:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx.get("heldout_games", 0))
+        if ctx["heldout_season"]:
+            L.append("Season %s is set aside before any fit; it is left out of the correlation table above and no output table is written for it."
+                     % ctx["heldout_season"])
+    elif h is None:
         L.append("The held-out season %s is not in the inputs: nothing scored." % ctx["heldout_season"])
     else:
         L += ["Season %s scored once by the selected candidate refitted on %s: %d lineups present in both, %d gated lineups, %d players, alpha rapm %g, alpha synergy %g, home court (rapm intercept) %s per 100."
@@ -525,6 +540,7 @@ def parse_args(argv=None):
     ap.add_argument("--min-poss", type=int, default=MIN_POSS_EVAL, help="possessions a lineup needs on both sides of a validation pair (default %(default)s)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by game for the ridge alpha (default %(default)s)")
     ap.add_argument("--seasons", nargs="*", default=list(SEASONS), help="--data only: seasons to read (default %(default)s)")
+    add_skip_heldout_arg(ap)
     add_fixture_args(ap)
     return ap.parse_args(argv)
 
@@ -540,10 +556,11 @@ def main(argv=None) -> dict:
     feats = features(inputs["stints"], inputs["games"])
     heldout = a.heldout_season or (FIXTURE_SEASONS[-1] if a.fixtures else "2024-25")
     out_root = a.out or (a.data if not a.fixtures else None)
-    ctx = run(feats, heldout, a.seed, a.bootstrap, a.gate, a.min_poss, a.folds, ALPHAS, out_root)
+    ctx = run(feats, heldout, a.seed, a.bootstrap, a.gate, a.min_poss, a.folds, ALPHAS, out_root, skip_heldout=a.skip_heldout)
+    scored_heldout = [heldout] if ctx["heldout_season"] and not a.skip_heldout else []
     ctx.update({"fixture": inputs["fixture"], "generator": inputs["generator"], "out_root": out_root, "alphas": ALPHAS, "written_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "command": "python -m analytics.lineups.train " + " ".join(argv if argv is not None else sys.argv[1:]),
-                "cross_season": cross_season_correlation(feats[feats["season"].astype(str).isin(ctx["train_seasons"] + ([heldout] if ctx["heldout_season"] else []))],
+                "cross_season": cross_season_correlation(feats[feats["season"].astype(str).isin(ctx["train_seasons"] + scored_heldout)],
                                                         min_poss=a.min_poss),
                 "inputs": {"source": "fixture generator %s" % inputs["generator"] if inputs["fixture"] else "DATA_ROOT " + str(a.data),
                            "seasons": ", ".join(ctx["seasons"]), "stints in": counts["rows_in"], "stints after validate": counts["rows_out"],

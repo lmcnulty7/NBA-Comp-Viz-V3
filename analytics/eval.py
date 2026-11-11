@@ -395,3 +395,30 @@ def md_table(df: pd.DataFrame, nd: int = 3) -> list:
                 cells.append("" if v is None else str(v))
         L.append("| " + " | ".join(cells) + " |")
     return L
+
+
+# ----------------------------------------------------------------------------- --skip-heldout (docs/mac_runbook.md stage 4a)
+
+SKIP_HELDOUT_NOTE = "held-out games not scored (--skip-heldout)"
+
+
+def add_skip_heldout_arg(ap):
+    """Add --skip-heldout to a trainer's argparse parser (dest skip_heldout, default False) and return the parser.
+
+    With the flag a trainer sets its held-out rows aside exactly as without it (the same split, the same
+    refuse_heldout and assert_time_forward guards, the same training rows) but never scores them and writes no
+    held-out prediction; its report says SKIP_HELDOUT_NOTE in the held-out section. Until stage 8 of the runbook
+    every real run uses it, so nobody reads a held-out number."""
+    ap.add_argument("--skip-heldout", action="store_true",
+                    help="set the held-out games aside as usual but never score them or write held-out predictions; "
+                         "the report says: " + SKIP_HELDOUT_NOTE)
+    return ap
+
+
+def skip_heldout_lines(n_games=None) -> list:
+    """The body of a report's held-out section under --skip-heldout: one line carrying SKIP_HELDOUT_NOTE, with the
+    number of held-out games set aside when given (a count, never a held-out number)."""
+    if n_games is None:
+        return ["Not scored: " + SKIP_HELDOUT_NOTE + "."]
+    return ["%d held-out game(s) set aside before any fit and never fitted, tuned or scored: %s."
+            % (int(n_games), SKIP_HELDOUT_NOTE)]

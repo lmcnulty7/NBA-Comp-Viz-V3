@@ -1,7 +1,7 @@
 """analytics/betting/train.py: the betting market candidates under the held-out season protocol.
 
     python -m analytics.betting.train --fixtures | --data DATA_ROOT --report reports/betting.md [--out OUT_ROOT]
-        [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25]
+        [--seed 0] [--bootstrap 200] [--folds 5] [--heldout-season 2024-25] [--skip-heldout]
         [--fixture-games 40] [--fixture-seasons 2020-21,2021-22]
 
 Protocol
@@ -26,7 +26,9 @@ Protocol
      1 - 2 * VIG units (VIG 4.5 percent a side, about -110), a loss costs one unit, a push returns the stake.
      ROI = total profit / total units staked.
   6. The held-out season is scored once per run by the selected models refit on every training row: log loss, Brier,
-     MSE, profit and ROI with a bootstrap interval by game. The report labels it held-out, scored once.
+     MSE, profit and ROI with a bootstrap interval by game. The report labels it held-out, scored once. With
+     --skip-heldout the season is set aside exactly as without it but never predicted or scored (no held-out rows
+     in betting_predictions or betting_summary), and the report says "held-out games not scored (--skip-heldout)".
 
 Outputs under OUT_ROOT/analytics/betting/<season>/: betting_games.parquet, betting_predictions.parquet,
 betting_summary.parquet (docs/contract/betting.md). A --fixtures run writes a report that says fixture output, not
@@ -47,7 +49,8 @@ from scipy.stats import norm
 
 from analytics.betting import features as _features
 from analytics.betting import validate as _validate
-from analytics.eval import bootstrap_by_game, brier, fit_threads, fmt_ci, fmt_num, grouped_folds, log_loss, refuse_heldout
+from analytics.eval import (add_skip_heldout_arg, bootstrap_by_game, brier, fit_threads, fmt_ci, fmt_num, grouped_folds, log_loss,
+                            refuse_heldout, skip_heldout_lines)
 
 WHO = "betting.train"
 CANDIDATES = ("market", "logistic", "ridge")
@@ -317,7 +320,10 @@ def write_report(path: Path, ctx: dict) -> str:
             r["season"], r["mode"], r["n_games"], r["n_labelled"], fmt_num(r["log_loss"], 4), fmt_num(r["brier"], 4), fmt_num(r["mse"], 1), r["n_bets"],
             fmt_num(r["pnl"], 2), fmt_num(r["roi"], 3), fmt_num(r["lo"], 3), fmt_num(r["hi"], 3)))
     L.append("")
-    if ctx["heldout_season"]:
+    if ctx.get("skip_heldout"):
+        L += skip_heldout_lines(ctx["heldout_games"])
+        L.append("Training-season rows are out-of-fold under the grouped folds; the held-out season %s has no row here." % (ctx["heldout_season"] or "(none)"))
+    elif ctx["heldout_season"]:
         L.append("The row marked held-out is season %s scored ONCE by the selected models refit on every training row; it was never "
                  "fitted or tuned on. Training-season rows are out-of-fold under the grouped folds." % ctx["heldout_season"])
     else:
@@ -351,6 +357,7 @@ def parse_args(argv=None):
     ap.add_argument("--bootstrap", type=int, default=200, help="bootstrap resamples of whole games (default 200)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by game inside the training seasons (default 5)")
     ap.add_argument("--heldout-season", default="2024-25", help="the season set aside and scored once (default 2024-25)")
+    add_skip_heldout_arg(ap)
     _validate.add_fixture_args(ap)
     return ap.parse_args(argv)
 
@@ -373,7 +380,8 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
     chosen = select(scores)
     pt = predictions_table(pred, chosen, heldout=False)
     summary = summary_rows(pt, bg, "cv", a.bootstrap, a.seed)
-    if len(heldout):                                     # the held-out season, scored once
+    skip_heldout = bool(getattr(a, "skip_heldout", False))
+    if len(heldout) and not skip_heldout:                # the held-out season, scored once
         models = fit_models(train)
         hp = predict_frame(models, heldout)
         hp = pd.concat([heldout, hp], axis=1)
@@ -392,7 +400,7 @@ def run(data: dict, a, fixtures: bool, argv) -> dict:
            "fixtures": fixtures, "files": data["files"], "counts": res["counts"], "features": _features.feature_columns(train),
            "heldout_season": held_season, "heldout_games": int(len(heldout)), "train_games": int(len(train)),
            "train_labelled": int(train["home_cover"].notna().sum()), "train_seasons": sorted(train["season"].astype(str).unique()),
-           "ignored_seasons": ignored,
+           "ignored_seasons": ignored, "skip_heldout": skip_heldout,
            "protocol": note["text"], "mode": note["mode"], "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores,
            "chosen": chosen, "summary": summary, "out_root": str(out_root), "games": bg, "predictions": pt,
            "out_root_label": ("`%s/analytics/betting/<season>/`" % a.out) if a.out else (

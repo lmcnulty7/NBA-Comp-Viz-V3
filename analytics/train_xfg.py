@@ -1,6 +1,7 @@
 """analytics/train_xfg.py: the location-only xFG baseline under the full evaluation protocol.
 
     python -m analytics.train_xfg --shots PATH [PATH ...] --report reports/xfg_baseline.md [--folds 5] [--seed 0] [--bootstrap 200]
+                                     [--skip-heldout]
 
 Steps: load and concatenate the shots tables (docs/DATA_CONTRACT.md sections 10 and 10a, parquet or csv); set every
 row whose heldout column is true, or whose sportvu_game is a held-out game of sportvu/splits.json, aside; call
@@ -11,7 +12,9 @@ folds by sportvu_game; report out-of-fold log loss, Brier, ECE and calibration s
 game, the calibration table of the logistic model, and, when the input carried held-out rows, those rows scored once
 by the logistic (selected) model refit on every training row (labelled held-out, never used for fitting or tuning;
 the constant model is not scored on them). Under --smoke the held-out rows are set aside and never scored: the
-held-out game is reserved for the one final scoring on the Mac.
+held-out game is reserved for the one final scoring on the Mac. --skip-heldout does the same on any run: the held-out
+rows are set aside exactly as without it and never scored, and the report says "held-out games not scored
+(--skip-heldout)".
 
 Fewer games than folds: n_folds becomes the number of games (leave-one-game-out) and the report says so. One game:
 no out-of-fold fit is possible, so the report carries in-sample metrics, labelled in-sample.
@@ -29,7 +32,7 @@ import pandas as pd
 from analytics.features_xfg import assert_no_leak, feature_columns, features
 
 from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibration_table, ece, grouped_folds,
-                            log_loss, refuse_heldout)
+                            log_loss, refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
 
 WHO = "train_xfg"
 MODELS = ("constant", "logistic")
@@ -181,11 +184,14 @@ def write_report(path: Path, ctx: dict) -> str:
         s = ctx["scores"][m]
         L.append("| %s | %s | %s | %s | %s |" % (m, _ci(s["log_loss"]), _ci(s["brier"]), _ci(s["ece"]), _ci(s["calibration_slope"])))
     L += ["", "The constant model's calibration slope is n/a by design: its predictions vary only by fold make rate, so a slope is not defined.", "",
+          "Selected candidate: logistic.", "",
           "## Calibration table, logistic model (%s)" % ctx["mode"], "",
           "| bin | lo | hi | n | mean p | mean made |", "| --- | --- | --- | --- | --- | --- |"]
     for r in ctx["calibration"].itertuples():
         L.append("| %d | %.1f | %.1f | %d | %s | %s |" % (r.bin, r.lo, r.hi, r.n, _f(r.mean_p, 3), _f(r.mean_y, 3)))
-    if ctx["heldout_rows"] and ctx["smoke"]:
+    if ctx.get("skip_heldout"):
+        L += ["", "## Held-out rows", ""] + skip_heldout_lines(ctx["heldout_games"])
+    elif ctx["heldout_rows"] and ctx["smoke"]:
         L += ["", "## Held-out rows", "",
               "%d attempts from %d held-out game(s) (%s) were set aside and NOT scored: a smoke run never touches them. The held-out "
               "game is reserved for the one final scoring on the Mac, by the real run below."
@@ -221,6 +227,7 @@ def parse_args(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--bootstrap", type=int, default=200)
     ap.add_argument("--smoke", action="store_true", help="label the report as a smoke run on fixture pages")
+    add_skip_heldout_arg(ap)
     return ap.parse_args(argv)
 
 
@@ -239,8 +246,9 @@ def main(argv=None) -> dict:
            "train_game_ids": sorted(train["sportvu_game"].unique()), "heldout_rows": int(len(heldout)),
            "heldout_games": int(heldout["sportvu_game"].nunique()), "heldout_game_ids": sorted(heldout["sportvu_game"].unique()),
            "make_rate": float(train["made"].mean()), "protocol": note["text"], "mode": note["mode"], "folds": note["folds"],
-           "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "calibration": cal, "smoke": a.smoke, "heldout_scores": {}}
-    if len(heldout) and not a.smoke:
+           "bootstrap": a.bootstrap, "seed": a.seed, "scores": scores, "calibration": cal, "smoke": a.smoke, "heldout_scores": {},
+           "skip_heldout": a.skip_heldout}
+    if len(heldout) and not a.smoke and not a.skip_heldout:
         # the held-out rows are scored once, by the selected (logistic) model refit on every training row; the constant
         # model is not scored on them (its entry is kept with n/a so the table shape is stable). A smoke run never
         # scores them: the held-out game is reserved for the one final scoring on the Mac.
