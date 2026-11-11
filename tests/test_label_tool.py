@@ -699,3 +699,41 @@ def test_cli_help_and_docs():
     assert "exactly the columns above" not in md
     guide = (ROOT / "docs" / "labeling_guide.md").read_text(encoding="utf-8")
     assert "spends at least 2 s" in guide and "sure" in guide and "HELD-OUT" in guide
+
+
+def test_relabel_pass_lists_every_tenth_sample_rank_only(tmp_path, game):
+    """Pass 2 must not walk the whole sample: n or p records a possession as visited by the pass, and every
+    possession both passes visited enters the kappa, so an unrelabelled possession would pair as (label, none)."""
+    poss = game["possessions"]
+    g = str(poss["sportvu_game"].iloc[0])
+    kw = dict(sample=6, seed=0, heldout=fx.HELDOUT_TOKENS)
+    p1 = T.LabelSession(tmp_path, g, game["frames"], poss, labeller_pass=1, **kw)
+    assert len(p1.order) == 6 and p1.sample_info["relabel_every"] == 1
+    assert p1.sample_info["sample_ranks"] == list(range(6))
+    # default: every 10th rank of the same draw, in the same order
+    p2 = T.LabelSession(tmp_path, g, game["frames"], poss, labeller_pass=2, **kw)
+    assert p2.order == [p1.order[0]] and p2.sample_info["sample_ranks"] == [0]
+    assert T.RELABEL_EVERY == 10 and p2.sample_info["relabel_every"] == 10
+    p3 = T.LabelSession(tmp_path, g, game["frames"], poss, labeller_pass=2, relabel_every=3, **kw)
+    assert p3.order == [p1.order[0], p1.order[3]] and p3.sample_info["sample_ranks"] == [0, 3]
+    every = T.LabelSession(tmp_path, g, game["frames"], poss, labeller_pass=2, relabel_every=1, **kw)
+    assert every.order == p1.order
+    # walking both lists with n leaves exactly the relabelled possessions in the kappa set
+    for p in p1.order:
+        p1.mark_visited({"possession": p})
+    for p in p3.order:
+        p3.mark_visited({"possession": p})
+    v1, _ = T.visited_by_pass(tmp_path, g, 1)
+    v2, _ = T.visited_by_pass(tmp_path, g, 2)
+    assert v1 & v2 == {p1.order[0], p1.order[3]}
+
+
+def test_relabel_every_cli_flag(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(T, "build_session", lambda a: seen.setdefault("a", a) and (_ for _ in ()).throw(SystemExit(0)))
+    for argv, want in ((["--data", "x", "--game", "g", "--labeller-pass", "2", "--sample", "50"], 10),
+                       (["--data", "x", "--game", "g", "--labeller-pass", "2", "--sample", "50", "--relabel-every", "5"], 5)):
+        seen.clear()
+        with pytest.raises(SystemExit):
+            T.main(argv)
+        assert seen["a"].relabel_every == want

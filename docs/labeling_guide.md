@@ -147,7 +147,12 @@ sampled possessions of the same games when short).
 ## 5. Relabel and kappa
 
 One week after the first pass, 10% of the labelled possessions (every tenth `sample_rank` of each game's
-sample) are labelled again from scratch with `--labeller-pass 2`, without looking at the first pass. Then:
+sample) are labelled again from scratch with `--labeller-pass 2`, without looking at the first pass. Start
+pass 2 with the same `--sample` and `--seed` as pass 1; the tool then lists only sample ranks 0, 10, 20 and
+so on (5 of a 50-possession sample, printed at startup; `--relabel-every N` changes the step). This matters
+because `n` and `p` record the possession being left as visited by the pass, and every possession both passes
+visited enters kappa: walking pass 2 through possessions it does not relabel would pair their first-pass
+actions with `none`. Then:
 
 ```
 python -m analytics.label_tool --data DATA_ROOT --game G --kappa

@@ -55,6 +55,7 @@ from analytics import labels as L
 HTML_PATH = Path(__file__).with_name("label_tool.html")
 MAX_FRAMES = 2000
 DEFAULT_PORT = 8765
+RELABEL_EVERY = 10  # the relabel pass takes every tenth sample_rank (docs/labeling_guide.md section 5)
 MAX_BODY = 1 << 20
 LOCAL_HOSTS = ("127.0.0.1", "localhost", "[::1]", "::1")
 
@@ -101,7 +102,7 @@ class LabelSession:
 
     def __init__(self, data_root, game: str, frames: pd.DataFrame, possessions: pd.DataFrame,
                  sample: int | None = None, seed: int = 0, labeller_pass: int = 1, label_source: str = "hand",
-                 heldout: set | None = None):
+                 heldout: set | None = None, relabel_every: int = RELABEL_EVERY):
         self.data_root = Path(data_root)
         self.game = str(game)
         self.frames = frames.sort_values("frame", kind="stable").reset_index(drop=True)
@@ -115,8 +116,15 @@ class LabelSession:
         self.heldout = L.is_heldout(self.game, tokens)
         if sample:
             s = L.sample_possessions(self.possessions, self.frames, int(sample), int(seed), tokens, flags=self.flags)
+            # the relabel pass sees only every relabel_every-th sample_rank (docs/labeling_guide.md section 5):
+            # a possession left with n or p is recorded as visited by this pass and enters the kappa, so pass 2
+            # must not walk through possessions it does not relabel
+            step = max(1, int(relabel_every)) if self.labeller_pass != 1 else 1
+            if step > 1:
+                s = s.loc[s["sample_rank"] % step == 0]
             self.order = [int(p) for p in s["possession"]]
-            self.sample_info = {"n": int(sample), "seed": int(seed), **{k: v for k, v in s.attrs.items()}}
+            self.sample_info = {"n": int(sample), "seed": int(seed), **{k: v for k, v in s.attrs.items()},
+                                "relabel_every": step, "sample_ranks": [int(r) for r in s["sample_rank"]]}
         else:
             self.order = [int(p) for p in self.possessions["possession"]]
             self.sample_info = None
@@ -936,7 +944,7 @@ def build_session(a) -> LabelSession:
     frames = pd.read_parquet(find_frames(a.data, a.game, a.frames))
     poss = pd.read_parquet(find_possessions(a.data, a.game, a.possessions))
     return LabelSession(a.data, a.game, frames, poss, sample=a.sample, seed=a.seed,
-                        labeller_pass=a.labeller_pass, label_source=a.source)
+                        labeller_pass=a.labeller_pass, label_source=a.source, relabel_every=a.relabel_every)
 
 
 def run_audit(a) -> int:
@@ -974,6 +982,9 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=0, help="seed of the --sample draw; the same N and seed give the same list")
     ap.add_argument("--port", type=int, default=DEFAULT_PORT, help="local port to serve on (0 picks a free one)")
     ap.add_argument("--labeller-pass", type=int, default=1, choices=list(L.LABELLER_PASSES), help="1 first pass, 2 the relabel")
+    ap.add_argument("--relabel-every", type=int, default=RELABEL_EVERY,
+                    help="with --sample and --labeller-pass 2: list only every Nth sample_rank (default 10, the "
+                         "guide's 10 percent relabel; 1 lists the whole sample)")
     ap.add_argument("--source", default="hand", choices=list(L.LABEL_SOURCES),
                     help="label_source written on every label: hand (default) for a person at this tool")
     ap.add_argument("--export", help="write the game's JSONL labels to OUT.parquet (and OUT_screens.parquet)")
@@ -1015,7 +1026,10 @@ def main(argv=None) -> int:
     if session.heldout:
         print("HELD-OUT game: evaluation labels only (sportvu/splits.json); nothing here may tune a model", flush=True)
     print(f"label tool: {session.game}, {len(session.order)} possessions"
-          + (f" (sample n={a.sample}, seed={a.seed})" if a.sample else "")
+          + (f" (sample n={a.sample}, seed={a.seed}" + (
+              f"; relabel pass: every {session.sample_info['relabel_every']}th sample_rank, ranks "
+              f"{session.sample_info['sample_ranks']}" if session.sample_info.get("relabel_every", 1) > 1 else "")
+             + ")" if a.sample else "")
           + f", pass {session.labeller_pass}; open http://127.0.0.1:{port}/  (Ctrl-C stops)", flush=True)
     try:
         srv.serve_forever()

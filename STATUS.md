@@ -2,28 +2,35 @@
 
 ## Runbook progress
 
-WAITING ON YOU (stage 4 hand labels): stage 3 passed 2026-11-11 (below). Stage 4a is your PR #8
-(--skip-heldout); merge it when ready, since every stage 5 run needs the flag. Then label 8 training games
-spread across opponents, one at a time (any game not held out; the tool refuses held-out games):
+WAITING ON YOU (stage 4 hand labels): stage 3 passed 2026-11-11 (below); PRs #8, #9 and #10 merged into
+track-fix (f05a5d2), so stage 4a is done. Label these 8 training games (16 different teams, October to
+January; picked with a fixed seed, none held out, each draws a full 50 with 26 screen candidates):
+
+10.29.2015.MEM.at.IND, 11.14.2015.DET.at.LAC, 11.17.2015.MIN.at.MIA, 11.30.2015.DAL.at.SAC,
+12.19.2015.LAL.at.OKC, 12.21.2015.POR.at.ATL, 01.02.2016.DEN.at.GSW, 01.09.2016.WAS.at.ORL
+
+Pass 1, one game at a time (docs/labeling_guide.md sections 1 to 3):
 
 ```bash
-python3 -m analytics.label_tool --data "$DATA_ROOT" --game <sportvu_game> --sample 50 --seed 0 --port 8765
+python3 -m analytics.label_tool --data "$DATA_ROOT" --game <game> --sample 50 --seed 0 --port 8765
 ```
 
-and open http://127.0.0.1:8765/ (docs/labeling_guide.md: seven actions, seven coverages, keys, decision rules).
-After all 8 games, relabel every tenth sampled possession with `--labeller-pass 2`, then
-`mkdir -p gates && touch gates/labels-done`. The loop then runs `--kappa` and needs at least 0.7 for actions
-and for coverages.
+Pass 2, about a week later, same command plus `--labeller-pass 2`: the tool lists only sample ranks 0, 10, 20,
+30 and 40 (5 per game, 40 in all). Then `mkdir -p gates && touch gates/labels-done`; the loop runs `--kappa`
+and needs at least 0.7 for actions and for coverages.
 
 Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Two later decisions are open
 (odds and NBA.com, under Open gates).
 
-Open PRs from you, not touched by the loop (merge when ready): #8 stage 4a --skip-heldout,
-#9 stage 9 results, #10 stage 6 torch models. The loop does not redo stage 4a while #8 is open.
+PRs #8 (stage 4a --skip-heldout), #9 (stage 9 results) and #10 (stage 6 torch models) merged 2026-11-11.
 
 Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 4, waiting for PR #8 (stage 4a) and gates/labels-done. Stage 3 passed 2026-11-11.
+- **Current stage:** 4, stage 4a merged (PR #8); waiting for gates/labels-done. Stage 3 passed 2026-11-11.
+- **Label tool fix (2026-11-11):** `--labeller-pass 2` with `--sample` now lists only every tenth sample_rank
+  (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
+  visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
+  tests/test_label_tool.py.
 - **Background jobs:** none.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
