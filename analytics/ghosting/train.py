@@ -4,17 +4,28 @@
         [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--threads 1] [--skip-heldout]
         [--fixture-games 4] [--fixture-possessions 10] [--fixture-heldout-every 0]
 
-Steps: load and validate the games one at a time, building each game's panel while its frames are in memory
-(analytics.ghosting.features.load_games); set every held-out game aside (its own
-heldout flag, or analytics.eval.is_heldout_game on its id); call
-analytics.eval.refuse_heldout on the training game ids; build the 5 Hz panel and the feature frame
-(analytics.ghosting.features, which runs schema.assert_time_forward); fit the candidates under grouped
-folds by sportvu_game and roll each one forward from every origin row; score out-of-fold mean position
-error in feet at the 0.2 s and 1.0 s horizons with bootstrap intervals by game; run the paired bootstrap
-of 3 vs 2 and 2 vs 1; keep the deep candidate only when its 1.0 s error beats the linear baseline with an
-interval excluding zero; build the ghost_frames and ghost_possessions tables (docs/contract/ghosting.md)
-for the selected candidate; validate the graded deviation against points allowed (per-game Spearman, sign
-test by game); score the held-out games once with the candidates refit on every training row.
+Steps: load and validate the games one at a time; while a game's frames are in memory, build its 5 Hz panel
+and feature frame (analytics.ghosting.features, which runs schema.assert_time_forward) and keep only its 1 Hz
+fit rows (prepare_game); set every held-out game aside (its own heldout flag, or analytics.eval.is_heldout_game
+on its id); call analytics.eval.refuse_heldout on the training game ids; fit the candidates under grouped folds
+by sportvu_game on the fit rows of the training folds, and roll each one forward from every 5 Hz origin row of
+the test fold, rebuilding one test game at a time from its frames; score out-of-fold mean position error in
+feet at the 0.2 s and 1.0 s horizons with bootstrap intervals by game; run the paired bootstrap of 3 vs 2 and
+2 vs 1; keep the deep candidate only when its 1.0 s error beats the linear baseline with an interval excluding
+zero; build the ghost_frames and ghost_possessions tables (docs/contract/ghosting.md) for the selected
+candidate; validate the graded deviation against points allowed (per-game Spearman, sign test by game); score
+the held-out games once with the candidates refit on every fit row of the training games.
+
+Fit rule: every candidate is fitted on the fit rows, the feature-frame rows whose step is a multiple of
+features.FIT_EVERY = 5 (steps 5, 10, 15, ... of each possession sequence, so 1 Hz), from every training game,
+stored as float32 (features.FIT_DTYPE). Evaluation is unchanged: every 5 Hz row is rolled forward and scored.
+Memory (the real-data CLI): the fit rows (about 12,000 per game, 157 float32 columns) are saved per game as .npy
+files in a temporary local directory, and each fold's fit frame is a memory-mapped file there, so the season's
+fit rows sit in the OS file cache rather than in process memory; the scaler is fitted in row chunks
+(SCALER_CHUNK) to bound its float64 temporaries; the evaluation holds one game's frames, panel and feature
+frame at a time and reduces its error rows to bootstrap sums and counts and ghost tables (written per game).
+``run(keep_rows=True)``, the default and the --fixtures CLI, keeps the fit rows in memory and also every error
+row in ctx (errors, ghost_frames, frame).
 
 Candidates (the displacement from t-1 to t is the regression target, both axes at once):
   1 persistence   zero displacement: the ghost stays at the defender's position at t-1
@@ -51,7 +62,10 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import logging
+import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -76,6 +90,7 @@ HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2        # fold convention: >= 0 out-of-fold
 HIDDEN = (64, 64)
 MAX_ITER = 200
 THREADS = 1
+SCALER_CHUNK = 500_000          # rows per StandardScaler.partial_fit step (bounds its float64 temporaries)
 GHOST_FRAMES_COLUMNS = ["sportvu_game", "possession", "frame", "def_player_id", "off_player_id", "actual_x", "actual_y",
                         "ghost_x", "ghost_y", "deviation_ft", "horizon_s", "fold", "heldout"]
 GHOST_POSSESSIONS_COLUMNS = ["sportvu_game", "possession", "mean_deviation_ft", "points"]
@@ -93,30 +108,37 @@ def _design(frame: pd.DataFrame, columns: list[str]) -> np.ndarray:
     """The design matrix of ``columns`` after schema.assert_time_forward."""
     X = frame[columns]
     schema.assert_time_forward(X, "states_1hz")
-    return X.to_numpy(dtype=float)
+    dtype = F.FIT_DTYPE if len(columns) and all(t == F.FIT_DTYPE for t in X.dtypes) else float   # fit rows stay float32
+    return X.to_numpy(dtype=dtype)
+
+
+def _scaled_fit(model, X: np.ndarray, y: np.ndarray):
+    """StandardScaler then ``model`` -> predict(W). The scaler is fitted with partial_fit over SCALER_CHUNK rows at
+    a time, which bounds its float64 temporaries; with one chunk this is exactly StandardScaler().fit (which calls
+    partial_fit once), i.e. the make_pipeline(StandardScaler(), model) it replaces."""
+    from sklearn.preprocessing import StandardScaler
+    sc = StandardScaler()
+    for i in range(0, len(X), SCALER_CHUNK):
+        sc.partial_fit(X[i:i + SCALER_CHUNK])
+    model.fit(sc.transform(X), y)
+    return lambda W: model.predict(sc.transform(W))
 
 
 def fit_ridge(frame: pd.DataFrame, columns: list[str] | None = None, alpha: float = 1.0):
     """StandardScaler + Ridge on ``columns`` (default the lag-1 features) -> predict(X) of displacements."""
     from sklearn.linear_model import Ridge
-    from sklearn.pipeline import make_pipeline
-    from sklearn.preprocessing import StandardScaler
     cols = list(columns) if columns is not None else F.feature_columns()
     y = frame[F.TARGETS].to_numpy(dtype=float)
-    m = make_pipeline(StandardScaler(), Ridge(alpha=alpha)).fit(_design(frame, cols), y)
-    return m.predict
+    return _scaled_fit(Ridge(alpha=alpha), _design(frame, cols), y)
 
 
 def fit_mlp(frame: pd.DataFrame, seed: int = 0, columns: list[str] | None = None):
     """StandardScaler + MLPRegressor (two layers of 64, early stopping) on the window columns."""
     from sklearn.neural_network import MLPRegressor
-    from sklearn.pipeline import make_pipeline
-    from sklearn.preprocessing import StandardScaler
     cols = list(columns) if columns is not None else F.window_columns()
     y = frame[F.TARGETS].to_numpy(dtype=float)
-    m = make_pipeline(StandardScaler(), MLPRegressor(hidden_layer_sizes=HIDDEN, max_iter=MAX_ITER, early_stopping=True,
-                                                     n_iter_no_change=10, random_state=seed)).fit(_design(frame, cols), y)
-    return m.predict
+    return _scaled_fit(MLPRegressor(hidden_layer_sizes=HIDDEN, max_iter=MAX_ITER, early_stopping=True,
+                                    n_iter_no_change=10, random_state=seed), _design(frame, cols), y)
 
 
 def fit_candidates(train: pd.DataFrame, seed: int = 0, threads: int = THREADS, deep: str = "mlp") -> dict:
@@ -197,27 +219,139 @@ def roll_forward(models: dict, rows: pd.DataFrame, panel: pd.DataFrame, fold: in
     return pd.concat(out, ignore_index=True)
 
 
-def out_of_fold(frame: pd.DataFrame, panel: pd.DataFrame, n_folds: int, seed: int,
-                threads: int = THREADS, deep: str = "mlp") -> tuple[pd.DataFrame, dict]:
-    """Out-of-fold ghosts of every candidate -> (errors frame, protocol note)."""
-    games = sorted(frame["sportvu_game"].unique())
+def game_rows(game: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """One game's 5 Hz panel and feature frame, rebuilt from its frames (a loader reads them again). panel_row is
+    local to the game, which is all roll_forward needs."""
+    panel, _ = F.build_panel_game(V.frames_of(game), game["possessions"], game["sportvu_game"])
+    panel["heldout"] = bool(game.get("heldout", False))
+    panel["panel_row"] = np.arange(len(panel))
+    return panel, F.feature_frame(panel)
+
+
+def prepare_game(game: dict, frames: pd.DataFrame, spill_dir: Path | None = None) -> None:
+    """Pass 1 for one game while its frames are in memory (validate.load_games' on_frames hook): the panel counts,
+    the number of 5 Hz feature rows and, for a training game, its 1 Hz float32 fit rows (features.fit_rows),
+    kept as a table or, with ``spill_dir``, saved there as one .npy of the window and target columns (the
+    real-data path: the season's fit rows then sit on local disk, not in RAM). The panel and the feature frame
+    are dropped."""
+    panel, counts = F.build_panel_game(frames, game["possessions"], game["sportvu_game"])
+    held = bool(game.get("heldout")) or is_heldout_game(game["sportvu_game"])
+    panel["heldout"] = held
+    panel["panel_row"] = np.arange(len(panel))
+    frame = F.feature_frame(panel)
+    game["panel_counts"], game["panel_rows"], game["feature_rows"] = counts, int(len(panel)), int(len(frame))
+    fr = None if held else F.fit_rows(frame)
+    if fr is not None and spill_dir is not None:
+        path = Path(spill_dir) / "fit_rows" / ("%s.npy" % game["sportvu_game"])
+        path.parent.mkdir(parents=True, exist_ok=True)
+        np.save(path, fr[fit_columns()].to_numpy(dtype=F.FIT_DTYPE))
+        fr = {"npy": path, "rows": int(len(fr))}
+    game["fit_rows"] = fr
+    log.info("%s panel: %s; %d feature rows, %d fit rows", game["sportvu_game"], counts, len(frame), _n_fit(game))
+
+
+def fit_columns() -> list[str]:
+    """The float32 columns of a fit row: the window columns, then the targets."""
+    return F.window_columns() + F.TARGETS
+
+
+def _n_fit(game: dict) -> int:
+    """Number of fit rows of a game dict (0 for a held-out game)."""
+    fr = game.get("fit_rows")
+    return 0 if fr is None else int(fr["rows"]) if isinstance(fr, dict) else int(len(fr))
+
+
+def fit_frame(games: list[dict], spill_dir: Path | None = None) -> pd.DataFrame:
+    """The fit rows of these training games in the order given, as one frame (sportvu_game, the FIT_COLUMNS as
+    float32, heldout). The float32 block is filled game by game into one array, so nothing is held twice; with
+    ``spill_dir`` that array is a memory-mapped file there (unlinked at once, freed when the frame is)."""
+    parts = [g for g in games if _n_fit(g)]
+    if not parts:
+        raise ValueError("%s: no fit rows" % WHO)
+    cols = fit_columns()
+    n = sum(_n_fit(g) for g in parts)
+    if spill_dir is not None:
+        fd, name = tempfile.mkstemp(suffix=".npy", dir=str(spill_dir))
+        os.close(fd)
+        X = np.lib.format.open_memmap(name, mode="w+", dtype=F.FIT_DTYPE, shape=(n, len(cols)))
+        os.unlink(name)
+    else:
+        X = np.empty((n, len(cols)), dtype=F.FIT_DTYPE)
+    i = 0
+    for g in parts:
+        fr = g["fit_rows"]
+        block = np.load(fr["npy"], mmap_mode="r") if isinstance(fr, dict) else fr[cols].to_numpy(dtype=F.FIT_DTYPE)
+        X[i:i + len(block)] = block
+        i += len(block)
+    out = pd.DataFrame(X, columns=cols, copy=False)
+    out.insert(0, "sportvu_game", np.repeat([str(g["sportvu_game"]) for g in parts], [_n_fit(g) for g in parts]))
+    out["heldout"] = False
+    return out
+
+
+SELECTABLE = ("ridge", "mlp")       # the candidates decide() can select; their ghost tables are kept until it has
+
+
+def _new_acc(keep_rows: bool, spill: Path | None) -> dict:
+    """Accumulator of the streamed evaluation: per-game bootstrap summaries, ghost_possessions and row counts per
+    selectable candidate, ghost_frames spilled per game (or the error rows themselves when keep_rows)."""
+    return {"keep": keep_rows, "spill": spill, "err": [], "summ": {h: [] for h in F.HORIZONS},
+            "gp": {c: [] for c in SELECTABLE}, "gf_rows": {c: 0 for c in SELECTABLE}, "games": []}
+
+
+def _collect(acc: dict, err: pd.DataFrame, game: dict) -> None:
+    """Fold one game's roll-forward errors into the accumulator; the rows are kept only when keep_rows."""
+    gid = game["sportvu_game"]
+    for h, row in summarise(err, gid).items():
+        acc["summ"][h].append(row)
+    if acc["keep"]:
+        acc["err"].append(err)
+    else:
+        present = set(err["candidate"])
+        for c in SELECTABLE:
+            if c not in present:
+                continue
+            gf, gp = ghost_tables(err, c, game["possessions"])
+            acc["gp"][c].append(gp)
+            acc["gf_rows"][c] += len(gf)
+            if acc["spill"] is not None:
+                d = Path(acc["spill"]) / c
+                d.mkdir(parents=True, exist_ok=True)
+                gf.to_parquet(d / ("%s.parquet" % gid), index=False)
+    acc["games"].append(gid)
+
+
+def evaluate(models: dict, games: list[dict], fold: int, acc: dict) -> None:
+    """The 5 Hz roll-forward of ``models`` over every feature row of each game, one game at a time: the game's
+    panel and feature frame are rebuilt from its frames, scored and dropped."""
+    for g in games:
+        panel, rows = game_rows(g)
+        if len(rows):
+            _collect(acc, roll_forward(models, rows, panel, fold=fold), g)
+
+
+def out_of_fold(train_games: list[dict], n_folds: int, seed: int, threads: int = THREADS, deep: str = "mlp",
+                acc: dict | None = None, spill_dir: Path | None = None) -> tuple[dict, dict]:
+    """Out-of-fold ghosts of every candidate, fitted on the 1 Hz fit rows of the training folds and scored on every
+    5 Hz row of the test fold, streamed by game -> (accumulator, protocol note)."""
+    acc = acc if acc is not None else _new_acc(True, None)
+    order = [g for g in train_games if g.get("feature_rows", 0) > 0]       # load order, as the old frame was
+    games = sorted(g["sportvu_game"] for g in order)
     if len(games) == 1:
-        models = fit_candidates(frame, seed, threads, deep)
-        err = roll_forward(models, frame, panel, fold=IN_SAMPLE_FOLD)
+        models = fit_candidates(fit_frame(order, spill_dir), seed, threads, deep)
+        evaluate(models, order, IN_SAMPLE_FOLD, acc)
         note = {"mode": "in-sample", "folds": 0, "games": 1,
-                "text": "one training game: no grouped fold is possible, so the errors are IN-SAMPLE (fit and scored on the same rows)"}
-        return err, note
+                "text": "one training game: no grouped fold is possible, so the errors are IN-SAMPLE (fit and scored on the same game)"}
+        return acc, note
     k = min(n_folds, len(games))
-    parts = []
     for i, (tr_games, te_games) in enumerate(grouped_folds(games, n_folds=k, seed=seed)):
-        tr = frame[frame["sportvu_game"].isin(tr_games)]
-        te = frame[frame["sportvu_game"].isin(te_games)]
-        models = fit_candidates(tr, seed, threads, deep)
-        parts.append(roll_forward(models, te, panel, fold=i))
+        tr_set, te_set = set(tr_games), set(te_games)
+        models = fit_candidates(fit_frame([g for g in order if g["sportvu_game"] in tr_set], spill_dir), seed, threads, deep)
+        evaluate(models, [g for g in order if g["sportvu_game"] in te_set], i, acc)
     text = "out-of-fold under %d grouped folds by sportvu_game (seed %d)" % (k, seed)
     if k < n_folds:
         text += "; fewer games (%d) than the %d folds asked, so n_folds = number of games (leave-one-game-out)" % (len(games), n_folds)
-    return pd.concat(parts, ignore_index=True), {"mode": "out-of-fold", "folds": k, "games": len(games), "text": text}
+    return acc, {"mode": "out-of-fold", "folds": k, "games": len(games), "text": text}
 
 
 # ----------------------------------------------------------------------------- scoring
@@ -231,38 +365,87 @@ def _wide(err: pd.DataFrame, horizon: float) -> pd.DataFrame:
     return w
 
 
-def score(err: pd.DataFrame, n_boot: int, seed: int) -> dict:
-    """{horizon: {candidate: {point, lo, hi}}} of the mean error in feet, bootstrap by game (no interval
-    with a single game)."""
+def summarise(err: pd.DataFrame, game: str) -> dict:
+    """{horizon: the summary row of one game's errors} for the bootstrap: rows (origins in _wide) and, per
+    candidate, the sum and the count of its non-null errors. No row at a horizon without origins (as in _wide)."""
     out = {}
     for h in F.HORIZONS:
         w = _wide(err, h)
-        out[h] = {}
+        if len(w) == 0:
+            continue
+        row = {"sportvu_game": str(game), "rows": int(len(w))}
         for c in CANDIDATES:
-            if c not in w.columns or len(w) == 0:
-                out[h][c] = {"point": float("nan"), "lo": float("nan"), "hi": float("nan"), "rows": 0}
-                continue
-            r = bootstrap_by_game(w, "sportvu_game", lambda d, c=c: d[c].mean(), n=n_boot, seed=seed)
-            if w["sportvu_game"].nunique() < 2:
-                r = {**r, "lo": float("nan"), "hi": float("nan")}
-            out[h][c] = {**r, "rows": int(len(w))}
+            if c in w.columns:
+                row["sum_" + c], row["n_" + c] = float(w[c].sum()), int(w[c].count())
+        out[h] = row
     return out
 
 
-def paired(err: pd.DataFrame, n_boot: int, seed: int) -> dict:
+def summaries(err) -> dict:
+    """{horizon: per-game summary rows sorted by game}, from an error frame or from collected rows ({horizon: [row]})."""
+    if isinstance(err, pd.DataFrame):
+        rows = {h: [] for h in F.HORIZONS}
+        for g, e in err.groupby("sportvu_game", sort=True):
+            for h, r in summarise(e, g).items():
+                rows[h].append(r)
+        err = rows
+    out = {}
+    for h in F.HORIZONS:
+        d = pd.DataFrame(err.get(h, []))
+        out[h] = d.sort_values("sportvu_game", kind="stable").reset_index(drop=True) if len(d) else d
+    return out
+
+
+def _mean_of(c: str):
+    """Mean error of candidate c over the rows of the games in a summary frame (sum over count)."""
+    return lambda d: d["sum_" + c].sum() / d["n_" + c].sum() if d["n_" + c].sum() else float("nan")
+
+
+def _has(s: pd.DataFrame, c: str) -> bool:
+    """True when the summary frame holds errors of candidate c."""
+    return len(s) > 0 and ("n_" + c) in s.columns and s["n_" + c].fillna(0).sum() > 0
+
+
+def _filled(s: pd.DataFrame, *cands) -> pd.DataFrame:
+    return s.fillna({k + c: v for c in cands for k, v in (("sum_", 0.0), ("n_", 0))})
+
+
+def score(err, n_boot: int, seed: int) -> dict:
+    """{horizon: {candidate: {point, lo, hi, rows}}} of the mean error in feet, bootstrap by game (no interval with
+    a single game). ``err`` is an error frame or summaries(). The bootstrap draws whole games, so a game enters the
+    mean through its error sum and count: the same games are drawn and the same mean taken as over the rows."""
+    S = summaries(err) if isinstance(err, pd.DataFrame) else err
+    out = {}
+    for h in F.HORIZONS:
+        s = S[h]
+        out[h] = {}
+        for c in CANDIDATES:
+            if not _has(s, c):
+                out[h][c] = {"point": float("nan"), "lo": float("nan"), "hi": float("nan"), "rows": 0}
+                continue
+            d = _filled(s, c)
+            r = bootstrap_by_game(d, "sportvu_game", _mean_of(c), n=n_boot, seed=seed)
+            if d["sportvu_game"].nunique() < 2:
+                r = {**r, "lo": float("nan"), "hi": float("nan")}
+            out[h][c] = {**r, "rows": int(s["rows"].sum())}
+    return out
+
+
+def paired(err, n_boot: int, seed: int) -> dict:
     """{pair: {horizon: {diff, lo, hi, excludes_zero}}} for mlp vs ridge and ridge vs persistence (a
-    negative diff favours the first; no interval with a single game)."""
+    negative diff favours the first; no interval with a single game). ``err`` as in score."""
+    S = summaries(err) if isinstance(err, pd.DataFrame) else err
     out = {}
     for a, b in (("mlp", "ridge"), ("ridge", "persistence")):
         out[a + "_vs_" + b] = {}
         for h in F.HORIZONS:
-            w = _wide(err, h)
-            if len(w) == 0 or a not in w.columns or b not in w.columns:
+            s = S[h]
+            if not (_has(s, a) and _has(s, b)):
                 out[a + "_vs_" + b][h] = {"diff": float("nan"), "lo": float("nan"), "hi": float("nan"), "excludes_zero": False}
                 continue
-            r = paired_bootstrap_by_game(w, "sportvu_game", lambda d, a=a: d[a].mean(), lambda d, b=b: d[b].mean(),
-                                         n=n_boot, seed=seed)
-            if w["sportvu_game"].nunique() < 2:
+            d = _filled(s, a, b)
+            r = paired_bootstrap_by_game(d, "sportvu_game", _mean_of(a), _mean_of(b), n=n_boot, seed=seed)
+            if d["sportvu_game"].nunique() < 2:
                 r = {**r, "lo": float("nan"), "hi": float("nan"), "excludes_zero": False}
             out[a + "_vs_" + b][h] = r
     return out
@@ -325,56 +508,122 @@ def split_games(games: list[dict]) -> tuple[list[dict], list[dict]]:
 
 
 def run(games: list[dict], n_folds: int = 5, seed: int = 0, n_boot: int = 200, threads: int = THREADS,
-        skip_heldout: bool = False, deep: str = "mlp") -> dict:
-    """The whole protocol on game dicts -> ctx (scores, pairs, decision, errors, ghost tables, held-out), with BLAS
+        skip_heldout: bool = False, deep: str = "mlp", keep_rows: bool = True, out_root=None,
+        spill_dir: Path | None = None) -> dict:
+    """The whole protocol on game dicts -> ctx (scores, pairs, decision, ghost tables, held-out), with BLAS
     and OpenMP pinned to ``threads`` (analytics.eval.fit_threads). ``deep`` ("mlp" or "torch", resolved by
     analytics.deep_torch.resolve_deep: torch absent falls back to "mlp") picks the model of the deep slot; the
-    keep rule (decide) is the same either way."""
+    keep rule (decide) is the same either way. ``keep_rows`` keeps every error row and the fit rows in ctx
+    (errors, ghost_frames, frame); without it the run holds per-game summaries only and writes ghost_frames and
+    ghost_possessions per game under ``out_root`` as it goes (the real-data path). ``spill_dir`` (local disk) holds
+    the fold fit frames as memory-mapped files and receives the fit rows of games prepared here."""
     info = resolve_deep(deep, WHO)
     with fit_threads(threads):
-        ctx = _run(games, n_folds, seed, n_boot, threads, skip_heldout, info["used"])
+        ctx = _run(games, n_folds, seed, n_boot, threads, skip_heldout, info["used"], keep_rows, out_root, spill_dir)
     ctx["deep"] = info
     return ctx
 
 
+def _place(spill: Path, cand: str, out_root, season: str, held: bool) -> list[Path]:
+    """Move the spilled ghost_frames of ``cand`` to their per-game output paths."""
+    written = []
+    d = Path(spill) / cand
+    for src in sorted(d.glob("*.parquet")) if d.is_dir() else []:
+        dst = V.output_path(out_root, "ghost_frames", src.stem, held, season)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(src), str(dst))
+        written.append(dst)
+    return written
+
+
+def _write_gp(out_root, gp: pd.DataFrame, held: bool, season: str) -> list[Path]:
+    """ghost_possessions per game under out_root."""
+    written = []
+    for g, d in gp.groupby("sportvu_game"):
+        dst = V.output_path(out_root, "ghost_possessions", str(g), held, season)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        d.reset_index(drop=True).to_parquet(dst, index=False)
+        written.append(dst)
+    return written
+
+
+def _gp_of(acc: dict, cand: str) -> pd.DataFrame:
+    """The kept ghost_possessions of one candidate, sorted by game and possession."""
+    parts = acc["gp"][cand]
+    if not parts:
+        return pd.DataFrame({c: pd.Series([], dtype=t) for c, t in GHOST_POSSESSIONS_DTYPES.items()})
+    return pd.concat(parts, ignore_index=True).sort_values(["sportvu_game", "possession"], kind="stable").reset_index(drop=True)
+
+
 def _run(games: list[dict], n_folds: int, seed: int, n_boot: int, threads: int = THREADS, skip_heldout: bool = False,
-         deep: str = "mlp") -> dict:
+         deep: str = "mlp", keep_rows: bool = True, out_root=None, spill_dir: Path | None = None) -> dict:
     """run() without the thread pin."""
     train_games, held_games = split_games(games)
     if not train_games:
         raise SystemExit("%s: no training games after setting the held-out games aside" % WHO)
-    panel, frame, counts = F.build(train_games + held_games)
-    schema.assert_time_forward(frame, "states_1hz")
-    tr = frame[~frame["heldout"].astype(bool)].reset_index(drop=True)
-    he = frame[frame["heldout"].astype(bool)].reset_index(drop=True)
-    if len(tr) < 10:
-        raise SystemExit("%s: %d training rows is too few" % (WHO, len(tr)))
-    err, note = out_of_fold(tr, panel, n_folds, seed, threads, deep)
-    scores = score(err, n_boot, seed)
-    pairs = paired(err, n_boot, seed)
-    decision = decide(pairs)
+    for g in train_games + held_games:
+        if "feature_rows" not in g:            # not prepared while loading: read the game's frames once here
+            prepare_game(g, V.frames_of(g), spill_dir)
+    for g in held_games:
+        g["fit_rows"] = None                   # a held-out game never gives a fit row
+    n_tr = sum(g["feature_rows"] for g in train_games)
+    n_he = sum(g["feature_rows"] for g in held_games)
+    n_fit = sum(_n_fit(g) for g in train_games)
+    if n_tr < 10:
+        raise SystemExit("%s: %d training rows is too few" % (WHO, n_tr))
     poss = pd.concat([g["possessions"] for g in train_games + held_games], ignore_index=True)
-    gf, gp = ghost_tables(err, decision["selected"], poss)
-    val = sign_test(gp)
-    ctx = {"train_games": [g["sportvu_game"] for g in train_games], "heldout_games": [g["sportvu_game"] for g in held_games],
-           "counts": counts, "panel_rows": int(len(panel)), "train_rows": int(len(tr)), "heldout_rows": int(len(he)),
-           "note": note, "scores": scores, "pairs": pairs, "decision": decision, "errors": err, "ghost_frames": gf,
-           "ghost_possessions": gp, "validation": val, "folds": n_folds, "seed": seed, "bootstrap": n_boot,
-           "panel": panel, "frame": frame, "heldout_scores": {}, "heldout_validation": None, "skip_heldout": skip_heldout}
-    if len(he) and not skip_heldout:       # --skip-heldout: set aside above, never rolled forward or scored
-        # the held-out game sees only the selected candidate (and persistence as a labelled floor): the other
-        # candidate is never scored on it, so nothing can be chosen on held-out numbers
-        models = fit_candidates(tr, seed, threads, deep)
-        keep = [c for c in ("persistence", decision["selected"]) if c in models]
-        herr = roll_forward({c: models[c] for c in keep}, he, panel, fold=HELDOUT_FOLD)
-        ctx["heldout_errors"] = herr
-        ctx["heldout_candidates"] = keep
-        ctx["heldout_scores"] = {h: {c: float(herr[(herr["horizon_s"] == h) & (herr["candidate"] == c)]["error_ft"].mean())
-                                     for c in keep} for h in F.HORIZONS}
-        hgf, hgp = ghost_tables(herr, decision["selected"], poss)
-        ctx["ghost_frames"] = pd.concat([gf, hgf], ignore_index=True)
-        ctx["ghost_possessions"] = pd.concat([gp, hgp], ignore_index=True)
-        ctx["heldout_validation"] = sign_test(hgp)
+    written: list[Path] = []
+    with tempfile.TemporaryDirectory(prefix="ghosting_") as tmp:
+        spill = None if keep_rows else Path(tmp) / "oof"
+        acc, note = out_of_fold(train_games, n_folds, seed, threads, deep, _new_acc(keep_rows, spill), spill_dir)
+        S = summaries(acc["summ"])
+        scores = score(S, n_boot, seed)
+        pairs = paired(S, n_boot, seed)
+        decision = decide(pairs)
+        sel = decision["selected"]
+        if keep_rows:
+            err = pd.concat(acc["err"], ignore_index=True)
+            gf, gp = ghost_tables(err, sel, poss)
+            gf_rows = len(gf)
+        else:
+            err, gf, gp, gf_rows = None, None, _gp_of(acc, sel), acc["gf_rows"][sel]
+            if out_root:
+                written += _place(spill, sel, out_root, V.SEASON, False) + _write_gp(out_root, gp, False, V.SEASON)
+        val = sign_test(gp)
+        ctx = {"train_games": [g["sportvu_game"] for g in train_games], "heldout_games": [g["sportvu_game"] for g in held_games],
+               "counts": {g["sportvu_game"]: g["panel_counts"] for g in train_games + held_games},
+               "panel_rows": int(sum(g["panel_rows"] for g in train_games + held_games)), "train_rows": int(n_tr),
+               "fit_rows": int(n_fit), "heldout_rows": int(n_he), "note": note, "scores": scores, "pairs": pairs,
+               "decision": decision, "errors": err, "ghost_frames": gf, "ghost_frames_rows": int(gf_rows),
+               "ghost_possessions": gp, "validation": val, "folds": n_folds, "seed": seed, "bootstrap": n_boot,
+               "frame": fit_frame(train_games) if keep_rows else None, "heldout_scores": {}, "heldout_validation": None,
+               "skip_heldout": skip_heldout, "keep_rows": keep_rows, "written": written}
+        if n_he and not skip_heldout:       # --skip-heldout: set aside above, never rolled forward or scored
+            # the held-out game sees only the selected candidate (and persistence as a labelled floor): the other
+            # candidate is never scored on it, so nothing can be chosen on held-out numbers
+            models = fit_candidates(fit_frame(train_games, spill_dir), seed, threads, deep)
+            keep = [c for c in ("persistence", sel) if c in models]
+            hacc = _new_acc(keep_rows, None if keep_rows else Path(tmp) / "heldout")
+            evaluate({c: models[c] for c in keep}, [g for g in held_games if g["feature_rows"]], HELDOUT_FOLD, hacc)
+            HS = summaries(hacc["summ"])
+            ctx["heldout_candidates"] = keep
+            ctx["heldout_scores"] = {h: {c: (float(HS[h]["sum_" + c].sum() / HS[h]["n_" + c].sum()) if _has(HS[h], c) else float("nan"))
+                                         for c in keep} for h in F.HORIZONS}
+            if keep_rows:
+                herr = pd.concat(hacc["err"], ignore_index=True)
+                ctx["heldout_errors"] = herr
+                ctx["heldout_scores"] = {h: {c: float(herr[(herr["horizon_s"] == h) & (herr["candidate"] == c)]["error_ft"].mean())
+                                             for c in keep} for h in F.HORIZONS}
+                hgf, hgp = ghost_tables(herr, sel, poss)
+                ctx["ghost_frames"] = pd.concat([gf, hgf], ignore_index=True)
+                ctx["ghost_frames_rows"] = int(len(ctx["ghost_frames"]))
+            else:
+                hgp = _gp_of(hacc, sel)
+                ctx["ghost_frames_rows"] += int(hacc["gf_rows"][sel])
+                if out_root:
+                    written += _place(Path(tmp) / "heldout", sel, out_root, V.SEASON, True) + _write_gp(out_root, hgp, True, V.SEASON)
+            ctx["ghost_possessions"] = pd.concat([gp, hgp], ignore_index=True)
+            ctx["heldout_validation"] = sign_test(hgp)
     return ctx
 
 
@@ -415,9 +664,12 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
     L += ["", "Training rows: %d defender-steps from %d game(s) (%s). Held-out rows set aside before any fit: %d from %d game(s) (%s)."
           % (ctx["train_rows"], len(ctx["train_games"]), ", ".join(ctx["train_games"]), ctx["heldout_rows"],
              len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"]) or "none"),
+          "Fit rows: %d, every %dth sampled step of each sequence of every training game (1 Hz), stored as float32; every "
+          "candidate is fitted on these. Evaluation is at 5 Hz: every training row above is rolled forward and scored, one game "
+          "at a time." % (ctx.get("fit_rows", ctx["train_rows"]), F.FIT_EVERY),
           "Guard: `analytics.eval.refuse_heldout` checked %d training game ids against sportvu/splits.json; "
           "`schema.assert_time_forward` passed on the feature frame (%d columns, %d lag-1 features, %d window columns)."
-          % (len(ctx["train_games"]), ctx["frame"].shape[1], len(F.feature_columns()), len(F.window_columns())), "",
+          % (len(ctx["train_games"]), len(F.feature_frame_columns()), len(F.feature_columns()), len(F.window_columns())), "",
           "## Protocol%s" % tag, "",
           "Unit: defender at a sampled frame (5 Hz, every %d frames of the 25 Hz tracking) inside a possession; assignment = nearest "
           "offensive player at the possession's first sampled frame. Features at t minus 1 (and t minus 2 to t minus 5 for the window): "
@@ -462,8 +714,8 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
     if ctx.get("skip_heldout"):
         L += ["## Held-out games%s" % tag, ""] + skip_heldout_lines(len(ctx["heldout_games"])) + [""]
     elif ctx["heldout_games"]:
-        L += ["## Held-out games (the selected candidate refit on all %d training rows, scored once; never fitted or tuned on)%s"
-              % (ctx["train_rows"], tag), "",
+        L += ["## Held-out games (the selected candidate refit on all %d fit rows of the training games, scored once at 5 Hz; never fitted or tuned on)%s"
+              % (ctx.get("fit_rows", ctx["train_rows"]), tag), "",
               "%d defender-steps from %d held-out game(s): %s. Only the selected candidate and the persistence floor are scored here; "
               "the dropped candidate never sees the held-out game." % (ctx["heldout_rows"], len(ctx["heldout_games"]), ", ".join(ctx["heldout_games"])), "",
               "| candidate | 0.2 s error | 1.0 s error |", "| --- | --- | --- |"]
@@ -475,7 +727,7 @@ def write_report(path: Path, ctx: dict, fixtures: bool, command: str) -> str:
     else:
         L += ["## Held-out games", "", "None in this run; the Mac run scores the held-out games once after the decision above.", ""]
     L += ["## Tables%s" % tag, "",
-          "ghost_frames: %d rows; ghost_possessions: %d rows (docs/contract/ghosting.md)." % (len(ctx["ghost_frames"]), len(ctx["ghost_possessions"])), "",
+          "ghost_frames: %d rows; ghost_possessions: %d rows (docs/contract/ghosting.md)." % (ctx.get("ghost_frames_rows", 0), len(ctx["ghost_possessions"])), "",
           "## Assumptions and what needs real data", "",
           "- Assignment is the nearest offensive player at the possession's first sampled frame (defender-centric, no one-to-one matching); "
           "the attacking side is the half the ball is in at t minus 1; a null shot clock is max(24 minus elapsed, 0); possessions with a "
@@ -528,15 +780,19 @@ def main(argv=None) -> dict:
     """CLI: run the protocol, write the report and the per-game tables (under --out, else DATA_ROOT); returns ctx."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
-    games = F.load_games(a)          # panels built game by game; frames are never all in memory
-    ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1),
-              skip_heldout=a.skip_heldout, deep=a.deep)
+    out_root = a.out or a.data
+    keep = bool(a.fixtures)          # real data: per-game summaries only, tables written as the run goes
+    with tempfile.TemporaryDirectory(prefix="ghosting_fit_") as tmp:
+        spill = None if keep else Path(tmp)         # real data: fit rows and fold frames on local disk
+        games = V.load_games(a, on_frames=lambda g, f: prepare_game(g, f, spill))    # one game's frames at a time
+        ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1),
+                  skip_heldout=a.skip_heldout, deep=a.deep, keep_rows=keep, out_root=None if keep else out_root,
+                  spill_dir=spill)
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])
     text = write_report(Path(a.report), ctx, fixtures=bool(a.fixtures), command=cmd)
     print(text)
-    out_root = a.out or a.data
     if out_root:
-        for p in write_tables(out_root, ctx):
+        for p in (write_tables(out_root, ctx) if keep else ctx["written"]):
             print("wrote", p)
     return ctx
 

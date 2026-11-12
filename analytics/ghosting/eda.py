@@ -1,7 +1,8 @@
 """analytics/ghosting/eda.py: tables for notebooks/eda_ghosting.ipynb.
 
 No plotting library exists in the build environment, so the EDA is tables (pandas frames the notebook
-prints) and markdown. Every function is pure over the frames the trainer returns (analytics.ghosting.train.run):
+prints) and markdown. Every function is pure over the frames the trainer returns (analytics.ghosting.train.run;
+ctx["frame"] is the 1 Hz fit rows, so the first two tables describe those):
     displacement_distributions(frame)      quantiles of the 0.2 s displacement target and the defender speed
     feature_summary(frame)                 mean, sd, min, max of every lag-1 feature
     error_by_horizon(errors)               mean and median error per candidate and horizon, with row counts

@@ -2,7 +2,7 @@
 
 Defensive ghosting: where a defender would have been, given what everyone else did. The one deep model
 of the plan, kept only if it beats the linear baseline under a paired bootstrap by game. Code:
-`analytics/ghosting/{validate,features,train,eda}.py`; tests: `tests/test_ghosting.py`, `tests/test_ghosting_memory.py`; report:
+`analytics/ghosting/{validate,features,train,eda}.py`; tests: `tests/test_ghosting.py`, `tests/test_ghosting_memory.py`, `tests/test_ghosting_streaming.py`; report:
 `reports/ghosting.md`; EDA: `notebooks/eda_ghosting.ipynb`.
 
 ## Unit, sampling, assignment
@@ -156,9 +156,16 @@ rosters are read when present and checked but not needed. A game read from any `
 whatever its id. Frames are read one game at a time: each game's frames are read, checked and turned into
 that game's 5 Hz panel, then dropped before the next game is read, so a run holds one game's frames plus the
 per-game panels (a full season's frames do not fit in memory; `tests/test_ghosting_memory.py` checks this).
-`features` keeps nothing between games: it writes each game's feature frame and drops it. `train` still holds
-every game's panel and the whole feature frame, measured at about 18 MB and 75 MB per real game, so a
-600-game train needs far more than 16 GB; that is an open item, not solved by the per-game loading.
+`features` keeps nothing between games: it writes each game's feature frame and drops it. `train` keeps no
+season-wide panel or feature frame either:
+
+| item | rule |
+| --- | --- |
+| fit rows | every candidate (persistence, ridge, the MLP stand-in, and the GRU under `--deep torch`) is fitted on the feature-frame rows whose `step` is a multiple of 5 (`features.FIT_EVERY`; steps 5, 10, 15, ... of each possession sequence, so 1 Hz), from all training games, stored as float32 (`features.FIT_DTYPE`, `features.fit_rows`); they are built while each game's frames are in memory and only they are kept |
+| evaluation | unchanged and at 5 Hz: every feature row of a test game is rolled forward and scored exactly as before (same roll-forward, same metrics, out-of-fold by game), with that game's panel and feature frame rebuilt from its frames, scored and dropped one game at a time |
+| bootstrap | each game's errors are reduced to their sum and count per candidate and horizon; the bootstrap draws whole games, so it draws the same games and takes the same means as over the error rows (equal to about 1e-12) |
+| tables | on real data `ghost_frames` and `ghost_possessions` are written per game during the run; `--fixtures` (and `train.run` by default) also keep every error row in memory |
+| memory | on real data the fit rows are saved per game as float32 `.npy` files in a temporary local directory and each fold's fit frame is a memory-mapped file there; `StandardScaler` is fitted with `partial_fit` in chunks of 500,000 rows (one chunk is exactly `fit`, so small runs are unchanged) |
 `--out` defaults to DATA_ROOT; the Mac command is `--out "<Drive>/nba_harvest"`. Fixture runs print and write "fixture output,
 not a result".
 

@@ -48,6 +48,9 @@ Memory: ``load_games`` builds each game's panel in the same pass that reads and 
 (validate.load_games with the ``attach_panel`` hook), so only one game's frames are in memory at a time;
 ``build_panel`` then uses those panels. A game dict without a panel is built from its frames, read one game
 at a time. The CLI goes further: it writes each game's feature frame inside that pass and keeps nothing.
+
+Fit rows: the trainer fits on ``fit_rows``, every FIT_EVERY-th step of each sequence (1 Hz) stored as float32,
+and evaluates on every 5 Hz row of ``feature_frame``.
 """
 from __future__ import annotations
 
@@ -77,6 +80,8 @@ MID_X = 47.0
 SHOT_CLOCK_S = 24.0
 CLOCK_TOL_S = 0.5 * DT              # a sampled step whose clock advances by more than DT + this cuts the sequence
                                     # (a smaller step is a stopped clock with frames still flowing, allowed)
+FIT_EVERY = 5                       # fit rows: steps 5, 10, 15, ... of each sequence (1 Hz); evaluation uses every step
+FIT_DTYPE = np.float32              # fit rows are stored and fitted in float32
 
 OFF_XY = [f"off{i}_{a}" for i in range(1, 6) for a in ("x", "y")]
 ODEF_XY = [f"odef{j}_{a}" for j in range(1, 5) for a in ("x", "y")]
@@ -319,6 +324,23 @@ def feature_frame(panel: pd.DataFrame, n_lags: int = N_LAGS) -> pd.DataFrame:
     frame["heldout"] = panel["heldout"].to_numpy()[keep] if "heldout" in panel.columns else False
     schema.assert_time_forward(frame, "states_1hz")
     return frame
+
+
+def feature_frame_columns(n_lags: int = N_LAGS) -> list[str]:
+    """The columns feature_frame returns, in order."""
+    return [c for c in ID_COLUMNS if c != "panel_row"] + ["panel_row"] + window_columns(n_lags) + TARGETS + ["heldout"]
+
+
+def fit_rows(frame: pd.DataFrame) -> pd.DataFrame:
+    """The rows the candidates are fitted on: feature-frame rows whose step is a multiple of FIT_EVERY (every 5th
+    sampled step of a possession sequence, so 1 Hz: steps 5, 10, 15, ...). Columns: sportvu_game, the window
+    columns and the targets as FIT_DTYPE, then heldout. Evaluation is unchanged: it scores every 5 Hz row."""
+    keep = (frame["step"].to_numpy() % FIT_EVERY) == 0
+    cols = window_columns() + TARGETS
+    out = pd.DataFrame(frame.loc[keep, cols].to_numpy(dtype=FIT_DTYPE), columns=cols)
+    out.insert(0, "sportvu_game", frame["sportvu_game"].to_numpy()[keep])
+    out["heldout"] = frame["heldout"].to_numpy()[keep].astype(bool) if "heldout" in frame.columns else False
+    return out
 
 
 def shift_features_forward(frame: pd.DataFrame, n_lags: int = N_LAGS) -> pd.DataFrame:

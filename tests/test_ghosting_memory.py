@@ -103,14 +103,17 @@ def test_ghosting_lane_holds_one_games_frames_at_a_time(tmp_path, probe):
 
     ctx = T.main(["--data", str(root), "--out", str(out), "--report", str(out / "ghosting.md"), "--folds", "2",
                   "--bootstrap", "5", "--skip-heldout"])
-    assert ctx["train_games"] == sorted(ids) and len(ctx["ghost_frames"]) > 0
+    assert ctx["train_games"] == sorted(ids) and ctx["ghost_frames_rows"] > 0
+    # the real-data path keeps no error rows, no feature frame and no ghost_frames in memory
+    assert not ctx["keep_rows"] and ctx["errors"] is None and ctx["frame"] is None and ctx["ghost_frames"] is None
+    assert len(list((out / "analytics" / "ghosting" / V.SEASON).glob("ghost_frames_*.parquet"))) == len(ids)
     # every checkpoint ran, and no fit ever saw a game's frames alive
     wheres = {w for w, _ in probe["at"]}
     assert wheres == {"before frames read", "panel build", "fit"}
     assert all(n == 0 for w, n in probe["at"] if w in ("before frames read", "fit")), probe["at"]
     assert probe["max"] <= 1, probe["at"]
-    # each command reads each game's frames once: validate, features, train
-    assert probe["reads"] == 3 * len(ids)
+    # frames reads per game: validate 1, features 1, train 2 (the fit-row pass while loading, then the 5 Hz scoring)
+    assert probe["reads"] == 4 * len(ids)
 
 
 def test_lazy_and_eager_frames_give_the_same_panel(tmp_path):
