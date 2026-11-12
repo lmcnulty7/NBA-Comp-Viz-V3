@@ -31,7 +31,9 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** see the stage 5 phase 2 entry below once it starts.
+- **Background jobs:** stage 5 phase 2 (matchups, gravity, ghosting, embeddings) with --skip-heldout, started
+  2026-11-11 16:58, caffeinate PID 4189, log logs/loop/stage5_phase2.log, step logs in logs/run_all/. Embeddings
+  runs without the NBA.com aggregate block (gate open) and reruns if those tables arrive.
 - **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
   xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
