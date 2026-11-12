@@ -37,10 +37,9 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting (started 00:06,
-  train running at 01:06, 2.2 GB footprint, logs/loop/stage5_ghosting.log), then lineups
-  (logs/loop/stage5_lineups.log), then winprob (logs/loop/stage5_winprob.log), then stage 6 epv with the torch
-  GRU (logs/loop/stage6_epv_torch.log).
+- **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting and
+  lineups done; winprob running from 01:21 (logs/loop/stage5_winprob.log), then stage 6 epv with the torch GRU
+  (logs/loop/stage6_epv_torch.log), then stage 6 ghosting with the torch GRU (logs/loop/stage6_ghosting_torch.log).
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
   whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
   public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test
