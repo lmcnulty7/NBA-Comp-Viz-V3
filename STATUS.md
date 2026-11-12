@@ -31,7 +31,10 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** none.
+- **Background jobs:** stage 5 phase 1 (xfg, rebounds) with --skip-heldout, then the xfg baseline
+  (analytics.train_xfg --skip-heldout), started 2026-11-11 16:17, PID 48469 (caffeinate wrapper), log
+  logs/loop/stage5_phase1.log, step logs in logs/run_all/. Phases 1 and 2 do not need the labels, so they run
+  while stage 4 labelling goes on; phase 3 waits for gates/labels-done.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
