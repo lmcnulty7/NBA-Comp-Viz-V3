@@ -4,7 +4,8 @@
         [--folds 5] [--seed 0] [--bootstrap 200] [--out OUT_ROOT] [--threads 1] [--skip-heldout]
         [--fixture-games 4] [--fixture-possessions 10] [--fixture-heldout-every 0]
 
-Steps: load and validate the games (analytics.ghosting.validate); set every held-out game aside (its own
+Steps: load and validate the games one at a time, building each game's panel while its frames are in memory
+(analytics.ghosting.features.load_games); set every held-out game aside (its own
 heldout flag, or analytics.eval.is_heldout_game on its id); call
 analytics.eval.refuse_heldout on the training game ids; build the 5 Hz panel and the feature frame
 (analytics.ghosting.features, which runs schema.assert_time_forward); fit the candidates under grouped
@@ -527,7 +528,7 @@ def main(argv=None) -> dict:
     """CLI: run the protocol, write the report and the per-game tables (under --out, else DATA_ROOT); returns ctx."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
-    games = V.load_games(a)
+    games = F.load_games(a)          # panels built game by game; frames are never all in memory
     ctx = run(games, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, threads=max(int(a.threads), 1),
               skip_heldout=a.skip_heldout, deep=a.deep)
     cmd = "python -m analytics.ghosting.train " + " ".join(argv if argv is not None else sys.argv[1:])

@@ -23,6 +23,12 @@ Checks (counts are logged with the ``analytics.ghosting`` logger and returned):
 
 Nothing here fits anything. ``load_games`` returns the cleaned tables; the trainer calls refuse_heldout on
 the training ids itself.
+
+Memory: a real season is about 620 games of about 780,000 frame rows each, far more than RAM. So
+``iter_data_root`` gives each game's frames as a zero-argument loader, not a table, and ``load_games`` reads
+one game's frames at a time: it cleans them, hands them to an optional ``on_frames(game, frames)`` hook (the
+features module builds the game's panel there) and drops them before the next game. Afterwards the dict
+holds a loader of the cleaned frames. Fixture games carry their frames as tables; ``frames_of`` reads either.
 """
 from __future__ import annotations
 
@@ -95,17 +101,34 @@ def check_rosters(rosters: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     return rosters.loc[~dup].reset_index(drop=True), counts
 
 
-def validate_game(game: dict) -> dict:
-    """Clean the tables of one game dict in place and return its counts."""
-    frames, fc = check_frames(game["frames"])
+def frames_of(game: dict) -> pd.DataFrame:
+    """A game's frames: the table itself, or the result of calling its loader (one read per call)."""
+    f = game["frames"]
+    return f() if callable(f) else f
+
+
+def _cleaned_loader(load):
+    """A loader that reads one game's frames again and cleans them (check_frames is idempotent)."""
+    return lambda: check_frames(load())[0]
+
+
+def validate_game(game: dict, on_frames=None) -> dict:
+    """Clean the tables of one game dict in place and return its counts. A frames table is replaced by the
+    cleaned table; a frames loader is read once here and replaced by a loader of the cleaned frames, so the
+    frames are not kept. ``on_frames(game, frames)``, when given, sees the cleaned frames first."""
+    raw = game["frames"]
+    frames, fc = check_frames(frames_of(game))
     poss, pc = check_possessions(game["possessions"], frames)
-    game["frames"], game["possessions"] = frames, poss
+    game["frames"] = _cleaned_loader(raw) if callable(raw) else frames
+    game["possessions"] = poss
     rep = {"sportvu_game": game["sportvu_game"], "heldout": bool(game["heldout"]), "frames": fc, "possessions": pc}
     if game.get("rosters") is not None:
         game["rosters"], rep["rosters"] = check_rosters(game["rosters"])
     for table, c in rep.items():
         if isinstance(c, dict):
             log.info("%s %s: %s", game["sportvu_game"], table, json.dumps(c))
+    if on_frames is not None:
+        on_frames(game, frames)
     return rep
 
 
@@ -134,8 +157,14 @@ def fixture_games(seed: int = 0, n_games: int = 4, n_possessions: int = 10, held
     return out
 
 
+def _parquet_loader(path: Path):
+    """A zero-argument loader of one parquet file, read on each call."""
+    return lambda: pd.read_parquet(path)
+
+
 def iter_data_root(data_root, season: str = SEASON) -> list[dict]:
-    """Game dicts from the DATA_ROOT layout; a game is kept when it has frames and possessions."""
+    """Game dicts from the DATA_ROOT layout; a game is kept when it has frames and possessions. ``frames`` is a
+    loader (call it, or use frames_of), so no frames are read here; possessions and rosters are small and read."""
     root = Path(data_root)
     out = []
     for sub, held in (("", False), ("heldout", True)):
@@ -160,14 +189,15 @@ def iter_data_root(data_root, season: str = SEASON) -> list[dict]:
             if not rp.exists():
                 rp = schema.table_path(root / "analytics", "rosters", season, gid, heldout=not heldout)
             heldout = heldout or (rp.exists() and "heldout" in rp.parts)
-            out.append({"sportvu_game": gid, "heldout": heldout, "frames": pd.read_parquet(p),
+            out.append({"sportvu_game": gid, "heldout": heldout, "frames": _parquet_loader(p),
                         "possessions": pd.read_parquet(pp), "rosters": pd.read_parquet(rp) if rp.exists() else None,
                         "source": str(p)})
     return out
 
 
-def load_games(args) -> list[dict]:
-    """The games a CLI run works on, cleaned by validate_game. ``args`` carries add_input_args' flags."""
+def load_games(args, on_frames=None) -> list[dict]:
+    """The games a CLI run works on, cleaned by validate_game one game at a time (``on_frames`` is passed on).
+    ``args`` carries add_input_args' flags."""
     if getattr(args, "fixtures", False):
         games = fixture_games(seed=args.seed, n_games=args.fixture_games, n_possessions=args.fixture_possessions,
                               heldout_every=args.fixture_heldout_every)
@@ -176,7 +206,7 @@ def load_games(args) -> list[dict]:
     else:
         raise SystemExit("give --fixtures or --data DATA_ROOT")
     for g in games:
-        g["validation"] = validate_game(g)
+        g["validation"] = validate_game(g, on_frames)
     return games
 
 

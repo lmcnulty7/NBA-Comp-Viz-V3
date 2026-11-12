@@ -2,7 +2,7 @@
 
 Defensive ghosting: where a defender would have been, given what everyone else did. The one deep model
 of the plan, kept only if it beats the linear baseline under a paired bootstrap by game. Code:
-`analytics/ghosting/{validate,features,train,eda}.py`; tests: `tests/test_ghosting.py`; report:
+`analytics/ghosting/{validate,features,train,eda}.py`; tests: `tests/test_ghosting.py`, `tests/test_ghosting_memory.py`; report:
 `reports/ghosting.md`; EDA: `notebooks/eda_ghosting.ipynb`.
 
 ## Unit, sampling, assignment
@@ -153,7 +153,13 @@ assignments than the ghost allows more points.
 `DATA_ROOT/sportvu_contract/<game>.parquet` (frames; held-out under `heldout/`) and
 `DATA_ROOT/analytics/possessions/2015-16/<game>.parquet` (held-out under `heldout/2015-16/`) are the inputs;
 rosters are read when present and checked but not needed. A game read from any `heldout/` path is held out
-whatever its id. `--out` defaults to DATA_ROOT; the Mac command is `--out "<Drive>/nba_harvest"`. Fixture runs print and write "fixture output,
+whatever its id. Frames are read one game at a time: each game's frames are read, checked and turned into
+that game's 5 Hz panel, then dropped before the next game is read, so a run holds one game's frames plus the
+per-game panels (a full season's frames do not fit in memory; `tests/test_ghosting_memory.py` checks this).
+`features` keeps nothing between games: it writes each game's feature frame and drops it. `train` still holds
+every game's panel and the whole feature frame, measured at about 18 MB and 75 MB per real game, so a
+600-game train needs far more than 16 GB; that is an open item, not solved by the per-game loading.
+`--out` defaults to DATA_ROOT; the Mac command is `--out "<Drive>/nba_harvest"`. Fixture runs print and write "fixture output,
 not a result".
 
 Fixture flags (every ghosting CLI): `--fixture-games 4`, `--fixture-possessions 10` (at least 4),

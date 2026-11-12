@@ -43,6 +43,11 @@ Nothing measured at t or later enters the features; ``schema.assert_time_forward
 returned, and ``shift_features_forward`` is the leakage probe the tests use (it moves every window one
 step later, so the lag-1 block is measured at the target frame; a linear model then recovers the target
 exactly and the error collapses).
+
+Memory: ``load_games`` builds each game's panel in the same pass that reads and cleans its frames
+(validate.load_games with the ``attach_panel`` hook), so only one game's frames are in memory at a time;
+``build_panel`` then uses those panels. A game dict without a panel is built from its frames, read one game
+at a time. The CLI goes further: it writes each game's feature frame inside that pass and keeps nothing.
 """
 from __future__ import annotations
 
@@ -244,12 +249,28 @@ def build_panel_game(frames: pd.DataFrame, possessions: pd.DataFrame, sportvu_ga
     return panel, counts
 
 
+def attach_panel(game: dict, frames: pd.DataFrame) -> None:
+    """validate.load_games' on_frames hook: build the game's panel from its cleaned frames and keep it on the
+    dict (``panel``, ``panel_counts``), so the frames can be dropped."""
+    game["panel"], game["panel_counts"] = build_panel_game(frames, game["possessions"], game["sportvu_game"])
+
+
+def load_games(args) -> list[dict]:
+    """validate.load_games with each game's panel built while its frames are in memory, one game at a time."""
+    return V.load_games(args, on_frames=attach_panel)
+
+
 def build_panel(games: list[dict]) -> tuple[pd.DataFrame, dict]:
     """Panel over game dicts (sportvu_game, frames, possessions, heldout) -> (panel with a heldout column,
-    {game: counts}). ``panel_row`` is the row position, the key the roll-forward uses."""
+    {game: counts}). ``panel_row`` is the row position, the key the roll-forward uses. A panel kept on a dict
+    by attach_panel is used and taken off the dict (so it is not held twice); otherwise the game's frames are
+    read and the panel built, one game at a time."""
     parts, counts = [], {}
     for g in games:
-        p, c = build_panel_game(g["frames"], g["possessions"], g["sportvu_game"])
+        if g.get("panel") is not None:
+            p, c = g.pop("panel"), g["panel_counts"]
+        else:
+            p, c = build_panel_game(V.frames_of(g), g["possessions"], g["sportvu_game"])
         p["heldout"] = bool(g.get("heldout", False))
         parts.append(p)
         counts[g["sportvu_game"]] = c
@@ -333,29 +354,41 @@ def parse_args(argv=None):
 
 
 def main(argv=None) -> dict:
-    """CLI: build the panel and the feature frame, print the counts, write ghost_features per game under --out."""
+    """CLI: build the panel and the feature frame, print the counts, write ghost_features per game under --out.
+    Streams: each game's panel and feature frame are built, written and dropped while its frames are in memory
+    (the feature frame is per sequence, so this matches one frame over all games; panel_row stays global)."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     a = parse_args(argv)
-    games = V.load_games(a)
-    panel, frame, counts = build(games)
+    out_root = a.out or a.data
+    counts, rows, written, offset = {}, {}, [], [0]
+
+    def one_game(g, frames):
+        p, c = build_panel_game(frames, g["possessions"], g["sportvu_game"])
+        log.info("%s panel: %s", g["sportvu_game"], c)
+        p["heldout"] = bool(g.get("heldout", False))
+        p["panel_row"] = offset[0] + np.arange(len(p))
+        offset[0] += len(p)
+        frame = feature_frame(p)
+        counts[g["sportvu_game"]], rows[g["sportvu_game"]] = c, int(len(frame))
+        if out_root:
+            path = V.output_path(out_root, "ghost_features", g["sportvu_game"], g["heldout"], V.SEASON)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            frame.to_parquet(path, index=False)
+            written.append(path)
+
+    games = V.load_games(a, on_frames=one_game)
     print("features (%d, lag 1): %s" % (len(BASE_FEATURES), ", ".join(BASE_FEATURES)))
     print("window columns: %d (%d lags)" % (len(window_columns()), N_LAGS))
     print("| game | held out | possessions | used | skipped gap | skipped no offence | skipped short | skipped lineup | steps | feature rows |")
     print("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
-    rows_by_game = frame.groupby("sportvu_game").size() if len(frame) else pd.Series(dtype=int)
     for g in games:
         c = counts[g["sportvu_game"]]
         print("| %s | %s | %d | %d | %d | %d | %d | %d | %d | %d |" % (
             g["sportvu_game"], g["heldout"], c["possessions"], c["used"], c["skipped_gap"], c["skipped_no_offense"],
-            c["skipped_short"], c["skipped_lineup"], c["steps"], int(rows_by_game.get(g["sportvu_game"], 0))))
-    out_root = a.out or a.data
-    if out_root:
-        for g in games:
-            p = V.output_path(out_root, "ghost_features", g["sportvu_game"], g["heldout"], V.SEASON)
-            p.parent.mkdir(parents=True, exist_ok=True)
-            frame[frame["sportvu_game"] == g["sportvu_game"]].to_parquet(p, index=False)
-            print("wrote", p)
-    return {"rows": int(len(frame)), "counts": counts}
+            c["skipped_short"], c["skipped_lineup"], c["steps"], rows[g["sportvu_game"]]))
+    for p in written:
+        print("wrote", p)
+    return {"rows": int(sum(rows.values())), "counts": counts}
 
 
 if __name__ == "__main__":
