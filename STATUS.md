@@ -143,9 +143,14 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 
 | load | 8 min, 1.7 GB | ridge (decline), logistic (absence) | decline MSE 0.4929 [0.4740, 0.5178] vs mean 0.5086; absence log loss 0.2764 [0.2644, 0.2883] vs base 0.3244, slope 0.99 | rest days show no clear effect on decline (back-to-back -0.48, one day -0.44, two plus -0.46 ft/s); the player ranking gate counts stints, not games, so two 2-game players lead it; no tracking aggregates (NBA.com skipped) |
 
-Failed at validate on real data, being fixed (2026-11-11): lineups ("no stints rows found": run_all runs
-validate before the stints step, and every lineups step reads stints from collect/stints/stints/ while the
-stints step writes OUT_ROOT/analytics/lineups/<season>/stints.parquet) and winprob (4,388 play-by-play events
+lineups fixed (536a3c4, tests): run_all now runs stints before validate, and every step reads the stints the
+stints step built; running it on real data also found shooting, personal and take fouls filed under the fouled
+team in the basketball-reference play-by-play (the fouler landed in the opponent's lineup: 53 percent of stints
+were 5v5) and starter names not matching the play-by-play (suffixes like Jr., and UTF-8 read as Latin-1); after
+both fixes 95.5 percent of 2020-21 stints are 5v5. Open, not fixed: players are keyed by a hash of the
+abbreviated play-by-play name, so players sharing an abbreviation (several "J. Green") share one key and
+corrupt their RAPM; fixing it needs a player id or slug join the play-by-play lacks. Scratch real-data run: all
+steps ok in 200 s, 2.6 GB. Full run queued after ghosting. Failed at validate on real data, being fixed: winprob (4,388 play-by-play events
 with a clock outside the period or no period). Each is on its own worktree branch with a test. winprob's trainer
 sets the whole 2024-25 season aside (--heldout-season 2024-25); validate's heldout_rows 0 only counts row flags.
 Also fixed: epv train wrote no tables on real data (out_root None without --out), so decisions would have run
