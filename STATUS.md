@@ -31,9 +31,16 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** stage 5 phase 2 (matchups, gravity, ghosting, embeddings) with --skip-heldout, started
-  2026-11-11 16:58, caffeinate PID 4189, log logs/loop/stage5_phase2.log, step logs in logs/run_all/. Embeddings
-  runs without the NBA.com aggregate block (gate open) and reruns if those tables arrive.
+- **Background jobs:** none.
+- **Stage 5 phase 2 FAILED (2026-11-11 16:56):** `run_all.py --phase 2 --skip-heldout` was killed after about
+  30 s with exit 137 (SIGKILL, out of memory on this 16 GB Mac) inside matchups validate, before any step log was
+  written (logs/loop/stage5_phase2.log: "note: matchups depends on xfg, not selected; their outputs must already
+  exist", then "exit=137"). Cause: analytics/matchups/validate.py load_games reads the frames of every game (621
+  games, about 480 million frame rows) into one list before any work. gravity (validate.load_data_root) and
+  ghosting (validate.iter_data_root) build the same all-games list; embeddings, epv, actions, coverage,
+  decisions and playcalling are being checked. Only xfg, rebounds and load stream one game at a time. The lanes
+  were only ever run on fixture seasons, so the tests never saw it. Fix: stream frames game by game in each
+  lane, with a test that the loader never holds more than one game's frames; phase 2 reruns after.
 - **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
   xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
