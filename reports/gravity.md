@@ -1,167 +1,69 @@
-# Gravity and spacing (analytics/gravity) (fixture output, not a result)
+# Gravity and spacing (analytics/gravity)
 
-Written 2026-11-07T08:42:42Z by `python -m analytics.gravity.train --fixtures --report reports/gravity.md --folds 5 --seed 0 --bootstrap 200`.
+**Real data, training folds only; held-out not scored.** Stage 5 phase 2 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
 
-**Every number below is fixture output, not a result**: the inputs are synthetic games from `analytics.fixtures` with two planted high-gravity players per game, used to exercise the pipeline. The real run is the Mac command at the end.
+Written 2026-11-12T02:00:00Z by `python -m analytics.gravity.train --data /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest --seed 0 --report /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/gravity.md --skip-heldout`.
 
-## Protocol (fixture output, not a result)
+## Protocol
 
 Unit: player-frame at 1 Hz inside possessions. Target: nearest-defender distance (ft). Features: x_ft, y_ft, dist_basket_ft, angle_rad, dist_ball_ft, has_ball, ball_dist_basket_ft, zone_make_rate, game_clock_s, shot_clock_s, shot_clock_missing.
 Shooting prior: the league make rate by zone of the player's position (zones rim, paint, short_mid, long_mid, three), from training-fold shots only; nothing in the features identifies a player. Gravity sign: `gravity_ft = expected_ft - nearest_def_dist_ft` (positive: defenders closer than location predicts). Shipped expectation: ridge (see the candidate table for why).
 
-## Inputs (fixture output, not a result)
+## Inputs
 
 | games | training | held-out | player-frames (train) | spacing frames (train) | shots (train) |
 | --- | --- | --- | --- | --- | --- |
-| 8 | 6 | 2 | 14795 | 2959 | 243 |
+| 621 | 604 | 17 | 7983660 | 1596732 | 101531 |
 
-Training games: 02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL. Held-out games set aside before any fit: 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW.
-Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `schema.assert_time_forward` passed on the feature frame.
-Sampling: 2959 frames sampled at 1 Hz inside possessions, 2959 kept (not ten players: 0, no ball: 0, degenerate hull: 0).
-Validation counts: 0 schema problem(s), dropped rows {"frames_duplicate_frame_player": 0, "frames_null_xy": 0, "possessions_duplicate": 0, "rosters_duplicate_player": 0}.
+Training games: 01.01.2016.CHA.at.TOR, 01.01.2016.DAL.at.MIA, 01.01.2016.NYK.at.CHI, 01.01.2016.ORL.at.WAS, 01.01.2016.PHI.at.LAL, 01.02.2016.BKN.at.BOS, 01.02.2016.DEN.at.GSW, 01.02.2016.DET.at.IND, 01.02.2016.HOU.at.SAS, 01.02.2016.MEM.at.UTA, 01.02.2016.MIL.at.MIN, 01.02.2016.NOP.at.DAL, 01.02.2016.OKC.at.CHA, 01.02.2016.PHI.at.LAC, 01.02.2016.PHX.at.SAC, 01.03.2016.ATL.at.NYK, 01.03.2016.CHI.at.TOR, 01.03.2016.MIA.at.WAS, 01.03.2016.PHX.at.LAL, 01.03.2016.POR.at.DEN, 01.04.2016.BOS.at.BKN, 01.04.2016.CHA.at.GSW, 01.04.2016.HOU.at.UTA, 01.04.2016.IND.at.MIA, 01.04.2016.MEM.at.POR, 01.04.2016.MIN.at.PHI, 01.04.2016.ORL.at.DET, 01.04.2016.SAC.at.OKC, 01.04.2016.SAS.at.MIL, 01.05.2016.GSW.at.LAL, 01.05.2016.MIL.at.CHI, 01.05.2016.NYK.at.ATL, 01.05.2016.SAC.at.DAL, 01.06.2016.CHA.at.PHX, 01.06.2016.CLE.at.WAS, 01.06.2016.DAL.at.NOP, 01.06.2016.DEN.at.MIN, 01.06.2016.DET.at.BOS, 01.06.2016.IND.at.ORL, 01.06.2016.LAC.at.POR, 01.06.2016.MEM.at.OKC, 01.06.2016.NYK.at.MIA, 01.06.2016.TOR.at.BKN, 01.06.2016.UTA.at.SAS, 01.07.2016.ATL.at.PHI, 01.07.2016.BOS.at.CHI, 01.07.2016.LAL.at.SAC, 01.07.2016.UTA.at.HOU, 01.08.2016.CLE.at.MIN, 01.08.2016.DAL.at.MIL, 01.08.2016.DEN.at.MEM, 01.08.2016.GSW.at.POR, 01.08.2016.IND.at.NOP, 01.08.2016.MIA.at.PHX, 01.08.2016.NYK.at.SAS, 01.08.2016.OKC.at.LAL, 01.08.2016.ORL.at.BKN, 01.08.2016.TOR.at.WAS, 01.09.2016.BKN.at.DET, 01.09.2016.CHA.at.LAC, 01.09.2016.CHI.at.ATL, 01.09.2016.GSW.at.SAC, 01.09.2016.MIA.at.UTA, 01.09.2016.TOR.at.PHI, 01.09.2016.WAS.at.ORL, 01.10.2016.BOS.at.MEM, 01.10.2016.CHA.at.DEN, 01.10.2016.CLE.at.PHI, 01.10.2016.DAL.at.MIN, 01.10.2016.IND.at.HOU, 01.10.2016.MIL.at.NYK, 01.10.2016.NOP.at.LAC, 01.10.2016.OKC.at.POR, 01.10.2016.UTA.at.LAL, 01.11.2016.MIA.at.GSW, 01.11.2016.SAS.at.BKN, 01.11.2016.WAS.at.CHI, 01.12.2016.BOS.at.NYK, 01.12.2016.CHI.at.MIL, 01.12.2016.CLE.at.DAL, 01.12.2016.HOU.at.MEM, 01.12.2016.NOP.at.LAL, 01.12.2016.OKC.at.MIN, 01.12.2016.PHX.at.IND, 01.12.2016.SAS.at.DET, 01.13.2016.ATL.at.CHA, 01.13.2016.DAL.at.OKC, 01.13.2016.GSW.at.DEN, 01.13.2016.IND.at.BOS, 01.13.2016.MIA.at.LAC, 01.13.2016.MIL.at.WAS, 01.13.2016.MIN.at.HOU, 01.13.2016.NOP.at.SAC, 01.13.2016.NYK.at.BKN, 01.13.2016.UTA.at.POR, 01.14.2016.LAL.at.GSW, 01.14.2016.SAC.at.UTA, 01.15.2016.ATL.at.MIL, 01.15.2016.CHA.at.NOP, 01.15.2016.CLE.at.HOU, 01.15.2016.DAL.at.CHI, 01.15.2016.MIA.at.DEN, 01.15.2016.MIN.at.OKC, 01.15.2016.PHX.at.BOS, 01.15.2016.POR.at.BKN, 01.15.2016.WAS.at.IND, 01.18.2016.BKN.at.TOR, 01.18.2016.BOS.at.DAL, 01.18.2016.CHI.at.DET, 01.18.2016.HOU.at.LAC, 01.18.2016.NOP.at.MEM, 01.18.2016.ORL.at.ATL, 01.18.2016.PHI.at.NYK, 01.18.2016.POR.at.WAS, 01.18.2016.UTA.at.CHA, 01.19.2016.IND.at.PHX, 01.19.2016.MIL.at.MIA, 01.19.2016.MIN.at.NOP, 01.19.2016.OKC.at.DEN, 01.20.2016.ATL.at.POR, 01.20.2016.BOS.at.TOR, 01.20.2016.CHA.at.OKC, 01.20.2016.CLE.at.BKN, 01.20.2016.DET.at.HOU, 01.20.2016.GSW.at.CHI, 01.20.2016.MIA.at.WAS, 01.20.2016.MIN.at.DAL, 01.20.2016.PHI.at.ORL, 01.20.2016.SAC.at.LAL, 01.20.2016.UTA.at.NYK, 01.21.2016.DET.at.NOP, 01.21.2016.MEM.at.DEN, 01.22.2016.CHA.at.ORL, 01.22.2016.CHI.at.BOS, 01.22.2016.IND.at.GSW, 01.22.2016.LAC.at.NYK, 01.22.2016.MIA.at.TOR, 01.22.2016.MIL.at.HOU, 01.22.2016.OKC.at.DAL, 01.22.2016.SAS.at.LAL, 01.22.2016.UTA.at.BKN, 01.23.2016.ATL.at.PHX, 01.23.2016.DET.at.DEN, 01.23.2016.IND.at.SAC, 01.23.2016.LAL.at.POR, 01.23.2016.MEM.at.MIN, 01.23.2016.MIL.at.NOP, 01.23.2016.NYK.at.CHA, 10.27.2015.CLE.at.CHI, 10.27.2015.DET.at.ATL, 10.27.2015.NOP.at.GSW, 10.28.2015.CLE.at.MEM, 10.28.2015.DEN.at.HOU, 10.28.2015.IND.at.TOR, 10.28.2015.LAC.at.SAC, 10.28.2015.MIN.at.LAL, 10.28.2015.NOP.at.POR, 10.28.2015.NYK.at.MIL, 10.28.2015.PHI.at.BOS, 10.28.2015.SAS.at.OKC, 10.28.2015.UTA.at.DET, 10.28.2015.WAS.at.ORL, 10.29.2015.ATL.at.NYK, 10.29.2015.DAL.at.LAC, 10.29.2015.MEM.at.IND, 10.30.2015.BKN.at.SAS, 10.30.2015.CHA.at.ATL, 10.30.2015.CHI.at.DET, 10.30.2015.LAL.at.SAC, 10.30.2015.MIN.at.DEN, 10.30.2015.OKC.at.ORL, 10.30.2015.POR.at.PHX, 10.30.2015.TOR.at.BOS, 10.30.2015.UTA.at.PHI, 10.30.2015.WAS.at.MIL, 10.31.2015.BKN.at.MEM, 10.31.2015.GSW.at.NOP, 10.31.2015.NYK.at.WAS, 10.31.2015.PHX.at.POR, 10.31.2015.SAC.at.LAC, 10.31.2015.UTA.at.IND, 11.01.2015.ATL.at.CHA, 11.01.2015.DAL.at.LAL, 11.01.2015.DEN.at.OKC, 11.01.2015.HOU.at.MIA, 11.01.2015.MIL.at.TOR, 11.01.2015.ORL.at.CHI, 11.01.2015.SAS.at.BOS, 11.02.2015.CLE.at.PHI, 11.02.2015.MEM.at.GSW, 11.02.2015.MIL.at.BKN, 11.02.2015.OKC.at.HOU, 11.02.2015.PHX.at.LAC, 11.02.2015.POR.at.MIN, 11.02.2015.SAS.at.NYK, 11.03.2015.ATL.at.MIA, 11.03.2015.CHI.at.CHA, 11.03.2015.DEN.at.LAL, 11.03.2015.IND.at.DET, 11.03.2015.MEM.at.SAC, 11.03.2015.ORL.at.NOP, 11.03.2015.TOR.at.DAL, 11.04.2015.BKN.at.ATL, 11.04.2015.BOS.at.IND, 11.04.2015.LAC.at.GSW, 11.04.2015.ORL.at.HOU, 11.04.2015.PHI.at.MIL, 11.04.2015.POR.at.UTA, 11.04.2015.SAC.at.PHX, 11.04.2015.SAS.at.WAS, 11.04.2015.TOR.at.OKC, 11.05.2015.CHA.at.DAL, 11.05.2015.MEM.at.POR, 11.05.2015.MIA.at.MIN, 11.05.2015.OKC.at.CHI, 11.05.2015.UTA.at.DEN, 11.06.2015.ATL.at.NOP, 11.06.2015.DEN.at.GSW, 11.06.2015.DET.at.PHX, 11.06.2015.HOU.at.SAC, 11.06.2015.LAL.at.BKN, 11.06.2015.MIA.at.IND, 11.06.2015.MIL.at.NYK, 11.06.2015.TOR.at.ORL, 11.06.2015.WAS.at.BOS, 11.07.2015.BKN.at.MIL, 11.07.2015.CHA.at.SAS, 11.07.2015.GSW.at.SAC, 11.07.2015.HOU.at.LAC, 11.07.2015.MEM.at.UTA, 11.07.2015.MIN.at.CHI, 11.07.2015.NOP.at.DAL, 11.07.2015.ORL.at.PHI, 11.07.2015.WAS.at.ATL, 11.08.2015.DET.at.POR, 11.08.2015.LAL.at.NYK, 11.08.2015.PHX.at.OKC, 11.08.2015.TOR.at.MIA, 11.09.2015.DET.at.GSW, 11.09.2015.MEM.at.LAC, 11.09.2015.MIN.at.ATL, 11.09.2015.ORL.at.IND, 11.09.2015.POR.at.DEN, 11.09.2015.SAS.at.SAC, 11.10.2015.BOS.at.MIL, 11.10.2015.CHA.at.MIN, 11.10.2015.DAL.at.NOP, 11.10.2015.LAL.at.MIA, 11.10.2015.NYK.at.TOR, 11.10.2015.OKC.at.WAS, 11.11.2015.BKN.at.HOU, 11.11.2015.DET.at.SAC, 11.11.2015.GSW.at.MEM, 11.11.2015.IND.at.BOS, 11.11.2015.LAC.at.DAL, 11.11.2015.LAL.at.ORL, 11.11.2015.MIL.at.DEN, 11.11.2015.NOP.at.ATL, 11.11.2015.NYK.at.CHA, 11.11.2015.SAS.at.POR, 11.11.2015.TOR.at.PHI, 11.12.2015.GSW.at.MIN, 11.12.2015.LAC.at.PHX, 11.12.2015.UTA.at.MIA, 11.13.2015.ATL.at.BOS, 11.13.2015.BKN.at.SAC, 11.13.2015.CHA.at.CHI, 11.13.2015.CLE.at.NYK, 11.13.2015.HOU.at.DEN, 11.13.2015.LAL.at.DAL, 11.13.2015.MIN.at.IND, 11.13.2015.NOP.at.TOR, 11.13.2015.PHI.at.OKC, 11.13.2015.POR.at.MEM, 11.13.2015.UTA.at.ORL, 11.14.2015.BKN.at.GSW, 11.14.2015.CLE.at.MIL, 11.14.2015.DAL.at.HOU, 11.14.2015.DEN.at.PHX, 11.14.2015.DET.at.LAC, 11.14.2015.ORL.at.WAS, 11.14.2015.PHI.at.SAS, 11.15.2015.BOS.at.OKC, 11.15.2015.DET.at.LAL, 11.15.2015.MEM.at.MIN, 11.15.2015.NOP.at.NYK, 11.15.2015.POR.at.CHA, 11.15.2015.TOR.at.SAC, 11.15.2015.UTA.at.ATL, 11.16.2015.BOS.at.HOU, 11.16.2015.DAL.at.PHI, 11.16.2015.IND.at.CHI, 11.16.2015.LAL.at.PHX, 11.16.2015.OKC.at.MEM, 11.16.2015.POR.at.SAS, 11.17.2015.ATL.at.BKN, 11.17.2015.CHA.at.NYK, 11.17.2015.CLE.at.DET, 11.17.2015.DEN.at.NOP, 11.17.2015.MIL.at.WAS, 11.17.2015.MIN.at.MIA, 11.17.2015.TOR.at.GSW, 11.18.2015.BKN.at.CHA, 11.18.2015.CHI.at.PHX, 11.18.2015.DAL.at.BOS, 11.18.2015.DEN.at.SAS, 11.18.2015.IND.at.PHI, 11.18.2015.MIN.at.ORL, 11.18.2015.NOP.at.OKC, 11.18.2015.POR.at.HOU, 11.18.2015.SAC.at.ATL, 11.18.2015.TOR.at.UTA, 11.19.2015.GSW.at.LAC, 11.19.2015.SAC.at.MIA, 11.20.2015.BKN.at.BOS, 11.20.2015.CHI.at.GSW, 11.20.2015.DET.at.MIN, 11.20.2015.HOU.at.MEM, 11.20.2015.LAC.at.POR, 11.20.2015.NYK.at.OKC, 11.20.2015.PHI.at.CHA, 11.20.2015.PHX.at.DEN, 11.20.2015.SAS.at.NOP, 11.20.2015.TOR.at.LAL, 11.20.2015.UTA.at.DAL, 11.21.2015.MEM.at.SAS, 11.21.2015.MIL.at.IND, 11.21.2015.NYK.at.HOU, 11.21.2015.PHI.at.MIA, 11.21.2015.SAC.at.ORL, 11.21.2015.WAS.at.DET, 11.22.2015.BOS.at.BKN, 11.22.2015.DAL.at.OKC, 11.22.2015.GSW.at.DEN, 11.22.2015.PHX.at.NOP, 11.22.2015.POR.at.LAL, 11.22.2015.TOR.at.LAC, 11.23.2015.DET.at.MIL, 11.23.2015.NYK.at.MIA, 11.23.2015.OKC.at.UTA, 11.23.2015.PHI.at.MIN, 11.23.2015.PHX.at.SAS, 11.23.2015.SAC.at.CHA, 11.24.2015.BOS.at.ATL, 11.24.2015.CHI.at.POR, 11.24.2015.DAL.at.MEM, 11.24.2015.IND.at.WAS, 11.24.2015.LAC.at.DEN, 11.24.2015.LAL.at.GSW, 11.25.2015.ATL.at.MIN, 11.25.2015.BKN.at.OKC, 11.25.2015.CLE.at.TOR, 11.25.2015.DAL.at.SAS, 11.25.2015.MEM.at.HOU, 11.25.2015.MIA.at.DET, 11.25.2015.NOP.at.PHX, 11.25.2015.NYK.at.ORL, 11.25.2015.PHI.at.BOS, 11.25.2015.SAC.at.MIL, 11.25.2015.UTA.at.LAC, 11.25.2015.WAS.at.CHA, 11.27.2015.ATL.at.MEM, 11.27.2015.CHI.at.IND, 11.27.2015.CLE.at.CHA, 11.27.2015.DET.at.OKC, 11.27.2015.GSW.at.PHX, 11.27.2015.MIA.at.NYK, 11.27.2015.MIL.at.ORL, 11.27.2015.MIN.at.SAC, 11.27.2015.PHI.at.HOU, 11.27.2015.SAS.at.DEN, 11.27.2015.WAS.at.BOS, 11.28.2015.ATL.at.SAS, 11.28.2015.DEN.at.DAL, 11.28.2015.LAL.at.POR, 11.28.2015.NOP.at.UTA, 11.28.2015.SAC.at.GSW, 11.28.2015.TOR.at.WAS, 11.29.2015.BOS.at.ORL, 11.29.2015.DET.at.BKN, 11.29.2015.HOU.at.NYK, 11.29.2015.IND.at.LAL, 11.29.2015.MIL.at.CHA, 11.29.2015.MIN.at.LAC, 11.29.2015.PHI.at.MEM, 11.29.2015.PHX.at.TOR, 11.30.2015.BOS.at.MIA, 11.30.2015.DAL.at.SAC, 11.30.2015.DEN.at.MIL, 11.30.2015.GSW.at.UTA, 11.30.2015.HOU.at.DET, 11.30.2015.OKC.at.ATL, 11.30.2015.POR.at.LAC, 11.30.2015.SAS.at.CHI, 12.01.2015.DAL.at.POR, 12.01.2015.LAL.at.PHI, 12.01.2015.MEM.at.NOP, 12.01.2015.ORL.at.MIN, 12.01.2015.PHX.at.BKN, 12.02.2015.DEN.at.CHI, 12.02.2015.GSW.at.CHA, 12.02.2015.LAL.at.WAS, 12.02.2015.MIL.at.SAS, 12.02.2015.NOP.at.HOU, 12.02.2015.PHI.at.NYK, 12.02.2015.PHX.at.DET, 12.02.2015.TOR.at.ATL, 12.03.2015.DEN.at.TOR, 12.03.2015.IND.at.POR, 12.03.2015.OKC.at.MIA, 12.03.2015.ORL.at.UTA, 12.03.2015.SAS.at.MEM, 12.04.2015.BKN.at.NYK, 12.04.2015.CLE.at.NOP, 12.04.2015.HOU.at.DAL, 12.04.2015.LAL.at.ATL, 12.04.2015.MIL.at.DET, 12.04.2015.PHX.at.WAS, 12.06.2015.DAL.at.WAS, 12.06.2015.GSW.at.BKN, 12.06.2015.LAL.at.DET, 12.06.2015.PHX.at.MEM, 12.06.2015.SAC.at.OKC, 12.07.2015.BOS.at.NOP, 12.07.2015.DAL.at.NYK, 12.07.2015.DET.at.CHA, 12.07.2015.LAC.at.MIN, 12.07.2015.LAL.at.TOR, 12.07.2015.PHX.at.CHI, 12.07.2015.POR.at.MIL, 12.07.2015.SAS.at.PHI, 12.07.2015.WAS.at.MIA, 12.08.2015.GSW.at.IND, 12.08.2015.HOU.at.BKN, 12.08.2015.OKC.at.MEM, 12.08.2015.ORL.at.DEN, 12.08.2015.UTA.at.SAC, 12.09.2015.ATL.at.DAL, 12.09.2015.CHI.at.BOS, 12.09.2015.HOU.at.WAS, 12.09.2015.LAC.at.MIL, 12.09.2015.LAL.at.MIN, 12.09.2015.MEM.at.DET, 12.09.2015.MIA.at.CHA, 12.09.2015.NYK.at.UTA, 12.09.2015.ORL.at.PHX, 12.09.2015.SAS.at.TOR, 12.10.2015.ATL.at.OKC, 12.10.2015.LAC.at.CHI, 12.10.2015.NYK.at.SAC, 12.10.2015.PHI.at.BKN, 12.11.2015.CHA.at.MEM, 12.11.2015.CLE.at.ORL, 12.11.2015.DET.at.PHI, 12.11.2015.GSW.at.BOS, 12.11.2015.LAL.at.SAS, 12.11.2015.MIA.at.IND, 12.11.2015.MIL.at.TOR, 12.11.2015.MIN.at.DEN, 12.11.2015.OKC.at.UTA, 12.11.2015.POR.at.PHX, 12.11.2015.WAS.at.NOP, 12.12.2015.BOS.at.CHA, 12.12.2015.GSW.at.MIL, 12.12.2015.IND.at.DET, 12.12.2015.LAC.at.BKN, 12.12.2015.LAL.at.HOU, 12.12.2015.NOP.at.CHI, 12.12.2015.NYK.at.POR, 12.12.2015.SAS.at.ATL, 12.12.2015.WAS.at.DAL, 12.13.2015.MEM.at.MIA, 12.13.2015.MIN.at.PHX, 12.13.2015.PHI.at.TOR, 12.13.2015.UTA.at.OKC, 12.14.2015.HOU.at.DEN, 12.14.2015.LAC.at.DET, 12.14.2015.MIA.at.ATL, 12.14.2015.NOP.at.POR, 12.14.2015.ORL.at.BKN, 12.14.2015.PHI.at.CHI, 12.14.2015.PHX.at.DAL, 12.14.2015.TOR.at.IND, 12.14.2015.UTA.at.SAS, 12.14.2015.WAS.at.MEM, 12.15.2015.CLE.at.BOS, 12.15.2015.DEN.at.MIN, 12.15.2015.HOU.at.SAC, 12.15.2015.MIL.at.LAL, 12.16.2015.BOS.at.DET, 12.16.2015.CHA.at.ORL, 12.16.2015.DAL.at.IND, 12.16.2015.MEM.at.CHI, 12.16.2015.MIA.at.BKN, 12.16.2015.MIL.at.LAC, 12.16.2015.MIN.at.NYK, 12.16.2015.NOP.at.UTA, 12.16.2015.PHI.at.ATL, 12.16.2015.POR.at.OKC, 12.16.2015.WAS.at.SAS, 12.17.2015.HOU.at.LAL, 12.17.2015.TOR.at.CHA, 12.18.2015.ATL.at.BOS, 12.18.2015.BKN.at.IND, 12.18.2015.DEN.at.UTA, 12.18.2015.DET.at.CHI, 12.18.2015.LAC.at.SAS, 12.18.2015.MEM.at.DAL, 12.18.2015.MIL.at.GSW, 12.18.2015.NOP.at.PHX, 12.18.2015.NYK.at.PHI, 12.18.2015.POR.at.ORL, 12.18.2015.SAC.at.MIN, 12.18.2015.TOR.at.MIA, 12.19.2015.CHA.at.WAS, 12.19.2015.CHI.at.NYK, 12.19.2015.IND.at.MEM, 12.19.2015.LAC.at.HOU, 12.19.2015.LAL.at.OKC, 12.20.2015.ATL.at.ORL, 12.20.2015.MIL.at.PHX, 12.20.2015.MIN.at.BKN, 12.20.2015.NOP.at.DEN, 12.20.2015.POR.at.MIA, 12.20.2015.SAC.at.TOR, 12.21.2015.BKN.at.CHI, 12.21.2015.CHA.at.HOU, 12.21.2015.IND.at.SAS, 12.21.2015.MIN.at.BOS, 12.21.2015.OKC.at.LAC, 12.21.2015.ORL.at.NYK, 12.21.2015.PHX.at.UTA, 12.21.2015.POR.at.ATL, 12.21.2015.SAC.at.WAS, 12.22.2015.DAL.at.TOR, 12.22.2015.DET.at.MIA, 12.22.2015.LAL.at.DEN, 12.22.2015.MEM.at.PHI, 12.23.2015.BOS.at.CHA, 12.23.2015.DAL.at.BKN, 12.23.2015.DEN.at.PHX, 12.23.2015.DET.at.ATL, 12.23.2015.HOU.at.ORL, 12.23.2015.MEM.at.WAS, 12.23.2015.OKC.at.LAL, 12.23.2015.PHI.at.MIL, 12.23.2015.POR.at.NOP, 12.23.2015.SAC.at.IND, 12.23.2015.SAS.at.MIN, 12.23.2015.UTA.at.GSW, 12.25.2015.CHI.at.OKC, 12.25.2015.CLE.at.GSW, 12.25.2015.LAC.at.LAL, 12.25.2015.NOP.at.MIA, 12.25.2015.SAS.at.HOU, 12.26.2015.BOS.at.DET, 12.26.2015.CHI.at.DAL, 12.26.2015.CLE.at.POR, 12.26.2015.DEN.at.SAS, 12.26.2015.HOU.at.NOP, 12.26.2015.IND.at.MIN, 12.26.2015.LAC.at.UTA, 12.26.2015.MEM.at.CHA, 12.26.2015.MIA.at.ORL, 12.26.2015.NYK.at.ATL, 12.26.2015.PHI.at.PHX, 12.26.2015.TOR.at.MIL, 12.26.2015.WAS.at.BKN, 12.27.2015.DEN.at.OKC, 12.27.2015.LAL.at.MEM, 12.27.2015.NYK.at.BOS, 12.27.2015.POR.at.SAC, 12.28.2015.ATL.at.IND, 12.28.2015.BKN.at.MIA, 12.28.2015.CLE.at.PHX, 12.28.2015.LAC.at.WAS, 12.28.2015.LAL.at.CHA, 12.28.2015.MIL.at.DAL, 12.28.2015.MIN.at.SAS, 12.28.2015.NOP.at.ORL, 12.28.2015.PHI.at.UTA, 12.28.2015.SAC.at.GSW, 12.28.2015.TOR.at.CHI, 12.29.2015.ATL.at.HOU, 12.29.2015.CLE.at.DEN, 12.29.2015.DET.at.NYK, 12.29.2015.MIA.at.MEM, 12.29.2015.MIL.at.OKC, 12.30.2015.BKN.at.ORL, 12.30.2015.DEN.at.POR, 12.30.2015.GSW.at.DAL, 12.30.2015.IND.at.CHI, 12.30.2015.LAC.at.CHA, 12.30.2015.LAL.at.BOS, 12.30.2015.PHI.at.SAC, 12.30.2015.PHX.at.SAS, 12.30.2015.UTA.at.MIN, 12.30.2015.WAS.at.TOR, 12.31.2015.GSW.at.HOU, 12.31.2015.LAC.at.NOP, 12.31.2015.MIL.at.IND, 12.31.2015.MIN.at.DET, 12.31.2015.PHX.at.OKC, 12.31.2015.POR.at.UTA. Held-out games set aside before any fit: 01.02.2016.ORL.at.CLE, 01.04.2016.TOR.at.CLE, 01.18.2016.GSW.at.CLE, 10.30.2015.MIA.at.CLE, 11.04.2015.NYK.at.CLE, 11.06.2015.PHI.at.CLE, 11.08.2015.IND.at.CLE, 11.10.2015.UTA.at.CLE, 11.19.2015.MIL.at.CLE, 11.21.2015.ATL.at.CLE, 11.23.2015.ORL.at.CLE, 12.01.2015.WAS.at.CLE, 12.08.2015.POR.at.CLE, 12.16.2015.PHX.at.GSW, 12.17.2015.OKC.at.CLE, 12.20.2015.PHI.at.CLE, 12.23.2015.NYK.at.CLE.
+Guard: `analytics.eval.refuse_heldout` checked 604 training game ids; `schema.assert_time_forward` passed on the feature frame.
+Sampling: 1600778 frames sampled at 1 Hz inside possessions, 1596732 kept (not ten players: 2, no ball: 4044, degenerate hull: 0).
+Validation counts: 2 schema problem(s), dropped rows {"frames_duplicate_frame_player": 2, "frames_null_xy": 0, "possessions_duplicate": 0, "rosters_duplicate_player": 0}.
 
-## Candidates (out-of-fold MSE, 14795 player-frames, 6 games; variance of y 7.213) (fixture output, not a result)
+## Candidates (out-of-fold MSE, 7983660 player-frames, 604 games; variance of y 48.155)
 
 Folds: out-of-fold under 5 grouped folds by sportvu_game (seed 0). Intervals: 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
 | model | MSE | R2 (1 - MSE / var y) | role |
 | --- | --- | --- | --- |
-| constant | 7.215 [6.975, 7.429] | -0.000 | floor |
-| ridge | 4.299 [4.050, 4.496] | 0.404 | SHIPPED expectation (the plan's model) |
-| hgb | 2.254 [2.021, 2.401] | 0.687 | diagnostic only |
+| constant | 48.155 [47.801, 48.563] | -0.000 | floor |
+| ridge | 28.119 [27.800, 28.452] | 0.416 | SHIPPED expectation (the plan's model) |
+| hgb | 22.712 [22.460, 22.942] | 0.528 | diagnostic only |
 
-Paired bootstrap by game, MSE(hgb) - MSE(ridge): -2.0446 [-2.1452, -1.9410], excludes zero: True (HGB lower: True). MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the location features leave unexplained.
+Paired bootstrap by game, MSE(hgb) - MSE(ridge): -5.4070 [-5.5550, -5.2801], excludes zero: True (HGB lower: True). MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the location features leave unexplained.
 
-## Players (gate: 40 possessions, the fixture gate; real data gates at 300; 13 gated of 42) (fixture output, not a result)
-
-| rank | player_id | possessions | gravity_ft | lo | hi |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 500070 | 58 | 1.548 | 1.442 | 1.756 |
-| 2 | 500030 | 58 | 1.385 | 1.236 | 1.553 |
-| 3 | 500060 | 40 | 1.352 | 1.324 | 1.381 |
-| 4 | 500034 | 45 | 0.270 | 0.130 | 0.464 |
-| 5 | 500074 | 45 | 0.237 | 0.052 | 0.499 |
-| 6 | 500061 | 40 | -0.125 | -0.363 | 0.121 |
-| 7 | 500072 | 58 | -0.198 | -0.508 | 0.050 |
-| 8 | 500032 | 58 | -0.214 | -0.375 | -0.086 |
-| 9 | 500071 | 58 | -0.255 | -0.385 | -0.060 |
-| 10 | 500031 | 58 | -0.303 | -0.411 | -0.201 |
-
-### Top-decile check (fixture output, not a result)
-
-Known high-gravity players [500030, 500050, 500060, 500070, 500150, 500160]; season-wide ranks among 13 gated players {500030: 2, 500050: None, 500060: 3, 500070: 1, 500150: None, 500160: None} (None: under the gate, not ranked); 3 of the known players are gated; cut 3 (the top decile, or the top n_known when the planted players outnumber a decile); passed: True.
-
-Within each training game (the check that applies when rosters do not persist across games): 6 of 6 games pass; passed: True.
-
-| game | players | decile cut | ranks of the known players |
-| --- | --- | --- | --- |
-| 02.10.2016.QCY.at.FRS | 14 | 2 | {500160: 1, 500050: 2} |
-| 03.08.2016.GRN.at.HLX | 14 | 2 | {500070: 1, 500060: 2} |
-| 11.28.2015.HLX.at.FRS | 14 | 2 | {500070: 1, 500050: 2} |
-| 12.01.2015.DUL.at.HLX | 14 | 2 | {500030: 1, 500070: 2} |
-| 12.09.2015.PEO.at.DUL | 14 | 2 | {500150: 1, 500030: 2} |
-| 12.10.2015.GRN.at.DUL | 14 | 2 | {500030: 1, 500060: 2} |
-
-Mean out-of-fold gravity (ft) of the known players under each candidate (ridge is the shipped one):
-
-| model | 500030 | 500050 | 500060 | 500070 | 500150 | 500160 |
-| --- | --- | --- | --- | --- | --- | --- |
-| constant | 2.386 | 2.389 | 2.447 | 2.458 | 2.437 | 2.459 |
-| ridge | 1.385 | 1.285 | 1.352 | 1.548 | 1.325 | 1.376 |
-| hgb | 0.913 | 0.711 | 0.825 | 0.862 | 0.741 | 0.784 |
-
-### Sign test: teammates' location-only xFG with a high-gravity player on the floor (fixture output, not a result)
-
-Candidates [500030, 500050, 500060, 500070, 500150, 500160] (the fixture's planted high-gravity players). Games with a difference: 0; positive: 0; one-sided binomial p = n/a; mean difference n/a [n/a, n/a] (bootstrap by game).
-
-## Spacing (fixture output, not a result)
-
-Mean hull area 340.5 ft2 (sd 154.9), mean nearest-defender distance 4.48 ft over 2959 training possession-frames.
-
-## Held-out, scored once (fixture output, not a result)
-
-2 held-out game(s), 4860 player-frames, scored once by the shipped ridge refit on all 14795 training rows: MSE 4.892 (constant floor 8.032, not a selection input). Never fitted, tuned or ranked on.
-
-## Second run: the lane's planted-pull generator (analytics/gravity/fixture_pull.py) (fixture output, not a result)
-
-analytics.fixtures keeps one roster per team all season, so the season-wide top-decile check runs on it, but its stars play every period, so the on/off sign test finds no off-court shot there, and its pull has no closed form to recover. The planted-pull generator sits its star on about 40 percent of possessions and plants a known pull (effective_pull_ft), so the sign test and the pull recovery run here.
-
-### Inputs (fixture output, not a result)
-
-| games | training | held-out | player-frames (train) | spacing frames (train) | shots (train) |
-| --- | --- | --- | --- | --- | --- |
-| 8 | 6 | 2 | 11780 | 2356 | 216 |
-
-Training games: 01.01.2016.AAA.at.HHH, 01.02.2016.AAA.at.HHH, 01.03.2016.AAA.at.HHH, 01.05.2016.AAA.at.HHH, 01.06.2016.AAA.at.HHH, 01.07.2016.AAA.at.HHH. Held-out games set aside before any fit: 02.01.2016.AAA.at.CLE, 12.16.2015.PHX.at.GSW.
-Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `schema.assert_time_forward` passed on the feature frame.
-Sampling: 2356 frames sampled at 1 Hz inside possessions, 2356 kept (not ten players: 0, no ball: 0, degenerate hull: 0).
-Validation counts: 0 schema problem(s), dropped rows {"frames_duplicate_frame_player": 0, "frames_null_xy": 0, "possessions_duplicate": 0, "rosters_duplicate_player": 0}.
-
-### Candidates (out-of-fold MSE, 11780 player-frames, 6 games; variance of y 5.082) (fixture output, not a result)
-
-Folds: out-of-fold under 5 grouped folds by sportvu_game (seed 0). Intervals: 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
-
-| model | MSE | R2 (1 - MSE / var y) | role |
-| --- | --- | --- | --- |
-| constant | 5.085 [4.985, 5.214] | -0.001 | floor |
-| ridge | 2.047 [1.985, 2.126] | 0.597 | SHIPPED expectation (the plan's model) |
-| hgb | 1.897 [1.824, 2.000] | 0.627 | diagnostic only |
-
-Paired bootstrap by game, MSE(hgb) - MSE(ridge): -0.1497 [-0.1756, -0.1226], excludes zero: True (HGB lower: True). MSE is not the selection criterion: gravity is the residual of the expectation, and a flexible model lowers MSE partly by fitting what should stay in the residual, so the gravity tables use ridge and the HGB row says how much structure the location features leave unexplained.
-
-### Players (gate: 40 possessions, the fixture gate; real data gates at 300; 14 gated of 14) (fixture output, not a result)
+## Players (gate: 300 possessions; 362 gated of 447)
 
 | rank | player_id | possessions | gravity_ft | lo | hi |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 1001 | 77 | 1.427 | 1.323 | 1.507 |
-| 2 | 2001 | 71 | 1.376 | 1.277 | 1.484 |
-| 3 | 2006 | 88 | 0.023 | -0.133 | 0.201 |
-| 4 | 2003 | 85 | 0.000 | -0.130 | 0.131 |
-| 5 | 2004 | 84 | -0.042 | -0.164 | 0.092 |
-| 6 | 1002 | 92 | -0.073 | -0.225 | 0.075 |
-| 7 | 1003 | 74 | -0.195 | -0.336 | -0.060 |
-| 8 | 1005 | 89 | -0.201 | -0.282 | -0.101 |
-| 9 | 1004 | 95 | -0.219 | -0.430 | -0.078 |
-| 10 | 2005 | 85 | -0.243 | -0.415 | -0.048 |
+| 1 | 2594 | 2335 | 1.863 | 1.619 | 2.135 |
+| 2 | 201939 | 2614 | 1.775 | 1.566 | 2.012 |
+| 3 | 202691 | 2537 | 1.562 | 1.394 | 1.749 |
+| 4 | 2744 | 908 | 1.326 | 1.098 | 1.529 |
+| 5 | 2546 | 2549 | 1.222 | 1.107 | 1.336 |
+| 6 | 203382 | 1084 | 1.158 | 1.060 | 1.263 |
+| 7 | 977 | 2104 | 1.081 | 0.898 | 1.279 |
+| 8 | 202331 | 2686 | 1.000 | 0.820 | 1.160 |
+| 9 | 200755 | 1897 | 0.999 | 0.824 | 1.159 |
+| 10 | 1717 | 2246 | 0.991 | 0.838 | 1.112 |
 
-#### Top-decile check (fixture output, not a result)
+### Top-decile check
 
-Known high-gravity players [1001, 2001]; season-wide ranks among 14 gated players {1001: 1, 2001: 2} (None: under the gate, not ranked); 2 of the known players are gated; cut 2 (the top decile, or the top n_known when the planted players outnumber a decile); passed: True.
+No known high-gravity player on this input: the top ten above are listed without a claim.
 
-Within each training game (the check that applies when rosters do not persist across games): 6 of 6 games pass; passed: True.
+### Sign test: teammates' location-only xFG with a high-gravity player on the floor
 
-| game | players | decile cut | ranks of the known players |
-| --- | --- | --- | --- |
-| 01.01.2016.AAA.at.HHH | 14 | 2 | {2001: 1, 1001: 2} |
-| 01.02.2016.AAA.at.HHH | 14 | 2 | {1001: 1, 2001: 2} |
-| 01.03.2016.AAA.at.HHH | 14 | 2 | {1001: 1, 2001: 2} |
-| 01.05.2016.AAA.at.HHH | 14 | 2 | {2001: 1, 1001: 2} |
-| 01.06.2016.AAA.at.HHH | 14 | 2 | {1001: 1, 2001: 2} |
-| 01.07.2016.AAA.at.HHH | 14 | 2 | {1001: 1, 2001: 2} |
+Candidates [2594, 201939, 202691, 2744, 2546, 203382, 977, 202331, 200755, 1717] (the top ten gated players by gravity, no claim attached). Games with a difference: 290; positive: 163; one-sided binomial p = 0.0198; mean difference 0.0042 [0.0009, 0.0074] (bootstrap by game).
 
-Mean out-of-fold gravity (ft) of the known players under each candidate (ridge is the shipped one):
+## Spacing
 
-| model | 1001 | 2001 |
-| --- | --- | --- |
-| constant | 1.159 | 1.718 |
-| ridge | 1.427 | 1.376 |
-| hgb | 1.420 | 1.259 |
+Mean hull area 579.3 ft2 (sd 272.6), mean nearest-defender distance 9.53 ft over 1596732 training possession-frames.
 
-Recovered pull under the shipped expectation against the generator's effective pull (the planted pull in the target's own terms, see analytics/gravity/fixture_pull.py): 1001: recovered 1.427 ft, effective 1.536 ft; 2001: recovered 1.376 ft, effective 1.545 ft.
+## Held-out, not scored
 
-#### Sign test: teammates' location-only xFG with a high-gravity player on the floor (fixture output, not a result)
+17 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
 
-Candidates [1001, 2001] (the fixture's planted high-gravity players). Games with a difference: 6; positive: 6; one-sided binomial p = 0.0156; mean difference 0.1474 [0.1197, 0.1712] (bootstrap by game).
-
-### Spacing (fixture output, not a result)
-
-Mean hull area 243.1 ft2 (sd 126.3), mean nearest-defender distance 5.83 ft over 2356 training possession-frames.
-
-### Held-out, scored once (fixture output, not a result)
-
-2 held-out game(s), 3940 player-frames, scored once by the shipped ridge refit on all 11780 training rows: MSE 2.129 (constant floor 5.242, not a selection input). Never fitted, tuned or ranked on.
-
-## Outputs (fixture output, not a result)
+## Outputs
 
 No tables written (pass --out OUT_ROOT).
 

@@ -11,8 +11,9 @@ Claude Code on the Mac should follow these in every stage. Each prompt below say
 docs/mac_runbook.md", which points here.
 
 1. Held-out games (sportvu/splits.json, every game at CLE, and the 2024-25 season for the multi-season
-   lanes) never fit, tune or select anything. Until stage 8, nobody reads a held-out number: every real
-   train run uses `--skip-heldout` (added in stage 4).
+   lanes) never fit, tune or select anything. Until a lane group's stage 8 run, nobody reads a held-out
+   number of that group's lanes: every real train run uses `--skip-heldout` (added in stage 4). Freeze and
+   held-out scoring happen per lane group (see "Lane groups" below); no lane is ever scored on held-out twice.
 2. Never commit raw data: no SportVU frames, play-by-play, NBA.com tables, odds, labels or parquet outputs.
    Commit code, contract pages and reports only.
 3. One basketball-reference collector at a time (17 requests a minute). Stop on a 429 and wait an hour.
@@ -186,6 +187,24 @@ Repeat for phases 2, 3, 4 and 5. Phase 1 is xfg and rebounds; also run the Phase
 Phase 2 is matchups, gravity, ghosting, embeddings. Phase 3 is epv, actions, coverage (needs the stage 4
 labels). Phase 4 is decisions, playcalling, lineups. Phase 5 is winprob, load, betting (betting needs odds).
 
+## Lane groups: freeze and held-out run per group (decided by the owner 2026-11-11)
+
+The stage 4 hand labels are deferred (the owner may label later or source labels elsewhere), so stages 6 to 9
+run per lane group instead of once for every lane:
+
+| group | lanes | freeze tag | held-out run |
+| --- | --- | --- | --- |
+| 1, label-free | xfg (and the xfg baseline), rebounds, matchups, gravity, ghosting, embeddings, epv, decisions, lineups, winprob, load | `freeze-v1` | once, at `freeze-v1`, gate `gates/go-stage8` |
+| 2, needs the labels | actions, coverage, playcalling | `freeze-v2` | once, at `freeze-v2`, gate `gates/go-stage8-v2` |
+| not run | betting (odds skipped, `gates/odds-skip`) | none | none |
+
+- Group 1 goes through stages 5 to 9 now. Group 2 waits for the labels (`gates/labels-done` and kappa at
+  least 0.7), then goes through stages 5 to 8 on its own and adds its sections to the stage 9 write-up.
+- A lane is scored on held-out exactly once, in its group's stage 8 run, with `--ext` naming only that
+  group's lanes. Group 2's run must not rescore a group 1 lane; group 1 code is not changed after `freeze-v1`.
+- NBA.com tables are skipped (`gates/nbacom-skip`): embeddings runs without the aggregate block, and
+  winprob's benchmark column stays empty with that reason stated in its report.
+
 ## Stage 6: deep models where the gate opens (a day, only if needed)
 
 The ghosting GRU, the EPV sequence model and the embeddings autoencoder stand in as sklearn MLPs. Each lane's
@@ -202,24 +221,35 @@ states; embeddings autoencoder), keep the same keep rule fixed in advance, add t
 ## Stage 7: freeze (1 hour)
 
 ```text
-Follow the rules in docs/mac_runbook.md. Stage 7: for every lane, write the selected model, its settings and
-every threshold into its docs/contract page under "Frozen for the held-out run", and list them in STATUS.md.
-Commit, tag the commit freeze-v1 and push the tag. After this no code or setting changes before stage 8.
+Follow the rules in docs/mac_runbook.md. Stage 7: for every lane of the group being frozen (Lane groups
+above), write the selected model, its settings and every threshold into its docs/contract page under "Frozen
+for the held-out run", and list them in STATUS.md. Commit, tag the commit freeze-v1 (group 1) or freeze-v2
+(group 2) and push the tag. After this no code or setting of that group's lanes changes before its stage 8.
 ```
 
 ## Stage 8: score the held-out games once (1 to 2 hours of compute)
 
+Group 1, once, after the owner creates `gates/go-stage8`:
+
 ```bash
-git checkout freeze-v1 && python3 run_all.py --data "$DATA_ROOT" --all --continue-on-error
+git checkout freeze-v1 && python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+```
+
+Group 2, once, later, after `gates/go-stage8-v2`:
+
+```bash
+git checkout freeze-v2 && python3 run_all.py --data "$DATA_ROOT" --ext actions coverage playcalling --continue-on-error
 ```
 
 ```bash
 python3 -m analytics.train_xfg --shots "$DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet" --report reports/xfg_baseline.md
 ```
 
+(the xfg baseline belongs to group 1 and runs once, with the group 1 run.)
+
 ```text
-Follow the rules in docs/mac_runbook.md. Stage 8: this was the single held-out run at tag freeze-v1. For each
-lane, copy the held-out numbers into its report next to the out-of-fold ones, with intervals, and say
+Follow the rules in docs/mac_runbook.md. Stage 8: this was the single held-out run of the group at its tag
+(freeze-v1 or freeze-v2). For each lane of that group, copy the held-out numbers into its report next to the out-of-fold ones, with intervals, and say
 plainly where held-out is worse than out-of-fold. Do not change any model or setting. Commit the reports on
 a branch from track-fix and open a PR.
 ```
@@ -237,9 +267,8 @@ record. Open a PR.
 ## Blocked on you
 
 - The Mac runs in stages 2, 3, 5 and 8 (overnight jobs for 2 and 3).
-- The audit in stage 3 (about 3 hours) and the labels in stage 4 (about 27 hours).
-- An odds API key, or a decision to leave betting as code only.
-- Whether to try the NBA.com tables from a browser session or go without them.
+- The audit in stage 3 (about 3 hours, done) and the labels in stage 4 (about 27 hours, deferred; group 2 only).
+- Odds: skipped (betting stays code only). NBA.com tables: skipped.
 
 ## Autonomous loop (for `/loop` in Claude Code)
 
@@ -271,7 +300,8 @@ human part; the loop sees them on its next iteration:
 | stage 4 labels | label the 8 games and the pass-2 relabels | `gates/labels-done` |
 | odds for betting | put `ODDS_API_KEY` in `~/.zshrc`, or skip betting | `gates/odds-ready` or `gates/odds-skip` |
 | NBA.com tables | try them yourself from a browser network, or skip | `gates/nbacom-done` or `gates/nbacom-skip` |
-| stage 8 | review the stage 7 freeze | `gates/go-stage8` |
+| stage 8, group 1 | review the freeze-v1 freeze | `gates/go-stage8` |
+| stage 8, group 2 | review the freeze-v2 freeze (after the labels) | `gates/go-stage8-v2` |
 
 For example: `mkdir -p gates && touch gates/labels-done`. While a gate is open the loop keeps doing every
 piece of work that does not depend on it (for example, phases 1 and 2 run while you label for phase 3).
@@ -285,10 +315,12 @@ Every iteration does the following, in order.
    merged), the audit pass mark (`gates/audit-mark-approved`), the filled audit sheet (`gates/audit-done`),
    the hand labels and kappa at least 0.7 (`gates/labels-done`, then the loop runs `--kappa` itself), odds
    (`gates/odds-ready` or `gates/odds-skip`), NBA.com (`gates/nbacom-done` or `gates/nbacom-skip`), and stage 8
-   (`gates/go-stage8`, created by the owner only; never create a gate file yourself). At an open gate, write
+   (`gates/go-stage8` for group 1, `gates/go-stage8-v2` for group 2, created by the owner only; never create
+   a gate file yourself unless the owner tells you to in so many words, and then record that in STATUS.md). At an open gate, write
    "WAITING ON YOU: <exactly what to do and which file to create>" at the top of the progress section once,
    keep doing any work that does not depend on that gate, and schedule the next iteration in about an hour.
-   Do not end the loop; end it only after stage 8 is committed and pushed.
+   Do not end the loop; end it only after group 1's stage 8 and stage 9 are committed and pushed (group 2
+   runs later in its own loop, once the labels exist).
 3. **Long jobs run in the background.** Collectors and Phase 0 start with
    `nohup caffeinate -i <command> > logs/loop/<name>.log 2>&1 &`, their PID and log go into the progress
    section, and later iterations check the log and the collector manifest instead of waiting. One network
@@ -321,6 +353,6 @@ rather than a single best model:
   pipelines, not the rules.
 - **Each variant on its own branch** (`exp/<lane>-<id>`), tests passing; only accepted variants merge.
 
-When every lane of every phase has run and its archive has settled, the loop moves to stage 6, then
-stage 7 (freeze), then waits at the stage 8 gate, runs stage 8 and stage 9 once `gates/go-stage8` exists,
-and only then ends the loop.
+When every group 1 lane has run and its archive has settled, the loop moves to stage 6, then stage 7
+(freeze-v1), then waits at the stage 8 gate, runs group 1's stage 8 and stage 9 once `gates/go-stage8`
+exists, and only then ends the loop. Group 2 (actions, coverage, playcalling) follows the same path later.

@@ -1,102 +1,104 @@
 # EPV: expected possession value from 1 Hz states (analytics/epv)
 
-Written 2026-11-07T08:37:37Z by `python -m analytics.epv.train --fixtures --fixture-games 8 --folds 5 --bootstrap 200 --report reports/epv.md` (fixture output, not a result).
+**Real data, training folds only; held-out not scored.** Stage 5 phase 3 (epv needs no labels) (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
 
-**Every number below is fixture output, not a result**: the inputs are the synthetic season of analytics.fixtures (synth_season, one league), built to exercise the pipeline, and say nothing about basketball.
+Written 2026-11-12T01:46:36Z by `python -m analytics.epv.train --data /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest --seed 0 --report /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/epv.md --skip-heldout` (real data run).
 
-## Inputs (fixture output, not a result)
+## Inputs
 
 | table | rows in | schema problems | duplicates dropped | rows dropped | rows out |
 | --- | --- | --- | --- | --- | --- |
-| possessions | 320 | 0 | 0 | 0 | 320 |
-| states_1hz | 4014 | 0 | 0 | 0 | 4014 |
-| shot_frames | 326 | 0 | 0 | 0 | 326 |
-| rosters | 112 | 0 | 0 | 0 | 112 |
-| shots | 326 | 0 | 0 | 0 | 326 |
+| possessions | 119161 | 0 | 0 | 0 | 119161 |
+| states_1hz | 1783923 | 0 | 0 | 101 | 1783822 |
+| shot_frames | 104574 | 0 | 0 | 0 | 104574 |
+| rosters | 13274 | 1 | 0 | 0 | 13274 |
+| shots | 104967 | 0 | 83 | 0 | 104884 |
 
-Training: 3026 states, 240 possessions, 6 game(s) (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL). Held-out, set aside before any fit: 988 states from 2 game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW).
-Guard: `analytics.eval.refuse_heldout` checked the 6 training game ids against sportvu/splits.json; `analytics.schema.assert_time_forward` passed on every feature frame (the only column source is `schema.feature_allowlist("states_1hz")`; points_to_end and possession_end_kind never enter).
-Training mean points per state: 1.2406; P(points > 0): 0.5585.
+Training: 1739119 states, 115969 possessions, 604 game(s) (01.01.2016.CHA.at.TOR, 01.01.2016.DAL.at.MIA, 01.01.2016.NYK.at.CHI, 01.01.2016.ORL.at.WAS, 01.01.2016.PHI.at.LAL, 01.02.2016.BKN.at.BOS, 01.02.2016.DEN.at.GSW, 01.02.2016.DET.at.IND, 01.02.2016.HOU.at.SAS, 01.02.2016.MEM.at.UTA, 01.02.2016.MIL.at.MIN, 01.02.2016.NOP.at.DAL, 01.02.2016.OKC.at.CHA, 01.02.2016.PHI.at.LAC, 01.02.2016.PHX.at.SAC, 01.03.2016.ATL.at.NYK, 01.03.2016.CHI.at.TOR, 01.03.2016.MIA.at.WAS, 01.03.2016.PHX.at.LAL, 01.03.2016.POR.at.DEN, 01.04.2016.BOS.at.BKN, 01.04.2016.CHA.at.GSW, 01.04.2016.HOU.at.UTA, 01.04.2016.IND.at.MIA, 01.04.2016.MEM.at.POR, 01.04.2016.MIN.at.PHI, 01.04.2016.ORL.at.DET, 01.04.2016.SAC.at.OKC, 01.04.2016.SAS.at.MIL, 01.05.2016.GSW.at.LAL, 01.05.2016.MIL.at.CHI, 01.05.2016.NYK.at.ATL, 01.05.2016.SAC.at.DAL, 01.06.2016.CHA.at.PHX, 01.06.2016.CLE.at.WAS, 01.06.2016.DAL.at.NOP, 01.06.2016.DEN.at.MIN, 01.06.2016.DET.at.BOS, 01.06.2016.IND.at.ORL, 01.06.2016.LAC.at.POR, 01.06.2016.MEM.at.OKC, 01.06.2016.NYK.at.MIA, 01.06.2016.TOR.at.BKN, 01.06.2016.UTA.at.SAS, 01.07.2016.ATL.at.PHI, 01.07.2016.BOS.at.CHI, 01.07.2016.LAL.at.SAC, 01.07.2016.UTA.at.HOU, 01.08.2016.CLE.at.MIN, 01.08.2016.DAL.at.MIL, 01.08.2016.DEN.at.MEM, 01.08.2016.GSW.at.POR, 01.08.2016.IND.at.NOP, 01.08.2016.MIA.at.PHX, 01.08.2016.NYK.at.SAS, 01.08.2016.OKC.at.LAL, 01.08.2016.ORL.at.BKN, 01.08.2016.TOR.at.WAS, 01.09.2016.BKN.at.DET, 01.09.2016.CHA.at.LAC, 01.09.2016.CHI.at.ATL, 01.09.2016.GSW.at.SAC, 01.09.2016.MIA.at.UTA, 01.09.2016.TOR.at.PHI, 01.09.2016.WAS.at.ORL, 01.10.2016.BOS.at.MEM, 01.10.2016.CHA.at.DEN, 01.10.2016.CLE.at.PHI, 01.10.2016.DAL.at.MIN, 01.10.2016.IND.at.HOU, 01.10.2016.MIL.at.NYK, 01.10.2016.NOP.at.LAC, 01.10.2016.OKC.at.POR, 01.10.2016.UTA.at.LAL, 01.11.2016.MIA.at.GSW, 01.11.2016.SAS.at.BKN, 01.11.2016.WAS.at.CHI, 01.12.2016.BOS.at.NYK, 01.12.2016.CHI.at.MIL, 01.12.2016.CLE.at.DAL, 01.12.2016.HOU.at.MEM, 01.12.2016.NOP.at.LAL, 01.12.2016.OKC.at.MIN, 01.12.2016.PHX.at.IND, 01.12.2016.SAS.at.DET, 01.13.2016.ATL.at.CHA, 01.13.2016.DAL.at.OKC, 01.13.2016.GSW.at.DEN, 01.13.2016.IND.at.BOS, 01.13.2016.MIA.at.LAC, 01.13.2016.MIL.at.WAS, 01.13.2016.MIN.at.HOU, 01.13.2016.NOP.at.SAC, 01.13.2016.NYK.at.BKN, 01.13.2016.UTA.at.POR, 01.14.2016.LAL.at.GSW, 01.14.2016.SAC.at.UTA, 01.15.2016.ATL.at.MIL, 01.15.2016.CHA.at.NOP, 01.15.2016.CLE.at.HOU, 01.15.2016.DAL.at.CHI, 01.15.2016.MIA.at.DEN, 01.15.2016.MIN.at.OKC, 01.15.2016.PHX.at.BOS, 01.15.2016.POR.at.BKN, 01.15.2016.WAS.at.IND, 01.18.2016.BKN.at.TOR, 01.18.2016.BOS.at.DAL, 01.18.2016.CHI.at.DET, 01.18.2016.HOU.at.LAC, 01.18.2016.NOP.at.MEM, 01.18.2016.ORL.at.ATL, 01.18.2016.PHI.at.NYK, 01.18.2016.POR.at.WAS, 01.18.2016.UTA.at.CHA, 01.19.2016.IND.at.PHX, 01.19.2016.MIL.at.MIA, 01.19.2016.MIN.at.NOP, 01.19.2016.OKC.at.DEN, 01.20.2016.ATL.at.POR, 01.20.2016.BOS.at.TOR, 01.20.2016.CHA.at.OKC, 01.20.2016.CLE.at.BKN, 01.20.2016.DET.at.HOU, 01.20.2016.GSW.at.CHI, 01.20.2016.MIA.at.WAS, 01.20.2016.MIN.at.DAL, 01.20.2016.PHI.at.ORL, 01.20.2016.SAC.at.LAL, 01.20.2016.UTA.at.NYK, 01.21.2016.DET.at.NOP, 01.21.2016.MEM.at.DEN, 01.22.2016.CHA.at.ORL, 01.22.2016.CHI.at.BOS, 01.22.2016.IND.at.GSW, 01.22.2016.LAC.at.NYK, 01.22.2016.MIA.at.TOR, 01.22.2016.MIL.at.HOU, 01.22.2016.OKC.at.DAL, 01.22.2016.SAS.at.LAL, 01.22.2016.UTA.at.BKN, 01.23.2016.ATL.at.PHX, 01.23.2016.DET.at.DEN, 01.23.2016.IND.at.SAC, 01.23.2016.LAL.at.POR, 01.23.2016.MEM.at.MIN, 01.23.2016.MIL.at.NOP, 01.23.2016.NYK.at.CHA, 10.27.2015.CLE.at.CHI, 10.27.2015.DET.at.ATL, 10.27.2015.NOP.at.GSW, 10.28.2015.CLE.at.MEM, 10.28.2015.DEN.at.HOU, 10.28.2015.IND.at.TOR, 10.28.2015.LAC.at.SAC, 10.28.2015.MIN.at.LAL, 10.28.2015.NOP.at.POR, 10.28.2015.NYK.at.MIL, 10.28.2015.PHI.at.BOS, 10.28.2015.SAS.at.OKC, 10.28.2015.UTA.at.DET, 10.28.2015.WAS.at.ORL, 10.29.2015.ATL.at.NYK, 10.29.2015.DAL.at.LAC, 10.29.2015.MEM.at.IND, 10.30.2015.BKN.at.SAS, 10.30.2015.CHA.at.ATL, 10.30.2015.CHI.at.DET, 10.30.2015.LAL.at.SAC, 10.30.2015.MIN.at.DEN, 10.30.2015.OKC.at.ORL, 10.30.2015.POR.at.PHX, 10.30.2015.TOR.at.BOS, 10.30.2015.UTA.at.PHI, 10.30.2015.WAS.at.MIL, 10.31.2015.BKN.at.MEM, 10.31.2015.GSW.at.NOP, 10.31.2015.NYK.at.WAS, 10.31.2015.PHX.at.POR, 10.31.2015.SAC.at.LAC, 10.31.2015.UTA.at.IND, 11.01.2015.ATL.at.CHA, 11.01.2015.DAL.at.LAL, 11.01.2015.DEN.at.OKC, 11.01.2015.HOU.at.MIA, 11.01.2015.MIL.at.TOR, 11.01.2015.ORL.at.CHI, 11.01.2015.SAS.at.BOS, 11.02.2015.CLE.at.PHI, 11.02.2015.MEM.at.GSW, 11.02.2015.MIL.at.BKN, 11.02.2015.OKC.at.HOU, 11.02.2015.PHX.at.LAC, 11.02.2015.POR.at.MIN, 11.02.2015.SAS.at.NYK, 11.03.2015.ATL.at.MIA, 11.03.2015.CHI.at.CHA, 11.03.2015.DEN.at.LAL, 11.03.2015.IND.at.DET, 11.03.2015.MEM.at.SAC, 11.03.2015.ORL.at.NOP, 11.03.2015.TOR.at.DAL, 11.04.2015.BKN.at.ATL, 11.04.2015.BOS.at.IND, 11.04.2015.LAC.at.GSW, 11.04.2015.ORL.at.HOU, 11.04.2015.PHI.at.MIL, 11.04.2015.POR.at.UTA, 11.04.2015.SAC.at.PHX, 11.04.2015.SAS.at.WAS, 11.04.2015.TOR.at.OKC, 11.05.2015.CHA.at.DAL, 11.05.2015.MEM.at.POR, 11.05.2015.MIA.at.MIN, 11.05.2015.OKC.at.CHI, 11.05.2015.UTA.at.DEN, 11.06.2015.ATL.at.NOP, 11.06.2015.DEN.at.GSW, 11.06.2015.DET.at.PHX, 11.06.2015.HOU.at.SAC, 11.06.2015.LAL.at.BKN, 11.06.2015.MIA.at.IND, 11.06.2015.MIL.at.NYK, 11.06.2015.TOR.at.ORL, 11.06.2015.WAS.at.BOS, 11.07.2015.BKN.at.MIL, 11.07.2015.CHA.at.SAS, 11.07.2015.GSW.at.SAC, 11.07.2015.HOU.at.LAC, 11.07.2015.MEM.at.UTA, 11.07.2015.MIN.at.CHI, 11.07.2015.NOP.at.DAL, 11.07.2015.ORL.at.PHI, 11.07.2015.WAS.at.ATL, 11.08.2015.DET.at.POR, 11.08.2015.LAL.at.NYK, 11.08.2015.PHX.at.OKC, 11.08.2015.TOR.at.MIA, 11.09.2015.DET.at.GSW, 11.09.2015.MEM.at.LAC, 11.09.2015.MIN.at.ATL, 11.09.2015.ORL.at.IND, 11.09.2015.POR.at.DEN, 11.09.2015.SAS.at.SAC, 11.10.2015.BOS.at.MIL, 11.10.2015.CHA.at.MIN, 11.10.2015.DAL.at.NOP, 11.10.2015.LAL.at.MIA, 11.10.2015.NYK.at.TOR, 11.10.2015.OKC.at.WAS, 11.11.2015.BKN.at.HOU, 11.11.2015.DET.at.SAC, 11.11.2015.GSW.at.MEM, 11.11.2015.IND.at.BOS, 11.11.2015.LAC.at.DAL, 11.11.2015.LAL.at.ORL, 11.11.2015.MIL.at.DEN, 11.11.2015.NOP.at.ATL, 11.11.2015.NYK.at.CHA, 11.11.2015.SAS.at.POR, 11.11.2015.TOR.at.PHI, 11.12.2015.GSW.at.MIN, 11.12.2015.LAC.at.PHX, 11.12.2015.UTA.at.MIA, 11.13.2015.ATL.at.BOS, 11.13.2015.BKN.at.SAC, 11.13.2015.CHA.at.CHI, 11.13.2015.CLE.at.NYK, 11.13.2015.HOU.at.DEN, 11.13.2015.LAL.at.DAL, 11.13.2015.MIN.at.IND, 11.13.2015.NOP.at.TOR, 11.13.2015.PHI.at.OKC, 11.13.2015.POR.at.MEM, 11.13.2015.UTA.at.ORL, 11.14.2015.BKN.at.GSW, 11.14.2015.CLE.at.MIL, 11.14.2015.DAL.at.HOU, 11.14.2015.DEN.at.PHX, 11.14.2015.DET.at.LAC, 11.14.2015.ORL.at.WAS, 11.14.2015.PHI.at.SAS, 11.15.2015.BOS.at.OKC, 11.15.2015.DET.at.LAL, 11.15.2015.MEM.at.MIN, 11.15.2015.NOP.at.NYK, 11.15.2015.POR.at.CHA, 11.15.2015.TOR.at.SAC, 11.15.2015.UTA.at.ATL, 11.16.2015.BOS.at.HOU, 11.16.2015.DAL.at.PHI, 11.16.2015.IND.at.CHI, 11.16.2015.LAL.at.PHX, 11.16.2015.OKC.at.MEM, 11.16.2015.POR.at.SAS, 11.17.2015.ATL.at.BKN, 11.17.2015.CHA.at.NYK, 11.17.2015.CLE.at.DET, 11.17.2015.DEN.at.NOP, 11.17.2015.MIL.at.WAS, 11.17.2015.MIN.at.MIA, 11.17.2015.TOR.at.GSW, 11.18.2015.BKN.at.CHA, 11.18.2015.CHI.at.PHX, 11.18.2015.DAL.at.BOS, 11.18.2015.DEN.at.SAS, 11.18.2015.IND.at.PHI, 11.18.2015.MIN.at.ORL, 11.18.2015.NOP.at.OKC, 11.18.2015.POR.at.HOU, 11.18.2015.SAC.at.ATL, 11.18.2015.TOR.at.UTA, 11.19.2015.GSW.at.LAC, 11.19.2015.SAC.at.MIA, 11.20.2015.BKN.at.BOS, 11.20.2015.CHI.at.GSW, 11.20.2015.DET.at.MIN, 11.20.2015.HOU.at.MEM, 11.20.2015.LAC.at.POR, 11.20.2015.NYK.at.OKC, 11.20.2015.PHI.at.CHA, 11.20.2015.PHX.at.DEN, 11.20.2015.SAS.at.NOP, 11.20.2015.TOR.at.LAL, 11.20.2015.UTA.at.DAL, 11.21.2015.MEM.at.SAS, 11.21.2015.MIL.at.IND, 11.21.2015.NYK.at.HOU, 11.21.2015.PHI.at.MIA, 11.21.2015.SAC.at.ORL, 11.21.2015.WAS.at.DET, 11.22.2015.BOS.at.BKN, 11.22.2015.DAL.at.OKC, 11.22.2015.GSW.at.DEN, 11.22.2015.PHX.at.NOP, 11.22.2015.POR.at.LAL, 11.22.2015.TOR.at.LAC, 11.23.2015.DET.at.MIL, 11.23.2015.NYK.at.MIA, 11.23.2015.OKC.at.UTA, 11.23.2015.PHI.at.MIN, 11.23.2015.PHX.at.SAS, 11.23.2015.SAC.at.CHA, 11.24.2015.BOS.at.ATL, 11.24.2015.CHI.at.POR, 11.24.2015.DAL.at.MEM, 11.24.2015.IND.at.WAS, 11.24.2015.LAC.at.DEN, 11.24.2015.LAL.at.GSW, 11.25.2015.ATL.at.MIN, 11.25.2015.BKN.at.OKC, 11.25.2015.CLE.at.TOR, 11.25.2015.DAL.at.SAS, 11.25.2015.MEM.at.HOU, 11.25.2015.MIA.at.DET, 11.25.2015.NOP.at.PHX, 11.25.2015.NYK.at.ORL, 11.25.2015.PHI.at.BOS, 11.25.2015.SAC.at.MIL, 11.25.2015.UTA.at.LAC, 11.25.2015.WAS.at.CHA, 11.27.2015.ATL.at.MEM, 11.27.2015.CHI.at.IND, 11.27.2015.CLE.at.CHA, 11.27.2015.DET.at.OKC, 11.27.2015.GSW.at.PHX, 11.27.2015.MIA.at.NYK, 11.27.2015.MIL.at.ORL, 11.27.2015.MIN.at.SAC, 11.27.2015.PHI.at.HOU, 11.27.2015.SAS.at.DEN, 11.27.2015.WAS.at.BOS, 11.28.2015.ATL.at.SAS, 11.28.2015.DEN.at.DAL, 11.28.2015.LAL.at.POR, 11.28.2015.NOP.at.UTA, 11.28.2015.SAC.at.GSW, 11.28.2015.TOR.at.WAS, 11.29.2015.BOS.at.ORL, 11.29.2015.DET.at.BKN, 11.29.2015.HOU.at.NYK, 11.29.2015.IND.at.LAL, 11.29.2015.MIL.at.CHA, 11.29.2015.MIN.at.LAC, 11.29.2015.PHI.at.MEM, 11.29.2015.PHX.at.TOR, 11.30.2015.BOS.at.MIA, 11.30.2015.DAL.at.SAC, 11.30.2015.DEN.at.MIL, 11.30.2015.GSW.at.UTA, 11.30.2015.HOU.at.DET, 11.30.2015.OKC.at.ATL, 11.30.2015.POR.at.LAC, 11.30.2015.SAS.at.CHI, 12.01.2015.DAL.at.POR, 12.01.2015.LAL.at.PHI, 12.01.2015.MEM.at.NOP, 12.01.2015.ORL.at.MIN, 12.01.2015.PHX.at.BKN, 12.02.2015.DEN.at.CHI, 12.02.2015.GSW.at.CHA, 12.02.2015.LAL.at.WAS, 12.02.2015.MIL.at.SAS, 12.02.2015.NOP.at.HOU, 12.02.2015.PHI.at.NYK, 12.02.2015.PHX.at.DET, 12.02.2015.TOR.at.ATL, 12.03.2015.DEN.at.TOR, 12.03.2015.IND.at.POR, 12.03.2015.OKC.at.MIA, 12.03.2015.ORL.at.UTA, 12.03.2015.SAS.at.MEM, 12.04.2015.BKN.at.NYK, 12.04.2015.CLE.at.NOP, 12.04.2015.HOU.at.DAL, 12.04.2015.LAL.at.ATL, 12.04.2015.MIL.at.DET, 12.04.2015.PHX.at.WAS, 12.06.2015.DAL.at.WAS, 12.06.2015.GSW.at.BKN, 12.06.2015.LAL.at.DET, 12.06.2015.PHX.at.MEM, 12.06.2015.SAC.at.OKC, 12.07.2015.BOS.at.NOP, 12.07.2015.DAL.at.NYK, 12.07.2015.DET.at.CHA, 12.07.2015.LAC.at.MIN, 12.07.2015.LAL.at.TOR, 12.07.2015.PHX.at.CHI, 12.07.2015.POR.at.MIL, 12.07.2015.SAS.at.PHI, 12.07.2015.WAS.at.MIA, 12.08.2015.GSW.at.IND, 12.08.2015.HOU.at.BKN, 12.08.2015.OKC.at.MEM, 12.08.2015.ORL.at.DEN, 12.08.2015.UTA.at.SAC, 12.09.2015.ATL.at.DAL, 12.09.2015.CHI.at.BOS, 12.09.2015.HOU.at.WAS, 12.09.2015.LAC.at.MIL, 12.09.2015.LAL.at.MIN, 12.09.2015.MEM.at.DET, 12.09.2015.MIA.at.CHA, 12.09.2015.NYK.at.UTA, 12.09.2015.ORL.at.PHX, 12.09.2015.SAS.at.TOR, 12.10.2015.ATL.at.OKC, 12.10.2015.LAC.at.CHI, 12.10.2015.NYK.at.SAC, 12.10.2015.PHI.at.BKN, 12.11.2015.CHA.at.MEM, 12.11.2015.CLE.at.ORL, 12.11.2015.DET.at.PHI, 12.11.2015.GSW.at.BOS, 12.11.2015.LAL.at.SAS, 12.11.2015.MIA.at.IND, 12.11.2015.MIL.at.TOR, 12.11.2015.MIN.at.DEN, 12.11.2015.OKC.at.UTA, 12.11.2015.POR.at.PHX, 12.11.2015.WAS.at.NOP, 12.12.2015.BOS.at.CHA, 12.12.2015.GSW.at.MIL, 12.12.2015.IND.at.DET, 12.12.2015.LAC.at.BKN, 12.12.2015.LAL.at.HOU, 12.12.2015.NOP.at.CHI, 12.12.2015.NYK.at.POR, 12.12.2015.SAS.at.ATL, 12.12.2015.WAS.at.DAL, 12.13.2015.MEM.at.MIA, 12.13.2015.MIN.at.PHX, 12.13.2015.PHI.at.TOR, 12.13.2015.UTA.at.OKC, 12.14.2015.HOU.at.DEN, 12.14.2015.LAC.at.DET, 12.14.2015.MIA.at.ATL, 12.14.2015.NOP.at.POR, 12.14.2015.ORL.at.BKN, 12.14.2015.PHI.at.CHI, 12.14.2015.PHX.at.DAL, 12.14.2015.TOR.at.IND, 12.14.2015.UTA.at.SAS, 12.14.2015.WAS.at.MEM, 12.15.2015.CLE.at.BOS, 12.15.2015.DEN.at.MIN, 12.15.2015.HOU.at.SAC, 12.15.2015.MIL.at.LAL, 12.16.2015.BOS.at.DET, 12.16.2015.CHA.at.ORL, 12.16.2015.DAL.at.IND, 12.16.2015.MEM.at.CHI, 12.16.2015.MIA.at.BKN, 12.16.2015.MIL.at.LAC, 12.16.2015.MIN.at.NYK, 12.16.2015.NOP.at.UTA, 12.16.2015.PHI.at.ATL, 12.16.2015.POR.at.OKC, 12.16.2015.WAS.at.SAS, 12.17.2015.HOU.at.LAL, 12.17.2015.TOR.at.CHA, 12.18.2015.ATL.at.BOS, 12.18.2015.BKN.at.IND, 12.18.2015.DEN.at.UTA, 12.18.2015.DET.at.CHI, 12.18.2015.LAC.at.SAS, 12.18.2015.MEM.at.DAL, 12.18.2015.MIL.at.GSW, 12.18.2015.NOP.at.PHX, 12.18.2015.NYK.at.PHI, 12.18.2015.POR.at.ORL, 12.18.2015.SAC.at.MIN, 12.18.2015.TOR.at.MIA, 12.19.2015.CHA.at.WAS, 12.19.2015.CHI.at.NYK, 12.19.2015.IND.at.MEM, 12.19.2015.LAC.at.HOU, 12.19.2015.LAL.at.OKC, 12.20.2015.ATL.at.ORL, 12.20.2015.MIL.at.PHX, 12.20.2015.MIN.at.BKN, 12.20.2015.NOP.at.DEN, 12.20.2015.POR.at.MIA, 12.20.2015.SAC.at.TOR, 12.21.2015.BKN.at.CHI, 12.21.2015.CHA.at.HOU, 12.21.2015.IND.at.SAS, 12.21.2015.MIN.at.BOS, 12.21.2015.OKC.at.LAC, 12.21.2015.ORL.at.NYK, 12.21.2015.PHX.at.UTA, 12.21.2015.POR.at.ATL, 12.21.2015.SAC.at.WAS, 12.22.2015.DAL.at.TOR, 12.22.2015.DET.at.MIA, 12.22.2015.LAL.at.DEN, 12.22.2015.MEM.at.PHI, 12.23.2015.BOS.at.CHA, 12.23.2015.DAL.at.BKN, 12.23.2015.DEN.at.PHX, 12.23.2015.DET.at.ATL, 12.23.2015.HOU.at.ORL, 12.23.2015.MEM.at.WAS, 12.23.2015.OKC.at.LAL, 12.23.2015.PHI.at.MIL, 12.23.2015.POR.at.NOP, 12.23.2015.SAC.at.IND, 12.23.2015.SAS.at.MIN, 12.23.2015.UTA.at.GSW, 12.25.2015.CHI.at.OKC, 12.25.2015.CLE.at.GSW, 12.25.2015.LAC.at.LAL, 12.25.2015.NOP.at.MIA, 12.25.2015.SAS.at.HOU, 12.26.2015.BOS.at.DET, 12.26.2015.CHI.at.DAL, 12.26.2015.CLE.at.POR, 12.26.2015.DEN.at.SAS, 12.26.2015.HOU.at.NOP, 12.26.2015.IND.at.MIN, 12.26.2015.LAC.at.UTA, 12.26.2015.MEM.at.CHA, 12.26.2015.MIA.at.ORL, 12.26.2015.NYK.at.ATL, 12.26.2015.PHI.at.PHX, 12.26.2015.TOR.at.MIL, 12.26.2015.WAS.at.BKN, 12.27.2015.DEN.at.OKC, 12.27.2015.LAL.at.MEM, 12.27.2015.NYK.at.BOS, 12.27.2015.POR.at.SAC, 12.28.2015.ATL.at.IND, 12.28.2015.BKN.at.MIA, 12.28.2015.CLE.at.PHX, 12.28.2015.LAC.at.WAS, 12.28.2015.LAL.at.CHA, 12.28.2015.MIL.at.DAL, 12.28.2015.MIN.at.SAS, 12.28.2015.NOP.at.ORL, 12.28.2015.PHI.at.UTA, 12.28.2015.SAC.at.GSW, 12.28.2015.TOR.at.CHI, 12.29.2015.ATL.at.HOU, 12.29.2015.CLE.at.DEN, 12.29.2015.DET.at.NYK, 12.29.2015.MIA.at.MEM, 12.29.2015.MIL.at.OKC, 12.30.2015.BKN.at.ORL, 12.30.2015.DEN.at.POR, 12.30.2015.GSW.at.DAL, 12.30.2015.IND.at.CHI, 12.30.2015.LAC.at.CHA, 12.30.2015.LAL.at.BOS, 12.30.2015.PHI.at.SAC, 12.30.2015.PHX.at.SAS, 12.30.2015.UTA.at.MIN, 12.30.2015.WAS.at.TOR, 12.31.2015.GSW.at.HOU, 12.31.2015.LAC.at.NOP, 12.31.2015.MIL.at.IND, 12.31.2015.MIN.at.DET, 12.31.2015.PHX.at.OKC, 12.31.2015.POR.at.UTA). Held-out, set aside before any fit: 44703 states from 17 game(s) (01.02.2016.ORL.at.CLE, 01.04.2016.TOR.at.CLE, 01.18.2016.GSW.at.CLE, 10.30.2015.MIA.at.CLE, 11.04.2015.NYK.at.CLE, 11.06.2015.PHI.at.CLE, 11.08.2015.IND.at.CLE, 11.10.2015.UTA.at.CLE, 11.19.2015.MIL.at.CLE, 11.21.2015.ATL.at.CLE, 11.23.2015.ORL.at.CLE, 12.01.2015.WAS.at.CLE, 12.08.2015.POR.at.CLE, 12.16.2015.PHX.at.GSW, 12.17.2015.OKC.at.CLE, 12.20.2015.PHI.at.CLE, 12.23.2015.NYK.at.CLE).
+Guard: `analytics.eval.refuse_heldout` checked the 604 training game ids against sportvu/splits.json; `analytics.schema.assert_time_forward` passed on every feature frame (the only column source is `schema.feature_allowlist("states_1hz")`; points_to_end and possession_end_kind never enter).
+Training mean points per state: 0.9924; P(points > 0): 0.4590.
 
-## Protocol (fixture output, not a result)
+## Protocol
 
 Features (25): ball_x, ball_y, ball_z, ball_dist_basket, handler_dist_basket, handler_angle, handler_nearest_def_dist_ft, off_dist_1, off_dist_2, off_dist_3, off_dist_4, off_dist_5, off_def_1, off_def_2, off_def_3, off_def_4, off_def_5, off_hull_area, shot_clock_s, elapsed_in_possession_s, ball_dist_min_so_far, n_handler_switches, handler_fg_prior, handler_zone_value, lineup_tov_prior.
 Priors come from the training games of each fold only. The per-player zone counts and the per-lineup counts are out-of-fold for the training rows (a game's own shots and possessions are left out of its prior); the two league-wide quantities they shrink towards, the location-only xFG (analytics.features_xfg, four parameters) at the handler's position and the training turnover rate, are fitted once on the whole training fold, the row's own game included.
 Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor (100 iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds), and under the gate an MLPRegressor over the last 5 states' features.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
-## Candidates by elapsed-time bucket (out-of-fold) (fixture output, not a result)
+## Candidates by elapsed-time bucket (out-of-fold)
 
 | bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |
 | --- | --- | --- | --- | --- | --- |
-| all | constant | 3026 | 0.2516 [0.2423, 0.2619] | 1.3341 [1.2365, 1.4472] | n/a |
-| all | ridge | 3026 | 0.2541 [0.2448, 0.2661] | 1.3746 [1.2232, 1.5410] | 0.002 |
-| all | hgb | 3026 | 0.2543 [0.2428, 0.2688] | 1.4563 [1.3144, 1.6102] | -0.814 |
-| all | mlp | 3026 | 0.2519 [0.2427, 0.2635] | 2.2112 [1.9892, 2.3961] | -0.008 |
-| 0-4 | constant | 956 | 0.2560 [0.2445, 0.2677] | 1.3618 [1.2846, 1.4541] | n/a |
-| 0-4 | ridge | 956 | 0.2592 [0.2478, 0.2725] | 1.4148 [1.2966, 1.5436] | -1.362 |
-| 0-4 | hgb | 956 | 0.2576 [0.2447, 0.2714] | 1.4780 [1.3771, 1.6035] | -1.304 |
-| 0-4 | mlp | 956 | 0.2550 [0.2442, 0.2662] | 2.0646 [1.9392, 2.1890] | -0.023 |
-| 4-10 | constant | 1329 | 0.2525 [0.2424, 0.2627] | 1.3573 [1.2815, 1.4602] | n/a |
-| 4-10 | ridge | 1329 | 0.2553 [0.2466, 0.2660] | 1.3933 [1.2750, 1.5176] | -1.711 |
-| 4-10 | hgb | 1329 | 0.2573 [0.2440, 0.2712] | 1.5127 [1.3720, 1.6528] | -0.501 |
-| 4-10 | mlp | 1329 | 0.2525 [0.2429, 0.2623] | 2.1299 [1.9170, 2.3627] | -0.447 |
-| 10-24 | constant | 741 | 0.2440 [0.2309, 0.2622] | 1.2566 [1.1043, 1.4524] | n/a |
-| 10-24 | ridge | 741 | 0.2455 [0.2277, 0.2684] | 1.2890 [1.0327, 1.5905] | 0.132 |
-| 10-24 | hgb | 741 | 0.2445 [0.2321, 0.2639] | 1.3273 [1.1415, 1.5602] | -1.238 |
-| 10-24 | mlp | 741 | 0.2470 [0.2331, 0.2663] | 2.5459 [2.0318, 3.1165] | 0.053 |
+| all | constant | 1739119 | 0.2483 [0.2481, 0.2486] | 1.2822 [1.2745, 1.2901] | n/a |
+| all | ridge | 1739119 | 0.2469 [0.2465, 0.2472] | 1.2766 [1.2683, 1.2843] | 0.991 |
+| all | hgb | 1739119 | 0.2379 [0.2375, 0.2384] | 1.2368 [1.2287, 1.2446] | 0.991 |
+| all | mlp | 1739119 | 0.2363 [0.2359, 0.2368] | 1.2218 [1.2137, 1.2294] | 1.050 |
+| 0-4 | constant | 443333 | 0.2507 [0.2504, 0.2509] | 1.2909 [1.2834, 1.2976] | n/a |
+| 0-4 | ridge | 443333 | 0.2501 [0.2499, 0.2502] | 1.2906 [1.2838, 1.2968] | 0.265 |
+| 0-4 | hgb | 443333 | 0.2497 [0.2495, 0.2499] | 1.2863 [1.2795, 1.2929] | 0.550 |
+| 0-4 | mlp | 443333 | 0.2488 [0.2486, 0.2490] | 1.2860 [1.2789, 1.2922] | 0.682 |
+| 4-10 | constant | 585059 | 0.2492 [0.2490, 0.2495] | 1.2922 [1.2842, 1.2999] | n/a |
+| 4-10 | ridge | 585059 | 0.2489 [0.2487, 0.2490] | 1.2906 [1.2828, 1.2980] | 0.829 |
+| 4-10 | hgb | 585059 | 0.2439 [0.2436, 0.2443] | 1.2698 [1.2622, 1.2773] | 1.133 |
+| 4-10 | mlp | 585059 | 0.2429 [0.2426, 0.2433] | 1.2602 [1.2526, 1.2673] | 1.015 |
+| 10-24 | constant | 710727 | 0.2461 [0.2458, 0.2465] | 1.2686 [1.2589, 1.2772] | n/a |
+| 10-24 | ridge | 710727 | 0.2433 [0.2426, 0.2439] | 1.2564 [1.2447, 1.2658] | 0.966 |
+| 10-24 | hgb | 710727 | 0.2256 [0.2248, 0.2265] | 1.1787 [1.1677, 1.1879] | 0.983 |
+| 10-24 | mlp | 710727 | 0.2231 [0.2223, 0.2238] | 1.1501 [1.1407, 1.1595] | 1.086 |
 
 | model | in-sample MSE (mean over folds) | out-of-fold MSE |
 | --- | --- | --- |
-| constant | 1.3088 | 1.3341 |
-| ridge | 1.2594 | 1.3746 |
-| hgb | 0.9074 | 1.4563 |
-| mlp | 0.3794 | 2.2112 |
+| constant | 1.2822 | 1.2822 |
+| ridge | 1.2763 | 1.2766 |
+| hgb | 1.2359 | 1.2368 |
+| mlp | 1.2142 | 1.2218 |
 
-Selected: **constant** (lowest out-of-fold MSE among the three candidates).
-Why the constant: no learner beats the constant out of fold (gradient boosting lift -9.2 percent); the gradient-boosting calibration slopes sit outside 0.9 to 1.1 in 14-24, 7-14; the real lift (-9.2 percent) is no better than the shuffled-target lift (-8.7 percent); the learners overfit (in-sample MSE well under out-of-fold for hgb, mlp: the target is one draw per possession while min_samples_leaf counts states, so a leaf can hold a handful of possessions).
+Selected: **mlp** (beats hgb, the lowest-MSE candidate, under paired bootstrap by game).
+Why: mlp has the lowest out-of-fold MSE (1.2218 against the constant's 1.2822, lift 4.7 percent).
 
-## Calibration of P(points > 0), constant model (out-of-fold) (fixture output, not a result)
+## Calibration of P(points > 0), mlp model (out-of-fold)
 
 | bucket (s) | bin | n | mean p | observed rate |
 | --- | --- | --- | --- | --- |
-| 0-4 | 0.4 to 0.6 | 637 | 0.550 | 0.579 |
-| 0-4 | 0.6 to 0.8 | 319 | 0.603 | 0.426 |
-| 4-10 | 0.4 to 0.6 | 893 | 0.549 | 0.601 |
-| 4-10 | 0.6 to 0.8 | 436 | 0.603 | 0.454 |
-| 10-24 | 0.4 to 0.6 | 482 | 0.550 | 0.639 |
-| 10-24 | 0.6 to 0.8 | 259 | 0.603 | 0.548 |
+| 0-4 | 0.0 to 0.2 | 960 | 0.133 | 0.315 |
+| 0-4 | 0.2 to 0.4 | 5928 | 0.335 | 0.416 |
+| 0-4 | 0.4 to 0.6 | 425144 | 0.479 | 0.484 |
+| 0-4 | 0.6 to 0.8 | 9843 | 0.677 | 0.646 |
+| 0-4 | 0.8 to 1.0 | 1458 | 0.824 | 0.770 |
+| 4-10 | 0.0 to 0.2 | 12051 | 0.108 | 0.100 |
+| 4-10 | 0.2 to 0.4 | 15307 | 0.316 | 0.295 |
+| 4-10 | 0.4 to 0.6 | 541052 | 0.475 | 0.475 |
+| 4-10 | 0.6 to 0.8 | 11442 | 0.687 | 0.682 |
+| 4-10 | 0.8 to 1.0 | 5207 | 0.844 | 0.833 |
+| 10-24 | 0.0 to 0.2 | 66554 | 0.098 | 0.085 |
+| 10-24 | 0.2 to 0.4 | 62252 | 0.316 | 0.291 |
+| 10-24 | 0.4 to 0.6 | 537679 | 0.471 | 0.464 |
+| 10-24 | 0.6 to 0.8 | 27611 | 0.692 | 0.716 |
+| 10-24 | 0.8 to 1.0 | 16631 | 0.845 | 0.843 |
 
-## Gradient boosting by shot-clock bucket and the gate (fixture output, not a result)
+## Gradient boosting by shot-clock bucket and the gate
 
 | shot clock (s) | calibration slope |
 | --- | --- |
-| 14-24 | -0.727 |
-| 7-14 | -1.449 |
+| 7-14 | 1.033 |
+| 0-7 | 1.115 |
+| 14-24 | 0.992 |
 
-MSE lift of gradient boosting over the constant: -9.2 percent (1.4563 vs 1.3341). Slopes outside 0.9 to 1.1 (n/a counts as outside): 14-24, 7-14.
+MSE lift of gradient boosting over the constant: 3.5 percent (1.2368 vs 1.2822). Slopes outside 0.9 to 1.1 (n/a counts as outside): 0-7.
 Gate decision: the sequence model (MLPRegressor over the last 5 states, standing in for a GRU) was TRAINED.
-Paired bootstrap by game of MSE(constant) - MSE(mlp), constant being the lowest-MSE candidate: -0.8771 [-1.0400, -0.7132]; the sequence model is DROPPED (no significant gain over the base candidate).
+Paired bootstrap by game of MSE(hgb) - MSE(mlp), hgb being the lowest-MSE candidate: 0.0150 [0.0140, 0.0161]; the sequence model is KEPT (interval above 0 and a lower out-of-fold MSE).
 
-## Shuffled-target check (fixture output, not a result)
+## Shuffled-target check
 
-Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE 1.4598 vs constant 1.3428, lift -8.7 percent (chance is at or below 0; the real lift above is -9.2 percent).
+Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE 1.2837 vs constant 1.2834, lift -0.0 percent (chance is at or below 0; the real lift above is 3.5 percent).
 
-## Held-out games, scored once (never fitted or tuned on) (fixture output, not a result)
+## Held-out games
 
-988 states from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW; the pipeline was refit on all 3026 training states. Only the selected candidate (constant) is scored here; the other candidates never see a held-out row.
-Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on. Point estimates only: fewer than 5 held-out games, so no bootstrap interval.
+17 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
 
-| bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |
-| --- | --- | --- | --- | --- | --- |
-| all | constant | 988 | 0.2426 | 1.2191 | n/a |
-| 0-4 | constant | 320 | 0.2432 | 1.2256 | n/a |
-| 4-10 | constant | 450 | 0.2425 | 1.2367 | n/a |
-| 10-24 | constant | 218 | 0.2422 | 1.1732 | n/a |
+## Status
 
-## Status (fixture output, not a result)
-
-Fixture output, not a result. The real run of this protocol on the owner's Mac, where the full data lives, is
+The run of this protocol was
 
     python -m analytics.epv.train --data /path/to/DATA_ROOT --report reports/epv.md --folds 5 --seed 0 --bootstrap 1000 --out /path/to/DATA_ROOT
 

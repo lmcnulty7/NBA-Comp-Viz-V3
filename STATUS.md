@@ -2,22 +2,28 @@
 
 ## Runbook progress
 
-WAITING ON YOU (stage 4 hand labels): stage 3 passed 2026-11-11 (below); PRs #8, #9 and #10 merged into
-track-fix (f05a5d2), so stage 4a is done. Label these 8 training games (16 different teams, October to
-January; picked with a fixed seed, none held out, each draws a full 50 with 26 screen candidates):
+Owner decisions 2026-11-11 (recorded here as asked):
+- **Stage 4 hand labels are deferred** (the owner may label later or source labels elsewhere). The 8-game list
+  and the commands stay below in "Stage 4 labelling (deferred)".
+- **Lane groups** (docs/mac_runbook.md, "Lane groups"): group 1, the label-free lanes (xfg and its baseline,
+  rebounds, matchups, gravity, ghosting, embeddings, epv, decisions, lineups, winprob, load), goes through
+  stages 5 to 9 now and is frozen as freeze-v1 with its own single held-out run (gate gates/go-stage8). Group 2
+  (actions, coverage, playcalling) waits for the labels and gets freeze-v2 and its own single held-out run
+  (gate gates/go-stage8-v2). No lane is ever scored on held-out twice.
+- **Betting skipped** (gates/odds-skip) and **NBA.com tables skipped** (gates/nbacom-skip). Both gate files were
+  created by the loop on the owner's explicit instruction. Embeddings runs without the aggregate block;
+  winprob's benchmark column stays empty with that reason stated.
+- **Ghosting train memory:** fit on every 5th defender-step (1 Hz) of all training games, float32; evaluation
+  unchanged at the 5 Hz roll-forward, streamed one game at a time; timed on 10 games first, then the full run
+  if it fits overnight and in memory.
 
-10.29.2015.MEM.at.IND, 11.14.2015.DET.at.LAC, 11.17.2015.MIN.at.MIA, 11.30.2015.DAL.at.SAC,
-12.19.2015.LAL.at.OKC, 12.21.2015.POR.at.ATL, 01.02.2016.DEN.at.GSW, 01.09.2016.WAS.at.ORL
+### Stage 4 labelling (deferred)
 
-Pass 1, one game at a time (docs/labeling_guide.md sections 1 to 3):
-
-```bash
-python3 -m analytics.label_tool --data "$DATA_ROOT" --game <game> --sample 50 --seed 0 --port 8765
-```
-
-Pass 2, about a week later, same command plus `--labeller-pass 2`: the tool lists only sample ranks 0, 10, 20,
-30 and 40 (5 per game, 40 in all). Then `mkdir -p gates && touch gates/labels-done`; the loop runs `--kappa`
-and needs at least 0.7 for actions and for coverages.
+The 8 training games picked for labelling (16 teams; none held out): 10.29.2015.MEM.at.IND,
+11.14.2015.DET.at.LAC, 11.17.2015.MIN.at.MIA, 11.30.2015.DAL.at.SAC, 12.19.2015.LAL.at.OKC, 12.21.2015.POR.at.ATL,
+01.02.2016.DEN.at.GSW, 01.09.2016.WAS.at.ORL. Pass 1: `python3 -m analytics.label_tool --data "$DATA_ROOT" --game
+<game> --sample 50 --seed 0 --port 8765`; pass 2 a week later with `--labeller-pass 2` (sample ranks 0, 10, 20,
+30, 40 only); then gates/labels-done and `--kappa` (at least 0.7 for actions and coverages).
 
 Stage 1 passed: PR #5 and PR #6 merged 2026-11-07. Stage 2 passed 2026-11-07. Two later decisions are open
 (odds and NBA.com, under Open gates).
@@ -26,12 +32,12 @@ PRs #8 (stage 4a --skip-heldout), #9 (stage 9 results) and #10 (stage 6 torch mo
 
 Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 4 waiting for gates/labels-done; meanwhile stage 5 phase 1 done (2026-11-11) and phase 2 running.
+- **Current stage:** 5 for group 1 (label-free lanes); stage 4 labels deferred, group 2 waits for them.
 - **Label tool fix (2026-11-11):** `--labeller-pass 2` with `--sample` now lists only every tenth sample_rank
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** none (three streaming-fix agents working on worktree branches).
+- **Background jobs:** see the stage 5 group 1 entry below.
 - **Stage 5 phase 2 FAILED (2026-11-11 16:56):** `run_all.py --phase 2 --skip-heldout` was killed after about
   30 s with exit 137 (SIGKILL, out of memory on this 16 GB Mac) inside matchups validate, before any step log was
   written (logs/loop/stage5_phase2.log: "note: matchups depends on xfg, not selected; their outputs must already
@@ -44,13 +50,12 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   table; its glob sportvu_contract/**/*.parquet also picks up the _pbp files and the heldout folder) have the
   same defect and are fixed next, before phases 3 and 4. The lanes were only ever run on fixture seasons, so
   the tests never saw it.
-- **Fix in progress (2026-11-11):** matchups, gravity and ghosting are being changed to stream frames game by
-  game, each on its own worktree branch, with identical fixture results, a test that no more than one game's
-  frames is alive at a time, and a peak-memory check on a few real training games. Embeddings (already
-  streaming) ran meanwhile: ok in 316 s, peak memory 2.1 GB (logs/loop/stage5_embeddings.log). PCA chosen: 5-NN
-  position accuracy 0.768 [0.720, 0.809] against a 0.413 majority baseline, so the autoencoder gate was not
-  reached; 448 player-seasons, 399 with at least 300 possessions; next-season R squared n/a (no 2016-17 data);
-  NBA.com block absent (rerun when that gate closes). Phase 2 reruns the other three after merge.
+- **Streaming fix merged (2026-11-11):** matchups (ea986ba), gravity (9ad28f4) and ghosting (df9d732) now read
+  frames one game at a time, each with identical fixture results and a test that at most one game's frames is
+  alive at a time. Also fixed: matchups train read the xFG predictions only from --out, which run_all never
+  passes, so it would have used the location-only fallback and written nothing; OUT_ROOT now defaults to
+  DATA_ROOT (ceea4c5, test). Still to fix: decisions (agent working), and for group 2 later, actions and
+  playcalling. Ghosting train also needs the owner's 1 Hz fit rule (agent working) before it runs.
 - **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
   xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
@@ -121,6 +126,18 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 | games at CLE | 0 (21 CLE road games, which are training games) |
 | audit tests (tests/test_label_tool_audit.py and the audit_shots tests) | 51 passed; 53 after the 10-frame amendment, make test-fast 648 passed |
 | audit tool smoke run on the real sample | page and shots 1, 301 and 604 served; sample file unchanged |
+
+### Stage 5 group 1, phases 2 and 3 (2026-11-11, training folds only, held-out not scored)
+
+| lane | time, peak memory footprint | selected | out-of-fold metric [95 percent game bootstrap] | notes |
+|---|---|---|---|---|
+| embeddings | 5 min, 2.1 GB | pca | 5-NN position accuracy 0.768 [0.720, 0.809] (majority 0.413) | autoencoder gate not reached; 399 of 448 player-seasons embedded; NBA.com block absent |
+| matchups | 6 min, 7.2 GB | ridge | possession points MSE 1.2854 [1.2788, 1.2916] | ridge beats raw by 0.039 but is WORSE than the constant (1.2842; ridge minus constant 0.0012 [0.0002, 0.0020]): defender identity adds no out-of-fold predictive value; within-4-ft defended FG% 0.427 vs 0.454 beyond; assignment stable 82 percent of sampled frames; 368 of 447 defenders gated |
+| gravity | 7 min, 14.5 GB | ridge (shipped by the plan; hgb diagnostic only) | MSE 28.12, R2 0.416 (hgb 22.71, R2 0.528) | top gravity 201939, 202691, 2594 (Curry, Thompson, Korver, by id) look right; the known-player check is fixture-only, so no claim; sign test p = 0.020 over 290 games |
+| epv | 41 min (train 39), 19 GB | mlp (sequence stand-in) | MSE expected points 1.2218 [1.2137, 1.2294] vs constant 1.2822 (lift 4.7 percent) | beats hgb under paired bootstrap, so the stage 6 sequence-model gate is open; shuffled-target lift 0; 0-4 s bucket weakly calibrated (slope 0.68) |
+
+Memory: epv and gravity peaked above the 16 GB of RAM (memory compression) but finished; group 1 lanes run
+one at a time. Next: decisions (after its streaming fix), lineups, winprob, load; ghosting after its fit rule.
 
 ### Stage 5 phase 1 (done 2026-11-11, training folds only, held-out not scored)
 
