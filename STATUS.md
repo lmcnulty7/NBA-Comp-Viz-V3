@@ -2,20 +2,25 @@
 
 ## Runbook progress
 
-**WAITING ON YOU (2026-11-12): group 1 is frozen at tag `freeze-v1`. Review the freeze, then create
-`gates/go-stage8` (`mkdir -p gates && touch gates/go-stage8`) to start the single held-out run of group 1.** What to
-review: the "Frozen for the held-out run (freeze-v1)" section at the end of each group 1 page in docs/contract/
-(xfg with its baseline, rebounds, matchups, gravity, ghosting, embeddings, epv, decisions, lineups, winprob, load),
-and three choices the loop made that you may want to overrule before the run:
-1. ghosting keeps the MLP stand-in, not the stage 6 torch GRU (the GRU was worse paired by game, 0.111 ft [0.085,
-   0.138] at 1.0 s), although stage 6 says to replace the stand-in.
-2. Two improvement-search variants were accepted and merged: winprob margin_over_sqrt_time and the rebounds hgb
-   temperature (reports/archive/).
-3. matchups is frozen with ridge although ridge is worse than the constant out of fold (its selection rule only
-   compares raw with ridge); embeddings has no held-out score by design (held-out games are dropped before any
-   feature), so stage 8 gives it none.
-Stage 8 runs about 3 to 4 hours one lane at a time (epv about 21 GB and gravity about 15 GB peak footprint, both
-finished on this Mac before). Nothing is running now.
+**STAGE 8, GROUP 1 RUNNING (started 2026-11-12 13:38 PST).** The owner explicitly authorised stage 8 for group 1
+and told the loop, in so many words, to create `gates/go-stage8` itself once three conditions were checked. The loop
+checked them and created the gate at 13:38:
+1. matchups' held-out section scores the selected candidate (ridge) and the constant floor on the held-out games in
+   one MSE table (point estimates, analytics/matchups/train.py score_heldout and the "Held-out game(s), scored once"
+   section of write_report).
+2. Crash rule (the owner's condition): if the Mac crashes mid-run, rerun only the lanes that did not finish (every
+   step ok in logs/loop/stage8_group1.log), with the same frozen code at freeze-v1, and record the rerun here. A lane
+   that finished is never rerun: that would be a second look at held-out.
+3. The run uses a fresh worktree detached at tag `freeze-v1` (7d8b8ee), outside the repo at
+   `../NBA-V3-stage8-freeze-v1`, with no modified and no untracked files (`git status --porcelain` empty, logged at
+   the start of the run). The main checkout's tracked tree is also identical to freeze-v1; its untracked owner
+   files (docs drafts, data/gate_sheet, portfolio/story) are why the run is in a separate worktree.
+
+Commands (docs/mac_runbook.md, stage 8), one at a time under caffeinate and `/usr/bin/time -l`, log
+logs/loop/stage8_group1.log: `run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings
+epv decisions lineups winprob load --continue-on-error` (no `--skip-heldout`), then the xfg baseline with both shot
+files. Reports land in the worktree's reports/ and are copied to a branch from track-fix for the stage 8 PR. Expected
+about 3 to 4 hours (epv about 21 GB, gravity about 15 GB peak).
 
 Owner decisions 2026-11-11 (recorded here as asked):
 - **Stage 4 hand labels are deferred** (the owner may label later or source labels elsewhere). The 8-game list
