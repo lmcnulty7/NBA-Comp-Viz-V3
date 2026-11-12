@@ -9,4 +9,9 @@ mlogloss(variant) minus mlogloss(parent) has its 95 percent interval below 0. Th
 | id | parent | change | why (evidence) | per-miss log loss | paired vs parent | decision |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | none | incumbent: hgb on the candidate rows, probabilities normalised within the miss | stage 5 selection | 1.6234 | n/a | incumbent |
-| 1 | 0 | temperature on the within-miss normalisation of hgb: p proportional to q^tau, tau fitted (bounded 0.25 to 8) by minimising per-miss log loss on hgb's inner out-of-fold predictions over 5 inner grouped folds of each outer fold's training games | the top candidate is under-confident at every level (calibration slope 1.69 [1.66, 1.74], ECE 0.109; misses at mean p 0.547 are secured 0.786 of the time): a binary model normalised within the miss flattens the distribution, and one exponent fitted on inner folds can sharpen it without touching the ranking (top-1 unchanged) | pending | pending | pending |
+| 1 | 0 | temperature on the within-miss normalisation of hgb: p proportional to q^tau, tau fitted (bounded 0.25 to 8) by minimising per-miss log loss on hgb's inner out-of-fold predictions over 5 inner grouped folds of each outer fold's training games | the top candidate is under-confident at every level (calibration slope 1.69 [1.66, 1.74], ECE 0.109; misses at mean p 0.547 are secured 0.786 of the time): a binary model normalised within the miss flattens the distribution, and one exponent fitted on inner folds can sharpen it without touching the ranking (top-1 unchanged) | 1.6009 | -0.0225 [-0.0246, -0.0205] | **accepted** (branch exp/rebounds-1, merged): tau 1.255 to 1.257 across the 5 outer folds; top-1 unchanged 0.4797; top-candidate ECE 0.109 to 0.041, slope 1.69 to 1.37 (still under-confident) |
+
+Variant 1 was evaluated by a scratch script running the lane's own out_of_fold twice on the same folds, with
+TEMPERATURE off and on (the incumbent reproduced the report's 1.6234 exactly).
+
+Variants tried: 1 of 5.

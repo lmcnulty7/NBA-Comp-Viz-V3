@@ -341,3 +341,51 @@ def test_eda_tables_and_shuffled_label_check(run):
     assert (shuffled["per_miss_log_loss"] >= shuffled["uniform_log_loss"] - 0.15).all()   # nothing to learn from permuted labels
     md = eda.markdown(side)
     assert md.startswith("| side | misses | share |") and chr(0x2014) not in md
+
+
+def test_fit_temperature_sharpens_an_under_confident_distribution():
+    import numpy as np
+    from analytics.rebounds import train as T
+    rng = np.random.default_rng(0)
+    n_miss, k = 400, 6
+    key = np.repeat(np.arange(n_miss), k)
+    logits = rng.normal(0, 1.5, n_miss * k)
+    true_p = T.softmax_within(logits, key)
+    y = np.zeros(n_miss * k, dtype=bool)
+    for m in range(n_miss):
+        idx = np.arange(m * k, (m + 1) * k)
+        y[rng.choice(idx, p=true_p[idx])] = True
+    flat = T.softmax_within(logits / 2.0, key)          # the same ranking, half as sharp
+    tau = T.fit_temperature(flat, key, y)
+    assert 1.4 < tau < 3.0
+    assert T.fit_temperature(true_p, key, y) == pytest.approx(1.0, abs=0.35)
+    assert T.fit_temperature(np.array([]), np.array([], dtype=int), np.array([], dtype=bool)) == 1.0
+
+
+def test_inner_temperature_fits_on_training_games_only(monkeypatch):
+    import pandas as pd
+    from analytics.rebounds import train as T
+    games = ["g%d" % i for i in range(4)]
+    train = pd.DataFrame([{"sportvu_game": g, "event": ev, "candidate_player_id": c, F.TARGET: int(c == ev % 3)}
+                          for g in games for ev in range(6) for c in range(3)])
+    fitted, scored = [], []
+
+    def fake_fit(tr, seed=0, only=None, temperature=None):
+        assert only == "hgb" and temperature is False
+        fitted.append(set(tr["sportvu_game"]))
+        return {"hgb": lambda fr: scored.append(set(fr["sportvu_game"])) or [0.3] * len(fr)}
+    monkeypatch.setattr(T, "_fit", fake_fit)
+    monkeypatch.setattr(T, "fit_temperature", lambda q, key, y: 1.7)
+    tau, k = T.inner_temperature(train, 0)
+    assert tau == 1.7 and k == 4
+    # every inner fit sees only some of the training games, and scores games it did not fit on
+    assert all(f < set(games) for f in fitted) and all(not (f & s) for f, s in zip(fitted, scored))
+    assert set().union(*scored) == set(games)
+
+
+def test_out_root_defaults_to_data_root_on_real_data():
+    from types import SimpleNamespace as NS
+    from analytics.rebounds import train as T
+    assert T.out_root_for(NS(out="/o", fixtures=False, data="/d")) == "/o"
+    assert T.out_root_for(NS(out=None, fixtures=False, data="/d")) == "/d"
+    assert T.out_root_for(NS(out=None, fixtures=True, data=None)) is None

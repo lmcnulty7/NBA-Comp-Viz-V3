@@ -58,6 +58,9 @@ WHO = "rebounds.train"
 MODELS = ("prior", "logit", "hgb")
 SMOOTH = 10.0
 INNER_FOLDS = 5
+TEMPERATURE = True                 # improvement search variant 1 (reports/archive/rebounds.md): sharpen hgb within the miss
+TAU_BOUNDS = (0.25, 8.0)
+FIT_TAU: list = []                 # the hgb temperature of every fit, for the report and the tests
 TOP1_TARGET = 0.40
 HELDOUT_FOLD, IN_SAMPLE_FOLD = -1, -2        # fold sentinels of the predictions table (docs/contract/rebounds.md)
 PRED_COLUMNS = ["sportvu_game", "event", "candidate_player_id", "p_prior", "p_logit", "p_selected", "is_rebounder",
@@ -143,7 +146,46 @@ def design(frame: pd.DataFrame, prior: np.ndarray) -> pd.DataFrame:
     return X
 
 
+def fit_temperature(q, key: np.ndarray, y) -> float:
+    """The exponent tau minimising the per-miss log loss of normalise_within(q ** tau) (bounded TAU_BOUNDS); 1.0
+    when there is nothing to fit (no rows, or every miss has one candidate)."""
+    from scipy.optimize import minimize_scalar
+    q = np.clip(np.asarray(q, dtype=float), EPS, 1.0)
+    y = np.asarray(y).astype(bool)
+    if len(q) == 0 or not y.any():
+        return 1.0
+    logq = np.log(q)
+
+    def loss(tau):
+        p = normalise_within(np.exp(tau * (logq - logq.max())), key)
+        return -float(np.log(np.clip(p[y], EPS, 1.0)).mean())
+    r = minimize_scalar(loss, bounds=TAU_BOUNDS, method="bounded", options={"xatol": 1e-3})
+    return float(r.x)
+
+
+def inner_temperature(train: pd.DataFrame, seed: int = 0) -> tuple[float, int]:
+    """(tau, inner folds): the hgb temperature fitted on inner out-of-fold hgb predictions over INNER_FOLDS grouped
+    folds of ``train``'s games (never a row outside ``train``); (1.0, 0) with fewer than two games."""
+    games = sorted(train["sportvu_game"].astype(str).unique())
+    if len(games) < 2:
+        return 1.0, 0
+    k = min(INNER_FOLDS, len(games))
+    g = train["sportvu_game"].astype(str)
+    q = np.full(len(train), np.nan)
+    for tr_games, te_games in grouped_folds(games, n_folds=k, seed=seed):
+        tr, te = g.isin(tr_games).to_numpy(), g.isin(te_games).to_numpy()
+        q[te] = _fit(train[tr], seed, only="hgb", temperature=False)["hgb"](train[te])
+    return fit_temperature(q, miss_key(train), train[F.TARGET].astype(int).to_numpy()), k
+
+
 def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) -> dict:
+    """Fit the three candidates on one training frame -> {name: predict(frame) -> p normalised within miss}.
+    With ``only`` set to a model name, only that candidate is fitted (the held-out refit). Every fit goes through
+    here (the inner temperature fits go through _fit, under the same guards)."""
+    return _fit(train, seed, only)
+
+
+def _fit(train: pd.DataFrame, seed: int = 0, only: str | None = None, temperature: bool | None = None) -> dict:
     """Fit the three candidates on one training frame -> {name: predict(frame) -> p normalised within miss}.
     With ``only`` set to a model name, only that candidate is fitted (the held-out refit). Every fit goes through
     here: it refuses a held-out row or a held-out game id (refuse_heldout covers the held-out arena too)."""
@@ -180,10 +222,17 @@ def fit_candidates(train: pd.DataFrame, seed: int = 0, only: str | None = None) 
             scores = m.decision_function(Xt.to_numpy())
         return softmax_within(scores, miss_key(frame))
 
-    def hgb_predict(frame, m=hgb, r=rates):
+    tau = 1.0
+    if only in (None, "hgb") and (TEMPERATURE if temperature is None else temperature):
+        tau, _ = inner_temperature(train, seed)
+    FIT_TAU.append(tau)
+
+    def hgb_predict(frame, m=hgb, r=rates, tau=tau):
         Xt = design(frame, apply_prior(frame, r))
         with fit_threads(1):
             p = m.predict_proba(Xt.to_numpy())[:, 1]
+        if tau != 1.0:
+            p = np.exp(tau * np.log(np.clip(p, EPS, 1.0)))
         return normalise_within(p, miss_key(frame))
 
     if only in (None, "logit"):
@@ -469,9 +518,18 @@ def parse_args(argv=None):
     return ap.parse_args(argv)
 
 
+def out_root_for(a):
+    """--out when given; else DATA_ROOT on real data (run_all passes no --out, and with None the predictions table was
+    never written); else None on the fixtures."""
+    if a.out:
+        return a.out
+    return None if a.fixtures else getattr(a, "data", None)
+
+
 def main(argv=None) -> dict:
     """CLI: run the protocol, score the held-out games once, write the report and (with --out) the predictions."""
     a = parse_args(argv)
+    a.out = out_root_for(a)
     bundles = V.source_bundles(a)
     fixture_source = V.FIXTURE_SOURCE if a.fixtures else ""
     cands, inputs, drop_total, val_tot = load_candidates(bundles)

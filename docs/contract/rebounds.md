@@ -48,7 +48,7 @@ rebound (null by construction) and every player rebound whose frame the localise
 since neither affects the label or the features. The offence of a miss is the section 5 `team` of the miss
 event, else the `offense_team_id` of the possession with the largest `start_frame` at or before the rim frame.
 
-## Predictions (`rebound_predictions`, written by `python -m analytics.rebounds.train --out OUT_ROOT`)
+## Predictions (`rebound_predictions`, written by `python -m analytics.rebounds.train --out OUT_ROOT`; OUT_ROOT defaults to DATA_ROOT on real data, as run_all passes no --out)
 
 `OUT_ROOT/analytics/rebounds/<season>/<sportvu_game>.parquet`, held-out games under
 `OUT_ROOT/analytics/rebounds/heldout/<season>/`. One row per candidate row above.
@@ -65,7 +65,11 @@ event, else the `offense_team_id` of the possession with the largest `start_fram
 | `fold` | int16 | grouped fold (by `sportvu_game`) that scored the row out of fold; `-1` on held-out rows; `-2` when one training game forced an in-sample fit (`train.IN_SAMPLE_FOLD`) |
 | `heldout` | bool | scored once by the selected candidate alone, refit on every training row; never fitted or tuned on; the non-selected models are not scored on held-out rows (their columns are NaN there) |
 
-Probabilities of a miss sum to one for each model. Selection metric: per-miss multinomial log loss, the mean
+Probabilities of a miss sum to one for each model. The hgb candidate's probabilities are sharpened within the miss by
+a temperature (improvement search variant 1, reports/archive/rebounds.md): p proportional to q^tau, where q is the
+binary model's probability and tau (bounded 0.25 to 8) minimises the per-miss log loss of hgb's inner out-of-fold
+predictions over 5 inner grouped folds of the fit's own training games; the ranking within a miss is unchanged.
+Selection metric: per-miss multinomial log loss, the mean
 over misses of minus the log probability of the true candidate; also reported: top-1 accuracy (a tie at the
 maximum counts 1 over the number tied), bootstrap intervals by game, the paired bootstrap of hgb against prior
 and the calibration of the top candidate's probability (`analytics.eval.report_block`), all on out-of-fold

@@ -1,8 +1,8 @@
 # Live win probability (analytics/winprob/train.py)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 (train rerun after the OUT_ROOT fix, same numbers, tables written); the 2024-25 season is held out; no odds (betting skipped, gates/odds-skip), so the closing spread is missing on every game; NBA.com skipped (gates/nbacom-skip), so the benchmark column is empty.
+**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 with improvement search variant 1 merged (margin_over_sqrt_time; reports/archive/winprob.md); the 2024-25 season is held out; no odds (betting skipped, gates/odds-skip), so the closing spread is missing on every game; NBA.com skipped (gates/nbacom-skip), so the benchmark column is empty.
 
-Written 2026-11-12T11:32:39Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md --skip-heldout`.
+Written 2026-11-12T11:46:11Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md --skip-heldout`.
 
 ## Inputs
 
@@ -24,9 +24,9 @@ Written 2026-11-12T11:32:39Z by `python -m analytics.winprob.train --data $DATA_
 
 ## Protocol
 
-Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): margin, seconds_remaining, overtime, period, possession_home, spread_home, spread_missing, margin_x_sqrt_time.
+Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): margin, seconds_remaining, overtime, period, possession_home, spread_home, spread_missing, margin_x_sqrt_time, margin_over_sqrt_time.
 The final score never enters a feature; `prefix_invariance_violations` found 0 violation(s) on 2 probed game(s) (a feature at event k is unchanged when the play-by-play is cut after k).
-Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag) and margin_x_sqrt_time (standardised, C=1); HistGradientBoostingClassifier on the same plus period, overtime, spread_home and spread_missing, calibrated by isotonic regression on inner out-of-fold predictions (3 folds by game). No deep model.
+Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag), margin_x_sqrt_time and margin_over_sqrt_time (standardised, C=1); HistGradientBoostingClassifier on the same plus period, overtime, spread_home and spread_missing, calibrated by isotonic regression on inner out-of-fold predictions (3 folds by game). No deep model.
 Selection: out-of-fold under 5 grouped folds by game within the training seasons (seed 0). The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). Intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0). The held-out season is set aside and never scored (--skip-heldout).
 
 ## Candidates by time bucket
@@ -36,8 +36,8 @@ Brier score (lower is better), out-of-fold within the training seasons.
 | model | 48-36 | 36-24 | 24-12 | 12-4 | 4-0 | OT | selection (mean of 5) | log loss overall | Brier overall |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | constant | 0.2471 [0.2454, 0.2487] | 0.2471 [0.2453, 0.2487] | 0.2470 [0.2453, 0.2486] | 0.2469 [0.2451, 0.2485] | 0.2477 [0.2460, 0.2493] | 0.2504 [0.2442, 0.2572] | 0.2472 | 0.6874 [0.6839, 0.6906] | 0.2471 [0.2454, 0.2487] |
-| logistic (selected) | 0.2311 [0.2285, 0.2335] | 0.1943 [0.1906, 0.1999] | 0.1532 [0.1480, 0.1597] | 0.1040 [0.0987, 0.1092] | 0.0590 [0.0559, 0.0621] | 0.1626 [0.1492, 0.1765] | 0.1483 | 0.4884 [0.4804, 0.4989] | 0.1655 [0.1625, 0.1693] |
-| hgb_iso | 0.2316 [0.2284, 0.2347] | 0.1946 [0.1906, 0.2003] | 0.1526 [0.1479, 0.1588] | 0.1040 [0.0990, 0.1089] | 0.0603 [0.0572, 0.0633] | 0.1653 [0.1514, 0.1790] | 0.1486 | 0.4897 [0.4818, 0.5004] | 0.1656 [0.1627, 0.1695] |
+| logistic (selected) | 0.2306 [0.2278, 0.2332] | 0.1942 [0.1905, 0.1998] | 0.1525 [0.1476, 0.1588] | 0.1038 [0.0986, 0.1089] | 0.0530 [0.0496, 0.0564] | 0.1538 [0.1379, 0.1707] | 0.1468 | 0.4845 [0.4767, 0.4945] | 0.1645 [0.1616, 0.1683] |
+| hgb_iso | 0.2308 [0.2279, 0.2335] | 0.1944 [0.1906, 0.1999] | 0.1525 [0.1477, 0.1587] | 0.1039 [0.0989, 0.1087] | 0.0533 [0.0499, 0.0567] | 0.1548 [0.1384, 0.1718] | 0.1470 | 0.4848 [0.4770, 0.4951] | 0.1646 [0.1618, 0.1685] |
 
 Rows per bucket: 48-36 549307, 36-24 581066, 24-12 561851, 12-4 367834, 4-0 218146, OT 14209.
 
@@ -55,18 +55,18 @@ ECE (10 bins) and calibration slope per bucket, out-of-fold.
 | constant | 12-4 | 367834 | 0.0021 [0.0002, 0.0178] | n/a |
 | constant | 4-0 | 218146 | 0.0049 [0.0004, 0.0189] | n/a |
 | constant | OT | 14209 | 0.0253 [0.0021, 0.0853] | n/a |
-| logistic | 48-36 | 549307 | 0.0140 [0.0102, 0.0245] | 1.2064 [1.1118, 1.3023] |
-| logistic | 36-24 | 581066 | 0.0082 [0.0072, 0.0186] | 0.9820 [0.9252, 1.0339] |
-| logistic | 24-12 | 561851 | 0.0252 [0.0178, 0.0337] | 0.8703 [0.8231, 0.9108] |
-| logistic | 12-4 | 367834 | 0.0119 [0.0085, 0.0186] | 0.9804 [0.9376, 1.0270] |
-| logistic | 4-0 | 218146 | 0.0504 [0.0461, 0.0546] | 1.6891 [1.6046, 1.7799] |
-| logistic | OT | 14209 | 0.0596 [0.0497, 0.0918] | 1.6041 [1.3572, 1.9182] |
-| hgb_iso | 48-36 | 549307 | 0.0247 [0.0182, 0.0330] | 0.7788 [0.7130, 0.8395] |
-| hgb_iso | 36-24 | 581066 | 0.0097 [0.0075, 0.0215] | 0.9222 [0.8630, 0.9734] |
-| hgb_iso | 24-12 | 561851 | 0.0071 [0.0057, 0.0171] | 0.9632 [0.9047, 1.0156] |
-| hgb_iso | 12-4 | 367834 | 0.0072 [0.0055, 0.0149] | 1.0273 [0.9751, 1.0826] |
-| hgb_iso | 4-0 | 218146 | 0.0549 [0.0509, 0.0592] | 1.7307 [1.6554, 1.8136] |
-| hgb_iso | OT | 14209 | 0.0567 [0.0456, 0.0901] | 1.5293 [1.3136, 1.7904] |
+| logistic | 48-36 | 549307 | 0.0049 [0.0047, 0.0187] | 1.0140 [0.9309, 1.0911] |
+| logistic | 36-24 | 581066 | 0.0085 [0.0071, 0.0189] | 1.0036 [0.9461, 1.0563] |
+| logistic | 24-12 | 561851 | 0.0118 [0.0077, 0.0211] | 0.9656 [0.9131, 1.0104] |
+| logistic | 12-4 | 367834 | 0.0112 [0.0083, 0.0179] | 1.0168 [0.9723, 1.0651] |
+| logistic | 4-0 | 218146 | 0.0051 [0.0045, 0.0104] | 1.0648 [1.0134, 1.1169] |
+| logistic | OT | 14209 | 0.0210 [0.0173, 0.0566] | 0.9305 [0.7871, 1.1196] |
+| hgb_iso | 48-36 | 549307 | 0.0084 [0.0045, 0.0203] | 0.9386 [0.8622, 1.0118] |
+| hgb_iso | 36-24 | 581066 | 0.0053 [0.0056, 0.0171] | 1.0002 [0.9390, 1.0540] |
+| hgb_iso | 24-12 | 561851 | 0.0038 [0.0049, 0.0140] | 1.0047 [0.9441, 1.0567] |
+| hgb_iso | 12-4 | 367834 | 0.0068 [0.0055, 0.0156] | 1.0270 [0.9750, 1.0827] |
+| hgb_iso | 4-0 | 218146 | 0.0063 [0.0048, 0.0113] | 0.9756 [0.9206, 1.0331] |
+| hgb_iso | OT | 14209 | 0.0234 [0.0185, 0.0593] | 0.8759 [0.7429, 1.0621] |
 
 The constant model has no calibration slope by design.
 
@@ -74,45 +74,45 @@ The constant model has no calibration slope by design.
 
 | bin | lo | hi | n | mean p | mean home win |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 0.0 | 0.1 | 217517 | 0.036 | 0.034 |
-| 1 | 0.1 | 0.2 | 124640 | 0.150 | 0.170 |
-| 2 | 0.2 | 0.3 | 134562 | 0.251 | 0.260 |
-| 3 | 0.3 | 0.4 | 164242 | 0.352 | 0.345 |
-| 4 | 0.4 | 0.5 | 239293 | 0.454 | 0.437 |
-| 5 | 0.5 | 0.6 | 385738 | 0.551 | 0.553 |
-| 6 | 0.6 | 0.7 | 283366 | 0.647 | 0.655 |
-| 7 | 0.7 | 0.8 | 207349 | 0.748 | 0.745 |
-| 8 | 0.8 | 0.9 | 188133 | 0.850 | 0.843 |
-| 9 | 0.9 | 1.0 | 347573 | 0.966 | 0.967 |
+| 0 | 0.0 | 0.1 | 219767 | 0.033 | 0.028 |
+| 1 | 0.1 | 0.2 | 121525 | 0.150 | 0.165 |
+| 2 | 0.2 | 0.3 | 138852 | 0.252 | 0.266 |
+| 3 | 0.3 | 0.4 | 175135 | 0.352 | 0.352 |
+| 4 | 0.4 | 0.5 | 245618 | 0.453 | 0.448 |
+| 5 | 0.5 | 0.6 | 350686 | 0.551 | 0.554 |
+| 6 | 0.6 | 0.7 | 280221 | 0.649 | 0.647 |
+| 7 | 0.7 | 0.8 | 221525 | 0.748 | 0.736 |
+| 8 | 0.8 | 0.9 | 191988 | 0.850 | 0.846 |
+| 9 | 0.9 | 1.0 | 347096 | 0.968 | 0.972 |
 
 ### winprob_calibration rows of the selected candidate (training seasons, out-of-fold)
 
 | season | time_bucket | n | mean_p | mean_y | brier | slope |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2020-21 | 48-36 | 124987 | 0.553 | 0.543 | 0.2325 | 1.193 |
-| 2020-21 | 36-24 | 132454 | 0.547 | 0.544 | 0.1919 | 1.046 |
-| 2020-21 | 24-12 | 127107 | 0.540 | 0.545 | 0.1477 | 0.908 |
-| 2020-21 | 12-4 | 84064 | 0.540 | 0.548 | 0.1015 | 0.984 |
-| 2020-21 | 4-0 | 50898 | 0.542 | 0.544 | 0.0582 | 1.664 |
-| 2020-21 | OT | 3221 | 0.513 | 0.486 | 0.1487 | 1.726 |
-| 2021-22 | 48-36 | 140981 | 0.554 | 0.547 | 0.2313 | 1.246 |
-| 2021-22 | 36-24 | 150099 | 0.555 | 0.546 | 0.1959 | 0.960 |
-| 2021-22 | 24-12 | 144433 | 0.550 | 0.545 | 0.1584 | 0.819 |
-| 2021-22 | 12-4 | 94057 | 0.552 | 0.544 | 0.1044 | 0.965 |
-| 2021-22 | 4-0 | 55586 | 0.550 | 0.539 | 0.0573 | 1.741 |
-| 2021-22 | OT | 3205 | 0.514 | 0.443 | 0.1858 | 1.384 |
-| 2022-23 | 48-36 | 142622 | 0.558 | 0.583 | 0.2276 | 1.250 |
-| 2022-23 | 36-24 | 150764 | 0.562 | 0.583 | 0.1970 | 0.933 |
-| 2022-23 | 24-12 | 145203 | 0.566 | 0.586 | 0.1624 | 0.845 |
-| 2022-23 | 12-4 | 95126 | 0.576 | 0.585 | 0.1115 | 0.980 |
-| 2022-23 | 4-0 | 55949 | 0.577 | 0.578 | 0.0642 | 1.666 |
-| 2022-23 | OT | 4391 | 0.512 | 0.546 | 0.1596 | 1.698 |
-| 2023-24 | 48-36 | 140717 | 0.558 | 0.546 | 0.2331 | 1.136 |
-| 2023-24 | 36-24 | 147749 | 0.560 | 0.548 | 0.1921 | 1.002 |
-| 2023-24 | 24-12 | 145108 | 0.556 | 0.549 | 0.1436 | 0.918 |
-| 2023-24 | 12-4 | 94587 | 0.563 | 0.551 | 0.0981 | 0.998 |
-| 2023-24 | 4-0 | 55713 | 0.545 | 0.541 | 0.0561 | 1.695 |
-| 2023-24 | OT | 3392 | 0.567 | 0.635 | 0.1577 | 1.641 |
+| 2020-21 | 48-36 | 124987 | 0.552 | 0.543 | 0.2320 | 1.003 |
+| 2020-21 | 36-24 | 132454 | 0.547 | 0.544 | 0.1920 | 1.068 |
+| 2020-21 | 24-12 | 127107 | 0.541 | 0.545 | 0.1473 | 1.007 |
+| 2020-21 | 12-4 | 84064 | 0.541 | 0.548 | 0.1012 | 1.020 |
+| 2020-21 | 4-0 | 50898 | 0.541 | 0.544 | 0.0523 | 1.046 |
+| 2020-21 | OT | 3221 | 0.503 | 0.486 | 0.1384 | 1.014 |
+| 2021-22 | 48-36 | 140981 | 0.553 | 0.547 | 0.2306 | 1.052 |
+| 2021-22 | 36-24 | 150099 | 0.555 | 0.546 | 0.1958 | 0.982 |
+| 2021-22 | 24-12 | 144433 | 0.551 | 0.545 | 0.1573 | 0.909 |
+| 2021-22 | 12-4 | 94057 | 0.553 | 0.544 | 0.1042 | 1.003 |
+| 2021-22 | 4-0 | 55586 | 0.548 | 0.539 | 0.0507 | 1.102 |
+| 2021-22 | OT | 3205 | 0.504 | 0.443 | 0.1760 | 0.840 |
+| 2022-23 | 48-36 | 142622 | 0.558 | 0.583 | 0.2271 | 1.046 |
+| 2022-23 | 36-24 | 150764 | 0.562 | 0.583 | 0.1968 | 0.955 |
+| 2022-23 | 24-12 | 145203 | 0.566 | 0.586 | 0.1613 | 0.938 |
+| 2022-23 | 12-4 | 95126 | 0.577 | 0.585 | 0.1113 | 1.013 |
+| 2022-23 | 4-0 | 55949 | 0.577 | 0.578 | 0.0580 | 1.048 |
+| 2022-23 | OT | 4391 | 0.508 | 0.546 | 0.1527 | 0.955 |
+| 2023-24 | 48-36 | 140717 | 0.558 | 0.546 | 0.2329 | 0.955 |
+| 2023-24 | 36-24 | 147749 | 0.561 | 0.548 | 0.1921 | 1.022 |
+| 2023-24 | 24-12 | 145108 | 0.556 | 0.549 | 0.1435 | 1.019 |
+| 2023-24 | 12-4 | 94587 | 0.563 | 0.551 | 0.0980 | 1.036 |
+| 2023-24 | 4-0 | 55713 | 0.543 | 0.541 | 0.0508 | 1.069 |
+| 2023-24 | OT | 3392 | 0.577 | 0.635 | 0.1489 | 0.935 |
 
 ## Held-out season 2024-25, not scored
 
