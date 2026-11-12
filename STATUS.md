@@ -55,7 +55,12 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   alive at a time. Also fixed: matchups train read the xFG predictions only from --out, which run_all never
   passes, so it would have used the location-only fallback and written nothing; OUT_ROOT now defaults to
   DATA_ROOT (ceea4c5, test). Still to fix: decisions (agent working), and for group 2 later, actions and
-  playcalling. Ghosting train also needs the owner's 1 Hz fit rule (agent working) before it runs.
+  playcalling. Ghosting train fit rule merged (6d397b0): every candidate fits on every 5th sampled step (1 Hz) of
+  all training games, float32; evaluation unchanged at 5 Hz, rebuilt and scored one test game at a time (test:
+  streamed evaluation equals the season-wide one). On fixtures the MLP is now dropped for ridge (only the fit
+  subsample moved). 10 real games: train 46 to 65 s, 1.6 GiB; projected full season about 8 GiB and 40 to 60
+  min (worst case about 3 h). Queued to run after epv and decisions (log logs/loop/stage5_ghosting.log). The
+  --deep torch GRU path still needs about 18 GB at full season (stage 6 question).
 - **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
   xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
