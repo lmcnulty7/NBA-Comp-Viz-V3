@@ -2,7 +2,8 @@
 
 Unit: a decision event of the ball handler (a shot, a pass or a drive start). Target: the value of the chosen
 option minus the best available option, in expected points, at the decision frame. Code:
-`analytics/decisions/{validate,features,train,eda}.py`; tests `tests/test_decisions.py`; report
+`analytics/decisions/{validate,features,train,eda}.py`; tests `tests/test_decisions.py`,
+`tests/test_decisions_streaming.py`; report
 `reports/decisions.md`; notebook `notebooks/eda_decisions.ipynb`.
 
 ## Inputs
@@ -16,6 +17,15 @@ option minus the best available option, in expected points, at the decision fram
 | states_1hz, rosters, rebound_frames | same layout | validated, not consumed |
 | epv_states (lane EPV) | `OUT_ROOT/analytics/epv/<season>/<game>.parquet` | `epv_points` as the hold option; optional |
 | xfg_predictions (lane XFG) | `OUT_ROOT/analytics/xfg/<season>/*.parquet` (one file, held-out rows flagged `heldout=True, fold=-1`; a `heldout/<season>/` directory is read too when present), filtered on `sportvu_game` | `p_selected` on shot events; optional |
+
+OUT_ROOT defaults to DATA_ROOT, and both `OUT_ROOT/analytics` and `DATA_ROOT/analytics` are searched, so on a
+real-data run without `--out` (as run_all makes it) the xFG and EPV outputs under `DATA_ROOT/analytics` are read.
+
+With `--data`, frames are read one game at a time (`validate.stream_bundles`): each game's frames are loaded,
+checked, turned into its decision contexts, on-court ratings and value-model fit rows, then dropped before the
+next game is read. Only those per-game tables are kept (with the small Phase 0 tables and upstream rows), so
+memory does not grow with the season's frames. The xFG predictions file is read once, not once per game.
+Tests: `tests/test_decisions_streaming.py`.
 
 A game listed under `heldout/` or whose id carries a held-out token of `sportvu/splits.json`
 (`analytics.eval.is_heldout_game`, which includes the held-out arena) is held out: it is

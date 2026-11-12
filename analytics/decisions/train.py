@@ -6,7 +6,8 @@
 Protocol
   1. Load and validate the bundles (analytics.decisions.validate). Held-out games (under heldout/ or carrying a
      held-out token of sportvu/splits.json) are set aside before any fit; analytics.eval.refuse_heldout runs on the
-     training game ids.
+     training game ids. On --data each game's frames are a loader and are read one game at a time
+     (validate.stream_bundles): steps 2 and the fit rows of step 3 are built in that pass, then the frames dropped.
   2. Decision contexts per game (analytics.decisions.features): shots, passes and drive starts with their
      decision-frame geometry; schema.assert_time_forward on every context frame and on the FEATURES subset;
      assert_decisions_before_outcome on every game.
@@ -104,7 +105,7 @@ def _cast_players(df: pd.DataFrame) -> pd.DataFrame:
 def shot_fit_rows(bundle: dict) -> pd.DataFrame:
     """One row per localised shot of the game: the shooter's position at the release, in the section 10
     convention relative to the basket of the possession that holds the release, with the target made."""
-    sf, frames, poss = bundle["shot_frames"], bundle["frames"], bundle["possessions"]
+    sf, frames, poss = bundle["shot_frames"], V.frames_of(bundle), bundle["possessions"]
     rel = pd.to_numeric(sf["release_frame"]).to_numpy()
     ok = rel != schema.NOT_FOUND
     if not ok.any():
@@ -285,25 +286,31 @@ def player_table(events: pd.DataFrame, n_boot: int, seed: int, n_min: int = N_MI
 # ── the run ────────────────────────────────────────────────────────────────────────────────────────
 def run(bundles: list, n_folds: int = 5, seed: int = 0, n_boot: int = 200, skip_heldout: bool = False) -> dict:
     """Everything train.py computes, as a dict (the report and the parquet files are written by main). With
-    skip_heldout the held-out games are set aside as always but never valued, so events_heldout is empty."""
-    bundles, val_reports = V.validate_bundles(bundles)
-    train = [b for b in bundles if not b["heldout"]]
-    held = [b for b in bundles if b["heldout"]]
-    train_ids = sorted(b["sportvu_game"] for b in train)
+    skip_heldout the held-out games are set aside as always but never valued, so events_heldout is empty.
+    The frames are read in one pass, one game at a time (validate.stream_bundles): each game is validated, its
+    contexts, on-court rating and shot fit rows are built, then its frames are dropped."""
+    train_ids = sorted(b["sportvu_game"] for b in bundles if not b["heldout"])
     refuse_heldout(train_ids, WHO)
-    if not train:
+    if not train_ids:
         raise SystemExit("%s: no training game after setting the held-out games aside" % WHO)
-    contexts, counts, ortg = {}, {}, []
-    for b in bundles:
+    contexts, counts, ortg, fit_rows = {}, {}, [], {}
+
+    def per_game(b):
+        """Everything train needs from one game's frames, built while they are in memory."""
         c = {}
         ctx = F.decision_contexts(b, c)
         F.assert_decisions_before_outcome(ctx, b["shot_frames"], b["possessions"])
         F.feature_frame(ctx)
         contexts[b["sportvu_game"]] = ctx
         counts[b["sportvu_game"]] = c
-        ortg.append(F.on_court_offensive_rating(b["frames"], b["possessions"], b["sportvu_game"]))
+        ortg.append(F.on_court_offensive_rating(V.frames_of(b), b["possessions"], b["sportvu_game"]))
+        if not b["heldout"]:
+            fit_rows[b["sportvu_game"]] = shot_fit_rows(b)
+
+    bundles, val_reports, _ = V.stream_bundles(bundles, per_game)
+    train = [b for b in bundles if not b["heldout"]]
+    held = [b for b in bundles if b["heldout"]]
     ortg = pd.concat(ortg, ignore_index=True) if ortg else pd.DataFrame(columns=["sportvu_game", "player_id", "n_possessions", "points", "ortg"])
-    fit_rows = {b["sportvu_game"]: shot_fit_rows(b) for b in train}
     # folds by game
     k = min(n_folds, len(train_ids))
     folds = grouped_folds(train_ids, n_folds=k, seed=seed) if len(train_ids) > 1 else [(train_ids, train_ids)]

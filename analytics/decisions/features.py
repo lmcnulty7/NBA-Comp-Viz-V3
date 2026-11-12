@@ -343,6 +343,7 @@ def decision_contexts(bundle: dict, counts: Optional[dict] = None) -> pd.DataFra
     counts = counts if counts is not None else {}
     game, heldout = bundle["sportvu_game"], bool(bundle["heldout"])
     frames = bundle["frames"]
+    frames = frames() if callable(frames) else frames      # a loader on DATA_ROOT (validate.frames_of)
     if not frames["frame"].is_monotonic_increasing:
         frames = frames.sort_values("frame", kind="stable")
     fv = frames["frame"].to_numpy()
@@ -607,15 +608,18 @@ def main(argv=None) -> pd.DataFrame:
     if not a.fixtures and not a.data:
         raise SystemExit("features: pass --fixtures or --data DATA_ROOT")
     bundles = V.load_fixture_bundles(a.seed, a.n_games, a.heldout_every, a.n_possessions) if a.fixtures else V.load_root_bundles(a.data, a.season, a.out)
-    bundles, _ = V.validate_bundles(bundles)
     parts = []
-    for b in bundles:
+
+    def per_game(b):
+        """The contexts of one cleaned game, built while its frames are in memory."""
         counts = {}
         c = decision_contexts(b, counts)
         assert_decisions_before_outcome(c, b["shot_frames"], b["possessions"])
         parts.append(c)
         print("%s%s: %s | %s" % (b["sportvu_game"], " (held out)" if b["heldout"] else "",
                                  c["decision_kind"].value_counts().to_dict(), counts))
+
+    V.stream_bundles(bundles, per_game)      # one game's frames at a time
     out = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=context_columns())
     print("features: %s" % feature_columns())
     if a.fixtures:

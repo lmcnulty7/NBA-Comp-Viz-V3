@@ -11,7 +11,10 @@ DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/analytics/<table>/<season>/<game>.parquet                 (held-out under heldout/<season>/)
     OUT_ROOT/analytics/epv/<season>/<game>.parquet                       (lane EPV, optional)
     OUT_ROOT/analytics/xfg/<season>/*.parquet                            (lane XFG, optional)
-The games are the possessions files; a game without frames is skipped and logged.
+The games are the possessions files; a game without frames is skipped and logged. OUT_ROOT defaults to DATA_ROOT,
+and both are searched, so the xFG and EPV outputs under DATA_ROOT/analytics are found without --out.
+Frames are read one game at a time: on DATA_ROOT a bundle's "frames" is a zero-argument loader (frames_of reads
+it), and stream_bundles reads, checks and uses one game's frames, then drops them before the next game is read.
 
 Checks per bundle (validate_bundle): schema.validate on each Phase 0 table present; range checks (player x in
 [-5, 99] ft, y in [-5, 55] ft, ball z in [-1, 40] ft, possession spans inside the frames, release frames inside
@@ -83,6 +86,17 @@ def _read(path: Path, columns=None):
     return pd.read_parquet(path, columns=[c for c in columns if c in present])
 
 
+def _frames_loader(path: Path):
+    """A zero-argument loader of one game's frames parquet (read on each call, nothing kept)."""
+    return lambda: _read(path, FRAME_COLUMNS + FRAME_OPTIONAL)
+
+
+def frames_of(bundle: dict) -> pd.DataFrame:
+    """The frames of a bundle: called when bundle["frames"] is a loader, else the DataFrame itself."""
+    f = bundle["frames"]
+    return f() if callable(f) else f
+
+
 def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, games=None, log=None) -> list:
     """Bundles for every game with a possessions file under DATA_ROOT (held-out under heldout/)."""
     data_root = Path(data_root)
@@ -98,18 +112,19 @@ def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, ga
                     found.append((p.stem, held))
     if games:
         found = [(g, h) for g, h in found if g in set(games)]
-    bundles = []
+    bundles, xfg_cache = [], {}
     for g, held in found:
         held = held or is_heldout_game(g)
         sv = data_root / "sportvu_contract" / ("heldout" if held else "")
-        frames = _read(sv / (g + ".parquet"), FRAME_COLUMNS + FRAME_OPTIONAL)
-        if frames is None:
-            frames = _read(data_root / "sportvu_contract" / (g + ".parquet"), FRAME_COLUMNS + FRAME_OPTIONAL)
-        if frames is None:
+        # frames as a loader: no game's frames are read here
+        fpath = sv / (g + ".parquet")
+        if not fpath.exists():
+            fpath = data_root / "sportvu_contract" / (g + ".parquet")
+        if not fpath.exists():
             log.append("%s: no frames file under sportvu_contract, skipped" % g)
             continue
         events = _read(sv / (g + "_pbp.parquet"))
-        game = {"sportvu_game": g, "heldout": held, "frames": frames, "events": events}
+        game = {"sportvu_game": g, "heldout": held, "frames": _frames_loader(fpath), "events": events}
         # Phase 0 tables: OUT_ROOT/analytics first (the Mac may write them there), then DATA_ROOT/analytics, per table
         for t in PHASE0_TABLES:
             game[t] = None
@@ -134,10 +149,14 @@ def load_root_bundles(data_root, season: str = DEFAULT_SEASON, out_root=None, ga
             xfg_dirs.append(root / "xfg" / season)
             if held:
                 xfg_dirs.append(root / "xfg" / "heldout" / season)
-        parts = [x for d in xfg_dirs for x in (_read(p) for p in sorted(d.glob("*.parquet"))
-                                               if not p.stem.startswith(XFG_SKIP_STEMS)) if x is not None]
-        if parts:
-            x = pd.concat(parts, ignore_index=True)
+        # the season tables are read once per set of directories, then filtered per game
+        key = tuple(xfg_dirs)
+        if key not in xfg_cache:
+            parts = [x for d in xfg_dirs for x in (_read(p) for p in sorted(d.glob("*.parquet"))
+                                                   if not p.stem.startswith(XFG_SKIP_STEMS)) if x is not None]
+            xfg_cache[key] = pd.concat(parts, ignore_index=True) if parts else None
+        x = xfg_cache[key]
+        if x is not None:
             x = x[x["sportvu_game"].astype(str) == g] if "sportvu_game" in x.columns else x
             game["xfg"] = x.reset_index(drop=True) if len(x) else None
         else:
@@ -154,11 +173,13 @@ def _range_count(s: pd.Series, lo: float, hi: float) -> int:
 
 def validate_bundle(bundle: dict) -> tuple[dict, dict]:
     """-> (cleaned bundle, report). The report holds schema problems per table, range violations, duplicate and
-    missing counts. Duplicates are dropped in the cleaned copy; everything else is only counted."""
+    missing counts. Duplicates are dropped in the cleaned copy; everything else is only counted. A frames loader is
+    called here and the cleaned bundle carries the frames as a DataFrame (stream_bundles then drops them)."""
     rep = {"sportvu_game": bundle["sportvu_game"], "heldout": bool(bundle["heldout"]), "schema": {}, "range": {},
            "duplicates": {}, "missing": {}, "rows": {}}
     out = dict(bundle)
-    fr = bundle["frames"]
+    fr = frames_of(bundle)
+    out["frames"] = fr
     missing_cols = [c for c in FRAME_COLUMNS if c not in fr.columns]
     rep["schema"]["frames"] = ["missing column %r" % c for c in missing_cols]
     if missing_cols:
@@ -213,13 +234,47 @@ def validate_bundle(bundle: dict) -> tuple[dict, dict]:
     return out, rep
 
 
-def validate_bundles(bundles: list) -> tuple[list, list]:
-    """validate_bundle on each bundle -> (cleaned bundles, reports), in input order."""
-    cleaned, reports = [], []
+def clean_frames(fr: pd.DataFrame) -> pd.DataFrame:
+    """The frames as validate_bundle cleans them: duplicate (frame, player_id) rows dropped, sorted by frame."""
+    fr = fr.drop_duplicates(["frame", "player_id"], keep="first")
+    if not fr["frame"].is_monotonic_increasing:
+        fr = fr.sort_values("frame", kind="stable")
+    return fr.reset_index(drop=True)
+
+
+def _cleaned_loader(load):
+    """A zero-argument loader of one game's cleaned frames, from the loader of its raw frames (not wrapped twice)."""
+    if getattr(load, "cleaned", False):
+        return load
+
+    def cleaned():
+        return clean_frames(load())
+    cleaned.cleaned = True
+    return cleaned
+
+
+def stream_bundles(bundles: list, per_game=None) -> tuple[list, list, list]:
+    """validate_bundle on each bundle, one game at a time -> (cleaned bundles, reports, per_game results), in input
+    order. per_game(cleaned bundle) runs while that game's frames are in memory and its result is kept. A bundle
+    whose frames came from a loader keeps only a loader of its cleaned frames afterwards, so at most one game's
+    frames are alive at a time. A bundle whose frames came as a DataFrame (fixtures) keeps the cleaned DataFrame."""
+    cleaned, reports, results = [], [], []
     for b in bundles:
         c, r = validate_bundle(b)
+        results.append(per_game(c) if per_game is not None else None)
+        if callable(b.get("frames")) and not r["schema"]["frames"]:
+            c["frames"] = _cleaned_loader(b["frames"])     # drop this game's frames before the next is read
+        elif callable(b.get("frames")):
+            c["frames"] = b["frames"]                       # frames missing a column: left as read, not cleaned
         cleaned.append(c)
         reports.append(r)
+        del c
+    return cleaned, reports, results
+
+
+def validate_bundles(bundles: list) -> tuple[list, list]:
+    """validate_bundle on each bundle -> (cleaned bundles, reports), in input order, one game's frames at a time."""
+    cleaned, reports, _ = stream_bundles(bundles)
     return cleaned, reports
 
 
