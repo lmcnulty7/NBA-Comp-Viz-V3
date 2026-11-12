@@ -37,7 +37,16 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** see the stage 5 group 1 entry below.
+- **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting (started 00:06,
+  train running at 01:06, 2.2 GB footprint, logs/loop/stage5_ghosting.log), then lineups
+  (logs/loop/stage5_lineups.log), then winprob (logs/loop/stage5_winprob.log), then stage 6 epv with the torch
+  GRU (logs/loop/stage6_epv_torch.log).
+- **Stage 6 plan (2026-11-12):** epv's gate opened, so `analytics.epv.train --deep torch --skip-heldout` runs
+  with the contract's GRU (already in analytics/epv/deep.py, tests in tests/test_deep_models.py). Its report
+  goes to reports/epv_torch.md and its tables to DATA_ROOT/stage6/epv_torch, so the MLP-run tables decisions
+  read stay as they are until the keep rule decides. A synthetic benchmark put one epoch over the 1.4M
+  training rows at about 3.4 s on one thread. embeddings' gate stayed shut (PCA 5-NN 0.768, at or above
+  0.60): no change. ghosting: decided when its report is in.
 - **Stage 5 phase 2 FAILED (2026-11-11 16:56):** `run_all.py --phase 2 --skip-heldout` was killed after about
   30 s with exit 137 (SIGKILL, out of memory on this 16 GB Mac) inside matchups validate, before any step log was
   written (logs/loop/stage5_phase2.log: "note: matchups depends on xfg, not selected; their outputs must already
