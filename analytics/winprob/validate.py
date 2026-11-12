@@ -6,7 +6,11 @@
 Checks (every finding is a count, never a row of data):
     schema        the section 13 columns the state builder needs are present
     score         every non-null score string parses to two non-negative ints ("away-home")
-    clocks        0 <= clock_s <= 720 in periods 1 to 4 and 0 <= clock_s <= 300 in overtime
+    clocks        the clock rule of analytics.winprob.features.clock_rule: a game whose period numbers skip a
+                  value or whose overtime holds a clock above 300 s is dropped whole, then any event outside
+                  0 <= clock_s <= 720 (300 in overtime) or without a period is dropped. The drops are counted
+                  (counts.clock_rule, by cause and season); the check fails only when a season loses more than
+                  2% of its events or games. The checks below run on the kept events.
     monotone      inside a game, in (period, event) order, neither running score ever decreases and the
                   period never decreases
     duplicates    repeated (game_id, event) pairs
@@ -31,6 +35,7 @@ import pandas as pd
 from analytics.winprob import features as F
 
 REQUIRED = ("game_id", "event", "period", "clock_s", "team", "kind", "score", "season")
+MAX_DROPPED_SHARE = 0.02   # above this share of a season's events or games, the clock rule fails the run
 
 
 def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.DataFrame | None = None,
@@ -54,14 +59,18 @@ def validate(pbp: pd.DataFrame, games: pd.DataFrame | None = None, odds: pd.Data
     if bad_score:
         problems.append("score: %d non-null score string(s) do not parse to two ints" % bad_score)
 
-    period = pd.to_numeric(pbp["period"], errors="coerce")
-    clock = pd.to_numeric(pbp["clock_s"], errors="coerce")
-    limit = np.where(period <= F.REGULATION_PERIODS, F.PERIOD_S, F.OVERTIME_S)
-    bad_clock = int(((clock < 0) | (clock > limit) | clock.isna() | period.isna() | (period < 1)).sum())
-    counts["clock_out_of_range"] = bad_clock
-    if bad_clock:
-        problems.append("clocks: %d event(s) with a clock outside [0, period length] or a missing period" % bad_clock)
+    # the clock rule of features.clock_rule: bad games and events are dropped and counted, as features and train do
+    pbp, rule = F.clean_playbyplay(pbp)
+    counts["clock_out_of_range"] = rule["out_of_range_rows"]
+    counts["clock_rule"] = rule
+    for season, s in rule["by_season"].items():
+        rows_share = s["rows_dropped"] / s["rows"] if s["rows"] else 0.0
+        games_share = s["games_dropped"] / s["games"] if s["games"] else 0.0
+        if rows_share > MAX_DROPPED_SHARE or games_share > MAX_DROPPED_SHARE:
+            problems.append("clocks: season %s drops %d of %d event(s) and %d of %d game(s) under the clock rule, above %.0f%%"
+                            % (season, s["rows_dropped"], s["rows"], s["games_dropped"], s["games"], 100 * MAX_DROPPED_SHARE))
 
+    period = pd.to_numeric(pbp["period"], errors="coerce")
     p = pbp.assign(_period=period, _event=pd.to_numeric(pbp["event"], errors="coerce"))
     p = p.sort_values(["game_id", "_period", "_event"], kind="stable")
     away = pd.Series([v[0] if v else np.nan for v in (F.parse_score(s) for s in p["score"].tolist())], index=p.index, dtype=float)

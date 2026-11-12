@@ -266,6 +266,15 @@ def write_tables(out_root, train_pred: pd.DataFrame, heldout_pred: pd.DataFrame 
 
 
 # ── report ─────────────────────────────────────────────────────────────────────────────────────────
+def clock_rule_text(c: dict) -> str:
+    """One table cell for the clock rule's counts (features.clock_rule)."""
+    b = c["by_cause"]
+    return ("%d of %d events, %d of %d games: %d games (%d events) with a gap in the period numbers, %d games (%d events) with an "
+            "overtime clock above 300 s, %d single events with a null or out-of-range clock" % (
+                c["rows_dropped"], c["rows_in"], c["games_dropped"], c["games_in"], b["period_gap"]["games"], b["period_gap"]["rows"],
+                b["overtime_clock"]["games"], b["overtime_clock"]["rows"], b["bad_clock"]["rows"]))
+
+
 def write_report(path: Path, ctx: dict) -> str:
     """The markdown report of a run (ctx from run); every heading over fixture numbers carries the fixture tag."""
     fx = ctx["fixtures"]
@@ -283,6 +292,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "| training seasons | %s (%d events, %d games) |" % (", ".join(ctx["train_seasons"]), ctx["train_rows"], ctx["train_games"]),
           "| held-out season | %s (%d events, %d games), set aside before any fit |" % (ctx["heldout_season"], ctx["heldout_rows"], ctx["heldout_games"]),
           "| rows flagged heldout (sportvu/splits.json games) dropped | %d |" % ctx["dropped_heldout_rows"],
+          "| clock rule: dropped before any feature (all seasons) | %s |" % clock_rule_text(ctx["clock_rule"]),
           "| seasons later than the held-out season, ignored (never fitted or scored) | %s |"
           % (("%s (%d events)" % (", ".join(ctx["ignored_seasons"]), ctx["ignored_rows"])) if ctx["ignored_seasons"] else "none"),
           "| guard | `analytics.eval.refuse_heldout` checked %d training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |" % ctx["train_games"],
@@ -390,8 +400,9 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
         command: str = "", report: str | None = None, skip_heldout: bool = False) -> dict:
     """The whole protocol on the loaded tables -> ctx (what write_report renders), the report written when asked. With
     skip_heldout the held-out season is set aside as usual but never scored or written."""
-    states = F.build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
-    viol = F.prefix_invariance_violations(d["playbyplay"], d["games"], d["odds"], n_games=2, cuts=2, seed=seed,
+    pbp, clock = F.clean_playbyplay(d["playbyplay"])   # the clock rule validate counts; build_states applies it too
+    states = F.build_states(pbp, d["games"], d["odds"], d.get("team_names"))
+    viol = F.prefix_invariance_violations(pbp, d["games"], d["odds"], n_games=2, cuts=2, seed=seed,
                                           team_names=d.get("team_names"))   # joins the spread once on the full games table
     if viol:
         raise SystemExit("%s: a feature changed when the play-by-play was cut: %s" % (WHO, viol[:3]))
@@ -413,7 +424,7 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
            "spread_coverage": float((train.drop_duplicates("game_id")["spread_missing"] == 0).mean()),
            "possession_known": float(train["possession_home"].notna().mean()),
            "home_win_rate": float(train.drop_duplicates("game_id")[F.TARGET].mean()),
-           "prefix_violations": len(viol), "prefix_games": 2, "protocol": note["text"], "bootstrap": n_boot, "seed": seed,
+           "clock_rule": clock, "prefix_violations": len(viol), "prefix_games": 2, "protocol": note["text"], "bootstrap": n_boot, "seed": seed,
            "scores": scores, "selection": selection, "selected": selected,
            "calibration": calibration_table(pred[F.TARGET].astype(float).to_numpy(), pred[p_sel].astype(float).to_numpy()),
            "calibration_rows": pd.concat([calibration_rows(s, p_sel, str(season)) for season, s in pred.groupby("season", sort=True)], ignore_index=True),

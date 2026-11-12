@@ -27,6 +27,26 @@ were scored once by the selected candidate refit on every training row. Seasons 
 ignored entirely (never fitted, scored or written) and listed under Inputs in reports/winprob.md. The 2015-16 games of
 sportvu/splits.json never fit anything and never appear here.
 
+## Clock rule
+
+`analytics.winprob.features.clock_rule` decides which play-by-play events reach a feature. validate, features
+(build_states) and train all apply it, so no bad clock reaches a feature:
+
+1. A game is dropped whole when its period numbers skip a value (for example 1, 2, 4, 5, 6). The
+   basketball-reference parser (`fetch_pbp.parse_events`) numbers periods by counting quarter header rows, and a
+   page repeats a header (3rd Q, 2nd Q, 3rd Q) around an event filed under another quarter, so every later period
+   is shifted up by two and regulation quarters land in periods 5 and 6.
+2. A game is dropped whole when a period above 4 holds a clock above 300 s (a regulation quarter labelled
+   overtime).
+3. Any remaining event is dropped when its period or clock is null, its period is below 1, or its clock is outside
+   [0, 720] in periods 1 to 4 or [0, 300] in overtime (the page sometimes prints "24:00.0").
+
+validate writes the counts to validate.json under `counts.clock_rule` (rows and games per cause and per season;
+`counts.clock_out_of_range` is the number of out-of-range events before the rule). The check fails the run only when
+a season loses more than 2% of its events or games. The trainer's report lists the drops under Inputs. On the five
+real seasons (2020-21 to 2024-25) rule 1 drops 53 of 6,416 games; every one of the 4,388 out-of-range events is in
+one of them.
+
 ## winprob_states
 
 One row per play-by-play event, sorted by (game_id, period, event). Every feature is a function of the

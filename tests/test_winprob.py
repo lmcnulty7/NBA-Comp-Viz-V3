@@ -326,3 +326,94 @@ def test_seasons_later_than_the_held_out_season_are_ignored(data, states):
     assert all(not (set(ids) & late_ids) for _, ids in T.FIT_LOG)
     text = T.write_report(Path(__import__("tempfile").mkdtemp()) / "r.md", ctx)
     assert "seasons later than the held-out season, ignored" in text and "2025-26 (" in text
+
+
+# ── clock rule (features.clock_rule) ───────────────────────────────────────────────────────────────
+def _game(gid, parts, season="2020-21"):
+    """Hand-made events of one game. parts: (period label, events, clock at the first event); clocks run down by
+    a sixth of the start clock per event and the home side scores every other event."""
+    rows, h = [], 0
+    for p, n, top in parts:
+        for i in range(n):
+            if i % 2:
+                h += 2
+            rows.append({"game_id": gid, "event": len(rows), "period": p, "clock_s": float(top - i * top / 6), "team": "home",
+                         "kind": "shot_made" if i % 2 else "rebound", "score": "0-%d" % h, "season": season,
+                         "desc": "", "heldout": False})
+    return rows
+
+
+REG = [(1, 6, 720.0), (2, 6, 720.0), (3, 6, 720.0), (4, 6, 720.0)]
+
+
+def _clock_cases(n_clean=200):
+    """One season of clean games plus one game per cause found on the real play-by-play."""
+    rows = []
+    for k in range(n_clean):
+        rows += _game("clean%02d" % k, REG)
+    rows += _game("ot_ok", REG + [(5, 6, 300.0)])                  # a real overtime: kept
+    # repeated quarter header (3rd Q, 2nd Q, 3rd Q): a stray event alone in period 4, the real 3rd and 4th as 5 and 6
+    rows += _game("gap", REG[:2] + [(4, 1, 720.0), (5, 6, 720.0), (6, 6, 720.0)])
+    # the same bug before an overtime: it lands in period 7 with every clock in range (the old check missed it)
+    rows += _game("gap_hidden", REG + [(7, 6, 300.0)])
+    # a regulation quarter labelled overtime without a gap
+    rows += _game("ot_clock", REG + [(5, 6, 720.0)])
+    # single bad events in otherwise clean games: the page's "24:00.0", a negative clock, a null period
+    for gid, i, col, v in (("sentinel", 6, "clock_s", 1440.0), ("negative", 9, "clock_s", -1.0), ("nullperiod", 13, "period", np.nan)):
+        g = _game(gid, REG)
+        g[i][col] = v
+        rows += g
+    df = pd.DataFrame(rows)
+    df["period"] = df["period"].astype("Float64")
+    return df
+
+
+def test_clock_rule_drops_shifted_games_and_bad_events_and_counts_each_cause():
+    pbp = _clock_cases()
+    keep, c = F.clock_rule(pbp)
+    kept = pbp[keep.to_numpy()]
+    assert set(kept["game_id"]) == set(pbp["game_id"]) - {"gap", "gap_hidden", "ot_clock"}
+    b = c["by_cause"]
+    assert b["period_gap"]["games"] == 2 and b["period_gap"]["rows"] == 25 + 30
+    assert b["period_gap"]["out_of_range_rows"] == 8             # periods 5 and 6 above 300 s
+    assert b["overtime_clock"]["games"] == 1 and b["overtime_clock"]["rows"] == 30
+    assert b["overtime_clock"]["out_of_range_rows"] == 4
+    assert b["bad_clock"]["rows"] == 3 and b["bad_clock"]["games"] == 3
+    assert c["games_dropped"] == 3 and c["rows_dropped"] == 25 + 30 + 30 + 3 and c["out_of_range_rows"] == 8 + 4 + 3
+    assert c["by_season"]["2020-21"]["games_dropped"] == 3
+    # what is kept meets every limit, and a clean frame passes through untouched
+    clean, _ = F.clean_playbyplay(pbp)
+    lim = np.where(clean["period"] > 4, 300.0, 720.0)
+    assert len(clean) == int(keep.sum()) and clean["period"].notna().all()
+    assert (clean["clock_s"] >= 0).all() and (clean["clock_s"] <= lim).all()
+    assert F.clean_playbyplay(clean)[0] is clean
+
+
+def test_validate_counts_clock_drops_and_fails_only_above_the_share():
+    res = V.validate(_clock_cases())
+    assert res["ok"], res["problems"]
+    c = res["counts"]
+    assert c["clock_rule"]["games_dropped"] == 3 and c["clock_out_of_range"] == 15
+    assert c["period_decreases"] == 0 and c["duplicate_events"] == 0
+    # a season losing more than 2% of its games fails
+    res = V.validate(_clock_cases(n_clean=20))
+    assert not res["ok"] and any(p.startswith("clocks: season 2020-21") for p in res["problems"])
+
+
+def test_no_dropped_clock_reaches_a_feature_in_build_states_or_train(data):
+    pbp = _clock_cases()
+    st = F.build_states(pbp, F.games_from_playbyplay(pbp))
+    assert not ({"gap", "gap_hidden", "ot_clock"} & set(st["game_id"]))
+    assert len(st) == int(F.clock_rule(pbp)[0].sum()) and st["seconds_remaining"].between(0, 2880).all()
+    assert (st.loc[st["overtime"] == 1, "seconds_remaining"] <= 300).all()
+    # the trainer: a fixture game with the real defect's shape (real 3rd and 4th as 5 and 6) never fits
+    p = data["playbyplay"].copy()
+    gid = sorted(p.loc[p["season"] == "2020-21", "game_id"].astype(str).unique())[0]
+    m = p["game_id"].astype(str) == gid
+    p.loc[m, "period"] = p.loc[m, "period"].where(p.loc[m, "period"] < 3, p.loc[m, "period"] + 2)
+    T.FIT_LOG.clear()
+    ctx = T.run({**data, "playbyplay": p}, HELD, seed=0, n_boot=0, n_folds=2, fixtures=True, command="pytest")
+    assert gid not in set(ctx["pred"]["game_id"]) and all(gid not in set(ids) for _, ids in T.FIT_LOG)
+    assert ctx["clock_rule"]["by_cause"]["period_gap"]["games"] == 1
+    text = T.write_report(Path(__import__("tempfile").mkdtemp()) / "r.md", ctx)
+    assert "with a gap in the period numbers" in text and chr(0x2014) not in text

@@ -35,6 +35,9 @@ Assumptions taken where the spec is silent:
     is mapped onto the states after the features, and the prefix probe scrambles the finals of the games row
   - the possession indicator is read from event kinds only (shot_made, rebound, turnover, free throws by
     position in the trip); it stays null when unknown rather than guessed
+  - the clock rule (clock_rule, applied by validate, build_states and the trainer alike): a game whose period
+    numbers skip a value, or whose overtime holds a clock above 300 s, is dropped whole (its period labels are
+    shifted by a collector parsing bug); then any event with a null or out-of-range period or clock is dropped
   - the time buckets of the evaluation are minutes remaining in regulation: 48 to 36, 36 to 24, 24 to 12,
     12 to 4, 4 to 0; overtime rows form their own bucket "OT"
   - the states frame is named winprob_states, which is not one of the five analytics.schema tables, so
@@ -108,6 +111,59 @@ def parse_score(s):
     if not m:
         return None
     return int(m.group(1)), int(m.group(2))
+
+
+def clock_rule(pbp: pd.DataFrame) -> tuple[pd.Series, dict]:
+    """The clock rule shared by validate, features and train: (keep mask over pbp's rows, counts).
+
+    Whole games are dropped when their period labels cannot be trusted:
+      period_gap       the game's periods do not run 1..max without a gap. The basketball-reference parser
+                       (fetch_pbp.parse_events) counts quarter header rows, and the page repeats a header
+                       around an event filed under another quarter, so every later period is shifted up
+      overtime_clock   a period above 4 holds a clock above 300 s (a regulation quarter labelled overtime)
+    Then single events are dropped:
+      bad_clock        null or non-numeric period or clock, period below 1, clock below 0, or a clock above
+                       the period length (720 s, 300 s in overtime), such as the page's "24:00.0"
+    counts: rows and games per cause (a game counts under the first game cause that fits), per season too."""
+    def num(col):   # plain float with NaN, also for nullable and arrow columns
+        v = pd.to_numeric(pbp[col], errors="coerce")
+        return pd.Series(np.asarray(v.to_numpy(dtype=float, na_value=np.nan)), index=pbp.index)
+    period, clock = num("period"), num("clock_s")
+    gid = pbp["game_id"].astype(str)
+    limit = np.where(period > REGULATION_PERIODS, OVERTIME_S, PERIOD_S)
+    out_of_range = (clock < 0) | (clock > limit) | clock.isna() | period.isna() | (period < 1)
+    ok_period = period.where(period >= 1)
+    per_game = pd.DataFrame({"g": gid, "p": ok_period}).dropna().groupby("g")["p"].agg(["max", "nunique"])
+    gap_games = set(per_game.index[per_game["max"] != per_game["nunique"]])
+    ot_bad = (period > REGULATION_PERIODS) & (clock > OVERTIME_S)
+    ot_games = set(gid[ot_bad].unique()) - gap_games
+    in_gap = gid.isin(gap_games)
+    in_ot = gid.isin(ot_games)
+    row_bad = out_of_range & ~in_gap & ~in_ot
+    keep = ~(in_gap | in_ot | row_bad)
+    season = pbp["season"].astype(str) if "season" in pbp.columns else pd.Series("", index=pbp.index)
+    causes = {"period_gap": in_gap, "overtime_clock": in_ot, "bad_clock": row_bad}
+    counts = {"rows_in": int(len(pbp)), "rows_kept": int(keep.sum()), "rows_dropped": int((~keep).sum()),
+              "games_in": int(gid.nunique()), "games_dropped": int(len(gap_games) + len(ot_games)),
+              "out_of_range_rows": int(out_of_range.sum()), "by_cause": {}, "by_season": {}}
+    for name, m in causes.items():
+        counts["by_cause"][name] = {"rows": int(m.sum()), "games": int(gid[m].nunique()),
+                                    "out_of_range_rows": int((m & out_of_range).sum())}
+    for s in sorted(season.unique()):
+        m = season == s
+        counts["by_season"][s] = {"rows": int(m.sum()), "games": int(gid[m].nunique()),
+                                  "rows_dropped": int((m & ~keep).sum()),
+                                  "games_dropped": int(gid[m & (in_gap | in_ot)].nunique()),
+                                  "out_of_range_rows": int((m & out_of_range).sum())}
+    return keep, counts
+
+
+def clean_playbyplay(pbp: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """pbp without the rows clock_rule drops, and clock_rule's counts. A no-op on clean events."""
+    keep, counts = clock_rule(pbp)
+    if bool(keep.all()):
+        return pbp, counts
+    return pbp.loc[keep.to_numpy()].reset_index(drop=True), counts
 
 
 def seconds_remaining(period, clock_s) -> np.ndarray:
@@ -230,7 +286,7 @@ def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | No
     for c in ("game_id", "home_win"):
         if c not in games.columns:
             raise ValueError("winprob.features: games table lacks column %r" % c)
-    p = pbp.copy()
+    p = clean_playbyplay(pbp)[0].copy()   # the clock rule: no bad clock or shifted period reaches a feature
     p["game_id"] = p["game_id"].astype(str)
     p = p.sort_values(["game_id", "period", "event"], kind="stable").reset_index(drop=True)
     parsed = [parse_score(s) for s in p["score"].tolist()]
@@ -321,6 +377,7 @@ def prefix_invariance_violations(pbp: pd.DataFrame, games: pd.DataFrame, odds=No
     table's final score and outcome never enter). Returns the list of (game_id, cut, column) violations; a feature
     built from the final margin lands here whether it read the play-by-play or the games table."""
     rng = np.random.default_rng(seed)
+    pbp = clean_playbyplay(pbp)[0]   # probe only games the build keeps
     kw = {"team_names": team_names} if team_names is not None else {}
     if odds is not None:
         # the pre-game spread is joined once on the full games table: the join (team names inferred from date
@@ -443,8 +500,10 @@ def main(argv=None) -> dict:
     """Build the state frame from the command line, print a JSON summary and, with --out, write it."""
     a = parse_args(argv)
     d = load_args(a)
-    states = build_states(d["playbyplay"], d["games"], d["odds"], d.get("team_names"))
+    pbp, clock = clean_playbyplay(d["playbyplay"])
+    states = build_states(pbp, d["games"], d["odds"], d.get("team_names"))
     summary = {"rows": int(len(states)), "games": int(states["game_id"].nunique()),
+               "clock_rule": {k: clock[k] for k in ("rows_dropped", "games_dropped", "by_cause")},
                "seasons": sorted(states["season"].unique().tolist()), "features": feature_columns(),
                "spread_coverage": float(1 - states["spread_missing"].mean()) if len(states) else 0.0,
                "possession_known": float(states["possession_home"].notna().mean()) if len(states) else 0.0,
