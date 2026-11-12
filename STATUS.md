@@ -31,8 +31,7 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** embeddings lane (stage 5 phase 2), started 2026-11-11 about 17:05, log
-  logs/loop/stage5_embeddings.log.
+- **Background jobs:** none (three streaming-fix agents working on worktree branches).
 - **Stage 5 phase 2 FAILED (2026-11-11 16:56):** `run_all.py --phase 2 --skip-heldout` was killed after about
   30 s with exit 137 (SIGKILL, out of memory on this 16 GB Mac) inside matchups validate, before any step log was
   written (logs/loop/stage5_phase2.log: "note: matchups depends on xfg, not selected; their outputs must already
@@ -48,7 +47,10 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
 - **Fix in progress (2026-11-11):** matchups, gravity and ghosting are being changed to stream frames game by
   game, each on its own worktree branch, with identical fixture results, a test that no more than one game's
   frames is alive at a time, and a peak-memory check on a few real training games. Embeddings (already
-  streaming) runs meanwhile: log logs/loop/stage5_embeddings.log. Phase 2 reruns the other three after merge.
+  streaming) ran meanwhile: ok in 316 s, peak memory 2.1 GB (logs/loop/stage5_embeddings.log). PCA chosen: 5-NN
+  position accuracy 0.768 [0.720, 0.809] against a 0.413 majority baseline, so the autoencoder gate was not
+  reached; 448 player-seasons, 399 with at least 300 possessions; next-season R squared n/a (no 2016-17 data);
+  NBA.com block absent (rerun when that gate closes). Phase 2 reruns the other three after merge.
 - **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
   xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
