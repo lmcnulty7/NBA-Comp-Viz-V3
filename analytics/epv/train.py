@@ -624,7 +624,9 @@ def main(argv=None) -> dict:
     a = parse_args(argv)
     tables = V.load_inputs(a)
     cmd = recorded_command(argv if argv is not None else sys.argv[1:])
-    out_root = a.out if a.out else (Path(tempfile.gettempdir()) / "epv_fixture_root" if a.fixtures else None)
+    # OUT_ROOT defaults to DATA_ROOT on real data, as in epv.states and epv.features: run_all passes no --out, and
+    # with None the epv tables were never written, so decisions ran without EPV
+    out_root = a.out if a.out else (Path(tempfile.gettempdir()) / "epv_fixture_root" if a.fixtures else Path(a.data))
     ctx = run(tables, a.folds, a.seed, a.bootstrap, a.hgb_iter, fixtures=a.fixtures, command=cmd, report=Path(a.report), out_root=out_root,
               skip_heldout=a.skip_heldout, deep=a.deep)
     print(ctx["text"])

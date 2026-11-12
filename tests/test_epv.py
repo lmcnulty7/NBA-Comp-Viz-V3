@@ -403,3 +403,13 @@ def test_clis_on_a_temporary_data_root(tmp_path):
     assert len(feats) == 2 and (out / "analytics" / "epv_features" / "heldout" / "2015-16" / ("%s.parquet" % HELD)).exists()
     loaded = V.load_root(root)
     assert loaded["states_1hz"]["heldout"].sum() == len(stored_held := loaded["states_1hz"][loaded["states_1hz"]["sportvu_game"] == HELD]) and len(stored_held) > 0
+
+
+def test_train_without_out_writes_tables_under_data_root(tmp_path):
+    """run_all passes no --out on real data: epv train must still write its tables under DATA_ROOT (the decisions
+    lane reads them there), as epv.states and epv.features already do."""
+    data = tmp_path / "data"
+    fx.write_root(data, seed=5, n_games=3, heldout_every=3)
+    T.main(["--data", str(data), "--report", str(tmp_path / "r.md"), "--folds", "2", "--bootstrap", "0",
+            "--hgb-iter", "20", "--skip-heldout"])
+    assert (data / "analytics" / "epv" / "2015-16" / "epv_possessions.parquet").exists()
