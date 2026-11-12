@@ -430,3 +430,14 @@ def test_benchmark_section_states_the_nbacom_skip(run):
     text = (run["out_root"] / "winprob.md").read_text(encoding="utf-8")
     assert "gates/nbacom-skip" in text and "benchmark column is empty" in text
     assert "unreachable" not in text
+
+
+def test_margin_over_sqrt_time_grows_as_the_clock_runs_out(states):
+    s = states
+    exp = s["margin"].astype(float) / np.sqrt(np.maximum(s["seconds_remaining"].astype(float), 0.0) + 1.0)
+    assert np.allclose(s["margin_over_sqrt_time"].astype(float), exp)
+    assert "margin_over_sqrt_time" in T.LOGISTIC_COLS and "margin_over_sqrt_time" in F.FEATURES
+    lead = s[(s["margin"] == 5)]
+    if len(lead) > 1:
+        early, late = lead.sort_values("seconds_remaining").iloc[[-1, 0]]["margin_over_sqrt_time"]
+        assert abs(late) >= abs(early)

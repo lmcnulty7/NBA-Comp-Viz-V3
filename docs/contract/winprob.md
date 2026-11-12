@@ -70,7 +70,8 @@ events of the same game up to and including the row and of the pre-game odds; th
 
 Features the models see beyond these columns (analytics.winprob.features.FEATURES): `overtime` (period above
 4), `spread_missing` (spread null), `margin_x_sqrt_time` (margin times the square root of seconds_remaining),
-plus a `possession_missing` flag in the design matrix. They are recomputed from the columns above.
+`margin_over_sqrt_time` (margin over the square root of seconds_remaining plus 1; improvement search variant 1,
+reports/archive/winprob.md), plus a `possession_missing` flag in the design matrix. They are recomputed from the columns above.
 
 ## winprob_calibration
 
@@ -89,7 +90,7 @@ One row per (season, time bucket) of the selected candidate's predictions.
 ## Protocol (analytics/winprob/train.py)
 
 Candidates, baselines first and no deep model: constant (training-fold home win rate); logistic regression on
-margin, seconds_remaining, possession and margin_x_sqrt_time; HistGradientBoostingClassifier on the same
+margin, seconds_remaining, possession, margin_x_sqrt_time and margin_over_sqrt_time; HistGradientBoostingClassifier on the same
 plus period, overtime, spread and spread_missing, calibrated by isotonic regression on inner out-of-fold
 predictions grouped by game. Selection: the unweighted mean over the five regulation buckets of the
 out-of-fold Brier score under grouped folds by game within the training seasons. ECE and calibration slope per

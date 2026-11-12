@@ -20,6 +20,8 @@ nothing else:
                          team is favoured), null when the game has no closing spread
     spread_missing       1 when spread_home is null (the model sees 0 for the spread and this flag)
     margin_x_sqrt_time   margin * sqrt(seconds_remaining), the interaction the spec asks for
+    margin_over_sqrt_time  margin / sqrt(seconds_remaining + 1): a lead scaled by the time left to overturn it,
+                         which grows as the clock runs out (improvement search variant 1, reports/archive/winprob.md)
 
 The target (home_win) and the final score never enter a feature: assert_no_leak refuses a design matrix
 with a forbidden column by name, and prefix_invariance_violations checks by value that a feature at event k
@@ -58,7 +60,7 @@ from analytics import schema
 from analytics.betting import validate as _betting
 
 FEATURES = ("margin", "seconds_remaining", "overtime", "period", "possession_home", "spread_home",
-            "spread_missing", "margin_x_sqrt_time")
+            "spread_missing", "margin_x_sqrt_time", "margin_over_sqrt_time")
 KEYS = ("game_id", "season", "event")
 TARGET = "home_win"
 FORBIDDEN = frozenset({"home_win", "home_score", "away_score", "final_margin", "final_score", "score",
@@ -336,6 +338,7 @@ def build_states(pbp: pd.DataFrame, games: pd.DataFrame, odds: pd.DataFrame | No
         "spread_home": sp,
         "spread_missing": np.isnan(sp).astype(int),
         "margin_x_sqrt_time": margin * np.sqrt(np.maximum(sec, 0.0)),
+        "margin_over_sqrt_time": margin / np.sqrt(np.maximum(sec, 0.0) + 1.0),
     })
     out["time_bucket"] = time_bucket(out["seconds_remaining"], out["overtime"]).to_numpy()
     held = p["heldout"].fillna(False).astype(bool).to_numpy() if "heldout" in p.columns else np.zeros(len(p), dtype=bool)

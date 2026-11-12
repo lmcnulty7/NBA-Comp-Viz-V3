@@ -17,7 +17,7 @@ Protocol
   3. Candidates (baselines first, no deep model):
        constant    the training-fold home win rate
        logistic    logistic regression on margin, seconds_remaining, possession_home (plus its missing flag) and
-                   margin_x_sqrt_time, standardised, C=1
+                   margin_x_sqrt_time and margin_over_sqrt_time, standardised, C=1
        hgb_iso     HistGradientBoostingClassifier (depth 3, 50 rounds, 200 rows per leaf, L2 1.0) on the same plus
                    period, overtime, spread_home and spread_missing, calibrated with isotonic regression fitted on out-of-fold predictions of the
                    candidate's own training rows (inner grouped folds by game), then refit on all of them
@@ -48,7 +48,7 @@ from analytics.winprob import features as F
 
 WHO = "winprob.train"
 MODELS = ("constant", "logistic", "hgb_iso")
-LOGISTIC_COLS = ("margin", "seconds_remaining", "possession_home", "margin_x_sqrt_time")
+LOGISTIC_COLS = ("margin", "seconds_remaining", "possession_home", "margin_x_sqrt_time", "margin_over_sqrt_time")
 HGB_COLS = tuple(F.FEATURES)
 SELECTION_BUCKETS = tuple(b[0] for b in F.BUCKETS)
 INNER_FOLDS = 3
@@ -306,7 +306,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "", "## Protocol%s" % tag, "",
           "Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): %s." % ", ".join(F.feature_columns()),
           "The final score never enters a feature; `prefix_invariance_violations` found %d violation(s) on %d probed game(s) (a feature at event k is unchanged when the play-by-play is cut after k)." % (ctx["prefix_violations"], ctx["prefix_games"]),
-          "Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag) and margin_x_sqrt_time (standardised, C=1); "
+          "Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag), margin_x_sqrt_time and margin_over_sqrt_time (standardised, C=1); "
           "HistGradientBoostingClassifier on the same plus period, overtime, spread_home and spread_missing, calibrated by isotonic regression on inner out-of-fold predictions (3 folds by game). No deep model.",
           "Selection: %s. The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). "
           "Intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d). %s" % (ctx["protocol"], ctx["bootstrap"], ctx["seed"],
