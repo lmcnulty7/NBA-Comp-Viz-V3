@@ -77,6 +77,13 @@ def feature_columns() -> list:
     return list(FEATURES)
 
 
+def frames_of(d: dict) -> pd.DataFrame:
+    """The frames of a game dict. d["frames"] is a DataFrame or a zero-argument loader (validate.load_data_root
+    gives loaders so only one game's frames are in memory at a time); a loader is called here."""
+    fr = d["frames"]
+    return fr() if callable(fr) else fr
+
+
 def game_id(d: dict) -> str:
     """The sportvu_game of a game dict: its sportvu_game key, else meta.sportvu_game (analytics.fixtures), else
     the possessions table, else the frames' game column."""
@@ -88,7 +95,7 @@ def game_id(d: dict) -> str:
     poss = d.get("possessions")
     if poss is not None and len(poss):
         return str(poss["sportvu_game"].iloc[0])
-    return str(d["frames"]["game"].iloc[0])
+    return str(frames_of(d)["game"].iloc[0])
 
 
 def is_heldout(d: dict) -> bool:
@@ -180,7 +187,7 @@ def build_game(d: dict) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     elapsed_s, offense_team_id, the FEATURES and the TARGET."""
     g = game_id(d)
     held = bool(is_heldout(d))
-    frames, poss = d["frames"], d["possessions"]
+    frames, poss = frames_of(d), d["possessions"]
     counts = {"sportvu_game": g, "possessions": int(len(poss)), "sampled": 0, "kept": 0, "not_ten": 0, "no_ball": 0,
               "degenerate_hull": 0}
     samp = sample_frames(frames, poss)
@@ -248,13 +255,16 @@ def build_game(d: dict) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
 
 def build(games) -> tuple[pd.DataFrame, pd.DataFrame, list]:
     """Concatenate build_game over game dicts -> (player_frame, spacing_frame, per-game counts).
+    Games are built one at a time, so a game's frames are released before the next is read.
     schema.assert_time_forward runs on the returned player frame (states_1hz is the nearest contract table)."""
-    pfs, sps, counts = [], [], []
-    for d in games:
-        pf, sp, c = build_game(d)
-        pfs.append(pf)
-        sps.append(sp)
-        counts.append(c)
+    return combine([build_game(d) for d in games])
+
+
+def combine(parts) -> tuple[pd.DataFrame, pd.DataFrame, list]:
+    """build_game results, in game order -> (player_frame, spacing_frame, per-game counts), as build returns them."""
+    pfs = [p[0] for p in parts]
+    sps = [p[1] for p in parts]
+    counts = [p[2] for p in parts]
     if pfs:
         pf, sp = pd.concat(pfs, ignore_index=True), pd.concat(sps, ignore_index=True)
     else:
@@ -349,8 +359,9 @@ def main(argv=None) -> dict:
     V.add_input_args(ap)
     ap.add_argument("--out", default=None, help="OUT_ROOT: writes OUT_ROOT/analytics/gravity/{player_frames,spacing_frames}.parquet")
     a = ap.parse_args(argv)
-    games, vcounts = V.validate_games(V.load_games(a, who="gravity.features"))
-    pf, sp, counts = build(games)
+    # one pass: each game is validated and built while its frames are in memory, then they are dropped
+    games, vcounts, parts = V.stream_games(V.load_games(a, who="gravity.features"), build_game)
+    pf, sp, counts = combine(parts)
     summary = {"games": len(games), "player_frames": int(len(pf)), "spacing_frames": int(len(sp)), "counts": counts,
                "validation": vcounts, "features": FEATURES, "fixture": bool(a.fixtures)}
     if a.out:

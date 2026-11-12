@@ -5,11 +5,13 @@
         [--fixture-games 8] [--fixture-possessions 40] [--fixture-heldout-every K] [--fixture-generator shared|pull]
 
 Protocol
-  1. load the game dicts (validate.load_games), clean them (validate.validate_games), set the held-out games
-     aside (features.is_heldout: the dict flag, or analytics.eval.is_heldout_game on the id) and
-     call analytics.eval.refuse_heldout on the training game ids
-  2. build the 1 Hz player frame and the spacing frame (features.build); schema.assert_time_forward runs on
-     the feature frame there and again in features.design before every fit
+  1. load the game dicts (validate.load_games; on data each game's frames are a loader), then one pass over the
+     games, one game's frames at a time (validate.stream_games): clean, build the game's rows and note who is on
+     the floor at its shots, then drop its frames. Held-out games are set aside (features.is_heldout: the dict
+     flag, or analytics.eval.is_heldout_game on the id) and analytics.eval.refuse_heldout runs on the training ids
+  2. the 1 Hz player frame and the spacing frame are the per-game rows joined (features.combine, as
+     features.build); schema.assert_time_forward runs on the feature frame there and again in features.design
+     before every fit
   3. grouped folds by sportvu_game (analytics.eval.grouped_folds); in each fold the zone prior (league make rate
      by zone, not player-specific) comes from the shots of the training-fold games only (features.skill_table),
      attached to both sides
@@ -334,6 +336,39 @@ class _OnCourt:
         return set(self.pid[self.start[k]:self.end[k]].tolist())
 
 
+def _shot_key(period, clock_s) -> tuple:
+    """Lookup key of a shot's (period, clock); a NaN clock maps to None so the key still matches."""
+    c = float(clock_s)
+    return int(period), (None if np.isnan(c) else c)
+
+
+def on_court_at_shots(d: dict) -> dict:
+    """{(period, clock) key: player ids on the floor} at each shot of one game, from its frames. Run once per
+    game while the frames are in memory, so the sign test does not need the frames again."""
+    sh = d.get("shots")
+    if sh is None or len(sh) == 0:
+        return {}
+    oc = _OnCourt(F.frames_of(d))
+    out = {}
+    for p, c in zip(sh["period"].to_numpy(), pd.to_numeric(sh["clock_s"], errors="coerce").to_numpy(dtype=float)):
+        k = _shot_key(p, c)
+        if k not in out:
+            out[k] = oc.players(p, c)
+    return out
+
+
+def _on_sets(d: dict, sh: pd.DataFrame) -> list:
+    """Who is on the floor at each shot row of sh: from d["on_court"] (on_court_at_shots) when it covers every
+    shot, else from the game's frames."""
+    pre = d.get("on_court")
+    if pre is not None:
+        keys = [_shot_key(p, c) for p, c in zip(sh["period"], sh["clock_s"])]
+        if all(k in pre for k in keys):
+            return [pre[k] for k in keys]
+    oc = _OnCourt(F.frames_of(d))
+    return [oc.players(p, c) for p, c in zip(sh["period"], sh["clock_s"])]
+
+
 def sign_test(games: list, candidates, xfg: pd.DataFrame, n_boot: int, seed: int) -> dict:
     """Per game: mean over the candidate players of (mean xFG p of teammates' shots with the player on the
     floor) - (the same with the player off). Then a one-sided binomial sign test over games (p > 0.5 of a
@@ -350,8 +385,7 @@ def sign_test(games: list, candidates, xfg: pd.DataFrame, n_boot: int, seed: int
         sh = xfg[xfg["sportvu_game"] == g]
         if len(sh) == 0:
             continue
-        oc = _OnCourt(d["frames"])
-        on_sets = [oc.players(p, c) for p, c in zip(sh["period"], sh["clock_s"])]
+        on_sets = _on_sets(d, sh)
         shooter = sh["shooter_id"].to_numpy(dtype=float)
         matched = np.isfinite(shooter)
         diffs = []
@@ -381,15 +415,27 @@ def sign_test(games: list, candidates, xfg: pd.DataFrame, n_boot: int, seed: int
 
 # ── the pipeline over a list of game dicts ─────────────────────────────────────────────────────────
 def run_pipeline(games: list, a, label: str) -> dict:
-    """Everything from clean game dicts to the tables and validation results -> ctx (the report's input)."""
-    games, counts = V.validate_games(games)
+    """Everything from clean game dicts to the tables and validation results -> ctx (the report's input).
+    The frames are read in one pass, one game at a time (validate.stream_games): each game is validated, built
+    and its on-court sets at shots taken, then its frames are dropped."""
+    skip_heldout = bool(getattr(a, "skip_heldout", False))
+
+    def per_game(d):
+        """The frame-derived parts of one cleaned game: build_game, plus the on-court sets of a training game."""
+        if F.is_heldout(d):
+            return None if skip_heldout else F.build_game(d)     # --skip-heldout: never built
+        refuse_heldout([F.game_id(d)], WHO)
+        d["on_court"] = on_court_at_shots(d)
+        return F.build_game(d)
+
+    games, counts, parts = V.stream_games(games, per_game)
     train_games = [d for d in games if not F.is_heldout(d)]
     held_games = [d for d in games if F.is_heldout(d)]
     train_ids = sorted(F.game_id(d) for d in train_games)
     refuse_heldout(train_ids, WHO)
     if not train_games:
         raise SystemExit("%s: no training game after setting the held-out games aside" % WHO)
-    pf, sp, fcounts = F.build(train_games)
+    pf, sp, fcounts = F.combine([p for d, p in zip(games, parts) if not F.is_heldout(d)])
     schema.assert_time_forward(pf, "states_1hz")
     if len(pf) == 0:
         raise SystemExit("%s: no player-frame survived sampling" % WHO)
@@ -412,9 +458,8 @@ def run_pipeline(games: list, a, label: str) -> dict:
     xfg = xfg_oof(train_games, a.folds, a.seed)
     st = sign_test(train_games, candidates, xfg, a.bootstrap, a.seed)
     heldout_scores, hf, heldout_rows = {}, pd.DataFrame(columns=FRAME_COLUMNS), 0
-    skip_heldout = bool(getattr(a, "skip_heldout", False))
     if held_games and not skip_heldout:      # --skip-heldout: set aside above, never built, predicted or scored
-        hpf, hsp, _ = F.build(held_games)
+        hpf, hsp, _ = F.combine([p for d, p in zip(games, parts) if F.is_heldout(d)])
         if len(hpf):
             table = F.skill_table(shots_of(train_games, train_ids))
             models = fit_models(F.attach_skill(pf, table), a.seed, which=("constant", SHIPPED))

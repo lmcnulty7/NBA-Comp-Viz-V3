@@ -110,3 +110,7 @@ sign test and the pull recovery run. Production code never imports `tests/`.
 FIXTURE FLAGS: `--fixture-games 8`, `--fixture-possessions 40`, `--fixture-heldout-every K` (default 4 with at
 least four games), `--fixture-generator shared|pull` (`--n-games`, `--n-possessions` and the values `auto`,
 `fallback` are kept as aliases). Fits run under `analytics.eval.fit_threads()`.
+
+With `--data`, frames are read one game at a time: each game's frames are loaded, checked, turned into its
+player-frame and spacing rows (and, in train, the players on the floor at each of its shots), then dropped
+before the next game is read. Only those per-game rows are kept, so memory does not grow with the season's frames.

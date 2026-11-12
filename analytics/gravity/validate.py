@@ -23,6 +23,8 @@ DATA_ROOT layout (the owner's Mac):
     DATA_ROOT/analytics/rosters/<season>/<game>.parquet, shot_frames/...  (same rule)
     DATA_ROOT/collect/bref_shots/shotchart/<season>.parquet and collect/bref_shots/heldout/shotchart/<season>.parquet
 A game is loaded when its possessions file and its frames file exist; the rest is optional and logged.
+Frames are read one game at a time: load_data_root gives each game's "frames" as a zero-argument loader, and
+stream_games reads, checks and uses one game's frames, then drops them before the next game is read.
 """
 from __future__ import annotations
 
@@ -55,24 +57,31 @@ def _count_out_of_range(s: pd.Series, lo: float, hi: float) -> int:
     return int(((v < lo) | (v > hi)).sum())
 
 
+def clean_frames(fr: pd.DataFrame) -> tuple[pd.DataFrame, int, int]:
+    """(frames without null x or y and without duplicate (frame, player_id), rows dropped as null, rows dropped as duplicate)."""
+    n0 = len(fr)
+    fr = fr[fr["x"].notna() & fr["y"].notna()]
+    n1 = len(fr)
+    fr = fr.drop_duplicates(["frame", "player_id"], keep="first")
+    return fr.reset_index(drop=True), int(n0 - n1), int(n1 - len(fr))
+
+
 def validate_game(d: dict) -> tuple[dict, dict]:
     """(cleaned game dict, counts). See the module docstring for what is checked. counts carries heldout (the dict's
-    flag, or analytics.eval.is_heldout_game on the id), so a summary never names a held-out game unflagged."""
-    from analytics.gravity.features import game_id, is_heldout, shot_player_ids
+    flag, or analytics.eval.is_heldout_game on the id), so a summary never names a held-out game unflagged.
+    A frames loader is called here; the cleaned dict carries the cleaned frames as a DataFrame."""
+    from analytics.gravity.features import frames_of, game_id, is_heldout, shot_player_ids
     g = game_id(d)
     out = dict(d)
     counts = {"sportvu_game": g, "heldout": bool(is_heldout(d)), "schema": {}, "frames": {}, "events": {}, "shots": {}, "dropped": {}}
     for t in CONTRACT_TABLES:
         if d.get(t) is not None and len(d[t]):
             counts["schema"][t] = schema.validate(d[t], t)
-    fr = d["frames"]
+    fr = frames_of(d)
     _require(fr, FRAME_COLUMNS, "frames")
-    n0 = len(fr)
-    fr = fr[fr["x"].notna() & fr["y"].notna()]
-    counts["dropped"]["frames_null_xy"] = int(n0 - len(fr))
-    n1 = len(fr)
-    fr = fr.drop_duplicates(["frame", "player_id"], keep="first")
-    counts["dropped"]["frames_duplicate_frame_player"] = int(n1 - len(fr))
+    fr, n_null, n_dup = clean_frames(fr)
+    counts["dropped"]["frames_null_xy"] = n_null
+    counts["dropped"]["frames_duplicate_frame_player"] = n_dup
     rows_per_frame = fr.groupby("frame").size()
     counts["frames"] = {"rows": int(len(fr)), "frames": int(rows_per_frame.size),
                         "frames_not_ten_rows": int((rows_per_frame != 10).sum()),
@@ -85,7 +94,7 @@ def validate_game(d: dict) -> tuple[dict, dict]:
                         if "shot_clock_s" in fr.columns else int(rows_per_frame.size),
                         "ball_null_frames": int((fr.drop_duplicates("frame")["ball_x"].isna()).sum()),
                         "period_under_one": int((pd.to_numeric(fr["period"], errors="coerce") < 1).sum())}
-    out["frames"] = fr.reset_index(drop=True)
+    out["frames"] = fr
     ev = d.get("events")
     if ev is not None and len(ev):
         _require(ev, EVENT_COLUMNS, "events")
@@ -116,13 +125,33 @@ def validate_game(d: dict) -> tuple[dict, dict]:
     return out, counts
 
 
-def validate_games(games) -> tuple[list, list]:
-    """validate_game over a list of game dicts -> (cleaned list, counts list)."""
-    cleaned, counts = [], []
+def _cleaned_loader(load):
+    """A zero-argument loader of the cleaned frames of one game, from the loader of its raw frames."""
+    return lambda: clean_frames(load())[0]
+
+
+def stream_games(games, per_game=None) -> tuple[list, list, list]:
+    """validate_game over the game dicts, one game at a time -> (cleaned list, counts list, per_game results).
+    per_game(cleaned dict) runs while that game's frames are in memory (build the features, look up who is on
+    the floor) and its result is kept. A game whose frames came from a loader keeps only a loader of its cleaned
+    frames afterwards, so at most one game's frames are alive at a time. A game whose frames came as a DataFrame
+    (fixtures built in memory) keeps the cleaned DataFrame, as before."""
+    cleaned, counts, results = [], [], []
     for d in games:
         c, n = validate_game(d)
+        results.append(per_game(c) if per_game is not None else None)
+        if callable(d.get("frames")):
+            c["frames"] = _cleaned_loader(d["frames"])     # drop this game's frames before the next is read
         cleaned.append(c)
         counts.append(n)
+        del c
+    return cleaned, counts, results
+
+
+def validate_games(games) -> tuple[list, list]:
+    """validate_game over a list of game dicts -> (cleaned list, counts list), one game's frames at a time
+    (stream_games)."""
+    cleaned, counts, _ = stream_games(games)
     return cleaned, counts
 
 
@@ -132,9 +161,15 @@ def _read_if(p: Path):
     return pd.read_parquet(p) if p.exists() else None
 
 
+def _frames_loader(p: Path):
+    """A zero-argument loader of one game's frames parquet."""
+    return lambda: pd.read_parquet(p)
+
+
 def load_data_root(root, season: str = "2015-16", log=print) -> list:
     """Game dicts from the owner's DATA_ROOT layout (module docstring). Held-out games come from the heldout/
-    folders and carry heldout True; the shots table is split per game from the season file(s)."""
+    folders and carry heldout True; the shots table is split per game from the season file(s). "frames" is a
+    loader, not a DataFrame: a season of frames does not fit in memory, so each game's frames are read when used."""
     root = Path(root)
     shots_all = []
     for p in (root / "collect" / "bref_shots" / "shotchart" / ("%s.parquet" % season),
@@ -153,12 +188,12 @@ def load_data_root(root, season: str = "2015-16", log=print) -> list:
         for pp in sorted(pdir.glob("*.parquet")):
             g = pp.stem
             fdir = root / "sportvu_contract" / ("heldout" if held else "")
-            frames = _read_if(fdir / ("%s.parquet" % g))
-            if frames is None:
+            fpath = fdir / ("%s.parquet" % g)
+            if not fpath.exists():
                 log("gravity.validate: %s has possessions but no frames file, skipped" % g)
                 continue
             sub = "heldout/%s" % season if held else season
-            d = {"sportvu_game": g, "heldout": held, "frames": frames, "possessions": pd.read_parquet(pp),
+            d = {"sportvu_game": g, "heldout": held, "frames": _frames_loader(fpath), "possessions": pd.read_parquet(pp),
                  "events": _read_if(fdir / ("%s_pbp.parquet" % g)),
                  "rosters": _read_if(root / "analytics" / "rosters" / sub / ("%s.parquet" % g)),
                  "shot_frames": _read_if(root / "analytics" / "shot_frames" / sub / ("%s.parquet" % g)),
