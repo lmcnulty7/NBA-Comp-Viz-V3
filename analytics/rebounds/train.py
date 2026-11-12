@@ -481,14 +481,20 @@ def write_report(path: Path, ctx: dict) -> str:
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def load_candidates(bundles) -> tuple[pd.DataFrame, list, dict, dict]:
     """Clean every bundle, build the candidate rows -> (frame, per-game input summary, drop totals, validate totals)."""
-    inputs, cleaned, val = [], [], []
-    for b in bundles:
-        cb, counts = V.clean_bundle(b)
-        cleaned.append(cb); val.append(counts)
-    cands, fc = F.build(cleaned)
-    for cb, counts in zip(cleaned, val):
-        c = fc["per_game"].get(cb["sportvu_game"], {})
-        inputs.append({"game": cb["sportvu_game"], "heldout": bool(cb["heldout"]), "frames_in": counts["frames"]["rows_in"],
+    inputs, meta, val = [], [], []
+
+    def cleaned():
+        # one game at a time: F.build keeps only each game's candidate rows, so no game's frames outlive its turn
+        # (holding every cleaned bundle first put all games' frames in memory, a 43 GB peak on the real season)
+        for b in bundles:
+            cb, counts = V.clean_bundle(b)
+            val.append(counts)
+            meta.append((cb["sportvu_game"], bool(cb["heldout"])))
+            yield cb
+    cands, fc = F.build(cleaned())
+    for (game, held), counts in zip(meta, val):
+        c = fc["per_game"].get(game, {})
+        inputs.append({"game": game, "heldout": held, "frames_in": counts["frames"]["rows_in"],
                        "frames_out": counts["frames"]["rows_out"], "misses_in": c.get("n_in", 0), "kept": c.get("misses_kept", 0),
                        "team": c.get("team_rebounds_kept", 0), "dropped": int(sum(c.get(k, 0) for k in F.DROP_REASONS)), "rows": c.get("rows", 0),
                        "info": {k: int(c.get(k, 0)) for k in F.INFO_COUNTS}})

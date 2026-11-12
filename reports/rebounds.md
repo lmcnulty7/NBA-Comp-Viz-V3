@@ -1,8 +1,8 @@
 # Rebound probability (analytics/rebounds/train.py)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 1 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
+**Real data, training folds only; held-out not scored.** Stage 5 phase 1 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 with improvement search variant 1 merged (hgb temperature; reports/archive/rebounds.md).
 
-Written 2026-11-12T00:50:23Z by `python -m analytics.rebounds.train --data $DATA_ROOT --seed 0 --report reports/rebounds.md --skip-heldout`.
+Written 2026-11-12T11:56:10Z by `python -m analytics.rebounds.train --data $DATA_ROOT --seed 0 --report reports/rebounds.md --skip-heldout`.
 
 ## Inputs and rows
 
@@ -652,10 +652,10 @@ Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals a
 | --- | --- | --- |
 | prior | 2.1380 [2.1292, 2.1436] | 0.2257 [0.2218, 0.2302] |
 | logit | 1.7558 [1.7418, 1.7660] | 0.4409 [0.4373, 0.4455] |
-| hgb (selected) | 1.6234 [1.6130, 1.6304] | 0.4797 [0.4756, 0.4848] |
+| hgb (selected) | 1.6009 [1.5882, 1.6103] | 0.4797 [0.4756, 0.4848] |
 | uniform reference | 2.3881 | 0.0919 |
 
-Paired bootstrap by game, hgb minus prior per-miss log loss: -0.5146 [-0.5236, -0.5064]; interval excludes zero: True (negative favours hgb).
+Paired bootstrap by game, hgb minus prior per-miss log loss: -0.5371 [-0.5477, -0.5283]; interval excludes zero: True (negative favours hgb).
 Selected: hgb.
 
 ## Calibration of the top candidate's probability (hgb, out-of-fold)
@@ -668,22 +668,22 @@ Per miss: y is whether the top candidate secured the rebound (a tie at the maxim
 
 | metric | point | lo | hi |
 | --- | --- | --- | --- |
-| log loss | 0.6386 | 0.6357 | 0.6417 |
-| Brier | 0.2236 | 0.2224 | 0.2251 |
-| ECE | 0.1092 | 0.1053 | 0.1131 |
-| calibration slope | 1.6946 | 1.6615 | 1.7373 |
+| log loss | 0.6081 | 0.6052 | 0.6109 |
+| Brier | 0.2097 | 0.2084 | 0.2110 |
+| ECE | 0.0414 | 0.0379 | 0.0454 |
+| calibration slope | 1.3667 | 1.3396 | 1.4015 |
 
 | bin | lo | hi | n | mean_p | mean_y |
 | --- | --- | --- | --- | --- | --- |
 | 0 | 0.00 | 0.10 | 0 | - | - |
-| 1 | 0.10 | 0.20 | 2413 | 0.1834 | 0.2126 |
-| 2 | 0.20 | 0.30 | 15542 | 0.2530 | 0.2873 |
-| 3 | 0.30 | 0.40 | 13808 | 0.3464 | 0.4302 |
-| 4 | 0.40 | 0.50 | 8709 | 0.4449 | 0.6165 |
-| 5 | 0.50 | 0.60 | 5132 | 0.5467 | 0.7857 |
-| 6 | 0.60 | 0.70 | 3075 | 0.6444 | 0.8943 |
-| 7 | 0.70 | 0.80 | 609 | 0.7241 | 0.9425 |
-| 8 | 0.80 | 0.90 | 0 | - | - |
+| 1 | 0.10 | 0.20 | 832 | 0.1854 | 0.1947 |
+| 2 | 0.20 | 0.30 | 10004 | 0.2569 | 0.2494 |
+| 3 | 0.30 | 0.40 | 12754 | 0.3485 | 0.3520 |
+| 4 | 0.40 | 0.50 | 9825 | 0.4479 | 0.4802 |
+| 5 | 0.50 | 0.60 | 6542 | 0.5467 | 0.6278 |
+| 6 | 0.60 | 0.70 | 4675 | 0.6487 | 0.7621 |
+| 7 | 0.70 | 0.80 | 3509 | 0.7474 | 0.8678 |
+| 8 | 0.80 | 0.90 | 1147 | 0.8271 | 0.9268 |
 | 9 | 0.90 | 1.00 | 0 | - | - |
 
 ## Held-out games
@@ -702,7 +702,7 @@ Per miss: y is whether the top candidate secured the rebound (a tie at the maxim
 
 ## Predictions
 
-No --out given: the rebound_predictions table was not written.
+Written 604 file(s) under OUT_ROOT/analytics/rebounds/ (docs/contract/rebounds.md).
 
 ## Status
 

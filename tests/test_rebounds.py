@@ -389,3 +389,31 @@ def test_out_root_defaults_to_data_root_on_real_data():
     assert T.out_root_for(NS(out="/o", fixtures=False, data="/d")) == "/o"
     assert T.out_root_for(NS(out=None, fixtures=False, data="/d")) == "/d"
     assert T.out_root_for(NS(out=None, fixtures=True, data=None)) is None
+
+
+def test_load_candidates_holds_one_game_of_frames_at_a_time(monkeypatch):
+    import gc
+    import weakref
+    from analytics.rebounds import features as RF, train as T, validate as V
+    src = V.bundles_from_fixtures(0, 5, 4, 8)
+    refs, peak = [], [0]
+    real_clean, real_build = V.clean_bundle, RF.build_game
+
+    def clean(b):
+        cb, counts = real_clean(b)
+        refs.append(weakref.ref(cb["frames"]))     # the cleaned frames are what a caller could hold on to
+        return cb, counts
+
+    def build_game(frames, *a, **k):
+        gc.collect()
+        peak[0] = max(peak[0], sum(r() is not None for r in refs))
+        return real_build(frames, *a, **k)
+    monkeypatch.setattr(V, "clean_bundle", clean)
+    monkeypatch.setattr(RF, "build_game", build_game)
+
+    def stream():
+        while src:
+            yield src.pop(0)
+    cands, inputs, _, _ = T.load_candidates(stream())
+    assert len(inputs) == 5 and len(cands) > 0
+    assert peak[0] <= 2       # the game being built and at most the previous one, never every game

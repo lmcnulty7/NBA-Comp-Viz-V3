@@ -333,8 +333,7 @@ def main(argv=None) -> dict:
     from analytics.rebounds import validate as V
     a = parse_args(argv)
     bundles = V.source_bundles(a)
-    cleaned = [V.clean_bundle(b)[0] for b in bundles]
-    cands, counts = build(cleaned)
+    cands, counts = build(V.clean_bundle(b)[0] for b in bundles)   # one game's frames in memory at a time
     out_root = a.out or tempfile.mkdtemp(prefix="rebounds_features_")
     paths = write_features(cands, out_root)
     t = counts["total"]

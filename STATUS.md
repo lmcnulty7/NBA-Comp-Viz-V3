@@ -39,8 +39,7 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   tests/test_label_tool.py.
 - **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting and
   lineups, winprob, both stage 6 GRU runs, the winprob table rerun
-  and the decisions rerun on the GRU EPV are done; rebounds train rerun with its accepted variant running
-  (logs/loop/archive_rebounds_v1_lane.log).
+  the decisions rerun on the GRU EPV and the rebounds reruns are done. Nothing running.
 - **Improvement search settled (2026-11-12):** 2 variants tried, both accepted (reports/archive/winprob.md,
   reports/archive/rebounds.md). Not searched, with the reason: xfg (calibrated, ECE 0.003, slope 1.00),
   embeddings (PCA clears its gate), gravity (the plan ships ridge), matchups and decisions (no signal is the
@@ -48,7 +47,9 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   across seasons, the limit is data), load (no failure the report points at), epv and ghosting (stage 6).
 - **Stage 7 (freeze-v1) in progress:** "Frozen for the held-out run (freeze-v1)" sections are being written into
   each group 1 contract page. Fixed in the runbook first: the stage 8 xfg baseline command now passes the
-  held-out shot file too (without it the baseline would have scored no held-out shot).
+  held-out shot file too (without it the baseline would have scored no held-out shot). Stage 8 dry run on the
+  fixtures (the group 1 lane list without --skip-heldout, fixture output only): all 35 steps ok and each lane's
+  held-out section written; epv with --deep torch through held-out scoring on the fixtures also ok.
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
   whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
   public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test
@@ -222,7 +223,7 @@ rebounds features and train (16:47 to 16:50, after the crash), xfg baseline (16:
 | lane | rows | selected | out-of-fold metric [95 percent game bootstrap] | notes |
 |---|---|---|---|---|
 | xfg | 101,853 attempts, 607 games (62,387 with contest features); 18 held-out games set aside | hgb_contest_prior | log loss 0.6294 [0.6277, 0.6316]; ECE 0.0029 (target under 0.02); slope 1.00 | beats location_logistic by 0.0370 [0.0354, 0.0385] and contest_logistic; shots: 92 out of range and 83 duplicates dropped; rosters: 2 null player names |
-| rebounds | 49,288 misses, 604 games; 17 held-out games set aside | hgb | per-miss log loss 1.6234 [1.6130, 1.6304]; top-1 accuracy 0.4797 [0.4756, 0.4848] (plan target 0.40) | beats prior by 0.5146; about 18 percent of misses per game dropped (no clean rebound match); the top candidate's probability is under-confident (slope 1.69, ECE 0.109), a candidate for the improvement search; no --out, so rebound_predictions not written; improvement search variant 1 accepted and merged (hgb temperature fitted on inner folds, tau about 1.26: per-miss log loss 1.6009, paired -0.0225 [-0.0246, -0.0205], top-1 unchanged, ECE 0.109 to 0.041, slope 1.69 to 1.37); lane rerun pending; predictions table now written (OUT_ROOT defaults to DATA_ROOT, test) |
+| rebounds | 49,288 misses, 604 games; 17 held-out games set aside | hgb | per-miss log loss 1.6234 [1.6130, 1.6304]; top-1 accuracy 0.4797 [0.4756, 0.4848] (plan target 0.40) | beats prior by 0.5146; about 18 percent of misses per game dropped (no clean rebound match); the top candidate's probability is under-confident (slope 1.69, ECE 0.109), a candidate for the improvement search; no --out, so rebound_predictions not written; improvement search variant 1 accepted and merged (hgb temperature fitted on inner folds, tau about 1.26: per-miss log loss 1.6009, paired -0.0225 [-0.0246, -0.0205], top-1 unchanged, ECE 0.109 to 0.041, slope 1.69 to 1.37); lane rerun reproduces it (1.6009 [1.5882, 1.6103], ECE 0.041, slope 1.37); predictions table now written (OUT_ROOT defaults to DATA_ROOT, test); memory fixed: features and train held every game's cleaned frames at once (43 GB peak footprint on the rerun; phase 1 was running when the Mac crashed on 2026-11-11), now one game at a time (2.0 GB, report identical; test) |
 | xfg baseline | 102,024 attempts, 607 games | logistic (location) | log loss 0.6665 [0.6652, 0.6681]; slope 1.00; ECE 0.040 | constant model 0.6879; held-out shots live in a separate file the baseline is not given |
 
 Looks wrong or worth a look: nothing blocking. The rebounds calibration and the 18 percent rebound drop are
