@@ -1,8 +1,8 @@
 # Live win probability (analytics/winprob/train.py)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12; the 2024-25 season is held out; no odds (betting skipped, gates/odds-skip), so the closing spread is missing on every game; NBA.com skipped (gates/nbacom-skip), so the benchmark column is empty.
+**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 (train rerun after the OUT_ROOT fix, same numbers, tables written); the 2024-25 season is held out; no odds (betting skipped, gates/odds-skip), so the closing spread is missing on every game; NBA.com skipped (gates/nbacom-skip), so the benchmark column is empty.
 
-Written 2026-11-12T09:30:02Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md --skip-heldout`.
+Written 2026-11-12T11:32:39Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md --skip-heldout`.
 
 ## Inputs
 
@@ -120,11 +120,18 @@ The constant model has no calibration slope by design.
 
 ## Benchmark
 
-The NBA.com WinProbabilityPBP endpoint is unreachable from here, so the benchmark column is empty until it exists. When it does, its probability at each event joins winprob_states on (game_id, event) and is scored with the same bucket Brier.
+NBA.com tables were skipped by the owner (gates/nbacom-skip, 2026-11-11), so the NBA.com WinProbabilityPBP benchmark was not collected and the benchmark column is empty. If it is collected later, its probability at each event joins winprob_states on (game_id, event) and is scored with the same bucket Brier.
 
 ## Outputs
 
-- no tables written (no --out)
+- $DATA_ROOT/analytics/winprob/2020-21/winprob_states.parquet
+- $DATA_ROOT/analytics/winprob/2020-21/winprob_calibration.parquet
+- $DATA_ROOT/analytics/winprob/2021-22/winprob_states.parquet
+- $DATA_ROOT/analytics/winprob/2021-22/winprob_calibration.parquet
+- $DATA_ROOT/analytics/winprob/2022-23/winprob_states.parquet
+- $DATA_ROOT/analytics/winprob/2022-23/winprob_calibration.parquet
+- $DATA_ROOT/analytics/winprob/2023-24/winprob_states.parquet
+- $DATA_ROOT/analytics/winprob/2023-24/winprob_calibration.parquet
 
 ## Mac command
 
