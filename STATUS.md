@@ -31,10 +31,17 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** stage 5 phase 1 (xfg, rebounds) with --skip-heldout, then the xfg baseline
-  (analytics.train_xfg --skip-heldout), started 2026-11-11 16:17, PID 48469 (caffeinate wrapper), log
-  logs/loop/stage5_phase1.log, step logs in logs/run_all/. Phases 1 and 2 do not need the labels, so they run
-  while stage 4 labelling goes on; phase 3 waits for gates/labels-done.
+- **Background jobs:** stage 5 phase 1 resume, started 2026-11-11 16:47, caffeinate PID 3001, log
+  logs/loop/stage5_phase1_resume.log, step logs in logs/run_all/. It runs rebounds features and train
+  (run_all.step_argv and run_step, --skip-heldout), then the xfg baseline (analytics.train_xfg --skip-heldout).
+  Phases 1 and 2 do not need the labels; phase 3 waits for gates/labels-done.
+- **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
+  xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
+  rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
+  `$DATA_ROOT/analytics/xfg/2015-16/xfg_predictions.parquet` reads whole (101,853 rows, 607 games, matching the
+  train log; no nulls in the prediction columns); reports/xfg.md is complete (its last line matches the train
+  log). xfg features writes no file without --out, so nothing else of xfg sits on Drive. So xfg was not rerun;
+  only the missing steps were. To review with phase 1: player_id is null on every xfg_predictions row.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
