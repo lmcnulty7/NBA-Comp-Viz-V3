@@ -413,11 +413,39 @@ def starters_by_side(starters: pd.DataFrame, game_id: str, home_team_id, away_te
     return out
 
 
+REGULATION_PERIODS = 4
+OVERTIME_S = 300.0
+
+
+def shifted_period_games(playbyplay: pd.DataFrame) -> set:
+    """Games whose period labels cannot be trusted, dropped whole before any stint is built (the winprob lane's
+    clock rule, docs/contract/winprob.md): the periods do not run 1..max without a gap, or a period above 4 holds
+    a clock above 300 s. The basketball-reference parser counts quarter header rows, and a page that repeats a
+    header around an event filed under another quarter shifts every later period up (53 of 6,416 games in
+    2020-21 to 2024-25), which would give the wrong starters and quarter boundaries."""
+    if len(playbyplay) == 0 or "period" not in playbyplay.columns:
+        return set()
+    gcol = "game_id" if "game_id" in playbyplay.columns else "game"
+    period = pd.to_numeric(playbyplay["period"], errors="coerce")
+    gid = playbyplay[gcol].astype(str)
+    ok = period >= 1
+    per = pd.DataFrame({"g": gid[ok], "p": period[ok]}).groupby("g")["p"].agg(["max", "nunique"])
+    bad = set(per.index[per["max"] != per["nunique"]])
+    if "clock_s" in playbyplay.columns:
+        clock = pd.to_numeric(playbyplay["clock_s"], errors="coerce")
+        bad |= set(gid[(period > REGULATION_PERIODS) & (clock > OVERTIME_S)].unique())
+    return bad
+
+
 def build_stints(playbyplay: pd.DataFrame, games: pd.DataFrame | None = None, starters: pd.DataFrame | None = None) -> pd.DataFrame:
-    """Every game of a play-by-play table -> stints (section 12 columns plus the carried fields)."""
+    """Every game of a play-by-play table -> stints (section 12 columns plus the carried fields). Games from
+    shifted_period_games are dropped whole; their ids are in ``attrs["dropped_shifted_period_games"]``."""
     if len(playbyplay) == 0:
         return pd.DataFrame()
     gcol = "game_id" if "game_id" in playbyplay.columns else "game"
+    dropped = shifted_period_games(playbyplay)
+    if dropped:
+        playbyplay = playbyplay.loc[~playbyplay[gcol].astype(str).isin(dropped)]
     teams = {}
     if games is not None and len(games):
         teams = {str(r.game_id): (r.home_team_id, r.away_team_id) for r in games.itertuples()}
@@ -436,7 +464,9 @@ def build_stints(playbyplay: pd.DataFrame, games: pd.DataFrame | None = None, st
             a = int(aid.iloc[0]) if len(aid) else None
         st = starters_by_side(starters, str(g), h, a)
         frames.append(build_game_stints(grp, st, h))
-    return pd.concat([f for f in frames if len(f)], ignore_index=True) if frames else pd.DataFrame()
+    out = pd.concat([f for f in frames if len(f)], ignore_index=True) if frames else pd.DataFrame()
+    out.attrs["dropped_shifted_period_games"] = sorted(dropped)
+    return out
 
 
 def summarize(stints: pd.DataFrame) -> dict:
@@ -474,6 +504,7 @@ def main(argv=None) -> dict:
             grp.reset_index(drop=True).to_parquet(p, index=False)
             written.append(str(p))
     s = summarize(stints)
+    s["dropped_shifted_period_games"] = len(stints.attrs.get("dropped_shifted_period_games", []))
     s["written"] = written
     s["fixture"] = inputs["fixture"]
     print("stints from play-by-play%s: %s" % (" (fixture output, not a result)" if inputs["fixture"] else "", s))

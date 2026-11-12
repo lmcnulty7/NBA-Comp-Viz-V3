@@ -45,6 +45,10 @@ Derivation (also in the module docstring):
 - Foul sides: basketball-reference files a defensive foul (shooting, personal, take, away from play, flagrant)
   under the fouled team, so a foul row without ids takes the side its player has on most of the game's
   other rows (`fix_foul_sides`); a fouler seen nowhere else keeps the row's side.
+- Shifted period labels: a game whose periods do not run 1..max without a gap, or whose period above 4 holds a
+  clock above 300 s, is dropped whole before any stint is built (`shifted_period_games`, the winprob lane's
+  clock rule). The basketball-reference parser counts quarter header rows, so a repeated header shifts every
+  later period up (53 of 6,416 games in 2020-21 to 2024-25). The stints step prints how many it dropped.
 - Starters table join (agreed with lane I2; `STARTERS_COLUMNS` in stints.py): the game is matched on
   `game_id` when it is a play-by-play game id, else through the games table (`resolve_starters_games`): the
   `game` column against games.game or games.game_id, then (game_date, home team code of the bref code's last

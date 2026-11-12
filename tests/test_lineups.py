@@ -605,3 +605,29 @@ def test_read_stints_prefers_collected_then_out_root_then_data_root(tmp_path):
     df, paths = read_stints(data, out, ["2020-21"])
     assert len(df) == 3 and paths == [str(p)]
     assert read_stints(data, out, ["2021-22"])[0].empty
+
+
+def test_games_with_shifted_period_labels_are_dropped_before_stints():
+    """The basketball-reference parser can shift every later period up by counting a repeated quarter header
+    (periods 1, 2, 4, 5, 6). Such a game is dropped whole, as in the winprob lane; the other games' stints are
+    unchanged."""
+    from analytics.lineups import load_inputs
+    t = load_inputs(True, seed=0, stints=False)
+    pbp = t["playbyplay"].copy()
+    gcol = "game_id" if "game_id" in pbp.columns else "game"
+    g0 = sorted(pbp[gcol].astype(str).unique())[0]
+    base = S.build_stints(pbp, t["games"], t["starters"])
+    shifted = pbp.copy()
+    sel = (shifted[gcol].astype(str) == g0) & (pd.to_numeric(shifted["period"]) >= 3)
+    shifted.loc[sel, "period"] = pd.to_numeric(shifted.loc[sel, "period"]) + 1
+    assert S.shifted_period_games(shifted) == {g0} and S.shifted_period_games(pbp) == set()
+    out = S.build_stints(shifted, t["games"], t["starters"])
+    assert out.attrs["dropped_shifted_period_games"] == [g0]
+    assert g0 not in set(out["game_id"].astype(str))
+    pd.testing.assert_frame_equal(out.reset_index(drop=True),
+                                  base[base["game_id"].astype(str) != g0].reset_index(drop=True))
+    # an overtime period holding a regulation clock is dropped too
+    ot = pbp.copy()
+    row = ot.index[(ot[gcol].astype(str) == g0)][0]
+    ot.loc[row, ["period", "clock_s"]] = [5, 600.0]
+    assert S.shifted_period_games(ot) == {g0}

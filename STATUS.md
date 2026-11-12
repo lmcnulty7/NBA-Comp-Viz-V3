@@ -150,7 +150,16 @@ were 5v5) and starter names not matching the play-by-play (suffixes like Jr., an
 both fixes 95.5 percent of 2020-21 stints are 5v5. Open, not fixed: players are keyed by a hash of the
 abbreviated play-by-play name, so players sharing an abbreviation (several "J. Green") share one key and
 corrupt their RAPM; fixing it needs a player id or slug join the play-by-play lacks. Scratch real-data run: all
-steps ok in 200 s, 2.6 GB. Full run queued after ghosting. Failed at validate on real data, being fixed: winprob (4,388 play-by-play events
+steps ok in 200 s, 2.6 GB. Full run queued after ghosting. winprob fixed (b2e92a9, tests): all 4,388 bad clocks
+come from one collector bug (fetch_pbp.parse_events numbers periods by counting quarter header rows, and a page
+that repeats a header shifts every later period up, so real 3rd and 4th quarters land in periods 5 and 6); 53 of
+6,416 games carry it (a gap in their period numbers), 9 to 12 per season. The clock rule drops those games
+whole and counts them in validate.json; validate fails only above 2 percent of a season (real data: at most 0.9
+percent). Lineups drops the same games before building stints (shifted_period_games, test). The 2015-16
+tracking-era play-by-play has no such game (checked: 0 of 604 training files with a period gap). Collector not
+fixed and nothing re-collected: parse_events should read the period from the header row; the 53 games could
+then be re-parsed from the cached pages without the network. Scratch real-data winprob run: ok in 787 s, 5.3 GB.
+Was: winprob (4,388 play-by-play events
 with a clock outside the period or no period). Each is on its own worktree branch with a test. winprob's trainer
 sets the whole 2024-25 season aside (--heldout-season 2024-25); validate's heldout_rows 0 only counts row flags.
 Also fixed: epv train wrote no tables on real data (out_root None without --out), so decisions would have run
