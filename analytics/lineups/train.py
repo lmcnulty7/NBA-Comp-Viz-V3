@@ -65,7 +65,7 @@ from scipy.stats import rankdata
 from analytics import schema
 from analytics.eval import (bootstrap_by_game, fit_threads, fmt_ci, fmt_num, grouped_folds, min_sample_gate, paired_bootstrap_by_game,
                            refuse_heldout, add_skip_heldout_arg, skip_heldout_lines)
-from analytics.lineups import FIXTURE_SEASONS, SEASONS, WHO, add_fixture_args, load_inputs, out_dir
+from analytics.lineups import NO_STINTS_HINT, FIXTURE_SEASONS, SEASONS, WHO, add_fixture_args, load_inputs, out_dir
 from analytics.lineups.features import TARGET, assert_no_leak, feature_columns, features
 from analytics.lineups.validate import validate
 
@@ -549,9 +549,9 @@ def main(argv=None) -> dict:
     """Validate, build the features, run the protocol, write the tables under OUT_ROOT and the report."""
     from analytics.lineups.eda import cross_season_correlation
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games, out_root=a.out)
     if len(inputs["stints"]) == 0:
-        raise SystemExit("%s: no stints rows found" % WHO)
+        raise SystemExit("%s: no stints rows found %s" % (WHO, NO_STINTS_HINT))
     _clean, counts = validate(inputs["stints"])
     feats = features(inputs["stints"], inputs["games"])
     heldout = a.heldout_season or (FIXTURE_SEASONS[-1] if a.fixtures else "2024-25")

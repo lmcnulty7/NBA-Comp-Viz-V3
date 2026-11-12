@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from analytics.lineups import PLAYER_COLUMNS, SEASONS, add_fixture_args, load_inputs
+from analytics.lineups import NO_STINTS_HINT, PLAYER_COLUMNS, SEASONS, add_fixture_args, load_inputs
 
 REQUIRED = ("game_id", "stint", "start_s", "end_s", "duration_s", "period_start", "period_end") + PLAYER_COLUMNS + (
     "home_ids", "away_ids", "n_home", "n_away", "lineup_ok", "points_home", "points_away", "score_home", "score_away")
@@ -94,11 +94,13 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     """Validate the fixture or DATA_ROOT stints, write validate.json under OUT_ROOT and print the counts."""
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games, out_root=a.out)
     if len(inputs["stints"]) == 0:
-        raise SystemExit("validate: no stints rows found")
+        raise SystemExit("validate: no stints rows found " + NO_STINTS_HINT)
     _clean, counts = validate(inputs["stints"])
     counts["fixture"] = inputs["fixture"]
+    if inputs.get("stints_paths"):
+        print("validate: stints read from %s" % ", ".join(inputs["stints_paths"]))
     out_root = a.out or (a.data if not a.fixtures else None)
     if out_root:
         p = Path(out_root) / "analytics" / "lineups" / "validate.json"

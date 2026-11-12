@@ -83,7 +83,7 @@ ext-decisions: ## decisions: validate, features, train (depends on xfg, epv)
 ext-playcalling: ## playcalling: validate, features, train (depends on epv, actions, coverage)
 	$(PY) run_all.py $(RUN_ARGS) --ext playcalling
 
-ext-lineups: ## lineups: validate, stints, features, train
+ext-lineups: ## lineups: stints, validate, features, train
 	$(PY) run_all.py $(RUN_ARGS) --ext lineups
 
 ext-winprob: ## winprob: validate, features, train

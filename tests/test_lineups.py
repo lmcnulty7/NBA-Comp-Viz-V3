@@ -494,3 +494,114 @@ def test_fixture_flags_and_production_never_imports_tests():
         mods = [n.module or "" for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.ImportFrom)]
         mods += [a.name for n in ast.walk(ast.parse(p.read_text())) if isinstance(n, ast.Import) for a in n.names]
         assert not [m for m in mods if m == "tests" or m.startswith("tests.")], p
+
+
+# ----------------------------------------------------------------------------- basketball-reference quirks
+
+def _bref_game(foul_team: str):
+    """Home H1..H5, away A1..A5, all seen in period 1. Early on H1 commits a shooting foul filed under `foul_team`
+    (bref files it under the fouled team, away) before A4 and A5 appear; later H1 goes out for H6."""
+    rows, k = [], 0
+    for side, pre, ids in (("home", "H", range(1, 6)), ("away", "A", range(1, 4))):
+        for i in ids:
+            rows.append(_ev(k, 1, 700 - k, side, "rebound", "Defensive rebound by %s. Player%d" % (pre, i))); k += 1
+    rows.append(_ev(k, 1, 650, foul_team, "foul", "Shooting foul by H. Player1 (drawn by A. Player1)")); k += 1
+    for i in (4, 5):
+        rows.append(_ev(k, 1, 640 - k, "away", "rebound", "Defensive rebound by A. Player%d" % i)); k += 1
+    rows.append(_ev(k, 1, 500, "home", "other", "H. Player6 enters the game for H. Player1")); k += 1
+    rows.append(_ev(k, 1, 400, "away", "shot_made", "A. Player2 makes 2-pt layup", points=2))
+    return pd.DataFrame(rows)
+
+
+def test_defensive_foul_filed_under_the_fouled_team_keeps_the_fouler_on_his_side():
+    """Real 2020-21 bref play-by-play: shooting and personal fouls carry the fouled team's side. Before the fix the
+    fouler joined the other lineup (six on the floor, lineup_ok false)."""
+    out = S.build_game_stints(_bref_game("away"))
+    assert out["n_home"].tolist() == [5, 5] and out["n_away"].tolist() == [5, 5] and out["lineup_ok"].all()
+    assert S.name_key("H. Player1") not in [int(x) for x in out["away_ids"].iloc[0].split("|")]
+    assert S.name_key("H. Player6") in [int(x) for x in out["home_ids"].iloc[1].split("|")]
+    same = S.build_game_stints(_bref_game("home"))                         # a foul already on the fouler's side
+    assert same["lineup_ok"].all()
+
+
+def test_name_keys_ignore_suffixes_and_repair_mojibake():
+    """The box score starters say "Kelly Oubre Jr.", the play-by-play "K. Oubre"; both files carry UTF-8 read as
+    Latin-1 ("Å\\xa0ariÄ\\x87"). The keys must meet."""
+    assert S.name_key(S.abbreviated("Kelly Oubre Jr.")) == S.name_key("K. Oubre")
+    assert S.name_key(S.abbreviated("Marvin Bagley III")) == S.name_key("M. Bagley")
+    assert S.name_key("J. Jackson Jr.") == S.name_key("J. Jackson")
+    assert S.name_key(S.abbreviated("Dario Å ariÄ\u0087")) == S.name_key("D. Å ariÄ\u0087") == S.name_key("D. Šarić")
+    assert S.clean_name("Jr. Smith") == "Jr. Smith" and S.clean_name("Nikola Jokić") == "Nikola Jokić"
+    starters = pd.DataFrame([{"game_id": "g1", "side": "home", "player": "Kelly Oubre Jr.", "team_id": pd.NA, "player_id": pd.NA}])
+    pbp = pd.DataFrame([_ev(0, 1, 700, "home", "rebound", "Defensive rebound by K. Oubre"),
+                        _ev(1, 1, 600, "home", "other", "J. Bell enters the game for K. Oubre")])
+    st = S.starters_by_side(starters.astype({"team_id": "Int64", "player_id": "Int64"}), "g1", None, None)
+    out = S.build_game_stints(pbp, starters=st)
+    assert out["n_home"].tolist() == [1, 1] and S.name_key("K. Oubre") not in [int(x) for x in out["home_ids"].iloc[1].split("|")]
+
+
+# ----------------------------------------------------------------------------- real-data layout
+
+def _mac_layout(root: Path, n_games=10, seasons=("2020-21", "2021-22")):
+    """The Mac DATA_ROOT shape: play-by-play and starters under collect/stints/, no stints/ and no games/ folder."""
+    d = local_fixture(n_games=n_games, seasons=seasons)
+    for season in seasons:
+        gids = set(d["games"].loc[d["games"]["season"] == season, "game_id"].astype(str))
+        for kind in ("playbyplay", "starters"):
+            t = d[kind]
+            part = t[t["game_id"].astype(str).isin(gids)].drop(columns=["season"], errors="ignore")
+            p = root / "collect" / "stints" / kind / f"{season}.parquet"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            part.reset_index(drop=True).to_parquet(p, index=False)
+
+
+@pytest.mark.parametrize("with_out", [True, False])
+def test_run_all_on_the_mac_layout_builds_stints_before_validate(tmp_path, monkeypatch, with_out):
+    """run_all on play-by-play plus starters only: stints runs first and validate, features and train read the
+    stints it wrote under OUT_ROOT (or DATA_ROOT without --out)."""
+    import run_all
+    monkeypatch.chdir(tmp_path)                    # run_all writes logs/ under the cwd without --out
+    data = tmp_path / "data"
+    seasons = ("2020-21", "2021-22")
+    _mac_layout(data, seasons=seasons)
+    out = tmp_path / "out" if with_out else data
+    argv = ["--data", str(data), "--ext", "lineups", "--skip-heldout", "--bootstrap", "10", "--report-dir", str(tmp_path / "reports")]
+    if with_out:
+        argv += ["--out", str(out)]
+    rc = run_all.main(argv)
+    table = (tmp_path / "reports" / "run_all.md").read_text()
+    assert rc == 0, table
+    steps = [line.split("|")[2].strip() for line in table.splitlines() if line.startswith("| lineups |")]
+    assert steps == ["stints", "validate", "features", "train"]
+    assert not (data / "collect" / "stints" / "stints").exists()
+    built = [out / "analytics" / "lineups" / s / "stints.parquet" for s in seasons]
+    assert all(p.exists() for p in built)
+    n_built = sum(len(pd.read_parquet(p)) for p in built)
+    counts = json.loads((out / "analytics" / "lineups" / "validate.json").read_text())
+    assert counts["rows_in"] == n_built and counts["seasons"] == list(seasons)
+    log = ((out if with_out else tmp_path) / "logs" / "run_all" / "lineups_validate.log").read_text()
+    assert all(str(p.resolve()) in log for p in built)
+    for s in seasons:
+        assert (out / "analytics" / "lineups" / s / "features.parquet").exists()
+        assert (out / "analytics" / "lineups" / s / "player_rapm.parquet").exists()
+    assert "| stints in | %d |" % n_built in (tmp_path / "reports" / "lineups.md").read_text()
+
+
+def test_read_stints_prefers_collected_then_out_root_then_data_root(tmp_path):
+    from analytics.lineups import built_stints_path, read_stints
+    data, out = tmp_path / "data", tmp_path / "out"
+    one = local_fixture(n_games=2, seasons=("2020-21",))["stints"].iloc[:3].reset_index(drop=True)
+    for root, n in ((data, 1), (out, 2)):
+        p = built_stints_path(root, "2020-21")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        one.iloc[:n].to_parquet(p, index=False)
+    df, paths = read_stints(data, out, ["2020-21"])
+    assert len(df) == 2 and paths == [str(built_stints_path(out, "2020-21"))]
+    df, paths = read_stints(data, None, ["2020-21"])
+    assert len(df) == 1 and paths == [str(built_stints_path(data, "2020-21"))]
+    p = data / "collect" / "stints" / "stints" / "2020-21.parquet"
+    p.parent.mkdir(parents=True)
+    one.to_parquet(p, index=False)
+    df, paths = read_stints(data, out, ["2020-21"])
+    assert len(df) == 3 and paths == [str(p)]
+    assert read_stints(data, out, ["2021-22"])[0].empty

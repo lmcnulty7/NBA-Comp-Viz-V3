@@ -14,7 +14,11 @@ player can produce (technical fouls, ejections, delay of game) never make a star
 C. Three" gives the names, the actor of any other row is the leading "X. Name" of its description (before
 "makes", "misses", "enters" or after "by"), and names become stable integer keys: the id of `roster`
 (a {name: player_id} mapping, when given) else zlib.crc32 of the name (positive, under 2**31, documented in
-docs/contract/lineups.md; the section 16 rosters table maps names to ids when the owner joins them).
+docs/contract/lineups.md; the section 16 rosters table maps names to ids when the owner joins them). The name
+is keyed after clean_name: UTF-8 misread as Latin-1 is repaired and a trailing Jr., Sr., II, III or IV is
+dropped, because the play-by-play writes "K. Oubre" where the box score starters have "Kelly Oubre Jr.".
+Basketball-reference files a defensive foul (shooting, personal, take) under the fouled team, so a name-keyed
+foul row takes the side its player has on the game's other rows (fix_foul_sides).
 
 Starters per period. For each period and side, the starters are the first five players to appear in that
 period's events (the actor of a non-substitution event, or the player going OUT in a substitution) before
@@ -67,11 +71,38 @@ def period_of(elapsed: float) -> int:
     return 5 + int((elapsed - 4 * PERIOD_S) // OT_S)
 
 
+SUFFIXES = frozenset({"Jr.", "Jr", "Sr.", "Sr", "II", "III", "IV"})
+
+
+def repair_text(name: str) -> str:
+    """Undo UTF-8 read as Latin-1 ("Å\xa0ariÄ\x87" -> "Šarić"); other text is returned unchanged."""
+    name = str(name)
+    if not any(0x80 <= ord(c) <= 0xFF for c in name) or any(ord(c) > 0xFF for c in name):
+        return name
+    try:
+        return name.encode("latin-1").decode("utf-8")
+    except UnicodeError:
+        return name
+
+
+def clean_name(name: str) -> str:
+    """The form a name is keyed on: mojibake repaired, whitespace collapsed, a trailing Jr./Sr./II/III/IV dropped
+    (the basketball-reference play-by-play writes "K. Oubre" where the box score has "Kelly Oubre Jr.")."""
+    parts = repair_text(name).split()
+    if len(parts) > 2 and parts[-1] in SUFFIXES:
+        parts = parts[:-1]
+    return " ".join(parts)
+
+
 def name_key(name: str, roster: dict | None = None) -> int:
-    """Stable integer key of a basketball-reference name: roster id when known, else crc32 under 2**31."""
-    name = " ".join(str(name).split())
-    if roster and name in roster:
-        return int(roster[name])
+    """Stable integer key of a basketball-reference name: roster id when known, else crc32 under 2**31 of
+    clean_name(name)."""
+    raw = " ".join(str(name).split())
+    name = clean_name(name)
+    if roster:
+        for cand in (raw, name):
+            if cand in roster:
+                return int(roster[cand])
     return int(zlib.crc32(name.encode("utf-8")) & 0x7FFFFFFF)
 
 
@@ -110,7 +141,7 @@ def _player(v, team_id=None):
 def abbreviated(name: str) -> str:
     """"Eric Bledsoe" -> "E. Bledsoe" (the basketball-reference play-by-play form); a name already in that form,
     or a single token, is returned unchanged."""
-    parts = str(name).split()
+    parts = repair_text(name).split()
     if len(parts) < 2 or re.match(r"^[A-Z]\.$", parts[0]):
         return " ".join(parts)
     return "%s. %s" % (parts[0][0], " ".join(parts[1:]))
@@ -176,6 +207,25 @@ def _side_of(row: dict, home_team_id) -> str | None:
     return None
 
 
+def fix_foul_sides(rows: list[dict]) -> None:
+    """Basketball-reference play-by-play files a defensive foul under the fouled team, so a name-keyed foul row's
+    `team` is often not the fouler's side. Such a row takes the side its player has on most of the game's other
+    rows; a fouler seen nowhere else (or tied) keeps the row's side. In place."""
+    votes: dict = {}
+    for e in rows:
+        if e["kind"] == "foul" or e["side"] not in ("home", "away"):
+            continue
+        for k in (e["a"], e["b"]):
+            if k is not None:
+                votes.setdefault(k, {"home": 0, "away": 0})[e["side"]] += 1
+    for e in rows:
+        if e["kind"] != "foul" or not e["by_name"] or e["a"] is None:
+            continue
+        v = votes.get(e["a"])
+        if v is not None and v["home"] != v["away"]:
+            e["side"] = "home" if v["home"] > v["away"] else "away"
+
+
 def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team_id=None,
                       roster: dict | None = None) -> pd.DataFrame:
     """One game's play-by-play (section 13 columns; `team` home/away, or team_id with home_team_id) ->
@@ -190,7 +240,8 @@ def build_game_stints(pbp: pd.DataFrame, starters: dict | None = None, home_team
         kind, a, b = event_players(r, roster)
         rows.append({"t": float(r["_el"]), "period": int(r["period"]), "side": _side_of(r, home_team_id), "kind": kind,
                      "a": a, "b": b, "points": int(r["points"]) if _has(r.get("points")) else 0,
-                     "bench_ok": bench_ok(kind, r.get("desc"))})
+                     "bench_ok": bench_ok(kind, r.get("desc")), "by_name": not _has(r.get("player1_id"))})
+    fix_foul_sides(rows)
     n_periods = max(e["period"] for e in rows)
     cuts = {0.0}
     for p in range(1, n_periods + 1):
@@ -413,7 +464,7 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     """Build stints from the fixture or DATA_ROOT play-by-play, write them per season under OUT_ROOT and print a summary."""
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games, stints=False)
     stints = build_stints(inputs["playbyplay"], inputs["games"], inputs["starters"])
     out_root = a.out or (a.data if not a.fixtures else None)
     written = []

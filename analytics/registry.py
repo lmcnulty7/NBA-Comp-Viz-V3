@@ -10,8 +10,9 @@ Every extension package `analytics.<name>` exposes the same command-line convent
     python -m analytics.<name>.features --fixtures | --data DATA_ROOT [--out OUT_ROOT]
     python -m analytics.<name>.train    --fixtures | --data DATA_ROOT --report reports/<name>.md [--seed 0] [--bootstrap 200]
 
-Two packages carry one extra step between validate and features: `analytics.epv.states` builds the
-1 Hz states table (docs/DATA_CONTRACT.md section 20) and `analytics.lineups.stints` builds lineup stints.
+Two packages carry one extra step: `analytics.epv.states` builds the 1 Hz states table (docs/DATA_CONTRACT.md
+section 20) between validate and features, and `analytics.lineups.stints` builds lineup stints before validate,
+which checks the stint table it writes.
 Each step module exposes `main(argv=None) -> int`, which run_all.py calls in-process.
 
 `real_data_inputs` are paths relative to DATA_ROOT (collector tables) or to OUT_ROOT for the tables other
@@ -107,7 +108,7 @@ EXTENSIONS = [
     _ext("playcalling", STANDARD_STEPS, ["epv", "actions", "coverage"], 4,
          [_EPV_STATES, _POSSESSIONS, _PBP, _COVERAGE_PRED],
          "play-type recognition and value from the action sequences, coverage predictions and EPV traces"),
-    _ext("lineups", ["validate", "stints", "features", "train"], [], 4,
+    _ext("lineups", ["stints", "validate", "features", "train"], [], 4,
          [_STINTS, _MULTI_PBP, _STINT_GAMES, _STINT_STARTERS],
          "lineup stints and adjusted plus-minus; analytics.lineups.stints builds the stint table first"),
     _ext("winprob", STANDARD_STEPS, [], 5,

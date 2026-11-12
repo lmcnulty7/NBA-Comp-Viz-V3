@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from analytics import schema
-from analytics.lineups import PLAYER_COLUMNS, SEASONS, SECONDS_PER_POSS, add_fixture_args, lineup_id, load_inputs, out_dir
+from analytics.lineups import NO_STINTS_HINT, PLAYER_COLUMNS, SEASONS, SECONDS_PER_POSS, add_fixture_args, lineup_id, load_inputs, out_dir
 from analytics.lineups.validate import validate
 
 FEATURES = PLAYER_COLUMNS + ("possessions",)
@@ -94,9 +94,9 @@ def parse_args(argv=None):
 def main(argv=None) -> dict:
     """Build the feature frame from the fixture or DATA_ROOT stints, write it per season under OUT_ROOT and print a summary."""
     a = parse_args(argv)
-    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games)
+    inputs = load_inputs(a.fixtures, a.data, a.seasons, a.seed, a.fixture_generator, a.n_games, out_root=a.out)
     if len(inputs["stints"]) == 0:
-        raise SystemExit("features: no stints rows found")
+        raise SystemExit("features: no stints rows found " + NO_STINTS_HINT)
     f = features(inputs["stints"], inputs["games"])
     out_root = a.out or (a.data if not a.fixtures else None)
     written = []

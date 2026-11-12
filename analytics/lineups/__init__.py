@@ -11,7 +11,10 @@ Modules
     synthetic  the lane's own synthetic stints generator (--fixture-generator local); fixture output only
 
 Inputs (DATA_ROOT layout on the owner's Mac)
-    DATA_ROOT/collect/stints/stints/<season>.parquet        section 12
+    DATA_ROOT/collect/stints/stints/<season>.parquet        section 12 (optional: a collected stint table)
+    OUT_ROOT/analytics/lineups/<season>/stints.parquet      section 12 as the stints step builds it; read per
+                                                            season when no collected table exists (then
+                                                            DATA_ROOT/analytics/lineups/... when OUT_ROOT differs)
     DATA_ROOT/collect/stints/playbyplay/<season>.parquet    section 13
     DATA_ROOT/collect/stints/starters/<season>.parquet      game_id, team_id, player_id (optional)
     DATA_ROOT/collect/stints/games/<season>.parquet         game_id, season, game_date, home_team_id,
@@ -41,6 +44,7 @@ SEASONS = ("2020-21", "2021-22", "2022-23", "2023-24", "2024-25")
 FIXTURE_SEASONS = ("2020-21", "2021-22", "2022-23")
 FIXTURE_GAMES = 30
 WHO = "analytics.lineups"
+NO_STINTS_HINT = "(looked for collect/stints/stints/<season>.parquet, then OUT_ROOT and DATA_ROOT analytics/lineups/<season>/stints.parquet; run analytics.lineups.stints first)"
 PLAYER_COLUMNS = tuple(f"home_{k}" for k in range(1, 6)) + tuple(f"away_{k}" for k in range(1, 6))
 
 
@@ -73,6 +77,40 @@ def read_season_tables(data_root, kind: str, seasons=SEASONS) -> pd.DataFrame:
     if not frames:
         return pd.DataFrame()
     return pd.concat(frames, ignore_index=True)
+
+
+def built_stints_path(root, season: str) -> Path:
+    """ROOT/analytics/lineups/<season>/stints.parquet, where the stints step writes (not created)."""
+    return Path(root) / "analytics" / "lineups" / season / "stints.parquet"
+
+
+def read_stints(data_root, out_root=None, seasons=SEASONS) -> tuple[pd.DataFrame, list[str]]:
+    """The stint table of the seasons present -> (stints, paths read). Per season the first file found wins:
+    the collected DATA_ROOT/collect/stints/stints/<season>.parquet, then the built stints under OUT_ROOT, then
+    under DATA_ROOT. The collected table comes first because it is the authority when it exists (and the
+    fixture root carries one); on the Mac only the built table exists."""
+    roots = [Path(out_root)] if out_root is not None else []
+    if Path(data_root) not in roots:
+        roots.append(Path(data_root))
+    frames, paths = [], []
+    for season in seasons:
+        collected = read_season_tables(data_root, "stints", [season])
+        if len(collected):
+            frames.append(collected)
+            paths.append(str(stints_dir(data_root) / "stints" / f"{season}.parquet"))
+            continue
+        for root in roots:
+            p = built_stints_path(root, season)
+            if p.exists():
+                df = pd.read_parquet(p)
+                if "season" not in df.columns:
+                    df["season"] = season
+                frames.append(df)
+                paths.append(str(p))
+                break
+    if not frames:
+        return pd.DataFrame(), paths
+    return pd.concat(frames, ignore_index=True), paths
 
 
 _FIXTURE_CACHE: dict = {}
@@ -109,15 +147,19 @@ def add_fixture_args(ap) -> None:
                          "generator analytics/lineups/synthetic.py (local)")
 
 
-def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto", n_games=None) -> dict:
-    """dict(stints, playbyplay, games, starters, fixture, generator): the input tables of a run."""
+def load_inputs(fixtures: bool, data_root=None, seasons=SEASONS, seed: int = 0, generator: str = "auto", n_games=None,
+                out_root=None, stints: bool = True) -> dict:
+    """dict(stints, playbyplay, games, starters, fixture, generator, stints_paths): the input tables of a run.
+    With --data the stints come from read_stints (out_root defaults to data_root); stints=False skips them
+    (the stints step builds them)."""
     if fixtures:
         t = fixture_tables(seed, n_games=n_games or FIXTURE_GAMES, generator=generator)
         return {"stints": t["stints"], "playbyplay": t["playbyplay"], "games": t.get("games", pd.DataFrame()),
                 "starters": t.get("starters", pd.DataFrame()), "fixture": True, "generator": t["generator"]}
     if data_root is None:
         raise SystemExit(f"{WHO}: pass --fixtures or --data DATA_ROOT")
-    return {"stints": read_season_tables(data_root, "stints", seasons),
+    st, paths = read_stints(data_root, out_root, seasons) if stints else (pd.DataFrame(), [])
+    return {"stints": st, "stints_paths": paths,
             "playbyplay": read_season_tables(data_root, "playbyplay", seasons),
             "games": read_season_tables(data_root, "games", seasons),
             "starters": read_season_tables(data_root, "starters", seasons), "fixture": False, "generator": None}
@@ -130,5 +172,5 @@ def out_dir(out_root, season: str) -> Path:
     return p
 
 
-__all__ = ["PACE_POSS_PER_48", "SECONDS_PER_POSS", "SEASONS", "FIXTURE_SEASONS", "PLAYER_COLUMNS", "WHO",
-           "lineup_id", "read_season_tables", "fixture_tables", "add_fixture_args", "load_inputs", "out_dir"]
+__all__ = ["NO_STINTS_HINT", "PACE_POSS_PER_48", "SECONDS_PER_POSS", "SEASONS", "FIXTURE_SEASONS", "PLAYER_COLUMNS", "WHO",
+           "lineup_id", "read_season_tables", "built_stints_path", "read_stints", "fixture_tables", "add_fixture_args", "load_inputs", "out_dir"]

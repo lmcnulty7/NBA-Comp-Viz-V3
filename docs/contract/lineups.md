@@ -7,12 +7,19 @@ Tables the lineups lane reads and writes. Section numbers refer to docs/DATA_CON
 
 | path | table | required |
 | --- | --- | --- |
-| `DATA_ROOT/collect/stints/stints/<season>.parquet` | section 12 stints | yes for validate, features, train |
+| `DATA_ROOT/collect/stints/stints/<season>.parquet` | section 12 stints from a collector | optional: when present it is read in place of the built stints for that season |
 | `DATA_ROOT/collect/stints/playbyplay/<season>.parquet` | section 13 play-by-play | yes for `analytics.lineups.stints` |
 | `DATA_ROOT/collect/stints/games/<season>.parquet` (or `DATA_ROOT/games/<season>.parquet`) | game_id, season, game_date, home_team_id, away_team_id, home_score, away_score, home_win, spread_home | optional: without it team_id is null in lineup_ratings and the builder reads the sides from the substitution rows |
 | `DATA_ROOT/collect/stints/starters/<season>.parquet` | starter rows only: game_id (bref code), game (SportVU-style id when derivable), game_date, season, side (home/away), team (bref code), team_id (nullable Int64, null from the basketball-reference box score driver), player_slug, player, player_id (nullable Int64, null from that source) | optional |
 
 Seasons: 2020-21 to 2024-25 (`--seasons` overrides). A file that is missing is skipped with the season.
+
+Step order (run_all and `make ext-lineups`): stints, validate, features, train. The stints step builds the
+stint table from the play-by-play and the starters and writes it under OUT_ROOT (below); validate, features
+and train then read, per season, the first of: the collected `collect/stints/stints/<season>.parquet`,
+`OUT_ROOT/analytics/lineups/<season>/stints.parquet`, `DATA_ROOT/analytics/lineups/<season>/stints.parquet`
+(`analytics.lineups.read_stints`). On the Mac only play-by-play and starters exist, so the built table is
+the one read. OUT_ROOT defaults to DATA_ROOT.
 
 ## stints (section 12 plus added columns), `OUT_ROOT/analytics/lineups/<season>/stints.parquet`
 
@@ -32,7 +39,12 @@ Derivation (also in the module docstring):
   `player1_id` on other rows. Basketball-reference rows without ids: the names of "A. One enters the game for
   C. Three" and the leading actor of other descriptions ("X. Name makes|misses", "... by X. Name"), mapped by
   the optional `roster` {name: id} else to `zlib.crc32(name) & 0x7FFFFFFF`. Those keys are stable per name,
-  not NBA ids: join the section 16 rosters table to replace them.
+  not NBA ids: join the section 16 rosters table to replace them. The name is keyed after `clean_name`:
+  UTF-8 text misread as Latin-1 is repaired ("Å\xa0ariÄ\x87" becomes "Šarić") and a trailing Jr., Sr., II,
+  III or IV is dropped, since the play-by-play writes "K. Oubre" and the box score starters "Kelly Oubre Jr.".
+- Foul sides: basketball-reference files a defensive foul (shooting, personal, take, away from play, flagrant)
+  under the fouled team, so a foul row without ids takes the side its player has on most of the game's
+  other rows (`fix_foul_sides`); a fouler seen nowhere else keeps the row's side.
 - Starters table join (agreed with lane I2; `STARTERS_COLUMNS` in stints.py): the game is matched on
   `game_id` when it is a play-by-play game id, else through the games table (`resolve_starters_games`): the
   `game` column against games.game or games.game_id, then (game_date, home team code of the bref code's last

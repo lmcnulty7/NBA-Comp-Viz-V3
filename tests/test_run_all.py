@@ -107,7 +107,8 @@ def test_registry_has_fifteen_extensions_with_valid_dependencies():
     assert len(set(names)) == 15
     for e in registry.EXTENSIONS:
         assert e["package"] == "analytics." + e["name"]
-        assert e["steps"][0] == "validate" and e["steps"][-1] == "train" and "features" in e["steps"]
+        first = "stints" if e["name"] == "lineups" else "validate"      # lineups builds stints before validate
+        assert e["steps"][0] == first and e["steps"][-1] == "train" and "features" in e["steps"] and "validate" in e["steps"]
         assert 0 <= int(e["phase"]) <= 5
         assert e["real_data_inputs"] and e["notes"]
         for d in e["depends_on"]:
@@ -117,7 +118,7 @@ def test_registry_has_fifteen_extensions_with_valid_dependencies():
             assert not path.startswith("/")
             assert path.startswith(("sportvu_contract/", "collect/", "analytics/")), path
     assert "states" in registry.get("epv")["steps"]
-    assert "stints" in registry.get("lineups")["steps"]
+    assert registry.get("lineups")["steps"] == ["stints", "validate", "features", "train"]
     assert [s["name"] for s in registry.PHASE0_STEPS] == ["gaps", "run_phase0"]
     assert "{contract}/manifest.json" in registry.PHASE0_STEPS[0]["argv"]
     assert "--steps" in registry.PHASE0_STEPS[1]["argv"]
