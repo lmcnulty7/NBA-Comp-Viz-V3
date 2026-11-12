@@ -273,6 +273,9 @@ def build(shots: pd.DataFrame, shot_frames: pd.DataFrame, frames=None) -> pd.Dat
     shooter = pd.to_numeric(j["shooter_id"], errors="coerce")
     shooter = shooter.fillna(pd.to_numeric(out["player_id"], errors="coerce"))
     shooter = shooter.fillna(pd.to_numeric(j["shooter_at_release_id"], errors="coerce"))
+    # player_id is the shooter (docs/contract/xfg.md): the basketball-reference shots table carries no player
+    # ids, so without this the (player_id, zone) shooter prior saw only nulls and fell back to the zone rate
+    out["player_id"] = pd.array(shooter.to_numpy(), dtype="Float64").astype("Int64")
     for c in CONTEST_FEATURES:
         out[c] = np.nan
     out["has_contest"] = 0

@@ -323,3 +323,24 @@ def test_data_root_layout_round_trip(tmp_path):
     assert train["has_contest"].sum() > 0
     summ = V.main(["--data", str(root), "--out", str(tmp_path / "out")])
     assert (tmp_path / "out" / "analytics" / "xfg" / "2015-16" / "validate.json").exists() and summ
+
+
+def test_player_id_is_the_resolved_shooter_when_the_shots_table_has_no_ids(tables):
+    """The basketball-reference shots table carries player_id null on every row; player_id of the feature frame
+    is the shooter (docs/contract/xfg.md): shooter_id of shot_frames, else the shots player_id, else
+    shooter_at_release_id. Before the fix the shooter prior grouped by an all-null player_id."""
+    shots, sf = tables["shots"].copy(), tables["shot_frames"].copy()
+    shots["player_id"] = pd.array([pd.NA] * len(shots), dtype="Int64")
+    sf["shooter_id"] = pd.to_numeric(sf["shooter_id"], errors="coerce")
+    sf.loc[sf.index[0], "shooter_id"] = np.nan  # falls through to shooter_at_release_id
+    feat = F.build(shots, sf, tables["frames"])
+    key = sf.assign(sportvu_game=sf["sportvu_game"].astype(str)).drop_duplicates(["sportvu_game", "event"])
+    j = feat[["sportvu_game", "event", "player_id"]].merge(key[["sportvu_game", "event", "shooter_id", "shooter_at_release_id"]],
+                                                           on=["sportvu_game", "event"], how="left")
+    want = j["shooter_id"].fillna(pd.to_numeric(j["shooter_at_release_id"], errors="coerce"))
+    assert feat["player_id"].dtype == "Int64"
+    assert feat["player_id"].notna().sum() == want.notna().sum() > 0
+    assert (j.loc[want.notna(), "player_id"].astype(float).to_numpy() == want[want.notna()].to_numpy()).all()
+    # the prior now sees players: more than one (player_id, zone) cell on the fixture season
+    pt = T.prior_table(feat.assign(made=np.resize([True, False], len(feat))).dropna(subset=["player_id"]), m=20.0)
+    assert len(pt["table"]) > 1

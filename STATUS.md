@@ -40,8 +40,15 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
   `$DATA_ROOT/analytics/xfg/2015-16/xfg_predictions.parquet` reads whole (101,853 rows, 607 games, matching the
   train log; no nulls in the prediction columns); reports/xfg.md is complete (its last line matches the train
-  log). xfg features writes no file without --out, so nothing else of xfg sits on Drive. So xfg was not rerun;
-  only the missing steps were. To review with phase 1: player_id is null on every xfg_predictions row.
+  log). xfg features writes no file without --out, so nothing else of xfg sits on Drive. So xfg was not rerun
+  for the crash; only the missing steps were.
+- **xfg defect found in the phase 1 review (fixed 2026-11-11):** player_id was null on every xfg row, because
+  the basketball-reference shots table has no player ids and features.py kept the shots table's player_id
+  instead of the resolved shooter (shot_frames.shooter_id, filled for about 94 percent of shots). The
+  (player_id, zone) shooter prior of the selected model was therefore a zone prior for every shooter.
+  docs/contract/xfg.md already defines player_id as the shooter; the code now follows it (test in
+  tests/test_xfg_upgrade.py). The 16:17 xfg run (reports/xfg.md, xfg_predictions.parquet) is superseded: xfg
+  validate, features and train rerun with --skip-heldout after the resume job, before phase 2 reads xfg.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
