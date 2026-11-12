@@ -86,3 +86,15 @@ def test_streaming_matches_in_memory(root):
     a, b = F.run_games(lazy), F.run_games(eager)
     for k in ("matchup_possessions", "matchup_frames", "shots"):
         pd.testing.assert_frame_equal(a[k], b[k])
+
+
+def test_train_out_root_defaults_to_data_root(root, tmp_path, monkeypatch):
+    """run_all passes no --out on real data; the trainer must still read the xFG lane's predictions from DATA_ROOT
+    and write its tables there (OUT_ROOT defaults to DATA_ROOT, as in xfg, ghosting and lineups)."""
+    seen = {}
+    real = V.load_xfg
+    monkeypatch.setattr(V, "load_xfg", lambda out, season="2015-16": seen.setdefault("out", out) and real(out, season))
+    T.main(["--data", str(root), "--report", str(tmp_path / "matchups.md"), "--bootstrap", "0", "--folds", "2",
+            "--n-min", "5", "--skip-heldout"])
+    assert str(seen["out"]) == str(root)
+    assert (Path(root) / "analytics" / "matchups" / "tables" / "2015-16" / "matchup_defenders.parquet").exists()

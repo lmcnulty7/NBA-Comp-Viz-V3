@@ -601,7 +601,8 @@ def parse_args(argv=None):
     """The trainer's command line."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     V.add_source_args(ap)
-    ap.add_argument("--out", default=None, help="OUT_ROOT: reads analytics/xfg/<season>/ predictions, writes analytics/matchups/")
+    ap.add_argument("--out", default=None, help="OUT_ROOT: reads analytics/xfg/<season>/ predictions, writes analytics/matchups/ "
+                    "(default: DATA_ROOT with --data)")
     ap.add_argument("--report", default="reports/matchups.md", help="markdown report path (default %(default)s)")
     ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by game (default %(default)s)")
@@ -614,6 +615,10 @@ def main(argv=None) -> dict:
     """CLI: run the protocol, write the report and (with --out) the season-wide tables."""
     logging.basicConfig(level=logging.INFO, format="%(name)s: %(message)s")
     a = parse_args(argv)
+    # OUT_ROOT defaults to DATA_ROOT on real data, like xfg, ghosting and lineups: run_all passes no --out, and
+    # without this the xFG lane's predictions under DATA_ROOT were never read (location-only fallback)
+    if a.out is None and not a.fixtures and getattr(a, "data", None):
+        a.out = a.data
     games = V.source_games(a)
     if not games:
         raise SystemExit("%s: no games found" % WHO)
