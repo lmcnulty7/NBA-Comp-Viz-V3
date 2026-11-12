@@ -2,7 +2,8 @@
 
 Unit: the game state at each play-by-play event of the multi-season play-by-play
 (docs/DATA_CONTRACT.md section 13). Target: the home team wins the game (1/0). Written by
-`python -m analytics.winprob.train --data DATA_ROOT --out OUT_ROOT`, one folder per season:
+`python -m analytics.winprob.train --data DATA_ROOT --out OUT_ROOT` (OUT_ROOT defaults to DATA_ROOT on real data,
+as run_all passes no --out; fixture runs without --out write no tables), one folder per season:
 
     OUT_ROOT/analytics/winprob/<season>/winprob_states.parquet
     OUT_ROOT/analytics/winprob/<season>/winprob_calibration.parquet
@@ -99,5 +100,6 @@ the design matrix, a name allowlist (analytics.winprob.features.assert_no_leak) 
 row's finals and outcome are scrambled). The games table's home_score, away_score and home_win are dropped before any
 feature is built; the target is mapped onto the states afterwards.
 
-Benchmark: the NBA.com WinProbabilityPBP endpoint is unreachable, so the benchmark column of reports/winprob.md
-stays empty until it exists; it would join winprob_states on (game_id, event).
+Benchmark: the NBA.com tables were skipped by the owner (gates/nbacom-skip, 2026-11-11), so the WinProbabilityPBP
+benchmark is not collected and the benchmark column of reports/winprob.md stays empty, with that reason stated
+(train.BENCHMARK_NOTE); if collected later it would join winprob_states on (game_id, event).

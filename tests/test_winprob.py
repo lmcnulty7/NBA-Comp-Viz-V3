@@ -417,3 +417,16 @@ def test_no_dropped_clock_reaches_a_feature_in_build_states_or_train(data):
     assert ctx["clock_rule"]["by_cause"]["period_gap"]["games"] == 1
     text = T.write_report(Path(__import__("tempfile").mkdtemp()) / "r.md", ctx)
     assert "with a gap in the period numbers" in text and chr(0x2014) not in text
+
+
+def test_out_root_defaults_to_data_root_on_real_data():
+    from types import SimpleNamespace as NS
+    assert T.out_root_for(NS(out="/o", fixtures=False, data="/d")) == "/o"
+    assert T.out_root_for(NS(out=None, fixtures=False, data="/d")) == "/d"
+    assert T.out_root_for(NS(out=None, fixtures=True, data=None)) is None
+
+
+def test_benchmark_section_states_the_nbacom_skip(run):
+    text = (run["out_root"] / "winprob.md").read_text(encoding="utf-8")
+    assert "gates/nbacom-skip" in text and "benchmark column is empty" in text
+    assert "unreachable" not in text

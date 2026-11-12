@@ -1,114 +1,122 @@
 # Live win probability (analytics/winprob/train.py)
 
-Written 2026-11-07T08:42:18Z by `python -m analytics.winprob.train --fixtures --report reports/winprob.md --bootstrap 200`.
+**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12; the 2024-25 season is held out; no odds (betting skipped, gates/odds-skip), so the closing spread is missing on every game; NBA.com skipped (gates/nbacom-skip), so the benchmark column is empty.
 
-**Fixture run: every number below is fixture output, not a result.** The synthetic play-by-play of analytics.fixtures (synth_stints, synth_odds) stands in for the five seasons on the owner's Mac.
+Written 2026-11-12T09:30:02Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md --skip-heldout`.
 
-## Inputs (fixture output, not a result)
+## Inputs
 
 | input | value |
 | --- | --- |
-| files | <fixtures seed 0> |
-| events (states) | 15195 |
-| games | 60 |
-| seasons | 2020-21, 2021-22, 2024-25 |
-| training seasons | 2020-21, 2021-22 (10181 events, 40 games) |
-| held-out season | 2024-25 (5014 events, 20 games), set aside before any fit |
+| files | $DATA_ROOT/collect/stints/playbyplay/2020-21.parquet, $DATA_ROOT/collect/stints/playbyplay/2021-22.parquet, $DATA_ROOT/collect/stints/playbyplay/2022-23.parquet, $DATA_ROOT/collect/stints/playbyplay/2023-24.parquet, $DATA_ROOT/collect/stints/playbyplay/2024-25.parquet |
+| events (states) | 2889253 |
+| games | 6363 |
+| seasons | 2020-21, 2021-22, 2022-23, 2023-24, 2024-25 |
+| training seasons | 2020-21, 2021-22, 2022-23, 2023-24 (2292413 events, 5059 games) |
+| held-out season | 2024-25 (596840 events, 1304 games), set aside before any fit |
 | rows flagged heldout (sportvu/splits.json games) dropped | 0 |
+| clock rule: dropped before any feature (all seasons) | 24584 of 2913837 events, 53 of 6416 games: 53 games (24584 events) with a gap in the period numbers, 0 games (0 events) with an overtime clock above 300 s, 0 single events with a null or out-of-range clock |
 | seasons later than the held-out season, ignored (never fitted or scored) | none |
-| guard | `analytics.eval.refuse_heldout` checked 40 training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |
-| closing spread coverage (training games) | 0.975 |
-| possession known (training events) | 0.990 |
-| training home win rate (by game) | 0.475 |
+| guard | `analytics.eval.refuse_heldout` checked 5059 training game ids; `analytics.schema.assert_time_forward` passed on the design matrix |
+| closing spread coverage (training games) | 0.000 |
+| possession known (training events) | 0.781 |
+| training home win rate (by game) | 0.555 |
 
-## Protocol (fixture output, not a result)
+## Protocol
 
 Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): margin, seconds_remaining, overtime, period, possession_home, spread_home, spread_missing, margin_x_sqrt_time.
 The final score never enters a feature; `prefix_invariance_violations` found 0 violation(s) on 2 probed game(s) (a feature at event k is unchanged when the play-by-play is cut after k).
 Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag) and margin_x_sqrt_time (standardised, C=1); HistGradientBoostingClassifier on the same plus period, overtime, spread_home and spread_missing, calibrated by isotonic regression on inner out-of-fold predictions (3 folds by game). No deep model.
-Selection: out-of-fold under 5 grouped folds by game within the training seasons (seed 0). The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). Intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0). The held-out season is scored once, by the selected candidate refit on all training rows.
+Selection: out-of-fold under 5 grouped folds by game within the training seasons (seed 0). The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). Intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0). The held-out season is set aside and never scored (--skip-heldout).
 
-## Candidates by time bucket (fixture output, not a result)
+## Candidates by time bucket
 
 Brier score (lower is better), out-of-fold within the training seasons.
 
 | model | 48-36 | 36-24 | 24-12 | 12-4 | 4-0 | OT | selection (mean of 5) | log loss overall | Brier overall |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| constant | 0.2581 [0.2491, 0.2683] | 0.2583 [0.2499, 0.2689] | 0.2573 [0.2490, 0.2677] | 0.2586 [0.2502, 0.2690] | 0.2585 [0.2501, 0.2684] | n/a | 0.2582 | 0.7094 [0.6926, 0.7303] | 0.2581 [0.2497, 0.2685] |
-| logistic (selected) | 0.2370 [0.1964, 0.2753] | 0.1957 [0.1242, 0.2582] | 0.0939 [0.0486, 0.1409] | 0.0784 [0.0282, 0.1279] | 0.0341 [0.0106, 0.0638] | n/a | 0.1278 | 0.4329 [0.3289, 0.5393] | 0.1473 [0.1078, 0.1882] |
-| hgb_iso | 0.2990 [0.2512, 0.3417] | 0.2590 [0.2078, 0.3188] | 0.1926 [0.1407, 0.2354] | 0.1705 [0.1166, 0.2164] | 0.1509 [0.1088, 0.1898] | n/a | 0.2144 | 0.6506 [0.5415, 0.7583] | 0.2284 [0.1849, 0.2681] |
+| constant | 0.2471 [0.2454, 0.2487] | 0.2471 [0.2453, 0.2487] | 0.2470 [0.2453, 0.2486] | 0.2469 [0.2451, 0.2485] | 0.2477 [0.2460, 0.2493] | 0.2504 [0.2442, 0.2572] | 0.2472 | 0.6874 [0.6839, 0.6906] | 0.2471 [0.2454, 0.2487] |
+| logistic (selected) | 0.2311 [0.2285, 0.2335] | 0.1943 [0.1906, 0.1999] | 0.1532 [0.1480, 0.1597] | 0.1040 [0.0987, 0.1092] | 0.0590 [0.0559, 0.0621] | 0.1626 [0.1492, 0.1765] | 0.1483 | 0.4884 [0.4804, 0.4989] | 0.1655 [0.1625, 0.1693] |
+| hgb_iso | 0.2316 [0.2284, 0.2347] | 0.1946 [0.1906, 0.2003] | 0.1526 [0.1479, 0.1588] | 0.1040 [0.0990, 0.1089] | 0.0603 [0.0572, 0.0633] | 0.1653 [0.1514, 0.1790] | 0.1486 | 0.4897 [0.4818, 0.5004] | 0.1656 [0.1627, 0.1695] |
 
-Rows per bucket: 48-36 2525, 36-24 2555, 24-12 2535, 12-4 1701, 4-0 865, OT 0.
+Rows per bucket: 48-36 549307, 36-24 581066, 24-12 561851, 12-4 367834, 4-0 218146, OT 14209.
 
 Selected: **logistic** (lowest mean bucket Brier).
 
-## Calibration by time bucket (fixture output, not a result)
+## Calibration by time bucket
 
 ECE (10 bins) and calibration slope per bucket, out-of-fold.
 
 | model | bucket | n | ECE | slope |
 | --- | --- | --- | --- | --- |
-| constant | 48-36 | 2525 | 0.1083 [0.0203, 0.2526] | n/a |
-| constant | 36-24 | 2555 | 0.1144 [0.0303, 0.2606] | n/a |
-| constant | 24-12 | 2535 | 0.0978 [0.0196, 0.2544] | n/a |
-| constant | 12-4 | 1701 | 0.1125 [0.0192, 0.2614] | n/a |
-| constant | 4-0 | 865 | 0.1166 [0.0277, 0.2597] | n/a |
-| logistic | 48-36 | 2525 | 0.0895 [0.0543, 0.1988] | 0.6753 [0.0251, 1.5792] |
-| logistic | 36-24 | 2555 | 0.1038 [0.0669, 0.2250] | 0.6484 [0.3519, 1.4976] |
-| logistic | 24-12 | 2535 | 0.0453 [0.0371, 0.1212] | 1.1384 [0.7444, 2.5598] |
-| logistic | 12-4 | 1701 | 0.0425 [0.0292, 0.1173] | 1.0744 [0.8303, 2.1698] |
-| logistic | 4-0 | 865 | 0.0505 [0.0279, 0.0982] | 2.6010 [1.8378, 7.4726] |
-| hgb_iso | 48-36 | 2525 | 0.2144 [0.1298, 0.3507] | -0.0471 [-0.7472, 0.3286] |
-| hgb_iso | 36-24 | 2555 | 0.1823 [0.1129, 0.3246] | 0.2792 [-0.1821, 0.9024] |
-| hgb_iso | 24-12 | 2535 | 0.1198 [0.0785, 0.2367] | 0.8820 [0.3703, 2.0929] |
-| hgb_iso | 12-4 | 1701 | 0.0864 [0.0791, 0.2105] | 1.3020 [0.6107, 4.7151] |
-| hgb_iso | 4-0 | 865 | 0.1070 [0.0695, 0.2176] | 2.2131 [1.4673, 4.0748] |
+| constant | 48-36 | 549307 | 0.0003 [0.0003, 0.0161] | n/a |
+| constant | 36-24 | 581066 | 0.0003 [0.0002, 0.0168] | n/a |
+| constant | 24-12 | 561851 | 0.0011 [0.0001, 0.0167] | n/a |
+| constant | 12-4 | 367834 | 0.0021 [0.0002, 0.0178] | n/a |
+| constant | 4-0 | 218146 | 0.0049 [0.0004, 0.0189] | n/a |
+| constant | OT | 14209 | 0.0253 [0.0021, 0.0853] | n/a |
+| logistic | 48-36 | 549307 | 0.0140 [0.0102, 0.0245] | 1.2064 [1.1118, 1.3023] |
+| logistic | 36-24 | 581066 | 0.0082 [0.0072, 0.0186] | 0.9820 [0.9252, 1.0339] |
+| logistic | 24-12 | 561851 | 0.0252 [0.0178, 0.0337] | 0.8703 [0.8231, 0.9108] |
+| logistic | 12-4 | 367834 | 0.0119 [0.0085, 0.0186] | 0.9804 [0.9376, 1.0270] |
+| logistic | 4-0 | 218146 | 0.0504 [0.0461, 0.0546] | 1.6891 [1.6046, 1.7799] |
+| logistic | OT | 14209 | 0.0596 [0.0497, 0.0918] | 1.6041 [1.3572, 1.9182] |
+| hgb_iso | 48-36 | 549307 | 0.0247 [0.0182, 0.0330] | 0.7788 [0.7130, 0.8395] |
+| hgb_iso | 36-24 | 581066 | 0.0097 [0.0075, 0.0215] | 0.9222 [0.8630, 0.9734] |
+| hgb_iso | 24-12 | 561851 | 0.0071 [0.0057, 0.0171] | 0.9632 [0.9047, 1.0156] |
+| hgb_iso | 12-4 | 367834 | 0.0072 [0.0055, 0.0149] | 1.0273 [0.9751, 1.0826] |
+| hgb_iso | 4-0 | 218146 | 0.0549 [0.0509, 0.0592] | 1.7307 [1.6554, 1.8136] |
+| hgb_iso | OT | 14209 | 0.0567 [0.0456, 0.0901] | 1.5293 [1.3136, 1.7904] |
 
 The constant model has no calibration slope by design.
 
-### Reliability table of the selected candidate (out-of-fold) (fixture output, not a result)
+### Reliability table of the selected candidate (out-of-fold)
 
 | bin | lo | hi | n | mean p | mean home win |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 0.0 | 0.1 | 1999 | 0.025 | 0.033 |
-| 1 | 0.1 | 0.2 | 735 | 0.146 | 0.200 |
-| 2 | 0.2 | 0.3 | 746 | 0.251 | 0.307 |
-| 3 | 0.3 | 0.4 | 975 | 0.354 | 0.414 |
-| 4 | 0.4 | 0.5 | 1222 | 0.449 | 0.459 |
-| 5 | 0.5 | 0.6 | 853 | 0.544 | 0.445 |
-| 6 | 0.6 | 0.7 | 607 | 0.648 | 0.619 |
-| 7 | 0.7 | 0.8 | 539 | 0.752 | 0.740 |
-| 8 | 0.8 | 0.9 | 677 | 0.850 | 0.780 |
-| 9 | 0.9 | 1.0 | 1828 | 0.977 | 0.981 |
+| 0 | 0.0 | 0.1 | 217517 | 0.036 | 0.034 |
+| 1 | 0.1 | 0.2 | 124640 | 0.150 | 0.170 |
+| 2 | 0.2 | 0.3 | 134562 | 0.251 | 0.260 |
+| 3 | 0.3 | 0.4 | 164242 | 0.352 | 0.345 |
+| 4 | 0.4 | 0.5 | 239293 | 0.454 | 0.437 |
+| 5 | 0.5 | 0.6 | 385738 | 0.551 | 0.553 |
+| 6 | 0.6 | 0.7 | 283366 | 0.647 | 0.655 |
+| 7 | 0.7 | 0.8 | 207349 | 0.748 | 0.745 |
+| 8 | 0.8 | 0.9 | 188133 | 0.850 | 0.843 |
+| 9 | 0.9 | 1.0 | 347573 | 0.966 | 0.967 |
 
-### winprob_calibration rows of the selected candidate (training seasons, out-of-fold) (fixture output, not a result)
+### winprob_calibration rows of the selected candidate (training seasons, out-of-fold)
 
 | season | time_bucket | n | mean_p | mean_y | brier | slope |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2020-21 | 48-36 | 1236 | 0.439 | 0.403 | 0.1963 | 1.438 |
-| 2020-21 | 36-24 | 1236 | 0.431 | 0.394 | 0.1590 | 0.896 |
-| 2020-21 | 24-12 | 1276 | 0.440 | 0.381 | 0.0804 | 1.500 |
-| 2020-21 | 12-4 | 859 | 0.397 | 0.386 | 0.0597 | 1.239 |
-| 2020-21 | 4-0 | 420 | 0.415 | 0.419 | 0.0243 | 2.630 |
-| 2021-22 | 48-36 | 1289 | 0.480 | 0.569 | 0.2761 | 0.159 |
-| 2021-22 | 36-24 | 1319 | 0.573 | 0.551 | 0.2300 | 0.469 |
-| 2021-22 | 24-12 | 1259 | 0.556 | 0.566 | 0.1076 | 0.947 |
-| 2021-22 | 12-4 | 842 | 0.499 | 0.577 | 0.0975 | 1.080 |
-| 2021-22 | 4-0 | 445 | 0.487 | 0.546 | 0.0434 | 2.877 |
+| 2020-21 | 48-36 | 124987 | 0.553 | 0.543 | 0.2325 | 1.193 |
+| 2020-21 | 36-24 | 132454 | 0.547 | 0.544 | 0.1919 | 1.046 |
+| 2020-21 | 24-12 | 127107 | 0.540 | 0.545 | 0.1477 | 0.908 |
+| 2020-21 | 12-4 | 84064 | 0.540 | 0.548 | 0.1015 | 0.984 |
+| 2020-21 | 4-0 | 50898 | 0.542 | 0.544 | 0.0582 | 1.664 |
+| 2020-21 | OT | 3221 | 0.513 | 0.486 | 0.1487 | 1.726 |
+| 2021-22 | 48-36 | 140981 | 0.554 | 0.547 | 0.2313 | 1.246 |
+| 2021-22 | 36-24 | 150099 | 0.555 | 0.546 | 0.1959 | 0.960 |
+| 2021-22 | 24-12 | 144433 | 0.550 | 0.545 | 0.1584 | 0.819 |
+| 2021-22 | 12-4 | 94057 | 0.552 | 0.544 | 0.1044 | 0.965 |
+| 2021-22 | 4-0 | 55586 | 0.550 | 0.539 | 0.0573 | 1.741 |
+| 2021-22 | OT | 3205 | 0.514 | 0.443 | 0.1858 | 1.384 |
+| 2022-23 | 48-36 | 142622 | 0.558 | 0.583 | 0.2276 | 1.250 |
+| 2022-23 | 36-24 | 150764 | 0.562 | 0.583 | 0.1970 | 0.933 |
+| 2022-23 | 24-12 | 145203 | 0.566 | 0.586 | 0.1624 | 0.845 |
+| 2022-23 | 12-4 | 95126 | 0.576 | 0.585 | 0.1115 | 0.980 |
+| 2022-23 | 4-0 | 55949 | 0.577 | 0.578 | 0.0642 | 1.666 |
+| 2022-23 | OT | 4391 | 0.512 | 0.546 | 0.1596 | 1.698 |
+| 2023-24 | 48-36 | 140717 | 0.558 | 0.546 | 0.2331 | 1.136 |
+| 2023-24 | 36-24 | 147749 | 0.560 | 0.548 | 0.1921 | 1.002 |
+| 2023-24 | 24-12 | 145108 | 0.556 | 0.549 | 0.1436 | 0.918 |
+| 2023-24 | 12-4 | 94587 | 0.563 | 0.551 | 0.0981 | 0.998 |
+| 2023-24 | 4-0 | 55713 | 0.545 | 0.541 | 0.0561 | 1.695 |
+| 2023-24 | OT | 3392 | 0.567 | 0.635 | 0.1577 | 1.641 |
 
-## Held-out season 2024-25, scored once (fixture output, not a result)
+## Held-out season 2024-25, not scored
 
-5014 events from 20 games of 2024-25, never fitted or tuned on; the selected candidate (logistic) refit on all 10181 training rows scored them once.
-
-| bucket | n | Brier | ECE | slope | benchmark (NBA.com WinProbabilityPBP) |
-| --- | --- | --- | --- | --- | --- |
-| 48-36 | 1260 | 0.2344 [0.1933, 0.2882] | 0.1836 [0.0905, 0.4057] | 1.8904 [0.6624, 3.2003] |  |
-| 36-24 | 1257 | 0.1947 [0.1295, 0.2798] | 0.1911 [0.0887, 0.3956] | 1.4153 [0.8428, 3.0320] |  |
-| 24-12 | 1215 | 0.1685 [0.0817, 0.2955] | 0.1019 [0.0531, 0.2970] | 0.5894 [0.3427, 1.7108] |  |
-| 12-4 | 821 | 0.1140 [0.0406, 0.2119] | 0.0640 [0.0428, 0.1946] | 0.6863 [0.3887, 2.4497] |  |
-| 4-0 | 461 | 0.0538 [0.0122, 0.1171] | 0.0607 [0.0315, 0.1461] | 0.8951 [0.6039, 142.7178] |  |
-
-Overall: log loss 0.5038 [0.3698, 0.7094], Brier 0.1721 [0.1236, 0.2483], mean bucket Brier 0.1531.
+1304 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
 
 ## Benchmark
 
@@ -126,7 +134,7 @@ The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<s
 
 ## Assumptions
 
-- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).
+- A whole season is held out (default 2024-25) and set aside unscored in this run (--skip-heldout); folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).
 - 2015-16 games of sportvu/splits.json never fit anything: rows flagged heldout are dropped, the 2015-16 season is refused as a held-out season, and refuse_heldout runs on the training ids.
 - The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.
 - The possession indicator is read from event kinds and is null when the events so far do not say.

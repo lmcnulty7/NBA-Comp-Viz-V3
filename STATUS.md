@@ -38,8 +38,9 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
 - **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting and
-  lineups done; winprob running from 01:21 (logs/loop/stage5_winprob.log), then stage 6 epv with the torch GRU
-  (logs/loop/stage6_epv_torch.log), then stage 6 ghosting with the torch GRU (logs/loop/stage6_ghosting_torch.log).
+  lineups and winprob done; stage 6 epv with the torch GRU running from 01:30 (logs/loop/stage6_epv_torch.log), then
+  stage 6 ghosting with the torch GRU (logs/loop/stage6_ghosting_torch.log), then a winprob train rerun that writes
+  its tables (logs/loop/stage5_winprob_rerun.log).
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
   whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
   public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test
@@ -161,6 +162,7 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 | decisions | 6 min, 2.6 GB | xfg_selected prior (rule fixed in advance: xFG coverage 0.99 at least 0.50) | validation: mean decision quality per player-game vs on-court offensive rating, mean Spearman 0.009 [-0.009, 0.027] over 604 games, sign p 0.051 (location prior 0.003) | the decision-quality score does NOT track points on the floor: no validated signal; EPV hold option on 518,104 decisions (epv rerun 2026-11-12 wrote its tables; numbers identical to the first run) |
 | ghosting | 72 min (train 64), 9.2 GB | 3 MLP 64x64 on the 5-step window (GRU stand-in), fitted at 1 Hz on 7,147,100 float32 rows, scored at 5 Hz | 1.0 s error 3.657 ft [3.635, 3.682] vs ridge 4.541 and persistence 5.408; MLP minus ridge -0.884 [-0.909, -0.858] | deep candidate kept, so the stage 6 gate is open (torch GRU queued); graded deviation vs points allowed: 346 of 604 games positive, sign p 0.0002 |
 | lineups | 2.3 min, 3.1 GB | rapm (mean out-of-season Spearman 0.109 vs plus_minus 0.105, rapm_synergy 0.087) | per-season Spearman intervals all span zero (for example rapm 0.222 [-0.170, 0.547] on 2022-23); only 18 to 27 gated lineups recur season to season | no candidate is distinguishable from raw plus-minus: the selection is a tie on the point estimate; 180,243 stints after validate (9,541 not 5v5 dropped), 53 shifted-period games dropped; the abbreviated-name player key issue is still open |
+| winprob | 9 min, 5.4 GB | logistic (margin, time, possession, margin x sqrt time) | mean bucket Brier 0.1483 vs constant 0.2472 (hgb_iso 0.1486, level); log loss 0.4884 [0.4804, 0.4989] | under-confident in the last 4 minutes (slope 1.69 [1.60, 1.78], ECE 0.050) and over-confident at 24-12 (0.87): an improvement-search target; 53 shifted-period games dropped; spread missing on every game (odds skipped); benchmark empty (NBA.com skipped, stated in the report). Fixed (tests): it wrote no tables without --out (OUT_ROOT now defaults to DATA_ROOT) and its benchmark text said "unreachable"; train rerun queued after the ghosting GRU (logs/loop/stage5_winprob_rerun.log) |
 | load | 8 min, 1.7 GB | ridge (decline), logistic (absence) | decline MSE 0.4929 [0.4740, 0.5178] vs mean 0.5086; absence log loss 0.2764 [0.2644, 0.2883] vs base 0.3244, slope 0.99 | rest days show no clear effect on decline (back-to-back -0.48, one day -0.44, two plus -0.46 ft/s); the player ranking gate counts stints, not games, so two 2-game players lead it; no tracking aggregates (NBA.com skipped) |
 
 lineups fixed (536a3c4, tests): run_all now runs stints before validate, and every step reads the stints the

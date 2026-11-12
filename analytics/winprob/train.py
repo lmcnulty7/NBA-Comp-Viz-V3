@@ -28,8 +28,8 @@ Protocol
   5. Outputs: reports/winprob.md and, with --out, OUT_ROOT/analytics/winprob/<season>/winprob_states.parquet
      and winprob_calibration.parquet (docs/contract/winprob.md).
 
-Benchmark: the NBA.com WinProbabilityPBP endpoint is unreachable from here, so the benchmark column of the
-report is empty until it exists. Fixture numbers are fixture output, not a result.
+Benchmark: the NBA.com tables are skipped (the owner's decision, gates/nbacom-skip), so the WinProbabilityPBP
+benchmark is not collected and the benchmark column of the report stays empty (BENCHMARK_NOTE). Fixture numbers are fixture output, not a result.
 """
 from __future__ import annotations
 
@@ -57,9 +57,13 @@ MAC_CMD = ("python -m analytics.winprob.train --data \"$DATA_ROOT\" --out \"$DAT
 FIT_LOG: list = []      # every fit appends (models, sorted training game ids); inner isotonic fits log as ("hgb_inner",)
 FIXTURE_SEASONS = "2020-21,2021-22,2024-25"
 FIXTURE_TAG = "(fixture output, not a result)"
+BENCHMARK_NOTE = ("NBA.com tables were skipped by the owner (gates/nbacom-skip, 2026-11-11), so the NBA.com WinProbabilityPBP "
+                  "benchmark was not collected and the benchmark column is empty. If it is collected later, its probability at "
+                  "each event joins winprob_states on (game_id, event) and is scored with the same bucket Brier.")
 
 
 # ── split ──────────────────────────────────────────────────────────────────────────────────────────
+
 def later_seasons(states: pd.DataFrame, heldout_season: str) -> list:
     """Seasons whose key sorts after the held-out season (YYYY-YY keys sort chronologically); they never fit."""
     return sorted(s for s in states["season"].astype(str).unique() if s > str(heldout_season))
@@ -353,8 +357,7 @@ def write_report(path: Path, ctx: dict) -> str:
     else:
         L.append("No rows of season %s were in the input, so nothing was scored." % ctx["heldout_season"])
     L += ["", "## Benchmark", "",
-          "The NBA.com WinProbabilityPBP endpoint is unreachable from here, so the benchmark column is empty until it exists. "
-          "When it does, its probability at each event joins winprob_states on (game_id, event) and is scored with the same bucket Brier.", "",
+          BENCHMARK_NOTE, "",
           "## Outputs", ""]
     L += ["- " + p for p in ctx["outputs"]] if ctx["outputs"] else ["- no tables written (no --out)"]
     L += ["", "## Mac command", "", "The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<season>.parquet, collect/extras/odds/<season>.parquet when present):", "",
@@ -445,12 +448,20 @@ def run(d: dict, heldout_season: str, seed: int, n_boot: int, n_folds: int, out_
     return ctx
 
 
+def out_root_for(a):
+    """--out when given; else DATA_ROOT on real data (run_all passes no --out, and with None the winprob tables were
+    never written); else None on the fixtures (no tables)."""
+    if a.out:
+        return a.out
+    return None if a.fixtures else getattr(a, "data", None)
+
+
 def main(argv=None) -> dict:
     """Run the trainer from the command line, print the report and return ctx."""
     a = parse_args(argv)
     d = F.load_args(a)
     cmd = "python -m analytics.winprob.train " + " ".join(argv if argv is not None else sys.argv[1:])
-    ctx = run(d, a.heldout_season, a.seed, a.bootstrap, a.folds, out_root=a.out, fixtures=a.fixtures, command=cmd, report=a.report,
+    ctx = run(d, a.heldout_season, a.seed, a.bootstrap, a.folds, out_root=out_root_for(a), fixtures=a.fixtures, command=cmd, report=a.report,
               skip_heldout=a.skip_heldout)
     print(ctx["report"])
     return ctx
