@@ -2,7 +2,7 @@
 
 **Real data, training folds only; held-out not scored.** Stage 5 phase 4 (docs/mac_runbook.md), run with --skip-heldout.
 
-Written 2026-11-12T08:06:00Z by `python -m analytics.decisions.train --data /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest --seed 0 --report /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/decisions.md --skip-heldout`.
+Written 2026-11-12T08:06:00Z by `python -m analytics.decisions.train --data $DATA_ROOT --seed 0 --report reports/decisions.md --skip-heldout`.
 
 ## Inputs
 

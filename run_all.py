@@ -56,6 +56,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from analytics import registry  # noqa: E402  (plain data; imports no extension package)
+from analytics.report_paths import redact_file  # noqa: E402  (standard library only)
 
 STATUS_OK = "ok"
 STATUS_FAILED = "failed"
@@ -488,6 +489,8 @@ def main(argv=None) -> int:
             status, seconds, detail = run_step(module, argv_step, log)
             if step == "train" and args.fixtures:      # never a --data run: those reports stay as the lane wrote them
                 add_fixture_banner(report_path)
+            # the repo is public: no DATA_ROOT, repo or home path (the Drive path names the account) in a report
+            redact_file(report_path, data_root=data_root)
             rows.append({"extension": name, "step": step, "status": status, "seconds": seconds,
                          "report": str(report_path) if step == "train" and status == STATUS_OK else "",
                          "detail": detail})

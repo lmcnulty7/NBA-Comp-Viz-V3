@@ -41,12 +41,21 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   train running at 01:06, 2.2 GB footprint, logs/loop/stage5_ghosting.log), then lineups
   (logs/loop/stage5_lineups.log), then winprob (logs/loop/stage5_winprob.log), then stage 6 epv with the torch
   GRU (logs/loop/stage6_epv_torch.log).
+- **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
+  whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
+  public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test
+  tests/test_report_paths.py), run_all applies it to each lane report after every step, and the 12 committed
+  reports are redacted. Not fixed: earlier commits still hold those paths, and the same account address
+  appears in older committed files (ROADMAP.md, ROADMAP_LOG.md, the Colab scripts and notebooks); removing
+  it from history needs a history rewrite, which is the owner's call.
 - **Stage 6 plan (2026-11-12):** epv's gate opened, so `analytics.epv.train --deep torch --skip-heldout` runs
   with the contract's GRU (already in analytics/epv/deep.py, tests in tests/test_deep_models.py). Its report
   goes to reports/epv_torch.md and its tables to DATA_ROOT/stage6/epv_torch, so the MLP-run tables decisions
   read stay as they are until the keep rule decides. A synthetic benchmark put one epoch over the 1.4M
   training rows at about 3.4 s on one thread. embeddings' gate stayed shut (PCA 5-NN 0.768, at or above
-  0.60): no change. ghosting: decided when its report is in.
+  0.60): no change. ghosting's gate opened too (MLP kept over ridge): `analytics.ghosting.train --deep torch --skip-heldout` is
+  queued after the epv GRU (report reports/ghosting_torch.md, tables DATA_ROOT/stage6/ghosting_torch, log
+  logs/loop/stage6_ghosting_torch.log); a fixture run of it passed (0.45 GB).
 - **Stage 5 phase 2 FAILED (2026-11-11 16:56):** `run_all.py --phase 2 --skip-heldout` was killed after about
   30 s with exit 137 (SIGKILL, out of memory on this 16 GB Mac) inside matchups validate, before any step log was
   written (logs/loop/stage5_phase2.log: "note: matchups depends on xfg, not selected; their outputs must already
@@ -151,6 +160,8 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 | epv | 41 min (train 39), 19 GB | mlp (sequence stand-in) | MSE expected points 1.2218 [1.2137, 1.2294] vs constant 1.2822 (lift 4.7 percent) | beats hgb under paired bootstrap, so the stage 6 sequence-model gate is open; shuffled-target lift 0; 0-4 s bucket weakly calibrated (slope 0.68) |
 
 | decisions | 6 min, 2.6 GB | xfg_selected prior (rule fixed in advance: xFG coverage 0.99 at least 0.50) | validation: mean decision quality per player-game vs on-court offensive rating, mean Spearman 0.009 [-0.009, 0.027] over 604 games, sign p 0.051 (location prior 0.003) | the decision-quality score does NOT track points on the floor: no validated signal; EPV hold option on 518,104 decisions (epv rerun 2026-11-12 wrote its tables; numbers identical to the first run) |
+| ghosting | 72 min (train 64), 9.2 GB | 3 MLP 64x64 on the 5-step window (GRU stand-in), fitted at 1 Hz on 7,147,100 float32 rows, scored at 5 Hz | 1.0 s error 3.657 ft [3.635, 3.682] vs ridge 4.541 and persistence 5.408; MLP minus ridge -0.884 [-0.909, -0.858] | deep candidate kept, so the stage 6 gate is open (torch GRU queued); graded deviation vs points allowed: 346 of 604 games positive, sign p 0.0002 |
+| lineups | 2.3 min, 3.1 GB | rapm (mean out-of-season Spearman 0.109 vs plus_minus 0.105, rapm_synergy 0.087) | per-season Spearman intervals all span zero (for example rapm 0.222 [-0.170, 0.547] on 2022-23); only 18 to 27 gated lineups recur season to season | no candidate is distinguishable from raw plus-minus: the selection is a tie on the point estimate; 180,243 stints after validate (9,541 not 5v5 dropped), 53 shifted-period games dropped; the abbreviated-name player key issue is still open |
 | load | 8 min, 1.7 GB | ridge (decline), logistic (absence) | decline MSE 0.4929 [0.4740, 0.5178] vs mean 0.5086; absence log loss 0.2764 [0.2644, 0.2883] vs base 0.3244, slope 0.99 | rest days show no clear effect on decline (back-to-back -0.48, one day -0.44, two plus -0.46 ft/s); the player ranking gate counts stints, not games, so two 2-game players lead it; no tracking aggregates (NBA.com skipped) |
 
 lineups fixed (536a3c4, tests): run_all now runs stints before validate, and every step reads the stints the

@@ -1,6 +1,6 @@
 # Shot localisation audit
 
-Sample `/Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest/analytics/audit/shots_sample.parquet`: 604 rows, 555 audited. Agreement counts an audited release frame within 10 frames of the localiser's release_frame (docs/DATA_CONTRACT.md section 17).
+Sample `$DATA_ROOT/analytics/audit/shots_sample.parquet`: 604 rows, 555 audited. Agreement counts an audited release frame within 10 frames of the localiser's release_frame (docs/DATA_CONTRACT.md section 17).
 
 ## Pass-mark statistic
 

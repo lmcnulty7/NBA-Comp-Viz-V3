@@ -2,7 +2,7 @@
 
 **Real data, training folds only; held-out not scored.** Stage 5 phase 1 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
 
-Written 2026-11-12T00:50:27Z by `python -m analytics.train_xfg --shots /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest/collect/bref_shots/shotchart/2015-16.parquet --report reports/xfg_baseline.md --skip-heldout`.
+Written 2026-11-12T00:50:27Z by `python -m analytics.train_xfg --shots $DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet --report reports/xfg_baseline.md --skip-heldout`.
 
 ## Inputs
 

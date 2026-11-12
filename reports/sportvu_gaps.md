@@ -1,6 +1,6 @@
 # SportVU clock gaps
 
-Manifest: `/Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest/sportvu_contract/manifest.json` (626 games, updated 2026-11-05 00:11:23, contract v1).
+Manifest: `$DATA_ROOT/sportvu_contract/manifest.json` (626 games, updated 2026-11-05 00:11:23, contract v1).
 
 Scope: this report covers only the games listed in that manifest. A gap is a hole of more than 2 s in the tracking clock of one quarter, as recorded by the Step 1 converter (`gaps_over_2s` in the manifest); the clock counts down, so a gap runs from the larger clock to the smaller one. Held-out games are counted here and nothing is fit or tuned.
 

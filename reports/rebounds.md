@@ -2,7 +2,7 @@
 
 **Real data, training folds only; held-out not scored.** Stage 5 phase 1 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
 
-Written 2026-11-12T00:50:23Z by `python -m analytics.rebounds.train --data /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest --seed 0 --report /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/rebounds.md --skip-heldout`.
+Written 2026-11-12T00:50:23Z by `python -m analytics.rebounds.train --data $DATA_ROOT --seed 0 --report reports/rebounds.md --skip-heldout`.
 
 ## Inputs and rows
 
@@ -706,6 +706,6 @@ No --out given: the rebound_predictions table was not written.
 
 ## Status
 
-Run on /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest. The command was
+Run on $DATA_ROOT. The command was
 
-    python -m analytics.rebounds.train --data /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest --seed 0 --report /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/rebounds.md --skip-heldout
+    python -m analytics.rebounds.train --data $DATA_ROOT --seed 0 --report reports/rebounds.md --skip-heldout

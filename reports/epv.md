@@ -2,7 +2,7 @@
 
 **Real data, training folds only; held-out not scored.** Stage 5 phase 3 (epv needs no labels; rerun 2026-11-12 so its tables are written) (docs/mac_runbook.md), run with --skip-heldout.
 
-Written 2026-11-12T08:00:23Z by `python -m analytics.epv.train --data /Users/lucienmcnulty/Library/CloudStorage/GoogleDrive-lucienmmcnulty@gmail.com/My Drive/nba_harvest --seed 0 --report /Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/reports/epv.md --skip-heldout` (real data run).
+Written 2026-11-12T08:00:23Z by `python -m analytics.epv.train --data $DATA_ROOT --seed 0 --report reports/epv.md --skip-heldout` (real data run).
 
 ## Inputs
 
