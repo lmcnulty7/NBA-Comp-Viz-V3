@@ -38,9 +38,10 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
 - **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting and
-  lineups and winprob done; stage 6 epv with the torch GRU running from 01:30 (logs/loop/stage6_epv_torch.log), then
-  stage 6 ghosting with the torch GRU (logs/loop/stage6_ghosting_torch.log), then a winprob train rerun that writes
-  its tables (logs/loop/stage5_winprob_rerun.log).
+  lineups, winprob and the epv GRU done; stage 6 ghosting with the torch GRU running from 02:30
+  (logs/loop/stage6_ghosting_torch.log), then a winprob train rerun that writes its tables
+  (logs/loop/stage5_winprob_rerun.log), then decisions validate, features and train on the GRU EPV tables
+  (logs/loop/stage6_decisions_rerun.log).
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
   whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
   public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test
@@ -48,6 +49,13 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   reports are redacted. Not fixed: earlier commits still hold those paths, and the same account address
   appears in older committed files (ROADMAP.md, ROADMAP_LOG.md, the Colab scripts and notebooks); removing
   it from history needs a history rewrite, which is the owner's call.
+- **Stage 6 epv (done 2026-11-12):** the torch GRU ran in 60 min, 21 GB peak. Same gate and keep rule: kept over hgb,
+  0.0212 [0.0201, 0.0228]; MSE 1.2155 [1.2080, 1.2226] vs constant 1.2822 (lift 5.2 percent), calibration slope
+  0.964. Paired by game against the MLP stand-in it replaces, MSE(stand-in) minus MSE(GRU) 0.0062 [0.0054, 0.0071]
+  (604 games, 1,739,119 states). The GRU is the epv model: its tables moved to DATA_ROOT/analytics/epv (the MLP
+  tables kept at DATA_ROOT/stage6/epv_mlp), reports/epv.md is the GRU report (the stand-in's is
+  reports/epv_mlp_standin.md), run_all passes --deep torch to epv train on real data (DATA_TRAIN_ARGS, test),
+  and decisions reruns on the GRU EPV.
 - **Stage 6 plan (2026-11-12):** epv's gate opened, so `analytics.epv.train --deep torch --skip-heldout` runs
   with the contract's GRU (already in analytics/epv/deep.py, tests in tests/test_deep_models.py). Its report
   goes to reports/epv_torch.md and its tables to DATA_ROOT/stage6/epv_torch, so the MLP-run tables decisions

@@ -572,3 +572,15 @@ def test_fixture_fallback_run_labels_reports_too(tmp_path, monkeypatch, capsys, 
     rc = run_all.main(["--data", str(data), "--ext", "fxban_stub", "--registry", str(reg), "--out", str(tmp_path / "o2")])
     assert rc == 0, capsys.readouterr().out
     assert (tmp_path / "o2" / "reports" / "fxban_stub.md").read_text() == "# stub report\n"
+
+
+def test_stage6_deep_models_are_passed_on_real_data_only(tmp_path):
+    import types
+    import run_all
+    real = types.SimpleNamespace(seed=0, bootstrap=None, skip_heldout=True, fixtures=False)
+    fx = types.SimpleNamespace(seed=0, bootstrap=None, skip_heldout=True, fixtures=True)
+    argv = run_all.step_argv("train", "epv", tmp_path, None, tmp_path / "epv.md", real)
+    assert argv[-2:] == ["--deep", "torch"]
+    assert "--deep" not in run_all.step_argv("train", "epv", tmp_path, None, tmp_path / "epv.md", fx)
+    assert "--deep" not in run_all.step_argv("features", "epv", tmp_path, None, tmp_path / "epv.md", real)
+    assert "--deep" not in run_all.step_argv("train", "xfg", tmp_path, None, tmp_path / "xfg.md", real)

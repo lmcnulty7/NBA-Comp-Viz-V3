@@ -58,6 +58,12 @@ if str(REPO) not in sys.path:
 from analytics import registry  # noqa: E402  (plain data; imports no extension package)
 from analytics.report_paths import redact_file  # noqa: E402  (standard library only)
 
+# Extra train arguments on real data (never on --fixtures), from stage 6: where a lane's deep-model gate opened and the
+# contract's torch model was kept over the sklearn stand-in, every later real run (stage 8 included) uses it.
+DATA_TRAIN_ARGS = {
+    "epv": ["--deep", "torch"],     # GRU kept 2026-11-12: MSE 1.2155 vs stand-in 1.2218, paired 0.0062 [0.0054, 0.0071]
+}
+
 STATUS_OK = "ok"
 STATUS_FAILED = "failed"
 STATUS_SKIPPED = "skipped"
@@ -235,6 +241,8 @@ def step_argv(step: str, ext: str, data_root: Path | None, out_root: Path | None
             argv += ["--bootstrap", str(args.bootstrap)]
         if getattr(args, "skip_heldout", False):
             argv += ["--skip-heldout"]
+        if not getattr(args, "fixtures", False):
+            argv += DATA_TRAIN_ARGS.get(ext, [])
     return argv
 
 

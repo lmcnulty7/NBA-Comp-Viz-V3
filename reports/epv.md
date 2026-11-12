@@ -1,8 +1,8 @@
 # EPV: expected possession value from 1 Hz states (analytics/epv)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 3 (epv needs no labels; rerun 2026-11-12 so its tables are written) (docs/mac_runbook.md), run with --skip-heldout.
+**Real data, training folds only; held-out not scored.** Stage 6 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12: the contract's torch GRU fills the sequence slot (still named mlp in the tables). It is the selected epv model. Paired by game against the MLP stand-in it replaces (reports/epv_mlp_standin.md), MSE(stand-in) minus MSE(GRU) is 0.0062 [0.0054, 0.0071] over 604 games and 1,739,119 states (1000 game resamples, seed 0). Its tables were written to OUT_ROOT = DATA_ROOT/stage6/epv_torch and then moved to DATA_ROOT/analytics/epv; run_all passes --deep torch to epv train on real data from now on.
 
-Written 2026-11-12T08:00:23Z by `python -m analytics.epv.train --data $DATA_ROOT --seed 0 --report reports/epv.md --skip-heldout` (real data run).
+Written 2026-11-12T10:29:55Z by `python -m analytics.epv.train --data $DATA_ROOT --report reports/epv_torch.md --out OUT_ROOT --skip-heldout --deep torch` (real data run).
 
 ## Inputs
 
@@ -23,6 +23,7 @@ Training mean points per state: 0.9924; P(points > 0): 0.4590.
 Features (25): ball_x, ball_y, ball_z, ball_dist_basket, handler_dist_basket, handler_angle, handler_nearest_def_dist_ft, off_dist_1, off_dist_2, off_dist_3, off_dist_4, off_dist_5, off_def_1, off_def_2, off_def_3, off_def_4, off_def_5, off_hull_area, shot_clock_s, elapsed_in_possession_s, ball_dist_min_so_far, n_handler_switches, handler_fg_prior, handler_zone_value, lineup_tov_prior.
 Priors come from the training games of each fold only. The per-player zone counts and the per-lineup counts are out-of-fold for the training rows (a game's own shots and possessions are left out of its prior); the two league-wide quantities they shrink towards, the location-only xFG (analytics.features_xfg, four parameters) at the handler's position and the training turnover rate, are fitted once on the whole training fold, the row's own game included.
 Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor (100 iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds), and under the gate an MLPRegressor over the last 5 states' features.
+Sequence model (--deep torch): a torch GRU (hidden 16) over the last 5 states of the possession, run from t-4 to t (no state after t), replaces the MLPRegressor in the sequence slot (still named mlp in the tables); Adam, batch 256, at most 100 epochs, early stopping after 8 epochs on an inner split of the training games, then refit on every training row for the best epoch count; the same isotonic calibration, gate and keep rule.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
 ## Candidates by elapsed-time bucket (out-of-fold)
@@ -32,49 +33,49 @@ Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals a
 | all | constant | 1739119 | 0.2483 [0.2481, 0.2486] | 1.2822 [1.2745, 1.2901] | n/a |
 | all | ridge | 1739119 | 0.2469 [0.2465, 0.2472] | 1.2766 [1.2683, 1.2843] | 0.991 |
 | all | hgb | 1739119 | 0.2379 [0.2375, 0.2384] | 1.2368 [1.2287, 1.2446] | 0.991 |
-| all | mlp | 1739119 | 0.2363 [0.2359, 0.2368] | 1.2218 [1.2137, 1.2294] | 1.050 |
+| all | mlp | 1739119 | 0.2350 [0.2345, 0.2355] | 1.2155 [1.2080, 1.2226] | 0.964 |
 | 0-4 | constant | 443333 | 0.2507 [0.2504, 0.2509] | 1.2909 [1.2834, 1.2976] | n/a |
 | 0-4 | ridge | 443333 | 0.2501 [0.2499, 0.2502] | 1.2906 [1.2838, 1.2968] | 0.265 |
 | 0-4 | hgb | 443333 | 0.2497 [0.2495, 0.2499] | 1.2863 [1.2795, 1.2929] | 0.550 |
-| 0-4 | mlp | 443333 | 0.2488 [0.2486, 0.2490] | 1.2860 [1.2789, 1.2922] | 0.682 |
+| 0-4 | mlp | 443333 | 0.2489 [0.2486, 0.2490] | 1.2859 [1.2791, 1.2923] | 0.916 |
 | 4-10 | constant | 585059 | 0.2492 [0.2490, 0.2495] | 1.2922 [1.2842, 1.2999] | n/a |
 | 4-10 | ridge | 585059 | 0.2489 [0.2487, 0.2490] | 1.2906 [1.2828, 1.2980] | 0.829 |
 | 4-10 | hgb | 585059 | 0.2439 [0.2436, 0.2443] | 1.2698 [1.2622, 1.2773] | 1.133 |
-| 4-10 | mlp | 585059 | 0.2429 [0.2426, 0.2433] | 1.2602 [1.2526, 1.2673] | 1.015 |
+| 4-10 | mlp | 585059 | 0.2421 [0.2418, 0.2425] | 1.2577 [1.2506, 1.2650] | 1.005 |
 | 10-24 | constant | 710727 | 0.2461 [0.2458, 0.2465] | 1.2686 [1.2589, 1.2772] | n/a |
 | 10-24 | ridge | 710727 | 0.2433 [0.2426, 0.2439] | 1.2564 [1.2447, 1.2658] | 0.966 |
 | 10-24 | hgb | 710727 | 0.2256 [0.2248, 0.2265] | 1.1787 [1.1677, 1.1879] | 0.983 |
-| 10-24 | mlp | 710727 | 0.2231 [0.2223, 0.2238] | 1.1501 [1.1407, 1.1595] | 1.086 |
+| 10-24 | mlp | 710727 | 0.2205 [0.2195, 0.2213] | 1.1369 [1.1257, 1.1469] | 0.952 |
 
 | model | in-sample MSE (mean over folds) | out-of-fold MSE |
 | --- | --- | --- |
 | constant | 1.2822 | 1.2822 |
 | ridge | 1.2763 | 1.2766 |
 | hgb | 1.2359 | 1.2368 |
-| mlp | 1.2142 | 1.2218 |
+| mlp | 1.2121 | 1.2155 |
 
 Selected: **mlp** (beats hgb, the lowest-MSE candidate, under paired bootstrap by game).
-Why: mlp has the lowest out-of-fold MSE (1.2218 against the constant's 1.2822, lift 4.7 percent).
+Why: mlp has the lowest out-of-fold MSE (1.2155 against the constant's 1.2822, lift 5.2 percent).
 
 ## Calibration of P(points > 0), mlp model (out-of-fold)
 
 | bucket (s) | bin | n | mean p | observed rate |
 | --- | --- | --- | --- | --- |
-| 0-4 | 0.0 to 0.2 | 960 | 0.133 | 0.315 |
-| 0-4 | 0.2 to 0.4 | 5928 | 0.335 | 0.416 |
-| 0-4 | 0.4 to 0.6 | 425144 | 0.479 | 0.484 |
-| 0-4 | 0.6 to 0.8 | 9843 | 0.677 | 0.646 |
-| 0-4 | 0.8 to 1.0 | 1458 | 0.824 | 0.770 |
-| 4-10 | 0.0 to 0.2 | 12051 | 0.108 | 0.100 |
-| 4-10 | 0.2 to 0.4 | 15307 | 0.316 | 0.295 |
-| 4-10 | 0.4 to 0.6 | 541052 | 0.475 | 0.475 |
-| 4-10 | 0.6 to 0.8 | 11442 | 0.687 | 0.682 |
-| 4-10 | 0.8 to 1.0 | 5207 | 0.844 | 0.833 |
-| 10-24 | 0.0 to 0.2 | 66554 | 0.098 | 0.085 |
-| 10-24 | 0.2 to 0.4 | 62252 | 0.316 | 0.291 |
-| 10-24 | 0.4 to 0.6 | 537679 | 0.471 | 0.464 |
-| 10-24 | 0.6 to 0.8 | 27611 | 0.692 | 0.716 |
-| 10-24 | 0.8 to 1.0 | 16631 | 0.845 | 0.843 |
+| 0-4 | 0.0 to 0.2 | 394 | 0.135 | 0.190 |
+| 0-4 | 0.2 to 0.4 | 2847 | 0.340 | 0.384 |
+| 0-4 | 0.4 to 0.6 | 434252 | 0.478 | 0.486 |
+| 0-4 | 0.6 to 0.8 | 5183 | 0.675 | 0.684 |
+| 0-4 | 0.8 to 1.0 | 657 | 0.826 | 0.836 |
+| 4-10 | 0.0 to 0.2 | 12812 | 0.099 | 0.087 |
+| 4-10 | 0.2 to 0.4 | 13307 | 0.316 | 0.292 |
+| 4-10 | 0.4 to 0.6 | 539444 | 0.474 | 0.474 |
+| 4-10 | 0.6 to 0.8 | 11830 | 0.699 | 0.684 |
+| 4-10 | 0.8 to 1.0 | 7666 | 0.841 | 0.831 |
+| 10-24 | 0.0 to 0.2 | 77672 | 0.082 | 0.089 |
+| 10-24 | 0.2 to 0.4 | 71801 | 0.323 | 0.339 |
+| 10-24 | 0.4 to 0.6 | 505299 | 0.466 | 0.461 |
+| 10-24 | 0.6 to 0.8 | 28350 | 0.712 | 0.696 |
+| 10-24 | 0.8 to 1.0 | 27605 | 0.841 | 0.839 |
 
 ## Gradient boosting by shot-clock bucket and the gate
 
@@ -85,8 +86,8 @@ Why: mlp has the lowest out-of-fold MSE (1.2218 against the constant's 1.2822, l
 | 14-24 | 0.992 |
 
 MSE lift of gradient boosting over the constant: 3.5 percent (1.2368 vs 1.2822). Slopes outside 0.9 to 1.1 (n/a counts as outside): 0-7.
-Gate decision: the sequence model (MLPRegressor over the last 5 states, standing in for a GRU) was TRAINED.
-Paired bootstrap by game of MSE(hgb) - MSE(mlp), hgb being the lowest-MSE candidate: 0.0150 [0.0140, 0.0161]; the sequence model is KEPT (interval above 0 and a lower out-of-fold MSE).
+Gate decision: the sequence model (torch GRU (hidden 16) over the last 5 states) was TRAINED.
+Paired bootstrap by game of MSE(hgb) - MSE(mlp), hgb being the lowest-MSE candidate: 0.0212 [0.0201, 0.0228]; the sequence model is KEPT (interval above 0 and a lower out-of-fold MSE).
 
 ## Shuffled-target check
 
