@@ -425,7 +425,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "", "## Protocol%s" % tag, "",
           "Unit: a missed field-goal attempt; one candidate row per player on court at the rim frame plus a none row (team rebound).",
           "Features: %s." % ", ".join(F.feature_columns()),
-          "Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss).",
+          "Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss after a temperature: p proportional to q^tau, tau fitted on inner out-of-fold predictions over the fit's own training games).",
           "Priors for the logit and hgb training rows: %s; test rows take the prior of their fold's training games." % ctx["prior_note"],
           "Selection: lowest out-of-fold per-miss multinomial log loss. Top-1 accuracy reported against the plan target of %.0f percent." % (100 * TOP1_TARGET),
           "Metrics: %s; intervals are the 2.5 and 97.5 percentiles of %d bootstrap resamples of whole games (seed %d)%s."
@@ -462,7 +462,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "- shot_distance_ft uses the section 17 release_frame when present, else the ball's horizontal distance from the basket 1 s before the rim frame.",
           "- The prior is smoothed with 10 pseudo-opportunities toward the per-side base rate; the none rate is the Laplace team-rebound rate. Nothing was tuned.",
           "- Top-1 accuracy counts a tie at the maximum as 1 over the number tied (expected accuracy under random tie-breaking); the calibration block counts it as a hit.",
-          "- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf.",
+          "- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf; its temperature tau bounded 0.25 to 8, fitted by per-miss log loss on 5 inner grouped folds (improvement search variant 1, reports/archive/rebounds.md).",
           "", "## Predictions%s" % tag, "",
           ("Written %d file(s) under OUT_ROOT/analytics/rebounds/ (docs/contract/rebounds.md)." % len(ctx["written_paths"]))
           if ctx["written_paths"] else "No --out given: the rebound_predictions table was not written.", "",
@@ -517,7 +517,7 @@ def parse_args(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     V.add_source_args(ap)
     ap.add_argument("--report", default="reports/rebounds.md", help="markdown report path (default %(default)s)")
-    ap.add_argument("--out", help="OUT_ROOT for the rebound_predictions table (default: not written)")
+    ap.add_argument("--out", help="OUT_ROOT for the rebound_predictions table (default: DATA_ROOT on --data, not written on --fixtures)")
     ap.add_argument("--folds", type=int, default=5, help="grouped folds by sportvu_game (default %(default)s)")
     ap.add_argument("--bootstrap", type=int, default=200, help="game bootstrap resamples per interval (default %(default)s)")
     add_skip_heldout_arg(ap)

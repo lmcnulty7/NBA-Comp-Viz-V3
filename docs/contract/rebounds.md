@@ -83,3 +83,41 @@ Held-out membership: the bundle's `heldout/` path or fixture flag, or the game i
 Fixture runs read `analytics.fixtures` directly (production code never imports `tests/`) and every CLI of the lane
 takes `--fixture-games`, `--fixture-possessions` and `--fixture-heldout-every` (the older `--games` and
 `--possessions` remain as aliases).
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix, reports/rebounds.md (rerun 2026-11-12T11:50:53Z with the variant merged)
+and reports/archive/rebounds.md. Every number below is out-of-fold on the training games, from runs with
+`--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `hgb` with the accepted improvement-search variant 1 (temperature on the within-miss
+normalisation: p proportional to q^tau, tau fitted on inner out-of-fold hgb predictions; tau 1.255 to 1.257 across
+the 5 outer folds in the archive run).
+
+| setting (analytics/rebounds/train.py, features.py) | frozen value |
+| --- | --- |
+| booster | `HistGradientBoostingClassifier(max_iter=80, learning_rate=0.1, max_depth=3, min_samples_leaf=10, early_stopping=False, random_state=seed)` on the candidate rows, normalised within the miss |
+| temperature | `TEMPERATURE = True`, tau bounded to `TAU_BOUNDS = (0.25, 8.0)` (bounded scalar search, xatol 0.001), fitted over `INNER_FOLDS = 5` grouped folds of each fit's training games |
+| prior feature | `SMOOTH = 10` pseudo-opportunities toward the per-side base rate, none row at the Laplace team-rebound rate; out of fold over 5 inner grouped folds |
+| other candidates | `prior` (normalised smoothed rates), `logit` (median imputation, standardisation, C = 1, max_iter 2000, softmax within the miss) |
+| features | look-back 0.4 s within 0.2 s; apex window 2 s; shot distance fallback 1 s before the rim frame |
+| drop rules | a miss is dropped for no_rim_frame, no_rebound_event, unmatched_named_rebounder, offense_unknown, rim_frame_not_in_frames, too_few_players or rebounder_not_on_court; team rebounds are kept as the none class |
+
+Rules the held-out run applies: selection by lowest out-of-fold per-miss multinomial log loss; top-1 accuracy
+reported against the 40 percent plan target; 5 grouped folds by `sportvu_game`, seed 0; 200 game bootstrap
+resamples, seed 0. Held out: a game under `heldout/`, flagged, or matching sportvu/splits.json by id (every game at
+CLE and 12.16.2015.PHX.at.GSW; 17 games, 1227 misses in the training run). Only the selected candidate is refit on
+every training row and scores them once, next to a uniform floor; point estimates, no bootstrap or paired test.
+
+Out-of-fold headline (49288 misses, 604 games): hgb per-miss log loss 1.6009 [1.5882, 1.6103], top-1 accuracy
+0.4797 [0.4756, 0.4848]; logit 1.7558 [1.7418, 1.7660]; uniform reference 2.3881. Variant 1 against the incumbent
+hgb (archive, 1000 game resamples): -0.0225 [-0.0246, -0.0205]. Top-candidate calibration slope 1.3667
+[1.3396, 1.4015], ECE 0.0414 [0.0379, 0.0454].
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.rebounds.train` the argv `--data DATA_ROOT --seed 0 --report reports/rebounds.md`;
+validate and features get `--data DATA_ROOT --seed 0`. OUT_ROOT defaults to DATA_ROOT, so the held-out predictions go
+under `analytics/rebounds/heldout/<season>/`.

@@ -114,3 +114,39 @@ are kept as aliases); fixture output is never a result. On that season every lis
     python -m analytics.load.validate --data "$DATA_ROOT" --out "$DATA_ROOT"
     python -m analytics.load.features --data "$DATA_ROOT" --out "$DATA_ROOT"
     python -m analytics.load.train --data "$DATA_ROOT" --report reports/load.md --out "$DATA_ROOT" --folds 5 --seed 0 --bootstrap 1000
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/load.md. Every number below is out-of-fold on the
+training games, from a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected models (one per pair):** `ridge on FEATURES` for decline_ftps and `logistic on FEATURES` for absent_next.
+
+| setting (analytics/load/train.py, features.py, validate.py) | frozen value |
+| --- | --- |
+| ridge | median imputation, standardisation, `Ridge(alpha=1.0)` (`RIDGE_ALPHA`) |
+| logistic | the same preprocessing, `LogisticRegression(C=1.0, max_iter=1000)` (`LOGISTIC_C`) |
+| features | days_rest, back_to_back, games_last_7, minutes_last_3, distance_last_3_ft, prev_decline_ftps, prev_avg_speed_ftps; days_rest capped at 7 |
+| stints and targets | a new stint at a period change or a game clock jump over 5 s; positions smoothed over 5 rows; steps with dt in (0, 1] s; decline over stints of at least 1 minute; ranking gated at 10 stints |
+| cleaning | rows outside x -5 to 99 ft or y -5 to 55 ft and steps over 30 ft/s dropped and counted; duplicates by frame and player dropped; player-games over 35000 ft flagged, never dropped |
+
+Rules the held-out run applies: per pair, the model is selected on its out-of-fold score (ridge when its MSE is at
+most the training-fold mean's; logistic when its log loss is at most the base rate's); the constant is scored only
+as a labelled floor. 5 grouped folds by `sportvu_game`, seed 0; 200 game bootstrap resamples, seed 0; rest buckets
+back_to_back (1 day or fewer), one_day (2), two_plus (3 or more). Held out: the `heldout` flag or
+`analytics.eval.heldout_mask` (every game at CLE and 12.16.2015.PHX.at.GSW; 17 games in the training run); a
+held-out game is never read for a feature window. The selected models, refit on every training row, score the
+held-out player-games once (point estimates) next to their floors.
+
+Out-of-fold headline (604 games): decline MSE ridge 0.4929 [0.4740, 0.5178] against the mean 0.5086
+[0.4884, 0.5352], paired -0.0157 [-0.0197, -0.0118]; absence log loss logistic 0.2764 [0.2644, 0.2883] against
+the base rate 0.3244 [0.3118, 0.3379], paired -0.0481 [-0.0553, -0.0417]; logistic Brier 0.0777 [0.0742, 0.0815],
+calibration slope 0.9908 (one fit, no interval).
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.load.train` the argv `--data DATA_ROOT --seed 0 --report reports/load.md`;
+validate and features get `--data DATA_ROOT --seed 0`. OUT_ROOT defaults to DATA_ROOT on real data
+(`out_root_for`, set before freeze-v1), so the tables are written there; the held-out scores are in the report.

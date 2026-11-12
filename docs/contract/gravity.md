@@ -114,3 +114,38 @@ least four games), `--fixture-generator shared|pull` (`--n-games`, `--n-possessi
 With `--data`, frames are read one game at a time: each game's frames are loaded, checked, turned into its
 player-frame and spacing rows (and, in train, the players on the floor at each of its shots), then dropped
 before the next game is read. Only those per-game rows are kept, so memory does not grow with the season's frames.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/gravity.md. Every number below is out-of-fold on
+the training games, from a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `ridge`, the shipped expectation (`SHIPPED = "ridge"`, fixed in code regardless of MSE; HGB is a
+diagnostic only, as the report states).
+
+| setting (analytics/gravity/train.py, features.py, __init__.py) | frozen value |
+| --- | --- |
+| expectation | StandardScaler then `Ridge(alpha=1.0)` (`RIDGE_ALPHA`) on x_ft, y_ft, dist_basket_ft, angle_rad, dist_ball_ft, has_ball, ball_dist_basket_ft, zone_make_rate, game_clock_s, shot_clock_s, shot_clock_missing |
+| diagnostic | `HistGradientBoostingRegressor(max_iter=100, learning_rate=0.1, max_depth=4, min_samples_leaf=40)` |
+| zone prior | league make rate by zone of the player's position (rim 0 to 4 ft, paint 4 to 10, short_mid 10 to 16, long_mid 16 to 22, three 22 and over), training-fold shots only; default 0.45 |
+| sampling and drops | player-frames at 1 Hz inside possessions; a null shot clock is filled with 24 and flagged; frames without a ball or without five players a side are dropped |
+| gravity | `gravity_ft = expected_ft - nearest_def_dist_ft`; player table gated at `MIN_POSSESSIONS = 300` possessions |
+
+Rules the held-out run applies: no selection (ridge is shipped); 5 grouped folds by `sportvu_game`, seed 0; 200 game
+bootstrap resamples, seed 0. Held out: `features.is_heldout` (the dict flag, or `analytics.eval.is_heldout_game`:
+every game at CLE and 12.16.2015.PHX.at.GSW; 17 games in the training run). The held-out games are scored once by
+ridge refit on every training row, with the constant as a labelled floor (MSE point estimates); they never fit,
+tune or rank anything.
+
+Out-of-fold headline (7983660 player-frames, 604 games): ridge MSE 28.119 [27.800, 28.452], R2 0.416; constant
+48.155 [47.801, 48.563]; HGB minus ridge -5.4070 [-5.5550, -5.2801]. Sign test over the top ten gated players: 163
+positive of 290 games, one-sided p = 0.0198, mean difference 0.0042 [0.0009, 0.0074].
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.gravity.train` the argv `--data DATA_ROOT --seed 0 --report reports/gravity.md`
+(`--min-possessions` then defaults to 300); validate and features get `--data DATA_ROOT --seed 0`. OUT_ROOT
+defaults to DATA_ROOT on real data (`out_root_for`, set before freeze-v1), so the three tables are written there; the
+held-out score is in the report.

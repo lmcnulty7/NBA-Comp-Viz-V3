@@ -305,3 +305,12 @@ def test_cli_fixture_knobs_and_their_aliases(tmp_path, capsys):
     tabs = F.main(["--fixtures", "--fixture-games", "2", "--fixture-possessions", "8", "--bootstrap", "5", "--out", str(tmp_path)])
     assert len(tabs["player_stints"]) > 0 and (tmp_path / "analytics" / "load" / "2015-16" / "player_games.parquet").exists()
     capsys.readouterr()
+
+
+
+def test_out_root_defaults_to_data_root_on_real_data():
+    from types import SimpleNamespace as NS
+    from analytics.load import train as T
+    assert T.out_root_for(NS(out="/o", fixtures=False, data="/d")) == "/o"
+    assert T.out_root_for(NS(out=None, fixtures=False, data="/d")) == "/d"
+    assert T.out_root_for(NS(out=None, fixtures=True, data=None)) is None

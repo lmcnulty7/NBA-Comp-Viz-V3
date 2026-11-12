@@ -4,7 +4,8 @@
 
 validate(stints) -> (clean, counts)
     schema      every section 12 column present (REQUIRED); a missing one is a problem, not a drop
-    lineup_ok   share of rows with lineup_ok true; rows with n_home or n_away not 5 are DROPPED and counted
+    lineup_ok   share of rows with lineup_ok true; rows with n_home or n_away not 5, or lineup_ok false, are DROPPED
+                and counted (as dropped_not_5v5)
     duration    rows with duration_s outside (0, 720] are dropped and counted (a stint never crosses a period
                 boundary, so 720 s is the longest possible; an overtime period is shorter)
     points      rows with points_home or points_away outside [0, MAX_POINTS] are dropped and counted

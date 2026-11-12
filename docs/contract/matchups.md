@@ -115,3 +115,38 @@ training-fold points allowed per matchup possession times their share) and the r
 Assignments use positions only. `points` and `made` enter only as targets. `schema.assert_time_forward`
 runs on the feature frame and on the ridge design columns. `analytics.eval.refuse_heldout` runs on the
 training game ids before any fit. The xFG `p_selected` is used only with a verified out-of-fold `fold`.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/matchups.md. Every number below is out-of-fold on
+the training games, from a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `ridge` (the lower out-of-fold possession-points MSE of raw and ridge). The report also shows the
+constant floor below ridge: ridge minus constant is 0.0012 [0.0002, 0.0020], so ridge does not beat the floor.
+
+| setting (analytics/matchups/train.py, features.py) | frozen value |
+| --- | --- |
+| assignment | 1 Hz, `scipy.optimize.linear_sum_assignment` on distance to the offensive player plus `MIDPOINT_WEIGHT = 0.5` times distance to the midpoint between that player and the attacked basket; positions only |
+| ridge | sklearn `Ridge` on defender and offensive-player share columns; alpha from `ALPHAS = (0.3, 1, 3, 10, 30, 100, 300)`, nested: an inner grouped CV per outer fold, the final alpha by grouped CV over all training games (300 in the training run) |
+| raw | possession points as the sum over the defenders on the floor of their training-fold points allowed per matchup possession, times their share |
+| xFG input | the xFG lane's `p_selected` from DATA_ROOT/analytics/xfg/2015-16/, used only when every training row has a fold of 0 or more; else the location-only fallback |
+| constants | defender gate `N_MIN = 300` distinct possessions; defended within `DEFENDED_FT = 4.0`; three when the play-by-play says 3-pt, else 22 ft or more at the release frame |
+
+Rules the held-out run applies: selection of raw or ridge by lower out-of-fold MSE (ties to raw), fixed before
+scoring; the constant is a labelled floor, not a candidate. 5 grouped folds by game, seed 0; 200 game bootstrap
+resamples, seed 0. Held out: games flagged by validate (`heldout/`, fixture flag, or `analytics.eval.is_heldout_game`:
+every game at CLE and 12.16.2015.PHX.at.GSW; 17 games in the training run). The held-out matchups use the xFG lane's
+held-out probabilities; they are scored once by the selected candidate and the constant floor, fit on all training
+games (MSE point estimates), with assignment stability and defended FG% of those games.
+
+Out-of-fold headline (604 games): ridge MSE 1.2854 [1.2788, 1.2916]; constant 1.2842 [1.2776, 1.2903]; raw 1.3244
+[1.3153, 1.3324]; ridge minus raw -0.0390 [-0.0416, -0.0362]. Assignment stability 0.823 [0.822, 0.824]; defended
+FG% beyond minus within 4 ft 0.027 [0.020, 0.035].
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.matchups.train` the argv `--data DATA_ROOT --seed 0 --report reports/matchups.md`
+(OUT_ROOT then defaults to DATA_ROOT, where the xFG table is read); validate and features get
+`--data DATA_ROOT --seed 0`. matchups depends on xfg in the registry: if xfg fails, run_all skips matchups.

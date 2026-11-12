@@ -104,3 +104,39 @@ feature is built; the target is mapped onto the states afterwards.
 Benchmark: the NBA.com tables were skipped by the owner (gates/nbacom-skip, 2026-11-11), so the WinProbabilityPBP
 benchmark is not collected and the benchmark column of reports/winprob.md stays empty, with that reason stated
 (train.BENCHMARK_NOTE); if collected later it would join winprob_states on (game_id, event).
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix, reports/winprob.md (rerun with variant 1 merged) and
+reports/archive/winprob.md. Every number below is out-of-fold within the training seasons, from a run with
+`--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `logistic` with the accepted improvement-search variant 1 (the feature
+`margin_over_sqrt_time = margin / sqrt(seconds_remaining + 1)` added to the incumbent's features).
+
+| setting (analytics/winprob/train.py, features.py, validate.py) | frozen value |
+| --- | --- |
+| logistic | StandardScaler then `LogisticRegression(C=1.0, max_iter=2000)` on margin, seconds_remaining, possession_home, margin_x_sqrt_time, margin_over_sqrt_time |
+| hgb_iso | `HistGradientBoostingClassifier(max_iter=50, learning_rate=0.1, max_depth=3, min_samples_leaf=200, l2_regularization=1.0, early_stopping=False, random_state=0)` on every feature (random_state is fixed at 0, not --seed; at seed 0 they agree), isotonic on 3 inner grouped folds |
+| clock rule | a game whose period numbers skip a value, or whose period above 4 holds a clock above 300 s, is dropped whole; then any event with a null period or clock, a period under 1, or a clock outside [0, 720] (300 in overtime) is dropped (53 of 6416 games, 24584 events in the training run) |
+| validate failure | `MAX_DROPPED_SHARE = 0.02`: a season losing more than 2 percent of its events or games under the clock rule makes validate return ok False; run_all then marks the step failed and runs neither features nor train for winprob |
+| buckets | minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0 (selection), OT reported only |
+
+Rules the held-out run applies: selection by the unweighted mean of the five regulation bucket Brier scores (lowest
+wins, ties to the earlier model); 5 grouped folds by game within 2020-21 to 2023-24, seed 0; 200 game bootstrap
+resamples, seed 0. Held out: the 2024-25 season (1304 games, 596840 events in the training run), set aside before any
+fit; rows flagged held out are dropped, 2015-16 is refused, seasons after 2024-25 are ignored. The selected logistic
+is refit on every training row and scores 2024-25 once: Brier, ECE and slope per bucket with intervals, overall log
+loss and Brier, and the mean bucket Brier.
+
+Out-of-fold headline (5059 games): selection metric 0.1468 (no interval in the report); log loss overall 0.4845
+[0.4767, 0.4945], Brier overall 0.1645 [0.1616, 0.1683]; bucket Brier 48-36 0.2306 [0.2278, 0.2332], 4-0 0.0530
+[0.0496, 0.0564]; constant 0.2472. Variant 1 against the incumbent (archive, 1000 game resamples):
+0.00149 [0.00132, 0.00169] in favour of the variant.
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.winprob.train` the argv `--data DATA_ROOT --seed 0 --report reports/winprob.md`
+(`--heldout-season` defaults to 2024-25; OUT_ROOT to DATA_ROOT); validate and features get `--data DATA_ROOT --seed 0`.

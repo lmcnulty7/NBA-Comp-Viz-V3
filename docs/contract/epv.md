@@ -74,7 +74,7 @@ at t, t-1, ..., t-4 of the same possession (padded with the row's own values at 
 2. Grouped folds by `sportvu_game` (fewer games than folds: one fold per game; one game: in-sample, labelled).
    Priors are rebuilt inside each fold from its training games.
 3. Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1),
-   `HistGradientBoostingRegressor` (100 iterations, learning rate 0.05, 8 leaves, 50 per leaf, fixed in advance),
+   `HistGradientBoostingRegressor` (100 iterations, learning rate 0.05, 8 leaves, 50 per leaf, L2 1.0, fixed in advance),
    each with an isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds);
    under the gate, `MLPRegressor` (one hidden layer of 32) over the last 5 states' features (the default,
    `--deep mlp`); with `--deep torch` the torch sequence model below fills that slot instead.
@@ -200,3 +200,42 @@ adapter `tests/_fx_epv.py`): the states builder against the possessions table, v
 feature guard (a target column raises, the allow-list is the only source), the priors out of fold, the end-to-end
 trainer with the report and the output tables, the leakage guard (a shuffled target shows no lift; a held-out id
 in the training set stops the trainer), the CLIs on a temporary DATA_ROOT.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/epv.md (the stage 6 torch GRU run). Every number
+below is out-of-fold on the training games, from a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** the sequence model with `--deep torch`: a torch GRU over the last 5 states (named `mlp` in the
+tables). It beat hgb, the lowest-MSE base candidate, under the paired bootstrap by game.
+
+| setting (analytics/epv/train.py, deep.py, analytics/deep_torch.py) | frozen value |
+| --- | --- |
+| GRU | median imputation and standardisation, target standardised; `GRU(n_features -> 16, one layer)`, last hidden state, `Linear(16 -> 1)` over `features.lagged_columns(5)` run from t-4 to t |
+| GRU training | Adam, learning rate 0.002, weight decay 0.0001, batch 256, at most 100 epochs, patience 8 on an inner split by game (whole games with 5 or more, else a seeded 20 percent row split), then refit for the best epoch count; `torch.manual_seed(seed)`, 1 thread, deterministic algorithms |
+| calibration | isotonic map of P(points > 0) on inner out-of-fold predictions, `INNER_FOLDS = 3` |
+| base candidates | constant; ridge (median imputation, standardisation, alpha 1); `HistGradientBoostingRegressor(max_iter=100, learning_rate=0.05, max_leaf_nodes=8, min_samples_leaf=50, l2_regularization=1.0)` |
+| priors | inside each fold from its training games, out of fold for the training rows; handler prior shrunk with 20 pseudo-attempts toward the location-only xFG, lineup turnover prior with 30 pseudo-possessions toward the training rate |
+| cleaning | ball and player x within -5 to 99 ft, y within -5 to 55 ft, ball_z -1 to 40 ft, shot clock 0 to 24.5 s, elapsed 0 to 120 s, nearest defender 0 to 110 ft, points_to_end 0 to 4 |
+
+Rules the held-out run applies: the gate trains the sequence model when an hgb calibration slope by shot-clock bucket
+(0 to 7, 7 to 14, 14 to 24 s) is outside 0.9 to 1.1 or hgb's MSE lift over the constant is under 5 percent; it
+replaces the base only when MSE(base) minus MSE(sequence) has its 95 percent interval above 0 and a lower
+out-of-fold MSE. 5 grouped folds by `sportvu_game`, seed 0; 200 game bootstrap resamples, seed 0. Held out: the
+directory flag or a sportvu/splits.json id (every game at CLE and 12.16.2015.PHX.at.GSW; 17 games in the training
+run). The selected candidate and the constant floor are refit on every training row and score them once, with
+bootstrap intervals by game when there are at least 5 held-out games. Without importable torch the run falls back to
+the MLP stand-in and the report says so.
+
+Out-of-fold headline (1739119 states, 604 games): GRU MSE 1.2155 [1.2080, 1.2226], Brier of P(points > 0) 0.2350
+[0.2345, 0.2355]; hgb 1.2368 [1.2287, 1.2446]; constant 1.2822 [1.2745, 1.2901]; MSE(hgb) minus MSE(GRU) 0.0212
+[0.0201, 0.0228]. Against the MLP stand-in (1000 game resamples): 0.0062 [0.0054, 0.0071]. Gate: slope 1.115 in the
+0 to 7 s bucket, lift 3.5 percent.
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.epv.train` the argv `--data DATA_ROOT --seed 0 --report reports/epv.md --deep torch`
+(`DATA_TRAIN_ARGS["epv"]`; OUT_ROOT defaults to DATA_ROOT); validate, states and features get
+`--data DATA_ROOT --seed 0`.

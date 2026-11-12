@@ -173,3 +173,39 @@ Fixture flags (every ghosting CLI): `--fixture-games 4`, `--fixture-possessions 
 `--fixture-heldout-every 0`; `--games`, `--possessions` and `--heldout-every` are kept as aliases. The fixtures
 are `analytics.fixtures`; production code never imports `tests/`. `--threads N` is passed to
 `analytics.eval.fit_threads(N)`, which pins BLAS and OpenMP for every fit.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/ghosting.md (the MLP stand-in run). Every number
+below is out-of-fold on the training games, from a run with `--skip-heldout`; no held-out number has been read. The
+stage 6 torch GRU (reports/ghosting_torch.md) was not kept: run_all.DATA_TRAIN_ARGS passes nothing to ghosting, so
+the default `--deep mlp` runs.
+
+**Selected model:** candidate 3, `MLPRegressor` 64x64 on the 5-step window (the GRU stand-in), kept by the rule below.
+
+| setting (analytics/ghosting/train.py, features.py, validate.py) | frozen value |
+| --- | --- |
+| deep candidate | StandardScaler (partial_fit in chunks of 500,000 rows) then `MLPRegressor(hidden_layer_sizes=(64, 64), max_iter=200, early_stopping=True, n_iter_no_change=10, random_state=seed)` on the window of 5 lags of the 31 base features |
+| linear baseline | StandardScaler then `Ridge(alpha=1)` on the lag-1 features |
+| sampling | 5 Hz (every 5 frames, 0.2 s); `N_LAGS = 5`; velocity over 2 steps (0.4 s); sequences under 4 steps dropped; a step whose clock advances by more than 0.3 s cuts the sequence |
+| fit rows | steps that are multiples of `FIT_EVERY = 5` (1 Hz), float32; evaluation rolls every 5 Hz row forward |
+| horizons | 0.2 s (1 step) and 1.0 s (5 steps, own ghost fed back, everyone else actual) |
+| cleaning | x and ball_x -10 to 104 ft, y and ball_y -10 to 60 ft, ball_z 0 to 60 ft, game clock 0 to 720 s, shot clock 0 to 24 s |
+| threads | `THREADS = 1` |
+
+Rules the held-out run applies: keep candidate 3 only when its 1.0 s error minus the ridge's is negative with a
+paired interval excluding zero, else ridge; 5 grouped folds by `sportvu_game`, seed 0; 200 game bootstrap resamples,
+seed 0. Held out: a game's own flag or `analytics.eval.is_heldout_game` (every game at CLE and
+12.16.2015.PHX.at.GSW; 17 games in the training run). The selected candidate and persistence (a labelled floor) are
+refit on every training fit row and score them once at 5 Hz (point estimates), with the held-out sign test.
+
+Out-of-fold headline (35500180 defender-steps, 604 games): MLP error 0.437 [0.433, 0.442] ft at 0.2 s and 3.657
+[3.635, 3.682] ft at 1.0 s; ridge 4.541 [4.526, 4.555] at 1.0 s; MLP minus ridge at 1.0 s -0.884 [-0.909, -0.858].
+Validation sign test: 346 positive, 258 negative, one-sided p = 0.0002.
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.ghosting.train` the argv `--data DATA_ROOT --seed 0 --report reports/ghosting.md`
+(no `--deep`, so mlp; OUT_ROOT defaults to DATA_ROOT); validate and features get `--data DATA_ROOT --seed 0`.

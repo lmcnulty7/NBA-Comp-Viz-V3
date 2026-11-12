@@ -14,7 +14,8 @@ feet at the 0.2 s and 1.0 s horizons with bootstrap intervals by game; run the p
 2 vs 1; keep the deep candidate only when its 1.0 s error beats the linear baseline with an interval excluding
 zero; build the ghost_frames and ghost_possessions tables (docs/contract/ghosting.md) for the selected
 candidate; validate the graded deviation against points allowed (per-game Spearman, sign test by game); score
-the held-out games once with the candidates refit on every fit row of the training games.
+the held-out games once with the selected candidate (and persistence, a labelled floor) refit on every fit row of the
+training games.
 
 Fit rule: every candidate is fitted on the fit rows, the feature-frame rows whose step is a multiple of
 features.FIT_EVERY = 5 (steps 5, 10, 15, ... of each possession sequence, so 1 Hz), from every training game,

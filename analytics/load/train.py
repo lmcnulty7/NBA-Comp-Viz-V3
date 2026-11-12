@@ -18,7 +18,7 @@ schema.assert_time_forward and assert_no_leak on the design matrix, then:
      Brier against the base rate, ECE, calibration slope and the calibration table. Absence is not injury.
 
 No model is tuned: alpha and C are fixed here before any run. Fewer games than folds: n_folds becomes the
-number of games. Held-out rows are scored once by the models refit on every training row and labelled as
+number of games. Held-out rows are scored once by the selected models (with the constant as a labelled floor) refit on every training row and labelled as
 such; with --skip-heldout they are set aside exactly as without it but never scored, and the report says "held-out
 games not scored (--skip-heldout)" (the descriptive player_stints and player_games tables of held-out games still go
 under heldout/<season>/ with --out, as the features step writes them: measurements, not predictions). With
@@ -434,9 +434,18 @@ def _totals(logs: dict) -> dict:
     return {k: int(sum(l.get(k, 0) for l in logs.values())) for k in keys}
 
 
+def out_root_for(a):
+    """--out when given; else DATA_ROOT on real data (run_all passes no --out, and with None the tables were never
+    written); else None on the fixtures."""
+    if a.out:
+        return a.out
+    return None if a.fixtures else getattr(a, "data", None)
+
+
 def main(argv=None) -> dict:
     """Run the protocol from the command line, write the report (and the tables with --out) and return ctx."""
     a = parse_args(argv)
+    a.out = out_root_for(a)
     inputs = V.load_args(a)
     ctx = run(inputs, n_folds=a.folds, seed=a.seed, n_boot=a.bootstrap, fixture=a.fixtures, skip_heldout=a.skip_heldout)
     ctx["command"] = "python -m analytics.load.train " + " ".join(argv if argv is not None else sys.argv[1:])

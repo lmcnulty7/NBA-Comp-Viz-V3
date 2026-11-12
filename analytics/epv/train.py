@@ -23,8 +23,8 @@ Protocol:
      default, and --deep torch without torch falls back to the stand-in with "torch not available; MLP stand-in used");
   4. the gate: the sequence model is trained only if the gradient-boosting calibration slope by shot-clock bucket
      (0 to 7, 7 to 14, 14 to 24 s) is outside 0.9 to 1.1 in any bucket or its MSE lift over the constant is under 5
-     percent; it is kept only if it beats gradient boosting under paired bootstrap by game (the 95 percent interval
-     of MSE(hgb) - MSE(mlp) above 0);
+     percent; it is kept only if it beats the base (step 5) under paired bootstrap by game (the 95 percent interval
+     of MSE(base) - MSE(mlp) above 0, with a lower out-of-fold MSE);
   5. selection: lowest out-of-fold MSE of expected points among the three (the base), replaced by the sequence model
      only when it beats the base under paired bootstrap by game with a lower out-of-fold MSE; the report shows out-of-fold Brier of calibrated P(points > 0) and MSE by elapsed bucket (0 to 4, 4 to
      10, 10 to 24 s; a state past 24 s joins the last bucket) with bootstrap intervals by game, the calibration
@@ -458,7 +458,7 @@ def write_report(path: Path, ctx: dict) -> str:
           "quantities they shrink towards, the location-only xFG (analytics.features_xfg, four parameters) at the handler's "
           "position and the training turnover rate, are fitted once on the whole training fold, the row's own game included.",
           "Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor "
-          "(%d iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold "
+          "(%d iterations, learning rate 0.05, 8 leaves, min 50 per leaf, L2 1.0, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold "
           "predictions (%d grouped folds), and under the gate an MLPRegressor over the last %d states' features." % (ctx["hgb_iter"], INNER_FOLDS, N_LAGS),
           *([] if deep["requested"] == "mlp" else
             ["Sequence model (--deep torch): %s." % (deep["notice"] if deep["notice"] else

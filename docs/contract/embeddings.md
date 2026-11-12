@@ -153,3 +153,36 @@ run) under a temporary directory and loads it through `load_inputs`; it writes i
 directory unless `--out` is given; nothing under `--fixtures` is a result. The season of a game is
 `analytics.schema.season_of_game` (the July rule); held-out ids are `analytics.eval.is_heldout_game`. Production
 code never imports `tests/`.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/embeddings.md. Every number below comes from the
+training games of a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `pca` (8 components). PCA's 5-NN position accuracy was at or above the 0.60 gate, so the
+autoencoder was not trained.
+
+| setting (analytics/embeddings/train.py, features.py) | frozen value |
+| --- | --- |
+| preprocessing | median imputation then StandardScaler, fit on the sufficient rows |
+| embedding | `PCA(n_components=8, random_state=seed)` (`N_DIM = 8`) |
+| autoencoder gate | trained only when PCA 5-NN accuracy is under `AE_GATE = 0.60`, kept only when it beats PCA; `MLPRegressor((32, 8, 32), tanh, adam, learning_rate_init 0.01, max_iter 400, early_stopping False)`; `--deep` stays at its default mlp |
+| evaluation | 5-NN (`K_NN = 5`) leave-one-out position accuracy against the majority class; next-season ridge (alpha 1), 5 grouped folds by `player_id` |
+| gate and features | player-seasons under `N_MIN = 300` possessions are insufficient (never fitted or scored); speed steps 0 < dt <= 2 s, steps over 30 ft/s dropped; handler within 3 ft of the ball under 8 ft |
+
+Rules the held-out run applies: the gate and keep rule above; intervals from 200 bootstrap resamples of players,
+seed 0. Held out: `load_inputs` drops files under `heldout/`, ids that `analytics.eval.is_heldout_game` flags (every
+game at CLE and 12.16.2015.PHX.at.GSW) and shot rows flagged held out before any feature (17 frame files under
+`heldout/` in the training run). The code has no held-out scoring step: with or without `--skip-heldout` the
+held-out games are dropped at load, so the stage 8 run reproduces the training-only evaluation and adds no
+held-out number.
+
+Headline, leave-one-out on the training games (399 sufficient player-seasons, 397 labelled): PCA 5-NN position accuracy 0.768 [0.720, 0.809]
+against a majority baseline of 0.413 [0.395, 0.461]. Next-season R squared: n/a (no NBA.com aggregates present).
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.embeddings.train` the argv `--data DATA_ROOT --seed 0 --report reports/embeddings.md`
+(no `--deep`); validate and features get `--data DATA_ROOT --seed 0`.

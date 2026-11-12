@@ -140,3 +140,39 @@ its banner and on every section heading, and lists the written files relative to
 from `analytics.fixtures` (knobs `--fixture-games`, `--fixture-possessions`, `--fixture-heldout-every`; the older
 `--n-games`, `--n-possessions`, `--heldout-every` remain as aliases); production code never imports `tests/`. Every
 value-model fit runs inside `analytics.eval.fit_threads()`.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/decisions.md (rerun on the stage 6 GRU EPV tables).
+Every number below comes from the training games of a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** the option-value prior `xfg_selected` (the xFG lane's `p_selected` on shot events; passes and
+drives keep the location-only value), chosen by the coverage rule below (pooled over the training games' shot decisions: 0.99 in the training run). The
+value model is the location-only logistic. The hold option is the EPV lane's `epv_points` (the frozen GRU EPV).
+
+| setting (analytics/decisions/train.py, features.py) | frozen value |
+| --- | --- |
+| value model | StandardScaler then logistic regression (C = 1) on distance_ft, angle_rad, is_three, is_corner, fit on shot_frames rows with a release frame, out of fold by game |
+| events | holder within 2.5 ft of a ball under 8 ft for at least 3 frames; pass arrives within 1.5 s (release tolerance 2 frames); drive at 8 ft/s toward the basket for 0.6 s |
+| option values | contest minus 0.03 per foot below 6 ft (floor 0.01); openness 1 at 6 ft down to 0.5 at 0 ft; pass risk 0.95 minus 0.01 per foot over 15 ft; drive 8 ft nearer (never under 3 ft) times 0.90; three at 22 ft |
+| gates | `XFG_MIN_COVERAGE = 0.5`; player table `N_MIN = 300` decisions; validation over players with at least 3 decisions (`MIN_DECISIONS_GAME`) and games with at least 3 such players |
+
+Rules the held-out run applies: the prior rule (`xfg_selected` when the xFG table covers at least 0.50 of the shot
+decisions, else location); 5 grouped folds by game, seed 0; 200 game bootstrap resamples, seed 0. Validation: per
+game Spearman of mean decision quality against on-court offensive rating, two-sided sign test, bootstrap of the mean
+by game, and a within-game shuffle. Upstream rows: a training game refuses EPV or xFG rows with fold -1, a held-out
+game refuses rows not flagged held out. Held out: `heldout/` or a sportvu/splits.json token (every game at CLE and
+12.16.2015.PHX.at.GSW; 17 games in the training run), valued once by the model refit on every training game, then
+validated the same way.
+
+Headline (training games, 518421 decisions, 604 games): mean Spearman 0.012 [-0.008, 0.029] for `xfg_selected`,
+317 positive of 603 signed games, sign p = 0.222, shuffled mean -0.013; location prior 0.006 [-0.014, 0.024].
+The report states no validated signal against on-court offensive rating.
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.decisions.train` the argv `--data DATA_ROOT --seed 0 --report reports/decisions.md`
+(OUT_ROOT defaults to DATA_ROOT, where the xFG and EPV tables of the same run are read); validate and features get
+`--data DATA_ROOT --seed 0`. decisions depends on xfg and epv: if either fails, run_all skips decisions.

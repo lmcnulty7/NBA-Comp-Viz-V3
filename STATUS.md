@@ -2,6 +2,21 @@
 
 ## Runbook progress
 
+**WAITING ON YOU (2026-11-12): group 1 is frozen at tag `freeze-v1`. Review the freeze, then create
+`gates/go-stage8` (`mkdir -p gates && touch gates/go-stage8`) to start the single held-out run of group 1.** What to
+review: the "Frozen for the held-out run (freeze-v1)" section at the end of each group 1 page in docs/contract/
+(xfg with its baseline, rebounds, matchups, gravity, ghosting, embeddings, epv, decisions, lineups, winprob, load),
+and three choices the loop made that you may want to overrule before the run:
+1. ghosting keeps the MLP stand-in, not the stage 6 torch GRU (the GRU was worse paired by game, 0.111 ft [0.085,
+   0.138] at 1.0 s), although stage 6 says to replace the stand-in.
+2. Two improvement-search variants were accepted and merged: winprob margin_over_sqrt_time and the rebounds hgb
+   temperature (reports/archive/).
+3. matchups is frozen with ridge although ridge is worse than the constant out of fold (its selection rule only
+   compares raw with ridge); embeddings has no held-out score by design (held-out games are dropped before any
+   feature), so stage 8 gives it none.
+Stage 8 runs about 3 to 4 hours one lane at a time (epv about 21 GB and gravity about 15 GB peak footprint, both
+finished on this Mac before). Nothing is running now.
+
 Owner decisions 2026-11-11 (recorded here as asked):
 - **Stage 4 hand labels are deferred** (the owner may label later or source labels elsewhere). The 8-game list
   and the commands stay below in "Stage 4 labelling (deferred)".
@@ -45,11 +60,24 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   embeddings (PCA clears its gate), gravity (the plan ships ridge), matchups and decisions (no signal is the
   finding; variants against the validation metric would be fishing), lineups (only 18 to 27 lineups recur
   across seasons, the limit is data), load (no failure the report points at), epv and ghosting (stage 6).
-- **Stage 7 (freeze-v1) in progress:** "Frozen for the held-out run (freeze-v1)" sections are being written into
-  each group 1 contract page. Fixed in the runbook first: the stage 8 xfg baseline command now passes the
-  held-out shot file too (without it the baseline would have scored no held-out shot). Stage 8 dry run on the
-  fixtures (the group 1 lane list without --skip-heldout, fixture output only): all 35 steps ok and each lane's
-  held-out section written; epv with --deep torch through held-out scoring on the fixtures also ok.
+- **Stage 7 (freeze-v1) done 2026-11-12:** each group 1 contract page ends with "Frozen for the held-out run
+  (freeze-v1)": the selected model, its settings, the rules and thresholds the held-out run applies, the
+  out-of-fold headline and the stage 8 argv. Frozen models: xfg hgb_contest_prior (log loss 0.6294 [0.6277,
+  0.6316]) and the baseline logistic (0.6665); rebounds hgb with temperature (1.6009 [1.5882, 1.6103]); matchups
+  ridge (MSE 1.2854, worse than the constant 1.2842); gravity ridge (R2 0.416); ghosting MLP stand-in (1.0 s 3.657
+  ft [3.635, 3.682]); embeddings PCA (5-NN 0.768 [0.720, 0.809]); epv torch GRU (MSE 1.2155 [1.2080, 1.2226]);
+  decisions xfg_selected prior on the GRU EPV (no validated signal); lineups rapm (tie with plus-minus); winprob
+  logistic with margin_over_sqrt_time (0.1468); load ridge and logistic (absence log loss 0.2764 [0.2644,
+  0.2883]). Fixed before tagging: gravity and load wrote no tables without --out (OUT_ROOT now DATA_ROOT, tests);
+  stale docstrings, help text and contract lines (train_xfg FULL_RUN_CMD paths, rebounds model text, epv L2 and
+  keep-rule wording, decisions mean, ghosting, load and lineups held-out and drop wording); the rebounds report
+  was regenerated so its model text names the temperature. Runbook: the stage 8 xfg baseline command passes the
+  held-out shot file. Stage 8 dry run on the fixtures (the group 1 lane list without --skip-heldout, fixture
+  output only): all 35 steps ok and each lane's held-out section written; epv with --deep torch through
+  held-out scoring on the fixtures also ok. Known and left as is: winprob's hgb random_state is fixed at 0
+  rather than --seed (the same at seed 0); xfg sets aside 18 held-out games and the tracking lanes 17
+  (01.23.2016.CHI.at.CLE has shots but broken tracking); run_all passes no --bootstrap, so stage 8 uses each
+  trainer's default of 200 as the stage 5 reports did.
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
   whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
   public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test

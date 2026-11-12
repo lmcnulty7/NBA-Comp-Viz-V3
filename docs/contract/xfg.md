@@ -132,9 +132,56 @@ number it produces is fixture output, not a result.
 
 ## 7. What needs real data
 
-The report `reports/xfg.md` in the repository is a fixture run. The real numbers need, on the Mac: the 2015-16 shots
+The report `reports/xfg.md` in the repository is the real-data run of stage 5 (training folds only, held-out not
+scored); the frozen settings are at the end of this page. The real numbers need, on the Mac: the 2015-16 shots
 parquet, the shot_frames of every game with frames and play-by-play (the `analytics.shot_frames` driver over the
 Drive manifest) and the frames themselves. Open questions only real data can answer: the share of attempts whose
 release frame localises (70 percent on the one smoke game), the match rate of basketball-reference attempts to
 shot_frames rows by clock, and whether the contest features and the prior beat the location baseline under the
 paired bootstrap.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/xfg.md and reports/xfg_baseline.md. Every number
+below is out-of-fold on the training games, from runs with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `hgb_contest_prior` (lowest out-of-fold log loss of the three candidates).
+
+| setting (analytics/xfg/train.py, features.py, validate.py) | frozen value |
+| --- | --- |
+| booster | `HistGradientBoostingClassifier(max_iter=100, learning_rate=0.1, max_depth=3, min_samples_leaf=10, l2_regularization=1.0, early_stopping=False, random_state=seed)` on `FEATURES` plus `shooter_prior` |
+| calibration | isotonic on inner out-of-fold predictions, `INNER_FOLDS = 3`, output bounded to [0.02, 0.98] (`ISO_CLIP`) |
+| shooter prior | `PRIOR_M = 20` pseudo-attempts toward the zone rate (rim under 4 ft, paint under 14 ft, mid, corner3, above3), out of fold by game |
+| other candidates | `location_logistic` (analytics.train_xfg), `contest_logistic` (median imputation, standardisation, C = 1, max_iter 2000) |
+| features | 25 Hz; speed over 10 frames (0.4 s); touch cap 250 frames; touch radius 2.5 ft; dribble ball height 2 ft; contest radius 6 ft; a basketball-reference attempt joins shot_frames by period and nearest clock within 1 s |
+| cleaning | ball inside 0 to 94 by 0 to 50 ft, players within 5 ft of it; game clock 0 to 720 s; shot clock 0 to 24 s or null; shots loc_x -250 to 250 and loc_y -55 to 420 tenths of a foot, period at least 1, made not null; duplicates dropped |
+
+Rules the held-out run applies: selection by lowest out-of-fold log loss (ties to the earlier candidate; ECE under
+0.02 is reported, never a selection rule); 5 grouped folds by `sportvu_game`, seed 0; 200 game bootstrap resamples,
+seed 0 (run_all passes no `--bootstrap`). Held out: a game under `heldout/`, flagged `heldout`, or carrying a
+held-out token of sportvu/splits.json, which covers every game at CLE and 12.16.2015.PHX.at.GSW (18 games, 2939
+attempts set aside in the training run; the tracking lanes count 17 because 01.23.2016.CHI.at.CLE has
+basketball-reference shots but no usable tracking, its SportVU source is broken, reports/sportvu_gaps.md). Only the selected candidate is refit on every training row and scores
+them once; with two or more held-out games its held-out block carries bootstrap intervals by game.
+
+Out-of-fold headline (101853 attempts, 607 games): log loss 0.6294 [0.6277, 0.6316], Brier 0.2209 [0.2201, 0.2219],
+ECE 0.0029 [0.0021, 0.0061], calibration slope 1.0001 [0.9760, 1.0249]; paired against `location_logistic`
+-0.0370 [-0.0385, -0.0354].
+
+**xFG baseline (analytics/train_xfg.py).** Selected: `logistic`, fixed (the constant is reported, never scored on
+held-out rows): StandardScaler then `LogisticRegression(C=1.0, max_iter=1000)` on distance_ft, angle_rad, is_three
+(shot_type 3PT, else 22 ft or more), is_corner (|loc_x| over 220 and loc_y under 90 tenths). 5 grouped folds by
+`sportvu_game`, seed 0, 200 game resamples. Held out: `heldout` true or a held-out token of sportvu/splits.json
+(CLE arena included); scored once by the logistic model refit on every training row, point estimates only.
+Out-of-fold headline (102024 attempts, 607 games): log loss 0.6665 [0.6652, 0.6681], Brier 0.2369 [0.2363, 0.2377],
+ECE 0.0400 [0.0369, 0.0429], slope 0.9979 [0.9643, 1.0234]; constant 0.6879 [0.6872, 0.6885]. That run read the
+training shotchart only (0 held-out rows); stage 8 adds the held-out file.
+
+Stage 8 commands:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+    python3 -m analytics.train_xfg --shots "$DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet" "$DATA_ROOT/collect/bref_shots/heldout/shotchart/2015-16.parquet" --report reports/xfg_baseline.md
+
+run_all.step_argv gives `analytics.xfg.train` the argv `--data DATA_ROOT --seed 0 --report reports/xfg.md` (DATA_ROOT
+resolved to an absolute path, the report under the working directory); validate and features get
+`--data DATA_ROOT --seed 0`.

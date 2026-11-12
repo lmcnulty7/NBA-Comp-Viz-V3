@@ -647,9 +647,18 @@ def parse_args(argv=None):
     return ap.parse_args(argv)
 
 
+def out_root_for(a):
+    """--out when given; else DATA_ROOT on real data (run_all passes no --out, and with None the tables were never
+    written); else None on the fixtures."""
+    if a.out:
+        return a.out
+    return None if a.fixtures else getattr(a, "data", None)
+
+
 def main(argv=None) -> dict:
     """CLI: run the protocol, write the report and, with --out, the three tables; returns the run context."""
     a = parse_args(argv)
+    a.out = out_root_for(a)
     if a.min_possessions is None:
         a.min_possessions = FIXTURE_MIN_POSSESSIONS if a.fixtures else MIN_POSSESSIONS
     raw = V.load_games(a, who=WHO)

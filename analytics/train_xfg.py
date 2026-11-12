@@ -37,9 +37,9 @@ from analytics.eval import (bootstrap_by_game, brier, calibration_slope, calibra
 WHO = "train_xfg"
 MODELS = ("constant", "logistic")
 METRICS = (("log_loss", log_loss), ("brier", brier), ("ece", ece), ("calibration_slope", calibration_slope))
-FULL_RUN_CMD = ("python -m analytics.train_xfg --shots collect/shots/shotchartdetail/2015-16.parquet "
-                "collect/shots/heldout/shotchartdetail/2015-16.parquet --report reports/xfg_baseline.md "
-                "--folds 5 --seed 0 --bootstrap 1000")
+FULL_RUN_CMD = ("python -m analytics.train_xfg --shots \"$DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet\" "
+                "\"$DATA_ROOT/collect/bref_shots/heldout/shotchart/2015-16.parquet\" --report reports/xfg_baseline.md "
+                "--folds 5 --seed 0")
 
 
 # ── inputs ─────────────────────────────────────────────────────────────────────────────────────────

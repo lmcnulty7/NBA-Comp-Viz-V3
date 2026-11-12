@@ -268,3 +268,12 @@ def test_validate_and_features_cli(tmp_path):
     assert summ["player_frames"] == 5 * summ["spacing_frames"] > 0 and "validation" in summ
     sp = pd.read_parquet(tmp_path / "analytics" / "gravity" / "spacing_frames.parquet")
     assert list(sp.columns) == F.SPACING_COLUMNS                        # the same schema train.py writes
+
+
+
+def test_out_root_defaults_to_data_root_on_real_data():
+    from types import SimpleNamespace as NS
+    from analytics.gravity import train as T
+    assert T.out_root_for(NS(out="/o", fixtures=False, data="/d")) == "/o"
+    assert T.out_root_for(NS(out=None, fixtures=False, data="/d")) == "/d"
+    assert T.out_root_for(NS(out=None, fixtures=True, data=None)) is None

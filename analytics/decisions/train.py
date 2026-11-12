@@ -25,7 +25,7 @@ Protocol
      The rule: candidate 2 is used when the xFG table covers at least XFG_MIN_COVERAGE of the shot decisions, else
      candidate 1; both are computed and reported when candidate 2 exists. The EPV lane's epv_points is the hold
      option when present.
-  5. Validation: per game, the players' summed decision quality against their on-court offensive rating (points per
+  5. Validation: per game, the players' mean decision quality against their on-court offensive rating (points per
      100 offensive possessions on the floor, from possessions and frames); Spearman per game over players with at
      least MIN_DECISIONS_GAME decisions, a sign test over games (scipy binomtest, two sided) and a bootstrap by game
      of the mean Spearman. A shuffled check (quality permuted across players within each game) is reported next to it.

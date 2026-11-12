@@ -2,7 +2,7 @@
 
 **Real data, training folds only; held-out not scored.** Stage 5 phase 1 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 with improvement search variant 1 merged (hgb temperature; reports/archive/rebounds.md).
 
-Written 2026-11-12T11:56:10Z by `python -m analytics.rebounds.train --data $DATA_ROOT --seed 0 --report reports/rebounds.md --skip-heldout`.
+Written 2026-11-12T12:03:45Z by `python -m analytics.rebounds.train --data $DATA_ROOT --seed 0 --report reports/rebounds.md --skip-heldout`.
 
 ## Inputs and rows
 
@@ -641,7 +641,7 @@ Guard: `analytics.eval.refuse_heldout` checked 604 training game ids; `analytics
 
 Unit: a missed field-goal attempt; one candidate row per player on court at the rim frame plus a none row (team rebound).
 Features: distance_to_rim_ft, distance_to_ball_landing_ft, angle_to_rim, speed_toward_rim_ftps, is_offense, nearest_opponent_dist_ft, n_opponents_closer_to_rim, ball_apex_ft, shot_distance_ft, is_none, prior_rate.
-Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss).
+Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss after a temperature: p proportional to q^tau, tau fitted on inner out-of-fold predictions over the fit's own training games).
 Priors for the logit and hgb training rows: out of fold over 5 inner grouped folds of each outer fold's training games (0 means in-sample: one game); test rows take the prior of their fold's training games.
 Selection: lowest out-of-fold per-miss multinomial log loss. Top-1 accuracy reported against the plan target of 40 percent.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
@@ -698,7 +698,7 @@ Per miss: y is whether the top candidate secured the rebound (a tie at the maxim
 - shot_distance_ft uses the section 17 release_frame when present, else the ball's horizontal distance from the basket 1 s before the rim frame.
 - The prior is smoothed with 10 pseudo-opportunities toward the per-side base rate; the none rate is the Laplace team-rebound rate. Nothing was tuned.
 - Top-1 accuracy counts a tie at the maximum as 1 over the number tied (expected accuracy under random tie-breaking); the calibration block counts it as a hit.
-- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf.
+- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf; its temperature tau bounded 0.25 to 8, fitted by per-miss log loss on 5 inner grouped folds (improvement search variant 1, reports/archive/rebounds.md).
 
 ## Predictions
 

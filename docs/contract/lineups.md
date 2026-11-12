@@ -149,3 +149,44 @@ RAPM to recover (the tests rely on both). Production code never imports `tests/`
 The section 12 table carries no possession count. A stint's possessions per team are `duration_s / 28.8`
 (100 possessions per team per 48 minutes), or the table's own `possessions` column when it has one. The
 target is `(points_home - points_away) / possessions * 100`, the stint's net rating from the home side.
+
+## Frozen for the held-out run (freeze-v1)
+
+Frozen from the code on branch track-fix and the committed reports/lineups.md. Every number below comes from the
+training seasons of a run with `--skip-heldout`; no held-out number has been read.
+
+**Selected model:** `rapm` (highest mean validation Spearman over the three training validation pairs).
+
+| setting (analytics/lineups/train.py, stints.py, validate.py) | frozen value |
+| --- | --- |
+| rapm | possession-weighted ridge of the stint differential on player indicators (+1 home, -1 away) with an unpenalised home-court intercept; alpha by grouped CV by game (5 folds, weighted out-of-fold MSE) over `ALPHAS = (30, 100, 300, 1000, 3000, 10000, 30000, 100000)` (3000 in every training pair) |
+| target | (points_home - points_away) / possessions x 100, possessions = duration_s / 28.8 when the table has no count |
+| gates | lineup terms and the insufficient flag at `GATE_POSS = 300` possessions; a validation lineup needs `MIN_POSS_EVAL = 100` possessions on each side |
+| shifted-period drop | `stints.shifted_period_games`: a game whose period numbers skip a value, or whose period above 4 holds a clock above 300 s, is dropped whole before stints (53 games in the training run) |
+| validate drops | not 5v5 or lineup_ok false; duration outside (0, 720] s; points outside [0, 70]; duplicates on (game_id, stint) or (game_id, start_s, end_s); rows flagged held out; rows without a season |
+
+Rules the held-out run applies: selection by highest mean validation Spearman (ties to plus_minus), each training
+season after the first predicted from the seasons before it (`assert_season_split` on every fit); intervals from 200
+bootstrap resamples of lineups, seed 0. Held out: the 2024-25 season (1304 games in the training run), set aside
+before any fit; 2015-16 tracking games never fit; seasons after 2024-25 are ignored. The selected rapm is refit on
+2020-21 to 2023-24 and scores 2024-25 once (Spearman and MSE against the raw lineup net rating, intervals over
+lineups), with plus_minus as a labelled floor and no paired test.
+
+Headline (training seasons only):
+
+| target season | rapm Spearman | plus_minus Spearman | rapm minus plus_minus |
+| --- | --- | --- | --- |
+| 2021-22 | 0.065 [-0.472, 0.527] | 0.082 [-0.445, 0.442] | -0.017 [-0.672, 0.725] |
+| 2022-23 | 0.222 [-0.170, 0.547] | 0.073 [-0.267, 0.380] | 0.149 [-0.290, 0.584] |
+| 2023-24 | 0.041 [-0.428, 0.519] | 0.160 [-0.229, 0.589] | -0.119 [-0.635, 0.268] |
+
+Mean validation Spearman: rapm 0.109, plus_minus 0.105, rapm_synergy 0.087 (no interval on the means; every paired
+interval includes 0).
+
+Stage 8 command:
+
+    python3 run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings epv decisions lineups winprob load --continue-on-error
+
+run_all.step_argv gives `analytics.lineups.train` the argv `--data DATA_ROOT --seed 0 --report reports/lineups.md`
+(`--heldout-season` then defaults to 2024-25 on data; OUT_ROOT to DATA_ROOT); the stints, validate and features
+steps get `--data DATA_ROOT --seed 0`.
