@@ -242,10 +242,11 @@ git checkout freeze-v2 && python3 run_all.py --data "$DATA_ROOT" --ext actions c
 ```
 
 ```bash
-python3 -m analytics.train_xfg --shots "$DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet" --report reports/xfg_baseline.md
+python3 -m analytics.train_xfg --shots "$DATA_ROOT/collect/bref_shots/shotchart/2015-16.parquet" "$DATA_ROOT/collect/bref_shots/heldout/shotchart/2015-16.parquet" --report reports/xfg_baseline.md
 ```
 
-(the xfg baseline belongs to group 1 and runs once, with the group 1 run.)
+(the xfg baseline belongs to group 1 and runs once, with the group 1 run. It needs both shot files: the held-out
+games' shots live only in the heldout file, so without it the baseline would score no held-out shot.)
 
 ```text
 Follow the rules in docs/mac_runbook.md. Stage 8: this was the single held-out run of the group at its tag

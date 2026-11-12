@@ -39,7 +39,16 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   tests/test_label_tool.py.
 - **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting and
   lineups, winprob, both stage 6 GRU runs, the winprob table rerun
-  and the decisions rerun on the GRU EPV are done. Improvement search running (archives in reports/archive/).
+  and the decisions rerun on the GRU EPV are done; rebounds train rerun with its accepted variant running
+  (logs/loop/archive_rebounds_v1_lane.log).
+- **Improvement search settled (2026-11-12):** 2 variants tried, both accepted (reports/archive/winprob.md,
+  reports/archive/rebounds.md). Not searched, with the reason: xfg (calibrated, ECE 0.003, slope 1.00),
+  embeddings (PCA clears its gate), gravity (the plan ships ridge), matchups and decisions (no signal is the
+  finding; variants against the validation metric would be fishing), lineups (only 18 to 27 lineups recur
+  across seasons, the limit is data), load (no failure the report points at), epv and ghosting (stage 6).
+- **Stage 7 (freeze-v1) in progress:** "Frozen for the held-out run (freeze-v1)" sections are being written into
+  each group 1 contract page. Fixed in the runbook first: the stage 8 xfg baseline command now passes the
+  held-out shot file too (without it the baseline would have scored no held-out shot).
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
   whose Google Drive folder name contains the Drive account address, and the repo's absolute path; the repo is
   public. analytics/report_paths.py now writes them as $DATA_ROOT, repo-relative and ~ (test
