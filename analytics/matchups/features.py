@@ -264,13 +264,14 @@ def shot_value(desc, dist_ft) -> int:
 
 
 def possession_shots(game: dict, mf: pd.DataFrame, info: dict, xfg: pd.DataFrame | None = None,
-                     default_p: float = 0.45) -> pd.DataFrame:
+                     default_p: float = 0.45, frames: pd.DataFrame | None = None) -> pd.DataFrame:
     """One row per field-goal attempt that falls in a possession (SHOT_COLUMNS), with the shooter's
     position at the release frame, the assigned defender at the sampled frame at or before the release and
-    the distance to it, the shot value and the xFG probability p."""
+    the distance to it, the shot value and the xFG probability p. ``frames``: the game's frames when the
+    caller already holds them, else read through validate.frames_of."""
     sf = game["shot_frames"]
     events = game.get("events")
-    F = _Frames(game["frames"])
+    F = _Frames(V.frames_of(game) if frames is None else frames)
     desc = {}
     ev_frame = {}
     if events is not None and len(events):          # keyed by (period, event): event indices are unique per game in the contract, the key is belt and braces
@@ -365,10 +366,13 @@ def matchup_possessions(mf: pd.DataFrame, info: dict, shots: pd.DataFrame, game:
 
 def build(game: dict, xfg: pd.DataFrame | None = None, default_p: float = 0.45) -> dict:
     """One game dict (frames, events, possessions, shot_frames) -> dict(matchup_possessions, matchup_frames,
-    shots, counts). The feature frame of the result passes schema.assert_time_forward."""
-    mf, info, counts = frame_assignments(game["frames"], game["possessions"])
+    shots, counts). The feature frame of the result passes schema.assert_time_forward. The frames are read once
+    and dropped on return."""
+    frames = V.frames_of(game)
+    mf, info, counts = frame_assignments(frames, game["possessions"])
     gid = str(game["possessions"]["sportvu_game"].iloc[0]) if len(game["possessions"]) else ""
-    shots = possession_shots(game, mf, info, xfg, default_p)
+    shots = possession_shots(game, mf, info, xfg, default_p, frames=frames)
+    del frames
     mp = matchup_possessions(mf, info, shots, gid)
     if len(mp):
         feature_frame(mp)
@@ -395,7 +399,8 @@ def shot_locations(shots: pd.DataFrame, heldout: bool = False) -> pd.DataFrame:
 
 # ── CLI ────────────────────────────────────────────────────────────────────────────────────────────
 def run_games(games: list, xfg: pd.DataFrame | None = None, default_p: float = 0.45) -> dict:
-    """build() over a list of game dicts -> dict(matchup_possessions, matchup_frames, shots, counts) concatenated."""
+    """build() over a list of game dicts, one game's frames at a time -> dict(matchup_possessions, matchup_frames,
+    shots, counts) concatenated."""
     parts = {"matchup_possessions": [], "matchup_frames": [], "shots": []}
     counts = []
     for g in games:

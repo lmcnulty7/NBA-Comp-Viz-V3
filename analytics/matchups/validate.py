@@ -4,7 +4,8 @@
         [--fixture-games 8] [--fixture-possessions N] [--fixture-heldout-every 4]
 
 Loads one game dict per game (frames, events, possessions, shot_frames, rosters, heldout flag) from the
-DATA_ROOT layout
+DATA_ROOT layout. The frames of a loaded game are a zero-argument loader, read only when a step needs them
+(frames_of), so one game's frames sit in memory at a time; the small tables are read up front.
 
     DATA_ROOT/sportvu_contract/<game>.parquet, <game>_pbp.parquet       (held-out games under heldout/)
     DATA_ROOT/analytics/<table>/<season>/<game>.parquet                 (held-out under analytics/<table>/heldout/<season>/)
@@ -81,8 +82,20 @@ def _read(path: Path) -> pd.DataFrame | None:
     return pd.read_parquet(path) if path.exists() else None
 
 
+def _frames_loader(path: Path):
+    """A zero-argument loader of one game's frames parquet (read on each call, nothing kept)."""
+    return lambda: pd.read_parquet(path)
+
+
+def frames_of(game: dict) -> pd.DataFrame:
+    """The frames of a game dict: called when ``game["frames"]`` is a loader, else the DataFrame itself."""
+    f = game["frames"]
+    return f() if callable(f) else f
+
+
 def load_games(data_root, season: str = "2015-16") -> list:
-    """Game dicts from the DATA_ROOT layout; games are discovered from analytics/possessions/[heldout/]<season>/."""
+    """Game dicts from the DATA_ROOT layout; games are discovered from analytics/possessions/[heldout/]<season>/.
+    ``frames`` is a loader (see frames_of): no game's frames are read here."""
     root = Path(data_root)
     out = []
     for held in (False, True):
@@ -90,16 +103,14 @@ def load_games(data_root, season: str = "2015-16") -> list:
         for pq in sorted(d.glob("*.parquet")):
             gid = pq.stem
             sv = root / "sportvu_contract" / ("heldout" if held else "")
-            frames = _read(sv / (gid + ".parquet"))
-            if frames is None:                          # the other directory: the play-by-play is read next to the frames found
+            if not (sv / (gid + ".parquet")).exists():   # the other directory: the play-by-play is read next to the frames found
                 sv = root / "sportvu_contract" / ("" if held else "heldout")
-                frames = _read(sv / (gid + ".parquet"))
-            if frames is None:
+            if not (sv / (gid + ".parquet")).exists():
                 log.warning("%s: no frames under sportvu_contract, skipped", gid)
                 continue
             events = _read(sv / (gid + "_pbp.parquet"))
-            g = {"sportvu_game": gid, "heldout": held or is_heldout_game(gid), "frames": frames, "events": events,
-                 "possessions": pd.read_parquet(pq)}
+            g = {"sportvu_game": gid, "heldout": held or is_heldout_game(gid), "frames": _frames_loader(sv / (gid + ".parquet")),
+                 "events": events, "possessions": pd.read_parquet(pq)}
             for table in ("shot_frames", "rosters", "rebound_frames"):
                 t = _read(root / "analytics" / table / ("heldout" if held else "") / season / (gid + ".parquet"))
                 g[table] = t if t is not None else schema.empty(table)
@@ -145,8 +156,20 @@ def clean_frames(frames: pd.DataFrame) -> tuple:
     return f2.reset_index(drop=True), counts
 
 
+def _cleaned_loader(loader):
+    """A loader returning clean_frames of what ``loader`` returns (not wrapped twice)."""
+    if getattr(loader, "cleaned", False):
+        return loader
+
+    def load():
+        return clean_frames(loader())[0]
+    load.cleaned = True
+    return load
+
+
 def validate_game(game: dict) -> dict:
-    """Problems and counts of one game dict; cleans the frames in place (missing positions, duplicates)."""
+    """Problems and counts of one game dict; cleans the frames in place (missing positions, duplicates). When the
+    frames are a loader they are read once here and dropped; the loader is replaced by one that cleans."""
     gid = str(game.get("sportvu_game") or game["possessions"]["sportvu_game"].iloc[0])
     problems: list = []
     counts: dict = {"sportvu_game": gid, "heldout": bool(game.get("heldout", False))}
@@ -157,14 +180,15 @@ def validate_game(game: dict) -> dict:
             continue
         problems += ["%s: %s" % (table, p) for p in schema.validate(t, table)]
         counts["n_" + table] = int(len(t))
-    fr = game["frames"]
+    lazy = callable(game["frames"])
+    fr = frames_of(game)
     missing = [c for c in FRAME_COLUMNS if c not in fr.columns]
     if missing:
         problems.append("frames: missing column(s) %s" % missing)
         counts["n_frames_rows"] = int(len(fr))
         return {"problems": problems, "counts": counts}
     fr, c = clean_frames(fr)
-    game["frames"] = fr
+    game["frames"] = _cleaned_loader(game["frames"]) if lazy else fr
     counts.update({"n_frames_rows": c["rows"], "missing_position": c["missing_position"], "duplicate_rows": c["duplicate_rows"]})
     if c["missing_position"] or c["duplicate_rows"]:
         log.info("%s: dropped %d rows with a missing position and %d duplicate (frame, player_id) rows",
@@ -208,13 +232,15 @@ def validate_game(game: dict) -> dict:
 
 def validate_games(games: list) -> pd.DataFrame:
     """validate_game over games -> one row per game with counts and the problem list."""
-    rows = []
-    for g in games:
-        r = validate_game(g)
-        rows.append({**r["counts"], "n_problems": len(r["problems"]), "problems": "; ".join(r["problems"])})
-        for p in r["problems"]:
-            log.warning("%s: %s", r["counts"]["sportvu_game"], p)
-    return pd.DataFrame(rows)
+    return pd.DataFrame([validate_row(g) for g in games])
+
+
+def validate_row(game: dict) -> dict:
+    """validate_game of one game as a table row (counts, n_problems, problems), its problems logged."""
+    r = validate_game(game)
+    for p in r["problems"]:
+        log.warning("%s: %s", r["counts"]["sportvu_game"], p)
+    return {**r["counts"], "n_problems": len(r["problems"]), "problems": "; ".join(r["problems"])}
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────────────────────────

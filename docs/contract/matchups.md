@@ -19,6 +19,12 @@ and, optionally, the xFG lane's predictions `OUT_ROOT/analytics/xfg/<season>/*.p
 training row (out-of-fold); otherwise the file is refused and the location-only fallback of
 `analytics.features_xfg` (a logistic regression out-of-fold by game) gives p.
 
+Frames are read one game at a time. `validate.load_games` reads the small tables up front but gives each game's
+frames as a loader (`validate.frames_of`), so validate, features and train each read a game's frames once, keep
+only the derived tables (assignments, shots, counts) and drop the frames before the next game. Train validates
+and assigns in that same single read, and its CV folds reuse the derived tables. Peak memory is about one
+game's frames plus the derived tables of the season, not the whole season's frames.
+
 ## Assignment
 
 Inside each possession the frames are sampled at 1 Hz (the frame whose elapsed time since `start_frame`

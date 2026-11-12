@@ -10,7 +10,8 @@ matchup_possessions_train.parquet, apart from the per-game files of analytics.ma
 
 Steps
   1. load the games (analytics.matchups.validate), set the held-out games aside (heldout/ directory, the fixture
-     flag, or analytics.eval.is_heldout_game by id), call analytics.eval.refuse_heldout on the training game ids
+     flag, or analytics.eval.is_heldout_game by id), call analytics.eval.refuse_heldout on the training game ids;
+     each game's frames are read once, validated and assigned in that read, then dropped (one game in memory)
   2. assign defenders at 1 Hz (analytics.matchups.features) and join the field-goal attempts; the xFG
      probability of each attempt is the xFG lane's out-of-fold p_selected when OUT_ROOT/analytics/xfg/<season>/
      holds it with a verified fold column, else the location-only fallback: analytics.features_xfg features of
@@ -91,13 +92,23 @@ def split(games: list) -> tuple:
     return train, held
 
 
-def assign_games(games: list) -> dict:
-    """frame_assignments and possession_shots (p at the default) per game -> {game id: parts}."""
+def assign_games(games: list, validate: bool = False) -> dict:
+    """frame_assignments and possession_shots (p at the default) per game -> {game id: parts}. Each game's frames
+    are read once (validate.frames_of), used for both and dropped, so one game's frames sit in memory at a time;
+    only the derived tables are kept. With validate, validate.validate_row runs on those frames first (problems
+    logged, rows without a position and duplicates dropped), as analytics.matchups.validate does."""
     out = {}
     for g in games:
-        mf, info, counts = F.frame_assignments(g["frames"], g["possessions"])
-        shots = F.possession_shots(g, mf, info, None)
-        out[str(g["sportvu_game"])] = {"mf": mf, "info": info, "counts": counts, "shots": shots, "game": g}
+        frames = V.frames_of(g)
+        if validate:
+            tmp = {**g, "frames": frames}
+            V.validate_row(tmp)
+            frames = tmp["frames"]
+            del tmp
+        mf, info, counts = F.frame_assignments(frames, g["possessions"])
+        shots = F.possession_shots(g, mf, info, None, frames=frames)
+        del frames
+        out[str(g["sportvu_game"])] = {"mf": mf, "info": info, "counts": counts, "shots": shots}
     return out
 
 
@@ -536,14 +547,16 @@ def write_report(path: Path, ctx: dict) -> str:
 
 # ── main ───────────────────────────────────────────────────────────────────────────────────────────
 def run(games: list, xfg: pd.DataFrame | None, n_folds: int, seed: int, n_boot: int, n_min: int, fixtures: bool, command: str,
-        skip_heldout: bool = False) -> dict:
+        skip_heldout: bool = False, validate: bool = False) -> dict:
     """Steps 1 to 6 of the module docstring -> the report context. With skip_heldout no held-out xFG probability is
-    predicted or used (held-out attempts take the training default) and step 6 does not run."""
+    predicted or used (held-out attempts take the training default) and step 6 does not run. With validate each
+    game is validated and cleaned in the pass that reads its frames (assign_games). Frames are read once per game;
+    the folds reuse the derived tables."""
     train, held = split(games)
     if not train:
         raise SystemExit("%s: no training games after setting the held-out games aside" % WHO)
-    train_parts = assign_games(train)
-    held_parts = assign_games(held)
+    train_parts = assign_games(train, validate)
+    held_parts = assign_games(held, validate)
     if xfg is not None:
         if skip_heldout:         # no held-out probability is used, whichever way the xFG table marks those games
             held_ids = {str(g["sportvu_game"]) for g in held}
@@ -604,10 +617,10 @@ def main(argv=None) -> dict:
     games = V.source_games(a)
     if not games:
         raise SystemExit("%s: no games found" % WHO)
-    V.validate_games(games)
     xfg = V.load_xfg(a.out, a.season) if a.out else None
     cmd = "python -m analytics.matchups.train " + " ".join(argv if argv is not None else sys.argv[1:])
-    ctx = run(games, xfg, a.folds, a.seed, a.bootstrap, a.n_min, a.fixtures, cmd, skip_heldout=a.skip_heldout)
+    # validation runs inside the one read of each game's frames
+    ctx = run(games, xfg, a.folds, a.seed, a.bootstrap, a.n_min, a.fixtures, cmd, skip_heldout=a.skip_heldout, validate=True)
     text = write_report(Path(a.report), ctx)
     print(text)
     if a.out:
