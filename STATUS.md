@@ -38,8 +38,7 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
 - **Background jobs:** see the stage 5 group 1 entry below. Chain (one at a time): ghosting and
-  lineups, winprob and the epv GRU done; stage 6 ghosting with the torch GRU running from 02:30
-  (logs/loop/stage6_ghosting_torch.log), then a winprob train rerun that writes its tables
+  lineups, winprob and both stage 6 GRU runs done; a winprob train rerun that writes its tables running from 03:25
   (logs/loop/stage5_winprob_rerun.log), then decisions validate, features and train on the GRU EPV tables
   (logs/loop/stage6_decisions_rerun.log).
 - **Reports carried local paths (fixed 2026-11-12):** every committed lane report recorded the absolute DATA_ROOT,
@@ -49,6 +48,14 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   reports are redacted. Not fixed: earlier commits still hold those paths, and the same account address
   appears in older committed files (ROADMAP.md, ROADMAP_LOG.md, the Colab scripts and notebooks); removing
   it from history needs a history rewrite, which is the owner's call.
+- **Stage 6 ghosting (done 2026-11-12), deviation from the runbook wording:** the torch GRU (hidden 32) ran in 55 min,
+  23 GB peak, and passes the lane's keep rule against ridge (1.0 s error 3.769 ft, minus ridge -0.773 [-0.800,
+  -0.749]). But paired by game against the MLP stand-in it was to replace, it is worse: GRU minus stand-in 0.030 ft
+  [0.029, 0.032] at 0.2 s and 0.111 ft [0.085, 0.138] at 1.0 s (604 games). Stage 6 says to replace the stand-in;
+  the loop keeps the stand-in instead, by the same paired comparison on training folds that adopted epv's GRU, so
+  the frozen ghosting model is the better of the two. Owner: say so before go-stage8 if you want the GRU frozen
+  instead. Report reports/ghosting_torch.md; tables DATA_ROOT/stage6/ghosting_torch; run_all passes no --deep
+  to ghosting. embeddings: gate shut, unchanged. Stage 6 is done.
 - **Stage 6 epv (done 2026-11-12):** the torch GRU ran in 60 min, 21 GB peak. Same gate and keep rule: kept over hgb,
   0.0212 [0.0201, 0.0228]; MSE 1.2155 [1.2080, 1.2226] vs constant 1.2822 (lift 5.2 percent), calibration slope
   0.964. Paired by game against the MLP stand-in it replaces, MSE(stand-in) minus MSE(GRU) 0.0062 [0.0054, 0.0071]

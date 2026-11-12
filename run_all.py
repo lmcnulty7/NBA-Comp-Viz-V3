@@ -62,6 +62,7 @@ from analytics.report_paths import redact_file  # noqa: E402  (standard library 
 # contract's torch model was kept over the sklearn stand-in, every later real run (stage 8 included) uses it.
 DATA_TRAIN_ARGS = {
     "epv": ["--deep", "torch"],     # GRU kept 2026-11-12: MSE 1.2155 vs stand-in 1.2218, paired 0.0062 [0.0054, 0.0071]
+    # ghosting stays on the MLP stand-in: its GRU was worse by 0.111 ft [0.085, 0.138] at 1.0 s (reports/ghosting_torch.md)
 }
 
 STATUS_OK = "ok"
