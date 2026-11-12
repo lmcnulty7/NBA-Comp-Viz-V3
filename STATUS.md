@@ -26,15 +26,12 @@ PRs #8 (stage 4a --skip-heldout), #9 (stage 9 results) and #10 (stage 6 torch mo
 
 Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
 
-- **Current stage:** 4, stage 4a merged (PR #8); waiting for gates/labels-done. Stage 3 passed 2026-11-11.
+- **Current stage:** 4 waiting for gates/labels-done; meanwhile stage 5 phase 1 done (2026-11-11) and phase 2 running.
 - **Label tool fix (2026-11-11):** `--labeller-pass 2` with `--sample` now lists only every tenth sample_rank
   (`--relabel-every`, default 10). Before, pass 2 listed the whole sample, and each `n` recorded a possession as
   visited by pass 2, so unrelabelled possessions would have entered kappa as (label, none). Tests in
   tests/test_label_tool.py.
-- **Background jobs:** stage 5 phase 1 resume, started 2026-11-11 16:47, caffeinate PID 3001, log
-  logs/loop/stage5_phase1_resume.log, step logs in logs/run_all/. It runs rebounds features and train
-  (run_all.step_argv and run_step, --skip-heldout), then the xfg baseline (analytics.train_xfg --skip-heldout).
-  Phases 1 and 2 do not need the labels; phase 3 waits for gates/labels-done.
+- **Background jobs:** see the stage 5 phase 2 entry below once it starts.
 - **Mac crash 2026-11-11 about 16:21:** it killed the first phase 1 run (PID 48469, started 16:17). By then
   xfg validate, features and train had finished ("ok" in logs/run_all/xfg_*.log; train wrote at 16:21:08) and
   rebounds validate had finished (16:21). Checked after the reboot: no process of the old run alive;
@@ -49,6 +46,8 @@ Updated 2026-11-11 by the autonomous loop (docs/mac_runbook.md).
   docs/contract/xfg.md already defines player_id as the shooter; the code now follows it (test in
   tests/test_xfg_upgrade.py). The 16:17 xfg run (reports/xfg.md, xfg_predictions.parquet) is superseded: xfg
   validate, features and train rerun with --skip-heldout after the resume job, before phase 2 reads xfg.
+  Done 16:55: player_id now filled on 99.1 percent of xfg_predictions rows (444 players). The superseded
+  run's report and log were overwritten by the rerun, so the size of the change is not recorded.
 - **Play-by-play gaps at the source:** eight 2021-10-27 games (home teams BOS, BRK, LAC, MIL, NOP, OKC, POR, TOR)
   fail with "no play-by-play events on the page", also on the --retry-failed rerun. The fetched page for
   202110270BOS has the pbp table with a caption and no rows, so basketball-reference has no events for them; the
@@ -103,6 +102,21 @@ DATA_ROOT/analytics/audit/shots_sample.parquet (log: logs/loop/audit_sample.log)
 | games at CLE | 0 (21 CLE road games, which are training games) |
 | audit tests (tests/test_label_tool_audit.py and the audit_shots tests) | 51 passed; 53 after the 10-frame amendment, make test-fast 648 passed |
 | audit tool smoke run on the real sample | page and shots 1, 301 and 604 served; sample file unchanged |
+
+### Stage 5 phase 1 (done 2026-11-11, training folds only, held-out not scored)
+
+Steps: xfg validate, features, train (rerun 16:50 to 16:55 after the shooter fix), rebounds validate (16:21),
+rebounds features and train (16:47 to 16:50, after the crash), xfg baseline (16:50). All ok. reports/run_all.md
+(gitignored) covers the xfg rerun only; the rebounds steps are in logs/run_all/rebounds_*.log.
+
+| lane | rows | selected | out-of-fold metric [95 percent game bootstrap] | notes |
+|---|---|---|---|---|
+| xfg | 101,853 attempts, 607 games (62,387 with contest features); 18 held-out games set aside | hgb_contest_prior | log loss 0.6294 [0.6277, 0.6316]; ECE 0.0029 (target under 0.02); slope 1.00 | beats location_logistic by 0.0370 [0.0354, 0.0385] and contest_logistic; shots: 92 out of range and 83 duplicates dropped; rosters: 2 null player names |
+| rebounds | 49,288 misses, 604 games; 17 held-out games set aside | hgb | per-miss log loss 1.6234 [1.6130, 1.6304]; top-1 accuracy 0.4797 [0.4756, 0.4848] (plan target 0.40) | beats prior by 0.5146; about 18 percent of misses per game dropped (no clean rebound match); the top candidate's probability is under-confident (slope 1.69, ECE 0.109), a candidate for the improvement search; no --out, so rebound_predictions not written |
+| xfg baseline | 102,024 attempts, 607 games | logistic (location) | log loss 0.6665 [0.6652, 0.6681]; slope 1.00; ECE 0.040 | constant model 0.6879; held-out shots live in a separate file the baseline is not given |
+
+Looks wrong or worth a look: nothing blocking. The rebounds calibration and the 18 percent rebound drop are
+noted for the improvement search; phase 2 (matchups, gravity, ghosting, embeddings) runs next.
 
 ### Stage 3 check (passed 2026-11-11)
 
