@@ -1,8 +1,27 @@
 # Ghosting: defender position from the past five sampled frames (analytics/ghosting/train.py)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 2 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 over all 604 training games; fitted at 1 Hz (every 5th sampled step, float32) and scored at 5 Hz, the owner's option 4.
+Written 2026-11-12T23:09:28Z by `python -m analytics.ghosting.train --data $DATA_ROOT --seed 0 --report reports/ghosting.md`.
 
-Written 2026-11-12T09:18:21Z by `python -m analytics.ghosting.train --data $DATA_ROOT --seed 0 --report reports/ghosting.md --skip-heldout`.
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Selected model: the MLP stand-in (64x64 on the 5-step window), fitted at 1 Hz on every 5th defender-step (float32)
+and evaluated at 5 Hz, the owner's option 4; the stage 6 GRU was not selected (reports/ghosting_torch.md). Refit on all
+7147100 fit rows of the 604 training games, scored once on 896885 defender-steps from 17 held-out games, persistence
+beside it as the floor (point estimates only). Errors in feet.
+
+| metric | out-of-fold (604 games) | held-out (17 games) |
+| --- | --- | --- |
+| 0.2 s error, MLP stand-in | 0.437 [0.433, 0.442] | 0.377 |
+| 1.0 s error, MLP stand-in | 3.657 [3.635, 3.682] | 3.417 |
+| 0.2 s error, persistence floor | 1.264 [1.259, 1.270] | 1.197 |
+| 1.0 s error, persistence floor | 5.408 [5.392, 5.425] | 5.250 |
+| graded-deviation sign test (positive / negative games) | 346 / 258, p = 0.0002 | 13 / 4, p = 0.0245 |
+
+Where held-out is worse: nowhere. Both horizons have lower error on held-out, and the persistence floor is lower too,
+so these games are easier to predict; relative to persistence the model also does slightly better (1.0 s error ratio
+0.651 against 0.676). The validation sign test points the same way on 13 of the 17 held-out games.
 
 ## Inputs
 
@@ -1275,20 +1294,27 @@ deviation_ft = distance(actual, assignment) minus distance(ghost, assignment); p
 
 Sign test: 346 positive, 258 negative, 0 zero; one-sided p = 0.0002.
 
-## Held-out games
+## Held-out games (the selected candidate refit on all 7147100 fit rows of the training games, scored once at 5 Hz; never fitted or tuned on)
 
-17 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
+896885 defender-steps from 17 held-out game(s): 01.02.2016.ORL.at.CLE, 01.04.2016.TOR.at.CLE, 01.18.2016.GSW.at.CLE, 10.30.2015.MIA.at.CLE, 11.04.2015.NYK.at.CLE, 11.06.2015.PHI.at.CLE, 11.08.2015.IND.at.CLE, 11.10.2015.UTA.at.CLE, 11.19.2015.MIL.at.CLE, 11.21.2015.ATL.at.CLE, 11.23.2015.ORL.at.CLE, 12.01.2015.WAS.at.CLE, 12.08.2015.POR.at.CLE, 12.16.2015.PHX.at.GSW, 12.17.2015.OKC.at.CLE, 12.20.2015.PHI.at.CLE, 12.23.2015.NYK.at.CLE. Only the selected candidate and the persistence floor are scored here; the dropped candidate never sees the held-out game.
+
+| candidate | 0.2 s error | 1.0 s error |
+| --- | --- | --- |
+| 1 persistence (position at t minus 1) | 1.197 | 5.250 |
+| 3 MLPRegressor 64x64 on the 5-step window (GRU stand-in) | 0.377 | 3.417 |
+
+Held-out numbers are point estimates (no bootstrap over 17 game(s)). Held-out sign test: 13 positive, 4 negative, p = 0.0245.
 
 ## Tables
 
-ghost_frames: 68935605 rows; ghost_possessions: 101835 rows (docs/contract/ghosting.md).
+ghost_frames: 70677600 rows; ghost_possessions: 104394 rows (docs/contract/ghosting.md).
 
 ## Assumptions and what needs real data
 
 - Assignment is the nearest offensive player at the possession's first sampled frame (defender-centric, no one-to-one matching); the attacking side is the half the ball is in at t minus 1; a null shot clock is max(24 minus elapsed, 0); possessions with a clock gap or no offence are skipped; a sequence is cut at the first sampled frame without the first frame's ten players or without a ball.
 - The 1.0 s roll-forward keeps the offence, the ball and the other defenders actual and feeds only this defender's ghost back.
 - Fits run under `analytics.eval.fit_threads(--threads)`, single-threaded by default because the build container shares 4 cores across 21 lanes; `--threads` raises it on the Mac.
-- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the held-out games are set aside and left unscored until a run without --skip-heldout. The sign test needs dozens of games to say anything; with the fixtures it is a pipeline check.
+- Real data: the Step 1 frames and the section 19 possessions of every tracked game on the owner's Mac (DATA_ROOT layout); the held-out games are scored once, after the decision, by the candidates refit on every training row. The sign test needs dozens of games to say anything; with the fixtures it is a pipeline check.
 
 ## Next on the Mac
 
