@@ -1,8 +1,32 @@
 # EPV: expected possession value from 1 Hz states (analytics/epv)
 
-**Real data, training folds only; held-out not scored.** Stage 6 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12: the contract's torch GRU fills the sequence slot (still named mlp in the tables). It is the selected epv model. Paired by game against the MLP stand-in it replaces (reports/epv_mlp_standin.md), MSE(stand-in) minus MSE(GRU) is 0.0062 [0.0054, 0.0071] over 604 games and 1,739,119 states (1000 game resamples, seed 0). Its tables were written to OUT_ROOT = DATA_ROOT/stage6/epv_torch and then moved to DATA_ROOT/analytics/epv; run_all passes --deep torch to epv train on real data from now on.
+Written 2026-11-13T00:24:51Z by `python -m analytics.epv.train --data $DATA_ROOT --seed 0 --report reports/epv.md --deep torch` (real data run).
 
-Written 2026-11-12T10:29:55Z by `python -m analytics.epv.train --data $DATA_ROOT --report reports/epv_torch.md --out OUT_ROOT --skip-heldout --deep torch` (real data run).
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Selected model: the torch GRU in the sequence slot (still named mlp in the tables), selected in stage 6 over the MLP
+stand-in (reports/epv_mlp_standin.md). The pipeline was refit on all 1739119 training states (604 games) and scored
+once on 44703 states from 17 held-out games. Intervals: bootstrap by game.
+
+| metric | out-of-fold (604 games) | held-out (17 games) |
+| --- | --- | --- |
+| Brier P(points > 0), all | 0.2350 [0.2345, 0.2355] | 0.2318 [0.2298, 0.2340] |
+| MSE expected points, all | 1.2155 [1.2080, 1.2226] | 1.2362 [1.1899, 1.2812] |
+| MSE expected points, constant floor | 1.2822 [1.2745, 1.2901] | 1.3319 [1.2814, 1.3834] |
+| calibration slope, all | 0.964 | 1.024 |
+| MSE, 0-4 s elapsed | 1.2859 [1.2791, 1.2923] | 1.3190 [1.2745, 1.3665] |
+| MSE, 4-10 s | 1.2577 [1.2506, 1.2650] | 1.2858 [1.2397, 1.3374] |
+| MSE, 10-24 s | 1.1369 [1.1257, 1.1469] | 1.1443 [1.0872, 1.2044] |
+| calibration slope, 0-4 s | 0.916 | 1.232 |
+| calibration slope, 4-10 s | 1.005 | 1.025 |
+| calibration slope, 10-24 s | 0.952 | 1.010 |
+
+Where held-out is worse: expected-points MSE, overall and in every bucket (overall 1.236 against 1.216; every held-out
+interval contains the out-of-fold point), and the calibration slope of the first 4 seconds, 1.23 on held-out, outside
+the 0.9 to 1.1 target (0.92 out of fold). The constant floor rises more (1.282 to 1.332), so the model's gain over it is
+larger on held-out (0.096 against 0.067), and the overall Brier and slope are better.
 
 ## Inputs
 
@@ -22,7 +46,7 @@ Training mean points per state: 0.9924; P(points > 0): 0.4590.
 
 Features (25): ball_x, ball_y, ball_z, ball_dist_basket, handler_dist_basket, handler_angle, handler_nearest_def_dist_ft, off_dist_1, off_dist_2, off_dist_3, off_dist_4, off_dist_5, off_def_1, off_def_2, off_def_3, off_def_4, off_def_5, off_hull_area, shot_clock_s, elapsed_in_possession_s, ball_dist_min_so_far, n_handler_switches, handler_fg_prior, handler_zone_value, lineup_tov_prior.
 Priors come from the training games of each fold only. The per-player zone counts and the per-lineup counts are out-of-fold for the training rows (a game's own shots and possessions are left out of its prior); the two league-wide quantities they shrink towards, the location-only xFG (analytics.features_xfg, four parameters) at the handler's position and the training turnover rate, are fitted once on the whole training fold, the row's own game included.
-Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor (100 iterations, learning rate 0.05, 8 leaves, min 50 per leaf, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds), and under the gate an MLPRegressor over the last 5 states' features.
+Candidates: constant (training mean), ridge (median imputation, standardisation, alpha 1), HistGradientBoostingRegressor (100 iterations, learning rate 0.05, 8 leaves, min 50 per leaf, L2 1.0, fixed in advance, never tuned) with isotonic calibration of P(points > 0) fitted on inner out-of-fold predictions (3 grouped folds), and under the gate an MLPRegressor over the last 5 states' features.
 Sequence model (--deep torch): a torch GRU (hidden 16) over the last 5 states of the possession, run from t-4 to t (no state after t), replaces the MLPRegressor in the sequence slot (still named mlp in the tables); Adam, batch 256, at most 100 epochs, early stopping after 8 epochs on an inner split of the training games, then refit on every training row for the best epoch count; the same isotonic calibration, gate and keep rule.
 Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
 
@@ -93,9 +117,21 @@ Paired bootstrap by game of MSE(hgb) - MSE(mlp), hgb being the lowest-MSE candid
 
 Possession points permuted across possessions of the training games, gradient boosting refit out-of-fold: MSE 1.2837 vs constant 1.2834, lift -0.0 percent (chance is at or below 0; the real lift above is 3.5 percent).
 
-## Held-out games
+## Held-out games, scored once (never fitted or tuned on)
 
-17 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
+44703 states from 17 held-out game(s): 01.02.2016.ORL.at.CLE, 01.04.2016.TOR.at.CLE, 01.18.2016.GSW.at.CLE, 10.30.2015.MIA.at.CLE, 11.04.2015.NYK.at.CLE, 11.06.2015.PHI.at.CLE, 11.08.2015.IND.at.CLE, 11.10.2015.UTA.at.CLE, 11.19.2015.MIL.at.CLE, 11.21.2015.ATL.at.CLE, 11.23.2015.ORL.at.CLE, 12.01.2015.WAS.at.CLE, 12.08.2015.POR.at.CLE, 12.16.2015.PHX.at.GSW, 12.17.2015.OKC.at.CLE, 12.20.2015.PHI.at.CLE, 12.23.2015.NYK.at.CLE; the pipeline was refit on all 1739119 training states. Only the selected candidate (mlp) is scored here, with the constant as a labelled floor; the other candidates never see a held-out row.
+Calibration slope per bucket against the 0.9 to 1.1 target is reported, not tuned on.
+
+| bucket (s) | model | n | Brier P(points > 0) | MSE expected points | calibration slope |
+| --- | --- | --- | --- | --- | --- |
+| all | mlp | 44703 | 0.2318 [0.2298, 0.2340] | 1.2362 [1.1899, 1.2812] | 1.024 |
+| all | constant | 44703 | 0.2491 [0.2474, 0.2509] | 1.3319 [1.2814, 1.3834] | n/a |
+| 0-4 | mlp | 11506 | 0.2471 [0.2458, 0.2483] | 1.3190 [1.2745, 1.3665] | 1.232 |
+| 0-4 | constant | 11506 | 0.2512 [0.2495, 0.2527] | 1.3379 [1.2924, 1.3862] | n/a |
+| 4-10 | mlp | 14819 | 0.2406 [0.2386, 0.2425] | 1.2858 [1.2397, 1.3374] | 1.025 |
+| 4-10 | constant | 14819 | 0.2499 [0.2482, 0.2514] | 1.3384 [1.2903, 1.3873] | n/a |
+| 10-24 | mlp | 18378 | 0.2152 [0.2113, 0.2189] | 1.1443 [1.0872, 1.2044] | 1.010 |
+| 10-24 | constant | 18378 | 0.2471 [0.2451, 0.2496] | 1.3230 [1.2675, 1.3860] | n/a |
 
 ## Status
 

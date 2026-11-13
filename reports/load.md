@@ -1,8 +1,26 @@
 # Load and fatigue baselines (analytics/load/train.py)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
+Written 2026-11-13T00:48:38Z by `python -m analytics.load.train --data $DATA_ROOT --seed 0 --report reports/load.md`.
 
-Written 2026-11-12T07:11:59Z by `python -m analytics.load.train --data $DATA_ROOT --seed 0 --report reports/load.md --skip-heldout`.
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Selected models: ridge for the speed decline and logistic for absence from the next game, refit on all training
+rows (604 games) and scored once on 377 player-games from 17 held-out games, each with its constant floor beside it
+(point estimates only).
+
+| metric | out-of-fold (604 games) | held-out (17 games) |
+| --- | --- | --- |
+| decline MSE, ridge (selected) | 0.4929 [0.4740, 0.5178] (11894 rows) | 0.5164 (344 rows) |
+| decline MSE, training-mean floor | 0.5086 [0.4884, 0.5352] | 0.5180 |
+| absence log loss, logistic (selected) | 0.2764 [0.2644, 0.2883] | 0.2776 (292 rows) |
+| absence log loss, base-rate floor | 0.3244 [0.3118, 0.3379] | 0.3085 |
+
+Where held-out is worse: the decline model. Its MSE of 0.516 is above the out-of-fold interval and its gain over the
+floor shrinks from 0.016 to 0.002, so on these games ridge is barely better than the training mean. The absence model
+holds: its held-out log loss sits inside the out-of-fold interval, with a gain over the base rate of 0.031 against
+0.048 out of fold.
 
 ## Inputs
 
@@ -93,9 +111,18 @@ Calibration table of the logistic model (equal-width bins of p):
 
 No leaguedashptstats SpeedDistance aggregates were present; the cross-check did not run.
 
-## Held-out games, not scored
+## Held-out games, scored once
 
-17 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
+377 player-games from 17 held-out game(s) (01.02.2016.ORL.at.CLE, 01.04.2016.TOR.at.CLE, 01.18.2016.GSW.at.CLE, 10.30.2015.MIA.at.CLE, 11.04.2015.NYK.at.CLE, 11.06.2015.PHI.at.CLE, 11.08.2015.IND.at.CLE, 11.10.2015.UTA.at.CLE, 11.19.2015.MIL.at.CLE, 11.21.2015.ATL.at.CLE, 11.23.2015.ORL.at.CLE, 12.01.2015.WAS.at.CLE, 12.08.2015.POR.at.CLE, 12.16.2015.PHX.at.GSW, 12.17.2015.OKC.at.CLE, 12.20.2015.PHI.at.CLE, 12.23.2015.NYK.at.CLE). One model per pair was selected on its out-of-fold score and scored once here, refit on all training rows; never fitted or tuned on. The constant baseline appears only as a labelled floor under a selected candidate. Point estimates only.
+
+| quantity | value |
+| --- | --- |
+| decline rows | 344 |
+| MSE, selected model (ridge) | 0.5164 |
+| MSE, floor (training mean, not selected) | 0.5180 |
+| absence rows | 292 |
+| log loss, selected model (logistic) | 0.2776 |
+| log loss, floor (base rate, not selected) | 0.3085 |
 
 ## Status and the Mac command
 

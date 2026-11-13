@@ -1,8 +1,27 @@
 # Lineup synergy and stints (analytics/lineups)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 4 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12; the 2024-25 season is held out; 53 games with shifted period labels dropped before stints.
+Written 2026-11-13T00:33:18Z by `python -m analytics.lineups.train --data $DATA_ROOT --seed 0 --report reports/lineups.md`.
 
-Written 2026-11-12T09:20:54Z by `python -m analytics.lineups.train --data $DATA_ROOT --seed 0 --report reports/lineups.md --skip-heldout`.
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Selected model rapm (ridge on player indicators, alpha 3000), refit on 2020-21 to 2023-24 and scored once on the
+held-out 2024-25 season (21 lineups present in both, 253 gated lineups), with plus_minus beside it as the floor. The
+out-of-fold column lists the three forward validation seasons (2021-22, 2022-23, 2023-24); intervals are bootstrap.
+
+| metric | validation seasons (out of fold) | held-out 2024-25 |
+| --- | --- | --- |
+| Spearman, rapm | 0.065, 0.222, 0.041 (mean 0.109) | 0.065 [-0.488, 0.482] |
+| MSE, rapm | 143.1, 196.7, 154.5 | 169.2 [76.6, 279.3] |
+| Spearman, plus_minus floor | 0.082, 0.073, 0.160 (mean 0.105) | -0.101 [-0.523, 0.348] |
+| MSE, plus_minus floor | 199.5, 384.5, 231.9 | 230.7 [145.9, 326.2] |
+| lineups present in both seasons | 18, 27, 26 | 21 |
+
+Where held-out is worse: the rapm Spearman, 0.065 against a validation mean of 0.109, though inside the range of the
+three validation seasons. Every Spearman interval, validation and held-out, contains zero: with about 20 recurring
+lineups per season there is no evidence of ranking skill either way. rapm beats the plus_minus floor on both point
+metrics on held-out, as it did on MSE in every validation season.
 
 ## Inputs
 
@@ -24,7 +43,7 @@ Written 2026-11-12T09:20:54Z by `python -m analytics.lineups.train --data $DATA_
 
 ## Protocol
 
-Unit: stint; target: (points_home - points_away) / possessions x 100 with possessions = duration_s / 28.8 when the table has no count (100 per team per 48 minutes). Candidates: plus_minus (raw net rating pooled over the fitting seasons), rapm (possession-weighted ridge on player indicators, alpha by grouped CV by game over [30.0, 100.0, 300.0, 1000.0, 3000.0, 10000.0, 30000.0, 100000.0]), rapm_synergy (rapm plus ridge-penalised indicators for five-man lineups with at least 300 possessions in the fitting seasons; the lineup coefficient is the synergy). Selection metric: out-of-season Spearman and MSE of the predicted against the raw next-season lineup net rating for lineups with at least 100 possessions on both sides, intervals from 200 bootstrap resamples over lineups (seed 0), paired against plus_minus. The candidate with the highest mean validation Spearman is selected and the held-out season 2024-25 is set aside and never scored (--skip-heldout). Guards: assert_season_split on every fit, refuse_heldout on the training game ids, assert_time_forward on the feature frame.
+Unit: stint; target: (points_home - points_away) / possessions x 100 with possessions = duration_s / 28.8 when the table has no count (100 per team per 48 minutes). Candidates: plus_minus (raw net rating pooled over the fitting seasons), rapm (possession-weighted ridge on player indicators, alpha by grouped CV by game over [30.0, 100.0, 300.0, 1000.0, 3000.0, 10000.0, 30000.0, 100000.0]), rapm_synergy (rapm plus ridge-penalised indicators for five-man lineups with at least 300 possessions in the fitting seasons; the lineup coefficient is the synergy). Selection metric: out-of-season Spearman and MSE of the predicted against the raw next-season lineup net rating for lineups with at least 100 possessions on both sides, intervals from 200 bootstrap resamples over lineups (seed 0), paired against plus_minus. The candidate with the highest mean validation Spearman is selected and the held-out season 2024-25 is scored once by the candidates refitted on 2020-21, 2021-22, 2022-23, 2023-24. Guards: assert_season_split on every fit, refuse_heldout on the training game ids, assert_time_forward on the feature frame.
 
 ## Candidate table: out-of-season validation within the training seasons
 
@@ -61,13 +80,20 @@ Mean validation Spearman: plus_minus 0.105, rapm 0.109, rapm_synergy 0.087. Sele
 | 2020-21 | 2021-22 | 18 | 0.120 | 0.082 |
 | 2021-22 | 2022-23 | 21 | 0.102 | 0.177 |
 | 2022-23 | 2023-24 | 23 | 0.253 | 0.261 |
+| 2023-24 | 2024-25 (held-out season: descriptive, scored once below, not used for selection) | 17 | -0.129 | -0.223 |
 
-Seasons later than the held-out season are not in this table; the held-out season is left out of it (--skip-heldout).
+Seasons later than the held-out season are not in this table; the held-out row is labelled.
 
-## Held-out season, not scored
+## Held-out season, scored once
 
-1304 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
-Season 2024-25 is set aside before any fit; it is left out of the correlation table above and no output table is written for it.
+Season 2024-25 scored once by the selected candidate refitted on 2020-21, 2021-22, 2022-23, 2023-24: 21 lineups present in both, 253 gated lineups, 836 players, alpha rapm 3000, alpha synergy 3000, home court (rapm intercept) 1.79 per 100.
+
+Only the candidate selected on the training seasons is scored here; plus_minus is shown as the labelled floor (not a comparison, no paired test): the other candidates are never scored on the held-out season.
+
+| candidate | Spearman | MSE |
+| --- | --- | --- |
+| plus_minus (floor) | -0.101 [-0.523, 0.348] | 230.705 [145.864, 326.222] |
+| rapm (selected) | 0.065 [-0.488, 0.482] | 169.239 [76.614, 279.349] |
 
 ## Outputs (relative to OUT_ROOT)
 
@@ -82,6 +108,8 @@ Season 2024-25 is set aside before any fit; it is left out of the correlation ta
 - analytics/lineups/2022-23/player_rapm.parquet
 - analytics/lineups/2023-24/lineup_ratings.parquet
 - analytics/lineups/2023-24/player_rapm.parquet
+- analytics/lineups/2024-25/lineup_ratings.parquet
+- analytics/lineups/2024-25/player_rapm.parquet
 
 ## Status and the Mac command
 

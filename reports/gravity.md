@@ -1,8 +1,23 @@
 # Gravity and spacing (analytics/gravity)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 2 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
+Written 2026-11-12T22:00:30Z by `python -m analytics.gravity.train --data $DATA_ROOT --seed 0 --report reports/gravity.md`.
 
-Written 2026-11-12T02:00:00Z by `python -m analytics.gravity.train --data $DATA_ROOT --seed 0 --report reports/gravity.md --skip-heldout`.
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Shipped expectation ridge, refit on all 7983660 training player-frames (604 games), scored once on 195015
+player-frames from 17 held-out games (point estimates only). The skill column is 1 - MSE / MSE of the constant floor.
+
+| metric | out-of-fold (604 games) | held-out (17 games) |
+| --- | --- | --- |
+| MSE, ridge | 28.119 [27.800, 28.452] | 29.913 |
+| MSE, constant floor | 48.155 [47.801, 48.563] | 52.822 |
+| skill over the floor | 0.416 | 0.434 |
+
+Where held-out is worse: the absolute MSE of ridge (29.9 against 28.1, outside the out-of-fold interval). The constant
+floor rises more (48.2 to 52.8), so the share of variance explained is slightly higher on held-out, 0.434 against
+0.416. Gravity itself is the residual of this expectation and has no held-out accuracy of its own.
 
 ## Protocol
 
@@ -59,13 +74,13 @@ Candidates [2594, 201939, 202691, 2744, 2546, 203382, 977, 202331, 200755, 1717]
 
 Mean hull area 579.3 ft2 (sd 272.6), mean nearest-defender distance 9.53 ft over 1596732 training possession-frames.
 
-## Held-out, not scored
+## Held-out, scored once
 
-17 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
+17 held-out game(s), 195015 player-frames, scored once by the shipped ridge refit on all 7983660 training rows: MSE 29.913 (constant floor 52.822, not a selection input). Never fitted, tuned or ranked on.
 
 ## Outputs
 
-No tables written (pass --out OUT_ROOT).
+Tables written under OUT_ROOT/analytics/gravity/ (OUT_ROOT is the --out value): gravity_frames (8178675 rows), gravity_players (447 rows), spacing_frames (1635735 rows).
 
 ## Assumptions
 

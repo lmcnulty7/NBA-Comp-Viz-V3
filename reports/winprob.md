@@ -1,8 +1,33 @@
 # Live win probability (analytics/winprob/train.py)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 5 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-12 with improvement search variant 1 merged (margin_over_sqrt_time; reports/archive/winprob.md); the 2024-25 season is held out; no odds (betting skipped, gates/odds-skip), so the closing spread is missing on every game; NBA.com skipped (gates/nbacom-skip), so the benchmark column is empty.
+Written 2026-11-13T00:41:57Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md`.
 
-Written 2026-11-12T11:46:11Z by `python -m analytics.winprob.train --data $DATA_ROOT --seed 0 --report reports/winprob.md --skip-heldout`.
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Selected model: logistic with margin_over_sqrt_time (improvement search variant 1), refit on all 2292413 training
+events (2020-21 to 2023-24) and scored once on 596840 events from 1304 games of the held-out 2024-25 season. Intervals:
+bootstrap by game. The NBA.com benchmark column stays empty: NBA.com tables were skipped (gates/nbacom-skip).
+
+| metric | out-of-fold (training seasons) | held-out 2024-25 |
+| --- | --- | --- |
+| Brier 48-36 | 0.2306 [0.2278, 0.2332] | 0.2318 [0.2261, 0.2377] |
+| Brier 36-24 | 0.1942 [0.1905, 0.1998] | 0.1982 [0.1881, 0.2065] |
+| Brier 24-12 | 0.1525 [0.1476, 0.1588] | 0.1502 [0.1397, 0.1607] |
+| Brier 12-4 | 0.1038 [0.0986, 0.1089] | 0.1043 [0.0953, 0.1134] |
+| Brier 4-0 | 0.0530 [0.0496, 0.0564] | 0.0582 [0.0504, 0.0666] |
+| Brier OT (reported only) | 0.1538 [0.1379, 0.1707] | 0.1452 [0.1194, 0.1745] |
+| selection metric (mean of the 5 regulation buckets) | 0.1468 | 0.1486 |
+| log loss overall | 0.4845 [0.4767, 0.4945] | 0.4879 [0.4700, 0.5077] |
+| Brier overall | 0.1645 [0.1616, 0.1683] | 0.1658 [0.1590, 0.1732] |
+| calibration slope, 5 regulation buckets | 1.014, 1.004, 0.966, 1.017, 1.065 | 1.001, 0.955, 0.959, 0.957, 0.955 |
+| ECE, 5 regulation buckets | 0.0049, 0.0085, 0.0118, 0.0112, 0.0051 | 0.0145, 0.0208, 0.0129, 0.0124, 0.0079 |
+
+Where held-out is worse: the selection metric (0.1486 against 0.1468), four of the five regulation buckets (all but
+24-12), most in the last 4 minutes (0.0582 against 0.0530), and calibration: ECE is higher in every bucket and the
+slopes drop to about 0.96 (slightly over-confident) where they were 0.97 to 1.06. Every held-out Brier interval
+overlaps its out-of-fold interval.
 
 ## Inputs
 
@@ -27,7 +52,7 @@ Written 2026-11-12T11:46:11Z by `python -m analytics.winprob.train --data $DATA_
 Unit: the game state at each play-by-play event; target: the home team wins. Features (time-forward, `analytics.winprob.features`): margin, seconds_remaining, overtime, period, possession_home, spread_home, spread_missing, margin_x_sqrt_time, margin_over_sqrt_time.
 The final score never enters a feature; `prefix_invariance_violations` found 0 violation(s) on 2 probed game(s) (a feature at event k is unchanged when the play-by-play is cut after k).
 Candidates: constant (training-fold home win rate); logistic regression on margin, seconds_remaining, possession_home (with a missing flag), margin_x_sqrt_time and margin_over_sqrt_time (standardised, C=1); HistGradientBoostingClassifier on the same plus period, overtime, spread_home and spread_missing, calibrated by isotonic regression on inner out-of-fold predictions (3 folds by game). No deep model.
-Selection: out-of-fold under 5 grouped folds by game within the training seasons (seed 0). The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). Intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0). The held-out season is set aside and never scored (--skip-heldout).
+Selection: out-of-fold under 5 grouped folds by game within the training seasons (seed 0). The selection metric is the unweighted mean of the Brier score over the five regulation time buckets (minutes remaining 48-36, 36-24, 24-12, 12-4, 4-0; OT reported only). Intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0). The held-out season is scored once, by the selected candidate refit on all training rows.
 
 ## Candidates by time bucket
 
@@ -114,9 +139,20 @@ The constant model has no calibration slope by design.
 | 2023-24 | 4-0 | 55713 | 0.543 | 0.541 | 0.0508 | 1.069 |
 | 2023-24 | OT | 3392 | 0.577 | 0.635 | 0.1489 | 0.935 |
 
-## Held-out season 2024-25, not scored
+## Held-out season 2024-25, scored once
 
-1304 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
+596840 events from 1304 games of 2024-25, never fitted or tuned on; the selected candidate (logistic) refit on all 2292413 training rows scored them once.
+
+| bucket | n | Brier | ECE | slope | benchmark (NBA.com WinProbabilityPBP) |
+| --- | --- | --- | --- | --- | --- |
+| 48-36 | 142433 | 0.2318 [0.2261, 0.2377] | 0.0145 [0.0087, 0.0415] | 1.0005 [0.8237, 1.1977] |  |
+| 36-24 | 151539 | 0.1982 [0.1881, 0.2065] | 0.0208 [0.0142, 0.0413] | 0.9547 [0.8574, 1.0972] |  |
+| 24-12 | 147390 | 0.1502 [0.1397, 0.1607] | 0.0129 [0.0094, 0.0337] | 0.9594 [0.8706, 1.0648] |  |
+| 12-4 | 96071 | 0.1043 [0.0953, 0.1134] | 0.0124 [0.0099, 0.0301] | 0.9569 [0.8677, 1.0509] |  |
+| 4-0 | 55910 | 0.0582 [0.0504, 0.0666] | 0.0079 [0.0063, 0.0181] | 0.9552 [0.8615, 1.0952] |  |
+| OT | 3497 | 0.1452 [0.1194, 0.1745] | 0.0268 [0.0261, 0.1003] | 1.0499 [0.7729, 1.4783] |  |
+
+Overall: log loss 0.4879 [0.4700, 0.5077], Brier 0.1658 [0.1590, 0.1732], mean bucket Brier 0.1486.
 
 ## Benchmark
 
@@ -132,6 +168,8 @@ NBA.com tables were skipped by the owner (gates/nbacom-skip, 2026-11-11), so the
 - $DATA_ROOT/analytics/winprob/2022-23/winprob_calibration.parquet
 - $DATA_ROOT/analytics/winprob/2023-24/winprob_states.parquet
 - $DATA_ROOT/analytics/winprob/2023-24/winprob_calibration.parquet
+- $DATA_ROOT/analytics/winprob/2024-25/winprob_states.parquet
+- $DATA_ROOT/analytics/winprob/2024-25/winprob_calibration.parquet
 
 ## Mac command
 
@@ -141,7 +179,7 @@ The real run over the five seasons under DATA_ROOT (collect/stints/playbyplay/<s
 
 ## Assumptions
 
-- A whole season is held out (default 2024-25) and set aside unscored in this run (--skip-heldout); folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).
+- A whole season is held out (default 2024-25) and scored once; folds inside the training seasons are grouped by game; seasons later than the held-out season are ignored entirely (listed under Inputs).
 - 2015-16 games of sportvu/splits.json never fit anything: rows flagged heldout are dropped, the 2015-16 season is refused as a held-out season, and refuse_heldout runs on the training ids.
 - The closing spread is the median over books of the is_close spreads market for the home side, joined on game_date and the home team name (analytics.winprob.features.TEAM_NAMES); null with a flag when absent.
 - The possession indicator is read from event kinds and is null when the events so far do not say.

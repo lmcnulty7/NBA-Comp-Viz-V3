@@ -1,8 +1,25 @@
 # xFG upgrade: shot quality with contest features (analytics/xfg)
 
-**Real data, training folds only; held-out not scored.** Stage 5 phase 1 (docs/mac_runbook.md), run with --skip-heldout on 2026-11-11.
+Written 2026-11-12T21:43:04Z by `python -m analytics.xfg.train --data $DATA_ROOT --seed 0 --report reports/xfg.md`.
 
-Written 2026-11-12T00:55:13Z by `python -m analytics.xfg.train --data $DATA_ROOT --seed 0 --report reports/xfg.md --skip-heldout`.
+**Real data, stage 8 held-out run of group 1 (tag freeze-v1, 2026-11-12): the held-out games were scored exactly once, by the model frozen at freeze-v1.** Every out-of-fold number below is identical to the frozen training-fold run; nothing was refit, tuned or reselected after the held-out numbers were seen.
+
+## Stage 8: held-out next to out-of-fold (freeze-v1)
+
+Selected model hgb_contest_prior, refit on all 101853 training attempts (607 games), scored once on 2939 attempts
+from 18 held-out games. Intervals: bootstrap by game (200 resamples, seed 0).
+
+| metric | out-of-fold (607 games) | held-out (18 games) |
+| --- | --- | --- |
+| log loss | 0.6294 [0.6277, 0.6316] | 0.6232 [0.6132, 0.6327] |
+| Brier | 0.2209 [0.2201, 0.2219] | 0.2187 [0.2142, 0.2233] |
+| ECE (10 bins) | 0.0029 [0.0021, 0.0061] | 0.0189 [0.0143, 0.0347] |
+| calibration slope | 1.0001 [0.9757, 1.0245] | 1.0896 [0.9850, 1.1978] |
+
+Where held-out is worse: calibration. The held-out ECE is about six times the out-of-fold ECE and its interval lies
+entirely above the out-of-fold one; the slope of 1.09 says the model is under-confident on these games, although its
+interval still contains 1. Log loss and Brier are slightly better on held-out (the held-out make rate is 0.460 against
+0.449 in training), with intervals that overlap the out-of-fold ones.
 
 ## Inputs and rows
 
@@ -97,9 +114,39 @@ Paired bootstrap by game, log loss difference (negative favours the first):
 | 8 | 0.80 | 0.90 | 3357 | 0.8660 | 0.8668 |
 | 9 | 0.90 | 1.00 | 3680 | 0.9454 | 0.9451 |
 
-## Held-out score (not scored)
+## Held-out score (scored once by the selected candidate refit on all 101853 training rows)
 
-18 held-out game(s) set aside before any fit and never fitted, tuned or scored: held-out games not scored (--skip-heldout).
+2939 attempts from 18 held-out game(s): 01.02.2016.ORL.at.CLE, 01.04.2016.TOR.at.CLE, 01.18.2016.GSW.at.CLE, 01.23.2016.CHI.at.CLE, 10.30.2015.MIA.at.CLE, 11.04.2015.NYK.at.CLE, 11.06.2015.PHI.at.CLE, 11.08.2015.IND.at.CLE, 11.10.2015.UTA.at.CLE, 11.19.2015.MIL.at.CLE, 11.21.2015.ATL.at.CLE, 11.23.2015.ORL.at.CLE, 12.01.2015.WAS.at.CLE, 12.08.2015.POR.at.CLE, 12.16.2015.PHX.at.GSW, 12.17.2015.OKC.at.CLE, 12.20.2015.PHI.at.CLE, 12.23.2015.NYK.at.CLE. Never fitted or tuned on.
+
+| candidate | log loss | Brier | ECE (10 bins) | calibration slope |
+| --- | --- | --- | --- | --- |
+| hgb_contest_prior | 0.6232 | 0.2187 | 0.0189 | 1.0896 |
+
+Point estimates, with the game bootstrap below.
+
+### hgb_contest_prior (held-out, scored once)
+
+2939 rows, 18 games, base rate 0.4597, bootstrap by game (n=200, seed=0, 95 percent percentile interval)
+
+| metric | point | lo | hi |
+| --- | --- | --- | --- |
+| log loss | 0.6232 | 0.6132 | 0.6327 |
+| Brier | 0.2187 | 0.2142 | 0.2233 |
+| ECE | 0.0189 | 0.0143 | 0.0347 |
+| calibration slope | 1.0896 | 0.9850 | 1.1978 |
+
+| bin | lo | hi | n | mean_p | mean_y |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.00 | 0.10 | 5 | 0.0599 | 0.0000 |
+| 1 | 0.10 | 0.20 | 47 | 0.1609 | 0.0851 |
+| 2 | 0.20 | 0.30 | 118 | 0.2655 | 0.2373 |
+| 3 | 0.30 | 0.40 | 1128 | 0.3653 | 0.3759 |
+| 4 | 0.40 | 0.50 | 858 | 0.4291 | 0.4126 |
+| 5 | 0.50 | 0.60 | 282 | 0.5375 | 0.5106 |
+| 6 | 0.60 | 0.70 | 248 | 0.6424 | 0.6653 |
+| 7 | 0.70 | 0.80 | 42 | 0.7500 | 0.8095 |
+| 8 | 0.80 | 0.90 | 83 | 0.8845 | 0.9518 |
+| 9 | 0.90 | 1.00 | 128 | 0.9362 | 0.9297 |
 
 ## Output
 
@@ -114,7 +161,7 @@ xfg_predictions (docs/contract/xfg.md): OUT_ROOT/analytics/xfg/2015-16/xfg_predi
 - The shooter prior is the smoothed (m = 20) make rate by (player_id, zone) from the fitting rows only, out-of-fold by game for the rows being fitted; zones are rim (under 4 ft), paint (under 14 ft), mid, corner3, above3.
 - Selection is by out-of-fold log loss alone; ECE under 0.02 is a target reported, not a selection rule.
 - The isotonic map of the boosting candidate is bounded to [0.02, 0.98] so a sparse calibration set cannot emit exact 0 or 1.
-- Held-out rows are set aside before any fit and, under --skip-heldout, never refit on, predicted or scored; none reaches xfg_predictions.
+- Held-out rows are scored once, by the selected candidate refit on all training rows; in xfg_predictions their p_location and p_contest are NaN unless that candidate is the selected one.
 - Bootstrap intervals are 2.5 and 97.5 percentiles over whole-game resamples; with one held-out game no interval is meaningful.
 
 ## The real run on the Mac
