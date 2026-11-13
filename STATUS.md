@@ -2,7 +2,16 @@
 
 ## Runbook progress
 
-**STAGE 8, GROUP 1 RUNNING (started 2026-11-12 13:38 PST).** The owner explicitly authorised stage 8 for group 1
+**STAGE 8, GROUP 1 DONE (2026-11-12 13:38 to 16:48 PST); stage 9 in progress.** All 35 run_all steps and the xfg
+baseline finished ok on the first run, so no lane was rerun and the crash rule below was never used. Every out-of-fold
+number came out identical to the frozen run. The reports with "Stage 8: held-out next to out-of-fold" sections are on
+branch stage8-group1, PR #11 (base track-fix). Held-out worse than out of fold: xfg calibration (ECE 0.019 against
+0.003), the xfg baseline (all metrics), rebounds (log loss 1.71 against 1.60), epv MSE (1.236 against 1.216; 0-4 s slope
+1.23), decisions (rho -0.014 against 0.012, no signal in either), lineups (Spearman 0.065 against a 0.109 mean), winprob
+(selection 0.1486 against 0.1468), load decline (MSE 0.516 against 0.493). Not worse: ghosting (1.0 s 3.42 ft against
+3.66). Absolute MSE worse but floor rises more: matchups, gravity. Embeddings: no held-out by design.
+
+Stage 8 record (started 2026-11-12 13:38 PST). The owner explicitly authorised stage 8 for group 1
 and told the loop, in so many words, to create `gates/go-stage8` itself once three conditions were checked. The loop
 checked them and created the gate at 13:38:
 1. matchups' held-out section scores the selected candidate (ridge) and the constant floor on the held-out games in
