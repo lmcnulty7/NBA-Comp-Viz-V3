@@ -37,6 +37,7 @@ th{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:u
 .tag.real{border-color:var(--ok);color:var(--ok)}
 .tag.plan{color:var(--plan)}
 .tag.smoke{border-color:var(--accent);color:var(--accent)}
+.tag.weak{border-color:var(--accent);color:var(--accent)}
 svg{max-width:100%;height:auto;display:block}
 figure{margin:16px 0 0}
 figcaption{font-size:.82rem;color:var(--muted);margin-top:8px}
@@ -57,7 +58,7 @@ footer ul{padding-left:18px;margin:8px 0 0}
 <header>
   <div class="eyebrow">NBA Comp Viz V3 · analytics on player tracking · 2026</div>
   <h1>Where every player stood, and what it was worth.</h1>
-  <p class="pitch">Player tracking recovered from broadcast video, validated against the one public half-season of league tracking data, and an analytics layer (shot quality, rebounds, possession value) built on that data with leakage control first.</p>
+  <p class="pitch">Player tracking recovered from broadcast video, validated against the one public half-season of league tracking data, and an analytics layer (shot quality, rebounds, possession value) built on that data with leakage control first. Eleven models were frozen and then scored once on games they never saw.</p>
   <div class="who"><a href="https://github.com/lmcnulty7">github.com/lmcnulty7</a><a href="https://www.linkedin.com/in/lucien-mcnulty">linkedin.com/in/lucien-mcnulty</a></div>
 </header>
 
@@ -69,7 +70,7 @@ footer ul{padding-left:18px;margin:8px 0 0}
     <div class="tile"><div class="n">621</div><div class="l">games of tracking converted to the project's contract tables <span class="tag real">measured</span></div></div>
     <div class="tile"><div class="n">25 Hz</div><div class="l">frames per second, ten players and the ball x, y, z</div></div>
     <div class="tile"><div class="n">104,967</div><div class="l">shot attempts recovered from public shot charts, 0.27% short of play-by-play, all heaves beyond half court <span class="tag real">measured</span></div></div>
-    <div class="tile acc"><div class="n">18</div><div class="l">held-out games that fit nothing; a test fails any trainer that skips the guard</div></div>
+    <div class="tile acc"><div class="n">18</div><div class="l">held-out games (17 with usable tracking) that fit nothing, scored once after the freeze <span class="tag real">measured</span></div></div>
   </div>
 </section>
 
@@ -112,22 +113,26 @@ footer ul{padding-left:18px;margin:8px 0 0}
 
 <section>
   <div class="eyebrow">Results</div>
-  <h2>What has actually been measured.</h2>
-  <p>Every number below was computed from the repository's data. Rows marked smoke come from a single held-out game used once as a smoke test with no parameter tuned on it. Nothing here is a projection.</p>
+  <h2>Frozen first, then scored once on unseen games.</h2>
+  <p>Each model was chosen on 604 training games (or four training seasons) by a rule fixed before it ran, frozen at a tagged commit, and only then scored on the held-out games: 17 or 18 games for the tracking models, the whole 2024-25 season for the two play-by-play models. Intervals are 95 percent bootstraps over games; a held-out value without one is a point estimate over 17 or 18 games.</p>
   <div class="scroll"><table>
-    <thead><tr><th>Component</th><th>Metric</th><th>Value</th><th>Sample</th><th>Status</th></tr></thead>
+    <thead><tr><th>Model</th><th>Question</th><th>Training folds</th><th>Held out</th><th>Verdict</th></tr></thead>
     <tbody>
-      <tr><td>Shot-chart recovery</td><td>attempts recovered vs play-by-play</td><td>104,967 vs 105,249</td><td>625 games</td><td><span class="tag real">measured</span></td></tr>
-      <tr><td>Shot-chart pixel frame</td><td>mean distance residual</td><td>0.31 ft</td><td>625 games</td><td><span class="tag real">measured</span></td></tr>
-      <tr><td>Roster name map</td><td>names matched, shot chart and play-by-play</td><td>22 of 22, 25 of 25</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
-      <tr><td>Shot release localisation</td><td>release frame found; shooter identity where known</td><td>125 of 179 (70%); 97%</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
-      <tr><td>Rebound localisation</td><td>rebound frame found; rebounder identity where known</td><td>83 of 95 (87%); 72.5%</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
-      <tr><td>Possession segmentation</td><td>possessions; points summed vs final score</td><td>219; 231 = 231</td><td>1 game</td><td><span class="tag smoke">smoke</span></td></tr>
-      <tr><td>xFG location-only baseline</td><td>log loss, logistic vs constant</td><td>0.674 vs 0.692 in-sample; 0.664 vs 0.693 held out</td><td>191 and 179 attempts</td><td><span class="tag smoke">smoke</span></td></tr>
-      <tr><td>Vision track, held-out game</td><td>position error p50, p90; players missed</td><td>7.3 ft, 15.4 ft; 25%</td><td>15% of frames testable</td><td><span class="tag real">measured 2026-10-03</span></td></tr>
-      <tr><td>Test suite, analytics layer</td><td>tests passing</td><td>99</td><td>9 modules</td><td><span class="tag real">measured</span></td></tr>
+      <tr><td>xFG</td><td>will this shot go in?</td><td>log loss 0.6294 [0.6277, 0.6316]</td><td>0.6232 [0.6132, 0.6327]</td><td><span class="tag real">works</span> beats location-only by 0.050 held out; calibration worse there</td></tr>
+      <tr><td>Rebounds</td><td>who gets this miss?</td><td>log loss 1.601 [1.588, 1.610]</td><td>1.712</td><td><span class="tag real">works</span> uniform floor 2.39; held out worse by 0.11</td></tr>
+      <tr><td>EPV</td><td>points from this possession state</td><td>MSE 1.2155 [1.2080, 1.2226]</td><td>1.2362 [1.1899, 1.2812]</td><td><span class="tag real">works</span> 5% under the constant, 7% held out</td></tr>
+      <tr><td>Ghosting</td><td>where should the defender have been, 1 s ahead?</td><td>3.66 ft [3.64, 3.68]</td><td>3.42 ft</td><td><span class="tag real">works</span> persistence 5.41 and 5.25 ft</td></tr>
+      <tr><td>Win probability</td><td>who wins from here?</td><td>mean bucket Brier 0.1468</td><td>0.1486 (1,304 games)</td><td><span class="tag real">works</span> held-out slopes 0.95 to 1.00</td></tr>
+      <tr><td>Gravity</td><td>how far defenders stay, beyond location</td><td>R2 0.416</td><td>0.434</td><td><span class="tag real">works</span> as an expectation; effect on teammates small</td></tr>
+      <tr><td>Absence</td><td>does the player sit next game?</td><td>log loss 0.2764 [0.2644, 0.2883]</td><td>0.2776</td><td><span class="tag real">works</span> base rate 0.324 and 0.309</td></tr>
+      <tr><td>Embeddings</td><td>who plays alike?</td><td>5-NN position accuracy 0.768</td><td>none by design</td><td><span class="tag real">passes gate</span></td></tr>
+      <tr><td>Matchups</td><td>what does a defender allow?</td><td>MSE 1.2854 vs constant 1.2842</td><td>1.3195 vs 1.3251</td><td><span class="tag weak">no signal</span> assignment stable (0.82); ratings do not beat a constant</td></tr>
+      <tr><td>Lineups (RAPM)</td><td>which lineups are good?</td><td>season-ahead Spearman 0.109</td><td>0.065 [-0.49, 0.48]</td><td><span class="tag weak">inconclusive</span> about 20 recurring lineups a season</td></tr>
+      <tr><td>Speed decline</td><td>does past load predict slowing?</td><td>MSE 0.4929 vs mean 0.5086</td><td>0.5164 vs 0.5180</td><td><span class="tag weak">weak</span> barely above the mean held out</td></tr>
+      <tr><td>Decision quality</td><td>was this the best option?</td><td>Spearman 0.012 [-0.008, 0.029]</td><td>-0.014 [-0.116, 0.100]</td><td><span class="tag weak">failed</span> does not track offensive rating</td></tr>
     </tbody>
   </table></div>
+  <p style="margin-top:12px">Held out was worse than the training folds for xFG calibration, rebounds, EPV, win probability, lineups, speed decline and decision quality, and better for ghosting. None of the failures was rescued after the held-out numbers were seen. Data foundation: 104,967 shot attempts recovered from public shot charts against 105,249 in play-by-play (625 games, mean distance residual 0.31 ft); the analytics layer has 866 passing fast tests.</p>
 </section>
 
 <section>
@@ -159,19 +164,19 @@ footer ul{padding-left:18px;margin:8px 0 0}
   <h2>Six phases, each closed by a measured gate.</h2>
   <p>Baselines before deep models, one evaluation protocol for all of them: game-level splits, bootstrap intervals over games, calibration reported next to accuracy, a 300-sample floor before any ranking.</p>
   <ol class="phases">
-    <li class="done"><div class="ph">0</div><div><strong>Data foundation</strong>: release and rebound frames, possessions, evaluation harness, held-out guard. <span class="tag real">built, 99 tests</span><div class="gate">gate: shooter identity 95%, rebounder 90% on 200 audited shots (full run pending)</div></div></li>
-    <li><div class="ph">1</div><div><strong>xFG and rebound probability</strong>: defender distance and closing speed at release; multinomial over the ten players at the rim. <span class="tag smoke">baseline built</span> <span class="tag plan">planned</span><div class="gate">gate: both beat their baselines; held-out arena within 1.5x of the held-out game</div></div></li>
-    <li><div class="ph">2</div><div><strong>EPV, gravity, matchups</strong>: one-second state table, gradient boosting with isotonic calibration before any sequence model. <span class="tag plan">planned</span><div class="gate">gate: calibration slope 0.9 to 1.1 on held-out games</div></div></li>
-    <li><div class="ph">3</div><div><strong>Stints, win probability, lineups, embeddings</strong> on five seasons of play-by-play. <span class="tag plan">planned</span><div class="gate">gate: win probability calibrated on a held-out season</div></div></li>
-    <li><div class="ph">4</div><div><strong>Hand labels, ball-screen detection, ghosting</strong>: the one deep model, after a linear baseline. <span class="tag plan">planned</span><div class="gate">gate: screen F1 over 0.8; ghosting beats linear</div></div></li>
-    <li><div class="ph">5</div><div><strong>Coverage recognition, decision quality</strong>. <span class="tag plan">planned</span><div class="gate">gate: reported, no fixed target until labels are counted</div></div></li>
+    <li class="done"><div class="ph">0</div><div><strong>Data foundation</strong>: release and rebound frames, possessions, evaluation harness, held-out guard. <span class="tag real">built</span><div class="gate">gate: release frame within 0.4 s on at least 90% of hand-audited high-confidence shots. 96.7% (323 of 334, met)</div></div></li>
+    <li class="done"><div class="ph">1</div><div><strong>xFG and rebound probability</strong>: defender distance and closing speed at release; multinomial over the players at the rim. <span class="tag real">held out scored</span><div class="gate">gate: both beat their baselines. xFG 0.6232 against the location baseline's 0.6735; rebounds 1.71 against the uniform 2.39</div></div></li>
+    <li class="done"><div class="ph">2</div><div><strong>EPV, gravity, matchups</strong>: one-second states, gradient boosting with isotonic calibration, then a GRU that beat it. <span class="tag real">held out scored</span><div class="gate">gate: calibration slope 0.9 to 1.1 on held-out games. EPV 1.02 overall, 1.23 in the first 4 seconds (missed there)</div></div></li>
+    <li class="done"><div class="ph">3</div><div><strong>Stints, win probability, lineups, embeddings</strong> on five seasons of play-by-play. <span class="tag real">held out scored</span><div class="gate">gate: win probability calibrated on a held-out season. Slopes 0.95 to 1.00, ECE at most 0.021 (met)</div></div></li>
+    <li><div class="ph">4</div><div><strong>Hand labels, ball-screen detection, ghosting</strong>: the one deep model, after a linear baseline. <span class="tag real">ghosting done</span> <span class="tag plan">labels pending</span><div class="gate">gate: ghosting beats linear (3.66 ft against 4.54, met); screen F1 over 0.8 waits for the labels</div></div></li>
+    <li><div class="ph">5</div><div><strong>Coverage recognition, decision quality</strong>. <span class="tag weak">decisions failed</span> <span class="tag plan">coverage pending</span><div class="gate">gate: reported. Decision quality shows no validated signal; coverage waits for the labels</div></div></li>
   </ol>
 </section>
 
 <footer>
   <div class="eyebrow">Assumptions and provenance</div>
   <ul>
-    <li>Built unattended on 2026-11-05 from the repository's STATUS.md, reports and execution plan. Numbers marked smoke come from one held-out game, 12.16.2015 at the home arena of the training set, run once with no tuning.</li>
+    <li>Updated unattended on 2026-11-12 from reports/results.md: the stage 8 run of the models frozen at tag freeze-v1, each scored on its held-out games exactly once. Every number is copied from a lane report; the held-out games are every game at one arena plus one scorecard game.</li>
     <li>The vision-track error is the 2026-10-03 measurement on the held-out game, before a camera-model fix whose adoption is pending; it is shown because it is the last number on record, not because it is current.</li>
     <li>The possession animation uses synthetic coordinates and illustrates the contract rules only.</li>
     <li>Raw tracking logs are league property and stay private; the repository publishes code, schemas, aggregates and reports.</li>

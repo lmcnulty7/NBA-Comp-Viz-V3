@@ -240,6 +240,8 @@ def metric(name: str, cell: str, note: str = "") -> Metric:
     rest = m.group(3)
     if rest:
         raise ParseError("%s: unexpected text %r after the value" % (name, rest))
+    if m.group(2) and note == "point estimate":     # the report states an interval, so it is not a bare point
+        note = ""
     return Metric(name, m.group(1), m.group(2) or "", note)
 
 

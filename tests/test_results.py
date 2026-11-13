@@ -592,3 +592,11 @@ def test_run_all_fixture_banner_form_is_fixture():
     assert R.parse_report("rebounds", stamped).status == R.FIXTURE
     assert R.parse_report("rebounds", title + " (fixture output, not a result)\n" + rest).status == R.FIXTURE
     assert R.parse_report("rebounds", text).status == R.REAL_HELDOUT
+
+
+def test_a_held_out_cell_with_an_interval_is_not_labelled_a_point_estimate():
+    with_interval = R.metric("MSE expected points", "1.2362 [1.1899, 1.2812]", "point estimate")
+    assert with_interval.interval == "[1.1899, 1.2812]" and with_interval.note == ""
+    assert "point estimate" not in with_interval.show()
+    bare = R.metric("MSE expected points", "1.2362", "point estimate")
+    assert bare.show() == "MSE expected points 1.2362 (point estimate)"
