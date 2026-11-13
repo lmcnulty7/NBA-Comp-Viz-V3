@@ -1,35 +1,57 @@
-# STATUS.md: extension build, 2026-11-05 (unattended)
+# STATUS.md: closing record of group 1 (2026-11-12)
 
-## Runbook progress
+## Closing record
 
-**STAGE 8, GROUP 1 DONE (2026-11-12 13:38 to 16:48 PST); stage 9 in progress.** All 35 run_all steps and the xfg
-baseline finished ok on the first run, so no lane was rerun and the crash rule below was never used. Every out-of-fold
-number came out identical to the frozen run. The reports with "Stage 8: held-out next to out-of-fold" sections are on
-branch stage8-group1, PR #11 (base track-fix). Held-out worse than out of fold: xfg calibration (ECE 0.019 against
-0.003), the xfg baseline (all metrics), rebounds (log loss 1.71 against 1.60), epv MSE (1.236 against 1.216; 0-4 s slope
-1.23), decisions (rho -0.014 against 0.012, no signal in either), lineups (Spearman 0.065 against a 0.109 mean), winprob
-(selection 0.1486 against 0.1468), load decline (MSE 0.516 against 0.493). Not worse: ghosting (1.0 s 3.42 ft against
-3.66). Absolute MSE worse but floor rises more: matchups, gravity. Embeddings: no held-out by design.
+Group 1 of the extension build (xfg and its location baseline, rebounds, matchups, gravity, ghosting, embeddings,
+epv, decisions, lineups, winprob, load) has gone through every runbook stage, 0 to 9. Group 2 (actions, coverage,
+playcalling) waits for the stage 4 hand labels; betting and the NBA.com tables were skipped by the owner.
 
-Stage 8 record (started 2026-11-12 13:38 PST). The owner explicitly authorised stage 8 for group 1
-and told the loop, in so many words, to create `gates/go-stage8` itself once three conditions were checked. The loop
-checked them and created the gate at 13:38:
-1. matchups' held-out section scores the selected candidate (ridge) and the constant floor on the held-out games in
-   one MSE table (point estimates, analytics/matchups/train.py score_heldout and the "Held-out game(s), scored once"
-   section of write_report).
-2. Crash rule (the owner's condition): if the Mac crashes mid-run, rerun only the lanes that did not finish (every
-   step ok in logs/loop/stage8_group1.log), with the same frozen code at freeze-v1, and record the rerun here. A lane
-   that finished is never rerun: that would be a second look at held-out.
-3. The run uses a fresh worktree detached at tag `freeze-v1` (7d8b8ee), outside the repo at
-   `../NBA-V3-stage8-freeze-v1`, with no modified and no untracked files (`git status --porcelain` empty, logged at
-   the start of the run). The main checkout's tracked tree is also identical to freeze-v1; its untracked owner
-   files (docs drafts, data/gate_sheet, portfolio/story) are why the run is in a separate worktree.
+| stage | what happened | record |
+| --- | --- | --- |
+| 0 to 2 | checks passed, collectors run | 2026-11-07, sections below |
+| 3 | Phase 0 on every tracked game; shot audit passed (0.967 of high-confidence releases within 0.4 s, mark 0.90) | 2026-11-07 to 11-11, reports/shot_audit.md |
+| 4 | hand labels deferred by the owner | "Stage 4 labelling (deferred)" below |
+| 5 | every group 1 lane trained on training folds only (`--skip-heldout`); improvement search accepted 2 of 2 variants | reports/<lane>.md at freeze-v1, reports/archive/ |
+| 6 | torch GRU kept for epv (paired 0.0062 [0.0054, 0.0071]); ghosting GRU not kept (worse by 0.111 ft) | reports/epv.md, reports/ghosting_torch.md |
+| 7 | group 1 frozen at tag `freeze-v1` (7d8b8ee); frozen settings on every contract page | docs/contract/<lane>.md |
+| 8 | single held-out run, 2026-11-12 13:38 to 16:48 PST, all 35 steps ok, no lane rerun; out-of-fold numbers reproduced exactly | PR #11 (branch stage8-group1) |
+| 9 | reports/results.md written (summary, one section per lane, generated tables); portfolio/hiring_manager_page.html updated and `make site` run; this record | branch stage9-results |
 
-Commands (docs/mac_runbook.md, stage 8), one at a time under caffeinate and `/usr/bin/time -l`, log
-logs/loop/stage8_group1.log: `run_all.py --data "$DATA_ROOT" --ext xfg rebounds matchups gravity ghosting embeddings
-epv decisions lineups winprob load --continue-on-error` (no `--skip-heldout`), then the xfg baseline with both shot
-files. Reports land in the worktree's reports/ and are copied to a branch from track-fix for the stage 8 PR. Expected
-about 3 to 4 hours (epv about 21 GB, gravity about 15 GB peak).
+**Results** (reports/results.md has the intervals and the reasoning):
+
+| lane | out-of-fold | held-out | verdict |
+| --- | --- | --- | --- |
+| xfg | log loss 0.6294 | 0.6232 | works; held-out calibration worse (ECE 0.019) |
+| xfg baseline | 0.6665 | 0.6735 | worse on every held-out metric |
+| rebounds | per-miss log loss 1.6009 | 1.7115 | works (floor 2.39); held-out worse |
+| matchups | MSE 1.2854 vs constant 1.2842 | 1.3195 vs 1.3251 | no defender signal out of fold |
+| gravity | MSE 28.12 (skill 0.416) | 29.91 (0.434) | expectation transfers |
+| ghosting | 1.0 s error 3.657 ft | 3.417 ft | works; better on held-out |
+| embeddings | 5-NN 0.768 | none by design | passes its gate |
+| epv | MSE 1.2155 | 1.2362 | works; held-out MSE higher in every bucket |
+| decisions | rho 0.012 | -0.014 | failed: no validated signal |
+| lineups | Spearman mean 0.109 | 0.065 | inconclusive |
+| winprob | mean bucket Brier 0.1468 | 0.1486 | works; slightly worse held out |
+| load | decline MSE 0.4929; absence log loss 0.2764 | 0.5164; 0.2776 | absence works; decline barely beats the mean |
+
+**Stage 8 conditions (the owner's, all held).** The owner authorised stage 8 explicitly and told the loop to create
+`gates/go-stage8` itself after three checks, which it did at 13:38: (1) matchups' held-out section scores ridge and the
+constant floor in one table; (2) after a crash only unfinished lanes would be rerun, at freeze-v1, recorded here (not
+needed: nothing crashed); (3) the run used a fresh worktree detached at `freeze-v1` with no modified or untracked files.
+
+**Open, for the owner:**
+- Merge PR #11 (stage 8 reports) and the stage 9 PR into track-fix.
+- Group 2: label the 8 games (below), then `gates/labels-done` with kappa at least 0.7, stages 5 to 7 for actions,
+  coverage and playcalling, freeze `freeze-v2`, and `gates/go-stage8-v2` for their single held-out run. Their sections
+  get added to reports/results.md. Group 1 code is not changed and no group 1 lane is rescored.
+- The stage 8 worktree `../NBA-V3-stage8-freeze-v1` (outside the repo, about 12000 files) can be removed with
+  `git worktree remove ../NBA-V3-stage8-freeze-v1`; its logs are in logs/run_all/ inside it.
+- Known defects left as they are (frozen code, or outside group 1): the lineups abbreviated-name player key can collide;
+  `collect/fetch_pbp.parse_events` mis-handles periods; the winprob boosting candidate fixes random_state 0; run_all
+  passes no `--bootstrap`, so every lane used its default of 200 resamples.
+- The owner's email address is in the git history of this public repository; removing it needs a history rewrite and
+  is the owner's decision.
+- The published Court Ledger artifact was not republished; only portfolio/hiring_manager_page.html and site/ changed.
 
 Owner decisions 2026-11-11 (recorded here as asked):
 - **Stage 4 hand labels are deferred** (the owner may label later or source labels elsewhere). The 8-game list
@@ -45,6 +67,8 @@ Owner decisions 2026-11-11 (recorded here as asked):
 - **Ghosting train memory:** fit on every 5th defender-step (1 Hz) of all training games, float32; evaluation
   unchanged at the 5 Hz roll-forward, streamed one game at a time; timed on 10 games first, then the full run
   if it fits overnight and in memory.
+
+## History (the progress record as written during the run; superseded by the closing record above)
 
 ### Stage 4 labelling (deferred)
 
