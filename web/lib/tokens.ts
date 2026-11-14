@@ -120,6 +120,14 @@ export const TOKENS: Readonly<Record<string, TokenSpec>> = {
   "players.n_hidden": { file: "players.json", field: "n_hidden", shownAs: "count, as stored" },
 };
 
+/**
+ * The tokens whose field the contract lets a document leave out, and for which docs/SCRIPT.md names what the page
+ * shows instead ("When a value is missing"): the typical gap of the scene (step 4.2 falls back) and the gap of the
+ * frame on screen (the readout shows its no-gap label). Every other token must find its field; a missing key is an
+ * error, so a renamed field can never drop a line of the cold open in silence.
+ */
+export const OPTIONAL_TOKENS: ReadonlySet<string> = new Set(["frames.scene.p50_error_ft", "frames.scene.frame.error_ft"]);
+
 /** A token in copy: {file.part.part}, lower case, at least one dot. A {letters} placeholder is not a token. */
 export const TOKEN_PATTERN = /\{([a-z][a-z_]*(?:\.[a-z0-9_]+)+)\}/g;
 
@@ -135,6 +143,11 @@ export interface TokenData {
 /** What "the frame on screen" is, for a token whose field path selects [k]. */
 export interface TokenContext {
   frame?: number;
+}
+
+export interface WalkOptions {
+  /** The last key of the path may be absent (a field the contract makes optional); it then reads as undefined. */
+  optional?: boolean;
 }
 
 export class TokenError extends Error {
@@ -169,12 +182,19 @@ const SEGMENT = /^([a-z_0-9]+)(?:\[([^\]]+)\])?$/;
 /**
  * Walk a field path of the token table through one data document and return what it selects. A selector in
  * brackets picks a list item by the value of one of its fields (it must pick exactly one), by position, or by k
- * (the frame on screen); on a dictionary it picks a key. Returns undefined when an optional field is absent
- * or null; throws when the path does not fit the data, so a wrong row key or value name fails.
+ * (the frame on screen); on a dictionary it picks a key. Returns undefined when the value is null, or when the
+ * last key is absent and `optional` says it may be; throws when the path does not fit the data otherwise, so a
+ * wrong row key or value name, or a field the export stopped writing, fails.
  */
-export function walkField(document: unknown, field: string, context: TokenContext = {}): unknown {
+export function walkField(
+  document: unknown,
+  field: string,
+  context: TokenContext = {},
+  options: WalkOptions = {},
+): unknown {
   let current: unknown = document;
-  for (const segment of field.split(".")) {
+  const segments = field.split(".");
+  for (const [position, segment] of segments.entries()) {
     const parsed = SEGMENT.exec(segment);
     if (!parsed) throw new TokenError(`${field}: cannot read ${JSON.stringify(segment)}`);
     const name = parsed[1] as string;
@@ -183,8 +203,8 @@ export function walkField(document: unknown, field: string, context: TokenContex
       throw new TokenError(`${field}: nothing to read ${name} from`);
     }
     if (!(name in current)) {
-      // A field the contract makes optional may be left out of a document.
-      if (selector === undefined) return undefined;
+      // Only a field the contract makes optional, at the end of the path and marked so, may be left out.
+      if (options.optional && selector === undefined && position === segments.length - 1) return undefined;
       throw new TokenError(`${field}: the data has no ${name}`);
     }
     current = (current as Record<string, unknown>)[name];
@@ -293,7 +313,7 @@ export function resolveToken(name: string, data: Partial<TokenData>, context: To
   // A model of the demo comparison whose rebuild did not pass its check has no number to show (C6).
   const summary = /^summaries\[kind=([a-z]+)\]\./.exec(spec.field);
   if (summary && walkField(document, `summaries[kind=${summary[1]}].available`) !== true) return null;
-  const value = walkField(document, spec.field, context);
+  const value = walkField(document, spec.field, context, { optional: OPTIONAL_TOKENS.has(name) });
   if (value === undefined) return null;
   if (typeof value !== "number") throw new TokenError(`{${name}}: ${spec.field} holds ${JSON.stringify(value)}, not a number`);
   return showValue(value, spec.shownAs);

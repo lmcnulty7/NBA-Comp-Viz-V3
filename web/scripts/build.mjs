@@ -9,7 +9,8 @@
 //
 // The private variant copies the clips folder (MEDIA_PRIVATE_DIR, else web/media-private) into out/clips and
 // fails when that folder is missing. The public variant fails, and removes out/, when out/ holds a video
-// file or a moving image, and when a route kept for the private site (a page.private.tsx file) is in out/.
+// file or a moving image, and when a route kept for the private site (a page.private.tsx file) is in out/. A
+// private route with no fixed folder before its first [param] cannot be checked that way, so it fails both variants.
 // Both variants fail, and remove out/, when a page, a script or a data file in out/ holds a local path, a
 // cloud mount name or an email address: nothing private is published.
 import { spawnSync } from "node:child_process";
@@ -86,13 +87,30 @@ export function privateRoutes(appDir = path.join(WEB_DIR, "app")) {
 }
 
 /** The first folder of out/ a private route would be written to (the part before its first [param]). */
-function staticPrefix(segments) {
+export function staticPrefix(segments) {
   const prefix = [];
   for (const segment of segments) {
     if (segment.startsWith("[")) break;
     prefix.push(segment);
   }
   return prefix;
+}
+
+/**
+ * Private routes the public build could not prove it left out: one with no fixed folder before its first
+ * [param] (app/page.private.tsx, app/[x]/page.private.tsx) would be written beside the public pages, so no folder
+ * of out/ tells it apart. Such a route is refused in both variants instead of being skipped.
+ */
+export function uncheckablePrivateRoutes(routes) {
+  return routes.filter((segments) => staticPrefix(segments).length === 0);
+}
+
+/** The private routes a built public site holds: each one whose fixed folder is in out/. */
+export function leakedPrivateRoutes(outDir, routes) {
+  return routes.filter((segments) => {
+    const prefix = staticPrefix(segments);
+    return prefix.length > 0 && existsSync(path.join(outDir, ...prefix));
+  });
 }
 
 function fail(message) {
@@ -127,6 +145,16 @@ function main() {
     fail(`the data root does not validate against the contract (${problems.length} problem(s))`);
   }
 
+  // A private route the public build cannot check is refused before the long step, in both variants.
+  const secret = privateRoutes();
+  const uncheckable = uncheckablePrivateRoutes(secret);
+  if (uncheckable.length) {
+    fail(
+      `the private route(s) ${uncheckable.map((segments) => `/${segments.join("/")}`).join(", ")} have no fixed folder ` +
+        "before their first [param], so the public build could not prove it left them out. Give each one a folder.",
+    );
+  }
+
   // The clips folder is checked before the long step, so a private build fails early.
   const media = mediaPrivateDir();
   if (variant === "private" && !(existsSync(media) && statSync(media).isDirectory())) {
@@ -145,7 +173,6 @@ function main() {
   if (next.status !== 0) fail(`next build failed (exit ${next.status})`);
   if (!existsSync(path.join(OUT_DIR, "index.html"))) fail("next build wrote no out/index.html");
 
-  const secret = privateRoutes();
   if (variant === "private") {
     const clips = path.join(OUT_DIR, "clips");
     cpSync(media, clips, { recursive: true, filter: (source) => !path.basename(source).startsWith(".") });
@@ -158,10 +185,7 @@ function main() {
     }
   } else {
     const hits = findVideo(OUT_DIR);
-    const leaked = secret.filter((segments) => {
-      const prefix = staticPrefix(segments);
-      return prefix.length > 0 && existsSync(path.join(OUT_DIR, ...prefix));
-    });
+    const leaked = leakedPrivateRoutes(OUT_DIR, secret);
     if (hits.length || leaked.length) {
       for (const hit of hits) console.error(`build: ${path.relative(OUT_DIR, hit.file)} is ${hit.why}`);
       for (const segments of leaked) console.error(`build: the private route /${segments.join("/")} is in out/`);

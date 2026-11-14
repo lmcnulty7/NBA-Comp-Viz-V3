@@ -42,6 +42,9 @@ for (const [name, files, message] of [
   ["a token the script does not list", { "talk/first.md": "# Title\n\nIt moved {swap.xfg.mean_abs_diff2} points.\n" }, "placeholder {swap.xfg.mean_abs_diff2} must be {letters} or a token"],
   ["ghosts called the best defense", { "review.json": JSON.stringify({ a: "Where the best defense would stand." }) }, "an average defense"],
   ["ghosts called optimal positions", { "review.json": JSON.stringify({ a: "The optimal positions for the defenders." }) }, "an average defense"],
+  ["a claim that no model saw the games", { "review.json": JSON.stringify({ games: { heldout: "No model saw them while it was fitted or tuned." } }) }, "review.json.games.heldout: forbidden claim"],
+  ["a claim of what a defender should do", { "results.json": JSON.stringify({ a: "Where the defender should stand." }) }, "results.json.a: forbidden claim"],
+  ["a claim on a slide", { "talk/first.md": "# Title\n\nThis proves the tracker works.\n" }, "talk/first.md:3: forbidden claim"],
   ["a file that is not JSON or Markdown", { "home.txt": "words" }, "copy files are .json or .md"],
   ["broken JSON", { "home.json": "{" }, "not valid JSON"],
 ] as const) {
@@ -51,6 +54,15 @@ for (const [name, files, message] of [
     expect(done.status).toBe(1);
   });
 }
+
+test("presenter notes may name a word the copy never uses, to forbid it; the slide's own lines may not", () => {
+  const notes = '# Title\n\nThe row is met on the point estimate.\n\n## Notes\n\n- I never say "passes".\n';
+  const good = copyCheck({ "talk/first.md": notes });
+  expect(good.status, good.output).toBe(0);
+  const bad = copyCheck({ "talk/first.md": notes.replace("is met on the point estimate", "passes") });
+  expect(bad.output).toContain("talk/first.md:3: forbidden claim");
+  expect(bad.status).toBe(1);
+});
 
 test("a token of docs/SCRIPT.md may name a field with a digit; a typed number still fails", () => {
   const good = copyCheck({
@@ -360,4 +372,25 @@ test("a page.private.tsx file names a route kept out of the public build", async
   // The slides of PLAN.md M10 are the site's private-only routes.
   const site = privateRoutes(path.join(WEB_DIR, "app")).map((segments) => segments.join("/")).sort();
   expect(site).toEqual(["talk", "talk/[slide]"]);
+});
+
+test("a private route with no fixed folder is refused, and a leaked one is found in out/", async () => {
+  const app = tempDir("app");
+  for (const file of ["page.private.tsx", "[slug]/page.private.tsx", "talk/[slide]/page.private.tsx", "notes/page.private.tsx"]) {
+    mkdirSync(path.dirname(path.join(app, file)), { recursive: true });
+    writeFileSync(path.join(app, file), "export default function Page() { return null; }\n");
+  }
+  const build = (await import("../../scripts/build.mjs")) as unknown as {
+    privateRoutes(appDir: string): string[][];
+    uncheckablePrivateRoutes(routes: string[][]): string[][];
+    leakedPrivateRoutes(outDir: string, routes: string[][]): string[][];
+  };
+  const routes = build.privateRoutes(app);
+  const names = (list: string[][]) => list.map((segments) => `/${segments.join("/")}`).sort();
+  // The home page and a top-level [param] would sit beside the public pages: no folder of out/ tells them apart.
+  expect(names(build.uncheckablePrivateRoutes(routes))).toEqual(["/", "/[slug]"]);
+  const out = outDir({ "index.html": "<p>home</p>", "talk/index.html": "<p>slides</p>" });
+  expect(names(build.leakedPrivateRoutes(out, routes))).toEqual(["/talk/[slide]"]);
+  // The site itself has none that cannot be checked.
+  expect(build.uncheckablePrivateRoutes(build.privateRoutes(path.join(WEB_DIR, "app")))).toEqual([]);
 });

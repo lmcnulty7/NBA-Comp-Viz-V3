@@ -82,6 +82,25 @@ test("the gap of the scene is on screen only beside the scorecard value of the g
   await expect(step).toContainText(`Across all the scored stretches of this game`);
 });
 
+test("every panel of numbers in the cold open says its values are point estimates (D53)", async ({ page }) => {
+  await page.goto("./");
+  const ui = copy.home.ui;
+  const panels = [
+    [page.locator('[data-scene="boxes"]').getByTestId("score-bars").locator(".."), ui.pointEstimates],
+    [page.locator('[data-scene="truth"]').getByTestId("gap-panel"), ui.pointEstimates],
+    [page.locator('[data-scene="swap"]').getByTestId("fill-share"), ui.pointShare],
+    [page.locator('[data-scene="swap"]').getByTestId("pair-table"), ui.pointEstimates],
+  ] as const;
+  let seen = 0;
+  for (const [panel, words] of panels) {
+    if ((await panel.count()) === 0) continue;
+    seen += 1;
+    await expect(panel.getByTestId("point-note")).toHaveText(words);
+  }
+  const demo = await served<DemoSwap>(page, "data/demo/swap.json");
+  if (demo) expect(seen).toBeGreaterThanOrEqual(3);
+});
+
 test("the public site shows a still and the request-access note, and no clip", async ({ page }) => {
   test.skip(build.variant !== "public", "this is the private variant");
   await page.goto("./");

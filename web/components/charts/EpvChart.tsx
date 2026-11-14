@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { epvAt } from "@/components/review/timeline";
+import { epvStateAt } from "@/components/review/timeline";
 import { copy, fill } from "@/lib/copy";
 import { formatNumber, formatSeconds } from "@/lib/format";
+import { showValue } from "@/lib/tokens";
 import type { EpvCurve } from "@/lib/types/contract";
 import { linear, niceDomain, niceStep, stepDecimals, ticks } from "./scale";
 import styles from "./charts.module.css";
@@ -27,6 +28,10 @@ export interface EpvChartProps {
  * The EPV curve of a possession with a cursor at the playback time (PLAN.md M5). Expected points for the
  * offense from each state, the frozen model's raw output, one value about every second. Every value is a point
  * estimate (D53). Pressing or dragging on the chart moves playback to that moment.
+ *
+ * The line joins the states with straight segments, a picture only. The readout and its dot show a stored state
+ * as the file holds it: the last state at or before the playback time, and the last state at the end of playback
+ * (timeline.ts, epvStateAt).
  */
 export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps) {
   const text = copy.review.possession.epv;
@@ -59,7 +64,8 @@ export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps)
   const xTicks = ticks(0, span, width < 420 ? 3 : 6);
   const path = times.map((t, index) => `${index === 0 ? "M" : "L"}${x(t).toFixed(1)},${y(values[index] ?? 0).toFixed(1)}`).join("");
   const clamped = Math.min(Math.max(time, 0), span);
-  const now = epvAt(curve, clamped);
+  const now = epvStateAt(curve, clamped, end);
+  const stored = (value: number | undefined) => (value === undefined ? "" : showValue(value, "points, as stored"));
 
   const seekFrom = (event: PointerEvent<SVGSVGElement>) => {
     if (!onSeek) return;
@@ -72,8 +78,8 @@ export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps)
   const first = values[0];
   const last = values[n - 1];
   const name = fill(text.label, {
-    start: formatNumber(first, 2),
-    end: formatNumber(last, 2),
+    start: stored(first),
+    end: stored(last),
     n,
   });
 
@@ -81,10 +87,8 @@ export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps)
     <figure className={styles.chart} data-testid="epv-chart">
       <figcaption className={styles.chartHead}>
         <span className={styles.chartTitle}>{text.title}</span>
-        <span className={styles.readout} data-testid="epv-readout">
-          {now === null
-            ? null
-            : fill(text.readout, { t: formatSeconds(clamped), value: formatNumber(now, 2) })}
+        <span className={styles.readout} data-testid="epv-readout" data-state={now?.index}>
+          {now === null ? null : fill(text.readout, { t: formatSeconds(now.t), value: stored(now.value) })}
           <span className={styles.point}>{copy.site.estimate.point}</span>
         </span>
       </figcaption>
@@ -152,7 +156,7 @@ export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps)
             className={styles.cursor}
             data-testid="epv-cursor"
           />
-          {now === null ? null : <circle cx={x(clamped)} cy={y(now)} r={4.5} className={styles.cursorDot} />}
+          {now === null ? null : <circle cx={x(now.t)} cy={y(now.value)} r={4.5} className={styles.cursorDot} />}
         </svg>
       </div>
       <p className={styles.hint}>{onSeek ? text.hint : text.hintStatic}</p>
@@ -171,7 +175,7 @@ export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps)
               {times.map((t, index) => (
                 <tr key={`${t}-${index}`}>
                   <td className="num">{formatSeconds(t)}</td>
-                  <td className="num">{formatNumber(values[index], 3)}</td>
+                  <td className="num">{stored(values[index])}</td>
                 </tr>
               ))}
             </tbody>

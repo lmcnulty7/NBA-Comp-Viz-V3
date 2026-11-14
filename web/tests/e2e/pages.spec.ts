@@ -31,6 +31,23 @@ for (const route of sampledRoutes()) {
       await expect(banner).toHaveCount(0);
     }
 
+    // No copy template reaches the page with a placeholder left unfilled: not in the text, hidden or shown, and
+    // not in a label a screen reader reads. Scripts and styles are left out (they hold the copy as data).
+    const unfilled = await page.evaluate(() => {
+      const placeholder = /\{[a-zA-Z][a-zA-Z0-9_.]*\}/g;
+      const body = document.body.cloneNode(true) as HTMLElement;
+      body.querySelectorAll("script, style, noscript, template").forEach((element) => element.remove());
+      const found = [...(body.textContent ?? "").matchAll(placeholder)].map((match) => match[0]);
+      for (const element of document.body.querySelectorAll("[aria-label], [title], [alt], [placeholder]")) {
+        for (const name of ["aria-label", "title", "alt", "placeholder"]) {
+          found.push(...[...(element.getAttribute(name) ?? "").matchAll(placeholder)].map((match) => `${name}: ${match[0]}`));
+        }
+      }
+      found.push(...[...document.title.matchAll(placeholder)].map((match) => `title: ${match[0]}`));
+      return found;
+    });
+    expect(unfilled, "a copy template with an unfilled {placeholder}").toEqual([]);
+
     // Nothing is wider than the window.
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, "the page scrolls sideways").toBeLessThanOrEqual(0);

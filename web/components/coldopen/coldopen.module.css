@@ -389,6 +389,18 @@
   color: var(--muted);
 }
 
+.pointNote {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  transition: opacity 0.4s ease;
+}
+
+.pointNote[data-shown="false"] {
+  opacity: 0;
+}
+
 .thin {
   position: relative;
   display: block;

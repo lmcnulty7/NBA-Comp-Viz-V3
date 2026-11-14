@@ -1,5 +1,5 @@
 import { Status, type StatusTone } from "@/components/ui/Status";
-import { copy, fill, label } from "@/lib/copy";
+import { copy, fill, fillNodes, label } from "@/lib/copy";
 import type { LaneResult, MetricValue, Results } from "@/lib/types/contract";
 import { DataText, DataValue } from "./DataValue";
 import { words } from "./ScorecardSection";
@@ -110,7 +110,7 @@ export function ModelTable({ results }: { results: Results }) {
                       <DataText file={FILE} field={`${path}.verdict`} text={lane.verdict} />
                     </q>
                     <span className="note">
-                      {text.quoted} <RepoPath path={lane.verdict_source} />
+                      {fillNodes(text.quoted, { source: <RepoPath path={lane.verdict_source} /> })}
                     </span>
                   </td>
                 </tr>

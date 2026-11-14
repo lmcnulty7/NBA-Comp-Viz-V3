@@ -1,7 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { CourtCanvasElement } from "@/components/court/Court";
+import { signedText } from "@/components/results/DataValue";
 import { buildTour } from "@/components/review/tour";
 import { copy } from "@/lib/copy";
+import { showValue, walkField } from "@/lib/tokens";
 import type { Possession, Results } from "@/lib/types/contract";
 import { build, courtCase, manifest, possessionIndex } from "./site";
 import { watch } from "./watch";
@@ -111,6 +113,13 @@ test("play, pause, speed and scrub move the court and the EPV cursor together", 
   await page.keyboard.press("End");
   await expect(slider).toHaveValue(String(target.frames - 1));
   await expect(play).toHaveText(text.possession.playback.replay);
+  // At the end of playback the readout shows the last stored EPV state, as the file holds it.
+  const curve = (await detail(page, target.gameSlug, target.possession)).epv;
+  if (hasEpv && curve) {
+    const last = Math.min(curve.t.length, curve.value.length) - 1;
+    await expect(page.getByTestId("epv-readout")).toHaveAttribute("data-state", String(last));
+    await expect(page.getByTestId("epv-readout")).toContainText(showValue(curve.value[last]!, "points, as stored"));
+  }
 
   // Press on the EPV chart: playback jumps there.
   if (hasEpv) {
@@ -199,6 +208,13 @@ test("the shot marker's xFG is a point estimate, beside the lane's held-out metr
     else await expect(metric).toContainText(/ to /);
   } else {
     await expect(metric).toHaveAttribute("data-lane-missing", "true");
+  }
+  // Every held-out metric on the page prints its stored value, as the results page does.
+  const values = await page.getByTestId("lane-metric").locator("[data-field]").evaluateAll((nodes) =>
+    nodes.map((node) => [(node as HTMLElement).dataset.field ?? "", node.textContent ?? ""] as const),
+  );
+  for (const [field, shown] of values) {
+    expect(shown, field).toBe(signedText(walkField(results, field) as number, "as stored", false));
   }
 });
 

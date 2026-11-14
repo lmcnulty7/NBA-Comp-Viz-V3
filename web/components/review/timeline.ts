@@ -103,20 +103,29 @@ export function sceneAtTime(possession: Possession, time: number, options: TimeS
   return tweened;
 }
 
-/** The EPV value at a time: on the line between the two states around it, held flat outside the curve. */
-export function epvAt(curve: EpvCurve | null | undefined, time: number): number | null {
-  if (!curve || curve.t.length === 0 || curve.value.length === 0) return null;
+/** One stored EPV state: its index in the curve, its time and its value, exactly as the data file holds them. */
+export interface EpvState {
+  index: number;
+  t: number;
+  value: number;
+}
+
+/**
+ * The stored EPV state the readout shows at a playback time: the last state at or before the time, never a value
+ * between two states (no file stores one). Playback stops at the last tracking frame (`end`), and the last EPV
+ * state can sit a little after it, so at the end, or past it, the readout shows the last state. Before the first
+ * state, it shows the first. The drawn line still joins the states with straight segments; that is only a
+ * picture.
+ */
+export function epvStateAt(curve: EpvCurve | null | undefined, time: number, end: number): EpvState | null {
+  if (!curve) return null;
   const n = Math.min(curve.t.length, curve.value.length);
-  const first = curve.t[0] ?? 0;
-  if (time <= first) return curve.value[0] ?? null;
-  const last = curve.t[n - 1] ?? 0;
-  if (time >= last) return curve.value[n - 1] ?? null;
-  const k = frameAtOrBefore(curve.t.slice(0, n), time);
-  const t0 = curve.t[k] ?? 0;
-  const t1 = curve.t[k + 1] ?? t0;
-  const v0 = curve.value[k] ?? 0;
-  const v1 = curve.value[k + 1] ?? v0;
-  return t1 > t0 ? lerp(v0, v1, (time - t0) / (t1 - t0)) : v0;
+  if (n === 0) return null;
+  const times = curve.t.slice(0, n);
+  const index = time >= end ? n - 1 : frameAtOrBefore(times, time);
+  const t = curve.t[index];
+  const value = curve.value[index];
+  return t === undefined || value === undefined ? null : { index, t, value };
 }
 
 /** The playback speeds offered, as multiples of real time. Their names live in web/content. */

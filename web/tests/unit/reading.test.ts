@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { cpSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { WEB_DIR, runScript, tempDir } from "../helpers/scripts";
 
@@ -102,6 +102,14 @@ for (const [name, change, message, slide] of [
     expect(done.status).toBe(1);
   });
 }
+
+test("the reading check fails when the deck is missing, so no slide goes unchecked", () => {
+  const dir = brokenContent(() => undefined);
+  rmSync(path.join(dir, "talk", "deck.json"));
+  const done = runScript("check-reading.mjs", ["--content", dir]);
+  expect(done.output).toContain("talk/deck.json: missing");
+  expect(done.status).toBe(1);
+});
 
 test("a slide file is read the same way by the site and the check", async () => {
   const { parseSlide } = (await import("../../scripts/lib/slides.mjs")) as unknown as Slides;

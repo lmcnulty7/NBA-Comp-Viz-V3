@@ -97,6 +97,12 @@ export const FORBIDDEN = [
   "\\bproves?\\b",
 ].map((pattern) => ({ pattern, re: new RegExp(pattern, "i") }));
 
+/** The forbidden claims in one line of copy, as messages. Tokens are left out of the scan. */
+export function forbiddenClaims(line) {
+  const plain = line.replace(TOKEN_RE, " ");
+  return FORBIDDEN.filter(({ re }) => re.test(plain)).map(({ pattern }) => `forbidden claim /${pattern}/`);
+}
+
 /** The jargon and the forbidden claims in one line of copy, as messages. Tokens are left out of the scan. */
 export function plainWordProblems(line, { allowGroundTruth = false } = {}) {
   const plain = line.replace(TOKEN_RE, " ");
@@ -105,8 +111,6 @@ export function plainWordProblems(line, { allowGroundTruth = false } = {}) {
     if (allowGroundTruth && pattern === "ground truth") continue;
     if (re.test(plain)) problems.push(`jargon /${pattern}/`);
   }
-  for (const { pattern, re } of FORBIDDEN) {
-    if (re.test(plain)) problems.push(`forbidden claim /${pattern}/`);
-  }
+  problems.push(...forbiddenClaims(line));
   return problems;
 }

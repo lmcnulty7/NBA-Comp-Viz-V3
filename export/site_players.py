@@ -497,8 +497,9 @@ def _metric_notes(doc, info: PlayersInfo, absence_model: bool, similar_ready: bo
             "shot_making_baseline. baseline_error_per_100 is the part of a player's value that this table explains "
             "for his mix of shots: his attempts in each calibration bin times that bin's observed minus predicted "
             "rate, per 100 attempts. Read the two numbers together.",
-            "The frozen xFG model includes a shooter prior, so its own residual is near zero by construction. It is "
-            "given for reference only.",
+            "frozen_model_residual_per_100 is the residual of the frozen xFG model. That model includes a shooter "
+            "prior: it already knows the shooter, so its residual is not a measure over expected. It is given for "
+            "reference only.",
             _left_out_note(info),
             "fg_pct is descriptive: the share of the player's counted attempts that went in.",
             f"Interval: {interval}. It belongs to over_expected_per_100. fg_pct, expected_fg_pct, "

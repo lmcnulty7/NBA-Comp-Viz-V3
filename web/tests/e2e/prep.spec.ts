@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { metricEstimate, sortPlayers } from "@/components/prep/sort";
-import { copy } from "@/lib/copy";
-import { MINUS } from "@/lib/format";
+import { copy, fill } from "@/lib/copy";
+import { MINUS, formatSigned } from "@/lib/format";
 import { players } from "./site";
 
 /** Browser tests of the prep tab (PLAN.md M6, C9), on whatever data root the site was built from. */
@@ -34,15 +34,28 @@ test("the player index searches by name and sorts by a metric, with the interval
     const player = players.players.find((candidate) => candidate.slug === order[index])!;
     const cell = (await cells.nth(index).innerText()).replace(/\s+/g, " ");
     if (metricEstimate(player, "shot_making")) {
-      expect(new RegExp(`\\d to [\\d${MINUS}]`).test(cell) || cell.includes(copy.site.estimate.point), cell).toBe(true);
+      // The value's own words, not the baseline note beside it (which says point estimate as well).
+      const value = (await cells.nth(index).locator(".estimate").innerText()).replace(/\s+/g, " ");
+      expect(new RegExp(`\\d to [\\d${MINUS}]`).test(value) || value.includes(copy.site.estimate.point), value).toBe(true);
+      // D51: the baseline's own error sits beside the value.
+      if (player.shot_making.baseline_error_per_100 != null) {
+        expect(cell).toContain(fill(text.list.baselineError, { value: formatSigned(player.shot_making.baseline_error_per_100, 1) }));
+      }
     } else {
       expect(cell).toContain(text.list.below);
     }
   }
+  await expect(page.getByTestId("sort-note")).toHaveText(text.list.baselineNote);
   await page.getByTestId("player-reverse").click();
   await expect
     .poll(async () => rows.evaluateAll((items) => items.map((item) => item.getAttribute("data-player"))))
     .toEqual(sortPlayers(players.players, "shot_making", true).map((player) => player.slug));
+
+  // Absence risk carries its caution: it is not an injury forecast. Name order carries no note.
+  await page.getByTestId("player-sort").selectOption("absence_risk");
+  await expect(page.getByTestId("sort-note")).toHaveText(text.list.absenceNote);
+  await page.getByTestId("player-sort").selectOption("name");
+  await expect(page.getByTestId("sort-note")).toHaveCount(0);
 });
 
 test("a player page states the hidden players, each view's minimum sample, and the baseline's calibration", async ({ page }) => {

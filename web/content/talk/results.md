@@ -3,7 +3,7 @@ visual: results
 ---
 # The models, as tested
 
-Each model was tested once on games it never saw. The verdicts come from the write-up, word for word.
+Each model with a test on unseen games was tested on them once. A model with no such test says so in its row. The verdicts come from the write-up, word for word.
 
 ## Notes
 

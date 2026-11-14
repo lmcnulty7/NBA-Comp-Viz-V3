@@ -6,34 +6,49 @@ import styles from "./coldopen.module.css";
 const ui = copy.home.ui;
 const open = copy.home.coldOpen;
 
+/**
+ * The words that a panel's values are point estimates (D53): the cold open shows no interval, so every panel says
+ * so, as the results page does for a value with no interval.
+ */
+function PointNote({ text = ui.pointEstimates, shown = true }: { text?: string; shown?: boolean }) {
+  return (
+    <p className={styles.pointNote} data-shown={shown ? "true" : "false"} data-testid="point-note">
+      {text}
+    </p>
+  );
+}
+
 /** Scene 2: each tracking row as a bar against its target line, with its status in words. */
 export function ScoreBars({ bars, shown = true }: { bars: Bar[]; shown?: boolean }) {
   if (bars.length === 0) return null;
   return (
-    <ul className={styles.bars} aria-label={ui.barsLabel} data-shown={shown ? "true" : "false"} data-testid="score-bars">
-      {bars.map((bar) => (
-        <li key={bar.key} className={styles.bar} data-row={bar.key}>
-          <span className={styles.barHead}>
-            <span className={styles.barName}>{bar.label}</span>
-            <span className={`num ${styles.barValue}`}>{bar.value}</span>
-          </span>
-          <span className={styles.track} aria-hidden="true">
-            <span className={styles.fillBar} style={{ width: `${bar.share * 100}%` }} />
-            {bar.targetShare !== null ? (
-              <span className={styles.targetLine} style={{ left: `${bar.targetShare * 100}%` }} />
-            ) : null}
-          </span>
-          <span className={styles.barFoot}>
-            <span>
-              {open.boxes.labels.target}
-              {": "}
-              <span className="num">{bar.target}</span>
+    <div className={styles.panel}>
+      <ul className={styles.bars} aria-label={ui.barsLabel} data-shown={shown ? "true" : "false"} data-testid="score-bars">
+        {bars.map((bar) => (
+          <li key={bar.key} className={styles.bar} data-row={bar.key}>
+            <span className={styles.barHead}>
+              <span className={styles.barName}>{bar.label}</span>
+              <span className={`num ${styles.barValue}`}>{bar.value}</span>
             </span>
-            <Status tone={bar.tone} text={bar.status} />
-          </span>
-        </li>
-      ))}
-    </ul>
+            <span className={styles.track} aria-hidden="true">
+              <span className={styles.fillBar} style={{ width: `${bar.share * 100}%` }} />
+              {bar.targetShare !== null ? (
+                <span className={styles.targetLine} style={{ left: `${bar.targetShare * 100}%` }} />
+              ) : null}
+            </span>
+            <span className={styles.barFoot}>
+              <span>
+                {open.boxes.labels.target}
+                {": "}
+                <span className="num">{bar.target}</span>
+              </span>
+              <Status tone={bar.tone} text={bar.status} />
+            </span>
+          </li>
+        ))}
+      </ul>
+      <PointNote shown={shown} />
+    </div>
   );
 }
 
@@ -80,6 +95,7 @@ export function GapPanel({ readout, row }: { readout: string; row: PositionRow |
           ) : null}
         </dl>
       ) : null}
+      <PointNote />
     </div>
   );
 }
@@ -98,6 +114,7 @@ export function FillShare({ value, share }: { value: string; share: number }) {
       <span className={styles.track} aria-hidden="true">
         <span className={styles.fillBar} style={{ width: `${Math.min(1, Math.max(0, share)) * 100}%` }} />
       </span>
+      <PointNote text={ui.pointShare} />
     </div>
   );
 }
@@ -106,28 +123,31 @@ export function FillShare({ value, share }: { value: string; share: number }) {
 export function PairTable({ rows }: { rows: PairRow[] }) {
   if (rows.length === 0) return <p className="small muted">{ui.pairNone}</p>;
   return (
-    <div className={`table-wrap ${styles.pairs}`} role="region" aria-label={ui.pairs} tabIndex={0}>
-      <table>
-        <caption className="visually-hidden">{ui.pairs}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{ui.pairWhat}</th>
-            <th scope="col">{ui.pairSensor}</th>
-            <th scope="col">{ui.pairBroadcast}</th>
-            <th scope="col">{ui.pairGap}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.key} data-kind={row.kind}>
-              <th scope="row">{row.label}</th>
-              <td className="num">{row.sensor}</td>
-              <td className="num">{row.broadcast}</td>
-              <td className="num">{row.gap}</td>
+    <div className={styles.panel} data-testid="pair-table">
+      <div className={`table-wrap ${styles.pairs}`} role="region" aria-label={ui.pairs} tabIndex={0}>
+        <table>
+          <caption className="visually-hidden">{ui.pairs}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{ui.pairWhat}</th>
+              <th scope="col">{ui.pairSensor}</th>
+              <th scope="col">{ui.pairBroadcast}</th>
+              <th scope="col">{ui.pairGap}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.key} data-kind={row.kind}>
+                <th scope="row">{row.label}</th>
+                <td className="num">{row.sensor}</td>
+                <td className="num">{row.broadcast}</td>
+                <td className="num">{row.gap}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <PointNote />
     </div>
   );
 }
