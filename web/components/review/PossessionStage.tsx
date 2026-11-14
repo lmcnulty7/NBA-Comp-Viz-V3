@@ -89,7 +89,6 @@ export function PossessionStage({ gameSlug, possession: possessionNumber, lanes,
   const speedId = useId();
   const viewName = useId();
   const ghostId = useId();
-  const panelId = useId();
 
   useEffect(() => {
     let cancelled = false;
@@ -352,59 +351,16 @@ export function PossessionStage({ gameSlug, possession: possessionNumber, lanes,
             ) : null}
           </ul>
 
-          <div className={styles.panels}>
-            <section className={styles.panel} aria-labelledby={`${panelId}-epv`}>
-              <h3 id={`${panelId}-epv`}>{text.epv.heading}</h3>
-              {possession.epv && possession.epv.t.length > 0 && possession.epv.value.length > 0 ? (
-                <EpvChart
-                  curve={possession.epv}
-                  end={end}
-                  time={time}
-                  shotTimes={shotTimes}
-                  onSeek={playable ? seek : undefined}
-                />
-              ) : (
-                <p className="small" data-testid="epv-none">
-                  {text.epv.none}
-                </p>
-              )}
-              <LaneMetric lane={lanes.epv} model={text.epv.model} />
-              <Evidence what={text.epv.heading} sources={evidence.epv} />
-            </section>
-
-            <section className={styles.panel} aria-labelledby={`${panelId}-shot`} data-testid="shot-card">
-              <h3 id={`${panelId}-shot`}>{text.shot.heading}</h3>
-              {shot ? (
-                <>
-                  <p className="small">
-                    {fill(text.shot.what, {
-                      shooter: shot.shooter ?? copy.site.none,
-                      outcome: shot.made ? text.shots.made : text.shots.missed,
-                    })}{" "}
-                    {shot.t != null ? fill(text.shot.when, { t: formatSeconds(shot.t) }) : null}
-                  </p>
-                  {shot.xfg != null ? (
-                    <div className={styles.xfgRow}>
-                      <span className={styles.xfgValue} data-testid="shot-xfg">
-                        <span>{text.shot.xfg}</span> <span className="num">{formatProbability(shot.xfg)}</span>{" "}
-                        <span className="muted">{copy.site.estimate.point}</span>
-                      </span>
-                      <XfgBar xfg={shot.xfg} />
-                    </div>
-                  ) : (
-                    <p className="small">{text.shot.noXfg}</p>
-                  )}
-                  {shot.location_source === "shot_chart" ? (
-                    <p className="small muted">{text.shots.locationFromShotChart}</p>
-                  ) : null}
-                </>
-              ) : (
-                <p className="small">{text.shot.none}</p>
-              )}
-              <LaneMetric lane={lanes.xfg} model={text.shot.model} />
-              <Evidence what={text.shot.heading} sources={evidence.shots} />
-            </section>
-          </div>
+          <ValuePanels
+            possession={possession}
+            shot={shot}
+            end={end}
+            time={time}
+            shotTimes={shotTimes}
+            onSeek={playable ? seek : undefined}
+            lanes={lanes}
+            evidence={evidence}
+          />
 
           <div className="stack stack-tight small" data-testid="ghost-notes">
             {ghosts ? (
@@ -437,6 +393,81 @@ export function PossessionStage({ gameSlug, possession: possessionNumber, lanes,
           {evidence.other.length > 0 ? <Evidence what={text.otherSources} sources={evidence.other} /> : null}
         </>
       ) : null}
+    </div>
+  );
+}
+
+export interface ValuePanelsProps {
+  possession: Possession;
+  /** The shot the card shows, or null for none. */
+  shot: Shot | null;
+  end: number;
+  time: number;
+  shotTimes: readonly number[];
+  onSeek?: (time: number) => void;
+  /** No playback on this copy of the site (PLAN.md D60). */
+  still?: boolean;
+  lanes: StageLanes;
+  evidence: EvidenceGroups;
+}
+
+/** The per-possession values beside the court: the EPV curve and the shot card, each with its lane's metric. */
+export function ValuePanels({ possession, shot, end, time, shotTimes, onSeek, still = false, lanes, evidence }: ValuePanelsProps) {
+  const panelId = useId();
+  return (
+    <div className={styles.panels}>
+      <section className={styles.panel} aria-labelledby={`${panelId}-epv`}>
+        <h3 id={`${panelId}-epv`}>{text.epv.heading}</h3>
+        {possession.epv && possession.epv.t.length > 0 && possession.epv.value.length > 0 ? (
+          <EpvChart
+            curve={possession.epv}
+            end={end}
+            time={time}
+            shotTimes={shotTimes}
+            onSeek={onSeek}
+            still={still}
+          />
+        ) : (
+          <p className="small" data-testid="epv-none">
+            {text.epv.none}
+          </p>
+        )}
+        <LaneMetric lane={lanes.epv} model={text.epv.model} />
+        <Evidence what={text.epv.heading} sources={evidence.epv} />
+      </section>
+
+      <section className={styles.panel} aria-labelledby={`${panelId}-shot`} data-testid="shot-card">
+        <h3 id={`${panelId}-shot`}>{text.shot.heading}</h3>
+        {shot ? (
+          <>
+            <p className="small">
+              {fill(text.shot.what, {
+                shooter: shot.shooter ?? copy.site.none,
+                outcome: shot.made ? text.shots.made : text.shots.missed,
+              })}{" "}
+              {shot.t != null ? fill(text.shot.when, { t: formatSeconds(shot.t) }) : null}
+            </p>
+            {shot.xfg != null ? (
+              <div className={styles.xfgRow}>
+                <span className={styles.xfgValue} data-testid="shot-xfg">
+                  <span>{text.shot.xfg}</span> <span className="num">{formatProbability(shot.xfg)}</span>{" "}
+                  <span className="muted">{copy.site.estimate.point}</span>
+                </span>
+                <XfgBar xfg={shot.xfg} />
+              </div>
+            ) : (
+              <p className="small">{text.shot.noXfg}</p>
+            )}
+            {shot.location_source === "shot_chart" ? (
+              <p className="small muted">{text.shots.locationFromShotChart}</p>
+            ) : null}
+          </>
+        ) : (
+          <p className="small">{text.shot.none}</p>
+        )}
+        <LaneMetric lane={lanes.xfg} model={text.shot.model} />
+        <Evidence what={text.shot.heading} sources={evidence.shots} />
+      </section>
     </div>
   );
 }

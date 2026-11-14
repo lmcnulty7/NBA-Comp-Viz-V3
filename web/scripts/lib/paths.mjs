@@ -7,6 +7,9 @@ export const WEB_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 export const REPO_ROOT = path.resolve(WEB_DIR, "..");
 export const OUT_DIR = path.join(WEB_DIR, "out");
 export const PUBLIC_DATA_DIR = path.join(WEB_DIR, "public", "data");
+// The public data root (PLAN.md D60): the data root without SportVU frame data, written by export.public_data
+// before every public build. It is generated, ignored by git, and inside the worktree.
+export const PUBLIC_ROOT_DIR = path.join(WEB_DIR, "data-public");
 export const TYPES_DIR = path.join(WEB_DIR, "lib", "types");
 export const SCHEMA_FILE = path.join(TYPES_DIR, "contract.schema.json");
 export const CONTRACT_TS_FILE = path.join(TYPES_DIR, "contract.ts");

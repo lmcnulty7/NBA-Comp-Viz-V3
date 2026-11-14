@@ -3,9 +3,17 @@
 //   node scripts/build.mjs --variant public     no clip in out/, or the build fails
 //   node scripts/build.mjs --variant private    the clips folder is copied into out/clips
 //
-// Steps: copy the data root into public/data (prepare-data), validate it against the contract, run
-// `next build` (a static export), then the variant step. The base path comes from NEXT_PUBLIC_BASE_PATH
-// (empty for the root of a host). The variant comes from --variant, else the VARIANT variable, else public.
+// Steps: for the public variant, write the public data root (below); copy the data root into public/data
+// (prepare-data), validate it against the contract, run `next build` (a static export), then the variant step.
+// The base path comes from NEXT_PUBLIC_BASE_PATH (empty for the root of a host). The variant comes from
+// --variant, else the VARIANT variable, else public.
+//
+// The public site carries no SportVU frame data (PLAN.md D60). The public variant reads the public data root:
+// `python3 -m export.public_data` writes it from the data root (SITE_DATA_DIR, else web/data) into
+// web/data-public before every public build, so the public build needs Python with pydantic (PYTHON names the
+// interpreter). PUBLIC_SITE_DATA_DIR names a public root written earlier instead, and then no Python runs. After
+// `next build` the public variant fails, and removes out/, when any file of out/ holds frame-level positions
+// (scripts/check-frame-data.mjs). The private variant reads the full data root, as before.
 //
 // The private variant copies the clips folder (MEDIA_PRIVATE_DIR, else web/media-private) into out/clips and
 // fails when that folder is missing. The public variant fails, and removes out/, when out/ holds a video
@@ -16,9 +24,21 @@
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { frameDataIn } from "./check-frame-data.mjs";
 import { findVideo } from "./check-no-video.mjs";
 import { privateScanner } from "./lib/contract.mjs";
-import { BUILD_INFO_FILE, OUT_DIR, PUBLIC_DATA_DIR, WEB_DIR, mediaPrivateDir, normaliseBasePath, shown } from "./lib/paths.mjs";
+import {
+  BUILD_INFO_FILE,
+  OUT_DIR,
+  PUBLIC_DATA_DIR,
+  PUBLIC_ROOT_DIR,
+  WEB_DIR,
+  dataRoot,
+  mediaPrivateDir,
+  normaliseBasePath,
+  shown,
+} from "./lib/paths.mjs";
+import { runPythonModule } from "./lib/python.mjs";
 import { prepareData } from "./prepare-data.mjs";
 import { validateTree } from "./validate-data.mjs";
 
@@ -118,6 +138,22 @@ function fail(message) {
   process.exit(1);
 }
 
+/**
+ * The environment whose SITE_DATA_DIR is the public data root (PLAN.md D60): PUBLIC_SITE_DATA_DIR when it is
+ * set, else the folder `python3 -m export.public_data` writes from the data root. Throws when the command fails.
+ */
+export function publicDataEnv(env = process.env) {
+  const named = (env.PUBLIC_SITE_DATA_DIR ?? "").trim();
+  if (named) return { env: { ...env, SITE_DATA_DIR: path.resolve(WEB_DIR, named) }, wrote: false };
+  const run = runPythonModule("export.public_data", ["--src", dataRoot(env), "--out", PUBLIC_ROOT_DIR]);
+  if (run.status !== 0) {
+    throw new Error(`python3 -m export.public_data failed (exit ${run.status}):\n${(run.stderr || run.stdout).trim()}`);
+  }
+  const summary = run.stdout.trim().split("\n").pop() ?? "";
+  if (summary) console.log(`build: ${summary}`);
+  return { env: { ...env, SITE_DATA_DIR: PUBLIC_ROOT_DIR }, wrote: true };
+}
+
 function main() {
   const argv = process.argv.slice(2);
   const variant = option(argv, "--variant") ?? process.env.VARIANT ?? "public";
@@ -127,7 +163,7 @@ function main() {
 
   let prepared;
   try {
-    prepared = prepareData();
+    prepared = prepareData(variant === "public" ? publicDataEnv().env : process.env);
   } catch (error) {
     fail(error.message);
   }
@@ -191,6 +227,15 @@ function main() {
       for (const segments of leaked) console.error(`build: the private route /${segments.join("/")} is in out/`);
       rmSync(OUT_DIR, { recursive: true, force: true });
       fail("the public site must hold no clip and no private route. out/ was removed so it cannot be published.");
+    }
+    const frames = frameDataIn(OUT_DIR);
+    if (frames.length) {
+      for (const line of frames.slice(0, 20)) console.error(`build: frame data in out/${line}`);
+      rmSync(OUT_DIR, { recursive: true, force: true });
+      fail(
+        `${frames.length} file(s) of out/ hold SportVU frame data, which the public site never carries (PLAN.md D60). ` +
+          "out/ was removed so it cannot be published.",
+      );
     }
   }
 

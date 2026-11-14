@@ -146,6 +146,11 @@
       "shot": "Where the last shot went up",
       "untracked": "Not tracked at this frame: {names}."
     },
+    "still": {
+      "label": "An empty court of the half where {offense} attack. This copy of the site draws no players.",
+      "note": "Playback of this possession sits on a private copy of this site, with the player positions. Ask for access to watch it.",
+      "shot": "The mark shows where the shot chart puts the shot."
+    },
     "playback": {
       "play": "Play",
       "pause": "Pause",
@@ -172,7 +177,8 @@
       "time": "Seconds into the possession",
       "value": "EPV, point estimate",
       "none": "No EPV state is stored for this possession.",
-      "model": "The EPV model"
+      "model": "The EPV model",
+      "hintStill": "Between two values, the line is drawn straight. The readout shows the last stored value."
     },
     "shot": {
       "heading": "The shot",
@@ -190,7 +196,8 @@
       "note": "A ghost defender is where an average defender would stand {horizon} seconds later, given how the ball and the attackers moved. It shows an {label}.",
       "deviation": "Mean distance from the real defenders in this possession: {value} ft.",
       "none": "This possession has no ghost defenders.",
-      "model": "The ghosting model"
+      "model": "The ghosting model",
+      "private": "Ghost defenders are drawn on a private copy of this site, with the playback."
     },
     "positions": {
       "title": "Positions at this frame",

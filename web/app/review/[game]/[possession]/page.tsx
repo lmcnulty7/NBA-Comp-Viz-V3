@@ -5,6 +5,7 @@ import { Evidence } from "@/components/evidence/Evidence";
 import { EvidenceScope } from "@/components/evidence/EvidenceScope";
 import { groupSources } from "@/components/evidence/groups";
 import { PossessionStage } from "@/components/review/PossessionStage";
+import { PossessionStill } from "@/components/review/PossessionStill";
 import { TourBar } from "@/components/review/TourBar";
 import { stopIndex } from "@/components/review/tour";
 import { SourceList } from "@/components/ui/SourceList";
@@ -18,7 +19,7 @@ import {
   formatProbability,
   formatSeconds,
 } from "@/lib/format";
-import { routes } from "@/lib/site";
+import { VARIANT, routes } from "@/lib/site";
 import { loadLanes, loadTour } from "../../load";
 
 const text = copy.review.possession;
@@ -187,14 +188,26 @@ export default async function PossessionPage({ params }: PageProps<"/review/[gam
           <h2 id="court" className="column">
             {text.court.title}
           </h2>
-          {/* The key gives each possession its own stage, so one never opens on the frame chosen for another. */}
-          <PossessionStage
-            key={`${index.game.slug}/${summary.possession}`}
-            gameSlug={index.game.slug}
-            possession={summary.possession}
-            lanes={lanes}
-            evidence={evidence}
-          />
+          {/* The key gives each possession its own stage, so one never opens on the frame chosen for another.
+              The public site holds no player position (PLAN.md D60), so it shows a still court instead. */}
+          {VARIANT === "public" ? (
+            <PossessionStill
+              key={`${index.game.slug}/${summary.possession}`}
+              gameSlug={index.game.slug}
+              possession={summary.possession}
+              duration={summary.duration_s}
+              lanes={lanes}
+              evidence={evidence}
+            />
+          ) : (
+            <PossessionStage
+              key={`${index.game.slug}/${summary.possession}`}
+              gameSlug={index.game.slug}
+              possession={summary.possession}
+              lanes={lanes}
+              evidence={evidence}
+            />
+          )}
         </section>
 
         <section className="column section" aria-labelledby="shots">

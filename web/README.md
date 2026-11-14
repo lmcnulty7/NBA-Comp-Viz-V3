@@ -18,7 +18,7 @@ lock from the repository root, for example
 | `npm ci` | install the pinned dependencies |
 | `npx playwright install chromium webkit` | Playwright's own headless browsers, once |
 | `npm run check` | every check, in order (see below) |
-| `npm run build:public` | the public variant into `out/` (fails if `out/` holds a clip) |
+| `npm run build:public` | the public variant into `out/`, from the public data root (fails if `out/` holds a clip or frame data) |
 | `npm run build:private` | the private variant into `out/`, with the clips folder copied to `out/clips` |
 | `npm run serve` | serve `out/` on 127.0.0.1 under the base path it was built for |
 | `npm run shots` | screenshots of the built pages at 390 and 1280 px into `test-results/shots`, headless |
@@ -29,7 +29,8 @@ Variables: `SITE_DATA_DIR` (the data root, default `web/data`), `NEXT_PUBLIC_BAS
 Pages needs `/NBA-Comp-Viz-V3`), `VARIANT` (`public` or `private`, when the build is not started through the two
 build scripts), `MEDIA_PRIVATE_DIR` (the clips folder, default `web/media-private`), `SITE_DATA_ALLOW_MISSING`
 (fixed data files that may be absent, for example `demo/swap.json demo/frames.json`), `PYTHON` (the interpreter
-with pydantic, default `python3`).
+with pydantic, default `python3`), `PUBLIC_SITE_DATA_DIR` (a public data root written earlier by
+`python3 -m export.public_data`; the public build then runs no Python).
 
 ## Data
 
@@ -51,6 +52,22 @@ ajv against the JSON Schema, scans for private strings, compares the manifest wi
 what the routes need. Then `python3 -m export.schemas --validate` runs on the same folder: the cross-field
 rules of the contract live in its pydantic validators, which a JSON Schema cannot carry. The build scripts run
 the first half only, so a build needs no Python.
+
+## The public data root (PLAN.md D60)
+
+The SportVU source is marked not for redistribution, so the public site carries no SportVU frame data. Before
+every public build, `scripts/build.mjs` runs `python3 -m export.public_data --src <data root> --out web/data-public`
+(ignored by git) and builds from that folder. The public root keeps every per-possession value (result, points,
+the EPV curve, the shots with their xFG, notes and sources) and empties the per-frame part of each possession
+(frame times, clocks, players, ball, ghost defenders); a shot located by the tracking at its release loses its x
+and y, and the demo frames lose their sensor positions (`truth`). Everything else is copied, and the manifest is
+written again. The private build reads the full data root.
+
+On the public site the possession page shows an empty court of the half the offense attacks in place of the
+playback, with a note that playback is on the private copy, and the cold open shows the still where the sensor
+dots were. `scripts/check-frame-data.mjs` reads every text file of a built `out/` (pages, the RSC `.txt`
+payloads, scripts, data) and fails on a per-frame track, a sensor position or a shot located by the tracking; the
+public build runs it and removes `out/` on a failure, and `npm run check` runs it again as its `frames` step.
 
 ## Copy
 
@@ -90,7 +107,7 @@ and the files whose names start with an underscore.
 root against the contract, both halves, no private string), `copy`, `reading` (grade and plain words on the cold
 open and the slides), `contrast` (WCAG AA of the design tokens, light
 and dark), `hygiene` (no long dash and no private string in the sources), `unit`, `build` (public, under the
-Pages base path), `video`, `browser` (Playwright at 390 and 1280 px on Chromium and WebKit against `out/`).
+Pages base path, from the public data root), `frames` (no SportVU frame data in `out/`), `video`, `browser` (Playwright at 390 and 1280 px on Chromium and WebKit against `out/`).
 `node scripts/check.mjs lint unit` runs only the named steps.
 
 ## Design

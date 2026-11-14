@@ -14,6 +14,10 @@ import { build, courtCase, tokenChannels } from "./site";
 
 const HALF_PIXEL = 0.5;
 
+// The public site holds no player position (PLAN.md D60), so it draws no possession to compare: these tests run on
+// the private build. The still court of the public site is tested in review.spec.ts.
+test.skip(build.variant === "public", "the public site draws no possession (PLAN.md D60); this runs on the private build");
+
 interface ReferencePoint {
   x_ft: number | null;
   y_ft: number | null;

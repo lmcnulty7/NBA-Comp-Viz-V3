@@ -77,6 +77,7 @@ test("the possession list filters by result, xFG fifth and featured, and keeps t
 });
 
 test("play, pause, speed and scrub move the court and the EPV cursor together", async ({ page }) => {
+  test.skip(build.variant === "public", "the public site has no playback (PLAN.md D60); this runs on the private build");
   const target = courtCase();
   const seen = watch(page);
   await openStage(page, target.gameSlug, target.possession, "?frame=0");
@@ -133,6 +134,7 @@ test("play, pause, speed and scrub move the court and the EPV cursor together", 
 });
 
 test("playback draws at least 30 frames a second in headless Chromium at laptop width", async ({ page }, info) => {
+  test.skip(build.variant === "public", "the public site has no playback (PLAN.md D60); this runs on the private build");
   test.skip(info.project.name !== "chromium-1280", "measured once, on the laptop project");
   const target = courtCase();
   await openStage(page, target.gameSlug, target.possession, "?frame=0");
@@ -168,6 +170,7 @@ test("playback draws at least 30 frames a second in headless Chromium at laptop 
 });
 
 test("ghost defenders sit behind a toggle labelled average defense (C10)", async ({ page }) => {
+  test.skip(build.variant === "public", "the public site has no playback (PLAN.md D60); this runs on the private build");
   const target = courtCase();
   await openStage(page, target.gameSlug, target.possession, `?frame=${Math.floor(target.frames / 2)}`);
   const toggle = page.getByTestId("ghost-toggle");
@@ -194,7 +197,12 @@ test("the shot marker's xFG is a point estimate, beside the lane's held-out metr
   const possession = await detail(page, target.gameSlug, target.possession);
   const results = JSON.parse(await (await page.request.get("data/results.json")).text()) as Results;
   const card = page.getByTestId("shot-card");
-  const located = [...possession.shots].reverse().find((shot) => shot.x != null && shot.y != null);
+  // The card shows the last located shot; the public site holds no location from the tracking (PLAN.md D60), so
+  // there it shows the last shot, located or not.
+  const located =
+    build.variant === "public"
+      ? possession.shots[possession.shots.length - 1]
+      : [...possession.shots].reverse().find((shot) => shot.x != null && shot.y != null);
   if (located?.xfg != null) {
     await expect(card.getByTestId("shot-xfg")).toContainText(copy.site.estimate.point);
     await expect(card.getByTestId("shot-xfg")).toContainText(located.xfg.toFixed(3));
@@ -241,6 +249,7 @@ test.describe("a reader who asked for reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
   test("playback steps frame by frame without gliding", async ({ page }) => {
+    test.skip(build.variant === "public", "the public site has no playback (PLAN.md D60); this runs on the private build");
     const target = courtCase();
     await openStage(page, target.gameSlug, target.possession, "?frame=0");
     await expect(page.getByText(text.possession.playback.reduced)).toBeVisible();
@@ -275,4 +284,32 @@ test("the guided tour walks every featured possession and ends back at the revie
   await page.getByTestId("tour-end").click();
   await expect(page).toHaveURL(new RegExp(`${build.basePath}/review/$`));
   expect(seen.problems).toEqual([]);
+});
+
+test("the public site shows a still court and the request-access note in place of playback (D60)", async ({ page }) => {
+  test.skip(build.variant !== "public", "the private site plays the possession");
+  const target = courtCase();
+  await openStage(page, target.gameSlug, target.possession);
+  const stage = page.getByTestId("possession-stage");
+  await expect(stage).toHaveAttribute("data-still", "true");
+  await expect(stage.getByTestId("still-note")).toHaveText(text.possession.still.note);
+  // No playback control, no ghost toggle, no table of positions, and nothing drawn but the court and a shot mark.
+  for (const id of ["play-toggle", "speed", "ghost-toggle", "frame-value"]) await expect(page.getByTestId(id)).toHaveCount(0);
+  await expect(page.getByRole("slider")).toHaveCount(0);
+  await expect(page.locator("details", { hasText: text.possession.positions.title })).toHaveCount(0);
+  for (const kind of ["player", "ball", "ghost", "truth"]) expect(await marks(page, kind), kind).toBe(0);
+  await expect(page.locator('canvas[data-court="half"]')).toBeVisible();
+  await expect(stage.getByTestId("ghost-notes")).toContainText(text.possession.ghosts.private);
+  // The per-possession values stay: the EPV curve, the shot card with its xFG and each lane's held-out metric.
+  const possession = await detail(page, target.gameSlug, target.possession);
+  expect(possession.t).toEqual([]);
+  expect(possession.players).toEqual([]);
+  expect(possession.ghosts).toBeNull();
+  if (possession.epv && possession.epv.t.length > 0) {
+    await expect(stage.getByTestId("epv-chart")).toBeVisible();
+    await expect(stage.getByTestId("epv-chart")).toContainText(text.possession.epv.hintStill);
+  }
+  const last = possession.shots[possession.shots.length - 1];
+  if (last?.xfg != null) await expect(stage.getByTestId("shot-xfg")).toContainText(last.xfg.toFixed(3));
+  await expect(stage.getByTestId("shot-card").getByTestId("lane-metric")).toHaveCount(1);
 });

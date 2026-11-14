@@ -22,6 +22,8 @@ export interface EpvChartProps {
   shotTimes: readonly number[];
   /** Move playback to a time. */
   onSeek?: (time: number) => void;
+  /** No playback on this copy of the site (PLAN.md D60): the cursor stays at the end. */
+  still?: boolean;
 }
 
 /**
@@ -33,7 +35,7 @@ export interface EpvChartProps {
  * as the file holds it: the last state at or before the playback time, and the last state at the end of playback
  * (timeline.ts, epvStateAt).
  */
-export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps) {
+export function EpvChart({ curve, end, time, shotTimes, onSeek, still = false }: EpvChartProps) {
   const text = copy.review.possession.epv;
   const boxRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
@@ -159,7 +161,7 @@ export function EpvChart({ curve, end, time, shotTimes, onSeek }: EpvChartProps)
           {now === null ? null : <circle cx={x(now.t)} cy={y(now.value)} r={4.5} className={styles.cursorDot} />}
         </svg>
       </div>
-      <p className={styles.hint}>{onSeek ? text.hint : text.hintStatic}</p>
+      <p className={styles.hint}>{still ? text.hintStill : onSeek ? text.hint : text.hintStatic}</p>
       <details className="sources">
         <summary>{text.table}</summary>
         <div className="table-wrap">
