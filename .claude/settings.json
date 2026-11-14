@@ -20,8 +20,6 @@
       "WebSearch",
       "WebFetch"
     ],
-    "deny": [
-      "Bash(git push:*)"
-    ]
+    "deny": []
   }
 }

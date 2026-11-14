@@ -12,7 +12,8 @@ top of frozen models. Python produces data, the web only reads it, through one J
 
 ## Hard rules
 
-1. Never push, publish or deploy. `git push` is denied in `.claude/settings.json`. All work stays on `v3-finish`
+1. Never push, publish or deploy, except the steps Lucien decided in D62 to D65 (merge to main, push, the
+   gh-pages public site, the Cloudflare private site), run by the lead only. `git push` is denied in `.claude/settings.json`. All work stays on `v3-finish`
    or a teammate branch that the lead merges. Merging to `main`, tagging a release, changing the repository's
    settings and setting up any host belong to Lucien.
 2. Only the lead (the main session) edits PLAN.md. It is locked: changes are new D lines, milestone status lines
