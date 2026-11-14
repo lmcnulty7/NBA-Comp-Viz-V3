@@ -6,10 +6,19 @@ What these tests hold:
 - Every number in the prose of README.md is registered in README_NUMBERS with the file and the line it was copied
   from, and the numbers in the README phrase equal the numbers in the source phrase, character for character.
 - A prototype number in README.md, PROJECT_SUMMARY.md or PIPELINE.md carries the tag [prototype] on its own line.
-  This is the grep check of M8. The labelling convention is stated at PROTOTYPE_TAG below.
-- docs/SCRIPT.md: the copy holds no digit, no word from the jargon list and no forbidden claim; every token is
-  listed and resolves to a field of the site data contract (export/schemas.py); each scene's reading grade is 9 or
-  lower and equals the grade the file states.
+  This is the grep check of M8. The labelling convention is stated at PROTOTYPE_TAG below. What this check can
+  see: a number that is registered in PROTOTYPE_NUMBERS, in its registered spelling or in one of the respellings
+  of PROTOTYPE_RESPELLINGS, in those three files. It cannot see a prototype number that nobody registered, a
+  spelling nobody thought of, a second number on a line whose tag belongs to another number (only the tag count
+  of MIN_TAGS guards that), or any other file (CLAIMS.md row A2 holds untagged prototype numbers and is not read
+  here). New text in a public document still needs a read by a person or a reviewer.
+- README.md says that the export, bridge, rebuild and web paths are not on the branch for as long as one of them
+  is missing, and stops saying so once all of them exist.
+- docs/SCRIPT.md: the copy and the labels hold no digit, no word from the jargon list and no forbidden claim;
+  every token is listed, resolves to a field of the site data contract (export/schemas.py) and resolves to one
+  value on the synthetic data of export/sample.py; each scene's reading grade is 9 or lower and equals the grade
+  the file states, and no single line other than the headline is above 9, with a token read as one syllable or
+  as four.
 
 Nothing here reads DATA_ROOT or needs a package beyond pydantic. Every test can fail.
 """
@@ -141,11 +150,12 @@ README_NUMBERS = (
     ("73.7%", R23_NYK, 17, "not met   73.7%"),
     ("78.2%", R23_CLE, 17, "not met   78.2%"),
     # the four facts under the table
+    ("1447 of 9500 window frames", R23_GAME, 2, "1447 testable of 9500 window frames"),
     ("Its p90 is 4.98 ft", "reports/r23_verification.txt", 9, "phx p90 4.98 ft"),
     ("against 5.0 ft", R23_GAME, 8, "p90 <= 5.0 ft"),
     ("95% interval", "reports/r23_verification.txt", 9, "window-bootstrap 95% CIs"),
     ("[4.42, 6.02]", "reports/r23_verification.txt", 9, "CI [4.42, 6.02]"),
-    ("trained on 294 of its", "reports/sportvu_splits.txt", 15, "'gsw_phx_2016': 294"),
+    ("trained on 294 of\n  its frames", "reports/sportvu_splits.txt", 15, "'gsw_phx_2016': 294"),
     # what the models found
     ("95 percent", RESULTS, 6, "Intervals are 95 percent percentile intervals of a bootstrap by game"),
     ("0.6232 [0.6132, 0.6327]", RESULTS, 25, "0.6232 [0.6132, 0.6327]"),
@@ -171,6 +181,9 @@ README_NUMBERS = (
     ("p50 7.33 ft,\n  p90 15.35 ft", V3_GAME, 7, "p50 7.33 ft, p90 15.35 ft"),
     ("on 2026-10-04", "CLAIMS.md", 43, "adopted 2026-10-04 under the amended rule"),
     ("56 frames of 2023-24 Cleveland home games", "CLAIMS.md", 84, "holds 56 frames of 2023-24 Cleveland home games"),
+    ("56 frames of 2023-24 Cleveland home games", "reports/r23_verification.txt", 7,
+     "56 frames of 2023-24 Cleveland home games"),
+    ("Cleveland as 9 clips / 88 images", "ROADMAP_LOG.md", 126, "Cleveland is 9 clips / 88 images"),
     ("about 1.5 ft median at best", "CLAIMS.md", 72, "about 1.5 ft median at best"),
     ("with 14 cameras", "CLAIMS.md", 72, "(14 cameras, about"),
     ("about\n  1 inch", "CLAIMS.md", 73, "1 inch)"),
@@ -178,6 +191,7 @@ README_NUMBERS = (
      "~2.35 / ~5.9 ft, not r23's 2.24 / 5.47"),
     # the models in detail: the split, then cells copied from the summary table of reports/results.md
     ("604 train and 17 held out", RESULTS, 11, "of which 604 train and 17 are held out"),
+    ("hold out\nthe 2024-25 season", RESULTS, 159, "2024-25 held out"),
     ("works; beats the location-only baseline by 0.050 on held-out; held-out calibration worse (ECE 0.019)", RESULTS,
      25, "works; beats the location-only baseline by 0.050 on held-out; held-out calibration worse (ECE 0.019)"),
     ("| 1.7115 | works, far above the 2.39 floor; held-out worse by 0.11 |", RESULTS, 26,
@@ -374,10 +388,46 @@ def test_readme_model_table_equals_the_results_summary_row_by_row():
     assert problems == []
 
 
-def test_readme_opens_with_the_headline_and_has_one_site_placeholder():
+def test_readme_opens_with_the_headline_and_has_one_site_line():
     lines = read(README).split("\n")
     assert lines[0] == "# " + HEADLINE
-    assert sum("PLACEHOLDER" in line for line in lines) <= 1
+    assert sum(line.startswith("**Site:**") for line in lines) == 1
+    assert not any("PLACEHOLDER" in line for line in lines), "a placeholder would be the third line a reader sees"
+
+
+# Paths the README describes that other teammates build (PLAN.md D39). While one is missing, README.md must say
+# so in a section with this heading; once all exist, the section must go, so that the README never says that
+# something is missing when it is there.
+BUILT_ELSEWHERE = ("export/site_data.py", "export/demo_bridge.py", "tools/frozen_models.py", "web/package.json")
+STATUS_HEADING = "## Status of this branch"
+
+
+def readme_status_problem(text: str, missing: list[str]) -> str:
+    """Why the status section of README.md is wrong for the paths that are missing, or an empty string."""
+    has_section = any(line == STATUS_HEADING for line in text.split("\n"))
+    if missing and not has_section:
+        return f"README.md describes {missing} as present; add the section {STATUS_HEADING!r}"
+    if not missing and has_section:
+        return f"every path of BUILT_ELSEWHERE exists now: remove the section {STATUS_HEADING!r} from README.md"
+    return ""
+
+
+def test_readme_says_what_is_not_on_the_branch_yet():
+    missing = [path for path in BUILT_ELSEWHERE if not (REPO / path).exists()]
+    assert readme_status_problem(read(README), missing) == ""
+    section = read(README).split(STATUS_HEADING + "\n", 1)
+    if missing:
+        body = section[1].split("\n## ", 1)[0]
+        for name in ("export/site_data.py", "export/demo_bridge.py", "tools/frozen_models.py", "web/"):
+            assert f"`{name}`" in body, f"the status section does not name {name}"
+
+
+def test_the_status_check_can_fail():
+    with_section = "# title\n\n" + STATUS_HEADING + "\n\ntext\n\n## Run it\n"
+    assert readme_status_problem(with_section, ["web/package.json"]) == ""
+    assert readme_status_problem("# title\n\n## Run it\n", []) == ""
+    assert "add the section" in readme_status_problem("# title\n\n## Run it\n", ["web/package.json"])
+    assert "remove the section" in readme_status_problem(with_section, [])
 
 
 def test_readme_links_point_at_files_that_exist():
@@ -393,8 +443,9 @@ def test_readme_links_point_at_files_that_exist():
 # prototype clips the models were tuned on, on hand labels drawn from those clips, on a model's own validation
 # split, or by a label-free check on a few extra videos. It says nothing about tracking accuracy on held-out
 # footage. In README.md, PROJECT_SUMMARY.md and PIPELINE.md, every line that holds a prototype number also holds
-# the tag below, placed after the number; in a table row, every cell that holds one holds the tag itself. The
-# same thing as a shell check, for one pattern:
+# the tag below, placed after the number; in a table row, every cell that holds one holds the tag itself. One
+# exception, stated in the note of PROJECT_SUMMARY.md: in its detector table every number of a row is a prototype
+# number and the tag in the first cell covers the row. The same thing as a shell check, for one pattern:
 #     grep -n '98\.7%' README.md PROJECT_SUMMARY.md PIPELINE.md | grep -v '\[prototype\]'      (must print nothing)
 PROTOTYPE_TAG = "[prototype]"
 PUBLIC_DOCS = (README, PROJECT_SUMMARY, PIPELINE)
@@ -432,6 +483,15 @@ PROTOTYPE_NUMBERS = (
 )
 
 
+# Other spellings of the same numbers that a later edit could bring in (CLAIMS.md row A2 spells two of them this
+# way). They are checked like the patterns above, and they need not match anything today.
+PROTOTYPE_RESPELLINGS = (
+    r"98\.7 ?(?:percent|per cent)", r"(?<![\d.])0\.987\b", r"P ?\.89 ?/ ?R ?\.87", r"(?<![\d.])0\.3 ft",
+    r"87\.1 ?(?:percent|per cent)", r"96\.5 ?/ ?91\.2 ?%", r"96\.5 ?(?:percent|per cent)",
+    r"91\.2 ?(?:percent|per cent)",
+)
+
+
 def unlabelled_prototype_numbers(text: str) -> list[str]:
     """Lines of a document that hold a prototype number and no tag. A table row is checked as a whole and then
     cell by cell, so a tag in one cell does not cover a number in another."""
@@ -441,7 +501,8 @@ def unlabelled_prototype_numbers(text: str) -> list[str]:
         for part in parts:
             if PROTOTYPE_TAG in part:
                 continue
-            found = next((m for m in (re.search(pattern, part) for pattern in PROTOTYPE_NUMBERS) if m), None)
+            found = next((m for m in (re.search(pattern, part)
+                                      for pattern in PROTOTYPE_NUMBERS + PROTOTYPE_RESPELLINGS) if m), None)
             if found:
                 hits.append(f"line {number}: {found.group(0)}")
                 break
@@ -469,6 +530,12 @@ def test_no_unlabelled_prototype_number(path):
     ("position error p50 1.92 ft, p90 4.98 ft on the held-out game", False),
     ("log loss 0.6232 [0.6132, 0.6327]; per-miss log loss 1.7115", False),
     ("agreement with play-by-play 87.8% (n=990)", False),
+    ("gate 98.7 percent on the test split", True),
+    ("gate accuracy 0.987", True),
+    ("detection P.89/R.87; homography 0.3 ft median", True),
+    ("possessions 96.5/91.2%", True),
+    ("detection P.89/R.87 [prototype]", False),
+    ("the truth fit has a 0.33 ft median residual on the feet", False),
 ])
 def test_prototype_check_finds_what_it_should(line, flagged):
     assert bool(unlabelled_prototype_numbers(line)) is flagged
@@ -599,8 +666,20 @@ TOKEN_FILES = {"scorecard": "scorecard.json", "swap": "demo/swap.json", "frames"
                "manifest": "manifest.json", "players": "players.json", "results": "results.json"}
 
 
+def block_of(body: str, label: str) -> str:
+    """The text of one labelled block of a scene (Visual, Labels, ...), up to the next block label."""
+    start = body.find(f"**{label}.**")
+    if start == -1:
+        return ""
+    rest = body[start + len(label) + 5:]
+    following = re.search(r"^\*\*[A-Z][A-Za-z ]+\.\*\*", rest, re.M)
+    return rest[:following.start()] if following else rest
+
+
 def script_scenes(text: str) -> list[dict]:
-    """The scenes of docs/SCRIPT.md. The copy of a scene is its quoted lines, one per scroll step."""
+    """The scenes of docs/SCRIPT.md. The copy of a scene is its quoted lines: the scroll steps, a caption and
+    the fallback lines. The labels are the double-quoted strings of the list under Labels: the words that sit on
+    the picture."""
     starts = list(SCENE_RE.finditer(text))
     scenes = []
     for index, match in enumerate(starts):
@@ -614,15 +693,23 @@ def script_scenes(text: str) -> list[dict]:
         scenes.append({
             "number": int(match.group(1)), "title": match.group(2), "body": body,
             "copy": [line[1:].strip() for line in body.split("\n") if line.startswith(">")],
+            "labels": [label for line in block_of(body, "Labels").split("\n") if line.startswith("- ")
+                       for label in re.findall(r'"([^"]+)"', line.split(" (", 1)[0])],
+            "visual": block_of(body, "Visual"),
             "stated_grade": float(stated.group(1)) if stated else None,
         })
     return scenes
 
 
 def scene_stats(scene: dict) -> dict:
+    """Words, sentences and grade of a scene's copy, and the highest grade of one line of it (the headline, which
+    D17 fixes, left out), each with a token as one syllable and then as four."""
     text = "\n\n".join(scene["copy"])
+    lines = [line for line in scene["copy"] if line != HEADLINE + "."]
     return {"words": len(words_of(text)), "sentences": sentence_count(text),
-            "grade": round(fk_grade(text), 1), "upper": round(fk_grade(text, 4), 1)}
+            "grade": round(fk_grade(text), 1), "upper": round(fk_grade(text, 4), 1),
+            "hard": round(max(fk_grade(line) for line in lines), 1),
+            "hard_upper": round(max(fk_grade(line, 4) for line in lines), 1)}
 
 
 def token_table(text: str) -> dict:
@@ -714,8 +801,8 @@ def test_script_has_the_scenes_of_the_plan_in_order(script):
     scenes = script["scenes"]
     assert [scene["number"] for scene in scenes] == list(range(7))
     for scene in scenes:
-        for label in ("**Question.**", "**Visual.**", "**Copy.**", "**Numbers.**", "**Evidence layer.**",
-                      "**Presenter notes.**", "**Reading grade.**"):
+        for label in ("**Question.**", "**Visual.**", "**Labels.**", "**Copy.**", "**Numbers.**",
+                      "**Evidence layer.**", "**Presenter notes.**", "**Reading grade.**"):
             assert label in scene["body"], (scene["number"], label)
         assert scene["copy"], scene["number"]
     assert scenes[0]["copy"][0] == HEADLINE + "."
@@ -727,19 +814,35 @@ def test_script_copy_reads_at_grade_nine_or_lower_and_states_its_grade(script):
         stats = scene_stats(scene)
         if stats["grade"] > MAX_GRADE or stats["upper"] > MAX_GRADE:
             problems.append(f"scene {scene['number']}: grade {stats['grade']} (upper {stats['upper']})")
+        if stats["hard"] > MAX_GRADE or stats["hard_upper"] > MAX_GRADE:
+            problems.append(f"scene {scene['number']}: one line reads at grade {stats['hard']} "
+                            f"(upper {stats['hard_upper']})")
         if scene["stated_grade"] != stats["grade"]:
             problems.append(f"scene {scene['number']}: states {scene['stated_grade']}, the copy reads {stats['grade']}")
         row = (f"| {scene['number']}. {scene['title']} | {stats['words']} | {stats['sentences']} | "
-               f"{stats['grade']} | {stats['upper']} |")
+               f"{stats['grade']} | {stats['upper']} | {stats['hard']} / {stats['hard_upper']} |")
         if row not in script["text"]:
             problems.append(f"the grade table lacks the row: {row}")
     assert problems == []
 
 
+def test_the_hardest_line_of_a_scene_is_found():
+    scene = {"copy": [HEADLINE + ".", "The cat sat. The dog ran.",
+                      "Institutional considerations necessitate comprehensive organizational restructuring."]}
+    stats = scene_stats(scene)
+    assert stats["hard"] > 20 > stats["grade"]
+    assert scene_stats({"copy": ["It is {swap.fill_share} percent."]})["hard_upper"] > 9 > scene_stats(
+        {"copy": ["It is {swap.fill_share} percent."]})["hard"]
+
+
 def test_script_copy_holds_no_digit_no_jargon_and_no_forbidden_claim(script):
     problems = []
     for scene in script["scenes"]:
-        for line in scene["copy"]:
+        # every double-quoted string of a Visual block is a label, so no word reaches the picture unchecked
+        for quoted in re.findall(r'"([^"]+)"', scene["visual"]):
+            if quoted not in scene["labels"]:
+                problems.append(f"scene {scene['number']}: the visual puts {quoted!r} on screen, not listed as a label")
+        for line in scene["copy"] + scene["labels"]:
             plain = TOKEN_RE.sub(" ", line)
             if re.search(r"\d", plain):
                 problems.append(f"scene {scene['number']}: a digit in {line!r}")
@@ -755,45 +858,140 @@ def test_script_copy_holds_no_digit_no_jargon_and_no_forbidden_claim(script):
 
 
 def test_script_copy_keeps_the_honesty_constraints(script):
-    """The constraints the copy must respect (PLAN.md D16, D17, D21, D27, C6, C10). Each one is held by its tokens
-    and by a loose pattern, so the wording can change and the statement cannot be dropped."""
-    copy = {scene["number"]: " ".join(scene["copy"]) for scene in script["scenes"]}
-    game = "{scorecard.r23.gsw_phx_2016."
+    """The constraints the copy must respect (PLAN.md D16, D17, D21, D27, D45, C6, C10). Each one is held by its
+    tokens and by a loose pattern, so the wording can change and the statement cannot be dropped."""
+    scenes = script["scenes"]
+    copy = {scene["number"]: " ".join(scene["copy"]) for scene in scenes}
+    everything = " ".join(copy.values()) + " " + " ".join(label for scene in scenes for label in scene["labels"])
+    game = "{scorecard.adopted.heldout_game."
 
     def has(pattern: str, text: str) -> bool:
         return re.search(pattern, text, re.I) is not None
 
-    # the demo game: held out from the court and player models, with the frame filter named in the same step
-    steps = [line for line in script["scenes"][1]["copy"] if has(r"(never|not) trained on this game", line)]
+    def step_with(number: int, needle: str) -> str:
+        (line,) = [line for line in scenes[number]["copy"] if needle in line and "Across all" not in line[:10]]
+        return line
+
+    # the demo is an illustration: the cold open asks a question and never calls itself a test
+    assert has(r"opens with a question", copy[0]) and not has(r"\btest\b", copy[0])
+    # the demo game: held out from the court and player models, with the frame filter named in the same step,
+    # and the word training explained before it is used
+    steps = [line for line in scenes[1]["copy"] if has(r"(never|not) trained on this game", line)]
     assert steps and all(has(r"filter", line) and has(r"training frames", line) for line in steps)
+    assert has(r"learn from[^.]*\. That is called training", steps[0])
     # the public build says that it shows a still and how to see the clips
     assert has(r"still frame", copy[1]) and has(r"ask for access", copy[1])
     # the sensor data is the answer key and its source is named
     assert has(r"SportVU", copy[1]) and has(r"sensor data", copy[1])
-    # the rows that miss their targets are stated as measured
+    # the rows that miss their targets are stated as measured, each as its scorecard defines it
     for token in ("missed_players.rate}", "ghost_boxes.rate}", "team_labels.accuracy}"):
         assert game + token in copy[2]
+    assert has(r"leaving out the referees,? " + re.escape(game + "ghost_boxes.rate}"), copy[2])
+    assert has(r"\bat most " + re.escape(game + "team_labels.accuracy}"), copy[2])
     assert has(r"\b(none|neither|not one)\b[^.]*\btarget", copy[2])
-    # position error: both values, the range that crosses the target, and how few frames could be checked
+    assert "not met" in scenes[2]["labels"]
+    # position error: both values, the margin that crosses the target, and how little of the game could be checked
     assert game + "position_error.p50_ft}" in copy[4] and game + "position_error.p90_ft}" in copy[4]
-    assert has(r"range[^.]*past the target", copy[4]) and has(r"not a safe pass", copy[4])
+    assert has(r"margin of error[^.]*past the target", copy[4]) and has(r"neither is safely met", copy[4])
     assert game + "testable}" in copy[4] and game + "truth_frames}" in copy[4]
-    # the comparison: an illustration, n and the mean difference for each model, the fill share, position error only
+    assert "met, not safely" in scenes[4]["labels"]
+    # a scorecard value covers the scored stretches of the game, never the whole game
+    assert has(r"scored stretches[^.]*only part of the game", copy[4])
+    assert has(r"all the scored stretches of this game", step_with(4, game + "position_error.p50_ft}"))
+    assert not has(r"whole[- ]game|game[- ]wide|across the whole game", everything)
+    # the sensor position is a reference with an error of its own, not the truth
+    assert not has(r"\btrue (spot|position|place)", everything)
+    # the comparison: an illustration before its first number, n and the mean difference for each model, the
+    # fill share, the dropped boxes, position error only
     assert has(r"\billustration\b[^.]*\bnot a test\b", copy[5])
+    assert copy[5].index("illustration") < copy[5].index("{swap.")
+    assert "Illustration" in scenes[5]["labels"]
     for kind in ("xfg", "epv", "ghosting"):
         assert "{swap." + kind + ".mean_abs_diff}" in copy[5] and "{swap." + kind + ".n}" in copy[5]
     assert "{swap.fill_share}" in copy[5] and has(r"position error (alone|only)", copy[5])
-    assert has(r"sensor data[^.]*not from the broadcast", copy[5])
+    assert has(r"boxes that matched no player were dropped", copy[5])
+    # the models were rebuilt from the locked code and checked (D45, D49); the copy does not say otherwise
+    assert has(r"built again", copy[5]) and has(r"only if it gave back its saved answers", copy[5])
+    assert not has(r"nothing was retrained|never retrained", everything)
+    # the question of the cold open gets its answer, and the model results name both of their sources
+    assert has(r"can the broadcast stand in yet\? No\b", copy[5])
+    assert has(r"sensor data or from play-by-play records, not from the broadcast", copy[5])
     # an average defense, never more than that
     assert has(r"average defender", copy[5]) and has(r"average defense", copy[6])
 
 
-def test_every_script_token_is_listed_and_resolves(script):
+# The builds of the site's scorecard by role (PLAN.md D42), and the two sentences of D42 that say so.
+SITE_BUILDS = {"adopted": "r23", "candidate": "r23_cam"}
+D42_SAYS = ("use build r23 (adopted", "r23_cam is shown beside it as a measured candidate")
+
+
+def heldout_game() -> str:
+    (game,) = json.loads(read(REPO / "sportvu" / "splits.json"))["heldout_game"]["games"]
+    return game
+
+
+def resolve_value(data, path: str):
+    """Walk a field path through the data of one site file and return the one value it selects. A selector must
+    pick exactly one list item, and a dictionary key must exist, so a wrong name fails here even where the
+    contract leaves the name open."""
+    current = data
+    for segment in path.split("."):
+        parsed = re.fullmatch(r"([a-z_0-9]+)(?:\[([^\]]+)\])?", segment)
+        assert parsed, f"{path}: cannot read {segment!r}"
+        name, selector = parsed.groups()
+        assert isinstance(current, dict) and name in current, f"{path}: the data has no {name}"
+        current = current[name]
+        if selector is None:
+            continue
+        if isinstance(current, list) and "=" in selector:
+            key, value = selector.split("=", 1)
+            found = [item for item in current if isinstance(item, dict) and str(item.get(key)) == value]
+            assert len(found) == 1, f"{path}: [{selector}] selects {len(found)} items, not one"
+            current = found[0]
+        elif isinstance(current, list):
+            index = 0 if selector == "k" else int(selector)
+            assert index < len(current), f"{path}: no item [{selector}]"
+            current = current[index]
+        else:
+            assert isinstance(current, dict) and selector in current, f"{path}: no key {selector}"
+            current = current[selector]
+    assert not isinstance(current, (bool, dict, list)) and current is not None, f"{path}: ends at {current!r}"
+    return current
+
+
+@pytest.fixture(scope="module")
+def synthetic_root(tmp_path_factory):
+    """The synthetic data root of export/sample.py, the data the web work is built against."""
+    from export import sample
+    root = tmp_path_factory.mktemp("synthetic_site_data")
+    sample.write_sample(root)
+    return root
+
+
+def test_field_paths_resolve_on_data_and_wrong_names_fail(synthetic_root):
+    card = json.loads(read(synthetic_root / "scorecard.json"))
+    good = "builds[role=adopted].rows[key=position_error].cells[split=heldout_game].values[p50_ft]"
+    assert isinstance(resolve_value(card, good), float)
+    assert isinstance(resolve_value(card, "builds[role=adopted].games[split=heldout_game].testable"), int)
+    for bad in (good.replace("p50_ft", "p50"),                      # a value name the data does not hold
+                good.replace("position_error", "position"),         # a row key the data does not hold
+                good.replace("role=adopted", "build=r23"),          # a build name the synthetic data lacks
+                good.replace("split=heldout_game", "split=heldout_era"),
+                "builds[role=adopted].rows", "builds[role=adopted].games[split=heldout_game].frames"):
+        with pytest.raises(AssertionError):
+            resolve_value(card, bad)
+    frames = json.loads(read(synthetic_root / "demo" / "frames.json"))
+    assert isinstance(resolve_value(frames, "scenes[0].frames[k].error_ft"), float)
+
+
+def test_every_script_token_is_listed_and_resolves(script, synthetic_root):
     text, table = script["text"], script["tokens"]
     before_table = text.split("\n## Tokens\n", 1)[0]
     used = set(TOKEN_RE.findall(before_table))
     assert used - set(table) == set(), "tokens used and not listed"
     assert set(table) - used == set(), "tokens listed and never used"
+    d42 = next(line for line in read(REPO / "PLAN.md").split("\n") if line.startswith("- D42 "))
+    assert all(sentence in d42 for sentence in D42_SAYS), "PLAN.md D42 no longer names the builds this way"
     problems = []
     for token, (data_file, field, _shown, copied) in sorted(table.items()):
         parts = token.split(".")
@@ -813,15 +1011,25 @@ def test_every_script_token_is_listed_and_resolves(script):
         last = re.findall(r"[a-z_0-9]+", field)[-1]
         if any(value not in parts for value in selected) or parts[-1] != last:
             problems.append(f"{token}: does not match its field {field}")
-        # a value copied from a scorecard report must exist there, as a number, for the same game and build
+        # the same path selects exactly one value on the synthetic data, so a row key or a value name that the
+        # contract leaves open is checked against what export/sample.py writes
+        try:
+            resolve_value(json.loads(read(synthetic_root / data_file)), field)
+        except AssertionError as error:
+            problems.append(f"{token}: on the synthetic data, {error}")
+        # a value copied from a scorecard report must exist there, as a number, under the same names, in the
+        # report of the build that has the token's role and of the held-out game
         report = re.fullmatch(r"`(reports/scorecard/(\w+?)__(\w+)\.json)`, `([\w.]+)`", copied)
         if parts[0] == "scorecard":
             if not report:
                 problems.append(f"{token}: no scorecard report named in {copied!r}")
                 continue
             path, game, build, dotted = report.groups()
-            if build != parts[1] or game != parts[2]:
+            if build != SITE_BUILDS.get(parts[1]) or parts[2] != "heldout_game" or game != heldout_game():
                 problems.append(f"{token}: copied from {path}")
+            want = ".".join(["metrics"] + parts[3:]) if len(parts) == 5 else ".".join(parts[3:])
+            if dotted != want:
+                problems.append(f"{token}: copied from {dotted}, its names say {want}")
             value = json.loads(read(REPO / path))
             for key in dotted.split("."):
                 value = value.get(key) if isinstance(value, dict) else None

@@ -1,47 +1,27 @@
 # From broadcast pixels to possession value, measured against ground truth at every step
 
-A basketball analytics product built on player tracking. A tracking pipeline that works from broadcast video
-stands in for the tracking data that teams buy from vendors, and it is scored against real tracking data.
+A basketball analytics product built on player tracking. The models run on real tracking data. A second
+pipeline tracks players from broadcast video, as a stand-in for the tracking that teams buy from vendors. It is
+scored against that real data, and today it feeds only a demo.
 
-**Site:** [PLACEHOLDER: the public address goes here once the site is deployed (PLAN.md M9)]
+**Site:** not deployed yet. The address goes here at deploy (`PLAN.md` M9).
 
 ## The short version
 
-About two minutes to read.
+Two to three minutes to read.
 
 **What it is.** Models that answer coaching questions from player tracking data. How good was this shot (xFG)?
 How many points is this possession worth right now (EPV)? Where would an average defense have stood (ghosting)?
-They run on public SportVU tracking of the 2015-16 season (`reports/results.md`). A site shows them as a
-possession review and a prep tab, after a short demo of the broadcast pipeline.
+They run on public SportVU tracking (the league's in-arena camera tracking of that time) of the 2015-16 season
+(`reports/results.md`). A site is being built to show them as a possession review and a prep tab, after a short
+demo of the broadcast pipeline (`PLAN.md`).
 
-The model results come from SportVU positions. The broadcast pipeline has no ball, no stable player identity
+No model result comes from the broadcast pipeline. The tracking models run on SportVU positions, and two lanes
+(lineups, win probability) run on play-by-play. The broadcast pipeline has no ball, no stable player identity
 and no reliable team label yet, so it feeds only the demo, and the demo is labelled an illustration.
 
-**How well the tracking works.** The adopted build, `r23`, scored against SportVU on footage held out from
-training. In one line: on the held-out game the median position error is 1.92 ft, and the pipeline misses 25.1%
-of the players in view. Every value is copied from the scorecard of its game,
-`reports/scorecard/<game>__r23.txt`.
-
-| Row and target | Held-out game `gsw_phx_2016` | Held-out arena `cle_nyk_2015` | Held-out arena `cle_gsw_2016` |
-| --- | --- | --- | --- |
-| Position error, p50 / p90 <= 2.0 / 5.0 ft | **met**: 1.92 / 4.98 ft | not met: 2.25 / 5.46 ft | not met: 2.22 / 5.5 ft |
-| Near-field bias, near / far third, within +-0.5 ft | not met: -0.67 / +1.52 ft | not met: -0.63 / +1.66 ft | not met: -0.12 / +2.00 ft |
-| Coverage >= 50% | **met**: 99.3% | **met**: 92.3% | not met: 39.7% |
-| Missed players <= 5% | not met: 25.1% | not met: 24.4% | not met: 26.2% |
-| Ghost boxes, referees excluded, <= 5% | not met: 15.1% | not met: 14.8% | not met: 14.8% |
-| Team labels >= 95% | not met: 81.9% | not met: 73.7% | not met: 78.2% |
-
-- **Only frames with usable truth are scored**: 1447 of 9500 on the held-out game (stated at the top of its
-  scorecard). They lean toward frames the pipeline already handled, so every row is optimistic.
-- **Position error is met on the point estimate only.** Its p90 is 4.98 ft against 5.0 ft, with a 95% interval
-  of [4.42, 6.02] (`reports/r23_verification.txt`).
-- **One model did see the held-out game.** The frame gate, which picks the wide shots, trained on 294 of its
-  frames (`reports/sportvu_splits.txt`). The court and player models did not train on it.
-- **Missed players, ghost boxes and team labels fail on every game.** Fixing detection, teams and identity is
-  out of scope for this build (`PLAN.md`).
-
-**What the models found.** Each model was scored exactly once on held-out games (`reports/results.md`).
-Brackets are 95 percent bootstrap intervals by game.
+**What the models found.** Each model with a held-out score was scored on it exactly once
+(`reports/results.md`). Brackets are 95 percent bootstrap intervals by game.
 
 - **Shot quality (xFG) works.** Held-out log loss 0.6232 [0.6132, 0.6327], against 0.6735 for a model that knows
   only where the shot was taken.
@@ -50,10 +30,47 @@ Brackets are 95 percent bootstrap intervals by game.
 - **Decision quality failed.** It does not track a player's on-court offensive rating: Spearman
   -0.014 [-0.116, 0.100] held out. It stays on the site as tested, no signal.
 
+**How well the tracking works.** The adopted build, `r23`, is scored against SportVU on footage held out from
+training. In one line: on the held-out game, for the players it finds, the median position error is 1.92 ft,
+and it misses 25.1% of the players in view. Every value is copied from the scorecard of its game,
+`reports/scorecard/<game>__r23.txt`.
+
+| Row and target | Held-out game `gsw_phx_2016` | Held-out arena `cle_nyk_2015` | Held-out arena `cle_gsw_2016` |
+| --- | --- | --- | --- |
+| Position error, median / ninetieth percentile (p50 / p90) <= 2.0 / 5.0 ft | **met**: 1.92 / 4.98 ft | not met: 2.25 / 5.46 ft | not met: 2.22 / 5.5 ft |
+| Near-field bias (median error toward the camera), near / far third of the court, within +-0.5 ft | not met: -0.67 / +1.52 ft | not met: -0.63 / +1.66 ft | not met: -0.12 / +2.00 ft |
+| Coverage (share of live wide-angle seconds with accepted positions) >= 50% | **met**: 99.3% | **met**: 92.3% | not met: 39.7% |
+| Missed players (players in view with no box) <= 5% | not met: 25.1% | not met: 24.4% | not met: 26.2% |
+| Ghost boxes (boxes on no player), referees excluded, <= 5% | not met: 15.1% | not met: 14.8% | not met: 14.8% |
+| Team labels >= 95% | not met: 81.9% | not met: 73.7% | not met: 78.2% |
+
+- **Every row except coverage is scored only on frames with usable truth**: 1447 of 9500 window frames on the
+  held-out game (stated at the top of its scorecard). The windows are stretches of running clock, not the whole
+  game, and the scored frames lean toward frames the pipeline already handled, so those rows are optimistic.
+  Coverage counts all live wide-angle seconds of the same windows.
+- **Position error is met on the point estimate only.** Its p90 is 4.98 ft against 5.0 ft, with a 95% interval
+  of [4.42, 6.02] (`reports/r23_verification.txt`).
+- **One model did see the held-out game.** The frame gate, which picks the wide-angle frames, trained on 294 of
+  its frames (`reports/sportvu_splits.txt`), so the choice of scored frames and the coverage row are kinder
+  there than on a new game. The court and player models did not train on it.
+- **Missed players, ghost boxes and team labels fail on every game.** Fixing detection, teams and identity is
+  out of scope for this build (`PLAN.md`).
+
 **Where to look next.** The results with what failed: [`reports/results.md`](reports/results.md). The
-scorecards with their caveats: [`reports/scorecard/`](reports/scorecard/). What the project will and will not
-claim: [`CLAIMS.md`](CLAIMS.md). The demo script: [`docs/SCRIPT.md`](docs/SCRIPT.md). The plan and every
-decision: [`PLAN.md`](PLAN.md).
+scorecards with their caveats: [`reports/scorecard/`](reports/scorecard/). What the tracking pipeline will and
+will not claim: [`CLAIMS.md`](CLAIMS.md). That file was written before the model lanes existed and has no row
+for them, so the model claims are in `reports/results.md`. Its out-of-scope list dates from then and still
+names shot-quality models, and its row A2 quotes prototype stage numbers (see the broadcast pipeline section
+below). The demo script: [`docs/SCRIPT.md`](docs/SCRIPT.md). The plan and every decision: [`PLAN.md`](PLAN.md).
+
+## Status of this branch
+
+Not everything named below is on this branch yet. `export/site_data.py`, `export/demo_bridge.py`,
+`tools/frozen_models.py` and `web/` are built on other branches of this build and merged by the lead (`PLAN.md`
+D39). Until all of them are here, what the next two sections say about a missing one (its command, its table
+row, the two builds of the site, the fixture labelling) describes the plan (`PLAN.md`, Site structure), not
+something this branch can run. This section is removed when they land: a test in `tests/test_public_docs.py`
+fails if it stays after that, and fails if it is removed before.
 
 ## Run it
 
@@ -112,8 +129,11 @@ video file is in its output. The private build adds short clips and sits behind 
 
 **What is held out.** The split is `sportvu/splits.json`. The court model's SportVU labels come from 4 games
 at one arena (`reports/sportvu_splits.txt`). The held-out game was played at that same arena. The held-out
-arena is Cleveland: no game played there enters training (`CLAIMS.md`, measurement protocol). Every training
-script refuses the held-out ids.
+arena is Cleveland. No frame of the two scored Cleveland games is in what any training script reads, and no
+Cleveland game is in the court model's SportVU labels (`reports/sportvu_splits.txt`, which matches games by
+name; `reports/r23_verification.txt`). Two models did see the building: the frame gate trained on frames of
+another Cleveland home game, and the first court model's training set holds frames of later Cleveland home
+games (both below). Every training script refuses the held-out ids.
 
 **The rest of the scorecard.** The table at the top holds the rows that are judged on every game. The other
 rows, from the same files:
@@ -128,8 +148,8 @@ rows, from the same files:
 The held-out game's scorecard states the frames without usable truth as a share: untestable 84.8%. The arena
 passes the generalisation row and still misses the position target itself.
 
-**Three builds, one set of boxes.** Every build scores the same detected boxes on the same frames. Only the
-court model changes.
+**Three builds, one set of boxes.** Each of these builds scores the same detected boxes on the same frames.
+Only the court model changes.
 
 - `v3` is the pipeline as tagged (`v3-frozen`). On the held-out game its position error is p50 7.33 ft,
   p90 15.35 ft (`reports/scorecard/gsw_phx_2016__v3.txt`).
@@ -139,6 +159,10 @@ court model changes.
 - `r23_cam` adds a camera model. It was measured and not adopted: not every row improves on the held-out arena,
   and the two builds differ only on held-out footage, so choosing the better one there would be a selection on
   held-out data (`PLAN.md` D42). Its scorecards sit beside the others in `reports/scorecard/`.
+
+The folder also holds the scorecards of a public court model that was tried as a baseline, in two settings
+(`public`, `public_conf005`; `ROADMAP_LOG.md`), and the files that compare builds side by side
+(`compare__<builds>`).
 
 **Caveats that ship with every scorecard.** Each scorecard file prints these in full.
 
@@ -159,7 +183,10 @@ court model changes.
 - The held-out game shares its arena and season with the training games, so the arena games are the
   cross-arena evidence.
 - The held-out arena means unseen games and an unseen season, not an unseen building: the first court model's
-  training set holds 56 frames of 2023-24 Cleveland home games.
+  training set holds 56 frames of 2023-24 Cleveland home games by the verification's count (`CLAIMS.md`,
+  `reports/r23_verification.txt`). A later tagging of that set by arena counts Cleveland as 9 clips / 88 images
+  and calls its list a lower bound (`ROADMAP_LOG.md`, `sportvu/old_set_groups.json`). The two counts use
+  different units, and neither file reconciles them.
 - The adopted court model is the best of three training seeds of its recipe. With the arena games pooled, the
   recipe's expected position error, p50 / p90, is about 2.35 / 5.9 ft, not this model's 2.24 / 5.47
   (`ROADMAP_LOG.md`).
@@ -184,10 +211,12 @@ scorecards.
 ## The models in detail
 
 Eleven lanes and a location-only xFG baseline, frozen at tag `freeze-v1`. The tracking data is split by game:
-604 train and 17 held out. Each lane chose its model on training data only, by a rule fixed before it ran. Then
-each lane scored its held-out games once. None of the failures was rescued after the held-out numbers were
-seen. The held-out and verdict cells below are copied from the summary table of
-[`reports/results.md`](reports/results.md), which also has the out-of-fold values and the reasoning.
+604 train and 17 held out. Lineups and win probability read play-by-play of later seasons instead, and hold out
+the 2024-25 season. Embeddings have no held-out score by design. Each lane chose its model on training data
+only, by a rule fixed before it ran. Then each lane with a held-out score scored its held-out data once. None of
+the failures was rescued after the held-out numbers were seen. The held-out and verdict cells below are copied
+from the summary table of [`reports/results.md`](reports/results.md), which also has the out-of-fold values and
+the reasoning.
 
 | Lane | Question | Metric | Held-out | Verdict |
 | --- | --- | --- | --- | --- |
@@ -363,7 +392,7 @@ with intervals. What these may claim is in `CLAIMS.md`.
 | File | What it is |
 | --- | --- |
 | [`PLAN.md`](PLAN.md) | The locked plan of this build: spec, checklist, milestones and every decision. |
-| [`CLAIMS.md`](CLAIMS.md) | What the project will and will not claim, with the evidence for each claim. |
+| [`CLAIMS.md`](CLAIMS.md) | What the tracking pipeline will and will not claim, with the evidence for each claim. It predates the model lanes, whose claims are in `reports/results.md`. Its row A2 quotes prototype numbers. |
 | [`reports/results.md`](reports/results.md) | The model results, with what failed. |
 | [`STATUS.md`](STATUS.md) | The closing record of the frozen analytics lanes. |
 | [`docs/SCRIPT.md`](docs/SCRIPT.md) | The script of the demo and of the slides. |

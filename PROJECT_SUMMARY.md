@@ -20,6 +20,8 @@ attributions agreeing with independent play-by-play ground truth at **87.8% (n=9
 > not tracking accuracy. In this file "held-out" means a test split of those same clips. Numbers without the
 > tag are counts, settings, dates, costs, run times or measurements on the production harvest. The
 > measurements against real tracking data on held-out footage are in README.md and `reports/scorecard/`.
+> In the detector table (COCO person against basketball-trained), the tag in the first cell of a row covers
+> every number of that row.
 
 ---
 
