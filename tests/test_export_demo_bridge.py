@@ -581,7 +581,7 @@ def test_the_bridge_writes_two_valid_files_and_states_n_and_fill_share(fx, monke
     swap = S.DemoSwap.model_validate_json((fx["out"] / "demo" / "swap.json").read_text())
     assert swap.label == "illustration" and swap.game_id == GAME_ID and swap.game == TAG and swap.build == "r23"
     assert swap.match_ft == 5.0 and swap.max_gap_s == B.MAX_GAP_S and swap.n_windows == 2
-    assert swap.fill_share == pytest.approx(report["fill"]["fill_share"], abs=1e-6) and 0 < swap.fill_share < 1
+    assert swap.fill_share == round(report["fill"]["fill_share"], B.SUMMARY_DIGITS) and 0 < swap.fill_share < 1
     assert swap.n_frames * 10 == report["fill"]["n_player_frames"]
     by_kind = {s.kind: s for s in swap.summaries}
     assert set(by_kind) == set(S.MODEL_KINDS)
@@ -589,8 +589,8 @@ def test_the_bridge_writes_two_valid_files_and_states_n_and_fill_share(fx, monke
         items = [i for i in swap.items if i.kind == kind]
         assert summary.available and summary.n == len(items) > 0 and summary.unit == B.UNITS[kind]
         diffs = np.array([i.abs_diff for i in items])
-        assert summary.mean_abs_diff == pytest.approx(diffs.mean(), abs=1e-6)
-        assert summary.median_abs_diff == pytest.approx(np.median(diffs), abs=1e-6)
+        assert summary.mean_abs_diff == round(float(diffs.mean()), B.SUMMARY_DIGITS)
+        assert summary.median_abs_diff == round(float(np.median(diffs)), B.SUMMARY_DIGITS)
         assert diffs.max() > 0                                   # the positions really moved the answer
         assert "stored held-out predictions" in summary.note
         for item in items:

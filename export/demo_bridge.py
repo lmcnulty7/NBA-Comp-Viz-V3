@@ -905,6 +905,9 @@ def ghost_swap(model: Model, state: State) -> Compared:
 
 
 SWAPS = {"xfg": xfg_swap, "epv": epv_swap, "ghosting": ghost_swap}
+# The headline numbers the site prints (summaries and the overall fill share) are rounded here, once, to three
+# decimals; items keep six. The site prints what the file stores and never rounds (docs/SCRIPT.md).
+SUMMARY_DIGITS = 3
 # The tracked copy of the rebuild checks (PLAN.md D49). A model is used only when its check equals its record here.
 TRACKED_CHECKS = REPO_ROOT / "reports" / "export" / "frozen_checks.json"
 
@@ -941,7 +944,7 @@ def _summary(result: Compared) -> S.SwapSummary:
     rows = f"stored {GHOST_HORIZON_S:g} s ghost rows" if kind == "ghosting" else "stored rows"
     note = (f"Sensor-side predictions equal the stored held-out predictions on all {facts['stored_rows']} {rows} of "
             f"the game: largest gap {facts['stored_gap']:.3g} {unit}, tolerance {TOLERANCE_CAP[kind]:g}.")
-    return S.SwapSummary(kind=kind, n=len(diffs), mean_abs_diff=_r(diffs.mean(), 6), median_abs_diff=_r(np.median(diffs), 6),
+    return S.SwapSummary(kind=kind, n=len(diffs), mean_abs_diff=_r(diffs.mean(), SUMMARY_DIGITS), median_abs_diff=_r(np.median(diffs), SUMMARY_DIGITS),
                          unit=unit, available=True, note=note)
 
 
@@ -1032,7 +1035,7 @@ def build_swap(state: State, results: dict, models: dict, max_gap_s: float = MAX
     return S.DemoSwap(
         schema_version=S.SCHEMA_VERSION, label="illustration", game_id=state.game_id, game=state.card["game"],
         build=state.card["build"], n_windows=fill["n_windows"], n_frames=fill["n_frames"],
-        fill_share=_r(fill["fill_share"], 6), match_ft=state.card["match_ft"], max_gap_s=max_gap_s,
+        fill_share=_r(fill["fill_share"], SUMMARY_DIGITS), match_ft=state.card["match_ft"], max_gap_s=max_gap_s,
         summaries=[_summary(results[k]) for k in S.MODEL_KINDS], items=items, possessions=possession_fill(state),
         checks=checks, method=method_statements(state, fill, results, max_gap_s), sources=list(sources.values()))
 
