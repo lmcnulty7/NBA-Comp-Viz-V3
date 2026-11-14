@@ -3,7 +3,8 @@
 results.json comes from reports/results.md through analytics/results.py: each lane report is parsed with
 parse_report, and the records must render to the generated block of reports/results.md byte for byte. The question,
 the model name and the verdict sentence of each lane are the cells of the hand-written Summary table, copied word
-for word (the verdict is a quote from the write-up, D53). The metrics and the rows come from the generated tables.
+for word (the verdict is a quote from the write-up, D53) with only the Markdown bold markers removed (plain_cell):
+results.json carries plain text, and the site does not render Markdown. The metrics and the rows come from the generated tables.
 The verdict class comes from the generated tables where they decide it (an interval of a correlation, or a floor
 candidate to beat). Where they do not, the class is the one the write-up's sentence names with a keyword, and
 results.json says which lanes were classed that way. A lane that neither decides is a problem, never a default.
@@ -39,6 +40,7 @@ _NUMBER_RE = re.compile(r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
 _INTERVAL_RE = re.compile(r"\[(\S+), (\S+)\]")
 _GENERATED_RE = re.compile(r"^Generated (\S+) by `([^`]+)`", re.M)
 _INTERVALS_SENTENCE_RE = re.compile(r"Intervals are [^.;]*(?:;[^.]*)?\.", re.S)
+_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 
 # Verdict class from the generated tables (see class_from_tables).
 LOWER_IS_BETTER = ("loss", "mse", "error", "brier")
@@ -127,7 +129,7 @@ def read_results(repo_root=C.REPO_ROOT) -> ResultsDoc:
         raise ExportProblem(f"{RESULTS_MD}: {exc}") from None
     summary, lanes = {}, []
     for row in table.rows:
-        cells = {name: table.cell(row, name) for name in SUMMARY_COLUMNS}
+        cells = {name: plain_cell(table.cell(row, name)) for name in SUMMARY_COLUMNS}
         lane = cells.pop("lane")
         if lane in summary:
             raise ExportProblem(f"{RESULTS_MD}: lane {lane} is twice in the Summary table")
@@ -141,6 +143,13 @@ def read_results(repo_root=C.REPO_ROOT) -> ResultsDoc:
     return ResultsDoc(generated=generated, command=command, records={r.lane: r for r in records},
                       rows=_lane_rows(block), summary=summary, lanes=lanes,
                       intervals_sentence=" ".join(sentence.group(0).split()))
+
+
+def plain_cell(text: str) -> str:
+    """A cell of the Summary table as plain text: each **bold** run loses its two markers, nothing else changes
+    ("**failed**: no validated signal" becomes "failed: no validated signal"). The words stay those of the
+    write-up; only the Markdown that the site would print raw is removed."""
+    return _BOLD_RE.sub(r"\1", text)
 
 
 def _number(text):
@@ -267,7 +276,8 @@ def build_results(repo_root=C.REPO_ROOT, doc: ResultsDoc = None) -> S.Results:
     notes = [
         doc.intervals_sentence,
         "Question, model name and verdict are the cells of the hand-written Summary table of reports/results.md, "
-        "copied word for word: the verdict is a quote from the write-up. The out-of-fold and held-out metrics and "
+        "copied word for word with only the Markdown bold markers removed: the verdict is a quote from the "
+        "write-up. The out-of-fold and held-out metrics and "
         "the rows are copied from the tables that analytics/results.py generates from each lane report.",
         "The verdict class comes from the generated tables where they decide it. A lane scored by a correlation "
         "with a stated out-of-fold interval that contains zero is failed; with no out-of-fold interval and a "

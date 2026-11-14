@@ -73,7 +73,7 @@
     },
     "notes": "Notes",
     "quoted": "Quoted from {source}",
-    "intro": "Every model, tested on games it never saw. Failed and inconclusive models stay in the table.",
+    "intro": "Every model with a held-out test was tested on games it never saw. A model with no held-out test says so in its row. Failed and inconclusive models stay in the table.",
     "to": " to "
   }
 }

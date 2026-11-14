@@ -814,6 +814,11 @@ def test_metric_notes_label_observed_rates_and_plain_numbers(built):
     assert "It belongs to over_expected_per_100." in notes["shot_making"]
     assert "It belongs to rate_per_100." in notes["rebounding"]
     assert "fg_pct is descriptive" in notes["shot_making"]
+    # The frozen model knows the shooter, so its residual is not a measure over expected. It is not near zero
+    # (in the real table its absolute value has a median of a few makes per 100 and reaches about twenty), so no
+    # note may say so.
+    assert "it already knows the shooter, so its residual is not a measure over expected" in notes["shot_making"]
+    assert "by construction" not in notes["shot_making"] and "near zero" not in notes["shot_making"]
     assert notes["rebounding"].startswith("The rate is descriptive")
     for metric in ("gravity", "absence_risk", "similar"):      # the other observed tables say it as well
         assert "escriptive" in notes[metric], metric
@@ -1100,9 +1105,12 @@ def test_results_json_equals_reports_results_md(results_md):
     sections = dict(re.findall(r"^### (\w+)(?: \(fixture output, not a result\))?\n\n(.*?)(?=^### |^<!-- results:end)", block,
                                re.M | re.S))
     for lane, line in zip(results.lanes, summary):
-        # question, model name and verdict: the cells of the hand-written row, word for word
-        assert line.startswith(f"| {lane.lane} | {lane.question} | {lane.selected_model} | ")
-        assert line.endswith(f" | {lane.verdict} |")
+        # question, model name and verdict: the cells of the hand-written row, word for word once the same
+        # stripping is applied to the row (site_reports.plain_cell removes only the Markdown bold markers)
+        plain = site_reports.plain_cell(line)
+        assert plain.startswith(f"| {lane.lane} | {lane.question} | {lane.selected_model} | ")
+        assert plain.endswith(f" | {lane.verdict} |")
+        assert "**" not in lane.verdict + lane.question + lane.selected_model
         assert lane.verdict_source == "reports/results.md" and lane.report == f"reports/{lane.lane}.md"
         table = sections[lane.lane]
         # the generated lane table, row by row and in order
@@ -1126,6 +1134,15 @@ def test_results_json_equals_reports_results_md(results_md):
     assert results.generated == re.search(r"^Generated (\S+) by", block, re.M).group(1)
     assert results.freeze_tag == "freeze-v1" and "`freeze-v1`" in before
     assert " ".join(before.split()).count(results.notes[0]) == 1          # the sentence on intervals, copied
+
+
+def test_a_summary_cell_loses_only_its_bold_markers():
+    assert site_reports.plain_cell("**failed**: no validated signal") == "failed: no validated signal"
+    assert site_reports.plain_cell("**a** and **b**, 2 * 3") == "a and b, 2 * 3"
+    assert site_reports.plain_cell("works; beats the baseline") == "works; beats the baseline"
+    # the real write-up bolds two verdicts, and results.json carries them as plain text
+    verdicts = {lane.lane: lane.verdict for lane in site_reports.build_results(REPO).lanes}
+    assert verdicts["decisions"].startswith("failed: ") and verdicts["lineups"].startswith("inconclusive: ")
 
 
 def test_verdict_class_comes_from_the_generated_tables_and_agrees_with_the_write_up():

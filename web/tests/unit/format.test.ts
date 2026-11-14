@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { TOKENS } from "@/lib/tokens";
-import { copy, fill, label } from "@/lib/copy";
+import { copy, fill, fillNodes, label } from "@/lib/copy";
 import {
   MINUS,
   formatClock,
@@ -55,6 +57,15 @@ test("fill puts values into a copy template and refuses a missing one", () => {
   expect(() => fill("{n} possessions", {})).toThrow(/no value for \{n\}/);
   expect(label({ shot_made: "Made shot" }, "shot_made")).toBe("Made shot");
   expect(label({ shot_made: "Made shot" }, "new_result")).toBe("new_result");
+});
+
+test("fillNodes puts elements into a copy template and refuses a missing one", () => {
+  const code = createElement("code", null, "reports/results.md");
+  expect(renderToStaticMarkup(createElement("p", null, fillNodes(copy.results.models.quoted, { source: code })))).toBe(
+    `<p>${copy.results.models.quoted.replace("{source}", "<code>reports/results.md</code>")}</p>`,
+  );
+  expect(copy.results.models.quoted).toContain("{source}");
+  expect(() => fillNodes("Quoted from {source}", {})).toThrow(/no value for \{source\}/);
 });
 
 test("every placeholder in the site copy is one the pages can fill", () => {

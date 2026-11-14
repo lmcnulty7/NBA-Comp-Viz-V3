@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { broadcastCourt, filledCourt } from "@/components/coldopen/model";
 import {
   EMPTY_SCENE,
   clampFrame,
@@ -88,4 +89,18 @@ test("a demo frame becomes tracked players with the sensor positions as the trut
 
 test("the empty scene draws nothing but the court", () => {
   expect(EMPTY_SCENE).toEqual({ players: [], ball: null, ghosts: [], truth: [], markers: [] });
+});
+
+test("the broadcast court of the comparison draws only matched broadcast points, plus the filled-in players", () => {
+  const frame = tinyDemoFrame();
+  const scene = filledCourt(frame);
+  // The unmatched box (player_id null) is dropped, as the comparison drops it; players 1 and 11 stay.
+  expect(scene.players.map((player) => [player.id, player.x, player.y])).toEqual([
+    [1, 60, 20],
+    [11, 64, 21],
+  ]);
+  // Sensor player 99 has no broadcast position, so it is drawn hollow where the sensor puts it.
+  expect(scene.truth).toEqual([{ id: 99, x: 80, y: 40, from: null }]);
+  // The map of scene three still shows every point the tracker placed, the unmatched one included.
+  expect(broadcastCourt(frame, false).players).toHaveLength(3);
 });

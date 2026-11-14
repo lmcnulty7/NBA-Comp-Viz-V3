@@ -56,10 +56,3 @@ export function stepDecimals(step: number): number {
   if (!(step > 0) || step >= 1) return 0;
   return Math.min(6, Math.ceil(-Math.log10(step) - 1e-9));
 }
-
-/** The decimals of the first number written in a text, for showing a parsed metric as the report prints it. */
-export function decimalsInText(text: string, fallback = 3): number {
-  const found = /-?\d+(?:\.(\d+))?/.exec(text);
-  if (!found) return fallback;
-  return found[1] ? found[1].length : 0;
-}

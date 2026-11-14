@@ -6,6 +6,7 @@ import { storyData, storyLines, storyScenes } from "@/components/coldopen/story"
 import { copy } from "@/lib/copy";
 import { MINUS } from "@/lib/format";
 import {
+  OPTIONAL_TOKENS,
   TOKENS,
   TokenError,
   canRender,
@@ -99,6 +100,27 @@ test("a field path selects exactly one value, and a wrong name fails", () => {
   }
   expect(walkField({ scenes: [{ frames: [{ error_ft: 1 }, { error_ft: 2 }] }] }, "scenes[0].frames[k].error_ft", { frame: 1 })).toBe(2);
   expect(() => walkField({ scenes: [{ frames: [] }] }, "scenes[0].frames[k].error_ft")).toThrow(TokenError);
+  // A missing last key is an error unless the caller marks it optional; a null value reads as undefined.
+  expect(() => walkField({ n_windows: 3 }, "fill_share")).toThrow(TokenError);
+  expect(() => walkField({ summaries: [{ kind: "xfg" }] }, "summaries[kind=xfg].mean_abs_diff")).toThrow(TokenError);
+  expect(walkField({ scenes: [{}] }, "scenes[0].p50_error_ft", {}, { optional: true })).toBeUndefined();
+  expect(walkField({ scenes: [{ p50_error_ft: null }] }, "scenes[0].p50_error_ft")).toBeUndefined();
+  // Optional covers the last key only, never a step on the way.
+  expect(() => walkField({}, "scenes[0].p50_error_ft", {}, { optional: true })).toThrow(TokenError);
+});
+
+test("a token whose field is missing from its file throws, unless docs/SCRIPT.md gives it a fallback", () => {
+  const data = siteData();
+  test.skip(!data.swap || !data.frames, "this data root has no demo files");
+  const swap = structuredClone(data.swap!) as unknown as Record<string, unknown>;
+  delete swap.fill_share;
+  expect(() => resolveToken("swap.fill_share", { ...data, swap: swap as unknown as DemoSwap })).toThrow(TokenError);
+  const frames = structuredClone(data.frames!);
+  delete frames.scenes[0]!.p50_error_ft;
+  for (const frame of frames.scenes[0]!.frames) delete frame.error_ft;
+  expect(resolveToken("frames.scene.p50_error_ft", { ...data, frames })).toBeNull();
+  expect(resolveToken("frames.scene.frame.error_ft", { ...data, frames }, { frame: 0 })).toBeNull();
+  expect([...OPTIONAL_TOKENS].every((token) => token in TOKENS)).toBe(true);
 });
 
 test("an unknown token fails, so a page that uses one fails the build", () => {
@@ -109,12 +131,18 @@ test("an unknown token fails, so a page that uses one fails the build", () => {
   expect(tokensIn("A {letters} placeholder is not a token, {swap.fill_share} is.")).toEqual(["swap.fill_share"]);
 });
 
-test("every token of the script resolves on the data root", () => {
+test("every token of the script resolves on the data root, and has a value wherever its data is present", () => {
   const data = siteData();
   const frames = data.frames?.scenes[0]?.frames ?? [];
-  for (const token of Object.keys(TOKENS)) {
+  for (const [token, spec] of Object.entries(TOKENS)) {
     const value = resolveToken(token, data, { frame: 0 });
     if (value !== null) expect(value, token).toMatch(/^[−]?[\d,]+(\.\d+)?$/);
+    // Null is allowed only where the copy has a fallback for it: a demo file this build lacks, a model of the
+    // comparison whose rebuild did not pass (C6), or a field docs/SCRIPT.md lets be missing (OPTIONAL_TOKENS).
+    const filePresent = spec.file === "demo/swap.json" ? data.swap !== null : spec.file === "demo/frames.json" ? data.frames !== null : true;
+    const kind = /^summaries\[kind=([a-z]+)\]\./.exec(spec.field)?.[1];
+    const summaryAvailable = !kind || data.swap?.summaries.find((summary) => summary.kind === kind)?.available === true;
+    if (filePresent && summaryAvailable && !OPTIONAL_TOKENS.has(token)) expect(value, token).not.toBeNull();
   }
   if (frames.length) {
     // The readout token reads the frame on screen.

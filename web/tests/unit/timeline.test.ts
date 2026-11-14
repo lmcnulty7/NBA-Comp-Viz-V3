@@ -4,7 +4,7 @@ import {
   SPEEDS,
   advance,
   endTime,
-  epvAt,
+  epvStateAt,
   frameAtOrBefore,
   sceneAtTime,
   speedRate,
@@ -85,17 +85,23 @@ test("a one-frame possession gives its only frame at any time", () => {
   expect(sceneAtTime(possession, 3, { tween: true })).toEqual(sceneFromPossession(possession, 0));
 });
 
-test("EPV at a time is on the line between states and flat outside the curve", () => {
+test("the EPV readout is the stored state at or before the time, and the last state at the end", () => {
   const curve = { t: [0, 1, 2], value: [1, 2, 0.5] };
-  expect(epvAt(curve, -1)).toBe(1);
-  expect(epvAt(curve, 0)).toBe(1);
-  expect(epvAt(curve, 0.5)).toBeCloseTo(1.5, 9);
-  expect(epvAt(curve, 1.5)).toBeCloseTo(1.25, 9);
-  expect(epvAt(curve, 2)).toBe(0.5);
-  expect(epvAt(curve, 9)).toBe(0.5);
-  expect(epvAt({ t: [3], value: [0.9] }, 0)).toBe(0.9);
-  expect(epvAt(null, 1)).toBeNull();
-  expect(epvAt({ t: [], value: [] }, 1)).toBeNull();
+  const at = (time: number, end = 1.9) => epvStateAt(curve, time, end);
+  expect(at(-1)).toEqual({ index: 0, t: 0, value: 1 });
+  expect(at(0)).toEqual({ index: 0, t: 0, value: 1 });
+  // Between two states the readout holds the earlier one: never a value no file stores.
+  expect(at(0.5)?.value).toBe(1);
+  expect(at(1)?.value).toBe(2);
+  expect(at(1.5)?.value).toBe(2);
+  // Playback ends at the last tracking frame (1.9 s here), before the last state (2 s): the end shows that state.
+  expect(at(1.9)).toEqual({ index: 2, t: 2, value: 0.5 });
+  expect(at(9)?.value).toBe(0.5);
+  expect(at(2, 3)?.value).toBe(0.5);
+  for (const time of [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 1.9]) expect(curve.value).toContain(at(time)?.value);
+  expect(epvStateAt({ t: [3], value: [0.9] }, 0, 0)?.value).toBe(0.9);
+  expect(epvStateAt(null, 1, 1)).toBeNull();
+  expect(epvStateAt({ t: [], value: [] }, 1, 1)).toBeNull();
 });
 
 test("the playback clock advances by wall time times the speed, caps a long pause and stops at the end", () => {

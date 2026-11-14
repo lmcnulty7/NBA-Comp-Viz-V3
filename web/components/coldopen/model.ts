@@ -49,13 +49,15 @@ export function sensorCourt(frame: DemoFrame | undefined): CourtScene {
 }
 
 /**
- * The broadcast positions of a frame, with every sensor player the broadcast has no position for drawn hollow
- * at the sensor position: the players filled in from the sensor data (D27).
+ * The positions the comparison ran on (D27): the matched broadcast points, and every sensor player the
+ * broadcast has no position for drawn hollow at the sensor position (the players filled in from the sensor
+ * data). A broadcast point that matched no player (player_id null) is left out, as the comparison drops it.
  */
 export function filledCourt(frame: DemoFrame | undefined): CourtScene {
   if (!frame) return { players: [], ball: null, ghosts: [], truth: [], markers: [] };
-  const tracked = new Set(frame.broadcast.map((point) => point.player_id).filter((id) => id != null));
-  const scene = sceneFromDemoFrame({ ...frame, truth: [] });
+  const matched = frame.broadcast.filter((point) => point.player_id != null);
+  const tracked = new Set(matched.map((point) => point.player_id));
+  const scene = sceneFromDemoFrame({ ...frame, broadcast: matched, truth: [] });
   const filled = frame.truth
     .filter((point) => point.player_id == null || !tracked.has(point.player_id))
     .map((point) => ({ id: point.player_id ?? null, x: point.x, y: point.y, from: null }));

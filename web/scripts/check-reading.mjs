@@ -9,7 +9,8 @@
 //     makes a claim the site never makes (best, optimal, should, passes, proves);
 //   - the copy of a scene, or its labels, is not the approved copy of docs/SCRIPT.md, line for line;
 //   - a slide of a scene does not carry the lines of that scene;
-//   - copy uses a token that the token table of docs/SCRIPT.md does not list.
+//   - copy uses a token that the token table of docs/SCRIPT.md does not list;
+//   - talk/deck.json is missing or lists no slide.
 // Presenter notes are left out of the grade and the word list: SCRIPT.md lets them name the methods.
 //
 //   node scripts/check-reading.mjs [--content <dir>] [--script <SCRIPT.md>]
@@ -129,9 +130,13 @@ export function checkReading({ contentDir = CONTENT_DIR, scriptFile = SCRIPT_FIL
   }
 
   // The slides.
+  // The deck is required: a missing deck would leave every slide unchecked, so it fails instead.
   const deckFile = path.join(contentDir, "talk", "deck.json");
-  if (existsSync(deckFile)) {
+  if (!existsSync(deckFile)) {
+    problems.push("talk/deck.json: missing, so no slide could be checked");
+  } else {
     const deck = JSON.parse(readFileSync(deckFile, "utf8"));
+    if (!Array.isArray(deck.slides) || deck.slides.length === 0) problems.push("talk/deck.json: lists no slide");
     const caption = coldOpen.clip?.caption;
     for (const id of deck.slides ?? []) {
       const file = path.join(contentDir, "talk", `${id}.md`);

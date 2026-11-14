@@ -5,7 +5,7 @@ import path from "node:path";
 import { sceneFromPossession } from "@/components/court/scene";
 import { groupSources } from "@/components/evidence/groups";
 import { metricEstimate, SORT_KEYS } from "@/components/prep/sort";
-import { endTime, epvAt, frameAtOrBefore, sceneAtTime } from "@/components/review/timeline";
+import { endTime, epvStateAt, frameAtOrBefore, sceneAtTime } from "@/components/review/timeline";
 import { buildTour } from "@/components/review/tour";
 import { StaticSource } from "@/lib/data/source";
 
@@ -89,7 +89,12 @@ test("every possession of the data root loads and plays, and the review reads he
       }
       if (detail.epv) {
         check(detail.epv.t.length === detail.epv.value.length, `${where}: EPV lengths differ`);
-        for (const time of [0, end / 2, end]) check(Number.isFinite(epvAt(detail.epv, time) ?? Number.NaN), `${where}: EPV at ${time}`);
+        for (const time of [0, end / 2, end]) {
+          const state = epvStateAt(detail.epv, time, end);
+          check(state !== null && detail.epv.value[state.index] === state.value, `${where}: EPV at ${time} is not a stored state`);
+        }
+        // At the end of playback the readout shows the last stored state, even one stored after the last frame.
+        check(epvStateAt(detail.epv, end, end)?.index === Math.min(detail.epv.t.length, detail.epv.value.length) - 1, `${where}: EPV at the end`);
       } else {
         kinds.noEpv += 1;
       }

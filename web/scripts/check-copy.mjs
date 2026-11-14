@@ -7,7 +7,12 @@
 //   - a placeholder that is not {letters} and not a token of the token table of docs/SCRIPT.md (a token such as
 //     {swap.fill_share} names a field of the site data; digits inside a known token name a field, not a value);
 //   - an em dash or an en dash;
-//   - a phrase that calls the ghost defenders the best or the optimal defense (they are an average defense).
+//   - a phrase that calls the ghost defenders the best or the optimal defense (they are an average defense);
+//   - a claim the site never makes (FORBIDDEN of scripts/lib/readability.mjs: best, optimal, should, passes,
+//     proves, no model saw, ...), in every string of every JSON file and in the on-screen part of every
+//     Markdown file. The presenter notes of a slide (after "## Notes") are left out of this one rule: docs/SCRIPT.md
+//     fixes them word for word ("The presenter notes of each scene are the notes of its slide"), and they name
+//     these words to forbid them ("never \"passes\"") or about training seeds, not defense.
 // The other half of the rule is in eslint.config.mjs: a page or a component may not hold literal text, so
 // copy cannot be typed anywhere else.
 //
@@ -15,6 +20,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { CONTENT_DIR, shown } from "./lib/paths.mjs";
+import { forbiddenClaims } from "./lib/readability.mjs";
 import { scriptTokens } from "./lib/script-doc.mjs";
 
 const DIGIT = /\p{Nd}/u;
@@ -40,7 +46,12 @@ function excerpt(text) {
   return flat.length > 90 ? `${flat.slice(0, 87)}...` : flat;
 }
 
-export function checkText(text, where) {
+/** The claims the site never makes, in one piece of on-screen copy. */
+function claimProblems(text, where) {
+  return forbiddenClaims(text).map((found) => `${where}: ${found}: "${excerpt(text)}"`);
+}
+
+export function checkText(text, where, { onScreen = true } = {}) {
   const problems = [];
   const words = text.replace(PLACEHOLDER, (placeholder) => (isKnownToken(placeholder) ? " " : placeholder));
   if (DIGIT.test(words)) problems.push(`${where}: a digit in copy: "${excerpt(text)}"`);
@@ -53,6 +64,7 @@ export function checkText(text, where) {
   for (const [pattern, why] of BANNED) {
     if (pattern.test(text)) problems.push(`${where}: ${why}: "${excerpt(text)}"`);
   }
+  if (onScreen) problems.push(...claimProblems(text, where));
   return problems;
 }
 
@@ -93,7 +105,12 @@ export function checkCopy(dir = CONTENT_DIR) {
         problems.push(`${name}: not valid JSON: ${error.message}`);
       }
     } else if (file.endsWith(".md")) {
-      text.split("\n").forEach((line, index) => problems.push(...checkText(line, `${name}:${index + 1}`)));
+      // The presenter notes start at the "## Notes" heading of a slide (scripts/lib/slides.mjs).
+      const lines = text.split("\n");
+      const notesAt = lines.findIndex((line) => /^## Notes\s*$/.test(line));
+      lines.forEach((line, index) =>
+        problems.push(...checkText(line, `${name}:${index + 1}`, { onScreen: notesAt < 0 || index < notesAt })),
+      );
     } else {
       problems.push(`${name}: copy files are .json or .md`);
     }

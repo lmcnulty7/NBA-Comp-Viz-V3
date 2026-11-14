@@ -5,6 +5,7 @@
  *
  * A sentence that needs a number has a placeholder in braces, filled from data with `fill`.
  */
+import { Fragment, createElement, type ReactNode } from "react";
 import home from "@/content/home.json";
 import prep from "@/content/prep.json";
 import results from "@/content/results.json";
@@ -27,6 +28,24 @@ export function fill(template: string, values: Record<string, string | number>):
     }
     return String(value);
   });
+}
+
+/**
+ * Fill the placeholders of a copy template with elements (a link, a code span), for a sentence whose value is not
+ * plain text. A placeholder with no value is an error, as in `fill`.
+ */
+export function fillNodes(template: string, values: Record<string, ReactNode>): ReactNode {
+  const parts: ReactNode[] = [];
+  let last = 0;
+  for (const match of template.matchAll(PLACEHOLDER)) {
+    const name = match[1] as string;
+    if (!(name in values)) throw new Error(`copy template ${JSON.stringify(template)} has no value for {${name}}`);
+    parts.push(template.slice(last, match.index));
+    parts.push(createElement(Fragment, { key: `${name}-${match.index}` }, values[name]));
+    last = (match.index ?? 0) + match[0].length;
+  }
+  parts.push(template.slice(last));
+  return createElement(Fragment, null, ...parts);
 }
 
 /** The label of a data key (a result, a split, a verdict class), or the key itself when copy has no label. */

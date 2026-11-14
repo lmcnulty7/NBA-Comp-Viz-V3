@@ -4,7 +4,7 @@
   "intro": "Every possession here comes from a held-out game, so every prediction shown is out of sample.",
   "games": {
     "title": "Games",
-    "heldout": "All {n} games below were held out. No model saw them while it was fitted or tuned.",
+    "heldout": "All {n} games below were held out. The models whose predictions appear here never saw these games while they were fitted or tuned.",
     "caption": "Held-out games in this data build",
     "game": "Game",
     "date": "Date",
@@ -64,7 +64,7 @@
     "result": "Result",
     "points": "Points",
     "xfg": "xFG",
-    "epv": "EPV, start to end",
+    "epv": "EPV, start to end, point estimates",
     "epvRange": "{start} to {end}",
     "flags": "Notes",
     "open": "Possession {n}",
@@ -85,7 +85,7 @@
     "featured": "Featured only",
     "clear": "Clear filters",
     "count": "Showing {n} of {total} possessions.",
-    "xfgNote": "xFG is the chance the last shot goes in, as the model saw it. Each value is a point estimate. The fifths split all held-out shots into five equal groups."
+    "xfgNote": "xFG is the chance the last shot goes in, as the model saw it. Each value is a point estimate. The fifths are cut on all held-out shots, so each fifth holds a fifth of those shots, not of the possessions listed here. EPV is the expected points of the possession at its start and at its end. Each EPV value is a point estimate too."
   },
   "flags": {
     "featured": "featured",
@@ -166,8 +166,8 @@
       "readout": "At {t} s: {value}",
       "tick": "{t} s",
       "shot": "Shot",
-      "hint": "The line moves with playback. Press or drag on the chart to jump to a moment. Between two values, the line is drawn straight.",
-      "hintStatic": "The line moves with playback.",
+      "hint": "The line moves with playback. Press or drag on the chart to jump to a moment. Between two values, the line is drawn straight. The readout shows the stored value at or before that moment, and the last one at the end.",
+      "hintStatic": "The line moves with playback. The readout shows the stored value at or before that moment, and the last one at the end.",
       "table": "Values as a table",
       "time": "Seconds into the possession",
       "value": "EPV, point estimate",

@@ -5,7 +5,7 @@ import { useId, useMemo, useState } from "react";
 import listStyles from "@/components/review/list.module.css";
 import { EstimateValue } from "@/components/ui/EstimateValue";
 import { copy, fill, label } from "@/lib/copy";
-import { formatCount } from "@/lib/format";
+import { formatCount, formatSigned } from "@/lib/format";
 import { routes } from "@/lib/site";
 import type { PlayerView } from "@/lib/types/contract";
 import { SORT_KEYS, isMetric, metricEstimate, searchPlayers, sortPlayers, type SortKey } from "./sort";
@@ -77,6 +77,17 @@ export function PlayerIndex({ players, views }: { players: PlayerView[]; views: 
         {fill(text.count, { n: formatCount(shown.length), total: formatCount(players.length) })}
       </p>
       {metric ? <p className="small muted">{text.belowNote}</p> : null}
+      {/* D51: shot-making is read beside the baseline's own error; absence risk is not an injury forecast. */}
+      {key === "shot_making" ? (
+        <p className="small" data-testid="sort-note">
+          {text.baselineNote}
+        </p>
+      ) : null}
+      {key === "absence_risk" ? (
+        <p className="small" data-testid="sort-note">
+          {text.absenceNote}
+        </p>
+      ) : null}
 
       <div className="table-wrap" role="region" aria-label={caption} tabIndex={0}>
         <table>
@@ -108,7 +119,14 @@ export function PlayerIndex({ players, views }: { players: PlayerView[]; views: 
                   {metric ? (
                     <td data-metric-cell={key}>
                       {estimate ? (
-                        <EstimateValue estimate={estimate} digits={DIGITS[key]} />
+                        <>
+                          <EstimateValue estimate={estimate} digits={DIGITS[key]} />
+                          {key === "shot_making" && player.shot_making.baseline_error_per_100 != null ? (
+                            <span className="note small" data-testid="baseline-error">
+                              {fill(text.baselineError, { value: formatSigned(player.shot_making.baseline_error_per_100, 1) })}
+                            </span>
+                          ) : null}
+                        </>
                       ) : (
                         <span className="muted">{text.below}</span>
                       )}

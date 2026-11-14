@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { findLane } from "@/components/charts/LaneMetric";
-import { decimalsInText, linear, niceDomain, ticks } from "@/components/charts/scale";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LaneMetric, findLane } from "@/components/charts/LaneMetric";
+import { linear, niceDomain, ticks } from "@/components/charts/scale";
 import { groupSources, rowsRead } from "@/components/evidence/groups";
 import {
   NO_FILTER,
@@ -10,8 +12,10 @@ import {
   filterToQuery,
   resultsPresent,
 } from "@/components/review/filters";
+import { signedText } from "@/components/results/DataValue";
 import { buildTour, stopIndex } from "@/components/review/tour";
-import { SCHEMA_VERSION, type PossessionSummary, type Results, type Source } from "@/lib/types/contract";
+import { copy } from "@/lib/copy";
+import { SCHEMA_VERSION, type LaneResult, type PossessionSummary, type Results, type Source } from "@/lib/types/contract";
 
 function row(possession: number, extra: Partial<PossessionSummary> = {}): PossessionSummary {
   return {
@@ -138,7 +142,7 @@ test("a lane is found by its key, and a missing one is null", () => {
   expect(findLane(null, "xfg")).toBeNull();
 });
 
-test("chart scales: a linear map, round ticks, a widened domain, and decimals read from a report's text", () => {
+test("chart scales: a linear map, round ticks and a widened domain", () => {
   const x = linear([0, 10], [100, 200]);
   expect(x(5)).toBe(150);
   expect(linear([3, 3], [0, 10])(3)).toBe(5);
@@ -147,8 +151,23 @@ test("chart scales: a linear map, round ticks, a widened domain, and decimals re
   expect(ticks(0, 12.4, 5)).toEqual([0, 5, 10]);
   expect(niceDomain(0.12, 1.37, 3)).toEqual([0, 1.5]);
   expect(niceDomain(1, 1)[0]).toBeLessThan(1);
-  expect(decimalsInText("0.6232 [0.6132, 0.6327]")).toBe(4);
-  expect(decimalsInText("3.417 ft")).toBe(3);
-  expect(decimalsInText("12 ft")).toBe(0);
-  expect(decimalsInText("none", 2)).toBe(2);
+});
+
+test("a lane's held-out metric prints its stored value, never decimals read from the metric's name", () => {
+  const lane = (heldout: LaneResult["heldout"]) => ({ lane: "ghosting", report: "reports/ghosting.md", heldout }) as LaneResult;
+  const shown = (heldout: LaneResult["heldout"]) => renderToStaticMarkup(createElement(LaneMetric, { lane: lane(heldout), model: "M" }));
+  // The first number of this text is the 1.0 of the name: the value must still read 3.417, not 3.4.
+  const ghosting = shown({
+    text: "1.0 s position error (ft) 3.417 (point estimate)",
+    name: "1.0 s position error (ft)",
+    value: 3.417,
+    lo: null,
+    hi: null,
+    point_estimate: true,
+  });
+  expect(ghosting).toContain(">3.417<");
+  expect(ghosting).toContain(copy.site.estimate.point);
+  // An interval is printed as stored too: 0.1 is the stored digits of the report's 0.100.
+  const decisions = shown({ text: "x -0.014 [-0.116, 0.100]", name: "x", value: -0.014, lo: -0.116, hi: 0.1, point_estimate: false });
+  for (const value of [-0.014, -0.116, 0.1]) expect(decisions).toContain(`>${signedText(value, "as stored", false)}<`);
 });
