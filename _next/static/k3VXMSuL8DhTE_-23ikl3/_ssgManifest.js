@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fprep\u002F[player]","\u002Freview\u002F[game]","\u002Freview\u002F[game]\u002F[possession]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
