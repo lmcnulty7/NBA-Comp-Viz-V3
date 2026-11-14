@@ -281,7 +281,7 @@ M11 Freeze, polish, acceptance
 - [ASK] Tag v3-site-1 and push.
 DoD: C1 to C14 each checked with its evidence named here.
 Status M11 (2026-11-14): waiting for Lucien. The final check ran (npm run check on real data, all steps passed;
-pytest below). Open: his adjustment list, the C14 two-minute test with a real person, C12 load time in a real
+pytest 1141 passed, 2 skipped, 65 deselected; 866 passed before any change). Open: his adjustment list, the C14 two-minute test with a real person, C12 load time in a real
 Chrome and Safari after deploy, and the tag and push (D37).
 
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
