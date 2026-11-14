@@ -1,0 +1,278 @@
+# PLAN.md: finishing V3
+
+Mode: LOCKED 2026-11-13 19:30 PST. Changes go through a new D line with a reason; build per Milestones in Claude Code.
+Version 15, 2026-11-13 (locked; Parked section added).
+
+## Spec (approved 2026-11-13)
+V3 is a basketball analytics product built on player tracking, with a working broadcast-video tracking pipeline
+as a measured stand-in for the tracking data a team buys from vendors. A short demo shows broadcast video
+becoming court positions on a game no model saw, scored against SportVU ground truth, then runs the same frozen
+models (xFG, EPV, ghosting) on broadcast positions beside sensor positions to show how far the answers move. The
+main page is a possession review for coaching staff: pick a possession and see shot quality, possession value over
+time, and where an average defense would have stood. A second tab supports game and season prep with player views
+from the season-level models (shot-making over expected, gravity, rebounding, absence risk, similar players).
+Every number names its source, whether it is held out, and its interval; models that found no signal are shown as
+tested and rejected. The public site carries stills; the full demo with clips sits on a private, access-controlled copy.
+
+## Tracking state (measured, repo at 149e5c4)
+Have: gate, court r23 (+ camera model, not adopted), V3 detector + BoT-SORT, unsupervised teams; rebuild on
+25 SportVU-synced windows of the held-out game (gsw_phx_2016, 9,500 frames) and 2 held-out-arena games; one scorecard.
+| row | target | best build | pass |
+| position p50/p90, held-out game | 2.0/5.0 ft | 1.84/4.95 (r23_cam) | yes |
+| position, held-out arena | within 1.5x | 2.17/5.49, 2.26/5.45 | no |
+| near-field bias | +-0.5 ft | within 0.5 on all held-out games (r23_cam) | yes |
+| missed players | <=5% | 25.1% | no |
+| ghost boxes | <=5% | 15.1% | no |
+| team labels | >=95% | 81.8% | no |
+CV rows lack ball, persistent player identity (21.7 id switches per possession) and reliable team; the frozen
+models read all three. No adapter writes CV output into the contract frames table; swap_test() is a stub.
+
+## Done checklist (approved 2026-11-13)
+Deliverables
+- [ ] C1 Private site (access by Lucien only): demo, possession review (A), prep tab (B).
+- [ ] C2 Public GitHub Pages site: same pages, clips replaced by stills and a request-access note.
+- [ ] C3 Repo: default branch shows current work; README rewritten to the D17 headline with a 2-minute top
+      section; PROJECT_SUMMARY and PIPELINE label prototype numbers; strategy docs committed; stale worktrees
+      removed; repo description set.
+- [ ] C4 "How it was built" page or slides (D14).
+Numbers shown
+- [ ] C5 Tracking scorecard vs Stage 1 targets on the held-out game and arena, pass/fail per row, build per D20.
+- [ ] C6 Demo comparison: xFG and EPV from CV vs SportVU positions for every shot and possession in the demo
+      windows, mean absolute difference and n stated, labelled an illustration (D16).
+- [ ] C7 Model results table from reports/results.md: held-out value, interval, verdict, failed models included.
+Product
+- [ ] C8 Possession review covers held-out games only, so every prediction shown is out of sample.
+- [ ] C9 Prep tab: player views with intervals and a minimum-sample rule; similar players from embeddings.
+- [ ] C10 Ghosting labelled "average defense", never "best"; decisions and matchups shown as no signal.
+Quality bar
+- [ ] C11 Every number on the site traces to a file under reports/ (generated, not hand typed); tests pass.
+- [ ] C12 Works in Chrome and Safari at phone and laptop width; first view loads in under 3 s.
+- [ ] C13 CLAIMS caveat 4 amended with a date (D18, D21).
+- [ ] C14 2-minute test: someone new to the project, given only the public link, can say what it does, how well
+      the tracking works, and one model result. Run once with a real person before the interview.
+Out of scope this week: detection, team and identity fixes; group 2; gate v2 retrain; formal swap-test pass/fail;
+re-tracking the 14 games; resume (D15).
+
+## Site structure (approved, B3)
+Principle: Python produces data, the web only reads it, through one versioned JSON contract. The same shapes
+later come from a live service, so the review page can become the bench tool and the prep tab the season tool.
+
+Python side (repo root)
+- export/site_data.py: reads reports/ and DATA_ROOT tables, writes web/data/ (gitignored, regenerated):
+  manifest.json (schema_version, build id, source per file); games/<game>/possessions.json (index: id, clock,
+  result, xFG, EPV start/end, featured flag); games/<game>/<possession>.json (5 Hz positions to 0.1 ft, ball,
+  team, EPV curve, ghost defenders, shot xFG, sources); players.json (B views with intervals, min-sample rule,
+  similar players); scorecard.json; results.json; demo/swap.json (CV vs SportVU per shot and possession, fill share).
+- export/schemas.py: pydantic models = the contract; emits JSON Schema; TS types generated from it.
+- export/demo_bridge.py: CV windows -> contract frames (D27), runs frozen predict only, never fits.
+Web side (web/, Next.js static export, TypeScript)
+- app/page.tsx: headline (D17) + scroll-driven cold open (D25) + entry points.
+- app/review/[game]/[possession]/page.tsx: possession review (A), static params from the index; guided tour on
+  featured possessions.
+- app/prep/page.tsx and app/prep/[player]/page.tsx: game and season prep (B).
+- app/results/page.tsx: model results table and tracking scorecard.
+- app/talk/[slide]/page.tsx: interview slides (D35), private variant only; keyboard navigation, presenter notes,
+  live court components inside slides; slide copy in content/talk/*.md so text edits stay small.
+- components/court/: one canvas court renderer (players, ball, ghosts, truth overlay, recurring marker), used by
+  the demo, the review and later the live view.
+- components/charts/ (EPV curve, xFG, interval bars), components/evidence/ (show-the-evidence toggle).
+- lib/data/source.ts: DataSource interface (games, possession, players); StaticSource reads web/data now;
+  LiveSource (later) streams the same shapes. Pages never fetch directly.
+- lib/types/: generated from export/schemas.py; never edited by hand.
+- media-private/ (outside public/, gitignored): clips, copied in only by the private build.
+Builds and checks
+- VARIANT=public|private at build time; public build fails if any video file is in out/.
+- npm run check: typecheck, lint, schema validation of web/data, no numeric literals in copy, Playwright at
+  390 and 1280 px, reading grade and jargon checks on the cold open copy.
+- Public: GitHub Actions builds and deploys to Pages. Private: Cloudflare Pages + Access (D29).
+Later, not this week: FastAPI service running CV + frozen models on a feed, emitting the same JSON; app moves off
+static export for live pages only.
+
+## Options
+Settled by D25 to D30.
+
+## Milestones (draft 1; ordered, not dated, one loop runs them in order)
+[ASK] = Claude Code stops and asks Lucien (D30). Every milestone ends with its DoD checked and a status line here.
+
+M0 Setup and hygiene
+- New branch v3-finish from track-fix; commit PLAN.md first.
+- Commit docs/STRATEGY.md, STATE_AND_EXTENSIONS.md, DATA_SOURCES.md; [ASK] keep or drop STRATEGY_PROPOSALS.md
+  and DATA_CONTRACT_local_draft.md; portfolio/story/shots stays untracked.
+- List stale worktrees (9 under .claude/worktrees, nba-v3-prep, the stage 8 worktree); [ASK] before removing.
+- [ASK] Camera model (D20): short why-explanation from the scorecards, Lucien decides, logged as a D line.
+DoD: git status clean apart from gitignored data; worktree list shows only active ones; D20 logged; pytest
+passes (count recorded here).
+
+M1 Data contract and exports (Python)
+- export/schemas.py (pydantic, the contract), JSON Schema out, TS type generation script.
+- export/site_data.py writes web/data/: manifest, 17 held-out game indexes, one file per possession, players.json,
+  scorecard.json, results.json.
+- Per-possession values come from the frozen models' stored held-out outputs. [ASK] if any per-row held-out
+  output is missing: producing it means a predict-only run at freeze-v1, never a refit or a new metric.
+- Featured possessions (about 10) picked by a written rule (stratified by result and xFG bucket, fixed seed);
+  Lucien may swap picks.
+- Player minimum-sample rule set here and logged.
+DoD: one command builds web/data end to end; every file validates against the schema; tests on fixtures; values in
+results.json equal reports/results.md (test); no local paths or account address in any file (report_paths rule);
+no fit call anywhere in export/ (test); manifest names the source of every file; per-game size recorded.
+
+M2 Demo bridge (Python)
+- export/demo_bridge.py on the 25 gsw_phx_2016 windows with the D20 build: match CV boxes to SportVU per frame,
+  fill missed players, drop ghosts, record fill share (D27).
+- Frozen predict only for xFG (shots in the windows), EPV (states) and ghosting, on CV and on SportVU positions.
+- demo/swap.json (per item deltas, mean absolute difference, n, fill share); demo/frames.json (boxes, court
+  positions and truth per frame, synced to clip time).
+- Clips (media-private/, default cap 15 s each, 60 s total, adjustable at M11) and one still per scene (public).
+DoD: files validate; n and fill share stated in the data; tests on fixture windows; no fit call; clip lengths
+within cap; scorecard.json names the D20 build.
+
+M3 Web foundation
+- web/ scaffold: Next.js static export, TypeScript strict, ESLint, Node pinned (.nvmrc), npm, lockfile.
+- lib/types generated; lib/data/source.ts with StaticSource; design tokens (offense, defense, ghost, truth, ball
+  colours; type scale; dark mode); layout and nav (Home, Review, Prep, Results).
+- components/court canvas renderer; VARIANT=public|private; media-private copy step for private only.
+- npm run check: typecheck, lint, schema validation, no numeric literals in copy, no video in public out/,
+  Playwright at 390 and 1280 px.
+DoD: both variants build to out/; check passes; the court draws a real held-out possession matching a Python
+reference frame (snapshot test); out/ served under the Pages base path works locally.
+
+M4 Home and cold open
+- [ASK] Rewrite SCRIPT.md for V3 (D25 scene list); Lucien approves before copy goes in.
+- Headline (D17); scroll steps: clip (private) or still (public), boxes, court map, truth overlay with the error in
+  feet; then the swap comparison labelled an illustration (C6, D16); entry points to Review, Prep, Results.
+- Public variant: still plus request-access note (D21).
+DoD: C6 met; reading grade at most 9 and jargon check pass on the copy; works at 390 and 1280; reduced-motion
+fallback; keyboard reachable; no em dashes.
+
+M5 Possession review (A)
+- Game picker; possession list with filters (result, xFG bucket, featured); possession page with court playback
+  (play, pause, scrub, speed), EPV curve synced to time, shot marker with xFG and interval, ghost defenders toggle
+  labelled "average defense", evidence toggle with sources.
+- Guided tour across the featured possessions.
+DoD: C8 and C10 met; a script loads every possession's data without error; playback at least 30 fps on a laptop
+(measured); tour completes on phone and laptop.
+
+M6 Prep tab (B)
+- Player index (search, sort); player page: shot-making over expected, gravity, rebounding, absence risk, similar
+  players; minimum-sample note.
+DoD: C9 met; every metric shows an interval or says it is a point estimate; hidden players counted and stated.
+
+M7 Results page
+- Tracking scorecard vs Stage 1 targets (C5) and model results (C7), failed models included, links to the reports.
+DoD: C5 and C7 met; values equal the source files (test).
+
+M8 Repo and docs
+- README rewritten (D17 headline, 2-minute top section, links, honest scorecard); PROJECT_SUMMARY and PIPELINE
+  label prototype numbers; repo description set.
+- [ASK] CLAIMS caveat 4 amendment text (C13).
+- [ASK] Merge v3-finish into main so the default branch shows current work.
+DoD: C3 and C13 met; no unlabelled prototype number in a public doc (grep check).
+
+M9 Deploy
+- [ASK] GitHub Actions deploy of the public variant to Pages.
+- [ASK] Cloudflare Pages + Access for the private variant after the free tier is verified; Lucien adds viewers.
+DoD: public URL returns 200 with no video files; private URL requires sign-in; first view under 3 s on both (C12).
+
+M10 Slides (C4)
+- /talk route in the private site (D35), built from the approved SCRIPT.md; slide copy in content/talk/*.md;
+  arrow-key navigation, presenter notes view, at least one slide with a live court playback.
+DoD: C4 met; every number traces to web/data or reports/; /talk absent from the public build (check); runs
+offline from out/ on the private variant.
+
+M11 Freeze, polish, acceptance
+- Feature freeze; Lucien's adjustment list worked through; C14 2-minute test with a real person; final check run.
+- [ASK] Tag v3-site-1 and push.
+DoD: C1 to C14 each checked with its evidence named here.
+
+After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
+
+## Parked (not in scope; each needs Lucien's yes and a D line before any work)
+- P1 Proposed D38 (Claude Code decides it at the start of M0 under D37): M0 also writes CLAUDE.md and two read-only agents,
+  .claude/agents/ml-reviewer.md (leakage, held-out use, numbers traceable to reports/ or web/data) and
+  .claude/agents/verifier.md (runs pytest and npm run check, confirms each DoD item, may not edit tests or
+  checks). Every milestone closes with /code-review plus ml-reviewer on its changes, then the verifier.
+- P9 Proposed D39 (Claude Code decides it at the start of M0 under D37, with P1): build M0 to M11 with an agent team instead of one loop.
+  Lead = the main session: owns PLAN.md, merges, runs every [ASK], closes milestones. Teammates in their own
+  worktrees: T1 Python export and demo bridge (M1, M2); T2 web (M3, then M4 to M7 against schema fixtures until
+  T1's data lands); T3 writing (SCRIPT.md draft for M4 approval, README draft for M8); T4 reviewer (P1 agents,
+  read-only, reviews each merge); T5 researcher (P2, docs/research only). Only one heavy data job (DATA_ROOT
+  reads, predict runs) at a time: the 16 GB Mac already crashed once (STATUS 2026-11-11). Teammates never edit
+  PLAN.md, never push, never touch frozen group 1 code.
+- P2 Researcher session, in its own worktree after M0: writes only docs/research/<topic>.md (source, key idea,
+  meaning for this repo, proposed experiment, gain, effort) and docs/research/BACKLOG.md ranked by gain over
+  effort. Topics: EPV, shot quality, ghosting and defense, broadcast tracking and re-identification, public
+  basketball datasets, GenAI for sports analytics. Needs a literature MCP server in Claude Code.
+- P3 GenAI component. Options: (1) scouting reports on the prep tab and (2) possession explanations on the
+  review page, both generated at build time with a check that every number matches web/data (fits the static
+  site); (3) natural-language possession search (needs a live server, after the interview); (4) VLM jersey
+  reading for identity (CV upgrade, after the interview). Recommendation: 1 and 2, after M11 or as an
+  amendment.
+- P4 After M11: DGM-style site polish loop on branches, scored only by machine checks (accessibility and
+  performance audits, load time, bundle size, reading grade, tests); check scripts read-only to the loop.
+- P5 After the interview: DGM-style CV improvement loop scored on training games only, adopted under D5,
+  held-out scored once at the end.
+- P8 After V3 ships: CV to full operation with an agent team (supersedes P5 if chosen). Done means: every
+  Stage 1 row passes on the held-out game and arena, new scorecard rows for ball, identity and events
+  (shots, rebounds) pass targets set before work starts, and the swap test passes for each analysis it feeds
+  (D3). Prerequisites: a training-only dev split for all tuning; scorecard extended to the new rows and made
+  read-only to the team; GPU budget (Colab or the A100); labels from the SportVU-synced games (players, ids,
+  ball). Team: a lead that owns the plan, merges and the scorecard runs; one teammate per subsystem in its own
+  worktree (detection, teams and identity, ball, court and camera, events); a read-only judge that scores
+  every candidate the same way. Held-out scored once at the end.
+  Step 0 (Claude Code, plan mode, no training): feasibility study. Error analysis of the scorecards (where misses,
+  ghosts and team errors happen), published single-camera broadcast results as ceilings, available labelled
+  games with video, GPU hours per experiment; output: proposed targets, ranked experiments, and a go or no-go
+  for Lucien.
+- P6 After the interview: map the next version to Lucien's direction. Open questions: sports as destination
+  or vehicle; daily work (models, CV/ML systems, advising, product); what "real-time for coaches" means
+  (team job, product, research); 1-year vs 5-year horizon.
+- P7 Interview date: tell Claude Code when known, to set milestone days and the polish block.
+
+## How to raise a new idea (no planning chat needed)
+Open a Claude Code session in plan mode (or a separate worktree), describe the idea, get a proposal with
+options and what each changes, then add it here as a Parked item or, once agreed, a D line. The build loop
+never changes scope on its own.
+
+## Decision log (one line each; settled items are not reopened)
+Inherited from the 2026-11-13 handoff:
+- D1 Identity (amended 2026-11-13 by the approved spec): an analytics product on player tracking; the broadcast CV is a measured stand-in for vendor tracking. Was: tracking first, analytics as applications. Reason: D22.
+- D2 Audience is DS hiring managers; compared to Hawk-Eye on output format and honesty, not accuracy. One 720p camera cannot match multi-camera tracking.
+- D3 CV is a proof of concept on a few games; analytics run on public data now; CV rows feed an analysis only after its swap test passes. CV quality never blocks analytics.
+- D4 "Working" = Stage 1 targets, not 100%. A reachable finish line.
+- D5 r23 adopted under the amended rule (worse only if the paired bootstrap interval excludes zero).
+- D6 Held-out scored once per lane group (freeze-v1 done, freeze-v2 later). Keeps generalisation numbers credible.
+- D7 Betting and NBA.com skipped. No odds key; NBA.com blocks scripts.
+- D8 Ghosting keeps the MLP (GRU 0.11 ft worse); fits on 1 Hz rows, evaluated at 5 Hz. Game diversity beat frames per game.
+- D9 Matchups frozen with ridge; claim is "no reliable signal". Re-tagging not worth it.
+- D10 No history rewrite for the email. Already public as the contact address.
+- D11 Public home is GitHub Pages; code changes in Claude Code, one loop in the main checkout, parallel work in worktrees.
+Decided 2026-11-13:
+- D12 Deadline: presentable within one week (interview), unlimited hours. The interview sets the finish line.
+- D13 Site order: CV tracking demo first as the hook, then interactive analytics that act on model results. The demo explains the premise in seconds.
+- D14 The site is the product; how it was built goes in a separate page or slides. Keeps the product page clean for users.
+- D15 Resume updates come last. They depend on what ships.
+- D16 The CV demo is an illustration of the end state (analytics fed by broadcast tracking alone), not a claim that the project's analytics come from CV. Analytics results stay SportVU-sourced and say so.
+- D17 Headline is the pipeline, measured end to end ("from broadcast pixels to possession value, measured against ground truth at every step"). Both parts carry weight; the failing rows read as rigor.
+- D18 Short broadcast clips go on the site (option A), kept short. Strongest hook; CLAIMS caveat 4 gets a dated amendment.
+- D19 Interview details withheld until scope is set. Keeps the plan from fitting one role.
+- D20 Camera model (R2.4) is decided in Claude Code after a short why-explanation there. That session has the repo context.
+- D21 Clips live only on a private site Lucien grants access to; public Pages shows a still and a request-access note. Keeps clips off the public web.
+- D22 For sports orgs the analytics are the product; the CV demo is a stand-in for vendor tracking (Second Spectrum, Hawk-Eye) that teams buy. Matches how teams actually get tracking.
+- D23 Users: main page is possession review for coaching staff (A, in-game half of the long-term goal); second tab is game and season prep (B, strategy half); fan view dropped. A is the only one the CV can feed this week.
+- D24 Spec and done checklist approved as written (C1 to C14, out-of-scope line included). That line also settles swap test (demo-scale only), group 2 (after the interview), detection/teams (out), gate v2 (no retrain).
+- D25 Storytelling S2: demo as scroll-driven cold open; SCRIPT.md rewritten for V3 into the slides; one visual language and evidence toggles across A and B; full story page after the interview. Court Ledger name retired. Puts the style where the hook is and keeps the week.
+- D26 Site built with Next.js static export and TypeScript (B3). Polish now and a structure that grows into live tools.
+- D27 Demo bridge (a): CV positions, missed players filled from SportVU, ghosts dropped by the match, fill share shown per possession; the swap measures position error only. Keeps n and stays honest when the fill share is visible.
+- D28 Site data: every held-out possession (about 3,400, estimate) plus about 10 featured; B from training-fold outputs above a minimum sample, no team views. All shown predictions are out of sample.
+- D29 Private host: Cloudflare Pages behind Cloudflare Access (email one-time code); free tier verified before setup. Real access control, clips stay private.
+- D30 Claude Code rules: decides alone inside C1 to C14; stops and asks on the camera model, frozen group 1 code or held-out rescoring, any retraining, pushing to main, publishing or host setup, CLAIMS edits, new dependencies beyond Next, d3 and canvas, anything outside the checklist. One loop; PLAN.md committed first; each milestone ends with a checked definition of done and a status line; site numbers only from export/.
+- D31 Site structure approved as written.
+- D32 Milestones are ordered, not dated; the interview date is handled after the plan. Lucien chose detail now, dates later.
+- D33 No scope trimmed for B3's extra day; full detail now, adjustments later.
+- D34 Lucien works in React with Claude Code's help. B3 stays.
+- D35 Slides are a /talk route in the private site. Reuses the live court; text edits are code changes, kept small via markdown copy files.
+- D36 Plan locked by Lucien. Building starts at M0 in Claude Code (D11).
+- D37 Autonomy (amends D30): Claude Code decides every [ASK] itself except (a) pushing or merging to main, (b) publishing, deploying or setting up any host or account, (c) deleting anything outside git-tracked worktrees and branches. Each self-made decision is logged as a D line marked "(self-decided)" with the options considered and why, so Lucien can reverse it; all work stays on v3-finish until he approves the merge. Lucien chose not to be woken for reversible calls; external and public actions stay his.
+
+## Open questions
+- None.
