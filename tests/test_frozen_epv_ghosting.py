@@ -296,19 +296,30 @@ def _run(rows, rss, footprint, seconds=10.0, load=1.0):
 
 
 def test_extrapolate_follows_the_line_through_the_runs_and_gates_on_the_guard():
-    runs = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.6, seconds=30.0)]
+    runs = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.4, seconds=30.0)]                    # held footprint 0.7 and 1.9
     record = E.extrapolate(runs, 1_700_000, limit_gb=11.5, fixed=("load",), scaled=("fit",))
     assert record["projected_rss_gb"] == pytest.approx(0.5 + 5.0 * 1.7, abs=0.01)             # 0.5 GB plus 5 GB per million
-    assert record["projected_footprint_gb"] == pytest.approx(0.5 + 7.0 * 1.7, abs=0.01)
-    assert record["upper_rss_gb"] == pytest.approx(2.0 * 1.7 / 0.3, abs=0.01) and record["upper_rss_gb"] > record["projected_rss_gb"]
+    assert record["projected_footprint_gb"] == pytest.approx(0.6 + 6.0 * 1.7, abs=0.01)
+    assert record["projected_held_footprint_gb"] == pytest.approx(0.1 + 6.0 * 1.7, abs=0.01)
+    assert record["projected_demand_gb"] == record["projected_held_footprint_gb"] and record["demand_is"] == "held footprint"
     assert record["projected_seconds"] == round(5.0 + 0.0 + 100.0 * 1.7) and record["ok"] is True
-    assert E.extrapolate(runs, 1_700_000, limit_gb=8.0, fixed=("load",))["ok"] is False        # resident above the guard
-    steep = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 4.4)]
-    assert E.extrapolate(steep, 1_700_000, limit_gb=11.5, fixed=("load",))["ok"] is False     # footprint above guard plus surge
+    assert E.extrapolate(runs, 1_700_000, limit_gb=10.0, fixed=("load",))["ok"] is False       # the held footprint above the guard
+    spiky = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.4)]
+    spiky[1]["stages"]["fit"]["peak_footprint_gb"] = 4.4                                       # a peak far above what is held
+    record = E.extrapolate(spiky, 1_700_000, limit_gb=11.5, fixed=("load",))
+    assert record["projected_demand_gb"] <= 11.5 and record["projected_footprint_gb"] > 15.5 and record["ok"] is False
     one = E.extrapolate(runs[:1], 1_700_000, limit_gb=11.5, fixed=("load",))
     assert one["lines"]["peak_rss_gb"]["method"] == "proportional" and one["projected_rss_gb"] == pytest.approx(17.0)
-    heavy_load = E.extrapolate([_run(100_000, 1.0, 1.2, load=12.0), _run(300_000, 2.0, 2.6, load=12.0)], 1_700_000, 11.5, fixed=("load",))
-    assert heavy_load["projected_rss_gb"] == 12.0 and heavy_load["ok"] is False                # a stage that costs the same at any size
+    assert one["projected_demand_gb"] == pytest.approx(0.7 * 17) and one["ok"] is False        # one run scales everything
+    heavy_load = E.extrapolate([_run(100_000, 1.0, 1.2, load=12.0), _run(300_000, 2.0, 2.4, load=12.0)], 1_700_000, 11.5, fixed=("load",))
+    assert heavy_load["projected_demand_gb"] == 12.0 and heavy_load["ok"] is False             # a stage that costs the same at any size
+    no_footprint = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.4)]
+    for run in no_footprint:
+        for record in run["stages"].values():
+            record["peak_footprint_gb"] = record["held_footprint_gb"] = None                   # a system that reports none
+    record = E.extrapolate(no_footprint, 1_700_000, limit_gb=11.5, fixed=("load",))
+    assert record["projected_demand_gb"] == record["projected_rss_gb"] == pytest.approx(9.0, abs=0.01) and record["ok"] is True
+    assert E.extrapolate(no_footprint, 1_700_000, limit_gb=8.0, fixed=("load",))["ok"] is False
 
 
 def test_rebuild_does_not_start_without_a_projection_under_the_guard(tmp_path, monkeypatch):
@@ -316,7 +327,7 @@ def test_rebuild_does_not_start_without_a_projection_under_the_guard(tmp_path, m
     folder = tmp_path / "artifacts" / "epv"
     with pytest.raises(SystemExit, match="no memory projection"):
         E.need_projection(folder, 11.5, "test")
-    runs = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.6)]
+    runs = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.4)]
     E.write_projection(folder, E.extrapolate(runs, 1_700_000, 11.5, fixed=("load",)))
     assert E.projection_path(folder).parent.name == "projection"      # never a file of the artifact folder itself
     assert E.need_projection(folder, 11.5, "test")["ok"] is True
@@ -688,7 +699,7 @@ def test_projection_runs_the_same_code_on_subsets_and_opens_the_way_for_a_rebuil
     record = E.project(root, artifacts, games=(2, 4))
     assert [run["games"] for run in record["runs"]] == [2, 4] and record["rows_full"] == world["epv"]["fit"]["train"]["states"]
     assert record["ok"] is True and set(record["runs"][0]["stages"]) == {"load", "fit"}
-    assert E.read_projection(artifacts / "epv")["projected_rss_gb"] == record["projected_rss_gb"]
+    assert E.read_projection(artifacts / "epv")["projected_demand_gb"] == record["projected_demand_gb"]
     rebuilt = E.rebuild(root, artifacts, expect=None)                       # the projection is there: the rebuild starts
     assert rebuilt["passed"] is True and rebuilt["max_abs_diff"] == 0.0
     assert E.load(artifacts).check["passed"] is True                       # the projection file does not undo the check

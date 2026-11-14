@@ -380,8 +380,16 @@ def extrapolate(runs: list, rows_full: int, limit_gb: float, fixed=(), scaled=("
 
     Each run holds `rows` and `stages` (the records `stage` writes). Stages named in `scaled` grow with the rows
     and are projected along a line through the runs; stages named in `fixed` cost the same at every size and are
-    taken as measured. `ok` is true when the projected resident peak is within `limit_gb` and the projected
-    footprint peak within `limit_gb + surge_gb`: the two levels at which the watch would end the real run."""
+    taken as measured.
+
+    `projected_demand_gb` is what the gate compares with the guard: the footprint the job holds (its peaks that
+    last under five seconds left out, see held_level), because that is the memory the job needs whatever the
+    machine does with it. Resident memory is not projected into the gate: a small run on an idle machine keeps
+    everything resident, the file cache of a memory map included, while the full run on a busy machine has its
+    cold pages compressed, so a line through small runs says little about the resident size of the full one. It
+    is reported as `projected_rss_gb`, the figure of an idle machine. Where the system reports no footprint, the
+    resident peak is the demand. `ok` also needs the projected footprint peak within `limit_gb + surge_gb`, the
+    level at which the watch ends a run."""
     runs = sorted(runs, key=lambda r: r["rows"])
 
     def level(run, names, key):
@@ -397,14 +405,17 @@ def extrapolate(runs: list, rows_full: int, limit_gb: float, fixed=(), scaled=("
     rss = max(lines["peak_rss_gb"]["projected"], at_any_size["peak_rss_gb"])
     footprint = max(lines["peak_footprint_gb"]["projected"], at_any_size["peak_footprint_gb"])
     held = max(lines["held_footprint_gb"]["projected"], at_any_size["held_footprint_gb"])
+    reported = all(s.get("held_footprint_gb") is not None for r in runs for s in r["stages"].values())
+    demand = held if reported else rss
     return {"rows_full": int(rows_full), "limit_gb": float(limit_gb), "surge_gb": float(surge_gb),
             "runs": [{"games": r.get("games"), "rows": r["rows"], "stages": r["stages"]} for r in runs],
             "lines": lines, "fixed_stages": at_any_size,
-            "projected_rss_gb": round(rss, 2), "projected_footprint_gb": round(footprint, 2),
-            "projected_held_footprint_gb": round(held, 2),
-            "upper_rss_gb": round(max(lines["peak_rss_gb"]["proportional"], at_any_size["peak_rss_gb"]), 2),
+            "projected_demand_gb": round(demand, 2),
+            "demand_is": "held footprint" if reported else "resident peak (no footprint reported)",
+            "projected_held_footprint_gb": round(held, 2), "projected_footprint_gb": round(footprint, 2),
+            "projected_rss_gb": round(rss, 2),
             "fit_seconds": seconds, "projected_seconds": round(fixed_s + seconds["projected"]),
-            "ok": bool(rss <= limit_gb and footprint <= limit_gb + surge_gb)}
+            "ok": bool(demand <= limit_gb and footprint <= limit_gb + surge_gb)}
 
 
 def projection_path(folder) -> Path:
@@ -432,9 +443,9 @@ def need_projection(folder, limit_gb: float, who: str) -> dict:
     record = read_projection(folder)
     if record is None:
         raise SystemExit(f"{who}: no memory projection yet; run the project command first")
-    if not record.get("ok") or record.get("projected_rss_gb", float("inf")) > limit_gb:
-        raise SystemExit(f"{who}: the projected memory of the full fit ({record.get('projected_rss_gb')} GB resident, "
-                         f"{record.get('projected_footprint_gb')} GB footprint) is above the {limit_gb:.1f} GB guard; "
+    if not record.get("ok") or record.get("projected_demand_gb", float("inf")) > limit_gb:
+        raise SystemExit(f"{who}: the projected memory of the full fit ({record.get('projected_demand_gb')} GB held, "
+                         f"{record.get('projected_footprint_gb')} GB at its peak) is above the {limit_gb:.1f} GB guard; "
                          "not started")
     return record
 
