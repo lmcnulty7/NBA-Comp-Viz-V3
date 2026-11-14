@@ -21,7 +21,11 @@ OWNED_TEXT = EXPORT_FILES + TOOLS_FILES + [REPO / "CLAUDE.md", REPO / ".claude" 
                                            REPO / ".claude" / "agents" / "verifier.md", Path(__file__)]
 # Calls and imports that fit, tune or calibrate a model. export/ may hold none of them (PLAN.md M1 DoD).
 FIT_PATTERNS = (r"\.fit\(", r"\.fit_transform\(", r"\.partial_fit\(", r"\.fit_predict\(", r"^\s*(from|import)\s+sklearn",
-                r"^\s*(from|import)\s+torch", r"\.backward\(", r"optimizer\.step\(", r"GridSearchCV", r"cross_val_")
+                r"^\s*(from|import)\s+torch", r"\.backward\(", r"optimizer\.step\(", r"GridSearchCV", r"cross_val_",
+                # a refit through frozen code: fit helpers, fold loops, held-out scoring, a lane's train module
+                r"\bfit_(?!threads\b)\w+\(", r"out_of_fold\(", r"heldout_once\(", r"polyfit", r"curve_fit", r"minimize\(",
+                r"^\s*from\s+analytics\.\w+\.train\s+import", r"^\s*import\s+analytics\.\w+\.train",
+                r"^\s*from\s+analytics\.\w+\s+import\s+.*\btrain\b")
 DASHES = (chr(0x2013), chr(0x2014))
 
 
@@ -92,6 +96,21 @@ def test_estimate_has_an_interval_or_is_a_point_estimate():
     ("~/Developer/x", True),
     ("someone@example.com", True),
     ("Library/CloudStorage/GoogleDrive-account/My Drive", True),
+    # a path is private wherever it sits in a longer path
+    ("/System/Volumes/Data/Users/someone/project", True),
+    ("/data/home/someone/run", True),
+    ("/mnt/c/Users/someone", True),
+    ("../../Users/someone/x", True),
+    ("C:\\Users\\someone", True),
+    ("/Volumes/Ext/x", True),
+    ("/content/drive/MyDrive/nba/x.parquet", True),
+    ("/root/x", True),
+    ("/opt/anaconda3/lib", True),
+    ("\\/Users\\/someone", True),
+    ("see file:///Users/someone/x", True),
+    # a web address is not a local path
+    ("https://example.org/home/page", False),
+    ("https://github.com/owner/repo/blob/main/reports/xfg.md", False),
 ])
 def test_find_private(text, private):
     assert bool(S.find_private(text)) is private
@@ -129,10 +148,26 @@ def test_validate_tree_reports_what_is_wrong(sample_root, tmp_path):
     scorecard_path.write_text(json.dumps(doc))
     problems = "\n".join(S.validate_tree(root))
     assert "results.json: missing" in problems
-    assert not any("results.json: missing" in line for line in S.validate_tree(root, allow_missing=("results.json",)))
     assert "1 2.json: not a file the contract knows" in problems
     assert "possessions.json: ValidationError" in problems
     assert "scorecard.json: private string '/Users/'" in problems
+    with pytest.raises(ValueError):
+        S.validate_tree(root, allow_missing=("results.json",))
+
+
+def test_only_the_demo_files_may_be_missing(tmp_path):
+    root = tmp_path / "staged"
+    sample.write_sample(root)
+    (root / "demo" / "swap.json").unlink()
+    assert any("demo/swap.json: missing" in line for line in S.validate_tree(root))
+    staged = S.validate_tree(root, allow_missing=S.STAGED_FILES)
+    assert not any("demo/swap.json: missing" in line for line in staged)
+    assert any("demo/swap.json is listed and not on disk" in line for line in staged)
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    missing = [line for line in S.validate_tree(empty, allow_missing=S.STAGED_FILES) if line.endswith(": missing")]
+    fixed = [pattern for pattern, _ in S.FILES if "<" not in pattern]
+    assert len(missing) == len(fixed) - len(S.STAGED_FILES)
 
 
 def test_possession_tracks_must_be_aligned(sample_root):
@@ -239,6 +274,15 @@ def test_validate_tree_checks_paths_the_manifest_and_ignores_hidden_files(sample
     sample.write_sample(root)
     (root / ".DS_Store").write_text("finder")
     assert S.validate_tree(root) == []
+    (root / ".notes.json").write_text('{"path": "/Users/someone"}')
+    (root / "games" / ".cache").mkdir()
+    (root / "games" / ".cache" / "1.json").write_text("{}")
+    hidden = "\n".join(S.validate_tree(root))
+    assert ".notes.json: not a file the contract knows" in hidden
+    assert "games/.cache/1.json: not a file the contract knows" in hidden
+    (root / ".notes.json").unlink()
+    (root / "games" / ".cache" / "1.json").unlink()
+    (root / "games" / ".cache").rmdir()
     game = root / "games" / "fixture-game-a"
     one, two = (game / "1.json").read_text(), (game / "2.json").read_text()
     (game / "1.json").write_text(two)
@@ -266,6 +310,26 @@ def test_heavy_job_is_reentrant_down_the_process_tree(tmp_path, monkeypatch):
     assert wrapped.returncode == 0 and "ran" in wrapped.stdout, wrapped.stderr
 
 
+def test_a_made_up_or_stale_holder_does_not_get_past_the_lock(tmp_path, monkeypatch):
+    import os
+
+    lock = tmp_path / "heavy.lock"
+    monkeypatch.setenv("V3_HEAVY_LOCK", str(lock))
+    monkeypatch.delenv(heavy.HELD_ENV, raising=False)
+    quiet = lambda message: None
+    probe = [sys.executable, "-m", "export.heavy", "--name", "probe", "--no-wait", "--", sys.executable, "-c", "pass"]
+    with heavy.heavy_job("first", log=quiet):
+        for forged in ("999999", "x", "1", str(os.getppid())):
+            env = dict(os.environ, **{heavy.HELD_ENV: forged})
+            blocked = subprocess.run(probe, cwd=REPO, capture_output=True, text=True, env=env)
+            assert blocked.returncode != 0, f"{heavy.HELD_ENV}={forged} got past the lock"
+    # Nobody holds the lock now: a stale value must not make a job skip taking it.
+    monkeypatch.setenv(heavy.HELD_ENV, str(os.getpid()))
+    assert heavy.held_by_this_tree() is False
+    with heavy.heavy_job("after", log=quiet):
+        assert f"pid {os.getpid()} after" in lock.read_text()
+
+
 def test_training_games_guard_takes_a_single_id_and_refuses_nothing_to_check():
     assert F.training_games_only(["11.11.2015.NYK.at.CHA"], "test") == 1
     for bad in ("12.16.2015.PHX.at.GSW", ["11.11.2015.NYK.at.CHA", "01.18.2016.GSW.at.CLE"], [], ()):
@@ -279,28 +343,62 @@ def test_rebuild_checks_cannot_vouch_for_what_they_did_not_cover(tmp_path, monke
     data_root = tmp_path / "data_root"
     data_root.mkdir()
     monkeypatch.setenv("DATA_ROOT", str(data_root))
-    folder = tmp_path / "artifacts" / "model"
+    folder = tmp_path / "artifacts" / "xfg"
     with pytest.raises(SystemExit):
         F.assert_safe_output(data_root / "analytics" / "x")
     with pytest.raises(SystemExit):
         F.assert_safe_output(REPO / "reports" / "x.md")
-    F.begin_rebuild(folder, "model")
+    F.begin_rebuild(folder, "xfg")
     with pytest.raises(RuntimeError):
-        F.require_passed(folder, "model")
+        F.require_passed(folder, "xfg")
     (folder / "model.bin").write_bytes(b"weights")
-    record = dict(name="model", compared="predictions with stored predictions", n=np.int64(10),
-                  max_abs_diff=np.float32(1e-7), tolerance=1e-6, passed=np.bool_(True))
-    F.write_check(folder, record, files=["model.bin"])
-    assert F.require_passed(folder, "model")["passed"] is True
+    good = dict(name="xfg", compared="predictions with stored held-out predictions", n=np.int64(10),
+                n_expected=10, max_abs_diff=np.float32(1e-7), tolerance=1e-6, passed=np.bool_(True))
+    F.write_check(folder, good, files=["model.bin"])
+    assert F.require_passed(folder, "xfg")["passed"] is True
     with pytest.raises(RuntimeError):
-        F.require_passed(folder, "another")
-    (folder / "model.bin").write_bytes(b"other weights")
+        F.require_passed(folder, "epv")
+    # every way a check can fall short of the fixed rule
+    for change, files in ((dict(max_abs_diff=1e-3), ["model.bin"]),             # above the tolerance
+                          (dict(max_abs_diff=float("nan")), ["model.bin"]),       # not a number
+                          (dict(tolerance=1e-3, max_abs_diff=1e-4), ["model.bin"]),  # tolerance looser than the cap
+                          (dict(n=9), ["model.bin"]),                             # not every stored prediction compared
+                          (dict(n_expected=None), ["model.bin"]),                 # no expected count
+                          (dict(n=0, n_expected=0), ["model.bin"]),               # nothing compared
+                          (dict(name="something"), ["model.bin"]),                # unknown artifact
+                          (dict(passed=False), ["model.bin"]),                    # the rebuild said no
+                          ({}, [])):                                              # vouches for no file
+        F.write_check(folder, dict(good, **change), files=files)
+        record = F.read_check(folder)
+        assert record["passed"] is False and record["reasons"], change
+        with pytest.raises(RuntimeError):
+            F.require_passed(folder, record["name"])
+    # an output check (reported numbers) needs no expected row count, but keeps its own cap
+    out = tmp_path / "artifacts" / "absence"
+    out.mkdir()
+    (out / "oof.parquet").write_bytes(b"rows")
+    F.write_check(out, dict(name="absence", compared="out-of-fold log loss with reports/load.md", n=2,
+                            max_abs_diff=2e-5, tolerance=5e-5), files=["oof.parquet"])
+    assert F.require_passed(out, "absence")["passed"] is True
+    # a file written after its check, or changed, is not covered by it
+    (out / "oof.parquet").write_bytes(b"other rows")
     with pytest.raises(RuntimeError):
-        F.require_passed(folder, "model")
-    F.write_check(folder, dict(record, max_abs_diff=1e-3), files=["model.bin"])
-    assert F.read_check(folder)["passed"] is False
-    F.write_check(folder, dict(record, max_abs_diff=float("nan")), files=["model.bin"])
-    assert F.read_check(folder)["passed"] is False
+        F.require_passed(out, "absence")
+    published = F.publish_checks(tmp_path / "artifacts", tmp_path / "frozen_checks.json")
+    doc = json.loads(published.read_text())
+    assert [c["name"] for c in doc["checks"]] == sorted(F.TOLERANCE_CAP)
+    assert S.find_private(published.read_text()) == []
     monkeypatch.delenv("DATA_ROOT")
     with pytest.raises(SystemExit):
         F.assert_safe_output(folder)
+
+
+def test_rebuild_code_never_calls_a_frozen_entry_point_that_scores_heldout():
+    hits = []
+    for path in TOOLS_FILES:
+        if path.name == "frozen_common.py":
+            continue  # it defines the list
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if any(call in line for call in F.FORBIDDEN_CALLS):
+                hits.append(f"{path.relative_to(REPO)}:{number}: {line.strip()}")
+    assert hits == [], "a rebuild must not score held-out outcomes:\n" + "\n".join(hits)

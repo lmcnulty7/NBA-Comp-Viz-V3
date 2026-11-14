@@ -11,8 +11,10 @@ teammates queue instead of overlapping.
     python3 -m export.heavy --name "next build" -- npm run build
 
 The lock is a file lock (fcntl) held by the process that took it. It is reentrant down the process tree: a job
-started by a lock holder (a command run through the wrapper, or a nested heavy_job) sees V3_HEAVY_HELD in its
-environment and does not wait for itself. The wrapper passes SIGTERM and SIGINT on to its command and waits for it,
+started by the lock holder (a command run through the wrapper, or a nested heavy_job) finds the holder's pid in
+V3_HEAVY_HELD and runs at once, but only after checking that this pid is the one written in the lock file, that the
+lock is really held, and that the pid is this process or one of its ancestors. A stale or made-up value does not
+get past the lock. The wrapper passes SIGTERM and SIGINT on to its command and waits for it,
 so stopping the wrapper stops the job before the lock is released. A wrapper killed with SIGKILL cannot do that:
 its command keeps running without the lock, so never kill -9 a wrapper.
 """
@@ -47,12 +49,49 @@ def peak_rss_gb(children: bool = False) -> float:
     return _gb(resource.getrusage(who).ru_maxrss)
 
 
+def _ancestors(pid: int, limit: int = 64) -> list:
+    """The pid and its parents, nearest first, read from ps."""
+    chain = []
+    while pid > 1 and len(chain) < limit:
+        chain.append(pid)
+        try:
+            out = subprocess.run(["ps", "-o", "ppid=", "-p", str(pid)], capture_output=True, text=True, check=True)
+            pid = int(out.stdout.strip())
+        except Exception:
+            break
+    return chain
+
+
+def held_by_this_tree() -> bool:
+    """True only when V3_HEAVY_HELD names the process that holds the lock right now and that process is this one
+    or one of its ancestors."""
+    claimed = os.environ.get(HELD_ENV, "")
+    if not claimed.isdigit():
+        return False
+    path = lock_path()
+    try:
+        with open(path, "a+", encoding="utf-8") as handle:
+            try:
+                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                handle.seek(0)
+                recorded = handle.read().split()
+            else:
+                fcntl.flock(handle, fcntl.LOCK_UN)
+                return False  # nobody holds the lock, so the variable is stale
+    except OSError:
+        return False
+    if len(recorded) < 2 or recorded[0] != "pid" or recorded[1] != claimed:
+        return False
+    return int(claimed) in _ancestors(os.getpid())
+
+
 @contextlib.contextmanager
 def heavy_job(name: str, wait: bool = True, poll_s: float = 5.0, log=print):
     """Hold the machine-wide heavy-job lock for the duration of the block. Waits for the current holder unless
-    `wait` is false, in which case it raises RuntimeError when the lock is taken. Inside a process tree that
-    already holds the lock the block runs at once (the holder is an ancestor, so nothing overlaps)."""
-    if os.environ.get(HELD_ENV):
+    `wait` is false, in which case it raises RuntimeError when the lock is taken. Inside a process tree whose
+    root holds the lock the block runs at once (the holder is an ancestor, so nothing overlaps)."""
+    if held_by_this_tree():
         yield
         return
     path = lock_path()

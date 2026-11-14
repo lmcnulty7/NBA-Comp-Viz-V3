@@ -22,11 +22,13 @@ top of frozen models. Python produces data, the web only reads it, through one J
    the 15 lanes there. New Python goes under `export/`, `tools/` and `tests/`.
 4. Held-out data is never fitted, tuned or scored again. The 17 held-out games are the files under `heldout/`
    directories (16 games at CLE plus 12.16.2015.PHX.at.GSW); `sportvu/splits.json` is the source. The possession
-   review shows held-out games only. Player values come from out-of-fold rows only (fold >= 0), never from
-   in-sample rows (fold -2) or held-out rows (fold -1). No new held-out metric is computed anywhere.
+   review shows held-out games only. A model prediction shown for a player comes from out-of-fold rows only
+   (fold >= 0), never from in-sample rows (fold -2) or held-out rows (fold -1). Descriptive player tables (the
+   gravity table, embedding neighbours, observed rates) come from training games only and are labelled
+   descriptive. No new held-out metric is computed anywhere.
 5. No fit call under `export/` or `web/`: nothing there fits, tunes, calibrates, selects or imputes. The one place
-   that reruns frozen fitting code is `tools/frozen_models.py` (D45), on training games only, and its output is
-   used only when it reproduces the frozen record.
+   that reruns frozen fitting code is `tools/` (D45, D49), on training games only, and its output is used only
+   when `tools.frozen_common.require_passed` says it reproduces the frozen record.
 6. Never run a lane command line with its defaults. Every `analytics.<lane>` and `run_all.py` command writes to
    DATA_ROOT and to `reports/<lane>.md` unless told otherwise, and would overwrite the only copy of the frozen
    outputs and reports. The same holds for `sportvu.bench` and the tracked scorecards. If frozen code must run,

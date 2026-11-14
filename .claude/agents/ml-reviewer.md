@@ -20,8 +20,9 @@ Review only that change, but follow every data path it touches to its source.
 2. Held-out use.
    - Every prediction shown on the possession review comes from a held-out game (the games named in
      sportvu/splits.json, stored under heldout/ directories or with fold -1). A training game there is a blocker.
-   - Every player value on the prep tab comes from out-of-fold rows (fold >= 0). In-sample rows (fold -2) and
-     held-out rows never feed a player value.
+   - Every model prediction shown for a player on the prep tab comes from out-of-fold rows (fold >= 0). In-sample
+     rows (fold -2) and held-out rows never feed a player value. Descriptive tables (the gravity table, embedding
+     neighbours, observed rates) come from training games only and must be labelled descriptive.
    - No held-out metric is computed again and no new held-out metric is computed. The site copies the reported
      numbers; it never scores outcomes on held-out rows. Comparing two sets of predictions with each other is not
      scoring, as long as no outcome column is read.

@@ -34,15 +34,15 @@ RIM_Y_FT = 25.0
 
 # A string in a data file must never match one of these: a local path, a cloud mount, or an email address.
 PRIVATE_PATTERNS = (
-    r"(?<![\w.])/Users/",
-    r"(?<![\w.])/home/",
-    r"(?<![\w.])/root/",
-    r"(?<![\w.])/private/",
-    r"(?<![\w.])/var/folders",
-    r"(?<![\w.])/tmp/",
-    r"(?<![\w.])/Volumes/",
-    r"(?<![\w.])/content/drive",
-    r"(?<![\w.])/opt/anaconda",
+    r"/Users/",
+    r"/home/",
+    r"/root/",
+    r"/private/",
+    r"/var/folders",
+    r"/tmp/",
+    r"/Volumes/",
+    r"/content/drive",
+    r"/opt/anaconda",
     r"[A-Za-z]:\\\\?Users",
     r"(?<![\w$])~/",
     r"CloudStorage",
@@ -51,11 +51,18 @@ PRIVATE_PATTERNS = (
     r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}",
 )
 _PRIVATE_RE = re.compile("|".join(PRIVATE_PATTERNS))
+# Web addresses are not local paths: they are removed before the scan, so a link such as a report on GitHub is fine.
+_URL_RE = re.compile(r"https?://[^\s\"'<>)]+")
+# The only fixed files that may be absent from a data root, and only while the demo bridge has not run yet.
+STAGED_FILES = ("demo/swap.json", "demo/frames.json")
+# Files the operating system drops into folders. They are ignored by name; any other unknown file is a problem.
+IGNORED_NAMES = (".DS_Store",)
 
 
 def find_private(text: str) -> list[str]:
     """Return every local path, cloud mount name or email address found in `text` (empty when clean)."""
-    return sorted({m.group(0) for m in _PRIVATE_RE.finditer(text.replace("\\/", "/"))})
+    plain = _URL_RE.sub(" ", text.replace("\\/", "/"))
+    return sorted({m.group(0) for m in _PRIVATE_RE.finditer(plain)})
 
 
 class Strict(BaseModel):
@@ -869,14 +876,17 @@ def validate_tree(root, allow_missing=()) -> list[str]:
     """Validate every file under a data root: each must be known to the contract and valid against its model and
     sit at the path its content names, the fixed files must all exist (except the paths in `allow_missing`), the
     manifest must list every file with its real size and hash, and no file may hold a local path or an email
-    address. Hidden files are ignored."""
+    address. Only the demo files may be allowed to be missing, and only files in IGNORED_NAMES are skipped."""
     root = Path(root)
+    not_staged = sorted(set(allow_missing) - set(STAGED_FILES))
+    if not_staged:
+        raise ValueError(f"only {list(STAGED_FILES)} may be missing, not {not_staged}")
     problems: list[str] = []
     seen = set()
     for path in sorted(p for p in root.rglob("*") if p.is_file()):
         rel = path.relative_to(root).as_posix()
-        if any(part.startswith(".") for part in rel.split("/")):
-            continue  # Finder and editor droppings are not part of the data root
+        if path.name in IGNORED_NAMES:
+            continue  # dropped by the operating system; the site copies contract files only
         seen.add(rel)
         problems += validate_file(root, rel)
     if "manifest.json" in seen:
@@ -892,7 +902,8 @@ def main(argv=None) -> int:
     parser.add_argument("--out", help="path of the schema file to write")
     parser.add_argument("--check", help="path of a schema file that must equal the current schema")
     parser.add_argument("--validate", help="a data root (web/data) to validate against the contract")
-    parser.add_argument("--allow-missing", nargs="*", default=[], help="fixed files that may be absent, for example demo/swap.json")
+    parser.add_argument("--allow-missing", nargs="*", default=[], choices=list(STAGED_FILES),
+                        help="demo files that may be absent while the demo bridge has not run")
     args = parser.parse_args(argv)
     status = 0
     if args.out:
