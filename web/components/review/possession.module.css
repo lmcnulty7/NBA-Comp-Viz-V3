@@ -44,8 +44,135 @@
 
 @media (min-width: 40rem) {
   .controls {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
   }
+}
+
+/* Playback: the play button and the speed. */
+.transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.6rem 1rem;
+}
+
+.play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 6.5rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--ground);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.play:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.play:disabled {
+  background: var(--ground);
+  color: var(--muted);
+  border-color: var(--rule);
+  cursor: not-allowed;
+}
+
+.playGlyph {
+  width: 0;
+  height: 0;
+  border-top: 0.4rem solid transparent;
+  border-bottom: 0.4rem solid transparent;
+  border-left: 0.65rem solid currentColor;
+}
+
+.pauseGlyph {
+  width: 0.6rem;
+  height: 0.75rem;
+  border-left: 0.2rem solid currentColor;
+  border-right: 0.2rem solid currentColor;
+}
+
+.speed {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.speed > span {
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.speed select {
+  min-height: 2.5rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+}
+
+.toggle input {
+  margin: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+}
+
+/* The EPV curve and the shot, side by side on a wide screen. */
+.panels {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+}
+
+@media (min-width: 56rem) {
+  .panels {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.panel {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+  min-width: 0;
+  border-top: 1px solid var(--rule);
+  padding-top: 0.75rem;
+}
+
+.panel h3 {
+  margin: 0;
+}
+
+.xfgRow {
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+.xfgValue {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.4rem;
+  align-items: baseline;
 }
 
 .slider {

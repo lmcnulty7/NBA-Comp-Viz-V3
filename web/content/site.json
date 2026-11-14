@@ -42,5 +42,11 @@
   },
   "none": "Not available",
   "yes": "Yes",
-  "no": "No"
+  "no": "No",
+  "evidence": {
+    "toggle": "Show the evidence",
+    "hint": "Lists the files and rows behind each value.",
+    "for": "{what}, read from:",
+    "none": "No source is listed for this value."
+  }
 }
