@@ -44,20 +44,14 @@
     },
     {
       "name": "ghosting",
-      "compared": null,
-      "n": null,
-      "n_expected": null,
-      "max_abs_diff": null,
-      "tolerance": null,
-      "passed": false,
-      "reasons": [
-        "tolerance None is looser than the cap 0.001 for ghosting",
-        "nothing was compared",
-        "n_expected (the row count of the stored held-out predictions) is missing",
-        "the largest difference is missing or not a number",
-        "the check vouches for no file"
-      ],
-      "written": "2026-11-14T09:57:46Z"
+      "compared": "ghost positions of the rebuilt MLP for the held-out games, rolled forward from their tracking frames, against the stored ghost_x and ghost_y at both horizons ($DATA_ROOT/analytics/ghosting/heldout); predictions with predictions, no outcome column read, nothing scored",
+      "n": 1741995,
+      "n_expected": 1741995,
+      "max_abs_diff": 0.0,
+      "tolerance": 0.001,
+      "passed": true,
+      "reasons": [],
+      "written": "2026-11-14T10:39:54Z"
     },
     {
       "name": "xfg",
