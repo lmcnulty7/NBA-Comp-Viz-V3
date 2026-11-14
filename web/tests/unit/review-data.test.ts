@@ -31,21 +31,27 @@ const HELDOUT_ROWS = new Set(["heldout", "not_split"]);
 
 test.describe.configure({ timeout: 30 * 60_000 });
 
+// Checks collect their problems in a list and assert once: an expect per frame would make the run far slower
+// than the work it checks on thousands of possessions.
 test("every possession of the data root loads and plays, and the review reads held-out rows only", async () => {
   test.skip(!existsSync(path.join(ROOT, "manifest.json")), "no data root");
   const source = new StaticSource(readRoot);
   const manifest = await source.manifest();
+  const problems: string[] = [];
+  const check = (ok: boolean, what: string) => {
+    if (!ok && problems.length < 50) problems.push(what);
+  };
   let possessions = 0;
   let frames = 0;
   const kinds = { oneFrame: 0, noEpv: 0, noGhosts: 0, longest: 0 };
   const games = [];
   for (const game of manifest.games) {
     // C8: a game in the review is a held-out game.
-    expect(["heldout_game", "heldout_arena"], game.slug).toContain(game.split);
+    check(game.split === "heldout_game" || game.split === "heldout_arena", `${game.slug} is ${game.split}`);
     const index = await source.possessionIndex(game.slug);
-    expect(index.game.slug).toBe(game.slug);
-    expect(index.possessions.length, game.slug).toBe(game.n_possessions);
-    for (const item of index.sources) expect(HELDOUT_ROWS.has(item.rows), `${game.slug} index reads ${item.rows} rows`).toBe(true);
+    check(index.game.slug === game.slug, `${game.slug}: index of ${index.game.slug}`);
+    check(index.possessions.length === game.n_possessions, `${game.slug}: ${index.possessions.length} possessions listed`);
+    for (const item of index.sources) check(HELDOUT_ROWS.has(item.rows), `${game.slug} index reads ${item.rows} rows`);
     games.push({ slug: game.slug, label: game.label, possessions: index.possessions });
 
     for (const row of index.possessions) {
@@ -54,44 +60,36 @@ test("every possession of the data root loads and plays, and the review reads he
       possessions += 1;
       const n = detail.t.length;
       frames += n;
-      expect(detail.game_slug, where).toBe(game.slug);
-      expect(detail.possession, where).toBe(row.possession);
-      expect(n, where).toBe(row.n_frames);
-      expect(n, where).toBeGreaterThan(0);
-      for (const track of detail.players) {
-        expect(track.x.length, where).toBe(n);
-        expect(track.y.length, where).toBe(n);
+      check(detail.game_slug === game.slug && detail.possession === row.possession, `${where}: wrong file`);
+      check(n === row.n_frames && n > 0, `${where}: ${n} frames, index says ${row.n_frames}`);
+      for (const track of [...detail.players, ...(detail.ghosts?.tracks ?? []), detail.ball]) {
+        check(track.x.length === n && track.y.length === n, `${where}: a track is not one value per frame`);
       }
-      for (const track of detail.ghosts?.tracks ?? []) {
-        expect(track.x.length, where).toBe(n);
-        expect(track.y.length, where).toBe(n);
-      }
-      expect(detail.ball.x.length, where).toBe(n);
       // C8: every source of a possession is a held-out table or a report; no training or out-of-fold row.
-      for (const item of detail.sources) expect(HELDOUT_ROWS.has(item.rows), `${where} reads ${item.rows} rows`).toBe(true);
+      for (const item of detail.sources) check(HELDOUT_ROWS.has(item.rows), `${where} reads ${item.rows} rows`);
       const groups = groupSources(detail.sources);
-      expect(Object.values(groups).flat().length, where).toBe(detail.sources.length);
+      check(Object.values(groups).flat().length === detail.sources.length, `${where}: a source was dropped`);
       for (const shot of detail.shots) {
-        if (shot.xfg != null) {
-          expect(shot.xfg, where).toBeGreaterThanOrEqual(0);
-          expect(shot.xfg, where).toBeLessThanOrEqual(1);
-        }
+        if (shot.xfg != null) check(shot.xfg >= 0 && shot.xfg <= 1, `${where}: xFG ${shot.xfg}`);
       }
 
       // Everything playback runs, at every frame and between frames.
       const end = endTime(detail);
-      expect(Number.isFinite(end), where).toBe(true);
+      check(Number.isFinite(end), `${where}: no end time`);
       for (let frame = 0; frame < n; frame += 1) {
         const time = detail.t[frame]!;
-        expect(frameAtOrBefore(detail.t, time), where).toBe(frame);
+        check(frameAtOrBefore(detail.t, time) === frame, `${where}: frame ${frame} is not found by its time`);
         const exact = sceneAtTime(detail, time, { tween: true });
-        expect(exact, where).toEqual(sceneFromPossession(detail, frame));
+        check(
+          JSON.stringify(exact) === JSON.stringify(sceneFromPossession(detail, frame)),
+          `${where}: frame ${frame} is not drawn exactly`,
+        );
         const mid = sceneAtTime(detail, time + 0.1, { tween: true });
-        for (const player of mid.players) expect(Number.isFinite(player.x) && Number.isFinite(player.y), where).toBe(true);
+        for (const player of mid.players) check(Number.isFinite(player.x) && Number.isFinite(player.y), `${where}: a tweened position`);
       }
       if (detail.epv) {
-        expect(detail.epv.t.length, where).toBe(detail.epv.value.length);
-        for (const time of [0, end / 2, end]) expect(Number.isFinite(epvAt(detail.epv, time) ?? Number.NaN), where).toBe(true);
+        check(detail.epv.t.length === detail.epv.value.length, `${where}: EPV lengths differ`);
+        for (const time of [0, end / 2, end]) check(Number.isFinite(epvAt(detail.epv, time) ?? Number.NaN), `${where}: EPV at ${time}`);
       } else {
         kinds.noEpv += 1;
       }
@@ -100,30 +98,29 @@ test("every possession of the data root loads and plays, and the review reads he
       kinds.longest = Math.max(kinds.longest, end);
     }
   }
-  expect(possessions).toBe(manifest.n_possessions);
+  check(possessions === manifest.n_possessions, `${possessions} possessions loaded, manifest says ${manifest.n_possessions}`);
 
   // The tour: every stop is a featured possession of a game in the build.
   const stops = buildTour(games);
   for (const stop of stops) {
-    const game = games.find((candidate) => candidate.slug === stop.gameSlug)!;
-    expect(game.possessions.find((row) => row.possession === stop.possession)?.featured).toBe(true);
+    const game = games.find((candidate) => candidate.slug === stop.gameSlug);
+    check(game?.possessions.find((row) => row.possession === stop.possession)?.featured === true, `tour stop ${stop.gameSlug}/${stop.possession}`);
   }
 
   // The prep tab: every metric a player page shows has an interval or says it is a point estimate.
   const players = await source.players();
-  expect(players.n_shown + players.n_hidden).toBe(players.n_players);
+  check(players.n_shown + players.n_hidden === players.n_players, "players: shown and hidden do not add up");
   for (const player of players.players) {
     for (const key of SORT_KEYS) {
       const estimate = metricEstimate(player, key);
       if (!estimate) continue;
       const hasInterval = !estimate.point_estimate && estimate.lo != null && estimate.hi != null;
-      expect(hasInterval || estimate.point_estimate, `${player.slug} ${key}`).toBe(true);
+      check(hasInterval || estimate.point_estimate, `${player.slug} ${key}: neither an interval nor a point estimate`);
     }
   }
 
-  test.info().annotations.push({
-    type: "data root",
-    description: `${manifest.build_id}: ${manifest.games.length} games, ${possessions} possessions, ${frames} frames, ${stops.length} tour stops; one-frame ${kinds.oneFrame}, no EPV ${kinds.noEpv}, no ghosts ${kinds.noGhosts}, longest ${kinds.longest.toFixed(1)} s`,
-  });
-  console.log(test.info().annotations.at(-1)?.description);
+  const summary = `${manifest.build_id}: ${manifest.games.length} games, ${possessions} possessions, ${frames} frames, ${stops.length} tour stops; one-frame ${kinds.oneFrame}, no EPV ${kinds.noEpv}, no ghosts ${kinds.noGhosts}, longest ${kinds.longest.toFixed(1)} s; ${players.players.length} player pages, ${players.n_hidden} hidden`;
+  test.info().annotations.push({ type: "data root", description: summary });
+  console.log(summary);
+  expect(problems).toEqual([]);
 });

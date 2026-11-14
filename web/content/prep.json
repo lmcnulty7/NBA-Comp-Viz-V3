@@ -69,7 +69,7 @@
       "ece": "Calibration error of that baseline, out of fold",
       "unit": "attempts",
       "baselineErrorNote": "Read this beside the value above. When the baseline under-predicts easy shots, a rim-heavy shot diet reads high.",
-      "residualNote": "Given only for reference. That model already knows the shooter, so this is near zero by design.",
+      "residualNote": "Given only for reference. The frozen model already knows the shooter, so this is not a measure over expected.",
       "baselineName": "The shot-making baseline",
       "calibration": {
         "title": "How well the baseline is calibrated",
