@@ -301,16 +301,17 @@ def test_extrapolate_follows_the_line_through_the_runs_and_gates_on_the_guard():
     assert record["projected_rss_gb"] == pytest.approx(0.5 + 5.0 * 1.7, abs=0.01)             # 0.5 GB plus 5 GB per million
     assert record["projected_footprint_gb"] == pytest.approx(0.6 + 6.0 * 1.7, abs=0.01)
     assert record["projected_held_footprint_gb"] == pytest.approx(0.1 + 6.0 * 1.7, abs=0.01)
-    assert record["projected_demand_gb"] == record["projected_held_footprint_gb"] and record["demand_is"] == "held footprint"
+    assert record["projected_demand_gb"] == record["projected_footprint_gb"] and record["demand_is"] == "footprint peak"
     assert record["projected_seconds"] == round(5.0 + 0.0 + 100.0 * 1.7) and record["ok"] is True
-    assert E.extrapolate(runs, 1_700_000, limit_gb=10.0, fixed=("load",))["ok"] is False       # the held footprint above the guard
+    assert E.extrapolate(runs, 1_700_000, limit_gb=10.5, fixed=("load",))["ok"] is False       # the footprint above the guard
+    assert E.extrapolate(runs, 1_700_000, limit_gb=8.0, fixed=("load",))["projected_rss_gb"] > 8.0   # reported, not the gate
     spiky = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.4)]
     spiky[1]["stages"]["fit"]["peak_footprint_gb"] = 4.4                                       # a peak far above what is held
     record = E.extrapolate(spiky, 1_700_000, limit_gb=11.5, fixed=("load",))
-    assert record["projected_demand_gb"] <= 11.5 and record["projected_footprint_gb"] > 15.5 and record["ok"] is False
+    assert record["projected_held_footprint_gb"] <= 11.5 and record["projected_demand_gb"] > 11.5 and record["ok"] is False
     one = E.extrapolate(runs[:1], 1_700_000, limit_gb=11.5, fixed=("load",))
     assert one["lines"]["peak_rss_gb"]["method"] == "proportional" and one["projected_rss_gb"] == pytest.approx(17.0)
-    assert one["projected_demand_gb"] == pytest.approx(0.7 * 17) and one["ok"] is False        # one run scales everything
+    assert one["projected_demand_gb"] == pytest.approx(1.2 * 17) and one["ok"] is False        # one run scales everything
     heavy_load = E.extrapolate([_run(100_000, 1.0, 1.2, load=12.0), _run(300_000, 2.0, 2.4, load=12.0)], 1_700_000, 11.5, fixed=("load",))
     assert heavy_load["projected_demand_gb"] == 12.0 and heavy_load["ok"] is False             # a stage that costs the same at any size
     no_footprint = [_run(100_000, 1.0, 1.2), _run(300_000, 2.0, 2.4)]
