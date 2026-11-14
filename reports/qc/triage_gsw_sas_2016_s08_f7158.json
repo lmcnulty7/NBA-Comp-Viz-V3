@@ -1,0 +1,3730 @@
+{
+ "clip": "triage_gsw_sas_2016_s08_f7158",
+ "video": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/data/triage/src/triage_gsw_sas_2016_s08_f7158.mp4",
+ "summary": {
+  "frames": 74,
+  "frames_with_H": 44,
+  "frames_scored": 44,
+  "rule_counts": {
+   "second_tracker": 43,
+   "team_count": 17,
+   "no_H": 30,
+   "speed": 3
+  },
+  "frames_failing_any": 60,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 44.89,
+  "dist_px_p90": 57.24,
+  "score_median": 0.0746,
+  "support_median": 0.0662,
+  "share_far": 0.9318
+ },
+ "frames": [
+  {
+   "frame": 3,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.101,
+    "dist_px": 40.11,
+    "support": 0.0943,
+    "n_ridge": 13491,
+    "n_sampled": 509
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0645,
+     "near_in": 0.1333,
+     "x0_in": null,
+     "xL_in": 0.3846,
+     "near_out": 0.0667
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 1,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 0.0,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "0": 5,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 10,
+    "matches": 6,
+    "only_pipeline": [
+     0,
+     1,
+     4
+    ],
+    "only_second": [
+     1,
+     2,
+     4,
+     9
+    ],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 6,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0604,
+    "dist_px": 40.66,
+    "support": 0.0381,
+    "n_ridge": 13387,
+    "n_sampled": 499
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1333,
+     "x0_in": null,
+     "xL_in": 0.2692,
+     "near_out": 0.0625
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 9.12296843947834,
+    "speed_max_raw": 6.912104682506084,
+    "team_counts": {
+     "0": 5,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 8,
+    "matches": 5,
+    "only_pipeline": [
+     2
+    ],
+    "only_second": [
+     1,
+     3,
+     7
+    ],
+    "disagreement": 0.375,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 9,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0563,
+    "dist_px": 44.89,
+    "support": 0.0511,
+    "n_ridge": 13370,
+    "n_sampled": 528
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1667,
+     "x0_in": null,
+     "xL_in": 0.4615,
+     "near_out": 0.0625
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 10.065080186486073,
+    "speed_max_raw": 8.942932635588853,
+    "team_counts": {
+     "0": 5,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 9,
+    "matches": 5,
+    "only_pipeline": [
+     2
+    ],
+    "only_second": [
+     2,
+     6,
+     7,
+     8
+    ],
+    "disagreement": 0.4444,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 12,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0684,
+    "dist_px": 43.4,
+    "support": 0.069,
+    "n_ridge": 12987,
+    "n_sampled": 507
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1333,
+     "x0_in": null,
+     "xL_in": 0.2308,
+     "near_out": 0.0667
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 29.280717053908308,
+    "speed_max_raw": 28.56194569248541,
+    "team_counts": {
+     "0": 5,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 9,
+    "matches": 6,
+    "only_pipeline": [],
+    "only_second": [
+     2,
+     6,
+     7
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 15,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0581,
+    "dist_px": 41.08,
+    "support": 0.043,
+    "n_ridge": 12761,
+    "n_sampled": 512
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0312,
+     "near_in": 0.1034,
+     "x0_in": null,
+     "xL_in": 0.2917,
+     "near_out": 0.0714
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 27.614475807190807,
+    "speed_max_raw": 29.46254202946738,
+    "team_counts": {
+     "0": 4,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     3
+    ],
+    "only_second": [
+     1
+    ],
+    "disagreement": 0.2,
+    "fails": []
+   }
+  },
+  {
+   "frame": 18,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0681,
+    "dist_px": 41.08,
+    "support": 0.0709,
+    "n_ridge": 12747,
+    "n_sampled": 522
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0303,
+     "near_in": 0.0714,
+     "x0_in": null,
+     "xL_in": 0.3043,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 25.949646335462027,
+    "speed_max_raw": 25.34186298640106,
+    "team_counts": {
+     "0": 4,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 6,
+    "matches": 5,
+    "only_pipeline": [],
+    "only_second": [
+     1
+    ],
+    "disagreement": 0.1667,
+    "fails": []
+   }
+  },
+  {
+   "frame": 21,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0705,
+    "dist_px": 40.52,
+    "support": 0.0592,
+    "n_ridge": 12077,
+    "n_sampled": 490
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.0714,
+     "x0_in": null,
+     "xL_in": 0.2381,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 24.286518969996543,
+    "speed_max_raw": 23.96886577633195,
+    "team_counts": {
+     "0": 5,
+     "1": 1
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [],
+    "only_second": [],
+    "disagreement": 0.0,
+    "fails": []
+   }
+  },
+  {
+   "frame": 24,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.046,
+    "dist_px": 42.43,
+    "support": 0.0358,
+    "n_ridge": 12177,
+    "n_sampled": 475
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.0714,
+     "x0_in": null,
+     "xL_in": 0.3158,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 22.679061927877747,
+    "speed_max_raw": 25.131281467535093,
+    "team_counts": {
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 7,
+    "matches": 5,
+    "only_pipeline": [],
+    "only_second": [
+     5,
+     6
+    ],
+    "disagreement": 0.2857,
+    "fails": []
+   }
+  },
+  {
+   "frame": 27,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.059,
+    "dist_px": 43.93,
+    "support": 0.0364,
+    "n_ridge": 11503,
+    "n_sampled": 439
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0294,
+     "near_in": 0.1111,
+     "x0_in": null,
+     "xL_in": 0.3529,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 20.637623852249543,
+    "speed_max_raw": 19.877681657073545,
+    "team_counts": {
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 6,
+    "matches": 3,
+    "only_pipeline": [
+     1,
+     3,
+     4
+    ],
+    "only_second": [
+     3,
+     4,
+     5
+    ],
+    "disagreement": 0.5,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 30,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0643,
+    "dist_px": 43.93,
+    "support": 0.0521,
+    "n_ridge": 11228,
+    "n_sampled": 461
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1481,
+     "x0_in": null,
+     "xL_in": 0.3333,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 19.104779751227557,
+    "speed_max_raw": 19.44240775734479,
+    "team_counts": {
+     "1": 2,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     3,
+     4,
+     6
+    ],
+    "only_second": [
+     3
+    ],
+    "disagreement": 0.4286,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 33,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0606,
+    "dist_px": 44.76,
+    "support": 0.0447,
+    "n_ridge": 10541,
+    "n_sampled": 380
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1154,
+     "x0_in": null,
+     "xL_in": 0.2857,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 18.67871748111113,
+    "speed_max_raw": 10.882345116139392,
+    "team_counts": {
+     "1": 1,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     2,
+     4,
+     6
+    ],
+    "only_second": [
+     3
+    ],
+    "disagreement": 0.4286,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 36,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.063,
+    "dist_px": 42.02,
+    "support": 0.0376,
+    "n_ridge": 10678,
+    "n_sampled": 372
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1154,
+     "x0_in": null,
+     "xL_in": 0.25,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 19.153282578212963,
+    "speed_max_raw": 15.057623180979421,
+    "team_counts": {
+     "1": 1,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 6,
+    "matches": 5,
+    "only_pipeline": [
+     2,
+     5
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.2857,
+    "fails": []
+   }
+  },
+  {
+   "frame": 39,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0659,
+    "dist_px": 39.96,
+    "support": 0.0644,
+    "n_ridge": 11449,
+    "n_sampled": 419
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.12,
+     "x0_in": null,
+     "xL_in": 0.3,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 20.486052328131635,
+    "speed_max_raw": 24.015215834221173,
+    "team_counts": {
+     "1": 1,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 7,
+    "matches": 5,
+    "only_pipeline": [
+     2,
+     4
+    ],
+    "only_second": [
+     2,
+     6
+    ],
+    "disagreement": 0.2857,
+    "fails": []
+   }
+  },
+  {
+   "frame": 42,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0592,
+    "dist_px": 40.11,
+    "support": 0.0684,
+    "n_ridge": 11070,
+    "n_sampled": 424
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.0769,
+     "x0_in": null,
+     "xL_in": 0.4444,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "xL_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 20.96586488763097,
+    "speed_max_raw": 20.854788167414615,
+    "team_counts": {
+     "1": 1,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 6,
+    "matches": 4,
+    "only_pipeline": [
+     3,
+     4
+    ],
+    "only_second": [
+     2,
+     5
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 51,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0674,
+    "dist_px": 41.07,
+    "support": 0.0846,
+    "n_ridge": 11577,
+    "n_sampled": 449
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1304,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 0.0,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 1,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     1
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.2,
+    "fails": []
+   }
+  },
+  {
+   "frame": 54,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0772,
+    "dist_px": 39.16,
+    "support": 0.0828,
+    "n_ridge": 11528,
+    "n_sampled": 495
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0278,
+     "near_in": 0.087,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 21.595270780975834,
+    "speed_max_raw": 16.437501275334657,
+    "team_counts": {
+     "1": 1,
+     "0": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 4,
+    "matches": 3,
+    "only_pipeline": [
+     1,
+     4
+    ],
+    "only_second": [
+     3
+    ],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 60,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0911,
+    "dist_px": 43.2,
+    "support": 0.0821,
+    "n_ridge": 11144,
+    "n_sampled": 402
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0286,
+     "near_in": 0.0455,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 0.0,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 1,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 6,
+    "matches": 4,
+    "only_pipeline": [
+     3
+    ],
+    "only_second": [
+     3,
+     5
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 69,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0786,
+    "dist_px": 45.19,
+    "support": 0.0749,
+    "n_ridge": 10903,
+    "n_sampled": 387
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0303,
+     "near_in": 0.0,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 0.0,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 1,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 6,
+    "matches": 4,
+    "only_pipeline": [
+     3
+    ],
+    "only_second": [
+     4,
+     5
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 72,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0873,
+    "dist_px": 44.89,
+    "support": 0.0771,
+    "n_ridge": 10783,
+    "n_sampled": 363
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0303,
+     "near_in": 0.0,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 16.93206145285892,
+    "speed_max_raw": 18.843721969874803,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     1,
+     3
+    ],
+    "only_second": [
+     3
+    ],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  },
+  {
+   "frame": 75,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0728,
+    "dist_px": 46.25,
+    "support": 0.0775,
+    "n_ridge": 10451,
+    "n_sampled": 374
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.0,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 15.41544127513099,
+    "speed_max_raw": 17.328181640235897,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     7
+    ],
+    "only_second": [],
+    "disagreement": 0.125,
+    "fails": []
+   }
+  },
+  {
+   "frame": 78,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0648,
+    "dist_px": 47.75,
+    "support": 0.0534,
+    "n_ridge": 10800,
+    "n_sampled": 356
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.0,
+     "x0_in": null,
+     "xL_in": null,
+     "near_out": null
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 12.069071917198926,
+    "speed_max_raw": 14.745527661987767,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     7
+    ],
+    "only_second": [],
+    "disagreement": 0.125,
+    "fails": []
+   }
+  },
+  {
+   "frame": 84,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 0.0,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 3,
+     "0": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     3,
+     5
+    ],
+    "only_second": [
+     3
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 87,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539202,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 3,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     6
+    ],
+    "only_second": [],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  },
+  {
+   "frame": 90,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539192,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     5,
+     6,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 93,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     6,
+     7,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 96,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     3,
+     6,
+     7,
+     8
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 99,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539202,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     6,
+     7
+    ],
+    "only_second": [],
+    "disagreement": 0.2222,
+    "fails": []
+   }
+  },
+  {
+   "frame": 102,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539268,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     3,
+     7,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.3,
+    "fails": []
+   }
+  },
+  {
+   "frame": 105,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539192,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 8,
+    "matches": 6,
+    "only_pipeline": [
+     6,
+     7
+    ],
+    "only_second": [
+     5,
+     6
+    ],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  },
+  {
+   "frame": 108,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 8,
+    "matches": 6,
+    "only_pipeline": [
+     6,
+     7
+    ],
+    "only_second": [
+     5,
+     6
+    ],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  },
+  {
+   "frame": 111,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539192,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 7,
+    "matches": 5,
+    "only_pipeline": [
+     5,
+     6
+    ],
+    "only_second": [
+     4,
+     5
+    ],
+    "disagreement": 0.2857,
+    "fails": []
+   }
+  },
+  {
+   "frame": 114,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 8,
+    "matches": 7,
+    "only_pipeline": [
+     6
+    ],
+    "only_second": [
+     4
+    ],
+    "disagreement": 0.125,
+    "fails": []
+   }
+  },
+  {
+   "frame": 117,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 8,
+    "matches": 7,
+    "only_pipeline": [
+     1,
+     3,
+     8
+    ],
+    "only_second": [
+     7
+    ],
+    "disagreement": 0.3,
+    "fails": []
+   }
+  },
+  {
+   "frame": 120,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539122,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 8,
+    "matches": 8,
+    "only_pipeline": [
+     1,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.2,
+    "fails": []
+   }
+  },
+  {
+   "frame": 123,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539268,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 8,
+    "matches": 8,
+    "only_pipeline": [
+     5,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.2,
+    "fails": []
+   }
+  },
+  {
+   "frame": 126,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539202,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 8,
+    "matches": 8,
+    "only_pipeline": [
+     5
+    ],
+    "only_second": [],
+    "disagreement": 0.1111,
+    "fails": []
+   }
+  },
+  {
+   "frame": 129,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539192,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 9,
+    "matches": 8,
+    "only_pipeline": [],
+    "only_second": [
+     8
+    ],
+    "disagreement": 0.1111,
+    "fails": []
+   }
+  },
+  {
+   "frame": 132,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.16291710253931,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 9,
+    "matches": 8,
+    "only_pipeline": [
+     7
+    ],
+    "only_second": [
+     7
+    ],
+    "disagreement": 0.1111,
+    "fails": []
+   }
+  },
+  {
+   "frame": 135,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539211,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 5,
+    "only_pipeline": [
+     4,
+     5,
+     6
+    ],
+    "only_second": [
+     5,
+     6
+    ],
+    "disagreement": 0.375,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 138,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539174,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 11,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     5,
+     6,
+     7,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.4545,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 141,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539348,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 11,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     6,
+     7,
+     8,
+     9
+    ],
+    "only_second": [
+     4
+    ],
+    "disagreement": 0.4545,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 144,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539192,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 11,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "only_second": [],
+    "disagreement": 0.4545,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 147,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539211,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 6,
+    "matches": 5,
+    "only_pipeline": [
+     2,
+     6,
+     7,
+     8,
+     9
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.5,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 150,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 11,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     6,
+     7,
+     8,
+     9
+    ],
+    "only_second": [],
+    "disagreement": 0.4545,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 153,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539192,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 3,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     6,
+     7
+    ],
+    "only_second": [],
+    "disagreement": 0.2222,
+    "fails": []
+   }
+  },
+  {
+   "frame": 156,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539241,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     6,
+     7,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.3,
+    "fails": []
+   }
+  },
+  {
+   "frame": 159,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.16291710253928,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 5,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 11,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     2,
+     6,
+     7,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.3636,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 162,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539174,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     6,
+     7,
+     9
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 165,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539211,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     6,
+     7,
+     8,
+     9
+    ],
+    "only_second": [],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 168,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.162917102539206,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 10,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     6,
+     7,
+     9
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 171,
+   "state": "LOST",
+   "overlay": {
+    "score": null,
+    "dist_px": null,
+    "support": null,
+    "n_ridge": 0,
+    "n_sampled": 0
+   },
+   "geometry": {
+    "fails": [
+     "no_H"
+    ]
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539245,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "1": 4,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     4,
+     6,
+     7
+    ],
+    "only_second": [
+     4
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 174,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0764,
+    "dist_px": 44.89,
+    "support": 0.0573,
+    "n_ridge": 11726,
+    "n_sampled": 454
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.5172,
+     "near_in": 0.0,
+     "x0_in": 0.3846,
+     "xL_in": null,
+     "near_out": 0.0769
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539259,
+    "speed_max_raw": 0.0,
+    "team_counts": {
+     "0": 5,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     5,
+     6
+    ],
+    "only_second": [],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  },
+  {
+   "frame": 177,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0795,
+    "dist_px": 42.43,
+    "support": 0.0705,
+    "n_ridge": 12269,
+    "n_sampled": 454
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.6897,
+     "near_in": 0.0,
+     "x0_in": 0.4231,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 12.25277005844143,
+    "speed_max_raw": 10.628554848704956,
+    "team_counts": {
+     "0": 5,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 6,
+    "matches": 5,
+    "only_pipeline": [
+     3,
+     5,
+     7
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.375,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 180,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.088,
+    "dist_px": 41.07,
+    "support": 0.0771,
+    "n_ridge": 11438,
+    "n_sampled": 467
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.6897,
+     "near_in": 0.0,
+     "x0_in": 0.5,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 11.162917102539227,
+    "speed_max_raw": 8.646897442288532,
+    "team_counts": {
+     "0": 5,
+     "1": 2
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     1,
+     3,
+     6
+    ],
+    "only_second": [
+     4
+    ],
+    "disagreement": 0.4286,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 183,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0901,
+    "dist_px": 41.07,
+    "support": 0.1012,
+    "n_ridge": 11567,
+    "n_sampled": 484
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.6071,
+     "near_in": 0.0714,
+     "x0_in": 0.4615,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 19.712711329372038,
+    "speed_max_raw": 11.735579667142579,
+    "team_counts": {
+     "0": 4,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 3,
+    "matches": 2,
+    "only_pipeline": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.7143,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 186,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0853,
+    "dist_px": 40.11,
+    "support": 0.0885,
+    "n_ridge": 11777,
+    "n_sampled": 497
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.5357,
+     "near_in": 0.0357,
+     "x0_in": 0.5,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 27.61963763271775,
+    "speed_max_raw": 20.25326480052851,
+    "team_counts": {
+     "0": 3,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     2,
+     4
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 189,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.1069,
+    "dist_px": 35.34,
+    "support": 0.1048,
+    "n_ridge": 12349,
+    "n_sampled": 525
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.5357,
+     "near_in": 0.0714,
+     "x0_in": 0.5769,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "speed"
+    ],
+    "speed_max": 37.327661812395384,
+    "speed_max_raw": 22.88109706038055,
+    "team_counts": {
+     "0": 3,
+     "1": 2
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     3
+    ],
+    "only_second": [
+     4
+    ],
+    "disagreement": 0.2,
+    "fails": []
+   }
+  },
+  {
+   "frame": 192,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0534,
+    "dist_px": 62.57,
+    "support": 0.0346,
+    "n_ridge": 12424,
+    "n_sampled": 462
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0667,
+     "near_in": 0.1724,
+     "x0_in": 0.3846,
+     "xL_in": null,
+     "near_out": 0.0556
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "speed"
+    ],
+    "speed_max": 37.89232128441127,
+    "speed_max_raw": 131.11122068470456,
+    "team_counts": {
+     "0": 4,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 5,
+    "matches": 3,
+    "only_pipeline": [
+     1,
+     4,
+     5,
+     6
+    ],
+    "only_second": [
+     2,
+     4
+    ],
+    "disagreement": 0.5714,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 195,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0622,
+    "dist_px": 62.9,
+    "support": 0.0341,
+    "n_ridge": 12113,
+    "n_sampled": 469
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.0667,
+     "x0_in": 0.2692,
+     "xL_in": null,
+     "near_out": 0.0526
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "speed"
+    ],
+    "speed_max": 31.996342458023186,
+    "speed_max_raw": 11.746320141795874,
+    "team_counts": {
+     "0": 4,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     4,
+     5,
+     6
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.4286,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 198,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0542,
+    "dist_px": 61.62,
+    "support": 0.0383,
+    "n_ridge": 12001,
+    "n_sampled": 496
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.069,
+     "near_in": 0.1786,
+     "x0_in": 0.4,
+     "xL_in": null,
+     "near_out": 0.0625
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 28.566792264711196,
+    "speed_max_raw": 15.963450988784535,
+    "team_counts": {
+     "0": 3,
+     "1": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 6,
+    "n_second": 7,
+    "matches": 4,
+    "only_pipeline": [
+     4,
+     5
+    ],
+    "only_second": [
+     0,
+     2,
+     6
+    ],
+    "disagreement": 0.4286,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 201,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0879,
+    "dist_px": 58.13,
+    "support": 0.0639,
+    "n_ridge": 11382,
+    "n_sampled": 438
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.069,
+     "near_in": 0.3448,
+     "x0_in": 0.1538,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 22.39494866813067,
+    "speed_max_raw": 44.52293179906539,
+    "team_counts": {
+     "1": 4,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 6,
+    "matches": 5,
+    "only_pipeline": [
+     2,
+     4,
+     5
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.375,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 204,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0919,
+    "dist_px": 55.8,
+    "support": 0.0683,
+    "n_ridge": 11713,
+    "n_sampled": 454
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.069,
+     "near_in": 0.3793,
+     "x0_in": 0.1923,
+     "xL_in": null,
+     "near_out": 0.1176
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 15.594129846459062,
+    "speed_max_raw": 11.216158589318104,
+    "team_counts": {
+     "1": 3,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     2
+    ],
+    "only_second": [],
+    "disagreement": 0.1429,
+    "fails": []
+   }
+  },
+  {
+   "frame": 207,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.08,
+    "dist_px": 57.71,
+    "support": 0.0558,
+    "n_ridge": 11417,
+    "n_sampled": 430
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1379,
+     "x0_in": 0.5,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 12.830949630631899,
+    "speed_max_raw": 42.355793390408834,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     2,
+     3
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  },
+  {
+   "frame": 210,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.0772,
+    "dist_px": 56.14,
+    "support": 0.0558,
+    "n_ridge": 11047,
+    "n_sampled": 412
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.2069,
+     "x0_in": 0.4615,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 12.467235517625786,
+    "speed_max_raw": 10.638818959169607,
+    "team_counts": {
+     "1": 4,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 4,
+    "matches": 3,
+    "only_pipeline": [
+     1,
+     2,
+     3,
+     4,
+     7,
+     8
+    ],
+    "only_second": [
+     3
+    ],
+    "disagreement": 0.6667,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 213,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.07,
+    "dist_px": 55.39,
+    "support": 0.0542,
+    "n_ridge": 11153,
+    "n_sampled": 424
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.1724,
+     "x0_in": 0.4231,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 18.382054995165486,
+    "speed_max_raw": 14.537979231955918,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     2,
+     3,
+     4,
+     6
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.5,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 216,
+   "state": "HELD",
+   "overlay": {
+    "score": 0.092,
+    "dist_px": 53.48,
+    "support": 0.0749,
+    "n_ridge": 11602,
+    "n_sampled": 467
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.2069,
+     "x0_in": 0.3462,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 12.789234530409871,
+    "speed_max_raw": 7.611209708252323,
+    "team_counts": {
+     "1": 2,
+     "0": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 5,
+    "n_second": 4,
+    "matches": 3,
+    "only_pipeline": [
+     1,
+     2
+    ],
+    "only_second": [
+     2
+    ],
+    "disagreement": 0.4,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 219,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0763,
+    "dist_px": 49.53,
+    "support": 0.059,
+    "n_ridge": 11925,
+    "n_sampled": 407
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0333,
+     "near_in": 0.2069,
+     "x0_in": 0.4615,
+     "xL_in": null,
+     "near_out": 0.1765
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 10.146779073734283,
+    "speed_max_raw": 19.230091606872058,
+    "team_counts": {
+     "1": 3,
+     "0": 3
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 7,
+    "n_second": 6,
+    "matches": 4,
+    "only_pipeline": [
+     3,
+     5,
+     6
+    ],
+    "only_second": [
+     2,
+     4
+    ],
+    "disagreement": 0.4286,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 222,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0926,
+    "dist_px": 46.25,
+    "support": 0.081,
+    "n_ridge": 12197,
+    "n_sampled": 420
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0667,
+     "near_in": 0.1379,
+     "x0_in": 0.4615,
+     "xL_in": null,
+     "near_out": 0.0625
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 17.569903967815677,
+    "speed_max_raw": 28.472995171090545,
+    "team_counts": {
+     "1": 3,
+     "0": 4
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 6,
+    "matches": 4,
+    "only_pipeline": [
+     3,
+     5,
+     6,
+     7
+    ],
+    "only_second": [
+     2,
+     4
+    ],
+    "disagreement": 0.5,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 225,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0819,
+    "dist_px": 49.29,
+    "support": 0.0544,
+    "n_ridge": 12655,
+    "n_sampled": 441
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.1,
+     "near_in": 0.2759,
+     "x0_in": 0.6154,
+     "xL_in": null,
+     "near_out": 0.0588
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 14.35405959225265,
+    "speed_max_raw": 10.844666126715367,
+    "team_counts": {
+     "1": 2,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 5,
+    "matches": 4,
+    "only_pipeline": [
+     0,
+     1,
+     4,
+     6
+    ],
+    "only_second": [
+     1
+    ],
+    "disagreement": 0.5,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 228,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.1,
+    "dist_px": 47.52,
+    "support": 0.069,
+    "n_ridge": 12364,
+    "n_sampled": 406
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0968,
+     "near_in": 0.2414,
+     "x0_in": 0.3846,
+     "xL_in": null,
+     "near_out": 0.0
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 11.79355302215684,
+    "speed_max_raw": 41.08164973911698,
+    "team_counts": {
+     "1": 3,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 5,
+    "matches": 5,
+    "only_pipeline": [
+     0,
+     4,
+     6,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.4444,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 231,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0664,
+    "dist_px": 45.71,
+    "support": 0.0462,
+    "n_ridge": 12673,
+    "n_sampled": 368
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0333,
+     "near_in": 0.2069,
+     "x0_in": 0.3846,
+     "xL_in": null,
+     "near_out": 0.125
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 10.146779073734846,
+    "speed_max_raw": 32.318926412068,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 6,
+    "matches": 6,
+    "only_pipeline": [
+     6,
+     7,
+     8
+    ],
+    "only_second": [],
+    "disagreement": 0.3333,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 234,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0907,
+    "dist_px": 49.66,
+    "support": 0.0797,
+    "n_ridge": 12184,
+    "n_sampled": 389
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.069,
+     "near_in": 0.1724,
+     "x0_in": 0.4615,
+     "xL_in": null,
+     "near_out": 0.1364
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 10.14677907373421,
+    "speed_max_raw": 49.26110582234206,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 7,
+    "only_pipeline": [
+     6
+    ],
+    "only_second": [],
+    "disagreement": 0.125,
+    "fails": []
+   }
+  },
+  {
+   "frame": 237,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.0709,
+    "dist_px": 44.89,
+    "support": 0.0785,
+    "n_ridge": 12222,
+    "n_sampled": 382
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0,
+     "near_in": 0.2069,
+     "x0_in": 0.5385,
+     "xL_in": null,
+     "near_out": 0.1
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [
+     "team_count"
+    ],
+    "speed_max": 13.67253049552968,
+    "speed_max_raw": 17.207291542206487,
+    "team_counts": {
+     "1": 3,
+     "0": 6
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 9,
+    "n_second": 7,
+    "matches": 5,
+    "only_pipeline": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "only_second": [
+     5,
+     6
+    ],
+    "disagreement": 0.4444,
+    "fails": [
+     "second_tracker"
+    ]
+   }
+  },
+  {
+   "frame": 240,
+   "state": "TRACK",
+   "overlay": {
+    "score": 0.1177,
+    "dist_px": 48.71,
+    "support": 0.068,
+    "n_ridge": 12779,
+    "n_sampled": 412
+   },
+   "geometry": {
+    "far_sideline": "y0",
+    "scorebug_hit": false,
+    "floor": {
+     "far_in": 0.0333,
+     "near_in": 0.2333,
+     "x0_in": 0.4615,
+     "xL_in": null,
+     "near_out": 0.125
+    },
+    "floor_low_edges": [
+     "far_in",
+     "near_in",
+     "x0_in"
+    ],
+    "floor_uncalibrated": true,
+    "n_offcourt": 0,
+    "fails": []
+   },
+   "physics": {
+    "fails": [],
+    "speed_max": 10.146779073734203,
+    "speed_max_raw": 28.39445424955853,
+    "team_counts": {
+     "1": 3,
+     "0": 5
+    },
+    "cut": false
+   },
+   "second": {
+    "n_pipeline": 8,
+    "n_second": 7,
+    "matches": 6,
+    "only_pipeline": [
+     4,
+     6
+    ],
+    "only_second": [
+     5
+    ],
+    "disagreement": 0.25,
+    "fails": []
+   }
+  }
+ ]
+}

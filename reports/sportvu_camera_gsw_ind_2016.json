@@ -1,0 +1,54 @@
+{
+ "game": "gsw_ind_2016",
+ "frames": 828,
+ "camera": {
+  "status": "ok",
+  "C": [
+   45.27356520412411,
+   137.1703050469685,
+   -30.410176178151445
+  ],
+  "C0": [
+   52.48129237804829,
+   108.24267024500259,
+   -35.074665345984954
+  ],
+  "pooled_frames": 400,
+  "inits": 827,
+  "reproj_px_median_before": 84.35,
+  "reproj_px_median_after": 4.66,
+  "cost": 263530.2856601386
+ },
+ "per_frame": {
+  "fitted": 828,
+  "accepted": 121,
+  "resid_ft_median": 0.833,
+  "f_px_range": [
+   500,
+   4701
+  ]
+ },
+ "validation": {
+  "frames": 213,
+  "refined": true,
+  "refined_resid_ft_median": 1.204,
+  "refined_line_matches_median": 51.0,
+  "a1_dist_px_median": {
+   "camera": 30.6,
+   "v3": 43.9,
+   "b4_truth": 37.8
+  },
+  "share_camera_better_than_v3": 0.901,
+  "line_support_median": {
+   "camera": 0.201,
+   "v3": 0.091,
+   "b4_truth": 0.106
+  },
+  "share_camera_support_above_v3": 0.901,
+  "share_over_60px": {
+   "camera": 0.042,
+   "v3": 0.113,
+   "b4_truth": 0.103
+  }
+ }
+}

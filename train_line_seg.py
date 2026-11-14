@@ -73,6 +73,8 @@ def main():
     ap.add_argument("--device", type=str, default=None)
     ap.add_argument("--seed", type=int, default=config.SEED)
     args = ap.parse_args()
+    from sportvu import splits  # ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+    splits.refuse_heldout(glob.glob(str(config.LINE_DATASET / "**" / "*"), recursive=True), "train_line_seg")
 
     config.set_seed(args.seed)
     import torch

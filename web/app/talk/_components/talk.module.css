@@ -1,0 +1,169 @@
+/* The interview slides (PLAN.md M10): one slide fills the window below the site header. */
+
+.deck {
+  display: grid;
+  gap: 1rem;
+  max-width: 80rem;
+  margin-inline: auto;
+}
+
+.slide {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-height: calc(100vh - var(--nav-h) - 12rem);
+}
+
+.count {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+.body {
+  display: grid;
+  gap: 2rem;
+  min-width: 0;
+}
+
+.textOnly {
+  display: grid;
+  max-width: var(--col);
+}
+
+@media (min-width: 56.25rem) {
+  .body {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+}
+
+.copy {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.copy p {
+  margin: 0;
+}
+
+.title {
+  font-size: var(--text-h1);
+  line-height: var(--leading-tight);
+}
+
+.headline {
+  font-size: var(--text-display);
+  line-height: 1.05;
+}
+
+.list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.visual {
+  min-width: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+.navLink {
+  font-weight: 600;
+}
+
+.notesButton {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.notesButton[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+.keys {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+.notes {
+  padding: 1rem 1.25rem;
+  background: var(--wash);
+  border-left: 3px solid var(--accent);
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+.notes ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.notesTitle {
+  margin: 0 0 0.5rem;
+  font-size: var(--text-h3);
+}
+
+.index {
+  display: grid;
+  gap: 1rem;
+  max-width: var(--col);
+  margin-inline: auto;
+}
+
+.index ol {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.lanes {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+}
+
+.lanes li {
+  display: grid;
+  gap: 0.2rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.laneHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  font-weight: 600;
+}

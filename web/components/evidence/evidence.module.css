@@ -1,0 +1,110 @@
+.scope {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.scope > * {
+  min-width: 0;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  background: var(--wash);
+}
+
+.box {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 1px;
+}
+
+.toggle[aria-pressed="true"] .box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+
+/* An evidence block is hidden until the scope around it is switched on. */
+.scope[data-evidence="off"] .block {
+  display: none;
+}
+
+.block {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.7rem;
+  border-left: 2px solid var(--accent);
+  background: var(--wash);
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.list {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list code {
+  font-family: var(--mono);
+  font-size: 0.95em;
+}
+
+.rows {
+  color: var(--muted);
+}
+
+.rows::before {
+  content: "(";
+}
+
+.rows::after {
+  content: ")";
+}

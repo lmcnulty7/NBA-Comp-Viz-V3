@@ -1,0 +1,199 @@
+{
+ "game": "gsw_phx_2016",
+ "sportvu_game": "12.16.2015.PHX.at.GSW",
+ "mirror": "identity",
+ "nearest_defender_proxy": {
+  "defenders": 224,
+  "mapped": 160,
+  "agree": 77,
+  "agreement": 0.481,
+  "note": "proxy for CLAIMS C1: pipeline primary man vs the SportVU opponent most often nearest; not the human-labeled matchup"
+ },
+ "method": "sportvu/eval.py: pipeline vs SportVU on the held-out game (FIX_PLAN B5).",
+ "testable_frames": 1447,
+ "matched_players": 11721,
+ "position_error_ft": {
+  "p50": 7.31,
+  "p90": 15.38,
+  "mean": 8.26,
+  "bias_x_ft": 0.12,
+  "bias_y_ft": 0.55,
+  "bias_toward_camera_ft": 0.54
+ },
+ "by_region": {
+  "far": {
+   "n": 3285,
+   "p50": 7.92,
+   "p90": 16.79,
+   "bias_y_ft": 1.55,
+   "bias_toward_camera_ft": 1.69
+  },
+  "middle": {
+   "n": 5184,
+   "p50": 7.44,
+   "p90": 15.32,
+   "bias_y_ft": 0.6,
+   "bias_toward_camera_ft": 0.58
+  },
+  "near": {
+   "n": 3252,
+   "p50": 6.85,
+   "p90": 13.55,
+   "bias_y_ft": -0.83,
+   "bias_toward_camera_ft": -1.04
+  }
+ },
+ "frame_H_error_ft": {
+  "p50": 7.44,
+  "p90": 13.17
+ },
+ "missed_players": {
+  "n": 3515,
+  "in_frame_players": 14020,
+  "rate": 0.251
+ },
+ "ghost_boxes": {
+  "n": 1938,
+  "boxes": 12637,
+  "rate": 0.153,
+  "caveat": "referees are not in SportVU, so a correctly boxed referee counts as a ghost here"
+ },
+ "team_accuracy": {
+  "n": 11240,
+  "correct": 9190,
+  "accuracy": 0.818
+ },
+ "per_window": {
+  "gsw_phx_2016_s00_w00": {
+   "frames": 69,
+   "frame_err_p50": 9.89,
+   "player_err_p50": 9.52
+  },
+  "gsw_phx_2016_s00_w01": {
+   "frames": 19,
+   "frame_err_p50": 8.77,
+   "player_err_p50": 8.36
+  },
+  "gsw_phx_2016_s01_w00": {
+   "frames": 116,
+   "frame_err_p50": 8.62,
+   "player_err_p50": 8.25
+  },
+  "gsw_phx_2016_s01_w01": {
+   "frames": 44,
+   "frame_err_p50": 11.95,
+   "player_err_p50": 10.89
+  },
+  "gsw_phx_2016_s01_w02": {
+   "frames": 3,
+   "frame_err_p50": 6.32,
+   "player_err_p50": 6.43
+  },
+  "gsw_phx_2016_s02_w00": {
+   "frames": 316,
+   "frame_err_p50": 5.81,
+   "player_err_p50": 5.69
+  },
+  "gsw_phx_2016_s02_w01": {
+   "frames": 13,
+   "frame_err_p50": 5.77,
+   "player_err_p50": 5.95
+  },
+  "gsw_phx_2016_s03_w00": {
+   "frames": 91,
+   "frame_err_p50": 6.38,
+   "player_err_p50": 6.75
+  },
+  "gsw_phx_2016_s03_w01": {
+   "frames": 0,
+   "frame_err_p50": null,
+   "player_err_p50": null
+  },
+  "gsw_phx_2016_s04_w00": {
+   "frames": 78,
+   "frame_err_p50": 8.18,
+   "player_err_p50": 7.72
+  },
+  "gsw_phx_2016_s04_w01": {
+   "frames": 60,
+   "frame_err_p50": 7.86,
+   "player_err_p50": 7.08
+  },
+  "gsw_phx_2016_s04_w02": {
+   "frames": 45,
+   "frame_err_p50": 7.53,
+   "player_err_p50": 6.2
+  },
+  "gsw_phx_2016_s05_w00": {
+   "frames": 24,
+   "frame_err_p50": 7.39,
+   "player_err_p50": 7.04
+  },
+  "gsw_phx_2016_s05_w01": {
+   "frames": 25,
+   "frame_err_p50": 8.89,
+   "player_err_p50": 8.84
+  },
+  "gsw_phx_2016_s05_w02": {
+   "frames": 5,
+   "frame_err_p50": 5.37,
+   "player_err_p50": 5.92
+  },
+  "gsw_phx_2016_s06_w00": {
+   "frames": 72,
+   "frame_err_p50": 12.13,
+   "player_err_p50": 11.51
+  },
+  "gsw_phx_2016_s06_w01": {
+   "frames": 4,
+   "frame_err_p50": 7.37,
+   "player_err_p50": 6.69
+  },
+  "gsw_phx_2016_s07_w00": {
+   "frames": 152,
+   "frame_err_p50": 6.45,
+   "player_err_p50": 6.67
+  },
+  "gsw_phx_2016_s07_w01": {
+   "frames": 3,
+   "frame_err_p50": 5.7,
+   "player_err_p50": 5.96
+  },
+  "gsw_phx_2016_s08_w00": {
+   "frames": 94,
+   "frame_err_p50": 8.97,
+   "player_err_p50": 8.85
+  },
+  "gsw_phx_2016_s09_w00": {
+   "frames": 63,
+   "frame_err_p50": 5.7,
+   "player_err_p50": 5.84
+  },
+  "gsw_phx_2016_s09_w01": {
+   "frames": 52,
+   "frame_err_p50": 6.32,
+   "player_err_p50": 5.46
+  },
+  "gsw_phx_2016_s09_w02": {
+   "frames": 84,
+   "frame_err_p50": 9.33,
+   "player_err_p50": 9.59
+  },
+  "gsw_phx_2016_s09_w03": {
+   "frames": 14,
+   "frame_err_p50": 10.12,
+   "player_err_p50": 10.43
+  },
+  "gsw_phx_2016_s09_w04": {
+   "frames": 1,
+   "frame_err_p50": 10.68,
+   "player_err_p50": 10.68
+  }
+ },
+ "caveats": [
+  "testable frames only (B4: 15% of window frames); the untestable share is itself a symptom",
+  "truth H derived through the pipeline's own boxes and initialised from its H",
+  "local windowed rebuild of the harvest sections, not the production artifacts (same code, models, h264 source)",
+  "nearest-defender agreement is a proxy for CLAIMS C1, not the human-labeled matchup accuracy"
+ ]
+}

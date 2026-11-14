@@ -1,0 +1,329 @@
+{
+ "item": "R2.4 camera model (sportvu/camera_track.py), grid weights r23",
+ "dev_training_games": {
+  "weights": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/models/court_grid_r23.pt",
+  "games": {
+   "gsw_bkn_2015": {
+    "windows": 4,
+    "position": {
+     "status": "ok",
+     "C": [
+      48.17897997598289,
+      125.9207946363161,
+      -29.18311094350527
+     ],
+     "C0": [
+      47.8508562089836,
+      124.99543143828409,
+      -29.061971416652145
+     ],
+     "frames": 150,
+     "reproj_px_before": 25.14,
+     "reproj_px_after": 1.12
+    },
+    "truth_C": [
+     48.5,
+     125.2,
+     -30.0
+    ],
+    "C_minus_truth_ft": [
+     -0.3,
+     0.8,
+     0.8
+    ],
+    "fit_from": {
+     "lines": 1018,
+     "free_h": 76
+    },
+    "free": {
+     "n": 1376,
+     "p50": 0.5,
+     "p90": 1.55,
+     "bias_near": 0.06,
+     "bias_far": 0.03,
+     "p50_near": 0.56,
+     "p50_far": 0.59
+    },
+    "camera": {
+     "n": 1376,
+     "p50": 0.52,
+     "p90": 1.5,
+     "bias_near": 0.29,
+     "bias_far": -0.12,
+     "p50_near": 0.56,
+     "p50_far": 0.62
+    }
+   },
+   "gsw_sac_2015": {
+    "windows": 2,
+    "position": {
+     "status": "ok",
+     "C": [
+      46.840352254478866,
+      129.65831454512676,
+      -29.237047599020148
+     ],
+     "C0": [
+      46.580995890573405,
+      128.76257022116428,
+      -29.296105202071395
+     ],
+     "frames": 150,
+     "reproj_px_before": 31.26,
+     "reproj_px_after": 1.12
+    },
+    "truth_C": [
+     47.1,
+     129.2,
+     -29.6
+    ],
+    "C_minus_truth_ft": [
+     -0.3,
+     0.5,
+     0.4
+    ],
+    "fit_from": {
+     "lines": 1019,
+     "free_h": 42
+    },
+    "free": {
+     "n": 1055,
+     "p50": 0.59,
+     "p90": 1.69,
+     "bias_near": 0.23,
+     "bias_far": 0.23,
+     "p50_near": 0.62,
+     "p50_far": 0.64
+    },
+    "camera": {
+     "n": 1055,
+     "p50": 0.57,
+     "p90": 1.68,
+     "bias_near": 0.27,
+     "bias_far": 0.18,
+     "p50_near": 0.6,
+     "p50_far": 0.59
+    }
+   }
+  }
+ },
+ "heldout": {
+  "phx": {
+   "r23": {
+    "p50": 1.92,
+    "p90": 4.98,
+    "abs_near": 0.67,
+    "abs_far": 1.52,
+    "n": 11292
+   },
+   "r23_cam": {
+    "p50": 1.84,
+    "p90": 4.95,
+    "abs_near": 0.27,
+    "abs_far": 1.27,
+    "n": 11292
+   },
+   "paired_r23_minus_cam": {
+    "p50": {
+     "diff": 0.08,
+     "ci95": [
+      0.03,
+      0.1
+     ],
+     "verdict": "worse"
+    },
+    "p90": {
+     "diff": 0.03,
+     "ci95": [
+      -0.02,
+      0.1
+     ],
+     "verdict": "no difference"
+    },
+    "abs_near": {
+     "diff": 0.4,
+     "ci95": [
+      0.32,
+      0.45
+     ],
+     "verdict": "worse"
+    },
+    "abs_far": {
+     "diff": 0.25,
+     "ci95": [
+      0.17,
+      0.33
+     ],
+     "verdict": "worse"
+    }
+   }
+  },
+  "cle_nyk": {
+   "r23": {
+    "p50": 2.25,
+    "p90": 5.46,
+    "abs_near": 0.63,
+    "abs_far": 1.66,
+    "n": 3862
+   },
+   "r23_cam": {
+    "p50": 2.17,
+    "p90": 5.49,
+    "abs_near": 0.47,
+    "abs_far": 1.3,
+    "n": 3862
+   },
+   "paired_r23_minus_cam": {
+    "p50": {
+     "diff": 0.08,
+     "ci95": [
+      0.03,
+      0.11
+     ],
+     "verdict": "worse"
+    },
+    "p90": {
+     "diff": -0.03,
+     "ci95": [
+      -0.18,
+      0.21
+     ],
+     "verdict": "no difference"
+    },
+    "abs_near": {
+     "diff": 0.15,
+     "ci95": [
+      0.01,
+      0.23
+     ],
+     "verdict": "worse"
+    },
+    "abs_far": {
+     "diff": 0.36,
+     "ci95": [
+      0.1,
+      0.48
+     ],
+     "verdict": "worse"
+    }
+   }
+  },
+  "cle_gsw": {
+   "r23": {
+    "p50": 2.22,
+    "p90": 5.5,
+    "abs_near": 0.12,
+    "abs_far": 2.0,
+    "n": 1178
+   },
+   "r23_cam": {
+    "p50": 2.26,
+    "p90": 5.45,
+    "abs_near": 0.26,
+    "abs_far": 1.89,
+    "n": 1178
+   },
+   "paired_r23_minus_cam": {
+    "p50": {
+     "diff": -0.04,
+     "ci95": [
+      -0.19,
+      0.11
+     ],
+     "verdict": "no difference"
+    },
+    "p90": {
+     "diff": 0.05,
+     "ci95": [
+      -0.23,
+      0.45
+     ],
+     "verdict": "no difference"
+    },
+    "abs_near": {
+     "diff": -0.14,
+     "ci95": [
+      -0.39,
+      0.66
+     ],
+     "verdict": "no difference"
+    },
+    "abs_far": {
+     "diff": 0.12,
+     "ci95": [
+      -0.1,
+      0.62
+     ],
+     "verdict": "no difference"
+    }
+   }
+  },
+  "CLE pooled": {
+   "r23": {
+    "p50": 2.24,
+    "p90": 5.47,
+    "abs_near": 0.53,
+    "abs_far": 1.71,
+    "n": 5040
+   },
+   "r23_cam": {
+    "p50": 2.19,
+    "p90": 5.49,
+    "abs_near": 0.35,
+    "abs_far": 1.41,
+    "n": 5040
+   },
+   "paired_r23_minus_cam": {
+    "p50": {
+     "diff": 0.06,
+     "ci95": [
+      -0.02,
+      0.1
+     ],
+     "verdict": "no difference"
+    },
+    "p90": {
+     "diff": -0.02,
+     "ci95": [
+      -0.16,
+      0.17
+     ],
+     "verdict": "no difference"
+    },
+    "abs_near": {
+     "diff": 0.17,
+     "ci95": [
+      -0.09,
+      0.28
+     ],
+     "verdict": "no difference"
+    },
+    "abs_far": {
+     "diff": 0.31,
+     "ci95": [
+      0.06,
+      0.45
+     ],
+     "verdict": "worse"
+    }
+   }
+  },
+  "camera_C": {
+   "gsw_phx_2016": [
+    46.23313036053597,
+    125.31358892151,
+    -28.92645741297954
+   ],
+   "cle_nyk_2015": [
+    46.34323394301945,
+    116.98687746902125,
+    -26.713316731837107
+   ],
+   "cle_gsw_2016": [
+    48.3194188079843,
+    124.5777392112132,
+    -28.693758124422843
+   ]
+  }
+ }
+}

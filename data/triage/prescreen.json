@@ -33,6 +33,6 @@
   "median_players_per_frame": 9.9,
   "median_track_ids_per_clip": 18,
   "median_extrapolated_share": 0.13,
-  "fast_steps_share_max": 0.035
+  "fast_steps_share_max": "WITHDRAWN 2026-10-03: computed with a 3x too-long time step; see reports/qc (A3): 16% of frames have a cleaned step > 30 ft/s, 49% on raw"
  }
 }

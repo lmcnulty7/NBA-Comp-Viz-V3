@@ -1,0 +1,102 @@
+{
+ "endpoint": "leaguedashptstats",
+ "params": {
+  "PtMeasureType": "SpeedDistance",
+  "PlayerOrTeam": "Player",
+  "LeagueID": "00",
+  "Season": "2015-16",
+  "SeasonType": "Regular Season",
+  "PerMode": "Totals",
+  "LastNGames": 0,
+  "Month": 0,
+  "OpponentTeamID": 0,
+  "Period": 0,
+  "TeamID": 0,
+  "College": "",
+  "Conference": "",
+  "Country": "",
+  "DateFrom": "",
+  "DateTo": "",
+  "Division": "",
+  "DraftPick": "",
+  "DraftYear": "",
+  "GameScope": "",
+  "GameSegment": "",
+  "Height": "",
+  "Location": "",
+  "Outcome": "",
+  "PORound": "",
+  "PlayerExperience": "",
+  "PlayerPosition": "",
+  "SeasonSegment": "",
+  "StarterBench": "",
+  "VsConference": "",
+  "VsDivision": "",
+  "Weight": ""
+ },
+ "fetched_at": "2026-11-05T00:00:00Z",
+ "note": "hand-built in the documented stats.nba.com response shape (headers as nba_api lists them) because no host answers from the build session; replace with real trimmed responses: python -m collect.probe --save-fixtures tests/fixtures/collect",
+ "body": {
+  "resultSets": [
+   {
+    "name": "LeagueDashPtStats",
+    "headers": [
+     "PLAYER_ID",
+     "PLAYER_NAME",
+     "TEAM_ID",
+     "TEAM_ABBREVIATION",
+     "GP",
+     "W",
+     "L",
+     "MIN",
+     "MIN1",
+     "DIST_FEET",
+     "DIST_MILES",
+     "DIST_MILES_OFF",
+     "DIST_MILES_DEF",
+     "AVG_SPEED",
+     "AVG_SPEED_OFF",
+     "AVG_SPEED_DEF"
+    ],
+    "rowSet": [
+     [
+      201939,
+      "Stephen Curry",
+      1610612744,
+      "GSW",
+      79,
+      71,
+      8,
+      34.2,
+      2700.0,
+      715000.0,
+      135.4,
+      70.1,
+      65.3,
+      4.43,
+      4.92,
+      3.94
+     ],
+     [
+      202691,
+      "Klay Thompson",
+      1610612744,
+      "GSW",
+      80,
+      71,
+      9,
+      33.3,
+      2666.0,
+      730000.0,
+      138.3,
+      72.0,
+      66.3,
+      4.6,
+      5.1,
+      4.1
+     ]
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,52 @@
+{
+ "game": "01.04.2016.CHA.at.GSW",
+ "date": "2016-01-04",
+ "teams": {
+  "1610612766": "CHA",
+  "1610612744": "GSW"
+ },
+ "n_players": 26,
+ "moments": 81426,
+ "quarters": {
+  "1": {
+   "moments": 20424,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 817.0,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20424
+  },
+  "2": {
+   "moments": 20032,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 801.3,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 19988
+  },
+  "3": {
+   "moments": 20323,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 812.9,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20323
+  },
+  "4": {
+   "moments": 20647,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 825.9,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20647
+  }
+ }
+}

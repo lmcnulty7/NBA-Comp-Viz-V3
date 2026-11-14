@@ -22,7 +22,6 @@ reports/viz/*.png
 models/*.joblib
 models/*.pkl
 models/emb_cache_*.pkl
-reports/viz/*.png
 reports/metrics.json
 reports/metrics.txt
 
@@ -92,6 +91,57 @@ data/triage/src/
 data/triage/renders/
 data/triage/side/
 
+# third-party tracking data (FIX_PLAN): scripts committed, data never
+data/sportvu/
+
+# QC contact sheets (28 MB of jpg, regenerable: track_qc.py --sheets)
+reports/qc_sheets/
+
 # ── Kept out of the public repo (2026-10-03) ──
 # the paper draft is its own private repo (lmcnulty7/NBA-Comp-Viz-V3-paper), checked out in place
 /paper/
+# R2.3 candidate: trained partly on SportVU-derived labels; kept on Drive (results/r23_20261005_0350), sha256 in reports/r23_verification.json
+models/court_grid_r23.pt
+
+# collection-plan pulls (collect/): raw responses and parquet live on the Mac or Drive, never in git
+data/collect/
+# rosters tables (analytics/rosters.py): derived from frames parquet on the Mac or Drive, never in git
+analytics/rosters/
+analytics/shot_frames/
+analytics/rebound_frames/
+analytics/possessions/
+
+# run_all.py outputs (lane I5): logs, the run summary, fixture-run reports, the local fixture root, the copied site
+logs/
+reports/run_all.md
+reports/fixtures/
+.fixture_root/
+site/
+
+# human gate signal files for the autonomous loop (docs/mac_runbook.md)
+gates/
+logs/loop/
+
+# ── V3 finish (PLAN.md, 2026-11-13) ──
+# Claude Code local state: agent worktrees and personal settings (the shared settings and agents are tracked)
+.claude/worktrees/
+.claude/settings.local.json
+# web: dependencies, build output, generated site data (export/site_data.py), private clips, test output
+web/node_modules/
+web/.next/
+web/out/
+web/data/
+web/public/data/
+web/data-public/
+web/media-private/
+web/test-results/
+web/playwright-report/
+# rebuilt frozen model objects and outputs (tools/frozen_models.py, D45)
+artifacts/
+# local drafts kept out of the repository (D40); the files stay on disk
+docs/STRATEGY_PROPOSALS.md
+docs/DATA_CONTRACT_local_draft.md
+docs/IDEAS.md
+# caches and regenerable screenshots (D40)
+data/gate_sheet/emb_cache_*.pkl
+portfolio/story/shots/

@@ -51,6 +51,27 @@ Y_LO, Y_HI = -25.0, COURT_WIDTH_FT + 25
 IMPOSSIBLE_STEP_FT = 3.0   # per 0.1 s (≈30 ft/s) — the DEVLOG 2026-07-05 A/B metric
 
 
+def _frame_record(idx: int, mapper, tracks, feet) -> dict:
+    """One QC sidecar row (FIX_PLAN A0): the solver's state and evidence for this frame plus every
+    box with its raw and stabilized foot. Read-only view of what the build already computed."""
+    hom, trk = mapper.last_hom, getattr(mapper, "tracker", None)
+    hull = mapper.keypoint_hull
+    return {
+        "frame": int(idx),
+        "state": (trk.state if trk is not None else "LEGACY") if hom is not None and hom.is_valid else "LOST",
+        "H": [float(v) for v in np.asarray(hom._H, np.float64).ravel()] if hom is not None and hom.is_valid else None,
+        "quality_ft": None if hom is None or hom.quality is None else float(hom.quality),
+        "n_inliers": int(hom.n_inliers) if hom is not None else 0,
+        "res_px": None if trk is None or trk.last_res_px is None else float(trk.last_res_px),
+        "n_match": int(trk.last_n_match) if trk is not None else 0,
+        "hull": [[float(x), float(y)] for x, y in hull.reshape(-1, 2)] if hull is not None else [],
+        "boxes": [{"tid": int(t.track_id), "bbox": [int(v) for v in t.bbox],
+                   "foot_raw": [float(t.foot_point[0]), float(t.foot_point[1])],
+                   "foot_stab": [float(feet[t.track_id][0][0]), float(feet[t.track_id][0][1])],
+                   "foot_corrected": bool(feet[t.track_id][1])} for t in tracks],
+    }
+
+
 def physics_report(series: dict, fps: float, stride: int) -> dict:
     """Label-free physics metrics on RAW court positions.
     series: {tid: [(frame, x, y), ...]}. Steps are only measured between
@@ -186,6 +207,7 @@ def main():
     extrap = {}                   # {(track_id, frame_idx): bool}  — projection outside keypoint hull
     hull_by_frame = {}            # {frame_idx: keypoint convex hull (pixel)}
     hom_by_frame = {}             # {frame_idx: CourtHomography}  — for reprojecting the court model
+    frame_recs = []               # QC sidecar (FIX_PLAN A0): per processed frame, what the solver did
     frame_order = []
     idx, n, n_H = args.start, 0, 0
     n_reads = 0   # successful frame reads — distinguishes I/O failure from gate rejection
@@ -216,6 +238,7 @@ def main():
         boxes_by_frame[idx] = [(t.track_id, [int(v) for v in t.bbox]) for t in tracks]
         hull_by_frame[idx] = mapper.keypoint_hull
         hom_by_frame[idx] = mapper.last_hom
+        frame_recs.append(_frame_record(idx, mapper, tracks, feet))
         if mapper.has_homography:
             n_H += 1
             for t in tracks:
@@ -356,6 +379,12 @@ def main():
                    "raw": raw_series.get(tid, []),
                    "cleaned": [[f, x, y, ed] for f, x, y, ed in pts]}
         for tid, pts in cleaned.items()}, indent=2))
+
+    # QC sidecar (FIX_PLAN A0): per-frame solver state + boxes, consumed by qc/track_qc.py
+    out_frames = config.TRACKING_DIR / f"{args.source.stem}_frames.json"
+    out_frames.write_text(json.dumps({"source": str(args.source), "fps": fps, "stride": args.stride,
+                                      "frames": frame_recs}))
+    log.info("QC sidecar → %s (%d frames)", out_frames, len(frame_recs))
 
     # identity audit trail: every accepted merge with its evidence, every refusal
     # which team id is the light kit (for downstream evals that label light/dark)

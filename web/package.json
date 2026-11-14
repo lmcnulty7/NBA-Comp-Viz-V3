@@ -1,0 +1,46 @@
+{
+  "name": "v3-site",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "node scripts/prepare-data.mjs && next dev",
+    "types": "node scripts/types.mjs --write",
+    "types:check": "node scripts/types.mjs --check",
+    "data:prepare": "node scripts/prepare-data.mjs",
+    "data:validate": "node scripts/validate-data.mjs --python",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint --max-warnings 0",
+    "copy:check": "node scripts/check-copy.mjs",
+    "reading:check": "node scripts/check-reading.mjs",
+    "contrast": "node scripts/check-contrast.mjs",
+    "hygiene": "node scripts/check-hygiene.mjs",
+    "test:unit": "playwright test --config playwright.unit.config.ts",
+    "test:browser": "playwright test --config playwright.config.ts",
+    "build": "node scripts/build.mjs",
+    "build:public": "node scripts/build.mjs --variant public",
+    "build:private": "node scripts/build.mjs --variant private",
+    "video:check": "node scripts/check-no-video.mjs",
+    "serve": "node scripts/serve-out.mjs",
+    "shots": "node scripts/shots.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "20.19.43",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "ajv": "8.20.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.6",
+    "json-schema-to-typescript": "16.0.0",
+    "typescript": "5.9.3"
+  }
+}

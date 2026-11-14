@@ -1,0 +1,123 @@
+{
+  "title": "Game and season prep",
+  "eyebrow": "Prep",
+  "intro": "Player views from the season models. Model predictions come from training games, out of fold. Descriptive tables come from training games. Held-out games feed none of them.",
+  "window": "Season {season}. {window}.",
+  "counts": "{shown} of {total} players are shown. {hidden} are left out because no value clears its minimum sample.",
+  "rules": {
+    "title": "Minimum samples",
+    "row": "{metric}: at least {n} {unit}.",
+    "intervals": "Every value shows its interval, or says it is a point estimate. Intervals come from resampling each player's own games."
+  },
+  "metrics": {
+    "shot_making": "Shot-making over expected",
+    "gravity": "Gravity",
+    "rebounding": "Rebounding",
+    "absence_risk": "Absence risk",
+    "similar": "Similar players"
+  },
+  "list": {
+    "title": "Players",
+    "caption": "Players with at least one view above its minimum sample",
+    "player": "Player",
+    "teams": "Teams",
+    "position": "Position",
+    "games": "Games",
+    "views": "Views shown",
+    "viewCount": "{n} of {total}",
+    "search": "Search players",
+    "sort": "Sort by",
+    "sortBy": {
+      "name": "Name, A to Z",
+      "games": "Games tracked, most first",
+      "shot_making": "Shot-making over expected, highest first",
+      "gravity": "Gravity, highest first",
+      "rebounding": "Rebounding, highest first",
+      "absence_risk": "Absence risk, model, highest first"
+    },
+    "column": {
+      "shot_making": "Shot-making over expected, per hundred attempts",
+      "gravity": "Gravity, feet",
+      "rebounding": "Rebounds per hundred chances",
+      "absence_risk": "Absence risk, model"
+    },
+    "reverse": "Reverse the order",
+    "count": "Showing {n} of {total} players.",
+    "below": "below the minimum sample",
+    "belowNote": "Players below the minimum sample for this view come last.",
+    "baselineNote": "Beside each value is the part of it that the baseline's own error explains, per hundred attempts. Read the two together: when the baseline under-predicts easy shots, a rim-heavy shot diet reads high.",
+    "baselineError": "baseline error {value}, point estimate",
+    "absenceNote": "The model value is not an injury forecast. It counts only whether he appears in the team's next tracked game.",
+    "empty": "No player matches this search."
+  },
+  "player": {
+    "back": "All players",
+    "meta": "{teams}. {games} games tracked.",
+    "position": "Position {position}.",
+    "hidden": "Not shown. {n} {unit} is below the minimum of {min}.",
+    "status": "Model status",
+    "notes": "Notes",
+    "value": "Value",
+    "interval": "Interval",
+    "sample": "Sample",
+    "shotMaking": {
+      "value": "Makes above expected, per hundred attempts",
+      "baselineError": "Part of that value the baseline's own error explains, per hundred attempts",
+      "fg": "Field-goal share",
+      "expected": "Expected share",
+      "residual": "Frozen model residual, per hundred attempts",
+      "baseline": "The expectation comes from {name}, which {selected}.",
+      "selected": "was the selected model",
+      "notSelected": "was not the selected model",
+      "ece": "Calibration error of that baseline, out of fold",
+      "unit": "attempts",
+      "baselineErrorNote": "Read this beside the value above. When the baseline under-predicts easy shots, a rim-heavy shot diet reads high.",
+      "residualNote": "Given only for reference. The frozen model already knows the shooter, so this is not a measure over expected.",
+      "baselineName": "The shot-making baseline",
+      "calibration": {
+        "title": "How well the baseline is calibrated",
+        "intro": "Out of fold, by bin of predicted chance. Where observed and predicted differ, the baseline's own error moves a player's value.",
+        "bin": "Predicted chance",
+        "n": "Shots",
+        "predicted": "Predicted",
+        "observed": "Observed"
+      }
+    },
+    "gravity": {
+      "value": "Extra defender distance, in feet",
+      "unit": "possessions"
+    },
+    "rebounding": {
+      "value": "Rebounds, per hundred chances",
+      "expected": "Model expectation, per hundred chances",
+      "unit": "chances",
+      "gap": "The model expectation already uses his rate in other games, so the gap between the two is not a skill number."
+    },
+    "absence": {
+      "model": "Model probability of missing the next tracked game",
+      "observed": "Observed share of games followed by an absence",
+      "absent": "Absences",
+      "observedOnly": "The model output was not stored, so only the observed share is shown.",
+      "caution": "Neither value is an injury forecast. Both count only whether he appears in the team's next tracked game.",
+      "unit": "games",
+      "absentOf": "after {games} games"
+    },
+    "similar": {
+      "caption": "Nearest players in the style embedding",
+      "unavailable": "The style embedding was not stored, so no similar players are shown.",
+      "rank": "Rank",
+      "name": "Player",
+      "distance": "Distance",
+      "unit": "possessions",
+      "distanceNote": "Distance in the style embedding. Smaller means more alike. Each distance is a point estimate."
+    },
+    "descriptive": "Descriptive: read from training games, not a model prediction.",
+    "hiddenCount": "{hidden} of {total} players have no value above its minimum sample, so they have no page.",
+    "minSample": "Minimum sample: {min} {unit}. This player has {n}.",
+    "barNote": "The line is the interval. The axis spans every shown player.",
+    "check": {
+      "passed": "Rebuilt output checked: {compared}. Largest difference {diff} {unit}, within the tolerance of {tolerance}.",
+      "failed": "Rebuilt output failed its check: {compared}. Largest difference {diff} {unit}, above the tolerance of {tolerance}."
+    }
+  }
+}

@@ -1,0 +1,38 @@
+STAGE 1 SCORECARD  gsw_phx_2016 (held-out game) vs SportVU 12.16.2015.PHX.at.GSW  build scal_A_full_s3 (data/sportvu/replay/scal_A_full_s3)
+truth: 1447 testable of 9500 window frames; untestable 84.8% (no truth H fits). Every row below is on testable frames only.
+untestable by cause (sportvu/truth.py): untestable_inliers 3961, untestable_boxes 1835, untestable_match 1155, unmapped 1064, untestable_noH 33, no_moment 5
+
+court line error  n/a       not measurable (truth H fits the feet, not the court; diagnostic only: p50 17.19 px vs the truth template)
+                            target reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median; n = 1447 frames
+position error    not met   p50 1.98 ft, p90 5.02 ft
+                            target p50 <= 2.0 ft, p90 <= 5.0 ft; n = 11292 players
+near-field bias   not met   near -0.54 ft, far +1.67 ft (toward camera)
+                            target median toward the camera within +-0.5 ft in the near and the far third; n = 3097 / 3155
+coverage          MET       99.3% (844.0 of 849.8 live wide s; 0.3 s accepted on live non-wide)
+                            target >= 50% of live wide seconds; n = 883.1 live s
+missed players    not met   25.1%
+                            target <= 5%; n = 14020 in frame
+ghost boxes       not met   15.1% non-referee (15.3% with referees; 280 referee boxes)
+                            target <= 5%, referees excluded by class; n = 12637 boxes
+team labels       not met   81.8%
+                            target >= 95%; n = 10829
+identity          reported  21.68 id switches / possession (22.14 before linking); jersey: not measurable
+                            target reported; no target yet (720p ceiling); n = 56 possessions
+generalisation    -         not measurable
+                            target held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free; n = -
+
+reported, not judged:
+  court line error: not measurable: the truth H fits the players' feet, not the painted court (reports/sportvu_truth_line_check.txt: about as far from the paint as V3's H)
+
+not measurable:
+  jersey-read rate: the build wrote no <window>_jersey.json: jersey OCR (CLAIMS C2) did not run on these windows (no saved crops)
+  generalisation: scored on the held-out arena's games (reports/scorecard/cle_*__scal_A_full_s3.txt, ratio to this game); the held-out era game (2013) has no public SportVU log and is reported with label-free indicators only
+
+caveats:
+  - testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled
+  - the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet
+  - local windowed rebuild of the harvest sections (25 windows of running clock scored), not the production artifacts
+  - wide reference = gate v2 at its v2 threshold; gate v2 was trained on human-verified harvest frames including this game (in-sample here, so closer to the human label than a held-out gate); live = running clock read by OCR at 1 s resolution
+  - referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)
+  - id switches are counted between consecutive testable frames (sparse samples), so a switch and switch-back between samples is missed: a lower bound
+  - team accuracy uses the best A/B to team mapping per window, an upper bound on what a fixed mapping would score

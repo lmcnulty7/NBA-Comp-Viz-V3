@@ -1,0 +1,8 @@
+R2.3 DATASET (data/sportvu/r23_dataset, gitignored): grid 13x7 YOLO-pose
+  train: old 4737 (1579 images x 3) + R1.3 4779 | val: old 279 + R1.3 1036 (whole windows)
+    gsw_bkn_2015   windows  58 (val  9) | frames train 1351, val 137
+    gsw_cha_2016   windows  57 (val  9) | frames train 1133, val 344
+    gsw_ind_2016   windows  80 (val 12) | frames train 1227, val 200
+    gsw_sac_2015   windows  59 (val  9) | frames train 1068, val 355
+  R1.3 visible grid points per frame p10/p50/p90: 30/38/45
+  skipped: none | held-out guard: 10831 names checked, none held out

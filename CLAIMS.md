@@ -5,6 +5,118 @@ remaining task must serve a claim below; anything that serves no claim is out
 of scope. A claim ships only with its evidence artifact and its caveats — the
 project's differentiator is epistemic hygiene, and this file is its contract.
 
+## Stage 1 definition of done (ROADMAP.md, written 2026-10-03)
+
+Targets, not claims. A row becomes a claim only when the scorecard measures it on held-out
+footage; until then the V3 column is the baseline to beat. Status: CONFIRMED by Lucien on
+2026-10-03 (ROADMAP gate after R0.3) with two changes: the court line row is reported, not
+pass/fail, until the truth can resolve it, and the held-out era is reported with label-free
+indicators only. The court stage is judged on position error and near-field bias.
+
+| Metric | How measured | Target | V3 baseline, gsw_phx_2016 |
+|---|---|---|---|
+| Court line error | px between the projected template and the template under the SportVU truth H | reported. Goal <= 3 px on 95% of accepted wide frames; pass/fail only once the truth fit residual is <= 1.5 px median (the truth must be twice as fine as the goal) | not measurable (corrected 2026-10-04: the truth H fits the players' feet, not the painted court; reports/sportvu_truth_line_check.txt). The earlier 0.0% <= 3 px / p50 26.7 px compared against that truth and is withdrawn |
+| Position error, visible players | pipeline court position vs SportVU, all matched players | p50 <= 2.0 ft, p90 <= 5.0 ft | p50 7.33 ft, p90 15.35 ft (n=11,292 players) |
+| Near-field bias | median error toward the camera, near third vs far third | within +-0.5 ft | near third -1.02 ft, far third +1.67 ft |
+| Coverage | share of live wide-shot seconds with accepted positions | reported; >= 50% of live play | 98.6% (838 of 850 live wide s; V3 has no acceptance rule) |
+| Missed players | SportVU players in frame with no box within 2.5 ft | <= 5% | 25.1% (n=14,020; projected through the truth H away from the fitted feet, see the correction below) |
+| Ghost boxes | boxes > 3 ft from any player, referees excluded by class | <= 5% | 15.1% non-referee (15.3% with referees; 280 of 12,637 boxes overlap a referee detection; same caveat as missed players) |
+| Team labels | vs the SportVU team of the matched player | >= 95% | 81.8% (n=10,829) |
+| Identity | id switches per possession vs SportVU player ids; jersey-read rate | reported; no target yet (720p ceiling) | 21.7 id switches per possession (56 shot-clock possessions); jersey-read rate not measurable (no OCR on the windows) |
+| Generalisation | the same metrics on an arena never trained on; the held-out era (2013, no SportVU) gets label-free indicators only | held-out arena within 1.5x of the held-out game; era reported, not pass/fail | held-out arena CLE (R2.1): cle_nyk_2015 position p50 11.04 / p90 18.40 ft (1.51x / 1.20x of phx, not met), near +2.87 / far +7.61 ft; cle_gsw_2016 p50 9.51 / p90 17.14 ft (1.30x / 1.12x, met), near +1.60 / far +4.50 ft, coverage 38.5%. Era not measured yet |
+
+V3 column: reports/scorecard/gsw_phx_2016__v3.{json,txt} (ROADMAP R0.3, 2026-10-03). Caveat:
+testable frames only (1,447 of 9,500 rebuilt window frames, 15%, where a truth H could be fitted),
+so the numbers are optimistic; the truth H passes through the pipeline's own boxes; a local
+windowed rebuild, not the production artifacts; wide shots judged by gate v2, which saw phx frames
+in training; the referee class is the V3 detector's own, its recall never measured; id switches
+are counted on sparse samples (a lower bound).
+
+Generalisation cell: reports/scorecard/cle_nyk_2015__v3.* and cle_gsw_2016__v3.* (ROADMAP R2.1,
+2026-10-04), same bench and same B4 truth method as phx. Caveat: far fewer testable frames than phx
+(485 of 6,393 and 158 of 3,380; V3 finds fewer than 6 boxes on 2,896 and 1,141 frames there), so the
+CLE numbers are thinner and lean further toward frames V3 handles; cle_gsw_2016 has 830 s of SportVU
+clock gaps (713 frames with no moment) and 4 of its 34 windows (25 s, short leftovers) failed to build
+locally; gate v2, which defines the wide seconds, saw another CLE home game in training. The ratio is
+per game against phx for the same build; R2.7 reports the arena as a whole.
+
+Court stage candidate r23 (ROADMAP R2.3, adopted 2026-10-04 under the amended rule; the production
+default stays V3's grid model until the court-stage gate, switch COURT_GRID_WEIGHTS). V3's grid
+model fine-tuned on the R1.3 SportVU labels of 4 Oracle training games; same detector, tracker and
+frames. Position error p50 / p90: gsw_phx_2016 1.92 [1.79, 2.16] / 4.98 [4.42, 6.02] ft (V3 7.33 /
+15.35); cle_nyk_2015 2.25 / 5.46 ft (V3 11.04 / 18.40); cle_gsw_2016 2.22 / 5.50 ft (V3 9.51 /
+17.14); near / far-third bias -0.67 / +1.52, -0.63 / +1.66, -0.12 / +2.00 ft; generalisation 1.17x
+and 1.16x of phx (met). Paint check without SportVU: phx gold key edge median 14.9 px (V3) -> 7.0 px.
+Artifacts: reports/scorecard/*__r23.*, reports/scorecard/compare__v3__public__r23.txt,
+reports/r23_verification.{json,txt}. Caveats: intervals are window-cluster bootstrap 95%; the phx
+position row is MET on the point estimate only (P(p90 <= 5.0 ft) = 0.51) and the CLE games do not
+meet it; scored frames are the B4 testable set (4.7..15% of window frames; a truth-free estimate on
+the rest gives r23 about 3.0..3.8 ft median); phx shares arena and season with the training games,
+so CLE is the cross-arena evidence (see the CLE-building correction above); the truth H fits the
+painted lines worse than r23, so about 2 ft may be near the truth's own floor; team labels dip on
+CLE within noise (cle_nyk -1.0 pt, paired +0.15 [-0.12, +0.49]; cle_gsw -0.2 pt); cle_gsw coverage
+39.7% stays under the 50% floor (V3 38.5%).
+
+Correction (2026-10-04, found at ROADMAP R1.3): the per-frame truth H (sportvu/truth.py) is an
+8-parameter homography fitted to 6..10 feet bunched in one part of the court. Drawn over the frame it
+sits about as far from the painted lines as V3's own H (A1 ridge distance median 39.2 px vs 45.8 px on
+252 phx frames; worse than V3's on 34% of frames; reports/sportvu_truth_line_check.{json,txt}). It is
+valid near the fitted feet only. Consequences: the court line row is not measurable with it (the
+earlier 0.0% / 26.7 px and the 6.0 px "floor" are withdrawn); missed-player and ghost-box counts,
+which project through it away from the fitted players, carry that error; position error and
+near-field bias, which compare only players matched near the feet, stand; R1.3's court keypoint
+labels cannot be projected through it. The scorecard's n differ from A8 because it re-matches every build's feet through
+H_truth at 5 ft instead of reusing B4's stored pairs. The scorecard reproduces
+row A8 (B5, reports/sportvu_phx.*) within 0.03 ft on position error.
+
+Physical ceiling: one 720p camera gives about 1.5 ft median at best. Hawk-Eye (14 cameras, about
+1 inch) is matched in output format and in honesty about error, not in accuracy, and the product
+says so.
+
+**Measurement protocol.**
+- Held-out game: gsw_phx_2016 (2015-12-16, PHX at GSW, Oracle Arena; SportVU log
+  12.16.2015.PHX.at.GSW).
+- Held-out arena: CLE (Quicken Loans Arena), chosen 2026-10-04 at the [HUMAN] gate after ROADMAP
+  R1.1 because OKC and NYK have no game with a usable broadcast (reports/sportvu_manifest.txt).
+  Scored on 12.23.2015 NYK at CLE and 01.18.2016 GSW at CLE (the latter with 830 s of SportVU clock
+  gaps). The whole arena is held out: no game played there enters training. Correction
+  (2026-10-04, R2.3 verification, reports/r23_verification.txt): V3's grid training set (Roboflow
+  nbacourt, 2023-24 broadcasts) holds 56 frames of 2023-24 Cleveland home games in the same
+  building, so for every grid model the CLE arena means unseen games and season in a building seen
+  in 2023-24 footage, not an unseen building. No frame of the held-out games themselves is in any
+  training set.
+- Held-out era: gsw_nyk_curry54 (2013-02-27, GSW at NYK, the 2013 production game), untouched by
+  training. The public SportVU logs cover 2015-16 only, so this game has no tracking truth: it is
+  reported with the label-free indicators (qc/, track_qc.py) and is not a pass/fail row (decided
+  2026-10-03).
+- Nothing is trained, tuned, calibrated or thresholded on a held-out set. Thresholds come from the
+  train arenas. Held-out sets are reported once per adoption decision. The splits live in
+  `sportvu/splits.json` (ROADMAP R1.4) and every training script refuses held-out ids.
+- Caveat (found at R1.4, 2026-10-04; reports/sportvu_splits.txt): gate v2 (models/trained_head_v2,
+  the wide-frame gate) was trained before the splits existed on harvest frames that include 294
+  frames of gsw_phx_2016, 299 of gsw_nyk_curry54 and 289 of gsw_cle_xmas16 (a CLE home game). It
+  places no court lines and no players, but it picks the wide frames that the scorecard scores and
+  counts for coverage, so wide-frame selection on those games is optimistic, and "untouched by
+  training" above holds for every court and position model, not for gate v2. Builds are compared
+  on the same cached frames, so adoption verdicts are unaffected. Its training scripts now refuse
+  to run until those games are dropped.
+- Every row reports its n, and beside it the untestable share (frames where no truth H fits) and the
+  coverage. A rejected frame carries no positions, never wrong ones, and rejections are counted
+  per rule per game.
+- Adoption: a stage ships only if, on the held-out game AND the held-out arena scorecards, it
+  improves every pass/fail row the stage touches and worsens no pass/fail row. Rows marked reported
+  (court line error until its truth can resolve 3 px, identity, the held-out era) are printed
+  beside the verdict but do not decide adoption. Coverage is a floor: it may fall but must stay
+  >= 50% of live wide seconds.
+  Amended 2026-10-04 (Lucien, at R2.3): a row counts as worse only when its paired change
+  (window-cluster bootstrap 95% interval, on the observations both builds score) excludes zero;
+  "improves" is the point estimate; a floor the baseline already fails must not fall further.
+
+**The single scorecard.** `python -m sportvu.bench <build_dir>` (ROADMAP R0.3) writes
+`reports/scorecard/<game>__<build>.{json,txt}`; the V3 baseline is
+`reports/scorecard/gsw_phx_2016__v3.{json,txt}`. Every number in this section comes from a file
+under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewrites it.
+
 ## Tier A — system & validation claims (evidence exists today)
 
 | # | Claim | Evidence | Status |
@@ -17,6 +129,7 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 | A5 | Auto-label accuracy is **measured, not assumed** (LABEL_SCHEMA rule 4, 300 stratified accepted labels, human-judged): the **agreement band is 95.0% [88.8, 97.8] (n=100)** and is the usable dataset; the **Claude-adjudicated band measures 6.7–20.0% (n=200) and is NOT used for training**, along with the attributes riding on it | reports/label_audit.*; data/label_audit/labels.json | SHIPPED 2026-09-12 |
 | A6 | The qualification gate protected only classes with an in-house baseline; classes exempted as "nothing to compare against" (rim/backboard/scorebug/ball + attributes) are exactly the ones that failed the audit — recorded as a design defect, not a footnote | reports/label_audit.*; DEVLOG 09-12 | SHIPPED 2026-09-12 |
 | A7 | The judge's frame-level shot_type labels were audited before use (200 class-stratified frames, human): closeup-claimed 98.0% [89.5, 99.6] but **wide-claimed only 68.8% [57.9, 77.8]** — ~3 in 10 "wide" frames are closeups — so they are NOT used as gate training data for the wide class | reports/shot_type_audit.*; data/shot_type_audit/labels.json | SHIPPED 2026-10-02 |
+| A8 (proposed 2026-10-03, FIX_PLAN B5) | On the held-out game gsw_phx_2016 against SportVU tracking (12.16.2015 PHX at GSW), on the frames where a truth homography could be fitted (1,447 of 9,500 rebuilt window frames, 15%): player position error **p50 7.3 ft, p90 15.4 ft** under the pipeline H, compressed toward mid-court (far players pulled 1.7 ft toward the camera, near players pushed 1.0 ft away); **25.1% of in-frame players have no box within 2.5 ft; 15.3% of boxes are more than 3 ft from any player (referees included)**; team label accuracy **81.8%** (n=11,240); pipeline primary man = SportVU nearest opponent **48.1%** (n=160, a proxy for C1, not the human-labeled matchup) | reports/sportvu_phx.*; reports/sportvu_truth_gsw_phx_2016.json; sportvu/ | PROPOSED, not a shipped claim. Correction 2026-10-04: the missed-player and ghost-box counts project through a truth H that is valid only near the fitted feet (see the Stage 1 section; reports/sportvu_truth_line_check.txt); position error stands. Caveats: testable frames only (the untestable 85% are where the pipeline H was too far off to match 6 players, so these numbers are optimistic); truth H derived through the pipeline's own boxes; local windowed rebuild, not the production artifacts (same code, models, h264 source); gate v2 saw phx frames (court, detector, teams, identity did not) |
 
 ## Tier B — team-level measurement claims (Phase 1 gates these)
 
@@ -66,3 +179,8 @@ project's differentiator is epistemic hygiene, and this file is its contract.
 4. **Data provenance:** broadcast video fetched from public YouTube uploads for
    research/education; no video redistributed; repo and report carry derived
    data and fair-use stills only.
+   Amended 2026-11-14 (PLAN.md D18 and D21; drafted by Claude Code under D37 for Lucien's review):
+   short broadcast clips are shown only on a private, access-controlled copy of the site; the public
+   site and the repository carry stills and derived data only.
+   The public site carries no SportVU frame data; player positions appear only on the private copy
+   (PLAN.md D60, D61).

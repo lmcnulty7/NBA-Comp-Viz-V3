@@ -1,0 +1,487 @@
+[
+ {
+  "clip": "gsw_phx_2016_s00_w00",
+  "frames": 646,
+  "frames_with_H": 646,
+  "frames_scored": 646,
+  "rule_counts": {
+   "team_count": 127,
+   "second_tracker": 391,
+   "speed": 202,
+   "offcourt_feet": 40
+  },
+  "frames_failing_any": 511,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 53.89,
+  "dist_px_p90": 80.65,
+  "score_median": 0.0821,
+  "support_median": 0.0986,
+  "share_far": 0.856
+ },
+ {
+  "clip": "gsw_phx_2016_s08_w00",
+  "frames": 920,
+  "frames_with_H": 890,
+  "frames_scored": 890,
+  "rule_counts": {
+   "no_H": 30,
+   "second_tracker": 607,
+   "offcourt_feet": 13,
+   "speed": 125,
+   "team_count": 269
+  },
+  "frames_failing_any": 753,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 51.57,
+  "dist_px_p90": 67.68,
+  "score_median": 0.0902,
+  "support_median": 0.1046,
+  "share_far": 0.8146
+ },
+ {
+  "clip": "gsw_phx_2016_s04_w00",
+  "frames": 334,
+  "frames_with_H": 334,
+  "frames_scored": 334,
+  "rule_counts": {
+   "second_tracker": 288,
+   "speed": 54,
+   "team_count": 2,
+   "offcourt_feet": 7,
+   "scorebug": 1
+  },
+  "frames_failing_any": 315,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 48.8,
+  "dist_px_p90": 64.9,
+  "score_median": 0.0858,
+  "support_median": 0.0836,
+  "share_far": 0.7695
+ },
+ {
+  "clip": "gsw_phx_2016_s09_w01",
+  "frames": 263,
+  "frames_with_H": 263,
+  "frames_scored": 263,
+  "rule_counts": {
+   "second_tracker": 208,
+   "speed": 60,
+   "team_count": 32,
+   "offcourt_feet": 24
+  },
+  "frames_failing_any": 231,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 48.71,
+  "dist_px_p90": 85.38,
+  "score_median": 0.0888,
+  "support_median": 0.1054,
+  "share_far": 0.692
+ },
+ {
+  "clip": "gsw_phx_2016_s04_w02",
+  "frames": 165,
+  "frames_with_H": 165,
+  "frames_scored": 165,
+  "rule_counts": {
+   "team_count": 22,
+   "second_tracker": 155,
+   "speed": 1
+  },
+  "frames_failing_any": 156,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 48.16,
+  "dist_px_p90": 72.52,
+  "score_median": 0.0933,
+  "support_median": 0.1071,
+  "share_far": 0.8545
+ },
+ {
+  "clip": "gsw_phx_2016_s00_w01",
+  "frames": 384,
+  "frames_with_H": 384,
+  "frames_scored": 384,
+  "rule_counts": {
+   "second_tracker": 291,
+   "speed": 61,
+   "team_count": 38,
+   "offcourt_feet": 1
+  },
+  "frames_failing_any": 316,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 48.05,
+  "dist_px_p90": 71.16,
+  "score_median": 0.0955,
+  "support_median": 0.1161,
+  "share_far": 0.7292
+ },
+ {
+  "clip": "gsw_phx_2016_s07_w00",
+  "frames": 919,
+  "frames_with_H": 919,
+  "frames_scored": 919,
+  "rule_counts": {
+   "second_tracker": 642,
+   "speed": 333,
+   "offcourt_feet": 153,
+   "scorebug": 1,
+   "team_count": 83
+  },
+  "frames_failing_any": 786,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 47.75,
+  "dist_px_p90": 69.88,
+  "score_median": 0.0911,
+  "support_median": 0.1102,
+  "share_far": 0.7301
+ },
+ {
+  "clip": "gsw_phx_2016_s09_w03",
+  "frames": 235,
+  "frames_with_H": 235,
+  "frames_scored": 235,
+  "rule_counts": {
+   "team_count": 49,
+   "second_tracker": 156,
+   "speed": 56,
+   "offcourt_feet": 7
+  },
+  "frames_failing_any": 193,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 47.75,
+  "dist_px_p90": 72.84,
+  "score_median": 0.0855,
+  "support_median": 0.1064,
+  "share_far": 0.7191
+ },
+ {
+  "clip": "gsw_phx_2016_s07_w01",
+  "frames": 64,
+  "frames_with_H": 61,
+  "frames_scored": 61,
+  "rule_counts": {
+   "no_H": 3,
+   "offcourt_feet": 6,
+   "speed": 49,
+   "second_tracker": 49
+  },
+  "frames_failing_any": 62,
+  "second_disagreement_median": 0.4143,
+  "dist_px_median": 47.21,
+  "dist_px_p90": 85.95,
+  "score_median": 0.0797,
+  "support_median": 0.0993,
+  "share_far": 0.7541
+ },
+ {
+  "clip": "gsw_phx_2016_s09_w02",
+  "frames": 243,
+  "frames_with_H": 199,
+  "frames_scored": 199,
+  "rule_counts": {
+   "no_H": 44,
+   "second_tracker": 131,
+   "speed": 82,
+   "team_count": 50,
+   "offcourt_feet": 6
+  },
+  "frames_failing_any": 189,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 46.8,
+  "dist_px_p90": 67.24,
+  "score_median": 0.0976,
+  "support_median": 0.1291,
+  "share_far": 0.6834
+ },
+ {
+  "clip": "gsw_phx_2016_s09_w04",
+  "frames": 35,
+  "frames_with_H": 35,
+  "frames_scored": 35,
+  "rule_counts": {
+   "team_count": 9,
+   "second_tracker": 27,
+   "speed": 1
+  },
+  "frames_failing_any": 32,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 46.67,
+  "dist_px_p90": 61.02,
+  "score_median": 0.1029,
+  "support_median": 0.1656,
+  "share_far": 0.7429
+ },
+ {
+  "clip": "gsw_phx_2016_s01_w01",
+  "frames": 276,
+  "frames_with_H": 276,
+  "frames_scored": 276,
+  "rule_counts": {
+   "second_tracker": 188,
+   "speed": 85,
+   "team_count": 94,
+   "offcourt_feet": 22
+  },
+  "frames_failing_any": 241,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 46.35,
+  "dist_px_p90": 74.97,
+  "score_median": 0.0961,
+  "support_median": 0.1227,
+  "share_far": 0.6341
+ },
+ {
+  "clip": "gsw_phx_2016_s09_w00",
+  "frames": 269,
+  "frames_with_H": 269,
+  "frames_scored": 269,
+  "rule_counts": {
+   "speed": 63,
+   "second_tracker": 170,
+   "offcourt_feet": 7,
+   "scorebug": 1,
+   "team_count": 2
+  },
+  "frames_failing_any": 191,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 45.84,
+  "dist_px_p90": 75.64,
+  "score_median": 0.088,
+  "support_median": 0.1084,
+  "share_far": 0.6729
+ },
+ {
+  "clip": "gsw_phx_2016_s01_w00",
+  "frames": 584,
+  "frames_with_H": 584,
+  "frames_scored": 584,
+  "rule_counts": {
+   "second_tracker": 400,
+   "speed": 246,
+   "offcourt_feet": 40,
+   "team_count": 17,
+   "scorebug": 2
+  },
+  "frames_failing_any": 481,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 44.89,
+  "dist_px_p90": 78.31,
+  "score_median": 0.098,
+  "support_median": 0.1081,
+  "share_far": 0.6455
+ },
+ {
+  "clip": "gsw_phx_2016_s05_w00",
+  "frames": 394,
+  "frames_with_H": 394,
+  "frames_scored": 394,
+  "rule_counts": {
+   "second_tracker": 315,
+   "speed": 120,
+   "offcourt_feet": 23,
+   "team_count": 13
+  },
+  "frames_failing_any": 352,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 44.89,
+  "dist_px_p90": 71.2,
+  "score_median": 0.1002,
+  "support_median": 0.1187,
+  "share_far": 0.6701
+ },
+ {
+  "clip": "gsw_phx_2016_s05_w02",
+  "frames": 169,
+  "frames_with_H": 169,
+  "frames_scored": 169,
+  "rule_counts": {
+   "speed": 83,
+   "second_tracker": 95,
+   "offcourt_feet": 18
+  },
+  "frames_failing_any": 135,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 44.76,
+  "dist_px_p90": 83.18,
+  "score_median": 0.094,
+  "support_median": 0.1171,
+  "share_far": 0.6686
+ },
+ {
+  "clip": "gsw_phx_2016_s02_w01",
+  "frames": 134,
+  "frames_with_H": 134,
+  "frames_scored": 134,
+  "rule_counts": {
+   "second_tracker": 98,
+   "speed": 58,
+   "offcourt_feet": 23,
+   "team_count": 8,
+   "scorebug": 1
+  },
+  "frames_failing_any": 120,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 44.41,
+  "dist_px_p90": 69.28,
+  "score_median": 0.0892,
+  "support_median": 0.1089,
+  "share_far": 0.6642
+ },
+ {
+  "clip": "gsw_phx_2016_s02_w00",
+  "frames": 787,
+  "frames_with_H": 787,
+  "frames_scored": 787,
+  "rule_counts": {
+   "second_tracker": 543,
+   "speed": 200,
+   "team_count": 107,
+   "offcourt_feet": 32,
+   "scorebug": 1
+  },
+  "frames_failing_any": 660,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 43.93,
+  "dist_px_p90": 65.32,
+  "score_median": 0.0973,
+  "support_median": 0.103,
+  "share_far": 0.6277
+ },
+ {
+  "clip": "gsw_phx_2016_s03_w00",
+  "frames": 669,
+  "frames_with_H": 668,
+  "frames_scored": 668,
+  "rule_counts": {
+   "second_tracker": 507,
+   "speed": 173,
+   "offcourt_feet": 33,
+   "team_count": 62,
+   "scorebug": 2,
+   "no_H": 1
+  },
+  "frames_failing_any": 574,
+  "second_disagreement_median": 0.5,
+  "dist_px_median": 43.93,
+  "dist_px_p90": 64.85,
+  "score_median": 0.0978,
+  "support_median": 0.108,
+  "share_far": 0.6602
+ },
+ {
+  "clip": "gsw_phx_2016_s05_w01",
+  "frames": 317,
+  "frames_with_H": 317,
+  "frames_scored": 317,
+  "rule_counts": {
+   "second_tracker": 234,
+   "team_count": 34,
+   "speed": 85,
+   "offcourt_feet": 25
+  },
+  "frames_failing_any": 261,
+  "second_disagreement_median": 0.4,
+  "dist_px_median": 43.17,
+  "dist_px_p90": 66.32,
+  "score_median": 0.104,
+  "support_median": 0.1022,
+  "share_far": 0.6372
+ },
+ {
+  "clip": "gsw_phx_2016_s04_w01",
+  "frames": 385,
+  "frames_with_H": 347,
+  "frames_scored": 347,
+  "rule_counts": {
+   "no_H": 38,
+   "second_tracker": 239,
+   "team_count": 78,
+   "offcourt_feet": 14,
+   "speed": 84
+  },
+  "frames_failing_any": 322,
+  "second_disagreement_median": 0.375,
+  "dist_px_median": 42.85,
+  "dist_px_p90": 65.33,
+  "score_median": 0.0996,
+  "support_median": 0.0984,
+  "share_far": 0.5908
+ },
+ {
+  "clip": "gsw_phx_2016_s06_w00",
+  "frames": 839,
+  "frames_with_H": 826,
+  "frames_scored": 826,
+  "rule_counts": {
+   "speed": 316,
+   "second_tracker": 642,
+   "offcourt_feet": 50,
+   "team_count": 109,
+   "scorebug": 3,
+   "no_H": 13
+  },
+  "frames_failing_any": 785,
+  "second_disagreement_median": 0.4444,
+  "dist_px_median": 42.43,
+  "dist_px_p90": 69.78,
+  "score_median": 0.1005,
+  "support_median": 0.1169,
+  "share_far": 0.5702
+ },
+ {
+  "clip": "gsw_phx_2016_s01_w02",
+  "frames": 109,
+  "frames_with_H": 108,
+  "frames_scored": 108,
+  "rule_counts": {
+   "no_H": 1,
+   "second_tracker": 54,
+   "speed": 13,
+   "team_count": 5
+  },
+  "frames_failing_any": 65,
+  "second_disagreement_median": 0.3,
+  "dist_px_median": 39.88,
+  "dist_px_p90": 51.49,
+  "score_median": 0.099,
+  "support_median": 0.1149,
+  "share_far": 0.4907
+ },
+ {
+  "clip": "gsw_phx_2016_s06_w01",
+  "frames": 123,
+  "frames_with_H": 117,
+  "frames_scored": 117,
+  "rule_counts": {
+   "no_H": 6,
+   "second_tracker": 65,
+   "offcourt_feet": 4,
+   "speed": 18,
+   "scorebug": 1,
+   "team_count": 76
+  },
+  "frames_failing_any": 104,
+  "second_disagreement_median": 0.3333,
+  "dist_px_median": 35.75,
+  "dist_px_p90": 51.95,
+  "score_median": 0.1194,
+  "support_median": 0.1206,
+  "share_far": 0.3675
+ },
+ {
+  "clip": "gsw_phx_2016_s03_w01",
+  "frames": 237,
+  "frames_with_H": 237,
+  "frames_scored": 237,
+  "rule_counts": {
+   "speed": 16,
+   "second_tracker": 202
+  },
+  "frames_failing_any": 208,
+  "second_disagreement_median": 0.7778,
+  "dist_px_median": 34.38,
+  "dist_px_p90": 45.76,
+  "score_median": 0.1136,
+  "support_median": 0.1165,
+  "share_far": 0.2278
+ }
+]

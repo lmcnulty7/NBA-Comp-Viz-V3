@@ -1,0 +1,107 @@
+{
+ "endpoint": "boxscoreplayertrackv3",
+ "params": {
+  "GameID": "0021500144",
+  "StartPeriod": 0,
+  "EndPeriod": 14,
+  "StartRange": 0,
+  "EndRange": 31800,
+  "RangeType": 0
+ },
+ "fetched_at": "2026-11-05T00:00:00Z",
+ "note": "hand-built in the documented stats.nba.com response shape (headers as nba_api lists them) because no host answers from the build session; replace with real trimmed responses: python -m collect.probe --save-fixtures tests/fixtures/collect",
+ "body": {
+  "meta": {
+   "version": 1
+  },
+  "boxScorePlayerTrack": {
+   "gameId": "0021500144",
+   "awayTeamId": 1610612751,
+   "homeTeamId": 1610612744,
+   "homeTeam": {
+    "teamId": 1610612744,
+    "teamCity": "Golden State",
+    "teamName": "Warriors",
+    "teamTricode": "GSW",
+    "teamSlug": "warriors",
+    "players": [
+     {
+      "personId": 201939,
+      "firstName": "Stephen",
+      "familyName": "Curry",
+      "nameI": "S. Curry",
+      "playerSlug": "stephen-curry",
+      "position": "G",
+      "comment": "",
+      "jerseyNum": "30",
+      "statistics": {
+       "minutes": "34:12",
+       "speed": 4.5,
+       "distance": 2.7,
+       "reboundChancesOffensive": 1,
+       "reboundChancesDefensive": 5,
+       "reboundChancesTotal": 6,
+       "touches": 80,
+       "secondaryAssists": 1,
+       "freeThrowAssists": 0,
+       "passes": 50,
+       "assists": 7,
+       "contestedFieldGoalsMade": 4,
+       "contestedFieldGoalsAttempted": 9,
+       "contestedFieldGoalPercentage": 0.444,
+       "uncontestedFieldGoalsMade": 5,
+       "uncontestedFieldGoalsAttempted": 8,
+       "uncontestedFieldGoalsPercentage": 0.625,
+       "fieldGoalPercentage": 0.529,
+       "defendedAtRimFieldGoalsMade": 1,
+       "defendedAtRimFieldGoalsAttempted": 3,
+       "defendedAtRimFieldGoalPercentage": 0.333
+      }
+     }
+    ]
+   },
+   "awayTeam": {
+    "teamId": 1610612751,
+    "teamCity": "Brooklyn",
+    "teamName": "Nets",
+    "teamTricode": "BKN",
+    "teamSlug": "nets",
+    "players": [
+     {
+      "personId": 201599,
+      "firstName": "Brook",
+      "familyName": "Lopez",
+      "nameI": "B. Lopez",
+      "playerSlug": "brook-lopez",
+      "position": "C",
+      "comment": "",
+      "jerseyNum": "30",
+      "statistics": {
+       "minutes": "34:12",
+       "speed": 3.9,
+       "distance": 2.2,
+       "reboundChancesOffensive": 1,
+       "reboundChancesDefensive": 5,
+       "reboundChancesTotal": 6,
+       "touches": 60,
+       "secondaryAssists": 1,
+       "freeThrowAssists": 0,
+       "passes": 50,
+       "assists": 7,
+       "contestedFieldGoalsMade": 4,
+       "contestedFieldGoalsAttempted": 9,
+       "contestedFieldGoalPercentage": 0.444,
+       "uncontestedFieldGoalsMade": 5,
+       "uncontestedFieldGoalsAttempted": 8,
+       "uncontestedFieldGoalsPercentage": 0.625,
+       "fieldGoalPercentage": 0.529,
+       "defendedAtRimFieldGoalsMade": 1,
+       "defendedAtRimFieldGoalsAttempted": 3,
+       "defendedAtRimFieldGoalPercentage": 0.333
+      }
+     }
+    ]
+   }
+  }
+ }
+}

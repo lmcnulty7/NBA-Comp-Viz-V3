@@ -116,7 +116,15 @@ def fetch_game(code: str) -> list[dict]:
     url = f"https://www.basketball-reference.com/boxscores/pbp/{code}.html"
     r = requests.get(url, headers=UA, timeout=30)
     r.raise_for_status()
-    table = BeautifulSoup(r.text, "html.parser").find("table", id="pbp")
+    return parse_events(r.text)
+
+
+def parse_events(html: str) -> list[dict]:
+    """The events of a basketball-reference pbp page (the parsing half of fetch_game, for pages fetched elsewhere).
+    ValueError when the page carries no pbp table."""
+    table = BeautifulSoup(html, "html.parser").find("table", id="pbp")
+    if table is None:
+        raise ValueError("no table id=pbp on the page")
     events, period = [], 0
     for tr in table.find_all("tr"):
         cells = [td.get_text(" ", strip=True) for td in tr.find_all(["td", "th"])]

@@ -1,0 +1,32 @@
+{
+  "title": "Talk",
+  "intro": "The interview slides, built from the same script and the same data as the home page. Use the arrow keys to move between slides.",
+  "start": "Start the talk",
+  "list": "All slides",
+  "slides": [
+    "headline",
+    "clip",
+    "boxes",
+    "map",
+    "truth",
+    "swap",
+    "next",
+    "built",
+    "contract",
+    "checks",
+    "results"
+  ],
+  "ui": {
+    "count": "Slide {n} of {total}",
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "index": "All slides",
+    "notes": "Presenter notes",
+    "showNotes": "Show notes",
+    "hideNotes": "Hide notes",
+    "keys": "Arrow keys or Page Up and Page Down move between slides. N shows or hides the notes.",
+    "noNotes": "No notes for this slide.",
+    "missing": "This value is not in this data build.",
+    "controls": "Slide controls"
+  }
+}

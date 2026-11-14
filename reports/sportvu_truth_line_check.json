@@ -1,0 +1,20 @@
+{
+ "frames": 252,
+ "game": "gsw_phx_2016 (B4 testable frames, every 6th)",
+ "a1_dist_px_median": {
+  "truth_H": 39.2,
+  "v3_H": 45.8
+ },
+ "share_truth_farther_than_v3": 0.345,
+ "share_over_60px": {
+  "truth_H": 0.163,
+  "v3_H": 0.194
+ },
+ "conclusion": "the truth H is about as far from the paint as V3's H: it is valid near the fitted feet, not as a court-level homography",
+ "consequences": [
+  "court line error (pipeline template vs truth template) is not measurable with this truth",
+  "missed-player and ghost-box counts project through H_truth away from the fitted feet and carry that error",
+  "position error and near-field bias compare positions only for players the fit matched, near the feet, and stand",
+  "ROADMAP R1.3 court keypoint labels projected through this H_truth would be wrong"
+ ]
+}

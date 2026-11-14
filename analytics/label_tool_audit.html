@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shot Audit</title>
+<style>
+  :root { --bg:#f4f4f2; --panel:#ffffff; --ink:#1d1d1b; --muted:#6b6b66; --line:#d7d7d2; --court:#e9d9b7; --paint:#d9c4a0;
+          --home:#1f5fbf; --away:#c8371f; --ball:#e58a1f; --accent:#0a7a4f; --warn:#b4231a; --sel:#fff3bf; --mark:#7b2cbf; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px; padding:8px 16px; background:var(--panel); border-bottom:1px solid var(--line); }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .meta { color:var(--muted); font-size:13px; }
+  main { display:grid; grid-template-columns: minmax(320px, 560px) 1fr; gap:16px; padding:16px; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; }
+  svg { width:100%; height:auto; display:block; }
+  #svg { background:var(--court); border-radius:6px; }
+  #spark { background:#fafaf8; border:1px solid var(--line); border-radius:6px; margin-top:8px; cursor:crosshair; }
+  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px; }
+  .controls input[type=range] { flex:1 1 200px; }
+  button { font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:6px; background:#fafaf8; cursor:pointer; }
+  button:hover { background:#efefeb; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button.danger { color:var(--warn); }
+  .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:13px; }
+  .row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin:4px 0; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; border:1px solid var(--line); background:#fafaf8; }
+  .pill.on { background:var(--sel); border-color:#e0c86a; }
+  .pill.ok { background:#dff3e8; border-color:#7cc49b; }
+  .pill.bad { background:#f8e0dd; border-color:#e09a92; }
+  #status { margin-top:8px; min-height:20px; color:var(--muted); }
+  #status.err { color:var(--warn); }
+  #status.ok { color:var(--accent); }
+  .keys { columns:2; column-gap:18px; font-size:12.5px; color:var(--muted); }
+  .keys div { break-inside:avoid; }
+  kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:12px; background:#ecece8; border:1px solid var(--line); border-radius:4px; padding:0 5px; }
+  h2 { font-size:14px; margin:0 0 6px; }
+  .section { margin-top:12px; }
+  .small { font-size:12.5px; color:var(--muted); }
+  #note { width:100%; font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:6px; }
+  table.info td { padding:1px 10px 1px 0; vertical-align:top; }
+  table.info td:first-child { color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Shot Audit</h1>
+  <span class="meta" id="hdr-sample">loading</span>
+  <span class="meta" id="hdr-progress"></span>
+  <span style="flex:1"></span>
+  <button id="btn-prev" title="previous shot (p)">prev</button>
+  <span class="mono" id="shot-pos">0 / 0</span>
+  <button id="btn-next" title="next shot (n)">next</button>
+</header>
+<main>
+  <section class="card">
+    <svg id="svg" viewBox="0 0 500 470">
+      <g id="court" fill="none" stroke="#7a6240" stroke-width="2"></g>
+      <g id="dots"></g>
+      <g id="ball-g"><circle id="ball" r="7" fill="var(--ball)" stroke="#7a3d00" stroke-width="2"></circle></g>
+    </svg>
+    <svg id="spark" viewBox="0 0 500 70" preserveAspectRatio="none" aria-label="ball height over the served frames">
+      <line id="z8" x1="0" x2="500" stroke="#bbb" stroke-dasharray="3 3"></line>
+      <polyline id="zline" fill="none" stroke="var(--ball)" stroke-width="1.5"></polyline>
+      <line id="v-apex" y1="0" y2="70" stroke="#999" stroke-dasharray="2 3"></line>
+      <line id="v-det" y1="0" y2="70" stroke="var(--accent)" stroke-width="2"></line>
+      <line id="v-mark" y1="0" y2="70" stroke="var(--mark)" stroke-width="2"></line>
+      <line id="v-cur" y1="0" y2="70" stroke="#1d1d1b" stroke-width="1"></line>
+    </svg>
+    <div class="small">ball height (dashed line 8 ft); green the detected release, purple your mark, grey dashed the apex; click to seek</div>
+    <div class="controls">
+      <button id="btn-play" title="space">play</button>
+      <input id="scrub" type="range" min="0" max="0" value="0" step="1">
+      <select id="speed" title="[ and ] change speed">
+        <option value="0.25">0.25x</option><option value="0.5">0.5x</option><option value="1" selected>1x</option>
+        <option value="2">2x</option><option value="4">4x</option>
+      </select>
+      <button id="btn-full" title="f toggles half and full court">full court</button>
+    </div>
+    <div class="row mono">
+      <span id="frame-counter">frame</span>
+      <span id="offset"></span>
+      <span id="clock">clock</span>
+      <span id="ballz"></span>
+      <span id="balldist"></span>
+    </div>
+    <div id="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Shot</h2>
+    <table class="info" id="shot-info"></table>
+    <div class="row">
+      <span class="pill" id="p-mark">marked release: <b>none</b></span>
+      <span class="pill" id="p-saved">saved: <b>not audited</b></span>
+    </div>
+
+    <div class="section">
+      <h2>Note <span class="small">(t to type, enter or esc to leave the field; saved with the next verdict)</span></h2>
+      <input id="note" type="text" maxlength="500" autocomplete="off" placeholder="optional note">
+    </div>
+
+    <div class="section">
+      <h2>Verdict</h2>
+      <div class="row">
+        <button class="primary" id="btn-accept" title="a">accept detected (a)</button>
+        <button id="btn-mark" title="m">mark this frame (m)</button>
+        <button class="primary" id="btn-save" title="enter">save marked frame (enter)</button>
+        <button class="danger" id="btn-bad" title="x">bad / not a shot (x)</button>
+        <button id="btn-det" title="r">back to detected (r)</button>
+      </div>
+      <div class="small">Each verdict is written to the sample parquet at once, then the next shot opens.</div>
+    </div>
+
+    <div class="section">
+      <h2>Keys</h2>
+      <div class="keys">
+        <div><kbd>a</kbd> accept: the detected frame is the release (save, next)</div>
+        <div><kbd>m</kbd> mark the current frame as the release</div>
+        <div><kbd>enter</kbd> save the marked frame (save, next)</div>
+        <div><kbd>x</kbd> bad / not a shot: no release to compare (save, next)</div>
+        <div><kbd>left</kbd> <kbd>right</kbd> one frame, with <kbd>shift</kbd> five frames</div>
+        <div><kbd>r</kbd> back to the detected release frame</div>
+        <div><kbd>esc</kbd> clear the mark</div>
+        <div><kbd>t</kbd> type a note</div>
+        <div><kbd>n</kbd> <kbd>p</kbd> next / previous shot without saving</div>
+        <div><kbd>space</kbd> play / pause, <kbd>[</kbd> <kbd>]</kbd> slower / faster</div>
+        <div><kbd>home</kbd> <kbd>end</kbd> first / last served frame</div>
+        <div><kbd>f</kbd> half court / full court</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  // Court geometry in feet (corner origin, 94 x 50), the same vertices as court/court33.py and label_tool.html.
+  var COURT_L = 94, COURT_W = 50, SCALE = 10;
+  var RIM_X = 5.25, RIM_Y = 25, RIM_R = 0.75, BACKBOARD_X = 4, KEY_W = 16, FT_X = 19, FT_R = 6,
+      RESTRICTED_R = 4, THREE_R = 23.75, THREE_SIDE_Y = 2.99, THREE_SIDE_X = 13.92, CENTER_R = 6, MID_X = 46.99;
+  var Z_MAX = 20, SPARK_W = 500, SPARK_H = 70;
+
+  var S = { idx: 0, n: 0, data: null, fi: 0, playing: false, timer: null, speed: 1, full: false, attackRight: true,
+            mark: null, busy: false };
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---------------------------------------------------------------- court drawing
+  function halfCourtPath(mirror) {
+    var X = function (x) { return (mirror ? COURT_L - x : x) * SCALE; };
+    var Y = function (y) { return y * SCALE; };
+    var sweep = mirror ? 0 : 1;
+    var p = [];
+    p.push("M" + X(0) + " " + Y(RIM_Y - KEY_W / 2) + " L" + X(FT_X) + " " + Y(RIM_Y - KEY_W / 2) +
+           " L" + X(FT_X) + " " + Y(RIM_Y + KEY_W / 2) + " L" + X(0) + " " + Y(RIM_Y + KEY_W / 2));
+    p.push("M" + X(FT_X) + " " + Y(RIM_Y - FT_R) + " A" + FT_R * SCALE + " " + FT_R * SCALE + " 0 0 " + sweep + " " +
+           X(FT_X) + " " + Y(RIM_Y + FT_R));
+    p.push("M" + X(FT_X) + " " + Y(RIM_Y - FT_R) + " A" + FT_R * SCALE + " " + FT_R * SCALE + " 0 0 " + (1 - sweep) + " " +
+           X(FT_X) + " " + Y(RIM_Y + FT_R));
+    p.push("M" + X(BACKBOARD_X) + " " + Y(RIM_Y - 3) + " L" + X(BACKBOARD_X) + " " + Y(RIM_Y + 3));
+    p.push("M" + X(RIM_X - RIM_R) + " " + Y(RIM_Y) + " A" + RIM_R * SCALE + " " + RIM_R * SCALE + " 0 1 0 " +
+           X(RIM_X + RIM_R) + " " + Y(RIM_Y) + " A" + RIM_R * SCALE + " " + RIM_R * SCALE + " 0 1 0 " + X(RIM_X - RIM_R) + " " + Y(RIM_Y));
+    p.push("M" + X(RIM_X) + " " + Y(RIM_Y - RESTRICTED_R) + " A" + RESTRICTED_R * SCALE + " " + RESTRICTED_R * SCALE + " 0 0 " + sweep + " " +
+           X(RIM_X) + " " + Y(RIM_Y + RESTRICTED_R));
+    var dy = RIM_Y - THREE_SIDE_Y;
+    var ax = RIM_X + Math.sqrt(THREE_R * THREE_R - dy * dy);
+    p.push("M" + X(0) + " " + Y(THREE_SIDE_Y) + " L" + X(THREE_SIDE_X) + " " + Y(THREE_SIDE_Y) + " L" + X(ax) + " " + Y(THREE_SIDE_Y) +
+           " A" + THREE_R * SCALE + " " + THREE_R * SCALE + " 0 0 " + sweep + " " + X(ax) + " " + Y(COURT_W - THREE_SIDE_Y) +
+           " L" + X(THREE_SIDE_X) + " " + Y(COURT_W - THREE_SIDE_Y) + " L" + X(0) + " " + Y(COURT_W - THREE_SIDE_Y));
+    return p.join(" ");
+  }
+
+  function drawCourt() {
+    var html = "";
+    html += '<rect x="0" y="0" width="' + COURT_L * SCALE + '" height="' + COURT_W * SCALE + '" fill="none"/>';
+    html += '<rect x="0" y="' + (RIM_Y - KEY_W / 2) * SCALE + '" width="' + FT_X * SCALE + '" height="' + KEY_W * SCALE + '" fill="var(--paint)" stroke="none"/>';
+    html += '<rect x="' + (COURT_L - FT_X) * SCALE + '" y="' + (RIM_Y - KEY_W / 2) * SCALE + '" width="' + FT_X * SCALE + '" height="' + KEY_W * SCALE + '" fill="var(--paint)" stroke="none"/>';
+    html += '<path d="' + halfCourtPath(false) + '"/>';
+    html += '<path d="' + halfCourtPath(true) + '"/>';
+    html += '<line x1="' + MID_X * SCALE + '" y1="0" x2="' + MID_X * SCALE + '" y2="' + COURT_W * SCALE + '"/>';
+    html += '<circle cx="' + MID_X * SCALE + '" cy="' + RIM_Y * SCALE + '" r="' + CENTER_R * SCALE + '"/>';
+    $("court").innerHTML = html;
+    applyView();
+  }
+
+  function toScreen(x, y) {
+    if (S.attackRight) return [y * SCALE, (COURT_L - x) * SCALE];
+    return [(COURT_W - y) * SCALE, x * SCALE];
+  }
+
+  function applyView() {
+    $("court").setAttribute("transform", S.attackRight ? "matrix(0 -1 1 0 0 " + COURT_L * SCALE + ")" : "matrix(0 1 -1 0 " + COURT_W * SCALE + " 0)");
+    $("svg").setAttribute("viewBox", "0 0 " + COURT_W * SCALE + " " + (S.full ? COURT_L * SCALE : (COURT_L / 2) * SCALE));
+    $("btn-full").textContent = S.full ? "half court" : "full court";
+  }
+
+  // ---------------------------------------------------------------- frame view
+  function buildDots() {
+    var html = "";
+    Object.keys(S.data.players).forEach(function (k) {
+      var p = S.data.players[k];
+      var col = p.home ? "var(--home)" : "var(--away)";
+      var off = p.side === "offense";
+      var shooter = S.data.shooter_id !== null && String(S.data.shooter_id) === k;
+      html += '<g class="dot" data-pid="' + k + '">' +
+              '<circle r="13" fill="' + (off ? col : "#fff") + '" stroke="' + col + '" stroke-width="3"/>' +
+              (shooter ? '<circle r="18" fill="none" stroke="#f5c400" stroke-width="4"/>' : "") +
+              '<text text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="' + (off ? "#fff" : col) + '">' +
+              (p.jersey || "") + '</text></g>';
+    });
+    $("dots").innerHTML = html;
+  }
+
+  function cur() { return S.data && S.data.frames.length ? S.data.frames[S.fi] : null; }
+  function curFrame() { var f = cur(); return f ? f.frame : null; }
+
+  function renderFrame() {
+    var fr = cur();
+    if (!fr) return;
+    var seen = {}, shooterXY = null;
+    fr.players.forEach(function (p) {
+      var el = $("dots").querySelector('g.dot[data-pid="' + p[0] + '"]');
+      if (S.data.shooter_id !== null && p[0] === S.data.shooter_id) shooterXY = [p[1], p[2]];
+      if (!el) return;
+      var uv = toScreen(p[1], p[2]);
+      el.setAttribute("transform", "translate(" + uv[0].toFixed(1) + " " + uv[1].toFixed(1) + ")");
+      el.style.display = "";
+      seen[p[0]] = true;
+    });
+    Array.prototype.forEach.call($("dots").querySelectorAll("g.dot"), function (el) {
+      if (!seen[el.getAttribute("data-pid")]) el.style.display = "none";
+    });
+    var b = $("ball");
+    if (fr.ball && fr.ball[0] !== null) {
+      var uv2 = toScreen(fr.ball[0], fr.ball[1]);
+      b.setAttribute("cx", uv2[0].toFixed(1)); b.setAttribute("cy", uv2[1].toFixed(1));
+      b.setAttribute("r", (6 + Math.min(8, Math.max(0, (fr.ball[2] || 0) - 4))).toFixed(1));
+      b.style.display = "";
+    } else { b.style.display = "none"; }
+    $("scrub").value = S.fi;
+    $("frame-counter").textContent = "frame " + fr.frame + " (" + (S.fi + 1) + "/" + S.data.frames.length + ")";
+    var off = S.data.release_frame >= 0 ? fr.frame - S.data.release_frame : null;
+    $("offset").textContent = off === null ? "no detected release" : (off === 0 ? "AT detected release" : (off > 0 ? "+" : "") + off + " from detected");
+    $("clock").textContent = "Q" + S.data.period + " " + fmtClock(fr.clock);
+    $("ballz").textContent = fr.ball && fr.ball[2] !== null ? "ball z " + fr.ball[2].toFixed(1) + " ft" : "ball z ?";
+    if (shooterXY && fr.ball && fr.ball[0] !== null) {
+      var dx = fr.ball[0] - shooterXY[0], dy = fr.ball[1] - shooterXY[1];
+      $("balldist").textContent = "ball to shooter " + Math.sqrt(dx * dx + dy * dy).toFixed(1) + " ft";
+    } else { $("balldist").textContent = ""; }
+    renderSpark();
+  }
+
+  function fmtClock(s) {
+    if (s === null || s === undefined) return "--:--";
+    var m = Math.floor(s / 60), r = s - m * 60;
+    return m + ":" + (r < 10 ? "0" : "") + r.toFixed(1);
+  }
+
+  // ---------------------------------------------------------------- ball height strip
+  function sparkX(i) { var n = S.data.frames.length; return n > 1 ? (i / (n - 1)) * SPARK_W : SPARK_W / 2; }
+  function sparkY(z) { return SPARK_H - Math.max(0, Math.min(Z_MAX, z)) / Z_MAX * (SPARK_H - 4) - 2; }
+  function indexOf(frame) {
+    if (!S.data || frame === null || frame === undefined) return -1;
+    for (var i = 0; i < S.data.frames.length; i++) if (S.data.frames[i].frame === frame) return i;
+    return -1;
+  }
+  function vline(id, i) {
+    var el = $(id);
+    if (i < 0) { el.style.display = "none"; return; }
+    el.style.display = ""; el.setAttribute("x1", sparkX(i).toFixed(1)); el.setAttribute("x2", sparkX(i).toFixed(1));
+  }
+  function buildSpark() {
+    var pts = [];
+    S.data.frames.forEach(function (f, i) { if (f.ball && f.ball[2] !== null) pts.push(sparkX(i).toFixed(1) + "," + sparkY(f.ball[2]).toFixed(1)); });
+    $("zline").setAttribute("points", pts.join(" "));
+    $("z8").setAttribute("y1", sparkY(8).toFixed(1)); $("z8").setAttribute("y2", sparkY(8).toFixed(1));
+  }
+  function renderSpark() {
+    vline("v-det", indexOf(S.data.release_frame));
+    vline("v-apex", indexOf(S.data.apex_frame));
+    vline("v-mark", indexOf(S.mark));
+    vline("v-cur", S.fi);
+  }
+
+  // ---------------------------------------------------------------- playback
+  function effFps() { return (S.data ? S.data.fps : 25) / (S.data && S.data.downsampled ? 2 : 1); }
+  function play() {
+    if (!S.data) return;
+    S.playing = true; $("btn-play").textContent = "pause";
+    clearInterval(S.timer);
+    S.timer = setInterval(function () {
+      if (S.fi >= S.data.frames.length - 1) { pause(); return; }
+      S.fi += 1; renderFrame();
+    }, 1000 / (effFps() * S.speed));
+  }
+  function pause() { S.playing = false; clearInterval(S.timer); S.timer = null; $("btn-play").textContent = "play"; }
+  function togglePlay() { if (S.playing) pause(); else play(); }
+  function step(k) { if (!S.data || !S.data.frames.length) return; pause(); S.fi = Math.max(0, Math.min(S.data.frames.length - 1, S.fi + k)); renderFrame(); }
+  function setSpeed(v) { S.speed = v; $("speed").value = String(v); if (S.playing) play(); }
+  function jumpToFrame(f) {
+    if (!S.data || !S.data.frames.length) return;
+    var best = 0, bd = Infinity;
+    S.data.frames.forEach(function (fr, i) { var d = Math.abs(fr.frame - f); if (d < bd) { bd = d; best = i; } });
+    pause(); S.fi = best; renderFrame();
+  }
+
+  // ---------------------------------------------------------------- state and panels
+  function setStatus(msg, cls) { var el = $("status"); el.textContent = msg || ""; el.className = cls || ""; }
+
+  function renderPanel() {
+    var d = S.data;
+    $("p-mark").innerHTML = "marked release: <b>" + (S.mark === null ? "none" : S.mark + (d.release_frame >= 0 ? " (" + (S.mark - d.release_frame >= 0 ? "+" : "") + (S.mark - d.release_frame) + ")" : "")) + "</b>";
+    $("p-mark").className = "pill" + (S.mark === null ? "" : " on");
+    var a = d.audit, txt, cls = "pill";
+    if (a.audited_ok === true) { txt = "ok, release " + a.audited_release_frame; cls += " ok"; }
+    else if (a.audited_ok === false) { txt = "bad"; cls += " bad"; }
+    else if (a.audited_release_frame !== null) { txt = "release " + a.audited_release_frame; }
+    else { txt = "not audited"; }
+    $("p-saved").innerHTML = "saved: <b>" + txt + "</b>" + (a.auditor_note ? " (note)" : "");
+    $("p-saved").className = cls;
+    $("shot-pos").textContent = (d.index + 1) + " / " + d.n;
+    $("hdr-progress").textContent = d.n_audited + " of " + d.n + " audited" +
+      (d.first_unaudited === null ? ", all done: run audit_shots --summarise" : ", first unaudited " + (d.first_unaudited + 1));
+  }
+
+  function renderInfo() {
+    var d = S.data;
+    var sh = d.shooter ? ((d.shooter.jersey ? "#" + d.shooter.jersey + " " : "") + d.shooter.name + (d.shooter.team ? " (" + d.shooter.team + ")" : "")) : "unknown";
+    var rows = [
+      ["shot", (d.index + 1) + " of " + d.n],
+      ["game", d.game + ", event " + d.event],
+      ["period / clock", "Q" + d.period + " " + fmtClock(d.clock_s)],
+      ["shooter", sh + " (yellow ring)"],
+      ["confidence", d.confidence_flag || "?"],
+      ["detected release", d.release_frame >= 0 ? String(d.release_frame) : "not found"],
+      ["apex / outcome", d.apex_frame + " / " + d.outcome_frame],
+      ["frames served", d.frames.length ? d.frames[0].frame + " to " + d.frames[d.frames.length - 1].frame + (d.downsampled ? " (every second frame)" : "") : "none"]
+    ];
+    var t = $("shot-info");
+    t.innerHTML = "";
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var a = document.createElement("td"); a.textContent = r[0];
+      var b = document.createElement("td"); b.textContent = r[1]; b.className = "mono";
+      tr.appendChild(a); tr.appendChild(b); t.appendChild(tr);
+    });
+  }
+
+  // ---------------------------------------------------------------- server
+  function api(method, path, body) {
+    var opts = { method: method, headers: {} };
+    if (body !== undefined) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    return fetch(path, opts).then(function (r) {
+      return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("HTTP " + r.status)); return j; });
+    });
+  }
+
+  function loadShot(i) {
+    pause();
+    S.busy = true;   // no verdict or navigation key acts until this shot is on screen
+    setStatus("loading shot " + (i + 1));
+    return api("GET", "/audit/shot?index=" + i).then(function (d) {
+      S.data = d; S.idx = d.index; S.n = d.n;
+      S.attackRight = d.attack_right;
+      S.mark = d.audit.audited_ok === true ? d.audit.audited_release_frame : null;
+      $("note").value = d.audit.auditor_note || "";
+      applyView();
+      $("scrub").max = Math.max(0, d.frames.length - 1);
+      buildDots(); buildSpark(); renderInfo(); renderPanel();
+      var k = indexOf(d.open_frame);
+      S.fi = k >= 0 ? k : 0;
+      renderFrame();
+      setStatus(d.frames.length ? "shot " + (d.index + 1) + " at the detected release frame" : "no frames for this shot: call it bad (x) with a note", d.frames.length ? "" : "err");
+      S.busy = false;
+    }).catch(function (e) { S.busy = false; setStatus(e.message, "err"); });
+  }
+
+  function save(verdict) {
+    if (!S.data || S.busy) return;
+    var body = { index: S.data.index, verdict: verdict, auditor_note: $("note").value || null };
+    if (verdict === "release") {
+      if (S.mark === null) { setStatus("mark the release frame first (m), or accept the detected one (a)", "err"); return; }
+      body.audited_release_frame = S.mark;
+    }
+    S.busy = true;   // stays true until the next shot's loadShot resolves, so a fast second key cannot re-save this one
+    api("POST", "/audit/save", body).then(function (r) {
+      var what = verdict === "bad" ? "bad" : "release " + r.audit.audited_release_frame;
+      if (S.data.index + 1 >= S.n) {
+        S.busy = false;
+        S.data.audit = r.audit; S.data.n_audited = r.n_audited; S.data.first_unaudited = r.first_unaudited; renderPanel();
+        setStatus("saved shot " + (r.index + 1) + " (" + what + "); last shot of the sample" +
+          (r.first_unaudited === null ? ": all audited" : ", first unaudited is " + (r.first_unaudited + 1)), "ok");
+        return;
+      }
+      loadShot(S.data.index + 1).then(function () { setStatus("saved shot " + (r.index + 1) + " (" + what + ")", "ok"); });
+    }).catch(function (e) { S.busy = false; setStatus("not saved: " + e.message, "err"); });
+  }
+
+  function goShot(k) {
+    if (S.busy) return;
+    var i = S.idx + k;
+    if (i < 0 || i >= S.n) { setStatus(i < 0 ? "this is the first shot" : "this is the last shot"); return; }
+    loadShot(i);
+  }
+
+  function markHere() { S.mark = curFrame(); renderPanel(); renderSpark(); }
+
+  // ---------------------------------------------------------------- keys
+  document.addEventListener("keydown", function (ev) {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;  // browser shortcuts stay with the browser
+    // only the note field takes typing; a focused slider or speed menu never swallows the audit keys
+    if (ev.target && ev.target.id === "note") {
+      if (ev.key === "Enter" || ev.key === "Escape") { ev.preventDefault(); ev.target.blur(); }
+      return;
+    }
+    if (ev.key === "Tab") return;
+    if (ev.target && (ev.target.id === "scrub" || ev.target.id === "speed" || ev.target.tagName === "BUTTON")) ev.target.blur();
+    var k = ev.key;
+    if (k === "a") { save("accept"); return; }
+    if (k === "Enter") { ev.preventDefault(); save("release"); return; }
+    if (k === "x") { save("bad"); return; }
+    if (k === "m") { markHere(); return; }
+    if (k === "r") { if (S.data && S.data.release_frame >= 0) jumpToFrame(S.data.release_frame); return; }
+    if (k === "Escape") { S.mark = null; if (S.data) { renderPanel(); renderSpark(); } return; }
+    if (k === "t") { ev.preventDefault(); $("note").focus(); return; }
+    if (k === "ArrowRight") { ev.preventDefault(); step(ev.shiftKey ? 5 : 1); return; }
+    if (k === "ArrowLeft") { ev.preventDefault(); step(ev.shiftKey ? -5 : -1); return; }
+    if (k === " ") { ev.preventDefault(); togglePlay(); return; }
+    if (k === "Home") { ev.preventDefault(); step(-1e9); return; }
+    if (k === "End") { ev.preventDefault(); step(1e9); return; }
+    if (k === "[") { setSpeed(Math.max(0.25, S.speed / 2)); return; }
+    if (k === "]") { setSpeed(Math.min(4, S.speed * 2)); return; }
+    if (k === "n") { goShot(1); return; }
+    if (k === "p") { goShot(-1); return; }
+    if (k === "f") { S.full = !S.full; applyView(); renderFrame(); return; }
+  });
+
+  // ---------------------------------------------------------------- buttons
+  $("btn-play").addEventListener("click", togglePlay);
+  $("scrub").addEventListener("input", function () { pause(); S.fi = parseInt(this.value, 10) || 0; renderFrame(); });
+  $("speed").addEventListener("change", function () { setSpeed(parseFloat(this.value)); });
+  $("btn-full").addEventListener("click", function () { S.full = !S.full; applyView(); renderFrame(); });
+  $("btn-prev").addEventListener("click", function () { goShot(-1); });
+  $("btn-next").addEventListener("click", function () { goShot(1); });
+  $("btn-accept").addEventListener("click", function () { save("accept"); });
+  $("btn-mark").addEventListener("click", markHere);
+  $("btn-save").addEventListener("click", function () { save("release"); });
+  $("btn-bad").addEventListener("click", function () { save("bad"); });
+  $("btn-det").addEventListener("click", function () { if (S.data && S.data.release_frame >= 0) jumpToFrame(S.data.release_frame); });
+  // a clicked button, the slider and the speed menu give the focus back, so space or enter never re-triggers them
+  Array.prototype.forEach.call(document.querySelectorAll("button"), function (b) {
+    b.addEventListener("click", function () { b.blur(); });
+  });
+  ["change", "pointerup"].forEach(function (evName) {
+    $("scrub").addEventListener(evName, function () { this.blur(); });
+    $("speed").addEventListener(evName, function () { this.blur(); });
+  });
+  $("spark").addEventListener("click", function (ev) {
+    if (!S.data || !S.data.frames.length) return;
+    var r = this.getBoundingClientRect();
+    var i = Math.round((ev.clientX - r.left) / r.width * (S.data.frames.length - 1));
+    pause(); S.fi = Math.max(0, Math.min(S.data.frames.length - 1, i)); renderFrame();
+  });
+
+  drawCourt();
+  api("GET", "/audit/state").then(function (st) {
+    S.n = st.n;
+    $("hdr-sample").textContent = st.sample + " (" + st.n + " shots, agreement within " + st.tolerance_frames + " frames)";
+    if (!st.n) { setStatus("the sample is empty", "err"); return; }
+    // resume at the first unaudited shot (the first one when every shot is audited)
+    loadShot(st.first_unaudited === null ? 0 : st.first_unaudited);
+  }).catch(function (e) { setStatus(e.message, "err"); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+SPLITS (ROADMAP R1.4): sportvu/splits.json
+  train          arenas ['GSW'] | 4 games | 11506 frames (R1.3 labels kept by the paint check)
+                   gsw_bkn_2015      2954 of 3587 labels
+                   gsw_cha_2016      2923 of 3531 labels
+                   gsw_ind_2016      2811 of 3552 labels
+                   gsw_sac_2015      2818 of 3305 labels
+  heldout_game   gsw_phx_2016     arena GSW | 1447 frames
+  heldout_arena  cle_gsw_2016     arena CLE | 2454.0 s synced
+  heldout_arena  cle_nyk_2015     arena CLE | 1870.5 s synced
+  heldout_arena  gsw_cle_xmas16   arena CLE | no SportVU (production game)
+  heldout_era    gsw_nyk_curry54  arena NYK | no SportVU, no frame count
+  excluded       {'gsw_cle_xmas15': 'NBA 2K16 simulation, not a broadcast: scorebug frame shows the 2K Sports logo and rendered players (R1.2, 2026-10-04)'}
+
+audit: held-out ids in what the training scripts read (each script now calls refuse_heldout)
+  gate_ship_v2.py, gate_retrain_experiment.py      6159 items | held-out  882 {'gsw_cle_xmas16': 289, 'gsw_nyk_curry54': 299, 'gsw_phx_2016': 294}
+  train_gate.py                                    1050 items | held-out    0 
+  train_court_kp.py                                 877 items | held-out    0 
+  train_line_seg.py                                 242 items | held-out    0 
+  train_player_detector.py, colab_train_player.p   1311 items | held-out    0 
+  train_court_pose.py                              7438 items | held-out    0 
+  R1.3 labels (sportvu.splits.train_labels)       11506 items | held-out    0 
+
+caveats:
+  - ids are matched by name: items without a game id (external sets, clip_* and curry_* harvest clips,
+    prototype frames) cannot be traced to a game and pass the guard
+  - gate v2 (models/trained_head_v2, used to pick wide frames for R1.3 and the scorecard) was trained
+    before this guard on harvest frames that include held-out games (audit row above); it is not a
+    court or position model, but held-out frame selection by it is optimistic until a retrain without them

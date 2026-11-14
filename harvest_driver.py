@@ -95,6 +95,16 @@ def decodable(path: Path) -> bool:
 YTDLP_FMT = ("bv*[vcodec^=avc1][height<=720][height>=480]+ba/"
              "b[vcodec^=avc1][height<=720]")
 DRIVE_CACHE = Path("/content/drive/MyDrive/nba_harvest/video")
+# YouTube proof-of-origin tokens (2026-10-04): without them every 720p stream stops with HTTP 403
+# after ~10 MB, whatever the yt-dlp version or player client. The bgutil provider (script mode,
+# Node) is installed here on this Mac; elsewhere (Colab) the arguments are simply not passed.
+BGUTIL_SERVER = Path.home() / "Developer" / "bgutil-ytdlp-pot-provider" / "server"
+
+
+def ytdlp_pot_args() -> list[str]:
+    if (BGUTIL_SERVER / "build" / "generate_once.js").exists():
+        return ["--extractor-args", f"youtubepot-bgutilscript:server_home={BGUTIL_SERVER}"]
+    return []
 
 
 def ensure_decodable(tag: str) -> None:
@@ -113,7 +123,7 @@ def ensure_decodable(tag: str) -> None:
                 "unreadable by this cv2" if src.exists() else "missing")
     tmp = src.with_suffix(".part.mp4")
     tmp.unlink(missing_ok=True)
-    r = subprocess.run(["yt-dlp", "-f", YTDLP_FMT, "--merge-output-format", "mp4",
+    r = subprocess.run(["yt-dlp", *ytdlp_pot_args(), "-f", YTDLP_FMT, "--merge-output-format", "mp4",
                         "-o", str(tmp), "-q", "--no-warnings",
                         f"https://www.youtube.com/watch?v={reg[tag]['video_id']}"],
                        capture_output=True, text=True, timeout=1800)

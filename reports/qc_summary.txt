@@ -1,0 +1,72 @@
+QC SUMMARY (label-free, uncalibrated until B6): 55 clips, 3721 frames
+per game, worst first (fail rate = frames failing any live rule):
+  201612250CLE   clips  4 frames  242 fail 0.94 lines  79.3 px 2nd 0.372  {'no_H': 28, 'second_tracker': 132, 'team_count': 144, 'speed': 77, 'offcourt_feet': 15}
+  201605160GSW   clips  4 frames  266 fail 0.91 lines  36.9 px 2nd 0.407  {'team_count': 150, 'second_tracker': 198, 'speed': 36, 'offcourt_feet': 19, 'scorebug': 1}
+  201601250GSW   clips  4 frames  296 fail 0.89 lines  45.4 px 2nd 0.422  {'team_count': 130, 'second_tracker': 218, 'speed': 16, 'scorebug': 1, 'offcourt_feet': 7, 'no_H': 30}
+  201505210GSW   clips  4 frames  281 fail 0.88 lines  47.0 px 2nd  0.45  {'no_H': 4, 'second_tracker': 209, 'team_count': 37, 'speed': 95, 'scorebug': 2, 'offcourt_feet': 2}
+  201606190GSW   clips  4 frames  294 fail 0.85 lines  41.5 px 2nd 0.388  {'no_H': 2, 'second_tracker': 230, 'speed': 27, 'team_count': 49}
+  201706120GSW   clips  4 frames  279 fail 0.83 lines  39.9 px 2nd 0.533  {'second_tracker': 215, 'speed': 57, 'no_H': 5, 'team_count': 51, 'offcourt_feet': 10}
+  201612050GSW   clips  4 frames  256 fail 0.82 lines  47.7 px 2nd 0.444  {'no_H': 1, 'second_tracker': 194, 'offcourt_feet': 4, 'speed': 24, 'team_count': 66, 'scorebug': 1}
+  201605280OKC   clips  4 frames  287 fail 0.80 lines  62.1 px 2nd 0.388  {'team_count': 46, 'second_tracker': 195, 'speed': 52, 'no_H': 11, 'scorebug': 1, 'offcourt_feet': 1}
+  201701100GSW   clips  4 frames  268 fail 0.79 lines  45.8 px 2nd 0.429  {'no_H': 8, 'second_tracker': 195, 'team_count': 26, 'speed': 43, 'offcourt_feet': 2}
+  201604010GSW   clips  4 frames  295 fail 0.79 lines  34.0 px 2nd 0.417  {'speed': 29, 'second_tracker': 214, 'offcourt_feet': 10, 'team_count': 61, 'no_H': 5}
+  201501230GSW   clips  4 frames  249 fail 0.78 lines  39.5 px 2nd 0.381  {'second_tracker': 172, 'offcourt_feet': 16, 'speed': 27, 'team_count': 42, 'no_H': 24}
+  201605110GSW   clips  4 frames  255 fail 0.77 lines  36.3 px 2nd 0.375  {'team_count': 42, 'speed': 59, 'second_tracker': 160, 'offcourt_feet': 8, 'scorebug': 12}
+  201512160GSW   clips  4 frames  254 fail 0.75 lines  43.2 px 2nd  0.35  {'second_tracker': 160, 'speed': 31, 'team_count': 37, 'offcourt_feet': 1}
+  201302270NYK   clips  3 frames  199 fail 0.64 lines  34.4 px 2nd   0.4  {'second_tracker': 119, 'speed': 10, 'team_count': 12, 'no_H': 1}
+per clip, worst first:
+  triage_gsw_cle_xmas16_s07_f16530         fail 1.00 lines 69.42 px 2nd 0.6667  {'no_H': 6, 'second_tracker': 37}
+  triage_gsw_cle_xmas16_s08_f12297         fail 1.00 lines 89.77 px 2nd 0.2222  {'team_count': 78, 'speed': 50, 'offcourt_feet': 15, 'second_tracker': 14}
+  triage_gsw_hou_duel_s02_f14166           fail 1.00 lines 37.18 px 2nd   0.5  {'no_H': 3, 'second_tracker': 62, 'team_count': 26, 'speed': 17}
+  triage_gsw_hou_duel_s05_f2910            fail 1.00 lines 52.94 px 2nd 0.5556  {'no_H': 1, 'second_tracker': 54, 'team_count': 7, 'speed': 1}
+  triage_gsw_okc_2016wcf_g1_s08_f23079     fail 1.00 lines 46.41 px 2nd   0.5  {'second_tracker': 53, 'team_count': 49, 'speed': 17, 'offcourt_feet': 3, 'scorebug': 1}
+  triage_gsw_sac_klay37_s05_f10047         fail 1.00 lines 93.85 px 2nd 0.7143  {'offcourt_feet': 13, 'second_tracker': 66, 'speed': 4, 'no_H': 24, 'team_count': 10}
+  triage_gsw_bos_2016_s04_f4800            fail 0.99 lines 32.47 px 2nd   0.5  {'team_count': 44, 'second_tracker': 69}
+  triage_gsw_okc_2016wcf_g1_s08_f22335     fail 0.99 lines 26.85 px 2nd   0.4  {'team_count': 54, 'second_tracker': 48, 'speed': 6}
+  triage_gsw_cle_xmas16_s05_f16416         fail 0.96 lines 78.46 px 2nd 0.375  {'no_H': 12, 'second_tracker': 41, 'team_count': 25, 'speed': 13}
+  triage_gsw_cle_2017f_g5_s10_f876         fail 0.96 lines 39.16 px 2nd 0.6667  {'second_tracker': 67, 'speed': 25, 'team_count': 50, 'offcourt_feet': 8}
+  triage_gsw_okc_2016wcf_g1_s00_f13344     fail 0.95 lines 35.28 px 2nd 0.4143  {'team_count': 45, 'second_tracker': 47, 'speed': 6, 'offcourt_feet': 2}
+  triage_gsw_sas_2016_s02_f0               fail 0.95 lines 45.84 px 2nd   0.4  {'team_count': 52, 'second_tracker': 58, 'scorebug': 1, 'offcourt_feet': 1, 'speed': 3}
+  triage_gsw_bos_2016_s04_f6909            fail 0.95 lines  52.4 px 2nd   0.5  {'no_H': 5, 'second_tracker': 55, 'team_count': 10}
+  triage_gsw_ind_klay60_s01_f813           fail 0.95 lines 51.57 px 2nd 0.4444  {'no_H': 1, 'second_tracker': 51, 'offcourt_feet': 3, 'speed': 17, 'team_count': 12}
+  triage_gsw_sas_2016_s01_f7350            fail 0.94 lines  42.7 px 2nd 0.4444  {'team_count': 43, 'second_tracker': 57, 'speed': 2}
+  triage_gsw_ind_klay60_s02_f8922          fail 0.92 lines 47.52 px 2nd 0.4444  {'team_count': 27, 'second_tracker': 42, 'speed': 2, 'offcourt_feet': 1}
+  triage_gsw_hou_duel_s04_f87              fail 0.91 lines 41.07 px 2nd   0.4  {'speed': 39, 'second_tracker': 62, 'offcourt_feet': 1, 'scorebug': 1}
+  triage_gsw_cle_2016f_g7_s02_f4626        fail 0.91 lines 41.07 px 2nd 0.375  {'no_H': 2, 'second_tracker': 50, 'speed': 2, 'team_count': 20}
+  triage_gsw_cle_2017f_g5_s10_f2316        fail 0.89 lines 41.07 px 2nd 0.6667  {'no_H': 2, 'second_tracker': 35, 'speed': 14, 'offcourt_feet': 2}
+  triage_gsw_okc_2016wcf_g6_s09_f60        fail 0.88 lines 51.98 px 2nd   0.5  {'no_H': 1, 'second_tracker': 44, 'speed': 9}
+  triage_gsw_splash62_s01_f3951            fail 0.88 lines 35.27 px 2nd 0.3959  {'team_count': 17, 'speed': 29, 'second_tracker': 49, 'offcourt_feet': 8, 'scorebug': 12}
+  triage_gsw_sas_2016_s07_f3165            fail 0.87 lines 47.75 px 2nd 0.4444  {'second_tracker': 60, 'speed': 8, 'team_count': 18, 'offcourt_feet': 6}
+  triage_gsw_cle_2016f_g7_s04_f11160       fail 0.87 lines 42.03 px 2nd   0.4  {'second_tracker': 57, 'speed': 2, 'team_count': 11}
+  triage_gsw_mia_2017_s07_f11310           fail 0.86 lines 45.84 px 2nd   0.4  {'second_tracker': 48, 'speed': 21, 'offcourt_feet': 2, 'team_count': 7}
+  triage_gsw_okc_2016wcf_g6_s06_f828       fail 0.85 lines  57.3 px 2nd   0.4  {'no_H': 10, 'team_count': 15, 'second_tracker': 65, 'speed': 5}
+  triage_gsw_splash62_s06_f9723            fail 0.84 lines 41.07 px 2nd 0.4444  {'second_tracker': 30, 'speed': 8, 'team_count': 1}
+  triage_gsw_cle_2016f_g7_s06_f13053       fail 0.84 lines  46.8 px 2nd 0.375  {'second_tracker': 61, 'speed': 12, 'team_count': 15}
+  triage_gsw_nyk_curry54_s04_f2568         fail 0.83 lines 38.62 px 2nd   0.4  {'second_tracker': 62, 'speed': 7, 'team_count': 1}
+  triage_gsw_nyk_curry54_s04_f9135         fail 0.83 lines 27.69 px 2nd 0.7639  {'second_tracker': 38, 'speed': 3}
+  triage_gsw_phx_2016_s09_f16296           fail 0.82 lines 40.94 px 2nd   0.4  {'second_tracker': 62, 'speed': 1, 'team_count': 10}
+  triage_gsw_ind_klay60_s05_f7944          fail 0.82 lines 47.91 px 2nd 0.4444  {'second_tracker': 63, 'speed': 3, 'team_count': 17}
+  triage_gsw_mia_2017_s09_f11520           fail 0.82 lines 45.84 px 2nd 0.4286  {'no_H': 6, 'second_tracker': 47, 'team_count': 3, 'speed': 1}
+  triage_gsw_sas_2016_s08_f7158            fail 0.81 lines 44.89 px 2nd 0.3333  {'second_tracker': 43, 'team_count': 17, 'no_H': 30, 'speed': 3}
+  triage_gsw_cle_xmas16_s06_f2583          fail 0.81 lines 80.22 px 2nd 0.3693  {'no_H': 10, 'second_tracker': 40, 'team_count': 41, 'speed': 14}
+  triage_gsw_phx_2016_s05_f9390            fail 0.81 lines 50.62 px 2nd 0.2857  {'second_tracker': 27, 'speed': 22, 'team_count': 11}
+  triage_gsw_mia_2017_s01_f13056           fail 0.80 lines  46.8 px 2nd 0.4286  {'no_H': 2, 'second_tracker': 48, 'team_count': 7, 'speed': 10}
+  triage_gsw_sac_klay37_s03_f993           fail 0.80 lines 43.88 px 2nd 0.3875  {'second_tracker': 32, 'offcourt_feet': 3, 'speed': 6, 'team_count': 17}
+  triage_gsw_cle_2016f_g7_s05_f15138       fail 0.80 lines 36.04 px 2nd   0.5  {'second_tracker': 62, 'speed': 11, 'team_count': 3}
+  triage_gsw_sac_klay37_s05_f537           fail 0.79 lines 35.19 px 2nd 0.375  {'second_tracker': 50, 'team_count': 11, 'speed': 11}
+  triage_gsw_phx_2016_s03_f20472           fail 0.79 lines 45.37 px 2nd 0.4018  {'second_tracker': 39, 'speed': 6, 'team_count': 8, 'offcourt_feet': 1}
+  triage_gsw_bos_2016_s00_f3120            fail 0.78 lines 33.82 px 2nd 0.3333  {'speed': 27, 'second_tracker': 55, 'offcourt_feet': 10}
+  triage_gsw_okc_2016wcf_g6_s04_f1290      fail 0.77 lines 69.72 px 2nd   0.3  {'team_count': 31, 'second_tracker': 36, 'speed': 24}
+  triage_gsw_okc_2016wcf_g1_s08_f29817     fail 0.76 lines 38.61 px 2nd 0.3333  {'offcourt_feet': 14, 'second_tracker': 50, 'speed': 7, 'team_count': 2}
+  triage_gsw_cle_2017f_g5_s07_f8166        fail 0.75 lines 32.47 px 2nd   0.4  {'second_tracker': 58, 'speed': 2}
+  triage_gsw_cle_2017f_g5_s08_f31428       fail 0.75 lines 40.66 px 2nd 0.375  {'no_H': 3, 'second_tracker': 55, 'speed': 16, 'team_count': 1}
+  triage_gsw_splash62_s05_f11232           fail 0.73 lines 37.33 px 2nd 0.3333  {'speed': 15, 'second_tracker': 39, 'team_count': 14}
+  triage_gsw_okc_2016wcf_g6_s08_f14619     fail 0.72 lines 66.85 px 2nd 0.375  {'second_tracker': 50, 'speed': 14, 'scorebug': 1, 'offcourt_feet': 1}
+  triage_gsw_mia_2017_s01_f3675            fail 0.70 lines 42.98 px 2nd 0.4286  {'second_tracker': 52, 'team_count': 9, 'speed': 11}
+  triage_gsw_splash62_s02_f273             fail 0.66 lines 32.25 px 2nd 0.3541  {'second_tracker': 42, 'team_count': 10, 'speed': 7}
+  triage_gsw_ind_klay60_s08_f5634          fail 0.65 lines 39.32 px 2nd 0.3333  {'second_tracker': 38, 'team_count': 10, 'speed': 2, 'scorebug': 1}
+  triage_gsw_hou_duel_s03_f4641            fail 0.65 lines 56.35 px 2nd 0.2857  {'speed': 38, 'team_count': 4, 'second_tracker': 31, 'scorebug': 1, 'offcourt_feet': 1}
+  triage_gsw_phx_2016_s05_f20118           fail 0.58 lines 38.88 px 2nd   0.3  {'second_tracker': 32, 'team_count': 8, 'speed': 2}
+  triage_gsw_sac_klay37_s05_f15936         fail 0.50 lines 32.47 px 2nd 0.2475  {'second_tracker': 24, 'speed': 6, 'team_count': 4}
+  triage_gsw_bos_2016_s02_f9543            fail 0.48 lines 34.25 px 2nd 0.2727  {'team_count': 7, 'second_tracker': 35, 'speed': 2}
+  triage_gsw_nyk_curry54_s06_f5313         fail 0.34 lines 34.38 px 2nd 0.2727  {'no_H': 1, 'second_tracker': 19, 'team_count': 11}

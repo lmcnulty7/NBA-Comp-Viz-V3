@@ -1,0 +1,4 @@
+R1.3 ATTEMPT 3, PAINT REFIT (NOT ADOPTED): y=17 lane edges held out of the refit, px to the gold edge
+  gsw_bkn_2015   labels 300 | held-out lane p50 6.04 -> 7.53, p90 13.82 -> 13.81 | frames better 75, worse 159 (> 1 px)
+                 fitted key edges p50 7.18 -> 4.88 px | SportVU feet p50 1.15 -> 1.55 ft (biased to the old fit)
+verdict: the held-out lane gets worse, so the refit is not used; label_check rejects off labels instead

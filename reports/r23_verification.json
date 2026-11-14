@@ -1,0 +1,112 @@
+{
+ "item": "ROADMAP R2.3 verification of the r23 grid model (4 independent adversarial checks, workflow wf_607f7aaf-0a2, 2026-10-04)",
+ "model": {
+  "path": "models/court_grid_r23.pt",
+  "sha256": "1e7e6c003947cb68d09463f0659160948ad68684b44266bd6b2d2c7c86e0262c",
+  "colab_run": "My Drive/nba_harvest/results/r23_20261005_0350",
+  "epochs": 66,
+  "best_epoch": 46,
+  "val_pose_map50_95": {
+   "v3": 0.084,
+   "r23": 0.222
+  }
+ },
+ "scorecards": "reports/scorecard/{gsw_phx_2016,cle_nyk_2015,cle_gsw_2016}__r23.*, compare__v3__public__r23.*",
+ "checks": {
+  "bench": {
+   "verdict": "holds",
+   "reproduced": "all scorecard numbers exactly (bench.score_window/aggregate)",
+   "paired": "same observations for v3 and r23 (11,292 / 3,862 / 1,178); r23 closer on 89.4 / 94.3 / 92.0%",
+   "untestable_frames_truth_free_median_ft": {
+    "r23": "3.0..3.8",
+    "v3": "7.2..10.6"
+   }
+  },
+  "paint": {
+   "verdict": "holds",
+   "phx_key_edge_px_p50": {
+    "v3": 14.92,
+    "r23": 7.03
+   },
+   "phx_frames": 9364,
+   "r23_closer_share": 0.892,
+   "windows_favouring_r23": "25 of 25",
+   "all_lines_r23_lower_share": {
+    "gsw_phx_2016": 0.947,
+    "cle_nyk_2015": 0.95,
+    "cle_gsw_2016": 0.875
+   }
+  },
+  "leakage": {
+   "verdict": "holds",
+   "heldout_frames_in_r23_or_init_training": 0,
+   "arena_overlap": "56 frames of 2023-24 Cleveland home games (same building as the held-out arena) are in V3's grid set (47 train, 9 val), so in both models"
+  },
+  "stats": {
+   "verdict": "weakened",
+   "window_bootstrap_95ci_v3_minus_r23_ft": {
+    "gsw_phx_2016": {
+     "p50": [
+      4.61,
+      6.47
+     ],
+     "p90": [
+      9.18,
+      11.44
+     ]
+    },
+    "cle_nyk_2015": {
+     "p50": [
+      8.19,
+      9.42
+     ],
+     "p90": [
+      11.06,
+      14.36
+     ]
+    },
+    "cle_gsw_2016": {
+     "p50": [
+      4.78,
+      9.61
+     ],
+     "p90": [
+      8.0,
+      13.78
+     ]
+    }
+   },
+   "r23_phx_95ci_ft": {
+    "p50": [
+     1.79,
+     2.16
+    ],
+    "p90": [
+     4.42,
+     6.02
+    ],
+    "P_p90_le_5": 0.51
+   },
+   "team_labels_v3_minus_r23_pt": {
+    "cle_nyk_2015": "+1.0 (window CI [+0.1, +2.1]; jackknife [-0.15, +2.17]; sign-flip p=0.07; paired on rows both label +0.15 [-0.12, +0.49])",
+    "cle_gsw_2016": "+0.2 (CI [-0.6, +1.2]; rows both label identical; r23 abstains on 23)"
+   },
+   "phx_bias_improvement_ci_ft": {
+    "near": [
+     -0.64,
+     0.94
+    ],
+    "far": [
+     -0.37,
+     0.87
+    ]
+   },
+   "cle_gsw_coverage": {
+    "v3": 0.385,
+    "r23": 0.397,
+    "floor": 0.5
+   }
+  }
+ },
+ "rule_reading": "Literal FIX_LOOP step 4: position error and bias improve on the held-out game and arena; team labels (a pass/fail row) dip on both CLE games, within noise on cle_gsw and borderline on cle_nyk; cle_gsw coverage is below the 50% floor for V3 and r23 alike (r23 raises it). The rule has no noise tolerance and does not say how a floor the baseline already fails applies: decision for Lucien."
+}

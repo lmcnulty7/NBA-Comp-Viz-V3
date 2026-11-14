@@ -1,0 +1,455 @@
+/* The frame of every page (skip link, fixture banner, header, footer) and the layout pieces pages share. */
+
+/* ---------------------------------------------------------------------------------------------- skip link */
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  z-index: 40;
+  padding: 0.5rem 0.9rem;
+  background: var(--invert-ground);
+  color: var(--invert-ink);
+  font-family: var(--sans);
+  font-size: var(--text-label);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-120%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  color: var(--invert-ink);
+}
+
+/* ------------------------------------------------------------------------------------------ fixture banner */
+
+/* Shown on every page when the data is synthetic. It stays at the top while the page scrolls. */
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 1.875rem;
+  padding: 0.25rem var(--gutter);
+  background: var(--invert-ground);
+  color: var(--invert-ink);
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.banner strong {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.banner .banner-more {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .banner .banner-more {
+    display: inline;
+  }
+}
+
+/* -------------------------------------------------------------------------------------------------- header */
+
+.site-header {
+  background: var(--ground);
+  border-bottom: 1px solid var(--rule);
+  padding-inline: var(--gutter);
+}
+
+.site-header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 1.25rem;
+  max-width: var(--wide);
+  margin-inline: auto;
+  min-height: var(--nav-h);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.6rem;
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand svg {
+  width: 1.5rem;
+  height: auto;
+  color: var(--accent);
+}
+
+.site-nav ul {
+  display: flex;
+  gap: 0 1.25rem;
+}
+
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--nav-h);
+  border-bottom: 2px solid transparent;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.site-nav a:hover {
+  color: var(--ink);
+}
+
+.site-nav a[aria-current="page"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+@media (max-width: 39.99rem) {
+  .site-nav {
+    width: 100%;
+  }
+
+  .site-nav ul {
+    justify-content: space-between;
+  }
+
+  .site-nav a {
+    min-height: 2.5rem;
+  }
+}
+
+@media (min-width: 40rem) {
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .has-banner .site-header {
+    top: 1.875rem;
+  }
+}
+
+/* --------------------------------------------------------------------------------------------- page layout */
+
+.page {
+  padding: 2.75rem var(--gutter) 6rem;
+}
+
+.page:focus {
+  outline: none;
+}
+
+@media (min-width: 56.25rem) {
+  .page {
+    padding-top: 4rem;
+  }
+}
+
+/* The reading column and the wider measure for figures and tables. */
+.column {
+  width: 100%;
+  max-width: var(--col);
+  margin-inline: auto;
+}
+
+.wide {
+  width: 100%;
+  max-width: var(--wide);
+  margin-inline: auto;
+}
+
+.stack {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.stack > * {
+  min-width: 0;
+}
+
+.stack-tight {
+  gap: 0.6rem;
+}
+
+.stack-loose {
+  gap: 2.75rem;
+}
+
+/* A section opens with a short ink bar, the way a chapter opens in a printed feature. */
+.section {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+  padding-top: 1.4rem;
+  position: relative;
+}
+
+.section > * {
+  min-width: 0;
+}
+
+.section::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3rem;
+  height: 3px;
+  background: var(--ink);
+}
+
+.page-head {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+.crumbs a {
+  color: var(--muted);
+}
+
+.crumbs a:hover {
+  color: var(--accent);
+}
+
+/* A table wider than its column scrolls inside its own region, never the page. */
+.table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--ink);
+}
+
+.table-wrap thead th {
+  padding-top: 0.7rem;
+}
+
+.table-wrap table {
+  min-width: 100%;
+}
+
+.table-wrap td.wrap,
+.table-wrap th.wrap {
+  min-width: 14rem;
+}
+
+@media (max-width: 39.99rem) {
+  .wide-only {
+    display: none;
+  }
+}
+
+/* Key facts: a label over a value, in a loose grid. */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 1.1rem 1.5rem;
+  border-top: 1px solid var(--ink);
+  padding-top: 1rem;
+}
+
+.facts dt {
+  font-family: var(--sans);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.facts dd {
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.35;
+}
+
+/* A value that is a number keeps the mono face, also when the cell itself is the number. */
+.facts dd.num,
+.facts dd .num {
+  font-family: var(--mono);
+  font-size: 1.125rem;
+}
+
+.facts .note {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+/* A plain list of rows separated by thin rules. */
+.rows {
+  border-top: 1px solid var(--ink);
+}
+
+.rows > li {
+  display: grid;
+  gap: 0.3rem;
+  padding-block: 0.95rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.rows .row-title {
+  font-family: var(--serif);
+  font-size: 1.3125rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.rows .row-title a {
+  text-decoration-color: var(--rule);
+}
+
+.rows .row-title a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.bullets {
+  display: grid;
+  gap: 0.45rem;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+
+.bullets li::marker {
+  color: var(--faint);
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 1rem;
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+/* Sources: a closed line that opens to the list of files a value comes from. */
+.sources {
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-snug);
+  color: var(--muted);
+}
+
+.sources summary {
+  padding-block: 0.6rem;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sources ul {
+  display: grid;
+  gap: 0.45rem;
+  padding-bottom: 0.9rem;
+}
+
+.sources code {
+  color: var(--ink);
+}
+
+/* Status and verdict: a glyph and a word, never colour alone. */
+.status {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45em;
+  font-family: var(--sans);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.glyph {
+  display: inline-block;
+  flex: none;
+  width: 0.62em;
+  height: 0.62em;
+  border: 1.5px solid currentColor;
+}
+
+.status-pass {
+  color: var(--pass);
+}
+
+.status-pass .glyph {
+  background: currentColor;
+}
+
+.status-fail {
+  color: var(--fail);
+}
+
+.status-fail .glyph {
+  border-style: dashed;
+}
+
+.status-warn {
+  color: var(--warn);
+}
+
+.status-warn .glyph {
+  background: linear-gradient(135deg, currentColor 50%, transparent 50%);
+}
+
+.status-plain {
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------------------------------------------------- footer */
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 1.5rem var(--gutter) 3rem;
+}
+
+.site-footer-inner {
+  display: grid;
+  gap: 0.4rem;
+  max-width: var(--wide);
+  margin-inline: auto;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-snug);
+  color: var(--muted);
+}
+
+/* In a table that scrolls sideways the row name stays on one line, so the first column reads cleanly. */
+.table-wrap tbody th {
+  white-space: nowrap;
+}
+
+.table-wrap tbody th .note code {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}

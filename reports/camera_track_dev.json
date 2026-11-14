@@ -1,0 +1,107 @@
+{
+ "weights": "/Users/lucienmcnulty/Documents/Data Science projects/NBA Comp Viz New Project Version 3/models/court_grid_r23.pt",
+ "games": {
+  "gsw_bkn_2015": {
+   "windows": 4,
+   "position": {
+    "status": "ok",
+    "C": [
+     48.17897997598289,
+     125.9207946363161,
+     -29.18311094350527
+    ],
+    "C0": [
+     47.8508562089836,
+     124.99543143828409,
+     -29.061971416652145
+    ],
+    "frames": 150,
+    "reproj_px_before": 25.14,
+    "reproj_px_after": 1.12
+   },
+   "truth_C": [
+    48.5,
+    125.2,
+    -30.0
+   ],
+   "C_minus_truth_ft": [
+    -0.3,
+    0.8,
+    0.8
+   ],
+   "fit_from": {
+    "lines": 1018,
+    "free_h": 76
+   },
+   "free": {
+    "n": 1376,
+    "p50": 0.5,
+    "p90": 1.55,
+    "bias_near": 0.06,
+    "bias_far": 0.03,
+    "p50_near": 0.56,
+    "p50_far": 0.59
+   },
+   "camera": {
+    "n": 1376,
+    "p50": 0.52,
+    "p90": 1.5,
+    "bias_near": 0.29,
+    "bias_far": -0.12,
+    "p50_near": 0.56,
+    "p50_far": 0.62
+   }
+  },
+  "gsw_sac_2015": {
+   "windows": 2,
+   "position": {
+    "status": "ok",
+    "C": [
+     46.840352254478866,
+     129.65831454512676,
+     -29.237047599020148
+    ],
+    "C0": [
+     46.580995890573405,
+     128.76257022116428,
+     -29.296105202071395
+    ],
+    "frames": 150,
+    "reproj_px_before": 31.26,
+    "reproj_px_after": 1.12
+   },
+   "truth_C": [
+    47.1,
+    129.2,
+    -29.6
+   ],
+   "C_minus_truth_ft": [
+    -0.3,
+    0.5,
+    0.4
+   ],
+   "fit_from": {
+    "lines": 1019,
+    "free_h": 42
+   },
+   "free": {
+    "n": 1055,
+    "p50": 0.59,
+    "p90": 1.69,
+    "bias_near": 0.23,
+    "bias_far": 0.23,
+    "p50_near": 0.62,
+    "p50_far": 0.64
+   },
+   "camera": {
+    "n": 1055,
+    "p50": 0.57,
+    "p90": 1.68,
+    "bias_near": 0.27,
+    "bias_far": 0.18,
+    "p50_near": 0.6,
+    "p50_far": 0.59
+   }
+  }
+ }
+}

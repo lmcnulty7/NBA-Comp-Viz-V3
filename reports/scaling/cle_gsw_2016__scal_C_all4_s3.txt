@@ -1,0 +1,37 @@
+STAGE 1 SCORECARD  cle_gsw_2016 (held-out arena) vs SportVU 01.18.2016.GSW.at.CLE  build scal_C_all4_s3 (data/sportvu/replay/scal_C_all4_s3)
+truth: 158 testable of 3380 window frames; untestable 95.3% (no truth H fits). Every row below is on testable frames only.
+untestable by cause (sportvu/truth.py): untestable_boxes 1141, no_moment 713, untestable_inliers 643, untestable_match 343, unmapped 323, untestable_noH 59
+
+court line error  n/a       not measurable (truth H fits the feet, not the court; diagnostic only: p50 20.24 px vs the truth template)
+                            target reported; goal <= 3 px on 95% of accepted wide frames, pass/fail once the truth fit residual is <= 1.5 px median; n = 158 frames
+position error    not met   p50 2.44 ft, p90 6.23 ft
+                            target p50 <= 2.0 ft, p90 <= 5.0 ft; n = 1178 players
+near-field bias   not met   near -0.39 ft, far +1.55 ft (toward camera)
+                            target median toward the camera within +-0.5 ft in the near and the far third; n = 359 / 260
+coverage          not met   39.6% (305.1 of 769.9 live wide s; 0.0 s accepted on live non-wide)
+                            target >= 50% of live wide seconds; n = 854.9 live s
+missed players    not met   26.2%
+                            target <= 5%; n = 1551 in frame
+ghost boxes       not met   14.8% non-referee (14.9% with referees; 12 referee boxes)
+                            target <= 5%, referees excluded by class; n = 1306 boxes
+team labels       not met   78.4%
+                            target >= 95%; n = 1144
+identity          reported  14.29 id switches / possession (14.57 before linking); jersey: not measurable
+                            target reported; no target yet (720p ceiling); n = 7 possessions
+generalisation    MET       position error p50 1.22x, p90 1.21x of the held-out game (2.0 ft / 5.15 ft there; reports/scaling/gsw_phx_2016__scal_C_all4_s3.json)
+                            target held-out arena within 1.5x of the held-out game; held-out era (no SportVU) reported label-free; n = this game
+
+reported, not judged:
+  court line error: not measurable: the truth H fits the players' feet, not the painted court (reports/sportvu_truth_line_check.txt: about as far from the paint as V3's H)
+
+not measurable:
+  jersey-read rate: the build wrote no <window>_jersey.json: jersey OCR (CLAIMS C2) did not run on these windows (no saved crops)
+
+caveats:
+  - testable frames are the B4 set: frames where the V3 H matched >= 6 players; every build is scored on them until ROADMAP R1.3 widens the truth, so the set leans toward frames V3 already handled
+  - the truth H is fitted through V3's own boxes (0.33 ft median residual on the feet) and is valid only near those feet: drawn over the frame it sits about as far from the painted court as V3's H (reports/sportvu_truth_line_check.txt, found 2026-10-04), so the court line row is not measurable and missed-player and ghost-box counts, which project through H_truth away from the fitted players, carry that error; position error and near-field bias compare only matched players near the feet
+  - local windowed rebuild of the harvest sections (30 windows of running clock scored), not the production artifacts
+  - wide reference = gate v2 at its v2 threshold; gate v2 was trained on harvest frames including another CLE home game (gsw_cle_xmas16), not this one (reports/sportvu_splits.txt); live = running clock read by OCR at 1 s resolution
+  - referee class = models/player_detector.pt's own referee class at the player confidence; its referee recall has never been measured against human labels, and a box with IoU >= 0.5 to a referee detection can be a player standing beside the referee (see referee_boxes_within_ghost_ft_of_a_player)
+  - id switches are counted between consecutive testable frames (sparse samples), so a switch and switch-back between samples is missed: a lower bound
+  - team accuracy uses the best A/B to team mapping per window, an upper bound on what a fixed mapping would score

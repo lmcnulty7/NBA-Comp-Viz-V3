@@ -1,0 +1,16 @@
+{
+ "201512160GSW": {
+  "clips": 25,
+  "frames": 9500,
+  "frames_failing_any": 8043,
+  "rule_counts": {
+   "team_count": 1286,
+   "second_tracker": 6697,
+   "speed": 2584,
+   "offcourt_feet": 548,
+   "no_H": 136,
+   "scorebug": 13
+  },
+  "fail_rate": 0.847
+ }
+}

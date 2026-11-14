@@ -1,0 +1,15 @@
+# The repository .gitignore already covers node_modules, .next, out, data, public/data, media-private and the
+# Playwright output folders under web/. These are the web-only extras.
+
+# written by Next.js on every dev, build and typegen run
+next-env.d.ts
+
+# TypeScript incremental build state
+*.tsbuildinfo
+
+# local environment files
+.env*
+
+# misc
+.DS_Store
+npm-debug.log*

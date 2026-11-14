@@ -1,0 +1,8 @@
+SPORTVU EVAL, gsw_phx_2016 (held out) vs 12.16.2015.PHX.at.GSW: 1447 testable frames, 11721 matched players
+  position error (pipeline H vs SportVU): p50 7.31 ft  p90 15.38 ft  bias x +0.12  bias y +0.55
+  by region (camera): far n=3285 p50 7.92 p90 16.79 toward-camera 1.69  middle n=5184 p50 7.44 p90 15.32 toward-camera 0.58  near n=3252 p50 6.85 p90 13.55 toward-camera -1.04
+  frame H error: p50 7.44  p90 13.17 ft
+  missed players: 3515 of 14020 in frame (25.1%)
+  ghost boxes: 1938 of 12637 (15.3%; refs count as ghosts)
+  team accuracy: 0.818 (n=11240)
+  nearest-defender proxy (C1): agreement 0.481 on 160 of 224 defenders mapped

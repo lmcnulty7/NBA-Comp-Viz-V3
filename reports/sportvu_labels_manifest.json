@@ -1,0 +1,207 @@
+{
+ "item": "ROADMAP R1.3",
+ "rules": {
+  "truth": "camera model (sportvu/camera.py)",
+  "min_icp_inliers": 6,
+  "min_line_matches": 30,
+  "min_support": 0.12,
+  "max_feet_resid_ft": 2.0,
+  "confirm_ft": 2.5,
+  "gate": "v2",
+  "games": "split == train only"
+ },
+ "by_arena": {
+  "GSW": {
+   "games": 4,
+   "accepted": 13975,
+   "regions": {
+    "left": 6646,
+    "middle": 353,
+    "right": 6976
+   }
+  }
+ },
+ "games": [
+  {
+   "game": "gsw_bkn_2015",
+   "sportvu": "11.14.2015.BKN.at.GSW",
+   "home": "GSW",
+   "mirror": "identity",
+   "windows": 83,
+   "camera": {
+    "status": "ok",
+    "C": [
+     48.45858850471409,
+     125.15640731231298,
+     -29.970700132549506
+    ],
+    "C0": [
+     45.67895667000256,
+     107.17040687872549,
+     -34.49701131775994
+    ],
+    "pooled_frames": 400,
+    "inits": 5017,
+    "reproj_px_median_before": 105.21,
+    "reproj_px_median_after": 6.97
+   },
+   "accepted": 3587,
+   "regions": {
+    "left": 1671,
+    "middle": 83,
+    "right": 1833
+   },
+   "rejections": {
+    "gate_v2_skipped": 1609,
+    "unmapped": 3082,
+    "untestable_inliers": 7627,
+    "untestable_match": 2497,
+    "untestable_boxes": 1926,
+    "untestable_noH": 234,
+    "no_moment": 264,
+    "line_matches_low": 750,
+    "support_low": 114,
+    "feet_resid_high": 567
+   }
+  },
+  {
+   "game": "gsw_cha_2016",
+   "sportvu": "01.04.2016.CHA.at.GSW",
+   "home": "GSW",
+   "mirror": "identity",
+   "windows": 74,
+   "camera": {
+    "status": "ok",
+    "C": [
+     46.83916008730952,
+     129.6888700672981,
+     -30.062847601447533
+    ],
+    "C0": [
+     44.66450996327333,
+     104.7345572174022,
+     -35.00927650835102
+    ],
+    "pooled_frames": 400,
+    "inits": 5053,
+    "reproj_px_median_before": 107.97,
+    "reproj_px_median_after": 6.63
+   },
+   "accepted": 3531,
+   "regions": {
+    "left": 1635,
+    "right": 1770,
+    "middle": 126
+   },
+   "rejections": {
+    "gate_v2_skipped": 1633,
+    "unmapped": 2593,
+    "untestable_inliers": 6553,
+    "untestable_match": 2037,
+    "untestable_boxes": 1584,
+    "untestable_noH": 246,
+    "no_moment": 17,
+    "build_failed": 2,
+    "line_matches_low": 792,
+    "feet_resid_high": 608,
+    "support_low": 121,
+    "zoom_at_bound": 3
+   }
+  },
+  {
+   "game": "gsw_ind_2016",
+   "sportvu": "01.22.2016.IND.at.GSW",
+   "home": "GSW",
+   "mirror": "identity",
+   "windows": 92,
+   "camera": {
+    "status": "ok",
+    "C": [
+     45.9999675666542,
+     123.0382420080589,
+     -29.97820293773678
+    ],
+    "C0": [
+     50.64052132338174,
+     106.06586268225682,
+     -35.00196836133881
+    ],
+    "pooled_frames": 400,
+    "inits": 5683,
+    "reproj_px_median_before": 90.96,
+    "reproj_px_median_after": 6.53
+   },
+   "accepted": 3552,
+   "regions": {
+    "right": 1628,
+    "left": 1835,
+    "middle": 89
+   },
+   "rejections": {
+    "gate_v2_skipped": 162,
+    "unmapped": 3789,
+    "untestable_inliers": 9364,
+    "untestable_match": 3852,
+    "untestable_boxes": 1852,
+    "untestable_noH": 481,
+    "no_moment": 32,
+    "feet_resid_high": 825,
+    "support_low": 286,
+    "line_matches_low": 1022,
+    "zoom_at_bound": 3,
+    "camera_no_init": 1
+   }
+  },
+  {
+   "game": "gsw_sac_2015",
+   "sportvu": "12.28.2015.SAC.at.GSW",
+   "home": "GSW",
+   "mirror": "identity",
+   "windows": 83,
+   "camera": {
+    "status": "ok",
+    "C": [
+     47.10014384037044,
+     129.20295498419938,
+     -29.59874606015479
+    ],
+    "C0": [
+     41.7558078473261,
+     108.06964522651639,
+     -34.539683870667915
+    ],
+    "pooled_frames": 400,
+    "inits": 4935,
+    "reproj_px_median_before": 103.9,
+    "reproj_px_median_after": 5.86
+   },
+   "accepted": 3305,
+   "regions": {
+    "left": 1505,
+    "middle": 55,
+    "right": 1745
+   },
+   "rejections": {
+    "gate_v2_skipped": 974,
+    "unmapped": 2867,
+    "untestable_noH": 412,
+    "untestable_boxes": 1143,
+    "untestable_inliers": 6890,
+    "untestable_match": 2445,
+    "build_failed": 1,
+    "no_moment": 11,
+    "line_matches_low": 798,
+    "feet_resid_high": 669,
+    "support_low": 167,
+    "camera_no_init": 2,
+    "zoom_at_bound": 1
+   }
+  }
+ ],
+ "caveats": [
+  "candidate frames come from the B4 ICP matching, which starts from the V3 court H: frames where V3's H is too far off to match 6 players are lost (counted as untestable_*), so labels lean toward views V3 already handles",
+  "the camera truth is checked against the painted lines by A1 line support, an indicator, not a ground truth; feet vs SportVU noise is about 1.2..1.7 ft median",
+  "one camera position per game: an upload that switches broadcast feeds (gsw_cha_2016) mixes camera positions and loses more frames",
+  "labels are on the local h264 copies of the harvest uploads, not on the production sections"
+ ]
+}

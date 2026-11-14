@@ -1,0 +1,52 @@
+{
+ "game": "12.25.2015.CLE.at.GSW",
+ "date": "2015-12-25",
+ "teams": {
+  "1610612739": "CLE",
+  "1610612744": "GSW"
+ },
+ "n_players": 26,
+ "moments": 81806,
+ "quarters": {
+  "1": {
+   "moments": 20020,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 800.8,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20019
+  },
+  "2": {
+   "moments": 21339,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 853.6,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 21339
+  },
+  "3": {
+   "moments": 19633,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 785.3,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 19633
+  },
+  "4": {
+   "moments": 20814,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 832.6,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20814
+  }
+ }
+}

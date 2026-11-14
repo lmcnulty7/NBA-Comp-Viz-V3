@@ -38,6 +38,8 @@ PAD = 0.04  # bbox padding (fraction of frame) around visible keypoints
 
 def load_labels() -> list[dict]:
     files = sorted(config.COURT_KP_LABELS.glob("*.json"))
+    from sportvu import splits  # ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+    splits.refuse_heldout(files, "train_court_kp")
     recs = []
     for f in files:
         r = json.loads(f.read_text())

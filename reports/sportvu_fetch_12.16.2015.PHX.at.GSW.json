@@ -1,0 +1,61 @@
+{
+ "game": "12.16.2015.PHX.at.GSW",
+ "date": "2015-12-16",
+ "teams": {
+  "1610612756": "PHX",
+  "1610612744": "GSW"
+ },
+ "n_players": 26,
+ "moments": 81654,
+ "quarters": {
+  "1": {
+   "moments": 19555,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 782.2,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 19555
+  },
+  "2": {
+   "moments": 20225,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 809.0,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20225
+  },
+  "3": {
+   "moments": 21184,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 847.4,
+   "gaps_over_2s": [
+    [
+     626.0,
+     622.9
+    ],
+    [
+     178.4,
+     173.1
+    ]
+   ],
+   "moments_with_10_players": 21184
+  },
+  "4": {
+   "moments": 20690,
+   "clock_span": [
+    720.0,
+    0.0
+   ],
+   "covered_s": 827.6,
+   "gaps_over_2s": [],
+   "moments_with_10_players": 20690
+  }
+ }
+}

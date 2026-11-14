@@ -1,0 +1,28 @@
+{
+  "private_patterns": [
+    "/Users/",
+    "/home/",
+    "/root/",
+    "/private/",
+    "/var/folders",
+    "/tmp/",
+    "/Volumes/",
+    "/content/drive",
+    "/opt/anaconda",
+    "[A-Za-z]:\\\\\\\\?Users",
+    "(?<![\\w$])~/",
+    "CloudStorage",
+    "GoogleDrive",
+    "My ?Drive",
+    "[\\w.+-]+@[\\w-]+\\.[A-Za-z]{2,}"
+  ],
+  "url_pattern": "https?://[^\\s\\\"'<>)]+",
+  "ignored_names": [
+    ".DS_Store"
+  ],
+  "staged_files": [
+    "demo/swap.json",
+    "demo/frames.json"
+  ],
+  "fixture_source": "export/sample.py"
+}

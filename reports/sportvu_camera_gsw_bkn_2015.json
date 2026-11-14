@@ -1,0 +1,54 @@
+{
+ "game": "gsw_bkn_2015",
+ "frames": 365,
+ "camera": {
+  "status": "ok",
+  "C": [
+   41.68992827610123,
+   115.06932680439257,
+   -29.572952086676196
+  ],
+  "C0": [
+   37.591049305089584,
+   103.61281041532828,
+   -34.551892380052266
+  ],
+  "pooled_frames": 364,
+  "inits": 364,
+  "reproj_px_median_before": 106.38,
+  "reproj_px_median_after": 8.23,
+  "cost": 687934.2207865835
+ },
+ "per_frame": {
+  "fitted": 364,
+  "accepted": 3,
+  "resid_ft_median": 1.344,
+  "f_px_range": [
+   1153,
+   5239
+  ]
+ },
+ "validation": {
+  "frames": 98,
+  "refined": true,
+  "refined_resid_ft_median": 1.469,
+  "refined_line_matches_median": 42.5,
+  "a1_dist_px_median": {
+   "camera": 36.3,
+   "v3": 51.8,
+   "b4_truth": 40.4
+  },
+  "share_camera_better_than_v3": 0.816,
+  "line_support_median": {
+   "camera": 0.165,
+   "v3": 0.097,
+   "b4_truth": 0.134
+  },
+  "share_camera_support_above_v3": 0.888,
+  "share_over_60px": {
+   "camera": 0.102,
+   "v3": 0.265,
+   "b4_truth": 0.163
+  }
+ }
+}

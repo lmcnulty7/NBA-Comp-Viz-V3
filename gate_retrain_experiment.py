@@ -48,6 +48,9 @@ def main():
         I = json.loads((SHEET / ix).read_text()); L = json.loads((SHEET / lb).read_text())
         items += [{**d, "wide": L[d["key"]]["wide"]} for d in I if d["key"] in L]
     paths = [DRIVE / "label_corpus" / d["tag"] / ("f%07d.jpg" % d["frame"]) for d in items]
+    # ROADMAP R1.4: no training on held-out games (sportvu/splits.json).
+    from sportvu import splits
+    splits.refuse_heldout([d["tag"] for d in items], "gate_retrain_experiment")
     y = np.array([int(d["wide"]) for d in items]); groups = np.array([d["tag"] for d in items]); cur = np.array([d["score"] for d in items])
     print("harvest set: %d frames, %d wide, %d sources" % (len(y), y.sum(), len(set(groups))), flush=True)
 
@@ -55,7 +58,8 @@ def main():
     X = get_image_embeddings(paths, backbone, SHEET / "emb_cache_clip.pkl")
     print("embeddings: %s in %.0f s" % (X.shape, time.time() - t0), flush=True)
 
-    truth = load_truth(); Xp = get_image_embeddings(truth.paths, backbone, config.emb_cache_path("clip")); yp = np.array(truth.labels)
+    truth = load_truth(); splits.refuse_heldout(truth.paths, "gate_retrain_experiment")
+    Xp = get_image_embeddings(truth.paths, backbone, config.emb_cache_path("clip")); yp = np.array(truth.labels)
     split = json.loads(config.SPLIT_PATH.read_text())["files"]
     test_keys = {str(Path(p).resolve()) for p in split["test"]}
     is_test = np.array([str(Path(p).resolve()) in test_keys for p in truth.paths])

@@ -1,0 +1,105 @@
+# Rebound probability (analytics/rebounds/train.py) (fixture output, not a result)
+
+Written 2026-11-07T08:40:32Z by `python -m analytics.rebounds.train --fixtures --report reports/rebounds.md --bootstrap 200`.
+
+**Fixture output, not a result.** Every number below comes from synthetic games (analytics.fixtures); no real tracking data was read. The real run is the Mac command at the end.
+
+## Inputs and rows (fixture output, not a result)
+
+| game | held out | frames in | frames out | misses in | kept | team rebounds (none) | dropped | candidate rows |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 03.08.2016.GRN.at.HLX | False | 123500 | 123500 | 24 | 24 | 0 | 0 | 264 |
+| 12.10.2015.GRN.at.DUL | False | 126350 | 126350 | 24 | 24 | 0 | 0 | 264 |
+| 02.10.2016.QCY.at.FRS | False | 114850 | 114850 | 16 | 16 | 0 | 0 | 176 |
+| 12.16.2015.PHX.at.GSW | True | 118000 | 118000 | 20 | 20 | 0 | 0 | 220 |
+| 12.01.2015.DUL.at.HLX | False | 122180 | 122180 | 23 | 23 | 0 | 0 | 253 |
+| 11.28.2015.HLX.at.FRS | False | 128610 | 128610 | 20 | 20 | 0 | 0 | 220 |
+| 12.09.2015.PEO.at.DUL | False | 115790 | 115790 | 9 | 9 | 0 | 0 | 99 |
+| 11.26.2015.DUL.at.CLE | True | 121780 | 121780 | 16 | 16 | 0 | 0 | 176 |
+
+Dropped misses by reason (all games): no_rim_frame 0, no_rebound_event 0, unmatched_named_rebounder 0, offense_unknown 0, rim_frame_not_in_frames 0, too_few_players 0, rebounder_not_on_court 0.
+Kept misses by kind: team_rebounds_kept 0, player_rebounds_kept 152, identity_match_null_kept 0, identity_match_false_kept 0, unmatched_flag_kept 0.
+Validation (analytics.rebounds.validate): frames 971060 rows in, 971060 out; events 566 rows in, 566 out; rebound_frames 152 rows in, 152 out; shot_frames 326 rows in, 326 out; rosters 112 rows in, 112 out; possessions 320 rows in, 320 out.
+
+Training: 1276 candidate rows, 116 misses, 6 game(s) (02.10.2016.QCY.at.FRS, 03.08.2016.GRN.at.HLX, 11.28.2015.HLX.at.FRS, 12.01.2015.DUL.at.HLX, 12.09.2015.PEO.at.DUL, 12.10.2015.GRN.at.DUL). Held out, set aside before any fit: 396 rows, 36 misses, 2 game(s) (11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW).
+Guard: `analytics.eval.refuse_heldout` checked 6 training game ids; `analytics.schema.assert_time_forward` passed on the feature frame (11 columns).
+
+## Protocol (fixture output, not a result)
+
+Unit: a missed field-goal attempt; one candidate row per player on court at the rim frame plus a none row (team rebound).
+Features: distance_to_rim_ft, distance_to_ball_landing_ft, angle_to_rim, speed_toward_rim_ftps, is_offense, nearest_opponent_dist_ft, n_opponents_closer_to_rim, ball_apex_ft, shot_distance_ft, is_none, prior_rate.
+Models: prior (smoothed player rate by is_offense, normalised within the miss), logit (binary-logistic approximation of the conditional logit: logistic regression on the candidate rows with the binary target, then a softmax of the linear scores within the miss; the within-miss likelihood itself is not maximised), hgb (HistGradientBoostingClassifier, normalised within the miss).
+Priors for the logit and hgb training rows: out of fold over 4 to 5 inner grouped folds of each outer fold's training games (0 means in-sample: one game); test rows take the prior of their fold's training games.
+Selection: lowest out-of-fold per-miss multinomial log loss. Top-1 accuracy reported against the plan target of 40 percent.
+Metrics: out-of-fold under 5 grouped folds by sportvu_game (seed 0); intervals are the 2.5 and 97.5 percentiles of 200 bootstrap resamples of whole games (seed 0).
+
+## Candidates (out-of-fold, 116 misses, 6 game(s)) (fixture output, not a result)
+
+| model | per-miss log loss | top-1 accuracy |
+| --- | --- | --- |
+| prior (selected) | 1.7981 [1.6972, 1.8927] | 0.3379 [0.2835, 0.4085] |
+| logit | 1.8517 [1.7540, 1.9911] | 0.2931 [0.2237, 0.3465] |
+| hgb | 1.8307 [1.6344, 2.0684] | 0.2586 [0.2277, 0.2857] |
+| uniform reference | 2.3979 | 0.0909 |
+
+Paired bootstrap by game, hgb minus prior per-miss log loss: 0.0326 [-0.1358, 0.2302]; interval excludes zero: False (negative favours hgb).
+Selected: prior.
+
+## Calibration of the top candidate's probability (prior, out-of-fold) (fixture output, not a result)
+
+Per miss: y is whether the top candidate secured the rebound (a tie at the maximum counts as yes), p is the top candidate's probability.
+
+### top candidate, prior (fixture output, not a result)
+
+116 rows, 6 games, base rate 0.3793, bootstrap by game (n=200, seed=0, 95 percent percentile interval)
+
+| metric | point | lo | hi |
+| --- | --- | --- | --- |
+| log loss | 0.7306 | 0.6536 | 0.8952 |
+| Brier | 0.2604 | 0.2285 | 0.3257 |
+| ECE | 0.1181 | 0.0700 | 0.2321 |
+| calibration slope | -1.4187 | -3.1682 | 0.0515 |
+
+| bin | lo | hi | n | mean_p | mean_y |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.00 | 0.10 | 0 | - | - |
+| 1 | 0.10 | 0.20 | 12 | 0.1654 | 0.6667 |
+| 2 | 0.20 | 0.30 | 51 | 0.2552 | 0.3529 |
+| 3 | 0.30 | 0.40 | 50 | 0.3309 | 0.3600 |
+| 4 | 0.40 | 0.50 | 3 | 0.4137 | 0.0000 |
+| 5 | 0.50 | 0.60 | 0 | - | - |
+| 6 | 0.60 | 0.70 | 0 | - | - |
+| 7 | 0.70 | 0.80 | 0 | - | - |
+| 8 | 0.80 | 0.90 | 0 | - | - |
+| 9 | 0.90 | 1.00 | 0 | - | - |
+
+## Held-out games (scored once by the selected candidate refit on all 1276 training rows; never fitted or tuned on) (fixture output, not a result)
+
+36 misses from 2 held-out game(s): 11.26.2015.DUL.at.CLE, 12.16.2015.PHX.at.GSW.
+
+| model | per-miss log loss | top-1 accuracy |
+| --- | --- | --- |
+| prior (selected) | 2.1135 | 0.2167 |
+| uniform floor (no fit: 1 over the candidates of the miss) | 2.3979 | 0.0909 |
+
+Held-out numbers are point estimates over 2 game(s), scored exactly once. The selection (p_selected = prior) was fixed on the out-of-fold training folds above before any held-out row was scored; only the selected candidate was refit and scored on held-out rows, so the other models' held-out scores do not exist and their columns are NaN on held-out rows of the predictions table. No bootstrap or paired comparison is computed on held-out rows.
+
+## Assumptions taken without asking (fixture output, not a result)
+
+- Team rebounds are kept as the none class when a rebound event follows the miss and names no player; every other null identity_match is dropped and counted (the lane spec's literal rule would drop every team rebound, since its identity_match is null by construction).
+- The offence of a miss is the section 5 team of the miss event, else the possession's offense_team_id; a miss with neither is dropped.
+- The 0.4 s look-back is the frame of the same period nearest 0.4 s of game clock before the rim frame, within 0.2 s; otherwise the speed is NaN (imputed by the median in the logit, native in hgb).
+- shot_distance_ft uses the section 17 release_frame when present, else the ball's horizontal distance from the basket 1 s before the rim frame.
+- The prior is smoothed with 10 pseudo-opportunities toward the per-side base rate; the none rate is the Laplace team-rebound rate. Nothing was tuned.
+- Top-1 accuracy counts a tie at the maximum as 1 over the number tied (expected accuracy under random tie-breaking); the calibration block counts it as a hit.
+- Model settings fixed in advance: logistic regression C = 1 after median imputation and standardisation; HistGradientBoostingClassifier with 80 iterations, depth 3, learning rate 0.1, 10 rows per leaf.
+
+## Predictions (fixture output, not a result)
+
+No --out given: the rebound_predictions table was not written.
+
+## Status (fixture output, not a result)
+
+Fixture output, not a result: a synthetic run that exercises the pipeline end to end. The real run on the Mac, where the full data lives, is
+
+    python -m analytics.rebounds.train --data "<Drive>/nba_harvest" --out "<Drive>/nba_harvest" --report reports/rebounds.md --folds 5 --seed 0 --bootstrap 1000
