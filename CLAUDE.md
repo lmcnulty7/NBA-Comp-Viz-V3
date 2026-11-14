@@ -70,6 +70,10 @@ top of frozen models. Python produces data, the web only reads it, through one J
   `--validate <data root>`. Synthetic data for web work: `python3 -m export.sample --out web/data`.
 - Site data: `python3 -m export.site_data` (one command, end to end, under the heavy-job lock).
 - Web: `npm ci`, `npm run check`, `npm run build:public`, `npm run build:private` inside `web/`.
+- Public data (D60): `python3 -m export.public_data --src <full root> --out <public root>` empties every per-frame
+  part; `npm run build:public` runs it itself (or reads `PUBLIC_SITE_DATA_DIR`). The `frames` step of
+  `npm run check` fails if any file in the public `out/` holds frame-level positions.
+- Repository proof (D62): `python3 -m tools.check_no_frame_data` fails if git tracks frame data or a clip.
 
 ## Layout
 

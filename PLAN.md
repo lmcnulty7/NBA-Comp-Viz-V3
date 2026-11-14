@@ -403,6 +403,7 @@ Decided by Lucien 2026-11-14 (settling the items D37 reserved):
 - D63 (Lucien) Public deploy: build on this Mac and publish the built site to a gh-pages branch served by GitHub Pages.
 - D64 (Lucien) Private site: Cloudflare Pages behind Cloudflare Access on Lucien's account; the only allowed email is his Colab and Drive account address, signing in with a one-time code.
 - D65 (Lucien) D60 to D64 lift D37's reservation for these steps only.
+- D66 (self-decided) How D60 was carried out. export/public_data.py writes the public data root from the full one (per-frame arrays emptied, ghosts null, the 780 shot locations measured by tracking removed, demo truth points removed; everything else byte for byte) and the public build runs it itself. The public possession page shows an empty half court with the shot chart mark and the access note in place of playback; the cold open's truth and swap scenes show the still, because both drew sensor positions. The per-possession mean ghost deviation is not shown publicly (ghosts are null there). A frames step in npm run check scans every file of the public out/ for tracks. Options: a second export path; a transform of the full root (chosen, one source of truth).
 
 ## Open questions
 - None.
