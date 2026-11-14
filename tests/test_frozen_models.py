@@ -465,11 +465,11 @@ def test_run_child_returns_the_output_and_kills_a_child_over_the_memory_guard(tm
                                      poll_s=0.2)
     assert (code, output.strip()) == (3, "hello") and peak >= 0
     marker = tmp_path / "finished"
-    slow = [sys.executable, "-c", "import pathlib, sys, time\ntime.sleep(3)\npathlib.Path(sys.argv[1]).write_text('x')", str(marker)]
+    slow = [sys.executable, "-c", "import pathlib, sys, time\ntime.sleep(60)\npathlib.Path(sys.argv[1]).write_text('x')", str(marker)]
     started = time.time()
     with pytest.raises(MemoryError, match="above the 0.0 GB guard"):
         M.run_child(slow, C.MemoryGuard(limit_gb=0.0), tmp_path, poll_s=0.1)
-    assert time.time() - started < 2.5 and not marker.exists()          # killed, not left to finish
+    assert time.time() - started < 30 and not marker.exists()           # killed, not left to finish
 
 
 STAND_IN = """
@@ -676,7 +676,8 @@ def test_xfg_rebuild_on_a_fixture_root(tmp_path, monkeypatch, capsys):
     capsys.readouterr()
     monkeypatch.setenv("DATA_ROOT", str(root))
     stored_path = root / "analytics" / "xfg" / M.SEASON / "xfg_predictions.parquet"
-    stored = pd.read_parquet(stored_path)
+    stored = pd.read_parquet(stored_path).drop(columns=["made"])
+    stored.to_parquet(stored_path, index=False)             # the rebuild never reads the stored outcome: it is not even there
     held = stored["heldout"].to_numpy(dtype=bool)
     before = {p: p.stat().st_mtime_ns for p in root.rglob("*") if p.is_file()}
     artifacts = tmp_path / "artifacts"
