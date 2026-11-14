@@ -14,7 +14,7 @@ from export import sample
 from export import schemas as S
 
 REPO = Path(__file__).resolve().parents[1]
-EXPORT_FILES = sorted((REPO / "export").glob("*.py"))
+EXPORT_FILES = sorted((REPO / "export").rglob("*.py"))
 OWNED_TEXT = EXPORT_FILES + [REPO / "CLAUDE.md", REPO / ".claude" / "agents" / "ml-reviewer.md",
                              REPO / ".claude" / "agents" / "verifier.md", Path(__file__)]
 # Calls and imports that fit, tune or calibrate a model. export/ may hold none of them (PLAN.md M1 DoD).
@@ -127,6 +127,7 @@ def test_validate_tree_reports_what_is_wrong(sample_root, tmp_path):
     scorecard_path.write_text(json.dumps(doc))
     problems = "\n".join(S.validate_tree(root))
     assert "results.json: missing" in problems
+    assert not any("results.json: missing" in line for line in S.validate_tree(root, allow_missing=("results.json",)))
     assert "1 2.json: not a file the contract knows" in problems
     assert "possessions.json: ValidationError" in problems
     assert "scorecard.json: private string '/Users/'" in problems
@@ -164,7 +165,7 @@ def test_owned_files_hold_no_dash_and_no_private_string():
         text = path.read_text(encoding="utf-8")
         if any(dash in text for dash in DASHES):
             problems.append(f"{path.relative_to(REPO)}: em or en dash")
-        if path.suffix == ".py" and path.parent.name == "export":
+        if path.suffix == ".py" and "export" in path.relative_to(REPO).parts[:1]:
             # The contract module lists the private patterns themselves; everything else in export/ must be clean.
             body = text if path.name != "schemas.py" else ""
             for found in S.find_private(body):

@@ -757,9 +757,10 @@ def validate_file(root: Path, relpath: str) -> list[str]:
     return problems
 
 
-def validate_tree(root) -> list[str]:
+def validate_tree(root, allow_missing=()) -> list[str]:
     """Validate every file under a data root: each must be known to the contract and valid against its model,
-    the fixed files must all exist, and no file may hold a local path or an email address."""
+    the fixed files must all exist (except the paths in `allow_missing`), and no file may hold a local path or an
+    email address."""
     root = Path(root)
     problems: list[str] = []
     seen = set()
@@ -768,7 +769,7 @@ def validate_tree(root) -> list[str]:
         seen.add(rel)
         problems += validate_file(root, rel)
     for pattern, _ in FILES:
-        if "<" not in pattern and pattern not in seen:
+        if "<" not in pattern and pattern not in seen and pattern not in allow_missing:
             problems.append(f"{pattern}: missing")
     return problems
 
@@ -778,6 +779,7 @@ def main(argv=None) -> int:
     parser.add_argument("--out", help="path of the schema file to write")
     parser.add_argument("--check", help="path of a schema file that must equal the current schema")
     parser.add_argument("--validate", help="a data root (web/data) to validate against the contract")
+    parser.add_argument("--allow-missing", nargs="*", default=[], help="fixed files that may be absent, for example demo/swap.json")
     args = parser.parse_args(argv)
     status = 0
     if args.out:
@@ -792,7 +794,7 @@ def main(argv=None) -> int:
         else:
             print("schema file is current")
     if args.validate:
-        problems = validate_tree(args.validate)
+        problems = validate_tree(args.validate, allow_missing=tuple(args.allow_missing))
         for line in problems[:50]:
             print(line)
         print(f"{len(problems)} problem(s)" if problems else "data root is valid")
