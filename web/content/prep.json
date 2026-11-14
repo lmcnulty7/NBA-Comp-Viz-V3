@@ -6,7 +6,8 @@
   "counts": "{shown} of {total} players are shown. {hidden} are left out because no value clears its minimum sample.",
   "rules": {
     "title": "Minimum samples",
-    "row": "{metric}: at least {n} {unit}."
+    "row": "{metric}: at least {n} {unit}.",
+    "intervals": "Every value shows its interval, or says it is a point estimate. Intervals come from resampling each player's own games."
   },
   "metrics": {
     "shot_making": "Shot-making over expected",
@@ -23,7 +24,28 @@
     "position": "Position",
     "games": "Games",
     "views": "Views shown",
-    "viewCount": "{n} of {total}"
+    "viewCount": "{n} of {total}",
+    "search": "Search players",
+    "sort": "Sort by",
+    "sortBy": {
+      "name": "Name, A to Z",
+      "games": "Games tracked, most first",
+      "shot_making": "Shot-making over expected, highest first",
+      "gravity": "Gravity, highest first",
+      "rebounding": "Rebounding, highest first",
+      "absence_risk": "Absence risk, model, highest first"
+    },
+    "column": {
+      "shot_making": "Shot-making over expected, per hundred attempts",
+      "gravity": "Gravity, feet",
+      "rebounding": "Rebounds per hundred chances",
+      "absence_risk": "Absence risk, model"
+    },
+    "reverse": "Reverse the order",
+    "count": "Showing {n} of {total} players.",
+    "below": "below the minimum sample",
+    "belowNote": "Players below the minimum sample for this view come last.",
+    "empty": "No player matches this search."
   },
   "player": {
     "back": "All players",
@@ -45,7 +67,18 @@
       "selected": "was the selected model",
       "notSelected": "was not the selected model",
       "ece": "Calibration error of that baseline, out of fold",
-      "unit": "attempts"
+      "unit": "attempts",
+      "baselineErrorNote": "Read this beside the value above. When the baseline under-predicts easy shots, a rim-heavy shot diet reads high.",
+      "residualNote": "Given only for reference. That model already knows the shooter, so this is near zero by design.",
+      "baselineName": "The shot-making baseline",
+      "calibration": {
+        "title": "How well the baseline is calibrated",
+        "intro": "Out of fold, by bin of predicted chance. Where observed and predicted differ, the baseline's own error moves a player's value.",
+        "bin": "Predicted chance",
+        "n": "Shots",
+        "predicted": "Predicted",
+        "observed": "Observed"
+      }
     },
     "gravity": {
       "value": "Extra defender distance, in feet",
@@ -54,15 +87,17 @@
     "rebounding": {
       "value": "Rebounds, per hundred chances",
       "expected": "Model expectation, per hundred chances",
-      "unit": "chances"
+      "unit": "chances",
+      "gap": "The model expectation already uses his rate in other games, so the gap between the two is not a skill number."
     },
     "absence": {
       "model": "Model probability of missing the next tracked game",
       "observed": "Observed share of games followed by an absence",
       "absent": "Absences",
       "observedOnly": "The model output was not stored, so only the observed share is shown.",
-      "caution": "Neither value is an injury forecast.",
-      "unit": "games"
+      "caution": "Neither value is an injury forecast. Both count only whether he appears in the team's next tracked game.",
+      "unit": "games",
+      "absentOf": "after {games} games"
     },
     "similar": {
       "caption": "Nearest players in the style embedding",
@@ -70,8 +105,16 @@
       "rank": "Rank",
       "name": "Player",
       "distance": "Distance",
-      "unit": "possessions"
+      "unit": "possessions",
+      "distanceNote": "Distance in the style embedding. Smaller means more alike. Each distance is a point estimate."
     },
-    "descriptive": "Descriptive: read from training games, not a model prediction."
+    "descriptive": "Descriptive: read from training games, not a model prediction.",
+    "hiddenCount": "{hidden} of {total} players have no value above its minimum sample, so they have no page.",
+    "minSample": "Minimum sample: {min} {unit}. This player has {n}.",
+    "barNote": "The line is the interval. The axis spans every shown player.",
+    "check": {
+      "passed": "Rebuilt output checked: {compared}. Largest difference {diff} {unit}, within the tolerance of {tolerance}.",
+      "failed": "Rebuilt output failed its check: {compared}. Largest difference {diff} {unit}, above the tolerance of {tolerance}."
+    }
   }
 }

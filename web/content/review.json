@@ -4,6 +4,7 @@
   "intro": "Every possession here comes from a held-out game, so every prediction shown is out of sample.",
   "games": {
     "title": "Games",
+    "heldout": "All {n} games below were held out. No model saw them while it was fitted or tuned.",
     "caption": "Held-out games in this data build",
     "game": "Game",
     "date": "Date",
@@ -23,10 +24,37 @@
     "period_end": "End of period",
     "other": "Other"
   },
+  "tour": {
+    "title": "Guided tour",
+    "label": "Guided tour",
+    "intro": "The tour walks through {n} featured possessions, from made shots to missed ones, and from hard shots to easy ones.",
+    "allByRule": "A written rule picked every stop at random from its cell. Nobody chose them by hand.",
+    "handCount": "A written rule picked the stops at random from their cells. A person swapped in {n} of them by hand, and each of those says so.",
+    "start": "Start the tour",
+    "stopName": "{game}, possession {n}.",
+    "stop": "Tour stop {k} of {n}.",
+    "cell": "Cell: {result}, xFG fifth {fifth}.",
+    "cellRaw": "Cell: {cell}.",
+    "noCell": "Not in a cell of the rule.",
+    "byRule": "Picked by the written rule.",
+    "byHand": "Picked by hand, not by the rule.",
+    "look": "Press play. Watch the value line move as the ball moves, and see where an average defense would have stood.",
+    "previous": "Previous stop",
+    "next": "Next stop",
+    "end": "End of the tour. Back to all games",
+    "none": "This data build has no featured possessions, so there is no tour."
+  },
+  "notShown": {
+    "title": "What this page does not show",
+    "intro": "These models were tested and are left out of the review, because they found no reliable signal.",
+    "row": "Verdict: {verdict}.",
+    "link": "See every model on the results page"
+  },
   "game": {
     "back": "All games",
     "meta": "{date}. {split}.",
     "count": "{n} possessions, {featured} featured.",
+    "heldout": "This game was held out, so each prediction on its possessions is out of sample.",
     "caption": "Possessions of {game}",
     "possession": "Possession",
     "period": "Period",
@@ -42,17 +70,41 @@
     "notes": "Notes on this game",
     "possessions": "Possessions"
   },
+  "filters": {
+    "label": "Filter the possessions",
+    "result": "Result",
+    "allResults": "All results",
+    "xfg": "Shot quality",
+    "allFifths": "All shot quality",
+    "fifth": "xFG fifth {k}",
+    "fifthLow": "xFG fifth {k}, below {hi}",
+    "fifthMid": "xFG fifth {k}, {lo} to {hi}",
+    "fifthHigh": "xFG fifth {k}, {lo} and above",
+    "noXfg": "No xFG",
+    "featured": "Featured only",
+    "clear": "Clear filters",
+    "count": "Showing {n} of {total} possessions.",
+    "xfgNote": "xFG is the chance the last shot goes in, as the model saw it. Each value is a point estimate. The fifths split all held-out shots into five equal groups."
+  },
   "flags": {
     "featured": "featured",
     "featuredByHand": "featured, picked by hand",
     "demo": "in the demo",
     "gap": "tracking gap",
-    "noGhosts": "no ghost defenders"
+    "noGhosts": "no ghost defenders",
+    "oneFrame": "one frame only"
+  },
+  "metric": {
+    "heldout": "{model} on held-out games, {name}:",
+    "unnamed": "its metric",
+    "missing": "The held-out metric of {model} is not in this data build.",
+    "source": "From {report}."
   },
   "possession": {
     "title": "Possession {n}",
     "pageTitle": "Possession {n}, {game}",
     "meta": "Period {period}, {clock} on the clock. {offense} on offense, {defense} on defense.",
+    "heldout": "{split}. Every prediction on this page is out of sample.",
     "facts": {
       "result": "Result",
       "points": "Points",
@@ -64,10 +116,16 @@
       "duration": "Length",
       "seconds": "{value} s",
       "frames": "Frames",
-      "framesNote": "at {hz} per second"
+      "framesNote": "at {hz} per second",
+      "demo": "Broadcast demo",
+      "demoYes": "This possession is in the broadcast demo.",
+      "fillShare": "of player positions filled from the sensor data, {filled} of {total}",
+      "demoNote": "The demo is an illustration. The values on this page come from the sensor tracking.",
+      "gap": "Tracking gap",
+      "gapNote": "The game clock jumps inside this possession, so part of it is missing."
     },
     "court": {
-      "title": "The court at one frame",
+      "title": "The possession on the court",
       "label": "Court diagram of possession {n} at {t} seconds. {offense} attack and {defense} defend.",
       "loadingLabel": "Court diagram, loading",
       "loading": "Loading the possession.",
@@ -84,13 +142,54 @@
       "defense": "{team}, defense",
       "ball": "Ball",
       "ghost": "Ghost defenders, an {label}",
-      "shot": "Shot location",
+      "shot": "Where the last shot went up",
       "untracked": "Not tracked at this frame: {names}."
     },
+    "playback": {
+      "play": "Play",
+      "pause": "Pause",
+      "replay": "Play again",
+      "speed": "Speed",
+      "speeds": {
+        "half": "Half speed",
+        "normal": "Real time",
+        "double": "Double speed"
+      },
+      "single": "The tracking holds one frame for this possession, so there is nothing to play.",
+      "reduced": "Your system asks for less motion, so playback steps from frame to frame without gliding."
+    },
+    "epv": {
+      "heading": "Possession value over time",
+      "title": "EPV, expected points from this moment",
+      "label": "Line chart of expected points over the possession, from {start} at the start to {end} at the end, {n} values.",
+      "readout": "At {t} s: {value}",
+      "tick": "{t} s",
+      "shot": "Shot",
+      "hint": "The line moves with playback. Press or drag on the chart to jump to a moment. Between two values, the line is drawn straight.",
+      "hintStatic": "The line moves with playback.",
+      "table": "Values as a table",
+      "time": "Seconds into the possession",
+      "value": "EPV, point estimate",
+      "none": "No EPV state is stored for this possession.",
+      "model": "The EPV model"
+    },
+    "shot": {
+      "heading": "The shot",
+      "what": "{shooter}, {outcome}.",
+      "when": "Released {t} s into the possession.",
+      "xfg": "xFG",
+      "noXfg": "This shot has no xFG prediction.",
+      "none": "No located shot in this possession.",
+      "model": "The xFG model"
+    },
     "ghosts": {
+      "heading": "Ghost defenders",
+      "toggle": "Ghost defenders, an {label}",
+      "label": "average defense",
       "note": "A ghost defender is where an average defender would stand {horizon} seconds later, given how the ball and the attackers moved. It shows an {label}.",
       "deviation": "Mean distance from the real defenders in this possession: {value} ft.",
-      "none": "This possession has no ghost defenders."
+      "none": "This possession has no ghost defenders.",
+      "model": "The ghosting model"
     },
     "positions": {
       "title": "Positions at this frame",
@@ -122,6 +221,7 @@
       "locationFromShotChart": "location from the shot chart",
       "none": "No field-goal attempt in this possession."
     },
+    "otherSources": "Other sources",
     "notes": "Notes",
     "previous": "Previous possession",
     "next": "Next possession"

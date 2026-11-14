@@ -53,3 +53,10 @@
 .term::after {
   content: ":";
 }
+
+/* The player's interval against the spread of every shown player. */
+.bar {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+}

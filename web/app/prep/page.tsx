@@ -1,26 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { PlayerIndex } from "@/components/prep/PlayerIndex";
 import { SourceList } from "@/components/ui/SourceList";
 import { copy, fill, label } from "@/lib/copy";
 import { getServerSource } from "@/lib/data/server";
 import { formatCount } from "@/lib/format";
-import { routes } from "@/lib/site";
-import type { PlayerView } from "@/lib/types/contract";
 
 const text = copy.prep;
 
 export const metadata: Metadata = { title: text.title };
-
-/** How many of a player's five views clear their minimum sample. */
-function shownViews(player: PlayerView): number {
-  return [
-    player.shot_making.shown,
-    player.gravity.shown,
-    player.rebounding.shown,
-    player.absence_risk.shown,
-    player.similar.shown,
-  ].filter(Boolean).length;
-}
 
 export default async function PrepPage() {
   const players = await getServerSource().players();
@@ -54,43 +41,16 @@ export default async function PrepPage() {
             </li>
           ))}
         </ul>
+        <p className="small">{text.rules.intervals}</p>
       </section>
 
       <section className="section" aria-labelledby="players">
         <h2 id="players">{text.list.title}</h2>
-        <div className="table-wrap" role="region" aria-label={text.list.caption} tabIndex={0}>
-          <table>
-            <caption className="visually-hidden">{text.list.caption}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{text.list.player}</th>
-                <th scope="col">{text.list.teams}</th>
-                <th scope="col" className="wide-only">
-                  {text.list.position}
-                </th>
-                <th scope="col">{text.list.games}</th>
-                <th scope="col">{text.list.views}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {players.players.map((player) => (
-                <tr key={player.slug}>
-                  <th scope="row">
-                    <Link href={routes.player(player.slug)} prefetch={false}>
-                      {player.name}
-                    </Link>
-                  </th>
-                  <td>{player.teams.join(", ")}</td>
-                  <td className="wide-only">{player.position ?? null}</td>
-                  <td className="num">{formatCount(player.games)}</td>
-                  <td className="num">
-                    {fill(text.list.viewCount, { n: shownViews(player), total: players.rules.length })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* The index needs no neighbour lists; leaving them out keeps the page light. */}
+        <PlayerIndex
+          players={players.players.map((player) => ({ ...player, similar: { ...player.similar, neighbours: [] } }))}
+          views={players.rules.length}
+        />
         <SourceList sources={players.sources} />
       </section>
     </div>
