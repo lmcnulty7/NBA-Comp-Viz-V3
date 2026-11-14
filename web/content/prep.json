@@ -1,0 +1,77 @@
+{
+  "title": "Game and season prep",
+  "eyebrow": "Prep",
+  "intro": "Player views from the season models. Model predictions come from training games, out of fold. Descriptive tables come from training games. Held-out games feed none of them.",
+  "window": "Season {season}. {window}.",
+  "counts": "{shown} of {total} players are shown. {hidden} are left out because no value clears its minimum sample.",
+  "rules": {
+    "title": "Minimum samples",
+    "row": "{metric}: at least {n} {unit}."
+  },
+  "metrics": {
+    "shot_making": "Shot-making over expected",
+    "gravity": "Gravity",
+    "rebounding": "Rebounding",
+    "absence_risk": "Absence risk",
+    "similar": "Similar players"
+  },
+  "list": {
+    "title": "Players",
+    "caption": "Players with at least one view above its minimum sample",
+    "player": "Player",
+    "teams": "Teams",
+    "position": "Position",
+    "games": "Games",
+    "views": "Views shown",
+    "viewCount": "{n} of {total}"
+  },
+  "player": {
+    "back": "All players",
+    "meta": "{teams}. {games} games tracked.",
+    "position": "Position {position}.",
+    "hidden": "Not shown. {n} {unit} is below the minimum of {min}.",
+    "status": "Model status",
+    "notes": "Notes",
+    "value": "Value",
+    "interval": "Interval",
+    "sample": "Sample",
+    "shotMaking": {
+      "value": "Makes above expected, per hundred attempts",
+      "baselineError": "Part of that value the baseline's own error explains, per hundred attempts",
+      "fg": "Field-goal share",
+      "expected": "Expected share",
+      "residual": "Frozen model residual, per hundred attempts",
+      "baseline": "The expectation comes from {name}, which {selected}.",
+      "selected": "was the selected model",
+      "notSelected": "was not the selected model",
+      "ece": "Calibration error of that baseline, out of fold",
+      "unit": "attempts"
+    },
+    "gravity": {
+      "value": "Extra defender distance, in feet",
+      "unit": "possessions"
+    },
+    "rebounding": {
+      "value": "Rebounds, per hundred chances",
+      "expected": "Model expectation, per hundred chances",
+      "unit": "chances"
+    },
+    "absence": {
+      "model": "Model probability of missing the next tracked game",
+      "observed": "Observed share of games followed by an absence",
+      "absent": "Absences",
+      "observedOnly": "The model output was not stored, so only the observed share is shown.",
+      "caution": "Neither value is an injury forecast.",
+      "unit": "games"
+    },
+    "similar": {
+      "caption": "Nearest players in the style embedding",
+      "unavailable": "The style embedding was not stored, so no similar players are shown.",
+      "rank": "Rank",
+      "name": "Player",
+      "distance": "Distance",
+      "unit": "possessions"
+    },
+    "descriptive": "Descriptive: read from training games, not a model prediction."
+  }
+}

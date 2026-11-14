@@ -1,0 +1,12 @@
+/* The court canvas fills a frame whose shape is the shape of the view, so nothing shifts when it draws. */
+.frame {
+  position: relative;
+  width: 100%;
+  background: var(--ground);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

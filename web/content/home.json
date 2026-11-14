@@ -1,0 +1,26 @@
+{
+  "title": "Home",
+  "eyebrow": "Basketball analytics on player tracking",
+  "headline": "From broadcast pixels to possession value, measured against ground truth at every step",
+  "dek": "An analytics product built on player tracking. A broadcast video pipeline stands in for the tracking data a team buys, and it is scored against sensor data.",
+  "coverage": "{possessions} held-out possessions from {games} games. Season {season}.",
+  "note": "The model results on this site come from sensor tracking data. The broadcast demo is an illustration.",
+  "entries": {
+    "title": "Where to go",
+    "review": {
+      "title": "Possession review",
+      "body": "Pick a possession. See its shot quality, its value over time, and where an average defense would have stood.",
+      "cta": "Open the possession review"
+    },
+    "prep": {
+      "title": "Game and season prep",
+      "body": "Player views from the season models. Each value shows its interval or says it is a point estimate, and names its minimum sample.",
+      "cta": "Open the prep tab"
+    },
+    "results": {
+      "title": "Results",
+      "body": "The tracking scorecard and every model result. Models that found no signal stay on the list.",
+      "cta": "Open the results"
+    }
+  }
+}

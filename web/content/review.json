@@ -1,0 +1,129 @@
+{
+  "title": "Possession review",
+  "eyebrow": "Review",
+  "intro": "Every possession here comes from a held-out game, so every prediction shown is out of sample.",
+  "games": {
+    "title": "Games",
+    "caption": "Held-out games in this data build",
+    "game": "Game",
+    "date": "Date",
+    "split": "Held out as",
+    "possessions": "Possessions",
+    "featured": "Featured"
+  },
+  "split": {
+    "heldout_game": "Held-out game",
+    "heldout_arena": "Held-out arena"
+  },
+  "result": {
+    "shot_made": "Made shot",
+    "shot_missed": "Missed shot",
+    "free_throws": "Free throws",
+    "turnover": "Turnover",
+    "period_end": "End of period",
+    "other": "Other"
+  },
+  "game": {
+    "back": "All games",
+    "meta": "{date}. {split}.",
+    "count": "{n} possessions, {featured} featured.",
+    "caption": "Possessions of {game}",
+    "possession": "Possession",
+    "period": "Period",
+    "clock": "Clock",
+    "offense": "Offense",
+    "result": "Result",
+    "points": "Points",
+    "xfg": "xFG",
+    "epv": "EPV, start to end",
+    "epvRange": "{start} to {end}",
+    "flags": "Notes",
+    "open": "Possession {n}",
+    "notes": "Notes on this game",
+    "possessions": "Possessions"
+  },
+  "flags": {
+    "featured": "featured",
+    "featuredByHand": "featured, picked by hand",
+    "demo": "in the demo",
+    "gap": "tracking gap",
+    "noGhosts": "no ghost defenders"
+  },
+  "possession": {
+    "title": "Possession {n}",
+    "pageTitle": "Possession {n}, {game}",
+    "meta": "Period {period}, {clock} on the clock. {offense} on offense, {defense} on defense.",
+    "facts": {
+      "result": "Result",
+      "points": "Points",
+      "xfg": "Shot quality, xFG",
+      "xfgNote": "point estimate, frozen model, held out",
+      "epvStart": "Value at the start, EPV",
+      "epvEnd": "Value at the end, EPV",
+      "epvNote": "expected points, point estimate",
+      "duration": "Length",
+      "seconds": "{value} s",
+      "frames": "Frames",
+      "framesNote": "at {hz} per second"
+    },
+    "court": {
+      "title": "The court at one frame",
+      "label": "Court diagram of possession {n} at {t} seconds. {offense} attack and {defense} defend.",
+      "loadingLabel": "Court diagram, loading",
+      "loading": "Loading the possession.",
+      "error": "This possession could not be loaded.",
+      "frame": "Frame",
+      "frameValue": "Frame {frame} of {total}, {t} s into the possession",
+      "clock": "Game clock {clock}",
+      "shotClock": "Shot clock {clock}",
+      "view": "Court view",
+      "full": "Full court",
+      "half": "Half court",
+      "legend": "Legend",
+      "offense": "{team}, offense",
+      "defense": "{team}, defense",
+      "ball": "Ball",
+      "ghost": "Ghost defenders, an {label}",
+      "shot": "Shot location",
+      "untracked": "Not tracked at this frame: {names}."
+    },
+    "ghosts": {
+      "note": "A ghost defender is where an average defender would stand {horizon} seconds later, given how the ball and the attackers moved. It shows an {label}.",
+      "deviation": "Mean distance from the real defenders in this possession: {value} ft.",
+      "none": "This possession has no ghost defenders."
+    },
+    "positions": {
+      "title": "Positions at this frame",
+      "caption": "Player and ball positions in feet at frame {frame}",
+      "player": "Player",
+      "team": "Team",
+      "role": "Role",
+      "x": "x, ft",
+      "y": "y, ft",
+      "offense": "offense",
+      "defense": "defense",
+      "ball": "Ball",
+      "missing": "not tracked"
+    },
+    "shots": {
+      "title": "Shots",
+      "caption": "Field-goal attempts in this possession",
+      "shooter": "Shooter",
+      "outcome": "Outcome",
+      "kind": "Kind",
+      "time": "Time",
+      "xfg": "xFG, point estimate",
+      "made": "made",
+      "missed": "missed",
+      "three": "three-point attempt",
+      "two": "two-point attempt",
+      "seconds": "{value} s",
+      "timeFromPlayByPlay": "time from the play-by-play",
+      "locationFromShotChart": "location from the shot chart",
+      "none": "No field-goal attempt in this possession."
+    },
+    "notes": "Notes",
+    "previous": "Previous possession",
+    "next": "Next possession"
+  }
+}
