@@ -1,458 +1,394 @@
-# NBA Broadcast Stats Pipeline
+# From broadcast pixels to possession value, measured against ground truth at every step
 
-Broadcast video → per-player court-space trajectories → (eventually) defensive
-stats. Started as just the court-visibility gate; now contains the full
-perception stack (see `DEVLOG.md` for the narrative history):
+A basketball analytics product built on player tracking. A tracking pipeline that works from broadcast video
+stands in for the tracking data that teams buy from vendors, and it is scored against real tracking data.
 
-- **Gate** (`gate/`) — live-play vs dead-ball CLIP classifier (its own section below).
-- **Court** (`court/`) — grid-keypoint detector (`models/court_grid_snapped.pt`)
-  + line-snap + temporal tracking (`court/snap_track.py`); sub-pixel homography
-  on solved frames, tracks through camera pans.
-- **Players** (`detect/`) — YOLO detection + BoT-SORT tracking.
-- **Trajectories** (`build_trajectories.py`) — foot-points → court feet → cleaned
-  per-player paths + synced review video (broadcast | minimap).
-- **Label factory** (`label_factory.py`) — self-training harvester: turns any
-  broadcast into new court-model training data with no hand labeling.
+**Site:** [PLACEHOLDER: the public address goes here once the site is deployed (PLAN.md M9)]
 
----
+## The short version
 
-## Status (2026-10-03): V3 frozen, Stage 1 rebuilt on a SportVU scoreboard
+About two minutes to read.
 
-**What V3 is.** Git tag `v3-frozen` (commit `07bf4e6` on `main`, on GitHub): the CLIP gate, the
-grid-keypoint court solver with line snap and tracking (`court/`), the YOLO detector with
-BoT-SORT (`detect/`), the unsupervised team classifier, possession segmentation, the play-by-play
-alignment and the stats layer, run on the 14-game production harvest (`data/harvest/games.json`).
-Everything below this section describes V3 as tagged.
+**What it is.** Models that answer coaching questions from player tracking data. How good was this shot (xFG)?
+How many points is this possession worth right now (EPV)? Where would an average defense have stood (ghosting)?
+They run on public SportVU tracking of the 2015-16 season (`reports/results.md`). A site shows them as a
+possession review and a prep tab, after a short demo of the broadcast pipeline.
 
-**How good it is against real tracking.** On the held-out game gsw_phx_2016 against SportVU
-(`reports/sportvu_phx.txt`, CLAIMS.md row A8, PROPOSED): position error p50 7.3 ft, p90 15.4 ft,
-compressed toward mid-court; 25.1% of in-frame players missed; 15.3% of boxes are ghosts (referees
-included); team labels 81.8%. Caveat: measured only on the 15% of rebuilt window frames where a
-truth homography could be fitted (`reports/sportvu_truth_gsw_phx_2016.json`), so it is optimistic,
-and on a local windowed rebuild, not the production artifacts. V3's own stage numbers (CLAIMS.md
-A2: gate 98.7%, detection P.89/R.87, homography 0.30 ft median) were measured on the 7 prototype
-clips the models were tuned on, and the 87.8% play-by-play canary (CLAIMS.md A1) checks which team
-scored, not where players stand. Those numbers keep their meaning until a re-measure replaces them
-with its own artifact.
+The model results come from SportVU positions. The broadcast pipeline has no ball, no stable player identity
+and no reliable team label yet, so it feeds only the demo, and the demo is labelled an illustration.
 
-**Frozen.** The court solver, the detector training set, the team classifier and the stats on top.
-Nothing new is built on them; the stats layer is not extended until ROADMAP Phase 5.
+**How well the tracking works.** The adopted build, `r23`, scored against SportVU on footage held out from
+training. In one line: on the held-out game the median position error is 1.92 ft, and the pipeline misses 25.1%
+of the players in view. Every value is copied from the scorecard of its game,
+`reports/scorecard/<game>__r23.txt`.
 
-**Reused by the rebuild.** The measurement discipline (CLAIMS.md, audits, corrections); the SportVU
-scoreboard (`sportvu/`); the label-free QC (`qc/`, `track_qc.py`), as a worst-first ranking tool
-only, since no check separates right from wrong frames well enough to accept them
-(`reports/sportvu_check_validation.txt`); the play-by-play alignment; the possession and stats layer
-(reattached in ROADMAP Phase 5); the harvest tooling and the game registry.
+| Row and target | Held-out game `gsw_phx_2016` | Held-out arena `cle_nyk_2015` | Held-out arena `cle_gsw_2016` |
+| --- | --- | --- | --- |
+| Position error, p50 / p90 <= 2.0 / 5.0 ft | **met**: 1.92 / 4.98 ft | not met: 2.25 / 5.46 ft | not met: 2.22 / 5.5 ft |
+| Near-field bias, near / far third, within +-0.5 ft | not met: -0.67 / +1.52 ft | not met: -0.63 / +1.66 ft | not met: -0.12 / +2.00 ft |
+| Coverage >= 50% | **met**: 99.3% | **met**: 92.3% | not met: 39.7% |
+| Missed players <= 5% | not met: 25.1% | not met: 24.4% | not met: 26.2% |
+| Ghost boxes, referees excluded, <= 5% | not met: 15.1% | not met: 14.8% | not met: 14.8% |
+| Team labels >= 95% | not met: 81.9% | not met: 73.7% | not met: 78.2% |
 
-**Where the scoreboard lives** (all run as `python -m sportvu.<module>`; SportVU data stays under
-`data/sportvu/`, gitignored):
+- **Only frames with usable truth are scored**: 1447 of 9500 on the held-out game (stated at the top of its
+  scorecard). They lean toward frames the pipeline already handled, so every row is optimistic.
+- **Position error is met on the point estimate only.** Its p90 is 4.98 ft against 5.0 ft, with a 95% interval
+  of [4.42, 6.02] (`reports/r23_verification.txt`).
+- **One model did see the held-out game.** The frame gate, which picks the wide shots, trained on 294 of its
+  frames (`reports/sportvu_splits.txt`). The court and player models did not train on it.
+- **Missed players, ghost boxes and team labels fail on every game.** Fixing detection, teams and identity is
+  out of scope for this build (`PLAN.md`).
+
+**What the models found.** Each model was scored exactly once on held-out games (`reports/results.md`).
+Brackets are 95 percent bootstrap intervals by game.
+
+- **Shot quality (xFG) works.** Held-out log loss 0.6232 [0.6132, 0.6327], against 0.6735 for a model that knows
+  only where the shot was taken.
+- **Possession value (EPV) works, narrowly.** Held-out MSE 1.2362 [1.1899, 1.2812], against 1.3319 for a
+  constant.
+- **Decision quality failed.** It does not track a player's on-court offensive rating: Spearman
+  -0.014 [-0.116, 0.100] held out. It stays on the site as tested, no signal.
+
+**Where to look next.** The results with what failed: [`reports/results.md`](reports/results.md). The
+scorecards with their caveats: [`reports/scorecard/`](reports/scorecard/). What the project will and will not
+claim: [`CLAIMS.md`](CLAIMS.md). The demo script: [`docs/SCRIPT.md`](docs/SCRIPT.md). The plan and every
+decision: [`PLAN.md`](PLAN.md).
+
+## Run it
+
+All commands run from the repository root, with a `python3` that has the packages in `requirements.txt`.
+
+```bash
+python3 -m pytest -q tests -m "not slow"         # the fast tests
+python3 -m export.sample --out web/data          # synthetic site data for web work, never a result
+python3 -m export.site_data                      # the real site data, one command, end to end
+python3 -m export.schemas --validate web/data    # check the site data against the contract
+```
+
+The site is a static export. Inside `web/`:
+
+```bash
+npm ci
+npm run check            # types, lint, contract check of the data, copy checks, browser tests
+npm run build:public     # stills and derived data only
+npm run build:private    # adds the short clips, for the access-controlled copy
+```
+
+Notes:
+
+- `python3 -m export.site_data` needs `DATA_ROOT`, the folder that holds the SportVU contract tables and the
+  model outputs (`docs/DATA_CONTRACT.md`). Without it, the synthetic data is enough to build and test the site.
+  A site built from synthetic data labels every number as fixture output.
+- Long jobs (the whole test suite, the data export, the site build) take a machine-wide lock so that only one
+  runs at a time: `python3 -m export.heavy --name "what it is" -- <command>`.
+- On the development Mac, `python3` must be the system interpreter. Another distribution's packages shadow the
+  repository's `tests/` folder (`CLAUDE.md`).
+- `make help` lists the older shortcuts for the analytics lanes. `docs/run_order.md` has the full order from data
+  collection to every model. Never run a lane with its default paths against the real data: it would overwrite
+  the frozen outputs and reports (`CLAUDE.md`, hard rules).
+
+## How the pieces fit
+
+Python produces data, the web only reads it, through one JSON contract.
+
+| Path | What it holds |
+| --- | --- |
+| `analytics/` | The model lanes. The eleven with results (xFG, rebounds, matchups, gravity, ghosting, embeddings, EPV, decisions, lineups, win probability, load) are frozen at tag `freeze-v1`. |
+| `sportvu/` | The SportVU scoreboard for the tracking pipeline: fetch, sync, truth, scorecard. Frozen with the lanes. |
+| `export/schemas.py` | The site data contract. Every file under `web/data` validates against it. |
+| `export/site_data.py` | Reads the reports and the model outputs, writes `web/data`. It fits nothing. |
+| `export/sample.py`, `export/heavy.py` | Synthetic site data for web work, never a result. The lock that lets one long job run at a time. |
+| `export/demo_bridge.py` | Turns the broadcast build of the demo game into contract frames and runs the frozen models on them, predict only. |
+| `tools/frozen_models.py` | Rebuilds the frozen model objects by rerunning frozen code on training games, and keeps a result only when it reproduces the frozen record (`PLAN.md` D45, D49). |
+| `web/` | The site: a static export in TypeScript. Pages read data only through one data source module. |
+| `reports/` | Generated reports: one per lane, `reports/results.md`, and `reports/scorecard/`. |
+| `gate/`, `court/`, `detect/` and the scripts at the root | The broadcast pipeline, described below. |
+
+Two builds of the site come from the same code. The public build carries stills and derived data and fails if a
+video file is in its output. The private build adds short clips and sits behind sign-in (`PLAN.md` D21, D29).
+
+## The tracking measurement in detail
+
+**What is held out.** The split is `sportvu/splits.json`. The court model's SportVU labels come from 4 games
+at one arena (`reports/sportvu_splits.txt`). The held-out game was played at that same arena. The held-out
+arena is Cleveland: no game played there enters training (`CLAIMS.md`, measurement protocol). Every training
+script refuses the held-out ids.
+
+**The rest of the scorecard.** The table at the top holds the rows that are judged on every game. The other
+rows, from the same files:
+
+| Row | Target | Held-out game `gsw_phx_2016` | Held-out arena `cle_nyk_2015` | Held-out arena `cle_gsw_2016` |
+| --- | --- | --- | --- | --- |
+| Generalisation | held-out arena within 1.5x of the held-out game | the reference | **met**: p50 1.17x, p90 1.10x | **met**: p50 1.16x, p90 1.10x |
+| Identity | reported, no target yet | 21.39 id switches / possession | 31.07 | 14.29 |
+| Court line error | reported | not measurable | not measurable | not measurable |
+| Frames with usable truth | | 1447 of 9500 | 485 of 6393 | 158 of 3380 |
+
+The held-out game's scorecard states the frames without usable truth as a share: untestable 84.8%. The arena
+passes the generalisation row and still misses the position target itself.
+
+**Three builds, one set of boxes.** Every build scores the same detected boxes on the same frames. Only the
+court model changes.
+
+- `v3` is the pipeline as tagged (`v3-frozen`). On the held-out game its position error is p50 7.33 ft,
+  p90 15.35 ft (`reports/scorecard/gsw_phx_2016__v3.txt`).
+- `r23` is the same court model fine-tuned on labels derived from SportVU on the training games. It was adopted
+  on 2026-10-04 (`CLAIMS.md`). Position error on the held-out game: p50 1.92 ft, p90 4.98 ft
+  (`reports/scorecard/gsw_phx_2016__r23.txt`).
+- `r23_cam` adds a camera model. It was measured and not adopted: not every row improves on the held-out arena,
+  and the two builds differ only on held-out footage, so choosing the better one there would be a selection on
+  held-out data (`PLAN.md` D42). Its scorecards sit beside the others in `reports/scorecard/`.
+
+**Caveats that ship with every scorecard.** Each scorecard file prints these in full.
+
+- The frames with usable truth are the ones where the first version of the pipeline already matched enough
+  players, so they lean toward frames it handled.
+- The truth mapping is fitted through the pipeline's own boxes and is valid only near those feet. The court line
+  row is therefore not measurable, and the counts of missed players and ghost boxes carry that error. Position
+  error and near-field bias compare only matched players near the feet.
+- The scores are on a local rebuild of windows of the harvested video, not on the production artifacts.
+- Wide frames are chosen by the frame gate, which trained on frames of the held-out game (above) and of
+  another game at the held-out arena.
+- The referee class is the detector's own. Its recall was never measured against human labels.
+- Identity switches are counted on sparse samples, so the count is a lower bound.
+- Team accuracy uses the best mapping for each window, so it is an upper bound.
+
+**More limits, from `CLAIMS.md` and `ROADMAP_LOG.md`.**
+
+- The held-out game shares its arena and season with the training games, so the arena games are the
+  cross-arena evidence.
+- The held-out arena means unseen games and an unseen season, not an unseen building: the first court model's
+  training set holds 56 frames of 2023-24 Cleveland home games.
+- The adopted court model is the best of three training seeds of its recipe. With the arena games pooled, the
+  recipe's expected position error, p50 / p90, is about 2.35 / 5.9 ft, not this model's 2.24 / 5.47
+  (`ROADMAP_LOG.md`).
+- One broadcast camera gives about 1.5 ft median at best. An arena system with 14 cameras reaches about
+  1 inch. The comparison this project claims is on output format and on honesty about error, not on accuracy.
+
+**Where the scoreboard lives.** Each module runs as `python -m sportvu.<module>`. SportVU data stays under
+`data/sportvu/`, which git ignores. Do not run `sportvu.bench` with its default paths: it rewrites the tracked
+scorecards.
 
 | Step | Module | Output |
-|---|---|---|
+| --- | --- | --- |
 | Fetch and parse a SportVU game log | `sportvu/fetch.py` | `data/sportvu/<game>_moments.json`, `reports/sportvu_fetch_<game>.json` |
 | Production frame to game clock, mirror and offset | `sportvu/sync.py` | `data/sportvu/sync/`, `reports/sportvu_sync_<game>.json` |
-| Local OCR time maps (local files are not frame-aligned with production) | `sportvu/local_sync.py` | `data/sportvu/sync/<section>_local_timemap.json` |
-| Windowed local rebuild with the frame sidecar | `sportvu/rebuild.py` | `data/sportvu/build/` |
-| Per-frame truth homography (ICP + RANSAC vs SportVU) | `sportvu/truth.py` | `data/sportvu/truth/`, `reports/sportvu_truth_<game>.json` |
-| Pipeline vs SportVU on the held-out game | `sportvu/eval.py` | `reports/sportvu_phx.{json,txt}` |
-| Label-free checks vs SportVU truth | `sportvu/validate_checks.py` | `reports/sportvu_check_validation.{json,txt}` |
-| One scorecard with every Stage 1 metric (ROADMAP R0.3) | `sportvu/bench.py` | `reports/scorecard/<game>__<build>.{json,txt}` (V3: `gsw_phx_2016__v3`) |
+| Time maps for the local video files | `sportvu/local_sync.py` | `data/sportvu/sync/<section>_local_timemap.json` |
+| Windowed local rebuild with a per-frame record | `sportvu/rebuild.py` | `data/sportvu/build/` |
+| Truth mapping for each frame, fitted against SportVU | `sportvu/truth.py` | `data/sportvu/truth/`, `reports/sportvu_truth_<game>.json` |
+| One scorecard with every target | `sportvu/bench.py` | `reports/scorecard/<game>__<build>.{json,txt}` |
+| Two builds side by side, with paired differences | `sportvu/compare.py` | `reports/scorecard/compare__<builds>.{json,txt}` |
+| The camera model candidate | `sportvu/camera_track.py` | `data/sportvu/replay/<name>/` |
 
-**Plan and record.** `ROADMAP.md` is the plan (Stage 1 targets and phases 0..5), `ROADMAP_LOG.md`
-the pass-by-pass record, `FIX_LOOP.md` the loop rules; work happens on branch `track-fix`.
-`FIX_PLAN.md` and `FIX_LOG.md` hold the finished Phase A (label-free QC) and Phase B (SportVU
-scoreboard) work.
+## The models in detail
 
----
+Eleven lanes and a location-only xFG baseline, frozen at tag `freeze-v1`. The tracking data is split by game:
+604 train and 17 held out. Each lane chose its model on training data only, by a rule fixed before it ran. Then
+each lane scored its held-out games once. None of the failures was rescued after the held-out numbers were
+seen. The held-out and verdict cells below are copied from the summary table of
+[`reports/results.md`](reports/results.md), which also has the out-of-fold values and the reasoning.
 
-## Operating manual — improving the court model (push-button loop)
+| Lane | Question | Metric | Held-out | Verdict |
+| --- | --- | --- | --- | --- |
+| xfg | will this shot go in? | log loss | 0.6232 [0.6132, 0.6327] | works; beats the location-only baseline by 0.050 on held-out; held-out calibration worse (ECE 0.019) |
+| rebounds | who gets this rebound? | per-miss log loss | 1.7115 | works, far above the 2.39 floor; held-out worse by 0.11 |
+| matchups | who guards whom, and what do they allow? | possession-points MSE | 1.3195 vs constant 1.3251 | assignment is stable (0.82); no defender signal beats the constant out of fold |
+| gravity | how far do defenders stay from a player, beyond what location explains? | MSE | 29.91 (skill 0.434) | expectation holds on held-out; teammates of top-gravity players shoot slightly better (+0.004, training games) |
+| ghosting | where would an average defender have stood? | error one second ahead | 3.417 ft | works, best on held-out; a deviation sign test agrees on 13 of 17 held-out games |
+| embeddings | which players move and shoot alike? | nearest-neighbour position accuracy | none by design | passes its 0.60 gate; no held-out score exists |
+| epv | how many points will this possession score, from here? | MSE | 1.2362 [1.1899, 1.2812] | works; 5 percent better than the constant out of fold, 7 percent on held-out |
+| decisions | was this pass, drive or shot the best option? | Spearman vs on-court rating | -0.014 [-0.116, 0.100] | **failed**: no validated signal in either sample |
+| lineups | which lineups and players are good? | season-ahead Spearman | 0.065 [-0.488, 0.482] | **inconclusive**: about 20 recurring lineups a season, every interval spans zero |
+| winprob | who wins from this game state? | mean bucket Brier | 0.1486; log loss 0.4879 [0.4700, 0.5077] | works; held-out slightly worse and slightly over-confident |
+| load | does a player slow down, and will they sit next game? | decline MSE; absence log loss | 0.5164; 0.2776 | absence works; decline barely beats the mean on held-out |
 
-Every step is a command + your eyes; run from the project root with
-`/opt/anaconda3/bin/python`.
+A value with no interval is a point estimate. Ghosting is an average defense, never the best one. Three more
+lanes (actions, coverage, playcalling) wait for hand labels; their reports are fixture output, not results.
 
-```
-1. HARVEST     PYTORCH_ENABLE_MPS_FALLBACK=1 python label_factory.py harvest <youtube-urls...>
-               # downloads 6x4-min sections/game, auto-labels frames that the model
-               # AND the line evidence solve confidently; prints accept/reject counts
+## The broadcast pipeline, stage by stage
 
-2. SPOT-CHECK  python verify_projections.py data/harvest/<vid>/harvest_rank.tsv \
-                   data/harvest/<vid>/review data/harvest/<vid>/harvest_verdicts.tsv
-               # worst-first; SPACE = fine, x = bad (bad frames auto-excluded at build)
+This part describes the pipeline as tagged `v3-frozen`. Its court model, detector training set, team classifier
+and stats layer are frozen. The history of every stage, with the dead ends, is in `DEVLOG.md`.
 
-3. BUILD       python label_factory.py build
-               # -> data/court_pose{33,_grid}_v2/ + court_pose*_v2_colab.zip
-               # harvest goes to TRAIN only; val is FROZEN at the 279 verified
-               # frames so benchmarks stay comparable across retrains
-
-4. TRAIN       upload zips to My Drive root; open train_pose_snapped_colab.ipynb on a
-               Colab GPU; set DATASET="court_pose_grid_v2"; run cells 2-4; download
-               best.pt -> models/court_grid_snapped_v2.pt
-
-5. BENCHMARK   add the new .pt to the MODELS list in benchmark_court_models.py, then
-               PYTORCH_ENABLE_MPS_FALLBACK=1 python benchmark_court_models.py
-               # adopt the new model only if H-err p50/p90 improve on the same val
-
-6. DEPLOY      point COURT_GRID_WEIGHTS in config.py at the winning weights
-```
-
-Sanity levers: `COURT_TRACKER=0` runs the pipeline with the legacy 33-pt detector
-(A/B lever); `unseen_benchmark.py` and `render_overlay_video.py` re-measure
-generalization and render watchable overlay clips for any footage dropped in
-`data/unseen_videos/`. Known failure modes and their fixes are in `DEVLOG.md`
-(2026-07-01 → 07-05 entries).
-
----
-
-## Component: court-visibility gate
-
-A per-frame classifier that decides **"live game footage"** vs. **"dead ball"**
-(replay / closeup / ad / crowd / timeout) — the pipeline's entry filter.
-
-Why it matters: the old project's symptom was **clips returning all-empty
-output**. That was a gate problem — live frames were thrown away (false
-negatives) before any model saw them. The gate was rebuilt as a *measurable*
-component to drive that error down on purpose. NOTE: the trained threshold
-(0.70) is tuned for OUR clips; on unfamiliar broadcasts, live frames can score
-0.4–0.7, so recall-sensitive uses need a lower threshold (the label factory
-uses 0.35 — see DEVLOG 2026-07-05).
-
----
-
-## Recovered from the old project (Phase 0)
-
-The previous project (`Basketball_Defensive_Vision`, read-only reference) gated
-frames with **`_is_court_visible`** at `src/pipeline/runner.py:479`. Key finding:
-
-> **The shipped gate was NOT CLIP zero-shot — it was an HSV floor-color
-> heuristic.** It converts BGR→HSV, counts "maple-floor-colored" pixels
-> (`lo=(8,25,90)`, `hi=(38,210,245)`), and accepts the frame if **12%–55%** of
-> it is floor (too low = crowd/ad/face closeup; too high = floor-level closeup).
-> No model, no prompts, no learned threshold.
-
-So **there were no CLIP prompts or thresholds to recover.** Rather than invent a
-training story that never existed, we:
-1. Reimplement that HSV rule fresh (`gate/hsv_baseline.py`) as the real
-   **baseline-to-beat** (the thing that actually shipped).
-2. Add a **CLIP zero-shot** baseline (`gate/zero_shot.py`) with sensible default
-   prompts (in `config.py`) — the "Approach A" the spec asked for.
-3. Train a **lightweight head on frozen CLIP embeddings** (`gate/trained_head.py`)
-   — "Approach B".
-
-`court_detector_yolov8n.pt` in the old repo is a **separate** model (a court
-bounding-box detector used before keypoint detection) and was **never wired into
-the gate**. Frame extraction here adapts the old `VideoReader` pattern (FFmpeg
-backend forced to dodge the macOS VideoToolbox/Metal segfault).
-
----
-
-## Workflow (run in order)
+The stage numbers in `PIPELINE.md` and `PROJECT_SUMMARY.md` are prototype numbers. They were measured on the
+clips the models were tuned on, and each one carries the tag `[prototype]` there. They are not tracking
+accuracy. The scorecard at the top of this file is.
 
 ```
-extract_frames.py  →  presort_frames.py  →  [YOU verify into truth/]  →  train_gate.py  →  evaluate_gate.py
+broadcast video
+  -> frame gate               live play or dead ball
+  -> detection and tracking   boxes and track fragments
+  -> court model              pixels to court feet
+  -> identity                 foot-point stability, fragment linking
+  -> teams                    two jersey clusters per clip
+  -> possessions              spans, offense and defense
+  -> matchups                 defender and attacker pairs
+  -> clock and play-by-play   real teams, points, how the possession ended
 ```
 
-All entry points use `/opt/anaconda3/bin/python` (torch+MPS, cv2, transformers).
-Seed is fixed at **42** everywhere and saved into every artifact.
+### Frame gate (`gate/`)
 
-### 1. Extract frames
+A per-frame classifier that separates live game footage from dead ball: replays, close-ups, ads, crowd shots and
+timeouts. It is the entry filter of the pipeline. The old project threw live frames away at this step, so the
+gate was rebuilt as a component with its own measurement.
+
+- The gate that shipped in the old project was a floor-colour rule on HSV pixels, not a learned model. It is
+  reimplemented in `gate/hsv_baseline.py` as the baseline to beat.
+- `gate/zero_shot.py` is a CLIP zero-shot baseline. `gate/trained_head.py` is a light head on frozen CLIP
+  embeddings, the one the pipeline uses.
+- The threshold of the first gate was tuned on the prototype clips, and it drops wide frames on other broadcasts
+  (`CLAIMS.md`, standing caveat 1). A second gate was refitted on human-verified harvest frames and is the one
+  the scorecard uses to pick wide frames.
+
+Train and evaluate it in this order. The seed is fixed at 42 (`config.py`).
+
+```
+extract_frames.py -> presort_frames.py -> you verify into truth/ -> train_gate.py -> evaluate_gate.py
+```
+
 ```bash
-python extract_frames.py                       # all 7 clips, 1 frame / ~1.5s, cap 150/clip
-python extract_frames.py --interval-sec 1.0 --max-per-clip 200
-```
-Writes JPEGs to `data/visibility/_unsorted/`, named `{clip}__f{frame_idx}.jpg`.
-
-### 2. Presort with CLIP (labeling convenience only)
-```bash
-python presort_frames.py
-```
-Runs the CLIP zero-shot gate over `_unsorted/` and **copies** each frame into
-`data/visibility/predicted/live` or `.../predicted/dead`, **prefixing the
-filename with CLIP's P(live)** (e.g. `plive0.082__clip_..._f000045.jpg`). Sort by
-name to surface low-confidence guesses (P(live) near 0.5) first.
-
-> ⚠️ `predicted/` holds **CLIP's guesses, not labels.** It is **never** read by
-> training or evaluation.
-
-### 3. You verify into `truth/` (the only labels)
-Eyeball `predicted/`, then **move** each frame you have personally confirmed into
-`data/visibility/truth/live` or `data/visibility/truth/dead`. **A frame lands in
-`truth/` only because your eyes confirmed it** — correct CLIP freely (a frame
-CLIP called "live" can go to `truth/dead`). Aim for **≥ 250 per class**.
-
-### 4. Train
-```bash
-python train_gate.py                 # logreg head on CLIP embeddings (default)
-python train_gate.py --head mlp
-python train_gate.py --backbone dinov2   # optional stronger encoder (no zero-shot)
-```
-- Loads labels **only** from `truth/` (prints per-class counts; warns if < 250).
-- Deterministic stratified **70/15/15** split → saved to `models/split.json`.
-- Trains the head on TRAIN; tunes **both** gates' thresholds on **VAL** (objective:
-  minimize false negatives subject to an FP-rate cap, `--max-fp-rate`, default 0.10).
-- Saves `models/trained_head.joblib`, `models/thresholds.json`, `models/split.json`,
-  `models/config_record.json`. TEST is left untouched.
-
-### 5. Evaluate (re-runnable without retraining)
-```bash
-python evaluate_gate.py
-python evaluate_gate.py --no-viz
-```
-On the held-out **TEST** split (100% human-verified by construction), for the
-trained head, the CLIP zero-shot baseline, **and** the HSV baseline.
-
----
-
-## Labeling integrity (do not violate)
-
-- `truth/` is the **only** source of labels for train / val / test.
-- `predicted/` is **never** read by `train_gate.py` or `evaluate_gate.py` — this is
-  asserted in code (`gate/labels.py`, `load_test_split`). Grading a model on
-  `predicted/` would measure CLIP against its own guesses: circular, ~100%
-  meaningless, target leakage.
-- If `truth/` is empty (or far smaller than `predicted/`), training and evaluation
-  **error out** rather than silently falling back.
-
----
-
-## Reading the reports
-
-`reports/metrics.json` (machine) and `reports/metrics.txt` (human) contain, on TEST:
-
-- **Accuracy / precision / recall / F1**, per class and overall, + the 2×2 confusion matrix.
-- The two error types **by downstream cost**:
-  - **FALSE NEGATIVE** = a *live* frame called *dead* → frame skipped → **empty/under-counted clips** (the current bug).
-  - **FALSE POSITIVE** = a *dead* frame called *live* → replay/closeup/ad processed → **garbage events** in the box score.
-- A **threshold sweep** table (FN vs FP as the threshold moves) and a PR curve
-  (`reports/viz/pr_curve.png`). The recommended threshold minimizes FN subject to
-  an FP cap and is **tuned on VAL, never TEST**.
-- A **side-by-side** of trained head vs. zero-shot vs. HSV on the same TEST frames.
-
-`reports/viz/` contact sheets (green = correct, red = wrong; annotated true vs.
-predicted + confidence):
-- `correct_samples.png` — sanity check.
-- `false_negatives.png` — **live frames the gate skipped** (the visual of the empty-clip bug).
-- `false_positives.png` — dead balls the gate let through.
-
----
-
-## Layout
-
-```
-config.py            seed, paths, CLIP model, prompts, HSV constants
-gate/
-  backbones.py       frozen CLIP (default) / DINOv2 (flag) encoders → embeddings
-  zero_shot.py       Approach A: CLIP zero-shot gate
-  trained_head.py    Approach B: logistic/MLP head on frozen embeddings
-  hsv_baseline.py    recovered shipped HSV gate (baseline-to-beat)
-  labels.py          truth/-only label loader + integrity guards
-  common.py          image IO, embedding cache, metrics, threshold selection
-extract_frames.py    Phase 1: mp4 → _unsorted/ frames
-presort_frames.py    Phase 1: CLIP guesses → predicted/ (labeling convenience)
-train_gate.py        Phase 3: split + train + tune thresholds
-evaluate_gate.py     Phase 4 metrics + Phase 5 contact sheets
+python3 extract_frames.py                 # frames from the clips into data/visibility/_unsorted/
+python3 presort_frames.py                 # CLIP guesses into data/visibility/predicted/, a labelling aid only
+python3 train_gate.py                     # logistic head on CLIP embeddings; --head mlp, --backbone dinov2
+python3 evaluate_gate.py                  # the test split: trained head, zero-shot baseline, HSV baseline
 ```
 
-Both gates expose the same interface so either drops into a bigger pipeline
-untouched:
+Labelling integrity, enforced in code (`gate/labels.py`):
+
+- `truth/` is the only source of labels for training, validation and test. A frame lands there only because a
+  person confirmed it.
+- `predicted/` holds CLIP's guesses. Training and evaluation never read it. Grading a model on its own guesses
+  would be circular.
+- If `truth/` is empty, training and evaluation stop with an error.
+
+`evaluate_gate.py` writes the test metrics to `reports/metrics.json` and `reports/metrics.txt` (both ignored by
+git): accuracy, precision, recall, the confusion matrix and a threshold sweep. A false negative is a live frame
+that was skipped. A false positive is a dead frame that went through. The threshold is tuned on the validation
+split, never on the test split. Contact sheets of right and wrong frames go to `reports/viz/`.
+
+The gates expose the same interface:
+
 ```python
-gate.score(frame_bgr)                       # -> P(live) in [0, 1]
-gate.is_court_visible(frame_bgr, threshold) # -> bool
+gate.score(frame_bgr)                        # P(live), from zero to one
+gate.is_court_visible(frame_bgr, threshold)  # True or False
 ```
 
----
+### Detection and tracking (`detect/`)
 
-# Component 2 — Player detection + tracking
-
-Detects players and assigns persistent IDs across frames, running on **contiguous**
-video (IDs propagate frame-to-frame). YOLOv8m + **BoT-SORT** in one ultralytics
-call; person class only (ref/player split is a later concern). Runs on gate-passed
-frames in the full pipeline.
+A YOLO detector with BoT-SORT tracking, in one streaming pass over contiguous video. Only the player class is
+tracked.
 
 ```
-detect/
-  tracker.py      PlayerTracker — streaming update(frame, idx, ts) -> list[Track]
-  detector.py     stateless single-frame PlayerDetector (used for eval)
-  camera_cut.py   reset IDs when the broadcast cuts (mass track vanish)
-  types.py        Track (bbox, id, foot_point; team_id/court_pos slots for downstream)
-run_tracking.py       run over a clip → overlay mp4 + tracks.json + diagnostics
-label_boxes.py        draw GT player boxes on ~50 live frames (lightweight eval)
-evaluate_tracking.py  detection precision/recall@IoU vs those boxes
+detect/tracker.py      PlayerTracker: streaming update, one list of tracks per frame
+detect/detector.py     single-frame detector, used for evaluation
+detect/camera_cut.py   resets ids when the broadcast cuts
+detect/types.py        the Track record
+run_tracking.py        a clip in, an overlay video, tracks and diagnostics out
+label_boxes.py         draw truth boxes on live frames
+evaluate_tracking.py   detection precision and recall against those boxes
 ```
 
-### Run it
-```bash
-PY=/opt/anaconda3/bin/python
-$PY run_tracking.py --source ".../curry_q1_clip.mp4" --max-frames 300   # demo overlay + diagnostics
-$PY run_tracking.py --source ".../curry_q1_clip.mp4" --use-gate         # gate + track together
-# lightweight eval:
-$PY label_boxes.py            # hand-draw boxes on ~50 live frames (drag=box, n=next, u=undo, q=quit)
-$PY evaluate_tracking.py      # precision/recall@IoU → reports/tracking_metrics.{json,txt} + viz
-```
+`run_tracking.py` prints label-free health figures: players per frame, id churn, camera-cut resets and the
+distribution of track lengths. Missed players, ghost boxes and identity switches against real tracking are in
+the scorecard at the top of this file.
 
-### Reading the tracking diagnostics
-`run_tracking.py` prints **label-free** health metrics: `avg_players_per_frame`
-(~8–12 on live NBA wide shots), `id_churn_ratio` (near 1 = stable IDs, high = ID
-switches/churn), `camera_cut_resets`, track-length distribution.
-`evaluate_tracking.py` adds quantitative **detection** P/R/F1 vs hand-labeled boxes
-(FN = a real player missed; FP = a phantom detection). **ID-switch rate is not
-measured** — that needs box+ID MOT labels we opted out of; use `id_churn_ratio` as
-the proxy.
+### Court model (`court/`)
 
-### Apple-Silicon notes
-- `PYTORCH_ENABLE_MPS_FALLBACK=1` is set in `config.py` (YOLO's `nms` op isn't on MPS).
-- Overlay videos use the `avc1` codec (the only one that writes readable .mp4 on this
-  OpenCV build).
+A grid-keypoint detector with line snap and tracking across frames (`court/snap_track.py`). It solves the
+mapping from pixels to court feet for each frame and follows the camera through pans. `COURT_TRACKER=0` runs the
+older per-frame detector instead, for comparison. `COURT_GRID_WEIGHTS` selects the weights: the tagged model by
+default, the `r23` weights for the build the scorecard reports.
 
----
-
-# Component B — Player identity (re-ID) + foot-point stability
-
-After the court fix, trajectory teleports are dominated by **BoT-SORT ID
-fragmentation** (one player = many track fragments across occlusions/cuts) and
-**bbox foot-point jitter** (the box bottom moves, not the player, and perspective
-amplifies it). Three independent levers, all wired into `build_trajectories.py`:
+The loop for improving the court model without hand labelling (the label factory):
 
 ```
-botsort_reid.yaml     native BoT-SORT appearance re-ID (detector features, ~free)
-                      → within-shot ID stability.       Lever: TRACKER_REID=0 env
-detect/footpoint.py   FootPointStabilizer — occlusion height-clip correction +
-                      EMA, in pixel space BEFORE the homography.  Lever: --no-stab
-detect/reid.py        offline fragment linker: CLIP torso embeddings (gate's
-                      frozen backbone, reused) + court-space motion feasibility
-                      (endpoints in FEET are comparable across camera cuts) +
-                      ambiguity margin (teammates → refuse).      Lever: --no-reid
+harvest      python3 label_factory.py harvest <video urls>     auto-labels frames the model and the line evidence agree on
+spot-check   python3 verify_projections.py <rank file> <review folder> <verdict file>     worst first; bad frames are left out
+build        python3 label_factory.py build                    harvest goes to training only; validation stays frozen
+train        train_pose_snapped_colab.ipynb on a GPU
+benchmark    python3 benchmark_court_models.py                  adopt only if the error falls on the same validation frames
+deploy       point COURT_GRID_WEIGHTS at the winning weights
 ```
 
-Also fixed here: track-ID collisions — ultralytics restarts IDs at 1 on every
-tracker reset, so IDs from different shots used to alias different players in
-anything keyed by `track_id`. `PlayerTracker` now offsets IDs to be globally unique.
+`unseen_benchmark.py` and `render_overlay_video.py` measure the court model on other footage without labels and
+render overlay clips.
 
-### Run it / A-B it
-```bash
-PY=/opt/anaconda3/bin/python
-V=".../Basketball_Defensive_Vision/data/raw/curry_q1_clip.mp4"
-$PY build_trajectories.py --source "$V" --start 11520 --max-frames 200 --stride 3 --use-gate
-# baseline (Component B off):
-TRACKER_REID=0 $PY build_trajectories.py --source "$V" --start 11520 --max-frames 200 \
-    --stride 3 --use-gate --no-reid --no-stab
+### Identity (`detect/footpoint.py`, `detect/reid.py`)
+
+After the court model, most jumps in a player's path come from track fragments (one player, many track ids
+across occlusions and cuts) and from foot-point jitter. Three levers, all wired into `build_trajectories.py`:
+
 ```
-Every run prints the label-free **physics report** (impossible-step %, p50/p99
-step, off-court %) and the **identity report** (fragments → canonical tracks,
-merges, ambiguity refusals, id-churn before/after), and writes
-`data/tracking/<clip>_identity.json` — the audit trail with the evidence
-(similarity / gap / distance / implied speed) for every accepted merge and every
-refusal. A false merge poisons two players' stats, so the linker is conservative
-by design: motion gates first, appearance breaks ties, ambiguity refuses.
-
----
-
-# Component C1 — Team classification (unsupervised)
-
-`detect/teams.py` — k-means (k=2) on **pooled Lab jersey color, one feature per
-track**, from the torso crops re-ID already collects. Two measured dead ends
-before this landed (see DEVLOG 2026-07-05c): CLIP embeddings cluster by scene
-statistics on tiny broadcast crops (not jersey), and per-crop color features are
-a coin flip because single crops are up to half floor/apron — pooling a track's
-10–40 crops makes its own jersey the dominant pixel mass. Floor pixels are
-masked with the old gate's maple-HSV band first. Fit is per clip;
-nearest-centroid assignment with an **abstention rule** (near/far
-centroid-distance ratio > 0.75 or <2 crops ⇒ team `None` — bench/crowd leakage
-stays out of both teams). Cluster ids are team **A/B**, not home/away.
-
-Wired into `build_trajectories.py` (lever: `--no-teams`):
-- **linker veto** — candidate merges across teams are refused outright
-  (`"reason": "team_veto"` in the audit json), which also shrinks candidate
-  sets so the ambiguity margin refuses less;
-- `"team"` on every track in `<clip>_trajectories.json`; team diagnostics
-  (silhouette, per-team track counts, per-frame balance — expect ~5v5) in the
-  identity report;
-- the review video colors boxes + minimap dots by **median jersey color**;
-- `reports/viz/team_clusters_<clip>.png` — contact sheet of crops grouped by
-  assigned team, for eyeball verification of the clustering.
-
-No labels needed to run. To **quantify** accuracy, use the human-label eval
-(`evaluate_teams.py` — export ~200 stratified crops → keypress-label them
-w/n/a → report):
-```bash
-$PY evaluate_teams.py --export --start 11520 --max-frames 200   # data/teams_eval/<clip>/
-$PY evaluate_teams.py --label    # w=white n=navy a=no-team; u undo, s skip, q quit (resumable)
-$PY evaluate_teams.py --report   # confusion, per-team P/R, crop- + track-level accuracy
+botsort_reid.yaml      appearance re-identification inside BoT-SORT; off by default, TRACKER_REID=1 turns it on
+detect/footpoint.py    foot-point stabiliser in pixel space, before the court mapping; --no-stab turns it off
+detect/reid.py         offline fragment linker: appearance, motion in court feet, a margin for ambiguity; --no-reid
 ```
-Predictions are never shown while labeling (truth/predicted separation, as in the
-gate). Crop-level accuracy is a lower bound (occlusion crops show the opponent);
-the track-level majority number is the fairer read. Refs never reach the
-classifier (detector tracks class 0 = player only; refs are class 1) — anything
-that leaks through typically abstains, but by geometry, not by rule.
 
----
+Every run writes `data/tracking/<clip>_identity.json`, the audit trail for every accepted merge and every
+refusal. The linker is conservative by design, because a false merge poisons the stats of two players. Identity
+is a track fragment, not a player (`CLAIMS.md`, standing caveat 3).
 
-# Component C2 — Possession segmentation (ball-free v1)
+### Teams (`detect/teams.py`)
 
-`segment_possessions.py` reads a clip's trajectories JSON and segments it into
-halfcourt possession spans — attacked basket from smoothed all-player
-occupancy (±8 ft transition band at midcourt), offense/defense from which team
-sits closer to the attacked basket (defenders position between man and basket),
-with per-frame-agreement confidence. Pure geometry on existing outputs; re-runs
-instantly with different thresholds.
-```bash
-$PY segment_possessions.py --trajectories data/tracking/<clip>_trajectories.json
-# → <clip>_possessions.json (spans + evidence) + <clip>_possessions.png (timeline strip)
-```
-Boundary semantics (v2): a possession = **approach + set** — the span ends at
-retreat onset and the outbound flow belongs to the *next* possession
-(`set_start_frame` marks where the set begins; offense/defense is computed on
-set frames only). **Measured accuracy (73 labeled frames, 4 clips): 93% on
-attacked basket and offense; 100% on both for frames >2 s from a boundary** —
-all residual error is ±1–2 s boundary fuzziness, so downstream consumers
-should treat boundary-adjacent frames as uncertain and lean on the set core.
-Known limits: no possession changes within one halfcourt occupancy (steal +
-re-set on the same end); free-throw clusters read as halfcourt sets.
+Unsupervised: two clusters on pooled jersey colour, one feature per track, fitted per clip. A track that sits
+between the clusters gets no team. Cluster ids are team A and team B, not home and away. The linker refuses
+merges across teams (`--no-teams` turns the classifier off). `evaluate_teams.py` exports crops, takes keypress
+labels without showing predictions, and reports accuracy.
 
----
+### Possessions (`segment_possessions.py`)
 
-# Component C3 — Matchup metrics (Tier 1)
+Reads the trajectories of a clip and cuts it into halfcourt possession spans: the attacked basket from where
+the players stand, offense and defense from which team sits closer to that basket. Pure geometry on existing
+outputs. A span is an approach plus a set, and the stats use only the core of the set, because the cuts are
+fuzzy at each end. Known limits: no change of possession inside one halfcourt stay, and free-throw groups read
+as sets. `evaluate_possessions.py` is the human evaluation, blind to predictions.
 
-`matchup_metrics.py` — the first defensive stats, computed ONLY on span
-**cores** (`core_start/core_end` in the span schema: set minus the last 2 s,
-the region the C2 eval certified at 100%; cores <4 s are flagged
-`metrics_eligible=false`). Per eligible possession: Hungarian **matchup
-assignment** per frame, per-defender **matchup distance** (median/mean, primary
-man by pair-time), **spacing conceded** (offense hull area), and **closeout
-tendency** (directional closing/holding/retreating shares on smoothed ≥1.5 s
-pair runs — the noisiest metric; never read as precise ft/s).
-```bash
-$PY matchup_metrics.py --clip curry_q1_clip
-# → data/tracking/<clip>_matchups.json + <clip>_matchups.mp4 (review video:
-#   team dots, offense hull, matchup lines + distances — check before trusting)
-```
-Caveats: defender identity = track fragment (cross-possession player profiles
-need jersey OCR); coverage ~4–5 pairs/frame (abstained tracks unmatched).
-Deferred: help-position distance, off-ball attentiveness (needs ball), and
-Tier 2 outcome-adjusted defensive credit (needs outcome tagging/shot quality).
+### Matchups (`matchup_metrics.py`)
 
-**Human eval** (`evaluate_possessions.py`, same pattern as the teams eval —
-blind to predictions, resumable):
-```bash
-$PY evaluate_possessions.py --export --source ".../clip.mp4"  # per clip, after segmenting
-$PY evaluate_possessions.py --label    # per frame: basket a=left d=right u=unclear,
-                                       #            offense w=light n=dark u=unclear
-$PY evaluate_possessions.py --report   # basket + offense accuracy separately, by situation
-```
-"left/right" = as seen on the broadcast frame (sideline camera keeps court-x
-aligned with screen-x on these clips).
+The first defensive figures, computed only on span cores: a defender for each attacker by the Hungarian method
+per frame, matchup distance, spacing conceded and closeout tendency. The matchup assignment has no validated
+accuracy number (`CLAIMS.md` C1, open), so no player-level conclusion follows from it. Help defense and
+off-ball attention need the ball and are not attempted from broadcast video.
 
----
+### Clock, play-by-play and outcomes
+
+`clock_reader.py` reads the game clock from the score graphic. `fetch_pbp.py` fetches play-by-play.
+`align_outcomes.py` maps video spans to real possessions, with real teams, points and the event that ended the
+possession. `tier2_join.py` and `tier2_credit.py` join outcomes to matchup records and report team-level credit
+with intervals. What these may claim is in `CLAIMS.md`.
+
+## Documents
+
+| File | What it is |
+| --- | --- |
+| [`PLAN.md`](PLAN.md) | The locked plan of this build: spec, checklist, milestones and every decision. |
+| [`CLAIMS.md`](CLAIMS.md) | What the project will and will not claim, with the evidence for each claim. |
+| [`reports/results.md`](reports/results.md) | The model results, with what failed. |
+| [`STATUS.md`](STATUS.md) | The closing record of the frozen analytics lanes. |
+| [`docs/SCRIPT.md`](docs/SCRIPT.md) | The script of the demo and of the slides. |
+| [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) | The tables the models read. The site data contract is `export/schemas.py`. |
+| [`docs/STRATEGY.md`](docs/STRATEGY.md), [`docs/STATE_AND_EXTENSIONS.md`](docs/STATE_AND_EXTENSIONS.md), [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) | The strategy, a dated audit of the repository, and the public data sources with their terms. Each states its own date. |
+| [`ROADMAP.md`](ROADMAP.md), [`ROADMAP_LOG.md`](ROADMAP_LOG.md) | The tracking rebuild: targets, phases and the record of each pass. |
+| [`PIPELINE.md`](PIPELINE.md), [`PROJECT_SUMMARY.md`](PROJECT_SUMMARY.md) | The earlier broadcast pipeline, stage by stage. Their stage numbers are prototype numbers and are tagged. |
+| [`DEVLOG.md`](DEVLOG.md) | The narrative history, with the dead ends. |
+| [`CLAUDE.md`](CLAUDE.md) | The rules for Claude Code sessions that work in this repository. |
+| `portfolio/` | Earlier single-page write-ups, kept for the record. |
 
 ## Licence and third-party content
 
-The code, docs and labels in this repository are released under the MIT licence (`LICENSE`).
-Not covered by it:
-- **Broadcast-derived stills** (NBA and broadcaster footage, mostly with analysis overlays),
-  included at low resolution for research and commentary. Broadcast video is never committed;
-  the portfolio clips are kept out of git.
-- **Roboflow-export frames** under `data/court_review/`: their dataset's own terms apply.
-- **Tracking-data summaries** (SportVU, `reports/sportvu_*` where present): counts and metrics
-  only; the raw tracking logs are never committed.
+The code, docs and labels in this repository are released under the MIT licence (`LICENSE`). Not covered by it:
 
-The paper draft lives in a separate private repository. Rights holders can request removal by
-opening an issue.
+- **Broadcast-derived stills** (NBA and broadcaster footage, mostly with analysis overlays), included at low
+  resolution for research and commentary. Broadcast video is never committed.
+- **Short broadcast clips** are shown only on a private, access-controlled copy of the site. The public site and
+  this repository carry stills and derived data only (`CLAIMS.md`, standing caveat 4, amended 2026-11-14).
+- **Roboflow-export frames** under `data/court_review/`: their dataset's own terms apply.
+- **Tracking data.** This repository holds counts, metrics and reports derived from the SportVU logs. It holds
+  no raw tracking log (`data/sportvu/` is ignored by git) and no generated site data (`web/data/` is ignored and
+  rebuilt by the export).
+
+What the public site ships, for example the sampled player positions of the held-out possessions that the
+review page reads, is decided at deploy and not by this file.
+
+The paper draft lives in a separate private repository. Rights holders can request removal by opening an issue.

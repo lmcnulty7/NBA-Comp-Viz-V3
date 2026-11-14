@@ -13,6 +13,13 @@ attributions agreeing with independent play-by-play ground truth at **87.8% (n=9
 > Current-state references: `PIPELINE.md` (stage table + residuals), `CLAIMS.md` (what the
 > project will and will not claim), `LABEL_SCHEMA.md` (annotation contract), `DEVLOG.md`
 > (decisions and dead ends). Report in progress: `paper/`.
+>
+> **Label added 2026-11-14 (PLAN.md M8).** A number followed by `[prototype]` is a prototype number. It was
+> measured during the prototype stage: on the 7 prototype clips the models were tuned on, on hand labels drawn
+> from those clips, on a model's own validation split, or by a label-free check on a few extra videos. It is
+> not tracking accuracy. In this file "held-out" means a test split of those same clips. Numbers without the
+> tag are counts, settings, dates, costs, run times or measurements on the production harvest. The
+> measurements against real tracking data on held-out footage are in README.md and `reports/scorecard/`.
 
 ---
 
@@ -66,8 +73,8 @@ curve. Error types labeled by **downstream cost** — false negatives = dropped 
 (the empty-clip bug), false positives = garbage events — with the threshold tuned on
 validation to minimize FN subject to an FP cap. Visual error-analysis contact sheets.
 
-**Result: 98.7% test accuracy** (macro-F1 0.986, 1 FN / 1 FP on 158 held-out frames), beating
-CLIP zero-shot (0.886) and HSV (0.873). **Standing caveat, now measured:** the harvest ran at the
+**Result: 98.7% test accuracy** [prototype] (macro-F1 0.986, 1 FN / 1 FP on 158 held-out frames), beating
+CLIP zero-shot (0.886) and HSV (0.873) [prototype]. **Standing caveat, now measured:** the harvest ran at the
 same **0.70** (provenance verified 2026-10-02 against the harvest commit; the "0.35" repeated in earlier docs was
 the court-label factory's threshold). On all 6,159 harvest frames, human-verified (2026-10-02), the gate at 0.70
 keeps precision 0.988 but drops **14% of truly wide frames** — lost yield, not contamination (0.35 would have
@@ -85,17 +92,17 @@ plus label-free tracking diagnostics (players/frame, track-length distribution, 
 Driven by **visual error analysis** rather than aggregate accuracy.
 
 **Key result — external-dataset upgrade:** the generic COCO "person" detector scored
-P 0.68 / R 0.74 / F1 0.71, with FPs being referees/crowd and misses being occluded players.
+P 0.68 / R 0.74 / F1 0.71 [prototype], with FPs being referees/crowd and misses being occluded players.
 Integrated an external **Roboflow basketball dataset** (654 images), **remapped 10 → 5
 classes**, and trained **YOLOv8m on a Colab T4** (~30 min vs. ~22 h locally):
 
 | detector | precision | recall | F1 |
 |---|---|---|---|
-| COCO person (baseline) | 0.68 | 0.74 | 0.71 |
-| **basketball-trained** | **0.89** | **0.87** | **0.88** |
+| COCO person (baseline) [prototype] | 0.68 | 0.74 | 0.71 |
+| **basketball-trained** [prototype] | **0.89** | **0.87** | **0.88** |
 
-(per-class val mAP@50: player **0.97**, referee **0.99**, rim 0.99.) **Residual:** per-frame
-recall ceiling ~0.74 on paint scrums — shown to be a model-capacity limit, not a tuning
+(per-class val mAP@50: player **0.97**, referee **0.99**, rim 0.99 [prototype].) **Residual:** per-frame
+recall ceiling ~0.74 [prototype] on paint scrums — shown to be a model-capacity limit, not a tuning
 problem (see Negative results). IDs are per-shot **fragments**, not players.
 
 ## Stage 3 — Court keypoints → homography (pixel → court feet)
@@ -110,60 +117,60 @@ failures** — degenerate bounding-box targets and a **YOLOv8-pose gradient bug 
 on CPU. Homography solved with **RANSAC** correspondences, plus a homography-based **label-QA
 tool** flagging mislabels via leave-one-out reprojection.
 
-**Result: 100% homography success** on held-out frames at **median 0.30 ft (~3.6 in)
-reprojection error** (p50 1.7 px over 279 validation frames) — the first time this worked in
-the project's history. On unseen games, 66–89% sane-H.
+**Result: 100% homography success** [prototype] on held-out frames at **median 0.30 ft (~3.6 in)
+reprojection error** (p50 1.7 px over 279 validation frames) [prototype] — the first time this worked in
+the project's history. On unseen games, 66–89% sane-H [prototype].
 
 **Refinement (built):** **point + line homography refinement** (ICP-style: project court
 lines, snap to detected line pixels, re-solve) with a **monotonic guard** that only accepts
 improvements, plus a **learned court-line segmentation U-Net** whose training labels were
 **auto-generated for free** by projecting the court template through each frame's homography
-(Dice 0.587); ~3× better refinement than the classical baseline.
+(Dice 0.587); ~3× better refinement than the classical baseline [prototype].
 
-**Residual:** far-court extrapolation tail (physics p99 ~40 ft); era/floor-design sensitivity.
+**Residual:** far-court extrapolation tail (physics p99 ~40 ft [prototype]); era/floor-design sensitivity.
 
 ## Stage 4 — Identity (fragment linking)
 Foot-point stability filtering and conservative re-identification to link track fragments.
-Label-free metrics: physically **impossible steps 15.4% → 14.3%**, **ID churn 6.57 → 5.0**.
+Label-free metrics: physically **impossible steps 15.4% → 14.3%**, **ID churn 6.57 → 5.0** [prototype].
 **Residual, stated everywhere:** identity is a **fragment, not a player**, upstream of jersey
-OCR; churn remains ~5× by design (the linker refuses uncertain merges).
+OCR; churn remains ~5× [prototype] by design (the linker refuses uncertain merges).
 
 ## Stage 5 — Teams (A/B kit assignment)
-Per-track kit classification from crops with a linker veto. **87.1% track-level / 83.9%
-crop-level** accuracy on 160 hand labels. **Residual:** ~13% track misassignment (crops
+Per-track kit classification from crops with a linker veto. **87.1% track-level [prototype] / 83.9%
+crop-level** [prototype] accuracy on 160 hand labels. **Residual:** ~13% track misassignment [prototype] (crops
 lacking jersey — occluders, face framing), which surfaces downstream as >5-team frames and is
 hard-excluded there; A/B is not home/away by itself.
 
 ## Stage 6 — Possession segmentation
-Trajectories → approach/set spans with basket and offense/defense assignment. **96.5% basket
-/ 91.2% offense** on 57 scorable of 73 hand-labeled spans (16 unclear excluded), rising to **100% / 100% more than 2 s from span
-boundaries** — which is why downstream metrics are computed on **set cores** rather than full
-spans. **Residual:** ±1–2 s boundary fuzz; no within-occupancy possession change; free-throw
+Trajectories → approach/set spans with basket and offense/defense assignment. **96.5% basket [prototype]
+/ 91.2% offense** [prototype] on 57 scorable of 73 hand-labeled spans (16 unclear excluded), rising to **100% / 100% more than 2 s from span
+boundaries** [prototype] — which is why downstream metrics are computed on **set cores** rather than full
+spans. **Residual:** ±1–2 s boundary fuzz [prototype]; no within-occupancy possession change; free-throw
 clusters read as sets.
 
 ## Stage 7 — Matchups (primary defender assignment)
 Hungarian pairing of defenders to offensive players on set cores, yielding matchup distance,
-spacing, and closeout measures. Coverage **2.5–4.0 pairs/frame** after a ghost-track audit.
+spacing, and closeout measures. Coverage **2.5–4.0 pairs/frame** [prototype] after a ghost-track audit.
 **Honest status: structural checks only — no labeled ground truth.** The labeling attempt was
 halted when positional fidelity proved too low to annotate reliably (38 labels discarded, a
 second attempt reaching 33). This is `CLAIMS.md` **C1, OPEN**, and it gates all player-level
-claims. Closeout is directional only; >5-team frames are hard-excluded (7–62% per possession,
+claims. Closeout is directional only; >5-team frames are hard-excluded (7–62% per possession [prototype],
 `degraded` flag above 40%).
 
 ## Stage 8 — Clock, play-by-play, outcomes
 **Scorebug OCR** (easyocr on sparse anchors, one-time clock-box calibration per broadcast
 layout) → game clock; **basketball-reference play-by-play** fetch; **anchor alignment** mapping
 video spans to real possessions with real teams, points, and terminating events.
-Clock reading: **100% on readable crops, 0 confident-wrong** (56 labels). Alignment: **9/9
-offense cross-validation, 100% overlap**; period-orientation assignment lifted cross-validation
-**69.4% → 93.7%**. **Residual:** ~10% anchor failure (retryable); PBP era ≥ 2000-01;
+Clock reading: **100% on readable crops, 0 confident-wrong** (56 labels) [prototype]. Alignment: **9/9
+offense cross-validation, 100% overlap** [prototype]; period-orientation assignment lifted cross-validation
+**69.4% → 93.7%**. **Residual:** ~10% anchor failure [prototype] (retryable); PBP era ≥ 2000-01;
 light-kit=home assumption pre-2017.
 
 ## Tier-2 join — possession outcomes × defenders
 Joins aligned outcomes to matchup records, producing per-possession credit rows with hard
-dedupe and assertions. Correctness verified at **7/7 team-consistency across independent
+dedupe and assertions. Correctness verified at **7/7 team-consistency [prototype] across independent
 pipelines**; scaled to **641 joined possessions / 16 games**. Composite funnel yield
-**~58% span→join**. Exclusions are **hard filters with visible reasons**, never metadata-only.
+**~58% span→join** [prototype]. Exclusions are **hard filters with visible reasons**, never metadata-only.
 
 ---
 
@@ -219,17 +226,17 @@ pipelines**; scaled to **641 joined possessions / 16 games**. Composite funnel y
 
 ## Negative results and honest findings
 Kept deliberately, because they are evidence the instrument works:
-- **The qualification gate rejected its own teacher.** Grounding DINO scored P 0.70 / R 0.94
-  against the in-house detector's P 0.956 / R 0.967 on identical human-labeled frames — even
-  over-proposing, it missed more real players (27 vs. 15 FN). The gate existed to catch exactly
+- **The qualification gate rejected its own teacher.** Grounding DINO scored P 0.70 / R 0.94 [prototype]
+  against the in-house detector's P 0.956 / R 0.967 [prototype] on identical human-labeled frames — even
+  over-proposing, it missed more real players (27 vs. 15 FN) [prototype]. The gate existed to catch exactly
   this before a $30 adjudication and a retrain on labels worse than the pipeline's own output.
 - **Court-masking was a net wash** on single frames — a hopeful prediction refined into a
   data-backed limitation, traced to homography precision degrading away from labeled keypoints.
 - **The matchup eval was paused, not shipped**, when the annotator could not reliably correlate
   engine output with footage. Recorded as a finding with its implication (C1 unverifiable at
   current positional fidelity).
-- **Detector levers that did nothing:** confidence sweep (+2% recall, 2× crowd FP), NMS IoU
-  (no change), yolov8x (recall *drops* to 0.695) ⇒ the ~0.74 scrum-recall ceiling is model
+- **Detector levers that did nothing:** confidence sweep (+2% recall, 2× crowd FP) [prototype], NMS IoU
+  (no change), yolov8x (recall *drops* to 0.695) [prototype] ⇒ the ~0.74 scrum-recall ceiling [prototype] is model
   capacity, not tuning.
 - **OCR resolution A/B:** read-rate saturates at 720p (30.8% → 31.0% at 1080p); the added
   resolution buys ~3× tracking length and team-call abstention 53% → 11% instead.
@@ -257,10 +264,10 @@ Kept deliberately, because they are evidence the instrument works:
 - **End-to-end:** 641 joined possessions / 16 games; **87.8% agreement with independent
   play-by-play (n=990)**; 151/151 byte-identical re-derivation on a fresh Colab VM
   (environment-conditional — a local re-derivation diverges; see DEVLOG 09-11).
-- **Gate:** 98.7% accuracy (macro-F1 0.986) on 158 held-out frames; beat two baselines.
-- **Detection:** F1 0.71 → 0.88 (precision 0.68 → 0.89); player/referee mAP@50 0.97 / 0.99.
-- **Homography:** median 0.30 ft reprojection error, 100% success on 28 held-out frames.
-- **Teams / possessions / clock:** 87.1% / 96.5%–91.2% / 100%-on-readable.
+- **Gate:** 98.7% accuracy (macro-F1 0.986) on 158 held-out frames; beat two baselines [prototype].
+- **Detection:** F1 0.71 → 0.88 (precision 0.68 → 0.89); player/referee mAP@50 0.97 / 0.99 [prototype].
+- **Homography:** median 0.30 ft reprojection error, 100% success on 28 held-out frames [prototype].
+- **Teams / possessions / clock:** 87.1% / 96.5%–91.2% / 100%-on-readable [prototype].
 - **Data:** ~1,500 frames hand-labeled with custom tooling; 2 external datasets integrated;
   6,159 frames auto-labeled for $10.80, audited at n=300 → a **37,916-box corpus measured at
   95.0% [88.8, 97.8]**; the adjudicated remainder measured 6.7–20.0% and was discarded.
@@ -283,21 +290,21 @@ the system bullet is the anchor for any of them.
   alignment.
 
 **Classification / transfer learning**
-- Eliminated unusable dead-ball footage from the processing stream at **98.7% accuracy
-  (macro-F1 0.986) on 158 held-out hand-labeled frames, beating CLIP zero-shot (88.6%) and
-  the incumbent HSV heuristic (87.3%)**, by training a logistic-regression probe on frozen
+- Eliminated unusable dead-ball footage from the processing stream at **98.7% accuracy [prototype]
+  (macro-F1 0.986) on 158 held-out hand-labeled frames, beating CLIP zero-shot (88.6%) [prototype] and
+  the incumbent HSV heuristic (87.3%)** [prototype], by training a logistic-regression probe on frozen
   CLIP ViT-B/32 embeddings with leakage-proof label splits and cost-sensitive threshold
   tuning on validation only.
 
 **Detection**
-- Raised player-detection **F1 from 0.71 to 0.88 (precision 0.68 → 0.89)** and eliminated
+- Raised player-detection **F1 from 0.71 to 0.88 (precision 0.68 → 0.89)** [prototype] and eliminated
   referee/crowd false positives, by integrating and remapping a 654-image external
   basketball dataset (10 → 5 classes) and fine-tuning YOLOv8m on a Colab T4 (~30 min vs.
   ~22 h on local hardware).
 
 **Geometry**
-- Achieved pixel-to-court coordinate mapping at **0.30 ft (~3.6 in) median reprojection
-  error with 100% homography success on 28 held-out frames** — a capability the project's prior
+- Achieved pixel-to-court coordinate mapping at **0.30 ft (~3.6 in) [prototype] median reprojection
+  error with 100% homography success on 28 held-out frames** [prototype] — a capability the project's prior
   version never reached — by hand-labeling 400 frames on a 20-point scheme, training a
   YOLOv8m-pose keypoint model, and solving with RANSAC plus ICP-style line-snapping
   refinement guarded to accept only improvements.
@@ -311,15 +318,15 @@ the system bullet is the anchor for any of them.
 
 **Judgment / rigor**
 - Prevented a corrupted model retrain by building a qualification gate that **rejected the
-  candidate teacher on measured evidence (Grounding DINO P 0.70 / R 0.94 vs. the in-house
-  detector's P 0.956 / R 0.967 on identical human-labeled frames)**, and made stale-artifact
+  candidate teacher on measured evidence (Grounding DINO P 0.70 / R 0.94 [prototype] vs. the in-house
+  detector's P 0.956 / R 0.967 [prototype] on identical human-labeled frames)**, and made stale-artifact
   consumption structurally impossible via content-fingerprint guards that refused a real
   stale join on first deployment.
 
 **Statistics**
 - Quantified the pipeline's funnel selection bias at **+8.8 points per 100 possessions** and
   reported all team-defense estimates as cluster-bootstrapped 95% confidence intervals
-  against leave-sample-out, context-matched baselines, by auditing the 58% span-to-join
+  against leave-sample-out, context-matched baselines, by auditing the 58% span-to-join [prototype]
   yield across period, clock-phase, start-type, and points-mix distributions.
 
 **Infrastructure**
