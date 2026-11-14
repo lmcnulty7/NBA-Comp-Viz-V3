@@ -14,7 +14,7 @@ from pathlib import Path
 from export import schemas as S
 
 HZ = 5.0
-SRC_FIXTURE = [S.Source(path="export/sample.py", what="synthetic fixture values, not a result")]
+SRC_FIXTURE = [S.Source(path=S.FIXTURE_SOURCE, what="synthetic fixture values, not a result", rows="not_split")]
 GAMES = (
     dict(slug="fixture-game-a", game_id="00.00.0000.AAA.at.BBB", label="AAA at BBB (fixture)", date="2000-01-01",
          home="BBB", away="AAA", split="heldout_game"),
@@ -94,7 +94,9 @@ def _index(game: dict, possessions: list) -> S.PossessionIndex:
             end_clock_s=p.game_clock_s[-1], duration_s=p.t[-1], offense=p.offense, defense=p.defense,
             result=p.result, points=p.points, gap=p.gap, n_frames=len(p.t), xfg=xfg, xfg_bucket=bucket,
             epv_start=p.epv.value[0], epv_end=p.epv.value[-1], has_ghosts=p.ghosts is not None,
-            featured=k in (0, 3), demo=game["split"] == "heldout_game" and k == 0))
+            featured=k in (0, 3), featured_by="rule" if k in (0, 3) else None,
+            featured_cell=f"{p.result} fifth {bucket}" if k in (0, 3) else None,
+            demo=game["split"] == "heldout_game" and k == 0))
     info = S.GameInfo(**game)
     return S.PossessionIndex(schema_version=S.SCHEMA_VERSION, game=info, xfg_bucket_edges=EDGES, possessions=rows,
                              notes=["Synthetic fixture game, not a result."], sources=SRC_FIXTURE)
@@ -121,6 +123,7 @@ def _players() -> S.PlayersFile:
                 over_expected_per_100=_est(r1(2.5 - 0.6 * j), r1(-1.0 - 0.6 * j), r1(6.0 - 0.6 * j), attempts,
                                            "attempts") if big else None,
                 fg_pct=r3(0.47 - 0.004 * j) if big else None, expected_fg_pct=r3(0.45) if big else None,
+                baseline_error_per_100=r1(1.5 - 0.2 * j) if big else None,
                 frozen_model_residual_per_100=r1(0.2) if big else None),
             gravity=S.Gravity(shown=True, possessions=900 - 30 * j, min_possessions=300, games=20 + j,
                               gravity_ft=_est(r3(0.8 - 0.12 * j), r3(0.5 - 0.12 * j), r3(1.1 - 0.12 * j),
@@ -142,9 +145,19 @@ def _players() -> S.PlayersFile:
                              ("similar", 300, "possessions"))]
     notes = [S.MetricNote(metric=r.metric, verdict="fixture output, not a result",
                           notes=["Synthetic fixture values."], sources=SRC_FIXTURE) for r in rules]
+    baseline = S.Baseline(
+        name="fixture baseline", selected=False,
+        ece=S.Estimate(value=0.09, lo=0.08, hi=0.1, interval="fixture interval", point_estimate=False),
+        calibration=[S.CalibrationRow(lo=round(0.1 * b, 1), hi=round(0.1 * b + 0.1, 1), n=1000 - 90 * b,
+                                      predicted=r3(0.1 * b + 0.05), observed=r3(0.1 * b + 0.05 + 0.02 * (b - 4)))
+                     for b in range(1, 9)],
+        source=SRC_FIXTURE[0])
+    checks = [S.RebuildCheck(name=name, compared="fixture numbers with fixture numbers", n=2, max_abs_diff=0.0,
+                             tolerance=tolerance, passed=True, unit=unit)
+              for name, tolerance, unit in (("absence", 5e-5, "log loss"), ("embeddings", 5e-4, "accuracy"))]
     return S.PlayersFile(schema_version=S.SCHEMA_VERSION, season="fixture season", window="fixture window",
-                         n_players=15, n_shown=12, n_hidden=3, rules=rules, metrics=notes, players=views,
-                         sources=SRC_FIXTURE)
+                         n_players=15, n_shown=12, n_hidden=3, rules=rules, metrics=notes,
+                         shot_making_baseline=baseline, checks=checks, players=views, sources=SRC_FIXTURE)
 
 
 def _scorecard() -> S.Scorecard:
@@ -154,15 +167,16 @@ def _scorecard() -> S.Scorecard:
                              truth_frames=600, testable=90, untestable_share=0.85)]
 
     def rows(shift: float) -> list:
-        spec = (("position_error", "p50 <= 2.0 ft, p90 <= 5.0 ft", ("met", "not met"),
-                 lambda g: {"p50_ft": r1(1.9 + 0.4 * g - shift), "p90_ft": r1(4.9 + 0.6 * g - shift)}),
-                ("near_field_bias", "within 0.5 ft in the near and the far third", ("not met", "not met"),
-                 lambda g: {"near_third_ft": r1(-0.6 + shift), "far_third_ft": r1(1.5 - shift)}),
-                ("missed_players", "<= 5%", ("not met", "not met"), lambda g: {"rate": r3(0.25 + 0.01 * g)}),
-                ("ghost_boxes", "<= 5%", ("not met", "not met"), lambda g: {"rate": r3(0.15)}),
-                ("team_labels", ">= 95%", ("not met", "not met"), lambda g: {"accuracy": r3(0.82 - 0.07 * g)}),
+        # Plainly unreal values, so a page built on the fixture cannot pass for the real scorecard.
+        spec = (("position_error", "fixture target", ("met", "not met"),
+                 lambda g: {"p50_ft": r1(9.9 + 3.0 * g - shift), "p90_ft": r1(19.9 + 5.0 * g - shift)}),
+                ("near_field_bias", "fixture target", ("not met", "not met"),
+                 lambda g: {"near_third_ft": r1(-7.0 + shift), "far_third_ft": r1(8.0 - shift)}),
+                ("missed_players", "fixture target", ("not met", "not met"), lambda g: {"rate": r3(0.77 + 0.01 * g)}),
+                ("ghost_boxes", "fixture target", ("not met", "not met"), lambda g: {"rate": r3(0.66)}),
+                ("team_labels", "fixture target", ("not met", "not met"), lambda g: {"accuracy": r3(0.33 - 0.07 * g)}),
                 ("identity", "reported", ("reported", "reported"),
-                 lambda g: {"id_switches_per_possession": r1(21.0 + 9 * g)}))
+                 lambda g: {"id_switches_per_possession": r1(77.0 + 9 * g)}))
         out = []
         for key, target, status, values in spec:
             cells = []
@@ -181,11 +195,11 @@ def _scorecard() -> S.Scorecard:
               S.ScorecardBuild(build="fixture_b", role="candidate", note="Synthetic candidate build.", games=games,
                                rows=rows(0.1), caveats=["Synthetic fixture scorecard, not a result."])]
     paired = [S.PairedDifference(game="fixture_game_a", metric="p50_ft", baseline="fixture_a", build="fixture_b",
-                                 diff=0.08, lo=0.03, hi=0.1, excludes_zero=True),
+                                 diff=0.5, lo=0.4, hi=0.6, excludes_zero=True),
               S.PairedDifference(game="fixture_game_b", metric="p50_ft", baseline="fixture_a", build="fixture_b",
-                                 diff=-0.04, lo=-0.19, hi=0.11, excludes_zero=False)]
+                                 diff=-0.5, lo=-1.5, hi=0.5, excludes_zero=False)]
     return S.Scorecard(schema_version=S.SCHEMA_VERSION, decision="Fixture decision text.", builds=builds,
-                       paired=paired, method={"match_ft": "5.0"}, sources=SRC_FIXTURE)
+                       paired=paired, method={"match_ft": "9.0"}, sources=SRC_FIXTURE)
 
 
 def _results() -> S.Results:
@@ -197,7 +211,7 @@ def _results() -> S.Results:
                                       point_estimate=False),
             heldout=None if held is None else S.MetricValue(text=f"metric {held} (point estimate)", name="metric",
                                                             value=held, point_estimate=True),
-            verdict=verdict, verdict_class=cls, report="export/sample.py",
+            verdict=verdict, verdict_source=S.FIXTURE_SOURCE, verdict_class=cls, report=S.FIXTURE_SOURCE,
             rows=[S.ReportRow(field="status", value="fixture output, not a result")])
 
     lanes = [lane("fixture_works", "does the fixture model work?", "works on the fixture", "works", 0.62, 0.63),
@@ -221,7 +235,8 @@ def _demo() -> tuple:
                 py = 300 + 40 * math.sin(i / 6 + j)
                 ghost = j == 7
                 boxes.append(S.DemoBox(x=r1(px), y=r1(py), w=46.0, h=110.0, track=j + 1,
-                                       status="ghost" if ghost else "matched", player_id=None if ghost else 100 + j))
+                                       status="unmatched" if ghost else "matched",
+                                       player_id=None if ghost else 100 + j))
                 if not ghost:
                     tx, ty = 20 + 8 * j + 0.4 * i, 10 + 4 * j + 2 * math.sin(i / 6 + j)
                     truth.append(S.DemoPoint(player_id=100 + j, team="AAA" if j < 4 else "BBB", x=r1(tx), y=r1(ty)))
@@ -245,14 +260,16 @@ def _demo() -> tuple:
         diffs = sorted(i.abs_diff for i in items if i.kind == kind)
         summaries.append(S.SwapSummary(kind=kind, n=len(diffs), mean_abs_diff=r3(sum(diffs) / len(diffs)),
                                        median_abs_diff=r3(diffs[len(diffs) // 2]), unit=unit, available=True))
-    checks = [S.ModelCheck(model=m, n=100, max_abs_diff=0.0, tolerance=1e-6, passed=True, unit=u)
+    checks = [S.RebuildCheck(name=m, compared="fixture predictions with fixture predictions", n=100, n_expected=100,
+                             max_abs_diff=0.0, tolerance=1e-6, passed=True, unit=u)
               for m, u in (("xfg", "probability"), ("epv", "points"), ("ghosting", "ft"))]
     swap = S.DemoSwap(schema_version=S.SCHEMA_VERSION, label="illustration", game_id=GAMES[0]["game_id"],
                       game="fixture_game_a", build="fixture_a", n_windows=2, n_frames=60, fill_share=0.325,
-                      summaries=summaries, items=items, possessions=poss, checks=checks,
+                      match_ft=9.0, max_gap_s=0.5, summaries=summaries, items=items, possessions=poss, checks=checks,
                       method=["Synthetic fixture comparison, not a result."], sources=SRC_FIXTURE)
     frames = S.DemoFrames(schema_version=S.SCHEMA_VERSION, game_id=GAMES[0]["game_id"], game="fixture_game_a",
-                          build="fixture_a", total_clip_s=6.0, scenes=scenes,
+                          build="fixture_a", total_clip_s=6.0, scene_rule="Fixture rule: the first two scenes.",
+                          scenes=scenes,
                           notes=["Synthetic fixture scenes, not a result."], sources=SRC_FIXTURE)
     return swap, frames
 

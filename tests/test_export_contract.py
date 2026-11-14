@@ -402,3 +402,151 @@ def test_rebuild_code_never_calls_a_frozen_entry_point_that_scores_heldout():
             if any(call in line for call in F.FORBIDDEN_CALLS):
                 hits.append(f"{path.relative_to(REPO)}:{number}: {line.strip()}")
     assert hits == [], "a rebuild must not score held-out outcomes:\n" + "\n".join(hits)
+
+
+# ----------------------------------------------------------------------------------------------- contract 1.1
+
+
+def _load(root, rel):
+    return json.loads((root / rel).read_text())
+
+
+def _refused(model, doc):
+    with pytest.raises(ValueError):
+        model.model_validate(doc)
+
+
+def test_every_file_names_a_source_and_a_source_says_which_rows_it_read(sample_root):
+    for rel, model in (("players.json", S.PlayersFile), ("scorecard.json", S.Scorecard), ("results.json", S.Results),
+                       ("demo/swap.json", S.DemoSwap), ("demo/frames.json", S.DemoFrames),
+                       ("games/fixture-game-a/1.json", S.Possession),
+                       ("games/fixture-game-a/possessions.json", S.PossessionIndex)):
+        doc = _load(sample_root, rel)
+        model.model_validate(doc)
+        _refused(model, dict(doc, sources=[]))
+    S.Source(path="reports/xfg.md", what="held-out log loss", rows="heldout")
+    for bad in (dict(path="", what="x", rows="heldout"), dict(path="reports/xfg.md", what="", rows="heldout"),
+                dict(path="/data/x.parquet", what="x", rows="heldout"), dict(path="reports/xfg.md", what="x"),
+                dict(path="reports/xfg.md", what="x", rows="in_sample")):
+        with pytest.raises(ValueError):
+            S.Source(**bad)
+
+
+def test_a_rebuilt_object_reaches_the_data_only_with_a_passed_check(sample_root):
+    good = dict(name="xfg", compared="predictions with stored predictions", n=10, n_expected=10, max_abs_diff=1e-7,
+                tolerance=1e-6, passed=True, unit="probability")
+    S.RebuildCheck(**good)
+    S.RebuildCheck(**dict(good, passed=False, max_abs_diff=0.3))
+    for bad in (dict(max_abs_diff=0.3), dict(n=0, n_expected=0), dict(n=9), dict(n_expected=None)):
+        with pytest.raises(ValueError):
+            S.RebuildCheck(**dict(good, **bad))
+    swap = _load(sample_root, "demo/swap.json")
+    S.DemoSwap.model_validate(swap)
+    _refused(S.DemoSwap, dict(swap, checks=[]))
+    failed = [dict(c, passed=False) if c["name"] == "epv" else c for c in swap["checks"]]
+    _refused(S.DemoSwap, dict(swap, checks=failed))
+    # the honest form of a model that is not available: no items, no numbers, a reason
+    unavailable = dict(swap, checks=failed, items=[i for i in swap["items"] if i["kind"] != "epv"],
+                       summaries=[dict(s, available=False, n=0, mean_abs_diff=None, median_abs_diff=None,
+                                       note="the EPV rebuild did not pass its check") if s["kind"] == "epv" else s
+                                  for s in swap["summaries"]])
+    S.DemoSwap.model_validate(unavailable)
+    placeholder = dict(unavailable, summaries=[dict(s, mean_abs_diff=0.0) if s["kind"] == "epv" else s
+                                               for s in unavailable["summaries"]])
+    _refused(S.DemoSwap, placeholder)
+    _refused(S.DemoSwap, dict(swap, summaries=swap["summaries"][:2]))
+    players = _load(sample_root, "players.json")
+    S.PlayersFile.model_validate(players)
+    _refused(S.PlayersFile, dict(players, checks=[c for c in players["checks"] if c["name"] != "absence"]))
+    _refused(S.PlayersFile, dict(players, checks=[c for c in players["checks"] if c["name"] != "embeddings"]))
+
+
+def test_players_file_counts_rules_and_minimums_agree(sample_root):
+    players = _load(sample_root, "players.json")
+    _refused(S.PlayersFile, dict(players, n_shown=players["n_shown"] + 1))
+    _refused(S.PlayersFile, dict(players, n_hidden=players["n_hidden"] + 1))
+    _refused(S.PlayersFile, dict(players, rules=players["rules"][:4]))
+    looser = [dict(r, min_n=1) if r["metric"] == "shot_making" else r for r in players["rules"]]
+    _refused(S.PlayersFile, dict(players, rules=looser))
+    hidden = dict(players["players"][0])
+    for key in ("shot_making", "gravity", "rebounding", "absence_risk", "similar"):
+        hidden[key] = {k: v for k, v in hidden[key].items() if k.startswith("min_") or k in ("available", "kind")}
+        hidden[key]["shown"] = False
+    hidden["shot_making"]["attempts"] = hidden["gravity"]["possessions"] = hidden["gravity"]["games"] = 0
+    hidden["rebounding"]["chances"] = hidden["absence_risk"]["games"] = hidden["absence_risk"]["absent"] = 0
+    hidden["similar"]["possessions"], hidden["similar"]["neighbours"] = 0, []
+    _refused(S.PlayersFile, dict(players, players=[hidden] + players["players"][1:]))
+
+
+def test_featured_scorecard_and_no_signal_rules(sample_root):
+    index = _load(sample_root, "games/fixture-game-a/possessions.json")
+    rows = index["possessions"]
+    featured = next(r for r in rows if r["featured"])
+    plain = next(r for r in rows if not r["featured"])
+    S.PossessionSummary.model_validate(featured)
+    _refused(S.PossessionSummary, dict(featured, featured_by=None))
+    _refused(S.PossessionSummary, dict(featured, result="turnover"))
+    _refused(S.PossessionSummary, dict(featured, xfg=None))
+    _refused(S.PossessionSummary, dict(plain, featured_by="hand", featured_cell="x"))
+    _refused(S.PossessionSummary, dict(featured, xfg=1.7))
+    card = _load(sample_root, "scorecard.json")
+    cell = card["builds"][0]["rows"][0]["cells"][0]
+    S.ScorecardCell.model_validate(cell)
+    _refused(S.ScorecardCell, dict(cell, status="met", passed=False))
+    _refused(S.ScorecardCell, dict(cell, status="reported", passed=True))
+    both_adopted = [dict(b, role="adopted") for b in card["builds"]]
+    _refused(S.Scorecard, dict(card, builds=both_adopted))
+    _refused(S.Scorecard, dict(card, builds=[dict(b, role="candidate") for b in card["builds"]]))
+    lane = _load(sample_root, "results.json")["lanes"][0]
+    S.LaneResult.model_validate(dict(lane, lane="decisions", verdict_class="failed"))
+    for name in S.NO_SIGNAL_LANES:
+        _refused(S.LaneResult, dict(lane, lane=name, verdict_class="works"))
+    box = _load(sample_root, "demo/frames.json")["scenes"][0]["frames"][0]["boxes"][0]
+    _refused(S.DemoBox, dict(box, status="ghost"))
+
+
+def test_a_real_data_root_keeps_heldout_and_training_apart(tmp_path):
+    root = tmp_path / "real"
+    sample.write_sample(root)
+    assert S.validate_tree(root) == []
+
+    def rewrite(rel, change):
+        doc = json.loads((root / rel).read_text())
+        change(doc)
+        (root / rel).write_text(json.dumps(doc))
+
+    # marking the fixture as real makes every fixture value a problem
+    rewrite("manifest.json", lambda d: d.update(synthetic=False))
+    problems = "\n".join(S.validate_tree(root))
+    assert "fixture values in a data root that is not marked synthetic" in problems
+    assert "is not a held-out game" in problems
+    assert "freeze_tag is 'fixture'" in problems
+    assert "is fixture output and cannot be shown as a result" in problems
+    # a synthetic root may name only the fixture generator
+    rewrite("manifest.json", lambda d: d.update(synthetic=True))
+    rewrite("players.json", lambda d: d["sources"].append(
+        {"path": "$DATA_ROOT/analytics/xfg/2015-16/xfg_predictions.parquet", "what": "x", "rows": "out_of_fold"}))
+    assert any("a synthetic data root names only" in line for line in S.validate_tree(root))
+
+
+def test_content_rules_on_real_looking_objects(sample_root):
+    def real(obj_json, model, sources):
+        doc = json.loads(obj_json)
+        doc["sources"] = sources
+        return model.model_validate(doc)
+
+    held = {"path": "$DATA_ROOT/analytics/epv/heldout/2015-16/12.16.2015.PHX.at.GSW.parquet", "what": "x", "rows": "heldout"}
+    oof = {"path": "$DATA_ROOT/analytics/xfg/2015-16/xfg_predictions.parquet", "what": "x", "rows": "out_of_fold"}
+    text = (sample_root / "games" / "fixture-game-a" / "1.json").read_text()
+    possession = real(text.replace("00.00.0000.AAA.at.BBB", "12.16.2015.PHX.at.GSW"), S.Possession, [held])
+    assert S._content_problems("x.json", possession, synthetic=False) == []
+    leaked = real(text.replace("00.00.0000.AAA.at.BBB", "12.16.2015.PHX.at.GSW"), S.Possession, [held, oof])
+    assert any("held-out rows only" in line for line in S._content_problems("x.json", leaked, synthetic=False))
+    training_game = real(text.replace("00.00.0000.AAA.at.BBB", "11.14.2015.BKN.at.GSW"), S.Possession, [held])
+    assert any("not a held-out game" in line for line in S._content_problems("x.json", training_game, synthetic=False))
+    players = real((sample_root / "players.json").read_text().replace(S.FIXTURE_SOURCE, "reports/xfg.md"),
+                   S.PlayersFile, [oof])
+    assert S._content_problems("players.json", players, synthetic=False) == []
+    with_heldout = real((sample_root / "players.json").read_text().replace(S.FIXTURE_SOURCE, "reports/xfg.md"),
+                        S.PlayersFile, [oof, held])
+    assert any("never read held-out rows" in line for line in S._content_problems("players.json", with_heldout, False))
