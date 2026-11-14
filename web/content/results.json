@@ -1,7 +1,7 @@
 {
   "title": "Results",
   "eyebrow": "Results",
-  "intro": "The tracking scorecard, then every model result. A value with no interval is a point estimate.",
+  "intro": "How well the broadcast tracking works, then every model result. A value with no interval says it is a point estimate. Each report links to its file.",
   "scorecard": {
     "title": "Tracking scorecard",
     "decision": "Build decision",
@@ -19,7 +19,6 @@
       "reported": "Reported",
       "not measurable": "Not measurable"
     },
-    "sample": "{n} {unit}",
     "games": {
       "caption": "Games scored for build {build}",
       "game": "Game",
@@ -39,10 +38,17 @@
       "build": "Build",
       "diff": "Difference",
       "interval": "Interval",
-      "range": "{lo} to {hi}",
-      "excludesZero": "Excludes zero"
+      "excludesZero": "Excludes zero",
+      "to": " to "
     },
-    "method": "Method"
+    "method": "Method",
+    "intro": "Each row is a target set before the work started. The status is the one the scorecard file states.",
+    "split": {
+      "heldout_game": "held-out game",
+      "heldout_arena": "held-out arena"
+    },
+    "notScored": "not scored for this build",
+    "percentSign": "%"
   },
   "models": {
     "title": "Model results",
@@ -50,7 +56,6 @@
     "caption": "Every model, with its out-of-fold and held-out values and its verdict",
     "lane": "Model",
     "question": "Question",
-    "selected": "Selected model",
     "oof": "Out of fold",
     "heldout": "Held out",
     "verdict": "Verdict",
@@ -64,9 +69,11 @@
     },
     "pending": {
       "title": "No result yet",
-      "row": "{lane}: {reason}"
+      "intro": "These reports hold no result yet, so no number from them is shown."
     },
     "notes": "Notes",
-    "quoted": "Quoted from {source}"
+    "quoted": "Quoted from {source}",
+    "intro": "Every model, tested on games it never saw. Failed and inconclusive models stay in the table.",
+    "to": " to "
   }
 }

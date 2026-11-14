@@ -8,7 +8,7 @@ async function motion(page: import("@playwright/test").Page) {
       scroll: getComputedStyle(document.documentElement).scrollBehavior,
       transition: getComputedStyle(link).transitionDuration,
     };
-  }, copy.home.entries.review.title);
+  }, copy.home.coldOpen.next.labels.review);
 }
 
 test.describe("a reader who asked for reduced motion", () => {

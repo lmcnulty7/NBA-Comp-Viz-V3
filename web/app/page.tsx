@@ -1,51 +1,59 @@
-import Link from "next/link";
-import { CourtMotif } from "@/components/court/CourtMotif";
-import { copy, fill } from "@/lib/copy";
+import { ColdOpen } from "@/components/coldopen/ColdOpen";
+import { EntryCards } from "@/components/coldopen/EntryCards";
+import { Hero } from "@/components/coldopen/Hero";
+import { previewLanes } from "@/components/coldopen/model";
+import { storyData, storyLines, storyScenes } from "@/components/coldopen/story";
+import { copy } from "@/lib/copy";
 import { getServerSource } from "@/lib/data/server";
-import { formatCount } from "@/lib/format";
-import { routes } from "@/lib/site";
-import styles from "./home.module.css";
+import { stillUrl } from "@/lib/media";
+import { VARIANT } from "@/lib/site";
+import { renderLine, type TokenData } from "@/lib/tokens";
 
-const ENTRIES = [
-  { href: routes.review, text: copy.home.entries.review },
-  { href: routes.prep, text: copy.home.entries.prep },
-  { href: routes.results, text: copy.home.entries.results },
-] as const;
+const open = copy.home.coldOpen;
 
+/**
+ * The home page: the headline (D17), the scroll-driven cold open of docs/SCRIPT.md (D25, M4), and the three
+ * ways in. Every number on it is a token of the script filled from the site data (lib/tokens.ts); an unknown
+ * token fails the build.
+ */
 export default async function HomePage() {
-  const manifest = await getServerSource().manifest();
+  const source = getServerSource();
+  const [manifest, scorecard, players, results, swap, frames] = await Promise.all([
+    source.manifest(),
+    source.scorecard(),
+    source.players(),
+    source.results(),
+    source.demoSwap(),
+    source.demoFrames(),
+  ]);
+  const data: TokenData = { manifest, scorecard, players, swap, frames };
+  const story = storyData(data, VARIANT, stillUrl);
+
+  const firstGame = manifest.games.find((game) => game.n_featured > 0) ?? manifest.games[0];
+  let preview: { gameSlug: string; possession: number } | null = null;
+  if (firstGame) {
+    const index = await source.possessionIndex(firstGame.slug);
+    const row = index.possessions.find((candidate) => candidate.featured) ?? index.possessions[0];
+    if (row) preview = { gameSlug: firstGame.slug, possession: row.possession };
+  }
+  const next = storyLines("next", data);
+
   return (
     <div className="stack stack-loose">
-      <header className={styles.hero}>
-        <CourtMotif half className={styles.motif} />
-        <div className={styles.head}>
-          <p className="eyebrow">{copy.home.eyebrow}</p>
-          <h1 className={styles.headline}>{copy.home.headline}</h1>
-          <p className="lede">{copy.home.dek}</p>
-        </div>
-      </header>
-
-      <section className="column section" aria-labelledby="entries">
-        <h2 id="entries">{copy.home.entries.title}</h2>
-        <ul className="rows">
-          {ENTRIES.map((entry) => (
-            <li key={entry.href}>
-              <h3 className="row-title">
-                <Link href={entry.href}>{entry.text.title}</Link>
-              </h3>
-              <p>{entry.text.body}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="small" data-testid="coverage">
-          {fill(copy.home.coverage, {
-            possessions: formatCount(manifest.n_possessions),
-            games: formatCount(manifest.n_games),
-            season: manifest.season,
-          })}
-        </p>
-        <p className="small">{copy.home.note}</p>
-      </section>
+      <Hero
+        title={open.headline.title}
+        intro={storyLines("headline", data)}
+        media={story.media}
+        variant={VARIANT}
+      />
+      <ColdOpen scenes={storyScenes(data, VARIANT)} data={story} />
+      <EntryCards
+        steps={[next[0] ?? "", next[1] ?? "", next[2] ?? ""]}
+        preview={preview}
+        player={players.players[0] ?? null}
+        players={renderLine(copy.home.ui.players, null, data) ?? ""}
+        lanes={previewLanes(results.lanes)}
+      />
     </div>
   );
 }

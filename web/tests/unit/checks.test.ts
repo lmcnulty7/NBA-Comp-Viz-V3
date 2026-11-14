@@ -39,6 +39,7 @@ for (const [name, files, message] of [
   ["an en dash", { "talk/first.md": `Pages one${String.fromCodePoint(0x2013)}two\n` }, "an em dash or an en dash"],
   ["a placeholder with a digit", { "home.json": JSON.stringify({ a: "{n1} games" }) }, "placeholder {n1} must be {letters}"],
   ["a placeholder with a path", { "home.json": JSON.stringify({ a: "{swap.mean} points" }) }, "placeholder {swap.mean} must be {letters}"],
+  ["a token the script does not list", { "talk/first.md": "# Title\n\nIt moved {swap.xfg.mean_abs_diff2} points.\n" }, "placeholder {swap.xfg.mean_abs_diff2} must be {letters} or a token"],
   ["ghosts called the best defense", { "review.json": JSON.stringify({ a: "Where the best defense would stand." }) }, "an average defense"],
   ["ghosts called optimal positions", { "review.json": JSON.stringify({ a: "The optimal positions for the defenders." }) }, "an average defense"],
   ["a file that is not JSON or Markdown", { "home.txt": "words" }, "copy files are .json or .md"],
@@ -50,6 +51,17 @@ for (const [name, files, message] of [
     expect(done.status).toBe(1);
   });
 }
+
+test("a token of docs/SCRIPT.md may name a field with a digit; a typed number still fails", () => {
+  const good = copyCheck({
+    "home.json": JSON.stringify({ a: "Most gaps are under {scorecard.adopted.heldout_game.position_error.p90_ft} feet." }),
+    "talk/first.md": "# Title\n\nThe typical gap is {frames.scene.p50_error_ft} feet.\n",
+  });
+  expect(good.status, good.output).toBe(0);
+  const bad = copyCheck({ "home.json": JSON.stringify({ a: "Under {scorecard.adopted.heldout_game.position_error.p90_ft} feet, or 5." }) });
+  expect(bad.output).toContain("a digit in copy");
+  expect(bad.status).toBe(1);
+});
 
 test("the site copy itself passes the copy check", () => {
   const done = runScript("check-copy.mjs");
@@ -345,6 +357,7 @@ test("a page.private.tsx file names a route kept out of the public build", async
   };
   const routes = privateRoutes(app).map((segments) => segments.join("/")).sort();
   expect(routes).toEqual(["notes", "talk/[slide]"]);
-  // The site has no private-only route yet: the slides of PLAN.md M10 will be the first.
-  expect(privateRoutes(path.join(WEB_DIR, "app"))).toEqual([]);
+  // The slides of PLAN.md M10 are the site's private-only routes.
+  const site = privateRoutes(path.join(WEB_DIR, "app")).map((segments) => segments.join("/")).sort();
+  expect(site).toEqual(["talk", "talk/[slide]"]);
 });

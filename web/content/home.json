@@ -1,26 +1,133 @@
 {
   "title": "Home",
-  "eyebrow": "Basketball analytics on player tracking",
-  "headline": "From broadcast pixels to possession value, measured against ground truth at every step",
-  "dek": "An analytics product built on player tracking. A broadcast video pipeline stands in for the tracking data a team buys, and it is scored against sensor data.",
-  "coverage": "{possessions} held-out possessions from {games} games. Season {season}.",
-  "note": "The model results on this site come from sensor tracking data. The broadcast demo is an illustration.",
-  "entries": {
-    "title": "Where to go",
-    "review": {
-      "title": "Possession review",
-      "body": "Pick a possession. See its shot quality, its value over time, and where an average defense would have stood.",
-      "cta": "Open the possession review"
+  "coldOpen": {
+    "headline": {
+      "title": "From broadcast pixels to possession value, measured against ground truth at every step.",
+      "steps": [
+        "A tool for reviewing basketball possessions, built on player tracking data. It opens with a question. Can a TV broadcast stand in for the tracking data that teams buy?"
+      ]
     },
-    "prep": {
-      "title": "Game and season prep",
-      "body": "Player views from the season models. Each value shows its interval or says it is a point estimate, and names its minimum sample.",
-      "cta": "Open the prep tab"
+    "clip": {
+      "steps": [
+        "This is an NBA game the way you see it on TV. A single camera, always moving.",
+        "Teams buy tracking data that says where every player stands, many times a second. This demo measures how close the TV picture alone can get.",
+        "There is an answer key. The league's own tracking system, SportVU, recorded this same game. This page calls that the sensor data.",
+        "These models learn from example footage. That is called training. The models that find the court and the players never trained on this game. A filter that runs first did. It picks out the wide camera shots, and some of its training frames came from this game."
+      ],
+      "caption": "You are looking at a still frame. The video clips sit on a private copy of this site. Ask for access to watch them."
     },
-    "results": {
-      "title": "Results",
-      "body": "The tracking scorecard and every model result. Models that found no signal stay on the list.",
-      "cta": "Open the results"
+    "boxes": {
+      "steps": [
+        "First, find the players. A model draws a box around each one and follows it from frame to frame.",
+        "It is far from clean. On the frames that could be checked against the sensor data, it had no box for {scorecard.adopted.heldout_game.missed_players.rate} percent of the players in view. And, leaving out the referees, {scorecard.adopted.heldout_game.ghost_boxes.rate} percent of its boxes matched no player on the floor.",
+        "It also sorts the players into two teams by jersey color. For the players it found, that is right at most {scorecard.adopted.heldout_game.team_labels.accuracy} percent of the time.",
+        "None of these meets its target. They are shown here as measured."
+      ],
+      "labels": {
+        "missed": "players with no box",
+        "ghosts": "boxes with no player",
+        "teams": "team labels",
+        "target": "target",
+        "notMet": "not met"
+      }
+    },
+    "map": {
+      "steps": [
+        "A box on a screen is not a spot on the floor. The camera pans and zooms, so the same pixel is a new place in every frame.",
+        "A second model finds the painted court lines in each frame. The lines show where the camera is pointing.",
+        "Then the spot where each player stands can be placed on a flat map of the court, measured in feet.",
+        "This step has no score of its own. The sensor data tracks players, not painted lines. So the map is judged by where it puts the players. That is next."
+      ]
+    },
+    "truth": {
+      "steps": [
+        "Now the sensor data goes on the same map. Each line joins a broadcast dot to the sensor dot for the same player.",
+        "In this stretch of play, for the players that got a box, the typical gap is {frames.scene.p50_error_ft} feet. Across all the scored stretches of this game it is {scorecard.adopted.heldout_game.position_error.p50_ft} feet. Most gaps there are under {scorecard.adopted.heldout_game.position_error.p90_ft} feet.",
+        "Both values for the scored stretches meet the target. But the margin of error around each one runs past the target, so neither is safely met.",
+        "The scored stretches cover only part of the game. And their numbers come from {scorecard.adopted.heldout_game.testable} of their {scorecard.adopted.heldout_game.truth_frames} frames. Those are the frames where the sensor data lined up with the picture. They lean toward the easier ones."
+      ],
+      "fallback": "Across all the scored stretches of this game, the typical gap is {scorecard.adopted.heldout_game.position_error.p50_ft} feet. That is for the players that got a box. Most gaps are under {scorecard.adopted.heldout_game.position_error.p90_ft} feet.",
+      "labels": {
+        "broadcast": "broadcast",
+        "sensor": "sensor data",
+        "gap": "gap in this frame: {frames.scene.frame.error_ft} feet",
+        "noGap": "no matched player in this frame",
+        "row": "all scored stretches of this game",
+        "target": "target",
+        "metNotSafely": "met, not safely",
+        "checked": "frames checked"
+      }
+    },
+    "swap": {
+      "steps": [
+        "Positions only matter if the answers built on them hold up.",
+        "This is an illustration, not a test. The same models ran twice on {swap.n_windows} stretches of this game. Once on sensor positions. Once on broadcast positions. The models were locked before this run. Each one was built again from the same code and the same training games. It was used only if it gave back its saved answers. Nothing was changed to fit the broadcast.",
+        "Shot quality is the chance that a shot goes in. It moved by {swap.xfg.mean_abs_diff} percentage points on average. That is across {swap.xfg.n} shots.",
+        "Possession value is the points a possession is worth at each moment. It moved by {swap.epv.mean_abs_diff} points on average. That is across {swap.epv.n} moments.",
+        "Then the average defender. The spot where one would stand moved by {swap.ghosting.mean_abs_diff} feet on average. That is across {swap.ghosting.n} cases.",
+        "The broadcast tracker misses players, so the missing ones were filled in from the sensor data. That is {swap.fill_share} percent of all player positions. Boxes that matched no player were dropped. Names, teams and the ball come from the sensor data too. So these numbers show what position error alone does.",
+        "Can the broadcast stand in yet? No. It misses players and it has no ball. That is why the model results on this site come from sensor data or from play-by-play records, not from the broadcast."
+      ],
+      "fallback": "This model did not give back its saved answers when it was built again. So it is left out of the comparison.",
+      "labels": {
+        "badge": "Illustration",
+        "sensor": "sensor positions",
+        "broadcast": "broadcast positions",
+        "filled": "filled in from sensor data",
+        "xfg": "shot quality",
+        "epv": "possession value",
+        "ghosting": "average defender"
+      }
+    },
+    "next": {
+      "steps": [
+        "Review a possession. Choose from {manifest.n_possessions} possessions. They come from {manifest.n_games} games that were kept out of model training. See shot quality, possession value over time, and where an average defense would have stood.",
+        "Prepare for a game. Look up a player: shot making, the pull on defenders, rebounding, the risk of missing the next game, and similar players.",
+        "See the results. Every model with its test numbers. The ones that failed are listed too."
+      ],
+      "labels": {
+        "review": "Review",
+        "prep": "Prep",
+        "results": "Results"
+      }
     }
+  },
+  "ui": {
+    "story": "The opening story, step by step",
+    "scene": "Part {n} of {total}",
+    "stillAlt": "A still frame of the broadcast at the moment this story starts",
+    "clipLabel": "The broadcast clip of this stretch of play, with no sound",
+    "noStill": "No still frame in this data build.",
+    "boxesLabel": "Boxes the tracker drew on this frame. A solid box matched a sensor player. An outlined box matched none.",
+    "barsLabel": "Three rows of the tracking scorecard, each against its target",
+    "percent": "{value}%",
+    "percentPoints": "{value} percentage points",
+    "points": "{value} points",
+    "feet": "{value} feet",
+    "feetPair": "{a} feet and {b} feet",
+    "ofCount": "{a} of {b}",
+    "stretch": "this stretch of play",
+    "mapLabel": "A court map of this stretch at {t} seconds. Each dot is a player placed from the broadcast.",
+    "truthLabel": "The court map with the sensor data at {t} seconds. Each line joins a broadcast dot to the sensor dot of the same player.",
+    "sensorLabel": "The same moment from sensor positions, at {t} seconds.",
+    "broadcastLabel": "The same moment from broadcast positions, at {t} seconds. A hollow dot is a player filled in from the sensor data.",
+    "play": "Play",
+    "pause": "Pause",
+    "time": "Time in this stretch",
+    "timeValue": "{t} of {total} seconds",
+    "pairs": "Each value from sensor positions and from broadcast positions, for this stretch",
+    "pairWhat": "Value",
+    "pairSensor": "Sensor",
+    "pairBroadcast": "Broadcast",
+    "pairGap": "Gap",
+    "pairNone": "No item of the comparison falls in this stretch.",
+    "unavailable": "left out",
+    "noDemo": "This data build has no demo scenes, so the pictures of this story are not shown.",
+    "noSwap": "This data build has no model comparison.",
+    "preview": "A featured possession on the court",
+    "previewError": "The preview did not load.",
+    "players": "{players.n_shown} players shown. {players.n_hidden} left out for too small a sample.",
+    "pairReference": "the spot from sensor positions",
+    "pairMoved": "moved by the gap"
   }
 }

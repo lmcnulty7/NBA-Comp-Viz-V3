@@ -59,6 +59,14 @@ no digit: a number comes from the data root through a `{placeholder}` and `lib/f
 line: `npm run copy:check` scans `content/`, and the lint rules refuse literal text in a page or a component.
 Longer text (the slides of M10) can be Markdown under `content/`; the same scan covers it.
 
+A number in the cold open and the slides is a token of `docs/SCRIPT.md`, such as `{swap.fill_share}`: it names
+a field of the site data, and `lib/tokens.ts` fills it with the digits the file stores (a share moved two
+decimal places to read as a percentage, never rounded). `TOKENS` there is the token table of the script, held
+equal by a unit test; a token that is not in the table fails the copy check and the build. The cold open copy
+in `content/home.json` is the approved copy of the script, line for line, and `npm run reading:check` holds it
+there, with the reading grade (Flesch-Kincaid, at most 9, computed in `scripts/lib/readability.mjs`) and the
+list of words kept out of the copy. The slides are `content/talk/*.md` in the format of `scripts/lib/slides.mjs`.
+
 ## The court
 
 `components/court` is the one court renderer: `geometry.ts` (feet to canvas pixels and the court lines, pure),
@@ -79,7 +87,8 @@ and the files whose names start with an underscore.
 ## npm run check
 
 `types` (generated files are current), `typecheck` (`next typegen`, `tsc --noEmit`), `lint`, `data` (the data
-root against the contract, both halves, no private string), `copy`, `contrast` (WCAG AA of the design tokens, light
+root against the contract, both halves, no private string), `copy`, `reading` (grade and plain words on the cold
+open and the slides), `contrast` (WCAG AA of the design tokens, light
 and dark), `hygiene` (no long dash and no private string in the sources), `unit`, `build` (public, under the
 Pages base path), `video`, `browser` (Playwright at 390 and 1280 px on Chromium and WebKit against `out/`).
 `node scripts/check.mjs lint unit` runs only the named steps.
