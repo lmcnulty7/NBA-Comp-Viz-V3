@@ -18,3 +18,4 @@ scipy>=1.11         # analytics/ statistics and sparse fits
 threadpoolctl>=3.1  # analytics/eval.py pins boosting fits to one thread
 requests>=2.31      # collect/ fetchers
 beautifulsoup4>=4.12  # collect/bref_*.py page parsing (stdlib html.parser, no lxml)
+pydantic>=2.7        # export/schemas.py: the site data contract (PLAN.md, Site structure)
