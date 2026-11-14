@@ -5,13 +5,17 @@ import { Court } from "@/components/court/Court";
 import { EMPTY_SCENE, defaultFrame, lastShotSpot, sceneFromPossession } from "@/components/court/scene";
 import { copy } from "@/lib/copy";
 import { getBrowserSource } from "@/lib/data/browser";
+import { VARIANT } from "@/lib/site";
 import type { Possession } from "@/lib/types/contract";
 import { useInView, usePlayback, useReducedMotion } from "./hooks";
 import styles from "./coldopen.module.css";
 
 const NO_TIMES: number[] = [];
 
-/** A featured possession playing on the court renderer: the small live picture on the review card. */
+/**
+ * A featured possession playing on the court renderer: the small live picture on the review card. The public data
+ * holds no player position (PLAN.md D60), so there it is an empty court of the half the offense attacks.
+ */
 export function PossessionPreview({ gameSlug, possession }: { gameSlug: string; possession: number }) {
   const [loaded, setLoaded] = useState<Possession | null>(null);
   const [failed, setFailed] = useState(false);
@@ -54,7 +58,7 @@ export function PossessionPreview({ gameSlug, possession }: { gameSlug: string; 
         scene={scene}
         view={loaded?.attack_x != null ? "half" : "full"}
         attackX={loaded?.attack_x ?? null}
-        label={copy.home.ui.preview}
+        label={VARIANT === "public" ? copy.home.ui.previewStill : copy.home.ui.preview}
         layers={{ labels: false }}
       />
     </div>

@@ -9,7 +9,8 @@
 //   contrast   WCAG AA contrast of the design tokens, light and dark
 //   hygiene    no long dash and no private string in the web sources
 //   unit       unit tests (geometry, scene, drawing, data source, formatting, the check scripts)
-//   build      the public variant, under the GitHub Pages base path
+//   build      the public variant, under the GitHub Pages base path, from the public data root (PLAN.md D60)
+//   frames     no SportVU frame data in any file of the public out/ (positions, clocks, ghosts, sensor dots)
 //   video      no video file and no moving image in the public out/
 //   browser    Playwright at 390 and 1280 px, on Chromium and WebKit, against out/ served under the base path
 //
@@ -39,6 +40,7 @@ const STEPS = [
   ["hygiene", [[node, script("check-hygiene.mjs")]]],
   ["unit", [[bin("playwright"), "test", "--config", "playwright.unit.config.ts"]]],
   ["build", [[node, script("build.mjs"), "--variant", "public"]]],
+  ["frames", [[node, script("check-frame-data.mjs")]]],
   ["video", [[node, script("check-no-video.mjs")]]],
   ["browser", [[bin("playwright"), "test", "--config", "playwright.config.ts"]]],
 ];

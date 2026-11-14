@@ -132,6 +132,7 @@ web/.next/
 web/out/
 web/data/
 web/public/data/
+web/data-public/
 web/media-private/
 web/test-results/
 web/playwright-report/

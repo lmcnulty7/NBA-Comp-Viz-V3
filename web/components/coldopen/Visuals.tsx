@@ -100,8 +100,41 @@ export function MapVisual({ data }: { data: StoryData }) {
   );
 }
 
-/** Scene 4: the sensor positions on the same map, the gap on screen and the scorecard row beside it. */
+/**
+ * The public build holds no sensor position (PLAN.md D60): where a court would draw them, it shows the still
+ * and says that the court sits on the private copy (D21).
+ */
+function PrivateStill({ data, note }: { data: StoryData; note: string }) {
+  if (!data.media) return <NoDemo />;
+  return (
+    <figure className={styles.courtFigure} data-testid="private-still">
+      <MediaFrame media={data.media} boxes={null} />
+      <figcaption className={styles.caption} data-testid="access-note">
+        {note}
+      </figcaption>
+    </figure>
+  );
+}
+
+/**
+ * Scene 4: the sensor positions on the same map, the gap on screen and the scorecard row beside it. The public
+ * build shows the still in place of the map, with the gap of the still's frame beside the scorecard row (D50).
+ */
 export function TruthVisual({ data }: { data: StoryData }) {
+  return data.variant === "public" ? <TruthStill data={data} /> : <TruthPlayback data={data} />;
+}
+
+function TruthStill({ data }: { data: StoryData }) {
+  if (data.frames.length === 0) return <NoDemo />;
+  return (
+    <div className={styles.visualStack} data-visual="truth">
+      <PrivateStill data={data} note={ui.truthPrivate} />
+      <GapPanel readout={data.readouts[data.stillIndex] ?? open.truth.labels.noGap} row={data.position} />
+    </div>
+  );
+}
+
+function TruthPlayback({ data }: { data: StoryData }) {
   const { ref, times, playback } = useStretch(data, data.stillIndex);
   const frame = data.frames[playback.index];
   const scene = useMemo(() => broadcastCourt(frame, true), [frame]);
@@ -116,8 +149,38 @@ export function TruthVisual({ data }: { data: StoryData }) {
   );
 }
 
-/** Scene 5: the same moment from sensor and from broadcast positions, marked as an illustration. */
+/** The numbers of scene 5: the fill share and the pairs of values, or the words that this build has none. */
+function SwapNumbers({ data }: { data: StoryData }) {
+  return data.swap ? (
+    <>
+      <FillShare value={data.swap.fillShare} share={data.swap.share} />
+      <PairTable rows={data.swap.pairs} />
+    </>
+  ) : (
+    <p className="small">{ui.noSwap}</p>
+  );
+}
+
+/**
+ * Scene 5: the same moment from sensor and from broadcast positions, marked as an illustration. The public build
+ * shows the still in place of the two courts (PLAN.md D60); the numbers of the comparison stay.
+ */
 export function SwapVisual({ data }: { data: StoryData }) {
+  if (data.variant === "public") {
+    return (
+      <div className={styles.visualStack} data-visual="swap">
+        <p className={styles.badge} data-testid="illustration-badge">
+          {open.swap.labels.badge}
+        </p>
+        {data.frames.length > 0 ? <PrivateStill data={data} note={ui.swapPrivate} /> : null}
+        <SwapNumbers data={data} />
+      </div>
+    );
+  }
+  return <SwapPlayback data={data} />;
+}
+
+function SwapPlayback({ data }: { data: StoryData }) {
   const { ref, times, playback } = useStretch(data, data.stillIndex);
   const frame = data.frames[playback.index];
   const sensor = useMemo(() => sensorCourt(frame), [frame]);
@@ -143,14 +206,7 @@ export function SwapVisual({ data }: { data: StoryData }) {
           <PlayControls playback={playback} times={times} />
         </>
       ) : null}
-      {data.swap ? (
-        <>
-          <FillShare value={data.swap.fillShare} share={data.swap.share} />
-          <PairTable rows={data.swap.pairs} />
-        </>
-      ) : (
-        <p className="small">{ui.noSwap}</p>
-      )}
+      <SwapNumbers data={data} />
     </div>
   );
 }

@@ -108,6 +108,25 @@ test("the public site shows a still and the request-access note, and no clip", a
   await expect(page.locator('[data-scene="clip"]').getByTestId("access-note")).toHaveText(open.clip.caption);
 });
 
+test("the public cold open shows the still and the note in place of sensor positions (D60, D50)", async ({ page }) => {
+  test.skip(build.variant !== "public", "this is the private variant");
+  await page.goto("./");
+  const frames = await served<{ scenes: unknown[] }>(page, "data/demo/frames.json");
+  test.skip(!frames || frames.scenes.length === 0, "this data build has no demo scenes");
+  for (const [scene, note] of [
+    ["truth", copy.home.ui.truthPrivate],
+    ["swap", copy.home.ui.swapPrivate],
+  ] as const) {
+    const visual = page.locator(`[data-scene="${scene}"]`);
+    await expect(visual.getByTestId("private-still").getByTestId("access-note")).toHaveText(note);
+    await expect(visual.locator("canvas[data-court]")).toHaveCount(0);
+  }
+  // The gap of the still's frame is still shown only beside the scorecard value of the game (D50).
+  const panel = page.locator('[data-scene="truth"]').getByTestId("gap-panel");
+  await expect(panel.getByTestId("gap-readout")).toBeVisible();
+  await expect(panel.getByTestId("scorecard-row")).toContainText(open.truth.labels.row);
+});
+
 test("the private site plays the clip and carries no request-access note", async ({ page }) => {
   test.skip(build.variant !== "private", "this is the public variant");
   await page.goto("./");
@@ -137,7 +156,9 @@ test.describe("a reader with no motion preference", () => {
 
   test("the court map plays when it comes into view", async ({ page }) => {
     await page.goto("./");
-    const scene = page.locator('[data-scene="truth"]');
+    // The private site plays the clip beside the map, so the map's own play control is the truth overlay's; the
+    // public site has no truth overlay (PLAN.md D60) and the map plays through its sampled frames.
+    const scene = page.locator(`[data-scene="${build.variant === "public" ? "map" : "truth"}"]`);
     const range = scene.locator('input[type="range"]');
     test.skip((await range.count()) === 0, "this data build has no demo frames");
     await scene.scrollIntoViewIfNeeded();

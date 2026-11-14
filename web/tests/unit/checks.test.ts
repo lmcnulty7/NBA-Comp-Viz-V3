@@ -394,3 +394,116 @@ test("a private route with no fixed folder is refused, and a leaked one is found
   // The site itself has none that cannot be checked.
   expect(build.uncheckablePrivateRoutes(build.privateRoutes(path.join(WEB_DIR, "app")))).toEqual([]);
 });
+
+// ------------------------------------------------------------------------------- no SportVU frame data (D60)
+
+/** A possession file as the public data root writes it: every per-frame part empty. */
+function publicPossession(extra: Record<string, unknown> = {}): string {
+  return JSON.stringify({
+    possession: 1,
+    t: [],
+    game_clock_s: [],
+    shot_clock_s: [],
+    players: [],
+    ball: { x: [], y: [], z: [] },
+    epv: { t: [0, 1, 2, 3, 4, 5, 6, 7], value: [1.1, 1.2, 1.0, 0.9, 1.3, 1.1, 0.8, 0.7] },
+    ghosts: null,
+    shots: [{ event: 3, t: 6.2, x: 12.4, y: 30.1, location_source: "shot_chart", xfg: 0.41 }],
+    ...extra,
+  });
+}
+
+const PUBLIC_DEMO = JSON.stringify({ scenes: [{ frames: [{ t: 0, boxes: [{ x: 10, y: 20, w: 5, h: 9 }], broadcast: [{ x: 40.1, y: 20.2 }], truth: [], error_ft: 1.5 }] }] });
+
+function cleanPublicSite(): Record<string, string> {
+  return {
+    "index.html": `<script>self.__next_f.push([1,"{\\"frames\\":[{\\"t\\":0,\\"broadcast\\":[{\\"x\\":40.1,\\"y\\":20.2}],\\"truth\\":[]}]}"])</script>`,
+    "index.txt": `1:{"frames":[{"t":0,"broadcast":[{"x":40.1,"y":20.2}],"truth":[]}]}`,
+    "_next/static/chunks/app.js": "const a={x:[0,1]},b=[1,2,3,4,5,6,7,8,9],c={y:[foo,bar,baz,qux,quux,corge]};",
+    "data/games/g/1.json": publicPossession(),
+    "data/demo/frames.json": PUBLIC_DEMO,
+  };
+}
+
+async function frameCheck(): Promise<{ frameDataIn(dir: string): string[]; tracksInText(text: string): string[] }> {
+  return (await import("../../scripts/check-frame-data.mjs")) as unknown as {
+    frameDataIn(dir: string): string[];
+    tracksInText(text: string): string[];
+  };
+}
+
+test("a public site with no frame data passes the frame check", async () => {
+  const { frameDataIn } = await frameCheck();
+  expect(frameDataIn(outDir(cleanPublicSite()))).toEqual([]);
+  const done = runScript("check-frame-data.mjs", ["--dir", outDir(cleanPublicSite())]);
+  expect(done.status, done.output).toBe(0);
+  expect(done.output).toContain("no SportVU frame data");
+});
+
+for (const [name, files, found] of [
+  [
+    "a possession file with a player track",
+    { "data/games/g/1.json": publicPossession({ t: [0, 0.2], players: [{ player_id: 7, x: [10.5, 11.2], y: [20.1, 20.4] }] }) },
+    ["data/games/g/1.json: per-frame data in t, players", 'data/games/g/1.json: 2 track(s); first: 2 number(s) under "x"'],
+  ],
+  [
+    "a single-frame possession with a ball position",
+    { "data/games/g/1.json": publicPossession({ ball: { x: [47.2], y: [25.1], z: [3.4] } }) },
+    ["data/games/g/1.json: per-frame data in ball.x, ball.y, ball.z", 'data/games/g/1.json: 3 track(s); first: 1 number(s) under "x"'],
+  ],
+  [
+    "a possession file with ghosts",
+    { "data/games/g/1.json": publicPossession({ ghosts: { label: "average defense", tracks: [{ player_id: 9, x: [null, 3.1], y: [null, 4.2] }] } }) },
+    ["data/games/g/1.json: per-frame data in ghosts", "data/games/g/1.json: 3 track(s); first: 1 number(s)"],
+  ],
+  [
+    "a shot located by the tracking at its release",
+    { "data/games/g/1.json": publicPossession({ shots: [{ event: 3, t: 6.2, x: 12.4, y: 30.1, location_source: "tracking_at_release" }] }) },
+    ["data/games/g/1.json: shot 3 carries x and y", "data/games/g/1.json: 1 track(s); first: a shot located by the tracking"],
+  ],
+  [
+    "sensor positions in the demo frames",
+    { "data/demo/frames.json": PUBLIC_DEMO.replace('"truth":[]', '"truth":[{"player_id":1,"x":40.9,"y":21.0}]') },
+    ["data/demo/frames.json: 1 frame(s) with sensor positions", "data/demo/frames.json: 1 track(s); first: a non-empty truth list"],
+  ],
+  [
+    "sensor positions in the payload of a page",
+    { "index.html": `<script>self.__next_f.push([1,"{\\"truth\\":[{\\"player_id\\":1,\\"x\\":40.9,\\"y\\":21.0}]}"])</script>` },
+    ["index.html: 1 track(s); first: a non-empty truth list"],
+  ],
+  [
+    "a track in an RSC payload",
+    { "review/g/1/index.txt": `3:{"possession":{"players":[{"player_id":7,"x":[10.5,11.2,11.9],"y":[20.1,20.4,20.9]}]}}` },
+    ['review/g/1/index.txt: 2 track(s); first: 3 number(s) under "x"'],
+  ],
+  [
+    "a track bundled into a script",
+    { "_next/static/chunks/data.js": "const p={x:[10.5,11.2,11.9,12.4,13.0,13.6,14.1],y:[1,2]};" },
+    ['_next/static/chunks/data.js: 1 track(s); first: 7 number(s) under "x"'],
+  ],
+] as const) {
+  test(`the frame check fails on ${name}`, async () => {
+    const { frameDataIn } = await frameCheck();
+    const dir = outDir({ ...cleanPublicSite(), ...files });
+    const problems = frameDataIn(dir);
+    expect(problems.length, problems.join("\n")).toBe(found.length);
+    found.forEach((start, index) => expect(problems[index]).toContain(start));
+    const done = runScript("check-frame-data.mjs", ["--dir", dir]);
+    expect(done.status).toBe(1);
+    expect(done.output).toContain("hold SportVU frame data (PLAN.md D60)");
+  });
+}
+
+test("the frame check reads JSON, escaped JSON and scripts, and leaves short constants of a script alone", async () => {
+  const { tracksInText } = await frameCheck();
+  expect(tracksInText('{"x":[]}')).toEqual([]);
+  expect(tracksInText('{"x":12.5,"y":3}')).toEqual([]);
+  expect(tracksInText('{"t":[0,1,2,3,4,5,6,7,8],"value":[1,2,3,4,5,6,7,8,9]}')).toEqual([]);
+  expect(tracksInText("f={x:[0,1,2]}")).toEqual([]);
+  expect(tracksInText('{"x":["a","b"]}')).toEqual([]);
+  expect(tracksInText('{"box":[1,2,3,4,5,6,7,8]}')).toEqual([]);
+  expect(tracksInText('{"x":[null,4.5]}')).toHaveLength(1);
+  expect(tracksInText('{\\"y\\":[4.5,-2.25e1]}')).toHaveLength(1);
+  expect(tracksInText("'z':[3.1]")).toHaveLength(1);
+  expect(tracksInText('\\\\\\"truth\\\\\\":[{\\\\\\"x\\\\\\":1}]')).toHaveLength(1);
+});

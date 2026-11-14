@@ -125,11 +125,14 @@
     "noDemo": "This data build has no demo scenes, so the pictures of this story are not shown.",
     "noSwap": "This data build has no model comparison.",
     "preview": "A featured possession on the court",
+    "previewStill": "An empty court of a featured possession. Its players are drawn on a private copy of this site.",
     "previewError": "The preview did not load.",
     "players": "{players.n_shown} players shown. {players.n_hidden} left out for too small a sample.",
     "pairReference": "the spot from sensor positions",
     "pairMoved": "moved by the gap",
     "pointEstimates": "Each value here is a point estimate.",
-    "pointShare": "This share is a point estimate."
+    "pointShare": "This share is a point estimate.",
+    "truthPrivate": "The sensor dots sit on a private copy of this site, with the video clips. Ask for access to see them.",
+    "swapPrivate": "The two court maps of this moment sit on a private copy of this site. Ask for access to see them."
   }
 }
