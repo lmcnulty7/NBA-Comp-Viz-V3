@@ -5,6 +5,8 @@ import { build, manifest, players, possessionIndex, sampledRoutes } from "./site
 import { watch } from "./watch";
 
 const count = (value: number) => value.toLocaleString("en-US");
+const gameLink = (game: { label: string; date: string }) =>
+  copy.review.games.open.replace("{game}", game.label).replace("{date}", game.date);
 
 for (const route of sampledRoutes()) {
   test(`/${route} loads cleanly`, async ({ page }) => {
@@ -80,8 +82,10 @@ test("home shows the coverage of the data build and its three entry points", asy
 test("review lists every game by its slug, and a game lists every possession", async ({ page }) => {
   await page.goto("review/");
   for (const game of manifest.games) {
-    const link = page.getByRole("link", { name: game.label, exact: true });
+    // Two games can share a label (the same teams on two dates), so a game link is named with its date too.
+    const link = page.getByRole("link", { name: gameLink(game), exact: true });
     await expect(link).toHaveAttribute("href", `${build.basePath}/review/${game.slug}/`);
+    await expect(link).toHaveText(game.label);
   }
   // No route is built from the dotted game id.
   const hrefs = await page.locator("main a[href]").evaluateAll((links) => links.map((link) => link.getAttribute("href") ?? ""));
@@ -90,7 +94,7 @@ test("review lists every game by its slug, and a game lists every possession", a
 
   const game = manifest.games[0]!;
   const index = possessionIndex(game.slug);
-  await page.getByRole("link", { name: game.label, exact: true }).click();
+  await page.getByRole("link", { name: gameLink(game), exact: true }).click();
   await expect(page.locator("h1")).toHaveText(game.label);
   await expect(page.locator("tbody tr")).toHaveCount(index.possessions.length);
   const first = index.possessions[0]!;

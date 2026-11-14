@@ -16,7 +16,7 @@ export function loadTour(source: DataSource): Promise<TourStop[]> {
     const games = [];
     for (const game of manifest.games) {
       const index = await source.possessionIndex(game.slug);
-      games.push({ slug: game.slug, label: game.label, possessions: index.possessions });
+      games.push({ slug: game.slug, label: game.label, date: game.date, possessions: index.possessions });
     }
     return buildTour(games);
   })();

@@ -9,12 +9,14 @@ import type { PossessionSummary } from "@/lib/types/contract";
 export interface TourGame {
   slug: string;
   label: string;
+  date?: string;
   possessions: readonly PossessionSummary[];
 }
 
 export interface TourStop {
   gameSlug: string;
   gameLabel: string;
+  gameDate: string;
   possession: number;
   result: PossessionSummary["result"];
   xfgBucket: number | null;
@@ -32,6 +34,7 @@ export function buildTour(games: readonly TourGame[]): TourStop[] {
       stops.push({
         gameSlug: game.slug,
         gameLabel: game.label,
+        gameDate: game.date ?? "",
         possession: row.possession,
         result: row.result,
         xfgBucket: row.xfg_bucket ?? null,
@@ -52,6 +55,7 @@ export function buildTour(games: readonly TourGame[]): TourStop[] {
   return stops.map((stop) => ({
     gameSlug: stop.gameSlug,
     gameLabel: stop.gameLabel,
+    gameDate: stop.gameDate,
     possession: stop.possession,
     result: stop.result,
     xfgBucket: stop.xfgBucket,

@@ -10,7 +10,8 @@
     "date": "Date",
     "split": "Held out as",
     "possessions": "Possessions",
-    "featured": "Featured"
+    "featured": "Featured",
+    "open": "{game}, {date}"
   },
   "split": {
     "heldout_game": "Held-out game",
@@ -31,7 +32,7 @@
     "allByRule": "A written rule picked every stop at random from its cell. Nobody chose them by hand.",
     "handCount": "A written rule picked the stops at random from their cells. A person swapped in {n} of them by hand, and each of those says so.",
     "start": "Start the tour",
-    "stopName": "{game}, possession {n}.",
+    "stopName": "{game}, {date}, possession {n}.",
     "stop": "Tour stop {k} of {n}.",
     "cell": "Cell: {result}, xFG fifth {fifth}.",
     "cellRaw": "Cell: {cell}.",

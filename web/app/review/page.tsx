@@ -52,7 +52,9 @@ export default async function ReviewPage() {
               {manifest.games.map((game) => (
                 <tr key={game.slug} data-split={game.split}>
                   <th scope="row">
-                    <Link href={routes.game(game.slug)}>{game.label}</Link>
+                    <Link href={routes.game(game.slug)} aria-label={fill(text.games.open, { game: game.label, date: game.date })}>
+                      {game.label}
+                    </Link>
                   </th>
                   <td className="num">{game.date}</td>
                   <td className="wide-only">{label(text.split, game.split)}</td>
@@ -84,7 +86,7 @@ export default async function ReviewPage() {
               {stops.map((stop) => (
                 <li key={`${stop.gameSlug}/${stop.possession}`}>
                   <Link href={routes.possession(stop.gameSlug, stop.possession)} prefetch={false}>
-                    {fill(text.tour.stopName, { game: stop.gameLabel, n: stop.possession })}
+                    {fill(text.tour.stopName, { game: stop.gameLabel, date: stop.gameDate, n: stop.possession })}
                   </Link>{" "}
                   <span className="muted">
                     {stopCell(stop)} {stopPicker(stop)}
