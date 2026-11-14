@@ -179,3 +179,6 @@ under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewri
 4. **Data provenance:** broadcast video fetched from public YouTube uploads for
    research/education; no video redistributed; repo and report carry derived
    data and fair-use stills only.
+   Amended 2026-11-14 (PLAN.md D18 and D21; drafted by Claude Code under D37 for Lucien's review):
+   short broadcast clips are shown only on a private, access-controlled copy of the site; the public
+   site and the repository carry stills and derived data only.

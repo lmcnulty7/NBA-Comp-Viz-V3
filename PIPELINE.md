@@ -5,6 +5,13 @@ known residual → what to watch when scaling to hundreds of possessions.
 Numbers are from held-out or human-labeled evals unless marked label-free;
 provenance for every number is in the DEVLOG entry cited.
 
+> **Label added 2026-11-14 (PLAN.md M8).** A number followed by `[prototype]` is a prototype number. It was
+> measured during the prototype stage: on the 7 prototype clips the models were tuned on, on hand labels drawn
+> from those clips, on a model's own validation split, or by a label-free check on a few extra videos. It is
+> not tracking accuracy. In this file "held-out" means a split of those same clips. Numbers without the tag
+> are counts, settings, dates, expected ranges or measurements on the production harvest. The measurements
+> against real tracking data on held-out footage are in README.md and `reports/scorecard/`.
+
 ```
 broadcast video
   → [1] court-visibility gate        (live vs dead footage)
@@ -20,19 +27,19 @@ broadcast video
 
 | # | Stage (code) | Input → Output | Validated number | Residual limitation |
 |---|---|---|---|---|
-| 1 | Gate (`gate/`, CLIP probe) | frame → live/dead | **98.7%** acc, held-out in-domain (DEVLOG 06-23) | Domain shift measured on all 6,159 harvest frames (10-02): production 0.70 keeps precision 0.988 but drops 14% of wide frames (lost yield); 0.35 would admit 13% non-wide; gate **v2** (refit on 6,159 harvest frames, thr 0.33; LOSO acc 0.970, FP-rate 0.068 @ recall 0.998) shipped 10-02 for future harvesting — published sample still v1 @ 0.70 (provenance verified 10-02) |
-| 2 | Detection+tracking (`detect/`, YOLOv8m + BoT-SORT) | frames → boxes + fragment ids | det **P .89 / R .87** @IoU vs hand labels (06-28) | Per-frame recall ceiling ~.74 on paint scrums; ids are per-shot fragments; ultralytics native-reID crash guarded (07-07) |
-| 3 | Homography (`court/`, grid model + snap tracker) | frame → H (px→ft) | H-err **p50 1.7 px**, 279 val frames; unseen games 66–89% sane-H (07-03/04) | Far-court extrapolation tail (physics p99 ~40 ft); era/floor-design sensitivity on unseen footage |
-| 4 | Identity (`detect/footpoint.py`, `detect/reid.py`) | fragments → canonical tracks | impossible steps 15.4→**14.3%**; churn 6.57→**5.0** (label-free, 07-05b/c) | Identity = fragment, NOT player (needs jersey OCR); churn still ~5× (conservative refusals by design) |
-| 5 | Teams (`detect/teams.py`) | track crops → team A/B | **87.1% track** / 83.9% crop, 160 labels (07-06) | ~13% track misassignment (crops lacking jersey: occluders/face framing) — surfaces downstream as >5-team frames; A/B not home/away by itself |
-| 6 | Possessions (`segment_possessions.py`) | trajectories → spans (basket, offense, set core) | **96.5% basket / 91.2% offense**, 57 scorable of 73 labels; **100%/100% >2 s from boundaries** (07-07) | ±1–2 s boundary fuzz (hence set cores); no within-occupancy possession change; FT clusters read as sets; rare band-edge stretch unsegmented |
-| 7 | Matchups (`matchup_metrics.py`) | spans + trajectories → defender/man pairs, distance, spacing, closeout | coverage **2.5–4.0 pairs/frame** (honest, post-ghost-audit 07-07c/d); structural checks only | No labeled matchup GT yet; closeout is DIRECTIONAL only; >5-team frames hard-excluded (7–62%/possession, `degraded` flag >40%) |
-| 8 | Clock/PBP/outcomes (`clock_reader.py`, `fetch_pbp.py`, `align_outcomes.py`) | scorebug + bref PBP → real teams, points, terminating event | clock **100%** on readable, 0 confident-wrong (56 labels); alignment **9/9** offense cross-val, 100% overlap (07-08) | ~10% anchor failure (retryable); one-time clock-box calibration per broadcast layout; PBP era ≥2000-01; light-kit=home assumption pre-2017 |
-| — | Tier 2 join (`tier2_join.py`) | outcomes × matchups → per-possession credit rows | **7/7 team-consistency** across independent pipelines; hard dedupe + assert (07-08b) | NO aggregates yet — n=7 is a correctness sample; defender bucket = fragment until jersey OCR |
+| 1 | Gate (`gate/`, CLIP probe) | frame → live/dead | **98.7%** acc, held-out in-domain (DEVLOG 06-23) [prototype] | Domain shift measured on all 6,159 harvest frames (10-02): production 0.70 keeps precision 0.988 but drops 14% of wide frames (lost yield); 0.35 would admit 13% non-wide; gate **v2** (refit on 6,159 harvest frames, thr 0.33; LOSO acc 0.970, FP-rate 0.068 @ recall 0.998) shipped 10-02 for future harvesting — published sample still v1 @ 0.70 (provenance verified 10-02) |
+| 2 | Detection+tracking (`detect/`, YOLOv8m + BoT-SORT) | frames → boxes + fragment ids | det **P .89 / R .87** @IoU vs hand labels (06-28) [prototype] | Per-frame recall ceiling ~.74 on paint scrums [prototype]; ids are per-shot fragments; ultralytics native-reID crash guarded (07-07) |
+| 3 | Homography (`court/`, grid model + snap tracker) | frame → H (px→ft) | H-err **p50 1.7 px**, 279 val frames; unseen games 66–89% sane-H (07-03/04) [prototype] | Far-court extrapolation tail (physics p99 ~40 ft [prototype]); era/floor-design sensitivity on unseen footage |
+| 4 | Identity (`detect/footpoint.py`, `detect/reid.py`) | fragments → canonical tracks | impossible steps 15.4→**14.3%**; churn 6.57→**5.0** (label-free, 07-05b/c) [prototype] | Identity = fragment, NOT player (needs jersey OCR); churn still ~5× [prototype] (conservative refusals by design) |
+| 5 | Teams (`detect/teams.py`) | track crops → team A/B | **87.1% track** / 83.9% crop, 160 labels (07-06) [prototype] | ~13% track misassignment [prototype] (crops lacking jersey: occluders/face framing) — surfaces downstream as >5-team frames; A/B not home/away by itself |
+| 6 | Possessions (`segment_possessions.py`) | trajectories → spans (basket, offense, set core) | **96.5% basket / 91.2% offense**, 57 scorable of 73 labels; **100%/100% >2 s from boundaries** (07-07) [prototype] | ±1–2 s boundary fuzz [prototype] (hence set cores); no within-occupancy possession change; FT clusters read as sets; rare band-edge stretch unsegmented |
+| 7 | Matchups (`matchup_metrics.py`) | spans + trajectories → defender/man pairs, distance, spacing, closeout | coverage **2.5–4.0 pairs/frame** [prototype] (honest, post-ghost-audit 07-07c/d); structural checks only | No labeled matchup GT yet; closeout is DIRECTIONAL only; >5-team frames hard-excluded (7–62%/possession [prototype], `degraded` flag >40%) |
+| 8 | Clock/PBP/outcomes (`clock_reader.py`, `fetch_pbp.py`, `align_outcomes.py`) | scorebug + bref PBP → real teams, points, terminating event | clock **100%** on readable, 0 confident-wrong (56 labels); alignment **9/9** offense cross-val, 100% overlap (07-08) [prototype] | ~10% anchor failure [prototype] (retryable); one-time clock-box calibration per broadcast layout; PBP era ≥2000-01; light-kit=home assumption pre-2017 |
+| — | Tier 2 join (`tier2_join.py`) | outcomes × matchups → per-possession credit rows | **7/7 team-consistency** [prototype] across independent pipelines; hard dedupe + assert (07-08b) | NO aggregates yet — n=7 is a correctness sample; defender bucket = fragment until jersey OCR |
 
 ## Cross-cutting invariants (violate at your peril)
 - **Raw-support masking**: the trajectories `cleaned` series interpolates gaps
-  unmarked (20–30% invented presence) — every consumer must mask presence with
+  unmarked (20–30% invented presence [prototype]) — every consumer must mask presence with
   the `raw` series (07-07c).
 - **Artifact verification**: macOS AVFoundation silently fails to overwrite
   mp4s — unlink before write, check `isOpened()`, and verify renders by
@@ -54,6 +61,6 @@ broadcast video
 8. Alignment: anchor success ≥ ~85%; **possession-team cross-val ≥ ~90%** —
    this is the end-to-end health metric; a drop means an upstream stage broke.
 ```
-Joinable yield measured on the validated clips: spans → eligible 10/12 →
-aligned 9/10 → joined 7/9  ⇒  ~58% span→join composite.
+Joinable yield measured on the validated clips [prototype]: spans → eligible 10/12 →
+aligned 9/10 → joined 7/9  ⇒  ~58% span→join composite [prototype].
 ```
