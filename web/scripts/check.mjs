@@ -5,6 +5,7 @@
 //   lint       eslint, with the rules that keep copy and data access where they belong
 //   data       the data root validates against the contract (ajv, then the Python validator), no private string
 //   copy       no digit, no dash and no banned phrase in web/content
+//   reading    reading grade at most 9 and plain words on the cold open and the slides, copy equal to SCRIPT.md
 //   contrast   WCAG AA contrast of the design tokens, light and dark
 //   hygiene    no long dash and no private string in the web sources
 //   unit       unit tests (geometry, scene, drawing, data source, formatting, the check scripts)
@@ -33,6 +34,7 @@ const STEPS = [
   ["lint", [[bin("eslint"), "--max-warnings", "0"]]],
   ["data", [[node, script("validate-data.mjs"), "--python"]]],
   ["copy", [[node, script("check-copy.mjs")]]],
+  ["reading", [[node, script("check-reading.mjs")]]],
   ["contrast", [[node, script("check-contrast.mjs")]]],
   ["hygiene", [[node, script("check-hygiene.mjs")]]],
   ["unit", [[bin("playwright"), "test", "--config", "playwright.unit.config.ts"]]],

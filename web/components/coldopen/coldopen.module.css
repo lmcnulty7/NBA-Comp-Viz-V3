@@ -1,0 +1,535 @@
+/* The cold open of the home page (docs/SCRIPT.md), reused by the slides. Everything reads the design tokens. */
+
+/* ------------------------------------------------------------------------------------------- scene 0 */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: min(78vh, 46rem);
+  padding-block: 1.5rem 2rem;
+  overflow: hidden;
+}
+
+.heroPicture {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.heroPicture > div {
+  width: max(100%, 130vh);
+  max-width: none;
+}
+
+.heroText {
+  display: grid;
+  gap: 1.1rem;
+  max-width: 53.75rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.headline {
+  font-size: var(--text-display);
+  line-height: 1.05;
+}
+
+.heroText :global(.lede) {
+  max-width: 42.5rem;
+  margin-inline: auto;
+}
+
+.motif {
+  width: min(92vw, 44rem);
+  height: auto;
+  color: var(--accent);
+  opacity: 0.14;
+}
+
+.scrollCue {
+  justify-self: center;
+  width: 1px;
+  height: 3rem;
+  margin-top: 1rem;
+  background: var(--ink);
+}
+
+/* ------------------------------------------------------------------------------------- the scenes */
+
+.story {
+  display: grid;
+  gap: 4rem;
+}
+
+.scene {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+  max-width: var(--wide);
+  width: 100%;
+  margin-inline: auto;
+}
+
+.visual {
+  min-width: 0;
+}
+
+.sticky {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.steps {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.step {
+  padding: 0.9rem 1rem 0.9rem 1.1rem;
+  border-left: 3px solid var(--rule);
+  background: var(--ground);
+  transition: border-color 0.3s ease;
+}
+
+.step[data-current="true"] {
+  border-left-color: var(--accent);
+}
+
+.step p {
+  margin: 0;
+}
+
+@media (min-width: 56.25rem) {
+  .scene {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .visual {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+  }
+
+  .sticky {
+    position: sticky;
+    top: calc(var(--nav-h) + 3.5rem);
+  }
+
+  .steps {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 0;
+    padding-block: 12vh 22vh;
+  }
+
+  .step + .step {
+    margin-top: 42vh;
+  }
+}
+
+/* ------------------------------------------------------------------------------------- the picture */
+
+.visualStack {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.media {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--wash);
+  border: 1px solid var(--rule);
+}
+
+.picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.dim .picture {
+  opacity: 0.28;
+}
+
+.noPicture {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 1rem;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+  text-align: center;
+}
+
+.visualStack > .noPicture {
+  position: static;
+}
+
+.boxes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.boxSolid,
+.boxOpen {
+  stroke: var(--accent);
+  stroke-width: 2;
+  transition: fill-opacity 0.4s ease;
+}
+
+.boxSolid {
+  fill: var(--accent);
+  fill-opacity: 0.18;
+}
+
+.boxOpen {
+  fill: none;
+  stroke-dasharray: 5 4;
+}
+
+.caption {
+  margin: 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--rule);
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+.split {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.split > * {
+  min-width: 0;
+}
+
+@media (min-width: 40rem) {
+  .split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+  }
+}
+
+.courtFigure {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.courtFigure figcaption {
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------------------------- controls */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+}
+
+.controls input[type="range"] {
+  flex: 1 1 10rem;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.play {
+  min-width: 4.5rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.play[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+.time {
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------------------------- figures */
+
+.bars {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  transition: opacity 0.4s ease;
+}
+
+.bars[data-shown="false"] {
+  opacity: 0;
+}
+
+.bar,
+.fill {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.barHead,
+.barFoot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+}
+
+.barName {
+  font-weight: 600;
+}
+
+.barValue {
+  font-size: var(--text-label);
+}
+
+.track {
+  position: relative;
+  display: block;
+  height: 0.6rem;
+  background: var(--rule-soft);
+}
+
+.fillBar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ink);
+}
+
+.targetLine {
+  position: absolute;
+  top: -0.3rem;
+  bottom: -0.3rem;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--accent);
+}
+
+.panel {
+  display: grid;
+  gap: 0.75rem;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+}
+
+.readout {
+  margin: 0;
+  font-size: var(--text-label);
+  font-weight: 500;
+}
+
+.facts {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.facts > div {
+  display: grid;
+  gap: 0.15rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.facts dt {
+  font-weight: 600;
+}
+
+.facts dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+}
+
+.factNote {
+  color: var(--muted);
+}
+
+.thin {
+  position: relative;
+  display: block;
+  flex: 1 1 100%;
+  height: 4px;
+  background: var(--rule-soft);
+}
+
+.thin > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--truth);
+}
+
+.badge {
+  justify-self: start;
+  margin: 0;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--warn);
+  color: var(--warn);
+  font-family: var(--sans);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
+
+.swatchBroadcast {
+  background: var(--muted);
+}
+
+.swatchTruth,
+.swatchHollow {
+  border: 2px solid var(--truth);
+}
+
+.pairs {
+  max-height: 16rem;
+  overflow: auto;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+}
+
+/* ------------------------------------------------------------------------------------- scene 6 */
+
+.entries {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.cards {
+  display: grid;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 56.25rem) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  min-width: 0;
+  padding-top: 1rem;
+  border-top: 3px solid var(--ink);
+}
+
+.card p {
+  margin: 0;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-h2);
+}
+
+.cardTitle a {
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+.preview {
+  width: 100%;
+}
+
+.playerCard {
+  padding: 0.75rem 0;
+  border-block: 1px solid var(--rule);
+}
+
+.playerName {
+  font-family: var(--sans);
+  font-weight: 600;
+}
+
+.lanes {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+}
+
+.lanes li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  padding-block: 0.35rem;
+  border-bottom: 1px solid var(--rule-soft);
+}

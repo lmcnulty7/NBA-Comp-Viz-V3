@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { TOKENS } from "@/lib/tokens";
 import { copy, fill, label } from "@/lib/copy";
 import {
   MINUS,
@@ -61,7 +62,10 @@ test("every placeholder in the site copy is one the pages can fill", () => {
   const walk = (node: unknown, path: string): void => {
     if (typeof node === "string") {
       for (const placeholder of node.match(/\{[^}]*\}/g) ?? []) {
-        expect(placeholder, `${path}: ${node}`).toMatch(/^\{[a-zA-Z]+\}$/);
+        // A {letters} placeholder is filled by the page; a dotted token of docs/SCRIPT.md by lib/tokens.ts.
+        const token = /^\{([a-z][a-z_]*(?:\.[a-z0-9_]+)+)\}$/.exec(placeholder)?.[1];
+        if (token) expect(Object.keys(TOKENS), `${path}: ${node}`).toContain(token);
+        else expect(placeholder, `${path}: ${node}`).toMatch(/^\{[a-zA-Z]+\}$/);
       }
       return;
     }

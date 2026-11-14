@@ -4,7 +4,8 @@
 //   - any digit in a string or in a Markdown file: a number reaches a page only from the data root, through a
 //     {placeholder} that a component fills (lib/copy.ts, lib/format.ts);
 //   - a JSON value that is not a string (a number, true, false, null): copy files hold text only;
-//   - a placeholder that is not {letters};
+//   - a placeholder that is not {letters} and not a token of the token table of docs/SCRIPT.md (a token such as
+//     {swap.fill_share} names a field of the site data; digits inside a known token name a field, not a value);
 //   - an em dash or an en dash;
 //   - a phrase that calls the ghost defenders the best or the optimal defense (they are an average defense).
 // The other half of the rule is in eslint.config.mjs: a page or a component may not hold literal text, so
@@ -14,12 +15,21 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { CONTENT_DIR, shown } from "./lib/paths.mjs";
+import { scriptTokens } from "./lib/script-doc.mjs";
 
 const DIGIT = /\p{Nd}/u;
 // The em dash and the en dash, by code point, so this file holds neither.
 const DASH = new RegExp(`[${String.fromCodePoint(0x2013, 0x2014)}]`);
 const PLACEHOLDER = /\{[^{}]*\}/g;
 const GOOD_PLACEHOLDER = /^\{[a-zA-Z]+\}$/;
+const SCRIPT_TOKEN = /^\{([a-z][a-z_]*(?:\.[a-z0-9_]+)+)\}$/;
+let knownTokens;
+function isKnownToken(placeholder) {
+  const match = SCRIPT_TOKEN.exec(placeholder);
+  if (!match) return false;
+  knownTokens ??= scriptTokens();
+  return knownTokens.has(match[1]);
+}
 const BANNED = [
   [/\b(best|optimal|ideal|perfect|correct)\s+(defen[cs]e|defenders?|positions?|positioning)\b/i,
     "ghost defenders are an average defense, never the best or the optimal one"],
@@ -32,10 +42,13 @@ function excerpt(text) {
 
 export function checkText(text, where) {
   const problems = [];
-  if (DIGIT.test(text)) problems.push(`${where}: a digit in copy: "${excerpt(text)}"`);
+  const words = text.replace(PLACEHOLDER, (placeholder) => (isKnownToken(placeholder) ? " " : placeholder));
+  if (DIGIT.test(words)) problems.push(`${where}: a digit in copy: "${excerpt(text)}"`);
   if (DASH.test(text)) problems.push(`${where}: an em dash or an en dash: "${excerpt(text)}"`);
   for (const placeholder of text.match(PLACEHOLDER) ?? []) {
-    if (!GOOD_PLACEHOLDER.test(placeholder)) problems.push(`${where}: placeholder ${placeholder} must be {letters}`);
+    if (!GOOD_PLACEHOLDER.test(placeholder) && !isKnownToken(placeholder)) {
+      problems.push(`${where}: placeholder ${placeholder} must be {letters} or a token of docs/SCRIPT.md`);
+    }
   }
   for (const [pattern, why] of BANNED) {
     if (pattern.test(text)) problems.push(`${where}: ${why}: "${excerpt(text)}"`);

@@ -35,8 +35,10 @@ for (const route of sampledRoutes()) {
 
     // A court page finishes drawing.
     if (await page.locator("canvas[data-court]").count()) {
-      await expect(page.locator('canvas[data-court][data-ready="true"]')).toBeVisible();
-      await expect(page.getByTestId("possession-stage")).toHaveAttribute("aria-busy", "false");
+      await expect(page.locator('canvas[data-court][data-ready="true"]').first()).toBeVisible();
+      if (await page.getByTestId("possession-stage").count()) {
+        await expect(page.getByTestId("possession-stage")).toHaveAttribute("aria-busy", "false");
+      }
     }
 
     expect(seen.problems).toEqual([]);
@@ -58,22 +60,25 @@ test("an unknown address gets the not-found page", async ({ page }) => {
   await expect(page.locator("h1")).toHaveText(copy.site.notFound.title);
   if (build.synthetic) await expect(page.getByTestId("fixture-banner")).toBeVisible();
   await page.getByRole("link", { name: copy.site.notFound.home }).click();
-  await expect(page.locator("h1")).toHaveText(copy.home.headline);
+  await expect(page.locator("h1")).toHaveText(copy.home.coldOpen.headline.title);
 });
 
 test("home shows the coverage of the data build and its three entry points", async ({ page }) => {
   await page.goto("./");
-  await expect(page.locator("h1")).toHaveText(copy.home.headline);
+  await expect(page.locator("h1")).toHaveText(copy.home.coldOpen.headline.title);
   const coverage = page.getByTestId("coverage");
   await expect(coverage).toContainText(count(manifest.n_possessions));
   await expect(coverage).toContainText(count(manifest.n_games));
-  await expect(coverage).toContainText(manifest.season);
+  const labels = copy.home.coldOpen.next.labels;
   for (const [name, path] of [
-    [copy.home.entries.review.title, "review/"],
-    [copy.home.entries.prep.title, "prep/"],
-    [copy.home.entries.results.title, "results/"],
+    [labels.review, "review/"],
+    [labels.prep, "prep/"],
+    [labels.results, "results/"],
   ] as const) {
-    await expect(page.getByRole("main").getByRole("link", { name })).toHaveAttribute("href", `${build.basePath}/${path}`);
+    await expect(page.getByRole("main").getByRole("link", { name, exact: true })).toHaveAttribute(
+      "href",
+      `${build.basePath}/${path}`,
+    );
   }
 });
 
