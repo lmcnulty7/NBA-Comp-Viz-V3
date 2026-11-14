@@ -63,15 +63,6 @@ for them, so the model claims are in `reports/results.md`. Its out-of-scope list
 names shot-quality models, and its row A2 quotes prototype stage numbers (see the broadcast pipeline section
 below). The demo script: [`docs/SCRIPT.md`](docs/SCRIPT.md). The plan and every decision: [`PLAN.md`](PLAN.md).
 
-## Status of this branch
-
-Not everything named below is on this branch yet. `export/site_data.py`, `export/demo_bridge.py`,
-`tools/frozen_models.py` and `web/` are built on other branches of this build and merged by the lead (`PLAN.md`
-D39). Until all of them are here, what the next two sections say about a missing one (its command, its table
-row, the two builds of the site, the fixture labelling) describes the plan (`PLAN.md`, Site structure), not
-something this branch can run. This section is removed when they land: a test in `tests/test_public_docs.py`
-fails if it stays after that, and fails if it is removed before.
-
 ## Run it
 
 All commands run from the repository root, with a `python3` that has the packages in `requirements.txt`.
