@@ -130,6 +130,8 @@ logs/loop/
 web/node_modules/
 web/.next/
 web/out/
+web/out-cloudflare/
+web/out-full/
 web/data/
 web/public/data/
 web/data-public/
