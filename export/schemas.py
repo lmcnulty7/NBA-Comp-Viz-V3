@@ -420,8 +420,8 @@ class ShotMaking(Strict):
     contest model, which does not know the shooter and was not the selected model. That baseline has a known
     out-of-fold calibration error (PlayersFile.shot_making_baseline): `baseline_error_per_100` is the part of this
     player's value that the baseline's own error explains for his mix of shots (his attempts in each calibration
-    bin times that bin's observed minus predicted rate). The frozen xFG model includes a shooter prior, so its own
-    residual is near zero by construction and is given only for reference."""
+    bin times that bin's observed minus predicted rate). The frozen xFG model includes a shooter prior (it already
+    knows the shooter), so its own residual is not a measure over expected and is given only for reference."""
 
     shown: bool
     attempts: int
