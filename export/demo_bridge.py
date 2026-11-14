@@ -845,24 +845,24 @@ def epv_swap(model: Model, state: State) -> Compared:
 
 
 def ghost_swap(model: Model, state: State) -> Compared:
-    """One item per possession: the mean distance in feet between the real defenders and their ghosts at the
-    GHOST_HORIZON_S horizon, over the ghost rows whose frame lies inside a window, once with every position from
-    the sensor table and once from the broadcast table."""
+    """One item per possession: how far the ghosts move when the model reads broadcast positions instead of sensor
+    positions. Each ghost row (possession, frame, defender) at the GHOST_HORIZON_S horizon is predicted once from
+    the sensor table and once from the broadcast table; the item is the mean distance between the two predictions
+    over the rows whose frame lies inside a window. `sensor` is the reference (0 ft) and `broadcast` and `abs_diff`
+    are that mean distance. Predictions are compared with predictions only: no real defender position at the
+    target frame is read, because the distance from a ghost to the real defender there is the lane's held-out
+    error, which is never computed again (CLAUDE.md rule 4)."""
     tables, sensor, keys = state.tables, state.sensor, ["possession", "frame", "def_player_id"]
 
-    def ghosts(table, x, y, name):
+    def ghosts(table, name):
         rows = model.predictor.predict_ghosts(table, tables["possessions"], state.game_id)
         rows = rows[np.abs(rows["horizon_s"].to_numpy(dtype=float) - GHOST_HORIZON_S) < 0.05]
         out = pd.DataFrame({k: rows[k].to_numpy(dtype=np.int64) for k in keys})
         out[name + "_x"], out[name + "_y"] = rows["ghost_x"].to_numpy(dtype=float), rows["ghost_y"].to_numpy(dtype=float)
-        at = sensor.rows_of(out["frame"].to_numpy(), out["def_player_id"].to_numpy())
-        if (at < 0).any():
-            raise BridgeProblem("ghosting: a ghost row names a defender who has no row in that frame")
-        out[name] = np.hypot(x[at] - out[name + "_x"].to_numpy(), y[at] - out[name + "_y"].to_numpy())
         return out
 
-    a = ghosts(sensor.table, sensor.x, sensor.y, "sensor")
-    b = ghosts(state.broadcast_table, state.x, state.y, "broadcast")
+    a = ghosts(sensor.table, "sensor")
+    b = ghosts(state.broadcast_table, "broadcast")
     stored = stored_predictions(state.data_root, state.game_id, "ghosting")
     stored = stored[np.abs(stored["horizon_s"].to_numpy(dtype=float) - GHOST_HORIZON_S) < 0.05]
     stored = pd.DataFrame({**{k: stored[k].to_numpy(dtype=np.int64) for k in keys},
@@ -874,6 +874,8 @@ def ghost_swap(model: Model, state: State) -> Compared:
     off = np.abs(both[["sensor_x", "sensor_y"]].to_numpy() - both[["ghost_x", "ghost_y"]].to_numpy())
     gap = _same_as_stored("ghosting", float(off.max()) if len(both) else None, len(both))
     pair = a.merge(b, on=keys, how="inner")
+    pair["shift"] = np.hypot(pair["sensor_x"].to_numpy() - pair["broadcast_x"].to_numpy(),
+                             pair["sensor_y"].to_numpy() - pair["broadcast_y"].to_numpy())
     one_side = int(len(a) + len(b) - 2 * len(pair))
     pair["window"] = state.row_window[sensor.rows_of(pair["frame"].to_numpy(), pair["def_player_id"].to_numpy())]
     pair = pair[pair["window"] >= 0]
@@ -884,7 +886,7 @@ def ghost_swap(model: Model, state: State) -> Compared:
         r0, r1 = sensor.rows_between(first, last)
         grid = r0 + np.flatnonzero((sensor.frame[r0:r1] - first) % GHOST_STRIDE == 0)   # the possession's 5 Hz frames
         n, filled = state.fill(grid)
-        s, c = _r(rows["sensor"].mean(), 6), _r(rows["broadcast"].mean(), 6)
+        s, c = 0.0, _r(rows["shift"].mean(), 6)
         out.items.append(S.SwapItem(
             kind="ghosting", window=state.windows[int(np.bincount(rows["window"].to_numpy()).argmax())].name,
             possession=int(possession), key=f"possession-{int(possession)}", t=None,
@@ -895,6 +897,8 @@ def ghost_swap(model: Model, state: State) -> Compared:
 
 
 SWAPS = {"xfg": xfg_swap, "epv": epv_swap, "ghosting": ghost_swap}
+# The tracked copy of the rebuild checks (PLAN.md D49). A model is used only when its check equals its record here.
+TRACKED_CHECKS = REPO_ROOT / "reports" / "export" / "frozen_checks.json"
 
 
 def compare(models: dict, state: State) -> dict:
@@ -908,6 +912,10 @@ def compare(models: dict, state: State) -> dict:
             continue
         if rebuild_check(kind, model.check) is None or not model.check.get("passed"):
             raise BridgeProblem(f"{kind}: a predictor without a passed rebuild check cannot be shown")
+        from export.site_players import _tracked_check
+        why = _tracked_check(TRACKED_CHECKS, kind, model.check)
+        if why:
+            raise BridgeProblem(f"{kind}: {why}")
         out[kind] = SWAPS[kind](model, state)
         if not out[kind].items:
             out[kind].note = f"no {kind} item lies inside a window"
@@ -988,16 +996,19 @@ def method_statements(state: State, fill: dict, results: dict, max_gap_s: float)
                        if f["states_on_one_side_only"] else ""))
     if not ghost.note:
         f = ghost.facts
-        text.append(f"Ghosting: one item per possession, the mean distance between the real defenders and their "
-                    f"{GHOST_HORIZON_S:g} s ghosts over the ghost rows inside the windows ({f['rows_in_windows']} of "
-                    f"{f['ghost_rows']} rows), an average defense, never the best one. On the broadcast side both "
-                    "the defender and what the model read come from the broadcast table.")
+        text.append(f"Ghosting: one item per possession, how far the {GHOST_HORIZON_S:g} s ghosts (an average "
+                    "defense, never the best one) move when the model reads broadcast positions instead of sensor "
+                    f"positions: the mean distance between the two predicted ghosts over the ghost rows inside the "
+                    f"windows ({f['rows_in_windows']} of {f['ghost_rows']} rows). The sensor side is the reference "
+                    "(0 ft). No real defender position at the predicted moment is read, so the lane's held-out "
+                    "error is not computed again.")
     for result in results.values():
         if result.note:
             text.append(f"{result.kind}: not available. {result.note}")
     text.append("Nothing was fitted, tuned or scored, and no outcome was read: predictions are compared with "
-                "predictions. A sensor-side value that did not equal the stored held-out prediction would have "
-                "stopped the run.")
+                "predictions. A sensor-side prediction that did not equal the stored held-out prediction would have "
+                "stopped the run. Every number in this file and in demo/frames.json is a point estimate: no "
+                "interval is computed for one game.")
     return text
 
 

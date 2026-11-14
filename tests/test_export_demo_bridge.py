@@ -85,6 +85,25 @@ def stub_models(kinds=S.MODEL_KINDS) -> dict:
     return {kind: B.Model(kind, predictor=stubs[kind](), check=passed_check(kind)) for kind in kinds}
 
 
+@pytest.fixture(autouse=True)
+def tracked_copy_of_stub_checks(tmp_path, monkeypatch):
+    """The bridge uses a model only when its check equals the tracked copy (D49): give it a copy of the stub checks.
+    A test that wants the copy to disagree writes its own."""
+    path = tmp_path / "frozen_checks.json"
+    records = [dict(passed_check(kind), passed=True, reasons=[]) for kind in S.MODEL_KINDS]
+    path.write_text(json.dumps({"checks": records}))
+    monkeypatch.setattr(B, "TRACKED_CHECKS", path)
+    return path
+
+
+def test_a_model_whose_check_differs_from_the_tracked_copy_is_refused(state, tracked_copy_of_stub_checks):
+    doc = json.loads(tracked_copy_of_stub_checks.read_text())
+    doc["checks"][0]["max_abs_diff"] = 1.0
+    tracked_copy_of_stub_checks.write_text(json.dumps(doc))
+    with pytest.raises(B.BridgeProblem, match="not the artifact's own check"):
+        B.compare(stub_models(), state)
+
+
 # ------------------------------------------------------------------------------------------------- fixture
 
 def pan(frame: float) -> float:
@@ -625,21 +644,28 @@ def test_items_are_what_the_models_give_on_each_table(fx, state, monkeypatch):
         assert item.sensor == pytest.approx(float(table.loc[event, "p_selected"]), abs=1e-6)
         release = int(state.tables["shot_frames"].set_index("event").loc[event, "release_frame"])
         assert state.window_at(release) >= 0 and state.windows[state.window_at(release)].name == item.window
-    # ghosting: one item per possession, the 1.0 s rows inside the windows only
+    # ghosting: one item per possession, the 1.0 s rows inside the windows only; sensor is the 0 ft reference and
+    # broadcast is the mean distance between the ghost fed sensor positions and the ghost fed broadcast positions
     ghosts = pd.read_parquet(fx["data_root"] / "analytics" / "ghosting" / "heldout" / "2015-16" / f"ghost_frames_{GAME_ID}.parquet")
     ghosts = ghosts[(ghosts["horizon_s"] > 0.5).to_numpy() & np.array([state.window_at(int(f)) >= 0 for f in ghosts["frame"]])]
     by_possession = {i.possession: i for i in swap.items if i.kind == "ghosting"}
     assert set(by_possession) == set(ghosts["possession"]) and all(i.t is None for i in by_possession.values())
-    for possession, rows in ghosts.groupby("possession"):
-        at = state.sensor.rows_of(rows["frame"].to_numpy(), rows["def_player_id"].to_numpy())
-        sensor_side = np.hypot(state.sensor.x[at] - rows["ghost_x"], state.sensor.y[at] - rows["ghost_y"]).mean()
-        assert by_possession[possession].sensor == pytest.approx(sensor_side, abs=1e-5)
+    keys = ["possession", "frame", "def_player_id"]
     moved = StubGhost().predict_ghosts(state.broadcast_table, possessions, GAME_ID)
-    moved = moved[(moved["horizon_s"] > 0.5).to_numpy() & np.array([state.window_at(int(f)) >= 0 for f in moved["frame"]])]
-    for possession, rows in moved.groupby("possession"):
-        at = state.sensor.rows_of(rows["frame"].to_numpy(), rows["def_player_id"].to_numpy())
-        broadcast_side = np.hypot(state.x[at] - rows["ghost_x"], state.y[at] - rows["ghost_y"]).mean()
-        assert by_possession[possession].broadcast == pytest.approx(broadcast_side, abs=1e-5)
+    moved = moved[(moved["horizon_s"] > 0.5).to_numpy()]
+    both = ghosts.merge(moved, on=keys, suffixes=("_s", "_b"))
+    for possession, rows in both.groupby("possession"):
+        shift = np.hypot(rows["ghost_x_s"] - rows["ghost_x_b"], rows["ghost_y_s"] - rows["ghost_y_b"]).mean()
+        item = by_possession[possession]
+        assert item.sensor == 0.0
+        assert item.broadcast == pytest.approx(shift, abs=1e-5) and item.abs_diff == pytest.approx(shift, abs=1e-5)
+
+
+def test_ghosting_never_reads_the_real_defender_at_the_target_frame():
+    import inspect
+    source = inspect.getsource(B.ghost_swap)
+    body = source.split('"""', 2)[2]
+    assert "rows_of(out" not in body and "sensor.x" not in body and "state.x" not in body
 
 
 def test_a_shot_counts_only_when_its_lookback_lies_inside_the_window(state):
