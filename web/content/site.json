@@ -1,0 +1,46 @@
+{
+  "name": "Pixels to Possessions",
+  "description": "Possession review, player prep and model results built on player tracking, with a broadcast video pipeline scored against sensor data.",
+  "titleTemplate": "{page} | {site}",
+  "skipLink": "Skip to content",
+  "nav": {
+    "label": "Main",
+    "home": "Home",
+    "review": "Review",
+    "prep": "Prep",
+    "results": "Results"
+  },
+  "fixture": {
+    "label": "Data notice",
+    "title": "Fixture data, not results.",
+    "more": "This build runs on synthetic data. No number here is a result."
+  },
+  "footer": {
+    "label": "About this build",
+    "data": "Data build {build}. Models frozen at {freeze}. Data schema {schema}.",
+    "trace": "Every number on this site is read from a generated data file, and each file names its sources.",
+    "fixture": "This build runs on synthetic fixture data."
+  },
+  "estimate": {
+    "range": "{lo} to {hi}",
+    "point": "point estimate",
+    "sample": "{n} {unit}"
+  },
+  "sources": {
+    "title": "Sources",
+    "rows": {
+      "heldout": "held-out games only",
+      "out_of_fold": "training games, each row predicted out of fold",
+      "training": "training games",
+      "not_split": "not split by game"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "There is no page at this address.",
+    "home": "Go to the start"
+  },
+  "none": "Not available",
+  "yes": "Yes",
+  "no": "No"
+}

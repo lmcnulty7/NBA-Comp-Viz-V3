@@ -1,0 +1,72 @@
+{
+  "title": "Results",
+  "eyebrow": "Results",
+  "intro": "The tracking scorecard, then every model result. A value with no interval is a point estimate.",
+  "scorecard": {
+    "title": "Tracking scorecard",
+    "decision": "Build decision",
+    "build": "Build {build}",
+    "role": {
+      "adopted": "Adopted build",
+      "candidate": "Measured candidate, not adopted"
+    },
+    "caption": "Targets and results of build {build}, by game",
+    "row": "Row",
+    "target": "Target",
+    "status": {
+      "met": "Met",
+      "not met": "Not met",
+      "reported": "Reported",
+      "not measurable": "Not measurable"
+    },
+    "sample": "{n} {unit}",
+    "games": {
+      "caption": "Games scored for build {build}",
+      "game": "Game",
+      "split": "Held out as",
+      "truthFrames": "Truth frames",
+      "testable": "Testable frames",
+      "untestable": "Share not testable"
+    },
+    "caveats": "Caveats",
+    "paired": {
+      "title": "Paired differences between builds",
+      "caption": "Paired change on the observations both builds score",
+      "note": "A positive difference means the build is better than the baseline.",
+      "game": "Game",
+      "metric": "Metric",
+      "baseline": "Baseline",
+      "build": "Build",
+      "diff": "Difference",
+      "interval": "Interval",
+      "range": "{lo} to {hi}",
+      "excludesZero": "Excludes zero"
+    },
+    "method": "Method"
+  },
+  "models": {
+    "title": "Model results",
+    "frozen": "Models frozen at {tag}. Table generated {when}.",
+    "caption": "Every model, with its out-of-fold and held-out values and its verdict",
+    "lane": "Model",
+    "question": "Question",
+    "selected": "Selected model",
+    "oof": "Out of fold",
+    "heldout": "Held out",
+    "verdict": "Verdict",
+    "report": "Report",
+    "noHeldout": "Not scored on held-out games",
+    "verdictClass": {
+      "works": "Works",
+      "no_signal": "No signal",
+      "failed": "Failed",
+      "inconclusive": "Inconclusive"
+    },
+    "pending": {
+      "title": "No result yet",
+      "row": "{lane}: {reason}"
+    },
+    "notes": "Notes",
+    "quoted": "Quoted from {source}"
+  }
+}

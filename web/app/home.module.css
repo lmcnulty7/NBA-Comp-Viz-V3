@@ -1,0 +1,48 @@
+/* The opening of the home page: a centred headline over a faint half court. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  padding-block: 1.5rem 1rem;
+  overflow: hidden;
+}
+
+.head {
+  display: grid;
+  gap: 1.1rem;
+  max-width: 53.75rem;
+  text-align: center;
+}
+
+.headline {
+  font-size: var(--text-display);
+  line-height: 1.05;
+}
+
+.head :global(.lede) {
+  max-width: 42.5rem;
+  margin-inline: auto;
+}
+
+/* Decoration only: the court motif, in the accent colour, far behind the text. */
+.motif {
+  position: absolute;
+  z-index: -1;
+  right: -8%;
+  top: -1.5rem;
+  width: min(62vw, 40rem);
+  height: auto;
+  color: var(--accent);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+@media (max-width: 43.75rem) {
+  .motif {
+    right: -30%;
+    top: 0;
+    width: 105vw;
+    opacity: 0.12;
+  }
+}

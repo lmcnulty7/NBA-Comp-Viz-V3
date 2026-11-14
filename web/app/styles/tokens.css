@@ -1,0 +1,138 @@
+/*
+ * Design tokens. One visual language for the whole site (PLAN.md D25): a data-journalism look on a white
+ * ground, a centred serif reading column, thin marks, no boxes, the court as the recurring motif.
+ *
+ * The first block is the light theme. The dark theme is written twice with the same values: once for a reader
+ * whose system asks for dark (unless the page says data-theme="light"), once for data-theme="dark".
+ * `npm run contrast` reads this file, checks that the two dark blocks agree, and checks every text pair and
+ * every mark pair against WCAG AA in both themes. Colours here are plain hex values so that check can read them.
+ */
+:root {
+  color-scheme: light;
+
+  /* neutral scale: 0 is the ground, 900 is the ink */
+  --neutral-0: #ffffff;
+  --neutral-50: #f7f7f5;
+  --neutral-100: #efefef;
+  --neutral-200: #e2e2e2;
+  --neutral-400: #8c8c8c;
+  --neutral-500: #767676;
+  --neutral-600: #666666;
+  --neutral-900: #121212;
+
+  /* what the neutrals are for */
+  --ground: var(--neutral-0);
+  --wash: var(--neutral-50);
+  --rule-soft: var(--neutral-100);
+  --rule: var(--neutral-200);
+  --court-line: var(--neutral-400);
+  --faint: var(--neutral-500);
+  --muted: var(--neutral-600);
+  --ink: var(--neutral-900);
+  --invert-ground: var(--neutral-900);
+  --invert-ink: var(--neutral-0);
+
+  /* court roles: a fill for the mark, the text colour that sits on that fill, and a text colour for labels */
+  --offense: #d9731a;
+  --offense-on: #121212;
+  --offense-text: #b45309;
+  --defense: #2f6bc4;
+  --defense-on: #ffffff;
+  --defense-text: #2f6bc4;
+  --ghost: #7c8aa5;
+  --ghost-text: #5f6b85;
+  --truth: #1b7a52;
+  --truth-text: #1b7a52;
+  --ball: #121212;
+
+  /* the one accent: links, focus, and the marker on a highlighted player or spot */
+  --accent: #be2490;
+
+  /* verdicts and scorecard status, always shown with a word or a glyph as well */
+  --pass: #1b7a52;
+  --warn: #8d5c10;
+  --fail: #b0302a;
+
+  /* type: Newsreader for text, Libre Franklin for labels and charts, IBM Plex Mono for numbers. The faces are
+     declared in app/layout.tsx under these family names; the Fallback names are metric-matched system faces
+     that next/font names after the constants there, so text does not shift when a face arrives. */
+  --serif: "Newsreader", "newsreader Fallback", Georgia, "Times New Roman", serif;
+  --sans: "Libre Franklin", "franklin Fallback", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* type scale */
+  --text-micro: 0.6875rem;
+  --text-small: 0.8125rem;
+  --text-label: 0.875rem;
+  --text-body: 1.125rem;
+  --text-lede: 1.25rem;
+  --text-h3: 1.0625rem;
+  --text-h2: clamp(1.75rem, 3.2vw, 2.25rem);
+  --text-h1: clamp(2.25rem, 5.2vw, 3.625rem);
+  --text-display: clamp(2.375rem, 5.6vw, 4rem);
+  --leading-tight: 1.08;
+  --leading-snug: 1.35;
+  --leading-body: 1.6;
+
+  /* layout: a reading column, a wider measure for figures, and the side gutter */
+  --col: 40rem;
+  --wide: 68.75rem;
+  --gutter: 1rem;
+  --nav-h: 2.875rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --neutral-0: #121212;
+    --neutral-50: #1a1a1a;
+    --neutral-100: #232323;
+    --neutral-200: #2e2e2e;
+    --neutral-400: #7a7a7a;
+    --neutral-500: #8c8c8c;
+    --neutral-600: #a6a6a6;
+    --neutral-900: #ececec;
+    --offense: #f0913a;
+    --offense-on: #121212;
+    --offense-text: #f0913a;
+    --defense: #6aa5f0;
+    --defense-on: #121212;
+    --defense-text: #6aa5f0;
+    --ghost: #8e9bb5;
+    --ghost-text: #8e9bb5;
+    --truth: #42a878;
+    --truth-text: #42a878;
+    --ball: #f2f2f2;
+    --accent: #d858c2;
+    --pass: #42a878;
+    --warn: #e2a648;
+    --fail: #f44f5d;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --neutral-0: #121212;
+  --neutral-50: #1a1a1a;
+  --neutral-100: #232323;
+  --neutral-200: #2e2e2e;
+  --neutral-400: #7a7a7a;
+  --neutral-500: #8c8c8c;
+  --neutral-600: #a6a6a6;
+  --neutral-900: #ececec;
+  --offense: #f0913a;
+  --offense-on: #121212;
+  --offense-text: #f0913a;
+  --defense: #6aa5f0;
+  --defense-on: #121212;
+  --defense-text: #6aa5f0;
+  --ghost: #8e9bb5;
+  --ghost-text: #8e9bb5;
+  --truth: #42a878;
+  --truth-text: #42a878;
+  --ball: #f2f2f2;
+  --accent: #d858c2;
+  --pass: #42a878;
+  --warn: #e2a648;
+  --fail: #f44f5d;
+}

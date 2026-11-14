@@ -1,0 +1,55 @@
+/* A player's values: a label, the value in the mono face, and its interval or the words "point estimate". */
+.values {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--ink);
+}
+
+.values > div {
+  display: grid;
+  gap: 0.15rem 1.5rem;
+  padding-block: 0.7rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (min-width: 40rem) {
+  .values > div {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
+
+.values dt {
+  font-family: var(--sans);
+  font-size: var(--text-label);
+  line-height: var(--leading-snug);
+  color: var(--muted);
+}
+
+.values dd {
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.35;
+}
+
+.values :global(.estimate) {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.values :global(.note) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.6rem;
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+.term {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.term::after {
+  content: ":";
+}
