@@ -1,0 +1,176 @@
+/* The small charts of the review and the prep tab: thin marks, recessive grid, text in ink tokens. */
+
+.chart {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.chartHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-snug);
+}
+
+.chartTitle {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.readout {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.6rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.point {
+  color: var(--muted);
+}
+
+.plot {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.plot svg {
+  display: block;
+  touch-action: none;
+}
+
+.seekable {
+  cursor: col-resize;
+}
+
+.grid {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+
+.zero {
+  stroke: var(--court-line);
+  stroke-width: 1;
+}
+
+.tickY,
+.tickX,
+.shotText {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--muted);
+}
+
+.tickY {
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+
+.tickX {
+  text-anchor: middle;
+}
+
+.shotText {
+  text-anchor: middle;
+  fill: var(--ink);
+}
+
+.shotLine {
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.lineDot {
+  fill: var(--accent);
+}
+
+.cursor {
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.cursorDot {
+  fill: var(--accent);
+  stroke: var(--ground);
+  stroke-width: 2;
+}
+
+.hint {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+
+.metric {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--text-small);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+
+.metricSource {
+  color: var(--muted);
+}
+
+/* Interval bar: a track, an optional reference line, the interval and the value. */
+.interval {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  height: 0.9rem;
+}
+
+.track {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.reference {
+  stroke: var(--court-line);
+  stroke-width: 1;
+}
+
+.whisker {
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.mark {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* xFG bar. */
+.xfg {
+  display: block;
+  width: 100%;
+  max-width: 16rem;
+  height: 0.75rem;
+}
+
+.xfgTrack {
+  fill: var(--rule-soft);
+}
+
+.xfgFill {
+  fill: var(--accent);
+}

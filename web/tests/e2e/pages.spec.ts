@@ -5,6 +5,8 @@ import { build, manifest, players, possessionIndex, sampledRoutes } from "./site
 import { watch } from "./watch";
 
 const count = (value: number) => value.toLocaleString("en-US");
+const gameLink = (game: { label: string; date: string }) =>
+  copy.review.games.open.replace("{game}", game.label).replace("{date}", game.date);
 
 for (const route of sampledRoutes()) {
   test(`/${route} loads cleanly`, async ({ page }) => {
@@ -85,16 +87,19 @@ test("home shows the coverage of the data build and its three entry points", asy
 test("review lists every game by its slug, and a game lists every possession", async ({ page }) => {
   await page.goto("review/");
   for (const game of manifest.games) {
-    const link = page.getByRole("link", { name: game.label, exact: true });
+    // Two games can share a label (the same teams on two dates), so a game link is named with its date too.
+    const link = page.getByRole("link", { name: gameLink(game), exact: true });
     await expect(link).toHaveAttribute("href", `${build.basePath}/review/${game.slug}/`);
+    await expect(link).toHaveText(game.label);
   }
   // No route is built from the dotted game id.
   const hrefs = await page.locator("main a[href]").evaluateAll((links) => links.map((link) => link.getAttribute("href") ?? ""));
-  for (const href of hrefs) expect(href).toMatch(new RegExp(`^${build.basePath}/review/[a-z0-9][a-z0-9-]*/$`));
+  // Game links, and the tour's possession links under a game slug.
+  for (const href of hrefs) expect(href).toMatch(new RegExp(`^${build.basePath}/(review/[a-z0-9][a-z0-9-]*/([0-9]+/)?|results/)$`));
 
   const game = manifest.games[0]!;
   const index = possessionIndex(game.slug);
-  await page.getByRole("link", { name: game.label, exact: true }).click();
+  await page.getByRole("link", { name: gameLink(game), exact: true }).click();
   await expect(page.locator("h1")).toHaveText(game.label);
   await expect(page.locator("tbody tr")).toHaveCount(index.possessions.length);
   const first = index.possessions[0]!;
@@ -129,7 +134,12 @@ test("a player value shows its interval or says it is a point estimate, and a hi
     }
     const shots = page.locator('section[data-metric="shot_making"]');
     if (player.shot_making.shown) {
-      await expect(shots.locator('[data-values="player"] .estimate')).toHaveCount(1);
+      // The value over expected first, then the baseline's own error and the plain shares, each a point estimate.
+      const values = shots.locator('[data-values="player"] .estimate');
+      expect(await values.count()).toBeGreaterThanOrEqual(1);
+      if (!player.shot_making.over_expected_per_100!.point_estimate) {
+        await expect(values.first()).toContainText(new RegExp(`\\d to [\\d${MINUS}]`));
+      }
     } else {
       await expect(shots.locator('[data-values="player"]')).toHaveCount(0);
       await expect(shots.locator('[data-hidden="true"]')).toBeVisible();

@@ -1,0 +1,70 @@
+/* Filters above a list: one row on a wide screen, stacked on a phone. Shared by the possession list and the
+   player index. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.8rem 1.4rem;
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+.filters > label {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.filters > label > span {
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.filters select,
+.filters input[type="search"] {
+  min-height: 2.5rem;
+  max-width: 100%;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+}
+
+.filters input[type="search"] {
+  width: 16rem;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+}
+
+.check input {
+  margin: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
+}
+
+.clear {
+  min-height: 2.5rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.clear:hover,
+.clear[aria-pressed="true"] {
+  border-color: var(--ink);
+}
