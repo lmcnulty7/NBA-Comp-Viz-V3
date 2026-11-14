@@ -120,6 +120,14 @@ M1 Data contract and exports (Python)
 DoD: one command builds web/data end to end; every file validates against the schema; tests on fixtures; values in
 results.json equal reports/results.md (test); no local paths or account address in any file (report_paths rule);
 no fit call anywhere in export/ (test); manifest names the source of every file; per-game size recorded.
+Status M1 (2026-11-14): closed. One command (python3 -m export.site_data) builds the data in about 15 s, peak 1 GB:
+17 held-out games, 3,162 possessions, players.json (447 players, 405 shown, 42 hidden), scorecard.json, results.json,
+3,185 files, 57.2 MB, per-game sizes in the manifest; every file validates; results.json and scorecard.json equal
+their sources (tests); no private string; no fit call (test). Featured: 10 of 10 cells from 336 eligible.
+Rebuilds (D45, D49): xFG 2,939 of 2,939, EPV 44,703 of 44,703, ghosting 1,741,995 of 1,741,995 held-out predictions
+reproduced (max difference 2.9e-08, 0, 0); absence and embeddings equal their reports; tracked copy in
+reports/export/frozen_checks.json. Reviews: code review found three minor issues, fixed; ml-review found one
+blocker in M2 (below), fixed; verifier PASS, pytest 1138 passed, 2 skipped.
 
 M2 Demo bridge (Python)
 - export/demo_bridge.py on the 25 gsw_phx_2016 windows with the D20 build: match CV boxes to SportVU per frame,
@@ -130,6 +138,12 @@ M2 Demo bridge (Python)
 - Clips (media-private/, default cap 15 s each, 60 s total, adjustable at M11) and one still per scene (public).
 DoD: files validate; n and fill share stated in the data; tests on fixture windows; no fit call; clip lengths
 within cap; scorecard.json names the D20 build.
+Status M2 (2026-11-14): closed. Build r23 on 25 windows: xFG n 43 shots, mean absolute difference 0.032
+(probability); EPV n 942 states, 0.026 points; ghosting n 71 possessions, ghosts move 3.30 ft on average; fill share
+0.487 overall (stated per possession and per item). Sensor-side predictions equal the stored held-out predictions.
+Four clips, 47.7 s, each under 15 s; four public stills committed. Reviews: ml-review blocker (the ghosting item
+recomputed the held-out ghost error) fixed by D58; verifier code review found three issues (outcome-bearing shot
+columns read, one decode check, a note), fixed; verifier PASS on every DoD item.
 
 M3 Web foundation
 - web/ scaffold: Next.js static export, TypeScript strict, ESLint, Node pinned (.nvmrc), npm, lockfile.
@@ -299,6 +313,7 @@ Self-decided under D37 by Claude Code, starting 2026-11-13 (each one can be reve
 - D55 (self-decided) Prototype numbers in README.md, PROJECT_SUMMARY.md and PIPELINE.md carry the tag [prototype] on the same line (in a table, the same cell); each labelled file has a dated note; tests/test_public_docs.py enforces it and that no tag is dropped. Options: rewrite the files; tag (chosen). Why: M8's grep check needs a detectable label, and a rewrite would change history the reader may compare against.
 - D56 (self-decided) Two [ASK] items of D30 decided under D37: the CLAIMS.md caveat 4 amendment text (C13) is drafted, dated 2026-11-14, marked for Lucien's review and committed; docs/SCRIPT.md is approved for use as the cold-open copy (M4) after an independent fact check and edit, with its numbers as tokens resolved from web/data. Lucien may rewrite either; neither is published until he merges. Options: wait for Lucien (blocks M4 and C13); decide and mark for review (chosen).
 - D57 (self-decided) The Fable usage limit stopped every teammate at about 02:00 on 2026-11-14; the session continued on Opus 5.5. Teammate work committed before the stop was merged as is (all branches held their commits; site data and writing had already applied their review fixes). The ghosting rebuild was killed with its agent and was restarted detached. Reviews that did not run (bridge, models, web) run at their milestone close instead.
+- D58 (self-decided) The ghosting item of the demo swap is how far the 1.0 s ghosts move when the model reads broadcast positions instead of sensor positions (mean distance between the two predicted ghosts per possession; the sensor side is the 0 ft reference). The first version measured each ghost against the real defender at the predicted moment, which is the lane's held-out error computed again (found by the M1/M2 ml-review); a test now holds that the real position there is never read. The per-possession matched distance in swap.json is a description of the broadcast positions, read under D50 like the scene errors and never used to choose anything. A memory-projection test in tools/ was relaxed by its author after the real EPV run (the gate now reads the projected footprint peak); it is a safety gate, not a correctness check, and the live memory watch still stops a run.
 
 ## Open questions
 - None.
