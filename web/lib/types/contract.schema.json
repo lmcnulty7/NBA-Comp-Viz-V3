@@ -2667,7 +2667,7 @@
     },
     "ShotMaking": {
       "additionalProperties": false,
-      "description": "Makes above expected per 100 attempts, from out-of-fold rows. The expectation is the lane's location and\ncontest model, which does not know the shooter and was not the selected model. That baseline has a known\nout-of-fold calibration error (PlayersFile.shot_making_baseline): `baseline_error_per_100` is the part of this\nplayer's value that the baseline's own error explains for his mix of shots (his attempts in each calibration\nbin times that bin's observed minus predicted rate). The frozen xFG model includes a shooter prior, so its own\nresidual is near zero by construction and is given only for reference.",
+      "description": "Makes above expected per 100 attempts, from out-of-fold rows. The expectation is the lane's location and\ncontest model, which does not know the shooter and was not the selected model. That baseline has a known\nout-of-fold calibration error (PlayersFile.shot_making_baseline): `baseline_error_per_100` is the part of this\nplayer's value that the baseline's own error explains for his mix of shots (his attempts in each calibration\nbin times that bin's observed minus predicted rate). The frozen xFG model includes a shooter prior (it already\nknows the shooter), so its own residual is not a measure over expected and is given only for reference.",
       "properties": {
         "shown": {
           "title": "Shown",
