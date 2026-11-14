@@ -21,7 +21,7 @@ export const VERDICT_TONE: Record<LaneResult["verdict_class"], StatusTone> = {
  */
 export function Metric({ metric, path }: { metric: MetricValue; path: string }) {
   if (metric.value == null) {
-    return <DataText className="num" file={FILE} field={`${path}.text`} text={metric.text} />;
+    return <DataText file={FILE} field={`${path}.text`} text={metric.text} />;
   }
   const interval = !metric.point_estimate && metric.lo != null && metric.hi != null;
   return (

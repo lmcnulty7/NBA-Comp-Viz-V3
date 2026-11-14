@@ -37,7 +37,7 @@ test("a keyboard reader moves through the steps and drives the picture", async (
   const play = page.locator('[data-scene="truth"]').getByRole("button");
   if (await play.count()) {
     await play.focus();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     const before = await play.getAttribute("aria-pressed");
     await page.keyboard.press("Enter");
     await expect(play).not.toHaveAttribute("aria-pressed", before ?? "");

@@ -217,8 +217,10 @@ export function pairRows(swap: DemoSwap | null, scene: DemoScene | null): PairRo
       key: `${item.kind}|${item.key}`,
       kind: item.kind,
       label: open.swap.labels[item.kind],
-      sensor: itemValue(item.kind, item.sensor, false),
-      broadcast: itemValue(item.kind, item.broadcast, false),
+      // The average-defender item is a shift, not a position (D58): the spot the model gives from sensor
+      // positions is the reference, and the gap is how far the spot moved on broadcast positions.
+      sensor: item.kind === "ghosting" ? ui.pairReference : itemValue(item.kind, item.sensor, false),
+      broadcast: item.kind === "ghosting" ? ui.pairMoved : itemValue(item.kind, item.broadcast, false),
       gap: itemValue(item.kind, item.abs_diff, true),
     }));
 }

@@ -49,7 +49,14 @@ export function PossessionPreview({ gameSlug, possession }: { gameSlug: string; 
   if (failed) return <p className="small muted">{copy.home.ui.previewError}</p>;
   return (
     <div ref={ref} className={styles.preview} aria-busy={loaded === null}>
-      <Court scene={scene} view="half" attackX={loaded?.attack_x ?? null} label={copy.home.ui.preview} layers={{ labels: false }} />
+      {/* The half view needs the rim the offense attacks, so the full court stands in until the data arrives. */}
+      <Court
+        scene={scene}
+        view={loaded?.attack_x != null ? "half" : "full"}
+        attackX={loaded?.attack_x ?? null}
+        label={copy.home.ui.preview}
+        layers={{ labels: false }}
+      />
     </div>
   );
 }

@@ -24,7 +24,7 @@ function Cell({ build, rowKey, cell }: { build: string; rowKey: string; cell: Sc
   return (
     <td className="wrap" data-status={cell.status}>
       <Status tone={STATUS_TONE[cell.status]} text={label(text.scorecard.status, cell.status)} />
-      <DataText className="note num" file={FILE} field={`${path}.text`} text={cell.text} />
+      <DataText className="note" file={FILE} field={`${path}.text`} text={cell.text} />
       <span className="note">
         {cell.interval ? (
           <DataText file={FILE} field={`${path}.interval`} text={cell.interval} />
@@ -226,7 +226,7 @@ export function ScorecardSection({ scorecard }: { scorecard: Scorecard }) {
                 <li key={key}>
                   {words(key)}
                   {": "}
-                  <DataText className="num" file={FILE} field={`method[${key}]`} text={value} />
+                  <DataText file={FILE} field={`method[${key}]`} text={value} />
                 </li>
               ))}
             </ul>

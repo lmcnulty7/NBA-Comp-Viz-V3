@@ -16,8 +16,10 @@ test.describe("the slides of the private site", () => {
 
   test("every slide loads from this host alone, with its number", async ({ page }) => {
     await page.goto("talk/");
-    for (const id of deck.slides) await expect(page.locator(`main a[href$="/talk/${id}/"]`)).toHaveCount(1);
+    for (const id of deck.slides) await expect(page.locator(`main ol a[href$="/talk/${id}/"]`)).toHaveCount(1);
     for (const [index, id] of deck.slides.entries()) {
+      // Leave the last page first, so the prefetches it cancels are not counted against this slide.
+      await page.goto("about:blank");
       const seen = watch(page);
       const response = await page.goto(`talk/${id}/`, { waitUntil: "networkidle" });
       expect(response?.status(), id).toBe(200);
@@ -37,20 +39,26 @@ test.describe("the slides of the private site", () => {
   test("the arrow keys move between slides and N shows the presenter notes", async ({ page }) => {
     const [first, second] = deck.slides;
     const last = deck.slides[deck.slides.length - 1]!;
+    // A key moves the deck once the slide it lands on is on screen.
+    const on = async (id: string) => {
+      await expect(page).toHaveURL(new RegExp(`/talk/${id}/$`));
+      await expect(page.locator(`[data-slide="${id}"]`)).toBeVisible();
+    };
     await page.goto(`talk/${first}/`);
+    await on(first!);
     await expect(page.getByTestId("presenter-notes")).toBeHidden();
     await page.keyboard.press("ArrowRight");
-    await expect(page).toHaveURL(new RegExp(`/talk/${second}/$`));
+    await on(second!);
     await page.keyboard.press("ArrowLeft");
-    await expect(page).toHaveURL(new RegExp(`/talk/${first}/$`));
+    await on(first!);
     await page.keyboard.press("End");
-    await expect(page).toHaveURL(new RegExp(`/talk/${last}/$`));
+    await on(last);
     await page.keyboard.press("Home");
-    await expect(page).toHaveURL(new RegExp(`/talk/${first}/$`));
+    await on(first!);
     await page.keyboard.press("n");
     await expect(page.getByTestId("presenter-notes")).toBeVisible();
     await page.keyboard.press("PageDown");
-    await expect(page).toHaveURL(new RegExp(`/talk/${second}/$`));
+    await on(second!);
     // The notes stay on from slide to slide, until N hides them.
     await expect(page.getByTestId("presenter-notes")).toBeVisible();
     await page.keyboard.press("n");
@@ -62,7 +70,10 @@ test.describe("the slides of the private site", () => {
     await expect(page.locator('canvas[data-court][data-ready="true"]').first()).toBeVisible();
     const range = page.locator('input[type="range"]').first();
     const play = page.getByRole("button", { name: /^(Play|Pause)$/ }).first();
+    // Let the slide settle (it starts on its own once it is in view), then make sure it plays.
+    await page.waitForTimeout(1000);
     if ((await play.getAttribute("aria-pressed")) !== "true") await play.click();
+    await expect(play).toHaveAttribute("aria-pressed", "true");
     const first = await range.inputValue();
     await expect.poll(async () => range.inputValue(), { timeout: 8000 }).not.toBe(first);
     // The time bar works from the keyboard too, and the deck leaves its keys alone.

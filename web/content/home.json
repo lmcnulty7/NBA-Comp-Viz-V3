@@ -126,6 +126,8 @@
     "noSwap": "This data build has no model comparison.",
     "preview": "A featured possession on the court",
     "previewError": "The preview did not load.",
-    "players": "{players.n_shown} players shown. {players.n_hidden} left out for too small a sample."
+    "players": "{players.n_shown} players shown. {players.n_hidden} left out for too small a sample.",
+    "pairReference": "the spot from sensor positions",
+    "pairMoved": "moved by the gap"
   }
 }

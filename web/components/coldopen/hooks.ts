@@ -57,7 +57,8 @@ export function usePlayback(times: readonly number[], options: { active: boolean
   const [index, setIndexState] = useState(start);
   const [chosen, setChosen] = useState<boolean | null>(null);
   const clock = useRef(times[start] ?? 0);
-  const playing = active && (chosen ?? autoplay) && times.length > 1;
+  // On its own it plays only while in view; a reader who pressed Play gets play at once.
+  const playing = times.length > 1 && (chosen ?? autoplay) && (active || chosen === true);
   const first = times[0] ?? 0;
   const last = times[times.length - 1] ?? 0;
 
@@ -89,7 +90,7 @@ export function usePlayback(times: readonly number[], options: { active: boolean
     },
     [times],
   );
-  const toggle = useCallback(() => setChosen((current) => !(current ?? autoplay)), [autoplay]);
+  const toggle = useCallback(() => setChosen(!playing), [playing]);
   const follow = useCallback(
     (t: number) => {
       clock.current = t;
