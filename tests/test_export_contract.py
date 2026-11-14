@@ -12,11 +12,13 @@ import pytest
 from export import heavy
 from export import sample
 from export import schemas as S
+from tools import frozen_common as F
 
 REPO = Path(__file__).resolve().parents[1]
 EXPORT_FILES = sorted((REPO / "export").rglob("*.py"))
-OWNED_TEXT = EXPORT_FILES + [REPO / "CLAUDE.md", REPO / ".claude" / "agents" / "ml-reviewer.md",
-                             REPO / ".claude" / "agents" / "verifier.md", Path(__file__)]
+TOOLS_FILES = sorted((REPO / "tools").rglob("*.py"))
+OWNED_TEXT = EXPORT_FILES + TOOLS_FILES + [REPO / "CLAUDE.md", REPO / ".claude" / "agents" / "ml-reviewer.md",
+                                           REPO / ".claude" / "agents" / "verifier.md", Path(__file__)]
 # Calls and imports that fit, tune or calibrate a model. export/ may hold none of them (PLAN.md M1 DoD).
 FIT_PATTERNS = (r"\.fit\(", r"\.fit_transform\(", r"\.partial_fit\(", r"\.fit_predict\(", r"^\s*(from|import)\s+sklearn",
                 r"^\s*(from|import)\s+torch", r"\.backward\(", r"optimizer\.step\(", r"GridSearchCV", r"cross_val_")
@@ -165,7 +167,7 @@ def test_owned_files_hold_no_dash_and_no_private_string():
         text = path.read_text(encoding="utf-8")
         if any(dash in text for dash in DASHES):
             problems.append(f"{path.relative_to(REPO)}: em or en dash")
-        if path.suffix == ".py" and "export" in path.relative_to(REPO).parts[:1]:
+        if path.suffix == ".py" and path.relative_to(REPO).parts[0] in ("export", "tools"):
             # The contract module lists the private patterns themselves; everything else in export/ must be clean.
             body = text if path.name != "schemas.py" else ""
             for found in S.find_private(body):
@@ -174,12 +176,131 @@ def test_owned_files_hold_no_dash_and_no_private_string():
 
 
 def test_heavy_job_lock_excludes_a_second_job(tmp_path, monkeypatch):
+    import os
+
     monkeypatch.setenv("V3_HEAVY_LOCK", str(tmp_path / "heavy.lock"))
+    monkeypatch.delenv(heavy.HELD_ENV, raising=False)
     quiet = lambda message: None
     probe = [sys.executable, "-m", "export.heavy", "--name", "probe", "--no-wait", "--", sys.executable, "-c", "pass"]
     with heavy.heavy_job("first", log=quiet):
-        blocked = subprocess.run(probe, cwd=REPO, capture_output=True, text=True)
+        # An unrelated process: it does not inherit the holder's marker, so it must be refused.
+        unrelated = {k: v for k, v in os.environ.items() if k != heavy.HELD_ENV}
+        blocked = subprocess.run(probe, cwd=REPO, capture_output=True, text=True, env=unrelated)
         assert blocked.returncode != 0
         assert "another heavy job is running" in blocked.stderr
     free = subprocess.run(probe, cwd=REPO, capture_output=True, text=True)
     assert free.returncode == 0, free.stderr
+
+
+def test_contract_refuses_nan_and_infinity():
+    for token in ("NaN", "Infinity", "-Infinity"):
+        with pytest.raises(ValueError):
+            S.Estimate.model_validate_json('{"value": %s, "point_estimate": true}' % token)
+
+
+def test_point_estimate_names_no_interval_method():
+    with pytest.raises(ValueError):
+        S.Estimate(value=1.0, interval="95% bootstrap", point_estimate=True)
+
+
+def test_shown_needs_the_minimum_sample_and_a_value():
+    est = S.Estimate(value=1.0, lo=0.0, hi=2.0, interval="95% bootstrap over the player's games", point_estimate=False)
+    S.ShotMaking(shown=True, attempts=100, min_attempts=100, over_expected_per_100=est)
+    S.ShotMaking(shown=False, attempts=40, min_attempts=100)
+    for bad in (dict(shown=True, attempts=99, min_attempts=100, over_expected_per_100=est),
+                dict(shown=True, attempts=200, min_attempts=100),
+                dict(shown=False, attempts=40, min_attempts=100, over_expected_per_100=est)):
+        with pytest.raises(ValueError):
+            S.ShotMaking(**bad)
+    with pytest.raises(ValueError):
+        S.Similar(shown=True, available=False, possessions=900, min_possessions=300,
+                  neighbours=[S.SimilarPlayer(rank=1, player_id=1, name="x", distance=0.1)])
+    with pytest.raises(ValueError):
+        S.AbsenceRisk(shown=True, games=20, min_games=10, absent=1, kind="observed_only", observed_rate=est,
+                      model_probability=est)
+
+
+def test_paired_difference_and_metric_value_keep_their_flags_honest():
+    S.PairedDifference(game="g", metric="m", baseline="a", build="b", diff=0.1, lo=0.05, hi=0.2, excludes_zero=True)
+    S.PairedDifference(game="g", metric="m", baseline="a", build="b", diff=0.1, lo=-0.05, hi=0.2, excludes_zero=False)
+    for bad in (dict(diff=0.1, lo=-0.05, hi=0.2, excludes_zero=True), dict(diff=0.1, lo=0.3, hi=0.2, excludes_zero=True)):
+        with pytest.raises(ValueError):
+            S.PairedDifference(game="g", metric="m", baseline="a", build="b", **bad)
+    S.MetricValue(text="x 1.0 (point estimate)", value=1.0, point_estimate=True)
+    S.MetricValue(text="x 1.0 [0.9, 1.1]", value=1.0, lo=0.9, hi=1.1, point_estimate=False)
+    for bad in (dict(value=1.0, lo=0.9, point_estimate=False), dict(value=1.0, point_estimate=False),
+                dict(value=1.0, lo=0.9, hi=1.1, point_estimate=True)):
+        with pytest.raises(ValueError):
+            S.MetricValue(text="x", **bad)
+
+
+def test_validate_tree_checks_paths_the_manifest_and_ignores_hidden_files(sample_root, tmp_path):
+    root = tmp_path / "moved"
+    sample.write_sample(root)
+    (root / ".DS_Store").write_text("finder")
+    assert S.validate_tree(root) == []
+    game = root / "games" / "fixture-game-a"
+    one, two = (game / "1.json").read_text(), (game / "2.json").read_text()
+    (game / "1.json").write_text(two)
+    (game / "2.json").write_text(one)
+    problems = "\n".join(S.validate_tree(root))
+    assert "games/fixture-game-a/1.json: holds possession 2" in problems
+    assert "does not match the files on disk" in problems
+    (game / "9.json").write_text(one.replace('"possession":1,', '"possession":9,'))
+    assert "9.json is on disk and not listed" in "\n".join(S.validate_tree(root))
+
+
+def test_heavy_job_is_reentrant_down_the_process_tree(tmp_path, monkeypatch):
+    monkeypatch.setenv("V3_HEAVY_LOCK", str(tmp_path / "heavy.lock"))
+    monkeypatch.delenv(heavy.HELD_ENV, raising=False)
+    quiet = lambda message: None
+    inner = [sys.executable, "-c",
+             "from export.heavy import heavy_job\nwith heavy_job('inner', wait=False, log=lambda m: None):\n    print('ran')"]
+    with heavy.heavy_job("outer", log=quiet):
+        with heavy.heavy_job("nested", wait=False, log=quiet):
+            pass
+        child = subprocess.run(inner, cwd=REPO, capture_output=True, text=True)
+        assert child.returncode == 0 and "ran" in child.stdout, child.stderr
+    wrapped = subprocess.run([sys.executable, "-m", "export.heavy", "--name", "wrapper", "--no-wait", "--"] + inner,
+                             cwd=REPO, capture_output=True, text=True)
+    assert wrapped.returncode == 0 and "ran" in wrapped.stdout, wrapped.stderr
+
+
+def test_training_games_guard_takes_a_single_id_and_refuses_nothing_to_check():
+    assert F.training_games_only(["11.11.2015.NYK.at.CHA"], "test") == 1
+    for bad in ("12.16.2015.PHX.at.GSW", ["11.11.2015.NYK.at.CHA", "01.18.2016.GSW.at.CLE"], [], ()):
+        with pytest.raises(SystemExit):
+            F.training_games_only(bad, "test")
+
+
+def test_rebuild_checks_cannot_vouch_for_what_they_did_not_cover(tmp_path, monkeypatch):
+    import numpy as np
+
+    data_root = tmp_path / "data_root"
+    data_root.mkdir()
+    monkeypatch.setenv("DATA_ROOT", str(data_root))
+    folder = tmp_path / "artifacts" / "model"
+    with pytest.raises(SystemExit):
+        F.assert_safe_output(data_root / "analytics" / "x")
+    with pytest.raises(SystemExit):
+        F.assert_safe_output(REPO / "reports" / "x.md")
+    F.begin_rebuild(folder, "model")
+    with pytest.raises(RuntimeError):
+        F.require_passed(folder, "model")
+    (folder / "model.bin").write_bytes(b"weights")
+    record = dict(name="model", compared="predictions with stored predictions", n=np.int64(10),
+                  max_abs_diff=np.float32(1e-7), tolerance=1e-6, passed=np.bool_(True))
+    F.write_check(folder, record, files=["model.bin"])
+    assert F.require_passed(folder, "model")["passed"] is True
+    with pytest.raises(RuntimeError):
+        F.require_passed(folder, "another")
+    (folder / "model.bin").write_bytes(b"other weights")
+    with pytest.raises(RuntimeError):
+        F.require_passed(folder, "model")
+    F.write_check(folder, dict(record, max_abs_diff=1e-3), files=["model.bin"])
+    assert F.read_check(folder)["passed"] is False
+    F.write_check(folder, dict(record, max_abs_diff=float("nan")), files=["model.bin"])
+    assert F.read_check(folder)["passed"] is False
+    monkeypatch.delenv("DATA_ROOT")
+    with pytest.raises(SystemExit):
+        F.assert_safe_output(folder)

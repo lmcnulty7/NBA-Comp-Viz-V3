@@ -34,15 +34,20 @@ RIM_Y_FT = 25.0
 
 # A string in a data file must never match one of these: a local path, a cloud mount, or an email address.
 PRIVATE_PATTERNS = (
-    r"/Users/",
-    r"/home/",
-    r"/private/",
-    r"/var/folders",
-    r"/tmp/",
+    r"(?<![\w.])/Users/",
+    r"(?<![\w.])/home/",
+    r"(?<![\w.])/root/",
+    r"(?<![\w.])/private/",
+    r"(?<![\w.])/var/folders",
+    r"(?<![\w.])/tmp/",
+    r"(?<![\w.])/Volumes/",
+    r"(?<![\w.])/content/drive",
+    r"(?<![\w.])/opt/anaconda",
+    r"[A-Za-z]:\\\\?Users",
     r"(?<![\w$])~/",
     r"CloudStorage",
     r"GoogleDrive",
-    r"My Drive",
+    r"My ?Drive",
     r"[\w.+-]+@[\w-]+\.[A-Za-z]{2,}",
 )
 _PRIVATE_RE = re.compile("|".join(PRIVATE_PATTERNS))
@@ -50,13 +55,13 @@ _PRIVATE_RE = re.compile("|".join(PRIVATE_PATTERNS))
 
 def find_private(text: str) -> list[str]:
     """Return every local path, cloud mount name or email address found in `text` (empty when clean)."""
-    return sorted({m.group(0) for m in _PRIVATE_RE.finditer(text)})
+    return sorted({m.group(0) for m in _PRIVATE_RE.finditer(text.replace("\\/", "/"))})
 
 
 class Strict(BaseModel):
     """Base for every contract model: unknown fields are an error, so the contract cannot drift silently."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
 class Source(Strict):
@@ -90,6 +95,8 @@ class Estimate(Strict):
             raise ValueError("an estimate has an interval or is a point estimate, never both and never neither")
         if has and not self.interval:
             raise ValueError("an interval must name its method")
+        if not has and self.interval:
+            raise ValueError("a point estimate names no interval method")
         if has and not (self.lo <= self.hi):
             raise ValueError("lo must not exceed hi")
         return self
@@ -312,6 +319,16 @@ class Possession(Strict):
 # ------------------------------------------------------------------------------------------------ players.json
 
 
+def _check_shown(metric: str, shown: bool, n: int, min_n: int, estimate) -> None:
+    """A value is shown only at or above its minimum sample, and a hidden value carries no estimate."""
+    if shown and n < min_n:
+        raise ValueError(f"{metric}: shown with {n}, below the minimum sample of {min_n}")
+    if shown and estimate is None:
+        raise ValueError(f"{metric}: shown without an estimate")
+    if not shown and estimate is not None:
+        raise ValueError(f"{metric}: a hidden value carries no estimate")
+
+
 class ShotMaking(Strict):
     """Makes above expected per 100 attempts, from out-of-fold rows. The expectation is the lane's location and
     contest model, which does not know the shooter. The frozen xFG model includes a shooter prior, so its own
@@ -325,6 +342,11 @@ class ShotMaking(Strict):
     expected_fg_pct: Optional[float] = None
     frozen_model_residual_per_100: Optional[float] = None
 
+    @model_validator(mode="after")
+    def _shown(self):
+        _check_shown("shot_making", self.shown, self.attempts, self.min_attempts, self.over_expected_per_100)
+        return self
+
 
 class Gravity(Strict):
     """How far defenders stay from the player beyond what location explains, in feet (the stored player table)."""
@@ -334,6 +356,11 @@ class Gravity(Strict):
     min_possessions: int
     games: int
     gravity_ft: Optional[Estimate] = None
+
+    @model_validator(mode="after")
+    def _shown(self):
+        _check_shown("gravity", self.shown, self.possessions, self.min_possessions, self.gravity_ft)
+        return self
 
 
 class Rebounding(Strict):
@@ -345,6 +372,11 @@ class Rebounding(Strict):
     min_chances: int
     rate_per_100: Optional[Estimate] = None
     model_expected_per_100: Optional[float] = None
+
+    @model_validator(mode="after")
+    def _shown(self):
+        _check_shown("rebounding", self.shown, self.chances, self.min_chances, self.rate_per_100)
+        return self
 
 
 class AbsenceRisk(Strict):
@@ -359,6 +391,15 @@ class AbsenceRisk(Strict):
     kind: Literal["model_out_of_fold", "observed_only"]
     model_probability: Optional[Estimate] = None
     observed_rate: Optional[Estimate] = None
+
+    @model_validator(mode="after")
+    def _shown(self):
+        _check_shown("absence_risk", self.shown, self.games, self.min_games, self.observed_rate)
+        if self.kind == "observed_only" and self.model_probability is not None:
+            raise ValueError("absence_risk: observed_only carries no model probability")
+        if not self.shown and self.model_probability is not None:
+            raise ValueError("absence_risk: a hidden value carries no estimate")
+        return self
 
 
 class SimilarPlayer(Strict):
@@ -377,6 +418,14 @@ class Similar(Strict):
     possessions: int
     min_possessions: int
     neighbours: list[SimilarPlayer]
+
+    @model_validator(mode="after")
+    def _shown(self):
+        if self.shown and not (self.available and self.possessions >= self.min_possessions and self.neighbours):
+            raise ValueError("similar: shown needs an available embedding, the minimum sample and neighbours")
+        if not self.shown and self.neighbours:
+            raise ValueError("similar: a hidden value carries no neighbours")
+        return self
 
 
 class PlayerView(Strict):
@@ -484,6 +533,14 @@ class PairedDifference(Strict):
     hi: float
     excludes_zero: bool
 
+    @model_validator(mode="after")
+    def _interval(self):
+        if self.lo > self.hi:
+            raise ValueError("lo must not exceed hi")
+        if self.excludes_zero != (self.lo > 0 or self.hi < 0):
+            raise ValueError("excludes_zero must say whether the interval lies on one side of zero")
+        return self
+
 
 class Scorecard(Strict):
     schema_version: SchemaVersion
@@ -510,6 +567,16 @@ class MetricValue(Strict):
     lo: Optional[float] = None
     hi: Optional[float] = None
     point_estimate: bool
+
+    @model_validator(mode="after")
+    def _interval(self):
+        if (self.lo is None) != (self.hi is None):
+            raise ValueError("lo and hi must be set together")
+        if self.point_estimate != (self.lo is None):
+            raise ValueError("point_estimate must be true exactly when the report states no interval")
+        if self.lo is not None and self.lo > self.hi:
+            raise ValueError("lo must not exceed hi")
+        return self
 
 
 class ReportRow(Strict):
@@ -751,23 +818,69 @@ def validate_file(root: Path, relpath: str) -> list[str]:
     text = (root / relpath).read_text(encoding="utf-8")
     problems = [f"{relpath}: private string {found!r}" for found in find_private(text)]
     try:
-        model.model_validate_json(text)
+        obj = model.model_validate_json(text)
     except Exception as exc:  # pydantic.ValidationError, or malformed JSON
         problems.append(f"{relpath}: {type(exc).__name__}: {str(exc)[:500]}")
+        return problems
+    parts = Path(relpath).as_posix().split("/")
+    if isinstance(obj, Possession):
+        if obj.game_slug != parts[1] or f"{obj.possession}.json" != parts[2]:
+            problems.append(f"{relpath}: holds possession {obj.possession} of {obj.game_slug}")
+    if isinstance(obj, PossessionIndex) and obj.game.slug != parts[1]:
+        problems.append(f"{relpath}: holds the index of {obj.game.slug}")
+    return problems
+
+
+def _manifest_problems(root: Path, seen: set) -> list[str]:
+    """The manifest must list every file on disk, exactly once, with its real size and hash."""
+    import hashlib
+
+    try:
+        manifest = Manifest.model_validate_json((root / "manifest.json").read_text(encoding="utf-8"))
+    except Exception:
+        return []  # already reported by validate_file
+    problems, covered = [], set()
+    for entry in manifest.files:
+        if entry.count == 1 and "<" not in entry.path:
+            members = [entry.path]
+        else:
+            folder = entry.path.rsplit("/", 1)[0]
+            members = sorted(rel for rel in seen if rel.startswith(folder + "/") and rel.endswith(".json")
+                             and (model_for(rel).__name__ if model_for(rel) else None) == entry.model)
+        if len(members) != entry.count:
+            problems.append(f"manifest.json: {entry.path} lists {entry.count} file(s), {len(members)} on disk")
+        missing = [rel for rel in members if rel not in seen]
+        if missing:
+            problems.append(f"manifest.json: {entry.path} is listed and not on disk")
+            continue
+        hashes = [hashlib.sha256((root / rel).read_bytes()).hexdigest() for rel in members]
+        size = sum((root / rel).stat().st_size for rel in members)
+        digest = hashes[0] if len(members) == 1 and entry.count == 1 and "<" not in entry.path else \
+            hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
+        if size != entry.bytes or digest != entry.sha256:
+            problems.append(f"manifest.json: {entry.path} does not match the files on disk (size or hash)")
+        covered.update(members)
+    for rel in sorted(seen - covered - {"manifest.json"}):
+        problems.append(f"manifest.json: {rel} is on disk and not listed")
     return problems
 
 
 def validate_tree(root, allow_missing=()) -> list[str]:
-    """Validate every file under a data root: each must be known to the contract and valid against its model,
-    the fixed files must all exist (except the paths in `allow_missing`), and no file may hold a local path or an
-    email address."""
+    """Validate every file under a data root: each must be known to the contract and valid against its model and
+    sit at the path its content names, the fixed files must all exist (except the paths in `allow_missing`), the
+    manifest must list every file with its real size and hash, and no file may hold a local path or an email
+    address. Hidden files are ignored."""
     root = Path(root)
     problems: list[str] = []
     seen = set()
     for path in sorted(p for p in root.rglob("*") if p.is_file()):
         rel = path.relative_to(root).as_posix()
+        if any(part.startswith(".") for part in rel.split("/")):
+            continue  # Finder and editor droppings are not part of the data root
         seen.add(rel)
         problems += validate_file(root, rel)
+    if "manifest.json" in seen:
+        problems += _manifest_problems(root, seen)
     for pattern, _ in FILES:
         if "<" not in pattern and pattern not in seen and pattern not in allow_missing:
             problems.append(f"{pattern}: missing")

@@ -34,7 +34,7 @@ def r3(v: float) -> float:
 
 
 def _dump(model: S.Strict) -> str:
-    return json.dumps(model.model_dump(mode="json"), separators=(",", ":")) + "\n"
+    return json.dumps(model.model_dump(mode="json"), separators=(",", ":"), allow_nan=False) + "\n"
 
 
 def _possession(game: dict, k: int) -> S.Possession:
@@ -108,7 +108,8 @@ def _est(value, lo, hi, n, unit) -> S.Estimate:
 def _players() -> S.PlayersFile:
     views = []
     for j in range(12):
-        big = j % 4 != 3
+        attempts = 260 - 20 * j
+        big = j % 4 != 3 and attempts >= 100
         neighbours = [S.SimilarPlayer(rank=r + 1, player_id=100 + (j + r + 1) % 12,
                                       name=f"Fixture Player {(j + r + 1) % 12 + 1}", distance=r3(0.4 + 0.3 * r))
                       for r in range(5)]
@@ -116,8 +117,8 @@ def _players() -> S.PlayersFile:
             player_id=100 + j, slug=f"fixture-player-{j + 1}", name=f"Fixture Player {j + 1}",
             teams=["AAA"] if j < 6 else ["CCC"], position="GFC"[j % 3], games=20 + j,
             shot_making=S.ShotMaking(
-                shown=big, attempts=260 - 20 * j if big else 40, min_attempts=100,
-                over_expected_per_100=_est(r1(2.5 - 0.6 * j), r1(-1.0 - 0.6 * j), r1(6.0 - 0.6 * j), 260 - 20 * j,
+                shown=big, attempts=attempts if big else 40, min_attempts=100,
+                over_expected_per_100=_est(r1(2.5 - 0.6 * j), r1(-1.0 - 0.6 * j), r1(6.0 - 0.6 * j), attempts,
                                            "attempts") if big else None,
                 fg_pct=r3(0.47 - 0.004 * j) if big else None, expected_fg_pct=r3(0.45) if big else None,
                 frozen_model_residual_per_100=r1(0.2) if big else None),
