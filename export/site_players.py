@@ -481,7 +481,8 @@ def _left_out_note(info: PlayersInfo) -> str:
     parts = [f"{info.attempts_left_out_by_reason[key]} {words.format(games=info.games_without_shot_frames)}"
              for key, words in LEFT_OUT_REASONS if info.attempts_left_out_by_reason.get(key)]
     return (f"Attempts left out: {info.attempts_left_out} of {info.attempts_total} out-of-fold attempts, which come "
-            f"from {info.games_with_attempts} training games. An attempt counts for a player only when the tracked "
+            f"from {info.games_with_attempts} training games (more than the tracked training games, because a "
+            "few training games have shot-chart rows and no tracking tables). An attempt counts for a player only when the tracked "
             "attempt names him as the shooter resolved from the play-by-play."
             + (" Of those left out, " + "; ".join(parts) + "." if parts else ""))
 

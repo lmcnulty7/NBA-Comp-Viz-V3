@@ -93,6 +93,10 @@ FRAME_COLUMNS = ["game", "period", "frame", "game_clock_s", "shot_clock_s", "n_p
 POSSESSION_COLUMNS = ["sportvu_game", "possession", "period", "start_frame", "end_frame", "start_clock_s",
                       "start_event", "end_event", "offense_team_id", "gap"]
 LABEL = "made"                   # the outcome of a shot: never read, a constant stands in for it
+# Every other column that tells the outcome or is measured at or after it. None is read: the shot chart's text
+# names the result ("made 2-pointer"), the apex and outcome frames come after the release. The frozen cleaning asks
+# for the two frame columns, so a constant stands in for them as for `made`; the feature code never uses them.
+OUTCOME_COLUMNS = {"desc": None, "apex_frame": -1, "outcome_frame": -1, "points": None, "score": None}
 
 
 class BridgeProblem(Exception):
@@ -232,15 +236,19 @@ def _label_free(path, wanted=None) -> pd.DataFrame:
             stats = handle.metadata.row_group(group).column(column).statistics
             if stats is None or not stats.has_null_count or stats.null_count:
                 raise BridgeProblem(f"{Path(path).name}: cannot tell from the footer that no row lacks its outcome")
-    table = pd.read_parquet(path, columns=[c for c in (wanted or names) if c != LABEL and c in names])
+    table = pd.read_parquet(path, columns=[c for c in (wanted or names)
+                                           if c != LABEL and c not in OUTCOME_COLUMNS and c in names])
     table[LABEL] = False
+    for column, constant in OUTCOME_COLUMNS.items():
+        if column in names and constant is not None:
+            table[column] = constant
     return table
 
 
 def load_tables(data_root, game_id: str) -> dict:
-    """The sensor-side tables of the demo game. No outcome column is read: the shot tables come without `made`
-    (a constant stands in, the frozen feature code asks for the column and never uses it), the possessions without
-    points and end_kind."""
+    """The sensor-side tables of the demo game. No outcome column is read: the shot tables come without `made`,
+    the shot chart's text and the apex and outcome frames (constants stand in where the frozen cleaning asks for a
+    column; the feature code never uses them), the possessions without points and end_kind."""
     from analytics.schema import season_of_game
     root, season = Path(data_root), season_of_game(game_id)
     lane = root / "analytics"
@@ -845,24 +853,24 @@ def epv_swap(model: Model, state: State) -> Compared:
 
 
 def ghost_swap(model: Model, state: State) -> Compared:
-    """One item per possession: the mean distance in feet between the real defenders and their ghosts at the
-    GHOST_HORIZON_S horizon, over the ghost rows whose frame lies inside a window, once with every position from
-    the sensor table and once from the broadcast table."""
+    """One item per possession: how far the ghosts move when the model reads broadcast positions instead of sensor
+    positions. Each ghost row (possession, frame, defender) at the GHOST_HORIZON_S horizon is predicted once from
+    the sensor table and once from the broadcast table; the item is the mean distance between the two predictions
+    over the rows whose frame lies inside a window. `sensor` is the reference (0 ft) and `broadcast` and `abs_diff`
+    are that mean distance. Predictions are compared with predictions only: no real defender position at the
+    target frame is read, because the distance from a ghost to the real defender there is the lane's held-out
+    error, which is never computed again (CLAUDE.md rule 4)."""
     tables, sensor, keys = state.tables, state.sensor, ["possession", "frame", "def_player_id"]
 
-    def ghosts(table, x, y, name):
+    def ghosts(table, name):
         rows = model.predictor.predict_ghosts(table, tables["possessions"], state.game_id)
         rows = rows[np.abs(rows["horizon_s"].to_numpy(dtype=float) - GHOST_HORIZON_S) < 0.05]
         out = pd.DataFrame({k: rows[k].to_numpy(dtype=np.int64) for k in keys})
         out[name + "_x"], out[name + "_y"] = rows["ghost_x"].to_numpy(dtype=float), rows["ghost_y"].to_numpy(dtype=float)
-        at = sensor.rows_of(out["frame"].to_numpy(), out["def_player_id"].to_numpy())
-        if (at < 0).any():
-            raise BridgeProblem("ghosting: a ghost row names a defender who has no row in that frame")
-        out[name] = np.hypot(x[at] - out[name + "_x"].to_numpy(), y[at] - out[name + "_y"].to_numpy())
         return out
 
-    a = ghosts(sensor.table, sensor.x, sensor.y, "sensor")
-    b = ghosts(state.broadcast_table, state.x, state.y, "broadcast")
+    a = ghosts(sensor.table, "sensor")
+    b = ghosts(state.broadcast_table, "broadcast")
     stored = stored_predictions(state.data_root, state.game_id, "ghosting")
     stored = stored[np.abs(stored["horizon_s"].to_numpy(dtype=float) - GHOST_HORIZON_S) < 0.05]
     stored = pd.DataFrame({**{k: stored[k].to_numpy(dtype=np.int64) for k in keys},
@@ -874,6 +882,8 @@ def ghost_swap(model: Model, state: State) -> Compared:
     off = np.abs(both[["sensor_x", "sensor_y"]].to_numpy() - both[["ghost_x", "ghost_y"]].to_numpy())
     gap = _same_as_stored("ghosting", float(off.max()) if len(both) else None, len(both))
     pair = a.merge(b, on=keys, how="inner")
+    pair["shift"] = np.hypot(pair["sensor_x"].to_numpy() - pair["broadcast_x"].to_numpy(),
+                             pair["sensor_y"].to_numpy() - pair["broadcast_y"].to_numpy())
     one_side = int(len(a) + len(b) - 2 * len(pair))
     pair["window"] = state.row_window[sensor.rows_of(pair["frame"].to_numpy(), pair["def_player_id"].to_numpy())]
     pair = pair[pair["window"] >= 0]
@@ -884,7 +894,7 @@ def ghost_swap(model: Model, state: State) -> Compared:
         r0, r1 = sensor.rows_between(first, last)
         grid = r0 + np.flatnonzero((sensor.frame[r0:r1] - first) % GHOST_STRIDE == 0)   # the possession's 5 Hz frames
         n, filled = state.fill(grid)
-        s, c = _r(rows["sensor"].mean(), 6), _r(rows["broadcast"].mean(), 6)
+        s, c = 0.0, _r(rows["shift"].mean(), 6)
         out.items.append(S.SwapItem(
             kind="ghosting", window=state.windows[int(np.bincount(rows["window"].to_numpy()).argmax())].name,
             possession=int(possession), key=f"possession-{int(possession)}", t=None,
@@ -895,6 +905,8 @@ def ghost_swap(model: Model, state: State) -> Compared:
 
 
 SWAPS = {"xfg": xfg_swap, "epv": epv_swap, "ghosting": ghost_swap}
+# The tracked copy of the rebuild checks (PLAN.md D49). A model is used only when its check equals its record here.
+TRACKED_CHECKS = REPO_ROOT / "reports" / "export" / "frozen_checks.json"
 
 
 def compare(models: dict, state: State) -> dict:
@@ -908,6 +920,10 @@ def compare(models: dict, state: State) -> dict:
             continue
         if rebuild_check(kind, model.check) is None or not model.check.get("passed"):
             raise BridgeProblem(f"{kind}: a predictor without a passed rebuild check cannot be shown")
+        from export.site_players import _tracked_check
+        why = _tracked_check(TRACKED_CHECKS, kind, model.check)
+        if why:
+            raise BridgeProblem(f"{kind}: {why}")
         out[kind] = SWAPS[kind](model, state)
         if not out[kind].items:
             out[kind].note = f"no {kind} item lies inside a window"
@@ -922,7 +938,8 @@ def _summary(result: Compared) -> S.SwapSummary:
         return S.SwapSummary(kind=kind, n=0, unit=unit, available=False, note=result.note)
     diffs = np.array([item.abs_diff for item in result.items], dtype=float)
     facts = result.facts
-    note = (f"Sensor-side values equal the stored held-out predictions on all {facts['stored_rows']} stored rows of "
+    rows = f"stored {GHOST_HORIZON_S:g} s ghost rows" if kind == "ghosting" else "stored rows"
+    note = (f"Sensor-side predictions equal the stored held-out predictions on all {facts['stored_rows']} {rows} of "
             f"the game: largest gap {facts['stored_gap']:.3g} {unit}, tolerance {TOLERANCE_CAP[kind]:g}.")
     return S.SwapSummary(kind=kind, n=len(diffs), mean_abs_diff=_r(diffs.mean(), 6), median_abs_diff=_r(np.median(diffs), 6),
                          unit=unit, available=True, note=note)
@@ -988,16 +1005,19 @@ def method_statements(state: State, fill: dict, results: dict, max_gap_s: float)
                        if f["states_on_one_side_only"] else ""))
     if not ghost.note:
         f = ghost.facts
-        text.append(f"Ghosting: one item per possession, the mean distance between the real defenders and their "
-                    f"{GHOST_HORIZON_S:g} s ghosts over the ghost rows inside the windows ({f['rows_in_windows']} of "
-                    f"{f['ghost_rows']} rows), an average defense, never the best one. On the broadcast side both "
-                    "the defender and what the model read come from the broadcast table.")
+        text.append(f"Ghosting: one item per possession, how far the {GHOST_HORIZON_S:g} s ghosts (an average "
+                    "defense, never the best one) move when the model reads broadcast positions instead of sensor "
+                    f"positions: the mean distance between the two predicted ghosts over the ghost rows inside the "
+                    f"windows ({f['rows_in_windows']} of {f['ghost_rows']} rows). The sensor side is the reference "
+                    "(0 ft). No real defender position at the predicted moment is read, so the lane's held-out "
+                    "error is not computed again.")
     for result in results.values():
         if result.note:
             text.append(f"{result.kind}: not available. {result.note}")
     text.append("Nothing was fitted, tuned or scored, and no outcome was read: predictions are compared with "
-                "predictions. A sensor-side value that did not equal the stored held-out prediction would have "
-                "stopped the run.")
+                "predictions. A sensor-side prediction that did not equal the stored held-out prediction would have "
+                "stopped the run. Every number in this file and in demo/frames.json is a point estimate: no "
+                "interval is computed for one game.")
     return text
 
 
@@ -1084,9 +1104,10 @@ def scene_plan(state: State, scene: dict, cv_root=None) -> dict:
     late = {w.decode_offset(int(w.frame[i])) for i in range(first, last + 1)}
     if len(late) != 1:
         raise BridgeProblem(f"{scene['id']}: the decode offset changes inside the scene")
-    segment = max([start for start, _ in w.decode if start <= w.frame[first]], default=None)
-    if segment in w.uncalibrated:
-        raise BridgeProblem(f"{scene['id']}: the decode offset of this stretch was never calibrated")
+    segments = {max([start for start, _ in (w.decode or []) if start <= w.frame[i]], default=None)
+                for i in range(first, last + 1)}
+    if segments & set(w.uncalibrated):
+        raise BridgeProblem(f"{scene['id']}: the decode offset of part of this stretch was never calibrated")
     if cv_root is not None and build_folder(state.card["build_dir"]) != "build":
         reference = Path(cv_root) / "build" / f"{w.name}_frames.json"
         if not reference.exists():

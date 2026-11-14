@@ -651,7 +651,7 @@ def test_player_values_come_from_out_of_fold_rows_only(built):
     assert (info["games_with_attempts"], info["games_without_shot_frames"]) == (out_of_fold["sportvu_game"].nunique(), 1)
     note = " ".join(next(m for m in file.metrics if m.metric == "shot_making").notes)
     assert (f"Attempts left out: {info['attempts_left_out']} of 101853 out-of-fold attempts, which come from "
-            f"{info['games_with_attempts']} training games.") in note
+            f"{info['games_with_attempts']} training games (more than the tracked training games") in note
     assert f"{n_filler} belong to 1 training game(s) with no shot_frames table" in note
     assert "200 have a tracked attempt whose shooter the play-by-play name match did not resolve" in note
     assert "no row in their game's shot_frames table" not in note        # a reason with no attempt is not stated
