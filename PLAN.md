@@ -1,5 +1,57 @@
 # PLAN.md: finishing V3
 
+## Morning summary for Lucien (2026-11-14, written by Claude Code)
+
+**Where it stands.** M0 to M7 and M10 are closed on branch v3-finish, each with an independent ml-review and verifier
+pass. Nothing was pushed, merged into main, published or deployed. Every check is green on the real data: npm run
+check (all 13 steps) and the Python fast suite (count in the M11 status line).
+
+**What was built.**
+- export/: the data contract (export/schemas.py), the site export (17 held-out games, 3,162 possessions, 405
+  player pages, scorecard, results) and the demo bridge (broadcast build r23 on 25 windows of the held-out game).
+- tools/: the frozen models were never saved at freeze-v1, so they were rebuilt from the frozen code on training
+  games and kept only because they reproduce every stored held-out prediction exactly (xFG 2,939, EPV 44,703,
+  ghosting 1,741,995; D45, D49). Record: reports/export/frozen_checks.json.
+- web/: the site (home cold open, possession review, prep tab, results, private /talk slides), public and private
+  builds, with checks for copy, reading grade, contrast, data, video and 1,100+ browser tests.
+- Docs: README rewritten, prototype numbers tagged, docs/SCRIPT.md, CLAIMS caveat 4 amendment drafted.
+
+**What the demo shows (an illustration).** Run on broadcast instead of sensor positions, xFG moves 0.032 on average
+(43 shots), EPV 0.026 points (942 states), and the 1.0 s ghosts move 3.30 ft (71 possessions). 48.7 percent of
+player-frames had to be filled from sensor data because the broadcast tracker had no matched box there.
+
+**Things you should know.**
+- PLAN.md's tracking table was wrong in two places; the site follows the files (D43, D52): near-field bias is not
+  met for either build, and the arena line mixed two rows.
+- The camera model was not adopted for the site (D42): r23 is shown, r23_cam beside it as a candidate.
+- Reviews caught real problems that are fixed: the demo once recomputed a held-out ghost error (D58), and the review
+  page once said no model saw these games (the frame gate trained on frames of the PHX game).
+- The Fable usage limit stopped the team at about 02:00; the build continued on Opus 5.5 (D57).
+
+**Self-decided D lines (each with its options and reason below):** D38 reviewer agents; D39 agent team; D40
+untracked files; D41 worktree cleanup; D42 camera model not adopted; D43 site follows the scorecard files; D44
+build outside iCloud; D45 rebuild frozen models; D46 extra tooling; D47 prep definitions and minimum samples; D48
+featured rule; D49 what "reproduces" means; D50 demo constants; D51 shot-making label; D52 corrections; D53 point
+estimates; D54 web toolchain; D55 prototype tags; D56 CLAIMS amendment and SCRIPT approval; D57 usage-limit stop;
+D58 ghosting swap item; D59 web review fixes.
+
+**Waiting for you (reserved by D37).**
+1. Merge v3-finish into main (C3), and set the repository description.
+2. Read and accept or edit: the CLAIMS.md caveat 4 amendment, docs/SCRIPT.md, the site name placeholder ("Pixels to
+   Possessions", D54).
+3. M9 deploy, with two questions only you can settle:
+   - The site data is built from the Drive data, which a GitHub Action cannot reach, so the public build needs
+     prebuilt data (for example built here and published from out/).
+   - The public site as planned ships 5 Hz player positions of 17 SportVU games; the SportVU data is marked "not for
+     redistribution" (docs/DATA_CONTRACT.md). Decide what the public build carries.
+   - The public out/ is about 524 MB in 21,000 files: fine for Pages limits, slow to upload.
+4. Cloudflare Pages and Access for the private site (D29), and who gets access.
+5. M11: your adjustment list, the C14 two-minute test with a real person, C12 load time in real browsers, the tag.
+6. Where things are: worktrees and build data under ~/Developer/nba-v3-worktrees (_site-data, _artifacts,
+   _media-private); rebuild everything with python3 -m export.demo_bridge then python3 -m export.site_data, then
+   npm run build:public or build:private in web/ (CLAUDE.md, Commands).
+
+
 Mode: LOCKED 2026-11-13 19:30 PST. Changes go through a new D line with a reason; build per Milestones in Claude Code.
 Version 15, 2026-11-13 (locked; Parked section added).
 
@@ -154,6 +206,10 @@ M3 Web foundation
   Playwright at 390 and 1280 px.
 DoD: both variants build to out/; check passes; the court draws a real held-out possession matching a Python
 reference frame (snapshot test); out/ served under the Pages base path works locally.
+Status M3 (2026-11-14): closed. Next.js 16.4.6 static export (D54). On the real data: public build 21,167 files,
+523.65 MB; private build 21,233 files, 548.66 MB with 4 clips; npm run check passes all 13 steps; the court matches
+export/court_reference.py within 0.5 px on a real held-out possession (full and half view, Chromium and WebKit, 390
+and 1280); out/ works under /NBA-Comp-Viz-V3. Verifier PASS.
 
 M4 Home and cold open
 - [ASK] Rewrite SCRIPT.md for V3 (D25 scene list); Lucien approves before copy goes in.
@@ -162,6 +218,10 @@ M4 Home and cold open
 - Public variant: still plus request-access note (D21).
 DoD: C6 met; reading grade at most 9 and jargon check pass on the copy; works at 390 and 1280; reduced-motion
 fallback; keyboard reachable; no em dashes.
+Status M4 (2026-11-14): closed. SCRIPT.md approved under D56. C6 met on real data (illustration badge; n 43, 942,
+71; mean absolute difference 0.032, 0.026 points, 3.304 ft; fill share 0.487; every figure checked against
+swap.json by a test). Cold-open grade 2.6 to 7.0, jargon and forbidden-claim checks pass; 390 and 1280 with no
+sideways scroll; reduced motion and keyboard tested; no dashes. Each panel says its values are point estimates.
 
 M5 Possession review (A)
 - Game picker; possession list with filters (result, xFG bucket, featured); possession page with court playback
@@ -170,15 +230,24 @@ M5 Possession review (A)
 - Guided tour across the featured possessions.
 DoD: C8 and C10 met; a script loads every possession's data without error; playback at least 30 fps on a laptop
 (measured); tour completes on phone and laptop.
+Status M5 (2026-11-14): closed. C8 and C10 met (tests). All 3,162 possessions load (240,429 frames, 3.6 s).
+Playback 59.4 redraws a second in headless Chromium at 1280 (not a physical laptop). The tour walks its 10 stops on
+Chromium and WebKit at 390 and 1280. The ml-review blocker (a held-out sentence that overstated) was fixed.
 
 M6 Prep tab (B)
 - Player index (search, sort); player page: shot-making over expected, gravity, rebounding, absence risk, similar
   players; minimum-sample note.
 DoD: C9 met; every metric shows an interval or says it is a point estimate; hidden players counted and stated.
+Status M6 (2026-11-14): closed. 405 player pages, 42 of 447 hidden and stated; every value shows its interval or
+says point estimate; D51 baseline error shown on the player page and in the shot-making sort; absence risk is not
+called an injury forecast.
 
 M7 Results page
 - Tracking scorecard vs Stage 1 targets (C5) and model results (C7), failed models included, links to the reports.
 DoD: C5 and C7 met; values equal the source files (test).
+Status M7 (2026-11-14): closed. Scorecard (r23 adopted, r23_cam candidate on the court rows with paired
+differences) and the 11-lane model table with failed and inconclusive lanes and 4 pending lanes; a browser test
+checks every shown value against scorecard.json and results.json on both builds.
 
 M8 Repo and docs
 - README rewritten (D17 headline, 2-minute top section, links, honest scorecard); PROJECT_SUMMARY and PIPELINE
@@ -186,22 +255,34 @@ M8 Repo and docs
 - [ASK] CLAIMS caveat 4 amendment text (C13).
 - [ASK] Merge v3-finish into main so the default branch shows current work.
 DoD: C3 and C13 met; no unlabelled prototype number in a public doc (grep check).
+Status M8 (2026-11-14): done except the items D37 reserves. README rewritten (D17 headline, short version, honest
+r23 scorecard); PROJECT_SUMMARY and PIPELINE tagged [prototype] (D55) with a test; strategy docs committed; stale
+worktrees removed; CLAIMS caveat 4 amendment drafted and committed for review (D56, C13). Waiting for Lucien: the
+merge of v3-finish into main, and setting the repository description (account settings).
 
 M9 Deploy
 - [ASK] GitHub Actions deploy of the public variant to Pages.
 - [ASK] Cloudflare Pages + Access for the private variant after the free tier is verified; Lucien adds viewers.
 DoD: public URL returns 200 with no video files; private URL requires sign-in; first view under 3 s on both (C12).
+Status M9 (2026-11-14): not started; every item is reserved by D37 (deploying, host and account setup). Facts
+for that step are in the morning summary.
 
 M10 Slides (C4)
 - /talk route in the private site (D35), built from the approved SCRIPT.md; slide copy in content/talk/*.md;
   arrow-key navigation, presenter notes view, at least one slide with a live court playback.
 DoD: C4 met; every number traces to web/data or reports/; /talk absent from the public build (check); runs
 offline from out/ on the private variant.
+Status M10 (2026-11-14): closed. 11 slides on the private build (7 scenes, 4 on how it was built), arrow keys and
+presenter notes, live court on three slides; every number is a token resolved from web/data; /talk returns 404 on
+the public build (test and build guard); every slide loads with no host but 127.0.0.1.
 
 M11 Freeze, polish, acceptance
 - Feature freeze; Lucien's adjustment list worked through; C14 2-minute test with a real person; final check run.
 - [ASK] Tag v3-site-1 and push.
 DoD: C1 to C14 each checked with its evidence named here.
+Status M11 (2026-11-14): waiting for Lucien. The final check ran (npm run check on real data, all steps passed;
+pytest below). Open: his adjustment list, the C14 two-minute test with a real person, C12 load time in a real
+Chrome and Safari after deploy, and the tag and push (D37).
 
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
 
@@ -314,6 +395,7 @@ Self-decided under D37 by Claude Code, starting 2026-11-13 (each one can be reve
 - D56 (self-decided) Two [ASK] items of D30 decided under D37: the CLAIMS.md caveat 4 amendment text (C13) is drafted, dated 2026-11-14, marked for Lucien's review and committed; docs/SCRIPT.md is approved for use as the cold-open copy (M4) after an independent fact check and edit, with its numbers as tokens resolved from web/data. Lucien may rewrite either; neither is published until he merges. Options: wait for Lucien (blocks M4 and C13); decide and mark for review (chosen).
 - D57 (self-decided) The Fable usage limit stopped every teammate at about 02:00 on 2026-11-14; the session continued on Opus 5.5. Teammate work committed before the stop was merged as is (all branches held their commits; site data and writing had already applied their review fixes). The ghosting rebuild was killed with its agent and was restarted detached. Reviews that did not run (bridge, models, web) run at their milestone close instead.
 - D58 (self-decided) The ghosting item of the demo swap is how far the 1.0 s ghosts move when the model reads broadcast positions instead of sensor positions (mean distance between the two predicted ghosts per possession; the sensor side is the 0 ft reference). The first version measured each ghost against the real defender at the predicted moment, which is the lane's held-out error computed again (found by the M1/M2 ml-review); a test now holds that the real position there is never read. The per-possession matched distance in swap.json is a description of the broadcast positions, read under D50 like the scene errors and never used to choose anything. A memory-projection test in tools/ was relaxed by its author after the real EPV run (the gate now reads the projected footprint peak); it is a safety gate, not a correctness check, and the live memory watch still stops a run.
+- D59 (self-decided) Web review fixes (M3 to M7, M10): the forbidden-claim patterns now run over every content file; presenter notes of the talk slides are left out of that one rule because they repeat docs/SCRIPT.md word for word and quote phrases such as "never passes" in the negative. Readouts show stored values only (the EPV readout shows the stored state at or before the time). Headline numbers of the demo are rounded once, in the export, to three decimals; the site never rounds. Options for the notes: edit SCRIPT.md notes; exempt notes from that rule (chosen).
 
 ## Open questions
 - None.
