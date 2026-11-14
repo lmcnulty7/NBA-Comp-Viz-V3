@@ -778,6 +778,10 @@ def test_no_outcome_column_is_read(fx, tmp_path):
     assert not tables["shots"]["made"].any() and not tables["shot_frames"]["made"].any()
     assert fx["game"]["shots"]["made"].any()                    # the labels are on disk; the bridge left them there
     assert not {"points", "end_kind"} & set(tables["possessions"].columns)
+    assert "desc" not in tables["shots"].columns
+    for column in ("apex_frame", "outcome_frame"):
+        if column in tables["shot_frames"].columns:
+            assert (tables["shot_frames"][column] == -1).all()
     for kind, banned in (("xfg", "made"), ("epv", "points_to_end")):
         assert banned not in B.stored_predictions(fx["data_root"], GAME_ID, kind).columns
     assert (tables["shots"]["sportvu_game"] == GAME_ID).all() and tables["shots"]["heldout"].all()

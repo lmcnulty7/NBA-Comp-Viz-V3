@@ -93,6 +93,10 @@ FRAME_COLUMNS = ["game", "period", "frame", "game_clock_s", "shot_clock_s", "n_p
 POSSESSION_COLUMNS = ["sportvu_game", "possession", "period", "start_frame", "end_frame", "start_clock_s",
                       "start_event", "end_event", "offense_team_id", "gap"]
 LABEL = "made"                   # the outcome of a shot: never read, a constant stands in for it
+# Every other column that tells the outcome or is measured at or after it. None is read: the shot chart's text
+# names the result ("made 2-pointer"), the apex and outcome frames come after the release. The frozen cleaning asks
+# for the two frame columns, so a constant stands in for them as for `made`; the feature code never uses them.
+OUTCOME_COLUMNS = {"desc": None, "apex_frame": -1, "outcome_frame": -1, "points": None, "score": None}
 
 
 class BridgeProblem(Exception):
@@ -232,15 +236,19 @@ def _label_free(path, wanted=None) -> pd.DataFrame:
             stats = handle.metadata.row_group(group).column(column).statistics
             if stats is None or not stats.has_null_count or stats.null_count:
                 raise BridgeProblem(f"{Path(path).name}: cannot tell from the footer that no row lacks its outcome")
-    table = pd.read_parquet(path, columns=[c for c in (wanted or names) if c != LABEL and c in names])
+    table = pd.read_parquet(path, columns=[c for c in (wanted or names)
+                                           if c != LABEL and c not in OUTCOME_COLUMNS and c in names])
     table[LABEL] = False
+    for column, constant in OUTCOME_COLUMNS.items():
+        if column in names and constant is not None:
+            table[column] = constant
     return table
 
 
 def load_tables(data_root, game_id: str) -> dict:
-    """The sensor-side tables of the demo game. No outcome column is read: the shot tables come without `made`
-    (a constant stands in, the frozen feature code asks for the column and never uses it), the possessions without
-    points and end_kind."""
+    """The sensor-side tables of the demo game. No outcome column is read: the shot tables come without `made`,
+    the shot chart's text and the apex and outcome frames (constants stand in where the frozen cleaning asks for a
+    column; the feature code never uses them), the possessions without points and end_kind."""
     from analytics.schema import season_of_game
     root, season = Path(data_root), season_of_game(game_id)
     lane = root / "analytics"
@@ -930,7 +938,8 @@ def _summary(result: Compared) -> S.SwapSummary:
         return S.SwapSummary(kind=kind, n=0, unit=unit, available=False, note=result.note)
     diffs = np.array([item.abs_diff for item in result.items], dtype=float)
     facts = result.facts
-    note = (f"Sensor-side values equal the stored held-out predictions on all {facts['stored_rows']} stored rows of "
+    rows = f"stored {GHOST_HORIZON_S:g} s ghost rows" if kind == "ghosting" else "stored rows"
+    note = (f"Sensor-side predictions equal the stored held-out predictions on all {facts['stored_rows']} {rows} of "
             f"the game: largest gap {facts['stored_gap']:.3g} {unit}, tolerance {TOLERANCE_CAP[kind]:g}.")
     return S.SwapSummary(kind=kind, n=len(diffs), mean_abs_diff=_r(diffs.mean(), 6), median_abs_diff=_r(np.median(diffs), 6),
                          unit=unit, available=True, note=note)
@@ -1095,9 +1104,10 @@ def scene_plan(state: State, scene: dict, cv_root=None) -> dict:
     late = {w.decode_offset(int(w.frame[i])) for i in range(first, last + 1)}
     if len(late) != 1:
         raise BridgeProblem(f"{scene['id']}: the decode offset changes inside the scene")
-    segment = max([start for start, _ in w.decode if start <= w.frame[first]], default=None)
-    if segment in w.uncalibrated:
-        raise BridgeProblem(f"{scene['id']}: the decode offset of this stretch was never calibrated")
+    segments = {max([start for start, _ in (w.decode or []) if start <= w.frame[i]], default=None)
+                for i in range(first, last + 1)}
+    if segments & set(w.uncalibrated):
+        raise BridgeProblem(f"{scene['id']}: the decode offset of part of this stretch was never calibrated")
     if cv_root is not None and build_folder(state.card["build_dir"]) != "build":
         reference = Path(cv_root) / "build" / f"{w.name}_frames.json"
         if not reference.exists():
