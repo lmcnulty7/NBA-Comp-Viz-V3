@@ -121,3 +121,26 @@ site/
 # human gate signal files for the autonomous loop (docs/mac_runbook.md)
 gates/
 logs/loop/
+
+# ── V3 finish (PLAN.md, 2026-11-13) ──
+# Claude Code local state: agent worktrees and personal settings (the shared settings and agents are tracked)
+.claude/worktrees/
+.claude/settings.local.json
+# web: dependencies, build output, generated site data (export/site_data.py), private clips, test output
+web/node_modules/
+web/.next/
+web/out/
+web/data/
+web/public/data/
+web/media-private/
+web/test-results/
+web/playwright-report/
+# rebuilt frozen model objects and outputs (tools/frozen_models.py, D45)
+artifacts/
+# local drafts kept out of the repository (D40); the files stay on disk
+docs/STRATEGY_PROPOSALS.md
+docs/DATA_CONTRACT_local_draft.md
+docs/IDEAS.md
+# caches and regenerable screenshots (D40)
+data/gate_sheet/emb_cache_*.pkl
+portfolio/story/shots/
