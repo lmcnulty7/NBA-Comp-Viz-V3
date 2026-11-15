@@ -2,6 +2,11 @@
 
 ## Morning summary for Lucien (2026-11-14, written by Claude Code)
 
+**Update 2026-11-15.** Lucien settled the reserved items in D60 to D65 and Claude Code carried them out (D66, D67):
+v3-finish merged into main (24cab9f) and pushed, the public site live on GitHub Pages without SportVU frame data,
+the private site live on Cloudflare Pages behind Access. M8 and M9 are done (status lines below). Still open: M11
+(Lucien's adjustment list, the C14 two-minute test, C12 load time in real browsers, then the v3-site-1 tag).
+
 **Where it stands.** M0 to M7 and M10 are closed on branch v3-finish, each with an independent ml-review and verifier
 pass. Nothing was pushed, merged into main, published or deployed. Every check is green on the real data: npm run
 check (all 13 steps) and the Python fast suite (count in the M11 status line).
@@ -259,6 +264,12 @@ Status M8 (2026-11-14): done except the items D37 reserves. README rewritten (D1
 r23 scorecard); PROJECT_SUMMARY and PIPELINE tagged [prototype] (D55) with a test; strategy docs committed; stale
 worktrees removed; CLAIMS caveat 4 amendment drafted and committed for review (D56, C13). Waiting for Lucien: the
 merge of v3-finish into main, and setting the repository description (account settings).
+Status M8 (2026-11-15): done (D61, D62). CLAIMS caveat 4 carries the amendment plus the D61 line (3ddf6d0). Before
+the merge, python3 -m tools.check_no_frame_data found no frame data and no clip in the 12,301 tracked files, and
+the 278 commits pushed hold no video, table or SportVU data file and no blob over 5 MB. v3-finish was merged into
+main with a merge commit, 24cab9f (main's one own commit, f726066, was already on v3-finish as ee02210, so the
+merged tree equals v3-finish). On main: pytest 1155 passed, 3 skipped, 65 deselected; npm run check passed all 14
+steps. main and v3-finish pushed; repository description set. C3 and C13 met.
 
 M9 Deploy
 - [ASK] GitHub Actions deploy of the public variant to Pages.
@@ -266,6 +277,17 @@ M9 Deploy
 DoD: public URL returns 200 with no video files; private URL requires sign-in; first view under 3 s on both (C12).
 Status M9 (2026-11-14): not started; every item is reserved by D37 (deploying, host and account setup). Facts
 for that step are in the morning summary.
+Status M9 (2026-11-15): done (D60, D63, D64, D67). Public: the public variant (21,167 files, 471.75 MB, frames step
+clean) is the only content of the orphan gh-pages branch (dddb265, with .nojekyll), served by GitHub Pages at
+https://lmcnulty7.github.io/NBA-Comp-Viz-V3/. Live: 200 on home, review, a game, prep, results, data and stills;
+404 on /talk/ and /clips/; no video file on the branch; sampled live data holds no positions. First view on this
+Mac with an empty cache, median of 3 (largest paint, Chromium and WebKit): home 284 and 324 ms, review 280 and
+231 ms, a game 300 and 320 ms, prep 180 and 179 ms, results 200 and 231 ms (web/scripts/measure-load.mjs).
+Private: Cloudflare Pages project nba-v3-private, packaged by web/scripts/package-cloudflare.mjs to 18,071 files
+(private browser suite on the packaged folder: 609 passed, 31 skipped, 0 failed), deployed only after Access
+answered on both hostnames. https://nba-v3-private.pages.dev and every *.nba-v3-private.pages.dev preview return
+302 to the Access sign-in page (pages, data, clips and /talk/ alike); one allow rule for Lucien's account address,
+one-time PIN only. The private first view cannot be timed from here through Access; it is part of C12 in M11.
 
 M10 Slides (C4)
 - /talk route in the private site (D35), built from the approved SCRIPT.md; slide copy in content/talk/*.md;
@@ -281,7 +303,7 @@ M11 Freeze, polish, acceptance
 - [ASK] Tag v3-site-1 and push.
 DoD: C1 to C14 each checked with its evidence named here.
 Status M11 (2026-11-14): waiting for Lucien. The final check ran (npm run check on real data, all steps passed;
-pytest 1141 passed, 2 skipped, 65 deselected; 866 passed before any change). Open: his adjustment list, the C14 two-minute test with a real person, C12 load time in a real
+pytest 1141 passed, 2 skipped, 65 deselected; 866 passed before any change). Open: Lucien's adjustment list, the C14 two-minute test with a real person, C12 load time in a real
 Chrome and Safari after deploy, and the tag and push (D37).
 
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
@@ -392,7 +414,7 @@ Self-decided under D37 by Claude Code, starting 2026-11-13 (each one can be reve
 - D53 (self-decided) Per-prediction values are point estimates. An xFG for one shot, an EPV for one state and a ghost position have no interval of their own (the frozen lanes store none), so the site labels them point estimates and shows the lane's held-out metric with its interval beside them; this is how M5's "shot marker with xFG and interval" is met. Verdict sentences are copied word for word from the hand-written summary table of reports/results.md and shown as quotes from the write-up; the verdict class and every metric shown beside it come from the generated tables. Options: compute a per-shot interval (a new held-out computation, refused); label as point estimates (chosen).
 - D54 (self-decided) Web toolchain as create-next-app 16.4.6 picks it, pinned exactly: next 16.4.6, react 19.3.0, TypeScript 5.9.3 (7.0 ships no JavaScript compiler API), ESLint 9.39.5 (10 does not support the Node 23 installed here), plus ajv, json-schema-to-typescript and @playwright/test 1.65.1 under D46. Plain CSS, no Tailwind. Fonts (Newsreader, Libre Franklin, IBM Plex Mono, OFL 1.1) self-hosted. Node here is an x86_64 build under Rosetta, so scripts start Python through arch -arm64. The site name "Pixels to Possessions" is a placeholder for Lucien. Why: the combination the framework's own template chooses, proven by a build.
 - D55 (self-decided) Prototype numbers in README.md, PROJECT_SUMMARY.md and PIPELINE.md carry the tag [prototype] on the same line (in a table, the same cell); each labelled file has a dated note; tests/test_public_docs.py enforces it and that no tag is dropped. Options: rewrite the files; tag (chosen). Why: M8's grep check needs a detectable label, and a rewrite would change history the reader may compare against.
-- D56 (self-decided) Two [ASK] items of D30 decided under D37: the CLAIMS.md caveat 4 amendment text (C13) is drafted, dated 2026-11-14, marked for Lucien's review and committed; docs/SCRIPT.md is approved for use as the cold-open copy (M4) after an independent fact check and edit, with its numbers as tokens resolved from web/data. Lucien may rewrite either; neither is published until he merges. Options: wait for Lucien (blocks M4 and C13); decide and mark for review (chosen).
+- D56 (self-decided) Two [ASK] items of D30 decided under D37: the CLAIMS.md caveat 4 amendment text (C13) is drafted, dated 2026-11-14, marked for Lucien's review and committed; docs/SCRIPT.md is approved for use as the cold-open copy (M4) after an independent fact check and edit, with its numbers as tokens resolved from web/data. Lucien may rewrite either; neither is published until Lucien merges. Options: wait for Lucien (blocks M4 and C13); decide and mark for review (chosen).
 - D57 (self-decided) The Fable usage limit stopped every teammate at about 02:00 on 2026-11-14; the session continued on Opus 5.5. Teammate work committed before the stop was merged as is (all branches held their commits; site data and writing had already applied their review fixes). The ghosting rebuild was killed with its agent and was restarted detached. Reviews that did not run (bridge, models, web) run at their milestone close instead.
 - D58 (self-decided) The ghosting item of the demo swap is how far the 1.0 s ghosts move when the model reads broadcast positions instead of sensor positions (mean distance between the two predicted ghosts per possession; the sensor side is the 0 ft reference). The first version measured each ghost against the real defender at the predicted moment, which is the lane's held-out error computed again (found by the M1/M2 ml-review); a test now holds that the real position there is never read. The per-possession matched distance in swap.json is a description of the broadcast positions, read under D50 like the scene errors and never used to choose anything. A memory-projection test in tools/ was relaxed by its author after the real EPV run (the gate now reads the projected footprint peak); it is a safety gate, not a correctness check, and the live memory watch still stops a run.
 - D59 (self-decided) Web review fixes (M3 to M7, M10): the forbidden-claim patterns now run over every content file; presenter notes of the talk slides are left out of that one rule because they repeat docs/SCRIPT.md word for word and quote phrases such as "never passes" in the negative. Readouts show stored values only (the EPV readout shows the stored state at or before the time). Headline numbers of the demo are rounded once, in the export, to three decimals; the site never rounds. Options for the notes: edit SCRIPT.md notes; exempt notes from that rule (chosen).
@@ -401,9 +423,10 @@ Decided by Lucien 2026-11-14 (settling the items D37 reserved):
 - D61 (Lucien) CLAIMS.md caveat 4 keeps the drafted amendment and adds: "The public site carries no SportVU frame data; player positions appear only on the private copy." docs/SCRIPT.md and the name "Pixels to Possessions" are accepted as they are for now.
 - D62 (Lucien) Merge v3-finish into main with a merge commit (no squash) and set the repository description.
 - D63 (Lucien) Public deploy: build on this Mac and publish the built site to a gh-pages branch served by GitHub Pages.
-- D64 (Lucien) Private site: Cloudflare Pages behind Cloudflare Access on Lucien's account; the only allowed email is his Colab and Drive account address, signing in with a one-time code.
+- D64 (Lucien) Private site: Cloudflare Pages behind Cloudflare Access on Lucien's account; the only allowed email is Lucien's Colab and Drive account address, signing in with a one-time code.
 - D65 (Lucien) D60 to D64 lift D37's reservation for these steps only.
 - D66 (self-decided) How D60 was carried out. export/public_data.py writes the public data root from the full one (per-frame arrays emptied, ghosts null, the 780 shot locations measured by tracking removed, demo truth points removed; everything else byte for byte) and the public build runs it itself. The public possession page shows an empty half court with the shot chart mark and the access note in place of playback; the cold open's truth and swap scenes show the still, because both drew sensor positions. The per-possession mean ghost deviation is not shown publicly (ghosts are null there). A frames step in npm run check scans every file of the public out/ for tracks. Options: a second export path; a transform of the full root (chosen, one source of truth).
+- D67 (self-decided) How D64 was carried out. The free Cloudflare Pages plan takes 20,000 files per site; the private build has 21,233. web/scripts/package-cloudflare.mjs copies out/ without __next._full.txt on the 3,162 possession routes, the one payload no client navigation fetches in Chromium or WebKit (18,071 files; the private browser suite passes on the packaged folder). Options: drop all four payloads per possession route (failed, 404s in the tour); keep index.txt and the tree (failed on WebKit); drop only _full (chosen); a paid plan (an account decision). The project was created on classic Pages (wrangler --force) because wrangler 4.162 otherwise routes Pages to Workers, and D64 names Pages. Order: the project was created empty, a one-line placeholder with no data was deployed to confirm Access answered on the production and preview hostnames, and the private build was deployed only after that, so frame data was never served without sign-in. The placeholder preview (preview-check) stays behind Access; it holds no data.
 
 ## Open questions
 - None.
