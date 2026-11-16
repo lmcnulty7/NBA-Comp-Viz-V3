@@ -1,0 +1,131 @@
+# Research dossier: gravity
+
+- Lane: gravity (how close defenders stay to a player beyond what location explains), reports/gravity.md.
+- Date: 2026-11-16.
+- Verdict: the location expectation holds on held-out games, but gravity itself, the residual, has no test of its
+  own, and its only link to outcomes is small (+0.0042 location-only xFG for teammates, training games). Recent work
+  removes the pull of teammates' positions before calling something gravity; ours does not.
+
+## 1. What we built
+
+- Question: how far defenders stay from a player beyond what the player's location explains (reports/gravity.md).
+- Data: 2015-16 SportVU, 7983660 player-frames at 1 Hz from 604 training games; 195015 from 17 held-out games
+  (reports/gravity.md).
+- Model: ridge expectation of nearest-defender distance on the player's location, ball distance, has_ball, zone make
+  rate and clocks; gravity_ft = expected minus actual (positive: defenders closer than location predicts). Gradient
+  boosting fits better (MSE 22.712) and is a diagnostic only (reports/gravity.md, Candidates).
+- Numbers: ridge MSE 28.119 [27.800, 28.452], skill over the constant floor 0.416, out of fold; 29.913, skill 0.434,
+  held out. Top-ten gravity players on the floor: teammates' location-only xFG higher by 0.0042 [0.0009, 0.0074],
+  163 of 290 games positive, p = 0.0198, training games (reports/gravity.md; reports/results.md, gravity).
+
+## 2. Foundations
+
+| paper | link | what we take, and how ours differs |
+| --- | --- | --- |
+| Franks, A., Miller, A., Bornn, L., Goldsberry, K. (2015). Characterizing the spatial structure of defensive skill in professional basketball. Annals of Applied Statistics 9(1), 94-121. | doi:10.1214/14-AOAS799; arXiv:1405.0231 | The canonical defender position as a convex mix of attacker, ball and hoop (section 3): the idea that a defender's distance has an expected part set by the ball and the basket. Ours models the nearest defender's distance with no assignment and a linear expectation. |
+| Keshri, S., Oh, M., Zhang, S., Iyengar, G. (2019). Automatic event detection in basketball using HMM with energy based defensive assignment. Journal of Quantitative Analysis in Sports 15(2), 141-153. | doi:10.1515/jqas-2017-0126 | A player- and location-dependent attraction model, which is a model-based form of gravity built into the assignment. Ours is a residual of a location-only expectation. Full text not read; nothing beyond the abstract is used. |
+| Barron, B., Sitaraman, N., Arias, T. (2025). Analyzing NBA player positions and interactions with density-functional fluctuation theory. Scientific Reports 15, 19830. | doi:10.1038/s41598-025-04953-x | Gravity as the change in local defensive density a specific player causes, compared with a typical player at the same spot and with the same teammate positions, so the pull of the other four attackers is removed ("Player gravity" section). Gravity is location-specific (eight half-court spots, on and off ball). Data: Second Spectrum, 2022-23 up to 20 January 2023, positions within 3 s before a shot. Ours does not condition on teammates and gives one number per player. |
+
+## 3. Benchmark
+
+| our number | published number | paper | what differs | comparability |
+| --- | --- | --- | --- | --- |
+| Expectation skill 0.416 out of fold, 0.434 held out (reports/gravity.md) | none found | none | Barron et al. report density-based "ball equivalents" per location and a location prediction rate for players, not an error for nearest-defender distance. | No published comparable number. |
+| Teammates' location-only xFG +0.0042 [0.0009, 0.0074] with a top-ten gravity player on the floor (reports/gravity.md) | none found | none | Barron et al. check gravity against known scoring patterns of named players, not against an outcome; Keshri et al. give no outcome number we could read. | No published comparable number. |
+
+We found no peer-reviewed paper that ties a tracking-based gravity measure to teammates' shot outcomes with a number
+we could check. The idea of gravity in public writing (ESPN 2014, and NBA and WNBA gravity stats from 2025) is not a
+paper and gives no method we could verify, so it is not used.
+
+## 4. Measured weaknesses (from our reports)
+
+1. Gravity has no accuracy or validity test of its own: only its expectation is scored (reports/gravity.md, Stage 8:
+   "Gravity itself is the residual of this expectation and has no held-out accuracy of its own").
+2. The outcome link is small and narrow: +0.0042 in teammates' location-only xFG, measured only for the top ten
+   players, by an on/off sign test, on training games (reports/gravity.md, Sign test). Location-only xFG measures
+   where teammates shoot, not how open they are.
+3. The expectation leaves structure: gradient boosting on the same features lowers MSE by 5.407 [5.280, 5.555]
+   (reports/gravity.md). Part of what we call gravity is misfit of a linear expectation.
+4. The expectation sees only the player's own location and the ball (reports/gravity.md, Protocol), not the other
+   attackers' positions, so a player's number can carry the pull of his teammates.
+5. Ranks carry no claim: "No known high-gravity player on this input" (reports/gravity.md, Top-decile check).
+
+## 5. Recent work aimed at these weaknesses
+
+- Teammate confounding (weakness 4): Barron et al. 2025 compare a player-specific model with a typical-player
+  model on the same offensive positions, so the difference is not due to where teammates stand. This is the
+  recent method most directly aimed at a measured design gap of ours.
+- Location dependence (weakness 3): Barron et al. find gravity strongly depends on court location; Keshri et al.
+  2019 make attraction player- and location-dependent. A single per-player number with a linear expectation can
+  misread location effects as player effects.
+- Outcome link (weakness 2): no checked paper links gravity to teammates' openness; the experiment below builds
+  that test from our own data rather than from a published design.
+
+## 6. Pre-registered experiments
+
+Shared rules: development games only (the 2015-16 training games that remain after the D71 test set is fixed); 5
+grouped folds by game; paired bootstrap by game, 2000 resamples, 95 percent percentile interval; the result is
+scored once on the D71 test set after the decision; the 17 spent held-out games are never used. A player's gravity
+used to explain a shot is computed without that shot's game (from the other folds), so no game supplies both. No
+player-identifying feature enters the expectation.
+
+### gravity-E1: does gravity open shots for teammates?
+
+- Hypothesis: a teammate's shot is more open (larger nearest-defender distance at release) when the shooter's
+  on-floor teammates have higher gravity, beyond the shot's location and the shooter.
+- Baseline: openness modelled by ridge on shot location features and a shooter term (the gravity-free model); the
+  gravity input comes from the frozen ridge expectation refit with frozen code on development games.
+- Candidate: the baseline plus the sum and the maximum of the on-floor teammates' gravity (out of fold by game).
+- Metric: out-of-fold MSE of nearest-defender distance at release (ft squared). Openness is the mechanism gravity
+  claims, it is measured on every attempt, and it is less noisy than make or miss. Reported beside it: the change in
+  out-of-fold log loss of make with logit(location-only xFG) as an offset.
+- Adoption threshold: candidate minus baseline MSE below zero with the paired interval excluding zero, and an effect
+  of at least 0.2 ft of openness per standard deviation of teammates' gravity sum. If it fails, the site says gravity
+  was tested against teammates' openness and showed no effect of that size.
+- Ablation: the same candidate with each player's raw mean nearest-defender distance in place of gravity (no
+  expectation). It tests whether the location expectation adds anything over raw closeness.
+- Compute: shots on development games joined to release-frame defender distance (the xFG lane's contest features)
+  and to per-player gravity from the gravity tables; Mac CPU, under 1 h under the lock. Estimate, not measured.
+- Risks and failure modes: lineups confound gravity with teammates' skill and team scheme (a shooter term helps, a
+  lineup term may be too sparse); garbage time and transition shots can dominate openness; shots whose shooter has
+  no roster match are dropped (as in the frozen lane); if D71 carves test games from 2015-16, the frozen tables were
+  built on those games and the lead must rebuild them without the test games.
+- What a coach gains: a gravity number that is shown, or shown not, to leave teammates more open, which is the use a
+  coach has for it.
+- Backlog: expected gain 3 (turns weakness 1 into a real test with a sharper outcome than location-only xFG). Effort
+  2 (joins of existing tables and two ridge fits).
+
+### gravity-E2: an expectation that knows where the teammates are
+
+- Hypothesis: adding the other four attackers' positions to the expectation (relative offsets sorted by distance,
+  plus spacing such as hull area; still no identity), in the spirit of Barron et al., gives a gravity that predicts
+  teammates' openness better than the frozen gravity.
+- Baseline: the frozen ridge expectation refit with frozen code on development games, run through E1.
+- Metric: the E1 effect, computed with each gravity. It judges a gravity by the outcome it claims to explain; the
+  expectation's own MSE is reported as a diagnostic only, since a lower MSE can come from fitting the pull itself.
+- Adoption threshold: E1's MSE improvement with the new gravity larger than with the frozen gravity, paired interval
+  excluding zero; and the new gravity must pass E1's own threshold. Run only after E1.
+- Ablation: the same features in gradient boosting. It tests the frozen lane's claim that a flexible expectation
+  absorbs the pull: if boosting gives a gravity with a smaller E1 effect, the claim holds.
+- Compute: ridge on about 8M player-frames with about 20 more columns, one game at a time; 1 to 2 h on the Mac CPU
+  under the lock; boosting ablation 2 to 4 h. Estimates.
+- Risks and failure modes: teammate features can also absorb part of a star's pull (when a star draws two defenders,
+  the help shows in teammates' positions); sorted slots are a crude stand-in for the density model of Barron et al.;
+  the gain may only show if E1 already finds an effect.
+- What a coach gains: a gravity that does not credit a player for the spacing of the four players around him.
+- Backlog: expected gain 2 (aimed at a design gap that recent work names, but the size of the confounding in our
+  data is unknown). Effort 3 (new expectation features and a second pass of E1).
+
+## 7. Sources checked (all fetched 2026-11-16)
+
+- Barron et al. 2025: full text via Europe PMC, https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12141578/fullTextXML
+  (Data and Player gravity sections read; DOI, volume and article number from the same record). PMC page
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC12141578/ returned a browser check and was not read.
+- Franks et al. 2015: https://arxiv.org/abs/1405.0231 and https://arxiv.org/pdf/1405.0231v3 (section 3 read).
+- Keshri et al. 2019: https://econpapers.repec.org/RePEc:bpj:jqsprt:v:15:y:2019:i:2:p:141-153:n:1 (abstract only).
+- Consensus search for off-ball gravity and defensive attention with tracking data (2026-11-16): returned Barron et
+  al., Franks et al., a 2026 systematic review of spatial indicators (Liu et al., Journal of Sports Science and
+  Medicine) and a dissertation; the review and the dissertation were not read at the source and are not cited.
+- Web search for gravity in basketball (2026-11-16): returned journalism and league stat pages, not papers; not used.
+- Dropped: a student executive summary on barycentric gravity (2014-15 data) and a Sloan-style soccer space paper
+  (Fernandez and Bornn 2018) seen only through third-party copies; neither was read at an official source.
