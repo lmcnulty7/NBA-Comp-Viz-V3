@@ -55,6 +55,13 @@ def _test_games(source: str, path=None) -> list:
     return list(_load(path)["sources"][source]["games"])
 
 
+def ingest_pins(source: str = TRACKING, path=None) -> dict:
+    """Game id -> archive git blob sha1 of a source, for tools.research_ingest only: it downloads and converts the
+    test games and checks their bytes. Ingest fits, tunes and scores nothing; no experiment code may call this."""
+    src = _load(path)["sources"][source]
+    return dict(src.get("archive_git_blob_sha1") or {g: None for g in src["games"]})
+
+
 def refuse_test(game_ids, who: str, source: str = TRACKING, path=None) -> int:
     """SystemExit when any id is a test game of the source -> the number of ids checked."""
     ids = {str(g) for g in game_ids}
@@ -78,19 +85,24 @@ def _ledger(path=None) -> list:
 
 
 def score_once(experiment: str, source: str, scorer, testset_path=None, ledger_path=None) -> dict:
-    """The single final scoring call of an experiment: scorer(test_games) -> a JSON-able summary. Refused when the
-    experiment already has a ledger entry. The entry records the experiment, the time, the source and its hash."""
+    """The single final scoring call of an experiment on one source: scorer(test_games) -> a JSON-able summary.
+    Refused when (experiment, source) already has a ledger entry, finished or not. A "started" entry is written
+    before the scorer runs, so a run that crashes still uses up its one score; the entry is completed afterwards."""
+    p = Path(ledger_path or LEDGER_FILE)
     entries = _ledger(ledger_path)
-    if any(e["experiment"] == experiment for e in entries):
-        raise SystemExit(f"{experiment} was already scored on the D71 test set; it is scored once")
+    if any(e["experiment"] == experiment and e["source"] == source for e in entries):
+        raise SystemExit(f"{experiment} was already scored on {source}; each experiment is scored once per source")
     data = _load(testset_path)
     games = list(data["sources"][source]["games"])
-    summary = scorer(games)
-    entries.append({"experiment": experiment, "scored_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-                    "source": source, "sha256": data["sources"][source]["sha256"], "games": len(games),
-                    "summary": summary})
-    p = Path(ledger_path or LEDGER_FILE)
+    entry = {"experiment": experiment, "source": source, "sha256": data["sources"][source]["sha256"],
+             "games": len(games), "started_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+             "status": "started"}
+    entries.append(entry)
     p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(entries, indent=2) + "\n")
+    summary = scorer(games)
+    entry.update(status="scored", scored_at=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+                 summary=summary)
     p.write_text(json.dumps(entries, indent=2) + "\n")
     return summary
 

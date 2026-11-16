@@ -205,7 +205,7 @@ def predict_arms(parts: dict, frame) -> dict:
     p0s, p1s = np.array(p0s), np.array(p1s)
     return {"p_iso": p_iso, "p_cvap": merge_cvap(p0s, p1s), "p_ivap": p1s[0] / (1 - p0s[0] + p1s[0]),
             "lo": _gm(p0s),
-            "hi": np.exp(np.mean(np.log(p1s), axis=0)), "width_folds": np.median(p1s - p0s, axis=0)}
+            "hi": np.exp(np.mean(np.log(p1s), axis=0)), "widths_by_fold": p1s - p0s}
 
 
 # ----------------------------------------------------------------------------- metrics
@@ -221,7 +221,8 @@ def ece_equal_mass(y, p, bins: int = 10) -> float:
 
 def ece_debiased(y, p, bins: int = 10) -> float:
     """Debiased squared calibration error with equal-mass bins (Brocker 2012; Ferro and Fricker 2012, as Roelofs et
-    al. 2022 use it), returned as its square root (0 when the estimate is negative)."""
+    al. 2022 use it): the signed estimate of the squared error (it can be negative when the bias correction exceeds
+    the raw gap, which means no calibration error is detectable)."""
     import numpy as np
     order = np.argsort(p, kind="mergesort")
     total = 0.0
@@ -229,7 +230,7 @@ def ece_debiased(y, p, bins: int = 10) -> float:
         n = len(idx)
         ybar, pbar = float(np.mean(y[idx])), float(np.mean(p[idx]))
         total += n / len(y) * ((ybar - pbar) ** 2 - ybar * (1 - ybar) / max(n - 1, 1))
-    return float(np.sqrt(max(total, 0.0)))
+    return float(total)
 
 
 def ece_noise_floor(p, sims: int = 200, seed: int = SEED) -> dict:
@@ -260,29 +261,63 @@ def paired_by_game(games, a, b, n: int = BOOT, seed: int = SEED) -> dict:
     return {"diff": float(s.sum() / c.sum()), "lo": float(lo), "hi": float(hi), "games": int(len(s)), "resamples": n}
 
 
-def summarize(games, y, arms: dict) -> dict:
-    import numpy as np
+def _arm_metrics(y, p) -> dict:
     from analytics.eval import brier, calibration_slope
-    out = {"shots": int(len(y)), "games": int(len(set(games))), "arms": {}}
+    return {"log_loss": float(per_shot_loss(y, p).mean()), "brier": brier(y, p),
+            "calibration_slope": calibration_slope(y, p), "ece_equal_mass_10": ece_equal_mass(y, p),
+            "ece_debiased_squared_signed": ece_debiased(y, p)}
+
+
+def arm_intervals(games, y, p, n: int = BOOT, seed: int = SEED) -> dict:
+    """95 percent percentile intervals of every per-arm metric from a bootstrap of games (n resamples, seed 0)."""
+    import numpy as np
+    g = np.asarray(games)
+    uniq = np.unique(g)
+    rows = {u: np.flatnonzero(g == u) for u in uniq}
+    rng = np.random.default_rng(seed)
+    vals = {k: [] for k in _arm_metrics(y[:2], p[:2]) }
+    for _ in range(n):
+        idx = np.concatenate([rows[u] for u in rng.choice(uniq, size=len(uniq), replace=True)])
+        m = _arm_metrics(y[idx], p[idx])
+        for k in vals:
+            vals[k].append(m[k])
+    return {k: [float(np.nanpercentile(v, 2.5)), float(np.nanpercentile(v, 97.5))] for k, v in vals.items()}
+
+
+def per_game_t_interval(games, a, b) -> dict:
+    """Sensitivity check fixed before the test score (PLAN.md D80): a t interval on the per-game mean differences
+    a - b, one value per game, for when the games are few."""
+    import numpy as np
+    import pandas as pd
+    from scipy import stats
+    d = pd.DataFrame({"g": games, "d": a - b}).groupby("g")["d"].mean().to_numpy()
+    half = float(stats.t.ppf(0.975, len(d) - 1) * d.std(ddof=1) / np.sqrt(len(d))) if len(d) > 1 else float("nan")
+    return {"mean_of_game_means": float(d.mean()), "lo": float(d.mean() - half), "hi": float(d.mean() + half), "games": int(len(d))}
+
+
+def summarize(games, y, arms: dict, with_intervals: bool = True) -> dict:
+    import numpy as np
+    out = {"shots": int(len(y)), "games": int(len(set(games))), "arms": {}, "arm_intervals_95": {}}
     for name in ("p_iso", "p_cvap", "p_ivap"):
-        p = arms[name]
-        out["arms"][name] = {"log_loss": float(per_shot_loss(y, p).mean()), "brier": brier(y, p),
-                             "calibration_slope": calibration_slope(y, p), "ece_equal_mass_10": ece_equal_mass(y, p),
-                             "ece_debiased": ece_debiased(y, p)}
-    out["ece_noise_floor"] = ece_noise_floor(arms["p_iso"])
-    out["paired_cvap_minus_iso"] = paired_by_game(games, per_shot_loss(y, arms["p_cvap"]), per_shot_loss(y, arms["p_iso"]))
-    out["paired_ivap_minus_iso"] = paired_by_game(games, per_shot_loss(y, arms["p_ivap"]), per_shot_loss(y, arms["p_iso"]))
+        out["arms"][name] = _arm_metrics(y, arms[name])
+        if with_intervals:
+            out["arm_intervals_95"][name] = arm_intervals(games, y, arms[name])
+    out["ece_noise_floor_of_p_iso"] = ece_noise_floor(arms["p_iso"])
+    loss = {k: per_shot_loss(y, arms[k]) for k in ("p_iso", "p_cvap", "p_ivap")}
+    out["paired_cvap_minus_iso_shot_weighted"] = paired_by_game(games, loss["p_cvap"], loss["p_iso"])
+    out["paired_ivap_minus_iso_shot_weighted"] = paired_by_game(games, loss["p_ivap"], loss["p_iso"])
+    out["t_interval_cvap_minus_iso_per_game"] = per_game_t_interval(games, loss["p_cvap"], loss["p_iso"])
     width = arms["hi"] - arms["lo"]
     deciles = np.quantile(arms["p_cvap"], np.linspace(0, 1, 11))
     which = np.clip(np.searchsorted(deciles, arms["p_cvap"], side="right") - 1, 0, 9)
-    out["interval_width"] = {"definition": "GM(p1) - GM(p0) over the 3 inner folds",
+    out["interval_width"] = {"definition": "GM(p1) - GM(p0) over the 3 inner folds (PLAN.md D80)",
                              "median": float(np.median(width)), "p95": float(np.percentile(width, 95)),
                              "max": float(width.max()),
                              "median_by_decile_of_p": [float(np.median(width[which == d])) for d in range(10)],
-                             "per_fold_median_width_median": float(np.median(arms["width_folds"]))}
-    upper = out["paired_cvap_minus_iso"]["hi"]
-    out["verdict"] = {"threshold": THRESHOLD, "upper_95": upper, "adopt": bool(upper <= THRESHOLD),
-                      "point_estimate_rule": bool(out["interval_width"]["p95"] < POINT_ESTIMATE_WIDTH)}
+                             "per_fold_p95": [float(np.percentile(w, 95)) for w in arms["widths_by_fold"]]}
+    upper = out["paired_cvap_minus_iso_shot_weighted"]["hi"]
+    out["verdict"] = {"threshold": THRESHOLD, "upper_95": upper, "passes_threshold": bool(upper <= THRESHOLD),
+                      "width_p95_under_0_01": bool(out["interval_width"]["p95"] < POINT_ESTIMATE_WIDTH)}
     return out
 
 
@@ -301,14 +336,16 @@ def _outer(frame, games, seed: int = SEED):
     from analytics.eval import grouped_folds
     rows = frame[frame["sportvu_game"].astype(str).isin(set(games))].reset_index(drop=True)
     g = rows["sportvu_game"].astype(str)
-    out = {k: np.full(len(rows), np.nan) for k in ("p_iso", "p_cvap", "p_ivap", "lo", "hi", "width_folds")}
+    out = {k: np.full(len(rows), np.nan) for k in ("p_iso", "p_cvap", "p_ivap", "lo", "hi")}
+    out["widths_by_fold"] = np.full((3, len(rows)), np.nan)
     fold = np.full(len(rows), -1)
     for k, (_tr, te) in enumerate(grouped_folds(g.unique(), min(OUTER_FOLDS, g.nunique()), seed)):
         m = g.isin(te).to_numpy()
         parts = fit_parts(rows[~m].reset_index(drop=True), seed)
         arms = predict_arms(parts, rows[m].reset_index(drop=True))
-        for key in out:
+        for key in ("p_iso", "p_cvap", "p_ivap", "lo", "hi"):
             out[key][m] = arms[key]
+        out["widths_by_fold"][:, m] = arms["widths_by_fold"]
         fold[m] = k
         print(f"[research] outer fold {k}: {int(m.sum())} test shots", flush=True)
     out["fold"] = fold
@@ -353,20 +390,21 @@ def dev(artifacts=None) -> dict:
     return out
 
 
-def research_data_root() -> Path:
+def research_data_root(artifacts=None) -> Path:
     """Where tools.research_ingest put the untouched test games in the DATA_ROOT layout: V3_RESEARCH_DATA, else
     _research-data/sportvu_untouched beside the artifacts folder."""
     import os
     named = os.environ.get("V3_RESEARCH_DATA")
-    return Path(named).expanduser().resolve() if named else artifacts_dir().parent / "_research-data" / "sportvu_untouched"
+    return (Path(named).expanduser().resolve() if named
+            else artifacts_dir(artifacts).parent / "_research-data" / "sportvu_untouched")
 
 
-def test_features(test_games):
+def test_features(test_games, artifacts=None):
     """The frozen xFG features of the given games, built with the frozen code from the research data root. Called
     only inside the final scoring call, with the games score_once hands it."""
     from analytics.xfg import train as T
     from analytics.xfg import validate as V
-    root = research_data_root()
+    root = research_data_root(artifacts)
     tables, _summaries = V.clean(V.load_data_root(root, "2015-16"))
     rows, held = T.assemble(tables)
     if len(held):
@@ -388,9 +426,11 @@ def final(artifacts=None) -> dict:
     parts = fit_parts(rows)
 
     def scorer(test_games):
-        test = test_features(test_games)
+        test = test_features(test_games, artifacts)
         arms = predict_arms(parts, test)
         return {"experiment": "xfg-E1", "stage": "fitted on every development game, scored once on the D71 test set",
+                "has_contest_share": {"test": float(test["has_contest"].mean()),
+                                      "development": float(rows["has_contest"].mean())},
                 **summarize(test["sportvu_game"].astype(str).to_numpy(), test["made"].astype(int).to_numpy(), arms)}
 
     out = score_once("xfg-E1", TRACKING, scorer)

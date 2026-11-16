@@ -59,6 +59,63 @@ def test_no_experiment_code_opens_the_test_set_or_names_a_test_game():
     assert problems == []
 
 
+# Names that reach the test games' data. Allowed only where they are defined or in the ingest tool.
+TEST_DATA_NAMES = ("research_data_root", "test_features", "_research-data", "sportvu_untouched", "V3_RESEARCH_DATA",
+                   "R._load", "import _load", "ingest_pins")
+ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
+           "tools/research_xfg.py": ("research_data_root", "test_features", "_research-data", "sportvu_untouched",
+                                     "V3_RESEARCH_DATA")}
+
+
+def test_only_named_places_reach_the_test_games_data():
+    problems = []
+    for path in experiment_files():
+        rel = str(path.relative_to(REPO))
+        text = path.read_text()
+        for name in TEST_DATA_NAMES:
+            if name in text and name not in ALLOWED.get(rel, ()):
+                problems.append(f"{rel} uses {name}")
+    assert problems == []
+
+
+def test_test_features_is_called_only_inside_the_scorer_given_to_score_once():
+    tree = ast.parse((REPO / "tools" / "research_xfg.py").read_text())
+    scorers = {a.id for n in ast.walk(tree) if isinstance(n, ast.Call)
+               and getattr(n.func, "id", None) == "score_once" for a in n.args if isinstance(a, ast.Name)}
+    problems = []
+    for fn in (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)):
+        calls = [c for c in ast.walk(fn) if isinstance(c, ast.Call) and getattr(c.func, "id", None) == "test_features"]
+        inner = {c for g in ast.walk(fn) if isinstance(g, ast.FunctionDef) and g is not fn for c in ast.walk(g)}
+        for c in calls:
+            if c not in inner and fn.name not in scorers:
+                problems.append(f"test_features called in {fn.name}")
+    for fn in (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name != "test_features"):
+        if any(isinstance(c, ast.Call) and getattr(c.func, "id", None) == "research_data_root" for c in ast.walk(fn)):
+            problems.append(f"research_data_root called in {fn.name}")
+    assert scorers and problems == []
+
+
+def test_score_once_is_never_aliased_or_reached_by_name():
+    problems = []
+    for path in experiment_files():
+        text = path.read_text()
+        if "score_once as" in text or '"score_once"' in text or "'score_once'" in text:
+            problems.append(str(path.relative_to(REPO)))
+    assert problems == []
+
+
+def test_the_scoring_ledger_only_grows():
+    import subprocess
+    head = subprocess.run(["git", "show", "HEAD:reports/research/scoring_ledger.json"], cwd=REPO,
+                          capture_output=True, text=True)
+    if head.returncode != 0:
+        return                                   # no ledger committed yet
+    before = json.loads(head.stdout)
+    now = json.loads(R.LEDGER_FILE.read_text()) if R.LEDGER_FILE.exists() else []
+    keys = lambda es: [(e["experiment"], e["source"], e.get("started_at")) for e in es]
+    assert keys(now)[: len(before)] == keys(before), "a committed ledger entry was removed or changed"
+
+
 def test_each_experiment_module_has_at_most_one_final_scoring_call_and_it_is_not_in_a_loop():
     problems = []
     for path in experiment_files():
@@ -84,6 +141,11 @@ def tiny(tmp_path):
     return path, games
 
 
+def test_only_the_ingest_tool_calls_ingest_pins():
+    users = [p.relative_to(REPO) for p in experiment_files() if "ingest_pins" in p.read_text()]
+    assert [str(u) for u in users] in ([], ["tools/research_ingest.py"])
+
+
 def test_refuse_test_and_dev_games_keep_test_games_out(tiny):
     path, games = tiny
     with pytest.raises(SystemExit):
@@ -100,7 +162,22 @@ def test_score_once_scores_each_experiment_once(tiny, tmp_path):
     assert out == {"n": 2} and seen == [games]
     with pytest.raises(SystemExit):
         R.score_once("x-E1", R.TRACKING, lambda g: {"n": 0}, path, ledger)
-    assert len(json.loads(ledger.read_text())) == 1
+    entries = json.loads(ledger.read_text())
+    assert len(entries) == 1 and entries[0]["status"] == "scored"
+
+
+def test_a_crashed_scoring_run_still_uses_up_its_score(tiny, tmp_path):
+    path, _games = tiny
+    ledger = tmp_path / "ledger.json"
+
+    def crash(_g):
+        raise RuntimeError("boom")
+
+    with pytest.raises(RuntimeError):
+        R.score_once("x-E2", R.TRACKING, crash, path, ledger)
+    assert json.loads(ledger.read_text())[0]["status"] == "started"
+    with pytest.raises(SystemExit):
+        R.score_once("x-E2", R.TRACKING, lambda g: {}, path, ledger)
 
 
 def test_an_edited_test_set_is_refused(tiny):
