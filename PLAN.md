@@ -316,6 +316,27 @@ in Chromium and WebKit, C12 is counted met. Open: the C14 two-minute test.
 Status M11 (2026-11-16): closed except C14, which Lucien deferred (D69). Every other criterion of C1 to C14 is met
 with its evidence in the milestone status lines above.
 
+## Research after V3 (D70 to D81, branch v4-research)
+
+R1 Test set (D71, D77). Status (2026-11-16): done. reports/research/testset.json (4b76ab33), fixed and hashed before any
+result: Set A, the 10 untouched 2015-12-05 games (a misnamed upload the frozen parser skipped; docs/research/DATA.md),
+Set B, 10 Liga ACB 2025-26 games (out-of-distribution check), and the 2025-26 season pending for the play-by-play
+lanes (D79). tools/research_testset.py is the only door; its guard tests fail on any other read, a second score or an
+edited ledger. Set A ingested by tools/research_ingest.py (archive hashes checked, frozen conversion, 20
+basketball-reference pages under D78; outcome files sealed, D81).
+R2 Dossiers (D70, D74). Status (2026-11-16): done (772564e9). docs/research/<lane>.md for the 11 lanes and the broadcast
+tracking pipeline: foundations, benchmark with comparability, measured weaknesses, recent work, 23 pre-registered
+proposals plus the pilot; every citation fetched at the source, unverifiable claims dropped and listed.
+docs/research/BACKLOG.md ranks them; top three argued: decisions-E1, winprob-E1, lineups-E1.
+R3 Pilot xfg-E1 (cross Venn-Abers). Status (2026-11-16): done, not adopted. Gate reproduced the frozen out-of-fold
+predictions (2.97e-8); development games (607): CVAP minus isotonic -0.00052 [-0.00081, -0.00024], passes; Set A
+(10 games, scored once): +0.00067 [-0.00133, +0.00229], fails the +0.0005 bound, inconclusive at 10 games (D80).
+Interval width p95 0.0077 and 0.0062: xFG stays a point estimate. reports/research/xfg-E1.md. Closed with the
+ml-reviewer before and after the score (PASS, majors settled in D80, D81), /code-review (fixes in f8bb108a, dc463e97),
+and the verifier (PASS, pytest 1201 passed, 2 skipped, 65 deselected).
+R5 Refresh process. Status (2026-11-16): done. docs/research/REFRESH.md: sources (links checked), queries, triage,
+dated log; a monthly schedule is proposed and not created (needs Lucien's yes, D73).
+
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
 
 ## Parked (not in scope; each needs Lucien's yes and a D line before any work)
