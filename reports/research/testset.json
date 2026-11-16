@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "fixed_on": "2026-11-16",
+  "decision": "PLAN.md D71, D77",
+  "rule": "Truly untouched data only, fixed before any experiment result existed. Each experiment is scored once per source through tools.research_testset.score_once.",
+  "sources": {
+    "sportvu_2015_16_untouched": {
+      "role": "the scoring set of every tracking lane (in distribution)",
+      "origin": "github.com/linouk23/NBA-Player-Movements data/2016.NBA.Raw.SportVU.Game.Logs at commit f7d4cf2c7e607029abfd5715a0d4073bedae328e; stored under names with a stray folder prefix, so the frozen parser never read them (docs/research/DATA.md)",
+      "games": [
+        "12.05.2015.BOS.at.SAS",
+        "12.05.2015.CHA.at.CHI",
+        "12.05.2015.CLE.at.MIA",
+        "12.05.2015.DEN.at.PHI",
+        "12.05.2015.GSW.at.TOR",
+        "12.05.2015.IND.at.UTA",
+        "12.05.2015.NYK.at.MIL",
+        "12.05.2015.ORL.at.LAC",
+        "12.05.2015.POR.at.MIN",
+        "12.05.2015.SAC.at.HOU"
+      ],
+      "archive_git_blob_sha1": {
+        "12.05.2015.BOS.at.SAS": "cc37c5c2cba022c64c5e11a1bab3dd6f63c02d48",
+        "12.05.2015.CHA.at.CHI": "19823e860fc32b36d43ebe997c03fad533ff4722",
+        "12.05.2015.CLE.at.MIA": "44c0f1287082ece4e9f82e7a5412c2389ea427fc",
+        "12.05.2015.DEN.at.PHI": "e753686364ccf497583f35fc116f35486e9d17f9",
+        "12.05.2015.GSW.at.TOR": "ca535614ef883ceaf7346d42673da3f1b58f1365",
+        "12.05.2015.IND.at.UTA": "74ef1051ede87a78f091bdda8f35eb97f9b8669f",
+        "12.05.2015.NYK.at.MIL": "91183499a95838a5387e073227a034de5958e9ca",
+        "12.05.2015.ORL.at.LAC": "3bbb6fd176cab93e7a284ec4c89f69969b6e7161",
+        "12.05.2015.POR.at.MIN": "ba31bb86be48a75b18c33fc798d65776190907e3",
+        "12.05.2015.SAC.at.HOU": "13e7d16ad20a1483bdb5ebffef32dea357e88271"
+      },
+      "sha256": "4f70c95d5fae88d464049d30433fd96221aa41230ad631d091167fb0e503ccc3"
+    },
+    "skillcorner_acb_2025_26": {
+      "role": "out-of-distribution check (Liga ACB 2025-26 broadcast tracking, FIBA rules); reported beside the verdict, never the adoption test",
+      "origin": "github.com/SkillCorner/opendata-basketball data/matches at commit 4bbed2e35e8fdd2cf083e8c8b280b3e5381a2c66 (MIT License file)",
+      "games": [
+        "114086",
+        "114099",
+        "114169",
+        "114234",
+        "114243",
+        "178442",
+        "179612",
+        "184439",
+        "188630",
+        "191313"
+      ],
+      "sha256": "588774e1dede6033d267b8233be177a68267e44523ce5f565259ca3ad3e03e05"
+    }
+  },
+  "pending": {
+    "pbp_2025_26": "every 2025-26 NBA regular season game, for the play-by-play lanes (lineups, winprob). The game list is hashed into sources when its source is settled (docs/research/DATA.md flags the Sports Reference terms); no play-by-play experiment runs before that."
+  }
+}
