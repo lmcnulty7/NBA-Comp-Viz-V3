@@ -387,8 +387,9 @@ experiments whose adoption bar was fixed before they ran. Failed and negative re
 page of the site shows the same content in full; `export/research_methods.py` checks every quote against its
 dossier and every number of ours against its report before the page is built. Every proposal, ranked by expected
 gain over effort, is in [docs/research/BACKLOG.md](docs/research/BACKLOG.md). An experiment is first run on the
-training games and, if it clears its bar there, scored once on a test set fixed and hashed before any experiment
-ran (`reports/research/testset.json`); the held-out games of the frozen models are never scored again.
+training games, then scored once on a test set fixed and hashed before any experiment ran
+(`reports/research/testset.json`), and is adopted only if it clears its bar on both; the held-out games of the
+frozen models are never scored again.
 
 | Lane | Built on | Our number next to the published one | Experiments |
 | --- | --- | --- | --- |

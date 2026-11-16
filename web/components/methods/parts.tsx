@@ -165,5 +165,9 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
 
 /** The plain label of an experiment's state, as a status mark. */
 export function ExperimentStatus({ experiment }: { experiment: Experiment }) {
-  return <Status tone={STATUS_TONE[experiment.status]} text={label(text.status, experiment.status)} />;
+  return (
+    <span className={styles.state}>
+      <Status tone={STATUS_TONE[experiment.status]} text={label(text.status, experiment.status)} />
+    </span>
+  );
 }
