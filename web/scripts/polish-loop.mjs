@@ -3,7 +3,7 @@
 //
 //   baseline   score the checked-out site --repeat times per variant, after npm run check, and write
 //              baseline-<variant>.json (the reference for the cost and the noise) into --dir
-//   start      make the loop branch polish/<run> from --base and write its baseline into polish-runs/<run>
+//   start      make the loop branch polish/<run>/loop from --base and write its baseline into polish-runs/<run>
 //   candidate  one proposed change, as a patch: a branch polish/<run>/cNNN from the loop branch, the patch applied
 //              and refused if it touches a protected path (lib/polish-guard.mjs), committed, checked and scored per
 //              variant against the best site so far, kept (the loop branch moves to it) or rejected, and logged
@@ -139,7 +139,9 @@ async function start(argv) {
   const run = option(argv, "--run");
   const dir = runDir(run);
   if (existsSync(path.join(dir, "state.json"))) fail(`run ${run} exists already`);
-  const branch = `polish/${run}`;
+  // The loop branch and its candidates are siblings (polish/<run>/loop, polish/<run>/c001): git cannot hold a
+  // branch polish/<run> beside branches under polish/<run>/.
+  const branch = `polish/${run}/loop`;
   const base = option(argv, "--base", "HEAD");
   const baseCommit = git(["rev-parse", base]).out;
   git(["switch", "-c", branch, baseCommit]);
@@ -182,7 +184,7 @@ async function candidate(argv) {
   if (!message) fail("--message says what the change does");
 
   const id = `c${String(state.next).padStart(3, "0")}`;
-  const branch = `${state.branch}/${id}`;
+  const branch = `polish/${state.run}/${id}`;
   state.next += 1;
   writeJson(stateFile, state);
   const entry = { event: "candidate", id, branch, message, patch: path.basename(patch) };

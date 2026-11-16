@@ -85,7 +85,7 @@ Every command but `status` builds the site and drives browsers, so it runs under
 root of a worktree outside iCloud, one command per lock. Real data: `SITE_DATA_DIR` and `MEDIA_PRIVATE_DIR` name
 the shared data and clips folders of the worktrees.
 
-    # once, on the merged site: a run branch polish/<run> and its baseline (3 scored runs per variant)
+    # once, on the merged site: a loop branch polish/<run>/loop and its baseline (3 scored runs per variant)
     python3 -m export.heavy --name "polish start" -- node web/scripts/polish-loop.mjs start --run r1 --base v3-finish
 
     # per proposed change: a patch (git diff) made by a proposer outside the repository
