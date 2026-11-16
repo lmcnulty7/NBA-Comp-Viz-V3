@@ -77,6 +77,11 @@ the shooter prior, which a league-average shot quality leaves out by design.
 
 ### xfg-E1: cross Venn-Abers calibration for a per-shot interval (the pilot)
 
+**Result (2026-11-16, reports/research/xfg-E1.md): not adopted.** Development games: CVAP minus isotonic -0.00052
+[-0.00081, -0.00024], passes. Test set (10 untouched games, scored once): +0.00067 [-0.00133, +0.00229], fails the
++0.0005 bound; inconclusive at 10 games (PLAN.md D80). Interval width p95 0.0077 and 0.0062, so xFG stays a point
+estimate on the site. The pre-registration below is unchanged.
+
 - Hypothesis. Replacing the frozen inner isotonic step of hgb_contest_prior by a cross Venn-Abers predictor (CVAP)
   on the same three inner folds keeps log loss (non-inferior) and gives every shot an interval (p0, p1); the
   log-minimax merge replaces the [0.02, 0.98] clip.

@@ -14,7 +14,7 @@ Set B (10 Liga ACB games) as an out-of-distribution check, and the 2025-26 NBA s
 | 4 | winprob-E1 | winprob | pregame strength from Elo as Stern's drift term, no odds | 4 | 2 | 2.0 | 2025-26 season | proposed |
 | 5 | rebounds-E1 | rebounds | a temperature and an offset per candidate type | 2 | 1 | 2.0 | Set A | proposed |
 | 6 | winprob-E2 | winprob | a forward-in-time temperature for the over-confidence | 2 | 1 | 2.0 | 2025-26 season | proposed |
-| 7 | xfg-E1 | xfg | cross Venn-Abers in place of the inner isotonic step | 3 | 2 | 1.5 | Set A | the pilot: passed on development games (reports/research/xfg-E1-dev.json); test score pending |
+| 7 | xfg-E1 | xfg | cross Venn-Abers in place of the inner isotonic step | 3 | 2 | 1.5 | Set A | done: not adopted (passed on development games, inconclusive on the 10-game test set; reports/research/xfg-E1.md) |
 | 8 | ghosting-E1 | ghosting | rollout training of the same network | 3 | 2 | 1.5 | Set A | proposed |
 | 9 | gravity-E1 | gravity | does gravity open shots for teammates | 3 | 2 | 1.5 | Set A | proposed |
 | 10 | tracking-E1 | tracking | team labels from tracklet embeddings | 3 | 2 | 1.5 | needs synced video beyond the 4 development games (docs/research/P8_FEASIBILITY.md) | proposed |
