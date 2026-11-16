@@ -59,7 +59,12 @@ def ingest_pins(source: str = TRACKING, path=None) -> dict:
     """Game id -> archive git blob sha1 of a source, for tools.research_ingest only: it downloads and converts the
     test games and checks their bytes. Ingest fits, tunes and scores nothing; no experiment code may call this."""
     src = _load(path)["sources"][source]
-    return dict(src.get("archive_git_blob_sha1") or {g: None for g in src["games"]})
+    pins = dict(src.get("archive_git_blob_sha1") or {})
+    if sorted(pins) != sorted(src["games"]):
+        raise SystemExit(f"{source}: the archive pins do not name exactly the committed test games")
+    if src.get("pins_sha256") and list_hash(f"{g} {pins[g]}" for g in pins) != src["pins_sha256"]:
+        raise SystemExit(f"{source}: the archive pins do not match their sha256; the pins were edited")
+    return pins
 
 
 def refuse_test(game_ids, who: str, source: str = TRACKING, path=None) -> int:
@@ -99,12 +104,19 @@ def score_once(experiment: str, source: str, scorer, testset_path=None, ledger_p
              "status": "started"}
     entries.append(entry)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(entries, indent=2) + "\n")
+    _write_atomic(p, entries)
     summary = scorer(games)
     entry.update(status="scored", scored_at=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
                  summary=summary)
-    p.write_text(json.dumps(entries, indent=2) + "\n")
+    _write_atomic(p, entries)
     return summary
+
+
+def _write_atomic(path: Path, entries: list) -> None:
+    import os
+    part = path.with_name(path.name + ".part")
+    part.write_text(json.dumps(entries, indent=2) + "\n")
+    os.replace(part, path)
 
 
 def main(argv=None) -> int:

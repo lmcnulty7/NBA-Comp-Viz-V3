@@ -31,7 +31,8 @@
         "12.05.2015.POR.at.MIN": "ba31bb86be48a75b18c33fc798d65776190907e3",
         "12.05.2015.SAC.at.HOU": "13e7d16ad20a1483bdb5ebffef32dea357e88271"
       },
-      "sha256": "4f70c95d5fae88d464049d30433fd96221aa41230ad631d091167fb0e503ccc3"
+      "sha256": "4f70c95d5fae88d464049d30433fd96221aa41230ad631d091167fb0e503ccc3",
+      "pins_sha256": "1651787e6cfbc7607ad214eb0e0c403ca8b89f87bd5a838a22e7ad5aa1be87d6"
     },
     "skillcorner_acb_2025_26": {
       "role": "out-of-distribution check (Liga ACB 2025-26 broadcast tracking, FIBA rules); reported beside the verdict, never the adoption test",

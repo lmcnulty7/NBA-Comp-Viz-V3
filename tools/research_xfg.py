@@ -391,12 +391,18 @@ def dev(artifacts=None) -> dict:
 
 
 def research_data_root(artifacts=None) -> Path:
-    """Where tools.research_ingest put the untouched test games in the DATA_ROOT layout: V3_RESEARCH_DATA, else
-    _research-data/sportvu_untouched beside the artifacts folder."""
+    """Where tools.research_ingest put the untouched test games in the DATA_ROOT layout: V3_RESEARCH_DATA, else the
+    ingest tool's own default (one constant, so the two can never disagree). `artifacts` is accepted for symmetry."""
     import os
+    from tools.research_ingest import DEFAULT_ROOT
     named = os.environ.get("V3_RESEARCH_DATA")
-    return (Path(named).expanduser().resolve() if named
-            else artifacts_dir(artifacts).parent / "_research-data" / "sportvu_untouched")
+    return Path(named).expanduser().resolve() if named else DEFAULT_ROOT
+
+
+def test_root_ready(artifacts=None) -> bool:
+    """Whether the ingest has run (the manifest file exists). Checks a path only and reads nothing, so final() can
+    refuse before score_once spends the one score."""
+    return (research_data_root(artifacts) / "sportvu_contract" / "manifest.json").exists()
 
 
 def test_features(test_games, artifacts=None):
@@ -423,6 +429,8 @@ def final(artifacts=None) -> dict:
     frame = _features(artifacts)
     games = dev_games(frame["sportvu_game"].astype(str).unique(), WHO)
     rows = frame[frame["sportvu_game"].astype(str).isin(set(games))].reset_index(drop=True)
+    if not test_root_ready(artifacts):
+        raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
     parts = fit_parts(rows)
 
     def scorer(test_games):

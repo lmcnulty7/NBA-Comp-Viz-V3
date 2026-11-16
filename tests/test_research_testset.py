@@ -89,7 +89,11 @@ def test_test_features_is_called_only_inside_the_scorer_given_to_score_once():
         for c in calls:
             if c not in inner and fn.name not in scorers:
                 problems.append(f"test_features called in {fn.name}")
-    for fn in (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name != "test_features"):
+    ready = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "test_root_ready")
+    body = [b for b in ready.body if not (isinstance(b, ast.Expr) and isinstance(b.value, ast.Constant))]
+    assert len(body) == 1 and isinstance(body[0], ast.Return) and body[0].value.func.attr == "exists"
+    for fn in (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+               and n.name not in ("test_features", "test_root_ready")):
         if any(isinstance(c, ast.Call) and getattr(c.func, "id", None) == "research_data_root" for c in ast.walk(fn)):
             problems.append(f"research_data_root called in {fn.name}")
     assert scorers and problems == []
@@ -187,3 +191,18 @@ def test_an_edited_test_set_is_refused(tiny):
     path.write_text(json.dumps(data))
     with pytest.raises(SystemExit):
         R.refuse_test(["11.09.2015.ZZZ.at.YYY"], "t", path=path)
+
+
+def test_ingest_pins_must_name_exactly_the_test_games_and_match_their_hash(tmp_path):
+    games = ["11.01.2015.AAA.at.BBB", "11.02.2015.CCC.at.DDD"]
+    pins = {games[0]: "a" * 40, games[1]: "b" * 40}
+    good = {"games": games, "sha256": R.list_hash(games), "archive_git_blob_sha1": pins,
+            "pins_sha256": R.list_hash(f"{g} {pins[g]}" for g in pins)}
+    path = tmp_path / "t.json"
+    path.write_text(json.dumps({"sources": {R.TRACKING: good}}))
+    assert R.ingest_pins(path=path) == pins
+    for broken in ({**good, "archive_git_blob_sha1": {games[0]: "a" * 40}},
+                   {**good, "archive_git_blob_sha1": {**pins, games[1]: "c" * 40}}):
+        path.write_text(json.dumps({"sources": {R.TRACKING: broken}}))
+        with pytest.raises(SystemExit):
+            R.ingest_pins(path=path)
