@@ -4,13 +4,14 @@
 
 It reads the frozen models' stored outputs under the data root and the reports of this repository, and writes the
 files of the contract (export/schemas.py): games/<slug>/<possession>.json and games/<slug>/possessions.json for the
-held-out games, players.json, scorecard.json, results.json and, last, manifest.json. Then it validates the whole
+held-out games, players.json, scorecard.json, results.json, methods.json (export/research_methods.py, from
+reports/research/methods.json and the result files beside it) and, last, manifest.json. Then it validates the whole
 tree with export.schemas.validate_tree and exits non-zero on any problem. Nothing is fitted, tuned or scored.
 
   --out        the data root to write (default web/data)
   --data       the folder that holds sportvu_contract/, analytics/ and collect/ (default: the DATA_ROOT variable)
   --artifacts  rebuilt frozen outputs (default: the V3_ARTIFACTS variable, else artifacts/)
-  --only       a subset of the steps games, players, scorecard, results; the manifest is always rewritten
+  --only       a subset of the steps games, players, scorecard, results, methods; the manifest is always rewritten
   --games      a subset of the held-out games, by id or slug, for a quick run into a scratch folder
   --swaps      a json list of featured possessions picked by hand (PLAN.md D48, D52); each is marked as hand-picked
   --summary    also write what the run reports (counts, picks, sizes, problems) to this json file
@@ -39,14 +40,15 @@ from export import schemas as S
 from export import site_common as C
 from export import site_games
 from export import site_players
+from export import research_methods
 from export import site_reports
 from tools.frozen_common import artifacts_dir
 
 SCORECARD_BUILD = "r23"        # the adopted tracking build (PLAN.md D5, D42); change this line to reverse D42
 CANDIDATE_BUILD = "r23_cam"    # measured and not adopted: shown beside the adopted build with its paired differences
-STEPS = ("games", "players", "scorecard", "results")
+STEPS = ("games", "players", "scorecard", "results", "methods")
 DEMO_FILES = S.STAGED_FILES    # written by export/demo_bridge.py: never written or removed here, may be absent
-FIXED_FILES = ("players.json", "scorecard.json", "results.json") + DEMO_FILES
+FIXED_FILES = ("players.json", "scorecard.json", "results.json", "methods.json") + DEMO_FILES
 
 ExportProblem = C.ExportProblem
 
@@ -250,7 +252,7 @@ def run(out, data_root=None, artifacts=None, only=None, games=None, log=print, a
         t0 = time.time()
         try:
             info[name] = body()
-        except ExportProblem as exc:
+        except (ExportProblem, research_methods.MethodsProblem) as exc:
             problems.append(f"{name}: {exc}")
             log(f"PROBLEM in {name}: {exc}")
         except ValueError as exc:                     # a value the contract refuses (pydantic) is a problem too
@@ -297,10 +299,18 @@ def run(out, data_root=None, artifacts=None, only=None, games=None, log=print, a
         C.write_model(out, "scorecard.json", file)
         return {"builds": {b.build: [row.key for row in b.rows] for b in file.builds}, "paired": len(file.paired)}
 
+    def methods():
+        file = research_methods.build_methods()
+        C.write_model(out, "methods.json", file)
+        return {"lanes": len(file.lanes),
+                "experiments": {e.id: e.status for lane in file.lanes for e in lane.experiments if e.status !=
+                                "pre_registered"}}
+
     step("games", lambda: run_games(data_root, artifacts, out, games, log, read_swaps(swaps) if swaps else ()))
     step("players", players)
     step("scorecard", scorecard)
     step("results", results)
+    step("methods", methods)
 
     try:
         manifest = build_manifest(out, fixture_root)

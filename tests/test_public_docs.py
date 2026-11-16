@@ -220,6 +220,11 @@ README_NUMBERS = (
      "| 0.1486; log loss 0.4879 [0.4700, 0.5077] | works; held-out slightly worse and slightly over-confident |"),
     ("| 0.5164; 0.2776 | absence works; decline barely beats the mean on held-out |", RESULTS, 35,
      "| 0.5164; 0.2776 | absence works; decline barely beats the mean on held-out |"),
+    # methods and literature: the two rows the dossiers call roughly comparable, ours and the published number
+    ("out-of-fold log loss 0.6294", "reports/xfg.md", 14, "| log loss | 0.6294 ["),
+    ("against 0.6522 for the GNN", "docs/research/xfg.md", 34, "log loss 0.6522"),
+    ("overall Brier 0.1645 out of fold", "reports/winprob.md", 23, "| Brier overall | 0.1645 ["),
+    ("against 0.1663 for the model", "docs/research/winprob.md", 31, "without pregame strength 0.1663"),
     # the broadcast pipeline
     ("fixed at 42", "config.py", 25, "SEED = 42"),
     ("standing caveat 1", "CLAIMS.md", 161, "1. **Gate operating point:**"),

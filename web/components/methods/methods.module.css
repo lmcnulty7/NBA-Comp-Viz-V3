@@ -1,0 +1,99 @@
+/* The methods page: papers, benchmark pairs and tests, set as rows under thin rules like the rest of the site. */
+
+/* A jump target clears the sticky header. */
+.anchor {
+  scroll-margin-top: calc(var(--nav-h) + 1rem);
+}
+
+.contents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  font-family: var(--sans);
+  font-size: var(--text-label);
+}
+
+.kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  font-size: var(--text-label);
+}
+
+/* Quoted text from the dossiers holds long formulas and names: it may break anywhere rather than widen the page. */
+.prose,
+.quote,
+.cite {
+  overflow-wrap: anywhere;
+}
+
+.papers > li {
+  gap: 0.15rem;
+}
+
+.cite {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+/* One benchmark row: ours beside the published number on a wide screen, one under the other on a phone. */
+.bench {
+  gap: 0.9rem;
+}
+
+.pair {
+  display: grid;
+  gap: 1rem 2rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 48rem) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.side,
+.stage {
+  font-family: var(--sans);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stage {
+  color: var(--ink);
+}
+
+.values {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.value {
+  display: grid;
+  gap: 0.1rem;
+  font-family: var(--sans);
+  font-size: var(--text-label);
+  line-height: var(--leading-snug);
+}
+
+.lead {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.quote {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.sample {
+  font-family: var(--mono);
+  font-size: 1.125rem;
+}

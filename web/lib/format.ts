@@ -11,6 +11,14 @@ function fixed(value: number, digits: number): string {
   return value < 0 && !isZero ? `${MINUS}${text}` : text;
 }
 
+/**
+ * A number a data file stores as text (a value copied from a report, so its trailing zeros stay), shown as
+ * stored with the true minus sign in place of a leading hyphen. Nothing else changes.
+ */
+export function numberText(text: string): string {
+  return text.startsWith("-") ? `${MINUS}${text.slice(1)}` : text;
+}
+
 /** A number with a fixed count of decimals. Null and undefined become an empty string. */
 export function formatNumber(value: number | null | undefined, digits = 1): string {
   if (value === null || value === undefined || !Number.isFinite(value)) return "";

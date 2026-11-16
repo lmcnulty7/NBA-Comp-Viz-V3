@@ -8,10 +8,12 @@
  * (lib/data/browser.ts).
  */
 import {
+  COMPATIBLE_VERSIONS,
   SCHEMA_VERSION,
   type DemoFrames,
   type DemoSwap,
   type Manifest,
+  type MethodsFile,
   type PlayersFile,
   type Possession,
   type PossessionIndex,
@@ -32,6 +34,8 @@ export interface DataSource {
   scorecard(): Promise<Scorecard>;
   /** The model results table. */
   results(): Promise<Results>;
+  /** The methods and literature page: papers, benchmark rows and pre-registered experiments by lane. */
+  methods(): Promise<MethodsFile>;
   /** The demo comparison, or null when this data build has none. */
   demoSwap(): Promise<DemoSwap | null>;
   /** The demo scenes, or null when this data build has none. */
@@ -69,6 +73,7 @@ export const dataPaths = {
   players: "players.json",
   scorecard: "scorecard.json",
   results: "results.json",
+  methods: "methods.json",
   demoSwap: "demo/swap.json",
   demoFrames: "demo/frames.json",
 } as const;
@@ -127,6 +132,10 @@ export class StaticSource implements DataSource {
     return this.required<Results>(dataPaths.results, this.fixed);
   }
 
+  methods(): Promise<MethodsFile> {
+    return this.required<MethodsFile>(dataPaths.methods, this.fixed);
+  }
+
   demoSwap(): Promise<DemoSwap | null> {
     return this.optional<DemoSwap>(dataPaths.demoSwap);
   }
@@ -177,11 +186,14 @@ function assertVersion(path: string, document: unknown): void {
     typeof document === "object" && document !== null
       ? (document as { schema_version?: unknown }).schema_version
       : undefined;
-  if (version !== SCHEMA_VERSION) {
+  // A file of an earlier minor version of the same major version is still valid: every change since only added
+  // a file or a value. The build validates the manifest against this version exactly.
+  if (!(COMPATIBLE_VERSIONS as readonly unknown[]).includes(version)) {
     throw new DataError(
       path,
       "version",
-      `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this site was built for`,
+      `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this site was built for, nor one of ` +
+        `the versions it still reads (${COMPATIBLE_VERSIONS.join(", ")})`,
     );
   }
 }

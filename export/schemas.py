@@ -27,6 +27,14 @@ Changes from 1.0.0 to 1.1.0 (after the M0 review; decisions D49 to D53 in PLAN.m
 - PossessionSummary gains `featured_by` and `featured_cell`. LaneResult gains `verdict_source`.
 - Probabilities and shares must lie between 0 and 1. A scorecard cell's status must agree with `passed`.
 
+Changes from 1.1.0 to 1.2.0 (PLAN.md D72, the methods page):
+- methods.json (MethodsFile): per lane the papers it builds on, our numbers beside the published ones with the
+  comparability verdict of the lane dossier, and every pre-registered experiment with its status and, once it
+  has run, its result. export/research_methods.py writes it from reports/research/methods.json.
+- Source.rows gains `testset`: the D71 test set (PLAN.md D77), scored once per experiment.
+- A data file of an earlier minor version of the same major version still validates (the change is additive), so
+  `schema_version` accepts every version in COMPATIBLE_VERSIONS; the manifest and the new file carry this one.
+
 Units: court positions are in feet in the SportVU frame, x from 0 to 94 along the court, y from 0 to 50 across it,
 rims at (5.25, 25) and (88.75, 25). Clocks are in seconds. Times `t` are seconds from the start of the possession
 or of the clip.
@@ -40,8 +48,13 @@ from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-SCHEMA_VERSION = "1.1.0"
-SchemaVersion = Literal["1.1.0"]
+SCHEMA_VERSION = "1.2.0"
+# Versions a data file may carry: this one and the earlier minor versions of the same major version, whose files
+# are still valid because every change since them only added a file or a value. The manifest and every file a
+# version introduced carry SCHEMA_VERSION itself (CurrentVersion).
+COMPATIBLE_VERSIONS = ("1.1.0", "1.2.0")
+SchemaVersion = Literal["1.1.0", "1.2.0"]
+CurrentVersion = Literal["1.2.0"]
 
 COURT_LENGTH_FT = 94.0
 COURT_WIDTH_FT = 50.0
@@ -87,14 +100,15 @@ class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
-SourceRows = Literal["heldout", "out_of_fold", "training", "not_split"]
+SourceRows = Literal["heldout", "out_of_fold", "training", "not_split", "testset"]
 
 
 class Source(Strict):
     """Where a value comes from. `path` is relative to the repository (for example reports/xfg.md) or starts with
     $DATA_ROOT for a data table. `rows` says which rows were read: heldout (held-out games only), out_of_fold
     (training games, each row predicted by a model that never saw its game), training (training games, read as a
-    description or fitted in sample), not_split (the source is not split by game)."""
+    description or fitted in sample), not_split (the source is not split by game), testset (the D71 test set of
+    PLAN.md D77, scored once per experiment)."""
 
     path: str = Field(min_length=1)
     what: str = Field(min_length=1)
@@ -208,7 +222,7 @@ class Manifest(Strict):
     """The entry point. `synthetic` is true when the data was built from fixtures; the site must then label
     every number as fixture output, never as a result."""
 
-    schema_version: SchemaVersion
+    schema_version: CurrentVersion
     build_id: str
     generated_at: str
     repo_commit: str
@@ -951,6 +965,218 @@ class DemoFrames(Strict):
     sources: Sources
 
 
+# ------------------------------------------------------------------------------------------------ methods.json
+
+# A number as text: a sign, digits with thousands commas, decimals and a percent mark. A digit that is part of a
+# name (p50, E1, r23, gsw_phx_2016) is not a number: the look-behind skips it. web/scripts/check-methods.mjs
+# reads numbers off the built page with the same pattern.
+NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
+ComparabilityClass = Literal["roughly", "not_directly", "none"]
+ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
+                           "adopted", "not_adopted_test"]
+
+
+def _is_number_text(text: Optional[str]) -> bool:
+    return text is None or bool(re.fullmatch(r"[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?", text))
+
+
+class OurValue(Strict):
+    """One number of ours, as text exactly as the report prints it (so trailing zeros stay), with the interval
+    the report prints beside it on the same line. An estimate without an interval is a point estimate; a setting
+    (a penalty chosen by cross-validation) is not an estimate and has no interval. `source` is the report under
+    reports/ it was copied from, and `rows` says which rows the report computed it on. The label names what the
+    number is; any number inside it is in the report too."""
+
+    label: str = Field(min_length=1)
+    value: str
+    lo: Optional[str] = None
+    hi: Optional[str] = None
+    kind: Literal["estimate", "setting"]
+    source: str = Field(min_length=1)
+    rows: SourceRows
+
+    @model_validator(mode="after")
+    def _numbers(self):
+        if not all(_is_number_text(t) for t in (self.value, self.lo, self.hi)):
+            raise ValueError(f"{self.label}: value, lo and hi are numbers written as text")
+        if (self.lo is None) != (self.hi is None):
+            raise ValueError(f"{self.label}: lo and hi must be set together")
+        if self.kind == "setting" and self.lo is not None:
+            raise ValueError(f"{self.label}: a setting has no interval")
+        return self
+
+
+class Paper(Strict):
+    """A paper a lane builds on. `cite`, `take` (what the lane takes from it) and `differs` (how ours differs, when
+    the dossier gives it a column of its own; otherwise `take` says both) are copied word for word from the lane
+    dossier; `url` is a link the dossier names."""
+
+    cite: str = Field(min_length=1)
+    url: str = Field(pattern=r"^https?://")
+    take: str = Field(min_length=1)
+    differs: Optional[str] = None
+
+
+class Benchmark(Strict):
+    """Our number next to the published one, one row of the benchmark table of the lane dossier. `published`,
+    `paper`, `differs` and `comparability` are the dossier's cells word for word, so the verdict is the
+    dossier's own; `comparability_class` sorts it into three kinds for the page. `ours` holds our numbers, each
+    traced to a report. A row with no number of ours has an empty `ours` and may carry `ours_text`, a phrase of
+    the dossier with no number in it. `published_values` are the published numbers of `published`, `where` the
+    table or section of the paper, `url` a link to the paper (null when the row names no paper)."""
+
+    ours: list[OurValue]
+    ours_text: Optional[str] = None
+    published: str = Field(min_length=1)
+    published_values: list[str]
+    paper: str = Field(min_length=1)
+    where: Optional[str] = None
+    url: Optional[str] = Field(default=None, pattern=r"^https?://")
+    differs: str = Field(min_length=1)
+    comparability: str = Field(min_length=1)
+    comparability_class: ComparabilityClass
+
+    @model_validator(mode="after")
+    def _consistent(self):
+        if self.ours and self.ours_text is not None:
+            raise ValueError("a row with numbers of ours carries no ours_text")
+        if self.ours_text is not None and re.search(r"\d", self.ours_text):
+            raise ValueError("ours_text holds no number: a number of ours is an OurValue traced to a report")
+        if not all(_is_number_text(v) for v in self.published_values):
+            raise ValueError("published_values are numbers written as text")
+        missing = [v for v in self.published_values if v not in NUMBER_TEXT_RE.findall(self.published)]
+        if missing:
+            raise ValueError(f"published values {missing} are not numbers of the published cell")
+        return self
+
+
+class StageValue(Strict):
+    """A further number of a stage result, read from the result file: a value with its interval when the file
+    gives one, else a point estimate."""
+
+    label: str = Field(min_length=1)
+    value: float
+    lo: Optional[float] = None
+    hi: Optional[float] = None
+    point_estimate: bool
+
+    @model_validator(mode="after")
+    def _interval(self):
+        if (self.lo is None) != (self.hi is None) or self.point_estimate != (self.lo is None):
+            raise ValueError(f"{self.label}: an interval has lo and hi, a point estimate has neither")
+        if self.lo is not None and self.lo > self.hi:
+            raise ValueError(f"{self.label}: lo must not exceed hi")
+        return self
+
+
+class StageResult(Strict):
+    """One stage of an experiment, read from its result file under reports/research/: development (out of fold on
+    the development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption
+    rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
+    bound the rule reads) is at most `threshold`. Numbers are rounded once, here in the export."""
+
+    stage: Literal["development", "test"]
+    source: Source
+    metric: str = Field(min_length=1)
+    rows: int
+    rows_unit: str = Field(min_length=1)
+    games: int
+    diff: float
+    lo: float
+    hi: float
+    interval: str = Field(min_length=1)
+    threshold: float
+    upper: float
+    met: bool
+    values: list[StageValue]
+
+    @model_validator(mode="after")
+    def _rule(self):
+        if not (self.lo <= self.diff <= self.hi):
+            raise ValueError("the difference lies inside its interval")
+        if self.upper not in (self.lo, self.hi):
+            raise ValueError("the bound the rule reads is one end of the interval")
+        if self.met != (self.upper <= self.threshold):
+            raise ValueError("met says whether the bound is at most the threshold")
+        expected = "testset" if self.stage == "test" else "out_of_fold"
+        if self.source.rows != expected:
+            raise ValueError(f"a {self.stage} result reads rows {expected}")
+        return self
+
+
+class Experiment(Strict):
+    """A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,
+    fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
+    `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
+    pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
+    needs the rule met on both."""
+
+    id: str = Field(pattern=r"^[a-z]+-E\d+$")
+    title: str = Field(min_length=1)
+    what: str = Field(min_length=1)
+    hypothesis: str = Field(min_length=1)
+    threshold: str = Field(min_length=1)
+    rank: int = Field(ge=1)
+    gain: int = Field(ge=1, le=5)
+    effort: int = Field(ge=1, le=5)
+    test_data: str = Field(min_length=1)
+    backlog_status: str = Field(min_length=1)
+    status: ExperimentStatus
+    development: Optional[StageResult] = None
+    test: Optional[StageResult] = None
+
+    @model_validator(mode="after")
+    def _status(self):
+        dev, test = self.development, self.test
+        if (dev and dev.stage != "development") or (test and test.stage != "test"):
+            raise ValueError(f"{self.id}: a stage result sits under its own stage")
+        if test is not None and dev is None:
+            raise ValueError(f"{self.id}: the test set is scored after the development result exists")
+        expected = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met
+                    else "development_met_test_pending" if test is None
+                    else "adopted" if test.met else "not_adopted_test")
+        if self.status != expected:
+            raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
+        return self
+
+
+class MethodsLane(Strict):
+    """One lane: its dossier, the papers it builds on, its benchmark rows, the dossier's notes on what has no
+    published counterpart (word for word), and its pre-registered experiments."""
+
+    lane: str = Field(min_length=1)
+    dossier: str = Field(min_length=1)
+    report: str = Field(min_length=1)
+    foundations: Annotated[list[Paper], Field(min_length=1)]
+    benchmarks: list[Benchmark]
+    notes: list[str]
+    experiments: list[Experiment]
+
+
+class MethodsFile(Strict):
+    """The methods and literature page (PLAN.md D72). Every text is copied from a lane dossier or from
+    docs/research/BACKLOG.md, and every number of ours from a report, as export/research_methods.py checks
+    before it writes this file. `written` is the date of the dossiers, `backlog` the ranked list of every
+    proposal."""
+
+    schema_version: CurrentVersion
+    written: str
+    backlog: str = Field(min_length=1)
+    lanes: list[MethodsLane]
+    sources: Sources
+
+    @model_validator(mode="after")
+    def _unique(self):
+        lanes = [lane.lane for lane in self.lanes]
+        ids = [e.id for lane in self.lanes for e in lane.experiments]
+        if len(set(lanes)) != len(lanes) or len(set(ids)) != len(ids):
+            raise ValueError("every lane and every experiment appears once")
+        ranks = sorted(e.rank for lane in self.lanes for e in lane.experiments)
+        if ranks != list(range(1, len(ranks) + 1)):
+            raise ValueError("the backlog ranks run from 1 without a gap")
+        return self
+
+
 # --------------------------------------------------------------------------------------- files and validation
 
 FIXTURE_SOURCE = "export/sample.py"
@@ -966,6 +1192,7 @@ FILES: tuple[tuple[str, type[Strict]], ...] = (
     ("results.json", Results),
     ("demo/swap.json", DemoSwap),
     ("demo/frames.json", DemoFrames),
+    ("methods.json", MethodsFile),
 )
 MODELS: dict[str, type[Strict]] = {model.__name__: model for _, model in FILES}
 
@@ -1000,6 +1227,7 @@ def json_schema() -> dict:
         "title": "SiteContract",
         "description": "Generated by export/schemas.py. Do not edit by hand.",
         "x-schema-version": SCHEMA_VERSION,
+        "x-compatible-versions": list(COMPATIBLE_VERSIONS),
         "x-files": {pattern: model.__name__ for pattern, model in FILES},
         "type": "object",
         "additionalProperties": False,
@@ -1090,6 +1318,21 @@ def _content_problems(relpath: str, obj, synthetic: bool) -> list[str]:
                 problems.append(f"{relpath}: lane {lane.lane} is fixture output and cannot be shown as a result")
             if not lane.report.startswith("reports/"):
                 problems.append(f"{relpath}: lane {lane.lane} cites {lane.report!r}, not a file under reports/")
+    if isinstance(obj, MethodsFile):
+        for lane in obj.lanes:
+            if not lane.dossier.startswith("docs/research/") or not lane.report.startswith("reports/"):
+                problems.append(f"{relpath}: lane {lane.lane} names a dossier outside docs/research/ or a report "
+                                "outside reports/")
+            for row in lane.benchmarks:
+                bad = sorted({v.source for v in row.ours if not v.source.startswith("reports/") or v.rows == "testset"})
+                if bad:
+                    problems.append(f"{relpath}: lane {lane.lane}: a number of ours comes from a report under "
+                                    f"reports/ and never from the test set, not {bad}")
+            for experiment in lane.experiments:
+                for stage in (experiment.development, experiment.test):
+                    if stage is not None and not stage.source.path.startswith("reports/research/"):
+                        problems.append(f"{relpath}: {experiment.id} reads its result from "
+                                        f"{stage.source.path!r}, not a file under reports/research/")
     return problems
 
 

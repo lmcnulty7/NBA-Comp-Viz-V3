@@ -1,0 +1,69 @@
+import { DataText } from "@/components/results/DataValue";
+import { copy } from "@/lib/copy";
+import type { MethodsFile } from "@/lib/types/contract";
+import styles from "./methods.module.css";
+import { ExperimentStatus, FILE, StageFacts, laneName } from "./parts";
+
+const text = copy.methods.results;
+
+/**
+ * Every test that has run, with each stage's paired difference against the bar fixed before it ran. A test that
+ * cleared its bar on the training games and waits for its single score on the test games says so.
+ */
+export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
+  const ran = methods.lanes.flatMap((lane) =>
+    lane.experiments.filter((experiment) => experiment.status !== "pre_registered").map((experiment) => ({ lane, experiment })),
+  );
+  return (
+    <section className={`section column ${styles.anchor}`} id="results-so-far" aria-labelledby="results-so-far-title">
+      <div className="stack stack-tight">
+        <h2 id="results-so-far-title">{text.title}</h2>
+        <p className="small">{text.intro}</p>
+      </div>
+      {ran.length === 0 ? (
+        <p className="small" data-testid="no-results">
+          {text.none}
+        </p>
+      ) : (
+        <ul className="rows">
+          {ran.map(({ lane, experiment }) => {
+            const field = `lanes[lane=${lane.lane}].experiments[id=${experiment.id}]`;
+            return (
+              <li
+                key={experiment.id}
+                id={`result-${experiment.id}`}
+                className={`stack ${styles.anchor}`}
+                data-result={experiment.id}
+                data-status={experiment.status}
+              >
+                <p className="eyebrow">
+                  {laneName(lane.lane)}
+                  {" / "}
+                  <DataText file={FILE} field={`${field}.id`} text={experiment.id} />
+                </p>
+                <p className="row-title">
+                  <a href={`#${experiment.id}`}>
+                    <DataText file={FILE} field={`${field}.title`} text={experiment.title} />
+                  </a>
+                </p>
+                <p>
+                  <ExperimentStatus experiment={experiment} />
+                </p>
+                {experiment.development ? (
+                  <StageFacts stage={experiment.development} field={`${field}.development`} />
+                ) : null}
+                {experiment.test ? (
+                  <StageFacts stage={experiment.test} field={`${field}.test`} />
+                ) : experiment.status === "development_met_test_pending" ? (
+                  <p className="small" data-testid="test-pending">
+                    {text.pending}
+                  </p>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}

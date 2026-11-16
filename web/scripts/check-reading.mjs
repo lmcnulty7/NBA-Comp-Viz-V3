@@ -1,4 +1,5 @@
-// Reading grade and plain words on the cold open and the slides (PLAN.md M4 and M10, docs/SCRIPT.md).
+// Reading grade and plain words on the cold open and the slides (PLAN.md M4 and M10, docs/SCRIPT.md), and the
+// reading grade of the methods page copy (PLAN.md D72).
 //
 // The copy of the cold open lives in web/content/home.json (coldOpen), the slides in web/content/talk. This
 // check fails when
@@ -10,14 +11,16 @@
 //   - the copy of a scene, or its labels, is not the approved copy of docs/SCRIPT.md, line for line;
 //   - a slide of a scene does not carry the lines of that scene;
 //   - copy uses a token that the token table of docs/SCRIPT.md does not list;
-//   - talk/deck.json is missing or lists no slide.
+//   - talk/deck.json is missing or lists no slide;
+//   - the copy of the methods page (methods.json), as a whole or one sentence of it, reads above grade 9, or makes
+//     a claim the site never makes.
 // Presenter notes are left out of the grade and the word list: SCRIPT.md lets them name the methods.
 //
 //   node scripts/check-reading.mjs [--content <dir>] [--script <SCRIPT.md>]
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { CONTENT_DIR, shown } from "./lib/paths.mjs";
-import { TOKEN_RE, fkGrade, plainWordProblems, round1 } from "./lib/readability.mjs";
+import { TOKEN_RE, fkGrade, forbiddenClaims, plainWordProblems, round1 } from "./lib/readability.mjs";
 import { SCRIPT_FILE, scriptScenes, scriptTokens } from "./lib/script-doc.mjs";
 import { onScreenLines, parseSlide } from "./lib/slides.mjs";
 
@@ -177,6 +180,22 @@ export function checkReading({ contentDir = CONTENT_DIR, scriptFile = SCRIPT_FIL
       report.push({ where, grade: graded.grade, upper: graded.upper });
     }
   }
+  // The methods page (PLAN.md D72). Its own copy reads at grade 9 or lower, as a whole and sentence by sentence,
+  // and makes no claim the site never makes. The dossier text it quotes is data, shown as quotes, and is not
+  // graded here; the jargon list belongs to the cold open and is not applied.
+  const methodsFile = path.join(contentDir, "methods.json");
+  if (!existsSync(methodsFile)) {
+    problems.push("methods.json: missing, so the methods page copy could not be checked");
+  } else {
+    const all = strings(JSON.parse(readFileSync(methodsFile, "utf8")));
+    const sentences = all.filter((line) => /[.!?]$/.test(line));
+    const graded = gradeProblems("methods.json", sentences, undefined);
+    problems.push(...graded.problems);
+    for (const line of all) {
+      for (const found of forbiddenClaims(line)) problems.push(`methods.json: ${found} in "${line.slice(0, 80)}"`);
+    }
+    report.push({ where: "methods page", grade: graded.grade, upper: graded.upper });
+  }
   return { problems, report };
 }
 
@@ -194,7 +213,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.error(`reading: ${problems.length} problem(s) in ${shown(contentDir)}`);
       process.exitCode = 1;
     } else {
-      console.log(`reading: the cold open and the slides read at grade ${MAX_GRADE} or lower, in plain words`);
+      console.log(`reading: the cold open, the slides and the methods page read at grade ${MAX_GRADE} or lower`);
     }
   } catch (error) {
     console.error(`reading: ${error.message}`);

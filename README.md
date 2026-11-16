@@ -379,6 +379,32 @@ off-ball attention need the ball and are not attempted from broadcast video.
 possession. `tier2_join.py` and `tier2_credit.py` join outcomes to matchup records and report team-level credit
 with intervals. What these may claim is in `CLAIMS.md`.
 
+## Methods and literature
+
+Each lane builds on published work. Its dossier under `docs/research/` names the papers it follows, puts our
+number next to the published one with what differs and whether the two can be compared, and pre-registers
+experiments whose adoption bar was fixed before they ran. Failed and negative results stay listed. The Methods
+page of the site shows the same content in full; `export/research_methods.py` checks every quote against its
+dossier and every number of ours against its report before the page is built. Every proposal, ranked by expected
+gain over effort, is in [docs/research/BACKLOG.md](docs/research/BACKLOG.md). An experiment is first run on the
+training games and, if it clears its bar there, scored once on a test set fixed and hashed before any experiment
+ran (`reports/research/testset.json`); the held-out games of the frozen models are never scored again.
+
+| Lane | Built on | Our number next to the published one | Experiments |
+| --- | --- | --- | --- |
+| [xfg](docs/research/xfg.md) | Chang et al. (shot quality from SportVU), Zadrozny and Elkan (isotonic calibration), Vovk et al. (Venn-Abers predictors) | Roughly comparable: out-of-fold log loss 0.6294 against 0.6522 for the GNN of Schmid et al. on the same season, with a different split and sample | `xfg-E1` cross Venn-Abers calibration: met its bar on the training games, test score pending ([result](reports/research/xfg-E1-dev.json)); `xfg-E2` second defender: pre-registered, not run |
+| [rebounds](docs/research/rebounds.md) | Maheswaran et al. (two rebounding papers on optical tracking), Guo et al. (temperature scaling), Cao et al. (listwise ranking), Chen and Guestrin (XGBoost) | Not directly comparable: the published accuracy is for which team gets the ball, ours for which player; no player-level number could be read | `rebounds-E1`, `rebounds-E2`: pre-registered, not run |
+| [matchups](docs/research/matchups.md) | Franks et al. (defensive skill, and meta-analytics), Keshri et al. (defensive assignment) | Not directly comparable: in their split of the outcome, defense improved out-of-sample prediction; in ours it did not | `matchups-E1`, `matchups-E2`: pre-registered, not run |
+| [gravity](docs/research/gravity.md) | Franks et al., Keshri et al., Barron et al. (gravity from defensive density) | No published comparable number | `gravity-E1`, `gravity-E2`: pre-registered, not run |
+| [ghosting](docs/research/ghosting.md) | Le et al. (data-driven ghosting, and multi-agent imitation learning), Seidl et al. (synthesized NBA defenses), Felsen et al. (forecasting defenders) | Not directly comparable: the published errors average over the horizon, roll out every defender, or take the closest of many samples | `ghosting-E1`, `ghosting-E2`: pre-registered, not run |
+| [embeddings](docs/research/embeddings.md) | Miller et al. (factorized shot intensities), Franks et al. (meta-analytics), Yamada and Fujii, Golovkine and Gunning (player typologies) | Not directly comparable: no paper reports a nearest-neighbour position accuracy or a held-out style score | `embeddings-E1`, `embeddings-E2`: pre-registered, not run |
+| [epv](docs/research/epv.md) | Cervone et al. (POINTWISE, and the multiresolution model), Sicilia et al. (DeepHoops), Fernandez et al. (soccer possession value), Alcorn and Nguyen (baller2vec) | Not directly comparable: no paper we could check reports an expected-points error for basketball possessions | `epv-E1`, `epv-E2`: pre-registered, not run |
+| [decisions](docs/research/decisions.md) | Cervone et al., Jutamulia and Hosoi, Decroos et al. (VAEP), Fernandez et al., Franks et al., Liu and Schulte, Sandholtz and Bornn, Fujii et al. | Not directly comparable: no basketball paper reports a validated link between a decision metric and an outcome | `decisions-E1`, `decisions-E2`: pre-registered, not run |
+| [lineups](docs/research/lineups.md) | Sill (regularized adjusted plus-minus), Deshpande and Jensen, Grassetti et al., Hvattum (a review of plus-minus) | Not directly comparable: published work scores game margins inside a season, ours season-ahead lineup ranks | `lineups-E1` would score game margins as Sill did; `lineups-E2`: both pre-registered, not run |
+| [winprob](docs/research/winprob.md) | Stern (a Brownian motion model of the score), Deshpande and Jensen, Yeh et al. (evaluating live forecasts) | Roughly comparable: overall Brier 0.1645 out of fold against 0.1663 for the model of Maddox et al. without pregame strength | `winprob-E1`, `winprob-E2`: pre-registered, not run |
+| [load](docs/research/load.md) | Lewis (game load and injury), Esteves et al. (back-to-backs), Scanlan et al. (activity across quarters), Stephen et al. (player fatigue) | Not directly comparable; like Stephen et al., we find that load explains very little | `load-E1`, `load-E2`: pre-registered, not run |
+| [tracking](docs/research/tracking.md) | Ultralytics YOLO, BoT-SORT, ByteTrack, Nie et al. (court registration), Lu et al. (broadcast player tracking), Koshkina et al., SportsMOT, SoccerNet game state, DeepSportradar | Not directly comparable: no paper reports a number on our metric, data and split | `tracking-E1`, `tracking-E2`: pre-registered, not run |
+
 ## Documents
 
 | File | What it is |

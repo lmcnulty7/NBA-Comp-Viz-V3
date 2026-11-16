@@ -11,6 +11,7 @@ const ITEMS = [
   { href: routes.review, text: copy.site.nav.review },
   { href: routes.prep, text: copy.site.nav.prep },
   { href: routes.results, text: copy.site.nav.results },
+  { href: routes.methods, text: copy.site.nav.methods },
 ] as const;
 
 export function SiteNav() {
