@@ -309,6 +309,10 @@ Status M11 (2026-11-15): Lucien found the site adequate, with no adjustment list
 and says the public copy carries no frame data; the repository website field points at the public site; v3-site-1
 tags the merge on main that is deployed. Open: C12 load time in real browsers and phones, and the C14 two-minute
 test with a real person; Lucien runs both later and the results are recorded here.
+Status M11 (2026-11-16): C12 load time checked by Lucien on the deployed sites: first views fast in Chrome and Safari
+on the laptop and on Lucien's phone, private site included (Lucien's report, no timings given). With the measured public
+first views on this Mac (largest paint 179 to 324 ms, M9 status) and the browser suite at phone and laptop width
+in Chromium and WebKit, C12 is counted met. Open: the C14 two-minute test.
 
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
 
