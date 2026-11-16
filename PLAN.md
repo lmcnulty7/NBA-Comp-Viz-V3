@@ -305,6 +305,10 @@ DoD: C1 to C14 each checked with its evidence named here.
 Status M11 (2026-11-14): waiting for Lucien. The final check ran (npm run check on real data, all steps passed;
 pytest 1141 passed, 2 skipped, 65 deselected; 866 passed before any change). Open: Lucien's adjustment list, the C14 two-minute test with a real person, C12 load time in a real
 Chrome and Safari after deploy, and the tag and push (D37).
+Status M11 (2026-11-15): Lucien found the site adequate, with no adjustment list (D68). README links the public site
+and says the public copy carries no frame data; the repository website field points at the public site; v3-site-1
+tags the merge on main that is deployed. Open: C12 load time in real browsers and phones, and the C14 two-minute
+test with a real person; Lucien runs both later and the results are recorded here.
 
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
 
@@ -427,6 +431,7 @@ Decided by Lucien 2026-11-14 (settling the items D37 reserved):
 - D65 (Lucien) D60 to D64 lift D37's reservation for these steps only.
 - D66 (self-decided) How D60 was carried out. export/public_data.py writes the public data root from the full one (per-frame arrays emptied, ghosts null, the 780 shot locations measured by tracking removed, demo truth points removed; everything else byte for byte) and the public build runs it itself. The public possession page shows an empty half court with the shot chart mark and the access note in place of playback; the cold open's truth and swap scenes show the still, because both drew sensor positions. The per-possession mean ghost deviation is not shown publicly (ghosts are null there). A frames step in npm run check scans every file of the public out/ for tracks. Options: a second export path; a transform of the full root (chosen, one source of truth).
 - D67 (self-decided) How D64 was carried out. The free Cloudflare Pages plan takes 20,000 files per site; the private build has 21,233. web/scripts/package-cloudflare.mjs copies out/ without __next._full.txt on the 3,162 possession routes, the one payload no client navigation fetches in Chromium or WebKit (18,071 files; the private browser suite passes on the packaged folder). Options: drop all four payloads per possession route (failed, 404s in the tour); keep index.txt and the tree (failed on WebKit); drop only _full (chosen); a paid plan (an account decision). The project was created on classic Pages (wrangler --force) because wrangler 4.162 otherwise routes Pages to Workers, and D64 names Pages. Order: the project was created empty, a one-line placeholder with no data was deployed to confirm Access answered on the production and preview hostnames, and the private build was deployed only after that, so frame data was never served without sign-in. The placeholder preview (preview-check) stays behind Access; it holds no data.
+- D68 (Lucien) The site is adequate as deployed, with no adjustment list. Link the public site from the README and the repository's website field, and tag v3-site-1 now on the deployed state and push it. C12 and C14 are run later and recorded as evidence; changes they lead to go to a later tag. Reason: the tag names what is deployed before anything else changes.
 
 ## Open questions
 - None.
