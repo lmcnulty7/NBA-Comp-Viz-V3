@@ -13,7 +13,3 @@ next-env.d.ts
 # misc
 .DS_Store
 npm-debug.log*
-
-# the polish loop's run folders (scripts/polish-loop.mjs): logs, state and scores of a run, kept out of the
-# candidates' diffs; a finished run's log is copied to reports/polish/ by hand
-polish-runs/

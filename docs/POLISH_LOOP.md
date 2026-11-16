@@ -14,7 +14,7 @@ are merged, so it polishes the site that ships.
 - `web/scripts/lib/polish-check.mjs`: npm run check for one variant.
 - `web/tests/unit/polish.test.ts`: tests of all of the above, in the unit step of npm run check.
 - `reports/polish/baseline-public.json`, `reports/polish/baseline-private.json`: the baseline of the site.
-- `web/polish-runs/<run>/` (ignored by git): the state, the scores and `log.jsonl` of one run.
+- `polish-runs/<run>/` at the repository root (ignored by git): the state, the scores and `log.jsonl` of one run.
 
 ## What is measured
 
@@ -26,7 +26,8 @@ the first in natural order, so the sample is the same on every build of the same
 | Metric | How | In the cost |
 | --- | --- | --- |
 | `a11yWeighted` | axe-core 4.14.0 (pinned dev dependency, injected into the page), WCAG 2.2 A and AA rules and axe's best practices, every sampled page at 390 and 1280 px in both browsers, reduced motion. Sum of impact weight (minor 1, moderate 2, serious 3, critical 4) times nodes. | 0.25 |
-| `firstViewMs` | Each sampled page loaded 5 times in a fresh context at 1280 px; per page the median of the largest paint (the load event where a browser reports none). Chromium runs on an emulated connection and processor (40 ms latency, 10 Mbps down, 4 times slower processor); WebKit has no such emulation and runs as is. The metric is the geometric mean of the two browsers' means. | 0.25 |
+| `firstViewChromiumMs` | Each sampled page loaded 7 times in a fresh context at 1280 px; per page the median time to the largest paint; mean over pages. Chromium runs on an emulated connection and processor (40 ms latency, 10 Mbps down, 4 times slower processor), so the time follows the bytes and the script a page needs. | 0.20 |
+| `firstViewWebkitMs` | The same in WebKit (the load event where it reports no largest paint). WebKit has no such emulation and runs as is, in tens of milliseconds, where the spread from run to run is near a sixth of the value; so it weighs least. | 0.05 |
 | `firstLoadJsKb` | Gzip size of every script the page's HTML loads (the nomodule fallback aside), mean over the sampled pages. Read from `out/`, no browser. | 0.20 |
 | `pageWeightKb` | Bytes of every response before the load event, median over the loads, mean over pages and browsers. | 0.10 |
 | `readingGrade` | Flesch-Kincaid grade (the counter of `check-reading.mjs`) of every sentence of `web/content`, weighted by its words; labels and presenter notes left out. | 0.20 |

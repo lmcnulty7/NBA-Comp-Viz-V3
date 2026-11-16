@@ -15,7 +15,7 @@ from export import schemas as S
 REPO = Path(__file__).resolve().parents[1]
 POLISH = REPO / "reports" / "polish"
 VARIANTS = ("public", "private")
-METRICS = {"a11yWeighted", "firstViewMs", "firstLoadJsKb", "pageWeightKb", "readingGrade"}
+METRICS = {"a11yWeighted", "firstViewChromiumMs", "firstViewWebkitMs", "firstLoadJsKb", "pageWeightKb", "readingGrade"}
 
 
 def _load(variant):

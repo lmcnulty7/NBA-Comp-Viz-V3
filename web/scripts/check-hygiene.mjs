@@ -42,6 +42,8 @@ const EXPECTED_IGNORED = [
   /^web\/out\/$/,
   /^web\/data\/$/,
   /^web\/public\/data\/$/,
+  // the public data root the public build writes before it builds (PLAN.md D60, scripts/lib/paths.mjs)
+  /^web\/data-public\/$/,
   /^web\/media-private\/$/,
   /^web\/test-results\/$/,
   /^web\/playwright-report\/$/,

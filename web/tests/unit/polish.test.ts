@@ -120,7 +120,14 @@ test("the guard's command line fails on a protected change and passes on none", 
 
 // ----------------------------------------------------------------------------------- the cost and the gate
 
-const REF: Values = { a11yWeighted: 0, firstViewMs: 120, firstLoadJsKb: 150, pageWeightKb: 3500, readingGrade: 4.2 };
+const REF: Values = {
+  a11yWeighted: 0,
+  firstViewChromiumMs: 370,
+  firstViewWebkitMs: 42,
+  firstLoadJsKb: 150,
+  pageWeightKb: 900,
+  readingGrade: 4.2,
+};
 
 test("the weights sum to one and the reference costs exactly one", async () => {
   const { WEIGHTS, METRICS, costOf } = await polish();
@@ -134,7 +141,7 @@ test("a smaller value costs less, a new accessibility violation costs more, a mi
   const lighter = costOf({ ...REF, firstLoadJsKb: 135 }, REF);
   expect(lighter.cost).toBeCloseTo(1 - (WEIGHTS.firstLoadJsKb ?? 0) * 0.1, 4);
   expect(costOf({ ...REF, a11yWeighted: 3 }, REF).cost).toBeGreaterThan(1);
-  expect(() => costOf({ ...REF, readingGrade: Number.NaN, firstViewMs: undefined as unknown as number }, REF)).toThrow();
+  expect(() => costOf({ ...REF, firstViewWebkitMs: undefined as unknown as number }, REF)).toThrow();
 });
 
 const passing: Score = {
@@ -186,6 +193,7 @@ test("a candidate is kept only when it beats the noise and no variant gets worse
   expect(decide({ public: { ...ok, cost: 0.98 }, private: { ...ok, cost: 1.0 } }).keep).toBe(true);
   expect(decide({ public: { ...ok, cost: 0.995 } }).reasons).toEqual(["no variant improved by more than its noise"]);
   expect(decide({ public: { ...ok, cost: 0.95 }, private: { ...ok, cost: 1.02 } }).reasons[0]).toContain("private: the cost rose");
+  expect(decide({ public: { ...ok, cost: null as unknown as number } }).reasons).toEqual(["public: no cost (the site was not scored)"]);
   const gated = decide({ public: { ...ok, cost: 0.5, gate: ["new accessibility violation x"] } });
   expect(gated.keep).toBe(false);
   expect(gated.reasons).toEqual(["public: new accessibility violation x"]);

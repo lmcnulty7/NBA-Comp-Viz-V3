@@ -16,7 +16,7 @@
 // The weights, the scalar (a cost, lower is better) and the gate are in scripts/lib/polish.mjs.
 //
 //   node scripts/polish-score.mjs [--run-check --variant public|private] [--check <check.json>]
-//        [--repeat 3] [--runs 5] [--reference <baseline.json>] [--base <score.json>] [--json <file>] [--label <name>]
+//        [--repeat 3] [--runs 7] [--reference <baseline.json>] [--base <score.json>] [--json <file>] [--label <name>]
 //
 // --repeat N scores the same out/ N times; the reference is then the median of the runs and the noise is the
 // spread of their costs. --reference takes the reference (and the noise) of a baseline instead. --base is the
@@ -58,8 +58,8 @@ const AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-
 const SETTLE_MS = 500;
 // Chromium's first views are timed on an emulated mid-range phone connection and processor, so the time follows
 // the bytes and the script a page needs rather than the speed of a local disk. WebKit offers no such emulation;
-// it is timed as it is. The first-view metric is the geometric mean of the two browsers' means, so a change of a
-// tenth in either moves it the same amount.
+// it is timed as it is, in tens of milliseconds, where the run-to-run spread is near a sixth of the value, so it
+// weighs less in the cost (lib/polish.mjs WEIGHTS).
 const CHROMIUM_THROTTLE = { latencyMs: 40, downloadKbps: 10_000, uploadKbps: 5_000, cpuSlowdown: 4 };
 
 function option(argv, name, fallback) {
@@ -214,17 +214,14 @@ async function measureOnce(origin, sample, runs) {
     timings,
     failures: [...failures].map((f) => f.replaceAll(origin, "")).sort(),
     a11yWeighted,
-    firstViewByBrowser: Object.fromEntries(
-      BROWSERS.map(([name]) => [name, round(mean(timings.filter((t) => t.browser === name).map((t) => t.firstViewMs)))]),
-    ),
-    firstViewMs: round(Math.sqrt(BROWSERS.reduce((product, [name]) =>
-      product * mean(timings.filter((t) => t.browser === name).map((t) => t.firstViewMs)), 1))),
+    firstViewChromiumMs: round(mean(timings.filter((t) => t.browser === "chromium").map((t) => t.firstViewMs))),
+    firstViewWebkitMs: round(mean(timings.filter((t) => t.browser === "webkit").map((t) => t.firstViewMs))),
     pageWeightKb: round(mean(timings.map((t) => t.kb))),
   };
 }
 
 /** Score out/ `repeat` times. Returns the score object (see docs/POLISH_LOOP.md, "The score file"). */
-export async function score({ outDir = OUT_DIR, runs = 5, repeat = 1, check = null, reference = null, base = null, label = null } = {}) {
+export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = null, reference = null, base = null, label = null } = {}) {
   const infoFile = path.join(outDir, BUILD_INFO_FILE);
   if (!existsSync(infoFile)) throw new Error("polish-score: out/ has no build-info.json; build the site first");
   const info = readJson(infoFile);
@@ -262,7 +259,8 @@ export async function score({ outDir = OUT_DIR, runs = 5, repeat = 1, check = nu
 
   const valuesOf = (m) => ({
     a11yWeighted: m.a11yWeighted,
-    firstViewMs: m.firstViewMs,
+    firstViewChromiumMs: m.firstViewChromiumMs,
+    firstViewWebkitMs: m.firstViewWebkitMs,
     firstLoadJsKb,
     pageWeightKb: m.pageWeightKb,
     readingGrade: grade.grade,
@@ -279,7 +277,6 @@ export async function score({ outDir = OUT_DIR, runs = 5, repeat = 1, check = nu
   }
   const runRows = measured.map((m, i) => ({
     values: runValues[i],
-    firstViewByBrowser: m.firstViewByBrowser,
     ...costOf(runValues[i], ref.values),
     failures: m.failures,
   }));
@@ -374,7 +371,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const result = await score({
       outDir,
-      runs: Number(option(argv, "--runs", "5")),
+      runs: Number(option(argv, "--runs", "7")),
       repeat: Number(option(argv, "--repeat", "1")),
       check,
       reference,

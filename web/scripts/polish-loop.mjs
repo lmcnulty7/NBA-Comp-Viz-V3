@@ -3,15 +3,15 @@
 //
 //   baseline   score the checked-out site --repeat times per variant, after npm run check, and write
 //              baseline-<variant>.json (the reference for the cost and the noise) into --dir
-//   start      make the loop branch polish/<run> from --base and write its baseline into web/polish-runs/<run>
+//   start      make the loop branch polish/<run> from --base and write its baseline into polish-runs/<run>
 //   candidate  one proposed change, as a patch: a branch polish/<run>/cNNN from the loop branch, the patch applied
 //              and refused if it touches a protected path (lib/polish-guard.mjs), committed, checked and scored per
 //              variant against the best site so far, kept (the loop branch moves to it) or rejected, and logged
 //   status     the log of a run, one line per candidate
 //
-//   node scripts/polish-loop.mjs baseline [--variants public,private] [--repeat 3] [--runs 5] [--dir reports/polish]
+//   node scripts/polish-loop.mjs baseline [--variants public,private] [--repeat 3] [--runs 7] [--dir reports/polish]
 //   node scripts/polish-loop.mjs start --run <id> [--base <git ref>] [--variants public,private] [--repeat 3]
-//        [--baseline <dir>]   reuse baseline-<variant>.json from <dir> when no file under web/ changed since
+//        [--baseline <dir>]   reuse baseline-<variant>.json from <dir> when the site and the scorer are unchanged since
 //   node scripts/polish-loop.mjs candidate --run <id> --patch <file> --message "<what the change does>"
 //   node scripts/polish-loop.mjs status --run <id>
 //
@@ -24,7 +24,7 @@
 import { spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { REPO_ROOT, WEB_DIR } from "./lib/paths.mjs";
+import { REPO_ROOT } from "./lib/paths.mjs";
 import { runCheck } from "./lib/polish-check.mjs";
 import { forbiddenChanges } from "./lib/polish-guard.mjs";
 import { decide } from "./lib/polish.mjs";
@@ -32,7 +32,8 @@ import { score } from "./polish-score.mjs";
 
 // Three runs can understate the spread of the cost, so the noise a candidate must beat is never below this.
 export const MIN_NOISE = 0.005;
-export const RUNS_DIR = path.join(WEB_DIR, "polish-runs");
+// Outside web/, so the hygiene check of the site sources never sees it, and ignored by git (.gitignore).
+export const RUNS_DIR = path.join(REPO_ROOT, "polish-runs");
 const VARIANTS = ["public", "private"];
 
 function option(argv, name, fallback) {
@@ -117,8 +118,10 @@ function reuseBaseline(variants, from, baseCommit, dir) {
     if (!existsSync(source)) fail(`no stored baseline ${relative(source)}`);
     const stored = readJson(source);
     if (!stored.commit || stored.dirty) fail(`${relative(source)} was not scored on a clean commit`);
-    const changed = git(["diff", "--name-only", stored.commit, baseCommit, "--", "web"]).out;
-    if (changed) fail(`the site changed since ${relative(source)} was scored (${changed.split("\n").length} file(s) under web/); start without --baseline`);
+    // Everything under web/ builds or measures the site, except the driver itself and the tests.
+    const changed = git(["diff", "--name-only", stored.commit, baseCommit, "--", "web",
+      ":(exclude)web/scripts/polish-loop.mjs", ":(exclude)web/tests"]).out;
+    if (changed) fail(`the site or the scorer changed since ${relative(source)} was scored (${changed.split("\n").length} file(s) under web/); start without --baseline`);
     const file = path.join(dir, `baseline-${variant}.json`);
     writeJson(file, stored);
     written[variant] = { file: relative(file), cost: stored.cost, noise: stored.noise.costSpread };
@@ -142,7 +145,7 @@ async function start(argv) {
   git(["switch", "-c", branch, baseCommit]);
   const variants = variantsOf(argv);
   const repeat = Number(option(argv, "--repeat", "3"));
-  const runs = Number(option(argv, "--runs", "5"));
+  const runs = Number(option(argv, "--runs", "7"));
   const stored = option(argv, "--baseline");
   const written = stored
     ? reuseBaseline(variants, path.resolve(REPO_ROOT, stored), baseCommit, dir)
@@ -223,8 +226,9 @@ async function candidate(argv) {
     writeJson(file, scored);
     results[variant] = { gate: scored.gate.reasons, baseCost: state.best[variant].cost, cost: scored.cost, noise: state.noise[variant], file: relative(file) };
   }
-  const skipped = state.variants.filter((v) => !results[v]);
-  const verdict = skipped.length
+  // A variant whose check failed has no cost: the candidate is rejected on its gate reasons alone.
+  const incomplete = state.variants.some((v) => !results[v] || results[v].cost === null);
+  const verdict = incomplete
     ? { keep: false, reasons: Object.entries(results).flatMap(([v, r]) => r.gate.map((g) => `${v}: ${g}`)) }
     : decide(results);
 
@@ -260,7 +264,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       requireLock();
       await baseline(variantsOf(argv), {
         repeat: Number(option(argv, "--repeat", "3")),
-        runs: Number(option(argv, "--runs", "5")),
+        runs: Number(option(argv, "--runs", "7")),
         dir: path.resolve(REPO_ROOT, option(argv, "--dir", "reports/polish")),
         label: option(argv, "--label", "baseline"),
       });

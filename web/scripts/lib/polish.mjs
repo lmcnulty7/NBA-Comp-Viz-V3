@@ -16,15 +16,23 @@ import { fkGrade, wordsOf } from "./readability.mjs";
 
 export const SCORE_SCHEMA = "polish-score/1";
 
-// What each metric weighs in the cost, and why (docs/POLISH_LOOP.md, "Weights").
+// What each metric weighs in the cost, and why (docs/POLISH_LOOP.md, "The cost").
 export const WEIGHTS = Object.freeze({
   a11yWeighted: 0.25, // accessibility: axe-core violations, weighted by impact, summed over pages and browsers
-  firstViewMs: 0.25, // first view: largest paint (load event where a browser reports none), mean of page medians
+  firstViewChromiumMs: 0.2, // first view in Chromium on an emulated phone: largest paint, mean of page medians
+  firstViewWebkitMs: 0.05, // first view in WebKit, unthrottled: largest paint (load event where none), the same way
   firstLoadJsKb: 0.2, // gzip size of the JavaScript a page loads before it is interactive, mean over pages
   pageWeightKb: 0.1, // bytes a first view fetches (images, fonts, data, scripts), mean of page medians
   readingGrade: 0.2, // Flesch-Kincaid grade of every sentence of the site copy, words weighted
 });
-export const OFFSETS = Object.freeze({ a11yWeighted: 1, firstViewMs: 0, firstLoadJsKb: 0, pageWeightKb: 0, readingGrade: 0 });
+export const OFFSETS = Object.freeze({
+  a11yWeighted: 1,
+  firstViewChromiumMs: 0,
+  firstViewWebkitMs: 0,
+  firstLoadJsKb: 0,
+  pageWeightKb: 0,
+  readingGrade: 0,
+});
 export const METRICS = Object.freeze(Object.keys(WEIGHTS));
 
 // axe-core impact levels, weighted the way axe orders them.
@@ -262,6 +270,10 @@ export function decide(variants) {
   let improved = false;
   for (const [variant, { gate, baseCost, cost, noise }] of Object.entries(variants)) {
     for (const reason of gate) reasons.push(`${variant}: ${reason}`);
+    if (typeof cost !== "number") {
+      reasons.push(`${variant}: no cost (the site was not scored)`);
+      continue;
+    }
     const gain = baseCost - cost;
     if (gain < -noise) reasons.push(`${variant}: the cost rose from ${baseCost} to ${cost}, more than the noise ${noise}`);
     if (gain > noise) improved = true;
