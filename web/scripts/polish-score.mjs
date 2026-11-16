@@ -77,18 +77,34 @@ function gitHead() {
   return { commit: head.stdout.trim() || null, dirty: Boolean(dirty.stdout.trim()) };
 }
 
+// A navigation that has not reached its load event by then is tried again in a new context, up to TRIES times
+// in all. A rare stall of a headless browser on a busy machine would otherwise end the whole score; the retries
+// are counted in the score, and a page that stalls every time is a page failure.
+const NAV_TIMEOUT_MS = 30_000;
+const TRIES = 3;
+const stalls = { count: 0 };
+
 /** One page, opened in a fresh context; failures are uncaught errors, console errors and a bad status. */
 async function openPage(browser, url, contextOptions, onPage = () => {}) {
-  const context = await browser.newContext(contextOptions);
-  const page = await context.newPage();
-  const errors = [];
-  page.on("pageerror", (error) => errors.push(`uncaught ${error.message.split("\n")[0]}`));
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(`console ${message.text().split("\n")[0]}`);
-  });
-  await onPage(page);
-  const response = await page.goto(url, { waitUntil: "load", timeout: 60_000 });
-  return { context, page, errors, status: response?.status() ?? 0 };
+  for (let attempt = 1; ; attempt += 1) {
+    const context = await browser.newContext(contextOptions);
+    const page = await context.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(`uncaught ${error.message.split("\n")[0]}`));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(`console ${message.text().split("\n")[0]}`);
+    });
+    await onPage(page);
+    try {
+      const response = await page.goto(url, { waitUntil: "load", timeout: NAV_TIMEOUT_MS });
+      return { context, page, errors, status: response?.status() ?? 0 };
+    } catch (error) {
+      await context.close();
+      if (!/Timeout/.test(String(error?.message))) throw error;
+      stalls.count += 1;
+      if (attempt >= TRIES) return { context: null, page: null, errors: [`no load event after ${TRIES} tries`], status: 0 };
+    }
+  }
 }
 
 async function a11yPass(browserName, browser, origin, sample) {
@@ -100,6 +116,10 @@ async function a11yPass(browserName, browser, origin, sample) {
         viewport: { width, height: 844 },
         reducedMotion: "reduce",
       });
+      if (!page) {
+        failures.push(`${browserName} ${width} /${route}: ${errors[0]}`);
+        continue;
+      }
       await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
       await page.addScriptTag({ content: axe.source });
       const violations = await page.evaluate(
@@ -155,6 +175,7 @@ async function timingPass(browserName, browser, origin, sample, runs) {
         }
       });
     });
+    if (!page) return { status, errors, bytes, dcl: null, load: null, lcp: null };
     await page.waitForTimeout(SETTLE_MS);
     const timing = await page.evaluate(() => {
       const nav = performance.getEntriesByType("navigation")[0];
@@ -180,7 +201,7 @@ async function timingPass(browserName, browser, origin, sample, runs) {
       dclMs: round(pick("dcl")),
       loadMs: round(pick("load")),
       lcpMs: lcp === null ? null : round(lcp),
-      firstViewMs: round(median(samples.map((s) => s.lcp ?? s.load))),
+      firstViewMs: round(median(samples.map((s) => s.lcp ?? s.load).filter((v) => typeof v === "number"))),
       kb: round(pick("bytes") / 1024),
     });
   }
@@ -336,6 +357,7 @@ export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = nu
     },
     timings: measured.map((m) => m.timings),
     pageFailures,
+    navigationRetries: stalls.count,
     values,
     reference: ref,
     ...costOf(values, ref.values),
