@@ -4,7 +4,8 @@ A basketball analytics product built on player tracking. The models run on real 
 pipeline tracks players from broadcast video, as a stand-in for the tracking that teams buy from vendors. It is
 scored against that real data, and today it feeds only a demo.
 
-**Site:** not deployed yet. The address goes here at deploy (`PLAN.md` M9).
+**Site:** https://lmcnulty7.github.io/NBA-Comp-Viz-V3/ (the public copy: possession review, prep tab, results).
+Court playback and the talk slides are on a private copy, available on request (`PLAN.md` D60).
 
 ## The short version
 
@@ -13,8 +14,8 @@ Two to three minutes to read.
 **What it is.** Models that answer coaching questions from player tracking data. How good was this shot (xFG)?
 How many points is this possession worth right now (EPV)? Where would an average defense have stood (ghosting)?
 They run on public SportVU tracking (the league's in-arena camera tracking of that time) of the 2015-16 season
-(`reports/results.md`). A site is being built to show them as a possession review and a prep tab, after a short
-demo of the broadcast pipeline (`PLAN.md`).
+(`reports/results.md`). The site shows them as a possession review and a prep tab, after a short demo of the
+broadcast pipeline (`PLAN.md`).
 
 No model result comes from the broadcast pipeline. The tracking models run on SportVU positions, and two lanes
 (lineups, win probability) run on play-by-play. The broadcast pipeline has no ball, no stable player identity
@@ -408,7 +409,8 @@ The code, docs and labels in this repository are released under the MIT licence 
   no raw tracking log (`data/sportvu/` is ignored by git) and no generated site data (`web/data/` is ignored and
   rebuilt by the export).
 
-What the public site ships, for example the sampled player positions of the held-out possessions that the
-review page reads, is decided at deploy and not by this file.
+The public site carries no SportVU frame data: no player positions, no playback and no clip. Those appear only
+on the private copy (`PLAN.md` D60, `CLAIMS.md`). `python3 -m tools.check_no_frame_data` proves git
+tracks none, and the `frames` step of `npm run check` proves the public build holds none.
 
 The paper draft lives in a separate private repository. Rights holders can request removal by opening an issue.
