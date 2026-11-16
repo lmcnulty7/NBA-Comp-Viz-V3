@@ -64,7 +64,9 @@ A candidate is rejected whatever its cost when any of these holds (`gateReasons`
 ## The keep rule
 
 The noise of a variant is the spread (largest minus smallest) of the cost over the baseline runs of the unchanged
-site, and never less than 0.005, because three runs can understate it. A candidate is kept when every gate
+site, and never less than 0.01, because three runs in one sitting understate it: the baseline runs spread by
+0.0009 for each variant, while the unchanged site, scored again later as a comment-only candidate, came out 0.0037
+lower (the self-test below). Near three times that drift is the floor. A candidate is kept when every gate
 passes, no variant's cost rises by more than its noise, and at least one variant's cost falls by more than its
 noise. Its scores then become the base the next candidate must beat.
 
@@ -109,5 +111,15 @@ and copy grades.
 
 ## Baseline (2026-11-16)
 
-See `reports/polish/baseline-public.json` and `reports/polish/baseline-private.json` for the values, the
-per-page detail and the noise, scored on the real data of the worktrees.
+`reports/polish/baseline-public.json` and `reports/polish/baseline-private.json` hold the values, the per-page
+detail and the noise, scored on the real data of the worktrees after npm run check passed for each variant. Both
+have no accessibility violation, no page failure and no navigation retry; the cost spread over three runs is
+0.0009 for each.
+
+## Self-test (2026-11-16)
+
+`reports/polish/selftest-log.jsonl` is the log of a run on the public variant with two candidates, made to show
+the driver works: c001 edited `web/scripts/check-copy.mjs` and was refused by the guard before anything was
+built; c002 added a comment to `web/lib/format.ts`, passed the gate and was rejected because its cost (0.9963)
+did not beat the noise (the floor was 0.005 then; this result is why it is 0.01 now). Its branches were removed
+after the test.

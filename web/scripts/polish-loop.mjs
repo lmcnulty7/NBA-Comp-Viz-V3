@@ -30,8 +30,10 @@ import { forbiddenChanges } from "./lib/polish-guard.mjs";
 import { decide } from "./lib/polish.mjs";
 import { score } from "./polish-score.mjs";
 
-// Three runs can understate the spread of the cost, so the noise a candidate must beat is never below this.
-export const MIN_NOISE = 0.005;
+// Three runs in one sitting understate the spread of the cost: the baseline runs spread by 0.0009, while the same
+// site scored later as a candidate with a comment-only change (the self-test, reports/polish/selftest-log.jsonl)
+// came out 0.0037 lower. So the noise a candidate must beat is never below this, near three times that drift.
+export const MIN_NOISE = 0.01;
 // Outside web/, so the hygiene check of the site sources never sees it, and ignored by git (.gitignore).
 export const RUNS_DIR = path.join(REPO_ROOT, "polish-runs");
 const VARIANTS = ["public", "private"];
