@@ -151,21 +151,29 @@ def fetch_listing(work: Path) -> list:
     return json.loads(text)
 
 
-def download(game: str, expected: str, raw_dir: Path) -> Path:
-    """raw/<game>.7z, verified. An existing file is kept only when its blob sha1 matches the pin."""
+def digests(data: bytes) -> dict:
+    """The record of one archive's bytes: size, git blob sha1 and sha256, from a single pass over the bytes."""
+    return {"archive_bytes": len(data), "archive_git_blob_sha1": git_blob_sha1(data),
+            "archive_sha256": hashlib.sha256(data).hexdigest()}
+
+
+def download(game: str, expected: str, raw_dir: Path) -> tuple[Path, dict]:
+    """(raw/<game>.7z, digests), verified against the pin. Each archive is read and hashed once: an existing file is
+    kept only when its blob sha1 matches the pin, a new one is checked before it takes the final name."""
     raw_dir.mkdir(parents=True, exist_ok=True)
     dst = raw_dir / f"{game}.7z"
-    if dst.exists() and git_blob_sha1(dst.read_bytes()) == expected:
-        return dst
+    if dst.exists():
+        d = digests(dst.read_bytes())
+        if d["archive_git_blob_sha1"] == expected:
+            return dst, d
     part = raw_dir / f"{game}.7z.part"
     curl(RAW_URL + prefixed_name(game), part)
-    try:
-        check_blob(game, part.read_bytes(), expected)
-    except SystemExit:
+    d = digests(part.read_bytes())
+    if d["archive_git_blob_sha1"] != expected:
         part.unlink(missing_ok=True)
-        raise
+        raise SystemExit(f"{WHO}: {game}: archive blob sha1 {d['archive_git_blob_sha1']} does not match the pinned {expected}")
     os.replace(part, dst)
-    return dst
+    return dst, d
 
 
 def git_hash_object(path: Path) -> str:
@@ -202,11 +210,9 @@ def ingest(pins: dict, root: Path, listing: bool = True, force: bool = False) ->
     man = cc.load_manifest(out_dir)
     for i, game in enumerate(games, 1):
         t = time.time()
-        archive = download(game, pins[game], raw_dir)
-        data = archive.read_bytes()
-        blob, sha256, size = git_blob_sha1(data), hashlib.sha256(data).hexdigest(), len(data)
-        del data
-        if git_hash_object(archive) != blob:
+        archive, dig = download(game, pins[game], raw_dir)
+        blob, size = dig["archive_git_blob_sha1"], dig["archive_bytes"]
+        if git_hash_object(archive) != blob:                # the one independent cross-check
             raise SystemExit(f"{WHO}: {game}: git hash-object disagrees with the computed blob sha1")
         g = parse_name(f"{game}.7z")
         g["archive_bytes"] = size
@@ -214,7 +220,7 @@ def ingest(pins: dict, root: Path, listing: bool = True, force: bool = False) ->
         if cc.is_heldout(split):
             raise SystemExit(f"{WHO}: {game} is a held-out game")
         old = man["games"].get(game)
-        if not force and old and old.get("status") == "ok" and cc.parquet_ok(frames_path) == old.get("frames_rows"):
+        if not force and reusable(old, cc.parquet_ok(frames_path), blob):
             entry = old
         else:
             copy = work / archive.name                     # convert from a copy: cleanup_raw deletes what it reads
@@ -223,11 +229,11 @@ def ingest(pins: dict, root: Path, listing: bool = True, force: bool = False) ->
                 entry = cc.convert_game(g, copy, work, out_dir, work / "_parquet", sp, do_pbp=False)
             finally:
                 cc.cleanup_raw(game, work)
+            entry["archive_git_blob_sha1"] = blob        # the archive these frames came from (reuse check)
             man["games"][game] = entry
             cc.write_manifest(out_dir, man)
         record["games"][game] = {
-            "source_name": prefixed_name(game), "archive": f"raw/{game}.7z", "archive_bytes": size,
-            "archive_git_blob_sha1": blob, "archive_sha256": sha256, "status": entry["status"],
+            "source_name": prefixed_name(game), "archive": f"raw/{game}.7z", **dig, "status": entry["status"],
             "error": entry.get("error"), "moments": entry.get("moments"), "frames_rows": entry.get("frames_rows"),
             "gaps_over_2s": entry.get("gaps_over_2s"), "parquet": entry.get("parquet"),
             "parquet_bytes": entry.get("parquet_bytes"), "split": entry.get("split"), "pbp_joined": entry.get("pbp_joined"),
@@ -242,10 +248,29 @@ def ingest(pins: dict, root: Path, listing: bool = True, force: bool = False) ->
                         "source_broken": statuses.count("source_broken"), "failed": statuses.count("failed"),
                         "moments": sum(e["moments"] or 0 for e in record["games"].values()),
                         "frames_rows": sum(e["frames_rows"] or 0 for e in record["games"].values())}
+    return update_record(root, record)
+
+
+def reusable(old: dict | None, rows_on_disk: int, blob: str) -> bool:
+    """A converted game is reused only when its manifest entry is ok, the parquet reads back with the recorded row
+    count, and the entry names the same archive blob sha1 (an entry without one is converted again)."""
+    return bool(old and old.get("status") == "ok" and rows_on_disk and rows_on_disk == old.get("frames_rows")
+                and old.get("archive_git_blob_sha1") == blob)
+
+
+def read_record(root: Path) -> dict:
+    p = Path(root) / "ingest.json"
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def update_record(root: Path, updates: dict) -> dict:
+    """ingest.json with the given top-level keys replaced and every other key (for example bref_stage) kept."""
+    record = read_record(root)
+    record.update(updates)
     record["written"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    tmp = root / "ingest.json.part"
+    tmp = Path(root) / "ingest.json.part"
     tmp.write_text(json.dumps(record, indent=1) + "\n")
-    os.replace(tmp, root / "ingest.json")
+    os.replace(tmp, Path(root) / "ingest.json")
     return record
 
 
@@ -259,6 +284,34 @@ def cached_pbp_events(collect_dir: Path, code: str) -> list | None:
     from collect import bref_shots, common
     rec = common.RawCache(Path(collect_dir) / "raw").get(bref_shots.RAW_PBP_ENDPOINT, {"code": code})
     return rec["body"] if rec else None
+
+
+def pbp_source(entry: dict, pbp_path: Path, collect_dir: Path, project_root: Path) -> tuple[str, list | None]:
+    """(source, events) of a game's play-by-play, in the order collect.bref_shots.pbp_shot_count consults them: the
+    joined <game>_pbp.parquet (events None: already joined), data/pbp/<code>.json, then the page the collector cached.
+    SystemExit when none holds it (the collector answered from somewhere this tool cannot see, or fetched nothing)."""
+    from sportvu import colab_contract as cc
+    code = cc.br_code(entry)
+    if entry.get("pbp_joined") and cc.parquet_ok(pbp_path):
+        return "pbp_parquet", None
+    local = Path(project_root) / "data" / "pbp" / f"{code}.json"
+    if local.exists():
+        return "data_pbp_json", json.loads(local.read_text())["events"]
+    events = cached_pbp_events(collect_dir, code)
+    if events is not None:
+        return "bref_pbp_cache", events
+    raise SystemExit(f"{WHO}: {entry['game']}: no play-by-play for {code} in the joined parquet, data/pbp or the "
+                     "collector's cache")
+
+
+def pbp_field_goal_attempts(events: list | None, pbp_path: Path) -> int:
+    """Shot events of either kind (a row count: no outcome is split out), from the events or the joined parquet."""
+    if events is None:
+        import pyarrow.parquet as pq
+        kinds = pq.read_table(pbp_path, columns=["kind"]).column("kind").to_pylist()
+    else:
+        kinds = [ev.get("kind") for ev in events]
+    return sum(k in ("shot_made", "shot_missed") for k in kinds)
 
 
 def shot_counts(shots, shot_frames, features, pbp_shots: dict) -> dict:
@@ -277,56 +330,11 @@ def shot_counts(shots, shot_frames, features, pbp_shots: dict) -> dict:
     return out
 
 
-def bref_stage(root: Path) -> dict:
-    """Fetch the shot chart and play-by-play pages with collect.bref_shots (unchanged; its throttle at BREF_RPM, its
-    raw cache under collect/raw/), join the play-by-play to the frames with sportvu.colab_contract.join_game_pbp, run
-    analytics.run_phase0 with explicit outputs under root, and check that analytics.xfg.validate.load_data_root reads
-    the result. Adds the outcome to ingest.json."""
-    import pyarrow.parquet as pq
-    from analytics import run_phase0
+def xfg_check(root: Path, pbp_shots: dict) -> tuple[dict, dict]:
+    """The check the xfg lane needs, with the frozen functions: load_data_root, clean, assemble. Nothing fitted, no
+    metric; the label column is dropped unread. -> (totals, per-game row counts)."""
     from analytics.xfg.train import assemble
     from analytics.xfg.validate import clean, load_data_root
-    from collect import bref_shots
-    from sportvu import colab_contract as cc
-    from sportvu import splits
-    from tools.frozen_common import training_games_only
-
-    root = guard_root(root)
-    out_dir, collect_dir, work = root / "sportvu_contract", root / "collect", root / "_work"
-    man = cc.load_manifest(out_dir)
-    games = sorted(g for g, e in man["games"].items() if e["status"] == "ok")
-    if not games:
-        raise SystemExit(f"{WHO}: no converted game under {out_dir.name}; run the download stage first")
-    training_games_only(games, WHO)
-    final = bref_shots.main(["--out", str(collect_dir), "--contract-dir", str(out_dir), "--fetch-pbp",
-                             "--rpm", str(BREF_RPM)])
-    print(final, flush=True)
-
-    sp = splits.load()
-    pbp_shots = {}
-    for game in games:
-        e = man["games"][game]
-        code = cc.br_code(e)
-        events = cached_pbp_events(collect_dir, code)
-        if events is None:
-            print(f"{game}: no cached play-by-play page ({code}); not joined", flush=True)
-            continue
-        pbp_shots[game] = sum(ev.get("kind") in ("shot_made", "shot_missed") for ev in events)
-        if e.get("pbp_joined"):
-            continue
-        frames_path, pbp_path, _ = cc.game_paths(e, out_dir, sp)
-        table = pq.read_table(frames_path, columns=["frame", "period", "game_clock_s"])
-        res = cc.join_game_pbp(e, table, pbp_path, out_dir, work / "_parquet", pbp_fetch=lambda _c, ev=events: ev)
-        del table
-        if res.get("pbp"):
-            res["pbp"]["source"] = "basketball-reference.com"
-        e.update(res)
-        cc.write_manifest(out_dir, man)
-        print(f"{game}: play-by-play {res['pbp']['events']} events, {res['pbp']['matched']} matched to a frame", flush=True)
-    shutil.rmtree(work, ignore_errors=True)
-
-    rc = run_phase0.run(out_dir, out_root=root, steps=PHASE0_STEPS, bref_dir=collect_dir)
-    # the check the xfg lane needs: load, clean, assemble (frozen functions; nothing fitted, no metric, no outcome read)
     data = load_data_root(root, "2015-16")
     loaded = {"shots": int(len(data["shots"])), "shot_frames": int(len(data["shot_frames"])),
               "rosters": int(len(data["rosters"])), "possessions": int(len(data["possessions"])),
@@ -335,24 +343,85 @@ def bref_stage(root: Path) -> dict:
     rows, held_rows = assemble(cleaned)
     if len(held_rows):
         raise SystemExit(f"{WHO}: assemble set aside {len(held_rows)} held-out rows; none was expected")
-    feats = rows.drop(columns=[c for c in ("made",) if c in rows.columns])      # the label is dropped unread
+    feats = rows.drop(columns=[c for c in ("made",) if c in rows.columns])
     counts = shot_counts(cleaned["shots"], cleaned["shot_frames"], feats, pbp_shots)
     loaded.update(assembled_rows=int(len(feats)), has_contest=int(feats["has_contest"].astype(int).sum()))
-    del data, cleaned, rows, held_rows, feats
-    rec_path = root / "ingest.json"
-    record = json.loads(rec_path.read_text())
-    record["bref_stage"] = {
-        "decision": "PLAN.md D78", "rpm": BREF_RPM, "collector": final,
-        "pbp_join": "sportvu.colab_contract.join_game_pbp on the events collect.bref_shots cached (fetch_pbp.fetch_game)",
-        "phase0": "analytics.run_phase0.run(out_root=this folder, steps=%s)" % ",".join(PHASE0_STEPS),
-        "phase0_verdict": "RUN OK" if rc == 0 else "RUN FAILED", "load_data_root": loaded, "per_game": counts,
-        "manifest_counts": cc.load_manifest(out_dir)["counts"],
-    }
-    record["blocked_on_basketball_reference"] = {"status": "fetched under D78", "pages_total": 2 * len(games)}
-    tmp = root / "ingest.json.part"
-    tmp.write_text(json.dumps(record, indent=1) + "\n")
-    os.replace(tmp, rec_path)
-    return record["bref_stage"]
+    return loaded, counts
+
+
+def bref_stage(root: Path, collect=None, phase0=None, check=xfg_check, project_root=None) -> dict:
+    """Fetch the shot chart and play-by-play pages with collect.bref_shots (unchanged; its throttle at BREF_RPM, its
+    raw cache under collect/raw/), join the play-by-play to the frames with sportvu.colab_contract.join_game_pbp, run
+    analytics.run_phase0 with explicit outputs under root, and check that the xfg lane loads and assembles the folder.
+    The outcome goes into ingest.json (merged); a failed collector or Phase 0 run is recorded there and stops the
+    stage. collect, phase0 and check default to the frozen functions; tests pass stand-ins."""
+    import pyarrow.parquet as pq
+    from sportvu import colab_contract as cc
+    from sportvu import splits
+    from tools.frozen_common import REPO_ROOT, training_games_only
+    if collect is None:
+        from collect.bref_shots import main as collect
+    if phase0 is None:
+        from analytics.run_phase0 import run as phase0
+    project_root = Path(project_root or REPO_ROOT)
+
+    root = guard_root(root)
+    if not read_record(root):
+        raise SystemExit(f"{WHO}: no ingest.json under the root; run the download stage first")
+    out_dir, collect_dir, work = root / "sportvu_contract", root / "collect", root / "_work"
+    man = cc.load_manifest(out_dir)
+    games = sorted(g for g, e in man["games"].items() if e["status"] == "ok")
+    if not games:
+        raise SystemExit(f"{WHO}: no converted game under {out_dir.name}; run the download stage first")
+    training_games_only(games, WHO)
+    stage = {"decision": "PLAN.md D78", "rpm": BREF_RPM, "pages_total": 2 * len(games),
+             "pbp_join": "sportvu.colab_contract.join_game_pbp on the play-by-play events (fetch_pbp.fetch_game output)",
+             "phase0": "analytics.run_phase0.run(out_root=this folder, steps=%s)" % ",".join(PHASE0_STEPS)}
+
+    def stop(verdict: str, why: str):
+        stage["verdict"] = verdict
+        update_record(root, {"bref_stage": stage})
+        raise SystemExit(f"{WHO}: {why}")
+
+    final = collect(["--out", str(collect_dir), "--contract-dir", str(out_dir), "--fetch-pbp", "--rpm", str(BREF_RPM)])
+    stage["collector"] = final
+    print(final, flush=True)
+    if not str(final).startswith("RUN OK"):
+        stop("COLLECTOR FAILED", f"collect.bref_shots did not finish: {final}")
+
+    sp = splits.load()
+    pbp_shots, sources = {}, {}
+    for game in games:
+        e = man["games"][game]
+        _, pbp_path, _ = cc.game_paths(e, out_dir, sp)
+        src, events = pbp_source(e, pbp_path, collect_dir, project_root)
+        sources[game] = src
+        if events is not None:
+            frames_path, _, _ = cc.game_paths(e, out_dir, sp)
+            table = pq.read_table(frames_path, columns=["frame", "period", "game_clock_s"])
+            res = cc.join_game_pbp(e, table, pbp_path, out_dir, work / "_parquet", pbp_fetch=lambda _c, ev=events: ev)
+            del table
+            if not res.get("pbp_joined"):
+                cc.write_manifest(out_dir, man)
+                stop("PBP JOIN FAILED", f"{game}: {res['pbp']['error']}")
+            res["pbp"]["source"] = "basketball-reference.com"
+            e.update(res)
+            cc.write_manifest(out_dir, man)
+            print(f"{game}: play-by-play {res['pbp']['events']} events, {res['pbp']['matched']} matched to a frame",
+                  flush=True)
+        pbp_shots[game] = pbp_field_goal_attempts(events, pbp_path)
+    shutil.rmtree(work, ignore_errors=True)
+    stage["pbp_sources"] = sources
+
+    rc = phase0(out_dir, out_root=root, steps=PHASE0_STEPS, bref_dir=collect_dir)
+    stage["phase0_verdict"] = "RUN OK" if rc == 0 else "RUN FAILED"
+    if rc != 0:
+        stop("PHASE0 FAILED", f"analytics.run_phase0 returned {rc}; see reports/phase0_summary.md under the root")
+    loaded, counts = check(root, pbp_shots)
+    stage.update(verdict="OK", load_data_root=loaded, per_game=counts, manifest_counts=cc.load_manifest(out_dir)["counts"])
+    update_record(root, {"bref_stage": stage,
+                         "blocked_on_basketball_reference": {"status": "fetched under D78", "pages_total": 2 * len(games)}})
+    return stage
 
 
 def main(argv=None) -> int:
@@ -367,8 +436,8 @@ def main(argv=None) -> int:
             st = bref_stage(Path(a.root))
         for g, c in st["per_game"].items():
             print(g, c, flush=True)
-        print(st["phase0_verdict"], st["load_data_root"], flush=True)
-        return 0 if st["phase0_verdict"] == "RUN OK" else 1
+        print(st["verdict"], st["load_data_root"], flush=True)
+        return 0 if st["verdict"] == "OK" else 1
     ap = argparse.ArgumentParser(prog=WHO, description=__doc__.split("\n\n")[0])
     ap.add_argument("--source", default=None, help="test set source whose archives to ingest (default: the tracking source)")
     ap.add_argument("--root", default=str(DEFAULT_ROOT), help="output root (never under DATA_ROOT or reports/)")
