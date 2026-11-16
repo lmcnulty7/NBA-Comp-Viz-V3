@@ -62,7 +62,7 @@ def ingest_pins(source: str = TRACKING, path=None) -> dict:
     pins = dict(src.get("archive_git_blob_sha1") or {})
     if sorted(pins) != sorted(src["games"]):
         raise SystemExit(f"{source}: the archive pins do not name exactly the committed test games")
-    if src.get("pins_sha256") and list_hash(f"{g} {pins[g]}" for g in pins) != src["pins_sha256"]:
+    if not src.get("pins_sha256") or list_hash(f"{g} {pins[g]}" for g in pins) != src["pins_sha256"]:
         raise SystemExit(f"{source}: the archive pins do not match their sha256; the pins were edited")
     return pins
 

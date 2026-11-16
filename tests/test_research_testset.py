@@ -30,6 +30,8 @@ def test_the_committed_test_set_matches_its_hashes():
     for name, src in data["sources"].items():
         assert R.list_hash(src["games"]) == src["sha256"], name
         assert len(src["games"]) == len(set(src["games"])), name
+    pins = data["sources"][R.TRACKING]["archive_git_blob_sha1"]
+    assert data["sources"][R.TRACKING]["pins_sha256"] == R.list_hash(f"{g} {pins[g]}" for g in pins)
 
 
 def test_no_spent_heldout_game_is_a_test_game():
@@ -108,16 +110,26 @@ def test_score_once_is_never_aliased_or_reached_by_name():
     assert problems == []
 
 
-def test_the_scoring_ledger_only_grows():
+def test_the_scoring_ledger_only_grows_across_its_whole_history():
+    """Every committed version of the ledger is a prefix of the next and of the working tree, and an entry that was
+    "scored" in any version is byte-identical in every later one."""
     import subprocess
-    head = subprocess.run(["git", "show", "HEAD:reports/research/scoring_ledger.json"], cwd=REPO,
-                          capture_output=True, text=True)
-    if head.returncode != 0:
-        return                                   # no ledger committed yet
-    before = json.loads(head.stdout)
-    now = json.loads(R.LEDGER_FILE.read_text()) if R.LEDGER_FILE.exists() else []
-    keys = lambda es: [(e["experiment"], e["source"], e.get("started_at")) for e in es]
-    assert keys(now)[: len(before)] == keys(before), "a committed ledger entry was removed or changed"
+    rel = "reports/research/scoring_ledger.json"
+    shas = subprocess.run(["git", "log", "--reverse", "--format=%H", "--", rel], cwd=REPO, capture_output=True,
+                          text=True).stdout.split()
+    versions = []
+    for sha in shas:
+        shown = subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=REPO, capture_output=True, text=True)
+        if shown.returncode == 0:
+            versions.append(json.loads(shown.stdout))
+    if R.LEDGER_FILE.exists():
+        versions.append(json.loads(R.LEDGER_FILE.read_text()))
+    for older, newer in zip(versions, versions[1:]):
+        assert len(newer) >= len(older), "a ledger entry was removed"
+        for old, new in zip(older, newer):
+            assert (old["experiment"], old["source"], old["started_at"]) == (new["experiment"], new["source"], new["started_at"])
+            if old.get("status") == "scored":
+                assert json.dumps(old, sort_keys=True) == json.dumps(new, sort_keys=True), "a scored entry was edited"
 
 
 def test_each_experiment_module_has_at_most_one_final_scoring_call_and_it_is_not_in_a_loop():

@@ -26,6 +26,11 @@ play-by-play joined to the frames by sportvu.colab_contract.join_game_pbp, then 
 shot_frames, possessions, gaps; rebound_frames is left out) with every output under --root, and a check that
 analytics.xfg.validate.load_data_root reads the folder. Per-game shot counts go into ingest.json.
 
+SEALED: the frozen tools this stage runs also write outcome aggregates of the test games under --root:
+collect/bref_shots/manifest.json (a made count per game), analytics/phase0_manifest.json (possession end kinds,
+points, final score) and the reports/ folder under --root. They are never opened, printed or read by any research
+tool; only score_once's scorer reads a test outcome (PLAN.md D80, D81). SEALED_FILES lists them.
+
 Nothing is fitted or scored here; no metric is computed. The output root may not be under DATA_ROOT or reports/.
 No held-out game of sportvu/splits.json is accepted.
 """
@@ -46,6 +51,7 @@ SOURCE_DIR = "data/2016.NBA.Raw.SportVU.Game.Logs"
 PREFIX = "2016.NBA.Raw.SportVU.Game.Logs"     # the stray folder name the upload put in front of the file name
 RAW_URL = f"https://raw.githubusercontent.com/{REPO}/{COMMIT}/{SOURCE_DIR}/"
 LIST_URL = f"https://api.github.com/repos/{REPO}/contents/{SOURCE_DIR}?ref={COMMIT}"
+SEALED_FILES = ("collect/bref_shots/manifest.json", "analytics/phase0_manifest.json", "reports/")
 DEFAULT_ROOT = Path.home() / "Developer" / "nba-v3-worktrees" / "_research-data" / "sportvu_untouched"
 WHO = "tools.research_ingest"
 

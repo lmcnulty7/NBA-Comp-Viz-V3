@@ -41,7 +41,7 @@ P8 Step 0 (docs/research/P8_FEASIBILITY.md).
 
 The ratio alone would put load-E1 second. It drops below the next two because its own pre-registration calls a test
 set under about 1000 rows underpowered, and Set A gives about 220 player-games: it would end "underpowered" whatever
-the model does. The pilot (xfg-E1) is already running and is not counted.
+the model does. The pilot (xfg-E1) has run (not adopted) and is not counted.
 
 1. **decisions-E1 (gain 3, effort 1).** The decisions lane is the one that failed outright. The dossier found that only
    the hold option is valued with EPV, and that the gap between kinds of decision (held-out mean regret: shot -0.159,
