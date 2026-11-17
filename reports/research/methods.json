@@ -1281,7 +1281,7 @@
      "gain": 3,
      "effort": 1,
      "test_data": "training tables, Set A",
-     "backlog_status": "proposed",
+     "backlog_status": "done: not adopted (H1 fails as pre-registered, H2 holds, H3 fails; reports/research/decisions-E1.md)",
      "results": null
     },
     {
