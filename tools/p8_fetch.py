@@ -15,7 +15,7 @@ except this tool's ffprobe check and, later, the single score_once scorer of eac
 or scorebug check runs on a test video here (D85 (1)).
 
 The scorebug check reads one frame of a candidate by eye: teams, period, game clock and score. That reading is
-compared with the contract's play-by-play of each candidate SportVU game (tools.p8_registry_check) and written to
+compared with the contract's play-by-play of each candidate SportVU game (tools.p8_scorebug) and written to
 reports/research/p8_registry.json.
 """
 

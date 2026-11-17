@@ -106,7 +106,7 @@
     "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
    }
   },
-  "nyk_bos": {
+  "nyk_bos_2016": {
    "video_id": "CVFO7eUrTL8",
    "title_matchup": "Celtics at Knicks",
    "home": "NYK",
@@ -117,10 +117,28 @@
    "other_meetings_outside_window": [
     "2016-02-02"
    ],
-   "status": "pending",
-   "sportvu": null
+   "status": "confirmed",
+   "sportvu": "01.12.2016.BOS.at.NYK",
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "9:07",
+     "away": 30,
+     "home": 42
+    },
+    "candidates": {
+     "01.12.2016.BOS.at.NYK": "score matches"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   },
+   "date": "2016-01-12",
+   "layout": "msg15_720",
+   "layout_note": "new hand calibration msg15_720 (registry layouts); clock_reader read 2nd 9:07 on the check frame"
   },
-  "okc_sac": {
+  "okc_sac_2015": {
    "video_id": "tqDqi5XqUKU",
    "title_matchup": "Kings at Thunder",
    "home": "OKC",
@@ -130,8 +148,44 @@
     "01.04.2016.SAC.at.OKC"
    ],
    "other_meetings_outside_window": [],
-   "status": "pending",
-   "sportvu": null
+   "status": "confirmed",
+   "sportvu": "12.06.2015.SAC.at.OKC",
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "10:47",
+     "away": 27,
+     "home": 28
+    },
+    "candidates": {
+     "12.06.2015.SAC.at.OKC": "score matches",
+     "01.04.2016.SAC.at.OKC": "score differs"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   },
+   "date": "2015-12-06",
+   "layout": "fso15_720",
+   "layout_note": "the Fox Sports Oklahoma strip has the same geometry as the registered fso15_720 (Fox Sports Ohio); clock_reader read 2nd 10:47 on the check frame"
+  }
+ },
+ "layouts": {
+  "msg15_720": {
+   "period_box": [
+    1104,
+    652,
+    1127,
+    682
+   ],
+   "clock_box": [
+    1104,
+    625,
+    1196,
+    651
+   ],
+   "measured_on": "nyk_bos_2016 frame at 1500 s (2nd 9:07), 4x pixel crop, 2026-11-17; MSG Networks right-hand bug, period box stops before the ND superscript"
   }
  }
 }
