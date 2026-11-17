@@ -66,7 +66,10 @@ TEST_DATA_NAMES = ("research_data_root", "test_features", "_research-data", "spo
                    "R._load", "import _load", "ingest_pins")
 ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            "tools/research_xfg.py": ("research_data_root", "test_features", "_research-data", "sportvu_untouched",
-                                     "V3_RESEARCH_DATA")}
+                                     "V3_RESEARCH_DATA"),
+           # decisions-E1 imports the two from research_xfg and calls them only inside its scorer
+           # (tests/test_research_decisions.py checks that)
+           "tools/research_decisions.py": ("research_data_root", "test_features")}
 
 
 def test_only_named_places_reach_the_test_games_data():
