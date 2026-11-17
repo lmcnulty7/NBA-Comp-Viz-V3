@@ -527,3 +527,17 @@ def test_a_deploy_copy_can_leave_a_kind_of_text_out(root, tmp_path):
     assert S.validate_tree(out, allow_missing=S.STAGED_FILES) == []
     with pytest.raises(genai.GenaiProblem):
         genai.withhold(root, out, ["scouting"])
+
+
+def test_a_hand_read_sheet_draws_with_a_fixed_seed_and_leaves_out_texts_read_before(root, tmp_path):
+    import csv
+
+    first = genai.hand_read_sheet(root, "scouting", 3, tmp_path / "a.csv")
+    assert first == genai.hand_read_sheet(root, "scouting", 3, tmp_path / "b.csv")
+    rows = list(csv.DictReader((tmp_path / "a.csv").open(encoding="utf-8")))
+    assert [r["key"] for r in rows] == first and set(rows[0]) == set(genai.HAND_READ_COLUMNS)
+    assert rows[0]["text"] and rows[0]["facts"] and rows[0]["wrong_attributions"] == ""
+    later = genai.hand_read_sheet(root, "scouting", 3, tmp_path / "c.csv", exclude=first)
+    assert not set(later) & set(first)
+    with pytest.raises(genai.GenaiProblem):
+        genai.hand_read_sheet(root, "scouting", 99, tmp_path / "d.csv")

@@ -2,6 +2,7 @@
 
     python3 -m export.genai --root <data root> [--players N] [--possessions N | --all] [--live] [--cache <dir>]
     python3 -m export.genai --root <data root> --withhold scouting --out <copy for a deploy>
+    python3 -m export.genai --root <data root> --kinds scouting --hand-read 30 --out <sheet.csv> [--exclude <keys>]
 
 Two kinds of text, one short paragraph each:
 - scouting: a scouting report on one player of the prep tab, from his entry in players.json;
@@ -1428,6 +1429,44 @@ def withhold(src, out, kinds) -> dict:
     return {"left_out": left_out}
 
 
+# --------------------------------------------------------------------------------------------- hand reading
+
+HAND_READ_SEED = 93
+HAND_READ_COLUMNS = ("key", "name", "prompt_version", "call", "text", "facts", "wrong_attributions",
+                     "attribution_notes", "unsupported_claims", "faithfulness_notes", "reader")
+
+
+def hand_read_sheet(root, kind: str, n: int, out, seed: int = HAND_READ_SEED, exclude=()) -> list:
+    """Write the sheet of a hand-read (docs/GENAI_HAND_READ.md): `n` texts of `kind` drawn with a fixed seed from
+    the texts the root holds, leaving out the keys in `exclude` (texts read before), one row per text with the facts
+    of its page as the page shows them and empty columns for the reader. Returns the keys drawn. The sheet holds
+    text written from the data root, so it is written outside the repository unless the root is synthetic."""
+    import csv
+
+    root, out = Path(root), Path(out)
+    manifest = _load(root, "manifest.json", S.Manifest)
+    if not manifest.synthetic and (REPO_ROOT == out.resolve() or REPO_ROOT in out.resolve().parents):
+        raise GenaiProblem("a hand-read sheet of real data is written outside the repository")
+    rel = S.GENAI_FILES[kind]
+    if not (root / rel).exists():
+        raise GenaiProblem(f"the root holds no {kind} texts")
+    texts = {t.key: t for t in _load(root, rel, S.GeneratedTexts).items if t.key not in set(exclude)}
+    if len(texts) < n:
+        raise GenaiProblem(f"only {len(texts)} {kind} texts to draw from, not {n}")
+    keys = sorted(random.Random(seed).sample(sorted(texts), n))
+    builders = {item[0]: item[1] for item in items_of(root, kind)}
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(HAND_READ_COLUMNS)
+        for key in keys:
+            text, item = texts[key], builders[key]()
+            facts = "\n".join(f"{f['shown']}  {f['field']}: {f['about']}" for f in item["facts"])
+            name = item["context"].get("name") or f"{item['context'].get('offense')} against {item['context'].get('defense')}"
+            writer.writerow([key, name, text.prompt_version, text.call or "", text.text, facts, "", "", "", "", ""])
+    return keys
+
+
 # ------------------------------------------------------------------------------------------------------- run
 
 
@@ -1548,8 +1587,24 @@ def main(argv=None) -> int:
     parser.add_argument("--summary", help="also write the run's counts and token use to this json file")
     parser.add_argument("--withhold", nargs="+", choices=KINDS,
                         help="write a copy of --root to --out without these kinds of text (no model call), for a deploy")
-    parser.add_argument("--out", help="the folder of the copy that --withhold writes")
+    parser.add_argument("--out", help="the folder of the copy that --withhold writes, or the sheet of --hand-read")
+    parser.add_argument("--hand-read", type=int, metavar="N",
+                        help="write a hand-read sheet of N texts of the first of --kinds (no model call)")
+    parser.add_argument("--seed", type=int, default=HAND_READ_SEED, help="the seed of the hand-read draw")
+    parser.add_argument("--exclude", help="a file of keys read before, one a line, left out of the draw")
     args = parser.parse_args(argv)
+    if args.hand_read:
+        if not args.out:
+            print("genai: --hand-read needs --out", file=sys.stderr)
+            return 1
+        exclude = Path(args.exclude).read_text(encoding="utf-8").split() if args.exclude else ()
+        try:
+            keys = hand_read_sheet(args.root, args.kinds[0], args.hand_read, args.out, args.seed, exclude)
+        except GenaiProblem as exc:
+            print(f"genai: {exc}", file=sys.stderr)
+            return 1
+        print(f"genai: hand-read sheet of {len(keys)} {args.kinds[0]} texts (seed {args.seed}) written")
+        return 0
     if args.withhold:
         if not args.out:
             print("genai: --withhold needs --out", file=sys.stderr)
