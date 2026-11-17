@@ -1,13 +1,21 @@
 # winprob-E1: a pregame strength drift term from past results (Stern's mu, without odds)
 
-Draft written 2026-11-17, before the test score. Pre-registration: docs/research/winprob.md, section 6, "winprob-E1".
+Written 2026-11-17. The development stage and the commitments were committed before the test score (commit
+b9c2ca4e); the test section was added after it. Pre-registration: docs/research/winprob.md, section 6, "winprob-E1".
 Data rules: PLAN.md D79 (development seasons 2020-21 to 2023-24), D89 (the 2025-26 test season, and 2024-25 read as
-Elo state only). Code: tools/research_winprob.py and tools/research_winprob_elo.py. Every number below is copied from
-reports/research/winprob-E1-dev.json. Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of
+Elo state only), D91 (the bucket guard). Code: tools/research_winprob.py and tools/research_winprob_elo.py at commit
+b9c2ca4e. Every number below is copied from reports/research/winprob-E1-dev.json or
+reports/research/winprob-E1-final.json; the single test score is the winprob-E1 entry of
+reports/research/scoring_ledger.json. Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of
 games (seed 0); paired differences use the same resampled games for both arms. ECE and calibration slopes are point
 estimates and are labelled so.
 
-**Status: development stage done; the test season is not scored yet.**
+**Verdict: passes.** On the 2025-26 test season (1300 games scored), the Elo drift term lowers mean bucket Brier by
+0.0124 [0.0086, 0.0161] against the frozen logistic, six times the 0.002 bar. No bucket gets worse, overtime
+included (D91); the regulation-only reading is the same. As pre-registered, the gain is largest early: 0.0306 in the
+first 12 minutes, 0.0004 in the last 4. The drift form adds a little beyond Elo alone (0.0005 [0.0001, 0.0011]).
+This is a research result. The frozen lane, its report and the site do not change. Early calibration was mixed on
+development, so any use on the site waits for winprob-E2 or a D line.
 
 ## What is tested
 
@@ -141,6 +149,78 @@ Fixed now, before score_once is called, after the development result above. The 
 9. **2024-25** enters only as Elo state (D89): its results move the ratings, nothing is fitted, tuned or scored on it,
    and the report gives only the count of games read.
 
-## Test season (2025-26)
+## Test season (2025-26, scored once)
 
-Not scored yet.
+The three arms, fitted on every development row (2020-21 to 2023-24, 2292413 events, 5059 games), with Elo carried
+through 2024-25 as state (1321 games read; nothing fitted, tuned or scored on them) and updated game by game through
+2025-26.
+
+Data checks:
+
+- Games listed 1316, without play-by-play 0, dropped by the frozen builders 16, scored 1300 (610276 events). All 16
+  were dropped by the frozen clock rule for a gap in the period numbers (7626 events); their ids are in the final
+  json. No overtime-clock or bad-clock drops.
+- Schedule agreement: the play-by-play final margin equals the schedule's final score in 1316 of 1316 games (1.0).
+- Non-finite values: 0. Elo prefix check on the test season: no violation.
+- Files read: the season's play-by-play and schedule files only, both pinned in the test set and hashed by
+  score_once before the scorer ran. The ledger entry records the code commit, the development state-frame sha256
+  and the gate file sha256.
+
+| arm | mean bucket Brier | Brier | log loss |
+| --- | --- | --- | --- |
+| baseline (control) | 0.1435 [0.1372, 0.1502] | 0.1616 [0.1550, 0.1686] | 0.4759 [0.4594, 0.4935] |
+| e1 | 0.1310 [0.1238, 0.1388] | 0.1466 [0.1390, 0.1549] | 0.4400 [0.4207, 0.4610] |
+| ablation | 0.1316 [0.1243, 0.1394] | 0.1470 [0.1395, 0.1554] | 0.4411 [0.4217, 0.4623] |
+
+Paired differences of Brier:
+
+| difference | mean bucket Brier | 48-36 | 36-24 | 24-12 | 12-4 | 4-0 | OT |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| e1 minus baseline | -0.0124 [-0.0161, -0.0086] | -0.0306 [-0.0379, -0.0227] | -0.0186 [-0.0244, -0.0124] | -0.0096 [-0.0135, -0.0058] | -0.0030 [-0.0052, -0.0007] | -0.0004 [-0.0013, 0.0005] | -0.0046 [-0.0125, 0.0034] |
+| ablation minus baseline | -0.0119 [-0.0158, -0.0078] | -0.0293 [-0.0355, -0.0228] | -0.0183 [-0.0238, -0.0125] | -0.0098 [-0.0143, -0.0054] | -0.0025 [-0.0062, 0.0011] | 0.0006 [-0.0017, 0.0032] | -0.0067 [-0.0253, 0.0127] |
+| e1 minus ablation | -0.0005 [-0.0011, -0.0001] | -0.0013 [-0.0025, 0.0000] | -0.0002 [-0.0006, 0.0001] | 0.0002 [-0.0005, 0.0009] | -0.0004 [-0.0018, 0.0009] | -0.0010 [-0.0026, 0.0005] | 0.0021 [-0.0096, 0.0134] |
+
+Rows per bucket: 48-36 146583, 36-24 155504, 24-12 150597, 12-4 97872, 4-0 56173, OT 3547.
+
+- The verdict, read as committed: e1 minus baseline -0.0124 [-0.0161, -0.0086]. The difference is beyond -0.002,
+  the interval lies below zero and does not straddle -0.002, and no bucket's interval lies above zero, overtime
+  included. **Pass.** The regulation-only reading (D91) gives the same answer.
+- Log loss, e1 minus baseline: -0.0360 [-0.0464, -0.0249] overall; by bucket (reported, no verdict) -0.0687
+  [-0.0857, -0.0503] (48-36), -0.0458 [-0.0596, -0.0310] (36-24), -0.0254 [-0.0352, -0.0153] (24-12), -0.0083
+  [-0.0143, -0.0023] (12-4), -0.0013 [-0.0037, 0.0011] (4-0), -0.0130 [-0.0330, 0.0068] (OT).
+- Ablation (descriptive): e1 minus ablation -0.0005 [-0.0011, -0.0001], so the drift form adds a little beyond
+  mu_hat alone on the test season too. Unlike on development, the edge sits mostly in the 48-36 bucket here, and no
+  single bucket's interval excludes zero.
+- Pregame Elo on the test games: Brier 0.2073 [0.1991, 0.2162] against 0.2471 [0.2442, 0.2501] for the training
+  home win rate (0.555). The spread of mu_hat is 5.28 points (standard deviation).
+- Calibration slopes by bucket (point estimates, beside the verdict as committed): e1 1.018, 1.024, 1.012, 0.996,
+  1.111 for 48-36 to 4-0 (overtime 0.879); baseline 1.035, 1.016, 0.992, 0.994, 1.111 (0.827); ablation 1.164,
+  1.044, 0.986, 0.949, 1.046 (0.900). ECE (10 bins, point estimates): e1 0.0156, 0.0139, 0.0172, 0.0132, 0.0157
+  (0.0592); baseline 0.0123, 0.0090, 0.0169, 0.0154, 0.0146 (0.0456).
+
+## What this means
+
+- Knowing who is playing matters most early. In the first 12 minutes the drift term cuts Brier by 0.0306 (from
+  0.2297 to 0.1991), and in the last 4 minutes the score and clock say almost everything (0.0004, interval through
+  zero). This is the pattern Stern's model predicts and the dossier expected.
+- The gain is larger than the published one it was sized from (about 0.010 overall Brier in Maddox et al. 2022, per
+  game second; here 0.0150 [0.0105, 0.0193] overall Brier per event). The weighting differs (every event, not every
+  second), so the two are roughly comparable, not equal.
+- The test-season gain (-0.0124) is larger than the development estimate (-0.0082 [-0.0103, -0.0059]), within the
+  spread of the development seasons (-0.0041 to -0.0120). Pregame Elo was also sharper on 2025-26 (Brier 0.2073)
+  than on any development season (0.2127 to 0.2281).
+- Early calibration on the test season is close to 1 for e1 (slopes 1.018 and 1.024 in the first two buckets, point
+  estimates), but on development it was mixed (0.855 to 1.094). A Brier pass does not show the early probabilities
+  are calibrated; that is winprob-E2's question.
+- The control arm's test numbers (mean bucket Brier 0.1435) are the control of this experiment, not a new score of
+  the frozen lane; they do not replace or sit beside the frozen held-out result in reports/winprob.md.
+- Caveats: Brill, Yurko and Wyner (2025) find game-bootstrap intervals on play-by-play can be narrow, but the result
+  is more than two half-widths beyond the bar. Elo sees no injuries, rest or trades. The NBA Cup final is treated as a home
+  game. 16 games (1.2 percent) were not scored because the frozen clock rule drops games with shifted period labels;
+  the same rule dropped 42 development games.
+
+## What would change the verdict
+
+A season where the pregame rating carries less signal (many trades or injuries) would shrink the early gain; the
+weakest development season (2022-23) gave -0.0041 [-0.0077, -0.0005], still past the bar on its point. A pass here
+does not put the term on the site: that needs winprob-E2's calibration check or a decision by the lead.
