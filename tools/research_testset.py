@@ -22,6 +22,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -35,6 +36,9 @@ BROADCAST_CV = "broadcast_cv_2015_16"
 # The optional keyed lists of a source and the hash that seals each one (a sorted "key value" line per entry).
 SEALED_MAPS = {"archive_git_blob_sha1": "pins_sha256", "video_ids": "video_pins_sha256",
                "arena_homes": "arena_homes_sha256"}
+# Keys a source must carry (a missing key is an edit of the test set, not an empty list).
+REQUIRED_KEYS = {BROADCAST_CV: ("video_ids", "video_pins_sha256", "arena_homes", "arena_homes_sha256",
+                                "archive_git_blob_sha1", "pins_sha256")}
 
 
 def list_hash(games) -> str:
@@ -58,6 +62,9 @@ def _load(path=None) -> dict:
     for name, src in data["sources"].items():
         if list_hash(src["games"]) != src["sha256"]:
             raise SystemExit(f"{name}: the committed test games do not match their sha256; the test set was edited")
+        missing = [k for k in REQUIRED_KEYS.get(name, ()) if not src.get(k)]
+        if missing:
+            raise SystemExit(f"{name}: the committed test set lacks {missing}; the test set was edited")
         for key, seal in SEALED_MAPS.items():
             if key in src and (not src.get(seal) or map_hash(src[key]) != src[seal]):
                 raise SystemExit(f"{name}: {key} does not match {seal}; the test set was edited")
@@ -113,16 +120,29 @@ def _test_homes(source: str, path=None) -> set:
     return {h for hs in (src.get("arena_homes") or {}).values() for h in hs}
 
 
-def refuse_cv_test(items, who: str, path=None) -> int:
-    """The P8 guard. SystemExit when any item is a broadcast CV test game, one of its video ids, or a game whose home
-    team plays in a CV test arena -> the number of items checked. Every P8 tool runs it on each game id and each video
-    id it downloads, syncs, builds, labels, fits, tunes or scores on, outside score_once."""
+def cv_test_hits(items, path=None, homes=()) -> list:
+    """The items that reach the broadcast CV test set, by substring and without regard to case, like
+    sportvu.splits.heldout_hits: an item (a game id, video id, tag, section stem, path or URL) is a hit when it
+    contains a test game id, a test video id, ".at.<home>" of a test arena, or a tag that starts with "<home>_" of a
+    test arena (home-first tags such as mia_nop_2015, at the start of the item or of any path segment). The optional
+    homes are team codes checked as homes against the test arenas (a registry entry's own home)."""
     src = _load(path)["sources"][BROADCAST_CV]
-    items = {str(i) for i in items}
-    banned = set(src["games"]) | set(src["video_ids"].values())
-    bad = sorted(items & banned)
-    homes = _test_homes(BROADCAST_CV, path)
-    bad += sorted(i for i in items - banned if _home_of(i) in homes)
+    tokens = [t.lower() for t in list(src["games"]) + list(src["video_ids"].values())]
+    test_homes = sorted({h.lower() for hs in src["arena_homes"].values() for h in hs})
+    tokens += [f".at.{h}" for h in test_homes]
+    tag_re = re.compile(r"(?:^|[/\\\s=])(?:%s)_" % "|".join(test_homes))
+    hits = [str(i) for i in items if any(t in str(i).lower() for t in tokens) or tag_re.search(str(i).lower())]
+    hits += [f"home {h}" for h in homes if str(h).lower() in test_homes]
+    return hits
+
+
+def refuse_cv_test(items, who: str, path=None, homes=()) -> int:
+    """The P8 guard. SystemExit when any item reaches the broadcast CV test set (cv_test_hits: a test game, a test
+    video, a game in a test arena, by substring, in any id, tag, stem, path or URL), or when one of the given home team
+    codes plays in a test arena -> the number of items checked. Every P8 tool runs it on each id, tag and path it
+    downloads, syncs, builds, labels, fits, tunes or scores on, outside score_once."""
+    items = [str(i) for i in items]
+    bad = cv_test_hits(items, path, homes)
     if bad:
         raise SystemExit(f"{who}: {len(bad)} broadcast CV test item(s) reached development code (a test game, a test "
                          f"video or a game in a test arena), for example {bad[0]}")

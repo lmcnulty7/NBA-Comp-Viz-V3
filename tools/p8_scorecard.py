@@ -2,6 +2,8 @@
 
     python -m tools.p8_scorecard game TAG --build r23 [--truth camera|camera_paint|b4]
     python -m tools.p8_scorecard combine --build r23 [--truth camera] [--tags a,b,...]
+    python -m tools.p8_scorecard gate                  Phase B gate item 1: r23 camera vs b4 truth on the gate games
+    python -m tools.p8_scorecard fix-ball-tolerance    once, before any ball model: reports/research/p8_constants.json
 
 New code that imports the frozen scorer (sportvu/bench.py) and changes none of it. Per development game it scores a
 build of the game's label windows against SportVU on every live wide frame whose camera truth was accepted:
@@ -39,7 +41,7 @@ from pathlib import Path
 
 import numpy as np
 
-from tools.p8_common import guard
+from tools.p8_common import atomic_write, guard
 from tools.research_testset import refuse_cv_test
 
 WHO = "tools.p8_scorecard"
@@ -56,6 +58,7 @@ CONSTANTS = {
     "jersey_min_crops": 8,
     "switches_goal_per_possession": 5.0,
     "event_tol_s": 1.0,
+    "event_live_wide_s": 0.5,             # an event counts when a live wide frame of its period lies within 0.5 s of it
     "shots_found_target": 0.95,
     "shots_false_max": 0.05,
     "rebounds_found_target": 0.90,
@@ -72,6 +75,7 @@ CONSTANTS = {
     "since_cut_bins_s": [1.0, 3.0, 10.0],
     "boot_n": 1000, "boot_seed": 0,
     "truth_modes": ["camera", "camera_paint", "b4"],
+    "gate_games": ["gsw_bkn_2015", "nyk_bos_2016"],   # the b4 old-truth comparison: one R1.3 and one channel game
 }
 BOOT_N, BOOT_SEED = CONSTANTS["boot_n"], CONSTANTS["boot_seed"]
 TARGETS_V2 = {
@@ -140,9 +144,50 @@ def since_cut(frame: int, cuts: list, start: int, fps: float):
 
 
 def f1(tp: int, fp: int, fn: int):
-    p = tp / (tp + fp) if tp + fp else None
-    r = tp / (tp + fn) if tp + fn else None
-    return None if not p or not r else round(2 * p * r / (p + r), 3)
+    """F1 of the counts: 0.0 when nothing was right but something was predicted or missed; None with no events."""
+    if tp + fp + fn == 0:
+        return None
+    if tp == 0:
+        return 0.0
+    p, r = tp / (tp + fp), tp / (tp + fn)
+    return round(2 * p * r / (p + r), 3)
+
+
+def universe(rows: list, live_wide: set, processed: dict) -> tuple:
+    """(rows, n left out): truth rows on live wide frames that the scored build processed. A frame the build never
+    processed is left out and counted, as the frozen bench does (its ok_rows need the frame in the sidecar)."""
+    rows = [r for r in rows if r["frame"] in live_wide]
+    kept = [r for r in rows if r["frame"] in processed]
+    return kept, len(rows) - len(kept)
+
+
+def caveats(in_sample: bool) -> list:
+    return (["development game only: no CV test game, test video or test-arena game reaches this scorer outside score_once",
+             "camera-truth candidates come from the B4 ICP matching that starts from V3's court H and boxes, so frames where V3 fails badly have no truth; the truth share is printed beside every row",
+             "the camera truth's acceptance rules were set on the GSW training games (sportvu/autolabel.py) and are applied unchanged in new arenas; the gold-key paint check exists only at GSW",
+             "events: play-by-play clock resolution is 1 s and the window OCR clock resolves 1 s; only events within 0.5 s of a live wide frame count",
+             "the play-by-play comes from basketball-reference and is used as scoring truth only (D84)",
+             "camera thirds clamp a point just off the court (y < 0 or y > 50 ft) to the nearest third; the frozen region rule (sportvu.eval.region_of) has no clamp, so third-level rows can differ from it there",
+             "frames of the universe the build never processed are left out, as the frozen bench does; their count is printed"]
+            + (["IN SAMPLE: the r23 court model was trained on this game's R1.3 labels, so its rows here are not a held-out measure; pooled rows report R1.3 and channel games separately"] if in_sample else []))
+
+
+def live_wide_events(events: list, lw_clock: list) -> list:
+    """The (period, clock) events with a live wide frame of the same period within event_live_wide_s."""
+    tol = CONSTANTS["event_live_wide_s"]
+    by_p = {}
+    for p, c in lw_clock:
+        by_p.setdefault(p, []).append(c)
+    arr = {p: np.sort(np.array(v)) for p, v in by_p.items()}
+    out = []
+    for p, c in events:
+        a = arr.get(p)
+        if a is not None and len(a):
+            k = int(np.searchsorted(a, c))
+            near = min(abs(a[j] - c) for j in (k - 1, k) if 0 <= j < len(a))
+            if near <= tol:
+                out.append((p, c))
+    return out
 
 
 def match_events(truth: list, pred: list, tol: float) -> tuple:
@@ -217,33 +262,44 @@ class Moments:
         return float(np.hypot(*(d["xy"][b][pb[0]] - d["xy"][a][pa[0]])) / dt)
 
 
-def truth_rows(P: dict, tag: str, window: dict, mode: str, index, mirror: str) -> list:
-    """[{frame, q, moment, clock, H_truth, camera?}] of one window under the truth mode."""
+def window_offset(P: dict, tag: str, stem: str):
+    """The window's residual clock offset (s) solved at the camera fit (labels/<tag>_offsets.json); None if unknown."""
+    p = P["labels"] / f"{tag}_offsets.json"
+    return json.loads(p.read_text()).get(stem) if p.exists() else None
+
+
+def truth_rows(P: dict, tag: str, window: dict, mode: str, index, mirror: str) -> tuple:
+    """([{frame, q, moment, clock, H_truth}], offset_s) of one window under the truth mode. The offset is the
+    window's own residual clock offset (b4: solved by window_truth; camera: solved at the fit), also when the window
+    has no truth row; None when it was never solved."""
     stem = window["window"]
     if mode == "b4":
         from sportvu.truth import window_truth
         side_p, tm_p = (P["label_build"] / (stem + k) for k in ("_frames.json", "_timemap.json"))
         if not side_p.exists() or not tm_p.exists():
-            return []
-        _, _, rows = window_truth(window, json.loads(side_p.read_text()), json.loads(tm_p.read_text()), index, mirror)
+            return [], None
+        off, _, rows = window_truth(window, json.loads(side_p.read_text()), json.loads(tm_p.read_text()), index, mirror)
         return [{"frame": r["frame"], "q": r["q"], "moment": r["moment"], "clock": r["clock"], "H_truth": r["H_truth"]}
-                for r in rows if r["status"] == "ok"]
+                for r in rows if r["status"] == "ok"], off
+    off = window_offset(P, tag, stem)
     p = P["labels"] / tag / (stem + ".jsonl")
     if not p.exists():
-        return []
+        return [], off
     rows = [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
     from sportvu.truth import CLOCK_TOL_S
     for r in rows:                                     # labels written before "moment" was stored: look it up
         if r.get("moment") is None:
             r["moment"] = index.at(r["q"], r["clock"], CLOCK_TOL_S)
     rows = [r for r in rows if r["moment"] is not None]
+    if off is None and rows:
+        off = rows[0].get("offset_s")
     if mode == "camera_paint":
         pp = P["labels"] / f"{tag}_paint.jsonl"
         if not pp.exists():
-            return []
+            return [], off
         keep = {(r["window"], r["frame"]) for r in map(json.loads, pp.read_text().splitlines()) if r.get("keep")}
         rows = [r for r in rows if (r["window"], r["frame"]) in keep]
-    return rows
+    return rows, off
 
 
 def frame_refs(P: dict, stem: str, video: Path, live: list, need_ref: set, stride: int, refs) -> dict:
@@ -265,6 +321,7 @@ def frame_refs(P: dict, stem: str, video: Path, live: list, need_ref: set, strid
     need_r = [f for f in sorted(need_ref) if f not in refd]
     need_c = strides if not corr else []
     read = sorted(set(need_w) | set(need_r) | set(need_c))
+    complete = True
     if read:
         sr = SeqReader(cap)
         batch, bf, prev = [], [], None
@@ -279,6 +336,7 @@ def frame_refs(P: dict, stem: str, video: Path, live: list, need_ref: set, strid
         for f in read:
             ok, img = sr.read(f)
             if not ok:
+                complete = False                 # a broken read: nothing of this pass is cached
                 break
             if f in sw:
                 batch.append(img[:, :, ::-1].copy()); bf.append(f)
@@ -293,12 +351,13 @@ def frame_refs(P: dict, stem: str, video: Path, live: list, need_ref: set, strid
                 corr[f] = None if prev is None else round(float(cv2.compareHist(prev, hist, cv2.HISTCMP_CORREL)), 4)
                 prev = hist
         flush()
-        cp.write_text(json.dumps({"window": stem, "wide_threshold": refs.wide_thr,
-                                  "wide": {str(k): v for k, v in sorted(wide.items())},
-                                  "referees": {str(k): v for k, v in sorted(refd.items())},
-                                  "corr": {str(k): v for k, v in sorted(corr.items())}}))
+        if complete:
+            atomic_write(cp, json.dumps({"window": stem, "wide_threshold": refs.wide_thr,
+                                         "wide": {str(k): v for k, v in sorted(wide.items())},
+                                         "referees": {str(k): v for k, v in sorted(refd.items())},
+                                         "corr": {str(k): v for k, v in sorted(corr.items())}}))
     cap.release()
-    return {"wide": wide, "referees": refd, "corr": corr, "W": W, "H": H}
+    return {"wide": wide, "referees": refd, "corr": corr, "W": W, "H": H, "complete": complete}
 
 
 # ── one window ──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -325,13 +384,15 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
     roster_of = {int(k): v for k, v in ident.get("roster_by_track", {}).items()}     # v2 input, when a build writes it
     fps, stride = float(tm["fps"]), int(tm["stride"])
     live = sorted({int(f) for f, _, _ in tm["frames"]})
-    rows = truth_rows(P, tag, w, mode, mom.index, mirror)
+    rows, off = truth_rows(P, tag, w, mode, mom.index, mirror)
     sidecar_cls = any("cls" in b for r in side["frames"] for b in r["boxes"])
     rf = frame_refs(P, stem, video, live, set() if sidecar_cls else {r["frame"] for r in rows}, stride, refs)
+    if not rf["complete"]:
+        return {"window": stem, "skipped": "clip read incomplete (nothing cached; a rerun reads it again)"}, [], [], {}
     wide, refd, Wd, Hd = rf["wide"], rf["referees"], rf["W"], rf["H"]
     cframes = sorted(rf["corr"]); cuts = cuts_from_corr(cframes, [rf["corr"][f] for f in cframes])
     lw = {f for f in live if wide.get(f, 0.0) >= refs.wide_thr}
-    rows = [r for r in rows if r["frame"] in lw]                          # the universe: live, wide, truth accepted
+    rows, not_processed = universe(rows, lw, srow)
     fx, fy = MIRRORS[mirror]
     sec = stride / fps
     rec = {"window": stem, "fps": fps, "stride": stride, "truth_frames": len(lw), "testable": len(rows), "matched": [],
@@ -344,7 +405,7 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
                        "accepted_live_not_wide_s": round(sum(acc(f) for f in live if f not in lw) * sec, 1)}
     obs, box_obs = [], []
     v2 = {"ball_frames": 0, "ball_in_frame": 0, "holder_frames": 0, "holder_named": 0, "holder_right": 0,
-          "roster_obs": 0, "roster_right": 0, "reproj_px": [], "not_processed": 0}
+          "roster_obs": 0, "roster_right": 0, "reproj_px": [], "not_processed": not_processed}
     ball_pred = {}
     bp = build_dir / (stem + "_ball.json")
     if bp.exists():
@@ -362,10 +423,9 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
         px = cv2.perspectiveTransform(sv.reshape(-1, 1, 2).astype(np.float32), Pinv).reshape(-1, 2)
         inside = (px[:, 0] > FRAME_MARGIN_PX) & (px[:, 0] < Wd - FRAME_MARGIN_PX) & (px[:, 1] > FRAME_MARGIN_PX) & (px[:, 1] < Hd - FRAME_MARGIN_PX)
         nh = near_side(Ht)
-        r = srow.get(f)
-        processed = r is not None
-        v2["not_processed"] += not processed
-        boxes = r["boxes"] if processed else []
+        r = srow[f]
+        processed = True
+        boxes = r["boxes"]
         feet = np.array([b["foot_stab"] for b in boxes], np.float32).reshape(-1, 2)
         ct = cv2.perspectiveTransform(feet.reshape(-1, 1, 2), Ht).reshape(-1, 2) if len(feet) else np.zeros((0, 2), np.float32)
         d_sv = np.sqrt(((sv[:, None, :] - ct[None, :, :]) ** 2).sum(-1)).min(1) if len(ct) else np.full(len(sv), np.inf)
@@ -382,7 +442,7 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
             box_obs.append({"f": f, "ghost": ghost, "ref": bool(is_ref), "third": third_of(ct[k][1], nh)})
         pairs = _match(ct, sv, B.MATCH_FT) if len(ct) else []
         err_of = {}
-        if processed and B.accepted(r) and r.get("H") is not None:
+        if B.accepted(r) and r.get("H") is not None:
             Hp = np.array(r["H"], np.float64).reshape(3, 3)
             cp_ = cv2.perspectiveTransform(feet.reshape(-1, 1, 2), Hp).reshape(-1, 2)
             for bi, j, _ in pairs:
@@ -442,17 +502,21 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
                 if carrier is not None and f in carrier:
                     v2["holder_named"] += 1
                     v2["holder_right"] += carrier[f] is not None and track_of.get(h) == carrier[f]
-    # events of the window: play-by-play attempts and rebounds inside the window's live mapped spans
-    span = [(s["period"], min(s["c0"], s["c1"]), max(s["c0"], s["c1"])) for s in tm["spans"]]
-    off = rows[0].get("offset_s", 0.0) if rows else 0.0
-    inwin = lambda e: any(e[0] == p and lo + off <= e[1] <= hi + off for p, lo, hi in span)   # true clock = OCR clock + offset
-    v2["events_truth"] = {k: [e for e in pbp_events.get(k, []) if inwin(e)] for k in ("shot", "rebound")}
-    ev_p = build_dir / (stem + "_events.json")
-    if ev_p.exists():
-        fr_clock = {int(f): (int(p), float(c) + off) for f, p, c in tm["frames"]}
-        pred = json.loads(ev_p.read_text()).get("events", [])
-        v2["events_pred"] = {k: [fr_clock[e["frame"]] for e in pred if e.get("kind") == k and e["frame"] in fr_clock]
-                             for k in ("shot", "rebound")}
+    # events of the window: play-by-play attempts and rebounds near a live wide frame of the window (section 6.2)
+    v2["window_offset_s"] = off
+    if off is None:
+        v2["window_without_offset"] = 1            # its events cannot be placed; counted in the event rows
+        v2["events_truth"] = {"shot": [], "rebound": []}
+    else:
+        clock_of = {int(f_): (int(p_), float(c_) + off) for f_, p_, c_ in tm["frames"]}     # true clock = OCR + offset
+        lw_clock = [clock_of[f_] for f_ in sorted(lw) if f_ in clock_of]
+        v2["events_truth"] = {k: live_wide_events(pbp_events.get(k, []), lw_clock) for k in ("shot", "rebound")}
+        ev_p = build_dir / (stem + "_events.json")
+        if ev_p.exists():
+            pred = json.loads(ev_p.read_text()).get("events", [])
+            v2["events_pred"] = {k: live_wide_events([clock_of[e["frame"]] for e in pred
+                                                      if e.get("kind") == k and e["frame"] in clock_of], lw_clock)
+                                 for k in ("shot", "rebound")}
     return rec, obs, box_obs, v2
 
 
@@ -533,7 +597,8 @@ def v2_rows(v2s: list, events_pred_written: bool) -> dict:
             for v in v2s:
                 fd, fl, _ = match_events(v.get("events_truth", {}).get(kind, []), v.get("events_pred", {}).get(kind, []), CONSTANTS["event_tol_s"])
                 found += fd; false += fl
-        row = {"target": TARGETS_V2[target_key], "truth_events_in_live_windows": truth,
+        row = {"target": TARGETS_V2[target_key], "truth_events_near_live_wide_frames": truth,
+               "windows_without_offset": t("window_without_offset"),
                "found_share": round(found / truth, 3) if events_pred_written and truth else None,
                "false_per_true": round(false / truth, 3) if events_pred_written and truth else None,
                "not_measurable": None if events_pred_written else "the build writes no <window>_events.json"}
@@ -544,6 +609,9 @@ def v2_rows(v2s: list, events_pred_written: bool) -> dict:
         else:
             row["pass"] = row["found_share"] >= CONSTANTS["rebounds_found_target"]
         R[target_key] = row
+    R["identity_reported"] = {"target": TARGETS_V2["identity_reported"], "value": None, "pass": None,
+                              "not_measurable": "jersey tracklet accuracy: the build writes no jersey reads per tracklet",
+                              "id_switches_per_possession_frozen": None}      # filled from the frozen identity row
     for k in ("shooter_position", "rebounder_position"):
         R[k] = {"target": TARGETS_V2[k], "value": None, "pass": None,
                 "not_measurable": "needs a build that names the shooter or rebounder's track (E4 identity or E7 ball)"}
@@ -588,43 +656,60 @@ def score_game(tag: str, build: str, mode: str, root=None) -> dict:
         recs.append(rec); obs += o; box_obs_by_w[w["window"]] = bo
         if v2:
             v2s.append(v2)
+    broken = [r["window"] for r in recs if str(r.get("skipped", "")).startswith("clip read incomplete")]
+    if broken:
+        raise SystemExit(f"{WHO}: {tag}: {len(broken)} window clip(s) could not be read through, e.g. {broken[0]}; no scorecard written")
     agg = B.aggregate(recs, refs.wide_thr)
     ev_written = any("events_pred" in v for v in v2s)
+    rows_v2 = v2_rows(v2s, ev_written)
+    rows_v2["identity_reported"]["id_switches_per_possession_frozen"] = agg["metrics"]["identity"]["id_switches_per_possession"]
+    in_sample = build_in_sample(tag, build)
     box_obs = [b for v in box_obs_by_w.values() for b in v]
     rep = {"game": tag, "sportvu_game": g["sportvu"], "build": build, "truth": mode, "mirror": mirror,
            "date": datetime.date.today().isoformat(), "scorer": "scorecard v2 (tools/p8_scorecard.py)",
            "universe": {"live_wide_frames": agg["truth_frames"], "with_accepted_truth": agg["testable"],
                         "truth_share": None if not agg["truth_frames"] else round(agg["testable"] / agg["truth_frames"], 3),
                         "truth_frames_build_did_not_process": sum(v.get("not_processed", 0) for v in v2s)},
-           "frozen_rows": agg["metrics"], "frozen_targets": B.TARGETS, "v2_rows": v2_rows(v2s, ev_written),
+           "frozen_rows": agg["metrics"], "frozen_targets": B.TARGETS, "v2_rows": rows_v2,
+           "build_in_sample": in_sample, "group": "r13" if tag in F.R13_TAGS else "channel",
            "intervals": intervals(recs, obs, box_obs_by_w), "breakdowns": breakdowns(obs, box_obs),
            "per_window": {r["window"]: ({"skipped": r["skipped"]} if "skipped" in r else
                                         {"live_wide": r["truth_frames"], "truth": r["testable"], "missed": r["missed"],
                                          "in_frame": r["in_frame"], "ghosts": r["ghosts"], "boxes": r["boxes"]}) for r in recs},
            "constants": CONSTANTS, "ball_tol_px": BALL_TOL_PX,
-           "caveats": ["development game only: no CV test game, test video or test-arena game reaches this scorer outside score_once",
-                       "camera-truth candidates come from the B4 ICP matching that starts from V3's court H and boxes, so frames where V3 fails badly have no truth; the truth share is printed beside every row",
-                       "the camera truth's acceptance rules were set on the GSW training games (sportvu/autolabel.py) and are applied unchanged in new arenas; the gold-key paint check exists only at GSW",
-                       "events: play-by-play clock resolution is 1 s and the window OCR clock resolves 1 s",
-                       "the play-by-play comes from basketball-reference and is used as scoring truth only (D84)"]}
+           "caveats": caveats(in_sample)}
     stem = f"{tag}__{build}__{mode}"
     out = P["scorecards"]
     (out / "obs").mkdir(parents=True, exist_ok=True)
-    (out / (stem + ".json")).write_text(json.dumps(rep, indent=1, default=str))
-    (out / (stem + ".txt")).write_text(render(rep) + "\n")
-    with gzip.open(out / "obs" / (stem + ".jsonl.gz"), "wt") as fh:
-        for o in obs:
-            fh.write(json.dumps(o) + "\n")
+    _gz_atomic(out / "obs" / (stem + ".jsonl.gz"), (json.dumps(o) + "\n" for o in obs))
+    _gz_atomic(out / "obs" / (stem + ".reproj.json.gz"), [json.dumps([x for v in v2s for x in v.get("reproj_px", [])])])
+    atomic_write(out / (stem + ".txt"), render(rep) + "\n")
+    atomic_write(out / (stem + ".json"), json.dumps(rep, indent=1, default=str))     # last: the runner's done check
     return rep
+
+
+def _gz_atomic(path: Path, lines) -> None:
+    part = path.with_name(path.name + ".part")
+    with gzip.open(part, "wt") as fh:
+        for line in lines:
+            fh.write(line)
+    os.replace(part, path)
+
+
+def build_in_sample(tag: str, build: str) -> bool:
+    """True when the build's court model was trained on this game: r23 on the 4 R1.3 games (ROADMAP_LOG.md pass 14)."""
+    from tools.p8_frozen import R13_TAGS
+    return build == "r23" and tag in R13_TAGS
 
 
 def render(rep: dict) -> str:
     M, V, I, U = rep["frozen_rows"], rep["v2_rows"], rep["intervals"], rep["universe"]
     v = lambda x: "n/a" if x is None else x
     pe, mp, gb = M["position_error"], M["missed_players"], M["ghost_boxes"]
-    L = [f"SCORECARD V2  {rep['game']} vs SportVU {rep['sportvu_game']}  build {rep['build']}  truth {rep['truth']}",
+    L = [f"SCORECARD V2  {rep['game']} vs SportVU {rep['sportvu_game']}  build {rep['build']}  truth {rep['truth']}"
+         + ("  [IN SAMPLE: r23 trained on this game]" if rep.get("build_in_sample") else ""),
          f"universe: {U['with_accepted_truth']} of {U['live_wide_frames']} live wide frames carry accepted truth "
-         f"(share {v(U['truth_share'])}); the build did not process {U['truth_frames_build_did_not_process']} of them", "",
+         f"(share {v(U['truth_share'])}); {U['truth_frames_build_did_not_process']} more the build never processed are left out", "",
          f"position error   p50 {v(pe['p50_ft'])} ft {v(I['position_p50_ft'])}, p90 {v(pe['p90_ft'])} ft {v(I['position_p90_ft'])}; n = {pe['matched_players']}",
          f"near-field bias  near {v(M['near_field_bias']['near_third_ft'])} ft, far {v(M['near_field_bias']['far_third_ft'])} ft",
          f"coverage         {v(M['coverage']['coverage'])}",
@@ -649,40 +734,108 @@ def render(rep: dict) -> str:
     return "\n".join(L)
 
 
+def _load_obs(P: dict, t: str, build: str, mode: str) -> list:
+    with gzip.open(P["scorecards"] / "obs" / f"{t}__{build}__{mode}.jsonl.gz", "rt") as fh:
+        return [json.loads(l) for l in fh]
+
+
 def combine(build: str, mode: str, tags=None, root=None) -> dict:
-    """Pooled development rows over games with the game bootstrap beside the window bootstrap."""
+    """Pooled development rows, reported separately for the R1.3 games (r23 in sample there) and the channel games,
+    with the game bootstrap beside the window bootstrap."""
     from tools import p8_frozen as F
     from tools.p8_common import p8_root
     P = F.layout(root or p8_root())
     tags = tags or sorted(F.games())
     refuse_cv_test(tags, WHO)
-    reps = {}
-    for t in tags:
-        p = P["scorecards"] / f"{t}__{build}__{mode}.json"
-        if p.exists():
-            reps[t] = json.loads(p.read_text())
-    obs_by_g, by_w = {}, {}
-    for t in reps:
-        with gzip.open(P["scorecards"] / "obs" / f"{t}__{build}__{mode}.jsonl.gz", "rt") as fh:
-            o = [json.loads(l) for l in fh]
-        obs_by_g[t] = o
-        for x in o:
-            by_w.setdefault(t + "/" + x["w"], []).append(x)
-    allo = [x for o in obs_by_g.values() for x in o]
+    reps = {t: json.loads((P["scorecards"] / f"{t}__{build}__{mode}.json").read_text()) for t in tags
+            if (P["scorecards"] / f"{t}__{build}__{mode}.json").exists()}
     e = lambda p: pct([x["err"] for x in p if x["err"] is not None], 50)
     e90 = lambda p: pct([x["err"] for x in p if x["err"] is not None], 90)
-    out = {"build": build, "truth": mode, "games": list(reps),
-           "position_p50_ft": e(allo), "position_p90_ft": e90(allo), "missed_rate": _rate(allo, "missed"),
-           "game_bootstrap": {"position_p50_ft": boot_windows(obs_by_g, e), "position_p90_ft": boot_windows(obs_by_g, e90),
-                              "missed_rate": boot_windows(obs_by_g, lambda p: _rate(p, "missed"))},
-           "window_bootstrap": {"position_p50_ft": boot_windows(by_w, e), "position_p90_ft": boot_windows(by_w, e90),
-                                "missed_rate": boot_windows(by_w, lambda p: _rate(p, "missed"))},
+    groups = {}
+    for name, members in (("r13", [t for t in reps if t in F.R13_TAGS]), ("channel", [t for t in reps if t not in F.R13_TAGS])):
+        if not members:
+            continue
+        obs_by_g = {t: _load_obs(P, t, build, mode) for t in members}
+        by_w = {t + "/" + x["w"]: [] for t, o in obs_by_g.items() for x in o}
+        for t, o in obs_by_g.items():
+            for x in o:
+                by_w[t + "/" + x["w"]].append(x)
+        allo = [x for o in obs_by_g.values() for x in o]
+        groups[name] = {"games": members, "build_in_sample": any(build_in_sample(t, build) for t in members),
+                        "position_p50_ft": e(allo), "position_p90_ft": e90(allo), "missed_rate": _rate(allo, "missed"),
+                        "game_bootstrap": {"position_p50_ft": boot_windows(obs_by_g, e), "position_p90_ft": boot_windows(obs_by_g, e90),
+                                           "missed_rate": boot_windows(obs_by_g, lambda p: _rate(p, "missed"))},
+                        "window_bootstrap": {"position_p50_ft": boot_windows(by_w, e), "position_p90_ft": boot_windows(by_w, e90),
+                                             "missed_rate": boot_windows(by_w, lambda p: _rate(p, "missed"))}}
+    out = {"build": build, "truth": mode, "groups": groups,
            "per_game": {t: {"p50": r["frozen_rows"]["position_error"]["p50_ft"], "p90": r["frozen_rows"]["position_error"]["p90_ft"],
-                            "missed": r["frozen_rows"]["missed_players"]["rate"], "truth_share": r["universe"]["truth_share"]}
-                        for t, r in reps.items()},
-           "note": "observation-level pooling; position percentiles here use the observation log (matched players), the per-game rows use the frozen aggregator"}
-    (P["scorecards"] / f"combined__{build}__{mode}.json").write_text(json.dumps(out, indent=1))
+                            "missed": r["frozen_rows"]["missed_players"]["rate"], "truth_share": r["universe"]["truth_share"],
+                            "build_in_sample": r.get("build_in_sample")} for t, r in reps.items()},
+           "note": "R1.3 and channel games are never pooled together: r23 was trained on the R1.3 games. Observation-level pooling; the per-game rows use the frozen aggregator"}
+    atomic_write(P["scorecards"] / f"combined__{build}__{mode}.json", json.dumps(out, indent=1))
     return out
+
+
+def gate(root=None) -> dict:
+    """The first Phase B gate item (P8_FEASIBILITY.md section 9): on each gate game, r23's position p50 and p90 under
+    the camera truth lie inside the window-bootstrap interval of the same rows under the old B4 truth. Refuses to run
+    unless both scorecards of every gate game exist."""
+    from tools import p8_frozen as F
+    from tools.p8_common import p8_root
+    P = F.layout(root or p8_root())
+    games = CONSTANTS["gate_games"]
+    refuse_cv_test(games, WHO)
+    missing = [f"{t}__r23__{m}" for t in games for m in ("camera", "b4")
+               if not (P["scorecards"] / f"{t}__r23__{m}.json").exists()]
+    if missing:
+        raise SystemExit(f"{WHO}: the gate needs the r23 camera and b4 scorecards of {games}; missing {missing} "
+                         "(run tools.p8_night with --b4 gate)")
+    out = {"rule": "r23 camera-truth p50 and p90 inside the b4-truth window-bootstrap interval, every gate game", "games": {}}
+    for t in games:
+        cam = json.loads((P["scorecards"] / f"{t}__r23__camera.json").read_text())
+        b4 = json.loads((P["scorecards"] / f"{t}__r23__b4.json").read_text())
+        row = {}
+        for q, iv in (("p50_ft", "position_p50_ft"), ("p90_ft", "position_p90_ft")):
+            v, lohi = cam["frozen_rows"]["position_error"][q], b4["intervals"][iv]
+            row[q] = {"camera": v, "b4": b4["frozen_rows"]["position_error"][q], "b4_interval": lohi,
+                      "inside": None if v is None or lohi is None else bool(lohi[0] <= v <= lohi[1])}
+        row["build_in_sample"] = cam.get("build_in_sample")
+        row["pass"] = all(row[q]["inside"] for q in ("p50_ft", "p90_ft"))
+        out["games"][t] = row
+    out["pass"] = all(r["pass"] for r in out["games"].values())
+    atomic_write(P["scorecards"] / "gate_position.json", json.dumps(out, indent=1))
+    return out
+
+
+def fix_ball_tolerance(root=None, out_path=None) -> dict:
+    """Writes reports/research/p8_constants.json once: ball_tol_px = 2 x the median reprojection error (px) of SportVU
+    feet through the camera truth onto the matched box feet, pooled over every development game's r23 camera
+    scorecard. Refuses when the file exists or a development game has no scorecard. Run before any ball model."""
+    from tools import p8_frozen as F
+    from tools.p8_common import REPO, p8_root
+    out_p = Path(out_path) if out_path else REPO / "reports" / "research" / "p8_constants.json"
+    if out_p.exists():
+        raise SystemExit(f"{WHO}: {out_p.name} exists; the ball tolerance is fixed once and never rewritten")
+    P = F.layout(root or p8_root())
+    games = sorted(F.games())
+    refuse_cv_test(games, WHO)
+    paths = {t: P["scorecards"] / "obs" / f"{t}__r23__camera.reproj.json.gz" for t in games}
+    missing = [t for t, p in paths.items() if not p.exists()]
+    if missing:
+        raise SystemExit(f"{WHO}: every development game needs its r23 camera scorecard first; missing {missing}")
+    vals = []
+    per = {}
+    for t, p in paths.items():
+        with gzip.open(p, "rt") as fh:
+            v = json.loads(fh.read())
+        per[t] = {"n": len(v), "median_px": pct(v, 50)}
+        vals += v
+    med = float(np.median(vals))
+    rec = {"fixed_on": datetime.date.today().isoformat(), "ball_tol_px": round(2 * med, 2),
+           "rule": CONSTANTS["ball_tol_rule"], "median_reprojection_px": round(med, 3), "n": len(vals), "per_game": per,
+           "source": "scorecards/obs/<game>__r23__camera.reproj.json.gz of the P8 workspace (development games only)"}
+    atomic_write(out_p, json.dumps(rec, indent=1) + "\n")
+    return rec
 
 
 def main(argv=None) -> int:
@@ -696,7 +849,15 @@ def main(argv=None) -> int:
     c.add_argument("--build", default="r23")
     c.add_argument("--truth", default="camera", choices=CONSTANTS["truth_modes"])
     c.add_argument("--tags", default=None)
+    sub.add_parser("gate")
+    sub.add_parser("fix-ball-tolerance")
     a = ap.parse_args(argv)
+    if a.cmd == "gate":
+        print(json.dumps(gate(), indent=1))
+        return 0
+    if a.cmd == "fix-ball-tolerance":
+        print(json.dumps(fix_ball_tolerance(), indent=1))
+        return 0
     if a.cmd == "game":
         print(render(score_game(a.tag, a.build, a.truth)))
     else:

@@ -221,16 +221,28 @@ def test_ingest_pins_must_name_exactly_the_test_games_and_match_their_hash(tmp_p
 
 
 # ── the broadcast CV test set of P8 (PLAN.md D85 (1)) ───────────────────────────────────────────────────────────────
-# Names that reach the CV test videos. Allowed only in the download tool, which runs no model on them.
-CV_TEST_NAMES = ("cv_test_videos", "p8_cv_test")
-CV_ALLOWED = {"tools/p8_fetch.py": CV_TEST_NAMES}
+# Strings that name the sealed test-video root: allowed only in the download tool, which runs no model on them.
+CV_TEST_STRINGS = ("V3_P8_TEST_ROOT", "_p8-cvtest", "p8_cv_test")
+# Door functions that reach the test videos: called only in the download tool, or inside the scorer function a module
+# passes to score_once (the AST rule below, like test_features in research_xfg).
+CV_DOORS = ("cv_test_videos", "cv_test_dir", "cv_test_video")
+CV_DOWNLOAD_TOOL = "tools/p8_fetch.py"
 # Registries the frozen CV code reads (sportvu/, harvest_driver, clock_reader): a CV test game or video id listed in
 # one of them could be picked up by a frozen tool, so none may hold one.
 FROZEN_CV_REGISTRIES = ("data/harvest/games.json", "sportvu/manifest_overrides.json", "sportvu/splits.json")
+CV_SOURCE_SINCE = "1670e3d6"          # the commit that hashed the CV test set
 
 
 def cv_source():
     return committed()["sources"][R.BROADCAST_CV]
+
+
+def tracked_code():
+    """Every git-tracked .py, .ipynb and .sh file outside tests/ and the door itself."""
+    import subprocess
+    out = subprocess.run(["git", "ls-files", "*.py", "*.ipynb", "*.sh"], cwd=REPO, capture_output=True, text=True,
+                         check=True).stdout.split()
+    return sorted(REPO / p for p in out if not p.startswith("tests/") and REPO / p != DOOR and (REPO / p).is_file())
 
 
 def test_the_cv_test_set_is_four_games_in_three_whole_arenas_with_sealed_ids_and_pins():
@@ -251,6 +263,19 @@ def test_the_cv_test_set_is_four_games_in_three_whole_arenas_with_sealed_ids_and
         assert not R.is_spent(g) and not g.endswith(".at.CLE"), g
 
 
+def test_the_cv_source_is_byte_identical_in_every_committed_version_since_it_was_hashed():
+    import subprocess
+    rel = "reports/research/testset.json"
+    shas = subprocess.run(["git", "log", "--format=%H", f"{CV_SOURCE_SINCE}^..HEAD", "--", rel], cwd=REPO,
+                          capture_output=True, text=True, check=True).stdout.split()
+    now = json.dumps(cv_source(), sort_keys=True)
+    assert shas, "the commit that hashed the CV test set is in this history"
+    for sha in shas:
+        shown = subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=REPO, capture_output=True, text=True, check=True)
+        old = json.loads(shown.stdout)["sources"][R.BROADCAST_CV]
+        assert json.dumps(old, sort_keys=True) == now, f"the CV test source changed in {sha[:8]}"
+
+
 def test_the_cv_test_games_are_in_no_other_source():
     data = committed()["sources"]
     cv = set(data[R.BROADCAST_CV]["games"])
@@ -259,10 +284,11 @@ def test_the_cv_test_games_are_in_no_other_source():
             assert not cv & set(src["games"]), name
 
 
-def test_no_experiment_code_names_a_cv_test_video():
-    vids = set(cv_source()["video_ids"].values())
-    problems = [f"{p.relative_to(REPO)} names the CV test video {v}" for p in experiment_files()
-                for v in vids if v in p.read_text()]
+def test_no_tracked_code_names_a_cv_test_game_or_video():
+    src = cv_source()
+    ids = list(src["games"]) + list(src["video_ids"].values())
+    problems = [f"{p.relative_to(REPO)} names {i}" for p in tracked_code() for i in ids
+                if i.lower() in p.read_text(errors="ignore").lower()]
     assert problems == []
 
 
@@ -273,15 +299,50 @@ def test_no_frozen_cv_registry_holds_a_cv_test_game_or_video():
     assert problems == []
 
 
-def test_only_the_download_tool_reaches_the_cv_test_videos():
-    problems = []
-    for path in experiment_files():
-        rel = str(path.relative_to(REPO))
-        text = path.read_text()
-        for name in CV_TEST_NAMES:
-            if name in text and name not in CV_ALLOWED.get(rel, ()):
-                problems.append(f"{rel} uses {name}")
+def test_only_the_download_tool_names_the_sealed_test_root():
+    problems = [f"{p.relative_to(REPO)} uses {n}" for p in tracked_code() for n in CV_TEST_STRINGS
+                if n in p.read_text(errors="ignore") and str(p.relative_to(REPO)) != CV_DOWNLOAD_TOOL]
     assert problems == []
+
+
+def door_call_problems(tree, rel: str) -> list:
+    """Calls of a CV door outside the download tool that are not inside a function passed to score_once."""
+    if rel == CV_DOWNLOAD_TOOL:
+        return []
+    scorers = {a.id for n in ast.walk(tree) if isinstance(n, ast.Call)
+               and getattr(n.func, "attr", getattr(n.func, "id", None)) == "score_once"
+               for a in list(n.args) + [k.value for k in n.keywords] if isinstance(a, ast.Name)}
+    inside = {id(c) for fn in ast.walk(tree) if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef))
+              and fn.name in scorers for c in ast.walk(fn)}
+    problems = []
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call) and getattr(n.func, "attr", getattr(n.func, "id", None)) in CV_DOORS \
+                and id(n) not in inside:
+            problems.append(f"{rel}:{n.lineno} calls {getattr(n.func, 'attr', getattr(n.func, 'id', None))}")
+    return problems
+
+
+def test_cv_doors_are_called_only_by_the_download_tool_or_inside_a_score_once_scorer():
+    problems = []
+    for p in tracked_code():
+        if p.suffix != ".py":
+            text = p.read_text(errors="ignore")
+            problems += [f"{p.relative_to(REPO)} names {d}" for d in CV_DOORS if d in text]
+            continue
+        problems += door_call_problems(ast.parse(p.read_text()), str(p.relative_to(REPO)))
+    assert problems == []
+
+
+def test_the_door_call_rule_allows_a_scorer_and_refuses_anything_else():
+    ok = ast.parse("def scorer(games):\n    return [cv_test_video(g) for g in games]\n"
+                   "def run():\n    return score_once('x', 'src', scorer)\n")
+    bad = ast.parse("def prep():\n    return cv_test_video('g')\n"
+                    "def scorer(games):\n    return games\n"
+                    "def run():\n    return score_once('x', 'src', scorer)\n")
+    loose = ast.parse("x = cv_test_dir()\n")
+    assert door_call_problems(ok, "tools/x.py") == []
+    assert len(door_call_problems(bad, "tools/x.py")) == 1 and len(door_call_problems(loose, "tools/x.py")) == 1
+    assert door_call_problems(loose, CV_DOWNLOAD_TOOL) == []
 
 
 def test_every_p8_tool_runs_the_cv_guard():
@@ -300,8 +361,10 @@ def tiny_cv(tmp_path):
     games = ["12.01.2015.AAA.at.MIA", "12.02.2015.BBB.at.LAL"]
     vids = {games[0]: "vidA0000000", games[1]: "vidB0000000"}
     homes = {"Miami": ["MIA"], "Staples Center": ["LAC", "LAL"]}
+    pins = {games[0]: "a" * 40, games[1]: "b" * 40}
     src = {"games": games, "sha256": R.list_hash(games), "video_ids": vids, "video_pins_sha256": R.map_hash(vids),
-           "arena_homes": homes, "arena_homes_sha256": R.map_hash(homes)}
+           "arena_homes": homes, "arena_homes_sha256": R.map_hash(homes),
+           "archive_git_blob_sha1": pins, "pins_sha256": R.map_hash(pins)}
     path = tmp_path / "testset.json"
     path.write_text(json.dumps({"sources": {R.BROADCAST_CV: src}}))
     return path, games, vids
@@ -309,12 +372,33 @@ def tiny_cv(tmp_path):
 
 def test_refuse_cv_test_refuses_test_games_test_videos_and_whole_test_arenas(tiny_cv):
     path, games, vids = tiny_cv
-    ok = ["11.27.2015.CHI.at.IND", "01.12.2016.BOS.at.NYK", "someVideoId1"]
-    assert R.refuse_cv_test(ok, "t", path=path) == 3
-    for bad in ([games[0]], [vids[games[1]]], ["01.01.2016.DAL.at.MIA"], ["11.11.2015.SAS.at.LAC"],
-                ok + ["12.30.2015.UTA.at.LAL"]):
+    ok = ["11.27.2015.CHI.at.IND", "01.12.2016.BOS.at.NYK", "someVideoId1", "gsw_mia_2017", "nyk_bos_2016",
+          "/w/video/okc_sac_2015_s00.mp4", "replace_me"]
+    assert R.refuse_cv_test(ok, "t", path=path) == len(ok)
+    aliases = [[games[0]], [vids[games[1]]], ["01.01.2016.DAL.at.MIA"], ["11.11.2015.SAS.at.LAC"],
+               ok + ["12.30.2015.UTA.at.LAL"],
+               [f"https://www.youtube.com/watch?v={vids[games[0]]}"],          # a watch URL
+               [f"/data/video/{games[1]}.mp4"],                                # an .mp4 path
+               [f"{games[0]}_s00"], ["mia_nop_2015_s00"],                     # a section stem
+               ["mia_nop_2015"], ["/x/lal_aaa_2015.mp4"], ["lac_bbb_2016"],    # home-first tags
+               [games[0].lower()], [vids[games[0]].lower()], ["01.01.2016.dal.at.mia"]]   # lower case
+    for bad in aliases:
         with pytest.raises(SystemExit):
             R.refuse_cv_test(bad, "t", path=path)
+    with pytest.raises(SystemExit):
+        R.refuse_cv_test(["por_okc_2016"], "t", path=path, homes=["LAL"])    # a registry entry's own home
+
+
+def test_the_cv_source_must_carry_every_sealed_key(tiny_cv):
+    path, _, _ = tiny_cv
+    for key in R.REQUIRED_KEYS[R.BROADCAST_CV]:
+        data = json.loads(path.read_text())
+        saved = data["sources"][R.BROADCAST_CV].pop(key)
+        p2 = path.with_name("t_" + key + ".json")
+        p2.write_text(json.dumps(data))
+        with pytest.raises(SystemExit):
+            R.refuse_cv_test(["11.27.2015.CHI.at.IND"], "t", path=p2)
+        assert saved
 
 
 def test_dev_games_of_the_cv_source_leave_out_whole_test_arenas(tiny_cv):
@@ -325,15 +409,14 @@ def test_dev_games_of_the_cv_source_leave_out_whole_test_arenas(tiny_cv):
 
 def test_an_edited_cv_video_id_or_arena_is_refused(tiny_cv):
     path, games, vids = tiny_cv
+    good = path.read_text()
     for key, value in (("video_ids", {**vids, games[0]: "otherVideo1"}), ("arena_homes", {"Miami": ["MIA"]})):
-        data = json.loads(path.read_text())
+        data = json.loads(good)
         data["sources"][R.BROADCAST_CV][key] = value
         path.write_text(json.dumps(data))
         with pytest.raises(SystemExit):
             R.refuse_cv_test(["11.27.2015.CHI.at.IND"], "t", path=path)
-        tiny = json.loads(path.read_text())
-        tiny["sources"][R.BROADCAST_CV][key] = vids if key == "video_ids" else {"Miami": ["MIA"], "Staples Center": ["LAC", "LAL"]}
-        path.write_text(json.dumps(tiny))
+    path.write_text(good)
 
 
 def test_cv_test_videos_must_name_exactly_the_test_games(tiny_cv):
@@ -345,3 +428,14 @@ def test_cv_test_videos_must_name_exactly_the_test_games(tiny_cv):
     path.write_text(json.dumps(data))
     with pytest.raises(SystemExit):
         R.cv_test_videos(path)
+
+
+def test_the_test_video_root_is_outside_the_p8_workspace(monkeypatch, tmp_path):
+    from tools import p8_fetch
+    d = p8_fetch.cv_test_dir()
+    from tools.p8_common import p8_root
+    assert p8_root().resolve() not in d.parents and d.parent.resolve() not in p8_root().resolve().parents
+    monkeypatch.setenv("V3_P8_ROOT", str(tmp_path / "w"))
+    monkeypatch.setenv("V3_P8_TEST_ROOT", str(tmp_path / "w" / "t"))
+    with pytest.raises(SystemExit):
+        p8_fetch.cv_test_dir()

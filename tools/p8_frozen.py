@@ -34,7 +34,7 @@ import sys
 import time
 from pathlib import Path
 
-from tools.p8_common import REPO, dev_games, guard, main_checkout, p8_root
+from tools.p8_common import REPO, atomic_write, dev_games, guard, main_checkout, p8_root
 from tools.research_testset import refuse_cv_test
 
 WHO = "tools.p8_frozen"
@@ -45,7 +45,7 @@ R23_SHA256_FILE = REPO / "reports" / "r23_verification.json"
 def layout(root: Path) -> dict:
     """The P8 workspace layout."""
     return {k: root / k for k in ("video", "sportvu", "sync", "direction", "label_build", "labels", "builds", "meta",
-                                  "reports", "cache", "scorecards", "logs")}
+                                  "reports", "cache", "scorecards", "logs", "failed", "tmp")}
 
 
 def install_paths(root: Path | None = None) -> dict:
@@ -202,6 +202,75 @@ def _walk(d, prefix=""):
         yield prefix, d
 
 
+# ── safe wrappers around the frozen cut and build ───────────────────────────────────────────────────────────────────
+def sweep_checkout(P: dict, stem_glob: str) -> list:
+    """Move anything the frozen build left in the checkout for these window stems (data/tracking/<stem>_*,
+    reports/viz/team_clusters_<stem>*) into <P8 root>/failed/, so nothing stays under the repository or reports/.
+    shutil.move is a rename on one filesystem."""
+    import shutil
+    import config
+    moved = []
+    dest = P["failed"] / "checkout_leftovers"
+    for src in list(config.TRACKING_DIR.glob(stem_glob + "_*")) + \
+            list((config.PROJECT_ROOT / "reports" / "viz").glob("team_clusters_" + stem_glob + "*")):
+        dest.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(src), str(dest / src.name))
+        moved.append(src.name)
+    return moved
+
+
+def safe_cut(P: dict, w: dict, out_dir: Path) -> Path:
+    """sportvu.rebuild.cut into a scratch folder, then renamed into place: a killed cut never leaves a partial clip
+    that a later run would take as done."""
+    from sportvu.rebuild import cut
+    final = out_dir / (w["window"] + ".mp4")
+    if final.exists():
+        return final
+    tmp = P["tmp"] / "cut"
+    tmp.mkdir(parents=True, exist_ok=True)
+    (tmp / final.name).unlink(missing_ok=True)           # a partial clip of a killed run, in the scratch folder only
+    os.replace(cut(w, out_dir=tmp), final)
+    return final
+
+
+def safe_build(P: dict, w: dict, snip: Path, out_dir: Path, extra_args: tuple = ()) -> dict:
+    """sportvu.rebuild.build with the checkout swept before and after. A build with rc != 0 is a failure: its outputs
+    in out_dir (all but the clip and the window time map) move to <P8 root>/failed/ so a rerun builds it again."""
+    import shutil
+    from sportvu.rebuild import build
+    stem = w["window"]
+    sweep_checkout(P, stem)
+    r = build(w, snip, out_dir=out_dir, extra_args=extra_args)
+    left = sweep_checkout(P, stem)
+    if r.get("cached"):
+        return {"ok": True, "cached": True}
+    ok = r.get("rc") == 0 and (out_dir / (stem + "_frames.json")).exists() and not left
+    if not ok:
+        dest = P["failed"] / out_dir.name
+        dest.mkdir(parents=True, exist_ok=True)
+        for f in out_dir.glob(stem + "_*"):
+            if not f.name.endswith(("_timemap.json",)):
+                shutil.move(str(f), str(dest / f.name))
+    return {"ok": ok, "rc": r.get("rc"), "tail": r.get("tail", ""), "left_in_checkout": left}
+
+
+def write_timemap(path: Path, section: str, reader, vid: Path) -> None:
+    from sportvu.local_sync import build_local_timemap
+    if not path.exists():
+        atomic_write(path, json.dumps(build_local_timemap(section, reader, vid=vid)))
+
+
+def done_path(P: dict, step: str, tag: str, section=None, build=None) -> Path:
+    name = "__".join(x for x in (step, tag, section, build) if x)
+    return P["meta"] / "done" / f"{name}.json"
+
+
+def fail_if(failures: list, what: str) -> None:
+    if failures:
+        raise SystemExit(f"{WHO}: {len(failures)} window build(s) failed in {what}, for example {failures[0]}; "
+                         "their outputs are in failed/ and a rerun builds them again")
+
+
 # ── steps ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 def step_link(P: dict, tag: str) -> dict:
     """R1.3 games: symlink the main checkout's sections, moments and sync maps (nothing is copied or changed)."""
@@ -236,8 +305,8 @@ def step_moments(P: dict, tag: str) -> dict:
     if not out.exists():
         raw = fetch.download(g["sportvu"])
         parsed = fetch.parse(raw)
-        out.write_text(json.dumps(parsed))
-        (P["reports"] / f"sportvu_fetch_{g['sportvu']}.json").write_text(json.dumps(fetch.coverage_report(parsed), indent=1))
+        atomic_write(P["reports"] / f"sportvu_fetch_{g['sportvu']}.json", json.dumps(fetch.coverage_report(parsed), indent=1))
+        atomic_write(out, json.dumps(parsed))
         raw.unlink()                                  # the 100 MB raw JSON is not kept (as sportvu.manifest does)
     return {"moments": out.name}
 
@@ -266,7 +335,7 @@ def step_layout(P: dict, tag: str) -> dict:
     best = max(consist, key=consist.get) if consist else None
     res = {"pairs": len(pairs), "plausible_share": shares, "consistent_share": consist,
            "chosen": best if best and consist[best] >= MIN_LAYOUT_SHARE else None}
-    (P["meta"] / f"{tag}_layout.json").write_text(json.dumps(res, indent=1))
+    atomic_write(P["meta"] / f"{tag}_layout.json", json.dumps(res, indent=1))
     return {"chosen": res["chosen"], "consistent_share": consist}
 
 
@@ -279,9 +348,7 @@ def step_sync(P: dict, tag: str, section: str) -> dict:
     if out.exists():
         return {"cached": True}
     tm = build_local_timemap(section, make_reader(layout_of(P, tag)), vid=P["video"] / f"{section}.mp4")
-    part = out.with_suffix(".part")
-    part.write_text(json.dumps(tm))
-    part.replace(out)
+    atomic_write(out, json.dumps(tm))
     return {k: tm[k] for k in ("reads", "reads_ok", "running_spans", "mapped_video_s", "ocr_seconds")}
 
 
@@ -299,14 +366,15 @@ def step_direction(P: dict, tag: str, section: str) -> dict:
     game_of(tag)
     inject_layouts()
     reader = make_reader(layout_of(P, tag))
-    done = 0
+    done, failures = 0, []
     for w in _windows(P, section, BUDGET_S):
-        snip = cut(w, out_dir=P["direction"])
-        build(w, snip, out_dir=P["direction"])
-        tmp = P["direction"] / (w["window"] + "_timemap.json")
-        if not tmp.exists():
-            tmp.write_text(json.dumps(build_local_timemap(w["section"], reader, vid=snip)))
+        snip = safe_cut(P, w, P["direction"])
+        r = safe_build(P, w, snip, P["direction"])
+        if not r["ok"]:
+            failures.append(w["window"]); continue
+        write_timemap(P["direction"] / (w["window"] + "_timemap.json"), w["section"], reader, snip)
         done += (P["direction"] / (w["window"] + "_trajectories.json")).exists()
+    fail_if(failures, section)
     return {"windows_built": done}
 
 
@@ -324,7 +392,7 @@ def step_mirror(P: dict, tag: str) -> dict:
                 rows[w["window"]] = window_rows(w, json.loads(tmp.read_text()), json.loads(trp.read_text()))
     index = SportVUIndex(json.loads((P["sportvu"] / f"{g['sportvu']}_moments.json").read_text())["moments"])
     rep = {"game": tag, "sportvu_game": g["sportvu"], "budget_s": BUDGET_S, **solve(rows, index)}
-    (P["reports"] / f"sportvu_direction_{tag}.json").write_text(json.dumps(rep, indent=1, default=str))
+    atomic_write(P["reports"] / f"sportvu_direction_{tag}.json", json.dumps(rep, indent=1, default=str))
     return {"status": rep["status"], **{k: (rep.get("resolution") or {}).get(k) for k in ("mirror", "vote_share")}}
 
 
@@ -344,19 +412,20 @@ def step_label(P: dict, tag: str, section: str) -> dict:
     game_of(tag)
     inject_layouts()
     reader = make_reader(layout_of(P, tag))
-    out = {"windows": 0, "built": 0}
+    out, failures = {"windows": 0, "built": 0}, []
     for w in label_windows(P, tag, section):
-        snip = cut(w, out_dir=P["label_build"])
-        build(w, snip, out_dir=P["label_build"], extra_args=gate_args())
-        tm = P["label_build"] / (w["window"] + "_timemap.json")
-        if not tm.exists():
-            tm.write_text(json.dumps(build_local_timemap(w["section"], reader, vid=snip)))
+        snip = safe_cut(P, w, P["label_build"])
+        r = safe_build(P, w, snip, P["label_build"], extra_args=gate_args())
+        if not r["ok"]:
+            failures.append(w["window"]); continue
+        write_timemap(P["label_build"] / (w["window"] + "_timemap.json"), w["section"], reader, snip)
         out["windows"] += 1
-        out["built"] += (P["label_build"] / (w["window"] + "_frames.json")).exists()
+        out["built"] += 1
+    fail_if(failures, section)
     return out
 
 
-def step_fit(P: dict, tag: str) -> dict:
+def step_fit(P: dict, tag: str, partial: bool = False) -> dict:
     """autolabel phases B and C (camera position, per-frame camera truth, acceptance, labels) for one game, with the
     frozen constants and functions; plus the gold-key paint check on GSW home games."""
     import cv2
@@ -374,7 +443,13 @@ def step_fit(P: dict, tag: str) -> dict:
     index = SportVUIndex(mom["moments"])
     jersey = {k: v.get("jersey") for k, v in mom.get("players", {}).items()}
     counts, regions, built = {}, {}, []
-    windows = label_windows(P, tag)
+    secs = [s for s in sections(P, tag) if (P["sync"] / f"{s}_local_timemap.json").exists()]
+    unlabelled = [s for s in secs if not done_path(P, "label", tag, s).exists()]
+    if unlabelled and not partial:
+        raise SystemExit(f"{WHO}: fit needs every synced section labelled first; missing {unlabelled}")
+    if partial:
+        secs = [s for s in secs if s not in unlabelled]
+    windows = [w for s in secs for w in label_windows(P, tag, s)]
     for w in windows:
         side_p, tm_p = (P["label_build"] / (w["window"] + k) for k in ("_frames.json", "_timemap.json"))
         if not side_p.exists() or not tm_p.exists():
@@ -395,8 +470,8 @@ def step_fit(P: dict, tag: str) -> dict:
     g_fit = cam.fit_game([f for *_, frs in built for f in frs])
     if g_fit.get("status") != "ok":
         res = {"game": tag, "status": "camera_fit_failed", "camera": g_fit, "rejections": counts}
-        (P["labels"] / f"{tag}_result.json").write_text(json.dumps(res, indent=1))
-        return res
+        atomic_write(P["labels"] / f"{tag}_result.json", json.dumps(res, indent=1))
+        raise SystemExit(f"{WHO}: {tag} camera fit failed: {g_fit}")
     C = np.array(g_fit["C"])
     lo, hi = np.log(cam.F_BOUNDS_PX[0]) + 0.01, np.log(cam.F_BOUNDS_PX[1]) - 0.01
     paint_on = g.get("home") == "GSW" or tag in R13_TAGS          # the gold key exists only at GSW (label_check)
@@ -438,40 +513,55 @@ def step_fit(P: dict, tag: str) -> dict:
                 paint.append(json.dumps(pr))
             counts["accepted"] = counts.get("accepted", 0) + 1
             regions[lab["region"]] = regions.get(lab["region"], 0) + 1
-        (P["labels"] / tag / (w["window"] + ".jsonl")).write_text("\n".join(lines) + ("\n" if lines else ""))
+        atomic_write(P["labels"] / tag / (w["window"] + ".jsonl"), "\n".join(lines) + ("\n" if lines else ""))
         accepted += len(lines)
     if paint_on:
-        (P["labels"] / f"{tag}_paint.jsonl").write_text("\n".join(paint) + ("\n" if paint else ""))
+        atomic_write(P["labels"] / f"{tag}_paint.jsonl", "\n".join(paint) + ("\n" if paint else ""))
     res = {"game": tag, "sportvu": g["sportvu"], "home": g.get("home"), "mirror": mirror, "windows": len(windows),
            "camera": {k: v for k, v in g_fit.items() if k != "cost"}, "accepted": accepted, "regions": regions,
-           "paint_check": paint_on, "rejections": {k: v for k, v in counts.items() if k != "accepted"}}
-    (P["labels"] / f"{tag}_result.json").write_text(json.dumps(res, indent=1))
-    return {k: res[k] for k in ("accepted", "regions", "paint_check")}
+           "paint_check": paint_on, "rejections": {k: v for k, v in counts.items() if k != "accepted"},
+           "sections": secs, "partial": partial}
+    # every built window's residual clock offset (also windows without an accepted frame), for the event rows
+    atomic_write(P["labels"] / f"{tag}_offsets.json", json.dumps({w["window"]: off for w, _, _, off, _ in built}, indent=1))
+    atomic_write(P["labels"] / f"{tag}_result.json", json.dumps(res, indent=1))
+    return {k: res[k] for k in ("accepted", "regions", "paint_check", "sections", "partial")}
 
 
 def step_rebuild(P: dict, tag: str, section: str, build_name: str) -> dict:
     """The section's label windows built again with another court model; clips and time maps are shared."""
-    import shutil
-    import subprocess
     from sportvu.autolabel import gate_args
-    from sportvu.rebuild import build
     game_of(tag)
     weights = court_weights(build_name)
     out = P["builds"] / build_name
     out.mkdir(parents=True, exist_ok=True)
     os.environ["COURT_GRID_WEIGHTS"] = str(weights)       # read by build_trajectories' config at import
-    res = {"windows": 0, "built": 0}
+    if not done_path(P, "label", tag, section).exists():
+        raise SystemExit(f"{WHO}: rebuild {section} needs its label step first")
+    res, failures = {"windows": 0, "built": 0}, []
     for w in label_windows(P, tag, section):
         snip = P["label_build"] / (w["window"] + ".mp4")
         if not snip.exists():
             continue
-        build(w, snip, out_dir=out, extra_args=gate_args())
+        r = safe_build(P, w, snip, out, extra_args=gate_args())
+        if not r["ok"]:
+            failures.append(w["window"]); continue
         res["windows"] += 1
-        res["built"] += (out / (w["window"] + "_frames.json")).exists()
+        res["built"] += 1
+    fail_if(failures, f"{section} ({build_name})")
     return res
 
 
-STEPS = {"link": step_link, "split": step_split, "moments": step_moments, "layout": step_layout, "sync": step_sync,
+def atomic_write_mk(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write(path, text)
+
+
+def step_sweep(P: dict, tag: str) -> dict:
+    """Move any frozen-build leftover of this game's windows out of the checkout (start and end of a night run)."""
+    return {"moved": sweep_checkout(P, f"{tag}_s[0-9][0-9]_w[0-9][0-9]")}
+
+
+STEPS = {"sweep": step_sweep, "link": step_link, "split": step_split, "moments": step_moments, "layout": step_layout, "sync": step_sync,
          "direction": step_direction, "mirror": step_mirror, "label": step_label, "fit": step_fit,
          "rebuild": step_rebuild}
 PER_SECTION = ("sync", "direction", "label", "rebuild")
@@ -483,8 +573,10 @@ def main(argv=None) -> int:
     ap.add_argument("tag")
     ap.add_argument("--section", default=None)
     ap.add_argument("--build", default="r23")
+    ap.add_argument("--partial", action="store_true", help="fit: use only the sections labelled so far (a smoke run)")
     a = ap.parse_args(argv)
     game_of(a.tag)
+    refuse_cv_test([a.tag, a.section or "", a.build], WHO)
     P = install_paths()
     t0 = time.time()
     args = [P, a.tag]
@@ -494,7 +586,12 @@ def main(argv=None) -> int:
         args.append(a.section)
     if a.step == "rebuild":
         args.append(a.build)
+    if a.step == "fit":
+        args.append(a.partial)
     res = STEPS[a.step](*args)
+    atomic_write_mk(done_path(P, a.step, a.tag, a.section, a.build if a.step == "rebuild" else None),
+                    json.dumps({"step": a.step, "tag": a.tag, "section": a.section, "at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                                "result": res}, default=str))
     print(json.dumps({"step": a.step, "tag": a.tag, "section": a.section, "seconds": round(time.time() - t0, 1), **res}),
           flush=True)
     return 0

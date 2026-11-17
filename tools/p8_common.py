@@ -14,16 +14,14 @@ their own sealed folder, named only in tools/p8_fetch.py.
 
 import json
 import os
-import re
 import subprocess
 from pathlib import Path
 
-from tools.research_testset import is_spent, refuse_cv_test
+from tools.research_testset import refuse_cv_test
 
 REPO = Path(__file__).resolve().parents[1]
 REGISTRY = REPO / "reports" / "research" / "p8_registry.json"
 WHO = "tools.p8"
-SPORTVU_NAME = re.compile(r"^(\d\d)\.(\d\d)\.(\d{4})\.([A-Z]{3})\.at\.([A-Z]{3})$")
 
 
 def p8_root() -> Path:
@@ -60,14 +58,26 @@ def load_registry(path=None) -> dict:
     return json.loads(Path(path or REGISTRY).read_text())
 
 
-def guard(items, who: str = WHO) -> list:
-    """refuse_cv_test plus the spent held-out rule on game ids and video ids -> the items, as strings."""
+def guard(items, who: str = WHO, homes=()) -> list:
+    """refuse_cv_test (substring, any id, tag, stem, path or URL; plus the given home codes) and the spent held-out
+    rule with analytics.eval.is_heldout_game's substring semantics (held-out game tags, SportVU ids, video ids and the
+    held-out arena suffix) on every item -> the items, as strings."""
+    from analytics.eval import is_heldout_game
     items = [str(i) for i in items]
-    refuse_cv_test(items, who)
-    spent = [i for i in items if SPORTVU_NAME.match(i) and is_spent(i)]
+    refuse_cv_test(items, who, homes=homes)
+    spent = [i for i in items if is_heldout_game(i)]
     if spent:
-        raise SystemExit(f"{who}: spent held-out game {spent[0]} (sportvu/splits.json); it is never used again")
+        raise SystemExit(f"{who}: spent held-out item {spent[0]} (sportvu/splits.json); it is never used again")
     return items
+
+
+def atomic_write(path: Path, text: str) -> Path:
+    """Write text to path through a .part file and os.replace, so a killed job never leaves a half file."""
+    path = Path(path)
+    part = path.with_name(path.name + ".part")
+    part.write_text(text)
+    os.replace(part, path)
+    return path
 
 
 def r13_games() -> dict:
@@ -75,18 +85,19 @@ def r13_games() -> dict:
     sp = json.loads((REPO / "sportvu" / "splits.json").read_text())
     out = {t: {"sportvu": g["sportvu"], "video_id": g["video_id"], "home": g["arena"], "source": "R1.3"}
            for t, g in sp["train"]["games"].items()}
-    guard([v for g in out.values() for v in (g["sportvu"], g["video_id"])])
+    guard([v for t, g in out.items() for v in (t, g["sportvu"], g["video_id"])], homes=[g["home"] for g in out.values()])
     return out
 
 
 def channel_games(path=None, status=None) -> dict:
     """The channel games of the registry (optionally only one status), guarded."""
     reg = load_registry(path)
-    out = {t: g for t, g in reg["games"].items() if status is None or g.get("status") == status}
-    ids = [g["video_id"] for g in out.values()]
-    ids += [c for g in out.values() for c in g.get("candidates", [])]
-    ids += [g["sportvu"] for g in out.values() if g.get("sportvu")]
-    guard(ids)
+    every = reg["games"]
+    out = {t: g for t, g in every.items() if status is None or g.get("status") == status}
+    ids = list(every) + [g["video_id"] for g in every.values()]          # every entry is checked, whatever its status
+    ids += [c for g in every.values() for c in g.get("candidates", [])]
+    ids += [g["sportvu"] for g in every.values() if g.get("sportvu")]
+    guard(ids, homes=[g.get("home") for g in every.values() if g.get("home")])
     return out
 
 

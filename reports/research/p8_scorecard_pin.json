@@ -1,10 +1,16 @@
 {
  "fixed_on": "2026-11-17",
  "decision": "P8_FEASIBILITY.md section 7 (4); PLAN.md D85",
+ "status": "draft",
  "scorer": {
-  "tools/p8_scorecard.py": "aeb6a45e619d0f850647f149ad0371e14507511f05d9e40b5c871bf8092ed7b2"
+  "tools/p8_scorecard.py": "714d096da99f588b27fe19e09c8a5186beac4764066ac684f91df402fff73aa7",
+  "tools/p8_frozen.py": "86e3c02f01abc929cd82090c44cced3112eb768a073a15b5363736fcc1de0dbb",
+  "tools/p8_common.py": "00da3c7c54649089def289478f22ff66a3e21481d45a51fb0ca0484db13b3018"
  },
- "constants_sha256": "e7734ee4275af829670b1cd05770c47b29509cc7d9f7c87bc1b44f3094951371",
+ "fixed_constants_file": {
+  "reports/research/p8_constants.json": null
+ },
+ "constants_sha256": "7f8d9017bd159703400d4f23f7f957d6918ed57dc4925fcbe8de2256ea84d85a",
  "constants": {
   "ball_f1_target": 0.75,
   "ball_tol_rule": "2 x the median camera-truth reprojection error of SportVU feet onto the box feet (px), over the development games, fixed by the Phase A baseline before any ball model runs",
@@ -15,6 +21,7 @@
   "jersey_min_crops": 8,
   "switches_goal_per_possession": 5.0,
   "event_tol_s": 1.0,
+  "event_live_wide_s": 0.5,
   "shots_found_target": 0.95,
   "shots_false_max": 0.05,
   "rebounds_found_target": 0.9,
@@ -62,9 +69,14 @@
    "camera",
    "camera_paint",
    "b4"
+  ],
+  "gate_games": [
+   "gsw_bkn_2015",
+   "nyk_bos_2016"
   ]
  },
  "frozen_files": {
+  "clock_reader.py": "17319bd0a912fd0f5bc5a4f87f77e7067790968bf5690d6e219a8b2ae30774b2",
   "sportvu/bench.py": "caa0aa6ec3e1bc4fcd51f928d6c6d8ef57fc6bff88a939ccf2668b235cffae84",
   "sportvu/truth.py": "bb8554e72b243eb5e2eadf06b985a20282af5ffe43610446969da1e5f2a4e083",
   "sportvu/eval.py": "461454723220a36ee7c06c4336e0f712e6fb690df405999f4fc6878b2373b09f",

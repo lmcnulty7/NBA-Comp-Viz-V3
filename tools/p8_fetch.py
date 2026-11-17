@@ -9,10 +9,13 @@ yt-dlp under harvest_driver's avc1 format pin and proof-of-origin token argument
 with ffprobe (video codec h264, height 720) and only then renamed into place. A cached file that passes the check is
 kept.
 
-Development candidates go to <P8 root>/video/<tag>.mp4. The CV test videos go to their own sealed folder,
-<P8 root>/../p8_cv_test/video/<game>.mp4, through tools.research_testset.cv_test_videos. Nothing reads that folder
-except this tool's ffprobe check and, later, the single score_once scorer of each experiment: no model, frame read
-or scorebug check runs on a test video here (D85 (1)).
+Development candidates go to <P8 root>/video/<tag>.mp4. The CV test videos go to their own sealed root (V3_P8_TEST_ROOT,
+default <home>/Developer/nba-v3-worktrees/_p8-cvtest), outside the P8 workspace so that no glob of the development
+workspace reaches them, as <test root>/video/<game>.mp4, through tools.research_testset.cv_test_videos. Nothing reads
+that folder except this tool's ffprobe check and, later, the single score_once scorer of each experiment, which gets
+one video's path from cv_test_video(game) and may call it only inside the scorer function it passes to score_once
+(tests/test_research_testset.py checks this by AST). No model, frame read or scorebug check runs on a test video here
+(D85 (1)).
 
 The scorebug check reads one frame of a candidate by eye: teams, period, game clock and score. That reading is
 compared with the contract's play-by-play of each candidate SportVU game (tools.p8_scorebug) and written to
@@ -35,8 +38,22 @@ WHO = "tools.p8_fetch"
 
 
 def cv_test_dir() -> Path:
-    """The sealed folder of the CV test videos, a sibling of the P8 workspace."""
-    return check_outside(p8_root().parent / "p8_cv_test" / "video")
+    """The sealed folder of the CV test videos: outside DATA_ROOT, the repository and the P8 workspace (neither holds
+    the other)."""
+    root = check_outside(Path(os.environ.get("V3_P8_TEST_ROOT")
+                              or Path.home() / "Developer" / "nba-v3-worktrees" / "_p8-cvtest"))
+    work = p8_root().resolve()
+    if root == work or work in root.parents or root in work.parents:
+        raise SystemExit(f"{WHO}: the CV test root {root} and the P8 workspace {work} must not contain each other")
+    return root / "video"
+
+
+def cv_test_video(game: str) -> Path:
+    """The path of one CV test video, for the single score_once scorer of an experiment (call it only inside the
+    function passed to score_once) and for this tool's download check."""
+    if game not in cv_test_videos():
+        raise SystemExit(f"{WHO}: {game} is not a broadcast CV test game")
+    return cv_test_dir() / f"{game}.mp4"
 
 
 def probe(path: Path) -> dict:
@@ -95,10 +112,9 @@ def fetch_dev(tags=None) -> dict:
 
 def fetch_test() -> dict:
     """The CV test videos: download and ffprobe only."""
-    out_dir = cv_test_dir()
     res = {}
     for game, vid in sorted(cv_test_videos().items()):
-        p = download(vid, out_dir / f"{game}.mp4")
+        p = download(vid, cv_test_video(game))
         res[game] = {k: p.get(k) for k in ("ok", "codec", "height", "fps", "duration_s", "cached", "error")}
         print(f"  test video {game}: {res[game]}", flush=True)
     return res
