@@ -7,6 +7,7 @@ const NAV = [
   [copy.site.nav.review, "review/"],
   [copy.site.nav.prep, "prep/"],
   [copy.site.nav.results, "results/"],
+  [copy.site.nav.methods, "methods/"],
 ] as const;
 
 /** Safari moves between links with Option and Tab unless a system setting says otherwise; WebKit does the same. */
@@ -32,7 +33,7 @@ test("the skip link is the first stop and moves focus to the content", async ({ 
 test("the nav is reachable by keyboard, in order, after the site name", async ({ page, browserName }) => {
   await page.goto("./");
   const order: string[] = [];
-  for (let stop = 0; stop < 6; stop += 1) {
+  for (let stop = 0; stop < NAV.length + 2; stop += 1) {
     await page.keyboard.press(tabKey(browserName));
     order.push(await focusedText(page));
   }
@@ -42,11 +43,11 @@ test("the nav is reachable by keyboard, in order, after the site name", async ({
   expect(outline).not.toBe("none");
   // Enter follows it.
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`${build.basePath}/results/$`));
-  await expect(page.locator("h1")).toHaveText(copy.results.title);
+  await expect(page).toHaveURL(new RegExp(`${build.basePath}/methods/$`));
+  await expect(page.locator("h1")).toHaveText(copy.methods.title);
 });
 
-test("the nav has Home, Review, Prep and Results, and marks the current one", async ({ page }) => {
+test("the nav has Home, Review, Prep, Results and Methods, and marks the current one", async ({ page }) => {
   await page.goto("./");
   const nav = page.getByRole("navigation", { name: copy.site.nav.label });
   await expect(nav.getByRole("link")).toHaveText(NAV.map(([name]) => name));

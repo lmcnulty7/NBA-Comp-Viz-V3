@@ -8,10 +8,14 @@
  * (lib/data/browser.ts).
  */
 import {
+  COMPATIBLE_VERSIONS,
+  CURRENT_VERSION_FILES,
   SCHEMA_VERSION,
   type DemoFrames,
+  type GeneratedTexts,
   type DemoSwap,
   type Manifest,
+  type MethodsFile,
   type PlayersFile,
   type Possession,
   type PossessionIndex,
@@ -32,10 +36,14 @@ export interface DataSource {
   scorecard(): Promise<Scorecard>;
   /** The model results table. */
   results(): Promise<Results>;
+  /** The methods and literature page: papers, benchmark rows and pre-registered experiments by lane. */
+  methods(): Promise<MethodsFile>;
   /** The demo comparison, or null when this data build has none. */
   demoSwap(): Promise<DemoSwap | null>;
   /** The demo scenes, or null when this data build has none. */
   demoFrames(): Promise<DemoFrames | null>;
+  /** The machine-written texts of one kind (PLAN.md P3), or null when this data build has none. */
+  texts(kind: GeneratedTexts["kind"]): Promise<GeneratedTexts | null>;
 }
 
 export type DataErrorReason = "missing" | "invalid" | "version" | "unreachable" | "bad-request";
@@ -69,8 +77,10 @@ export const dataPaths = {
   players: "players.json",
   scorecard: "scorecard.json",
   results: "results.json",
+  methods: "methods.json",
   demoSwap: "demo/swap.json",
   demoFrames: "demo/frames.json",
+  texts: (kind: GeneratedTexts["kind"]) => (kind === "scouting" ? "genai/scouting.json" : "genai/possession.json"),
 } as const;
 
 /** How many possession documents a source keeps in memory. The fixed documents are always kept. */
@@ -127,12 +137,23 @@ export class StaticSource implements DataSource {
     return this.required<Results>(dataPaths.results, this.fixed);
   }
 
+  methods(): Promise<MethodsFile> {
+    return this.required<MethodsFile>(dataPaths.methods, this.fixed);
+  }
+
   demoSwap(): Promise<DemoSwap | null> {
     return this.optional<DemoSwap>(dataPaths.demoSwap);
   }
 
   demoFrames(): Promise<DemoFrames | null> {
     return this.optional<DemoFrames>(dataPaths.demoFrames);
+  }
+
+  texts(kind: GeneratedTexts["kind"]): Promise<GeneratedTexts | null> {
+    if (kind !== "scouting" && kind !== "possession") {
+      throw new DataError(`texts ${JSON.stringify(kind)}`, "bad-request", "not a kind of machine-written text");
+    }
+    return this.optional<GeneratedTexts>(dataPaths.texts(kind));
   }
 
   private load(path: string, cache: Map<string, Promise<unknown>>): Promise<unknown> {
@@ -172,16 +193,39 @@ function assertSlug(gameSlug: string): void {
   }
 }
 
+/** The patterns of CURRENT_VERSION_FILES as regular expressions: a <placeholder> is one path segment. */
+const CURRENT_VERSION_PATHS = CURRENT_VERSION_FILES.map(
+  (pattern) => new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/<[^/>]+>/g, "[^/]+")}$`),
+);
+
+/** Whether the file at `path` must carry SCHEMA_VERSION itself (the manifest and every file this version added). */
+export function needsCurrentVersion(path: string): boolean {
+  return CURRENT_VERSION_PATHS.some((pattern) => pattern.test(path));
+}
+
 function assertVersion(path: string, document: unknown): void {
   const version =
     typeof document === "object" && document !== null
       ? (document as { schema_version?: unknown }).schema_version
       : undefined;
-  if (version !== SCHEMA_VERSION) {
+  // The manifest and every file this version added carry SCHEMA_VERSION itself. Any other file of an earlier minor
+  // version of the same major version is still valid: every change since only added a file or a value.
+  if (needsCurrentVersion(path)) {
+    if (version !== SCHEMA_VERSION) {
+      throw new DataError(
+        path,
+        "version",
+        `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this file must carry`,
+      );
+    }
+    return;
+  }
+  if (!(COMPATIBLE_VERSIONS as readonly unknown[]).includes(version)) {
     throw new DataError(
       path,
       "version",
-      `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this site was built for`,
+      `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this site was built for, nor one of ` +
+        `the versions it still reads (${COMPATIBLE_VERSIONS.join(", ")})`,
     );
   }
 }

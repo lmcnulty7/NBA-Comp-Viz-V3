@@ -28,7 +28,7 @@ BOOT_SEED = 0
 BOOT_PERCENTILES = (2.5, 97.5)
 FIXTURE_MARKER = "fixture_root.json"  # a data root that holds this file was written by a test, never by a lane
 # What the site data depends on inside the repository: a change here that is not committed marks the manifest.
-CODE_AND_INPUTS = ("export", "analytics", "tools", "sportvu", "collect", "reports", "config.py")
+CODE_AND_INPUTS = ("export", "analytics", "tools", "sportvu", "collect", "reports", "docs/research", "config.py")
 UNCOMMITTED = "+uncommitted"  # the end of a manifest's repo_commit when the code that ran is not that commit
 
 

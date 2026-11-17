@@ -33,4 +33,5 @@ export const routes = {
   prep: "/prep/",
   player: (playerSlug: string) => `/prep/${playerSlug}/`,
   results: "/results/",
+  methods: "/methods/",
 } as const;

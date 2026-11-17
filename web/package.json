@@ -23,6 +23,7 @@
     "build:public": "node scripts/build.mjs --variant public",
     "build:private": "node scripts/build.mjs --variant private",
     "video:check": "node scripts/check-no-video.mjs",
+    "methods:check": "node scripts/check-methods.mjs",
     "serve": "node scripts/serve-out.mjs",
     "shots": "node scripts/shots.mjs",
     "check": "node scripts/check.mjs"
@@ -38,6 +39,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "ajv": "8.20.0",
+    "axe-core": "4.14.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.6",
     "json-schema-to-typescript": "16.0.0",

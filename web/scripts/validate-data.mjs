@@ -107,7 +107,7 @@ function siteProblems(documents, seen) {
     }
   }
   for (const [rel, index] of documents) {
-    if (!rel.endsWith("/possessions.json")) continue;
+    if (!rel.startsWith("games/") || !rel.endsWith("/possessions.json")) continue;
     const folder = rel.slice(0, rel.lastIndexOf("/"));
     const listed = new Set(index.possessions.map((row) => row.possession));
     if (listed.size !== index.possessions.length) problems.push(`${rel}: a possession is listed twice`);

@@ -224,6 +224,55 @@ def _results() -> S.Results:
                      notes=["Synthetic fixture table, not a result."], sources=SRC_FIXTURE)
 
 
+def _methods() -> S.MethodsFile:
+    """A fixture methods file: one lane with a paper, two benchmark rows and three experiments, one in each state
+    the page shows (not run, waiting for its test score, and scored on both stages)."""
+    fixture = S.FIXTURE_SOURCE
+
+    def stage(name, diff, lo, hi, met):
+        rows = "testset" if name == "test" else "out_of_fold"
+        return S.StageResult(stage=name, source=S.Source(path=fixture, what="synthetic fixture result", rows=rows),
+                             metric="fixture paired difference", rows=1200, rows_unit="shots", games=12, diff=diff,
+                             lo=lo, hi=hi, interval="Fixture interval, not a result.", threshold=0.0005,
+                             upper=hi, met=met,
+                             values=[S.StageValue(label="fixture value", value=0.6123, point_estimate=True),
+                                     S.StageValue(label="fixture paired value", value=0.0012, lo=0.0004, hi=0.0021,
+                                                  point_estimate=False)])
+
+    def experiment(number, status, dev=None, test=None):
+        return S.Experiment(id=f"fixture-E{number}", title=f"fixture experiment {number}",
+                            what="fixture test of a fixture model", hypothesis="Fixture hypothesis, not a result.",
+                            threshold="Fixture threshold of 0.0005, not a result.", rank=number, gain=3, effort=2,
+                            test_data="fixture games", backlog_status="proposed", status=status, development=dev,
+                            test=test)
+
+    lane = S.MethodsLane(
+        lane="fixture_lane", dossier=fixture, report=fixture,
+        foundations=[S.Paper(cite="Fixture, A. (2000). A fixture paper. Fixture Journal 1(1).",
+                             url="https://example.org/fixture-paper", take="Fixture idea, not a result.")],
+        benchmarks=[
+            S.Benchmark(ours=[S.OurValue(label="fixture metric, out of fold", value="0.6294", lo="0.6277",
+                                         hi="0.6316", kind="estimate", source=fixture, rows="out_of_fold"),
+                              S.OurValue(label="fixture metric, held out", value="-0.014", kind="estimate",
+                                         source=fixture, rows="heldout")],
+                        published="fixture metric 0.6522 (Table 1)", published_values=["0.6522"],
+                        paper="Fixture 2000", where="Table 1", url="https://example.org/fixture-paper",
+                        differs="Fixture difference.", comparability="roughly comparable: fixture rows",
+                        comparability_class="roughly"),
+            S.Benchmark(ours=[], ours_text="fixture: no number of ours", published="none found",
+                        published_values=[], paper="none", differs="Fixture difference.",
+                        comparability="No published comparable number.", comparability_class="none"),
+        ],
+        notes=["Fixture note, not a result."],
+        experiments=[experiment(1, "development_met_test_pending", stage("development", -0.0005, -0.0008, -0.0002,
+                                                                         True)),
+                     experiment(2, "pre_registered"),
+                     experiment(3, "not_adopted_test", stage("development", -0.0004, -0.0007, -0.0001, True),
+                                stage("test", 0.0003, -0.0002, 0.0009, False))])
+    return S.MethodsFile(schema_version=S.SCHEMA_VERSION, written="2000-01-01", backlog=fixture, lanes=[lane],
+                         sources=SRC_FIXTURE)
+
+
 def _demo() -> tuple:
     scenes, items, poss = [], [], []
     for s in range(2):
@@ -299,6 +348,7 @@ def write_sample(out) -> list[str]:
     put("players.json", _players())
     put("scorecard.json", _scorecard())
     put("results.json", _results())
+    put("methods.json", _methods())
     swap, frames = _demo()
     put("demo/swap.json", swap)
     put("demo/frames.json", frames)
@@ -312,7 +362,13 @@ def write_sample(out) -> list[str]:
                           n_games=len(GAMES), n_possessions=sum(g.n_possessions for g in manifest_games),
                           games=manifest_games, files=entries)
     put("manifest.json", manifest)
-    return sorted(files)
+    # Fixture texts (PLAN.md P3) for 8 of the 12 players and 8 of the 12 possessions, so the site shows pages with
+    # a text and pages without one. They are written from the facts and checked like real texts. They rewrite the
+    # manifest.
+    from export import genai
+
+    genai.run(out, n_players=8, n_possessions=8, log=lambda line: None)
+    return sorted([*files, *(rel for rel in S.GENAI_FILES.values() if (out / rel).exists())])
 
 
 def main(argv=None) -> int:

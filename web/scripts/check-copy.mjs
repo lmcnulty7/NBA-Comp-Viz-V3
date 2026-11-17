@@ -36,7 +36,7 @@ function isKnownToken(placeholder) {
   knownTokens ??= scriptTokens();
   return knownTokens.has(match[1]);
 }
-const BANNED = [
+export const BANNED = [
   [/\b(best|optimal|ideal|perfect|correct)\s+(defen[cs]e|defenders?|positions?|positioning)\b/i,
     "ghost defenders are an average defense, never the best or the optimal one"],
 ];

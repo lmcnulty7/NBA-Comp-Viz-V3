@@ -5,12 +5,14 @@ import type { ReactNode } from "react";
 import { IntervalBar, domainOf } from "@/components/charts/IntervalBar";
 import { Evidence } from "@/components/evidence/Evidence";
 import { EvidenceScope } from "@/components/evidence/EvidenceScope";
+import { MachineText } from "@/components/genai/MachineText";
 import { metricEstimate, type SortKey } from "@/components/prep/sort";
 import { EstimateValue } from "@/components/ui/EstimateValue";
 import { SourceList } from "@/components/ui/SourceList";
 import { copy, fill, label } from "@/lib/copy";
 import { getServerSource } from "@/lib/data/server";
 import { formatCount, formatNumber, formatPercent, formatSigned } from "@/lib/format";
+import { checkedText, playerFacts, playerNames } from "@/lib/genai";
 import { routes } from "@/lib/site";
 import type { Estimate, MetricNote, PlayersFile, RebuildCheck } from "@/lib/types/contract";
 import styles from "./player.module.css";
@@ -148,6 +150,9 @@ function Check({ check }: { check: RebuildCheck | undefined }) {
 export default async function PlayerPage({ params }: PageProps<"/prep/[player]">) {
   const { player: slug } = await params;
   const { players, player } = await load(slug);
+  // A machine-written scouting report (PLAN.md P3), shown only when it passes this page's own number check.
+  const texts = await getServerSource().texts("scouting");
+  const scouting = checkedText(texts, player.slug, playerFacts(player), playerNames(player));
   const slugOf = new Map(players.players.map((candidate) => [candidate.player_id, candidate.slug]));
   const { shot_making: shots, gravity, rebounding, absence_risk: absence, similar } = player;
   const baseline = players.shot_making_baseline;
@@ -170,6 +175,8 @@ export default async function PlayerPage({ params }: PageProps<"/prep/[player]">
       </header>
 
       <EvidenceScope>
+        <MachineText item={scouting} texts={texts} />
+
         <MetricSection metric="shot_making" players={players}>
           {shots.shown && shots.over_expected_per_100 ? (
             <>

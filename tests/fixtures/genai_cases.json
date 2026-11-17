@@ -1,0 +1,1837 @@
+{
+ "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one. The lanes cases are the lane-word rule (check_lanes, checkLanes).",
+ "numbers": [
+  {
+   "name": "an interval value with both bounds",
+   "text": "He made 4.0 more shots per 100 attempts, with a 95% range of −6.5 to 12.2.",
+   "facts": [
+    {
+     "field": "sm.value",
+     "shown": "4.0",
+     "unit": "none",
+     "kind": "value",
+     "group": "sm"
+    },
+    {
+     "field": "sm.lo",
+     "shown": "−6.5",
+     "unit": "none",
+     "kind": "lo",
+     "group": "sm"
+    },
+    {
+     "field": "sm.hi",
+     "shown": "12.2",
+     "unit": "none",
+     "kind": "hi",
+     "group": "sm"
+    },
+    {
+     "field": "sm.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a made-up number",
+   "text": "He made 4.0 more shots per 100, range −6.5 to 12.2, in 52 games.",
+   "facts": [
+    {
+     "field": "sm.value",
+     "shown": "4.0",
+     "unit": "none",
+     "kind": "value",
+     "group": "sm"
+    },
+    {
+     "field": "sm.lo",
+     "shown": "−6.5",
+     "unit": "none",
+     "kind": "lo",
+     "group": "sm"
+    },
+    {
+     "field": "sm.hi",
+     "shown": "12.2",
+     "unit": "none",
+     "kind": "hi",
+     "group": "sm"
+    },
+    {
+     "field": "sm.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "a value rounded another way",
+   "text": "He made 4.02 more shots per 100, range −6.5 to 12.2.",
+   "facts": [
+    {
+     "field": "sm.value",
+     "shown": "4.0",
+     "unit": "none",
+     "kind": "value",
+     "group": "sm"
+    },
+    {
+     "field": "sm.lo",
+     "shown": "−6.5",
+     "unit": "none",
+     "kind": "lo",
+     "group": "sm"
+    },
+    {
+     "field": "sm.hi",
+     "shown": "12.2",
+     "unit": "none",
+     "kind": "hi",
+     "group": "sm"
+    },
+    {
+     "field": "sm.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "a value rounded to a whole number",
+   "text": "He made 4 more shots per 100, range −6.5 to 12.2.",
+   "facts": [
+    {
+     "field": "sm.value",
+     "shown": "4.0",
+     "unit": "none",
+     "kind": "value",
+     "group": "sm"
+    },
+    {
+     "field": "sm.lo",
+     "shown": "−6.5",
+     "unit": "none",
+     "kind": "lo",
+     "group": "sm"
+    },
+    {
+     "field": "sm.hi",
+     "shown": "12.2",
+     "unit": "none",
+     "kind": "hi",
+     "group": "sm"
+    },
+    {
+     "field": "sm.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "a value without its interval",
+   "text": "He made 4.0 more shots per 100 attempts than expected.",
+   "facts": [
+    {
+     "field": "sm.value",
+     "shown": "4.0",
+     "unit": "none",
+     "kind": "value",
+     "group": "sm"
+    },
+    {
+     "field": "sm.lo",
+     "shown": "−6.5",
+     "unit": "none",
+     "kind": "lo",
+     "group": "sm"
+    },
+    {
+     "field": "sm.hi",
+     "shown": "12.2",
+     "unit": "none",
+     "kind": "hi",
+     "group": "sm"
+    },
+    {
+     "field": "sm.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "without its interval"
+  },
+  {
+   "name": "a share written as a percent",
+   "text": "The last shot had a 45.9% chance, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "a percent written as a share",
+   "text": "He made 0.477 of his shots, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "a percent without its percent sign",
+   "text": "He made 47.7 of his shots, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "another unit"
+  },
+  {
+   "name": "a percent in words",
+   "text": "He made 47.7 percent of his shots, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a point estimate called one",
+   "text": "The last shot had a 0.459 chance to go in, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a point estimate not called one",
+   "text": "The last shot had a 0.459 chance to go in.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "does not call one"
+  },
+  {
+   "name": "a sign dropped",
+   "text": "Defenders stand 0.98 feet closer, from −1.24 to −0.71 feet.",
+   "facts": [
+    {
+     "field": "g.value",
+     "shown": "−0.98",
+     "unit": "feet",
+     "kind": "value",
+     "group": "g"
+    },
+    {
+     "field": "g.lo",
+     "shown": "−1.24",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "g"
+    },
+    {
+     "field": "g.hi",
+     "shown": "−0.71",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "g"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "a hyphen as the minus sign",
+   "text": "Defenders stand -0.98 feet closer, from -1.24 to -0.71 feet.",
+   "facts": [
+    {
+     "field": "g.value",
+     "shown": "−0.98",
+     "unit": "feet",
+     "kind": "value",
+     "group": "g"
+    },
+    {
+     "field": "g.lo",
+     "shown": "−1.24",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "g"
+    },
+    {
+     "field": "g.hi",
+     "shown": "−0.71",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "g"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "feet written as points",
+   "text": "He moves defenders −0.98 points, from −1.24 to −0.71.",
+   "facts": [
+    {
+     "field": "g.value",
+     "shown": "−0.98",
+     "unit": "feet",
+     "kind": "value",
+     "group": "g"
+    },
+    {
+     "field": "g.lo",
+     "shown": "−1.24",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "g"
+    },
+    {
+     "field": "g.hi",
+     "shown": "−0.71",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "g"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "another unit"
+  },
+  {
+   "name": "a number as a word",
+   "text": "The offense took two shots in 17.0 seconds and scored 0 points.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "number word"
+  },
+  {
+   "name": "an ordinal as a word",
+   "text": "In the first period the offense scored 0 points.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "number word"
+  },
+  {
+   "name": "second as an ordinal",
+   "text": "In the second half the offense scored 0 points.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "number word"
+  },
+  {
+   "name": "second as a unit",
+   "text": "It lasted 17.0 seconds and scored 0 points.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a kind of shot is not a number",
+   "text": "He took a three-point shot in period 1 and scored 0 points.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a clock",
+   "text": "It started at 7:38 in period 1.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a wrong clock",
+   "text": "It started at 7:39 in period 1.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "not a value of this page"
+  },
+  {
+   "name": "thousands separators",
+   "text": "He played 1,234 games, or 1234 by another count.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a digit inside a name is no number",
+   "text": "Fixture Player 7 played 1,234 games.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [
+    "Fixture Player 7"
+   ],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a digit of another script",
+   "text": "He played ٣ games and 1,234 in all.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "digits 0 to 9"
+  },
+  {
+   "name": "a scale is no number",
+   "text": "He made 4.0 shots per 100 attempts above the expected rate, range −6.5 to 12.2.",
+   "facts": [
+    {
+     "field": "sm.value",
+     "shown": "4.0",
+     "unit": "none",
+     "kind": "value",
+     "group": "sm"
+    },
+    {
+     "field": "sm.lo",
+     "shown": "−6.5",
+     "unit": "none",
+     "kind": "lo",
+     "group": "sm"
+    },
+    {
+     "field": "sm.hi",
+     "shown": "12.2",
+     "unit": "none",
+     "kind": "hi",
+     "group": "sm"
+    },
+    {
+     "field": "sm.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "expected points in points",
+   "text": "Expected points started at 0.89 points, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "expected points written as seconds",
+   "text": "Expected points started at 0.89 seconds, a point estimate.",
+   "facts": [
+    {
+     "field": "fg",
+     "shown": "47.7%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "fg"
+    },
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    },
+    {
+     "field": "epv0",
+     "shown": "0.89",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv0"
+    },
+    {
+     "field": "dur",
+     "shown": "17.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "pts",
+     "shown": "0",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "clock",
+     "shown": "7:38",
+     "unit": "clock",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "period",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "1,234",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "another unit"
+  },
+  {
+   "name": "a model probability written as an observed rate",
+   "text": "He missed the next game after 0.174 of his games (range 0.154 to 0.198).",
+   "facts": [
+    {
+     "field": "absence_risk.model_probability.value",
+     "shown": "0.174",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.lo",
+     "shown": "0.154",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.hi",
+     "shown": "0.198",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.200",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.085",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.371",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "a model's value"
+  },
+  {
+   "name": "a model probability called the model's",
+   "text": "The model gives him a 0.174 chance to miss the next game (range 0.154 to 0.198).",
+   "facts": [
+    {
+     "field": "absence_risk.model_probability.value",
+     "shown": "0.174",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.lo",
+     "shown": "0.154",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.hi",
+     "shown": "0.198",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.200",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.085",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.371",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "an observed rate needs no model word",
+   "text": "He missed the next game after 0.200 of his games (range 0.085 to 0.371).",
+   "facts": [
+    {
+     "field": "absence_risk.model_probability.value",
+     "shown": "0.174",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.lo",
+     "shown": "0.154",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.hi",
+     "shown": "0.198",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.200",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.085",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.371",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a model word in another sentence does not count",
+   "text": "This is a point estimate from a model. The shot went in 0.459 of the time.",
+   "facts": [
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "a model's value"
+  },
+  {
+   "name": "a shot chance called an estimate in its sentence",
+   "text": "The shot had a 0.459 chance to go in, a point estimate.",
+   "facts": [
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  }
+ ],
+ "format": [
+  {
+   "fn": "number",
+   "value": 0.125,
+   "digits": 2,
+   "shown": "0.13"
+  },
+  {
+   "fn": "number",
+   "value": 1.005,
+   "digits": 2,
+   "shown": "1.00"
+  },
+  {
+   "fn": "number",
+   "value": -0.004,
+   "digits": 2,
+   "shown": "0.00"
+  },
+  {
+   "fn": "number",
+   "value": -0.978,
+   "digits": 2,
+   "shown": "−0.98"
+  },
+  {
+   "fn": "number",
+   "value": 2.5,
+   "digits": 0,
+   "shown": "3"
+  },
+  {
+   "fn": "signed",
+   "value": 3.94,
+   "digits": 1,
+   "shown": "+3.9"
+  },
+  {
+   "fn": "signed",
+   "value": 0.04,
+   "digits": 1,
+   "shown": "0.0"
+  },
+  {
+   "fn": "signed",
+   "value": -0.8,
+   "digits": 1,
+   "shown": "−0.8"
+  },
+  {
+   "fn": "percent",
+   "value": 0.4771,
+   "digits": 1,
+   "shown": "47.7%"
+  },
+  {
+   "fn": "percent",
+   "value": 0.0005,
+   "digits": 1,
+   "shown": "0.1%"
+  },
+  {
+   "fn": "count",
+   "value": 1234.5,
+   "shown": "1,235"
+  },
+  {
+   "fn": "count",
+   "value": 985,
+   "shown": "985"
+  },
+  {
+   "fn": "probability",
+   "value": 0.4585,
+   "shown": "0.459"
+  },
+  {
+   "fn": "clock",
+   "value": 458.0,
+   "shown": "7:38"
+  },
+  {
+   "fn": "clock",
+   "value": 59.99,
+   "shown": "0:59"
+  },
+  {
+   "fn": "seconds",
+   "value": 13.04,
+   "shown": "13.0"
+  },
+  {
+   "fn": "stored",
+   "value": 1.0,
+   "shown": "1"
+  },
+  {
+   "fn": "stored",
+   "value": -0.19,
+   "shown": "−0.19"
+  },
+  {
+   "fn": "stored",
+   "value": 1.311,
+   "shown": "1.311"
+  },
+  {
+   "fn": "stored",
+   "value": 1e-07,
+   "shown": "0.0000001"
+  },
+  {
+   "fn": "integer",
+   "value": 16,
+   "shown": "16"
+  }
+ ],
+ "lanes": [
+  {
+   "name": "a failed lane named with no number",
+   "text": "His decisions were sharp on this play.",
+   "names": [],
+   "ok": false,
+   "lane": "decisions"
+  },
+  {
+   "name": "a no-signal lane",
+   "text": "He won his matchup on the wing.",
+   "names": [],
+   "ok": false,
+   "lane": "matchups"
+  },
+  {
+   "name": "a lane with no result",
+   "text": "He drove hard and passed to the corner.",
+   "names": [],
+   "ok": false,
+   "lane": "actions"
+  },
+  {
+   "name": "an inconclusive lane",
+   "text": "His lineup played well together.",
+   "names": [],
+   "ok": false,
+   "lane": "lineups"
+  },
+  {
+   "name": "a name is not a lane word",
+   "text": "Bill Passer took the last shot.",
+   "names": [
+    "Bill Passer"
+   ],
+   "ok": true,
+   "lane": ""
+  },
+  {
+   "name": "plain words name no lane",
+   "text": "The offense took a three-point shot and missed it.",
+   "names": [],
+   "ok": true,
+   "lane": ""
+  }
+ ]
+}

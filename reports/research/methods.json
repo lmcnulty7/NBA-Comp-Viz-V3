@@ -1,0 +1,2164 @@
+{
+ "about": "The structured source of the methods and literature page (PLAN.md D72). Every text is copied word for word from the lane dossier under docs/research/ or from docs/research/BACKLOG.md; every number of ours is copied from the report it names. export/research_methods.py checks both before it writes methods.json into a site data root, and reads experiment results from the files named under results.",
+ "written": "2026-11-16",
+ "backlog": "docs/research/BACKLOG.md",
+ "lanes": [
+  {
+   "lane": "xfg",
+   "dossier": "docs/research/xfg.md",
+   "report": "reports/xfg.md",
+   "foundations": [
+    {
+     "cite": "Chang, Maheswaran, Su, Kwok, Levy, Wexler, Squire. Quantifying Shot Quality in the NBA. MIT Sloan Sports Analytics Conference 2014 (research paper competition).",
+     "url": "http://web.archive.org/web/20140311083800/http://www.sloansportsconference.com/wp-content/uploads/2014/02/2014-SSAC-Quantifying-Shot-Quality-in-the-NBA.pdf",
+     "take": "Shot quality as the make probability of a league-average shooter from SportVU features (location, defender distance, more), scored by MSE (Brier) under cross-validation. We use the same idea and the same feature family, but our model adds a shooter prior, so it is not a league-average-player quantity, and we select by log loss with folds grouped by game.",
+     "differs": null
+    },
+    {
+     "cite": "Zadrozny, Elkan. Transforming classifier scores into accurate multiclass probability estimates. KDD 2002, pp. 694-699.",
+     "url": "https://doi.org/10.1145/775047.775151",
+     "take": "Isotonic regression (pool adjacent violators) as a calibrator for any ranking score; the paper notes PAV \"overfits slightly the training data\" but beats sigmoid fitting (Section 5 results). Ours fits it on inner out-of-fold scores grouped by game and adds an ad hoc clip to [0.02, 0.98].",
+     "differs": null
+    },
+    {
+     "cite": "Vovk, Petej. Venn-Abers predictors. UAI 2014.",
+     "url": "https://arxiv.org/abs/1211.0025",
+     "take": "Venn predictors built on isotonic regression: each test object gets two probabilities (p0, p1), and under IID data one of them, selected by the true label, is perfectly calibrated (Theorem 1). Not used yet; it is the basis of xfg-E1.",
+     "differs": null
+    },
+    {
+     "cite": "Vovk, Petej, Fedorova. Large-scale probabilistic predictors with and without guarantees of validity. NeurIPS 2015.",
+     "url": "https://arxiv.org/abs/1511.00213",
+     "take": "Inductive and cross Venn-Abers predictors (IVAP, CVAP) and the log-loss minimax merge p = GM(p1) / (GM(1 - p0) + GM(p1)) (Section 4). Section 5.2 shows plain isotonic regression can give infinite log loss when a test score falls outside the calibration scores; our clip is the kind of ad hoc fix the authors decline to use. Not used yet; xfg-E1.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Log loss, out of fold",
+       "value": "0.6294",
+       "lo": "0.6277",
+       "hi": "0.6316",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Brier, out of fold",
+       "value": "0.2209",
+       "lo": "0.2201",
+       "hi": "0.2219",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Log loss, held out",
+       "value": "0.6232",
+       "lo": "0.6132",
+       "hi": "0.6327",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Brier, held out",
+       "value": "0.2187",
+       "lo": "0.2142",
+       "hi": "0.2233",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "GNN trained with Brier loss: log loss 0.6522, Brier 0.2287; their gradient-boosted classifier: 0.6696, 0.2384 (Table 1, p. 81)",
+     "published_values": [
+      "0.6522",
+      "0.2287",
+      "0.6696",
+      "0.2384"
+     ],
+     "paper": "Schmid, Schöpf, Kolbinger 2025",
+     "where": "Table 1, p. 81",
+     "url": "https://doi.org/10.2478/ijcss-2025-0005",
+     "differs": "Same season (2015-16) and the same SportVU source. They test on the 2015-16 playoffs after training on the regular season; we use 5 folds grouped by game in the regular season. They have 32272 shots, we have 101853. Their inputs add defender height and arm span and the second defender; ours add a shooter prior.",
+     "comparability": "roughly comparable: same data source, season and metrics, different split and sample, and a playoff test may be harder"
+    },
+    {
+     "ours": [
+      {
+       "label": "Calibration error (ECE, 10 bins), out of fold",
+       "value": "0.0029",
+       "lo": "0.0021",
+       "hi": "0.0061",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "ECE 0.0263 for the GNN trained with Brier loss, 30 bins (Table 1)",
+     "published_values": [
+      "0.0263"
+     ],
+     "paper": "Schmid, Schöpf, Kolbinger 2025",
+     "where": "Table 1",
+     "url": "https://doi.org/10.2478/ijcss-2025-0005",
+     "differs": "Bin count and sample size differ, and binned ECE grows as the sample shrinks and the bin count rises (section 4)",
+     "comparability": "not directly comparable: ECE depends on bins and sample size"
+    },
+    {
+     "ours": [
+      {
+       "label": "Brier, boosting with shooter prior, out of fold",
+       "value": "0.2209",
+       "lo": "0.2201",
+       "hi": "0.2219",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Brier, contest_logistic, out of fold",
+       "value": "0.2316",
+       "lo": "0.2309",
+       "hi": "0.2325",
+       "kind": "estimate",
+       "source": "reports/xfg.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "M5, all variables: MSE 0.2322, skill 0.067; M4, shot and defender distance: 0.2330, skill 0.064 (Section 3 table; constant M2 0.2488 at make rate 0.466)",
+     "published_values": [
+      "0.2322",
+      "0.2330",
+      "0.2488"
+     ],
+     "paper": "Chang et al. 2014",
+     "where": "Section 3 table",
+     "url": "http://web.archive.org/web/20140311083800/http://www.sloansportsconference.com/wp-content/uploads/2014/02/2014-SSAC-Quantifying-Shot-Quality-in-the-NBA.pdf",
+     "differs": "Season 2013-14 (the paper applies M5 to shots through early January 2014; the training sample size is not stated). 10-fold CV, grouping not stated. Their target is a league-average shooter; our hgb includes the shooter, so contest_logistic is the closer match.",
+     "comparability": "not directly comparable for hgb (shooter prior, other season); roughly comparable for contest_logistic against M4 and M5 (same feature family, other season and split)"
+    },
+    {
+     "ours": [
+      {
+       "label": "Brier, location-only logistic, out of fold",
+       "value": "0.2369",
+       "lo": "0.2363",
+       "hi": "0.2377",
+       "kind": "estimate",
+       "source": "reports/xfg_baseline.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "M3, shot distance only: MSE 0.2373, skill 0.046 (Section 3 table)",
+     "published_values": [
+      "0.2373"
+     ],
+     "paper": "Chang et al. 2014",
+     "where": "Section 3 table",
+     "url": "http://web.archive.org/web/20140311083800/http://www.sloansportsconference.com/wp-content/uploads/2014/02/2014-SSAC-Quantifying-Shot-Quality-in-the-NBA.pdf",
+     "differs": "Season and split as above; ours uses distance, angle, three and corner flags",
+     "comparability": "roughly comparable"
+    }
+   ],
+   "notes": [
+    "Brier skill is 1 minus Brier over the constant model's Brier, computed here from numbers read in each source."
+   ],
+   "experiments": [
+    {
+     "id": "xfg-E1",
+     "title": "cross Venn-Abers calibration for a per-shot interval (the pilot)",
+     "what": "cross Venn-Abers in place of the inner isotonic step",
+     "hypothesis": "Replacing the frozen inner isotonic step of hgb_contest_prior by a cross Venn-Abers predictor (CVAP) on the same three inner folds keeps log loss (non-inferior) and gives every shot an interval (p0, p1); the log-minimax merge replaces the [0.02, 0.98] clip.",
+     "threshold": "Adopt CVAP as the calibrator if the paired difference in log loss (CVAP merged minus frozen isotonic) has a 95 percent upper bound of at most +0.0005 on development games, and again on the D71 test set when scored once. +0.0005 is under 1.5 percent of the 0.037 contest gain. Separately, the site copy rule is fixed now: if the 95th percentile of p1 - p0 is under 0.01, the site states xFG as a point estimate whose calibration step moves it by under 0.01; otherwise each shot shows its (p0, p1).",
+     "rank": 7,
+     "gain": 3,
+     "effort": 2,
+     "test_data": "Set A",
+     "backlog_status": "done: not adopted (passed on development games, inconclusive on the 10-game test set; reports/research/xfg-E1.md)",
+     "results": {
+      "metric": "Paired difference in log loss, cross Venn-Abers minus the frozen isotonic step, shot-weighted",
+      "rows_unit": "shots",
+      "interval": "Bootstrap by game, 2000 resamples, 95 percent percentile interval of the per-game log loss difference.",
+      "development": "reports/research/xfg-E1-dev.json",
+      "test": "reports/research/xfg-E1-final.json",
+      "keys": {
+       "rows": "shots",
+       "games": "games",
+       "diff": "paired_cvap_minus_iso_shot_weighted.diff",
+       "lo": "paired_cvap_minus_iso_shot_weighted.lo",
+       "hi": "paired_cvap_minus_iso_shot_weighted.hi",
+       "threshold": "verdict.threshold",
+       "upper": "verdict.upper_95",
+       "met": "verdict.passes_threshold"
+      },
+      "digits": 5,
+      "values": [
+       {
+        "label": "Log loss, control arm: the frozen recipe refit on the development games",
+        "value": "arms.p_iso.log_loss",
+        "lo": "arm_intervals_95.p_iso.log_loss.0",
+        "hi": "arm_intervals_95.p_iso.log_loss.1",
+        "digits": 4
+       },
+       {
+        "label": "Log loss, cross Venn-Abers arm",
+        "value": "arms.p_cvap.log_loss",
+        "lo": "arm_intervals_95.p_cvap.log_loss.0",
+        "hi": "arm_intervals_95.p_cvap.log_loss.1",
+        "digits": 4
+       },
+       {
+        "label": "Sensitivity check: t interval on the per-game mean differences, cross Venn-Abers minus isotonic",
+        "value": "t_interval_cvap_minus_iso_per_game.mean_of_game_means",
+        "lo": "t_interval_cvap_minus_iso_per_game.lo",
+        "hi": "t_interval_cvap_minus_iso_per_game.hi",
+        "digits": 5
+       },
+       {
+        "label": "Ablation: single-split Venn-Abers minus isotonic, paired log loss difference, shot-weighted",
+        "value": "paired_ivap_minus_iso_shot_weighted.diff",
+        "lo": "paired_ivap_minus_iso_shot_weighted.lo",
+        "hi": "paired_ivap_minus_iso_shot_weighted.hi",
+        "digits": 5
+       },
+       {
+        "label": "Per-shot interval width, 95th percentile",
+        "value": "interval_width.p95",
+        "digits": 4
+       }
+      ]
+     },
+     "writeup": "reports/research/xfg-E1.md"
+    },
+    {
+     "id": "xfg-E2",
+     "title": "second defender and contest geometry",
+     "what": "second defender and contest geometry",
+     "hypothesis": "Adding the second closest defender's distance, the angle between the shooter-to-basket line and the shooter-to-closest-defender line (contest from the front or from the side), and the closest defender's speed toward the shooter's line of shot, all at the release frame, lowers out-of-fold log loss.",
+     "threshold": "Paired log loss difference (new minus baseline) at most -0.001 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once. Chang et al. found 0.0008 Brier between shot-and-defender distance and all variables, so a smaller change would not show in a coach's view.",
+     "rank": 21,
+     "gain": 2,
+     "effort": 3,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "rebounds",
+   "dossier": "docs/research/rebounds.md",
+   "report": "reports/rebounds.md",
+   "foundations": [
+    {
+     "cite": "Maheswaran, Chang, Henehan, Danesis. Deconstructing the Rebound with Optical Tracking Data. MIT Sloan Sports Analytics Conference 2012.",
+     "url": "https://www.sloansportsconference.com/research-papers/deconstructing-the-rebound-with-optical-tracking-data",
+     "take": "SportVU positions of players and ball around a miss; offensive rebound rate depends non-linearly on shot location; which team rebounds becomes more predictable as the ball falls (Section 7). We predict the player, not the team, at one moment (the rim frame).",
+     "differs": null
+    },
+    {
+     "cite": "Maheswaran, Chang, Su, Kwok, Levy, Wexler, Hollingsworth. The Three Dimensions of Rebounding. MIT Sloan Sports Analytics Conference 2014.",
+     "url": "https://www.sloansportsconference.com/research-papers/the-three-dimensions-of-rebounding",
+     "take": "Rebounding as positioning at the shot, crash to the rim, then conversion; the value of a player's Voronoi cell, weighted by where similar misses land, is re-evaluated at the moment the ball is closest to the rim (Sections 3 and 4). Our rim frame matches their crash endpoint; we learn the probability from features instead of integrating a landing map over Voronoi cells.",
+     "differs": null
+    },
+    {
+     "cite": "Guo, Pleiss, Sun, Weinberger. On Calibration of Modern Neural Networks. ICML 2017.",
+     "url": "https://arxiv.org/abs/1706.04599",
+     "take": "Temperature scaling, a one-parameter recalibration that keeps the ranking. Our tau is that idea applied to log q within each miss; top-1 is unchanged by it (reports/archive/rebounds.md).",
+     "differs": null
+    },
+    {
+     "cite": "Cao, Qin, Liu, Tsai, Li. Learning to rank: from pairwise approach to listwise approach. ICML 2007, pp. 129-136.",
+     "url": "https://doi.org/10.1145/1273496.1273513",
+     "take": "A listwise loss built from probability models over the whole list of objects. Our model does not use it: it trains on single candidate rows. rebounds-E2 trains on the whole miss in this listwise way.",
+     "differs": null
+    },
+    {
+     "cite": "Chen, Guestrin. XGBoost: A Scalable Tree Boosting System. KDD 2016.",
+     "url": "https://arxiv.org/abs/1603.02754",
+     "take": "Tree boosting on first and second order gradient statistics of the loss (Section 2.2), so any twice-differentiable loss, including a within-miss softmax, can be boosted. The tool for rebounds-E2.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Top-1 accuracy, out of fold",
+       "value": "0.4797",
+       "lo": "0.4756",
+       "hi": "0.4848",
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Top-1 accuracy, held out",
+       "value": "0.4474",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Per-miss log loss, out of fold",
+       "value": "1.6009",
+       "lo": "1.5882",
+       "hi": "1.6103",
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Per-miss log loss, held out",
+       "value": "1.7115",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Team-level accuracy: about 77 percent at the release, 87.5 percent when the ball has fallen to 8 ft (Section 7 and its figure; SVM, better than logistic regression by several points)",
+     "published_values": [
+      "77",
+      "87.5"
+     ],
+     "paper": "Maheswaran et al. 2012",
+     "where": "Section 7 and its figure",
+     "url": "https://www.sloansportsconference.com/research-papers/deconstructing-the-rebound-with-optical-tracking-data",
+     "differs": "They predict which team, we predict which player (or none); their moments are the release and fixed ball heights after the rim, ours is the rim frame; over 11000 misses from an earlier SportVU sample (season not stated), split not stated; we do not report a team-level accuracy",
+     "comparability": "not directly comparable: different target, moment and split"
+    },
+    {
+     "ours": [
+      {
+       "label": "Top-1 accuracy, out of fold",
+       "value": "0.4797",
+       "lo": "0.4756",
+       "hi": "0.4848",
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Top-1 accuracy, held out",
+       "value": "0.4474",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Per-miss log loss, out of fold",
+       "value": "1.6009",
+       "lo": "1.5882",
+       "hi": "1.6103",
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Per-miss log loss, held out",
+       "value": "1.7115",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/rebounds.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "no player-level number on NBA tracking found that could be read",
+     "published_values": [],
+     "paper": "none",
+     "where": null,
+     "url": null,
+     "differs": "Hojo, Fujii, Kawahara 2019 report 70.3 and 71.1 percent \"predicted who obtained rebounds\" in the abstract, but the full text is closed and what that accuracy counts (players, misses, balance) could not be checked",
+     "comparability": "no comparable published number"
+    }
+   ],
+   "notes": [],
+   "experiments": [
+    {
+     "id": "rebounds-E1",
+     "title": "a temperature and an offset per candidate type",
+     "what": "a temperature and an offset per candidate type",
+     "hypothesis": "Replacing the single exponent by p proportional to exp(a_g log q + b_g) within the miss, with g one of offense player, defense player and none (three slopes, two free offsets), fitted the same way as the frozen tau on inner out-of-fold predictions, lowers per-miss log loss and brings the favourite's calibration slope toward 1.",
+     "threshold": "Paired difference (new minus baseline) at most -0.005 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once. -0.005 is under a quarter of the gain the temperature itself bought (-0.0225).",
+     "rank": 5,
+     "gain": 2,
+     "effort": 1,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "rebounds-E2",
+     "title": "train on the whole miss (within-miss softmax objective)",
+     "what": "train on the whole miss (within-miss softmax)",
+     "hypothesis": "A boosted model trained with the within-miss softmax cross entropy (the listwise loss of Cao et al. 2007 for one winner per list), on the same features, beats the frozen binary model plus temperature in per-miss log loss, because it learns that candidates compete.",
+     "threshold": "Paired difference at most -0.010 with its 95 percent interval excluding 0, on development games and again on the D71 test set scored once. The bar is higher than E1 because it replaces the model, not a calibration step.",
+     "rank": 16,
+     "gain": 3,
+     "effort": 3,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "matchups",
+   "dossier": "docs/research/matchups.md",
+   "report": "reports/matchups.md",
+   "foundations": [
+    {
+     "cite": "Franks, A., Miller, A., Bornn, L., Goldsberry, K. (2015). Characterizing the spatial structure of defensive skill in professional basketball. Annals of Applied Statistics 9(1), 94-121.",
+     "url": "https://doi.org/10.1214/14-AOAS799",
+     "take": "Two things. (1) Matchups: a hidden Markov model where the defender's position is normal around a convex mix of attacker, ball and hoop, mean = 0.62 O + 0.11 B + 0.27 H estimated by EM, stable across 100 games fitted on 30 possessions each, with transition parameter 0.96 to 0.99 (section 3). Ours fixes the weights by hand (attacker plus half the attacker-basket midpoint) and has no transition model. (2) Defensive skill: outcomes split into shot frequency by court region and shot efficiency, with hierarchical shrinkage; 2013-14 SportVU, half-court possessions of at least 5 s, up to the first shot. Ours regresses possession points directly.",
+     "differs": null
+    },
+    {
+     "cite": "Franks, A. M., D'Amour, A., Cervone, D., Bornn, L. (2016). Meta-analytics: tools for understanding the statistical properties of sports metrics. Journal of Quantitative Analysis in Sports 12(4), 151-165.",
+     "url": "https://doi.org/10.1515/jqas-2016-0098",
+     "take": "Stability (does the metric measure the same thing over time), discrimination (does it separate players) and independence. Our defender table was never checked for stability; this paper gives the frame for that check.",
+     "differs": null
+    },
+    {
+     "cite": "Keshri, S., Oh, M., Zhang, S., Iyengar, G. (2019). Automatic event detection in basketball using HMM with energy based defensive assignment. Journal of Quantitative Analysis in Sports 15(2), 141-153.",
+     "url": "https://doi.org/10.1515/jqas-2017-0126",
+     "take": "A player- and location-dependent attraction model for assignment, with HMMs, Gaussian processes and a \"bond breaking\" model for switches. The abstract reports improvements over existing assignment benchmarks; we could not read the numbers at the source, so none is quoted.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Ridge minus constant, possession-points mean squared error, out of fold",
+       "value": "+0.0012",
+       "lo": "0.0002",
+       "hi": "0.0020",
+       "kind": "estimate",
+       "source": "reports/matchups.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "Out-of-sample log-likelihood, full model against the model with no defense: shooter -25,474.93 against -25,725.17; efficiency -3202.09 against -3239.12 (Table 3, 10-fold CV)",
+     "published_values": [
+      "-25,474.93",
+      "-25,725.17",
+      "-3202.09",
+      "-3239.12"
+     ],
+     "paper": "Franks et al. 2015",
+     "where": "Table 3",
+     "url": "https://doi.org/10.1214/14-AOAS799",
+     "differs": "Different target (who shoots and from where, and make or miss, against possession points); different metric (log-likelihood against MSE); 2013-14 against 2015-16; their sample is half-court possessions of at least 5 s up to the first shot, with fouls and stoppages excluded; their full model also adds defender types and spatial shrinkage.",
+     "comparability": "Not directly comparable. It shows only the direction: in their decomposition, defense information improved out-of-sample prediction, and in ours it did not."
+    },
+    {
+     "ours": [
+      {
+       "label": "Assignment stability, training games",
+       "value": "0.823",
+       "lo": "0.822",
+       "hi": "0.824",
+       "kind": "estimate",
+       "source": "reports/matchups.md",
+       "rows": "training"
+      },
+      {
+       "label": "Defended FG% gap, within 4 ft against beyond, out of fold",
+       "value": "0.027",
+       "lo": "0.020",
+       "hi": "0.035",
+       "kind": "estimate",
+       "source": "reports/matchups.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "none found",
+     "published_values": [],
+     "paper": "none",
+     "where": null,
+     "url": null,
+     "differs": "Franks et al. show assignment quality by figures and animations; Keshri et al. report gains whose numbers we could not read at the source.",
+     "comparability": "No published comparable number."
+    },
+    {
+     "ours": [],
+     "ours_text": "Hand-set assignment weights",
+     "published": "Fitted mean weights (0.62, 0.11, 0.27) for attacker, ball and hoop (section 3)",
+     "published_values": [
+      "0.62",
+      "0.11",
+      "0.27"
+     ],
+     "paper": "Franks et al. 2015",
+     "where": "section 3",
+     "url": "https://doi.org/10.1214/14-AOAS799",
+     "differs": "Ours is a cost for a one-to-one matching, theirs is the mean of an emission distribution in an HMM that allows doubles.",
+     "comparability": "Not a performance number; listed only as a design difference."
+    }
+   ],
+   "notes": [],
+   "experiments": [
+    {
+     "id": "matchups-E1",
+     "title": "split the outcome into shot frequency and shot efficiency",
+     "what": "split the outcome into shot frequency and efficiency (Franks et al.)",
+     "hypothesis": "defender identity carries out-of-sample signal for (a) whether the attacker a defender guards takes the possession's field-goal attempt, and (b) whether that attempt goes in given its xFG, even though it carries none for possession points.",
+     "threshold": "for each part, defender model minus no-defender model log loss below zero with the paired interval excluding zero. A defender table is shown only for a part that passes, labelled with that part. If neither passes, the lane keeps its \"no defender signal\" verdict, now for three targets.",
+     "rank": 11,
+     "gain": 4,
+     "effort": 3,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "matchups-E2",
+     "title": "hidden Markov assignment with fitted weights",
+     "what": "hidden Markov assignment with fitted weights (runs only if matchups-E1(a) passes)",
+     "hypothesis": "replacing the hand-set Hungarian cost with the Franks et al. HMM (emission mean = convex mix of attacker, ball and hoop, weights and switch probability fitted by EM on development games) gives fewer spurious switches and a larger defender signal in E1.",
+     "threshold": "the E1 gain under the HMM larger than under the Hungarian assignment, paired interval excluding zero. Reported beside it: switches per possession and the defended FG% gap.",
+     "rank": 22,
+     "gain": 2,
+     "effort": 3,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "gravity",
+   "dossier": "docs/research/gravity.md",
+   "report": "reports/gravity.md",
+   "foundations": [
+    {
+     "cite": "Franks, A., Miller, A., Bornn, L., Goldsberry, K. (2015). Characterizing the spatial structure of defensive skill in professional basketball. Annals of Applied Statistics 9(1), 94-121.",
+     "url": "https://doi.org/10.1214/14-AOAS799",
+     "take": "The canonical defender position as a convex mix of attacker, ball and hoop (section 3): the idea that a defender's distance has an expected part set by the ball and the basket. Ours models the nearest defender's distance with no assignment and a linear expectation.",
+     "differs": null
+    },
+    {
+     "cite": "Keshri, S., Oh, M., Zhang, S., Iyengar, G. (2019). Automatic event detection in basketball using HMM with energy based defensive assignment. Journal of Quantitative Analysis in Sports 15(2), 141-153.",
+     "url": "https://doi.org/10.1515/jqas-2017-0126",
+     "take": "A player- and location-dependent attraction model, which is a model-based form of gravity built into the assignment. Ours is a residual of a location-only expectation. Full text not read; nothing beyond the abstract is used.",
+     "differs": null
+    },
+    {
+     "cite": "Barron, B., Sitaraman, N., Arias, T. (2025). Analyzing NBA player positions and interactions with density-functional fluctuation theory. Scientific Reports 15, 19830.",
+     "url": "https://doi.org/10.1038/s41598-025-04953-x",
+     "take": "Gravity as the change in local defensive density a specific player causes, compared with a typical player at the same spot and with the same teammate positions, so the pull of the other four attackers is removed (\"Player gravity\" section). Gravity is location-specific (eight half-court spots, on and off ball). Data: Second Spectrum, 2022-23 up to 20 January 2023, positions within 3 s before a shot. Ours does not condition on teammates and gives one number per player.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Expectation skill over the constant floor, out of fold",
+       "value": "0.416",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/gravity.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Expectation skill over the constant floor, held out",
+       "value": "0.434",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/gravity.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "none found",
+     "published_values": [],
+     "paper": "none",
+     "where": null,
+     "url": null,
+     "differs": "Barron et al. report density-based \"ball equivalents\" per location and a location prediction rate for players, not an error for nearest-defender distance.",
+     "comparability": "No published comparable number."
+    },
+    {
+     "ours": [
+      {
+       "label": "Teammates' location-only xFG with a top-ten gravity player on the floor, training games",
+       "value": "+0.0042",
+       "lo": "0.0009",
+       "hi": "0.0074",
+       "kind": "estimate",
+       "source": "reports/gravity.md",
+       "rows": "training"
+      }
+     ],
+     "ours_text": null,
+     "published": "none found",
+     "published_values": [],
+     "paper": "none",
+     "where": null,
+     "url": null,
+     "differs": "Barron et al. check gravity against known scoring patterns of named players, not against an outcome; Keshri et al. give no outcome number we could read.",
+     "comparability": "No published comparable number."
+    }
+   ],
+   "notes": [
+    "We found no peer-reviewed paper that ties a tracking-based gravity measure to teammates' shot outcomes with a number we could check."
+   ],
+   "experiments": [
+    {
+     "id": "gravity-E1",
+     "title": "does gravity open shots for teammates?",
+     "what": "does gravity open shots for teammates",
+     "hypothesis": "a teammate's shot is more open (larger nearest-defender distance at release) when the shooter's on-floor teammates have higher gravity, beyond the shot's location and the shooter.",
+     "threshold": "candidate minus baseline MSE below zero with the paired interval excluding zero, and an effect of at least 0.2 ft of openness per standard deviation of teammates' gravity sum. If it fails, the site says gravity was tested against teammates' openness and showed no effect of that size.",
+     "rank": 9,
+     "gain": 3,
+     "effort": 2,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "gravity-E2",
+     "title": "an expectation that knows where the teammates are",
+     "what": "an expectation that knows where the teammates are",
+     "hypothesis": "adding the other four attackers' positions to the expectation (relative offsets sorted by distance, plus spacing such as hull area; still no identity), in the spirit of Barron et al., gives a gravity that predicts teammates' openness better than the frozen gravity.",
+     "threshold": "E1's MSE improvement with the new gravity larger than with the frozen gravity, paired interval excluding zero; and the new gravity must pass E1's own threshold. Run only after E1.",
+     "rank": 23,
+     "gain": 2,
+     "effort": 3,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "ghosting",
+   "dossier": "docs/research/ghosting.md",
+   "report": "reports/ghosting.md",
+   "foundations": [
+    {
+     "cite": "Le, H. M., Carr, P., Yue, Y., Lucey, P. (2017). Data-Driven Ghosting using Deep Imitation Learning. MIT Sloan Sports Analytics Conference, Boston, 3 to 4 March 2017.",
+     "url": "https://authors.library.caltech.edu/records/74xh3-ysx85",
+     "take": "The idea of a league-average ghost and of team-specific ghosts by fine-tuning. Theirs: soccer, 100 games, 10 Hz, about 17400 sequences, a two-layer LSTM with 512 units trained with imitation learning to control drift over long rollouts. Ours: basketball, an MLP on 1 s of history, trained on one step only, scored over a 1 s rollout.",
+     "differs": null
+    },
+    {
+     "cite": "Le, H. M., Yue, Y., Carr, P., Lucey, P. (2017). Coordinated Multi-Agent Imitation Learning. Proceedings of the 34th International Conference on Machine Learning, PMLR 70:1995-2003.",
+     "url": "https://proceedings.mlr.press/v70/le17a/le17a.pdf",
+     "take": "The training procedure: roll the policy out over a horizon that grows from 1 to 10 steps so that training sees its own errors (section 4.2), and a latent role model for coordination. Theirs: soccer, 45 games, all ten outfield defenders rolled out jointly. Ours: one defender, others actual, no rollout in training.",
+     "differs": null
+    },
+    {
+     "cite": "Seidl, T., Cherukumudi, A., Hartnett, A., Carr, P., Lucey, P. (2018). Bhostgusters: Realtime Interactive Play Sketching with Synthesized NBA Defenses. MIT Sloan Sports Analytics Conference.",
+     "url": "https://www.sloansportsconference.com/research-papers/bhostgusters-realtime-interactive-play-sketching-with-synthesized-nba-defenses",
+     "take": "The basketball version of ghosting: five role LSTMs, trained in three phases (one-step pre-training, single-policy rollout with other players actual, then joint rollout), and ensembles of 10 runs, which had lower error than single models (section 2.3). Ours stops at the first phase.",
+     "differs": null
+    },
+    {
+     "cite": "Felsen, P., Lucey, P., Ganguly, S. (2018). Where Will They Go? Predicting Fine-Grained Adversarial Multi-Agent Motion using Conditional Variational Autoencoders. ECCV 2018, pp. 732-747.",
+     "url": "https://openaccess.thecvf.com/content_ECCV_2018/papers/Panna_Felsen_Where_Will_They_ECCV_2018_paper.pdf",
+     "take": "The closest basketball forecasting setup: predict defenders given the offense's actual future motion, 2015-16 STATS data, 5 Hz. Also: velocity extrapolation is the strong simple baseline, and role alignment helps. Theirs: CVAE, 4 s history, all five defenders jointly. Ours: deterministic MLP, 1 s history, one defender.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Error at 1.0 s in ft, out of fold",
+       "value": "3.657",
+       "lo": "3.635",
+       "hi": "3.682",
+       "kind": "estimate",
+       "source": "reports/ghosting.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Error at 1.0 s in ft, held out",
+       "value": "3.417",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/ghosting.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "defense only, 1 s horizon, CVAE-role-team: 2.08 ft average distance (Table 2b)",
+     "published_values": [
+      "2.08"
+     ],
+     "paper": "Felsen et al. 2018",
+     "where": "Table 2b",
+     "url": "https://openaccess.thecvf.com/content_ECCV_2018/papers/Panna_Felsen_Where_Will_They_ECCV_2018_paper.pdf",
+     "differs": "Theirs averages the error over every step of the 1 s horizon, ours is the error at the 1.0 s point; they predict all five defenders jointly, we predict one with the other four actual; 4 s history against 1 s; 1247 games of 2015-16 STATS data against our 604 games of the public release; their sequences hold one team on offense and end in a shot, turnover or foul; their test split is not ours.",
+     "comparability": "Not directly comparable: different error definition (average over the horizon against endpoint) and different conditioning."
+    },
+    {
+     "ours": [
+      {
+       "label": "Error at 1.0 s in ft, out of fold",
+       "value": "3.657",
+       "lo": "3.635",
+       "hi": "3.682",
+       "kind": "estimate",
+       "source": "reports/ghosting.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "league-average ghost, error over the first 2 s: 8.22 ft per player; San Antonio team ghost 6.59 ft (section 2.3)",
+     "published_values": [
+      "8.22",
+      "6.59"
+     ],
+     "paper": "Seidl et al. 2018",
+     "where": "section 2.3",
+     "url": "https://www.sloansportsconference.com/research-papers/bhostgusters-realtime-interactive-play-sketching-with-synthesized-nba-defenses",
+     "differs": "2016-17 season; joint rollout of five defenders that feed each other's predictions; 2 s horizon; scored only on 93 test possessions with San Antonio on defense.",
+     "comparability": "Not directly comparable: longer horizon, joint rollout, one team's possessions."
+    },
+    {
+     "ours": [
+      {
+       "label": "Error at 1.0 s in ft, out of fold",
+       "value": "3.657",
+       "lo": "3.635",
+       "hi": "3.682",
+       "kind": "estimate",
+       "source": "reports/ghosting.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "GroupNet + CVAE at 1.0 s: minADE20 0.34 m, minFDE20 0.48 m (Table 2)",
+     "published_values": [
+      "0.34",
+      "0.48"
+     ],
+     "paper": "Xu et al. 2022 (section 6)",
+     "where": "Table 2",
+     "url": "https://arxiv.org/abs/2204.08770",
+     "differs": "Best of 20 sampled futures against one deterministic prediction; all 11 entities forecast with no future context against one defender given everyone else actual; 2 s of history at 2.5 Hz (5 steps for 2 s); different games and split.",
+     "comparability": "Not directly comparable: best-of-20 metric and different conditioning."
+    }
+   ],
+   "notes": [
+    "Our numbers converted to metres where the paper uses metres: 3.657 ft = 1.115 m, 3.417 ft = 1.042 m.",
+    "No paper we found reports a single deterministic defender error at a 1.0 s endpoint on SportVU with the other nine players and the ball given, so there is no directly comparable published number."
+   ],
+   "experiments": [
+    {
+     "id": "ghosting-E1",
+     "title": "rollout training of the same network",
+     "what": "rollout training of the same network",
+     "hypothesis": "training the 64x64 window network on the error of its own 5-step rollout (horizon grown 1, 2, 3, 4, 5 steps; own prediction fed back, everyone else actual, as at scoring time) lowers the 1.0 s error against the same network trained on one step.",
+     "threshold": "1.0 s error lower by at least 0.10 ft with the paired interval below zero; the 0.2 s error not worse by more than 0.02 ft (upper interval bound below +0.02); the deviation sign test still positive with one-sided p < 0.05 on development games. 0.10 ft is close to the GRU gap that decided stage 6 (0.111 ft) and about four times the half-width of the MLP's interval.",
+     "rank": 8,
+     "gain": 3,
+     "effort": 2,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "ghosting-E2",
+     "title": "multi-entity attention with 4 s of history",
+     "what": "attention over 10 players and the ball, 4 s of history",
+     "hypothesis": "a permutation-equivariant attention model over the 10 players and the ball with 4 s of history (20 steps at 5 Hz) lowers the 1.0 s error against the frozen MLP with 1 s of history.",
+     "threshold": "as E1 (at least 0.10 ft lower with the interval below zero; 0.2 s not worse by more than 0.02 ft; sign test still positive at p < 0.05). If E1 is adopted first, E2 must also beat E1 by the same rule.",
+     "rank": 20,
+     "gain": 3,
+     "effort": 4,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "embeddings",
+   "dossier": "docs/research/embeddings.md",
+   "report": "reports/embeddings.md",
+   "foundations": [
+    {
+     "cite": "Miller, A., Bornn, L., Adams, R. and Goldsberry, K. (2014). Factorized Point Process Intensities: A Spatial Analysis of Professional Basketball. Proceedings of the 31st International Conference on Machine Learning, PMLR 32(1): 235-243.",
+     "url": "https://proceedings.mlr.press/v32/miller14.html",
+     "take": "A low-dimensional basis of player shooting habits by non-negative matrix factorization of smoothed shot intensities. We use coarse zone shares plus movement features and a linear PCA instead of a spatial point-process basis.",
+     "differs": null
+    },
+    {
+     "cite": "Franks, A., D'Amour, A., Cervone, D. and Bornn, L. (2016). Meta-analytics: tools for understanding the statistical properties of sports metrics. Journal of Quantitative Analysis in Sports 12(4).",
+     "url": "https://arxiv.org/abs/1609.09830",
+     "take": "Discrimination (share of between-player variance that is not sampling noise, game bootstrap) and stability (share that persists within a player). These are the checks a descriptive metric can pass without a supervised target; we have not computed them.",
+     "differs": null
+    },
+    {
+     "cite": "Yamada, K. and Fujii, K. (2024). Offensive Lineup Analysis in Basketball with Clustering Players Based on Shooting Style and Offensive Role. arXiv preprint.",
+     "url": "https://arxiv.org/abs/2403.13821",
+     "take": "Shooting-style clusters from the same 2015-16 SportVU season (630 games, 41160 shots, Section 2.1), with Wasserstein distances between shot distributions. Closest data to ours; they cluster and link styles to lineup efficiency, we embed and list neighbours.",
+     "differs": null
+    },
+    {
+     "cite": "Golovkine, S. and Gunning, E. (2025, revised 2026). Is Stephen Curry really a guard? A new perspective on player typologies using functional data analysis. arXiv preprint.",
+     "url": "https://arxiv.org/abs/2504.21761",
+     "take": "Functional PCA of shot charts (2018-19 to 2023-24, 173 players) and k-medoids clusters; their clusters barely agree with NBA position labels. It questions position accuracy as the validation target we use.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "5-NN position accuracy, training games, leave one out",
+       "value": "0.768",
+       "lo": "0.720",
+       "hi": "0.809",
+       "kind": "estimate",
+       "source": "reports/embeddings.md",
+       "rows": "training"
+      },
+      {
+       "label": "Majority-class baseline, training games",
+       "value": "0.413",
+       "lo": "0.395",
+       "hi": "0.461",
+       "kind": "estimate",
+       "source": "reports/embeddings.md",
+       "rows": "training"
+      }
+     ],
+     "ours_text": null,
+     "published": "Adjusted Rand Index between NBA position groups and shot-chart clusters 0.05 (equal weights) and 0.04 (variance weights) (Golovkine and Gunning, Section 4.2, v4)",
+     "published_values": [
+      "0.05",
+      "0.04"
+     ],
+     "paper": "Golovkine and Gunning",
+     "where": "Section 4.2, v4",
+     "url": "https://arxiv.org/abs/2504.21761",
+     "differs": "Metric (k-NN accuracy vs clustering ARI), features (shots only vs shots plus movement), labels (3 vs 5 position groups), seasons (2015-16 vs 2018-19 to 2023-24)",
+     "comparability": "not directly comparable: different metric and label set"
+    }
+   ],
+   "notes": [
+    "No paper we found reports a k-NN position accuracy, a held-out score, or a stability score for a tracking-based style embedding, so there is no published number to put beside ours on the same metric."
+   ],
+   "experiments": [
+    {
+     "id": "embeddings-E1",
+     "title": "a held-out style score, split-half and test-set self-retrieval",
+     "what": "a first held-out style score by self-retrieval",
+     "hypothesis": "the frozen PCA embedding identifies a player's style across disjoint games. Built from one set of games, a player's embedding has their own embedding from other games among its 5 nearest neighbours far more often than chance.",
+     "threshold": "the embedding is reported as validated on held-out games if the test-set top-5 self-retrieval rate has the lower end of its 95 percent interval above 0.25 and above the position-only retriever's upper end. Reason for 0.25: with about 400 players, chance for top-5 is about 0.0125, so 0.25 is 20 times chance, and a neighbour list that finds the same player only rarely is not trustworthy for a scout.",
+     "rank": 12,
+     "gain": 4,
+     "effort": 3,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "embeddings-E2",
+     "title": "a spatial shot basis by non-negative matrix factorization",
+     "what": "a spatial shot basis by NMF (Miller et al.)",
+     "hypothesis": "replacing the six shot-zone shares and six court-zone shares with weights on a non-negative spatial basis of shot and touch locations (Miller et al. 2014, about 10 basis maps on a 1 ft grid, fitted on development games) raises top-5 self-retrieval from E1's design by at least 0.05.",
+     "threshold": "paired difference (NMF minus frozen) at least +0.05 with its 95 percent interval above zero on the D71 test set.",
+     "rank": 19,
+     "gain": 2,
+     "effort": 2,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "epv",
+   "dossier": "docs/research/epv.md",
+   "report": "reports/epv.md",
+   "foundations": [
+    {
+     "cite": "Cervone, D'Amour, Bornn, Goldsberry (2014). POINTWISE: Predicting Points and Valuing Decisions in Real Time with NBA Optical Tracking Data. MIT Sloan Sports Analytics Conference, Research Paper Competition.",
+     "url": "https://raw.githubusercontent.com/papers-we-love/papers-we-love/refs/heads/main/sports_analytics/2014-ssac-pointwise-predicting-points-and-valuing-decisions-in-real-time.pdf",
+     "take": "The definition we use: EPV = E[points to end of possession given the state] (page 2).",
+     "differs": "They model the ball handler's next action (pass, shot, turnover as macrotransitions, movement as microtransitions) and sum over futures (page 3, Eq. 1); we regress realized points directly on a state summary. They used 2012-13 data."
+    },
+    {
+     "cite": "Cervone, D'Amour, Bornn, Goldsberry (2016). A Multiresolution Stochastic Process Model for Predicting Basketball Possession Outcomes. Journal of the American Statistical Association 111(514).",
+     "url": "https://doi.org/10.1080/01621459.2016.1141685",
+     "take": "The full model: competing-risk hazards for six macrotransitions, hierarchical spatial shrinkage across players, 25 Hz STATS data from 2013-14, 90/10 split (Sections 2.2, 3.2, 5.1).",
+     "differs": "Our model is a direct regression with no transition structure and no player-level spatial effects beyond two priors. They report that without shrinkage the model can do worse than one with no spatial effects (Section 5.1)."
+    },
+    {
+     "cite": "Sicilia, Pelechrinis, Goldsberry (2019). DeepHoops: Evaluating Micro-Actions in Basketball Using Deep Feature Representations of Spatio-Temporal Data. arXiv working paper (secondary indexes list it at KDD 2019; the ACM page was not checked).",
+     "url": "https://arxiv.org/abs/1902.08081",
+     "take": "Learn from raw positions: a stacked LSTM over 128 moments (about 5 s) of all 10 players and the ball, predicting the terminal action class (shot attempt, shooting foul, non-shooting foul, turnover, null), with expected points as the probability-weighted value of the classes (Sections 3, 4).",
+     "differs": "We feed 25 hand features at 1 Hz and predict points directly; they predict terminal classes and attach league-average point values. 2016-17 data, about 750 games."
+    },
+    {
+     "cite": "Fernandez, Bornn, Cervone (2021). A framework for the fine-grained evaluation of the instantaneous expected value of soccer possessions. Machine Learning (DOI 10.1007/s10994-021-05989-6).",
+     "url": "https://arxiv.org/abs/2011.09426",
+     "take": "EPV decomposed by the law of total expectation into action selection times expected value given the action, with the shot term equal to an expected-goals model (Section 3.2, Eq. 1 to 4).",
+     "differs": "Soccer, not basketball; we use no decomposition and train on realized outcomes, including the make or miss of every shot."
+    },
+    {
+     "cite": "Alcorn, Nguyen (2021). baller2vec: A Multi-Entity Transformer For Multi-Agent Spatiotemporal Modeling. arXiv preprint.",
+     "url": "https://arxiv.org/abs/2102.03291",
+     "take": "A transformer that attends across all players and time steps with no fixed player order; same 2015-16 SportVU season (631 games, 5 Hz, 4 s inputs). Ablations: all 10 players cut trajectory NLL by 18.0 percent over one player, player identity by a further 4.4 percent (Table 3).",
+     "differs": "It models trajectories, not possession value. It shows what raw multi-agent input adds over a summary, which is the question our narrow lift raises."
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Mean squared error of points, out of fold",
+       "value": "1.2155",
+       "lo": "1.2080",
+       "hi": "1.2226",
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Mean squared error of points, held out",
+       "value": "1.2362",
+       "lo": "1.1899",
+       "hi": "1.2812",
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "none: no EPV MSE or calibration is reported; Table 1 gives out-of-sample log-likelihoods of the macrotransition models only (Section 5.1)",
+     "published_values": [],
+     "paper": "Cervone et al. 2016",
+     "where": "Section 5.1",
+     "url": "https://arxiv.org/abs/1408.0777",
+     "differs": "2013-14 STATS data, 25 Hz, random 90/10 split; they score transition models because EPV is never observed (Section 5.1)",
+     "comparability": "not directly comparable: no published number for the same quantity"
+    },
+    {
+     "ours": [
+      {
+       "label": "Brier of P(points > 0), out of fold",
+       "value": "0.2350",
+       "lo": "0.2345",
+       "hi": "0.2355",
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Brier of the constant, out of fold",
+       "value": "0.2483",
+       "lo": "0.2481",
+       "hi": "0.2486",
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Brier of P(points > 0), held out",
+       "value": "0.2318",
+       "lo": "0.2298",
+       "hi": "0.2340",
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Brier of the constant, held out",
+       "value": "0.2491",
+       "lo": "0.2474",
+       "hi": "0.2509",
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Brier skill score 0.2686 at K = 2 (Table 2)",
+     "published_values": [
+      "0.2686"
+     ],
+     "paper": "Sicilia et al. 2019 (DeepHoops)",
+     "where": "Table 2",
+     "url": "https://arxiv.org/abs/1902.08081",
+     "differs": "5-class terminal action in the next moments with a 0.64 s blind spot, against our binary \"points > 0 by the end of the possession\"; training rows downsampled (K null windows per possession), which changes the base rate; 2016-17, about 750 games, 75/10/15 split",
+     "comparability": "not directly comparable: different target, horizon, base rate and season"
+    },
+    {
+     "ours": [
+      {
+       "label": "Lift in mean squared error over the constant, out of fold, percent",
+       "value": "5.2",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/epv.md",
+       "rows": "out_of_fold"
+      }
+     ],
+     "ours_text": null,
+     "published": "none",
+     "published_values": [],
+     "paper": "Fernandez et al. 2021",
+     "where": null,
+     "url": "https://arxiv.org/abs/2011.09426",
+     "differs": "soccer, goal within possession, component-wise calibration only",
+     "comparability": "not directly comparable"
+    },
+    {
+     "ours": [],
+     "ours_text": null,
+     "published": "trajectory NLL 0.492 (Table 2)",
+     "published_values": [
+      "0.492"
+     ],
+     "paper": "Alcorn and Nguyen 2021",
+     "where": "Table 2",
+     "url": "https://arxiv.org/abs/2102.03291",
+     "differs": "trajectory modelling, not value",
+     "comparability": "not directly comparable: different task; listed only because it uses the same season"
+    }
+   ],
+   "notes": [
+    "No paper we could check reports an expected-points error for basketball possessions. We do not invent one."
+   ],
+   "experiments": [
+    {
+     "id": "epv-E1",
+     "title": "train on expected shot value instead of the make or miss",
+     "what": "train on expected shot value instead of the make or miss",
+     "hypothesis": "replacing the realized points of possessions that end in a field-goal attempt with the expected points of that attempt (out-of-fold xFG probability times 2 or 3; any free-throw points the frozen target counts stay realized) lowers the out-of-fold MSE of the GRU against realized points, and moves the 0 to 4 s calibration slope toward 1.",
+     "threshold": "paired difference MSE(baseline) minus MSE(E1) with its 95 percent interval above 0 on the development games, and the 0 to 4 s slope inside 0.9 to 1.1 out of fold. Then scored once on the D71 test set and reported whatever the result.",
+     "rank": 18,
+     "gain": 2,
+     "effort": 2,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "epv-E2",
+     "title": "multi-entity attention over raw positions",
+     "what": "multi-entity attention over raw positions (runs after epv-E1)",
+     "hypothesis": "a small permutation-invariant transformer over the raw positions of all 10 players and the ball for the last 4 s at 5 Hz (baller2vec-style attention across players and time, players unordered within a team), with the 25 frozen features appended, lowers out-of-fold MSE against realized points versus the frozen GRU, with most of the gain in the 0 to 4 s bucket.",
+     "threshold": "paired MSE difference interval above 0 on development games, and a gain of at least 0.0062, the GRU's own margin over the MLP stand-in (reports/epv.md), so that a new architecture must beat the frozen one by at least the step that justified the GRU. Then scored once on the D71 test set.",
+     "rank": 24,
+     "gain": 3,
+     "effort": 5,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "decisions",
+   "dossier": "docs/research/decisions.md",
+   "report": "reports/decisions.md",
+   "foundations": [
+    {
+     "cite": "Cervone, D'Amour, Bornn, Goldsberry (2014). POINTWISE: Predicting Points and Valuing Decisions in Real Time with NBA Optical Tracking Data. MIT Sloan Sports Analytics Conference.",
+     "url": "https://raw.githubusercontent.com/papers-we-love/papers-we-love/refs/heads/main/sports_analytics/2014-ssac-pointwise-predicting-points-and-valuing-decisions-in-real-time.pdf",
+     "take": "Every option is valued on one scale: the EPV of the possession after that option (Figure 1: \"EPV after pass\", \"EPV of shot\", \"change in EPV\").",
+     "differs": "Only our hold option uses EPV. Our pass, drive and shot values are one-step formulas with hand-set factors (openness, 0.95 pass risk, 0.90 drive factor), so options sit on different scales."
+    },
+    {
+     "cite": "Cervone, D'Amour, Bornn, Goldsberry (2016). A Multiresolution Stochastic Process Model for Predicting Basketball Possession Outcomes. JASA 111(514).",
+     "url": "https://doi.org/10.1080/01621459.2016.1141685",
+     "take": "Shot satisfaction: a shot's value against the most reasonable pass at the moment of the shot (Section 5.4); EPV-Added (Section 5.3, Eq. 19). They give no quantitative validation of either against other statistics and say EPV analysis is best paired with film.",
+     "differs": "Our \"best option\" uses hand-set values; theirs comes from fitted transition models. Neither has a validated decision target."
+    },
+    {
+     "cite": "Jutamulia, Hosoi (2025). Leveraging expected action value to measure on-court decision-making skills in basketball. Journal of Sports Analytics 11.",
+     "url": "https://doi.org/10.1177/22150218251325018",
+     "take": "Expected Action Value: value only the immediate pass and shot options of the ball handler, then count missed opportunities and their cost (abstract).",
+     "differs": "Closest published design to ours. Full text was blocked (HTTP 403), so no method detail or number is taken from it."
+    },
+    {
+     "cite": "Decroos, Bransen, Van Haaren, Davis (2019). Actions Speak Louder Than Goals: Valuing Player Actions in Soccer. KDD 2019 (DOI 10.1145/3292500.3330758).",
+     "url": "https://arxiv.org/abs/1802.07127",
+     "take": "Value an action as the change in scoring (minus conceding) probability between the states before and after it; evaluate the probability models (Brier and AUC, Table 3), not the action values, because action values have no ground truth.",
+     "differs": "We value unchosen options, not only the chosen action, and we validate player means against a team outcome. VAEP reports no validation of its player ratings against outcomes."
+    },
+    {
+     "cite": "Fernandez, Bornn, Cervone (2021). A framework for the fine-grained evaluation of the instantaneous expected value of soccer possessions. Machine Learning (DOI 10.1007/s10994-021-05989-6).",
+     "url": "https://arxiv.org/abs/2011.09426",
+     "take": "Option values from one decomposition: P(success of the action) times the EPV after success, plus P(failure) times the value after failure; shots through expected goals (Section 3.2, Eq. 2 to 4).",
+     "differs": "Our pass value uses a fixed risk factor and a location-only xFG at the receiver instead of a learned completion probability and the EPV at the receiver."
+    },
+    {
+     "cite": "Franks, D'Amour, Cervone, Bornn (2016). Meta-analytics: tools for understanding the statistical properties of sports metrics. Journal of Quantitative Analysis in Sports 12(4), 151 to 165.",
+     "url": "https://doi.org/10.1515/jqas-2016-0098",
+     "take": "Before asking whether a metric is relevant, check that it is reliable: discrimination (between-player variance against sampling variance, Section 2.1, Eq. 2) and stability (Section 2.2, Eq. 4), with sampling variance from a bootstrap over games (Section 3). They say their meta-metrics measure internal quality only, not relevance.",
+     "differs": "We went straight to relevance (a correlation with offensive rating) and never measured whether either side of that correlation is reliable."
+    },
+    {
+     "cite": "Liu, Schulte (2018). Deep Reinforcement Learning in Ice Hockey for Context-Aware Player Evaluation. IJCAI 2018 (DOI 10.24963/ijcai.2018/478).",
+     "url": "https://arxiv.org/abs/1805.11088",
+     "take": "Validate a learned action-value metric with three checks: correlation with season success totals (Table 5), round-by-round consistency (Section 7.3), and future salary (Table 6).",
+     "differs": "Their target is season totals across players; ours is a per-game Spearman of a per-decision mean."
+    },
+    {
+     "cite": "Sandholtz, Bornn (2020). Markov Decision Processes with Dynamic Transition Probabilities: An Analysis of Shooting Strategies in Basketball. Annals of Applied Statistics 14(3), 1122 to 1145.",
+     "url": "https://doi.org/10.1214/20-AOAS1348",
+     "take": "Judge a decision policy by simulating the possession under the observed and an altered policy, on 2015-16 STATS tracking data (the same season), with the simulator checked against observed transition counts.",
+     "differs": "We judge single decisions by a one-step regret. They judge policies by simulated points per play, and do not validate against an outside outcome either."
+    },
+    {
+     "cite": "Fujii, Takeuchi, Kuribayashi, Takeishi, Kawahara, Takeda (2022 to 2024). Estimating counterfactual treatment outcomes over time in complex multiagent scenarios. arXiv preprint.",
+     "url": "https://arxiv.org/abs/2206.01900",
+     "take": "Counterfactual passes in shot scenarios estimated with a recurrent multi-agent model, on 2015-16 STATS SportVU data (630 games), outcome = a binary \"effective attack\" label.",
+     "differs": "Treats the pass as a treatment with a causal estimator. Its table could not be read with confidence, so no number is taken from it."
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Mean per-game Spearman, out of fold",
+       "value": "0.012",
+       "lo": "-0.008",
+       "hi": "0.029",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Mean per-game Spearman, held out",
+       "value": "-0.014",
+       "lo": "-0.116",
+       "hi": "0.100",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "none: no quantitative validation of EPV-Added or shot satisfaction against other statistics",
+     "published_values": [],
+     "paper": "Cervone et al. 2016 (Sections 5.3, 5.4)",
+     "where": "Sections 5.3, 5.4",
+     "url": "https://arxiv.org/abs/1408.0777",
+     "differs": "2013-14 data; different value model",
+     "comparability": "not directly comparable: no published number"
+    },
+    {
+     "ours": [
+      {
+       "label": "Mean per-game Spearman, out of fold",
+       "value": "0.012",
+       "lo": "-0.008",
+       "hi": "0.029",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Mean per-game Spearman, held out",
+       "value": "-0.014",
+       "lo": "-0.116",
+       "hi": "0.100",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "GIM correlation with season points 0.930, with points per game 0.749 (Table 5)",
+     "published_values": [
+      "0.930",
+      "0.749"
+     ],
+     "paper": "Liu and Schulte 2018",
+     "where": "Table 5",
+     "url": "https://arxiv.org/abs/1805.11088",
+     "differs": "NHL play-by-play, not tracking; season totals across players, so volume drives part of the correlation; our statistic is a within-game rank correlation of a per-decision mean that removes volume on purpose",
+     "comparability": "not directly comparable: different sport, target, aggregation and statistic"
+    },
+    {
+     "ours": [
+      {
+       "label": "Mean per-game Spearman, out of fold",
+       "value": "0.012",
+       "lo": "-0.008",
+       "hi": "0.029",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Mean per-game Spearman, held out",
+       "value": "-0.014",
+       "lo": "-0.116",
+       "hi": "0.100",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "none: VAEP player ratings are compared with goal and assist lists and market values descriptively, with no correlation reported",
+     "published_values": [],
+     "paper": "Decroos et al. 2019",
+     "where": null,
+     "url": "https://arxiv.org/abs/1802.07127",
+     "differs": "soccer event data",
+     "comparability": "not directly comparable: no published number"
+    },
+    {
+     "ours": [
+      {
+       "label": "Mean per-game Spearman, out of fold",
+       "value": "0.012",
+       "lo": "-0.008",
+       "hi": "0.029",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Mean per-game Spearman, held out",
+       "value": "-0.014",
+       "lo": "-0.116",
+       "hi": "0.100",
+       "kind": "estimate",
+       "source": "reports/decisions.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "not read: full text blocked",
+     "published_values": [],
+     "paper": "Jutamulia and Hosoi 2025",
+     "where": null,
+     "url": "https://doi.org/10.1177/22150218251325018",
+     "differs": "unknown",
+     "comparability": "cannot be compared; dropped"
+    }
+   ],
+   "notes": [
+    "No basketball paper we could check reports a validated correlation between a decision-quality metric and an outcome. We do not invent one."
+   ],
+   "experiments": [
+    {
+     "id": "decisions-E1",
+     "title": "is the target reliable, and is the metric more than decision mix?",
+     "what": "is the target reliable, and is the metric more than decision mix",
+     "hypothesis": "(H1) per-player on-court offensive rating, measured per game, has split-half reliability below 0.2 across the development games, so a per-game Spearman with it is close to zero whatever the decision metric does; (H2) the frozen per-player mean quality has a stability (Franks et al., Eq. 4, game-level bootstrap) of at least 0.5; (H3) at least half of the between-player variance of the frozen mean quality is explained by the player's shares of shot, pass and drive decisions.",
+     "threshold": "if H1 holds, the lane report adds, next to the unchanged failed verdict, that the frozen validation could not have detected a signal; the kind-adjusted quality replaces the frozen mean in the player table only if its stability is at least 0.5 with the 95 percent interval above 0.3 and its R squared on kind shares is below 0.2. If H1 fails (the target is reliable), the failed verdict is read as evidence against the metric, and that is written down.",
+     "rank": 1,
+     "gain": 3,
+     "effort": 1,
+     "test_data": "training tables, Set A",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "decisions-E2",
+     "title": "one value scale for every option, validated on the decisions actually made",
+     "what": "one value scale for every option, validated on decisions made",
+     "hypothesis": "valuing every option on the EPV scale (POINTWISE, Fernandez et al.) gives values whose chosen-option value predicts the points that followed, which the frozen hand-set values do less well. Option values: shot = points times the out-of-fold xFG probability; pass to teammate j = P(completion to j given the decision frame) times the EPV of a state with j holding the ball at the decision frame, plus P(failure) times 0; drive = P(drive keeps the ball) times the EPV of the state 1 s later on the drive, using the observed drive path only for the chosen drive and a model of that state for an unchosen one; hold = the EPV as now. Completion and drive models are fitted out of fold by game, under tools/.",
+     "threshold": "the regret coefficient's 95 percent interval above 0, the paired difference (new minus frozen) in that coefficient with interval above 0, and the chosen-value calibration slope inside 0.8 to 1.2, all on development games. Then scored once on the D71 test set.",
+     "rank": 13,
+     "gain": 4,
+     "effort": 4,
+     "test_data": "Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "lineups",
+   "dossier": "docs/research/lineups.md",
+   "report": "reports/lineups.md",
+   "foundations": [
+    {
+     "cite": "Sill, J. (2010). Improved NBA Adjusted +/- Using Regularization and Out-of-Sample Testing. MIT Sloan Sports Analytics Conference.",
+     "url": "https://www.sloansportsconference.com/research-papers/improved-nba-adjusted-using-regularization-and-out-of-sample-testing",
+     "take": "Our objective is Sill's equation (1): possession-weighted squared error plus lambda times the squared norm of the ratings. Sill chose lambda by CV and scored predicted game margins on held-out March and April games; we score season-ahead lineup ranks instead.",
+     "differs": null
+    },
+    {
+     "cite": "Deshpande, S. K. and Jensen, S. T. (2016). Estimating an NBA player's impact on his team's chances of winning. Journal of Quantitative Analysis in Sports 12(2): 51-72.",
+     "url": "https://arxiv.org/abs/1604.03186",
+     "take": "Bayesian regression of change in win probability on the ten players per shift. We keep point margin per 100 possessions as the target.",
+     "differs": null
+    },
+    {
+     "cite": "Grassetti, L., Bellio, R., Di Gaspero, L., Fonseca, G. and Vidoni, P. (2021). An extended regularized adjusted plus-minus analysis for lineup management in basketball using play-by-play data. IMA Journal of Management Mathematics 32(4): 385-409.",
+     "url": "https://doi.org/10.1093/imaman/dpaa022",
+     "take": "Joint player and lineup effects fitted by Bayesian methods, posteriors used to rank lineups (EuroLeague 2018-19). Our rapm_synergy is the ridge analogue; it did not beat plain RAPM on our validation.",
+     "differs": null
+    },
+    {
+     "cite": "Hvattum, L. M. (2019). A comprehensive review of plus-minus ratings for evaluating individual players in team sports. International Journal of Computer Science in Sport 18(1): 1-23.",
+     "url": "https://doi.org/10.2478/ijcss-2019-0001",
+     "take": "Map of the plus-minus literature; used to place our ridge model in the family.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Season-ahead lineup Spearman, held out (21 lineups)",
+       "value": "0.065",
+       "lo": "-0.488",
+       "hi": "0.482",
+       "kind": "estimate",
+       "source": "reports/lineups.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "RAPM mean squared error of net rating per 100, held out",
+       "value": "169.2",
+       "lo": "76.6",
+       "hi": "279.3",
+       "kind": "estimate",
+       "source": "reports/lineups.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Test RMSE of predicted game margin 11.47 points (R squared 0.169) for regularized APM on 3 seasons; 12.01 (R squared 0.088) unregularized; 12.58 = predicting the mean (Sill 2010, pp. 5-6)",
+     "published_values": [
+      "11.47",
+      "0.169",
+      "12.01",
+      "0.088",
+      "12.58"
+     ],
+     "paper": "Sill 2010",
+     "where": "pp. 5-6",
+     "url": "https://www.sloansportsconference.com/research-papers/improved-nba-adjusted-using-regularization-and-out-of-sample-testing",
+     "differs": "Metric (game-margin RMSE vs lineup rank correlation), unit (game vs lineup), split (within-season March and April vs next season), seasons (2006-07 to 2008-09 vs 2020-21 to 2024-25)",
+     "comparability": "not directly comparable: different target and split; we never computed a game-margin RMSE"
+    },
+    {
+     "ours": [
+      {
+       "label": "Season-ahead lineup Spearman, held out (21 lineups)",
+       "value": "0.065",
+       "lo": "-0.488",
+       "hi": "0.482",
+       "kind": "estimate",
+       "source": "reports/lineups.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "RAPM mean squared error of net rating per 100, held out",
+       "value": "169.2",
+       "lo": "76.6",
+       "hi": "279.3",
+       "kind": "estimate",
+       "source": "reports/lineups.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Mean season game-margin RMSE on held-out March and April games: filtered RAPM 12.897, Dummy RAPM 12.856, over 16 seasons; out-of-sample R squared 0.173 and 0.178 (Watts et al. 2026, Table 2)",
+     "published_values": [
+      "12.897",
+      "12.856",
+      "0.173",
+      "0.178"
+     ],
+     "paper": "Watts, Pipping-Gamon and Wyner 2026",
+     "where": "Table 2",
+     "url": "https://arxiv.org/abs/2608.19454",
+     "differs": "Same differences as the row above; 16 seasons 2007 to 2025",
+     "comparability": "not directly comparable: different target and split"
+    },
+    {
+     "ours": [
+      {
+       "label": "Ridge penalty alpha chosen by grouped cross-validation",
+       "value": "3000",
+       "lo": null,
+       "hi": null,
+       "kind": "setting",
+       "source": "reports/lineups.md",
+       "rows": "training"
+      }
+     ],
+     "ours_text": null,
+     "published": "lambda 3000 optimal with 3 seasons, 2000 with 1 season (Sill 2010, p. 6)",
+     "published_values": [
+      "3000",
+      "2000"
+     ],
+     "paper": "Sill 2010",
+     "where": "p. 6",
+     "url": "https://www.sloansportsconference.com/research-papers/improved-nba-adjusted-using-regularization-and-out-of-sample-testing",
+     "differs": "Our solver is the same weighted objective (possessions as weights, per-100 target), but our possessions are estimated as duration / 28.8 when the stint table has no count",
+     "comparability": "roughly comparable as a setting, not a performance number"
+    },
+    {
+     "ours": [
+      {
+       "label": "Season-ahead lineup Spearman, held out (21 lineups)",
+       "value": "0.065",
+       "lo": "-0.488",
+       "hi": "0.482",
+       "kind": "estimate",
+       "source": "reports/lineups.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "RAPM mean squared error of net rating per 100, held out",
+       "value": "169.2",
+       "lo": "76.6",
+       "hi": "279.3",
+       "kind": "estimate",
+       "source": "reports/lineups.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "L-RAPM beats raw lineup ratings on next-week possession RMSE; about 5 percent better for lineups never seen before (Petridis and Pelechrinis 2026, Section 4, Figure 4)",
+     "published_values": [
+      "5"
+     ],
+     "paper": "Petridis and Pelechrinis 2026",
+     "where": "Section 4, Figure 4",
+     "url": "https://arxiv.org/abs/2601.15000",
+     "differs": "Within-season weekly expanding window, 2023-24, possession-level RMSE of points per possession",
+     "comparability": "not directly comparable: different metric and horizon"
+    }
+   ],
+   "notes": [
+    "No paper we found reports a season-ahead Spearman on recurring lineups, so the lane's own validation metric has no published counterpart."
+   ],
+   "experiments": [
+    {
+     "id": "lineups-E1",
+     "title": "score RAPM on every game's margin, not on 20 recurring lineups",
+     "what": "score RAPM on every game's margin (Sill's construction)",
+     "hypothesis": "on the D71 test set, RAPM player ratings fitted on the development seasons predict each game's margin (summed over its stints, Sill's construction) better than raw plus-minus ratings, and the paired difference excludes zero. If true, the lane moves from inconclusive to a tested result.",
+     "threshold": "RAPM is reported as validated if the paired RMSE difference (RAPM minus plus_minus) has its whole 95 percent interval below zero and RAPM's R squared against the floor is above zero with its interval above zero. Otherwise the lane stays inconclusive and says so.",
+     "rank": 3,
+     "gain": 4,
+     "effort": 2,
+     "test_data": "2025-26 season",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "lineups-E2",
+     "title": "lineup ratings shrunk toward the sum of their players (L-RAPM)",
+     "what": "lineup ratings shrunk toward their players (L-RAPM)",
+     "hypothesis": "within the D71 test season, lineup offensive and defensive ratings shrunk toward league average plus the sum of the five players' RAPM from the development seasons predict next-week points per possession better than raw lineup ratings, most of all for lineups with under 100 possessions.",
+     "threshold": "relative RMSE improvement at least 1 percent overall with the paired interval excluding zero, and no bin worse than the baseline beyond its interval.",
+     "rank": 15,
+     "gain": 3,
+     "effort": 3,
+     "test_data": "2025-26 season",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "winprob",
+   "dossier": "docs/research/winprob.md",
+   "report": "reports/winprob.md",
+   "foundations": [
+    {
+     "cite": "Stern, H. S. (1994). A Brownian Motion Model for the Progress of Sports Scores. Journal of the American Statistical Association 89(427): 1128-1134.",
+     "url": "https://doi.org/10.1080/01621459.1994.10476851",
+     "take": "The home win probability is Phi((l + (1 - t) mu) / sqrt((1 - t) sigma^2)) for lead l at time fraction t (Section 2, p. 1129). Our margin over root time feature is Stern's l / sqrt(1 - t) term on a logit link. Stern names two missing inputs, team strength (replace mu by a point spread) and possession; we have possession, not team strength. Fitted on 493 NBA games of 1991-92 (abstract).",
+     "differs": null
+    },
+    {
+     "cite": "Deshpande, S. K. and Jensen, S. T. (2016). Estimating an NBA player's impact on his team's chances of winning. Journal of Quantitative Analysis in Sports 12(2): 51-72.",
+     "url": "https://arxiv.org/abs/1604.03186",
+     "take": "Uses an in-game win probability model as the basis for player value; a downstream use our winprob tables could serve.",
+     "differs": null
+    },
+    {
+     "cite": "Yeh, C.-K., Rice, G. and Dubin, J. A. (2022). Evaluating Real-Time Probabilistic Forecasts With Application to National Basketball Association Outcome Prediction. The American Statistician 76(3): 214-223.",
+     "url": "https://arxiv.org/abs/2010.00781",
+     "take": "Pointwise-in-time logistic models on score difference and pregame relative strength were not significantly worse than ESPN's published feed (2018-19, Section 6). Our model is one pooled logistic with time interactions, with no relative strength.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Brier overall, out of fold",
+       "value": "0.1645",
+       "lo": "0.1616",
+       "hi": "0.1683",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Brier overall, held out",
+       "value": "0.1658",
+       "lo": "0.1590",
+       "hi": "0.1732",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Brier per game second on 2018-19 and 2019-20: dynamic Bayes without pregame strength 0.1663 and 0.1736; adjusted with pregame strength 0.1568 and 0.1635; ESPN feed 0.1550 and 0.1621 (Maddox, Sides and Harvill 2022, Table 3)",
+     "published_values": [
+      "0.1663",
+      "0.1736",
+      "0.1568",
+      "0.1635",
+      "0.1550",
+      "0.1621"
+     ],
+     "paper": "Maddox et al. 2022",
+     "where": "Table 3",
+     "url": "https://arxiv.org/abs/2207.05114",
+     "differs": "Weighting (every second vs every event, so late-game seconds with many events weigh differently), seasons, train window (2012-13 to 2017-18)",
+     "comparability": "roughly comparable: same league, outcome and score; the row without pregame strength is the closest match to ours"
+    },
+    {
+     "ours": [
+      {
+       "label": "Held-out calibration slope, 48-36 minutes left",
+       "value": "1.0005",
+       "lo": "0.8237",
+       "hi": "1.1977",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Held-out calibration slope, 36-24 minutes left",
+       "value": "0.9547",
+       "lo": "0.8574",
+       "hi": "1.0972",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Held-out calibration slope, 24-12 minutes left",
+       "value": "0.9594",
+       "lo": "0.8706",
+       "hi": "1.0648",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Held-out calibration slope, 12-4 minutes left",
+       "value": "0.9569",
+       "lo": "0.8677",
+       "hi": "1.0509",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Held-out calibration slope, 4-0 minutes left",
+       "value": "0.9552",
+       "lo": "0.8615",
+       "hi": "1.0952",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "ESPN NBA feed 2018 to 2024: 6.3 percent of games land in a benchmark tail that holds 5 percent under ideal calibration, an excess of 1.3 percent [0.4, 2.3] extreme losing-team peaks (Pipping-Gamon and Wyner 2026, Section 5, abstract)",
+     "published_values": [
+      "6.3",
+      "1.3",
+      "0.4",
+      "2.3"
+     ],
+     "paper": "Pipping-Gamon and Wyner 2026",
+     "where": "Section 5, abstract",
+     "url": "https://arxiv.org/abs/2601.18774",
+     "differs": "Different diagnostic (pathwise peak-on-loss vs per-bucket slope), different forecaster (ESPN)",
+     "comparability": "not directly comparable; both point the same way (NBA live forecasts slightly over-confident)"
+    },
+    {
+     "ours": [
+      {
+       "label": "Held-out Brier, 24-12 minutes left",
+       "value": "0.1502",
+       "lo": "0.1397",
+       "hi": "0.1607",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      },
+      {
+       "label": "Held-out Brier, 12-4 minutes left",
+       "value": "0.1043",
+       "lo": "0.0953",
+       "hi": "0.1134",
+       "kind": "estimate",
+       "source": "reports/winprob.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "ESPN Brier at 24 and 12 minutes remaining: 0.1666 and 0.1181 (2018-19), 0.1738 and 0.1311 (2019-20) (Maddox et al. 2022, Table 4)",
+     "published_values": [
+      "0.1666",
+      "0.1181",
+      "0.1738",
+      "0.1311"
+     ],
+     "paper": "Maddox et al. 2022",
+     "where": "Table 4",
+     "url": "https://arxiv.org/abs/2207.05114",
+     "differs": "Buckets of time vs single time points",
+     "comparability": "not directly comparable: a bucket averages over easier late states"
+    }
+   ],
+   "notes": [
+    "Stern (1994) reports fit by quarter-level summaries (Table 1), not a Brier or log loss, so it has no row here."
+   ],
+   "experiments": [
+    {
+     "id": "winprob-E1",
+     "title": "a pregame strength drift term from past results (Stern's mu, without odds)",
+     "what": "pregame strength from Elo as Stern's drift term, no odds",
+     "hypothesis": "adding a pregame expected margin mu_hat, computed only from games played before tip-off (an Elo rating with home advantage and between-season regression, parameters chosen on development seasons), entered as Stern's drift term mu_hat * sqrt(seconds remaining / 2880) plus mu_hat alone, lowers mean bucket Brier on the D71 test set, mostly in the 48-36 and 36-24 buckets.",
+     "threshold": "mean bucket Brier improves by at least 0.002 with the paired 95 percent interval excluding zero, and no bucket gets worse beyond its interval. Reason for 0.002: the published pregame adjustment moved overall Brier by about 0.010 (Maddox et al. 2022, Table 3); a fifth of that is the smallest gain worth a new input.",
+     "rank": 4,
+     "gain": 4,
+     "effort": 2,
+     "test_data": "2025-26 season",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "winprob-E2",
+     "title": "a forward-in-time temperature for the over-confidence",
+     "what": "a forward-in-time temperature for the over-confidence",
+     "hypothesis": "the held-out over-confidence (slopes about 0.96) is a forward-in-time effect that random grouped folds hide. A single logit temperature, fitted on forward predictions (fit on 2020-21 to 2022-23, predict 2023-24), brings the D71 test-set slopes closer to 1 and lowers ECE without hurting Brier.",
+     "threshold": "mean bucket ECE falls with the paired 95 percent interval excluding zero, and mean bucket Brier does not rise (upper end of its paired interval at or below +0.0005).",
+     "rank": 6,
+     "gain": 2,
+     "effort": 1,
+     "test_data": "2025-26 season",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "load",
+   "dossier": "docs/research/load.md",
+   "report": "reports/load.md",
+   "foundations": [
+    {
+     "cite": "Lewis, M. (2018). It's a hard-knock life: Game load, fatigue, and injury risk in the National Basketball Association. Journal of Athletic Training 53(5): 503-509.",
+     "url": "https://doi.org/10.4085/1062-6050-243-17",
+     "take": "Multilevel logistic of injury on time-lagged minutes, rest and game load (2012-15, 627 players, 1663 injury events): odds of injury fell 15.96 percent per day of rest and rose 2.87 percent per 96 minutes played; baseline risk and slopes varied by player. Our absence model uses the same kind of lagged schedule features, without player random effects and without an injury label.",
+     "differs": null
+    },
+    {
+     "cite": "Esteves, P. T., Mikolajec, K., Schelling, X. and Sampaio, J. (2021). Basketball performance is affected by the schedule congestion: NBA back-to-backs under the microscope. European Journal of Sport Science 21(1): 26-35.",
+     "url": "https://doi.org/10.1080/17461391.2020.1736179",
+     "take": "Rest cycles (back-to-back, 1, 2, 3 or more days) as the unit of schedule load, 2016-17 team games; winning was significantly more likely with one day of rest than on a back-to-back. Our rest buckets follow the same idea at player level.",
+     "differs": null
+    },
+    {
+     "cite": "Scanlan, A. T., Tucker, P. S., Dascombe, B. J., Berkelmans, D. M., Hiskens, M. I. and Dalbo, V. J. (2015). Fluctuations in Activity Demands Across Game Quarters in Professional and Semiprofessional Male Basketball. Journal of Strength and Conditioning Research 29(11): 3006-3015.",
+     "url": "https://doi.org/10.1519/JSC.0000000000000967",
+     "take": "Video time-motion study: activity velocities drop across quarters, and the authors attribute the drop to a mix of physiological, tactical and game-related factors, with stoppage time related to activity. This is the reading our decline result supports.",
+     "differs": null
+    },
+    {
+     "cite": "Stephen, A., Yep, M. and Fain, G. (2021). Tired of Misattribution, Modeling Player Fatigue in the NBA. arXiv preprint.",
+     "url": "https://arxiv.org/abs/2112.14649",
+     "take": "NBA tracking distance per minute (Second Spectrum, via nbastatr) as an exertion proxy; within-game exertion explains under 1 percent of box-score deviation (highest adjusted R squared 0.0013). Closest in data and conclusion to our decline result.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Decline model gain over the training mean, out of fold",
+       "value": "0.016",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Decline model gain over the training mean, held out",
+       "value": "0.002",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Exertion explains under 1 percent of variation in box-score performance; highest adjusted R squared 0.0013 (Stephen et al. 2021, Results, exertion and performance)",
+     "published_values": [
+      "1",
+      "0.0013"
+     ],
+     "paper": "Stephen et al. 2021",
+     "where": "Results, exertion and performance",
+     "url": "https://arxiv.org/abs/2112.14649",
+     "differs": "Direction (load predicting speed decline vs exertion predicting box-score output), provider (SportVU 2015-16 vs Second Spectrum), metric (MSE gain vs adjusted R squared)",
+     "comparability": "not directly comparable; both find past or current load explains very little"
+    },
+    {
+     "ours": [
+      {
+       "label": "Mean speed decline in ft per s, back-to-back, training games",
+       "value": "-0.477",
+       "lo": "-0.520",
+       "hi": "-0.439",
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "training"
+      },
+      {
+       "label": "Mean speed decline in ft per s, one day of rest, training games",
+       "value": "-0.437",
+       "lo": "-0.466",
+       "hi": "-0.411",
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "training"
+      },
+      {
+       "label": "Mean speed decline in ft per s, two or more days, training games",
+       "value": "-0.457",
+       "lo": "-0.495",
+       "hi": "-0.419",
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "training"
+      }
+     ],
+     "ours_text": null,
+     "published": "Win likelihood rose significantly from back-to-back to one day of rest (Esteves et al. 2021, abstract)",
+     "published_values": [],
+     "paper": "Esteves et al. 2021",
+     "where": "abstract",
+     "url": "https://doi.org/10.1080/17461391.2020.1736179",
+     "differs": "Outcome (player speed decline vs team win), season (2015-16 vs 2016-17), unit (player-game vs team-game)",
+     "comparability": "not directly comparable; same direction (back-to-back is the worst bucket in both)"
+    },
+    {
+     "ours": [
+      {
+       "label": "Absence log loss, out of fold",
+       "value": "0.2764",
+       "lo": "0.2644",
+       "hi": "0.2883",
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "out_of_fold"
+      },
+      {
+       "label": "Absence log loss, held out",
+       "value": "0.2776",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/load.md",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "none: Lewis (2018) reports odds ratios from a multilevel model, not a predictive score",
+     "published_values": [],
+     "paper": "Lewis 2018",
+     "where": null,
+     "url": "https://doi.org/10.4085/1062-6050-243-17",
+     "differs": "Outcome (any absence vs injury), seasons (2015-16 vs 2012-15)",
+     "comparability": "no comparable published number"
+    }
+   ],
+   "notes": [],
+   "experiments": [
+    {
+     "id": "load-E1",
+     "title": "a shrunk player history for decline",
+     "what": "a shrunk player history for decline",
+     "hypothesis": "most predictable decline is a stable player trait (role). Adding the player's empirical-Bayes shrunk mean of all their previous development-game declines (weight n / (n + k), k chosen in inner grouped folds, previous games only) to the frozen ridge lowers decline MSE on the D71 test set.",
+     "threshold": "paired MSE difference (new minus frozen ridge) with its whole 95 percent interval below zero on the D71 test set, and a gain over the floor of at least 0.010. If the test set holds under about 1000 decline rows, the run reports the interval and the verdict says underpowered, not adopted.",
+     "rank": 2,
+     "gain": 3,
+     "effort": 1,
+     "test_data": "Set A (about 220 player-games, under its own 1000-row power floor)",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "load-E2",
+     "title": "injury-labelled absence on the play-by-play seasons",
+     "what": "injury-labelled absence on the play-by-play seasons",
+     "hypothesis": "with an injury label from the section 15 injuries table (2021-22 onward), a logistic model on schedule and minutes features built from play-by-play stints predicts next-game injury absence better than the base rate, and all-cause absence (the frozen target) hides a weaker injury signal.",
+     "threshold": "injury-absence log loss below the base rate with the paired 95 percent interval excluding zero, and calibration slope within 0.9 to 1.1 on the D71 test set.",
+     "rank": 17,
+     "gain": 3,
+     "effort": 3,
+     "test_data": "2025-26 season, if the injuries table covers it",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  },
+  {
+   "lane": "tracking",
+   "dossier": "docs/research/tracking.md",
+   "report": "reports/scorecard/gsw_phx_2016__r23.txt",
+   "foundations": [
+    {
+     "cite": "Jocher, G., Qiu, J., Chaurasia, A. Ultralytics YOLO, version 8.0.0 (software), 2023. AGPL-3.0.",
+     "url": "https://github.com/ultralytics/ultralytics",
+     "take": "Our detector is a YOLOv8 model from this package (the Colab training script starts from yolov8m). Ours is fine-tuned on 654 Roboflow basketball images only.",
+     "differs": null
+    },
+    {
+     "cite": "Aharon, N., Orfaig, R., Bobrovsky, B. BoT-SORT: Robust Associations Multi-Pedestrian Tracking. arXiv preprint, 2022.",
+     "url": "https://arxiv.org/abs/2206.14651",
+     "take": "Our tracker is BoT-SORT as shipped in Ultralytics, with camera-motion compensation and re-ID. Ours takes the re-ID embedding from the detector's head instead of a separate re-ID network.",
+     "differs": null
+    },
+    {
+     "cite": "Zhang, Y., Sun, P., Jiang, Y., et al. ByteTrack: Multi-Object Tracking by Associating Every Detection Box. arXiv preprint, 2021.",
+     "url": "https://arxiv.org/abs/2110.06864",
+     "take": "BoT-SORT builds on its two-stage matching of high- and low-score boxes, which our tracker config uses (`track_high_thresh`, `track_low_thresh`).",
+     "differs": null
+    },
+    {
+     "cite": "Nie, X., Chen, S., Hamid, R. A Robust and Efficient Framework for Sports-Field Registration. WACV 2021, pp. 1936-1944.",
+     "url": "https://mlanthology.org/wacv/2021/nie2021wacv-robust/",
+     "take": "The closest published design to our court model: a uniform grid of keypoints over the whole court, then a homography. Ours adds line snap and frame-to-frame tracking, and r23 was fine-tuned on labels derived from SportVU, not hand labels.",
+     "differs": null
+    },
+    {
+     "cite": "Lu, W.-L., Ting, J.-A., Little, J. J., Murphy, K. P. Learning to Track and Identify Players from Broadcast Sports Videos. IEEE TPAMI 35(7), 2013, pp. 1704-1716.",
+     "url": "https://doi.org/10.1109/TPAMI.2012.242",
+     "take": "The basketball broadcast ancestor of our whole pipeline: detect, track, court homography, team, then identity, on NBA broadcast (2010 Finals). Ours has no identity stage; theirs used weak labels from play-by-play text.",
+     "differs": null
+    },
+    {
+     "cite": "Koshkina, M., Pidaparthy, H., Elder, J. H. Contrastive Learning for Sports Video: Unsupervised Player Classification. arXiv preprint, 2021.",
+     "url": "https://arxiv.org/abs/2104.10068",
+     "take": "Unsupervised team split without known jersey colours, as ours. Ours clusters a hand-made colour feature; theirs learns an embedding (hockey).",
+     "differs": null
+    },
+    {
+     "cite": "Cui, Y., Zeng, C., Zhao, X., Yang, Y., Wu, G., Wang, L. SportsMOT: A Large Multi-Object Tracking Dataset in Multiple Sports Scenes. ICCV 2023, pp. 9921-9931.",
+     "url": "https://doi.org/10.1109/ICCV51070.2023.00910",
+     "take": "The standard sports MOT benchmark, with a basketball split. We score against SportVU on the court instead of boxes in the image, and our footage keeps its camera cuts.",
+     "differs": null
+    },
+    {
+     "cite": "Somers, V., Joos, V., Cioppa, A., et al. SoccerNet Game State Reconstruction: End-to-End Athlete Tracking and Identification on a Minimap. CVPR Workshops 2024.",
+     "url": "https://arxiv.org/abs/2404.11335",
+     "take": "The closest task definition to ours: positions on a court map, with team and jersey, scored by GS-HOTA (5 m tolerance). Ours is basketball, scored row by row, not in one number.",
+     "differs": null
+    },
+    {
+     "cite": "Van Zandycke, G., Somers, V., Istasse, M., Del Don, C., Zambrano, D. DeepSportradar-v1: Computer Vision Dataset for Sports Understanding with High Quality Annotations. MMSports 2022 (ACM MM workshop).",
+     "url": "https://arxiv.org/abs/2208.08190",
+     "take": "Basketball tasks we lack (ball 3D localisation, calibration, re-ID). Its footage is a fixed automated camera in European arenas, not NBA broadcast.",
+     "differs": null
+    }
+   ],
+   "benchmarks": [
+    {
+     "ours": [
+      {
+       "label": "Position error, p50, matched players, held-out game",
+       "value": "1.92",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      },
+      {
+       "label": "Position error, p90, matched players, held-out game",
+       "value": "4.98",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Median error 1.55 to 1.84 m on broadcast TV (TV12, TV14), 1.13 to 1.20 m on a tactical camera (TC14)",
+     "published_values": [
+      "1.55",
+      "1.84",
+      "1.13",
+      "1.20"
+     ],
+     "paper": "Theiner et al., WACV 2022, Table 3",
+     "where": "Table 3",
+     "url": "https://arxiv.org/abs/2110.11107",
+     "differs": "Soccer, about 105 x 68 m pitch; per-frame mean of the best 80% of Hungarian matches, then median over frames; their reference carries about 1 m error; ours is a median over player observations on testable frames only (15% of window frames)",
+     "comparability": "Not directly comparable: different sport, field scale, aggregation and reference"
+    },
+    {
+     "ours": [
+      {
+       "label": "Position error, p50, matched players, held-out game",
+       "value": "1.92",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      },
+      {
+       "label": "Position error, p90, matched players, held-out game",
+       "value": "4.98",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Position RMSE 0.44 to 1.14 m when the player is detected (providers 1 and 2); 4.62 to 12.23 m when not detected; 1.68 to 16.39 m overall",
+     "published_values": [
+      "0.44",
+      "1.14",
+      "4.62",
+      "12.23",
+      "1.68",
+      "16.39"
+     ],
+     "paper": "Crang et al., J. Sports Analytics 2026, Results and Discussion",
+     "where": "Results and Discussion",
+     "url": "https://arxiv.org/abs/2508.19477",
+     "differs": "One 2022 World Cup match, commercial systems, TRACAB Gen 5 reference, RMSE not median, undetected players filled by the vendors' models",
+     "comparability": "Not directly comparable (metric, sport, systems). The same pattern holds: good when detected, poor when filled"
+    },
+    {
+     "ours": [
+      {
+       "label": "Id switches per possession (lower bound), held-out game",
+       "value": "21.39",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Basketball HOTA 60.8, IDF1 67.8, AssA 46.8 (MixSort-Byte)",
+     "published_values": [
+      "60.8",
+      "67.8",
+      "46.8"
+     ],
+     "paper": "Cui et al., ICCV 2023, Table 7",
+     "where": "Table 7",
+     "url": "https://arxiv.org/abs/2304.05170",
+     "differs": "Image-plane boxes on NCAA clips, 720p, no viewpoint switches inside a clip; ours counts switches against SportVU ids on court, across cuts",
+     "comparability": "Not directly comparable: we do not compute HOTA or IDF1"
+    },
+    {
+     "ours": [
+      {
+       "label": "Team labels correct (upper bound), held-out game",
+       "value": "81.9%",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "94% after one frame, 97% within 500 frames",
+     "published_values": [
+      "94%",
+      "97%"
+     ],
+     "paper": "Koshkina et al., arXiv 2021, abstract",
+     "where": "abstract",
+     "url": "https://arxiv.org/abs/2104.10068",
+     "differs": "Hockey, their own dataset and labels",
+     "comparability": "Not directly comparable"
+    },
+    {
+     "ours": [
+      {
+       "label": "Team labels correct (upper bound), held-out game",
+       "value": "81.9%",
+       "lo": null,
+       "hi": null,
+       "kind": "estimate",
+       "source": "reports/scorecard/gsw_phx_2016__r23.txt",
+       "rows": "heldout"
+      }
+     ],
+     "ours_text": null,
+     "published": "Micro accuracy 0.93 for the two team classes",
+     "published_values": [
+      "0.93"
+     ],
+     "paper": "Theiner et al., WACV 2022, Section 4.3",
+     "where": "Section 4.3",
+     "url": "https://arxiv.org/abs/2110.11107",
+     "differs": "Soccer, annotated boxes, not matched to tracking",
+     "comparability": "Not directly comparable"
+    },
+    {
+     "ours": [],
+     "ours_text": "No ball",
+     "published": "F1 82.6, AP 77.1 at a 4 px tolerance (WASB, step 1), Basketball split",
+     "published_values": [
+      "82.6",
+      "77.1"
+     ],
+     "paper": "Tarashima et al., BMVC 2023, Table 2",
+     "where": "Table 2",
+     "url": "https://arxiv.org/abs/2311.05237",
+     "differs": "Basketball broadcast clips adapted from a group-activity dataset (their reference 91), 2D ball in the image",
+     "comparability": "Nothing of ours to compare"
+    },
+    {
+     "ours": [],
+     "ours_text": "Jersey read rate not measurable on the windows",
+     "published": "87.4% tracklet accuracy on SoccerNet; 91.4% image accuracy on hockey",
+     "published_values": [
+      "87.4%",
+      "91.4%"
+     ],
+     "paper": "Koshkina and Elder, CVPRW 2024, abstract",
+     "where": "abstract",
+     "url": "https://arxiv.org/abs/2405.13896",
+     "differs": "Read rate is not accuracy; soccer and hockey",
+     "comparability": "Not directly comparable"
+    },
+    {
+     "ours": [],
+     "ours_text": "Jersey read rate not measurable on the windows",
+     "published": "91.0 to 95.0% for open VLMs on four-way multiple-choice jersey questions (Q9, 300 items)",
+     "published_values": [
+      "91.0",
+      "95.0%"
+     ],
+     "paper": "Hu et al., arXiv 2026, Table 2",
+     "where": "Table 2",
+     "url": "https://arxiv.org/abs/2608.23435",
+     "differs": "Multiple choice from 4 options, 2025-26 NBA clips, 8 crops per player; not open-set reading",
+     "comparability": "Not directly comparable"
+    },
+    {
+     "ours": [],
+     "ours_text": "Broadcast-only fill: no number",
+     "published": "Imputation error of players outside a simulated camera view (theta 10 / 20 / 30 degrees): linear fit 12.78 / 11.47 / 11.26 ft, GC-VRNN 5.86 / 5.56 / 5.39 ft",
+     "published_values": [
+      "12.78",
+      "11.47",
+      "11.26",
+      "5.86",
+      "5.56",
+      "5.39"
+     ],
+     "paper": "Xu et al., CVPR 2023, Table 1",
+     "where": "Table 1",
+     "url": "https://arxiv.org/abs/2303.16005",
+     "differs": "2012 NBA SportVU, simulated camera view that follows the ball",
+     "comparability": "Nothing of ours yet; tracking-E2 would produce it"
+    },
+    {
+     "ours": [],
+     "ours_text": "Broadcast-only fill: no number",
+     "published": "TranSPORTmer I-ADE 3.60 / 3.26 / 3.08 ft on the same three settings (their own runs, in parentheses in the table)",
+     "published_values": [
+      "3.60",
+      "3.26",
+      "3.08"
+     ],
+     "paper": "Capellera et al., ACCV 2024, Table 3",
+     "where": "Table 3",
+     "url": "https://arxiv.org/abs/2410.17785",
+     "differs": "Same data and masks as above",
+     "comparability": "Nothing of ours yet"
+    }
+   ],
+   "notes": [
+    "No paper reports a number on our metric, data and split.",
+    "Metres converted from feet by us (1 ft = 0.3048 m)."
+   ],
+   "experiments": [
+    {
+     "id": "tracking-E1",
+     "title": "team labels from tracklet embeddings",
+     "what": "team labels from tracklet embeddings",
+     "hypothesis": "replacing the median-Lab colour feature with a frozen pretrained image embedding (CLIP ViT-B/32, the backbone the frame gate already loads, `gate/backbones.py`; Radford et al., arXiv:2103.00020), averaged over each track's crops and split by the same per-clip k-means (k = 2), raises the team-label row on the dev games. No labels are used: as in the baseline, it is fitted per clip with no supervision.",
+     "threshold": "pooled dev-game team accuracy up by 5.0 points or more, both intervals above zero, no dev game down by more than 1 point, fixed-mapping accuracy not lower. Then one D71 score, reported whatever it is. A pass still leaves the row under its 95% target and is reported that way.",
+     "rank": 10,
+     "gain": 3,
+     "effort": 2,
+     "test_data": "needs synced video beyond the 4 development games (docs/research/P8_FEASIBILITY.md)",
+     "backlog_status": "proposed",
+     "results": null
+    },
+    {
+     "id": "tracking-E2",
+     "title": "broadcast-only fill of missed player-frames by learned imputation",
+     "what": "broadcast-only fill of missed player-frames (learned imputation)",
+     "hypothesis": "for player-frames with no matched box (missed in frame or off screen), a set-attention imputation model in the TranSPORTmer design, conditioned only on the matched broadcast positions of the other players and of the same player before and after the gap, gives lower position error than linear interpolation across the gap. This is what the demo's 48.7% sensor fill would have to become for a broadcast-only pipeline.",
+     "threshold": "primary median error at least 25% below the linear baseline, both intervals excluding zero, p90 not worse in any gap band. Then one D71 score.",
+     "rank": 14,
+     "gain": 4,
+     "effort": 4,
+     "test_data": "SportVU training games, Set A",
+     "backlog_status": "proposed",
+     "results": null
+    }
+   ]
+  }
+ ]
+}

@@ -43,9 +43,12 @@ function withoutTitles(node, isRoot = true) {
 export async function contractTs(schemaText) {
   const schema = JSON.parse(schemaText);
   const version = schema["x-schema-version"];
+  const compatible = schema["x-compatible-versions"];
   const files = schema["x-files"];
-  if (typeof version !== "string" || !files || typeof files !== "object") {
-    throw new Error("the schema has no x-schema-version or no x-files: was it written by export/schemas.py?");
+  if (typeof version !== "string" || !files || typeof files !== "object" || !Array.isArray(compatible)) {
+    throw new Error(
+      "the schema has no x-schema-version, x-compatible-versions or x-files: was it written by export/schemas.py?",
+    );
   }
   const body = await compile(withoutTitles(schema), "SiteContract", {
     bannerComment: BANNER,
@@ -56,12 +59,23 @@ export async function contractTs(schemaText) {
     style: { printWidth: 110, singleQuote: false, semi: true, trailingComma: "all" },
     cwd: TYPES_DIR,
   });
+  // The files whose model accepts this version only (a "const" schema_version): the manifest and every file a
+  // version introduced. Every other file accepts COMPATIBLE_VERSIONS.
+  const current = Object.entries(files)
+    .filter(([, model]) => schema.$defs?.[model]?.properties?.schema_version?.const === version)
+    .map(([pattern]) => pattern);
   const fileLines = Object.entries(files)
     .map(([pattern, model]) => `  ${JSON.stringify(pattern)}: ${JSON.stringify(model)},`)
     .join("\n");
   const footer = `
-/** The schema version these types were generated from. Every data file must carry the same value. */
+/** The schema version these types were generated from. The manifest carries the same value. */
 export const SCHEMA_VERSION = ${JSON.stringify(version)} as const;
+
+/** The versions a data file may carry: this one and the earlier minor versions of the same major version. */
+export const COMPATIBLE_VERSIONS = ${JSON.stringify(compatible)} as const;
+
+/** Path patterns of the files that must carry SCHEMA_VERSION itself (the contract's CurrentVersion). */
+export const CURRENT_VERSION_FILES = ${JSON.stringify(current)} as const;
 
 /** Path pattern under the data root, and the contract model each file must validate against. */
 export const CONTRACT_FILES = {
@@ -90,6 +104,7 @@ rules = {
     "url_pattern": S._URL_RE.pattern,
     "ignored_names": list(S.IGNORED_NAMES),
     "staged_files": list(S.STAGED_FILES),
+    "genai_files": S.GENAI_FILES,
     "fixture_source": S.FIXTURE_SOURCE,
 }
 sys.stdout.write(json.dumps(rules, indent=2) + "\\n")

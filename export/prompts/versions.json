@@ -1,0 +1,13 @@
+{
+  "_comment": "The prompt in use for each kind, and the sha256 of every version's file. A version is never edited: a changed prompt is a new file and a new version (tests/test_export_genai.py holds this).",
+  "current": {
+    "scouting": "scouting-v2",
+    "possession": "possession-v2"
+  },
+  "sha256": {
+    "scouting-v1": "0f089d639f7e29c244c3a6d87fb4ece23422b36c10428cc6ceaf36350667d321",
+    "possession-v1": "da4af61f10bd9056c37a700f9a131e027ac6625373330274747c387e44feba8f",
+    "scouting-v2": "82135972b1dd01074f9df2ea23a86a7c17505fc61f61d38f9082c8628d3f43b2",
+    "possession-v2": "c6769534d7cbcd140101576177e69ed902c7606cda72d21be7d032bde1bb03fb"
+  }
+}
