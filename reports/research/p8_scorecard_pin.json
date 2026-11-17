@@ -1,0 +1,106 @@
+{
+ "fixed_on": "2026-11-17",
+ "decision": "P8_FEASIBILITY.md section 7 (4); PLAN.md D85",
+ "status": "adopted",
+ "scorer": {
+  "tools/p8_scorecard.py": "714d096da99f588b27fe19e09c8a5186beac4764066ac684f91df402fff73aa7",
+  "tools/p8_frozen.py": "86e3c02f01abc929cd82090c44cced3112eb768a073a15b5363736fcc1de0dbb",
+  "tools/p8_common.py": "00da3c7c54649089def289478f22ff66a3e21481d45a51fb0ca0484db13b3018"
+ },
+ "fixed_constants_file": {
+  "reports/research/p8_constants.json": null
+ },
+ "constants_sha256": "7f8d9017bd159703400d4f23f7f957d6918ed57dc4925fcbe8de2256ea84d85a",
+ "constants": {
+  "ball_f1_target": 0.75,
+  "ball_tol_rule": "2 x the median camera-truth reprojection error of SportVU feet onto the box feet (px), over the development games, fixed by the Phase A baseline before any ball model runs",
+  "holder_max_ft": 3.0,
+  "holder_ball_max_z_ft": 6.0,
+  "carrier_target": 0.85,
+  "identity_target": 0.8,
+  "jersey_min_crops": 8,
+  "switches_goal_per_possession": 5.0,
+  "event_tol_s": 1.0,
+  "event_live_wide_s": 0.5,
+  "shots_found_target": 0.95,
+  "shots_false_max": 0.05,
+  "rebounds_found_target": 0.9,
+  "shooter_p50_ft": 3.0,
+  "shooter_p90_ft": 6.0,
+  "rebounder_p50_ft": 4.0,
+  "speed_dt_s": 0.2,
+  "crowd_bins_ft": [
+   3.0,
+   6.0,
+   10.0
+  ],
+  "speed_bins_ftps": [
+   3.0,
+   8.0,
+   14.0
+  ],
+  "zone_bins_ft": [
+   4.0,
+   16.0,
+   23.75
+  ],
+  "rim_x_ft": [
+   5.25,
+   88.75
+  ],
+  "rim_y_ft": 25.0,
+  "cut_hist_corr": 0.6,
+  "cut_hist_bins": [
+   30,
+   32
+  ],
+  "cut_scale_px": [
+   160,
+   90
+  ],
+  "since_cut_bins_s": [
+   1.0,
+   3.0,
+   10.0
+  ],
+  "boot_n": 1000,
+  "boot_seed": 0,
+  "truth_modes": [
+   "camera",
+   "camera_paint",
+   "b4"
+  ],
+  "gate_games": [
+   "gsw_bkn_2015",
+   "nyk_bos_2016"
+  ]
+ },
+ "frozen_files": {
+  "clock_reader.py": "17319bd0a912fd0f5bc5a4f87f77e7067790968bf5690d6e219a8b2ae30774b2",
+  "sportvu/bench.py": "caa0aa6ec3e1bc4fcd51f928d6c6d8ef57fc6bff88a939ccf2668b235cffae84",
+  "sportvu/truth.py": "bb8554e72b243eb5e2eadf06b985a20282af5ffe43610446969da1e5f2a4e083",
+  "sportvu/eval.py": "461454723220a36ee7c06c4336e0f712e6fb690df405999f4fc6878b2373b09f",
+  "sportvu/sync.py": "d00745c41f4e508711500facc1da9d80c6632002bc646d5323f62b32249d0ea8",
+  "sportvu/camera.py": "03631e2688446ae8425b1ac4f8bba592ca3fe9d1a0a5f531bfce48e46d2dd665",
+  "sportvu/autolabel.py": "b37f8e3aa5b9f50df04aefbd9586f767ca08678f6a91b52c0f517ffdc08c223c",
+  "sportvu/label_check.py": "92f6ca2077ffbab3b2fa23d447ede111f13be2d1ec0081f3b5fd685b36ffca4a",
+  "sportvu/rebuild.py": "c012c8127d64ae403c5f0920bb88eacfc0bb271266686db30fa4eb1a2240ef79",
+  "sportvu/local_sync.py": "0ac9a844ae222b89ab07b0669bd0a2ab7dc00e6ddf25c9d17295faac580a6eaf",
+  "sportvu/direction.py": "d1986b24c60dbb38b911fc713bacf4cd941c07a3d7e98fb86c2d0ffd7ce2f3a1",
+  "videoseq.py": "af9d99556dc84b230da82a70d87c93224081162b4bb8cea2f915b51a2635357d",
+  "models/thresholds.json": "6452ec7a11d64f6623de22f7ed672e88a11aefb7846a32b782bf8a7724bb85cd"
+ },
+ "frozen_constants": {
+  "MATCH_FT": 5.0,
+  "ID_MATCH_FT": 2.5,
+  "MISS_FT": 2.5,
+  "GHOST_FT": 3.0,
+  "FRAME_MARGIN_PX": 10,
+  "REF_IOU": 0.5,
+  "REFEREE_CLASS": 1,
+  "SHOT_RESET_S": 1.0,
+  "MIN_POSS_FRAMES": 5,
+  "LINE_TARGET_PX": 3.0,
+  "TRUTH_COURT_VALID": false
+ }
+}
