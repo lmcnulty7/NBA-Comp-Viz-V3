@@ -161,6 +161,28 @@ checker and our variety measure.
 - Backlog scores. Gain 3: it decides how E2 must be read (pass rate alone or with variety) and costs nothing. Effort
   1: no model, existing checker.
 
+#### genai-E1 amendments after the dev stage, before the test score (2026-11-17)
+
+The dev stage (reports/research/genai-E1-dev.json) ran on 40 dev players and 240 dev possessions. Three things it
+showed are fixed here, before the one test score, and change no threshold or reading above:
+
+1. The Haiku arm as pre-registered (the texts the site snapshot holds) is a moment in P3's run, not what its calls
+   produced. The v4 site data root held 398 texts at 13:29 local time, 335 at the freeze (21:54 UTC, the pinned
+   snapshot) and fewer after: P3's branch is pruning it with checks newer than the pinned checker (words of change,
+   subjects, attribution, signs; commits d7542f90 to 7f2c08fc on p3-v3). All 398 kept texts of the cache records
+   still pass the pinned checker. So a second Haiku arm is added and reported beside the first: the kept text of the
+   latest cache record whose input is the item's input (haiku_cache). The pre-registered arm stays the one H1 and H2
+   are read on; the report gives both readings and says if they differ.
+2. A sensitivity checker is added: export/genai.py of p3-v3 at commit 7f2c08fc, read from git, applied to every arm.
+   No verdict reads it. On dev it fails most template scouting texts (a number in a sentence that does not say what
+   it is; a negative defender distance written as "closer"), which the pinned checker does not see. The template is
+   not changed after reading dev: it stays as settled on train items (commit a5eefb1d), and the report shows this
+   as a finding about what each checker can see.
+3. Distinct counts are biased downward under resampling (a resampled player's sentences repeat), so the bootstrap
+   intervals of frame variety and distinct-2 sit below their point estimates. As for binned ECE in xfg-E1, they are
+   read as ranges of plausible values, not centred intervals. Both arms share the bias; the paired difference is
+   read as pre-registered.
+
 ### genai-E2: a small open model, LoRA on the Mac, trained against the checker
 
 - Question. Can a 0.5B or 1.5B open instruct model, fine-tuned on this Mac, write texts that pass the checker at a

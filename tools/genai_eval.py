@@ -221,6 +221,84 @@ def haiku_rows(items: list) -> list:
     return rows
 
 
+def haiku_cache_rows(items: list) -> list:
+    """The Haiku arm from the cache records (added after the dev stage, docs/research/genai.md, amendments): the kept
+    text of the latest record whose input is this item's input, or none. The site snapshot is a moment in P3's run,
+    pruned by checks newer than the pinned checker; the records are what P3's calls produced."""
+    rows = []
+    for item, found in zip(items, _cache_text_rows(items)):
+        row = evaluate(found["_text"], item)
+        row.update(unit=unit_of(item), key=item["key"], prompt_version=found["prompt_version"])
+        rows.append(row)
+    return rows
+
+
+# A sensitivity checker: the P3 branch's checker at a fixed commit, read from git, never the pinned one. It adds
+# checks of words of change, subjects, attribution and signs (PLAN.md D93 on that branch). No verdict reads it.
+SENSITIVITY_COMMIT = "7f2c08fc"
+
+
+def sensitivity_checker(commit: str = SENSITIVITY_COMMIT):
+    import importlib.util
+    import subprocess
+    import tempfile
+    source = subprocess.run(["git", "show", f"{commit}:export/genai.py"], cwd=REPO_ROOT, capture_output=True,
+                            text=True, check=True).stdout
+    folder = Path(tempfile.mkdtemp(prefix="genai-sensitivity-"))
+    path = folder / "genai_sensitivity.py"
+    path.write_text(source, encoding="utf-8")
+    spec = importlib.util.spec_from_file_location("genai_sensitivity", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.check_text
+
+
+def sensitivity(arms: dict, items: list, commit: str = SENSITIVITY_COMMIT) -> dict:
+    """Pass rate of each arm's texts under the sensitivity checker, and its most common problem starts."""
+    check = sensitivity_checker(commit)
+    by_key = {item["key"]: item for item in items}
+    out = {"commit": commit, "git_blob": _blob_at(commit), "arms": {}}
+    for arm, texts in arms.items():
+        passed, starts = 0, {}
+        for key, text in texts.items():
+            if not text:
+                continue
+            problems, _ = check(text, by_key[key])
+            passed += not problems
+            for p in problems:
+                start = re.sub(r"'[^']*'|\"[^\"]*\"|\d[\d.,:%]*", "_", p)[:60]
+                starts[start] = starts.get(start, 0) + 1
+        out["arms"][arm] = {"items": len(items), "texts": sum(bool(t) for t in texts.values()), "passed": passed,
+                            "pass_rate": passed / len(items) if items else None,
+                            "top_problems": sorted(starts.items(), key=lambda kv: -kv[1])[:6]}
+    return out
+
+
+def _cache_texts(items: list) -> dict:
+    return {row["key"]: row.get("_text") for row in _cache_text_rows(items)}
+
+
+def _cache_text_rows(items: list) -> list:
+    latest = {}
+    for r in D.haiku_records():
+        if r.get("model") == HAIKU and r.get("text"):
+            if r["key"] not in latest or r.get("created", "") >= latest[r["key"]].get("created", ""):
+                latest[r["key"]] = r
+    out = []
+    for item in items:
+        r = latest.get(item["key"])
+        ok = r is not None and r["input_sha256"] == G.input_sha256(item)
+        out.append({"key": item["key"], "_text": r["text"] if ok else None,
+                    "prompt_version": r["prompt_version"] if ok else None})
+    return out
+
+
+def _blob_at(commit: str) -> str:
+    import subprocess
+    return subprocess.run(["git", "rev-parse", f"{commit}:export/genai.py"], cwd=REPO_ROOT, capture_output=True,
+                          text=True, check=True).stdout.strip()
+
+
 def haiku_calls(items: list) -> dict:
     """Every cached Haiku call for these items (same input hash): tokens, cost at export.genai's price table, and the
     first-attempt pass rate under the pinned checker, by prompt version and call setting."""
@@ -284,25 +362,37 @@ def _strip(rows: list) -> list:
 
 
 def e1(split: str, scouting: list, possession: list) -> dict:
+    from tools.genai_templates import template_text
     t_rows, t_write = template_rows(scouting)
     h_rows = haiku_rows(scouting)
+    c_rows = haiku_cache_rows(scouting)
     p_rows, p_write = template_rows(possession)
+    snapshot = {t["key"]: t["text"] for t in
+                json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
+    sens_scouting = sensitivity({"template": {i["key"]: template_text(i) for i in scouting},
+                                 "haiku": {i["key"]: snapshot.get(i["key"]) for i in scouting},
+                                 "haiku_cache": _cache_texts(scouting)}, scouting)
+    sens_possession = sensitivity({"template": {i["key"]: template_text(i) for i in possession}}, possession)
     out = {
         "experiment": "genai-E1", "split": split, "checker_git_blob": D.git_blob("export/genai.py"),
         "templates_git_blob": D.git_blob("tools/genai_templates.py"), "code_commit": D.git_head(),
         "scouting": {
             "items": len(scouting),
-            "template": arm_measures(t_rows), "haiku": arm_measures(h_rows),
+            "template": arm_measures(t_rows), "haiku": arm_measures(h_rows), "haiku_cache": arm_measures(c_rows),
             "haiku_prompt_versions": _count(r["prompt_version"] for r in h_rows),
+            "haiku_cache_prompt_versions": _count(r["prompt_version"] for r in c_rows),
             "bootstrap_by_player": bootstrap({"template": t_rows, "haiku": h_rows}, STATS),
+            "bootstrap_by_player_cache": bootstrap({"template": t_rows, "haiku_cache": c_rows}, STATS),
+            "sensitivity": sens_scouting,
             "haiku_calls": haiku_calls(scouting),
             "template_speed": template_speed(scouting), "template_write_s_these_items": t_write,
-            "rows": {"template": _strip(t_rows), "haiku": _strip(h_rows)},
+            "rows": {"template": _strip(t_rows), "haiku": _strip(h_rows), "haiku_cache": _strip(c_rows)},
         },
         "possession": {
             "items": len(possession), "games": len({unit_of(i) for i in possession}),
             "template": arm_measures(p_rows),
             "bootstrap_by_game": bootstrap({"template": p_rows}, STATS),
+            "sensitivity": sens_possession,
             "template_speed": template_speed(possession), "template_write_s_these_items": p_write,
             "haiku": "not run: the Haiku possession texts are about held-out games; a Haiku arm on training-game "
                      "possessions needs API spend and waits for a yes (PLAN.md D92)",
@@ -335,6 +425,7 @@ def summary(record: dict) -> list:
     lines = [f"split {record['split']}, checker blob {record['checker_git_blob'][:12]}, "
              f"templates blob {record['templates_git_blob'][:12]}"]
     for kind, boot_key, arms in (("scouting", "bootstrap_by_player", ("template", "haiku")),
+                                 ("scouting", "bootstrap_by_player_cache", ("haiku_cache",)),
                                  ("possession", "bootstrap_by_game", ("template",))):
         k = record[kind]
         boot = k[boot_key]
@@ -351,6 +442,10 @@ def summary(record: dict) -> list:
             lines.append(f"    rule failure rates: {fails or 'none'}")
         for name, pair in boot["differences"].items():
             lines.append(f"  {name} {_ci(pair)}")
+        sens = k["sensitivity"]
+        for arm, v in sens["arms"].items():
+            lines.append(f"  sensitivity checker {sens['commit']}: {arm} passes {v['passed']} of {v['items']} "
+                         f"({v['pass_rate']:.3f}), texts {v['texts']}; top problems {v['top_problems'][:3]}")
         speed = k["template_speed"]
         lines.append(f"  template speed: {speed['texts']} texts written in {speed['write_s']:.3f} s, written and "
                      f"checked in {speed['write_and_check_s']:.2f} s")
@@ -361,7 +456,8 @@ def summary(record: dict) -> list:
     for setting, g in calls["by_setting"].items():
         lines.append(f"  {setting}: {g['records']} records, first attempt passes {g['first_attempt_pass']}, kept "
                      f"{g['kept']}")
-    lines.append(f"haiku prompt versions delivered: {record['scouting']['haiku_prompt_versions']}")
+    lines.append(f"haiku prompt versions delivered: {record['scouting']['haiku_prompt_versions']}; cache arm: "
+                 f"{record['scouting']['haiku_cache_prompt_versions']}")
     t = record["haiku_timing"]
     lines.append(f"haiku timing (estimate): {t['gaps']} gaps, median {t['median_s_per_item']:.1f} s per item, mean "
                  f"{t['mean_s_per_item']:.1f} s")

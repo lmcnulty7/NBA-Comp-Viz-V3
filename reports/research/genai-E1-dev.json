@@ -1,0 +1,3349 @@
+{
+ "experiment": "genai-E1",
+ "split": "dev",
+ "checker_git_blob": "c10b8a4bf5e82c2440a1d5ed296759ea810482a0",
+ "templates_git_blob": "15d5a07c34bea1994762ca4d11c6e9085036fa17",
+ "code_commit": "a5eefb1da719376e8eaca2ea03e8dbcf9c3be668",
+ "scouting": {
+  "items": 40,
+  "template": {
+   "n_items": 40,
+   "n_texts": 40,
+   "pass_rate": 1.0,
+   "rule_failure_rate": {
+    "model_word": 0.0,
+    "interval": 0.0,
+    "point_estimate": 0.0,
+    "number_value": 0.0,
+    "number_word": 0.0,
+    "direction": 0.0,
+    "status": 0.0,
+    "lane": 0.0,
+    "grade": 0.0,
+    "length": 0.0,
+    "style": 0.0,
+    "no_text": 0.0,
+    "other": 0.0
+   },
+   "grade_mean": 3.71,
+   "grade_max": 4.2,
+   "words_mean": 115.575,
+   "words_min": 85,
+   "words_max": 127,
+   "sentences": 364,
+   "distinct_frames": 18,
+   "frame_variety": 0.04945054945054945,
+   "distinct_2": 0.028446843853820597
+  },
+  "haiku": {
+   "n_items": 40,
+   "n_texts": 33,
+   "pass_rate": 0.825,
+   "rule_failure_rate": {
+    "model_word": 0.0,
+    "interval": 0.0,
+    "point_estimate": 0.0,
+    "number_value": 0.0,
+    "number_word": 0.0,
+    "direction": 0.0,
+    "status": 0.0,
+    "lane": 0.0,
+    "grade": 0.0,
+    "length": 0.0,
+    "style": 0.0,
+    "no_text": 0.175,
+    "other": 0.0
+   },
+   "grade_mean": 4.50909090909091,
+   "grade_max": 5.4,
+   "words_mean": 107.33333333333333,
+   "words_min": 87,
+   "words_max": 144,
+   "sentences": 285,
+   "distinct_frames": 195,
+   "frame_variety": 0.6842105263157895,
+   "distinct_2": 0.17982338774417983
+  },
+  "haiku_cache": {
+   "n_items": 40,
+   "n_texts": 40,
+   "pass_rate": 1.0,
+   "rule_failure_rate": {
+    "model_word": 0.0,
+    "interval": 0.0,
+    "point_estimate": 0.0,
+    "number_value": 0.0,
+    "number_word": 0.0,
+    "direction": 0.0,
+    "status": 0.0,
+    "lane": 0.0,
+    "grade": 0.0,
+    "length": 0.0,
+    "style": 0.0,
+    "no_text": 0.0,
+    "other": 0.0
+   },
+   "grade_mean": 4.57,
+   "grade_max": 5.4,
+   "words_mean": 107.35,
+   "words_min": 87,
+   "words_max": 144,
+   "sentences": 345,
+   "distinct_frames": 240,
+   "frame_variety": 0.6956521739130435,
+   "distinct_2": 0.1742206500110546
+  },
+  "haiku_prompt_versions": {
+   "scouting-v3": 33,
+   "None": 7
+  },
+  "haiku_cache_prompt_versions": {
+   "scouting-v3": 39,
+   "scouting-v2": 1
+  },
+  "bootstrap_by_player": {
+   "n_boot": 2000,
+   "seed": 0,
+   "units": 40,
+   "arms": {
+    "template": {
+     "pass_rate": [
+      1.0,
+      1.0
+     ],
+     "grade_mean": [
+      3.625,
+      3.7924999999999995
+     ],
+     "words_mean": [
+      111.475,
+      119.575625
+     ],
+     "frame_variety": [
+      0.04054054054054054,
+      0.05113636363636364
+     ],
+     "distinct_2": [
+      0.02578968412634946,
+      0.029513458917083894
+     ]
+    },
+    "haiku": {
+     "pass_rate": [
+      0.7,
+      0.925
+     ],
+     "grade_mean": [
+      4.342834101382488,
+      4.674375
+     ],
+     "words_mean": [
+      103.86632352941176,
+      111.0
+     ],
+     "frame_variety": [
+      0.38411887994634475,
+      0.5461627906976744
+     ],
+     "distinct_2": [
+      0.12217962242223816,
+      0.16424338923175444
+     ]
+    }
+   },
+   "differences": {
+    "haiku minus template: pass_rate": [
+     -0.30000000000000004,
+     -0.07499999999999996
+    ],
+    "haiku minus template: grade_mean": [
+     0.6326315227703982,
+     0.9644045138888883
+    ],
+    "haiku minus template: words_mean": [
+     -12.913598484848478,
+     -3.3869196428571486
+    ],
+    "haiku minus template: frame_variety": [
+     0.33797353285878223,
+     0.49848655403841485
+    ],
+    "haiku minus template: distinct_2": [
+     0.09459675171884804,
+     0.13659688155839703
+    ]
+   }
+  },
+  "bootstrap_by_player_cache": {
+   "n_boot": 2000,
+   "seed": 0,
+   "units": 40,
+   "arms": {
+    "template": {
+     "pass_rate": [
+      1.0,
+      1.0
+     ],
+     "grade_mean": [
+      3.625,
+      3.7924999999999995
+     ],
+     "words_mean": [
+      111.475,
+      119.575625
+     ],
+     "frame_variety": [
+      0.04054054054054054,
+      0.05113636363636364
+     ],
+     "distinct_2": [
+      0.02578968412634946,
+      0.029513458917083894
+     ]
+    },
+    "haiku_cache": {
+     "pass_rate": [
+      1.0,
+      1.0
+     ],
+     "grade_mean": [
+      4.4225,
+      4.7175
+     ],
+     "words_mean": [
+      104.425,
+      110.625625
+     ],
+     "frame_variety": [
+      0.3962779938786131,
+      0.5314330870279146
+     ],
+     "distinct_2": [
+      0.1208784568540666,
+      0.14987898348716422
+     ]
+    }
+   },
+   "differences": {
+    "haiku_cache minus template: pass_rate": [
+     0.0,
+     0.0
+    ],
+    "haiku_cache minus template: grade_mean": [
+     0.7149999999999999,
+     1.0124999999999997
+    ],
+    "haiku_cache minus template: words_mean": [
+     -12.549999999999997,
+     -3.5987500000000012
+    ],
+    "haiku_cache minus template: frame_variety": [
+     0.35044393697413273,
+     0.4851382802673842
+    ],
+    "haiku_cache minus template: distinct_2": [
+     0.09396362417352014,
+     0.12133406295123993
+    ]
+   }
+  },
+  "sensitivity": {
+   "commit": "7f2c08fc",
+   "git_blob": "cc0a6ba619770ca102d33e08a25e165c3c745cfa",
+   "arms": {
+    "template": {
+     "items": 40,
+     "texts": 40,
+     "passed": 6,
+     "pass_rate": 0.15,
+     "top_problems": [
+      [
+       "number _ sits in a sentence that does not say what it is (it",
+       40
+      ],
+      [
+       "number _ is a negative defender distance (farther), called c",
+       26
+      ]
+     ]
+    },
+    "haiku": {
+     "items": 40,
+     "texts": 33,
+     "passed": 31,
+     "pass_rate": 0.775,
+     "top_problems": [
+      [
+       "number _ is a negative defender distance (farther), called c",
+       1
+      ],
+      [
+       "number _ sits in a sentence that does not say what it is (it",
+       1
+      ]
+     ]
+    },
+    "haiku_cache": {
+     "items": 40,
+     "texts": 40,
+     "passed": 31,
+     "pass_rate": 0.775,
+     "top_problems": [
+      [
+       "number _ sits in a sentence that does not say what it is (it",
+       10
+      ],
+      [
+       "number _ is a negative defender distance (farther), called c",
+       1
+      ]
+     ]
+    }
+   }
+  },
+  "haiku_calls": {
+   "items": 40,
+   "records": 49,
+   "records_other_input": 0,
+   "tokens": {
+    "input": 361587,
+    "output": 159303,
+    "calls": 64
+   },
+   "usd": 0.11581020000000002,
+   "usd_per_1000_items_asked": 2.895255,
+   "price_per_mtok": {
+    "input": 0.1,
+    "output": 0.5
+   },
+   "by_setting": {
+    "scouting-v3 | {\"max_tokens\": 8000, \"output_config\": {\"effort\": \"low\"}, \"thinking\": {\"type\": \"adaptive\"}}": {
+     "records": 33,
+     "first_attempt_pass": 25,
+     "kept": 33
+    },
+    "scouting-v2 | legacy (no setting stored)": {
+     "records": 4,
+     "first_attempt_pass": 1,
+     "kept": 2
+    },
+    "scouting-v3 | legacy (no setting stored)": {
+     "records": 7,
+     "first_attempt_pass": 5,
+     "kept": 6
+    },
+    "scouting-v3 | {\"output_config\": {\"effort\": \"low\"}, \"thinking\": {\"type\": \"disabled\"}}": {
+     "records": 3,
+     "first_attempt_pass": 0,
+     "kept": 1
+    },
+    "scouting-v1 | legacy (no setting stored)": {
+     "records": 2,
+     "first_attempt_pass": 2,
+     "kept": 2
+    }
+   }
+  },
+  "template_speed": {
+   "texts": 1000,
+   "write_s": 0.003300209005828947,
+   "write_and_check_s": 2.978582291980274
+  },
+  "template_write_s_these_items": 0.00019479100592434406,
+  "rows": {
+   "template": [
+    {
+     "key": "alonzo-gee",
+     "unit": "alonzo-gee",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 127
+    },
+    {
+     "key": "andre-iguodala",
+     "unit": "andre-iguodala",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 125
+    },
+    {
+     "key": "austin-rivers",
+     "unit": "austin-rivers",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 125
+    },
+    {
+     "key": "ben-mclemore",
+     "unit": "ben-mclemore",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 125
+    },
+    {
+     "key": "bojan-bogdanovic",
+     "unit": "bojan-bogdanovic",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 103
+    },
+    {
+     "key": "cj-miles",
+     "unit": "cj-miles",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 125
+    },
+    {
+     "key": "d-angelo-russell",
+     "unit": "d-angelo-russell",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 125
+    },
+    {
+     "key": "dwight-powell",
+     "unit": "dwight-powell",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 126
+    },
+    {
+     "key": "gerald-green",
+     "unit": "gerald-green",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 125
+    },
+    {
+     "key": "goran-dragic",
+     "unit": "goran-dragic",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 103
+    },
+    {
+     "key": "jabari-parker",
+     "unit": "jabari-parker",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 125
+    },
+    {
+     "key": "james-anderson",
+     "unit": "james-anderson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 103
+    },
+    {
+     "key": "james-michael-mcadoo",
+     "unit": "james-michael-mcadoo",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 93
+    },
+    {
+     "key": "james-young",
+     "unit": "james-young",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 92
+    },
+    {
+     "key": "jerami-grant",
+     "unit": "jerami-grant",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 125
+    },
+    {
+     "key": "jose-juan-barea",
+     "unit": "jose-juan-barea",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 126
+    },
+    {
+     "key": "karl-anthony-towns",
+     "unit": "karl-anthony-towns",
+     "passed": true,
+     "rules": [],
+     "grade": 4.1,
+     "words": 126
+    },
+    {
+     "key": "kelly-olynyk",
+     "unit": "kelly-olynyk",
+     "passed": true,
+     "rules": [],
+     "grade": 4.0,
+     "words": 125
+    },
+    {
+     "key": "kelly-oubre",
+     "unit": "kelly-oubre",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 125
+    },
+    {
+     "key": "kosta-koufos",
+     "unit": "kosta-koufos",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 125
+    },
+    {
+     "key": "kostas-papanikolaou",
+     "unit": "kostas-papanikolaou",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 104
+    },
+    {
+     "key": "leandro-barbosa",
+     "unit": "leandro-barbosa",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 125
+    },
+    {
+     "key": "luc-mbah-a-moute",
+     "unit": "luc-mbah-a-moute",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 105
+    },
+    {
+     "key": "mario-chalmers",
+     "unit": "mario-chalmers",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 127
+    },
+    {
+     "key": "michael-carter-williams",
+     "unit": "michael-carter-williams",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 126
+    },
+    {
+     "key": "mike-muscala",
+     "unit": "mike-muscala",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 103
+    },
+    {
+     "key": "nerlens-noel",
+     "unit": "nerlens-noel",
+     "passed": true,
+     "rules": [],
+     "grade": 4.0,
+     "words": 125
+    },
+    {
+     "key": "pablo-prigioni",
+     "unit": "pablo-prigioni",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 103
+    },
+    {
+     "key": "phil-pressey",
+     "unit": "phil-pressey",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 92
+    },
+    {
+     "key": "rudy-gay",
+     "unit": "rudy-gay",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 125
+    },
+    {
+     "key": "russell-westbrook",
+     "unit": "russell-westbrook",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 125
+    },
+    {
+     "key": "ryan-hollins",
+     "unit": "ryan-hollins",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 94
+    },
+    {
+     "key": "sasha-vujacic",
+     "unit": "sasha-vujacic",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 103
+    },
+    {
+     "key": "stanley-johnson",
+     "unit": "stanley-johnson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 125
+    },
+    {
+     "key": "tj-mcconnell",
+     "unit": "tj-mcconnell",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 125
+    },
+    {
+     "key": "tj-warren",
+     "unit": "tj-warren",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 125
+    },
+    {
+     "key": "tobias-harris",
+     "unit": "tobias-harris",
+     "passed": true,
+     "rules": [],
+     "grade": 4.0,
+     "words": 125
+    },
+    {
+     "key": "tony-wroten",
+     "unit": "tony-wroten",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 85
+    },
+    {
+     "key": "tristan-thompson",
+     "unit": "tristan-thompson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 103
+    },
+    {
+     "key": "willie-cauley-stein",
+     "unit": "willie-cauley-stein",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 104
+    }
+   ],
+   "haiku": [
+    {
+     "key": "alonzo-gee",
+     "unit": "alonzo-gee",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 105
+    },
+    {
+     "key": "andre-iguodala",
+     "unit": "andre-iguodala",
+     "passed": true,
+     "rules": [],
+     "grade": 4.3,
+     "words": 108
+    },
+    {
+     "key": "austin-rivers",
+     "unit": "austin-rivers",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "ben-mclemore",
+     "unit": "ben-mclemore",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 144
+    },
+    {
+     "key": "bojan-bogdanovic",
+     "unit": "bojan-bogdanovic",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 87
+    },
+    {
+     "key": "cj-miles",
+     "unit": "cj-miles",
+     "passed": true,
+     "rules": [],
+     "grade": 4.3,
+     "words": 103
+    },
+    {
+     "key": "d-angelo-russell",
+     "unit": "d-angelo-russell",
+     "passed": true,
+     "rules": [],
+     "grade": 5.2,
+     "words": 107
+    },
+    {
+     "key": "dwight-powell",
+     "unit": "dwight-powell",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 108
+    },
+    {
+     "key": "gerald-green",
+     "unit": "gerald-green",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 130
+    },
+    {
+     "key": "goran-dragic",
+     "unit": "goran-dragic",
+     "passed": true,
+     "rules": [],
+     "grade": 5.1,
+     "words": 100
+    },
+    {
+     "key": "jabari-parker",
+     "unit": "jabari-parker",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 103
+    },
+    {
+     "key": "james-anderson",
+     "unit": "james-anderson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 96
+    },
+    {
+     "key": "james-michael-mcadoo",
+     "unit": "james-michael-mcadoo",
+     "passed": true,
+     "rules": [],
+     "grade": 4.1,
+     "words": 109
+    },
+    {
+     "key": "james-young",
+     "unit": "james-young",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 103
+    },
+    {
+     "key": "jerami-grant",
+     "unit": "jerami-grant",
+     "passed": true,
+     "rules": [],
+     "grade": 4.5,
+     "words": 98
+    },
+    {
+     "key": "jose-juan-barea",
+     "unit": "jose-juan-barea",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 118
+    },
+    {
+     "key": "karl-anthony-towns",
+     "unit": "karl-anthony-towns",
+     "passed": true,
+     "rules": [],
+     "grade": 4.8,
+     "words": 109
+    },
+    {
+     "key": "kelly-olynyk",
+     "unit": "kelly-olynyk",
+     "passed": true,
+     "rules": [],
+     "grade": 5.3,
+     "words": 105
+    },
+    {
+     "key": "kelly-oubre",
+     "unit": "kelly-oubre",
+     "passed": true,
+     "rules": [],
+     "grade": 4.8,
+     "words": 107
+    },
+    {
+     "key": "kosta-koufos",
+     "unit": "kosta-koufos",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 104
+    },
+    {
+     "key": "kostas-papanikolaou",
+     "unit": "kostas-papanikolaou",
+     "passed": true,
+     "rules": [],
+     "grade": 5.4,
+     "words": 107
+    },
+    {
+     "key": "leandro-barbosa",
+     "unit": "leandro-barbosa",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "luc-mbah-a-moute",
+     "unit": "luc-mbah-a-moute",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 106
+    },
+    {
+     "key": "mario-chalmers",
+     "unit": "mario-chalmers",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 122
+    },
+    {
+     "key": "michael-carter-williams",
+     "unit": "michael-carter-williams",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 105
+    },
+    {
+     "key": "mike-muscala",
+     "unit": "mike-muscala",
+     "passed": true,
+     "rules": [],
+     "grade": 4.3,
+     "words": 103
+    },
+    {
+     "key": "nerlens-noel",
+     "unit": "nerlens-noel",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "pablo-prigioni",
+     "unit": "pablo-prigioni",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 119
+    },
+    {
+     "key": "phil-pressey",
+     "unit": "phil-pressey",
+     "passed": true,
+     "rules": [],
+     "grade": 4.1,
+     "words": 89
+    },
+    {
+     "key": "rudy-gay",
+     "unit": "rudy-gay",
+     "passed": true,
+     "rules": [],
+     "grade": 4.6,
+     "words": 103
+    },
+    {
+     "key": "russell-westbrook",
+     "unit": "russell-westbrook",
+     "passed": true,
+     "rules": [],
+     "grade": 5.4,
+     "words": 105
+    },
+    {
+     "key": "ryan-hollins",
+     "unit": "ryan-hollins",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "sasha-vujacic",
+     "unit": "sasha-vujacic",
+     "passed": true,
+     "rules": [],
+     "grade": 4.6,
+     "words": 117
+    },
+    {
+     "key": "stanley-johnson",
+     "unit": "stanley-johnson",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "tj-mcconnell",
+     "unit": "tj-mcconnell",
+     "passed": true,
+     "rules": [],
+     "grade": 5.2,
+     "words": 104
+    },
+    {
+     "key": "tj-warren",
+     "unit": "tj-warren",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 97
+    },
+    {
+     "key": "tobias-harris",
+     "unit": "tobias-harris",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "tony-wroten",
+     "unit": "tony-wroten",
+     "passed": false,
+     "rules": [
+      "no_text"
+     ],
+     "grade": null,
+     "words": null
+    },
+    {
+     "key": "tristan-thompson",
+     "unit": "tristan-thompson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 111
+    },
+    {
+     "key": "willie-cauley-stein",
+     "unit": "willie-cauley-stein",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 110
+    }
+   ],
+   "haiku_cache": [
+    {
+     "key": "alonzo-gee",
+     "unit": "alonzo-gee",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 105
+    },
+    {
+     "key": "andre-iguodala",
+     "unit": "andre-iguodala",
+     "passed": true,
+     "rules": [],
+     "grade": 4.3,
+     "words": 108
+    },
+    {
+     "key": "austin-rivers",
+     "unit": "austin-rivers",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 103
+    },
+    {
+     "key": "ben-mclemore",
+     "unit": "ben-mclemore",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 144
+    },
+    {
+     "key": "bojan-bogdanovic",
+     "unit": "bojan-bogdanovic",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 87
+    },
+    {
+     "key": "cj-miles",
+     "unit": "cj-miles",
+     "passed": true,
+     "rules": [],
+     "grade": 4.3,
+     "words": 103
+    },
+    {
+     "key": "d-angelo-russell",
+     "unit": "d-angelo-russell",
+     "passed": true,
+     "rules": [],
+     "grade": 5.2,
+     "words": 107
+    },
+    {
+     "key": "dwight-powell",
+     "unit": "dwight-powell",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 108
+    },
+    {
+     "key": "gerald-green",
+     "unit": "gerald-green",
+     "passed": true,
+     "rules": [],
+     "grade": 3.7,
+     "words": 130
+    },
+    {
+     "key": "goran-dragic",
+     "unit": "goran-dragic",
+     "passed": true,
+     "rules": [],
+     "grade": 5.1,
+     "words": 100
+    },
+    {
+     "key": "jabari-parker",
+     "unit": "jabari-parker",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 103
+    },
+    {
+     "key": "james-anderson",
+     "unit": "james-anderson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 96
+    },
+    {
+     "key": "james-michael-mcadoo",
+     "unit": "james-michael-mcadoo",
+     "passed": true,
+     "rules": [],
+     "grade": 4.1,
+     "words": 109
+    },
+    {
+     "key": "james-young",
+     "unit": "james-young",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 103
+    },
+    {
+     "key": "jerami-grant",
+     "unit": "jerami-grant",
+     "passed": true,
+     "rules": [],
+     "grade": 4.5,
+     "words": 98
+    },
+    {
+     "key": "jose-juan-barea",
+     "unit": "jose-juan-barea",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 118
+    },
+    {
+     "key": "karl-anthony-towns",
+     "unit": "karl-anthony-towns",
+     "passed": true,
+     "rules": [],
+     "grade": 4.8,
+     "words": 109
+    },
+    {
+     "key": "kelly-olynyk",
+     "unit": "kelly-olynyk",
+     "passed": true,
+     "rules": [],
+     "grade": 5.3,
+     "words": 105
+    },
+    {
+     "key": "kelly-oubre",
+     "unit": "kelly-oubre",
+     "passed": true,
+     "rules": [],
+     "grade": 4.8,
+     "words": 107
+    },
+    {
+     "key": "kosta-koufos",
+     "unit": "kosta-koufos",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 104
+    },
+    {
+     "key": "kostas-papanikolaou",
+     "unit": "kostas-papanikolaou",
+     "passed": true,
+     "rules": [],
+     "grade": 5.4,
+     "words": 107
+    },
+    {
+     "key": "leandro-barbosa",
+     "unit": "leandro-barbosa",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 117
+    },
+    {
+     "key": "luc-mbah-a-moute",
+     "unit": "luc-mbah-a-moute",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 106
+    },
+    {
+     "key": "mario-chalmers",
+     "unit": "mario-chalmers",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 122
+    },
+    {
+     "key": "michael-carter-williams",
+     "unit": "michael-carter-williams",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 105
+    },
+    {
+     "key": "mike-muscala",
+     "unit": "mike-muscala",
+     "passed": true,
+     "rules": [],
+     "grade": 4.3,
+     "words": 103
+    },
+    {
+     "key": "nerlens-noel",
+     "unit": "nerlens-noel",
+     "passed": true,
+     "rules": [],
+     "grade": 5.0,
+     "words": 113
+    },
+    {
+     "key": "pablo-prigioni",
+     "unit": "pablo-prigioni",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 119
+    },
+    {
+     "key": "phil-pressey",
+     "unit": "phil-pressey",
+     "passed": true,
+     "rules": [],
+     "grade": 4.1,
+     "words": 89
+    },
+    {
+     "key": "rudy-gay",
+     "unit": "rudy-gay",
+     "passed": true,
+     "rules": [],
+     "grade": 4.6,
+     "words": 103
+    },
+    {
+     "key": "russell-westbrook",
+     "unit": "russell-westbrook",
+     "passed": true,
+     "rules": [],
+     "grade": 5.4,
+     "words": 105
+    },
+    {
+     "key": "ryan-hollins",
+     "unit": "ryan-hollins",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 104
+    },
+    {
+     "key": "sasha-vujacic",
+     "unit": "sasha-vujacic",
+     "passed": true,
+     "rules": [],
+     "grade": 4.6,
+     "words": 117
+    },
+    {
+     "key": "stanley-johnson",
+     "unit": "stanley-johnson",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 98
+    },
+    {
+     "key": "tj-mcconnell",
+     "unit": "tj-mcconnell",
+     "passed": true,
+     "rules": [],
+     "grade": 5.2,
+     "words": 104
+    },
+    {
+     "key": "tj-warren",
+     "unit": "tj-warren",
+     "passed": true,
+     "rules": [],
+     "grade": 4.2,
+     "words": 97
+    },
+    {
+     "key": "tobias-harris",
+     "unit": "tobias-harris",
+     "passed": true,
+     "rules": [],
+     "grade": 4.9,
+     "words": 109
+    },
+    {
+     "key": "tony-wroten",
+     "unit": "tony-wroten",
+     "passed": true,
+     "rules": [],
+     "grade": 5.2,
+     "words": 108
+    },
+    {
+     "key": "tristan-thompson",
+     "unit": "tristan-thompson",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 111
+    },
+    {
+     "key": "willie-cauley-stein",
+     "unit": "willie-cauley-stein",
+     "passed": true,
+     "rules": [],
+     "grade": 4.7,
+     "words": 110
+    }
+   ]
+  }
+ },
+ "possession": {
+  "items": 240,
+  "games": 20,
+  "template": {
+   "n_items": 240,
+   "n_texts": 240,
+   "pass_rate": 1.0,
+   "rule_failure_rate": {
+    "model_word": 0.0,
+    "interval": 0.0,
+    "point_estimate": 0.0,
+    "number_value": 0.0,
+    "number_word": 0.0,
+    "direction": 0.0,
+    "status": 0.0,
+    "lane": 0.0,
+    "grade": 0.0,
+    "length": 0.0,
+    "style": 0.0,
+    "no_text": 0.0,
+    "other": 0.0
+   },
+   "grade_mean": 3.4045833333333335,
+   "grade_max": 4.4,
+   "words_mean": 67.79166666666667,
+   "words_min": 49,
+   "words_max": 99,
+   "sentences": 1395,
+   "distinct_frames": 20,
+   "frame_variety": 0.014336917562724014,
+   "distinct_2": 0.0054695754863571385
+  },
+  "bootstrap_by_game": {
+   "n_boot": 2000,
+   "seed": 0,
+   "units": 20,
+   "arms": {
+    "template": {
+     "pass_rate": [
+      1.0,
+      1.0
+     ],
+     "grade_mean": [
+      3.32915625,
+      3.4746041666666665
+     ],
+     "words_mean": [
+      66.3290625,
+      69.31666666666666
+     ],
+     "frame_variety": [
+      0.011259478329379183,
+      0.014503263234227702
+     ],
+     "distinct_2": [
+      0.004955693009061337,
+      0.005574586226495014
+     ]
+    }
+   },
+   "differences": {}
+  },
+  "sensitivity": {
+   "commit": "7f2c08fc",
+   "git_blob": "cc0a6ba619770ca102d33e08a25e165c3c745cfa",
+   "arms": {
+    "template": {
+     "items": 240,
+     "texts": 240,
+     "passed": 240,
+     "pass_rate": 1.0,
+     "top_problems": []
+    }
+   }
+  },
+  "template_speed": {
+   "texts": 1000,
+   "write_s": 0.003968000004533678,
+   "write_and_check_s": 1.19592145801289
+  },
+  "template_write_s_these_items": 0.00112970796180889,
+  "haiku": "not run: the Haiku possession texts are about held-out games; a Haiku arm on training-game possessions needs API spend and waits for a yes (PLAN.md D92)",
+  "rows": {
+   "template": [
+    {
+     "key": "2016-01-03-chi-at-tor/3",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/54",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/70",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/81",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/99",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/140",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/143",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/145",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 2.8,
+     "words": 90
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/149",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/152",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 2.8,
+     "words": 90
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/159",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-03-chi-at-tor/171",
+     "unit": "01.03.2016.CHI.at.TOR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/41",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/55",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/59",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/88",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/100",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/107",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/118",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/122",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/127",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/138",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/173",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2016-01-13-ind-at-bos/204",
+     "unit": "01.13.2016.IND.at.BOS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/1",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/15",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/89",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/96",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/99",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/104",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/106",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/135",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/138",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/139",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/175",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2016-01-20-phi-at-orl/178",
+     "unit": "01.20.2016.PHI.at.ORL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/14",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/72",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/75",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/95",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/115",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/122",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/131",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/136",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/160",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/163",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/192",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2015-11-08-phx-at-okc/203",
+     "unit": "11.08.2015.PHX.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    },
+    {
+     "key": "2015-11-11-sas-at-por/16",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-11-sas-at-por/25",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-11-sas-at-por/43",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.2,
+     "words": 89
+    },
+    {
+     "key": "2015-11-11-sas-at-por/70",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-11-sas-at-por/101",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 71
+    },
+    {
+     "key": "2015-11-11-sas-at-por/102",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 2.9,
+     "words": 79
+    },
+    {
+     "key": "2015-11-11-sas-at-por/108",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-11-sas-at-por/115",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 71
+    },
+    {
+     "key": "2015-11-11-sas-at-por/130",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-11-sas-at-por/146",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-11-sas-at-por/154",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-11-sas-at-por/159",
+     "unit": "11.11.2015.SAS.at.POR",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-13-min-at-ind/6",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 71
+    },
+    {
+     "key": "2015-11-13-min-at-ind/16",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 71
+    },
+    {
+     "key": "2015-11-13-min-at-ind/36",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-13-min-at-ind/39",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2015-11-13-min-at-ind/82",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-13-min-at-ind/104",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-13-min-at-ind/107",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-13-min-at-ind/112",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-13-min-at-ind/114",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-13-min-at-ind/135",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-13-min-at-ind/155",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    },
+    {
+     "key": "2015-11-13-min-at-ind/166",
+     "unit": "11.13.2015.MIN.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/20",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/57",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/66",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 2.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/75",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/90",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/123",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/162",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/167",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/170",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/184",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/193",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 2.9,
+     "words": 79
+    },
+    {
+     "key": "2015-11-14-cle-at-mil/195",
+     "unit": "11.14.2015.CLE.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/30",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/44",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-det-at-lac/55",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 58
+    },
+    {
+     "key": "2015-11-14-det-at-lac/65",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/79",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/96",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/148",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-det-at-lac/156",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/158",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 2.8,
+     "words": 90
+    },
+    {
+     "key": "2015-11-14-det-at-lac/161",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-14-det-at-lac/175",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-14-det-at-lac/186",
+     "unit": "11.14.2015.DET.at.LAC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-15-det-at-lal/1",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/12",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/15",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/52",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/84",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 71
+    },
+    {
+     "key": "2015-11-15-det-at-lal/104",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/107",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/117",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/121",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2015-11-15-det-at-lal/124",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/133",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-15-det-at-lal/177",
+     "unit": "11.15.2015.DET.at.LAL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/17",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/21",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/49",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 72
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/80",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/83",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/84",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/90",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/94",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/104",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/135",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 2.8,
+     "words": 78
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/180",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 70
+    },
+    {
+     "key": "2015-11-17-cha-at-nyk/182",
+     "unit": "11.17.2015.CHA.at.NYK",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-25-was-at-cha/4",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/39",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/55",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-25-was-at-cha/83",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-11-25-was-at-cha/84",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/85",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/96",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/98",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/101",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-11-25-was-at-cha/131",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2015-11-25-was-at-cha/160",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-11-25-was-at-cha/188",
+     "unit": "11.25.2015.WAS.at.CHA",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/47",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-02-lal-at-was/97",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/106",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-02-lal-at-was/135",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/139",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/145",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/148",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/164",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-02-lal-at-was/167",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-02-lal-at-was/172",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 2.6,
+     "words": 90
+    },
+    {
+     "key": "2015-12-02-lal-at-was/185",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-02-lal-at-was/191",
+     "unit": "12.02.2015.LAL.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/33",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/51",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/58",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/64",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/90",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/104",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/128",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/148",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/167",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.2,
+     "words": 90
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/179",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/181",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-06-gsw-at-bkn/186",
+     "unit": "12.06.2015.GSW.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-07-por-at-mil/9",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.2,
+     "words": 58
+    },
+    {
+     "key": "2015-12-07-por-at-mil/18",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 58
+    },
+    {
+     "key": "2015-12-07-por-at-mil/29",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.2,
+     "words": 90
+    },
+    {
+     "key": "2015-12-07-por-at-mil/38",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 2.8,
+     "words": 90
+    },
+    {
+     "key": "2015-12-07-por-at-mil/60",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-07-por-at-mil/64",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-07-por-at-mil/65",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-07-por-at-mil/70",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 71
+    },
+    {
+     "key": "2015-12-07-por-at-mil/92",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 2.4,
+     "words": 99
+    },
+    {
+     "key": "2015-12-07-por-at-mil/101",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-12-07-por-at-mil/155",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-07-por-at-mil/181",
+     "unit": "12.07.2015.POR.at.MIL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.8,
+     "words": 70
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/11",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/30",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/39",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/40",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/44",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 69
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/78",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/120",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/140",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/148",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/162",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 3.4,
+     "words": 69
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/174",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 2.6,
+     "words": 99
+    },
+    {
+     "key": "2015-12-14-tor-at-ind/181",
+     "unit": "12.14.2015.TOR.at.IND",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/1",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 2.4,
+     "words": 90
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/7",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 90
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/46",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/49",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/88",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/115",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/121",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/136",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 2.8,
+     "words": 90
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/141",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/157",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/172",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 69
+    },
+    {
+     "key": "2015-12-16-mia-at-bkn/177",
+     "unit": "12.16.2015.MIA.at.BKN",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-por-at-okc/1",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.5,
+     "words": 71
+    },
+    {
+     "key": "2015-12-16-por-at-okc/45",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-por-at-okc/54",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-por-at-okc/65",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-por-at-okc/72",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 2.9,
+     "words": 89
+    },
+    {
+     "key": "2015-12-16-por-at-okc/77",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-por-at-okc/117",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-por-at-okc/123",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 69
+    },
+    {
+     "key": "2015-12-16-por-at-okc/143",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-por-at-okc/159",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-16-por-at-okc/160",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-16-por-at-okc/183",
+     "unit": "12.16.2015.POR.at.OKC",
+     "passed": true,
+     "rules": [],
+     "grade": 3.4,
+     "words": 69
+    },
+    {
+     "key": "2015-12-21-por-at-atl/13",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 91
+    },
+    {
+     "key": "2015-12-21-por-at-atl/32",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/34",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/79",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/88",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/111",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/118",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/121",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/131",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/150",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/165",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-21-por-at-atl/177",
+     "unit": "12.21.2015.POR.at.ATL",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-23-den-at-phx/3",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.5,
+     "words": 99
+    },
+    {
+     "key": "2015-12-23-den-at-phx/41",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.9,
+     "words": 79
+    },
+    {
+     "key": "2015-12-23-den-at-phx/59",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-23-den-at-phx/72",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 3.1,
+     "words": 70
+    },
+    {
+     "key": "2015-12-23-den-at-phx/87",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    },
+    {
+     "key": "2015-12-23-den-at-phx/94",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 79
+    },
+    {
+     "key": "2015-12-23-den-at-phx/111",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 79
+    },
+    {
+     "key": "2015-12-23-den-at-phx/145",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 3.2,
+     "words": 72
+    },
+    {
+     "key": "2015-12-23-den-at-phx/152",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-23-den-at-phx/173",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 79
+    },
+    {
+     "key": "2015-12-23-den-at-phx/174",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 2.6,
+     "words": 79
+    },
+    {
+     "key": "2015-12-23-den-at-phx/189",
+     "unit": "12.23.2015.DEN.at.PHX",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-28-lac-at-was/8",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-28-lac-at-was/21",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-12-28-lac-at-was/27",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 4.4,
+     "words": 49
+    },
+    {
+     "key": "2015-12-28-lac-at-was/40",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 2.9,
+     "words": 79
+    },
+    {
+     "key": "2015-12-28-lac-at-was/70",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.0,
+     "words": 70
+    },
+    {
+     "key": "2015-12-28-lac-at-was/74",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 58
+    },
+    {
+     "key": "2015-12-28-lac-at-was/95",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-28-lac-at-was/100",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-28-lac-at-was/160",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.6,
+     "words": 58
+    },
+    {
+     "key": "2015-12-28-lac-at-was/170",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.3,
+     "words": 70
+    },
+    {
+     "key": "2015-12-28-lac-at-was/188",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 3.9,
+     "words": 49
+    },
+    {
+     "key": "2015-12-28-lac-at-was/196",
+     "unit": "12.28.2015.LAC.at.WAS",
+     "passed": true,
+     "rules": [],
+     "grade": 2.7,
+     "words": 90
+    }
+   ]
+  }
+ },
+ "haiku_timing": {
+  "gaps": 374,
+  "median_s_per_item": 3.0,
+  "mean_s_per_item": 4.168449197860962,
+  "note": "an estimate from cache record timestamps (one record per item, written after its last attempt); no call was made to time it"
+ }
+}
