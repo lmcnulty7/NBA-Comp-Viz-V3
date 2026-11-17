@@ -8,13 +8,17 @@ b9c2ca4e. Every number below is copied from reports/research/winprob-E1-dev.json
 reports/research/winprob-E1-final.json; the single test score is the winprob-E1 entry of
 reports/research/scoring_ledger.json. Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of
 games (seed 0); paired differences use the same resampled games for both arms. ECE and calibration slopes are point
-estimates and are labelled so.
+estimates and are labelled so. A few numbers are computed from the copied ones, not copied, and say so in place:
+ratios, percentages, half-width counts, and improvements written as positive numbers (the json holds the signed
+difference e1 minus baseline, so an improvement of 0.0124 [0.0086, 0.0161] is the copied -0.0124 [-0.0161,
+-0.0086] with its sign flipped).
 
 **Verdict: passes.** On the 2025-26 test season (1300 games scored), the Elo drift term lowers mean bucket Brier by
-0.0124 [0.0086, 0.0161] against the frozen logistic, six times the 0.002 bar. No bucket gets worse, overtime
-included (D91); the regulation-only reading is the same. As pre-registered, the gain is largest early: 0.0306 in the
-first 12 minutes, 0.0004 in the last 4. The drift form adds a little beyond Elo alone (0.0005 [0.0001, 0.0011]).
-This is a research result. The frozen lane, its report and the site do not change. Early calibration was mixed on
+0.0124 [0.0086, 0.0161] against the frozen logistic (sign flipped, computed), about six times the 0.002 bar
+(computed). No bucket gets worse, overtime
+included (D91); the regulation-only reading is the same. As pre-registered, the gain is largest early (signs flipped): 0.0306 in the
+first 12 minutes, 0.0004 in the last 4. The drift form adds a little beyond Elo alone (0.0005 [0.0001, 0.0011], sign
+flipped, computed). As committed, the pass reads "adopted as a research result". The frozen lane, its report and the site do not change. Early calibration was mixed on
 development, so any use on the site waits for winprob-E2 or a D line.
 
 ## What is tested
@@ -162,6 +166,11 @@ Data checks:
   json. No overtime-clock or bad-clock drops.
 - Schedule agreement: the play-by-play final margin equals the schedule's final score in 1316 of 1316 games (1.0).
 - Non-finite values: 0. Elo prefix check on the test season: no violation.
+- The 2025-26 schedule table holds 1322 played games, 6 more than the 1316-game test list (the scorer recorded 22
+  schedule games without scored play-by-play: the 16 dropped games and these 6). The scorer recorded only these
+  counts, not the ids, dates or types of the 6; the test source's own record (counts.schedule_rows_by_type in
+  reports/research/testset.json) lists 6 Play-In schedule rows, which the selection leaves out (D89). Those games
+  move the Elo ratings only; they are never scored.
 - Files read: the season's play-by-play and schedule files only, both pinned in the test set and hashed by
   score_once before the scorer ran. The ledger entry records the code commit, the development state-frame sha256
   and the gate file sha256.
@@ -204,7 +213,7 @@ Rows per bucket: 48-36 146583, 36-24 155504, 24-12 150597, 12-4 97872, 4-0 56173
   0.2297 to 0.1991), and in the last 4 minutes the score and clock say almost everything (0.0004, interval through
   zero). This is the pattern Stern's model predicts and the dossier expected.
 - The gain is larger than the published one it was sized from (about 0.010 overall Brier in Maddox et al. 2022, per
-  game second; here 0.0150 [0.0105, 0.0193] overall Brier per event). The weighting differs (every event, not every
+  game second; here 0.0150 [0.0105, 0.0193] overall Brier per event, sign flipped). The weighting differs (every event, not every
   second), so the two are roughly comparable, not equal.
 - The test-season gain (-0.0124) is larger than the development estimate (-0.0082 [-0.0103, -0.0059]), within the
   spread of the development seasons (-0.0041 to -0.0120). Pregame Elo was also sharper on 2025-26 (Brier 0.2073)
@@ -215,9 +224,10 @@ Rows per bucket: 48-36 146583, 36-24 155504, 24-12 150597, 12-4 97872, 4-0 56173
 - The control arm's test numbers (mean bucket Brier 0.1435) are the control of this experiment, not a new score of
   the frozen lane; they do not replace or sit beside the frozen held-out result in reports/winprob.md.
 - Caveats: Brill, Yurko and Wyner (2025) find game-bootstrap intervals on play-by-play can be narrow, but the result
-  is more than two half-widths beyond the bar. Elo sees no injuries, rest or trades. The NBA Cup final is treated as a home
-  game. 16 games (1.2 percent) were not scored because the frozen clock rule drops games with shifted period labels;
-  the same rule dropped 42 development games.
+  is more than two half-widths beyond the bar (computed from the committed half-width of about 0.0038). Elo sees no injuries, rest or trades. The NBA Cup final is treated as a home
+  game. 16 games (1.2 percent of 1316, computed) were not scored because the frozen clock rule drops games with shifted period labels;
+  the same rule dropped 33 games across the three development check seasons (11, 12 and 10; clock_rule in
+  reports/research/winprob-E1-dev.json).
 
 ## What would change the verdict
 
