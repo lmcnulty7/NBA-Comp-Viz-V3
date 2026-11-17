@@ -1,6 +1,6 @@
 {
   "name": "Pixels to Possessions",
-  "description": "Possession review, player prep and model results built on player tracking, with a broadcast video pipeline scored against sensor data.",
+  "description": "Review possessions, prep for players and read model results, all built on player tracking. A tracker that reads broadcast video is scored against sensor data.",
   "titleTemplate": "{page} | {site}",
   "skipLink": "Skip to content",
   "nav": {
@@ -19,7 +19,7 @@
   "footer": {
     "label": "About this build",
     "data": "Data build {build}. Models frozen at {freeze}. Data schema {schema}.",
-    "trace": "Every number on this site is read from a generated data file, and each file names its sources.",
+    "trace": "Every number on this site is read from a data file that the code wrote. Each file names its sources.",
     "fixture": "This build runs on synthetic fixture data."
   },
   "estimate": {
