@@ -1,0 +1,522 @@
+{
+  "experiment": "decisions-E1",
+  "stage": "development games (the frozen decisions output refit with frozen code; gate passed)",
+  "games": 604,
+  "decisions": 518421,
+  "player_games": 12769,
+  "players_with_decisions": 446,
+  "players": {
+    "all": 344,
+    "oddeven": 251,
+    "chrono": 240
+  },
+  "games_per_half": {
+    "oddeven": [
+      302,
+      302
+    ],
+    "chrono": [
+      302,
+      302
+    ]
+  },
+  "chrono_split": {
+    "first_half_last_game": "12.10.2015.NYK.at.SAC",
+    "second_half_first_game": "12.10.2015.PHI.at.BKN"
+  },
+  "bootstrap": {
+    "outer_resamples": 2000,
+    "inner_resamples": 200,
+    "inner_resamples_point": 2000,
+    "seed": 0,
+    "unit": "game",
+    "outer_strata": "odd/even half x chronological half"
+  },
+  "statistics": {
+    "target.split_half_r": {
+      "value": 0.419639094604812,
+      "lo": 0.1322524341850272,
+      "hi": 0.4140418234743445,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "target.split_half_spearman": {
+      "value": 0.3639089356858281,
+      "lo": 0.11693392145702904,
+      "hi": 0.37653044963005117,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "target.split_half_spearman_brown": {
+      "value": 0.5911912347294548,
+      "lo": 0.23360941414096834,
+      "hi": 0.5856146721372831,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "target.discrimination": {
+      "value": 0.5709747604232484,
+      "lo": 0.6348794892765017,
+      "hi": 0.7509276281368409,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "target.stability": {
+      "value": 0.7880322943633089,
+      "lo": 0.18665829987413352,
+      "hi": 0.6000767919218027,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "target.stability_printed_estimator": {
+      "value": 1.3824327815464401,
+      "lo": 0.8228863973311943,
+      "hi": 1.0905741718907915,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "target.sd_between_players": {
+      "value": 6.012985000434564,
+      "lo": 6.551632657263924,
+      "hi": 7.839422080067577,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.split_half_r": {
+      "value": 0.9268309872682872,
+      "lo": 0.8428990495105789,
+      "hi": 0.8925228810858584,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.split_half_spearman": {
+      "value": 0.9181597419844431,
+      "lo": 0.8319574274331245,
+      "hi": 0.8862238664390057,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.split_half_spearman_brown": {
+      "value": 0.962026242459674,
+      "lo": 0.914753360252606,
+      "hi": 0.9432096065752091,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.discrimination": {
+      "value": 0.9563667682323973,
+      "lo": 0.9542618823452232,
+      "hi": 0.9611626495736104,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.stability": {
+      "value": 0.931626547072532,
+      "lo": 0.8408619200233178,
+      "hi": 0.9022489400060735,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.stability_printed_estimator": {
+      "value": 0.9995269564679425,
+      "lo": 0.9511501149840674,
+      "hi": 0.9828461842328952,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.sd_between_players": {
+      "value": 0.056617776947688894,
+      "lo": 0.056507016791532465,
+      "hi": 0.05923422461623929,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "frozen.r2_on_kind_shares": {
+      "value": 0.34191021841926617,
+      "lo": 0.2883843409862612,
+      "hi": 0.3567599896484634,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.split_half_r": {
+      "value": 0.9541041166976588,
+      "lo": 0.8946047976771004,
+      "hi": 0.9298897546649479,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.split_half_spearman": {
+      "value": 0.9203505976095617,
+      "lo": 0.8312656801365965,
+      "hi": 0.8883464428002276,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.split_half_spearman_brown": {
+      "value": 0.9765130819232382,
+      "lo": 0.9443708775289978,
+      "hi": 0.9636713728180185,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.discrimination": {
+      "value": 0.9727262899774735,
+      "lo": 0.9709471666324481,
+      "hi": 0.9751869598386949,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.stability": {
+      "value": 0.9609224191950368,
+      "lo": 0.9022412576583386,
+      "hi": 0.9413769515624759,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.stability_printed_estimator": {
+      "value": 1.0014263155946632,
+      "lo": 0.9711372697734278,
+      "hi": 0.991033260610376,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.sd_between_players": {
+      "value": 0.06099852836632111,
+      "lo": 0.06061321843938642,
+      "hi": 0.0629835909104763,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted.r2_on_kind_shares": {
+      "value": 0.5369930444748535,
+      "lo": 0.4929181368142251,
+      "hi": 0.5389186637814954,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.split_half_r": {
+      "value": 0.9413811710338309,
+      "lo": 0.8677424818221153,
+      "hi": 0.911805084962548,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.split_half_spearman": {
+      "value": 0.9199628154050465,
+      "lo": 0.8198708025042686,
+      "hi": 0.8808106431417189,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.split_half_spearman_brown": {
+      "value": 0.9698056054932513,
+      "lo": 0.9291885688375877,
+      "hi": 0.9538682495568365,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.discrimination": {
+      "value": 0.9637853852134511,
+      "lo": 0.9614477870164353,
+      "hi": 0.9674090619147946,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.stability": {
+      "value": 0.9447177199899282,
+      "lo": 0.8686896960791421,
+      "hi": 0.9205227585035044,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.stability_printed_estimator": {
+      "value": 0.9998956421982376,
+      "lo": 0.9598993907741027,
+      "hi": 0.986908477884157,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.sd_between_players": {
+      "value": 0.06025330918138403,
+      "lo": 0.05994064434937018,
+      "hi": 0.06262367567424308,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "adjusted_kind.r2_on_kind_shares": {
+      "value": 0.4189293148686962,
+      "lo": 0.36909611747953697,
+      "hi": 0.42367573721004115,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "stability_adjusted_minus_frozen": {
+      "value": 0.02929587212250484,
+      "lo": 0.03230064185540053,
+      "hi": 0.06847930446709577,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    },
+    "stability_adjusted_kind_minus_frozen": {
+      "value": 0.013091172917396143,
+      "lo": 0.011020701830559268,
+      "hi": 0.035005497329670655,
+      "finite_resamples": 2000,
+      "finite_share": 1.0,
+      "interval_defined": true,
+      "interval_valid_as_confidence_interval": false,
+      "interval_note": "pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: a game resample repeats some games and drops others, adding about one sampling variance to every player's value, so a statistic that depends on that noise (reliabilities, discrimination, stability, spread, R squared and their differences) is shifted in the resamples and the range need not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json"
+    }
+  },
+  "cell_means": [
+    {
+      "kind": "shot",
+      "zone": "rim",
+      "decisions": 6892,
+      "mean_regret": -0.21097292408843782,
+      "kind_mean_regret": -0.17104453766464903
+    },
+    {
+      "kind": "shot",
+      "zone": "paint",
+      "decisions": 17460,
+      "mean_regret": -0.23602869342112923,
+      "kind_mean_regret": -0.17104453766464903
+    },
+    {
+      "kind": "shot",
+      "zone": "mid",
+      "decisions": 12046,
+      "mean_regret": -0.21505652421484917,
+      "kind_mean_regret": -0.17104453766464903
+    },
+    {
+      "kind": "shot",
+      "zone": "three",
+      "decisions": 17802,
+      "mean_regret": -0.062069243387342675,
+      "kind_mean_regret": -0.17104453766464903
+    },
+    {
+      "kind": "shot",
+      "zone": "none",
+      "decisions": 0,
+      "mean_regret": 0.0,
+      "kind_mean_regret": -0.17104453766464903
+    },
+    {
+      "kind": "pass",
+      "zone": "rim",
+      "decisions": 5164,
+      "mean_regret": -0.3945461942814041,
+      "kind_mean_regret": -0.3855313398346011
+    },
+    {
+      "kind": "pass",
+      "zone": "paint",
+      "decisions": 30526,
+      "mean_regret": -0.21146240294829832,
+      "kind_mean_regret": -0.3855313398346011
+    },
+    {
+      "kind": "pass",
+      "zone": "mid",
+      "decisions": 49730,
+      "mean_regret": -0.20503168779062939,
+      "kind_mean_regret": -0.3855313398346011
+    },
+    {
+      "kind": "pass",
+      "zone": "three",
+      "decisions": 219040,
+      "mean_regret": -0.4505574691040254,
+      "kind_mean_regret": -0.3855313398346011
+    },
+    {
+      "kind": "pass",
+      "zone": "none",
+      "decisions": 0,
+      "mean_regret": 0.0,
+      "kind_mean_regret": -0.3855313398346011
+    },
+    {
+      "kind": "drive",
+      "zone": "rim",
+      "decisions": 0,
+      "mean_regret": 0.0,
+      "kind_mean_regret": -0.5540282657828315
+    },
+    {
+      "kind": "drive",
+      "zone": "paint",
+      "decisions": 3078,
+      "mean_regret": -0.16315900880572726,
+      "kind_mean_regret": -0.5540282657828315
+    },
+    {
+      "kind": "drive",
+      "zone": "mid",
+      "decisions": 17916,
+      "mean_regret": -0.25594441076049057,
+      "kind_mean_regret": -0.5540282657828315
+    },
+    {
+      "kind": "drive",
+      "zone": "three",
+      "decisions": 138767,
+      "mean_regret": -0.6011833236824459,
+      "kind_mean_regret": -0.5540282657828315
+    },
+    {
+      "kind": "drive",
+      "zone": "none",
+      "decisions": 0,
+      "mean_regret": 0.0,
+      "kind_mean_regret": -0.5540282657828315
+    }
+  ],
+  "verdict": {
+    "H1": {
+      "statement": "target split-half r below 0.2",
+      "value": 0.419639094604812,
+      "interval_95": [
+        0.1322524341850272,
+        0.4140418234743445
+      ],
+      "interval_95_valid_as_confidence_interval": false,
+      "holds": false,
+      "result": "fails",
+      "interval_crosses_threshold_reads_invalid_interval": true
+    },
+    "H2": {
+      "statement": "frozen metric stability at least 0.5",
+      "value": 0.931626547072532,
+      "interval_95": [
+        0.8408619200233178,
+        0.9022489400060735
+      ],
+      "interval_95_valid_as_confidence_interval": false,
+      "holds": true,
+      "result": "holds",
+      "interval_crosses_threshold_reads_invalid_interval": false
+    },
+    "H3": {
+      "statement": "frozen metric R squared on kind shares at least 0.5",
+      "value": 0.34191021841926617,
+      "interval_95": [
+        0.2883843409862612,
+        0.3567599896484634
+      ],
+      "interval_95_valid_as_confidence_interval": false,
+      "holds": false,
+      "result": "fails",
+      "interval_crosses_threshold_reads_invalid_interval": false
+    },
+    "adoption": {
+      "rule": "kind-adjusted stability >= 0.5 with 95 percent interval above 0.3, and its R squared on kind shares below 0.2",
+      "stability": 0.9609224191950368,
+      "stability_lo": 0.9022412576583386,
+      "r2_on_kind_shares": 0.5369930444748535,
+      "adopted": false,
+      "result": "not adopted"
+    },
+    "protocol": "H1 fails: the target is reliable, so the failed verdict is read as evidence against the metric"
+  },
+  "post_review_note": "Fields finite_share, interval_defined, interval_valid_as_confidence_interval and interval_note, and the verdict's result and interval flags, were added after the review (2026-11-17); every pre-registered number was recomputed with the same seeds and is unchanged."
+}

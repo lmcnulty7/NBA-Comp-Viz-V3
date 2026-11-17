@@ -50,8 +50,9 @@ and the file-name lists of `export/schemas.py`, which the schema does not carry)
 `npm run data:validate` checks the data root in two halves. `scripts/validate-data.mjs` checks every file with
 ajv against the JSON Schema, scans for private strings, compares the manifest with the files on disk and checks
 what the routes need. Then `python3 -m export.schemas --validate` runs on the same folder: the cross-field
-rules of the contract live in its pydantic validators, which a JSON Schema cannot carry. The build scripts run
-the first half only, so a build needs no Python.
+rules of the contract live in its pydantic validators, which a JSON Schema cannot carry. A build runs the first
+half itself; the second half runs in `export.public_data` for the public variant and on the prepared copy for the
+private variant, so both builds need Python (only a public build from PUBLIC_SITE_DATA_DIR runs none).
 
 ## The public data root (PLAN.md D60)
 
@@ -68,6 +69,21 @@ playback, with a note that playback is on the private copy, and the cold open sh
 dots were. `scripts/check-frame-data.mjs` reads every text file of a built `out/` (pages, the RSC `.txt`
 payloads, scripts, data) and fails on a per-frame track, a sensor position or a shot located by the tracking; the
 public build runs it and removes `out/` on a failure, and `npm run check` runs it again as its `frames` step.
+
+## Machine-written texts (PLAN.md P3)
+
+`python3 -m export.genai --root <data root>` writes `genai/scouting.json` (a scouting report per player) and
+`genai/possession.json` (an account in words per possession) into a data root. Both files are optional, per item
+and as a whole: a page with no text shows nothing in its place. Each text is written from the numbers of its own
+page and kept only when every number in it is a value of that page, as the page rounds it, in the same unit
+(`export/genai.py`, `check_text`). `python3 -m export.schemas --validate` runs the same checks again on every
+text, and a page checks its text a third time with its own formatters before it shows it (`lib/genai.ts`,
+`checkedText`). `npm run check` applies the rules of site copy to every text in its `reading` step
+(`scripts/lib/generated-text.mjs`). The prompts are versioned in `export/prompts`; each text records its model id
+and prompt version, which the page prints beside the label "Machine-written". `--live` calls the model through a
+venv with the anthropic package and a cache outside git (`GENAI_CACHE_DIR`); without it, fixture texts go into a
+synthetic root only, as `export.sample` does. The possession texts use only values the public data root keeps
+(D60), so the same file serves both variants.
 
 ## Copy
 

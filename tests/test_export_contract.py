@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import sys
+import typing
 from pathlib import Path
 
 import pytest
@@ -48,10 +49,16 @@ def test_schema_is_deterministic_and_names_every_file_model():
 
 
 def test_every_file_model_carries_the_schema_version():
+    """A file of an earlier compatible version still validates; the manifest and the files a version added carry
+    the current version only."""
+    current_only = {"Manifest", "MethodsFile", "GeneratedTexts"}
     for name, model in S.MODELS.items():
         field = model.model_fields.get("schema_version")
         assert field is not None, name
-        assert field.annotation == S.SchemaVersion, name
+        assert field.annotation == (S.CurrentVersion if name in current_only else S.SchemaVersion), name
+    assert typing.get_args(S.CurrentVersion) == (S.SCHEMA_VERSION,)
+    assert typing.get_args(S.SchemaVersion) == S.COMPATIBLE_VERSIONS and S.SCHEMA_VERSION in S.COMPATIBLE_VERSIONS
+    assert {v.split(".")[0] for v in S.COMPATIBLE_VERSIONS} == {S.SCHEMA_VERSION.split(".")[0]}
 
 
 @pytest.mark.parametrize("path, expected", [
@@ -59,6 +66,7 @@ def test_every_file_model_carries_the_schema_version():
     ("players.json", "PlayersFile"),
     ("scorecard.json", "Scorecard"),
     ("results.json", "Results"),
+    ("methods.json", "MethodsFile"),
     ("demo/swap.json", "DemoSwap"),
     ("demo/frames.json", "DemoFrames"),
     ("games/2015-12-16-phx-at-gsw/possessions.json", "PossessionIndex"),

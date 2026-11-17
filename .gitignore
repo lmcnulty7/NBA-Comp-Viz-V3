@@ -135,6 +135,8 @@ web/out-full/
 web/data/
 web/public/data/
 web/data-public/
+# machine-written texts cached by export/genai.py: written from the data root, never committed (PLAN.md P3)
+.genai-cache/
 web/media-private/
 web/test-results/
 web/playwright-report/
@@ -147,3 +149,6 @@ docs/IDEAS.md
 # caches and regenerable screenshots (D40)
 data/gate_sheet/emb_cache_*.pkl
 portfolio/story/shots/
+
+# the polish loop's run folders (web/scripts/polish-loop.mjs): state, scores and log of a run (docs/POLISH_LOOP.md)
+/polish-runs/

@@ -1,0 +1,807 @@
+{
+  "experiment": "lineups-E1",
+  "stage": "development seasons only (2020-21 to 2023-24); no 2024-25 or 2025-26 row read",
+  "gate": {
+    "stints_equal_every_season": true,
+    "alpha": 3000.0,
+    "alpha_expected": 3000.0,
+    "players_stored": 836,
+    "players_compared": 836,
+    "max_abs_diff": 0.0,
+    "tolerance": 1e-06,
+    "passed": true
+  },
+  "data_checks": {
+    "2020-21": {
+      "playbyplay_games": 1165,
+      "games_with_stints": 1156,
+      "dropped_shifted_period_games": 9,
+      "stints": 34285,
+      "kept_stints": 32774,
+      "stints_vs_stored": {
+        "rows_built": 34285,
+        "rows_stored": 34285,
+        "equal": true,
+        "mismatched_cells": 0
+      },
+      "schedule_agreement": {
+        "checked": 1156,
+        "equal": 1156,
+        "share_equal": 1.0,
+        "mean_abs_gap_points": 0.0
+      },
+      "seconds": 10.1
+    },
+    "2021-22": {
+      "playbyplay_games": 1309,
+      "games_with_stints": 1298,
+      "dropped_shifted_period_games": 11,
+      "stints": 38896,
+      "kept_stints": 37435,
+      "stints_vs_stored": {
+        "rows_built": 38896,
+        "rows_stored": 38896,
+        "equal": true,
+        "mismatched_cells": 0
+      },
+      "schedule_agreement": {
+        "checked": 1298,
+        "equal": 1298,
+        "share_equal": 1.0,
+        "mean_abs_gap_points": 0.0
+      },
+      "seconds": 11.0
+    },
+    "2022-23": {
+      "playbyplay_games": 1314,
+      "games_with_stints": 1302,
+      "dropped_shifted_period_games": 12,
+      "stints": 38867,
+      "kept_stints": 37114,
+      "stints_vs_stored": {
+        "rows_built": 38867,
+        "rows_stored": 38867,
+        "equal": true,
+        "mismatched_cells": 0
+      },
+      "schedule_agreement": {
+        "checked": 1302,
+        "equal": 1302,
+        "share_equal": 1.0,
+        "mean_abs_gap_points": 0.0
+      },
+      "seconds": 11.1
+    },
+    "2023-24": {
+      "playbyplay_games": 1313,
+      "games_with_stints": 1303,
+      "dropped_shifted_period_games": 10,
+      "stints": 38336,
+      "kept_stints": 35367,
+      "stints_vs_stored": {
+        "rows_built": 38336,
+        "rows_stored": 38336,
+        "equal": true,
+        "mismatched_cells": 0
+      },
+      "schedule_agreement": {
+        "checked": 1303,
+        "equal": 1303,
+        "share_equal": 1.0,
+        "mean_abs_gap_points": 0.0
+      },
+      "seconds": 10.9
+    }
+  },
+  "dry_run": {
+    "what": "pre-registered: fit on 2023-24 games of October to February, scored on 2023-24 games of March and April",
+    "model": {
+      "fit_seasons": [
+        "2023-24"
+      ],
+      "fit_stints": 24359,
+      "fit_games": 879,
+      "players": 518,
+      "alpha_rapm": 3000.0,
+      "cv_mse_rapm": {
+        "30.0": 12220.8109127638,
+        "100.0": 12169.129582138983,
+        "300.0": 12113.613722900398,
+        "1000.0": 12064.806671916354,
+        "3000.0": 12048.395519763535,
+        "10000.0": 12055.62710723687,
+        "30000.0": 12072.883994068983,
+        "100000.0": 12088.40186270333
+      },
+      "intercept_rapm": 2.1526600621516065,
+      "intercept_floor": 2.200207217039933,
+      "lineups_with_plus_minus": 11192,
+      "players_with_player_plus_minus": 518,
+      "replacement": {
+        "min_per_appearance": 10.0,
+        "players_seen": 518,
+        "players_retained": 369,
+        "rho": 0.0,
+        "penalty": 0.0,
+        "cv_game_rmse": {
+          "0.0": 14.04156197185384,
+          "0.1": 14.043613941860498,
+          "0.25": 14.046462056237173,
+          "0.5": 14.050671689992788,
+          "1.0": 14.057481394461194,
+          "1.5": 14.062694756611096,
+          "2.0": 14.066767036237543,
+          "2.5": 14.070002796340606,
+          "5.0": 14.07920314074695,
+          "10.0": 14.085122036393484
+        },
+        "coef_home_count": -3.9946615576693434,
+        "coef_away_count": 1.075793494701817,
+        "intercept": 2.6323699387762947
+      }
+    },
+    "coverage": {
+      "stints": 9812,
+      "possessions": 34610.97222222222,
+      "share_of_player_possessions_unseen_in_fit": 0.009924197127596821,
+      "share_of_player_possessions_counted_as_replacement": 0.0865294403268071,
+      "share_of_lineup_possessions_with_a_fit_lineup_rating": 0.49931681106264475
+    },
+    "games_without_kept_stints": 0,
+    "margin_whole_game": {
+      "mean": 1.8280423280423281,
+      "sd": 16.07210400637818
+    },
+    "share_of_possessions_in_kept_stints": 0.9106153621281883,
+    "games": 378,
+    "resamples": 2000,
+    "seed": 0,
+    "context_arms": {
+      "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
+    },
+    "games_with_non_finite_values": 0,
+    "whole_game": {
+      "rmse": {
+        "floor": {
+          "point": 16.058202609926763,
+          "ci95": [
+            14.802222052794395,
+            17.29959525406421
+          ]
+        },
+        "plus_minus": {
+          "point": 28.730968528028452,
+          "ci95": [
+            25.428086113110346,
+            32.13028300636779
+          ]
+        },
+        "rapm": {
+          "point": 14.585388290777608,
+          "ci95": [
+            13.372123187666146,
+            15.781418745237467
+          ]
+        },
+        "rapm_replacement": {
+          "point": 14.366213442692645,
+          "ci95": [
+            13.171519248073256,
+            15.544871907234459
+          ]
+        },
+        "player_plus_minus": {
+          "point": 14.197317304304622,
+          "ci95": [
+            13.014654636543023,
+            15.36028394859661
+          ]
+        }
+      },
+      "r2_vs_floor": {
+        "plus_minus": {
+          "point": -2.201154728854453,
+          "ci95": [
+            -3.1536546887945422,
+            -1.4918488167561657
+          ]
+        },
+        "rapm": {
+          "point": 0.17502246141735267,
+          "ci95": [
+            0.13215415298031183,
+            0.2166946817515479
+          ]
+        },
+        "rapm_replacement": {
+          "point": 0.199630071899615,
+          "ci95": [
+            0.14961300019183657,
+            0.24776128652335874
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.2183385191324233,
+          "ci95": [
+            0.15586405965344902,
+            0.27918781838157986
+          ]
+        }
+      },
+      "paired": {
+        "rapm_minus_plus_minus": {
+          "point": -14.145580237250844,
+          "ci95": [
+            -17.55977846213064,
+            -10.962868429877043
+          ],
+          "excludes_zero": true
+        },
+        "rapm_minus_floor": {
+          "point": -1.4728143191491547,
+          "ci95": [
+            -1.8499556908661956,
+            -1.0791417219366128
+          ],
+          "excludes_zero": true
+        },
+        "plus_minus_minus_floor": {
+          "point": 12.672765918101689,
+          "ci95": [
+            9.41716726184019,
+            16.104454091728453
+          ],
+          "excludes_zero": true
+        },
+        "replacement_minus_rapm": {
+          "point": -0.2191748480849629,
+          "ci95": [
+            -0.44933692285327936,
+            0.019517401393403185
+          ],
+          "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": 0.3880709864729859,
+          "ci95": [
+            0.05276740043510601,
+            0.7626712248680082
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -1.8608853056221406,
+          "ci95": [
+            -2.440228292059517,
+            -1.276179217438693
+          ],
+          "excludes_zero": true
+        }
+      }
+    },
+    "kept_stints": {
+      "rmse": {
+        "floor": {
+          "point": 15.878054132125776,
+          "ci95": [
+            14.61519357971832,
+            17.133201619488954
+          ]
+        },
+        "plus_minus": {
+          "point": 28.589003856252635,
+          "ci95": [
+            25.314280661067166,
+            31.973130000898948
+          ]
+        },
+        "rapm": {
+          "point": 14.449845221110179,
+          "ci95": [
+            13.213968357370094,
+            15.662042949508772
+          ]
+        },
+        "rapm_replacement": {
+          "point": 14.2489571178306,
+          "ci95": [
+            13.018009703304891,
+            15.451800003744163
+          ]
+        },
+        "player_plus_minus": {
+          "point": 14.085058437626214,
+          "ci95": [
+            12.848171640171822,
+            15.260768978811848
+          ]
+        }
+      },
+      "r2_vs_floor": {
+        "plus_minus": {
+          "point": -2.2419289305389585,
+          "ci95": [
+            -3.1799047044267814,
+            -1.5259389324057862
+          ]
+        },
+        "rapm": {
+          "point": 0.1718064689720128,
+          "ci95": [
+            0.12821829414578453,
+            0.2149589104080393
+          ]
+        },
+        "rapm_replacement": {
+          "point": 0.19467421893430226,
+          "ci95": [
+            0.14437096884589568,
+            0.24421295898376114
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.21309419357559933,
+          "ci95": [
+            0.148039765149365,
+            0.2737251270526848
+          ]
+        }
+      },
+      "paired": {
+        "rapm_minus_plus_minus": {
+          "point": -14.139158635142456,
+          "ci95": [
+            -17.41151093049256,
+            -10.941435459178088
+          ],
+          "excludes_zero": true
+        },
+        "rapm_minus_floor": {
+          "point": -1.4282089110155969,
+          "ci95": [
+            -1.817682296560402,
+            -1.0283440913115105
+          ],
+          "excludes_zero": true
+        },
+        "plus_minus_minus_floor": {
+          "point": 12.71094972412686,
+          "ci95": [
+            9.517659636562671,
+            16.072512671441434
+          ],
+          "excludes_zero": true
+        },
+        "replacement_minus_rapm": {
+          "point": -0.2008881032795795,
+          "ci95": [
+            -0.43316597166693327,
+            0.037854080377429856
+          ],
+          "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": 0.3647867834839644,
+          "ci95": [
+            0.014453807212785908,
+            0.7364803005484836
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -1.7929956944995613,
+          "ci95": [
+            -2.3979291430763214,
+            -1.18165039776951
+          ],
+          "excludes_zero": true
+        }
+      }
+    },
+    "verdict": {
+      "rule": "RMSE(rapm) - RMSE(plus_minus) interval wholly below 0, and R squared of rapm against the floor above 0 with its interval above 0 (whole-game margin)",
+      "diff_ci_below_zero": true,
+      "r2_above_zero_with_interval": true,
+      "passes": true
+    }
+  },
+  "season_ahead_check": {
+    "what": "not pre-registered, context and power only: fit on 2020-21 and 2021-22, scored on every 2023-24 game (the one-season gap of the test)",
+    "model": {
+      "fit_seasons": [
+        "2020-21",
+        "2021-22"
+      ],
+      "fit_stints": 70209,
+      "fit_games": 2454,
+      "players": 662,
+      "alpha_rapm": 3000.0,
+      "cv_mse_rapm": {
+        "30.0": 12232.546621733012,
+        "100.0": 12217.702971830342,
+        "300.0": 12201.605699475613,
+        "1000.0": 12184.520419637065,
+        "3000.0": 12178.9069875673,
+        "10000.0": 12190.080589401605,
+        "30000.0": 12208.979913547175,
+        "100000.0": 12227.72198417966
+      },
+      "intercept_rapm": 1.2948457798606126,
+      "intercept_floor": 1.3854296306278455,
+      "lineups_with_plus_minus": 31502,
+      "players_with_player_plus_minus": 662,
+      "replacement": {
+        "min_per_appearance": 10.0,
+        "players_seen": 662,
+        "players_retained": 490,
+        "rho": 5.0,
+        "penalty": 15000.0,
+        "cv_game_rmse": {
+          "0.0": 13.941749211299404,
+          "0.1": 13.941309682549612,
+          "0.25": 13.940698175734582,
+          "0.5": 13.939794423023075,
+          "1.0": 13.938351105448442,
+          "1.5": 13.937291875816777,
+          "2.0": 13.93652414073114,
+          "2.5": 13.935979605047836,
+          "5.0": 13.935191435769719,
+          "10.0": 13.936819384312242
+        },
+        "coef_home_count": -3.3478843995236707,
+        "coef_away_count": 2.697650266033879,
+        "intercept": 1.3483134355649289
+      }
+    },
+    "coverage": {
+      "stints": 35367,
+      "possessions": 121366.45833333333,
+      "share_of_player_possessions_unseen_in_fit": 0.1664062924670863,
+      "share_of_player_possessions_counted_as_replacement": 0.2053913280314383,
+      "share_of_lineup_possessions_with_a_fit_lineup_rating": 0.02319865169593695
+    },
+    "games_without_kept_stints": 0,
+    "margin_whole_game": {
+      "mean": 2.288564850345357,
+      "sd": 15.70747128226427
+    },
+    "share_of_possessions_in_kept_stints": 0.9264762480319345,
+    "games": 1303,
+    "resamples": 2000,
+    "seed": 0,
+    "context_arms": {
+      "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
+    },
+    "games_with_non_finite_values": 0,
+    "whole_game": {
+      "rmse": {
+        "floor": {
+          "point": 15.727492355976953,
+          "ci95": [
+            15.072809728117806,
+            16.392961382562106
+          ]
+        },
+        "plus_minus": {
+          "point": 18.40974320253784,
+          "ci95": [
+            16.236856638538928,
+            21.01553289135067
+          ]
+        },
+        "rapm": {
+          "point": 15.119202458492081,
+          "ci95": [
+            14.452843506786953,
+            15.792936638128541
+          ]
+        },
+        "rapm_replacement": {
+          "point": 15.12505670654312,
+          "ci95": [
+            14.487806377709273,
+            15.766672589774537
+          ]
+        },
+        "player_plus_minus": {
+          "point": 15.510237073918454,
+          "ci95": [
+            14.845720600469491,
+            16.17181273420883
+          ]
+        }
+      },
+      "r2_vs_floor": {
+        "plus_minus": {
+          "point": -0.37017643993862936,
+          "ci95": [
+            -0.7816180116483372,
+            -0.08091585059676042
+          ]
+        },
+        "rapm": {
+          "point": 0.07585780552298482,
+          "ci95": [
+            0.044760076497958004,
+            0.10600122364930074
+          ]
+        },
+        "rapm_replacement": {
+          "point": 0.07514199990044756,
+          "ci95": [
+            0.03199433612136725,
+            0.1162190644558396
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.027436634477144284,
+          "ci95": [
+            0.007422657901234508,
+            0.04676116507742812
+          ]
+        }
+      },
+      "paired": {
+        "rapm_minus_plus_minus": {
+          "point": -3.2905407440457584,
+          "ci95": [
+            -5.888641985852617,
+            -1.223325266975478
+          ],
+          "excludes_zero": true
+        },
+        "rapm_minus_floor": {
+          "point": -0.6082898974848714,
+          "ci95": [
+            -0.8646133148441183,
+            -0.3520363221958708
+          ],
+          "excludes_zero": true
+        },
+        "plus_minus_minus_floor": {
+          "point": 2.682250846560887,
+          "ci95": [
+            0.6364608536995948,
+            5.284439820921726
+          ],
+          "excludes_zero": true
+        },
+        "replacement_minus_rapm": {
+          "point": 0.005854248051038624,
+          "ci95": [
+            -0.16655024421188305,
+            0.17898268624033378
+          ],
+          "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": -0.3910346154263724,
+          "ci95": [
+            -0.5742469798088264,
+            -0.2101565888716907
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -0.21725528205849898,
+          "ci95": [
+            -0.3713655426137974,
+            -0.058928407326730964
+          ],
+          "excludes_zero": true
+        }
+      }
+    },
+    "kept_stints": {
+      "rmse": {
+        "floor": {
+          "point": 15.495478747257451,
+          "ci95": [
+            14.843520021935703,
+            16.120166721574538
+          ]
+        },
+        "plus_minus": {
+          "point": 18.223490869575876,
+          "ci95": [
+            16.010399932389525,
+            20.872215670925744
+          ]
+        },
+        "rapm": {
+          "point": 14.963355290484536,
+          "ci95": [
+            14.325775983069837,
+            15.606109184097315
+          ]
+        },
+        "rapm_replacement": {
+          "point": 15.00831578878877,
+          "ci95": [
+            14.395547645398649,
+            15.637095197990448
+          ]
+        },
+        "player_plus_minus": {
+          "point": 15.301660898136062,
+          "ci95": [
+            14.655340091898498,
+            15.961772466418571
+          ]
+        }
+      },
+      "r2_vs_floor": {
+        "plus_minus": {
+          "point": -0.3830986251513393,
+          "ci95": [
+            -0.8114298913731887,
+            -0.08648063559103698
+          ]
+        },
+        "rapm": {
+          "point": 0.06750185081520621,
+          "ci95": [
+            0.035889390759448,
+            0.09955003873406999
+          ]
+        },
+        "rapm_replacement": {
+          "point": 0.06188966455297784,
+          "ci95": [
+            0.01782933029711076,
+            0.10513778621421874
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.02485960103937057,
+          "ci95": [
+            0.004780616894078116,
+            0.044672201338955185
+          ]
+        }
+      },
+      "paired": {
+        "rapm_minus_plus_minus": {
+          "point": -3.26013557909134,
+          "ci95": [
+            -5.901107756622427,
+            -1.1495726758906997
+          ],
+          "excludes_zero": true
+        },
+        "rapm_minus_floor": {
+          "point": -0.532123456772915,
+          "ci95": [
+            -0.7968895202741537,
+            -0.27711313464055143
+          ],
+          "excludes_zero": true
+        },
+        "plus_minus_minus_floor": {
+          "point": 2.7280121223184253,
+          "ci95": [
+            0.6533676920946706,
+            5.337248323532062
+          ],
+          "excludes_zero": true
+        },
+        "replacement_minus_rapm": {
+          "point": 0.044960498304234875,
+          "ci95": [
+            -0.13378429604729872,
+            0.22389192840691888
+          ],
+          "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": -0.3383056076515256,
+          "ci95": [
+            -0.5313612442251643,
+            -0.14793688511243402
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -0.19381784912138933,
+          "ci95": [
+            -0.3489971137339597,
+            -0.03686358846061145
+          ],
+          "excludes_zero": true
+        }
+      }
+    },
+    "verdict": {
+      "rule": "RMSE(rapm) - RMSE(plus_minus) interval wholly below 0, and R squared of rapm against the floor above 0 with its interval above 0 (whole-game margin)",
+      "diff_ci_below_zero": true,
+      "r2_above_zero_with_interval": true,
+      "passes": true
+    }
+  },
+  "test_fit": {
+    "what": "every arm fitted on every development season; the fit e1-final uses",
+    "fit_seasons": [
+      "2020-21",
+      "2021-22",
+      "2022-23",
+      "2023-24"
+    ],
+    "fit_stints": 142690,
+    "fit_games": 5059,
+    "players": 836,
+    "alpha_rapm": 3000.0,
+    "cv_mse_rapm": {
+      "30.0": 12141.106166616033,
+      "100.0": 12133.685709868265,
+      "300.0": 12125.72306869788,
+      "1000.0": 12116.54419545954,
+      "3000.0": 12112.133698809052,
+      "10000.0": 12120.530898410247,
+      "30000.0": 12139.992524396726,
+      "100000.0": 12161.885654811085
+    },
+    "intercept_rapm": 1.7869740338802274,
+    "intercept_floor": 1.8648966360711023,
+    "lineups_with_plus_minus": 61609,
+    "players_with_player_plus_minus": 836,
+    "replacement": {
+      "min_per_appearance": 10.0,
+      "players_seen": 836,
+      "players_retained": 601,
+      "rho": 10.0,
+      "penalty": 30000.0,
+      "cv_game_rmse": {
+        "0.0": 13.678636223785887,
+        "0.1": 13.678414436459537,
+        "0.25": 13.678095329255438,
+        "0.5": 13.677597529274207,
+        "1.0": 13.676716542647284,
+        "1.5": 13.675967475955808,
+        "2.0": 13.675329355753211,
+        "2.5": 13.674785006873845,
+        "5.0": 13.673050003835584,
+        "10.0": 13.672012794711701,
+        "20.0": 13.672483591287317
+      },
+      "coef_home_count": -3.498075635717049,
+      "coef_away_count": 1.4635400584185825,
+      "intercept": 1.9775388411867363
+    }
+  },
+  "power": {
+    "test_games_listed": 1316,
+    "what": "half-widths of the whole-game intervals of each development check, and the same scaled to the test game count by the square root of the game counts (an estimate, not a result)",
+    "dry_run": {
+      "games": 378,
+      "rapm_minus_plus_minus": {
+        "half_width": 3.298455016126799,
+        "projected_test_half_width": 1.76778124044384
+      },
+      "rapm_minus_floor": {
+        "half_width": 0.3854069844647914,
+        "projected_test_half_width": 0.2065558674415154
+      },
+      "r2_rapm": {
+        "half_width": 0.04227026438561804,
+        "projected_test_half_width": 0.022654418521445244
+      }
+    },
+    "season_ahead_check": {
+      "games": 1303,
+      "rapm_minus_plus_minus": {
+        "half_width": 2.3326583594385695,
+        "projected_test_half_width": 2.3211082756445918
+      },
+      "rapm_minus_floor": {
+        "half_width": 0.25628849632412376,
+        "projected_test_half_width": 0.25501949197292995
+      },
+      "r2_rapm": {
+        "half_width": 0.03062057357567137,
+        "projected_test_half_width": 0.030468956777957454
+      }
+    }
+  },
+  "seconds": 22.7,
+  "peak_memory_gb": 0.48
+}

@@ -1,0 +1,1049 @@
+{
+  "schema": "polish-score/1",
+  "label": "baseline private",
+  "variant": "private",
+  "basePath": "",
+  "synthetic": false,
+  "dataBuild": "site-df7fd5d2cb9a",
+  "commit": "085573bc9cec",
+  "dirty": false,
+  "measuredWith": {
+    "browsers": {
+      "chromium": "159.0.8154.6",
+      "webkit": "27.2"
+    },
+    "axe": "4.14.0",
+    "axeTags": [
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "wcag22aa",
+      "best-practice"
+    ],
+    "a11yWidths": [
+      390,
+      1280
+    ],
+    "timingViewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "chromiumThrottle": {
+      "latencyMs": 40,
+      "downloadKbps": 10000,
+      "uploadKbps": 5000,
+      "cpuSlowdown": 4
+    },
+    "loadsPerPage": 7,
+    "repeat": 3
+  },
+  "weights": {
+    "a11yWeighted": 0.25,
+    "firstViewChromiumMs": 0.2,
+    "firstViewWebkitMs": 0.05,
+    "firstLoadJsKb": 0.2,
+    "pageWeightKb": 0.1,
+    "readingGrade": 0.2
+  },
+  "check": {
+    "ran": true,
+    "variant": "private",
+    "passed": true,
+    "failedAt": null,
+    "steps": [
+      {
+        "name": "check (static steps)",
+        "passed": true,
+        "seconds": 33.8
+      },
+      {
+        "name": "build (private)",
+        "passed": true,
+        "seconds": 49.8
+      },
+      {
+        "name": "browser (private)",
+        "passed": true,
+        "seconds": 165.8
+      }
+    ]
+  },
+  "copy": {
+    "problems": 0,
+    "files": 17
+  },
+  "reading": {
+    "problems": 0,
+    "copyGrade": {
+      "grade": 4.165,
+      "words": 3535,
+      "sentences": 192,
+      "perFile": {
+        "home.json": 3.79,
+        "prep.json": 5.65,
+        "results.json": 4.94,
+        "review.json": 4.01,
+        "site.json": 6.48,
+        "talk/boxes.md": 3.67,
+        "talk/built.md": 3.78,
+        "talk/checks.md": 5.75,
+        "talk/clip.md": 4.19,
+        "talk/contract.md": 3.29,
+        "talk/deck.json": 1.94,
+        "talk/headline.md": 6.08,
+        "talk/map.md": 3.21,
+        "talk/next.md": 4.97,
+        "talk/results.md": 2.37,
+        "talk/swap.md": 3.86,
+        "talk/truth.md": 3.48
+      }
+    },
+    "script": [
+      {
+        "where": "scene 0 (headline)",
+        "grade": 7,
+        "upper": 7
+      },
+      {
+        "where": "scene 1 (clip)",
+        "grade": 3.7,
+        "upper": 3.7
+      },
+      {
+        "where": "scene 2 (boxes)",
+        "grade": 3.3,
+        "upper": 4.3
+      },
+      {
+        "where": "scene 3 (map)",
+        "grade": 2.6,
+        "upper": 2.6
+      },
+      {
+        "where": "scene 4 (truth)",
+        "grade": 3.2,
+        "upper": 4.9
+      },
+      {
+        "where": "scene 5 (swap)",
+        "grade": 3.5,
+        "upper": 4.6
+      },
+      {
+        "where": "scene 6 (next)",
+        "grade": 4.7,
+        "upper": 5.6
+      },
+      {
+        "where": "talk/headline.md",
+        "grade": 7,
+        "upper": 7
+      },
+      {
+        "where": "talk/clip.md",
+        "grade": 4,
+        "upper": 4
+      },
+      {
+        "where": "talk/boxes.md",
+        "grade": 3,
+        "upper": 4
+      },
+      {
+        "where": "talk/map.md",
+        "grade": 2.4,
+        "upper": 2.4
+      },
+      {
+        "where": "talk/truth.md",
+        "grade": 3.2,
+        "upper": 4.7
+      },
+      {
+        "where": "talk/swap.md",
+        "grade": 3.6,
+        "upper": 4.5
+      },
+      {
+        "where": "talk/next.md",
+        "grade": 4.2,
+        "upper": 5.1
+      },
+      {
+        "where": "talk/built.md",
+        "grade": 3,
+        "upper": 3
+      },
+      {
+        "where": "talk/contract.md",
+        "grade": 3,
+        "upper": 3
+      },
+      {
+        "where": "talk/checks.md",
+        "grade": 5.1,
+        "upper": 5.1
+      },
+      {
+        "where": "talk/results.md",
+        "grade": 2.1,
+        "upper": 2.1
+      }
+    ]
+  },
+  "routes": {
+    "count": 3601,
+    "hash": "c68f158431a305bb",
+    "sampled": [
+      {
+        "pattern": "",
+        "route": ""
+      },
+      {
+        "pattern": "404/",
+        "route": "404/"
+      },
+      {
+        "pattern": "prep/",
+        "route": "prep/"
+      },
+      {
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/"
+      },
+      {
+        "pattern": "results/",
+        "route": "results/"
+      },
+      {
+        "pattern": "review/",
+        "route": "review/"
+      },
+      {
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/"
+      },
+      {
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/"
+      },
+      {
+        "pattern": "talk/",
+        "route": "talk/"
+      },
+      {
+        "pattern": "talk/*/",
+        "route": "talk/boxes/"
+      }
+    ]
+  },
+  "bundles": {
+    "home": {
+      "jsFiles": 8,
+      "jsRawKb": 511.4,
+      "jsGzipKb": 154.3,
+      "cssGzipKb": 7.1
+    },
+    "404/": {
+      "jsFiles": 6,
+      "jsRawKb": 479.8,
+      "jsGzipKb": 143.8,
+      "cssGzipKb": 3.4
+    },
+    "prep/": {
+      "jsFiles": 7,
+      "jsRawKb": 485.6,
+      "jsGzipKb": 146,
+      "cssGzipKb": 3.9
+    },
+    "prep/aaron-brooks/": {
+      "jsFiles": 7,
+      "jsRawKb": 480.8,
+      "jsGzipKb": 144.3,
+      "cssGzipKb": 7.1
+    },
+    "results/": {
+      "jsFiles": 6,
+      "jsRawKb": 479.8,
+      "jsGzipKb": 143.8,
+      "cssGzipKb": 3.4
+    },
+    "review/": {
+      "jsFiles": 6,
+      "jsRawKb": 479.8,
+      "jsGzipKb": 143.8,
+      "cssGzipKb": 7.1
+    },
+    "review/2015-10-30-mia-at-cle/": {
+      "jsFiles": 7,
+      "jsRawKb": 486.1,
+      "jsGzipKb": 146,
+      "cssGzipKb": 3.9
+    },
+    "review/2015-10-30-mia-at-cle/0/": {
+      "jsFiles": 7,
+      "jsRawKb": 515.7,
+      "jsGzipKb": 155.8,
+      "cssGzipKb": 7.1
+    },
+    "talk/": {
+      "jsFiles": 6,
+      "jsRawKb": 479.8,
+      "jsGzipKb": 143.8,
+      "cssGzipKb": 7.1
+    },
+    "talk/boxes/": {
+      "jsFiles": 8,
+      "jsRawKb": 514.2,
+      "jsGzipKb": 155.4,
+      "cssGzipKb": 7.1
+    }
+  },
+  "a11y": {
+    "weighted": 0,
+    "violations": 0,
+    "nodes": 0,
+    "findings": {}
+  },
+  "timings": [
+    [
+      {
+        "browser": "chromium",
+        "pattern": "",
+        "route": "",
+        "dclMs": 1113.9,
+        "loadMs": 1954.3,
+        "lcpMs": 1084,
+        "firstViewMs": 1084,
+        "kb": 20640.8
+      },
+      {
+        "browser": "chromium",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 178.9,
+        "loadMs": 691.8,
+        "lcpMs": 180,
+        "firstViewMs": 180,
+        "kb": 658.4
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 1262.4,
+        "loadMs": 1263.1,
+        "lcpMs": 312,
+        "firstViewMs": 312,
+        "kb": 1443.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 168.4,
+        "loadMs": 731.3,
+        "lcpMs": 300,
+        "firstViewMs": 300,
+        "kb": 754.4
+      },
+      {
+        "browser": "chromium",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 715.1,
+        "loadMs": 860.6,
+        "lcpMs": 316,
+        "firstViewMs": 316,
+        "kb": 910.8
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 162,
+        "loadMs": 717.5,
+        "lcpMs": 296,
+        "firstViewMs": 296,
+        "kb": 715.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 544.9,
+        "loadMs": 816.3,
+        "lcpMs": 312,
+        "firstViewMs": 312,
+        "kb": 853.9
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 164.5,
+        "loadMs": 750,
+        "lcpMs": 292,
+        "firstViewMs": 292,
+        "kb": 758
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 192.1,
+        "loadMs": 710.6,
+        "lcpMs": 196,
+        "firstViewMs": 196,
+        "kb": 678.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 972.3,
+        "loadMs": 1075.8,
+        "lcpMs": 972,
+        "firstViewMs": 972,
+        "kb": 1168.7
+      },
+      {
+        "browser": "webkit",
+        "pattern": "",
+        "route": "",
+        "dclMs": 21,
+        "loadMs": 69,
+        "lcpMs": 68,
+        "firstViewMs": 68,
+        "kb": 12614.7
+      },
+      {
+        "browser": "webkit",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 9,
+        "loadMs": 28,
+        "lcpMs": 31,
+        "firstViewMs": 31,
+        "kb": 658.4
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 18,
+        "loadMs": 53,
+        "lcpMs": 51,
+        "firstViewMs": 51,
+        "kb": 1443.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 13,
+        "loadMs": 39,
+        "lcpMs": 23,
+        "firstViewMs": 23,
+        "kb": 754.4
+      },
+      {
+        "browser": "webkit",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 15,
+        "loadMs": 46,
+        "lcpMs": 57,
+        "firstViewMs": 57,
+        "kb": 910.8
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 14,
+        "loadMs": 36,
+        "lcpMs": 21,
+        "firstViewMs": 21,
+        "kb": 715.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 13,
+        "loadMs": 47,
+        "lcpMs": 57,
+        "firstViewMs": 57,
+        "kb": 853.9
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 13,
+        "loadMs": 36,
+        "lcpMs": 20,
+        "firstViewMs": 20,
+        "kb": 758
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 11,
+        "loadMs": 33,
+        "lcpMs": 18,
+        "firstViewMs": 18,
+        "kb": 678.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 12,
+        "loadMs": 38,
+        "lcpMs": 40,
+        "firstViewMs": 40,
+        "kb": 1168.7
+      }
+    ],
+    [
+      {
+        "browser": "chromium",
+        "pattern": "",
+        "route": "",
+        "dclMs": 1114.8,
+        "loadMs": 1865.5,
+        "lcpMs": 1088,
+        "firstViewMs": 1088,
+        "kb": 20640.8
+      },
+      {
+        "browser": "chromium",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 168.3,
+        "loadMs": 693.2,
+        "lcpMs": 172,
+        "firstViewMs": 172,
+        "kb": 658.4
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 1263.5,
+        "loadMs": 1263.9,
+        "lcpMs": 308,
+        "firstViewMs": 308,
+        "kb": 1443.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 170.6,
+        "loadMs": 730.3,
+        "lcpMs": 300,
+        "firstViewMs": 300,
+        "kb": 754.4
+      },
+      {
+        "browser": "chromium",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 720,
+        "loadMs": 869.5,
+        "lcpMs": 320,
+        "firstViewMs": 320,
+        "kb": 910.8
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 167.3,
+        "loadMs": 722.5,
+        "lcpMs": 300,
+        "firstViewMs": 300,
+        "kb": 715.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 547.8,
+        "loadMs": 813.9,
+        "lcpMs": 308,
+        "firstViewMs": 308,
+        "kb": 853.9
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 165.4,
+        "loadMs": 751.1,
+        "lcpMs": 292,
+        "firstViewMs": 292,
+        "kb": 758
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 188.7,
+        "loadMs": 708.4,
+        "lcpMs": 192,
+        "firstViewMs": 192,
+        "kb": 678.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 973.8,
+        "loadMs": 1074.3,
+        "lcpMs": 972,
+        "firstViewMs": 972,
+        "kb": 1168.7
+      },
+      {
+        "browser": "webkit",
+        "pattern": "",
+        "route": "",
+        "dclMs": 19,
+        "loadMs": 67,
+        "lcpMs": 64,
+        "firstViewMs": 64,
+        "kb": 12614.7
+      },
+      {
+        "browser": "webkit",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 9,
+        "loadMs": 30,
+        "lcpMs": 33,
+        "firstViewMs": 33,
+        "kb": 658.4
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 16,
+        "loadMs": 51,
+        "lcpMs": 49,
+        "firstViewMs": 49,
+        "kb": 1443.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 16,
+        "loadMs": 46,
+        "lcpMs": 27,
+        "firstViewMs": 27,
+        "kb": 754.4
+      },
+      {
+        "browser": "webkit",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 13,
+        "loadMs": 48,
+        "lcpMs": 59,
+        "firstViewMs": 59,
+        "kb": 910.8
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 12,
+        "loadMs": 32,
+        "lcpMs": 30,
+        "firstViewMs": 30,
+        "kb": 715.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 12,
+        "loadMs": 44,
+        "lcpMs": 54,
+        "firstViewMs": 54,
+        "kb": 853.9
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 14,
+        "loadMs": 35,
+        "lcpMs": 20,
+        "firstViewMs": 20,
+        "kb": 758
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 10,
+        "loadMs": 32,
+        "lcpMs": 16,
+        "firstViewMs": 16,
+        "kb": 678.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 11,
+        "loadMs": 38,
+        "lcpMs": 44,
+        "firstViewMs": 44,
+        "kb": 1168.7
+      }
+    ],
+    [
+      {
+        "browser": "chromium",
+        "pattern": "",
+        "route": "",
+        "dclMs": 1115.5,
+        "loadMs": 1954.9,
+        "lcpMs": 1084,
+        "firstViewMs": 1084,
+        "kb": 20640.8
+      },
+      {
+        "browser": "chromium",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 170.6,
+        "loadMs": 690.7,
+        "lcpMs": 172,
+        "firstViewMs": 172,
+        "kb": 658.4
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 1262.1,
+        "loadMs": 1262.8,
+        "lcpMs": 308,
+        "firstViewMs": 308,
+        "kb": 1443.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 169.4,
+        "loadMs": 727.5,
+        "lcpMs": 300,
+        "firstViewMs": 300,
+        "kb": 754.4
+      },
+      {
+        "browser": "chromium",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 721,
+        "loadMs": 856,
+        "lcpMs": 304,
+        "firstViewMs": 304,
+        "kb": 910.8
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 163.7,
+        "loadMs": 713.2,
+        "lcpMs": 292,
+        "firstViewMs": 292,
+        "kb": 715.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 546,
+        "loadMs": 813.7,
+        "lcpMs": 316,
+        "firstViewMs": 316,
+        "kb": 853.9
+      },
+      {
+        "browser": "chromium",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 162.6,
+        "loadMs": 745.5,
+        "lcpMs": 292,
+        "firstViewMs": 292,
+        "kb": 758
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 189.3,
+        "loadMs": 707.7,
+        "lcpMs": 196,
+        "firstViewMs": 196,
+        "kb": 678.6
+      },
+      {
+        "browser": "chromium",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 973.4,
+        "loadMs": 1076.4,
+        "lcpMs": 972,
+        "firstViewMs": 972,
+        "kb": 1168.7
+      },
+      {
+        "browser": "webkit",
+        "pattern": "",
+        "route": "",
+        "dclMs": 22,
+        "loadMs": 75,
+        "lcpMs": 68,
+        "firstViewMs": 68,
+        "kb": 12614.7
+      },
+      {
+        "browser": "webkit",
+        "pattern": "404/",
+        "route": "404/",
+        "dclMs": 10,
+        "loadMs": 29,
+        "lcpMs": 32,
+        "firstViewMs": 32,
+        "kb": 658.4
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/",
+        "route": "prep/",
+        "dclMs": 18,
+        "loadMs": 53,
+        "lcpMs": 48,
+        "firstViewMs": 48,
+        "kb": 1443.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "prep/*/",
+        "route": "prep/aaron-brooks/",
+        "dclMs": 13,
+        "loadMs": 40,
+        "lcpMs": 25,
+        "firstViewMs": 25,
+        "kb": 754.4
+      },
+      {
+        "browser": "webkit",
+        "pattern": "results/",
+        "route": "results/",
+        "dclMs": 14,
+        "loadMs": 46,
+        "lcpMs": 56,
+        "firstViewMs": 56,
+        "kb": 910.8
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/",
+        "route": "review/",
+        "dclMs": 13,
+        "loadMs": 38,
+        "lcpMs": 22,
+        "firstViewMs": 22,
+        "kb": 715.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/",
+        "route": "review/2015-10-30-mia-at-cle/",
+        "dclMs": 13,
+        "loadMs": 46,
+        "lcpMs": 56,
+        "firstViewMs": 56,
+        "kb": 853.9
+      },
+      {
+        "browser": "webkit",
+        "pattern": "review/*/*/",
+        "route": "review/2015-10-30-mia-at-cle/0/",
+        "dclMs": 15,
+        "loadMs": 36,
+        "lcpMs": 20,
+        "firstViewMs": 20,
+        "kb": 758
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/",
+        "route": "talk/",
+        "dclMs": 11,
+        "loadMs": 40,
+        "lcpMs": 25,
+        "firstViewMs": 25,
+        "kb": 678.6
+      },
+      {
+        "browser": "webkit",
+        "pattern": "talk/*/",
+        "route": "talk/boxes/",
+        "dclMs": 14,
+        "loadMs": 43,
+        "lcpMs": 44,
+        "firstViewMs": 44,
+        "kb": 1168.7
+      }
+    ]
+  ],
+  "pageFailures": [],
+  "navigationRetries": 0,
+  "values": {
+    "a11yWeighted": 0,
+    "firstViewChromiumMs": 425.2,
+    "firstViewWebkitMs": 39.6,
+    "firstLoadJsKb": 147.7,
+    "pageWeightKb": 2457,
+    "readingGrade": 4.165
+  },
+  "reference": {
+    "values": {
+      "a11yWeighted": 0,
+      "firstViewChromiumMs": 425.2,
+      "firstViewWebkitMs": 39.6,
+      "firstLoadJsKb": 147.7,
+      "pageWeightKb": 2457,
+      "readingGrade": 4.165
+    },
+    "from": "median of 3 runs"
+  },
+  "cost": 1,
+  "terms": {
+    "a11yWeighted": 1,
+    "firstViewChromiumMs": 1,
+    "firstViewWebkitMs": 1,
+    "firstLoadJsKb": 1,
+    "pageWeightKb": 1,
+    "readingGrade": 1
+  },
+  "runs": [
+    {
+      "values": {
+        "a11yWeighted": 0,
+        "firstViewChromiumMs": 426,
+        "firstViewWebkitMs": 38.6,
+        "firstLoadJsKb": 147.7,
+        "pageWeightKb": 2457,
+        "readingGrade": 4.165
+      },
+      "cost": 0.9991,
+      "terms": {
+        "a11yWeighted": 1,
+        "firstViewChromiumMs": 1.0019,
+        "firstViewWebkitMs": 0.9747,
+        "firstLoadJsKb": 1,
+        "pageWeightKb": 1,
+        "readingGrade": 1
+      },
+      "failures": []
+    },
+    {
+      "values": {
+        "a11yWeighted": 0,
+        "firstViewChromiumMs": 425.2,
+        "firstViewWebkitMs": 39.6,
+        "firstLoadJsKb": 147.7,
+        "pageWeightKb": 2457,
+        "readingGrade": 4.165
+      },
+      "cost": 1,
+      "terms": {
+        "a11yWeighted": 1,
+        "firstViewChromiumMs": 1,
+        "firstViewWebkitMs": 1,
+        "firstLoadJsKb": 1,
+        "pageWeightKb": 1,
+        "readingGrade": 1
+      },
+      "failures": []
+    },
+    {
+      "values": {
+        "a11yWeighted": 0,
+        "firstViewChromiumMs": 423.6,
+        "firstViewWebkitMs": 39.6,
+        "firstLoadJsKb": 147.7,
+        "pageWeightKb": 2457,
+        "readingGrade": 4.165
+      },
+      "cost": 0.9992,
+      "terms": {
+        "a11yWeighted": 1,
+        "firstViewChromiumMs": 0.9962,
+        "firstViewWebkitMs": 1,
+        "firstLoadJsKb": 1,
+        "pageWeightKb": 1,
+        "readingGrade": 1
+      },
+      "failures": []
+    }
+  ],
+  "noise": {
+    "runs": 3,
+    "costs": [
+      0.9991,
+      1,
+      0.9992
+    ],
+    "costSpread": 0.0009,
+    "perMetric": {
+      "a11yWeighted": {
+        "min": 0,
+        "max": 0
+      },
+      "firstViewChromiumMs": {
+        "min": 423.6,
+        "max": 426
+      },
+      "firstViewWebkitMs": {
+        "min": 38.6,
+        "max": 39.6
+      },
+      "firstLoadJsKb": {
+        "min": 147.7,
+        "max": 147.7
+      },
+      "pageWeightKb": {
+        "min": 2457,
+        "max": 2457
+      },
+      "readingGrade": {
+        "min": 4.165,
+        "max": 4.165
+      }
+    }
+  },
+  "gate": {
+    "passed": true,
+    "against": null,
+    "reasons": []
+  }
+}

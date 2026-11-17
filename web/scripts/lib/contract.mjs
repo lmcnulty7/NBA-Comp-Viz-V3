@@ -13,6 +13,9 @@ const Ajv2020 = require("ajv/dist/2020");
 
 const SLUG = /^[a-z0-9][a-z0-9-]*$/;
 const POSSESSION_FILE = /^\d+\.json$/;
+// The machine-written texts (PLAN.md P3): the optional files of the genai/<kind>.json family, from GENAI_FILES of
+// export/schemas.py (contract-rules.json).
+let genaiFiles;
 
 export function loadSchema(file = SCHEMA_FILE) {
   return JSON.parse(readFileSync(file, "utf8"));
@@ -33,6 +36,8 @@ export function modelFor(schema, relativePath) {
   const fixed = fixedFiles(schema);
   if (Object.hasOwn(fixed, relativePath)) return fixed[relativePath];
   const parts = relativePath.split("/");
+  genaiFiles ??= Object.values(loadRules().genai_files ?? {});
+  if (genaiFiles.includes(relativePath)) return schema["x-files"]["genai/<kind>.json"] ?? null;
   if (parts.length === 3 && parts[0] === "games" && SLUG.test(parts[1])) {
     if (parts[2] === "possessions.json") return "PossessionIndex";
     if (POSSESSION_FILE.test(parts[2])) return "Possession";
@@ -43,7 +48,7 @@ export function modelFor(schema, relativePath) {
 /** One ajv validator per file model. */
 export function validators(schema) {
   const ajv = new Ajv2020({ allErrors: false, strict: true });
-  ajv.addVocabulary(["x-schema-version", "x-files"]);
+  ajv.addVocabulary(["x-schema-version", "x-compatible-versions", "x-files"]);
   ajv.addSchema(schema, "contract");
   const out = {};
   for (const model of new Set(Object.values(schema["x-files"]))) {

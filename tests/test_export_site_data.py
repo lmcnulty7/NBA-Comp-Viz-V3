@@ -139,7 +139,8 @@ def test_model_outputs_that_are_not_heldout_rows_are_refused(built, tmp_path):
 
 def test_no_private_string_in_any_output(built):
     files = sorted(p for p in built.out.rglob("*") if p.is_file())
-    assert len(files) == 4 + 2 + len(FX.PLAN_A) + len(FX.PLAN_B)
+    # manifest, players, scorecard, results and methods, then each game's index and possession files
+    assert len(files) == 5 + 2 + len(FX.PLAN_A) + len(FX.PLAN_B)
     for path in files:
         text = path.read_text(encoding="utf-8")
         assert S.find_private(text) == [], path.name

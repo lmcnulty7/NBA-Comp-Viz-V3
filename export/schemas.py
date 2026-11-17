@@ -27,6 +27,27 @@ Changes from 1.0.0 to 1.1.0 (after the M0 review; decisions D49 to D53 in PLAN.m
 - PossessionSummary gains `featured_by` and `featured_cell`. LaneResult gains `verdict_source`.
 - Probabilities and shares must lie between 0 and 1. A scorecard cell's status must agree with `passed`.
 
+Changes from 1.1.0 to 1.2.0 (PLAN.md D72, the methods page):
+- methods.json (MethodsFile): per lane the papers it builds on, our numbers beside the published ones with the
+  comparability verdict of the lane dossier, and every pre-registered experiment with its status and, once it
+  has run, its result. export/research_methods.py writes it from reports/research/methods.json.
+- Source.rows gains `testset`: the D71 test set (PLAN.md D77), scored once per experiment.
+- A data file of an earlier minor version of the same major version still validates (the change is additive), so
+  `schema_version` accepts every version in COMPATIBLE_VERSIONS; the manifest and the new file carry this one.
+
+Also in 1.2.0 (PLAN.md P3, D76; merged with the methods page into one version, D82), an addition only:
+- A new file family, genai/<kind>.json (model GeneratedTexts): machine-written texts, a scouting report per player
+  of the prep tab and an account in words of each possession of the review. Each text is optional; a data root
+  with no genai folder is complete. export/genai.py writes them and holds the checks every text must pass.
+- A genai file is 1.2.0 only (CurrentVersion), like the manifest; the other files of its root may still carry
+  1.1.0 (COMPATIBLE_VERSIONS).
+
+Also in 1.2.0 (PLAN.md D94, player values broken by the frozen name joins), an addition only:
+- ShotMaking and Rebounding gain an optional `withheld` reason: a hidden value whose cause is not its sample (the
+  stored lane tables lost or mixed up some of the player's rows). A value without one is shown exactly when its
+  sample reaches the minimum.
+- Rebounding refuses a shown rate of zero with a zero upper end.
+
 Units: court positions are in feet in the SportVU frame, x from 0 to 94 along the court, y from 0 to 50 across it,
 rims at (5.25, 25) and (88.75, 25). Clocks are in seconds. Times `t` are seconds from the start of the possession
 or of the clip.
@@ -40,8 +61,13 @@ from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-SCHEMA_VERSION = "1.1.0"
-SchemaVersion = Literal["1.1.0"]
+SCHEMA_VERSION = "1.2.0"
+# Versions a data file may carry: this one and the earlier minor versions of the same major version, whose files
+# are still valid because every change since them only added a file or a value. The manifest and every file a
+# version introduced carry SCHEMA_VERSION itself (CurrentVersion).
+COMPATIBLE_VERSIONS = ("1.1.0", "1.2.0")
+SchemaVersion = Literal["1.1.0", "1.2.0"]
+CurrentVersion = Literal["1.2.0"]
 
 COURT_LENGTH_FT = 94.0
 COURT_WIDTH_FT = 50.0
@@ -87,14 +113,15 @@ class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
-SourceRows = Literal["heldout", "out_of_fold", "training", "not_split"]
+SourceRows = Literal["heldout", "out_of_fold", "training", "not_split", "testset"]
 
 
 class Source(Strict):
     """Where a value comes from. `path` is relative to the repository (for example reports/xfg.md) or starts with
     $DATA_ROOT for a data table. `rows` says which rows were read: heldout (held-out games only), out_of_fold
     (training games, each row predicted by a model that never saw its game), training (training games, read as a
-    description or fitted in sample), not_split (the source is not split by game)."""
+    description or fitted in sample), not_split (the source is not split by game), testset (the D71 test set of
+    PLAN.md D77, scored once per experiment)."""
 
     path: str = Field(min_length=1)
     what: str = Field(min_length=1)
@@ -208,7 +235,7 @@ class Manifest(Strict):
     """The entry point. `synthetic` is true when the data was built from fixtures; the site must then label
     every number as fixture output, never as a result."""
 
-    schema_version: SchemaVersion
+    schema_version: CurrentVersion
     build_id: str
     generated_at: str
     repo_commit: str
@@ -969,6 +996,421 @@ class DemoFrames(Strict):
     sources: Sources
 
 
+# ------------------------------------------------------------------------------------------------ methods.json
+
+# A number as text: a sign, digits with thousands commas, decimals and a percent mark. A digit that is part of a
+# name (p50, E1, r23, gsw_phx_2016) is not a number: the look-behind skips it. web/scripts/check-methods.mjs
+# reads numbers off the built page with the same pattern.
+NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
+ComparabilityClass = Literal["roughly", "not_directly", "none"]
+ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
+                           "adopted", "not_adopted_test", "passed_test"]
+# How a rule compares the end of an interval it reads with its threshold.
+Comparison = Literal["below", "at_most", "above", "at_least"]
+_COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
+            "at_least": lambda v, t: v >= t}
+
+
+def _is_number_text(text: Optional[str]) -> bool:
+    return text is None or bool(re.fullmatch(r"[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?", text))
+
+
+class OurValue(Strict):
+    """One number of ours, as text exactly as the report prints it (so trailing zeros stay), with the interval
+    the report prints beside it on the same line. An estimate without an interval is a point estimate; a setting
+    (a penalty chosen by cross-validation) is not an estimate and has no interval. `source` is the report under
+    reports/ it was copied from, and `rows` says which rows the report computed it on. The label names what the
+    number is; any number inside it is in the report too."""
+
+    label: str = Field(min_length=1)
+    value: str
+    lo: Optional[str] = None
+    hi: Optional[str] = None
+    kind: Literal["estimate", "setting"]
+    source: str = Field(min_length=1)
+    rows: SourceRows
+
+    @model_validator(mode="after")
+    def _numbers(self):
+        if not all(_is_number_text(t) for t in (self.value, self.lo, self.hi)):
+            raise ValueError(f"{self.label}: value, lo and hi are numbers written as text")
+        if (self.lo is None) != (self.hi is None):
+            raise ValueError(f"{self.label}: lo and hi must be set together")
+        if self.kind == "setting" and self.lo is not None:
+            raise ValueError(f"{self.label}: a setting has no interval")
+        return self
+
+
+class Paper(Strict):
+    """A paper a lane builds on. `cite`, `take` (what the lane takes from it) and `differs` (how ours differs, when
+    the dossier gives it a column of its own; otherwise `take` says both) are copied word for word from the lane
+    dossier; `url` is a link the dossier names."""
+
+    cite: str = Field(min_length=1)
+    url: str = Field(pattern=r"^https?://")
+    take: str = Field(min_length=1)
+    differs: Optional[str] = None
+
+
+class Benchmark(Strict):
+    """Our number next to the published one, one row of the benchmark table of the lane dossier. `published`,
+    `paper`, `differs` and `comparability` are the dossier's cells word for word, so the verdict is the
+    dossier's own; `comparability_class` sorts it into three kinds for the page. `ours` holds our numbers, each
+    traced to a report. A row with no number of ours has an empty `ours` and may carry `ours_text`, a phrase of
+    the dossier with no number in it. `published_values` are the published numbers of `published`, `where` the
+    table or section of the paper, `url` a link to the paper (null when the row names no paper)."""
+
+    ours: list[OurValue]
+    ours_text: Optional[str] = None
+    published: str = Field(min_length=1)
+    published_values: list[str]
+    paper: str = Field(min_length=1)
+    where: Optional[str] = None
+    url: Optional[str] = Field(default=None, pattern=r"^https?://")
+    differs: str = Field(min_length=1)
+    comparability: str = Field(min_length=1)
+    comparability_class: ComparabilityClass
+
+    @model_validator(mode="after")
+    def _consistent(self):
+        if self.ours and self.ours_text is not None:
+            raise ValueError("a row with numbers of ours carries no ours_text")
+        if self.ours_text is not None and re.search(r"\d", self.ours_text):
+            raise ValueError("ours_text holds no number: a number of ours is an OurValue traced to a report")
+        if not all(_is_number_text(v) for v in self.published_values):
+            raise ValueError("published_values are numbers written as text")
+        missing = [v for v in self.published_values if v not in NUMBER_TEXT_RE.findall(self.published)]
+        if missing:
+            raise ValueError(f"published values {missing} are not numbers of the published cell")
+        return self
+
+
+class StageValue(Strict):
+    """A further number of a stage result, read from the result file: a value with its interval when the file
+    gives one, else a point estimate."""
+
+    label: str = Field(min_length=1)
+    value: float
+    lo: Optional[float] = None
+    hi: Optional[float] = None
+    point_estimate: bool
+
+    @model_validator(mode="after")
+    def _interval(self):
+        if (self.lo is None) != (self.hi is None) or self.point_estimate != (self.lo is None):
+            raise ValueError(f"{self.label}: an interval has lo and hi, a point estimate has neither")
+        if self.lo is not None and self.lo > self.hi:
+            raise ValueError(f"{self.label}: lo must not exceed hi")
+        return self
+
+
+class Condition(Strict):
+    """A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the
+    interval it reads (`bound`) compares with `threshold` as `comparison` says. `label` names the statistic."""
+
+    label: str = Field(min_length=1)
+    value: float
+    lo: float
+    hi: float
+    bound: Literal["lo", "hi"]
+    comparison: Comparison
+    threshold: float
+    met: bool
+
+    @model_validator(mode="after")
+    def _met(self):
+        if not (self.lo <= self.value <= self.hi):
+            raise ValueError(f"{self.label}: the value lies inside its interval")
+        end = self.lo if self.bound == "lo" else self.hi
+        if self.met != _COMPARE[self.comparison](end, self.threshold):
+            raise ValueError(f"{self.label}: met says whether the {self.bound} end meets the threshold")
+        return self
+
+
+class StageResult(Strict):
+    """One stage of an experiment, read from its result file under reports/research/: development (out of fold on
+    the development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption
+    rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
+    bound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every
+    further condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export."""
+
+    stage: Literal["development", "test"]
+    source: Source
+    metric: str = Field(min_length=1)
+    rows: int
+    rows_unit: str = Field(min_length=1)
+    games: int
+    diff: float
+    lo: float
+    hi: float
+    interval: str = Field(min_length=1)
+    threshold: float
+    upper: float
+    comparison: Literal["at_most", "below"] = "at_most"
+    conditions: list["Condition"] = []
+    met: bool
+    values: list[StageValue]
+
+    @model_validator(mode="after")
+    def _rule(self):
+        if not (self.lo <= self.diff <= self.hi):
+            raise ValueError("the difference lies inside its interval")
+        if self.upper not in (self.lo, self.hi):
+            raise ValueError("the bound the rule reads is one end of the interval")
+        if self.met != (_COMPARE[self.comparison](self.upper, self.threshold) and all(c.met for c in self.conditions)):
+            raise ValueError("met says whether the bound meets the threshold and every further condition is met")
+        expected = "testset" if self.stage == "test" else "out_of_fold"
+        if self.source.rows != expected:
+            raise ValueError(f"a {self.stage} result reads rows {expected}")
+        return self
+
+
+class PostHocInterval(Strict):
+    """A valid 95 percent interval computed after the result and its review (post hoc), which no verdict reads.
+    `method` names how it was drawn; `source` is the file it was read from."""
+
+    lo: float
+    hi: float
+    method: str = Field(min_length=1)
+    source: Source
+
+    @model_validator(mode="after")
+    def _ordered(self):
+        if self.lo > self.hi:
+            raise ValueError("lo must not exceed hi")
+        return self
+
+
+class Hypothesis(Strict):
+    """One pre-registered statement of a protocol experiment, read on its point value as pre-registered. `statement`
+    is copied from the result file and `threshold` is its threshold, part of it. `holds` is null when the
+    statistic is not a finite number, and `result` then reads undefined, never holds or fails. A pre-registered
+    range that is not a valid confidence interval (PLAN.md D86) is never carried here: `interval` is the valid post
+    hoc one, or null, and then the value is a point estimate."""
+
+    label: str = Field(min_length=1)
+    statement: str = Field(min_length=1)
+    threshold: str = Field(min_length=1)
+    value: Optional[float] = None
+    holds: Optional[bool] = None
+    result: Literal["holds", "fails", "undefined"]
+    interval: Optional[PostHocInterval] = None
+    point_estimate: bool
+
+    @model_validator(mode="after")
+    def _reading(self):
+        if self.threshold not in self.statement:
+            raise ValueError(f"{self.label}: the threshold is part of the statement")
+        expected = "undefined" if self.holds is None else "holds" if self.holds else "fails"
+        if self.result != expected or (self.value is None) != (self.holds is None):
+            raise ValueError(f"{self.label}: a finite value holds or fails; no value reads undefined")
+        if self.point_estimate != (self.interval is None) or (self.value is None and self.interval is not None):
+            raise ValueError(f"{self.label}: a value has its valid interval or is a point estimate")
+        if self.interval is not None and not (self.interval.lo <= self.value <= self.interval.hi):
+            raise ValueError(f"{self.label}: the value lies inside its valid interval")
+        return self
+
+
+class AdoptionValue(Strict):
+    """A number the adoption rule reads, with its valid post hoc interval or as a point estimate."""
+
+    label: str = Field(min_length=1)
+    value: float
+    interval: Optional[PostHocInterval] = None
+    point_estimate: bool
+
+    @model_validator(mode="after")
+    def _interval(self):
+        if self.point_estimate != (self.interval is None):
+            raise ValueError(f"{self.label}: a value has its valid interval or is a point estimate")
+        if self.interval is not None and not (self.interval.lo <= self.value <= self.interval.hi):
+            raise ValueError(f"{self.label}: the value lies inside its valid interval")
+        return self
+
+
+class ProtocolResult(Strict):
+    """The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on
+    reliability and stability) rather than one paired difference against a threshold. `rule`, `adopted` and
+    `reading` (the protocol's own conclusion) are copied from the result file. `caveat` and `not_scored` (why the
+    test set was not scored, when it was not) are sentences of the experiment's write-up, word for word."""
+
+    stage: Literal["development"]
+    source: Source
+    games: int
+    rows: int
+    rows_unit: str = Field(min_length=1)
+    hypotheses: Annotated[list[Hypothesis], Field(min_length=1)]
+    rule: str = Field(min_length=1)
+    adoption: list[AdoptionValue]
+    adopted: bool
+    reading: str = Field(min_length=1)
+    caveat: Optional[str] = None
+    not_scored: list[str]
+
+    @model_validator(mode="after")
+    def _rows(self):
+        if self.source.rows != "training":
+            raise ValueError("a protocol result is a description of the development games (rows training)")
+        return self
+
+
+class Experiment(Strict):
+    """A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,
+    fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
+    `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
+    pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
+    needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
+    An experiment whose pre-registration has no verdict on the development games (a dry run only) is
+    `stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
+    development bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+    (the narrow claim, a data-fault note).
+    An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
+    adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
+    meaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds
+    on a test set that cannot be scored has no status yet and is refused."""
+
+    id: str = Field(pattern=r"^[a-z]+-E\d+$")
+    title: str = Field(min_length=1)
+    what: str = Field(min_length=1)
+    hypothesis: str = Field(min_length=1)
+    threshold: str = Field(min_length=1)
+    rank: int = Field(ge=1)
+    gain: int = Field(ge=1, le=5)
+    effort: int = Field(ge=1, le=5)
+    test_data: str = Field(min_length=1)
+    backlog_status: str = Field(min_length=1)
+    status: ExperimentStatus
+    writeup: Optional[str] = None
+    writeup_notes: list[str] = []
+    stages: Literal["development_and_test", "test_only"] = "development_and_test"
+    development: Optional[StageResult] = None
+    test: Optional[StageResult] = None
+    protocol: Optional[ProtocolResult] = None
+
+    @model_validator(mode="after")
+    def _status(self):
+        dev, test = self.development, self.test
+        if self.status == "pre_registered" and self.writeup is not None:
+            raise ValueError(f"{self.id}: a write-up belongs to an experiment that has run, not a pre-registered one")
+        if self.protocol is not None:
+            if dev is not None or test is not None:
+                raise ValueError(f"{self.id}: a protocol result replaces the stage results, never sits beside them")
+            if self.protocol.adopted and self.protocol.not_scored:
+                raise ValueError(f"{self.id}: an adopted protocol whose test set cannot be scored has no status")
+            expected = "development_met_test_pending" if self.protocol.adopted else "not_adopted_development"
+            if self.status != expected:
+                raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
+            return self
+        if (dev and dev.stage != "development") or (test and test.stage != "test"):
+            raise ValueError(f"{self.id}: a stage result sits under its own stage")
+        if self.stages == "test_only":
+            if dev is not None or self.protocol is not None:
+                raise ValueError(f"{self.id}: a test-only experiment has no development verdict")
+            expected = "pre_registered" if test is None else "passed_test" if test.met else "not_adopted_test"
+            if self.status != expected:
+                raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
+            return self
+        if test is not None and dev is None:
+            raise ValueError(f"{self.id}: the test set is scored after the development result exists")
+        expected = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met
+                    else "development_met_test_pending" if test is None
+                    else "adopted" if test.met else "not_adopted_test")
+        if self.status != expected:
+            raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
+        return self
+
+
+class MethodsLane(Strict):
+    """One lane: its dossier, the papers it builds on, its benchmark rows, the dossier's notes on what has no
+    published counterpart (word for word), and its pre-registered experiments."""
+
+    lane: str = Field(min_length=1)
+    dossier: str = Field(min_length=1)
+    report: str = Field(min_length=1)
+    foundations: Annotated[list[Paper], Field(min_length=1)]
+    benchmarks: list[Benchmark]
+    notes: list[str]
+    experiments: list[Experiment]
+
+
+class MethodsFile(Strict):
+    """The methods and literature page (PLAN.md D72). Every text is copied from a lane dossier or from
+    docs/research/BACKLOG.md, and every number of ours from a report, as export/research_methods.py checks
+    before it writes this file. `written` is the date of the dossiers, `backlog` the ranked list of every
+    proposal."""
+
+    schema_version: CurrentVersion
+    written: str
+    backlog: str = Field(min_length=1)
+    lanes: list[MethodsLane]
+    sources: Sources
+
+    @model_validator(mode="after")
+    def _unique(self):
+        lanes = [lane.lane for lane in self.lanes]
+        ids = [e.id for lane in self.lanes for e in lane.experiments]
+        if len(set(lanes)) != len(lanes) or len(set(ids)) != len(ids):
+            raise ValueError("every lane and every experiment appears once")
+        ranks = sorted(e.rank for lane in self.lanes for e in lane.experiments)
+        if ranks != list(range(1, len(ranks) + 1)):
+            raise ValueError("the backlog ranks run from 1 without a gap")
+        return self
+
+
+# ----------------------------------------------------------------------------------------- genai/<kind>.json
+
+
+GenaiKind = Literal["scouting", "possession"]
+GENAI_FILES = {"scouting": "genai/scouting.json", "possession": "genai/possession.json"}
+
+
+class GeneratedNumber(Strict):
+    """One number of a text: as the text writes it, and the field of the item's input whose shown value it
+    equals (export/genai.py, check_numbers)."""
+
+    shown: str = Field(min_length=1)
+    field: str = Field(min_length=1)
+
+
+class GeneratedText(Strict):
+    """One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
+    `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
+    input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
+    the deterministic texts of a synthetic root), `prompt_version` the version of the prompt it was given, and
+    `call` how the model was called (thinking, effort, token limit), when that is known."""
+
+    key: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    input_sha256: str = Field(min_length=64, max_length=64)
+    model: str = Field(min_length=1)
+    prompt_version: str = Field(min_length=1)
+    numbers: list[GeneratedNumber]
+    call: Optional[str] = None
+
+
+class GeneratedTexts(Strict):
+    """Machine-written texts of one kind (PLAN.md P3, D76). The words are the model's; every number in them is a
+    value of the page the text sits on, as the page rounds it, and each text passed every check of
+    export/genai.py when it was written. `validate_tree` runs those checks again against the data root, so a text
+    with a wrong or stale number cannot be in a valid root. A page shows a text only when it has one: no text is
+    required."""
+
+    schema_version: CurrentVersion
+    kind: GenaiKind
+    label: Literal["machine-written"]
+    checks: list[str] = Field(min_length=1)
+    items: list[GeneratedText]
+    notes: list[str]
+    sources: Sources
+
+    @model_validator(mode="after")
+    def _unique(self):
+        keys = [item.key for item in self.items]
+        if len(set(keys)) != len(keys):
+            raise ValueError("a key appears twice among the texts")
+        return self
+
+
 # --------------------------------------------------------------------------------------- files and validation
 
 FIXTURE_SOURCE = "export/sample.py"
@@ -984,6 +1426,8 @@ FILES: tuple[tuple[str, type[Strict]], ...] = (
     ("results.json", Results),
     ("demo/swap.json", DemoSwap),
     ("demo/frames.json", DemoFrames),
+    ("methods.json", MethodsFile),
+    ("genai/<kind>.json", GeneratedTexts),  # genai/scouting.json and genai/possession.json, each optional
 )
 MODELS: dict[str, type[Strict]] = {model.__name__: model for _, model in FILES}
 
@@ -997,6 +1441,8 @@ def model_for(relpath: str) -> Optional[type[Strict]]:
     fixed = {pattern: model for pattern, model in FILES if "<" not in pattern}
     if "/".join(parts) in fixed:
         return fixed["/".join(parts)]
+    if len(parts) == 2 and parts[0] == "genai" and "/".join(parts) in GENAI_FILES.values():
+        return GeneratedTexts
     if len(parts) == 3 and parts[0] == "games" and _SLUG_RE.match(parts[1]):
         if parts[2] == "possessions.json":
             return PossessionIndex
@@ -1018,6 +1464,7 @@ def json_schema() -> dict:
         "title": "SiteContract",
         "description": "Generated by export/schemas.py. Do not edit by hand.",
         "x-schema-version": SCHEMA_VERSION,
+        "x-compatible-versions": list(COMPATIBLE_VERSIONS),
         "x-files": {pattern: model.__name__ for pattern, model in FILES},
         "type": "object",
         "additionalProperties": False,
@@ -1053,6 +1500,8 @@ def _validate_file(root: Path, relpath: str):
             problems.append(f"{relpath}: holds possession {obj.possession} of {obj.game_slug}")
     if isinstance(obj, PossessionIndex) and obj.game.slug != parts[1]:
         problems.append(f"{relpath}: holds the index of {obj.game.slug}")
+    if isinstance(obj, GeneratedTexts) and GENAI_FILES[obj.kind] != relpath:
+        problems.append(f"{relpath}: holds the {obj.kind} texts, which belong in {GENAI_FILES[obj.kind]}")
     return problems, obj
 
 
@@ -1094,10 +1543,18 @@ def _content_problems(relpath: str, obj, synthetic: bool) -> list[str]:
         game_id = obj.game_id if isinstance(obj, Possession) else obj.game.game_id
         if not _is_heldout(game_id):
             problems.append(f"{relpath}: {game_id} is not a held-out game")
-    if isinstance(obj, PlayersFile):
+    if isinstance(obj, PlayersFile) or (isinstance(obj, GeneratedTexts) and obj.kind == "scouting"):
         bad = sorted({s.path for s in sources if s.rows == "heldout"})
         if bad:
             problems.append(f"{relpath}: player values never read held-out rows: {bad}")
+    if isinstance(obj, GeneratedTexts) and obj.kind == "possession":
+        bad = sorted({s.path for s in sources if s.rows in ("out_of_fold", "training")})
+        if bad:
+            problems.append(f"{relpath}: the possession review reads held-out rows only, not {bad}")
+    if isinstance(obj, GeneratedTexts):
+        fixture = sorted({item.key for item in obj.items if item.model == "fixture"})
+        if fixture:
+            problems.append(f"{relpath}: fixture texts in a data root that is not marked synthetic: {fixture[:3]}")
     if isinstance(obj, Manifest):
         if obj.freeze_tag != FREEZE_TAG:
             problems.append(f"{relpath}: freeze_tag is {obj.freeze_tag!r}, not {FREEZE_TAG!r}")
@@ -1108,6 +1565,32 @@ def _content_problems(relpath: str, obj, synthetic: bool) -> list[str]:
                 problems.append(f"{relpath}: lane {lane.lane} is fixture output and cannot be shown as a result")
             if not lane.report.startswith("reports/"):
                 problems.append(f"{relpath}: lane {lane.lane} cites {lane.report!r}, not a file under reports/")
+    if isinstance(obj, MethodsFile):
+        for lane in obj.lanes:
+            if not lane.dossier.startswith("docs/research/") or not lane.report.startswith("reports/"):
+                problems.append(f"{relpath}: lane {lane.lane} names a dossier outside docs/research/ or a report "
+                                "outside reports/")
+            for row in lane.benchmarks:
+                bad = sorted({v.source for v in row.ours if not v.source.startswith("reports/") or v.rows == "testset"})
+                if bad:
+                    problems.append(f"{relpath}: lane {lane.lane}: a number of ours comes from a report under "
+                                    f"reports/ and never from the test set, not {bad}")
+            for experiment in lane.experiments:
+                if experiment.writeup is not None and not experiment.writeup.startswith("reports/research/"):
+                    problems.append(f"{relpath}: {experiment.id} names its write-up {experiment.writeup!r}, not a "
+                                    "file under reports/research/")
+                protocol = experiment.protocol
+                paths = [] if protocol is None else [protocol.source.path] + [
+                    i.source.path for i in [h.interval for h in protocol.hypotheses] + [a.interval for a in
+                                                                                       protocol.adoption] if i]
+                for path in paths:
+                    if not path.startswith("reports/research/"):
+                        problems.append(f"{relpath}: {experiment.id} reads its protocol from {path!r}, not a file "
+                                        "under reports/research/")
+                for stage in (experiment.development, experiment.test):
+                    if stage is not None and not stage.source.path.startswith("reports/research/"):
+                        problems.append(f"{relpath}: {experiment.id} reads its result from "
+                                        f"{stage.source.path!r}, not a file under reports/research/")
     return problems
 
 
@@ -1150,6 +1633,28 @@ def _manifest_problems(root: Path, seen: set) -> list[str]:
     return problems
 
 
+def content_id(files) -> str:
+    """The hash a build id is made from: every manifest entry's path and sha256, in the manifest's order. A change
+    to any listed file, a machine-written text included, gives a new id."""
+    import hashlib
+
+    return hashlib.sha256("\n".join(f"{f.path}:{f.sha256}" for f in files).encode()).hexdigest()
+
+
+def _genai_problems(parsed: dict) -> list[str]:
+    """Every machine-written text checked again against the data root it sits in (export/genai.py): its input is
+    rebuilt from the root, its hash must match, and the text must pass every check, numbers first."""
+    texts = {rel: obj for rel, obj in parsed.items() if isinstance(obj, GeneratedTexts)}
+    if not texts:
+        return []
+    from export import genai  # it builds on this module, so it is imported only when a root holds texts
+
+    problems = []
+    for rel, obj in texts.items():
+        problems += [f"{rel}: {line}" for line in genai.root_problems(obj, parsed)]
+    return problems
+
+
 def validate_tree(root, allow_missing=()) -> list[str]:
     """Validate every file under a data root: each must be known to the contract and valid against its model and
     sit at the path its content names, the fixed files must all exist (except the paths in `allow_missing`), the
@@ -1178,6 +1683,7 @@ def validate_tree(root, allow_missing=()) -> list[str]:
         problems += _manifest_problems(root, seen)
         for rel, obj in parsed.items():
             problems += _content_problems(rel, obj, manifest.synthetic)
+        problems += _genai_problems(parsed)
     for pattern, _ in FILES:
         if "<" not in pattern and pattern not in seen and pattern not in allow_missing:
             problems.append(f"{pattern}: missing")
@@ -1214,4 +1720,8 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # Run the imported module, not this __main__ copy: export/genai.py imports export.schemas, and the checks of a
+    # machine-written text must meet the same contract classes the validated files were read with.
+    from export import schemas as _contract
+
+    raise SystemExit(_contract.main())

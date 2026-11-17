@@ -18,6 +18,8 @@ export interface SiteContract {
   Results?: Results;
   DemoSwap?: DemoSwap;
   DemoFrames?: DemoFrames;
+  MethodsFile?: MethodsFile;
+  GeneratedTexts?: GeneratedTexts;
 }
 /**
  * The entry point. `synthetic` is true when the data was built from fixtures; the site must then label
@@ -27,7 +29,7 @@ export interface SiteContract {
  * via the `definition` "Manifest".
  */
 export interface Manifest {
-  schema_version: "1.1.0";
+  schema_version: "1.2.0";
   build_id: string;
   generated_at: string;
   repo_commit: string;
@@ -77,7 +79,8 @@ export interface ManifestFile {
  * Where a value comes from. `path` is relative to the repository (for example reports/xfg.md) or starts with
  * $DATA_ROOT for a data table. `rows` says which rows were read: heldout (held-out games only), out_of_fold
  * (training games, each row predicted by a model that never saw its game), training (training games, read as a
- * description or fitted in sample), not_split (the source is not split by game).
+ * description or fitted in sample), not_split (the source is not split by game), testset (the D71 test set of
+ * PLAN.md D77, scored once per experiment).
  *
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "Source".
@@ -85,14 +88,14 @@ export interface ManifestFile {
 export interface Source {
   path: string;
   what: string;
-  rows: "heldout" | "out_of_fold" | "training" | "not_split";
+  rows: "heldout" | "out_of_fold" | "training" | "not_split" | "testset";
 }
 /**
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "PossessionIndex".
  */
 export interface PossessionIndex {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   game: GameInfo;
   xfg_bucket_edges: number[];
   possessions: PossessionSummary[];
@@ -155,7 +158,7 @@ export interface PossessionSummary {
  * via the `definition` "Possession".
  */
 export interface Possession {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   game_id: string;
   game_slug: string;
   possession: number;
@@ -277,7 +280,7 @@ export interface Shot {
  * via the `definition` "PlayersFile".
  */
 export interface PlayersFile {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   season: string;
   window: string;
   n_players: number;
@@ -495,7 +498,7 @@ export interface SimilarPlayer {
  * via the `definition` "Scorecard".
  */
 export interface Scorecard {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   decision: string;
   builds: ScorecardBuild[];
   paired: PairedDifference[];
@@ -585,7 +588,7 @@ export interface PairedDifference {
  * via the `definition` "Results".
  */
 export interface Results {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   freeze_tag: string;
   generated: string;
   lanes: LaneResult[];
@@ -660,7 +663,7 @@ export interface PendingLane {
  * via the `definition` "DemoSwap".
  */
 export interface DemoSwap {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   label: "illustration";
   game_id: string;
   game: string;
@@ -736,7 +739,7 @@ export interface SwapPossession {
  * via the `definition` "DemoFrames".
  */
 export interface DemoFrames {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   game_id: string;
   game: string;
   build: string;
@@ -815,9 +818,337 @@ export interface DemoPoint {
   x: number;
   y: number;
 }
+/**
+ * The methods and literature page (PLAN.md D72). Every text is copied from a lane dossier or from
+ * docs/research/BACKLOG.md, and every number of ours from a report, as export/research_methods.py checks
+ * before it writes this file. `written` is the date of the dossiers, `backlog` the ranked list of every
+ * proposal.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "MethodsFile".
+ */
+export interface MethodsFile {
+  schema_version: "1.2.0";
+  written: string;
+  backlog: string;
+  lanes: MethodsLane[];
+  /**
+   * @minItems 1
+   */
+  sources: [Source, ...Source[]];
+}
+/**
+ * One lane: its dossier, the papers it builds on, its benchmark rows, the dossier's notes on what has no
+ * published counterpart (word for word), and its pre-registered experiments.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "MethodsLane".
+ */
+export interface MethodsLane {
+  lane: string;
+  dossier: string;
+  report: string;
+  /**
+   * @minItems 1
+   */
+  foundations: [Paper, ...Paper[]];
+  benchmarks: Benchmark[];
+  notes: string[];
+  experiments: Experiment[];
+}
+/**
+ * A paper a lane builds on. `cite`, `take` (what the lane takes from it) and `differs` (how ours differs, when
+ * the dossier gives it a column of its own; otherwise `take` says both) are copied word for word from the lane
+ * dossier; `url` is a link the dossier names.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "Paper".
+ */
+export interface Paper {
+  cite: string;
+  url: string;
+  take: string;
+  differs?: string | null;
+}
+/**
+ * Our number next to the published one, one row of the benchmark table of the lane dossier. `published`,
+ * `paper`, `differs` and `comparability` are the dossier's cells word for word, so the verdict is the
+ * dossier's own; `comparability_class` sorts it into three kinds for the page. `ours` holds our numbers, each
+ * traced to a report. A row with no number of ours has an empty `ours` and may carry `ours_text`, a phrase of
+ * the dossier with no number in it. `published_values` are the published numbers of `published`, `where` the
+ * table or section of the paper, `url` a link to the paper (null when the row names no paper).
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "Benchmark".
+ */
+export interface Benchmark {
+  ours: OurValue[];
+  ours_text?: string | null;
+  published: string;
+  published_values: string[];
+  paper: string;
+  where?: string | null;
+  url?: string | null;
+  differs: string;
+  comparability: string;
+  comparability_class: "roughly" | "not_directly" | "none";
+}
+/**
+ * One number of ours, as text exactly as the report prints it (so trailing zeros stay), with the interval
+ * the report prints beside it on the same line. An estimate without an interval is a point estimate; a setting
+ * (a penalty chosen by cross-validation) is not an estimate and has no interval. `source` is the report under
+ * reports/ it was copied from, and `rows` says which rows the report computed it on. The label names what the
+ * number is; any number inside it is in the report too.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "OurValue".
+ */
+export interface OurValue {
+  label: string;
+  value: string;
+  lo?: string | null;
+  hi?: string | null;
+  kind: "estimate" | "setting";
+  source: string;
+  rows: "heldout" | "out_of_fold" | "training" | "not_split" | "testset";
+}
+/**
+ * A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,
+ * fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
+ * `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
+ * pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
+ * needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
+ * An experiment whose pre-registration has no verdict on the development games (a dry run only) is
+ * `stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
+ * development bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+ * (the narrow claim, a data-fault note).
+ * An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
+ * adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
+ * meaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds
+ * on a test set that cannot be scored has no status yet and is refused.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "Experiment".
+ */
+export interface Experiment {
+  id: string;
+  title: string;
+  what: string;
+  hypothesis: string;
+  threshold: string;
+  rank: number;
+  gain: number;
+  effort: number;
+  test_data: string;
+  backlog_status: string;
+  status:
+    | "pre_registered"
+    | "development_met_test_pending"
+    | "not_adopted_development"
+    | "adopted"
+    | "not_adopted_test"
+    | "passed_test";
+  writeup?: string | null;
+  writeup_notes?: string[];
+  stages?: "development_and_test" | "test_only";
+  development?: StageResult | null;
+  test?: StageResult | null;
+  protocol?: ProtocolResult | null;
+}
+/**
+ * One stage of an experiment, read from its result file under reports/research/: development (out of fold on
+ * the development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption
+ * rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
+ * bound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every
+ * further condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "StageResult".
+ */
+export interface StageResult {
+  stage: "development" | "test";
+  source: Source;
+  metric: string;
+  rows: number;
+  rows_unit: string;
+  games: number;
+  diff: number;
+  lo: number;
+  hi: number;
+  interval: string;
+  threshold: number;
+  upper: number;
+  comparison?: "at_most" | "below";
+  conditions?: Condition[];
+  met: boolean;
+  values: StageValue[];
+}
+/**
+ * A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the
+ * interval it reads (`bound`) compares with `threshold` as `comparison` says. `label` names the statistic.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "Condition".
+ */
+export interface Condition {
+  label: string;
+  value: number;
+  lo: number;
+  hi: number;
+  bound: "lo" | "hi";
+  comparison: "below" | "at_most" | "above" | "at_least";
+  threshold: number;
+  met: boolean;
+}
+/**
+ * A further number of a stage result, read from the result file: a value with its interval when the file
+ * gives one, else a point estimate.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "StageValue".
+ */
+export interface StageValue {
+  label: string;
+  value: number;
+  lo?: number | null;
+  hi?: number | null;
+  point_estimate: boolean;
+}
+/**
+ * The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on
+ * reliability and stability) rather than one paired difference against a threshold. `rule`, `adopted` and
+ * `reading` (the protocol's own conclusion) are copied from the result file. `caveat` and `not_scored` (why the
+ * test set was not scored, when it was not) are sentences of the experiment's write-up, word for word.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "ProtocolResult".
+ */
+export interface ProtocolResult {
+  stage: "development";
+  source: Source;
+  games: number;
+  rows: number;
+  rows_unit: string;
+  /**
+   * @minItems 1
+   */
+  hypotheses: [Hypothesis, ...Hypothesis[]];
+  rule: string;
+  adoption: AdoptionValue[];
+  adopted: boolean;
+  reading: string;
+  caveat?: string | null;
+  not_scored: string[];
+}
+/**
+ * One pre-registered statement of a protocol experiment, read on its point value as pre-registered. `statement`
+ * is copied from the result file and `threshold` is its threshold, part of it. `holds` is null when the
+ * statistic is not a finite number, and `result` then reads undefined, never holds or fails. A pre-registered
+ * range that is not a valid confidence interval (PLAN.md D86) is never carried here: `interval` is the valid post
+ * hoc one, or null, and then the value is a point estimate.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "Hypothesis".
+ */
+export interface Hypothesis {
+  label: string;
+  statement: string;
+  threshold: string;
+  value?: number | null;
+  holds?: boolean | null;
+  result: "holds" | "fails" | "undefined";
+  interval?: PostHocInterval | null;
+  point_estimate: boolean;
+}
+/**
+ * A valid 95 percent interval computed after the result and its review (post hoc), which no verdict reads.
+ * `method` names how it was drawn; `source` is the file it was read from.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "PostHocInterval".
+ */
+export interface PostHocInterval {
+  lo: number;
+  hi: number;
+  method: string;
+  source: Source;
+}
+/**
+ * A number the adoption rule reads, with its valid post hoc interval or as a point estimate.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "AdoptionValue".
+ */
+export interface AdoptionValue {
+  label: string;
+  value: number;
+  interval?: PostHocInterval | null;
+  point_estimate: boolean;
+}
+/**
+ * Machine-written texts of one kind (PLAN.md P3, D76). The words are the model's; every number in them is a
+ * value of the page the text sits on, as the page rounds it, and each text passed every check of
+ * export/genai.py when it was written. `validate_tree` runs those checks again against the data root, so a text
+ * with a wrong or stale number cannot be in a valid root. A page shows a text only when it has one: no text is
+ * required.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedTexts".
+ */
+export interface GeneratedTexts {
+  schema_version: "1.2.0";
+  kind: "scouting" | "possession";
+  label: "machine-written";
+  /**
+   * @minItems 1
+   */
+  checks: [string, ...string[]];
+  items: GeneratedText[];
+  notes: string[];
+  /**
+   * @minItems 1
+   */
+  sources: [Source, ...Source[]];
+}
+/**
+ * One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
+ * `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
+ * input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
+ * the deterministic texts of a synthetic root), `prompt_version` the version of the prompt it was given, and
+ * `call` how the model was called (thinking, effort, token limit), when that is known.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedText".
+ */
+export interface GeneratedText {
+  key: string;
+  text: string;
+  input_sha256: string;
+  model: string;
+  prompt_version: string;
+  numbers: GeneratedNumber[];
+  call?: string | null;
+}
+/**
+ * One number of a text: as the text writes it, and the field of the item's input whose shown value it
+ * equals (export/genai.py, check_numbers).
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedNumber".
+ */
+export interface GeneratedNumber {
+  shown: string;
+  field: string;
+}
 
-/** The schema version these types were generated from. Every data file must carry the same value. */
-export const SCHEMA_VERSION = "1.1.0" as const;
+/** The schema version these types were generated from. The manifest carries the same value. */
+export const SCHEMA_VERSION = "1.2.0" as const;
+
+/** The versions a data file may carry: this one and the earlier minor versions of the same major version. */
+export const COMPATIBLE_VERSIONS = ["1.1.0","1.2.0"] as const;
+
+/** Path patterns of the files that must carry SCHEMA_VERSION itself (the contract's CurrentVersion). */
+export const CURRENT_VERSION_FILES = ["manifest.json","methods.json","genai/<kind>.json"] as const;
 
 /** Path pattern under the data root, and the contract model each file must validate against. */
 export const CONTRACT_FILES = {
@@ -829,4 +1160,6 @@ export const CONTRACT_FILES = {
   "results.json": "Results",
   "demo/swap.json": "DemoSwap",
   "demo/frames.json": "DemoFrames",
+  "methods.json": "MethodsFile",
+  "genai/<kind>.json": "GeneratedTexts",
 } as const;
