@@ -65,6 +65,11 @@ MODEL = "claude-haiku-5-5"
 # what a run cost and what the full run would cost.
 PRICE_PER_MTOK = {"input": 0.10, "output": 0.50}
 MAX_TOKENS = 4000
+# How the model is called. Thinking is off: with it on (the default of this model), long prompts led it to spend
+# the whole MAX_TOKENS on reasoning and return no text (scouting-v3 run, 14 of 50 items). A paragraph from given
+# facts needs no reasoning step; the retry with the problems listed does the correcting. A record that failed as a
+# call (it stopped before writing) under another call setting is asked again once (text_for).
+CALL = {"thinking": {"type": "disabled"}, "output_config": {"effort": "low"}}
 MAX_ATTEMPTS = 2
 FIXTURE_MODEL = "fixture"
 GENERATOR = "export/genai.py"
@@ -794,7 +799,7 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
         try:
             # The SDK retries a rate limit, an overload and a dropped connection itself (max_retries).
             response = client.messages.create(model=model, max_tokens=MAX_TOKENS, system=system, messages=messages,
-                                              output_config={"effort": "low"})
+                                              **CALL)
         except api_errors as exc:
             status = getattr(exc, "status_code", None)
             raise GenaiProblem(f"the model call failed ({type(exc).__name__}"
@@ -818,6 +823,12 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
     return {"text": text, "problems": problems, "numbers": [n.model_dump() for n in numbers], "attempts": attempts}
 
 
+def call_failed(record: dict) -> bool:
+    """Whether a cached record failed as a call (the model stopped before it wrote a text), not on a rule."""
+    problems = record.get("problems") or []
+    return not record.get("text") and bool(problems) and all(p.startswith("the model stopped with") for p in problems)
+
+
 def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MODEL) -> tuple:
     """The text of one item, from the cache when the same model, prompt and input were asked before. Returns
     (record, from_cache). In fixture mode nothing is cached and no model is called."""
@@ -832,8 +843,12 @@ def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MO
     folder = cache_dir(cache) / item["kind"]
     path = folder / f"{cache_key(model, version, prompt_sha, input_hash)}.json"
     if path.exists():
-        return json.loads(path.read_text(encoding="utf-8")), True
+        cached = json.loads(path.read_text(encoding="utf-8"))
+        if not (call_failed(cached) and cached.get("call") != CALL):
+            return cached, True
+        # A call failure (no text written) under an older call setting: asked once again under this one.
     record = call_model(client, item, system, model)
+    record.update({"call": CALL})
     record.update({"key": item["key"], "kind": item["kind"], "model": model, "prompt_version": version,
                    "prompt_sha256": prompt_sha, "input_sha256": input_hash,
                    "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})

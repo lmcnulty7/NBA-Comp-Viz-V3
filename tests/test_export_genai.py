@@ -296,6 +296,7 @@ def test_live_path_retries_once_caches_and_records_model_and_prompt(root, tmp_pa
     second = client.calls[1]["messages"]
     assert second[-1]["role"] == "user" and "broke these rules" in second[-1]["content"]
     assert client.calls[0]["model"] == genai.MODEL and client.calls[0]["output_config"] == {"effort": "low"}
+    assert client.calls[0]["thinking"] == {"type": "disabled"}
     # The same input, model and prompt again: the cache answers and no call is made.
     again, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=tmp_path / "cache")
     assert cached and again["text"] == good
@@ -409,3 +410,25 @@ def test_check_text_applies_the_lane_rule(root):
     text = genai.fixture_text(item)
     assert genai.check_text(text, item)[0] == []
     assert any("lane" in line for line in genai.check_text(text + " The team won the matchup.", item)[0])
+
+
+def test_a_call_failure_from_an_older_call_setting_is_asked_once_more(root, tmp_path):
+    """A record that stopped before writing (max_tokens with thinking on) is asked again under the current call
+    setting, once: a new failure under the same setting is not asked a third time."""
+    key, build = genai.choose(root, "possession", None)[0]
+    item = build()
+    good = genai.fixture_text(item)
+    cache = tmp_path / "cache"
+    version, _, prompt_sha = genai.prompt("possession")
+    path = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, genai.input_sha256(item))}.json"
+    path.parent.mkdir(parents=True)
+    old = {"text": None, "problems": ["the model stopped with max_tokens"], "numbers": [], "attempts": [],
+           "model": genai.MODEL, "prompt_version": version, "input_sha256": genai.input_sha256(item)}
+    path.write_text(json.dumps(old), encoding="utf-8")
+    record, cached = genai.text_for(item, live=True, client=FakeClient([good]), cache=cache)
+    assert not cached and record["text"] == good and record["call"] == genai.CALL
+
+    path.write_text(json.dumps({**old, "call": genai.CALL}), encoding="utf-8")
+    record, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=cache)
+    assert cached and record["text"] is None
+    assert genai.call_failed(record) and not genai.call_failed({"text": None, "problems": ["number '1' is not"]})
