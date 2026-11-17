@@ -227,13 +227,20 @@ function sentenceAt(text: string, index: number): string {
   return text.slice(start, stop);
 }
 
-// Words that say a value went up or down (export/genai.py, UP_WORDS and DOWN_WORDS).
+// Words that say a value went up or down (export/genai.py, UP_WORDS, DOWN_WORDS and the reversed phrases).
 const UP_WORDS =
-  "rose|rise|rises|rising|climbed|climb|climbs|climbing|grew|grow|grows|growing|increased|increases|increase|jumped|jump|jumps|jumping|went up|goes up|go up|going up|moved up|ticked up";
+  "edged up|eased up|moved up|ticked up|went up|goes up|go up|going up|rose|rise|rises|rising|climbed|climb|climbs|climbing|grew|grow|grows|growing|increased|increases|increase|jumped|jump|jumps|jumping|spiked|spike|spikes|spiking|lifted|lift|lifts|lifting|recovered|recover|recovers|recovering";
 const DOWN_WORDS =
-  "fell|fall|falls|falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|sinking|went down|goes down|go down|going down|slid|slide|slides|sliding|declined|decline|declines|decreased|decrease|decreases|slipped|slip|slips|moved down|ticked down";
-const CHANGE_RE = new RegExp(`\\b(?:(?<up>${UP_WORDS})|(?<down>${DOWN_WORDS}))\\b`, "gi");
+  "edged down|eased down|moved down|ticked down|went down|goes down|go down|going down|fell|fall|falls|falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|sinking|slid|slide|slides|sliding|declined|decline|declines|decreased|decrease|decreases|slipped|slip|slips|eased|easing|eases|lost|loses|losing";
+const REVERSED_UP = "up from|higher than";
+const REVERSED_DOWN = "down from|lower than";
+const CHANGE_RE = new RegExp(
+  `\\b(?:(?<rup>${REVERSED_UP})|(?<rdown>${REVERSED_DOWN})|(?<up>${UP_WORDS})|(?<down>${DOWN_WORDS}))\\b`,
+  "gi",
+);
 const FROM_BEFORE_RE = /\bfrom\s*$/i;
+const TO_BEFORE_RE = /\bto\b(?:\s+[A-Za-z']+){0,4}\s*$/i;
+const NEGATION_RE = /\b(?:not|never|no|without)\b|n't\b/i;
 
 /** The run of values a fact belongs to, for the direction check (export/genai.py, series_of). */
 export function seriesOf(field: string, unit: FactUnit): string | null {
@@ -289,53 +296,163 @@ export function sameAtShownRounding(a: string, b: string, aExact = false, bExact
 }
 
 /**
- * A word of change (rose, fell, dipped, ...) must agree with the values it links (export/genai.py,
- * check_directions): the first number of a run after it in its sentence, against the number after "from" in that
- * sentence, else the nearest earlier number of the same run. One value at two roundings is no change.
+ * A word of change (rose, fell, eased down, up from, ...) must agree with the values it links (export/genai.py,
+ * check_directions): every value of a run it moves to (the first after it, then each later one after "to", up to
+ * the next word of change), from the value after "from" or the nearest earlier value of the run. "up from X" and
+ * "higher than X" compare the nearest earlier value with X. One value at two roundings is no change; a negated word
+ * of change is refused.
  */
 export function checkDirections(text: string, facts: readonly Fact[], names: readonly string[] = []): string[] {
   const masked = maskNames(text, names);
+  const candidates = (token: Token) => facts.filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit));
   const runs = numbersIn(text, names).map((token) => {
-    const found = new Set(
-      facts
-        .filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit))
-        .map((f) => seriesOf(f.field, f.unit)),
-    );
-    const fields = facts
-      .filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit))
-      .map((f) => f.field);
+    const found = new Set(candidates(token).map((f) => seriesOf(f.field, f.unit)));
+    const fields = candidates(token).map((f) => f.field);
     const exact = fields.length > 0 && fields.every((field) => EXACT_FIELD_RE.test(field));
     return { token, run: found.size === 1 ? ([...found][0] ?? null) : null, exact };
   });
+  type Entry = (typeof runs)[number];
+  const gap = (a: number, b: number) => masked.slice(a, b).replace(/[-+\u2212]+$/, "");
+  const words = [...masked.matchAll(CHANGE_RE)];
   const problems: string[] = [];
-  for (const word of masked.matchAll(CHANGE_RE)) {
+  const judge = (word: string, said: string, source: Entry, target: Entry) => {
+    if (sameAtShownRounding(source.token.canon, target.token.canon, source.exact, target.exact)) {
+      problems.push(`"${word}" links "${source.token.raw}" and "${target.token.raw}", which are one value at two roundings: no change`);
+      return;
+    }
+    const value = (entry: Entry) => Number(canonical(entry.token.canon).replace(/%$/, ""));
+    const went = value(target) > value(source) ? "up" : "down";
+    if (went !== said) problems.push(`"${word}" says ${said}, but "${source.token.raw}" to "${target.token.raw}" went ${went}`);
+  };
+  words.forEach((word, n) => {
     const at = word.index ?? 0;
     const after = at + word[0].length;
-    const [, end] = sentenceSpan(masked, at);
-    const ahead = runs.filter(({ token, run }) => run && token.start >= after && token.start < end);
-    if (ahead.length === 0) continue;
-    let targetEntry = ahead[0]!;
-    const run = targetEntry.run;
-    let sourceEntry: (typeof runs)[number] | null = null;
-    if (FROM_BEFORE_RE.test(masked.slice(after, targetEntry.token.start))) {
-      const later = ahead.slice(1).find((entry) => entry.run === run);
-      if (!later) continue;
-      sourceEntry = targetEntry;
-      targetEntry = later;
+    const clauseStart = Math.max(...[",", ";", ":", "."].map((mark) => masked.lastIndexOf(mark, at - 1)));
+    if (NEGATION_RE.test(masked.slice(clauseStart + 1, at))) {
+      problems.push(`"${word[0]}" is negated, and a negated change cannot be checked`);
+      return;
+    }
+    const [, sentenceEnd] = sentenceSpan(masked, at);
+    const limit = Math.min(sentenceEnd, ...words.slice(n + 1).map((w) => w.index ?? 0).filter((i) => i < sentenceEnd));
+    const ahead = runs.filter((entry) => entry.run && entry.token.start >= after && entry.token.start < limit);
+    const groups = word.groups ?? {};
+    const said = groups.up || groups.rup ? "up" : "down";
+    if (groups.rup || groups.rdown) {
+      if (ahead.length === 0) return;
+      const source = ahead[0]!;
+      const earlier = runs.filter((entry) => entry.token.start < at && entry.run === source.run);
+      if (earlier.length > 0) judge(word[0], said, source, earlier[earlier.length - 1]!);
+      return;
+    }
+    if (ahead.length === 0) return;
+    const first = ahead[0]!;
+    const same = ahead.filter((entry) => entry.run === first.run);
+    let source: Entry | null;
+    let targets: Entry[];
+    let rest: Entry[];
+    if (FROM_BEFORE_RE.test(gap(after, first.token.start))) {
+      if (same.length < 2) return;
+      source = first;
+      targets = [same[1]!];
+      rest = same.slice(2);
     } else {
-      const before = runs.filter((entry) => entry.token.start < at && entry.run === run);
-      sourceEntry = before.length > 0 ? before[before.length - 1]! : null;
+      const earlier = runs.filter((entry) => entry.token.start < at && entry.run === first.run);
+      source = earlier.length > 0 ? earlier[earlier.length - 1]! : null;
+      targets = [first];
+      rest = same.slice(1);
+      if (rest.length > 0 && FROM_BEFORE_RE.test(gap(first.token.start, rest[0]!.token.start))) {
+        source = rest[0]!;
+        rest = rest.slice(1);
+      }
     }
-    if (!sourceEntry) continue;
-    const source = sourceEntry.token;
-    const target = targetEntry.token;
-    const said = word.groups?.up ? "up" : "down";
-    if (sameAtShownRounding(source.canon, target.canon, sourceEntry.exact, targetEntry.exact)) {
-      problems.push(`"${word[0]}" links "${source.raw}" and "${target.raw}", which are one value at two roundings: no change`);
-      continue;
+    for (const entry of rest) {
+      if (TO_BEFORE_RE.test(gap(targets[targets.length - 1]!.token.start, entry.token.start))) targets.push(entry);
     }
-    const went = Number(target.canon.replace(/%$/, "")) > Number(source.canon.replace(/%$/, "")) ? "up" : "down";
-    if (went !== said) problems.push(`"${word[0]}" says ${said}, but "${source.raw}" to "${target.raw}" went ${went}`);
+    if (source === null) {
+      if (targets.length < 2) return;
+      source = targets[0]!;
+      targets = targets.slice(1);
+    }
+    for (const target of targets) {
+      judge(word[0], said, source, target);
+      source = target;
+    }
+  });
+  return problems;
+}
+
+// The words a sentence must hold for a number to be about what its fact is about (export/genai.py, SUBJECT_WORDS).
+const SUBJECT_WORDS: [RegExp, RegExp][] = [
+  [/^games$/, /\bgames?\b/i],
+  [/^shot_making\.over_expected_per_100\.(?:value|lo|hi)$/, /\b(?:shot|shots|made|make|makes|shooting)\b/i],
+  [/^shot_making\.baseline_error_per_100$/, /\b(?:error|explain|explains|explained)\b/i],
+  [/^shot_making\.fg_pct$/, /\b(?:shot|shots|made|make|makes|share|attempts|shooting|went in|rate)\b/i],
+  [/^shot_making\.expected_fg_pct$/, /\b(?:expected|expect|expects|model|model's)\b/i],
+  [/^shot_making\.(?:min_)?attempts$/, /\battempts?\b/i],
+  [/^gravity\.gravity_ft\.(?:value|lo|hi)$/, /\b(?:defenders?|feet|closer|farther|close)\b/i],
+  [/^(?:gravity|similar)\.(?:min_)?possessions$/, /\bpossessions?\b/i],
+  [/^rebounding\.rate_per_100\.(?:value|lo|hi)$/, /\b(?:rebounds?|rebounding)\b/i],
+  [/^rebounding\.model_expected_per_100$/, /\b(?:rebounds?|rebounding|expected|expect)\b/i],
+  [/^rebounding\.(?:min_)?chances$/, /\bchances?\b/i],
+  [/^absence_risk\.model_probability\.(?:value|lo|hi)$/, /\b(?:miss|misses|missing|absence|absent|chance)\b/i],
+  [/^absence_risk\.observed_rate\.(?:value|lo|hi)$/, /\b(?:miss|missed|absence|absent|share|rate|observed)\b/i],
+  [/^absence_risk\.absent$/, /\b(?:miss|missed|misses|absent|absence)\b/i],
+  [/^absence_risk\.(?:min_)?games$/, /\bgames?\b/i],
+  [/^similar\.neighbours\.\d+\.rank$/, /\b(?:style|similar|rank|ranks|ranked|closest)\b/i],
+  [/^similar\.neighbours\.\d+\.distance$/, /\b(?:style|distance|similar|closer|close)\b/i],
+  [/^.+\.interval$/, /\b(?:range|interval)\b/i],
+  [/^shot_making\..+\.n$/, /\battempts?\b/i],
+  [/^gravity\..+\.n$/, /\bpossessions?\b/i],
+  [/^rebounding\..+\.n$/, /\bchances?\b/i],
+  [/^absence_risk\..+\.n$/, /\bgames?\b/i],
+  [/^possession$/, /\bpossession\b/i],
+  [/^period$/, /\bperiod\b/i],
+  [/^start_clock$/, /\b(?:clock|started|start|starting|began|begin|left|at|from|during)\b/i],
+  [/^points$/, /\b(?:points?|scored|score|scoring)\b/i],
+  [/^duration_s$/, /\b(?:seconds?|lasted|long|length)\b/i],
+  [/^(?:xfg|shots\.\d+\.xfg)$/, /\b(?:chance|shot|shots|probability|likely)\b/i],
+  [/^(?:epv_start|epv_end|epv\.value\.\d+)$/, /\b(?:expected|points?|value|estimate|model|model's|predicted|predict)\b/i],
+  [/^(?:epv\.t|shots\.\d+\.t)(?:\.\d+)?$/, /\b(?:seconds?|time|at)\b/i],
+];
+const RANGE_WORDS = /\b(?:range|interval)\b/i;
+
+function subjectWords(field: string): ((sentence: string) => boolean) | null {
+  const found = SUBJECT_WORDS.find(([pattern]) => pattern.test(field));
+  if (!found) return null;
+  const words = found[1];
+  if (/\.(?:lo|hi)$/.test(field)) return (sentence) => words.test(sentence) || RANGE_WORDS.test(sentence);
+  return (sentence) => words.test(sentence);
+}
+
+/**
+ * A number that matches a fact must sit in a sentence that says what that fact is about (export/genai.py,
+ * check_subjects), and a sentence that says "point estimate" and gives numbers must give at least one.
+ */
+export function checkSubjects(text: string, facts: readonly Fact[], names: readonly string[] = []): string[] {
+  const masked = maskNames(text, names);
+  const tokens = numbersIn(text, names);
+  const matching = (token: Token) => facts.filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit));
+  const problems: string[] = [];
+  for (const token of tokens) {
+    const found = matching(token);
+    if (found.length === 0) continue;
+    const sentence = sentenceAt(masked, token.start);
+    const needs = found.map((f) => subjectWords(f.field));
+    if (needs.every((need) => need !== null) && !needs.some((need) => need!(sentence))) {
+      problems.push(`number "${token.raw}" sits in a sentence that does not say what it is (it is ${found[0]!.field})`);
+    }
+  }
+  const spans = new Map<string, [number, number]>();
+  for (const token of tokens) {
+    const span = sentenceSpan(masked, token.start);
+    spans.set(span.join(":"), span);
+  }
+  for (const [start, stop] of spans.values()) {
+    const sentence = masked.slice(start, stop);
+    if (!POINT_ESTIMATE_RE.test(sentence)) continue;
+    const inside = tokens.filter((token) => token.start >= start && token.start < stop);
+    const kinds = new Set(inside.flatMap((token) => matching(token).map((f) => f.kind)));
+    if (inside.length > 0 && !kinds.has("point")) problems.push(`says point estimate beside no point estimate: "${sentence.trim().slice(0, 60)}"`);
   }
   return problems;
 }
@@ -483,6 +600,11 @@ export function checkedText(
 ): GeneratedText | null {
   const item = texts?.items.find((candidate) => candidate.key === key) ?? null;
   if (!item) return null;
-  const problems = [...checkNumbers(item.text, facts, names), ...checkDirections(item.text, facts, names), ...checkLanes(item.text, names)];
+  const problems = [
+    ...checkNumbers(item.text, facts, names),
+    ...checkDirections(item.text, facts, names),
+    ...checkSubjects(item.text, facts, names),
+    ...checkLanes(item.text, names),
+  ];
   return problems.length === 0 ? item : null;
 }

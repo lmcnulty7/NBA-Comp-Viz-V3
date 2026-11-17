@@ -175,7 +175,7 @@ export default async function PlayerPage({ params }: PageProps<"/prep/[player]">
       </header>
 
       <EvidenceScope>
-        <MachineText item={scouting} texts={texts} />
+        <MachineText item={scouting} texts={texts} note={copy.site.machineText.descriptive} />
 
         <MetricSection metric="shot_making" players={players}>
           {shots.shown && shots.over_expected_per_100 ? (

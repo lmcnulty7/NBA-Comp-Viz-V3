@@ -10,5 +10,8 @@
     "scouting-v2": "82135972b1dd01074f9df2ea23a86a7c17505fc61f61d38f9082c8628d3f43b2",
     "possession-v2": "c6769534d7cbcd140101576177e69ed902c7606cda72d21be7d032bde1bb03fb",
     "scouting-v3": "961d67094bdeb59c6b04abe207ed7bd02b05f53ff680cf1a8f87272e03ea1916"
+  },
+  "history": {
+    "scouting-v3": "Dropped rule 6 of scouting-v2 (call the descriptive values descriptive) to cut sentences that read above grade 9. The prep page now says it in a fixed note (web/content/site.json, machineText.descriptive). The next scouting prompt must restore the rule in plain words (ml-review of p3-v3)."
   }
 }

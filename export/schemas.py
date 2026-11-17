@@ -1204,7 +1204,8 @@ class GeneratedText(Strict):
     """One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
     `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
     input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
-    the deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given."""
+    the deterministic texts of a synthetic root), `prompt_version` the version of the prompt it was given, and
+    `call` how the model was called (thinking, effort, token limit), when that is known."""
 
     key: str = Field(min_length=1)
     text: str = Field(min_length=1)
@@ -1212,6 +1213,7 @@ class GeneratedText(Strict):
     model: str = Field(min_length=1)
     prompt_version: str = Field(min_length=1)
     numbers: list[GeneratedNumber]
+    call: Optional[str] = None
 
 
 class GeneratedTexts(Strict):

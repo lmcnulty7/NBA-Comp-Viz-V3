@@ -1009,7 +1009,8 @@ export interface GeneratedTexts {
  * One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
  * `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
  * input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
- * the deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given.
+ * the deterministic texts of a synthetic root), `prompt_version` the version of the prompt it was given, and
+ * `call` how the model was called (thinking, effort, token limit), when that is known.
  *
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "GeneratedText".
@@ -1021,6 +1022,7 @@ export interface GeneratedText {
   model: string;
   prompt_version: string;
   numbers: GeneratedNumber[];
+  call?: string | null;
 }
 /**
  * One number of a text: as the text writes it, and the field of the item's input whose shown value it

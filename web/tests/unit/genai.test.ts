@@ -15,6 +15,7 @@ import {
 import {
   checkDirections,
   checkLanes,
+  checkSubjects,
   checkNumbers,
   checkedText,
   numbersIn,
@@ -39,6 +40,7 @@ const CASES = JSON.parse(readFileSync(path.join(WEB_DIR, "..", "tests", "fixture
   format: { fn: string; value: number; digits?: number; shown: string }[];
   lanes: { name: string; text: string; names: string[]; ok: boolean; lane: string }[];
   directions: { name: string; text: string; facts: Fact[]; names: string[]; ok: boolean; problem: string }[];
+  subjects: { name: string; text: string; facts: Fact[]; names: string[]; ok: boolean; problem: string }[];
 };
 const named = (process.env.SITE_DATA_DIR ?? "").trim();
 const ROOT = named ? path.resolve(WEB_DIR, named) : path.join(WEB_DIR, "data");
@@ -62,6 +64,14 @@ for (const item of CASES.lanes) {
 for (const item of CASES.directions) {
   test(`words of change: ${item.name}`, () => {
     const problems = checkDirections(item.text, item.facts, item.names);
+    if (item.ok) expect(problems).toEqual([]);
+    else expect(problems.some((line) => line.includes(item.problem)), JSON.stringify(problems)).toBe(true);
+  });
+}
+
+for (const item of CASES.subjects) {
+  test(`subjects: ${item.name}`, () => {
+    const problems = checkSubjects(item.text, item.facts, item.names);
     if (item.ok) expect(problems).toEqual([]);
     else expect(problems.some((line) => line.includes(item.problem)), JSON.stringify(problems)).toBe(true);
   });
@@ -144,7 +154,12 @@ test("every machine-written text of the data root passes the page's own number c
       checked += 1;
       const facts = playerFacts(player);
       const names = playerNames(player);
-      for (const line of [...checkNumbers(item.text, facts, names), ...checkDirections(item.text, facts, names), ...checkLanes(item.text, names)]) {
+      for (const line of [
+        ...checkNumbers(item.text, facts, names),
+        ...checkDirections(item.text, facts, names),
+        ...checkSubjects(item.text, facts, names),
+        ...checkLanes(item.text, names),
+      ]) {
         problems.push(`${item.key}: ${line}`);
       }
     }
@@ -166,6 +181,7 @@ test("every machine-written text of the data root passes the page's own number c
       for (const line of [
         ...checkNumbers(item.text, facts, names),
         ...checkDirections(item.text, facts, names),
+        ...checkSubjects(item.text, facts, names),
         ...checkLanes(item.text, names),
       ]) {
         problems.push(`${item.key}: ${line}`);

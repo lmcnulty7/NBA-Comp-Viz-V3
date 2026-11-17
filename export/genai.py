@@ -15,6 +15,11 @@ each text again with the page's own formatter). The model gets the facts and a v
 A text is kept only when it passes every check of `check_text`:
 - numbers: every number in the text is the shown value of a fact of that item, in that fact's unit (a percent is
   never written as a share or a share as a percent, feet are never points), and no number is written as a word;
+- subjects: every number sits in a sentence with the words of what it is (SUBJECT_WORDS): the model's own error is
+  called an error, a rank of a similar player sits with a word of style, a count is not presented as another count;
+- directions: a word of change (rose, fell, eased down, up from, ...) agrees with the values it links, and two
+  values that are one value at two roundings are no change (check_directions);
+- model values: a value only a model gives carries a model word in its sentence; no lane that did not work is named;
 - estimates: a value with an interval is given with its interval, and a text that gives a point estimate says so;
 - status: a value from a model whose lane did not work (failed, no signal, inconclusive, no result) says so;
 - words: reading grade 9 or lower for the text and for each sentence, none of the words kept out of site copy, no
@@ -27,9 +32,12 @@ the manifest is written again. export.schemas.validate_tree runs `root_problems`
 (its input changed) or a wrong number cannot pass validation.
 
 The cache (--cache, else the GENAI_CACHE_DIR variable, else .genai-cache in the repository, which git ignores)
-holds one file per call, keyed by model, prompt version, prompt hash and input hash: a rebuild calls the model only
-for an item whose input or prompt changed. A text that failed its checks is cached too, with its problems, so it is
-not paid for twice. The cache holds text written from the data root: it is never committed.
+holds one file per ask, keyed by model, prompt version, prompt hash, input hash and call setting (CALL: thinking,
+effort, token limit): a rebuild calls the model only for an item whose input, prompt or call setting changed. A text
+that failed its checks is cached too, with its problems, so it is not paid for twice. Every cached text is checked
+again against the current item before it is used, so a check added later applies to old texts with no call. Each
+text records its call setting, and the file's notes count the texts per setting. The cache holds text written from
+the data root: it is never committed.
 
 Without --live, fixture mode writes deterministic texts from the facts, with model "fixture". It runs only on a
 synthetic data root (export.sample): fixture output is never shown as a result. --live calls the model through the
@@ -80,9 +88,11 @@ FIXTURE_MODEL = "fixture"
 GENERATOR = "export/genai.py"
 CHECKS = (
     "Every number is a value of this page as the page rounds it, in the same unit; no number is written as a word.",
+    "Every number sits in a sentence that says what it is about.",
     "A value with an interval is given with its interval; a point estimate is called one.",
     "A value from a model that did not work says so; a model's value is called one in its sentence; no lane that did "
     "not work is named.",
+    "A word of change (rose, fell, eased) agrees with the values it links.",
     "Reading grade 9 or lower for the text and each sentence; plain words; no claim the site never makes.",
 )
 
@@ -437,15 +447,23 @@ def _sentence_at(text: str, index: int) -> str:
     return text[start:stop]
 
 
-# Words that say a value went up or down. A text that uses one must be right about the values it links: the value
-# after the word against the one before it (export/genai.py check_directions, web/lib/genai.ts checkDirections).
-UP_WORDS = r"rose|rise|rises|rising|climbed|climb|climbs|climbing|grew|grow|grows|growing|increased|increases|" \
-           r"increase|jumped|jump|jumps|jumping|went up|goes up|go up|going up|moved up|ticked up"
-DOWN_WORDS = r"fell|fall|falls|falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|" \
-             r"sinking|went down|goes down|go down|going down|slid|slide|slides|sliding|declined|decline|declines|" \
-             r"decreased|decrease|decreases|slipped|slip|slips|moved down|ticked down"
-_CHANGE_RE = re.compile(rf"\b(?:(?P<up>{UP_WORDS})|(?P<down>{DOWN_WORDS}))\b", re.I)
+# Words that say a value went up or down. A text that uses one must be right about the values it links
+# (check_directions here, checkDirections in web/lib/genai.ts). Phrases come before single words, so "eased up" is
+# read before "eased". "up from X" and "higher than X" put the earlier value after the words (reversed).
+UP_WORDS = r"edged up|eased up|moved up|ticked up|went up|goes up|go up|going up|rose|rise|rises|rising|climbed|" \
+           r"climb|climbs|climbing|grew|grow|grows|growing|increased|increases|increase|jumped|jump|jumps|jumping|" \
+           r"spiked|spike|spikes|spiking|lifted|lift|lifts|lifting|recovered|recover|recovers|recovering"
+DOWN_WORDS = r"edged down|eased down|moved down|ticked down|went down|goes down|go down|going down|fell|fall|falls|" \
+             r"falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|sinking|slid|slide|" \
+             r"slides|sliding|declined|decline|declines|decreased|decrease|decreases|slipped|slip|slips|eased|" \
+             r"easing|eases|lost|loses|losing"
+REVERSED_UP = r"up from|higher than"
+REVERSED_DOWN = r"down from|lower than"
+_CHANGE_RE = re.compile(rf"\b(?:(?P<rup>{REVERSED_UP})|(?P<rdown>{REVERSED_DOWN})|(?P<up>{UP_WORDS})|"
+                        rf"(?P<down>{DOWN_WORDS}))\b", re.I)
 _FROM_BEFORE_RE = re.compile(r"\bfrom\s*$", re.I)
+_TO_BEFORE_RE = re.compile(r"\bto\b(?:\s+[A-Za-z']+){0,4}\s*$", re.I)
+_NEGATION_RE = re.compile(r"\b(?:not|never|no|without)\b|n't\b", re.I)
 
 
 def series_of(field: str, unit: str):
@@ -491,50 +509,165 @@ def same_at_shown_rounding(a: str, b: str, a_exact: bool = False, b_exact: bool 
 
 
 def check_directions(text: str, facts, names=()) -> list:
-    """A word of change (rose, fell, dipped, ...) must agree with the values it links. The value it moves to is the
-    first number after it in its sentence that belongs to a run of values (series_of); the value it moves from is
-    the number after "from" when the sentence says "from A to B", else the nearest earlier number of the same run,
-    in this sentence or an earlier one. Two values that can be one value (same_at_shown_rounding) are no change, so
-    any word of change on them fails. A word with no such pair (the shot fell short) is not checked."""
+    """A word of change (rose, fell, eased down, up from, ...) must agree with the values it links.
+
+    Values belong to runs (series_of). For a word, the values it moves to are the first value of a run after it in
+    its sentence, then every later value of that run that follows "to", up to the next word of change ("rose to
+    1.081 and to 1.064" is two moves). The value it moves from is the one after "from" ("fell from A to B", "rose to
+    B from A"), else the nearest earlier value of the run. "up from X" and "higher than X" compare the nearest
+    earlier value with X. Each move is refused when its direction disagrees with the values, or when the two can be
+    one value (same_at_shown_rounding): no change. A word of change that is negated in its clause ("did not rise")
+    is refused, since what it claims cannot be checked. A word with no linked value (the shot fell short) is not
+    checked."""
     masked = _mask_names(text, names)
     tokens = numbers_in(text, names)
 
+    def candidates(token):
+        return [f for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+
     def series(token):
-        found = {series_of(f.field, f.unit) for f in facts
-                 if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)}
+        found = {series_of(f.field, f.unit) for f in candidates(token)}
         return found.pop() if len(found) == 1 else None
 
     def exact(token) -> bool:
-        fields = [f.field for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+        fields = [f.field for f in candidates(token)]
         return bool(fields) and all(_EXACT_FIELD_RE.fullmatch(field) for field in fields)
 
+    def gap(a: int, b: int) -> str:
+        return masked[a:b].rstrip("-+" + MINUS)
+
     runs = [(token, series(token)) for token in tokens]
+    words = list(_CHANGE_RE.finditer(masked))
     problems = []
-    for word in _CHANGE_RE.finditer(masked):
-        end = _sentence_span(masked, word.start())[1]
-        after = [(t, r) for t, r in runs if word.end() <= t.start < end and r]
-        if not after:
-            continue
-        target, run = after[0]
-        source = None
-        if _FROM_BEFORE_RE.search(masked[word.end():target.start]):
-            later = [(t, r) for t, r in after[1:] if r == run]
-            if not later:
-                continue
-            source, target = target, later[0][0]
-        else:
-            before = [t for t, r in runs if t.start < word.start() and r == run]
-            source = before[-1] if before else None
-        if source is None:
-            continue
-        said = "up" if word.group("up") else "down"
+
+    def judge(word, said: str, source, target) -> None:
         if same_at_shown_rounding(source.canon, target.canon, exact(source), exact(target)):
             problems.append(f"{word.group(0)!r} links {source.raw!r} and {target.raw!r}, which are one value at two "
                             "roundings: no change")
-            continue
+            return
         went = "up" if _value_of(target.canon)[0] > _value_of(source.canon)[0] else "down"
         if went != said:
             problems.append(f"{word.group(0)!r} says {said}, but {source.raw!r} to {target.raw!r} went {went}")
+
+    for n, word in enumerate(words):
+        clause_start = max(masked.rfind(mark, 0, word.start()) for mark in ",;:.")
+        if _NEGATION_RE.search(masked[clause_start + 1:word.start()]):
+            problems.append(f"{word.group(0)!r} is negated, and a negated change cannot be checked")
+            continue
+        sentence_end = _sentence_span(masked, word.start())[1]
+        limit = min([w.start() for w in words[n + 1:] if w.start() < sentence_end] + [sentence_end])
+        ahead = [(t, r) for t, r in runs if word.end() <= t.start < limit and r]
+        said = "up" if (word.group("up") or word.group("rup")) else "down"
+        if word.group("rup") or word.group("rdown"):
+            if not ahead:
+                continue
+            source, run = ahead[0]
+            earlier = [t for t, r in runs if t.start < word.start() and r == run]
+            if earlier:
+                judge(word, said, source, earlier[-1])
+            continue
+        if not ahead:
+            continue
+        first, run = ahead[0]
+        same = [t for t, r in ahead if r == run]
+        if _FROM_BEFORE_RE.search(gap(word.end(), first.start)):
+            if len(same) < 2:
+                continue
+            source, targets, rest = first, [same[1]], same[2:]
+        else:
+            earlier = [t for t, r in runs if t.start < word.start() and r == run]
+            source, targets, rest = (earlier[-1] if earlier else None), [first], same[1:]
+            if rest and _FROM_BEFORE_RE.search(gap(first.start, rest[0].start)):
+                source, rest = rest[0], rest[1:]
+        for token in rest:
+            if _TO_BEFORE_RE.search(gap(targets[-1].start, token.start)):
+                targets.append(token)
+        if source is None:
+            targets = targets[1:] if len(targets) > 1 else []
+            source = first if targets else None
+        if source is None:
+            continue
+        for target in targets:
+            judge(word, said, source, target)
+            source = target
+    return problems
+
+
+# The words a sentence must hold for a number to be about what its fact is about (check_subjects). A number that
+# matches several facts passes when the sentence holds the words of one of them. A field with no entry needs none.
+SUBJECT_WORDS = (
+    (r"games", r"\bgames?\b"),
+    (r"shot_making\.over_expected_per_100\.(?:value|lo|hi)", r"\b(?:shot|shots|made|make|makes|shooting)\b"),
+    (r"shot_making\.baseline_error_per_100", r"\b(?:error|explain|explains|explained)\b"),
+    (r"shot_making\.fg_pct", r"\b(?:shot|shots|made|make|makes|share|attempts|shooting|went in|rate)\b"),
+    (r"shot_making\.expected_fg_pct", r"\b(?:expected|expect|expects|model|model's)\b"),
+    (r"shot_making\.(?:min_)?attempts", r"\battempts?\b"),
+    (r"gravity\.gravity_ft\.(?:value|lo|hi)", r"\b(?:defenders?|feet|closer|farther|close)\b"),
+    (r"(?:gravity|similar)\.(?:min_)?possessions", r"\bpossessions?\b"),
+    (r"rebounding\.rate_per_100\.(?:value|lo|hi)", r"\b(?:rebounds?|rebounding)\b"),
+    (r"rebounding\.model_expected_per_100", r"\b(?:rebounds?|rebounding|expected|expect)\b"),
+    (r"rebounding\.(?:min_)?chances", r"\bchances?\b"),
+    (r"absence_risk\.model_probability\.(?:value|lo|hi)", r"\b(?:miss|misses|missing|absence|absent|chance)\b"),
+    (r"absence_risk\.observed_rate\.(?:value|lo|hi)", r"\b(?:miss|missed|absence|absent|share|rate|observed)\b"),
+    (r"absence_risk\.absent", r"\b(?:miss|missed|misses|absent|absence)\b"),
+    (r"absence_risk\.(?:min_)?games", r"\bgames?\b"),
+    (r"similar\.neighbours\.\d+\.rank", r"\b(?:style|similar|rank|ranks|ranked|closest)\b"),
+    (r"similar\.neighbours\.\d+\.distance", r"\b(?:style|distance|similar|closer|close)\b"),
+    (r".+\.interval", r"\b(?:range|interval)\b"),
+    (r"shot_making\..+\.n", r"\battempts?\b"),
+    (r"gravity\..+\.n", r"\bpossessions?\b"),
+    (r"rebounding\..+\.n", r"\bchances?\b"),
+    (r"absence_risk\..+\.n", r"\bgames?\b"),
+    (r"possession", r"\bpossession\b"),
+    (r"period", r"\bperiod\b"),
+    (r"start_clock", r"\b(?:clock|started|start|starting|began|begin|left|at|from|during)\b"),
+    (r"points", r"\b(?:points?|scored|score|scoring)\b"),
+    (r"duration_s", r"\b(?:seconds?|lasted|long|length)\b"),
+    (r"xfg|shots\.\d+\.xfg", r"\b(?:chance|shot|shots|probability|likely)\b"),
+    (r"epv_start|epv_end|epv\.value\.\d+", r"\b(?:expected|points?|value|estimate|model|model's|predicted|predict)\b"),
+    (r"(?:epv\.t|shots\.\d+\.t)(?:\.\d+)?", r"\b(?:seconds?|time|at)\b"),
+)
+_SUBJECT_RES = [(re.compile(field), re.compile(words, re.I)) for field, words in SUBJECT_WORDS]
+
+
+# The bounds of a range may sit in a sentence of their own that names the range ("Its 95% range is A to B").
+_RANGE_WORDS = re.compile(r"\b(?:range|interval)\b", re.I)
+
+
+def _subject_words(field: str):
+    if field.endswith((".lo", ".hi")):
+        for pattern, words in _SUBJECT_RES:
+            if pattern.fullmatch(field):
+                return re.compile(f"{words.pattern}|{_RANGE_WORDS.pattern}", re.I)
+    for pattern, words in _SUBJECT_RES:
+        if pattern.fullmatch(field):
+            return words
+    return None
+
+
+def check_subjects(text: str, facts, names=()) -> list:
+    """A number that matches a fact must sit in a sentence that says what that fact is about (SUBJECT_WORDS): the
+    model's own error is called an error, a rank of a similar player sits with a word of style. A sentence that
+    says "point estimate" and gives numbers must give at least one point estimate."""
+    problems = []
+    masked = _mask_names(text, names)
+    for token in numbers_in(text, names):
+        found = [f for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+        if not found:
+            continue
+        sentence = _sentence_at(masked, token.start)
+        needs = [_subject_words(f.field) for f in found]
+        if all(words is not None for words in needs) and not any(words.search(sentence) for words in needs):
+            problems.append(f"number {token.raw!r} sits in a sentence that does not say what it is "
+                            f"(it is {found[0].field})")
+    for start, stop in {_sentence_span(masked, t.start) for t in numbers_in(text, names)}:
+        sentence = masked[start:stop]
+        if not _POINT_ESTIMATE_RE.search(sentence):
+            continue
+        inside = [t for t in numbers_in(text, names) if start <= t.start < stop]
+        kinds = {f.kind for t in inside for f in facts if canonical(f.shown) == t.canon and _unit_fits(t.unit, f.unit)}
+        if inside and "point" not in kinds:
+            problems.append(f"says point estimate beside no point estimate: {sentence.strip()[:60]!r}")
     return problems
 
 
@@ -800,7 +933,9 @@ def check_words(text: str) -> list:
 def check_text(text: str, item: dict) -> tuple:
     """Every check of a text against its item's input. Returns (problems, numbers): empty problems means kept."""
     number_problems, numbers = check_numbers(text, _facts(item), item["names"])
-    problems = (number_problems + check_directions(text, _facts(item), item["names"]) + check_status(text, item)
+    facts = _facts(item)
+    problems = (number_problems + check_directions(text, facts, item["names"])
+                + check_subjects(text, facts, item["names"]) + check_status(text, item)
                 + check_lanes(text, item["names"]) + check_words(text))
     return problems, numbers
 
@@ -883,7 +1018,7 @@ def call_id(call: dict) -> str:
     return json.dumps(call, sort_keys=True, separators=(",", ":"))
 
 
-def cache_key(model: str, version: str, prompt_sha: str, input_hash: str, call: dict = LEGACY_CALL) -> str:
+def cache_key(model: str, version: str, prompt_sha: str, input_hash: str, call: dict) -> str:
     """The cache file of one ask: model, prompt version and hash, input hash and the call setting. A record of the
     first setting (LEGACY_CALL) keeps the key it was written under, so those records stay readable."""
     base = f"{model}\n{version}\n{prompt_sha}\n{input_hash}"
@@ -944,13 +1079,25 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
     return {"text": text, "problems": problems, "numbers": [n.model_dump() for n in numbers], "attempts": attempts}
 
 
-def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MODEL, reuse_older: bool = True) -> tuple:
+def _recheck(record: dict, item: dict) -> dict:
+    """A cached text checked again against the item as it is now: the checks may have grown since it was written. A
+    text that fails comes back dropped, with its problems; one that passes comes back with its numbers made again."""
+    if not record.get("text"):
+        return record
+    problems, numbers = check_text(record["text"], item)
+    if problems:
+        return {**record, "text": None, "problems": problems, "numbers": []}
+    return {**record, "numbers": [n.model_dump() for n in numbers]}
+
+
+def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MODEL) -> tuple:
     """The text of one item, from the cache when the same model, prompt, input and call setting were asked before.
     Returns (record, from_cache). In fixture mode nothing is cached and no model is called.
 
-    A text kept under an older call setting is still a text that passed every check, so it is reused (unless
-    `reuse_older` is false, for a sample that tests the current setting). A failure under an older setting is asked
-    once more under the current one; a failure under the current setting is final."""
+    Every cached text is checked again against the current item before it is used (_recheck), so a check added
+    after a text was written applies to it, with no call. A text kept under an older call setting is reused the
+    same way; a failure under an older setting is asked once more under the current one; a failure under the
+    current setting is final."""
     input_hash = input_sha256(item)
     if not live:
         text = fixture_text(item)
@@ -962,12 +1109,12 @@ def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MO
     folder = cache_dir(cache) / item["kind"]
     path = folder / f"{cache_key(model, version, prompt_sha, input_hash, CALL)}.json"
     if path.exists():
-        return json.loads(path.read_text(encoding="utf-8")), True
+        return _recheck(json.loads(path.read_text(encoding="utf-8")), item), True
     older = folder / f"{cache_key(model, version, prompt_sha, input_hash, LEGACY_CALL)}.json"
-    if reuse_older and older.exists():
+    if older.exists():
         record = json.loads(older.read_text(encoding="utf-8"))
         if record.get("text"):
-            return record, True
+            return _recheck(record, item), True
     record = call_model(client, item, system, model)
     record.update({"call": CALL, "key": item["key"], "kind": item["kind"], "model": model, "prompt_version": version,
                    "prompt_sha256": prompt_sha, "input_sha256": input_hash,
@@ -1263,7 +1410,8 @@ def run(root, kinds=KINDS, n_players=None, n_possessions=None, *, live=False, ca
                 stats["kept"] += 1
                 kept.append(S.GeneratedText(key=key, text=record["text"], input_sha256=record["input_sha256"],
                                             model=record["model"], prompt_version=record["prompt_version"],
-                                            numbers=[S.GeneratedNumber(**n) for n in record["numbers"]]))
+                                            numbers=[S.GeneratedNumber(**n) for n in record["numbers"]],
+                                            call=describe_call(record.get("call")) if live else None))
             else:
                 stats["dropped"] += 1
                 stats["problems"][key] = record["problems"]

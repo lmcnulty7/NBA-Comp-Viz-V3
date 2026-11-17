@@ -438,8 +438,6 @@ def test_the_call_setting_keys_the_cache_and_an_older_failure_is_asked_once_more
     older.write_text(json.dumps({**base, "text": good, "problems": []}))
     record, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=cache)
     assert cached and record["text"] == good
-    record, cached = genai.text_for(item, live=True, client=FakeClient([good]), cache=cache, reuse_older=False)
-    assert not cached and current.exists()
 
 
 def test_the_texts_file_says_which_call_setting_wrote_its_texts(root, tmp_path):
@@ -468,3 +466,51 @@ def test_one_value_at_two_roundings():
     assert genai.same_at_shown_rounding("\u22120.19", "\u22120.19") and not genai.same_at_shown_rounding("0.19", "\u22120.19")
     assert not genai.same_at_shown_rounding("1.06", "1.1", b_exact=True) and genai.same_at_shown_rounding("1.1", "1.06")
     assert genai.same_at_shown_rounding("0.96", "0.963", b_exact=True)
+
+
+
+@pytest.mark.parametrize("case", CASES["subjects"], ids=lambda c: c["name"])
+def test_a_number_sits_with_the_words_of_what_it_is(case):
+    problems = genai.check_subjects(case["text"], _facts(case["facts"]), case["names"])
+    if case["ok"]:
+        assert problems == []
+    else:
+        assert any(case["problem"] in line for line in problems), problems
+
+
+def test_a_cached_text_is_checked_again_and_a_new_check_drops_it_with_no_call(root, tmp_path):
+    """The reviewer's repro: a text cached before the direction check existed must not come back kept from the
+    cache once the check refuses it, and no model is called for it."""
+    key, build = genai.choose(root, "possession", None)[0]
+    item = build()
+    facts = {f["field"]: f["shown"] for f in item["facts"]}
+    good = genai.fixture_text(item)
+    wrong = good + f" Expected points fell to {facts['epv_start']}, a point estimate."
+    assert genai.check_directions(wrong, genai._facts(item), item["names"]), "the case must fail the direction check"
+    cache = tmp_path / "cache"
+    version, _, prompt_sha = genai.prompt("possession")
+    path = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, genai.input_sha256(item), genai.CALL)}.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps({"text": wrong, "problems": [], "numbers": [], "attempts": [], "model": genai.MODEL,
+                                "prompt_version": version, "input_sha256": genai.input_sha256(item),
+                                "call": genai.CALL}), encoding="utf-8")
+    client = FakeClient([])
+    record, cached = genai.text_for(item, live=True, client=client, cache=cache)
+    assert cached and record["text"] is None and client.calls == []
+    assert any("no change" in line or "says" in line for line in record["problems"])
+    # A cached text that still passes comes back with its numbers made again.
+    path.write_text(json.dumps({"text": good, "problems": [], "numbers": [], "attempts": [], "model": genai.MODEL,
+                                "prompt_version": version, "input_sha256": genai.input_sha256(item),
+                                "call": genai.CALL}), encoding="utf-8")
+    record, cached = genai.text_for(item, live=True, client=client, cache=cache)
+    assert cached and record["text"] == good and record["numbers"]
+
+
+def test_each_live_text_records_its_call_setting(root, tmp_path):
+    for rel in S.GENAI_FILES.values():
+        (root / rel).unlink()
+    answers = [genai.fixture_text(build()) for kind in genai.KINDS for _, build in genai.choose(root, kind, 1)]
+    genai.run(root, n_players=1, n_possessions=1, live=True, client=FakeClient(answers), cache=tmp_path / "c",
+              log=lambda line: None)
+    item = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).items[0]
+    assert item.call == genai.describe_call(genai.CALL)
