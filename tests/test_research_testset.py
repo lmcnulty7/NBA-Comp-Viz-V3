@@ -11,6 +11,7 @@ from tools import research_testset as R
 
 REPO = Path(__file__).resolve().parents[1]
 GAME_ID = re.compile(r"\d{2}\.\d{2}\.\d{4}\.[A-Z]{3}\.at\.[A-Z]{3}")
+BREF_ID = re.compile(r"\b\d{8}0[A-Z]{3}\b")        # basketball-reference game codes (the play-by-play source)
 # Code that may run an experiment: every Python file under tools/ and export/. Only the door itself may read the file.
 DOOR = REPO / "tools" / "research_testset.py"
 PRIVATE_NAMES = ("_test_games", "TESTSET_FILE", "testset.json")
@@ -56,17 +57,19 @@ def test_no_experiment_code_opens_the_test_set_or_names_a_test_game():
         for name in PRIVATE_NAMES:
             if name in text:
                 problems.append(f"{path.relative_to(REPO)} uses {name}")
-        for game in set(GAME_ID.findall(text)) & test_ids:
+        for game in (set(GAME_ID.findall(text)) | set(BREF_ID.findall(text))) & test_ids:
             problems.append(f"{path.relative_to(REPO)} names the test game {game}")
     assert problems == []
 
 
 # Names that reach the test games' data. Allowed only where they are defined or in the ingest tool.
 TEST_DATA_NAMES = ("research_data_root", "test_features", "_research-data", "sportvu_untouched", "V3_RESEARCH_DATA",
-                   "R._load", "import _load", "ingest_pins")
+                   "R._load", "import _load", "ingest_pins", "pbp_2025_26", "V3_RESEARCH_PBP", "scoring_data_root",
+                   "file_pins", "fix_pbp")
 ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            "tools/research_xfg.py": ("research_data_root", "test_features", "_research-data", "sportvu_untouched",
-                                     "V3_RESEARCH_DATA")}
+                                     "V3_RESEARCH_DATA"),
+           "tools/research_pbp2526.py": ("_research-data", "pbp_2025_26")}
 
 
 def test_only_named_places_reach_the_test_games_data():
@@ -218,3 +221,133 @@ def test_ingest_pins_must_name_exactly_the_test_games_and_match_their_hash(tmp_p
         path.write_text(json.dumps({"sources": {R.TRACKING: broken}}))
         with pytest.raises(SystemExit):
             R.ingest_pins(path=path)
+
+
+# ── the play-by-play source (2025-26 season; PLAN.md D78, D79, D83, D84) ─────────────────────────────
+
+def test_the_committed_pbp_source_is_fixed_once_with_its_file_pins():
+    data = committed()
+    assert not (R.PBP in data["sources"] and R.PBP in data.get("pending", {})), "a source is pending or fixed, not both"
+    if R.PBP not in data["sources"]:
+        pytest.skip("the 2025-26 season is not fixed yet")
+    src = data["sources"][R.PBP]
+    assert all(R.pbp_season(g) == R.PBP_TEST_SEASON for g in src["games"])
+    assert src["cut_off_date"].replace("-", "") == max(g[:8] for g in src["games"])
+    assert sorted(src["files_sha256"]) == sorted(R.PBP_FILES)
+    assert all(re.fullmatch(r"[0-9a-f]{64}", h) for h in src["files_sha256"].values())
+    assert R.file_pins(R.PBP) == src["files_sha256"]
+    fixed_on = data["fixed_later"][R.PBP]["fixed_on"]
+    entries = json.loads(R.LEDGER_FILE.read_text()) if R.LEDGER_FILE.exists() else []
+    assert all(e["started_at"][:10] >= fixed_on for e in entries if e["source"] == R.PBP), "scored before it was fixed"
+
+
+OUTCOME_COLUMNS = ('"score"', '"points"', '"home_score"', '"away_score"', '"pts"', '"plus_minus"', '"margin"', '"kinds"')
+
+
+def test_the_pbp_fetch_and_fix_read_no_outcome_column():
+    import inspect
+    texts = {"fix_pbp": inspect.getsource(R.fix_pbp),
+             "tools/research_pbp2526.py": (REPO / "tools" / "research_pbp2526.py").read_text()}
+    problems = [f"{where} names {c}" for where, t in texts.items() for c in OUTCOME_COLUMNS if c in t]
+    assert problems == []
+    for where, t in texts.items():
+        for call in re.findall(r"read_table\([^)]*\)", t):
+            assert "columns=" in call, f"{where}: {call} reads every column"
+
+
+def _pbp_root(tmp_path, games, extra_scheduled=0):
+    import pandas as pd
+    root = tmp_path / "root"
+    for rel in R.PBP_FILES:
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+    dates = [f"{g[:4]}-{g[4:6]}-{g[6:8]}" for g in games]
+    pd.DataFrame({"game_id": [g for g in games for _ in range(3)], "game_date": [d for d in dates for _ in range(3)],
+                  "season": "2025-26"}).to_parquet(root / R.PBP_FILES[0])
+    pd.DataFrame({"game_id": [g for g in games for _ in range(10)]}).to_parquet(root / R.PBP_FILES[1])
+    pd.DataFrame({"game_id": games, "date": dates, "season_type": "Regular Season"}).to_parquet(root / R.PBP_FILES[2])
+    (root / "fetch.json").write_text(json.dumps({"written": "2026-11-17T00:00:00+00:00",
+                                                 "schedule": {"games": len(games) + extra_scheduled}}))
+    return root
+
+
+@pytest.fixture
+def pbp_case(tmp_path):
+    games = ["202510210LAL", "202510210OKC", "202606130SAS"]
+    track = ["11.01.2015.AAA.at.BBB"]
+    path = tmp_path / "testset.json"
+    path.write_text(json.dumps({"sources": {R.TRACKING: {"games": track, "sha256": R.list_hash(track)}},
+                                "pending": {R.PBP: "the 2025-26 season"}}))
+    return path, games, _pbp_root(tmp_path, games), tmp_path / "ledger.json"
+
+
+def test_fix_pbp_moves_the_season_from_pending_to_a_hashed_source_once(pbp_case):
+    path, games, root, ledger = pbp_case
+    src = R.fix_pbp(root, path, ledger)
+    data = json.loads(path.read_text())
+    assert R.PBP in data["sources"] and "pending" not in data
+    assert src["games"] == sorted(games) and src["sha256"] == R.list_hash(games)
+    assert src["cut_off_date"] == "2026-06-13" and src["counts"]["games_with_starters"] == 3
+    assert R.file_pins(R.PBP, path) == {f: R.sha256_file(root / f) for f in R.PBP_FILES}
+    with pytest.raises(SystemExit):
+        R.fix_pbp(root, path, ledger)                    # a fixed source is never rewritten
+
+
+def test_fix_pbp_is_refused_once_a_result_exists_or_a_game_is_missing(pbp_case, tmp_path):
+    path, games, root, ledger = pbp_case
+    ledger.write_text(json.dumps([{"experiment": "winprob-E1", "source": R.PBP, "started_at": "x"}]))
+    with pytest.raises(SystemExit):
+        R.fix_pbp(root, path, ledger)
+    ledger.unlink()
+    short = _pbp_root(tmp_path / "short", games, extra_scheduled=1)
+    with pytest.raises(SystemExit):
+        R.fix_pbp(short, path, ledger)
+    assert R.fix_pbp(short, path, ledger, accept_missing=True)["counts"]["scheduled_without_playbyplay"] == 1
+
+
+def test_pbp_test_data_is_read_only_inside_score_once(pbp_case, monkeypatch):
+    path, games, root, ledger = pbp_case
+    R.fix_pbp(root, path, ledger)
+    monkeypatch.setenv(R.PBP_ROOT_ENV, str(root))
+    with pytest.raises(SystemExit):
+        R.scoring_data_root(R.PBP, path=path)          # outside score_once: refused
+    seen = {}
+
+    def scorer(g):
+        seen["root"] = R.scoring_data_root(R.PBP, path=path)
+        return {"n": len(g)}
+
+    assert R.score_once("winprob-E0", R.PBP, scorer, path, ledger) == {"n": 3} and seen["root"] == root
+    with pytest.raises(SystemExit):
+        R.scoring_data_root(R.PBP, path=path)          # and refused again once the scorer returned
+    (root / R.PBP_FILES[0]).write_bytes(b"edited")
+
+    def tampered(_g):
+        return R.scoring_data_root(R.PBP, path=path)
+
+    with pytest.raises(SystemExit):
+        R.score_once("winprob-E9", R.PBP, tampered, path, ledger)
+
+
+def test_pbp_dev_games_never_return_the_test_season_or_the_spent_season(pbp_case):
+    path, games, root, ledger = pbp_case
+    R.fix_pbp(root, path, ledger)
+    dev, spent, unlisted = "202401150BOS", "202501150BOS", "202604150MIA"     # 2023-24, 2024-25, 2025-26 Play-In
+    assert R.dev_games(games + [dev, spent, unlisted, "201601150BOS"], "t", R.PBP, path) == [dev]
+    for bad in ([games[0]], [spent], [unlisted]):
+        with pytest.raises(SystemExit):
+            R.refuse_test(bad, "t", R.PBP, path)
+    with pytest.raises(SystemExit):
+        R.refuse_test(["12.01.2015.AAA.at.BBB"], "t", R.PBP, path)   # not a game code: cannot be placed, refused
+    assert R.refuse_test([dev], "t", R.PBP, path) == 1
+
+
+def test_the_pbp_fetch_root_stays_out_of_the_repository_and_icloud(tmp_path, monkeypatch):
+    from tools import research_pbp2526 as P
+    monkeypatch.setenv("DATA_ROOT", str(tmp_path / "data_root"))
+    for bad in (REPO / "scratch", Path.home() / "Documents" / "x", tmp_path / "data_root" / "x"):
+        with pytest.raises(SystemExit):
+            P.guard_root(bad)
+    assert P.guard_root(tmp_path / "ok") == (tmp_path / "ok").resolve()
+    args = P.step_args("bref_seasons", tmp_path / "out", 40)
+    assert args[:4] == ["--out", str(tmp_path / "out"), "--rpm", str(P.RPM_CAP)] and args[-1] == "--shots-seasons"
+    assert P.RPM_CAP < 17
