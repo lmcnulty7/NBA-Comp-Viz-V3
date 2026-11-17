@@ -33,17 +33,27 @@ def rss_gb() -> float:
 
 
 def sft_rows(limit: int):
-    """(item, Haiku text) of train players that have a delivered text."""
+    """(item, target) pairs, scouting and possession in turn: train players with their Haiku text in the snapshot,
+    and train possessions with their template text."""
     from tools import genai_data as D
+    from tools.genai_templates import template_text
     texts = {t["key"]: t["text"] for t in
              json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
-    rows = [(item, texts[item["key"]]) for item in D.items("scouting", "train") if item["key"] in texts]
+    scouting = [(item, texts[item["key"]]) for item in D.items("scouting", "train") if item["key"] in texts]
+    possession = [(item, template_text(item)) for item in D.items("possession", "train")[:limit]]
+    rows = [row for pair in zip(scouting, possession) for row in pair]
     return rows[:limit]
 
 
-def encode(tok, system: str, item: dict, answer: str = None):
+def encode(tok, system: str, item: dict, answer: str = None, compact: bool = True):
+    """Token ids (and labels) of one example. compact: the trained arms' input (tools.genai_format, its fixed
+    instruction as the system turn); else the full P3 prompt and JSON message, as the few-shot arm gets them."""
     from export import genai as G
-    messages = [{"role": "system", "content": system}, {"role": "user", "content": G.user_message(item)}]
+    from tools import genai_format as F
+    if compact:
+        messages = [{"role": "system", "content": F.INSTRUCTION}, {"role": "user", "content": F.compact_message(item)}]
+    else:
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": G.user_message(item)}]
     prompt_ids = tok.apply_chat_template(messages, add_generation_prompt=True, tokenize=True)
     if hasattr(prompt_ids, "input_ids"):
         prompt_ids = prompt_ids["input_ids"]
@@ -123,6 +133,19 @@ def run_model(size: str, steps: int, gen_items: list, train: list, system: str, 
         peak_driver = max(peak_driver, torch.mps.driver_allocated_memory())
         log(f"{size} generate: {len(new)} tokens in {dt_s:.1f} s, {len(problems)} checker problems")
     out["generation"] = gens
+    if gen_items and time.perf_counter() < deadline:
+        item = gen_items[0]
+        ids, _ = encode(tok, system, item, compact=False)
+        t0 = time.perf_counter()
+        with torch.no_grad(), model.disable_adapter():
+            result = model.generate(torch.tensor([ids], device="mps"), max_new_tokens=MAX_NEW_TOKENS, do_sample=False,
+                                    pad_token_id=tok.eos_token_id)
+        torch.mps.synchronize()
+        dt_s = time.perf_counter() - t0
+        new = result[0][len(ids):]
+        out["generation_full_prompt_base"] = {"prompt_tokens": len(ids), "new_tokens": int(len(new)), "seconds": dt_s}
+        peak_driver = max(peak_driver, torch.mps.driver_allocated_memory())
+        log(f"{size} base, full P3 prompt: {len(ids)} prompt tokens, {len(new)} new in {dt_s:.1f} s")
     out["peak_mps_driver_gb"] = peak_driver / 1e9
     out["peak_rss_gb_so_far"] = rss_gb()
     del model, optimizer
@@ -142,15 +165,15 @@ def main(argv=None) -> int:
     from tools import genai_data as D
     started = time.perf_counter()
     deadline = started + MAX_S
-    system = G.prompt("scouting")[1]
+    system = G.prompt("scouting")[1]   # the few-shot arm's prompt, timed once on the first scouting item
     train = sft_rows(64)
-    gen_items = D.items("scouting", "dev")[:3]
+    gen_items = D.items("scouting", "dev")[:2] + D.items("possession", "dev")[:2]
     record = {"started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "prompt": G.prompt("scouting")[0],
               "lora": LORA, "lr": LR, "mps_high_watermark_ratio": os.environ.get("PYTORCH_MPS_HIGH_WATERMARK_RATIO"), "max_new_tokens": MAX_NEW_TOKENS, "train_rows_available": len(train),
               "runs": []}
     record["runs"].append(run_model("0.5B", args.steps, gen_items, train, system, "float32", deadline))
     if time.perf_counter() < deadline - 5 * 60:
-        record["runs"].append(run_model("1.5B", 5, gen_items[:2], train, system, "bfloat16", deadline - 30))
+        record["runs"].append(run_model("1.5B", 6, gen_items, train, system, "bfloat16", deadline - 30))
     record["wall_s"] = time.perf_counter() - started
     record["peak_rss_gb"] = rss_gb()
     Path(args.out).write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
