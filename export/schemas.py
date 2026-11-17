@@ -1175,8 +1175,8 @@ class StageResult(Strict):
     def _rule(self):
         if not (self.lo <= self.diff <= self.hi):
             raise ValueError("the difference lies inside its interval")
-        if self.upper not in (self.lo, self.hi):
-            raise ValueError("the bound the rule reads is one end of the interval")
+        if self.upper != self.hi:
+            raise ValueError("the main rule (at most, or below) reads the upper end of the interval")
         if self.met != (_COMPARE[self.comparison](self.upper, self.threshold) and all(c.met for c in self.conditions)
                          and (self.guard is None or self.guard.met)):
             raise ValueError("met says whether the bound meets the threshold and every further condition is met")
@@ -1281,11 +1281,11 @@ class Experiment(Strict):
     `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
     pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
     needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
-    An experiment whose pre-registration has no verdict on the development games (a dry run only) is
-    `adopted_as` research_result marks a pass adopted as a research result only (the lane and the site do not
-    change): its status is adopted_research, never adopted.
-    `stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
-    development bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+    An experiment whose pre-registration has no verdict on the development games (a dry run only) is `stages`
+    test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
+    development bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research
+    result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
+    a test-only experiment never carries it. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
     (the narrow claim, a data-fault note).
     An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
     adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
@@ -1316,6 +1316,9 @@ class Experiment(Strict):
         dev, test = self.development, self.test
         if self.status == "pre_registered" and self.writeup is not None:
             raise ValueError(f"{self.id}: a write-up belongs to an experiment that has run, not a pre-registered one")
+        if self.adopted_as is not None and (self.protocol is not None or self.stages == "test_only"):
+            raise ValueError(f"{self.id}: adopted as a research result belongs to a pass on both stages, not to a "
+                             "protocol or a test-only experiment")
         if self.protocol is not None:
             if dev is not None or test is not None:
                 raise ValueError(f"{self.id}: a protocol result replaces the stage results, never sits beside them")

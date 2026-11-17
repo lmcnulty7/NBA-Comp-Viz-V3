@@ -196,7 +196,7 @@
        "lo": "paired_cvap_minus_iso_shot_weighted.lo",
        "hi": "paired_cvap_minus_iso_shot_weighted.hi",
        "threshold": "verdict.threshold",
-       "upper": "verdict.upper_95",
+       "upper": "paired_cvap_minus_iso_shot_weighted.hi",
        "met": "verdict.passes_threshold"
       },
       "digits": 5,
@@ -1958,6 +1958,36 @@
         "label": "Calibration slope of the drift arm, overtime",
         "value": "{data}.arms.e1.calibration_slope_point_estimate.OT",
         "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 48-36 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.48-36",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 36-24 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.36-24",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 24-12 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.24-12",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 12-4 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.12-4",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 4-0 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.4-0",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, overtime",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.OT",
+        "digits": 3
        }
       ],
       "design": "{stage}"
@@ -1967,7 +1997,15 @@
      "writeup_notes": [
       "As committed, the pass reads \"adopted as a research result\".",
       "The frozen lane, its report and the site do not change.",
-      "Early calibration was mixed on development, so any use on the site waits for winprob-E2 or a D line."
+      "Early calibration was mixed on development, so any use on the site waits for winprob-E2 or a D line.",
+      {
+       "section": "Commitments before the test score",
+       "text": "Elo parameters were chosen on the same check seasons the development stage scores, so the development result is a little optimistic (3 parameters on about 3900 games)."
+      },
+      {
+       "section": "Test season (2025-26, scored once)",
+       "text": "Games listed 1316, without play-by-play 0, dropped by the frozen builders 16, scored 1300 (610276 events). All 16 were dropped by the frozen clock rule for a gap in the period numbers (7626 events); their ids are in the final json."
+      }
      ]
     },
     {

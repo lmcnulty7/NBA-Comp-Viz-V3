@@ -256,6 +256,10 @@ def test_a_result_file_whose_verdict_contradicts_its_numbers_is_a_problem(source
     doc = json.loads(path.read_text(encoding="utf-8"))
     doc["verdict"].update(upper_95=0.0009, passes_threshold=True)
     path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="upper_95 is not the upper end"):
+        R.build_methods(repo, source)
+    doc["paired_cvap_minus_iso_shot_weighted"].update(diff=0.0004, hi=0.0009)
+    path.write_text(json.dumps(doc), encoding="utf-8")
     with pytest.raises(R.MethodsProblem, match="passes_threshold is True"):
         R.build_methods(repo, source)
 
@@ -787,12 +791,12 @@ def test_winprob_shows_both_stages_with_the_signed_rule_and_every_bucket(source)
         for bucket in stage.guard.buckets:
             cell = paired["bucket_brier"][bucket.label]
             assert (bucket.lo, bucket.worse) == (round(cell["lo"], 4), cell["lo"] > 0)
-        slopes = [v for v in stage.values if v.label.startswith("Calibration slope")]
+        slopes = [v for v in stage.values if v.label.startswith("Calibration slope of the drift arm")]
         assert len(slopes) == 6 and all(v.point_estimate and v.lo is None for v in slopes)
         assert stage.games == data["games"] and stage.rows == data["rows"] and stage.design
     text = (REPO / "reports/research/winprob-E1.md").read_text(encoding="utf-8")
-    assert len(experiment.writeup_notes) == 3
-    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes)
+    assert len(experiment.writeup_notes) == 5
+    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes[:3])
     assert "adopted as a research result" in experiment.writeup_notes[0]
 
 
@@ -851,3 +855,66 @@ def test_the_contract_keeps_research_adoption_and_the_guard_honest(source):
         S.BucketGuard(**{**guard, "buckets": [{**guard["buckets"][0], "worse": True}] + guard["buckets"][1:]})
     with pytest.raises(ValidationError, match="no bucket is worse"):
         S.BucketGuard(**{**guard, "met": False})
+
+
+# ------------------------------------------------------------------------------------------ builder refusals
+
+
+def _drop_threshold_key(d):
+    condition = _win(d)["conditions"][0]
+    condition.pop("threshold_key")
+    condition.pop("sign")
+    condition["threshold"] = -0.002
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("(a) a guard read from another paired object", lambda d: _win(d)["guard"].update(
+        path="{data}.paired.ablation_minus_baseline.bucket_brier"), "not a table of the paired object"),
+    ("(b) a rule flag named as outside the rule", lambda d: _win(d)["flags_outside_rule"].update(
+        {"{verdict}.size_at_least_threshold": "a flag the size condition reads"}), "not on the list"),
+    ("(b) an allowed flag that a condition reads", lambda d: _win(d)["conditions"][0].update(
+        met="{verdict}.interval_straddles_threshold"), "flags of the rule"),
+    ("(c) a stated threshold where the file holds its own", _drop_threshold_key, "so the rule reads it"),
+    ("(d) the main rule read on the lower end", lambda d: _win(d)["keys"].update(
+        upper=_win(d)["keys"]["lo"]), "keys.upper must be keys.hi"),
+    ("(d) xfg's upper end taken from elsewhere", lambda d: _exp(d, "xfg-E1")["results"]["keys"].update(
+        upper="verdict.upper_95"), "keys.upper must be keys.hi"),
+    ("(e) one file for both stages", lambda d: _win(d).update(development=_win(d)["test"]), "are one file"),
+    ("(f) a research adoption left unmarked", lambda d: _exp(d, "winprob-E1").pop("adopted_as"),
+     "so adopted_as is research_result"),
+    ("adopted_as on a test-only experiment", lambda d: _exp(d, "lineups-E1").update(adopted_as="research_result"),
+     "not to a protocol or a test-only experiment"),
+    ("adopted_as on a protocol", lambda d: _exp(d, "decisions-E1").update(adopted_as="research_result"),
+     "not to a protocol or a test-only experiment"),
+])
+def test_the_builder_refuses_a_weakening_spec_edit(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = R.trace_problems(doc, REPO)
+    if not problems:
+        with pytest.raises(R.MethodsProblem) as caught:
+            R.build_methods(REPO, doc)
+        problems = [str(caught.value)]
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_the_contract_reads_the_main_rule_on_the_upper_end_and_keeps_research_adoption_to_two_stages(source):
+    methods = R.build_methods(REPO, source)
+    stage = _winprob(methods).test.model_dump()
+    with pytest.raises(ValidationError, match="reads the upper end"):
+        S.StageResult(**{**stage, "upper": stage["lo"]})
+    lineups = _lineups(methods).model_dump()
+    with pytest.raises(ValidationError, match="not to a protocol or a test-only"):
+        S.Experiment(**{**lineups, "adopted_as": "research_result"})
+    decisions = _decisions(methods).model_dump()
+    with pytest.raises(ValidationError, match="not to a protocol or a test-only"):
+        S.Experiment(**{**decisions, "adopted_as": "research_result"})
+
+
+def test_winprob_shows_the_control_slopes_and_quotes_the_caveats(source):
+    experiment = _winprob(R.build_methods(REPO, source))
+    for stage in (experiment.development, experiment.test):
+        control = [v for v in stage.values if v.label.startswith("Calibration slope of the control arm")]
+        assert len(control) == 6 and all(v.point_estimate for v in control)
+    assert any("a little optimistic" in note for note in experiment.writeup_notes)
+    assert any("dropped by the frozen builders 16" in note for note in experiment.writeup_notes)

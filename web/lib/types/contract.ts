@@ -916,11 +916,11 @@ export interface OurValue {
  * `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
  * pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
  * needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
- * An experiment whose pre-registration has no verdict on the development games (a dry run only) is
- * `adopted_as` research_result marks a pass adopted as a research result only (the lane and the site do not
- * change): its status is adopted_research, never adopted.
- * `stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
- * development bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+ * An experiment whose pre-registration has no verdict on the development games (a dry run only) is `stages`
+ * test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
+ * development bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research
+ * result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
+ * a test-only experiment never carries it. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
  * (the narrow claim, a data-fault note).
  * An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
  * adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
