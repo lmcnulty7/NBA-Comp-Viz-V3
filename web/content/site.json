@@ -55,6 +55,6 @@
     "label": "Machine-written",
     "note": "A language model ({model}, prompt {version}) wrote this from the numbers on this page. A program checked that every number in it is on this page, rounded the way this page rounds it. A text that failed that check is not shown. The numbers below are the record.",
     "fixture": "Test words from fixture data, not a result.",
-    "descriptive": "The values about defenders, rebounds, absences and style describe his past games."
+    "descriptive": "How close defenders stay, his rebound rate, how often he missed a next game and his style describe his past games. Values the text calls the model's are model estimates."
   }
 }

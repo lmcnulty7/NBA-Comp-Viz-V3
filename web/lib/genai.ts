@@ -415,31 +415,57 @@ const SUBJECT_WORDS: [RegExp, RegExp][] = [
   [/^(?:epv\.t|shots\.\d+\.t)(?:\.\d+)?$/, /\b(?:seconds?|time|at)\b/i],
 ];
 const RANGE_WORDS = /\b(?:range|interval)\b/i;
-
-function subjectWords(field: string): ((sentence: string) => boolean) | null {
-  const found = SUBJECT_WORDS.find(([pattern]) => pattern.test(field));
-  if (!found) return null;
-  const words = found[1];
-  if (/\.(?:lo|hi)$/.test(field)) return (sentence) => words.test(sentence) || RANGE_WORDS.test(sentence);
-  return (sentence) => words.test(sentence);
-}
+// A field-goal share in a sentence about the model needs a share word of its own (export/genai.py, _SHARE_WORDS).
+const MODEL_TALK = /\b(?:expected|model|model's)\b/i;
+const SHARE_WORDS = /\b(?:made|make|makes|went in|shooting|attempts|share|rate)\b/i;
+// A sentence whose subject is the model, and his made shots above expected (export/genai.py, _MODEL_FIRST).
+const MODEL_FIRST = /^\s*(?:the\s+)?model(?:'s)?\b/i;
+const OVER_EXPECTED = /^shot_making\.over_expected_per_100\.(?:value|lo|hi)$/;
 
 /**
  * A number that matches a fact must sit in a sentence that says what that fact is about (export/genai.py,
- * check_subjects), and a sentence that says "point estimate" and gives numbers must give at least one.
+ * check_subjects): the bounds of a range may sit alone in a sentence that says range right after the sentence of
+ * their value; a field-goal share in a sentence about the model needs a share word of its own; his made shots above
+ * expected never have the model as subject; a positive defender distance is never "farther" and a negative one
+ * never "closer"; a sentence that says "point estimate" and gives numbers gives at least one.
  */
 export function checkSubjects(text: string, facts: readonly Fact[], names: readonly string[] = []): string[] {
   const masked = maskNames(text, names);
   const tokens = numbersIn(text, names);
   const matching = (token: Token) => facts.filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit));
+  const previous = (start: number): [number, number] => (start > 0 ? sentenceSpan(masked, start - 1) : [0, 0]);
+  const factOk = (fact: Fact, sentence: string, span: [number, number]) => {
+    const entry = SUBJECT_WORDS.find(([pattern]) => pattern.test(fact.field));
+    if (!entry) return true;
+    let found = entry[1].test(sentence);
+    if (/\.(?:lo|hi)$/.test(fact.field) && !found && RANGE_WORDS.test(sentence)) {
+      const valueField = `${fact.field.slice(0, fact.field.lastIndexOf("."))}.value`;
+      const [start, stop] = previous(span[0]);
+      found = tokens.some((t) => t.start >= start && t.start < stop && matching(t).some((f) => f.field === valueField));
+    }
+    if (fact.field === "shot_making.fg_pct" && MODEL_TALK.test(sentence)) found = SHARE_WORDS.test(sentence);
+    return found;
+  };
   const problems: string[] = [];
   for (const token of tokens) {
     const found = matching(token);
     if (found.length === 0) continue;
-    const sentence = sentenceAt(masked, token.start);
-    const needs = found.map((f) => subjectWords(f.field));
-    if (needs.every((need) => need !== null) && !needs.some((need) => need!(sentence))) {
+    const span = sentenceSpan(masked, token.start);
+    const sentence = masked.slice(span[0], span[1]);
+    if (!found.some((f) => factOk(f, sentence, span))) {
       problems.push(`number "${token.raw}" sits in a sentence that does not say what it is (it is ${found[0]!.field})`);
+    }
+    if (found.every((f) => OVER_EXPECTED.test(f.field)) && MODEL_FIRST.test(sentence)) {
+      problems.push(`number "${token.raw}" is his made shots above expected, given to the model as subject`);
+    }
+    if (found.every((f) => f.field === "gravity.gravity_ft.value")) {
+      const value = Number(token.canon);
+      if (value > 0 && /\bfarther\b/i.test(sentence)) {
+        problems.push(`number "${token.raw}" is a positive defender distance (closer), called farther`);
+      }
+      if (value < 0 && /\bcloser\b/i.test(sentence)) {
+        problems.push(`number "${token.raw}" is a negative defender distance (farther), called closer`);
+      }
     }
   }
   const spans = new Map<string, [number, number]>();

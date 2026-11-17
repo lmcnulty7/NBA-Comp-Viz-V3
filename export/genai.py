@@ -1,6 +1,7 @@
 """export/genai.py: machine-written texts, made when the site data is built (PLAN.md P3, D76).
 
     python3 -m export.genai --root <data root> [--players N] [--possessions N | --all] [--live] [--cache <dir>]
+    python3 -m export.genai --root <data root> --withhold scouting --out <copy for a deploy>
 
 Two kinds of text, one short paragraph each:
 - scouting: a scouting report on one player of the prep tab, from his entry in players.json;
@@ -630,15 +631,19 @@ SUBJECT_WORDS = (
 _SUBJECT_RES = [(re.compile(field), re.compile(words, re.I)) for field, words in SUBJECT_WORDS]
 
 
-# The bounds of a range may sit in a sentence of their own that names the range ("Its 95% range is A to B").
+# The bounds of a range may sit in a sentence of their own that names the range ("Its 95% range is A to B"), but
+# only right after the sentence that gives the value of that range.
 _RANGE_WORDS = re.compile(r"\b(?:range|interval)\b", re.I)
+# A field-goal share in a sentence that speaks of the model must carry a word of its own: "The model expected
+# 40.8%" with 40.8% his own share is refused.
+_MODEL_TALK = re.compile(r"\b(?:expected|model|model's)\b", re.I)
+_SHARE_WORDS = re.compile(r"\b(?:made|make|makes|went in|shooting|attempts|share|rate)\b", re.I)
+# A sentence whose subject is the model ("The model gave", "The model's made shots").
+_MODEL_FIRST = re.compile(r"^\s*(?:the\s+)?model(?:'s)?\b", re.I)
+_OVER_EXPECTED = re.compile(r"shot_making\.over_expected_per_100\.(?:value|lo|hi)")
 
 
 def _subject_words(field: str):
-    if field.endswith((".lo", ".hi")):
-        for pattern, words in _SUBJECT_RES:
-            if pattern.fullmatch(field):
-                return re.compile(f"{words.pattern}|{_RANGE_WORDS.pattern}", re.I)
     for pattern, words in _SUBJECT_RES:
         if pattern.fullmatch(field):
             return words
@@ -647,25 +652,59 @@ def _subject_words(field: str):
 
 def check_subjects(text: str, facts, names=()) -> list:
     """A number that matches a fact must sit in a sentence that says what that fact is about (SUBJECT_WORDS): the
-    model's own error is called an error, a rank of a similar player sits with a word of style. A sentence that
-    says "point estimate" and gives numbers must give at least one point estimate."""
+    model's own error is called an error, a rank of a similar player sits with a word of style. The bounds of a
+    range may sit alone in a sentence that says range, right after the sentence of their value. A field-goal share
+    in a sentence about the model needs a share word of its own. Then three exact rules: his made shots above
+    expected never have the model as the subject of their sentence; a positive defender distance is never
+    "farther" and a negative one never "closer"; a sentence that says "point estimate" and gives numbers gives at
+    least one point estimate."""
     problems = []
     masked = _mask_names(text, names)
-    for token in numbers_in(text, names):
-        found = [f for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+    tokens = numbers_in(text, names)
+
+    def matching(token):
+        return [f for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+
+    def previous_sentence(start: int) -> tuple:
+        return _sentence_span(masked, start - 1) if start > 0 else (0, 0)
+
+    def fact_ok(fact, token, sentence: str, span: tuple) -> bool:
+        words = _subject_words(fact.field)
+        if words is None:
+            return True
+        found = bool(words.search(sentence))
+        if fact.field.endswith((".lo", ".hi")) and not found and _RANGE_WORDS.search(sentence):
+            value_field = fact.field.rsplit(".", 1)[0] + ".value"
+            before = previous_sentence(span[0])
+            found = any(before[0] <= t.start < before[1] and any(f.field == value_field for f in matching(t))
+                        for t in tokens)
+        if fact.field == "shot_making.fg_pct" and _MODEL_TALK.search(sentence):
+            found = bool(_SHARE_WORDS.search(sentence))
+        return found
+
+    for token in tokens:
+        found = matching(token)
         if not found:
             continue
-        sentence = _sentence_at(masked, token.start)
-        needs = [_subject_words(f.field) for f in found]
-        if all(words is not None for words in needs) and not any(words.search(sentence) for words in needs):
+        span = _sentence_span(masked, token.start)
+        sentence = masked[span[0]:span[1]]
+        if not any(fact_ok(f, token, sentence, span) for f in found):
             problems.append(f"number {token.raw!r} sits in a sentence that does not say what it is "
                             f"(it is {found[0].field})")
-    for start, stop in {_sentence_span(masked, t.start) for t in numbers_in(text, names)}:
+        if all(_OVER_EXPECTED.fullmatch(f.field) for f in found) and _MODEL_FIRST.search(sentence):
+            problems.append(f"number {token.raw!r} is his made shots above expected, given to the model as subject")
+        if all(f.field == "gravity.gravity_ft.value" for f in found):
+            value = _value_of(token.canon)[0]
+            if value > 0 and re.search(r"\bfarther\b", sentence, re.I):
+                problems.append(f"number {token.raw!r} is a positive defender distance (closer), called farther")
+            if value < 0 and re.search(r"\bcloser\b", sentence, re.I):
+                problems.append(f"number {token.raw!r} is a negative defender distance (farther), called closer")
+    for start, stop in {_sentence_span(masked, t.start) for t in tokens}:
         sentence = masked[start:stop]
         if not _POINT_ESTIMATE_RE.search(sentence):
             continue
-        inside = [t for t in numbers_in(text, names) if start <= t.start < stop]
-        kinds = {f.kind for t in inside for f in facts if canonical(f.shown) == t.canon and _unit_fits(t.unit, f.unit)}
+        inside = [t for t in tokens if start <= t.start < stop]
+        kinds = {f.kind for t in inside for f in matching(t)}
         if inside and "point" not in kinds:
             problems.append(f"says point estimate beside no point estimate: {sentence.strip()[:60]!r}")
     return problems
@@ -989,7 +1028,9 @@ def fixture_text(item: dict) -> str:
         value = facts.get("gravity.gravity_ft.value")
         if value:
             lo, hi = facts["gravity.gravity_ft.lo"], facts["gravity.gravity_ft.hi"]
-            lines.append(f"Defenders stand {value.shown} feet closer than his spot explains, with a range of "
+            where = "closer than his spot explains" if not value.shown.startswith(MINUS) else \
+                "from him beyond what his spot explains"
+            lines.append(f"Defenders stand {value.shown} feet {where}, with a range of "
                          f"{lo.shown} to {hi.shown} feet. This is descriptive." + flag("gravity"))
         lines.append("These are test words from a fixture, not a result.")
     else:
@@ -1349,6 +1390,44 @@ def prune(root: Path) -> dict:
     return dropped
 
 
+# ----------------------------------------------------------------------------------------------- withholding
+
+
+def withhold(src, out, kinds) -> dict:
+    """Write a copy of the data root `src` to `out` without the texts of `kinds`: their genai files are left out
+    and the manifest is written again, so the pages of those kinds show no machine text. `src` is not changed: the
+    texts stay there for later work (PLAN.md D93: scouting texts do not ship yet). `out` must not exist, or be
+    empty. The copy is validated."""
+    import shutil
+
+    src, out = Path(src), Path(out)
+    if not (src / "manifest.json").is_file():
+        raise GenaiProblem("the source folder has no manifest.json")
+    a, b = src.resolve(), out.resolve()
+    if a == b or a in b.parents or b in a.parents:
+        raise GenaiProblem("the output folder must be outside the source folder, and the source outside it")
+    if out.exists() and any(out.iterdir()):
+        raise GenaiProblem("the output folder is not empty")
+    unknown = sorted(set(kinds) - set(KINDS))
+    if unknown:
+        raise GenaiProblem(f"no such kind of text: {unknown}")
+    shutil.copytree(src, out, dirs_exist_ok=True)
+    left_out = {}
+    for kind in kinds:
+        path = out / S.GENAI_FILES[kind]
+        if path.exists():
+            left_out[kind] = len(S.GeneratedTexts.model_validate_json(path.read_bytes()).items)
+            path.unlink()
+    if (out / "genai").exists() and not any((out / "genai").iterdir()):
+        (out / "genai").rmdir()
+    manifest = _load(out, "manifest.json", S.Manifest)
+    (out / "manifest.json").write_text(_dump(with_genai_entry(manifest, out)), encoding="utf-8")
+    problems = S.validate_tree(out, allow_missing=S.STAGED_FILES)
+    if problems:
+        raise GenaiProblem(f"the copy does not validate ({len(problems)} problem(s)); first: {problems[0]}")
+    return {"left_out": left_out}
+
+
 # ------------------------------------------------------------------------------------------------------- run
 
 
@@ -1467,7 +1546,22 @@ def main(argv=None) -> int:
     parser.add_argument("--cache", help="the cache folder (default GENAI_CACHE_DIR, else .genai-cache)")
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--summary", help="also write the run's counts and token use to this json file")
+    parser.add_argument("--withhold", nargs="+", choices=KINDS,
+                        help="write a copy of --root to --out without these kinds of text (no model call), for a deploy")
+    parser.add_argument("--out", help="the folder of the copy that --withhold writes")
     args = parser.parse_args(argv)
+    if args.withhold:
+        if not args.out:
+            print("genai: --withhold needs --out", file=sys.stderr)
+            return 1
+        try:
+            info = withhold(args.root, args.out, args.withhold)
+        except GenaiProblem as exc:
+            print(f"genai: {exc}", file=sys.stderr)
+            return 1
+        print(f"genai: copy written without {', '.join(args.withhold)}: "
+              + ", ".join(f"{n} {kind} text(s) left out" for kind, n in info["left_out"].items()))
+        return 0
     try:
         info = run(args.root, args.kinds, None if args.all else args.players, None if args.all else args.possessions,
                    live=args.live, cache=args.cache, model=args.model)

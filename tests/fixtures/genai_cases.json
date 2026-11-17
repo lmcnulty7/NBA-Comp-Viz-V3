@@ -4540,8 +4540,8 @@
    "problem": "rebounding.chances"
   },
   {
-   "name": "a range in its own sentence",
-   "text": "That figure has a 95% range of 3.1 to 12.8.",
+   "name": "a range in its own sentence, right after its value",
+   "text": "He made 7.5 more shots per 100 than the model expected. That figure has a 95% range of 3.1 to 12.8.",
    "facts": [
     {
      "field": "shot_making.over_expected_per_100.value",
@@ -4808,6 +4808,614 @@
    "names": [],
    "ok": false,
    "problem": "beside no point estimate"
+  },
+  {
+   "name": "a range alone with no value before it",
+   "text": "He played 18 games. That figure has a 95% range of 3.1 to 12.8.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "over_expected_per_100.lo"
+  },
+  {
+   "name": "his share given to the model",
+   "text": "The model expected 57.1% of his shots to go in.",
+   "facts": [
+    {
+     "field": "shot_making.fg_pct",
+     "shown": "57.1%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.fg_pct"
+    },
+    {
+     "field": "shot_making.expected_fg_pct",
+     "shown": "56.4%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.expected_fg_pct"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "shot_making.fg_pct"
+  },
+  {
+   "name": "his share beside the model's, each named",
+   "text": "He made 57.1% of his attempts, while the model expected 56.4%, a point estimate.",
+   "facts": [
+    {
+     "field": "shot_making.fg_pct",
+     "shown": "57.1%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.fg_pct"
+    },
+    {
+     "field": "shot_making.expected_fg_pct",
+     "shown": "56.4%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.expected_fg_pct"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a positive defender distance called farther",
+   "text": "Defenders stayed 0.39 feet farther from him (95% range 0.20 to 0.58).",
+   "facts": [
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "0.39",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.lo",
+     "shown": "0.20",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.hi",
+     "shown": "0.58",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "−0.41",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "called farther"
+  },
+  {
+   "name": "a negative defender distance called closer",
+   "text": "Defenders stayed −0.41 feet closer to him than expected.",
+   "facts": [
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "0.39",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.lo",
+     "shown": "0.20",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.hi",
+     "shown": "0.58",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "−0.41",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "called closer"
+  },
+  {
+   "name": "a positive defender distance called closer",
+   "text": "Defenders stayed 0.39 feet closer to him (95% range 0.20 to 0.58).",
+   "facts": [
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "0.39",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.lo",
+     "shown": "0.20",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.hi",
+     "shown": "0.58",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "−0.41",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "festus-ezeli: his made shots given to the model",
+   "text": "The model gave 0.8 more made shots per 100 (95% range −5.1 to 7.1).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "given to the model"
+  },
+  {
+   "name": "chase-budinger: the model's made shots above expected",
+   "text": "The model's made shots above expected were −5.5 per 100 attempts (95% range −13.8 to 2.3).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "given to the model"
+  },
+  {
+   "name": "jared-dudley: his range given to the model",
+   "text": "He made 4.7 shots per 100 over expected. The model expected this (95% range −1.6 to 9.7).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "given to the model"
+  },
+  {
+   "name": "his made shots with the model as object",
+   "text": "He made 0.8 more shots per 100 than the model expected (95% range −5.1 to 7.1).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
   }
  ]
 }

@@ -514,3 +514,16 @@ def test_each_live_text_records_its_call_setting(root, tmp_path):
               log=lambda line: None)
     item = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).items[0]
     assert item.call == genai.describe_call(genai.CALL)
+
+
+def test_a_deploy_copy_can_leave_a_kind_of_text_out(root, tmp_path):
+    """PLAN.md D93: scouting texts do not ship yet. The copy leaves them out and validates; the source keeps them."""
+    out = tmp_path / "deploy"
+    assert genai.main(["--root", str(root), "--withhold", "scouting", "--out", str(out)]) == 0
+    assert not (out / "genai/scouting.json").exists() and (out / "genai/possession.json").exists()
+    assert (root / "genai/scouting.json").exists()
+    manifest = S.Manifest.model_validate_json((out / "manifest.json").read_bytes())
+    assert [f.path for f in manifest.files if f.model == "GeneratedTexts"] == ["genai/possession.json"]
+    assert S.validate_tree(out, allow_missing=S.STAGED_FILES) == []
+    with pytest.raises(genai.GenaiProblem):
+        genai.withhold(root, out, ["scouting"])
