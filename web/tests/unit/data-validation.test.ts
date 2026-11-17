@@ -284,7 +284,7 @@ const CASES: Case[] = [
 test("the synthetic data root is valid for both halves", async () => {
   const root = await sampleRoot();
   const web = validate(root);
-  expect(web.output).toContain("20 file(s) valid against the JSON Schema");
+  expect(web.output).toContain("22 file(s) valid against the JSON Schema");
   expect(web.status).toBe(0);
   const both = validate(root, "--python");
   expect(both.output).toContain("python: data root is valid");
@@ -403,7 +403,7 @@ test("prepare-data copies the contract files and fails clearly when there is no 
   const target = path.join(root, "..", `${path.basename(root)}-prepared`);
   const done = runScript("prepare-data.mjs", ["--to", target], { SITE_DATA_DIR: root });
   expect(done.status, done.output).toBe(0);
-  expect(done.output).toContain("20 file(s)");
+  expect(done.output).toContain("22 file(s)");
   expect(done.output).toContain("notes.txt is not a contract file and was not copied");
   expect(existsSync(path.join(target, "games/fixture-game-a/1.json"))).toBe(true);
   expect(existsSync(path.join(target, "notes.txt"))).toBe(false);
