@@ -135,6 +135,8 @@ web/out-full/
 web/data/
 web/public/data/
 web/data-public/
+# machine-written texts cached by export/genai.py: written from the data root, never committed (PLAN.md P3)
+.genai-cache/
 web/media-private/
 web/test-results/
 web/playwright-report/

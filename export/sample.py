@@ -312,7 +312,13 @@ def write_sample(out) -> list[str]:
                           n_games=len(GAMES), n_possessions=sum(g.n_possessions for g in manifest_games),
                           games=manifest_games, files=entries)
     put("manifest.json", manifest)
-    return sorted(files)
+    # Fixture texts (PLAN.md P3) for 8 of the 12 players and 8 of the 12 possessions, so the site shows pages with
+    # a text and pages without one. They are written from the facts and checked like real texts. They rewrite the
+    # manifest.
+    from export import genai
+
+    genai.run(out, n_players=8, n_possessions=8, log=lambda line: None)
+    return sorted([*files, *(rel for rel in S.GENAI_FILES.values() if (out / rel).exists())])
 
 
 def main(argv=None) -> int:

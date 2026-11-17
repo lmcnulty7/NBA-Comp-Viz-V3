@@ -10,13 +10,16 @@
 //   - the copy of a scene, or its labels, is not the approved copy of docs/SCRIPT.md, line for line;
 //   - a slide of a scene does not carry the lines of that scene;
 //   - copy uses a token that the token table of docs/SCRIPT.md does not list;
-//   - talk/deck.json is missing or lists no slide.
+//   - talk/deck.json is missing or lists no slide;
+//   - a machine-written text of the data root (genai/*.json, PLAN.md P3) breaks a rule of site copy other than the
+//     no-digit rule: grade, plain words, claims, dashes, one paragraph (scripts/lib/generated-text.mjs).
 // Presenter notes are left out of the grade and the word list: SCRIPT.md lets them name the methods.
 //
-//   node scripts/check-reading.mjs [--content <dir>] [--script <SCRIPT.md>]
+//   node scripts/check-reading.mjs [--content <dir>] [--script <SCRIPT.md>] [--data <data root>]
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { CONTENT_DIR, shown } from "./lib/paths.mjs";
+import { checkGeneratedTexts } from "./lib/generated-text.mjs";
+import { CONTENT_DIR, dataRoot, shown } from "./lib/paths.mjs";
 import { TOKEN_RE, fkGrade, plainWordProblems, round1 } from "./lib/readability.mjs";
 import { SCRIPT_FILE, scriptScenes, scriptTokens } from "./lib/script-doc.mjs";
 import { onScreenLines, parseSlide } from "./lib/slides.mjs";
@@ -73,7 +76,7 @@ export function sceneCopy(scene) {
   return { lines, labels: strings(scene.labels ?? {}) };
 }
 
-export function checkReading({ contentDir = CONTENT_DIR, scriptFile = SCRIPT_FILE } = {}) {
+export function checkReading({ contentDir = CONTENT_DIR, scriptFile = SCRIPT_FILE, dataDir = dataRoot() } = {}) {
   const problems = [];
   const report = [];
   const scriptText = readFileSync(scriptFile, "utf8");
@@ -177,7 +180,11 @@ export function checkReading({ contentDir = CONTENT_DIR, scriptFile = SCRIPT_FIL
       report.push({ where, grade: graded.grade, upper: graded.upper });
     }
   }
-  return { problems, report };
+
+  // The machine-written texts of the data root.
+  const generated = checkGeneratedTexts(dataDir);
+  problems.push(...generated.problems);
+  return { problems, report, generated: generated.texts };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
@@ -187,8 +194,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   };
   const contentDir = flag("--content") ?? CONTENT_DIR;
   try {
-    const { problems, report } = checkReading({ contentDir, scriptFile: flag("--script") ?? SCRIPT_FILE });
+    const dataDir = flag("--data") ?? dataRoot();
+    const { problems, report, generated } = checkReading({ contentDir, scriptFile: flag("--script") ?? SCRIPT_FILE, dataDir });
     for (const row of report) console.log(`reading: ${row.where.padEnd(24)} grade ${row.grade}, upper ${row.upper}`);
+    console.log(`reading: ${generated} machine-written text(s) in ${shown(dataDir)} checked`);
     for (const line of problems) console.error(`reading: ${line}`);
     if (problems.length) {
       console.error(`reading: ${problems.length} problem(s) in ${shown(contentDir)}`);

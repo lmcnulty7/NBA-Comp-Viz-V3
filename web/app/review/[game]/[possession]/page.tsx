@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Evidence } from "@/components/evidence/Evidence";
 import { EvidenceScope } from "@/components/evidence/EvidenceScope";
 import { groupSources } from "@/components/evidence/groups";
+import { MachineText } from "@/components/genai/MachineText";
 import { PossessionStage } from "@/components/review/PossessionStage";
 import { PossessionStill } from "@/components/review/PossessionStill";
 import { TourBar } from "@/components/review/TourBar";
@@ -19,6 +20,7 @@ import {
   formatProbability,
   formatSeconds,
 } from "@/lib/format";
+import { checkedText, possessionFacts, possessionNames } from "@/lib/genai";
 import { VARIANT, routes } from "@/lib/site";
 import { loadLanes, loadTour } from "../../load";
 
@@ -71,7 +73,20 @@ export default async function PossessionPage({ params }: PageProps<"/review/[gam
   const { game, possession } = await params;
   const { index, summary, detail, previous, next } = await load(game, possession);
   const source = getServerSource();
-  const [stops, lanes, swap] = await Promise.all([loadTour(source), loadLanes(source), source.demoSwap()]);
+  const [stops, lanes, swap, texts] = await Promise.all([
+    loadTour(source),
+    loadLanes(source),
+    source.demoSwap(),
+    source.texts("possession"),
+  ]);
+  // A machine-written account of the possession (PLAN.md P3), shown only when it passes this page's own number
+  // check. Its facts are per-possession values only, which both variants hold (D60).
+  const account = checkedText(
+    texts,
+    `${index.game.slug}/${summary.possession}`,
+    possessionFacts(summary, detail),
+    possessionNames(detail),
+  );
   const stop = stopIndex(stops, index.game.slug, summary.possession);
   const evidence = groupSources(detail.sources);
   // The broadcast demo's fill share for this possession, when the demo covers it (D27).
@@ -109,6 +124,8 @@ export default async function PossessionPage({ params }: PageProps<"/review/[gam
       ) : null}
 
       <EvidenceScope>
+        <MachineText item={account} texts={texts} className="column" />
+
         <dl className="facts column">
           <div>
             <dt>{text.facts.result}</dt>

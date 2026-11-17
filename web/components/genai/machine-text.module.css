@@ -1,0 +1,19 @@
+/* A machine-written text: set apart by a rule and a label, so it never reads as the site's own copy. */
+.block {
+  border-left: 3px solid var(--rule);
+  padding-left: 1rem;
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.body {
+  font-family: var(--serif);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}

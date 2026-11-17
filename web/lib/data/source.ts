@@ -8,8 +8,10 @@
  * (lib/data/browser.ts).
  */
 import {
+  READ_SCHEMA_VERSIONS,
   SCHEMA_VERSION,
   type DemoFrames,
+  type GeneratedTexts,
   type DemoSwap,
   type Manifest,
   type PlayersFile,
@@ -36,6 +38,8 @@ export interface DataSource {
   demoSwap(): Promise<DemoSwap | null>;
   /** The demo scenes, or null when this data build has none. */
   demoFrames(): Promise<DemoFrames | null>;
+  /** The machine-written texts of one kind (PLAN.md P3), or null when this data build has none. */
+  texts(kind: GeneratedTexts["kind"]): Promise<GeneratedTexts | null>;
 }
 
 export type DataErrorReason = "missing" | "invalid" | "version" | "unreachable" | "bad-request";
@@ -71,6 +75,7 @@ export const dataPaths = {
   results: "results.json",
   demoSwap: "demo/swap.json",
   demoFrames: "demo/frames.json",
+  texts: (kind: GeneratedTexts["kind"]) => (kind === "scouting" ? "genai/scouting.json" : "genai/possession.json"),
 } as const;
 
 /** How many possession documents a source keeps in memory. The fixed documents are always kept. */
@@ -135,6 +140,13 @@ export class StaticSource implements DataSource {
     return this.optional<DemoFrames>(dataPaths.demoFrames);
   }
 
+  texts(kind: GeneratedTexts["kind"]): Promise<GeneratedTexts | null> {
+    if (kind !== "scouting" && kind !== "possession") {
+      throw new DataError(`texts ${JSON.stringify(kind)}`, "bad-request", "not a kind of machine-written text");
+    }
+    return this.optional<GeneratedTexts>(dataPaths.texts(kind));
+  }
+
   private load(path: string, cache: Map<string, Promise<unknown>>): Promise<unknown> {
     let pending = cache.get(path);
     if (!pending) {
@@ -177,11 +189,12 @@ function assertVersion(path: string, document: unknown): void {
     typeof document === "object" && document !== null
       ? (document as { schema_version?: unknown }).schema_version
       : undefined;
-  if (version !== SCHEMA_VERSION) {
+  if (typeof version !== "string" || !READ_SCHEMA_VERSIONS.includes(version)) {
     throw new DataError(
       path,
       "version",
-      `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this site was built for`,
+      `schema version ${JSON.stringify(version)} is not one this site reads (${READ_SCHEMA_VERSIONS.join(", ")}; ` +
+        `it was built for ${SCHEMA_VERSION})`,
     );
   }
 }

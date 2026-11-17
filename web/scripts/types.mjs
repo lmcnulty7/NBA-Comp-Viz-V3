@@ -43,9 +43,12 @@ function withoutTitles(node, isRoot = true) {
 export async function contractTs(schemaText) {
   const schema = JSON.parse(schemaText);
   const version = schema["x-schema-version"];
+  const readVersions = schema["x-read-versions"];
   const files = schema["x-files"];
-  if (typeof version !== "string" || !files || typeof files !== "object") {
-    throw new Error("the schema has no x-schema-version or no x-files: was it written by export/schemas.py?");
+  if (typeof version !== "string" || !files || typeof files !== "object" || !Array.isArray(readVersions)) {
+    throw new Error(
+      "the schema has no x-schema-version, x-read-versions or x-files: was it written by export/schemas.py?",
+    );
   }
   const body = await compile(withoutTitles(schema), "SiteContract", {
     bannerComment: BANNER,
@@ -60,8 +63,11 @@ export async function contractTs(schemaText) {
     .map(([pattern, model]) => `  ${JSON.stringify(pattern)}: ${JSON.stringify(model)},`)
     .join("\n");
   const footer = `
-/** The schema version these types were generated from. Every data file must carry the same value. */
+/** The schema version these types were generated from. Data written now carries this value. */
 export const SCHEMA_VERSION = ${JSON.stringify(version)} as const;
+
+/** The schema versions this site reads: a minor version only adds, so an older data root reads unchanged. */
+export const READ_SCHEMA_VERSIONS: readonly string[] = ${JSON.stringify(readVersions)};
 
 /** Path pattern under the data root, and the contract model each file must validate against. */
 export const CONTRACT_FILES = {
@@ -90,6 +96,7 @@ rules = {
     "url_pattern": S._URL_RE.pattern,
     "ignored_names": list(S.IGNORED_NAMES),
     "staged_files": list(S.STAGED_FILES),
+    "genai_files": S.GENAI_FILES,
     "fixture_source": S.FIXTURE_SOURCE,
 }
 sys.stdout.write(json.dumps(rules, indent=2) + "\\n")

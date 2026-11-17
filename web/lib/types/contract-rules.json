@@ -24,5 +24,9 @@
     "demo/swap.json",
     "demo/frames.json"
   ],
+  "genai_files": {
+    "scouting": "genai/scouting.json",
+    "possession": "genai/possession.json"
+  },
   "fixture_source": "export/sample.py"
 }

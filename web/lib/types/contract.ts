@@ -18,6 +18,7 @@ export interface SiteContract {
   Results?: Results;
   DemoSwap?: DemoSwap;
   DemoFrames?: DemoFrames;
+  GeneratedTexts?: GeneratedTexts;
 }
 /**
  * The entry point. `synthetic` is true when the data was built from fixtures; the site must then label
@@ -27,7 +28,7 @@ export interface SiteContract {
  * via the `definition` "Manifest".
  */
 export interface Manifest {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   build_id: string;
   generated_at: string;
   repo_commit: string;
@@ -92,7 +93,7 @@ export interface Source {
  * via the `definition` "PossessionIndex".
  */
 export interface PossessionIndex {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   game: GameInfo;
   xfg_bucket_edges: number[];
   possessions: PossessionSummary[];
@@ -155,7 +156,7 @@ export interface PossessionSummary {
  * via the `definition` "Possession".
  */
 export interface Possession {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   game_id: string;
   game_slug: string;
   possession: number;
@@ -277,7 +278,7 @@ export interface Shot {
  * via the `definition` "PlayersFile".
  */
 export interface PlayersFile {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   season: string;
   window: string;
   n_players: number;
@@ -493,7 +494,7 @@ export interface SimilarPlayer {
  * via the `definition` "Scorecard".
  */
 export interface Scorecard {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   decision: string;
   builds: ScorecardBuild[];
   paired: PairedDifference[];
@@ -583,7 +584,7 @@ export interface PairedDifference {
  * via the `definition` "Results".
  */
 export interface Results {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   freeze_tag: string;
   generated: string;
   lanes: LaneResult[];
@@ -658,7 +659,7 @@ export interface PendingLane {
  * via the `definition` "DemoSwap".
  */
 export interface DemoSwap {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   label: "illustration";
   game_id: string;
   game: string;
@@ -734,7 +735,7 @@ export interface SwapPossession {
  * via the `definition` "DemoFrames".
  */
 export interface DemoFrames {
-  schema_version: "1.1.0";
+  schema_version: "1.1.0" | "1.2.0";
   game_id: string;
   game: string;
   build: string;
@@ -813,9 +814,65 @@ export interface DemoPoint {
   x: number;
   y: number;
 }
+/**
+ * Machine-written texts of one kind (PLAN.md P3, D76). The words are the model's; every number in them is a
+ * value of the page the text sits on, as the page rounds it, and each text passed every check of
+ * export/genai.py when it was written. `validate_tree` runs those checks again against the data root, so a text
+ * with a wrong or stale number cannot be in a valid root. A page shows a text only when it has one: no text is
+ * required.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedTexts".
+ */
+export interface GeneratedTexts {
+  schema_version: "1.1.0" | "1.2.0";
+  kind: "scouting" | "possession";
+  label: "machine-written";
+  /**
+   * @minItems 1
+   */
+  checks: [string, ...string[]];
+  items: GeneratedText[];
+  notes: string[];
+  /**
+   * @minItems 1
+   */
+  sources: [Source, ...Source[]];
+}
+/**
+ * One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
+ * `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
+ * input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
+ * the deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedText".
+ */
+export interface GeneratedText {
+  key: string;
+  text: string;
+  input_sha256: string;
+  model: string;
+  prompt_version: string;
+  numbers: GeneratedNumber[];
+}
+/**
+ * One number of a text: as the text writes it, and the field of the item's input whose shown value it
+ * equals (export/genai.py, check_numbers).
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedNumber".
+ */
+export interface GeneratedNumber {
+  shown: string;
+  field: string;
+}
 
-/** The schema version these types were generated from. Every data file must carry the same value. */
-export const SCHEMA_VERSION = "1.1.0" as const;
+/** The schema version these types were generated from. Data written now carries this value. */
+export const SCHEMA_VERSION = "1.2.0" as const;
+
+/** The schema versions this site reads: a minor version only adds, so an older data root reads unchanged. */
+export const READ_SCHEMA_VERSIONS: readonly string[] = ["1.1.0","1.2.0"];
 
 /** Path pattern under the data root, and the contract model each file must validate against. */
 export const CONTRACT_FILES = {
@@ -827,4 +884,5 @@ export const CONTRACT_FILES = {
   "results.json": "Results",
   "demo/swap.json": "DemoSwap",
   "demo/frames.json": "DemoFrames",
+  "genai/<kind>.json": "GeneratedTexts",
 } as const;
