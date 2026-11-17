@@ -75,7 +75,9 @@ ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            "tools/research_decisions.py": ("research_data_root", "test_features"),
            # winprob-E1 reads the 2025-26 files only inside the scorer it passes to score_once
            # (tests/test_research_winprob.py checks that)
-           "tools/research_winprob.py": ("scoring_data_root",)}
+           "tools/research_winprob.py": ("scoring_data_root",),
+           # lineups-E1 calls it only inside the scorer it passes to score_once (the AST rule below checks that)
+           "tools/research_lineups.py": ("scoring_data_root",)}
 
 
 def name_problems(rel: str, text: str) -> list:
