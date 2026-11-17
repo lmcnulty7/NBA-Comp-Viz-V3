@@ -1,0 +1,225 @@
+{
+ "version": 1,
+ "updated": "2026-11-17",
+ "decision": "PLAN.md D83 (10 more third-party uploads under CLAIMS.md caveat 4), D85 (3) (development games)",
+ "rule": "The channel games that need a scorebug check to be dated (docs/research/P8_FEASIBILITY.md section 4). A game becomes a development game (status confirmed) only when one frame's scorebug (teams, period, game clock, score) matches the play-by-play of exactly one candidate SportVU game in the contract (score at that clock). The 4 broadcast CV test games are not listed here: their ids live only in reports/research/testset.json. Every id here passes tools.research_testset.refuse_cv_test.",
+ "rights": "public third-party YouTube uploads of one channel, used under CLAIMS.md standing caveat 4 (amended 2026-11-17); no video is redistributed",
+ "games": {
+  "ind_chi": {
+   "video_id": "wtGuZJAkm08",
+   "title_matchup": "Bulls at Pacers",
+   "home": "IND",
+   "away": "CHI",
+   "candidates": [
+    "11.27.2015.CHI.at.IND"
+   ],
+   "other_meetings_outside_window": [
+    "2016-03-29"
+   ],
+   "status": "rejected",
+   "sportvu": null,
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "11:57",
+     "away": 28,
+     "home": 27
+    },
+    "candidates": {
+     "11.27.2015.CHI.at.IND": "score differs"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   }
+  },
+  "orl_ind": {
+   "video_id": "QIEVYvOfeaM",
+   "title_matchup": "Pacers at Magic",
+   "home": "ORL",
+   "away": "IND",
+   "candidates": [
+    "01.06.2016.IND.at.ORL"
+   ],
+   "other_meetings_outside_window": [
+    "2016-02-21"
+   ],
+   "status": "rejected",
+   "sportvu": null,
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "11:15",
+     "away": 20,
+     "home": 22
+    },
+    "candidates": {
+     "01.06.2016.IND.at.ORL": "score differs"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   }
+  },
+  "was_ind": {
+   "video_id": "Td8GojYg1FM",
+   "title_matchup": "Pacers at Wizards",
+   "home": "WAS",
+   "away": "IND",
+   "candidates": [
+    "11.24.2015.IND.at.WAS"
+   ],
+   "other_meetings_outside_window": [
+    "2016-03-05"
+   ],
+   "status": "rejected",
+   "sportvu": null,
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "10:15",
+     "away": 31,
+     "home": 41
+    },
+    "candidates": {
+     "11.24.2015.IND.at.WAS": "score differs"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   }
+  },
+  "nyk_bos_2016": {
+   "video_id": "CVFO7eUrTL8",
+   "title_matchup": "Celtics at Knicks",
+   "home": "NYK",
+   "away": "BOS",
+   "candidates": [
+    "01.12.2016.BOS.at.NYK"
+   ],
+   "other_meetings_outside_window": [
+    "2016-02-02"
+   ],
+   "status": "confirmed",
+   "sportvu": "01.12.2016.BOS.at.NYK",
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "9:07",
+     "away": 30,
+     "home": 42
+    },
+    "candidates": {
+     "01.12.2016.BOS.at.NYK": "score matches"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   },
+   "date": "2016-01-12",
+   "layout": "msg15_720",
+   "layout_note": "new hand calibration msg15_720 (registry layouts); clock_reader read 2nd 9:07 on the check frame"
+  },
+  "okc_sac_2015": {
+   "video_id": "tqDqi5XqUKU",
+   "title_matchup": "Kings at Thunder",
+   "home": "OKC",
+   "away": "SAC",
+   "candidates": [
+    "12.06.2015.SAC.at.OKC",
+    "01.04.2016.SAC.at.OKC"
+   ],
+   "other_meetings_outside_window": [],
+   "status": "confirmed",
+   "sportvu": "12.06.2015.SAC.at.OKC",
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "10:47",
+     "away": 27,
+     "home": 28
+    },
+    "candidates": {
+     "12.06.2015.SAC.at.OKC": "score matches",
+     "01.04.2016.SAC.at.OKC": "score differs"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   },
+   "date": "2015-12-06",
+   "layout": "fso15_720",
+   "layout_note": "the Fox Sports Oklahoma strip has the same geometry as the registered fso15_720 (Fox Sports Ohio); clock_reader read 2nd 10:47 on the check frame"
+  },
+  "por_okc_2016": {
+   "video_id": "UiAdZkI4tb0",
+   "title_matchup": "Thunder at Trail Blazers",
+   "home": "POR",
+   "away": "OKC",
+   "candidates": [
+    "01.10.2016.OKC.at.POR"
+   ],
+   "other_meetings_outside_window": [
+    "2016-04-06"
+   ],
+   "status": "confirmed",
+   "sportvu": "01.10.2016.OKC.at.POR",
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "10:31",
+     "away": 29,
+     "home": 28
+    },
+    "candidates": {
+     "01.10.2016.OKC.at.POR": "score matches"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   },
+   "date": "2016-01-10",
+   "layout": "csn_nw15_720",
+   "layout_note": "new hand calibration csn_nw15_720 (registry layouts); the period is a word, read by tools.p8_frozen.make_reader"
+  }
+ },
+ "layouts": {
+  "msg15_720": {
+   "period_box": [
+    1104,
+    652,
+    1127,
+    682
+   ],
+   "clock_box": [
+    1104,
+    625,
+    1196,
+    651
+   ],
+   "measured_on": "nyk_bos_2016 frame at 1500 s (2nd 9:07), 4x pixel crop, 2026-11-17; MSG Networks right-hand bug, period box stops before the ND superscript"
+  },
+  "csn_nw15_720": {
+   "period_box": [
+    594,
+    659,
+    684,
+    673
+   ],
+   "clock_box": [
+    588,
+    637,
+    648,
+    659
+   ],
+   "period_words": true,
+   "measured_on": "por_okc_2016 frame at 1500 s (SECOND QTR 10:31), 5x pixel crop, 2026-11-17; lower-centre strip, the period is written as a word under the clock"
+  }
+ }
+}
