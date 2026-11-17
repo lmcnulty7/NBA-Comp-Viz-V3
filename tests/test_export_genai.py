@@ -452,3 +452,19 @@ def test_the_texts_file_says_which_call_setting_wrote_its_texts(root, tmp_path):
     assert f"Call setting: {genai.describe_call(genai.CALL)}, 2 text(s)." in notes
     assert "thinking adaptive" in genai.describe_call(genai.CALL)
     assert "thinking adaptive (the model's default)" in genai.describe_call(None)
+
+@pytest.mark.parametrize("case", CASES["directions"], ids=lambda c: c["name"])
+def test_a_word_of_change_agrees_with_the_values_it_links(case):
+    problems = genai.check_directions(case["text"], _facts(case["facts"]), case["names"])
+    if case["ok"]:
+        assert problems == []
+    else:
+        assert any(case["problem"] in line for line in problems), problems
+
+
+def test_one_value_at_two_roundings():
+    assert genai.same_at_shown_rounding("0.96", "0.963")
+    assert genai.same_at_shown_rounding("1.06", "1.062") and not genai.same_at_shown_rounding("1.06", "1.066")
+    assert genai.same_at_shown_rounding("\u22120.19", "\u22120.19") and not genai.same_at_shown_rounding("0.19", "\u22120.19")
+    assert not genai.same_at_shown_rounding("1.06", "1.1", b_exact=True) and genai.same_at_shown_rounding("1.1", "1.06")
+    assert genai.same_at_shown_rounding("0.96", "0.963", b_exact=True)

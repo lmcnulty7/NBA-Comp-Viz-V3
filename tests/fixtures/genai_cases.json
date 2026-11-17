@@ -1,5 +1,5 @@
 {
- "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one. The lanes cases are the lane-word rule (check_lanes, checkLanes).",
+ "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one. The lanes cases are the lane-word rule (check_lanes, checkLanes). The directions cases are the word-of-change rule (check_directions, checkDirections).",
  "numbers": [
   {
    "name": "an interval value with both bounds",
@@ -1832,6 +1832,830 @@
    "names": [],
    "ok": true,
    "lane": ""
+  }
+ ],
+ "directions": [
+  {
+   "name": "one value at two roundings is no change",
+   "text": "Expected points started at 0.96 points, a point estimate. Expected points dipped to 0.963 points at 0.0 seconds.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "one value at two roundings"
+  },
+  {
+   "name": "a rise and a fall that agree with the values",
+   "text": "Expected points started at 0.96, a point estimate. They rose to 1.062 at 0.6 seconds, then fell to 0.719.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a rise that went down",
+   "text": "Expected points were 1.062, a point estimate. Then they rose to 0.719.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "from A to B in one sentence",
+   "text": "Expected points fell from 1.062 to −0.19, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "from A to B the wrong way",
+   "text": "Expected points climbed from 1.062 to 0.719, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "a negative end is lower",
+   "text": "Expected points were 0.719, then dropped to −0.19, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a word of change with no value after it is not checked",
+   "text": "Expected points were 1.062, a point estimate. The shot fell short and they scored 2 points.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a name is not a word of change",
+   "text": "Derrick Rose had 1.062 expected points, then 0.719, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [
+    "Derrick Rose"
+   ],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a time after the word is skipped",
+   "text": "Expected points were 0.96, a point estimate. They rose at 0.6 seconds to 1.062.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "an exact curve value is not a rounding",
+   "text": "Expected points started at 1.06 and rose to a high of 1.1, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.value.4",
+     "shown": "1.1",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.4"
+    },
+    {
+     "field": "epv_end",
+     "shown": "1.06",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "an exact value that rounds to the other is no change",
+   "text": "Expected points started at 0.96 and rose to 0.963, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.value.4",
+     "shown": "1.1",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.4"
+    },
+    {
+     "field": "epv_end",
+     "shown": "1.06",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "no change"
   }
  ]
 }

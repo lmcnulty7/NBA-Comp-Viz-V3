@@ -423,12 +423,119 @@ LANE_WORDS = {
 _LANE_WORD_RE = {lane: re.compile(rf"\b(?:{words})\b", re.I) for lane, words in LANE_WORDS.items()}
 
 
-def _sentence_at(text: str, index: int) -> str:
-    """The sentence of `text` that holds the character at `index`, split as sentence_count splits."""
+def _sentence_span(text: str, index: int) -> tuple:
+    """(start, stop) of the sentence of `text` that holds the character at `index`, split as sentence_count splits."""
     ends = [m.end() for m in _SENTENCE_END_RE.finditer(text)]
     start = max((end for end in ends if end <= index), default=0)
     stop = min((end for end in ends if end > index), default=len(text))
+    return start, stop
+
+
+def _sentence_at(text: str, index: int) -> str:
+    """The sentence of `text` that holds the character at `index`."""
+    start, stop = _sentence_span(text, index)
     return text[start:stop]
+
+
+# Words that say a value went up or down. A text that uses one must be right about the values it links: the value
+# after the word against the one before it (export/genai.py check_directions, web/lib/genai.ts checkDirections).
+UP_WORDS = r"rose|rise|rises|rising|climbed|climb|climbs|climbing|grew|grow|grows|growing|increased|increases|" \
+           r"increase|jumped|jump|jumps|jumping|went up|goes up|go up|going up|moved up|ticked up"
+DOWN_WORDS = r"fell|fall|falls|falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|" \
+             r"sinking|went down|goes down|go down|going down|slid|slide|slides|sliding|declined|decline|declines|" \
+             r"decreased|decrease|decreases|slipped|slip|slips|moved down|ticked down"
+_CHANGE_RE = re.compile(rf"\b(?:(?P<up>{UP_WORDS})|(?P<down>{DOWN_WORDS}))\b", re.I)
+_FROM_BEFORE_RE = re.compile(r"\bfrom\s*$", re.I)
+
+
+def series_of(field: str, unit: str):
+    """The run of values a fact belongs to, for the direction check: expected points, shot chances, or one
+    estimate (its value and bounds). A time, a clock or a count belongs to none."""
+    if unit in ("seconds", "clock"):
+        return None
+    if re.fullmatch(r"epv_start|epv_end|epv\.value\.\d+", field):
+        return "epv"
+    if re.fullmatch(r"xfg|shots\.\d+\.xfg", field):
+        return "xfg"
+    match = re.fullmatch(r"(.+)\.(?:value|lo|hi)", field)
+    if match:
+        return match.group(1)
+    if field.endswith((".n", ".interval")) or re.search(r"(attempts|possessions|chances|games|absent|rank)$", field):
+        return None
+    return field
+
+
+def _value_of(canon: str):
+    """A token's value and its count of decimals."""
+    plain = canonical(canon).rstrip("%")
+    decimals = len(plain.split(".")[1]) if "." in plain else 0
+    return Decimal(plain), decimals
+
+
+# A value the page prints as the file stores it (an EPV curve state) is exact: "1.1" is 1.100, not a rounding.
+_EXACT_FIELD_RE = re.compile(r"epv\.value\.\d+")
+
+
+def same_at_shown_rounding(a: str, b: str, a_exact: bool = False, b_exact: bool = False) -> bool:
+    """Whether two shown values can be one value: a rounded value matches an exact one when the exact one, rounded
+    to its decimals, gives it; two rounded values match when they agree at the coarser rounding; two exact values
+    match only when equal."""
+    (x, dx), (y, dy) = _value_of(a), _value_of(b)
+    if a_exact and b_exact:
+        return x == y
+    if a_exact or b_exact:
+        exact, rounded, digits = (x, y, dy) if a_exact else (y, x, dx)
+        return exact.quantize(Decimal(1).scaleb(-digits), rounding=ROUND_HALF_UP) == rounded
+    step = Decimal(1).scaleb(-min(dx, dy))
+    return x.quantize(step, rounding=ROUND_HALF_UP) == y.quantize(step, rounding=ROUND_HALF_UP)
+
+
+def check_directions(text: str, facts, names=()) -> list:
+    """A word of change (rose, fell, dipped, ...) must agree with the values it links. The value it moves to is the
+    first number after it in its sentence that belongs to a run of values (series_of); the value it moves from is
+    the number after "from" when the sentence says "from A to B", else the nearest earlier number of the same run,
+    in this sentence or an earlier one. Two values that can be one value (same_at_shown_rounding) are no change, so
+    any word of change on them fails. A word with no such pair (the shot fell short) is not checked."""
+    masked = _mask_names(text, names)
+    tokens = numbers_in(text, names)
+
+    def series(token):
+        found = {series_of(f.field, f.unit) for f in facts
+                 if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)}
+        return found.pop() if len(found) == 1 else None
+
+    def exact(token) -> bool:
+        fields = [f.field for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+        return bool(fields) and all(_EXACT_FIELD_RE.fullmatch(field) for field in fields)
+
+    runs = [(token, series(token)) for token in tokens]
+    problems = []
+    for word in _CHANGE_RE.finditer(masked):
+        end = _sentence_span(masked, word.start())[1]
+        after = [(t, r) for t, r in runs if word.end() <= t.start < end and r]
+        if not after:
+            continue
+        target, run = after[0]
+        source = None
+        if _FROM_BEFORE_RE.search(masked[word.end():target.start]):
+            later = [(t, r) for t, r in after[1:] if r == run]
+            if not later:
+                continue
+            source, target = target, later[0][0]
+        else:
+            before = [t for t, r in runs if t.start < word.start() and r == run]
+            source = before[-1] if before else None
+        if source is None:
+            continue
+        said = "up" if word.group("up") else "down"
+        if same_at_shown_rounding(source.canon, target.canon, exact(source), exact(target)):
+            problems.append(f"{word.group(0)!r} links {source.raw!r} and {target.raw!r}, which are one value at two "
+                            "roundings: no change")
+            continue
+        went = "up" if _value_of(target.canon)[0] > _value_of(source.canon)[0] else "down"
+        if went != said:
+            problems.append(f"{word.group(0)!r} says {said}, but {source.raw!r} to {target.raw!r} went {went}")
+    return problems
 
 
 def check_lanes(text: str, names=()) -> list:
@@ -693,7 +800,8 @@ def check_words(text: str) -> list:
 def check_text(text: str, item: dict) -> tuple:
     """Every check of a text against its item's input. Returns (problems, numbers): empty problems means kept."""
     number_problems, numbers = check_numbers(text, _facts(item), item["names"])
-    problems = number_problems + check_status(text, item) + check_lanes(text, item["names"]) + check_words(text)
+    problems = (number_problems + check_directions(text, _facts(item), item["names"]) + check_status(text, item)
+                + check_lanes(text, item["names"]) + check_words(text))
     return problems, numbers
 
 

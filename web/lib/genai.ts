@@ -213,12 +213,131 @@ const LANE_WORDS: [string, RegExp][] = [
   ["betting", /\b(?:betting|bets?|odds)\b/gi],
 ];
 
-/** The sentence of a text that holds the character at `index`, split as the reading grade splits. */
-function sentenceAt(text: string, index: number): string {
+/** [start, stop) of the sentence of a text that holds the character at `index`, split as the reading grade splits. */
+function sentenceSpan(text: string, index: number): [number, number] {
   const ends = [...text.matchAll(SENTENCE_END_RE)].map((match) => (match.index ?? 0) + match[0].length);
   const start = Math.max(0, ...ends.filter((end) => end <= index));
   const stop = Math.min(text.length, ...ends.filter((end) => end > index));
+  return [start, stop];
+}
+
+/** The sentence of a text that holds the character at `index`. */
+function sentenceAt(text: string, index: number): string {
+  const [start, stop] = sentenceSpan(text, index);
   return text.slice(start, stop);
+}
+
+// Words that say a value went up or down (export/genai.py, UP_WORDS and DOWN_WORDS).
+const UP_WORDS =
+  "rose|rise|rises|rising|climbed|climb|climbs|climbing|grew|grow|grows|growing|increased|increases|increase|jumped|jump|jumps|jumping|went up|goes up|go up|going up|moved up|ticked up";
+const DOWN_WORDS =
+  "fell|fall|falls|falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|sinking|went down|goes down|go down|going down|slid|slide|slides|sliding|declined|decline|declines|decreased|decrease|decreases|slipped|slip|slips|moved down|ticked down";
+const CHANGE_RE = new RegExp(`\\b(?:(?<up>${UP_WORDS})|(?<down>${DOWN_WORDS}))\\b`, "gi");
+const FROM_BEFORE_RE = /\bfrom\s*$/i;
+
+/** The run of values a fact belongs to, for the direction check (export/genai.py, series_of). */
+export function seriesOf(field: string, unit: FactUnit): string | null {
+  if (unit === "seconds" || unit === "clock") return null;
+  if (/^(?:epv_start|epv_end|epv\.value\.\d+)$/.test(field)) return "epv";
+  if (/^(?:xfg|shots\.\d+\.xfg)$/.test(field)) return "xfg";
+  const estimate = /^(.+)\.(?:value|lo|hi)$/.exec(field);
+  if (estimate) return estimate[1] as string;
+  if (/\.(?:n|interval)$/.test(field) || /(?:attempts|possessions|chances|games|absent|rank)$/.test(field)) return null;
+  return field;
+}
+
+/** A canonical value as a whole number of its last decimal place, and that count of decimals. */
+function scaled(canon: string): [bigint, number] {
+  const plain = canonical(canon).replace(/%$/, "");
+  const negative = plain.startsWith("-");
+  const [whole = "0", fraction = ""] = plain.replace(/^-/, "").split(".");
+  const value = BigInt(`${whole}${fraction}` || "0");
+  return [negative ? -value : value, fraction.length];
+}
+
+// A value the page prints as the file stores it (an EPV curve state) is exact: "1.1" is 1.100, not a rounding.
+const EXACT_FIELD_RE = /^epv\.value\.\d+$/;
+
+/** Half-up rounding of a scaled value from `from` decimals to `to` decimals. */
+function roundScaled(value: bigint, from: number, to: number): bigint {
+  if (from <= to) return value * BigInt(10) ** BigInt(to - from);
+  const zero = BigInt(0);
+  const factor = BigInt(10) ** BigInt(from - to);
+  const magnitude = value < zero ? -value : value;
+  const rounded = (magnitude + factor / BigInt(2)) / factor;
+  return value < zero ? -rounded : rounded;
+}
+
+/**
+ * Whether two shown values can be one value (export/genai.py, same_at_shown_rounding): a rounded value matches an
+ * exact one when the exact one rounded to its decimals gives it; two rounded values match at the coarser rounding;
+ * two exact values only when equal.
+ */
+export function sameAtShownRounding(a: string, b: string, aExact = false, bExact = false): boolean {
+  const [x, dx] = scaled(a);
+  const [y, dy] = scaled(b);
+  if (aExact && bExact) {
+    const digits = Math.max(dx, dy);
+    return roundScaled(x, dx, digits) === roundScaled(y, dy, digits);
+  }
+  if (aExact || bExact) {
+    const [exact, ex, rounded, rx] = aExact ? [x, dx, y, dy] : [y, dy, x, dx];
+    return roundScaled(exact, ex, rx) === rounded;
+  }
+  const digits = Math.min(dx, dy);
+  return roundScaled(x, dx, digits) === roundScaled(y, dy, digits);
+}
+
+/**
+ * A word of change (rose, fell, dipped, ...) must agree with the values it links (export/genai.py,
+ * check_directions): the first number of a run after it in its sentence, against the number after "from" in that
+ * sentence, else the nearest earlier number of the same run. One value at two roundings is no change.
+ */
+export function checkDirections(text: string, facts: readonly Fact[], names: readonly string[] = []): string[] {
+  const masked = maskNames(text, names);
+  const runs = numbersIn(text, names).map((token) => {
+    const found = new Set(
+      facts
+        .filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit))
+        .map((f) => seriesOf(f.field, f.unit)),
+    );
+    const fields = facts
+      .filter((f) => canonical(f.shown) === token.canon && unitFits(token.unit, f.unit))
+      .map((f) => f.field);
+    const exact = fields.length > 0 && fields.every((field) => EXACT_FIELD_RE.test(field));
+    return { token, run: found.size === 1 ? ([...found][0] ?? null) : null, exact };
+  });
+  const problems: string[] = [];
+  for (const word of masked.matchAll(CHANGE_RE)) {
+    const at = word.index ?? 0;
+    const after = at + word[0].length;
+    const [, end] = sentenceSpan(masked, at);
+    const ahead = runs.filter(({ token, run }) => run && token.start >= after && token.start < end);
+    if (ahead.length === 0) continue;
+    let targetEntry = ahead[0]!;
+    const run = targetEntry.run;
+    let sourceEntry: (typeof runs)[number] | null = null;
+    if (FROM_BEFORE_RE.test(masked.slice(after, targetEntry.token.start))) {
+      const later = ahead.slice(1).find((entry) => entry.run === run);
+      if (!later) continue;
+      sourceEntry = targetEntry;
+      targetEntry = later;
+    } else {
+      const before = runs.filter((entry) => entry.token.start < at && entry.run === run);
+      sourceEntry = before.length > 0 ? before[before.length - 1]! : null;
+    }
+    if (!sourceEntry) continue;
+    const source = sourceEntry.token;
+    const target = targetEntry.token;
+    const said = word.groups?.up ? "up" : "down";
+    if (sameAtShownRounding(source.canon, target.canon, sourceEntry.exact, targetEntry.exact)) {
+      problems.push(`"${word[0]}" links "${source.raw}" and "${target.raw}", which are one value at two roundings: no change`);
+      continue;
+    }
+    const went = Number(target.canon.replace(/%$/, "")) > Number(source.canon.replace(/%$/, "")) ? "up" : "down";
+    if (went !== said) problems.push(`"${word[0]}" says ${said}, but "${source.raw}" to "${target.raw}" went ${went}`);
+  }
+  return problems;
 }
 
 /** A text never names a lane that did not work and is not on its page. */
@@ -364,5 +483,6 @@ export function checkedText(
 ): GeneratedText | null {
   const item = texts?.items.find((candidate) => candidate.key === key) ?? null;
   if (!item) return null;
-  return checkNumbers(item.text, facts, names).length === 0 && checkLanes(item.text, names).length === 0 ? item : null;
+  const problems = [...checkNumbers(item.text, facts, names), ...checkDirections(item.text, facts, names), ...checkLanes(item.text, names)];
+  return problems.length === 0 ? item : null;
 }
