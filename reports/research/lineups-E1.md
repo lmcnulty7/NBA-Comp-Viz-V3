@@ -1,12 +1,21 @@
 # lineups-E1: RAPM scored on every game's margin
 
-Draft written 2026-11-17, before the test score. Pre-registration: docs/research/lineups.md, section 6, "lineups-E1".
-Scoring code: tools/research_lineups.py. Every number below is copied from reports/research/lineups-E1-dev.json. The
-test season (2025-26) has not been scored; the section "Test season" is filled after the single score.
+Written 2026-11-17. Pre-registration: docs/research/lineups.md, section 6, "lineups-E1". The sections up to and
+including "Commitments before the test score" were committed before the score (commits 3e48eb4c, 2518111f, 8c638fab);
+only the verdict line and the section "Test season" were written after it. Scoring code: tools/research_lineups.py at
+commit 8c638fab (recorded in the final json as code_commit). Every number below is copied from
+reports/research/lineups-E1-dev.json or reports/research/lineups-E1-final.json; the single test score is the
+lineups-E1 entry of reports/research/scoring_ledger.json.
 Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with every arm paired on
 the same resampled games.
 
-**Verdict: not scored yet.**
+**Verdict: passes as pre-registered.** On the 2025-26 season (1300 games scored), RAPM player ratings fitted on
+2020-21 to 2023-24 predict game margins better than the frozen lineup plus-minus (RMSE difference -1.15
+[-1.59, -0.77] points) and better than home court alone (R squared 0.098 [0.065, 0.132]). Read as pre-committed: this
+is a tested claim about game margin, given the actual stints of each game, which a pregame forecast would not know. It
+does not validate lineup ranks, synergy, any one lineup or player, or the gap between two players; the lane's
+lineup-rank result stays inconclusive. One possible data fault is reported beside it (commitment 9): the stint margin
+agrees with the schedule table in 1298 of 1300 games, not all.
 
 ## What is tested
 
@@ -147,6 +156,41 @@ Fixed here, in the spirit of PLAN.md D80, before score_once is called.
    fit never saw is far above the season-ahead check's 16.6 percent (above 30 percent), it is reported beside the
    verdict as a possible data fault. There is no rescore.
 
-## Test season
+## Test season (2025-26, scored once)
 
-Not scored yet.
+The fit is the one fixed above (5059 games, 836 players, alpha 3000, replacement penalty ratio 10).
+
+- Games: 1316 listed, all with play-by-play. The frozen builder dropped 16 whole (shifted period labels), so 1300 are
+  scored; no listed game lacked play-by-play, no game was built without stints, and no game carries a non-finite
+  value. 41799 stints were built and 40276 kept (96.1 percent of possessions). (The scorer's top-level kept_stints
+  count was overwritten in the json by the results block of the same name; the count is coverage.stints.)
+- Data checks: the whole-game stint margin equals the schedule table's final margin in 1298 of 1300 games (share
+  0.998, mean gap 0.003 points a game). Below 1.0, so reported as a possible data fault (commitment 9), no rescore.
+  Players the fit never saw hold 20.0 percent of player possessions (the season-ahead check: 16.6), under the 30
+  percent line. 1.2 percent of lineup possessions have a lineup rating from the fit.
+- Margins: whole-game mean 1.72 points for the home side, standard deviation 16.50.
+
+| Arm | RMSE, whole game | R squared vs floor |
+| --- | --- | --- |
+| floor | 16.50 [15.83, 17.16] | (reference) |
+| plus_minus | 16.81 [16.10, 17.54] | -0.039 [-0.079, -0.010] |
+| rapm | 15.66 [15.06, 16.30] | 0.098 [0.065, 0.132] |
+| rapm_replacement (ablation) | 15.72 [15.11, 16.37] | 0.092 [0.050, 0.134] |
+| player_plus_minus (context) | 15.89 [15.26, 16.56] | 0.072 [0.051, 0.092] |
+
+- rapm minus plus_minus: -1.15 [-1.59, -0.77]. Wholly below zero: condition 1 holds.
+- rapm R squared against the floor: 0.098 [0.065, 0.132]. Above zero with its interval above zero: condition 2 holds.
+- rapm minus floor: -0.83 [-1.13, -0.54]. plus_minus minus floor: +0.32 [+0.08, +0.64]; the frozen lineup baseline
+  is worse than home court alone, as in both development checks.
+- Ablation, reads no verdict: rapm_replacement minus rapm +0.05 [-0.14, +0.25]. Pooling low-minute and unseen players
+  into a shared replacement rating made no detectable difference, as in the season-ahead check.
+- Context arm, reads no verdict: rapm minus player_plus_minus -0.23 [-0.46, -0.02]. Across the gap season, RAPM beats
+  the raw player rating, the order the season-ahead check showed (inside one season the order was the reverse).
+- Sensitivity, kept stints only, reads no verdict: rapm 15.37 [14.77, 16.01], R squared 0.096 [0.062, 0.130], rapm
+  minus plus_minus -1.15 [-1.59, -0.76]. Same reading as the primary.
+
+Power and comparability. The R squared interval is 0.067 wide, near the 0.06 the season-ahead check projected. The
+test R squared (0.098) is about half the published within-season values (Sill 0.169; Watts et al. 0.173 to 0.178) and
+our own within-season dry run (0.175 [0.132, 0.217]): the test fit ends a season before the skipped 2024-25, so the
+ratings are older and a fifth of player possessions belong to players they never saw. RMSE is not comparable across
+eras; the spread of our margins (standard deviation 16.50) is larger than in Sill's seasons.
