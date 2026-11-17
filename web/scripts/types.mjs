@@ -96,6 +96,7 @@ rules = {
     "url_pattern": S._URL_RE.pattern,
     "ignored_names": list(S.IGNORED_NAMES),
     "staged_files": list(S.STAGED_FILES),
+    "genai_files": S.GENAI_FILES,
     "fixture_source": S.FIXTURE_SOURCE,
 }
 sys.stdout.write(json.dumps(rules, indent=2) + "\\n")

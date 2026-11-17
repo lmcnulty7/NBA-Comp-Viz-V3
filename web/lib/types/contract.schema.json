@@ -17,7 +17,8 @@
     "results.json": "Results",
     "demo/swap.json": "DemoSwap",
     "demo/frames.json": "DemoFrames",
-    "methods.json": "MethodsFile"
+    "methods.json": "MethodsFile",
+    "genai/<kind>.json": "GeneratedTexts"
   },
   "type": "object",
   "additionalProperties": false,
@@ -48,6 +49,9 @@
     },
     "MethodsFile": {
       "$ref": "#/$defs/MethodsFile"
+    },
+    "GeneratedTexts": {
+      "$ref": "#/$defs/GeneratedTexts"
     }
   },
   "$defs": {
@@ -1042,6 +1046,142 @@
         "split"
       ],
       "title": "GameInfo",
+      "type": "object"
+    },
+    "GeneratedNumber": {
+      "additionalProperties": false,
+      "description": "One number of a text: as the text writes it, and the field of the item's input whose shown value it\nequals (export/genai.py, check_numbers).",
+      "properties": {
+        "shown": {
+          "minLength": 1,
+          "title": "Shown",
+          "type": "string"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "shown",
+        "field"
+      ],
+      "title": "GeneratedNumber",
+      "type": "object"
+    },
+    "GeneratedText": {
+      "additionalProperties": false,
+      "description": "One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).\n`input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose\ninput changed since it was written is stale and refused. `model` is the model id that wrote it (\"fixture\" for\nthe deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "title": "Key",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "input_sha256": {
+          "maxLength": 64,
+          "minLength": 64,
+          "title": "Input Sha256",
+          "type": "string"
+        },
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "prompt_version": {
+          "minLength": 1,
+          "title": "Prompt Version",
+          "type": "string"
+        },
+        "numbers": {
+          "items": {
+            "$ref": "#/$defs/GeneratedNumber"
+          },
+          "title": "Numbers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "text",
+        "input_sha256",
+        "model",
+        "prompt_version",
+        "numbers"
+      ],
+      "title": "GeneratedText",
+      "type": "object"
+    },
+    "GeneratedTexts": {
+      "additionalProperties": false,
+      "description": "Machine-written texts of one kind (PLAN.md P3, D76). The words are the model's; every number in them is a\nvalue of the page the text sits on, as the page rounds it, and each text passed every check of\nexport/genai.py when it was written. `validate_tree` runs those checks again against the data root, so a text\nwith a wrong or stale number cannot be in a valid root. A page shows a text only when it has one: no text is\nrequired.",
+      "properties": {
+        "schema_version": {
+          "const": "1.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "scouting",
+            "possession"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "const": "machine-written",
+          "title": "Label",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Checks",
+          "type": "array"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/GeneratedText"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "label",
+        "checks",
+        "items",
+        "notes",
+        "sources"
+      ],
+      "title": "GeneratedTexts",
       "type": "object"
     },
     "GhostTrack": {

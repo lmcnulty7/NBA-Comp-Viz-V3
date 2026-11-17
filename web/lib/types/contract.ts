@@ -19,6 +19,7 @@ export interface SiteContract {
   DemoSwap?: DemoSwap;
   DemoFrames?: DemoFrames;
   MethodsFile?: MethodsFile;
+  GeneratedTexts?: GeneratedTexts;
 }
 /**
  * The entry point. `synthetic` is true when the data was built from fixtures; the site must then label
@@ -978,6 +979,59 @@ export interface StageValue {
   hi?: number | null;
   point_estimate: boolean;
 }
+/**
+ * Machine-written texts of one kind (PLAN.md P3, D76). The words are the model's; every number in them is a
+ * value of the page the text sits on, as the page rounds it, and each text passed every check of
+ * export/genai.py when it was written. `validate_tree` runs those checks again against the data root, so a text
+ * with a wrong or stale number cannot be in a valid root. A page shows a text only when it has one: no text is
+ * required.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedTexts".
+ */
+export interface GeneratedTexts {
+  schema_version: "1.2.0";
+  kind: "scouting" | "possession";
+  label: "machine-written";
+  /**
+   * @minItems 1
+   */
+  checks: [string, ...string[]];
+  items: GeneratedText[];
+  notes: string[];
+  /**
+   * @minItems 1
+   */
+  sources: [Source, ...Source[]];
+}
+/**
+ * One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
+ * `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
+ * input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
+ * the deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedText".
+ */
+export interface GeneratedText {
+  key: string;
+  text: string;
+  input_sha256: string;
+  model: string;
+  prompt_version: string;
+  numbers: GeneratedNumber[];
+}
+/**
+ * One number of a text: as the text writes it, and the field of the item's input whose shown value it
+ * equals (export/genai.py, check_numbers).
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GeneratedNumber".
+ */
+export interface GeneratedNumber {
+  shown: string;
+  field: string;
+}
 
 /** The schema version these types were generated from. The manifest carries the same value. */
 export const SCHEMA_VERSION = "1.2.0" as const;
@@ -996,4 +1050,5 @@ export const CONTRACT_FILES = {
   "demo/swap.json": "DemoSwap",
   "demo/frames.json": "DemoFrames",
   "methods.json": "MethodsFile",
+  "genai/<kind>.json": "GeneratedTexts",
 } as const;

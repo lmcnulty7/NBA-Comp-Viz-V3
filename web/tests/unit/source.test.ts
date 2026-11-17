@@ -108,3 +108,22 @@ test("only the most recent possessions are kept in memory", async () => {
   expect(asked.filter((path) => path === "games/a/39.json")).toHaveLength(1);
   expect(asked.filter((path) => path === "games/a/0.json")).toHaveLength(2);
 });
+
+test("a data root of an earlier minor version reads, a later or another major one does not", async () => {
+  const { read } = reader({
+    "manifest.json": { schema_version: "1.1.0" },
+    "players.json": { schema_version: "1.3.0" },
+    "results.json": { schema_version: "2.0.0" },
+  });
+  const source = new StaticSource(read);
+  await expect(source.manifest()).resolves.toMatchObject({ schema_version: "1.1.0" });
+  await expect(source.players()).rejects.toMatchObject({ reason: "version" });
+  await expect(source.results()).rejects.toMatchObject({ reason: "version" });
+});
+
+test("machine-written texts are optional", async () => {
+  const { read } = reader({ "genai/scouting.json": versioned({ kind: "scouting", items: [] }) });
+  const source = new StaticSource(read);
+  await expect(source.texts("scouting")).resolves.toMatchObject({ kind: "scouting" });
+  await expect(source.texts("possession")).resolves.toBeNull();
+});

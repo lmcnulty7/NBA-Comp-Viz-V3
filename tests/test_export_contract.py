@@ -51,7 +51,7 @@ def test_schema_is_deterministic_and_names_every_file_model():
 def test_every_file_model_carries_the_schema_version():
     """A file of an earlier compatible version still validates; the manifest and the files a version added carry
     the current version only."""
-    current_only = {"Manifest", "MethodsFile"}
+    current_only = {"Manifest", "MethodsFile", "GeneratedTexts"}
     for name, model in S.MODELS.items():
         field = model.model_fields.get("schema_version")
         assert field is not None, name

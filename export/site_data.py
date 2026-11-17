@@ -35,6 +35,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from export import genai
 from export import heavy
 from export import schemas as S
 from export import site_common as C
@@ -213,11 +214,13 @@ def build_manifest(out: Path, fixture_root: bool = False) -> S.Manifest:
                                     bytes=index_entry.bytes + size))
     games.sort(key=lambda g: (g.date, g.slug))
     content = hashlib.sha256("\n".join(f"{f.path}:{f.sha256}" for f in files).encode()).hexdigest()
-    return S.Manifest(
+    manifest = S.Manifest(
         schema_version=S.SCHEMA_VERSION, build_id=f"{'test-fixture' if fixture_root else 'site'}-{content[:12]}",
         generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), repo_commit=C.repo_commit(),
         freeze_tag=C.FREEZE_TAG, synthetic=False, season=C.SEASON, n_games=len(games),
         n_possessions=sum(g.n_possessions for g in games), games=games, files=files)
+    # Machine-written texts (export/genai.py) are listed when they exist; this command never writes one.
+    return genai.with_genai_entry(manifest, out)
 
 
 # ------------------------------------------------------------------------------------------------ the run
@@ -313,6 +316,8 @@ def run(out, data_root=None, artifacts=None, only=None, games=None, log=print, a
     step("methods", methods)
 
     try:
+        # A text whose page changed is dropped before the manifest is written (no model call; export/genai.py).
+        info["genai_dropped"] = genai.prune(out)
         manifest = build_manifest(out, fixture_root)
         C.write_model(out, "manifest.json", manifest)
         info["manifest"] = {

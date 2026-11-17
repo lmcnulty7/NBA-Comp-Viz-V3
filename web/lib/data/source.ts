@@ -11,6 +11,7 @@ import {
   COMPATIBLE_VERSIONS,
   SCHEMA_VERSION,
   type DemoFrames,
+  type GeneratedTexts,
   type DemoSwap,
   type Manifest,
   type MethodsFile,
@@ -40,6 +41,8 @@ export interface DataSource {
   demoSwap(): Promise<DemoSwap | null>;
   /** The demo scenes, or null when this data build has none. */
   demoFrames(): Promise<DemoFrames | null>;
+  /** The machine-written texts of one kind (PLAN.md P3), or null when this data build has none. */
+  texts(kind: GeneratedTexts["kind"]): Promise<GeneratedTexts | null>;
 }
 
 export type DataErrorReason = "missing" | "invalid" | "version" | "unreachable" | "bad-request";
@@ -76,6 +79,7 @@ export const dataPaths = {
   methods: "methods.json",
   demoSwap: "demo/swap.json",
   demoFrames: "demo/frames.json",
+  texts: (kind: GeneratedTexts["kind"]) => (kind === "scouting" ? "genai/scouting.json" : "genai/possession.json"),
 } as const;
 
 /** How many possession documents a source keeps in memory. The fixed documents are always kept. */
@@ -142,6 +146,13 @@ export class StaticSource implements DataSource {
 
   demoFrames(): Promise<DemoFrames | null> {
     return this.optional<DemoFrames>(dataPaths.demoFrames);
+  }
+
+  texts(kind: GeneratedTexts["kind"]): Promise<GeneratedTexts | null> {
+    if (kind !== "scouting" && kind !== "possession") {
+      throw new DataError(`texts ${JSON.stringify(kind)}`, "bad-request", "not a kind of machine-written text");
+    }
+    return this.optional<GeneratedTexts>(dataPaths.texts(kind));
   }
 
   private load(path: string, cache: Map<string, Promise<unknown>>): Promise<unknown> {

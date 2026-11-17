@@ -35,6 +35,12 @@ Changes from 1.1.0 to 1.2.0 (PLAN.md D72, the methods page):
 - A data file of an earlier minor version of the same major version still validates (the change is additive), so
   `schema_version` accepts every version in COMPATIBLE_VERSIONS; the manifest and the new file carry this one.
 
+Also in 1.2.0 (PLAN.md P3, D76; merged with the methods page into one version, D82), an addition only:
+- A new file family, genai/<kind>.json (model GeneratedTexts): machine-written texts, a scouting report per player
+  of the prep tab and an account in words of each possession of the review. Each text is optional; a data root
+  with no genai folder is complete. export/genai.py writes them and holds the checks every text must pass.
+- A genai file is 1.2.0 only (CurrentVersion), and a root that holds one has a 1.2.0 manifest.
+
 Units: court positions are in feet in the SportVU frame, x from 0 to 94 along the court, y from 0 to 50 across it,
 rims at (5.25, 25) and (88.75, 25). Clocks are in seconds. Times `t` are seconds from the start of the possession
 or of the clip.
@@ -1177,6 +1183,58 @@ class MethodsFile(Strict):
         return self
 
 
+# ----------------------------------------------------------------------------------------- genai/<kind>.json
+
+
+GenaiKind = Literal["scouting", "possession"]
+GENAI_FILES = {"scouting": "genai/scouting.json", "possession": "genai/possession.json"}
+
+
+class GeneratedNumber(Strict):
+    """One number of a text: as the text writes it, and the field of the item's input whose shown value it
+    equals (export/genai.py, check_numbers)."""
+
+    shown: str = Field(min_length=1)
+    field: str = Field(min_length=1)
+
+
+class GeneratedText(Strict):
+    """One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).
+    `input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose
+    input changed since it was written is stale and refused. `model` is the model id that wrote it ("fixture" for
+    the deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given."""
+
+    key: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    input_sha256: str = Field(min_length=64, max_length=64)
+    model: str = Field(min_length=1)
+    prompt_version: str = Field(min_length=1)
+    numbers: list[GeneratedNumber]
+
+
+class GeneratedTexts(Strict):
+    """Machine-written texts of one kind (PLAN.md P3, D76). The words are the model's; every number in them is a
+    value of the page the text sits on, as the page rounds it, and each text passed every check of
+    export/genai.py when it was written. `validate_tree` runs those checks again against the data root, so a text
+    with a wrong or stale number cannot be in a valid root. A page shows a text only when it has one: no text is
+    required."""
+
+    schema_version: CurrentVersion
+    kind: GenaiKind
+    label: Literal["machine-written"]
+    checks: list[str] = Field(min_length=1)
+    items: list[GeneratedText]
+    notes: list[str]
+    sources: Sources
+
+    @model_validator(mode="after")
+    def _unique(self):
+        keys = [item.key for item in self.items]
+        if len(set(keys)) != len(keys):
+            raise ValueError("a key appears twice among the texts")
+        return self
+
+
 # --------------------------------------------------------------------------------------- files and validation
 
 FIXTURE_SOURCE = "export/sample.py"
@@ -1193,6 +1251,7 @@ FILES: tuple[tuple[str, type[Strict]], ...] = (
     ("demo/swap.json", DemoSwap),
     ("demo/frames.json", DemoFrames),
     ("methods.json", MethodsFile),
+    ("genai/<kind>.json", GeneratedTexts),  # genai/scouting.json and genai/possession.json, each optional
 )
 MODELS: dict[str, type[Strict]] = {model.__name__: model for _, model in FILES}
 
@@ -1206,6 +1265,8 @@ def model_for(relpath: str) -> Optional[type[Strict]]:
     fixed = {pattern: model for pattern, model in FILES if "<" not in pattern}
     if "/".join(parts) in fixed:
         return fixed["/".join(parts)]
+    if len(parts) == 2 and parts[0] == "genai" and "/".join(parts) in GENAI_FILES.values():
+        return GeneratedTexts
     if len(parts) == 3 and parts[0] == "games" and _SLUG_RE.match(parts[1]):
         if parts[2] == "possessions.json":
             return PossessionIndex
@@ -1263,6 +1324,8 @@ def _validate_file(root: Path, relpath: str):
             problems.append(f"{relpath}: holds possession {obj.possession} of {obj.game_slug}")
     if isinstance(obj, PossessionIndex) and obj.game.slug != parts[1]:
         problems.append(f"{relpath}: holds the index of {obj.game.slug}")
+    if isinstance(obj, GeneratedTexts) and GENAI_FILES[obj.kind] != relpath:
+        problems.append(f"{relpath}: holds the {obj.kind} texts, which belong in {GENAI_FILES[obj.kind]}")
     return problems, obj
 
 
@@ -1304,10 +1367,18 @@ def _content_problems(relpath: str, obj, synthetic: bool) -> list[str]:
         game_id = obj.game_id if isinstance(obj, Possession) else obj.game.game_id
         if not _is_heldout(game_id):
             problems.append(f"{relpath}: {game_id} is not a held-out game")
-    if isinstance(obj, PlayersFile):
+    if isinstance(obj, PlayersFile) or (isinstance(obj, GeneratedTexts) and obj.kind == "scouting"):
         bad = sorted({s.path for s in sources if s.rows == "heldout"})
         if bad:
             problems.append(f"{relpath}: player values never read held-out rows: {bad}")
+    if isinstance(obj, GeneratedTexts) and obj.kind == "possession":
+        bad = sorted({s.path for s in sources if s.rows in ("out_of_fold", "training")})
+        if bad:
+            problems.append(f"{relpath}: the possession review reads held-out rows only, not {bad}")
+    if isinstance(obj, GeneratedTexts):
+        fixture = sorted({item.key for item in obj.items if item.model == "fixture"})
+        if fixture:
+            problems.append(f"{relpath}: fixture texts in a data root that is not marked synthetic: {fixture[:3]}")
     if isinstance(obj, Manifest):
         if obj.freeze_tag != FREEZE_TAG:
             problems.append(f"{relpath}: freeze_tag is {obj.freeze_tag!r}, not {FREEZE_TAG!r}")
@@ -1375,6 +1446,24 @@ def _manifest_problems(root: Path, seen: set) -> list[str]:
     return problems
 
 
+def _genai_problems(parsed: dict) -> list[str]:
+    """Every machine-written text checked again against the data root it sits in (export/genai.py): its input is
+    rebuilt from the root, its hash must match, and the text must pass every check, numbers first. A root that holds
+    a text has a 1.2.0 manifest."""
+    texts = {rel: obj for rel, obj in parsed.items() if isinstance(obj, GeneratedTexts)}
+    if not texts:
+        return []
+    from export import genai  # it builds on this module, so it is imported only when a root holds texts
+
+    problems = []
+    manifest = parsed.get("manifest.json")
+    if manifest is not None and manifest.schema_version != "1.2.0":
+        problems.append(f"manifest.json: schema_version {manifest.schema_version} with genai files, which need 1.2.0")
+    for rel, obj in texts.items():
+        problems += [f"{rel}: {line}" for line in genai.root_problems(obj, parsed)]
+    return problems
+
+
 def validate_tree(root, allow_missing=()) -> list[str]:
     """Validate every file under a data root: each must be known to the contract and valid against its model and
     sit at the path its content names, the fixed files must all exist (except the paths in `allow_missing`), the
@@ -1403,6 +1492,7 @@ def validate_tree(root, allow_missing=()) -> list[str]:
         problems += _manifest_problems(root, seen)
         for rel, obj in parsed.items():
             problems += _content_problems(rel, obj, manifest.synthetic)
+        problems += _genai_problems(parsed)
     for pattern, _ in FILES:
         if "<" not in pattern and pattern not in seen and pattern not in allow_missing:
             problems.append(f"{pattern}: missing")
@@ -1439,4 +1529,8 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # Run the imported module, not this __main__ copy: export/genai.py imports export.schemas, and the checks of a
+    # machine-written text must meet the same contract classes the validated files were read with.
+    from export import schemas as _contract
+
+    raise SystemExit(_contract.main())
