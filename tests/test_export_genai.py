@@ -296,7 +296,7 @@ def test_live_path_retries_once_caches_and_records_model_and_prompt(root, tmp_pa
     second = client.calls[1]["messages"]
     assert second[-1]["role"] == "user" and "broke these rules" in second[-1]["content"]
     assert client.calls[0]["model"] == genai.MODEL and client.calls[0]["output_config"] == {"effort": "low"}
-    assert client.calls[0]["thinking"] == {"type": "disabled"}
+    assert client.calls[0]["thinking"] == {"type": "adaptive"} and client.calls[0]["max_tokens"] == genai.MAX_TOKENS
     # The same input, model and prompt again: the cache answers and no call is made.
     again, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=tmp_path / "cache")
     assert cached and again["text"] == good
@@ -412,23 +412,43 @@ def test_check_text_applies_the_lane_rule(root):
     assert any("lane" in line for line in genai.check_text(text + " The team won the matchup.", item)[0])
 
 
-def test_a_call_failure_from_an_older_call_setting_is_asked_once_more(root, tmp_path):
-    """A record that stopped before writing (max_tokens with thinking on) is asked again under the current call
-    setting, once: a new failure under the same setting is not asked a third time."""
+def test_the_call_setting_keys_the_cache_and_an_older_failure_is_asked_once_more(root, tmp_path):
+    """A failure under an older call setting is asked again under the current one; a text kept under an older
+    setting is reused (unless a sample asks fresh); a failure under the current setting is final."""
     key, build = genai.choose(root, "possession", None)[0]
     item = build()
     good = genai.fixture_text(item)
     cache = tmp_path / "cache"
     version, _, prompt_sha = genai.prompt("possession")
-    path = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, genai.input_sha256(item))}.json"
-    path.parent.mkdir(parents=True)
-    old = {"text": None, "problems": ["the model stopped with max_tokens"], "numbers": [], "attempts": [],
-           "model": genai.MODEL, "prompt_version": version, "input_sha256": genai.input_sha256(item)}
-    path.write_text(json.dumps(old), encoding="utf-8")
+    hashed = genai.input_sha256(item)
+    older = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, hashed, genai.LEGACY_CALL)}.json"
+    current = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, hashed, genai.CALL)}.json"
+    assert older != current
+    older.parent.mkdir(parents=True)
+    base = {"numbers": [], "attempts": [], "model": genai.MODEL, "prompt_version": version, "input_sha256": hashed}
+    older.write_text(json.dumps({**base, "text": None, "problems": ["the model stopped with max_tokens"]}))
     record, cached = genai.text_for(item, live=True, client=FakeClient([good]), cache=cache)
-    assert not cached and record["text"] == good and record["call"] == genai.CALL
+    assert not cached and record["text"] == good and record["call"] == genai.CALL and current.exists()
 
-    path.write_text(json.dumps({**old, "call": genai.CALL}), encoding="utf-8")
+    current.write_text(json.dumps({**base, "text": None, "problems": ["number '1' is not a value"], "call": genai.CALL}))
     record, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=cache)
     assert cached and record["text"] is None
-    assert genai.call_failed(record) and not genai.call_failed({"text": None, "problems": ["number '1' is not"]})
+
+    current.unlink()
+    older.write_text(json.dumps({**base, "text": good, "problems": []}))
+    record, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=cache)
+    assert cached and record["text"] == good
+    record, cached = genai.text_for(item, live=True, client=FakeClient([good]), cache=cache, reuse_older=False)
+    assert not cached and current.exists()
+
+
+def test_the_texts_file_says_which_call_setting_wrote_its_texts(root, tmp_path):
+    for rel in S.GENAI_FILES.values():
+        (root / rel).unlink()
+    answers = [genai.fixture_text(build()) for kind in genai.KINDS for _, build in genai.choose(root, kind, 2)]
+    genai.run(root, n_players=2, n_possessions=2, live=True, client=FakeClient(answers), cache=tmp_path / "c",
+              log=lambda line: None)
+    notes = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).notes
+    assert f"Call setting: {genai.describe_call(genai.CALL)}, 2 text(s)." in notes
+    assert "thinking adaptive" in genai.describe_call(genai.CALL)
+    assert "thinking adaptive (the model's default)" in genai.describe_call(None)

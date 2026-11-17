@@ -64,12 +64,17 @@ MODEL = "claude-haiku-5-5"
 # Prices in dollars per million tokens for MODEL, from the Claude API model table (2026-11-03). Used only to report
 # what a run cost and what the full run would cost.
 PRICE_PER_MTOK = {"input": 0.10, "output": 0.50}
-MAX_TOKENS = 4000
-# How the model is called. Thinking is off: with it on (the default of this model), long prompts led it to spend
-# the whole MAX_TOKENS on reasoning and return no text (scouting-v3 run, 14 of 50 items). A paragraph from given
-# facts needs no reasoning step; the retry with the problems listed does the correcting. A record that failed as a
-# call (it stopped before writing) under another call setting is asked again once (text_for).
-CALL = {"thinking": {"type": "disabled"}, "output_config": {"effort": "low"}}
+# How the model is called, every request parameter but the messages. The setting is part of the cache key and of
+# each cache record, and the genai file's notes say which setting wrote how many texts (call_notes).
+# History: the first runs used the model's default (adaptive thinking) at low effort with 4,000 tokens
+# (LEGACY_CALL). The long scouting-v3 prompt then spent the whole 4,000 on thinking for 14 of 50 players, and no
+# text came back. Thinking off fixed that but broke the rules far more often (21 of 50 dropped). This model takes
+# no fixed thinking budget (budget_tokens is refused), so thinking stays adaptive at low effort and max_tokens is
+# 8,000: the earlier thinking-on calls averaged about 2,900 output tokens, so a text keeps well over 1,000 tokens
+# after the thinking.
+CALL = {"max_tokens": 8000, "thinking": {"type": "adaptive"}, "output_config": {"effort": "low"}}
+LEGACY_CALL = {"max_tokens": 4000, "output_config": {"effort": "low"}}
+MAX_TOKENS = CALL["max_tokens"]
 MAX_ATTEMPTS = 2
 FIXTURE_MODEL = "fixture"
 GENERATOR = "export/genai.py"
@@ -766,8 +771,17 @@ def cache_dir(path=None) -> Path:
     return Path(path or os.environ.get("GENAI_CACHE_DIR") or REPO_ROOT / ".genai-cache")
 
 
-def cache_key(model: str, version: str, prompt_sha: str, input_hash: str) -> str:
-    return hashlib.sha256(f"{model}\n{version}\n{prompt_sha}\n{input_hash}".encode("utf-8")).hexdigest()
+def call_id(call: dict) -> str:
+    return json.dumps(call, sort_keys=True, separators=(",", ":"))
+
+
+def cache_key(model: str, version: str, prompt_sha: str, input_hash: str, call: dict = LEGACY_CALL) -> str:
+    """The cache file of one ask: model, prompt version and hash, input hash and the call setting. A record of the
+    first setting (LEGACY_CALL) keeps the key it was written under, so those records stay readable."""
+    base = f"{model}\n{version}\n{prompt_sha}\n{input_hash}"
+    if call_id(call) != call_id(LEGACY_CALL):
+        base += f"\n{call_id(call)}"
+    return hashlib.sha256(base.encode("utf-8")).hexdigest()
 
 
 def _client():
@@ -798,8 +812,7 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
     for _ in range(MAX_ATTEMPTS):
         try:
             # The SDK retries a rate limit, an overload and a dropped connection itself (max_retries).
-            response = client.messages.create(model=model, max_tokens=MAX_TOKENS, system=system, messages=messages,
-                                              **CALL)
+            response = client.messages.create(model=model, system=system, messages=messages, **CALL)
         except api_errors as exc:
             status = getattr(exc, "status_code", None)
             raise GenaiProblem(f"the model call failed ({type(exc).__name__}"
@@ -823,15 +836,13 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
     return {"text": text, "problems": problems, "numbers": [n.model_dump() for n in numbers], "attempts": attempts}
 
 
-def call_failed(record: dict) -> bool:
-    """Whether a cached record failed as a call (the model stopped before it wrote a text), not on a rule."""
-    problems = record.get("problems") or []
-    return not record.get("text") and bool(problems) and all(p.startswith("the model stopped with") for p in problems)
+def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MODEL, reuse_older: bool = True) -> tuple:
+    """The text of one item, from the cache when the same model, prompt, input and call setting were asked before.
+    Returns (record, from_cache). In fixture mode nothing is cached and no model is called.
 
-
-def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MODEL) -> tuple:
-    """The text of one item, from the cache when the same model, prompt and input were asked before. Returns
-    (record, from_cache). In fixture mode nothing is cached and no model is called."""
+    A text kept under an older call setting is still a text that passed every check, so it is reused (unless
+    `reuse_older` is false, for a sample that tests the current setting). A failure under an older setting is asked
+    once more under the current one; a failure under the current setting is final."""
     input_hash = input_sha256(item)
     if not live:
         text = fixture_text(item)
@@ -841,20 +852,53 @@ def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MO
                  "input_sha256": input_hash}, False)
     version, system, prompt_sha = prompt(item["kind"])
     folder = cache_dir(cache) / item["kind"]
-    path = folder / f"{cache_key(model, version, prompt_sha, input_hash)}.json"
+    path = folder / f"{cache_key(model, version, prompt_sha, input_hash, CALL)}.json"
     if path.exists():
-        cached = json.loads(path.read_text(encoding="utf-8"))
-        if not (call_failed(cached) and cached.get("call") != CALL):
-            return cached, True
-        # A call failure (no text written) under an older call setting: asked once again under this one.
+        return json.loads(path.read_text(encoding="utf-8")), True
+    older = folder / f"{cache_key(model, version, prompt_sha, input_hash, LEGACY_CALL)}.json"
+    if reuse_older and older.exists():
+        record = json.loads(older.read_text(encoding="utf-8"))
+        if record.get("text"):
+            return record, True
     record = call_model(client, item, system, model)
-    record.update({"call": CALL})
-    record.update({"key": item["key"], "kind": item["kind"], "model": model, "prompt_version": version,
+    record.update({"call": CALL, "key": item["key"], "kind": item["kind"], "model": model, "prompt_version": version,
                    "prompt_sha256": prompt_sha, "input_sha256": input_hash,
                    "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
     folder.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(record, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     return record, False
+
+
+def describe_call(call) -> str:
+    """A call setting in words, for the notes of a genai file."""
+    call = call or LEGACY_CALL
+    thinking = (call.get("thinking") or {}).get("type", "adaptive (the model's default)")
+    return (f"thinking {thinking}, effort {call.get('output_config', {}).get('effort', 'default')}, "
+            f"at most {call.get('max_tokens', LEGACY_CALL['max_tokens'])} output tokens")
+
+
+def call_notes(root: Path, kind: str, texts, cache=None) -> list:
+    """One note per call setting: how many of the texts it wrote (read from the cache records). A text whose
+    record is not in this cache is counted as not known."""
+    builders = {item[0]: item[1] for item in items_of(root, kind)}
+    counts: dict = {}
+    for text in texts:
+        if text.model == FIXTURE_MODEL or text.key not in builders:
+            continue
+        found = "not known (no cache record here)"
+        try:
+            versions = json.loads(PROMPT_VERSIONS.read_text(encoding="utf-8"))
+            prompt_sha = versions["sha256"][text.prompt_version]
+        except KeyError:
+            prompt_sha = None
+        if prompt_sha:
+            for call in (CALL, LEGACY_CALL):
+                path = cache_dir(cache) / kind / f"{cache_key(text.model, text.prompt_version, prompt_sha, text.input_sha256, call)}.json"
+                if path.exists():
+                    found = describe_call(json.loads(path.read_text(encoding="utf-8")).get("call"))
+                    break
+        counts[found] = counts.get(found, 0) + 1
+    return [f"Call setting: {setting}, {n} text(s)." for setting, n in sorted(counts.items())]
 
 
 # ---------------------------------------------------------------------------------------------- the data root
@@ -935,7 +979,7 @@ def _dump(model: S.Strict) -> str:
     return json.dumps(model.model_dump(mode="json"), separators=(",", ":"), allow_nan=False) + "\n"
 
 
-def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: bool = True) -> None:
+def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: bool = True, extra_notes=()) -> None:
     """Write the texts of one kind into the data root (or remove the file when there is none) and, unless told
     not to, write the manifest again with the genai family. Nothing else of the root changes."""
     root = Path(root)
@@ -945,6 +989,7 @@ def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: b
                  "may have none."]
         if synthetic:
             notes.append("Fixture texts of a synthetic data root, not a result.")
+        notes = notes + list(extra_notes)
         file = S.GeneratedTexts(schema_version="1.2.0", kind=kind, label="machine-written", checks=list(CHECKS),
                                 items=sorted(texts, key=lambda t: t.key), notes=notes,
                                 sources=_sources(root, kind, texts, synthetic))
@@ -1117,7 +1162,8 @@ def run(root, kinds=KINDS, n_players=None, n_possessions=None, *, live=False, ca
             log(f"{kind} {key}: {'kept' if record['text'] else 'dropped'}{' (cache)' if cached else ''}")
         earlier, stats["earlier_dropped"] = earlier_texts(root, kind, skip={text.key for text in kept})
         stats["earlier_kept"] = len(earlier)
-        write_texts(root, kind, kept + earlier, manifest.synthetic)
+        write_texts(root, kind, kept + earlier, manifest.synthetic,
+                    extra_notes=call_notes(root, kind, kept + earlier, cache) if live else ())
         stats["all_items"] = len(items_of(root, kind))
         info["kinds"][kind] = stats
     info["problems"] = S.validate_tree(root, allow_missing=S.STAGED_FILES)
