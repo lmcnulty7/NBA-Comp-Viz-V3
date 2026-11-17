@@ -1,7 +1,7 @@
 // The polish score of a built site (PLAN.md P4, docs/POLISH_LOOP.md): machine checks only, one JSON.
 //
 // It serves out/ on 127.0.0.1 under the base path it was built for (scripts/serve-out.mjs, with byte ranges for
-// clips as a real host answers them) and measures, with
+// clips and gzip for text, as the real hosts answer them) and measures, with
 // Playwright's own bundled headless Chromium and WebKit (no system browser, no desktop application):
 //   accessibility  axe-core (pinned dev dependency) on one page of each family, at 390 and 1280 px, in both
 //                  browsers, WCAG 2.2 A and AA rules and axe's best practices, with reduced motion so an
@@ -30,6 +30,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
+import { gzipSync } from "node:zlib";
 import path from "node:path";
 import { checkCopy } from "./check-copy.mjs";
 import { checkReading } from "./check-reading.mjs";
@@ -159,8 +160,19 @@ async function timingPass(browserName, browser, origin, sample, runs) {
       });
       if (browserName === "chromium") {
         const cdp = await p.context().newCDPSession(p);
+        // Bytes on the wire: a request that finished before the load event counts its encoded length (gzip
+        // where the server compressed it); one still streaming then (a clip) counts the bytes it had received.
+        const streaming = new Map();
         cdp.on("Network.dataReceived", (event) => {
-          if (!loaded) bytes += event.dataLength;
+          if (!loaded) streaming.set(event.requestId, (streaming.get(event.requestId) ?? 0) + event.dataLength);
+        });
+        cdp.on("Network.loadingFinished", (event) => {
+          if (loaded) return;
+          streaming.delete(event.requestId);
+          bytes += event.encodedDataLength;
+        });
+        p.on("load", () => {
+          for (const received of streaming.values()) bytes += received;
         });
         await cdp.send("Network.enable");
         await cdp.send("Network.emulateNetworkConditions", {
@@ -255,12 +267,56 @@ async function measureOnce(origin, sample, runs) {
 }
 
 /**
- * The static server of serve-out.mjs, plus byte ranges for a media file, as GitHub Pages and Cloudflare Pages
- * answer them. A browser asks for the start of a clip with a Range header to read its metadata; a server that
- * ignores the header sends the whole clip, and the first view would be charged for megabytes no real host sends.
- * Every other request goes to the serve-out handler unchanged.
+ * The static server of serve-out.mjs, plus what GitHub Pages and Cloudflare Pages do that it does not:
+ *   byte ranges for a media file. A browser asks for the start of a clip with a Range header to read its
+ *   metadata; a server that ignores the header sends the whole clip, and the first view would be charged for
+ *   megabytes no real host sends;
+ *   gzip for text (HTML, scripts, styles, JSON, SVG) when the browser accepts it. Both hosts compress text, so an
+ *   uncompressed test server would charge a text byte three to six times what it costs a reader.
+ * Every other request (a redirect, a 404, an image, a font) goes to the serve-out handler unchanged.
  */
 const RANGE_TYPES = { mp4: "video/mp4", webm: "video/webm" };
+const GZIP_TYPES = {
+  html: "text/html; charset=utf-8",
+  txt: "text/plain; charset=utf-8",
+  css: "text/css; charset=utf-8",
+  js: "text/javascript; charset=utf-8",
+  mjs: "text/javascript; charset=utf-8",
+  json: "application/json; charset=utf-8",
+  svg: "image/svg+xml",
+  xml: "application/xml; charset=utf-8",
+  webmanifest: "application/manifest+json",
+};
+const gzipped = new Map();
+
+/** The file a GET for `relative` serves: the file itself, or a folder's index.html when the path ends in a slash. */
+function servedFile(root, relative, pathname) {
+  const target = path.join(root, relative);
+  if (target !== root && !target.startsWith(root + path.sep)) return null;
+  if (!existsSync(target)) return null;
+  const stat = statSync(target);
+  if (stat.isFile()) return target;
+  if (stat.isDirectory() && pathname.endsWith("/")) {
+    const index = path.join(target, "index.html");
+    return existsSync(index) && statSync(index).isFile() ? index : null;
+  }
+  return null;
+}
+
+function sendGzip(request, response, file) {
+  const stat = statSync(file);
+  const key = `${file}:${stat.mtimeMs}:${stat.size}`;
+  if (!gzipped.has(key)) gzipped.set(key, gzipSync(readFileSync(file), { level: 6 }));
+  const body = gzipped.get(key);
+  response.writeHead(200, {
+    "Content-Type": GZIP_TYPES[path.extname(file).slice(1).toLowerCase()],
+    "Content-Encoding": "gzip",
+    "Content-Length": body.length,
+    Vary: "Accept-Encoding",
+    "Cache-Control": "no-store",
+  });
+  response.end(request.method === "HEAD" ? undefined : body);
+}
 export function rangeAwareServer({ dir, base }) {
   const root = path.resolve(dir);
   const handler = createStaticServer({ dir, base }).listeners("request")[0];
@@ -275,9 +331,14 @@ export function rangeAwareServer({ dir, base }) {
     const extension = path.extname(pathname).slice(1).toLowerCase();
     const inSite = !base || pathname.startsWith(`${base}/`);
     const file = path.join(root, pathname.slice(base.length));
+    const readable = request.method === "GET" || request.method === "HEAD";
+    if (readable && !range && inSite && /\bgzip\b/.test(request.headers["accept-encoding"] ?? "")) {
+      const served = servedFile(root, pathname.slice(base.length), pathname);
+      if (served && GZIP_TYPES[path.extname(served).slice(1).toLowerCase()]) return sendGzip(request, response, served);
+    }
     const servable =
       range && RANGE_TYPES[extension] && inSite && file.startsWith(root + path.sep) && existsSync(file) && statSync(file).isFile();
-    if (!servable || (request.method !== "GET" && request.method !== "HEAD")) return handler(request, response);
+    if (!servable || !readable) return handler(request, response);
     const size = statSync(file).size;
     const suffix = range[1] === "";
     const start = Math.max(0, suffix ? size - Number(range[2]) : Number(range[1]));

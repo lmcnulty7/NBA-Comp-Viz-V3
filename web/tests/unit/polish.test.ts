@@ -362,3 +362,50 @@ test("the scorer's server answers a byte range of a clip as a real host does, an
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test("the scorer's server sends text gzipped when the browser accepts it, as the real hosts do", async () => {
+  const { rangeAwareServer } = (await import("../../scripts/polish-score.mjs")) as unknown as RangeServer;
+  const { gunzipSync } = await import("node:zlib");
+  const { request } = await import("node:http");
+  const out = tempDir("polish-gzip");
+  mkdirSync(path.join(out, "review"), { recursive: true });
+  mkdirSync(path.join(out, "stills"), { recursive: true });
+  const page = `<p>${"possession ".repeat(500)}</p>`;
+  writeFileSync(path.join(out, "review", "index.html"), page);
+  writeFileSync(path.join(out, "app.js"), "console.log(1);".repeat(200));
+  writeFileSync(path.join(out, "stills", "a.jpg"), "jpegbytes");
+  writeFileSync(path.join(out, "404.html"), "<p>missing</p>");
+  const server = rangeAwareServer({ dir: out, base: "/B" });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
+  const port = (server.address() as import("node:net").AddressInfo).port;
+  // fetch() would decode the body itself; a raw request shows what is on the wire.
+  const get = (url: string, headers: Record<string, string> = {}) =>
+    new Promise<{ status: number; headers: import("node:http").IncomingHttpHeaders; body: Buffer }>((resolve, reject) => {
+      request({ host: "127.0.0.1", port, path: url, headers }, (response) => {
+        const chunks: Buffer[] = [];
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.on("end", () => resolve({ status: response.statusCode ?? 0, headers: response.headers, body: Buffer.concat(chunks) }));
+      })
+        .on("error", reject)
+        .end();
+    });
+  try {
+    const zipped = await get("/B/review/", { "Accept-Encoding": "gzip, deflate, br" });
+    expect(zipped.status).toBe(200);
+    expect(zipped.headers["content-encoding"]).toBe("gzip");
+    expect(Number(zipped.headers["content-length"])).toBe(zipped.body.length);
+    expect(zipped.body.length).toBeLessThan(page.length / 4);
+    expect(gunzipSync(zipped.body).toString()).toBe(page);
+    expect((await get("/B/app.js", { "Accept-Encoding": "gzip" })).headers["content-encoding"]).toBe("gzip");
+    const plain = await get("/B/review/");
+    expect(plain.headers["content-encoding"]).toBeUndefined();
+    expect(plain.body.toString()).toBe(page);
+    expect((await get("/B/stills/a.jpg", { "Accept-Encoding": "gzip" })).headers["content-encoding"]).toBeUndefined();
+    expect((await get("/B/review", { "Accept-Encoding": "gzip" })).status).toBe(301);
+    const missing = await get("/B/nothing/", { "Accept-Encoding": "gzip" });
+    expect(missing.status).toBe(404);
+    expect((await get("/elsewhere/", { "Accept-Encoding": "gzip" })).status).toBe(404);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
