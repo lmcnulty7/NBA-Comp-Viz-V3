@@ -109,7 +109,12 @@ def test_franks_meta_metrics_at_their_limits():
     noise = 0.3
     x0, x1 = rng.normal(0, noise, 4000), rng.normal(0, noise, 4000)
     bv = np.full(4000, noise ** 2)
-    assert abs(D.stability(x0, x1, bv, bv)) < 0.1 or np.isnan(D.stability(x0, x1, bv, bv))
+    # no persistent player level: each half's true value drifts independently, so the true stability is 0
+    d0, d1 = rng.normal(0, 0.5, 4000), rng.normal(0, 0.5, 4000)
+    null = D.stability(d0 + x0, d1 + x1, bv, bv)
+    assert np.isfinite(null) and abs(null) < 0.1
+    # and with no between-player variance beyond noise the statistic is undefined, not a pass
+    assert np.isnan(D.stability(x0, x1, bv * 1.2, bv * 1.2))
     mu = rng.normal(0, 1, 4000)
     assert abs(D.stability(mu + x0, mu + x1, bv, bv) - 1.0) < 0.05
 
@@ -145,18 +150,106 @@ def test_statistics_and_summary_run_and_stay_finite_on_synthetic_games(monkeypat
     assert set(D.verdict(st)) == {"H1", "H2", "H3", "adoption", "protocol"}
 
 
+def _stat(v, lo, hi, finite=2000):
+    return {"value": v, "lo": lo, "hi": hi, "finite_resamples": finite}
+
+
+def _stats():
+    return {"target.split_half_r": _stat(0.1, 0.0, 0.25), "frozen.stability": _stat(0.6, 0.4, 0.8),
+            "frozen.r2_on_kind_shares": _stat(0.4, 0.3, 0.6), "adjusted.stability": _stat(0.55, 0.31, 0.7),
+            "adjusted.r2_on_kind_shares": _stat(0.1, 0.0, 0.2)}
+
+
 def test_verdict_reads_the_pre_registered_thresholds():
-    s = lambda v, lo, hi: {"value": v, "lo": lo, "hi": hi}
-    stats = {"target.split_half_r": s(0.1, 0.0, 0.25), "frozen.stability": s(0.6, 0.4, 0.8),
-             "frozen.r2_on_kind_shares": s(0.4, 0.3, 0.6), "adjusted.stability": s(0.55, 0.31, 0.7),
-             "adjusted.r2_on_kind_shares": s(0.1, 0.0, 0.2)}
+    stats = _stats()
     v = D.verdict(stats)
-    assert v["H1"]["holds"] and v["H1"]["interval_crosses_threshold"]
-    assert v["H2"]["holds"] and not v["H3"]["holds"] and v["adoption"]["adopted"]
-    stats["adjusted.stability"] = s(0.55, 0.29, 0.7)
+    assert v["H1"]["result"] == "holds" and v["H1"]["interval_crosses_threshold_reads_invalid_interval"]
+    assert v["H1"]["interval_95_valid_as_confidence_interval"] is False
+    assert v["H2"]["result"] == "holds" and v["H3"]["result"] == "fails" and v["adoption"]["adopted"]
+    stats["adjusted.stability"] = _stat(0.55, 0.29, 0.7)
     assert not D.verdict(stats)["adoption"]["adopted"]
-    stats["target.split_half_r"] = s(0.2, 0.1, 0.3)
-    assert not D.verdict(stats)["H1"]["holds"] and "evidence against the metric" in D.verdict(stats)["protocol"]
+    stats["target.split_half_r"] = _stat(0.2, 0.1, 0.3)
+    v = D.verdict(stats)
+    assert v["H1"]["result"] == "fails" and "evidence against the metric" in v["protocol"]
+
+
+@pytest.mark.parametrize("key", ["target.split_half_r", "frozen.stability", "frozen.r2_on_kind_shares"])
+def test_a_statistic_that_is_not_a_number_is_undefined_never_holds_or_fails(key):
+    stats = _stats()
+    stats[key] = _stat(float("nan"), float("nan"), float("nan"), 0)
+    v = D.verdict(stats)
+    name = {"target.split_half_r": "H1", "frozen.stability": "H2", "frozen.r2_on_kind_shares": "H3"}[key]
+    assert v[name]["result"] == "undefined" and v[name]["holds"] is None
+    assert v[name]["interval_crosses_threshold_reads_invalid_interval"] is None
+    if name == "H1":
+        assert "undefined" in v["protocol"]
+
+
+@pytest.mark.parametrize("key,stat", [("adjusted.stability", _stat(float("nan"), 0.4, 0.9)),
+                                      ("adjusted.stability", _stat(0.9, float("nan"), 0.95)),
+                                      ("adjusted.stability", _stat(0.9, 0.6, 0.95, finite=1800)),
+                                      ("adjusted.r2_on_kind_shares", _stat(float("nan"), 0.0, 0.1))])
+def test_adoption_cannot_pass_on_an_undefined_statistic_or_interval(key, stat):
+    stats = _stats()
+    stats[key] = stat
+    a = D.verdict(stats)["adoption"]
+    assert a["adopted"] is False and a["result"].startswith("undefined")
+
+
+def test_an_interval_with_too_few_finite_draws_is_undefined():
+    draws = np.concatenate([np.linspace(0, 1, 94), np.full(6, np.nan)])
+    iv = D.percentile_interval(0.5, draws)
+    assert iv["finite_share"] == 0.94 and not iv["interval_defined"] and np.isnan(iv["lo"]) and np.isnan(iv["hi"])
+    iv = D.percentile_interval(0.5, np.concatenate([np.linspace(0, 1, 95), np.full(5, np.nan)]))
+    assert iv["interval_defined"] and iv["interval_valid_as_confidence_interval"] is False
+
+
+def test_basic_interval_reflects_the_draws_about_the_estimate():
+    draws = np.linspace(0.80, 0.90, 1001)
+    iv = D.basic_interval(0.93, draws)
+    assert np.isclose(iv["lo"], 2 * 0.93 - np.percentile(draws, 97.5))
+    assert np.isclose(iv["hi"], 2 * 0.93 - np.percentile(draws, 2.5))
+
+
+def test_player_bootstrap_draws_the_same_players_for_every_measure_and_is_centred():
+    ev, ortg, games = synthetic(n_games=10, players=40, per_game=30, player_effect=0.01)
+    T = D.Table(ev, ortg, games)
+    sets = {"all": np.ones(T.P, bool), "oddeven": np.ones(T.P, bool), "chrono": np.ones(T.P, bool)}
+    parts = D.statistic_parts(T, np.ones(T.G), sets, np.random.default_rng(0), 50)
+    rs = D.resample_players(parts, np.random.default_rng(1))
+    # the same draw for every measure: the frozen and adjusted values move together
+    for key in ("Xa", "x0", "X0", "bv0"):
+        f, a = parts["frozen"][key], parts["adjusted"][key]
+        idx = [int(np.flatnonzero(np.isclose(parts["frozen"][key], x))[0]) for x in rs["frozen"][key]]
+        assert np.allclose(rs["adjusted"][key], a[idx])
+    point = D._flat(D.stats_from_parts(parts))
+    draws = D.player_draws(parts, 300, [0])
+    r = draws["frozen.split_half_r"]
+    assert np.percentile(r, 2.5) <= point["frozen.split_half_r"] <= np.percentile(r, 97.5)
+
+
+def test_the_synthetic_season_has_the_answer_it_claims():
+    rng = np.random.default_rng(5)
+    cfg = dict(players=400, games=40, per_game=20, sd_player=0.05, sd_drift=0.0135, sd_noise=0.28)
+    events, ortg, ids, truth = D.simulate(rng, **cfg)
+    T = D.Table(events, ortg, ids)
+    sets = D.player_sets(T)
+    assert sets["all"].sum() == sets["oddeven"].sum() == sets["chrono"].sum() == 400
+    s = D._flat(D.statistics(T, np.ones(T.G), sets, np.random.default_rng(0), 200))
+    assert abs(s["frozen.split_half_r"] - truth["frozen.split_half_r"]) < 0.03
+    assert abs(s["frozen.discrimination"] - truth["frozen.discrimination"]) < 0.03
+    assert abs(s["frozen.stability"] - truth["frozen.stability"]) < 0.06
+
+
+def test_e1_final_refuses_set_a_before_any_scoring_and_writes_no_ledger_entry(monkeypatch):
+    called = []
+    monkeypatch.setattr(D, "score_once", lambda *a, **k: called.append(a))
+    monkeypatch.setattr(D, "_gate_tables", lambda *a, **k: called.append("data read"))
+    with pytest.raises(SystemExit) as err:
+        D.final()
+    assert "one date" in str(err.value) and "No ledger entry" in str(err.value)
+    assert called == []
+    assert D.SET_A_STATISTICS_POSSIBLE is False
 
 
 def test_the_printed_validation_of_the_frozen_lane_report_is_parsed_and_compared_to_half_a_digit():
@@ -181,25 +274,73 @@ def _calls(node, name):
             and getattr(c.func, "id", getattr(c.func, "attr", None)) == name]
 
 
+DOOR_NAMES = ("research_data_root", "test_features")
+
+
+def _function(tree, name):
+    return next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == name)
+
+
 def test_test_data_is_reached_only_inside_the_scorer_given_to_score_once():
     tree = _tree()
     once = _calls(tree, "score_once")
     assert len(once) == 1
     assert [ast.unparse(a) for a in once[0].args] == ["EXPERIMENT", "TRACKING", "scorer"]
-    scorer = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "scorer")
-    inside = {id(c) for c in ast.walk(scorer)}
-    for name in ("research_data_root", "test_features"):
-        calls = _calls(tree, name)
-        assert calls and all(id(c) in inside for c in calls), name
+    inside = {id(n) for n in ast.walk(_function(tree, "scorer"))}
+    seen = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                assert not (alias.name.split(".")[-1] in DOOR_NAMES and alias.asname), f"aliased import {alias.name}"
+                assert alias.name not in ("tools.research_xfg",) or alias.asname is None or isinstance(node, ast.ImportFrom)
+        if isinstance(node, ast.Name) and node.id in DOOR_NAMES or isinstance(node, ast.Attribute) and node.attr in DOOR_NAMES:
+            seen.append(node)
+            assert id(node) in inside, f"{ast.unparse(node)} used outside the scorer"
+        if isinstance(node, ast.Constant) and node.value in DOOR_NAMES:
+            raise AssertionError(f"{node.value} named as a string (getattr)")
+    assert {getattr(n, "id", getattr(n, "attr", None)) for n in seen} == set(DOOR_NAMES)
+
+
+def _train_bindings(tree):
+    """Names bound to analytics.decisions.train (modules) and to its run and main (functions)."""
+    modules, functions = set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == "analytics.decisions":
+            modules |= {a.asname or a.name for a in node.names if a.name == "train"}
+        if isinstance(node, ast.Import):
+            modules |= {a.asname for a in node.names if a.name == "analytics.decisions.train" and a.asname}
+        if isinstance(node, ast.ImportFrom) and node.module == "analytics.decisions.train":
+            functions |= {a.asname or a.name for a in node.names if a.name in ("run", "main")}
+    return modules, functions
 
 
 def test_the_baseline_never_runs_the_lane_command_line_or_scores_held_out_games():
     text = SOURCE.read_text()
-    for banned in ("DT.main", "write_outputs", "write_report", "heldout_once", "skip_heldout=False", "train.main"):
+    tree = _tree()
+    for banned in ("write_outputs", "write_report", "heldout_once"):
         assert banned not in text, banned
-    run = _calls(_tree(), "run")
-    assert run and all(any(k.arg == "skip_heldout" and getattr(k.value, "value", None) is True for k in c.keywords)
-                       for c in run if getattr(c.func, "attr", None) == "run")
+    modules, functions = _train_bindings(tree)
+    assert modules, "the frozen trainer is imported as a module"
+    run_calls = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.keyword) and node.arg == "skip_heldout":
+            assert isinstance(node.value, ast.Constant) and node.value.value is True, ast.unparse(node.value)
+        if isinstance(node, ast.Name) and node.id in functions:
+            raise AssertionError(f"{node.id} imported from the frozen trainer by name")
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id in modules:
+            assert node.attr not in ("main",), "the lane's command line"
+        if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "getattr":
+            assert not (node.args and isinstance(node.args[0], ast.Name) and node.args[0].id in modules)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "run" \
+                and isinstance(node.func.value, ast.Name) and node.func.value.id in modules:
+            run_calls.append(node)
+    run_refs = [n for n in ast.walk(tree) if isinstance(n, ast.Attribute) and n.attr == "run"
+                and isinstance(n.value, ast.Name) and n.value.id in modules]
+    assert len(run_refs) == len(run_calls) >= 1, "the frozen run is only ever called, never aliased"
+    for c in run_calls:
+        assert not any(k.arg is None for k in c.keywords), "no **kwargs into the frozen run"
+        assert any(k.arg == "skip_heldout" and isinstance(k.value, ast.Constant) and k.value.value is True
+                   for k in c.keywords)
     assert "dev_games(" in text and "training_games_only(" in text
 
 
@@ -209,8 +350,34 @@ def test_the_module_fits_nothing_but_the_descriptive_least_squares():
     assert "lstsq" in text
 
 
+ALLOWED_DESTINATIONS = ("RESULTS /", "(RESULTS /", "folder /", "(folder /", "gate_dir(artifacts) /")
+
+
+def _destination_ok(expr: ast.AST, fn: ast.FunctionDef) -> bool:
+    text = ast.unparse(expr)
+    if text.startswith(ALLOWED_DESTINATIONS):
+        return True
+    if isinstance(expr, ast.Name):
+        bound = [a.value for a in ast.walk(fn) if isinstance(a, ast.Assign)
+                 and any(isinstance(t, ast.Name) and t.id == expr.id for t in a.targets)]
+        return bool(bound) and all(ast.unparse(b).startswith(ALLOWED_DESTINATIONS) for b in bound)
+    return False
+
+
 def test_results_are_written_only_to_the_research_results_and_the_artifacts_folder():
     tree = _tree()
-    for c in _calls(tree, "write_text") + _calls(tree, "to_parquet"):
-        target = ast.unparse(c.func.value)
-        assert target.startswith(("RESULTS /", "(folder", "folder", "path", "events", "res[")), target
+    checked = 0
+    for fn in (n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)):
+        for c in (c for c in ast.walk(fn) if isinstance(c, ast.Call)):
+            name = getattr(c.func, "attr", getattr(c.func, "id", None))
+            if name == "write_text":
+                dest = c.func.value
+            elif name == "to_parquet":
+                dest = c.args[0] if c.args else next(k.value for k in c.keywords if k.arg == "path")
+            elif name == "open" and len(c.args) > 1 and "w" in ast.unparse(c.args[1]):
+                dest = c.args[0]
+            else:
+                continue
+            checked += 1
+            assert _destination_ok(dest, fn), f"{fn.name}: {ast.unparse(dest)}"
+    assert checked >= 8

@@ -83,6 +83,21 @@ GATE_TOLERANCE = 1e-6            # points; decision values are float64 from dete
 H1_MAX, H2_MIN, H3_MIN = 0.2, 0.5, 0.5
 ADOPT_S, ADOPT_S_LO, ADOPT_R2 = 0.5, 0.3, 0.2
 LOW_POWER_GAMES = 60
+MIN_FINITE_SHARE = 0.95          # under this share of finite draws an interval is undefined (post-review rule)
+INTERVAL_NOTE = ("pre-registered game-bootstrap percentile range, kept as computed; not a valid confidence interval: "
+                 "a game resample repeats some games and drops others, adding about one sampling variance to every "
+                 "player's value, so a statistic that depends on that noise (reliabilities, discrimination, "
+                 "stability, spread, R squared and their differences) is shifted in the resamples and the range need "
+                 "not cover the estimate. Valid intervals, post hoc: reports/research/decisions-E1-posthoc.json")
+# Set A (D77) is the 10 games of one date, so every player has at most one game there, and no development
+# player-game holds 300 decisions (max 229, decisions-E1-posthoc.json). No pre-registered statistic can exist on it:
+# split-half and stability need a player in two halves, discrimination and R squared 300 decisions. The reason is
+# structural (the date of the set), so e1-final refuses before score_once and reads no test data. Scoring this
+# question on a test set needs a new pre-registration.
+SET_A_STATISTICS_POSSIBLE = False
+SET_A_REFUSAL = ("decisions-E1 is not scored on Set A: its games are on one date, so every player has at most one game "
+                 "and none can reach the 300-decision gate (most in any development player-game: 229); every "
+                 "pre-registered statistic would be empty. No ledger entry is written.")
 KINDS = ("shot", "pass", "drive")
 ZONES = ("rim", "paint", "mid", "three", "none")
 MEASURES = ("target", "frozen", "adjusted", "adjusted_kind")
@@ -176,7 +191,7 @@ class Table:
         o = o.dropna(subset=["g"])
         o["g"] = o["g"].astype(int)
         o["p"] = o["player_id"].astype(np.int64)
-        m = pg.merge(o[["g", "p", "ortg"]], on=["g", "p"], how="left").sort_values("r")
+        m = pg.merge(o[["g", "p", "ortg"]], on=["g", "p"], how="left", validate="many_to_one").sort_values("r")
         r = m["ortg"].to_numpy(dtype=float)
         self.ok = (np.isfinite(r) & (self.n >= MIN_DECISIONS_GAME)).astype(float)
         self.ortg = np.where(self.ok > 0, r, 0.0)
@@ -302,10 +317,12 @@ def player_sets(T: Table) -> dict:
             "chrono": (n((T.chrono == 0).astype(float)) >= N_MIN) & (n((T.chrono == 1).astype(float)) >= N_MIN)}
 
 
-def statistics(T: Table, w, sets: dict, rng, inner: int, mu_fixed=None) -> dict:
-    """Every statistic of metrics (1) to (4) on one data set: the games with weights w (counts; all ones for the data
-    itself, a resample otherwise). mu_fixed: the cell and kind means to use (the test set uses the development
-    games' means); otherwise they are computed from w."""
+def statistic_parts(T: Table, w, sets: dict, rng, inner: int, mu_fixed=None) -> dict:
+    """The per-player arrays every statistic is a function of, on one data set: the games with weights w (counts; all
+    ones for the data itself, a resample otherwise). mu_fixed: the cell and kind means to use (the test set uses the
+    development games' means); otherwise they are computed from w. Per measure: the odd/even half values (x0, x1)
+    of the odd/even set; the whole-set value, its bootstrap variance and the shot and pass shares (Xa, bva, sa) of
+    the whole-set players; the chronological half values and their bootstrap variances (X0, X1, bv0, bv1)."""
     import numpy as np
     w = np.asarray(w, dtype=float)
     mu, mu_k = mu_fixed if mu_fixed is not None else (x[0] for x in cell_means(T, w[None, :]))
@@ -317,26 +334,56 @@ def statistics(T: Table, w, sets: dict, rng, inner: int, mu_fixed=None) -> dict:
     inner_all = vals(resample(rng, w, np.zeros(T.G, dtype=int), inner))
     inner_ch = [vals(resample(rng, mask(T.chrono, h), np.zeros(T.G, dtype=int), inner)) for h in (0, 1)]
     a, o, c = sets["all"], sets["oddeven"], sets["chrono"]
+    parts = {"sa": np.column_stack([full["shares"][0][0][a], full["shares"][1][0][a]])}
+    with np.errstate(invalid="ignore"):
+        for m in MEASURES:
+            parts[m] = {"x0": oe[0][m][0][o], "x1": oe[1][m][0][o],
+                        "Xa": full[m][0][a], "bva": np.nanvar(inner_all[m][:, a], axis=0, ddof=1),
+                        "X0": ch[0][m][0][c], "X1": ch[1][m][0][c],
+                        "bv0": np.nanvar(inner_ch[0][m][:, c], axis=0, ddof=1),
+                        "bv1": np.nanvar(inner_ch[1][m][:, c], axis=0, ddof=1)}
+    return parts
+
+
+def stats_from_parts(parts: dict) -> dict:
+    """Every statistic of metrics (1) to (4) from the per-player arrays of statistic_parts."""
+    import numpy as np
     out = {}
     with np.errstate(invalid="ignore"):
         for m in MEASURES:
-            x0, x1 = oe[0][m][0][o], oe[1][m][0][o]
-            r = pearson(x0, x1)
-            bv_all = np.nanvar(inner_all[m][:, a], axis=0, ddof=1)
-            bv0 = np.nanvar(inner_ch[0][m][:, c], axis=0, ddof=1)
-            bv1 = np.nanvar(inner_ch[1][m][:, c], axis=0, ddof=1)
-            X0, X1 = ch[0][m][0][c], ch[1][m][0][c]
-            out[m] = {"split_half_r": r, "split_half_spearman": spearman(x0, x1),
+            p = parts[m]
+            r = pearson(p["x0"], p["x1"])
+            out[m] = {"split_half_r": r, "split_half_spearman": spearman(p["x0"], p["x1"]),
                       "split_half_spearman_brown": float(2 * r / (1 + r)) if np.isfinite(r) and r > -1 else float("nan"),
-                      "discrimination": discrimination(full[m][0][a], bv_all),
-                      "stability": stability(X0, X1, bv0, bv1),
-                      "stability_printed_estimator": stability(X0, X1, bv0, bv1, printed=True),
-                      "sd_between_players": float(np.nanstd(full[m][0][a], ddof=1)) if a.sum() > 1 else float("nan")}
+                      "discrimination": discrimination(p["Xa"], p["bva"]),
+                      "stability": stability(p["X0"], p["X1"], p["bv0"], p["bv1"]),
+                      "stability_printed_estimator": stability(p["X0"], p["X1"], p["bv0"], p["bv1"], printed=True),
+                      "sd_between_players": float(np.nanstd(p["Xa"], ddof=1)) if len(p["Xa"]) > 1 else float("nan")}
             if m != "target":
-                S = np.column_stack([full["shares"][0][0][a], full["shares"][1][0][a]])
-                out[m]["r2_on_kind_shares"] = r_squared(full[m][0][a], S)
+                out[m]["r2_on_kind_shares"] = r_squared(p["Xa"], parts["sa"])
     for m in ("adjusted", "adjusted_kind"):
         out[f"stability_{m}_minus_frozen"] = out[m]["stability"] - out["frozen"]["stability"]
+    return out
+
+
+def statistics(T: Table, w, sets: dict, rng, inner: int, mu_fixed=None) -> dict:
+    """Every statistic of metrics (1) to (4) on one data set (see statistic_parts)."""
+    return stats_from_parts(statistic_parts(T, w, sets, rng, inner, mu_fixed))
+
+
+def resample_players(parts: dict, rng) -> dict:
+    """One bootstrap-by-player resample of the per-player arrays: the players of each set are drawn with replacement,
+    the same draw for every measure (so differences between measures are paired). Post hoc (PLAN.md review of
+    decisions-E1): each player's values are taken as measured, so the resample adds no sampling noise and the
+    percentile interval is centred on the estimate, unlike the game resample."""
+    import numpy as np
+    n_o, n_a, n_c = len(parts["frozen"]["x0"]), len(parts["frozen"]["Xa"]), len(parts["frozen"]["X0"])
+    io, ia, ic = (rng.integers(0, n, n) for n in (n_o, n_a, n_c))
+    out = {"sa": parts["sa"][ia]}
+    for m in MEASURES:
+        p = parts[m]
+        out[m] = {"x0": p["x0"][io], "x1": p["x1"][io], "Xa": p["Xa"][ia], "bva": p["bva"][ia],
+                  "X0": p["X0"][ic], "X1": p["X1"][ic], "bv0": p["bv0"][ic], "bv1": p["bv1"][ic]}
     return out
 
 
@@ -345,15 +392,18 @@ def _flat(stats: dict) -> dict:
             for k, x in (v.items() if isinstance(v, dict) else [(None, v)])}
 
 
-def summarize(T: Table, mu_fixed=None, n: int = BOOT, inner: int = INNER_BOOT, seed: int = SEED, log=print) -> dict:
-    """The statistics on the data with a 95 percent percentile interval for each from n outer resamples of games
-    (stratified by the 4 half cells), each with its own inner bootstrap of `inner` resamples."""
+def game_draws(T: Table, mu_fixed=None, n: int = BOOT, inner: int = INNER_BOOT, seed: int = SEED, log=print,
+               inner_point: int = INNER_POINT) -> dict:
+    """The pre-registered bootstrap: the statistics on the data (inner bootstrap of inner_point resamples) and on n
+    outer resamples of games (stratified by the 4 half cells), each with its own inner bootstrap of `inner`.
+    -> {"sets", "parts" (of the data), "point" (flat), "draws" (flat name -> array of n)}."""
     import numpy as np
     sets = player_sets(T)
     w = np.ones(T.G)
-    point = statistics(T, w, sets, np.random.default_rng([seed, 1]), INNER_POINT, mu_fixed)
+    parts = statistic_parts(T, w, sets, np.random.default_rng([seed, 1]), inner_point, mu_fixed)
+    point = _flat(stats_from_parts(parts))
     outer = resample(np.random.default_rng(seed), w, T.cells4, n)
-    draws = {k: [] for k in _flat(point)}
+    draws = {k: [] for k in point}
     started = time.time()
     for b in range(n):
         s = _flat(statistics(T, outer[b], sets, np.random.default_rng([seed, 2, b]), inner, mu_fixed))
@@ -361,15 +411,32 @@ def summarize(T: Table, mu_fixed=None, n: int = BOOT, inner: int = INNER_BOOT, s
             draws[k].append(s[k])
         if log and (b + 1) % 250 == 0:
             log(f"[research] {b + 1} of {n} resamples, {time.time() - started:.0f} s")
-    flat = _flat(point)
-    intervals = {}
-    for k, v in draws.items():
-        v = np.asarray(v, dtype=float)
-        ok = v[np.isfinite(v)]
-        intervals[k] = {"value": flat[k],
-                        "lo": float(np.percentile(ok, 2.5)) if len(ok) else float("nan"),
-                        "hi": float(np.percentile(ok, 97.5)) if len(ok) else float("nan"),
-                        "finite_resamples": int(len(ok))}
+    return {"sets": sets, "parts": parts, "point": point, "draws": {k: np.asarray(v, float) for k, v in draws.items()}}
+
+
+def percentile_interval(value: float, v) -> dict:
+    """The pre-registered 95 percent percentile range of the game draws, with its finite share. Under
+    MIN_FINITE_SHARE finite draws the interval is undefined (None) and no rule may pass on it."""
+    import numpy as np
+    v = np.asarray(v, dtype=float)
+    ok = v[np.isfinite(v)]
+    share = float(len(ok) / len(v)) if len(v) else 0.0
+    defined = share >= MIN_FINITE_SHARE
+    return {"value": value,
+            "lo": float(np.percentile(ok, 2.5)) if defined else float("nan"),
+            "hi": float(np.percentile(ok, 97.5)) if defined else float("nan"),
+            "finite_resamples": int(len(ok)), "finite_share": share, "interval_defined": bool(defined),
+            "interval_valid_as_confidence_interval": False, "interval_note": INTERVAL_NOTE}
+
+
+def summarize(T: Table, mu_fixed=None, n: int = BOOT, inner: int = INNER_BOOT, seed: int = SEED, log=print) -> dict:
+    """The statistics on the data with the pre-registered 95 percent percentile range of each from the game
+    bootstrap (game_draws)."""
+    import numpy as np
+    g = game_draws(T, mu_fixed, n, inner, seed, log)
+    sets, flat = g["sets"], g["point"]
+    w = np.ones(T.G)
+    intervals = {k: percentile_interval(flat[k], v) for k, v in g["draws"].items()}
     mu, mu_k = mu_fixed if mu_fixed is not None else (x[0] for x in cell_means(T, w[None, :]))
     return {"games": T.G, "decisions": int(T.n.sum()), "player_games": T.R, "players_with_decisions": T.P,
             "players": {k: int(v.sum()) for k, v in sets.items()},
@@ -390,30 +457,53 @@ def cell_table(T: Table, mu, mu_k) -> list:
             for c in range(T.C)]
 
 
+def _finite(x) -> bool:
+    return x is not None and isinstance(x, (int, float)) and math.isfinite(x)
+
+
+def _defined(stat: dict) -> bool:
+    """A pre-registered interval may be read only when enough draws were finite (older records lack the field:
+    their finite count is checked against the resamples instead)."""
+    if "interval_defined" in stat:
+        return bool(stat["interval_defined"])
+    return stat.get("finite_resamples", 0) >= MIN_FINITE_SHARE * BOOT
+
+
 def verdict(stats: dict) -> dict:
-    """The pre-registered reading of the development statistics (point values; intervals reported beside)."""
+    """The pre-registered reading of the development statistics: point values decide; a statistic that is not a
+    finite number gives "undefined", never "holds" or "fails". The intervals are the pre-registered game-bootstrap
+    ranges, which are not valid confidence intervals (INTERVAL_NOTE): the flag that reads them says so."""
     v = lambda k: stats[k]["value"]
     iv = lambda k: [stats[k]["lo"], stats[k]["hi"]]
-    h1 = v("target.split_half_r") < H1_MAX
-    out = {"H1": {"statement": f"target split-half r below {H1_MAX}", "value": v("target.split_half_r"),
-                  "interval_95": iv("target.split_half_r"), "holds": bool(h1)},
-           "H2": {"statement": f"frozen metric stability at least {H2_MIN}", "value": v("frozen.stability"),
-                  "interval_95": iv("frozen.stability"), "holds": bool(v("frozen.stability") >= H2_MIN)},
-           "H3": {"statement": f"frozen metric R squared on kind shares at least {H3_MIN}",
-                  "value": v("frozen.r2_on_kind_shares"), "interval_95": iv("frozen.r2_on_kind_shares"),
-                  "holds": bool(v("frozen.r2_on_kind_shares") >= H3_MIN)}}
-    for name, h in out.items():
-        lo, hi = h["interval_95"]
-        thr = H1_MAX if name == "H1" else (H2_MIN if name == "H2" else H3_MIN)
-        h["interval_crosses_threshold"] = bool(lo < thr < hi)
+    tests = {"H1": ("target.split_half_r", f"target split-half r below {H1_MAX}", lambda x: x < H1_MAX, H1_MAX),
+             "H2": ("frozen.stability", f"frozen metric stability at least {H2_MIN}", lambda x: x >= H2_MIN, H2_MIN),
+             "H3": ("frozen.r2_on_kind_shares", f"frozen metric R squared on kind shares at least {H3_MIN}",
+                    lambda x: x >= H3_MIN, H3_MIN)}
+    out = {}
+    for name, (key, statement, rule, thr) in tests.items():
+        x = v(key)
+        ok = _finite(x)
+        lo, hi = iv(key)
+        out[name] = {"statement": statement, "value": x, "interval_95": [lo, hi],
+                     "interval_95_valid_as_confidence_interval": False,
+                     "holds": bool(rule(x)) if ok else None,
+                     "result": ("holds" if rule(x) else "fails") if ok else "undefined",
+                     "interval_crosses_threshold_reads_invalid_interval":
+                         bool(lo < thr < hi) if _finite(lo) and _finite(hi) else None}
     s, (s_lo, _), r2 = v("adjusted.stability"), iv("adjusted.stability"), v("adjusted.r2_on_kind_shares")
+    readable = _finite(s) and _finite(s_lo) and _finite(r2) and _defined(stats["adjusted.stability"])
     out["adoption"] = {"rule": f"kind-adjusted stability >= {ADOPT_S} with 95 percent interval above {ADOPT_S_LO}, "
                                f"and its R squared on kind shares below {ADOPT_R2}",
                        "stability": s, "stability_lo": s_lo, "r2_on_kind_shares": r2,
-                       "adopted": bool(s >= ADOPT_S and s_lo > ADOPT_S_LO and r2 < ADOPT_R2)}
-    out["protocol"] = ("H1 holds: the lane report adds, next to the unchanged failed verdict, that the frozen "
-                       "validation could not have detected a signal" if h1 else
-                       "H1 fails: the target is reliable, so the failed verdict is read as evidence against the metric")
+                       "adopted": bool(readable and s >= ADOPT_S and s_lo > ADOPT_S_LO and r2 < ADOPT_R2),
+                       "result": ("adopted" if (s >= ADOPT_S and s_lo > ADOPT_S_LO and r2 < ADOPT_R2)
+                                  else "not adopted") if readable else "undefined: cannot pass"}
+    h1 = out["H1"]["result"]
+    out["protocol"] = {"holds": "H1 holds: the lane report adds, next to the unchanged failed verdict, that the frozen "
+                                "validation could not have detected a signal",
+                       "fails": "H1 fails: the target is reliable, so the failed verdict is read as evidence against "
+                                "the metric",
+                       "undefined": "H1 undefined: the protocol gives no reading"}[h1]
     return out
 
 
@@ -711,6 +801,8 @@ def final(artifacts=None) -> dict:
     from tools import frozen_epv
     from tools.frozen_models import load_xfg
     from tools.research_xfg import research_data_root, test_root_ready, test_features
+    if not SET_A_STATISTICS_POSSIBLE:
+        raise SystemExit(SET_A_REFUSAL)
     if not (RESULTS / f"{EXPERIMENT}-dev.json").exists():
         raise SystemExit(f"{WHO}: run e1-dev first; the test set is scored after the development result exists")
     events, ortg, games = _gate_tables(artifacts)
@@ -746,23 +838,149 @@ def final(artifacts=None) -> dict:
     return out
 
 
+# ----------------------------------------------------------------------------- post hoc (after the review)
+
+POSTHOC_SEED = 3
+SIM_REPS, SIM_GAME_BOOT, SIM_INNER, SIM_PLAYER_BOOT = 100, 200, 50, 1000
+SIM_SCENARIOS = {   # per-decision noise chosen so the frozen-like split-half r is about the measured 0.93 and 0.42
+    "reliable": {"players": 150, "games": 40, "per_game": 20, "sd_player": 0.05, "sd_drift": 0.0135, "sd_noise": 0.28},
+    "noisy": {"players": 150, "games": 40, "per_game": 20, "sd_player": 0.05, "sd_drift": 0.0135, "sd_noise": 1.2}}
+SIM_STATS = ("frozen.split_half_r", "frozen.discrimination", "frozen.stability")
+
+
+def basic_interval(value: float, v) -> dict:
+    """The basic bootstrap interval 2 theta - q(0.975), 2 theta - q(0.025) of the game draws: it subtracts the shift
+    the resample shows, so it corrects the extra noise of the game resample to first order."""
+    import numpy as np
+    v = np.asarray(v, dtype=float)
+    ok = v[np.isfinite(v)]
+    if not _finite(value) or len(ok) < MIN_FINITE_SHARE * len(v):
+        return {"lo": float("nan"), "hi": float("nan")}
+    q_lo, q_hi = np.percentile(ok, [2.5, 97.5])
+    return {"lo": float(2 * value - q_hi), "hi": float(2 * value - q_lo)}
+
+
+def player_draws(parts: dict, n: int, seed) -> dict:
+    """n bootstrap-by-player resamples of the per-player arrays -> flat name -> array of n."""
+    import numpy as np
+    rng = np.random.default_rng(seed)
+    draws = None
+    for _ in range(n):
+        s = _flat(stats_from_parts(resample_players(parts, rng)))
+        draws = draws or {k: [] for k in s}
+        for k in draws:
+            draws[k].append(s[k])
+    return {k: np.asarray(v, float) for k, v in draws.items()}
+
+
+def simulate(rng, players, games, per_game, sd_player, sd_drift, sd_noise):
+    """A synthetic season with a known answer: every player plays every game (made-up ids, one per day), with
+    per_game decisions whose regret is the player's level plus a drift per chronological half plus noise. -> (events,
+    ortg, game ids, the true split-half r, discrimination and stability of the frozen measure)."""
+    import datetime as dt
+    import numpy as np
+    import pandas as pd
+    day0 = dt.date(2016, 1, 1)
+    ids = [(day0 + dt.timedelta(days=i)).strftime("%m.%d.%Y") + ".SIM.at.SIM" for i in range(games)]
+    half = np.array([halves(ids)[g][1] for g in ids])
+    mu = rng.normal(0, sd_player, players)
+    drift = rng.normal(0, sd_drift, (players, 2))
+    g_idx = np.repeat(np.arange(games), players * per_game)
+    p_idx = np.tile(np.repeat(np.arange(players), per_game), games)
+    q = mu[p_idx] + drift[p_idx, half[g_idx]] + rng.normal(0, sd_noise, len(g_idx))
+    events = pd.DataFrame({"sportvu_game": np.asarray(ids)[g_idx], "player_id": p_idx, "decision_kind": "shot",
+                           "decision_quality": q, "zone": 2})
+    ortg = pd.DataFrame({"sportvu_game": np.repeat(ids, players), "player_id": np.tile(np.arange(players), games),
+                         "ortg": rng.normal(105, 40, games * players)})
+    v_oe = sd_noise ** 2 / (per_game * games / 2)
+    v_all = sd_noise ** 2 / (per_game * games)
+    signal = sd_player ** 2 + sd_drift ** 2 / 2
+    truth = {"frozen.split_half_r": signal / (signal + v_oe),
+             "frozen.discrimination": 1 - v_all / (signal + v_all),
+             "frozen.stability": sd_player ** 2 / (sd_player ** 2 + sd_drift ** 2)}
+    return events, ortg, ids, truth
+
+
+def coverage_simulation(reps: int = SIM_REPS, seed=POSTHOC_SEED, log=print) -> dict:
+    """Coverage of the nominal 95 percent intervals on synthetic seasons with a known answer: the pre-registered
+    game percentile range, the basic interval of the same game draws, and the bootstrap by player."""
+    import numpy as np
+    out = {}
+    for name, cfg in SIM_SCENARIOS.items():
+        rng = np.random.default_rng([seed, 9, len(name)])
+        hits = {k: {"game_percentile": 0, "game_basic": 0, "player_percentile": 0} for k in SIM_STATS}
+        est = {k: [] for k in SIM_STATS}
+        truth = None
+        for rep in range(reps):
+            events, ortg, ids, truth = simulate(rng, **cfg)
+            T = Table(events, ortg, ids)
+            g = game_draws(T, n=SIM_GAME_BOOT, inner=SIM_INNER, seed=int(rng.integers(1 << 30)), log=None,
+                           inner_point=SIM_GAME_BOOT)
+            pdraw = player_draws(g["parts"], SIM_PLAYER_BOOT, [seed, 10, rep])
+            for k in SIM_STATS:
+                x, gd = g["point"][k], g["draws"][k]
+                est[k].append(x)
+                pi = percentile_interval(x, gd)
+                bi = basic_interval(x, gd)
+                pp = percentile_interval(x, pdraw[k])
+                for method, iv in (("game_percentile", pi), ("game_basic", bi), ("player_percentile", pp)):
+                    hits[k][method] += int(_finite(iv["lo"]) and iv["lo"] <= truth[k] <= iv["hi"])
+            if log and (rep + 1) % 25 == 0:
+                log(f"[research] simulation {name}: {rep + 1} of {reps}")
+        out[name] = {"settings": cfg, "truth": truth,
+                     "mean_estimate": {k: float(np.mean(v)) for k, v in est.items()},
+                     "coverage": {k: {m: h / reps for m, h in v.items()} for k, v in hits.items()}}
+    return {"reps": reps, "game_resamples": SIM_GAME_BOOT, "inner_resamples": SIM_INNER,
+            "player_resamples": SIM_PLAYER_BOOT, "seed": seed, "scenarios": out}
+
+
+def annotate_dev(dev_out: dict, recomputed: dict) -> dict:
+    """The development record with the post-review fields added; every pre-registered number is checked to be
+    unchanged (recomputed with the same seeds) and none is altered."""
+    stats = dev_out["statistics"]
+    for k, s in stats.items():
+        new = recomputed[k]
+        for field in ("value", "lo", "hi", "finite_resamples"):
+            if not (s[field] == new[field] or abs(s[field] - new[field]) <= 1e-12):
+                raise SystemExit(f"{WHO}: {k} {field} does not reproduce ({s[field]} against {new[field]})")
+        for field in ("finite_share", "interval_defined", "interval_valid_as_confidence_interval", "interval_note"):
+            s[field] = new[field]
+    old = dev_out["verdict"]
+    v = verdict(stats)
+    for h in ("H1", "H2", "H3"):
+        if old[h]["holds"] != v[h]["holds"]:
+            raise SystemExit(f"{WHO}: the reading of {h} changed")
+    if old["adoption"]["adopted"] != v["adoption"]["adopted"]:
+        raise SystemExit(f"{WHO}: the adoption reading changed")
+    dev_out["verdict"] = v
+    dev_out["post_review_note"] = ("Fields finite_share, interval_defined, interval_valid_as_confidence_interval and "
+                                   "interval_note, and the verdict's result and interval flags, were added after the "
+                                   "review (2026-11-17); every pre-registered number was recomputed with the same "
+                                   "seeds and is unchanged.")
+    return dev_out
+
+
 def posthoc(artifacts=None) -> dict:
-    """Descriptive numbers written after the development result, for reading it; none enters a verdict.
-    (a) The most decisions of any player in one development game, against the 300-decision gate: whether the
-    pre-registered statistics can exist on a test set in which every team plays one game. (b) The per-game
-    reliability that the split-half r of the target implies by the Spearman-Brown formula stepped down from the mean
-    number of qualifying games per player per half: r / (k - (k - 1) r)."""
+    """Post hoc, after the development result and its review; no verdict reads these numbers.
+    (a) The most decisions of any player in one development game, against the 300-decision gate. (b) The per-game
+    reliability that the target's split-half r implies (Spearman-Brown stepped down from the mean number of
+    qualifying games per player per half: r / (k - (k - 1) r)). (c) Valid 95 percent intervals: the bootstrap by
+    player (2000 resamples) for every statistic, and the basic interval of the pre-registered game draws for
+    discrimination, stability, spread and the paired differences. (d) Their coverage on synthetic seasons with a
+    known answer. The pre-registered game draws are recomputed with the same seeds; the development record gains
+    the post-review fields only after every number in it is shown to reproduce."""
     import numpy as np
     events, ortg, games = _gate_tables(artifacts)
-    dev_out = json.loads((RESULTS / f"{EXPERIMENT}-dev.json").read_text())
+    dev_path = RESULTS / f"{EXPERIMENT}-dev.json"
+    dev_out = json.loads(dev_path.read_text())
     T = Table(events, ortg, games)
     sets = player_sets(T)
     per_pg = events.groupby(["sportvu_game", "player_id"]).size()
     k = np.concatenate([np.bincount(T.p[(T.oddeven[T.g] == h) & (T.ok > 0)], minlength=T.P)[sets["oddeven"]]
                         for h in (0, 1)])
     kbar = float(k.mean())
-    out = {"experiment": EXPERIMENT, "stage": "post hoc, descriptive, written after the development result; no verdict "
-                                              "reads these numbers"}
+    out = {"experiment": EXPERIMENT, "stage": "post hoc, written after the development result and its review; no "
+                                              "verdict reads these numbers"}
     out["player_game_decisions"] = {"max": int(per_pg.max()), "p99": float(per_pg.quantile(0.99)),
                                     "player_games": int(len(per_pg)), "gate": N_MIN}
     r = dev_out["statistics"]["target.split_half_r"]["value"]
@@ -770,9 +988,29 @@ def posthoc(artifacts=None) -> dict:
         "split_half_r": r, "mean_qualifying_games_per_player_half": kbar,
         "median_qualifying_games_per_player_half": float(np.median(k)),
         "spearman_brown_one_game": float(r / (kbar - (kbar - 1) * r))}
+    g = game_draws(T)
+    recomputed = {key: percentile_interval(g["point"][key], v) for key, v in g["draws"].items()}
+    dev_out = annotate_dev(dev_out, recomputed)
+    pdraw = player_draws(g["parts"], BOOT, [SEED, POSTHOC_SEED])
+    basic_for = ("discrimination", "stability", "sd_between_players", "minus_frozen")
+    valid = {}
+    for key, value in g["point"].items():
+        pp = percentile_interval(value, pdraw[key])
+        row = {"value": value, "player_bootstrap": {"lo": pp["lo"], "hi": pp["hi"], "finite_share": pp["finite_share"]}}
+        if any(b in key for b in basic_for) and "printed" not in key:
+            row["game_basic"] = basic_interval(value, g["draws"][key])
+        valid[key] = row
+    out["valid_intervals"] = {
+        "method": "bootstrap by player, 2000 resamples (seed [0, 3]): the players of each set drawn with replacement, "
+                  "the same draw for every measure, each player's values as measured; and, for discrimination, "
+                  "stability, spread and the paired differences, the basic interval 2 theta - q of the pre-registered "
+                  "game draws. Coverage of both on synthetic seasons: coverage_simulation.",
+        "statistics": valid}
+    out["coverage_simulation"] = coverage_simulation()
     RESULTS.mkdir(parents=True, exist_ok=True)
+    dev_path.write_text(json.dumps(_plain(dev_out), indent=2, allow_nan=False) + "\n")
     (RESULTS / f"{EXPERIMENT}-posthoc.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
-    return out
+    return {"coverage": {n: s["coverage"] for n, s in out["coverage_simulation"]["scenarios"].items()}}
 
 
 def main(argv=None) -> int:
