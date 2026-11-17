@@ -282,6 +282,17 @@ def _methods() -> S.MethodsFile:
                                                                          True)),
                      experiment(2, "pre_registered"),
                      experiment(4, "not_adopted_development", protocol=protocol),
+                     S.Experiment(**{**experiment(5, "pre_registered").model_dump(), "stages": "test_only",
+                                     "status": "passed_test", "writeup_notes": ["Fixture note, not a result."],
+                                     "test": S.StageResult(
+                                         stage="test", source=S.Source(path=fixture, what="synthetic fixture result",
+                                                                       rows="testset"),
+                                         metric="fixture paired difference", rows=2400, rows_unit="stints", games=12,
+                                         diff=-1.15, lo=-1.59, hi=-0.77, interval="Fixture interval, not a result.",
+                                         threshold=0.0, upper=-0.77, comparison="below", met=True, values=[],
+                                         conditions=[S.Condition(label="fixture condition", value=0.098, lo=0.065,
+                                                                 hi=0.132, bound="lo", comparison="above",
+                                                                 threshold=0.0, met=True)])}),
                      experiment(3, "not_adopted_test", stage("development", -0.0004, -0.0007, -0.0001, True),
                                 stage("test", 0.0003, -0.0002, 0.0009, False))])
     return S.MethodsFile(schema_version=S.SCHEMA_VERSION, written="2000-01-01", backlog=fixture, lanes=[lane],

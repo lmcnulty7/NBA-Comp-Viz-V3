@@ -980,7 +980,11 @@ class DemoFrames(Strict):
 NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
 ComparabilityClass = Literal["roughly", "not_directly", "none"]
 ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
-                           "adopted", "not_adopted_test"]
+                           "adopted", "not_adopted_test", "passed_test"]
+# How a rule compares the end of an interval it reads with its threshold.
+Comparison = Literal["below", "at_most", "above", "at_least"]
+_COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
+            "at_least": lambda v, t: v >= t}
 
 
 def _is_number_text(text: Optional[str]) -> bool:
@@ -1076,11 +1080,35 @@ class StageValue(Strict):
         return self
 
 
+class Condition(Strict):
+    """A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the
+    interval it reads (`bound`) compares with `threshold` as `comparison` says. `label` names the statistic."""
+
+    label: str = Field(min_length=1)
+    value: float
+    lo: float
+    hi: float
+    bound: Literal["lo", "hi"]
+    comparison: Comparison
+    threshold: float
+    met: bool
+
+    @model_validator(mode="after")
+    def _met(self):
+        if not (self.lo <= self.value <= self.hi):
+            raise ValueError(f"{self.label}: the value lies inside its interval")
+        end = self.lo if self.bound == "lo" else self.hi
+        if self.met != _COMPARE[self.comparison](end, self.threshold):
+            raise ValueError(f"{self.label}: met says whether the {self.bound} end meets the threshold")
+        return self
+
+
 class StageResult(Strict):
     """One stage of an experiment, read from its result file under reports/research/: development (out of fold on
     the development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption
     rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
-    bound the rule reads) is at most `threshold`. Numbers are rounded once, here in the export."""
+    bound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every
+    further condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export."""
 
     stage: Literal["development", "test"]
     source: Source
@@ -1094,6 +1122,8 @@ class StageResult(Strict):
     interval: str = Field(min_length=1)
     threshold: float
     upper: float
+    comparison: Literal["at_most", "below"] = "at_most"
+    conditions: list["Condition"] = []
     met: bool
     values: list[StageValue]
 
@@ -1103,8 +1133,8 @@ class StageResult(Strict):
             raise ValueError("the difference lies inside its interval")
         if self.upper not in (self.lo, self.hi):
             raise ValueError("the bound the rule reads is one end of the interval")
-        if self.met != (self.upper <= self.threshold):
-            raise ValueError("met says whether the bound is at most the threshold")
+        if self.met != (_COMPARE[self.comparison](self.upper, self.threshold) and all(c.met for c in self.conditions)):
+            raise ValueError("met says whether the bound meets the threshold and every further condition is met")
         expected = "testset" if self.stage == "test" else "out_of_fold"
         if self.source.rows != expected:
             raise ValueError(f"a {self.stage} result reads rows {expected}")
@@ -1206,6 +1236,10 @@ class Experiment(Strict):
     `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
     pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
     needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
+    An experiment whose pre-registration has no verdict on the development games (a dry run only) is
+    `stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
+    development bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+    (the narrow claim, a data-fault note).
     An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
     adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
     meaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds
@@ -1223,6 +1257,8 @@ class Experiment(Strict):
     backlog_status: str = Field(min_length=1)
     status: ExperimentStatus
     writeup: Optional[str] = None
+    writeup_notes: list[str] = []
+    stages: Literal["development_and_test", "test_only"] = "development_and_test"
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
     protocol: Optional[ProtocolResult] = None
@@ -1243,6 +1279,13 @@ class Experiment(Strict):
             return self
         if (dev and dev.stage != "development") or (test and test.stage != "test"):
             raise ValueError(f"{self.id}: a stage result sits under its own stage")
+        if self.stages == "test_only":
+            if dev is not None or self.protocol is not None:
+                raise ValueError(f"{self.id}: a test-only experiment has no development verdict")
+            expected = "pre_registered" if test is None else "passed_test" if test.met else "not_adopted_test"
+            if self.status != expected:
+                raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
+            return self
         if test is not None and dev is None:
             raise ValueError(f"{self.id}: the test set is scored after the development result exists")
         expected = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met

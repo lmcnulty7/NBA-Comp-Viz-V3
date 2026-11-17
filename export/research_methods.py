@@ -143,8 +143,9 @@ def dossier_paragraphs(text: str) -> list:
 
 
 def verdict_paragraph(text: str) -> list:
-    """The paragraph of a write-up that opens with its verdict ("**Verdict.**"), as a one-item list."""
-    return [p for p in dossier_paragraphs(text) if p.startswith("**Verdict.**")]
+    """The paragraph of a write-up that opens with its verdict in bold ("**Verdict.**", "**Verdict: passes ...**"), as
+    a one-item list."""
+    return [p for p in dossier_paragraphs(text) if re.match(r"\*\*Verdict[.:]", p)]
 
 
 def is_sentences(note: str, paragraphs: list) -> bool:
@@ -312,6 +313,13 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             writeup = exp.get("writeup")
             if writeup is not None and (not writeup.startswith("reports/research/") or not (repo / writeup).is_file()):
                 problems.append(f"{eid}: the write-up {writeup!r} is not a file under reports/research/")
+            notes = exp.get("writeup_notes", [])
+            if notes:
+                text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
+                for note in notes:
+                    if not is_sentences(note, verdict_paragraph(text)):
+                        problems.append(f"{eid}: a write-up note is not whole sentences of the verdict paragraph of "
+                                        f"{writeup} word for word: {note[:70]!r}")
             protocol = exp.get("protocol")
             if protocol:
                 if results_problem := _protocol_trace(eid, exp, protocol, repo):
@@ -321,7 +329,9 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                 if _flat(results["interval"]) != bullets.get(eid, {}).get("interval"):
                     miss(f"{eid}.results.interval", results["interval"], f"the paired test bullet under {eid}")
                 for stage in ("development", "test"):
-                    if not results[stage].startswith("reports/research/"):
+                    if results[stage] is None and stage == "development" and exp.get("stages") == "test_only":
+                        continue
+                    if results[stage] is None or not results[stage].startswith("reports/research/"):
                         problems.append(f"{eid}: the {stage} result is a file under reports/research/")
     for eid in sorted(set(backlog) - listed):
         problems.append(f"{eid}: a row of {source['backlog']} that no lane lists")
@@ -331,24 +341,69 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
 # ------------------------------------------------------------------------------------------------ the build
 
 
+SCHEMA_COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
+                  "at_least": lambda v, t: v >= t}
+
+
+def _threshold(doc: dict, keys: dict, spec: dict, rel: str, main: bool = True) -> float:
+    """A rule's threshold: for the main rule, read at keys["threshold"] when the file holds it; otherwise (and for
+    every further condition) a number the source states (`threshold`) that must be a number of the result file's
+    own rule text (keys["rule"])."""
+    if main and "threshold" in keys:
+        return float(_path_value(doc, keys["threshold"]))
+    value = spec["threshold"]
+    if number_text(value) not in numbers(_path_value(doc, keys["rule"])):
+        raise MethodsProblem(f"{rel}: the rule {keys['rule']} does not name the threshold {value}")
+    return float(value)
+
+
+def number_text(value) -> str:
+    """A threshold written as a number of a rule's text (0 as "0", 0.0005 as "0.0005")."""
+    text = repr(float(value))
+    return text[:-2] if text.endswith(".0") else text
+
+
 def _stage(results: dict, stage: str, repo: Path):
-    """The result of one stage, or None when its file does not exist yet."""
+    """The result of one stage, or None when its file does not exist yet. The file's verdict on the main rule and
+    on each further condition is recomputed from its numbers, and a file that disagrees is refused."""
     rel = results[stage]
+    if rel is None:
+        return None
     path = repo / rel
     if not path.is_file():
         return None
     doc = json.loads(path.read_text(encoding="utf-8"))
     keys = results["keys"]
+    comparison = results.get("comparison", "at_most")
+    compare = SCHEMA_COMPARE[comparison]
     met = bool(_path_value(doc, keys["met"]))
-    upper, threshold = float(_path_value(doc, keys["upper"])), float(_path_value(doc, keys["threshold"]))
-    if met != (upper <= threshold):
-        raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its bound {upper} against its threshold "
-                             f"{threshold} says {upper <= threshold}")
+    upper, threshold = float(_path_value(doc, keys["upper"])), _threshold(doc, keys, results, rel)
+    main = compare(upper, threshold)
+    if "main_met" in keys and bool(_path_value(doc, keys["main_met"])) != main:
+        raise MethodsProblem(f"{rel}: {keys['main_met']} disagrees with its bound {upper} against {threshold}")
+    conditions = []
+    for spec in results.get("conditions", []):
+        lo, hi = float(_path_value(doc, spec["lo"])), float(_path_value(doc, spec["hi"]))
+        value = float(_path_value(doc, spec["value"]))
+        end = lo if spec["bound"] == "lo" else hi
+        bar = _threshold(doc, keys, spec, rel, main=False)
+        ok = SCHEMA_COMPARE[spec["comparison"]](end, bar)
+        if "met" in spec and bool(_path_value(doc, spec["met"])) != ok:
+            raise MethodsProblem(f"{rel}: {spec['met']} disagrees with its {spec['bound']} end {end} against {bar}")
+        places = spec["digits"]
+        while SCHEMA_COMPARE[spec["comparison"]](round(end, places), round(bar, places)) != ok and places < 17:
+            places += 1
+        conditions.append(S.Condition(label=spec["label"], value=round(value, places), lo=round(lo, places),
+                                      hi=round(hi, places), bound=spec["bound"], comparison=spec["comparison"],
+                                      threshold=round(bar, places), met=ok))
+    if met != (main and all(c.met for c in conditions)):
+        raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its rule read on its own numbers gives "
+                             f"{main and all(c.met for c in conditions)}")
     # Rounded once, here. The rule's two numbers keep as many decimals as it takes for the rounded comparison to
     # read as the file's own verdict, so rounding can never flip it (an upper end of 0.000502 against 0.0005
     # shows six decimals, not five).
     digits = results["digits"]
-    while (round(upper, digits) <= round(threshold, digits)) != met and digits < 17:
+    while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
         digits += 1
 
     def num(key: str, places: int = digits) -> float:
@@ -368,7 +423,8 @@ def _stage(results: dict, stage: str, repo: Path):
         stage=stage, source=S.Source(path=rel, what=what, rows=rows), metric=results["metric"],
         rows=int(_path_value(doc, keys["rows"])), rows_unit=results["rows_unit"],
         games=int(_path_value(doc, keys["games"])), diff=num("diff"), lo=num("lo"), hi=num("hi"),
-        interval=results["interval"], threshold=num("threshold"), upper=num("upper"), met=met, values=values)
+        interval=results["interval"], threshold=round(threshold, digits), upper=num("upper"),
+        comparison=comparison, conditions=conditions, met=met, values=values)
 
 
 def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
@@ -508,6 +564,12 @@ def _protocol_status(protocol) -> str:
     return "development_met_test_pending" if protocol.adopted else "not_adopted_development"
 
 
+def _test_only_status(test) -> str:
+    if test is None:
+        return "pre_registered"
+    return "passed_test" if test.met else "not_adopted_test"
+
+
 def _status(dev, test) -> str:
     if dev is None:
         return "pre_registered"
@@ -555,16 +617,23 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                     sources.append(protocol.source)
                     sources += [i.source for i in [h.interval for h in protocol.hypotheses]
                                 + [a.interval for a in protocol.adoption] if i]
+            test_only = exp.get("stages") == "test_only"
             if exp.get("results"):
-                dev = _stage(exp["results"], "development", repo)
-                test = _stage(exp["results"], "test", repo) if dev is not None else None
+                dev = None if test_only else _stage(exp["results"], "development", repo)
+                test = _stage(exp["results"], "test", repo) if (dev is not None or test_only) else None
+                if exp.get("writeup") and dev is None and test is None:
+                    raise MethodsProblem(f"{exp['id']}: no result file, but the experiment names its write-up "
+                                         f"{exp['writeup']}, so it has run")
                 sources += [stage.source for stage in (dev, test) if stage is not None]
             experiments.append(S.Experiment(
                 id=exp["id"], title=exp["title"], what=exp["what"], hypothesis=exp["hypothesis"],
                 threshold=exp["threshold"], rank=exp["rank"], gain=exp["gain"], effort=exp["effort"],
                 test_data=exp["test_data"], backlog_status=exp["backlog_status"],
-                status=_protocol_status(protocol) if protocol is not None else _status(dev, test),
-                writeup=exp.get("writeup"), development=dev, test=test, protocol=protocol))
+                status=(_protocol_status(protocol) if protocol is not None else _test_only_status(test) if test_only
+                        else _status(dev, test)),
+                writeup=exp.get("writeup"), writeup_notes=exp.get("writeup_notes", []),
+                stages="test_only" if test_only else "development_and_test", development=dev, test=test,
+                protocol=protocol))
             if exp.get("writeup"):
                 sources.append(S.Source(path=exp["writeup"], what="the write-up of an experiment that has run",
                                         rows="not_split"))

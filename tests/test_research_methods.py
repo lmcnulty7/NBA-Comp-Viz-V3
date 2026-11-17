@@ -56,7 +56,7 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -336,7 +336,8 @@ def test_the_methods_file_is_a_contract_file_in_both_kinds_of_data_root(tmp_path
     assert S.validate_tree(root) == []
     statuses = {e.status for lane in S.MethodsFile.model_validate_json(
         (root / "methods.json").read_text()).lanes for e in lane.experiments}
-    assert statuses == {"pre_registered", "development_met_test_pending", "not_adopted_test", "not_adopted_development"}
+    assert statuses == {"pre_registered", "development_met_test_pending", "not_adopted_test", "not_adopted_development",
+                        "passed_test"}
     # real data: the committed source, through the methods step of export.site_data, with its manifest
     out = tmp_path / "real"
     problems, info = site_data.run(out, None, None, only=["methods"], log=QUIET)
@@ -590,3 +591,86 @@ def test_the_contract_keeps_a_value_inside_its_interval_and_a_write_up_off_a_tes
                  if e.status == "pre_registered").model_dump()
     with pytest.raises(ValidationError, match="a write-up belongs to an experiment that has run"):
         S.Experiment(**{**other, "writeup": "reports/research/decisions-E1.md"})
+
+
+# ------------------------------------------------------------------------------------------ a test-only result
+
+
+LIN_FINAL = "reports/research/lineups-E1-final.json"
+
+
+def _lineups(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "lineups-E1")
+
+
+def test_lineups_is_a_scored_test_with_two_conditions_read_from_its_final_file(source):
+    experiment = _lineups(R.build_methods(REPO, source))
+    final = json.loads((REPO / LIN_FINAL).read_text(encoding="utf-8"))
+    paired = final["whole_game"]["paired"]["rapm_minus_plus_minus"]
+    r2 = final["whole_game"]["r2_vs_floor"]["rapm"]
+    assert (experiment.stages, experiment.status, experiment.development) == ("test_only", "passed_test", None)
+    test = experiment.test
+    assert (test.diff, test.lo, test.hi) == (round(paired["point"], 2), round(paired["ci95"][0], 2),
+                                             round(paired["ci95"][1], 2))
+    assert test.upper == test.hi and test.threshold == 0 and test.comparison == "below"
+    assert test.met is final["verdict"]["passes"] is True
+    assert test.games == final["games"] and test.rows == final["stints"] and test.source.rows == "testset"
+    (condition,) = test.conditions
+    assert (condition.value, condition.lo, condition.hi) == (round(r2["point"], 3), round(r2["ci95"][0], 3),
+                                                             round(r2["ci95"][1], 3))
+    assert (condition.bound, condition.comparison, condition.threshold, condition.met) == ("lo", "above", 0, True)
+    text = (REPO / "reports/research/lineups-E1.md").read_text(encoding="utf-8")
+    assert len(experiment.writeup_notes) == 2
+    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes)
+    assert "1298 of 1300 games" in experiment.writeup_notes[1]
+
+
+@pytest.mark.parametrize("change, message", [
+    (lambda d: d["verdict"].update(passes=False), "verdict.passes is False"),
+    (lambda d: d["verdict"].update(diff_ci_below_zero=False), "diff_ci_below_zero disagrees"),
+    (lambda d: d["verdict"].update(r2_above_zero_with_interval=False), "r2_above_zero_with_interval disagrees"),
+    (lambda d: d["verdict"].update(rule=d["verdict"]["rule"].replace("below 0", "below one")
+                                   .replace("above 0", "above one")), "does not name the threshold"),
+])
+def test_a_test_file_whose_verdict_contradicts_its_numbers_is_refused(source, tmp_path, change, message):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / LIN_FINAL
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    change(doc)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match=message):
+        R.build_methods(repo, source)
+
+
+def test_a_failed_condition_fails_the_test_and_a_missing_final_file_with_a_write_up_is_a_problem(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / LIN_FINAL
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["whole_game"]["r2_vs_floor"]["rapm"].update(point=0.02, ci95=[-0.01, 0.05])
+    doc["verdict"].update(r2_above_zero_with_interval=False, passes=False)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    experiment = _lineups(R.build_methods(repo, source))
+    assert experiment.status == "not_adopted_test" and not experiment.test.conditions[0].met
+    path.unlink()
+    with pytest.raises(R.MethodsProblem, match="names its write-up"):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_refuses_a_test_only_reading_the_files_do_not_support(source):
+    experiment = _lineups(R.build_methods(REPO, source)).model_dump()
+    for status in ("adopted", "development_met_test_pending", "not_adopted_test"):
+        with pytest.raises(ValidationError, match="the results say"):
+            S.Experiment(**{**experiment, "status": status})
+    pilot = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments if e.id == "xfg-E1")
+    with pytest.raises(ValidationError, match="no development verdict"):
+        S.Experiment(**{**experiment, "development": pilot.development.model_dump()})
+    test = experiment["test"]
+    with pytest.raises(ValidationError, match="every further condition"):
+        S.StageResult(**{**test, "conditions": [{**test["conditions"][0], "lo": -0.01, "met": False}]})
+    with pytest.raises(ValidationError, match="meets the threshold"):
+        S.Condition(**{**test["conditions"][0], "met": False})
+    # strictly below: an upper end equal to the threshold does not meet the rule
+    with pytest.raises(ValidationError, match="every further condition"):
+        S.StageResult(**{**test, "diff": -0.5, "hi": 0.0, "upper": 0.0})
+    with pytest.raises(ValidationError, match="a write-up belongs"):
+        S.Experiment(**{**experiment, "test": None, "status": "pre_registered"})

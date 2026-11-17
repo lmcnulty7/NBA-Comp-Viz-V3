@@ -63,6 +63,16 @@ export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
                     </span>
                   ) : null}
                 </p>
+                {experiment.writeup_notes && experiment.writeup_notes.length > 0 ? (
+                  <div className="stack stack-tight" data-testid="writeup-notes">
+                    <p className="small">{text.notes}</p>
+                    {experiment.writeup_notes.map((note, index) => (
+                      <q key={note} className={styles.quote}>
+                        <DataText file={FILE} field={`${field}.writeup_notes[${index}]`} text={note} />
+                      </q>
+                    ))}
+                  </div>
+                ) : null}
                 {experiment.protocol ? <ProtocolFacts protocol={experiment.protocol} field={`${field}.protocol`} /> : null}
                 {experiment.development ? (
                   <StageFacts stage={experiment.development} field={`${field}.development`} />

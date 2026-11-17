@@ -1538,7 +1538,90 @@
      "effort": 2,
      "test_data": "2025-26 season",
      "backlog_status": "done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; possible data fault: stint margin equals the schedule in 1298 of 1300 games; reports/research/lineups-E1.md)",
-     "results": null
+     "results": {
+      "metric": "Paired difference in game-margin RMSE, RAPM minus the frozen lineup plus-minus, whole-game margin (points)",
+      "rows_unit": "stints",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent interval of the RMSE difference.",
+      "development": null,
+      "test": "reports/research/lineups-E1-final.json",
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "stints",
+       "games": "games",
+       "diff": "whole_game.paired.rapm_minus_plus_minus.point",
+       "lo": "whole_game.paired.rapm_minus_plus_minus.ci95.0",
+       "hi": "whole_game.paired.rapm_minus_plus_minus.ci95.1",
+       "upper": "whole_game.paired.rapm_minus_plus_minus.ci95.1",
+       "rule": "verdict.rule",
+       "met": "verdict.passes",
+       "main_met": "verdict.diff_ci_below_zero"
+      },
+      "conditions": [
+       {
+        "label": "R squared of RAPM against home court alone, whole-game margin",
+        "value": "whole_game.r2_vs_floor.rapm.point",
+        "lo": "whole_game.r2_vs_floor.rapm.ci95.0",
+        "hi": "whole_game.r2_vs_floor.rapm.ci95.1",
+        "bound": "lo",
+        "comparison": "above",
+        "threshold": 0,
+        "met": "verdict.r2_above_zero_with_interval",
+        "digits": 3
+       }
+      ],
+      "digits": 2,
+      "values": [
+       {
+        "label": "Game-margin RMSE, RAPM (points)",
+        "value": "whole_game.rmse.rapm.point",
+        "lo": "whole_game.rmse.rapm.ci95.0",
+        "hi": "whole_game.rmse.rapm.ci95.1",
+        "digits": 2
+       },
+       {
+        "label": "Game-margin RMSE, frozen lineup plus-minus (points)",
+        "value": "whole_game.rmse.plus_minus.point",
+        "lo": "whole_game.rmse.plus_minus.ci95.0",
+        "hi": "whole_game.rmse.plus_minus.ci95.1",
+        "digits": 2
+       },
+       {
+        "label": "Game-margin RMSE, home court alone (points)",
+        "value": "whole_game.rmse.floor.point",
+        "lo": "whole_game.rmse.floor.ci95.0",
+        "hi": "whole_game.rmse.floor.ci95.1",
+        "digits": 2
+       },
+       {
+        "label": "Ablation: replacement-level players minus RAPM, paired RMSE difference (points)",
+        "value": "whole_game.paired.replacement_minus_rapm.point",
+        "lo": "whole_game.paired.replacement_minus_rapm.ci95.0",
+        "hi": "whole_game.paired.replacement_minus_rapm.ci95.1",
+        "digits": 3
+       },
+       {
+        "label": "Context arm, not pre-registered and read by no verdict: RAPM minus player plus-minus, paired RMSE difference (points)",
+        "value": "whole_game.paired.rapm_minus_player_plus_minus.point",
+        "lo": "whole_game.paired.rapm_minus_player_plus_minus.ci95.0",
+        "hi": "whole_game.paired.rapm_minus_player_plus_minus.ci95.1",
+        "digits": 3
+       },
+       {
+        "label": "Sensitivity, read by no verdict: RAPM minus plus-minus over the kept stints only, paired RMSE difference (points)",
+        "value": "kept_stints.paired.rapm_minus_plus_minus.point",
+        "lo": "kept_stints.paired.rapm_minus_plus_minus.ci95.0",
+        "hi": "kept_stints.paired.rapm_minus_plus_minus.ci95.1",
+        "digits": 2
+       }
+      ]
+     },
+     "writeup": "reports/research/lineups-E1.md",
+     "stages": "test_only",
+     "writeup_notes": [
+      "Read as pre-committed: this is a tested claim about game margin, given the actual stints of each game, which a pregame forecast would not know. It does not validate lineup ranks, synergy, any one lineup or player, or the gap between two players; the lane's lineup-rank result stays inconclusive.",
+      "One possible data fault is reported beside it (commitment 9): the stint margin agrees with the schedule table in 1298 of 1300 games, not all."
+     ]
     },
     {
      "id": "lineups-E2",

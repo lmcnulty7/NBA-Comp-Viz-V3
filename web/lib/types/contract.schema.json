@@ -380,6 +380,67 @@
       "title": "CalibrationRow",
       "type": "object"
     },
+    "Condition": {
+      "additionalProperties": false,
+      "description": "A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the\ninterval it reads (`bound`) compares with `threshold` as `comparison` says. `label` names the statistic.",
+      "properties": {
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "lo": {
+          "title": "Lo",
+          "type": "number"
+        },
+        "hi": {
+          "title": "Hi",
+          "type": "number"
+        },
+        "bound": {
+          "enum": [
+            "lo",
+            "hi"
+          ],
+          "title": "Bound",
+          "type": "string"
+        },
+        "comparison": {
+          "enum": [
+            "below",
+            "at_most",
+            "above",
+            "at_least"
+          ],
+          "title": "Comparison",
+          "type": "string"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        },
+        "met": {
+          "title": "Met",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "label",
+        "value",
+        "lo",
+        "hi",
+        "bound",
+        "comparison",
+        "threshold",
+        "met"
+      ],
+      "title": "Condition",
+      "type": "object"
+    },
     "DemoBox": {
       "additionalProperties": false,
       "description": "A detected box in clip pixels. `status` is matched when the box was paired with a sensor player within the\nmatching distance, unmatched when it was not (the scorecard calls these ghost boxes; the word ghost is kept for\nthe average-defense model).",
@@ -933,7 +994,7 @@
     },
     "Experiment": {
       "additionalProperties": false,
-      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.\nAn experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its\nadoption is read on the development games, and when the rule fails it is not_adopted_development, the same\nmeaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds\non a test set that cannot be scored has no status yet and is refused.",
+      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.\nAn experiment whose pre-registration has no verdict on the development games (a dry run only) is\n`stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the\ndevelopment bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word\n(the narrow claim, a data-fault note).\nAn experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its\nadoption is read on the development games, and when the rule fails it is not_adopted_development, the same\nmeaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds\non a test set that cannot be scored has no status yet and is refused.",
       "properties": {
         "id": {
           "pattern": "^[a-z]+-E\\d+$",
@@ -993,7 +1054,8 @@
             "development_met_test_pending",
             "not_adopted_development",
             "adopted",
-            "not_adopted_test"
+            "not_adopted_test",
+            "passed_test"
           ],
           "title": "Status",
           "type": "string"
@@ -1009,6 +1071,23 @@
           ],
           "default": null,
           "title": "Writeup"
+        },
+        "writeup_notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Writeup Notes",
+          "type": "array"
+        },
+        "stages": {
+          "default": "development_and_test",
+          "enum": [
+            "development_and_test",
+            "test_only"
+          ],
+          "title": "Stages",
+          "type": "string"
         },
         "development": {
           "anyOf": [
@@ -3703,7 +3782,7 @@
     },
     "StageResult": {
       "additionalProperties": false,
-      "description": "One stage of an experiment, read from its result file under reports/research/: development (out of fold on\nthe development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption\nrule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the\nbound the rule reads) is at most `threshold`. Numbers are rounded once, here in the export.",
+      "description": "One stage of an experiment, read from its result file under reports/research/: development (out of fold on\nthe development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption\nrule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the\nbound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every\nfurther condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export.",
       "properties": {
         "stage": {
           "enum": [
@@ -3758,6 +3837,23 @@
         "upper": {
           "title": "Upper",
           "type": "number"
+        },
+        "comparison": {
+          "default": "at_most",
+          "enum": [
+            "at_most",
+            "below"
+          ],
+          "title": "Comparison",
+          "type": "string"
+        },
+        "conditions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "title": "Conditions",
+          "type": "array"
         },
         "met": {
           "title": "Met",

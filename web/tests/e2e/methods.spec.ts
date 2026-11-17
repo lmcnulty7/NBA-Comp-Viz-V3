@@ -154,9 +154,17 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
       const onPage = [...shown.matchAll(/(?<![\w.])[+-]?\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
       expect(onPage.filter((n) => leaks.has(n))).toEqual([]);
     }
+    const notes = experiment.writeup_notes ?? [];
+    await expect(result.getByTestId("writeup-notes").locator("q")).toHaveCount(notes.length);
+    for (const [index, note] of notes.entries()) await expect(result.getByTestId("writeup-notes").locator("q").nth(index)).toHaveText(note);
     for (const stage of [experiment.development, experiment.test]) {
       if (!stage) continue;
       const facts = result.locator(`[data-stage="${stage.stage}"]`);
+      const conditions = stage.conditions ?? [];
+      await expect(facts.locator("[data-condition-met]")).toHaveCount(conditions.length);
+      for (const [index, condition] of conditions.entries()) {
+        await expect(facts.locator("[data-condition-met]").nth(index)).toHaveAttribute("data-condition-met", String(condition.met));
+      }
       await expect(facts).toHaveAttribute("data-met", stage.met ? "true" : "false");
       await expect(facts).toContainText(stage.met ? copy.methods.results.met : copy.methods.results.missed);
       const url = repoFileUrl(stage.source.path);

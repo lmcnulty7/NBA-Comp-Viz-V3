@@ -30,6 +30,7 @@ export const STATUS_TONE: Record<Experiment["status"], StatusTone> = {
   not_adopted_development: "fail",
   adopted: "pass",
   not_adopted_test: "fail",
+  passed_test: "pass",
 };
 
 /** The plain name of a lane, or the lane key with its underscores as spaces when copy names no such lane. */
@@ -118,7 +119,7 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
           </dd>
         </div>
         <div>
-          <dt>{r.threshold}</dt>
+          <dt>{stage.comparison === "below" ? r.thresholdBelow : r.threshold}</dt>
           <dd>
             <DataValue file={FILE} field={`${field}.threshold`} value={stage.threshold} signed />
           </dd>
@@ -146,6 +147,40 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
           </dd>
         </div>
       </dl>
+      {(stage.conditions ?? []).length > 0 ? (
+        <div className="stack stack-tight" data-testid="conditions">
+          <h4 className={styles.side}>{r.condition.title}</h4>
+          <ul className={styles.values}>
+            {(stage.conditions ?? []).map((condition, index) => {
+              const at = `${field}.conditions[${index}]`;
+              return (
+                <li key={condition.label} className={styles.value} data-condition-met={condition.met ? "true" : "false"}>
+                  <DataText file={FILE} field={`${at}.label`} text={condition.label} />
+                  <span className="estimate">
+                    <DataValue file={FILE} field={`${at}.value`} value={condition.value} />
+                    <span className="note" data-interval="true">
+                      {fillNodes(copy.site.estimate.range, {
+                        lo: <DataValue file={FILE} field={`${at}.lo`} value={condition.lo} />,
+                        hi: <DataValue file={FILE} field={`${at}.hi`} value={condition.hi} />,
+                      })}
+                    </span>
+                  </span>
+                  <span className="note">
+                    {fillNodes(r.condition.line, {
+                      end: label(r.condition.end, condition.bound),
+                      comparison: label(r.condition.comparison, condition.comparison),
+                      threshold: <DataValue file={FILE} field={`${at}.threshold`} value={condition.threshold} />,
+                    })}
+                  </span>
+                  <span className={styles.state}>
+                    <Status tone={condition.met ? "pass" : "fail"} text={condition.met ? r.met : r.missed} />
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
       <p className="small">
         {r.metric}
         {": "}
