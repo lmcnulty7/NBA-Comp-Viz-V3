@@ -198,6 +198,12 @@ def test_an_item_with_no_text_fails_as_no_text(root):
     assert row["passed"] is False and row["rules"] == ["no_text"]
 
 
+def test_genai_code_and_dossier_are_private_clean():
+    files = _tool_files() + [REPO / "docs" / "research" / "genai.md", Path(__file__)]
+    for path in files:
+        assert not S.find_private(path.read_text(encoding="utf-8")), path.name
+
+
 def test_committed_genai_reports_are_private_clean_and_hold_no_text():
     for path in sorted((REPO / "reports" / "research").glob("genai-*")):
         text = path.read_text(encoding="utf-8")
