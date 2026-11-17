@@ -54,7 +54,7 @@
     "bootstraps": "A test that compares models draws its ranges by resampling games. So the same score can show a slightly different range here than in the report of its model. Both ranges come from the same predictions.",
     "protocol": {
       "stage": "Training games",
-      "intro": "This test was set up as a list of statements, each read on its value, as fixed before it ran.",
+      "intro": "This test was set up as a list of statements. Each one is read on its value, as fixed before the test ran.",
       "postHoc": "post hoc",
       "postHocNote": "A range marked post hoc was drawn after the result, by resampling players, and no verdict reads it. The ranges set up in advance resampled games. Those are not valid ranges, so they are not shown.",
       "statements": "Statements set before the run",

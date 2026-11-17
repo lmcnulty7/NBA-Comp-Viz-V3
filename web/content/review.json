@@ -1,7 +1,7 @@
 {
   "title": "Possession review",
   "eyebrow": "Review",
-  "intro": "Every possession here comes from a held-out game, so every prediction shown is out of sample.",
+  "intro": "Every possession here comes from a held-out game. So every prediction shown is out of sample.",
   "games": {
     "title": "Games",
     "heldout": "All {n} games below were held out. The models whose predictions appear here never saw these games while they were fitted or tuned.",
@@ -28,7 +28,7 @@
   "tour": {
     "title": "Guided tour",
     "label": "Guided tour",
-    "intro": "The tour walks through {n} featured possessions, from made shots to missed ones, and from hard shots to easy ones.",
+    "intro": "The tour walks through {n} featured possessions. They run from made shots to missed ones, and from hard shots to easy ones.",
     "allByRule": "A written rule picked every stop at random from its cell. Nobody chose them by hand.",
     "handCount": "A written rule picked the stops at random from their cells. A person swapped in {n} of them by hand, and each of those says so.",
     "start": "Start the tour",
@@ -47,7 +47,7 @@
   },
   "notShown": {
     "title": "What this page does not show",
-    "intro": "These models were tested and are left out of the review, because they found no reliable signal.",
+    "intro": "These models were tested and found no reliable signal. So they are left out of the review.",
     "row": "Verdict: {verdict}.",
     "link": "See every model on the results page"
   },
@@ -55,7 +55,7 @@
     "back": "All games",
     "meta": "{date}. {split}.",
     "count": "{n} possessions, {featured} featured.",
-    "heldout": "This game was held out, so each prediction on its possessions is out of sample.",
+    "heldout": "This game was held out. So each prediction on its possessions is out of sample.",
     "caption": "Possessions of {game}",
     "possession": "Possession",
     "period": "Period",
@@ -161,13 +161,13 @@
         "normal": "Real time",
         "double": "Double speed"
       },
-      "single": "The tracking holds one frame for this possession, so there is nothing to play.",
-      "reduced": "Your system asks for less motion, so playback steps from frame to frame without gliding."
+      "single": "The tracking holds one frame for this possession. So there is nothing to play.",
+      "reduced": "Your system asks for less motion. So playback steps from frame to frame without gliding."
     },
     "epv": {
       "heading": "Possession value over time",
       "title": "EPV, expected points from this moment",
-      "label": "Line chart of expected points over the possession, from {start} at the start to {end} at the end, {n} values.",
+      "label": "Line chart of expected points over the possession. It goes from {start} at the start to {end} at the end, with {n} values.",
       "readout": "At {t} s: {value}",
       "tick": "{t} s",
       "shot": "Shot",
@@ -193,7 +193,7 @@
       "heading": "Ghost defenders",
       "toggle": "Ghost defenders, an {label}",
       "label": "average defense",
-      "note": "A ghost defender is where an average defender would stand {horizon} seconds later, given how the ball and the attackers moved. It shows an {label}.",
+      "note": "A ghost defender is where an average defender would stand {horizon} seconds later. It is based on how the ball and the attackers moved. It shows an {label}.",
       "deviation": "Mean distance from the real defenders in this possession: {value} ft.",
       "none": "This possession has no ghost defenders.",
       "model": "The ghosting model",
