@@ -71,7 +71,7 @@ def test_the_night_plan_runs_one_game_at_a_time_and_locks_every_model_job(tmp_pa
         names = [j["name"] for j in g["jobs"]]
         assert names.index("fit") > max(i for i, n in enumerate(names) if n.startswith("label "))
         assert names.index("fit") < min(i for i, n in enumerate(names) if n.startswith("rebuild "))
-        assert names[-4:] == ["score r23 camera", "score v3 camera", "score r23 b4", "score r23 camera_paint"]
+        assert names[-3:] == ["score r23 camera", "score v3 camera", "score r23 camera_paint"]
         for j in g["jobs"]:
             step = j["argv"][1]
             assert j["heavy"] == (step not in ("link", "split", "moments", "mirror")), (tag, j["name"])
@@ -79,6 +79,8 @@ def test_the_night_plan_runs_one_game_at_a_time_and_locks_every_model_job(tmp_pa
     small = N.plan(["gsw_bkn_2015"], max_sections=1)
     assert list(small["games"]) == ["gsw_bkn_2015"]
     assert sum(j["name"].startswith("label ") for j in small["games"]["gsw_bkn_2015"]["jobs"]) == 1
+    with_b4 = N.plan(["gsw_bkn_2015"], b4=True)["games"]["gsw_bkn_2015"]["jobs"]
+    assert with_b4[-1]["name"] == "score r23 b4" and with_b4[-1]["heavy"]
 
 
 def test_install_paths_points_every_frozen_output_at_the_workspace(tmp_path):

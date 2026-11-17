@@ -98,6 +98,12 @@ def bin_of(value, edges, labels=None):
     return ">=%g" % edges[-1]
 
 
+def third_of(y: float, near_is_high_y: bool) -> str:
+    """sportvu.eval.region_of with y clamped to the court (a box foot or a SportVU player can sit just off it)."""
+    from sportvu.eval import region_of
+    return region_of(min(max(float(y), 0.0), 49.999), near_is_high_y)
+
+
 def zone_of(x: float, y: float) -> str:
     d = min(np.hypot(x - rx, y - CONSTANTS["rim_y_ft"]) for rx in CONSTANTS["rim_x_ft"])
     return bin_of(float(d), CONSTANTS["zone_bins_ft"])
@@ -373,7 +379,7 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
             rec["boxes"] += 1; rec["ghosts"] += ghost
             if is_ref:
                 rec["ref_boxes"] += 1; rec["ref_ghosts"] += ghost; rec["ref_near_player"] += (not ghost)
-            box_obs.append({"f": f, "ghost": ghost, "ref": bool(is_ref), "third": region_of(float(ct[k][1]), nh)})
+            box_obs.append({"f": f, "ghost": ghost, "ref": bool(is_ref), "third": third_of(ct[k][1], nh)})
         pairs = _match(ct, sv, B.MATCH_FT) if len(ct) else []
         err_of = {}
         if processed and B.accepted(r) and r.get("H") is not None:
@@ -383,7 +389,7 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
                 e = cp_[bi] - sv[j]
                 err_of[j] = (float(np.hypot(*e)), float(e[1] if nh else -e[1]))
                 rec["matched"].append({"err": err_of[j][0], "toward_camera": err_of[j][1],
-                                       "region": region_of(float(sv[j][1]), nh), "frame": int(f), "sv": int(j)})
+                                       "region": third_of(sv[j][1], nh), "frame": int(f), "sv": int(j)})
             if f in lw:
                 rec["line"].append({"frame": f, "line_px": B.line_error_px(r["H"], row["H_truth"], Wd, Hd)})
         seg = mom.poss[q][i]
@@ -409,7 +415,7 @@ def score_window(P, tag, w, build_dir, mode, mom: Moments, mirror, refs, pbp_eve
                         "y": round(float(sv[j][1]), 2), "missed": bool(d_sv[j] > MISS_FT),
                         "err": None if j not in err_of else round(err_of[j][0], 3),
                         "toward": None if j not in err_of else round(err_of[j][1], 3),
-                        "third": region_of(float(sv[j][1]), nh), "crowd_ft": round(float(cr[j]), 2),
+                        "third": third_of(sv[j][1], nh), "crowd_ft": round(float(cr[j]), 2),
                         "speed_ftps": None if spd is None else round(spd, 2), "zone": zone_of(*sv[j]),
                         "since_cut_s": round(since, 2), "cut_censored": cens, "processed": processed})
         # ball and holder (SportVU ball, the frame's camera from its truth H)

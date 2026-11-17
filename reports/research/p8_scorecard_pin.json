@@ -2,7 +2,7 @@
  "fixed_on": "2026-11-17",
  "decision": "P8_FEASIBILITY.md section 7 (4); PLAN.md D85",
  "scorer": {
-  "tools/p8_scorecard.py": "57d58601cd165b7aa96bfedd9927a5099d8e70d51f8b79bb506186456234a56e"
+  "tools/p8_scorecard.py": "aeb6a45e619d0f850647f149ad0371e14507511f05d9e40b5c871bf8092ed7b2"
  },
  "constants_sha256": "e7734ee4275af829670b1cd05770c47b29509cc7d9f7c87bc1b44f3094951371",
  "constants": {

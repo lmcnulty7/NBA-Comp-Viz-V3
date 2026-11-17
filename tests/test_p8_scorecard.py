@@ -93,3 +93,8 @@ def test_ball_projection_agrees_with_the_ground_plane_and_puts_height_up():
     assert (depth > 0).all() and np.allclose(uv0, want, atol=1.0)
     uv10, _ = S.project3d(C, rvec, f, W, H, np.column_stack([ground, np.full(3, 10.0)]))
     assert (uv10[:, 1] < uv0[:, 1]).all()                             # 10 ft up draws higher in the image
+
+
+def test_third_of_clamps_points_just_off_the_court():
+    assert S.third_of(-2.0, True) == "far" and S.third_of(52.0, True) == "near"
+    assert S.third_of(-2.0, False) == "near" and S.third_of(25.0, False) == "middle"

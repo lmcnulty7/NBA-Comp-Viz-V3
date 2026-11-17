@@ -39,24 +39,33 @@ from tools.research_testset import refuse_cv_test
 WHO = "tools.p8_night"
 R13 = ("gsw_bkn_2015", "gsw_cha_2016", "gsw_ind_2016", "gsw_sac_2015")
 BUILD = "r23"
-SCORES = (("r23", "camera"), ("v3", "camera"), ("r23", "b4"), ("r23", "camera_paint"))
+SCORES = (("r23", "camera"), ("v3", "camera"), ("r23", "camera_paint"))
+B4_SCORE = ("r23", "b4")          # the old truth, for the Phase A gate comparison; opt in with --b4 (costly)
 
-# Lock-hour estimate. Bases (docs/research/P8_FEASIBILITY.md section 5.1): b2, this Mac 2.15 s per second of label
-# window video for camera-truth labelling (ROADMAP_LOG.md 2026-10-04), which is mostly the V3 window build; the r23
-# rebuild is the same build over the same windows; OCR sync measured 4,389 to 5,440 s per R1.2 game for 5,439 to
-# 6,262 reads (data/sportvu/sync, ocr_seconds), about 0.8 s per 1 Hz read; direction builds 40 s per section.
-LABEL_S_PER_VIDEO_S = 2.15
+# Lock-hour estimate, measured by the smoke run of 2026-11-17 (gsw_bkn_2015, section s00, 161 s of mapped video in 9
+# label windows, this Mac, lock held by that job alone): label 481 s, fit 25 s, rebuild r23 331 s, score r23 camera
+# 48 s (gate v2, referee and cut caches filled), each later camera score about 7 s, score r23 b4 518 s (the frozen
+# B4 ICP offset search). Per second of mapped label-window video: label 3.0 s, rebuild 2.06 s, first score 0.30 s,
+# b4 score 3.2 s. OCR sync is the R1.2 record: 4,389 to 5,440 s per game for 5,439 to 6,262 reads (data/sportvu/sync,
+# ocr_seconds), about 0.8 s per 1 Hz read; direction builds 40 s of running clock per section at the label rate.
+LABEL_S_PER_VIDEO_S = 3.0
+REBUILD_S_PER_VIDEO_S = 2.06
+SCORE_S_PER_VIDEO_S = 0.30
+B4_S_PER_VIDEO_S = 3.2
 OCR_S_PER_READ = 0.8
-FIT_H, SCORE_H, LAYOUT_H = 0.25, 0.4, 0.1
+FIT_H, LATER_SCORE_H, LAYOUT_H = 0.15, 0.03, 0.1
 DIRECTION_S_PER_SECTION = 40 * LABEL_S_PER_VIDEO_S
 CHANNEL_MAPPED_S = 2450.0          # running seconds mapped per game, the R1.2 mean (reports/sportvu_prepare.json)
 
 
-def jobs_for(tag: str, g: dict, P: dict, n_sections: int, max_sections=None) -> list:
+def jobs_for(tag: str, g: dict, P: dict, n_sections: int, max_sections=None, b4: bool = False) -> list:
     """[(name, argv for tools.p8_frozen / p8_scorecard, heavy, estimate_h)] in run order."""
     secs = [f"{tag}_s{k:02d}" for k in range(n_sections)][:max_sections]
     mapped = _mapped_s(tag, P) or CHANNEL_MAPPED_S
-    per_sec_label_h = mapped * LABEL_S_PER_VIDEO_S / 3600 / max(1, n_sections)
+    frac = len(secs) / max(1, n_sections)
+    video_s = mapped * frac
+    per_sec_label_h = video_s * LABEL_S_PER_VIDEO_S / 3600 / max(1, len(secs))
+    per_sec_rebuild_h = video_s * REBUILD_S_PER_VIDEO_S / 3600 / max(1, len(secs))
     J = []
     if tag in R13:
         J.append(("link", ["tools.p8_frozen", "link", tag], False, 0.0))
@@ -70,9 +79,12 @@ def jobs_for(tag: str, g: dict, P: dict, n_sections: int, max_sections=None) -> 
         J.append(("mirror", ["tools.p8_frozen", "mirror", tag], False, 0.02))
     J += [(f"label {s}", ["tools.p8_frozen", "label", tag, "--section", s], True, per_sec_label_h) for s in secs]
     J.append(("fit", ["tools.p8_frozen", "fit", tag], True, FIT_H))
-    J += [(f"rebuild {s}", ["tools.p8_frozen", "rebuild", tag, "--section", s, "--build", BUILD], True, per_sec_label_h) for s in secs]
+    J += [(f"rebuild {s}", ["tools.p8_frozen", "rebuild", tag, "--section", s, "--build", BUILD], True, per_sec_rebuild_h) for s in secs]
     J += [(f"score {b} {t}", ["tools.p8_scorecard", "game", tag, "--build", b, "--truth", t], True,
-           SCORE_H if k == 0 else 0.1) for k, (b, t) in enumerate(SCORES)]
+           video_s * SCORE_S_PER_VIDEO_S / 3600 if k == 0 else LATER_SCORE_H) for k, (b, t) in enumerate(SCORES)]
+    if b4:
+        J.append(("score r23 b4", ["tools.p8_scorecard", "game", tag, "--build", B4_SCORE[0], "--truth", B4_SCORE[1]], True,
+                  video_s * B4_S_PER_VIDEO_S / 3600))
     return J
 
 
@@ -92,7 +104,7 @@ def n_sections(tag: str, g: dict, P: dict) -> int:
     return int(g.get("duration_s", 6300) // 600) + 1
 
 
-def plan(games=None, max_sections=None) -> dict:
+def plan(games=None, max_sections=None, b4: bool = False) -> dict:
     from tools.p8_frozen import layout
     P = layout(p8_root())
     dg = dev_games()
@@ -102,7 +114,7 @@ def plan(games=None, max_sections=None) -> dict:
     refuse_cv_test(order + [dg[t]["sportvu"] for t in order] + [dg[t]["video_id"] for t in order], WHO)
     out = {}
     for t in order:
-        J = jobs_for(t, dg[t], P, n_sections(t, dg[t], P), max_sections)
+        J = jobs_for(t, dg[t], P, n_sections(t, dg[t], P), max_sections, b4)
         out[t] = {"jobs": [{"name": n, "argv": a, "heavy": h, "estimate_h": round(e, 3)} for n, a, h, e in J],
                   "lock_h": round(sum(e for _, _, h, e in J if h), 2), "all_h": round(sum(e for *_, e in J), 2)}
     return {"games": out, "lock_h_total": round(sum(g["lock_h"] for g in out.values()), 1),
@@ -120,7 +132,7 @@ def _save(path: Path, status: dict) -> None:
     part.replace(path)
 
 
-def run(games=None, max_hours=None, max_sections=None) -> int:
+def run(games=None, max_hours=None, max_sections=None, b4: bool = False) -> int:
     py = os.environ.get("V3_CV_PYTHON")
     if not py or not Path(py).exists():
         raise SystemExit(f"{WHO}: set V3_CV_PYTHON to the Python that has ultralytics and easyocr (the frozen CV code's)")
@@ -131,7 +143,7 @@ def run(games=None, max_hours=None, max_sections=None) -> int:
     sp = _status_path(P)
     status = json.loads(sp.read_text()) if sp.exists() else {}
     t_start = time.time()
-    pl = plan(games, max_sections)
+    pl = plan(games, max_sections, b4)
     for tag, gp in pl["games"].items():
         st = status.setdefault(tag, {})
         jobs = gp["jobs"]                  # a channel game's list is replanned after its split (the section count)
@@ -164,7 +176,7 @@ def run(games=None, max_hours=None, max_sections=None) -> int:
             if name == "split":            # the section count is known now: replan this game
                 dg = dev_games()
                 jobs = [{"name": n, "argv": a, "heavy": h, "estimate_h": e}
-                        for n, a, h, e in jobs_for(tag, dg[tag], P, n_sections(tag, dg[tag], P), max_sections)]
+                        for n, a, h, e in jobs_for(tag, dg[tag], P, n_sections(tag, dg[tag], P), max_sections, b4)]
             k += 1
     _save(sp, status)
     return 0
@@ -176,16 +188,17 @@ def main(argv=None) -> int:
     ap.add_argument("--games", default=None)
     ap.add_argument("--max-hours", type=float, default=None)
     ap.add_argument("--sections", type=int, default=None)
+    ap.add_argument("--b4", action="store_true", help="also score r23 on the old B4 truth (the Phase A gate comparison)")
     a = ap.parse_args(argv)
     games = a.games.split(",") if a.games else None
     if a.cmd == "plan":
-        pl = plan(games, a.sections)
+        pl = plan(games, a.sections, a.b4)
         for t, g in pl["games"].items():
             print(f"{t:14s} jobs {len(g['jobs']):3d}  lock {g['lock_h']:5.2f} h  all {g['all_h']:5.2f} h")
         print(f"total: lock {pl['lock_h_total']} h, all {pl['all_h_total']} h; channel games still pending a scorebug "
               f"check (not planned): {', '.join(pl['pending_channel_games']) or 'none'}")
         return 0
-    return run(games, a.max_hours, a.sections)
+    return run(games, a.max_hours, a.sections, a.b4)
 
 
 if __name__ == "__main__":
