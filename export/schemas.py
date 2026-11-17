@@ -39,7 +39,8 @@ Also in 1.2.0 (PLAN.md P3, D76; merged with the methods page into one version, D
 - A new file family, genai/<kind>.json (model GeneratedTexts): machine-written texts, a scouting report per player
   of the prep tab and an account in words of each possession of the review. Each text is optional; a data root
   with no genai folder is complete. export/genai.py writes them and holds the checks every text must pass.
-- A genai file is 1.2.0 only (CurrentVersion), and a root that holds one has a 1.2.0 manifest.
+- A genai file is 1.2.0 only (CurrentVersion), like the manifest; the other files of its root may still carry
+  1.1.0 (COMPATIBLE_VERSIONS).
 
 Units: court positions are in feet in the SportVU frame, x from 0 to 94 along the court, y from 0 to 50 across it,
 rims at (5.25, 25) and (88.75, 25). Clocks are in seconds. Times `t` are seconds from the start of the possession
@@ -1446,19 +1447,23 @@ def _manifest_problems(root: Path, seen: set) -> list[str]:
     return problems
 
 
+def content_id(files) -> str:
+    """The hash a build id is made from: every manifest entry's path and sha256, in the manifest's order. A change
+    to any listed file, a machine-written text included, gives a new id."""
+    import hashlib
+
+    return hashlib.sha256("\n".join(f"{f.path}:{f.sha256}" for f in files).encode()).hexdigest()
+
+
 def _genai_problems(parsed: dict) -> list[str]:
     """Every machine-written text checked again against the data root it sits in (export/genai.py): its input is
-    rebuilt from the root, its hash must match, and the text must pass every check, numbers first. A root that holds
-    a text has a 1.2.0 manifest."""
+    rebuilt from the root, its hash must match, and the text must pass every check, numbers first."""
     texts = {rel: obj for rel, obj in parsed.items() if isinstance(obj, GeneratedTexts)}
     if not texts:
         return []
     from export import genai  # it builds on this module, so it is imported only when a root holds texts
 
     problems = []
-    manifest = parsed.get("manifest.json")
-    if manifest is not None and manifest.schema_version != "1.2.0":
-        problems.append(f"manifest.json: schema_version {manifest.schema_version} with genai files, which need 1.2.0")
     for rel, obj in texts.items():
         problems += [f"{rel}: {line}" for line in genai.root_problems(obj, parsed)]
     return problems

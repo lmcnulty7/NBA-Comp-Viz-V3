@@ -1039,6 +1039,9 @@ export const SCHEMA_VERSION = "1.2.0" as const;
 /** The versions a data file may carry: this one and the earlier minor versions of the same major version. */
 export const COMPATIBLE_VERSIONS = ["1.1.0","1.2.0"] as const;
 
+/** Path patterns of the files that must carry SCHEMA_VERSION itself (the contract's CurrentVersion). */
+export const CURRENT_VERSION_FILES = ["manifest.json","methods.json","genai/<kind>.json"] as const;
+
 /** Path pattern under the data root, and the contract model each file must validate against. */
 export const CONTRACT_FILES = {
   "manifest.json": "Manifest",

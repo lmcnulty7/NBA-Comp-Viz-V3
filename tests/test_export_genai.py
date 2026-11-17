@@ -184,14 +184,16 @@ def test_a_root_with_no_texts_is_complete(root):
     assert S.validate_tree(root) == []
 
 
-def test_a_1_1_0_root_still_reads(root):
-    for rel in S.GENAI_FILES.values():
-        (root / rel).unlink()
-    (root / "genai").rmdir()
-    manifest = S.Manifest.model_validate_json((root / "manifest.json").read_bytes())
-    manifest = genai.with_genai_entry(manifest, root).model_copy(update={"schema_version": "1.1.0"})
-    (root / "manifest.json").write_text(genai._dump(manifest), encoding="utf-8")
+def test_older_data_files_read_under_a_1_2_0_manifest_and_texts_are_1_2_0_only(root):
+    """Contract 1.2.0: a data file of 1.1.0 still validates beside the texts, while the manifest and a genai file
+    carry 1.2.0 itself."""
+    for rel in ("players.json", "results.json", "games/fixture-game-a/possessions.json"):
+        _rewrite(root, rel, lambda doc: doc.update(schema_version="1.1.0"))
     assert S.validate_tree(root) == []
+    _rewrite(root, "genai/scouting.json", lambda doc: doc.update(schema_version="1.1.0"))
+    assert any(line.startswith("genai/scouting.json: ValidationError") for line in S.validate_tree(root))
+    with pytest.raises(ValueError):
+        S.Manifest.model_validate({**json.loads((root / "manifest.json").read_text()), "schema_version": "1.1.0"})
 
 
 def _rewrite(root: Path, rel: str, change) -> None:
@@ -337,3 +339,56 @@ def test_the_validate_command_checks_texts_with_the_same_contract_classes(root):
                          capture_output=True, text=True)
     assert run.returncode == 0, run.stdout + run.stderr
     assert "data root is valid" in run.stdout
+
+
+# ------------------------------------------------------------------------------------- review fixes (p3-fix)
+
+
+def test_a_partial_run_keeps_earlier_texts_that_still_hold(root):
+    """A sample run after a fuller one merges: earlier texts of items it did not choose stay when they still pass,
+    and a stale earlier text goes."""
+    genai.run(root, n_players=None, n_possessions=None, log=lambda line: None)
+    full = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes())
+    assert len(full.items) == len(genai.items_of(root, "scouting"))
+    info = genai.run(root, n_players=2, n_possessions=2, log=lambda line: None)
+    after = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes())
+    assert [t.key for t in after.items] == [t.key for t in full.items]
+    assert info["kinds"]["scouting"]["earlier_kept"] == len(full.items) - 2
+    assert info["problems"] == []
+    slug = full.items[-1].key
+
+    def change(doc):
+        next(p for p in doc["players"] if p["slug"] == slug)["games"] += 1
+    _rewrite(root, "players.json", change)
+    chosen = {key for key, _ in genai.choose(root, "scouting", 2)}
+    assert slug not in chosen
+    info = genai.run(root, n_players=2, n_possessions=2, log=lambda line: None)
+    kept = {t.key for t in S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).items}
+    assert slug not in kept and info["kinds"]["scouting"]["earlier_dropped"] == 1
+    assert info["problems"] == []
+
+
+def test_a_change_to_the_texts_alone_gives_a_new_build_id(root):
+    from export import site_data
+
+    first = site_data.build_manifest(root)
+    assert any(f.model == "GeneratedTexts" for f in first.files)
+
+    def change(doc):
+        doc["notes"].append("Another note.")
+    _rewrite(root, "genai/scouting.json", change)
+    second = site_data.build_manifest(root)
+    assert second.build_id != first.build_id
+    # The genai writer makes a content-derived build id again too; a hand-set id is kept.
+    manifest = first.model_copy(update={"build_id": f"site-{S.content_id(first.files)[:12]}"})
+    assert genai.with_genai_entry(manifest, root).build_id == f"site-{S.content_id(second.files)[:12]}"
+    assert genai.with_genai_entry(first.model_copy(update={"build_id": "fixture"}), root).build_id == "fixture"
+
+
+def test_sources_cite_the_prompt_versions_the_texts_carry(root):
+    key = genai.choose(root, "scouting", None)[0][0]
+    texts = [S.GeneratedText(key=key, text="t", input_sha256="0" * 64, model=genai.MODEL, prompt_version=version,
+                             numbers=[]) for version in ("scouting-v0",)]
+    paths = [source.path for source in genai._sources(root, "scouting", texts, synthetic=False)]
+    assert "export/prompts/scouting-v0.md" in paths
+    assert f"export/prompts/{genai.prompt('scouting')[0]}.md" not in paths

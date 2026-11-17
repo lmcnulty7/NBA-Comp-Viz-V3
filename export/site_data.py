@@ -27,7 +27,6 @@ The run holds the heavy-job lock and reads tracking frames one game at a time.
 """
 
 import argparse
-import hashlib
 import json
 import os
 import time
@@ -213,14 +212,15 @@ def build_manifest(out: Path, fixture_root: bool = False) -> S.Manifest:
                                     n_featured=sum(bool(p["featured"]) for p in index["possessions"]),
                                     bytes=index_entry.bytes + size))
     games.sort(key=lambda g: (g.date, g.slug))
-    content = hashlib.sha256("\n".join(f"{f.path}:{f.sha256}" for f in files).encode()).hexdigest()
-    manifest = S.Manifest(
+    # Machine-written texts (export/genai.py) are listed when they exist, before the build id is hashed, so a
+    # change to a text alone gives a new build id. This command never writes a text.
+    files += genai.genai_entries(out)
+    content = S.content_id(files)
+    return S.Manifest(
         schema_version=S.SCHEMA_VERSION, build_id=f"{'test-fixture' if fixture_root else 'site'}-{content[:12]}",
         generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), repo_commit=C.repo_commit(),
         freeze_tag=C.FREEZE_TAG, synthetic=False, season=C.SEASON, n_games=len(games),
         n_possessions=sum(g.n_possessions for g in games), games=games, files=files)
-    # Machine-written texts (export/genai.py) are listed when they exist; this command never writes one.
-    return genai.with_genai_entry(manifest, out)
 
 
 # ------------------------------------------------------------------------------------------------ the run

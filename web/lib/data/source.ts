@@ -9,6 +9,7 @@
  */
 import {
   COMPATIBLE_VERSIONS,
+  CURRENT_VERSION_FILES,
   SCHEMA_VERSION,
   type DemoFrames,
   type GeneratedTexts,
@@ -192,13 +193,33 @@ function assertSlug(gameSlug: string): void {
   }
 }
 
+/** The patterns of CURRENT_VERSION_FILES as regular expressions: a <placeholder> is one path segment. */
+const CURRENT_VERSION_PATHS = CURRENT_VERSION_FILES.map(
+  (pattern) => new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/<[^/>]+>/g, "[^/]+")}$`),
+);
+
+/** Whether the file at `path` must carry SCHEMA_VERSION itself (the manifest and every file this version added). */
+export function needsCurrentVersion(path: string): boolean {
+  return CURRENT_VERSION_PATHS.some((pattern) => pattern.test(path));
+}
+
 function assertVersion(path: string, document: unknown): void {
   const version =
     typeof document === "object" && document !== null
       ? (document as { schema_version?: unknown }).schema_version
       : undefined;
-  // A file of an earlier minor version of the same major version is still valid: every change since only added
-  // a file or a value. The build validates the manifest against this version exactly.
+  // The manifest and every file this version added carry SCHEMA_VERSION itself. Any other file of an earlier minor
+  // version of the same major version is still valid: every change since only added a file or a value.
+  if (needsCurrentVersion(path)) {
+    if (version !== SCHEMA_VERSION) {
+      throw new DataError(
+        path,
+        "version",
+        `schema version ${JSON.stringify(version)} is not the ${SCHEMA_VERSION} this file must carry`,
+      );
+    }
+    return;
+  }
   if (!(COMPATIBLE_VERSIONS as readonly unknown[]).includes(version)) {
     throw new DataError(
       path,
