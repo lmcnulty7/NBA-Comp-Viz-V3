@@ -2102,6 +2102,18 @@
           ],
           "default": null,
           "title": "Model Expected Per 100"
+        },
+        "withheld": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Withheld"
         }
       },
       "required": [
@@ -2743,6 +2755,18 @@
           ],
           "default": null,
           "title": "Frozen Model Residual Per 100"
+        },
+        "withheld": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Withheld"
         }
       },
       "required": [

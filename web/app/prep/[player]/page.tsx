@@ -77,10 +77,13 @@ function MetricSection({
   );
 }
 
-function Hidden({ n, min, unit }: { n: number; min: number; unit: string }) {
+/** Why a view is not shown: below its minimum sample, or withheld for the data problem the export names. */
+function Hidden({ n, min, unit, withheld }: { n: number; min: number; unit: string; withheld?: string | null }) {
   return (
     <p className="label muted" data-hidden="true">
-      {fill(view.hidden, { n: formatCount(n), unit, min: formatCount(min) })}
+      {withheld
+        ? fill(view.withheld, { reason: withheld })
+        : fill(view.hidden, { n: formatCount(n), unit, min: formatCount(min) })}
     </p>
   );
 }
@@ -204,7 +207,7 @@ export default async function PlayerPage({ params }: PageProps<"/prep/[player]">
               <MinSample n={shots.attempts} min={shots.min_attempts} unit={view.shotMaking.unit} />
             </>
           ) : (
-            <Hidden n={shots.attempts} min={shots.min_attempts} unit={view.shotMaking.unit} />
+            <Hidden n={shots.attempts} min={shots.min_attempts} unit={view.shotMaking.unit} withheld={shots.withheld} />
           )}
           <div className="stack stack-tight small" data-testid="baseline">
             <p>
@@ -292,7 +295,12 @@ export default async function PlayerPage({ params }: PageProps<"/prep/[player]">
               <MinSample n={rebounding.chances} min={rebounding.min_chances} unit={view.rebounding.unit} />
             </>
           ) : (
-            <Hidden n={rebounding.chances} min={rebounding.min_chances} unit={view.rebounding.unit} />
+            <Hidden
+              n={rebounding.chances}
+              min={rebounding.min_chances}
+              unit={view.rebounding.unit}
+              withheld={rebounding.withheld}
+            />
           )}
         </MetricSection>
 

@@ -26,6 +26,13 @@ function shownViews(player: PlayerView): number {
   ].filter(Boolean).length;
 }
 
+/** True when the export withheld this metric for a data problem, so "below the minimum sample" would be wrong. */
+function withheldFor(player: PlayerView, key: SortKey): boolean {
+  if (key === "shot_making") return Boolean(player.shot_making.withheld);
+  if (key === "rebounding") return Boolean(player.rebounding.withheld);
+  return false;
+}
+
 /** The player index: search by name or team, sort by name, games or a metric (PLAN.md M6). */
 export function PlayerIndex({ players, views }: { players: PlayerView[]; views: number }) {
   const [query, setQuery] = useState("");
@@ -128,7 +135,7 @@ export function PlayerIndex({ players, views }: { players: PlayerView[]; views: 
                           ) : null}
                         </>
                       ) : (
-                        <span className="muted">{text.below}</span>
+                        <span className="muted">{withheldFor(player, key) ? text.withheld : text.below}</span>
                       )}
                     </td>
                   ) : (

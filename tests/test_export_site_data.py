@@ -710,10 +710,11 @@ def test_minimum_samples_and_the_other_player_views(built):
             assert view.gravity_ft is None
     assert players[9305].gravity.possessions == 0 and players[9305].gravity.shown is False
 
-    # rebounding: chances, rebounds per 100 and the model's expectation; 200 chances stay hidden
+    # rebounding: chances, rebounds per 100 and the model's expectation; 200 chances stay hidden, and 9303's rate,
+    # whose rebounds the lane dropped, is withheld
     for player_id, (games, chances, got, p) in FX.REBOUND_CHANCES.items():
         view, total = players[player_id].rebounding, chances * len(games)
-        assert (view.chances, view.shown) == (total, total >= 300)
+        assert (view.chances, view.shown) == (total, total >= 300 and player_id != 9303)
         if view.shown:
             assert view.rate_per_100.value == round(100 * got / chances, 2)
             assert view.model_expected_per_100 == round(100 * p, 2)
@@ -760,6 +761,89 @@ def test_minimum_samples_and_the_other_player_views(built):
     assert {s.rows for s in file.sources} == {"out_of_fold", "training", "not_split"}
 
 
+def test_a_rate_whose_rebounds_the_lane_dropped_is_withheld_with_its_reason(built):
+    """The rebound lane drops a miss whose play-by-play rebounder it cannot match to a tracked player, while the
+    others on the floor keep their chance on it: a player whose name never matched reads zero rebounds on hundreds of
+    chances (Jeff Green, JaMychal Green, Omer Asik, Enes Kanter, Larry Nance Jr. in the real tables). Such a rate is
+    withheld with its reason, never shown as zero."""
+    file = S.PlayersFile.model_validate(_json(built.out / "players.json"))
+    players = {p.player_id: p for p in file.players}
+    view = players[9303].rebounding
+    assert view.chances == 300 and view.shown is False and view.rate_per_100 is None
+    assert view.model_expected_per_100 is None and view.withheld == site_players.WITHHELD["rebounding"]
+    info = built.info["players"]
+    assert info["withheld_by_metric"]["rebounding"] == [9303]
+    # 80 misses named "F. 9303", one with a name that fits nobody taken by 9301 on the tracking (one miss in 321
+    # chances can lower his rate by less than the rule, so he stays shown), one taken by nobody
+    assert (info["lost_rebounds"], info["lost_rebounds_unattributed"]) == (82, 1)
+    assert players[9301].rebounding.shown is True and players[9301].rebounding.withheld is None
+    assert all(p.rebounding.rate_per_100.value > 0 for p in file.players if p.rebounding.shown)
+    # attempts whose shooter the lane did not resolve, named for 9306: withheld, not "below the minimum"
+    assert info["withheld_by_metric"]["shot_making"] == [9306] and 9306 not in players
+    assert (info["shots_mixed"], info["shots_unattributed"]) == (0, 0)
+
+
+def test_a_shown_rebound_rate_of_zero_is_refused(built, tmp_path):
+    """A zero rate on the minimum sample or more points at lost rebounds: the contract refuses to carry it, and the
+    export stops when the lost rebounds were not found."""
+    estimate = S.Estimate(value=0.0, lo=0.0, hi=0.0, interval="i", point_estimate=False, n=891, n_unit="chances")
+    with pytest.raises(ValueError, match="rate of zero"):
+        S.Rebounding(shown=True, chances=891, min_chances=300, rate_per_100=estimate, model_expected_per_100=0.79)
+    with pytest.raises(ValueError, match="without a withheld reason"):
+        S.Rebounding(shown=False, chances=891, min_chances=300)
+    with pytest.raises(ValueError, match="withheld reason belongs only to a hidden value"):
+        S.Rebounding(shown=True, chances=891, min_chances=300,
+                     rate_per_100=estimate.model_copy(update={"value": 5.0, "hi": 6.0}), withheld="a reason")
+    data = tmp_path / "data"
+    shutil.copytree(built.data, data)
+    for path in (data / "analytics" / "rebound_frames" / FX.SEASON).glob("*.parquet"):
+        frames = pd.read_parquet(path)
+        named = frames["pbp_rebounder_name"] == "F. 9303"
+        frames.loc[named, "rebounder_id"] = pd.NA
+        frames.loc[named, "pbp_rebounder_name"] = "X. Unknown"           # fits nobody, and nobody took the ball
+        frames.to_parquet(path, index=False)
+    with pytest.raises(C.ExportProblem, match="player 9303 has no rebound in 300 chances"):
+        site_players.build_players(data, built.artifacts)
+
+
+def test_play_by_play_names_fit_the_tracking_names_the_lanes_missed():
+    """The real names the lanes could not match, and the two Memphis players one name fits."""
+    roster = {201145: "Jeff Green", 203210: "JaMychal Green", 201600: "Omer Asik", 1626204: "Larry Nance Jr.",
+              202353: "Tibor Pleiss", 202696: "Nikola Vucevic", 101141: "Ersan Ilyasova", 202683: "Enes Kanter"}
+    fits = site_players.name_fits
+    assert fits("J. Green", roster) == [201145, 203210]
+    assert fits("Ö. Aşık".encode("utf-8").decode("latin-1"), roster) == [201600]      # the mojibake the tables hold
+    assert fits("Ö. Aşık", roster) == [201600]
+    assert fits("L. Nance", roster) == [1626204]
+    assert fits("T. Pleiß", roster) == [202353]
+    assert fits("N. Vučević", roster) == [202696]
+    assert fits("E. İlyasova", roster) == [101141]
+    assert fits("E. Freedom", roster) == [] and fits("Team", roster) == [] and fits(None, roster) == []
+
+    rosters = {"g": {201145: ("Jeff Green", "MEM"), 203210: ("JaMychal Green", "MEM"), 202683: ("Enes Kanter", "OKC"),
+                     201566: ("Russell Westbrook", "OKC")}}
+    # one name fits both Greens; "E. Freedom" fits nobody and goes, whole, to the player the tracking credits most
+    # often with it (one misread gives Westbrook nothing); rows with no rim frame or no rebound event, and resolved
+    # rows, are not lost
+    rows = [("J. Green", 203210, 5, 1, None), ("E. Freedom", 202683, 5, 1, None), ("E. Freedom", None, 5, 1, None),
+            ("E. Freedom", 201566, 5, 1, None), ("E. Freedom", 202683, 5, 1, None), ("J. Green", 201145, -1, 1, None),
+            ("J. Green", 201145, 5, None, None), ("R. Westbrook", 201566, 5, 1, 201566),
+            ("Z. Nobody", None, 5, 1, None)]
+    frames = pd.DataFrame({"sportvu_game": "g", "pbp_rebounder_name": [r[0] for r in rows],
+                           "rebounder_id": pd.array([r[1] for r in rows], "Int32"), "rim_frame": [r[2] for r in rows],
+                           "rebound_event": pd.array([r[3] for r in rows], "Int32"),
+                           "pbp_rebounder_id": pd.array([r[4] for r in rows], "Int32")})
+    lost, n_lost, nobody = site_players.lost_rebounds(frames, rosters)
+    assert lost.to_dict() == {201145: 1, 203210: 1, 202683: 4} and (n_lost, nobody) == (6, 1)
+    shots = pd.DataFrame({"sportvu_game": "g", "pbp_shooter_name": ["J. Green", "E. Freedom", "R. Westbrook", None],
+                          "shooter_id": pd.array([201145, None, 201566, None], "Int32"),
+                          "shooter_at_release_id": pd.array([201145, 202683, 201566, 201566], "Int32")})
+    mixed, lost, n_mixed, nobody = site_players.shooter_name_problems(shots, rosters)
+    assert mixed == {201145, 203210} and lost.to_dict() == {202683: 1} and (n_mixed, nobody) == (1, 0)
+    assert site_players.lost_rebound_bias(323, 891) == pytest.approx(100 * 323 / 1214)
+    assert site_players.lost_rebound_bias(0, 891) == 0.0
+
+
 def test_shot_making_baseline_is_read_from_the_xfg_report(built):
     file = S.PlayersFile.model_validate(_json(built.out / "players.json"))
     baseline = file.shot_making_baseline
@@ -785,8 +869,10 @@ def test_metric_notes_quote_the_write_up_and_type_no_number(built):
     reports = results + "".join((REPO / "reports" / f"{lane}.md").read_text(encoding="utf-8")
                                 for lane in site_players.METRIC_LANES.values())
     # numbers a note may hold besides those of a report: the export's own settings, and counts of its own tables
-    own = {"95", "200", "0", "100", "300", "10", "45", "49", "47", "51", "52"}
+    own = {"95", "200", "0", "100", "300", "10", "45", "49", "47", "51", "52",
+           f"{site_players.MAX_LOST_REBOUND_BIAS:g}"}
     info = built.info["players"]
+    own.add(str(info["lost_rebounds"]))
     own |= {str(info["attempts_total"]), str(info["attempts_left_out"]), str(info["games_with_attempts"]),
             str(info["games_without_shot_frames"])} | {str(n) for n in info["attempts_left_out_by_reason"].values()}
     for note in file.metrics:
