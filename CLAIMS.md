@@ -184,3 +184,9 @@ under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewri
    site and the repository carry stills and derived data only.
    The public site carries no SportVU frame data; player positions appear only on the private copy
    (PLAN.md D60, D61).
+   Amended 2026-11-17 (PLAN.md D83, Lucien's yes to P8 as re-scoped): 10 more public third-party
+   uploads of 2015-16 regular-season games, from the channel that also hosts three of the videos
+   above, are used under the same terms for P8 (docs/research/P8_FEASIBILITY.md section 4). Four are
+   the broadcast CV test set, registered only in reports/research/testset.json; six are development
+   candidates, registered with their scorebug check in reports/research/p8_registry.json. They are
+   stored outside the repository, never redistributed, and no frame of a test video is shown anywhere.

@@ -1,0 +1,92 @@
+{
+ "version": 1,
+ "updated": "2026-11-17",
+ "decision": "PLAN.md D83 (10 more third-party uploads under CLAIMS.md caveat 4), D85 (3) (development games)",
+ "rule": "The channel games that need a scorebug check to be dated (docs/research/P8_FEASIBILITY.md section 4). A game becomes a development game (status confirmed) only when one frame's scorebug (teams, period, game clock, score) matches the play-by-play of exactly one candidate SportVU game in the contract (score at that clock). The 4 broadcast CV test games are not listed here: their ids live only in reports/research/testset.json. Every id here passes tools.research_testset.refuse_cv_test.",
+ "rights": "public third-party YouTube uploads of one channel, used under CLAIMS.md standing caveat 4 (amended 2026-11-17); no video is redistributed",
+ "games": {
+  "ind_chi": {
+   "video_id": "wtGuZJAkm08",
+   "title_matchup": "Bulls at Pacers",
+   "home": "IND",
+   "away": "CHI",
+   "candidates": [
+    "11.27.2015.CHI.at.IND"
+   ],
+   "other_meetings_outside_window": [
+    "2016-03-29"
+   ],
+   "status": "pending",
+   "sportvu": null
+  },
+  "orl_ind": {
+   "video_id": "QIEVYvOfeaM",
+   "title_matchup": "Pacers at Magic",
+   "home": "ORL",
+   "away": "IND",
+   "candidates": [
+    "01.06.2016.IND.at.ORL"
+   ],
+   "other_meetings_outside_window": [
+    "2016-02-21"
+   ],
+   "status": "pending",
+   "sportvu": null
+  },
+  "por_okc": {
+   "video_id": "UiAdZkI4tb0",
+   "title_matchup": "Thunder at Trail Blazers",
+   "home": "POR",
+   "away": "OKC",
+   "candidates": [
+    "01.10.2016.OKC.at.POR"
+   ],
+   "other_meetings_outside_window": [
+    "2016-04-06"
+   ],
+   "status": "pending",
+   "sportvu": null
+  },
+  "was_ind": {
+   "video_id": "Td8GojYg1FM",
+   "title_matchup": "Pacers at Wizards",
+   "home": "WAS",
+   "away": "IND",
+   "candidates": [
+    "11.24.2015.IND.at.WAS"
+   ],
+   "other_meetings_outside_window": [
+    "2016-03-05"
+   ],
+   "status": "pending",
+   "sportvu": null
+  },
+  "nyk_bos": {
+   "video_id": "CVFO7eUrTL8",
+   "title_matchup": "Celtics at Knicks",
+   "home": "NYK",
+   "away": "BOS",
+   "candidates": [
+    "01.12.2016.BOS.at.NYK"
+   ],
+   "other_meetings_outside_window": [
+    "2016-02-02"
+   ],
+   "status": "pending",
+   "sportvu": null
+  },
+  "okc_sac": {
+   "video_id": "tqDqi5XqUKU",
+   "title_matchup": "Kings at Thunder",
+   "home": "OKC",
+   "away": "SAC",
+   "candidates": [
+    "12.06.2015.SAC.at.OKC",
+    "01.04.2016.SAC.at.OKC"
+   ],
+   "other_meetings_outside_window": [],
+   "status": "pending",
+   "sportvu": null
+  }
+ }
+}
