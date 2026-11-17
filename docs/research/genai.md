@@ -119,6 +119,12 @@ checker and our variety measure.
 
 ### genai-E1: a template writer against the Haiku texts
 
+**Result (2026-11-17, reports/research/genai-E1.md): H1 and H2 hold.** On the pinned checker the template passes
+81 of 81 test players and 480 of 480 test possessions; Haiku 0.840 [0.753, 0.914] (snapshot) and 0.963 [0.914,
+1.000] (cache arm), every Haiku failure an item with no text. Haiku minus template frame variety [0.331, 0.439]. On
+the sensitivity checker (p3-v3 7f2c08fc) the template passes 36 of 81 scouting texts and Haiku 65 of 81. The
+pre-registration below is unchanged; the amendments follow it.
+
 - Question. Can a writer with no model meet the checker as well as claude-haiku-5-5, at what cost in variety?
 - Arms. Template (tools/genai_templates.py): fixed sentences filled from the facts, one frame per slot, no random
   choice; written and checked on train items only, before E1 reads a dev or test item. Haiku: the text the site
