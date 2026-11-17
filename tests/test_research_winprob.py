@@ -237,3 +237,47 @@ def test_final_checks_a_clean_tree_before_anything_else():
     import inspect
     src = inspect.getsource(W.clean_head)
     assert '["git", "status", "--porcelain"]' in src          # the whole tree, no path filter
+
+
+# ── the pre-score review (PLAN.md D91 and the minors) ──────────────────────────────────────────────────────────
+
+def test_the_bucket_guard_covers_overtime_as_written_and_reports_the_regulation_reading_beside_it():
+    reg = ["48-36", "36-24", "24-12", "12-4", "4-0"]
+    ci = {"point": -0.003, "lo": -0.004, "hi": -0.002}
+    buckets = {b: {"point": -0.001, "lo": -0.002, "hi": 0.0} for b in reg}
+    buckets["OT"] = {"point": 0.01, "lo": 0.001, "hi": 0.02}
+    paired = {"e1_minus_baseline": {"mean_bucket_brier": ci, "bucket_brier": buckets},
+              "e1_minus_ablation": {"mean_bucket_brier": {"point": 0.0, "lo": -0.001, "hi": 0.001}}}
+    v = W.verdict(paired, reg)
+    assert v["adopt"] is False and v["buckets_worse"] == ["OT"] and "OT" in v["reading"]
+    r = v["regulation_only_reading"]
+    assert r["adopt"] is True and r["reading"] == "pass" and r["differs"] is True
+
+
+def test_per_bucket_log_loss_is_reported_with_paired_intervals():
+    out = W.summarize(rows_frame(), n_boot=50)
+    assert set(out["arms"]["e1"]["bucket_log_loss"]) >= {"48-36", "4-0"}
+    d = out["paired"]["e1_minus_baseline"]["bucket_log_loss_reported_no_verdict"]["48-36"]
+    assert d == {"point": 0.0, "lo": 0.0, "hi": 0.0}
+
+
+def test_the_files_read_at_test_time_are_pinned_files_of_the_test_source():
+    from tools import research_testset as R
+    pinned = set(R.PBP_FILES)
+    assert {f.format(season=R.PBP_TEST_SEASON) for f in W.READ_FILES} <= pinned
+
+
+def test_score_season_refuses_any_file_but_the_play_by_play(tmp_path, monkeypatch):
+    from analytics.winprob import features as F
+    other = tmp_path / "collect" / "stints" / "games" / "2025-26.parquet"
+    monkeypatch.setattr(F, "load_data", lambda root, seasons: {"files": [str(tmp_path / W.READ_FILES[0].format(
+        season="2025-26")), str(other)], "playbyplay": None, "games": None})
+    with pytest.raises(SystemExit):
+        W.score_season(tmp_path, "2025-26", [], None, {})
+
+
+def test_the_scorer_refuses_the_verdict_on_an_elo_prefix_violation_and_returns_the_shas():
+    src = ast.unparse(next(n for n in ast.walk(_tree()) if isinstance(n, ast.FunctionDef) and n.name == "scorer"))
+    assert "info['elo_prefix_violations']" in src and "'refused': True" in src
+    for key in ("code_commit", "dev_states_sha256", "gate_files_sha256"):
+        assert key in src

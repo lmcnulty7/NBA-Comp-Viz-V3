@@ -233,8 +233,13 @@ def fit_arms(train: pd.DataFrame) -> tuple:
 
 # ----------------------------------------------------------------------------- one season, scored
 
+# The only files score_season reads under a data root (relative paths; at test time both are pinned files of the
+# test source, hashed by score_once before the scorer runs; tests/test_research_winprob.py checks that).
+READ_FILES = ("collect/stints/playbyplay/{season}.parquet", "collect/bref_schedule/games/{season}.parquet")
+
+
 def read_schedule(root, season: str) -> pd.DataFrame:
-    path = Path(root) / "collect" / "bref_schedule" / "games" / f"{season}.parquet"
+    path = Path(root) / READ_FILES[1].format(season=season)
     s = E.schedule_frame(pd.read_parquet(path, columns=list(E.COLUMNS)))
     if set(s["season"]) != {season}:
         raise SystemExit(f"{WHO}: the {season} schedule holds games of {sorted(set(s['season']))}")
@@ -261,6 +266,10 @@ def score_season(root, season: str, allowed, elo_start, models: dict) -> tuple:
     same code scores a development season (from DATA_ROOT) and the test season (from the scorer's root)."""
     F = _F()
     d = F.load_data(root, seasons=(season,))
+    read = sorted(str(Path(f).resolve().relative_to(Path(root).resolve())) for f in d["files"])
+    allowed_files = [f.format(season=season) for f in READ_FILES]
+    if read != allowed_files[:1]:
+        raise SystemExit(f"{WHO}: load_data read {read}, not only the play-by-play file of {season}")
     in_pbp = set(d["playbyplay"]["game_id"].astype(str))
     pbp, clock = F.clean_playbyplay(d["playbyplay"])
     states = F.build_states(pbp, d["games"], None)
@@ -283,6 +292,10 @@ def score_season(root, season: str, allowed, elo_start, models: dict) -> tuple:
     pre = pregame[pregame["game_id"].isin(built)].reset_index(drop=True)
     p_cols = rows[["p_" + a for a in ARM_NAMES]].to_numpy(dtype=float)
     info = {"season": season, "rows": int(len(rows)), "games_scored": len(built),
+            "files_read": read + [allowed_files[1]],
+            "games_dropped_by_builders_ids": sorted((allowed & in_pbp) - built),
+            "games_without_playbyplay_ids": sorted(allowed - in_pbp),
+            "clock_rule_by_cause": clock["by_cause"],
             "counts": {"games_listed": len(allowed), "games_without_playbyplay": len(allowed - in_pbp),
                        "games_dropped_by_builders": len((allowed & in_pbp) - built),
                        "games_scored": len(built & allowed),
@@ -342,17 +355,21 @@ def summarize(rows: pd.DataFrame, pregame: pd.DataFrame | None = None, home_rate
         for arm in ARM_NAMES:
             p = np.clip(rows["p_" + arm].astype(float).to_numpy(), EPS, 1 - EPS)
             se = np.bincount(cell, weights=(p - y) ** 2, minlength=G * B).reshape(G, B)
-            ll = np.bincount(codes, weights=-(y * np.log(p) + (1 - y) * np.log1p(-p)), minlength=G)
+            row_ll = -(y * np.log(p) + (1 - y) * np.log1p(-p))
+            ll = np.bincount(codes, weights=row_ll, minlength=G)
+            llb = np.bincount(cell, weights=row_ll, minlength=G * B).reshape(G, B)
             pb = se.sum(axis=0) / n_gb.sum(axis=0)
             bb = (W @ se) / Wn
             point[arm] = {"buckets": pb, "mean": float(np.mean(pb[: len(reg)])), "brier": float(se.sum() / cnt.sum()),
-                          "log_loss": float(ll.sum() / cnt.sum())}
+                          "log_loss": float(ll.sum() / cnt.sum()), "bucket_ll": llb.sum(axis=0) / n_gb.sum(axis=0)}
             boot[arm] = {"buckets": bb, "mean": bb[:, : len(reg)].mean(axis=1), "brier": (W @ se.sum(axis=1)) / Wc,
-                         "log_loss": (W @ ll) / Wc}
+                         "log_loss": (W @ ll) / Wc, "bucket_ll": (W @ llb) / Wn}
             a = {"mean_bucket_brier": _ci(point[arm]["mean"], boot[arm]["mean"]),
                  "bucket_brier": {b: _ci(pb[i], bb[:, i]) for i, b in enumerate(names)},
                  "brier": _ci(point[arm]["brier"], boot[arm]["brier"]),
                  "log_loss": _ci(point[arm]["log_loss"], boot[arm]["log_loss"]),
+                 "bucket_log_loss": {b: _ci(point[arm]["bucket_ll"][i], boot[arm]["bucket_ll"][:, i])
+                                     for i, b in enumerate(names)},
                  "ece_10_bins_point_estimate": {}, "calibration_slope_point_estimate": {}}
             for i, b in enumerate(names):
                 m = bidx == i
@@ -365,7 +382,10 @@ def summarize(rows: pd.DataFrame, pregame: pd.DataFrame | None = None, home_rate
                  "bucket_brier": {b: _ci(point[x]["buckets"][i] - point[z]["buckets"][i],
                                          boot[x]["buckets"][:, i] - boot[z]["buckets"][:, i]) for i, b in enumerate(names)},
                  "brier": _ci(point[x]["brier"] - point[z]["brier"], boot[x]["brier"] - boot[z]["brier"]),
-                 "log_loss": _ci(point[x]["log_loss"] - point[z]["log_loss"], boot[x]["log_loss"] - boot[z]["log_loss"])}
+                 "log_loss": _ci(point[x]["log_loss"] - point[z]["log_loss"], boot[x]["log_loss"] - boot[z]["log_loss"]),
+                 "bucket_log_loss_reported_no_verdict": {
+                     b: _ci(point[x]["bucket_ll"][i] - point[z]["bucket_ll"][i],
+                            boot[x]["bucket_ll"][:, i] - boot[z]["bucket_ll"][:, i]) for i, b in enumerate(names)}}
             out["paired"][f"{x}_minus_{z}"] = d
     if pregame is not None:
         pre = pregame.drop_duplicates("game_id")
@@ -393,31 +413,41 @@ def summarize(rows: pd.DataFrame, pregame: pd.DataFrame | None = None, home_rate
     return out
 
 
+def _reading(size: bool, below: bool, worse: list, lo: float) -> str:
+    if size and below and not worse:
+        return "pass"
+    if worse:
+        return f"fail: bucket(s) worse beyond the interval: {', '.join(worse)}"
+    if lo > 0:
+        return "fail: e1 is worse than the baseline"
+    if not below:
+        return "fail: the interval of the difference includes zero"
+    return "fail: the gain is real (interval below zero) but smaller than the threshold"
+
+
 def verdict(paired: dict, regulation=None) -> dict:
     """The pre-registered rule, read on e1 minus baseline: adopt when the mean bucket Brier difference is at most
-    -THRESHOLD, its 95 percent interval lies below zero, and no regulation bucket's interval lies above zero."""
+    -THRESHOLD, its 95 percent interval lies below zero, and no bucket's interval lies above zero. "No bucket" is read
+    as written (PLAN.md D91): every bucket, overtime included. The regulation-only reading is reported beside it with
+    whether it would differ."""
     reg = list(regulation or [b[0] for b in _F().BUCKETS])
     d = paired["e1_minus_baseline"]
     mb = d["mean_bucket_brier"]
-    worse = [b for b in reg if d["bucket_brier"][b]["lo"] > 0]
+    worse = [b for b in d["bucket_brier"] if d["bucket_brier"][b]["lo"] > 0]
+    worse_reg = [b for b in worse if b in reg]
     size = mb["point"] <= -THRESHOLD
     below = mb["hi"] < 0
     adopt = bool(size and below and not worse)
-    if adopt:
-        reading = "pass"
-    elif worse:
-        reading = "fail: a regulation bucket is worse beyond its interval"
-    elif mb["lo"] > 0:
-        reading = "fail: e1 is worse than the baseline"
-    elif not below:
-        reading = "fail: the interval of the difference includes zero"
-    else:
-        reading = "fail: the gain is real (interval below zero) but smaller than the threshold"
+    reading = _reading(size, below, worse, mb["lo"])
+    reg_reading = _reading(size, below, worse_reg, mb["lo"])
     ab = paired["e1_minus_ablation"]["mean_bucket_brier"]
     return {"threshold": THRESHOLD, "difference": mb["point"], "lo": mb["lo"], "hi": mb["hi"],
             "size_at_least_threshold": bool(size), "interval_excludes_zero": bool(below),
-            "interval_straddles_threshold": bool(mb["lo"] < -THRESHOLD < mb["hi"]), "buckets_worse": worse,
+            "interval_straddles_threshold": bool(mb["lo"] < -THRESHOLD < mb["hi"]),
+            "bucket_guard": "every bucket, overtime included (PLAN.md D91)", "buckets_worse": worse,
             "adopt": adopt, "reading": reading,
+            "regulation_only_reading": {"buckets_worse": worse_reg, "adopt": bool(size and below and not worse_reg),
+                                        "reading": reg_reading, "differs": bool(reg_reading != reading)},
             "ablation": {"e1_minus_ablation": ab["point"], "lo": ab["lo"], "hi": ab["hi"],
                          "drift_form_adds_beyond_mu_alone": bool(ab["hi"] < 0)}}
 
@@ -596,6 +626,8 @@ def final(artifacts=None) -> dict:
     if params != dev_out["elo"]["chosen"]:
         raise SystemExit(f"{WHO}: the Elo choice differs from the development record")
     states = attach_mu(load_dev_states(artifacts), E.advance(E.Elo(**params), schedule))
+    states_sha = json.loads((research_dir(artifacts) / "winprob_states_dev.json").read_text())["sha256"]
+    gate_files = json.loads((research_dir(artifacts) / "winprob_e1_gate" / "check.json").read_text())["files"]
     models, fit_info = fit_arms(states)
     hr = _home_rate(states)
     elo, state_record = E.state_through_2024_25(params, schedule, root)
@@ -604,10 +636,16 @@ def final(artifacts=None) -> dict:
     def scorer(test_games):
         troot = scoring_data_root(R.PBP)
         rows, pre, info, _ = score_season(troot, R.PBP_TEST_SEASON, test_games, elo, models)
+        results = summarize(rows, pre, hr)
+        if info["elo_prefix_violations"]:
+            results["verdict"] = {"refused": True, "computed_but_not_read": results["verdict"],
+                                  "reading": (f"refused: the test-season Elo prefix check found "
+                                              f"{len(info['elo_prefix_violations'])} violation(s)")}
         return {"experiment": EXPERIMENT,
                 "stage": ("the three arms fitted on every development row (2020-21 to 2023-24), Elo carried through "
                           "2024-25 as state (D89) and updated game by game through the test season; scored once"),
-                "test_season": info, "results": summarize(rows, pre, hr)}
+                "code_commit": head, "dev_states_sha256": states_sha, "gate_files_sha256": gate_files,
+                "test_season": info, "results": results}
 
     out = score_once(EXPERIMENT, R.PBP, scorer)
     record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
