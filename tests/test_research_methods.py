@@ -228,6 +228,55 @@ def test_a_development_result_that_misses_its_bar_is_not_adopted(source, tmp_pat
     assert (pilot.test is not None) == (repo / "reports/research/xfg-E1-final.json").exists()
 
 
+@pytest.mark.parametrize("upper, met", [(0.000502, False), (0.000499, True), (0.0005, True)])
+def test_rounding_never_flips_the_rule_near_its_threshold(source, tmp_path, upper, met):
+    """A bound a hair from the threshold is shown with enough decimals that the rounded comparison reads as the
+    file's own verdict, and met keeps its meaning (the file's verdict)."""
+    repo = _repo_copy(tmp_path, source)
+    path = repo / "reports/research/xfg-E1-dev.json"
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["paired_cvap_minus_iso_shot_weighted"].update(lo=upper - 0.001, diff=upper - 0.0005, hi=upper)
+    doc["verdict"].update(threshold=0.0005, upper_95=upper, passes_threshold=met)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    dev = _pilot(R.build_methods(repo, source)).development
+    assert dev.met is met and (dev.upper <= dev.threshold) is met and dev.upper == dev.hi
+    if upper == 0.000502:
+        assert dev.upper == 0.000502
+
+
+def test_a_result_file_whose_verdict_contradicts_its_numbers_is_a_problem(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / "reports/research/xfg-E1-dev.json"
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["verdict"].update(upper_95=0.0009, passes_threshold=True)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="passes_threshold is True"):
+        R.build_methods(repo, source)
+
+
+def test_numbers_are_read_in_one_spelling_with_the_sign_kept():
+    minus = "\u2212"
+    assert R.numbers(f"a {minus}0.5 b +0.0012 c 0.5 d -0.25") == ["-0.5", "0.0012", "0.5", "-0.25"]
+    assert R.number_token("+0.0012") == "0.0012" and R.number_token(f"{minus}0.014") == "-0.014"
+    # a report that writes the true minus: an unsigned value of ours does not match it, a signed one does
+    tokens = set(R.numbers(f"| gap | {minus}0.014 [{minus}0.116, 0.100] |"))
+    assert R.number_token("0.014") not in tokens and R.number_token("-0.014") in tokens
+    assert {R.number_token(v) for v in ("-0.014", "-0.116", "+0.100")} <= tokens
+
+
+def test_the_trace_matches_a_true_minus_in_a_report_only_with_its_sign(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    report = repo / "reports" / "decisions.md"
+    report.write_text(report.read_text(encoding="utf-8").replace("-0.014", "\u22120.014"), encoding="utf-8")
+    assert R.trace_problems(source, repo) == []
+    doc = copy.deepcopy(source)
+    for row in _lane(doc, "decisions")["benchmarks"]:
+        for value in row["ours"]:
+            if value["value"] == "-0.014":
+                value["value"] = "0.014"
+    assert any("do not stand on one line" in p for p in R.trace_problems(doc, repo))
+
+
 def test_a_result_file_without_a_named_key_is_a_problem(source, tmp_path):
     repo = _repo_copy(tmp_path, source)
     path = repo / "reports/research/xfg-E1-dev.json"

@@ -20,6 +20,7 @@ export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
       <div className="stack stack-tight">
         <h2 id="results-so-far-title">{text.title}</h2>
         <p className="small">{text.intro}</p>
+        <p className="small">{text.bootstraps}</p>
       </div>
       {ran.length === 0 ? (
         <p className="small" data-testid="no-results">

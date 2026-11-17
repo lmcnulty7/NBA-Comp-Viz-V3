@@ -202,14 +202,14 @@
       "digits": 5,
       "values": [
        {
-        "label": "Log loss, frozen isotonic step",
+        "label": "Log loss, control arm: the frozen recipe refit on the development games",
         "value": "arms.p_iso.log_loss",
         "lo": "arm_intervals_95.p_iso.log_loss.0",
         "hi": "arm_intervals_95.p_iso.log_loss.1",
         "digits": 4
        },
        {
-        "label": "Log loss, cross Venn-Abers",
+        "label": "Log loss, cross Venn-Abers arm",
         "value": "arms.p_cvap.log_loss",
         "lo": "arm_intervals_95.p_cvap.log_loss.0",
         "hi": "arm_intervals_95.p_cvap.log_loss.1",
@@ -1556,45 +1556,45 @@
      "ours": [
       {
        "label": "Held-out calibration slope, 48-36 minutes left",
-       "value": "1.001",
-       "lo": null,
-       "hi": null,
+       "value": "1.0005",
+       "lo": "0.8237",
+       "hi": "1.1977",
        "kind": "estimate",
        "source": "reports/winprob.md",
        "rows": "heldout"
       },
       {
        "label": "Held-out calibration slope, 36-24 minutes left",
-       "value": "0.955",
-       "lo": null,
-       "hi": null,
+       "value": "0.9547",
+       "lo": "0.8574",
+       "hi": "1.0972",
        "kind": "estimate",
        "source": "reports/winprob.md",
        "rows": "heldout"
       },
       {
        "label": "Held-out calibration slope, 24-12 minutes left",
-       "value": "0.959",
-       "lo": null,
-       "hi": null,
+       "value": "0.9594",
+       "lo": "0.8706",
+       "hi": "1.0648",
        "kind": "estimate",
        "source": "reports/winprob.md",
        "rows": "heldout"
       },
       {
        "label": "Held-out calibration slope, 12-4 minutes left",
-       "value": "0.957",
-       "lo": null,
-       "hi": null,
+       "value": "0.9569",
+       "lo": "0.8677",
+       "hi": "1.0509",
        "kind": "estimate",
        "source": "reports/winprob.md",
        "rows": "heldout"
       },
       {
        "label": "Held-out calibration slope, 4-0 minutes left",
-       "value": "0.955",
-       "lo": null,
-       "hi": null,
+       "value": "0.9552",
+       "lo": "0.8615",
+       "hi": "1.0952",
        "kind": "estimate",
        "source": "reports/winprob.md",
        "rows": "heldout"

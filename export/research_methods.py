@@ -61,13 +61,24 @@ def _read(repo: Path, rel: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+MINUS = "\u2212"
+
+
+def number_token(token: str) -> str:
+    """A number as one spelling: the true minus sign read as a hyphen, a leading plus dropped. The sign of a
+    negative number is kept, so -0.5 never matches 0.5."""
+    token = token.replace(MINUS, "-")
+    return token[1:] if token.startswith("+") else token
+
+
 def numbers(text: str) -> list[str]:
-    """The numbers of a text, as written (S.NUMBER_TEXT_RE)."""
-    return S.NUMBER_TEXT_RE.findall(text)
+    """The numbers of a text (S.NUMBER_TEXT_RE), each in the one spelling of number_token. A true minus sign is
+    read as a hyphen before the numbers are found, so it stays part of its number."""
+    return [number_token(token) for token in S.NUMBER_TEXT_RE.findall(text.replace(MINUS, "-"))]
 
 
 def _unsigned(value: str) -> str:
-    return value[1:] if value.startswith("+") else value
+    return number_token(value)
 
 
 def comparability_class(verdict: str) -> str:
@@ -242,7 +253,7 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                 problems.append(f"{name}: {where}: {exc}")
             published = numbers(row["published"])
             for value in row["published_values"]:
-                if value not in published:
+                if number_token(value) not in published:
                     problems.append(f"{name}: {where}: published value {value} is not a number of the published cell")
             if row.get("where") and row["where"] not in row["published"] and row["where"] not in row["paper"]:
                 problems.append(f"{name}: {where}.where {row['where']!r} is not part of the published or paper cell")
@@ -312,7 +323,18 @@ def _stage(results: dict, stage: str, repo: Path):
     if not path.is_file():
         return None
     doc = json.loads(path.read_text(encoding="utf-8"))
-    keys, digits = results["keys"], results["digits"]
+    keys = results["keys"]
+    met = bool(_path_value(doc, keys["met"]))
+    upper, threshold = float(_path_value(doc, keys["upper"])), float(_path_value(doc, keys["threshold"]))
+    if met != (upper <= threshold):
+        raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its bound {upper} against its threshold "
+                             f"{threshold} says {upper <= threshold}")
+    # Rounded once, here. The rule's two numbers keep as many decimals as it takes for the rounded comparison to
+    # read as the file's own verdict, so rounding can never flip it (an upper end of 0.000502 against 0.0005
+    # shows six decimals, not five).
+    digits = results["digits"]
+    while (round(upper, digits) <= round(threshold, digits)) != met and digits < 17:
+        digits += 1
 
     def num(key: str, places: int = digits) -> float:
         return round(float(_path_value(doc, keys[key] if key in keys else key)), places)
@@ -331,8 +353,7 @@ def _stage(results: dict, stage: str, repo: Path):
         stage=stage, source=S.Source(path=rel, what=what, rows=rows), metric=results["metric"],
         rows=int(_path_value(doc, keys["rows"])), rows_unit=results["rows_unit"],
         games=int(_path_value(doc, keys["games"])), diff=num("diff"), lo=num("lo"), hi=num("hi"),
-        interval=results["interval"], threshold=num("threshold"), upper=num("upper"),
-        met=bool(_path_value(doc, keys["met"])), values=values)
+        interval=results["interval"], threshold=num("threshold"), upper=num("upper"), met=met, values=values)
 
 
 def _status(dev, test) -> str:

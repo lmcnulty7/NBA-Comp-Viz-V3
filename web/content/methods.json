@@ -32,7 +32,7 @@
     "open": "Read it with its model",
     "pending": "Test games: pending. The test is scored once, then shown here.",
     "stage": {
-      "development": "Training games, each game left out in turn",
+      "development": "Training games, in five groups of whole games, each group left out in turn",
       "test": "Test games, scored once"
     },
     "metric": "What is compared",
@@ -48,7 +48,8 @@
     "file": "Read from {path}",
     "more": "More numbers from the same run",
     "writeup": "Write-up: {path}",
-    "listed": "In the list of tests: {status}"
+    "listed": "In the list of tests: {status}",
+    "bootstraps": "A test draws its own ranges by resampling games. So the same score can show a slightly different range here than in the report of its model. Both ranges come from the same predictions."
   },
   "lane": {
     "foundations": "Built on",
