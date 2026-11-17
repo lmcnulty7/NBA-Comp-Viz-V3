@@ -1472,7 +1472,7 @@
      "gain": 4,
      "effort": 2,
      "test_data": "2025-26 season",
-     "backlog_status": "done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; reports/research/lineups-E1.md)",
+     "backlog_status": "done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; possible data fault: stint margin equals the schedule in 1298 of 1300 games; reports/research/lineups-E1.md)",
      "results": null
     },
     {

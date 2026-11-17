@@ -4,8 +4,11 @@ Written 2026-11-17. Pre-registration: docs/research/lineups.md, section 6, "line
 including "Commitments before the test score" were committed before the score (commits 3e48eb4c, 2518111f, 8c638fab);
 only the verdict line and the section "Test season" were written after it. Scoring code: tools/research_lineups.py at
 commit 8c638fab (recorded in the final json as code_commit). Every number below is copied from
-reports/research/lineups-E1-dev.json or reports/research/lineups-E1-final.json; the single test score is the
-lineups-E1 entry of reports/research/scoring_ledger.json.
+reports/research/lineups-E1-dev.json or reports/research/lineups-E1-final.json, except where marked here: the test R
+squared interval width (0.067) is computed from the final json's interval; the values of Sill (2010) and Watts et al.
+(2026) are quoted from the literature (docs/research/lineups.md); 10 minutes per game is Watts et al.'s published cut;
+30 percent is a threshold committed before the score (commitment 9). The single test score is the lineups-E1 entry of
+reports/research/scoring_ledger.json.
 Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with every arm paired on
 the same resampled games.
 

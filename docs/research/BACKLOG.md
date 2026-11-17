@@ -10,7 +10,7 @@ Set B (10 Liga ACB games) as an out-of-distribution check, and the 2025-26 NBA s
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | decisions-E1 | decisions | is the target reliable, and is the metric more than decision mix | 3 | 1 | 3.0 | training tables, Set A | done: not adopted (H1 fails as pre-registered, H2 holds, H3 fails; reports/research/decisions-E1.md) |
 | 2 | load-E1 | load | a shrunk player history for decline | 3 | 1 | 3.0 | Set A (about 220 player-games, under its own 1000-row power floor) | proposed |
-| 3 | lineups-E1 | lineups | score RAPM on every game's margin (Sill's construction) | 4 | 2 | 2.0 | 2025-26 season | done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; reports/research/lineups-E1.md) |
+| 3 | lineups-E1 | lineups | score RAPM on every game's margin (Sill's construction) | 4 | 2 | 2.0 | 2025-26 season | done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; possible data fault: stint margin equals the schedule in 1298 of 1300 games; reports/research/lineups-E1.md) |
 | 4 | winprob-E1 | winprob | pregame strength from Elo as Stern's drift term, no odds | 4 | 2 | 2.0 | 2025-26 season | proposed |
 | 5 | rebounds-E1 | rebounds | a temperature and an offset per candidate type | 2 | 1 | 2.0 | Set A | proposed |
 | 6 | winprob-E2 | winprob | a forward-in-time temperature for the over-confidence | 2 | 1 | 2.0 | 2025-26 season | proposed |
