@@ -51,6 +51,49 @@
       ],
       "sha256": "588774e1dede6033d267b8233be177a68267e44523ce5f565259ca3ad3e03e05"
     },
+    "broadcast_cv_2015_16": {
+      "role": "the scoring set of the broadcast tracking lanes (P8): 4 games in 3 whole arenas, each game scored once per experiment through score_once",
+      "fixed_on": "2026-11-17",
+      "decision": "PLAN.md D83, D85 (1); docs/research/P8_FEASIBILITY.md sections 4 and 7",
+      "rule": "the channel games dated without a scorebug check, taken as whole arenas (Miami, Toronto, Staples Center); chosen by a rule that reads no result. No P8 development game may be one of these games, use one of these videos or be played in one of these arenas (tools.research_testset.refuse_cv_test)",
+      "origin_video": "public third-party YouTube uploads of one channel, 720p avc1 by format listing on 2026-11-16 (CLAIMS.md standing caveat 4, amended 2026-11-17)",
+      "origin_sportvu": "github.com/linouk23/NBA-Player-Movements data/2016.NBA.Raw.SportVU.Game.Logs at commit f7d4cf2c7e607029abfd5715a0d4073bedae328e, normal file names; blob sha1 and size read from the GitHub contents API listing at that commit on 2026-11-17, sizes equal to source_bytes in the contract manifest of DATA_ROOT",
+      "caveat": "the frozen analytics models were fitted on these games' SportVU, so a swap test on them measures input substitution only; no CV model, threshold or design choice has seen their video",
+      "games": [
+        "12.03.2015.OKC.at.MIA",
+        "12.09.2015.SAS.at.TOR",
+        "12.25.2015.LAC.at.LAL",
+        "12.25.2015.NOP.at.MIA"
+      ],
+      "video_ids": {
+        "12.03.2015.OKC.at.MIA": "MVSEj_jQxJk",
+        "12.09.2015.SAS.at.TOR": "olDo7SEOwj0",
+        "12.25.2015.LAC.at.LAL": "GqVLOlBOj0E",
+        "12.25.2015.NOP.at.MIA": "ut-EcJRm_XA"
+      },
+      "arena_homes": {
+        "Miami": [
+          "MIA"
+        ],
+        "Staples Center": [
+          "LAC",
+          "LAL"
+        ],
+        "Toronto": [
+          "TOR"
+        ]
+      },
+      "archive_git_blob_sha1": {
+        "12.03.2015.OKC.at.MIA": "06b6685883d1454bba4e82221160ff51003bc795",
+        "12.09.2015.SAS.at.TOR": "493f4493ce48a936f72d0820ef5c4162030177e2",
+        "12.25.2015.LAC.at.LAL": "afce66456b28777018076643e3acf021d347b323",
+        "12.25.2015.NOP.at.MIA": "42a66cf6900282c60af51be65c20136c3bf14b6c"
+      },
+      "sha256": "62541da7888517d1ebe657d836210861b918e9b7fd8cb9cab2f1d44c102a53d0",
+      "pins_sha256": "7f29f2f9fb41327848dac0092e8fea597e8c10922f05f410dbbd4ce813a2d7b3",
+      "video_pins_sha256": "0c334ea654860068df760a41974cc361ee348bddc3657e77485ffd4190c517ea",
+      "arena_homes_sha256": "98b2e0521b879836669df8a09aaf4bbf312094c4c188be988296f8574448c170"
+    },
     "pbp_2025_26": {
       "role": "the scoring set of the play-by-play lanes (winprob, lineups), forward in time",
       "origin": "basketball-reference.com, 2025-26 season, fetched by tools.research_pbp2526 with the V3 collectors unchanged (collect.bref_schedule, collect.bref_seasons, collect.bref_boxscores) at most 15 requests a minute",

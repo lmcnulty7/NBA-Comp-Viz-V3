@@ -65,22 +65,32 @@ def test_no_experiment_code_opens_the_test_set_or_names_a_test_game():
 # Names that reach the test games' data. Allowed only where they are defined or in the ingest tool.
 TEST_DATA_NAMES = ("research_data_root", "test_features", "_research-data", "sportvu_untouched", "V3_RESEARCH_DATA",
                    "R._load", "import _load", "ingest_pins", "pbp_2025_26", "V3_RESEARCH_PBP", "scoring_data_root",
-                   "file_pins", "fix_pbp")
+                   "file_pins", "fix_pbp", "DEFAULT_PBP_ROOT", "PBP_FILES", "PBP_ROOT_ENV")
 ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            "tools/research_xfg.py": ("research_data_root", "test_features", "_research-data", "sportvu_untouched",
                                      "V3_RESEARCH_DATA"),
-           "tools/research_pbp2526.py": ("_research-data", "pbp_2025_26")}
+           "tools/research_pbp2526.py": ("_research-data", "pbp_2025_26"),
+           # decisions-E1 imports the two from research_xfg and calls them only inside its scorer
+           # (tests/test_research_decisions.py checks that)
+           "tools/research_decisions.py": ("research_data_root", "test_features")}
+
+
+def name_problems(rel: str, text: str) -> list:
+    return [f"{rel} uses {name}" for name in TEST_DATA_NAMES if name in text and name not in ALLOWED.get(rel, ())]
 
 
 def test_only_named_places_reach_the_test_games_data():
     problems = []
     for path in experiment_files():
-        rel = str(path.relative_to(REPO))
-        text = path.read_text()
-        for name in TEST_DATA_NAMES:
-            if name in text and name not in ALLOWED.get(rel, ()):
-                problems.append(f"{rel} uses {name}")
+        problems += name_problems(str(path.relative_to(REPO)), path.read_text())
     assert problems == []
+
+
+def test_a_direct_read_of_the_pbp_test_files_is_flagged():
+    """The bypass of the review (M1): reading the pinned files through the door's constants, not score_once."""
+    for snippet in ("df = pd.read_parquet(R.DEFAULT_PBP_ROOT / R.PBP_FILES[0])\n",
+                    "root = os.environ[R.PBP_ROOT_ENV]\n"):
+        assert name_problems("tools/research_winprob.py", snippet), snippet
 
 
 def test_test_features_is_called_only_inside_the_scorer_given_to_score_once():
@@ -223,6 +233,231 @@ def test_ingest_pins_must_name_exactly_the_test_games_and_match_their_hash(tmp_p
             R.ingest_pins(path=path)
 
 
+# ── the broadcast CV test set of P8 (PLAN.md D85 (1)) ───────────────────────────────────────────────────────────────
+# Strings that name the sealed test-video root: allowed only in the download tool, which runs no model on them.
+CV_TEST_STRINGS = ("V3_P8_TEST_ROOT", "_p8-cvtest", "p8_cv_test")
+# Door functions that reach the test videos: called only in the download tool, or inside the scorer function a module
+# passes to score_once (the AST rule below, like test_features in research_xfg).
+CV_DOORS = ("cv_test_videos", "cv_test_dir", "cv_test_video")
+CV_DOWNLOAD_TOOL = "tools/p8_fetch.py"
+# Registries the frozen CV code reads (sportvu/, harvest_driver, clock_reader): a CV test game or video id listed in
+# one of them could be picked up by a frozen tool, so none may hold one.
+FROZEN_CV_REGISTRIES = ("data/harvest/games.json", "sportvu/manifest_overrides.json", "sportvu/splits.json")
+CV_SOURCE_SINCE = "1670e3d6"          # the commit that hashed the CV test set
+
+
+def cv_source():
+    return committed()["sources"][R.BROADCAST_CV]
+
+
+def tracked_code():
+    """Every git-tracked .py, .ipynb and .sh file outside tests/ and the door itself."""
+    import subprocess
+    out = subprocess.run(["git", "ls-files", "*.py", "*.ipynb", "*.sh"], cwd=REPO, capture_output=True, text=True,
+                         check=True).stdout.split()
+    return sorted(REPO / p for p in out if not p.startswith("tests/") and REPO / p != DOOR and (REPO / p).is_file())
+
+
+def test_the_cv_test_set_is_four_games_in_three_whole_arenas_with_sealed_ids_and_pins():
+    src = cv_source()
+    games = src["games"]
+    assert len(games) == 4 and len(set(games)) == 4
+    assert R.list_hash(games) == src["sha256"]
+    for key, seal in R.SEALED_MAPS.items():
+        if key in R.REQUIRED_KEYS[R.BROADCAST_CV]:       # files_sha256 seals the pbp source's files, not this one
+            assert R.map_hash(src[key]) == src[seal], key
+    assert sorted(src["video_ids"]) == sorted(games) == sorted(src["archive_git_blob_sha1"])
+    assert len(set(src["video_ids"].values())) == 4
+    assert all(re.fullmatch(r"[0-9a-f]{40}", p) for p in src["archive_git_blob_sha1"].values())
+    homes = {h for hs in src["arena_homes"].values() for h in hs}
+    assert len(src["arena_homes"]) == 3 and {g.split(".")[-1] for g in games} <= homes
+    for g in games:                                   # inside the public SportVU window, regular season, not spent
+        mm, dd, yyyy = g.split(".")[:3]
+        assert "2015-10-27" <= f"{yyyy}-{mm}-{dd}" <= "2016-01-23", g
+        assert not R.is_spent(g) and not g.endswith(".at.CLE"), g
+
+
+def test_the_cv_source_is_byte_identical_in_every_committed_version_since_it_was_hashed():
+    import subprocess
+    rel = "reports/research/testset.json"
+    # the commit that hashed it and every commit descending from it (a merged branch that forked earlier never held
+    # the source, so --ancestry-path leaves its commits out)
+    shas = [CV_SOURCE_SINCE] + subprocess.run(["git", "log", "--ancestry-path", "--format=%H",
+                                               f"{CV_SOURCE_SINCE}..HEAD", "--", rel], cwd=REPO,
+                                              capture_output=True, text=True, check=True).stdout.split()
+    now = json.dumps(cv_source(), sort_keys=True)
+    assert shas, "the commit that hashed the CV test set is in this history"
+    for sha in shas:
+        shown = subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=REPO, capture_output=True, text=True, check=True)
+        old = json.loads(shown.stdout)["sources"][R.BROADCAST_CV]
+        assert json.dumps(old, sort_keys=True) == now, f"the CV test source changed in {sha[:8]}"
+
+
+def test_the_cv_test_games_are_in_no_other_source():
+    data = committed()["sources"]
+    cv = set(data[R.BROADCAST_CV]["games"])
+    for name, src in data.items():
+        if name != R.BROADCAST_CV:
+            assert not cv & set(src["games"]), name
+
+
+def test_no_tracked_code_names_a_cv_test_game_or_video():
+    src = cv_source()
+    ids = list(src["games"]) + list(src["video_ids"].values())
+    problems = [f"{p.relative_to(REPO)} names {i}" for p in tracked_code() for i in ids
+                if i.lower() in p.read_text(errors="ignore").lower()]
+    assert problems == []
+
+
+def test_no_frozen_cv_registry_holds_a_cv_test_game_or_video():
+    src = cv_source()
+    ids = set(src["games"]) | set(src["video_ids"].values())
+    problems = [f"{rel} holds {i}" for rel in FROZEN_CV_REGISTRIES for i in ids if i in (REPO / rel).read_text()]
+    assert problems == []
+
+
+def test_only_the_download_tool_names_the_sealed_test_root():
+    problems = [f"{p.relative_to(REPO)} uses {n}" for p in tracked_code() for n in CV_TEST_STRINGS
+                if n in p.read_text(errors="ignore") and str(p.relative_to(REPO)) != CV_DOWNLOAD_TOOL]
+    assert problems == []
+
+
+def door_call_problems(tree, rel: str) -> list:
+    """Calls of a CV door outside the download tool that are not inside a function passed to score_once."""
+    if rel == CV_DOWNLOAD_TOOL:
+        return []
+    scorers = {a.id for n in ast.walk(tree) if isinstance(n, ast.Call)
+               and getattr(n.func, "attr", getattr(n.func, "id", None)) == "score_once"
+               for a in list(n.args) + [k.value for k in n.keywords] if isinstance(a, ast.Name)}
+    inside = {id(c) for fn in ast.walk(tree) if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef))
+              and fn.name in scorers for c in ast.walk(fn)}
+    problems = []
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call) and getattr(n.func, "attr", getattr(n.func, "id", None)) in CV_DOORS \
+                and id(n) not in inside:
+            problems.append(f"{rel}:{n.lineno} calls {getattr(n.func, 'attr', getattr(n.func, 'id', None))}")
+    return problems
+
+
+def test_cv_doors_are_called_only_by_the_download_tool_or_inside_a_score_once_scorer():
+    problems = []
+    for p in tracked_code():
+        if p.suffix != ".py":
+            text = p.read_text(errors="ignore")
+            problems += [f"{p.relative_to(REPO)} names {d}" for d in CV_DOORS if d in text]
+            continue
+        problems += door_call_problems(ast.parse(p.read_text()), str(p.relative_to(REPO)))
+    assert problems == []
+
+
+def test_the_door_call_rule_allows_a_scorer_and_refuses_anything_else():
+    ok = ast.parse("def scorer(games):\n    return [cv_test_video(g) for g in games]\n"
+                   "def run():\n    return score_once('x', 'src', scorer)\n")
+    bad = ast.parse("def prep():\n    return cv_test_video('g')\n"
+                    "def scorer(games):\n    return games\n"
+                    "def run():\n    return score_once('x', 'src', scorer)\n")
+    loose = ast.parse("x = cv_test_dir()\n")
+    assert door_call_problems(ok, "tools/x.py") == []
+    assert len(door_call_problems(bad, "tools/x.py")) == 1 and len(door_call_problems(loose, "tools/x.py")) == 1
+    assert door_call_problems(loose, CV_DOWNLOAD_TOOL) == []
+
+
+def test_every_p8_tool_runs_the_cv_guard():
+    """A P8 tool that touches games (tools/p8_*.py) must run refuse_cv_test; a module that only holds constants or
+    pure functions says so with P8_NO_GAMES = True."""
+    problems = []
+    for path in sorted((REPO / "tools").glob("p8_*.py")):
+        text = path.read_text()
+        if "refuse_cv_test(" not in text and "P8_NO_GAMES = True" not in text:
+            problems.append(str(path.relative_to(REPO)))
+    assert problems == []
+
+
+@pytest.fixture
+def tiny_cv(tmp_path):
+    games = ["12.01.2015.AAA.at.MIA", "12.02.2015.BBB.at.LAL"]
+    vids = {games[0]: "vidA0000000", games[1]: "vidB0000000"}
+    homes = {"Miami": ["MIA"], "Staples Center": ["LAC", "LAL"]}
+    pins = {games[0]: "a" * 40, games[1]: "b" * 40}
+    src = {"games": games, "sha256": R.list_hash(games), "video_ids": vids, "video_pins_sha256": R.map_hash(vids),
+           "arena_homes": homes, "arena_homes_sha256": R.map_hash(homes),
+           "archive_git_blob_sha1": pins, "pins_sha256": R.map_hash(pins)}
+    path = tmp_path / "testset.json"
+    path.write_text(json.dumps({"sources": {R.BROADCAST_CV: src}}))
+    return path, games, vids
+
+
+def test_refuse_cv_test_refuses_test_games_test_videos_and_whole_test_arenas(tiny_cv):
+    path, games, vids = tiny_cv
+    ok = ["11.27.2015.CHI.at.IND", "01.12.2016.BOS.at.NYK", "someVideoId1", "gsw_mia_2017", "nyk_bos_2016",
+          "/w/video/okc_sac_2015_s00.mp4", "replace_me"]
+    assert R.refuse_cv_test(ok, "t", path=path) == len(ok)
+    aliases = [[games[0]], [vids[games[1]]], ["01.01.2016.DAL.at.MIA"], ["11.11.2015.SAS.at.LAC"],
+               ok + ["12.30.2015.UTA.at.LAL"],
+               [f"https://www.youtube.com/watch?v={vids[games[0]]}"],          # a watch URL
+               [f"/data/video/{games[1]}.mp4"],                                # an .mp4 path
+               [f"{games[0]}_s00"], ["mia_nop_2015_s00"],                     # a section stem
+               ["mia_nop_2015"], ["/x/lal_aaa_2015.mp4"], ["lac_bbb_2016"],    # home-first tags
+               [games[0].lower()], [vids[games[0]].lower()], ["01.01.2016.dal.at.mia"]]   # lower case
+    for bad in aliases:
+        with pytest.raises(SystemExit):
+            R.refuse_cv_test(bad, "t", path=path)
+    with pytest.raises(SystemExit):
+        R.refuse_cv_test(["por_okc_2016"], "t", path=path, homes=["LAL"])    # a registry entry's own home
+
+
+def test_the_cv_source_must_carry_every_sealed_key(tiny_cv):
+    path, _, _ = tiny_cv
+    for key in R.REQUIRED_KEYS[R.BROADCAST_CV]:
+        data = json.loads(path.read_text())
+        saved = data["sources"][R.BROADCAST_CV].pop(key)
+        p2 = path.with_name("t_" + key + ".json")
+        p2.write_text(json.dumps(data))
+        with pytest.raises(SystemExit):
+            R.refuse_cv_test(["11.27.2015.CHI.at.IND"], "t", path=p2)
+        assert saved
+
+
+def test_dev_games_of_the_cv_source_leave_out_whole_test_arenas(tiny_cv):
+    path, games, _ = tiny_cv
+    pool = games + ["01.01.2016.DAL.at.MIA", "11.11.2015.SAS.at.LAC", "11.27.2015.CHI.at.IND", "12.23.2015.NYK.at.CLE"]
+    assert R.dev_games(pool, "t", R.BROADCAST_CV, path) == ["11.27.2015.CHI.at.IND"]
+
+
+def test_an_edited_cv_video_id_or_arena_is_refused(tiny_cv):
+    path, games, vids = tiny_cv
+    good = path.read_text()
+    for key, value in (("video_ids", {**vids, games[0]: "otherVideo1"}), ("arena_homes", {"Miami": ["MIA"]})):
+        data = json.loads(good)
+        data["sources"][R.BROADCAST_CV][key] = value
+        path.write_text(json.dumps(data))
+        with pytest.raises(SystemExit):
+            R.refuse_cv_test(["11.27.2015.CHI.at.IND"], "t", path=path)
+    path.write_text(good)
+
+
+def test_cv_test_videos_must_name_exactly_the_test_games(tiny_cv):
+    path, games, vids = tiny_cv
+    assert R.cv_test_videos(path) == vids
+    data = json.loads(path.read_text())
+    one = {games[0]: vids[games[0]]}
+    data["sources"][R.BROADCAST_CV].update(video_ids=one, video_pins_sha256=R.map_hash(one))
+    path.write_text(json.dumps(data))
+    with pytest.raises(SystemExit):
+        R.cv_test_videos(path)
+
+
+def test_the_test_video_root_is_outside_the_p8_workspace(monkeypatch, tmp_path):
+    from tools import p8_fetch
+    d = p8_fetch.cv_test_dir()
+    from tools.p8_common import p8_root
+    assert p8_root().resolve() not in d.parents and d.parent.resolve() not in p8_root().resolve().parents
+    monkeypatch.setenv("V3_P8_ROOT", str(tmp_path / "w"))
+    monkeypatch.setenv("V3_P8_TEST_ROOT", str(tmp_path / "w" / "t"))
+    with pytest.raises(SystemExit):
+        p8_fetch.cv_test_dir()
+
+
 # ── the play-by-play source (2025-26 season; PLAN.md D78, D79, D83, D84) ─────────────────────────────
 
 def test_the_committed_pbp_source_is_fixed_once_with_its_file_pins():
@@ -309,30 +544,112 @@ def test_pbp_test_data_is_read_only_inside_score_once(pbp_case, monkeypatch):
     R.fix_pbp(root, path, ledger)
     monkeypatch.setenv(R.PBP_ROOT_ENV, str(root))
     with pytest.raises(SystemExit):
-        R.scoring_data_root(R.PBP, path=path)          # outside score_once: refused
+        R.scoring_data_root(R.PBP)                     # outside score_once: refused
     seen = {}
 
     def scorer(g):
-        seen["root"] = R.scoring_data_root(R.PBP, path=path)
+        seen["root"] = R.scoring_data_root(R.PBP)
         return {"n": len(g)}
 
     assert R.score_once("winprob-E0", R.PBP, scorer, path, ledger) == {"n": 3} and seen["root"] == root
     with pytest.raises(SystemExit):
-        R.scoring_data_root(R.PBP, path=path)          # and refused again once the scorer returned
+        R.scoring_data_root(R.PBP)                     # and refused again once the scorer returned
+
+
+def test_score_once_hashes_the_pinned_files_before_the_scorer_runs(pbp_case):
+    path, games, root, ledger = pbp_case
+    R.fix_pbp(root, path, ledger)
     (root / R.PBP_FILES[0]).write_bytes(b"edited")
-
-    def tampered(_g):
-        return R.scoring_data_root(R.PBP, path=path)
-
+    ran = []
     with pytest.raises(SystemExit):
-        R.score_once("winprob-E9", R.PBP, tampered, path, ledger)
+        R.score_once("winprob-E9", R.PBP, lambda g: ran.append(1) or {}, path, ledger, data_root=root)
+    assert ran == [] and not ledger.exists()           # refused before the scorer and before the ledger entry
+    with pytest.raises(SystemExit):
+        R.score_once("winprob-E9", R.PBP, lambda g: ran.append(1) or {}, path, ledger, data_root=root / "missing")
+    assert ran == []
+
+
+def scoring_root_problems(tree, rel: str) -> list:
+    """Calls of scoring_data_root that are not inside a function passed to score_once (as a name argument)."""
+    scorers = {a.id for n in ast.walk(tree) if isinstance(n, ast.Call)
+               and getattr(n.func, "attr", getattr(n.func, "id", None)) == "score_once"
+               for a in list(n.args) + [k.value for k in n.keywords] if isinstance(a, ast.Name)}
+    inside = {id(c) for fn in ast.walk(tree) if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef))
+              and fn.name in scorers for c in ast.walk(fn)}
+    return [f"{rel}:{n.lineno} calls scoring_data_root outside a score_once scorer" for n in ast.walk(tree)
+            if isinstance(n, ast.Call) and getattr(n.func, "attr", getattr(n.func, "id", None)) == "scoring_data_root"
+            and id(n) not in inside]
+
+
+def test_scoring_data_root_is_called_only_inside_a_function_passed_to_score_once():
+    problems = []
+    for path in tracked_code():
+        if path.suffix == ".py":
+            problems += scoring_root_problems(ast.parse(path.read_text()), str(path.relative_to(REPO)))
+    assert problems == []
+    good = ("def scorer(games):\n    root = R.scoring_data_root(R.PBP)\n    return {}\n"
+            "R.score_once('w-E1', R.PBP, scorer)\n")
+    bad = ("def load():\n    return R.scoring_data_root(R.PBP)\n"
+           "def scorer(games):\n    return {}\nR.score_once('w-E1', R.PBP, scorer)\nroot = R.scoring_data_root(R.PBP)\n")
+    assert scoring_root_problems(ast.parse(good), "good.py") == []
+    assert len(scoring_root_problems(ast.parse(bad), "bad.py")) == 2
+
+
+PBP_SOURCE_SINCE = "d86a9505"          # the commit that fixed the 2025-26 season
+
+
+def test_the_pbp_source_is_byte_identical_in_every_commit_since_it_first_appeared():
+    import subprocess
+    rel = "reports/research/testset.json"
+    # the commit that fixed it and every later commit descending from it that touched the file
+    shas = [PBP_SOURCE_SINCE] + subprocess.run(["git", "log", "--ancestry-path", "--format=%H",
+                                                f"{PBP_SOURCE_SINCE}..HEAD", "--", rel], cwd=REPO,
+                                               capture_output=True, text=True, check=True).stdout.split()
+    texts = [(sha[:8], subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=REPO, capture_output=True, text=True,
+                                      check=True).stdout) for sha in shas]
+    texts.append(("working tree", R.TESTSET_FILE.read_text()))
+    first = json.dumps(json.loads(texts[0][1])["sources"][R.PBP], indent=2).replace("\n", "\n    ")
+    for sha, text in texts:
+        assert f'    "{R.PBP}": {first}' in text, f"the pbp source is not byte-identical in {sha}"
+
+
+@pytest.mark.parametrize("code,season", [("202107200MIL", "2020-21"), ("202008150LAL", "2019-20"),
+                                         ("202010110LAL", "2019-20"), ("201910220TOR", "2019-20"),
+                                         ("202506220OKC", "2024-25"), ("202606130SAS", "2025-26"),
+                                         ("202510210LAL", "2025-26")])
+def test_pbp_season_maps_by_season_date_ranges(code, season):
+    assert R.pbp_season(code) == season
+
+
+def test_pbp_season_refuses_a_code_dated_between_seasons():
+    for code in ("202108150MIL", "202011150LAL", "201601150BOS0"):
+        with pytest.raises(SystemExit):
+            R.pbp_season(code)
+
+
+def test_the_season_date_table_matches_every_schedule_table_found():
+    """PBP_SEASON_DATES against the frozen schedule tables of DATA_ROOT and the 2025-26 table of the fetch root:
+    game ids and dates only."""
+    import os
+    import pyarrow.parquet as pq
+    dirs = [Path(os.environ["DATA_ROOT"]) / "collect" / "bref_schedule" / "games"] if os.environ.get("DATA_ROOT") else []
+    dirs.append(Path(os.environ.get(R.PBP_ROOT_ENV) or R.DEFAULT_PBP_ROOT) / "collect" / "bref_schedule" / "games")
+    tables = [f for d in dirs if d.exists() for f in sorted(d.glob("*.parquet"))]
+    if not tables:
+        pytest.skip("no schedule table on this machine")
+    for f in tables:
+        t = pq.read_table(f, columns=["game_id", "date"]).to_pandas()
+        assert (str(t["date"].min()), str(t["date"].max())) == R.PBP_SEASON_DATES[f.stem], f.stem
+        assert {R.pbp_season(g) for g in t["game_id"]} == {f.stem}, f.stem
 
 
 def test_pbp_dev_games_never_return_the_test_season_or_the_spent_season(pbp_case):
     path, games, root, ledger = pbp_case
     R.fix_pbp(root, path, ledger)
     dev, spent, unlisted = "202401150BOS", "202501150BOS", "202604150MIA"     # 2023-24, 2024-25, 2025-26 Play-In
-    assert R.dev_games(games + [dev, spent, unlisted, "201601150BOS"], "t", R.PBP, path) == [dev]
+    finals = "202107200MIL"                                                   # 2020-21, played in July 2021
+    assert R.dev_games(games + [dev, spent, unlisted, finals, "201601150BOS", "202008150LAL"], "t", R.PBP,
+                       path) == sorted([dev, finals])
     for bad in ([games[0]], [spent], [unlisted]):
         with pytest.raises(SystemExit):
             R.refuse_test(bad, "t", R.PBP, path)

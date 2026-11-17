@@ -122,7 +122,8 @@ def season_games(out: Path) -> dict:
 
 
 def scheduled_games(out: Path) -> dict:
-    """The season's games the collectors would fetch (played, default season types), as a count; no score is read."""
+    """The season's games the collectors would fetch (played, default season types), as a count. Scores are read
+    only to keep played games; none is printed or stored."""
     from collect import bref_schedule as sched
     from collect import common
     fam = common.Family(out, sched.FAMILY)

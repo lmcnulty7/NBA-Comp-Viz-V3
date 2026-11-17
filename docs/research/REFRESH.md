@@ -47,10 +47,12 @@ Each query runs as `search_query=<q>&sortBy=submittedDate&sortOrder=descending&m
    threshold, paired bootstrap by game, ablation, cost, risks, coach gain) and rank it in BACKLOG.md.
 5. Nothing is proposed only because it is new. A proposal never changes a test set or a threshold after it is written.
 
-## Schedule (proposed, not created)
+## Schedule (created 2026-11-17, PLAN.md D83)
 
-Monthly, on the first Monday, as a scheduled job that runs the queries, triages, edits the dossiers and BACKLOG.md
-on a branch, and leaves a summary for Lucien. Creating the job needs Lucien's yes (PLAN.md D73).
+Monthly, on the 1st at 14:00 UTC (6:00 Pacific), a cloud routine ("nba research refresh") runs the queries,
+triages, edits the dossiers and BACKLOG.md on a branch research-refresh-YYYY-MM cut from v4-research, pushes only
+that branch, and leaves its summary in the commit message for Lucien. It touches docs only and runs no experiment.
+The 1st of the month replaces the proposed first Monday: a cron line cannot name the first Monday alone.
 
 ## Log
 
