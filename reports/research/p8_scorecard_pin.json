@@ -1,7 +1,7 @@
 {
  "fixed_on": "2026-11-17",
  "decision": "P8_FEASIBILITY.md section 7 (4); PLAN.md D85",
- "status": "draft",
+ "status": "adopted",
  "scorer": {
   "tools/p8_scorecard.py": "714d096da99f588b27fe19e09c8a5186beac4764066ac684f91df402fff73aa7",
   "tools/p8_frozen.py": "86e3c02f01abc929cd82090c44cced3112eb768a073a15b5363736fcc1de0dbb",
