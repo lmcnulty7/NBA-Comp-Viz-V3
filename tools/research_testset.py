@@ -6,7 +6,9 @@
 The committed file reports/research/testset.json lists, per source, the test games and the sha256 of the sorted list.
 It was fixed before any experiment result existed (PLAN.md D71, D77): the 10 2015-16 games the frozen models never
 read, and 10 Liga ACB 2025-26 games as an out-of-distribution check. The 17 held-out games of sportvu/splits.json are
-spent and are never in it.
+spent and are never in it. A third source (PLAN.md D85 (1)) is the broadcast CV test set of P8: 4 games in 3 whole
+arenas, with their video ids, their SportVU archive blob pins and the home teams of those arenas, all hashed. No P8
+development game may be one of its games, use one of its videos or be played in one of its arenas (refuse_cv_test).
 
 Rules, enforced here and by tests/test_research_testset.py:
 - Experiment code gets its development games from dev_games() and runs refuse_test() on every game id it fits,
@@ -29,6 +31,10 @@ LEDGER_FILE = REPO_ROOT / "reports" / "research" / "scoring_ledger.json"
 
 TRACKING = "sportvu_2015_16_untouched"
 OOD = "skillcorner_acb_2025_26"
+BROADCAST_CV = "broadcast_cv_2015_16"
+# The optional keyed lists of a source and the hash that seals each one (a sorted "key value" line per entry).
+SEALED_MAPS = {"archive_git_blob_sha1": "pins_sha256", "video_ids": "video_pins_sha256",
+               "arena_homes": "arena_homes_sha256"}
 
 
 def list_hash(games) -> str:
@@ -42,11 +48,19 @@ def is_spent(game_id) -> bool:
     return bool(is_heldout_game(game_id))
 
 
+def map_hash(mapping: dict) -> str:
+    """The sha256 of a keyed list: one sorted "key value" line per entry, a list value giving one line per item."""
+    return list_hash(f"{k} {v}" for k, vs in mapping.items() for v in (vs if isinstance(vs, list) else [vs]))
+
+
 def _load(path=None) -> dict:
     data = json.loads(Path(path or TESTSET_FILE).read_text())
     for name, src in data["sources"].items():
         if list_hash(src["games"]) != src["sha256"]:
             raise SystemExit(f"{name}: the committed test games do not match their sha256; the test set was edited")
+        for key, seal in SEALED_MAPS.items():
+            if key in src and (not src.get(seal) or map_hash(src[key]) != src[seal]):
+                raise SystemExit(f"{name}: {key} does not match {seal}; the test set was edited")
     return data
 
 
@@ -77,11 +91,53 @@ def refuse_test(game_ids, who: str, source: str = TRACKING, path=None) -> int:
 
 
 def dev_games(all_games, who: str, source: str = TRACKING, path=None) -> list:
-    """The development games: every given game that is neither a D71 test game nor a spent held-out game."""
+    """The development games: every given game that is neither a D71 test game nor a spent held-out game. For the
+    broadcast CV source, a game played in one of its test arenas is left out too."""
     test = set(_test_games(source, path))
-    out = sorted(str(g) for g in all_games if str(g) not in test and not is_spent(g))
+    homes = _test_homes(source, path)
+    out = sorted(str(g) for g in all_games
+                 if str(g) not in test and not is_spent(g) and _home_of(str(g)) not in homes)
     refuse_test(out, who, source, path)
     return out
+
+
+def _home_of(game_id: str):
+    """The home team of a SportVU game name (MM.DD.YYYY.AWAY.at.HOME); None for any other id."""
+    parts = game_id.split(".")
+    return parts[5] if len(parts) == 6 and parts[4] == "at" else None
+
+
+def _test_homes(source: str, path=None) -> set:
+    """The home team codes of a source's test arenas (empty for a source without arenas). Private."""
+    src = _load(path)["sources"][source]
+    return {h for hs in (src.get("arena_homes") or {}).values() for h in hs}
+
+
+def refuse_cv_test(items, who: str, path=None) -> int:
+    """The P8 guard. SystemExit when any item is a broadcast CV test game, one of its video ids, or a game whose home
+    team plays in a CV test arena -> the number of items checked. Every P8 tool runs it on each game id and each video
+    id it downloads, syncs, builds, labels, fits, tunes or scores on, outside score_once."""
+    src = _load(path)["sources"][BROADCAST_CV]
+    items = {str(i) for i in items}
+    banned = set(src["games"]) | set(src["video_ids"].values())
+    bad = sorted(items & banned)
+    homes = _test_homes(BROADCAST_CV, path)
+    bad += sorted(i for i in items - banned if _home_of(i) in homes)
+    if bad:
+        raise SystemExit(f"{who}: {len(bad)} broadcast CV test item(s) reached development code (a test game, a test "
+                         f"video or a game in a test arena), for example {bad[0]}")
+    return len(items)
+
+
+def cv_test_videos(path=None) -> dict:
+    """Game id -> video id of the broadcast CV test set, for tools.p8_fetch only: it downloads the test videos into
+    their sealed folder and checks the container with ffprobe. It runs no model on them; no other P8 code may call
+    this (tests/test_research_testset.py)."""
+    src = _load(path)["sources"][BROADCAST_CV]
+    vids = dict(src["video_ids"])
+    if sorted(vids) != sorted(src["games"]):
+        raise SystemExit(f"{BROADCAST_CV}: the video ids do not name exactly the committed test games")
+    return vids
 
 
 def _ledger(path=None) -> list:

@@ -218,3 +218,130 @@ def test_ingest_pins_must_name_exactly_the_test_games_and_match_their_hash(tmp_p
         path.write_text(json.dumps({"sources": {R.TRACKING: broken}}))
         with pytest.raises(SystemExit):
             R.ingest_pins(path=path)
+
+
+# ── the broadcast CV test set of P8 (PLAN.md D85 (1)) ───────────────────────────────────────────────────────────────
+# Names that reach the CV test videos. Allowed only in the download tool, which runs no model on them.
+CV_TEST_NAMES = ("cv_test_videos", "p8_cv_test")
+CV_ALLOWED = {"tools/p8_fetch.py": CV_TEST_NAMES}
+# Registries the frozen CV code reads (sportvu/, harvest_driver, clock_reader): a CV test game or video id listed in
+# one of them could be picked up by a frozen tool, so none may hold one.
+FROZEN_CV_REGISTRIES = ("data/harvest/games.json", "sportvu/manifest_overrides.json", "sportvu/splits.json")
+
+
+def cv_source():
+    return committed()["sources"][R.BROADCAST_CV]
+
+
+def test_the_cv_test_set_is_four_games_in_three_whole_arenas_with_sealed_ids_and_pins():
+    src = cv_source()
+    games = src["games"]
+    assert len(games) == 4 and len(set(games)) == 4
+    assert R.list_hash(games) == src["sha256"]
+    for key, seal in R.SEALED_MAPS.items():
+        assert R.map_hash(src[key]) == src[seal], key
+    assert sorted(src["video_ids"]) == sorted(games) == sorted(src["archive_git_blob_sha1"])
+    assert len(set(src["video_ids"].values())) == 4
+    assert all(re.fullmatch(r"[0-9a-f]{40}", p) for p in src["archive_git_blob_sha1"].values())
+    homes = {h for hs in src["arena_homes"].values() for h in hs}
+    assert len(src["arena_homes"]) == 3 and {g.split(".")[-1] for g in games} <= homes
+    for g in games:                                   # inside the public SportVU window, regular season, not spent
+        mm, dd, yyyy = g.split(".")[:3]
+        assert "2015-10-27" <= f"{yyyy}-{mm}-{dd}" <= "2016-01-23", g
+        assert not R.is_spent(g) and not g.endswith(".at.CLE"), g
+
+
+def test_the_cv_test_games_are_in_no_other_source():
+    data = committed()["sources"]
+    cv = set(data[R.BROADCAST_CV]["games"])
+    for name, src in data.items():
+        if name != R.BROADCAST_CV:
+            assert not cv & set(src["games"]), name
+
+
+def test_no_experiment_code_names_a_cv_test_video():
+    vids = set(cv_source()["video_ids"].values())
+    problems = [f"{p.relative_to(REPO)} names the CV test video {v}" for p in experiment_files()
+                for v in vids if v in p.read_text()]
+    assert problems == []
+
+
+def test_no_frozen_cv_registry_holds_a_cv_test_game_or_video():
+    src = cv_source()
+    ids = set(src["games"]) | set(src["video_ids"].values())
+    problems = [f"{rel} holds {i}" for rel in FROZEN_CV_REGISTRIES for i in ids if i in (REPO / rel).read_text()]
+    assert problems == []
+
+
+def test_only_the_download_tool_reaches_the_cv_test_videos():
+    problems = []
+    for path in experiment_files():
+        rel = str(path.relative_to(REPO))
+        text = path.read_text()
+        for name in CV_TEST_NAMES:
+            if name in text and name not in CV_ALLOWED.get(rel, ()):
+                problems.append(f"{rel} uses {name}")
+    assert problems == []
+
+
+def test_every_p8_tool_runs_the_cv_guard():
+    """A P8 tool that touches games (tools/p8_*.py) must run refuse_cv_test; a module that only holds constants or
+    pure functions says so with P8_NO_GAMES = True."""
+    problems = []
+    for path in sorted((REPO / "tools").glob("p8_*.py")):
+        text = path.read_text()
+        if "refuse_cv_test(" not in text and "P8_NO_GAMES = True" not in text:
+            problems.append(str(path.relative_to(REPO)))
+    assert problems == []
+
+
+@pytest.fixture
+def tiny_cv(tmp_path):
+    games = ["12.01.2015.AAA.at.MIA", "12.02.2015.BBB.at.LAL"]
+    vids = {games[0]: "vidA0000000", games[1]: "vidB0000000"}
+    homes = {"Miami": ["MIA"], "Staples Center": ["LAC", "LAL"]}
+    src = {"games": games, "sha256": R.list_hash(games), "video_ids": vids, "video_pins_sha256": R.map_hash(vids),
+           "arena_homes": homes, "arena_homes_sha256": R.map_hash(homes)}
+    path = tmp_path / "testset.json"
+    path.write_text(json.dumps({"sources": {R.BROADCAST_CV: src}}))
+    return path, games, vids
+
+
+def test_refuse_cv_test_refuses_test_games_test_videos_and_whole_test_arenas(tiny_cv):
+    path, games, vids = tiny_cv
+    ok = ["11.27.2015.CHI.at.IND", "01.12.2016.BOS.at.NYK", "someVideoId1"]
+    assert R.refuse_cv_test(ok, "t", path=path) == 3
+    for bad in ([games[0]], [vids[games[1]]], ["01.01.2016.DAL.at.MIA"], ["11.11.2015.SAS.at.LAC"],
+                ok + ["12.30.2015.UTA.at.LAL"]):
+        with pytest.raises(SystemExit):
+            R.refuse_cv_test(bad, "t", path=path)
+
+
+def test_dev_games_of_the_cv_source_leave_out_whole_test_arenas(tiny_cv):
+    path, games, _ = tiny_cv
+    pool = games + ["01.01.2016.DAL.at.MIA", "11.11.2015.SAS.at.LAC", "11.27.2015.CHI.at.IND", "12.23.2015.NYK.at.CLE"]
+    assert R.dev_games(pool, "t", R.BROADCAST_CV, path) == ["11.27.2015.CHI.at.IND"]
+
+
+def test_an_edited_cv_video_id_or_arena_is_refused(tiny_cv):
+    path, games, vids = tiny_cv
+    for key, value in (("video_ids", {**vids, games[0]: "otherVideo1"}), ("arena_homes", {"Miami": ["MIA"]})):
+        data = json.loads(path.read_text())
+        data["sources"][R.BROADCAST_CV][key] = value
+        path.write_text(json.dumps(data))
+        with pytest.raises(SystemExit):
+            R.refuse_cv_test(["11.27.2015.CHI.at.IND"], "t", path=path)
+        tiny = json.loads(path.read_text())
+        tiny["sources"][R.BROADCAST_CV][key] = vids if key == "video_ids" else {"Miami": ["MIA"], "Staples Center": ["LAC", "LAL"]}
+        path.write_text(json.dumps(tiny))
+
+
+def test_cv_test_videos_must_name_exactly_the_test_games(tiny_cv):
+    path, games, vids = tiny_cv
+    assert R.cv_test_videos(path) == vids
+    data = json.loads(path.read_text())
+    one = {games[0]: vids[games[0]]}
+    data["sources"][R.BROADCAST_CV].update(video_ids=one, video_pins_sha256=R.map_hash(one))
+    path.write_text(json.dumps(data))
+    with pytest.raises(SystemExit):
+        R.cv_test_videos(path)
