@@ -336,6 +336,28 @@ ml-reviewer before and after the score (PASS, majors settled in D80, D81), /code
 and the verifier (PASS, pytest 1201 passed, 2 skipped, 65 deselected).
 R5 Refresh process. Status (2026-11-16): done. docs/research/REFRESH.md: sources (links checked), queries, triage,
 dated log; a monthly schedule is proposed and not created (needs Lucien's yes, D73).
+R4 Methods and literature page (D72). Status (2026-11-17): done on v4-research (merge 0419da9c), not deployed. Route
+/methods in both variants from methods.json (export/research_methods.py: every text copied from a dossier or
+BACKLOG.md, every number of ours traced to a report; check-methods finds all 1181 page numbers in methods.json);
+xfg-E1 shown with both stages (development met, test not met, not adopted); README section "Methods and literature".
+Contract 1.2.0 shared with P3 (D82). Closed with /code-review (10 findings, fixed by the owner of each file), the
+ml-reviewer (PASS, four majors fixed: slope intervals, control-arm labels, the 1.1.0 manifest test, fold wording) and
+the verifier (items 1 to 5 met; one em dash in a test input fixed in cde9a3a1). pytest 1338 passed, 3 skipped;
+npm run check public passed (552 browser tests), private build and browser suite passed (633).
+
+Parked items worked in parallel (D75, D76), status (2026-11-17):
+- P3 options 1 and 2: built and merged (0419da9c), capped sample only. export/genai.py with claude-haiku-5-5; every
+  number of a text must be a value of its page as shown, a model's value must be called one in its sentence, a lane
+  that did not work is never named; checked when written, in the contract validation and on the page. Sample: 25
+  of 30 texts kept (v2 prompts); the full run (405 players, 3162 possessions, about $3.38 projected) needs Lucien's yes.
+- P4 harness: built and merged; the loop has not run. Baseline public a11y 0, Chromium first view 366 ms, JS 147.26 KB,
+  reading grade 4.165; noise floor 0.01. The guard keeps every check out of a candidate's reach. Before a loop:
+  a new baseline on the merged site (the stored one predates it); each candidate costs about 15 to 20 minutes of lock.
+- P8 Step 0: docs/research/P8_FEASIBILITY.md (2914c37d): no-go as written, go for a two-phase P8 (A: measure with
+  scorecard v2 on a new whole-arena test set; B: experiments). Needs Lucien: the done condition, video rights, a
+  GPU budget (25 to 40 GPU-hours) and the targets. P8 is preferred over P5, which is not run on its own.
+- P6: docs/research/P6_DIRECTION_BRIEF.md written; the choice is Lucien's.
+- P7: waits for the interview date.
 
 After V3 (not in this plan): resume (D15), full story page, group 2, detection and teams, live service.
 
