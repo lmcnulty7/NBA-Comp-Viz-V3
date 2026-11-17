@@ -746,12 +746,41 @@ def final(artifacts=None) -> dict:
     return out
 
 
+def posthoc(artifacts=None) -> dict:
+    """Descriptive numbers written after the development result, for reading it; none enters a verdict.
+    (a) The most decisions of any player in one development game, against the 300-decision gate: whether the
+    pre-registered statistics can exist on a test set in which every team plays one game. (b) The per-game
+    reliability that the split-half r of the target implies by the Spearman-Brown formula stepped down from the mean
+    number of qualifying games per player per half: r / (k - (k - 1) r)."""
+    import numpy as np
+    events, ortg, games = _gate_tables(artifacts)
+    dev_out = json.loads((RESULTS / f"{EXPERIMENT}-dev.json").read_text())
+    T = Table(events, ortg, games)
+    sets = player_sets(T)
+    per_pg = events.groupby(["sportvu_game", "player_id"]).size()
+    k = np.concatenate([np.bincount(T.p[(T.oddeven[T.g] == h) & (T.ok > 0)], minlength=T.P)[sets["oddeven"]]
+                        for h in (0, 1)])
+    kbar = float(k.mean())
+    out = {"experiment": EXPERIMENT, "stage": "post hoc, descriptive, written after the development result; no verdict "
+                                              "reads these numbers"}
+    out["player_game_decisions"] = {"max": int(per_pg.max()), "p99": float(per_pg.quantile(0.99)),
+                                    "player_games": int(len(per_pg)), "gate": N_MIN}
+    r = dev_out["statistics"]["target.split_half_r"]["value"]
+    out["target_per_game_reliability"] = {
+        "split_half_r": r, "mean_qualifying_games_per_player_half": kbar,
+        "median_qualifying_games_per_player_half": float(np.median(k)),
+        "spearman_brown_one_game": float(r / (kbar - (kbar - 1) * r))}
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    (RESULTS / f"{EXPERIMENT}-posthoc.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e1-gate", "e1-dryrun", "e1-dev", "e1-final"))
+    ap.add_argument("command", choices=("e1-gate", "e1-dryrun", "e1-dev", "e1-posthoc", "e1-final"))
     ap.add_argument("--artifacts", default=None)
     a = ap.parse_args(argv)
-    run = {"e1-gate": gate, "e1-dryrun": dryrun, "e1-dev": dev, "e1-final": final}[a.command]
+    run = {"e1-gate": gate, "e1-dryrun": dryrun, "e1-dev": dev, "e1-posthoc": posthoc, "e1-final": final}[a.command]
     with heavy_job(f"research decisions {a.command}"):
         out = run(a.artifacts)
     shown = out.get("verdict", out) if isinstance(out, dict) else out

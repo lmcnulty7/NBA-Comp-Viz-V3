@@ -1,0 +1,16 @@
+{
+  "experiment": "decisions-E1",
+  "stage": "post hoc, descriptive, written after the development result; no verdict reads these numbers",
+  "player_game_decisions": {
+    "max": 229,
+    "p99": 153.0,
+    "player_games": 12769,
+    "gate": 300
+  },
+  "target_per_game_reliability": {
+    "split_half_r": 0.419639094604812,
+    "mean_qualifying_games_per_player_half": 18.00597609561753,
+    "median_qualifying_games_per_player_half": 18.0,
+    "spearman_brown_one_game": 0.038606660077518035
+  }
+}
