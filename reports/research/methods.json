@@ -234,7 +234,11 @@
         "value": "interval_width.p95",
         "digits": 4
        }
-      ]
+      ],
+      "conditions": [],
+      "flags_outside_rule": {
+       "verdict.width_p95_under_0_01": "the site copy rule fixed in the pre-registration (whether xFG is shown as a point estimate), not the adoption rule"
+      }
      },
      "writeup": "reports/research/xfg-E1.md"
     },
@@ -1282,7 +1286,72 @@
      "effort": 1,
      "test_data": "training tables, Set A",
      "backlog_status": "done: not adopted (H1 fails as pre-registered, H2 holds, H3 fails; reports/research/decisions-E1.md)",
-     "results": null
+     "results": null,
+     "writeup": "reports/research/decisions-E1.md",
+     "protocol": {
+      "development": "reports/research/decisions-E1-dev.json",
+      "intervals": "reports/research/decisions-E1-posthoc.json",
+      "verdict_key": "verdict",
+      "games": "games",
+      "rows": "decisions",
+      "rows_unit": "decisions",
+      "statistics_key": "valid_intervals.statistics",
+      "interval_method_key": "valid_intervals.method",
+      "interval_method": "bootstrap by player, 2000 resamples",
+      "digits": 3,
+      "hypotheses": [
+       {
+        "key": "H1",
+        "threshold": "below 0.2",
+        "interval": "target.split_half_r"
+       },
+       {
+        "key": "H2",
+        "threshold": "at least 0.5",
+        "interval": "frozen.stability"
+       },
+       {
+        "key": "H3",
+        "threshold": "at least 0.5",
+        "interval": "frozen.r2_on_kind_shares"
+       }
+      ],
+      "adoption": {
+       "key": "adoption",
+       "values": [
+        {
+         "label": "Stability of the kind-adjusted quality",
+         "value": "stability",
+         "interval": "adjusted.stability"
+        },
+        {
+         "label": "R squared of the kind-adjusted quality on kind shares",
+         "value": "r2_on_kind_shares",
+         "interval": "adjusted.r2_on_kind_shares"
+        }
+       ],
+       "conditions": [
+        {
+         "value": "stability",
+         "threshold": "at least 0.5"
+        },
+        {
+         "value": "stability_lo",
+         "threshold": "above 0.3"
+        },
+        {
+         "value": "r2_on_kind_shares",
+         "threshold": "below 0.2"
+        }
+       ]
+      },
+      "caveat": "Post hoc, not pre-registered: stepped down to one game, the target's reliability is about 0.04, which would meet H1's intent; part of the half-season reliability may be team offence shared by teammates (not measured).",
+      "not_scored": [
+       "The pre-registration asks for the same statistics once on the D71 test set. They cannot exist there, so the test set was not touched and the scoring ledger has no decisions-E1 entry.",
+       "On one date every team plays once, so every player has at most one game. No player can sit in both halves, so split-half reliability and stability have no player at all.",
+       "Discrimination and R squared need 300 decisions in the set. Post hoc: the most decisions any player made in one of the 12769 development player-games is 229 (99th percentile 153). No player can reach 300 in one game."
+      ]
+     }
     },
     {
      "id": "decisions-E2",
@@ -1473,7 +1542,102 @@
      "effort": 2,
      "test_data": "2025-26 season",
      "backlog_status": "done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; possible data fault: stint margin equals the schedule in 1298 of 1300 games; reports/research/lineups-E1.md)",
-     "results": null
+     "results": {
+      "metric": "Paired difference in game-margin RMSE, RAPM minus the frozen lineup plus-minus, whole-game margin (points)",
+      "rows_unit": "stints",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent interval of the RMSE difference.",
+      "development": null,
+      "test": "reports/research/lineups-E1-final.json",
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "stints",
+       "games": "games",
+       "diff": "whole_game.paired.rapm_minus_plus_minus.point",
+       "lo": "whole_game.paired.rapm_minus_plus_minus.ci95.0",
+       "hi": "whole_game.paired.rapm_minus_plus_minus.ci95.1",
+       "upper": "whole_game.paired.rapm_minus_plus_minus.ci95.1",
+       "rule": "verdict.rule",
+       "met": "verdict.passes",
+       "main_met": "verdict.diff_ci_below_zero"
+      },
+      "conditions": [
+       {
+        "label": "R squared of RAPM against home court alone, whole-game margin",
+        "value": "whole_game.r2_vs_floor.rapm.point",
+        "lo": "whole_game.r2_vs_floor.rapm.ci95.0",
+        "hi": "whole_game.r2_vs_floor.rapm.ci95.1",
+        "bound": "lo",
+        "comparison": "above",
+        "threshold": 0,
+        "met": "verdict.r2_above_zero_with_interval",
+        "digits": 3
+       }
+      ],
+      "digits": 2,
+      "values": [
+       {
+        "label": "Game-margin RMSE, RAPM (points)",
+        "value": "whole_game.rmse.rapm.point",
+        "lo": "whole_game.rmse.rapm.ci95.0",
+        "hi": "whole_game.rmse.rapm.ci95.1",
+        "digits": 2
+       },
+       {
+        "label": "Game-margin RMSE, frozen lineup plus-minus (points)",
+        "value": "whole_game.rmse.plus_minus.point",
+        "lo": "whole_game.rmse.plus_minus.ci95.0",
+        "hi": "whole_game.rmse.plus_minus.ci95.1",
+        "digits": 2
+       },
+       {
+        "label": "Game-margin RMSE, home court alone (points)",
+        "value": "whole_game.rmse.floor.point",
+        "lo": "whole_game.rmse.floor.ci95.0",
+        "hi": "whole_game.rmse.floor.ci95.1",
+        "digits": 2
+       },
+       {
+        "label": "Ablation, read by no verdict: replacement-level players minus RAPM, paired RMSE difference (points)",
+        "value": "whole_game.paired.replacement_minus_rapm.point",
+        "lo": "whole_game.paired.replacement_minus_rapm.ci95.0",
+        "hi": "whole_game.paired.replacement_minus_rapm.ci95.1",
+        "digits": 3
+       },
+       {
+        "label": "Context arm, not pre-registered and read by no verdict: RAPM minus player plus-minus, paired RMSE difference (points)",
+        "value": "whole_game.paired.rapm_minus_player_plus_minus.point",
+        "lo": "whole_game.paired.rapm_minus_player_plus_minus.ci95.0",
+        "hi": "whole_game.paired.rapm_minus_player_plus_minus.ci95.1",
+        "digits": 3
+       },
+       {
+        "label": "Sensitivity, read by no verdict: RAPM minus plus-minus over the kept stints only, paired RMSE difference (points)",
+        "value": "kept_stints.paired.rapm_minus_plus_minus.point",
+        "lo": "kept_stints.paired.rapm_minus_plus_minus.ci95.0",
+        "hi": "kept_stints.paired.rapm_minus_plus_minus.ci95.1",
+        "digits": 2
+       }
+      ]
+     },
+     "writeup": "reports/research/lineups-E1.md",
+     "stages": "test_only",
+     "writeup_notes": [
+      "Read as pre-committed: this is a tested claim about game margin, given the actual stints of each game, which a pregame forecast would not know. It does not validate lineup ranks, synergy, any one lineup or player, or the gap between two players; the lane's lineup-rank result stays inconclusive.",
+      "One possible data fault is reported beside it (commitment 9): the stint margin agrees with the schedule table in 1298 of 1300 games, not all.",
+      {
+       "section": "Commitments before the test score",
+       "text": "In both development checks it loses to home court alone. A pass on the first condition is therefore close to certain and says little; the informative condition is R squared against the floor."
+      },
+      {
+       "section": "Commitments before the test score",
+       "text": "Leaving out the builder-dropped games is a deviation from the pre-registration's \"all test games\", stated here; on the development seasons it is 9 to 12 games a season."
+      },
+      {
+       "section": "Test season (2025-26, scored once)",
+       "text": "Games: 1316 listed, all with play-by-play. The frozen builder dropped 16 whole (shifted period labels), so 1300 are scored; no listed game lacked play-by-play, no game was built without stints, and no game carries a non-finite value."
+      }
+     ]
     },
     {
      "id": "lineups-E2",
