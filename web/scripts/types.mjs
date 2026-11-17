@@ -59,6 +59,11 @@ export async function contractTs(schemaText) {
     style: { printWidth: 110, singleQuote: false, semi: true, trailingComma: "all" },
     cwd: TYPES_DIR,
   });
+  // The files whose model accepts this version only (a "const" schema_version): the manifest and every file a
+  // version introduced. Every other file accepts COMPATIBLE_VERSIONS.
+  const current = Object.entries(files)
+    .filter(([, model]) => schema.$defs?.[model]?.properties?.schema_version?.const === version)
+    .map(([pattern]) => pattern);
   const fileLines = Object.entries(files)
     .map(([pattern, model]) => `  ${JSON.stringify(pattern)}: ${JSON.stringify(model)},`)
     .join("\n");
@@ -68,6 +73,9 @@ export const SCHEMA_VERSION = ${JSON.stringify(version)} as const;
 
 /** The versions a data file may carry: this one and the earlier minor versions of the same major version. */
 export const COMPATIBLE_VERSIONS = ${JSON.stringify(compatible)} as const;
+
+/** Path patterns of the files that must carry SCHEMA_VERSION itself (the contract's CurrentVersion). */
+export const CURRENT_VERSION_FILES = ${JSON.stringify(current)} as const;
 
 /** Path pattern under the data root, and the contract model each file must validate against. */
 export const CONTRACT_FILES = {

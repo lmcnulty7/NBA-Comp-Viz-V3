@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { DataError, StaticSource, dataPaths, type DataSource } from "@/lib/data/source";
+import { DataError, StaticSource, dataPaths, needsCurrentVersion, type DataSource } from "@/lib/data/source";
 import { CONTRACT_FILES, SCHEMA_VERSION } from "@/lib/types/contract";
 
 function reader(files: Record<string, unknown>) {
@@ -109,16 +109,35 @@ test("only the most recent possessions are kept in memory", async () => {
   expect(asked.filter((path) => path === "games/a/0.json")).toHaveLength(2);
 });
 
-test("a data root of an earlier minor version reads, a later or another major one does not", async () => {
+test("an older data file reads, a later or another major one does not", async () => {
   const { read } = reader({
-    "manifest.json": { schema_version: "1.1.0" },
-    "players.json": { schema_version: "1.3.0" },
+    "players.json": { schema_version: "1.1.0" },
+    "scorecard.json": { schema_version: "1.3.0" },
     "results.json": { schema_version: "2.0.0" },
   });
   const source = new StaticSource(read);
-  await expect(source.manifest()).resolves.toMatchObject({ schema_version: "1.1.0" });
-  await expect(source.players()).rejects.toMatchObject({ reason: "version" });
+  await expect(source.players()).resolves.toMatchObject({ schema_version: "1.1.0" });
+  await expect(source.scorecard()).rejects.toMatchObject({ reason: "version" });
   await expect(source.results()).rejects.toMatchObject({ reason: "version" });
+});
+
+test("the manifest, the methods file and the texts carry this schema version exactly", async () => {
+  const older = { schema_version: "1.1.0" };
+  const { read } = reader({
+    "manifest.json": older,
+    "methods.json": older,
+    "genai/scouting.json": older,
+    "genai/possession.json": versioned({ kind: "possession", items: [] }),
+  });
+  const source = new StaticSource(read);
+  await expect(source.manifest()).rejects.toMatchObject({ reason: "version" });
+  await expect(source.methods()).rejects.toMatchObject({ reason: "version" });
+  await expect(source.texts("scouting")).rejects.toMatchObject({ reason: "version" });
+  await expect(source.texts("possession")).resolves.toMatchObject({ kind: "possession" });
+  expect(needsCurrentVersion("manifest.json")).toBe(true);
+  expect(needsCurrentVersion("genai/possession.json")).toBe(true);
+  expect(needsCurrentVersion("players.json")).toBe(false);
+  expect(needsCurrentVersion("games/a/possessions.json")).toBe(false);
 });
 
 test("machine-written texts are optional", async () => {

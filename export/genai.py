@@ -844,13 +844,17 @@ def choose(root: Path, kind: str, n, seed: int = 0) -> list:
     return [(item[0], item[1]) for item in sorted(picked, key=lambda item: order[item[0]])]
 
 
-def _sources(root: Path, kind: str, keys, synthetic: bool) -> list:
+def _sources(root: Path, kind: str, texts, synthetic: bool) -> list:
+    """The generator, the prompt version each kept text was written with (a file may hold texts of several
+    versions after a merge), and the sources of the inputs the texts were written from."""
     if synthetic:
         return [S.Source(path=S.FIXTURE_SOURCE, what="synthetic fixture values, not a result", rows="not_split")]
-    version = prompt(kind)[0]
+    keys = [t.key for t in texts]
+    versions = sorted({t.prompt_version for t in texts if t.prompt_version != FIXTURE_MODEL})
     own = [S.Source(path=GENERATOR, what="machine-written text, every number checked against the page's values "
-                    "(PLAN.md P3)", rows="not_split"),
-           S.Source(path=f"export/prompts/{version}.md", what=f"the prompt, version {version}", rows="not_split")]
+                    "(PLAN.md P3)", rows="not_split")]
+    own += [S.Source(path=f"export/prompts/{version}.md", what=f"the prompt, version {version}", rows="not_split")
+            for version in versions]
     found = []
     if kind == "scouting":
         found += _load(root, "players.json", S.PlayersFile).sources
@@ -887,7 +891,7 @@ def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: b
             notes.append("Fixture texts of a synthetic data root, not a result.")
         file = S.GeneratedTexts(schema_version="1.2.0", kind=kind, label="machine-written", checks=list(CHECKS),
                                 items=sorted(texts, key=lambda t: t.key), notes=notes,
-                                sources=_sources(root, kind, [t.key for t in texts], synthetic))
+                                sources=_sources(root, kind, texts, synthetic))
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_dump(file), encoding="utf-8")
     elif path.exists():
@@ -899,21 +903,30 @@ def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: b
         (root / "manifest.json").write_text(_dump(with_genai_entry(current, root)), encoding="utf-8")
 
 
-def with_genai_entry(manifest: S.Manifest, root: Path) -> S.Manifest:
-    """The manifest with one entry for each genai file on disk, or none when there is none. A root with texts has a
-    1.2.0 manifest."""
-    files = [entry for entry in manifest.files if entry.model != S.GeneratedTexts.__name__]
-    version = manifest.schema_version
+def genai_entries(root: Path) -> list:
+    """One manifest entry for each genai file on disk, in a fixed order."""
+    entries = []
     for rel in sorted(S.GENAI_FILES.values()):
         path = Path(root) / rel
         if not path.exists():
             continue
         data = path.read_bytes()
-        files.append(S.ManifestFile(path=rel, model=S.GeneratedTexts.__name__, count=1, bytes=len(data),
-                                    sha256=hashlib.sha256(data).hexdigest(),
-                                    sources=S.GeneratedTexts.model_validate_json(data).sources))
-        version = "1.2.0"
-    return manifest.model_copy(update={"files": files, "schema_version": version})
+        entries.append(S.ManifestFile(path=rel, model=S.GeneratedTexts.__name__, count=1, bytes=len(data),
+                                      sha256=hashlib.sha256(data).hexdigest(),
+                                      sources=S.GeneratedTexts.model_validate_json(data).sources))
+    return entries
+
+
+def with_genai_entry(manifest: S.Manifest, root: Path) -> S.Manifest:
+    """The manifest with one entry for each genai file on disk, or none when there is none. A build id made from
+    the content (export.site_data: a prefix, a dash and the first 12 characters of S.content_id) is made again, so
+    a change to the texts alone gives a new build id; any other build id is kept as it is."""
+    files = [entry for entry in manifest.files if entry.model != S.GeneratedTexts.__name__] + genai_entries(root)
+    build_id = manifest.build_id
+    derived = re.fullmatch(r"(.+-)([0-9a-f]{12})", build_id)
+    if derived and derived.group(2) == S.content_id(manifest.files)[:12]:
+        build_id = derived.group(1) + S.content_id(files)[:12]
+    return manifest.model_copy(update={"files": files, "build_id": build_id})
 
 
 def root_problems(texts: S.GeneratedTexts, parsed: dict) -> list:
@@ -983,10 +996,40 @@ def prune(root: Path) -> dict:
 # ------------------------------------------------------------------------------------------------------- run
 
 
+def earlier_texts(root: Path, kind: str, skip=()) -> tuple:
+    """The texts already in the root's genai file that still hold: the item still exists, its input is unchanged
+    (same hash) and the text passes every check of today. Returns (kept, dropped count); keys in `skip` are left
+    out and not counted."""
+    rel = S.GENAI_FILES[kind]
+    if not (Path(root) / rel).exists():
+        return [], 0
+    builders = {item[0]: item[1] for item in items_of(root, kind)}
+    kept, dropped = [], 0
+    for text in _load(root, rel, S.GeneratedTexts).items:
+        if text.key in skip:
+            continue
+        item = builders[text.key]() if text.key in builders else None
+        if item is None or input_sha256(item) != text.input_sha256:
+            dropped += 1
+            continue
+        problems, numbers = check_text(text.text, item)
+        if problems:
+            dropped += 1
+            continue
+        kept.append(text.model_copy(update={"numbers": numbers}))
+    return kept, dropped
+
+
 def run(root, kinds=KINDS, n_players=None, n_possessions=None, *, live=False, cache=None, client=None,
         model: str = MODEL, log=print) -> dict:
-    """Generate (or take from the cache) the texts of the chosen items, write them into the root, validate it.
-    Returns counts and token use."""
+    """Generate (or take from the cache) the texts of the chosen items and merge them into the root's texts, then
+    validate the root. Returns counts and token use.
+
+    A run merges, it never replaces: a text already in the root for an item this run did not choose, or for an
+    item whose new text was dropped, stays when it still holds (earlier_texts). So a sample run after a full run
+    cannot throw away texts that were paid for and still pass, and a stale or failing text never survives, because
+    the input hash and every check are applied to it again. Refusing a partial run instead would force a full,
+    paid rerun for any top-up and still not protect a text whose page changed."""
     root = Path(root)
     manifest = _load(root, "manifest.json", S.Manifest)
     if not live and not manifest.synthetic:
@@ -1016,7 +1059,9 @@ def run(root, kinds=KINDS, n_players=None, n_possessions=None, *, live=False, ca
                 stats["dropped"] += 1
                 stats["problems"][key] = record["problems"]
             log(f"{kind} {key}: {'kept' if record['text'] else 'dropped'}{' (cache)' if cached else ''}")
-        write_texts(root, kind, kept, manifest.synthetic)
+        earlier, stats["earlier_dropped"] = earlier_texts(root, kind, skip={text.key for text in kept})
+        stats["earlier_kept"] = len(earlier)
+        write_texts(root, kind, kept + earlier, manifest.synthetic)
         stats["all_items"] = len(items_of(root, kind))
         info["kinds"][kind] = stats
     info["problems"] = S.validate_tree(root, allow_missing=S.STAGED_FILES)
@@ -1035,7 +1080,8 @@ def report(info: dict) -> list:
         total_in += stats["input_tokens"]
         total_out += stats["output_tokens"]
         lines.append(f"{kind}: {stats['kept']} kept, {stats['dropped']} dropped of {stats['items']} "
-                     f"({stats['cached']} from the cache); {stats['calls']} calls, {stats['input_tokens']} input and "
+                     f"({stats['cached']} from the cache); earlier texts kept {stats.get('earlier_kept', 0)}, "
+                     f"dropped {stats.get('earlier_dropped', 0)}; {stats['calls']} calls, {stats['input_tokens']} input and "
                      f"{stats['output_tokens']} output tokens, ${cost(stats['input_tokens'], stats['output_tokens']):.4f}")
         fresh = stats["items"] - stats["cached"]
         if fresh:
