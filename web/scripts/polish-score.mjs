@@ -1,6 +1,7 @@
 // The polish score of a built site (PLAN.md P4, docs/POLISH_LOOP.md): machine checks only, one JSON.
 //
-// It serves out/ on 127.0.0.1 under the base path it was built for (scripts/serve-out.mjs) and measures, with
+// It serves out/ on 127.0.0.1 under the base path it was built for (scripts/serve-out.mjs, with byte ranges for
+// clips as a real host answers them) and measures, with
 // Playwright's own bundled headless Chromium and WebKit (no system browser, no desktop application):
 //   accessibility  axe-core (pinned dev dependency) on one page of each family, at 390 and 1280 px, in both
 //                  browsers, WCAG 2.2 A and AA rules and axe's best practices, with reduced motion so an
@@ -27,7 +28,8 @@ import { chromium, webkit } from "@playwright/test";
 import axe from "axe-core";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
 import path from "node:path";
 import { checkCopy } from "./check-copy.mjs";
 import { checkReading } from "./check-reading.mjs";
@@ -242,6 +244,51 @@ async function measureOnce(origin, sample, runs) {
 }
 
 /**
+ * The static server of serve-out.mjs, plus byte ranges for a media file, as GitHub Pages and Cloudflare Pages
+ * answer them. A browser asks for the start of a clip with a Range header to read its metadata; a server that
+ * ignores the header sends the whole clip, and the first view would be charged for megabytes no real host sends.
+ * Every other request goes to the serve-out handler unchanged.
+ */
+const RANGE_TYPES = { mp4: "video/mp4", webm: "video/webm" };
+export function rangeAwareServer({ dir, base }) {
+  const root = path.resolve(dir);
+  const handler = createStaticServer({ dir, base }).listeners("request")[0];
+  return createServer((request, response) => {
+    const range = /^bytes=(\d*)-(\d*)$/.exec(request.headers.range ?? "");
+    let pathname = "";
+    try {
+      pathname = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname);
+    } catch {
+      // a malformed path is the serve-out handler's to answer
+    }
+    const extension = path.extname(pathname).slice(1).toLowerCase();
+    const inSite = !base || pathname.startsWith(`${base}/`);
+    const file = path.join(root, pathname.slice(base.length));
+    const servable =
+      range && RANGE_TYPES[extension] && inSite && file.startsWith(root + path.sep) && existsSync(file) && statSync(file).isFile();
+    if (!servable || (request.method !== "GET" && request.method !== "HEAD")) return handler(request, response);
+    const size = statSync(file).size;
+    const suffix = range[1] === "";
+    const start = Math.max(0, suffix ? size - Number(range[2]) : Number(range[1]));
+    const end = suffix || range[2] === "" ? size - 1 : Math.min(Number(range[2]), size - 1);
+    if (start > end || start >= size) {
+      response.writeHead(416, { "Content-Range": `bytes */${size}` });
+      response.end();
+      return;
+    }
+    response.writeHead(206, {
+      "Content-Type": RANGE_TYPES[extension],
+      "Content-Length": end - start + 1,
+      "Content-Range": `bytes ${start}-${end}/${size}`,
+      "Accept-Ranges": "bytes",
+      "Cache-Control": "no-store",
+    });
+    if (request.method === "HEAD") response.end();
+    else createReadStream(file, { start, end }).pipe(response);
+  });
+}
+
+/**
  * The data root a built site was made from: its own data/ folder. The build copies the data root it read into
  * public/data and from there into out/data (for the public variant the public data root of D60, for the private
  * one the full root), so this is exactly the data the scored pages show, whatever SITE_DATA_DIR says now.
@@ -284,7 +331,7 @@ export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = nu
   const firstLoadJsKb = round(mean(Object.values(bundles).map((b) => b.jsGzipKb)), 2);
   const { copy, reading, grade } = staticChecks(outDir);
 
-  const server = createStaticServer({ dir: outDir, base: basePath });
+  const server = rangeAwareServer({ dir: outDir, base: basePath });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const origin = `http://127.0.0.1:${server.address().port}${basePath}/`;
   const measured = [];

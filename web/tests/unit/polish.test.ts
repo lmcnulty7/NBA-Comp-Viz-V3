@@ -326,3 +326,39 @@ test("the reading check of a score reads the machine-written texts of the scored
   expect(read.generated).toBe(1);
   expect(read.problems.join("\n")).toContain("genai/scouting.json someone");
 });
+
+// ------------------------------------------------------------------------------- byte ranges for the clips
+
+interface RangeServer {
+  rangeAwareServer(options: { dir: string; base: string }): import("node:http").Server;
+}
+
+test("the scorer's server answers a byte range of a clip as a real host does, and leaves other requests to serve-out", async () => {
+  const { rangeAwareServer } = (await import("../../scripts/polish-score.mjs")) as unknown as RangeServer;
+  const out = tempDir("polish-range");
+  mkdirSync(path.join(out, "clips"), { recursive: true });
+  writeFileSync(path.join(out, "clips", "a.mp4"), "0123456789");
+  writeFileSync(path.join(out, "index.html"), "<p>home</p>");
+  const server = rangeAwareServer({ dir: out, base: "/B" });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
+  const origin = `http://127.0.0.1:${(server.address() as import("node:net").AddressInfo).port}`;
+  try {
+    const part = await fetch(`${origin}/B/clips/a.mp4`, { headers: { Range: "bytes=2-5" } });
+    expect(part.status).toBe(206);
+    expect(part.headers.get("content-range")).toBe("bytes 2-5/10");
+    expect(await part.text()).toBe("2345");
+    const open = await fetch(`${origin}/B/clips/a.mp4`, { headers: { Range: "bytes=7-" } });
+    expect(await open.text()).toBe("789");
+    const tail = await fetch(`${origin}/B/clips/a.mp4`, { headers: { Range: "bytes=-3" } });
+    expect(await tail.text()).toBe("789");
+    expect((await fetch(`${origin}/B/clips/a.mp4`, { headers: { Range: "bytes=20-" } })).status).toBe(416);
+    const whole = await fetch(`${origin}/B/clips/a.mp4`);
+    expect(whole.status).toBe(200);
+    expect(await whole.text()).toBe("0123456789");
+    expect((await fetch(`${origin}/B/`)).status).toBe(200);
+    expect((await fetch(`${origin}/clips/a.mp4`, { headers: { Range: "bytes=0-1" } })).status).toBe(404);
+    expect((await fetch(`${origin}/B/index.html`, { headers: { Range: "bytes=0-1" } })).status).toBe(200);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});

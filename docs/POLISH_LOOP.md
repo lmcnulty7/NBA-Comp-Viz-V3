@@ -18,7 +18,9 @@ are merged, so it polishes the site that ships.
 
 ## What is measured
 
-The scorer serves `web/out` on 127.0.0.1 under its base path (the server of `serve-out.mjs`) and uses only
+The scorer serves `web/out` on 127.0.0.1 under its base path (the server of `serve-out.mjs`, plus byte ranges for
+clips the way GitHub Pages and Cloudflare Pages answer them, so a clip's metadata read is not charged as the whole
+clip) and uses only
 Playwright's bundled headless Chromium and WebKit. It samples one page per family of pages (home, review, one
 game, one possession, prep, one player, results, the 404 page, and on the private build the talk and one slide),
 the first in natural order, so the sample is the same on every build of the same data.
