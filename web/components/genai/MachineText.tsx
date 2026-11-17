@@ -12,10 +12,13 @@ export function MachineText({
   item,
   texts,
   className,
+  note,
 }: {
   item: GeneratedText | null;
   texts: GeneratedTexts | null;
   className?: string;
+  /** A fixed sentence of copy shown with the text, for what the page needs a reader to know about it. */
+  note?: string;
 }) {
   if (!item || !texts) return null;
   const text = copy.site.machineText;
@@ -32,6 +35,7 @@ export function MachineText({
       <p className={styles.label}>{text.label}</p>
       <p className={styles.body}>{item.text}</p>
       <p className="small muted">{fill(text.note, { model: item.model, version: item.prompt_version })}</p>
+      {note ? <p className="small" data-testid="machine-text-note">{note}</p> : null}
       {item.model === "fixture" ? <p className="small muted">{text.fixture}</p> : null}
       <Evidence what={text.title} sources={own.length > 0 ? own : texts.sources} />
     </section>

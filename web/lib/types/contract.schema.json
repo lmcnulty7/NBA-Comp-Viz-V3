@@ -1211,7 +1211,7 @@
     },
     "GeneratedText": {
       "additionalProperties": false,
-      "description": "One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).\n`input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose\ninput changed since it was written is stale and refused. `model` is the model id that wrote it (\"fixture\" for\nthe deterministic texts of a synthetic root) and `prompt_version` the version of the prompt it was given.",
+      "description": "One machine-written text. `key` is the player slug (scouting) or <game slug>/<possession> (possession).\n`input_sha256` is the hash of the item's input as export/genai.py builds it from this data root; a text whose\ninput changed since it was written is stale and refused. `model` is the model id that wrote it (\"fixture\" for\nthe deterministic texts of a synthetic root), `prompt_version` the version of the prompt it was given, and\n`call` how the model was called (thinking, effort, token limit), when that is known.",
       "properties": {
         "key": {
           "minLength": 1,
@@ -1245,6 +1245,18 @@
           },
           "title": "Numbers",
           "type": "array"
+        },
+        "call": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Call"
         }
       },
       "required": [

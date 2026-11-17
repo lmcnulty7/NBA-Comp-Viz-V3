@@ -1,6 +1,7 @@
 """export/genai.py: machine-written texts, made when the site data is built (PLAN.md P3, D76).
 
     python3 -m export.genai --root <data root> [--players N] [--possessions N | --all] [--live] [--cache <dir>]
+    python3 -m export.genai --root <data root> --withhold scouting --out <copy for a deploy>
 
 Two kinds of text, one short paragraph each:
 - scouting: a scouting report on one player of the prep tab, from his entry in players.json;
@@ -15,6 +16,11 @@ each text again with the page's own formatter). The model gets the facts and a v
 A text is kept only when it passes every check of `check_text`:
 - numbers: every number in the text is the shown value of a fact of that item, in that fact's unit (a percent is
   never written as a share or a share as a percent, feet are never points), and no number is written as a word;
+- subjects: every number sits in a sentence with the words of what it is (SUBJECT_WORDS): the model's own error is
+  called an error, a rank of a similar player sits with a word of style, a count is not presented as another count;
+- directions: a word of change (rose, fell, eased down, up from, ...) agrees with the values it links, and two
+  values that are one value at two roundings are no change (check_directions);
+- model values: a value only a model gives carries a model word in its sentence; no lane that did not work is named;
 - estimates: a value with an interval is given with its interval, and a text that gives a point estimate says so;
 - status: a value from a model whose lane did not work (failed, no signal, inconclusive, no result) says so;
 - words: reading grade 9 or lower for the text and for each sentence, none of the words kept out of site copy, no
@@ -27,9 +33,12 @@ the manifest is written again. export.schemas.validate_tree runs `root_problems`
 (its input changed) or a wrong number cannot pass validation.
 
 The cache (--cache, else the GENAI_CACHE_DIR variable, else .genai-cache in the repository, which git ignores)
-holds one file per call, keyed by model, prompt version, prompt hash and input hash: a rebuild calls the model only
-for an item whose input or prompt changed. A text that failed its checks is cached too, with its problems, so it is
-not paid for twice. The cache holds text written from the data root: it is never committed.
+holds one file per ask, keyed by model, prompt version, prompt hash, input hash and call setting (CALL: thinking,
+effort, token limit): a rebuild calls the model only for an item whose input, prompt or call setting changed. A text
+that failed its checks is cached too, with its problems, so it is not paid for twice. Every cached text is checked
+again against the current item before it is used, so a check added later applies to old texts with no call. Each
+text records its call setting, and the file's notes count the texts per setting. The cache holds text written from
+the data root: it is never committed.
 
 Without --live, fixture mode writes deterministic texts from the facts, with model "fixture". It runs only on a
 synthetic data root (export.sample): fixture output is never shown as a result. --live calls the model through the
@@ -64,15 +73,27 @@ MODEL = "claude-haiku-5-5"
 # Prices in dollars per million tokens for MODEL, from the Claude API model table (2026-11-03). Used only to report
 # what a run cost and what the full run would cost.
 PRICE_PER_MTOK = {"input": 0.10, "output": 0.50}
-MAX_TOKENS = 4000
+# How the model is called, every request parameter but the messages. The setting is part of the cache key and of
+# each cache record, and the genai file's notes say which setting wrote how many texts (call_notes).
+# History: the first runs used the model's default (adaptive thinking) at low effort with 4,000 tokens
+# (LEGACY_CALL). The long scouting-v3 prompt then spent the whole 4,000 on thinking for 14 of 50 players, and no
+# text came back. Thinking off fixed that but broke the rules far more often (21 of 50 dropped). This model takes
+# no fixed thinking budget (budget_tokens is refused), so thinking stays adaptive at low effort and max_tokens is
+# 8,000: the earlier thinking-on calls averaged about 2,900 output tokens, so a text keeps well over 1,000 tokens
+# after the thinking.
+CALL = {"max_tokens": 8000, "thinking": {"type": "adaptive"}, "output_config": {"effort": "low"}}
+LEGACY_CALL = {"max_tokens": 4000, "output_config": {"effort": "low"}}
+MAX_TOKENS = CALL["max_tokens"]
 MAX_ATTEMPTS = 2
 FIXTURE_MODEL = "fixture"
 GENERATOR = "export/genai.py"
 CHECKS = (
     "Every number is a value of this page as the page rounds it, in the same unit; no number is written as a word.",
+    "Every number sits in a sentence that says what it is about.",
     "A value with an interval is given with its interval; a point estimate is called one.",
     "A value from a model that did not work says so; a model's value is called one in its sentence; no lane that did "
     "not work is named.",
+    "A word of change (rose, fell, eased) agrees with the values it links.",
     "Reading grade 9 or lower for the text and each sentence; plain words; no claim the site never makes.",
 )
 
@@ -413,12 +434,280 @@ LANE_WORDS = {
 _LANE_WORD_RE = {lane: re.compile(rf"\b(?:{words})\b", re.I) for lane, words in LANE_WORDS.items()}
 
 
-def _sentence_at(text: str, index: int) -> str:
-    """The sentence of `text` that holds the character at `index`, split as sentence_count splits."""
+def _sentence_span(text: str, index: int) -> tuple:
+    """(start, stop) of the sentence of `text` that holds the character at `index`, split as sentence_count splits."""
     ends = [m.end() for m in _SENTENCE_END_RE.finditer(text)]
     start = max((end for end in ends if end <= index), default=0)
     stop = min((end for end in ends if end > index), default=len(text))
+    return start, stop
+
+
+def _sentence_at(text: str, index: int) -> str:
+    """The sentence of `text` that holds the character at `index`."""
+    start, stop = _sentence_span(text, index)
     return text[start:stop]
+
+
+# Words that say a value went up or down. A text that uses one must be right about the values it links
+# (check_directions here, checkDirections in web/lib/genai.ts). Phrases come before single words, so "eased up" is
+# read before "eased". "up from X" and "higher than X" put the earlier value after the words (reversed).
+UP_WORDS = r"edged up|eased up|moved up|ticked up|went up|goes up|go up|going up|rose|rise|rises|rising|climbed|" \
+           r"climb|climbs|climbing|grew|grow|grows|growing|increased|increases|increase|jumped|jump|jumps|jumping|" \
+           r"spiked|spike|spikes|spiking|lifted|lift|lifts|lifting|recovered|recover|recovers|recovering"
+DOWN_WORDS = r"edged down|eased down|moved down|ticked down|went down|goes down|go down|going down|fell|fall|falls|" \
+             r"falling|dropped|drop|drops|dropping|dipped|dip|dips|dipping|sank|sink|sinks|sinking|slid|slide|" \
+             r"slides|sliding|declined|decline|declines|decreased|decrease|decreases|slipped|slip|slips|eased|" \
+             r"easing|eases|lost|loses|losing"
+REVERSED_UP = r"up from|higher than"
+REVERSED_DOWN = r"down from|lower than"
+_CHANGE_RE = re.compile(rf"\b(?:(?P<rup>{REVERSED_UP})|(?P<rdown>{REVERSED_DOWN})|(?P<up>{UP_WORDS})|"
+                        rf"(?P<down>{DOWN_WORDS}))\b", re.I)
+_FROM_BEFORE_RE = re.compile(r"\bfrom\s*$", re.I)
+_TO_BEFORE_RE = re.compile(r"\bto\b(?:\s+[A-Za-z']+){0,4}\s*$", re.I)
+_NEGATION_RE = re.compile(r"\b(?:not|never|no|without)\b|n't\b", re.I)
+
+
+def series_of(field: str, unit: str):
+    """The run of values a fact belongs to, for the direction check: expected points, shot chances, or one
+    estimate (its value and bounds). A time, a clock or a count belongs to none."""
+    if unit in ("seconds", "clock"):
+        return None
+    if re.fullmatch(r"epv_start|epv_end|epv\.value\.\d+", field):
+        return "epv"
+    if re.fullmatch(r"xfg|shots\.\d+\.xfg", field):
+        return "xfg"
+    match = re.fullmatch(r"(.+)\.(?:value|lo|hi)", field)
+    if match:
+        return match.group(1)
+    if field.endswith((".n", ".interval")) or re.search(r"(attempts|possessions|chances|games|absent|rank)$", field):
+        return None
+    return field
+
+
+def _value_of(canon: str):
+    """A token's value and its count of decimals."""
+    plain = canonical(canon).rstrip("%")
+    decimals = len(plain.split(".")[1]) if "." in plain else 0
+    return Decimal(plain), decimals
+
+
+# A value the page prints as the file stores it (an EPV curve state) is exact: "1.1" is 1.100, not a rounding.
+_EXACT_FIELD_RE = re.compile(r"epv\.value\.\d+")
+
+
+def same_at_shown_rounding(a: str, b: str, a_exact: bool = False, b_exact: bool = False) -> bool:
+    """Whether two shown values can be one value: a rounded value matches an exact one when the exact one, rounded
+    to its decimals, gives it; two rounded values match when they agree at the coarser rounding; two exact values
+    match only when equal."""
+    (x, dx), (y, dy) = _value_of(a), _value_of(b)
+    if a_exact and b_exact:
+        return x == y
+    if a_exact or b_exact:
+        exact, rounded, digits = (x, y, dy) if a_exact else (y, x, dx)
+        return exact.quantize(Decimal(1).scaleb(-digits), rounding=ROUND_HALF_UP) == rounded
+    step = Decimal(1).scaleb(-min(dx, dy))
+    return x.quantize(step, rounding=ROUND_HALF_UP) == y.quantize(step, rounding=ROUND_HALF_UP)
+
+
+def check_directions(text: str, facts, names=()) -> list:
+    """A word of change (rose, fell, eased down, up from, ...) must agree with the values it links.
+
+    Values belong to runs (series_of). For a word, the values it moves to are the first value of a run after it in
+    its sentence, then every later value of that run that follows "to", up to the next word of change ("rose to
+    1.081 and to 1.064" is two moves). The value it moves from is the one after "from" ("fell from A to B", "rose to
+    B from A"), else the nearest earlier value of the run. "up from X" and "higher than X" compare the nearest
+    earlier value with X. Each move is refused when its direction disagrees with the values, or when the two can be
+    one value (same_at_shown_rounding): no change. A word of change that is negated in its clause ("did not rise")
+    is refused, since what it claims cannot be checked. A word with no linked value (the shot fell short) is not
+    checked."""
+    masked = _mask_names(text, names)
+    tokens = numbers_in(text, names)
+
+    def candidates(token):
+        return [f for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+
+    def series(token):
+        found = {series_of(f.field, f.unit) for f in candidates(token)}
+        return found.pop() if len(found) == 1 else None
+
+    def exact(token) -> bool:
+        fields = [f.field for f in candidates(token)]
+        return bool(fields) and all(_EXACT_FIELD_RE.fullmatch(field) for field in fields)
+
+    def gap(a: int, b: int) -> str:
+        return masked[a:b].rstrip("-+" + MINUS)
+
+    runs = [(token, series(token)) for token in tokens]
+    words = list(_CHANGE_RE.finditer(masked))
+    problems = []
+
+    def judge(word, said: str, source, target) -> None:
+        if same_at_shown_rounding(source.canon, target.canon, exact(source), exact(target)):
+            problems.append(f"{word.group(0)!r} links {source.raw!r} and {target.raw!r}, which are one value at two "
+                            "roundings: no change")
+            return
+        went = "up" if _value_of(target.canon)[0] > _value_of(source.canon)[0] else "down"
+        if went != said:
+            problems.append(f"{word.group(0)!r} says {said}, but {source.raw!r} to {target.raw!r} went {went}")
+
+    for n, word in enumerate(words):
+        clause_start = max(masked.rfind(mark, 0, word.start()) for mark in ",;:.")
+        if _NEGATION_RE.search(masked[clause_start + 1:word.start()]):
+            problems.append(f"{word.group(0)!r} is negated, and a negated change cannot be checked")
+            continue
+        sentence_end = _sentence_span(masked, word.start())[1]
+        limit = min([w.start() for w in words[n + 1:] if w.start() < sentence_end] + [sentence_end])
+        ahead = [(t, r) for t, r in runs if word.end() <= t.start < limit and r]
+        said = "up" if (word.group("up") or word.group("rup")) else "down"
+        if word.group("rup") or word.group("rdown"):
+            if not ahead:
+                continue
+            source, run = ahead[0]
+            earlier = [t for t, r in runs if t.start < word.start() and r == run]
+            if earlier:
+                judge(word, said, source, earlier[-1])
+            continue
+        if not ahead:
+            continue
+        first, run = ahead[0]
+        same = [t for t, r in ahead if r == run]
+        if _FROM_BEFORE_RE.search(gap(word.end(), first.start)):
+            if len(same) < 2:
+                continue
+            source, targets, rest = first, [same[1]], same[2:]
+        else:
+            earlier = [t for t, r in runs if t.start < word.start() and r == run]
+            source, targets, rest = (earlier[-1] if earlier else None), [first], same[1:]
+            if rest and _FROM_BEFORE_RE.search(gap(first.start, rest[0].start)):
+                source, rest = rest[0], rest[1:]
+        for token in rest:
+            if _TO_BEFORE_RE.search(gap(targets[-1].start, token.start)):
+                targets.append(token)
+        if source is None:
+            targets = targets[1:] if len(targets) > 1 else []
+            source = first if targets else None
+        if source is None:
+            continue
+        for target in targets:
+            judge(word, said, source, target)
+            source = target
+    return problems
+
+
+# The words a sentence must hold for a number to be about what its fact is about (check_subjects). A number that
+# matches several facts passes when the sentence holds the words of one of them. A field with no entry needs none.
+SUBJECT_WORDS = (
+    (r"games", r"\bgames?\b"),
+    (r"shot_making\.over_expected_per_100\.(?:value|lo|hi)", r"\b(?:shot|shots|made|make|makes|shooting)\b"),
+    (r"shot_making\.baseline_error_per_100", r"\b(?:error|explain|explains|explained)\b"),
+    (r"shot_making\.fg_pct", r"\b(?:shot|shots|made|make|makes|share|attempts|shooting|went in|rate)\b"),
+    (r"shot_making\.expected_fg_pct", r"\b(?:expected|expect|expects|model|model's)\b"),
+    (r"shot_making\.(?:min_)?attempts", r"\battempts?\b"),
+    (r"gravity\.gravity_ft\.(?:value|lo|hi)", r"\b(?:defenders?|feet|closer|farther|close)\b"),
+    (r"(?:gravity|similar)\.(?:min_)?possessions", r"\bpossessions?\b"),
+    (r"rebounding\.rate_per_100\.(?:value|lo|hi)", r"\b(?:rebounds?|rebounding)\b"),
+    (r"rebounding\.model_expected_per_100", r"\b(?:rebounds?|rebounding|expected|expect)\b"),
+    (r"rebounding\.(?:min_)?chances", r"\bchances?\b"),
+    (r"absence_risk\.model_probability\.(?:value|lo|hi)", r"\b(?:miss|misses|missing|absence|absent|chance)\b"),
+    (r"absence_risk\.observed_rate\.(?:value|lo|hi)", r"\b(?:miss|missed|absence|absent|share|rate|observed)\b"),
+    (r"absence_risk\.absent", r"\b(?:miss|missed|misses|absent|absence)\b"),
+    (r"absence_risk\.(?:min_)?games", r"\bgames?\b"),
+    (r"similar\.neighbours\.\d+\.rank", r"\b(?:style|similar|rank|ranks|ranked|closest)\b"),
+    (r"similar\.neighbours\.\d+\.distance", r"\b(?:style|distance|similar|closer|close)\b"),
+    (r".+\.interval", r"\b(?:range|interval)\b"),
+    (r"shot_making\..+\.n", r"\battempts?\b"),
+    (r"gravity\..+\.n", r"\bpossessions?\b"),
+    (r"rebounding\..+\.n", r"\bchances?\b"),
+    (r"absence_risk\..+\.n", r"\bgames?\b"),
+    (r"possession", r"\bpossession\b"),
+    (r"period", r"\bperiod\b"),
+    (r"start_clock", r"\b(?:clock|started|start|starting|began|begin|left|at|from|during)\b"),
+    (r"points", r"\b(?:points?|scored|score|scoring)\b"),
+    (r"duration_s", r"\b(?:seconds?|lasted|long|length)\b"),
+    (r"xfg|shots\.\d+\.xfg", r"\b(?:chance|shot|shots|probability|likely)\b"),
+    (r"epv_start|epv_end|epv\.value\.\d+", r"\b(?:expected|points?|value|estimate|model|model's|predicted|predict)\b"),
+    (r"(?:epv\.t|shots\.\d+\.t)(?:\.\d+)?", r"\b(?:seconds?|time|at)\b"),
+)
+_SUBJECT_RES = [(re.compile(field), re.compile(words, re.I)) for field, words in SUBJECT_WORDS]
+
+
+# The bounds of a range may sit in a sentence of their own that names the range ("Its 95% range is A to B"), but
+# only right after the sentence that gives the value of that range.
+_RANGE_WORDS = re.compile(r"\b(?:range|interval)\b", re.I)
+# A field-goal share in a sentence that speaks of the model must carry a word of its own: "The model expected
+# 40.8%" with 40.8% his own share is refused.
+_MODEL_TALK = re.compile(r"\b(?:expected|model|model's)\b", re.I)
+_SHARE_WORDS = re.compile(r"\b(?:made|make|makes|went in|shooting|attempts|share|rate)\b", re.I)
+# A sentence whose subject is the model ("The model gave", "The model's made shots").
+_MODEL_FIRST = re.compile(r"^\s*(?:the\s+)?model(?:'s)?\b", re.I)
+_OVER_EXPECTED = re.compile(r"shot_making\.over_expected_per_100\.(?:value|lo|hi)")
+
+
+def _subject_words(field: str):
+    for pattern, words in _SUBJECT_RES:
+        if pattern.fullmatch(field):
+            return words
+    return None
+
+
+def check_subjects(text: str, facts, names=()) -> list:
+    """A number that matches a fact must sit in a sentence that says what that fact is about (SUBJECT_WORDS): the
+    model's own error is called an error, a rank of a similar player sits with a word of style. The bounds of a
+    range may sit alone in a sentence that says range, right after the sentence of their value. A field-goal share
+    in a sentence about the model needs a share word of its own. Then three exact rules: his made shots above
+    expected never have the model as the subject of their sentence; a positive defender distance is never
+    "farther" and a negative one never "closer"; a sentence that says "point estimate" and gives numbers gives at
+    least one point estimate."""
+    problems = []
+    masked = _mask_names(text, names)
+    tokens = numbers_in(text, names)
+
+    def matching(token):
+        return [f for f in facts if canonical(f.shown) == token.canon and _unit_fits(token.unit, f.unit)]
+
+    def previous_sentence(start: int) -> tuple:
+        return _sentence_span(masked, start - 1) if start > 0 else (0, 0)
+
+    def fact_ok(fact, token, sentence: str, span: tuple) -> bool:
+        words = _subject_words(fact.field)
+        if words is None:
+            return True
+        found = bool(words.search(sentence))
+        if fact.field.endswith((".lo", ".hi")) and not found and _RANGE_WORDS.search(sentence):
+            value_field = fact.field.rsplit(".", 1)[0] + ".value"
+            before = previous_sentence(span[0])
+            found = any(before[0] <= t.start < before[1] and any(f.field == value_field for f in matching(t))
+                        for t in tokens)
+        if fact.field == "shot_making.fg_pct" and _MODEL_TALK.search(sentence):
+            found = bool(_SHARE_WORDS.search(sentence))
+        return found
+
+    for token in tokens:
+        found = matching(token)
+        if not found:
+            continue
+        span = _sentence_span(masked, token.start)
+        sentence = masked[span[0]:span[1]]
+        if not any(fact_ok(f, token, sentence, span) for f in found):
+            problems.append(f"number {token.raw!r} sits in a sentence that does not say what it is "
+                            f"(it is {found[0].field})")
+        if all(_OVER_EXPECTED.fullmatch(f.field) for f in found) and _MODEL_FIRST.search(sentence):
+            problems.append(f"number {token.raw!r} is his made shots above expected, given to the model as subject")
+        if all(f.field == "gravity.gravity_ft.value" for f in found):
+            value = _value_of(token.canon)[0]
+            if value > 0 and re.search(r"\bfarther\b", sentence, re.I):
+                problems.append(f"number {token.raw!r} is a positive defender distance (closer), called farther")
+            if value < 0 and re.search(r"\bcloser\b", sentence, re.I):
+                problems.append(f"number {token.raw!r} is a negative defender distance (farther), called closer")
+    for start, stop in {_sentence_span(masked, t.start) for t in tokens}:
+        sentence = masked[start:stop]
+        if not _POINT_ESTIMATE_RE.search(sentence):
+            continue
+        inside = [t for t in tokens if start <= t.start < stop]
+        kinds = {f.kind for t in inside for f in matching(t)}
+        if inside and "point" not in kinds:
+            problems.append(f"says point estimate beside no point estimate: {sentence.strip()[:60]!r}")
+    return problems
 
 
 def check_lanes(text: str, names=()) -> list:
@@ -683,7 +972,10 @@ def check_words(text: str) -> list:
 def check_text(text: str, item: dict) -> tuple:
     """Every check of a text against its item's input. Returns (problems, numbers): empty problems means kept."""
     number_problems, numbers = check_numbers(text, _facts(item), item["names"])
-    problems = number_problems + check_status(text, item) + check_lanes(text, item["names"]) + check_words(text)
+    facts = _facts(item)
+    problems = (number_problems + check_directions(text, facts, item["names"])
+                + check_subjects(text, facts, item["names"]) + check_status(text, item)
+                + check_lanes(text, item["names"]) + check_words(text))
     return problems, numbers
 
 
@@ -736,7 +1028,9 @@ def fixture_text(item: dict) -> str:
         value = facts.get("gravity.gravity_ft.value")
         if value:
             lo, hi = facts["gravity.gravity_ft.lo"], facts["gravity.gravity_ft.hi"]
-            lines.append(f"Defenders stand {value.shown} feet closer than his spot explains, with a range of "
+            where = "closer than his spot explains" if not value.shown.startswith(MINUS) else \
+                "from him beyond what his spot explains"
+            lines.append(f"Defenders stand {value.shown} feet {where}, with a range of "
                          f"{lo.shown} to {hi.shown} feet. This is descriptive." + flag("gravity"))
         lines.append("These are test words from a fixture, not a result.")
     else:
@@ -761,8 +1055,17 @@ def cache_dir(path=None) -> Path:
     return Path(path or os.environ.get("GENAI_CACHE_DIR") or REPO_ROOT / ".genai-cache")
 
 
-def cache_key(model: str, version: str, prompt_sha: str, input_hash: str) -> str:
-    return hashlib.sha256(f"{model}\n{version}\n{prompt_sha}\n{input_hash}".encode("utf-8")).hexdigest()
+def call_id(call: dict) -> str:
+    return json.dumps(call, sort_keys=True, separators=(",", ":"))
+
+
+def cache_key(model: str, version: str, prompt_sha: str, input_hash: str, call: dict) -> str:
+    """The cache file of one ask: model, prompt version and hash, input hash and the call setting. A record of the
+    first setting (LEGACY_CALL) keeps the key it was written under, so those records stay readable."""
+    base = f"{model}\n{version}\n{prompt_sha}\n{input_hash}"
+    if call_id(call) != call_id(LEGACY_CALL):
+        base += f"\n{call_id(call)}"
+    return hashlib.sha256(base.encode("utf-8")).hexdigest()
 
 
 def _client():
@@ -793,8 +1096,7 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
     for _ in range(MAX_ATTEMPTS):
         try:
             # The SDK retries a rate limit, an overload and a dropped connection itself (max_retries).
-            response = client.messages.create(model=model, max_tokens=MAX_TOKENS, system=system, messages=messages,
-                                              output_config={"effort": "low"})
+            response = client.messages.create(model=model, system=system, messages=messages, **CALL)
         except api_errors as exc:
             status = getattr(exc, "status_code", None)
             raise GenaiProblem(f"the model call failed ({type(exc).__name__}"
@@ -818,9 +1120,25 @@ def call_model(client, item: dict, system: str, model: str = MODEL) -> dict:
     return {"text": text, "problems": problems, "numbers": [n.model_dump() for n in numbers], "attempts": attempts}
 
 
+def _recheck(record: dict, item: dict) -> dict:
+    """A cached text checked again against the item as it is now: the checks may have grown since it was written. A
+    text that fails comes back dropped, with its problems; one that passes comes back with its numbers made again."""
+    if not record.get("text"):
+        return record
+    problems, numbers = check_text(record["text"], item)
+    if problems:
+        return {**record, "text": None, "problems": problems, "numbers": []}
+    return {**record, "numbers": [n.model_dump() for n in numbers]}
+
+
 def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MODEL) -> tuple:
-    """The text of one item, from the cache when the same model, prompt and input were asked before. Returns
-    (record, from_cache). In fixture mode nothing is cached and no model is called."""
+    """The text of one item, from the cache when the same model, prompt, input and call setting were asked before.
+    Returns (record, from_cache). In fixture mode nothing is cached and no model is called.
+
+    Every cached text is checked again against the current item before it is used (_recheck), so a check added
+    after a text was written applies to it, with no call. A text kept under an older call setting is reused the
+    same way; a failure under an older setting is asked once more under the current one; a failure under the
+    current setting is final."""
     input_hash = input_sha256(item)
     if not live:
         text = fixture_text(item)
@@ -830,16 +1148,53 @@ def text_for(item: dict, *, live: bool, client=None, cache=None, model: str = MO
                  "input_sha256": input_hash}, False)
     version, system, prompt_sha = prompt(item["kind"])
     folder = cache_dir(cache) / item["kind"]
-    path = folder / f"{cache_key(model, version, prompt_sha, input_hash)}.json"
+    path = folder / f"{cache_key(model, version, prompt_sha, input_hash, CALL)}.json"
     if path.exists():
-        return json.loads(path.read_text(encoding="utf-8")), True
+        return _recheck(json.loads(path.read_text(encoding="utf-8")), item), True
+    older = folder / f"{cache_key(model, version, prompt_sha, input_hash, LEGACY_CALL)}.json"
+    if older.exists():
+        record = json.loads(older.read_text(encoding="utf-8"))
+        if record.get("text"):
+            return _recheck(record, item), True
     record = call_model(client, item, system, model)
-    record.update({"key": item["key"], "kind": item["kind"], "model": model, "prompt_version": version,
+    record.update({"call": CALL, "key": item["key"], "kind": item["kind"], "model": model, "prompt_version": version,
                    "prompt_sha256": prompt_sha, "input_sha256": input_hash,
                    "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
     folder.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(record, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     return record, False
+
+
+def describe_call(call) -> str:
+    """A call setting in words, for the notes of a genai file."""
+    call = call or LEGACY_CALL
+    thinking = (call.get("thinking") or {}).get("type", "adaptive (the model's default)")
+    return (f"thinking {thinking}, effort {call.get('output_config', {}).get('effort', 'default')}, "
+            f"at most {call.get('max_tokens', LEGACY_CALL['max_tokens'])} output tokens")
+
+
+def call_notes(root: Path, kind: str, texts, cache=None) -> list:
+    """One note per call setting: how many of the texts it wrote (read from the cache records). A text whose
+    record is not in this cache is counted as not known."""
+    builders = {item[0]: item[1] for item in items_of(root, kind)}
+    counts: dict = {}
+    for text in texts:
+        if text.model == FIXTURE_MODEL or text.key not in builders:
+            continue
+        found = "not known (no cache record here)"
+        try:
+            versions = json.loads(PROMPT_VERSIONS.read_text(encoding="utf-8"))
+            prompt_sha = versions["sha256"][text.prompt_version]
+        except KeyError:
+            prompt_sha = None
+        if prompt_sha:
+            for call in (CALL, LEGACY_CALL):
+                path = cache_dir(cache) / kind / f"{cache_key(text.model, text.prompt_version, prompt_sha, text.input_sha256, call)}.json"
+                if path.exists():
+                    found = describe_call(json.loads(path.read_text(encoding="utf-8")).get("call"))
+                    break
+        counts[found] = counts.get(found, 0) + 1
+    return [f"Call setting: {setting}, {n} text(s)." for setting, n in sorted(counts.items())]
 
 
 # ---------------------------------------------------------------------------------------------- the data root
@@ -920,7 +1275,7 @@ def _dump(model: S.Strict) -> str:
     return json.dumps(model.model_dump(mode="json"), separators=(",", ":"), allow_nan=False) + "\n"
 
 
-def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: bool = True) -> None:
+def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: bool = True, extra_notes=()) -> None:
     """Write the texts of one kind into the data root (or remove the file when there is none) and, unless told
     not to, write the manifest again with the genai family. Nothing else of the root changes."""
     root = Path(root)
@@ -930,6 +1285,7 @@ def write_texts(root: Path, kind: str, texts: list, synthetic: bool, manifest: b
                  "may have none."]
         if synthetic:
             notes.append("Fixture texts of a synthetic data root, not a result.")
+        notes = notes + list(extra_notes)
         file = S.GeneratedTexts(schema_version="1.2.0", kind=kind, label="machine-written", checks=list(CHECKS),
                                 items=sorted(texts, key=lambda t: t.key), notes=notes,
                                 sources=_sources(root, kind, texts, synthetic))
@@ -1034,6 +1390,44 @@ def prune(root: Path) -> dict:
     return dropped
 
 
+# ----------------------------------------------------------------------------------------------- withholding
+
+
+def withhold(src, out, kinds) -> dict:
+    """Write a copy of the data root `src` to `out` without the texts of `kinds`: their genai files are left out
+    and the manifest is written again, so the pages of those kinds show no machine text. `src` is not changed: the
+    texts stay there for later work (PLAN.md D93: scouting texts do not ship yet). `out` must not exist, or be
+    empty. The copy is validated."""
+    import shutil
+
+    src, out = Path(src), Path(out)
+    if not (src / "manifest.json").is_file():
+        raise GenaiProblem("the source folder has no manifest.json")
+    a, b = src.resolve(), out.resolve()
+    if a == b or a in b.parents or b in a.parents:
+        raise GenaiProblem("the output folder must be outside the source folder, and the source outside it")
+    if out.exists() and any(out.iterdir()):
+        raise GenaiProblem("the output folder is not empty")
+    unknown = sorted(set(kinds) - set(KINDS))
+    if unknown:
+        raise GenaiProblem(f"no such kind of text: {unknown}")
+    shutil.copytree(src, out, dirs_exist_ok=True)
+    left_out = {}
+    for kind in kinds:
+        path = out / S.GENAI_FILES[kind]
+        if path.exists():
+            left_out[kind] = len(S.GeneratedTexts.model_validate_json(path.read_bytes()).items)
+            path.unlink()
+    if (out / "genai").exists() and not any((out / "genai").iterdir()):
+        (out / "genai").rmdir()
+    manifest = _load(out, "manifest.json", S.Manifest)
+    (out / "manifest.json").write_text(_dump(with_genai_entry(manifest, out)), encoding="utf-8")
+    problems = S.validate_tree(out, allow_missing=S.STAGED_FILES)
+    if problems:
+        raise GenaiProblem(f"the copy does not validate ({len(problems)} problem(s)); first: {problems[0]}")
+    return {"left_out": left_out}
+
+
 # ------------------------------------------------------------------------------------------------------- run
 
 
@@ -1095,14 +1489,16 @@ def run(root, kinds=KINDS, n_players=None, n_possessions=None, *, live=False, ca
                 stats["kept"] += 1
                 kept.append(S.GeneratedText(key=key, text=record["text"], input_sha256=record["input_sha256"],
                                             model=record["model"], prompt_version=record["prompt_version"],
-                                            numbers=[S.GeneratedNumber(**n) for n in record["numbers"]]))
+                                            numbers=[S.GeneratedNumber(**n) for n in record["numbers"]],
+                                            call=describe_call(record.get("call")) if live else None))
             else:
                 stats["dropped"] += 1
                 stats["problems"][key] = record["problems"]
             log(f"{kind} {key}: {'kept' if record['text'] else 'dropped'}{' (cache)' if cached else ''}")
         earlier, stats["earlier_dropped"] = earlier_texts(root, kind, skip={text.key for text in kept})
         stats["earlier_kept"] = len(earlier)
-        write_texts(root, kind, kept + earlier, manifest.synthetic)
+        write_texts(root, kind, kept + earlier, manifest.synthetic,
+                    extra_notes=call_notes(root, kind, kept + earlier, cache) if live else ())
         stats["all_items"] = len(items_of(root, kind))
         info["kinds"][kind] = stats
     info["problems"] = S.validate_tree(root, allow_missing=S.STAGED_FILES)
@@ -1150,7 +1546,22 @@ def main(argv=None) -> int:
     parser.add_argument("--cache", help="the cache folder (default GENAI_CACHE_DIR, else .genai-cache)")
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--summary", help="also write the run's counts and token use to this json file")
+    parser.add_argument("--withhold", nargs="+", choices=KINDS,
+                        help="write a copy of --root to --out without these kinds of text (no model call), for a deploy")
+    parser.add_argument("--out", help="the folder of the copy that --withhold writes")
     args = parser.parse_args(argv)
+    if args.withhold:
+        if not args.out:
+            print("genai: --withhold needs --out", file=sys.stderr)
+            return 1
+        try:
+            info = withhold(args.root, args.out, args.withhold)
+        except GenaiProblem as exc:
+            print(f"genai: {exc}", file=sys.stderr)
+            return 1
+        print(f"genai: copy written without {', '.join(args.withhold)}: "
+              + ", ".join(f"{n} {kind} text(s) left out" for kind, n in info["left_out"].items()))
+        return 0
     try:
         info = run(args.root, args.kinds, None if args.all else args.players, None if args.all else args.possessions,
                    live=args.live, cache=args.cache, model=args.model)
