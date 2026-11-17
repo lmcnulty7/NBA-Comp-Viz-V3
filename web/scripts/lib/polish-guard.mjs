@@ -7,6 +7,17 @@
 // A path is allowed only when it is under an allowed folder and under no protected one, so a new kind of file
 // is refused until someone decides it belongs to the site.
 //
+// web/lib holds checks as well as presentation, so only its named presentation modules are open to a candidate.
+// The rest judge or carry the numbers: the page's number check of machine-written texts (genai.ts), the
+// formatters export/genai.py mirrors (format.ts), the token table of docs/SCRIPT.md (tokens.ts), the one path
+// from copy to a page (copy.ts), the DataSource and its schema version check (data/), the variant and base path
+// the public build relies on (site.ts), the slide reader the reading check shares (talk.ts) and the source links
+// of numbers (repo.ts). A new file under web/lib is refused too: the lint rule that keeps numbers and text out of
+// code covers web/app and web/components only, so a new module there could carry a typed number.
+//
+// A candidate may change the pages that show machine-written texts, but it may not drop a call of the page's
+// number check from them: the count of each call in REQUIRED_CALLS over web/app and web/components may not fall.
+//
 //   node scripts/lib/polish-guard.mjs --base <git ref>    exit 1 when HEAD changes a protected path since <ref>
 import { spawnSync } from "node:child_process";
 import { REPO_ROOT } from "./paths.mjs";
@@ -14,7 +25,8 @@ import { REPO_ROOT } from "./paths.mjs";
 export const ALLOWED = Object.freeze([
   "web/app/",
   "web/components/",
-  "web/lib/",
+  "web/lib/nav.ts",
+  "web/lib/media.ts",
   "web/content/",
   "web/public/",
 ]);
@@ -25,6 +37,14 @@ export const PROTECTED = Object.freeze([
   ["web/tests/", "the web tests"],
   ["tests/", "the Python tests"],
   ["web/lib/types/", "the data contract"],
+  ["web/lib/genai.ts", "the page's number check of machine-written texts"],
+  ["web/lib/format.ts", "the formatters the number check and export/genai.py mirror"],
+  ["web/lib/tokens.ts", "the token table of docs/SCRIPT.md"],
+  ["web/lib/copy.ts", "the one path from copy to a page"],
+  ["web/lib/data/", "the DataSource and its schema version check"],
+  ["web/lib/site.ts", "the variant and base path the public build relies on"],
+  ["web/lib/talk.ts", "the slide reader the reading check shares"],
+  ["web/lib/repo.ts", "the source links of numbers"],
   ["web/public/data/", "the site data"],
   ["web/eslint.config.mjs", "the lint and copy rules"],
   ["web/playwright.config.ts", "the browser test configuration"],
@@ -61,10 +81,34 @@ export function forbiddenChanges(files) {
   return problems;
 }
 
-function git(args) {
-  const run = spawnSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
-  if (run.status !== 0) throw new Error(`git ${args.join(" ")} failed: ${(run.stderr || run.stdout).trim()}`);
+function git(args, okStatuses = [0], root = REPO_ROOT) {
+  const run = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+  if (!okStatuses.includes(run.status)) throw new Error(`git ${args.join(" ")} failed: ${(run.stderr || run.stdout).trim()}`);
   return run.stdout;
+}
+
+// Calls a candidate may not remove from the pages, each with what it does.
+export const REQUIRED_CALLS = Object.freeze([
+  ["checkedText(", "the page's number check of machine-written texts (lib/genai.ts)"],
+]);
+const CALL_DIRS = ["web/app", "web/components"];
+
+/** How often `needle` occurs in web/app and web/components: at a git ref, or in the working tree when ref is null. */
+export function callCount(needle, ref = null, root = REPO_ROOT) {
+  // git grep answers 1 when nothing matches.
+  const out = git(["grep", "-F", "-c", needle, ...(ref ? [ref] : []), "--", ...CALL_DIRS], [0, 1], root);
+  return out.split("\n").filter(Boolean).reduce((sum, line) => sum + Number(line.split(":").pop()), 0);
+}
+
+/** The required calls the working tree (of the repository at `root`) holds fewer of than `base`, as problems. */
+export function droppedChecks(base, root = REPO_ROOT) {
+  const problems = [];
+  for (const [needle, what] of REQUIRED_CALLS) {
+    const before = callCount(needle, base, root);
+    const now = callCount(needle, null, root);
+    if (now < before) problems.push(`${needle} calls fell from ${before} to ${now} (${what})`);
+  }
+  return problems;
 }
 
 /**
@@ -89,7 +133,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(2);
   }
   const files = changedFiles(base);
-  const problems = forbiddenChanges(files);
+  const problems = [...forbiddenChanges(files), ...droppedChecks(base)];
   for (const line of problems) console.error(`polish-guard: ${line}`);
   if (problems.length) {
     console.error(`polish-guard: the change since ${base} touches ${problems.length} path(s) a candidate may not change`);

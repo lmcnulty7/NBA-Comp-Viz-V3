@@ -10,7 +10,7 @@
 //                  the load event; Chromium on an emulated phone connection and processor (CHROMIUM_THROTTLE);
 //   bundle size    the gzip size of the JavaScript each sampled page's HTML loads (the nomodule fallback aside);
 //   reading        the grade of the site copy (lib/polish.mjs copyGrade), and the problems of check-copy.mjs and
-//                  check-reading.mjs;
+//                  check-reading.mjs, whose machine-written texts are read from out/data (staticChecks);
 //   check          the outcome of npm run check for the variant, when --run-check runs it (it builds out/ first)
 //                  or --check names the JSON a run of it wrote.
 // The weights, the scalar (a cost, lower is better) and the gate are in scripts/lib/polish.mjs.
@@ -241,6 +241,27 @@ async function measureOnce(origin, sample, runs) {
   };
 }
 
+/**
+ * The data root a built site was made from: its own data/ folder. The build copies the data root it read into
+ * public/data and from there into out/data (for the public variant the public data root of D60, for the private
+ * one the full root), so this is exactly the data the scored pages show, whatever SITE_DATA_DIR says now.
+ */
+export function builtDataDir(outDir) {
+  return path.join(outDir, "data");
+}
+
+/**
+ * The checks of the score that need no browser: check-copy.mjs on web/content, check-reading.mjs on web/content
+ * and on the machine-written texts of the scored site's own data, and the grade of the copy.
+ */
+export function staticChecks(outDir) {
+  return {
+    copy: checkCopy(CONTENT_DIR),
+    reading: checkReading({ contentDir: CONTENT_DIR, dataDir: builtDataDir(outDir) }),
+    grade: copyGrade(CONTENT_DIR),
+  };
+}
+
 /** Score out/ `repeat` times. Returns the score object (see docs/POLISH_LOOP.md, "The score file"). */
 export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = null, reference = null, base = null, label = null } = {}) {
   const infoFile = path.join(outDir, BUILD_INFO_FILE);
@@ -261,9 +282,7 @@ export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = nu
     };
   }
   const firstLoadJsKb = round(mean(Object.values(bundles).map((b) => b.jsGzipKb)), 2);
-  const copy = checkCopy(CONTENT_DIR);
-  const reading = checkReading();
-  const grade = copyGrade(CONTENT_DIR);
+  const { copy, reading, grade } = staticChecks(outDir);
 
   const server = createStaticServer({ dir: outDir, base: basePath });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -346,7 +365,7 @@ export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = nu
     weights: WEIGHTS,
     check: check ?? { ran: false },
     copy: { problems: copy.problems.length, files: copy.files },
-    reading: { problems: reading.problems.length, copyGrade: grade, script: reading.report },
+    reading: { problems: reading.problems.length, generatedTexts: reading.generated, copyGrade: grade, script: reading.report },
     routes: { count: all.length, hash: createHash("sha256").update(all.join("\n")).digest("hex").slice(0, 16), sampled: sample },
     bundles,
     a11y: {

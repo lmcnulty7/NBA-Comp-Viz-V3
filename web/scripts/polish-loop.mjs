@@ -26,7 +26,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import path from "node:path";
 import { REPO_ROOT } from "./lib/paths.mjs";
 import { runCheck } from "./lib/polish-check.mjs";
-import { forbiddenChanges } from "./lib/polish-guard.mjs";
+import { droppedChecks, forbiddenChanges } from "./lib/polish-guard.mjs";
 import { decide } from "./lib/polish.mjs";
 import { score } from "./polish-score.mjs";
 
@@ -199,7 +199,7 @@ async function candidate(argv) {
   git(["switch", "-c", branch]);
   const applied = git(["apply", "--index", "--whitespace=nowarn", path.resolve(patch)], { allowFail: true });
   const files = git(["diff", "--cached", "--name-only", "--no-renames"]).out.split("\n").filter(Boolean);
-  const problems = applied.status === 0 ? forbiddenChanges(files) : [];
+  const problems = applied.status === 0 ? [...forbiddenChanges(files), ...droppedChecks(state.branch)] : [];
   if (applied.status !== 0 || files.length === 0 || problems.length) {
     // Nothing was committed: the patch is taken back out and the empty candidate branch removed.
     git(["reset", "-q", "--hard", "HEAD"]);

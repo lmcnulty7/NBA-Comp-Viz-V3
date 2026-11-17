@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { runScript, tempDir } from "../helpers/scripts";
@@ -11,6 +12,8 @@ interface Guard {
   PROTECTED: readonly (readonly [string, string])[];
   forbiddenChanges(files: string[]): string[];
   changedFiles(base: string): string[];
+  callCount(needle: string, ref?: string | null, root?: string): number;
+  droppedChecks(base: string, root?: string): string[];
 }
 
 type Values = Record<string, number>;
@@ -61,6 +64,18 @@ for (const file of [
   "web/package-lock.json",
   "web/next.config.ts",
   "web/lib/types/contract.ts",
+  "web/lib/genai.ts",
+  "web/lib/format.ts",
+  "web/lib/tokens.ts",
+  "web/lib/copy.ts",
+  "web/lib/data/source.ts",
+  "web/lib/data/server.ts",
+  "web/lib/site.ts",
+  "web/lib/talk.ts",
+  "web/lib/repo.ts",
+  "web/scripts/check-methods.mjs",
+  "web/scripts/lib/generated-text.mjs",
+  "tests/fixtures/genai_cases.json",
   "web/public/data/manifest.json",
   "docs/SCRIPT.md",
   "docs/POLISH_LOOP.md",
@@ -86,8 +101,11 @@ test("a candidate may change pages, components, client code, copy, styles and st
       "web/app/page.tsx",
       "web/app/styles/tokens.css",
       "web/components/review/Possession.tsx",
-      "web/lib/format.ts",
+      "web/lib/nav.ts",
+      "web/lib/media.ts",
+      "web/app/methods/page.tsx",
       "web/content/review.json",
+      "web/content/methods.json",
       "web/content/talk/clip.md",
       "web/public/stills/scene-1.jpg",
     ]),
@@ -97,6 +115,8 @@ test("a candidate may change pages, components, client code, copy, styles and st
 test("a path outside the site folders is refused, a rename counts as both paths", async () => {
   const { forbiddenChanges } = await guard();
   expect(forbiddenChanges(["README.md"])[0]).toContain("outside the site folders");
+  // A new module under web/lib is outside the lint rule that keeps typed numbers out of code.
+  expect(forbiddenChanges(["web/lib/helpers.ts"])[0]).toContain("outside the site folders");
   expect(forbiddenChanges(["web/app/x.tsx", "web/scripts/x.mjs"])).toHaveLength(1);
   expect(forbiddenChanges(["./web/scripts/check.mjs"])[0]).toContain("protected");
 });
@@ -106,8 +126,32 @@ test("a path outside the site folders is refused, a rename counts as both paths"
 test("the candidate's change touches no protected path (POLISH_BASE)", async () => {
   const base = process.env.POLISH_BASE ?? "";
   test.skip(!base, "POLISH_BASE is set only when the polish loop checks a candidate");
-  const { changedFiles, forbiddenChanges } = await guard();
+  const { changedFiles, droppedChecks, forbiddenChanges } = await guard();
   expect(forbiddenChanges(changedFiles(base))).toEqual([]);
+  expect(droppedChecks(base)).toEqual([]);
+});
+
+test("the pages that show machine-written texts call the number check, so the required-call rule is alive", async () => {
+  const { callCount } = await guard();
+  expect(callCount("checkedText(", "HEAD")).toBeGreaterThanOrEqual(2);
+});
+
+test("a candidate that drops a call of the number check from a page is refused", async () => {
+  const { droppedChecks } = await guard();
+  const repo = tempDir("polish-repo");
+  const run = (...args: string[]) => {
+    const done = spawnSync("git", args, { cwd: repo, encoding: "utf8" });
+    if (done.status !== 0) throw new Error(done.stderr);
+  };
+  run("init", "-q");
+  mkdirSync(path.join(repo, "web", "app", "prep"), { recursive: true });
+  const page = path.join(repo, "web", "app", "prep", "page.tsx");
+  writeFileSync(page, "const a = checkedText(x, facts);\nconst b = checkedText(y, facts);\n");
+  run("add", "-A");
+  run("-c", "user.name=test", "-c", "user.email=", "commit", "-q", "-m", "base");
+  expect(droppedChecks("HEAD", repo)).toEqual([]);
+  writeFileSync(page, "const a = checkedText(x, facts);\nconst b = y.text;\n");
+  expect(droppedChecks("HEAD", repo)).toEqual(["checkedText( calls fell from 2 to 1 (the page's number check of machine-written texts (lib/genai.ts))"]);
 });
 
 test("the guard's command line fails on a protected change and passes on none", () => {
@@ -256,4 +300,29 @@ test("the scorer and the driver refuse to run without the heavy-job lock", () =>
   const driver = runScript("polish-loop.mjs", ["candidate", "--run", "x"], { V3_HEAVY_HELD: "" });
   expect(driver.status).toBe(1);
   expect(driver.output).toContain("heavy-job lock");
+});
+
+// ------------------------------------------------------------------------- the data the reading check reads
+
+interface Scorer {
+  builtDataDir(outDir: string): string;
+  staticChecks(outDir: string): { reading: { problems: string[]; generated: number } };
+}
+const scorer = async () => (await import("../../scripts/polish-score.mjs")) as unknown as Scorer;
+
+test("the reading check of a score reads the machine-written texts of the scored site's own data", async () => {
+  const { builtDataDir, staticChecks } = await scorer();
+  const out = tempDir("polish-built");
+  expect(builtDataDir(out)).toBe(path.join(out, "data"));
+  const clean = staticChecks(out).reading;
+  expect(clean.generated).toBe(0);
+  expect(clean.problems.filter((p) => p.startsWith("genai/"))).toEqual([]);
+  mkdirSync(path.join(out, "data", "genai"), { recursive: true });
+  writeFileSync(
+    path.join(out, "data", "genai", "scouting.json"),
+    JSON.stringify({ items: [{ key: "someone", text: "Too short to be a text." }] }),
+  );
+  const read = staticChecks(out).reading;
+  expect(read.generated).toBe(1);
+  expect(read.problems.join("\n")).toContain("genai/scouting.json someone");
 });

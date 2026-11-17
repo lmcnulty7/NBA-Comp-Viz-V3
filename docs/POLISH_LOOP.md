@@ -54,7 +54,8 @@ A candidate is rejected whatever its cost when any of these holds (`gateReasons`
 
 - npm run check was not run or failed. Public: all thirteen steps of `npm run check`. Private: the steps that do
   not depend on the variant, the private build at the root of a host, and the browser suite on it.
-- `check-copy.mjs` or `check-reading.mjs` reports a problem.
+- `check-copy.mjs` or `check-reading.mjs` reports a problem. The reading check reads the machine-written texts
+  from `out/data`, the data the scored site was built from (the public data root for the public variant).
 - A sampled page answers with another status than 200, throws an uncaught error or logs a console error.
 - Accessibility: a violation (browser, width, page family, axe rule) the base did not have, or more nodes for one
   it had. Fixing one is fine.
@@ -72,8 +73,15 @@ noise. Its scores then become the base the next candidate must beat.
 
 ## What a candidate may change
 
-Only `web/app`, `web/components`, `web/lib`, `web/content` and `web/public`, and inside them never the data
-contract (`web/lib/types`) or the site data (`web/public/data`). Everything that judges the site is protected:
+Only `web/app`, `web/components`, `web/content`, `web/public` (never the site data in `web/public/data`) and
+two presentation modules of `web/lib`: `nav.ts` and `media.ts`. The rest of `web/lib` holds checks or carries
+the numbers and is protected: the page's number check of machine-written texts (`genai.ts`), the formatters it
+and `export/genai.py` share (`format.ts`), the token table (`tokens.ts`), the copy path (`copy.ts`), the
+DataSource (`data/`), the variant and base path (`site.ts`), the slide reader (`talk.ts`), the source links
+(`repo.ts`) and the data contract (`types/`). A new file under `web/lib` is refused, since the lint rule that
+keeps typed numbers out of code covers `web/app` and `web/components` only. A candidate may change the pages that
+show machine-written texts but may not drop a call of the number check (`checkedText(`) from `web/app` or
+`web/components`: the guard counts the calls at the loop branch and in the candidate. Everything that judges the site is protected:
 all of `web/scripts` (the checks, the copy rules, the scorer, the driver, the guard), `web/tests`, `tests`,
 `web/eslint.config.mjs`, the Playwright and TypeScript configuration, `web/next.config.ts`, the package files,
 `docs/SCRIPT.md` (the approved copy), this file, `reports`, `export`, `tools`, the frozen code, PLAN.md,
@@ -120,6 +128,6 @@ have no accessibility violation, no page failure and no navigation retry; the co
 
 `reports/polish/selftest-log.jsonl` is the log of a run on the public variant with two candidates, made to show
 the driver works: c001 edited `web/scripts/check-copy.mjs` and was refused by the guard before anything was
-built; c002 added a comment to `web/lib/format.ts`, passed the gate and was rejected because its cost (0.9963)
+built; c002 added a comment to `web/lib/format.ts` (open to candidates then, protected now), passed the gate and was rejected because its cost (0.9963)
 did not beat the noise (the floor was 0.005 then; this result is why it is 0.01 now). Its branches were removed
 after the test.
