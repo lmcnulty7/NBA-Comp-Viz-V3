@@ -71,7 +71,8 @@ GENERATOR = "export/genai.py"
 CHECKS = (
     "Every number is a value of this page as the page rounds it, in the same unit; no number is written as a word.",
     "A value with an interval is given with its interval; a point estimate is called one.",
-    "A value from a model that did not work says so.",
+    "A value from a model that did not work says so; a model's value is called one in its sentence; no lane that did "
+    "not work is named.",
     "Reading grade 9 or lower for the text and each sentence; plain words; no claim the site never makes.",
 )
 
@@ -390,6 +391,41 @@ _NUMBER_WORD_RE = re.compile(r"\b(?:" + "|".join(NUMBER_WORDS) + r")\b", re.I)
 # "second" is a unit after a number ("1 second") and an ordinal anywhere else.
 _SECOND_RE = re.compile(r"(?<!\d )\bsecond\b", re.I)
 _POINT_ESTIMATE_RE = re.compile(r"\bpoint estimates?\b", re.I)
+# Values that are a model's output, not an observation. A text gives one only with a word that says so in the same
+# sentence, so a model's probability can never read as an observed rate (the fact's group names the value).
+MODEL_GROUP_RE = re.compile(r"^(?:absence_risk\.model_probability|shot_making\.(?:expected_fg_pct|baseline_error_per_100|"
+                            r"over_expected_per_100)|rebounding\.model_expected_per_100|xfg|shots\.\d+\.xfg|epv_start|"
+                            r"epv_end|epv\.value\.\d+)$")
+MODEL_WORD_RE = re.compile(r"\b(?:models?|model's|expect(?:ed|s)?|predict(?:ed|s|ion|ions)?|estimat(?:e|ed|es))\b", re.I)
+_SENTENCE_END_RE = re.compile(r"[.!?]+(?=\s|$)")
+# Lanes that are not shown on the prep tab or the review and did not work: failed (decisions), no signal
+# (matchups), inconclusive (lineups), or no result yet (actions, coverage, playcalling, betting). A text names
+# none of them, with or without a number (PLAN.md C10: they are shown as tested with no signal, on their own pages).
+LANE_WORDS = {
+    "decisions": r"decisions?",
+    "matchups": r"match-?ups?",
+    "lineups": r"line-?ups?",
+    "actions": r"pass|passes|passed|passing|drives?|drove|driving|screens?",
+    "coverage": r"coverages?",
+    "playcalling": r"play ?calls?|play-?calling|playcalling",
+    "betting": r"betting|bets?|odds",
+}
+_LANE_WORD_RE = {lane: re.compile(rf"\b(?:{words})\b", re.I) for lane, words in LANE_WORDS.items()}
+
+
+def _sentence_at(text: str, index: int) -> str:
+    """The sentence of `text` that holds the character at `index`, split as sentence_count splits."""
+    ends = [m.end() for m in _SENTENCE_END_RE.finditer(text)]
+    start = max((end for end in ends if end <= index), default=0)
+    stop = min((end for end in ends if end > index), default=len(text))
+    return text[start:stop]
+
+
+def check_lanes(text: str, names=()) -> list:
+    """A text never names a lane that did not work and is not on its page (LANE_WORDS)."""
+    words = _mask_names(text, names)
+    return [f"names the {lane} lane ({match.group(0)!r}), which did not work and is not on this page"
+            for lane, pattern in _LANE_WORD_RE.items() for match in pattern.finditer(words)]
 
 
 @dataclass(frozen=True)
@@ -491,6 +527,11 @@ def check_numbers(text: str, facts, names=()) -> tuple:
             kind = candidates[0].kind
             problems.append(f"number {token.raw!r} is " + ("a value given without its interval" if kind == "value"
                                                          else "a point estimate the text does not call one"))
+            continue
+        if all(MODEL_GROUP_RE.match(fact.group) for fact in good) and not MODEL_WORD_RE.search(
+                _sentence_at(text, token.start)):
+            problems.append(f"number {token.raw!r} is a model's value, and its sentence does not say so (model, "
+                            "expected, predicted or estimate)")
             continue
         matched.append(S.GeneratedNumber(shown=token.raw, field=good[0].field))
     words = _mask_names(text, names)
@@ -642,7 +683,7 @@ def check_words(text: str) -> list:
 def check_text(text: str, item: dict) -> tuple:
     """Every check of a text against its item's input. Returns (problems, numbers): empty problems means kept."""
     number_problems, numbers = check_numbers(text, _facts(item), item["names"])
-    problems = number_problems + check_status(text, item) + check_words(text)
+    problems = number_problems + check_status(text, item) + check_lanes(text, item["names"]) + check_words(text)
     return problems, numbers
 
 

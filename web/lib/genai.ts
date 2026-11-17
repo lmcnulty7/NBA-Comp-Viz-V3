@@ -4,8 +4,8 @@
  * export/genai.py writes each text from the numbers of one page and drops any text with a number that is not on
  * that page. A page checks the text again before it shows it: it builds the same facts from its own data with
  * its own formatters (lib/format.ts), so "after the page's own rounding" is literal, and a text with any number
- * the page does not show, in another unit, a value without its interval or a point estimate not called one, is not
- * shown at all. The page then shows nothing rather than a wrong number.
+ * the page does not show, in another unit, a value without its interval, a point estimate not called one, a model's
+ * value not called the model's in its sentence, or a lane that did not work, is not shown at all. The page then shows nothing rather than a wrong number.
  *
  * The facts and the tokenizer mirror export/genai.py. tests/fixtures/genai_cases.json holds the cases both must
  * agree on, and a unit test runs this check on every text of the data root.
@@ -196,6 +196,42 @@ const NUMBER_WORDS = [
 const NUMBER_WORD_RE = new RegExp(`\\b(?:${NUMBER_WORDS.join("|")})\\b`, "gi");
 const SECOND_RE = /(?<!\d )\bsecond\b/gi;
 const POINT_ESTIMATE_RE = /\bpoint estimates?\b/i;
+// Values that are a model's output (export/genai.py, MODEL_GROUP_RE): a text gives one only with a word that says
+// so in the same sentence, so a model's probability never reads as an observed rate.
+const MODEL_GROUP_RE =
+  /^(?:absence_risk\.model_probability|shot_making\.(?:expected_fg_pct|baseline_error_per_100|over_expected_per_100)|rebounding\.model_expected_per_100|xfg|shots\.\d+\.xfg|epv_start|epv_end|epv\.value\.\d+)$/;
+const MODEL_WORD_RE = /\b(?:models?|model's|expect(?:ed|s)?|predict(?:ed|s|ion|ions)?|estimat(?:e|ed|es))\b/i;
+const SENTENCE_END_RE = /[.!?]+(?=\s|$)/g;
+// Lanes that are not on the prep tab or the review and did not work (export/genai.py, LANE_WORDS).
+const LANE_WORDS: [string, RegExp][] = [
+  ["decisions", /\b(?:decisions?)\b/gi],
+  ["matchups", /\b(?:match-?ups?)\b/gi],
+  ["lineups", /\b(?:line-?ups?)\b/gi],
+  ["actions", /\b(?:pass|passes|passed|passing|drives?|drove|driving|screens?)\b/gi],
+  ["coverage", /\b(?:coverages?)\b/gi],
+  ["playcalling", /\b(?:play ?calls?|play-?calling|playcalling)\b/gi],
+  ["betting", /\b(?:betting|bets?|odds)\b/gi],
+];
+
+/** The sentence of a text that holds the character at `index`, split as the reading grade splits. */
+function sentenceAt(text: string, index: number): string {
+  const ends = [...text.matchAll(SENTENCE_END_RE)].map((match) => (match.index ?? 0) + match[0].length);
+  const start = Math.max(0, ...ends.filter((end) => end <= index));
+  const stop = Math.min(text.length, ...ends.filter((end) => end > index));
+  return text.slice(start, stop);
+}
+
+/** A text never names a lane that did not work and is not on its page. */
+export function checkLanes(text: string, names: readonly string[] = []): string[] {
+  const words = maskNames(text, names);
+  const problems: string[] = [];
+  for (const [lane, pattern] of LANE_WORDS) {
+    for (const match of words.matchAll(pattern)) {
+      problems.push(`names the ${lane} lane ("${match[0]}"), which did not work and is not on this page`);
+    }
+  }
+  return problems;
+}
 const OTHER_NUMERAL = /\p{N}/gu;
 
 const blank = (match: string) => " ".repeat(match.length);
@@ -298,11 +334,16 @@ export function checkNumbers(text: string, facts: readonly Fact[], names: readon
       problems.push(`number "${token.raw}" ${near ? "is a value of the page in another unit" : "is not a value of this page as the page shows it"}`);
       continue;
     }
-    if (!candidates.some(satisfied)) {
+    const good = candidates.filter(satisfied);
+    if (good.length === 0) {
       const kind = candidates[0]?.kind;
       problems.push(
         `number "${token.raw}" is ${kind === "value" ? "a value given without its interval" : "a point estimate the text does not call one"}`,
       );
+      continue;
+    }
+    if (good.every((f) => MODEL_GROUP_RE.test(f.group)) && !MODEL_WORD_RE.test(sentenceAt(text, token.start))) {
+      problems.push(`number "${token.raw}" is a model's value, and its sentence does not say so (model, expected, predicted or estimate)`);
     }
   }
   const words = maskNames(text, names).replace(KIND_OF_SHOT, " ");
@@ -323,5 +364,5 @@ export function checkedText(
 ): GeneratedText | null {
   const item = texts?.items.find((candidate) => candidate.key === key) ?? null;
   if (!item) return null;
-  return checkNumbers(item.text, facts, names).length === 0 ? item : null;
+  return checkNumbers(item.text, facts, names).length === 0 && checkLanes(item.text, names).length === 0 ? item : null;
 }

@@ -1,5 +1,5 @@
 {
- "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one.",
+ "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one. The lanes cases are the lane-word rule (check_lanes, checkLanes).",
  "numbers": [
   {
    "name": "an interval value with both bounds",
@@ -1484,6 +1484,191 @@
    "names": [],
    "ok": false,
    "problem": "another unit"
+  },
+  {
+   "name": "a model probability written as an observed rate",
+   "text": "He missed the next game after 0.174 of his games (range 0.154 to 0.198).",
+   "facts": [
+    {
+     "field": "absence_risk.model_probability.value",
+     "shown": "0.174",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.lo",
+     "shown": "0.154",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.hi",
+     "shown": "0.198",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.200",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.085",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.371",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "a model's value"
+  },
+  {
+   "name": "a model probability called the model's",
+   "text": "The model gives him a 0.174 chance to miss the next game (range 0.154 to 0.198).",
+   "facts": [
+    {
+     "field": "absence_risk.model_probability.value",
+     "shown": "0.174",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.lo",
+     "shown": "0.154",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.hi",
+     "shown": "0.198",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.200",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.085",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.371",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "an observed rate needs no model word",
+   "text": "He missed the next game after 0.200 of his games (range 0.085 to 0.371).",
+   "facts": [
+    {
+     "field": "absence_risk.model_probability.value",
+     "shown": "0.174",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.lo",
+     "shown": "0.154",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.model_probability.hi",
+     "shown": "0.198",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.model_probability"
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.200",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.085",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.371",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a model word in another sentence does not count",
+   "text": "This is a point estimate from a model. The shot went in 0.459 of the time.",
+   "facts": [
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "a model's value"
+  },
+  {
+   "name": "a shot chance called an estimate in its sentence",
+   "text": "The shot had a 0.459 chance to go in, a point estimate.",
+   "facts": [
+    {
+     "field": "xfg",
+     "shown": "0.459",
+     "unit": "none",
+     "kind": "point",
+     "group": "xfg"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
   }
  ],
  "format": [
@@ -1601,6 +1786,52 @@
    "fn": "integer",
    "value": 16,
    "shown": "16"
+  }
+ ],
+ "lanes": [
+  {
+   "name": "a failed lane named with no number",
+   "text": "His decisions were sharp on this play.",
+   "names": [],
+   "ok": false,
+   "lane": "decisions"
+  },
+  {
+   "name": "a no-signal lane",
+   "text": "He won his matchup on the wing.",
+   "names": [],
+   "ok": false,
+   "lane": "matchups"
+  },
+  {
+   "name": "a lane with no result",
+   "text": "He drove hard and passed to the corner.",
+   "names": [],
+   "ok": false,
+   "lane": "actions"
+  },
+  {
+   "name": "an inconclusive lane",
+   "text": "His lineup played well together.",
+   "names": [],
+   "ok": false,
+   "lane": "lineups"
+  },
+  {
+   "name": "a name is not a lane word",
+   "text": "Bill Passer took the last shot.",
+   "names": [
+    "Bill Passer"
+   ],
+   "ok": true,
+   "lane": ""
+  },
+  {
+   "name": "plain words name no lane",
+   "text": "The offense took a three-point shot and missed it.",
+   "names": [],
+   "ok": true,
+   "lane": ""
   }
  ]
 }

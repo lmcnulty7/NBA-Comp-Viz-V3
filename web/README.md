@@ -50,8 +50,9 @@ and the file-name lists of `export/schemas.py`, which the schema does not carry)
 `npm run data:validate` checks the data root in two halves. `scripts/validate-data.mjs` checks every file with
 ajv against the JSON Schema, scans for private strings, compares the manifest with the files on disk and checks
 what the routes need. Then `python3 -m export.schemas --validate` runs on the same folder: the cross-field
-rules of the contract live in its pydantic validators, which a JSON Schema cannot carry. The build scripts run
-the first half only, so a build needs no Python.
+rules of the contract live in its pydantic validators, which a JSON Schema cannot carry. A build runs the first
+half itself; the second half runs in `export.public_data` for the public variant and on the prepared copy for the
+private variant, so both builds need Python (only a public build from PUBLIC_SITE_DATA_DIR runs none).
 
 ## The public data root (PLAN.md D60)
 
