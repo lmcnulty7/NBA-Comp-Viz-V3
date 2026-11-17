@@ -916,6 +916,10 @@ export interface OurValue {
  * `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
  * pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
  * needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
+ * An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
+ * adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
+ * meaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds
+ * on a test set that cannot be scored has no status yet and is refused.
  *
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "Experiment".
@@ -940,6 +944,7 @@ export interface Experiment {
   writeup?: string | null;
   development?: StageResult | null;
   test?: StageResult | null;
+  protocol?: ProtocolResult | null;
 }
 /**
  * One stage of an experiment, read from its result file under reports/research/: development (out of fold on
@@ -978,6 +983,77 @@ export interface StageValue {
   value: number;
   lo?: number | null;
   hi?: number | null;
+  point_estimate: boolean;
+}
+/**
+ * The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on
+ * reliability and stability) rather than one paired difference against a threshold. `rule`, `adopted` and
+ * `reading` (the protocol's own conclusion) are copied from the result file. `caveat` and `not_scored` (why the
+ * test set was not scored, when it was not) are sentences of the experiment's write-up, word for word.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "ProtocolResult".
+ */
+export interface ProtocolResult {
+  stage: "development";
+  source: Source;
+  games: number;
+  rows: number;
+  rows_unit: string;
+  /**
+   * @minItems 1
+   */
+  hypotheses: [Hypothesis, ...Hypothesis[]];
+  rule: string;
+  adoption: AdoptionValue[];
+  adopted: boolean;
+  reading: string;
+  caveat?: string | null;
+  not_scored: string[];
+}
+/**
+ * One pre-registered statement of a protocol experiment, read on its point value as pre-registered. `statement`
+ * is copied from the result file and `threshold` is its threshold, part of it. `holds` is null when the
+ * statistic is not a finite number, and `result` then reads undefined, never holds or fails. A pre-registered
+ * range that is not a valid confidence interval (PLAN.md D86) is never carried here: `interval` is the valid post
+ * hoc one, or null, and then the value is a point estimate.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "Hypothesis".
+ */
+export interface Hypothesis {
+  label: string;
+  statement: string;
+  threshold: string;
+  value?: number | null;
+  holds?: boolean | null;
+  result: "holds" | "fails" | "undefined";
+  interval?: PostHocInterval | null;
+  point_estimate: boolean;
+}
+/**
+ * A valid 95 percent interval computed after the result and its review (post hoc), which no verdict reads.
+ * `method` names how it was drawn; `source` is the file it was read from.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "PostHocInterval".
+ */
+export interface PostHocInterval {
+  lo: number;
+  hi: number;
+  method: string;
+  source: Source;
+}
+/**
+ * A number the adoption rule reads, with its valid post hoc interval or as a point estimate.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "AdoptionValue".
+ */
+export interface AdoptionValue {
+  label: string;
+  value: number;
+  interval?: PostHocInterval | null;
   point_estimate: boolean;
 }
 /**

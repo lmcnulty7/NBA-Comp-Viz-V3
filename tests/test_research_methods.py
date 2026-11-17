@@ -56,12 +56,16 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-def test_only_the_pilot_has_a_result_and_every_other_test_is_pre_registered(source):
+RAN = ("xfg-E1", "decisions-E1")   # the experiments with a result file today
+
+
+def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
     methods = R.build_methods(REPO, source)
     states = {e.id: e for lane in methods.lanes for e in lane.experiments}
-    others = {eid: e.status for eid, e in states.items() if eid != "xfg-E1"}
+    others = {eid: e.status for eid, e in states.items() if eid not in RAN}
     assert set(others.values()) == {"pre_registered"}
-    assert all(e.development is None and e.test is None for eid, e in states.items() if eid != "xfg-E1")
+    assert all(e.development is None and e.test is None and e.protocol is None
+               for eid, e in states.items() if eid not in RAN)
     pilot = states["xfg-E1"]
     final = REPO / "reports/research/xfg-E1-final.json"
     for stage, path in ((pilot.development, REPO / "reports/research/xfg-E1-dev.json"), (pilot.test, final)):
@@ -186,7 +190,9 @@ def _repo_copy(tmp_path, source) -> Path:
         names.update(v["source"] for row in lane["benchmarks"] for v in row["ours"])
         for experiment in lane["experiments"]:
             names.update(n for n in [experiment.get("writeup")] + list((experiment.get("results") or {}).get(
-                stage) for stage in ("development", "test")) if n and (REPO / n).exists())
+                stage) for stage in ("development", "test")) + [(experiment.get("protocol") or {}).get(key) for key in
+                                                                  ("development", "intervals")]
+                if n and (REPO / n).exists())
     for name in names:
         (repo / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(REPO / name, repo / name)
@@ -330,7 +336,7 @@ def test_the_methods_file_is_a_contract_file_in_both_kinds_of_data_root(tmp_path
     assert S.validate_tree(root) == []
     statuses = {e.status for lane in S.MethodsFile.model_validate_json(
         (root / "methods.json").read_text()).lanes for e in lane.experiments}
-    assert statuses == {"pre_registered", "development_met_test_pending", "not_adopted_test"}
+    assert statuses == {"pre_registered", "development_met_test_pending", "not_adopted_test", "not_adopted_development"}
     # real data: the committed source, through the methods step of export.site_data, with its manifest
     out = tmp_path / "real"
     problems, info = site_data.run(out, None, None, only=["methods"], log=QUIET)
@@ -362,3 +368,115 @@ def test_the_readme_has_a_methods_section_naming_every_lane_and_experiment(sourc
         assert f"]({lane['dossier']})" in section, lane["lane"]
         for experiment in lane["experiments"]:
             assert f"`{experiment['id']}`" in section, experiment["id"]
+
+
+# ------------------------------------------------------------------------------------------ a protocol result
+
+
+DEC_DEV = "reports/research/decisions-E1-dev.json"
+DEC_POSTHOC = "reports/research/decisions-E1-posthoc.json"
+CAVEAT = ("Post hoc, not pre-registered: stepped down to one game, the target's reliability is about 0.04, which "
+          "would meet H1's intent; part of the half-season reliability may be team offence shared by teammates (not "
+          "measured).")
+
+
+def _decisions(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "decisions-E1")
+
+
+def test_the_decisions_protocol_is_read_from_its_files_with_valid_intervals_only(source):
+    experiment = _decisions(R.build_methods(REPO, source))
+    dev = json.loads((REPO / DEC_DEV).read_text(encoding="utf-8"))["verdict"]
+    posthoc = json.loads((REPO / DEC_POSTHOC).read_text(encoding="utf-8"))["valid_intervals"]["statistics"]
+    protocol = experiment.protocol
+    assert experiment.status == "not_adopted_development" and experiment.development is None
+    assert experiment.test is None and experiment.writeup == "reports/research/decisions-E1.md"
+    assert [h.label for h in protocol.hypotheses] == ["H1", "H2", "H3"]
+    for h, statistic in zip(protocol.hypotheses, ("target.split_half_r", "frozen.stability",
+                                                  "frozen.r2_on_kind_shares")):
+        assert h.statement == dev[h.label]["statement"] and h.result == dev[h.label]["result"]
+        assert h.value == round(dev[h.label]["value"], 3) and h.holds is dev[h.label]["holds"]
+        boot = posthoc[statistic]["player_bootstrap"]
+        assert (h.interval.lo, h.interval.hi) == (round(boot["lo"], 3), round(boot["hi"], 3))
+        assert h.interval.source.path == DEC_POSTHOC and not h.point_estimate
+    assert [h.result for h in protocol.hypotheses] == ["fails", "holds", "fails"]
+    assert protocol.adopted is False and protocol.rule == dev["adoption"]["rule"]
+    assert [a.value for a in protocol.adoption] == [round(dev["adoption"]["stability"], 3),
+                                                   round(dev["adoption"]["r2_on_kind_shares"], 3)]
+    assert protocol.caveat == CAVEAT and len(protocol.not_scored) == 3
+    # the pre-registered game-bootstrap ranges are not valid intervals (PLAN.md D86): none reaches the page data
+    text = protocol.model_dump_json()
+    for key in ("H1", "H2", "H3"):
+        for end in dev[key]["interval_95"]:
+            assert str(round(end, 3)) not in text, (key, end)
+    assert str(round(dev["adoption"]["stability_lo"], 3)) not in text
+
+
+def test_the_caveat_is_word_for_word_the_verdict_paragraph_of_the_write_up():
+    text = (REPO / "reports/research/decisions-E1.md").read_text(encoding="utf-8")
+    assert R.is_sentences(CAVEAT, R.verdict_paragraph(text))
+    assert not R.is_sentences(CAVEAT.replace("about 0.04", "about 0.05"), R.verdict_paragraph(text))
+    # a sentence of the write-up outside its verdict paragraph is not the verdict's caveat
+    assert not R.is_sentences("A note on H1's unit.", R.verdict_paragraph(text))
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("an edited caveat", lambda p: p.update(caveat=CAVEAT.replace("(not measured)", "(measured)")),
+     "verdict paragraph"),
+    ("a not-scored reason cut short", lambda p: p["not_scored"].__setitem__(0, p["not_scored"][0].split(". ")[0]),
+     "not-scored reason"),
+    ("a protocol file outside reports/research",
+     lambda p: p.update(intervals="reports/decisions-E1-posthoc.json"), "not under reports/research/"),
+])
+def test_the_protocol_trace_can_fail(source, name, change, message):
+    problems = _problems_after(source, lambda d: change(next(
+        e for e in _lane(d, "decisions")["experiments"] if e["id"] == "decisions-E1")["protocol"]))
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_an_interval_that_belongs_to_another_statistic_is_refused(source):
+    doc = copy.deepcopy(source)
+    spec = next(e for e in _lane(doc, "decisions")["experiments"] if e["id"] == "decisions-E1")["protocol"]
+    spec["hypotheses"][0]["interval"] = "frozen.split_half_r"
+    with pytest.raises(R.MethodsProblem, match="belongs to another number"):
+        R.build_methods(REPO, doc)
+    spec["hypotheses"][0]["interval"] = "no.such_statistic"
+    with pytest.raises(R.MethodsProblem, match="no statistic"):
+        R.build_methods(REPO, doc)
+
+
+def test_an_undefined_statistic_reads_undefined_with_no_interval(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / DEC_DEV
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["verdict"]["H3"].update(value=None, holds=None, result="undefined")
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    h3 = _decisions(R.build_methods(repo, source)).protocol.hypotheses[2]
+    assert (h3.value, h3.holds, h3.result, h3.interval, h3.point_estimate) == (None, None, "undefined", None, True)
+    doc["verdict"]["H3"].update(value=0.342, holds=None, result="holds")
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="H3 reads"):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_refuses_a_status_or_a_reading_the_protocol_files_do_not_support(source):
+    experiment = _decisions(R.build_methods(REPO, source)).model_dump()
+    for status in ("development_met_test_pending", "adopted", "pre_registered", "not_adopted_test"):
+        with pytest.raises(ValidationError, match="the results say"):
+            S.Experiment(**{**experiment, "status": status})
+    adopted = {**experiment["protocol"], "adopted": True}
+    with pytest.raises(ValidationError, match="has no status"):
+        S.Experiment(**{**experiment, "protocol": adopted})
+    with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**experiment, "protocol": {**adopted, "not_scored": []}})
+    pilot = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments if e.id == "xfg-E1")
+    with pytest.raises(ValidationError, match="replaces the stage results"):
+        S.Experiment(**{**experiment, "development": pilot.development.model_dump()})
+    h1 = experiment["protocol"]["hypotheses"][0]
+    for bad, message in (({"result": "holds"}, "holds or fails"), ({"point_estimate": True}, "valid interval"),
+                         ({"threshold": "below 0.3"}, "part of the statement"), ({"value": None}, "holds or fails")):
+        with pytest.raises(ValidationError, match=message):
+            S.Hypothesis(**{**h1, **bad})
+    with pytest.raises(ValidationError, match="rows training"):
+        S.ProtocolResult(**{**experiment["protocol"], "source": {**experiment["protocol"]["source"],
+                                                                "rows": "heldout"}})

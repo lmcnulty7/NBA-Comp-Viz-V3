@@ -1111,12 +1111,101 @@ class StageResult(Strict):
         return self
 
 
+class PostHocInterval(Strict):
+    """A valid 95 percent interval computed after the result and its review (post hoc), which no verdict reads.
+    `method` names how it was drawn; `source` is the file it was read from."""
+
+    lo: float
+    hi: float
+    method: str = Field(min_length=1)
+    source: Source
+
+    @model_validator(mode="after")
+    def _ordered(self):
+        if self.lo > self.hi:
+            raise ValueError("lo must not exceed hi")
+        return self
+
+
+class Hypothesis(Strict):
+    """One pre-registered statement of a protocol experiment, read on its point value as pre-registered. `statement`
+    is copied from the result file and `threshold` is its threshold, part of it. `holds` is null when the
+    statistic is not a finite number, and `result` then reads undefined, never holds or fails. A pre-registered
+    range that is not a valid confidence interval (PLAN.md D86) is never carried here: `interval` is the valid post
+    hoc one, or null, and then the value is a point estimate."""
+
+    label: str = Field(min_length=1)
+    statement: str = Field(min_length=1)
+    threshold: str = Field(min_length=1)
+    value: Optional[float] = None
+    holds: Optional[bool] = None
+    result: Literal["holds", "fails", "undefined"]
+    interval: Optional[PostHocInterval] = None
+    point_estimate: bool
+
+    @model_validator(mode="after")
+    def _reading(self):
+        if self.threshold not in self.statement:
+            raise ValueError(f"{self.label}: the threshold is part of the statement")
+        expected = "undefined" if self.holds is None else "holds" if self.holds else "fails"
+        if self.result != expected or (self.value is None) != (self.holds is None):
+            raise ValueError(f"{self.label}: a finite value holds or fails; no value reads undefined")
+        if self.point_estimate != (self.interval is None) or (self.value is None and self.interval is not None):
+            raise ValueError(f"{self.label}: a value has its valid interval or is a point estimate")
+        return self
+
+
+class AdoptionValue(Strict):
+    """A number the adoption rule reads, with its valid post hoc interval or as a point estimate."""
+
+    label: str = Field(min_length=1)
+    value: float
+    interval: Optional[PostHocInterval] = None
+    point_estimate: bool
+
+    @model_validator(mode="after")
+    def _interval(self):
+        if self.point_estimate != (self.interval is None):
+            raise ValueError(f"{self.label}: a value has its valid interval or is a point estimate")
+        return self
+
+
+class ProtocolResult(Strict):
+    """The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on
+    reliability and stability) rather than one paired difference against a threshold. `rule`, `adopted` and
+    `reading` (the protocol's own conclusion) are copied from the result file. `caveat` and `not_scored` (why the
+    test set was not scored, when it was not) are sentences of the experiment's write-up, word for word."""
+
+    stage: Literal["development"]
+    source: Source
+    games: int
+    rows: int
+    rows_unit: str = Field(min_length=1)
+    hypotheses: Annotated[list[Hypothesis], Field(min_length=1)]
+    rule: str = Field(min_length=1)
+    adoption: list[AdoptionValue]
+    adopted: bool
+    reading: str = Field(min_length=1)
+    caveat: Optional[str] = None
+    not_scored: list[str]
+
+    @model_validator(mode="after")
+    def _rows(self):
+        if self.source.rows != "training":
+            raise ValueError("a protocol result is a description of the development games (rows training)")
+        return self
+
+
 class Experiment(Strict):
     """A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,
     fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
     `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
     pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
-    needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/."""
+    needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
+    An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
+    adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
+    meaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds
+    on a test set that cannot be scored has no status yet and is refused."""
 
     id: str = Field(pattern=r"^[a-z]+-E\d+$")
     title: str = Field(min_length=1)
@@ -1132,10 +1221,20 @@ class Experiment(Strict):
     writeup: Optional[str] = None
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
+    protocol: Optional[ProtocolResult] = None
 
     @model_validator(mode="after")
     def _status(self):
         dev, test = self.development, self.test
+        if self.protocol is not None:
+            if dev is not None or test is not None:
+                raise ValueError(f"{self.id}: a protocol result replaces the stage results, never sits beside them")
+            if self.protocol.adopted and self.protocol.not_scored:
+                raise ValueError(f"{self.id}: an adopted protocol whose test set cannot be scored has no status")
+            expected = "development_met_test_pending" if self.protocol.adopted else "not_adopted_development"
+            if self.status != expected:
+                raise ValueError(f"{self.id}: status is {self.status!r}, the results say {expected!r}")
+            return self
         if (dev and dev.stage != "development") or (test and test.stage != "test"):
             raise ValueError(f"{self.id}: a stage result sits under its own stage")
         if test is not None and dev is None:
@@ -1405,6 +1504,14 @@ def _content_problems(relpath: str, obj, synthetic: bool) -> list[str]:
                 if experiment.writeup is not None and not experiment.writeup.startswith("reports/research/"):
                     problems.append(f"{relpath}: {experiment.id} names its write-up {experiment.writeup!r}, not a "
                                     "file under reports/research/")
+                protocol = experiment.protocol
+                paths = [] if protocol is None else [protocol.source.path] + [
+                    i.source.path for i in [h.interval for h in protocol.hypotheses] + [a.interval for a in
+                                                                                       protocol.adoption] if i]
+                for path in paths:
+                    if not path.startswith("reports/research/"):
+                        problems.append(f"{relpath}: {experiment.id} reads its protocol from {path!r}, not a file "
+                                        "under reports/research/")
                 for stage in (experiment.development, experiment.test):
                     if stage is not None and not stage.source.path.startswith("reports/research/"):
                         problems.append(f"{relpath}: {experiment.id} reads its result from "

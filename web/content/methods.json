@@ -49,7 +49,27 @@
     "more": "More numbers from the same run",
     "writeup": "Write-up: {path}",
     "listed": "In the list of tests: {status}",
-    "bootstraps": "A test draws its own ranges by resampling games. So the same score can show a slightly different range here than in the report of its model. Both ranges come from the same predictions."
+    "bootstraps": "A test draws its own ranges by resampling games. So the same score can show a slightly different range here than in the report of its model. Both ranges come from the same predictions.",
+    "protocol": {
+      "stage": "Training games, every one of them",
+      "intro": "This test was set up as a list of statements, each read on its value, as fixed before it ran.",
+      "postHoc": "post hoc",
+      "postHocNote": "A range marked post hoc was drawn after the result, by resampling players, and no verdict reads it. The ranges set up in advance resampled games. Those are not valid ranges, so they are not shown.",
+      "statements": "Statements set before the run",
+      "result": {
+        "holds": "Holds",
+        "fails": "Fails",
+        "undefined": "Undefined"
+      },
+      "rule": "The rule to adopt it",
+      "adopted": "Adopted",
+      "notAdopted": "Not adopted",
+      "reading": "What the plan says this means",
+      "caveat": "A caveat from the write-up",
+      "notScored": "Why the test games were not scored",
+      "intervals": "Post hoc ranges read from {path}",
+      "sample": "{n} {unit} in {games} games"
+    }
   },
   "lane": {
     "foundations": "Built on",

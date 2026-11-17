@@ -239,13 +239,25 @@ def _methods() -> S.MethodsFile:
                                      S.StageValue(label="fixture paired value", value=0.0012, lo=0.0004, hi=0.0021,
                                                   point_estimate=False)])
 
-    def experiment(number, status, dev=None, test=None):
+    def experiment(number, status, dev=None, test=None, protocol=None):
         return S.Experiment(id=f"fixture-E{number}", title=f"fixture experiment {number}",
                             what="fixture test of a fixture model", hypothesis="Fixture hypothesis, not a result.",
                             threshold="Fixture threshold of 0.0005, not a result.", rank=number, gain=3, effort=2,
                             test_data="fixture games", backlog_status="proposed", status=status, development=dev,
-                            test=test)
+                            test=test, protocol=protocol)
 
+    interval = S.PostHocInterval(lo=0.295, hi=0.519, method="fixture post hoc interval", source=SRC_FIXTURE[0])
+    protocol = S.ProtocolResult(
+        stage="development", source=S.Source(path=fixture, what="synthetic fixture result", rows="training"),
+        games=12, rows=2400, rows_unit="decisions",
+        hypotheses=[S.Hypothesis(label="H1", statement="fixture statistic below 0.2", threshold="below 0.2", value=0.42,
+                                 holds=False, result="fails", interval=interval, point_estimate=False),
+                    S.Hypothesis(label="H2", statement="fixture statistic at least 0.5", threshold="at least 0.5",
+                                 value=0.932, holds=True, result="holds", point_estimate=True)],
+        rule="fixture rule, not a result", adoption=[S.AdoptionValue(label="fixture adoption value", value=0.537,
+                                                                    interval=interval, point_estimate=False)],
+        adopted=False, reading="Fixture reading, not a result.", caveat="Fixture caveat, not a result.",
+        not_scored=["Fixture reason the test games were not scored."])
     lane = S.MethodsLane(
         lane="fixture_lane", dossier=fixture, report=fixture,
         foundations=[S.Paper(cite="Fixture, A. (2000). A fixture paper. Fixture Journal 1(1).",
@@ -267,6 +279,7 @@ def _methods() -> S.MethodsFile:
         experiments=[experiment(1, "development_met_test_pending", stage("development", -0.0005, -0.0008, -0.0002,
                                                                          True)),
                      experiment(2, "pre_registered"),
+                     experiment(4, "not_adopted_development", protocol=protocol),
                      experiment(3, "not_adopted_test", stage("development", -0.0004, -0.0007, -0.0001, True),
                                 stage("test", 0.0003, -0.0002, 0.0009, False))])
     return S.MethodsFile(schema_version=S.SCHEMA_VERSION, written="2000-01-01", backlog=fixture, lanes=[lane],

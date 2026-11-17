@@ -132,8 +132,19 @@ def dossier_cells(text: str) -> set:
 
 
 def dossier_paragraphs(text: str) -> list:
-    """The paragraphs of a dossier, white space made single (table rows and headings included, one block each)."""
-    return [_flat(block) for block in re.split(r"\n\s*\n", text) if block.strip()]
+    """The paragraphs of a dossier or a write-up, white space made single (table rows and headings included, one
+    block each). Each item of a bullet list is a paragraph of its own, without its marker."""
+    paragraphs = []
+    for block in re.split(r"\n\s*\n", text):
+        for item in re.split(r"^- ", block, flags=re.M):
+            if item.strip():
+                paragraphs.append(_flat(item))
+    return paragraphs
+
+
+def verdict_paragraph(text: str) -> list:
+    """The paragraph of a write-up that opens with its verdict ("**Verdict.**"), as a one-item list."""
+    return [p for p in dossier_paragraphs(text) if p.startswith("**Verdict.**")]
 
 
 def is_sentences(note: str, paragraphs: list) -> bool:
@@ -301,6 +312,10 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             writeup = exp.get("writeup")
             if writeup is not None and (not writeup.startswith("reports/research/") or not (repo / writeup).is_file()):
                 problems.append(f"{eid}: the write-up {writeup!r} is not a file under reports/research/")
+            protocol = exp.get("protocol")
+            if protocol:
+                if results_problem := _protocol_trace(eid, exp, protocol, repo):
+                    problems += results_problem
             results = exp.get("results")
             if results:
                 if _flat(results["interval"]) != bullets.get(eid, {}).get("interval"):
@@ -356,6 +371,100 @@ def _stage(results: dict, stage: str, repo: Path):
         interval=results["interval"], threshold=num("threshold"), upper=num("upper"), met=met, values=values)
 
 
+def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
+    """The trace of a protocol entry: its files are under reports/research/, its caveat is whole sentences of the
+    write-up's verdict paragraph and its not-scored reasons whole sentences of the write-up."""
+    problems = []
+    for key in ("development", "intervals"):
+        if not protocol[key].startswith("reports/research/"):
+            problems.append(f"{eid}: the protocol's {key} file is not under reports/research/")
+    writeup = exp.get("writeup")
+    if not writeup or not (repo / writeup).is_file():
+        problems.append(f"{eid}: a protocol result needs its write-up")
+        return problems
+    text = (repo / writeup).read_text(encoding="utf-8")
+    if protocol.get("caveat") and not is_sentences(protocol["caveat"], verdict_paragraph(text)):
+        problems.append(f"{eid}: the caveat is not whole sentences of the verdict paragraph of {writeup} word for "
+                        f"word: {protocol['caveat'][:70]!r}")
+    for sentence in protocol["not_scored"]:
+        if not is_sentences(sentence, dossier_paragraphs(text)):
+            problems.append(f"{eid}: a not-scored reason is not whole sentences of {writeup} word for word: "
+                            f"{sentence[:70]!r}")
+    return problems
+
+
+def _protocol(spec: dict, repo: Path):
+    """The protocol result of an experiment, or None when its development file does not exist yet. The value of
+    each statement and the adoption rule are read from the development file; each valid interval from the post hoc
+    file, whose statistic must be the same number as the development file's (so the interval belongs to it). The
+    pre-registered ranges of the development file are not read: they are not valid confidence intervals."""
+    path = repo / spec["development"]
+    if not path.is_file():
+        return None
+    dev = json.loads(path.read_text(encoding="utf-8"))
+    posthoc_path = repo / spec["intervals"]
+    if not posthoc_path.is_file():
+        raise MethodsProblem(f"{spec['intervals']}: no such file, so the protocol has no valid interval")
+    posthoc = json.loads(posthoc_path.read_text(encoding="utf-8"))
+    digits = spec["digits"]
+    method = _path_value(posthoc, spec["interval_method_key"])
+    if spec["interval_method"] not in method:
+        raise MethodsProblem(f"{spec['intervals']}: the interval method does not say {spec['interval_method']!r}")
+    interval_source = S.Source(path=spec["intervals"], what="valid intervals computed post hoc (bootstrap by player); "
+                               "no verdict reads them", rows="training")
+
+    def interval(statistic: str, value: float):
+        if not statistic:
+            return None
+        table = _path_value(posthoc, spec["statistics_key"])
+        if statistic not in table:        # the names of the statistics hold dots, so they are looked up whole
+            raise MethodsProblem(f"{spec['intervals']}: no statistic {statistic}")
+        stat = table[statistic]
+        if not isinstance(stat.get("value"), (int, float)) or abs(float(stat["value"]) - value) > 1e-9:
+            raise MethodsProblem(f"{spec['intervals']}: {statistic} is {stat.get('value')}, not the development "
+                                 f"value {value}, so its interval belongs to another number")
+        boot = stat[spec["interval_key"]]
+        return S.PostHocInterval(lo=round(float(boot["lo"]), digits), hi=round(float(boot["hi"]), digits),
+                                 method=spec["interval_method"], source=interval_source)
+
+    hypotheses = []
+    for item in spec["hypotheses"]:
+        h = _path_value(dev, f"{spec['verdict_key']}.{item['key']}")
+        raw = h.get("value")
+        finite = isinstance(raw, (int, float)) and raw == raw and abs(raw) != float("inf")
+        holds = bool(h["holds"]) if finite and h.get("holds") is not None else None
+        if (holds is None) != (h.get("result") == "undefined") or (holds is not None and h["result"] !=
+                                                                      ("holds" if holds else "fails")):
+            raise MethodsProblem(f"{spec['development']}: {item['key']} reads {h.get('result')!r} with holds "
+                                 f"{h.get('holds')!r} and value {raw!r}")
+        found = interval(item.get("interval"), float(raw)) if finite else None
+        hypotheses.append(S.Hypothesis(label=item["key"], statement=h["statement"], threshold=item["threshold"],
+                                       value=round(float(raw), digits) if finite else None, holds=holds,
+                                       result=h["result"], interval=found, point_estimate=found is None))
+    adoption_doc = _path_value(dev, f"{spec['verdict_key']}.{spec['adoption']['key']}")
+    adoption = []
+    for item in spec["adoption"]["values"]:
+        raw = float(adoption_doc[item["value"]])
+        found = interval(item.get("interval"), raw)
+        adoption.append(S.AdoptionValue(label=item["label"], value=round(raw, digits), interval=found,
+                                        point_estimate=found is None))
+    return S.ProtocolResult(
+        stage="development",
+        source=S.Source(path=spec["development"], what="experiment result: the pre-registered statistics on the "
+                        "development games, read on their point values", rows="training"),
+        games=int(_path_value(dev, spec["games"])), rows=int(_path_value(dev, spec["rows"])),
+        rows_unit=spec["rows_unit"], hypotheses=hypotheses, rule=adoption_doc["rule"],
+        adoption=adoption, adopted=bool(adoption_doc["adopted"]),
+        reading=_path_value(dev, f"{spec['verdict_key']}.protocol"), caveat=spec.get("caveat"),
+        not_scored=spec["not_scored"])
+
+
+def _protocol_status(protocol) -> str:
+    if protocol is None:
+        return "pre_registered"
+    return "development_met_test_pending" if protocol.adopted else "not_adopted_development"
+
+
 def _status(dev, test) -> str:
     if dev is None:
         return "pre_registered"
@@ -396,7 +505,13 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                 comparability_class=comparability_class(row["comparability"])))
         experiments = []
         for exp in lane["experiments"]:
-            dev = test = None
+            dev = test = protocol = None
+            if exp.get("protocol"):
+                protocol = _protocol(exp["protocol"], repo)
+                if protocol is not None:
+                    sources.append(protocol.source)
+                    sources += [i.source for i in [h.interval for h in protocol.hypotheses]
+                                + [a.interval for a in protocol.adoption] if i]
             if exp.get("results"):
                 dev = _stage(exp["results"], "development", repo)
                 test = _stage(exp["results"], "test", repo) if dev is not None else None
@@ -404,8 +519,9 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
             experiments.append(S.Experiment(
                 id=exp["id"], title=exp["title"], what=exp["what"], hypothesis=exp["hypothesis"],
                 threshold=exp["threshold"], rank=exp["rank"], gain=exp["gain"], effort=exp["effort"],
-                test_data=exp["test_data"], backlog_status=exp["backlog_status"], status=_status(dev, test),
-                writeup=exp.get("writeup"), development=dev, test=test))
+                test_data=exp["test_data"], backlog_status=exp["backlog_status"],
+                status=_protocol_status(protocol) if protocol is not None else _status(dev, test),
+                writeup=exp.get("writeup"), development=dev, test=test, protocol=protocol))
             if exp.get("writeup"):
                 sources.append(S.Source(path=exp["writeup"], what="the write-up of an experiment that has run",
                                         rows="not_split"))

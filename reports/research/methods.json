@@ -1282,7 +1282,59 @@
      "effort": 1,
      "test_data": "training tables, Set A",
      "backlog_status": "done: not adopted (H1 fails as pre-registered, H2 holds, H3 fails; reports/research/decisions-E1.md)",
-     "results": null
+     "results": null,
+     "writeup": "reports/research/decisions-E1.md",
+     "protocol": {
+      "development": "reports/research/decisions-E1-dev.json",
+      "intervals": "reports/research/decisions-E1-posthoc.json",
+      "verdict_key": "verdict",
+      "games": "games",
+      "rows": "decisions",
+      "rows_unit": "decisions",
+      "statistics_key": "valid_intervals.statistics",
+      "interval_key": "player_bootstrap",
+      "interval_method_key": "valid_intervals.method",
+      "interval_method": "bootstrap by player, 2000 resamples",
+      "digits": 3,
+      "hypotheses": [
+       {
+        "key": "H1",
+        "threshold": "below 0.2",
+        "interval": "target.split_half_r"
+       },
+       {
+        "key": "H2",
+        "threshold": "at least 0.5",
+        "interval": "frozen.stability"
+       },
+       {
+        "key": "H3",
+        "threshold": "at least 0.5",
+        "interval": "frozen.r2_on_kind_shares"
+       }
+      ],
+      "adoption": {
+       "key": "adoption",
+       "values": [
+        {
+         "label": "Stability of the kind-adjusted quality",
+         "value": "stability",
+         "interval": "adjusted.stability"
+        },
+        {
+         "label": "R squared of the kind-adjusted quality on kind shares",
+         "value": "r2_on_kind_shares",
+         "interval": "adjusted.r2_on_kind_shares"
+        }
+       ]
+      },
+      "caveat": "Post hoc, not pre-registered: stepped down to one game, the target's reliability is about 0.04, which would meet H1's intent; part of the half-season reliability may be team offence shared by teammates (not measured).",
+      "not_scored": [
+       "The pre-registration asks for the same statistics once on the D71 test set. They cannot exist there, so the test set was not touched and the scoring ledger has no decisions-E1 entry.",
+       "On one date every team plays once, so every player has at most one game. No player can sit in both halves, so split-half reliability and stability have no player at all.",
+       "Discrimination and R squared need 300 decisions in the set. Post hoc: the most decisions any player made in one of the 12769 development player-games is 229 (99th percentile 153). No player can reach 300 in one game."
+      ]
+     }
     },
     {
      "id": "decisions-E2",

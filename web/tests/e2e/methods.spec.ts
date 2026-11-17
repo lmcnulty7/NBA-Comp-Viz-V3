@@ -92,6 +92,24 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     if (experiment.status === "development_met_test_pending") {
       await expect(result.getByTestId("test-pending")).toHaveText(copy.methods.results.pending);
     }
+    const protocol = experiment.protocol;
+    await expect(result.locator("[data-protocol]")).toHaveCount(protocol ? 1 : 0);
+    if (protocol) {
+      // Each statement shows its reading, and its valid range marked post hoc or the words point estimate. The
+      // ranges set up in advance are not valid (PLAN.md D86) and are never on the page.
+      const statements = result.locator("[data-hypothesis]");
+      await expect(statements).toHaveCount(protocol.hypotheses.length);
+      for (const [index, h] of protocol.hypotheses.entries()) {
+        await expect(statements.nth(index)).toHaveAttribute("data-reading", h.result);
+        await expect(statements.nth(index)).toContainText(copy.methods.results.protocol.result[h.result]);
+        const note = statements.nth(index).locator(".note");
+        if (h.interval) await expect(note).toContainText(copy.methods.results.protocol.postHoc);
+        else if (h.value != null) await expect(note).toHaveText(copy.methods.lane.point);
+      }
+      await expect(result.locator("[data-protocol]")).toHaveAttribute("data-adopted", protocol.adopted ? "true" : "false");
+      if (protocol.caveat) await expect(result.getByTestId("protocol-caveat")).toHaveText(protocol.caveat);
+      await expect(result.getByTestId("not-scored").locator("li")).toHaveCount(protocol.not_scored.length);
+    }
     for (const stage of [experiment.development, experiment.test]) {
       if (!stage) continue;
       const facts = result.locator(`[data-stage="${stage.stage}"]`);
