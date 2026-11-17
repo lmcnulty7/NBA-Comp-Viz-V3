@@ -917,6 +917,8 @@ export interface OurValue {
  * pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
  * needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
  * An experiment whose pre-registration has no verdict on the development games (a dry run only) is
+ * `adopted_as` research_result marks a pass adopted as a research result only (the lane and the site do not
+ * change): its status is adopted_research, never adopted.
  * `stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
  * development bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
  * (the narrow claim, a data-fault note).
@@ -945,17 +947,20 @@ export interface Experiment {
     | "not_adopted_development"
     | "adopted"
     | "not_adopted_test"
-    | "passed_test";
+    | "passed_test"
+    | "adopted_research";
   writeup?: string | null;
   writeup_notes?: string[];
   stages?: "development_and_test" | "test_only";
+  adopted_as?: "research_result" | null;
   development?: StageResult | null;
   test?: StageResult | null;
   protocol?: ProtocolResult | null;
 }
 /**
  * One stage of an experiment, read from its result file under reports/research/: development (out of fold on
- * the development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption
+ * the development games) or test (the D71 test set, scored once); `design` is the file's own words for how the
+ * stage was run (its folds or its forward chaining). `diff` is the paired difference the adoption
  * rule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the
  * bound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every
  * further condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export.
@@ -966,6 +971,7 @@ export interface Experiment {
 export interface StageResult {
   stage: "development" | "test";
   source: Source;
+  design?: string | null;
   metric: string;
   rows: number;
   rows_unit: string;
@@ -978,12 +984,15 @@ export interface StageResult {
   upper: number;
   comparison?: "at_most" | "below";
   conditions?: Condition[];
+  guard?: BucketGuard | null;
   met: boolean;
   values: StageValue[];
 }
 /**
  * A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the
- * interval it reads (`bound`) compares with `threshold` as `comparison` says. `label` names the statistic.
+ * interval it reads (`bound`), or its point value (`bound` point), compares with `threshold` as `comparison` says.
+ * A threshold keeps its sign ("at most -0.002" where the text says "improves by at least 0.002"). `label` names
+ * the statistic.
  *
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "Condition".
@@ -993,10 +1002,41 @@ export interface Condition {
   value: number;
   lo: number;
   hi: number;
-  bound: "lo" | "hi";
+  bound: "lo" | "hi" | "point";
   comparison: "below" | "at_most" | "above" | "at_least";
   threshold: number;
   met: boolean;
+}
+/**
+ * A guard of a stage's rule over every bucket: a bucket is worse when the end of its interval (`bound`)
+ * compares with `threshold` as `comparison` says, and the guard is met when no bucket is worse.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "BucketGuard".
+ */
+export interface BucketGuard {
+  label: string;
+  bound: "lo" | "hi";
+  comparison: "below" | "at_most" | "above" | "at_least";
+  threshold: number;
+  /**
+   * @minItems 1
+   */
+  buckets: [GuardBucket, ...GuardBucket[]];
+  met: boolean;
+}
+/**
+ * One bucket of a guard: its paired difference with its 95 percent interval, and whether it reads as worse.
+ *
+ * This interface was referenced by `SiteContract`'s JSON-Schema
+ * via the `definition` "GuardBucket".
+ */
+export interface GuardBucket {
+  label: string;
+  value: number;
+  lo: number;
+  hi: number;
+  worse: boolean;
 }
 /**
  * A further number of a stage result, read from the result file: a value with its interval when the file

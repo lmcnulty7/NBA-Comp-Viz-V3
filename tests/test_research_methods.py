@@ -56,7 +56,7 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1", "lineups-E1")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -630,7 +630,7 @@ def test_lineups_is_a_scored_test_with_two_conditions_read_from_its_final_file(s
     (lambda d: d["verdict"].update(diff_ci_below_zero=False), "diff_ci_below_zero disagrees"),
     (lambda d: d["verdict"].update(r2_above_zero_with_interval=False), "r2_above_zero_with_interval disagrees"),
     (lambda d: d["verdict"].update(rule=d["verdict"]["rule"].replace("below 0", "below one")
-                                   .replace("above 0", "above one")), "does not name the threshold"),
+                                   .replace("above 0", "above one")), "the rule does not state below 0"),
 ])
 def test_a_test_file_whose_verdict_contradicts_its_numbers_is_refused(source, tmp_path, change, message):
     repo = _repo_copy(tmp_path, source)
@@ -756,3 +756,98 @@ def test_the_states_helper_reads_a_comparison_right_before_its_threshold():
     assert not R.states("interval wholly below 0", "at_most", 0)
     assert not R.states("stability >= 0.5", "at_most", 0.5)
     assert not R.states("below 0.25", "below", 0.2)
+
+
+# ------------------------------------------------------------------------------------------ a rule with its sign
+
+
+WIN_DEV, WIN_FINAL = "reports/research/winprob-E1-dev.json", "reports/research/winprob-E1-final.json"
+BUCKETS = ["48-36", "36-24", "24-12", "12-4", "4-0", "OT"]
+
+
+def _winprob(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "winprob-E1")
+
+
+def test_winprob_shows_both_stages_with_the_signed_rule_and_every_bucket(source):
+    experiment = _winprob(R.build_methods(REPO, source))
+    assert (experiment.status, experiment.adopted_as) == ("adopted_research", "research_result")
+    files = {"development": (json.loads((REPO / WIN_DEV).read_text())["pooled_forward"], None),
+             "test": (json.loads((REPO / WIN_FINAL).read_text())["scored"]["results"], None)}
+    for stage in (experiment.development, experiment.test):
+        data = files[stage.stage][0]
+        paired = data["paired"]["e1_minus_baseline"]
+        mean = paired["mean_bucket_brier"]
+        assert (stage.diff, stage.lo, stage.hi) == tuple(round(mean[k], 4) for k in ("point", "lo", "hi"))
+        assert (stage.upper, stage.threshold, stage.comparison, stage.met) == (stage.hi, 0, "below", True)
+        (size,) = stage.conditions
+        assert (size.bound, size.comparison, size.threshold, size.met) == ("point", "at_most",
+                                                                           -data["verdict"]["threshold"], True)
+        assert [b.label for b in stage.guard.buckets] == BUCKETS and stage.guard.met
+        for bucket in stage.guard.buckets:
+            cell = paired["bucket_brier"][bucket.label]
+            assert (bucket.lo, bucket.worse) == (round(cell["lo"], 4), cell["lo"] > 0)
+        slopes = [v for v in stage.values if v.label.startswith("Calibration slope")]
+        assert len(slopes) == 6 and all(v.point_estimate and v.lo is None for v in slopes)
+        assert stage.games == data["games"] and stage.rows == data["rows"] and stage.design
+    text = (REPO / "reports/research/winprob-E1.md").read_text(encoding="utf-8")
+    assert len(experiment.writeup_notes) == 3
+    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes)
+    assert "adopted as a research result" in experiment.writeup_notes[0]
+
+
+def _win(doc):
+    return _exp(doc, "winprob-E1")["results"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("the size read without its sign", lambda d: _win(d)["conditions"][0].update(sign=1), "does not state at_most 0.002"),
+    ("a guard that leaves out overtime", lambda d: _win(d)["guard"].update(buckets=BUCKETS[:5]), "every bucket"),
+    ("a guard on the upper end", lambda d: _win(d)["guard"].update(bound="hi"), "the guard reads the hi end"),
+    ("the straddle flag left unnamed", lambda d: _win(d).pop("flags_outside_rule"), "interval_straddles_threshold"),
+    ("the size condition without its flag", lambda d: _win(d)["conditions"][0].pop("met"), "lacks ['met']"),
+    ("a rule quote that is not the write-up's", lambda d: _win(d)["rule_quote"].update(
+        text=_win(d)["rule_quote"]["text"].replace("-0.002", "-0.001")), "rule quote"),
+    ("a research adoption with no note", lambda d: _exp(d, "winprob-E1").update(writeup_notes=[]), "adopted_as"),
+])
+def test_the_signed_rule_and_its_guard_are_refused_when_the_source_misreads_them(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = R.trace_problems(doc, REPO)
+    if not problems:
+        with pytest.raises(R.MethodsProblem) as caught:
+            R.build_methods(REPO, doc)
+        problems = [str(caught.value)]
+    assert any(message.replace("at_most", "at most") in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("change, message", [
+    (lambda v: v.update(buckets_worse=["OT"]), "buckets_worse lists"),
+    (lambda v: v.update(size_at_least_threshold=False), "size_at_least_threshold disagrees"),
+    (lambda v: v.update(interval_excludes_zero=False), "interval_excludes_zero disagrees"),
+    (lambda v: v.update(adopt=False), "adopt is False"),
+])
+def test_a_winprob_file_whose_verdict_contradicts_its_numbers_is_refused(source, tmp_path, change, message):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / WIN_FINAL
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    change(doc["scored"]["results"]["verdict"])
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match=message):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_keeps_research_adoption_and_the_guard_honest(source):
+    experiment = _winprob(R.build_methods(REPO, source)).model_dump()
+    with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**experiment, "status": "adopted"})
+    with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**experiment, "adopted_as": None})
+    failed = {**experiment["test"], "met": False, "guard": {**experiment["test"]["guard"], "met": True}}
+    with pytest.raises(ValidationError):
+        S.StageResult(**failed)
+    guard = experiment["test"]["guard"]
+    with pytest.raises(ValidationError, match="worse says"):
+        S.BucketGuard(**{**guard, "buckets": [{**guard["buckets"][0], "worse": True}] + guard["buckets"][1:]})
+    with pytest.raises(ValidationError, match="no bucket is worse"):
+        S.BucketGuard(**{**guard, "met": False})
