@@ -13,6 +13,7 @@ import {
   formatSigned,
 } from "@/lib/format";
 import {
+  checkLanes,
   checkNumbers,
   checkedText,
   numbersIn,
@@ -35,6 +36,7 @@ const WEB_DIR = path.resolve(__dirname, "..", "..");
 const CASES = JSON.parse(readFileSync(path.join(WEB_DIR, "..", "tests", "fixtures", "genai_cases.json"), "utf8")) as {
   numbers: { name: string; text: string; facts: Fact[]; names: string[]; ok: boolean; problem: string }[];
   format: { fn: string; value: number; digits?: number; shown: string }[];
+  lanes: { name: string; text: string; names: string[]; ok: boolean; lane: string }[];
 };
 const named = (process.env.SITE_DATA_DIR ?? "").trim();
 const ROOT = named ? path.resolve(WEB_DIR, named) : path.join(WEB_DIR, "data");
@@ -46,6 +48,22 @@ for (const item of CASES.numbers) {
     else expect(problems.some((line) => line.includes(item.problem)), JSON.stringify(problems)).toBe(true);
   });
 }
+
+for (const item of CASES.lanes) {
+  test(`lane words: ${item.name}`, () => {
+    const problems = checkLanes(item.text, item.names);
+    if (item.ok) expect(problems).toEqual([]);
+    else expect(problems.some((line) => line.includes(`the ${item.lane} lane`)), JSON.stringify(problems)).toBe(true);
+  });
+}
+
+test("a text that names a lane that did not work is not shown", () => {
+  const facts: Fact[] = [{ field: "xfg", shown: "0.459", unit: "none", kind: "point", group: "xfg" }];
+  const texts = {
+    items: [{ key: "a/1", text: "He won his matchup. The shot had a 0.459 chance, a point estimate.", numbers: [] }],
+  } as unknown as GeneratedTexts;
+  expect(checkedText(texts, "a/1", facts, [])).toBeNull();
+});
 
 test("the page formatters give the shown values export/genai.py expects", () => {
   const formatters: Record<string, (value: number, digits?: number) => string> = {
@@ -103,7 +121,9 @@ test("every machine-written text of the data root passes the page's own number c
         continue;
       }
       checked += 1;
-      for (const line of checkNumbers(item.text, playerFacts(player), playerNames(player))) problems.push(`${item.key}: ${line}`);
+      for (const line of [...checkNumbers(item.text, playerFacts(player), playerNames(player)), ...checkLanes(item.text, playerNames(player))]) {
+        problems.push(`${item.key}: ${line}`);
+      }
     }
   }
   const possessions = await source.texts("possession");
@@ -118,7 +138,10 @@ test("every machine-written text of the data root passes the page's own number c
       }
       const detail = await source.possession(slug, summary.possession);
       checked += 1;
-      for (const line of checkNumbers(item.text, possessionFacts(summary, detail), possessionNames(detail))) {
+      for (const line of [
+        ...checkNumbers(item.text, possessionFacts(summary, detail), possessionNames(detail)),
+        ...checkLanes(item.text, possessionNames(detail)),
+      ]) {
         problems.push(`${item.key}: ${line}`);
       }
     }
@@ -144,4 +167,29 @@ test("the reading rules refuse what site copy refuses in a generated text", asyn
     "Comprehensive institutional probabilistic considerations notwithstanding, organizational infrastructure " +
     "deteriorated considerably throughout intercontinental collaborations yesterday.";
   expect(generatedTextProblems(`${plain} ${hard}`).join()).toContain("grade");
+});
+
+test("the private build refuses a data root whose text the contract's own rules refuse", async () => {
+  const { sampleRoot } = await import("../helpers/scripts");
+  const { contractRuleProblems } = (await import("../../scripts/build.mjs")) as unknown as {
+    contractRuleProblems(root: string, allowMissing?: string[]): string[];
+  };
+  const root = await sampleRoot();
+  expect(contractRuleProblems(root)).toEqual([]);
+  // A lane word passes the page's number check and the JSON Schema; only the contract's own rules refuse it.
+  const file = path.join(root, "genai", "possession.json");
+  const doc = JSON.parse(readFileSync(file, "utf8")) as GeneratedTexts;
+  doc.items[0]!.text = `${doc.items[0]!.text} The team won the matchup.`;
+  const { writeFileSync } = await import("node:fs");
+  const { createHash } = await import("node:crypto");
+  const text = `${JSON.stringify(doc)}\n`;
+  writeFileSync(file, text);
+  const manifestFile = path.join(root, "manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestFile, "utf8")) as { files: { path: string; bytes: number; sha256: string }[] };
+  const entry = manifest.files.find((candidate) => candidate.path === "genai/possession.json")!;
+  entry.bytes = Buffer.byteLength(text);
+  entry.sha256 = createHash("sha256").update(text).digest("hex");
+  writeFileSync(manifestFile, `${JSON.stringify(manifest)}\n`);
+  const problems = contractRuleProblems(root);
+  expect(problems.join("\n")).toContain("matchups lane");
 });

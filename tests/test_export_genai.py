@@ -392,3 +392,20 @@ def test_sources_cite_the_prompt_versions_the_texts_carry(root):
     paths = [source.path for source in genai._sources(root, "scouting", texts, synthetic=False)]
     assert "export/prompts/scouting-v0.md" in paths
     assert f"export/prompts/{genai.prompt('scouting')[0]}.md" not in paths
+
+
+@pytest.mark.parametrize("case", CASES["lanes"], ids=lambda c: c["name"])
+def test_a_lane_that_did_not_work_is_never_named(case):
+    problems = genai.check_lanes(case["text"], case["names"])
+    if case["ok"]:
+        assert problems == []
+    else:
+        assert any(f"the {case['lane']} lane" in line for line in problems), problems
+
+
+def test_check_text_applies_the_lane_rule(root):
+    key, build = genai.choose(root, "possession", None)[0]
+    item = build()
+    text = genai.fixture_text(item)
+    assert genai.check_text(text, item)[0] == []
+    assert any("lane" in line for line in genai.check_text(text + " The team won the matchup.", item)[0])

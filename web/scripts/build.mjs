@@ -13,7 +13,8 @@
 // web/data-public before every public build, so the public build needs Python with pydantic (PYTHON names the
 // interpreter). PUBLIC_SITE_DATA_DIR names a public root written earlier instead, and then no Python runs. After
 // `next build` the public variant fails, and removes out/, when any file of out/ holds frame-level positions
-// (scripts/check-frame-data.mjs). The private variant reads the full data root, as before.
+// (scripts/check-frame-data.mjs). The private variant reads the full data root and runs
+// `python3 -m export.schemas --validate` on it, so it needs Python with pydantic too.
 //
 // The private variant copies the clips folder (MEDIA_PRIVATE_DIR, else web/media-private) into out/clips and
 // fails when that folder is missing. The public variant fails, and removes out/, when out/ holds a video
@@ -154,6 +155,19 @@ export function publicDataEnv(env = process.env) {
   return { env: { ...env, SITE_DATA_DIR: PUBLIC_ROOT_DIR }, wrote: true };
 }
 
+/**
+ * The contract's own rules on a data root (`python3 -m export.schemas --validate`): the lines it prints when it
+ * refuses the root, or an empty list. Throws when Python cannot run.
+ */
+export function contractRuleProblems(root, allowMissing = []) {
+  const args = ["--validate", root];
+  if (allowMissing.length) args.push("--allow-missing", ...allowMissing);
+  const python = runPythonModule("export.schemas", args);
+  if (python.status === 0) return [];
+  const lines = `${python.stdout}${python.stderr}`.split("\n").filter(Boolean);
+  return lines.length ? lines : [`exit ${python.status}`];
+}
+
 function main() {
   const argv = process.argv.slice(2);
   const variant = option(argv, "--variant") ?? process.env.VARIANT ?? "public";
@@ -179,6 +193,23 @@ function main() {
   if (problems.length) {
     for (const line of problems.slice(0, 20)) console.error(`build: data: ${line}`);
     fail(`the data root does not validate against the contract (${problems.length} problem(s))`);
+  }
+  // The private variant reads the full data root, so no Python has run on it yet. The contract's own rules run
+  // here: among them every check of a machine-written text (PLAN.md P3): its input hash, the status and lane words
+  // and the rules of copy, which the page's number check (lib/genai.ts) does not repeat. The public variant had
+  // them when export.public_data validated its source and its output.
+  if (variant === "private") {
+    let refused;
+    try {
+      refused = contractRuleProblems(PUBLIC_DATA_DIR, allowMissing);
+    } catch (error) {
+      fail(error.message);
+    }
+    if (refused.length) {
+      for (const line of refused.slice(0, 20)) console.error(`build: data: python: ${line}`);
+      fail("python3 -m export.schemas --validate refused the private data root (the contract's own rules)");
+    }
+    console.log("build: the private data root passes the contract's own rules (python3 -m export.schemas --validate)");
   }
 
   // A private route the public build cannot check is refused before the long step, in both variants.
