@@ -25,6 +25,11 @@ Arms, each fitted on the development seasons 2020-21 to 2023-24 (2024-25 is spen
   columns (how many such players are on the floor for each side) get their own ratings, with their penalty chosen by
   grouped CV by game. Every player without a rating counts as one of them at prediction. The 10-minute cut is the value
   Watts, Pipping-Gamon and Wyner (2026) selected; it is fixed, not tuned here.
+- player_plus_minus (context arm, not pre-registered, reads no verdict; added by the lead before the test score so a
+  reader sees RAPM against a raw baseline that is not a strawman): each player's raw on-court net rating per 100
+  possessions over the fit stints. A stint gets the floor's home court plus the mean of the five home players' ratings
+  minus the mean of the five away players'. The mean, not the sum: each raw rating already measures the player's
+  whole lineup, so a sum over five would count it five times. A player never seen counts 0, as in rapm.
 
 Metric: game-margin RMSE per arm, and R squared against the floor, 1 - SSE(arm) / SSE(floor). The whole-game margin is
 primary: every stint the frozen builder makes, with the stints the frozen validation drops (not five against five)
@@ -55,7 +60,10 @@ inconclusive and says so.
 | plus_minus | 28.73 [25.43, 32.13] | -2.201 [-3.154, -1.492] |
 | rapm | 14.59 [13.37, 15.78] | 0.175 [0.132, 0.217] |
 | rapm_replacement | 14.37 [13.17, 15.54] | 0.200 [0.150, 0.248] |
+| player_plus_minus (context) | 14.20 [13.01, 15.36] | 0.218 [0.156, 0.279] |
 
+- rapm minus player_plus_minus (context): +0.39 [+0.05, +0.76]. Inside one season, the raw player rating predicts
+  better than RAPM.
 - rapm minus plus_minus: -14.15 [-17.56, -10.96]. rapm minus floor: -1.47 [-1.85, -1.08]. Passes as written.
 - rapm_replacement minus rapm: -0.22 [-0.45, +0.02]; the CV chose a penalty ratio of 0.
 - Kept stints only (91.1 percent of possessions): rapm 14.45 [13.21, 15.66], R squared 0.172 [0.128, 0.215]. Same
@@ -76,9 +84,12 @@ and skips the spent 2024-25). 1303 games.
 | plus_minus | 18.41 [16.24, 21.02] | -0.370 [-0.782, -0.081] |
 | rapm | 15.12 [14.45, 15.79] | 0.076 [0.045, 0.106] |
 | rapm_replacement | 15.13 [14.49, 15.77] | 0.075 [0.032, 0.116] |
+| player_plus_minus (context) | 15.51 [14.85, 16.17] | 0.027 [0.007, 0.047] |
 
 - rapm minus plus_minus: -3.29 [-5.89, -1.22]. rapm minus floor: -0.61 [-0.86, -0.35].
 - rapm_replacement minus rapm: +0.01 [-0.17, +0.18].
+- rapm minus player_plus_minus (context): -0.39 [-0.57, -0.21]. With a season between fit and score, RAPM predicts
+  better than the raw player rating: the order of the dry run reverses.
 - Coverage (counts only): 16.6 percent of player possessions belong to players the fit never saw; only 2.3 percent of
   lineup possessions have a lineup rating from the fit.
 - The gain is under half the within-season gain: ratings two seasons old know less about the rosters.
@@ -123,7 +134,10 @@ Fixed here, in the spirit of PLAN.md D80, before score_once is called.
 6. **Disclosed change after a development result.** The first development run chose the top of the penalty grid for
    the ablation (ratio 10). The grid was then given the rule Watts et al. use (extend past the top while the top wins);
    the next value (20) is worse, so the choice stays 10. This touches the ablation only and no test data.
-7. **Games.** Every test game the frozen builder can build is scored; games it drops whole (shifted period labels)
+7. **The context arm.** player_plus_minus is reported beside the others, computed in the same single score, and
+   reads no verdict whatever its numbers. rapm minus player_plus_minus is reported with its interval and called a
+   context comparison; neither a win nor a loss changes the verdict of item 1.
+8. **Games.** Every test game the frozen builder can build is scored; games it drops whole (shifted period labels)
    are counted and reported, not scored. All arms are scored on the same games.
 
 ## Test season

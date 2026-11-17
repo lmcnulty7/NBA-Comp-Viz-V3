@@ -116,6 +116,7 @@
       "intercept_rapm": 2.1526600621516065,
       "intercept_floor": 2.200207217039933,
       "lineups_with_plus_minus": 11192,
+      "players_with_player_plus_minus": 518,
       "replacement": {
         "min_per_appearance": 10.0,
         "players_seen": 518,
@@ -155,6 +156,9 @@
     "games": 378,
     "resamples": 2000,
     "seed": 0,
+    "context_arms": {
+      "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
+    },
     "whole_game": {
       "rmse": {
         "floor": {
@@ -184,6 +188,13 @@
             13.171519248073256,
             15.544871907234459
           ]
+        },
+        "player_plus_minus": {
+          "point": 14.197317304304622,
+          "ci95": [
+            13.014654636543023,
+            15.36028394859661
+          ]
         }
       },
       "r2_vs_floor": {
@@ -206,6 +217,13 @@
           "ci95": [
             0.14961300019183657,
             0.24776128652335874
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.2183385191324233,
+          "ci95": [
+            0.15586405965344902,
+            0.27918781838157986
           ]
         }
       },
@@ -241,6 +259,22 @@
             0.019517401393403185
           ],
           "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": 0.3880709864729859,
+          "ci95": [
+            0.05276740043510601,
+            0.7626712248680082
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -1.8608853056221406,
+          "ci95": [
+            -2.440228292059517,
+            -1.276179217438693
+          ],
+          "excludes_zero": true
         }
       }
     },
@@ -273,6 +307,13 @@
             13.018009703304891,
             15.451800003744163
           ]
+        },
+        "player_plus_minus": {
+          "point": 14.085058437626214,
+          "ci95": [
+            12.848171640171822,
+            15.260768978811848
+          ]
         }
       },
       "r2_vs_floor": {
@@ -295,6 +336,13 @@
           "ci95": [
             0.14437096884589568,
             0.24421295898376114
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.21309419357559933,
+          "ci95": [
+            0.148039765149365,
+            0.2737251270526848
           ]
         }
       },
@@ -330,6 +378,22 @@
             0.037854080377429856
           ],
           "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": 0.3647867834839644,
+          "ci95": [
+            0.014453807212785908,
+            0.7364803005484836
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -1.7929956944995613,
+          "ci95": [
+            -2.3979291430763214,
+            -1.18165039776951
+          ],
+          "excludes_zero": true
         }
       }
     },
@@ -364,6 +428,7 @@
       "intercept_rapm": 1.2948457798606126,
       "intercept_floor": 1.3854296306278455,
       "lineups_with_plus_minus": 31502,
+      "players_with_player_plus_minus": 662,
       "replacement": {
         "min_per_appearance": 10.0,
         "players_seen": 662,
@@ -403,6 +468,9 @@
     "games": 1303,
     "resamples": 2000,
     "seed": 0,
+    "context_arms": {
+      "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
+    },
     "whole_game": {
       "rmse": {
         "floor": {
@@ -432,6 +500,13 @@
             14.487806377709273,
             15.766672589774537
           ]
+        },
+        "player_plus_minus": {
+          "point": 15.510237073918454,
+          "ci95": [
+            14.845720600469491,
+            16.17181273420883
+          ]
         }
       },
       "r2_vs_floor": {
@@ -454,6 +529,13 @@
           "ci95": [
             0.03199433612136725,
             0.1162190644558396
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.027436634477144284,
+          "ci95": [
+            0.007422657901234508,
+            0.04676116507742812
           ]
         }
       },
@@ -489,6 +571,22 @@
             0.17898268624033378
           ],
           "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": -0.3910346154263724,
+          "ci95": [
+            -0.5742469798088264,
+            -0.2101565888716907
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -0.21725528205849898,
+          "ci95": [
+            -0.3713655426137974,
+            -0.058928407326730964
+          ],
+          "excludes_zero": true
         }
       }
     },
@@ -521,6 +619,13 @@
             14.395547645398649,
             15.637095197990448
           ]
+        },
+        "player_plus_minus": {
+          "point": 15.301660898136062,
+          "ci95": [
+            14.655340091898498,
+            15.961772466418571
+          ]
         }
       },
       "r2_vs_floor": {
@@ -543,6 +648,13 @@
           "ci95": [
             0.01782933029711076,
             0.10513778621421874
+          ]
+        },
+        "player_plus_minus": {
+          "point": 0.02485960103937057,
+          "ci95": [
+            0.004780616894078116,
+            0.044672201338955185
           ]
         }
       },
@@ -578,6 +690,22 @@
             0.22389192840691888
           ],
           "excludes_zero": false
+        },
+        "rapm_minus_player_plus_minus": {
+          "point": -0.3383056076515256,
+          "ci95": [
+            -0.5313612442251643,
+            -0.14793688511243402
+          ],
+          "excludes_zero": true
+        },
+        "player_plus_minus_minus_floor": {
+          "point": -0.19381784912138933,
+          "ci95": [
+            -0.3489971137339597,
+            -0.03686358846061145
+          ],
+          "excludes_zero": true
         }
       }
     },
@@ -613,6 +741,7 @@
     "intercept_rapm": 1.7869740338802274,
     "intercept_floor": 1.8648966360711023,
     "lineups_with_plus_minus": 61609,
+    "players_with_player_plus_minus": 836,
     "replacement": {
       "min_per_appearance": 10.0,
       "players_seen": 836,
@@ -671,6 +800,6 @@
       }
     }
   },
-  "seconds": 22.0,
-  "peak_memory_gb": 0.63
+  "seconds": 21.0,
+  "peak_memory_gb": 0.6
 }

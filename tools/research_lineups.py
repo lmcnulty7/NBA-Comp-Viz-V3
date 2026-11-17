@@ -47,6 +47,12 @@ Definitions, fixed in this file before any test score (the pre-registration leav
                     prediction every player without his own coefficient (low minutes or never seen) counts as a
                     replacement player. The player penalty is the rapm arm's alpha. The 10-minute cut is the value
                     Watts et al. selected, fixed here and not tuned.
+  player_plus_minus a context arm, not pre-registered, reading no verdict: each player's raw on-court net rating
+                    per 100 possessions over the fit stints (his side's points minus the other side's, over his
+                    possessions); a stint's rating is the floor intercept plus the mean of the five home players'
+                    ratings minus the mean of the five away players'. The mean, not the sum: each player's raw rating
+                    already measures his whole lineup's margin, so a sum over five would count it five times. A
+                    player never seen counts 0, as in rapm.
 - Margins. Primary: the whole game, the sum of points_home - points_away over every stint the frozen builder makes
   (the final margin of the play-by-play); stints the frozen validation drops (not five against five) are predicted
   by each arm's intercept alone. Sensitivity, reading no verdict: the stints the validation keeps only. A game the
@@ -84,7 +90,8 @@ SPENT = PBP_SPENT_SEASONS[0]          # 2024-25: the frozen held-out season, pas
 MIN_PER_APPEARANCE = 10.0             # Watts et al. 2026, Section 4: their selected cut; fixed, not tuned here
 RHO_GRID = (0.0, 0.1, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 5.0, 10.0)
 RHO_MAX = 10240.0                     # the grid doubles past its top while the top is chosen, up to this value
-ARMS = ("floor", "plus_minus", "rapm", "rapm_replacement")
+ARMS = ("floor", "plus_minus", "rapm", "rapm_replacement", "player_plus_minus")
+CONTEXT_ARMS = {"player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"}
 DRY_SEASON = "2023-24"
 DRY_FIT_MONTHS, DRY_SCORE_MONTHS = (10, 11, 12, 1, 2), (3, 4)
 AHEAD_FIT, AHEAD_TARGET = ("2020-21", "2021-22"), "2023-24"
@@ -334,6 +341,19 @@ def fit_replacement(feats, alpha: float, rho=None) -> dict:
             "replacement_home": float(beta[-2]), "replacement_away": float(beta[-1])}
 
 
+def player_plus_minus(feats):
+    """player id -> raw on-court net rating per 100 possessions over the given stints (signed from the player's side)."""
+    import pandas as pd
+    parts = []
+    for side, sign in (("home", 1.0), ("away", -1.0)):
+        for k in range(1, 6):
+            parts.append(pd.DataFrame({"player": feats[f"{side}_{k}"].astype("int64").to_numpy(),
+                                       "diff": sign * feats["points_diff"].to_numpy(dtype=float),
+                                       "poss": feats["possessions"].to_numpy(dtype=float)}))
+    t = pd.concat(parts, ignore_index=True).groupby("player")[["diff", "poss"]].sum()
+    return (t["diff"] / t["poss"] * 100.0).to_dict()
+
+
 def fit_arms(feats, target_season, rho=None) -> dict:
     """Every arm on the fit stints. The frozen candidates come from analytics.lineups.train.fit_candidates (its split
     guards run inside: no target-season row, no 2024-25 row, refuse_heldout)."""
@@ -344,7 +364,8 @@ def fit_arms(feats, target_season, rho=None) -> dict:
         fits = fit_candidates(feats, target_season, SPENT)
         rep = fit_replacement(feats, fits["rapm"]["alpha"], rho)
     return {"floor": floor_intercept(feats), "plus_minus": fits["plus_minus"], "rapm": fits["rapm"],
-            "rapm_replacement": rep, "fit_seasons": fits["fit_seasons"], "n_fit_stints": fits["n_rows"],
+            "rapm_replacement": rep, "player_plus_minus": player_plus_minus(feats),
+            "fit_seasons": fits["fit_seasons"], "n_fit_stints": fits["n_rows"],
             "n_fit_games": int(feats["game_id"].nunique()), "n_players": len(fits["players"])}
 
 
@@ -362,12 +383,16 @@ def stint_ratings(model: dict, feats) -> dict:
     out["rapm"] = np.asarray(design(feats, r["players"], []) @ beta).ravel()
     rep = model["rapm_replacement"]
     out["rapm_replacement"] = np.asarray(replacement_design(feats, rep["retained"]) @ rep["beta"]).ravel()
+    ppm = model["player_plus_minus"]
+    side = {s: np.mean([feats[f"{s}_{k}"].astype("int64").map(ppm).fillna(0.0).to_numpy() for k in range(1, 6)], axis=0)
+            for s in ("home", "away")}
+    out["player_plus_minus"] = model["floor"] + side["home"] - side["away"]
     return out
 
 
 def intercepts(model: dict) -> dict:
     return {"floor": model["floor"], "plus_minus": model["floor"], "rapm": model["rapm"]["intercept"],
-            "rapm_replacement": float(model["rapm_replacement"]["beta"][0])}
+            "rapm_replacement": float(model["rapm_replacement"]["beta"][0]), "player_plus_minus": model["floor"]}
 
 
 def game_predictions(model: dict, feats, games):
@@ -422,7 +447,7 @@ def score_games(pred, n: int = BOOT, seed: int = SEED) -> dict:
         lo, hi = np.percentile(v, [2.5, 97.5])
         return [float(lo), float(hi)]
 
-    out = {"games": int(G), "resamples": n, "seed": seed}
+    out = {"games": int(G), "resamples": n, "seed": seed, "context_arms": CONTEXT_ARMS}
     for variant, actual in (("whole_game", "actual_all"), ("kept_stints", "actual_valid")):
         prefix = "all" if variant == "whole_game" else "valid"
         y = pred[actual].to_numpy(dtype=float)
@@ -436,7 +461,9 @@ def score_games(pred, n: int = BOOT, seed: int = SEED) -> dict:
                                      "ci95": ci(1 - sse_b[a] / sse_b["floor"])}
         for name, a, b in (("rapm_minus_plus_minus", "rapm", "plus_minus"), ("rapm_minus_floor", "rapm", "floor"),
                            ("plus_minus_minus_floor", "plus_minus", "floor"),
-                           ("replacement_minus_rapm", "rapm_replacement", "rapm")):
+                           ("replacement_minus_rapm", "rapm_replacement", "rapm"),
+                           ("rapm_minus_player_plus_minus", "rapm", "player_plus_minus"),
+                           ("player_plus_minus_minus_floor", "player_plus_minus", "floor")):
             lo, hi = ci(boot[a] - boot[b])
             res["paired"][name] = {"point": point[a] - point[b], "ci95": [lo, hi], "excludes_zero": bool(hi < 0 or lo > 0)}
         out[variant] = res
@@ -457,6 +484,7 @@ def model_record(model: dict) -> dict:
             "cv_mse_rapm": {str(k): v for k, v in model["rapm"]["cv_mse"].items()},
             "intercept_rapm": model["rapm"]["intercept"], "intercept_floor": model["floor"],
             "lineups_with_plus_minus": int(model["plus_minus"].notna().sum()),
+            "players_with_player_plus_minus": len(model["player_plus_minus"]),
             "replacement": {"min_per_appearance": MIN_PER_APPEARANCE, "players_seen": rep["players_seen"],
                             "players_retained": rep["players_retained"], "rho": rep["rho"],
                             "penalty": rep["rho"] * rep["alpha"], "cv_game_rmse": {str(k): v for k, v in rep["cv_game_rmse"].items()},

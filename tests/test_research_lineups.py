@@ -107,6 +107,22 @@ def test_every_arm_rates_every_stint_and_the_floor_is_the_weighted_mean(dev_tabl
     assert np.allclose(rat["floor"], feats["points_diff"].sum() / feats["possessions"].sum() * 100)
 
 
+def test_player_plus_minus_is_the_raw_on_court_net_rating_and_a_stint_uses_the_mean_of_five(dev_tables):
+    row = {f"home_{k}": k for k in range(1, 6)}
+    row.update({f"away_{k}": 10 + k for k in range(1, 6)})
+    tiny = pd.DataFrame([dict(row, points_diff=4.0, possessions=10.0), dict(row, points_diff=-2.0, possessions=10.0)])
+    ppm = L.player_plus_minus(tiny)
+    assert np.isclose(ppm[1], 10.0) and np.isclose(ppm[11], -10.0)
+    feats = dev_tables[0]
+    model = L.fit_arms(feats, None)
+    p = model["player_plus_minus"]
+    first = feats.iloc[0]
+    home = np.mean([p.get(int(first[f"home_{k}"]), 0.0) for k in range(1, 6)])
+    away = np.mean([p.get(int(first[f"away_{k}"]), 0.0) for k in range(1, 6)])
+    assert np.isclose(L.stint_ratings(model, feats)["player_plus_minus"][0], model["floor"] + home - away)
+    assert L.intercepts(model)["player_plus_minus"] == model["floor"]
+
+
 def test_whole_game_prediction_adds_the_intercept_for_stints_the_validation_drops(dev_tables):
     feats, games = dev_tables[0], dev_tables[1].copy()
     model = L.fit_arms(feats, None)
@@ -127,12 +143,15 @@ def test_score_games_pairs_every_arm_on_the_same_resampled_games():
         pred[f"{prefix}_plus_minus"] = 0.0
         pred[f"{prefix}_rapm"] = y * 0.5
         pred[f"{prefix}_rapm_replacement"] = y * 0.5
+        pred[f"{prefix}_player_plus_minus"] = y * 0.25
     out = L.score_games(pred, n=300)
     w = out["whole_game"]
     assert w["paired"]["replacement_minus_rapm"]["ci95"] == [0.0, 0.0]
     assert w["paired"]["plus_minus_minus_floor"]["ci95"] == [0.0, 0.0]
     assert w["paired"]["rapm_minus_plus_minus"]["ci95"][1] < 0
     assert np.isclose(w["r2_vs_floor"]["rapm"]["point"], 0.75)
+    assert w["paired"]["rapm_minus_player_plus_minus"]["ci95"][1] < 0
+    assert set(out["context_arms"]) == {"player_plus_minus"}
     assert out["verdict"]["passes"]
 
 
