@@ -873,7 +873,7 @@ def test_metric_notes_quote_the_write_up_and_type_no_number(built):
     own = {"95", "200", "0", "100", "300", "10", "45", "49", "47", "51", "52",
            f"{site_players.MAX_LOST_REBOUND_BIAS:g}"}
     info = built.info["players"]
-    own.add(str(info["lost_rebounds"]))
+    own |= {str(info["lost_rebounds"]), str(info["shots_mixed"])}
     own |= {str(info["attempts_total"]), str(info["attempts_left_out"]), str(info["games_with_attempts"]),
             str(info["games_without_shot_frames"])} | {str(n) for n in info["attempts_left_out_by_reason"].values()}
     for note in file.metrics:
@@ -1390,3 +1390,22 @@ def test_a_stale_results_file_stops_the_build(tmp_path):
     path.write_text(edited)
     with pytest.raises(C.ExportProblem, match="does not equal what the lane reports render to"):
         site_reports.read_results(repo)
+
+
+def test_chart_shooter_finds_a_player_listed_under_a_later_name():
+    """The possession review's shooter fallback (export/site_games.py chart_shooter). In the held-out game
+    12.17.2015.OKC.at.CLE the play-by-play names Enes Kanter "E. Freedom", so neither the frozen name match nor the
+    roster's slug join found him, and his 4 shots showed no shooter. The slug stem of his tracking name finds him."""
+    roster = {101: "Enes Kanter", 102: "Kevin Durant", 103: "Nikola Vučević", 104: "Kristaps Porziņģis",
+              105: "Luc Mbah a Moute", 106: "Nene"}
+    slugs = {"duranke01": [102], "vucevni01": [103]}
+    assert site_games.slug_stem("Enes Kanter") == "kanteen" and site_games.slug_stem("Nene") is None
+    assert site_games.chart_shooter("kanteen01", slugs, roster) == 101          # later name, no slug on the roster
+    assert site_games.chart_shooter("duranke01", slugs, roster) == 102          # the roster's slug comes first
+    assert site_games.chart_shooter("porzikr01", slugs, roster) == 104          # accents dropped
+    assert site_games.chart_shooter("mbahalu01", slugs, roster) == 105          # a last name of several words
+    assert site_games.chart_shooter("vucevni02", slugs, roster) is None         # the stem's one player has a slug
+    assert site_games.chart_shooter("nobodyx01", slugs, roster) is None
+    two = {201: "Jeff Green", 202: "Jerian Green"}                               # one stem, two players: no guess
+    assert site_games.chart_shooter("greenje01", {}, two) is None
+    assert site_games.chart_shooter("greenje01", {"greenje01": [201, 202]}, two) is None

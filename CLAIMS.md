@@ -190,3 +190,15 @@ under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewri
    the broadcast CV test set, registered only in reports/research/testset.json; six are development
    candidates, registered with their scorebug check in reports/research/p8_registry.json. They are
    stored outside the repository, never redistributed, and no frame of a test video is shown anywhere.
+5. **Rows dropped or mixed by player name (PLAN.md D94, 2026-11-17):** the frozen rebound and xFG lanes match a
+   play-by-play name ("J. Green") to the tracking roster, and that match fails on four kinds of name (two players
+   with one short name, a later name, mojibake, a suffix). The rebound lane drops a miss whose named rebounder does
+   not match: 1040 misses over all games (reports/rebounds.md, dropped misses by reason,
+   unmatched_named_rebounder). In the xFG lane an attempt whose shooter does not resolve by name takes the player
+   nearest the ball at release as its shooter, for the shooter prior and the contest features (reports/xfg.md,
+   Assumptions): 5477 out-of-fold training attempts; and 611 tracked training attempts carry a name that fits two
+   teammates and went to the first of them (both counts in the site data players.json, shot_making notes, from
+   export/site_players.py). The rows are dropped or misassigned by name, not at random, so the frozen rebound and
+   xFG results rest on samples that lean away from a few players. They are traced and disclosed, not refit (frozen
+   code, CLAUDE.md rule 3). The site withholds the player values these joins touch, with the reason (12 rebound
+   rates, 1 shot-making value), and the methods page carries the same note beside both lanes.

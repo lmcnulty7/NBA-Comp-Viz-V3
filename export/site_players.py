@@ -667,6 +667,8 @@ def _metric_notes(doc, info: PlayersInfo, absence_model: bool, similar_ready: bo
             "A value is withheld, whatever its sample, when the play-by-play name fits the player and a teammate "
             "alike, or when attempts whose shooter the name match did not resolve fit him and would lift him to the "
             "minimum sample. The player page says which.",
+            f"In the training games, {info.shots_mixed} tracked attempts carry a play-by-play name that fits two "
+            "teammates; the lane gave each of them to the first of the two.",
             "fg_pct is descriptive: the share of the player's counted attempts that went in.",
             f"Interval: {interval}. It belongs to over_expected_per_100. fg_pct, expected_fg_pct, "
             "baseline_error_per_100 and frozen_model_residual_per_100 are point estimates: no interval was computed "

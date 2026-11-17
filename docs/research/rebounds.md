@@ -54,6 +54,11 @@ reports/rebounds.md; hgb beats the prior by -0.5371 [-0.5477, -0.5283].
    logit (reports/rebounds.md, Protocol).
 4. One moment only: features at the rim frame and the 0.4 s before it; nothing about who boxes out whom beyond the
    nearest opponent distance; no player size (no height source in our tables).
+5. The lane drops a miss whose play-by-play rebounder it cannot match by name to a tracked player: 1040 misses over
+   all games (reports/rebounds.md, dropped misses by reason, unmatched_named_rebounder). The names that fail are not
+   random (two players with one short name, a later name, mojibake, a suffix), so the dropped misses belong to a few
+   players, and the frozen results rest on a sample that drops them by name. The lane was not refit (PLAN.md D94); the
+   site withholds the player rates those drops could lower.
 
 ## 5. Recent work that targets these weaknesses
 
