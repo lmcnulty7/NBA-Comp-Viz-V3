@@ -13,7 +13,9 @@ import {
   formatSigned,
 } from "@/lib/format";
 import {
+  checkDirections,
   checkLanes,
+  checkSubjects,
   checkNumbers,
   checkedText,
   numbersIn,
@@ -37,6 +39,8 @@ const CASES = JSON.parse(readFileSync(path.join(WEB_DIR, "..", "tests", "fixture
   numbers: { name: string; text: string; facts: Fact[]; names: string[]; ok: boolean; problem: string }[];
   format: { fn: string; value: number; digits?: number; shown: string }[];
   lanes: { name: string; text: string; names: string[]; ok: boolean; lane: string }[];
+  directions: { name: string; text: string; facts: Fact[]; names: string[]; ok: boolean; problem: string }[];
+  subjects: { name: string; text: string; facts: Fact[]; names: string[]; ok: boolean; problem: string }[];
 };
 const named = (process.env.SITE_DATA_DIR ?? "").trim();
 const ROOT = named ? path.resolve(WEB_DIR, named) : path.join(WEB_DIR, "data");
@@ -56,6 +60,33 @@ for (const item of CASES.lanes) {
     else expect(problems.some((line) => line.includes(`the ${item.lane} lane`)), JSON.stringify(problems)).toBe(true);
   });
 }
+
+for (const item of CASES.directions) {
+  test(`words of change: ${item.name}`, () => {
+    const problems = checkDirections(item.text, item.facts, item.names);
+    if (item.ok) expect(problems).toEqual([]);
+    else expect(problems.some((line) => line.includes(item.problem)), JSON.stringify(problems)).toBe(true);
+  });
+}
+
+for (const item of CASES.subjects) {
+  test(`subjects: ${item.name}`, () => {
+    const problems = checkSubjects(item.text, item.facts, item.names);
+    if (item.ok) expect(problems).toEqual([]);
+    else expect(problems.some((line) => line.includes(item.problem)), JSON.stringify(problems)).toBe(true);
+  });
+}
+
+test("a text whose word of change disagrees with its values is not shown", () => {
+  const facts: Fact[] = [
+    { field: "epv_start", shown: "0.96", unit: "points", kind: "point", group: "epv_start" },
+    { field: "epv.value.0", shown: "0.963", unit: "points", kind: "point", group: "epv.value.0" },
+  ];
+  const texts = {
+    items: [{ key: "a/1", text: "Expected points were 0.96, a point estimate. They dipped to 0.963, an estimate.", numbers: [] }],
+  } as unknown as GeneratedTexts;
+  expect(checkedText(texts, "a/1", facts, [])).toBeNull();
+});
 
 test("a text that names a lane that did not work is not shown", () => {
   const facts: Fact[] = [{ field: "xfg", shown: "0.459", unit: "none", kind: "point", group: "xfg" }];
@@ -121,7 +152,14 @@ test("every machine-written text of the data root passes the page's own number c
         continue;
       }
       checked += 1;
-      for (const line of [...checkNumbers(item.text, playerFacts(player), playerNames(player)), ...checkLanes(item.text, playerNames(player))]) {
+      const facts = playerFacts(player);
+      const names = playerNames(player);
+      for (const line of [
+        ...checkNumbers(item.text, facts, names),
+        ...checkDirections(item.text, facts, names),
+        ...checkSubjects(item.text, facts, names),
+        ...checkLanes(item.text, names),
+      ]) {
         problems.push(`${item.key}: ${line}`);
       }
     }
@@ -138,9 +176,13 @@ test("every machine-written text of the data root passes the page's own number c
       }
       const detail = await source.possession(slug, summary.possession);
       checked += 1;
+      const facts = possessionFacts(summary, detail);
+      const names = possessionNames(detail);
       for (const line of [
-        ...checkNumbers(item.text, possessionFacts(summary, detail), possessionNames(detail)),
-        ...checkLanes(item.text, possessionNames(detail)),
+        ...checkNumbers(item.text, facts, names),
+        ...checkDirections(item.text, facts, names),
+        ...checkSubjects(item.text, facts, names),
+        ...checkLanes(item.text, names),
       ]) {
         problems.push(`${item.key}: ${line}`);
       }

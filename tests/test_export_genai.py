@@ -296,6 +296,7 @@ def test_live_path_retries_once_caches_and_records_model_and_prompt(root, tmp_pa
     second = client.calls[1]["messages"]
     assert second[-1]["role"] == "user" and "broke these rules" in second[-1]["content"]
     assert client.calls[0]["model"] == genai.MODEL and client.calls[0]["output_config"] == {"effort": "low"}
+    assert client.calls[0]["thinking"] == {"type": "adaptive"} and client.calls[0]["max_tokens"] == genai.MAX_TOKENS
     # The same input, model and prompt again: the cache answers and no call is made.
     again, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=tmp_path / "cache")
     assert cached and again["text"] == good
@@ -409,3 +410,134 @@ def test_check_text_applies_the_lane_rule(root):
     text = genai.fixture_text(item)
     assert genai.check_text(text, item)[0] == []
     assert any("lane" in line for line in genai.check_text(text + " The team won the matchup.", item)[0])
+
+
+def test_the_call_setting_keys_the_cache_and_an_older_failure_is_asked_once_more(root, tmp_path):
+    """A failure under an older call setting is asked again under the current one; a text kept under an older
+    setting is reused (unless a sample asks fresh); a failure under the current setting is final."""
+    key, build = genai.choose(root, "possession", None)[0]
+    item = build()
+    good = genai.fixture_text(item)
+    cache = tmp_path / "cache"
+    version, _, prompt_sha = genai.prompt("possession")
+    hashed = genai.input_sha256(item)
+    older = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, hashed, genai.LEGACY_CALL)}.json"
+    current = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, hashed, genai.CALL)}.json"
+    assert older != current
+    older.parent.mkdir(parents=True)
+    base = {"numbers": [], "attempts": [], "model": genai.MODEL, "prompt_version": version, "input_sha256": hashed}
+    older.write_text(json.dumps({**base, "text": None, "problems": ["the model stopped with max_tokens"]}))
+    record, cached = genai.text_for(item, live=True, client=FakeClient([good]), cache=cache)
+    assert not cached and record["text"] == good and record["call"] == genai.CALL and current.exists()
+
+    current.write_text(json.dumps({**base, "text": None, "problems": ["number '1' is not a value"], "call": genai.CALL}))
+    record, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=cache)
+    assert cached and record["text"] is None
+
+    current.unlink()
+    older.write_text(json.dumps({**base, "text": good, "problems": []}))
+    record, cached = genai.text_for(item, live=True, client=FakeClient([]), cache=cache)
+    assert cached and record["text"] == good
+
+
+def test_the_texts_file_says_which_call_setting_wrote_its_texts(root, tmp_path):
+    for rel in S.GENAI_FILES.values():
+        (root / rel).unlink()
+    answers = [genai.fixture_text(build()) for kind in genai.KINDS for _, build in genai.choose(root, kind, 2)]
+    genai.run(root, n_players=2, n_possessions=2, live=True, client=FakeClient(answers), cache=tmp_path / "c",
+              log=lambda line: None)
+    notes = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).notes
+    assert f"Call setting: {genai.describe_call(genai.CALL)}, 2 text(s)." in notes
+    assert "thinking adaptive" in genai.describe_call(genai.CALL)
+    assert "thinking adaptive (the model's default)" in genai.describe_call(None)
+
+@pytest.mark.parametrize("case", CASES["directions"], ids=lambda c: c["name"])
+def test_a_word_of_change_agrees_with_the_values_it_links(case):
+    problems = genai.check_directions(case["text"], _facts(case["facts"]), case["names"])
+    if case["ok"]:
+        assert problems == []
+    else:
+        assert any(case["problem"] in line for line in problems), problems
+
+
+def test_one_value_at_two_roundings():
+    assert genai.same_at_shown_rounding("0.96", "0.963")
+    assert genai.same_at_shown_rounding("1.06", "1.062") and not genai.same_at_shown_rounding("1.06", "1.066")
+    assert genai.same_at_shown_rounding("\u22120.19", "\u22120.19") and not genai.same_at_shown_rounding("0.19", "\u22120.19")
+    assert not genai.same_at_shown_rounding("1.06", "1.1", b_exact=True) and genai.same_at_shown_rounding("1.1", "1.06")
+    assert genai.same_at_shown_rounding("0.96", "0.963", b_exact=True)
+
+
+
+@pytest.mark.parametrize("case", CASES["subjects"], ids=lambda c: c["name"])
+def test_a_number_sits_with_the_words_of_what_it_is(case):
+    problems = genai.check_subjects(case["text"], _facts(case["facts"]), case["names"])
+    if case["ok"]:
+        assert problems == []
+    else:
+        assert any(case["problem"] in line for line in problems), problems
+
+
+def test_a_cached_text_is_checked_again_and_a_new_check_drops_it_with_no_call(root, tmp_path):
+    """The reviewer's repro: a text cached before the direction check existed must not come back kept from the
+    cache once the check refuses it, and no model is called for it."""
+    key, build = genai.choose(root, "possession", None)[0]
+    item = build()
+    facts = {f["field"]: f["shown"] for f in item["facts"]}
+    good = genai.fixture_text(item)
+    wrong = good + f" Expected points fell to {facts['epv_start']}, a point estimate."
+    assert genai.check_directions(wrong, genai._facts(item), item["names"]), "the case must fail the direction check"
+    cache = tmp_path / "cache"
+    version, _, prompt_sha = genai.prompt("possession")
+    path = cache / "possession" / f"{genai.cache_key(genai.MODEL, version, prompt_sha, genai.input_sha256(item), genai.CALL)}.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps({"text": wrong, "problems": [], "numbers": [], "attempts": [], "model": genai.MODEL,
+                                "prompt_version": version, "input_sha256": genai.input_sha256(item),
+                                "call": genai.CALL}), encoding="utf-8")
+    client = FakeClient([])
+    record, cached = genai.text_for(item, live=True, client=client, cache=cache)
+    assert cached and record["text"] is None and client.calls == []
+    assert any("no change" in line or "says" in line for line in record["problems"])
+    # A cached text that still passes comes back with its numbers made again.
+    path.write_text(json.dumps({"text": good, "problems": [], "numbers": [], "attempts": [], "model": genai.MODEL,
+                                "prompt_version": version, "input_sha256": genai.input_sha256(item),
+                                "call": genai.CALL}), encoding="utf-8")
+    record, cached = genai.text_for(item, live=True, client=client, cache=cache)
+    assert cached and record["text"] == good and record["numbers"]
+
+
+def test_each_live_text_records_its_call_setting(root, tmp_path):
+    for rel in S.GENAI_FILES.values():
+        (root / rel).unlink()
+    answers = [genai.fixture_text(build()) for kind in genai.KINDS for _, build in genai.choose(root, kind, 1)]
+    genai.run(root, n_players=1, n_possessions=1, live=True, client=FakeClient(answers), cache=tmp_path / "c",
+              log=lambda line: None)
+    item = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).items[0]
+    assert item.call == genai.describe_call(genai.CALL)
+
+
+def test_a_deploy_copy_can_leave_a_kind_of_text_out(root, tmp_path):
+    """PLAN.md D93: scouting texts do not ship yet. The copy leaves them out and validates; the source keeps them."""
+    out = tmp_path / "deploy"
+    assert genai.main(["--root", str(root), "--withhold", "scouting", "--out", str(out)]) == 0
+    assert not (out / "genai/scouting.json").exists() and (out / "genai/possession.json").exists()
+    assert (root / "genai/scouting.json").exists()
+    manifest = S.Manifest.model_validate_json((out / "manifest.json").read_bytes())
+    assert [f.path for f in manifest.files if f.model == "GeneratedTexts"] == ["genai/possession.json"]
+    assert S.validate_tree(out, allow_missing=S.STAGED_FILES) == []
+    with pytest.raises(genai.GenaiProblem):
+        genai.withhold(root, out, ["scouting"])
+
+
+def test_a_hand_read_sheet_draws_with_a_fixed_seed_and_leaves_out_texts_read_before(root, tmp_path):
+    import csv
+
+    first = genai.hand_read_sheet(root, "scouting", 3, tmp_path / "a.csv")
+    assert first == genai.hand_read_sheet(root, "scouting", 3, tmp_path / "b.csv")
+    rows = list(csv.DictReader((tmp_path / "a.csv").open(encoding="utf-8")))
+    assert [r["key"] for r in rows] == first and set(rows[0]) == set(genai.HAND_READ_COLUMNS)
+    assert rows[0]["text"] and rows[0]["facts"] and rows[0]["wrong_attributions"] == ""
+    later = genai.hand_read_sheet(root, "scouting", 3, tmp_path / "c.csv", exclude=first)
+    assert not set(later) & set(first)
+    with pytest.raises(genai.GenaiProblem):
+        genai.hand_read_sheet(root, "scouting", 99, tmp_path / "d.csv")
