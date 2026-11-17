@@ -19,9 +19,10 @@ code (arm baseline).
 
 Metric: mean bucket Brier over the five regulation buckets (48-36, 36-24, 24-12, 12-4 and 4-0 minutes left), with
 per-bucket Brier and log loss beside it. Adoption threshold, fixed before any run: e1 minus baseline is at most
--0.002, its paired 95 percent interval lies below zero, and no regulation bucket is worse beyond its interval (read
-here as: the lower end of that bucket's paired interval is above zero). Overtime is reported only, as in the frozen
-lane.
+-0.002, its paired 95 percent interval lies below zero, and no bucket gets worse beyond its interval (the lower end
+of that bucket's paired interval above zero). "No bucket" is read as written, overtime included (PLAN.md D91); the
+regulation-only reading is printed beside the verdict with a note on whether it would differ. Overtime is not part of
+the mean bucket Brier, as in the frozen lane.
 
 ## Gate
 
@@ -94,8 +95,10 @@ Fixed now, before score_once is called, after the development result above. The 
 (PLAN.md D89).
 
 1. **The verdict is the pre-registered rule, read once on e1 minus baseline.** Adopted when the mean bucket Brier
-   difference is at most -0.002, its paired 95 percent interval lies below zero, and no regulation bucket's interval
-   lies above zero. Overtime is not part of the rule.
+   difference is at most -0.002, its paired 95 percent interval lies below zero, and no bucket's interval lies above
+   zero. "No bucket" is read as written: every bucket, overtime included (PLAN.md D91, fixed after the pre-score
+   review, before the score). The regulation-only reading (the five buckets of the metric) is printed beside the
+   verdict with whether it would differ; it does not replace the verdict. On development both readings agree (pass).
 2. **Power.** Scaled from the development interval (half-width 0.0022 at 3903 games), the test half-width is about
    0.0038 at 1316 games. A development-sized effect (-0.008) would be detected; an effect of -0.004, like 2022-23's,
    would give an interval reaching close to zero.
@@ -107,17 +110,22 @@ Fixed now, before score_once is called, after the development result above. The 
      the verdict is not reread.
    - Interval includes zero: "no detectable gain on the test season: not adopted". With a half-width near 0.004,
      gains smaller than that are not ruled out, and the report says so; it is not evidence that the term hurts.
-   - e1 worse (interval above zero), or any regulation bucket worse beyond its interval: "fail", naming the bucket.
+   - e1 worse (interval above zero), or any bucket (overtime included) worse beyond its interval: "fail", naming the
+     bucket.
 4. **Ablation** is read descriptively only: the drift form "adds" on the test season if e1 minus ablation lies below
    zero, else "no detectable difference". No verdict rests on it.
 5. **The control arm is not a new score of the frozen lane.** The baseline's test numbers are the control arm of this
    experiment; they do not replace or sit beside the frozen held-out result of reports/winprob.md.
 6. **Every per-arm metric** carries a 95 percent interval from the same 2000-resample bootstrap by game, so nothing is
-   read from the test games a second time. ECE and slopes are point estimates. The pregame Elo Brier of the test
-   games is reported as a description.
+   read from the test games a second time. ECE and slopes are point estimates. Per-bucket log loss and its paired
+   differences carry intervals from the same weights and are reported with no verdict. The pregame Elo Brier of the
+   test games is reported as a description.
 7. **Data faults are reported, not fixed.** The scorer reports the games listed (1316), without play-by-play, dropped
    by the frozen builders (the clock rule), scored, and the rows or games with a non-finite value; a non-finite value
-   that reaches the verdict refuses the verdict. It also reports, for every test game, whether the play-by-play final
+   that reaches the verdict refuses the verdict, and so does any violation of the Elo prefix check on the test season.
+   The ids of test games dropped by the builders and the clock rule's counts by cause are recorded. The scorer checks
+   that the frozen loader read only the pinned play-by-play file, and records the code commit, the development
+   state-frame sha256 and the gate file sha256 in the ledger entry. It also reports, for every test game, whether the play-by-play final
    margin equals the schedule's final score. If that agreement is below 1.0, the disagreeing count is reported beside
    the verdict, the verdict stands as computed, and there is no rescore. If the scorer crashes, the one score is used
    up (the ledger keeps the started entry) and the experiment is reported as not scored.
@@ -126,6 +134,10 @@ Fixed now, before score_once is called, after the development result above. The 
    that play-by-play dependence makes intervals narrow even with a game bootstrap, so a result within about one
    half-width of -0.002 is read with care. Elo knows nothing of injuries, rest or trades; early-season ratings are
    mostly last season's.
+   A Brier pass does not mean the early predictions are calibrated. On development, forward in time, e1's 48-36
+   slope was 0.871 (2021-22) and 0.855 (2022-23), over-confident, but 1.094 (2023-24), under-confident, so the
+   picture is mixed. The test slopes (point estimates) are shown beside the verdict. Any use on the site waits for
+   winprob-E2 or a D line.
 9. **2024-25** enters only as Elo state (D89): its results move the ratings, nothing is fitted, tuned or scored on it,
    and the report gives only the count of games read.
 
