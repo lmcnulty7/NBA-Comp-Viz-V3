@@ -70,6 +70,12 @@ def run_model(size: str, steps: int, gen_items: list, train: list, system: str, 
     torch.mps.synchronize()
     out["load_s"] = time.perf_counter() - started
     out["params"] = sum(p.numel() for p in model.parameters())
+    # Gradient checkpointing: the first pilot ran out of MPS memory on step 1 (about 3,800 tokens per example, 19 GiB
+    # of stored activations). Recomputing each layer in the backward pass changes memory and time, not the result.
+    model.config.use_cache = False
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    model.enable_input_require_grads()
+    out["gradient_checkpointing"] = True
     model = get_peft_model(model, LoraConfig(task_type="CAUSAL_LM", **LORA))
     out["trainable_params"] = sum(p.numel() for p in model.parameters() if p.requires_grad)
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=LR)
@@ -96,6 +102,7 @@ def run_model(size: str, steps: int, gen_items: list, train: list, system: str, 
     out.update(steps=len(step_s), step_s=step_s, step_tokens=step_tokens, loss=losses,
                mean_step_s_after_first=(sum(step_s[1:]) / max(1, len(step_s) - 1)) if step_s else None)
     model.eval()
+    model.config.use_cache = True
     gens = []
     for item in gen_items:
         if time.perf_counter() > deadline:
@@ -139,7 +146,7 @@ def main(argv=None) -> int:
     train = sft_rows(64)
     gen_items = D.items("scouting", "dev")[:3]
     record = {"started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "prompt": G.prompt("scouting")[0],
-              "lora": LORA, "lr": LR, "max_new_tokens": MAX_NEW_TOKENS, "train_rows_available": len(train),
+              "lora": LORA, "lr": LR, "mps_high_watermark_ratio": os.environ.get("PYTORCH_MPS_HIGH_WATERMARK_RATIO"), "max_new_tokens": MAX_NEW_TOKENS, "train_rows_available": len(train),
               "runs": []}
     record["runs"].append(run_model("0.5B", args.steps, gen_items, train, system, "float32", deadline))
     if time.perf_counter() < deadline - 5 * 60:
