@@ -292,7 +292,11 @@ def _methods() -> S.MethodsFile:
                                          threshold=0.0, upper=-0.77, comparison="below", met=True, values=[],
                                          conditions=[S.Condition(label="fixture condition", value=0.098, lo=0.065,
                                                                  hi=0.132, bound="lo", comparison="above",
-                                                                 threshold=0.0, met=True)])}),
+                                                                 threshold=0.0, met=True)],
+                                         guard=S.BucketGuard(
+                                             label="fixture guard", bound="lo", comparison="above", threshold=0.0,
+                                             met=True, buckets=[S.GuardBucket(label="fixture bucket", value=-0.0124,
+                                                                              lo=-0.0161, hi=-0.0086, worse=False)]))}),
                      experiment(3, "not_adopted_test", stage("development", -0.0004, -0.0007, -0.0001, True),
                                 stage("test", 0.0003, -0.0002, 0.0009, False))])
     return S.MethodsFile(schema_version=S.SCHEMA_VERSION, written="2000-01-01", backlog=fixture, lanes=[lane],
