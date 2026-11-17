@@ -23,6 +23,7 @@
     "build:public": "node scripts/build.mjs --variant public",
     "build:private": "node scripts/build.mjs --variant private",
     "video:check": "node scripts/check-no-video.mjs",
+    "methods:check": "node scripts/check-methods.mjs",
     "serve": "node scripts/serve-out.mjs",
     "shots": "node scripts/shots.mjs",
     "check": "node scripts/check.mjs"

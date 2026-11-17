@@ -1,0 +1,94 @@
+{
+  "title": "Methods and literature",
+  "eyebrow": "Methods",
+  "intro": "Each model on this site builds on published work. This page names that work and puts our numbers next to the published ones. It also lists every test we set up before it ran, and what each test found. A test that falls short stays on the page.",
+  "contents": "On this page",
+  "read": {
+    "title": "How to read this page",
+    "lines": [
+      "Our numbers are copied from the reports in the code. Each one links to its file.",
+      "Published numbers are quoted from the notes we keep for each model. Those notes cite the paper and the table the number comes from.",
+      "Few papers measure a number the way we do. So each pair carries a verdict, quoted from those notes, on how far the two can be compared.",
+      "Each new test had its bar fixed before it ran. It runs first on the training games, then once on games set apart for it. It is adopted only if it clears the bar on both."
+    ],
+    "kinds": "The verdicts fall into three kinds"
+  },
+  "kind": {
+    "roughly": "Roughly comparable",
+    "not_directly": "Not directly comparable",
+    "none": "Nothing to compare"
+  },
+  "status": {
+    "pre_registered": "Set up, not run yet",
+    "development_met_test_pending": "Cleared its bar on training games. Test score pending.",
+    "not_adopted_development": "Fell short on training games. Not adopted.",
+    "adopted": "Cleared its bar on training games and on the test games. Adopted.",
+    "not_adopted_test": "Fell short on the test games. Not adopted."
+  },
+  "results": {
+    "title": "Tests run so far",
+    "intro": "A test shows here once it has run. Each one names the file its numbers come from.",
+    "none": "No test has run yet.",
+    "open": "Read it with its model",
+    "pending": "Test games: pending. The test is scored once, then shown here.",
+    "stage": {
+      "development": "Training games, each game left out in turn",
+      "test": "Test games, scored once"
+    },
+    "metric": "What is compared",
+    "difference": "Difference",
+    "upper": "Upper end of the range",
+    "threshold": "The bar: at most",
+    "verdict": "Against the bar",
+    "met": "Cleared the bar",
+    "missed": "Fell short of the bar",
+    "sample": "Sample",
+    "games": "{n} games",
+    "method": "How the range was found",
+    "file": "Read from {path}",
+    "more": "More numbers from the same run"
+  },
+  "lane": {
+    "foundations": "Built on",
+    "take": "What we take from it",
+    "differs": "How ours differs",
+    "benchmarks": "Our numbers next to the published ones",
+    "noBenchmarks": "The notes list no published number for this model.",
+    "ours": "Ours",
+    "published": "Published",
+    "paper": "Paper",
+    "where": "Where in the paper",
+    "noPaper": "No paper",
+    "rowDiffers": "What differs",
+    "verdict": "Can the two be compared?",
+    "quoted": "Quoted from {source}",
+    "point": "point estimate",
+    "setting": "a setting, not an estimate",
+    "from": "From {path}",
+    "noOurs": "No number of ours",
+    "notes": "From the notes",
+    "experiments": "Tests set up in advance",
+    "rank": "Rank {rank} in the list of every test",
+    "score": "Expected gain {gain} of five, effort {effort} of five",
+    "testData": "Test data: {data}",
+    "hypothesis": "What it tests",
+    "threshold": "The bar to adopt it, fixed in advance",
+    "dossier": "Our notes on this model: {path}",
+    "report": "Its report: {path}"
+  },
+  "backlog": "Every test, ranked by expected gain over effort: {path}",
+  "lanes": {
+    "xfg": "Shot quality",
+    "rebounds": "Rebounds",
+    "matchups": "Matchups",
+    "gravity": "Gravity",
+    "ghosting": "Average defense",
+    "embeddings": "Player style",
+    "epv": "Possession value",
+    "decisions": "Decisions",
+    "lineups": "Lineups",
+    "winprob": "Win chances",
+    "load": "Fatigue and absence",
+    "tracking": "Broadcast tracking"
+  }
+}

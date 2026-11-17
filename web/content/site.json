@@ -8,7 +8,8 @@
     "home": "Home",
     "review": "Review",
     "prep": "Prep",
-    "results": "Results"
+    "results": "Results",
+    "methods": "Methods"
   },
   "fixture": {
     "label": "Data notice",

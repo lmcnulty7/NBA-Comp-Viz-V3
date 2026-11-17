@@ -7,12 +7,13 @@
  */
 import { Fragment, createElement, type ReactNode } from "react";
 import home from "@/content/home.json";
+import methods from "@/content/methods.json";
 import prep from "@/content/prep.json";
 import results from "@/content/results.json";
 import review from "@/content/review.json";
 import site from "@/content/site.json";
 
-export const copy = { site, home, review, prep, results } as const;
+export const copy = { site, home, review, prep, results, methods } as const;
 
 const PLACEHOLDER = /\{([a-zA-Z]+)\}/g;
 

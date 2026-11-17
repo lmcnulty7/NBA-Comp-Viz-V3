@@ -43,7 +43,7 @@ export function modelFor(schema, relativePath) {
 /** One ajv validator per file model. */
 export function validators(schema) {
   const ajv = new Ajv2020({ allErrors: false, strict: true });
-  ajv.addVocabulary(["x-schema-version", "x-files"]);
+  ajv.addVocabulary(["x-schema-version", "x-compatible-versions", "x-files"]);
   ajv.addSchema(schema, "contract");
   const out = {};
   for (const model of new Set(Object.values(schema["x-files"]))) {

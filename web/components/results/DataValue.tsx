@@ -1,7 +1,7 @@
 import { MINUS } from "@/lib/format";
 import { showValue, type ShownAs } from "@/lib/tokens";
 
-export type ResultsFile = "scorecard.json" | "results.json";
+export type ResultsFile = "scorecard.json" | "results.json" | "methods.json";
 
 /**
  * One number of a data file, printed as the file stores it (or moved two decimal places to read as a
