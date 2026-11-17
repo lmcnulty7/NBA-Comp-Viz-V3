@@ -56,12 +56,16 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-def test_only_the_pilot_has_a_result_and_every_other_test_is_pre_registered(source):
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1")   # the experiments with a result file today
+
+
+def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
     methods = R.build_methods(REPO, source)
     states = {e.id: e for lane in methods.lanes for e in lane.experiments}
-    others = {eid: e.status for eid, e in states.items() if eid != "xfg-E1"}
+    others = {eid: e.status for eid, e in states.items() if eid not in RAN}
     assert set(others.values()) == {"pre_registered"}
-    assert all(e.development is None and e.test is None for eid, e in states.items() if eid != "xfg-E1")
+    assert all(e.development is None and e.test is None and e.protocol is None
+               for eid, e in states.items() if eid not in RAN)
     pilot = states["xfg-E1"]
     final = REPO / "reports/research/xfg-E1-final.json"
     for stage, path in ((pilot.development, REPO / "reports/research/xfg-E1-dev.json"), (pilot.test, final)):
@@ -186,7 +190,9 @@ def _repo_copy(tmp_path, source) -> Path:
         names.update(v["source"] for row in lane["benchmarks"] for v in row["ours"])
         for experiment in lane["experiments"]:
             names.update(n for n in [experiment.get("writeup")] + list((experiment.get("results") or {}).get(
-                stage) for stage in ("development", "test")) if n and (REPO / n).exists())
+                stage) for stage in ("development", "test")) + [(experiment.get("protocol") or {}).get(key) for key in
+                                                                  ("development", "intervals")]
+                if n and (REPO / n).exists())
     for name in names:
         (repo / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(REPO / name, repo / name)
@@ -330,7 +336,8 @@ def test_the_methods_file_is_a_contract_file_in_both_kinds_of_data_root(tmp_path
     assert S.validate_tree(root) == []
     statuses = {e.status for lane in S.MethodsFile.model_validate_json(
         (root / "methods.json").read_text()).lanes for e in lane.experiments}
-    assert statuses == {"pre_registered", "development_met_test_pending", "not_adopted_test"}
+    assert statuses == {"pre_registered", "development_met_test_pending", "not_adopted_test", "not_adopted_development",
+                        "passed_test"}
     # real data: the committed source, through the methods step of export.site_data, with its manifest
     out = tmp_path / "real"
     problems, info = site_data.run(out, None, None, only=["methods"], log=QUIET)
@@ -362,3 +369,390 @@ def test_the_readme_has_a_methods_section_naming_every_lane_and_experiment(sourc
         assert f"]({lane['dossier']})" in section, lane["lane"]
         for experiment in lane["experiments"]:
             assert f"`{experiment['id']}`" in section, experiment["id"]
+
+
+# ------------------------------------------------------------------------------------------ a protocol result
+
+
+DEC_DEV = "reports/research/decisions-E1-dev.json"
+DEC_POSTHOC = "reports/research/decisions-E1-posthoc.json"
+CAVEAT = ("Post hoc, not pre-registered: stepped down to one game, the target's reliability is about 0.04, which "
+          "would meet H1's intent; part of the half-season reliability may be team offence shared by teammates (not "
+          "measured).")
+
+
+def _decisions(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "decisions-E1")
+
+
+def test_the_decisions_protocol_is_read_from_its_files_with_valid_intervals_only(source):
+    experiment = _decisions(R.build_methods(REPO, source))
+    dev = json.loads((REPO / DEC_DEV).read_text(encoding="utf-8"))["verdict"]
+    posthoc = json.loads((REPO / DEC_POSTHOC).read_text(encoding="utf-8"))["valid_intervals"]["statistics"]
+    protocol = experiment.protocol
+    assert experiment.status == "not_adopted_development" and experiment.development is None
+    assert experiment.test is None and experiment.writeup == "reports/research/decisions-E1.md"
+    assert [h.label for h in protocol.hypotheses] == ["H1", "H2", "H3"]
+    for h, statistic in zip(protocol.hypotheses, ("target.split_half_r", "frozen.stability",
+                                                  "frozen.r2_on_kind_shares")):
+        assert h.statement == dev[h.label]["statement"] and h.result == dev[h.label]["result"]
+        assert h.value == round(dev[h.label]["value"], 3) and h.holds is dev[h.label]["holds"]
+        boot = posthoc[statistic]["player_bootstrap"]
+        assert (h.interval.lo, h.interval.hi) == (round(boot["lo"], 3), round(boot["hi"], 3))
+        assert h.interval.source.path == DEC_POSTHOC and not h.point_estimate
+    assert [h.result for h in protocol.hypotheses] == ["fails", "holds", "fails"]
+    assert protocol.adopted is False and protocol.rule == dev["adoption"]["rule"]
+    assert [a.value for a in protocol.adoption] == [round(dev["adoption"]["stability"], 3),
+                                                   round(dev["adoption"]["r2_on_kind_shares"], 3)]
+    assert protocol.caveat == CAVEAT and len(protocol.not_scored) == 3
+
+
+def _invalid_numbers():
+    """Every end of a range that is not a valid confidence interval (PLAN.md D86): the pre-registered game
+    bootstrap ranges of the development file (interval_95 of each statement, the rule's stability_lo) and every
+    game_basic range of the post hoc file. Each as the file holds it and rounded as the page would round it."""
+    dev = json.loads((REPO / DEC_DEV).read_text(encoding="utf-8"))["verdict"]
+    posthoc = json.loads((REPO / DEC_POSTHOC).read_text(encoding="utf-8"))["valid_intervals"]["statistics"]
+    raw = [end for key in ("H1", "H2", "H3") for end in dev[key]["interval_95"]] + [dev["adoption"]["stability_lo"]]
+    raw += [stat["game_basic"][end] for stat in posthoc.values() if "game_basic" in stat for end in ("lo", "hi")]
+    return {float(x) for x in raw} | {round(float(x), 3) for x in raw}
+
+
+def _numbers_of(document) -> set:
+    """Every number of a JSON document, as floats: numeric fields and the numbers inside its strings."""
+    found = set()
+
+    def walk(value):
+        if isinstance(value, bool):
+            return
+        if isinstance(value, (int, float)):
+            found.add(float(value))
+        elif isinstance(value, str):
+            found.update(float(t.rstrip("%").replace(",", "")) for t in R.numbers(value))
+        elif isinstance(value, dict):
+            for item in value.values():
+                walk(item)
+        elif isinstance(value, list):
+            for item in value:
+                walk(item)
+
+    walk(document)
+    return found
+
+
+def _valid_numbers(protocol) -> set:
+    """The numbers the protocol may legitimately show: its values and the ends of its valid intervals."""
+    found = set()
+    for item in list(protocol.hypotheses) + list(protocol.adoption):
+        if item.value is not None:
+            found.add(item.value)
+        if item.interval is not None:
+            found.update((item.interval.lo, item.interval.hi))
+    return found
+
+
+def test_no_range_that_is_not_a_valid_interval_reaches_the_written_file(source, tmp_path):
+    """Compared as numbers, exactly: no end of a pre-registered game range or of a game_basic range is in the
+    written methods.json, except where the same number is a value the page reads validly (0.961 is the adjusted
+    stability and the upper end of the frozen stability's valid interval)."""
+    protocol = _decisions(R.build_methods(REPO, source)).protocol
+    leaks = _invalid_numbers() - _valid_numbers(protocol)
+    assert 0.902 in leaks and 0.961 not in leaks
+    assert _numbers_of(protocol.model_dump(mode="json")) & leaks == set()
+    out = tmp_path / "out"
+    site_data.run(out, None, None, only=["methods"], log=QUIET)
+    written = json.loads((out / "methods.json").read_text(encoding="utf-8"))
+    entry = next(e for lane in written["lanes"] for e in lane["experiments"] if e["id"] == "decisions-E1")
+    assert _numbers_of(entry) & leaks == set()
+
+
+def test_the_caveat_is_word_for_word_the_verdict_paragraph_of_the_write_up():
+    text = (REPO / "reports/research/decisions-E1.md").read_text(encoding="utf-8")
+    assert R.is_sentences(CAVEAT, R.verdict_paragraph(text))
+    assert not R.is_sentences(CAVEAT.replace("about 0.04", "about 0.05"), R.verdict_paragraph(text))
+    # a sentence of the write-up outside its verdict paragraph is not the verdict's caveat
+    assert not R.is_sentences("A note on H1's unit.", R.verdict_paragraph(text))
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("an edited caveat", lambda p: p.update(caveat=CAVEAT.replace("(not measured)", "(measured)")),
+     "verdict paragraph"),
+    ("a not-scored reason cut short", lambda p: p["not_scored"].__setitem__(0, p["not_scored"][0].split(". ")[0]),
+     "not-scored reason"),
+    ("a protocol file outside reports/research",
+     lambda p: p.update(intervals="reports/decisions-E1-posthoc.json"), "not under reports/research/"),
+])
+def test_the_protocol_trace_can_fail(source, name, change, message):
+    problems = _problems_after(source, lambda d: change(next(
+        e for e in _lane(d, "decisions")["experiments"] if e["id"] == "decisions-E1")["protocol"]))
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_an_interval_that_belongs_to_another_statistic_is_refused(source):
+    doc = copy.deepcopy(source)
+    spec = next(e for e in _lane(doc, "decisions")["experiments"] if e["id"] == "decisions-E1")["protocol"]
+    spec["hypotheses"][0]["interval"] = "frozen.split_half_r"
+    with pytest.raises(R.MethodsProblem, match="belongs to another number"):
+        R.build_methods(REPO, doc)
+    spec["hypotheses"][0]["interval"] = "no.such_statistic"
+    with pytest.raises(R.MethodsProblem, match="no statistic"):
+        R.build_methods(REPO, doc)
+
+
+def test_an_undefined_statistic_reads_undefined_with_no_interval(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / DEC_DEV
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["verdict"]["H3"].update(value=None, holds=None, result="undefined")
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    h3 = _decisions(R.build_methods(repo, source)).protocol.hypotheses[2]
+    assert (h3.value, h3.holds, h3.result, h3.interval, h3.point_estimate) == (None, None, "undefined", None, True)
+    doc["verdict"]["H3"].update(value=0.342, holds=None, result="holds")
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="H3 reads"):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_refuses_a_status_or_a_reading_the_protocol_files_do_not_support(source):
+    experiment = _decisions(R.build_methods(REPO, source)).model_dump()
+    for status in ("development_met_test_pending", "adopted", "not_adopted_test"):
+        with pytest.raises(ValidationError, match="the results say"):
+            S.Experiment(**{**experiment, "status": status})
+    with pytest.raises(ValidationError, match="has run"):
+        S.Experiment(**{**experiment, "status": "pre_registered"})
+    with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**experiment, "status": "pre_registered", "writeup": None})
+    adopted = {**experiment["protocol"], "adopted": True}
+    with pytest.raises(ValidationError, match="has no status"):
+        S.Experiment(**{**experiment, "protocol": adopted})
+    with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**experiment, "protocol": {**adopted, "not_scored": []}})
+    pilot = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments if e.id == "xfg-E1")
+    with pytest.raises(ValidationError, match="replaces the stage results"):
+        S.Experiment(**{**experiment, "development": pilot.development.model_dump()})
+    h1 = experiment["protocol"]["hypotheses"][0]
+    for bad, message in (({"result": "holds"}, "holds or fails"), ({"point_estimate": True}, "valid interval"),
+                         ({"threshold": "below 0.3"}, "part of the statement"), ({"value": None}, "holds or fails")):
+        with pytest.raises(ValidationError, match=message):
+            S.Hypothesis(**{**h1, **bad})
+    with pytest.raises(ValidationError, match="rows training"):
+        S.ProtocolResult(**{**experiment["protocol"], "source": {**experiment["protocol"]["source"],
+                                                                "rows": "heldout"}})
+
+
+def test_only_the_bootstrap_by_player_may_be_shown(source):
+    doc = copy.deepcopy(source)
+    spec = next(e for e in _lane(doc, "decisions")["experiments"] if e["id"] == "decisions-E1")["protocol"]
+    spec["interval_key"] = "game_basic"
+    with pytest.raises(R.MethodsProblem, match="player_bootstrap interval only"):
+        R.build_methods(REPO, doc)
+    spec["interval_key"] = "player_bootstrap"
+    assert _decisions(R.build_methods(REPO, doc)).protocol.adopted is False
+
+
+def test_a_missing_interval_or_development_file_is_a_problem_not_a_crash(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / DEC_POSTHOC
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    del doc["valid_intervals"]["statistics"]["frozen.stability"]["player_bootstrap"]
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="no player_bootstrap interval"):
+        R.build_methods(repo, source)
+    (repo / DEC_DEV).unlink()
+    with pytest.raises(R.MethodsProblem, match="names its write-up"):
+        R.build_methods(repo, source)
+
+
+@pytest.mark.parametrize("change, message", [
+    (lambda v: v["H2"].update(holds=False, result="fails"), "says holds False"),
+    (lambda v: v["H1"].update(holds=True, result="holds"), "says holds True"),
+    (lambda v: v["adoption"].update(adopted=True, result="adopted"), "its rule read on its own values"),
+    (lambda v: v["adoption"].pop("stability_lo"), "has no stability_lo"),
+])
+def test_a_reading_the_values_do_not_support_is_refused(source, tmp_path, change, message):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / DEC_DEV
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    change(doc["verdict"])
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match=message):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_keeps_a_value_inside_its_interval_and_a_write_up_off_a_test_not_run(source):
+    experiment = _decisions(R.build_methods(REPO, source)).model_dump()
+    h1 = experiment["protocol"]["hypotheses"][0]
+    with pytest.raises(ValidationError, match="inside its valid interval"):
+        S.Hypothesis(**{**h1, "value": 0.6, "holds": False, "result": "fails"})
+    a = experiment["protocol"]["adoption"][0]
+    with pytest.raises(ValidationError, match="inside its valid interval"):
+        S.AdoptionValue(**{**a, "value": 0.5})
+    other = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments
+                 if e.status == "pre_registered").model_dump()
+    with pytest.raises(ValidationError, match="a write-up belongs to an experiment that has run"):
+        S.Experiment(**{**other, "writeup": "reports/research/decisions-E1.md"})
+
+
+# ------------------------------------------------------------------------------------------ a test-only result
+
+
+LIN_FINAL = "reports/research/lineups-E1-final.json"
+
+
+def _lineups(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "lineups-E1")
+
+
+def test_lineups_is_a_scored_test_with_two_conditions_read_from_its_final_file(source):
+    experiment = _lineups(R.build_methods(REPO, source))
+    final = json.loads((REPO / LIN_FINAL).read_text(encoding="utf-8"))
+    paired = final["whole_game"]["paired"]["rapm_minus_plus_minus"]
+    r2 = final["whole_game"]["r2_vs_floor"]["rapm"]
+    assert (experiment.stages, experiment.status, experiment.development) == ("test_only", "passed_test", None)
+    test = experiment.test
+    assert (test.diff, test.lo, test.hi) == (round(paired["point"], 2), round(paired["ci95"][0], 2),
+                                             round(paired["ci95"][1], 2))
+    assert test.upper == test.hi and test.threshold == 0 and test.comparison == "below"
+    assert test.met is final["verdict"]["passes"] is True
+    assert test.games == final["games"] and test.rows == final["stints"] and test.source.rows == "testset"
+    (condition,) = test.conditions
+    assert (condition.value, condition.lo, condition.hi) == (round(r2["point"], 3), round(r2["ci95"][0], 3),
+                                                             round(r2["ci95"][1], 3))
+    assert (condition.bound, condition.comparison, condition.threshold, condition.met) == ("lo", "above", 0, True)
+    text = (REPO / "reports/research/lineups-E1.md").read_text(encoding="utf-8")
+    assert len(experiment.writeup_notes) == 5
+    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes[:2])
+    assert "1298 of 1300 games" in experiment.writeup_notes[1]
+
+
+@pytest.mark.parametrize("change, message", [
+    (lambda d: d["verdict"].update(passes=False), "verdict.passes is False"),
+    (lambda d: d["verdict"].update(diff_ci_below_zero=False), "diff_ci_below_zero disagrees"),
+    (lambda d: d["verdict"].update(r2_above_zero_with_interval=False), "r2_above_zero_with_interval disagrees"),
+    (lambda d: d["verdict"].update(rule=d["verdict"]["rule"].replace("below 0", "below one")
+                                   .replace("above 0", "above one")), "does not name the threshold"),
+])
+def test_a_test_file_whose_verdict_contradicts_its_numbers_is_refused(source, tmp_path, change, message):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / LIN_FINAL
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    change(doc)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match=message):
+        R.build_methods(repo, source)
+
+
+def test_a_failed_condition_fails_the_test_and_a_missing_final_file_with_a_write_up_is_a_problem(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / LIN_FINAL
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["whole_game"]["r2_vs_floor"]["rapm"].update(point=0.02, ci95=[-0.01, 0.05])
+    doc["verdict"].update(r2_above_zero_with_interval=False, passes=False)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    experiment = _lineups(R.build_methods(repo, source))
+    assert experiment.status == "not_adopted_test" and not experiment.test.conditions[0].met
+    path.unlink()
+    with pytest.raises(R.MethodsProblem, match="names its write-up"):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_refuses_a_test_only_reading_the_files_do_not_support(source):
+    experiment = _lineups(R.build_methods(REPO, source)).model_dump()
+    for status in ("adopted", "development_met_test_pending", "not_adopted_test"):
+        with pytest.raises(ValidationError, match="the results say"):
+            S.Experiment(**{**experiment, "status": status})
+    pilot = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments if e.id == "xfg-E1")
+    with pytest.raises(ValidationError, match="no development verdict"):
+        S.Experiment(**{**experiment, "development": pilot.development.model_dump()})
+    test = experiment["test"]
+    with pytest.raises(ValidationError, match="every further condition"):
+        S.StageResult(**{**test, "conditions": [{**test["conditions"][0], "lo": -0.01, "met": False}]})
+    with pytest.raises(ValidationError, match="meets the threshold"):
+        S.Condition(**{**test["conditions"][0], "met": False})
+    # strictly below: an upper end equal to the threshold does not meet the rule
+    with pytest.raises(ValidationError, match="every further condition"):
+        S.StageResult(**{**test, "diff": -0.5, "hi": 0.0, "upper": 0.0})
+    with pytest.raises(ValidationError, match="a write-up belongs"):
+        S.Experiment(**{**experiment, "test": None, "status": "pre_registered"})
+
+
+# ------------------------------------------------------------------------------------------ the second review
+
+
+def _exp(doc, eid):
+    return next(e for lane in doc["lanes"] for e in lane["experiments"] if e["id"] == eid)
+
+
+def _lineups_results(doc):
+    return _exp(doc, "lineups-E1")["results"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("main comparison at most where the file says strictly below",
+     lambda d: _lineups_results(d).update(comparison="at_most"), "does not state at most 0"),
+    ("a condition reading the upper end", lambda d: _lineups_results(d)["conditions"][0].update(bound="hi"),
+     "reads the hi end"),
+    ("a condition at least where the file says above",
+     lambda d: _lineups_results(d)["conditions"][0].update(comparison="at_least"), "does not state at least 0"),
+    ("no conditions while the file has a second flag", lambda d: _lineups_results(d).update(conditions=[]),
+     "r2_above_zero_with_interval"),
+    ("a condition without its met key", lambda d: _lineups_results(d)["conditions"][0].pop("met"), "lacks ['met']"),
+    ("no main flag while the file has one", lambda d: _lineups_results(d)["keys"].pop("main_met"),
+     "diff_ci_below_zero"),
+    ("an xfg flag outside the rule left unnamed", lambda d: _exp(d, "xfg-E1")["results"].pop("flags_outside_rule"),
+     "width_p95_under_0_01"),
+    ("decisions adoption read as at most 0.5", lambda d: _exp(d, "decisions-E1")["protocol"]["adoption"][
+        "conditions"][0].update(threshold="at most 0.5"), "does not state 'at most 0.5'"),
+    ("an unknown main comparison", lambda d: _lineups_results(d).update(comparison="under"), "is not at_most or below"),
+    ("a condition without its bound", lambda d: _lineups_results(d)["conditions"][0].pop("bound"), "lacks ['bound']"),
+    ("a condition without its threshold", lambda d: _lineups_results(d)["conditions"][0].pop("threshold"),
+     "lacks ['threshold']"),
+    ("no conditions list", lambda d: _lineups_results(d).pop("conditions"), "no list of further conditions"),
+    ("an unknown condition comparison", lambda d: _lineups_results(d)["conditions"][0].update(comparison="over"),
+     "unknown comparison"),
+])
+def test_the_reviewers_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = R.trace_problems(doc, REPO)
+    if not problems:
+        with pytest.raises(R.MethodsProblem) as caught:
+            R.build_methods(REPO, doc)
+        problems = [str(caught.value)]
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("a test-only experiment naming a development file",
+     lambda d: _lineups_results(d).update(development="reports/research/lineups-E1-dev.json"),
+     "names no development result file"),
+    ("stages beside a protocol", lambda d: _exp(d, "decisions-E1").update(stages="test_only"),
+     "stages and a protocol together"),
+    ("a section note from another section", lambda d: _exp(d, "lineups-E1")["writeup_notes"][2].update(
+        section="Gate"), "the section 'Gate'"),
+    ("a section note cut short", lambda d: _exp(d, "lineups-E1")["writeup_notes"][2].update(
+        text="In both development checks it loses to home court alone. A pass on the first condition is therefore "
+             "close to certain and says little;"), "whole sentences"),
+])
+def test_the_trace_refuses_a_shape_the_files_do_not_support(source, name, change, message):
+    problems = _problems_after(source, change)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_lineups_quotes_the_commitments_and_the_dropped_games_word_for_word(source):
+    notes = _lineups(R.build_methods(REPO, source)).writeup_notes
+    assert len(notes) == 5
+    assert any("the informative condition is R squared against the floor" in note for note in notes)
+    assert any("is a deviation from the pre-registration's \"all test games\"" in note for note in notes)
+    assert any("The frozen builder dropped 16 whole" in note and "1316 listed" in note for note in notes)
+    final = json.loads((REPO / LIN_FINAL).read_text(encoding="utf-8"))
+    assert (final["test_games_listed"], final["games_dropped_shifted_periods"], final["games"]) == (1316, 16, 1300)
+
+
+def test_the_states_helper_reads_a_comparison_right_before_its_threshold():
+    assert R.states("interval wholly below 0, and above 0 with its interval", "below", 0)
+    assert R.states("an upper bound of at most +0.0005", "at_most", 0.0005)
+    assert R.states("stability >= 0.5 with", "at_least", 0.5)
+    assert not R.states("interval wholly below 0", "at_most", 0)
+    assert not R.states("stability >= 0.5", "at_most", 0.5)
+    assert not R.states("below 0.25", "below", 0.2)

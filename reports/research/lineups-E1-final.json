@@ -1,0 +1,330 @@
+{
+  "experiment": "lineups-E1",
+  "stage": "fitted on every development season, scored once on the 2025-26 season",
+  "code_commit": "8c638fab4dce40e7ddf5818af13023ea1ed50c08",
+  "test_games_listed": 1316,
+  "games_with_playbyplay": 1316,
+  "games_listed_without_playbyplay": 0,
+  "games_dropped_shifted_periods": 16,
+  "games_built_without_stints": 0,
+  "stints": 41799,
+  "kept_stints": {
+    "rmse": {
+      "floor": {
+        "point": 16.170425031582024,
+        "ci95": [
+          15.522656626866004,
+          16.81774941824178
+        ]
+      },
+      "plus_minus": {
+        "point": 16.521574973767258,
+        "ci95": [
+          15.835371499016343,
+          17.2572575814041
+        ]
+      },
+      "rapm": {
+        "point": 15.374226379159246,
+        "ci95": [
+          14.76927624888846,
+          16.00918310880638
+        ]
+      },
+      "rapm_replacement": {
+        "point": 15.46717722407847,
+        "ci95": [
+          14.850315232578943,
+          16.096994500157013
+        ]
+      },
+      "player_plus_minus": {
+        "point": 15.601331141609606,
+        "ci95": [
+          14.966718357228261,
+          16.24641631078667
+        ]
+      }
+    },
+    "r2_vs_floor": {
+      "plus_minus": {
+        "point": -0.04390269909109201,
+        "ci95": [
+          -0.08541202483060253,
+          -0.014678081519063144
+        ]
+      },
+      "rapm": {
+        "point": 0.09605153289216906,
+        "ci95": [
+          0.061703382087703804,
+          0.13004184568398514
+        ]
+      },
+      "rapm_replacement": {
+        "point": 0.08508814939220732,
+        "ci95": [
+          0.04182942476719751,
+          0.12839765702326858
+        ]
+      },
+      "player_plus_minus": {
+        "point": 0.06914842192801562,
+        "ci95": [
+          0.04830222551781149,
+          0.09022910932338116
+        ]
+      }
+    },
+    "paired": {
+      "rapm_minus_plus_minus": {
+        "point": -1.1473485946080118,
+        "ci95": [
+          -1.5934933058126501,
+          -0.75923833133804
+        ],
+        "excludes_zero": true
+      },
+      "rapm_minus_floor": {
+        "point": -0.7961986524227775,
+        "ci95": [
+          -1.0972522414230783,
+          -0.49840480132625203
+        ],
+        "excludes_zero": true
+      },
+      "plus_minus_minus_floor": {
+        "point": 0.3511499421852342,
+        "ci95": [
+          0.11910642054037246,
+          0.6768661482710704
+        ],
+        "excludes_zero": true
+      },
+      "replacement_minus_rapm": {
+        "point": 0.09295084491922445,
+        "ci95": [
+          -0.10378459343957976,
+          0.28579899729239977
+        ],
+        "excludes_zero": false
+      },
+      "rapm_minus_player_plus_minus": {
+        "point": -0.2271047624503595,
+        "ci95": [
+          -0.45149121008014403,
+          -0.019768684851565067
+        ],
+        "excludes_zero": true
+      },
+      "player_plus_minus_minus_floor": {
+        "point": -0.569093889972418,
+        "ci95": [
+          -0.7506196383405025,
+          -0.39644544962928
+        ],
+        "excludes_zero": true
+      }
+    }
+  },
+  "schedule_agreement": {
+    "checked": 1300,
+    "equal": 1298,
+    "share_equal": 0.9984615384615385,
+    "mean_abs_gap_points": 0.003076923076923077
+  },
+  "model": {
+    "fit_seasons": [
+      "2020-21",
+      "2021-22",
+      "2022-23",
+      "2023-24"
+    ],
+    "fit_stints": 142690,
+    "fit_games": 5059,
+    "players": 836,
+    "alpha_rapm": 3000.0,
+    "cv_mse_rapm": {
+      "30.0": 12141.106166616033,
+      "100.0": 12133.685709868265,
+      "300.0": 12125.72306869788,
+      "1000.0": 12116.54419545954,
+      "3000.0": 12112.133698809052,
+      "10000.0": 12120.530898410247,
+      "30000.0": 12139.992524396726,
+      "100000.0": 12161.885654811085
+    },
+    "intercept_rapm": 1.7869740338802274,
+    "intercept_floor": 1.8648966360711023,
+    "lineups_with_plus_minus": 61609,
+    "players_with_player_plus_minus": 836,
+    "replacement": {
+      "min_per_appearance": 10.0,
+      "players_seen": 836,
+      "players_retained": 601,
+      "rho": 10.0,
+      "penalty": 30000.0,
+      "cv_game_rmse": {
+        "0.0": 13.678636223785887,
+        "0.1": 13.678414436459537,
+        "0.25": 13.678095329255438,
+        "0.5": 13.677597529274207,
+        "1.0": 13.676716542647284,
+        "1.5": 13.675967475955808,
+        "2.0": 13.675329355753211,
+        "2.5": 13.674785006873845,
+        "5.0": 13.673050003835584,
+        "10.0": 13.672012794711701,
+        "20.0": 13.672483591287317
+      },
+      "coef_home_count": -3.498075635717049,
+      "coef_away_count": 1.4635400584185825,
+      "intercept": 1.9775388411867363
+    }
+  },
+  "coverage": {
+    "stints": 40276,
+    "possessions": 125551.42361111111,
+    "share_of_player_possessions_unseen_in_fit": 0.19995387016331567,
+    "share_of_player_possessions_counted_as_replacement": 0.2563457978843884,
+    "share_of_lineup_possessions_with_a_fit_lineup_rating": 0.011910375369100919
+  },
+  "games_without_kept_stints": 0,
+  "margin_whole_game": {
+    "mean": 1.7184615384615385,
+    "sd": 16.501544400698357
+  },
+  "share_of_possessions_in_kept_stints": 0.9606229908875961,
+  "games": 1300,
+  "resamples": 2000,
+  "seed": 0,
+  "context_arms": {
+    "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
+  },
+  "games_with_non_finite_values": 0,
+  "whole_game": {
+    "rmse": {
+      "floor": {
+        "point": 16.4967540968869,
+        "ci95": [
+          15.831771115536585,
+          17.162547914151677
+        ]
+      },
+      "plus_minus": {
+        "point": 16.812724079602674,
+        "ci95": [
+          16.10481526513083,
+          17.539344016241508
+        ]
+      },
+      "rapm": {
+        "point": 15.664064346397609,
+        "ci95": [
+          15.056505196773484,
+          16.30200846905938
+        ]
+      },
+      "rapm_replacement": {
+        "point": 15.718404453925968,
+        "ci95": [
+          15.110191822224554,
+          16.367291428638325
+        ]
+      },
+      "player_plus_minus": {
+        "point": 15.892653507520341,
+        "ci95": [
+          15.258732996146326,
+          16.556904401001646
+        ]
+      }
+    },
+    "r2_vs_floor": {
+      "plus_minus": {
+        "point": -0.0386737828130439,
+        "ci95": [
+          -0.07865720442679192,
+          -0.010210831917929342
+        ]
+      },
+      "rapm": {
+        "point": 0.09840412630623507,
+        "ci95": [
+          0.06529946887662703,
+          0.13177624879014357
+        ]
+      },
+      "rapm_replacement": {
+        "point": 0.09213783475186332,
+        "ci95": [
+          0.05032274203169251,
+          0.13415474902551916
+        ]
+      },
+      "player_plus_minus": {
+        "point": 0.07189774390525194,
+        "ci95": [
+          0.051337861326206095,
+          0.0919446865920898
+        ]
+      }
+    },
+    "paired": {
+      "rapm_minus_plus_minus": {
+        "point": -1.148659733205065,
+        "ci95": [
+          -1.589754629578159,
+          -0.7725727453427663
+        ],
+        "excludes_zero": true
+      },
+      "rapm_minus_floor": {
+        "point": -0.8326897504892905,
+        "ci95": [
+          -1.1337774050478213,
+          -0.5372382644407244
+        ],
+        "excludes_zero": true
+      },
+      "plus_minus_minus_floor": {
+        "point": 0.3159699827157745,
+        "ci95": [
+          0.08352449947917417,
+          0.6396977716479457
+        ],
+        "excludes_zero": true
+      },
+      "replacement_minus_rapm": {
+        "point": 0.05434010752835938,
+        "ci95": [
+          -0.14044277154631776,
+          0.24922440232317614
+        ],
+        "excludes_zero": false
+      },
+      "rapm_minus_player_plus_minus": {
+        "point": -0.22858916112273242,
+        "ci95": [
+          -0.45508368564381235,
+          -0.018282758140877056
+        ],
+        "excludes_zero": true
+      },
+      "player_plus_minus_minus_floor": {
+        "point": -0.6041005893665581,
+        "ci95": [
+          -0.7816829160894097,
+          -0.42721535582964026
+        ],
+        "excludes_zero": true
+      }
+    }
+  },
+  "verdict": {
+    "rule": "RMSE(rapm) - RMSE(plus_minus) interval wholly below 0, and R squared of rapm against the floor above 0 with its interval above 0 (whole-game margin)",
+    "diff_ci_below_zero": true,
+    "r2_above_zero_with_interval": true,
+    "passes": true
+  }
+}

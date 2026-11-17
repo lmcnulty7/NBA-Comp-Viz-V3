@@ -116,6 +116,43 @@
       "title": "AbsenceRisk",
       "type": "object"
     },
+    "AdoptionValue": {
+      "additionalProperties": false,
+      "description": "A number the adoption rule reads, with its valid post hoc interval or as a point estimate.",
+      "properties": {
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PostHocInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "point_estimate": {
+          "title": "Point Estimate",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "label",
+        "value",
+        "point_estimate"
+      ],
+      "title": "AdoptionValue",
+      "type": "object"
+    },
     "BallTrack": {
       "additionalProperties": false,
       "properties": {
@@ -341,6 +378,67 @@
         "observed"
       ],
       "title": "CalibrationRow",
+      "type": "object"
+    },
+    "Condition": {
+      "additionalProperties": false,
+      "description": "A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the\ninterval it reads (`bound`) compares with `threshold` as `comparison` says. `label` names the statistic.",
+      "properties": {
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "lo": {
+          "title": "Lo",
+          "type": "number"
+        },
+        "hi": {
+          "title": "Hi",
+          "type": "number"
+        },
+        "bound": {
+          "enum": [
+            "lo",
+            "hi"
+          ],
+          "title": "Bound",
+          "type": "string"
+        },
+        "comparison": {
+          "enum": [
+            "below",
+            "at_most",
+            "above",
+            "at_least"
+          ],
+          "title": "Comparison",
+          "type": "string"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        },
+        "met": {
+          "title": "Met",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "label",
+        "value",
+        "lo",
+        "hi",
+        "bound",
+        "comparison",
+        "threshold",
+        "met"
+      ],
+      "title": "Condition",
       "type": "object"
     },
     "DemoBox": {
@@ -896,7 +994,7 @@
     },
     "Experiment": {
       "additionalProperties": false,
-      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.",
+      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.\nAn experiment whose pre-registration has no verdict on the development games (a dry run only) is\n`stages` test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the\ndevelopment bar was met too. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word\n(the narrow claim, a data-fault note).\nAn experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its\nadoption is read on the development games, and when the rule fails it is not_adopted_development, the same\nmeaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds\non a test set that cannot be scored has no status yet and is refused.",
       "properties": {
         "id": {
           "pattern": "^[a-z]+-E\\d+$",
@@ -956,7 +1054,8 @@
             "development_met_test_pending",
             "not_adopted_development",
             "adopted",
-            "not_adopted_test"
+            "not_adopted_test",
+            "passed_test"
           ],
           "title": "Status",
           "type": "string"
@@ -973,6 +1072,23 @@
           "default": null,
           "title": "Writeup"
         },
+        "writeup_notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Writeup Notes",
+          "type": "array"
+        },
+        "stages": {
+          "default": "development_and_test",
+          "enum": [
+            "development_and_test",
+            "test_only"
+          ],
+          "title": "Stages",
+          "type": "string"
+        },
         "development": {
           "anyOf": [
             {
@@ -988,6 +1104,17 @@
           "anyOf": [
             {
               "$ref": "#/$defs/StageResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "protocol": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProtocolResult"
             },
             {
               "type": "null"
@@ -1326,6 +1453,84 @@
         "games"
       ],
       "title": "Gravity",
+      "type": "object"
+    },
+    "Hypothesis": {
+      "additionalProperties": false,
+      "description": "One pre-registered statement of a protocol experiment, read on its point value as pre-registered. `statement`\nis copied from the result file and `threshold` is its threshold, part of it. `holds` is null when the\nstatistic is not a finite number, and `result` then reads undefined, never holds or fails. A pre-registered\nrange that is not a valid confidence interval (PLAN.md D86) is never carried here: `interval` is the valid post\nhoc one, or null, and then the value is a point estimate.",
+      "properties": {
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "threshold": {
+          "minLength": 1,
+          "title": "Threshold",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "holds": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Holds"
+        },
+        "result": {
+          "enum": [
+            "holds",
+            "fails",
+            "undefined"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PostHocInterval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "point_estimate": {
+          "title": "Point Estimate",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "label",
+        "statement",
+        "threshold",
+        "result",
+        "point_estimate"
+      ],
+      "title": "Hypothesis",
       "type": "object"
     },
     "LaneResult": {
@@ -2659,6 +2864,126 @@
       "title": "PossessionSummary",
       "type": "object"
     },
+    "PostHocInterval": {
+      "additionalProperties": false,
+      "description": "A valid 95 percent interval computed after the result and its review (post hoc), which no verdict reads.\n`method` names how it was drawn; `source` is the file it was read from.",
+      "properties": {
+        "lo": {
+          "title": "Lo",
+          "type": "number"
+        },
+        "hi": {
+          "title": "Hi",
+          "type": "number"
+        },
+        "method": {
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        }
+      },
+      "required": [
+        "lo",
+        "hi",
+        "method",
+        "source"
+      ],
+      "title": "PostHocInterval",
+      "type": "object"
+    },
+    "ProtocolResult": {
+      "additionalProperties": false,
+      "description": "The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on\nreliability and stability) rather than one paired difference against a threshold. `rule`, `adopted` and\n`reading` (the protocol's own conclusion) are copied from the result file. `caveat` and `not_scored` (why the\ntest set was not scored, when it was not) are sentences of the experiment's write-up, word for word.",
+      "properties": {
+        "stage": {
+          "const": "development",
+          "title": "Stage",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "games": {
+          "title": "Games",
+          "type": "integer"
+        },
+        "rows": {
+          "title": "Rows",
+          "type": "integer"
+        },
+        "rows_unit": {
+          "minLength": 1,
+          "title": "Rows Unit",
+          "type": "string"
+        },
+        "hypotheses": {
+          "items": {
+            "$ref": "#/$defs/Hypothesis"
+          },
+          "minItems": 1,
+          "title": "Hypotheses",
+          "type": "array"
+        },
+        "rule": {
+          "minLength": 1,
+          "title": "Rule",
+          "type": "string"
+        },
+        "adoption": {
+          "items": {
+            "$ref": "#/$defs/AdoptionValue"
+          },
+          "title": "Adoption",
+          "type": "array"
+        },
+        "adopted": {
+          "title": "Adopted",
+          "type": "boolean"
+        },
+        "reading": {
+          "minLength": 1,
+          "title": "Reading",
+          "type": "string"
+        },
+        "caveat": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caveat"
+        },
+        "not_scored": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Not Scored",
+          "type": "array"
+        }
+      },
+      "required": [
+        "stage",
+        "source",
+        "games",
+        "rows",
+        "rows_unit",
+        "hypotheses",
+        "rule",
+        "adoption",
+        "adopted",
+        "reading",
+        "not_scored"
+      ],
+      "title": "ProtocolResult",
+      "type": "object"
+    },
     "Rebounding": {
       "additionalProperties": false,
       "description": "Rebounds per 100 chances, a chance being a located miss while he was on the floor. The model expectation\nalready uses his rebounding rate in other games, so the gap between the two is not a skill number.",
@@ -3457,7 +3782,7 @@
     },
     "StageResult": {
       "additionalProperties": false,
-      "description": "One stage of an experiment, read from its result file under reports/research/: development (out of fold on\nthe development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption\nrule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the\nbound the rule reads) is at most `threshold`. Numbers are rounded once, here in the export.",
+      "description": "One stage of an experiment, read from its result file under reports/research/: development (out of fold on\nthe development games) or test (the D71 test set, scored once). `diff` is the paired difference the adoption\nrule reads, with its 95 percent interval (`interval` names the method); the rule is met when `upper` (the\nbound the rule reads) compares with `threshold` as `comparison` says (at most, or strictly below), and every\nfurther condition of the same rule (`conditions`) is met too. Numbers are rounded once, here in the export.",
       "properties": {
         "stage": {
           "enum": [
@@ -3512,6 +3837,23 @@
         "upper": {
           "title": "Upper",
           "type": "number"
+        },
+        "comparison": {
+          "default": "at_most",
+          "enum": [
+            "at_most",
+            "below"
+          ],
+          "title": "Comparison",
+          "type": "string"
+        },
+        "conditions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "title": "Conditions",
+          "type": "array"
         },
         "met": {
           "title": "Met",

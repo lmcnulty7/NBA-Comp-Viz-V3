@@ -1,0 +1,424 @@
+{
+  "experiment": "decisions-E1",
+  "stage": "post hoc, written after the development result and its review; no verdict reads these numbers",
+  "player_game_decisions": {
+    "max": 229,
+    "p99": 153.0,
+    "player_games": 12769,
+    "gate": 300
+  },
+  "target_per_game_reliability": {
+    "split_half_r": 0.419639094604812,
+    "mean_qualifying_games_per_player_half": 18.00597609561753,
+    "median_qualifying_games_per_player_half": 18.0,
+    "spearman_brown_one_game": 0.038606660077518035
+  },
+  "valid_intervals": {
+    "method": "bootstrap by player, 2000 resamples (seed [0, 3]): the players of each set drawn with replacement, the same draw for every measure, each player's values as measured; and, for discrimination, stability, spread and the paired differences, the basic interval 2 theta - q of the pre-registered game draws. Coverage of both on synthetic seasons: coverage_simulation.",
+    "statistics": {
+      "target.split_half_r": {
+        "value": 0.419639094604812,
+        "player_bootstrap": {
+          "lo": 0.29491981728733596,
+          "hi": 0.5189140458532111,
+          "finite_share": 1.0
+        }
+      },
+      "target.split_half_spearman": {
+        "value": 0.3639089356858281,
+        "player_bootstrap": {
+          "lo": 0.230616868161592,
+          "hi": 0.4767213895302447,
+          "finite_share": 1.0
+        }
+      },
+      "target.split_half_spearman_brown": {
+        "value": 0.5911912347294548,
+        "player_bootstrap": {
+          "lo": 0.4555028186689918,
+          "hi": 0.6832697680063412,
+          "finite_share": 1.0
+        }
+      },
+      "target.discrimination": {
+        "value": 0.5709747604232484,
+        "player_bootstrap": {
+          "lo": 0.4621590410374547,
+          "hi": 0.647845735859411,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.3910218927096558,
+          "hi": 0.507070031569995
+        }
+      },
+      "target.stability": {
+        "value": 0.7880322943633089,
+        "player_bootstrap": {
+          "lo": 0.5801734164391439,
+          "hi": 0.9910137257056171,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9759877968048151,
+          "hi": 1.3894062888524843
+        }
+      },
+      "target.stability_printed_estimator": {
+        "value": 1.3824327815464401,
+        "player_bootstrap": {
+          "lo": 1.225754004973698,
+          "hi": 1.6321397111681428,
+          "finite_share": 1.0
+        }
+      },
+      "target.sd_between_players": {
+        "value": 6.012985000434564,
+        "player_bootstrap": {
+          "lo": 5.357782918447186,
+          "hi": 6.614757572270515,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 4.186547920801551,
+          "hi": 5.474337343605204
+        }
+      },
+      "frozen.split_half_r": {
+        "value": 0.9268309872682872,
+        "player_bootstrap": {
+          "lo": 0.9038755491116952,
+          "hi": 0.9456190048618848,
+          "finite_share": 1.0
+        }
+      },
+      "frozen.split_half_spearman": {
+        "value": 0.9181597419844431,
+        "player_bootstrap": {
+          "lo": 0.890852587255462,
+          "hi": 0.9387975999767993,
+          "finite_share": 1.0
+        }
+      },
+      "frozen.split_half_spearman_brown": {
+        "value": 0.962026242459674,
+        "player_bootstrap": {
+          "lo": 0.9495111683993763,
+          "hi": 0.9720495144931037,
+          "finite_share": 1.0
+        }
+      },
+      "frozen.discrimination": {
+        "value": 0.9563667682323973,
+        "player_bootstrap": {
+          "lo": 0.9479086870872737,
+          "hi": 0.9630143284381604,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9515708868911842,
+          "hi": 0.9584716541195714
+        }
+      },
+      "frozen.stability": {
+        "value": 0.931626547072532,
+        "player_bootstrap": {
+          "lo": 0.8874712130966652,
+          "hi": 0.9612776747070291,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9610041541389905,
+          "hi": 1.0223911741217462
+        }
+      },
+      "frozen.stability_printed_estimator": {
+        "value": 0.9995269564679425,
+        "player_bootstrap": {
+          "lo": 0.9818023221357972,
+          "hi": 1.013882008745858,
+          "finite_share": 1.0
+        }
+      },
+      "frozen.sd_between_players": {
+        "value": 0.056617776947688894,
+        "player_bootstrap": {
+          "lo": 0.05183275846528778,
+          "hi": 0.06111401864962081,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.0540013292791385,
+          "hi": 0.056728537103845324
+        }
+      },
+      "frozen.r2_on_kind_shares": {
+        "value": 0.34191021841926617,
+        "player_bootstrap": {
+          "lo": 0.25765333742832397,
+          "hi": 0.4338383520344626,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted.split_half_r": {
+        "value": 0.9541041166976588,
+        "player_bootstrap": {
+          "lo": 0.9391184978571174,
+          "hi": 0.9656171423574056,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted.split_half_spearman": {
+        "value": 0.9203505976095617,
+        "player_bootstrap": {
+          "lo": 0.8914175233913977,
+          "hi": 0.9411656237360314,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted.split_half_spearman_brown": {
+        "value": 0.9765130819232382,
+        "player_bootstrap": {
+          "lo": 0.9686035163829657,
+          "hi": 0.9825078562323656,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted.discrimination": {
+        "value": 0.9727262899774735,
+        "player_bootstrap": {
+          "lo": 0.9675504053025541,
+          "hi": 0.9766419332636496,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9702656201162521,
+          "hi": 0.9745054133224988
+        }
+      },
+      "adjusted.stability": {
+        "value": 0.9609224191950368,
+        "player_bootstrap": {
+          "lo": 0.9356937891469272,
+          "hi": 0.9787034899691724,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9804678868275978,
+          "hi": 1.0196035807317352
+        }
+      },
+      "adjusted.stability_printed_estimator": {
+        "value": 1.0014263155946632,
+        "player_bootstrap": {
+          "lo": 0.9907223689787815,
+          "hi": 1.0097318128118826,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted.sd_between_players": {
+        "value": 0.06099852836632111,
+        "player_bootstrap": {
+          "lo": 0.055937677341623256,
+          "hi": 0.06585096251331256,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.05901346582216592,
+          "hi": 0.0613838382932558
+        }
+      },
+      "adjusted.r2_on_kind_shares": {
+        "value": 0.5369930444748535,
+        "player_bootstrap": {
+          "lo": 0.47799533453545306,
+          "hi": 0.5955005980693221,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted_kind.split_half_r": {
+        "value": 0.9413811710338309,
+        "player_bootstrap": {
+          "lo": 0.9210339290555133,
+          "hi": 0.9576816725327718,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted_kind.split_half_spearman": {
+        "value": 0.9199628154050465,
+        "player_bootstrap": {
+          "lo": 0.8899861743049021,
+          "hi": 0.9408656168418397,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted_kind.split_half_spearman_brown": {
+        "value": 0.9698056054932513,
+        "player_bootstrap": {
+          "lo": 0.9588939738373815,
+          "hi": 0.9783834480932097,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted_kind.discrimination": {
+        "value": 0.9637853852134511,
+        "player_bootstrap": {
+          "lo": 0.9560271163406856,
+          "hi": 0.9694839256396445,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9601617085121077,
+          "hi": 0.966122983410467
+        }
+      },
+      "adjusted_kind.stability": {
+        "value": 0.9447177199899282,
+        "player_bootstrap": {
+          "lo": 0.9093583865998465,
+          "hi": 0.9689431669853861,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.9689126814763519,
+          "hi": 1.0207457439007142
+        }
+      },
+      "adjusted_kind.stability_printed_estimator": {
+        "value": 0.9998956421982376,
+        "player_bootstrap": {
+          "lo": 0.9857930358702297,
+          "hi": 1.010813776340891,
+          "finite_share": 1.0
+        }
+      },
+      "adjusted_kind.sd_between_players": {
+        "value": 0.06025330918138403,
+        "player_bootstrap": {
+          "lo": 0.05460762681344446,
+          "hi": 0.06545195576431487,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": 0.05788294268852498,
+          "hi": 0.06056597401339788
+        }
+      },
+      "adjusted_kind.r2_on_kind_shares": {
+        "value": 0.4189293148686962,
+        "player_bootstrap": {
+          "lo": 0.34132645098321085,
+          "hi": 0.4971345154623892,
+          "finite_share": 1.0
+        }
+      },
+      "stability_adjusted_minus_frozen": {
+        "value": 0.02929587212250484,
+        "player_bootstrap": {
+          "lo": 0.009342163800603381,
+          "hi": 0.055592420974490984,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": -0.00988756022208609,
+          "hi": 0.026291102389609147
+        }
+      },
+      "stability_adjusted_kind_minus_frozen": {
+        "value": 0.013091172917396143,
+        "player_bootstrap": {
+          "lo": -0.0009921897799505723,
+          "hi": 0.0294147515650487,
+          "finite_share": 1.0
+        },
+        "game_basic": {
+          "lo": -0.008823151494878369,
+          "hi": 0.015161644004233019
+        }
+      }
+    }
+  },
+  "coverage_simulation": {
+    "reps": 100,
+    "game_resamples": 200,
+    "inner_resamples": 50,
+    "player_resamples": 1000,
+    "seed": 3,
+    "scenarios": {
+      "reliable": {
+        "settings": {
+          "players": 150,
+          "games": 40,
+          "per_game": 20,
+          "sd_player": 0.05,
+          "sd_drift": 0.0135,
+          "sd_noise": 0.28
+        },
+        "truth": {
+          "frozen.split_half_r": 0.9296766381127506,
+          "frozen.discrimination": 0.9635569190721889,
+          "frozen.stability": 0.9320533134495292
+        },
+        "mean_estimate": {
+          "frozen.split_half_r": 0.9296028184568935,
+          "frozen.discrimination": 0.9628232887960507,
+          "frozen.stability": 0.9288063418910848
+        },
+        "coverage": {
+          "frozen.split_half_r": {
+            "game_percentile": 0.01,
+            "game_basic": 0.01,
+            "player_percentile": 0.96
+          },
+          "frozen.discrimination": {
+            "game_percentile": 0.62,
+            "game_basic": 0.44,
+            "player_percentile": 0.89
+          },
+          "frozen.stability": {
+            "game_percentile": 0.01,
+            "game_basic": 0.09,
+            "player_percentile": 0.96
+          }
+        }
+      },
+      "noisy": {
+        "settings": {
+          "players": 150,
+          "games": 40,
+          "per_game": 20,
+          "sd_player": 0.05,
+          "sd_drift": 0.0135,
+          "sd_noise": 1.2
+        },
+        "truth": {
+          "frozen.split_half_r": 0.4185224817783521,
+          "frozen.discrimination": 0.5900822682114493,
+          "frozen.stability": 0.9320533134495292
+        },
+        "mean_estimate": {
+          "frozen.split_half_r": 0.41232375785753544,
+          "frozen.discrimination": 0.593028017549343,
+          "frozen.stability": 0.875615604465644
+        },
+        "coverage": {
+          "frozen.split_half_r": {
+            "game_percentile": 0.23,
+            "game_basic": 0.43,
+            "player_percentile": 0.91
+          },
+          "frozen.discrimination": {
+            "game_percentile": 0.07,
+            "game_basic": 0.18,
+            "player_percentile": 0.94
+          },
+          "frozen.stability": {
+            "game_percentile": 0.0,
+            "game_basic": 0.14,
+            "player_percentile": 0.97
+          }
+        }
+      }
+    }
+  }
+}

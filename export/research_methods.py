@@ -132,8 +132,20 @@ def dossier_cells(text: str) -> set:
 
 
 def dossier_paragraphs(text: str) -> list:
-    """The paragraphs of a dossier, white space made single (table rows and headings included, one block each)."""
-    return [_flat(block) for block in re.split(r"\n\s*\n", text) if block.strip()]
+    """The paragraphs of a dossier or a write-up, white space made single (table rows and headings included, one
+    block each). Each item of a bullet list is a paragraph of its own, without its marker."""
+    paragraphs = []
+    for block in re.split(r"\n\s*\n", text):
+        for item in re.split(r"^- ", block, flags=re.M):
+            if item.strip():
+                paragraphs.append(_flat(item))
+    return paragraphs
+
+
+def verdict_paragraph(text: str) -> list:
+    """The paragraph of a write-up that opens with its verdict in bold ("**Verdict.**", "**Verdict: passes ...**"), as
+    a one-item list."""
+    return [p for p in dossier_paragraphs(text) if re.match(r"\*\*Verdict[.:]", p)]
 
 
 def is_sentences(note: str, paragraphs: list) -> bool:
@@ -301,12 +313,38 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             writeup = exp.get("writeup")
             if writeup is not None and (not writeup.startswith("reports/research/") or not (repo / writeup).is_file()):
                 problems.append(f"{eid}: the write-up {writeup!r} is not a file under reports/research/")
+            notes = exp.get("writeup_notes", [])
+            if notes:
+                text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
+                for note in notes:
+                    where, quote = _note_place(note)
+                    paragraphs = verdict_paragraph(text) if where is None else dossier_paragraphs(
+                        section_text(text, where))
+                    if not is_sentences(quote, paragraphs):
+                        place = "the verdict paragraph" if where is None else f"the section {where!r}"
+                        problems.append(f"{eid}: a write-up note is not whole sentences of {place} of {writeup} word "
+                                        f"for word: {quote[:70]!r}")
+            protocol = exp.get("protocol")
+            if protocol:
+                if results_problem := _protocol_trace(eid, exp, protocol, repo):
+                    problems += results_problem
+            if exp.get("stages") is not None and protocol:
+                problems.append(f"{eid}: stages and a protocol together: a protocol has its own stage")
             results = exp.get("results")
+            if exp.get("stages") == "test_only" and results and results.get("development") is not None:
+                problems.append(f"{eid}: a test-only experiment names no development result file")
             if results:
+                try:
+                    check_results_spec(results)
+                except MethodsProblem as exc:
+                    problems.append(f"{eid}: {exc}")
+                    continue
                 if _flat(results["interval"]) != bullets.get(eid, {}).get("interval"):
                     miss(f"{eid}.results.interval", results["interval"], f"the paired test bullet under {eid}")
                 for stage in ("development", "test"):
-                    if not results[stage].startswith("reports/research/"):
+                    if results[stage] is None and stage == "development" and exp.get("stages") == "test_only":
+                        continue
+                    if results[stage] is None or not results[stage].startswith("reports/research/"):
                         problems.append(f"{eid}: the {stage} result is a file under reports/research/")
     for eid in sorted(set(backlog) - listed):
         problems.append(f"{eid}: a row of {source['backlog']} that no lane lists")
@@ -316,24 +354,138 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
 # ------------------------------------------------------------------------------------------------ the build
 
 
-def _stage(results: dict, stage: str, repo: Path):
-    """The result of one stage, or None when its file does not exist yet."""
+SCHEMA_COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
+                  "at_least": lambda v, t: v >= t}
+# How a rule's text states each comparison, right before its threshold.
+COMPARISON_WORDS = {"below": (r"below",), "at_most": (r"at most", r"<="), "above": (r"above",),
+                    "at_least": (r"at least", r">=")}
+# The end of an interval a comparison reads: an interval wholly below (or at most) reads its upper end, an interval
+# above (or at least) its lower end.
+BOUND_OF = {"below": "hi", "at_most": "hi", "above": "lo", "at_least": "lo"}
+CONDITION_KEYS = ("label", "value", "lo", "hi", "bound", "comparison", "threshold", "met", "digits")
+
+
+def check_results_spec(results: dict) -> None:
+    """The source's description of a stage result, checked before any file is read: a known comparison for the
+    main rule (at most, or strictly below), a list of further conditions (empty when the rule has none), and each
+    condition complete, with the end of its interval that its comparison reads."""
+    if results.get("comparison", "at_most") not in ("at_most", "below"):
+        raise MethodsProblem(f"the main rule's comparison {results.get('comparison')!r} is not at_most or below")
+    if not isinstance(results.get("conditions"), list):
+        raise MethodsProblem("the results name no list of further conditions (an empty list when the rule has none)")
+    for condition in results["conditions"]:
+        missing = [key for key in CONDITION_KEYS if key not in condition]
+        if missing:
+            raise MethodsProblem(f"the condition {condition.get('label')!r} lacks {missing}")
+        if condition["comparison"] not in SCHEMA_COMPARE:
+            raise MethodsProblem(f"the condition {condition['label']!r} has an unknown comparison "
+                                 f"{condition['comparison']!r}")
+        if condition["bound"] != BOUND_OF[condition["comparison"]]:
+            raise MethodsProblem(f"the condition {condition['label']!r} reads the {condition['bound']} end, but "
+                                 f"{condition['comparison']} reads the {BOUND_OF[condition['comparison']]} end")
+
+
+def states(rule: str, comparison: str, threshold) -> bool:
+    """True when a rule's text states `comparison` right before `threshold` ("below 0", "at most +0.0005",
+    ">= 0.5")."""
+    number = re.escape(number_text(threshold))
+    return any(re.search(rf"(?<![\w]){word}\s*\+?{number}(?![\d.])", rule) for word in COMPARISON_WORDS[comparison])
+
+
+def section_text(text: str, heading: str) -> str:
+    """The text of the section of a write-up under `## heading`, up to the next `## ` heading ('' when absent)."""
+    m = re.search(rf"^## {re.escape(heading)}\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
+    return m.group(1) if m else ""
+
+
+def _note_place(note) -> tuple:
+    """A write-up note is a quote of the verdict paragraph (a string) or of a named section ({section, text})."""
+    if isinstance(note, dict):
+        return note["section"], note["text"]
+    return None, note
+
+
+def _threshold(doc: dict, keys: dict, spec: dict, rel: str, main: bool = True) -> float:
+    """A rule's threshold: for the main rule, read at keys["threshold"] when the file holds it; otherwise (and for
+    every further condition) a number the source states (`threshold`) that must be a number of the result file's
+    own rule text (keys["rule"])."""
+    if main and "threshold" in keys:
+        return float(_path_value(doc, keys["threshold"]))
+    value = spec["threshold"]
+    if number_text(value) not in numbers(_path_value(doc, keys["rule"])):
+        raise MethodsProblem(f"{rel}: the rule {keys['rule']} does not name the threshold {value}")
+    return float(value)
+
+
+def number_text(value) -> str:
+    """A threshold written as a number of a rule's text (0 as "0", 0.0005 as "0.0005")."""
+    text = repr(float(value))
+    return text[:-2] if text.endswith(".0") else text
+
+
+def _stage(results: dict, stage: str, repo: Path, rule_text: str = ""):
+    """The result of one stage, or None when its file does not exist yet. The file's verdict on the main rule and
+    on each further condition is recomputed from its numbers, and a file that disagrees is refused. Each comparison
+    must be the one the rule's text states (the file's rule at keys["rule"], else `rule_text`, the pre-registered
+    adoption threshold), and every boolean of the file's verdict object other than the overall flag must be the
+    main rule's flag (keys["main_met"]), a condition's flag, or a flag the source names as outside the rule
+    (`flags_outside_rule`, with its reason)."""
+    check_results_spec(results)
     rel = results[stage]
+    if rel is None:
+        return None
     path = repo / rel
     if not path.is_file():
         return None
     doc = json.loads(path.read_text(encoding="utf-8"))
     keys = results["keys"]
+    comparison = results.get("comparison", "at_most")
+    compare = SCHEMA_COMPARE[comparison]
     met = bool(_path_value(doc, keys["met"]))
-    upper, threshold = float(_path_value(doc, keys["upper"])), float(_path_value(doc, keys["threshold"]))
-    if met != (upper <= threshold):
-        raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its bound {upper} against its threshold "
-                             f"{threshold} says {upper <= threshold}")
+    upper, threshold = float(_path_value(doc, keys["upper"])), _threshold(doc, keys, results, rel)
+    rule = _path_value(doc, keys["rule"]) if "rule" in keys else rule_text
+    if not states(rule, comparison, threshold):
+        raise MethodsProblem(f"{rel}: the rule does not state {comparison.replace('_', ' ')} {threshold}: {rule[:90]!r}")
+    for spec in results["conditions"]:
+        bar = _threshold(doc, keys, spec, rel, main=False)
+        if not states(rule, spec["comparison"], bar):
+            raise MethodsProblem(f"{rel}: the rule does not state {spec['comparison'].replace('_', ' ')} {bar} for "
+                                 f"{spec['label']!r}")
+    verdict_path = keys["met"].rsplit(".", 1)[0]
+    verdict = _path_value(doc, verdict_path)
+    mapped = {keys["met"]} | ({keys["main_met"]} if "main_met" in keys else set()) | {
+        spec["met"] for spec in results["conditions"]} | set(results.get("flags_outside_rule", {}))
+    loose = sorted(f"{verdict_path}.{k}" for k, v in verdict.items() if isinstance(v, bool)
+                   and f"{verdict_path}.{k}" not in mapped)
+    if loose:
+        raise MethodsProblem(f"{rel}: the verdict flags {loose} belong to no rule of the source: name them as the "
+                             "main rule's flag, a condition's flag, or a flag outside the rule")
+    main = compare(upper, threshold)
+    if "main_met" in keys and bool(_path_value(doc, keys["main_met"])) != main:
+        raise MethodsProblem(f"{rel}: {keys['main_met']} disagrees with its bound {upper} against {threshold}")
+    conditions = []
+    for spec in results["conditions"]:
+        lo, hi = float(_path_value(doc, spec["lo"])), float(_path_value(doc, spec["hi"]))
+        value = float(_path_value(doc, spec["value"]))
+        end = lo if spec["bound"] == "lo" else hi
+        bar = _threshold(doc, keys, spec, rel, main=False)
+        ok = SCHEMA_COMPARE[spec["comparison"]](end, bar)
+        if bool(_path_value(doc, spec["met"])) != ok:
+            raise MethodsProblem(f"{rel}: {spec['met']} disagrees with its {spec['bound']} end {end} against {bar}")
+        places = spec["digits"]
+        while SCHEMA_COMPARE[spec["comparison"]](round(end, places), round(bar, places)) != ok and places < 17:
+            places += 1
+        conditions.append(S.Condition(label=spec["label"], value=round(value, places), lo=round(lo, places),
+                                      hi=round(hi, places), bound=spec["bound"], comparison=spec["comparison"],
+                                      threshold=round(bar, places), met=ok))
+    if met != (main and all(c.met for c in conditions)):
+        raise MethodsProblem(f"{rel}: {keys['met']} is {met}, but its rule read on its own numbers gives "
+                             f"{main and all(c.met for c in conditions)}")
     # Rounded once, here. The rule's two numbers keep as many decimals as it takes for the rounded comparison to
     # read as the file's own verdict, so rounding can never flip it (an upper end of 0.000502 against 0.0005
     # shows six decimals, not five).
     digits = results["digits"]
-    while (round(upper, digits) <= round(threshold, digits)) != met and digits < 17:
+    while compare(round(upper, digits), round(threshold, digits)) != main and digits < 17:
         digits += 1
 
     def num(key: str, places: int = digits) -> float:
@@ -353,7 +505,159 @@ def _stage(results: dict, stage: str, repo: Path):
         stage=stage, source=S.Source(path=rel, what=what, rows=rows), metric=results["metric"],
         rows=int(_path_value(doc, keys["rows"])), rows_unit=results["rows_unit"],
         games=int(_path_value(doc, keys["games"])), diff=num("diff"), lo=num("lo"), hi=num("hi"),
-        interval=results["interval"], threshold=num("threshold"), upper=num("upper"), met=met, values=values)
+        interval=results["interval"], threshold=round(threshold, digits), upper=num("upper"),
+        comparison=comparison, conditions=conditions, met=met, values=values)
+
+
+def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
+    """The trace of a protocol entry: its files are under reports/research/, its caveat is whole sentences of the
+    write-up's verdict paragraph and its not-scored reasons whole sentences of the write-up."""
+    problems = []
+    for key in ("development", "intervals"):
+        if not protocol[key].startswith("reports/research/"):
+            problems.append(f"{eid}: the protocol's {key} file is not under reports/research/")
+    writeup = exp.get("writeup")
+    if not writeup or not (repo / writeup).is_file():
+        problems.append(f"{eid}: a protocol result needs its write-up")
+        return problems
+    text = (repo / writeup).read_text(encoding="utf-8")
+    if protocol.get("caveat") and not is_sentences(protocol["caveat"], verdict_paragraph(text)):
+        problems.append(f"{eid}: the caveat is not whole sentences of the verdict paragraph of {writeup} word for "
+                        f"word: {protocol['caveat'][:70]!r}")
+    for sentence in protocol["not_scored"]:
+        if not is_sentences(sentence, dossier_paragraphs(text)):
+            problems.append(f"{eid}: a not-scored reason is not whole sentences of {writeup} word for word: "
+                            f"{sentence[:70]!r}")
+    return problems
+
+
+# The only interval of a post hoc file the page may show: the bootstrap by player (PLAN.md D86). The game draws
+# (game_basic) and the pre-registered game-bootstrap ranges are not valid confidence intervals.
+INTERVAL_KEY = "player_bootstrap"
+# The comparisons a protocol's statement or rule may use, as its text writes them.
+COMPARISONS = {"below": lambda v, t: v < t, "above": lambda v, t: v > t, "at least": lambda v, t: v >= t,
+               "at most": lambda v, t: v <= t}
+
+
+def holds_by_threshold(value: float, threshold: str) -> bool:
+    """Whether `value` meets a threshold written as words and a number ("below 0.2", "at least 0.5")."""
+    m = re.fullmatch(r"(below|above|at least|at most) ([+-]?\d+(?:\.\d+)?)", threshold)
+    if not m:
+        raise MethodsProblem(f"the threshold {threshold!r} is not one of {sorted(COMPARISONS)} and a number")
+    return COMPARISONS[m.group(1)](value, float(m.group(2)))
+
+
+def _protocol(spec: dict, repo: Path, writeup=None):
+    """The protocol result of an experiment, or None when its development file does not exist yet. The value of
+    each statement and the adoption rule are read from the development file; each valid interval from the post hoc
+    file, whose statistic must be the same number as the development file's (so the interval belongs to it), and
+    only its bootstrap by player (INTERVAL_KEY). The pre-registered ranges of the development file are read only to
+    recompute the adoption rule, never shown: they are not valid confidence intervals. Each statement's holds and
+    the rule's adopted are recomputed from the values and thresholds, and a file that disagrees is refused. An
+    experiment that names a write-up has run, so its development file must exist."""
+    if spec.get("interval_key", INTERVAL_KEY) != INTERVAL_KEY:
+        raise MethodsProblem(f"the page shows the {INTERVAL_KEY} interval only, not {spec['interval_key']!r}")
+    path = repo / spec["development"]
+    if not path.is_file():
+        if writeup:
+            raise MethodsProblem(f"{spec['development']}: no such file, but the experiment names its write-up "
+                                 f"{writeup}, so it has run")
+        return None
+    dev = json.loads(path.read_text(encoding="utf-8"))
+    posthoc_path = repo / spec["intervals"]
+    if not posthoc_path.is_file():
+        raise MethodsProblem(f"{spec['intervals']}: no such file, so the protocol has no valid interval")
+    posthoc = json.loads(posthoc_path.read_text(encoding="utf-8"))
+    digits = spec["digits"]
+    method = _path_value(posthoc, spec["interval_method_key"])
+    if spec["interval_method"] not in method:
+        raise MethodsProblem(f"{spec['intervals']}: the interval method does not say {spec['interval_method']!r}")
+    interval_source = S.Source(path=spec["intervals"], what="valid intervals computed post hoc (bootstrap by player); "
+                               "no verdict reads them", rows="training")
+
+    def interval(statistic: str, value: float):
+        if not statistic:
+            return None
+        table = _path_value(posthoc, spec["statistics_key"])
+        if statistic not in table:        # the names of the statistics hold dots, so they are looked up whole
+            raise MethodsProblem(f"{spec['intervals']}: no statistic {statistic}")
+        stat = table[statistic]
+        if not isinstance(stat.get("value"), (int, float)) or abs(float(stat["value"]) - value) > 1e-9:
+            raise MethodsProblem(f"{spec['intervals']}: {statistic} is {stat.get('value')}, not the development "
+                                 f"value {value}, so its interval belongs to another number")
+        boot = stat.get(INTERVAL_KEY)
+        if not isinstance(boot, dict) or not all(isinstance(boot.get(k), (int, float)) for k in ("lo", "hi")):
+            raise MethodsProblem(f"{spec['intervals']}: {statistic} has no {INTERVAL_KEY} interval with lo and hi")
+        return S.PostHocInterval(lo=round(float(boot["lo"]), digits), hi=round(float(boot["hi"]), digits),
+                                 method=spec["interval_method"], source=interval_source)
+
+    hypotheses = []
+    for item in spec["hypotheses"]:
+        h = _path_value(dev, f"{spec['verdict_key']}.{item['key']}")
+        raw = h.get("value")
+        finite = isinstance(raw, (int, float)) and raw == raw and abs(raw) != float("inf")
+        holds = bool(h["holds"]) if finite and h.get("holds") is not None else None
+        if finite and holds is not None and holds != holds_by_threshold(float(raw), item["threshold"]):
+            raise MethodsProblem(f"{spec['development']}: {item['key']} says holds {holds}, but {raw} "
+                                 f"{item['threshold']} is {not holds}")
+        if (holds is None) != (h.get("result") == "undefined") or (holds is not None and h["result"] !=
+                                                                      ("holds" if holds else "fails")):
+            raise MethodsProblem(f"{spec['development']}: {item['key']} reads {h.get('result')!r} with holds "
+                                 f"{h.get('holds')!r} and value {raw!r}")
+        found = interval(item.get("interval"), float(raw)) if finite else None
+        hypotheses.append(S.Hypothesis(label=item["key"], statement=h["statement"], threshold=item["threshold"],
+                                       value=round(float(raw), digits) if finite else None, holds=holds,
+                                       result=h["result"], interval=found, point_estimate=found is None))
+    adoption_doc = _path_value(dev, f"{spec['verdict_key']}.{spec['adoption']['key']}")
+    rule_numbers = numbers(adoption_doc["rule"])
+    met = []
+    loose = sorted(k for k, v in adoption_doc.items() if isinstance(v, bool) and k != "adopted")
+    if loose:
+        raise MethodsProblem(f"{spec['development']}: the adoption flags {loose} belong to no condition of the source")
+    if not isinstance(spec["adoption"].get("conditions"), list) or not spec["adoption"]["conditions"]:
+        raise MethodsProblem(f"{spec['development']}: the source names no conditions of the adoption rule")
+    for condition in spec["adoption"]["conditions"]:
+        words, number = condition["threshold"].rsplit(" ", 1)
+        comparison = words.replace(" ", "_")
+        if number not in rule_numbers:
+            raise MethodsProblem(f"{spec['development']}: the rule does not name the threshold {number}")
+        if comparison not in SCHEMA_COMPARE or not states(adoption_doc["rule"], comparison, float(number)):
+            raise MethodsProblem(f"{spec['development']}: the rule does not state {condition['threshold']!r}")
+        if condition["value"] not in adoption_doc:
+            raise MethodsProblem(f"{spec['development']}: the adoption entry has no {condition['value']}")
+        met.append(holds_by_threshold(float(adoption_doc[condition["value"]]), condition["threshold"]))
+    if all(met) != bool(adoption_doc["adopted"]):
+        raise MethodsProblem(f"{spec['development']}: adopted is {adoption_doc['adopted']}, but its rule read on "
+                             f"its own values gives {all(met)}")
+    adoption = []
+    for item in spec["adoption"]["values"]:
+        if item["value"] not in adoption_doc:
+            raise MethodsProblem(f"{spec['development']}: the adoption entry has no {item['value']}")
+        raw = float(adoption_doc[item["value"]])
+        found = interval(item.get("interval"), raw)
+        adoption.append(S.AdoptionValue(label=item["label"], value=round(raw, digits), interval=found,
+                                        point_estimate=found is None))
+    return S.ProtocolResult(
+        stage="development",
+        source=S.Source(path=spec["development"], what="experiment result: the pre-registered statistics on the "
+                        "development games, read on their point values", rows="training"),
+        games=int(_path_value(dev, spec["games"])), rows=int(_path_value(dev, spec["rows"])),
+        rows_unit=spec["rows_unit"], hypotheses=hypotheses, rule=adoption_doc["rule"],
+        adoption=adoption, adopted=bool(adoption_doc["adopted"]),
+        reading=_path_value(dev, f"{spec['verdict_key']}.protocol"), caveat=spec.get("caveat"),
+        not_scored=spec["not_scored"])
+
+
+def _protocol_status(protocol) -> str:
+    if protocol is None:
+        return "pre_registered"
+    return "development_met_test_pending" if protocol.adopted else "not_adopted_development"
+
+
+def _test_only_status(test) -> str:
+    if test is None:
+        return "pre_registered"
+    return "passed_test" if test.met else "not_adopted_test"
 
 
 def _status(dev, test) -> str:
@@ -396,16 +700,31 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                 comparability_class=comparability_class(row["comparability"])))
         experiments = []
         for exp in lane["experiments"]:
-            dev = test = None
+            dev = test = protocol = None
+            if exp.get("protocol"):
+                protocol = _protocol(exp["protocol"], repo, exp.get("writeup"))
+                if protocol is not None:
+                    sources.append(protocol.source)
+                    sources += [i.source for i in [h.interval for h in protocol.hypotheses]
+                                + [a.interval for a in protocol.adoption] if i]
+            test_only = exp.get("stages") == "test_only"
             if exp.get("results"):
-                dev = _stage(exp["results"], "development", repo)
-                test = _stage(exp["results"], "test", repo) if dev is not None else None
+                dev = None if test_only else _stage(exp["results"], "development", repo, exp["threshold"])
+                test = (_stage(exp["results"], "test", repo, exp["threshold"]) if (dev is not None or test_only)
+                        else None)
+                if exp.get("writeup") and dev is None and test is None:
+                    raise MethodsProblem(f"{exp['id']}: no result file, but the experiment names its write-up "
+                                         f"{exp['writeup']}, so it has run")
                 sources += [stage.source for stage in (dev, test) if stage is not None]
             experiments.append(S.Experiment(
                 id=exp["id"], title=exp["title"], what=exp["what"], hypothesis=exp["hypothesis"],
                 threshold=exp["threshold"], rank=exp["rank"], gain=exp["gain"], effort=exp["effort"],
-                test_data=exp["test_data"], backlog_status=exp["backlog_status"], status=_status(dev, test),
-                writeup=exp.get("writeup"), development=dev, test=test))
+                test_data=exp["test_data"], backlog_status=exp["backlog_status"],
+                status=(_protocol_status(protocol) if protocol is not None else _test_only_status(test) if test_only
+                        else _status(dev, test)),
+                writeup=exp.get("writeup"), writeup_notes=[_note_place(n)[1] for n in exp.get("writeup_notes", [])],
+                stages="test_only" if test_only else "development_and_test", development=dev, test=test,
+                protocol=protocol))
             if exp.get("writeup"):
                 sources.append(S.Source(path=exp["writeup"], what="the write-up of an experiment that has run",
                                         rows="not_split"))
