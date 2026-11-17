@@ -86,7 +86,7 @@ def test_a_shown_value_matches_itself_in_every_unit_it_allows():
     ("The xFG of the shot was low and the man in the corner of the court had a good look at it.", "jargon"),
     ("This was the best defense on the floor that night and the team held on to win the game.", "forbidden"),
     ("The team should have passed the ball more in that spot and then it would have had a good look.", "forbidden"),
-    ("The team moved the ball well — and then it shot from the corner of the court near the end here.", "dash"),
+    ("The team moved the ball well \u2014 and then it shot from the corner of the court near the end here.", "dash"),
     ("Short.", "words, not"),
 ])
 def test_word_rules_refuse_what_site_copy_refuses(text, found):
