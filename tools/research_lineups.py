@@ -447,7 +447,10 @@ def score_games(pred, n: int = BOOT, seed: int = SEED) -> dict:
         lo, hi = np.percentile(v, [2.5, 97.5])
         return [float(lo), float(hi)]
 
-    out = {"games": int(G), "resamples": n, "seed": seed, "context_arms": CONTEXT_ARMS}
+    cols = ["actual_all", "actual_valid"] + [f"{p}_{a}" for p in ("all", "valid") for a in ARMS]
+    finite = np.isfinite(pred[cols].to_numpy(dtype=float)).all(axis=1)
+    out = {"games": int(G), "resamples": n, "seed": seed, "context_arms": CONTEXT_ARMS,
+           "games_with_non_finite_values": int((~finite).sum())}
     for variant, actual in (("whole_game", "actual_all"), ("kept_stints", "actual_valid")):
         prefix = "all" if variant == "whole_game" else "valid"
         y = pred[actual].to_numpy(dtype=float)
@@ -474,6 +477,10 @@ def score_games(pred, n: int = BOOT, seed: int = SEED) -> dict:
                       "diff_ci_below_zero": bool(d["ci95"][1] < 0),
                       "r2_above_zero_with_interval": bool(r2["point"] > 0 and r2["ci95"][0] > 0),
                       "passes": bool(d["ci95"][1] < 0 and r2["point"] > 0 and r2["ci95"][0] > 0)}
+    if out["games_with_non_finite_values"]:
+        out["verdict"] = {"rule": out["verdict"]["rule"], "passes": None,
+                          "refused": (f"{out['games_with_non_finite_values']} game(s) carry a non-finite actual or "
+                                      "predicted value; no verdict is read from these numbers")}
     return out
 
 
@@ -609,7 +616,7 @@ def power(dry: dict, ahead: dict, test_games: int = 1316) -> dict:
     return out
 
 
-def make_scorer(model: dict):
+def make_scorer(model: dict, commit=None):
     """The scorer score_once runs: the 2025-26 stints built from the pinned files with the frozen code, every arm
     scored once. The test data is reached only here, through scoring_data_root."""
     from analytics.lineups import read_season_tables
@@ -623,12 +630,31 @@ def make_scorer(model: dict):
         starters = starters[starters["game_id"].astype(str).isin(listed)].reset_index(drop=True)
         feats, games, dropped, stints = season_tables(pbp, starters)
         res = evaluate(model, feats, games)
+        with_pbp = set(pbp["game_id"].astype(str))
+        built = set(games["game_id"].astype(str))
         return {"experiment": EXPERIMENT, "stage": "fitted on every development season, scored once on the 2025-26 season",
-                "test_games_listed": len(listed), "games_with_playbyplay": int(pbp["game_id"].nunique()),
-                "games_dropped_shifted_periods": len(dropped), "stints": int(len(stints)), "kept_stints": int(len(feats)),
+                "code_commit": commit,
+                "test_games_listed": len(listed), "games_with_playbyplay": len(with_pbp),
+                "games_listed_without_playbyplay": len(listed - with_pbp),
+                "games_dropped_shifted_periods": len(dropped),
+                "games_built_without_stints": len(with_pbp - built - set(map(str, dropped))),
+                "stints": int(len(stints)), "kept_stints": int(len(feats)),
+                "schedule_agreement": schedule_agreement(games, root, PBP_TEST_SEASON),
                 **res}
 
     return scorer
+
+
+def clean_commit() -> str:
+    """The HEAD commit, refused unless the scoring code and the development result are committed unchanged."""
+    import subprocess
+    dirty = subprocess.run(["git", "status", "--porcelain", "--", "tools/research_lineups.py",
+                            "reports/research/lineups-E1-dev.json"], cwd=REPO_ROOT, capture_output=True, text=True,
+                           check=True).stdout.strip()
+    if dirty:
+        raise SystemExit(f"{WHO}: commit the scoring code and the development result first; nothing scored ({dirty})")
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
 
 
 def final(artifacts=None, testset_path=None, ledger_path=None, data_root=None) -> dict:
@@ -645,7 +671,8 @@ def final(artifacts=None, testset_path=None, ledger_path=None, data_root=None) -
             raise SystemExit(f"{WHO}: the test fit differs from the one e1-dev recorded ({key}); nothing scored")
     if rec["replacement"]["rho"] != planned["replacement"]["rho"]:
         raise SystemExit(f"{WHO}: the replacement penalty differs from e1-dev's; nothing scored")
-    scorer = make_scorer(model)
+    commit = clean_commit()
+    scorer = make_scorer(model, commit)
     out = score_once(EXPERIMENT, PBP, scorer, testset_path=testset_path, ledger_path=ledger_path, data_root=data_root)
     (RESULTS / "lineups-E1-final.json").write_text(json.dumps(out, indent=2) + "\n")
     return out

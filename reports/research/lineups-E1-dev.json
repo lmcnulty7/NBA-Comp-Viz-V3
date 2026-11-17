@@ -159,6 +159,7 @@
     "context_arms": {
       "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
     },
+    "games_with_non_finite_values": 0,
     "whole_game": {
       "rmse": {
         "floor": {
@@ -471,6 +472,7 @@
     "context_arms": {
       "player_plus_minus": "not pre-registered, reads no verdict (added by the lead before the test score)"
     },
+    "games_with_non_finite_values": 0,
     "whole_game": {
       "rmse": {
         "floor": {
@@ -800,6 +802,6 @@
       }
     }
   },
-  "seconds": 21.0,
-  "peak_memory_gb": 0.6
+  "seconds": 22.7,
+  "peak_memory_gb": 0.48
 }

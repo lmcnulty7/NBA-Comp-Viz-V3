@@ -153,6 +153,14 @@ def test_score_games_pairs_every_arm_on_the_same_resampled_games():
     assert w["paired"]["rapm_minus_player_plus_minus"]["ci95"][1] < 0
     assert set(out["context_arms"]) == {"player_plus_minus"}
     assert out["verdict"]["passes"]
+    pred.loc[3, "all_rapm"] = np.nan
+    bad = L.score_games(pred, n=50)
+    assert bad["games_with_non_finite_values"] == 1 and bad["verdict"]["passes"] is None and "refused" in bad["verdict"]
+
+
+def schedule_of(pbp):
+    pts = pbp.groupby(["game_id", "team"])["points"].sum().unstack(fill_value=0)
+    return pd.DataFrame({"game_id": pts.index, "home_score": pts["home"].to_numpy(), "away_score": pts["away"].to_numpy()})
 
 
 def test_the_scorer_runs_through_score_once_on_a_pinned_root(dev_tables, tmp_path):
@@ -164,7 +172,7 @@ def test_the_scorer_runs_through_score_once_on_a_pinned_root(dev_tables, tmp_pat
     root = tmp_path / "root"
     paths = dict(zip(("playbyplay", "starters", "schedule"), R.PBP_FILES))
     for key, frame in (("playbyplay", pbp), ("starters", starters),
-                       ("schedule", pd.DataFrame({"game_id": sorted(pbp["game_id"].unique())}))):
+                       ("schedule", schedule_of(pbp))):
         p = root / paths[key]
         p.parent.mkdir(parents=True, exist_ok=True)
         frame.to_parquet(p, index=False)
@@ -178,6 +186,9 @@ def test_the_scorer_runs_through_score_once_on_a_pinned_root(dev_tables, tmp_pat
                        data_root=root)
     assert out["games"] == 12 and out["test_games_listed"] == 12 and out["games_dropped_shifted_periods"] == 0
     assert set(out["whole_game"]["rmse"]) == set(L.ARMS)
+    assert out["schedule_agreement"]["checked"] == 12 and out["schedule_agreement"]["share_equal"] == 1.0
+    assert out["games_listed_without_playbyplay"] == 0 and out["games_built_without_stints"] == 0
+    assert out["games_with_non_finite_values"] == 0 and out["verdict"]["passes"] in (True, False)
     json.dumps(out)                                   # the summary must be JSON-able for the ledger
     assert json.loads(ledger.read_text())[0]["status"] == "scored"
     with pytest.raises(SystemExit):

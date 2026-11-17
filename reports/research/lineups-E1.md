@@ -107,8 +107,8 @@ Fixed here, in the spirit of PLAN.md D80, before score_once is called.
 1. **The verdict is the pre-registered rule on the whole-game margin, nothing else.** The kept-stints margin and the
    ablation read no verdict; if the kept-stints reading disagrees with the primary one, the report says so.
 2. **What a pass supports.** Player ratings fitted on 2020-21 to 2023-24, summed over who is on the floor, predict
-   2025-26 game margins better than the frozen lineup plus-minus and better than home court alone. That is a claim
-   about game margin. It does not validate lineup ranks, rapm_synergy, the rating of any one lineup, any one player's
+   2025-26 game margins better than the frozen lineup plus-minus and better than home court alone, given the actual
+   stints of each game, which a pregame forecast would not know. That is a claim about game margin. It does not validate lineup ranks, rapm_synergy, the rating of any one lineup, any one player's
    rating, or the gap between two players. The lane's lineup-rank result (season-ahead Spearman over about 20
    lineups) stays inconclusive whatever happens here.
 3. **How each outcome is read.**
@@ -138,7 +138,14 @@ Fixed here, in the spirit of PLAN.md D80, before score_once is called.
    reads no verdict whatever its numbers. rapm minus player_plus_minus is reported with its interval and called a
    context comparison; neither a win nor a loss changes the verdict of item 1.
 8. **Games.** Every test game the frozen builder can build is scored; games it drops whole (shifted period labels)
-   are counted and reported, not scored. All arms are scored on the same games.
+   are counted and reported, not scored. All arms are scored on the same games. Leaving out the builder-dropped games
+   is a deviation from the pre-registration's "all test games", stated here; on the development seasons it is 9 to
+   12 games a season. Listed games without play-by-play, games built without stints and games with a non-finite value
+   are counted too; a non-finite value refuses the verdict instead of reading it as a fail.
+9. **Possible data faults.** If the whole-game stint margin agrees with the 2025-26 schedule table in under every
+   game (share below 1.0, against 1.0 in every development season), or the share of player possessions by players the
+   fit never saw is far above the season-ahead check's 16.6 percent (above 30 percent), it is reported beside the
+   verdict as a possible data fault. There is no rescore.
 
 ## Test season
 
