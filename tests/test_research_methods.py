@@ -404,12 +404,65 @@ def test_the_decisions_protocol_is_read_from_its_files_with_valid_intervals_only
     assert [a.value for a in protocol.adoption] == [round(dev["adoption"]["stability"], 3),
                                                    round(dev["adoption"]["r2_on_kind_shares"], 3)]
     assert protocol.caveat == CAVEAT and len(protocol.not_scored) == 3
-    # the pre-registered game-bootstrap ranges are not valid intervals (PLAN.md D86): none reaches the page data
-    text = protocol.model_dump_json()
-    for key in ("H1", "H2", "H3"):
-        for end in dev[key]["interval_95"]:
-            assert str(round(end, 3)) not in text, (key, end)
-    assert str(round(dev["adoption"]["stability_lo"], 3)) not in text
+
+
+def _invalid_numbers():
+    """Every end of a range that is not a valid confidence interval (PLAN.md D86): the pre-registered game
+    bootstrap ranges of the development file (interval_95 of each statement, the rule's stability_lo) and every
+    game_basic range of the post hoc file. Each as the file holds it and rounded as the page would round it."""
+    dev = json.loads((REPO / DEC_DEV).read_text(encoding="utf-8"))["verdict"]
+    posthoc = json.loads((REPO / DEC_POSTHOC).read_text(encoding="utf-8"))["valid_intervals"]["statistics"]
+    raw = [end for key in ("H1", "H2", "H3") for end in dev[key]["interval_95"]] + [dev["adoption"]["stability_lo"]]
+    raw += [stat["game_basic"][end] for stat in posthoc.values() if "game_basic" in stat for end in ("lo", "hi")]
+    return {float(x) for x in raw} | {round(float(x), 3) for x in raw}
+
+
+def _numbers_of(document) -> set:
+    """Every number of a JSON document, as floats: numeric fields and the numbers inside its strings."""
+    found = set()
+
+    def walk(value):
+        if isinstance(value, bool):
+            return
+        if isinstance(value, (int, float)):
+            found.add(float(value))
+        elif isinstance(value, str):
+            found.update(float(t.rstrip("%").replace(",", "")) for t in R.numbers(value))
+        elif isinstance(value, dict):
+            for item in value.values():
+                walk(item)
+        elif isinstance(value, list):
+            for item in value:
+                walk(item)
+
+    walk(document)
+    return found
+
+
+def _valid_numbers(protocol) -> set:
+    """The numbers the protocol may legitimately show: its values and the ends of its valid intervals."""
+    found = set()
+    for item in list(protocol.hypotheses) + list(protocol.adoption):
+        if item.value is not None:
+            found.add(item.value)
+        if item.interval is not None:
+            found.update((item.interval.lo, item.interval.hi))
+    return found
+
+
+def test_no_range_that_is_not_a_valid_interval_reaches_the_written_file(source, tmp_path):
+    """Compared as numbers, exactly: no end of a pre-registered game range or of a game_basic range is in the
+    written methods.json, except where the same number is a value the page reads validly (0.961 is the adjusted
+    stability and the upper end of the frozen stability's valid interval)."""
+    protocol = _decisions(R.build_methods(REPO, source)).protocol
+    leaks = _invalid_numbers() - _valid_numbers(protocol)
+    assert 0.902 in leaks and 0.961 not in leaks
+    assert _numbers_of(protocol.model_dump(mode="json")) & leaks == set()
+    out = tmp_path / "out"
+    site_data.run(out, None, None, only=["methods"], log=QUIET)
+    written = json.loads((out / "methods.json").read_text(encoding="utf-8"))
+    entry = next(e for lane in written["lanes"] for e in lane["experiments"] if e["id"] == "decisions-E1")
+    assert _numbers_of(entry) & leaks == set()
 
 
 def test_the_caveat_is_word_for_word_the_verdict_paragraph_of_the_write_up():
@@ -461,9 +514,13 @@ def test_an_undefined_statistic_reads_undefined_with_no_interval(source, tmp_pat
 
 def test_the_contract_refuses_a_status_or_a_reading_the_protocol_files_do_not_support(source):
     experiment = _decisions(R.build_methods(REPO, source)).model_dump()
-    for status in ("development_met_test_pending", "adopted", "pre_registered", "not_adopted_test"):
+    for status in ("development_met_test_pending", "adopted", "not_adopted_test"):
         with pytest.raises(ValidationError, match="the results say"):
             S.Experiment(**{**experiment, "status": status})
+    with pytest.raises(ValidationError, match="has run"):
+        S.Experiment(**{**experiment, "status": "pre_registered"})
+    with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**experiment, "status": "pre_registered", "writeup": None})
     adopted = {**experiment["protocol"], "adopted": True}
     with pytest.raises(ValidationError, match="has no status"):
         S.Experiment(**{**experiment, "protocol": adopted})
@@ -480,3 +537,56 @@ def test_the_contract_refuses_a_status_or_a_reading_the_protocol_files_do_not_su
     with pytest.raises(ValidationError, match="rows training"):
         S.ProtocolResult(**{**experiment["protocol"], "source": {**experiment["protocol"]["source"],
                                                                 "rows": "heldout"}})
+
+
+def test_only_the_bootstrap_by_player_may_be_shown(source):
+    doc = copy.deepcopy(source)
+    spec = next(e for e in _lane(doc, "decisions")["experiments"] if e["id"] == "decisions-E1")["protocol"]
+    spec["interval_key"] = "game_basic"
+    with pytest.raises(R.MethodsProblem, match="player_bootstrap interval only"):
+        R.build_methods(REPO, doc)
+    spec["interval_key"] = "player_bootstrap"
+    assert _decisions(R.build_methods(REPO, doc)).protocol.adopted is False
+
+
+def test_a_missing_interval_or_development_file_is_a_problem_not_a_crash(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / DEC_POSTHOC
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    del doc["valid_intervals"]["statistics"]["frozen.stability"]["player_bootstrap"]
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="no player_bootstrap interval"):
+        R.build_methods(repo, source)
+    (repo / DEC_DEV).unlink()
+    with pytest.raises(R.MethodsProblem, match="names its write-up"):
+        R.build_methods(repo, source)
+
+
+@pytest.mark.parametrize("change, message", [
+    (lambda v: v["H2"].update(holds=False, result="fails"), "says holds False"),
+    (lambda v: v["H1"].update(holds=True, result="holds"), "says holds True"),
+    (lambda v: v["adoption"].update(adopted=True, result="adopted"), "its rule read on its own values"),
+    (lambda v: v["adoption"].pop("stability_lo"), "has no stability_lo"),
+])
+def test_a_reading_the_values_do_not_support_is_refused(source, tmp_path, change, message):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / DEC_DEV
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    change(doc["verdict"])
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match=message):
+        R.build_methods(repo, source)
+
+
+def test_the_contract_keeps_a_value_inside_its_interval_and_a_write_up_off_a_test_not_run(source):
+    experiment = _decisions(R.build_methods(REPO, source)).model_dump()
+    h1 = experiment["protocol"]["hypotheses"][0]
+    with pytest.raises(ValidationError, match="inside its valid interval"):
+        S.Hypothesis(**{**h1, "value": 0.6, "holds": False, "result": "fails"})
+    a = experiment["protocol"]["adoption"][0]
+    with pytest.raises(ValidationError, match="inside its valid interval"):
+        S.AdoptionValue(**{**a, "value": 0.5})
+    other = next(e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments
+                 if e.status == "pre_registered").model_dump()
+    with pytest.raises(ValidationError, match="a write-up belongs to an experiment that has run"):
+        S.Experiment(**{**other, "writeup": "reports/research/decisions-E1.md"})

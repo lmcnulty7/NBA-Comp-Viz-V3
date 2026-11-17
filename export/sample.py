@@ -254,8 +254,10 @@ def _methods() -> S.MethodsFile:
                                  holds=False, result="fails", interval=interval, point_estimate=False),
                     S.Hypothesis(label="H2", statement="fixture statistic at least 0.5", threshold="at least 0.5",
                                  value=0.932, holds=True, result="holds", point_estimate=True)],
-        rule="fixture rule, not a result", adoption=[S.AdoptionValue(label="fixture adoption value", value=0.537,
-                                                                    interval=interval, point_estimate=False)],
+        rule="fixture rule, not a result",
+        adoption=[S.AdoptionValue(label="fixture adoption value", value=0.537, point_estimate=False,
+                                  interval=S.PostHocInterval(lo=0.478, hi=0.596, method="fixture post hoc interval",
+                                                             source=SRC_FIXTURE[0]))],
         adopted=False, reading="Fixture reading, not a result.", caveat="Fixture caveat, not a result.",
         not_scored=["Fixture reason the test games were not scored."])
     lane = S.MethodsLane(

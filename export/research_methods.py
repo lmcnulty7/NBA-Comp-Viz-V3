@@ -393,13 +393,37 @@ def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
     return problems
 
 
-def _protocol(spec: dict, repo: Path):
+# The only interval of a post hoc file the page may show: the bootstrap by player (PLAN.md D86). The game draws
+# (game_basic) and the pre-registered game-bootstrap ranges are not valid confidence intervals.
+INTERVAL_KEY = "player_bootstrap"
+# The comparisons a protocol's statement or rule may use, as its text writes them.
+COMPARISONS = {"below": lambda v, t: v < t, "above": lambda v, t: v > t, "at least": lambda v, t: v >= t,
+               "at most": lambda v, t: v <= t}
+
+
+def holds_by_threshold(value: float, threshold: str) -> bool:
+    """Whether `value` meets a threshold written as words and a number ("below 0.2", "at least 0.5")."""
+    m = re.fullmatch(r"(below|above|at least|at most) ([+-]?\d+(?:\.\d+)?)", threshold)
+    if not m:
+        raise MethodsProblem(f"the threshold {threshold!r} is not one of {sorted(COMPARISONS)} and a number")
+    return COMPARISONS[m.group(1)](value, float(m.group(2)))
+
+
+def _protocol(spec: dict, repo: Path, writeup=None):
     """The protocol result of an experiment, or None when its development file does not exist yet. The value of
     each statement and the adoption rule are read from the development file; each valid interval from the post hoc
-    file, whose statistic must be the same number as the development file's (so the interval belongs to it). The
-    pre-registered ranges of the development file are not read: they are not valid confidence intervals."""
+    file, whose statistic must be the same number as the development file's (so the interval belongs to it), and
+    only its bootstrap by player (INTERVAL_KEY). The pre-registered ranges of the development file are read only to
+    recompute the adoption rule, never shown: they are not valid confidence intervals. Each statement's holds and
+    the rule's adopted are recomputed from the values and thresholds, and a file that disagrees is refused. An
+    experiment that names a write-up has run, so its development file must exist."""
+    if spec.get("interval_key", INTERVAL_KEY) != INTERVAL_KEY:
+        raise MethodsProblem(f"the page shows the {INTERVAL_KEY} interval only, not {spec['interval_key']!r}")
     path = repo / spec["development"]
     if not path.is_file():
+        if writeup:
+            raise MethodsProblem(f"{spec['development']}: no such file, but the experiment names its write-up "
+                                 f"{writeup}, so it has run")
         return None
     dev = json.loads(path.read_text(encoding="utf-8"))
     posthoc_path = repo / spec["intervals"]
@@ -423,7 +447,9 @@ def _protocol(spec: dict, repo: Path):
         if not isinstance(stat.get("value"), (int, float)) or abs(float(stat["value"]) - value) > 1e-9:
             raise MethodsProblem(f"{spec['intervals']}: {statistic} is {stat.get('value')}, not the development "
                                  f"value {value}, so its interval belongs to another number")
-        boot = stat[spec["interval_key"]]
+        boot = stat.get(INTERVAL_KEY)
+        if not isinstance(boot, dict) or not all(isinstance(boot.get(k), (int, float)) for k in ("lo", "hi")):
+            raise MethodsProblem(f"{spec['intervals']}: {statistic} has no {INTERVAL_KEY} interval with lo and hi")
         return S.PostHocInterval(lo=round(float(boot["lo"]), digits), hi=round(float(boot["hi"]), digits),
                                  method=spec["interval_method"], source=interval_source)
 
@@ -433,6 +459,9 @@ def _protocol(spec: dict, repo: Path):
         raw = h.get("value")
         finite = isinstance(raw, (int, float)) and raw == raw and abs(raw) != float("inf")
         holds = bool(h["holds"]) if finite and h.get("holds") is not None else None
+        if finite and holds is not None and holds != holds_by_threshold(float(raw), item["threshold"]):
+            raise MethodsProblem(f"{spec['development']}: {item['key']} says holds {holds}, but {raw} "
+                                 f"{item['threshold']} is {not holds}")
         if (holds is None) != (h.get("result") == "undefined") or (holds is not None and h["result"] !=
                                                                       ("holds" if holds else "fails")):
             raise MethodsProblem(f"{spec['development']}: {item['key']} reads {h.get('result')!r} with holds "
@@ -442,8 +471,22 @@ def _protocol(spec: dict, repo: Path):
                                        value=round(float(raw), digits) if finite else None, holds=holds,
                                        result=h["result"], interval=found, point_estimate=found is None))
     adoption_doc = _path_value(dev, f"{spec['verdict_key']}.{spec['adoption']['key']}")
+    rule_numbers = numbers(adoption_doc["rule"])
+    met = []
+    for condition in spec["adoption"]["conditions"]:
+        number = condition["threshold"].rsplit(" ", 1)[-1]
+        if number not in rule_numbers:
+            raise MethodsProblem(f"{spec['development']}: the rule does not name the threshold {number}")
+        if condition["value"] not in adoption_doc:
+            raise MethodsProblem(f"{spec['development']}: the adoption entry has no {condition['value']}")
+        met.append(holds_by_threshold(float(adoption_doc[condition["value"]]), condition["threshold"]))
+    if all(met) != bool(adoption_doc["adopted"]):
+        raise MethodsProblem(f"{spec['development']}: adopted is {adoption_doc['adopted']}, but its rule read on "
+                             f"its own values gives {all(met)}")
     adoption = []
     for item in spec["adoption"]["values"]:
+        if item["value"] not in adoption_doc:
+            raise MethodsProblem(f"{spec['development']}: the adoption entry has no {item['value']}")
         raw = float(adoption_doc[item["value"]])
         found = interval(item.get("interval"), raw)
         adoption.append(S.AdoptionValue(label=item["label"], value=round(raw, digits), interval=found,
@@ -507,7 +550,7 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
         for exp in lane["experiments"]:
             dev = test = protocol = None
             if exp.get("protocol"):
-                protocol = _protocol(exp["protocol"], repo)
+                protocol = _protocol(exp["protocol"], repo, exp.get("writeup"))
                 if protocol is not None:
                     sources.append(protocol.source)
                     sources += [i.source for i in [h.interval for h in protocol.hypotheses]

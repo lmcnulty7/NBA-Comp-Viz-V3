@@ -4,7 +4,11 @@ import { copy } from "@/lib/copy";
 import { numberText } from "@/lib/format";
 import { repoFileUrl } from "@/lib/repo";
 import { walkField, type ShownAs } from "@/lib/tokens";
-import type { MethodsFile } from "@/lib/types/contract";
+import type { MethodsFile, ProtocolResult } from "@/lib/types/contract";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+
+const REPO_ROOT = path.resolve(__dirname, "..", "..", "..");
 
 // The methods and literature page (PLAN.md D72), read against the methods.json the built site serves.
 
@@ -13,6 +17,40 @@ interface Shown {
   shown: string;
   signed: boolean;
   text: string;
+}
+
+/**
+ * The ends of the ranges that are not valid confidence intervals, read from the result files of the repository
+ * the protocol names: the pre-registered game-bootstrap ranges and every game_basic range, as stored and rounded to
+ * the page's three decimals, less every number the protocol shows validly. Empty for a fixture build.
+ */
+function invalidRangeEnds(protocol: ProtocolResult): Set<number> {
+  const read = (rel: string): Record<string, unknown> | null => {
+    const file = path.join(REPO_ROOT, rel);
+    return rel.endsWith(".json") && existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>) : null;
+  };
+  const raw: number[] = [];
+  const verdict = (read(protocol.source.path)?.verdict ?? {}) as Record<string, { interval_95?: number[]; stability_lo?: number }>;
+  for (const entry of Object.values(verdict)) {
+    if (entry && typeof entry === "object") {
+      raw.push(...(entry.interval_95 ?? []));
+      if (typeof entry.stability_lo === "number") raw.push(entry.stability_lo);
+    }
+  }
+  const intervals = [...protocol.hypotheses, ...protocol.adoption].map((item) => item.interval).find((i) => i);
+  const posthoc = intervals ? read(intervals.source.path) : null;
+  const statistics = ((posthoc?.valid_intervals as { statistics?: Record<string, { game_basic?: { lo: number; hi: number } }> })
+    ?.statistics ?? {}) as Record<string, { game_basic?: { lo: number; hi: number } }>;
+  for (const stat of Object.values(statistics)) if (stat.game_basic) raw.push(stat.game_basic.lo, stat.game_basic.hi);
+  const ends = new Set<number>([...raw, ...raw.map((x) => Math.round(x * 1000) / 1000)]);
+  for (const item of [...protocol.hypotheses, ...protocol.adoption]) {
+    if (item.value != null) ends.delete(item.value);
+    if (item.interval) {
+      ends.delete(item.interval.lo);
+      ends.delete(item.interval.hi);
+    }
+  }
+  return ends;
 }
 
 async function methodsData(request: import("@playwright/test").APIRequestContext): Promise<MethodsFile> {
@@ -109,6 +147,12 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
       await expect(result.locator("[data-protocol]")).toHaveAttribute("data-adopted", protocol.adopted ? "true" : "false");
       if (protocol.caveat) await expect(result.getByTestId("protocol-caveat")).toHaveText(protocol.caveat);
       await expect(result.getByTestId("not-scored").locator("li")).toHaveCount(protocol.not_scored.length);
+      // No end of a range that is not a valid interval is on the page (PLAN.md D86), compared as numbers, unless
+      // the same number is a value shown validly (0.961 is both a value and a valid end).
+      const leaks = invalidRangeEnds(protocol);
+      const shown = (await result.innerText()).replaceAll(String.fromCodePoint(0x2212), "-");
+      const onPage = [...shown.matchAll(/(?<![\w.])[+-]?\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
+      expect(onPage.filter((n) => leaks.has(n))).toEqual([]);
     }
     for (const stage of [experiment.development, experiment.test]) {
       if (!stage) continue;

@@ -1152,6 +1152,8 @@ class Hypothesis(Strict):
             raise ValueError(f"{self.label}: a finite value holds or fails; no value reads undefined")
         if self.point_estimate != (self.interval is None) or (self.value is None and self.interval is not None):
             raise ValueError(f"{self.label}: a value has its valid interval or is a point estimate")
+        if self.interval is not None and not (self.interval.lo <= self.value <= self.interval.hi):
+            raise ValueError(f"{self.label}: the value lies inside its valid interval")
         return self
 
 
@@ -1167,6 +1169,8 @@ class AdoptionValue(Strict):
     def _interval(self):
         if self.point_estimate != (self.interval is None):
             raise ValueError(f"{self.label}: a value has its valid interval or is a point estimate")
+        if self.interval is not None and not (self.interval.lo <= self.value <= self.interval.hi):
+            raise ValueError(f"{self.label}: the value lies inside its valid interval")
         return self
 
 
@@ -1226,6 +1230,8 @@ class Experiment(Strict):
     @model_validator(mode="after")
     def _status(self):
         dev, test = self.development, self.test
+        if self.status == "pre_registered" and self.writeup is not None:
+            raise ValueError(f"{self.id}: a write-up belongs to an experiment that has run, not a pre-registered one")
         if self.protocol is not None:
             if dev is not None or test is not None:
                 raise ValueError(f"{self.id}: a protocol result replaces the stage results, never sits beside them")

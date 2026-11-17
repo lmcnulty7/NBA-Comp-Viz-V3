@@ -1292,7 +1292,6 @@
       "rows": "decisions",
       "rows_unit": "decisions",
       "statistics_key": "valid_intervals.statistics",
-      "interval_key": "player_bootstrap",
       "interval_method_key": "valid_intervals.method",
       "interval_method": "bootstrap by player, 2000 resamples",
       "digits": 3,
@@ -1325,6 +1324,20 @@
          "label": "R squared of the kind-adjusted quality on kind shares",
          "value": "r2_on_kind_shares",
          "interval": "adjusted.r2_on_kind_shares"
+        }
+       ],
+       "conditions": [
+        {
+         "value": "stability",
+         "threshold": "at least 0.5"
+        },
+        {
+         "value": "stability_lo",
+         "threshold": "above 0.3"
+        },
+        {
+         "value": "r2_on_kind_shares",
+         "threshold": "below 0.2"
         }
        ]
       },
