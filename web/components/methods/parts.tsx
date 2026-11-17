@@ -87,7 +87,7 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
   const r = text.results;
   return (
     <div className="stack stack-tight" data-stage={stage.stage} data-met={stage.met ? "true" : "false"}>
-      <h4 className={styles.stage}>{label(r.stage, stage.stage)}</h4>
+      <h3 className={styles.stage}>{label(r.stage, stage.stage)}</h3>
       <dl className="facts">
         <div>
           <dt>{r.difference}</dt>
