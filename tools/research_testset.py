@@ -290,6 +290,33 @@ def _write_atomic(path: Path, entries: list) -> None:
     os.replace(part, path)
 
 
+ELO_STATE_MODULE = "tools.research_winprob_elo"        # the only caller of elo_state_games_2024_25 (D89)
+ELO_STATE_COLUMNS = ("game_id", "date", "home", "away", "home_score", "away_score")
+
+
+def elo_state_games_2024_25(data_root=None):
+    """PLAN.md D89: the played games of the spent season 2024-25 from the frozen schedule table
+    (DATA_ROOT/collect/bref_schedule/games/2024-25.parquet), as a DataFrame of ELO_STATE_COLUMNS only (game id,
+    date, home team, away team, final scores), sorted by date and game id, every season type of the table (the
+    playoffs and the NBA Cup final carry the Regular Season tag; Play-In games are included). winprob-E1 reads them
+    as time-forward Elo state only, game by game, with every Elo parameter chosen on 2020-21 to 2023-24: nothing is
+    fitted, tuned or scored on them, and dev_games and refuse_test still refuse every 2024-25 game. Callable only
+    from ELO_STATE_MODULE (checked here at run time and by tests/test_research_testset.py). Computes nothing."""
+    caller = sys._getframe(1).f_globals.get("__name__")
+    if caller != ELO_STATE_MODULE:
+        raise SystemExit(f"elo_state_games_2024_25 is read only by {ELO_STATE_MODULE} (D89), not by {caller}")
+    import pyarrow.parquet as pq
+    root = data_root or os.environ.get("DATA_ROOT")
+    if not root:
+        raise SystemExit("DATA_ROOT is not set, so the frozen 2024-25 schedule table cannot be found")
+    table = Path(root) / "collect" / "bref_schedule" / "games" / "2024-25.parquet"
+    df = pq.read_table(table, columns=list(ELO_STATE_COLUMNS)).to_pandas()
+    df = df[df["home_score"].notna() & df["away_score"].notna()].drop_duplicates("game_id")
+    if any(pbp_season(g) != "2024-25" for g in df["game_id"]):
+        raise SystemExit(f"{table.name}: the table holds games outside 2024-25")
+    return df.sort_values(["date", "game_id"]).reset_index(drop=True)[list(ELO_STATE_COLUMNS)]
+
+
 def fix_pbp(root, path=None, ledger_path=None, accept_missing: bool = False) -> dict:
     """Move the 2025-26 season from pending to sources, once, before any play-by-play result exists: the game list
     (every game with converted play-by-play), the cut-off date, and the sha256 of each converted file (PBP_FILES).

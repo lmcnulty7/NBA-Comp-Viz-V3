@@ -668,3 +668,60 @@ def test_the_pbp_fetch_root_stays_out_of_the_repository_and_icloud(tmp_path, mon
     args = P.step_args("bref_seasons", tmp_path / "out", 40)
     assert args[:4] == ["--out", str(tmp_path / "out"), "--rpm", str(P.RPM_CAP)] and args[-1] == "--shots-seasons"
     assert P.RPM_CAP < 17
+
+
+# ── D89: 2024-25 results as winprob-E1's time-forward Elo state, through one door function ─────────────────
+
+def test_only_the_elo_state_builder_names_the_2024_25_door():
+    rel_ok = R.ELO_STATE_MODULE.replace(".", "/") + ".py"
+    problems = [str(p.relative_to(REPO)) for p in tracked_code()
+                if "elo_state_games_2024_25" in p.read_text(errors="ignore") and str(p.relative_to(REPO)) != rel_ok]
+    assert problems == []
+
+
+def _call_elo_door_as(module_name: str, data_root):
+    scope = {"__name__": module_name, "R": R, "root": data_root}
+    exec("out = R.elo_state_games_2024_25(root)", scope)
+    return scope["out"]
+
+
+def test_the_elo_door_refuses_any_other_caller_and_returns_ids_dates_teams_and_scores_only(tmp_path):
+    import pandas as pd
+    table = tmp_path / "collect" / "bref_schedule" / "games" / "2024-25.parquet"
+    table.parent.mkdir(parents=True)
+    pd.DataFrame({"game_id": ["202410220BOS", "202410220LAL", "202504150GSW"],
+                  "date": ["2024-10-22", "2024-10-22", "2025-04-15"], "home": ["BOS", "LAL", "GSW"],
+                  "away": ["NYK", "MIN", "MEM"], "home_score": pd.array([1, 2, None], dtype="Int32"),
+                  "away_score": pd.array([3, 4, None], dtype="Int32"), "season_type": "Regular Season",
+                  "attendance": 1.0, "notes": "x"}).to_parquet(table)
+    for who in ("tools.research_winprob", "__main__", "tests.test_research_testset"):
+        with pytest.raises(SystemExit):
+            _call_elo_door_as(who, tmp_path)
+    with pytest.raises(SystemExit):
+        R.elo_state_games_2024_25(tmp_path)
+    out = _call_elo_door_as(R.ELO_STATE_MODULE, tmp_path)
+    assert list(out.columns) == list(R.ELO_STATE_COLUMNS)
+    assert list(out["game_id"]) == ["202410220BOS", "202410220LAL"]          # played games only, by date and id
+    bad = tmp_path / "bad"
+    (bad / "collect" / "bref_schedule" / "games").mkdir(parents=True)
+    pd.read_parquet(table).assign(game_id=["202410220BOS", "202310240BOS", "202504150GSW"]).to_parquet(
+        bad / "collect" / "bref_schedule" / "games" / "2024-25.parquet")
+    with pytest.raises(SystemExit):
+        _call_elo_door_as(R.ELO_STATE_MODULE, bad)                               # a game outside 2024-25
+
+
+def test_the_elo_door_function_computes_nothing():
+    import inspect
+    src = inspect.getsource(R.elo_state_games_2024_25)
+    for op in (".mean(", ".sum(", ".std(", ".var(", ".diff(", ".corr(", "home_score -", "away_score -", "print("):
+        assert op not in src, op
+
+
+def test_2024_25_stays_out_of_development_after_d89(pbp_case):
+    path, games, root, ledger = pbp_case
+    R.fix_pbp(root, path, ledger)
+    spent = ["202410220BOS", "202504150GSW", "202506220OKC"]
+    assert R.dev_games(spent + ["202401150BOS"], "t", R.PBP, path) == ["202401150BOS"]
+    for g in spent:
+        with pytest.raises(SystemExit):
+            R.refuse_test([g], "t", R.PBP, path)
