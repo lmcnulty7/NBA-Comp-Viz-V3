@@ -13,7 +13,7 @@ here: the evaluation calls it on the output, as it does on every other arm.
 
 from export.genai import STATUS_WORDS
 
-SHOT_KIND = {"three-point": "3-point", "two-point": "2-point", None: ""}
+SHOT_KIND = {"three-point": "three-point", "two-point": "two-point", None: ""}
 POSITION = {"G": "guard", "F": "forward", "C": "center"}
 
 
@@ -101,9 +101,15 @@ def possession_text(item: dict) -> str:
            "the game clock."]
     points = f["points"]
     unit = "point" if points == "1" else "points"
-    out.append(f"The play lasted {f['duration_s']} seconds and ended in a {c['result']}, worth {points} {unit}."
-               if c["result"] != "other end" else
-               f"The play lasted {f['duration_s']} seconds and was worth {points} {unit}.")
+    if c["result"] == "other end":
+        out.append(f"The play lasted {f['duration_s']} seconds and was worth {points} {unit}.")
+    elif c["result"] == "end of the period":
+        out.append(f"The play lasted {f['duration_s']} seconds and ran to the end of the period, worth {points} "
+                   f"{unit}.")
+    else:
+        out.append(f"The play lasted {f['duration_s']} seconds and ended in {c['result']}, worth {points} {unit}."
+                   if c["result"] == "free throws" else
+                   f"The play lasted {f['duration_s']} seconds and ended in a {c['result']}, worth {points} {unit}.")
     point = False
     shots = c.get("shots") or []
     for j, shot in enumerate(shots):
