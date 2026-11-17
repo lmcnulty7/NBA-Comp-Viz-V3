@@ -7,7 +7,7 @@
 //                  browsers, WCAG 2.2 A and AA rules and axe's best practices, with reduced motion so an
 //                  animation cannot change what is found;
 //   first view     each sampled page loaded --runs times in a fresh context (empty cache) at 1280 px: time to
-//                  DOMContentLoaded, to the load event and to the largest paint, and the bytes fetched before
+//                  DOMContentLoaded, to the load event and to the largest paint, and the bytes received before
 //                  the load event; Chromium on an emulated phone connection and processor (CHROMIUM_THROTTLE);
 //   bundle size    the gzip size of the JavaScript each sampled page's HTML loads (the nomodule fallback aside);
 //   reading        the grade of the site copy (lib/polish.mjs copyGrade), and the problems of check-copy.mjs and
@@ -146,8 +146,22 @@ async function timingPass(browserName, browser, origin, sample, runs) {
   const load = async (route) => {
     let bytes = 0;
     const { context, page, errors, status } = await openPage(browser, `${origin}${route}`, { viewport: TIMING_VIEWPORT }, async (p) => {
+      bytes = 0; // a retried navigation starts its count again
+      // The bytes of the first view, before the load event; what the page fetches after it (route prefetches)
+      // depends on timing and is left out. Chromium counts the body bytes it really received (its network log):
+      // a clip asked for with an open range ("bytes=0-") is answered with the whole rest of the file, and the
+      // browser stops reading once it has what it needs, so a declared length would count megabytes never sent.
+      // WebKit has no such log; its count is the declared lengths, kept in the score for reading but out of the
+      // page weight metric.
+      let loaded = false;
+      p.on("load", () => {
+        loaded = true;
+      });
       if (browserName === "chromium") {
         const cdp = await p.context().newCDPSession(p);
+        cdp.on("Network.dataReceived", (event) => {
+          if (!loaded) bytes += event.dataLength;
+        });
         await cdp.send("Network.enable");
         await cdp.send("Network.emulateNetworkConditions", {
           offline: false,
@@ -157,15 +171,11 @@ async function timingPass(browserName, browser, origin, sample, runs) {
         });
         await cdp.send("Emulation.setCPUThrottlingRate", { rate: CHROMIUM_THROTTLE.cpuSlowdown });
       }
-      // The bytes of the first view: every response that arrived before the load event. What the page fetches
-      // after it (route prefetches) depends on timing, so it is left out.
-      let loaded = false;
-      p.on("load", () => {
-        loaded = true;
-      });
-      p.on("response", (response) => {
-        if (!loaded) bytes += Number(response.headers()["content-length"] ?? 0);
-      });
+      else {
+        p.on("response", (response) => {
+          if (!loaded) bytes += Number(response.headers()["content-length"] ?? 0);
+        });
+      }
       await p.addInitScript(() => {
         window.__lcp = 0;
         try {
@@ -205,6 +215,7 @@ async function timingPass(browserName, browser, origin, sample, runs) {
       lcpMs: lcp === null ? null : round(lcp),
       firstViewMs: round(median(samples.map((s) => s.lcp ?? s.load).filter((v) => typeof v === "number"))),
       kb: round(pick("bytes") / 1024),
+      kbCounted: browserName === "chromium" ? "received" : "declared",
     });
   }
   return { rows, failures };
@@ -239,7 +250,7 @@ async function measureOnce(origin, sample, runs) {
     a11yWeighted,
     firstViewChromiumMs: round(mean(timings.filter((t) => t.browser === "chromium").map((t) => t.firstViewMs))),
     firstViewWebkitMs: round(mean(timings.filter((t) => t.browser === "webkit").map((t) => t.firstViewMs))),
-    pageWeightKb: round(mean(timings.map((t) => t.kb))),
+    pageWeightKb: round(mean(timings.filter((t) => t.browser === "chromium").map((t) => t.kb))),
   };
 }
 

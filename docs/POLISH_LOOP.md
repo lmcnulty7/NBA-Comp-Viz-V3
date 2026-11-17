@@ -31,7 +31,7 @@ the first in natural order, so the sample is the same on every build of the same
 | `firstViewChromiumMs` | Each sampled page loaded 7 times in a fresh context at 1280 px; per page the median time to the largest paint; mean over pages. Chromium runs on an emulated connection and processor (40 ms latency, 10 Mbps down, 4 times slower processor), so the time follows the bytes and the script a page needs. | 0.20 |
 | `firstViewWebkitMs` | The same in WebKit (the load event where it reports no largest paint). WebKit has no such emulation and runs as is, in tens of milliseconds, where the spread from run to run is near a sixth of the value; so it weighs least. | 0.05 |
 | `firstLoadJsKb` | Gzip size of every script the page's HTML loads (the nomodule fallback aside), mean over the sampled pages. Read from `out/`, no browser. | 0.20 |
-| `pageWeightKb` | Bytes of every response before the load event, median over the loads, mean over pages and browsers. | 0.10 |
+| `pageWeightKb` | Body bytes Chromium received before the load event (its network log), median over the loads, mean over pages. A clip asked for with an open range is answered with the rest of the file and read only in part, so declared lengths would overstate it; WebKit has no such log, so its declared count is kept in the score for reading only. | 0.10 |
 | `readingGrade` | Flesch-Kincaid grade (the counter of `check-reading.mjs`) of every sentence of `web/content`, weighted by its words; labels and presenter notes left out. | 0.20 |
 
 The score also records, outside the cost: time to DOMContentLoaded and to the load event per page and browser,
