@@ -620,8 +620,8 @@ def test_lineups_is_a_scored_test_with_two_conditions_read_from_its_final_file(s
                                                              round(r2["ci95"][1], 3))
     assert (condition.bound, condition.comparison, condition.threshold, condition.met) == ("lo", "above", 0, True)
     text = (REPO / "reports/research/lineups-E1.md").read_text(encoding="utf-8")
-    assert len(experiment.writeup_notes) == 2
-    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes)
+    assert len(experiment.writeup_notes) == 5
+    assert all(R.is_sentences(note, R.verdict_paragraph(text)) for note in experiment.writeup_notes[:2])
     assert "1298 of 1300 games" in experiment.writeup_notes[1]
 
 
@@ -674,3 +674,85 @@ def test_the_contract_refuses_a_test_only_reading_the_files_do_not_support(sourc
         S.StageResult(**{**test, "diff": -0.5, "hi": 0.0, "upper": 0.0})
     with pytest.raises(ValidationError, match="a write-up belongs"):
         S.Experiment(**{**experiment, "test": None, "status": "pre_registered"})
+
+
+# ------------------------------------------------------------------------------------------ the second review
+
+
+def _exp(doc, eid):
+    return next(e for lane in doc["lanes"] for e in lane["experiments"] if e["id"] == eid)
+
+
+def _lineups_results(doc):
+    return _exp(doc, "lineups-E1")["results"]
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("main comparison at most where the file says strictly below",
+     lambda d: _lineups_results(d).update(comparison="at_most"), "does not state at most 0"),
+    ("a condition reading the upper end", lambda d: _lineups_results(d)["conditions"][0].update(bound="hi"),
+     "reads the hi end"),
+    ("a condition at least where the file says above",
+     lambda d: _lineups_results(d)["conditions"][0].update(comparison="at_least"), "does not state at least 0"),
+    ("no conditions while the file has a second flag", lambda d: _lineups_results(d).update(conditions=[]),
+     "r2_above_zero_with_interval"),
+    ("a condition without its met key", lambda d: _lineups_results(d)["conditions"][0].pop("met"), "lacks ['met']"),
+    ("no main flag while the file has one", lambda d: _lineups_results(d)["keys"].pop("main_met"),
+     "diff_ci_below_zero"),
+    ("an xfg flag outside the rule left unnamed", lambda d: _exp(d, "xfg-E1")["results"].pop("flags_outside_rule"),
+     "width_p95_under_0_01"),
+    ("decisions adoption read as at most 0.5", lambda d: _exp(d, "decisions-E1")["protocol"]["adoption"][
+        "conditions"][0].update(threshold="at most 0.5"), "does not state 'at most 0.5'"),
+    ("an unknown main comparison", lambda d: _lineups_results(d).update(comparison="under"), "is not at_most or below"),
+    ("a condition without its bound", lambda d: _lineups_results(d)["conditions"][0].pop("bound"), "lacks ['bound']"),
+    ("a condition without its threshold", lambda d: _lineups_results(d)["conditions"][0].pop("threshold"),
+     "lacks ['threshold']"),
+    ("no conditions list", lambda d: _lineups_results(d).pop("conditions"), "no list of further conditions"),
+    ("an unknown condition comparison", lambda d: _lineups_results(d)["conditions"][0].update(comparison="over"),
+     "unknown comparison"),
+])
+def test_the_reviewers_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = R.trace_problems(doc, REPO)
+    if not problems:
+        with pytest.raises(R.MethodsProblem) as caught:
+            R.build_methods(REPO, doc)
+        problems = [str(caught.value)]
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("a test-only experiment naming a development file",
+     lambda d: _lineups_results(d).update(development="reports/research/lineups-E1-dev.json"),
+     "names no development result file"),
+    ("stages beside a protocol", lambda d: _exp(d, "decisions-E1").update(stages="test_only"),
+     "stages and a protocol together"),
+    ("a section note from another section", lambda d: _exp(d, "lineups-E1")["writeup_notes"][2].update(
+        section="Gate"), "the section 'Gate'"),
+    ("a section note cut short", lambda d: _exp(d, "lineups-E1")["writeup_notes"][2].update(
+        text="In both development checks it loses to home court alone. A pass on the first condition is therefore "
+             "close to certain and says little;"), "whole sentences"),
+])
+def test_the_trace_refuses_a_shape_the_files_do_not_support(source, name, change, message):
+    problems = _problems_after(source, change)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_lineups_quotes_the_commitments_and_the_dropped_games_word_for_word(source):
+    notes = _lineups(R.build_methods(REPO, source)).writeup_notes
+    assert len(notes) == 5
+    assert any("the informative condition is R squared against the floor" in note for note in notes)
+    assert any("is a deviation from the pre-registration's \"all test games\"" in note for note in notes)
+    assert any("The frozen builder dropped 16 whole" in note and "1316 listed" in note for note in notes)
+    final = json.loads((REPO / LIN_FINAL).read_text(encoding="utf-8"))
+    assert (final["test_games_listed"], final["games_dropped_shifted_periods"], final["games"]) == (1316, 16, 1300)
+
+
+def test_the_states_helper_reads_a_comparison_right_before_its_threshold():
+    assert R.states("interval wholly below 0, and above 0 with its interval", "below", 0)
+    assert R.states("an upper bound of at most +0.0005", "at_most", 0.0005)
+    assert R.states("stability >= 0.5 with", "at_least", 0.5)
+    assert not R.states("interval wholly below 0", "at_most", 0)
+    assert not R.states("stability >= 0.5", "at_most", 0.5)
+    assert not R.states("below 0.25", "below", 0.2)

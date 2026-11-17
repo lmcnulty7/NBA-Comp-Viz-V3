@@ -234,7 +234,11 @@
         "value": "interval_width.p95",
         "digits": 4
        }
-      ]
+      ],
+      "conditions": [],
+      "flags_outside_rule": {
+       "verdict.width_p95_under_0_01": "the site copy rule fixed in the pre-registration (whether xFG is shown as a point estimate), not the adoption rule"
+      }
      },
      "writeup": "reports/research/xfg-E1.md"
     },
@@ -1594,7 +1598,7 @@
         "digits": 2
        },
        {
-        "label": "Ablation: replacement-level players minus RAPM, paired RMSE difference (points)",
+        "label": "Ablation, read by no verdict: replacement-level players minus RAPM, paired RMSE difference (points)",
         "value": "whole_game.paired.replacement_minus_rapm.point",
         "lo": "whole_game.paired.replacement_minus_rapm.ci95.0",
         "hi": "whole_game.paired.replacement_minus_rapm.ci95.1",
@@ -1620,7 +1624,19 @@
      "stages": "test_only",
      "writeup_notes": [
       "Read as pre-committed: this is a tested claim about game margin, given the actual stints of each game, which a pregame forecast would not know. It does not validate lineup ranks, synergy, any one lineup or player, or the gap between two players; the lane's lineup-rank result stays inconclusive.",
-      "One possible data fault is reported beside it (commitment 9): the stint margin agrees with the schedule table in 1298 of 1300 games, not all."
+      "One possible data fault is reported beside it (commitment 9): the stint margin agrees with the schedule table in 1298 of 1300 games, not all.",
+      {
+       "section": "Commitments before the test score",
+       "text": "In both development checks it loses to home court alone. A pass on the first condition is therefore close to certain and says little; the informative condition is R squared against the floor."
+      },
+      {
+       "section": "Commitments before the test score",
+       "text": "Leaving out the builder-dropped games is a deviation from the pre-registration's \"all test games\", stated here; on the development seasons it is 9 to 12 games a season."
+      },
+      {
+       "section": "Test season (2025-26, scored once)",
+       "text": "Games: 1316 listed, all with play-by-play. The frozen builder dropped 16 whole (shifted period labels), so 1300 are scored; no listed game lacked play-by-play, no game was built without stints, and no game carries a non-finite value."
+      }
      ]
     },
     {
