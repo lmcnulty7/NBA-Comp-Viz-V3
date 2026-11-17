@@ -175,11 +175,15 @@ def experiment_bullets(text: str) -> dict:
 
 
 def _path_value(doc: dict, path: str):
+    """The value at a dotted path of a result file; a whole-number segment indexes a list (an interval's ends)."""
     value = doc
     for key in path.split("."):
-        if not isinstance(value, dict) or key not in value:
+        if isinstance(value, list) and key.isdigit() and int(key) < len(value):
+            value = value[int(key)]
+        elif isinstance(value, dict) and key in value:
+            value = value[key]
+        else:
             raise MethodsProblem(f"the result file has no {path}")
-        value = value[key]
     return value
 
 
@@ -283,6 +287,9 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             for key in want:
                 if want[key] != have[key]:
                     problems.append(f"{eid}: {key} is {have[key]!r}, {source['backlog']} says {want[key]!r}")
+            writeup = exp.get("writeup")
+            if writeup is not None and (not writeup.startswith("reports/research/") or not (repo / writeup).is_file()):
+                problems.append(f"{eid}: the write-up {writeup!r} is not a file under reports/research/")
             results = exp.get("results")
             if results:
                 if _flat(results["interval"]) != bullets.get(eid, {}).get("interval"):
@@ -377,7 +384,10 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                 id=exp["id"], title=exp["title"], what=exp["what"], hypothesis=exp["hypothesis"],
                 threshold=exp["threshold"], rank=exp["rank"], gain=exp["gain"], effort=exp["effort"],
                 test_data=exp["test_data"], backlog_status=exp["backlog_status"], status=_status(dev, test),
-                development=dev, test=test))
+                writeup=exp.get("writeup"), development=dev, test=test))
+            if exp.get("writeup"):
+                sources.append(S.Source(path=exp["writeup"], what="the write-up of an experiment that has run",
+                                        rows="not_split"))
         lanes.append(S.MethodsLane(
             lane=lane["lane"], dossier=lane["dossier"], report=lane["report"],
             foundations=[S.Paper(**paper) for paper in lane["foundations"]], benchmarks=benchmarks,

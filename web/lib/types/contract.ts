@@ -915,7 +915,7 @@ export interface OurValue {
  * fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
  * `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
  * pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
- * needs the rule met on both.
+ * needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.
  *
  * This interface was referenced by `SiteContract`'s JSON-Schema
  * via the `definition` "Experiment".
@@ -937,6 +937,7 @@ export interface Experiment {
     | "not_adopted_development"
     | "adopted"
     | "not_adopted_test";
+  writeup?: string | null;
   development?: StageResult | null;
   test?: StageResult | null;
 }

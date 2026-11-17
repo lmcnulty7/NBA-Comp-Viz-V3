@@ -1,5 +1,6 @@
 import { DataText } from "@/components/results/DataValue";
-import { copy } from "@/lib/copy";
+import { RepoPath } from "@/components/results/Sources";
+import { copy, fillNodes } from "@/lib/copy";
 import type { MethodsFile } from "@/lib/types/contract";
 import styles from "./methods.module.css";
 import { ExperimentStatus, FILE, StageFacts, laneName } from "./parts";
@@ -48,6 +49,18 @@ export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
                 </p>
                 <p>
                   <ExperimentStatus experiment={experiment} />
+                </p>
+                <p className="small">
+                  {fillNodes(text.listed, {
+                    status: (
+                      <DataText file={FILE} field={`${field}.backlog_status`} text={experiment.backlog_status} />
+                    ),
+                  })}
+                  {experiment.writeup ? (
+                    <span className="note">
+                      {fillNodes(text.writeup, { path: <RepoPath path={experiment.writeup} /> })}
+                    </span>
+                  ) : null}
                 </p>
                 {experiment.development ? (
                   <StageFacts stage={experiment.development} field={`${field}.development`} />

@@ -1115,7 +1115,7 @@ class Experiment(Strict):
     fixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and
     `backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is
     pre_registered (not run); a development result that meets the rule waits for its single test score; adoption
-    needs the rule met on both."""
+    needs the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/."""
 
     id: str = Field(pattern=r"^[a-z]+-E\d+$")
     title: str = Field(min_length=1)
@@ -1128,6 +1128,7 @@ class Experiment(Strict):
     test_data: str = Field(min_length=1)
     backlog_status: str = Field(min_length=1)
     status: ExperimentStatus
+    writeup: Optional[str] = None
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
 
@@ -1400,6 +1401,9 @@ def _content_problems(relpath: str, obj, synthetic: bool) -> list[str]:
                     problems.append(f"{relpath}: lane {lane.lane}: a number of ours comes from a report under "
                                     f"reports/ and never from the test set, not {bad}")
             for experiment in lane.experiments:
+                if experiment.writeup is not None and not experiment.writeup.startswith("reports/research/"):
+                    problems.append(f"{relpath}: {experiment.id} names its write-up {experiment.writeup!r}, not a "
+                                    "file under reports/research/")
                 for stage in (experiment.development, experiment.test):
                     if stage is not None and not stage.source.path.startswith("reports/research/"):
                         problems.append(f"{relpath}: {experiment.id} reads its result from "

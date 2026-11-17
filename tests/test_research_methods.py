@@ -63,16 +63,22 @@ def test_only_the_pilot_has_a_result_and_every_other_test_is_pre_registered(sour
     assert set(others.values()) == {"pre_registered"}
     assert all(e.development is None and e.test is None for eid, e in states.items() if eid != "xfg-E1")
     pilot = states["xfg-E1"]
-    dev = json.loads((REPO / "reports/research/xfg-E1-dev.json").read_text(encoding="utf-8"))
-    final_exists = (REPO / "reports/research/xfg-E1-final.json").exists()
-    assert pilot.development is not None and pilot.development.met is bool(dev["verdict"]["adopt"])
-    assert pilot.development.rows == dev["shots"] and pilot.development.games == dev["games"]
-    paired = dev["paired_cvap_minus_iso"]
-    assert (pilot.development.diff, pilot.development.lo, pilot.development.hi) == tuple(
-        round(paired[k], 5) for k in ("diff", "lo", "hi"))
-    assert pilot.development.threshold == dev["verdict"]["threshold"]
-    if not final_exists:
-        assert pilot.test is None and pilot.status == "development_met_test_pending"
+    final = REPO / "reports/research/xfg-E1-final.json"
+    for stage, path in ((pilot.development, REPO / "reports/research/xfg-E1-dev.json"), (pilot.test, final)):
+        if not path.exists():
+            assert stage is None and pilot.status == "development_met_test_pending"
+            continue
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        assert stage is not None and stage.met is bool(doc["verdict"]["passes_threshold"])
+        assert stage.rows == doc["shots"] and stage.games == doc["games"]
+        paired = doc["paired_cvap_minus_iso_shot_weighted"]
+        assert (stage.diff, stage.lo, stage.hi) == tuple(round(paired[k], 5) for k in ("diff", "lo", "hi"))
+        assert stage.threshold == doc["verdict"]["threshold"] and stage.upper == round(doc["verdict"]["upper_95"], 5)
+        assert stage.met == (stage.upper <= stage.threshold)
+    if final.exists():
+        # the single test score (PLAN.md D80): met on the development games, not on the test set, so not adopted
+        assert (pilot.development.met, pilot.test.met, pilot.status) == (True, False, "not_adopted_test")
+        assert pilot.writeup == "reports/research/xfg-E1.md" and pilot.test.source.rows == "testset"
 
 
 def test_every_number_of_ours_is_on_one_line_of_its_report(source):
@@ -174,10 +180,13 @@ def _repo_copy(tmp_path, source) -> Path:
     """A copy of the files the source reads, so a test can add a result file without touching the repository."""
     repo = tmp_path / "repo"
     shutil.copytree(REPO / "docs" / "research", repo / "docs" / "research")
-    names = {R.SOURCE, "reports/research/xfg-E1-dev.json"}
+    names = {R.SOURCE}
     for lane in source["lanes"]:
         names.add(lane["report"])
         names.update(v["source"] for row in lane["benchmarks"] for v in row["ours"])
+        for experiment in lane["experiments"]:
+            names.update(n for n in [experiment.get("writeup")] + list((experiment.get("results") or {}).get(
+                stage) for stage in ("development", "test")) if n and (REPO / n).exists())
     for name in names:
         (repo / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(REPO / name, repo / name)
@@ -199,8 +208,8 @@ def test_a_test_set_result_is_picked_up_when_its_file_appears(source, tmp_path):
     final.write_text(json.dumps(doc), encoding="utf-8")
     pilot = _pilot(R.build_methods(repo, source))
     assert pilot.status == "adopted" and pilot.test.rows == 1700 and pilot.test.source.rows == "testset"
-    doc["paired_cvap_minus_iso"].update(lo=-0.0002, diff=0.0004, hi=0.0011)
-    doc["verdict"].update(upper_95=0.0011, adopt=False)
+    doc["paired_cvap_minus_iso_shot_weighted"].update(lo=-0.0002, diff=0.0004, hi=0.0011)
+    doc["verdict"].update(upper_95=0.0011, passes_threshold=False)
     final.write_text(json.dumps(doc), encoding="utf-8")
     pilot = _pilot(R.build_methods(repo, source))
     assert pilot.status == "not_adopted_test" and not pilot.test.met and pilot.test.upper == 0.0011
@@ -210,20 +219,22 @@ def test_a_development_result_that_misses_its_bar_is_not_adopted(source, tmp_pat
     repo = _repo_copy(tmp_path, source)
     path = repo / "reports/research/xfg-E1-dev.json"
     doc = json.loads(path.read_text(encoding="utf-8"))
-    doc["paired_cvap_minus_iso"].update(lo=-0.0001, diff=0.0003, hi=0.0009)
-    doc["verdict"].update(upper_95=0.0009, adopt=False)
+    doc["paired_cvap_minus_iso_shot_weighted"].update(lo=-0.0001, diff=0.0003, hi=0.0009)
+    doc["verdict"].update(upper_95=0.0009, passes_threshold=False)
     path.write_text(json.dumps(doc), encoding="utf-8")
     pilot = _pilot(R.build_methods(repo, source))
-    assert pilot.status == "not_adopted_development" and pilot.test is None
+    # a test score that exists is still shown, but adoption needs the bar met on the development games first
+    assert pilot.status == "not_adopted_development" and not pilot.development.met
+    assert (pilot.test is not None) == (repo / "reports/research/xfg-E1-final.json").exists()
 
 
 def test_a_result_file_without_a_named_key_is_a_problem(source, tmp_path):
     repo = _repo_copy(tmp_path, source)
     path = repo / "reports/research/xfg-E1-dev.json"
     doc = json.loads(path.read_text(encoding="utf-8"))
-    del doc["paired_cvap_minus_iso"]
+    del doc["paired_cvap_minus_iso_shot_weighted"]
     path.write_text(json.dumps(doc), encoding="utf-8")
-    with pytest.raises(R.MethodsProblem, match="paired_cvap_minus_iso"):
+    with pytest.raises(R.MethodsProblem, match="paired_cvap_minus_iso_shot_weighted"):
         R.build_methods(repo, source)
 
 
@@ -243,6 +254,8 @@ def test_the_contract_refuses_a_status_the_results_do_not_support(source):
     with pytest.raises(ValidationError, match="the results say"):
         S.Experiment(**{**pilot, "status": "adopted"})
     with pytest.raises(ValidationError, match="the results say"):
+        S.Experiment(**{**pilot, "test": None})
+    with pytest.raises(ValidationError, match="scored after the development result"):
         S.Experiment(**{**pilot, "development": None})
     other = next(e for lane in methods.lanes for e in lane.experiments if e.status == "pre_registered").model_dump()
     with pytest.raises(ValidationError, match="the results say"):

@@ -46,7 +46,9 @@
     "games": "{n} games",
     "method": "How the range was found",
     "file": "Read from {path}",
-    "more": "More numbers from the same run"
+    "more": "More numbers from the same run",
+    "writeup": "Write-up: {path}",
+    "listed": "In the list of tests: {status}"
   },
   "lane": {
     "foundations": "Built on",

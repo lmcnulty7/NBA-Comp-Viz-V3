@@ -896,7 +896,7 @@
     },
     "Experiment": {
       "additionalProperties": false,
-      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both.",
+      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.",
       "properties": {
         "id": {
           "pattern": "^[a-z]+-E\\d+$",
@@ -960,6 +960,18 @@
           ],
           "title": "Status",
           "type": "string"
+        },
+        "writeup": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Writeup"
         },
         "development": {
           "anyOf": [

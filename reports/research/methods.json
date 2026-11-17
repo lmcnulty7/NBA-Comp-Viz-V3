@@ -182,9 +182,9 @@
      "gain": 3,
      "effort": 2,
      "test_data": "Set A",
-     "backlog_status": "the pilot: passed on development games (reports/research/xfg-E1-dev.json); test score pending",
+     "backlog_status": "done: not adopted (passed on development games, inconclusive on the 10-game test set; reports/research/xfg-E1.md)",
      "results": {
-      "metric": "Paired difference in log loss, cross Venn-Abers minus the frozen isotonic step",
+      "metric": "Paired difference in log loss, cross Venn-Abers minus the frozen isotonic step, shot-weighted",
       "rows_unit": "shots",
       "interval": "Bootstrap by game, 2000 resamples, 95 percent percentile interval of the per-game log loss difference.",
       "development": "reports/research/xfg-E1-dev.json",
@@ -192,30 +192,41 @@
       "keys": {
        "rows": "shots",
        "games": "games",
-       "diff": "paired_cvap_minus_iso.diff",
-       "lo": "paired_cvap_minus_iso.lo",
-       "hi": "paired_cvap_minus_iso.hi",
+       "diff": "paired_cvap_minus_iso_shot_weighted.diff",
+       "lo": "paired_cvap_minus_iso_shot_weighted.lo",
+       "hi": "paired_cvap_minus_iso_shot_weighted.hi",
        "threshold": "verdict.threshold",
        "upper": "verdict.upper_95",
-       "met": "verdict.adopt"
+       "met": "verdict.passes_threshold"
       },
       "digits": 5,
       "values": [
        {
         "label": "Log loss, frozen isotonic step",
         "value": "arms.p_iso.log_loss",
+        "lo": "arm_intervals_95.p_iso.log_loss.0",
+        "hi": "arm_intervals_95.p_iso.log_loss.1",
         "digits": 4
        },
        {
         "label": "Log loss, cross Venn-Abers",
         "value": "arms.p_cvap.log_loss",
+        "lo": "arm_intervals_95.p_cvap.log_loss.0",
+        "hi": "arm_intervals_95.p_cvap.log_loss.1",
         "digits": 4
        },
        {
-        "label": "Ablation: single-split Venn-Abers minus isotonic, paired log loss difference",
-        "value": "paired_ivap_minus_iso.diff",
-        "lo": "paired_ivap_minus_iso.lo",
-        "hi": "paired_ivap_minus_iso.hi",
+        "label": "Sensitivity check: t interval on the per-game mean differences, cross Venn-Abers minus isotonic",
+        "value": "t_interval_cvap_minus_iso_per_game.mean_of_game_means",
+        "lo": "t_interval_cvap_minus_iso_per_game.lo",
+        "hi": "t_interval_cvap_minus_iso_per_game.hi",
+        "digits": 5
+       },
+       {
+        "label": "Ablation: single-split Venn-Abers minus isotonic, paired log loss difference, shot-weighted",
+        "value": "paired_ivap_minus_iso_shot_weighted.diff",
+        "lo": "paired_ivap_minus_iso_shot_weighted.lo",
+        "hi": "paired_ivap_minus_iso_shot_weighted.hi",
         "digits": 5
        },
        {
@@ -224,7 +235,8 @@
         "digits": 4
        }
       ]
-     }
+     },
+     "writeup": "reports/research/xfg-E1.md"
     },
     {
      "id": "xfg-E2",
