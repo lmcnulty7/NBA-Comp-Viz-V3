@@ -62,8 +62,9 @@ def jobs_for(tag: str, g: dict, P: dict, n_sections: int, max_sections=None) -> 
         J.append(("link", ["tools.p8_frozen", "link", tag], False, 0.0))
     else:
         J += [("split", ["tools.p8_frozen", "split", tag], False, 0.02),
-              ("moments", ["tools.p8_frozen", "moments", tag], False, 0.02),
-              ("layout", ["tools.p8_frozen", "layout", tag], True, LAYOUT_H)]
+              ("moments", ["tools.p8_frozen", "moments", tag], False, 0.02)]
+        if not g.get("layout"):            # a layout fixed by hand in the registry needs no automatic check
+            J.append(("layout", ["tools.p8_frozen", "layout", tag], True, LAYOUT_H))
         J += [(f"sync {s}", ["tools.p8_frozen", "sync", tag, "--section", s], True, 600 * OCR_S_PER_READ / 3600) for s in secs]
         J += [(f"direction {s}", ["tools.p8_frozen", "direction", tag, "--section", s], True, DIRECTION_S_PER_SECTION / 3600) for s in secs]
         J.append(("mirror", ["tools.p8_frozen", "mirror", tag], False, 0.02))

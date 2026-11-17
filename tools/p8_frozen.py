@@ -139,6 +139,37 @@ def inject_layouts() -> None:
                                          if box.get("alternates") else {})}
 
 
+PERIOD_WORDS = (("FIR", 1), ("SEC", 2), ("THI", 3), ("FOU", 4), ("OV", 5), ("OT", 5))
+WORD_ALLOW = "FIRSTECONDHUROVQ"
+
+
+def period_from_words(text: str):
+    """1..5 from a period written as a word (FIRST, SECOND, THIRD, FOURTH, OT or OVERTIME); None otherwise."""
+    t = "".join(ch for ch in text.upper() if ch.isalpha())
+    for prefix, p in PERIOD_WORDS:
+        if t.startswith(prefix):
+            return p
+    return None
+
+
+def make_reader(layout_name: str):
+    """clock_reader.ClockReader for the layout. A layout whose registry entry says period_words reads the period as a
+    word with its own allowlist (the frozen reader reads digits only); the clock is parsed by the frozen code."""
+    from clock_reader import ClockReader
+    inject_layouts()
+    reg = json.loads((REPO / "reports" / "research" / "p8_registry.json").read_text())
+    if not (reg.get("layouts") or {}).get(layout_name, {}).get("period_words"):
+        return ClockReader(layout_name)
+
+    class WordPeriodReader(ClockReader):
+        def _read_boxes(self, frame_bgr, period_box, clock_box):
+            _, clock, raw = super()._read_boxes(frame_bgr, period_box, clock_box)
+            words = self._ocr(frame_bgr, period_box, WORD_ALLOW)
+            return period_from_words(words), clock, f"{words}|{raw}"
+
+    return WordPeriodReader(layout_name)
+
+
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -247,7 +278,7 @@ def step_sync(P: dict, tag: str, section: str) -> dict:
     out = P["sync"] / f"{section}_local_timemap.json"
     if out.exists():
         return {"cached": True}
-    tm = build_local_timemap(section, ClockReader(layout_of(P, tag)), vid=P["video"] / f"{section}.mp4")
+    tm = build_local_timemap(section, make_reader(layout_of(P, tag)), vid=P["video"] / f"{section}.mp4")
     part = out.with_suffix(".part")
     part.write_text(json.dumps(tm))
     part.replace(out)
@@ -267,7 +298,7 @@ def step_direction(P: dict, tag: str, section: str) -> dict:
     from sportvu.rebuild import build, cut
     game_of(tag)
     inject_layouts()
-    reader = ClockReader(layout_of(P, tag))
+    reader = make_reader(layout_of(P, tag))
     done = 0
     for w in _windows(P, section, BUDGET_S):
         snip = cut(w, out_dir=P["direction"])
@@ -312,7 +343,7 @@ def step_label(P: dict, tag: str, section: str) -> dict:
     from sportvu.rebuild import build, cut
     game_of(tag)
     inject_layouts()
-    reader = ClockReader(layout_of(P, tag))
+    reader = make_reader(layout_of(P, tag))
     out = {"windows": 0, "built": 0}
     for w in label_windows(P, tag, section):
         snip = cut(w, out_dir=P["label_build"])

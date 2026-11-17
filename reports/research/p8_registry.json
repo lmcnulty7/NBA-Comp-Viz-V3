@@ -63,20 +63,6 @@
     "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
    }
   },
-  "por_okc": {
-   "video_id": "UiAdZkI4tb0",
-   "title_matchup": "Thunder at Trail Blazers",
-   "home": "POR",
-   "away": "OKC",
-   "candidates": [
-    "01.10.2016.OKC.at.POR"
-   ],
-   "other_meetings_outside_window": [
-    "2016-04-06"
-   ],
-   "status": "pending",
-   "sportvu": null
-  },
   "was_ind": {
    "video_id": "Td8GojYg1FM",
    "title_matchup": "Pacers at Wizards",
@@ -169,6 +155,38 @@
    "date": "2015-12-06",
    "layout": "fso15_720",
    "layout_note": "the Fox Sports Oklahoma strip has the same geometry as the registered fso15_720 (Fox Sports Ohio); clock_reader read 2nd 10:47 on the check frame"
+  },
+  "por_okc_2016": {
+   "video_id": "UiAdZkI4tb0",
+   "title_matchup": "Thunder at Trail Blazers",
+   "home": "POR",
+   "away": "OKC",
+   "candidates": [
+    "01.10.2016.OKC.at.POR"
+   ],
+   "other_meetings_outside_window": [
+    "2016-04-06"
+   ],
+   "status": "confirmed",
+   "sportvu": "01.10.2016.OKC.at.POR",
+   "scorebug_check": {
+    "video_s": 1500.0,
+    "read": {
+     "period": 2,
+     "clock": "10:31",
+     "away": 29,
+     "home": 28
+    },
+    "candidates": {
+     "01.10.2016.OKC.at.POR": "score matches"
+    },
+    "by": "P8 measurement teammate (Claude Code), frame read by eye",
+    "date": "2026-11-17",
+    "method": "one frame read by eye; score after the play-by-play events at that period and clock (tools.p8_scorebug)"
+   },
+   "date": "2016-01-10",
+   "layout": "csn_nw15_720",
+   "layout_note": "new hand calibration csn_nw15_720 (registry layouts); the period is a word, read by tools.p8_frozen.make_reader"
   }
  },
  "layouts": {
@@ -186,6 +204,22 @@
     651
    ],
    "measured_on": "nyk_bos_2016 frame at 1500 s (2nd 9:07), 4x pixel crop, 2026-11-17; MSG Networks right-hand bug, period box stops before the ND superscript"
+  },
+  "csn_nw15_720": {
+   "period_box": [
+    594,
+    659,
+    684,
+    673
+   ],
+   "clock_box": [
+    588,
+    637,
+    648,
+    659
+   ],
+   "period_words": true,
+   "measured_on": "por_okc_2016 frame at 1500 s (SECOND QTR 10:31), 5x pixel crop, 2026-11-17; lower-centre strip, the period is written as a word under the clock"
   }
  }
 }

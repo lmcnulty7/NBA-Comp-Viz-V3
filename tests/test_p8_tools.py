@@ -107,3 +107,18 @@ def test_install_paths_points_every_frozen_output_at_the_workspace(tmp_path):
     finally:
         for (m, a), v in saved.items():
             setattr(m, a, v)
+
+
+def test_period_words_map_to_periods():
+    from tools.p8_frozen import period_from_words
+    assert [period_from_words(w) for w in ("FIRST QTR", "SECONDQTR", "third", "FOURTH", "OT", "OVERTIME", "2ND", "")] \
+        == [1, 2, 3, 4, 5, 5, None, None]
+
+
+def test_registry_layouts_never_shadow_a_frozen_layout():
+    import clock_reader
+    reg = C.load_registry()
+    assert not set(reg.get("layouts") or {}) & set(clock_reader.LAYOUTS)
+    for t, g in reg["games"].items():
+        if g.get("layout"):
+            assert g["layout"] in clock_reader.LAYOUTS or g["layout"] in reg["layouts"], t
