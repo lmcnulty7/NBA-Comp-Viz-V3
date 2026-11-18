@@ -243,6 +243,35 @@ showed are fixed here, before the one test score, and change no threshold or rea
   number. The frozen items are unchanged: both checkers run on them as built. Before this amendment, on the dev
   items, the template passes 6 of 40 scouting and 240 of 240 possession texts under the primary checker (dev only;
   no test item read).
+- Amendments after the ml-review of the E2 code (2026-11-17, before any training run; lead's decisions with the
+  reasons here):
+  - (a) Why the primary checker changed, and when. It was chosen after genai-E1 had shown, on it, Haiku 65 of 81
+    and the template 36 of 81 on the test players. The reason is that it is the checker the site's texts now pass
+    (D93) and it sees wrong meanings with right digits that the freeze checker misses (E1). The choice was made
+    before any E2 arm produced a text, and it does not favour one E2 arm over another; it does make every E2 pass
+    rate harder to reach than under the freeze checker, which is reported beside it.
+  - (b) H3 is read against the Haiku cache arm (the kept text of the latest cache record for the item's input), the
+    fairer of E1's two Haiku arms: the snapshot arm also lost texts to checks added after the calls. The snapshot
+    arm is reported beside it and decides nothing.
+  - (c) Repair-loop asymmetry, stated, not removed. The small model's second attempt sees the primary checker's
+    problems. Haiku's texts came from up to 2 attempts per call whose feedback came from the checker of that day,
+    and some players were asked again under later prompt versions and call settings (E1, first-attempt table), so
+    Haiku as delivered had more tries than 2. H3 compares delivered outputs, not equal effort.
+  - (d) H4 is read on two numbers, both in code: the pass rate (as before) and the number_value failure rate (A3
+    minus its arm; a lower bound below 0 of the difference reads "fewer wrong numbers").
+  - (e) Epoch choice weighs the two kinds equally: the dev pass rate of an epoch is the mean of the scouting and the
+    possession dev pass rates (pooled, the 240 dev possessions would outweigh the 40 dev players 6 to 1). The same
+    mean decides the dev-best arm for A3 and the round-2 rule.
+  - (f) A3 takes its arm from the rule: the arm with the highest mean dev pass rate among the chosen A1 epoch and
+    the last A2 round. No flag chooses it.
+  - (g) Training targets and few-shot examples are kept only when they pass the primary checker; the number dropped
+    per kind is recorded in the run state and in the dev json.
+  - (h) RFT round 2 runs only when the mean over kinds of (A2 round 1 minus the chosen A1 epoch) dev pass rate is at
+    least 0.03; the code refuses round 2 otherwise.
+  - (i) The test stage refuses to run unless reports/research/genai-E2-0.5B-dev.json is tracked by git and has no
+    uncommitted change; the final json records its sha256 and the HEAD commit. Each arm's test texts are saved
+    outside the repository as each arm finishes. The exact test path is rehearsed once on the dev items (the same
+    function, without the ledger) before the one test call.
 - Decoding for every score: greedy, at most 320 new tokens, one attempt (primary). Secondary: a repair loop as P3's
   (one more attempt with the checker's problems in the prompt, at most 2 in all), which is the fair comparison with
   the Haiku texts as delivered.
@@ -267,11 +296,16 @@ showed are fixed here, before the one test score, and change no threshold or rea
   text and tokens per second on the M5 (MPS); peak memory (MPS driver and process); training wall time; texts
   produced; cost per 1,000 texts as electricity is not measured, so the cost is stated as $0 in API spend and as
   lock time.
-- Human-labelled faithfulness sample (a protocol, run later). 50 test texts of the dev-best arm that pass the
-  checker, drawn by a seeded generator, mixed blind with 25 Haiku and 25 template texts. Each sentence is labelled
-  with the error categories of Thomson and Reiter's protocol for data-to-text accuracy (section 2), by at least 2
-  readers, disagreements settled by a third. Read as the share of passing texts with at least one error the checker
-  missed, with a Wilson 95 percent interval. This measures what the checker cannot see.
+- Human-labelled faithfulness sample (a protocol, run later; tightened after the ml-review). Kind: scouting, where
+  D93's hand-read found errors the checks cannot see (possession: 0 of 15). Texts: 50 test texts of the 0.5B
+  dev-best arm that pass the primary checker, drawn by a seeded generator, mixed blind with 25 Haiku cache-arm texts
+  and 25 template texts that also pass it (if fewer pass, all that pass, and the count is reported). Readers: at
+  least 2 who did not write or tune the template, the prompts or the checker. Each reader marks every sentence
+  with the error categories of Thomson and Reiter (section 2), and counts wrong attributions exactly as
+  docs/GENAI_HAND_READ.md defines them (D93), so the count stands next to D93's 3 of 15. Agreement on "the text
+  has at least one error" is reported (raw agreement and Cohen's kappa) before any disagreement is settled; a third
+  reader then settles them. Read as the share of passing texts with at least one error, and the share with a wrong
+  attribution, each with a Wilson 95 percent interval, per arm.
 - Data. No held-out game is used to train, tune or evaluate (D92). Scouting rows are descriptive training-game
   tables; possession rows are training games with out-of-fold model values. No API call.
 - Compute. 16 GB Mac (Apple M5, MPS), one job at a time under the heavy-job lock, weights read from the local cache.
