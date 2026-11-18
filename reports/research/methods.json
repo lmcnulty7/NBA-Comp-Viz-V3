@@ -2021,8 +2021,10 @@
      "gain": 2,
      "effort": 1,
      "test_data": "2025-26 season",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (E1 plus a forward temperature minus E1, mean bucket ECE 0.0038 [-0.0021, 0.0068] on 2605 development games; the forward temperature is 0.894, 0.955, 1.046 across 2021-22 to 2023-24, so the miscalibration does not carry forward as one temperature; the test season was not scored; reports/research/winprob-E2.md)",
+     "results": null,
+     "writeup": "reports/research/winprob-E2.md",
+     "result_in_writeup": true
     }
    ]
   },
