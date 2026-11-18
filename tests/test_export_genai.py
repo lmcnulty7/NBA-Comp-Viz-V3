@@ -541,3 +541,29 @@ def test_a_hand_read_sheet_draws_with_a_fixed_seed_and_leaves_out_texts_read_bef
     assert not set(later) & set(first)
     with pytest.raises(genai.GenaiProblem):
         genai.hand_read_sheet(root, "scouting", 99, tmp_path / "d.csv")
+
+
+def test_prune_drops_stale_and_failing_texts_with_no_call_and_counts_them(root, capsys):
+    """The safety step of a deploy (python3 -m export.genai --prune): a stale text and a text a check refuses are
+    dropped, the rest stay, the root validates, and the counts come per kind and per rule."""
+    scouting = S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes())
+    stale_key, failing_key = scouting.items[0].key, scouting.items[1].key
+
+    def make_failing(doc):
+        item = next(i for i in doc["items"] if i["key"] == failing_key)
+        item["text"] += " He won his matchup."
+    _rewrite(root, "genai/scouting.json", make_failing)
+
+    def make_stale(doc):
+        next(p for p in doc["players"] if p["slug"] == stale_key)["games"] += 1
+    _rewrite(root, "players.json", make_stale)
+    assert S.validate_tree(root) != []
+    assert genai.main(["--root", str(root), "--prune"]) == 0
+    out = capsys.readouterr().out
+    before = len(scouting.items)
+    assert f"scouting: {before} texts, kept {before - 2}, stale 1, failing 1 (by rule: lanes 1)" in out
+    assert "data root valid with its texts" in out
+    kept = {t.key for t in S.GeneratedTexts.model_validate_json((root / "genai/scouting.json").read_bytes()).items}
+    assert stale_key not in kept and failing_key not in kept
+    assert S.validate_tree(root) == []
+    assert genai.prune_root(root)["kinds"]["scouting"]["kept"] == before - 2

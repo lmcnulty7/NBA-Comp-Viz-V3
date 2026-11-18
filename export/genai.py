@@ -1,6 +1,7 @@
 """export/genai.py: machine-written texts, made when the site data is built (PLAN.md P3, D76).
 
     python3 -m export.genai --root <data root> [--players N] [--possessions N | --all] [--live] [--cache <dir>]
+    python3 -m export.genai --root <data root> --prune
     python3 -m export.genai --root <data root> --withhold scouting --out <copy for a deploy>
     python3 -m export.genai --root <data root> --kinds scouting --hand-read 30 --out <sheet.csv> [--exclude <keys>]
 
@@ -1470,6 +1471,52 @@ def hand_read_sheet(root, kind: str, n: int, out, seed: int = HAND_READ_SEED, ex
 # ------------------------------------------------------------------------------------------------------- run
 
 
+CHECK_RULES = (("numbers", lambda text, item, facts: check_numbers(text, facts, item["names"])[0]),
+               ("directions", lambda text, item, facts: check_directions(text, facts, item["names"])),
+               ("subjects", lambda text, item, facts: check_subjects(text, facts, item["names"])),
+               ("status", lambda text, item, facts: check_status(text, item)),
+               ("lanes", lambda text, item, facts: check_lanes(text, item["names"])),
+               ("words", lambda text, item, facts: check_words(text)))
+
+
+def prune_root(root: Path) -> dict:
+    """Drop every text of the root that is stale (its item is gone or its input changed) or fails a check of today
+    (check_text), with no model call, and write the genai files and the manifest again. Returns, per kind, the
+    count before, kept and stale, and the count of texts failing each rule (a text may fail several). The notes
+    count the kept texts per call setting (their `call` field). The root is validated afterwards."""
+    root = Path(root)
+    manifest = _load(root, "manifest.json", S.Manifest)
+    info = {"kinds": {}}
+    for kind, rel in S.GENAI_FILES.items():
+        if not (root / rel).exists():
+            continue
+        texts = _load(root, rel, S.GeneratedTexts).items
+        builders = {item[0]: item[1] for item in items_of(root, kind)}
+        kept, stale, rules, failing = [], 0, {}, 0
+        for text in texts:
+            item = builders[text.key]() if text.key in builders else None
+            if item is None or input_sha256(item) != text.input_sha256:
+                stale += 1
+                continue
+            facts = _facts(item)
+            failed = [name for name, rule in CHECK_RULES if rule(text.text, item, facts)]
+            for name in failed:
+                rules[name] = rules.get(name, 0) + 1
+            if failed:
+                failing += 1
+                continue
+            kept.append(text.model_copy(update={"numbers": check_numbers(text.text, facts, item["names"])[1]}))
+        settings = {}
+        for text in kept:
+            settings[text.call or "not known"] = settings.get(text.call or "not known", 0) + 1
+        notes = [f"Call setting: {setting}, {n} text(s)." for setting, n in sorted(settings.items()) if setting]
+        write_texts(root, kind, kept, manifest.synthetic, extra_notes=notes if not manifest.synthetic else ())
+        info["kinds"][kind] = {"before": len(texts), "kept": len(kept), "stale": stale, "failing": failing,
+                               "rules": rules}
+    info["problems"] = S.validate_tree(root, allow_missing=S.STAGED_FILES)
+    return info
+
+
 def earlier_texts(root: Path, kind: str, skip=()) -> tuple:
     """The texts already in the root's genai file that still hold: the item still exists, its input is unchanged
     (same hash) and the text passes every check of today. Returns (kept, dropped count); keys in `skip` are left
@@ -1585,6 +1632,8 @@ def main(argv=None) -> int:
     parser.add_argument("--cache", help="the cache folder (default GENAI_CACHE_DIR, else .genai-cache)")
     parser.add_argument("--model", default=MODEL)
     parser.add_argument("--summary", help="also write the run's counts and token use to this json file")
+    parser.add_argument("--prune", action="store_true",
+                        help="drop every stale or failing text of --root, no model call, and validate it")
     parser.add_argument("--withhold", nargs="+", choices=KINDS,
                         help="write a copy of --root to --out without these kinds of text (no model call), for a deploy")
     parser.add_argument("--out", help="the folder of the copy that --withhold writes, or the sheet of --hand-read")
@@ -1593,6 +1642,20 @@ def main(argv=None) -> int:
     parser.add_argument("--seed", type=int, default=HAND_READ_SEED, help="the seed of the hand-read draw")
     parser.add_argument("--exclude", help="a file of keys read before, one a line, left out of the draw")
     args = parser.parse_args(argv)
+    if args.prune:
+        try:
+            info = prune_root(args.root)
+        except GenaiProblem as exc:
+            print(f"genai: {exc}", file=sys.stderr)
+            return 1
+        for kind, stats in info["kinds"].items():
+            rules = ", ".join(f"{name} {n}" for name, n in sorted(stats["rules"].items())) or "none"
+            print(f"genai: {kind}: {stats['before']} texts, kept {stats['kept']}, stale {stats['stale']}, "
+                  f"failing {stats['failing']} (by rule: {rules})")
+        for line in info["problems"][:20]:
+            print(f"PROBLEM: {line}")
+        print(f"{len(info['problems'])} problem(s)" if info["problems"] else "data root valid with its texts")
+        return 1 if info["problems"] else 0
     if args.hand_read:
         if not args.out:
             print("genai: --hand-read needs --out", file=sys.stderr)
