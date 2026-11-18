@@ -16,6 +16,17 @@ name stands for it. Nothing here reads data; it formats an item built by export.
 INSTRUCTION = ("Write one short paragraph in plain words from these facts. Copy each number exactly. Give each "
                "range with its value. Call a point value a point estimate. Use short sentences.")
 
+# The few-shot arm (A0) gets the rules a trained arm learns from its targets: the P3 prompt's rules, cut to the
+# compact format. Two worked examples follow it as earlier turns of the chat.
+RULES = ("Write one paragraph of 60 to 110 words about the item, from the facts below it. Rules: use only numbers "
+         "from the facts, copied exactly, with the same digits, sign and percent sign; write every number as digits, "
+         "never as a word. A fact with a range in brackets is given with its range, for example 4.2 (95% range 2.9 "
+         "to 6.0). A fact marked point is a point estimate: write the words point estimate once. A model's number "
+         "needs the word model, expected or estimate in its sentence. A view under not shown has too small a "
+         "sample. Say that descriptive facts describe past games. Keep each sentence short and plain. Never use a "
+         "dash, a list or markdown, and never write about decisions, matchups, lineups, passes, drives, screens, "
+         "coverage, play calls, betting or odds. Write only the paragraph.")
+
 UNIT_MARK = {"feet": " ft", "points": " pts", "seconds": " s"}
 
 

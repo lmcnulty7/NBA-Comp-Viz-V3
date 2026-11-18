@@ -196,11 +196,23 @@ showed are fixed here, before the one test score, and change no threshold or rea
 - Models. Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct (Apache 2.0 on their Hub pages, not gated: no account or
   terms to accept), each pinned by its Hub revision (0.5B 7ae55760, 1.5B 989aa798). Weights and caches live outside
   the repository (a _genai-models folder beside the worktrees, D44); the venv outside the repository and outside iCloud.
-- Prompt. Every arm gets the same system prompt, the current prompt file of each kind on this branch at the freeze
-  (export/prompts, pinned by sha256 in versions.json), and the same user message (export.genai.user_message).
+- Input format (fixed before any E2 run; changed from the first draft after the first pilot, see below). The
+  trained arms (A1, A2, A3) get the compact input of tools/genai_format.py: a one-sentence fixed instruction as the
+  system turn, and as the user turn the item's context on a few short lines and one line per fact or estimate
+  ("field: shown value", a range as "(lo to hi, 95%)", a point estimate marked "point", the EPV curve and the
+  similar players folded into one line each, a sample size that repeats a count left out). It holds the same numbers
+  as the item and nothing else. On the train items it is 643 tokens per scouting example with its target on average
+  (largest 756) and 468 per possession example (largest 1,266; 29 of 3,000 over 800), against about 3,800 and 3,000
+  in the P3 prompt and JSON form (Qwen2.5 tokenizer). Training examples over 1,024 tokens are left out of training
+  and counted; no evaluation item is ever left out. The first pilot, on the P3 form, ran out of memory on its first
+  step (about 3,800 tokens, 19 GiB of activations), which is why the format changed.
 - Arms, for each model size.
-  - A0 few-shot: the base model, with 2 worked examples in the prompt drawn by a seeded generator from train items
-    (scouting: train players and their Haiku texts; possession: train possessions and their template texts).
+  - A0 few-shot: the base model with the rules block of tools/genai_format.py (RULES, the P3 prompt's rules cut to
+    the compact format) as the system turn and 2 worked examples as earlier chat turns, in the compact format, drawn
+    by a seeded generator from train items (scouting: train players and their Haiku texts; possession: train
+    possessions and their template texts). A0 and the trained arms see the same input format, so H1 measures the
+    training alone. Beside it, A0-P3: the base model zero-shot on the full P3 prompt and JSON message, exactly the
+    setup the Haiku texts had, reported and read by no hypothesis.
   - A1 SFT (distillation): LoRA on train items. Scouting targets are the Haiku texts of train players (sequence-level
     distillation in the sense of Kim and Rush 2016). Possession targets are the template texts of train possessions,
     since there is no Haiku possession text on a training game; if Lucien says yes to the Haiku spend on training-game
@@ -215,7 +227,12 @@ showed are fixed here, before the one test score, and change no threshold or rea
   attention and MLP projections; AdamW, learning rate 2e-4 with linear decay and 10 warm-up steps; effective batch 8
   by gradient accumulation; loss on the answer tokens only; up to 3 epochs, the checkpoint kept at the epoch with the
   best dev pass rate. Seed 0. The pilot may change only the number format (float32 or bfloat16) and the batch layout
-  if memory needs it; both are recorded.
+  if memory needs it; both are recorded. Gradient checkpointing is on (it changes memory and time, not the
+  result), and every run caps the MPS pool (PYTORCH_MPS_HIGH_WATERMARK_RATIO 0.6, LOW 0.5) so a run that needs more
+  memory stops instead of swapping.
+- Checker. The pinned checker (git blob c10b8a4b, genai-splits.json) scores every arm and is the filter of A2.
+  After genai-E1, the sensitivity checker of E1 (p3-v3 at 7f2c08fc) is applied beside every score; no hypothesis
+  reads it, and it never filters training data.
 - Decoding for every score: greedy, at most 320 new tokens, one attempt (primary). Secondary: a repair loop as P3's
   (one more attempt with the checker's problems in the prompt, at most 2 in all), which is the fair comparison with
   the Haiku texts as delivered.
@@ -248,8 +265,17 @@ showed are fixed here, before the one test score, and change no threshold or rea
 - Data. No held-out game is used to train, tune or evaluate (D92). Scouting rows are descriptive training-game
   tables; possession rows are training games with out-of-fold model values. No API call.
 - Compute. 16 GB Mac (Apple M5, MPS), one job at a time under the heavy-job lock, weights read from the local cache.
-  The lock-hour plan follows the pilot (reports/research, pilot numbers in the lead's report); no training run starts
-  before the lead's go.
+  No training run starts before the lead's go. Pilot (2026-11-17, tools/genai_pilot.py, 96 s under the lock, output
+  kept outside the repository): 0.5B in float32, 20 LoRA steps on compact examples of 545 tokens on average, 0.94 s
+  per step after the first, 8.8 million trainable parameters, peak MPS memory 5.2 GB, generation 41 to 50 tokens a
+  second; 1.5B in bfloat16, 6 steps of 581 tokens on average, 1.32 s per step after the first, 18.5 million
+  trainable, peak MPS memory 7.3 GB, generation 25 to 33 tokens a second. The base models on the full P3 prompt
+  (3,889 prompt tokens): 3.8 s (0.5B, 114 new tokens) and 8.0 s (1.5B, 177 new tokens). Pilot texts were checked
+  only to show the loop runs; no pilot pass rate is a result.
+- Limits fixed from the pilot, before any E2 run: generation runs in batches of 8 items (left padding, greedy, the
+  same outputs as one at a time up to floating point); the A2 candidate pool is every train scouting item with a
+  target and 800 train possessions drawn by a seeded generator; A0-P3 runs on scouting items only (the P3 JSON
+  form of a possession reaches 6,600 tokens).
 - Risks and failure modes. The checker can be gamed: a model can learn to copy numbers and a stock "point estimate"
   sentence and pass while saying little; frame variety and the human sample watch for it. The scouting teacher texts
   are survivors of the checker, so distillation learns from passes only. 284 train players is a small SFT set and
