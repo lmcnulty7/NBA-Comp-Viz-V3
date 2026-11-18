@@ -39,7 +39,11 @@ from tools import genai_format as F
 from tools.genai_templates import template_text
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-MODEL = ("Qwen/Qwen2.5-0.5B-Instruct", "7ae557604adf67be50417f59c2c2f167def9a775")
+# The two pre-registered sizes (docs/research/genai.md; the 1.5B amendment, PLAN.md D101): model, revision and the
+# number format the pilot set. set_size() picks one before any stage runs; 0.5B is the default.
+SIZES = {"0.5B": (("Qwen/Qwen2.5-0.5B-Instruct", "7ae557604adf67be50417f59c2c2f167def9a775"), "float32"),
+         "1.5B": (("Qwen/Qwen2.5-1.5B-Instruct", "989aa7980e4cf806f80c7fef2b1adb7bc71aa306"), "bfloat16")}
+MODEL = SIZES["0.5B"][0]
 SIZE = "0.5B"
 EXPERIMENT = f"genai-E2-{SIZE}"
 CHECKERS = {"primary": ("db993008", "41ba991ba22d34c51903593845750fa0cfcdf1dd"),
@@ -54,7 +58,7 @@ P3_BATCH = 1
 SAVE_EVERY = 400          # examples between mid-epoch checkpoints (a crash loses at most this much work)
 FEW_SHOT = 2
 RFT = {"k": 4, "temperature": 0.8, "top_p": 0.95, "keep_per_item": 2, "possession_pool": 800, "round2_gain": 0.03}
-DTYPE = "float32"
+DTYPE = SIZES["0.5B"][1]
 MAX_STRETCH_H = 3.0
 
 
@@ -67,7 +71,7 @@ def run_dir() -> Path:
 
 
 def out_dir() -> Path:
-    return D.data_dir() / "e2"
+    return D.data_dir() / ("e2" if SIZE == "0.5B" else f"e2-{SIZE}")
 
 
 def _save(name: str, record) -> Path:
@@ -818,6 +822,14 @@ def summarize(rows: dict, timing: dict, choices: dict, items: list, texts: dict)
 DEV_JSON = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json"
 
 
+def set_size(size: str) -> None:
+    """Point every stage at one model size: its model, number format, run folder, data folder and dev json."""
+    global MODEL, SIZE, EXPERIMENT, DTYPE, DEV_JSON
+    MODEL, DTYPE = SIZES[size]
+    SIZE, EXPERIMENT = size, f"genai-E2-{size}"
+    DEV_JSON = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json"
+
+
 def dev_json_clean() -> str:
     """The sha256 of the committed dev choices; SystemExit unless git tracks the file and it has no change."""
     rel = str(DEV_JSON.relative_to(REPO_ROOT))
@@ -884,9 +896,11 @@ def stage_test(log=print) -> dict:
         box["items"] = _test_items()
         return run_arms(box["items"], choices, "test", log)
 
-    assert EXPERIMENT == "genai-E2-0.5B"
     try:
-        rows, timing, texts = D.score_test_once("genai-E2-0.5B", scorer)
+        if SIZE == "0.5B":
+            rows, timing, texts = D.score_test_once("genai-E2-0.5B", scorer)
+        else:
+            rows, timing, texts = D.score_test_once("genai-E2-1.5B", scorer)
     except BaseException as exc:
         if "items" in box:
             _save("test-crash.json", {"dev_json_sha256": dev_sha, "head": head, "error": type(exc).__name__,
@@ -900,7 +914,7 @@ def stage_test_resume(log=print) -> dict:
     choices; it generates only the arms with no saved rows."""
     crash = _load("test-crash.json")
     if crash is None:
-        raise SystemExit("no crash record of genai-E2-0.5B: the resume entry is refused")
+        raise SystemExit(f"no crash record of {EXPERIMENT}: the resume entry is refused")
     tree_clean()
     dev_sha, head = dev_json_clean(), D.git_head()
     if crash["dev_json_sha256"] != dev_sha or crash["head"] != head:
@@ -912,16 +926,21 @@ def stage_test_resume(log=print) -> dict:
         box["items"] = _test_items()
         return run_arms(box["items"], choices, "test", log, resume=True)
 
-    rows, timing, texts = D.score_test_once("genai-E2-0.5B-resume", scorer)
+    if SIZE == "0.5B":
+        rows, timing, texts = D.score_test_once("genai-E2-0.5B-resume", scorer)
+    else:
+        rows, timing, texts = D.score_test_once("genai-E2-1.5B-resume", scorer)
     return _final(rows, timing, texts, choices, dev_sha, head, box["items"], resume_used=True)
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="genai-E2 on the 0.5B model (docs/research/genai.md)")
+    parser = argparse.ArgumentParser(description="genai-E2 on Qwen2.5 0.5B or 1.5B (docs/research/genai.md)")
     parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "rehearse", "test",
                                           "test-resume"))
     parser.add_argument("--max-hours", type=float, default=MAX_STRETCH_H)
+    parser.add_argument("--size", choices=sorted(SIZES), default="0.5B")
     args = parser.parse_args(argv)
+    set_size(args.size)
     if args.max_hours > MAX_STRETCH_H:
         print(f"a stretch holds the lock for at most {MAX_STRETCH_H} hours", file=sys.stderr)
         return 1
