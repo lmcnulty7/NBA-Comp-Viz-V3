@@ -1,11 +1,11 @@
 {
   "schema": "polish-score/1",
-  "label": "baseline private",
+  "label": "r2 baseline private",
   "variant": "private",
   "basePath": "",
   "synthetic": false,
-  "dataBuild": "site-df7fd5d2cb9a",
-  "commit": "085573bc9cec",
+  "dataBuild": "site-285855ef4eb5",
+  "commit": "fc558331f549",
   "dirty": false,
   "measuredWith": {
     "browsers": {
@@ -55,36 +55,38 @@
       {
         "name": "check (static steps)",
         "passed": true,
-        "seconds": 33.8
+        "seconds": 46.8
       },
       {
         "name": "build (private)",
         "passed": true,
-        "seconds": 49.8
+        "seconds": 56.2
       },
       {
         "name": "browser (private)",
         "passed": true,
-        "seconds": 165.8
+        "seconds": 165.7
       }
     ]
   },
   "copy": {
     "problems": 0,
-    "files": 17
+    "files": 18
   },
   "reading": {
     "problems": 0,
+    "generatedTexts": 3063,
     "copyGrade": {
-      "grade": 4.165,
-      "words": 3535,
-      "sentences": 192,
+      "grade": 3.804,
+      "words": 4033,
+      "sentences": 215,
       "perFile": {
-        "home.json": 3.79,
-        "prep.json": 5.65,
+        "home.json": 3.74,
+        "methods.json": 2.95,
+        "prep.json": 4.82,
         "results.json": 4.94,
-        "review.json": 4.01,
-        "site.json": 6.48,
+        "review.json": 3.31,
+        "site.json": 4.39,
         "talk/boxes.md": 3.67,
         "talk/built.md": 3.78,
         "talk/checks.md": 5.75,
@@ -189,12 +191,17 @@
         "where": "talk/results.md",
         "grade": 2.1,
         "upper": 2.1
+      },
+      {
+        "where": "methods page",
+        "grade": 2.4,
+        "upper": 2.4
       }
     ]
   },
   "routes": {
-    "count": 3601,
-    "hash": "c68f158431a305bb",
+    "count": 3602,
+    "hash": "4b540cce3abfa223",
     "sampled": [
       {
         "pattern": "",
@@ -203,6 +210,10 @@
       {
         "pattern": "404/",
         "route": "404/"
+      },
+      {
+        "pattern": "methods/",
+        "route": "methods/"
       },
       {
         "pattern": "prep/",
@@ -240,63 +251,69 @@
   },
   "bundles": {
     "home": {
-      "jsFiles": 8,
-      "jsRawKb": 511.4,
-      "jsGzipKb": 154.3,
+      "jsFiles": 9,
+      "jsRawKb": 517.8,
+      "jsGzipKb": 157.1,
       "cssGzipKb": 7.1
     },
     "404/": {
-      "jsFiles": 6,
-      "jsRawKb": 479.8,
-      "jsGzipKb": 143.8,
+      "jsFiles": 7,
+      "jsRawKb": 485.7,
+      "jsGzipKb": 146.3,
       "cssGzipKb": 3.4
     },
-    "prep/": {
+    "methods/": {
       "jsFiles": 7,
-      "jsRawKb": 485.6,
-      "jsGzipKb": 146,
+      "jsRawKb": 485.7,
+      "jsGzipKb": 146.3,
+      "cssGzipKb": 3.9
+    },
+    "prep/": {
+      "jsFiles": 8,
+      "jsRawKb": 491.5,
+      "jsGzipKb": 148.5,
       "cssGzipKb": 3.9
     },
     "prep/aaron-brooks/": {
-      "jsFiles": 7,
-      "jsRawKb": 480.8,
-      "jsGzipKb": 144.3,
+      "jsFiles": 8,
+      "jsRawKb": 486.6,
+      "jsGzipKb": 146.8,
       "cssGzipKb": 7.1
     },
     "results/": {
-      "jsFiles": 6,
-      "jsRawKb": 479.8,
-      "jsGzipKb": 143.8,
+      "jsFiles": 7,
+      "jsRawKb": 485.7,
+      "jsGzipKb": 146.3,
       "cssGzipKb": 3.4
     },
     "review/": {
-      "jsFiles": 6,
-      "jsRawKb": 479.8,
-      "jsGzipKb": 143.8,
+      "jsFiles": 7,
+      "jsRawKb": 485.7,
+      "jsGzipKb": 146.3,
       "cssGzipKb": 7.1
     },
     "review/2015-10-30-mia-at-cle/": {
-      "jsFiles": 7,
-      "jsRawKb": 486.1,
-      "jsGzipKb": 146,
+      "jsFiles": 8,
+      "jsRawKb": 491.9,
+      "jsGzipKb": 148.5,
       "cssGzipKb": 3.9
     },
     "review/2015-10-30-mia-at-cle/0/": {
-      "jsFiles": 7,
-      "jsRawKb": 515.7,
-      "jsGzipKb": 155.8,
+      "jsFiles": 8,
+      "jsRawKb": 522.2,
+      "jsGzipKb": 158.5,
       "cssGzipKb": 7.1
     },
     "talk/": {
-      "jsFiles": 6,
-      "jsRawKb": 479.8,
-      "jsGzipKb": 143.8,
+      "jsFiles": 7,
+      "jsRawKb": 485.7,
+      "jsGzipKb": 146.3,
       "cssGzipKb": 7.1
     },
     "talk/boxes/": {
-      "jsFiles": 8,
-      "jsRawKb": 514.2,
-      "jsGzipKb": 155.4,
+      "jsFiles": 9,
+      "jsRawKb": 520.6,
+      "jsGzipKb": 158.2,
       "cssGzipKb": 7.1
     }
   },
@@ -312,201 +329,243 @@
         "browser": "chromium",
         "pattern": "",
         "route": "",
-        "dclMs": 1113.9,
-        "loadMs": 1954.3,
-        "lcpMs": 1084,
-        "firstViewMs": 1084,
-        "kb": 20640.8
+        "dclMs": 122.4,
+        "loadMs": 671.4,
+        "lcpMs": 696,
+        "firstViewMs": 696,
+        "kb": 719.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "404/",
         "route": "404/",
-        "dclMs": 178.9,
-        "loadMs": 691.8,
-        "lcpMs": 180,
-        "firstViewMs": 180,
-        "kb": 658.4
+        "dclMs": 144.5,
+        "loadMs": 369,
+        "lcpMs": 148,
+        "firstViewMs": 148,
+        "kb": 183.2,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 195.3,
+        "loadMs": 456.1,
+        "lcpMs": 280,
+        "firstViewMs": 280,
+        "kb": 345.2,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "prep/",
         "route": "prep/",
-        "dclMs": 1262.4,
-        "loadMs": 1263.1,
-        "lcpMs": 312,
-        "firstViewMs": 312,
-        "kb": 1443.6
+        "dclMs": 160,
+        "loadMs": 418.6,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 273,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "prep/*/",
         "route": "prep/aaron-brooks/",
-        "dclMs": 168.4,
-        "loadMs": 731.3,
-        "lcpMs": 300,
-        "firstViewMs": 300,
-        "kb": 754.4
+        "dclMs": 122.7,
+        "loadMs": 400.8,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 213.5,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "results/",
         "route": "results/",
-        "dclMs": 715.1,
-        "loadMs": 860.6,
-        "lcpMs": 316,
-        "firstViewMs": 316,
-        "kb": 910.8
+        "dclMs": 123.7,
+        "loadMs": 408.1,
+        "lcpMs": 272,
+        "firstViewMs": 272,
+        "kb": 234.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/",
         "route": "review/",
-        "dclMs": 162,
-        "loadMs": 717.5,
-        "lcpMs": 296,
-        "firstViewMs": 296,
-        "kb": 715.6
+        "dclMs": 123.4,
+        "loadMs": 399.1,
+        "lcpMs": 248,
+        "firstViewMs": 248,
+        "kb": 205,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/*/",
         "route": "review/2015-10-30-mia-at-cle/",
-        "dclMs": 544.9,
-        "loadMs": 816.3,
-        "lcpMs": 312,
-        "firstViewMs": 312,
-        "kb": 853.9
+        "dclMs": 123.4,
+        "loadMs": 413.6,
+        "lcpMs": 256,
+        "firstViewMs": 256,
+        "kb": 232.6,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/*/*/",
         "route": "review/2015-10-30-mia-at-cle/0/",
-        "dclMs": 164.5,
-        "loadMs": 750,
-        "lcpMs": 292,
-        "firstViewMs": 292,
-        "kb": 758
+        "dclMs": 122.7,
+        "loadMs": 409,
+        "lcpMs": 248,
+        "firstViewMs": 248,
+        "kb": 219.2,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "talk/",
         "route": "talk/",
-        "dclMs": 192.1,
-        "loadMs": 710.6,
-        "lcpMs": 196,
-        "firstViewMs": 196,
-        "kb": 678.6
+        "dclMs": 148.2,
+        "loadMs": 372.2,
+        "lcpMs": 152,
+        "firstViewMs": 152,
+        "kb": 187.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "talk/*/",
         "route": "talk/boxes/",
-        "dclMs": 972.3,
-        "loadMs": 1075.8,
-        "lcpMs": 972,
-        "firstViewMs": 972,
-        "kb": 1168.7
+        "dclMs": 156.2,
+        "loadMs": 564.8,
+        "lcpMs": 580,
+        "firstViewMs": 580,
+        "kb": 574.3,
+        "kbCounted": "received"
       },
       {
         "browser": "webkit",
         "pattern": "",
         "route": "",
-        "dclMs": 21,
-        "loadMs": 69,
-        "lcpMs": 68,
-        "firstViewMs": 68,
-        "kb": 12614.7
+        "dclMs": 18,
+        "loadMs": 72,
+        "lcpMs": 64,
+        "firstViewMs": 64,
+        "kb": 11986.3,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "404/",
         "route": "404/",
-        "dclMs": 9,
-        "loadMs": 28,
-        "lcpMs": 31,
-        "firstViewMs": 31,
-        "kb": 658.4
+        "dclMs": 7,
+        "loadMs": 25,
+        "lcpMs": 27,
+        "firstViewMs": 27,
+        "kb": 309.8,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 77,
+        "loadMs": 98,
+        "lcpMs": 73,
+        "firstViewMs": 73,
+        "kb": 471.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "prep/",
         "route": "prep/",
-        "dclMs": 18,
-        "loadMs": 53,
-        "lcpMs": 51,
-        "firstViewMs": 51,
-        "kb": 1443.6
+        "dclMs": 15,
+        "loadMs": 50,
+        "lcpMs": 48,
+        "firstViewMs": 48,
+        "kb": 399,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "prep/*/",
         "route": "prep/aaron-brooks/",
-        "dclMs": 13,
-        "loadMs": 39,
-        "lcpMs": 23,
-        "firstViewMs": 23,
-        "kb": 754.4
+        "dclMs": 11,
+        "loadMs": 41,
+        "lcpMs": 41,
+        "firstViewMs": 41,
+        "kb": 339.5,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "results/",
         "route": "results/",
-        "dclMs": 15,
-        "loadMs": 46,
+        "dclMs": 12,
+        "loadMs": 44,
         "lcpMs": 57,
         "firstViewMs": 57,
-        "kb": 910.8
+        "kb": 361,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/",
         "route": "review/",
-        "dclMs": 14,
-        "loadMs": 36,
-        "lcpMs": 21,
-        "firstViewMs": 21,
-        "kb": 715.6
+        "dclMs": 12,
+        "loadMs": 32,
+        "lcpMs": 17,
+        "firstViewMs": 17,
+        "kb": 331.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/*/",
         "route": "review/2015-10-30-mia-at-cle/",
-        "dclMs": 13,
-        "loadMs": 47,
-        "lcpMs": 57,
-        "firstViewMs": 57,
-        "kb": 853.9
+        "dclMs": 12,
+        "loadMs": 42,
+        "lcpMs": 52,
+        "firstViewMs": 52,
+        "kb": 358.4,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/*/*/",
         "route": "review/2015-10-30-mia-at-cle/0/",
-        "dclMs": 13,
-        "loadMs": 36,
-        "lcpMs": 20,
-        "firstViewMs": 20,
-        "kb": 758
+        "dclMs": 12,
+        "loadMs": 34,
+        "lcpMs": 33,
+        "firstViewMs": 33,
+        "kb": 345.1,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "talk/",
         "route": "talk/",
-        "dclMs": 11,
-        "loadMs": 33,
-        "lcpMs": 18,
-        "firstViewMs": 18,
-        "kb": 678.6
+        "dclMs": 8,
+        "loadMs": 31,
+        "lcpMs": 15,
+        "firstViewMs": 15,
+        "kb": 314.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "talk/*/",
         "route": "talk/boxes/",
-        "dclMs": 12,
-        "loadMs": 38,
-        "lcpMs": 40,
-        "firstViewMs": 40,
-        "kb": 1168.7
+        "dclMs": 11,
+        "loadMs": 37,
+        "lcpMs": 36,
+        "firstViewMs": 36,
+        "kb": 567.8,
+        "kbCounted": "declared"
       }
     ],
     [
@@ -514,121 +573,155 @@
         "browser": "chromium",
         "pattern": "",
         "route": "",
-        "dclMs": 1114.8,
-        "loadMs": 1865.5,
-        "lcpMs": 1088,
-        "firstViewMs": 1088,
-        "kb": 20640.8
+        "dclMs": 118.7,
+        "loadMs": 670.6,
+        "lcpMs": 692,
+        "firstViewMs": 692,
+        "kb": 719.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "404/",
         "route": "404/",
-        "dclMs": 168.3,
-        "loadMs": 693.2,
-        "lcpMs": 172,
-        "firstViewMs": 172,
-        "kb": 658.4
+        "dclMs": 144.1,
+        "loadMs": 368.5,
+        "lcpMs": 144,
+        "firstViewMs": 144,
+        "kb": 183.2,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 196.3,
+        "loadMs": 454.6,
+        "lcpMs": 280,
+        "firstViewMs": 280,
+        "kb": 345.2,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "prep/",
         "route": "prep/",
-        "dclMs": 1263.5,
-        "loadMs": 1263.9,
-        "lcpMs": 308,
-        "firstViewMs": 308,
-        "kb": 1443.6
+        "dclMs": 159.4,
+        "loadMs": 416.6,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 273,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "prep/*/",
         "route": "prep/aaron-brooks/",
-        "dclMs": 170.6,
-        "loadMs": 730.3,
-        "lcpMs": 300,
-        "firstViewMs": 300,
-        "kb": 754.4
+        "dclMs": 121.2,
+        "loadMs": 397.6,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 213.5,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "results/",
         "route": "results/",
-        "dclMs": 720,
-        "loadMs": 869.5,
-        "lcpMs": 320,
-        "firstViewMs": 320,
-        "kb": 910.8
+        "dclMs": 125.3,
+        "loadMs": 405,
+        "lcpMs": 272,
+        "firstViewMs": 272,
+        "kb": 234.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/",
         "route": "review/",
-        "dclMs": 167.3,
-        "loadMs": 722.5,
-        "lcpMs": 300,
-        "firstViewMs": 300,
-        "kb": 715.6
+        "dclMs": 124.1,
+        "loadMs": 398.6,
+        "lcpMs": 248,
+        "firstViewMs": 248,
+        "kb": 205,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/*/",
         "route": "review/2015-10-30-mia-at-cle/",
-        "dclMs": 547.8,
-        "loadMs": 813.9,
-        "lcpMs": 308,
-        "firstViewMs": 308,
-        "kb": 853.9
+        "dclMs": 121.9,
+        "loadMs": 411.9,
+        "lcpMs": 256,
+        "firstViewMs": 256,
+        "kb": 232.6,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/*/*/",
         "route": "review/2015-10-30-mia-at-cle/0/",
-        "dclMs": 165.4,
-        "loadMs": 751.1,
-        "lcpMs": 292,
-        "firstViewMs": 292,
-        "kb": 758
+        "dclMs": 123.6,
+        "loadMs": 411.5,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 219.2,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "talk/",
         "route": "talk/",
-        "dclMs": 188.7,
-        "loadMs": 708.4,
-        "lcpMs": 192,
-        "firstViewMs": 192,
-        "kb": 678.6
+        "dclMs": 147.7,
+        "loadMs": 372.9,
+        "lcpMs": 148,
+        "firstViewMs": 148,
+        "kb": 187.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "talk/*/",
         "route": "talk/boxes/",
-        "dclMs": 973.8,
-        "loadMs": 1074.3,
-        "lcpMs": 972,
-        "firstViewMs": 972,
-        "kb": 1168.7
+        "dclMs": 155.4,
+        "loadMs": 565.3,
+        "lcpMs": 580,
+        "firstViewMs": 580,
+        "kb": 574.3,
+        "kbCounted": "received"
       },
       {
         "browser": "webkit",
         "pattern": "",
         "route": "",
         "dclMs": 19,
-        "loadMs": 67,
+        "loadMs": 72,
         "lcpMs": 64,
         "firstViewMs": 64,
-        "kb": 12614.7
+        "kb": 11986.3,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "404/",
         "route": "404/",
-        "dclMs": 9,
-        "loadMs": 30,
-        "lcpMs": 33,
-        "firstViewMs": 33,
-        "kb": 658.4
+        "dclMs": 7,
+        "loadMs": 25,
+        "lcpMs": 27,
+        "firstViewMs": 27,
+        "kb": 309.8,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 76,
+        "loadMs": 98,
+        "lcpMs": 73,
+        "firstViewMs": 73,
+        "kb": 471.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
@@ -638,77 +731,85 @@
         "loadMs": 51,
         "lcpMs": 49,
         "firstViewMs": 49,
-        "kb": 1443.6
+        "kb": 399,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "prep/*/",
         "route": "prep/aaron-brooks/",
-        "dclMs": 16,
-        "loadMs": 46,
-        "lcpMs": 27,
-        "firstViewMs": 27,
-        "kb": 754.4
+        "dclMs": 12,
+        "loadMs": 39,
+        "lcpMs": 39,
+        "firstViewMs": 39,
+        "kb": 339.5,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "results/",
         "route": "results/",
-        "dclMs": 13,
-        "loadMs": 48,
-        "lcpMs": 59,
-        "firstViewMs": 59,
-        "kb": 910.8
+        "dclMs": 10,
+        "loadMs": 46,
+        "lcpMs": 57,
+        "firstViewMs": 57,
+        "kb": 361,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/",
         "route": "review/",
         "dclMs": 12,
-        "loadMs": 32,
-        "lcpMs": 30,
-        "firstViewMs": 30,
-        "kb": 715.6
+        "loadMs": 34,
+        "lcpMs": 18,
+        "firstViewMs": 18,
+        "kb": 331.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/*/",
         "route": "review/2015-10-30-mia-at-cle/",
         "dclMs": 12,
-        "loadMs": 44,
-        "lcpMs": 54,
-        "firstViewMs": 54,
-        "kb": 853.9
+        "loadMs": 42,
+        "lcpMs": 52,
+        "firstViewMs": 52,
+        "kb": 358.4,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/*/*/",
         "route": "review/2015-10-30-mia-at-cle/0/",
         "dclMs": 14,
-        "loadMs": 35,
-        "lcpMs": 20,
-        "firstViewMs": 20,
-        "kb": 758
+        "loadMs": 40,
+        "lcpMs": 39,
+        "firstViewMs": 39,
+        "kb": 345.1,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "talk/",
         "route": "talk/",
-        "dclMs": 10,
-        "loadMs": 32,
-        "lcpMs": 16,
-        "firstViewMs": 16,
-        "kb": 678.6
+        "dclMs": 7,
+        "loadMs": 29,
+        "lcpMs": 14,
+        "firstViewMs": 14,
+        "kb": 314.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "talk/*/",
         "route": "talk/boxes/",
         "dclMs": 11,
-        "loadMs": 38,
-        "lcpMs": 44,
-        "firstViewMs": 44,
-        "kb": 1168.7
+        "loadMs": 37,
+        "lcpMs": 36,
+        "firstViewMs": 36,
+        "kb": 567.8,
+        "kbCounted": "declared"
       }
     ],
     [
@@ -716,201 +817,243 @@
         "browser": "chromium",
         "pattern": "",
         "route": "",
-        "dclMs": 1115.5,
-        "loadMs": 1954.9,
-        "lcpMs": 1084,
-        "firstViewMs": 1084,
-        "kb": 20640.8
+        "dclMs": 118.9,
+        "loadMs": 669,
+        "lcpMs": 688,
+        "firstViewMs": 688,
+        "kb": 719.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "404/",
         "route": "404/",
-        "dclMs": 170.6,
-        "loadMs": 690.7,
-        "lcpMs": 172,
-        "firstViewMs": 172,
-        "kb": 658.4
+        "dclMs": 145,
+        "loadMs": 368.8,
+        "lcpMs": 148,
+        "firstViewMs": 148,
+        "kb": 183.2,
+        "kbCounted": "received"
+      },
+      {
+        "browser": "chromium",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 197.8,
+        "loadMs": 453.3,
+        "lcpMs": 280,
+        "firstViewMs": 280,
+        "kb": 345.2,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "prep/",
         "route": "prep/",
-        "dclMs": 1262.1,
-        "loadMs": 1262.8,
-        "lcpMs": 308,
-        "firstViewMs": 308,
-        "kb": 1443.6
+        "dclMs": 160.9,
+        "loadMs": 418.5,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 273,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "prep/*/",
         "route": "prep/aaron-brooks/",
-        "dclMs": 169.4,
-        "loadMs": 727.5,
-        "lcpMs": 300,
-        "firstViewMs": 300,
-        "kb": 754.4
+        "dclMs": 124.1,
+        "loadMs": 400,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 213.5,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "results/",
         "route": "results/",
-        "dclMs": 721,
-        "loadMs": 856,
-        "lcpMs": 304,
-        "firstViewMs": 304,
-        "kb": 910.8
+        "dclMs": 122.6,
+        "loadMs": 405.1,
+        "lcpMs": 272,
+        "firstViewMs": 272,
+        "kb": 234.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/",
         "route": "review/",
-        "dclMs": 163.7,
-        "loadMs": 713.2,
-        "lcpMs": 292,
-        "firstViewMs": 292,
-        "kb": 715.6
+        "dclMs": 123.5,
+        "loadMs": 398.6,
+        "lcpMs": 248,
+        "firstViewMs": 248,
+        "kb": 205,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/*/",
         "route": "review/2015-10-30-mia-at-cle/",
-        "dclMs": 546,
-        "loadMs": 813.7,
-        "lcpMs": 316,
-        "firstViewMs": 316,
-        "kb": 853.9
+        "dclMs": 121.4,
+        "loadMs": 412.2,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 232.6,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "review/*/*/",
         "route": "review/2015-10-30-mia-at-cle/0/",
-        "dclMs": 162.6,
-        "loadMs": 745.5,
-        "lcpMs": 292,
-        "firstViewMs": 292,
-        "kb": 758
+        "dclMs": 124.6,
+        "loadMs": 409.5,
+        "lcpMs": 252,
+        "firstViewMs": 252,
+        "kb": 219.2,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "talk/",
         "route": "talk/",
-        "dclMs": 189.3,
-        "loadMs": 707.7,
-        "lcpMs": 196,
-        "firstViewMs": 196,
-        "kb": 678.6
+        "dclMs": 148.8,
+        "loadMs": 373.8,
+        "lcpMs": 152,
+        "firstViewMs": 152,
+        "kb": 187.8,
+        "kbCounted": "received"
       },
       {
         "browser": "chromium",
         "pattern": "talk/*/",
         "route": "talk/boxes/",
-        "dclMs": 973.4,
-        "loadMs": 1076.4,
-        "lcpMs": 972,
-        "firstViewMs": 972,
-        "kb": 1168.7
+        "dclMs": 154.2,
+        "loadMs": 563,
+        "lcpMs": 576,
+        "firstViewMs": 576,
+        "kb": 574.3,
+        "kbCounted": "received"
       },
       {
         "browser": "webkit",
         "pattern": "",
         "route": "",
-        "dclMs": 22,
-        "loadMs": 75,
-        "lcpMs": 68,
-        "firstViewMs": 68,
-        "kb": 12614.7
+        "dclMs": 18,
+        "loadMs": 72,
+        "lcpMs": 64,
+        "firstViewMs": 64,
+        "kb": 11986.3,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "404/",
         "route": "404/",
-        "dclMs": 10,
-        "loadMs": 29,
-        "lcpMs": 32,
-        "firstViewMs": 32,
-        "kb": 658.4
+        "dclMs": 7,
+        "loadMs": 26,
+        "lcpMs": 28,
+        "firstViewMs": 28,
+        "kb": 309.8,
+        "kbCounted": "declared"
+      },
+      {
+        "browser": "webkit",
+        "pattern": "methods/",
+        "route": "methods/",
+        "dclMs": 76,
+        "loadMs": 97,
+        "lcpMs": 73,
+        "firstViewMs": 73,
+        "kb": 471.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "prep/",
         "route": "prep/",
-        "dclMs": 18,
-        "loadMs": 53,
+        "dclMs": 15,
+        "loadMs": 51,
         "lcpMs": 48,
         "firstViewMs": 48,
-        "kb": 1443.6
+        "kb": 399,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "prep/*/",
         "route": "prep/aaron-brooks/",
-        "dclMs": 13,
+        "dclMs": 12,
         "loadMs": 40,
-        "lcpMs": 25,
-        "firstViewMs": 25,
-        "kb": 754.4
+        "lcpMs": 40,
+        "firstViewMs": 40,
+        "kb": 339.5,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "results/",
         "route": "results/",
-        "dclMs": 14,
+        "dclMs": 10,
         "loadMs": 46,
-        "lcpMs": 56,
-        "firstViewMs": 56,
-        "kb": 910.8
+        "lcpMs": 57,
+        "firstViewMs": 57,
+        "kb": 361,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/",
         "route": "review/",
-        "dclMs": 13,
-        "loadMs": 38,
-        "lcpMs": 22,
-        "firstViewMs": 22,
-        "kb": 715.6
+        "dclMs": 12,
+        "loadMs": 33,
+        "lcpMs": 17,
+        "firstViewMs": 17,
+        "kb": 331.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/*/",
         "route": "review/2015-10-30-mia-at-cle/",
-        "dclMs": 13,
-        "loadMs": 46,
-        "lcpMs": 56,
-        "firstViewMs": 56,
-        "kb": 853.9
+        "dclMs": 12,
+        "loadMs": 43,
+        "lcpMs": 53,
+        "firstViewMs": 53,
+        "kb": 358.4,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "review/*/*/",
         "route": "review/2015-10-30-mia-at-cle/0/",
-        "dclMs": 15,
-        "loadMs": 36,
-        "lcpMs": 20,
-        "firstViewMs": 20,
-        "kb": 758
+        "dclMs": 12,
+        "loadMs": 35,
+        "lcpMs": 34,
+        "firstViewMs": 34,
+        "kb": 345.1,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "talk/",
         "route": "talk/",
-        "dclMs": 11,
-        "loadMs": 40,
-        "lcpMs": 25,
-        "firstViewMs": 25,
-        "kb": 678.6
+        "dclMs": 7,
+        "loadMs": 29,
+        "lcpMs": 14,
+        "firstViewMs": 14,
+        "kb": 314.2,
+        "kbCounted": "declared"
       },
       {
         "browser": "webkit",
         "pattern": "talk/*/",
         "route": "talk/boxes/",
-        "dclMs": 14,
-        "loadMs": 43,
-        "lcpMs": 44,
-        "firstViewMs": 44,
-        "kb": 1168.7
+        "dclMs": 11,
+        "loadMs": 37,
+        "lcpMs": 40,
+        "firstViewMs": 40,
+        "kb": 567.8,
+        "kbCounted": "declared"
       }
     ]
   ],
@@ -918,20 +1061,20 @@
   "navigationRetries": 0,
   "values": {
     "a11yWeighted": 0,
-    "firstViewChromiumMs": 425.2,
-    "firstViewWebkitMs": 39.6,
-    "firstLoadJsKb": 147.7,
-    "pageWeightKb": 2457,
-    "readingGrade": 4.165
+    "firstViewChromiumMs": 306.9,
+    "firstViewWebkitMs": 42.5,
+    "firstLoadJsKb": 149.92,
+    "pageWeightKb": 308,
+    "readingGrade": 3.804
   },
   "reference": {
     "values": {
       "a11yWeighted": 0,
-      "firstViewChromiumMs": 425.2,
-      "firstViewWebkitMs": 39.6,
-      "firstLoadJsKb": 147.7,
-      "pageWeightKb": 2457,
-      "readingGrade": 4.165
+      "firstViewChromiumMs": 306.9,
+      "firstViewWebkitMs": 42.5,
+      "firstLoadJsKb": 149.92,
+      "pageWeightKb": 308,
+      "readingGrade": 3.804
     },
     "from": "median of 3 runs"
   },
@@ -948,17 +1091,17 @@
     {
       "values": {
         "a11yWeighted": 0,
-        "firstViewChromiumMs": 426,
-        "firstViewWebkitMs": 38.6,
-        "firstLoadJsKb": 147.7,
-        "pageWeightKb": 2457,
-        "readingGrade": 4.165
+        "firstViewChromiumMs": 307.6,
+        "firstViewWebkitMs": 42.1,
+        "firstLoadJsKb": 149.92,
+        "pageWeightKb": 308,
+        "readingGrade": 3.804
       },
-      "cost": 0.9991,
+      "cost": 1,
       "terms": {
         "a11yWeighted": 1,
-        "firstViewChromiumMs": 1.0019,
-        "firstViewWebkitMs": 0.9747,
+        "firstViewChromiumMs": 1.0023,
+        "firstViewWebkitMs": 0.9906,
         "firstLoadJsKb": 1,
         "pageWeightKb": 1,
         "readingGrade": 1
@@ -968,11 +1111,11 @@
     {
       "values": {
         "a11yWeighted": 0,
-        "firstViewChromiumMs": 425.2,
-        "firstViewWebkitMs": 39.6,
-        "firstLoadJsKb": 147.7,
-        "pageWeightKb": 2457,
-        "readingGrade": 4.165
+        "firstViewChromiumMs": 306.9,
+        "firstViewWebkitMs": 42.5,
+        "firstLoadJsKb": 149.92,
+        "pageWeightKb": 308,
+        "readingGrade": 3.804
       },
       "cost": 1,
       "terms": {
@@ -988,16 +1131,16 @@
     {
       "values": {
         "a11yWeighted": 0,
-        "firstViewChromiumMs": 423.6,
-        "firstViewWebkitMs": 39.6,
-        "firstLoadJsKb": 147.7,
-        "pageWeightKb": 2457,
-        "readingGrade": 4.165
+        "firstViewChromiumMs": 306.5,
+        "firstViewWebkitMs": 42.5,
+        "firstLoadJsKb": 149.92,
+        "pageWeightKb": 308,
+        "readingGrade": 3.804
       },
-      "cost": 0.9992,
+      "cost": 0.9997,
       "terms": {
         "a11yWeighted": 1,
-        "firstViewChromiumMs": 0.9962,
+        "firstViewChromiumMs": 0.9987,
         "firstViewWebkitMs": 1,
         "firstLoadJsKb": 1,
         "pageWeightKb": 1,
@@ -1009,35 +1152,35 @@
   "noise": {
     "runs": 3,
     "costs": [
-      0.9991,
       1,
-      0.9992
+      1,
+      0.9997
     ],
-    "costSpread": 0.0009,
+    "costSpread": 0.0003,
     "perMetric": {
       "a11yWeighted": {
         "min": 0,
         "max": 0
       },
       "firstViewChromiumMs": {
-        "min": 423.6,
-        "max": 426
+        "min": 306.5,
+        "max": 307.6
       },
       "firstViewWebkitMs": {
-        "min": 38.6,
-        "max": 39.6
+        "min": 42.1,
+        "max": 42.5
       },
       "firstLoadJsKb": {
-        "min": 147.7,
-        "max": 147.7
+        "min": 149.92,
+        "max": 149.92
       },
       "pageWeightKb": {
-        "min": 2457,
-        "max": 2457
+        "min": 308,
+        "max": 308
       },
       "readingGrade": {
-        "min": 4.165,
-        "max": 4.165
+        "min": 3.804,
+        "max": 3.804
       }
     }
   },

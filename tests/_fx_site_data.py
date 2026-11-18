@@ -6,13 +6,15 @@ position and number is invented: nothing here is a result. The root carries the 
 
 Layout written by write_data_root(root):
   sportvu_contract/heldout/<game>.parquet, <game>_pbp.parquet        two held-out games
+  sportvu_contract/<game>.parquet                                     frame and player_id at the rim frame of the
+                                                                      dropped misses, for three training games
   analytics/{possessions,rosters,shot_frames}/heldout/2015-16/<game>.parquet
   analytics/epv/heldout/2015-16/<game>.parquet
   analytics/ghosting/heldout/2015-16/ghost_frames_<game>.parquet, ghost_possessions_<game>.parquet
   analytics/xfg/2015-16/xfg_predictions.parquet                      held-out rows (fold -1), out-of-fold rows,
                                                                      in-sample decoys (fold -2)
   collect/bref_shots/heldout/shotchart/2015-16.parquet
-  analytics/{rosters,shot_frames,rebounds}/2015-16/<game>.parquet    twelve training games
+  analytics/{rosters,shot_frames,rebounds,rebound_frames}/2015-16/<game>.parquet    twelve training games
   analytics/gravity/gravity_players.parquet, analytics/load/2015-16/player_games.parquet, collect/positions.parquet
 write_artifacts(folder, data_root) adds the rebuilt outputs another job would write: absence/, embeddings/ (each
 with a passed check), demo/possessions.json, and the copy of the check records that the repository tracks
@@ -392,7 +394,20 @@ GRAVITY = {            # player -> (possessions, games, gravity_ft, lo, hi)
     9304: (350, 1, -0.3, np.nan, np.nan), 9306: (50, 4, 0.9, 0.2, 1.4), 9501: (500, 5, -0.6, -0.9, -0.2),
 }
 REBOUND_CHANCES = {9301: (range(0, 8), 40, 4, 0.12), 9302: (range(0, 10), 20, 3, 0.2),   # games, chances, rebounds, p
-                   9501: (range(0, 12), 30, 2, 0.05)}
+                   9501: (range(0, 12), 30, 2, 0.05),
+                   9303: (range(0, 2), 150, 0, 0.01)}     # no rebound: the lane dropped every miss he rebounded
+# Misses the rebound lane dropped because the play-by-play rebounder did not resolve (rebound_frames rows with a name
+# and no pbp_rebounder_id): (game index, name, tracked rebounder, how many). The name "F. 9303" fits player 9303 only; a
+# name that fits nobody falls to the player the tracking credits most often with it, or to nobody.
+LOST_REBOUNDS = [(0, "F. 9303", None, 40), (1, "F. 9303", 9303, 40), (3, "Z. Nobody", 9301, 1),
+                 (4, "Y. Nobody", None, 1)]
+# Who the tracking frames list on the floor at the rim frame (100) of those misses, by game index. Game 4 has no frames
+# table, so its one miss counts for every player of its roster (the conservative bound). 9501 was on the floor for the
+# 80 misses of 9303: 80 chances he did not get, so his shown rate would read too high (withheld, the upward side).
+FILLERS = [9601, 9602, 9603, 9604, 9605, 9606, 9607, 9608]
+ON_FLOOR = {0: [9303, 9501] + FILLERS, 1: [9303, 9501] + FILLERS, 3: [9301, 9502] + FILLERS}
+RIM_FRAME = 100
+LOST_SHOOTER_NAME = "F. 9306"             # the name of the attempts of 9306, whose shooter the lane did not resolve
 POSITIONS = {9301: "PG", 9302: "SF-SG", 9303: "C-PF", 9306: "PF", 9501: "SG"}     # 9304 and 9305 are not listed
 PLAYS_IN = {9301: range(0, 12), 9302: range(0, 10), 9303: range(0, 2), 9304: range(2, 3), 9305: range(0, 12),
             9306: range(0, 10), 9501: range(0, 12), 9502: range(0, 12)}
@@ -421,11 +436,12 @@ def _training_tables(report_bin_counts) -> dict:
                 credited = player if resolved else (9301 if k % 2 else None)     # a fallback id, or none
                 rows.append((TRAIN_GAMES[g], event, credited, CONTEST_VALUES[k % 5], 0.3 + 0.4 * rng.random(),
                              bool(rng.random() < share), g % 5, False))
-                located.append((TRAIN_GAMES[g], event, player if resolved else None))
+                located.append((TRAIN_GAMES[g], event, player if resolved else None,
+                                "F. Player" if resolved else LOST_SHOOTER_NAME))
     for k in range(IN_SAMPLE_DECOYS):
         event = len([r for r in located if r[0] == TRAIN_GAMES[0]])
         rows.append((TRAIN_GAMES[0], event, 9301, 0.45, 0.5, True, -2, False))
-        located.append((TRAIN_GAMES[0], event, 9301))
+        located.append((TRAIN_GAMES[0], event, 9301, "F. Player"))
     designed = pd.DataFrame(rows, columns=["sportvu_game", "event", "player_id", "p_contest", "p_selected", "made", "fold",
                                            "heldout"])
     n_bins = len(report_bin_counts)
@@ -442,10 +458,11 @@ def _training_tables(report_bin_counts) -> dict:
         "player_id": xfg["player_id"].astype("Int64"), "p_location": np.float32(0.4),
         "p_contest": xfg["p_contest"].astype("float32"), "p_selected": xfg["p_selected"].astype("float32"),
         "made": xfg["made"].astype(bool), "fold": xfg["fold"].astype("int16"), "heldout": xfg["heldout"].astype(bool)})
-    located = pd.DataFrame(located, columns=["sportvu_game", "event", "shooter_id"])
+    located = pd.DataFrame(located, columns=["sportvu_game", "event", "shooter_id", "pbp_shooter_name"])
     shot_frames = {game: pd.DataFrame({
         "sportvu_game": game, "event": part["event"].astype("int32"), "period": np.int8(1), "clock_s": np.float32(300.0),
-        "made": True, "pbp_shooter_name": "F. Player", "shooter_id": part["shooter_id"].astype("Int32"),
+        "made": True, "pbp_shooter_name": part["pbp_shooter_name"].astype("string"),
+        "shooter_id": part["shooter_id"].astype("Int32"),
         "release_frame": np.int32(-1), "apex_frame": np.int32(-1), "outcome_frame": np.int32(-1),
         "shooter_at_release_id": part["shooter_id"].astype("Int32"), "identity_match": pd.array([None] * len(part), "boolean"),
         "confidence": np.float32(0.5), "confidence_flag": "low"}) for game, part in located.groupby("sportvu_game")}
@@ -466,6 +483,30 @@ def _training_tables(report_bin_counts) -> dict:
             "candidate_player_id": t["candidate_player_id"].astype("int32"), "p_prior": np.float32(0.1),
             "p_logit": np.float32(0.1), "p_selected": t["p_selected"].astype("float32"),
             "is_rebounder": t["is_rebounder"].astype(bool), "fold": np.int16(g % 5), "heldout": False})
+
+    rebound_frames = {}
+    for g, game in enumerate(TRAIN_GAMES):
+        rows = [(k, 1000 + k, 100, 1000 + k + 20, 9501, "F. Player", 9501) for k in range(3)]   # resolved misses
+        rows.append((3, None, 100, -1, None, None, None))                    # no rebound event: not a lost miss
+        rows.append((4, 1004, -1, -1, None, "F. 9303", None))                # no rim frame: dropped, not lost
+        rows.append((5, 1005, 100, -1, None, None, None))                    # a team rebound: kept, not lost
+        for index, name, tracked, n in LOST_REBOUNDS:
+            if index == g:
+                rows += [(6 + k, 1006 + k, 100, -1 if tracked is None else 130, tracked, name, None) for k in range(n)]
+        t = pd.DataFrame(rows, columns=["event", "rebound_event", "rim_frame", "rebound_frame", "rebounder_id",
+                                        "pbp_rebounder_name", "pbp_rebounder_id"])
+        rebound_frames[game] = pd.DataFrame({
+            "sportvu_game": game, "event": t["event"].astype("int32"),
+            "rebound_event": t["rebound_event"].astype("Int32"),
+            "period": np.int8(1), "clock_s": np.float32(300.0), "rim_frame": t["rim_frame"].astype("int32"),
+            "rebound_frame": t["rebound_frame"].astype("int32"), "rebounder_id": t["rebounder_id"].astype("Int32"),
+            "pbp_rebounder_name": t["pbp_rebounder_name"].astype("string"),
+            "pbp_rebounder_id": t["pbp_rebounder_id"].astype("Int32"),
+            "identity_match": pd.array([None] * len(t), "boolean"), "confidence": np.float32(0.5),
+            "confidence_flag": "low"})
+
+    floor_frames = {TRAIN_GAMES[g]: pd.DataFrame({"frame": np.int32(RIM_FRAME), "player_id": np.array(ids, "int32")})
+                    for g, ids in ON_FLOOR.items()}
 
     rosters, games_rows = {}, []
     for g, game in enumerate(TRAIN_GAMES):
@@ -508,7 +549,8 @@ def _training_tables(report_bin_counts) -> dict:
     positions = positions.assign(team="FXA", age=pd.array([25] * len(listed), "Int16"),
                                  games=pd.array([40] * len(listed), "Int16"), mp_per_g=np.float32(20.0),
                                  source="fixture", endpoint="fixture", fetched_at="2000-01-01T00:00:00Z")
-    return dict(xfg=xfg, shot_frames=shot_frames, rebounds=rebounds, rosters=rosters, player_games=player_games,
+    return dict(xfg=xfg, shot_frames=shot_frames, rebounds=rebounds, rebound_frames=rebound_frames, rosters=rosters,
+                player_games=player_games, floor_frames=floor_frames,
                 gravity=gravity, positions=positions)
 
 
@@ -538,9 +580,11 @@ def write_data_root(root, report_bin_counts) -> dict:
           root / "collect" / "bref_shots" / "heldout" / "shotchart" / f"{SEASON}.parquet")
     write(pd.concat([training["xfg"]] + [t["xfg"] for t in held.values()], ignore_index=True),
           analytics / "xfg" / SEASON / "xfg_predictions.parquet")
-    for name in ("rosters", "shot_frames", "rebounds"):
+    for name in ("rosters", "shot_frames", "rebounds", "rebound_frames"):
         for game, table in training[name].items():
             write(table, analytics / name / SEASON / f"{game}.parquet")
+    for game, table in training["floor_frames"].items():
+        write(table, root / "sportvu_contract" / f"{game}.parquet")
     write(training["gravity"], analytics / "gravity" / "gravity_players.parquet")
     write(training["player_games"], analytics / "load" / SEASON / "player_games.parquet")
     write(training["positions"], root / "collect" / "positions.parquet")

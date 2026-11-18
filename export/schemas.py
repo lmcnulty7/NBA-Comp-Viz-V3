@@ -42,6 +42,12 @@ Also in 1.2.0 (PLAN.md P3, D76; merged with the methods page into one version, D
 - A genai file is 1.2.0 only (CurrentVersion), like the manifest; the other files of its root may still carry
   1.1.0 (COMPATIBLE_VERSIONS).
 
+Also in 1.2.0 (PLAN.md D94, player values broken by the frozen name joins), an addition only:
+- ShotMaking and Rebounding gain an optional `withheld` reason: a hidden value whose cause is not its sample (the
+  stored lane tables lost or mixed up some of the player's rows). A value without one is shown exactly when its
+  sample reaches the minimum.
+- Rebounding refuses a shown rate of zero with a zero upper end.
+
 Units: court positions are in feet in the SportVU frame, x from 0 to 94 along the court, y from 0 to 50 across it,
 rims at (5.25, 25) and (88.75, 25). Clocks are in seconds. Times `t` are seconds from the start of the possession
 or of the clip.
@@ -436,6 +442,17 @@ def _check_shown(metric: str, shown: bool, n: int, min_n: int, estimate) -> None
         raise ValueError(f"{metric}: a hidden value carries no estimate")
 
 
+def _check_withheld(metric: str, shown: bool, n: int, min_n: int, withheld) -> None:
+    """`withheld` says why a value is hidden when the reason is not its sample: the stored lane tables lost or mixed
+    up some of the player's rows (the name joins section of export/site_players.py). It then replaces the
+    minimum-sample sentence, which would be wrong or would hide the cause. A value with no such reason is shown
+    exactly when its sample reaches the minimum, so the page never calls a large sample too small."""
+    if withheld is not None and (shown or not withheld.strip()):
+        raise ValueError(f"{metric}: a withheld reason belongs only to a hidden value")
+    if withheld is None and shown != (n >= min_n):
+        raise ValueError(f"{metric}: hidden at or above the minimum sample without a withheld reason")
+
+
 class ShotMaking(Strict):
     """Makes above expected per 100 attempts, from out-of-fold rows. The expectation is the lane's location and
     contest model, which does not know the shooter and was not the selected model. That baseline has a known
@@ -452,10 +469,12 @@ class ShotMaking(Strict):
     expected_fg_pct: Optional[Unit] = None
     baseline_error_per_100: Optional[float] = None
     frozen_model_residual_per_100: Optional[float] = None
+    withheld: Optional[str] = None
 
     @model_validator(mode="after")
     def _shown(self):
         _check_shown("shot_making", self.shown, self.attempts, self.min_attempts, self.over_expected_per_100)
+        _check_withheld("shot_making", self.shown, self.attempts, self.min_attempts, self.withheld)
         return self
 
 
@@ -483,10 +502,15 @@ class Rebounding(Strict):
     min_chances: int
     rate_per_100: Optional[Estimate] = None
     model_expected_per_100: Optional[float] = None
+    withheld: Optional[str] = None
 
     @model_validator(mode="after")
     def _shown(self):
         _check_shown("rebounding", self.shown, self.chances, self.min_chances, self.rate_per_100)
+        _check_withheld("rebounding", self.shown, self.chances, self.min_chances, self.withheld)
+        if self.shown and self.rate_per_100.value == 0 and self.rate_per_100.hi == 0:
+            raise ValueError("rebounding: a shown rate of zero on the minimum sample or more points at rebounds the "
+                             "lane tables lost, not at a rate")
         return self
 
 
@@ -980,7 +1004,8 @@ class DemoFrames(Strict):
 NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
 ComparabilityClass = Literal["roughly", "not_directly", "none"]
 ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
-                           "adopted", "not_adopted_test", "passed_test", "adopted_research"]
+                           "adopted", "not_adopted_test", "passed_test", "adopted_research",
+                           "ran_result_in_writeup"]
 # How a rule compares the end of an interval it reads with its threshold.
 Comparison = Literal["below", "at_most", "above", "at_least"]
 _COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
@@ -1285,7 +1310,11 @@ class Experiment(Strict):
     test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
     development bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research
     result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
-    a test-only experiment never carries it. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+    a test-only experiment never carries it. `result_in_writeup` marks an experiment that has run but whose result
+    has a shape this page does not show yet: its status is ran_result_in_writeup and the page links the write-up.
+    `test_not_scored` marks a development result that missed its bar and whose single test score was deliberately
+    not spent (the write-up says so and the ledger has no entry): it is not_adopted_development with no test result.
+    `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
     (the narrow claim, a data-fault note).
     An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
     adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
@@ -1307,6 +1336,8 @@ class Experiment(Strict):
     writeup_notes: list[str] = []
     stages: Literal["development_and_test", "test_only"] = "development_and_test"
     adopted_as: Optional[Literal["research_result"]] = None
+    result_in_writeup: bool = False
+    test_not_scored: bool = False
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
     protocol: Optional[ProtocolResult] = None
@@ -1314,6 +1345,12 @@ class Experiment(Strict):
     @model_validator(mode="after")
     def _status(self):
         dev, test = self.development, self.test
+        if self.result_in_writeup or self.status == "ran_result_in_writeup":
+            if not (self.result_in_writeup and self.status == "ran_result_in_writeup" and self.writeup
+                    and dev is None and test is None and self.protocol is None and self.adopted_as is None):
+                raise ValueError(f"{self.id}: a result kept in its write-up has the write-up, no result here, and the "
+                                 "status ran_result_in_writeup")
+            return self
         if self.status == "pre_registered" and self.writeup is not None:
             raise ValueError(f"{self.id}: a write-up belongs to an experiment that has run, not a pre-registered one")
         if self.adopted_as is not None and (self.protocol is not None or self.stages == "test_only"):
@@ -1339,6 +1376,9 @@ class Experiment(Strict):
             return self
         if test is not None and dev is None:
             raise ValueError(f"{self.id}: the test set is scored after the development result exists")
+        if self.test_not_scored and (dev is None or dev.met or test is not None):
+            raise ValueError(f"{self.id}: a test left unscored belongs to a development result that missed its bar, "
+                             "with no test result")
         expected = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met
                     else "development_met_test_pending" if test is None
                     else ("adopted_research" if self.adopted_as == "research_result" else "adopted") if test.met

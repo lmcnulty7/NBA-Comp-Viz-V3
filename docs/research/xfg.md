@@ -59,6 +59,14 @@ the shooter prior, which a league-average shot quality leaves out by design.
 4. Thin defender context: one defender's distance and closing speed, a count within 6 ft. No second defender, no
    contest angle, no defender size (the rosters table has no height; docs/contract/xfg.md section 3).
 5. The baseline's held-out numbers are point estimates only (reports/xfg_baseline.md).
+6. The lane takes the shooter of an attempt from the play-by-play name matched to the tracking roster, and the names
+   that fail are not random (two players with one short name, a later name, mojibake, a suffix). When the name does
+   not resolve, the lane takes the player nearest the ball at release as the shooter (analytics/xfg/features.py, lines
+   30 to 31 and 273 to 275). In the training games 5477 out-of-fold attempts did not resolve by name: 5079 took the
+   player nearest the ball, for the shooter prior and the contest features, and 398 had no shooter and so no contest
+   features. Another 611 tracked attempts carry a name that fits two teammates and went to the first of them
+   (reports/export/name_joins.json). The lane was not refit (PLAN.md D94, D95); the site withholds the shot-making
+   values those joins touch.
 
 ## 5. Recent work that targets these weaknesses
 

@@ -274,3 +274,54 @@ def test_a_partial_clip_read_is_never_cached(tmp_path):
     assert full["complete"] and (tmp_path / "cache" / "scorecard" / "w_ok.json").exists()
     part = S.frame_refs(P, "w_bad", vid, [0, 3, 600], set(), 3, Refs)       # frame 600 is past the end
     assert not part["complete"] and not (tmp_path / "cache" / "scorecard" / "w_bad.json").exists()
+
+
+ZERO_GATE = ("build processed 0 frames (successful reads: 120, total frames: 375). All read frames were gate-rejected "
+             "or outside pre-gate intervals, gate threshold/domain issue, or the section is genuinely dead footage.")
+ZERO_PREGATE = ("build processed 0 frames (successful reads: 0, total frames: 375). Video unreadable by cv2, unsupported "
+                "codec (AV1 on Colab, run-7 postmortem: ffprobe the file), FUSE/network-mounted storage, or corruption.")
+
+
+def _empty_build_env(tmp_path, monkeypatch, tail, decodable=True):
+    from tools import p8_frozen as F
+    from sportvu import rebuild
+    import config
+    P = F.layout(tmp_path / "p8")
+    for p in P.values():
+        p.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(config, "TRACKING_DIR", tmp_path / "trk")
+    monkeypatch.setattr(config, "PROJECT_ROOT", tmp_path / "repo")
+    (tmp_path / "trk").mkdir()
+    calls = []
+
+    def zero_build(window, snip, out_dir, extra_args=()):
+        calls.append(window["window"])
+        return {"window": window["window"], "rc": 1, "moved": [], "tail": tail}
+    monkeypatch.setattr(rebuild, "build", zero_build)
+    monkeypatch.setattr(F, "_decodable", lambda p: decodable)
+    return F, P, calls
+
+
+@pytest.mark.parametrize("tail", [ZERO_GATE, ZERO_PREGATE])
+def test_a_window_the_gate_empties_is_marked_empty_not_failed_and_never_rebuilt(tmp_path, monkeypatch, tail):
+    """night 1: gsw_cha_2016_s06_w07 is a picture-in-picture interview over running clock; gate v2 rejects every
+    frame, the frozen build exits 1 with "processed 0 frames", and the step must go on, as the frozen autolabel did."""
+    F, P, calls = _empty_build_env(tmp_path, monkeypatch, tail)
+    w = _fake_window(P, "gsw_cha_2016_s06_w07")
+    r = F.safe_build(P, w, P["label_build"] / "x.mp4", P["label_build"])
+    assert r["ok"] and r["empty"] and F.gate_empty_path(P["label_build"], w["window"]).exists()
+    again = F.safe_build(P, w, P["label_build"] / "x.mp4", P["label_build"])
+    assert again["ok"] and again["empty"] and again["cached"] and calls == [w["window"]]
+
+
+def test_a_zero_frame_exit_on_an_undecodable_clip_still_fails(tmp_path, monkeypatch):
+    F, P, _ = _empty_build_env(tmp_path, monkeypatch, ZERO_PREGATE, decodable=False)
+    w = _fake_window(P, "gsw_cha_2016_s06_w07")
+    r = F.safe_build(P, w, P["label_build"] / "x.mp4", P["label_build"])
+    assert not r["ok"] and not F.gate_empty_path(P["label_build"], w["window"]).exists()
+
+
+def test_any_other_build_failure_still_fails(tmp_path, monkeypatch):
+    F, P, _ = _empty_build_env(tmp_path, monkeypatch, "Traceback ... RuntimeError: MPS out of memory")
+    w = _fake_window(P, "gsw_cha_2016_s06_w07")
+    assert not F.safe_build(P, w, P["label_build"] / "x.mp4", P["label_build"])["ok"]

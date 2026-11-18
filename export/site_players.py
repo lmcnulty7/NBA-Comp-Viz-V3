@@ -12,10 +12,16 @@ Definitions (PLAN.md D47 and D51, fixed before any player value was computed):
                 part of his value that this table explains for his mix of shots. An attempt counts for a player
                 only when the tracked attempt (shot_frames) names him as the shooter resolved from the play-by-play.
                 The others are left out and counted by reason: the game has no shot_frames table, the table has no
-                row for the event, or the name match did not resolve the shooter (for those the lane stored whoever
-                stood nearest the ball). fg_pct is descriptive.
-  gravity       the lane's stored player table and its own 300-possession gate (descriptive).
+                row for the event, or the name match did not resolve the shooter (for those the xFG lane took the
+                player nearest the ball at release, or no shooter when the tracking had none: analytics/xfg/features.py,
+                the shooter fallback). fg_pct is descriptive. Withheld, with the reason, when his name fits a
+                teammate's, or when his shots that did not resolve would lift him to the minimum (the name joins
+                section).
+  gravity      the lane's stored player table and its own 300-possession gate (descriptive).
   rebounding    rebounds per 100 chances (descriptive), with the selected model's out-of-fold expectation beside it.
+                Withheld, with the reason and its side, when the misses the lane dropped could move his rate by 0.5
+                per 100 chances or more: down for misses that may be his, up for misses he was on the floor for (the
+                name joins section; PLAN.md D94, D95).
   absence       the share of games after which the player missed his team's next tracked game (descriptive), and
                 the mean out-of-fold probability of the frozen logistic when a rebuilt copy passed its check.
   similar       the lane's nearest neighbours (descriptive), when a rebuilt embedding passed its check.
@@ -26,8 +32,10 @@ expected_fg_pct, baseline_error_per_100, frozen_model_residual_per_100, model_ex
 and the metric notes say so.
 """
 
+import functools
 import json
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -38,6 +46,7 @@ import pyarrow.parquet as pq
 from analytics import results as R
 from analytics.eval import is_heldout_game
 from analytics.possessions import game_meta
+from analytics.rosters import SUFFIXES, fix_mojibake
 from collect.positions import join_rosters
 from export import schemas as S
 from export import site_common as C
@@ -61,6 +70,9 @@ NEIGHBOURS_FILE = "embedding_neighbours.parquet"
 FEATURES_FILE = "player_season_features.parquet"
 CHECK_UNITS = {"absence": "log loss", "embeddings": "accuracy"}
 CHECKS_COPY = "reports/export/frozen_checks.json"
+# The counts of the name joins section, written by every real players build (export/site_data.py), so the caveat in
+# CLAIMS.md, the lane dossiers and the methods page trace to a tracked file (PLAN.md D94, D95).
+NAME_JOINS = "reports/export/name_joins.json"
 # What the tracked copy of a check record must repeat from the artifact's own check.json to vouch for it.
 TRACKED_FIELDS = ("name", "compared", "n", "n_expected", "max_abs_diff", "tolerance", "written")
 # Why an out-of-fold attempt counts for no player, in the order the note states them.
@@ -77,6 +89,24 @@ LEFT_OUT_REASONS = (
 # so the mapping is repeated here and a test keeps it equal to the lane's.
 POSITION_MAP = {"PG": "G", "SG": "G", "G": "G", "SF": "F", "PF": "F", "F": "F", "C": "C"}
 
+# A rebound rate is withheld when the misses the rebound lane dropped could move it by this much or more per 100
+# chances, either way (PLAN.md D94, D95): down for the dropped misses he may have rebounded (lost_rebound_bias), up for
+# the dropped misses he was on the floor for, each a chance he did not get (floor_miss_bias). Set on 2026-11-17, after
+# the counts were seen: the rule is not a result, and another value is a D line of PLAN.md.
+MAX_LOST_REBOUND_BIAS = 0.5
+WITHHELD = {
+    "rebounding_low": "The play-by-play names him in a way the rebound data could not match to him, so some of his "
+                      "rebounds were dropped and his rate would read too low.",
+    "rebounding_high": "The rebound data dropped misses he was on the floor for, because it could not match the "
+                       "player who got the rebound. He did not get those rebounds, so his rate would read too high.",
+    "rebounding_both": "The rebound data dropped misses whose rebounder it could not match. Some may be his, and he "
+                       "was on the floor for others, so his rate could read too low or too high.",
+    "shot_mixed": "The play-by-play name fits him and a teammate alike, so the shot data may give one player's "
+                  "shots to the other.",
+    "shot_lost": "The play-by-play names him in a way the shot data could not match to him, so his shots count "
+                 "for nobody.",
+}
+
 # metric -> the lane whose verdict it shows
 METRIC_LANES = {"shot_making": "xfg", "gravity": "gravity", "rebounding": "rebounds", "absence_risk": "load",
                 "similar": "embeddings"}
@@ -90,9 +120,20 @@ class PlayersInfo:
     n_shown: int = 0
     n_hidden: int = 0
     shown_by_metric: dict = field(default_factory=dict)
+    withheld_by_metric: dict = field(default_factory=dict)
+    lost_rebounds: int = 0                  # dropped misses whose play-by-play rebounder the lane could not match
+    lost_rebounds_unattributed: int = 0     # of those, misses no roster name fits and no tracked leader takes
+    lost_rebounds_floor_exact: int = 0      # of those, misses whose players on the floor the tracking frames list
+    lost_rebounds_floor_bounded: int = 0    # the others: every player of the game counts as on the floor
+    rebounding_withheld_by_side: dict = field(default_factory=dict)     # low, high, both: player ids
+    rebounding_withheld_would_show: int = 0     # withheld rates on the minimum sample or more: shown but for the rule
+    shots_mixed: int = 0                    # credited attempts whose play-by-play name fits two teammates
+    shots_unattributed: int = 0             # unresolved named attempts no roster name fits and no tracked leader takes
     attempts_total: int = 0
     attempts_left_out: int = 0
     attempts_left_out_by_reason: dict = field(default_factory=dict)
+    attempts_unresolved_nearest: int = 0    # shooter_not_resolved attempts the xFG lane gave to the player nearest the ball
+    attempts_unresolved_no_shooter: int = 0     # shooter_not_resolved attempts with no shooter at all in the xFG lane
     games_with_attempts: int = 0
     games_without_shot_frames: int = 0
     absence: str = ""
@@ -144,6 +185,172 @@ def _concat(files: list, columns: list, what: str) -> pd.DataFrame:
         return pd.concat([pq.read_table(p, columns=columns).to_pandas() for p in files], ignore_index=True)
     except Exception as exc:  # the message may hold a local path, so it is not repeated
         raise ExportProblem(f"cannot read {what} ({type(exc).__name__}); columns asked: {columns}") from None
+
+
+# ------------------------------------------------------------------------------------------------- name joins
+#
+# The rebound and shot lanes resolve the play-by-play name of the rebounder or the shooter ("J. Green") against the
+# names on the tracking roster. That match fails on some names, and the stored tables keep the failure:
+#   rebound_frames  a miss whose named rebounder did not resolve gets no pbp_rebounder_id, and the rebound lane drops
+#                   the whole miss (analytics/rebounds/features.py: unmatched_named_rebounder). The other players on
+#                   the floor keep a chance on the misses they did not rebound, so the player's rate reads too low,
+#                   and reads zero when no rebound of his ever resolved.
+#   shot_frames     a shot whose shooter did not resolve counts for nobody (the export already leaves it out); a name
+#                   that fits two teammates resolves to the first of them, so one gets the other's shots.
+# The names fail on mojibake ("Ã. AÅÄ±k" for Ömer Aşık), on a suffix in the tracking name ("L. Nance" for Larry
+# Nance Jr.), on a later name ("E. Freedom" for Enes Kanter) and on two players with one initial and last name
+# ("J. Green" on Memphis). The stored tables are frozen, so the export does not repair them: it finds the players
+# they touch and withholds those values with the reason.
+
+
+_LETTERS = str.maketrans({"ı": "i", "ß": "ss", "ø": "o", "ł": "l", "đ": "d", "æ": "ae", "œ": "oe"})
+
+
+@functools.lru_cache(maxsize=None)
+def _tokens(name: str) -> tuple:
+    s = fix_mojibake(name).translate(_LETTERS)
+    s = "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c)).lower()
+    tokens = [t for t in re.split(r"[^a-z0-9]+", s.replace(".", " ")) if t]
+    while len(tokens) > 1 and tokens[-1] in SUFFIXES:
+        tokens.pop()
+    return tuple(tokens)
+
+
+def name_tokens(name) -> list:
+    """Lower-case ASCII tokens of a name, mojibake repaired, accents and generation suffixes dropped. Digits are kept
+    (no real name has one), so the synthetic test names stay apart."""
+    return list(_tokens(name)) if isinstance(name, str) else []
+
+
+def name_fits(pbp_name, roster: dict) -> list:
+    """The player ids of `roster` ({player_id: tracking name}) whose last name and first initial fit a play-by-play
+    name ("J. Green"), with the spelling differences above forgiven. Several ids when the name fits several players."""
+    tokens = name_tokens(pbp_name)
+    if len(tokens) < 2:
+        return []
+    initial, last = tokens[0][:1], tokens[-1]
+    out = []
+    for player_id, full in roster.items():
+        theirs = name_tokens(full)
+        if len(theirs) >= 2 and theirs[-1] == last and theirs[0][:1] == initial:
+            out.append(int(player_id))
+    return sorted(out)
+
+
+def _game_rosters(roster_rows: pd.DataFrame) -> dict:
+    """{game: {player_id: (name, team)}} of the training rosters, nameless placeholders left out."""
+    real = roster_rows[roster_rows["player_id"] > 0]
+    out = {}
+    for game, player_id, name, team in zip(real["sportvu_game"].astype(str), real["player_id"], real["player"],
+                                           real["team"].astype(str)):
+        out.setdefault(game, {})[int(player_id)] = (str(name), team)
+    return out
+
+
+def _attribute(games, names, tracked, rosters: dict) -> tuple:
+    """(lost rows per player id, rows attributed to nobody) for rows whose play-by-play name the lane did not
+    resolve. A row counts for every player of its game whose name fits. A name that fits nobody (a later name, such
+    as "E. Freedom" for Enes Kanter) stands for the player the tracking credits most often over all of that name's
+    rows (`tracked`: who took the ball or released the shot), when one player leads; a row of it counts for him in
+    the games where he is on the roster. Taking the leader of the season, not each row's own tracked player, keeps
+    the tracking's misreads from touching his teammates."""
+    games, names = [str(g) for g in games], list(names)
+    fits = [name_fits(n, {p: full for p, (full, _) in rosters.get(g, {}).items()}) for g, n in zip(games, names)]
+    votes = {}
+    for name, ids, who in zip(names, fits, tracked):
+        if not ids and pd.notna(who) and int(who) > 0:
+            votes.setdefault(name, []).append(int(who))
+    leader = {}
+    for name, ids in votes.items():
+        top = pd.Series(ids).value_counts()
+        if len(top) == 1 or top.iloc[0] > top.iloc[1]:
+            leader[name] = int(top.index[0])
+    counts, nobody = {}, 0
+    for game, name, ids in zip(games, names, fits):
+        if not ids and leader.get(name) in rosters.get(game, {}):
+            ids = [leader[name]]
+        nobody += not ids
+        for player_id in ids:
+            counts[player_id] = counts.get(player_id, 0) + 1
+    return pd.Series(counts, dtype="int64"), nobody
+
+
+def lost_rows(frames: pd.DataFrame) -> pd.DataFrame:
+    """The rebound_frames rows of the misses the rebound lane dropped as unmatched_named_rebounder: a rim frame, a
+    rebound event, a named rebounder and no pbp_rebounder_id."""
+    rim = pd.to_numeric(frames["rim_frame"], errors="coerce").fillna(-1).to_numpy() >= 0
+    return frames[rim & frames["rebound_event"].notna().to_numpy() & frames["pbp_rebounder_name"].notna().to_numpy()
+                  & frames["pbp_rebounder_id"].isna().to_numpy()]
+
+
+def lost_rebounds(frames: pd.DataFrame, rosters: dict) -> tuple:
+    """(lost misses per player id, lost misses, lost misses attributed to nobody). `frames` holds the rebound_frames
+    rows of training games; lost_rows picks the dropped misses. _attribute says whose each may be (the tracked player
+    is rebounder_id)."""
+    lost = lost_rows(frames)
+    counts, nobody = _attribute(lost["sportvu_game"], lost["pbp_rebounder_name"], lost["rebounder_id"], rosters)
+    return counts, int(len(lost)), nobody
+
+
+def floor_misses(lost: pd.DataFrame, rosters: dict, read_on_floor) -> tuple:
+    """(dropped misses each player was on the floor for, misses counted exactly, misses bounded). `lost` holds the
+    dropped misses of training games (lost_rows). read_on_floor(game, frames) -> {frame: set of player ids} reads the
+    players the tracking frames list at the given frames of one game (empty when the game has no frames table). A
+    miss counts exactly for the players listed at its rim frame when there are ten of them; otherwise, the
+    conservative side, it counts for every player on the game's training roster. One game is read at a time."""
+    counts, exact, bounded = {}, 0, 0
+    for game, rows in lost.groupby(lost["sportvu_game"].astype(str), sort=True):
+        rim = [int(f) for f in rows["rim_frame"]]
+        listed = read_on_floor(game, sorted(set(rim)))
+        roster = set(rosters.get(game, {}))
+        for frame in rim:
+            players = listed.get(frame, set())
+            if len(players) == N_ON_FLOOR:
+                exact += 1
+            else:
+                players, bounded = roster, bounded + 1
+            for player_id in players:
+                counts[player_id] = counts.get(player_id, 0) + 1
+    return pd.Series(counts, dtype="int64"), exact, bounded
+
+
+def floor_miss_bias(rate_per_100: float, floor: int, chances: int) -> float:
+    """The most the dropped misses he was on the floor for can raise his rate, per 100 chances: each was a chance he
+    did not rebound, so with them the rate would be rebounds / (chances + floor), and the gap to the shown rate is
+    rate * floor / (chances + floor)."""
+    return float(rate_per_100) * floor / (chances + floor) if floor and chances + floor > 0 else 0.0
+
+
+def shooter_name_problems(shots: pd.DataFrame, rosters: dict) -> tuple:
+    """(players whose attempts may be mixed with a teammate's, lost attempts per player id, mixed attempts, lost
+    attempts attributed to nobody). `shots` holds the shot_frames rows of training games. A credited attempt is mixed
+    when its play-by-play name fits two or more players of the credited shooter's team (the lane gave it to the first
+    of them): every one of them is touched. An attempt with a name and no shooter_id is lost, and _attribute says
+    whose it may be (the tracked player is shooter_at_release_id)."""
+    named = shots[shots["pbp_shooter_name"].notna().to_numpy()]
+    mixed, n_mixed = set(), 0
+    credited = named[named["shooter_id"].notna().to_numpy()]
+    for game, name, shooter in zip(credited["sportvu_game"].astype(str), credited["pbp_shooter_name"],
+                                   credited["shooter_id"]):
+        game_roster = rosters.get(game, {})
+        team = game_roster.get(int(shooter), (None, None))[1]
+        ids = name_fits(name, {p: full for p, (full, t) in game_roster.items() if t == team})
+        if len(ids) > 1:
+            mixed.update(ids)
+            n_mixed += 1
+    lost = named[named["shooter_id"].isna().to_numpy()]
+    counts, nobody = _attribute(lost["sportvu_game"], lost["pbp_shooter_name"], lost["shooter_at_release_id"], rosters)
+    return mixed, counts, n_mixed, nobody
+
+
+N_ON_FLOOR = 10
+
+
+def lost_rebound_bias(lost: int, chances: int) -> float:
+    """The most the dropped misses can lower his rate, per 100 chances: had he rebounded every one of them, the rate
+    would be (rebounds + lost) / (chances + lost), and the gap to rebounds / chances is at most lost / (chances +
+    lost)."""
+    return 100.0 * lost / (chances + lost) if lost else 0.0
 
 
 # ------------------------------------------------------------------------------------------------- baseline
@@ -248,9 +455,9 @@ def _positions(data_root: Path, roster_rows: pd.DataFrame) -> dict:
 
 
 def _shot_making(data_root: Path, gaps: np.ndarray, report_counts: list):
-    """(per-player frame, counts). Per player: attempts, makes over the contest candidate per 100 with its
-    interval, make share, expected share, the part the candidate's own calibration error explains for his shot mix,
-    and the frozen model's residual per 100. The counts say how many out-of-fold attempts there are, from how many
+    """(per-player frame, counts, the training shot_frames rows). Per player: attempts, makes over the contest
+    candidate per 100 with its interval, make share, expected share, the part the candidate's own calibration error
+    explains for his shot mix, and the frozen model's residual per 100. The counts say how many out-of-fold attempts there are, from how many
     games, and how many count for no player, by reason (LEFT_OUT_REASONS)."""
     path = data_root / "analytics" / "xfg" / C.SEASON / "xfg_predictions.parquet"
     cols = ["sportvu_game", "event", "player_id", "p_contest", "p_selected", "made", "fold", "heldout"]
@@ -265,11 +472,12 @@ def _shot_making(data_root: Path, gaps: np.ndarray, report_counts: list):
                             f"{XFG_REPORT} counts {list(report_counts)}: the stored predictions are not the report's")
     folder = data_root / "analytics" / "shot_frames" / C.SEASON
     files = _training_files(folder, C.data_path("analytics/shot_frames", C.SEASON))
-    located = training_games(_concat(files, ["sportvu_game", "event", "shooter_id"], "training shot_frames"),
-                             "training shot_frames")
+    located = training_games(_concat(files, ["sportvu_game", "event", "shooter_id", "pbp_shooter_name",
+                                             "shooter_at_release_id"], "training shot_frames"), "training shot_frames")
     if located.duplicated(["sportvu_game", "event"]).any():
         raise ExportProblem("training shot_frames: an event is listed twice")
-    merged = rows.merge(located, on=["sportvu_game", "event"], how="left", indicator="_joined")
+    merged = rows.merge(located[["sportvu_game", "event", "shooter_id"]], on=["sportvu_game", "event"], how="left",
+                        indicator="_joined")
     same = (merged["player_id"].astype("Float64") == merged["shooter_id"].astype("Float64")).fillna(False).astype(bool)
     same = same.to_numpy()
     attempt_games = merged["sportvu_game"].astype(str)
@@ -281,8 +489,11 @@ def _shot_making(data_root: Path, gaps: np.ndarray, report_counts: list):
                  "another_shooter": int((~same & ~no_table & ~no_row & ~no_shooter).sum())}
     if (same & (no_table | no_row | no_shooter)).any() or sum(by_reason.values()) != int((~same).sum()):
         raise ExportProblem("xfg_predictions: the attempts left out of shot-making do not split by reason")
+    took = merged["player_id"].notna().to_numpy()       # the shooter the xFG lane used (analytics/xfg/features.py)
     counts = {"total": int(len(rows)), "left_out": int((~same).sum()), "by_reason": by_reason,
-              "games": int(attempt_games.nunique()), "games_without_table": int(attempt_games[no_table].nunique())}
+              "games": int(attempt_games.nunique()), "games_without_table": int(attempt_games[no_table].nunique()),
+              "unresolved_nearest": int((no_shooter & took).sum()),
+              "unresolved_no_shooter": int((no_shooter & ~took).sum())}
     kept = merged[same].drop(columns="_joined").copy()
     kept["player_id"] = kept["player_id"].astype("int64")
     kept["made"] = kept["made"].astype(float)
@@ -301,7 +512,7 @@ def _shot_making(data_root: Path, gaps: np.ndarray, report_counts: list):
     out["expected_fg_pct"] = totals["expected"] / totals["n"]
     out["baseline_error"] = 100.0 * totals["gap"] / totals["n"]
     out["frozen_residual"] = 100.0 * totals["over_frozen"] / totals["n"]
-    return out, counts
+    return out, counts, located
 
 
 def _gravity(data_root: Path, players: pd.DataFrame) -> pd.DataFrame:
@@ -341,6 +552,31 @@ def _rebounding(data_root: Path) -> pd.DataFrame:
     totals = per_game.groupby("player_id")[["n", "expected"]].sum()
     out["expected_per_100"] = 100.0 * totals["expected"] / totals["n"]
     return out
+
+
+def _on_floor(data_root: Path, game: str, frames: list) -> dict:
+    """{frame: set of player ids} the tracking frames of one training game list at the given frames; empty when the
+    game has no frames table. Reads two columns of the listed frames only."""
+    if is_heldout_game(game):
+        raise ExportProblem(f"{game} is a held-out game: the rebound counts read training games only")
+    path = data_root / "sportvu_contract" / f"{game}.parquet"
+    if not path.exists() or not frames:
+        return {}
+    table = pq.read_table(path, columns=["frame", "player_id"], filters=[("frame", "in", [int(f) for f in frames])])
+    out = {}
+    for frame, player_id in zip(table.column("frame").to_pylist(), table.column("player_id").to_pylist()):
+        if player_id is not None and int(player_id) > 0:
+            out.setdefault(int(frame), set()).add(int(player_id))
+    return out
+
+
+def _rebound_frames(data_root: Path) -> pd.DataFrame:
+    """The rebound_frames rows of the training games: the play-by-play rebounder of each miss and what the lane
+    resolved it to."""
+    folder = data_root / "analytics" / "rebound_frames" / C.SEASON
+    files = _training_files(folder, C.data_path("analytics/rebound_frames", C.SEASON))
+    cols = ["sportvu_game", "rim_frame", "rebound_event", "rebounder_id", "pbp_rebounder_name", "pbp_rebounder_id"]
+    return training_games(_concat(files, cols, "training rebound_frames"), "training rebound_frames")
 
 
 def _absence_rows(data_root: Path) -> pd.DataFrame:
@@ -484,7 +720,11 @@ def _left_out_note(info: PlayersInfo) -> str:
             f"from {info.games_with_attempts} training games (more than the tracked training games, because a "
             "few training games have shot-chart rows and no tracking tables). An attempt counts for a player only when the tracked "
             "attempt names him as the shooter resolved from the play-by-play."
-            + (" Of those left out, " + "; ".join(parts) + "." if parts else ""))
+            + (" Of those left out, " + "; ".join(parts) + "." if parts else "")
+            + (f" Of the attempts whose shooter the name match did not resolve, the xFG lane gave "
+               f"{info.attempts_unresolved_nearest} to the player nearest the ball at release, for its shooter prior "
+               f"and contest features, and {info.attempts_unresolved_no_shooter} have no shooter in it and no contest "
+               "features." if info.attempts_left_out_by_reason.get("shooter_not_resolved") else ""))
 
 
 def _metric_notes(doc, info: PlayersInfo, absence_model: bool, similar_ready: bool) -> list:
@@ -501,6 +741,11 @@ def _metric_notes(doc, info: PlayersInfo, absence_model: bool, similar_ready: bo
             "prior: it already knows the shooter, so its residual is not a measure over expected. It is given for "
             "reference only.",
             _left_out_note(info),
+            "A value is withheld, whatever its sample, when the play-by-play name fits the player and a teammate "
+            "alike, or when attempts whose shooter the name match did not resolve fit him and would lift him to the "
+            "minimum sample. The player page says which.",
+            f"In the training games, {info.shots_mixed} tracked attempts carry a play-by-play name that fits two "
+            "teammates; the lane gave each of them to the first of the two.",
             "fg_pct is descriptive: the share of the player's counted attempts that went in.",
             f"Interval: {interval}. It belongs to over_expected_per_100. fg_pct, expected_fg_pct, "
             "baseline_error_per_100 and frozen_model_residual_per_100 are point estimates: no interval was computed "
@@ -517,6 +762,14 @@ def _metric_notes(doc, info: PlayersInfo, absence_model: bool, similar_ready: bo
             "located rim frame while the player was on the floor, so a total here is not a box-score total.",
             "The model expectation is the selected model's out-of-fold probability. It already uses the player's "
             "rebounding rate in other games, so the gap between the two is not a skill number.",
+            f"The lane dropped {info.lost_rebounds} misses because it could not match the play-by-play rebounder to a "
+            "player. A rate is withheld, with its model expectation, when those misses could move it by "
+            f"{MAX_LOST_REBOUND_BIAS:g} per 100 chances or more either way: down for the misses that may be his, up "
+            "for the misses he was on the floor for, each a chance he did not get. The player page says which. "
+            f"Who was on the floor comes from the tracking frames at the rim frame for "
+            f"{info.lost_rebounds_floor_exact} of those misses"
+            + (f"; for the other {info.lost_rebounds_floor_bounded}, every player of the game counts as on the floor."
+               if info.lost_rebounds_floor_bounded else "."),
             f"Interval: {interval}. It belongs to rate_per_100. model_expected_per_100 is a point estimate: no "
             "interval was computed for it.",
         ],
@@ -573,6 +826,35 @@ def _count(frame, player_id: int, column: str = "n") -> int:
     return int(frame.at[player_id, column]) if frame is not None and player_id in frame.index else 0
 
 
+def name_joins_record(info: PlayersInfo) -> dict:
+    """The counts of the name joins section, from one players build: the record NAME_JOINS holds."""
+    return {
+        "what": "Counts of the frozen name joins in the training games, written by export/site_players.py with "
+                "players.json (PLAN.md D94, D95). Counting only: nothing is fitted.",
+        "rebounds": {"dropped_misses": info.lost_rebounds,
+                     "dropped_misses_nobody_fits": info.lost_rebounds_unattributed,
+                     "on_floor_from_frames": info.lost_rebounds_floor_exact,
+                     "on_floor_bounded_by_roster": info.lost_rebounds_floor_bounded,
+                     "withheld_low": len(info.rebounding_withheld_by_side.get("low", [])),
+                     "withheld_high": len(info.rebounding_withheld_by_side.get("high", [])),
+                     "withheld_both": len(info.rebounding_withheld_by_side.get("both", [])),
+                     "withheld_would_otherwise_show": info.rebounding_withheld_would_show},
+        "shots": {"out_of_fold_attempts": info.attempts_total,
+                  "shooter_not_resolved": int(info.attempts_left_out_by_reason.get("shooter_not_resolved", 0)),
+                  "shooter_not_resolved_took_nearest": info.attempts_unresolved_nearest,
+                  "shooter_not_resolved_no_shooter": info.attempts_unresolved_no_shooter,
+                  "tracked_attempts_name_fits_two_teammates": info.shots_mixed,
+                  "withheld": len(info.withheld_by_metric.get("shot_making", []))},
+    }
+
+
+def write_name_joins(info: PlayersInfo, path) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(name_joins_record(info), indent=1) + "\n", encoding="utf-8")
+    return path
+
+
 def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_copy=None):
     """-> (PlayersFile, PlayersInfo). Reads training tables under the data root and, when their checks passed and
     equal their tracked copy (`checks_copy`, default reports/export/frozen_checks.json of the repository), the
@@ -583,9 +865,15 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
     baseline, gaps, report_counts = read_baseline(repo_root)
     players, roster_rows, n_games, (first_day, last_day) = _rosters(data_root)
     positions = _positions(data_root, roster_rows)
-    shots, attempt_counts = _shot_making(data_root, gaps, report_counts)
+    shots, attempt_counts, shot_rows = _shot_making(data_root, gaps, report_counts)
     gravity = _gravity(data_root, players)
     rebounds = _rebounding(data_root)
+    game_rosters = _game_rosters(roster_rows)
+    rebound_frames = _rebound_frames(data_root)
+    rebounds_lost, n_lost_rebounds, rebounds_nobody = lost_rebounds(rebound_frames, game_rosters)
+    rebounds_floor, floor_exact, floor_bounded = floor_misses(lost_rows(rebound_frames), game_rosters,
+                                                              lambda game, frames: _on_floor(data_root, game, frames))
+    shots_mixed, shots_lost, n_mixed, shots_nobody = shooter_name_problems(shot_rows, game_rosters)
     known = _absence_rows(data_root)
     observed = C.bootstrap_by_game(known, "absent", "one")
     absent_counts = known.groupby("player_id")["absent"].sum()
@@ -611,13 +899,24 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
                        games_with_attempts=attempt_counts["games"],
                        games_without_shot_frames=attempt_counts["games_without_table"], training_games=n_games, absence="model_out_of_fold" if model is not None else
                        f"observed_only ({why_no_model})", similar="available" if near is not None else
-                       f"not available ({why_no_similar})")
+                       f"not available ({why_no_similar})", lost_rebounds=n_lost_rebounds,
+                       lost_rebounds_unattributed=rebounds_nobody, shots_mixed=n_mixed, shots_unattributed=shots_nobody,
+                       lost_rebounds_floor_exact=floor_exact, lost_rebounds_floor_bounded=floor_bounded,
+                       attempts_unresolved_nearest=attempt_counts["unresolved_nearest"],
+                       attempts_unresolved_no_shooter=attempt_counts["unresolved_no_shooter"])
     shown_by_metric = {metric: 0 for metric in METRIC_LANES}
+    withheld_by_metric = {"shot_making": [], "rebounding": []}
+    by_side = {"low": [], "high": [], "both": []}
     for player_id in sorted(int(p) for p in players.index):
         attempts = _count(shots, player_id)
-        show = attempts >= MIN_ATTEMPTS
+        lost = int(shots_lost.get(player_id, 0))
+        withheld = (WITHHELD["shot_mixed"] if player_id in shots_mixed else
+                    WITHHELD["shot_lost"] if attempts < MIN_ATTEMPTS <= attempts + lost else None)
+        show = attempts >= MIN_ATTEMPTS and withheld is None
+        if withheld:
+            withheld_by_metric["shot_making"].append(player_id)
         shot_making = S.ShotMaking(
-            shown=show, attempts=attempts, min_attempts=MIN_ATTEMPTS,
+            shown=show, attempts=attempts, min_attempts=MIN_ATTEMPTS, withheld=withheld,
             over_expected_per_100=C.estimate(shots.at[player_id, "point"], shots.at[player_id, "lo"],
                                              shots.at[player_id, "hi"], 2, attempts, "attempts", interval) if show else None,
             fg_pct=C.rnd(shots.at[player_id, "fg_pct"], 4) if show else None,
@@ -636,9 +935,22 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
                                   C.interval_label("stored by the gravity lane")) if show else None)
 
         chances = _count(rebounds, player_id)
-        show = chances >= MIN_REBOUND_CHANCES
+        low = lost_rebound_bias(int(rebounds_lost.get(player_id, 0)), chances) >= MAX_LOST_REBOUND_BIAS
+        rate = rebounds.at[player_id, "point"] if player_id in rebounds.index else 0.0
+        high = floor_miss_bias(rate, int(rebounds_floor.get(player_id, 0)), chances) >= MAX_LOST_REBOUND_BIAS
+        side = "both" if low and high else "low" if low else "high" if high else None
+        withheld = WITHHELD[f"rebounding_{side}"] if side else None
+        if side:
+            by_side[side].append(player_id)
+            info.rebounding_withheld_would_show += int(chances >= MIN_REBOUND_CHANCES)
+        show = chances >= MIN_REBOUND_CHANCES and withheld is None
+        if show and rebounds.at[player_id, "point"] == 0 and rebounds.at[player_id, "hi"] == 0:
+            raise ExportProblem(f"rebound predictions: player {player_id} has no rebound in {chances} chances, which "
+                                "points at rebounds the lane tables lost; find the cause before showing his rate")
+        if withheld:
+            withheld_by_metric["rebounding"].append(player_id)
         rebounding = S.Rebounding(
-            shown=show, chances=chances, min_chances=MIN_REBOUND_CHANCES,
+            shown=show, chances=chances, min_chances=MIN_REBOUND_CHANCES, withheld=withheld,
             rate_per_100=C.estimate(rebounds.at[player_id, "point"], rebounds.at[player_id, "lo"],
                                     rebounds.at[player_id, "hi"], 2, chances, "chances", interval) if show else None,
             model_expected_per_100=C.rnd(rebounds.at[player_id, "expected_per_100"], 2) if show else None)
@@ -683,6 +995,8 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
             gravity=grav, rebounding=rebounding, absence_risk=absence, similar=similar))
 
     info.n_shown, info.n_hidden, info.shown_by_metric = len(views), int(len(players)) - len(views), shown_by_metric
+    info.withheld_by_metric = withheld_by_metric
+    info.rebounding_withheld_by_side = by_side
 
     def lane_table(*parts: str) -> str:
         return C.data_path("analytics", *parts)
@@ -696,6 +1010,10 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
                  "training"),
         C.source(lane_table("rebounds", C.SEASON, "<game>.parquet"), "rebounding: out-of-fold rows (fold >= 0)",
                  "out_of_fold"),
+        C.source(lane_table("rebound_frames", C.SEASON, "<game>.parquet"), "the play-by-play rebounder of each "
+                 "miss, to find the rebounds the lane dropped (a value is withheld for them)", "training"),
+        C.source(C.data_path("sportvu_contract", "<game>.parquet"), "players on the floor at the rim frame of each "
+                 "dropped miss (frame and player_id only), training games", "training"),
         C.source(lane_table("load", C.SEASON, "player_games.parquet"), "absence labels of training games", "training"),
         C.source(lane_table("rosters", C.SEASON, "<game>.parquet"), "names, teams and games of training games",
                  "training"),

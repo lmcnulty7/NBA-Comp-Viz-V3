@@ -419,6 +419,7 @@ export interface ShotMaking {
   expected_fg_pct?: number | null;
   baseline_error_per_100?: number | null;
   frozen_model_residual_per_100?: number | null;
+  withheld?: string | null;
 }
 /**
  * How far defenders stay from the player beyond what location explains, in feet (the stored player table).
@@ -446,6 +447,7 @@ export interface Rebounding {
   min_chances: number;
   rate_per_100?: Estimate | null;
   model_expected_per_100?: number | null;
+  withheld?: string | null;
 }
 /**
  * Chance that he does not appear in the team's next tracked game. `model_probability` is the mean
@@ -920,7 +922,11 @@ export interface OurValue {
  * test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
  * development bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research
  * result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
- * a test-only experiment never carries it. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+ * a test-only experiment never carries it. `result_in_writeup` marks an experiment that has run but whose result
+ * has a shape this page does not show yet: its status is ran_result_in_writeup and the page links the write-up.
+ * `test_not_scored` marks a development result that missed its bar and whose single test score was deliberately
+ * not spent (the write-up says so and the ledger has no entry): it is not_adopted_development with no test result.
+ * `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
  * (the narrow claim, a data-fault note).
  * An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
  * adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
@@ -948,11 +954,14 @@ export interface Experiment {
     | "adopted"
     | "not_adopted_test"
     | "passed_test"
-    | "adopted_research";
+    | "adopted_research"
+    | "ran_result_in_writeup";
   writeup?: string | null;
   writeup_notes?: string[];
   stages?: "development_and_test" | "test_only";
   adopted_as?: "research_result" | null;
+  result_in_writeup?: boolean;
+  test_not_scored?: boolean;
   development?: StageResult | null;
   test?: StageResult | null;
   protocol?: ProtocolResult | null;

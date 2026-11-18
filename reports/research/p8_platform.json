@@ -1,0 +1,173 @@
+{
+ "game": "gsw_ind_2016",
+ "decision": "PLAN.md D98, D99",
+ "colab": {
+  "run": "r13_20261004_1846",
+  "commit": "65aa65d",
+  "gpu": "NVIDIA A100-SXM4-40GB",
+  "device": "cuda",
+  "precision": "fp32",
+  "imgsz": 640,
+  "conf": 0.4,
+  "nms_iou": 0.45,
+  "ultralytics": null
+ },
+ "mac": {
+  "device": "mps",
+  "precision": "fp32",
+  "imgsz": 640,
+  "conf": 0.4,
+  "nms_iou": 0.45,
+  "ultralytics": "8.4.48",
+  "torch": "2.2.2"
+ },
+ "inputs": {
+  "sections_identical": 11,
+  "sections_differ": 0
+ },
+ "offsets_vs_colab": {
+  "windows": 81,
+  "over_0_2_s": 44,
+  "median_abs_s": 0.28,
+  "max_abs_s": 2.28
+ },
+ "game_totals": {
+  "accepted": {
+   "colab": 3552,
+   "mac_mps": 970
+  },
+  "camera_pool_inits": {
+   "colab": 5683,
+   "mac_mps": 3900
+  },
+  "camera_reproj_px": {
+   "colab": 6.53,
+   "mac_mps": 18.35
+  }
+ },
+ "windows": {
+  "gsw_ind_2016_s02_w04": {
+   "colab_candidates": 73,
+   "colab_offset_s": -0.06,
+   "mac_mps_offset_s": -1.34,
+   "mps_candidates": 2,
+   "mps_unmapped_frames": 54,
+   "cpu_candidates": 20,
+   "frames": 125,
+   "boxes_mean": {
+    "mps": 6.88,
+    "cpu": 7.78,
+    "detector_cpu_court_mps": null
+   },
+   "mps_rerun_identical": true,
+   "same_box_count_cpu_vs_mps": {
+    "frames": 125,
+    "same": 39
+   },
+   "identical_boxes_detector_cpu_vs_cpu": null,
+   "court_h_gap_px": {
+    "cpu_vs_mps": {
+     "median": 4.65,
+     "p90": 16.84,
+     "frames": 125
+    },
+    "detector_cpu_vs_mps": null,
+    "detector_cpu_vs_cpu": null
+   },
+   "offset_sweep_candidates": {}
+  },
+  "gsw_ind_2016_s02_w03": {
+   "colab_candidates": 89,
+   "colab_offset_s": 0.62,
+   "mac_mps_offset_s": 0.9,
+   "mps_candidates": 30,
+   "mps_unmapped_frames": 4,
+   "cpu_candidates": 30,
+   "frames": 145,
+   "boxes_mean": {
+    "mps": 7.43,
+    "cpu": 8.47,
+    "detector_cpu_court_mps": 8.47
+   },
+   "mps_rerun_identical": null,
+   "same_box_count_cpu_vs_mps": {
+    "frames": 145,
+    "same": 29
+   },
+   "identical_boxes_detector_cpu_vs_cpu": {
+    "frames": 145,
+    "identical": 145
+   },
+   "court_h_gap_px": {
+    "cpu_vs_mps": {
+     "median": 3.84,
+     "p90": 12.33,
+     "frames": 145
+    },
+    "detector_cpu_vs_mps": {
+     "median": 0.0,
+     "p90": 0.0,
+     "frames": 145
+    },
+    "detector_cpu_vs_cpu": {
+     "median": 3.84,
+     "p90": 12.33,
+     "frames": 145
+    }
+   },
+   "offset_sweep_candidates": {
+    "mps": {
+     "window": "gsw_ind_2016_s02_w03",
+     "build_dir": "label_build",
+     "solved_offset_s": 0.9,
+     "by_offset": {
+      "0.30": 65,
+      "0.62": 45,
+      "0.90": 30,
+      "1.20": 16
+     }
+    },
+    "cpu": {
+     "window": "gsw_ind_2016_s02_w03",
+     "build_dir": "s02_w03_cpu",
+     "solved_offset_s": 1.42,
+     "by_offset": {
+      "0.30": 98,
+      "0.62": 88,
+      "0.90": 55,
+      "1.20": 35
+     }
+    },
+    "detcpu": {
+     "window": "gsw_ind_2016_s02_w03",
+     "build_dir": "s02_w03_detcpu",
+     "solved_offset_s": 0.94,
+     "by_offset": {
+      "0.30": 97,
+      "0.62": 88,
+      "0.90": 55,
+      "1.20": 35
+     }
+    }
+   }
+  }
+ },
+ "build_seconds": {
+  "gsw_ind_2016_s02_w04": {
+   "mps": 26,
+   "cpu": 122
+  },
+  "gsw_ind_2016_s02_w03": {
+   "cpu": 142,
+   "detector_cpu_court_mps": 72
+  }
+ },
+ "sources": {
+  "colab_candidates": "DATA_ROOT/results/r13_20261004_1846/logs/autolabel_gsw_ind_2016.log",
+  "colab_offsets": "main checkout data/sportvu/labels/gsw_ind_2016/*.jsonl (offset_s)",
+  "colab_totals": "main checkout data/sportvu/labels/gsw_ind_2016_result.json",
+  "inputs": "DATA_ROOT/sportvu/MANIFEST_r13.json vs P8 workspace video/",
+  "mac": "P8 workspace labels/gsw_ind_2016_offsets.json, labels/gsw_ind_2016_result.json, label_build/",
+  "diagnosis": "_p8-diag: s02_w0*_cpu, s02_w04_mps, s02_w03_detcpu, cands_*.json, sweep_*.json, timings.json"
+ }
+}

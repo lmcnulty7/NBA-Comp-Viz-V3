@@ -190,3 +190,20 @@ under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewri
    the broadcast CV test set, registered only in reports/research/testset.json; six are development
    candidates, registered with their scorebug check in reports/research/p8_registry.json. They are
    stored outside the repository, never redistributed, and no frame of a test video is shown anywhere.
+5. **Rows dropped or mixed by player name (PLAN.md D94, D95, 2026-11-17):** the frozen rebound and xFG lanes match a
+   play-by-play name ("J. Green") to the tracking roster, and that match fails on four kinds of name (two players with
+   one short name, a later name, mojibake, a suffix). The rebound lane drops a miss whose named rebounder does not
+   match: 1040 misses over all games (reports/rebounds.md, dropped misses by reason, unmatched_named_rebounder), 1032
+   in training games. A dropped miss moves a rate both ways: down for the player whose rebound it may be, up for every
+   other player on the floor, who loses a chance he did not convert (who was on the floor is read from the tracking
+   frames at the rim frame). The xFG lane takes the player nearest the ball at release as the shooter when the name
+   does not resolve (analytics/xfg/features.py, lines 30 to 31 and 273 to 275): of 5477 such out-of-fold training
+   attempts, 5079 took the nearest player, for the shooter prior and the contest features, and 398 had no shooter and
+   no contest features; another 611 tracked attempts carry a name that fits two teammates and went to the first of
+   them. Every training count here is in reports/export/name_joins.json, which the export writes with players.json.
+   The rows are dropped or misassigned by name, not at random, so the frozen rebound and xFG results rest on samples
+   that lean away from a few players. They are traced and disclosed, not refit (frozen code, CLAUDE.md rule 3). The
+   site withholds the player values these joins touch, with the reason and its side: 14 rebound rates that could read
+   too low, 38 that could read too high (0.5 per 100 chances or more either way), and 19 shot-making values. 36 of
+   those rebound rates are ones the site would otherwise show; the rest are below the minimum sample or not on the
+   site. The methods page carries the same note beside both lanes.

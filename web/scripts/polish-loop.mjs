@@ -95,12 +95,19 @@ function runDir(run) {
 
 /** Check, then score the checked-out site `repeat` times per variant; write baseline-<variant>.json into dir. */
 async function baseline(variants, { repeat, runs, dir, label }) {
-  const written = {};
+  // Every variant is scored before any file is written: a baseline file written early would be a change in the
+  // working tree while the next variant is scored, and that score would record a dirty tree.
+  const results = {};
   for (const variant of variants) {
     const check = runCheck(variant);
     if (!check.passed) fail(`npm run check failed for the ${variant} variant at ${check.failedAt}; no baseline is written`);
     const result = await score({ runs, repeat, check, label: `${label} ${variant}` });
     if (!result.gate.passed) fail(`the ${variant} baseline fails its own gate: ${result.gate.reasons.join("; ")}`);
+    if (result.dirty) fail(`the ${variant} baseline was scored on a working tree with changes; no baseline is written`);
+    results[variant] = result;
+  }
+  const written = {};
+  for (const [variant, result] of Object.entries(results)) {
     const file = path.join(dir, `baseline-${variant}.json`);
     writeJson(file, result);
     written[variant] = { file: relative(file), cost: result.cost, noise: result.noise.costSpread };

@@ -30,6 +30,7 @@ features were measured.
 """
 
 import json
+import re
 import typing
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -45,6 +46,7 @@ from analytics.xfg import features as xfg_features
 from analytics.xfg import validate as xfg_validate
 from export import schemas as S
 from export import site_common as C
+from export.site_players import name_tokens
 from sportvu import splits
 
 ExportProblem = C.ExportProblem
@@ -407,6 +409,30 @@ def game_shots(game: Game, ctx: ShotContext, tables: dict, frames: Frames) -> pd
     return out
 
 
+def slug_stem(name):
+    """The stem basketball-reference builds a player's slug from: the first five letters of the last name and the
+    first two of the first name, in plain lower-case letters ("kanteen" for Enes Kanter). None for a one-word name."""
+    tokens = name_tokens(name)
+    return "".join(tokens[1:])[:5] + tokens[0][:2] if len(tokens) >= 2 else None
+
+
+def chart_shooter(slug: str, slug_to_player: dict, roster_names: dict):
+    """The tracked player of a shot chart marker whose play-by-play shooter the frozen name match did not resolve:
+    the one roster player carrying the marker's slug, else the one roster player without a slug whose tracking name
+    gives the slug's stem. The second step finds a player the roster's slug join missed because the play-by-play
+    lists him under a later name (Enes Kanter as "Enes Freedom", slug kanteen01). None unless exactly one player
+    fits."""
+    hits = slug_to_player.get(slug, [])
+    if len(hits) == 1:
+        return hits[0]
+    if hits:
+        return None
+    stem = re.sub(r"\d+$", "", slug)
+    slugged = {pid for ids in slug_to_player.values() for pid in ids}
+    fits = [pid for pid, name in roster_names.items() if pid not in slugged and slug_stem(name) == stem]
+    return fits[0] if len(fits) == 1 else None
+
+
 # ------------------------------------------------------------------------------------------------ one possession
 
 
@@ -578,6 +604,8 @@ def build_game(data_root, game: Game, ctx: ShotContext) -> GameResult:
     for r in rosters.itertuples(index=False):
         if isinstance(r.bref_slug, str) and r.bref_slug:
             slug_to_player.setdefault(r.bref_slug, []).append(int(r.player_id))
+    roster_names = {int(r.player_id): r.player for r in rosters.itertuples(index=False)
+                    if int(r.player_id) > 0 and isinstance(r.player, str)}
     rims = attack_rims(game, frames, possessions)
     shots = game_shots(game, ctx, tables, frames)
     sources = game_sources(game.game_id)
@@ -656,10 +684,8 @@ def build_game(data_root, game: Game, ctx: ShotContext) -> GameResult:
             shot = shots.iloc[i]
             shooter_id = int(shot["shooter_id"]) if np.isfinite(shot["shooter_id"]) else None
             if shooter_id is None and isinstance(shot["chart_slug"], str):
-                hits = slug_to_player.get(shot["chart_slug"], [])
-                if len(hits) == 1:
-                    shooter_id = hits[0]
-                    counts["shooter_from_chart"] += 1
+                shooter_id = chart_shooter(shot["chart_slug"], slug_to_player, roster_names)
+                counts["shooter_from_chart"] += int(shooter_id is not None)
             t = x = y = None
             t_source, location_source = "none", "none"
             if i in release_xy:

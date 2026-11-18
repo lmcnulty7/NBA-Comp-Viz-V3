@@ -46,17 +46,17 @@ def test_the_committed_source_traces_and_builds(source):
     methods = R.build_methods(REPO, source)
     backlog = R.backlog_rows((REPO / R.BACKLOG).read_text(encoding="utf-8"))
     ids = sorted(e.id for lane in methods.lanes for e in lane.experiments)
-    assert ids == sorted(backlog) and len(ids) == 24
+    assert ids == sorted(backlog)
     assert [lane.lane for lane in methods.lanes] == ["xfg", "rebounds", "matchups", "gravity", "ghosting",
                                                      "embeddings", "epv", "decisions", "lineups", "winprob",
-                                                     "load", "tracking"]
+                                                     "load", "tracking", "genai"]
     assert S.find_private(methods.model_dump_json()) == []
     # every lane cites its dossier and every source path is a file of the repository
     for item in methods.sources:
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -345,7 +345,7 @@ def test_the_methods_file_is_a_contract_file_in_both_kinds_of_data_root(tmp_path
     # real data: the committed source, through the methods step of export.site_data, with its manifest
     out = tmp_path / "real"
     problems, info = site_data.run(out, None, None, only=["methods"], log=QUIET)
-    assert info["methods"]["lanes"] == 12 and info["methods"]["experiments"]["xfg-E1"]
+    assert info["methods"]["lanes"] == len(source["lanes"]) and info["methods"]["experiments"]["xfg-E1"]
     assert not [p for p in problems if "methods.json" in p and "missing" not in p]
     manifest = json.loads((out / "manifest.json").read_text())
     assert [f["path"] for f in manifest["files"]] == ["methods.json"]
@@ -918,3 +918,119 @@ def test_winprob_shows_the_control_slopes_and_quotes_the_caveats(source):
         assert len(control) == 6 and all(v.point_estimate for v in control)
     assert any("a little optimistic" in note for note in experiment.writeup_notes)
     assert any("dropped by the frozen builders 16" in note for note in experiment.writeup_notes)
+
+
+# ------------------------------------------------------------------------------------------ the backlog stays in step
+
+
+def test_every_backlog_row_is_on_the_methods_page_with_its_rank_and_status(source):
+    """A change to docs/research/BACKLOG.md (a new row, a moved rank, a new status) that methods.json does not
+    follow fails here, in the fast suite, before any export runs."""
+    backlog = R.backlog_rows((REPO / R.BACKLOG).read_text(encoding="utf-8"))
+    listed = {e["id"]: e for lane in source["lanes"] for e in lane["experiments"]}
+    assert sorted(listed) == sorted(backlog), "every backlog row is an experiment of methods.json, and only those"
+    for eid, row in backlog.items():
+        e = listed[eid]
+        assert (str(e["rank"]), e["what"], str(e["gain"]), str(e["effort"]), e["test_data"], e["backlog_status"]) == (
+            row[0], row[3], row[4], row[5], row[7], row[8]), eid
+    # a done line in the backlog is never shown as not run
+    built = {e.id: e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments}
+    for eid, row in backlog.items():
+        if row[8].startswith("done"):
+            assert built[eid].status != "pre_registered", eid
+
+
+def test_a_moved_backlog_rank_fails_the_trace(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / R.BACKLOG
+    path.write_text(path.read_text(encoding="utf-8").replace("| 8 | xfg-E1 |", "| 9 | xfg-E1 |"), encoding="utf-8")
+    assert any("xfg-E1: rank is" in p for p in R.trace_problems(source, repo))
+
+
+def test_genai_e1_has_run_and_links_its_write_up_while_genai_e2_is_pre_registered(source):
+    methods = R.build_methods(REPO, source)
+    lane = next(lane for lane in methods.lanes if lane.lane == "genai")
+    e1, e2 = lane.experiments
+    assert (e1.status, e1.result_in_writeup, e1.writeup) == ("ran_result_in_writeup", True,
+                                                             "reports/research/genai-E1.md")
+    assert e1.development is None and e1.test is None and e1.protocol is None
+    assert e2.status == "pre_registered" and lane.benchmarks == []
+    other = e2.model_dump()
+    with pytest.raises(ValidationError, match="kept in its write-up"):
+        S.Experiment(**{**other, "result_in_writeup": True})
+    with pytest.raises(ValidationError, match="kept in its write-up"):
+        S.Experiment(**{**e1.model_dump(), "writeup": None})
+    doc = copy.deepcopy(source)
+    _exp(doc, "genai-E2").update(result_in_writeup=True, writeup="reports/research/genai-E1.md")
+    assert any("needs a done line" in p for p in R.trace_problems(doc, REPO))
+
+
+# ------------------------------------------------------------------------------------------ a test left unscored
+
+
+WP2_DEV = "reports/research/winprob-E2-dev.json"
+
+
+def _wp2(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "winprob-E2")
+
+
+def test_winprob_e2_is_a_development_result_whose_test_was_not_scored(source):
+    experiment = _wp2(R.build_methods(REPO, source))
+    data = json.loads((REPO / WP2_DEV).read_text())["pooled_nested_forward"]
+    verdict, paired = data["verdict"], data["paired"]["e2_minus_e1"]
+    assert (experiment.status, experiment.test, experiment.test_not_scored) == ("not_adopted_development", None, True)
+    dev = experiment.development
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(paired["mean_bucket_ece"][k], 4) for k in ("point", "lo", "hi"))
+    assert (dev.comparison, dev.threshold, dev.met) == ("below", 0, False) and verdict["adopt"] is False
+    (guard,) = dev.conditions
+    assert (guard.bound, guard.comparison, guard.threshold, guard.met) == ("hi", "at_most", verdict["brier_guard"],
+                                                                          True)
+    ledger = json.loads((REPO / R.LEDGER).read_text())
+    assert not any(e.get("experiment") == "winprob-E2" for e in ledger)
+    assert any("not read for winprob-E2" in note for note in experiment.writeup_notes)
+
+
+def test_a_test_left_unscored_is_refused_when_the_ledger_has_it(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    (repo / R.LEDGER).parent.mkdir(parents=True, exist_ok=True)
+    ledger = json.loads((REPO / R.LEDGER).read_text())
+    ledger.append({"experiment": "winprob-E2", "status": "scored"})
+    (repo / R.LEDGER).write_text(json.dumps(ledger), encoding="utf-8")
+    assert any("holds an entry for it" in p for p in R.trace_problems(source, repo))
+
+
+def test_a_test_left_unscored_is_refused_when_the_development_result_passed(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / WP2_DEV
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    cell = doc["pooled_nested_forward"]["paired"]["e2_minus_e1"]["mean_bucket_ece"]
+    cell.update(point=-0.004, lo=-0.006, hi=-0.002)
+    doc["pooled_nested_forward"]["verdict"].update(ece_falls=True, adopt=True)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="would hide a pass"):
+        R.build_methods(repo, source)
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("a test file named beside it", lambda d: _exp(d, "winprob-E2")["results"].update(
+        test="reports/research/winprob-E2-final.json"), "no test file"),
+    ("no write-up saying so", lambda d: _exp(d, "winprob-E2").update(writeup="reports/research/winprob-E1.md"),
+     "does not say the test was not scored"),
+    ("a test-only experiment left unscored", lambda d: _exp(d, "lineups-E1").update(test_not_scored=True),
+     "no other shape"),
+])
+def test_a_test_left_unscored_needs_its_shape(source, name, change, message):
+    problems = _problems_after(source, change)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_the_contract_keeps_an_unscored_test_to_a_missed_development_bar(source):
+    methods = R.build_methods(REPO, source)
+    wp2 = _wp2(methods).model_dump()
+    passed = _winprob(methods).development.model_dump()     # a development stage that met its bar
+    with pytest.raises(ValidationError, match="test left unscored"):
+        S.Experiment(**{**wp2, "development": passed, "status": "development_met_test_pending"})
+    pilot = next(e for lane in methods.lanes for e in lane.experiments if e.id == "xfg-E1").model_dump()
+    with pytest.raises(ValidationError, match="test left unscored"):
+        S.Experiment(**{**pilot, "test_not_scored": True})
