@@ -76,6 +76,8 @@ def install_paths(root: Path | None = None) -> dict:
     direction.DIR_BUILD = P["direction"]
     autolabel.OUT, autolabel.WIN_DIR = P["labels"], P["label_build"]
     truth.TRUTH_DIR = P["cache"] / "b4_truth"
+    from tools.p8_device import install_proxy
+    install_proxy()                        # device flags (tools.p8_device) reach the build subprocess
     return P
 
 
@@ -263,13 +265,16 @@ def safe_build(P: dict, w: dict, snip: Path, out_dir: Path, extra_args: tuple = 
     clip and the window time map) move to <P8 root>/failed/ so a rerun builds it again."""
     import shutil
     from sportvu.rebuild import build
+    from tools.p8_device import check_cached
     stem = w["window"]
     if gate_empty_path(out_dir, stem).exists():
+        check_cached(out_dir, stem)
         return {"ok": True, "cached": True, "empty": True}
     sweep_checkout(P, stem)
     r = build(w, snip, out_dir=out_dir, extra_args=extra_args)
     left = sweep_checkout(P, stem)
     if r.get("cached"):
+        check_cached(out_dir, stem)        # a workspace never mixes device settings
         return {"ok": True, "cached": True}
     tail = r.get("tail", "") or ""
     if zero_frame_exit(r) and not (out_dir / (stem + "_frames.json")).exists() and not left and _decodable(snip):
