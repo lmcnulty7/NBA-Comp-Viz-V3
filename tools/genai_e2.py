@@ -50,6 +50,7 @@ MAX_TRAIN_TOKENS, MAX_NEW_TOKENS, GEN_BATCH = 1024, 320, 8
 # The P3 form is about 3,900 prompt tokens: a batch of 8 needs about 7 GB for attention scores alone and ran out of
 # memory under the cap (a0, 2026-11-17), so A0-P3 generates one item at a time.
 P3_BATCH = 1
+SAVE_EVERY = 400          # examples between mid-epoch checkpoints (a crash loses at most this much work)
 FEW_SHOT = 2
 RFT = {"k": 4, "temperature": 0.8, "top_p": 0.95, "keep_per_item": 2, "possession_pool": 800, "round2_gain": 0.03}
 DTYPE = "float32"
@@ -347,16 +348,24 @@ def train(tok, model, rows: list, epochs: int, tag: str, deadline: float, dev_it
             ids, labels = encoded[order[k]]
             loss = model(input_ids=torch.tensor([ids], device="mps"), labels=torch.tensor([labels], device="mps")).loss
             (loss / ACCUM).backward()
+            last_loss = float(loss.detach())
+            del loss
             if (k + 1) % ACCUM == 0 or k + 1 == len(order):
                 optimizer.step()
                 schedule.step()
                 optimizer.zero_grad(set_to_none=True)
+                # the first stretch ran out of memory under the cap after about 200 examples of mixed lengths:
+                # the MPS cache grows with each new shape, so it is emptied at every optimizer step
+                torch.mps.empty_cache()
+                if (k + 1) % SAVE_EVERY == 0:
+                    _checkpoint(model, optimizer, schedule, tag, dict(state, examples_done=k + 1))
                 if time.perf_counter() > deadline:
                     _checkpoint(model, optimizer, schedule, tag, dict(state, examples_done=k + 1))
                     log(f"{tag}: stretch deadline at epoch {state['epoch'] + 1}, example {k + 1}; saved")
                     return dict(state, examples_done=k + 1, stopped=True)
             if (k + 1) % 200 == 0:
-                log(f"{tag}: epoch {state['epoch'] + 1}, {k + 1} of {len(order)}, loss {float(loss):.3f}")
+                log(f"{tag}: epoch {state['epoch'] + 1}, {k + 1} of {len(order)}, loss {last_loss:.3f}, "
+                    f"MPS {torch.mps.driver_allocated_memory() / 1e9:.2f} GB")
         state["epoch"] += 1
         state["examples_done"] = 0
         state.setdefault("train_s", []).append(time.perf_counter() - t0)
