@@ -307,6 +307,13 @@ model is a later decision. The pre-registration below is unchanged; its amendmen
     batch of 8 full P3 prompts needed about 7 GB for attention and stopped under the cap, 2026-11-17); training
     empties the MPS cache at every optimizer step and saves a checkpoint every 400 examples (the first sft stretch
     stopped under the cap after about 200 examples, 2026-11-18). After them, training memory held at 2.9 to 3.0 GB.
+- Amendment for the 1.5B model (2026-11-18, PLAN.md D101, before any 1.5B run): Qwen2.5-1.5B-Instruct at revision
+  989aa798, in bfloat16 as the pilot set (the pre-registration lets the pilot fix the number format); every other
+  setting, split, checker, stage, rule and threshold as for the 0.5B model. Its run folders and texts are kept apart
+  from the 0.5B ones, its dev choices go to reports/research/genai-E2-1.5B-dev.json, its one test score is the
+  ledger entry "genai-E2-1.5B" (resume entry "genai-E2-1.5B-resume", same rule as amendment j), and its result is
+  read and reported on its own: no hypothesis compares the two sizes. The possession targets are still template
+  texts, so a template copy on possessions is expected again and will be reported as such.
 - Decoding for every score: greedy, at most 320 new tokens, one attempt (primary). Secondary: a repair loop as P3's
   (one more attempt with the checker's problems in the prompt, at most 2 in all), which is the fair comparison with
   the Haiku texts as delivered.
