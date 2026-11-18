@@ -108,7 +108,7 @@ def test_only_the_evaluation_calls_score_test_once_and_at_most_once_per_experime
             if isinstance(node, ast.Call) and getattr(node.func, "attr", getattr(node.func, "id", None)) == "score_test_once":
                 name = node.args[0].value if node.args and isinstance(node.args[0], ast.Constant) else None
                 callers.setdefault(path.name, []).append(name)
-    assert set(callers) <= {"genai_eval.py"}
+    assert set(callers) <= {"genai_eval.py", "genai_e2.py"}
     names = [n for calls in callers.values() for n in calls]
     assert None not in names and len(names) == len(set(names))
 
@@ -210,3 +210,54 @@ def test_committed_genai_reports_are_private_clean_and_hold_no_text():
         assert not S.find_private(text), path.name
         if path.suffix == ".json":
             assert '"text"' not in text and '"frames"' not in text, path.name
+
+
+# ------------------------------------------------------------------------------------------------ genai-E2 (no model)
+
+
+def _guard(neg, pos):
+    from tools.genai_e2 import NumberGuard
+    g = NumberGuard.__new__(NumberGuard)
+    g.sets = [(set(neg), set(pos) | {"100"})]
+    return g
+
+
+def test_number_guard_allows_only_prefixes_of_the_items_values():
+    g = _guard(neg={"4.4"}, pos={"0.143", "6.0", "1,874"})
+    assert g.allowed_next("He made ", 0) == ({"0", "6", "1"}, False)
+    assert g.allowed_next("He made 0.1", 0) == ({"4"}, True)
+    chars, forced = g.allowed_next("He made 0.143", 0)
+    assert not forced and "." in chars and not any(c.isdigit() for c in chars)
+    assert g.allowed_next("a 0.143.", 0) == (set(), False)          # punctuation ends it; no glued digit
+    assert g.allowed_next("range \u2212", 0) == ({"4"}, False)      # after a minus, only negative values
+    assert g.allowed_next("range \u22124.", 0) == ({"4"}, True)
+    assert g.allowed_next("per 1", 0)[0] == {",", "0"}               # 1,874 or 100
+
+
+def test_readings_follow_the_pre_registration():
+    from tools.genai_e2 import reading
+    assert reading([0.05, 0.3], 0.15, "h1") == "passes"
+    assert reading([-0.1, 0.08], 0.0, "h1") == "fails"
+    assert reading([-0.02, 0.2], 0.09, "h1") == "inconclusive"
+    assert reading([-0.04, 0.1], 0.02, "h3") == "non-inferior"
+    assert reading([-0.3, -0.06], -0.2, "h3") == "inferior"
+    assert reading([0.01, 0.2], 0.1, "h2") == "helps" and reading([-0.2, -0.01], -0.1, "h2") == "hurts"
+
+
+def test_e2_checkers_are_pinned_by_blob_and_the_primary_is_the_merged_checker():
+    from tools import genai_e2 as X
+    import subprocess
+    for name, (commit, blob) in X.CHECKERS.items():
+        try:
+            found = subprocess.run(["git", "rev-parse", f"{commit}:export/genai.py"], cwd=REPO, capture_output=True,
+                                   text=True, check=True).stdout.strip()
+        except subprocess.CalledProcessError:
+            pytest.skip("pinned commit not in this clone")
+        assert found == blob, name
+    assert X.CHECKERS["freeze"][1] == json.loads(D.SPLITS_FILE.read_text())["checker"]["git_blob_sha1"]
+
+
+def test_e2_stretch_is_capped_at_three_hours():
+    from tools import genai_e2 as X
+    assert X.MAX_STRETCH_H <= 3.0
+    assert X.main(["sft", "--max-hours", "3.5"]) == 1

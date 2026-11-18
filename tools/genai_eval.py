@@ -39,12 +39,17 @@ HAIKU = "claude-haiku-5-5"
 # Each checker problem under one rule, by the start of its message (export.genai check_numbers, check_status,
 # check_lanes, check_words). The order matters: the first match wins.
 RULES = (
+    # rules of the merged P3 checker (v4-research db993008), the primary checker of genai-E2
+    ("subject", r"^number .* sits in a sentence that does not say what it is"),
+    ("attribution", r"^number .* given to the model as subject"),
+    ("sign", r"^number .* defender distance \((?:closer|farther)\), called"),
+    ("point_word", r"^says point estimate beside no point estimate"),
     ("model_word", r"^number .* is a model's value"),
     ("interval", r"^number .* is a value given without its interval"),
     ("point_estimate", r"^number .* is a point estimate the text does not call one"),
     ("number_value", r"^number "),
     ("number_word", r"^the (?:number word|ordinal|character) "),
-    ("direction", r"^'.*' (?:links|says) "),
+    ("direction", r"^'.*' (?:links|says|is negated)"),
     ("status", r"^uses .* does not say its model's status"),
     ("lane", r"^names the .* lane"),
     ("grade", r"reads at grade"),
