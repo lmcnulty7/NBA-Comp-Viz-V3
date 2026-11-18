@@ -6,7 +6,9 @@ on train items only (a5eefb1d); amendments after the dev stage and before the te
 (8b00705f). Scoring code: tools/genai_eval.py and tools/genai_templates.py at 8b00705f. Every number below is copied
 from reports/research/genai-E1-final.json (test, scored once: the one entry of reports/research/genai-ledger.json) or
 reports/research/genai-E1-dev.json; a number computed here from those files says so. Intervals are 95 percent
-percentile intervals of a 2000-resample bootstrap of players (scouting) or games (possessions), seed 0.
+percentile intervals of a 2000-resample bootstrap of players (scouting) or games (possessions), seed 0. A pass rate
+of 1.000 has a degenerate bootstrap interval; beside it is the exact one-sided Clopper-Pearson 95 percent lower
+bound, 0.05^(1/n) for n of n (computed here: 0.964 for 81, 0.994 for 480, 0.928 for 40, 0.988 for 240).
 
 **Verdict: H1 holds and H2 holds, on both Haiku arms.** On the pinned checker a template with no model passes every
 test text (81 of 81 players, 480 of 480 possessions), at least as often as claude-haiku-5-5, and the Haiku texts have
@@ -32,7 +34,7 @@ checker version is part of every result.
 
 | Arm | Pass rate | Texts | Reading grade, mean (largest) | Words per text, mean (range) | Frames / sentences | Frame variety | distinct-2 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| template | 1.000 [1.000, 1.000] | 81 | 3.70 [3.64, 3.76] (4.3) | 117.3 [114.7, 119.9] (82 to 126) | 16 / 752 | 0.021 [0.020, 0.022] | 0.014 [0.013, 0.014] |
+| template | 1.000 [1.000, 1.000]; exact one-sided 95% lower bound 0.964 | 81 | 3.70 [3.64, 3.76] (4.3) | 117.3 [114.7, 119.9] (82 to 126) | 16 / 752 | 0.021 [0.020, 0.022] | 0.014 [0.013, 0.014] |
 | Haiku, snapshot (pre-registered) | 0.840 [0.753, 0.914] | 68 | 4.66 [4.51, 4.81] (6.9) | 107.3 [105.3, 109.4] (88 to 134) | 339 / 569 | 0.596 [0.352, 0.460] | 0.120 [0.084, 0.106] |
 | Haiku, cache arm | 0.963 [0.914, 1.000] | 78 | 4.65 [4.53, 4.79] (6.9) | 107.5 [105.4, 109.7] (87 to 144) | 407 / 665 | 0.612 [0.363, 0.461] | 0.119 [0.085, 0.103] |
 
@@ -56,17 +58,23 @@ checker version is part of every result.
 | Haiku, snapshot | 65 of 81 | 68 | "number _ is his made shots above expected, given to the model" 8 |
 | Haiku, cache arm | 65 of 81 | 78 | "sits in a sentence that does not say what it is" 20; "is his made shots above expected, given to the model" 8 |
 
-The template writes "Defenders stay -0.57 feet closer to him" for a negative value (dev item; the page means farther
-away), with a second sentence saying a minus sign means more room. The pinned checker accepts this because every
-digit is right; the newer checker refuses it. This is the kind of error section 1 of the dossier says the pinned
-checker cannot see: the right digits with the wrong meaning in words. The template was not changed after the dev
-stage showed it (amendment 2).
+Two template sentences cause the template's failures under this checker. (1) The sign rule (30 problems on test):
+the template writes "Defenders stay -0.57 feet closer to him" for a negative value (a dev item; the page means
+farther away), with a second sentence saying a minus sign means more room. That is a wrong meaning with the right
+digits, which the pinned checker cannot see. (2) The subject rule (60 problems on test): the sentences for a view
+that is not shown ("His shot value is not shown: he took N shots, and the page needs M", and the same for defender
+distance) give a count without naming in the same words what it counts; this reads more as strict checking than as
+a wrong meaning. On the 40 dev players, 34 template texts fail: 19 on the sign rule only, 8 on the subject rule only,
+7 on both (counted on the dev items with the same checker after the review; the test rows hold verdicts, not
+problems). The counts in the table are problems, not texts. The template was not changed after the dev stage showed
+this (amendment 2). For Haiku, the snapshot arm's 65 of 68 texts were partly selected by the P3 branch's pruning
+with these same checks, so the cache arm (65 of 78 texts) is the fairer comparison.
 
 ## Possessions, 480 test possessions of 40 training games (template only)
 
 | Arm | Pass rate | Reading grade, mean (largest) | Words per text, mean (range) | Frames / sentences | Frame variety | distinct-2 |
 | --- | --- | --- | --- | --- | --- | --- |
-| template | 1.000 [1.000, 1.000] | 3.38 [3.34, 3.43] (4.6) | 68.0 [67.2, 68.8] (49 to 110) | 21 / 2,799 | 0.008 [0.007, 0.008] | 0.003 [0.002, 0.003] |
+| template | 1.000 [1.000, 1.000]; exact one-sided 95% lower bound 0.994 | 3.38 [3.34, 3.43] (4.6) | 68.0 [67.2, 68.8] (49 to 110) | 21 / 2,799 | 0.008 [0.007, 0.008] | 0.003 [0.002, 0.003] |
 
 The sensitivity checker passes 480 of 480 template possession texts.
 
@@ -93,7 +101,9 @@ independent samples. Under the last setting, 45 of 57 first attempts pass the pi
 
 ## Dev stage (40 players, 240 possessions)
 
-Template 1.000 on both kinds; Haiku snapshot 0.825 [0.700, 0.925], cache arm 1.000 [1.000, 1.000]; Haiku minus
+genai-E1-dev.json records code_commit a5eefb1d, but it was run on the uncommitted code that became 8b00705f (it
+holds the cache arm and the sensitivity output, which exist only there); the stage was not run again. Template
+1.000 on both kinds; Haiku snapshot 0.825 [0.700, 0.925], cache arm 1.000 [1.000, 1.000]; Haiku minus
 template frame variety [0.338, 0.498]. The dev stage led to the three amendments; no threshold changed.
 
 ## What this means
@@ -101,8 +111,10 @@ template frame variety [0.338, 0.498]. The dev stage led to the three amendments
 - A deterministic template meets the pinned faithfulness checker on every test item, at no spend and in milliseconds,
   as RotoWire's template beat neural systems on extraction precision (Wiseman, Shieber and Rush 2017, Table 2). Pass
   rate on this checker is not enough to argue for a model.
-- What the model buys is variety (frame variety 0.596 and 0.612 against 0.021) and, on the newer checker,
-  fewer wrong meanings with right digits. Whether readers value the variety is the human protocol's question (P7).
+- What the model buys is variety (frame variety 0.596 and 0.612 against 0.021). On the newer checker Haiku also
+  passes more often (65 of 81 against 36 of 81), part of it from one wrong-meaning template sentence (the sign rule)
+  and part from strict checking of a stock sentence (the subject rule). Whether readers value the variety is the
+  human protocol's question (P7).
 - For genai-E2: the checker that trains (rejection sampling) and scores must be named and pinned, a newer checker
   should be applied beside it, and variety is reported beside every pass rate. A trained model that copies a
   template would pass the pinned checker and say nothing new; frame variety shows it.

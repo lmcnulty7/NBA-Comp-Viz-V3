@@ -3,8 +3,12 @@
 The P3 prompt (export/prompts) and export.genai.user_message give the facts as indented JSON with a long instruction
 block: about 3,800 tokens per scouting example with its text, too long for LoRA on 16 GB. A trained arm does not need
 the rules spelled out: it learns them from its targets, and the checker scores it the same way. So the trained arms
-(A1, A2, A3) get this compact input; the few-shot arm (A0) keeps the full P3 prompt, which is the only place a base
-model can learn the rules.
+(A1, A2, A3) get this compact input. The few-shot arm (A0) gets the same compact input with RULES (the P3 prompt's
+rules cut to this format) and 2 compact worked examples; A0-P3, reported beside it, gets the full P3 prompt and JSON.
+
+    <venv python> -m tools.genai_format --out reports/research/genai-E2-format-tokens.json
+
+counts the tokens of every train example in both forms with the Qwen2.5 tokenizer (no model is loaded).
 
 The compact input holds the same facts as the item, nothing more: one line per fact or per estimate, the shown value
 exactly as the page prints it, the unit only where the shown value does not carry it, and the context (names, teams,
@@ -105,3 +109,39 @@ def context_lines(item: dict) -> list:
 
 def compact_message(item: dict) -> str:
     return "\n".join([f"kind: {item['kind']}"] + context_lines(item) + ["facts:"] + fact_lines(item))
+
+
+def token_counts(out) -> dict:
+    """Token counts of the train examples (input and target) in the compact form and, for the first 200 of each
+    kind, in the P3 form; counts only, no text."""
+    import json
+    from pathlib import Path
+    from transformers import AutoTokenizer
+    from export import genai as G
+    from tools import genai_e2 as X
+
+    tok = AutoTokenizer.from_pretrained(X.MODEL[0], revision=X.MODEL[1])
+    record = {"_comment": "genai-E2 input format token counts (tools/genai_format.py); counts only, no text",
+              "tokenizer": list(X.MODEL)}
+    for kind in ("scouting", "possession"):
+        rows = [row for row in X.targets("train") if row[0]["kind"] == kind]
+        compact = sorted(len(X.encode_train(tok, item, target)[0]) for item, target in rows)
+        full = []
+        for item, target in rows[:200]:
+            chat = [{"role": "system", "content": G.prompt(kind)[1]}, {"role": "user", "content": G.user_message(item)},
+                    {"role": "assistant", "content": target}]
+            ids = tok.apply_chat_template(chat, tokenize=True)
+            full.append(len(ids["input_ids"] if hasattr(ids, "input_ids") else ids))
+        record[kind] = {"examples": len(compact), "compact_mean": sum(compact) / len(compact),
+                        "compact_largest": compact[-1], "compact_over_800": sum(n > 800 for n in compact),
+                        "compact_over_1024": sum(n > 1024 for n in compact),
+                        "p3_form_mean_first_200": sum(full) / len(full), "p3_form_largest_first_200": max(full)}
+    Path(out).write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
+    return record
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="token counts of the genai-E2 input forms")
+    parser.add_argument("--out", required=True)
+    print(token_counts(parser.parse_args().out))

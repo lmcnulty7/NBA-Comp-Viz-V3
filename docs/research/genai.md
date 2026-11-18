@@ -20,9 +20,9 @@
   facts as JSON.
 - Generator: claude-haiku-5-5, at most 2 attempts per item; the second attempt sees the checker's problems. The call
   setting and the history of the scouting runs are in PLAN.md D90.
-- Output so far: 398 of 405 scouting texts in the snapshot this lane reads (genai/scouting.json of the v4 site data
-  root; genai-E1 checks each again against its input), and the possession texts of the held-out
-  games, which passed every check (D90). This lane never reads the possession texts.
+- Output so far: the snapshot this lane reads (genai/scouting.json of the v4 site data root at the freeze) holds
+  335 scouting texts of 405 players, the count D93's re-check kept; the Haiku cache records hold a kept text for 398
+  (genai-E1, amendment 1). The possession texts are about held-out games; this lane never reads them.
 
 ### The checker as an evaluation
 
@@ -117,6 +117,13 @@ checker and our variety measure.
   reports/research/genai-ledger.json before its scorer runs and refuses a second call. Tests hold this
   (tests/test_genai_research.py).
 
+- The players.json snapshot was frozen at 21:54 UTC on 2026-11-17, before D94 (committed at 23:07 UTC), so the
+  scouting items hold values that D94 now withholds as broken by the frozen name joins: 5 rebound rates of 0.0 (4
+  train players, 1 test player) and Jeff Green's shot making, which mixes in another player's attempts (a train
+  player); D94's other withheld rebound rates are not identified here. A faithfulness pass rate is not affected (a
+  text is checked against the item it was written from), but Haiku teacher texts state those numbers, so a trained
+  arm learns from them. No text of this lane reaches the site (D92).
+
 ### genai-E1: a template writer against the Haiku texts
 
 **Result (2026-11-17, reports/research/genai-E1.md): H1 and H2 hold.** On the pinned checker the template passes
@@ -201,10 +208,11 @@ showed are fixed here, before the one test score, and change no threshold or rea
   system turn, and as the user turn the item's context on a few short lines and one line per fact or estimate
   ("field: shown value", a range as "(lo to hi, 95%)", a point estimate marked "point", the EPV curve and the
   similar players folded into one line each, a sample size that repeats a count left out). It holds the same numbers
-  as the item and nothing else. On the train items it is 643 tokens per scouting example with its target on average
-  (largest 756) and 468 per possession example (largest 1,266; 29 of 3,000 over 800), against about 3,800 and 3,000
-  in the P3 prompt and JSON form (Qwen2.5 tokenizer). Training examples over 1,024 tokens are left out of training
-  and counted; no evaluation item is ever left out. The first pilot, on the P3 form, ran out of memory on its first
+  as the item and nothing else. On the train examples (reports/research/genai-E2-format-tokens.json, after the
+  target filter of amendment g) it is 642 tokens per scouting example with its target on average (largest 757, 220
+  examples) and 469 per possession example (largest 1,267; 29 of 3,000 over 800, 3 over 1,024), against 3,812 and
+  3,021 on average in the P3 prompt and JSON form (first 200 of each kind; Qwen2.5 tokenizer). Training examples
+  over 1,024 tokens are left out of training and counted; no evaluation item is ever left out. The first pilot, on the P3 form, ran out of memory on its first
   step (about 3,800 tokens, 19 GiB of activations), which is why the format changed.
 - Arms, for each model size.
   - A0 few-shot: the base model with the rules block of tools/genai_format.py (RULES, the P3 prompt's rules cut to
@@ -309,8 +317,8 @@ showed are fixed here, before the one test score, and change no threshold or rea
 - Data. No held-out game is used to train, tune or evaluate (D92). Scouting rows are descriptive training-game
   tables; possession rows are training games with out-of-fold model values. No API call.
 - Compute. 16 GB Mac (Apple M5, MPS), one job at a time under the heavy-job lock, weights read from the local cache.
-  No training run starts before the lead's go. Pilot (2026-11-17, tools/genai_pilot.py, 96 s under the lock, output
-  kept outside the repository): 0.5B in float32, 20 LoRA steps on compact examples of 545 tokens on average, 0.94 s
+  No training run starts before the lead's go. Pilot (2026-11-17, tools/genai_pilot.py, 96 s under the lock; a
+  text-free summary in reports/research/genai-E2-pilot.json): 0.5B in float32, 20 LoRA steps on compact examples of 545 tokens on average, 0.94 s
   per step after the first, 8.8 million trainable parameters, peak MPS memory 5.2 GB, generation 41 to 50 tokens a
   second; 1.5B in bfloat16, 6 steps of 581 tokens on average, 1.32 s per step after the first, 18.5 million
   trainable, peak MPS memory 7.3 GB, generation 25 to 33 tokens a second. The base models on the full P3 prompt

@@ -1,0 +1,25 @@
+{
+ "_comment": "genai-E2 input format token counts (tools/genai_format.py); counts only, no text",
+ "tokenizer": [
+  "Qwen/Qwen2.5-0.5B-Instruct",
+  "7ae557604adf67be50417f59c2c2f167def9a775"
+ ],
+ "scouting": {
+  "examples": 220,
+  "compact_mean": 641.9681818181818,
+  "compact_largest": 757,
+  "compact_over_800": 0,
+  "compact_over_1024": 0,
+  "p3_form_mean_first_200": 3811.9,
+  "p3_form_largest_first_200": 4162
+ },
+ "possession": {
+  "examples": 3000,
+  "compact_mean": 468.538,
+  "compact_largest": 1267,
+  "compact_over_800": 29,
+  "compact_over_1024": 3,
+  "p3_form_mean_first_200": 3020.69,
+  "p3_form_largest_first_200": 6609
+ }
+}

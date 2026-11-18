@@ -1,0 +1,215 @@
+{
+ "started": "2026-11-17T23:38:25Z",
+ "prompt": "scouting-v2",
+ "lora": {
+  "r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "target_modules": [
+   "q_proj",
+   "k_proj",
+   "v_proj",
+   "o_proj",
+   "gate_proj",
+   "up_proj",
+   "down_proj"
+  ]
+ },
+ "lr": 0.0002,
+ "mps_high_watermark_ratio": "0.6",
+ "max_new_tokens": 320,
+ "train_rows_available": 64,
+ "runs": [
+  {
+   "model": "Qwen/Qwen2.5-0.5B-Instruct",
+   "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+   "dtype": "float32",
+   "device": "mps",
+   "load_s": 2.337927375047002,
+   "params": 494032768,
+   "gradient_checkpointing": true,
+   "trainable_params": 8798208,
+   "steps": 20,
+   "step_s": [
+    2.282352207985241,
+    1.127916791010648,
+    1.2486267079948448,
+    0.7604954579728656,
+    1.5028265420114622,
+    0.8535038330010138,
+    1.1709700420033187,
+    1.1357704999973066,
+    1.0878506659646519,
+    0.8864750419743359,
+    0.9911915830452926,
+    0.48080124997068197,
+    0.8165546249947511,
+    0.580246250028722,
+    1.0550217910204083,
+    0.5397119169938378,
+    1.016185833956115,
+    0.6972269170219079,
+    1.0350541250081733,
+    0.8161348749999888
+   ],
+   "step_tokens": [
+    658,
+    424,
+    683,
+    413,
+    753,
+    553,
+    703,
+    520,
+    694,
+    448,
+    597,
+    263,
+    525,
+    373,
+    661,
+    372,
+    645,
+    455,
+    644,
+    522
+   ],
+   "loss": [
+    1.7860643863677979,
+    1.7216395139694214,
+    1.4668877124786377,
+    1.3102006912231445,
+    1.5560500621795654,
+    0.8625887632369995,
+    1.2728922367095947,
+    0.4855538606643677,
+    1.1613160371780396,
+    0.5270619988441467,
+    1.2531697750091553,
+    0.5195848941802979,
+    1.3593934774398804,
+    0.1983565092086792,
+    1.1671580076217651,
+    0.0840575248003006,
+    1.655741572380066,
+    0.11575248837471008,
+    1.1141197681427002,
+    0.08987846970558167
+   ],
+   "mean_step_s_after_first": 0.9369770920510698,
+   "generation": [
+    {
+     "prompt_tokens": 478,
+     "new_tokens": 166,
+     "seconds": 4.081351040978916,
+     "tokens_per_s": 40.67280621864488,
+     "checker_problems": 5
+    },
+    {
+     "prompt_tokens": 480,
+     "new_tokens": 180,
+     "seconds": 3.596902416960802,
+     "tokens_per_s": 50.043059036361285,
+     "checker_problems": 7
+    },
+    {
+     "prompt_tokens": 336,
+     "new_tokens": 91,
+     "seconds": 1.8975857500336133,
+     "tokens_per_s": 47.95567209460128,
+     "checker_problems": 1
+    },
+    {
+     "prompt_tokens": 346,
+     "new_tokens": 75,
+     "seconds": 1.5499527920037508,
+     "tokens_per_s": 48.38857053384275,
+     "checker_problems": 0
+    }
+   ],
+   "generation_full_prompt_base": {
+    "prompt_tokens": 3889,
+    "new_tokens": 114,
+    "seconds": 3.797305582964327
+   },
+   "peak_mps_driver_gb": 5.162860544,
+   "peak_rss_gb_so_far": 1.63528704
+  },
+  {
+   "model": "Qwen/Qwen2.5-1.5B-Instruct",
+   "revision": "989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+   "dtype": "bfloat16",
+   "device": "mps",
+   "load_s": 2.4491741670062765,
+   "params": 1543714304,
+   "gradient_checkpointing": true,
+   "trainable_params": 18464768,
+   "steps": 6,
+   "step_s": [
+    2.240362250013277,
+    1.4838544999947771,
+    1.4927047079545446,
+    0.8294246669975109,
+    1.6050743749947287,
+    1.1868337919586338
+   ],
+   "step_tokens": [
+    658,
+    424,
+    683,
+    413,
+    753,
+    553
+   ],
+   "loss": [
+    1.5738444328308105,
+    1.3677250146865845,
+    1.2472244501113892,
+    0.9944886565208435,
+    1.4043512344360352,
+    0.7000601887702942
+   ],
+   "mean_step_s_after_first": 1.319578408380039,
+   "generation": [
+    {
+     "prompt_tokens": 478,
+     "new_tokens": 320,
+     "seconds": 9.834701624989975,
+     "tokens_per_s": 32.537845295365145,
+     "checker_problems": 8
+    },
+    {
+     "prompt_tokens": 480,
+     "new_tokens": 65,
+     "seconds": 2.6441310410154983,
+     "tokens_per_s": 24.5827453298367,
+     "checker_problems": 2
+    },
+    {
+     "prompt_tokens": 336,
+     "new_tokens": 320,
+     "seconds": 10.831323333026376,
+     "tokens_per_s": 29.543943077044947,
+     "checker_problems": 21
+    },
+    {
+     "prompt_tokens": 346,
+     "new_tokens": 320,
+     "seconds": 10.93552116601495,
+     "tokens_per_s": 29.26243707474001,
+     "checker_problems": 16
+    }
+   ],
+   "generation_full_prompt_base": {
+    "prompt_tokens": 3889,
+    "new_tokens": 177,
+    "seconds": 7.960358832962811
+   },
+   "peak_mps_driver_gb": 7.268696064,
+   "peak_rss_gb_so_far": 1.63528704
+  }
+ ],
+ "wall_s": 94.55950054200366,
+ "peak_rss_gb": 1.63528704,
+ "_comment": "genai-E2 feasibility pilot (tools/genai_pilot.py at 5cdfab43, compact input format), a machinery check, not a result. Text-free: counts, times, losses and memory only."
+}
