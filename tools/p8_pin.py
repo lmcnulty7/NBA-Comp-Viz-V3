@@ -19,7 +19,7 @@ from tools.p8_common import REPO
 P8_NO_GAMES = True
 PIN_FILE = REPO / "reports" / "research" / "p8_scorecard_pin.json"
 SCORER = "tools/p8_scorecard.py"
-P8_CODE = ("tools/p8_scorecard.py", "tools/p8_frozen.py", "tools/p8_common.py")
+P8_CODE = ("tools/p8_scorecard.py", "tools/p8_frozen.py", "tools/p8_common.py", "tools/p8_device.py")
 CONSTANTS_FILE = "reports/research/p8_constants.json"       # the ball tolerance, written once by fix-ball-tolerance
 FROZEN = ("clock_reader.py", "sportvu/bench.py", "sportvu/truth.py", "sportvu/eval.py", "sportvu/sync.py", "sportvu/camera.py",
           "sportvu/autolabel.py", "sportvu/label_check.py", "sportvu/rebuild.py", "sportvu/local_sync.py",
