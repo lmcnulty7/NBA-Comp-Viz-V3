@@ -47,6 +47,9 @@ LORA = {"r": 16, "lora_alpha": 32, "lora_dropout": 0.05,
         "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]}
 LR, WARMUP, ACCUM, EPOCHS, SEED = 2e-4, 10, 8, 3, 0
 MAX_TRAIN_TOKENS, MAX_NEW_TOKENS, GEN_BATCH = 1024, 320, 8
+# The P3 form is about 3,900 prompt tokens: a batch of 8 needs about 7 GB for attention scores alone and ran out of
+# memory under the cap (a0, 2026-11-17), so A0-P3 generates one item at a time.
+P3_BATCH = 1
 FEW_SHOT = 2
 RFT = {"k": 4, "temperature": 0.8, "top_p": 0.95, "keep_per_item": 2, "possession_pool": 800, "round2_gain": 0.03}
 DTYPE = "float32"
@@ -280,8 +283,9 @@ def generate(tok, model, items: list, arm: str, sample: bool = False, n: int = 1
     texts, seconds = {}, {}
     model.eval()
     model.config.use_cache = True
-    for start in range(0, len(items), GEN_BATCH):
-        batch = items[start:start + GEN_BATCH]
+    size = P3_BATCH if arm == "p3" else GEN_BATCH
+    for start in range(0, len(items), size):
+        batch = items[start:start + size]
         chats = [tok.apply_chat_template(chat_of(item) if chat_of else messages(item, arm), add_generation_prompt=True,
                                          tokenize=False) for item in batch]
         enc = tok(chats, return_tensors="pt", padding=True, add_special_tokens=False).to("mps")
@@ -301,7 +305,7 @@ def generate(tok, model, items: list, arm: str, sample: bool = False, n: int = 1
             rows = out[j * n:(j + 1) * n, width:]
             texts[item["key"]] = [tok.decode(r, skip_special_tokens=True).strip() for r in rows]
             seconds[item["key"]] = per
-        log(f"  generated {min(start + GEN_BATCH, len(items))} of {len(items)} ({arm}{', guard' if guard else ''})")
+        log(f"  generated {min(start + size, len(items))} of {len(items)} ({arm}{', guard' if guard else ''})")
     return texts, seconds
 
 
