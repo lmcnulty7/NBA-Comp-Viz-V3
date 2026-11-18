@@ -354,7 +354,7 @@ def train(tok, model, rows: list, epochs: int, tag: str, deadline: float, dev_it
         t0 = time.perf_counter()
         for k in range(done, len(order)):
             ids, labels = encoded[order[k]]
-            loss = model(input_ids=torch.tensor([ids], device="mps"), labels=torch.tensor([labels], device="mps")).loss
+            loss = answer_loss(model, ids, labels)
             (loss / ACCUM).backward()
             last_loss = float(loss.detach())
             del loss
@@ -389,6 +389,22 @@ def train(tok, model, rows: list, epochs: int, tag: str, deadline: float, dev_it
         if time.perf_counter() > deadline and state["epoch"] < epochs:
             return dict(state, stopped=True)
     return state
+
+
+def answer_loss(model, ids: list, labels: list):
+    """The mean cross-entropy of the answer tokens, as the model's own loss with these labels computes it, but with
+    logits kept only for the answer positions (logits_to_keep). The full-length logits (151,936 words by every
+    position, in float32 for the loss) were the memory peak that stopped the first 1.5B stretch under the cap; the
+    answer is the end of the example, so nothing of the loss changes."""
+    import torch
+    import torch.nn.functional as Fn
+    n_answer = sum(1 for x in labels if x != -100)
+    if n_answer == 0 or any(x != -100 for x in labels[:len(labels) - n_answer]):
+        raise ValueError("the answer must be the end of the example")
+    keep = n_answer + 1
+    logits = model(input_ids=torch.tensor([ids], device="mps"), logits_to_keep=keep).logits
+    target = torch.tensor([ids[len(ids) - n_answer:]], device="mps")
+    return Fn.cross_entropy(logits[:, :-1, :].float().reshape(-1, logits.shape[-1]), target.reshape(-1))
 
 
 def _mean(values) -> float:
