@@ -1,5 +1,5 @@
 {
- "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one. The lanes cases are the lane-word rule (check_lanes, checkLanes).",
+ "_comment": "Shared cases for the number check of machine-written texts: export/genai.py (tests/test_export_genai.py) and web/lib/genai.ts (web/tests/unit/genai.test.ts) must agree on every one. The lanes cases are the lane-word rule (check_lanes, checkLanes). The directions cases are the word-of-change rule (check_directions, checkDirections). The subjects cases are the subject rule (check_subjects, checkSubjects).",
  "numbers": [
   {
    "name": "an interval value with both bounds",
@@ -1832,6 +1832,3590 @@
    "names": [],
    "ok": true,
    "lane": ""
+  }
+ ],
+ "directions": [
+  {
+   "name": "one value at two roundings is no change",
+   "text": "Expected points started at 0.96 points, a point estimate. Expected points dipped to 0.963 points at 0.0 seconds.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "one value at two roundings"
+  },
+  {
+   "name": "a rise and a fall that agree with the values",
+   "text": "Expected points started at 0.96, a point estimate. They rose to 1.062 at 0.6 seconds, then fell to 0.719.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a rise that went down",
+   "text": "Expected points were 1.062, a point estimate. Then they rose to 0.719.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "from A to B in one sentence",
+   "text": "Expected points fell from 1.062 to −0.19, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "from A to B the wrong way",
+   "text": "Expected points climbed from 1.062 to 0.719, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "a negative end is lower",
+   "text": "Expected points were 0.719, then dropped to −0.19, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a word of change with no value after it is not checked",
+   "text": "Expected points were 1.062, a point estimate. The shot fell short and they scored 2 points.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a name is not a word of change",
+   "text": "Derrick Rose had 1.062 expected points, then 0.719, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [
+    "Derrick Rose"
+   ],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a time after the word is skipped",
+   "text": "Expected points were 0.96, a point estimate. They rose at 0.6 seconds to 1.062.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "an exact curve value is not a rounding",
+   "text": "Expected points started at 1.06 and rose to a high of 1.1, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.value.4",
+     "shown": "1.1",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.4"
+    },
+    {
+     "field": "epv_end",
+     "shown": "1.06",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "an exact value that rounds to the other is no change",
+   "text": "Expected points started at 0.96 and rose to 0.963, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.96",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.0",
+     "shown": "0.963",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.0"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.062",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "0.719",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv_end",
+     "shown": "−0.19",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "0.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.0",
+     "shown": "0.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.value.4",
+     "shown": "1.1",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.4"
+    },
+    {
+     "field": "epv_end",
+     "shown": "1.06",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_end"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "no change"
+  },
+  {
+   "name": "2015-11-10-uta-at-cle/84: a second move after to",
+   "text": "The model's expected points started at 1.21 as a point estimate. They fell to a model estimate of 1.047 by 1.0 seconds. Expected points then rose to 1.081 at 2.0 seconds and to 1.064 at 3.0 seconds.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "1.21",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.047",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "1.081",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "1.064",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv.value.6",
+     "shown": "1.051",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.6"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "1.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.2",
+     "shown": "2.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.3",
+     "shown": "3.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "went down"
+  },
+  {
+   "name": "2015-11-08-ind-at-cle/151: eased down to a higher value",
+   "text": "Expected points started at 0.99 and eased down to 1.017 by 6.7 seconds. The model's point estimate then rose to a peak of 1.227 at 12.6 seconds.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says down"
+  },
+  {
+   "name": "eased up agrees",
+   "text": "Expected points started at 0.99 and eased up to 1.227, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "spiked to a lower value",
+   "text": "Expected points were 1.227, a point estimate. Then they spiked to 0.579.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "lost to a lower value agrees",
+   "text": "Expected points were 1.227, a point estimate. Then they lost ground to 0.579.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "up from a higher value",
+   "text": "Expected points reached 0.579, up from 1.227, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "higher than a lower value agrees",
+   "text": "Expected points reached 1.227, higher than 1.017, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "lower than a higher value agrees",
+   "text": "Expected points reached 0.579, lower than 1.227, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "to Y from X",
+   "text": "Expected points rose to 1.227 from 1.017, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "to Y from X the wrong way",
+   "text": "Expected points rose to 0.579 from 1.227, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "says up"
+  },
+  {
+   "name": "a negated word of change",
+   "text": "Expected points were 1.227 and did not fall to 0.579, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "0.99",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.5",
+     "shown": "1.017",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.5"
+    },
+    {
+     "field": "epv.value.10",
+     "shown": "1.227",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.10"
+    },
+    {
+     "field": "epv.value.11",
+     "shown": "0.579",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.11"
+    },
+    {
+     "field": "epv.t.5",
+     "shown": "6.7",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.10",
+     "shown": "12.6",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "negated"
+  },
+  {
+   "name": "edged down agrees",
+   "text": "Expected points were 1.081, then edged down to 1.064, a point estimate.",
+   "facts": [
+    {
+     "field": "epv_start",
+     "shown": "1.21",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv_start"
+    },
+    {
+     "field": "epv.value.1",
+     "shown": "1.047",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.1"
+    },
+    {
+     "field": "epv.value.2",
+     "shown": "1.081",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.2"
+    },
+    {
+     "field": "epv.value.3",
+     "shown": "1.064",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.3"
+    },
+    {
+     "field": "epv.value.6",
+     "shown": "1.051",
+     "unit": "points",
+     "kind": "point",
+     "group": "epv.value.6"
+    },
+    {
+     "field": "epv.t.1",
+     "shown": "1.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.2",
+     "shown": "2.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "epv.t.3",
+     "shown": "3.0",
+     "unit": "seconds",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "points",
+     "shown": "2",
+     "unit": "points",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  }
+ ],
+ "subjects": [
+  {
+   "name": "amir-johnson: the model's error called shot-making",
+   "text": "The point estimate for his shot-making is −0.5 per 100.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "does not say what it is"
+  },
+  {
+   "name": "danilo-gallinari: the model's error with no word for it",
+   "text": "The model-adjusted point estimate is +1.0.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "does not say what it is"
+  },
+  {
+   "name": "lamarcus-aldridge and lavoy-allen: the error called a gap",
+   "text": "The model's point estimate for that gap is −0.5 per 100 attempts.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "does not say what it is"
+  },
+  {
+   "name": "the model's error named as an error",
+   "text": "The point estimate of the model's own error is −0.5 per 100.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "eric-gordon: a rank read as a count of views",
+   "text": "Eric Gordon has 4 views on this page, and all of them worked.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [
+    "Eric Gordon"
+   ],
+   "ok": false,
+   "problem": "similar.neighbours.4.rank"
+  },
+  {
+   "name": "udonis-haslem: a rank read as a count of games",
+   "text": "After 6 of his 17 games, he missed the next 1.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "similar.neighbours.1.rank"
+  },
+  {
+   "name": "udonis-haslem: a rank read as a count of views",
+   "text": "3 views are not shown yet.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "similar.neighbours.3.rank"
+  },
+  {
+   "name": "a rank with a word of style",
+   "text": "The closest in style is Darrell Arthur, ranked 1, at a distance of 1.448, a point estimate.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [
+    "Darrell Arthur"
+   ],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "chances called rebounds",
+   "text": "Rebounding has rebounds 201 of 300.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.min_chances",
+     "shown": "300",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "rebounding.chances"
+  },
+  {
+   "name": "a range in its own sentence, right after its value",
+   "text": "He made 7.5 more shots per 100 than the model expected. That figure has a 95% range of 3.1 to 12.8.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "point estimate beside no point estimate",
+   "text": "He played 18 games, a point estimate.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "beside no point estimate"
+  },
+  {
+   "name": "a range alone with no value before it",
+   "text": "He played 18 games. That figure has a 95% range of 3.1 to 12.8.",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "7.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "3.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "12.8",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "−0.5",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "shot_making.baseline_error_per_100",
+     "shown": "+1.0",
+     "unit": "none",
+     "kind": "point",
+     "group": "shot_making.baseline_error_per_100"
+    },
+    {
+     "field": "similar.neighbours.4.rank",
+     "shown": "4",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.rank",
+     "shown": "1",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.3.rank",
+     "shown": "3",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "similar.neighbours.1.distance",
+     "shown": "1.448",
+     "unit": "none",
+     "kind": "point",
+     "group": "similar.neighbours.1.distance"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "6",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.model_probability.n",
+     "shown": "17",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "games",
+     "shown": "18",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "absence_risk.observed_rate.value",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "value",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.lo",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "lo",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.observed_rate.hi",
+     "shown": "0.000",
+     "unit": "none",
+     "kind": "hi",
+     "group": "absence_risk.observed_rate"
+    },
+    {
+     "field": "absence_risk.absent",
+     "shown": "0",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    },
+    {
+     "field": "rebounding.chances",
+     "shown": "201",
+     "unit": "none",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "over_expected_per_100.lo"
+  },
+  {
+   "name": "his share given to the model",
+   "text": "The model expected 57.1% of his shots to go in.",
+   "facts": [
+    {
+     "field": "shot_making.fg_pct",
+     "shown": "57.1%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.fg_pct"
+    },
+    {
+     "field": "shot_making.expected_fg_pct",
+     "shown": "56.4%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.expected_fg_pct"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "shot_making.fg_pct"
+  },
+  {
+   "name": "his share beside the model's, each named",
+   "text": "He made 57.1% of his attempts, while the model expected 56.4%, a point estimate.",
+   "facts": [
+    {
+     "field": "shot_making.fg_pct",
+     "shown": "57.1%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.fg_pct"
+    },
+    {
+     "field": "shot_making.expected_fg_pct",
+     "shown": "56.4%",
+     "unit": "percent",
+     "kind": "point",
+     "group": "shot_making.expected_fg_pct"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "a positive defender distance called farther",
+   "text": "Defenders stayed 0.39 feet farther from him (95% range 0.20 to 0.58).",
+   "facts": [
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "0.39",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.lo",
+     "shown": "0.20",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.hi",
+     "shown": "0.58",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "−0.41",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "called farther"
+  },
+  {
+   "name": "a negative defender distance called closer",
+   "text": "Defenders stayed −0.41 feet closer to him than expected.",
+   "facts": [
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "0.39",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.lo",
+     "shown": "0.20",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.hi",
+     "shown": "0.58",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "−0.41",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "called closer"
+  },
+  {
+   "name": "a positive defender distance called closer",
+   "text": "Defenders stayed 0.39 feet closer to him (95% range 0.20 to 0.58).",
+   "facts": [
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "0.39",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.lo",
+     "shown": "0.20",
+     "unit": "feet",
+     "kind": "lo",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.hi",
+     "shown": "0.58",
+     "unit": "feet",
+     "kind": "hi",
+     "group": "gravity.gravity_ft"
+    },
+    {
+     "field": "gravity.gravity_ft.value",
+     "shown": "−0.41",
+     "unit": "feet",
+     "kind": "value",
+     "group": "gravity.gravity_ft"
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
+  },
+  {
+   "name": "festus-ezeli: his made shots given to the model",
+   "text": "The model gave 0.8 more made shots per 100 (95% range −5.1 to 7.1).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "given to the model"
+  },
+  {
+   "name": "chase-budinger: the model's made shots above expected",
+   "text": "The model's made shots above expected were −5.5 per 100 attempts (95% range −13.8 to 2.3).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "given to the model"
+  },
+  {
+   "name": "jared-dudley: his range given to the model",
+   "text": "He made 4.7 shots per 100 over expected. The model expected this (95% range −1.6 to 9.7).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": false,
+   "problem": "given to the model"
+  },
+  {
+   "name": "his made shots with the model as object",
+   "text": "He made 0.8 more shots per 100 than the model expected (95% range −5.1 to 7.1).",
+   "facts": [
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "0.8",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−5.1",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "7.1",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "−5.5",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−13.8",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "2.3",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.value",
+     "shown": "4.7",
+     "unit": "none",
+     "kind": "value",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.lo",
+     "shown": "−1.6",
+     "unit": "none",
+     "kind": "lo",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.hi",
+     "shown": "9.7",
+     "unit": "none",
+     "kind": "hi",
+     "group": "shot_making.over_expected_per_100"
+    },
+    {
+     "field": "shot_making.over_expected_per_100.interval",
+     "shown": "95%",
+     "unit": "percent",
+     "kind": "fact",
+     "group": ""
+    }
+   ],
+   "names": [],
+   "ok": true,
+   "problem": ""
   }
  ]
 }

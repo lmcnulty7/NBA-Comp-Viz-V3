@@ -196,7 +196,7 @@
        "lo": "paired_cvap_minus_iso_shot_weighted.lo",
        "hi": "paired_cvap_minus_iso_shot_weighted.hi",
        "threshold": "verdict.threshold",
-       "upper": "verdict.upper_95",
+       "upper": "paired_cvap_minus_iso_shot_weighted.hi",
        "met": "verdict.passes_threshold"
       },
       "digits": 5,
@@ -238,7 +238,8 @@
       "conditions": [],
       "flags_outside_rule": {
        "verdict.width_p95_under_0_01": "the site copy rule fixed in the pre-registration (whether xFG is shown as a point estimate), not the adoption rule"
-      }
+      },
+      "design": "stage"
      },
      "writeup": "reports/research/xfg-E1.md"
     },
@@ -1618,7 +1619,8 @@
         "hi": "kept_stints.paired.rapm_minus_plus_minus.ci95.1",
         "digits": 2
        }
-      ]
+      ],
+      "design": "stage"
      },
      "writeup": "reports/research/lineups-E1.md",
      "stages": "test_only",
@@ -1828,8 +1830,183 @@
      "gain": 4,
      "effort": 2,
      "test_data": "2025-26 season",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: passes (mean bucket Brier, Elo drift term minus frozen logistic -0.0124 [-0.0161, -0.0086] on 1300 games of 2025-26, no bucket worse, overtime included; drift form beyond Elo alone -0.0005 [-0.0011, -0.0001]; early calibration is a point estimate, so any site use waits for winprob-E2 or a D line; reports/research/winprob-E1.md)",
+     "results": {
+      "metric": "Paired difference in mean bucket Brier, Elo drift term arm minus the frozen logistic (regulation buckets)",
+      "rows_unit": "play-by-play rows",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent interval of the difference in mean bucket Brier.",
+      "development": "reports/research/winprob-E1-dev.json",
+      "test": "reports/research/winprob-E1-final.json",
+      "paths": {
+       "development": {
+        "data": "pooled_forward",
+        "verdict": "pooled_forward.verdict",
+        "stage": "stage"
+       },
+       "test": {
+        "data": "scored.results",
+        "verdict": "scored.results.verdict",
+        "stage": "scored.stage"
+       }
+      },
+      "rule_quote": {
+       "section": "What is tested",
+       "text": "Adoption threshold, fixed before any run: e1 minus baseline is at most -0.002, its paired 95 percent interval lies below zero, and no bucket gets worse beyond its interval (the lower end of that bucket's paired interval above zero)."
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "{data}.rows",
+       "games": "{data}.games",
+       "diff": "{data}.paired.e1_minus_baseline.mean_bucket_brier.point",
+       "lo": "{data}.paired.e1_minus_baseline.mean_bucket_brier.lo",
+       "hi": "{data}.paired.e1_minus_baseline.mean_bucket_brier.hi",
+       "upper": "{data}.paired.e1_minus_baseline.mean_bucket_brier.hi",
+       "met": "{verdict}.adopt",
+       "main_met": "{verdict}.interval_excludes_zero"
+      },
+      "conditions": [
+       {
+        "label": "Size: the paired difference itself, signed (an improvement of at least 0.002)",
+        "value": "{data}.paired.e1_minus_baseline.mean_bucket_brier.point",
+        "lo": "{data}.paired.e1_minus_baseline.mean_bucket_brier.lo",
+        "hi": "{data}.paired.e1_minus_baseline.mean_bucket_brier.hi",
+        "bound": "point",
+        "comparison": "at_most",
+        "threshold_key": "{verdict}.threshold",
+        "sign": -1,
+        "met": "{verdict}.size_at_least_threshold",
+        "digits": 4
+       }
+      ],
+      "guard": {
+       "label": "Paired difference in Brier by time bucket, overtime included (PLAN.md D91)",
+       "path": "{data}.paired.e1_minus_baseline.bucket_brier",
+       "buckets": [
+        "48-36",
+        "36-24",
+        "24-12",
+        "12-4",
+        "4-0",
+        "OT"
+       ],
+       "worse": "{verdict}.buckets_worse",
+       "bound": "lo",
+       "comparison": "above",
+       "threshold": 0,
+       "digits": 4
+      },
+      "flags_outside_rule": {
+       "{verdict}.interval_straddles_threshold": "reported beside the verdict (whether the interval crosses the bar), not part of the adoption rule"
+      },
+      "digits": 4,
+      "values": [
+       {
+        "label": "Mean bucket Brier, Elo drift term arm",
+        "value": "{data}.arms.e1.mean_bucket_brier.point",
+        "lo": "{data}.arms.e1.mean_bucket_brier.lo",
+        "hi": "{data}.arms.e1.mean_bucket_brier.hi",
+        "digits": 4
+       },
+       {
+        "label": "Mean bucket Brier, control: the frozen logistic refit",
+        "value": "{data}.arms.baseline.mean_bucket_brier.point",
+        "lo": "{data}.arms.baseline.mean_bucket_brier.lo",
+        "hi": "{data}.arms.baseline.mean_bucket_brier.hi",
+        "digits": 4
+       },
+       {
+        "label": "Ablation: drift arm minus Elo alone without the drift term, paired mean bucket Brier",
+        "value": "{data}.paired.e1_minus_ablation.mean_bucket_brier.point",
+        "lo": "{data}.paired.e1_minus_ablation.mean_bucket_brier.lo",
+        "hi": "{data}.paired.e1_minus_ablation.mean_bucket_brier.hi",
+        "digits": 4
+       },
+       {
+        "label": "Log loss difference, drift arm minus control, read by no verdict",
+        "value": "{data}.paired.e1_minus_baseline.log_loss.point",
+        "lo": "{data}.paired.e1_minus_baseline.log_loss.lo",
+        "hi": "{data}.paired.e1_minus_baseline.log_loss.hi",
+        "digits": 4
+       },
+       {
+        "label": "Calibration slope of the drift arm, 48-36 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.48-36",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the drift arm, 36-24 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.36-24",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the drift arm, 24-12 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.24-12",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the drift arm, 12-4 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.12-4",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the drift arm, 4-0 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.4-0",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the drift arm, overtime",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.OT",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 48-36 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.48-36",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 36-24 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.36-24",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 24-12 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.24-12",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 12-4 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.12-4",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, 4-0 minutes left",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.4-0",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of the control arm, overtime",
+        "value": "{data}.arms.baseline.calibration_slope_point_estimate.OT",
+        "digits": 3
+       }
+      ],
+      "design": "{stage}"
+     },
+     "writeup": "reports/research/winprob-E1.md",
+     "adopted_as": "research_result",
+     "writeup_notes": [
+      "As committed, the pass reads \"adopted as a research result\".",
+      "The frozen lane, its report and the site do not change.",
+      "Early calibration was mixed on development, so any use on the site waits for winprob-E2 or a D line.",
+      {
+       "section": "Commitments before the test score",
+       "text": "Elo parameters were chosen on the same check seasons the development stage scores, so the development result is a little optimistic (3 parameters on about 3900 games)."
+      },
+      {
+       "section": "Test season (2025-26, scored once)",
+       "text": "Games listed 1316, without play-by-play 0, dropped by the frozen builders 16, scored 1300 (610276 events). All 16 were dropped by the frozen clock rule for a gap in the period numbers (7626 events); their ids are in the final json."
+      }
+     ]
     },
     {
      "id": "winprob-E2",

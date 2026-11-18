@@ -31,6 +31,7 @@ export const STATUS_TONE: Record<Experiment["status"], StatusTone> = {
   adopted: "pass",
   not_adopted_test: "fail",
   passed_test: "pass",
+  adopted_research: "pass",
 };
 
 /** The plain name of a lane, or the lane key with its underscores as spaces when copy names no such lane. */
@@ -97,6 +98,13 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
   return (
     <div className="stack stack-tight" data-stage={stage.stage} data-met={stage.met ? "true" : "false"}>
       <h3 className={styles.stage}>{label(r.stage, stage.stage)}</h3>
+      {stage.design ? (
+        <p className="small">
+          {r.design}
+          {": "}
+          <DataText file={FILE} field={`${field}.design`} text={stage.design} />
+        </p>
+      ) : null}
       <dl className="facts">
         <div>
           <dt>{r.difference}</dt>
@@ -174,6 +182,43 @@ export function StageFacts({ stage, field }: { stage: StageResult; field: string
                   </span>
                   <span className={styles.state}>
                     <Status tone={condition.met ? "pass" : "fail"} text={condition.met ? r.met : r.missed} />
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+      {stage.guard ? (
+        <div className="stack stack-tight" data-testid="guard" data-guard-met={stage.guard.met ? "true" : "false"}>
+          <h4 className={styles.side}>{r.guard.title}</h4>
+          <p className="small">
+            <DataText file={FILE} field={`${field}.guard.label`} text={stage.guard.label} />
+            <span className="note">
+              {fillNodes(r.guard.line, {
+                end: label(r.guard.end, stage.guard.bound),
+                comparison: label(r.condition.comparison, stage.guard.comparison),
+                threshold: <DataValue file={FILE} field={`${field}.guard.threshold`} value={stage.guard.threshold} />,
+              })}
+            </span>
+          </p>
+          <ul className={styles.values}>
+            {stage.guard.buckets.map((bucket, index) => {
+              const at = `${field}.guard.buckets[${index}]`;
+              return (
+                <li key={bucket.label} className={styles.value} data-bucket-worse={bucket.worse ? "true" : "false"}>
+                  <DataText file={FILE} field={`${at}.label`} text={bucket.label} />
+                  <span className="estimate">
+                    <DataValue file={FILE} field={`${at}.value`} value={bucket.value} signed />
+                    <span className="note" data-interval="true">
+                      {fillNodes(copy.site.estimate.range, {
+                        lo: <DataValue file={FILE} field={`${at}.lo`} value={bucket.lo} />,
+                        hi: <DataValue file={FILE} field={`${at}.hi`} value={bucket.hi} />,
+                      })}
+                    </span>
+                  </span>
+                  <span className={styles.state}>
+                    <Status tone={bucket.worse ? "fail" : "plain"} text={bucket.worse ? r.guard.worse : r.guard.notWorse} />
                   </span>
                 </li>
               );
