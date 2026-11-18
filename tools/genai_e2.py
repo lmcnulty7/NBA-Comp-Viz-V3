@@ -434,17 +434,32 @@ def dev_items() -> list:
 
 
 def stage_a0(deadline, log=print) -> dict:
-    tok, model = load()
+    """A0 (few-shot) on every dev item and A0-P3 on the dev players. Resumable: texts already written are kept in
+    a0-dev-texts.json, and a stretch that reaches its deadline stops between batches and says so."""
+    saved = _load("a0-dev-texts.json") or {"few_shot": {}, "p3": {}}
     items = dev_items()
-    texts, seconds = generate(tok, model, items, "few_shot", log=log)
-    rows = score(items, {k: v[0] for k, v in texts.items()})
     scouting = [i for i in items if i["kind"] == "scouting"]
-    p3_texts, p3_seconds = generate(tok, model, scouting, "p3", log=log)
-    p3_rows = score(scouting, {k: v[0] for k, v in p3_texts.items()})
-    _save("a0-dev-texts.json", {"few_shot": {k: v[0] for k, v in texts.items()},
-                                "p3": {k: v[0] for k, v in p3_texts.items()}})
-    record = {"a0": _by_kind(rows), "a0_p3": _by_kind(p3_rows), "seconds_per_item": _mean(seconds.values()),
-              "p3_seconds_per_item": _mean(p3_seconds.values())}
+    todo = {"few_shot": [i for i in items if i["key"] not in saved["few_shot"]],
+            "p3": [i for i in scouting if i["key"] not in saved["p3"]]}
+    seconds = saved.setdefault("seconds", {"few_shot": {}, "p3": {}})
+    if any(todo.values()):
+        tok, model = load()
+        for arm in ("few_shot", "p3"):
+            for start in range(0, len(todo[arm]), GEN_BATCH):
+                if time.perf_counter() > deadline:
+                    _save("a0-dev-texts.json", saved)
+                    log("a0: stretch deadline reached; texts so far saved")
+                    return {"stopped": True, "few_shot_done": len(saved["few_shot"]), "p3_done": len(saved["p3"])}
+                found, secs = generate(tok, model, todo[arm][start:start + GEN_BATCH], arm, log=log)
+                saved[arm].update({k: v[0] for k, v in found.items()})
+                seconds[arm].update(secs)
+                _save("a0-dev-texts.json", saved)
+    rows = score(items, saved["few_shot"])
+    p3_rows = score(scouting, saved["p3"])
+    record = {"a0": _by_kind(rows), "a0_mean_pass": mean_pass(_by_kind(rows)), "a0_p3": _by_kind(p3_rows),
+              "seconds_per_item": _mean(seconds["few_shot"].values()),
+              "p3_seconds_per_item": _mean(seconds["p3"].values()), "targets": target_drops("train"),
+              "few_shot_examples": {kind: [ex["key"] for ex, _ in few_shot(kind)] for kind in ("scouting", "possession")}}
     _save("a0-dev.json", record)
     return record
 
@@ -751,8 +766,10 @@ def main(argv=None) -> int:
     if args.max_hours > MAX_STRETCH_H:
         print(f"a stretch holds the lock for at most {MAX_STRETCH_H} hours", file=sys.stderr)
         return 1
-    # stop training 25 minutes before the end, so the dev score of the epoch fits in the stretch
-    deadline = time.perf_counter() + args.max_hours * 3600 - 25 * 60
+    # a training stage stops 25 minutes before the end, so the dev score of the epoch fits in the stretch; a
+    # generation stage stops between batches 3 minutes before it
+    reserve = 25 * 60 if args.stage in ("sft", "rft", "rft2") else 3 * 60
+    deadline = time.perf_counter() + args.max_hours * 3600 - reserve
     started = time.perf_counter()
     if args.stage == "smoke":
         record = stage_smoke()
