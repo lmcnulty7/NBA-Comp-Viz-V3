@@ -188,7 +188,7 @@ def experiment_bullets(text: str) -> dict:
                 current.append(line.strip())
             else:
                 current = None
-        texts = {}
+        texts = {"_all": [_flat(" ".join(bullet)) for bullet in bullets]}
         for bullet in bullets:
             joined = _flat(" ".join(bullet))
             for key, label in BULLET_LABELS.items():
@@ -248,8 +248,9 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                                             or c.startswith(flat + ";") or c.startswith(flat + " (") for c in cells):
                 miss(where, text, "a table cell or the opening words of one")
 
-        if source["written"] not in dossier:
-            problems.append(f"{name}: {lane['dossier']} does not state the date {source['written']}")
+        written = lane.get("written", source["written"])
+        if written not in dossier:
+            problems.append(f"{name}: {lane['dossier']} does not state the date {written}")
         for i, paper in enumerate(lane["foundations"]):
             cell(f"foundations[{i}].cite", paper["cite"])
             cell(f"foundations[{i}].take", paper["take"])
@@ -298,8 +299,23 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             if registered.get(eid) != exp["title"]:
                 problems.append(f"{eid}: the title is not the dossier's heading")
             for key in ("hypothesis", "threshold"):
-                if _flat(exp[key]) != bullets.get(eid, {}).get(key):
-                    miss(f"{eid}.{key}", exp[key], f"the {key} bullet under {eid}")
+                # a dossier that names its bullets otherwise ("Question.", "Hypotheses and readings (fixed now).")
+                # says which bullet holds the text: `hypothesis_label`, `threshold_label`
+                label = exp.get(f"{key}_label")
+                if label:
+                    want = next((b[m.end():] for b in bullets.get(eid, {}).get("_all", [])
+                                 if (m := re.match(rf"^{re.escape(label)}[^.:]*[.:]\s*", b))), None)
+                else:
+                    want = bullets.get(eid, {}).get(key)
+                if _flat(exp[key]) != want:
+                    miss(f"{eid}.{key}", exp[key], f"the {label or key} bullet under {eid}")
+            if exp.get("result_in_writeup"):
+                if not exp.get("writeup") or not (repo / exp["writeup"]).is_file():
+                    problems.append(f"{eid}: a result kept in its write-up needs the write-up")
+                if exp.get("results") or exp.get("protocol"):
+                    problems.append(f"{eid}: a result kept in its write-up has no results or protocol here")
+                if not exp["backlog_status"].startswith("done"):
+                    problems.append(f"{eid}: a result kept in its write-up needs a done line in the backlog")
             row = backlog.get(eid)
             if row is None:
                 problems.append(f"{eid}: not a row of {source['backlog']}")
@@ -846,8 +862,10 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                 id=exp["id"], title=exp["title"], what=exp["what"], hypothesis=exp["hypothesis"],
                 threshold=exp["threshold"], rank=exp["rank"], gain=exp["gain"], effort=exp["effort"],
                 test_data=exp["test_data"], backlog_status=exp["backlog_status"],
-                status=(_protocol_status(protocol) if protocol is not None else _test_only_status(test) if test_only
+                status=("ran_result_in_writeup" if exp.get("result_in_writeup") else
+                        _protocol_status(protocol) if protocol is not None else _test_only_status(test) if test_only
                         else _status(dev, test, exp.get("adopted_as"))),
+                result_in_writeup=bool(exp.get("result_in_writeup")),
                 adopted_as=exp.get("adopted_as"),
                 writeup=exp.get("writeup"), writeup_notes=[_note_place(n)[1] for n in exp.get("writeup_notes", [])],
                 stages="test_only" if test_only else "development_and_test", development=dev, test=test,

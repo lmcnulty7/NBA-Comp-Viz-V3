@@ -46,7 +46,7 @@
     "below": "below the minimum sample",
     "withheld": "not shown, see the player page",
     "belowNote": "Players with no value for this view come last.",
-    "baselineNote": "Beside each value is the part of it that the baseline's own error explains, per hundred attempts. Read the two together: when the baseline under-predicts easy shots, a rim-heavy shot diet reads high.",
+    "baselineNote": "Beside each value is the part of it that the baseline's own error explains, per hundred attempts. Read the two together. When the baseline sets the chance of easy shots too low, a player who takes many shots at the rim reads high.",
     "baselineError": "baseline error {value}, point estimate",
     "absenceNote": "The model value is not an injury forecast. It counts only whether he appears in the team's next tracked game.",
     "empty": "No player matches this search."
@@ -73,12 +73,12 @@
       "notSelected": "was not the selected model",
       "ece": "Calibration error of that baseline, out of fold",
       "unit": "attempts",
-      "baselineErrorNote": "Read this beside the value above. When the baseline under-predicts easy shots, a rim-heavy shot diet reads high.",
-      "residualNote": "Given only for reference. The frozen model already knows the shooter, so this is not a measure over expected.",
+      "baselineErrorNote": "Read this beside the value above. When the baseline sets the chance of easy shots too low, a player who takes many shots at the rim reads high.",
+      "residualNote": "Given only for reference. The frozen model already knows the shooter. So this is not a measure over expected.",
       "baselineName": "The shot-making baseline",
       "calibration": {
         "title": "How well the baseline is calibrated",
-        "intro": "Out of fold, by bin of predicted chance. Where observed and predicted differ, the baseline's own error moves a player's value.",
+        "intro": "Out of fold, by bin of predicted chance. Where the two differ, the baseline's own error moves a player's value.",
         "bin": "Predicted chance",
         "n": "Shots",
         "predicted": "Predicted",
@@ -93,7 +93,7 @@
       "value": "Rebounds, per hundred chances",
       "expected": "Model expectation, per hundred chances",
       "unit": "chances",
-      "gap": "The model expectation already uses his rate in other games, so the gap between the two is not a skill number."
+      "gap": "The model's expected rate already uses his rate in other games. So the gap between the two is not a skill number."
     },
     "absence": {
       "model": "Model probability of missing the next tracked game",
@@ -106,7 +106,7 @@
     },
     "similar": {
       "caption": "Nearest players in the style embedding",
-      "unavailable": "The style embedding was not stored, so no similar players are shown.",
+      "unavailable": "The style embedding was not stored. So no similar players are shown.",
       "rank": "Rank",
       "name": "Player",
       "distance": "Distance",
@@ -114,7 +114,7 @@
       "distanceNote": "Distance in the style embedding. Smaller means more alike. Each distance is a point estimate."
     },
     "descriptive": "Descriptive: read from training games, not a model prediction.",
-    "hiddenCount": "{hidden} of {total} players have no value above its minimum sample, so they have no page.",
+    "hiddenCount": "{hidden} of {total} players have no value above its minimum sample. So they have no page.",
     "minSample": "Minimum sample: {min} {unit}. This player has {n}.",
     "barNote": "The line is the interval. The axis spans every shown player.",
     "check": {

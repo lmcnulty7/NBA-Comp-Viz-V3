@@ -1004,7 +1004,8 @@ class DemoFrames(Strict):
 NUMBER_TEXT_RE = re.compile(r"(?<![\w.])[+-]?\d+(?:,\d{3})*(?:\.\d+)?%?")
 ComparabilityClass = Literal["roughly", "not_directly", "none"]
 ExperimentStatus = Literal["pre_registered", "development_met_test_pending", "not_adopted_development",
-                           "adopted", "not_adopted_test", "passed_test", "adopted_research"]
+                           "adopted", "not_adopted_test", "passed_test", "adopted_research",
+                           "ran_result_in_writeup"]
 # How a rule compares the end of an interval it reads with its threshold.
 Comparison = Literal["below", "at_most", "above", "at_least"]
 _COMPARE = {"below": lambda v, t: v < t, "at_most": lambda v, t: v <= t, "above": lambda v, t: v > t,
@@ -1309,7 +1310,9 @@ class Experiment(Strict):
     test_only: its single test score decides, and a pass is passed_test, not adopted, which would say the
     development bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research
     result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
-    a test-only experiment never carries it. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
+    a test-only experiment never carries it. `result_in_writeup` marks an experiment that has run but whose result
+    has a shape this page does not show yet: its status is ran_result_in_writeup and the page links the write-up.
+    `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
     (the narrow claim, a data-fault note).
     An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
     adoption is read on the development games, and when the rule fails it is not_adopted_development, the same
@@ -1331,6 +1334,7 @@ class Experiment(Strict):
     writeup_notes: list[str] = []
     stages: Literal["development_and_test", "test_only"] = "development_and_test"
     adopted_as: Optional[Literal["research_result"]] = None
+    result_in_writeup: bool = False
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
     protocol: Optional[ProtocolResult] = None
@@ -1338,6 +1342,12 @@ class Experiment(Strict):
     @model_validator(mode="after")
     def _status(self):
         dev, test = self.development, self.test
+        if self.result_in_writeup or self.status == "ran_result_in_writeup":
+            if not (self.result_in_writeup and self.status == "ran_result_in_writeup" and self.writeup
+                    and dev is None and test is None and self.protocol is None and self.adopted_as is None):
+                raise ValueError(f"{self.id}: a result kept in its write-up has the write-up, no result here, and the "
+                                 "status ran_result_in_writeup")
+            return self
         if self.status == "pre_registered" and self.writeup is not None:
             raise ValueError(f"{self.id}: a write-up belongs to an experiment that has run, not a pre-registered one")
         if self.adopted_as is not None and (self.protocol is not None or self.stages == "test_only"):
