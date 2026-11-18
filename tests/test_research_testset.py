@@ -76,6 +76,8 @@ ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            # winprob-E1 reads the 2025-26 files only inside the scorer it passes to score_once
            # (tests/test_research_winprob.py checks that)
            "tools/research_winprob.py": ("scoring_data_root",),
+           # winprob-E2 likewise (tests/test_research_winprob_e2.py checks that)
+           "tools/research_winprob_e2.py": ("scoring_data_root",),
            # lineups-E1 calls it only inside the scorer it passes to score_once (the AST rule below checks that)
            "tools/research_lineups.py": ("scoring_data_root",)}
 
