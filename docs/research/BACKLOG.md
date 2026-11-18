@@ -9,29 +9,34 @@ Set B (10 Liga ACB games) as an out-of-distribution check, and the 2025-26 NBA s
 | Rank | Id | Lane | What it tests | Gain | Effort | Ratio | Test data | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | decisions-E1 | decisions | is the target reliable, and is the metric more than decision mix | 3 | 1 | 3.0 | training tables, Set A | done: not adopted (H1 fails as pre-registered, H2 holds, H3 fails; reports/research/decisions-E1.md) |
-| 2 | load-E1 | load | a shrunk player history for decline | 3 | 1 | 3.0 | Set A (about 220 player-games, under its own 1000-row power floor) | proposed |
-| 3 | lineups-E1 | lineups | score RAPM on every game's margin (Sill's construction) | 4 | 2 | 2.0 | 2025-26 season | done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; possible data fault: stint margin equals the schedule in 1298 of 1300 games; reports/research/lineups-E1.md) |
-| 4 | winprob-E1 | winprob | pregame strength from Elo as Stern's drift term, no odds | 4 | 2 | 2.0 | 2025-26 season | done: passes (mean bucket Brier, Elo drift term minus frozen logistic -0.0124 [-0.0161, -0.0086] on 1300 games of 2025-26, no bucket worse, overtime included; drift form beyond Elo alone -0.0005 [-0.0011, -0.0001]; early calibration is a point estimate, so any site use waits for winprob-E2 or a D line; reports/research/winprob-E1.md) |
-| 5 | rebounds-E1 | rebounds | a temperature and an offset per candidate type | 2 | 1 | 2.0 | Set A | proposed |
-| 6 | winprob-E2 | winprob | a forward-in-time temperature for the over-confidence | 2 | 1 | 2.0 | 2025-26 season | proposed |
-| 7 | xfg-E1 | xfg | cross Venn-Abers in place of the inner isotonic step | 3 | 2 | 1.5 | Set A | done: not adopted (passed on development games, inconclusive on the 10-game test set; reports/research/xfg-E1.md) |
-| 8 | ghosting-E1 | ghosting | rollout training of the same network | 3 | 2 | 1.5 | Set A | proposed |
-| 9 | gravity-E1 | gravity | does gravity open shots for teammates | 3 | 2 | 1.5 | Set A | proposed |
-| 10 | tracking-E1 | tracking | team labels from tracklet embeddings | 3 | 2 | 1.5 | needs synced video beyond the 4 development games (docs/research/P8_FEASIBILITY.md) | proposed |
-| 11 | matchups-E1 | matchups | split the outcome into shot frequency and efficiency (Franks et al.) | 4 | 3 | 1.33 | Set A | proposed |
-| 12 | embeddings-E1 | embeddings | a first held-out style score by self-retrieval | 4 | 3 | 1.33 | Set A | proposed |
-| 13 | decisions-E2 | decisions | one value scale for every option, validated on decisions made | 4 | 4 | 1.0 | Set A | proposed |
-| 14 | tracking-E2 | tracking | broadcast-only fill of missed player-frames (learned imputation) | 4 | 4 | 1.0 | SportVU training games, Set A | proposed |
-| 15 | lineups-E2 | lineups | lineup ratings shrunk toward their players (L-RAPM) | 3 | 3 | 1.0 | 2025-26 season | proposed |
-| 16 | rebounds-E2 | rebounds | train on the whole miss (within-miss softmax) | 3 | 3 | 1.0 | Set A | proposed |
-| 17 | load-E2 | load | injury-labelled absence on the play-by-play seasons | 3 | 3 | 1.0 | 2025-26 season, if the injuries table covers it | proposed |
-| 18 | epv-E1 | epv | train on expected shot value instead of the make or miss | 2 | 2 | 1.0 | Set A | proposed |
-| 19 | embeddings-E2 | embeddings | a spatial shot basis by NMF (Miller et al.) | 2 | 2 | 1.0 | Set A | proposed |
-| 20 | ghosting-E2 | ghosting | attention over 10 players and the ball, 4 s of history | 3 | 4 | 0.75 | Set A | proposed |
-| 21 | xfg-E2 | xfg | second defender and contest geometry | 2 | 3 | 0.67 | Set A | proposed |
-| 22 | matchups-E2 | matchups | hidden Markov assignment with fitted weights (runs only if matchups-E1(a) passes) | 2 | 3 | 0.67 | Set A | proposed |
-| 23 | gravity-E2 | gravity | an expectation that knows where the teammates are | 2 | 3 | 0.67 | Set A | proposed |
-| 24 | epv-E2 | epv | multi-entity attention over raw positions (runs after epv-E1) | 3 | 5 | 0.6 | Set A | proposed |
+| 2 | genai-E1 | genai | a template writer against the Haiku texts on the same checker | 3 | 1 | 3.0 | genai test players and training-game possessions (reports/research/genai-splits.json) | done: H1 and H2 hold (pinned checker: template 81 of 81 and 480 of 480, Haiku 0.840 [0.753, 0.914] snapshot, 0.963 [0.914, 1.000] cache arm; Haiku minus template frame variety [0.331, 0.439]; sensitivity checker: template 36 of 81, Haiku 65 of 81; reports/research/genai-E1.md) |
+| 3 | load-E1 | load | a shrunk player history for decline | 3 | 1 | 3.0 | Set A (about 220 player-games, under its own 1000-row power floor) | proposed |
+| 4 | lineups-E1 | lineups | score RAPM on every game's margin (Sill's construction) | 4 | 2 | 2.0 | 2025-26 season | done: passes (game margin, given the stints: RAPM minus plus_minus RMSE -1.15 [-1.59, -0.77], R squared vs home court 0.098 [0.065, 0.132]; lineup ranks stay inconclusive; possible data fault: stint margin equals the schedule in 1298 of 1300 games; reports/research/lineups-E1.md) |
+| 5 | winprob-E1 | winprob | pregame strength from Elo as Stern's drift term, no odds | 4 | 2 | 2.0 | 2025-26 season | done: passes (mean bucket Brier, Elo drift term minus frozen logistic -0.0124 [-0.0161, -0.0086] on 1300 games of 2025-26, no bucket worse, overtime included; drift form beyond Elo alone -0.0005 [-0.0011, -0.0001]; early calibration is a point estimate, so any site use waits for winprob-E2 or a D line; reports/research/winprob-E1.md) |
+| 6 | rebounds-E1 | rebounds | a temperature and an offset per candidate type | 2 | 1 | 2.0 | Set A | proposed |
+| 7 | winprob-E2 | winprob | a forward-in-time temperature for the over-confidence | 2 | 1 | 2.0 | 2025-26 season | proposed |
+| 8 | xfg-E1 | xfg | cross Venn-Abers in place of the inner isotonic step | 3 | 2 | 1.5 | Set A | done: not adopted (passed on development games, inconclusive on the 10-game test set; reports/research/xfg-E1.md) |
+| 9 | ghosting-E1 | ghosting | rollout training of the same network | 3 | 2 | 1.5 | Set A | proposed |
+| 10 | gravity-E1 | gravity | does gravity open shots for teammates | 3 | 2 | 1.5 | Set A | proposed |
+| 11 | tracking-E1 | tracking | team labels from tracklet embeddings | 3 | 2 | 1.5 | needs synced video beyond the 4 development games (docs/research/P8_FEASIBILITY.md) | proposed |
+| 12 | matchups-E1 | matchups | split the outcome into shot frequency and efficiency (Franks et al.) | 4 | 3 | 1.33 | Set A | proposed |
+| 13 | embeddings-E1 | embeddings | a first held-out style score by self-retrieval | 4 | 3 | 1.33 | Set A | proposed |
+| 14 | genai-E2 | genai | a small open model (Qwen2.5 0.5B, 1.5B), LoRA on the Mac: few-shot, distillation, rejection sampling against the checker, constrained decoding | 4 | 4 | 1.0 | genai test players and training-game possessions | proposed |
+| 15 | decisions-E2 | decisions | one value scale for every option, validated on decisions made | 4 | 4 | 1.0 | Set A | proposed |
+| 16 | tracking-E2 | tracking | broadcast-only fill of missed player-frames (learned imputation) | 4 | 4 | 1.0 | SportVU training games, Set A | proposed |
+| 17 | lineups-E2 | lineups | lineup ratings shrunk toward their players (L-RAPM) | 3 | 3 | 1.0 | 2025-26 season | proposed |
+| 18 | rebounds-E2 | rebounds | train on the whole miss (within-miss softmax) | 3 | 3 | 1.0 | Set A | proposed |
+| 19 | load-E2 | load | injury-labelled absence on the play-by-play seasons | 3 | 3 | 1.0 | 2025-26 season, if the injuries table covers it | proposed |
+| 20 | epv-E1 | epv | train on expected shot value instead of the make or miss | 2 | 2 | 1.0 | Set A | proposed |
+| 21 | embeddings-E2 | embeddings | a spatial shot basis by NMF (Miller et al.) | 2 | 2 | 1.0 | Set A | proposed |
+| 22 | ghosting-E2 | ghosting | attention over 10 players and the ball, 4 s of history | 3 | 4 | 0.75 | Set A | proposed |
+| 23 | xfg-E2 | xfg | second defender and contest geometry | 2 | 3 | 0.67 | Set A | proposed |
+| 24 | matchups-E2 | matchups | hidden Markov assignment with fitted weights (runs only if matchups-E1(a) passes) | 2 | 3 | 0.67 | Set A | proposed |
+| 25 | gravity-E2 | gravity | an expectation that knows where the teammates are | 2 | 3 | 0.67 | Set A | proposed |
+| 26 | epv-E2 | epv | multi-entity attention over raw positions (runs after epv-E1) | 3 | 5 | 0.6 | Set A | proposed |
+
+genai-E1 and genai-E2 were added on 2026-11-17 (PLAN.md D92, docs/research/genai.md), after the top three below
+were argued; the ranks move by one or two and the argument below is unchanged (load-E1, now third by ratio).
 
 Backlog lines in docs/research/tracking.md that are not yet proposals (detector fine-tune on SportsMOT, ball detection
 from SportVU-projected labels, vision-language jersey reading, weak identity labels from play-by-play) are ranked by
