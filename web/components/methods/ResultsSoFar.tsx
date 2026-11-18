@@ -79,6 +79,10 @@ export function ResultsSoFar({ methods }: { methods: MethodsFile }) {
                 ) : null}
                 {experiment.test ? (
                   <StageFacts stage={experiment.test} field={`${field}.test`} />
+                ) : experiment.test_not_scored ? (
+                  <p className="small" data-testid="test-not-scored">
+                    {text.notScored}
+                  </p>
                 ) : experiment.status === "development_met_test_pending" ? (
                   <p className="small" data-testid="test-pending">
                     {text.pending}

@@ -963,3 +963,74 @@ def test_genai_e1_has_run_and_links_its_write_up_while_genai_e2_is_pre_registere
     doc = copy.deepcopy(source)
     _exp(doc, "genai-E2").update(result_in_writeup=True, writeup="reports/research/genai-E1.md")
     assert any("needs a done line" in p for p in R.trace_problems(doc, REPO))
+
+
+# ------------------------------------------------------------------------------------------ a test left unscored
+
+
+WP2_DEV = "reports/research/winprob-E2-dev.json"
+
+
+def _wp2(methods):
+    return next(e for lane in methods.lanes for e in lane.experiments if e.id == "winprob-E2")
+
+
+def test_winprob_e2_is_a_development_result_whose_test_was_not_scored(source):
+    experiment = _wp2(R.build_methods(REPO, source))
+    data = json.loads((REPO / WP2_DEV).read_text())["pooled_nested_forward"]
+    verdict, paired = data["verdict"], data["paired"]["e2_minus_e1"]
+    assert (experiment.status, experiment.test, experiment.test_not_scored) == ("not_adopted_development", None, True)
+    dev = experiment.development
+    assert (dev.diff, dev.lo, dev.hi) == tuple(round(paired["mean_bucket_ece"][k], 4) for k in ("point", "lo", "hi"))
+    assert (dev.comparison, dev.threshold, dev.met) == ("below", 0, False) and verdict["adopt"] is False
+    (guard,) = dev.conditions
+    assert (guard.bound, guard.comparison, guard.threshold, guard.met) == ("hi", "at_most", verdict["brier_guard"],
+                                                                          True)
+    ledger = json.loads((REPO / R.LEDGER).read_text())
+    assert not any(e.get("experiment") == "winprob-E2" for e in ledger)
+    assert any("not read for winprob-E2" in note for note in experiment.writeup_notes)
+
+
+def test_a_test_left_unscored_is_refused_when_the_ledger_has_it(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    (repo / R.LEDGER).parent.mkdir(parents=True, exist_ok=True)
+    ledger = json.loads((REPO / R.LEDGER).read_text())
+    ledger.append({"experiment": "winprob-E2", "status": "scored"})
+    (repo / R.LEDGER).write_text(json.dumps(ledger), encoding="utf-8")
+    assert any("holds an entry for it" in p for p in R.trace_problems(source, repo))
+
+
+def test_a_test_left_unscored_is_refused_when_the_development_result_passed(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / WP2_DEV
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    cell = doc["pooled_nested_forward"]["paired"]["e2_minus_e1"]["mean_bucket_ece"]
+    cell.update(point=-0.004, lo=-0.006, hi=-0.002)
+    doc["pooled_nested_forward"]["verdict"].update(ece_falls=True, adopt=True)
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(R.MethodsProblem, match="would hide a pass"):
+        R.build_methods(repo, source)
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("a test file named beside it", lambda d: _exp(d, "winprob-E2")["results"].update(
+        test="reports/research/winprob-E2-final.json"), "no test file"),
+    ("no write-up saying so", lambda d: _exp(d, "winprob-E2").update(writeup="reports/research/winprob-E1.md"),
+     "does not say the test was not scored"),
+    ("a test-only experiment left unscored", lambda d: _exp(d, "lineups-E1").update(test_not_scored=True),
+     "no other shape"),
+])
+def test_a_test_left_unscored_needs_its_shape(source, name, change, message):
+    problems = _problems_after(source, change)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_the_contract_keeps_an_unscored_test_to_a_missed_development_bar(source):
+    methods = R.build_methods(REPO, source)
+    wp2 = _wp2(methods).model_dump()
+    passed = _winprob(methods).development.model_dump()     # a development stage that met its bar
+    with pytest.raises(ValidationError, match="test left unscored"):
+        S.Experiment(**{**wp2, "development": passed, "status": "development_met_test_pending"})
+    pilot = next(e for lane in methods.lanes for e in lane.experiments if e.id == "xfg-E1").model_dump()
+    with pytest.raises(ValidationError, match="test left unscored"):
+        S.Experiment(**{**pilot, "test_not_scored": True})

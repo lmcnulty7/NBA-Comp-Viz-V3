@@ -2022,9 +2022,147 @@
      "effort": 1,
      "test_data": "2025-26 season",
      "backlog_status": "done: not adopted on development (E1 plus a forward temperature minus E1, mean bucket ECE 0.0038 [-0.0021, 0.0068] on 2605 development games; the forward temperature is 0.894, 0.955, 1.046 across 2021-22 to 2023-24, so the miscalibration does not carry forward as one temperature; the test season was not scored; reports/research/winprob-E2.md)",
-     "results": null,
+     "results": {
+      "metric": "Paired difference in mean bucket ECE, E1 with the forward temperature minus E1 alone (regulation buckets)",
+      "rows_unit": "play-by-play rows",
+      "interval": "bootstrap by game, 2000 resamples, 95 percent intervals of the ECE and Brier differences.",
+      "development": "reports/research/winprob-E2-dev.json",
+      "test": null,
+      "paths": {
+       "development": {
+        "data": "pooled_nested_forward",
+        "verdict": "pooled_nested_forward.verdict",
+        "stage": "stage"
+       }
+      },
+      "design": "{stage}",
+      "rule_quote": {
+       "section": "What is tested, and on top of what",
+       "text": "Adoption: the paired 95 percent interval of e2 minus e1 mean bucket ECE lies below zero, and the upper end of the paired interval of e2 minus e1 mean bucket Brier is at most +0.0005."
+      },
+      "comparison": "below",
+      "threshold": 0,
+      "keys": {
+       "rows": "{data}.rows",
+       "games": "{data}.games",
+       "diff": "{data}.paired.e2_minus_e1.mean_bucket_ece.point",
+       "lo": "{data}.paired.e2_minus_e1.mean_bucket_ece.lo",
+       "hi": "{data}.paired.e2_minus_e1.mean_bucket_ece.hi",
+       "upper": "{data}.paired.e2_minus_e1.mean_bucket_ece.hi",
+       "met": "{verdict}.adopt",
+       "main_met": "{verdict}.ece_falls"
+      },
+      "conditions": [
+       {
+        "label": "Brier guard: E1 with the forward temperature minus E1 alone, mean bucket Brier",
+        "value": "{data}.paired.e2_minus_e1.mean_bucket_brier.point",
+        "lo": "{data}.paired.e2_minus_e1.mean_bucket_brier.lo",
+        "hi": "{data}.paired.e2_minus_e1.mean_bucket_brier.hi",
+        "bound": "hi",
+        "comparison": "at_most",
+        "threshold_key": "{verdict}.brier_guard",
+        "sign": 1,
+        "met": "{verdict}.brier_guard_holds",
+        "digits": 5
+       }
+      ],
+      "digits": 4,
+      "values": [
+       {
+        "label": "Mean bucket ECE, E1 alone",
+        "value": "{data}.arms.e1.mean_bucket_ece.point",
+        "lo": "{data}.arms.e1.mean_bucket_ece.lo",
+        "hi": "{data}.arms.e1.mean_bucket_ece.hi",
+        "digits": 4
+       },
+       {
+        "label": "Mean bucket ECE, E1 with the forward temperature",
+        "value": "{data}.arms.e2.mean_bucket_ece.point",
+        "lo": "{data}.arms.e2.mean_bucket_ece.lo",
+        "hi": "{data}.arms.e2.mean_bucket_ece.hi",
+        "digits": 4
+       },
+       {
+        "label": "Ablation: forward minus grouped-fold temperature, paired mean bucket ECE",
+        "value": "{data}.paired.e2_minus_e2_grouped.mean_bucket_ece.point",
+        "lo": "{data}.paired.e2_minus_e2_grouped.mean_bucket_ece.lo",
+        "hi": "{data}.paired.e2_minus_e2_grouped.mean_bucket_ece.hi",
+        "digits": 4
+       },
+       {
+        "label": "Forward temperature fitted on 2021-22",
+        "value": "temperatures.forward_by_season_fitted_on.2021-22.a",
+        "digits": 3
+       },
+       {
+        "label": "Forward temperature fitted on 2022-23",
+        "value": "temperatures.forward_by_season_fitted_on.2022-23.a",
+        "digits": 3
+       },
+       {
+        "label": "Forward temperature fitted on 2023-24",
+        "value": "temperatures.forward_by_season_fitted_on.2023-24.a",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 alone, 48-36 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.48-36",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 alone, 36-24 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.36-24",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 alone, 24-12 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.24-12",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 alone, 12-4 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.12-4",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 alone, 4-0 minutes left",
+        "value": "{data}.arms.e1.calibration_slope_point_estimate.4-0",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 with the forward temperature, 48-36 minutes left",
+        "value": "{data}.arms.e2.calibration_slope_point_estimate.48-36",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 with the forward temperature, 36-24 minutes left",
+        "value": "{data}.arms.e2.calibration_slope_point_estimate.36-24",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 with the forward temperature, 24-12 minutes left",
+        "value": "{data}.arms.e2.calibration_slope_point_estimate.24-12",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 with the forward temperature, 12-4 minutes left",
+        "value": "{data}.arms.e2.calibration_slope_point_estimate.12-4",
+        "digits": 3
+       },
+       {
+        "label": "Calibration slope of E1 with the forward temperature, 4-0 minutes left",
+        "value": "{data}.arms.e2.calibration_slope_point_estimate.4-0",
+        "digits": 3
+       }
+      ]
+     },
      "writeup": "reports/research/winprob-E2.md",
-     "result_in_writeup": true
+     "test_not_scored": true,
+     "writeup_notes": [
+      "The finding is the temperatures themselves: fitted season by season on forward predictions, the logit multiplier is 0.894 (2021-22), 0.955 (2022-23) and 1.046 (2023-24).",
+      "The model's over- or under-confidence does not carry forward from one season to the next as one temperature.",
+      "The lead decided not to spend the one test score on a method that misses its bar on development (as for any stage that fails there), so 2025-26 was not read for winprob-E2 and the scoring ledger has no winprob-E2 entry."
+     ]
     }
    ]
   },

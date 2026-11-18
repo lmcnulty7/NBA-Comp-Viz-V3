@@ -924,6 +924,8 @@ export interface OurValue {
  * result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
  * a test-only experiment never carries it. `result_in_writeup` marks an experiment that has run but whose result
  * has a shape this page does not show yet: its status is ran_result_in_writeup and the page links the write-up.
+ * `test_not_scored` marks a development result that missed its bar and whose single test score was deliberately
+ * not spent (the write-up says so and the ledger has no entry): it is not_adopted_development with no test result.
  * `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
  * (the narrow claim, a data-fault note).
  * An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
@@ -959,6 +961,7 @@ export interface Experiment {
   stages?: "development_and_test" | "test_only";
   adopted_as?: "research_result" | null;
   result_in_writeup?: boolean;
+  test_not_scored?: boolean;
   development?: StageResult | null;
   test?: StageResult | null;
   protocol?: ProtocolResult | null;

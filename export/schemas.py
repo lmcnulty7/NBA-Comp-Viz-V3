@@ -1312,6 +1312,8 @@ class Experiment(Strict):
     result only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or
     a test-only experiment never carries it. `result_in_writeup` marks an experiment that has run but whose result
     has a shape this page does not show yet: its status is ran_result_in_writeup and the page links the write-up.
+    `test_not_scored` marks a development result that missed its bar and whose single test score was deliberately
+    not spent (the write-up says so and the ledger has no entry): it is not_adopted_development with no test result.
     `writeup_notes` are sentences of the write-up's verdict paragraph, word for word
     (the narrow claim, a data-fault note).
     An experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its
@@ -1335,6 +1337,7 @@ class Experiment(Strict):
     stages: Literal["development_and_test", "test_only"] = "development_and_test"
     adopted_as: Optional[Literal["research_result"]] = None
     result_in_writeup: bool = False
+    test_not_scored: bool = False
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
     protocol: Optional[ProtocolResult] = None
@@ -1373,6 +1376,9 @@ class Experiment(Strict):
             return self
         if test is not None and dev is None:
             raise ValueError(f"{self.id}: the test set is scored after the development result exists")
+        if self.test_not_scored and (dev is None or dev.met or test is not None):
+            raise ValueError(f"{self.id}: a test left unscored belongs to a development result that missed its bar, "
+                             "with no test result")
         expected = ("pre_registered" if dev is None else "not_adopted_development" if not dev.met
                     else "development_met_test_pending" if test is None
                     else ("adopted_research" if self.adopted_as == "research_result" else "adopted") if test.met

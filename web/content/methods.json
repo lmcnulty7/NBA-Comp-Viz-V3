@@ -101,7 +101,8 @@
         "lo": "lower end",
         "hi": "upper end"
       }
-    }
+    },
+    "notScored": "Its test games were not scored: it missed its bar on the training games, so its one test score was kept unused."
   },
   "lane": {
     "foundations": "Built on",
