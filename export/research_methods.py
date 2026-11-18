@@ -309,6 +309,8 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                     want = bullets.get(eid, {}).get(key)
                 if _flat(exp[key]) != want:
                     miss(f"{eid}.{key}", exp[key], f"the {label or key} bullet under {eid}")
+            if exp.get("test_not_scored"):
+                problems += _not_scored_problems(eid, exp, repo)
             if exp.get("result_in_writeup"):
                 if not exp.get("writeup") or not (repo / exp["writeup"]).is_file():
                     problems.append(f"{eid}: a result kept in its write-up needs the write-up")
@@ -385,6 +387,8 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                 for stage in ("development", "test"):
                     if results[stage] is None and stage == "development" and exp.get("stages") == "test_only":
                         continue
+                    if results[stage] is None and stage == "test" and exp.get("test_not_scored"):
+                        continue
                     if results[stage] is None or not results[stage].startswith("reports/research/"):
                         problems.append(f"{eid}: the {stage} result is a file under reports/research/")
     for eid in sorted(set(backlog) - listed):
@@ -457,7 +461,7 @@ def states(rule: str, comparison: str, threshold) -> bool:
     "at most +0.0005", "at most -0.002", ">= 0.5"). The sign is part of the threshold."""
     rule = _flat(rule)
     numbers_ = [re.escape(number_text(threshold))] + (["zero"] if float(threshold) == 0 else [])
-    return any(re.search(rf"(?<![\w]){word}\s*\+?{number}(?![\d.])", rule)
+    return any(re.search(rf"(?<![\w]){word}\s*\+?{number}(?!\d|\.\d)", rule)
                for word in COMPARISON_WORDS[comparison] for number in numbers_)
 
 
@@ -794,6 +798,28 @@ def _protocol_status(protocol) -> str:
     return "development_met_test_pending" if protocol.adopted else "not_adopted_development"
 
 
+LEDGER = "reports/research/scoring_ledger.json"
+
+
+def _not_scored_problems(eid: str, exp: dict, repo: Path) -> list:
+    """A test left unscored on purpose: the source names no test file, the write-up's verdict paragraph says the
+    test was not scored, and the scoring ledger holds no entry for the experiment."""
+    problems = []
+    results = exp.get("results") or {}
+    if results.get("test") is not None or results.get("development") is None or exp.get("stages") or exp.get(
+            "protocol") or exp.get("adopted_as"):
+        problems.append(f"{eid}: a test left unscored has a development file, no test file, and no other shape")
+    writeup = exp.get("writeup")
+    text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
+    if "not scored" not in " ".join(verdict_paragraph(text)).lower():
+        problems.append(f"{eid}: the verdict paragraph of {writeup} does not say the test was not scored")
+    ledger_path = repo / LEDGER
+    entries = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.is_file() else []
+    if any(isinstance(e, dict) and e.get("experiment") == eid for e in entries):
+        problems.append(f"{eid}: {LEDGER} holds an entry for it, so its test was scored")
+    return problems
+
+
 def _test_only_status(test) -> str:
     if test is None:
         return "pre_registered"
@@ -854,6 +880,9 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                 dev = None if test_only else _stage(exp["results"], "development", repo, exp["threshold"], exp["id"])
                 test = (_stage(exp["results"], "test", repo, exp["threshold"], exp["id"])
                         if (dev is not None or test_only) else None)
+                if exp.get("test_not_scored") and dev is not None and dev.met:
+                    raise MethodsProblem(f"{exp['id']}: the development result met its bar, so a test left unscored "
+                                         "would hide a pass")
                 if exp.get("writeup") and dev is None and test is None:
                     raise MethodsProblem(f"{exp['id']}: no result file, but the experiment names its write-up "
                                          f"{exp['writeup']}, so it has run")
@@ -866,6 +895,7 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
                         _protocol_status(protocol) if protocol is not None else _test_only_status(test) if test_only
                         else _status(dev, test, exp.get("adopted_as"))),
                 result_in_writeup=bool(exp.get("result_in_writeup")),
+                test_not_scored=bool(exp.get("test_not_scored")),
                 adopted_as=exp.get("adopted_as"),
                 writeup=exp.get("writeup"), writeup_notes=[_note_place(n)[1] for n in exp.get("writeup_notes", [])],
                 stages="test_only" if test_only else "development_and_test", development=dev, test=test,
