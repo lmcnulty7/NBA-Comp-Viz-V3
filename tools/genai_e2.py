@@ -406,6 +406,39 @@ def _by_kind(rows: dict) -> dict:
     return out
 
 
+def stage_smoke(log=print) -> dict:
+    """A check of the machinery, not a result: few-shot generation in one batch of 8 per kind on 16 dev items, the
+    same items with the number guard, and 2 items one at a time to compare with the batch (greedy, so the texts
+    should agree up to floating point)."""
+    import torch
+    items = D.items("scouting", "dev")[:8] + D.items("possession", "dev")[:8]
+    tok, model = load()
+    t0 = time.perf_counter()
+    batch, seconds = generate(tok, model, items, "few_shot", log=log)
+    batch_s = time.perf_counter() - t0
+    t0 = time.perf_counter()
+    guarded, guard_seconds = generate(tok, model, items, "few_shot", guard=True, log=log)
+    guard_s = time.perf_counter() - t0
+    single = {}
+    for item in (items[0], items[8]):
+        one, _ = generate(tok, model, [item], "few_shot", log=log)
+        single[item["key"]] = one[item["key"]][0]
+    rows = score(items, {k: v[0] for k, v in batch.items()})
+    grows = score(items, {k: v[0] for k, v in guarded.items()})
+    record = {"items": len(items), "batch_s": batch_s, "guard_s": guard_s,
+              "batch_equals_single": {k: single[k] == batch[k][0] for k in single},
+              "passes_primary": sum(r["passed"] for r in rows["primary"]),
+              "passes_primary_guard": sum(r["passed"] for r in grows["primary"]),
+              "number_value_failures": sum("number_value" in r["rules"] for r in rows["primary"]),
+              "number_value_failures_guard": sum("number_value" in r["rules"] for r in grows["primary"]),
+              "peak_mps_gb": torch.mps.driver_allocated_memory() / 1e9,
+              "note": "machinery check on 16 dev items; not a result"}
+    _save("smoke-texts.json", {"batch": {k: v[0] for k, v in batch.items()},
+                               "guard": {k: v[0] for k, v in guarded.items()}, "single": single})
+    _save("smoke.json", record)
+    return record
+
+
 def stage_sft(deadline, log=print) -> dict:
     tag = "a1"
     latest = run_dir() / tag / "latest"
@@ -613,7 +646,7 @@ def stage_test(choices: dict, log=print) -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="genai-E2 on the 0.5B model (docs/research/genai.md)")
-    parser.add_argument("stage", choices=("a0", "sft", "rft", "rft2", "a3", "choose", "test"))
+    parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "test"))
     parser.add_argument("--max-hours", type=float, default=MAX_STRETCH_H)
     parser.add_argument("--arm", help="a3: the adapter folder under the run folder (the dev-best arm)")
     args = parser.parse_args(argv)
@@ -623,7 +656,9 @@ def main(argv=None) -> int:
     # stop training 25 minutes before the end, so the dev score of the epoch fits in the stretch
     deadline = time.perf_counter() + args.max_hours * 3600 - 25 * 60
     started = time.perf_counter()
-    if args.stage == "a0":
+    if args.stage == "smoke":
+        record = stage_smoke()
+    elif args.stage == "a0":
         record = stage_a0(deadline)
     elif args.stage == "sft":
         record = stage_sft(deadline)
