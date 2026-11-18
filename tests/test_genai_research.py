@@ -261,3 +261,47 @@ def test_e2_stretch_is_capped_at_three_hours():
     from tools import genai_e2 as X
     assert X.MAX_STRETCH_H <= 3.0
     assert X.main(["sft", "--max-hours", "3.5"]) == 1
+
+
+def _dev_entry(epoch, scouting, possession):
+    def m(rate):
+        return {"pass_rate": rate}
+    return {"epoch": epoch, "primary": {"scouting": m(scouting), "possession": m(possession)},
+            "mean_pass": (scouting + possession) / 2}
+
+
+def _fake_runs(tmp_path, monkeypatch, a1, a2r1=None):
+    from tools import genai_e2 as X
+    monkeypatch.setenv("V3_GENAI_MODELS", str(tmp_path))
+    for tag, dev in (("a1", a1), ("a2-r1", a2r1)):
+        if dev is None:
+            continue
+        folder = X.run_dir() / tag
+        folder.mkdir(parents=True)
+        (folder / "state.json").write_text(json.dumps({"epoch": len(dev), "dev": dev}))
+    return X
+
+
+def test_epochs_and_the_a3_arm_weigh_the_two_kinds_equally(tmp_path, monkeypatch):
+    # epoch 2 wins on pooled items (possession heavy) but epoch 1 wins on the mean of the kinds
+    X = _fake_runs(tmp_path, monkeypatch, [_dev_entry(1, 0.80, 0.70), _dev_entry(2, 0.40, 0.95)])
+    assert X.best_epoch("a1") == 1
+    assert X.dev_best_arm() == "a1-epoch1"
+
+
+def test_rft_round_two_is_refused_below_the_pre_registered_gain(tmp_path, monkeypatch):
+    X = _fake_runs(tmp_path, monkeypatch, [_dev_entry(1, 0.50, 0.50)], [_dev_entry(1, 0.52, 0.53)])
+    allowed, gain = X.round2_allowed()
+    assert not allowed and abs(gain - 0.025) < 1e-9
+    with pytest.raises(SystemExit, match="round 2 refused"):
+        X.stage_rft(deadline=0, round_=2)
+    X = _fake_runs(tmp_path / "b", monkeypatch, [_dev_entry(1, 0.50, 0.50)], [_dev_entry(1, 0.54, 0.53)])
+    assert X.round2_allowed()[0]
+    assert X.dev_best_arm() == "a2-r1-epoch1"
+
+
+def test_the_test_stage_refuses_without_committed_dev_choices(monkeypatch, tmp_path):
+    from tools import genai_e2 as X
+    monkeypatch.setattr(X, "DEV_JSON", REPO / "reports" / "research" / "genai-E2-0.5B-dev-missing.json")
+    with pytest.raises(SystemExit, match="committed and unchanged"):
+        X.dev_json_clean()

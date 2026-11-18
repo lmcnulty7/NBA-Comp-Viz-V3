@@ -12,7 +12,9 @@ V3_GENAI_MODELS/runs and V3_GENAI_DATA/e2):
               one more epoch on them; a second round only by the pre-registered rule
     a3        A3: the dev-best arm with constrained decoding, on dev
     choose    write the dev choices (reports/research/genai-E2-0.5B-dev.json) before any test item is read
-    test      the one test score of every arm (score_test_once "genai-E2-0.5B")
+    rehearse  the exact test path on the dev items, without the ledger
+    test      the one test score of every arm (score_test_once "genai-E2-0.5B"); refuses unless the dev json is
+              committed and unchanged and the rehearsal ran
 
 Every score uses the primary checker (export/genai.py of v4-research at PRIMARY, blob checked) and reports the
 freeze checker beside it. Nothing reads a held-out game; the items are the frozen genai items (tools.genai_data).
@@ -118,14 +120,30 @@ def score(items: list, texts: dict) -> dict:
 # ------------------------------------------------------------------------------------------------ data
 
 
+_TARGETS = {}
+
+
 def targets(split: str = "train") -> list:
-    """(item, target) of a split: scouting items with their Haiku text in the snapshot, possession items with their
-    template text (genai-E2, A1)."""
-    snapshot = {t["key"]: t["text"] for t in
-                json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
-    rows = [(item, snapshot[item["key"]]) for item in D.items("scouting", split) if item["key"] in snapshot]
-    rows += [(item, template_text(item)) for item in D.items("possession", split)]
-    return rows
+    """(item, target) of a split that pass the primary checker: scouting items with their Haiku text in the
+    snapshot, possession items with their template text (genai-E2, A1; amendment g). The dropped counts per kind are
+    in target_drops()."""
+    if split not in _TARGETS:
+        snapshot = {t["key"]: t["text"] for t in
+                    json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
+        rows = [(item, snapshot[item["key"]]) for item in D.items("scouting", split) if item["key"] in snapshot]
+        rows += [(item, template_text(item)) for item in D.items("possession", split)]
+        check = checker("primary")
+        kept = [row for row in rows if not check(row[1], row[0])[0]]
+        drops = {kind: sum(1 for item, _ in rows if item["kind"] == kind)
+                 - sum(1 for item, _ in kept if item["kind"] == kind) for kind in ("scouting", "possession")}
+        totals = {kind: sum(1 for item, _ in rows if item["kind"] == kind) for kind in ("scouting", "possession")}
+        _TARGETS[split] = (kept, {"dropped": drops, "candidates": totals})
+    return _TARGETS[split][0]
+
+
+def target_drops(split: str = "train") -> dict:
+    targets(split)
+    return _TARGETS[split][1]
 
 
 def few_shot(kind: str) -> list:
@@ -342,11 +360,11 @@ def train(tok, model, rows: list, epochs: int, tag: str, deadline: float, dev_it
         texts, seconds = generate(tok, model, dev_items, "compact", log=log)
         rows_ = score(dev_items, {k: v[0] for k, v in texts.items()})
         _save(f"{tag}-epoch{state['epoch']}-dev-texts.json", {k: v[0] for k, v in texts.items()})
-        dev = {"epoch": state["epoch"], "primary": E.arm_measures(rows_["primary"]),
-               "freeze": E.arm_measures(rows_["freeze"]), "seconds_per_item": _mean(seconds.values())}
+        dev = {"epoch": state["epoch"], **_by_kind(rows_), "mean_pass": mean_pass(_by_kind(rows_)),
+               "seconds_per_item": _mean(seconds.values()), "targets": target_drops("train")}
         state["dev"].append({k: v for k, v in dev.items()})
         _checkpoint(model, optimizer, schedule, tag, state, epoch_dir=None)
-        log(f"{tag}: epoch {state['epoch']} dev pass {dev['primary']['pass_rate']:.3f}")
+        log(f"{tag}: epoch {state['epoch']} dev pass, mean over kinds, {dev['mean_pass']:.3f}")
         if time.perf_counter() > deadline and state["epoch"] < epochs:
             return dict(state, stopped=True)
     return state
@@ -368,12 +386,47 @@ def _checkpoint(model, optimizer, schedule, tag: str, state: dict, epoch_dir=Non
     (folder / "state.json").write_text(json.dumps(state, indent=1) + "\n", encoding="utf-8")
 
 
+def mean_pass(by_kind: dict, name: str = "primary") -> float:
+    """The dev pass rate of an arm: the mean of its scouting and possession pass rates (amendment e)."""
+    return (by_kind[name]["scouting"]["pass_rate"] + by_kind[name]["possession"]["pass_rate"]) / 2
+
+
 def best_epoch(tag: str) -> int:
     state = json.loads((run_dir() / tag / "state.json").read_text())
-    return max(state["dev"], key=lambda d: (d["primary"]["pass_rate"], -d["epoch"]))["epoch"]
+    return max(state["dev"], key=lambda d: (d["mean_pass"], -d["epoch"]))["epoch"]
 
 
-# ------------------------------------------------------------------------------------------------ stages
+def dev_arms() -> dict:
+    """{arm: dev entry} of the chosen A1 epoch and of each A2 round that ran."""
+    a1 = json.loads((run_dir() / "a1" / "state.json").read_text())
+    best = best_epoch("a1")
+    arms = {f"a1-epoch{best}": next(d for d in a1["dev"] if d["epoch"] == best)}
+    for tag in ("a2-r1", "a2-r2"):
+        path = run_dir() / tag / "state.json"
+        if path.exists():
+            state = json.loads(path.read_text())
+            if state["dev"]:
+                arms[f"{tag}-epoch1"] = state["dev"][-1]
+    return arms
+
+
+def dev_best_arm() -> str:
+    """The arm A3 decodes (amendment f): the highest mean dev pass rate among the chosen A1 epoch and the last A2
+    round that ran; ties go to the earlier arm."""
+    arms = dev_arms()
+    final_a2 = max((a for a in arms if a.startswith("a2")), default=None)
+    pool = [a for a in arms if a.startswith("a1")] + ([final_a2] if final_a2 else [])
+    return max(pool, key=lambda a: (arms[a]["mean_pass"], -pool.index(a)))
+
+
+def round2_allowed() -> tuple:
+    """(allowed, gain): RFT round 2 runs only when round 1 raised the mean dev pass rate by RFT["round2_gain"]."""
+    arms = dev_arms()
+    a1 = next(a for a in arms if a.startswith("a1"))
+    if "a2-r1-epoch1" not in arms:
+        return False, None
+    gain = arms["a2-r1-epoch1"]["mean_pass"] - arms[a1]["mean_pass"]
+    return gain >= RFT["round2_gain"], gain
 
 
 def dev_items() -> list:
@@ -454,6 +507,11 @@ def rft_pool() -> list:
 
 
 def stage_rft(deadline, round_: int = 1, log=print) -> dict:
+    if round_ == 2:
+        allowed, gain = round2_allowed()
+        if not allowed:
+            raise SystemExit(f"RFT round 2 refused: round 1 changed the mean dev pass rate by {gain}, under "
+                             f"{RFT['round2_gain']} (the pre-registered rule)")
     source = run_dir() / "a1" / f"epoch{best_epoch('a1')}" if round_ == 1 else run_dir() / "a2-r1" / "epoch1"
     tag = f"a2-r{round_}"
     cand_name = f"{tag}-candidates.json"
@@ -484,13 +542,15 @@ def stage_rft(deadline, round_: int = 1, log=print) -> dict:
     return state
 
 
-def stage_a3(arm_dir: Path, deadline, log=print) -> dict:
+def stage_a3(deadline, log=print) -> dict:
+    arm = dev_best_arm()
+    arm_dir = adapter_of(arm)
     tok, model = load(arm_dir)
     items = dev_items()
     texts, seconds = generate(tok, model, items, "compact", guard=True, log=log)
     rows = score(items, {k: v[0] for k, v in texts.items()})
     _save("a3-dev-texts.json", {k: v[0] for k, v in texts.items()})
-    record = {"arm": str(arm_dir.relative_to(run_dir())), "a3": _by_kind(rows), "seconds_per_item": _mean(seconds.values())}
+    record = {"arm": arm, "a3": _by_kind(rows), "seconds_per_item": _mean(seconds.values())}
     _save("a3-dev.json", record)
     return record
 
@@ -513,36 +573,22 @@ def repair(tok, model, items: list, first: dict, guard: bool = False, log=print)
 
 
 def choose() -> dict:
-    """The dev choices, written before any test item is read: the A1 epoch, whether A2 ran a second round, the
-    dev-best fine-tuned arm of each kind, and the arm A3 decodes."""
-    a1 = json.loads((run_dir() / "a1" / "state.json").read_text())
-    arms = {f"a1-epoch{d['epoch']}": d for d in a1["dev"]}
-    for tag in ("a2-r1", "a2-r2"):
-        path = run_dir() / tag / "state.json"
-        if path.exists():
-            for d in json.loads(path.read_text())["dev"]:
-                arms[f"{tag}-epoch{d['epoch']}"] = d
-    a1_best = f"a1-epoch{best_epoch('a1')}"
-    # per kind, the dev pass rate of an arm comes from its saved dev texts
-    by_kind = {}
-    for arm in arms:
-        texts = _load(f"{arm.rsplit('-epoch', 1)[0]}-epoch{arm.rsplit('-epoch', 1)[1]}-dev-texts.json")
-        rows = score(dev_items(), texts)
-        by_kind[arm] = _by_kind(rows)
-    best = {kind: max((a for a in arms if a == a1_best or a.startswith("a2")),
-                      key=lambda a: by_kind[a]["primary"][kind]["pass_rate"]) for kind in ("scouting", "possession")}
-    overall = max(set(best.values()) | {a1_best}, key=lambda a: sum(by_kind[a]["primary"][k]["pass_rate"]
-                                                                       for k in ("scouting", "possession")))
-    r1 = by_kind.get("a2-r1-epoch1")
-    gain = None
-    if r1:
-        gain = {k: r1["primary"][k]["pass_rate"] - by_kind[a1_best]["primary"][k]["pass_rate"]
-                for k in ("scouting", "possession")}
+    """The dev choices, written before any test item is read (amendments e, f, h)."""
+    arms = dev_arms()
+    a1_best = next(a for a in arms if a.startswith("a1"))
     a2_final = max((a for a in arms if a.startswith("a2")), default=None)
+    candidates = [a1_best] + ([a2_final] if a2_final else [])
+    best = {kind: max(candidates, key=lambda a: (arms[a]["primary"][kind]["pass_rate"], -candidates.index(a)))
+            for kind in ("scouting", "possession")}
+    allowed, gain = round2_allowed()
+    a3 = _load("a3-dev.json")
     return {"a1_epoch": best_epoch("a1"), "a1_best": a1_best, "a2_final": a2_final, "best_by_kind": best,
-            "a3_arm": overall,
-            "rft_round1_gain": gain, "rft_round2_rule": f"runs if the dev pass rate gain of round 1 is at least "
-            f"{RFT['round2_gain']} (mean over kinds)", "dev": by_kind}
+            "a3_arm": dev_best_arm(), "a3_dev": a3 and {k: v for k, v in a3.items() if k != "arm"},
+            "rft_round1_gain_mean_over_kinds": gain, "rft_round2_ran": "a2-r2-epoch1" in arms,
+            "rft_round2_allowed": allowed, "targets": target_drops("train"),
+            "dev": {arm: {k: v for k, v in d.items() if k in ("primary", "freeze", "mean_pass", "epoch")}
+                    for arm, d in arms.items()},
+            "a0_dev": _load("a0-dev.json")}
 
 
 def adapter_of(arm: str) -> Path:
@@ -556,6 +602,11 @@ def paired(rows_a: list, rows_b: list) -> list:
     return out["differences"]["b minus a: pass_rate"]
 
 
+def _as_number_ok(rows: list) -> list:
+    """Rows whose `passed` is "no number_value failure", so a pass-rate bootstrap gives minus the failure rate."""
+    return [dict(r, passed="number_value" not in r["rules"]) for r in rows]
+
+
 def reading(diff: list, point: float, rule: str) -> str:
     lo, hi = diff
     if rule == "h1":
@@ -565,80 +616,128 @@ def reading(diff: list, point: float, rule: str) -> str:
     return "helps" if lo > 0 else "hurts" if hi < 0 else "inconclusive"
 
 
-def stage_test(choices: dict, log=print) -> dict:
-    """Every arm on the test items, scored by both checkers; the hypotheses read on the primary checker."""
-    from export import genai as G
+def run_arms(items: list, choices: dict, tag: str, log=print) -> tuple:
+    """Every arm on `items`, each arm's texts saved outside the repository as it finishes. Used by the test scorer
+    and, unchanged, by the rehearsal on dev items."""
+    scouting = [i for i in items if i["kind"] == "scouting"]
+    texts, timing = {}, {}
 
-    def scorer():
-        items = D.items("scouting", "test") + D.items("possession", "test")
-        scouting = [i for i in items if i["kind"] == "scouting"]
-        texts = {}
-        tok, model = load()
-        texts["a0"] = {k: v[0] for k, v in generate(tok, model, items, "few_shot", log=log)[0].items()}
-        texts["a0_p3"] = {k: v[0] for k, v in generate(tok, model, scouting, "p3", log=log)[0].items()}
+    def keep(arm, found, seconds=None):
+        texts[arm] = found
+        timing[arm] = _mean(seconds.values()) if seconds else None
+        _save(f"{tag}-texts-{arm}.json", found)
+
+    tok, model = load()
+    found, seconds = generate(tok, model, items, "few_shot", log=log)
+    keep("a0", {k: v[0] for k, v in found.items()}, seconds)
+    found, seconds = generate(tok, model, scouting, "p3", log=log)
+    keep("a0_p3", {k: v[0] for k, v in found.items()}, seconds)
+    del model
+    arms = {choices["a1_best"], *choices["best_by_kind"].values(), choices["a3_arm"]}
+    arms |= {choices["a2_final"]} if choices.get("a2_final") else set()
+    for arm in sorted(arms):
+        tok, model = load(adapter_of(arm))
+        found, seconds = generate(tok, model, items, "compact", log=log)
+        keep(arm, {k: v[0] for k, v in found.items()}, seconds)
+        if arm == choices["a3_arm"]:
+            found, seconds = generate(tok, model, items, "compact", guard=True, log=log)
+            keep("a3", {k: v[0] for k, v in found.items()}, seconds)
+        if arm in choices["best_by_kind"].values():
+            keep(f"{arm}+repair", repair(tok, model, items, texts[arm], log=log))
         del model
-        timing = {}
-        arms = {choices["a1_best"], *choices["best_by_kind"].values(), choices["a3_arm"]}
-        arms |= {choices["a2_final"]} if choices.get("a2_final") else set()
-        for arm in sorted(arms):
-            tok, model = load(adapter_of(arm))
-            found, seconds = generate(tok, model, items, "compact", log=log)
-            texts[arm] = {k: v[0] for k, v in found.items()}
-            timing[arm] = _mean(seconds.values())
-            if arm == choices["a3_arm"]:
-                found, seconds = generate(tok, model, items, "compact", guard=True, log=log)
-                texts["a3"] = {k: v[0] for k, v in found.items()}
-                timing["a3"] = _mean(seconds.values())
-            if arm in choices["best_by_kind"].values():
-                texts[f"{arm}+repair"] = repair(tok, model, items, texts[arm], log=log)
-            del model
-        _save("test-texts.json", texts)
-        rows = {arm: score(items, t) for arm, t in texts.items()}
-        snapshot = {t["key"]: t["text"] for t in
-                    json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
-        cache = {r["key"]: r["_text"] for r in E._cache_text_rows(scouting)}
-        rows["haiku"] = score(scouting, {k: snapshot.get(k) for k in [i["key"] for i in scouting]})
-        rows["haiku_cache"] = score(scouting, cache)
-        return items, rows, timing
+    rows = {arm: score(items, t) for arm, t in texts.items()}
+    snapshot = {t["key"]: t["text"] for t in
+                json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
+    rows["haiku"] = score(scouting, {i["key"]: snapshot.get(i["key"]) for i in scouting})
+    rows["haiku_cache"] = score(scouting, {r["key"]: r["_text"] for r in E._cache_text_rows(scouting)})
+    return rows, timing
 
-    assert EXPERIMENT == "genai-E2-0.5B"
-    items, rows, timing = D.score_test_once("genai-E2-0.5B", scorer)
 
-    def kind_rows(arm, kind, checker_name="primary"):
-        return [r for r in rows[arm][checker_name] if ("/" in r["key"]) == (kind == "possession")]
+def read_hypotheses(rows: dict, choices: dict) -> dict:
+    def kind_rows(arm, kind, name="primary"):
+        return [r for r in rows[arm][name] if ("/" in r["key"]) == (kind == "possession")]
 
-    def point(arm_b, arm_a, kind):
-        return (E.arm_measures(kind_rows(arm_b, kind))["pass_rate"] - E.arm_measures(kind_rows(arm_a, kind))["pass_rate"])
+    def rate(arm, kind):
+        return E.arm_measures(kind_rows(arm, kind))["pass_rate"]
 
     hyp = {}
     for kind in ("scouting", "possession"):
         best = choices["best_by_kind"][kind]
-        d = paired(kind_rows("a0", kind), kind_rows(best, kind))
-        hyp[f"H1 {kind}: {best} minus a0"] = {"point": point(best, "a0", kind), "interval": d,
-                                              "reading": reading(d, point(best, "a0", kind), "h1")}
+        d, p = paired(kind_rows("a0", kind), kind_rows(best, kind)), rate(best, kind) - rate("a0", kind)
+        hyp[f"H1 {kind}: {best} minus a0"] = {"point": p, "interval": d, "reading": reading(d, p, "h1")}
         if choices.get("a2_final"):
-            a2 = choices["a2_final"]
-            d = paired(kind_rows(choices["a1_best"], kind), kind_rows(a2, kind))
-            hyp[f"H2 {kind}: {a2} minus {choices['a1_best']}"] = {
-                "point": point(a2, choices["a1_best"], kind), "interval": d,
-                "reading": reading(d, point(a2, choices["a1_best"], kind), "h2")}
-        d = paired(kind_rows(choices["a3_arm"], kind), kind_rows("a3", kind))
-        hyp[f"H4 {kind}: a3 minus {choices['a3_arm']}"] = {"point": point("a3", choices["a3_arm"], kind),
-                                                          "interval": d,
-                                                          "reading": reading(d, point("a3", choices["a3_arm"], kind),
-                                                                             "h4")}
+            a2, a1 = choices["a2_final"], choices["a1_best"]
+            d, p = paired(kind_rows(a1, kind), kind_rows(a2, kind)), rate(a2, kind) - rate(a1, kind)
+            hyp[f"H2 {kind}: {a2} minus {a1}"] = {"point": p, "interval": d, "reading": reading(d, p, "h2")}
+        base = choices["a3_arm"]
+        d, p = paired(kind_rows(base, kind), kind_rows("a3", kind)), rate("a3", kind) - rate(base, kind)
+        ok = paired(_as_number_ok(kind_rows(base, kind)), _as_number_ok(kind_rows("a3", kind)))
+        fail_a = E.arm_measures(kind_rows(base, kind))["rule_failure_rate"]["number_value"]
+        fail_b = E.arm_measures(kind_rows("a3", kind))["rule_failure_rate"]["number_value"]
+        nv = [-ok[1], -ok[0]]
+        hyp[f"H4 {kind}: a3 minus {base}"] = {
+            "point": p, "interval": d, "reading": reading(d, p, "h4"),
+            "number_value_failure_point": fail_b - fail_a, "number_value_failure_interval": nv,
+            "number_value_reading": "fewer wrong numbers" if nv[1] < 0 else "more wrong numbers" if nv[0] > 0
+            else "inconclusive"}
     best = choices["best_by_kind"]["scouting"]
-    for haiku in ("haiku", "haiku_cache"):
+    for haiku, decides in (("haiku_cache", True), ("haiku", False)):
         d = paired(kind_rows(haiku, "scouting"), kind_rows(f"{best}+repair", "scouting"))
-        p = point(f"{best}+repair", haiku, "scouting")
-        hyp[f"H3 scouting: {best}+repair minus {haiku}"] = {"point": p, "interval": d, "reading": reading(d, p, "h3")}
-    record = {"experiment": EXPERIMENT, "model": MODEL, "checkers": CHECKERS, "choices": {k: v for k, v in
-              choices.items() if k != "dev"}, "hypotheses": hyp, "seconds_per_item": timing,
-              "arms": {arm: {name: {kind: E.arm_measures([r for r in rs if ("/" in r["key"]) == (kind == "possession")])
-                                    for kind in ("scouting", "possession")
-                                    if any(("/" in r["key"]) == (kind == "possession") for r in rs)}
-                             for name, rs in by.items()} for arm, by in rows.items()},
-              "rows": {arm: {name: E._strip(rs) for name, rs in by.items()} for arm, by in rows.items()}}
+        p = rate(f"{best}+repair", "scouting") - rate(haiku, "scouting")
+        hyp[f"H3 scouting: {best}+repair minus {haiku}"] = {"point": p, "interval": d, "reading": reading(d, p, "h3"),
+                                                           "decides": decides}
+    return hyp
+
+
+def summarize(rows: dict, timing: dict, choices: dict) -> dict:
+    return {"hypotheses": read_hypotheses(rows, choices), "seconds_per_item": timing,
+            "arms": {arm: {name: {kind: E.arm_measures([r for r in rs if ("/" in r["key"]) == (kind == "possession")])
+                                  for kind in ("scouting", "possession")
+                                  if any(("/" in r["key"]) == (kind == "possession") for r in rs)}
+                           for name, rs in by.items()} for arm, by in rows.items()},
+            "rows": {arm: {name: E._strip(rs) for name, rs in by.items()} for arm, by in rows.items()}}
+
+
+DEV_JSON = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json"
+
+
+def dev_json_clean() -> str:
+    """The sha256 of the committed dev choices; SystemExit unless git tracks the file and it has no change."""
+    rel = str(DEV_JSON.relative_to(REPO_ROOT))
+    tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=REPO_ROOT, capture_output=True)
+    changed = subprocess.run(["git", "status", "--porcelain", "--", rel], cwd=REPO_ROOT, capture_output=True,
+                             text=True).stdout.strip()
+    if tracked.returncode != 0 or changed:
+        raise SystemExit(f"{rel} must be committed and unchanged before the test stage")
+    return D.sha256_file(DEV_JSON)
+
+
+def stage_rehearse(log=print) -> dict:
+    """The test path on the dev items, without the ledger (amendment i): same arms, same scoring, same readings."""
+    choices = json.loads(DEV_JSON.read_text())
+    rows, timing = run_arms(dev_items(), choices, "rehearse", log)
+    record = summarize(rows, timing, choices)
+    _save("rehearse.json", record)
+    return record
+
+
+def stage_test(log=print) -> dict:
+    """Every arm on the test items, scored once; the hypotheses read on the primary checker."""
+    dev_sha = dev_json_clean()
+    head = D.git_head()
+    choices = json.loads(DEV_JSON.read_text())
+    if _load("rehearse.json") is None:
+        raise SystemExit("rehearse the test path on the dev items first (stage rehearse)")
+
+    def scorer():
+        items = D.items("scouting", "test") + D.items("possession", "test")
+        return run_arms(items, choices, "test", log)
+
+    assert EXPERIMENT == "genai-E2-0.5B"
+    rows, timing = D.score_test_once("genai-E2-0.5B", scorer)
+    record = {"experiment": EXPERIMENT, "model": MODEL, "checkers": CHECKERS, "dev_json_sha256": dev_sha,
+              "head": head, "choices": {k: v for k, v in choices.items() if k not in ("dev", "a0_dev")},
+              **summarize(rows, timing, choices)}
     path = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-final.json"
     path.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
     return record
@@ -646,9 +745,8 @@ def stage_test(choices: dict, log=print) -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="genai-E2 on the 0.5B model (docs/research/genai.md)")
-    parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "test"))
+    parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "rehearse", "test"))
     parser.add_argument("--max-hours", type=float, default=MAX_STRETCH_H)
-    parser.add_argument("--arm", help="a3: the adapter folder under the run folder (the dev-best arm)")
     args = parser.parse_args(argv)
     if args.max_hours > MAX_STRETCH_H:
         print(f"a stretch holds the lock for at most {MAX_STRETCH_H} hours", file=sys.stderr)
@@ -665,14 +763,14 @@ def main(argv=None) -> int:
     elif args.stage in ("rft", "rft2"):
         record = stage_rft(deadline, 1 if args.stage == "rft" else 2)
     elif args.stage == "a3":
-        record = stage_a3(run_dir() / args.arm, deadline)
+        record = stage_a3(deadline)
     elif args.stage == "choose":
         record = choose()
-        path = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json"
-        path.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
+        DEV_JSON.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
+    elif args.stage == "rehearse":
+        record = stage_rehearse()
     else:
-        choices = json.loads((REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json").read_text())
-        record = stage_test(choices)
+        record = stage_test()
     print(json.dumps({"stage": args.stage, "wall_s": time.perf_counter() - started,
                       "summary": _short(record)}, indent=1))
     return 0
