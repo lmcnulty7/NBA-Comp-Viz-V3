@@ -7,7 +7,8 @@
   "on_floor_bounded_by_roster": 0,
   "withheld_low": 14,
   "withheld_high": 38,
-  "withheld_both": 0
+  "withheld_both": 0,
+  "withheld_would_otherwise_show": 36
  },
  "shots": {
   "out_of_fold_attempts": 101853,

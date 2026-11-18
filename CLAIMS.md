@@ -204,5 +204,6 @@ under `reports/scorecard/`; row A8 keeps its B5 numbers until ROADMAP R5.3 rewri
    The rows are dropped or misassigned by name, not at random, so the frozen rebound and xFG results rest on samples
    that lean away from a few players. They are traced and disclosed, not refit (frozen code, CLAUDE.md rule 3). The
    site withholds the player values these joins touch, with the reason and its side: 14 rebound rates that could read
-   too low, 38 that could read too high (0.5 per 100 chances or more either way), and 19 shot-making values. The
-   methods page carries the same note beside both lanes.
+   too low, 38 that could read too high (0.5 per 100 chances or more either way), and 19 shot-making values. 36 of
+   those rebound rates are ones the site would otherwise show; the rest are below the minimum sample or not on the
+   site. The methods page carries the same note beside both lanes.

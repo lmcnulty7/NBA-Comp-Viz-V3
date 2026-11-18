@@ -126,6 +126,7 @@ class PlayersInfo:
     lost_rebounds_floor_exact: int = 0      # of those, misses whose players on the floor the tracking frames list
     lost_rebounds_floor_bounded: int = 0    # the others: every player of the game counts as on the floor
     rebounding_withheld_by_side: dict = field(default_factory=dict)     # low, high, both: player ids
+    rebounding_withheld_would_show: int = 0     # withheld rates on the minimum sample or more: shown but for the rule
     shots_mixed: int = 0                    # credited attempts whose play-by-play name fits two teammates
     shots_unattributed: int = 0             # unresolved named attempts no roster name fits and no tracked leader takes
     attempts_total: int = 0
@@ -836,7 +837,8 @@ def name_joins_record(info: PlayersInfo) -> dict:
                      "on_floor_bounded_by_roster": info.lost_rebounds_floor_bounded,
                      "withheld_low": len(info.rebounding_withheld_by_side.get("low", [])),
                      "withheld_high": len(info.rebounding_withheld_by_side.get("high", [])),
-                     "withheld_both": len(info.rebounding_withheld_by_side.get("both", []))},
+                     "withheld_both": len(info.rebounding_withheld_by_side.get("both", [])),
+                     "withheld_would_otherwise_show": info.rebounding_withheld_would_show},
         "shots": {"out_of_fold_attempts": info.attempts_total,
                   "shooter_not_resolved": int(info.attempts_left_out_by_reason.get("shooter_not_resolved", 0)),
                   "shooter_not_resolved_took_nearest": info.attempts_unresolved_nearest,
@@ -940,6 +942,7 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
         withheld = WITHHELD[f"rebounding_{side}"] if side else None
         if side:
             by_side[side].append(player_id)
+            info.rebounding_withheld_would_show += int(chances >= MIN_REBOUND_CHANCES)
         show = chances >= MIN_REBOUND_CHANCES and withheld is None
         if show and rebounds.at[player_id, "point"] == 0 and rebounds.at[player_id, "hi"] == 0:
             raise ExportProblem(f"rebound predictions: player {player_id} has no rebound in {chances} chances, which "
@@ -1009,6 +1012,8 @@ def build_players(data_root, artifacts, repo_root=C.REPO_ROOT, doc=None, checks_
                  "out_of_fold"),
         C.source(lane_table("rebound_frames", C.SEASON, "<game>.parquet"), "the play-by-play rebounder of each "
                  "miss, to find the rebounds the lane dropped (a value is withheld for them)", "training"),
+        C.source(C.data_path("sportvu_contract", "<game>.parquet"), "players on the floor at the rim frame of each "
+                 "dropped miss (frame and player_id only), training games", "training"),
         C.source(lane_table("load", C.SEASON, "player_games.parquet"), "absence labels of training games", "training"),
         C.source(lane_table("rosters", C.SEASON, "<game>.parquet"), "names, teams and games of training games",
                  "training"),

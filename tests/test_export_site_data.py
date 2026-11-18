@@ -1453,6 +1453,7 @@ def test_the_name_joins_record_holds_the_counts_of_the_build(built, tmp_path):
     assert record["rebounds"]["dropped_misses"] == info.lost_rebounds == 82
     assert (record["rebounds"]["on_floor_from_frames"], record["rebounds"]["on_floor_bounded_by_roster"]) == (81, 1)
     assert (record["rebounds"]["withheld_low"], record["rebounds"]["withheld_high"]) == (1, 1)
+    assert record["rebounds"]["withheld_would_otherwise_show"] == 2           # 9303 (300) and 9501 (360 chances)
     shots = record["shots"]
     assert shots["shooter_not_resolved"] == (shots["shooter_not_resolved_took_nearest"]
                                              + shots["shooter_not_resolved_no_shooter"])
@@ -1483,7 +1484,7 @@ def test_the_name_join_caveat_states_the_tracked_counts():
     shot_counts = [shots["shooter_not_resolved"], shots["shooter_not_resolved_took_nearest"],
                    shots["shooter_not_resolved_no_shooter"], shots["tracked_attempts_name_fits_two_teammates"]]
     withheld = [reb["withheld_low"] + reb["withheld_both"], reb["withheld_high"] + reb["withheld_both"],
-                shots["withheld"]]
+                shots["withheld"], reb["withheld_would_otherwise_show"]]
 
     def has(text: str, value: int) -> bool:
         return re.search(r"(?<![\d.,])%d(?![\d])" % value, text) is not None
