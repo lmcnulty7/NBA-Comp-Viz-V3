@@ -1,12 +1,13 @@
 // The polish score of a built site (PLAN.md P4, docs/POLISH_LOOP.md): machine checks only, one JSON.
 //
-// It serves out/ on 127.0.0.1 under the base path it was built for (scripts/serve-out.mjs) and measures, with
+// It serves out/ on 127.0.0.1 under the base path it was built for (scripts/serve-out.mjs, with byte ranges for
+// clips and gzip for text, as the real hosts answer them) and measures, with
 // Playwright's own bundled headless Chromium and WebKit (no system browser, no desktop application):
 //   accessibility  axe-core (pinned dev dependency) on one page of each family, at 390 and 1280 px, in both
 //                  browsers, WCAG 2.2 A and AA rules and axe's best practices, with reduced motion so an
 //                  animation cannot change what is found;
 //   first view     each sampled page loaded --runs times in a fresh context (empty cache) at 1280 px: time to
-//                  DOMContentLoaded, to the load event and to the largest paint, and the bytes fetched before
+//                  DOMContentLoaded, to the load event and to the largest paint, and the bytes received before
 //                  the load event; Chromium on an emulated phone connection and processor (CHROMIUM_THROTTLE);
 //   bundle size    the gzip size of the JavaScript each sampled page's HTML loads (the nomodule fallback aside);
 //   reading        the grade of the site copy (lib/polish.mjs copyGrade), and the problems of check-copy.mjs and
@@ -27,7 +28,9 @@ import { chromium, webkit } from "@playwright/test";
 import axe from "axe-core";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
+import { gzipSync } from "node:zlib";
 import path from "node:path";
 import { checkCopy } from "./check-copy.mjs";
 import { checkReading } from "./check-reading.mjs";
@@ -144,8 +147,33 @@ async function timingPass(browserName, browser, origin, sample, runs) {
   const load = async (route) => {
     let bytes = 0;
     const { context, page, errors, status } = await openPage(browser, `${origin}${route}`, { viewport: TIMING_VIEWPORT }, async (p) => {
+      bytes = 0; // a retried navigation starts its count again
+      // The bytes of the first view, before the load event; what the page fetches after it (route prefetches)
+      // depends on timing and is left out. Chromium counts the body bytes it really received (its network log):
+      // a clip asked for with an open range ("bytes=0-") is answered with the whole rest of the file, and the
+      // browser stops reading once it has what it needs, so a declared length would count megabytes never sent.
+      // WebKit has no such log; its count is the declared lengths, kept in the score for reading but out of the
+      // page weight metric.
+      let loaded = false;
+      p.on("load", () => {
+        loaded = true;
+      });
       if (browserName === "chromium") {
         const cdp = await p.context().newCDPSession(p);
+        // Bytes on the wire: a request that finished before the load event counts its encoded length (gzip
+        // where the server compressed it); one still streaming then (a clip) counts the bytes it had received.
+        const streaming = new Map();
+        cdp.on("Network.dataReceived", (event) => {
+          if (!loaded) streaming.set(event.requestId, (streaming.get(event.requestId) ?? 0) + event.dataLength);
+        });
+        cdp.on("Network.loadingFinished", (event) => {
+          if (loaded) return;
+          streaming.delete(event.requestId);
+          bytes += event.encodedDataLength;
+        });
+        p.on("load", () => {
+          for (const received of streaming.values()) bytes += received;
+        });
         await cdp.send("Network.enable");
         await cdp.send("Network.emulateNetworkConditions", {
           offline: false,
@@ -155,15 +183,11 @@ async function timingPass(browserName, browser, origin, sample, runs) {
         });
         await cdp.send("Emulation.setCPUThrottlingRate", { rate: CHROMIUM_THROTTLE.cpuSlowdown });
       }
-      // The bytes of the first view: every response that arrived before the load event. What the page fetches
-      // after it (route prefetches) depends on timing, so it is left out.
-      let loaded = false;
-      p.on("load", () => {
-        loaded = true;
-      });
-      p.on("response", (response) => {
-        if (!loaded) bytes += Number(response.headers()["content-length"] ?? 0);
-      });
+      else {
+        p.on("response", (response) => {
+          if (!loaded) bytes += Number(response.headers()["content-length"] ?? 0);
+        });
+      }
       await p.addInitScript(() => {
         window.__lcp = 0;
         try {
@@ -203,6 +227,7 @@ async function timingPass(browserName, browser, origin, sample, runs) {
       lcpMs: lcp === null ? null : round(lcp),
       firstViewMs: round(median(samples.map((s) => s.lcp ?? s.load).filter((v) => typeof v === "number"))),
       kb: round(pick("bytes") / 1024),
+      kbCounted: browserName === "chromium" ? "received" : "declared",
     });
   }
   return { rows, failures };
@@ -237,8 +262,102 @@ async function measureOnce(origin, sample, runs) {
     a11yWeighted,
     firstViewChromiumMs: round(mean(timings.filter((t) => t.browser === "chromium").map((t) => t.firstViewMs))),
     firstViewWebkitMs: round(mean(timings.filter((t) => t.browser === "webkit").map((t) => t.firstViewMs))),
-    pageWeightKb: round(mean(timings.map((t) => t.kb))),
+    pageWeightKb: round(mean(timings.filter((t) => t.browser === "chromium").map((t) => t.kb))),
   };
+}
+
+/**
+ * The static server of serve-out.mjs, plus what GitHub Pages and Cloudflare Pages do that it does not:
+ *   byte ranges for a media file. A browser asks for the start of a clip with a Range header to read its
+ *   metadata; a server that ignores the header sends the whole clip, and the first view would be charged for
+ *   megabytes no real host sends;
+ *   gzip for text (HTML, scripts, styles, JSON, SVG) when the browser accepts it. Both hosts compress text, so an
+ *   uncompressed test server would charge a text byte three to six times what it costs a reader.
+ * Every other request (a redirect, a 404, an image, a font) goes to the serve-out handler unchanged.
+ */
+const RANGE_TYPES = { mp4: "video/mp4", webm: "video/webm" };
+const GZIP_TYPES = {
+  html: "text/html; charset=utf-8",
+  txt: "text/plain; charset=utf-8",
+  css: "text/css; charset=utf-8",
+  js: "text/javascript; charset=utf-8",
+  mjs: "text/javascript; charset=utf-8",
+  json: "application/json; charset=utf-8",
+  svg: "image/svg+xml",
+  xml: "application/xml; charset=utf-8",
+  webmanifest: "application/manifest+json",
+};
+const gzipped = new Map();
+
+/** The file a GET for `relative` serves: the file itself, or a folder's index.html when the path ends in a slash. */
+function servedFile(root, relative, pathname) {
+  const target = path.join(root, relative);
+  if (target !== root && !target.startsWith(root + path.sep)) return null;
+  if (!existsSync(target)) return null;
+  const stat = statSync(target);
+  if (stat.isFile()) return target;
+  if (stat.isDirectory() && pathname.endsWith("/")) {
+    const index = path.join(target, "index.html");
+    return existsSync(index) && statSync(index).isFile() ? index : null;
+  }
+  return null;
+}
+
+function sendGzip(request, response, file) {
+  const stat = statSync(file);
+  const key = `${file}:${stat.mtimeMs}:${stat.size}`;
+  if (!gzipped.has(key)) gzipped.set(key, gzipSync(readFileSync(file), { level: 6 }));
+  const body = gzipped.get(key);
+  response.writeHead(200, {
+    "Content-Type": GZIP_TYPES[path.extname(file).slice(1).toLowerCase()],
+    "Content-Encoding": "gzip",
+    "Content-Length": body.length,
+    Vary: "Accept-Encoding",
+    "Cache-Control": "no-store",
+  });
+  response.end(request.method === "HEAD" ? undefined : body);
+}
+export function rangeAwareServer({ dir, base }) {
+  const root = path.resolve(dir);
+  const handler = createStaticServer({ dir, base }).listeners("request")[0];
+  return createServer((request, response) => {
+    const range = /^bytes=(\d*)-(\d*)$/.exec(request.headers.range ?? "");
+    let pathname = "";
+    try {
+      pathname = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname);
+    } catch {
+      // a malformed path is the serve-out handler's to answer
+    }
+    const extension = path.extname(pathname).slice(1).toLowerCase();
+    const inSite = !base || pathname.startsWith(`${base}/`);
+    const file = path.join(root, pathname.slice(base.length));
+    const readable = request.method === "GET" || request.method === "HEAD";
+    if (readable && !range && inSite && /\bgzip\b/.test(request.headers["accept-encoding"] ?? "")) {
+      const served = servedFile(root, pathname.slice(base.length), pathname);
+      if (served && GZIP_TYPES[path.extname(served).slice(1).toLowerCase()]) return sendGzip(request, response, served);
+    }
+    const servable =
+      range && RANGE_TYPES[extension] && inSite && file.startsWith(root + path.sep) && existsSync(file) && statSync(file).isFile();
+    if (!servable || !readable) return handler(request, response);
+    const size = statSync(file).size;
+    const suffix = range[1] === "";
+    const start = Math.max(0, suffix ? size - Number(range[2]) : Number(range[1]));
+    const end = suffix || range[2] === "" ? size - 1 : Math.min(Number(range[2]), size - 1);
+    if (start > end || start >= size) {
+      response.writeHead(416, { "Content-Range": `bytes */${size}` });
+      response.end();
+      return;
+    }
+    response.writeHead(206, {
+      "Content-Type": RANGE_TYPES[extension],
+      "Content-Length": end - start + 1,
+      "Content-Range": `bytes ${start}-${end}/${size}`,
+      "Accept-Ranges": "bytes",
+      "Cache-Control": "no-store",
+    });
+    if (request.method === "HEAD") response.end();
+    else createReadStream(file, { start, end }).pipe(response);
+  });
 }
 
 /**
@@ -284,7 +403,7 @@ export async function score({ outDir = OUT_DIR, runs = 7, repeat = 1, check = nu
   const firstLoadJsKb = round(mean(Object.values(bundles).map((b) => b.jsGzipKb)), 2);
   const { copy, reading, grade } = staticChecks(outDir);
 
-  const server = createStaticServer({ dir: outDir, base: basePath });
+  const server = rangeAwareServer({ dir: outDir, base: basePath });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const origin = `http://127.0.0.1:${server.address().port}${basePath}/`;
   const measured = [];

@@ -31,7 +31,7 @@
     "paired": {
       "title": "Paired differences between builds",
       "caption": "Paired change on the observations both builds score",
-      "note": "A positive difference means the build is better than the baseline.",
+      "note": "A difference above zero means the build does better than the baseline.",
       "game": "Game",
       "metric": "Metric",
       "baseline": "Baseline",
