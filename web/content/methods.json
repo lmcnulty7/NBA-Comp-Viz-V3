@@ -26,7 +26,8 @@
     "adopted": "Cleared its bar on training games and on the test games. Adopted.",
     "not_adopted_test": "Fell short on the test games. Not adopted.",
     "passed_test": "Cleared its bar on the test games, scored once.",
-    "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change."
+    "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change.",
+    "ran_result_in_writeup": "Has run. Its result is in its write-up and is not shown on this page yet."
   },
   "results": {
     "title": "Tests run so far",
@@ -143,6 +144,7 @@
     "lineups": "Lineups",
     "winprob": "Win chances",
     "load": "Fatigue and absence",
-    "tracking": "Broadcast tracking"
+    "tracking": "Broadcast tracking",
+    "genai": "Machine-written texts"
   }
 }

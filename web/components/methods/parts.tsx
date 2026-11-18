@@ -32,6 +32,7 @@ export const STATUS_TONE: Record<Experiment["status"], StatusTone> = {
   not_adopted_test: "fail",
   passed_test: "pass",
   adopted_research: "pass",
+  ran_result_in_writeup: "plain",
 };
 
 /** The plain name of a lane, or the lane key with its underscores as spaces when copy names no such lane. */
