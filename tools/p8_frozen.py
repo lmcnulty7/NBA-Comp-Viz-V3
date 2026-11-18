@@ -233,19 +233,51 @@ def safe_cut(P: dict, w: dict, out_dir: Path) -> Path:
     return final
 
 
+# build_trajectories.py exits non-zero rather than write an empty sidecar when it processed no frame. With --pregate,
+# a window whose coarse gate pass finds no live frame reads nothing and prints the "Video unreadable" variant of that
+# message, so the text alone cannot tell a gate-empty window from a broken clip: a zero-frame exit counts as gate-empty
+# only when this process can decode the clip itself (harvest_driver.decodable). A window of running clock can be all
+# non-wide footage, e.g. a picture-in-picture interview over live play (gsw_cha_2016_s06_w07, night 1); the frozen
+# autolabel counted such windows as build_failed and went on (Colab R1.3 result for gsw_cha_2016: build_failed 2).
+ZERO_FRAME_MARKERS = ("processed 0 frames", "successful reads:", "All read frames were gate-rejected",
+                      "Video unreadable by cv2")
+
+
+def zero_frame_exit(r: dict) -> bool:
+    return r.get("rc") not in (0, None) and any(m in (r.get("tail") or "") for m in ZERO_FRAME_MARKERS)
+
+
+def _decodable(path: Path) -> bool:
+    import harvest_driver
+    return harvest_driver.decodable(path)
+
+
+def gate_empty_path(out_dir: Path, stem: str) -> Path:
+    return out_dir / (stem + "_gate_empty.json")
+
+
 def safe_build(P: dict, w: dict, snip: Path, out_dir: Path, extra_args: tuple = ()) -> dict:
-    """sportvu.rebuild.build with the checkout swept before and after. A build with rc != 0 is a failure: its outputs
-    in out_dir (all but the clip and the window time map) move to <P8 root>/failed/ so a rerun builds it again."""
+    """sportvu.rebuild.build with the checkout swept before and after. A window whose every read frame the gate
+    rejected is not a failure: it gets a <window>_gate_empty.json marker (so it is not built again) and the step goes
+    on, as the frozen autolabel did. Any other build with rc != 0 is a failure: its outputs in out_dir (all but the
+    clip and the window time map) move to <P8 root>/failed/ so a rerun builds it again."""
     import shutil
     from sportvu.rebuild import build
     stem = w["window"]
+    if gate_empty_path(out_dir, stem).exists():
+        return {"ok": True, "cached": True, "empty": True}
     sweep_checkout(P, stem)
     r = build(w, snip, out_dir=out_dir, extra_args=extra_args)
     left = sweep_checkout(P, stem)
     if r.get("cached"):
         return {"ok": True, "cached": True}
+    tail = r.get("tail", "") or ""
+    if zero_frame_exit(r) and not (out_dir / (stem + "_frames.json")).exists() and not left and _decodable(snip):
+        atomic_write(gate_empty_path(out_dir, stem), json.dumps({"window": stem, "rc": r.get("rc"), "tail": tail}))
+        return {"ok": True, "empty": True, "rc": r.get("rc")}
     ok = r.get("rc") == 0 and (out_dir / (stem + "_frames.json")).exists() and not left
     if not ok:
+        print(f"{WHO}: build of {stem} failed (rc {r.get('rc')}): {tail}", file=sys.stderr, flush=True)
         dest = P["failed"] / out_dir.name
         dest.mkdir(parents=True, exist_ok=True)
         for f in out_dir.glob(stem + "_*"):
@@ -372,6 +404,8 @@ def step_direction(P: dict, tag: str, section: str) -> dict:
         r = safe_build(P, w, snip, P["direction"])
         if not r["ok"]:
             failures.append(w["window"]); continue
+        if r.get("empty"):
+            continue
         write_timemap(P["direction"] / (w["window"] + "_timemap.json"), w["section"], reader, snip)
         done += (P["direction"] / (w["window"] + "_trajectories.json")).exists()
     fail_if(failures, section)
@@ -418,8 +452,10 @@ def step_label(P: dict, tag: str, section: str) -> dict:
         r = safe_build(P, w, snip, P["label_build"], extra_args=gate_args())
         if not r["ok"]:
             failures.append(w["window"]); continue
-        write_timemap(P["label_build"] / (w["window"] + "_timemap.json"), w["section"], reader, snip)
         out["windows"] += 1
+        if r.get("empty"):
+            out["gate_empty"] = out.get("gate_empty", 0) + 1; continue
+        write_timemap(P["label_build"] / (w["window"] + "_timemap.json"), w["section"], reader, snip)
         out["built"] += 1
     fail_if(failures, section)
     return out
@@ -453,7 +489,8 @@ def step_fit(P: dict, tag: str, partial: bool = False) -> dict:
     for w in windows:
         side_p, tm_p = (P["label_build"] / (w["window"] + k) for k in ("_frames.json", "_timemap.json"))
         if not side_p.exists() or not tm_p.exists():
-            counts["build_failed"] = counts.get("build_failed", 0) + 1
+            key = "gate_v2_empty_window" if gate_empty_path(P["label_build"], w["window"]).exists() else "build_failed"
+            counts[key] = counts.get(key, 0) + 1
             continue
         sc, tm = json.loads(side_p.read_text()), json.loads(tm_p.read_text())
         live = {int(f) for f, _, _ in tm["frames"]}
@@ -546,6 +583,8 @@ def step_rebuild(P: dict, tag: str, section: str, build_name: str) -> dict:
         if not r["ok"]:
             failures.append(w["window"]); continue
         res["windows"] += 1
+        if r.get("empty"):
+            res["gate_empty"] = res.get("gate_empty", 0) + 1; continue
         res["built"] += 1
     fail_if(failures, f"{section} ({build_name})")
     return res
