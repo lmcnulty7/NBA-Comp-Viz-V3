@@ -310,7 +310,10 @@ model is a later decision. The pre-registration below is unchanged; its amendmen
     A third, for the 1.5B model (2026-11-18, before its first epoch ended): the training loss keeps logits only for
     the answer tokens (logits_to_keep), the same mean cross-entropy over the same tokens; the full-length float32
     logits stopped the first 1.5B stretch under the cap after about 400 examples, and it resumes from that
-    checkpoint. The 0.5B run, already scored, used the model's own loss on the same tokens.
+    checkpoint. The 0.5B run, already scored, used the model's own loss on the same tokens. A fourth, for the 1.5B
+    model's rejection sampling (2026-11-18): candidates are sampled 2 items of 4 at a time (8 sequences), since 8
+    items of 4 stopped it under the cap, and in chunks saved as they finish so a stopped stretch resumes; the 0.5B
+    run sampled 8 items at a time.
 - Amendment for the 1.5B model (2026-11-18, PLAN.md D101, before any 1.5B run): Qwen2.5-1.5B-Instruct at revision
   989aa798, in bfloat16 as the pilot set (the pre-registration lets the pilot fix the number format); every other
   setting, split, checker, stage, rule and threshold as for the 0.5B model. Its run folders and texts are kept apart

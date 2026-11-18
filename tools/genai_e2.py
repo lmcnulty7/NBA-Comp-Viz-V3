@@ -292,7 +292,9 @@ def generate(tok, model, items: list, arm: str, sample: bool = False, n: int = 1
     texts, seconds = {}, {}
     model.eval()
     model.config.use_cache = True
-    size = P3_BATCH if arm == "p3" else GEN_BATCH
+    # sampled candidates: GEN_BATCH sequences in all (2 items of 4), since 8 items of 4 stopped the 1.5B model under
+    # the memory cap (2026-11-18); greedy decoding keeps 8 items
+    size = P3_BATCH if arm == "p3" else max(1, GEN_BATCH // n)
     for start in range(0, len(items), size):
         batch = items[start:start + size]
         chats = [tok.apply_chat_template(chat_of(item) if chat_of else messages(item, arm), add_generation_prompt=True,
@@ -571,7 +573,21 @@ def stage_rft(deadline, round_: int = 1, log=print) -> dict:
     if candidates is None:
         tok, model = load(source)
         pool = rft_pool()
-        found, seconds = generate(tok, model, pool, "compact", sample=True, n=RFT["k"], log=log)
+        # sampled in chunks saved as they finish, so a stopped stretch resumes where it was (a resumed stretch draws
+        # from a new random stream; the counts say how many items each stretch sampled)
+        partial = _load(f"{tag}-candidates-partial.json") or {"found": {}, "seconds": {}, "stretches": []}
+        todo = [item for item in pool if item["key"] not in partial["found"]]
+        partial["stretches"].append(len(todo))
+        for start in range(0, len(todo), 64):
+            if time.perf_counter() > deadline:
+                _save(f"{tag}-candidates-partial.json", partial)
+                log(f"{tag}: stretch deadline while sampling; {len(partial['found'])} of {len(pool)} items saved")
+                return {"stopped": True, "sampled": len(partial["found"])}
+            chunk, secs = generate(tok, model, todo[start:start + 64], "compact", sample=True, n=RFT["k"], log=log)
+            partial["found"].update(chunk)
+            partial["seconds"].update(secs)
+            _save(f"{tag}-candidates-partial.json", partial)
+        found, seconds = partial["found"], partial["seconds"]
         check = checker("primary")
         by_key = {item["key"]: item for item in pool}
         kept = {}
@@ -581,11 +597,15 @@ def stage_rft(deadline, round_: int = 1, log=print) -> dict:
                 if text and not check(text, by_key[key])[0]:
                     good.append(text)
             kept[key] = good[:RFT["keep_per_item"]]
-        candidates = {"kept": kept, "seconds_per_item": _mean(seconds.values()),
+        candidates = {"kept": kept, "seconds_per_item": _mean(seconds.values()), "stretches": partial["stretches"],
                       "pool": len(pool), "items_with_a_pass": sum(bool(v) for v in kept.values()),
                       "kept_texts": sum(len(v) for v in kept.values())}
         _save(cand_name, candidates)
         del model
+        import gc
+        import torch
+        gc.collect()
+        torch.mps.empty_cache()
     tok, model = load(run_dir() / tag / "latest" if (run_dir() / tag / "latest").exists() else source, trainable=True)
     by_key = {item["key"]: item for item in rft_pool()}
     rows = [(by_key[k], t) for k, texts in candidates["kept"].items() for t in texts]
