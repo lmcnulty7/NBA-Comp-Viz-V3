@@ -14,7 +14,8 @@ V3_GENAI_MODELS/runs and V3_GENAI_DATA/e2):
     choose    write the dev choices (reports/research/genai-E2-0.5B-dev.json) before any test item is read
     rehearse  the exact test path on the dev items, without the ledger
     test      the one test score of every arm (score_test_once "genai-E2-0.5B"); refuses unless the dev json is
-              committed and unchanged and the rehearsal ran
+              committed and unchanged, tools/ and export/ are clean, and the rehearsal ran on this dev json and commit
+    test-resume  the one pre-registered resume entry, only after a crash of the test call
 
 Every score uses the primary checker (export/genai.py of v4-research at PRIMARY, blob checked) and reports the
 freeze checker beside it. Nothing reads a held-out game; the items are the frozen genai items (tools.genai_data).
@@ -103,7 +104,10 @@ def evaluate(text, item: dict, name: str = "primary") -> dict:
     from export import genai as G
     if not text:
         return {"passed": False, "rules": ["no_text"], "grade": None, "words": None, "frames": []}
-    problems, _ = checker(name)(text, item)
+    try:
+        problems, _ = checker(name)(text, item)
+    except Exception as exc:  # a checker that raises on a text fails the text (amendment j), it does not crash
+        problems = [f"checker raised {type(exc).__name__}"]
     return {"passed": not problems, "rules": sorted({E.rule_of(p) for p in problems}),
             "grade": G.round1(G.fk_grade(text)), "words": len(G.words_of(text)), "frames": E.frames_of(text, item)}
 
@@ -662,41 +666,78 @@ def reading(diff: list, point: float, rule: str) -> str:
     return "helps" if lo > 0 else "hurts" if hi < 0 else "inconclusive"
 
 
-def run_arms(items: list, choices: dict, tag: str, log=print) -> tuple:
-    """Every arm on `items`, each arm's texts saved outside the repository as it finishes. Used by the test scorer
-    and, unchanged, by the rehearsal on dev items."""
-    scouting = [i for i in items if i["kind"] == "scouting"]
-    texts, timing = {}, {}
+def run_arms(items: list, choices: dict, tag: str, log=print, resume: bool = False) -> tuple:
+    """Every arm on `items`. Each arm is scored under both checkers as soon as its texts exist, and its texts and full
+    rows are saved outside the repository (amendment j). With `resume`, an arm whose rows are saved is read back and
+    not generated again (greedy decoding, so nothing is chosen again). Used by the test scorer, the resume entry and,
+    unchanged, by the rehearsal on dev items. Returns (rows, timing, texts)."""
+    import gc
 
-    def keep(arm, found, seconds=None):
+    scouting = [i for i in items if i["kind"] == "scouting"]
+    texts, timing, rows = {}, {}, {}
+
+    def saved(arm) -> bool:
+        if not resume or _load(f"{tag}-rows-{arm}.json") is None:
+            return False
+        rows[arm] = _load(f"{tag}-rows-{arm}.json")
+        texts[arm] = _load(f"{tag}-texts-{arm}.json")
+        timing[arm] = (_load(f"{tag}-timing.json") or {}).get(arm)
+        log(f"  {arm}: rows saved before the crash, not generated again")
+        return True
+
+    def keep(arm, subset, found, seconds=None):
         texts[arm] = found
         timing[arm] = _mean(seconds.values()) if seconds else None
+        rows[arm] = score(subset, found)
         _save(f"{tag}-texts-{arm}.json", found)
+        _save(f"{tag}-rows-{arm}.json", rows[arm])
+        _save(f"{tag}-timing.json", timing)
 
-    tok, model = load()
-    found, seconds = generate(tok, model, items, "few_shot", log=log)
-    keep("a0", {k: v[0] for k, v in found.items()}, seconds)
-    found, seconds = generate(tok, model, scouting, "p3", log=log)
-    keep("a0_p3", {k: v[0] for k, v in found.items()}, seconds)
-    del model
+    def free(model):
+        import torch
+        del model
+        gc.collect()
+        torch.mps.empty_cache()
+
+    if not (saved("a0") and saved("a0_p3")):
+        tok, model = load()
+        if "a0" not in rows:
+            found, seconds = generate(tok, model, items, "few_shot", log=log)
+            keep("a0", items, {k: v[0] for k, v in found.items()}, seconds)
+        if "a0_p3" not in rows and not saved("a0_p3"):
+            found, seconds = generate(tok, model, scouting, "p3", log=log)
+            keep("a0_p3", scouting, {k: v[0] for k, v in found.items()}, seconds)
+        free(model)
     arms = {choices["a1_best"], *choices["best_by_kind"].values(), choices["a3_arm"]}
     arms |= {choices["a2_final"]} if choices.get("a2_final") else set()
     for arm in sorted(arms):
+        needs = [arm] + (["a3"] if arm == choices["a3_arm"] else []) + \
+                ([f"{arm}+repair"] if arm in choices["best_by_kind"].values() else [])
+        todo = [a for a in needs if not saved(a)]
+        if not todo:
+            continue
         tok, model = load(adapter_of(arm))
-        found, seconds = generate(tok, model, items, "compact", log=log)
-        keep(arm, {k: v[0] for k, v in found.items()}, seconds)
-        if arm == choices["a3_arm"]:
+        if arm in todo:
+            found, seconds = generate(tok, model, items, "compact", log=log)
+            keep(arm, items, {k: v[0] for k, v in found.items()}, seconds)
+        if "a3" in todo:
             found, seconds = generate(tok, model, items, "compact", guard=True, log=log)
-            keep("a3", {k: v[0] for k, v in found.items()}, seconds)
-        if arm in choices["best_by_kind"].values():
-            keep(f"{arm}+repair", repair(tok, model, items, texts[arm], log=log))
-        del model
-    rows = {arm: score(items, t) for arm, t in texts.items()}
-    snapshot = {t["key"]: t["text"] for t in
+            keep("a3", items, {k: v[0] for k, v in found.items()}, seconds)
+        if f"{arm}+repair" in todo:
+            keep(f"{arm}+repair", items, repair(tok, model, items, texts[arm], log=log))
+        free(model)
+    snapshot = {t["key"]: t for t in
                 json.loads(D.snapshot_file("genai/scouting.json").read_text(encoding="utf-8"))["items"]}
-    rows["haiku"] = score(scouting, {i["key"]: snapshot.get(i["key"]) for i in scouting})
-    rows["haiku_cache"] = score(scouting, {r["key"]: r["_text"] for r in E._cache_text_rows(scouting)})
-    return rows, timing
+    from export import genai as G
+    haiku = {}
+    for item in scouting:
+        text = snapshot.get(item["key"])
+        if text is not None and text["input_sha256"] != G.input_sha256(item):
+            raise SystemExit(f"{item['key']}: the snapshot Haiku text was written from another input")
+        haiku[item["key"]] = text["text"] if text else None
+    keep("haiku", scouting, haiku)
+    keep("haiku_cache", scouting, {r["key"]: r["_text"] for r in E._cache_text_rows(scouting)})
+    return rows, timing, texts
 
 
 def read_hypotheses(rows: dict, choices: dict) -> dict:
@@ -735,8 +776,38 @@ def read_hypotheses(rows: dict, choices: dict) -> dict:
     return hyp
 
 
-def summarize(rows: dict, timing: dict, choices: dict) -> dict:
+def variety(rows: dict, items: list, texts: dict) -> dict:
+    """Per arm and kind (amendment k): frame variety and distinct-2 with bootstrap intervals by unit, the share of
+    possession texts identical to the template's text of the item, and the share of the arm's sentence frames found
+    among the template's frames of the same items. No hypothesis reads them."""
+    by_key = {i["key"]: i for i in items}
+    template = {k: template_text(i) for k, i in by_key.items()}
+    template_frames = {kind: {f for k, i in by_key.items() if i["kind"] == kind for f in E.frames_of(template[k], i)}
+                       for kind in ("scouting", "possession")}
+    out = {}
+    for arm, by in rows.items():
+        for kind in ("scouting", "possession"):
+            mine = [r for r in by["primary"] if ("/" in r["key"]) == (kind == "possession")]
+            if not mine:
+                continue
+            boot = E.bootstrap({arm: mine}, ("frame_variety", "distinct_2"))["arms"][arm]
+            m = E.arm_measures(mine)
+            frames = [f for r in mine for f in r["frames"]]
+            entry = {"frame_variety": m["frame_variety"], "frame_variety_interval": boot["frame_variety"],
+                     "distinct_2": m["distinct_2"], "distinct_2_interval": boot["distinct_2"],
+                     "share_frames_in_template": (sum(f in template_frames[kind] for f in frames) / len(frames))
+                     if frames else None}
+            if kind == "possession":
+                keys = [r["key"] for r in mine]
+                entry["share_identical_to_template"] = sum(
+                    (texts.get(arm) or {}).get(k) == template[k] for k in keys) / len(keys)
+            out.setdefault(arm, {})[kind] = entry
+    return out
+
+
+def summarize(rows: dict, timing: dict, choices: dict, items: list, texts: dict) -> dict:
     return {"hypotheses": read_hypotheses(rows, choices), "seconds_per_item": timing,
+            "variety": variety(rows, items, texts),
             "arms": {arm: {name: {kind: E.arm_measures([r for r in rs if ("/" in r["key"]) == (kind == "possession")])
                                   for kind in ("scouting", "possession")
                                   if any(("/" in r["key"]) == (kind == "possession") for r in rs)}
@@ -758,40 +829,97 @@ def dev_json_clean() -> str:
     return D.sha256_file(DEV_JSON)
 
 
+def tree_clean() -> None:
+    """SystemExit when tools/ or export/ has an uncommitted change (amendment l)."""
+    dirty = subprocess.run(["git", "status", "--porcelain", "--", "tools", "export"], cwd=REPO_ROOT,
+                           capture_output=True, text=True).stdout.strip()
+    if dirty:
+        raise SystemExit("tools/ or export/ has uncommitted changes: commit them before the test stage")
+
+
+def rehearsal_matches(dev_sha: str, head: str) -> None:
+    """SystemExit unless the rehearsal ran on this dev json and this commit (amendment l)."""
+    rehearsal = _load("rehearse.json")
+    if rehearsal is None:
+        raise SystemExit("rehearse the test path on the dev items first (stage rehearse)")
+    if rehearsal.get("dev_json_sha256") != dev_sha or rehearsal.get("head") != head:
+        raise SystemExit("the rehearsal ran on another dev json or another commit: rehearse again")
+
+
 def stage_rehearse(log=print) -> dict:
     """The test path on the dev items, without the ledger (amendment i): same arms, same scoring, same readings."""
+    dev_sha, head = dev_json_clean(), D.git_head()
     choices = json.loads(DEV_JSON.read_text())
-    rows, timing = run_arms(dev_items(), choices, "rehearse", log)
-    record = summarize(rows, timing, choices)
+    items = dev_items()
+    rows, timing, texts = run_arms(items, choices, "rehearse", log)
+    record = {"dev_json_sha256": dev_sha, "head": head, **summarize(rows, timing, choices, items, texts)}
     _save("rehearse.json", record)
     return record
 
 
-def stage_test(log=print) -> dict:
-    """Every arm on the test items, scored once; the hypotheses read on the primary checker."""
-    dev_sha = dev_json_clean()
-    head = D.git_head()
-    choices = json.loads(DEV_JSON.read_text())
-    if _load("rehearse.json") is None:
-        raise SystemExit("rehearse the test path on the dev items first (stage rehearse)")
-
-    def scorer():
-        items = D.items("scouting", "test") + D.items("possession", "test")
-        return run_arms(items, choices, "test", log)
-
-    assert EXPERIMENT == "genai-E2-0.5B"
-    rows, timing = D.score_test_once("genai-E2-0.5B", scorer)
+def _final(rows, timing, texts, choices, dev_sha, head, items, resume_used: bool) -> dict:
     record = {"experiment": EXPERIMENT, "model": MODEL, "checkers": CHECKERS, "dev_json_sha256": dev_sha,
-              "head": head, "choices": {k: v for k, v in choices.items() if k not in ("dev", "a0_dev")},
-              **summarize(rows, timing, choices)}
+              "head": head, "resume_used": resume_used,
+              "choices": {k: v for k, v in choices.items() if k not in ("dev", "a0_dev", "a1_epochs")},
+              **summarize(rows, timing, choices, items, texts)}
     path = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-final.json"
     path.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
     return record
 
 
+def _test_items() -> list:
+    return D.items("scouting", "test") + D.items("possession", "test")
+
+
+def stage_test(log=print) -> dict:
+    """Every arm on the test items, scored once; the hypotheses read on the primary checker. A crash inside the
+    scorer leaves a crash record for the one resume entry (amendment j)."""
+    tree_clean()
+    dev_sha, head = dev_json_clean(), D.git_head()
+    rehearsal_matches(dev_sha, head)
+    choices = json.loads(DEV_JSON.read_text())
+    box = {}
+
+    def scorer():
+        box["items"] = _test_items()
+        return run_arms(box["items"], choices, "test", log)
+
+    assert EXPERIMENT == "genai-E2-0.5B"
+    try:
+        rows, timing, texts = D.score_test_once("genai-E2-0.5B", scorer)
+    except BaseException as exc:
+        if "items" in box:
+            _save("test-crash.json", {"dev_json_sha256": dev_sha, "head": head, "error": type(exc).__name__,
+                                      "when": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+        raise
+    return _final(rows, timing, texts, choices, dev_sha, head, box["items"], resume_used=False)
+
+
+def stage_test_resume(log=print) -> dict:
+    """The one pre-registered resume entry: only after a crash of the scoring call, on the same commit and dev
+    choices; it generates only the arms with no saved rows."""
+    crash = _load("test-crash.json")
+    if crash is None:
+        raise SystemExit("no crash record of genai-E2-0.5B: the resume entry is refused")
+    tree_clean()
+    dev_sha, head = dev_json_clean(), D.git_head()
+    if crash["dev_json_sha256"] != dev_sha or crash["head"] != head:
+        raise SystemExit("the resume entry needs the commit and the dev choices of the crashed run")
+    choices = json.loads(DEV_JSON.read_text())
+    box = {}
+
+    def scorer():
+        box["items"] = _test_items()
+        return run_arms(box["items"], choices, "test", log, resume=True)
+
+    rows, timing, texts = D.score_test_once("genai-E2-0.5B-resume", scorer)
+    return _final(rows, timing, texts, choices, dev_sha, head, box["items"], resume_used=True)
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="genai-E2 on the 0.5B model (docs/research/genai.md)")
-    parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "rehearse", "test"))
+    parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "rehearse", "test",
+                                          "test-resume"))
     parser.add_argument("--max-hours", type=float, default=MAX_STRETCH_H)
     args = parser.parse_args(argv)
     if args.max_hours > MAX_STRETCH_H:
@@ -817,8 +945,10 @@ def main(argv=None) -> int:
         DEV_JSON.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
     elif args.stage == "rehearse":
         record = stage_rehearse()
-    else:
+    elif args.stage == "test":
         record = stage_test()
+    else:
+        record = stage_test_resume()
     print(json.dumps({"stage": args.stage, "wall_s": time.perf_counter() - started,
                       "summary": _short(record)}, indent=1))
     return 0

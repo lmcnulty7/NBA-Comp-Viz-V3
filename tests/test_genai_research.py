@@ -323,3 +323,49 @@ def test_the_test_stage_refuses_without_committed_dev_choices(monkeypatch, tmp_p
     monkeypatch.setattr(X, "DEV_JSON", REPO / "reports" / "research" / "genai-E2-0.5B-dev-missing.json")
     with pytest.raises(SystemExit, match="committed and unchanged"):
         X.dev_json_clean()
+
+
+def test_test_stage_refuses_without_a_matching_rehearsal(tmp_path, monkeypatch):
+    from tools import genai_e2 as X
+    monkeypatch.setenv(D.DATA_ENV, str(tmp_path))
+    with pytest.raises(SystemExit, match="rehearse"):
+        X.rehearsal_matches("a" * 64, "b" * 40)
+    (tmp_path / "e2").mkdir()
+    (tmp_path / "e2" / "rehearse.json").write_text(json.dumps({"dev_json_sha256": "a" * 64, "head": "c" * 40}))
+    with pytest.raises(SystemExit, match="another dev json or another commit"):
+        X.rehearsal_matches("a" * 64, "b" * 40)
+    X.rehearsal_matches("a" * 64, "c" * 40)
+
+
+def test_stage_test_calls_score_test_once_once_with_the_experiment_name():
+    tree = ast.parse((REPO / "tools" / "genai_e2.py").read_text(encoding="utf-8"))
+    found = {}
+    for fn in ast.walk(tree):
+        if isinstance(fn, ast.FunctionDef):
+            calls = [c for c in ast.walk(fn) if isinstance(c, ast.Call)
+                     and getattr(c.func, "attr", getattr(c.func, "id", None)) == "score_test_once"]
+            if calls:
+                found[fn.name] = [c.args[0].value for c in calls]
+    assert found == {"stage_test": ["genai-E2-0.5B"], "stage_test_resume": ["genai-E2-0.5B-resume"]}
+    loops = [n for n in ast.walk(tree) if isinstance(n, (ast.For, ast.While))
+             and any(isinstance(c, ast.Call) and getattr(c.func, "attr", None) == "score_test_once" for c in ast.walk(n))]
+    assert not loops
+
+
+def test_the_resume_entry_refuses_without_a_crash_record(tmp_path, monkeypatch):
+    from tools import genai_e2 as X
+    monkeypatch.setenv(D.DATA_ENV, str(tmp_path))
+    with pytest.raises(SystemExit, match="no crash record"):
+        X.stage_test_resume()
+
+
+def test_a_checker_that_raises_fails_the_text_as_other(monkeypatch):
+    from tools import genai_e2 as X
+
+    def boom(text, item):
+        raise ValueError("x")
+
+    monkeypatch.setitem(X._CHECKS, "primary", boom)
+    item = {"names": [], "context": {"name": "A"}, "facts": []}
+    row = X.evaluate("Some text.", item, "primary")
+    assert row["passed"] is False and row["rules"] == ["other"]
