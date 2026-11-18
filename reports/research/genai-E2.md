@@ -11,9 +11,11 @@ players (scouting) or games (possessions), seed 0. This is the 0.5B model only; 
 
 **Verdict: H1 passes on both kinds; H2, H3 and H4 are inconclusive.** LoRA training lifts Qwen2.5-0.5B-Instruct
 from a few-shot pass rate of 0.111 to 0.852 on the 81 test players, and from 0.665 to 1.000 on the 480 test
-possessions, under the primary checker. Rejection sampling adds nothing measurable to distillation, the trained model
-is within the interval of the Haiku texts on scouting (no spend per text, 0.76 s per text on the Mac), and constrained
-decoding changes no outcome. Read beside the pass rate: on possessions the trained model copies the template (99.2
+possessions, under the primary checker. Rejection sampling adds nothing measurable to distillation. H3 is
+inconclusive: the trained model's pass rate (0.852) is above Haiku's (0.802), but the interval [-0.062, 0.160] does
+not rule out a loss larger than 0.05 (no spend per text, 0.76 s per text on the Mac). Constrained decoding changes
+no pass rate: it removed the number failures on scouting (0.025 to 0), while interval failures rose from 0.062 to
+0.074. Read beside the pass rate: on possessions the trained model copies the template (99.2
 percent of its texts are identical to the template's), and on scouting it writes with far less variety than Haiku.
 
 ## What was tested
@@ -81,6 +83,10 @@ Haiku cache arm fails the primary checker on subject 0.123, attribution 0.037, a
 | H4 scouting: A3 minus A1 epoch 1, number_value failure rate | -0.025 | [-0.062, 0.000] | inconclusive (the upper end is 0, not below it) |
 | H4 possession: A3 minus A1 epoch 1, pass rate and number_value failure rate | 0.000 | [0.000, 0.000] | inconclusive |
 
+The two H3 rows are identical because the per-player pass results of the two Haiku arms are identical (65 of 81
+players pass in both; the snapshot arm's missing texts belong to players whose cache text fails the primary
+checker), not because of a copy error.
+
 H1 needs a difference of at least +0.10 with its lower bound above 0: both kinds pass by a wide margin. H3 reads
 non-inferior only with a lower bound at or above -0.05; at -0.062 it is inconclusive, as the pre-registration said
 was likely at 81 players.
@@ -96,6 +102,12 @@ was likely at 81 players.
 | A2 round 1, scouting | 0.114 [0.072, 0.107] | 0.033 [0.023, 0.033] | 0.115 | |
 | A2 round 1, possession | 0.009 [0.007, 0.009] | 0.003 [0.003, 0.003] | 0.997 | 0.981 |
 | Haiku cache arm, scouting | 0.612 [0.363, 0.461] | 0.119 [0.085, 0.103] | 0.027 | |
+| Haiku snapshot arm, scouting | 0.596 [0.352, 0.460] | 0.120 [0.084, 0.106] | 0.023 | |
+| A0-P3, scouting | 0.735 [0.415, 0.553] | 0.198 [0.128, 0.169] | 0.000 | |
+| A3, scouting | 0.106 [0.075, 0.100] | 0.032 [0.026, 0.031] | 0.119 | |
+| A3, possession | 0.008 [0.007, 0.008] | 0.003 [0.002, 0.003] | 0.999 | 0.992 |
+| A1 epoch 1 with repair, scouting | 0.109 [0.076, 0.101] | 0.033 [0.026, 0.032] | 0.117 | |
+| A1 epoch 1 with repair, possession | 0.008 [0.007, 0.008] | 0.003 [0.002, 0.003] | 0.999 | 0.992 |
 
 Distinct counts are biased downward under resampling (a resampled unit's sentences repeat), so these intervals sit
 below their point estimates; read them as ranges of plausible values, as in genai-E1.
@@ -104,9 +116,9 @@ below their point estimates; read them as ranges of plausible values, as in gena
   identical to the template's text of the same item, and 99.9 percent of its sentence frames are template frames.
   It learned the possession targets it was given, which were template texts (no Haiku possession text exists on a
   training game). This pass rate says the model can reproduce a deterministic writer, not that it writes well.
-- Scouting: A1 passes as often as Haiku (0.852 against 0.802) with about a sixth of Haiku's frame variety (0.106
-  against 0.612, computed ratio 0.17). 88 percent of its frames are not template frames (computed: 1 minus 0.119),
-  so it does not copy the template there; it settles on fewer sentence shapes than its teacher.
+- Scouting: A1 passes at 0.852 against Haiku's 0.802 (H3 inconclusive), with about a sixth of Haiku's frame variety
+  (0.106 against 0.612, computed ratio 0.17). 88 percent of its frames are not template frames (computed: 1 minus
+  0.119), so it does not copy the template there; it settles on fewer sentence shapes than its teacher.
 
 ### Cost and time
 
@@ -124,20 +136,22 @@ item.
 
 ## What this means
 
-- A 0.5B open model, fine-tuned for about 2 hours on this Mac, meets the site's faithfulness checker on 85 percent of
+- A 0.5B open model, trained for about 41 minutes on this Mac (epoch 1; about 2 hours for the 3 epochs the choice
+  was made from), meets the site's faithfulness checker on 85 percent of
   unseen scouting players, against 11 percent before training, at no spend per text. That is the measured answer to
   the lane's question for the 0.5B size.
 - It is not a better writer than the teacher or the template: on possessions it is the template, and on scouting it
   has far less variety than Haiku. Whether that matters to a reader is the human protocol's question (P7); the
   hand-label protocol (docs/research/genai.md) is written and not run.
-- Rejection sampling against the checker did not help here; the distillation targets had already been filtered by
-  the same checker, so the candidates it kept were close to the targets. Constrained decoding had almost nothing
-  to fix after training (number_value failures 0.025 on scouting).
+- Rejection sampling against the checker did not help here. A likely reason, not measured: the distillation targets
+  had already been filtered by the same checker, so the candidates it kept were close to the targets. Constrained
+  decoding had almost nothing to fix after training (number_value failures 0.025 on scouting).
 - Nothing reaches the site (D92). The possession texts of the site stay the Haiku texts; the scouting texts stay
   withheld (D93).
 
 ## What would change the verdict
 
-More test players: at 81, H3's interval is 0.22 wide (computed: 0.160 minus -0.062). A possession target that is not a template (Haiku texts on
+More test players: at 81, H3's interval is 0.22 wide (computed: 0.160 minus -0.062). A possession target that is not
+a template (Haiku texts on
 training-game possessions, a spend that waits for a yes) would make the possession result a test of writing, not of
 copying. The 1.5B model is a separate decision, to be made from these dev numbers.
