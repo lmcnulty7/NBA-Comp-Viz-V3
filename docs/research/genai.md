@@ -198,6 +198,11 @@ showed are fixed here, before the one test score, and change no threshold or rea
 
 ### genai-E2: a small open model, LoRA on the Mac, trained against the checker
 
+**Result, 0.5B (2026-11-18, reports/research/genai-E2.md): H1 passes on both kinds; H2, H3 and H4 inconclusive.**
+A1 minus few-shot +0.741 [0.642, 0.840] on scouting and +0.335 [0.296, 0.375] on possession; A1 with repair minus
+the Haiku cache arm +0.049 [-0.062, 0.160]. The possession texts copy the template (0.992 identical). The 1.5B
+model is a later decision. The pre-registration below is unchanged; its amendments are dated.
+
 - Question. Can a 0.5B or 1.5B open instruct model, fine-tuned on this Mac, write texts that pass the checker at a
   rate near the API model's, at no spend per text?
 - Models. Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct (Apache 2.0 on their Hub pages, not gated: no account or

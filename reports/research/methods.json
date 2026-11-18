@@ -2714,15 +2714,17 @@
      "title": "a small open model, LoRA on the Mac, trained against the checker",
      "what": "a small open model (Qwen2.5 0.5B, 1.5B), LoRA on the Mac: few-shot, distillation, rejection sampling against the checker, constrained decoding",
      "hypothesis": "Can a 0.5B or 1.5B open instruct model, fine-tuned on this Mac, write texts that pass the checker at a rate near the API model's, at no spend per text?",
-     "threshold": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference. - H1, training helps: the dev-best fine-tuned arm minus A0, per kind and size. Passes when the difference is at least +0.10 and its lower bound is above 0; fails when the upper bound is below +0.10; otherwise inconclusive. - H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive. - H3, near the API model (scouting only): the dev-best arm with the repair loop minus Haiku as delivered. Lower bound at or above -0.05: non-inferior; upper bound below -0.05: inferior; otherwise inconclusive. At 81 players the interval half-width of a pass-rate difference is about 0.1 near rates of 0.8, so inconclusive is a likely reading and is stated as such. - H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. Read as pass, fail or inconclusive on the pass rate by the H2 rule.",
+     "threshold": "Paired bootstrap by player (scouting) or by game (possession), 2000 resamples, 95 percent percentile interval of the difference. - H1, training helps: the dev-best fine-tuned arm minus A0, per kind and size. Passes when the difference is at least +0.10 and its lower bound is above 0; fails when the upper bound is below +0.10; otherwise inconclusive. - H2, the checker as a teacher: A2 minus A1. Lower bound above 0: rejection sampling adds to distillation; upper bound below 0: it hurts; otherwise inconclusive. - H3, near the API model (scouting only): the dev-best arm with the repair loop minus Haiku as delivered. Lower bound at or above -0.05: non-inferior; upper bound below -0.05: inferior; otherwise inconclusive. At 81 players the interval half-width of a pass-rate difference is about 0.1 near rates of 0.8, so inconclusive is a likely reading and is stated as such. - H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. The pass rate is read by the H2 rule; the failure rate as amendment (d) says.",
      "rank": 14,
      "gain": 4,
      "effort": 4,
      "test_data": "genai test players and training-game possessions",
-     "backlog_status": "proposed",
+     "backlog_status": "done: H1 passes on both kinds (0.5B; A1 minus few-shot +0.741 [0.642, 0.840] scouting, +0.335 [0.296, 0.375] possession), H2, H3 and H4 inconclusive (A1 with repair minus Haiku +0.049 [-0.062, 0.160]); possession texts copy the template (0.992 identical); 1.5B not run; reports/research/genai-E2.md",
      "results": null,
      "hypothesis_label": "Question",
-     "threshold_label": "Hypotheses and readings"
+     "threshold_label": "Hypotheses and readings",
+     "writeup": "reports/research/genai-E2.md",
+     "result_in_writeup": true
     }
    ]
   }

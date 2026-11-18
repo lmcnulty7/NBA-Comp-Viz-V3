@@ -21,7 +21,7 @@ Set B (10 Liga ACB games) as an out-of-distribution check, and the 2025-26 NBA s
 | 11 | tracking-E1 | tracking | team labels from tracklet embeddings | 3 | 2 | 1.5 | needs synced video beyond the 4 development games (docs/research/P8_FEASIBILITY.md) | proposed |
 | 12 | matchups-E1 | matchups | split the outcome into shot frequency and efficiency (Franks et al.) | 4 | 3 | 1.33 | Set A | proposed |
 | 13 | embeddings-E1 | embeddings | a first held-out style score by self-retrieval | 4 | 3 | 1.33 | Set A | proposed |
-| 14 | genai-E2 | genai | a small open model (Qwen2.5 0.5B, 1.5B), LoRA on the Mac: few-shot, distillation, rejection sampling against the checker, constrained decoding | 4 | 4 | 1.0 | genai test players and training-game possessions | proposed |
+| 14 | genai-E2 | genai | a small open model (Qwen2.5 0.5B, 1.5B), LoRA on the Mac: few-shot, distillation, rejection sampling against the checker, constrained decoding | 4 | 4 | 1.0 | genai test players and training-game possessions | done: H1 passes on both kinds (0.5B; A1 minus few-shot +0.741 [0.642, 0.840] scouting, +0.335 [0.296, 0.375] possession), H2, H3 and H4 inconclusive (A1 with repair minus Haiku +0.049 [-0.062, 0.160]); possession texts copy the template (0.992 identical); 1.5B not run; reports/research/genai-E2.md |
 | 15 | decisions-E2 | decisions | one value scale for every option, validated on decisions made | 4 | 4 | 1.0 | Set A | proposed |
 | 16 | tracking-E2 | tracking | broadcast-only fill of missed player-frames (learned imputation) | 4 | 4 | 1.0 | SportVU training games, Set A | proposed |
 | 17 | lineups-E2 | lineups | lineup ratings shrunk toward their players (L-RAPM) | 3 | 3 | 1.0 | 2025-26 season | proposed |

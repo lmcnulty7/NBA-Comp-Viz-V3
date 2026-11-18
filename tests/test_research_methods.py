@@ -56,7 +56,7 @@ def test_the_committed_source_traces_and_builds(source):
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1", "winprob-E2", "genai-E2")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -947,21 +947,25 @@ def test_a_moved_backlog_rank_fails_the_trace(source, tmp_path):
     assert any("xfg-E1: rank is" in p for p in R.trace_problems(source, repo))
 
 
-def test_genai_e1_has_run_and_links_its_write_up_while_genai_e2_is_pre_registered(source):
+def test_both_genai_experiments_ran_and_link_their_write_ups(source):
     methods = R.build_methods(REPO, source)
     lane = next(lane for lane in methods.lanes if lane.lane == "genai")
     e1, e2 = lane.experiments
     assert (e1.status, e1.result_in_writeup, e1.writeup) == ("ran_result_in_writeup", True,
                                                              "reports/research/genai-E1.md")
-    assert e1.development is None and e1.test is None and e1.protocol is None
-    assert e2.status == "pre_registered" and lane.benchmarks == []
-    other = e2.model_dump()
-    with pytest.raises(ValidationError, match="kept in its write-up"):
-        S.Experiment(**{**other, "result_in_writeup": True})
+    assert (e2.status, e2.result_in_writeup, e2.writeup) == ("ran_result_in_writeup", True,
+                                                             "reports/research/genai-E2.md")
+    for e in (e1, e2):
+        assert e.development is None and e.test is None and e.protocol is None
+    assert lane.benchmarks == []
     with pytest.raises(ValidationError, match="kept in its write-up"):
         S.Experiment(**{**e1.model_dump(), "writeup": None})
+    pending = next(e for ln in methods.lanes for e in ln.experiments if e.status == "pre_registered")
+    with pytest.raises(ValidationError, match="kept in its write-up"):
+        S.Experiment(**{**pending.model_dump(), "result_in_writeup": True})
+    # a result kept in its write-up still needs a done line in the backlog
     doc = copy.deepcopy(source)
-    _exp(doc, "genai-E2").update(result_in_writeup=True, writeup="reports/research/genai-E1.md")
+    _exp(doc, "genai-E2").update(backlog_status="proposed")
     assert any("needs a done line" in p for p in R.trace_problems(doc, REPO))
 
 
