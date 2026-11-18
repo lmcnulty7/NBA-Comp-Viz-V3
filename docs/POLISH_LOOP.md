@@ -119,12 +119,47 @@ per patch, so the log says what each change was worth. The proposer never edits 
 a held-out number it could optimise against: the score holds only page timings, sizes, accessibility findings
 and copy grades.
 
-## Baseline (2026-11-16)
+## Baseline (2026-11-17, run r2)
 
 `reports/polish/baseline-public.json` and `reports/polish/baseline-private.json` hold the values, the per-page
-detail and the noise, scored on the real data of the worktrees after npm run check passed for each variant. Both
-have no accessibility violation, no page failure and no navigation retry; the cost spread over three runs is
-0.0009 for each.
+detail and the noise of the r2 baseline: v4-research db993008 merged, data snapshot `_site-data-p4b` (data build
+site-285855ef4eb5), scored with the gzip scorer after npm run check passed for each variant. Both have no
+accessibility violation, no page failure and no navigation retry; the cost spread over three runs is 0.0038
+public and 0.0003 private, so the noise is the floor of 0.01 for both.
+
+## The first loop (2026-11-17, PLAN.md D83, D84)
+
+Two runs, five candidates, one kept. The logs are `reports/polish/r1-log.jsonl` and `reports/polish/r2-log.jsonl`;
+each rejected candidate stays as a branch `polish/<run>/cNNN` for the record.
+
+| Run | Candidate | Change | Cost public | Cost private | Decision |
+| --- | --- | --- | --- | --- | --- |
+| r1 | c001 | the hero still fetched at high priority | 0.9987 | 0.9996 | rejected, within the noise |
+| r1 | c002 | paused clips not preloaded (private) | 1.0013 | 0.9961 | rejected, within the noise |
+| r1 | c003 | plain words: 21 lines of copy, long sentences split, same facts, no number | 0.9892 | 0.9881 | kept |
+| r2 | c001 | the home page carries the still frame only; the story frames are fetched after load | 1.0009 | 0.9988 | rejected, within the noise |
+| r2 | c002 | paused clips not preloaded, again under the gzip scorer (private) | 1.0025 | 1.0128 | rejected, private cost rose |
+
+r1 was scored without compression; r1 stopped after c003 and r2 started from a new baseline with the gzip scorer,
+so the two runs' costs are not on one scale. c003 is the one kept change: the copy grade fell from 4.062 to 3.791.
+r2-c002 made the private home's largest paint earlier (692 to 604 ms) but its first view received more bytes before
+the load event (720 to 1313 KB), and the cost rose by more than the noise.
+
+Findings, for later and outside the loop:
+
+- The real lever on first view is the hero still. With compression, every page but the home page and the slides
+  with the story picture reaches its largest paint in 144 to 284 ms; those reach it in about 580 to 690 ms, and
+  their largest paint is the still `scene-1.jpg` itself, 200 KB of JPEG that gzip cannot shrink (about 160 ms at
+  the emulated 10 Mbps). The stills are written by `export.demo_bridge`, which the loop may not change;
+  re-encoding them smaller is a data change, to be decided after the deploy.
+- The possession page shows expected points at 2 decimals (facts panel, possession list) and the EPV chart at up
+  to 3. The machine-written possession texts follow that rounding exactly, so changing it would make every one of
+  them stale and need a paid regeneration. Left as it is.
+- Scorer fidelity, fixed before the runs counted: the scorer's server answers byte ranges for clips and gzips
+  text as GitHub Pages and Cloudflare Pages do, and page weight counts the bytes Chromium received on the wire, not
+  declared lengths. Without these the private home's first view was charged 12.9 MB where 1.4 MB arrived, and a
+  text byte cost three to six times what it costs a reader. The baseline command also writes its files only after
+  every variant is scored, so a later variant is never scored on a changed tree.
 
 ## Self-test (2026-11-16)
 
