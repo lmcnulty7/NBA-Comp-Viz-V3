@@ -6,6 +6,8 @@ position and number is invented: nothing here is a result. The root carries the 
 
 Layout written by write_data_root(root):
   sportvu_contract/heldout/<game>.parquet, <game>_pbp.parquet        two held-out games
+  sportvu_contract/<game>.parquet                                     frame and player_id at the rim frame of the
+                                                                      dropped misses, for three training games
   analytics/{possessions,rosters,shot_frames}/heldout/2015-16/<game>.parquet
   analytics/epv/heldout/2015-16/<game>.parquet
   analytics/ghosting/heldout/2015-16/ghost_frames_<game>.parquet, ghost_possessions_<game>.parquet
@@ -399,6 +401,12 @@ REBOUND_CHANCES = {9301: (range(0, 8), 40, 4, 0.12), 9302: (range(0, 10), 20, 3,
 # name that fits nobody falls to the player the tracking credits most often with it, or to nobody.
 LOST_REBOUNDS = [(0, "F. 9303", None, 40), (1, "F. 9303", 9303, 40), (3, "Z. Nobody", 9301, 1),
                  (4, "Y. Nobody", None, 1)]
+# Who the tracking frames list on the floor at the rim frame (100) of those misses, by game index. Game 4 has no frames
+# table, so its one miss counts for every player of its roster (the conservative bound). 9501 was on the floor for the
+# 80 misses of 9303: 80 chances he did not get, so his shown rate would read too high (withheld, the upward side).
+FILLERS = [9601, 9602, 9603, 9604, 9605, 9606, 9607, 9608]
+ON_FLOOR = {0: [9303, 9501] + FILLERS, 1: [9303, 9501] + FILLERS, 3: [9301, 9502] + FILLERS}
+RIM_FRAME = 100
 LOST_SHOOTER_NAME = "F. 9306"             # the name of the attempts of 9306, whose shooter the lane did not resolve
 POSITIONS = {9301: "PG", 9302: "SF-SG", 9303: "C-PF", 9306: "PF", 9501: "SG"}     # 9304 and 9305 are not listed
 PLAYS_IN = {9301: range(0, 12), 9302: range(0, 10), 9303: range(0, 2), 9304: range(2, 3), 9305: range(0, 12),
@@ -497,6 +505,9 @@ def _training_tables(report_bin_counts) -> dict:
             "identity_match": pd.array([None] * len(t), "boolean"), "confidence": np.float32(0.5),
             "confidence_flag": "low"})
 
+    floor_frames = {TRAIN_GAMES[g]: pd.DataFrame({"frame": np.int32(RIM_FRAME), "player_id": np.array(ids, "int32")})
+                    for g, ids in ON_FLOOR.items()}
+
     rosters, games_rows = {}, []
     for g, game in enumerate(TRAIN_GAMES):
         ids = [p for p, games in PLAYS_IN.items() if g in games]
@@ -539,7 +550,7 @@ def _training_tables(report_bin_counts) -> dict:
                                  games=pd.array([40] * len(listed), "Int16"), mp_per_g=np.float32(20.0),
                                  source="fixture", endpoint="fixture", fetched_at="2000-01-01T00:00:00Z")
     return dict(xfg=xfg, shot_frames=shot_frames, rebounds=rebounds, rebound_frames=rebound_frames, rosters=rosters,
-                player_games=player_games,
+                player_games=player_games, floor_frames=floor_frames,
                 gravity=gravity, positions=positions)
 
 
@@ -572,6 +583,8 @@ def write_data_root(root, report_bin_counts) -> dict:
     for name in ("rosters", "shot_frames", "rebounds", "rebound_frames"):
         for game, table in training[name].items():
             write(table, analytics / name / SEASON / f"{game}.parquet")
+    for game, table in training["floor_frames"].items():
+        write(table, root / "sportvu_contract" / f"{game}.parquet")
     write(training["gravity"], analytics / "gravity" / "gravity_players.parquet")
     write(training["player_games"], analytics / "load" / SEASON / "player_games.parquet")
     write(training["positions"], root / "collect" / "positions.parquet")

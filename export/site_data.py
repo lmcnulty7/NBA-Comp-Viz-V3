@@ -286,6 +286,8 @@ def run(out, data_root=None, artifacts=None, only=None, games=None, log=print, a
             raise ExportProblem("reports/results.md could not be read")
         file, players_info = site_players.build_players(data_root, artifacts, doc=doc, checks_copy=checks_copy)
         C.write_model(out, "players.json", file)
+        if not fixture_root:                          # the tracked counts come from the real tables only
+            site_players.write_name_joins(players_info, C.REPO_ROOT / site_players.NAME_JOINS)
         return vars(players_info)
 
     def results():

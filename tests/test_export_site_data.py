@@ -694,7 +694,7 @@ def test_minimum_samples_and_the_other_player_views(built):
     assert {r.metric: (r.min_n, r.unit) for r in file.rules} == {
         "shot_making": (100, "attempts"), "gravity": (300, "possessions"), "rebounding": (300, "chances"),
         "absence_risk": (10, "games"), "similar": (300, "possessions")}
-    assert built.info["players"]["shown_by_metric"] == {"shot_making": 4, "gravity": 4, "rebounding": 2,
+    assert built.info["players"]["shown_by_metric"] == {"shot_making": 4, "gravity": 4, "rebounding": 1,
                                                          "absence_risk": 4, "similar": 2}
 
     # gravity: the stored table and its own gate; a player with one game is a point estimate
@@ -711,11 +711,11 @@ def test_minimum_samples_and_the_other_player_views(built):
             assert view.gravity_ft is None
     assert players[9305].gravity.possessions == 0 and players[9305].gravity.shown is False
 
-    # rebounding: chances, rebounds per 100 and the model's expectation; 200 chances stay hidden, and 9303's rate,
-    # whose rebounds the lane dropped, is withheld
+    # rebounding: chances, rebounds per 100 and the model's expectation; 200 chances stay hidden, 9303's rate, whose
+    # rebounds the lane dropped, is withheld, and so is 9501's, who was on the floor for those misses
     for player_id, (games, chances, got, p) in FX.REBOUND_CHANCES.items():
         view, total = players[player_id].rebounding, chances * len(games)
-        assert (view.chances, view.shown) == (total, total >= 300 and player_id != 9303)
+        assert (view.chances, view.shown) == (total, total >= 300 and player_id not in (9303, 9501))
         if view.shown:
             assert view.rate_per_100.value == round(100 * got / chances, 2)
             assert view.model_expected_per_100 == round(100 * p, 2)
@@ -771,9 +771,17 @@ def test_a_rate_whose_rebounds_the_lane_dropped_is_withheld_with_its_reason(buil
     players = {p.player_id: p for p in file.players}
     view = players[9303].rebounding
     assert view.chances == 300 and view.shown is False and view.rate_per_100 is None
-    assert view.model_expected_per_100 is None and view.withheld == site_players.WITHHELD["rebounding"]
+    assert view.model_expected_per_100 is None and view.withheld == site_players.WITHHELD["rebounding_low"]
     info = built.info["players"]
-    assert info["withheld_by_metric"]["rebounding"] == [9303]
+    assert info["withheld_by_metric"]["rebounding"] == [9303, 9501]
+    assert info["rebounding_withheld_by_side"] == {"low": [9303], "high": [9501], "both": []}
+    # the other side (PLAN.md D95): 9501 was on the floor for the 80 misses of 9303 the lane dropped, 80 chances he
+    # did not get, so his rate of 6.67 on 360 chances would read 6.67 * 80 / 440 = 1.2 per 100 too high
+    high = players[9501].rebounding
+    assert high.chances == 360 and high.shown is False and high.withheld == site_players.WITHHELD["rebounding_high"]
+    # who was on the floor: the frames at the rim frame for 81 misses (games 0, 1, 3); the game without a frames table
+    # counts its one miss for every player of its roster
+    assert (info["lost_rebounds_floor_exact"], info["lost_rebounds_floor_bounded"]) == (81, 1)
     # 80 misses named "F. 9303", one with a name that fits nobody taken by 9301 on the tracking (one miss in 321
     # chances can lower his rate by less than the rule, so he stays shown), one taken by nobody
     assert (info["lost_rebounds"], info["lost_rebounds_unattributed"]) == (82, 1)
@@ -873,7 +881,9 @@ def test_metric_notes_quote_the_write_up_and_type_no_number(built):
     own = {"95", "200", "0", "100", "300", "10", "45", "49", "47", "51", "52",
            f"{site_players.MAX_LOST_REBOUND_BIAS:g}"}
     info = built.info["players"]
-    own |= {str(info["lost_rebounds"]), str(info["shots_mixed"])}
+    own |= {str(info["lost_rebounds"]), str(info["shots_mixed"]), str(info["lost_rebounds_floor_exact"]),
+            str(info["lost_rebounds_floor_bounded"]), str(info["attempts_unresolved_nearest"]),
+            str(info["attempts_unresolved_no_shooter"])}
     own |= {str(info["attempts_total"]), str(info["attempts_left_out"]), str(info["games_with_attempts"]),
             str(info["games_without_shot_frames"])} | {str(n) for n in info["attempts_left_out_by_reason"].values()}
     for note in file.metrics:
@@ -1409,3 +1419,81 @@ def test_chart_shooter_finds_a_player_listed_under_a_later_name():
     two = {201: "Jeff Green", 202: "Jerian Green"}                               # one stem, two players: no guess
     assert site_games.chart_shooter("greenje01", {}, two) is None
     assert site_games.chart_shooter("greenje01", {"greenje01": [201, 202]}, two) is None
+
+
+def test_dropped_misses_count_for_everyone_on_the_floor_and_bound_where_frames_are_missing():
+    """PLAN.md D95: a dropped miss removes a chance from every other player on the floor. floor_misses counts it for
+    the ten players the frames list at the rim frame, and for every player of the roster where they do not."""
+    lost = pd.DataFrame({"sportvu_game": ["a", "a", "b", "c"], "rim_frame": [10, 20, 30, 40]})
+    rosters = {"a": {p: ("n", "T") for p in range(1, 13)}, "b": {1: ("n", "T"), 99: ("n", "U")},
+               "c": {1: ("n", "T"), 2: ("n", "T")}}
+    listed = {"a": {10: set(range(1, 11)), 20: set(range(3, 13))}, "b": {30: {1, 2, 3}}}       # b: only three listed
+    read = []
+
+    def reader(game, frames):
+        read.append((game, frames))
+        return listed.get(game, {})
+
+    counts, exact, bounded = site_players.floor_misses(lost, rosters, reader)
+    assert (exact, bounded) == (2, 2) and read == [("a", [10, 20]), ("b", [30]), ("c", [40])]   # one game at a time
+    assert counts[1] == 3 and counts[2] == 2 and counts[11] == 1 and counts[99] == 1 and counts[5] == 2
+    # the upward side: rate * L' / (C + L'); the downward side: 100 * L / (C + L)
+    assert site_players.floor_miss_bias(10.0, 80, 320) == pytest.approx(2.0)
+    assert site_players.floor_miss_bias(0.0, 80, 320) == 0.0 and site_players.floor_miss_bias(10.0, 0, 320) == 0.0
+    assert site_players.lost_rebound_bias(2, 398) == pytest.approx(0.5)
+    assert {"rebounding_low", "rebounding_high", "rebounding_both"} <= set(site_players.WITHHELD)
+    assert "too high" in site_players.WITHHELD["rebounding_high"] and "too low" in site_players.WITHHELD["rebounding_low"]
+
+
+def test_the_name_joins_record_holds_the_counts_of_the_build(built, tmp_path):
+    """reports/export/name_joins.json is written from the same counts the players.json notes state."""
+    info = site_players.PlayersInfo(**{k: v for k, v in built.info["players"].items()})
+    path = site_players.write_name_joins(info, tmp_path / "name_joins.json")
+    record = json.loads(path.read_text())
+    assert record["rebounds"]["dropped_misses"] == info.lost_rebounds == 82
+    assert (record["rebounds"]["on_floor_from_frames"], record["rebounds"]["on_floor_bounded_by_roster"]) == (81, 1)
+    assert (record["rebounds"]["withheld_low"], record["rebounds"]["withheld_high"]) == (1, 1)
+    shots = record["shots"]
+    assert shots["shooter_not_resolved"] == (shots["shooter_not_resolved_took_nearest"]
+                                             + shots["shooter_not_resolved_no_shooter"])
+    notes = " ".join(n for m in _json(built.out / "players.json")["metrics"] for n in m["notes"])
+    for value in (record["rebounds"]["dropped_misses"], record["rebounds"]["on_floor_from_frames"],
+                  shots["shooter_not_resolved"], shots["shooter_not_resolved_took_nearest"],
+                  shots["shooter_not_resolved_no_shooter"], shots["tracked_attempts_name_fits_two_teammates"]):
+        assert re.search(r"(?<![\d.])%d(?![\d])" % value, notes), value
+    assert not (REPO / site_players.NAME_JOINS).exists() or "fixture" not in (REPO / site_players.NAME_JOINS).read_text()
+
+
+def test_the_name_join_caveat_states_the_tracked_counts():
+    """CLAIMS.md caveat 5, the rebound and xFG dossiers and the methods page notes state the counts of
+    reports/export/name_joins.json, which the export writes with players.json, and the all-games count of
+    reports/rebounds.md (PLAN.md D94, D95)."""
+    record = json.loads((REPO / site_players.NAME_JOINS).read_text(encoding="utf-8"))
+    reb, shots = record["rebounds"], record["shots"]
+    assert shots["shooter_not_resolved"] == shots["shooter_not_resolved_took_nearest"] + shots["shooter_not_resolved_no_shooter"]
+    report = (REPO / "reports" / "rebounds.md").read_text(encoding="utf-8")
+    all_games = int(re.search(r"unmatched_named_rebounder (\d+)", report).group(1))
+    claims = (REPO / "CLAIMS.md").read_text(encoding="utf-8")
+    caveat = re.sub(r"\s+", " ", claims[claims.index("5. **Rows dropped or mixed by player name"):])
+    methods = json.loads((REPO / "reports" / "research" / "methods.json").read_text(encoding="utf-8"))
+    notes = {lane["lane"]: " ".join(lane["notes"]) for lane in methods["lanes"]}
+    dossiers = {lane: re.sub(r"\s+", " ", (REPO / "docs" / "research" / f"{lane}.md").read_text(encoding="utf-8"))
+                for lane in ("rebounds", "xfg")}
+    rebound_counts = [all_games, reb["dropped_misses"]]
+    shot_counts = [shots["shooter_not_resolved"], shots["shooter_not_resolved_took_nearest"],
+                   shots["shooter_not_resolved_no_shooter"], shots["tracked_attempts_name_fits_two_teammates"]]
+    withheld = [reb["withheld_low"] + reb["withheld_both"], reb["withheld_high"] + reb["withheld_both"],
+                shots["withheld"]]
+
+    def has(text: str, value: int) -> bool:
+        return re.search(r"(?<![\d.,])%d(?![\d])" % value, text) is not None
+
+    places = [("CLAIMS.md caveat 5", caveat, rebound_counts + shot_counts + withheld),
+              ("methods notes, rebounds", notes["rebounds"], rebound_counts),
+              ("methods notes, xfg", notes["xfg"], shot_counts),
+              ("docs/research/rebounds.md", dossiers["rebounds"], rebound_counts),
+              ("docs/research/xfg.md", dossiers["xfg"], shot_counts)]
+    missing = [(where, value) for where, text, values in places for value in values if not has(text, value)]
+    assert missing == []
+    assert "reports/export/name_joins.json" in caveat and "analytics/xfg/features.py" in caveat
+    assert "reports/xfg.md" not in caveat

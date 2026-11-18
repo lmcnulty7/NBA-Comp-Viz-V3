@@ -1,0 +1,20 @@
+{
+ "what": "Counts of the frozen name joins in the training games, written by export/site_players.py with players.json (PLAN.md D94, D95). Counting only: nothing is fitted.",
+ "rebounds": {
+  "dropped_misses": 1032,
+  "dropped_misses_nobody_fits": 0,
+  "on_floor_from_frames": 1032,
+  "on_floor_bounded_by_roster": 0,
+  "withheld_low": 14,
+  "withheld_high": 38,
+  "withheld_both": 0
+ },
+ "shots": {
+  "out_of_fold_attempts": 101853,
+  "shooter_not_resolved": 5477,
+  "shooter_not_resolved_took_nearest": 5079,
+  "shooter_not_resolved_no_shooter": 398,
+  "tracked_attempts_name_fits_two_teammates": 611,
+  "withheld": 19
+ }
+}
