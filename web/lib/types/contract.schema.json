@@ -1050,7 +1050,7 @@
     },
     "Experiment": {
       "additionalProperties": false,
-      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.\nAn experiment whose pre-registration has no verdict on the development games (a dry run only) is `stages`\ntest_only: its single test score decides, and a pass is passed_test, not adopted, which would say the\ndevelopment bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research\nresult only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or\na test-only experiment never carries it. `writeup_notes` are sentences of the write-up's verdict paragraph, word for word\n(the narrow claim, a data-fault note).\nAn experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its\nadoption is read on the development games, and when the rule fails it is not_adopted_development, the same\nmeaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds\non a test set that cannot be scored has no status yet and is refused.",
+      "description": "A pre-registered experiment of a lane dossier. `title`, `hypothesis` and `threshold` (the adoption rule,\nfixed before any run) are copied from the dossier; `rank`, `what`, `gain`, `effort`, `test_data` and\n`backlog_status` are its row of docs/research/BACKLOG.md. `status` follows from the result files: no file is\npre_registered (not run); a development result that meets the rule waits for its single test score; adoption\nneeds the rule met on both. `writeup` is the report of an experiment that has run, under reports/research/.\nAn experiment whose pre-registration has no verdict on the development games (a dry run only) is `stages`\ntest_only: its single test score decides, and a pass is passed_test, not adopted, which would say the\ndevelopment bar was met too. `adopted_as` research_result marks a pass on both stages adopted as a research\nresult only (the lane and the site do not change): its status is adopted_research, never adopted; a protocol or\na test-only experiment never carries it. `result_in_writeup` marks an experiment that has run but whose result\nhas a shape this page does not show yet: its status is ran_result_in_writeup and the page links the write-up.\n`writeup_notes` are sentences of the write-up's verdict paragraph, word for word\n(the narrow claim, a data-fault note).\nAn experiment pre-registered as a protocol of hypotheses carries `protocol` in place of stage results: its\nadoption is read on the development games, and when the rule fails it is not_adopted_development, the same\nmeaning as a paired difference that misses its bar there (no test score follows). A protocol whose rule holds\non a test set that cannot be scored has no status yet and is refused.",
       "properties": {
         "id": {
           "pattern": "^[a-z]+-E\\d+$",
@@ -1112,7 +1112,8 @@
             "adopted",
             "not_adopted_test",
             "passed_test",
-            "adopted_research"
+            "adopted_research",
+            "ran_result_in_writeup"
           ],
           "title": "Status",
           "type": "string"
@@ -1158,6 +1159,11 @@
           ],
           "default": null,
           "title": "Adopted As"
+        },
+        "result_in_writeup": {
+          "default": false,
+          "title": "Result In Writeup",
+          "type": "boolean"
         },
         "development": {
           "anyOf": [

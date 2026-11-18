@@ -46,17 +46,17 @@ def test_the_committed_source_traces_and_builds(source):
     methods = R.build_methods(REPO, source)
     backlog = R.backlog_rows((REPO / R.BACKLOG).read_text(encoding="utf-8"))
     ids = sorted(e.id for lane in methods.lanes for e in lane.experiments)
-    assert ids == sorted(backlog) and len(ids) == 24
+    assert ids == sorted(backlog)
     assert [lane.lane for lane in methods.lanes] == ["xfg", "rebounds", "matchups", "gravity", "ghosting",
                                                      "embeddings", "epv", "decisions", "lineups", "winprob",
-                                                     "load", "tracking"]
+                                                     "load", "tracking", "genai"]
     assert S.find_private(methods.model_dump_json()) == []
     # every lane cites its dossier and every source path is a file of the repository
     for item in methods.sources:
         assert (REPO / item.path).is_file(), item.path
 
 
-RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1")   # the experiments with a result file today
+RAN = ("xfg-E1", "decisions-E1", "lineups-E1", "winprob-E1", "genai-E1")   # the experiments with a result file today
 
 
 def test_only_the_tests_that_ran_have_a_result_and_every_other_test_is_pre_registered(source):
@@ -345,7 +345,7 @@ def test_the_methods_file_is_a_contract_file_in_both_kinds_of_data_root(tmp_path
     # real data: the committed source, through the methods step of export.site_data, with its manifest
     out = tmp_path / "real"
     problems, info = site_data.run(out, None, None, only=["methods"], log=QUIET)
-    assert info["methods"]["lanes"] == 12 and info["methods"]["experiments"]["xfg-E1"]
+    assert info["methods"]["lanes"] == len(source["lanes"]) and info["methods"]["experiments"]["xfg-E1"]
     assert not [p for p in problems if "methods.json" in p and "missing" not in p]
     manifest = json.loads((out / "manifest.json").read_text())
     assert [f["path"] for f in manifest["files"]] == ["methods.json"]
@@ -918,3 +918,48 @@ def test_winprob_shows_the_control_slopes_and_quotes_the_caveats(source):
         assert len(control) == 6 and all(v.point_estimate for v in control)
     assert any("a little optimistic" in note for note in experiment.writeup_notes)
     assert any("dropped by the frozen builders 16" in note for note in experiment.writeup_notes)
+
+
+# ------------------------------------------------------------------------------------------ the backlog stays in step
+
+
+def test_every_backlog_row_is_on_the_methods_page_with_its_rank_and_status(source):
+    """A change to docs/research/BACKLOG.md (a new row, a moved rank, a new status) that methods.json does not
+    follow fails here, in the fast suite, before any export runs."""
+    backlog = R.backlog_rows((REPO / R.BACKLOG).read_text(encoding="utf-8"))
+    listed = {e["id"]: e for lane in source["lanes"] for e in lane["experiments"]}
+    assert sorted(listed) == sorted(backlog), "every backlog row is an experiment of methods.json, and only those"
+    for eid, row in backlog.items():
+        e = listed[eid]
+        assert (str(e["rank"]), e["what"], str(e["gain"]), str(e["effort"]), e["test_data"], e["backlog_status"]) == (
+            row[0], row[3], row[4], row[5], row[7], row[8]), eid
+    # a done line in the backlog is never shown as not run
+    built = {e.id: e for lane in R.build_methods(REPO, source).lanes for e in lane.experiments}
+    for eid, row in backlog.items():
+        if row[8].startswith("done"):
+            assert built[eid].status != "pre_registered", eid
+
+
+def test_a_moved_backlog_rank_fails_the_trace(source, tmp_path):
+    repo = _repo_copy(tmp_path, source)
+    path = repo / R.BACKLOG
+    path.write_text(path.read_text(encoding="utf-8").replace("| 8 | xfg-E1 |", "| 9 | xfg-E1 |"), encoding="utf-8")
+    assert any("xfg-E1: rank is" in p for p in R.trace_problems(source, repo))
+
+
+def test_genai_e1_has_run_and_links_its_write_up_while_genai_e2_is_pre_registered(source):
+    methods = R.build_methods(REPO, source)
+    lane = next(lane for lane in methods.lanes if lane.lane == "genai")
+    e1, e2 = lane.experiments
+    assert (e1.status, e1.result_in_writeup, e1.writeup) == ("ran_result_in_writeup", True,
+                                                             "reports/research/genai-E1.md")
+    assert e1.development is None and e1.test is None and e1.protocol is None
+    assert e2.status == "pre_registered" and lane.benchmarks == []
+    other = e2.model_dump()
+    with pytest.raises(ValidationError, match="kept in its write-up"):
+        S.Experiment(**{**other, "result_in_writeup": True})
+    with pytest.raises(ValidationError, match="kept in its write-up"):
+        S.Experiment(**{**e1.model_dump(), "writeup": None})
+    doc = copy.deepcopy(source)
+    _exp(doc, "genai-E2").update(result_in_writeup=True, writeup="reports/research/genai-E1.md")
+    assert any("needs a done line" in p for p in R.trace_problems(doc, REPO))
