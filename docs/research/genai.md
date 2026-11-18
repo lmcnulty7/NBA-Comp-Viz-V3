@@ -198,6 +198,11 @@ showed are fixed here, before the one test score, and change no threshold or rea
 
 ### genai-E2: a small open model, LoRA on the Mac, trained against the checker
 
+**Result, 0.5B (2026-11-18, reports/research/genai-E2.md): H1 passes on both kinds; H2, H3 and H4 inconclusive.**
+A1 minus few-shot +0.741 [0.642, 0.840] on scouting and +0.335 [0.296, 0.375] on possession; A1 with repair minus
+the Haiku cache arm +0.049 [-0.062, 0.160]. The possession texts copy the template (0.992 identical). The 1.5B
+model is a later decision. The pre-registration below is unchanged; its amendments are dated.
+
 - Question. Can a 0.5B or 1.5B open instruct model, fine-tuned on this Mac, write texts that pass the checker at a
   rate near the API model's, at no spend per text?
 - Models. Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct (Apache 2.0 on their Hub pages, not gated: no account or
@@ -266,7 +271,9 @@ showed are fixed here, before the one test score, and change no threshold or rea
     and some players were asked again under later prompt versions and call settings (E1, first-attempt table), so
     Haiku as delivered had more tries than 2. H3 compares delivered outputs, not equal effort.
   - (d) H4 is read on two numbers, both in code: the pass rate (as before) and the number_value failure rate (A3
-    minus its arm; a lower bound below 0 of the difference reads "fewer wrong numbers").
+    minus its arm). Wording corrected on 2026-11-18 to the code's rule: the change in failure rate reads "fewer
+    wrong numbers" when its whole 95 percent interval is below 0, "more wrong numbers" when the whole interval is
+    above 0, and "inconclusive" otherwise.
   - (e) Epoch choice weighs the two kinds equally: the dev pass rate of an epoch is the mean of the scouting and the
     possession dev pass rates (pooled, the 240 dev possessions would outweigh the 40 dev players 6 to 1). The same
     mean decides the dev-best arm for A3 and the round-2 rule.
@@ -280,6 +287,26 @@ showed are fixed here, before the one test score, and change no threshold or rea
     uncommitted change; the final json records its sha256 and the HEAD commit. Each arm's test texts are saved
     outside the repository as each arm finishes. The exact test path is rehearsed once on the dev items (the same
     function, without the ledger) before the one test call.
+- Amendments after the pre-score review (2026-11-18, after the dev choices of f3cbc2a7 and before the test score;
+  lead's decisions):
+  - (j) Crash safety. Each arm is scored under both checkers as soon as its texts exist, and its full rows (with
+    sentence frames) are saved outside the repository. A checker that raises on a text counts that text as a fail
+    under rule "other", not as a crash. Memory is freed between arms. One named resume entry is pre-registered:
+    "genai-E2-0.5B-resume", allowed only after a crash of the "genai-E2-0.5B" scoring call, with the same code
+    commit and the same dev choices, generating only the arms that have no saved rows (greedy decoding, so nothing is
+    chosen again); the report says whether it was used.
+  - (k) Variety with intervals. Beside every pass rate: frame variety and distinct-2 with bootstrap intervals by
+    unit, and for each arm the share of possession texts identical to the template's text of that item and the
+    share of the arm's sentence frames found among the template's frames. No hypothesis reads them.
+  - (l) The rehearsal on the dev items records the dev json's sha256 and the git HEAD; the test stage requires both
+    to equal the current ones, and refuses when tools/ or export/ has an uncommitted change.
+  - (m) H1 and H3 use the dev-best arm of each kind (best_by_kind in the dev json). In this run the dev-best arm of
+    both kinds is A1 epoch 1, so H1, H3 and the A3 arm all use it.
+  - (n) The snapshot Haiku arm checks each text's input_sha256 against its item, as genai-E1's haiku_rows does.
+  - (o) Two memory changes made during the runs, neither changing a result: A0-P3 generates one item at a time (a
+    batch of 8 full P3 prompts needed about 7 GB for attention and stopped under the cap, 2026-11-17); training
+    empties the MPS cache at every optimizer step and saves a checkpoint every 400 examples (the first sft stretch
+    stopped under the cap after about 200 examples, 2026-11-18). After them, training memory held at 2.9 to 3.0 GB.
 - Decoding for every score: greedy, at most 320 new tokens, one attempt (primary). Secondary: a repair loop as P3's
   (one more attempt with the checker's problems in the prompt, at most 2 in all), which is the fair comparison with
   the Haiku texts as delivered.
@@ -298,8 +325,8 @@ showed are fixed here, before the one test score, and change no threshold or rea
     at or above -0.05: non-inferior; upper bound below -0.05: inferior; otherwise inconclusive. At 81 players the
     interval half-width of a pass-rate difference is about 0.1 near rates of 0.8, so inconclusive is a likely reading
     and is stated as such.
-  - H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. Read as
-    pass, fail or inconclusive on the pass rate by the H2 rule.
+  - H4, constrained decoding: A3 minus its arm, on the number_value failure rate and on the pass rate. The pass
+    rate is read by the H2 rule; the failure rate as amendment (d) says.
 - Secondary. Failure rate per rule; reading grade; words per text; frame variety and distinct-2 (as E1); latency per
   text and tokens per second on the M5 (MPS); peak memory (MPS driver and process); training wall time; texts
   produced; cost per 1,000 texts as electricity is not measured, so the cost is stated as $0 in API spend and as
