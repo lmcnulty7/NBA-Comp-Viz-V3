@@ -160,6 +160,11 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
     for (const stage of [experiment.development, experiment.test]) {
       if (!stage) continue;
       const facts = result.locator(`[data-stage="${stage.stage}"]`);
+      await expect(facts.getByTestId("guard")).toHaveCount(stage.guard ? 1 : 0);
+      if (stage.guard) {
+        await expect(facts.getByTestId("guard").locator("[data-bucket-worse]")).toHaveCount(stage.guard.buckets.length);
+        await expect(facts.getByTestId("guard")).toHaveAttribute("data-guard-met", String(stage.guard.met));
+      }
       const conditions = stage.conditions ?? [];
       await expect(facts.locator("[data-condition-met]")).toHaveCount(conditions.length);
       for (const [index, condition] of conditions.entries()) {

@@ -25,7 +25,8 @@
     "not_adopted_development": "Fell short on training games. Not adopted.",
     "adopted": "Cleared its bar on training games and on the test games. Adopted.",
     "not_adopted_test": "Fell short on the test games. Not adopted.",
-    "passed_test": "Cleared its bar on the test games, scored once."
+    "passed_test": "Cleared its bar on the test games, scored once.",
+    "adopted_research": "Cleared its bar on training games and on the test games. Adopted as a research result only; the site does not change."
   },
   "results": {
     "title": "Tests run so far",
@@ -34,7 +35,7 @@
     "open": "Read it with its model",
     "pending": "Test games: pending. The test is scored once, then shown here.",
     "stage": {
-      "development": "Training games, in five groups of whole games, each group left out in turn",
+      "development": "Training games",
       "test": "Test games, scored once"
     },
     "metric": "What is compared",
@@ -84,10 +85,22 @@
       "line": "{end} {comparison} {threshold}",
       "end": {
         "lo": "Lower end",
-        "hi": "Upper end"
+        "hi": "Upper end",
+        "point": "The value itself"
       }
     },
-    "notes": "From the write-up"
+    "notes": "From the write-up",
+    "design": "How it was run",
+    "guard": {
+      "title": "No time bucket worse",
+      "worse": "Worse",
+      "notWorse": "Not worse",
+      "line": "A bucket is worse when its {end} is {comparison} {threshold}",
+      "end": {
+        "lo": "lower end",
+        "hi": "upper end"
+      }
+    }
   },
   "lane": {
     "foundations": "Built on",
