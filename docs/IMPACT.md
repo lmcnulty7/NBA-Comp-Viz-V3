@@ -34,6 +34,10 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
 - Shot quality (xfg-E1): not adopted. It met its bar on the training games, -0.00052 [-0.00081, -0.00024], but
   not on the test games, +0.00067 [-0.00133, +0.00229] against a bar of +0.0005. With ten test games this reads as
   inconclusive. Source: `reports/research/xfg-E1.md`
+- Win chances, second test (winprob-E2): not adopted on the training seasons. A forward temperature did not
+  lower mean bucket ECE (difference 0.0038 [-0.0021, 0.0068]), since the fitted temperature swung from 0.894 to
+  0.955 to 1.046 across seasons. Its test season was not scored, so its one test score was kept unused. Source:
+  `reports/research/winprob-E2.md`
 - Decision quality (decisions-E1): not adopted. The target proved reliable (r 0.420 [0.295, 0.519]), so the lane's
   earlier failure counts against the metric. Kind of decision explains about a third of the player spread (R
   squared 0.342 [0.258, 0.434]). Source: `reports/research/decisions-E1.md`
@@ -57,8 +61,14 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   variety: Haiku minus template in sentence frame variety is [0.331, 0.439]. So the checker alone cannot show what a model adds. A
   stricter checker turned the order round: 36 of 81 template texts against 65 of 81 for Haiku. Source:
   `reports/research/genai-E1.md`
-- genai-E2, a small open model tuned on this laptop, is set up in writing and has no result yet. Source:
-  `docs/research/BACKLOG.md`
+- genai-E2 tuned a small open model (Qwen2.5 0.5B) on this laptop and scored it once on the same test items.
+  Training lifted its pass rate on scouting from 0.111 to 0.852, a gain of +0.741 [0.642, 0.840], and on
+  possessions from 0.665 to 1.000, a gain of +0.335 [0.296, 0.375], so H1 passes. Against Haiku the test is
+  inconclusive: 0.852 against 0.802, with a range of [-0.062, 0.160] that does not rule out a real loss. Read
+  beside that pass rate: on possessions the model copies the template (0.992 of its texts are the same), and on
+  scouting its sentence frame variety is 0.106 against Haiku's 0.612. It costs no API spend and 0.76 s per text on
+  the Mac. Rejection sampling and constrained decoding were both inconclusive. Source:
+  `reports/research/genai-E2.md`
 
 ## Engineering
 
