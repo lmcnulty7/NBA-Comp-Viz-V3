@@ -146,12 +146,30 @@ def test_the_committed_splits_hold_counts_and_hashes_only():
 # ------------------------------------------------------------------------------------------------ templates
 
 
-def test_template_texts_pass_the_checker_on_the_synthetic_root(root):
+def test_template_texts_pass_the_freeze_checker_on_the_synthetic_root(root):
+    """genai-E1's claim: the template passes the checker pinned at the split freeze (loaded from git by its commit,
+    as genai-E2 loads it), on every item of the synthetic root."""
+    from tools.genai_e2 import checker
+    check = checker("freeze")
     for kind in ("scouting", "possession"):
         for item in _items(root, kind):
             text = T.template_text(item)
-            problems, _ = G.check_text(text, item)
+            problems, _ = check(text, item)
             assert not problems, (item["key"], text, problems)
+
+
+def test_template_fails_the_primary_checker_only_on_its_known_defects(root):
+    """Under the merged checker (genai-E2's primary) the template E1 scored keeps its two known defects (the sign
+    rule and the subject rule of a not-shown view, genai-E1.md); it is not changed, and nothing else fails."""
+    from tools.genai_e2 import checker
+    check = checker("primary")
+    for kind in ("scouting", "possession"):
+        for item in _items(root, kind):
+            text = T.template_text(item)
+            rules = {E.rule_of(p) for p in check(text, item)[0]}
+            assert rules <= {"sign", "subject"}, (item["key"], rules)
+            if kind == "possession":
+                assert not rules, item["key"]
 
 
 def test_template_is_deterministic(root):
