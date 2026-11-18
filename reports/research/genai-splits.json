@@ -1,0 +1,89 @@
+{
+ "_comment": "genai lane splits (tools/genai_data.py, docs/research/genai.md). Counts and hashes only: the items hold numbers of the data root and live outside the repository.",
+ "salt": "genai-v1",
+ "created": "2026-11-17T21:54:53Z",
+ "code_commit": "354ea654075ce9b5d73e4cb4b6ba4a058c9a65ee",
+ "checker": {
+  "file": "export/genai.py",
+  "git_blob_sha1": "c10b8a4bf5e82c2440a1d5ed296759ea810482a0"
+ },
+ "rule": {
+  "scouting": "players of players.json in sha256('genai-v1:' + slug) order: the first 20 percent test, the next 10 percent dev, the rest train",
+  "possession": "development games (tools.research_testset.dev_games) with a possessions table, in sha256('genai-v1:' + game id) order: 40 test, 20 dev, 120 train, the rest unused; per game {'test': 12, 'dev': 12, 'train': 25} possessions drawn with random.Random(sha256 key)"
+ },
+ "training_build_notes": [
+  "Shot time: a site build takes the release frame when it finds the shooter's tracked position at that frame, else the play-by-play event frame. This builder reads no tracking frame, so it takes the release frame whenever the attempt has a shooter and a release frame inside the possession, else the event frame.",
+  "Shooter fallback: a site build names a shooter with no tracked id from the shot chart's player slug when exactly one rostered player has it. This builder does not read the shot chart, so such a shot has no shooter.",
+  "attack_x is set to 0.0 and the frame arrays are empty: possession_input reads neither (it works on the public copy, which empties the frame arrays)."
+ ],
+ "sources": {
+  "site_files": {
+   "players.json": "47b58af090f1893da97d977a5756f15029165d5101c6abce25810937c51aac34",
+   "results.json": "104205d9b043bae3a286d7aded0684883bce4db02c85ca44fa738e7d4ca8a345",
+   "genai/scouting.json": "1bd7385f3c54f3facd120280662d55adef6522a6bad0882e2ec750253cbffb8d"
+  },
+  "haiku_cache": {
+   "n_records": 471,
+   "records_sha256": "3449f0aa4ac55a9a2ac1ad30d06f6c4cbf41d3aec7bf300d894de7009b4c9d24"
+  }
+ },
+ "scouting": {
+  "items": {
+   "train": {
+    "n": 284,
+    "keys_sha256": "38e2a920a8153cac97aca61250fd48d326287a4812c5f3e92e2b81c84417ca6d",
+    "inputs_sha256": "fe8006ea98e75d02f13199bd2a00bdfcc84101ff826fd42cb6be4ed089673122"
+   },
+   "dev": {
+    "n": 40,
+    "keys_sha256": "8694f3c6f68b8987cfac4fde33e3dd2e2e161fdf7723632843f4fdf277f91328",
+    "inputs_sha256": "f31cb9cbd2ceec89e118da49b244dd03cb5b9f18f2b40a529d1297a153cd6216"
+   },
+   "test": {
+    "n": 81,
+    "keys_sha256": "5b09ddb49c84c11f06e51e2821cd0849ef4356d70884acfb24430bfa89c7d04e",
+    "inputs_sha256": "8444dcdb1641b8b2f05ccdde9043ee5f74622e89ffebadcb2dfc325722261b14"
+   }
+  }
+ },
+ "possession": {
+  "games": {
+   "test": {
+    "n": 40,
+    "ids_sha256": "74e59e6f12cc64dad0f45f0bff266bbc54ca520e13a311a5b3a64367e4e09542"
+   },
+   "dev": {
+    "n": 20,
+    "ids_sha256": "9801a0be714506415c6dbdbae1e80d4d08d256ce5b38fe9f0be2650d50f3e2a5"
+   },
+   "train": {
+    "n": 120,
+    "ids_sha256": "067deba94157f004749d0ed5ac0bd99d788ed26dc5a903d7c4dc9f107d6e3fce"
+   },
+   "reserve": {
+    "n": 424,
+    "ids_sha256": "5beb5f04346fa7eedb65d9ca61ffd37632b1a843dfa6b3b4e9b4aeb3072e2508"
+   }
+  },
+  "items": {
+   "train": {
+    "n": 3000,
+    "keys_sha256": "ac0ac3ead5bb734ca8e6f0deb011f058cf8bfad03478f7fc383231c15da6ee72",
+    "inputs_sha256": "a2c5c2b57e59b839044ad1b7b5d5876c4caefea681dab50ed9f141b8aa1e211b"
+   },
+   "dev": {
+    "n": 240,
+    "keys_sha256": "62a33c1bddf34ba48baa7cf8564a3192461ac5ef3b559cd53acb24f88f125bb4",
+    "inputs_sha256": "898e2d0bf4c986909ab9e4076d93bb62bf381bd1b552850ee394b601823e1427"
+   },
+   "test": {
+    "n": 480,
+    "keys_sha256": "1e84ee27ac7a8023ff0d28b537e5f876ce6c71a44b72adc67a5ca3341a95bb9e",
+    "inputs_sha256": "5cc0ba043442bee8106d136c54753d4a076a3c997f12426e6fccbc2ba284c27b"
+   }
+  },
+  "counts": {
+   "out_of_fold_xfg_rows": 29976
+  }
+ }
+}
