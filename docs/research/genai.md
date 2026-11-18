@@ -230,9 +230,19 @@ showed are fixed here, before the one test score, and change no threshold or rea
   if memory needs it; both are recorded. Gradient checkpointing is on (it changes memory and time, not the
   result), and every run caps the MPS pool (PYTORCH_MPS_HIGH_WATERMARK_RATIO 0.6, LOW 0.5) so a run that needs more
   memory stops instead of swapping.
-- Checker. The pinned checker (git blob c10b8a4b, genai-splits.json) scores every arm and is the filter of A2.
-  After genai-E1, the sensitivity checker of E1 (p3-v3 at 7f2c08fc) is applied beside every score; no hypothesis
-  reads it, and it never filters training data.
+- Checker. Superseded by the amendment of 2026-11-17 below (primary checker for E2 is the merged one).
+  First draft: the checker pinned at the split freeze (git blob c10b8a4b) scores every arm and filters A2, with
+  E1's sensitivity checker beside it.
+- Amendment, 2026-11-17, before any E2 run (lead's decision): E2's primary checker is export/genai.py of
+  v4-research at db993008, git blob 41ba991b, which holds the merged p3-v3 checks (merge 2021695d: words of change,
+  negation, subjects, attribution, signs; D93). Its check_text is the same code as E1's sensitivity checker
+  (export/genai.py at 7f2c08fc and at 2021695d are identical; db993008 adds only a hand-read sheet writer). It scores
+  every arm, decides every hypothesis and is the filter of A2's rejection sampling. The freeze checker (blob
+  c10b8a4b) is reported beside every score and decides nothing. The evaluation loads each checker from git by its
+  pinned commit and verifies the blob hash before it scores, so a later change to export/genai.py cannot move an E2
+  number. The frozen items are unchanged: both checkers run on them as built. Before this amendment, on the dev
+  items, the template passes 6 of 40 scouting and 240 of 240 possession texts under the primary checker (dev only;
+  no test item read).
 - Decoding for every score: greedy, at most 320 new tokens, one attempt (primary). Secondary: a repair loop as P3's
   (one more attempt with the checker's problems in the prompt, at most 2 in all), which is the fair comparison with
   the Haiku texts as delivered.
