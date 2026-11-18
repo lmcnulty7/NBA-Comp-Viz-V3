@@ -4,7 +4,7 @@
  "status": "adopted",
  "scorer": {
   "tools/p8_scorecard.py": "714d096da99f588b27fe19e09c8a5186beac4764066ac684f91df402fff73aa7",
-  "tools/p8_frozen.py": "86e3c02f01abc929cd82090c44cced3112eb768a073a15b5363736fcc1de0dbb",
+  "tools/p8_frozen.py": "cc09929a61500e37fcc23762b1f5c74e798ced828a9036d15a6233ed47120ca5",
   "tools/p8_common.py": "00da3c7c54649089def289478f22ff66a3e21481d45a51fb0ca0484db13b3018"
  },
  "fixed_constants_file": {
