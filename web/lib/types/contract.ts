@@ -419,6 +419,7 @@ export interface ShotMaking {
   expected_fg_pct?: number | null;
   baseline_error_per_100?: number | null;
   frozen_model_residual_per_100?: number | null;
+  withheld?: string | null;
 }
 /**
  * How far defenders stay from the player beyond what location explains, in feet (the stored player table).
@@ -446,6 +447,7 @@ export interface Rebounding {
   min_chances: number;
   rate_per_100?: Estimate | null;
   model_expected_per_100?: number | null;
+  withheld?: string | null;
 }
 /**
  * Chance that he does not appear in the team's next tracked game. `model_probability` is the mean

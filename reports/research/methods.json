@@ -169,7 +169,8 @@
     }
    ],
    "notes": [
-    "Brier skill is 1 minus Brier over the constant model's Brier, computed here from numbers read in each source."
+    "Brier skill is 1 minus Brier over the constant model's Brier, computed here from numbers read in each source.",
+    "The lane takes the shooter of an attempt from the play-by-play name matched to the tracking roster, and the names that fail are not random (two players with one short name, a later name, mojibake, a suffix). When the name does not resolve, the lane takes the player nearest the ball at release as the shooter (analytics/xfg/features.py, lines 30 to 31 and 273 to 275). In the training games 5477 out-of-fold attempts did not resolve by name: 5079 took the player nearest the ball, for the shooter prior and the contest features, and 398 had no shooter and so no contest features. Another 611 tracked attempts carry a name that fits two teammates and went to the first of them (reports/export/name_joins.json). The lane was not refit (PLAN.md D94, D95); the site withholds the shot-making values those joins touch."
    ],
    "experiments": [
     {
@@ -395,7 +396,9 @@
      "comparability": "no comparable published number"
     }
    ],
-   "notes": [],
+   "notes": [
+    "The lane drops a miss whose play-by-play rebounder it cannot match by name to a tracked player: 1040 misses over all games (reports/rebounds.md, dropped misses by reason, unmatched_named_rebounder), 1032 of them in training games (reports/export/name_joins.json). The names that fail are not random (two players with one short name, a later name, mojibake, a suffix), so the frozen results rest on a sample that drops those misses by name. A dropped miss moves a player's rate both ways: it may be his rebound, so his rate reads too low, and for every other player on the floor it is a chance he did not get, so his rate reads too high. The lane was not refit (PLAN.md D94, D95); the site withholds the player rates those drops could move by 0.5 per 100 chances or more, either way."
+   ],
    "experiments": [
     {
      "id": "rebounds-E1",

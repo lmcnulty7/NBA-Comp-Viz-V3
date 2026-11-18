@@ -42,6 +42,12 @@ Also in 1.2.0 (PLAN.md P3, D76; merged with the methods page into one version, D
 - A genai file is 1.2.0 only (CurrentVersion), like the manifest; the other files of its root may still carry
   1.1.0 (COMPATIBLE_VERSIONS).
 
+Also in 1.2.0 (PLAN.md D94, player values broken by the frozen name joins), an addition only:
+- ShotMaking and Rebounding gain an optional `withheld` reason: a hidden value whose cause is not its sample (the
+  stored lane tables lost or mixed up some of the player's rows). A value without one is shown exactly when its
+  sample reaches the minimum.
+- Rebounding refuses a shown rate of zero with a zero upper end.
+
 Units: court positions are in feet in the SportVU frame, x from 0 to 94 along the court, y from 0 to 50 across it,
 rims at (5.25, 25) and (88.75, 25). Clocks are in seconds. Times `t` are seconds from the start of the possession
 or of the clip.
@@ -436,6 +442,17 @@ def _check_shown(metric: str, shown: bool, n: int, min_n: int, estimate) -> None
         raise ValueError(f"{metric}: a hidden value carries no estimate")
 
 
+def _check_withheld(metric: str, shown: bool, n: int, min_n: int, withheld) -> None:
+    """`withheld` says why a value is hidden when the reason is not its sample: the stored lane tables lost or mixed
+    up some of the player's rows (the name joins section of export/site_players.py). It then replaces the
+    minimum-sample sentence, which would be wrong or would hide the cause. A value with no such reason is shown
+    exactly when its sample reaches the minimum, so the page never calls a large sample too small."""
+    if withheld is not None and (shown or not withheld.strip()):
+        raise ValueError(f"{metric}: a withheld reason belongs only to a hidden value")
+    if withheld is None and shown != (n >= min_n):
+        raise ValueError(f"{metric}: hidden at or above the minimum sample without a withheld reason")
+
+
 class ShotMaking(Strict):
     """Makes above expected per 100 attempts, from out-of-fold rows. The expectation is the lane's location and
     contest model, which does not know the shooter and was not the selected model. That baseline has a known
@@ -452,10 +469,12 @@ class ShotMaking(Strict):
     expected_fg_pct: Optional[Unit] = None
     baseline_error_per_100: Optional[float] = None
     frozen_model_residual_per_100: Optional[float] = None
+    withheld: Optional[str] = None
 
     @model_validator(mode="after")
     def _shown(self):
         _check_shown("shot_making", self.shown, self.attempts, self.min_attempts, self.over_expected_per_100)
+        _check_withheld("shot_making", self.shown, self.attempts, self.min_attempts, self.withheld)
         return self
 
 
@@ -483,10 +502,15 @@ class Rebounding(Strict):
     min_chances: int
     rate_per_100: Optional[Estimate] = None
     model_expected_per_100: Optional[float] = None
+    withheld: Optional[str] = None
 
     @model_validator(mode="after")
     def _shown(self):
         _check_shown("rebounding", self.shown, self.chances, self.min_chances, self.rate_per_100)
+        _check_withheld("rebounding", self.shown, self.chances, self.min_chances, self.withheld)
+        if self.shown and self.rate_per_100.value == 0 and self.rate_per_100.hi == 0:
+            raise ValueError("rebounding: a shown rate of zero on the minimum sample or more points at rebounds the "
+                             "lane tables lost, not at a rate")
         return self
 
 
