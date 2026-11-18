@@ -616,7 +616,25 @@ def choose() -> dict:
             "rft_round2_allowed": allowed, "targets": target_drops("train"),
             "dev": {arm: {k: v for k, v in d.items() if k in ("primary", "freeze", "mean_pass", "epoch")}
                     for arm, d in arms.items()},
-            "a0_dev": _load("a0-dev.json")}
+            "a0_dev": _load("a0-dev.json"),
+            "a1_epochs": [{k: v for k, v in d.items() if k in ("primary", "freeze", "mean_pass", "epoch",
+                                                                "seconds_per_item")}
+                          for d in json.loads((run_dir() / "a1" / "state.json").read_text())["dev"]],
+            "a1_train_s": json.loads((run_dir() / "a1" / "state.json").read_text()).get("train_s"),
+            "a1_skipped_over_1024_tokens": json.loads((run_dir() / "a1" / "state.json").read_text()).get("skipped"),
+            "rft_candidates": {tag: {k: v for k, v in (_load(f"{tag}-candidates.json") or {}).items() if k != "kept"}
+                               | _kept_by_kind(_load(f"{tag}-candidates.json"))
+                               for tag in ("a2-r1", "a2-r2") if _load(f"{tag}-candidates.json")}}
+
+
+def _kept_by_kind(candidates) -> dict:
+    kept = (candidates or {}).get("kept", {})
+    out = {}
+    for kind in ("scouting", "possession"):
+        keys = [k for k in kept if ("/" in k) == (kind == "possession")]
+        out[kind] = {"pool_items": len(keys), "items_with_a_pass": sum(bool(kept[k]) for k in keys),
+                     "kept_texts": sum(len(kept[k]) for k in keys)}
+    return out
 
 
 def adapter_of(arm: str) -> Path:
