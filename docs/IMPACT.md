@@ -37,6 +37,17 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   0.0125). The lower end is above the bar of 0.10 and above 0.038, the top of a retriever that knows only position.
   The claim is narrow: it shows the map finds the same player, not what the map means. The 19 raw features without
   the map retrieve better, 0.561 [0.491, 0.631]. Source: `reports/research/embeddings-E1.md`
+- Matchups (matchups-E1): part (a) passes and the test games confirm it; part (b) fails. Knowing the defenders
+  helps predict which attacker takes the last shot: -0.004574 [-0.004904, -0.004230] on the training games and
+  -0.007284 [-0.009136, -0.005454] on the 10 test games (log loss, lower is better). It adds nothing detectable on
+  whether that shot goes in, given its expected value: -0.000003 [-0.000140, +0.000121] on the training games. The
+  report says plainly that part (a) is confounded by role (teams put their best defender on the first option), so
+  it is not defensive skill. Source: `reports/research/matchups-E1.md`
+- Gravity (gravity-E1): not adopted on the training games. A shot is not more open by the bar of 0.2 ft for each
+  standard deviation of the teammates' gravity: the effect is 0.014 ft (interval -0.066 to 0.102, 62358 attempts),
+  so an effect of 0.2 ft is ruled out for that measure. A later check, read by no rule, gives 0.109 [0.053, 0.167]
+  for the gravity sum alone, also under 0.2. Its test games were not scored, since they could not change the
+  outcome. Source: `reports/research/gravity-E1.md`
 - Win chances (winprob-E1): passed on both stages. A pregame strength term changed mean bucket Brier by -0.0124
   [-0.0161, -0.0086] on the test season (lower is better), with no time bucket worse. It is kept as a research result; the site did
   not change. Source: `reports/research/winprob-E1.md`
