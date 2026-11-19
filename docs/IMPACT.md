@@ -69,6 +69,12 @@ ledger allows one score per experiment. Source: `reports/research/scoring_ledger
   scouting its sentence frame variety is 0.106 against Haiku's 0.612. It costs no API spend and 0.76 s per text on
   the Mac. Rejection sampling and constrained decoding were both inconclusive. Source:
   `reports/research/genai-E2.md`
+- The larger 1.5B model, tuned the same way and scored once, gets its own reading; no test compares the two sizes.
+  Training lifted its scouting pass rate from 0.012 to 0.914, a gain of +0.901 [0.840, 0.963], so H1 passes.
+  Against Haiku it reads non-inferior: 0.914 against 0.802, a difference of +0.111 [0.012, 0.210]. Every
+  possession text it writes is the same as the template's, and its scouting frame variety is 0.106 against
+  Haiku's 0.612, as with the smaller model. Rejection sampling hurt it: -0.272 [-0.370, -0.173]. It costs no API
+  spend and 1.20 s per text on the Mac with one attempt. Source: `reports/research/genai-E2-1.5B.md`
 
 ## Engineering
 
