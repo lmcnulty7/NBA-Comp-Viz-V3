@@ -1,10 +1,12 @@
 # matchups-E1: split the outcome into shot frequency and shot efficiency
 
 Draft written 2026-11-18, before the Set A score. Pre-registration: docs/research/matchups.md, section 6,
-"matchups-E1", with its D108 amendment (PLAN.md D106, D108). Scoring code: tools/research_matchups.py; the
-development numbers come from commit 8bd3ccfe (recorded in the dev json as code_commit). Every number below is copied
-from reports/research/matchups-E1-dev.json, except where marked: the frozen lane's numbers are from
-reports/matchups.md, and the first development run's numbers (item 6) are from its saved json in the work folder.
+"matchups-E1", with its D108 amendment (PLAN.md D106, D108, D110). Scoring code: tools/research_matchups.py; the
+development numbers come from commit 8bd3ccfe (recorded in the dev json as code_commit). The pre-score review fixes
+(commit e2901a40) changed only the gate check, the Set A readings, the scorer's xFG loading and the dry run, none of the
+code that made the development numbers. Every number below is copied from reports/research/matchups-E1-dev.json,
+except where marked: the frozen lane's numbers are from reports/matchups.md, the first development run's numbers
+(item 6) from reports/research/matchups-E1-dev-first-run.json, and the dry run's counts from its printed output.
 Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with both models of a
 part paired on the same resampled games.
 
@@ -35,11 +37,12 @@ signal for either.
 
 - The frozen assignment, rerun on all 604 development games, rebuilt the stored matchup table exactly: 1,488,475 rows
   in both, no value different (largest difference 0.0 in every column).
-- The frozen ridge refit on it chose alpha 300 in every fold and overall, reproduced all 447 stored defender ridge
-  values (largest difference 0.0) and the out-of-fold MSEs printed in reports/matchups.md (constant 1.2842, raw
-  1.3244, ridge 1.2854).
+- The frozen ridge refit on it chose alpha 300 in every fold and overall, refit the same 447 defenders as the stored
+  table, reproduced every stored ridge value (largest difference 0.0) and the out-of-fold MSEs printed in
+  reports/matchups.md (constant 1.2842, raw 1.3244, ridge 1.2854).
 - The lane's original target, as the reference: ridge minus constant on possession points +0.00119 [+0.00017,
-  +0.00217], worse than the constant, as frozen.
+  +0.00217], worse than the constant, as frozen. The interval differs slightly from the frozen report's [0.0002,
+  0.0020] because it uses 2000 game resamples, the frozen report 200.
 
 ## Development games (604 games, out of fold)
 
@@ -49,10 +52,12 @@ signal for either.
 | (b) make given xFG | 95,538 attempts | 0.63322 [0.63109, 0.63540] | 0.63323 [0.63113, 0.63541] | -0.000003 [-0.000140, +0.000121] | fails |
 
 - Part (a) penalties: the defender model chose 0.004 to 0.037 per fold and the no-defender model 0.001 to 0.111; both
-  are light (the grid grew downward past 1, see item 6). Part (b): the defender model chose 100 or 300; the
-  no-defender model has no penalized column.
-- Context, not pre-registered, reads no verdict: part (a) with the defender shares taken only from frames at least 2 s
-  before the shot (81,878 possessions): -0.002162 [-0.002423, -0.001879]. About half of part (a)'s gain survives
+  are light (the grid grew downward past 1, see item 6). In fold 0 the no-defender model stopped at the floor of the
+  extended grid (1/729, the last step above 0.001), so its penalty there is a bound, not an interior minimum. Part (b):
+  the defender model chose 100 or 300; the no-defender model has no penalized column.
+- Context, not pre-registered, reads no verdict: part (a) with the defender shares taken only from sampled frames at
+  least 2 sampled frames (about 2 s) before the sampled frame at or before the shot's release (81,878 possessions):
+  -0.002162 [-0.002423, -0.001879]. About half of part (a)'s gain survives
   when the moment of the shot is left out; the other half comes from who reaches the shooter at the shot.
 - Ablation (possession points minus xFG-expected points): defender minus no-defender MSE +0.00110 [+0.00033,
   +0.00187]. Defender columns make this target worse, as with raw possession points: the gain of part (a) comes from
@@ -70,28 +75,35 @@ signal for either.
 2. **Set A readings, per part.** Interval wholly below zero: "confirms". Interval straddling zero: "inconclusive at
    10 games", not evidence against. Interval wholly above zero: "contradiction", reported beside the development
    result, and it blocks any site defender table for that part. Part (b)'s Set A reading cannot overturn its
-   development fail, whatever it is. A t interval on the 10 per-game means is reported beside each bootstrap interval
+   development fail, whatever it is: a Set A interval wholly below zero for part (b) reads "wholly below zero; does
+   not overturn the development fail (D108)", never "confirms". The pre-shot context arm reads "context, reads no
+   verdict" and gets no D108 reading. A t interval on the 10 per-game means is reported beside each bootstrap interval
    (report only, as D80); if the two disagree, the report says so. No per-defender claim is made from Set A (about 8
    attempts per defender there).
 3. **What part (a)'s pass supports.** Defender identity, as the frozen assignment places it over the possession,
    adds out-of-sample information on which attacker takes the possession's last attempt, beyond the attacker
-   himself and his court-zone mix. About half of it depends on the moment of the shot (the pre-shot context keeps
-   -0.0022 of -0.0046): a defender who rotates to the shooter at the release gains share on him. So a part (a)
-   defender table, if one is ever shown, must say it measures who a defender ends up guarding when shots are taken,
-   partly at the shot itself; it is not proof that a defender keeps his man from shooting. It says nothing about
+   himself and his court-zone mix. About half of it depends on frames at and after the release (the pre-shot context
+   keeps -0.0022 of -0.0046): a defender who rotates to the shooter at the release gains share on him. It is also
+   confounded by role: opponents put their best defender on the first option, so who guards an attacker partly encodes
+   the attacker's role that night. So a part (a) defender table, if one is ever shown, must say it measures who a
+   defender ends up guarding when shots are taken, partly at the shot itself; it is not defensive skill and not proof
+   that a defender keeps his man from shooting. It says nothing about
    making shots (part (b) fails) or about points (the ablation and the frozen target fail). The very high stability
    (0.874) fits a structural trait (role, position, scheme) better than a skill that varies game to game; the report
    says so.
 4. **What part (b)'s fail means.** With xFG as an offset, the assigned defender at release adds no detectable
    information on whether the shot goes in (interval -0.00014 to +0.00012 nats per shot). xFG already holds contest
-   features, so this does not show that defenders have no effect on makes; it shows none beyond what xFG measures.
+   features, so this does not show that defenders have no effect on makes; it shows none beyond what xFG measures. The
+   offset is the stored out-of-fold xFG on the development games and the frozen xFG model fitted on all training games
+   on Set A (a full fit, not an out-of-fold one; the frozen model never read Set A).
 5. **Projected power (D108).** Set A's half-width for part (a) (about 0.0026) is a little over half the development
    effect, so Set A will likely confirm if the effect holds; for part (b) "inconclusive at 10 games" is the expected
    reading.
 6. **Changes after a development number, disclosed.**
-   - The first development run (commit 219411696; numbers in its saved json in the work folder) put part (a)'s penalty
-     at the bottom of the grid (1.0) in every fold. The grid now grows past whichever end wins (it had grown only
-     upward); that run's part (a) difference was -0.0040, this run's -0.0046. Part (b) was unchanged.
+   - The first development run (commit 219411696; reports/research/matchups-E1-dev-first-run.json) put part (a)'s
+     penalty at the bottom of the grid (1.0) in every fold, for both models. The grid now grows past whichever end wins (it had grown only
+     upward); that run's part (a) difference was -0.004030 [-0.004314, -0.003726], this run's -0.004574 [-0.004904,
+     -0.004230]. Part (b) was unchanged. Recorded in PLAN.md D110.
    - The pre-shot context was added after that run, labelled not pre-registered, and reads no verdict.
    - A second run on the extended grid was stopped by me at 23 minutes for the 30-minute lock budget, with no number
      used; the stage now runs in cached pieces with warm-started fits (the optimum does not depend on the start).
@@ -101,7 +113,15 @@ signal for either.
    penalized, with "three" as the reference. Part (b) rows need an assigned defender at release and an xFG value (422
    attempts lack an out-of-fold xFG). On development games xFG is the stored out-of-fold prediction; on Set A it is
    the frozen xFG model fitted on the training games, which never read Set A (the same path decisions-E1 used).
-8. **Refusals.** The scorer refuses before computing anything if a test game lacks frames, possessions, shot rows or a
+8. **Site table (the lead's decision, before the score).** No site defender table is decided now. If one is ever
+   proposed, it shows both the primary part (a) number and the pre-shot context, labelled, under its own D line.
+9. **Dry run, before the score.** The scorer's own path (load, frozen assignment, the frozen xFG model, rows, losses)
+   ran on 3 development games with the environment and arguments planned for e1-final: 6,915 matchup rows, 515
+   attempts, 389 part (a) possessions (1,995 rows), 453 part (b) rows (at least 129 a game), 385 pre-shot possessions,
+   every game with rows for both parts, no part (b) defender without a development coefficient, and an empty list of
+   non-finite values. Rerunning the assignment on 2 of those games gave parts equal to the stored ones (the zone mix
+   included). Mechanics only: these games are in the development fit.
+10. **Refusals.** The scorer refuses before computing anything if a test game lacks frames, possessions, shot rows or a
    roster, if any test game gives no rows to either part, or if any value is non-finite; a refusal is reported as
    such, never as a fail.
 
