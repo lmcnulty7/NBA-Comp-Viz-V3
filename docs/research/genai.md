@@ -203,6 +203,11 @@ A1 minus few-shot +0.741 [0.642, 0.840] on scouting and +0.335 [0.296, 0.375] on
 the Haiku cache arm +0.049 [-0.062, 0.160]. The possession texts copy the template (0.992 identical). The 1.5B
 model is a later decision. The pre-registration below is unchanged; its amendments are dated.
 
+**Result, 1.5B (2026-11-18, reports/research/genai-E2-1.5B.md): H1 passes on both kinds; H2 hurts on scouting; H3
+non-inferior; H4 inconclusive.** A1 minus few-shot +0.901 [0.840, 0.963] on scouting and +0.179 [0.150, 0.208] on
+possession; A2 minus A1 on scouting -0.272 [-0.370, -0.173]; A1 with repair minus the Haiku cache arm +0.111 [0.012,
+0.210]. Every possession text copies the template (1.000 identical).
+
 - Question. Can a 0.5B or 1.5B open instruct model, fine-tuned on this Mac, write texts that pass the checker at a
   rate near the API model's, at no spend per text?
 - Models. Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct (Apache 2.0 on their Hub pages, not gated: no account or

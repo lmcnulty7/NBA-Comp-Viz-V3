@@ -2719,7 +2719,7 @@
      "gain": 4,
      "effort": 4,
      "test_data": "genai test players and training-game possessions",
-     "backlog_status": "done: H1 passes on both kinds (0.5B; A1 minus few-shot +0.741 [0.642, 0.840] scouting, +0.335 [0.296, 0.375] possession), H2, H3 and H4 inconclusive (A1 with repair minus Haiku +0.049 [-0.062, 0.160]); possession texts copy the template (0.992 identical); 1.5B not run; reports/research/genai-E2.md",
+     "backlog_status": "done: H1 passes on both kinds at both sizes (A1 minus few-shot, scouting +0.741 [0.642, 0.840] at 0.5B and +0.901 [0.840, 0.963] at 1.5B); H2 inconclusive at 0.5B and hurts on scouting at 1.5B (-0.272 [-0.370, -0.173]); H3 inconclusive at 0.5B (+0.049 [-0.062, 0.160]) and non-inferior at 1.5B (+0.111 [0.012, 0.210]); H4 inconclusive; possession texts copy the template; reports/research/genai-E2.md and reports/research/genai-E2-1.5B.md",
      "results": null,
      "hypothesis_label": "Question",
      "threshold_label": "Hypotheses and readings",
