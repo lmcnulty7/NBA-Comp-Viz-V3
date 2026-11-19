@@ -1,7 +1,8 @@
 # matchups-E1: split the outcome into shot frequency and shot efficiency
 
 Written 2026-11-18 and 2026-11-19. Everything above the section "Set A" was committed before the score (last at
-bb49534a); only this sentence, the verdict line and that section were written after it. Pre-registration: docs/research/matchups.md, section 6,
+bb49534a); only these two sentences, the Set A source sentence, the verdict line and that section were written after
+it. Pre-registration: docs/research/matchups.md, section 6,
 "matchups-E1", with its D108 amendment (PLAN.md D106, D108, D110). Scoring code: tools/research_matchups.py; the
 development numbers come from commit 8bd3ccfe (recorded in the dev json as code_commit). The pre-score review fixes
 (commit e2901a40) changed only the gate check, the Set A readings, the scorer's xFG loading and the dry run, none of the
@@ -16,7 +17,7 @@ models of a part paired on the same resampled games.
 **Verdict: part (a) passes and Set A confirms it; part (b) fails, and Set A is inconclusive at 10 games (D108).**
 Part (a), who takes the possession's last shot: defender identity adds out-of-sample information, -0.004574
 [-0.004904, -0.004230] nats per attacker row on the development games and -0.007284 [-0.009136, -0.005454] on Set A.
-Part (b), make given xFG: no defender information beyond xFG, -0.000003 [-0.000140, +0.000121] on development and
+Part (b), make given xFG: no detectable defender information beyond xFG, -0.000003 [-0.000140, +0.000121] on development and
 -0.000122 [-0.000521, +0.000295] on Set A. Beside part (a), as committed: about half of it comes from frames at and
 after the release (the pre-shot context keeps -0.003525 of -0.007284 on Set A), and it is confounded by role
 (opponents put their best defender on the first option), so it is not defensive skill and not proof that a defender
@@ -150,8 +151,9 @@ The models are those fixed above, fitted on every development game (penalties: p
 | (b) make given xFG | 1,601 | 0.64616 [0.63100, 0.66185] | 0.64628 [0.63129, 0.66177] | -0.000122 [-0.000521, +0.000295] | -0.000120 [-0.000633, +0.000392] | inconclusive at 10 games |
 
 - Part (a): the interval lies wholly below zero, so Set A confirms the development pass. The t interval on the 10
-  per-game means agrees. The Set A difference is larger than the development one (-0.007284 against -0.004574); with
-  10 games and a projected half-width of about 0.0026, the two are not far apart.
+  per-game means agrees. The Set A difference is larger than the development one (-0.007284 against -0.004574): the
+  development point lies just outside the Set A interval; the gap (0.0027, computed) is about one projected
+  half-width.
 - Part (b): the interval straddles zero: inconclusive at 10 games, as projected (half-width about 0.0010). It does not
   change the development fail.
 - Context, reads no verdict: part (a) with pre-shot shares only (1,362 possessions, 6,955 rows): -0.003525 [-0.004867,
@@ -160,6 +162,7 @@ The models are those fixed above, fitted on every development game (penalties: p
 - No per-defender claim is made from Set A.
 
 What this means for the lane. The frozen verdict, no defender signal in possession points, stands (the reference and
-the ablation both confirm it). Split into its parts, defense shows up in who takes the shot, partly through who
-guards whom at the shot and partly through role, and not, beyond xFG, in whether the shot goes in. No site defender
+the ablation both confirm it). Split into its parts, defender identity carries information on who takes the
+shot, partly through who guards whom at the shot and partly through role, and not, beyond xFG, on whether the shot
+goes in. No site defender
 table follows from this; any future one needs its own D line and shows the pre-shot number beside the primary one.
