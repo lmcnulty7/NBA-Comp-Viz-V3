@@ -4,6 +4,9 @@
     python3 -m tools.research_embeddings_e2 e2-hist  --artifacts DIR [--max-minutes 25]
     python3 -m tools.research_embeddings_e2 e2-gate  --artifacts DIR
     python3 -m tools.research_embeddings_e2 e2-range --artifacts DIR [--max-minutes 25]
+    python3 -m tools.research_embeddings_e2 e2-fit   --artifacts DIR
+    python3 -m tools.research_embeddings_e2 e2-split --artifacts DIR
+    python3 -m tools.research_embeddings_e2 e2-logo  --artifacts DIR [--max-minutes 25]
     python3 -m tools.research_embeddings_e2 e2-dev   --artifacts DIR
 
 Builds on embeddings-E1 (tools/research_embeddings.py): its gated partial sums, its frozen fit (the control arm), its
@@ -18,9 +21,12 @@ e2-gate   The new data path against the frozen one: per (game, player) the six z
           attempts. Writes the histogram tables once, with their hashes in the gate record.
 e2-range  The pre-registered game bootstrap of the split-half rates (resample games, rebuild both halves, re-transform
           and re-embed with the fixed fits), shown as a range and not read (D86, D118). Resumable in chunks.
-e2-dev    Fits the two bases (sklearn NMF, KL loss, multiplicative updates, nndsvda, seed 0) and the frozen pipeline
-          on each arm, then the deciding split-half statistic (player bootstrap), leave one game out (reported, decides
-          nothing) and the verdict. Writes reports/research/embeddings-E2-dev.json.
+e2-fit    Fits the two bases (sklearn NMF, KL loss, multiplicative updates, nndsvda, seed 0) and the frozen pipeline
+          on each arm; caches the bases with the gate's file hashes.
+e2-split  The deciding split-half statistic (player bootstrap), cached.
+e2-logo   Leave one game out (reported, decides nothing), resumable in chunks of games, cached.
+e2-dev    Assembles reports/research/embeddings-E2-dev.json and the verdict from the cached stages; fits nothing.
+Every stage logs its timing and stays under the lock's 30-minute budget (--max-minutes where it can run long).
 
 Set A is scored only if development adopts (D118); its scorer is not part of this module yet.
 Nothing here writes under DATA_ROOT or reports/ except the research results. The only fits are NMF and the frozen
@@ -224,41 +230,47 @@ def require_gate(artifacts=None) -> dict:
 
 # ----------------------------------------------------------------------------- the basis and its transform
 
-def kl_transform(X, H, tol: float = TOL, max_iter: int = MAX_ITER):
+def kl_transform(X, H, tol: float = TOL, max_iter: int = MAX_ITER, chunk: int = 2000):
     """Weights W >= 0 minimising KL(X || W H) with the basis H held fixed, by multiplicative updates on W only, from
     the same constant start for every row; each row stops on its own when its objective changes by at most tol
     (relative) over CHECK_EVERY updates, so a row's weights do not depend on the other rows of the batch. All-zero
-    rows get zero weights. X: sparse rows (n x CELLS)."""
+    rows get zero weights. X: rows (n x CELLS), sparse or dense; computed densely in chunks of rows."""
     from scipy import sparse
     X = sparse.csr_matrix(X, dtype=float)
     n, k = X.shape[0], H.shape[0]
-    coo = X.tocoo()
-    r, c, x = coo.row, coo.col, coo.data
-    keep = x > 0
-    r, c, x = r[keep], c[keep], x[keep]
-    Hc = H[:, c].T
-    Hsum = H.sum(axis=1)
-    W = np.full((n, k), np.sqrt((1.0 / X.shape[1]) / k))
-    has = np.bincount(r, minlength=n) > 0
-    active = has.copy()
-    prev = np.full(n, np.inf)
+    W = np.zeros((n, k))
     iters = np.zeros(n, dtype=int)
-    for it in range(max_iter):
-        if not active.any():
-            break
-        wh = np.einsum("ik,ik->i", W[r], Hc)
-        num = np.asarray(sparse.csr_matrix((x / wh, (r, c)), shape=X.shape) @ H.T)
-        W = np.where(active[:, None], W * num / Hsum, W)
-        iters[active] += 1
-        if (it + 1) % CHECK_EVERY == 0:
-            wh = np.einsum("ik,ik->i", W[r], Hc)
-            obj = np.bincount(r, weights=x * np.log(x / wh) - x, minlength=n) + W @ Hsum
-            done = np.abs(prev - obj) <= tol * np.maximum(np.abs(obj), 1e-12)
-            active &= ~done
-            prev = obj
-    W[~has] = 0.0
-    return W, {"rows": int(n), "max_iterations": int(iters.max()) if n else 0,
-               "not_converged": int(active.sum())}
+    left = 0
+    Hsum = H.sum(axis=1)
+    HT = H.T
+    for s in range(0, n, chunk):
+        Xd = X[s:s + chunk].toarray()
+        m = len(Xd)
+        pos = Xd > 0
+        has = pos.any(axis=1)
+        Wc = np.full((m, k), np.sqrt((1.0 / X.shape[1]) / k))
+        active = has.copy()
+        prev = np.full(m, np.inf)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            xlogx = np.where(pos, Xd * np.log(np.where(pos, Xd, 1.0)), 0.0).sum(axis=1) - Xd.sum(axis=1)
+            for it in range(max_iter):
+                if not active.any():
+                    break
+                a = np.flatnonzero(active)
+                WH = Wc[a] @ H
+                Wc[a] = Wc[a] * ((np.where(pos[a], Xd[a] / WH, 0.0)) @ HT) / Hsum
+                iters[s + a] += 1
+                if (it + 1) % CHECK_EVERY == 0:
+                    WH = Wc[a] @ H
+                    obj = xlogx[a] - np.where(pos[a], Xd[a] * np.log(np.where(pos[a], WH, 1.0)), 0.0).sum(axis=1) \
+                        + Wc[a] @ Hsum
+                    done = np.abs(prev[a] - obj) <= tol * np.maximum(np.abs(obj), 1e-12)
+                    prev[a] = obj
+                    active[a[done]] = False
+        Wc[~has] = 0.0
+        W[s:s + m] = Wc
+        left += int(active.sum())
+    return W, {"rows": int(n), "max_iterations": int(iters.max()) if n else 0, "not_converged": left}
 
 
 def shares(W) -> np.ndarray:
@@ -304,14 +316,15 @@ class Hists:
         from scipy import sparse
         gi = {g: i for i, g in enumerate(P.games)}
         pi = {int(p): i for i, p in enumerate(P.players)}
-        row_of = {(int(g), int(p)): r for r, (g, p) in enumerate(zip(P.g, P.p))}
+        lookup = np.full(P.G * P.P, -1, dtype=np.int64)
+        lookup[P.g.astype(np.int64) * P.P + P.p] = np.arange(P.R)
         self.P = P
         self.mats = {}
         for name, t in (("court", court), ("shot", shots)):
             t = t[t["sportvu_game"].astype(str).isin(gi) & t["player_id"].astype(int).isin(pi)]
             g = t["sportvu_game"].astype(str).map(gi).to_numpy()
             p = t["player_id"].astype(int).map(pi).to_numpy()
-            rows = np.array([row_of.get((a, b), -1) for a, b in zip(g, p)], dtype=np.int64)
+            rows = lookup[g.astype(np.int64) * P.P + p.astype(np.int64)]
             if (rows < 0).any():
                 raise SystemExit(f"{WHO}: a {name} histogram row has no partial-sum row")
             self.mats[name] = sparse.csr_matrix((t["n"].to_numpy(dtype=float), (rows, t["cell"].to_numpy())),
@@ -375,14 +388,17 @@ def embed(fit: dict, X) -> np.ndarray:
 class Model:
     """Everything the retrieval reads: E1's frozen fit, the two bases and the two arm fits."""
 
-    def __init__(self, d: dict, hists: Hists):
+    def __init__(self, d: dict, hists: Hists, basis: dict = None, log=print):
         self.d, self.hists = d, hists
         P = d["P"]
         fit_rows = d["fit"]["rows"]
         self.fit_idx = np.searchsorted(P.players, fit_rows["player_id"].to_numpy(dtype=np.int64))
         full_court = hists.player_sums("court")[self.fit_idx]
         full_shot = hists.player_sums("shot")[self.fit_idx]
-        self.basis = {"court": fit_basis(full_court), "shot": fit_basis(full_shot)}
+        started = time.time()
+        self.basis = basis or {"court": fit_basis(full_court), "shot": fit_basis(full_shot)}
+        if log and basis is None:
+            log(f"[e2] two NMF bases fitted, {time.time() - started:.0f} s")
         X19 = fit_rows[E1.feature_order()].to_numpy(dtype=float)
         cs, ss = self.shares_of(full_court, full_shot)
         feats = arm_features(X19, cs, ss)
@@ -488,21 +504,21 @@ def game_range(model: Model, artifacts=None, n: int = BOOT, max_minutes: float =
     return out
 
 
-def leave_one_game_out(model: Model, n: int = BOOT, log=print) -> dict:
-    """D103's matched comparator, reported and deciding nothing (D118): each game's players with at least 50
-    possessions retrieve their rest-of-season row among every player's rest-of-season rows (pool: at least 300
-    rest-of-season possessions); bootstrap of the development games."""
+LOGO_CHUNK = 100
+
+
+def logo_games(model: Model, g0: int, g1: int) -> dict:
+    """Leave one game out for the development games g0 to g1 - 1: per query (game, player) the hit of every space and
+    the position retriever's probability, and the pool size of each game with queries."""
     from scipy import sparse
     d, H, P = model.d, model.hists, model.d["P"]
     GS = P.game_sums()
     tot = {c: v.sum(axis=0) for c, v in GS.items()}
     full = {name: H.player_sums(name) for name in ("court", "shot")}
     pos_all = E1.positions_of(P.players, d["positions"])
-    vals = {s: [] for s in SPACES}
-    vals["position"] = []
-    games_of, players_of, pool_sizes = [], [], []
-    started = time.time()
-    for g in range(P.G):
+    out = {s: [] for s in SPACES}
+    out.update(position=[], game=[], player=[], pool=[])
+    for g in range(g0, min(g1, P.G)):
         one = {c: GS[c][g] for c in GS}
         rest = {c: tot[c] - GS[c][g] for c in GS}
         Xr, nr = E1.features_from_sums(rest)
@@ -519,27 +535,62 @@ def leave_one_game_out(model: Model, n: int = BOOT, log=print) -> dict:
         rest_h = {name: (full[name] - game_h[name]).tocsr() for name in game_h}
         pool_rep = model.represent(Xr[pool], rest_h["court"][pool], rest_h["shot"][pool])
         q_rep = model.represent(Xo[q], game_h["court"][q], game_h["shot"][q])
-        where = {int(p): i for i, p in enumerate(pool)}
-        own = np.array([where[int(p)] for p in q])
+        where = {int(i): j for j, i in enumerate(pool)}
+        own = np.array([where[int(i)] for i in q])
         for s in SPACES:
-            vals[s].append(E1.hits(q_rep[s], pool_rep[s], own).astype(float))
-        vals["position"].append(E1.position_probability(pos_all[q], pos_all[pool]))
-        games_of.append(np.full(len(q), g))
-        players_of.append(P.players[q])
-        pool_sizes.append(len(pool))
-        if log and (g + 1) % 100 == 0:
-            log(f"[e2] leave-one-game-out {g + 1} of {P.G}, {time.time() - started:.0f} s")
-    hit = {s: np.concatenate(vals[s]).astype(bool) for s in SPACES}
-    v = query_values(hit, np.concatenate(vals["position"]))
-    g_of = np.concatenate(games_of)
+            out[s].append(E1.hits(q_rep[s], pool_rep[s], own).astype(float))
+        out["position"].append(E1.position_probability(pos_all[q], pos_all[pool]))
+        out["game"].append(np.full(len(q), g))
+        out["player"].append(P.players[q].astype(np.int64))
+        out["pool"].append(np.array([len(pool)]))
+    return {k: (np.concatenate(v) if v else np.zeros(0)) for k, v in out.items()}
+
+
+def logo_summary(parts: dict, n: int = BOOT) -> dict:
+    """D103's matched comparator from the per-query values of every development game, reported and deciding nothing
+    (D118); bootstrap of the development games."""
+    hit = {s: parts[s].astype(bool) for s in SPACES}
+    v = query_values(hit, parts["position"])
+    g_of = parts["game"].astype(int)
     boot = E1.cluster_bootstrap(g_of, v, n, [SEED, 13])
     return {"games_with_queries": int(len(np.unique(g_of))), "queries": int(len(g_of)),
-            "players": int(len(np.unique(np.concatenate(players_of)))),
-            "pool_size": {"mean": float(np.mean(pool_sizes)), "min": int(np.min(pool_sizes)),
-                          "max": int(np.max(pool_sizes))},
+            "players": int(len(np.unique(parts["player"]))),
+            "pool_size": {"mean": float(np.mean(parts["pool"])), "min": int(np.min(parts["pool"])),
+                          "max": int(np.max(parts["pool"]))},
             "rates_with_game_bootstrap": boot["intervals"],
             "note": "D103's matched comparator, reported beside the verdict and deciding nothing (D118); the fits saw "
                     "every development game, stated not repaired"}
+
+
+def leave_one_game_out(model: Model, n: int = BOOT, log=print) -> dict:
+    return logo_summary(logo_games(model, 0, model.d["P"].G), n)
+
+
+def stage_logo(artifacts=None, max_minutes: float = 25.0) -> dict:
+    """Leave one game out in chunks of LOGO_CHUNK games, each kept under the work folder; resumable. When every chunk
+    exists, writes the summary."""
+    started = time.time()
+    model = load(artifacts)
+    folder = work_dir(artifacts) / "logo"
+    folder.mkdir(parents=True, exist_ok=True)
+    G = model.d["P"].G
+    for g0 in range(0, G, LOGO_CHUNK):
+        path = folder / f"chunk_{g0:04d}.npz"
+        if path.exists():
+            continue
+        if time.time() - started > max_minutes * 60:
+            break
+        np.savez(path, **logo_games(model, g0, g0 + LOGO_CHUNK))
+        _log(f"leave one game out, games {g0} to {min(g0 + LOGO_CHUNK, G) - 1}", started)
+    chunks = [folder / f"chunk_{g0:04d}.npz" for g0 in range(0, G, LOGO_CHUNK)]
+    if not all(c.exists() for c in chunks):
+        return {"chunks_done": sum(c.exists() for c in chunks), "chunks": len(chunks)}
+    loaded = [dict(np.load(c)) for c in chunks]
+    parts = {k: np.concatenate([x[k] for x in loaded]) for k in loaded[0]}
+    out = logo_summary(parts)
+    out["seconds_last_run"] = round(time.time() - started, 1)
+    (work_dir(artifacts) / "logo.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    return {k: out["rates_with_game_bootstrap"][k] for k in ("frozen", "nmf", "nmf_minus_frozen")}
 
 
 def verdict(split: dict) -> dict:
@@ -559,10 +610,18 @@ def verdict(split: dict) -> dict:
             "adopt": adopt, "reading": reading, "set_a": "scored once as a consistency check" if adopt else "not scored"}
 
 
-def load(artifacts=None) -> Model:
+def _log(msg: str, started: float) -> None:
+    print(f"[e2] {msg}, {time.time() - started:.0f} s", flush=True)
+
+
+def load(artifacts=None, fitted: bool = True) -> Model:
+    """The gated inputs and the model; with fitted, the bases are read from e2-fit's cache (whose record names the
+    gate's file hashes) instead of being fitted again."""
     import pandas as pd
-    require_gate(artifacts)
+    started = time.time()
+    gate_record = require_gate(artifacts)
     d = E1.load_dev(artifacts)
+    _log("embeddings-E1 development inputs loaded", started)
     folder = work_dir(artifacts)
     court = pd.read_parquet(folder / "court_hist.parquet")
     shots = pd.read_parquet(folder / "shot_hist.parquet")
@@ -571,15 +630,53 @@ def load(artifacts=None) -> Model:
     refuse_test(games, WHO)
     if not set(games) <= set(d["games"]):
         raise SystemExit(f"{WHO}: a histogram game is not a development game")
-    return Model(d, Hists(d["P"], court, shots))
+    hists = Hists(d["P"], court, shots)
+    del court, shots
+    _log("histograms assembled", started)
+    basis = None
+    if fitted:
+        rec = json.loads((folder / "fit.json").read_text())
+        if rec["gate_files"] != gate_record["files"] or _sha256(folder / "bases.npz") != rec["bases_sha256"]:
+            raise SystemExit(f"{WHO}: the cached bases do not belong to this gate; run e2-fit again")
+        z = np.load(folder / "bases.npz")
+        basis = {name: {**rec["bases"][name], "H": z[name]} for name in ("court", "shot")}
+    model = Model(d, hists, basis)
+    _log("arm fits ready", started)
+    return model
+
+
+def stage_fit(artifacts=None) -> dict:
+    started = time.time()
+    model = load(artifacts, fitted=False)
+    folder = work_dir(artifacts)
+    np.savez(folder / "bases.npz", court=model.basis["court"]["H"], shot=model.basis["shot"]["H"])
+    rec = {"gate_files": require_gate(artifacts)["files"], "bases_sha256": _sha256(folder / "bases.npz"),
+           "bases": {name: {k: v for k, v in b.items() if k != "H"} for name, b in model.basis.items()},
+           "arm_fits": {arm: {"columns": f["names"], "explained_variance_ratio": f["explained"]}
+                        for arm, f in model.fits.items()}, "seconds": round(time.time() - started, 1)}
+    (folder / "fit.json").write_text(json.dumps(_plain(rec), indent=2, allow_nan=False) + "\n")
+    return rec
+
+
+def stage_split(artifacts=None) -> dict:
+    started = time.time()
+    model = load(artifacts)
+    out = split_half(model)
+    out["seconds"] = round(time.time() - started, 1)
+    (work_dir(artifacts) / "split.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    return {k: out["rates_with_player_bootstrap"][k] for k in ("frozen", "nmf", "nmf_minus_frozen")}
 
 
 def dev(artifacts=None) -> dict:
-    model = load(artifacts)
+    """Assembles the development json from the cached stages (e2-fit, e2-split, e2-logo, e2-range); fits nothing."""
+    folder = work_dir(artifacts)
+    gate_record = require_gate(artifacts)
+    fit = json.loads((folder / "fit.json").read_text())
+    if fit["gate_files"] != gate_record["files"]:
+        raise SystemExit(f"{WHO}: the cached fits do not belong to this gate")
+    split = json.loads((folder / "split.json").read_text())
+    logo = json.loads((folder / "logo.json").read_text())
     e1_dev = json.loads((RESULTS / "embeddings-E1-dev.json").read_text())
-    split = split_half(model)
-    logo = leave_one_game_out(model)
-    # the frozen arm here is embeddings-E1's: its rates must equal E1's published development rates exactly
     frozen_check = {
         "split_half": [split["rates_with_player_bootstrap"]["frozen"]["value"],
                        e1_dev["split_half"]["rates_with_player_bootstrap"]["pca"]["value"]],
@@ -587,8 +684,7 @@ def dev(artifacts=None) -> dict:
                                e1_dev["leave_one_game_out"]["rates_with_game_bootstrap"]["pca"]["value"]]}
     if any(a != b for a, b in frozen_check.values()):
         raise SystemExit(f"{WHO}: the frozen arm does not reproduce embeddings-E1's development rates: {frozen_check}")
-    rng_path = work_dir(artifacts) / "range"
-    chunks = sorted(rng_path.glob("chunk_*.json")) if rng_path.exists() else []
+    chunks = sorted((folder / "range").glob("chunk_*.json")) if (folder / "range").exists() else []
     draws = [r for p in chunks for r in json.loads(p.read_text())]
     rng_out = {"resamples_done": len(draws), "resamples_planned": BOOT}
     if draws:
@@ -597,34 +693,31 @@ def dev(artifacts=None) -> dict:
     out = {"experiment": EXPERIMENT,
            "stage": "development games (gates passed); development decides (PLAN.md D118)",
            "pre_registration": "docs/research/embeddings.md, embeddings-E2 and its amendment (D118)",
-           "gate": {k: v for k, v in require_gate(artifacts).items() if k != "files"},
-           "bases": {name: {k: v for k, v in b.items() if k != "H"} for name, b in model.basis.items()},
-           "arm_fits": {arm: {"columns": f["names"], "explained_variance_ratio": f["explained"]}
-                        for arm, f in model.fits.items()},
-           "frozen_arm_equals_embeddings_E1": frozen_check,
+           "gate": {k: v for k, v in gate_record.items() if k != "files"},
+           "bases": fit["bases"], "arm_fits": fit["arm_fits"], "frozen_arm_equals_embeddings_E1": frozen_check,
            "split_half": split, "split_half_game_bootstrap_range_not_read": rng_out,
-           "leave_one_game_out": logo, "verdict": verdict(split), "peak_gb": round(peak_rss_gb(), 2)}
+           "leave_one_game_out": logo, "verdict": verdict(split)}
     RESULTS.mkdir(parents=True, exist_ok=True)
     (RESULTS / f"{EXPERIMENT}-dev.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
-    np.save(work_dir(artifacts) / "basis_court.npy", model.basis["court"]["H"])
-    np.save(work_dir(artifacts) / "basis_shot.npy", model.basis["shot"]["H"])
     return out["verdict"]
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e2-hist", "e2-gate", "e2-range", "e2-dev"))
+    ap.add_argument("command", choices=("e2-hist", "e2-gate", "e2-fit", "e2-split", "e2-logo", "e2-range", "e2-dev"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
     a = ap.parse_args(argv)
     with heavy_job(f"research embeddings {a.command}"):
         if a.command == "e2-hist":
             out = hist_pass(a.artifacts, a.max_minutes)
+        elif a.command == "e2-logo":
+            out = stage_logo(a.artifacts, a.max_minutes)
         elif a.command == "e2-range":
             out = game_range(load(a.artifacts), a.artifacts, max_minutes=a.max_minutes)
             out.pop("range", None)
         else:
-            out = {"e2-gate": gate, "e2-dev": dev}[a.command](a.artifacts)
+            out = {"e2-gate": gate, "e2-fit": stage_fit, "e2-split": stage_split, "e2-dev": dev}[a.command](a.artifacts)
     print(json.dumps(_plain(out), indent=2, default=str))
     return 0
 
