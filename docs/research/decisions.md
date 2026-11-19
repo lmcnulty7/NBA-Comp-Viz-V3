@@ -233,6 +233,22 @@ read the pre-registration's words in a definite way; item 4 departs from them, a
     the gate records, the development record and the models recorded; refusals (a test game without frames,
     possessions, states or a decision; any non-finite value) give a reason and no number.
 
+#### Amendment to commitment 5 (PLAN.md D123, 2026-11-19 UTC, before any development number)
+
+The smoke run on two development games (01.01.2016.CHA.at.TOR and 01.01.2016.DAL.at.MIA) showed that the failed
+label of commitment 5 does not mark failed passes. A defender's holding segment after an offensive holder's labelled
+177 and 167 attempts failed (a completion rate near 75 percent). In those attempts the defender was the player
+nearest the ball for a median 0.28 s, starting a median 0.08 s after the holder's last frame (0.48 s for completed
+passes); the offence held the ball again later in the possession in 57 and 62 percent of them; and 18 and 9 of them
+ended the possession in a turnover with no offensive hold again. They are tight on-ball defence or a dribble near a
+defender, not failed passes. No outcome metric had been computed.
+
+Commitment 5 now reads: an attempt is completed when the next holder within 1.5 s is a teammate; failed when the
+next holder is a defender, the offence never holds the ball again in the possession, and the possession ends in a
+turnover; every other attempt is left out and counted, by game. The report states the completion rate this label
+gives on development and the excluded count. The frame pass records the raw fields; the label is applied before the
+completion model is fitted. Nothing else changes.
+
 ## 7. Sources checked (all fetched 2026-11-16)
 
 - Cervone et al. 2014, POINTWISE, PDF (pages 1 to 3 read): https://raw.githubusercontent.com/papers-we-love/papers-we-love/refs/heads/main/sports_analytics/2014-ssac-pointwise-predicting-points-and-valuing-decisions-in-real-time.pdf

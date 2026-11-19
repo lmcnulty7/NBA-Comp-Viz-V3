@@ -190,7 +190,12 @@ def pass_attempts(frames, possessions, shot_frames, baskets: dict, fps: float, g
             if ((rel >= lo) & (rel <= hi)).any():
                 counts["shot_between"] += 1
                 continue
+            later = s.iloc[i + 2:]
+            regains = bool((later["team_id"].to_numpy() == int(off_team)).any())
             rows.append({"possession": int(p), "frame": int(a.loc[i, "end"]), "next_frame": int(b.loc[i, "start"]),
+                         "offense_regains": regains,
+                         "possession_turnover": str(poss.loc[p, "end_kind"]) == "turnover",
+                         "gap_s": gap,
                          "passer": int(a.loc[i, "player_id"]), "next_holder": int(b.loc[i, "player_id"]),
                          "completed": int(int(b.loc[i, "team_id"]) == int(off_team)), "offense_team_id": int(off_team)})
     att = pd.DataFrame(rows)
@@ -231,6 +236,10 @@ def pass_attempts(frames, possessions, shot_frames, baskets: dict, fps: float, g
                     "pass_ft": float(np.hypot(rx - px, ry - py)),
                     "receiver_def_ft": float(np.nanmin(np.hypot(pos["dx"][r] - rx, pos["dy"][r] - ry))),
                     "lane_def_ft": float(lane_d[0]), "lane_n_def": int(lane_n[0]),
+                    "offense_regains": bool(att.loc[r, "offense_regains"]),
+                    "possession_turnover": bool(att.loc[r, "possession_turnover"]), "gap_s": float(att.loc[r, "gap_s"]),
+                    "ball_travel_ft": float(np.hypot(fl.loc[att.loc[r, "next_frame"], "ball_x"] - px,
+                                                     fl.loc[att.loc[r, "next_frame"], "ball_y"] - py)),
                     "receiver_basket_ft": float(np.hypot(rx - bk[0], ry - bk[1]))})
     return pd.DataFrame(out), counts
 
@@ -694,10 +703,33 @@ def load_dev(artifacts=None):
         a = pd.read_parquet(w / "games" / f"{g}.attempts.parquet")
         atts.append(a.assign(fold=fold_of[g]) if len(a) else a)
     dec = pd.concat(decs, ignore_index=True)
-    att = pd.concat([a for a in atts if len(a)], ignore_index=True)
+    att = completion_label(pd.concat([a for a in atts if len(a)], ignore_index=True))
     training_games_only(dec["sportvu_game"].astype(str).unique(), WHO)
     refuse_test(sorted(dec["sportvu_game"].astype(str).unique()), WHO)
     return dec, att, fold_of
+
+
+def completion_label(att):
+    """Commitment 5 as amended (D123): completed when the next holder is a teammate; failed when it is a defender, the
+    offence never holds the ball again in the possession, and the possession ends in a turnover; every other attempt
+    is left out (label NaN) and counted."""
+    import numpy as np
+    a = att.copy()
+    done = a["completed"].to_numpy(int) == 1
+    failed = (~done) & (~a["offense_regains"].to_numpy(bool)) & a["possession_turnover"].to_numpy(bool)
+    a["label"] = np.where(done, 1.0, np.where(failed, 0.0, np.nan))
+    return a
+
+
+def attempt_counts(att) -> dict:
+    """The D123 counts: labelled, completion rate, excluded, overall and by game."""
+    import numpy as np
+    lab = att["label"].to_numpy(float)
+    by = att.assign(excluded=~np.isfinite(lab)).groupby("sportvu_game")["excluded"].sum() if len(att) else None
+    return {"attempts": int(len(att)), "labelled": int(np.isfinite(lab).sum()),
+            "completed": int((lab == 1).sum()), "failed": int((lab == 0).sum()),
+            "completion_rate": float(np.nanmean(lab)), "excluded": int((~np.isfinite(lab)).sum()),
+            "excluded_by_game": {str(g): int(n) for g, n in by.items()} if by is not None else {}}
 
 
 def require_fold(artifacts, k: int) -> dict:
@@ -722,8 +754,8 @@ def option_models(dec, att):
     fits = {}
     for f in range(FOLDS):
         te = dec["fold"].to_numpy() == f
-        a = att[att["fold"] != f].dropna(subset=COMPLETION_FEATURES)
-        comp = _logistic().fit(a[COMPLETION_FEATURES].to_numpy(float), a["completed"].to_numpy(int))
+        a = att[att["fold"] != f].dropna(subset=COMPLETION_FEATURES + ["label"])
+        comp = _logistic().fit(a[COMPLETION_FEATURES].to_numpy(float), a["label"].to_numpy(int))
         for k in range(1, 5):
             X = np.column_stack([dec[f"tm{k}_pass_ft"], dec[f"tm{k}_def_ft"], dec[f"tm{k}_lane_def_ft"],
                                  dec[f"tm{k}_lane_n_def"], dec[f"tm{k}_basket_ft"]]).astype(float)
@@ -742,7 +774,7 @@ def option_models(dec, att):
         pr = choice.predict_proba(X[ok])
         for j, kind in enumerate(choice.classes_):
             dec.loc[ok, f"p_choice_{kind}"] = pr[:, j]
-        fits[f] = {"attempts": int(len(a)), "attempt_completion_rate": float(a["completed"].mean()),
+        fits[f] = {"attempts": int(len(a)), "attempt_completion_rate": float(a["label"].mean()),
                    "drives": int(len(dr)), "drive_kept_rate": float(dr["drive_kept"].mean()),
                    "completion_coef": comp[-1].coef_[0].tolist(), "keep_coef": keep[-1].coef_[0].tolist()}
     return dec, fits
@@ -900,8 +932,7 @@ def development(artifacts=None, log=print) -> dict:
     counts = {"decisions": int(len(v)), "finite_both_arms": int(finite.sum()),
               "by_kind": {k: int(c) for k, c in v.loc[finite, "decision_kind"].astype(str).value_counts().items()},
               "left_out_by_kind": {k: int(c) for k, c in v.loc[~finite, "decision_kind"].astype(str).value_counts().items()},
-              "games": int(v.loc[finite, "sportvu_game"].nunique()), "attempts": int(len(att)),
-              "attempt_completion_rate": float(att["completed"].mean())}
+              "games": int(v.loc[finite, "sportvu_game"].nunique()), "pass_attempts_d123": attempt_counts(att)}
     vf = v[finite].reset_index(drop=True)
     m = metric_set(vf)
     out = {"experiment": EXPERIMENT, "stage": "development games (D122: development decides)", "counts": counts,

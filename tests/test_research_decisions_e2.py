@@ -154,3 +154,14 @@ def test_source_guards():
             assert any(k in owner for k in ("RESULTS", "out", "target", "rec_path", "work_dir", "gdir", "w ", "folder",
                                             "box", "cf[", "vf[")), owner
     assert "DATA_ROOT\"]) /" not in text.replace("root = Path(os.environ[\"DATA_ROOT\"])", "")
+
+
+def test_completion_label_d123():
+    att = pd.DataFrame({"sportvu_game": ["a", "a", "a", "b", "b"], "completed": [1, 0, 0, 0, 1],
+                        "offense_regains": [False, False, True, False, True],
+                        "possession_turnover": [False, True, True, False, False]})
+    lab = E.completion_label(att)["label"].to_numpy()
+    assert lab[0] == 1 and lab[1] == 0 and np.isnan(lab[2]) and np.isnan(lab[3]) and lab[4] == 1
+    c = E.attempt_counts(E.completion_label(att))
+    assert c["excluded"] == 2 and c["excluded_by_game"] == {"a": 1, "b": 1}
+    assert c["completion_rate"] == pytest.approx(2 / 3)
