@@ -1,7 +1,7 @@
 # gravity-E1: does gravity open shots for teammates?
 
-Written 2026-11-19 (UTC). Stage: **development done, not adopted; Set A not scored** (it waits for the lead's
-decision, PLAN.md D107). Pre-registration: docs/research/gravity.md, "gravity-E1", and its amendment (D107), written
+Written 2026-11-19 (UTC). Stage: **finished as a development result: not adopted; Set A not scored** (PLAN.md
+D109). Pre-registration: docs/research/gravity.md, "gravity-E1", and its amendment (D107), written
 and committed (22928efc) before any code ran. Code: tools/research_gravity.py, committed (8d1b8ee4) before the frame
 pass. Every number below is copied from reports/research/gravity-E1-dev.json.
 
@@ -11,7 +11,9 @@ teammates' gravity sum, the nearest defender at the release is 0.014 ft farther 
 0.102; 62358 attempts in 604 games). The pre-registered effect of 0.2 ft per SD lies above the whole interval. The
 out-of-fold MSE drops by 0.0076 ft squared [-0.0152, -0.0002], below zero but tiny next to a baseline MSE of 16.09.
 The adoption rule needs both, so gravity is not shown to leave teammates more open. In the dossier's words for a
-fail: gravity was tested against teammates' openness and showed no effect of that size.
+fail: gravity was tested against teammates' openness and showed no effect of that size. Set A was not scored
+(PLAN.md D109): under D107 its reading could only stop an adoption, and there is none to stop; at its size it could
+not separate 0.0145 from zero either. The scoring ledger has no gravity-E1 entry.
 
 ## What was tested
 
@@ -59,7 +61,7 @@ statistics of decisions-E1, D86).
 | MSE, candidate (gravity) | 16.0866 [15.1611, 17.0561] |
 | **MSE, candidate minus baseline** | **-0.0076 [-0.0152, -0.0002]** |
 | **effect per SD of teammates' gravity sum (ft)** | **0.0145 [-0.0660, 0.1016]** |
-| effect per SD of teammates' gravity maximum (ft, beside) | 0.1237 [0.0473, 0.1979] |
+| effect per SD of teammates' gravity maximum (ft; beside, read by no rule) | 0.1237 [0.0473, 0.1979] |
 | MSE, ablation (raw mean defender distance instead of gravity) | 16.0910 [15.1677, 17.0604] |
 | ablation, MSE minus baseline | -0.0032 [-0.0089, 0.0023] |
 | ablation, effect per SD of the raw-distance sum (ft) | -0.1107 [-0.1728, -0.0462] |
@@ -79,8 +81,8 @@ Decision (D107): the MSE interval is below zero (yes), and the effect is at leas
 - The test is decisive at the pre-registered size. The effect's whole interval (-0.066 to 0.102) lies below 0.2,
   so an effect of that size is ruled out on 62358 development attempts, not just unseen.
 - The MSE gain is real in sign but very small: 0.0076 ft squared on a baseline of 16.09, about 0.05 percent.
-- The maximum teammate's gravity carries a small partial effect (0.124 ft per SD, interval 0.047 to 0.198). This
-  is a hint that one strong pull matters more than the total, but it is also under 0.2 and reads no rule.
+- Read by no rule: the maximum teammate's gravity carries a small partial effect (0.124 ft per SD, interval 0.047
+  to 0.198). This is a hint that one strong pull matters more than the total, but it is also under 0.2.
 - Location-only xFG with an offset gains nothing from gravity in log loss of make.
 - The ablation's raw closeness behaves differently (its sum's partial slope is negative), so the location
   expectation does change what the measure carries. Neither version opens shots by the pre-registered amount.
@@ -89,9 +91,10 @@ Decision (D107): the MSE interval is below zero (yes), and the effect is at leas
 
 ## Before any score: commitments (Set A, D107)
 
-Development does not adopt, so under D107 the Set A reading cannot change the decision: only "inconsistent" can
-stop an adoption, and there is none to stop. Whether to spend the experiment's single ledger entry on the
-consistency check anyway is the lead's decision. If it runs:
+The test was not scored (PLAN.md D109). Development does not adopt, so under D107 the Set A reading could not change
+the decision: only "inconsistent" can stop an adoption, and there is none to stop. The lead decided not to spend the
+experiment's single ledger entry on it, as for winprob-E2. Set A was not read for gravity-E1, and e1-final was never
+run. The commitments below stay as they were written before that decision, for the record. Had it run:
 
 1. It is scored once through score_once, on a clean tree, recording the commit, the gate files' hashes and the
    development record's hash, with the summary nested under "scored" beside its setup.
