@@ -203,6 +203,11 @@ A1 minus few-shot +0.741 [0.642, 0.840] on scouting and +0.335 [0.296, 0.375] on
 the Haiku cache arm +0.049 [-0.062, 0.160]. The possession texts copy the template (0.992 identical). The 1.5B
 model is a later decision. The pre-registration below is unchanged; its amendments are dated.
 
+**Result, 1.5B (2026-11-18, reports/research/genai-E2-1.5B.md): H1 passes on both kinds; H2 hurts on scouting; H3
+non-inferior; H4 inconclusive.** A1 minus few-shot +0.901 [0.840, 0.963] on scouting and +0.179 [0.150, 0.208] on
+possession; A2 minus A1 on scouting -0.272 [-0.370, -0.173]; A1 with repair minus the Haiku cache arm +0.111 [0.012,
+0.210]. Every possession text copies the template (1.000 identical).
+
 - Question. Can a 0.5B or 1.5B open instruct model, fine-tuned on this Mac, write texts that pass the checker at a
   rate near the API model's, at no spend per text?
 - Models. Qwen2.5-0.5B-Instruct and Qwen2.5-1.5B-Instruct (Apache 2.0 on their Hub pages, not gated: no account or
@@ -307,6 +312,20 @@ model is a later decision. The pre-registration below is unchanged; its amendmen
     batch of 8 full P3 prompts needed about 7 GB for attention and stopped under the cap, 2026-11-17); training
     empties the MPS cache at every optimizer step and saves a checkpoint every 400 examples (the first sft stretch
     stopped under the cap after about 200 examples, 2026-11-18). After them, training memory held at 2.9 to 3.0 GB.
+    A third, for the 1.5B model (2026-11-18, before its first epoch ended): the training loss keeps logits only for
+    the answer tokens (logits_to_keep), the same mean cross-entropy over the same tokens; the full-length float32
+    logits stopped the first 1.5B stretch under the cap after about 400 examples, and it resumes from that
+    checkpoint. The 0.5B run, already scored, used the model's own loss on the same tokens. A fourth, for the 1.5B
+    model's rejection sampling (2026-11-18): candidates are sampled 2 items of 4 at a time (8 sequences), since 8
+    items of 4 stopped it under the cap, and in chunks saved as they finish so a stopped stretch resumes; the 0.5B
+    run sampled 8 items at a time.
+- Amendment for the 1.5B model (2026-11-18, PLAN.md D101, before any 1.5B run): Qwen2.5-1.5B-Instruct at revision
+  989aa798, in bfloat16 as the pilot set (the pre-registration lets the pilot fix the number format); every other
+  setting, split, checker, stage, rule and threshold as for the 0.5B model. Its run folders and texts are kept apart
+  from the 0.5B ones, its dev choices go to reports/research/genai-E2-1.5B-dev.json, its one test score is the
+  ledger entry "genai-E2-1.5B" (resume entry "genai-E2-1.5B-resume", same rule as amendment j), and its result is
+  read and reported on its own: no hypothesis compares the two sizes. The possession targets are still template
+  texts, so a template copy on possessions is expected again and will be reported as such.
 - Decoding for every score: greedy, at most 320 new tokens, one attempt (primary). Secondary: a repair loop as P3's
   (one more attempt with the checker's problems in the prompt, at most 2 in all), which is the fair comparison with
   the Haiku texts as delivered.

@@ -39,7 +39,11 @@ from tools import genai_format as F
 from tools.genai_templates import template_text
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-MODEL = ("Qwen/Qwen2.5-0.5B-Instruct", "7ae557604adf67be50417f59c2c2f167def9a775")
+# The two pre-registered sizes (docs/research/genai.md; the 1.5B amendment, PLAN.md D101): model, revision and the
+# number format the pilot set. set_size() picks one before any stage runs; 0.5B is the default.
+SIZES = {"0.5B": (("Qwen/Qwen2.5-0.5B-Instruct", "7ae557604adf67be50417f59c2c2f167def9a775"), "float32"),
+         "1.5B": (("Qwen/Qwen2.5-1.5B-Instruct", "989aa7980e4cf806f80c7fef2b1adb7bc71aa306"), "bfloat16")}
+MODEL = SIZES["0.5B"][0]
 SIZE = "0.5B"
 EXPERIMENT = f"genai-E2-{SIZE}"
 CHECKERS = {"primary": ("db993008", "41ba991ba22d34c51903593845750fa0cfcdf1dd"),
@@ -54,7 +58,7 @@ P3_BATCH = 1
 SAVE_EVERY = 400          # examples between mid-epoch checkpoints (a crash loses at most this much work)
 FEW_SHOT = 2
 RFT = {"k": 4, "temperature": 0.8, "top_p": 0.95, "keep_per_item": 2, "possession_pool": 800, "round2_gain": 0.03}
-DTYPE = "float32"
+DTYPE = SIZES["0.5B"][1]
 MAX_STRETCH_H = 3.0
 
 
@@ -67,7 +71,7 @@ def run_dir() -> Path:
 
 
 def out_dir() -> Path:
-    return D.data_dir() / "e2"
+    return D.data_dir() / ("e2" if SIZE == "0.5B" else f"e2-{SIZE}")
 
 
 def _save(name: str, record) -> Path:
@@ -288,7 +292,9 @@ def generate(tok, model, items: list, arm: str, sample: bool = False, n: int = 1
     texts, seconds = {}, {}
     model.eval()
     model.config.use_cache = True
-    size = P3_BATCH if arm == "p3" else GEN_BATCH
+    # sampled candidates: GEN_BATCH sequences in all (2 items of 4), since 8 items of 4 stopped the 1.5B model under
+    # the memory cap (2026-11-18); greedy decoding keeps 8 items
+    size = P3_BATCH if arm == "p3" else max(1, GEN_BATCH // n)
     for start in range(0, len(items), size):
         batch = items[start:start + size]
         chats = [tok.apply_chat_template(chat_of(item) if chat_of else messages(item, arm), add_generation_prompt=True,
@@ -350,7 +356,7 @@ def train(tok, model, rows: list, epochs: int, tag: str, deadline: float, dev_it
         t0 = time.perf_counter()
         for k in range(done, len(order)):
             ids, labels = encoded[order[k]]
-            loss = model(input_ids=torch.tensor([ids], device="mps"), labels=torch.tensor([labels], device="mps")).loss
+            loss = answer_loss(model, ids, labels)
             (loss / ACCUM).backward()
             last_loss = float(loss.detach())
             del loss
@@ -385,6 +391,22 @@ def train(tok, model, rows: list, epochs: int, tag: str, deadline: float, dev_it
         if time.perf_counter() > deadline and state["epoch"] < epochs:
             return dict(state, stopped=True)
     return state
+
+
+def answer_loss(model, ids: list, labels: list):
+    """The mean cross-entropy of the answer tokens, as the model's own loss with these labels computes it, but with
+    logits kept only for the answer positions (logits_to_keep). The full-length logits (151,936 words by every
+    position, in float32 for the loss) were the memory peak that stopped the first 1.5B stretch under the cap; the
+    answer is the end of the example, so nothing of the loss changes."""
+    import torch
+    import torch.nn.functional as Fn
+    n_answer = sum(1 for x in labels if x != -100)
+    if n_answer == 0 or any(x != -100 for x in labels[:len(labels) - n_answer]):
+        raise ValueError("the answer must be the end of the example")
+    keep = n_answer + 1
+    logits = model(input_ids=torch.tensor([ids], device="mps"), logits_to_keep=keep).logits
+    target = torch.tensor([ids[len(ids) - n_answer:]], device="mps")
+    return Fn.cross_entropy(logits[:, :-1, :].float().reshape(-1, logits.shape[-1]), target.reshape(-1))
 
 
 def _mean(values) -> float:
@@ -551,7 +573,21 @@ def stage_rft(deadline, round_: int = 1, log=print) -> dict:
     if candidates is None:
         tok, model = load(source)
         pool = rft_pool()
-        found, seconds = generate(tok, model, pool, "compact", sample=True, n=RFT["k"], log=log)
+        # sampled in chunks saved as they finish, so a stopped stretch resumes where it was (a resumed stretch draws
+        # from a new random stream; the counts say how many items each stretch sampled)
+        partial = _load(f"{tag}-candidates-partial.json") or {"found": {}, "seconds": {}, "stretches": []}
+        todo = [item for item in pool if item["key"] not in partial["found"]]
+        partial["stretches"].append(len(todo))
+        for start in range(0, len(todo), 64):
+            if time.perf_counter() > deadline:
+                _save(f"{tag}-candidates-partial.json", partial)
+                log(f"{tag}: stretch deadline while sampling; {len(partial['found'])} of {len(pool)} items saved")
+                return {"stopped": True, "sampled": len(partial["found"])}
+            chunk, secs = generate(tok, model, todo[start:start + 64], "compact", sample=True, n=RFT["k"], log=log)
+            partial["found"].update(chunk)
+            partial["seconds"].update(secs)
+            _save(f"{tag}-candidates-partial.json", partial)
+        found, seconds = partial["found"], partial["seconds"]
         check = checker("primary")
         by_key = {item["key"]: item for item in pool}
         kept = {}
@@ -561,11 +597,15 @@ def stage_rft(deadline, round_: int = 1, log=print) -> dict:
                 if text and not check(text, by_key[key])[0]:
                     good.append(text)
             kept[key] = good[:RFT["keep_per_item"]]
-        candidates = {"kept": kept, "seconds_per_item": _mean(seconds.values()),
+        candidates = {"kept": kept, "seconds_per_item": _mean(seconds.values()), "stretches": partial["stretches"],
                       "pool": len(pool), "items_with_a_pass": sum(bool(v) for v in kept.values()),
                       "kept_texts": sum(len(v) for v in kept.values())}
         _save(cand_name, candidates)
         del model
+        import gc
+        import torch
+        gc.collect()
+        torch.mps.empty_cache()
     tok, model = load(run_dir() / tag / "latest" if (run_dir() / tag / "latest").exists() else source, trainable=True)
     by_key = {item["key"]: item for item in rft_pool()}
     rows = [(by_key[k], t) for k, texts in candidates["kept"].items() for t in texts]
@@ -818,6 +858,14 @@ def summarize(rows: dict, timing: dict, choices: dict, items: list, texts: dict)
 DEV_JSON = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json"
 
 
+def set_size(size: str) -> None:
+    """Point every stage at one model size: its model, number format, run folder, data folder and dev json."""
+    global MODEL, SIZE, EXPERIMENT, DTYPE, DEV_JSON
+    MODEL, DTYPE = SIZES[size]
+    SIZE, EXPERIMENT = size, f"genai-E2-{size}"
+    DEV_JSON = REPO_ROOT / "reports" / "research" / f"{EXPERIMENT}-dev.json"
+
+
 def dev_json_clean() -> str:
     """The sha256 of the committed dev choices; SystemExit unless git tracks the file and it has no change."""
     rel = str(DEV_JSON.relative_to(REPO_ROOT))
@@ -884,9 +932,11 @@ def stage_test(log=print) -> dict:
         box["items"] = _test_items()
         return run_arms(box["items"], choices, "test", log)
 
-    assert EXPERIMENT == "genai-E2-0.5B"
     try:
-        rows, timing, texts = D.score_test_once("genai-E2-0.5B", scorer)
+        if SIZE == "0.5B":
+            rows, timing, texts = D.score_test_once("genai-E2-0.5B", scorer)
+        else:
+            rows, timing, texts = D.score_test_once("genai-E2-1.5B", scorer)
     except BaseException as exc:
         if "items" in box:
             _save("test-crash.json", {"dev_json_sha256": dev_sha, "head": head, "error": type(exc).__name__,
@@ -900,7 +950,7 @@ def stage_test_resume(log=print) -> dict:
     choices; it generates only the arms with no saved rows."""
     crash = _load("test-crash.json")
     if crash is None:
-        raise SystemExit("no crash record of genai-E2-0.5B: the resume entry is refused")
+        raise SystemExit(f"no crash record of {EXPERIMENT}: the resume entry is refused")
     tree_clean()
     dev_sha, head = dev_json_clean(), D.git_head()
     if crash["dev_json_sha256"] != dev_sha or crash["head"] != head:
@@ -912,16 +962,21 @@ def stage_test_resume(log=print) -> dict:
         box["items"] = _test_items()
         return run_arms(box["items"], choices, "test", log, resume=True)
 
-    rows, timing, texts = D.score_test_once("genai-E2-0.5B-resume", scorer)
+    if SIZE == "0.5B":
+        rows, timing, texts = D.score_test_once("genai-E2-0.5B-resume", scorer)
+    else:
+        rows, timing, texts = D.score_test_once("genai-E2-1.5B-resume", scorer)
     return _final(rows, timing, texts, choices, dev_sha, head, box["items"], resume_used=True)
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="genai-E2 on the 0.5B model (docs/research/genai.md)")
+    parser = argparse.ArgumentParser(description="genai-E2 on Qwen2.5 0.5B or 1.5B (docs/research/genai.md)")
     parser.add_argument("stage", choices=("smoke", "a0", "sft", "rft", "rft2", "a3", "choose", "rehearse", "test",
                                           "test-resume"))
     parser.add_argument("--max-hours", type=float, default=MAX_STRETCH_H)
+    parser.add_argument("--size", choices=sorted(SIZES), default="0.5B")
     args = parser.parse_args(argv)
+    set_size(args.size)
     if args.max_hours > MAX_STRETCH_H:
         print(f"a stretch holds the lock for at most {MAX_STRETCH_H} hours", file=sys.stderr)
         return 1

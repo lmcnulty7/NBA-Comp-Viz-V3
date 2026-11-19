@@ -346,7 +346,8 @@ def test_stage_test_calls_score_test_once_once_with_the_experiment_name():
                      and getattr(c.func, "attr", getattr(c.func, "id", None)) == "score_test_once"]
             if calls:
                 found[fn.name] = [c.args[0].value for c in calls]
-    assert found == {"stage_test": ["genai-E2-0.5B"], "stage_test_resume": ["genai-E2-0.5B-resume"]}
+    assert found == {"stage_test": ["genai-E2-0.5B", "genai-E2-1.5B"],
+                     "stage_test_resume": ["genai-E2-0.5B-resume", "genai-E2-1.5B-resume"]}
     loops = [n for n in ast.walk(tree) if isinstance(n, (ast.For, ast.While))
              and any(isinstance(c, ast.Call) and getattr(c.func, "attr", None) == "score_test_once" for c in ast.walk(n))]
     assert not loops
@@ -369,3 +370,15 @@ def test_a_checker_that_raises_fails_the_text_as_other(monkeypatch):
     item = {"names": [], "context": {"name": "A"}, "facts": []}
     row = X.evaluate("Some text.", item, "primary")
     assert row["passed"] is False and row["rules"] == ["other"]
+
+
+def test_each_size_has_its_own_folders_dev_json_and_number_format(monkeypatch):
+    from tools import genai_e2 as X
+    try:
+        X.set_size("1.5B")
+        assert X.MODEL[0].endswith("1.5B-Instruct") and X.DTYPE == "bfloat16" and X.EXPERIMENT == "genai-E2-1.5B"
+        assert X.out_dir().name == "e2-1.5B" and X.run_dir().name == "genai-E2-1.5B"
+        assert X.DEV_JSON.name == "genai-E2-1.5B-dev.json"
+    finally:
+        X.set_size("0.5B")
+    assert X.out_dir().name == "e2" and X.DTYPE == "float32" and X.DEV_JSON.name == "genai-E2-0.5B-dev.json"

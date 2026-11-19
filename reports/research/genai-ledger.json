@@ -20,6 +20,16 @@
     "scouting": "8444dcdb1641b8b2f05ccdde9043ee5f74622e89ffebadcb2dfc325722261b14",
     "possession": "5cc0ba043442bee8106d136c54753d4a076a3c997f12426e6fccbc2ba284c27b"
    }
+  },
+  {
+   "experiment": "genai-E2-1.5B",
+   "started": "2026-11-19T02:38:42Z",
+   "splits_sha256": "16666c924278f940e6ccfb0d45525f10cdf7a86de501531749a9756a7d9b2882",
+   "code_commit": "1c326223bea6dff9f2006d6871c3fafb00bd1a4d",
+   "test_inputs_sha256": {
+    "scouting": "8444dcdb1641b8b2f05ccdde9043ee5f74622e89ffebadcb2dfc325722261b14",
+    "possession": "5cc0ba043442bee8106d136c54753d4a076a3c997f12426e6fccbc2ba284c27b"
+   }
   }
  ]
 }
