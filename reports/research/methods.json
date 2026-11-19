@@ -552,8 +552,10 @@
      "gain": 2,
      "effort": 3,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (the HMM's E1 part (a) gain is smaller, HMM minus Hungarian -0.003156 [-0.003417, -0.002893]; it switches far less, 0.73 against 2.44 per defender-possession); Set A not scored (D114); reports/research/matchups-E2.md",
+     "results": null,
+     "result_in_writeup": true,
+     "writeup": "reports/research/matchups-E2.md"
     }
    ]
   },
