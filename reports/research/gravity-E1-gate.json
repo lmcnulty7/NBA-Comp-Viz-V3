@@ -1,0 +1,32 @@
+{
+  "experiment": "gravity-E1",
+  "name": "gravity",
+  "compared": "the frozen ridge expectation out of fold, rebuilt with the frozen functions on the development games, against the stored gravity_frames (training rows) and gravity_players; the ridge out-of-fold MSE against reports/gravity.md",
+  "games": 604,
+  "rows": 7983660,
+  "keys_equal": true,
+  "folds_equal": true,
+  "expected_ft_max_abs_diff": 0.0,
+  "players": 447,
+  "players_expected": 447,
+  "player_gravity_max_abs_diff": 0.0,
+  "ridge_mse": {
+    "recomputed": 28.11851106534808,
+    "printed": "28.119",
+    "ok": true
+  },
+  "tolerances": {
+    "expected_ft": 0.0001,
+    "player_gravity_ft": 1e-06
+  },
+  "release_rows": 62387,
+  "release_status": {
+    "ok": 62387
+  },
+  "passed": true,
+  "files": {
+    "gravity_frames.parquet": "6a2d21a35e36bbabecb8b0660fdb350bba1510b34d6df6b14d99f72621a3f044",
+    "release_teammates.parquet": "2dcb6e6f086e8e8826777df6b8d6b97ecee692f1db74291cf239abc1ebd247fb"
+  },
+  "written": "2026-11-19T05:29:13Z"
+}

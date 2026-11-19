@@ -646,8 +646,10 @@
      "gain": 3,
      "effort": 2,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: not adopted on development (candidate minus baseline MSE -0.0076 [-0.0152, -0.0002] ft squared; effect per SD of teammates' gravity sum 0.0145 [-0.0660, 0.1016] ft, so the pre-registered 0.2 ft is ruled out; Set A was not scored, PLAN.md D109; reports/research/gravity-E1.md)",
+     "results": null,
+     "writeup": "reports/research/gravity-E1.md",
+     "result_in_writeup": true
     },
     {
      "id": "gravity-E2",
