@@ -104,6 +104,17 @@ out-of-fold predictions only (fold >= 0).
   making his shots worse) and that has passed an out-of-sample test, instead of a table of noise.
 - Backlog: expected gain 4 (turns the lane's failed model into a test that the literature has passed before).
   Effort 3 (new targets and joins to xFG out-of-fold rows; the assignment and folds are reused).
+- Amendment (PLAN.md D108, 2026-11-18, written before any development number): the D71 test set is Set A, 10 games
+  of one date (about 1,530 attempts with a defender at release and about 9,250 attacker-possession rows, about 8
+  attempts per defender), which very likely cannot decide part (b) and is marginal for part (a); the 604
+  development games can decide both. As the shared rule reads ("scored once on the D71 test set after the
+  decision"), the development out-of-fold result decides each part. Before the test score, the projected test
+  half-width from the development per-game variance is reported. Set A is then scored once as a confirmation, read
+  as PLAN.md D80: an interval that straddles zero is "inconclusive at 10 games", not evidence against; an interval
+  wholly on the wrong side is reported as a contradiction and blocks any site defender table for that part. No
+  per-defender claim is made from Set A. On Set A the xFG offset comes from the frozen xFG model refit on the
+  development games (the frozen model never read these games); on development games it is the stored out-of-fold
+  p_selected (fold >= 0).
 
 ### matchups-E2: hidden Markov assignment with fitted weights
 

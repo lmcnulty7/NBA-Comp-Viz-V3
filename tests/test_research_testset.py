@@ -83,6 +83,9 @@ ALLOWED = {"tools/research_ingest.py": TEST_DATA_NAMES,
            # embeddings-E1 imports it from research_xfg and calls it only inside its scorer
            # (tests/test_research_embeddings.py checks that)
            "tools/research_embeddings.py": ("research_data_root",),
+           # matchups-E1 imports the two from research_xfg and calls them only inside its scorer
+           # (tests/test_research_matchups.py checks that)
+           "tools/research_matchups.py": ("research_data_root", "test_features"),
            "tools/research_lineups_e2.py": ("scoring_data_root",),
            # gravity-E1 imports the two from research_xfg and calls them only inside its scorer
            # (tests/test_research_gravity.py checks that)

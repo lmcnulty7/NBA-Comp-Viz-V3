@@ -1,0 +1,282 @@
+{
+  "experiment": "matchups-E1",
+  "code_commit": "219411696f0a5593c259585dd79845060a4483e1",
+  "stage": "development games, out of fold under 5 grouped folds by game (seed 0); no Set A or held-out row read",
+  "gate": {
+    "games": 604,
+    "rows_rebuilt": 1488475,
+    "rows_stored": 1488475,
+    "keys_equal": true,
+    "max_abs_diff": {
+      "partial_possession": 0.0,
+      "points_allowed_share": 0.0,
+      "xfg_expected_share": 0.0,
+      "switches": 0.0
+    },
+    "ridge": {
+      "alpha": 300.0,
+      "fold_alphas": [
+        300.0,
+        300.0,
+        300.0,
+        300.0,
+        300.0
+      ],
+      "oof_mse": {
+        "constant": 1.284225977075565,
+        "raw": 1.3243871307252515,
+        "ridge": 1.2854151285368594
+      },
+      "printed": {
+        "constant": 1.2842,
+        "raw": 1.3244,
+        "ridge": 1.2854,
+        "alpha": 300.0
+      },
+      "printed_equal": true,
+      "defenders_stored": 447,
+      "max_abs_diff_ridge_value": 0.0,
+      "tolerance": 1e-06
+    },
+    "passed": true
+  },
+  "frozen_reference_possession_points": {
+    "what": "the frozen ridge on possession points, refit with frozen code on the development games (the lane's original target), 2000-resample game bootstrap",
+    "mse": {
+      "constant": {
+        "point": 1.284225977075565,
+        "ci95": [
+          1.2774316588779908,
+          1.2905194080908169
+        ]
+      },
+      "raw": {
+        "point": 1.3243871307252515,
+        "ci95": [
+          1.3154957727629206,
+          1.332398550846849
+        ]
+      },
+      "ridge": {
+        "point": 1.2854151285368594,
+        "ci95": [
+          1.278447020993617,
+          1.291773733205739
+        ]
+      }
+    },
+    "ridge_minus_constant": {
+      "point": 0.00118915146129428,
+      "ci95": [
+        0.000172574145012927,
+        0.0021665241628419482
+      ]
+    }
+  },
+  "rows": {
+    "a": {
+      "possessions_with_known_last_shooter": 84594,
+      "possessions_kept": 84381,
+      "possessions_shooter_not_tracked": 213,
+      "rows": 430555
+    },
+    "b": {
+      "attempts": 101725,
+      "with_assigned_defender": 95960,
+      "without_xfg": 422,
+      "rows": 95538
+    }
+  },
+  "part_a": {
+    "part": "a",
+    "rows": 430555,
+    "games": 604,
+    "fold_lambdas": {
+      "defender": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "no_defender": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "log_loss": {
+      "defender": {
+        "point": 0.4594992053722433,
+        "ci95": [
+          0.458357244976205,
+          0.4605936271983699
+        ]
+      },
+      "no_defender": {
+        "point": 0.46352914347216395,
+        "ci95": [
+          0.46243394978342506,
+          0.46456444931171825
+        ]
+      }
+    },
+    "defender_minus_no_defender": {
+      "point": -0.004029938099920661,
+      "ci95": [
+        -0.004314029333140901,
+        -0.003726406756599044
+      ]
+    },
+    "passes": true,
+    "projected_set_a": {
+      "random_10_game_sets_half_width": 0.0023314174341816617,
+      "dev_half_width_scaled": 0.0024115547676584153,
+      "development_games": 604
+    }
+  },
+  "part_b": {
+    "part": "b",
+    "rows": 95538,
+    "games": 604,
+    "fold_lambdas": {
+      "defender": [
+        300.0,
+        300.0,
+        300.0,
+        100.0,
+        100.0
+      ],
+      "no_defender": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "log_loss": {
+      "defender": {
+        "point": 0.6332238561637195,
+        "ci95": [
+          0.6310922053872353,
+          0.6353971503276677
+        ]
+      },
+      "no_defender": {
+        "point": 0.6332265782345147,
+        "ci95": [
+          0.6311258697937494,
+          0.6354092055382692
+        ]
+      }
+    },
+    "defender_minus_no_defender": {
+      "point": -2.7220707951688867e-06,
+      "ci95": [
+        -0.00014027443785245272,
+        0.00012093718538433765
+      ]
+    },
+    "passes": false,
+    "projected_set_a": {
+      "random_10_game_sets_half_width": 0.0010034120832641464,
+      "dev_half_width_scaled": 0.0010363310773144993,
+      "development_games": 604
+    }
+  },
+  "ablation": {
+    "what": "ridge on possession points minus the xFG-expected points of the possession's attempts, the frozen possession design with and without defender columns, nested alpha over the frozen grid",
+    "possessions": 115999,
+    "games": 604,
+    "fold_alphas": {
+      "defender": [
+        300.0,
+        300.0,
+        300.0,
+        300.0,
+        300.0
+      ],
+      "no_defender": [
+        300.0,
+        300.0,
+        300.0,
+        300.0,
+        300.0
+      ]
+    },
+    "mse": {
+      "defender": {
+        "point": 1.3057758196751477,
+        "ci95": [
+          1.2958293935219123,
+          1.3155935786160693
+        ]
+      },
+      "no_defender": {
+        "point": 1.3046740235592498,
+        "ci95": [
+          1.2949662493073404,
+          1.3145036071081895
+        ]
+      }
+    },
+    "defender_minus_no_defender": {
+      "point": 0.0011017961158981894,
+      "ci95": [
+        0.00032636642397658125,
+        0.0018710514656159229
+      ]
+    }
+  },
+  "stability": {
+    "a": {
+      "defenders": 297,
+      "spearman": 0.8668363299235783,
+      "penalty": 1.0,
+      "gate": "300 distinct possessions",
+      "halves": "odd and even development games in date order"
+    },
+    "b": {
+      "defenders": 194,
+      "spearman": 0.165174444165951,
+      "penalty": 300.0,
+      "gate": "100 attempts",
+      "halves": "odd and even development games in date order"
+    }
+  },
+  "test_fit": {
+    "what": "penalties of the final fits on every development game (grouped CV, 5 folds, seed 0)",
+    "lambda_a": 1.0,
+    "curve_a": {
+      "1.0": 0.4594992053722433,
+      "3.0": 0.4603426426016819,
+      "10.0": 0.46188548457490536,
+      "30.0": 0.46454234822851775,
+      "100.0": 0.4695404981833268,
+      "300.0": 0.47564489021262607,
+      "1000.0": 0.4815345973775141,
+      "3000.0": 0.48446677109711245
+    },
+    "lambda_b": 300.0,
+    "curve_b": {
+      "1.0": 0.6357208587450897,
+      "3.0": 0.6352806520639555,
+      "10.0": 0.6345781397589725,
+      "30.0": 0.6338238669773678,
+      "100.0": 0.6332715398567984,
+      "300.0": 0.6331584201795292,
+      "1000.0": 0.6331865729040458,
+      "3000.0": 0.6332106352673847
+    }
+  },
+  "verdict": {
+    "rule": "D108: each part passes when the out-of-fold log loss difference, defender model minus no-defender model, is below zero with its 95 percent interval wholly below zero, on the development games; Set A is a later confirmation read as D80",
+    "part_a_passes": true,
+    "part_b_passes": false
+  },
+  "seconds": 411.9,
+  "peak_gb": 0.96
+}

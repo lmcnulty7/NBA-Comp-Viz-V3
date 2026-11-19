@@ -1,0 +1,169 @@
+{
+  "experiment": "matchups-E1",
+  "code_commit": "bb49534a9f7fd7b8230541477b82024ea6b5a538",
+  "scored": {
+    "experiment": "matchups-E1",
+    "stage": "Set A, scored once as the D108 confirmation",
+    "code_commit": "bb49534a9f7fd7b8230541477b82024ea6b5a538",
+    "dev_code_commit": "8bd3ccfe32610410e95c3b0141c35355dce17c28",
+    "development_verdict": {
+      "rule": "D108: each part passes when the out-of-fold log loss difference, defender model minus no-defender model, is below zero with its 95 percent interval wholly below zero, on the development games; Set A is a later confirmation read as D80",
+      "part_a_passes": true,
+      "part_b_passes": false
+    },
+    "counts": {
+      "games": 10,
+      "matchup_rows": 24835,
+      "attempts": 1677,
+      "a": {
+        "possessions_with_known_last_shooter": 1416,
+        "possessions_kept": 1415,
+        "possessions_shooter_not_tracked": 1,
+        "rows": 7228
+      },
+      "b": {
+        "attempts": 1677,
+        "with_assigned_defender": 1611,
+        "without_xfg": 10,
+        "rows": 1601
+      },
+      "pre_shot_possessions": 1362,
+      "games_with_part_a_rows": 10,
+      "games_with_part_b_rows": 10,
+      "part_b_rows_per_game_min": 139,
+      "defenders_in_part_b_without_a_development_coefficient": 0
+    },
+    "parts": {
+      "a": {
+        "rows": 7228,
+        "games": 10,
+        "log_loss": {
+          "defender": {
+            "point": 0.4608072845346342,
+            "ci95": [
+              0.4518453594487243,
+              0.469298957372563
+            ]
+          },
+          "no_defender": {
+            "point": 0.4680916122396091,
+            "ci95": [
+              0.4596526438810586,
+              0.47631424613219875
+            ]
+          }
+        },
+        "defender_minus_no_defender": {
+          "point": -0.0072843277049751244,
+          "ci95": [
+            -0.009135750975524099,
+            -0.005454329570009283
+          ]
+        },
+        "t_interval_of_game_means": {
+          "games": 10,
+          "mean_of_game_means": -0.007284593743553253,
+          "lo": -0.009677968583862861,
+          "hi": -0.004891218903243644
+        },
+        "reading": "confirms (interval wholly below zero)"
+      },
+      "b": {
+        "rows": 1601,
+        "games": 10,
+        "log_loss": {
+          "defender": {
+            "point": 0.646157993539164,
+            "ci95": [
+              0.6310041660949259,
+              0.6618500517571367
+            ]
+          },
+          "no_defender": {
+            "point": 0.6462804859257443,
+            "ci95": [
+              0.6312915444205386,
+              0.6617746935344297
+            ]
+          }
+        },
+        "defender_minus_no_defender": {
+          "point": -0.00012249238658024428,
+          "ci95": [
+            -0.0005210061294951994,
+            0.0002946074370572278
+          ]
+        },
+        "t_interval_of_game_means": {
+          "games": 10,
+          "mean_of_game_means": -0.0001203688938566436,
+          "lo": -0.000632592284883584,
+          "hi": 0.00039185449717029687
+        },
+        "reading": "inconclusive at 10 games (the interval straddles zero; not evidence against)"
+      },
+      "a_pre_shot_context": {
+        "rows": 6955,
+        "games": 10,
+        "log_loss": {
+          "defender": {
+            "point": 0.46359628515454976,
+            "ci95": [
+              0.45508403761390565,
+              0.47138789316769386
+            ]
+          },
+          "no_defender": {
+            "point": 0.4671212224136825,
+            "ci95": [
+              0.4590518326324691,
+              0.4746913118682188
+            ]
+          }
+        },
+        "defender_minus_no_defender": {
+          "point": -0.0035249372591326647,
+          "ci95": [
+            -0.004867430927296159,
+            -0.002326458217634046
+          ]
+        },
+        "t_interval_of_game_means": {
+          "games": 10,
+          "mean_of_game_means": -0.0035166726726242013,
+          "lo": -0.005175804079450151,
+          "hi": -0.0018575412657982516
+        },
+        "reading": "context, reads no verdict"
+      }
+    }
+  },
+  "setup": {
+    "gate": {
+      "games": 604,
+      "rows_rebuilt": 1488475,
+      "keys_equal": true,
+      "passed": true
+    },
+    "lambdas": {
+      "a": 0.037037037037037035,
+      "a0": 0.1111111111111111,
+      "b": 300.0,
+      "b0": 0.0,
+      "p": 0.1111111111111111,
+      "p0": 0.1111111111111111
+    },
+    "projected_set_a": {
+      "a": {
+        "random_10_game_sets_half_width": 0.0026312974234640636,
+        "dev_half_width_scaled": 0.0027289062309615204,
+        "development_games": 604
+      },
+      "b": {
+        "random_10_game_sets_half_width": 0.0010034120832641464,
+        "dev_half_width_scaled": 0.0010363310773144993,
+        "development_games": 604
+      }
+    }
+  }
+}
