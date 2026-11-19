@@ -10,6 +10,8 @@ export interface StoryMedia {
   clip: string | null;
   /** The still URL, when the still is part of this build. */
   still: string | null;
+  /** The same still as a WebP, when this build holds one: shown where the browser takes WebP, the JPEG elsewhere. */
+  stillWebp?: string | null;
   width: number;
   height: number;
 }
@@ -83,7 +85,7 @@ export function MediaFrame({ media, boxes, outlineUnmatched = false, moving = fa
           ref={video}
           className={styles.picture}
           src={media.clip ?? undefined}
-          poster={media.still ?? undefined}
+          poster={media.stillWebp ?? media.still ?? undefined}
           muted
           loop
           playsInline
@@ -95,9 +97,12 @@ export function MediaFrame({ media, boxes, outlineUnmatched = false, moving = fa
           }}
         />
       ) : media.still ? (
-        // A plain img: the still is a static file of the export, and next/image would add nothing here.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className={styles.picture} src={media.still} alt={copy.home.ui.stillAlt} width={media.width} height={media.height} />
+        // A plain picture: the still is a static file of the export (a WebP where the browser takes it, the JPEG
+        // elsewhere), and next/image would add nothing here.
+        <picture>
+          {media.stillWebp ? <source srcSet={media.stillWebp} type="image/webp" /> : null}
+          <img className={styles.picture} src={media.still} alt={copy.home.ui.stillAlt} width={media.width} height={media.height} />
+        </picture>
       ) : (
         <p className={styles.noPicture}>{copy.home.ui.noStill}</p>
       )}

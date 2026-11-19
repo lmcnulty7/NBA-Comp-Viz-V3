@@ -949,7 +949,14 @@ def test_clips_and_stills_are_cut_where_the_boxes_are(tmp_path, monkeypatch):
         assert seen["duration_s"] == pytest.approx(scene.duration_s, abs=1 / FPS) and seen["duration_s"] <= B.CLIP_CAP_S
         assert seen["frames"] == round(scene.duration_s * FPS) and B.index_first(clip)
         assert still.read_bytes()[:2] == b"\xff\xd8" and cv2.imread(str(still)).shape[:2] == (scene.height, scene.width)
+        webp = still.with_suffix(".webp")                        # the WebP beside it (D116)
+        assert webp.read_bytes()[:4] == b"RIFF" and webp.read_bytes()[8:12] == b"WEBP"
+        assert cv2.imread(str(webp)).shape[:2] == (scene.height, scene.width)
+        assert not list(fx["stills"].glob(".*.png"))             # the lossless cut is not left behind
         measured = check["scenes"][scene.id]
+        assert measured["still_webp_bytes"] == webp.stat().st_size
+        for key in ("still_mean_abs_diff_by_shift", "still_webp_mean_abs_diff_by_shift"):
+            assert min(measured[key], key=measured[key].get) == "0"
         assert measured["passed"] and measured["problems"] == []
         assert min(measured["cut_mean_abs_diff_by_shift"], key=measured["cut_mean_abs_diff_by_shift"].get) == "0"
         motion = measured["motion_inside_minus_around_by_shift"]

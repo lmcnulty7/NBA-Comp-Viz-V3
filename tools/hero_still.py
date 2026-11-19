@@ -26,7 +26,8 @@ The rule, fixed before any measurement and not changed after it:
         --media-check ARTIFACTS/demo/media_check.json --stills web/public/stills --work SCRATCH
         --out reports/hero_still.json [--write]
 
-It reads the window clips and the stills, and writes only into --work, --out and (with --write) --stills. Nothing
+It reads the window clips and the stills, and writes only into --work, --out and (with --write) --stills, where the
+bridge's cut_still writes each JPEG again and the WebP beside it. Nothing
 here fits, tunes or scores a model; the floor and the candidates are fixed above.
 """
 
@@ -192,21 +193,26 @@ def main(argv=None) -> int:
     }
     choice = decision["choice"]
     if args.write and choice is not None:
-        if choice["kind"] == "pillow-webp":
-            raise SystemExit("the rule chose WebP: the bridge, the data and the page must change first; nothing written")
+        # The bridge writes the JPEG as before and the chosen WebP beside it (export/demo_bridge.cut_still).
+        if choice["kind"] != "pillow-webp" or choice["quality"] != B.STILL_WEBP_QUALITY:
+            raise SystemExit(f"the bridge writes WebP at {B.STILL_WEBP_QUALITY}, not the choice {choice['kind']} "
+                             f"{choice['quality']}: change the bridge first; nothing written")
         written = {}
         for sid, f in result["found"].items():
             target = f["target"]
             B.cut_still(f["clip"], target, f["frame"])
-            written[sid] = {"bytes": target.stat().st_size,
-                            "ssim_vs_committed": round(ssim(luma(target), luma(f["committed"])), 5),
-                            "ssim_vs_source": round(ssim(luma(target), luma(f["png"])), 5),
-                            "alignment_by_shift": alignment(f["clip"], target, f["frame"], work)}
-            shifts = written[sid]["alignment_by_shift"]
+            webp = target.with_suffix(".webp")
+            written[sid] = {"jpeg_bytes": target.stat().st_size,
+                            "jpeg_same_as_committed": target.read_bytes() == f["committed"].read_bytes(),
+                            "webp_bytes": webp.stat().st_size,
+                            "webp_ssim_vs_committed": round(ssim(luma(webp), luma(f["committed"])), 5),
+                            "webp_ssim_vs_source": round(ssim(luma(webp), luma(f["png"])), 5),
+                            "webp_alignment_by_shift": alignment(f["clip"], webp, f["frame"], work)}
+            shifts = written[sid]["webp_alignment_by_shift"]
             if min(shifts, key=shifts.get) != "0":
-                raise SystemExit(f"{sid}: the written still is not nearest its own source frame: {shifts}")
-            if written[sid]["ssim_vs_committed"] < SSIM_FLOOR:
-                raise SystemExit(f"{sid}: the written still is under the floor: {written[sid]['ssim_vs_committed']}")
+                raise SystemExit(f"{sid}: the WebP still is not nearest its own source frame: {shifts}")
+            if written[sid]["webp_ssim_vs_committed"] < SSIM_FLOOR:
+                raise SystemExit(f"{sid}: the WebP still is under the floor: {written[sid]['webp_ssim_vs_committed']}")
         record["written"] = written
     Path(args.out).write_text(json.dumps(record, indent=2) + "\n")
     print(json.dumps({"choice": choice and {k: choice[k] for k in ("kind", "quality", "total_bytes", "hero_bytes",
