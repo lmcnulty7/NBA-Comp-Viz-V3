@@ -537,8 +537,10 @@
      "gain": 4,
      "effort": 3,
      "test_data": "Set A",
-     "backlog_status": "proposed",
-     "results": null
+     "backlog_status": "done: part (a) passes and Set A confirms (who shoots, defender minus no defender -0.004574 [-0.004904, -0.004230] on development, -0.007284 [-0.009136, -0.005454] on Set A; about half from frames at and after the release, and confounded by role, so not defensive skill); part (b) fails (make given xFG, -0.000003 [-0.000140, +0.000121]; Set A inconclusive at 10 games); no site table; reports/research/matchups-E1.md",
+     "results": null,
+     "result_in_writeup": true,
+     "writeup": "reports/research/matchups-E1.md"
     },
     {
      "id": "matchups-E2",

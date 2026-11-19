@@ -1,17 +1,26 @@
 # matchups-E1: split the outcome into shot frequency and shot efficiency
 
-Draft written 2026-11-18, before the Set A score. Pre-registration: docs/research/matchups.md, section 6,
+Written 2026-11-18 and 2026-11-19. Everything above the section "Set A" was committed before the score (last at
+bb49534a); only this sentence, the verdict line and that section were written after it. Pre-registration: docs/research/matchups.md, section 6,
 "matchups-E1", with its D108 amendment (PLAN.md D106, D108, D110). Scoring code: tools/research_matchups.py; the
 development numbers come from commit 8bd3ccfe (recorded in the dev json as code_commit). The pre-score review fixes
 (commit e2901a40) changed only the gate check, the Set A readings, the scorer's xFG loading and the dry run, none of the
 code that made the development numbers. Every number below is copied from reports/research/matchups-E1-dev.json,
 except where marked: the frozen lane's numbers are from reports/matchups.md, the first development run's numbers
 (item 6) from reports/research/matchups-E1-dev-first-run.json, and the dry run's counts from its printed output.
-Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with both models of a
-part paired on the same resampled games.
+The Set A numbers are copied from reports/research/matchups-E1-final.json; the single
+score is the matchups-E1 entry of reports/research/scoring_ledger.json, whose sportvu_2015_16_untouched entries
+list every use of Set A (on this branch before this score: xfg-E1 and embeddings-E1). Intervals are 95 percent percentile intervals of a 2000-resample bootstrap of games (seed 0), with both
+models of a part paired on the same resampled games.
 
-**Verdict: development decided (D108); Set A not scored yet.** Part (a), who takes the shot: passes on the
-development games. Part (b), make given xFG: fails on the development games.
+**Verdict: part (a) passes and Set A confirms it; part (b) fails, and Set A is inconclusive at 10 games (D108).**
+Part (a), who takes the possession's last shot: defender identity adds out-of-sample information, -0.004574
+[-0.004904, -0.004230] nats per attacker row on the development games and -0.007284 [-0.009136, -0.005454] on Set A.
+Part (b), make given xFG: no defender information beyond xFG, -0.000003 [-0.000140, +0.000121] on development and
+-0.000122 [-0.000521, +0.000295] on Set A. Beside part (a), as committed: about half of it comes from frames at and
+after the release (the pre-shot context keeps -0.003525 of -0.007284 on Set A), and it is confounded by role
+(opponents put their best defender on the first option), so it is not defensive skill and not proof that a defender
+keeps his man from shooting. The lane's original target, possession points, still shows no defender signal.
 
 ## What is tested
 
@@ -125,6 +134,32 @@ signal for either.
    roster, if any test game gives no rows to either part, or if any value is non-finite; a refusal is reported as
    such, never as a fail.
 
-## Set A
+## Set A (the 10 untouched games of 2015-12-05, scored once)
 
-Not scored yet.
+The models are those fixed above, fitted on every development game (penalties: part (a) 0.037 with defenders and
+0.111 without, part (b) 300, the pre-shot context 0.111 for both). The frozen xFG model was loaded before the score.
+
+- Coverage: 10 games, 24,835 matchup rows, 1,677 attempts. Part (a): 1,416 possessions with a known last shooter,
+  1,415 kept (1 shooter not tracked), 7,228 attacker rows. Part (b): 1,611 attempts with an assigned defender, 10
+  without an xFG value, 1,601 rows (at least 139 a game); every defender in them has a development coefficient. Every
+  game gave rows to both parts; no value was non-finite; nothing was refused.
+
+| Part | Rows | Log loss, defender model | Log loss, no defender | Defender minus no defender | t interval, 10 game means | Reading |
+| --- | --- | --- | --- | --- | --- | --- |
+| (a) who shoots | 7,228 | 0.46081 [0.45185, 0.46930] | 0.46809 [0.45965, 0.47631] | -0.007284 [-0.009136, -0.005454] | -0.007285 [-0.009678, -0.004891] | confirms |
+| (b) make given xFG | 1,601 | 0.64616 [0.63100, 0.66185] | 0.64628 [0.63129, 0.66177] | -0.000122 [-0.000521, +0.000295] | -0.000120 [-0.000633, +0.000392] | inconclusive at 10 games |
+
+- Part (a): the interval lies wholly below zero, so Set A confirms the development pass. The t interval on the 10
+  per-game means agrees. The Set A difference is larger than the development one (-0.007284 against -0.004574); with
+  10 games and a projected half-width of about 0.0026, the two are not far apart.
+- Part (b): the interval straddles zero: inconclusive at 10 games, as projected (half-width about 0.0010). It does not
+  change the development fail.
+- Context, reads no verdict: part (a) with pre-shot shares only (1,362 possessions, 6,955 rows): -0.003525 [-0.004867,
+  -0.002326] (t interval -0.003517 [-0.005176, -0.001858]). As on the development games, about half of the part (a)
+  gain survives when frames at and after the release are left out.
+- No per-defender claim is made from Set A.
+
+What this means for the lane. The frozen verdict, no defender signal in possession points, stands (the reference and
+the ablation both confirm it). Split into its parts, defense shows up in who takes the shot, partly through who
+guards whom at the shot and partly through role, and not, beyond xFG, in whether the shot goes in. No site defender
+table follows from this; any future one needs its own D line and shows the pre-shot number beside the primary one.
