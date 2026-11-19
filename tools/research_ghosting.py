@@ -532,6 +532,51 @@ def dev(artifacts=None) -> dict:
     return {"gate_passed": gate_rec["passed"], "decision": decision}
 
 
+def fold_record(wd: Path, k: int) -> dict:
+    """A fold's record. Fold 0 was rescored with its saved weights (the gate fix), so its training epochs live in the
+    first run's record, moved aside to fold0/superseded_gate_bug/."""
+    rec = json.loads((wd / f"fold{k}" / "fold.json").read_text())
+    if not rec["nets"]["rollout"]["epochs"]:
+        rec = {**rec, "epochs_from": f"fold{k}/superseded_gate_bug/fold.json",
+               "nets": json.loads((wd / f"fold{k}" / "superseded_gate_bug" / "fold.json").read_text())["nets"]}
+    return rec
+
+
+def fold_description(artifacts=None) -> dict:
+    """Pre-score description (PLAN.md D115), read by no rule: per fold, the 1.0 s pooled mean error of each model,
+    the rollout-minus-stand-in difference with the SD of its per-game values, the differences against constant
+    velocity and the one-step net, and the final-epoch training losses; the expected Set A half-width from those
+    SDs (1.96 x SD / sqrt(10))."""
+    import numpy as np
+    import pandas as pd
+    wd = work_dir(artifacts)
+    folds_out = []
+    for k in range(FOLDS):
+        S = pd.read_parquet(wd / f"fold{k}" / "summaries.parquet")
+        d = S[S["horizon_s"] == 1.0]
+        mean = {c: float(d["sum_" + c].sum() / d["n_" + c].sum()) for c in CANDS}
+        per_game = (d["sum_rollout"] / d["n_rollout"] - d["sum_mlp"] / d["n_mlp"]).to_numpy()
+        rec = fold_record(wd, k)
+        folds_out.append({"fold": k, "games": int(len(d)), "mean_error_1s": mean,
+                          "rollout_minus_mlp": mean["rollout"] - mean["mlp"],
+                          "rollout_minus_constant_velocity": mean["rollout"] - mean["constant_velocity"],
+                          "rollout_minus_onestep": mean["rollout"] - mean["onestep"],
+                          "per_game_sd_rollout_minus_mlp": float(np.std(per_game, ddof=1)),
+                          "final_epoch_loss": {o: rec["nets"][o]["epochs"][-1]["mean_loss"] for o in ("onestep", "rollout")},
+                          "epochs_from": rec.get("epochs_from", f"fold{k}/fold.json")})
+    sds = [f["per_game_sd_rollout_minus_mlp"] for f in folds_out]
+    losses = [f["final_epoch_loss"]["rollout"] for f in folds_out]
+    out = {"experiment": EXPERIMENT, "stage": "pre-score description (PLAN.md D115), development folds only; read by no rule",
+           "folds": folds_out,
+           "expected_set_a_half_width_1s": {"from_sd_min": 1.96 * min(sds) / math.sqrt(10),
+                                            "from_sd_max": 1.96 * max(sds) / math.sqrt(10),
+                                            "formula": "1.96 x per-game SD / sqrt(10), normal approximation"},
+           "rollout_final_epoch_loss_range": [min(losses), max(losses)]}
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    (RESULTS / f"{EXPERIMENT}-folds.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    return out
+
+
 # ----------------------------------------------------------------------------- Set A (D113), on the lead's go
 
 def non_finite(value, path: str = "") -> list:
@@ -636,6 +681,10 @@ def make_scorer(preds: dict, dev_diff: float, artifacts=None, provenance: dict =
             return {**head, **refused(f"{len(set(empty))} test game(s) have no 1.0 s origin",
                                       games_without_origins=sorted(set(empty)))}
         S = pd.DataFrame(rows)
+        uneven = S[(S["n_mlp"] != S["rows"]) | (S["n_rollout"] != S["rows"])]
+        if len(uneven):
+            return {**head, **refused(f"{len(uneven)} game-horizon(s) where the two ghosts do not cover the same "
+                                      "origins", uneven=uneven[["sportvu_game", "horizon_s"]].astype(str).values.tolist())}
         out = {"games": len(games)}
         for h in (0.2, 1.0):
             d = S[S["horizon_s"] == h].reset_index(drop=True)
@@ -644,10 +693,12 @@ def make_scorer(preds: dict, dev_diff: float, artifacts=None, provenance: dict =
             out[str(h)] = {"rows": int(d["rows"].sum()), "mlp": float(d["sum_mlp"].sum() / d["n_mlp"].sum()),
                            "rollout": float(d["sum_rollout"].sum() / d["n_rollout"].sum()),
                            "rollout_minus_mlp": pair,
-                           "pre_score_sensitivity_t": per_game_t(per_game)}
+                           "report_only_t": per_game_t(per_game)}
         p1 = out["1.0"]["rollout_minus_mlp"]
         out["development_estimate_1s"] = dev_diff
         out["reading"] = reading(dev_diff, p1["lo"], p1["hi"])
+        out["report_only_size_reading"] = {"rule": f"the 1.0 s interval's upper end below {DIFF_1S} ft (D115)",
+                                           "upper_end": p1["hi"], "below": bool(p1["hi"] < DIFF_1S)}
         bad = non_finite(out)
         if bad:
             return {**head, **refused(f"{len(bad)} non-finite value(s) in the summary, for example {bad[0]}",
@@ -655,6 +706,28 @@ def make_scorer(preds: dict, dev_diff: float, artifacts=None, provenance: dict =
         return {**head, **out}
 
     return scorer
+
+
+def refit_problems(stand_in, rollout: dict, folds_desc: dict) -> list:
+    """Why the all-development refit may not be scored (PLAN.md D115): a non-finite weight in the stand-in or the
+    rollout network, or a final-epoch rollout loss outside the folds' range. Refuse only; never retrain to fit."""
+    import numpy as np
+    problems = []
+    models = [c.cell_contents for c in (stand_in.__closure__ or ()) if hasattr(c.cell_contents, "coefs_")]
+    if len(models) != 1:
+        problems.append("the stand-in's fitted network was not found")
+    elif not all(np.isfinite(w).all() for w in models[0].coefs_ + models[0].intercepts_):
+        problems.append("a stand-in weight is not finite")
+    if not all(np.isfinite(p.detach().cpu().numpy()).all() for p in rollout["net"].parameters()):
+        problems.append("a rollout weight is not finite")
+    epochs = rollout.get("epochs") or []
+    lo, hi = folds_desc["rollout_final_epoch_loss_range"]
+    if not epochs:
+        problems.append("the rollout's final-epoch loss is not recorded")
+    elif not lo <= epochs[-1]["mean_loss"] <= hi:
+        problems.append(f"the rollout's final-epoch loss {epochs[-1]['mean_loss']:.4f} is outside the folds' "
+                        f"range [{lo:.4f}, {hi:.4f}]")
+    return problems
 
 
 def clean_head() -> str:
@@ -679,7 +752,7 @@ def final(artifacts=None) -> dict:
     _, T, _ = _frozen()
     dev_path = RESULTS / f"{EXPERIMENT}-dev.json"
     gate_path = RESULTS / f"{EXPERIMENT}-gate.json"
-    if not dev_path.exists() or not gate_path.exists():
+    if not dev_path.exists() or not gate_path.exists() or not (RESULTS / f"{EXPERIMENT}-folds.json").exists():
         raise SystemExit(f"{WHO}: run e1-dev first; the test set is scored after the development result exists")
     dev_out = json.loads(dev_path.read_text())
     if not dev_out["gate"]["passed"]:
@@ -718,6 +791,9 @@ def final(artifacts=None) -> dict:
     gc.collect()
     mm_path.unlink()
     rollout = train_net(rows_of, games, sc.mean_.astype(np.float32), sc.scale_.astype(np.float32), "rollout", folder)
+    problems = refit_problems(stand_in, rollout, json.loads((RESULTS / f"{EXPERIMENT}-folds.json").read_text()))
+    if problems:                                     # refuse only; never retrain to fit (D115)
+        raise SystemExit(f"{WHO}: the refit is refused before any score: {problems}")
     preds = predictors(stand_in, rollout["net"], rollout["net"])
     dev_diff = float(dev_out["paired_ft"]["1.0"]["rollout_minus_mlp"]["diff"])
     provenance = {"code_commit": head, "gate_sha256": _sha256(gate_path), "dev_json_sha256": _sha256(dev_path),
@@ -736,7 +812,7 @@ def final(artifacts=None) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev", "e1-final"))
+    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev", "e1-folds", "e1-final"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--fold", type=int, default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
@@ -750,6 +826,8 @@ def main(argv=None) -> int:
             out = run_fold(a.fold, a.artifacts)
         elif a.command == "e1-dev":
             out = dev(a.artifacts)
+        elif a.command == "e1-folds":
+            out = fold_description(a.artifacts)
         else:
             out = final(a.artifacts)
             out = {"reading": out.get("reading"), "verdict": out.get("verdict")}

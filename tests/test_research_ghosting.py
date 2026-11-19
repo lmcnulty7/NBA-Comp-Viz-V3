@@ -253,7 +253,7 @@ def test_the_scorer_runs_through_score_once_on_a_synthetic_root(tmp_path, monkey
     json.dumps(out, allow_nan=False)
     assert "verdict" not in out, out.get("verdict")
     assert out["games"] == len(games) and out["reading"] in ("confirms", "consistent", "inconsistent")
-    assert out["1.0"]["rows"] > 0 and "pre_score_sensitivity_t" in out["1.0"]
+    assert out["1.0"]["rows"] > 0 and "report_only_t" in out["1.0"]
     assert json.loads(ledger.read_text())[0]["status"] == "scored"
     with pytest.raises(SystemExit):
         G.make_scorer(preds, -1.3)(games)                   # outside score_once the test data is refused
@@ -269,3 +269,28 @@ def test_the_scorer_refuses_a_test_game_without_possessions(tmp_path, monkeypatc
                        testset_path=testset, ledger_path=ledger)
     assert out["verdict"]["refused"] and out["missing"] == {games[0]: ["possessions"]}
     json.dumps(out, allow_nan=False)
+
+
+
+def test_the_refit_is_refused_on_a_non_finite_weight_or_a_loss_outside_the_folds_range():
+    from sklearn.neural_network import MLPRegressor
+    rng = np.random.default_rng(0)
+    m = MLPRegressor(hidden_layer_sizes=(4,), max_iter=5, random_state=0).fit(rng.random((50, 3)), rng.random((50, 2)))
+    stand_in = (lambda mm: (lambda W: mm.predict(W)))(m)
+    net = small_net()
+    desc = {"rollout_final_epoch_loss_range": [7.68, 7.81]}
+    ok = {"net": net, "epochs": [{"mean_loss": 7.75}]}
+    assert G.refit_problems(stand_in, ok, desc) == []
+    assert "outside" in G.refit_problems(stand_in, {"net": net, "epochs": [{"mean_loss": 7.9}]}, desc)[0]
+    assert "not recorded" in G.refit_problems(stand_in, {"net": net, "epochs": []}, desc)[0]
+    with torch.no_grad():
+        next(net.parameters())[0, 0] = float("nan")
+    assert any("rollout weight" in x for x in G.refit_problems(stand_in, ok, desc))
+    m.coefs_[0][0, 0] = np.inf
+    assert any("stand-in weight" in x for x in G.refit_problems(stand_in, ok, desc))
+
+
+def test_the_scorer_refuses_ghosts_that_do_not_cover_the_same_origins():
+    text = SOURCE.read_text()
+    assert '(S["n_mlp"] != S["rows"]) | (S["n_rollout"] != S["rows"])' in text
+    assert "report_only_size_reading" in text and "pre_score_sensitivity" not in text
