@@ -3,6 +3,7 @@ roll_forward on fixture games, the torch feature function against the frozen one
 module's source. No real data, no held-out game, no test game."""
 
 import ast
+import json
 from pathlib import Path
 
 import numpy as np
@@ -281,7 +282,8 @@ def test_the_refit_is_refused_on_a_non_finite_weight_or_a_loss_outside_the_folds
     desc = {"rollout_final_epoch_loss_range": [7.68, 7.81]}
     ok = {"net": net, "epochs": [{"mean_loss": 7.75}]}
     assert G.refit_problems(stand_in, ok, desc) == []
-    assert "outside" in G.refit_problems(stand_in, {"net": net, "epochs": [{"mean_loss": 7.9}]}, desc)[0]
+    assert "above" in G.refit_problems(stand_in, {"net": net, "epochs": [{"mean_loss": 7.9}]}, desc)[0]
+    assert G.refit_problems(stand_in, {"net": net, "epochs": [{"mean_loss": 7.6810}]}, desc) == []   # D119: one-sided
     assert "not recorded" in G.refit_problems(stand_in, {"net": net, "epochs": []}, desc)[0]
     with torch.no_grad():
         next(net.parameters())[0, 0] = float("nan")
@@ -294,3 +296,21 @@ def test_the_scorer_refuses_ghosts_that_do_not_cover_the_same_origins():
     text = SOURCE.read_text()
     assert '(S["n_mlp"] != S["rows"]) | (S["n_rollout"] != S["rows"])' in text
     assert "report_only_size_reading" in text and "pre_score_sensitivity" not in text
+
+
+
+def test_the_saved_refit_epochs_are_transcribed_from_its_log_whole(tmp_path):
+    lines = [f"[research] rollout epoch {e}/10 h={h} loss {7 + e / 100:.4f} {20 + e}.0 s"
+             for e, h in zip(range(1, 11), G.HORIZON_BY_EPOCH)]
+    log = tmp_path / "run.log"
+    log.write_text("noise\n" + "\n".join(lines) + "\n[heavy] done\n")
+    out = json.loads(G.record_epochs_from_log(log, tmp_path).read_text())
+    assert [r["epoch"] for r in out["epochs"]] == list(range(1, 11)) and out["epochs"][-1]["mean_loss"] == 7.10
+    log.write_text("\n".join(lines[:9]))
+    with pytest.raises(SystemExit):
+        G.record_epochs_from_log(log, tmp_path)
+
+
+def test_final_scores_the_saved_rollout_refit_and_never_retrains_it():
+    text = ast.unparse(next(n for n in _tree().body if isinstance(n, ast.FunctionDef) and n.name == "final"))
+    assert "rollout_epoch{EPOCHS}.pt" in text and "never retrains" in text and "stand_in.pkl" in text

@@ -721,13 +721,30 @@ def refit_problems(stand_in, rollout: dict, folds_desc: dict) -> list:
     if not all(np.isfinite(p.detach().cpu().numpy()).all() for p in rollout["net"].parameters()):
         problems.append("a rollout weight is not finite")
     epochs = rollout.get("epochs") or []
-    lo, hi = folds_desc["rollout_final_epoch_loss_range"]
+    hi = folds_desc["rollout_final_epoch_loss_range"][1]
     if not epochs:
         problems.append("the rollout's final-epoch loss is not recorded")
-    elif not lo <= epochs[-1]["mean_loss"] <= hi:
-        problems.append(f"the rollout's final-epoch loss {epochs[-1]['mean_loss']:.4f} is outside the folds' "
-                        f"range [{lo:.4f}, {hi:.4f}]")
+    elif not epochs[-1]["mean_loss"] <= hi:              # one-sided since D119: a diverged loss, not a lower one
+        problems.append(f"the rollout's final-epoch loss {epochs[-1]['mean_loss']:.4f} is above the folds' "
+                        f"maximum {hi:.4f}")
     return problems
+
+
+def record_epochs_from_log(log: Path, folder: Path) -> Path:
+    """PLAN.md D119: the saved all-development refit's epoch losses, transcribed from the log of the run that trained it
+    (the refused e1-final run; train_net returns them only to the run that trains). Written once beside the weights,
+    as rollout_epochs.json, with the log's hash."""
+    import re
+    rows = [{"epoch": int(m.group(1)), "horizon": int(m.group(2)), "mean_loss": float(m.group(3)),
+             "seconds": float(m.group(4))}
+            for m in re.finditer(r"\[research\] rollout epoch (\d+)/\d+ h=(\d+) loss ([0-9.]+) ([0-9.]+) s",
+                                 log.read_text())]
+    if [r["epoch"] for r in rows] != list(range(1, EPOCHS + 1)):
+        raise SystemExit(f"{WHO}: the log does not hold exactly one record of each of the {EPOCHS} epochs")
+    out = folder / "rollout_epochs.json"
+    out.write_text(json.dumps({"source_log": log.name, "source_log_sha256": _sha256(log), "epochs": rows}, indent=2)
+                   + "\n")
+    return out
 
 
 def clean_head() -> str:
@@ -790,14 +807,26 @@ def final(artifacts=None) -> dict:
     del frame, X
     gc.collect()
     mm_path.unlink()
+    import pickle
+    models = [c.cell_contents for c in (stand_in.__closure__ or ())]
+    with open(folder / "stand_in.pkl", "wb") as fh:                 # the deterministic stand-in refit, kept this time
+        pickle.dump(models, fh)
+    if not (folder / f"rollout_epoch{EPOCHS}.pt").exists() or not (folder / "rollout_epochs.json").exists():
+        raise SystemExit(f"{WHO}: the saved all-development rollout refit or its epoch record is missing; "
+                         "D119 scores the saved refit and never retrains it")
     rollout = train_net(rows_of, games, sc.mean_.astype(np.float32), sc.scale_.astype(np.float32), "rollout", folder)
+    rollout["epochs"] = json.loads((folder / "rollout_epochs.json").read_text())["epochs"]
     problems = refit_problems(stand_in, rollout, json.loads((RESULTS / f"{EXPERIMENT}-folds.json").read_text()))
     if problems:                                     # refuse only; never retrain to fit (D115)
         raise SystemExit(f"{WHO}: the refit is refused before any score: {problems}")
     preds = predictors(stand_in, rollout["net"], rollout["net"])
     dev_diff = float(dev_out["paired_ft"]["1.0"]["rollout_minus_mlp"]["diff"])
     provenance = {"code_commit": head, "gate_sha256": _sha256(gate_path), "dev_json_sha256": _sha256(dev_path),
-                  "rollout_weights_sha256": rollout["weights_sha256"], "fit_rows": int(n)}
+                  "rollout_weights_sha256": rollout["weights_sha256"],
+                  "stand_in_pickle_sha256": _sha256(folder / "stand_in.pkl"),
+                  "rollout_epochs_sha256": _sha256(folder / "rollout_epochs.json"),
+                  "rollout_final_epoch_loss": rollout["epochs"][-1]["mean_loss"], "fit_rows": int(n),
+                  "refit_note": "PLAN.md D119: the saved all-development rollout refit, scored as it is"}
     scorer = make_scorer({"mlp": preds["mlp"], "rollout": preds["rollout"]}, dev_diff, artifacts, provenance)
     out = score_once(EXPERIMENT, TRACKING, scorer)
     rule = {"development_decides": dev_out["decision"],
@@ -812,7 +841,7 @@ def final(artifacts=None) -> dict:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev", "e1-folds", "e1-final"))
+    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev", "e1-folds", "e1-record-refit", "e1-final"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--fold", type=int, default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
@@ -828,6 +857,10 @@ def main(argv=None) -> int:
             out = dev(a.artifacts)
         elif a.command == "e1-folds":
             out = fold_description(a.artifacts)
+        elif a.command == "e1-record-refit":
+            wd = work_dir(a.artifacts)
+            out = {"written": record_epochs_from_log(wd.parent.parent / "research_ghosting_final.log",
+                                                     wd / "all_development").name}
         else:
             out = final(a.artifacts)
             out = {"reading": out.get("reading"), "verdict": out.get("verdict")}
