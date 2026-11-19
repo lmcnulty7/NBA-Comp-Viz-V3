@@ -129,7 +129,7 @@ def _tree():
 def test_the_module_never_runs_the_lane_command_line_nor_reads_held_out_or_test_data():
     text = SOURCE.read_text()
     for banned in ("T.main", "train.main", "iter_data_root", "load_games(", "_run(", "write_tables", "heldout_once",
-                   "score_once", "research_data_root", "test_features", "heldout/"):
+                   "test_features", "heldout/"):
         assert banned not in text, banned
     assert "dev_games(" in text and "training_games_only(" in text and "refuse_test(" in text
 
@@ -174,3 +174,98 @@ def test_the_gate_merge_matches_a_float32_horizon():
     b2 = b.assign(horizon_s=b["horizon_s"].astype(float).round(1))
     assert len(a2.merge(b2, on=["k", "horizon_s"])) == 2
     assert "round(1)" in SOURCE.read_text()
+
+
+
+# ----------------------------------------------------------------------------- the Set A scorer (D113)
+
+def _calls(node, name):
+    return [c for c in ast.walk(node) if isinstance(c, ast.Call)
+            and getattr(c.func, "id", getattr(c.func, "attr", None)) == name]
+
+
+def test_test_data_is_reached_only_inside_the_scorer_given_to_score_once():
+    tree = _tree()
+    once = _calls(tree, "score_once")
+    assert len(once) == 1 and [ast.unparse(a) for a in once[0].args] == ["EXPERIMENT", "TRACKING", "scorer"]
+    scorer = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "scorer")
+    inside = {id(n) for n in ast.walk(scorer)}
+    seen = 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            for a in node.names:
+                assert not (a.name == "research_data_root" and a.asname), "aliased import"
+        name = node.id if isinstance(node, ast.Name) else node.attr if isinstance(node, ast.Attribute) else None
+        if name == "research_data_root":
+            seen += 1
+            assert id(node) in inside, f"{ast.unparse(node)} outside the scorer"
+        if isinstance(node, ast.Constant) and node.value == "research_data_root":
+            raise AssertionError("named as a string")
+    assert seen >= 1 and "_SCORING" in ast.unparse(scorer)
+    body = ast.unparse(scorer)
+    for fit in ("fit_mlp", "train_net", "frame_pass", "run_fold"):
+        assert fit not in body, fit                      # nothing is fitted inside the scorer
+
+
+def test_final_checks_a_clean_tree_first_and_refuses_unless_development_adopted():
+    tree = _tree()
+    final = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "final")
+    assert "clean_head()" in ast.unparse(final.body[0])
+    text = ast.unparse(final)
+    assert "dev_out['decision']['adopted']" in text and "dev_out['gate']['passed']" in text
+    for needed in ("'code_commit': head", "'scored': out", "'setup': {'gate':"):
+        assert needed in text, needed
+
+
+@pytest.mark.parametrize("dev,lo,hi,want", [(-1.3, -1.6, -1.0, "confirms"), (-1.3, -1.6, 0.2, "consistent"),
+                                             (-1.3, -0.9, -0.2, "inconsistent"), (-1.3, -2.0, -1.4, "inconsistent")])
+def test_the_d113_reading_and_its_order(dev, lo, hi, want):
+    assert G.reading(dev, lo, hi) == want
+
+
+def _fixture_root(tmp_path, monkeypatch, n_games=3):
+    import json
+    from analytics.fixtures import write_fixture_root
+    from tools import research_testset as R
+    root = tmp_path / "root"
+    write_fixture_root(root, seed=0, n_games=n_games, heldout_every=0, n_possessions=40)
+    monkeypatch.setenv("V3_RESEARCH_DATA", str(root))
+    games = sorted(p.stem for p in (root / "analytics" / "possessions" / "2015-16").glob("*.parquet"))
+    testset = tmp_path / "set.json"
+    testset.write_text(json.dumps({"sources": {R.TRACKING: {"games": games, "sha256": R.list_hash(games)}}}))
+    return root, games, testset, tmp_path / "ledger.json"
+
+
+def test_the_scorer_runs_through_score_once_on_a_synthetic_root(tmp_path, monkeypatch):
+    """A rehearsal of e1-final's scorer: a fault here would otherwise spend the one score."""
+    import json
+    from tools import research_testset as R
+    root, games, testset, ledger = _fixture_root(tmp_path, monkeypatch)
+    net = small_net()
+
+    def f(W):
+        with torch.no_grad():
+            return net(torch.from_numpy(np.asarray(W, dtype=np.float64))).numpy()
+
+    preds = {"mlp": lambda W: np.zeros((len(W), 2)), "rollout": f}
+    out = R.score_once("ghosting-E1-rehearsal", R.TRACKING, G.make_scorer(preds, -1.3, None, {"code_commit": "x"}, n=200),
+                       testset_path=testset, ledger_path=ledger)
+    json.dumps(out, allow_nan=False)
+    assert "verdict" not in out, out.get("verdict")
+    assert out["games"] == len(games) and out["reading"] in ("confirms", "consistent", "inconsistent")
+    assert out["1.0"]["rows"] > 0 and "pre_score_sensitivity_t" in out["1.0"]
+    assert json.loads(ledger.read_text())[0]["status"] == "scored"
+    with pytest.raises(SystemExit):
+        G.make_scorer(preds, -1.3)(games)                   # outside score_once the test data is refused
+
+
+def test_the_scorer_refuses_a_test_game_without_possessions(tmp_path, monkeypatch):
+    import json
+    from tools import research_testset as R
+    root, games, testset, ledger = _fixture_root(tmp_path, monkeypatch)
+    (root / "analytics" / "possessions" / "2015-16" / f"{games[0]}.parquet").rename(tmp_path / "moved.parquet")
+    preds = {"mlp": lambda W: np.zeros((len(W), 2)), "rollout": lambda W: np.zeros((len(W), 2))}
+    out = R.score_once("ghosting-E1-rehearsal", R.TRACKING, G.make_scorer(preds, -1.3, None, {}, n=50),
+                       testset_path=testset, ledger_path=ledger)
+    assert out["verdict"]["refused"] and out["missing"] == {games[0]: ["possessions"]}
+    json.dumps(out, allow_nan=False)

@@ -20,7 +20,8 @@ e1-fold   One out-of-fold fold, checkpointed: the frozen stand-in refit on the t
 e1-dev    After all 5 folds: the gate over every game, the paired bootstraps, the sign tests and the decision.
           Writes reports/research/ghosting-E1-dev.json.
 
-The Set A scorer is written only if development adopts (D113: otherwise Set A is not scored). Nothing here writes
+e1-final  Set A once through tools.research_testset.score_once (D113, only if development adopts and only on the
+          lead's go): the stand-in and the rollout network refit on every development fit row first. Nothing here writes
 under DATA_ROOT or reports/ except the research results; the lane's command line is never run.
 """
 
@@ -531,9 +532,211 @@ def dev(artifacts=None) -> dict:
     return {"gate_passed": gate_rec["passed"], "decision": decision}
 
 
+# ----------------------------------------------------------------------------- Set A (D113), on the lead's go
+
+def non_finite(value, path: str = "") -> list:
+    if isinstance(value, dict):
+        return [q for k, v in value.items() for q in non_finite(v, f"{path}.{k}" if path else str(k))]
+    if isinstance(value, (list, tuple)):
+        return [q for i, v in enumerate(value) for q in non_finite(v, f"{path}[{i}]")]
+    if hasattr(value, "item") and not isinstance(value, (str, bytes)):
+        value = value.item()
+    return [path] if isinstance(value, float) and not math.isfinite(value) else []
+
+
+def refused(reading_text: str, **known) -> dict:
+    keep = {k: v for k, v in known.items() if not non_finite(v)}
+    return {"verdict": {"refused": True, "reading": reading_text}, **keep}
+
+
+def reading(dev_diff: float, lo: float, hi: float) -> str:
+    """D113's reading of the 1.0 s bootstrap interval, in the fixed order."""
+    if not (lo <= dev_diff <= hi):
+        return "inconsistent"
+    if (dev_diff < 0 and hi < 0) or (dev_diff > 0 and lo > 0):
+        return "confirms"
+    return "consistent"
+
+
+def per_game_t(values) -> dict:
+    """Report-only (D113, as D80): a 95 percent t interval on the per-game values."""
+    import numpy as np
+    from scipy import stats
+    v = np.asarray(values, float)
+    if len(v) < 2:
+        return {"mean_of_game_values": float(v.mean()) if len(v) else float("nan"), "lo": float("nan"),
+                "hi": float("nan"), "games": int(len(v))}
+    half = float(stats.t.ppf(0.975, len(v) - 1) * v.std(ddof=1) / np.sqrt(len(v)))
+    return {"mean_of_game_values": float(v.mean()), "lo": float(v.mean() - half), "hi": float(v.mean() + half),
+            "games": int(len(v))}
+
+
+def set_a_tables(root: Path, g: str):
+    """A test game's cleaned frames, possessions, panel and feature frame by the frozen functions (research root)."""
+    import numpy as np
+    import pandas as pd
+    F, _, V = _frozen()
+    frames, _ = V.check_frames(pd.read_parquet(root / "sportvu_contract" / f"{g}.parquet"))
+    poss, _ = V.check_possessions(pd.read_parquet(root / "analytics" / "possessions" / SEASON / f"{g}.parquet"), frames)
+    panel, _ = F.build_panel_game(frames, poss, g)
+    del frames
+    panel["heldout"] = False
+    panel["panel_row"] = np.arange(len(panel))
+    return panel, F.feature_frame(panel)
+
+
+def make_scorer(preds: dict, dev_diff: float, artifacts=None, provenance: dict = None, n: int = BOOT):
+    """The scorer score_once runs (D113): the stand-in ("mlp") and the rollout network ("rollout"), both fitted on
+    every development fit row before the score, rolled forward by the frozen roll_forward on every 5 Hz origin of
+    the test games. The test data is reached only here, while score_once runs a tracking scorer. It refuses, with its
+    reason and no number, unless every test game has frames, possessions and at least one 1.0 s origin; a summary
+    with any non-finite number is a refused verdict, never a NaN."""
+    import numpy as np
+    import pandas as pd
+    from analytics.eval import paired_bootstrap_by_game
+    from tools import research_testset as RT
+    from tools.research_xfg import research_data_root
+    _, T, _ = _frozen()
+
+    def scorer(test_games):
+        if RT._SCORING is None or RT._SCORING[1] != RT.TRACKING:
+            raise SystemExit(f"{WHO}: the test data is read only inside the scorer that score_once runs")
+        head = {"experiment": EXPERIMENT, "stage": "D113 consistency check, scored once on the D71 test set",
+                **(provenance or {})}
+        root = research_data_root(artifacts)
+        games = sorted(str(g) for g in test_games)
+        missing = {g: [k for k, q in (("frames", root / "sportvu_contract" / f"{g}.parquet"),
+                                      ("possessions", root / "analytics" / "possessions" / SEASON / f"{g}.parquet"))
+                       if not q.exists()] for g in games}
+        missing = {g: m for g, m in missing.items() if m}
+        if missing:
+            return {**head, **refused(f"{len(missing)} test game(s) lack a needed table", missing=missing)}
+        rows, empty = [], []
+        keys = ["sportvu_game", "possession", "frame", "def_player_id"]
+        for g in games:
+            panel, frame = set_a_tables(root, g)
+            if not len(frame):
+                empty.append(g)
+                continue
+            errs = []
+            for c in ("mlp", "rollout"):
+                e = T.roll_forward({"mlp": preds[c]}, frame, panel, fold=-3)
+                e["candidate"] = c
+                errs.append(e)
+            err = pd.concat(errs, ignore_index=True)
+            for h in (0.2, 1.0):
+                w = err[err["horizon_s"] == h].pivot_table(index=keys, columns="candidate", values="error_ft",
+                                                           aggfunc="first")
+                if h == 1.0 and not len(w):
+                    empty.append(g)
+                rows.append({"sportvu_game": g, "horizon_s": h, "rows": int(len(w)),
+                             **{f"sum_{c}": float(w[c].sum()) if c in w else 0.0 for c in ("mlp", "rollout")},
+                             **{f"n_{c}": int(w[c].count()) if c in w else 0 for c in ("mlp", "rollout")}})
+        if empty:
+            return {**head, **refused(f"{len(set(empty))} test game(s) have no 1.0 s origin",
+                                      games_without_origins=sorted(set(empty)))}
+        S = pd.DataFrame(rows)
+        out = {"games": len(games)}
+        for h in (0.2, 1.0):
+            d = S[S["horizon_s"] == h].reset_index(drop=True)
+            pair = paired_bootstrap_by_game(d, "sportvu_game", _mean_of("rollout"), _mean_of("mlp"), n=n, seed=SEED)
+            per_game = (d["sum_rollout"] / d["n_rollout"] - d["sum_mlp"] / d["n_mlp"]).to_numpy()
+            out[str(h)] = {"rows": int(d["rows"].sum()), "mlp": float(d["sum_mlp"].sum() / d["n_mlp"].sum()),
+                           "rollout": float(d["sum_rollout"].sum() / d["n_rollout"].sum()),
+                           "rollout_minus_mlp": pair,
+                           "pre_score_sensitivity_t": per_game_t(per_game)}
+        p1 = out["1.0"]["rollout_minus_mlp"]
+        out["development_estimate_1s"] = dev_diff
+        out["reading"] = reading(dev_diff, p1["lo"], p1["hi"])
+        bad = non_finite(out)
+        if bad:
+            return {**head, **refused(f"{len(bad)} non-finite value(s) in the summary, for example {bad[0]}",
+                                      games=len(games))}
+        return {**head, **out}
+
+    return scorer
+
+
+def clean_head() -> str:
+    import subprocess
+    dirty = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_ROOT, capture_output=True, text=True,
+                           check=True).stdout.strip()
+    if dirty:
+        raise SystemExit(f"{WHO}: the working tree is not clean; commit first:\n{dirty}")
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+
+
+def final(artifacts=None) -> dict:
+    head = clean_head()
+    import gc
+    import numpy as np
+    import pandas as pd
+    from analytics.eval import fit_threads
+    from sklearn.preprocessing import StandardScaler
+    from tools.research_testset import TRACKING, score_once
+    from tools.research_xfg import test_root_ready
+    _, T, _ = _frozen()
+    dev_path = RESULTS / f"{EXPERIMENT}-dev.json"
+    gate_path = RESULTS / f"{EXPERIMENT}-gate.json"
+    if not dev_path.exists() or not gate_path.exists():
+        raise SystemExit(f"{WHO}: run e1-dev first; the test set is scored after the development result exists")
+    dev_out = json.loads(dev_path.read_text())
+    if not dev_out["gate"]["passed"]:
+        raise SystemExit(f"{WHO}: the gate did not pass; nothing is scored")
+    if not dev_out["decision"]["adopted"]:
+        raise SystemExit(f"{WHO}: development did not adopt, so Set A is not scored (D113)")
+    if not test_root_ready(artifacts):
+        raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
+    root = Path(os.environ["DATA_ROOT"])
+    wd = work_dir(artifacts)
+    games = [g for g in dev_game_list(root)
+             if json.loads((wd / "rows" / f"{g}.json").read_text())["feature_rows"] > 0]
+    refuse_test(games, WHO)
+    training_games_only(games, WHO)
+    rows_of = lambda g: np.load(wd / "rows" / f"{g}.npy", mmap_mode="r")
+    folder = wd / "all_development"
+    folder.mkdir(parents=True, exist_ok=True)
+    L = layout()
+    n = sum(rows_of(g).shape[0] for g in games)
+    mm_path = folder / "fit_rows.tmp.npy"
+    X = np.lib.format.open_memmap(mm_path, mode="w+", dtype=np.float32, shape=(n, L["tgt"][1]))
+    i = 0
+    for g in games:
+        r = rows_of(g)
+        X[i:i + len(r)] = r[:, :L["tgt"][1]]
+        i += len(r)
+    frame = pd.DataFrame(X, columns=T.fit_columns(), copy=False)
+    frame.insert(0, "sportvu_game", np.repeat(games, [rows_of(g).shape[0] for g in games]))
+    frame["heldout"] = False
+    with fit_threads(1):
+        stand_in = T.fit_mlp(frame, seed=SEED)
+    sc = StandardScaler()
+    for j in range(0, n, T.SCALER_CHUNK):
+        sc.partial_fit(X[j:j + T.SCALER_CHUNK, :L["win"][1]])
+    del frame, X
+    gc.collect()
+    mm_path.unlink()
+    rollout = train_net(rows_of, games, sc.mean_.astype(np.float32), sc.scale_.astype(np.float32), "rollout", folder)
+    preds = predictors(stand_in, rollout["net"], rollout["net"])
+    dev_diff = float(dev_out["paired_ft"]["1.0"]["rollout_minus_mlp"]["diff"])
+    provenance = {"code_commit": head, "gate_sha256": _sha256(gate_path), "dev_json_sha256": _sha256(dev_path),
+                  "rollout_weights_sha256": rollout["weights_sha256"], "fit_rows": int(n)}
+    scorer = make_scorer({"mlp": preds["mlp"], "rollout": preds["rollout"]}, dev_diff, artifacts, provenance)
+    out = score_once(EXPERIMENT, TRACKING, scorer)
+    rule = {"development_decides": dev_out["decision"],
+            "set_a": "D113 consistency check: inconsistent if the 1.0 s bootstrap interval excludes the development "
+                     "estimate; otherwise confirms if it excludes zero on that side; otherwise consistent; only "
+                     "inconsistent stops an adoption", "source": "PLAN.md D113"}
+    record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
+              "setup": {"gate": json.loads(gate_path.read_text()), "rule": rule}}
+    (RESULTS / f"{EXPERIMENT}-final.json").write_text(json.dumps(_plain(record), indent=2, allow_nan=False) + "\n")
+    return out
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog=WHO)
-    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev"))
+    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev", "e1-final"))
     ap.add_argument("--artifacts", default=None)
     ap.add_argument("--fold", type=int, default=None)
     ap.add_argument("--max-minutes", type=float, default=25.0)
@@ -545,8 +748,11 @@ def main(argv=None) -> int:
             if a.fold is None or not 0 <= a.fold < FOLDS:
                 raise SystemExit("give --fold 0..4")
             out = run_fold(a.fold, a.artifacts)
-        else:
+        elif a.command == "e1-dev":
             out = dev(a.artifacts)
+        else:
+            out = final(a.artifacts)
+            out = {"reading": out.get("reading"), "verdict": out.get("verdict")}
     print(json.dumps(_plain(out), indent=2, default=str))
     return 0
 
