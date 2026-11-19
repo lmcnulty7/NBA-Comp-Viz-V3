@@ -299,7 +299,9 @@ def gate(artifacts=None) -> dict:
     cv = T.ridge_cv(mp, pts, FOLDS, SEED)
     mse = {m: float(np.mean((cv["pred"]["p_" + m] - cv["pred"]["y"]) ** 2)) for m in T.MODELS}
     sd = pd.read_parquet(root / STORED_DEF).set_index("def_player_id")["ridge_value"]
-    ridge_diff = float(max(abs(cv["ridge_values"].get(int(d), np.nan) - v) for d, v in sd.items()))
+    same_defenders = set(int(d) for d in sd.index) == set(int(d) for d in cv["ridge_values"])
+    ridge_diff = float(np.nanmax(np.abs(np.array([cv["ridge_values"].get(int(d), np.nan) for d in sd.index])
+                                        - sd.to_numpy(dtype=float)))) if same_defenders else None
     printed_ok = all(abs(round(mse[m], 4) - PRINTED[m]) < 1e-9 for m in ("constant", "raw", "ridge")) \
         and cv["alpha"] == PRINTED["alpha"]
     compare = T.compare_models(cv["pred"], BOOT, SEED)
@@ -310,7 +312,8 @@ def gate(artifacts=None) -> dict:
               "max_abs_diff": diffs, "tolerance": GATE_TOL, "xfg_rows": int(len(xfg)), "default_p": default_p,
               "ridge": {"alpha": cv["alpha"], "fold_alphas": cv["fold_alphas"], "oof_mse": mse,
                         "printed": PRINTED, "printed_equal": bool(printed_ok),
-                        "defenders_stored": int(len(sd)), "max_abs_diff_ridge_value": ridge_diff,
+                        "defenders_stored": int(len(sd)), "defenders_refit": len(cv["ridge_values"]),
+                        "same_defender_set": bool(same_defenders), "max_abs_diff_ridge_value": ridge_diff,
                         "tolerance": RIDGE_TOL},
               "frozen_reference_possession_points": {
                   "what": "the frozen ridge on possession points, refit with frozen code on the development games "
@@ -321,7 +324,7 @@ def gate(artifacts=None) -> dict:
                                                     compare["paired"]["ridge_minus_constant"]["hi"]]}},
               "attempts": int(len(shots)), "attempts_with_assigned_defender": int(shots["assigned_def_id"].notna().sum())}
     record["passed"] = bool(same_keys and all(v is not None and v <= GATE_TOL for v in diffs.values())
-                            and printed_ok and ridge_diff <= RIDGE_TOL)
+                            and printed_ok and same_defenders and ridge_diff is not None and ridge_diff <= RIDGE_TOL)
     record["written"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     (folder / "gate.json").write_text(json.dumps(_plain(record), indent=2, allow_nan=False) + "\n")
     return record
@@ -873,17 +876,22 @@ def t_interval(groups, diff) -> dict:
             "hi": float(m.mean() + half)}
 
 
-def reading(ci) -> str:
-    """D108 and D80: the Set A reading of a defender-minus-no-defender interval."""
+def reading(ci, dev_passed=True, context=False) -> str:
+    """D108 and D80: the Set A reading of a defender-minus-no-defender interval. A part that failed on development is
+    never "confirmed" by Set A; a context arm gets no D108 reading."""
+    if context:
+        return "context, reads no verdict"
     lo, hi = ci
     if hi < 0:
+        if not dev_passed:
+            return "wholly below zero; does not overturn the development fail (D108)"
         return "confirms (interval wholly below zero)"
     if lo > 0:
         return "contradiction (interval wholly above zero): blocks any site defender table for this part"
     return "inconclusive at 10 games (the interval straddles zero; not evidence against)"
 
 
-def evaluate_games(root, games, pmap: dict, models: dict) -> dict:
+def evaluate_games(root, games, pmap: dict, models: dict, dev_passed=None) -> dict:
     """Parts (a) and (b) and the pre-shot context on the given games of a root, with the final models: the frozen
     assignment per game (frames read once each), the rows, the per-row log losses of both models of each part, a
     bootstrap of the games and a t interval of per-game means. Mechanics shared by the scorer and the dry run."""
@@ -912,6 +920,7 @@ def evaluate_games(root, games, pmap: dict, models: dict) -> dict:
               "part_b_rows_per_game_min": int(b_rows.groupby("sportvu_game").size().min()) if len(b_rows) else 0,
               "defenders_in_part_b_without_a_development_coefficient": int(
                   len(set(b_rows["assigned_def_id"].astype(int)) - set(models["b"]["template"].defenders)))}
+    dev_passed = dev_passed or {"a": True, "b": True}
     out = {"counts": counts, "parts": {}}
     for name, rows, shares, kd, k0 in (("a", a_rows, a_shares, "a", "a0"), ("b", b_rows, None, "b", "b0"),
                                        ("a_pre_shot_context", pre_rows, pre_shares, "p", "p0")):
@@ -931,7 +940,8 @@ def evaluate_games(root, games, pmap: dict, models: dict) -> dict:
                                            "no_defender": stats["log_loss_no_defender"]},
                               "defender_minus_no_defender": d,
                               "t_interval_of_game_means": t_interval(groups, loss[kd] - loss[k0]),
-                              "reading": reading(d["ci95"])}
+                              "reading": reading(d["ci95"], dev_passed.get(name, True),
+                                                 context=name == "a_pre_shot_context")}
     del np
     return out
 
@@ -947,15 +957,17 @@ def non_finite(value, path: str = "") -> list:
     return [path] if isinstance(value, float) and not math.isfinite(value) else []
 
 
-def make_scorer(models: dict, xfg_artifacts=None, provenance: dict = None, xfg_p=None):
+def make_scorer(models: dict, xfg_artifacts=None, provenance: dict = None, xfg_p=None, xfg_model=None,
+                dev_passed=None):
     """The scorer score_once runs on Set A. The test data is reached only here: the research data root and the frozen
     xFG features of the test attempts (tools.research_xfg). Before anything is computed it refuses unless every test
     game has frames, possessions, shot rows and a roster; it refuses unless every game gives rows to both parts; a
-    summary with any non-finite number is returned as a refused verdict. xfg_p replaces the frozen xFG model in the
-    rehearsal test only."""
+    summary with any non-finite number is returned as a refused verdict. xfg_model is the gated frozen xFG model,
+    loaded by final() before score_once; xfg_p replaces it in the rehearsal test only."""
     import numpy as np
     from tools import research_testset as RT
-    from tools.frozen_models import load_xfg
+    if xfg_p is None and xfg_model is None:
+        raise SystemExit(f"{WHO}: no xFG model was given to the scorer")
 
     def scorer(test_games):
         if RT._SCORING is None or RT._SCORING[1] != TRACKING:
@@ -972,9 +984,9 @@ def make_scorer(models: dict, xfg_artifacts=None, provenance: dict = None, xfg_p
             pmap = xfg_p(games)
         else:
             feats = test_features(games, xfg_artifacts)
-            p = load_xfg(xfg_artifacts).predict(feats)
+            p = xfg_model.predict(feats)
             pmap = {(str(g), int(e)): float(v) for g, e, v in zip(feats["sportvu_game"], feats["event"], np.asarray(p))}
-        res = evaluate_games(root, games, pmap, models)
+        res = evaluate_games(root, games, pmap, models, dev_passed)
         c = res["counts"]
         if c["games_with_part_a_rows"] != len(games) or c["games_with_part_b_rows"] != len(games):
             return {**head, "verdict": {"refused": True, "reading": "not every test game gives rows to both parts; "
@@ -1002,9 +1014,37 @@ def dryrun(artifacts=None, xfg_artifacts=None, n_games: int = 3) -> dict:
     feats = pd.read_parquet(features_path(xfg_artifacts), filters=[("sportvu_game", "in", games)])
     p = load_xfg(xfg_artifacts).predict(feats)
     pmap = {(str(g), int(e)): float(v) for g, e, v in zip(feats["sportvu_game"], feats["event"], p)}
-    res = evaluate_games(root, games, pmap, models)
+    dev_passed = {"a": bool(dev_json["verdict"]["part_a_passes"]), "b": bool(dev_json["verdict"]["part_b_passes"])}
+    res = evaluate_games(root, games, pmap, models, dev_passed)
     return {"games": games, "counts": res["counts"], "parts": sorted(k for k, v in res["parts"].items() if v),
-            "non_finite": non_finite(res), "note": "mechanics only; these games are in the development fit"}
+            "readings": {k: v["reading"] for k, v in res["parts"].items() if v},
+            "non_finite": non_finite(res), "reassignment_equal": reassignment_equal(artifacts, root, games[:2]),
+            "note": "mechanics only; these games are in the development fit"}
+
+
+def reassignment_equal(artifacts, root, games) -> dict:
+    """The assignment pass rerun on a few games against the stored parts (every part, the zone mix included)."""
+    import pandas as pd
+    folder = games_dir(artifacts)
+    out = {}
+    for g in game_dicts(root, games):
+        gid = str(g["sportvu_game"])
+        pt = assign_game(g)
+        same = {}
+        for k in PART_NAMES:
+            stored = pd.read_parquet(folder / f"{gid}.{k}.parquet")
+            new = pt[k].reset_index(drop=True).copy()
+            stored = stored.reset_index(drop=True)
+            if "frames" in new.columns:                    # a list column: compare as tuples
+                new["frames"] = [tuple(int(v) for v in x) for x in new["frames"]]
+                stored["frames"] = [tuple(int(v) for v in x) for x in stored["frames"]]
+            try:
+                pd.testing.assert_frame_equal(new, stored, check_dtype=False)
+                same[k] = True
+            except AssertionError:
+                same[k] = False
+        out[gid] = same
+    return out
 
 
 def final(artifacts=None, xfg_artifacts=None) -> dict:
@@ -1017,10 +1057,13 @@ def final(artifacts=None, xfg_artifacts=None) -> dict:
     dev_json = json.loads(dev_path.read_text())
     if not test_root_ready(xfg_artifacts):
         raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
+    from tools.frozen_models import load_xfg
+    xfg_model = load_xfg(xfg_artifacts)                # refuses here, before the ledger, if it is missing or stale
     models = final_models(artifacts, dev_json["test_fit"])
     provenance = {"code_commit": head, "dev_code_commit": dev_json["code_commit"],
                   "development_verdict": dev_json["verdict"]}
-    scorer = make_scorer(models, xfg_artifacts, provenance)
+    dev_passed = {"a": bool(dev_json["verdict"]["part_a_passes"]), "b": bool(dev_json["verdict"]["part_b_passes"])}
+    scorer = make_scorer(models, xfg_artifacts, provenance, xfg_model=xfg_model, dev_passed=dev_passed)
     out = score_once(EXPERIMENT, TRACKING, scorer)
     record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
               "setup": {"gate": {k: gate_record[k] for k in ("games", "rows_rebuilt", "keys_equal", "passed")},

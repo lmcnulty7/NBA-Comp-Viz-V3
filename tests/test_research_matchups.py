@@ -124,6 +124,23 @@ def test_set_a_readings_follow_d108():
     assert M.reading([0.001, 0.003]).startswith("contradiction")
 
 
+def test_a_part_that_failed_on_development_is_never_confirmed_by_set_a():
+    r = M.reading([-0.003, -0.001], dev_passed=False)
+    assert "confirms" not in r and r == "wholly below zero; does not overturn the development fail (D108)"
+    assert M.reading([-0.001, 0.002], dev_passed=False).startswith("inconclusive at 10 games")
+    assert M.reading([0.001, 0.003], dev_passed=False).startswith("contradiction")
+
+
+def test_the_pre_shot_context_gets_no_d108_reading():
+    for ci in ([-0.003, -0.001], [-0.001, 0.002], [0.001, 0.003]):
+        assert M.reading(ci, context=True) == "context, reads no verdict"
+
+
+def test_the_scorer_needs_a_loaded_xfg_model():
+    with pytest.raises(SystemExit):
+        M.make_scorer({}, None, {})
+
+
 def _tree():
     return ast.parse(SOURCE.read_text())
 
@@ -202,15 +219,19 @@ def test_the_scorer_runs_through_score_once_on_a_synthetic_root(tmp_path, monkey
     """A rehearsal of e1-final's scorer: a fault here would otherwise spend the one score."""
     from tools import research_testset as R
     root, models, test, testset, ledger, fake_p = _rehearsal(tmp_path, monkeypatch)
-    scorer = M.make_scorer(models, None, {"code_commit": "rehearsal"}, xfg_p=fake_p)
+    scorer = M.make_scorer(models, None, {"code_commit": "rehearsal"}, xfg_p=fake_p, dev_passed={"a": True, "b": False})
     out = R.score_once("matchups-E1-rehearsal", R.TRACKING, scorer, testset_path=testset, ledger_path=ledger)
     json.dumps(out, allow_nan=False)
     assert "verdict" not in out, out.get("verdict")
     assert out["code_commit"] == "rehearsal" and out["counts"]["games"] == len(test)
     for part in ("a", "b"):
         r = out["parts"][part]
-        assert r["games"] == len(test) and r["reading"].split(" ")[0] in ("confirms", "inconclusive", "contradiction")
-        assert "t_interval_of_game_means" in r
+        assert r["games"] == len(test) and r["reading"].split(" ")[0] in ("confirms", "inconclusive", "contradiction",
+                                                                           "wholly")
+        assert part == "a" or "confirms" not in r["reading"]
+    assert out["parts"]["a_pre_shot_context"]["reading"] == "context, reads no verdict"
+    for part in ("a", "b"):
+        assert "t_interval_of_game_means" in out["parts"][part]
     assert json.loads(ledger.read_text())[0]["status"] == "scored"
     with pytest.raises(SystemExit):
         scorer(test)                                     # outside score_once the test data is refused
