@@ -100,6 +100,61 @@ are read one game at a time under the heavy-job lock (CLAUDE.md rule 7). Nothing
 - Backlog: expected gain 4 (it gives the lane its first held-out score and replaces a weak gate); effort 3 (one heavy
   pass over frames to build per-game sums).
 
+#### Amendment (PLAN.md D103, 2026-11-18, written before any development number or run)
+
+Why: the test above scores only players with at least 300 possessions in the test set. The D71 test set for tracking
+(Set A, PLAN.md D77) is the 10 games of one date, so no player has more than one game in it, and no development game
+gives any player more than 268 possessions (the most possessions in any of the 604 development games, both teams). The
+test set would be empty. D103 keeps the development stage as written above and replaces the test with a one-game test,
+fixed before any development number exists.
+
+- One-game test (D103): a Set A player with at least 50 possessions in their test game gets a one-game embedding (the
+  19 features of that game alone, through the development fit: imputer, scaler, PCA). It retrieves among the
+  full-season development embeddings (the 399 sufficient player-seasons of the frozen fit); metric top-5
+  self-retrieval. Interval: a bootstrap of the 10 test games, 2000 resamples. The one-game test passes if the lower
+  end of its 95 percent interval is above 0.10 and above the upper end of the position-only retriever's interval.
+- What one game means. The test embedding is built from one game, so it is much noisier than a full-season embedding.
+  The test asks whether a single game already carries a player's style, which is a harder and different question
+  from the split-half check. Its interval resamples the 10 games, so the players of one game move together. A
+  duplicated game leaves its players' one-game features unchanged, so this bootstrap only resamples the queries, by
+  game; it does not add noise to any player's value. With 10 games the interval is wide, and the result is read as
+  such.
+- Matched development comparator (D103), computed and reported before the score, with no change to the threshold:
+  leave one game out. For each development game g, every player's rest-of-season features (all development games but
+  g) are embedded with the development fit; the pool is the players with at least 300 rest-of-season possessions. A
+  player with at least 50 possessions in g and a pool entry queries with their one-game embedding from g. Interval: a
+  bootstrap of the development games, by game, 2000 resamples. The development fit itself saw g; this is stated, not
+  repaired.
+
+Commitments fixed with this amendment (code: tools/research_embeddings.py), so that nothing below is chosen after a
+number exists:
+
+1. Queries on the test set are the Set A players with at least 50 possessions in their test game who have a
+   development embedding (one of the 399). A player with no development embedding cannot retrieve themself; they are
+   counted and reported, not scored.
+2. Retrieval is Euclidean in the embedding space, as the lane's neighbour table is. A query hits when fewer than 5
+   pool entries are strictly closer than its own entry.
+3. The position-only retriever returns 5 random pool entries of the query's position, from the frozen positions table
+   (G, F, C). Its hit rate is computed exactly: for a labelled query, min(5, n) / n, with n the pool entries of that
+   position (their own included); for an unlabelled query, 5 over the pool size. Its interval comes from the same game
+   resamples as the embedding's.
+4. Comparators and ablation are scored on the same queries: the 19 standardised features without PCA (the development
+   imputer and scaler), and movement-only (the 11 tracking features) and shot-only (the 8 shot features), each with
+   the frozen pipeline (median imputation, standardisation, PCA to 8 components) fitted on the development games for
+   its block.
+5. Development split-half: each player's development games are sorted by date and alternated into two halves; a
+   player takes part with at least 300 possessions in each half (the lane's own sufficiency rule); each half
+   queries the other half's pool, both directions, and the rate is the mean over the 2P queries.
+6. Intervals of the split-half rates. The pre-registered game bootstrap (resample games, rebuild the halves'
+   features, re-embed with the fixed fit) is computed. decisions-E1 showed (PLAN.md D86) that a game resample adds
+   sampling noise to every multi-game player value, so this range is expected to sit below the estimate and is not
+   read as a confidence interval. Fixed now as the valid interval: a bootstrap of the queries by player, 2000
+   resamples, with the pool held fixed.
+7. Franks discrimination per component: a player's full-season component value against its variance over 2000 game
+   resamples (rebuild, re-embed with the fixed fit). Its interval: a bootstrap by player, 2000 resamples (the valid
+   method in D86). No verdict reads it.
+8. The development stage has no adoption rule; the one-game test is the only rule, as D103 fixes it.
+
 ### embeddings-E2: a spatial shot basis by non-negative matrix factorization
 
 - Hypothesis: replacing the six shot-zone shares and six court-zone shares with weights on a non-negative spatial basis
