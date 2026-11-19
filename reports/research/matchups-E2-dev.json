@@ -1,6 +1,6 @@
 {
   "experiment": "matchups-E2",
-  "code_commit": "4ae5e74469e532da54436d48c5f2b9136eb52e80",
+  "code_commit": "b72fe4e7f0f6718a2129342ba8deb9c955d40d5a",
   "stage": "development games, out of fold under matchups-E1's 5 grouped folds by game (seed 0); no Set A or held-out row read",
   "matchups_e1_gate_passed": true,
   "em": {
@@ -169,15 +169,15 @@
     },
     "defended_fg": {
       "hungarian": {
-        "attempts_within_4ft": 26025,
+        "attempts_within_4ft": 25696,
         "attempts_beyond": 69935,
-        "fg_within": 0.4279346781940442,
+        "fg_within": 0.4268757783312578,
         "fg_beyond": 0.45353542575248446,
         "beyond_minus_within": {
-          "point": 0.025600747558440273,
+          "point": 0.026659647421226673,
           "ci95": [
-            0.018662883136268918,
-            0.03327395559199466
+            0.01964230869456204,
+            0.03439850666089926
           ]
         }
       },
@@ -222,6 +222,6 @@
     "rule": "the E1 part (a) gain under the HMM larger than under the Hungarian assignment: the difference above zero with its 95 percent interval wholly above zero, on the development games (D112); Set A is a later confirmation read as D80",
     "passes": false
   },
-  "peak_gb": 0.55,
+  "peak_gb": 3.42,
   "pieces_commit": "09432573889133f56c399e75c9c5fa324b7795f9"
 }
