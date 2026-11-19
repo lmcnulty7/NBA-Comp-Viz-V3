@@ -1,21 +1,28 @@
 # ghosting-E1: rollout training of the same network
 
-Written 2026-11-19 (UTC). Stage: **development done, adopted; Set A not scored yet** (it waits for the lead's go,
-PLAN.md D113). Pre-registration: docs/research/ghosting.md, "ghosting-E1", and its amendment (D113), written and
-committed (f8c5349d) before any code ran. Code: tools/research_ghosting.py, committed (a6c2cba7) before the frame
-pass, with one gate fix (fe259133) before any result was read. The development numbers below come from
+Written 2026-11-19 (UTC); the Set A section added the same day after the single score. Stage: **finished: adopted
+on development, then stopped by Set A's D113 reading ("inconsistent"), so not adopted.** Pre-registration:
+docs/research/ghosting.md, "ghosting-E1", and its amendment (D113), written and committed (f8c5349d) before any code
+ran. Code: tools/research_ghosting.py, committed (a6c2cba7) before the frame pass, with one gate fix (fe259133) before
+any result was read; the score ran on eae3cb6f with a clean tree. Sources: the development numbers from
 reports/research/ghosting-E1-dev.json, run on fe259133; the gate numbers from reports/research/ghosting-E1-gate.json;
 0.437, 3.657 and 346 / 258 from reports/ghosting.md; the per-fold numbers from reports/research/ghosting-E1-folds.json
-(a pre-score description, PLAN.md D115, read by no rule). Numbers marked computed are arithmetic on those.
+(a pre-score description, PLAN.md D115, read by no rule); the Set A numbers from reports/research/ghosting-E1-final.json,
+whose summary is the one ghosting-E1 entry of reports/research/scoring_ledger.json. Numbers marked computed are
+arithmetic on those.
 
-**Verdict: adopted on development, on all three pre-registered parts.** Trained on its own 5-step rollout, the same
-64x64 window network puts the 1.0 s ghost 1.295 ft closer to where the defender went than the frozen one-step
-stand-in: 2.362 ft against 3.657 ft out of fold (paired difference -1.295 [-1.322, -1.269] ft, 604 games). The 0.2 s
-error is lower too (paired -0.054 [-0.055, -0.053]), so the guard holds. The rollout ghost's deviation tracks points
-allowed more often than not in 414 games against 190 (one-sided p = 2e-20), against 346 / 258 for the stand-in. The
-gain comes from the rollout objective, not from the framework: the same network in torch trained on one step is
-slightly worse than the stand-in (+0.117 [+0.090, +0.143] ft at 1.0 s). Set A, a pre-declared consistency check
-(D113), has not been scored.
+**Verdict: not adopted.** On development the rollout-trained network met all three pre-registered parts: at 1.0 s
+it puts the ghost 1.295 ft closer than the frozen one-step stand-in (2.362 against 3.657 ft; paired -1.295 [-1.322,
+-1.269], 604 games), it is better at 0.2 s (-0.054 [-0.055, -0.053]), and its deviation tracks points allowed in 414
+games against 190 (p = 2e-20). On Set A, scored once, the rollout ghost is again much better at 1.0 s: -1.117 [-1.154,
+-1.085] ft (10 games). That interval excludes the development estimate (-1.295), so D113's reading is "inconsistent",
+and under D113 that stops the adoption. Beside it, report only and fixed before the score (D115): the interval's upper
+end, -1.085, is below -0.10 ft, so on the test games the gain is at least the pre-registered bar. The report said
+before the score why the reading could be "inconsistent": the development estimate pools five stand-in refits that
+differ from one another (fold 3's at 4.266 ft), while Set A scores one. On Set A the rollout ghost's error (2.354 ft)
+sits inside its five development folds (2.33 to 2.44). The stand-in refit's error (3.471 ft) sits inside the other
+four folds' stand-ins (3.44 to 3.55). The gap to -1.295 comes from the pooled development estimate, not from the
+rollout ghost. The rule stands as written.
 
 ## What was tested
 
@@ -116,7 +123,8 @@ weights.
 
 ## Before the score: commitments (Set A, D113)
 
-Development adopts, so under D113 Set A is scored once, as a consistency check, on the lead's go:
+Written before the score and kept as written. Development adopted, so under D113 Set A was scored once, as a
+consistency check, on the lead's go:
 
 1. e1-final runs on a clean tree, only if the gate passed and development adopted. It first refits the stand-in and
    the rollout network on every development fit row with the same settings (no Set A data is read for that). It then
@@ -144,3 +152,46 @@ Development adopts, so under D113 Set A is scored once, as a consistency check, 
    -0.10 ft, that is, whether the rollout gain is at least the pre-registered bar on the test games.
 7. The scorer was rehearsed through score_once on a synthetic root with a temporary test set and ledger, including a
    refusal (tests/test_research_ghosting.py).
+
+## The refit before the score (PLAN.md D119)
+
+The first e1-final run refit both models on every development fit row. Its pre-score check then refused before
+score_once was called, so nothing was spent. The rollout network's final-epoch training loss was 7.6810, 0.0033 below
+the five folds' range of 7.6843 to 7.8066 (ghosting-E1-folds.json). The check was there to catch a broken refit:
+non-finite weights or a diverged loss. A slightly lower training loss on about 25 percent more rows is the expected
+direction, not a failure, and a training loss says nothing about Set A. D119, decided knowing the value: the check
+became one-sided (finite weights and a final-epoch loss not above 7.8066), and the saved refit was scored as it is,
+with no retraining and no second refit of the rollout network. Its epoch losses were transcribed from the log of the
+run that trained it (rollout_epochs.json, with the log's hash). The stand-in's refit is deterministic (seed 0, one
+thread); it was refit and saved. The hashes of both models' weights, the epoch record and the 7.6810 loss are in the
+final record.
+
+## Set A (the 10 games of 2015-12-05, scored once)
+
+e1-final ran once on eae3cb6f with a clean tree, under the lock (1401 s, peak 5.6 GB). No refusal fired. Both ghosts
+covered the same origins in every game: 522180 at 1.0 s and 556040 at 0.2 s.
+
+| quantity | 1.0 s | 0.2 s |
+| --- | --- | --- |
+| stand-in, mean error (ft) | 3.4711 | 0.4213 |
+| rollout network, mean error (ft) | 2.3542 | 0.3875 |
+| **rollout minus stand-in (bootstrap of the 10 games)** | **-1.1169 [-1.1538, -1.0851]** | -0.0338 [-0.0392, -0.0303] |
+| report-only t interval on the per-game differences | -1.1207 [-1.1639, -1.0775] | -0.0344 [-0.0407, -0.0281] |
+
+- D113's reading, from the 1.0 s bootstrap interval: it excludes the development estimate (-1.2949), so
+  "inconsistent". It also excludes zero, but the fixed order reads "inconsistent" first. The adoption stops.
+- Report-only size reading (D115): the upper end, -1.0851, is below -0.10 ft. On the test games the gain is at least
+  the pre-registered bar.
+- The 0.2 s difference is negative on Set A too.
+- The interval's half-width came out 0.034 ft (computed: 0.0343), inside the 0.034 to 0.055 ft predicted before the
+  score.
+
+## What Set A means
+
+- The rollout ghost behaves on unseen games as it did on development folds: 2.354 ft at 1.0 s against 2.33 to 2.44.
+  What moved is the baseline. The pooled development difference includes fold 3's outlying stand-in, and one refit
+  pair cannot match a pooled estimate to within a 0.034 ft half-width. That is the case described before the score.
+- The pre-registered rule reads Set A against the development estimate, not against the bar, so the method is not
+  adopted. The size reading, which reads no rule, says the gain on the test games is about 11 times the 0.10 ft bar
+  (computed: 1.117 / 0.10).
+- A lower mean error does not show the paths are more lifelike; that was not measured on either set.
