@@ -122,13 +122,25 @@ this experiment; the scoring ledger has no embeddings-E1 entry).
    reported, not scored.
 3. Reported beside the rule, read by no rule: the raw-feature, movement-only and shot-only rates, and the paired
    differences against the embedding.
-4. Proposed, to approve or drop before the score: a 95 percent t interval on the 10 per-game mean hit rates, reported
-   beside the bootstrap as D80 did for xfg-E1, because a percentile bootstrap of 10 games under-covers. It reads no
-   rule; if it and the bootstrap disagree on the rule, the report says so. Code: game_mean_t_interval, added after
-   the development result and before any test read.
+4. Pre-score sensitivity (report only), kept by the lead before the score: a 95 percent t interval on the 10 per-game
+   mean hit rates, beside the bootstrap, as D80 did for xfg-E1, because a percentile bootstrap of 10 games
+   under-covers. Its centre is the mean of the per-game means; the bootstrap's value is the pooled per-query mean, so
+   the two centres differ when games have different numbers of queries. It reads no rule; if it and the bootstrap
+   disagree on the rule, the report says so. Code: game_mean_t_interval, added after the development result and
+   before any test read.
 5. Set B (ACB) is not scored: the frozen features need SportVU frames and NBA shot charts, which the ACB data does not
    have (as D80 found for xfg-E1).
-6. The test pool and fit are the frozen fit, unchanged. The test games are on 2015-12-05, inside the development
+6. Refusals, decided before the score (pre-score review). Before any value is computed, and without reading an
+   outcome column (shots are read with the shooter, zone and shot-type columns only), the scorer refuses unless every
+   test game has frames, possessions, a roster and at least one shot row, and no shot row is flagged held out. A
+   summary with no qualifying query, or with any non-finite number (a t interval over fewer than 2 games, for one),
+   is returned as a refused verdict with its reason. A refusal still uses up the one ledger entry, but the ledger
+   never holds a NaN.
+7. Provenance: the score runs only on a clean working tree. The result records the commit, the hashes of the gate's
+   files and the hash of the development record. The final file nests the scored summary under "scored" beside its
+   setup (the gate record and the D103 rule). The scorer was rehearsed through score_once on a synthetic root, with a
+   temporary test set and ledger (tests/test_research_embeddings.py).
+8. The test pool and fit are the frozen fit, unchanged. The test games are on 2015-12-05, inside the development
    season. The full-season development embeddings include games before and after that date, but not the test games.
 
 Waiting for the lead's go to run e1-final once.

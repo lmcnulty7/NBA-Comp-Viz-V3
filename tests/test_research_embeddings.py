@@ -243,3 +243,107 @@ def test_the_t_interval_sensitivity_check_uses_one_mean_per_game():
     vals = {"x": np.concatenate([np.ones(10), np.zeros(2), np.full(5, 0.5)])}
     out = E.game_mean_t_interval(groups, vals)["x"]
     assert out["games"] == 3 and np.isclose(out["mean_of_game_means"], 0.5) and out["lo"] < 0.5 < out["hi"]
+
+
+# ----------------------------------------------------------------------------- the final score (pre-score review)
+
+def test_final_checks_a_clean_tree_first_and_nests_its_record():
+    tree = _tree()
+    final = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "final")
+    assert "clean_head()" in ast.unparse(final.body[0])
+    text = ast.unparse(final)
+    for needed in ('"code_commit": head', '"gate_files_sha256": gate_record["files"]', '"dev_json_sha256": _sha256(dev_path)',
+                   '"scored": out', '"setup": {"gate": gate_record, "one_game_test_rule": rule}'):
+        assert needed.replace('"', "'") in text, needed
+    scorer = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "scorer")
+    body = ast.unparse(scorer)
+    for fit in ("frozen_fit", "fit_pca", "standardise", "load_dev"):
+        assert fit not in body, fit                  # nothing is fitted or rebuilt on test data
+    assert "columns=" in body and "made" not in body.replace("SHOT_COLUMNS", "")
+
+
+def test_non_finite_values_are_found_and_refused_never_written():
+    assert E.non_finite({"a": 1.0, "b": [0.5, float("nan")], "c": {"d": float("inf")}}) == ["b[1]", "c.d"]
+    r = E.refused("why", counts={"x": 1}, bad=float("nan"))
+    assert r["verdict"] == {"refused": True, "reading": "why"} and "bad" not in r and r["counts"] == {"x": 1}
+    import json
+    json.dumps(r, allow_nan=False)
+
+
+def _fixture_setup(tmp_path, monkeypatch, n_games=8, n_test=2):
+    """A synthetic root in the DATA_ROOT layout (analytics.fixtures), its first games as the development set (partials,
+    features, the frozen fit), its last games as a temporary test set with a temporary ledger."""
+    import json
+    from analytics.fixtures import write_fixture_root
+    from tools import research_testset as R
+    root = tmp_path / "root"
+    write_fixture_root(root, seed=0, n_games=n_games, heldout_every=0, n_possessions=90)
+    games = sorted((p.stem for p in (root / "analytics" / "possessions" / "2015-16").glob("*.parquet")), key=E.game_date)
+    dev, test = games[:-n_test], games[-n_test:]
+    parts, rosters = [], []
+    for g in dev:
+        frames = pd.read_parquet(root / "sportvu_contract" / f"{g}.parquet")
+        parts.append(F.tracking_partials(frames, pd.read_parquet(root / "analytics" / "possessions" / "2015-16" / f"{g}.parquet")))
+        rosters.append(pd.read_parquet(root / "analytics" / "rosters" / "2015-16" / f"{g}.parquet"))
+    shots = pd.read_parquet(root / E.SHOTS_FILE, filters=[("sportvu_game", "in", dev)])
+    P = E.Parts(pd.concat(parts, ignore_index=True), E.shot_partials(shots, pd.concat(rosters, ignore_index=True)), dev)
+    X, n = E.features_from_sums(P.sums(np.ones((1, P.R))))
+    feats = pd.DataFrame(X[0], columns=E.feature_order())
+    feats.insert(0, "season", "2015-16")
+    feats.insert(0, "player_id", P.players)
+    monkeypatch.setattr(E, "N_MIN", 150)                       # the fixture games are short; fixture output only
+    monkeypatch.setattr(F, "N_MIN", 150)
+    feats["n_possessions"], feats["insufficient"] = n[0], n[0] < 150
+    fit = E.frozen_fit(feats)
+    pos = pd.DataFrame({"player_id": P.players, "season": "2015-16",
+                        "position": [("G", "F", "C")[i % 3] for i in range(P.P)]})
+    d = {"P": P, "fit": fit, "feats": feats, "positions": pos, "games": dev}
+    testset = tmp_path / "set.json"
+    testset.write_text(json.dumps({"sources": {R.TRACKING: {"games": test, "sha256": R.list_hash(test)}}}))
+    monkeypatch.setenv("V3_RESEARCH_DATA", str(root))
+    return root, d, test, testset, tmp_path / "ledger.json"
+
+
+def test_the_scorer_runs_through_score_once_on_a_synthetic_root(tmp_path, monkeypatch):
+    """A rehearsal of e1-final's scorer: a fault here would otherwise spend the one score."""
+    import json
+    from tools import research_testset as R
+    root, d, test, testset, ledger = _fixture_setup(tmp_path, monkeypatch)
+    prov = {"code_commit": "rehearsal", "gate_files_sha256": {}, "dev_json_sha256": "x"}
+    out = R.score_once("embeddings-E1-rehearsal", R.TRACKING, E.make_scorer(d, None, prov), testset_path=testset,
+                       ledger_path=ledger)
+    json.dumps(out, allow_nan=False)                           # never a NaN into the ledger
+    assert out["code_commit"] == "rehearsal" and out["games"] == len(test)
+    assert "verdict" not in out, out.get("verdict")
+    assert out["queries"] > 0 and out["games_with_queries"] >= 1
+    assert out["rule"]["passes"] in (True, False) and "pre_score_sensitivity_t_interval_of_game_means" in out
+    assert json.loads(ledger.read_text())[0]["status"] == "scored"
+    with pytest.raises(SystemExit):
+        E.make_scorer(d, None, prov)(test)                     # outside score_once the test data is refused
+
+
+def test_the_scorer_refuses_a_test_game_without_a_roster_before_reading_values(tmp_path, monkeypatch):
+    import json
+    from tools import research_testset as R
+    root, d, test, testset, ledger = _fixture_setup(tmp_path, monkeypatch)
+    (root / "analytics" / "rosters" / "2015-16" / f"{test[0]}.parquet").unlink()
+    out = R.score_once("embeddings-E1-rehearsal", R.TRACKING, E.make_scorer(d, None, {}), testset_path=testset,
+                       ledger_path=ledger)
+    assert out["verdict"]["refused"] and out["missing"] == {test[0]: ["rosters"]}
+    json.dumps(out, allow_nan=False)
+
+
+def test_the_scorer_refuses_when_no_test_player_qualifies(tmp_path, monkeypatch):
+    import json
+    from tools import research_testset as R
+    root, d, test, testset, ledger = _fixture_setup(tmp_path, monkeypatch)
+    monkeypatch.setattr(E, "ONE_GAME_MIN", 10 ** 6)
+    out = R.score_once("embeddings-E1-rehearsal", R.TRACKING, E.make_scorer(d, None, {}), testset_path=testset,
+                       ledger_path=ledger)
+    assert out["verdict"]["refused"] and "no test player qualifies" in out["verdict"]["reading"]
+    json.dumps(out, allow_nan=False)
+
+
+def test_a_single_game_t_interval_is_non_finite_and_would_be_refused():
+    out = E.game_mean_t_interval(np.zeros(5), {"x": np.ones(5)})
+    assert E.non_finite(out)

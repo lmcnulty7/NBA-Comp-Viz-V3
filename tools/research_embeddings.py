@@ -697,6 +697,9 @@ def one_game_summary(P_test, d: dict, n: int = BOOT) -> dict:
             hitv[s].append(r["hit"][s])
         hitv["position"].append(r["position"])
         games_of.append(np.full(len(q), g))
+    if not games_of:
+        return {"games": P_test.G, "counts": counted, "queries": 0, "games_with_queries": 0,
+                "pool": int(len(pool_players))}
     hit = {s: np.concatenate(hitv[s]).astype(bool) for s in SPACES}
     v = query_values(hit, np.concatenate(hitv["position"]))
     g_of = np.concatenate(games_of)
@@ -704,9 +707,10 @@ def one_game_summary(P_test, d: dict, n: int = BOOT) -> dict:
     iv = boot["intervals"]
     rule = {"lower_end": iv["pca"]["lo"], "position_upper_end": iv["position"]["hi"], "threshold": TEST_LO_MIN,
             "passes": bool(iv["pca"]["lo"] > TEST_LO_MIN and iv["pca"]["lo"] > iv["position"]["hi"])}
-    return {"games": P_test.G, "counts": counted, "queries": boot["queries"], "pool": int(len(pool_players)),
-            "chance": float(K / len(pool_players)), "rates_with_game_bootstrap": iv, "rule": rule,
-            "sensitivity_t_interval_of_game_means": game_mean_t_interval(g_of, v)}
+    return {"games": P_test.G, "counts": counted, "queries": boot["queries"], "games_with_queries": boot["groups"],
+            "pool": int(len(pool_players)), "chance": float(K / len(pool_players)),
+            "rates_with_game_bootstrap": iv, "rule": rule,
+            "pre_score_sensitivity_t_interval_of_game_means": game_mean_t_interval(g_of, v)}
 
 
 def game_mean_t_interval(groups, values: dict) -> dict:
@@ -740,37 +744,116 @@ def dryrun(artifacts=None, n_games: int = 3) -> dict:
             "keys": sorted(s["rates_with_game_bootstrap"]), "note": "mechanics only; these games are in the pool"}
 
 
-def final(artifacts=None) -> dict:
+SHOT_COLUMNS = ("sportvu_game", "player_id", "player_slug", "shot_type", "court_x", "court_y", "zone_basic",
+                "heldout", "split", "season")    # never the outcome columns (made, and the like)
+
+
+def clean_head() -> str:
+    """HEAD, after checking that the whole working tree is committed (no change, no untracked file), so the score
+    belongs to one commit of the code, the frozen code and the development record."""
+    import subprocess
+    dirty = subprocess.run(["git", "status", "--porcelain"], cwd=REPO_ROOT, capture_output=True, text=True,
+                           check=True).stdout.strip()
+    if dirty:
+        raise SystemExit(f"{WHO}: the working tree is not clean; commit first:\n{dirty}")
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+
+
+def non_finite(value, path: str = "") -> list:
+    """Paths of every float in a JSON-like value that is NaN or infinite (the ledger must never hold one)."""
+    if isinstance(value, dict):
+        return [p for k, v in value.items() for p in non_finite(v, f"{path}.{k}" if path else str(k))]
+    if isinstance(value, (list, tuple)):
+        return [p for i, v in enumerate(value) for p in non_finite(v, f"{path}[{i}]")]
+    if hasattr(value, "item") and not isinstance(value, (str, bytes)):
+        value = value.item()
+    return [path] if isinstance(value, float) and not math.isfinite(value) else []
+
+
+def refused(reading: str, **known) -> dict:
+    """A refused verdict: what is known (finite only) and why no rule is read."""
+    keep = {k: v for k, v in known.items() if not non_finite(v)}
+    return {"verdict": {"refused": True, "reading": reading}, **keep}
+
+
+def make_scorer(d: dict, artifacts=None, provenance: dict = None):
+    """The scorer score_once runs: the D103 one-game test on the games it is handed. The test data is reached only
+    here, and only while score_once runs a scorer of the tracking source. Before any value is computed, and without
+    reading an outcome column, it refuses unless every test game has frames, possessions, a roster and at least one
+    shot row, and no shot row is flagged held out. A summary with no query or with any non-finite number is
+    returned as a refused verdict, never as NaN."""
     import pandas as pd
+    import pyarrow.parquet as pq
     from analytics.embeddings import features as F
-    from tools.research_xfg import research_data_root, test_root_ready
-    if not (RESULTS / f"{EXPERIMENT}-dev.json").exists():
+    from analytics.embeddings import train as T
+    from tools import research_testset as RT
+    from tools.research_xfg import research_data_root
+
+    def scorer(test_games):
+        if RT._SCORING is None or RT._SCORING[1] != TRACKING:
+            raise SystemExit(f"{WHO}: the test data is read only inside the scorer that score_once runs")
+        root = research_data_root(artifacts)
+        games = sorted(str(g) for g in test_games)
+        head = {"experiment": EXPERIMENT, "stage": "the D103 one-game test, scored once on the D71 test set",
+                **(provenance or {})}
+        paths = {g: {"frames": root / "sportvu_contract" / f"{g}.parquet",
+                     "possessions": root / "analytics" / "possessions" / SEASON / f"{g}.parquet",
+                     "rosters": root / "analytics" / "rosters" / SEASON / f"{g}.parquet"} for g in games}
+        missing = {g: sorted(k for k, q in ps.items() if not q.exists()) for g, ps in paths.items()}
+        missing = {g: m for g, m in missing.items() if m}
+        if missing:
+            return {**head, **refused(f"{len(missing)} test game(s) lack a needed table", missing=missing)}
+        names = set(pq.ParquetFile(root / SHOTS_FILE).schema.names)
+        shots = pd.read_parquet(root / SHOTS_FILE, columns=[c for c in SHOT_COLUMNS if c in names],
+                                filters=[("sportvu_game", "in", games)])
+        if T.heldout_shot_mask(shots).any():
+            return {**head, **refused("a test shot row is flagged held out")}
+        no_shots = sorted(set(games) - set(shots["sportvu_game"].astype(str)))
+        if no_shots:
+            return {**head, **refused(f"{len(no_shots)} test game(s) have no shot row", games_without_shots=no_shots)}
+        parts, rosters = [], []
+        for g in games:
+            frames = pd.read_parquet(paths[g]["frames"])
+            parts.append(F.tracking_partials(frames, pd.read_parquet(paths[g]["possessions"])))
+            del frames
+            rosters.append(pd.read_parquet(paths[g]["rosters"]))
+        sp = shot_partials(shots, pd.concat(rosters, ignore_index=True))
+        P_test = Parts(pd.concat(parts, ignore_index=True), sp, games)
+        if sorted(P_test.games) != games or len(set(P_test.g.tolist())) != len(games):
+            return {**head, **refused("not every test game has tracking partials; scored all or none")}
+        summary = one_game_summary(P_test, d)
+        if not summary["queries"]:
+            return {**head, **refused("no test player qualifies (at least 50 possessions and a development "
+                                      "embedding)", counts=summary["counts"], games=summary["games"])}
+        bad = non_finite(summary)
+        if bad:
+            return {**head, **refused(f"{len(bad)} non-finite value(s) in the summary, for example {bad[0]}",
+                                      counts=summary["counts"], queries=summary["queries"],
+                                      games_with_queries=summary["games_with_queries"])}
+        return {**head, **summary}
+
+    return scorer
+
+
+def final(artifacts=None) -> dict:
+    head = clean_head()
+    from tools.research_xfg import test_root_ready
+    gate_record = require_gate(artifacts)
+    dev_path = RESULTS / f"{EXPERIMENT}-dev.json"
+    if not dev_path.exists():
         raise SystemExit(f"{WHO}: run e1-dev first; the test set is scored after the development result exists")
     d = load_dev(artifacts)
     if not test_root_ready(artifacts):
         raise SystemExit(f"{WHO}: the research data root has no ingested games; run tools.research_ingest first")
-
-    def scorer(test_games):
-        root = research_data_root(artifacts)
-        parts, rosters = [], []
-        for g in test_games:
-            frames = pd.read_parquet(root / "sportvu_contract" / f"{g}.parquet")
-            poss = pd.read_parquet(root / "analytics" / "possessions" / SEASON / f"{g}.parquet")
-            parts.append(F.tracking_partials(frames, poss))
-            del frames
-            r = root / "analytics" / "rosters" / SEASON / f"{g}.parquet"
-            if r.exists():
-                rosters.append(pd.read_parquet(r))
-        shots = pd.read_parquet(root / SHOTS_FILE, filters=[("sportvu_game", "in", list(test_games))])
-        sp = shot_partials(shots, pd.concat(rosters, ignore_index=True) if rosters else None)
-        P_test = Parts(pd.concat(parts, ignore_index=True), sp, test_games)
-        if sorted(P_test.games) != sorted(test_games):
-            raise SystemExit(f"{WHO}: not every test game has tracking partials; score them all or none")
-        return {"experiment": EXPERIMENT, "stage": "the D103 one-game test, scored once on the D71 test set",
-                **one_game_summary(P_test, d)}
-
+    provenance = {"code_commit": head, "gate_files_sha256": gate_record["files"], "dev_json_sha256": _sha256(dev_path)}
+    scorer = make_scorer(d, artifacts, provenance)
     out = score_once(EXPERIMENT, TRACKING, scorer)
-    (RESULTS / f"{EXPERIMENT}-final.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    rule = {"min_possessions": ONE_GAME_MIN, "lower_end_above": TEST_LO_MIN,
+            "and_above": "the upper end of the position-only retriever's interval", "source": "PLAN.md D103"}
+    record = {"experiment": EXPERIMENT, "code_commit": head, "scored": out,
+              "setup": {"gate": gate_record, "one_game_test_rule": rule}}
+    (RESULTS / f"{EXPERIMENT}-final.json").write_text(json.dumps(_plain(record), indent=2, allow_nan=False) + "\n")
     return out
 
 
@@ -786,7 +869,7 @@ def main(argv=None) -> int:
         else:
             out = {"e1-gate": gate, "e1-dryrun": dryrun, "e1-dev": dev, "e1-final": final}[a.command](a.artifacts)
     if a.command == "e1-final":
-        out = {"rule": out.get("rule"), "queries": out.get("queries")}
+        out = {"rule": out.get("rule"), "verdict": out.get("verdict"), "queries": out.get("queries")}
     print(json.dumps(_plain(out), indent=2, default=str))
     return 0
 
