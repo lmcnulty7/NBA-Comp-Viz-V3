@@ -340,7 +340,8 @@ def require_gate(artifacts=None) -> dict:
 # ----------------------------------------------------------------------------- rows of the two parts
 
 LAMBDA_GRID = (1.0, 3.0, 10.0, 30.0, 100.0, 300.0, 1000.0, 3000.0)
-LAMBDA_MAX = 1e6
+LAMBDA_MAX, LAMBDA_MIN = 1e6, 1e-3
+PRE_SHOT_GAP = 2           # the pre-shot diagnostic keeps sampled frames at least this many seconds before the release
 ZONE_COLUMNS = [f"zone_{z}" for z in ZONES[:-1]]       # "three" is the reference zone (the four shares sum to 1)
 STAB_MIN_POSSESSIONS, STAB_MIN_ATTEMPTS = 300, 100
 
@@ -470,7 +471,7 @@ def row_loss(y, z):
 
 def choose_lambda(D, rows_idx, n_folds: int = FOLDS, seed: int = SEED, grid=LAMBDA_GRID) -> tuple:
     """Inner grouped CV by game over rows_idx: the penalty with the lowest out-of-fold log loss (ties to the larger;
-    the grid grows by threes past its top while the top wins, up to LAMBDA_MAX)."""
+    the grid grows by threes past whichever end wins, up to LAMBDA_MAX and down to LAMBDA_MIN)."""
     import numpy as np
     from analytics.eval import grouped_folds
     X, y, off, g = D.X[rows_idx], D.y[rows_idx], D.offset[rows_idx], D.groups[rows_idx]
@@ -491,6 +492,9 @@ def choose_lambda(D, rows_idx, n_folds: int = FOLDS, seed: int = SEED, grid=LAMB
         best = min(curve, key=lambda l: (curve[l], -l))
         if best == max(curve) and best * 3 <= LAMBDA_MAX:
             grid = [best * 3]
+            continue
+        if best == min(curve) and best / 3 >= LAMBDA_MIN:
+            grid = [best / 3]
             continue
         return float(best), {str(k): v for k, v in sorted(curve.items())}
 
@@ -573,6 +577,38 @@ def part_result(name: str, D_def, D_nodef, log=print) -> dict:
             "defender_minus_no_defender": d,
             "passes": bool(d["point"] < 0 and d["ci95"][1] < 0),
             "projected_set_a": projected_half_width(D_def.groups, l_def - l_no)}
+
+
+def pre_shot_shares(artifacts, games, rows):
+    """Context for part (a), not pre-registered: the defender shares recomputed from the sampled frames at least
+    PRE_SHOT_GAP seconds before the sampled frame at or before the last attempt's release, so a defender who reaches
+    the shooter only at the shot gains no share. -> (rows of the possessions that keep a frame, shares)."""
+    import pandas as pd
+    folder = games_dir(artifacts)
+    keep_rows, shares = [], []
+    want = rows[["sportvu_game", "possession"]].drop_duplicates()
+    for g in games:
+        mf = pd.read_parquet(folder / f"{g}.mf.parquet")
+        sh = pd.read_parquet(folder / f"{g}.shots.parquet").sort_values(["possession", "event"])
+        last_k = sh.groupby("possession")["k"].last()
+        poss = set(want.loc[want["sportvu_game"] == g, "possession"].astype(int))
+        mf = mf[mf["possession"].isin(poss)]
+        lim = mf["possession"].map(last_k).fillna(-1).astype(int) - PRE_SHOT_GAP
+        mf = mf[(mf["k"] <= lim) & (lim >= 0)]
+        if len(mf) == 0:
+            continue
+        n = mf.groupby("possession")["k"].nunique()
+        pair = mf.groupby(["possession", "def_player_id", "off_player_id"], as_index=False).size()
+        pair["partial_possession"] = pair["size"] / pair["possession"].map(n)
+        pair.insert(0, "sportvu_game", g)
+        shares.append(pair.drop(columns=["size"]))
+        keep_rows.append(pd.DataFrame({"sportvu_game": g, "possession": sorted(n.index.astype(int))}))
+    kept = pd.concat(keep_rows, ignore_index=True)
+    r = rows.merge(kept, on=["sportvu_game", "possession"], how="inner")
+    sh = pd.concat(shares, ignore_index=True)
+    sh = sh.merge(r[["sportvu_game", "possession", "off_player_id"]], how="inner",
+                  on=["sportvu_game", "possession", "off_player_id"])
+    return r.reset_index(drop=True), sh
 
 
 def ablation(mp, shots, pts: dict, log=print) -> dict:
@@ -661,6 +697,13 @@ def dev(artifacts=None) -> dict:
     Da, Da0 = Design("a", a_rows, a_shares), Design("a", a_rows, a_shares, with_defenders=False)
     Db, Db0 = Design("b", b_rows), Design("b", b_rows, with_defenders=False)
     part_a = part_result("a", Da, Da0)
+    pre_rows, pre_shares = pre_shot_shares(artifacts, games, a_rows)
+    pre = part_result("a", Design("a", pre_rows, pre_shares), Design("a", pre_rows, pre_shares, with_defenders=False))
+    pre = {"what": ("context, not pre-registered, reads no verdict: part (a) with the defender shares taken only from "
+                    f"sampled frames at least {PRE_SHOT_GAP} s before the sampled frame at or before the release of the "
+                    "possession's last attempt (possessions without such a frame left out)"),
+           "possessions": int(pre_rows[["sportvu_game", "possession"]].drop_duplicates().shape[0]), **pre}
+    print(f"[matchups-E1] pre-shot (a) {pre['defender_minus_no_defender']} {round(time.time() - t0)} s", flush=True)
     print(f"[matchups-E1] part (a) {part_a['defender_minus_no_defender']} {round(time.time() - t0)} s", flush=True)
     part_b = part_result("b", Db, Db0)
     print(f"[matchups-E1] part (b) {part_b['defender_minus_no_defender']} {round(time.time() - t0)} s", flush=True)
@@ -677,6 +720,7 @@ def dev(artifacts=None) -> dict:
                                       "passed")},
            "frozen_reference_possession_points": g["frozen_reference_possession_points"],
            "rows": {"a": a_counts, "b": b_counts}, "part_a": part_a, "part_b": part_b, "ablation": abl,
+           "part_a_pre_shot_context": pre,
            "stability": stab,
            "test_fit": {"what": "penalties of the final fits on every development game (grouped CV, 5 folds, seed 0)",
                         "lambda_a": lam_a, "curve_a": curve_a, "lambda_b": lam_b, "curve_b": curve_b},
