@@ -1,0 +1,107 @@
+{
+  "experiment": "gravity-E1",
+  "stage": "development games, 5 grouped folds by game (the frozen lane's), seed 0",
+  "games": 604,
+  "counts": {
+    "attempts": 62387,
+    "no_release_row": 0,
+    "teammate_without_gravity": 29,
+    "used": 62358,
+    "shots_in_feature_frame": 101853,
+    "shots_outside_gravity_games": 493
+  },
+  "xfg_features_sha256": "968708b616e044220cb8d78b09da3ba78342059e393fbc6a2572cb11e0312709",
+  "gravity_sum_sd_ft": 1.1386093075647947,
+  "standardisation": {
+    "mean": {
+      "g_sum": -0.024037022586657353,
+      "g_max": 0.5832160696149941,
+      "d_sum": 38.11073436802554,
+      "d_max": 10.819519557715736
+    },
+    "sd": {
+      "g_sum": 1.1386093075647947,
+      "g_max": 0.4264704141696441,
+      "d_sum": 2.0471448958846117,
+      "d_max": 0.5149207998581343
+    }
+  },
+  "bootstrap": {
+    "games": 604,
+    "shots": 62358,
+    "resamples": 2000,
+    "intervals": {
+      "mse_baseline": {
+        "value": 16.094181687464598,
+        "lo": 15.171235868650532,
+        "hi": 17.062794559838103
+      },
+      "mse_candidate": {
+        "value": 16.0865657881296,
+        "lo": 15.16112536721137,
+        "hi": 17.056141679853496
+      },
+      "mse_ablation": {
+        "value": 16.091023518483144,
+        "lo": 15.167739920825415,
+        "hi": 17.06035650107485
+      },
+      "candidate_minus_baseline": {
+        "value": -0.0076158993349962015,
+        "lo": -0.015209980211538616,
+        "hi": -0.00022797460433647446
+      },
+      "ablation_minus_baseline": {
+        "value": -0.0031581689814572764,
+        "lo": -0.00887615768575769,
+        "hi": 0.0022957277873193794
+      },
+      "logloss_offset_alone": {
+        "value": 0.6655285308423902,
+        "lo": 0.6635893054075513,
+        "hi": 0.6675184155251962
+      },
+      "logloss_offset_plus_gravity": {
+        "value": 0.6654947776909227,
+        "lo": 0.6635427857524708,
+        "hi": 0.6674926866763436
+      },
+      "logloss_change": {
+        "value": -3.3753151467525785e-05,
+        "lo": -0.0001273902622026552,
+        "hi": 5.036555035923301e-05
+      }
+    }
+  },
+  "effect_per_sd_gravity": {
+    "sum": {
+      "value": 0.014465313805002569,
+      "lo": -0.06597455634588141,
+      "hi": 0.101558016081215
+    },
+    "max": {
+      "value": 0.12369935656468961,
+      "lo": 0.047266596503512344,
+      "hi": 0.1979066917669836
+    }
+  },
+  "effect_per_sd_ablation_raw_distance": {
+    "sum": {
+      "value": -0.11067064468895405,
+      "lo": -0.17275102440884424,
+      "hi": -0.046244300975408346
+    },
+    "max": {
+      "value": 0.061629096509475095,
+      "lo": -0.0001539443168307758,
+      "hi": 0.12219932256257435
+    }
+  },
+  "decision": {
+    "mse_interval_below_zero": true,
+    "effect_per_sd": 0.014465313805002569,
+    "effect_at_least": 0.2,
+    "effect_ok": false,
+    "adopted": false
+  }
+}

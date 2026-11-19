@@ -95,6 +95,64 @@ player-identifying feature enters the expectation.
 - Backlog: expected gain 3 (turns weakness 1 into a real test with a sharper outcome than location-only xFG). Effort
   2 (joins of existing tables and two ridge fits).
 
+#### Amendment (PLAN.md D107, 2026-11-19 UTC, written before any development number or run)
+
+Why: Set A can be scored, but it holds about 935 attempts with a release-frame defender distance (1668 shots, 56.1
+percent with contest features, reports/research/xfg-E1-final.json). At the threshold effect (0.2 ft per SD) the chance
+that its MSE interval excludes zero is about 0.11 to 0.13, and its own estimate of the effect has a 95 percent
+half-width of about 0.23 to 0.27 ft. Development (62387 attempts) is well powered. The shared rule says the result is
+scored once on the D71 test set after the decision. D107 therefore fixes: development decides; Set A is a
+pre-declared consistency check, scored once.
+
+- Decision (development games only): adopt if the out-of-fold MSE difference (candidate minus baseline) has its 95
+  percent interval wholly below zero and the effect is at least 0.2 ft of openness per SD of teammates' gravity sum,
+  in the direction the hypothesis states (more open with more gravity).
+- Set A (D107), scored once: the test effect per SD and the test MSE difference, each with a bootstrap of the 10 games
+  (2000 resamples) and a report-only t interval on the per-game values (as D80). Readings, from the bootstrap
+  interval of the test effect, in this order: "inconsistent" if it excludes the development estimate; otherwise
+  "confirms" if it excludes zero on the development estimate's side; otherwise "consistent". Only "inconsistent"
+  stops an adoption. The order is part of this commitment: a test interval that excludes both zero and the
+  development estimate reads "inconsistent", as D107's wording has it.
+
+Commitments fixed with this amendment (code: tools/research_gravity.py), before any number:
+
+1. Gravity input: the frozen gravity lane rerun with its own functions on the development games (validate_game and
+   build_game one game at a time, the frozen ridge expectation out of fold under its 5 grouped folds, seed 0; the
+   HGB diagnostic candidate is not refit, since nothing here reads it). Gate: the rebuilt gravity_frames equal the
+   stored frozen table's training rows (keys identical, expected_ft within 1e-4 ft), the stored gravity_players
+   means are reproduced (within 1e-6 ft), and the ridge out-of-fold MSE equals the printed 28.119.
+2. Shots: the frozen xFG feature frame of the training rows (built by tools.research_xfg with the frozen code; its
+   keys must equal the stored xFG predictions' training rows), development games only, attempts with a release-frame
+   defender distance (has_contest). Outcome: closest_defender_dist_ft at release.
+3. Teammates: the cleaned frames (frozen clean_frames) at the release frame; the shooter's team is the team of the
+   shooter's row in that frame. An attempt is used only when the shooter is in the frame and exactly 4 teammates are,
+   each with a gravity value; every other attempt is dropped and counted.
+4. A teammate's gravity for an attempt is the mean gravity_ft of the teammate's frames in development games outside
+   the attempt's fold (the experiment uses the frozen lane's 5 grouped folds by game, seed 0), so no game supplies
+   both. Stated, not repaired: the frozen out-of-fold expectations of those frames come from ridge fits that saw the
+   attempt's fold. For Set A, the mean over every development frame.
+5. Features: the four location features of the frozen location-only xFG model (distance_ft, angle_rad, is_three,
+   is_corner) standardised, plus a shooter term (one indicator per shooter seen in the training folds; an unseen
+   shooter has none). Baseline: Ridge (alpha 1, the frozen lane's) on those. Candidate: the baseline plus the sum and
+   the maximum of the 4 teammates' gravity, standardised. Folds: the 5 grouped folds of commitment 4.
+6. Metric: out-of-fold MSE of the release distance (ft squared), candidate minus baseline, shot-weighted; interval: a
+   paired bootstrap by game of the fixed per-shot squared errors, 2000 resamples, seed 0. Resampling games of fixed
+   errors adds no noise to any value (unlike the decisions-E1 reliability statistics, D86).
+7. Effect per SD: cross-fitted partial coefficient. In each fold, ridges with the baseline design, fit on the other
+   folds, predict the release distance and the two standardised gravity features; on the fold, the residuals are
+   formed; the pooled least-squares slope of the distance residual on the two gravity residuals (with an intercept)
+   gives the effect per SD of the gravity sum. SD: the standard deviation of the teammates' gravity sum over the
+   development attempts. Interval: a bootstrap by game of the fixed residuals, 2000 resamples. The decision reads the
+   point estimate. On Set A the same slope is formed with the nuisance ridges fit on every development attempt.
+8. Reported beside, read by no rule: the change in out-of-fold log loss of make (logistic with the out-of-fold
+   location-only xFG logit, the frozen analytics.train_xfg model, as an offset, plus the two gravity features;
+   against the offset alone); the ablation (each player's raw mean nearest-defender distance in place of gravity,
+   same folds); the coefficient on the gravity maximum.
+9. Set A refusals, decided now: the scorer refuses, with its reason and no number, unless every test game has frames
+   and at least one used attempt; a summary with any non-finite number (for one, a t interval over fewer than 2
+   games) is a refused verdict, never a NaN in the ledger. The score runs on a clean tree; the final file records the
+   commit, the gate files' hashes and the development record's hash, and nests the summary under "scored".
+
 ### gravity-E2: an expectation that knows where the teammates are
 
 - Hypothesis: adding the other four attackers' positions to the expectation (relative offsets sorted by distance,
