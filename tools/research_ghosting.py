@@ -1,0 +1,553 @@
+"""tools/research_ghosting.py: the ghosting research experiment ghosting-E1 (PLAN.md D111, D113).
+
+    python3 -m tools.research_ghosting e1-pass [--artifacts DIR] [--max-minutes 25]
+    python3 -m tools.research_ghosting e1-fold --fold K [--artifacts DIR]
+    python3 -m tools.research_ghosting e1-dev  [--artifacts DIR]
+
+Pre-registration: docs/research/ghosting.md, "ghosting-E1", with its amendment (D113), which fixes every definition
+used here before any number existed. The question: does training the window network on its own 5-step rollout lower
+the 1.0 s ghost error against the frozen one-step stand-in?
+
+e1-pass   One pass over the development games' frames, one game at a time, resumable: the frozen check_frames,
+          check_possessions, build_panel_game, feature_frame and fit_rows (unchanged) give each game's 1 Hz fit rows;
+          for every fit row the pass also keeps what a 5-step rollout needs (the context of the next 5 panel rows,
+          the defender's actual positions there, the two positions before the origin, and how many steps stay inside
+          the sequence). Development games only; held-out games are never read.
+e1-fold   One out-of-fold fold, checkpointed: the frozen stand-in refit on the training folds; the one-step and the
+          rollout torch networks trained on the same rows (MPS, capped); every model rolled forward with the frozen
+          roll_forward from every 5 Hz origin of the fold's games, rebuilt from frames one game at a time; the
+          stand-in's ghosts compared with the stored ghost_frames (the gate). Writes the fold's summaries.
+e1-dev    After all 5 folds: the gate over every game, the paired bootstraps, the sign tests and the decision.
+          Writes reports/research/ghosting-E1-dev.json.
+
+The Set A scorer is written only if development adopts (D113: otherwise Set A is not scored). Nothing here writes
+under DATA_ROOT or reports/ except the research results; the lane's command line is never run.
+"""
+
+import argparse
+import json
+import math
+import os
+import sys
+import time
+from pathlib import Path
+
+os.environ.setdefault("PYTORCH_MPS_HIGH_WATERMARK_RATIO", "0.6")
+os.environ.setdefault("PYTORCH_MPS_LOW_WATERMARK_RATIO", "0.5")
+
+from export.heavy import heavy_job, peak_rss_gb
+from tools.frozen_common import REPO_ROOT, _plain, _sha256, artifacts_dir, assert_safe_output, training_games_only
+from tools.research_testset import dev_games, refuse_test
+
+WHO = "tools.research_ghosting"
+EXPERIMENT = "ghosting-E1"
+RESULTS = REPO_ROOT / "reports" / "research"
+LANE_REPORT = REPO_ROOT / "reports" / "ghosting.md"
+SEASON = "2015-16"
+SEED, BOOT, FOLDS = 0, 2000, 5
+LR, BATCH, EPOCHS = 1e-3, 1024, 10
+HORIZON_BY_EPOCH = (1, 1, 2, 2, 3, 3, 4, 4, 5, 5)
+CHUNK_GAMES = 40
+GHOST_TOL = 1e-3                 # ft, the D49 ghosting cap
+DIFF_1S, GUARD_02S, SIGN_P = -0.10, 0.02, 0.05
+WORK = "ghosting_e1"
+CANDS = ("persistence", "constant_velocity", "mlp", "onestep", "rollout")
+STEPS = 5
+
+
+def work_dir(artifacts=None) -> Path:
+    return assert_safe_output(artifacts_dir(artifacts) / "research" / WORK)
+
+
+def _frozen():
+    from analytics.ghosting import features as F
+    from analytics.ghosting import train as T
+    from analytics.ghosting import validate as V
+    if (T.HIDDEN, T.MAX_ITER, F.N_LAGS, F.FIT_EVERY, F.DT) != ((64, 64), 200, 5, 5, 0.2):
+        raise RuntimeError(f"{WHO}: the frozen ghosting settings changed")
+    return F, T, V
+
+
+def layout():
+    """Column layout of a cached row: the frozen window (155) and targets (2), then the rollout block: the context
+    of panel rows p..p+4 (5 x 24), the defender's actual positions there (5 x 2), the positions at p-2 and p-1 (4),
+    and the number of valid steps (1)."""
+    F, _, _ = _frozen()
+    nw, nc = len(F.window_columns()), len(F.CTX_COLUMNS)
+    o = {"win": (0, nw), "tgt": (nw, nw + 2)}
+    s = nw + 2
+    o["ctx"] = (s, s + STEPS * nc); s += STEPS * nc
+    o["act"] = (s, s + STEPS * 2); s += STEPS * 2
+    o["hist"] = (s, s + 4); s += 4
+    o["nvalid"] = (s, s + 1); s += 1
+    o["width"] = s
+    return o
+
+
+# ----------------------------------------------------------------------------- development inputs
+
+def dev_game_list(root: Path) -> list:
+    from analytics.eval import is_heldout_game
+    frames = {p.stem for p in (root / "sportvu_contract").glob("*.parquet") if not p.name.endswith("_pbp.parquet")}
+    poss = {p.stem for p in (root / "analytics" / "possessions" / SEASON).glob("*.parquet")}
+    games = dev_games(sorted(g for g in frames & poss if not is_heldout_game(g)), WHO)
+    training_games_only(games, WHO)
+    return games
+
+
+def game_tables(root: Path, g: str):
+    """One development game's cleaned frames and possessions, panel and feature frame, by the frozen functions."""
+    import numpy as np
+    import pandas as pd
+    F, _, V = _frozen()
+    frames, _ = V.check_frames(pd.read_parquet(root / "sportvu_contract" / f"{g}.parquet"))
+    poss, _ = V.check_possessions(pd.read_parquet(root / "analytics" / "possessions" / SEASON / f"{g}.parquet"), frames)
+    panel, _ = F.build_panel_game(frames, poss, g)
+    del frames
+    panel["heldout"] = False
+    panel["panel_row"] = np.arange(len(panel))
+    return poss, panel, F.feature_frame(panel)
+
+
+def cache_rows(panel, frame):
+    """The cached rows of one game: the frozen fit rows plus each row's rollout block (layout())."""
+    import numpy as np
+    F, T, _ = _frozen()
+    keep = (frame["step"].to_numpy() % F.FIT_EVERY) == 0
+    fit = F.fit_rows(frame)[T.fit_columns()].to_numpy(dtype=np.float32)
+    p = frame.loc[keep, "panel_row"].to_numpy().astype(int)
+    ctx = panel[F.CTX_COLUMNS].to_numpy(dtype=float)
+    dxy = panel[["def_x", "def_y"]].to_numpy(dtype=float)
+    end = T._sequence_end(panel)
+    n_panel = len(panel)
+    q = np.minimum(p[:, None] + np.arange(STEPS)[None, :], n_panel - 1)
+    nvalid = np.minimum(end[p] - p + 1, STEPS)
+    block = np.concatenate([ctx[q].reshape(len(p), -1), dxy[q].reshape(len(p), -1), dxy[p - 2], dxy[p - 1],
+                            nvalid[:, None]], axis=1).astype(np.float32)
+    out = np.concatenate([fit, block], axis=1)
+    assert out.shape[1] == layout()["width"]
+    return out
+
+
+def frame_pass(artifacts=None, max_minutes: float = 25.0, log=print) -> dict:
+    import os as _os
+    import numpy as np
+    root = Path(_os.environ["DATA_ROOT"])
+    games = dev_game_list(root)
+    out = work_dir(artifacts) / "rows"
+    out.mkdir(parents=True, exist_ok=True)
+    started, done = time.time(), 0
+    for g in games:
+        if (out / f"{g}.npy").exists():
+            continue
+        if time.time() - started > max_minutes * 60:
+            break
+        _, panel, frame = game_tables(root, g)
+        rows = cache_rows(panel, frame) if len(frame) else np.zeros((0, layout()["width"]), dtype=np.float32)
+        (out / f"{g}.json").write_text(json.dumps({"feature_rows": int(len(frame)), "fit_rows": int(len(rows))}) + "\n")
+        np.save(out / f"{g}.part.npy", rows)
+        (out / f"{g}.part.npy").rename(out / f"{g}.npy")
+        done += 1
+        if log and done % 100 == 0:
+            log(f"[research] {done} games this run, {time.time() - started:.0f} s")
+    have = sum((out / f"{g}.npy").exists() for g in games)
+    return {"games": len(games), "written_this_run": done, "present": have, "complete": have == len(games),
+            "seconds": round(time.time() - started, 1), "peak_gb": round(peak_rss_gb(), 2)}
+
+
+def folds(games: list) -> list:
+    """The lane's 5 grouped folds by game (seed 0) over the games with fit rows -> [(train ids, test ids)]."""
+    from analytics.eval import grouped_folds
+    return [(sorted(tr), sorted(te)) for tr, te in grouped_folds(sorted(games), n_folds=FOLDS, seed=SEED)]
+
+
+# ----------------------------------------------------------------------------- the networks
+
+def torch_device():
+    import torch
+    return torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+
+
+def make_net(mean, scale):
+    """The stand-in's shape in torch: standardised 155-column window, 64 and 64 ReLU units, a 2-d displacement."""
+    import torch
+    from torch import nn
+
+    class Net(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.register_buffer("mean", torch.tensor(mean, dtype=torch.float32))
+            self.register_buffer("scale", torch.tensor(scale, dtype=torch.float32))
+            self.body = nn.Sequential(nn.Linear(len(mean), 64), nn.ReLU(), nn.Linear(64, 64), nn.ReLU(), nn.Linear(64, 2))
+
+        def forward(self, W):
+            return self.body((W - self.mean) / self.scale)
+
+    return Net()
+
+
+def base_features_torch(ctx, def_xy, def_back):
+    """analytics.ghosting.features.base_features in torch (back_s fixed at 0.4 s, as the roll-forward uses it):
+    differentiable in the defender's positions."""
+    import torch
+    F, _, _ = _frozen()
+    C = {c: i for i, c in enumerate(F.CTX_COLUMNS)}
+    pt = lambda name: ctx[:, [C[name + "_x"], C[name + "_y"]]]
+    cols = [ctx[:, [C["asg_x"], C["asg_y"]]] - def_xy]
+    cols += [pt(f"off{i}") - def_xy for i in range(1, 6)]
+    ball = ctx[:, [C["ball_x"], C["ball_y"]]]
+    cols.append(ball - def_xy)
+    cols += [pt(f"odef{j}") - def_xy for j in range(1, 5)]
+    right = (ball[:, 0] > F.MID_X).to(ctx.dtype)
+    baskets = torch.tensor(F.BASKETS, dtype=ctx.dtype, device=ctx.device)
+    basket = baskets[right.long()]
+    cols.append(torch.linalg.norm(ball - basket, dim=1, keepdim=True))
+    cols.append(torch.linalg.norm(def_xy - basket, dim=1, keepdim=True))
+    cols.append((def_xy - def_back) / (F.VEL_STEPS * F.DT))
+    cols.append(def_xy)
+    cols.append(ctx[:, [C["shot_clock_s"], C["elapsed_s"]]])
+    cols.append(right[:, None])
+    return torch.cat(cols, dim=1)
+
+
+def rollout_path(net, B, h: int) -> list:
+    """The ghost positions after steps 1..h of the rollout from each row of the batch B (layout() columns): the
+    network's own position fed back, its own features recomputed (base_features_torch), everyone else actual, as
+    analytics.ghosting.train.roll_forward does at scoring."""
+    import torch
+    F, _, _ = _frozen()
+    L = layout()
+    nb, nc = len(F.BASE_FEATURES), len(F.CTX_COLUMNS)
+    W0 = B[:, L["win"][0]:L["win"][1]]
+    ctx = B[:, L["ctx"][0]:L["ctx"][1]].reshape(-1, STEPS, nc)
+    hist = B[:, L["hist"][0]:L["hist"][1]]
+    win = [W0[:, k * nb:(k + 1) * nb] for k in range(F.N_LAGS)]
+    h0, h1 = hist[:, 0:2], hist[:, 2:4]              # positions at p-2 and p-1, as roll_forward's state["hist"]
+    ghost, path = h1, []
+    for j in range(h):
+        ghost = ghost + net(torch.cat(win, dim=1))
+        path.append(ghost)
+        if j + 1 < h:
+            Fnew = base_features_torch(ctx[:, j], ghost, h0)
+            h0, h1 = h1, ghost
+            win = [Fnew] + win[:-1]
+    return path
+
+
+def rollout_loss(net, B, h: int):
+    """Mean squared position error over the valid steps 1..h of the rollout (a step past the sequence's end is left
+    out)."""
+    import torch
+    L = layout()
+    act = B[:, L["act"][0]:L["act"][1]].reshape(-1, STEPS, 2)
+    nvalid = B[:, L["nvalid"][0]]
+    total = torch.zeros((), device=B.device)
+    count = torch.zeros((), device=B.device)
+    for j, ghost in enumerate(rollout_path(net, B, h)):
+        mask = (nvalid > j).to(B.dtype)
+        total = total + (((ghost - act[:, j]) ** 2).sum(dim=1) * mask).sum()
+        count = count + mask.sum()
+    return total / count.clamp(min=1)
+
+
+def train_net(rows_of, train_games, mean, scale, objective: str, folder: Path, log=print) -> dict:
+    """Train one network (objective "onestep" or "rollout") with the fixed budget, checkpointed by epoch in folder."""
+    import numpy as np
+    import torch
+    torch.manual_seed(SEED)
+    dev = torch_device()
+    net = make_net(mean, scale).to(dev)
+    opt = torch.optim.Adam(net.parameters(), lr=LR)
+    L = layout()
+    folder.mkdir(parents=True, exist_ok=True)
+    start = 0
+    for e in range(EPOCHS, 0, -1):
+        ck = folder / f"{objective}_epoch{e}.pt"
+        if ck.exists():
+            state = torch.load(ck, map_location=dev)
+            net.load_state_dict(state["net"]); opt.load_state_dict(state["opt"])
+            start = e
+            break
+    rng = np.random.default_rng([SEED, 7])
+    for _ in range(start):                        # the shuffles a resumed run has already used
+        rng.permutation(len(train_games))
+    timing = []
+    for epoch in range(start, EPOCHS):
+        t0 = time.time()
+        h = 1 if objective == "onestep" else HORIZON_BY_EPOCH[epoch]
+        order = rng.permutation(len(train_games))
+        er = np.random.default_rng([SEED, 8, epoch])
+        loss_sum, n_batches = 0.0, 0
+        for c0 in range(0, len(order), CHUNK_GAMES):
+            chunk = np.concatenate([rows_of(train_games[i]) for i in order[c0:c0 + CHUNK_GAMES]])
+            chunk = chunk[er.permutation(len(chunk))]
+            for b0 in range(0, len(chunk), BATCH):
+                B = torch.from_numpy(chunk[b0:b0 + BATCH]).to(dev)
+                if objective == "onestep":
+                    W = B[:, L["win"][0]:L["win"][1]]
+                    y = B[:, L["tgt"][0]:L["tgt"][1]]
+                    loss = ((net(W) - y) ** 2).sum(dim=1).mean()
+                else:
+                    loss = rollout_loss(net, B, h)
+                opt.zero_grad(set_to_none=True)
+                loss.backward()
+                opt.step()
+                loss_sum += float(loss.detach()); n_batches += 1
+            del chunk
+        torch.save({"net": net.state_dict(), "opt": opt.state_dict()}, folder / f"{objective}_epoch{epoch + 1}.pt")
+        timing.append({"epoch": epoch + 1, "horizon": h, "mean_loss": loss_sum / max(n_batches, 1),
+                       "seconds": round(time.time() - t0, 1)})
+        if log:
+            log(f"[research] {objective} epoch {epoch + 1}/{EPOCHS} h={h} loss {loss_sum / max(n_batches, 1):.4f} "
+                f"{time.time() - t0:.0f} s")
+    final = folder / f"{objective}_epoch{EPOCHS}.pt"
+    net.eval().cpu()
+    return {"net": net, "weights": final.name, "weights_sha256": _sha256(final), "epochs": timing}
+
+
+# ----------------------------------------------------------------------------- one fold
+
+def predictors(stand_in, onestep, rollout) -> dict:
+    """{candidate: predict(window matrix) -> displacement} for the frozen roll_forward."""
+    import numpy as np
+    import torch
+    F, _, _ = _frozen()
+    ivx = F.BASE_FEATURES.index("def_vx")
+
+    def torch_fn(net):
+        def f(W):
+            with torch.no_grad():
+                return net(torch.from_numpy(np.asarray(W, dtype=np.float32))).numpy().astype(float)
+        return f
+
+    return {"persistence": lambda W: np.zeros((len(W), 2)),
+            "constant_velocity": lambda W: np.asarray(W, dtype=float)[:, [ivx, ivx + 1]] * F.DT,
+            "mlp": stand_in, "onestep": torch_fn(onestep), "rollout": torch_fn(rollout)}
+
+
+def evaluate_game(root: Path, g: str, preds: dict, fold: int) -> dict:
+    """Every candidate rolled forward by the frozen roll_forward from every 5 Hz origin of one game -> the game's
+    error summaries, the ghost possessions of the stand-in and the rollout network, and the gate comparison."""
+    import numpy as np
+    import pandas as pd
+    _, T, _ = _frozen()
+    poss, panel, frame = game_tables(root, g)
+    if not len(frame):
+        return None
+    errs = []
+    for c, f in preds.items():
+        key = "persistence" if c == "persistence" else "mlp"
+        e = T.roll_forward({key: f}, frame, panel, fold=fold)
+        e["candidate"] = c
+        errs.append(e)
+    err = pd.concat(errs, ignore_index=True)
+    keys = ["sportvu_game", "possession", "frame", "def_player_id"]
+    summ = []
+    for h in (0.2, 1.0):
+        w = err[err["horizon_s"] == h].pivot_table(index=keys, columns="candidate", values="error_ft",
+                                                   aggfunc="first")
+        row = {"sportvu_game": g, "horizon_s": h, "rows": int(len(w))}
+        for c in CANDS:
+            row["sum_" + c], row["n_" + c] = float(w[c].sum()), int(w[c].count())
+        summ.append(row)
+    gp = {}
+    for c in ("mlp", "rollout"):
+        e = err[err["candidate"] == c].copy()
+        e["candidate"] = "mlp"
+        gp[c] = T.ghost_tables(e, "mlp", poss)[1]
+    mine = err[err["candidate"] == "mlp"][keys + ["horizon_s", "ghost_x", "ghost_y"]]
+    stored = pd.read_parquet(Path(os.environ["DATA_ROOT"]) / "analytics" / "ghosting" / SEASON /
+                             f"ghost_frames_{g}.parquet", columns=keys + ["horizon_s", "ghost_x", "ghost_y", "fold"])
+    m = mine.merge(stored, on=keys + ["horizon_s"], how="outer", suffixes=("", "_stored"), indicator=True)
+    both = m["_merge"] == "both"
+    diff = np.hypot(m.loc[both, "ghost_x"] - m.loc[both, "ghost_x_stored"], m.loc[both, "ghost_y"] - m.loc[both, "ghost_y_stored"])
+    gate = {"sportvu_game": g, "rows": int(len(mine)), "rows_stored": int(len(stored)), "unmatched": int((~both).sum()),
+            "max_abs_diff_ft": float(diff.max()) if both.any() else float("nan"),
+            "stored_fold_equal": bool((m.loc[both, "fold"] == fold).all())}
+    return {"summ": summ, "gp": gp, "gate": gate}
+
+
+def run_fold(k: int, artifacts=None, log=print) -> dict:
+    import os as _os
+    import gc
+    import numpy as np
+    import pandas as pd
+    import torch
+    from analytics.eval import fit_threads
+    _, T, _ = _frozen()
+    root = Path(_os.environ["DATA_ROOT"])
+    wd = work_dir(artifacts)
+    games = dev_game_list(root)
+    have = [g for g in games if (wd / "rows" / f"{g}.npy").exists()]
+    if len(have) != len(games):
+        raise SystemExit(f"{WHO}: run e1-pass first ({len(games) - len(have)} games missing)")
+    rows_of = lambda g: np.load(wd / "rows" / f"{g}.npy", mmap_mode="r")
+    with_rows = [g for g in games                    # the frozen run kept the games with feature rows
+                 if json.loads((wd / "rows" / f"{g}.json").read_text())["feature_rows"] > 0]
+    tr, te = folds(with_rows)[k]
+    refuse_test(tr + te, WHO)
+    training_games_only(tr + te, WHO)
+    folder = wd / f"fold{k}"
+    folder.mkdir(parents=True, exist_ok=True)
+    if (folder / "summaries.parquet").exists():
+        return {"fold": k, "status": "already done"}
+    started = time.time()
+    L = layout()
+    # the frozen stand-in, on the training folds' fit rows in the frozen order (sorted game ids)
+    n = sum(rows_of(g).shape[0] for g in tr)
+    mm_path = folder / "fit_rows.tmp.npy"
+    X = np.lib.format.open_memmap(mm_path, mode="w+", dtype=np.float32, shape=(n, L["tgt"][1]))
+    i = 0
+    for g in tr:
+        r = rows_of(g)
+        X[i:i + len(r)] = r[:, :L["tgt"][1]]
+        i += len(r)
+    frame = pd.DataFrame(X, columns=T.fit_columns(), copy=False)
+    frame.insert(0, "sportvu_game", np.repeat(tr, [rows_of(g).shape[0] for g in tr]))
+    frame["heldout"] = False
+    t0 = time.time()
+    with fit_threads(1):
+        stand_in = T.fit_mlp(frame, seed=SEED)
+    t_mlp = time.time() - t0
+    from sklearn.preprocessing import StandardScaler
+    sc = StandardScaler()
+    for j in range(0, n, T.SCALER_CHUNK):
+        sc.partial_fit(X[j:j + T.SCALER_CHUNK, :L["win"][1]])
+    mean, scale = sc.mean_.astype(np.float32), sc.scale_.astype(np.float32)
+    del frame, X
+    gc.collect()
+    mm_path.unlink()
+    peak_after_mlp = peak_rss_gb()
+    if log:
+        log(f"[research] fold {k}: stand-in fitted on {n} rows in {t_mlp:.0f} s, peak {peak_after_mlp:.1f} GB")
+    nets = {o: train_net(rows_of, tr, mean, scale, o, folder, log) for o in ("onestep", "rollout")}
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+    preds = predictors(stand_in, nets["onestep"]["net"], nets["rollout"]["net"])
+    t0 = time.time()
+    summ, gp, gates = [], {"mlp": [], "rollout": []}, []
+    for c, g in enumerate(te):
+        r = evaluate_game(root, g, preds, fold=k)
+        if r is None:
+            continue
+        summ += r["summ"]
+        gates.append(r["gate"])
+        for c2 in gp:
+            gp[c2].append(r["gp"][c2])
+        if log and (c + 1) % 25 == 0:
+            log(f"[research] fold {k}: evaluated {c + 1} of {len(te)} games, {time.time() - t0:.0f} s")
+    for c2 in gp:
+        pd.concat(gp[c2], ignore_index=True).to_parquet(folder / f"gp_{c2}.parquet", index=False)
+    pd.DataFrame(gates).to_parquet(folder / "gate.parquet", index=False)
+    info = {"fold": k, "train_games": len(tr), "test_games": len(te), "fit_rows": int(n),
+            "seconds": {"stand_in_fit": round(t_mlp, 1), "evaluation": round(time.time() - t0, 1),
+                        "total": round(time.time() - started, 1)},
+            "peak_rss_gb": round(peak_rss_gb(), 2), "peak_rss_after_stand_in_gb": round(peak_after_mlp, 2),
+            "nets": {o: {k2: v for k2, v in nets[o].items() if k2 != "net"} for o in nets},
+            "mps_watermarks": {"high": os.environ.get("PYTORCH_MPS_HIGH_WATERMARK_RATIO"),
+                               "low": os.environ.get("PYTORCH_MPS_LOW_WATERMARK_RATIO")},
+            "device": str(torch_device())}
+    (folder / "fold.json").write_text(json.dumps(_plain(info), indent=2, allow_nan=False) + "\n")
+    pd.DataFrame(summ).to_parquet(folder / "summaries.parquet", index=False)      # written last: the fold is done
+    return info
+
+
+# ----------------------------------------------------------------------------- development statistics
+
+def _mean_of(c: str):
+    return lambda d: d["sum_" + c].sum() / d["n_" + c].sum() if d["n_" + c].sum() else float("nan")
+
+
+def printed_numbers(text: str) -> dict:
+    import re
+    m02 = re.search(r"\| 0\.2 s error, MLP stand-in \| (\d+\.\d+) ", text)
+    m10 = re.search(r"\| 1\.0 s error, MLP stand-in \| (\d+\.\d+) ", text)
+    ms = re.search(r"\| graded-deviation sign test \(positive / negative games\) \| (\d+) / (\d+), p = (\d+\.\d+)", text)
+    if not (m02 and m10 and ms):
+        raise SystemExit(f"{WHO}: the frozen report does not print the stand-in's numbers")
+    return {"0.2": m02.group(1), "1.0": m10.group(1), "n_pos": int(ms.group(1)), "n_neg": int(ms.group(2)),
+            "p": ms.group(3)}
+
+
+def dev(artifacts=None) -> dict:
+    import numpy as np
+    import pandas as pd
+    from analytics.eval import bootstrap_by_game, paired_bootstrap_by_game
+    _, T, _ = _frozen()
+    wd = work_dir(artifacts)
+    missing = [k for k in range(FOLDS) if not (wd / f"fold{k}" / "summaries.parquet").exists()]
+    if missing:
+        raise SystemExit(f"{WHO}: folds {missing} are not done")
+    S = pd.concat([pd.read_parquet(wd / f"fold{k}" / "summaries.parquet") for k in range(FOLDS)], ignore_index=True)
+    gate = pd.concat([pd.read_parquet(wd / f"fold{k}" / "gate.parquet") for k in range(FOLDS)], ignore_index=True)
+    gp = {c: pd.concat([pd.read_parquet(wd / f"fold{k}" / f"gp_{c}.parquet") for k in range(FOLDS)], ignore_index=True)
+          for c in ("mlp", "rollout")}
+    folds_info = [json.loads((wd / f"fold{k}" / "fold.json").read_text()) for k in range(FOLDS)]
+    games = sorted(S["sportvu_game"].unique())
+    training_games_only(games, WHO)
+    refuse_test(games, WHO)
+    out = {"experiment": EXPERIMENT, "stage": "development games, the lane's 5 grouped folds by game, seed 0",
+           "games": len(games), "folds": folds_info}
+    means, pairs = {}, {}
+    for h in (0.2, 1.0):
+        d = S[S["horizon_s"] == h].reset_index(drop=True)
+        means[str(h)] = {c: bootstrap_by_game(d, "sportvu_game", _mean_of(c), n=BOOT, seed=SEED) for c in CANDS}
+        means[str(h)]["rows"] = int(d["rows"].sum())
+        pairs[str(h)] = {f"{a}_minus_{b}": paired_bootstrap_by_game(d, "sportvu_game", _mean_of(a), _mean_of(b),
+                                                                     n=BOOT, seed=SEED)
+                         for a, b in (("rollout", "mlp"), ("onestep", "mlp"), ("rollout", "onestep"),
+                                      ("mlp", "persistence"), ("mlp", "constant_velocity"))}
+    signs = {c: {k: v for k, v in T.sign_test(gp[c]).items() if k != "per_game"} for c in gp}
+    printed = printed_numbers(LANE_REPORT.read_text())
+    half = lambda s: 0.5 * 10 ** -len(s.split(".")[1])
+    gate_rec = {"games_compared": int(len(gate)), "rows": int(gate["rows"].sum()), "rows_stored": int(gate["rows_stored"].sum()),
+                "unmatched": int(gate["unmatched"].sum()), "max_abs_diff_ft": float(gate["max_abs_diff_ft"].max()),
+                "stored_fold_equal": bool(gate["stored_fold_equal"].all()), "tolerance_ft": GHOST_TOL,
+                "printed": printed,
+                "recomputed": {"0.2": means["0.2"]["mlp"]["point"], "1.0": means["1.0"]["mlp"]["point"],
+                               "n_pos": signs["mlp"]["n_pos"], "n_neg": signs["mlp"]["n_neg"],
+                               "p": signs["mlp"]["p_value"]}}
+    gate_rec["passed"] = bool(gate_rec["unmatched"] == 0 and gate_rec["rows"] == gate_rec["rows_stored"]
+                              and gate_rec["max_abs_diff_ft"] <= GHOST_TOL and gate_rec["stored_fold_equal"]
+                              and abs(means["0.2"]["mlp"]["point"] - float(printed["0.2"])) <= half(printed["0.2"])
+                              and abs(means["1.0"]["mlp"]["point"] - float(printed["1.0"])) <= half(printed["1.0"])
+                              and signs["mlp"]["n_pos"] == printed["n_pos"] and signs["mlp"]["n_neg"] == printed["n_neg"])
+    out["gate"] = gate_rec
+    out["mean_error_ft"], out["paired_ft"], out["sign_test"] = means, pairs, signs
+    p1, p02, s = pairs["1.0"]["rollout_minus_mlp"], pairs["0.2"]["rollout_minus_mlp"], signs["rollout"]
+    decision = {"one_s": {"diff": p1["diff"], "hi": p1["hi"], "rule": f"diff <= {DIFF_1S} and hi < 0",
+                          "ok": bool(p1["diff"] <= DIFF_1S and p1["hi"] < 0)},
+                "guard_02s": {"hi": p02["hi"], "rule": f"hi < +{GUARD_02S}", "ok": bool(p02["hi"] < GUARD_02S)},
+                "sign_test": {"n_pos": s["n_pos"], "n_neg": s["n_neg"], "p": s["p_value"],
+                              "rule": f"n_pos > n_neg and p < {SIGN_P}",
+                              "ok": bool(s["n_pos"] > s["n_neg"] and s["p_value"] < SIGN_P)}}
+    decision["adopted"] = bool(gate_rec["passed"] and all(v["ok"] for v in decision.values() if isinstance(v, dict)))
+    out["decision"] = decision
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    (RESULTS / f"{EXPERIMENT}-dev.json").write_text(json.dumps(_plain(out), indent=2, allow_nan=False) + "\n")
+    (RESULTS / f"{EXPERIMENT}-gate.json").write_text(json.dumps(_plain(gate_rec), indent=2, allow_nan=False) + "\n")
+    return {"gate_passed": gate_rec["passed"], "decision": decision}
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog=WHO)
+    ap.add_argument("command", choices=("e1-pass", "e1-fold", "e1-dev"))
+    ap.add_argument("--artifacts", default=None)
+    ap.add_argument("--fold", type=int, default=None)
+    ap.add_argument("--max-minutes", type=float, default=25.0)
+    a = ap.parse_args(argv)
+    with heavy_job(f"research ghosting {a.command}" + (f" fold {a.fold}" if a.fold is not None else "")):
+        if a.command == "e1-pass":
+            out = frame_pass(a.artifacts, a.max_minutes)
+        elif a.command == "e1-fold":
+            if a.fold is None or not 0 <= a.fold < FOLDS:
+                raise SystemExit("give --fold 0..4")
+            out = run_fold(a.fold, a.artifacts)
+        else:
+            out = dev(a.artifacts)
+    print(json.dumps(_plain(out), indent=2, default=str))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
