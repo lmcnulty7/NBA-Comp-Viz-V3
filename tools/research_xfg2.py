@@ -46,7 +46,8 @@ RESULTS = REPO_ROOT / "reports" / "research"
 
 
 def out_dir(artifacts=None) -> Path:
-    return RX.research_dir(artifacts) / "xfg_e2_features"
+    # v2: the first job read the frames without the frozen cleaning; its folder is left as it is, unused
+    return RX.research_dir(artifacts) / "xfg_e2_features_v2"
 
 
 # ----------------------------------------------------------------------------- the features of one game
@@ -122,6 +123,7 @@ def build_features(artifacts=None, max_minutes: float = 25.0) -> dict:
     import pandas as pd
     from analytics import schema as contract_tables
     from analytics.eval import is_heldout_game
+    from analytics.xfg import validate as V
     started = time.time()
     root = Path(os.environ["DATA_ROOT"])
     frame = RX._features(artifacts)
@@ -140,16 +142,18 @@ def build_features(artifacts=None, max_minutes: float = 25.0) -> dict:
             raise SystemExit(f"{WHO}: {game} is a held-out game")
         rows = frame[(frame["sportvu_game"].astype(str) == game) & (frame["has_contest"] == 1)
                      & (frame["release_frame"] >= 0) & frame["player_id"].notna()]
-        frames = pd.read_parquet(root / "sportvu_contract" / f"{game}.parquet",
-                                 columns=["frame", "period", "game_clock_s", "shot_clock_s", "ball_x", "ball_y",
-                                          "ball_z", "team_id", "player_id", "x", "y"])
-        poss = pd.read_parquet(contract_tables.table_path(root / "analytics", "possessions", "2015-16", game))
-        feats = game_features(rows, frames, poss)
+        feats = {}
+        if len(rows):
+            # the frames as the frozen feature build read them: the lane's columns and its cleaning
+            frames, _summary = V.clean_frames(pd.read_parquet(root / "sportvu_contract" / f"{game}.parquet",
+                                                              columns=V.FRAME_COLUMNS))
+            poss = pd.read_parquet(contract_tables.table_path(root / "analytics", "possessions", "2015-16", game))
+            feats = game_features(rows, frames, poss)
+            del frames
         out = pd.DataFrame([{"row": i, **v} for i, v in feats.items()],
                            columns=["row"] + NEW_FEATURES)
         out.insert(0, "sportvu_game", game)
         out.to_parquet(folder / f"{game}.parquet", index=False)
-        del frames
         built += 1
     done = {p.stem for p in folder.glob("*.parquet")}
     return {"games": len(games), "done": len(done), "built_this_job": built,
