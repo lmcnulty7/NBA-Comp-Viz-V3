@@ -1288,6 +1288,14 @@
           "title": "Test Not Scored",
           "type": "boolean"
         },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
         "status": {
           "enum": [
             "pre_registered",
@@ -4177,6 +4185,18 @@
           },
           "title": "Values",
           "type": "array"
+        },
+        "test_set": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Test Set"
         }
       },
       "required": [
@@ -4236,6 +4256,18 @@
         "point_estimate": {
           "title": "Point Estimate",
           "type": "boolean"
+        },
+        "reading": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reading"
         }
       },
       "required": [

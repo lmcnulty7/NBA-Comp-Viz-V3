@@ -983,6 +983,7 @@ export interface ExperimentPart {
   development?: StageResult | null;
   test?: StageResult | null;
   test_not_scored?: boolean;
+  notes?: string[];
   status:
     | "pre_registered"
     | "confirmed"
@@ -1028,6 +1029,7 @@ export interface StageResult {
   met: boolean;
   reading?: string | null;
   values: StageValue[];
+  test_set?: string | null;
 }
 /**
  * A further condition of a stage's rule: a statistic with its 95 percent interval, met when the end of the
@@ -1092,6 +1094,7 @@ export interface StageValue {
   lo?: number | null;
   hi?: number | null;
   point_estimate: boolean;
+  reading?: string | null;
 }
 /**
  * The development result of an experiment whose pre-registration is a protocol of hypotheses (statements on

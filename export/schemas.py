@@ -1102,6 +1102,8 @@ class StageValue(Strict):
     lo: Optional[float] = None
     hi: Optional[float] = None
     point_estimate: bool
+    # the file's reading of this value, checked against its pre-registered rule (genai-E2 H4's number failure rate)
+    reading: Optional[str] = None
 
     @model_validator(mode="after")
     def _interval(self):
@@ -1210,6 +1212,8 @@ class StageResult(Strict):
     met: bool
     reading: Optional[str] = None
     values: list[StageValue]
+    # the heading of a test stage scored on a test set of its own (the genai test players), never the D71 test games
+    test_set: Optional[str] = None
 
     @model_validator(mode="after")
     def _rule(self):
@@ -1228,6 +1232,9 @@ class StageResult(Strict):
         guards = ([self.guard] if self.guard else []) + list(self.guards)
         if self.met != (main and all(c.met for c in self.conditions) and all(g.met for g in guards)):
             raise ValueError("met says whether the bound meets the threshold and every further condition is met")
+        if self.test_set is not None and (self.stage != "test" or "D71" in self.source.what
+                                          or "test games" in self.test_set.lower()):
+            raise ValueError("a test set of its own heads a test stage and names neither D71 nor test games")
         expected = "testset" if self.stage == "test" else "out_of_fold"
         if self.source.rows != expected or any(s.rows != expected for s in self.also_read):
             raise ValueError(f"a {self.stage} result reads rows {expected}")
@@ -1334,6 +1341,8 @@ class ExperimentPart(Strict):
     development: Optional[StageResult] = None
     test: Optional[StageResult] = None
     test_not_scored: bool = False
+    # sentences of the write-up quoted word for word beside this part
+    notes: list[str] = []
     status: PartStatus
 
     @model_validator(mode="after")

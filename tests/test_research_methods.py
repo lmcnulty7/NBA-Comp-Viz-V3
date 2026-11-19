@@ -198,6 +198,7 @@ def _repo_copy(tmp_path, source) -> Path:
             names.add(value)
 
     walk(source)
+    names.add(R.LEDGER)                 # the scoring ledger decides which test stages were scored on the D71 test set
     for name in names:
         (repo / name).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(REPO / name, repo / name)
@@ -1195,7 +1196,7 @@ def _mutated_repo(tmp_path, source, name, change):
         _exp(d, "gravity-E1")["results"]["conditions"][0].pop("threshold_key"),
         _exp(d, "gravity-E1")["results"]["conditions"][0].update(threshold=0.01)), "does not state at least 0.01"),
     ("gravity: the effect part dropped", lambda d: _exp(d, "gravity-E1")["results"].update(conditions=[]),
-     "belong to no rule"),
+     "which no part of the source reads"),
     ("gravity: the main flag read as the effect flag", lambda d: _exp(d, "gravity-E1")["results"]["keys"].update(
         main_met="decision.effect_ok"), "belong to no rule"),
     ("gravity: Set A said scored", lambda d: _exp(d, "gravity-E1").pop("test_not_scored"), ""),
@@ -1390,7 +1391,9 @@ def test_ghosting_e1_is_refused_when_the_source_misreads_it(source, name, change
 
 @pytest.mark.parametrize("name, file, change, message", [
     ("Set A said consistent", "ghosting-E1-final.json", lambda d: d["scored"].update(reading="consistent"),
-     "disagrees with the rule"),
+     "no other reading fits"),
+    ("Set A said confirms (D113 reads inconsistent first)", "ghosting-E1-final.json",
+     lambda d: d["scored"].update(reading="confirms"), "disagrees with the rule"),
     ("the development estimate moved", "ghosting-E1-final.json",
      lambda d: d["scored"].update(development_estimate_1s=-1.2), "the development estimate the range must hold"),
     ("the sign test flag against its numbers", "ghosting-E1-dev.json",
@@ -1417,3 +1420,104 @@ def test_the_contract_reads_a_contains_rule_and_a_point_only_condition(source):
         S.Condition(**{**signs, "lo": 100})
     with pytest.raises(ValidationError, match="both ends or neither"):
         S.Condition(**{**signs, "bound": "lo"})
+
+
+# ------------------------------------------------------------------------------------------ the ml-review probes (M1, M2)
+
+
+def _genai_part(doc, eid, label):
+    return next(p for p in _exp(doc, eid)["parts"] if p["label"] == label)
+
+
+def _probe_h4_as_non_inferiority(d):
+    r = _genai_part(d, "genai-E2", "0.5B H4 scouting: constrained decoding, pass rate")["results"]
+    r.update(comparison="at_least", threshold=-0.05)
+    r["readings"]["inconclusive"] = "met"
+
+
+def _probe_h2_as_non_inferiority(d):
+    r = _genai_part(d, "genai-E2", "0.5B H2 possession: rejection sampling")["results"]
+    r.update(comparison="at_least", threshold=-0.05)
+    r["readings"]["inconclusive"] = "met"
+
+
+def _drop_part(eid, label):
+    return lambda d: _exp(d, eid).update(parts=[p for p in _exp(d, eid)["parts"] if p["label"] != label])
+
+
+def _hide_development(d):
+    r = _part(d, "matchups-E1", "Part (b)")
+    r.update(stages="test_only")
+    r["results"].update(development=None)
+    r["results"]["stage_keys"].pop("development")
+
+
+@pytest.mark.parametrize("name, change, message", [
+    ("(a) H4 read as non-inferior with inconclusive as a pass", _probe_h4_as_non_inferiority, "does not state at "
+     "least -0.05"),
+    ("(a) H2 possession read the same way", _probe_h2_as_non_inferiority, "does not state at least -0.05"),
+    ("(a) inconclusive alone read as a pass", lambda d: _genai_part(d, "genai-E2", "0.5B H2 possession: rejection "
+     "sampling")["results"]["readings"].update(inconclusive="met"), "does not state the lo above 0"),
+    ("(a) 1.5B H3 bar moved to above 0", lambda d: _genai_part(d, "genai-E2", "1.5B H3 scouting: near the API model")
+     ["results"].update(comparison="above", threshold=0), "does not state above 0.0"),
+    ("(a) H4 given H3's rule", lambda d: _genai_part(d, "genai-E2", "0.5B H4 scouting: constrained decoding, pass rate")
+     ["results"]["rule_quote"].update(texts=[
+         "H3, near the API model (scouting only): the dev-best arm with the repair loop minus Haiku as delivered. "
+         "Lower bound at or above -0.05: non-inferior; upper bound below -0.05: inferior; otherwise inconclusive."]),
+     "holds its own sentence"),
+    ("(a) a rule quote not in the dossier", lambda d: _genai_part(d, "genai-E2", "1.5B H1 scouting: training helps")
+     ["results"]["rule_quote"]["texts"].__setitem__(0, "H1, training helps: passes when above 0."), "not whole "
+     "sentences"),
+    ("(b) 1.5B H2 scouting dropped", _drop_part("genai-E2", "1.5B H2 scouting: rejection sampling"), "no part reads"),
+    ("(b) genai-E1 H2 dropped", _drop_part("genai-E1", "H2: the model writes with more variety"),
+     "the dossier names"),
+    ("(c) embeddings' position-only bar dropped", lambda d: _exp(d, "embeddings-E1")["results"].update(conditions=[]),
+     "which no part of the source reads"),
+    ("(c) genai-E2 H1's +0.10 bar dropped", lambda d: _genai_part(d, "genai-E2", "1.5B H1 scouting: training helps")
+     ["results"].update(conditions=[]), "which no part of the source reads"),
+    ("(d) matchups-E1 part (b) read test only", _hide_development, "record a development verdict"),
+    ("M1: a genai test stage without its own test set", lambda d: _genai_part(
+        d, "genai-E1", "H1: the checker does not separate a template from the model")["results"].pop("test_set"),
+     "holds no entry for genai-E1"),
+    ("M1: a genai test stage claiming D71", lambda d: _genai_part(
+        d, "genai-E1", "H1: the checker does not separate a template from the model")["results"]["test_set"].update(
+        what="experiment result: scored once on the D71 test set"), "names neither D71 nor test games"),
+    ("M1: a genai heading saying test games", lambda d: _genai_part(
+        d, "genai-E2", "0.5B H1 scouting: training helps")["results"]["test_set"].update(
+        heading="Test games, scored once"), "names neither D71 nor test games"),
+])
+def test_the_ml_review_probes_are_refused(source, name, change, message):
+    doc = copy.deepcopy(source)
+    change(doc)
+    problems = _build_problems(doc)
+    assert any(message in line for line in problems), (name, problems[:3])
+
+
+def test_a_value_reading_against_its_numbers_is_refused(source, tmp_path):
+    key = "H4 scouting: a3 minus a1-epoch1"
+    repo = _mutated_repo(tmp_path, source, "genai-E2-0.5B-final.json",
+                         lambda d: d["hypotheses"][key].update(number_value_reading="fewer wrong numbers"))
+    with pytest.raises(R.MethodsProblem, match="its numbers give 'inconclusive'"):
+        R.build_methods(repo, source)
+
+
+def test_genai_stages_name_their_own_test_set_and_h4_shows_its_failure_rate_reading(source):
+    built = _built(source)
+    for eid in ("genai-E1", "genai-E2"):
+        for part in built[eid].parts:
+            assert "D71" not in part.test.source.what and "genai-splits.json" in part.test.source.what
+            assert part.test.test_set and "test games" not in part.test.test_set.lower()
+    for eid in ("embeddings-E1", "lineups-E2", "matchups-E1", "ghosting-E1"):
+        stages = [built[eid].test] if built[eid].test else [p.test for p in built[eid].parts if p.test]
+        assert all("D71" in s.source.what and s.test_set is None for s in stages), eid
+    h4 = [p for p in built["genai-E2"].parts if " H4 " in p.label]
+    assert len(h4) == 4 and all(p.test.values[0].reading == "inconclusive" for p in h4)
+    h2 = next(p for p in built["genai-E1"].parts if p.label.startswith("H2"))
+    assert any("ranges of plausible values" in note for note in h2.notes)
+    with pytest.raises(ValidationError, match="heads a test stage"):
+        S.StageResult(**{**built["ghosting-E1"].development.model_dump(), "test_set": "Training games"})
+
+
+def test_a_tiny_condition_value_keeps_its_first_digit(source):
+    p = _built(source)["ghosting-E1"].development.conditions[3]
+    assert p.value != 0 and f"{p.value:.0e}" == "2e-20"

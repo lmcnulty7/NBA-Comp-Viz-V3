@@ -106,6 +106,13 @@ function StageNumber({ value, field }: { value: StageValue; field: string }) {
               })
             : text.lane.point}
         </span>
+        {value.reading ? (
+          <span className="note" data-testid="value-reading">
+            {text.results.reading}
+            {": "}
+            <DataText file={FILE} field={`${field}.reading`} text={value.reading} />
+          </span>
+        ) : null}
       </span>
     </li>
   );
@@ -173,7 +180,13 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
   });
   return (
     <div className="stack stack-tight" data-stage={stage.stage} data-met={stage.met ? "true" : "false"}>
-      <Title className={styles.stage}>{label(r.stage, stage.stage)}</Title>
+      <Title className={styles.stage}>
+        {stage.test_set ? (
+          <DataText file={FILE} field={`${field}.test_set`} text={stage.test_set} />
+        ) : (
+          label(r.stage, stage.stage)
+        )}
+      </Title>
       {stage.design ? (
         <p className="small">
           {r.design}
@@ -214,7 +227,10 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
         <div>
           <dt>{r.verdict}</dt>
           <dd>
-            <Status tone={stage.met ? "pass" : "fail"} text={stage.met ? r.met : r.missed} />
+            <Status
+              tone={stage.met ? "pass" : "fail"}
+              text={comparison === "contains" ? (stage.met ? r.holds : r.notHolds) : stage.met ? r.met : r.missed}
+            />
           </dd>
         </div>
         {stage.reading ? (
@@ -316,6 +332,8 @@ export function StageFacts({ stage, field, depth = 3 }: { stage: StageResult; fi
 /** One part of an experiment decided part by part: its label, its state, and its own stages. */
 export function PartFacts({ part, field }: { part: ExperimentPart; field: string }) {
   const r = text.results;
+  // a part that did not clear its bar with an inconclusive reading is not shown as a fail
+  const inconclusive = part.status === "not_passed_test" && (part.test?.reading ?? "").startsWith("inconclusive");
   return (
     <div className={`stack stack-tight ${styles.part}`} data-part={part.label} data-part-status={part.status}>
       <h3 className={styles.stage}>
@@ -323,9 +341,18 @@ export function PartFacts({ part, field }: { part: ExperimentPart; field: string
       </h3>
       <p>
         <span className={styles.state}>
-          <Status tone={PART_TONE[part.status]} text={label(r.part, part.status)} />
+          <Status tone={inconclusive ? "warn" : PART_TONE[part.status]} text={label(r.part, part.status)} />
         </span>
       </p>
+      {(part.notes ?? []).length > 0 ? (
+        <div className="stack stack-tight" data-testid="part-notes">
+          {(part.notes ?? []).map((note, index) => (
+            <q key={note} className={styles.quote}>
+              <DataText file={FILE} field={`${field}.notes[${index}]`} text={note} />
+            </q>
+          ))}
+        </div>
+      ) : null}
       {part.development ? <StageFacts stage={part.development} field={`${field}.development`} depth={4} /> : null}
       {part.test ? (
         <StageFacts stage={part.test} field={`${field}.test`} depth={4} />

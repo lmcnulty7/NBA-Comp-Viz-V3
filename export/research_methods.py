@@ -160,7 +160,9 @@ def is_sentences(note: str, paragraphs: list) -> bool:
             before = paragraph[:start].rstrip()
             after = paragraph[start + len(note):]
             lead = before.rstrip("*").rstrip()     # a bold lead that ends a sentence ("**Caveats written now.**")
-            if (not before or before[-1] in ".?!" or (before.endswith("**") and lead[-1:] in (".", "?", "!"))) and (
+            inline_item = before == "-" or before.endswith(" -")   # an inline list item ("... size. - H2, ...")
+            if (not before or before[-1] in ".?!" or inline_item or (before.endswith("**") and lead[-1:] in (
+                    ".", "?", "!"))) and (
                     not after or after[0] == " "):
                 return True
             start = paragraph.find(note, start + 1)
@@ -343,7 +345,7 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             writeup = exp.get("writeup")
             if writeup is not None and (not writeup.startswith("reports/research/") or not (repo / writeup).is_file()):
                 problems.append(f"{eid}: the write-up {writeup!r} is not a file under reports/research/")
-            notes = exp.get("writeup_notes", [])
+            notes = exp.get("writeup_notes", []) + [n for part in exp.get("parts", []) for n in part.get("notes", [])]
             if notes:
                 for note in notes:
                     where, quote = _note_place(note)
@@ -394,7 +396,7 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
             stage_specs = [(label if not spec.get("by_stage") else f"{label or ''} ({name})".strip(),
                             _for_stage(spec, name) if spec.get("by_stage") else spec, stages, not_scored)
                            for label, spec, stages, not_scored in stage_specs
-                           for name in (spec.get("by_stage") or {"all": None})]
+                           for name in (("development", "test") if spec.get("by_stage") else ("all",))]
             for label, spec, stages, not_scored in stage_specs:
                 where = eid if label is None else f"{eid} {label}"
                 try:
@@ -403,8 +405,16 @@ def trace_problems(source: dict, repo: Path = REPO_ROOT) -> list[str]:
                     problems.append(f"{where}: {exc}")
                     continue
                 text = (repo / writeup).read_text(encoding="utf-8") if writeup and (repo / writeup).is_file() else ""
+                quote = spec.get("rule_quote")
+                if quote and quote.get("from") == "dossier":
+                    for sentence in quote["texts"]:
+                        if not is_sentences(sentence, paragraphs):
+                            problems.append(f"{where}: the rule quote is not whole sentences of {lane['dossier']} "
+                                            f"word for word: {sentence[:70]!r}")
                 for kind in ("rule_quote", "reading_quote"):
                     quote = spec.get(kind)
+                    if quote and quote.get("from") == "dossier":
+                        continue
                     if quote and not is_sentences(quote["text"], dossier_paragraphs(section_text(text,
                                                                                                  quote["section"]))):
                         problems.append(f"{where}: the {kind.replace('_', ' ')} is not whole sentences of the section "
@@ -460,14 +470,14 @@ FLAGS_OUTSIDE_RULE_ALLOWED = {
                    "{verdict}.regulation_only_reading.adopt", "{verdict}.regulation_only_reading.differs",
                    "{verdict}.ablation.drift_form_adds_beyond_mu_alone"},  # the regulation-only and ablation readings
     "winprob-E2": {"{verdict}.ablation.forward_beats_grouped"},          # the ablation reading
-    "lineups-E2": {"scored.results.verdict.toward_their_players_supported"},
+    "lineups-E2": {"scored.results.verdict.toward_their_players_supported"},  # the shrinkage ablation reading
     # Set A's D113 reading is the consistency check; whether each interval excludes zero is reported beside it, and
     # the size reading is report only (D115), read by no rule
     "ghosting-E1": {"scored.0.2.rollout_minus_mlp.excludes_zero", "scored.1.0.rollout_minus_mlp.excludes_zero",
-                    "scored.report_only_size_reading.below"},  # the shrinkage ablation reading
+                    "scored.report_only_size_reading.below"},
 }
 GUARD_KEYS = ("label", "path", "buckets", "worse", "bound", "comparison", "threshold", "digits")
-READING_KINDS = ("met", "not_met", "otherwise")
+READING_KINDS = ("met", "not_met", "otherwise", "met_otherwise")
 
 
 def _for_stage(results: dict, stage: str) -> dict:
@@ -614,6 +624,94 @@ def _flags(value, prefix: str) -> dict:
     return found
 
 
+def _hypothesis_rule(results: dict, keys: dict, rel: str) -> str:
+    """The rule of one hypothesis of a dossier (genai-E2's H1 to H4), quoted from the dossier (`rule_quote` from
+    dossier, traced word for word there). Its own sentences start with its label ("H4, ..."); another hypothesis's
+    sentences may join them only when its own say it is read by that rule ("The pass rate is read by the H2 rule").
+    The file's key it reads names the same hypothesis."""
+    label, texts = results.get("hypothesis"), results["rule_quote"]["texts"]
+    own = [s for s in texts if label and s.startswith(f"{label}, ")]
+    if len(own) != 1:
+        raise MethodsProblem(f"{rel}: the rule quote of {label} holds its own sentence, starting '{label}, ', once")
+    for sentence in texts:
+        other = re.match(r"(H\d+), ", sentence)
+        if other and other.group(1) != label and f"read by the {other.group(1)} rule" not in " ".join(texts):
+            raise MethodsProblem(f"{rel}: {label} quotes the rule of {other.group(1)} but does not say it is read by "
+                                 "that rule")
+    if not keys.get("diff", "").startswith(f"hypotheses.{label} "):
+        raise MethodsProblem(f"{rel}: {label} reads {keys.get('diff')!r}, not a key of its own hypothesis")
+    # the rule read is the quoted rule of the hypothesis that decides (H4's pass rate: H2's), not its own preamble
+    if re.search(r"read by the (H\d+) rule", " ".join(texts)):
+        return " ".join(s for s in texts if not s.startswith(f"{label}, "))
+    return " ".join(texts)
+
+
+BOUND_WORDS = {"lo": ("lower bound", "lower end"), "hi": ("upper bound", "upper end")}
+
+
+def _clauses(rule: str) -> list:
+    return [c.strip() for c in re.split(r";|(?<=\.)\s+", rule) if c.strip()]
+
+
+def _has_word(text: str, word: str) -> bool:
+    return bool(re.search(rf"(?<![\w-]){re.escape(word)}(?![\w-])", text, re.I))
+
+
+def _readings_in_rule(rule: str, results: dict, comparison: str, threshold: float, bars: list, rel: str) -> str:
+    """Each reading word of a hypothesis read from its quoted rule is in that rule with its own end and bar: the met
+    reading in the clause that states the main bar and every further stated bar, a reading on an end in the clause
+    that names that end and its bar, otherwise in the clause that says otherwise. Returns the met clause."""
+    met_clause = None
+    for word, kind in results["readings"].items():
+        clause = next((c for c in _clauses(rule) if _has_word(c, word)), None)
+        if clause is None:
+            raise MethodsProblem(f"{rel}: the reading {word!r} is not in the quoted rule")
+        if kind == "met":
+            needed = [(comparison, threshold, BOUND_OF[comparison])] + bars
+            for comp, bar, end in needed:
+                if not states(clause, comp, bar) or (end != "point" and not any(w in clause.lower()
+                                                                                for w in BOUND_WORDS[end])):
+                    raise MethodsProblem(f"{rel}: the clause of {word!r} does not state the {end} "
+                                         f"{comp.replace('_', ' ')} {bar}: {clause!r}")
+            met_clause = clause
+        elif isinstance(kind, dict):
+            if not states(clause, kind["comparison"], float(kind["threshold"])) or not any(
+                    w in clause.lower() for w in BOUND_WORDS[kind["bound"]]):
+                raise MethodsProblem(f"{rel}: the clause of {word!r} does not state its {kind['bound']} end "
+                                     f"{kind['comparison']} {kind['threshold']}: {clause!r}")
+        elif kind == "otherwise" and not _has_word(clause, "otherwise"):
+            raise MethodsProblem(f"{rel}: the reading {word!r} is read otherwise, but its clause does not say so")
+    if met_clause is None:
+        raise MethodsProblem(f"{rel}: the quoted rule has no reading for the bar met")
+    return met_clause
+
+
+def _uncovered_bars(text: str, comparison: str, threshold: float, conditions: list, bar_of, guards=()) -> list:
+    """The comparisons a rule's text states that no part of the source reads: each "below zero", "at least 0.2",
+    "above the upper end of ..." of the text is the main rule, a condition with that comparison and bar, or inside a
+    condition's own words (`states`). A dropped condition leaves its bar here."""
+    covered = [(comparison, threshold)] + [(c["comparison"], bar_of(c)) for c in conditions] + [
+        (g["comparison"], float(g["threshold"])) for g in guards]
+    phrases = [_flat(c["states"]) for c in list(conditions) + list(guards) if c.get("states")]
+    flat = _flat(text)
+    spans = [(m.start(), m.start() + len(p)) for p in phrases for m in re.finditer(re.escape(p), flat)]
+    missing, seen = [], []
+    # longer words first, so "at or above -0.05" is read once, as at least, and not again as "above -0.05"
+    for word, comp in sorted(((w, c) for c, ws in COMPARISON_WORDS.items() for w in ws), key=lambda x: -len(x[0])):
+        for m in re.finditer(rf"(?<![\w]){word}\s*(zero|[+-]?\d+(?:\.\d+)?|the\s[^,;.]*)", flat):
+            if any(a <= m.start() < b for a, b in spans) or any(a <= m.start() < b for a, b in seen):
+                continue
+            seen.append((m.start(), m.end()))
+            said = m.group(1)
+            if said.startswith("the"):
+                missing.append(m.group(0))
+                continue
+            value = 0.0 if said == "zero" else float(said)
+            if not any(c == comp and abs(v - value) <= 5e-4 * max(1.0, abs(value)) for c, v in covered):
+                missing.append(m.group(0))
+    return missing
+
+
 def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str = "", extra_mapped=frozenset(),
            writeup_text: str = ""):
     """The result of one stage, or None when its file does not exist yet. The file's verdict on the main rule, on
@@ -670,6 +768,8 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
     diff_v = sign * float(at(keys["diff"])) if "diff" in keys else None
     if "rule" in keys:
         rule = at(keys["rule"])
+    elif results.get("rule_quote", {}).get("from") == "dossier":
+        rule = _hypothesis_rule(results, keys, rel)
     elif results.get("rule_quote"):
         rule = results["rule_quote"]["text"]
     else:
@@ -729,6 +829,17 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         elif not states(rule, guard_spec["comparison"], guard_spec["threshold"]):
             raise MethodsProblem(f"{rel}: the rule does not state the guard's {guard_spec['comparison']} "
                                  f"{guard_spec['threshold']}")
+    stated_bars = [(spec["comparison"], bar_of(spec), spec["bound"]) for spec in results["conditions"]
+                   if "threshold_key" not in spec]
+    if results.get("rule_quote", {}).get("from") == "dossier" and results.get("readings"):
+        met_text = _readings_in_rule(rule, results, comparison, threshold, stated_bars, rel)
+    else:
+        met_text = rule
+    if "rule" not in keys and comparison != "contains":
+        missing = _uncovered_bars(met_text, comparison, threshold, results["conditions"], bar_of,
+                                  _guards_of(results))
+        if missing:
+            raise MethodsProblem(f"{rel}: the rule states {missing}, which no part of the source reads")
     for flag in results.get("true_flags", []):
         # a flag that says which comparison decides ("decides": the Haiku cache arm is H3's deciding arm)
         if at(flag) is not True:
@@ -787,6 +898,8 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
             raise MethodsProblem(f"{rel}: {spec['met']} disagrees with its {spec['bound']} {end} against {bar}")
         places = spec["digits"]
         while SCHEMA_COMPARE[spec["comparison"]](round(end, places), round(bar, places)) != ok and places < 17:
+            places += 1
+        while value != 0 and round(value, places) == 0 and places < 40:   # a tiny p value keeps its first digit
             places += 1
         conditions.append(S.Condition(label=spec["label"], value=round(value, places),
                                       lo=round(lo, places) if lo is not None else None,
@@ -876,10 +989,13 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         def holds(k) -> bool:
             return SCHEMA_COMPARE[k["comparison"]](lo_v if k["bound"] == "lo" else hi_v, float(k["threshold"]))
 
-        if kind == "otherwise" and any(holds(k) for k in conditional):
+        # a reading fixed in order (D113: inconsistent, else confirms, else consistent): "otherwise" and
+        # "met_otherwise" hold only when no reading on an end does; a reading on an end may itself be a met one
+        if kind in ("otherwise", "met_otherwise") and any(holds(k) for k in conditional):
             raise MethodsProblem(f"{rel}: the reading {reading_word!r} is for the case no other reading fits, but "
                                  "one does")
-        if kind == "met" and not met or kind != "met" and met:
+        met_kind = kind in ("met", "met_otherwise") or (isinstance(kind, dict) and kind.get("met") is True)
+        if met_kind != met:
             raise MethodsProblem(f"{rel}: the reading {reading_word!r} disagrees with the rule read on the numbers "
                                  f"({'met' if met else 'not met'})")
         if isinstance(kind, dict):
@@ -905,11 +1021,39 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         file = spec.get("file")
         lo = round(float(at(spec["lo"], file)), spec["digits"]) if spec.get("lo") else None
         hi = round(float(at(spec["hi"], file)), spec["digits"]) if spec.get("hi") else None
-        values.append(S.StageValue(label=spec["label"], value=round(float(at(spec["value"], file)), spec["digits"]),
+        value_reading = None
+        if spec.get("reading"):
+            # a reading the file states beside a reported value (genai-E2 H4's number failure rate, amendment (d)),
+            # checked against its own rule: each word with the end and bar it needs, otherwise the remaining word
+            value_reading = str(at(spec["reading"], file))
+            v_lo, v_hi = float(at(spec["lo"], file)), float(at(spec["hi"], file))
+            fits = [w for w, k in spec["reading_rule"].items() if isinstance(k, dict) and SCHEMA_COMPARE[
+                k["comparison"]](v_lo if k["bound"] == "lo" else v_hi, float(k["threshold"]))]
+            expected = fits[0] if fits else next(w for w, k in spec["reading_rule"].items() if k == "otherwise")
+            if value_reading != expected:
+                raise MethodsProblem(f"{rel}: {spec['reading']} reads {value_reading!r}, its numbers give {expected!r}")
+        values.append(S.StageValue(label=spec["label"], reading=value_reading,
+                                   value=round(float(at(spec["value"], file)), spec["digits"]),
                                    lo=lo, hi=hi, point_estimate=lo is None))
     rows = "testset" if stage == "test" else "out_of_fold"
     what = ("experiment result: fitted on every development game, scored once on the D71 test set" if stage == "test"
             else "experiment result: out of fold on the development games")
+    test_set = None
+    if stage == "test":
+        # Only an experiment the scoring ledger holds was scored on the D71 test set. Any other test stage (the genai
+        # test players and possessions, reports/research/genai-splits.json) names its own test set and never D71.
+        ledger_path = repo / LEDGER
+        ledger = json.loads(ledger_path.read_text(encoding="utf-8")) if ledger_path.is_file() else []
+        in_ledger = any(isinstance(e, dict) and e.get("experiment") == eid for e in ledger)
+        own = results.get("test_set")
+        if own:
+            if in_ledger or "D71" in own["what"] or "test games" in own["heading"].lower():
+                raise MethodsProblem(f"{rel}: a test set of its own belongs to an experiment the scoring ledger does "
+                                     "not hold, and names neither D71 nor test games")
+            what, test_set = own["what"], own["heading"]
+        elif not in_ledger:
+            raise MethodsProblem(f"{rel}: {LEDGER} holds no entry for {eid}, so its test stage names its own test set "
+                                 "(test_set), not the D71 test set")
     sources = sorted({spec["file"] for spec in results["values"] if spec.get("file")} - {rel})
     return S.StageResult(
         stage=stage, source=S.Source(path=rel, what=what, rows=rows),
@@ -922,7 +1066,7 @@ def _stage(results: dict, stage: str, repo: Path, rule_text: str = "", eid: str 
         interval=results["interval"], threshold=round(threshold, digits), upper=round(upper, digits),
         comparison=comparison, conditions=conditions, guard=guards[0] if len(guards) == 1 and results.get("guard")
         else None, guards=guards if not (len(guards) == 1 and results.get("guard")) else [], met=met,
-        reading=reading_word, values=values)
+        reading=reading_word, values=values, test_set=test_set)
 
 
 def _protocol_trace(eid: str, exp: dict, protocol: dict, repo: Path) -> list:
@@ -1104,6 +1248,43 @@ def _rule_flags(results: dict) -> set:
         c["met"] for c in results.get("conditions", []) if c.get("met")}
 
 
+def _refuse_hidden_development(eid: str, label: str, results: dict, repo: Path) -> None:
+    """A test-only reading cannot hide a development verdict: a part or experiment whose test file records one
+    (development_verdict, development_decides) or that names a development file is read with both stages."""
+    test = results.get("test")
+
+    def holds(value) -> bool:
+        if isinstance(value, dict):
+            return any(k in ("development_verdict", "development_decides") or holds(v) for k, v in value.items())
+        return False
+
+    if results.get("development") is not None or "development" in results.get("stage_keys", {}) or (
+            test and (repo / test).is_file() and holds(json.loads((repo / test).read_text(encoding="utf-8")))):
+        raise MethodsProblem(f"{eid} {label}: its files record a development verdict, so it is not read test only")
+
+
+def _refuse_missing_parts(exp: dict, repo: Path) -> None:
+    """Every hypothesis of an experiment read part by part is a part. The labels its dossier bullet names (H1 to H4)
+    are each some part's `hypothesis`, and every entry of a result file's `hypotheses` is read by a part, unless the
+    file marks it as not deciding ("decides": false)."""
+    labels = {p["results"].get("hypothesis") for p in exp["parts"]}
+    bullet = exp.get("_threshold_bullet", "")
+    named = set(re.findall(r"\b(H\d+),", bullet))
+    if named and labels != named:
+        raise MethodsProblem(f"{exp['id']}: the parts read the hypotheses {sorted(x for x in labels if x)}, the "
+                             f"dossier names {sorted(named)}")
+    read = {}
+    for part in exp["parts"]:
+        diff = part["results"].get("keys", {}).get("diff", "")
+        if diff.startswith("hypotheses."):
+            read.setdefault(part["results"]["test"], set()).add(diff[len("hypotheses."):].rsplit(".", 1)[0])
+    for file, keys in read.items():
+        entries = json.loads((repo / file).read_text(encoding="utf-8"))["hypotheses"]
+        unread = sorted(k for k, v in entries.items() if k not in keys and v.get("decides", True) is not False)
+        if unread:
+            raise MethodsProblem(f"{exp['id']}: no part reads {unread} of {file}")
+
+
 def _parts(exp: dict, repo: Path, writeup_text: str) -> list:
     """The parts of an experiment decided part by part, each read through the stage reader. Each part's file
     flags may name the other parts' flags; a flag no part reads is still refused. A part whose test was not spent
@@ -1111,6 +1292,9 @@ def _parts(exp: dict, repo: Path, writeup_text: str) -> list:
     if exp.get("results") or exp.get("protocol") or exp.get("stages") or exp.get("test_not_scored"):
         raise MethodsProblem(f"{exp['id']}: an experiment decided part by part has no results, protocol, stages or "
                              "test_not_scored of its own")
+    for part in exp["parts"]:              # before any part is read, so no other refusal can come first
+        if part.get("stages") == "test_only":
+            _refuse_hidden_development(exp["id"], part["label"], part["results"], repo)
     others = set().union(*(_rule_flags(p["results"]) for p in exp["parts"]))
     built = []
     for part in exp["parts"]:
@@ -1130,7 +1314,9 @@ def _parts(exp: dict, repo: Path, writeup_text: str) -> list:
                       else "confirmed" if test.met else "development_met_test_not_met")
         built.append(S.ExperimentPart(label=part["label"], stages="test_only" if test_only else
                                       "development_and_test", development=dev, test=test,
+                                      notes=[_note_place(n)[1] for n in part.get("notes", [])],
                                       test_not_scored=bool(part.get("test_not_scored")), status=status))
+    _refuse_missing_parts(exp, repo)
     if exp.get("writeup") and not any(p.development or p.test for p in built):
         raise MethodsProblem(f"{exp['id']}: no part has a result file, but the experiment names its write-up")
     return built
@@ -1186,7 +1372,15 @@ def build_methods(repo: Path = REPO_ROOT, source: dict = None) -> S.MethodsFile:
         for exp in lane["experiments"]:
             dev = test = protocol = None
             writeup_text = _read(repo, exp["writeup"]) if exp.get("writeup") else ""
-            parts = _parts(exp, repo, writeup_text) if exp.get("parts") else []
+            if exp.get("parts"):
+                # the hypotheses the dossier names for this experiment, from its threshold bullet (genai's
+                # "Hypotheses and readings"), so a dropped hypothesis is refused
+                lane_bullets = experiment_bullets(_read(repo, lane["dossier"])).get(exp["id"], {}).get("_all", [])
+                label_of = exp.get("threshold_label")
+                bullet = next((b for b in lane_bullets if label_of and b.startswith(label_of)), "")
+                parts = _parts({**exp, "_threshold_bullet": bullet}, repo, writeup_text)
+            else:
+                parts = []
             for part in parts:
                 for stage in (part.development, part.test):
                     if stage is not None:

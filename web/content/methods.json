@@ -124,7 +124,9 @@
       "development_met_test_pending": "Cleared its bar on training games. Test score pending.",
       "passed_test": "Cleared its bar on the test set, scored once.",
       "not_passed_test": "Did not clear its bar on the test set."
-    }
+    },
+    "holds": "The range holds it",
+    "notHolds": "The range does not hold it"
   },
   "lane": {
     "foundations": "Built on",

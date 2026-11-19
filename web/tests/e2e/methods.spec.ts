@@ -144,6 +144,11 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
       await expect(shown).toHaveAttribute("data-part-status", part.status);
       await expect(shown).toContainText(copy.methods.results.part[part.status]);
       await expect(shown.locator("[data-stage]")).toHaveCount((part.development ? 1 : 0) + (part.test ? 1 : 0));
+      await expect(shown.getByTestId("part-notes").locator("q")).toHaveCount((part.notes ?? []).length);
+      // a test stage on a test set of its own (the genai test players) is headed by that set, never "test games"
+      if (part.test?.test_set) {
+        await expect(shown.locator('[data-stage="test"] h4').first()).toHaveText(part.test.test_set);
+      }
       for (const stage of [part.development, part.test]) {
         if (!stage) continue;
         const facts = shown.locator(`[data-stage="${stage.stage}"]`);
@@ -207,7 +212,10 @@ test("every lane, paper, benchmark row and test of methods.json is on the page, 
         await expect(facts.locator("[data-condition-met]").nth(index)).toHaveAttribute("data-condition-met", String(condition.met));
       }
       await expect(facts).toHaveAttribute("data-met", stage.met ? "true" : "false");
-      await expect(facts).toContainText(stage.met ? copy.methods.results.met : copy.methods.results.missed);
+      const verdict = stage.comparison === "contains"
+        ? (stage.met ? copy.methods.results.holds : copy.methods.results.notHolds)
+        : (stage.met ? copy.methods.results.met : copy.methods.results.missed);
+      await expect(facts).toContainText(verdict);
       const url = repoFileUrl(stage.source.path);
       if (url) await expect(facts.locator(`a[data-report="${stage.source.path}"]`)).toHaveAttribute("href", url);
     }
